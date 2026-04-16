@@ -1,6 +1,7 @@
 {
-  "name": "home-stay",
-  "version": "0.1.0",
+  "name": "lodgra",
+  "version": "1.0.0",
+  "description": "Global hospitality SaaS platform - Next.js, Supabase, Stripe",
   "private": true,
   "scripts": {
     "dev": "next dev",
