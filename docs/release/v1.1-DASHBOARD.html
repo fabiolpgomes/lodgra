@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>v1.1 Monitoring Dashboard — 24h</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        header h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .status-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .status-card {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border-left: 4px solid #999;
+        }
+
+        .status-card.green {
+            border-left-color: #22c55e;
+            background: #f0fdf4;
+        }
+
+        .status-card.yellow {
+            border-left-color: #eab308;
+            background: #fffbeb;
+        }
+
+        .status-card.red {
+            border-left-color: #ef4444;
+            background: #fef2f2;
+        }
+
+        .status-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .status-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .chart-container h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 300px;
+        }
+
+        .input-section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .input-section h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 16px;
+            text-transform: uppercase;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .input-group input {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        th {
+            background: #f5f5f5;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+            border-bottom: 2px solid #ddd;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        tr:hover {
+            background: #fafafa;
+        }
+
+        .time-column {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .metric-good { color: #22c55e; font-weight: 600; }
+        .metric-warning { color: #eab308; font-weight: 600; }
+        .metric-bad { color: #ef4444; font-weight: 600; }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            font-size: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+
+            .input-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 v1.1 Production Monitoring Dashboard</h1>
+            <p>24h Post-Launch Real-Time Metrics | Home Stay</p>
+
+            <div class="status-bar">
+                <div class="status-card" id="statusOverall">
+                    <div class="status-label">Overall Status</div>
+                    <div class="status-value">🟢 UP</div>
+                </div>
+                <div class="status-card" id="statusErrors">
+                    <div class="status-label">Error Rate</div>
+                    <div class="status-value">0.0%</div>
+                </div>
+                <div class="status-card" id="statusPerf">
+                    <div class="status-label">Page Load</div>
+                    <div class="status-value">—</div>
+                </div>
+                <div class="status-card" id="statusEmail">
+                    <div class="status-label">Email Delivery</div>
+                    <div class="status-value">—</div>
+                </div>
+            </div>
+        </header>
+
+        <div class="input-section">
+            <h3>📝 Add Monitoring Data</h3>
+            <div class="input-grid">
+                <div class="input-group">
+                    <label>Horário (HH:MM)</label>
+                    <input type="time" id="inputTime" value="10:00">
+                </div>
+                <div class="input-group">
+                    <label>Erros (%)</label>
+                    <input type="number" id="inputErrors" placeholder="0.5" step="0.1" min="0" max="100">
+                </div>
+                <div class="input-group">
+                    <label>Signups (#)</label>
+                    <input type="number" id="inputSignups" placeholder="0" min="0">
+                </div>
+                <div class="input-group">
+                    <label>Bookings (#)</label>
+                    <input type="number" id="inputBookings" placeholder="0" min="0">
+                </div>
+                <div class="input-group">
+                    <label>Email Delivery (%)</label>
+                    <input type="number" id="inputEmail" placeholder="95" step="0.1" min="0" max="100">
+                </div>
+                <div class="input-group">
+                    <label>Page Load - LCP (ms)</label>
+                    <input type="number" id="inputLCP" placeholder="2000" min="0" max="10000">
+                </div>
+                <div class="input-group">
+                    <label>Stripe Webhooks (OK/Total)</label>
+                    <input type="text" id="inputWebhooks" placeholder="15/15">
+                </div>
+                <div class="input-group">
+                    <label>Status</label>
+                    <select id="inputStatus" style="padding: 10px; border: 2px solid #ddd; border-radius: 6px;">
+                        <option>✅ UP</option>
+                        <option>⚠️ SLOW</option>
+                        <option>🔴 DOWN</option>
+                    </select>
+                </div>
+            </div>
+            <div class="input-group" style="margin-bottom: 0;">
+                <label>Notas</label>
+                <input type="text" id="inputNotes" placeholder="Qualquer observação..." style="margin-bottom: 15px;">
+            </div>
+            <button onclick="addData()">➕ Add Entry</button>
+        </div>
+
+        <div class="dashboard">
+            <div class="chart-container">
+                <h3>📈 Error Rate Trend</h3>
+                <div class="chart-wrapper">
+                    <canvas id="chartErrors"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h3>👥 Signups & Bookings</h3>
+                <div class="chart-wrapper">
+                    <canvas id="chartActivity"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h3>📧 Email Delivery</h3>
+                <div class="chart-wrapper">
+                    <canvas id="chartEmail"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h3>⚡ Page Load Performance</h3>
+                <div class="chart-wrapper">
+                    <canvas id="chartPerf"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <h3 style="margin-bottom: 20px;">📋 Raw Data</h3>
+            <table id="dataTable">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Errors</th>
+                        <th>Signups</th>
+                        <th>Bookings</th>
+                        <th>Email</th>
+                        <th>LCP</th>
+                        <th>Webhooks</th>
+                        <th>Status</th>
+                        <th>Notes</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                </tbody>
+            </table>
+        </div>
+
+        <div class="footer">
+            <p>🟢 GREEN: All metrics normal | 🟡 YELLOW: Monitor closely | 🔴 RED: Requires attention</p>
+            <p style="margin-top: 10px;">v1.1 Monitoring Dashboard | Last updated: <span id="lastUpdate">—</span></p>
+        </div>
+    </div>
+
+    <script>
+        let data = [];
+        let charts = {};
+
+        // Initialize charts
+        function initCharts() {
+            const ctxErrors = document.getElementById('chartErrors').getContext('2d');
+            const ctxActivity = document.getElementById('chartActivity').getContext('2d');
+            const ctxEmail = document.getElementById('chartEmail').getContext('2d');
+            const ctxPerf = document.getElementById('chartPerf').getContext('2d');
+
+            charts.errors = new Chart(ctxErrors, {
+                type: 'line',
+                data: { labels: [], datasets: [{ label: 'Error Rate (%)', data: [], borderColor: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.1)', borderWidth: 2, fill: true, tension: 0.4 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true } }, scales: { y: { min: 0, max: 100 } } }
+            });
+
+            charts.activity = new Chart(ctxActivity, {
+                type: 'bar',
+                data: { labels: [], datasets: [{ label: 'Signups', data: [], backgroundColor: '#667eea' }, { label: 'Bookings', data: [], backgroundColor: '#764ba2' }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true } } }
+            });
+
+            charts.email = new Chart(ctxEmail, {
+                type: 'line',
+                data: { labels: [], datasets: [{ label: 'Email Delivery (%)', data: [], borderColor: '#22c55e', backgroundColor: 'rgba(34, 197, 94, 0.1)', borderWidth: 2, fill: true, tension: 0.4 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true } }, scales: { y: { min: 0, max: 100 } } }
+            });
+
+            charts.perf = new Chart(ctxPerf, {
+                type: 'line',
+                data: { labels: [], datasets: [{ label: 'LCP (ms)', data: [], borderColor: '#f59e0b', backgroundColor: 'rgba(245, 158, 11, 0.1)', borderWidth: 2, fill: true, tension: 0.4 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true } } }
+            });
+        }
+
+        function addData() {
+            const time = document.getElementById('inputTime').value;
+            const errors = parseFloat(document.getElementById('inputErrors').value) || 0;
+            const signups = parseInt(document.getElementById('inputSignups').value) || 0;
+            const bookings = parseInt(document.getElementById('inputBookings').value) || 0;
+            const email = parseFloat(document.getElementById('inputEmail').value) || 0;
+            const lcp = parseInt(document.getElementById('inputLCP').value) || 0;
+            const webhooks = document.getElementById('inputWebhooks').value;
+            const status = document.getElementById('inputStatus').value;
+            const notes = document.getElementById('inputNotes').value;
+
+            if (!time) { alert('Por favor, preencha o horário'); return; }
+
+            const entry = { time, errors, signups, bookings, email, lcp, webhooks, status, notes };
+            data.push(entry);
+
+            updateCharts();
+            updateTable();
+            updateStatus();
+            updateLastUpdate();
+
+            // Clear inputs
+            document.getElementById('inputErrors').value = '';
+            document.getElementById('inputSignups').value = '';
+            document.getElementById('inputBookings').value = '';
+            document.getElementById('inputEmail').value = '';
+            document.getElementById('inputLCP').value = '';
+            document.getElementById('inputWebhooks').value = '';
+            document.getElementById('inputNotes').value = '';
+        }
+
+        function updateCharts() {
+            const times = data.map(d => d.time);
+            const errors = data.map(d => d.errors);
+            const signups = data.map(d => d.signups);
+            const bookings = data.map(d => d.bookings);
+            const emails = data.map(d => d.email);
+            const lcps = data.map(d => d.lcp);
+
+            charts.errors.data.labels = times;
+            charts.errors.data.datasets[0].data = errors;
+            charts.errors.update();
+
+            charts.activity.data.labels = times;
+            charts.activity.data.datasets[0].data = signups;
+            charts.activity.data.datasets[1].data = bookings;
+            charts.activity.update();
+
+            charts.email.data.labels = times;
+            charts.email.data.datasets[0].data = emails;
+            charts.email.update();
+
+            charts.perf.data.labels = times;
+            charts.perf.data.datasets[0].data = lcps;
+            charts.perf.update();
+        }
+
+        function updateTable() {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+
+            data.forEach((entry, idx) => {
+                const row = tbody.insertRow();
+                const errorClass = entry.errors < 1 ? 'metric-good' : entry.errors < 5 ? 'metric-warning' : 'metric-bad';
+                const emailClass = entry.email > 95 ? 'metric-good' : entry.email > 80 ? 'metric-warning' : 'metric-bad';
+                const lcpClass = entry.lcp < 1500 ? 'metric-good' : entry.lcp < 2500 ? 'metric-warning' : 'metric-bad';
+
+                row.innerHTML = `
+                    <td class="time-column">${entry.time}</td>
+                    <td class="${errorClass}">${entry.errors.toFixed(1)}%</td>
+                    <td>${entry.signups}</td>
+                    <td>${entry.bookings}</td>
+                    <td class="${emailClass}">${entry.email.toFixed(1)}%</td>
+                    <td class="${lcpClass}">${entry.lcp}ms</td>
+                    <td>${entry.webhooks}</td>
+                    <td>${entry.status}</td>
+                    <td style="font-size: 12px; color: #666;">${entry.notes}</td>
+                    <td><button onclick="removeData(${idx})" style="background: #ef4444; padding: 5px 10px;">✕</button></td>
+                `;
+            });
+        }
+
+        function removeData(idx) {
+            data.splice(idx, 1);
+            updateCharts();
+            updateTable();
+            updateStatus();
+        }
+
+        function updateStatus() {
+            if (data.length === 0) return;
+
+            const latest = data[data.length - 1];
+            const errorCard = document.getElementById('statusErrors');
+            const perfCard = document.getElementById('statusPerf');
+            const emailCard = document.getElementById('statusEmail');
+            const overallCard = document.getElementById('statusOverall');
+
+            errorCard.innerHTML = `<div class="status-label">Error Rate</div><div class="status-value">${latest.errors.toFixed(1)}%</div>`;
+            perfCard.innerHTML = `<div class="status-label">Page Load</div><div class="status-value">${latest.lcp}ms</div>`;
+            emailCard.innerHTML = `<div class="status-label">Email</div><div class="status-value">${latest.email.toFixed(1)}%</div>`;
+
+            const hasAlert = latest.errors > 5 || latest.email < 80 || latest.lcp > 2500;
+            const hasCritical = latest.errors > 10 || latest.email < 50 || latest.lcp > 5000;
+
+            if (hasCritical) {
+                overallCard.classList.remove('green', 'yellow');
+                overallCard.classList.add('red');
+                overallCard.innerHTML = `<div class="status-label">Status</div><div class="status-value">🔴 CRITICAL</div>`;
+            } else if (hasAlert) {
+                overallCard.classList.remove('green', 'red');
+                overallCard.classList.add('yellow');
+                overallCard.innerHTML = `<div class="status-label">Status</div><div class="status-value">⚠️ WARNING</div>`;
+            } else {
+                overallCard.classList.remove('yellow', 'red');
+                overallCard.classList.add('green');
+                overallCard.innerHTML = `<div class="status-label">Status</div><div class="status-value">🟢 UP</div>`;
+            }
+        }
+
+        function updateLastUpdate() {
+            const now = new Date().toLocaleString('pt-PT');
+            document.getElementById('lastUpdate').textContent = now;
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initCharts();
+            updateLastUpdate();
+        });
+
+        // Allow Enter to add data
+        document.getElementById('inputNotes').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addData();
+        });
+    </script>
+</body>
+</html>

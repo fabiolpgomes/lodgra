@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 700;
+        }
+        .icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .content h2 {
+            color: #333;
+            font-size: 22px;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        .content p {
+            color: #666;
+            margin: 15px 0;
+            font-size: 15px;
+        }
+        .highlight {
+            color: #a855f7;
+            font-weight: 600;
+        }
+        .cta-button {
+            display: inline-block;
+            padding: 14px 32px;
+            background-color: #a855f7;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 16px;
+            margin: 25px 0;
+            transition: background-color 0.3s ease;
+        }
+        .cta-button:hover {
+            background-color: #9333ea;
+        }
+        .button-container {
+            text-align: center;
+        }
+        .code-box {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 20px 0;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 12px;
+            color: #666;
+            word-break: break-all;
+            text-align: center;
+            letter-spacing: 0.5px;
+        }
+        .security-box {
+            background-color: #f3e8ff;
+            border-left: 4px solid #a855f7;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #6b21a8;
+        }
+        .warning-box {
+            background-color: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #92400e;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid #e9ecef;
+            font-size: 12px;
+            color: #999;
+        }
+        .footer a {
+            color: #a855f7;
+            text-decoration: none;
+        }
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        .divider {
+            border: none;
+            border-top: 1px solid #e9ecef;
+            margin: 20px 0;
+        }
+        .features {
+            background-color: #fafafa;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .features h3 {
+            margin-top: 0;
+            color: #333;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+        .features ul {
+            margin: 0;
+            padding-left: 20px;
+            list-style: none;
+        }
+        .features li {
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #666;
+            position: relative;
+            padding-left: 20px;
+        }
+        .features li:before {
+            content: "✨";
+            position: absolute;
+            left: 0;
+        }
+        .timer {
+            background-color: #fee2e2;
+            border: 1px solid #fecaca;
+            border-radius: 4px;
+            padding: 12px;
+            margin: 15px 0;
+            text-align: center;
+            color: #991b1b;
+            font-size: 13px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="icon">✨</div>
+            <h1>Login Direto</h1>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <h2>Bem-vindo de volta!</h2>
+
+            <p>Clique no botão abaixo para fazer login instantaneamente no <span class="highlight">Home Stay</span>.</p>
+
+            <p style="font-size: 14px; color: #999;">
+                Não necessário inserir password — este link faz login diretamente.
+            </p>
+
+            <div class="security-box">
+                <strong>🔒 Segurança:</strong> Este link é pessoal e intransmissível. Não o partilhe e não clique se não pediu login.
+            </div>
+
+            <!-- CTA Button -->
+            <div class="button-container">
+                <a href="{{ .SiteURL }}/auth/callback?token={{ .Token }}&type=magiclink" class="cta-button">
+                    Fazer Login Agora
+                </a>
+            </div>
+
+            <p style="color: #999; font-size: 13px; text-align: center;">
+                Ou copie este link:
+            </p>
+            <div class="code-box">
+                {{ .ConfirmationURL }}
+            </div>
+
+            <!-- Timer -->
+            <div class="timer">
+                ⏰ Este link expira em <strong>15 minutos</strong>
+            </div>
+
+            <!-- Features -->
+            <div class="features">
+                <h3>Vantagens do Magic Link:</h3>
+                <ul>
+                    <li>Sem password para memorizar</li>
+                    <li>Mais seguro que password</li>
+                    <li>Login instantâneo em qualquer dispositivo</li>
+                    <li>Sem necessidade de 2FA</li>
+                </ul>
+            </div>
+
+            <hr class="divider">
+
+            <!-- Warning Box -->
+            <div class="warning-box">
+                <strong>⚠️ Não pediu login?</strong><br>
+                Se não foi você que solicitou este email, alguém pode ter tentado aceder à sua conta. Pode ignorar este email com segurança — o link não funcionará sem confirmação.
+            </div>
+
+            <p style="color: #666; font-size: 13px; margin-top: 15px; margin-bottom: 0;">
+                Por segurança, este link pode ser usado apenas uma vez e expira em 15 minutos.
+            </p>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>
+                Este é um email automático. Não responda a este email.<br>
+                © 2026 Home Stay. Todos os direitos reservados.
+            </p>
+            <p style="margin: 15px 0 0 0;">
+                <a href="{{ .SiteURL }}">Ir para Home Stay</a> |
+                <a href="{{ .SiteURL }}/privacy">Privacidade</a> |
+                <a href="{{ .SiteURL }}/security">Segurança</a> |
+                <a href="{{ .SiteURL }}/contact">Contacte-nos</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

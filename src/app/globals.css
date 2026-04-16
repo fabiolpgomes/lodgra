@@ -1,0 +1,274 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+
+  /* Home Stay brand tokens */
+  --color-hs-brand-50: var(--hs-brand-50);
+  --color-hs-brand-100: var(--hs-brand-100);
+  --color-hs-brand-200: var(--hs-brand-200);
+  --color-hs-brand-300: var(--hs-brand-300);
+  --color-hs-brand-400: var(--hs-brand-400);
+  --color-hs-brand-500: var(--hs-brand-500);
+  --color-hs-brand-600: var(--hs-brand-600);
+  --color-hs-brand-700: var(--hs-brand-700);
+  --color-hs-brand-900: var(--hs-brand-900);
+  --color-hs-accent-500: var(--hs-accent-500);
+  --color-hs-accent-600: var(--hs-accent-600);
+  --color-hs-neutral-50: var(--hs-neutral-50);
+  --color-hs-neutral-100: var(--hs-neutral-100);
+  --color-hs-neutral-200: var(--hs-neutral-200);
+  --color-hs-neutral-500: var(--hs-neutral-500);
+  --color-hs-neutral-700: var(--hs-neutral-700);
+  --color-hs-neutral-900: var(--hs-neutral-900);
+  --color-hs-success: var(--hs-success);
+  --color-hs-warning: var(--hs-warning);
+  --color-hs-error: var(--hs-error);
+  --color-hs-cta-bg: var(--hs-cta-bg);
+  --color-hs-cta-bg-hover: var(--hs-cta-bg-hover);
+  --color-hs-surface: var(--hs-surface);
+  --color-hs-surface-card: var(--hs-surface-card);
+  --color-hs-border-subtle: var(--hs-border-subtle);
+}
+
+/* Input text color handled by --foreground token (Shadcn) */
+
+/* Print styles */
+@media print {
+  /* Esconder header, navegação e elementos interativos */
+  header,
+  .no-print {
+    display: none !important;
+  }
+
+  /* Remover sombras e bordas desnecessárias */
+  .shadow,
+  .shadow-sm {
+    box-shadow: none !important;
+  }
+
+  /* Fundo branco em tudo */
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  /* Garantir que conteúdo ocupa toda a largura */
+  main {
+    padding: 0 !important;
+    max-width: 100% !important;
+  }
+
+  /* Grid em coluna única para impressão */
+  .lg\:grid-cols-3 {
+    grid-template-columns: 1fr !important;
+  }
+
+  .lg\:col-span-2 {
+    grid-column: span 1 !important;
+  }
+
+  /* Quebra de página inteligente */
+  .bg-white {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Links sem decoração especial */
+  a {
+    color: black !important;
+    text-decoration: none !important;
+  }
+}
+
+
+:root {
+  --radius: 0.75rem;
+
+  /* ─── Home Stay Brand Tokens ─────────────────────────────────── */
+
+  /* Brand scale — Ocean Blue (primary brand identity) */
+  --hs-brand-50:  oklch(0.97 0.01 222);
+  --hs-brand-100: oklch(0.93 0.03 222);
+  --hs-brand-200: oklch(0.86 0.06 222);
+  --hs-brand-300: oklch(0.75 0.09 222);
+  --hs-brand-400: oklch(0.63 0.12 222);
+  --hs-brand-500: oklch(0.52 0.13 222);   /* Primary brand */
+  --hs-brand-600: oklch(0.43 0.12 222);   /* Hover / darker */
+  --hs-brand-700: oklch(0.36 0.10 222);   /* Dark text on light bg */
+  --hs-brand-800: oklch(0.28 0.08 222);
+  --hs-brand-900: oklch(0.21 0.06 222);
+  --hs-brand-950: oklch(0.14 0.04 222);
+
+  /* Accent scale — Coral Atlantic (CTAs, highlights) */
+  --hs-accent-400: oklch(0.72 0.17 33);
+  --hs-accent-500: oklch(0.62 0.20 32);   /* CTA primary ("Reservar agora") */
+  --hs-accent-600: oklch(0.52 0.18 31);   /* CTA hover */
+
+  /* Neutral warm scale — Apple-inspired off-whites */
+  --hs-neutral-50:  oklch(0.985 0.002 75);  /* Page background */
+  --hs-neutral-100: oklch(0.962 0.004 75);  /* Card surfaces */
+  --hs-neutral-200: oklch(0.918 0.004 75);  /* Borders */
+  --hs-neutral-300: oklch(0.850 0.004 75);  /* Disabled */
+  --hs-neutral-500: oklch(0.552 0.008 75);  /* Text secondary */
+  --hs-neutral-700: oklch(0.380 0.006 75);  /* Text medium */
+  --hs-neutral-900: oklch(0.138 0.004 75);  /* Text primary (warm near-black) */
+
+  /* Semantic aliases */
+  --hs-success:  oklch(0.527 0.154 145);    /* green-600 */
+  --hs-warning:  oklch(0.666 0.179 58);     /* amber-500 */
+  --hs-error:    oklch(0.577 0.245 27.325); /* red-600 */
+
+  /* Public page specific */
+  --hs-surface:         var(--hs-neutral-50);
+  --hs-surface-card:    var(--hs-neutral-100);
+  --hs-border-subtle:   var(--hs-neutral-200);
+  --hs-text-primary:    var(--hs-neutral-900);
+  --hs-text-secondary:  var(--hs-neutral-500);
+  --hs-cta-bg:          var(--hs-accent-500);
+  --hs-cta-bg-hover:    var(--hs-accent-600);
+  --hs-cta-text:        oklch(1 0 0);
+
+  /* ─── Shadcn / Dashboard Tokens (updated to brand) ───────────── */
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.138 0.004 75);     /* warm near-black */
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.138 0.004 75);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.138 0.004 75);
+  --primary: oklch(0.52 0.13 222);         /* brand-500 ocean blue */
+  --primary-foreground: oklch(1 0 0);      /* white */
+  --secondary: oklch(0.962 0.004 75);      /* warm neutral-100 */
+  --secondary-foreground: oklch(0.21 0.006 285.885);
+  --muted: oklch(0.962 0.004 75);
+  --muted-foreground: oklch(0.552 0.008 75);
+  --accent: oklch(0.962 0.004 75);
+  --accent-foreground: oklch(0.21 0.006 285.885);
+  --destructive: oklch(0.577 0.245 27.325); /* red-600 */
+  --border: oklch(0.918 0.004 75);         /* warm neutral-200 */
+  --input: oklch(0.918 0.004 75);
+  --ring: oklch(0.52 0.13 222);            /* brand-500 focus ring */
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.141 0.005 285.823);
+  --sidebar-primary: oklch(0.21 0.006 285.885);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.967 0.001 286.375);
+  --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
+  --sidebar-border: oklch(0.92 0.004 286.32);
+  --sidebar-ring: oklch(0.705 0.015 286.067);
+}
+
+.dark {
+  --background: oklch(0.141 0.005 285.823);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.21 0.006 285.885);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.21 0.006 285.885);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.92 0.004 286.32);
+  --primary-foreground: oklch(0.21 0.006 285.885);
+  --secondary: oklch(0.274 0.006 286.033);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.274 0.006 286.033);
+  --muted-foreground: oklch(0.705 0.015 286.067);
+  --accent: oklch(0.274 0.006 286.033);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.552 0.016 285.938);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.21 0.006 285.885);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.274 0.006 286.033);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.552 0.016 285.938);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  a {
+    transition-property: color, background-color, border-color, box-shadow, transform, opacity;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+  }
+}
+
+@layer utilities {
+  .glass {
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    background-color: rgba(255, 255, 255, 0.85);
+  }
+  .card-hover {
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.09), 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+}

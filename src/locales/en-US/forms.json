@@ -1,0 +1,39 @@
+{
+  "labels": {
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "fullName": "Full Name",
+    "phoneNumber": "Phone Number",
+    "address": "Address",
+    "city": "City",
+    "postalCode": "Postal Code",
+    "country": "Country",
+    "propertyName": "Property Name",
+    "propertyType": "Property Type",
+    "description": "Description",
+    "guestCount": "Number of Guests",
+    "bedrooms": "Bedrooms",
+    "bathrooms": "Bathrooms",
+    "price": "Price",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "notes": "Notes"
+  },
+  "placeholders": {
+    "enterEmail": "Enter your email",
+    "enterPassword": "Enter your password",
+    "enterName": "Enter your name",
+    "enterDescription": "Enter the description",
+    "selectDate": "Select a date"
+  },
+  "validation": {
+    "emailInvalid": "Invalid email address",
+    "passwordTooShort": "Password must be at least 8 characters",
+    "passwordsMustMatch": "Passwords must match",
+    "fieldRequired": "This field is required",
+    "invalidFormat": "Invalid format"
+  }
+}

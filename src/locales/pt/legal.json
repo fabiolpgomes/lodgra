@@ -1,0 +1,175 @@
+{
+  "privacy": {
+    "title": "Política de Privacidade",
+    "lastUpdated": "Última atualização: 7 de abril de 2026",
+    "version": "Versão 2.0",
+    "intro": {
+      "title": "O que é Home Stay?",
+      "description": "Home Stay é uma plataforma de gestão de alojamentos locais que ajuda proprietários e gestores a organizar propriedades de aluguer de curta duração.",
+      "features": "Funcionalidades principais:",
+      "feature1": "Gestão de múltiplas propriedades",
+      "feature2": "Gestão de reservas e disponibilidade",
+      "feature3": "Sincronização de calendários (iCal)",
+      "feature4": "Gestão de despesas e financeiro",
+      "feature5": "Gestão de hóspedes e proprietários",
+      "feature6": "Sistema de subscrição com pagamento seguro"
+    },
+    "about": {
+      "title": "1. Sobre esta Política de Privacidade",
+      "text": "Esta Política de Privacidade descreve como a Home Stay recolhe, utiliza e protege as informações dos seus utilizadores. Ao utilizar a plataforma, concorda com os termos aqui descritos."
+    },
+    "dataCollected": {
+      "title": "2. Dados que Recolhemos",
+      "subtitle": "Recolhemos dados para fornecer funcionalidades essenciais:",
+      "email": "Nome e Email",
+      "emailDesc": "Autenticação, criar conta, recuperação de palavra-passe, comunicações sobre a conta.",
+      "properties": "Dados de Propriedades e Reservas",
+      "propertiesDesc": "Gestão de propriedades, reservas, datas de check-in/out e operação da plataforma.",
+      "billing": "Dados de Facturação",
+      "billingDesc": "Processamento de pagamentos via Stripe — não armazenamos dados de cartão nos nossos servidores.",
+      "usage": "Registos de Utilização",
+      "usageDesc": "Diagnóstico, segurança e melhoria contínua da plataforma.",
+      "technical": "Dados Técnicos",
+      "technicalDesc": "Tipo de navegador, sistema operativo e localização aproximada para compatibilidade e segurança."
+    },
+    "usage": {
+      "title": "3. Como Utilizamos os Dados",
+      "service": "Fornecer o serviço: gestão de propriedades, reservas e financeiro",
+      "notifications": "Notificações sobre conta, reservas e eventos importantes",
+      "support": "Suporte técnico",
+      "security": "Segurança e detecção de fraude",
+      "improvements": "Análise agregada para melhoria da plataforma",
+      "legal": "Conformidade legal"
+    },
+    "sharing": {
+      "title": "4. Partilha de Dados",
+      "subtitle": "Partilhamos dados com os seguintes serviços:",
+      "supabase": "Supabase — base de dados e autenticação (UE)",
+      "stripe": "Stripe — processamento de pagamentos",
+      "vercel": "Vercel — alojamento da aplicação",
+      "resend": "Resend — envio de emails transacionais",
+      "authorities": "Autoridades legais — quando exigido por lei",
+      "noSell": "Nunca vendemos os seus dados pessoais."
+    },
+    "security": {
+      "title": "5. Segurança dos Dados",
+      "https": "Encriptação HTTPS/TLS para dados em trânsito",
+      "aes": "Encriptação AES-256 para dados sensíveis",
+      "rls": "Row-Level Security — cada organização acede apenas aos seus dados",
+      "auth": "Autenticação segura com sessões protegidas",
+      "audit": "Auditoria de acesso e actividades suspeitas"
+    },
+    "retention": {
+      "title": "6. Retenção de Dados",
+      "text": "Mantemos os dados enquanto a conta estiver activa. Após cancelamento:",
+      "delete30": "Dados eliminados no prazo de 30 dias",
+      "backup90": "Backups removidos até 90 dias",
+      "legal": "Dados fiscais retidos conforme obrigação legal"
+    },
+    "rights": {
+      "title": "7. Os Seus Direitos",
+      "subtitle": "Sob o RGPD, tem direito a:",
+      "access": "Acesso: solicitar cópia de todos os seus dados",
+      "rectification": "Rectificação: corrigir dados imprecisos",
+      "erasure": "Eliminação: solicitar remoção dos dados",
+      "portability": "Portabilidade: receber dados em formato transferível",
+      "restriction": "Restrição: limitar o processamento",
+      "objection": "Oposição: opor-se ao processamento",
+      "consent": "Revogar consentimento a qualquer momento"
+    },
+    "regional": {
+      "title": "8. Informação Regional — RGPD (Portugal)",
+      "controller": "Responsável pelo tratamento: Home Stay, Portugal",
+      "basis": "Base legal: consentimento do utilizador e execução de contrato",
+      "dpo": "Contacto para proteção de dados: suporte@homestay.pt",
+      "authority": "Autoridade de controlo: Comissão Nacional de Proteção de Dados (CNPD)",
+      "authorityUrl": "https://www.cnpd.pt"
+    },
+    "cookies": {
+      "title": "9. Cookies",
+      "text": "Utilizamos cookies essenciais (funcionamento) e analíticos (Google Analytics, com consentimento). Pode gerir as suas preferências a qualquer momento no banner de cookies ou nas Definições."
+    },
+    "changes": {
+      "title": "10. Alterações a esta Política",
+      "text": "Podemos actualizar esta política periodicamente. Notificaremos por email alterações significativas com pelo menos 15 dias de antecedência."
+    },
+    "contact": {
+      "title": "11. Contacto",
+      "text": "Questões sobre privacidade:",
+      "email": "suporte@homestay.pt",
+      "complaint": "Para reclamações: Comissão Nacional de Proteção de Dados (CNPD), Portugal."
+    }
+  },
+  "terms": {
+    "title": "Termos de Serviço",
+    "lastUpdated": "Última atualização: 7 de abril de 2026",
+    "version": "Versão 2.0",
+    "acceptance": {
+      "title": "1. Aceitação dos Termos",
+      "text": "Ao aceder ou utilizar a plataforma Home Stay, concorda com estes Termos de Serviço. Se não concordar, não deve utilizar a plataforma."
+    },
+    "description": {
+      "title": "2. Descrição do Serviço",
+      "text": "A Home Stay é uma plataforma de gestão de alojamentos locais que permite gerir propriedades, reservas, despesas, proprietários e sincronização de calendários."
+    },
+    "account": {
+      "title": "3. Conta e Acesso",
+      "item1": "É necessário criar uma conta para utilizar a plataforma",
+      "item2": "É responsável por manter a confidencialidade das credenciais",
+      "item3": "Deve notificar-nos imediatamente em caso de acesso não autorizado",
+      "item4": "Uma conta pode ter múltiplos utilizadores com diferentes níveis de acesso"
+    },
+    "subscription": {
+      "title": "4. Subscrição e Pagamento",
+      "item1": "O acesso requer uma subscrição paga",
+      "item2": "Pagamentos processados pela Stripe",
+      "item3": "Subscrição renova automaticamente",
+      "item4": "Pode cancelar a qualquer momento — acesso mantém-se até ao fim do período",
+      "item5": "Não são realizados reembolsos por períodos parciais"
+    },
+    "acceptable": {
+      "title": "5. Utilização Aceitável",
+      "subtitle": "Compromete-se a não utilizar a plataforma para:",
+      "item1": "Actividades ilegais ou fraudulentas",
+      "item2": "Violar direitos de terceiros",
+      "item3": "Transmitir conteúdo malicioso",
+      "item4": "Tentar aceder a dados de outras organizações"
+    },
+    "dataOwnership": {
+      "title": "6. Propriedade dos Dados",
+      "text": "Os dados introduzidos são da sua propriedade. Concede à Home Stay uma licença limitada para processá-los com o único propósito de prestar o serviço. Pode exportar ou solicitar a eliminação dos dados a qualquer momento."
+    },
+    "availability": {
+      "title": "7. Disponibilidade",
+      "text": "Esforçamo-nos por manter a plataforma disponível, mas não garantimos disponibilidade ininterrupta. Não somos responsáveis por perdas decorrentes de indisponibilidade."
+    },
+    "liability": {
+      "title": "8. Limitação de Responsabilidade",
+      "text": "A Home Stay é fornecida \"tal como está\". Não somos responsáveis por danos indiretos. A responsabilidade máxima limita-se ao valor pago nos últimos 3 meses."
+    },
+    "changes": {
+      "title": "9. Alterações aos Termos",
+      "text": "Podemos actualizar estes termos periodicamente. Notificaremos com pelo menos 15 dias de antecedência em caso de alterações significativas."
+    },
+    "termination": {
+      "title": "10. Rescisão",
+      "text": "Podemos suspender contas que violem estes termos. Após rescisão, os dados ficam disponíveis para exportação durante 30 dias."
+    },
+    "law": {
+      "title": "11. Lei Aplicável",
+      "text": "Estes termos são regidos pela lei portuguesa. Litígios submetidos aos tribunais de Portugal."
+    },
+    "contact": {
+      "title": "12. Contacto",
+      "text": "Para questões sobre estes termos:",
+      "email": "suporte@homestay.pt"
+    }
+  },
+  "consent": {
+    "acceptTerms": "Li e aceito os",
+    "termsLink": "Termos de Serviço",
+    "and": "e a",
+    "privacyLink": "Política de Privacidade",
+    "required": "Deve aceitar os termos para continuar"
+  }
+}

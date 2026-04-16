@@ -1,0 +1,175 @@
+{
+  "privacy": {
+    "title": "Privacy Policy",
+    "lastUpdated": "Last updated: April 7, 2026",
+    "version": "Version 2.0",
+    "intro": {
+      "title": "What is Home Stay?",
+      "description": "Home Stay is a short-term rental management platform that helps property owners and managers organize and administer vacation rental properties.",
+      "features": "Key features:",
+      "feature1": "Multi-property management",
+      "feature2": "Reservation and availability management",
+      "feature3": "Calendar synchronization (iCal)",
+      "feature4": "Expense and financial management",
+      "feature5": "Guest and owner management",
+      "feature6": "Subscription system with secure payment"
+    },
+    "about": {
+      "title": "1. About This Privacy Policy",
+      "text": "This Privacy Policy describes how Home Stay collects, uses, and protects user information. By using the platform, you agree to the terms described herein."
+    },
+    "dataCollected": {
+      "title": "2. Data We Collect",
+      "subtitle": "We collect data to provide essential features:",
+      "email": "Name and Email",
+      "emailDesc": "Authentication, account creation, password recovery, account communications.",
+      "properties": "Property and Reservation Data",
+      "propertiesDesc": "Property management, reservations, check-in/out dates, and platform operations.",
+      "billing": "Billing Data",
+      "billingDesc": "Payment processing via Stripe — we do not store card data on our servers.",
+      "usage": "Usage Logs",
+      "usageDesc": "Diagnostics, security, and continuous platform improvement.",
+      "technical": "Technical Data",
+      "technicalDesc": "Browser type, operating system, and approximate location for compatibility and security."
+    },
+    "usage": {
+      "title": "3. How We Use Data",
+      "service": "Provide the service: property, reservation, and financial management",
+      "notifications": "Notifications about your account, reservations, and important events",
+      "support": "Technical support",
+      "security": "Security and fraud detection",
+      "improvements": "Aggregated analysis for platform improvement",
+      "legal": "Legal compliance"
+    },
+    "sharing": {
+      "title": "4. Data Sharing",
+      "subtitle": "We share data with the following services:",
+      "supabase": "Supabase — database and authentication (EU)",
+      "stripe": "Stripe — payment processing",
+      "vercel": "Vercel — application hosting",
+      "resend": "Resend — transactional email delivery",
+      "authorities": "Legal authorities — when required by law",
+      "noSell": "We never sell your personal data."
+    },
+    "security": {
+      "title": "5. Data Security",
+      "https": "HTTPS/TLS encryption for data in transit",
+      "aes": "AES-256 encryption for sensitive data at rest",
+      "rls": "Row-Level Security — each organization accesses only its own data",
+      "auth": "Secure authentication with protected sessions",
+      "audit": "Access auditing and suspicious activity monitoring"
+    },
+    "retention": {
+      "title": "6. Data Retention",
+      "text": "We retain data while your account is active. After cancellation:",
+      "delete30": "Data deleted within 30 days",
+      "backup90": "Backups removed within 90 days",
+      "legal": "Tax data retained as required by law"
+    },
+    "rights": {
+      "title": "7. Your Rights",
+      "subtitle": "You have the right to:",
+      "access": "Access: request a copy of all your data",
+      "rectification": "Rectification: correct inaccurate data",
+      "erasure": "Erasure: request deletion of your data",
+      "portability": "Portability: receive data in a transferable format",
+      "restriction": "Restriction: limit processing of your data",
+      "objection": "Objection: object to processing for specific purposes",
+      "consent": "Withdraw consent at any time"
+    },
+    "regional": {
+      "title": "8. Regional Information — CCPA (California, USA)",
+      "controller": "Service provider: Home Stay, Portugal (international operations)",
+      "basis": "Under the CCPA, California residents have the right to know what personal information is collected and to request its deletion.",
+      "dpo": "Privacy contact: suporte@homestay.pt",
+      "authority": "We do not sell personal information as defined by the CCPA.",
+      "authorityUrl": ""
+    },
+    "cookies": {
+      "title": "9. Cookies",
+      "text": "We use essential cookies (functionality) and analytics cookies (Google Analytics, with consent). You can manage your preferences at any time via the cookie banner or in Settings."
+    },
+    "changes": {
+      "title": "10. Changes to This Policy",
+      "text": "We may update this policy periodically. We will notify you by email of significant changes at least 15 days in advance."
+    },
+    "contact": {
+      "title": "11. Contact",
+      "text": "Privacy questions:",
+      "email": "suporte@homestay.pt",
+      "complaint": "For complaints: contact your local data protection authority."
+    }
+  },
+  "terms": {
+    "title": "Terms of Service",
+    "lastUpdated": "Last updated: April 7, 2026",
+    "version": "Version 2.0",
+    "acceptance": {
+      "title": "1. Acceptance of Terms",
+      "text": "By accessing or using the Home Stay platform, you agree to these Terms of Service. If you do not agree, you should not use the platform."
+    },
+    "description": {
+      "title": "2. Service Description",
+      "text": "Home Stay is a short-term rental management platform that allows you to manage properties, reservations, expenses, owners, and calendar synchronization."
+    },
+    "account": {
+      "title": "3. Account and Access",
+      "item1": "An account is required to use the platform",
+      "item2": "You are responsible for maintaining credential confidentiality",
+      "item3": "You must notify us immediately of unauthorized access",
+      "item4": "An account can have multiple users with different access levels"
+    },
+    "subscription": {
+      "title": "4. Subscription and Payment",
+      "item1": "Access requires a paid subscription",
+      "item2": "Payments processed by Stripe",
+      "item3": "Subscription renews automatically",
+      "item4": "You can cancel anytime — access continues until the end of the period",
+      "item5": "No refunds for partial periods"
+    },
+    "acceptable": {
+      "title": "5. Acceptable Use",
+      "subtitle": "You agree not to use the platform for:",
+      "item1": "Illegal or fraudulent activities",
+      "item2": "Violating third-party rights",
+      "item3": "Transmitting malicious content",
+      "item4": "Attempting to access other organizations' data"
+    },
+    "dataOwnership": {
+      "title": "6. Data Ownership",
+      "text": "Data you enter is your property. You grant Home Stay a limited license to process it solely for the purpose of providing the service. You can export or request deletion of your data at any time."
+    },
+    "availability": {
+      "title": "7. Availability",
+      "text": "We strive to keep the platform available but do not guarantee uninterrupted availability. We are not responsible for losses resulting from unavailability."
+    },
+    "liability": {
+      "title": "8. Limitation of Liability",
+      "text": "Home Stay is provided \"as is.\" We are not responsible for indirect damages. Maximum liability is limited to amounts paid in the last 3 months."
+    },
+    "changes": {
+      "title": "9. Changes to Terms",
+      "text": "We may update these terms periodically. We will notify you at least 15 days in advance of significant changes."
+    },
+    "termination": {
+      "title": "10. Termination",
+      "text": "We may suspend accounts that violate these terms. After termination, data is available for export for 30 days."
+    },
+    "law": {
+      "title": "11. Governing Law",
+      "text": "These terms are governed by the laws applicable to your jurisdiction. For EU residents, GDPR provisions apply."
+    },
+    "contact": {
+      "title": "12. Contact",
+      "text": "For questions about these terms:",
+      "email": "suporte@homestay.pt"
+    }
+  },
+  "consent": {
+    "acceptTerms": "I have read and accept the",
+    "termsLink": "Terms of Service",
+    "and": "and the",
+    "privacyLink": "Privacy Policy",
+    "required": "You must accept the terms to continue"
+  }
+}

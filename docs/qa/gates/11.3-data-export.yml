@@ -1,0 +1,43 @@
+schema: 1
+story: '11.3'
+story_title: 'Data Export — Right to Data Portability (RGPD Art.20 / LGPD Art.18)'
+gate: PASS
+status_reason: 'All 7 ACs implemented. 4 unit tests passing. Parallel data fetch, rate limiting via audit_logs, correct Content-Disposition header, multi-tenant org scoping verified.'
+reviewer: 'Quinn (Test Architect)'
+updated: '2026-04-07T17:07:00Z'
+
+top_issues: []
+waiver:
+  active: false
+
+quality_score: 90
+expires: '2026-04-21T17:07:00Z'
+
+evidence:
+  tests_reviewed: 4
+  risks_identified: 2
+  trace:
+    ac_covered: [1, 2, 3, 4, 5, 6, 7]
+    ac_gaps: []
+
+nfr_validation:
+  security:
+    status: PASS
+    notes: 'Session-scoped access. All queries scoped to userId/organizationId. Rate limit 429 enforced. No cross-tenant leakage.'
+  performance:
+    status: PASS
+    notes: 'Promise.all parallelises 6 DB queries. JSON streamed directly. Acceptable for current dataset sizes.'
+  reliability:
+    status: PASS
+    notes: 'Rate limit prevents abuse. audit_log entry ensures traceability. Build PASS, Lint PASS.'
+  maintainability:
+    status: PASS
+    notes: 'Clear export structure documented in story. Export version field future-proofs the format.'
+
+recommendations:
+  immediate: []
+  future:
+    - action: 'Remove 500-record cap on audit_logs in export or make it configurable for power users'
+      refs: ['src/app/api/user/data-export/route.ts']
+    - action: 'For large datasets (10k+ records), implement async export with signed download URL'
+      refs: ['src/app/api/user/data-export/route.ts']

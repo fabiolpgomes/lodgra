@@ -1,0 +1,154 @@
+name: Property Images System Enhancement Workflow
+id: property-images-enhancement
+version: '1.0'
+created: '2026-03-25'
+status: phase1-planning-complete
+
+description: |
+  Orchestrate implementation of 5 improvement tasks for Property Images system.
+  Optimize queries (N+1), add status tracking, standardize storage paths, track compression metrics, and implement soft-delete.
+
+phases:
+  phase1:
+    name: Query & Standards Optimization
+    priority: high
+    tasks:
+      - prop-img-01 # Optimize Variant Loading (N+1)
+      - prop-img-03 # Standardize Storage Path Naming
+    dependencies: []
+    estimated_duration: 5 hours
+    owner: '@dev or @data-engineer'
+    status: planning-complete
+
+  phase2:
+    name: Processing Tracking & Metrics
+    priority: medium
+    tasks:
+      - prop-img-02 # Add Variant Processing Status
+      - prop-img-04 # Track Image Compression Metadata
+    dependencies:
+      - phase1
+    estimated_duration: 6 hours
+    owner: '@dev'
+    status: pending
+
+  phase3:
+    name: Data Integrity & Audit
+    priority: low
+    tasks:
+      - prop-img-05 # Add Soft Delete with Audit Trail
+    dependencies:
+      - phase2
+    estimated_duration: 3 hours
+    owner: '@dev or @data-engineer'
+    status: pending
+
+gates:
+  phase1_completion:
+    description: 'Verify query optimization and storage convention standardization'
+    checklist:
+      - 'Edit page loads all images + variants in single query'
+      - 'Storage path convention documented'
+      - 'All existing code updated to use new conventions'
+      - 'No performance regression'
+
+  phase2_completion:
+    description: 'Verify status tracking and metrics capture working'
+    checklist:
+      - 'Variant status tracked through processing lifecycle'
+      - 'File size metrics captured and reported'
+      - 'Dashboard reflects storage usage'
+      - 'Error handling for failed processing'
+
+  phase3_completion:
+    description: 'Verify soft delete working with audit trail'
+    checklist:
+      - 'Hard deletes converted to soft deletes'
+      - 'RLS policies updated for deleted records'
+      - 'Audit log captures all deletions'
+      - 'Recovery procedures documented'
+
+artifacts:
+  - type: migration
+    phase: phase1
+    description: 'Storage path standardization (backfill)'
+    status: designed
+
+  - type: migration
+    phase: phase2
+    description: 'Add processing_status columns to image_variants'
+    status: planned
+
+  - type: migration
+    phase: phase2
+    description: 'Add file_size_bytes tracking columns'
+    status: planned
+
+  - type: migration
+    phase: phase3
+    description: 'Add deleted_at soft-delete columns'
+    status: planned
+
+  - type: documentation
+    phase: phase1
+    description: 'Storage convention standard'
+    location: '.aios-core/data/property-images-storage-convention.md'
+    status: created
+
+  - type: code
+    phase: phase1
+    description: 'Optimized reloadGallery() function'
+    location: 'src/app/properties/[id]/edit/page.tsx'
+    status: designed
+
+  - type: code
+    phase: phase2
+    description: 'Storage quota tracking module'
+    location: 'src/lib/storage-quota.ts'
+    status: planned
+
+rollback_plan: |
+  Phase 1 Rollback:
+    - Revert migration (backfill removed)
+    - Restore original getImageUrl() implementation
+    - Clear browser cache
+
+  Phase 2 Rollback:
+    - Drop processing_status and file_size columns
+    - Remove processing tracking from API
+    - Restore original upload handler
+
+  Phase 3 Rollback:
+    - Drop deleted_at columns
+    - Restore hard-delete behavior
+    - Hard-delete any soft-deleted records (if needed)
+
+success_metrics:
+  - Edit page load time < 100ms for 50 images
+  - 99% of variants reach 'completed' status within 30 seconds
+  - Storage usage visible in admin dashboard
+  - Audit trail captures 100% of deletions
+  - Zero image data loss during transitions
+
+related_stories:
+  - '3.2' # If property image features expand
+  - '8.1' # Performance optimization sprint
+
+notes: |
+  - Can execute phases in parallel if team capacity allows
+  - Phase 3 is optional for MVP; can defer to later sprint
+  - Requires @data-engineer for schema + @dev for application code
+  - Consider batching all migrations (multiple improvements) into single deploy
+  - Storage backfill (Phase 1) can be async background job
+
+handoff:
+  phase1_planning:
+    date: 2026-03-25
+    from: @data-engineer (Dara)
+    to: @dev (Dex)
+    deliverables:
+      - snapshot: .aios/snapshots/property-images-baseline.md
+      - migration_plan: .aios/migration-plans/property-images-phase1.md
+      - storage_convention: .aios-core/data/property-images-storage-convention.md
+      - handoff_report: .aios-core/development/workflows/property-images-enhancement-HANDOFF.md
+    next_action: Code implementation (subtasks 1.1-1.3)

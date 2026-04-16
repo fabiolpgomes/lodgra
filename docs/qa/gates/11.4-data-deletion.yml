@@ -1,0 +1,46 @@
+schema: 1
+story: '11.4'
+story_title: 'Data Deletion — Right to Erasure (RGPD Art.17 / LGPD Art.18)'
+gate: PASS
+status_reason: '7/8 ACs implemented (AC8 to Story 11.5; AC3 completed post-QA). 11 tests passing. Anonymisation strategy, 30-day cooling off, cron security, chunked pagination, email confirmations, and graceful auth deletion all verified.'
+reviewer: 'Quinn (Test Architect)'
+updated: '2026-04-07T17:07:00Z'
+
+top_issues: []
+waiver:
+  active: false
+
+quality_score: 88
+expires: '2026-04-21T17:07:00Z'
+
+evidence:
+  tests_reviewed: 11
+  risks_identified: 2
+  trace:
+    ac_covered: [1, 2, 3, 4, 5, 6, 7]
+    ac_gaps: [8]
+
+nfr_validation:
+  security:
+    status: PASS
+    notes: 'CRON_SECRET bearer auth on cron endpoint. 409 dedup check prevents race conditions. Auth deletion is last step (correct order). All routes require session.'
+  performance:
+    status: PASS
+    notes: 'Per-user error isolation in deletion loop. DB-level scheduling filter (scheduled_at <= NOW()). Acceptable for current scale.'
+  reliability:
+    status: PASS
+    notes: 'Auth deletion failure is non-fatal — data already anonymised. 11 tests passing. Build PASS, Lint PASS. Cron pagination prevents timeouts.'
+  maintainability:
+    status: PASS
+    notes: 'Anonymisation strategy table in Dev Notes is excellent documentation. COOLING_OFF_DAYS is a named constant. Code well-structured.'
+
+recommendations:
+recommendations:
+  immediate:
+    - action: 'Resolved: Implemented email confirmation for deletion request (AC3)'
+      refs: ['src/app/api/user/delete-request/route.ts', 'src/lib/email/accountDeletion.ts']
+    - action: 'Resolved: Added LIMIT clause to cron process-deletions query for large-batch safety'
+      refs: ['src/app/api/cron/process-deletions/route.ts']
+  future:
+    - action: 'Add org_id scoping to cron if multi-tenant isolation at cron level becomes a requirement'
+      refs: ['src/app/api/cron/process-deletions/route.ts']

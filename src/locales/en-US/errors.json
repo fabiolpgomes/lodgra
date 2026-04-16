@@ -1,0 +1,17 @@
+{
+  "notFound": "Not Found",
+  "unauthorized": "Unauthorized",
+  "forbidden": "Forbidden",
+  "badRequest": "Bad Request",
+  "serverError": "Server Error",
+  "connectionError": "Connection Error",
+  "timeoutError": "Timeout",
+  "validationError": "Validation Error",
+  "notFoundMessage": "The page you are looking for does not exist",
+  "unauthorizedMessage": "You must be logged in to access this resource",
+  "forbiddenMessage": "You do not have permission to access this resource",
+  "serverErrorMessage": "An error occurred on the server. Please try again later",
+  "tryAgain": "Try Again",
+  "goHome": "Go Home",
+  "contactSupport": "Contact Support"
+}

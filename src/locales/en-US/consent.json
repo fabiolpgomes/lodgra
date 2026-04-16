@@ -1,0 +1,107 @@
+{
+  "banner": {
+    "title": "Cookie Settings",
+    "description": "We use cookies to improve your experience. Essential cookies are always active. You can choose to enable or disable analytics cookies.",
+    "essential": "Essential",
+    "essentialDescription": "Required for the platform to function. Always active.",
+    "analytics": "Analytics",
+    "analyticsDescription": "Google Analytics — helps us understand how the platform is used.",
+    "acceptAll": "Accept All",
+    "rejectAll": "Reject Optional",
+    "savePreferences": "Save Preferences",
+    "privacyPolicy": "Privacy Policy",
+    "alwaysActive": "Always active"
+  },
+  "settings": {
+    "title": "Privacy & Consent",
+    "description": "Manage your cookie and privacy consent settings.",
+    "currentConsent": "Current consent status",
+    "analytics": "Analytics cookies",
+    "accepted": "Accepted",
+    "declined": "Declined",
+    "notSet": "Not set",
+    "lastUpdated": "Last updated",
+    "revokeConsent": "Revoke Consent",
+    "revokeConfirm": "Are you sure you want to revoke consent for analytics cookies?",
+    "revokeSuccess": "Consent revoked successfully.",
+    "grantConsent": "Accept Analytics Cookies",
+    "essential": "Essential cookies",
+    "essentialDescription": "Necessary for the platform to function",
+    "alwaysActive": "Always active"
+  },
+  "dashboard": {
+    "title": "Compliance Dashboard",
+    "description": "GDPR / LGPD — Consent state and deletion requests",
+    "summary": {
+      "consent": "Consents",
+      "consentSmall": "total records",
+      "deletions": "Pending Deletions",
+      "deletionsSmall": "{{completed}} completed, {{cancelled}} cancelled",
+      "exports": "Data Exports",
+      "exportsSmall": "last 30 days",
+      "report": "Report",
+      "exportCsv": "Export CSV"
+    },
+    "byType": "Consents by Type",
+    "recentConsents": "Last 50 Consent Records",
+    "table": {
+      "user": "User",
+      "type": "Type",
+      "value": "Value",
+      "date": "Date",
+      "anonymous": "anonymous",
+      "accepted": "Accepted",
+      "declined": "Declined",
+      "noRecords": "No records"
+    },
+    "deletions": {
+      "title": "Deletion Requests",
+      "status": "Status",
+      "requested": "Requested",
+      "scheduled": "Scheduled",
+      "completed": "Completed",
+      "pending": "Pending",
+      "cancelled": "Cancelled",
+      "noRequests": "No requests"
+    },
+    "errorLoading": "Error loading compliance data."
+  },
+  "export": {
+    "title": "Export My Data",
+    "description": "Export all your personal data in JSON format, as per your right to data portability (GDPR Art. 20 / LGPD Art. 18). Includes profile, properties, reservations, expenses, owners, and consent records.",
+    "limit": "Limit: 1 export per day.",
+    "limitError": "Limit reached: maximum 1 export per day.",
+    "genericError": "Error exporting data. Please try again.",
+    "networkError": "Network error. Please try again.",
+    "success": "Data exported successfully!",
+    "button": "Export Data (JSON)",
+    "loading": "Exporting..."
+  },
+  "deletion": {
+    "title": "Delete My Account",
+    "description": "By deleting your account, all personal data will be removed or anonymized after a 30-day period. Financial data is retained as per legal obligation (GDPR/LGPD).",
+    "pendingTitle": "Deletion request pending",
+    "pendingDescription": "Your account will be deleted on {{date}}. All personal data will be anonymized. Financial data is retained per legal obligation.",
+    "requestedAt": "Requested on: {{date}}",
+    "cancelButton": "Cancel Deletion",
+    "cancelling": "Cancelling...",
+    "confirmTitle": "Are you sure you want to delete your account?",
+    "confirmList": {
+      "coolingOff": "Deletion will be performed after 30 days (reflection period)",
+      "cancelAnytime": "You can cancel at any time during this period",
+      "anonymization": "Personal data will be anonymized (name, email, phone)",
+      "retention": "Financial data will be retained for tax obligations",
+      "audit": "Consent and audit records are maintained",
+      "recommendExport": "We recommend exporting your data before continuing"
+    },
+    "back": "Back",
+    "confirmButton": "Confirm Deletion",
+    "requesting": "Requesting...",
+    "errorPending": "A deletion request is already pending.",
+    "errorGeneric": "Error requesting deletion.",
+    "errorCancel": "Error cancelling deletion.",
+    "successRequest": "Deletion request registered. Your account will be deleted in 30 days.",
+    "successCancel": "Deletion request cancelled.",
+    "networkError": "Network error. Please try again."
+  }
+}

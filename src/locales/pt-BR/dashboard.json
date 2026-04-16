@@ -1,0 +1,22 @@
+{
+  "title": "Dashboard",
+  "welcome": "Bem-vindo ao seu Dashboard",
+  "overview": "Visão Geral",
+  "properties": "Propriedades",
+  "reservations": "Reservas",
+  "guests": "Hóspedes",
+  "owners": "Proprietários",
+  "earnings": "Ganhos",
+  "expenses": "Despesas",
+  "statistics": "Estatísticas",
+  "recentBookings": "Reservas Recentes",
+  "upcomingCheckIns": "Check-ins Próximos",
+  "totalProperties": "Total de Propriedades",
+  "totalReservations": "Total de Reservas",
+  "totalEarnings": "Ganhos Totais",
+  "totalExpenses": "Despesas Totais",
+  "emptyState": "Nenhuma informação disponível",
+  "viewAll": "Ver Tudo",
+  "addNew": "Adicionar Novo",
+  "lastUpdated": "Última atualização"
+}

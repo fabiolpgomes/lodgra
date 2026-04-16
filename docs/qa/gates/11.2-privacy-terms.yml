@@ -1,0 +1,41 @@
+schema: 1
+story: '11.2'
+story_title: 'Privacy Policy & Terms — Dynamic, i18n, Versioned'
+gate: PASS
+status_reason: 'All 6 ACs implemented. Regional compliance clauses (RGPD/LGPD/CCPA) in 3 locales. Consent registration at signup delegates correctly to Story 11.1 API. Legacy pages cleaned up.'
+reviewer: 'Quinn (Test Architect)'
+updated: '2026-04-07T17:07:00Z'
+
+top_issues: []
+waiver:
+  active: false
+
+quality_score: 95
+expires: '2026-04-21T17:07:00Z'
+
+evidence:
+  tests_reviewed: 0
+  risks_identified: 0
+  trace:
+    ac_covered: [1, 2, 3, 4, 5, 6]
+    ac_gaps: []
+
+nfr_validation:
+  security:
+    status: PASS
+    notes: 'Public pages — no auth required. Consent registration inherits 11.1 security controls. No PII exposed.'
+  performance:
+    status: PASS
+    notes: 'Static i18n strings — zero DB queries on legal page load. Redirect pattern is lightweight.'
+  reliability:
+    status: PASS
+    notes: 'Full regression 429 passed. Legacy redirects provide backward compatibility.'
+  maintainability:
+    status: PASS
+    notes: 'i18n namespace pattern consistent with project. Regional clauses clearly separated per locale file.'
+
+recommendations:
+  immediate: []
+  future:
+    - action: 'Add version tracking (e.g., policy_version field) to consent_records for future policy updates requiring re-consent'
+      refs: ['src/app/api/consent/route.ts', 'supabase/migrations/20260406020000_consent_records.sql']

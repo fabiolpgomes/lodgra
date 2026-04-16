@@ -1,0 +1,17 @@
+{
+  "notFound": "Não encontrado",
+  "unauthorized": "Não autorizado",
+  "forbidden": "Acesso proibido",
+  "badRequest": "Requisição inválida",
+  "serverError": "Erro no servidor",
+  "connectionError": "Erro de conexão",
+  "timeoutError": "Tempo limite excedido",
+  "validationError": "Erro de validação",
+  "notFoundMessage": "A página que você está procurando não existe",
+  "unauthorizedMessage": "Você precisa fazer login para acessar este recurso",
+  "forbiddenMessage": "Você não tem permissão para acessar este recurso",
+  "serverErrorMessage": "Ocorreu um erro no servidor. Por favor, tente novamente mais tarde",
+  "tryAgain": "Tentar Novamente",
+  "goHome": "Voltar ao Início",
+  "contactSupport": "Entre em Contato com Suporte"
+}

@@ -1,0 +1,39 @@
+{
+  "labels": {
+    "email": "Email",
+    "password": "Senha",
+    "confirmPassword": "Confirmar Senha",
+    "firstName": "Primeiro Nome",
+    "lastName": "Último Nome",
+    "fullName": "Nome Completo",
+    "phoneNumber": "Número de Telefone",
+    "address": "Endereço",
+    "city": "Cidade",
+    "postalCode": "Código Postal",
+    "country": "País",
+    "propertyName": "Nome da Propriedade",
+    "propertyType": "Tipo de Propriedade",
+    "description": "Descrição",
+    "guestCount": "Número de Hóspedes",
+    "bedrooms": "Quartos",
+    "bathrooms": "Casas de Banho",
+    "price": "Preço",
+    "startDate": "Data de Início",
+    "endDate": "Data de Fim",
+    "notes": "Notas"
+  },
+  "placeholders": {
+    "enterEmail": "Digite seu email",
+    "enterPassword": "Digite sua senha",
+    "enterName": "Digite seu nome",
+    "enterDescription": "Digite a descrição",
+    "selectDate": "Selecione uma data"
+  },
+  "validation": {
+    "emailInvalid": "Email inválido",
+    "passwordTooShort": "Senha deve ter pelo menos 8 caracteres",
+    "passwordsMustMatch": "As senhas devem coincidir",
+    "fieldRequired": "Este campo é obrigatório",
+    "invalidFormat": "Formato inválido"
+  }
+}

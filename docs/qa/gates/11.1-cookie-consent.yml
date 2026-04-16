@@ -1,0 +1,43 @@
+schema: 1
+story: '11.1'
+story_title: 'Cookie Consent — RGPD/LGPD Compliant'
+gate: PASS
+status_reason: 'All 6 ACs implemented and verified. 11 unit tests passing. Server-side consent registration with RLS isolation, anonymous support, and GA conditional loading all confirmed.'
+reviewer: 'Quinn (Test Architect)'
+updated: '2026-04-07T17:07:00Z'
+
+top_issues: []
+waiver:
+  active: false
+
+quality_score: 90
+expires: '2026-04-21T17:07:00Z'
+
+evidence:
+  tests_reviewed: 11
+  risks_identified: 2
+  trace:
+    ac_covered: [1, 2, 3, 4, 5, 6]
+    ac_gaps: []
+
+nfr_validation:
+  security:
+    status: PASS
+    notes: 'RLS policies correct for anon insert + user-scoped GET + admin read. IP sanitisation applied. Admin client usage justified.'
+  performance:
+    status: PASS
+    notes: 'Indexes on user_id and (consent_type, created_at DESC). In-memory dedup acceptable at current scale.'
+  reliability:
+    status: PASS
+    notes: 'Graceful fallback for anonymous users (try/catch on session). Error handling complete.'
+  maintainability:
+    status: PASS
+    notes: 'Clean code, allow-list validation, well-commented. No magic strings.'
+
+recommendations:
+  immediate:
+    - action: 'Resolved: Added IP-based rate limiting on POST /api/consent to prevent bot flooding'
+      refs: ['src/app/api/consent/route.ts']
+  future:
+    - action: 'Replace in-memory deduplication in GET with DB-level DISTINCT ON if table exceeds 10k rows/user'
+      refs: ['src/app/api/consent/route.ts']

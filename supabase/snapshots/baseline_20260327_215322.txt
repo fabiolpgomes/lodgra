@@ -1,0 +1,7 @@
+Snapshot baseline_20260327_215322
+Created: sex 27 mar 2026 21:53:22 CET
+Purpose: Pre-migration safety checkpoint for Story 6.1 commission tracking
+
+Migrations to apply:
+1. supabase/migrations/20260326_02_add_commission_tracking.sql
+2. supabase/migrations/20260327_01_fix_commission_tracking.sql
