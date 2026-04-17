@@ -2,10 +2,9 @@ import { requireRole } from '@/lib/auth/requireRole'
 import { redirect } from 'next/navigation'
 import { AuthLayout } from '@/components/layout/AuthLayout'
 import { ChangePasswordForm } from '@/components/auth/ChangePasswordForm'
-import { KeyRound, User, CreditCard, ArrowRight } from 'lucide-react'
+import { SubscriptionSection } from '@/components/account/SubscriptionSection'
+import { KeyRound, User } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
-import { PLAN_DISPLAY, getPlanLimits } from '@/lib/billing/plans'
-import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
 
@@ -73,37 +72,11 @@ export default async function AccountPage() {
         </div>
 
         {/* Subscription Info */}
-        {auth.role === 'admin' && org && (
-          <div className="bg-white rounded-lg shadow p-6 mb-6">
-            <div className="flex items-center gap-2 mb-4">
-              <CreditCard className="h-4 w-4 text-blue-600" />
-              <h2 className="text-sm font-semibold text-gray-900">Plano de Subscrição</h2>
-            </div>
-            <div className="space-y-3">
-              <div>
-                <p className="text-xs text-gray-500">Plano Atual</p>
-                <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium text-gray-900">
-                    {PLAN_DISPLAY.find(p => p.id === org.subscription_plan)?.name || 'Starter'}
-                  </p>
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                    org.subscription_status === 'active' ? 'bg-green-100 text-green-800' :
-                    org.subscription_status === 'cancelled' ? 'bg-red-100 text-red-800' :
-                    'bg-yellow-100 text-yellow-800'
-                  }`}>
-                    {org.subscription_status === 'active' ? 'Ativo' :
-                     org.subscription_status === 'cancelled' ? 'Cancelado' : 'Pendente'}
-                  </span>
-                </div>
-              </div>
-              {org.subscription_plan !== 'business' && (
-                <Link href="/#pricing" className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 font-medium mt-3">
-                  Atualizar Plano <ArrowRight className="h-4 w-4" />
-                </Link>
-              )}
-            </div>
-          </div>
-        )}
+        <SubscriptionSection
+          currentPlan={org?.subscription_plan || null}
+          subscriptionStatus={org?.subscription_status || null}
+          isAdmin={auth.role === 'admin'}
+        />
 
         {/* Change Password */}
         <div className="bg-white rounded-lg shadow p-6">
