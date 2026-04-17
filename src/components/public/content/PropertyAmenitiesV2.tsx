@@ -64,13 +64,13 @@ export function PropertyAmenitiesV2({ amenities }: PropertyAmenitiesV2Props) {
 
   return (
     <section aria-label="Comodidades">
-      <h2 className="text-xl font-semibold text-hs-neutral-900 mb-4">Comodidades</h2>
+      <h2 className="text-xl font-semibold text-lodgra-neutral-900 mb-4">Comodidades</h2>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         {preview.map(({ key, icon: Icon, label }) => (
-          <div key={key} className="flex items-center gap-2.5 text-sm text-hs-neutral-700">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-hs-brand-50 shrink-0">
-              <Icon className="h-4 w-4 text-hs-brand-500" />
+          <div key={key} className="flex items-center gap-2.5 text-sm text-lodgra-neutral-700">
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-lodgra-brand-50 shrink-0">
+              <Icon className="h-4 w-4 text-lodgra-brand-500" />
             </span>
             {label}
           </div>
@@ -80,7 +80,7 @@ export function PropertyAmenitiesV2({ amenities }: PropertyAmenitiesV2Props) {
       {mapped.length > PREVIEW_COUNT && (
         <button
           onClick={() => setShowAll(true)}
-          className="mt-4 text-sm font-semibold text-hs-brand-600 hover:text-hs-brand-500 underline underline-offset-2"
+          className="mt-4 text-sm font-semibold text-lodgra-brand-600 hover:text-lodgra-brand-500 underline underline-offset-2"
         >
           Ver todas as {mapped.length} comodidades
         </button>
@@ -95,7 +95,7 @@ export function PropertyAmenitiesV2({ amenities }: PropertyAmenitiesV2Props) {
           />
           <div className="fixed inset-x-4 top-1/2 -translate-y-1/2 z-50 bg-white rounded-2xl p-6 max-h-[80vh] overflow-y-auto sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 sm:w-full sm:max-w-lg">
             <div className="flex items-center justify-between mb-5">
-              <h3 className="text-lg font-semibold text-hs-neutral-900">
+              <h3 className="text-lg font-semibold text-lodgra-neutral-900">
                 Todas as comodidades
               </h3>
               <button
@@ -113,13 +113,13 @@ export function PropertyAmenitiesV2({ amenities }: PropertyAmenitiesV2Props) {
               if (!group.length) return null
               return (
                 <div key={cat} className="mb-5">
-                  <h4 className="text-xs font-semibold uppercase tracking-wider text-hs-neutral-500 mb-3">
+                  <h4 className="text-xs font-semibold uppercase tracking-wider text-lodgra-neutral-500 mb-3">
                     {cat}
                   </h4>
                   <div className="grid grid-cols-2 gap-2.5">
                     {group.map(({ key, icon: Icon, label }) => (
-                      <div key={key} className="flex items-center gap-2 text-sm text-hs-neutral-700">
-                        <Icon className="h-4 w-4 text-hs-brand-500 shrink-0" />
+                      <div key={key} className="flex items-center gap-2 text-sm text-lodgra-neutral-700">
+                        <Icon className="h-4 w-4 text-lodgra-brand-500 shrink-0" />
                         {label}
                       </div>
                     ))}

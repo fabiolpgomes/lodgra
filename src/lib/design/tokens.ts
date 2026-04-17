@@ -174,22 +174,22 @@ export const BREAKPOINTS = {
 
 // ─── CSS Variable Helpers ─────────────────────────────────────────────────────
 /** Returns the CSS variable reference for a Lodgra brand token */
-export const hsVar = (token: string) => `var(--hs-${token})`
+export const hsVar = (token: string) => `var(--lodgra-${token})`
 
 export const HS_VARS = {
-  brand:    (shade: keyof typeof BRAND) => `var(--hs-brand-${shade})`,
-  accent:   (shade: 400 | 500 | 600)   => `var(--hs-accent-${shade})`,
-  neutral:  (shade: keyof typeof NEUTRAL) => `var(--hs-neutral-${shade})`,
+  brand:    (shade: keyof typeof BRAND) => `var(--lodgra-brand-${shade})`,
+  accent:   (shade: 400 | 500 | 600)   => `var(--lodgra-accent-${shade})`,
+  neutral:  (shade: keyof typeof NEUTRAL) => `var(--lodgra-neutral-${shade})`,
   cta: {
-    bg:     'var(--hs-cta-bg)',
-    bgHover:'var(--hs-cta-bg-hover)',
-    text:   'var(--hs-cta-text)',
+    bg:     'var(--lodgra-cta-bg)',
+    bgHover:'var(--lodgra-cta-bg-hover)',
+    text:   'var(--lodgra-cta-text)',
   },
-  surface:  'var(--hs-surface)',
-  card:     'var(--hs-surface-card)',
-  border:   'var(--hs-border-subtle)',
+  surface:  'var(--lodgra-surface)',
+  card:     'var(--lodgra-surface-card)',
+  border:   'var(--lodgra-border-subtle)',
   text: {
-    primary:   'var(--hs-text-primary)',
-    secondary: 'var(--hs-text-secondary)',
+    primary:   'var(--lodgra-text-primary)',
+    secondary: 'var(--lodgra-text-secondary)',
   },
 } as const

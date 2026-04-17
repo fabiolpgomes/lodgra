@@ -68,7 +68,7 @@ export function PropertyPageHeader({ propertyName }: PropertyPageHeaderProps) {
           <span
             className={`text-xs font-semibold px-3 py-1.5 rounded-full border ${
               scrolled
-                ? 'border-hs-brand-200 text-hs-brand-600 bg-hs-brand-50'
+                ? 'border-lodgra-brand-200 text-lodgra-brand-600 bg-lodgra-brand-50'
                 : 'border-white/40 text-white bg-white/10'
             }`}
           >

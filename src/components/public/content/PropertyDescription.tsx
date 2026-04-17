@@ -13,7 +13,7 @@ export function PropertyDescription({ description }: PropertyDescriptionProps) {
 
   return (
     <section aria-label="Sobre este espaço">
-      <h2 className="text-xl font-semibold text-hs-neutral-900 mb-3">
+      <h2 className="text-xl font-semibold text-lodgra-neutral-900 mb-3">
         Sobre este espaço
       </h2>
       <div className="relative overflow-hidden">
@@ -24,7 +24,7 @@ export function PropertyDescription({ description }: PropertyDescriptionProps) {
             transition: 'max-height 0.3s ease-out',
           }}
         >
-          <p className="text-hs-neutral-500 leading-relaxed whitespace-pre-wrap">
+          <p className="text-lodgra-neutral-500 leading-relaxed whitespace-pre-wrap">
             {description}
           </p>
         </div>
@@ -33,7 +33,7 @@ export function PropertyDescription({ description }: PropertyDescriptionProps) {
             className="absolute bottom-0 left-0 right-0 pointer-events-none" 
             style={{
               height: '40px',
-              background: 'linear-gradient(to top, var(--hs-surface), transparent)'
+              background: 'linear-gradient(to top, var(--lodgra-surface), transparent)'
             }} 
           />
         )}
@@ -41,7 +41,7 @@ export function PropertyDescription({ description }: PropertyDescriptionProps) {
       {isLong && (
         <button
           onClick={() => setExpanded(e => !e)}
-          className="mt-2 text-sm font-semibold text-hs-brand-600 hover:text-hs-brand-500 underline underline-offset-2 transition-colors"
+          className="mt-2 text-sm font-semibold text-lodgra-brand-600 hover:text-lodgra-brand-500 underline underline-offset-2 transition-colors"
         >
           {expanded ? 'Ver menos' : 'Ver mais'}
         </button>

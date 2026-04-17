@@ -41,7 +41,7 @@ export function PropertyHeroGallery({ photos, name }: PropertyHeroGalleryProps) 
 
   if (allPhotos.length === 0) {
     return (
-      <div className="w-full h-64 sm:h-80 lg:h-[500px] rounded-2xl bg-hs-neutral-100 flex flex-col items-center justify-center text-gray-400 gap-2">
+      <div className="w-full h-64 sm:h-80 lg:h-[500px] rounded-2xl bg-lodgra-neutral-100 flex flex-col items-center justify-center text-gray-400 gap-2">
         <Images className="h-10 w-10 opacity-40" />
         <span className="text-sm">Fotos em breve</span>
       </div>
@@ -76,7 +76,7 @@ export function PropertyHeroGallery({ photos, name }: PropertyHeroGalleryProps) 
           {[0, 1, 2, 3].map(i => {
             const photo = sidePhotos[i]
             if (!photo) {
-              return <div key={i} className="bg-hs-neutral-100" />
+              return <div key={i} className="bg-lodgra-neutral-100" />
             }
             return (
               <button

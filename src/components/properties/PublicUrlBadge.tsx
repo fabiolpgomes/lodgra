@@ -77,15 +77,15 @@ export function PublicUrlBadge({ propertyId, slug, isPublic, canEdit, onToggle }
   }
 
   return (
-    <div className="flex items-center gap-2.5 py-2 px-3 bg-gradient-to-r from-hs-brand-50 to-white rounded-lg border border-hs-brand-100" onClick={e => e.preventDefault()}>
+    <div className="flex items-center gap-2.5 py-2 px-3 bg-gradient-to-r from-lodgra-brand-50 to-white rounded-lg border border-lodgra-brand-100" onClick={e => e.preventDefault()}>
       {optimisticPublic ? (
-        <Badge className="bg-hs-brand-100 text-hs-brand-700 hover:bg-hs-brand-200 gap-1 shadow-sm">
+        <Badge className="bg-lodgra-brand-100 text-lodgra-brand-700 hover:bg-lodgra-brand-200 gap-1 shadow-sm">
           <Globe className="h-3.5 w-3.5" />
           Pública
         </Badge>
       ) : (
-        <Badge variant="outline" className="gap-1 text-hs-neutral-500 border-hs-border-subtle">
-          <Globe className="h-3.5 w-3.5 text-hs-neutral-400" />
+        <Badge variant="outline" className="gap-1 text-lodgra-neutral-500 border-lodgra-border-subtle">
+          <Globe className="h-3.5 w-3.5 text-lodgra-neutral-400" />
           Privada
         </Badge>
       )}
@@ -103,11 +103,11 @@ export function PublicUrlBadge({ propertyId, slug, isPublic, canEdit, onToggle }
         <Button
           variant="ghost"
           size="sm"
-          className="h-7 px-2.5 text-xs gap-1.5 text-hs-brand-600 hover:bg-hs-brand-100 hover:text-hs-brand-700 transition-colors ml-auto"
+          className="h-7 px-2.5 text-xs gap-1.5 text-lodgra-brand-600 hover:bg-lodgra-brand-100 hover:text-lodgra-brand-700 transition-colors ml-auto"
           onClick={handleShare}
         >
           {copied ? (
-            <><Check className="h-3.5 w-3.5 text-hs-brand-600" /> Copiado</>
+            <><Check className="h-3.5 w-3.5 text-lodgra-brand-600" /> Copiado</>
           ) : (
             <><Copy className="h-3.5 w-3.5" /> URL</>
           )}

@@ -65,8 +65,8 @@ export default async function PropertiesPage() {
         {/* Page Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
           <div>
-            <h2 className="text-3xl font-bold text-hs-neutral-900">Propriedades</h2>
-            <p className="text-hs-neutral-600 mt-1">
+            <h2 className="text-3xl font-bold text-lodgra-neutral-900">Propriedades</h2>
+            <p className="text-lodgra-neutral-600 mt-1">
               Gerencie suas propriedades e anúncios
             </p>
           </div>
@@ -93,10 +93,10 @@ export default async function PropertiesPage() {
         {!properties || properties.length === 0 ? (
           <div className="bg-white rounded-lg shadow p-12 text-center">
             <Home className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-hs-neutral-900 mb-2">
+            <h3 className="text-xl font-semibold text-lodgra-neutral-900 mb-2">
               Nenhuma propriedade cadastrada
             </h3>
-            <p className="text-hs-neutral-600 mb-6">
+            <p className="text-lodgra-neutral-600 mb-6">
               {canCreate
                 ? 'Comece adicionando sua primeira propriedade para começar a gerenciar seus alojamentos.'
                 : 'Nenhuma propriedade atribuída à sua conta.'}
@@ -144,32 +144,32 @@ function PropertyCard({ property, canEdit }: {
 }) {
   return (
     <Link href={`/properties/${property.id}`}>
-      <div className={`bg-white rounded-xl border border-hs-border-subtle shadow-sm hover:shadow-lg hover:border-hs-brand-200 transition-all duration-300 p-6 cursor-pointer ${!property.is_active ? 'opacity-60' : ''}`}>
+      <div className={`bg-white rounded-xl border border-lodgra-border-subtle shadow-sm hover:shadow-lg hover:border-lodgra-brand-200 transition-all duration-300 p-6 cursor-pointer ${!property.is_active ? 'opacity-60' : ''}`}>
         <div className="flex items-center justify-between mb-4">
-          <Badge variant="outline" className="border-hs-border-subtle bg-hs-neutral-50">
+          <Badge variant="outline" className="border-lodgra-border-subtle bg-lodgra-neutral-50">
             {property.property_type || 'Apartamento'}
           </Badge>
           <div className="flex items-center gap-2">
             {property.is_active ? (
-              <Badge className="bg-hs-brand-100 text-hs-brand-700 hover:bg-hs-brand-200">Ativo</Badge>
+              <Badge className="bg-lodgra-brand-100 text-lodgra-brand-700 hover:bg-lodgra-brand-200">Ativo</Badge>
             ) : (
               <Badge variant="outline">Inativo</Badge>
             )}
           </div>
         </div>
 
-        <h3 className="text-lg font-semibold text-hs-neutral-900 mb-2">
+        <h3 className="text-lg font-semibold text-lodgra-neutral-900 mb-2">
           {property.name}
         </h3>
 
-        <div className="flex items-center gap-2 text-hs-neutral-600 mb-3">
+        <div className="flex items-center gap-2 text-lodgra-neutral-600 mb-3">
           <MapPin className="h-4 w-4" />
           <span className="text-sm">
             {property.city}, {property.country}
           </span>
         </div>
 
-        <div className="flex items-center gap-4 text-sm text-hs-neutral-600 mb-3">
+        <div className="flex items-center gap-4 text-sm text-lodgra-neutral-600 mb-3">
           <div className="flex items-center gap-1">
             <Building2 className="h-4 w-4" />
             <span>{property.bedrooms || 0} quartos</span>

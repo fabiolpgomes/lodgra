@@ -36,7 +36,7 @@ export function PropertyPageV2({ property, allPhotos }: PropertyPageV2Props) {
   const location = [property.city, property.country].filter(Boolean).join(', ')
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--hs-surface, #FAFAF9)' }}>
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--lodgra-surface, #FAFAF9)' }}>
       {/* Header */}
       <PropertyPageHeader propertyName={property.name} />
 
@@ -60,38 +60,38 @@ export function PropertyPageV2({ property, allPhotos }: PropertyPageV2Props) {
 
               {/* Title + stats */}
               <section aria-label="Detalhes da propriedade">
-                <h1 className="text-3xl sm:text-4xl font-extrabold text-hs-neutral-900 mb-3 tracking-tight">
+                <h1 className="text-3xl sm:text-4xl font-extrabold text-lodgra-neutral-900 mb-3 tracking-tight">
                   {property.name}
                 </h1>
                 {location && (
-                  <p className="flex items-center gap-1.5 text-hs-neutral-500 text-sm mb-4">
-                    <MapPin className="h-4 w-4 shrink-0 text-hs-brand-400" />
+                  <p className="flex items-center gap-1.5 text-lodgra-neutral-500 text-sm mb-4">
+                    <MapPin className="h-4 w-4 shrink-0 text-lodgra-brand-400" />
                     {location}
                   </p>
                 )}
-                <div className="flex flex-wrap gap-5 text-sm text-hs-neutral-700">
+                <div className="flex flex-wrap gap-5 text-sm text-lodgra-neutral-700">
                   {(property.max_guests ?? 0) > 0 && (
                     <span className="flex items-center gap-1.5">
-                      <Users className="h-4 w-4 text-hs-neutral-500" />
+                      <Users className="h-4 w-4 text-lodgra-neutral-500" />
                       {property.max_guests} hóspede{property.max_guests !== 1 ? 's' : ''}
                     </span>
                   )}
                   {(property.bedrooms ?? 0) > 0 && (
                     <span className="flex items-center gap-1.5">
-                      <Bed className="h-4 w-4 text-hs-neutral-500" />
+                      <Bed className="h-4 w-4 text-lodgra-neutral-500" />
                       {property.bedrooms} quarto{property.bedrooms !== 1 ? 's' : ''}
                     </span>
                   )}
                   {(property.bathrooms ?? 0) > 0 && (
                     <span className="flex items-center gap-1.5">
-                      <Bath className="h-4 w-4 text-hs-neutral-500" />
+                      <Bath className="h-4 w-4 text-lodgra-neutral-500" />
                       {property.bathrooms} casa{property.bathrooms !== 1 ? 's' : ''} de banho
                     </span>
                   )}
                 </div>
               </section>
 
-              <hr className="border-hs-neutral-200" />
+              <hr className="border-lodgra-neutral-200" />
 
               {/* Description */}
               {property.description && (
@@ -101,13 +101,13 @@ export function PropertyPageV2({ property, allPhotos }: PropertyPageV2Props) {
               {/* Amenities */}
               {property.amenities && property.amenities.length > 0 && (
                 <>
-                  <hr className="border-hs-neutral-200" />
+                  <hr className="border-lodgra-neutral-200" />
                   <PropertyAmenitiesV2 amenities={property.amenities} />
                 </>
               )}
 
               {/* Location */}
-              <hr className="border-hs-neutral-200" />
+              <hr className="border-lodgra-neutral-200" />
               <PropertyLocation
                 city={property.city}
                 country={property.country}
@@ -133,20 +133,20 @@ export function PropertyPageV2({ property, allPhotos }: PropertyPageV2Props) {
       />
 
       {/* Footer */}
-      <footer className="mt-16 border-t border-hs-neutral-200 bg-white px-4 py-10">
+      <footer className="mt-16 border-t border-lodgra-neutral-200 bg-white px-4 py-10">
         <div className="max-w-6xl mx-auto space-y-6 text-center">
           <Logo variant="default" size="sm" className="mx-auto" />
           <PropertyTrustBadges />
-          <div className="flex flex-wrap justify-center gap-4 text-xs text-hs-neutral-500">
-            <Link href="/politica-privacidade" className="hover:text-hs-neutral-900 transition-colors">
+          <div className="flex flex-wrap justify-center gap-4 text-xs text-lodgra-neutral-500">
+            <Link href="/politica-privacidade" className="hover:text-lodgra-neutral-900 transition-colors">
               Política de Privacidade
             </Link>
             <span>·</span>
-            <Link href="/termos" className="hover:text-hs-neutral-900 transition-colors">
+            <Link href="/termos" className="hover:text-lodgra-neutral-900 transition-colors">
               Termos de Uso
             </Link>
           </div>
-          <p className="text-xs text-hs-neutral-500">
+          <p className="text-xs text-lodgra-neutral-500">
             © {new Date().getFullYear()} lodgra.pt · Reservas directas sem comissões
           </p>
         </div>

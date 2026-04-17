@@ -14,14 +14,14 @@ export function BookingWidgetDesktop({ slug, basePrice, minNights }: BookingWidg
 
   return (
     <div
-      className="sticky top-20 rounded-2xl border border-hs-neutral-200 bg-white p-6 space-y-5"
+      className="sticky top-20 rounded-2xl border border-lodgra-neutral-200 bg-white p-6 space-y-5"
       style={{ boxShadow: 'var(--shadow-booking, 0 8px 32px 0 rgba(0,0,0,0.10))' }}
     >
       {/* Price */}
       {priceLabel && (
         <div>
-          <span className="text-2xl font-bold text-hs-neutral-900">{priceLabel}</span>
-          <span className="text-sm text-hs-neutral-500 ml-1">/ noite</span>
+          <span className="text-2xl font-bold text-lodgra-neutral-900">{priceLabel}</span>
+          <span className="text-sm text-lodgra-neutral-500 ml-1">/ noite</span>
         </div>
       )}
 

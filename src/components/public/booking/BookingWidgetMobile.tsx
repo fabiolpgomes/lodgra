@@ -17,22 +17,22 @@ export function BookingWidgetMobile({ slug, basePrice, minNights }: BookingWidge
   return (
     <>
       {/* Bottom bar */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-hs-neutral-200 px-4 py-3 flex items-center justify-between gap-3 safe-area-pb">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-lodgra-neutral-200 px-4 py-3 flex items-center justify-between gap-3 safe-area-pb">
         <div>
           {basePrice > 0 && (
-            <p className="text-base font-bold text-hs-neutral-900">
+            <p className="text-base font-bold text-lodgra-neutral-900">
               {basePrice.toLocaleString('pt-PT')} €
-              <span className="text-xs font-normal text-hs-neutral-500 ml-1">/ noite</span>
+              <span className="text-xs font-normal text-lodgra-neutral-500 ml-1">/ noite</span>
             </p>
           )}
-          <p className="text-xs text-hs-neutral-500">Sem comissões</p>
+          <p className="text-xs text-lodgra-neutral-500">Sem comissões</p>
         </div>
         <button
           onClick={() => setOpen(true)}
           className="flex-1 max-w-[180px] py-3 rounded-xl text-sm font-semibold text-white transition-colors"
-          style={{ backgroundColor: 'var(--hs-cta-bg)' }}
-          onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'var(--hs-cta-bg-hover)')}
-          onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'var(--hs-cta-bg)')}
+          style={{ backgroundColor: 'var(--lodgra-cta-bg)' }}
+          onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'var(--lodgra-cta-bg-hover)')}
+          onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'var(--lodgra-cta-bg)')}
         >
           Reservar agora
         </button>
@@ -47,7 +47,7 @@ export function BookingWidgetMobile({ slug, basePrice, minNights }: BookingWidge
           />
           <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-2xl p-5 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-base font-semibold text-hs-neutral-900">
+              <h2 className="text-base font-semibold text-lodgra-neutral-900">
                 {priceLabel}
               </h2>
               <button
