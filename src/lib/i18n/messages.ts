@@ -3,7 +3,7 @@
  * Supports PT (Portuguese) and BR (Brazilian Portuguese) variants
  */
 
-type Locale = 'pt' | 'pt-BR'
+type Locale = 'pt' | 'pt-BR' | 'en-US' | 'es'
 type MessageKey =
   | 'errors.minimum_stay_required'
   | 'validation.minimum_stay_nights'
@@ -12,6 +12,8 @@ interface Messages {
   [key: string]: {
     pt: string
     'pt-BR': string
+    'en-US': string
+    es: string
   }
 }
 
@@ -19,10 +21,14 @@ export const messages: Messages = {
   'errors.minimum_stay_required': {
     pt: 'Estadia mínima de {minNights} noite{plural}',
     'pt-BR': 'Estada mínima de {minNights} noite{plural}',
+    'en-US': 'Minimum stay of {minNights} night{plural}',
+    es: 'Estadía mínima de {minNights} noche{plural}',
   },
   'validation.minimum_stay_nights': {
     pt: 'Estadia mínima requerida: {minNights} noite{plural}, fornecido{s} {nights} noite{plural}',
     'pt-BR': 'Estada mínima requerida: {minNights} noite{plural}, fornecido{s} {nights} noite{plural}',
+    'en-US': 'Minimum stay required: {minNights} night{plural}, provided {nights} night{plural}',
+    es: 'Estadía mínima requerida: {minNights} noche{plural}, proporcionado{s} {nights} noche{plural}',
   },
 }
 
@@ -94,9 +100,21 @@ export function formatMinimumStayValidation(minNights: number, nights: number, l
 export function detectLocale(acceptLanguage?: string): Locale {
   if (!acceptLanguage) return 'pt'
 
+  const lower = acceptLanguage.toLowerCase()
+
   // Simple detection: if 'br' or 'pt-BR' in Accept-Language, use 'pt-BR'
-  if (acceptLanguage.toLowerCase().includes('pt-br') || acceptLanguage.toLowerCase().includes('br')) {
+  if (lower.includes('pt-br') || lower.includes('br')) {
     return 'pt-BR'
+  }
+
+  // Detect English (en-US)
+  if (lower.includes('en-us') || lower.includes('en')) {
+    return 'en-US'
+  }
+
+  // Detect Spanish (es)
+  if (lower.includes('es')) {
+    return 'es'
   }
 
   // Default to 'pt' (Portugal)

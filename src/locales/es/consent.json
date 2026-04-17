@@ -1,0 +1,107 @@
+{
+  "banner": {
+    "title": "Configuración de Cookies",
+    "description": "Utilizamos cookies para mejorar su experiencia. Las cookies esenciales siempre están activas. Puede elegir activar o desactivar las cookies analíticas.",
+    "essential": "Esenciales",
+    "essentialDescription": "Necesarias para el funcionamiento de la plataforma. Siempre activas.",
+    "analytics": "Analíticas",
+    "analyticsDescription": "Google Analytics — nos ayudan a comprender cómo se utiliza la plataforma.",
+    "acceptAll": "Aceptar Todo",
+    "rejectAll": "Rechazar Opcionales",
+    "savePreferences": "Guardar Preferencias",
+    "privacyPolicy": "Política de Privacidad",
+    "alwaysActive": "Siempre activo"
+  },
+  "settings": {
+    "title": "Privacidad y Consentimiento",
+    "description": "Gestione sus consentimientos de cookies y privacidad.",
+    "currentConsent": "Estado actual del consentimiento",
+    "analytics": "Cookies analíticas",
+    "accepted": "Aceptado",
+    "declined": "Rechazado",
+    "notSet": "No definido",
+    "lastUpdated": "Última actualización",
+    "revokeConsent": "Revocar Consentimiento",
+    "revokeConfirm": "¿Está seguro de que desea revocar el consentimiento para cookies analíticas?",
+    "revokeSuccess": "Consentimiento revocado exitosamente.",
+    "grantConsent": "Aceptar Cookies Analíticas",
+    "essential": "Cookies esenciales",
+    "essentialDescription": "Necesarias para el funcionamiento de la plataforma",
+    "alwaysActive": "Siempre activo"
+  },
+  "dashboard": {
+    "title": "Panel de Cumplimiento",
+    "description": "RGPD / LGPD — Estado de consentimientos y solicitudes de eliminación",
+    "summary": {
+      "consent": "Consentimientos",
+      "consentSmall": "registros totales",
+      "deletions": "Eliminaciones Pendientes",
+      "deletionsSmall": "{{completed}} completadas, {{cancelled}} canceladas",
+      "exports": "Exportaciones de Datos",
+      "exportsSmall": "últimos 30 días",
+      "report": "Informe",
+      "exportCsv": "Exportar CSV"
+    },
+    "byType": "Consentimientos por Tipo",
+    "recentConsents": "Últimos 50 Registros de Consentimiento",
+    "table": {
+      "user": "Usuario",
+      "type": "Tipo",
+      "value": "Valor",
+      "date": "Fecha",
+      "anonymous": "anónimo",
+      "accepted": "Aceptado",
+      "declined": "Rechazado",
+      "noRecords": "Sin registros"
+    },
+    "deletions": {
+      "title": "Solicitudes de Eliminación",
+      "status": "Estado",
+      "requested": "Solicitado",
+      "scheduled": "Programado",
+      "completed": "Completado",
+      "pending": "Pendiente",
+      "cancelled": "Cancelado",
+      "noRequests": "Sin solicitudes"
+    },
+    "errorLoading": "Error al cargar datos de cumplimiento."
+  },
+  "export": {
+    "title": "Exportar mis Datos",
+    "description": "Exporte todos sus datos personales en formato JSON, de conformidad con su derecho a la portabilidad de datos (RGPD Art. 20 / LGPD Art. 18). Incluye perfil, propiedades, reservas, gastos, propietarios y registros de consentimiento.",
+    "limit": "Límite: 1 exportación por día.",
+    "limitError": "Límite alcanzado: máximo 1 exportación por día.",
+    "genericError": "Error al exportar datos. Intente nuevamente.",
+    "networkError": "Error de red. Intente nuevamente.",
+    "success": "¡Datos exportados exitosamente!",
+    "button": "Exportar Datos (JSON)",
+    "loading": "Exportando..."
+  },
+  "deletion": {
+    "title": "Eliminar mi Cuenta",
+    "description": "Al eliminar su cuenta, todos los datos personales se eliminarán o anonimizarán después de 30 días. Los datos financieros se retienen según la obligación legal (RGPD/LGPD).",
+    "pendingTitle": "Solicitud de eliminación pendiente",
+    "pendingDescription": "Su cuenta será eliminada el {{date}}. Todos los datos personales serán anonimizados. Los datos financieros se retienen por obligación legal.",
+    "requestedAt": "Solicitado el: {{date}}",
+    "cancelButton": "Cancelar Eliminación",
+    "cancelling": "Cancelando...",
+    "confirmTitle": "¿Está seguro de que desea eliminar su cuenta?",
+    "confirmList": {
+      "coolingOff": "La eliminación se realizará después de 30 días (período de reflexión)",
+      "cancelAnytime": "Puede cancelar en cualquier momento durante este período",
+      "anonymization": "Los datos personales serán anonimizados (nombre, correo electrónico, teléfono)",
+      "retention": "Los datos financieros se retienen por obligación fiscal",
+      "audit": "Los registros de consentimiento y auditoría se mantienen",
+      "recommendExport": "Recomendamos exportar sus datos antes de continuar"
+    },
+    "back": "Atrás",
+    "confirmButton": "Confirmar Eliminación",
+    "requesting": "Solicitando...",
+    "errorPending": "Ya existe una solicitud de eliminación pendiente.",
+    "errorGeneric": "Error al solicitar eliminación.",
+    "errorCancel": "Error al cancelar eliminación.",
+    "successRequest": "Solicitud de eliminación registrada. Su cuenta será eliminada después de 30 días.",
+    "successCancel": "Solicitud de eliminación cancelada.",
+    "networkError": "Error de red. Intente nuevamente."
+  }
+}

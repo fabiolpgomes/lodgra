@@ -1,0 +1,22 @@
+{
+  "title": "Panel de Control",
+  "welcome": "Bienvenido a su Panel de Control",
+  "overview": "Descripción General",
+  "properties": "Propiedades",
+  "reservations": "Reservas",
+  "guests": "Huéspedes",
+  "owners": "Propietarios",
+  "earnings": "Ganancias",
+  "expenses": "Gastos",
+  "statistics": "Estadísticas",
+  "recentBookings": "Reservas Recientes",
+  "upcomingCheckIns": "Check-ins Próximos",
+  "totalProperties": "Total de Propiedades",
+  "totalReservations": "Total de Reservas",
+  "totalEarnings": "Ganancias Totales",
+  "totalExpenses": "Gastos Totales",
+  "emptyState": "Ninguna información disponible",
+  "viewAll": "Ver Todo",
+  "addNew": "Agregar Nuevo",
+  "lastUpdated": "Última actualización"
+}
