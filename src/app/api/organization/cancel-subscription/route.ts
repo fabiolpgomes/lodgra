@@ -17,8 +17,7 @@ export async function POST(request: NextRequest) {
   const supabase = createAdminClient()
 
   try {
-    const body = await request.json()
-    const { immediately = true } = body
+    await request.json()
 
     // Get current org subscription
     const { data: org, error: orgError } = await supabase
