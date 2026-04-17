@@ -1,9 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { CreditCard, ArrowRight } from 'lucide-react'
+import { CreditCard, ArrowRight, Trash2 } from 'lucide-react'
 import { PLAN_DISPLAY } from '@/lib/billing/plans'
 import { PlanUpgradeModal } from './PlanUpgradeModal'
+import { toast } from 'sonner'
 import Link from 'next/link'
 
 interface SubscriptionSectionProps {
@@ -18,10 +19,12 @@ export function SubscriptionSection({
   isAdmin,
 }: SubscriptionSectionProps) {
   const [upgradeModalOpen, setUpgradeModalOpen] = useState(false)
+  const [cancelLoading, setCancelLoading] = useState(false)
 
   if (!isAdmin) return null
 
   const planName = PLAN_DISPLAY.find(p => p.id === currentPlan)?.name || 'Starter'
+  const isActive = subscriptionStatus === 'active'
 
   const statusColor = {
     active: 'bg-green-100 text-green-800',
@@ -36,6 +39,36 @@ export function SubscriptionSection({
     past_due: 'Pendente',
     trial: 'Trial',
   }[subscriptionStatus as string] || 'Desconhecido'
+
+  async function handleCancelSubscription() {
+    if (!confirm('Tem a certeza de que pretende cancelar a subscrição? Esta ação é irreversível.')) {
+      return
+    }
+
+    setCancelLoading(true)
+    try {
+      const res = await fetch('/api/organization/cancel-subscription', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        toast.error(data.error || 'Erro ao cancelar subscrição')
+        return
+      }
+
+      toast.success('Subscrição cancelada com sucesso')
+      window.location.reload()
+    } catch (err) {
+      toast.error('Erro ao cancelar subscrição')
+      console.error('Cancel error:', err)
+    } finally {
+      setCancelLoading(false)
+    }
+  }
 
   return (
     <>
@@ -54,14 +87,26 @@ export function SubscriptionSection({
               </span>
             </div>
           </div>
-          {currentPlan !== 'business' && (
-            <button
-              onClick={() => setUpgradeModalOpen(true)}
-              className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 font-medium mt-3"
-            >
-              Atualizar Plano <ArrowRight className="h-4 w-4" />
-            </button>
-          )}
+          <div className="flex items-center gap-2 mt-4 pt-3 border-t">
+            {currentPlan !== 'business' && isActive && (
+              <button
+                onClick={() => setUpgradeModalOpen(true)}
+                className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 font-medium"
+              >
+                Atualizar Plano <ArrowRight className="h-4 w-4" />
+              </button>
+            )}
+            {isActive && (
+              <button
+                onClick={handleCancelSubscription}
+                disabled={cancelLoading}
+                className="inline-flex items-center gap-1 text-sm text-red-600 hover:text-red-700 font-medium ml-auto"
+              >
+                <Trash2 className="h-4 w-4" />
+                {cancelLoading ? 'Cancelando...' : 'Cancelar'}
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
