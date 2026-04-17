@@ -3,6 +3,7 @@
  */
 
 import { POST } from '../route'
+import type { NextRequest } from 'next/server'
 
 let mockSessionUser: { id: string } | null = null
 let mockPendingRequests: Array<Record<string, unknown>> = []
@@ -55,7 +56,7 @@ describe('POST /api/user/cancel-deletion', () => {
   })
 
   it('returns 401 for unauthenticated user', async () => {
-    const req = { headers: { get: () => '127.0.0.1' } } as any
+    const req = { headers: { get: () => '127.0.0.1' } } as unknown as NextRequest
     const res = await POST(req)
     expect(res.status).toBe(401)
   })

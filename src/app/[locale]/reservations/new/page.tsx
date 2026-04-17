@@ -299,7 +299,7 @@ export default function NewReservationPage() {
       router.refresh()
     } catch (err: unknown) {
       console.error('Erro detalhado ao criar reserva:', err)
-      const errObj = err as any
+      const errObj = err as { message?: string; details?: string; hint?: string } | null
       const message = errObj?.message || (err instanceof Error ? err.message : 'Erro ao criar reserva')
       const details = errObj?.details || errObj?.hint || ''
       setError(details ? `${message} (${details})` : message)

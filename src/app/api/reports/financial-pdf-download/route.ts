@@ -3,7 +3,6 @@ import { requireRole } from '@/lib/auth/requireRole'
 import { createClient } from '@/lib/supabase/server'
 import { getUserPropertyIds } from '@/lib/auth/getUserProperties'
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 interface Reservation {
   id: string
   check_in: string
@@ -13,7 +12,7 @@ interface Reservation {
   net_amount: number | null
   currency: string
   source: string | null
-  property_listings: any
+  property_listings: { name: string } | null
   guests: { first_name: string; last_name: string } | null
 }
 
