@@ -65,7 +65,7 @@ describe('POST /api/user/cancel-deletion', () => {
     mockSessionUser = { id: 'user-1' }
     mockPendingRequests = []
 
-    const req = { headers: { get: () => '127.0.0.1' } } as any
+    const req = { headers: { get: () => '127.0.0.1' } } as unknown as NextRequest
     const res = await POST(req)
     expect(res.status).toBe(404)
   })
@@ -74,7 +74,7 @@ describe('POST /api/user/cancel-deletion', () => {
     mockSessionUser = { id: 'user-1' }
     mockPendingRequests = [{ id: 'req-1' }]
 
-    const req = { headers: { get: () => '127.0.0.1' } } as any
+    const req = { headers: { get: () => '127.0.0.1' } } as unknown as NextRequest
     const res = await POST(req)
     const json = await res.json()
 
@@ -88,7 +88,7 @@ describe('POST /api/user/cancel-deletion', () => {
     mockSessionUser = { id: 'user-1' }
     mockPendingRequests = [{ id: 'req-1' }]
 
-    const req = { headers: { get: () => '127.0.0.1' } } as any
+    const req = { headers: { get: () => '127.0.0.1' } } as unknown as NextRequest
     await POST(req)
     expect(mockInsertedAudit?.action).toBe('deletion_cancelled')
   })
