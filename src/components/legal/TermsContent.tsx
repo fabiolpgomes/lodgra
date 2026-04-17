@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl'
 
 export function TermsContent() {
   const t = useTranslations('legal')
-  const contactEmail = 'suporte@homestay.pt'
+  const contactEmail = 'suporte@lodgra.pt'
 
   return (
     <main className="min-h-screen bg-white">

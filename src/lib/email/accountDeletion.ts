@@ -7,7 +7,7 @@ function getResendClient() {
   return apiKey ? new Resend(apiKey) : null
 }
 
-const FROM_EMAIL = process.env.EMAIL_FROM || 'homestay.pt <noreply@resend.dev>'
+const FROM_EMAIL = process.env.EMAIL_FROM || 'lodgra.pt <noreply@resend.dev>'
 
 export interface DeletionRequestEmailData {
   guestName: string
@@ -43,7 +43,7 @@ export async function sendDeletionRequestConfirmation(data: DeletionRequestEmail
 
     <!-- Header -->
     <div style="background:#111827;padding:28px 32px;">
-      <p style="margin:0;color:#fff;font-size:18px;font-weight:600;">homestay.pt</p>
+      <p style="margin:0;color:#fff;font-size:18px;font-weight:600;">lodgra.pt</p>
     </div>
 
     <!-- Alert banner -->
@@ -84,7 +84,7 @@ export async function sendDeletionRequestConfirmation(data: DeletionRequestEmail
     <div style="padding:16px 32px;background:#f9fafb;border-top:1px solid #e5e7eb;text-align:center;">
       <p style="margin:0;font-size:11px;color:#9ca3af;">
         Se você não fez este pedido, por favor altere a sua password imediatamente ou contacte-nos.<br>
-        homestay.pt
+        lodgra.pt
       </p>
     </div>
 

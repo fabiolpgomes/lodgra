@@ -8,7 +8,7 @@ export function PrivacyPolicyContent() {
   const t = useTranslations('legal')
   const locale = useLocale()
 
-  const contactEmail = 'suporte@homestay.pt'
+  const contactEmail = 'suporte@lodgra.pt'
 
   return (
     <main className="min-h-screen bg-white">

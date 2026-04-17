@@ -21,7 +21,7 @@ export function PublicUrlBadge({ propertyId, slug, isPublic, canEdit, onToggle }
 
   const baseUrl = typeof window !== 'undefined'
     ? window.location.origin
-    : process.env.NEXT_PUBLIC_APP_URL ?? 'https://www.homestay.pt'
+    : process.env.NEXT_PUBLIC_APP_URL ?? 'https://www.lodgra.pt'
   const publicUrl = slug ? `${baseUrl}/p/${slug}` : null
 
   async function handleToggle() {

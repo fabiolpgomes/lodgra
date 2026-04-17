@@ -80,7 +80,7 @@ async function syncOneListing(
 
       if (overlapping && overlapping.length > 0) { skipped++; continue }
 
-      const uniqueEmail = `imported-${Date.now()}-${Math.random().toString(36).substring(7)}@homestay.local`
+      const uniqueEmail = `imported-${Date.now()}-${Math.random().toString(36).substring(7)}@lodgra.local`
 
       // Parse Booking.com metadata from description
       const bookingData = parseBookingDescription(event.description)

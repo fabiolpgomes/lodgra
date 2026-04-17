@@ -250,7 +250,7 @@ export default async function PropertyDetailsPage({
             {/* iCal Export */}
             <ICalExportCard
               propertyId={id}
-              appUrl={process.env.NEXT_PUBLIC_APP_URL || 'https://homestay.pt'}
+              appUrl={process.env.NEXT_PUBLIC_APP_URL || 'https://lodgra.pt'}
             />
           </div>
 

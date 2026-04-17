@@ -94,7 +94,7 @@ describe('POST /api/user/data-export', () => {
 
     const disposition = response.headers.get('Content-Disposition')
     expect(disposition).toContain('attachment')
-    expect(disposition).toContain('homestay-data-export')
+    expect(disposition).toContain('lodgra-data-export')
 
     const body = JSON.parse(await response.text())
     expect(body.export_date).toBeDefined()

@@ -28,7 +28,7 @@ export const viewport: Viewport = {
 
 // Noindex por defeito — páginas públicas fazem override via generateMetadata
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://www.homestay.pt'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://www.lodgra.pt'),
   title: 'Home Stay',
   robots: { index: false, follow: false },
   manifest: '/manifest.json',
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
   },
 };
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://www.homestay.pt'
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://www.lodgra.pt'
 
 const organizationSchema = {
   '@context': 'https://schema.org',
@@ -53,7 +53,7 @@ const organizationSchema = {
   description: 'Plataforma de gestão de alojamentos locais para anfitriões no Airbnb e Booking.com.',
   contactPoint: {
     '@type': 'ContactPoint',
-    email: 'privacidade@homestay.pt',
+    email: 'privacidade@lodgra.pt',
     contactType: 'customer support',
     availableLanguage: ['Portuguese'],
   },

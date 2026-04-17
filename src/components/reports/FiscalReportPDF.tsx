@@ -272,7 +272,7 @@ function FiscalDocument({ data }: { data: FiscalData }) {
 
         {/* Footer */}
         <View style={s.footer} fixed>
-          <Text style={s.footerText}>Home Stay — homestay.pt · Documento gerado automaticamente</Text>
+          <Text style={s.footerText}>Home Stay — lodgra.pt · Documento gerado automaticamente</Text>
           <Text style={s.footerText} render={({ pageNumber, totalPages }) =>
             `Página ${pageNumber} de ${totalPages}`
           } />

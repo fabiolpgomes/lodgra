@@ -173,7 +173,7 @@ describe('generateICalFromReservations()', () => {
     const result = generateICalFromReservations(reservations)
 
     expect(result).toContain('BEGIN:VEVENT')
-    expect(result).toContain('reservation-res-001@homestay.com')
+    expect(result).toContain('reservation-res-001@lodgra.com')
     expect(result).toContain('João Silva - Casa Alfama')
   })
 

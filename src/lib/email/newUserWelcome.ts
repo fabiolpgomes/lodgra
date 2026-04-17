@@ -16,7 +16,7 @@ export async function sendNewUserWelcomeEmail(params: NewUserWelcomeParams): Pro
   }
   const resend = new Resend(apiKey)
   const fromEmail = process.env.EMAIL_FROM || 'Home Stay <noreply@resend.dev>'
-  const appUrl = params.appUrl || process.env.NEXT_PUBLIC_APP_URL || 'https://homestay.pt'
+  const appUrl = params.appUrl || process.env.NEXT_PUBLIC_APP_URL || 'https://lodgra.pt'
 
   const setPasswordUrl = `${appUrl}/auth/set-password?token=${params.resetToken}`
 

@@ -12,7 +12,7 @@
 
 import { Redis } from '@upstash/redis'
 
-const PREFIX = '@homestay/subscription:'
+const PREFIX = '@lodgra/subscription:'
 const TTL_SECONDS = 5 * 60
 
 let _redis: Redis | null = null

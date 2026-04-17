@@ -184,7 +184,7 @@ export function generateICalFromReservations(reservations: { id: string; check_i
     const vevent = new ICAL.Component('vevent')
     const event = new ICAL.Event(vevent)
 
-    event.uid = `reservation-${reservation.id}@homestay.com`
+    event.uid = `reservation-${reservation.id}@lodgra.com`
     event.summary = `${guestName} - ${propertyName}`
     event.description = `Reserva #${reservation.id}\nStatus: ${reservation.status}\nHóspedes: ${reservation.number_of_guests || 1}`
 

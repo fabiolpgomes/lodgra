@@ -147,7 +147,7 @@ export function PropertyPageV2({ property, allPhotos }: PropertyPageV2Props) {
             </Link>
           </div>
           <p className="text-xs text-hs-neutral-500">
-            © {new Date().getFullYear()} homestay.pt · Reservas directas sem comissões
+            © {new Date().getFullYear()} lodgra.pt · Reservas directas sem comissões
           </p>
         </div>
       </footer>

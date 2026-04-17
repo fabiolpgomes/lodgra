@@ -2,7 +2,7 @@
  * JSON-LD structured data generators for SEO.
  */
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://www.homestay.pt'
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://www.lodgra.pt'
 
 interface PropertyData {
   name: string

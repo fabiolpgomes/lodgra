@@ -3,7 +3,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { locales } from '../../i18n.config'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.homestay.pt'
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.lodgra.pt'
 
   // Static pages
   const staticPages: MetadataRoute.Sitemap = [

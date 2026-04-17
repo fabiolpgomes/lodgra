@@ -5,7 +5,7 @@ import { locales, type Locale } from "../../../i18n.config";
 import { getTranslations, getMessages } from "next-intl/server";
 import { NextIntlClientProvider } from "next-intl";
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://www.homestay.pt'
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://www.lodgra.pt'
 
 export async function generateStaticParams() {
   return locales.map((locale) => ({ locale }));

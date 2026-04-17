@@ -220,9 +220,9 @@ export async function DELETE(
       )
     }
 
-    // Se o hóspede é "importado" (email @homestay.local), eliminar também
+    // Se o hóspede é "importado" (email @lodgra.local), eliminar também
     const guestEmail = (reservation.guests as { id: string; email: string } | null)?.email || ''
-    if (guestEmail.endsWith('@homestay.local')) {
+    if (guestEmail.endsWith('@lodgra.local')) {
       await supabase
         .from('guests')
         .delete()

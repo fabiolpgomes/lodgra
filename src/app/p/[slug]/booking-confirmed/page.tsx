@@ -5,7 +5,7 @@ import { ptBR } from 'date-fns/locale'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Reserva Confirmada — homestay.pt',
+  title: 'Reserva Confirmada — lodgra.pt',
   robots: { index: false },
 }
 
@@ -80,7 +80,7 @@ export default async function BookingConfirmedPage({ params, searchParams }: Pag
       <header className="border-b border-gray-100 px-4 py-3">
         <div className="max-w-lg mx-auto">
           <a href={`/p/${slug}`} className="font-semibold text-gray-900 text-lg">
-            homestay.pt
+            lodgra.pt
           </a>
         </div>
       </header>
@@ -135,7 +135,7 @@ export default async function BookingConfirmedPage({ params, searchParams }: Pag
       </main>
 
       <footer className="mt-8 border-t border-gray-100 px-4 py-4 text-center text-xs text-gray-400">
-        © {new Date().getFullYear()} homestay.pt · Obrigado pela sua reserva!
+        © {new Date().getFullYear()} lodgra.pt · Obrigado pela sua reserva!
       </footer>
     </div>
   )

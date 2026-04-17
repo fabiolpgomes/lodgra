@@ -112,7 +112,7 @@ const CONTENT = {
     pwaTitle: 'Instale o app no celular',
     pwaDesc: 'Acesse o Home Stay direto do seu celular — sem precisar da App Store.',
     pwaSteps: [
-      { icon: 'globe', title: 'Abra no Safari', desc: 'Acesse homestay.pt pelo navegador Safari do seu iPhone.' },
+      { icon: 'globe', title: 'Abra no Safari', desc: 'Acesse lodgra.pt pelo navegador Safari do seu iPhone.' },
       { icon: 'share', title: 'Toque em Compartilhar', desc: 'Toque no ícone de compartilhar (quadrado com seta para cima) na barra inferior.' },
       { icon: 'plus', title: 'Adicionar à Tela Inicial', desc: 'Deslize e toque em "Adicionar à Tela de Início". Confirme o nome e pronto!' },
     ],
@@ -225,7 +225,7 @@ const CONTENT = {
     pwaTitle: 'Instale a app no telemóvel',
     pwaDesc: 'Aceda ao Home Stay directamente do seu telemóvel — sem precisar da App Store.',
     pwaSteps: [
-      { icon: 'globe', title: 'Abra no Safari', desc: 'Aceda a homestay.pt pelo navegador Safari do seu iPhone.' },
+      { icon: 'globe', title: 'Abra no Safari', desc: 'Aceda a lodgra.pt pelo navegador Safari do seu iPhone.' },
       { icon: 'share', title: 'Toque em Partilhar', desc: 'Toque no ícone de partilha (quadrado com seta para cima) na barra inferior.' },
       { icon: 'plus', title: 'Adicionar ao Ecrã Principal', desc: 'Deslize e toque em "Adicionar ao Ecrã Principal". Confirme o nome e está feito!' },
     ],
@@ -338,7 +338,7 @@ const CONTENT = {
     pwaTitle: 'Install the app on your phone',
     pwaDesc: 'Access Home Stay right from your phone — no App Store needed.',
     pwaSteps: [
-      { icon: 'globe', title: 'Open in Safari', desc: 'Go to homestay.pt in Safari on your iPhone.' },
+      { icon: 'globe', title: 'Open in Safari', desc: 'Go to lodgra.pt in Safari on your iPhone.' },
       { icon: 'share', title: 'Tap Share', desc: 'Tap the share icon (square with arrow up) in the bottom bar.' },
       { icon: 'plus', title: 'Add to Home Screen', desc: 'Scroll down and tap "Add to Home Screen". Confirm the name and you\'re done!' },
     ],
