@@ -55,7 +55,7 @@ export function PublicUrlBadge({ propertyId, slug, isPublic, canEdit, onToggle }
 
     if (navigator.share) {
       try {
-        await navigator.share({ title: 'Home Stay', url: publicUrl })
+        await navigator.share({ title: 'Lodgra', url: publicUrl })
         return
       } catch {
         // User cancelled or share failed — fall through to clipboard

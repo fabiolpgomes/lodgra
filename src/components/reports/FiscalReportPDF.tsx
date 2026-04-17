@@ -168,14 +168,14 @@ function FiscalDocument({ data }: { data: FiscalData }) {
   return (
     <Document
       title={`Mapa Rendimentos Prediais ${data.year} — ${data.owner.full_name}`}
-      author="Home Stay"
-      creator="Home Stay"
+      author="Lodgra"
+      creator="Lodgra"
     >
       <Page size="A4" style={s.page}>
         {/* Header */}
         <View style={s.header}>
           <View>
-            <Text style={s.brand}>Home Stay</Text>
+            <Text style={s.brand}>Lodgra</Text>
             <Text style={s.brandSub}>Gestão de Alojamentos Locais</Text>
           </View>
           <View style={s.headerRight}>
@@ -272,7 +272,7 @@ function FiscalDocument({ data }: { data: FiscalData }) {
 
         {/* Footer */}
         <View style={s.footer} fixed>
-          <Text style={s.footerText}>Home Stay — lodgra.pt · Documento gerado automaticamente</Text>
+          <Text style={s.footerText}>Lodgra — lodgra.pt · Documento gerado automaticamente</Text>
           <Text style={s.footerText} render={({ pageNumber, totalPages }) =>
             `Página ${pageNumber} de ${totalPages}`
           } />

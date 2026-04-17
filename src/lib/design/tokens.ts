@@ -1,5 +1,5 @@
 /**
- * Home Stay Design Tokens
+ * Lodgra Design Tokens
  * Single source of truth for brand identity.
  * CSS custom properties defined in globals.css — use these constants in
  * TypeScript code (animations, canvas, charts) where CSS vars are unavailable.
@@ -173,7 +173,7 @@ export const BREAKPOINTS = {
 } as const
 
 // ─── CSS Variable Helpers ─────────────────────────────────────────────────────
-/** Returns the CSS variable reference for a Home Stay brand token */
+/** Returns the CSS variable reference for a Lodgra brand token */
 export const hsVar = (token: string) => `var(--hs-${token})`
 
 export const HS_VARS = {

@@ -80,7 +80,7 @@ export function Header({ serverProfile }: HeaderProps) {
         <div className="flex items-center justify-between">
           <Link href={prefix || '/'} className="flex items-center gap-2">
             <Building2 className="h-8 w-8 text-blue-600" />
-            <h1 className="text-2xl font-bold text-gray-900">Home Stay</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Lodgra</h1>
           </Link>
 
           {/* Desktop nav only */}

@@ -171,14 +171,14 @@ function OwnerReportDocument({ data, periodLabel, generatedAt }: OwnerReportPDFP
   return (
     <Document
       title={`Relatório ${data.owner.full_name} — ${periodLabel}`}
-      author="Home Stay"
-      creator="Home Stay"
+      author="Lodgra"
+      creator="Lodgra"
     >
       <Page size="A4" style={s.page}>
         {/* Header */}
         <View style={s.header}>
           <View>
-            <Text style={s.brand}>Home Stay</Text>
+            <Text style={s.brand}>Lodgra</Text>
             <Text style={s.brandSub}>Gestão de Alojamentos Locais</Text>
           </View>
           <View style={s.headerRight}>
@@ -258,7 +258,7 @@ function OwnerReportDocument({ data, periodLabel, generatedAt }: OwnerReportPDFP
 
         {/* Footer */}
         <View style={s.footer} fixed>
-          <Text style={s.footerText}>Home Stay — lodgra.pt</Text>
+          <Text style={s.footerText}>Lodgra — lodgra.pt</Text>
           <Text style={s.footerText} render={({ pageNumber, totalPages }) =>
             `Página ${pageNumber} de ${totalPages}`
           } />

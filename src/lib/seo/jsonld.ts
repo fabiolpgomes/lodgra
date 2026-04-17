@@ -53,7 +53,7 @@ export function generateWebsiteJsonLd() {
   return {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    name: 'Home Stay',
+    name: 'Lodgra',
     url: APP_URL,
     potentialAction: {
       '@type': 'SearchAction',

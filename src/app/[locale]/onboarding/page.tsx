@@ -85,7 +85,7 @@ export default function OnboardingPage() {
           <div className="text-center mb-8">
             <div className="flex items-center justify-center gap-2 mb-4">
               <Home className="h-10 w-10 text-blue-600" />
-              <h1 className="text-3xl font-bold text-gray-900">Home Stay</h1>
+              <h1 className="text-3xl font-bold text-gray-900">Lodgra</h1>
             </div>
           </div>
           <div className="bg-white rounded-xl shadow-xl p-8">
@@ -117,7 +117,7 @@ export default function OnboardingPage() {
       <header className="bg-white border-b border-gray-100 py-4 px-6">
         <div className="max-w-2xl mx-auto flex items-center gap-2">
           <Home className="h-6 w-6 text-blue-600" />
-          <span className="font-bold text-gray-900 text-lg">Home Stay</span>
+          <span className="font-bold text-gray-900 text-lg">Lodgra</span>
         </div>
       </header>
 

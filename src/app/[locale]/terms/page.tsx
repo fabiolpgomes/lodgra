@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import { TermsContent } from '@/components/legal/TermsContent'
 
 export const metadata: Metadata = {
-  title: 'Terms of Service — Home Stay',
-  description: 'Terms of service for the Home Stay platform',
+  title: 'Terms of Service — Lodgra',
+  description: 'Terms of service for the Lodgra platform',
   robots: { index: true, follow: true },
 }
 

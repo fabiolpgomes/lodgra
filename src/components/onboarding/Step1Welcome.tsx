@@ -23,7 +23,7 @@ export function Step1Welcome({ orgName, selectedPlan, onOrgNameChange, onPlanCha
         </div>
       </div>
 
-      <h1 className="text-3xl font-bold text-gray-900 mb-2">Bem-vindo ao Home Stay!</h1>
+      <h1 className="text-3xl font-bold text-gray-900 mb-2">Bem-vindo ao Lodgra!</h1>
       <p className="text-gray-500 mb-8 max-w-sm mx-auto">
         Configure a sua conta em 3 passos rápidos e comece a gerir os seus imóveis hoje.
       </p>

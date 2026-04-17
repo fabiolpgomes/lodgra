@@ -173,7 +173,7 @@ function generateHtml(
   <div class="content">
     <div class="container">
       <h1>Relatório Financeiro</h1>
-      <p style="color: #666; font-size: 13px;">Home Stay - Gestão de Propriedades</p>
+      <p style="color: #666; font-size: 13px;">Lodgra - Gestão de Propriedades</p>
 
       <div class="info">
         <p><strong>Período:</strong> ${new Date(data.startDate).toLocaleDateString('pt-BR')} até ${new Date(data.endDate).toLocaleDateString('pt-BR')}</p>
@@ -320,8 +320,8 @@ function generateHtml(
       ` : ''}
 
       <div class="footer">
-        <p>Este relatório foi gerado automaticamente pelo sistema Home Stay.</p>
-        <p>&copy; ${new Date().getFullYear()} Home Stay. Todos os direitos reservados.</p>
+        <p>Este relatório foi gerado automaticamente pelo sistema Lodgra.</p>
+        <p>&copy; ${new Date().getFullYear()} Lodgra. Todos os direitos reservados.</p>
       </div>
     </div>
   </div>

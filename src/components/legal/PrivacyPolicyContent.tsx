@@ -13,7 +13,7 @@ export function PrivacyPolicyContent() {
   return (
     <main className="min-h-screen bg-white">
       <div className="max-w-3xl mx-auto px-6 py-16">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Home Stay</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Lodgra</h1>
         <h2 className="text-xl font-semibold text-gray-700 mb-1">{t('privacy.title')}</h2>
         <div className="flex items-center gap-3 mb-10">
           <p className="text-sm text-gray-500">{t('privacy.lastUpdated')}</p>

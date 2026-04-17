@@ -43,7 +43,7 @@ export function PropertyPageHeader({ propertyName }: PropertyPageHeaderProps) {
       }`}
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-        <Link href="/" aria-label="Home Stay — página inicial">
+        <Link href="/" aria-label="Lodgra — página inicial">
           <Logo variant={scrolled ? 'default' : 'white'} size="md" />
         </Link>
 

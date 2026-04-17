@@ -4,12 +4,13 @@ import { useState } from 'react'
 import { useRouter } from '@/lib/i18n/routing'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
-import { Building2, Lock, Mail, User, Eye, EyeOff } from 'lucide-react'
+import { Lock, Mail, User, Eye, EyeOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { SocialLoginButtons } from '@/components/auth/SocialLoginButtons'
+import { Logo } from '@/components/ui/Logo'
 import { useLocale } from '@/lib/i18n/routing'
 import { useTranslations } from 'next-intl'
 import { toast } from 'sonner'
@@ -126,9 +127,8 @@ export default function RegisterPage() {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
-            <div className="flex items-center justify-center gap-2 mb-4">
-              <Building2 className="h-12 w-12 text-blue-600" />
-              <h1 className="text-3xl font-bold text-gray-900">Home Stay</h1>
+            <div className="mb-4">
+              <Logo size="lg" />
             </div>
           </div>
 
@@ -166,9 +166,8 @@ export default function RegisterPage() {
       <div className="w-full max-w-md">
         {/* Logo e Título */}
         <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <Building2 className="h-12 w-12 text-blue-600" />
-            <h1 className="text-3xl font-bold text-gray-900">Home Stay</h1>
+          <div className="flex items-center justify-center mb-4">
+            <Logo size="lg" />
           </div>
           <p className="text-gray-600">Sistema de Gestão de Alojamentos</p>
         </div>
@@ -328,7 +327,7 @@ export default function RegisterPage() {
 
         {/* Versão */}
         <p className="text-center text-sm text-gray-500 mt-6">
-          Home Stay v2.0 - Multi-usuário
+          Lodgra v2.0 - Multi-usuário
         </p>
       </div>
     </div>

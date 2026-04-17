@@ -162,7 +162,7 @@ export default function SetPasswordPage() {
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-4">
             <Lock className="h-12 w-12 text-blue-600" />
-            <h1 className="text-3xl font-bold text-gray-900">Home Stay</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Lodgra</h1>
           </div>
           <p className="text-gray-600">Crie sua senha</p>
         </div>
