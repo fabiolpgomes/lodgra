@@ -3,11 +3,12 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
-import { Building2, Mail, ArrowLeft, CheckCircle } from 'lucide-react'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Mail, ArrowLeft, CheckCircle } from 'lucide-react'
+import { Input } from '@/components/common/ui/input'
+import { Label } from '@/components/common/ui/label'
+import { Alert, AlertDescription } from '@/components/common/ui/alert'
 import { toast } from 'sonner'
+import { Logo } from '@/components/common/ui/Logo'
 
 export default function ResetPasswordPage() {
   const [email, setEmail] = useState('')
@@ -49,9 +50,8 @@ export default function ResetPasswordPage() {
         <div className="w-full max-w-md">
           {/* Logo */}
           <div className="text-center mb-8">
-            <div className="flex items-center justify-center gap-2 mb-4">
-              <Building2 className="h-12 w-12 text-blue-600" />
-              <h1 className="text-3xl font-bold text-gray-900">Home Stay</h1>
+            <div className="flex items-center justify-center mb-4">
+              <Logo size="lg" />
             </div>
           </div>
 
@@ -100,9 +100,8 @@ export default function ResetPasswordPage() {
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <Building2 className="h-12 w-12 text-blue-600" />
-            <h1 className="text-3xl font-bold text-gray-900">Home Stay</h1>
+          <div className="flex items-center justify-center mb-4">
+            <Logo size="lg" />
           </div>
           <p className="text-gray-600">Reset de Password</p>
         </div>
@@ -168,7 +167,7 @@ export default function ResetPasswordPage() {
 
         {/* Version */}
         <p className="text-center text-sm text-gray-500 mt-6">
-          Home Stay v1.1 - Seguro
+          Lodgra v1.1 - Seguro
         </p>
       </div>
     </div>

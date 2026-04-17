@@ -3,7 +3,7 @@
  * Works without next-intl plugin, loads translations from disk
  */
 
-import { locales } from '../../../i18n.config'
+import { locales } from '@/i18n.config'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const translationCache: Map<string, any> = new Map()

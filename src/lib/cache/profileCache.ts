@@ -21,7 +21,7 @@ export interface CachedProfile {
   guest_type?: string | null
 }
 
-const PREFIX = '@homestay/profile:'
+const PREFIX = '@lodgra/profile:'
 const TTL_SECONDS = 60
 
 let _redis: Redis | null = null

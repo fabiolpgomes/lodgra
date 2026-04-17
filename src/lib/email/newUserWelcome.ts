@@ -15,15 +15,15 @@ export async function sendNewUserWelcomeEmail(params: NewUserWelcomeParams): Pro
     return false
   }
   const resend = new Resend(apiKey)
-  const fromEmail = process.env.EMAIL_FROM || 'Home Stay <noreply@resend.dev>'
-  const appUrl = params.appUrl || process.env.NEXT_PUBLIC_APP_URL || 'https://homestay.pt'
+  const fromEmail = process.env.EMAIL_FROM || 'Lodgra <noreply@resend.dev>'
+  const appUrl = params.appUrl || process.env.NEXT_PUBLIC_APP_URL || 'https://lodgra.pt'
 
   const setPasswordUrl = `${appUrl}/auth/set-password?token=${params.resetToken}`
 
   const html = `
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 600px; margin: 0 auto;">
       <div style="background: #1f2937; color: white; padding: 24px; border-radius: 8px 8px 0 0; text-align: center;">
-        <h1 style="margin: 0; font-size: 24px;">Bem-vindo à Home Stay</h1>
+        <h1 style="margin: 0; font-size: 24px;">Bem-vindo à Lodgra</h1>
       </div>
 
       <div style="background: white; padding: 24px; border: 1px solid #e5e7eb; border-radius: 0 0 8px 8px;">
@@ -71,7 +71,7 @@ export async function sendNewUserWelcomeEmail(params: NewUserWelcomeParams): Pro
   `
 
   const text = `
-Bem-vindo à Home Stay
+Bem-vindo à Lodgra
 
 Olá ${params.fullName},
 
@@ -90,7 +90,7 @@ Se você não solicitou a criação desta conta, ignore este email.
     await resend.emails.send({
       from: fromEmail,
       to: params.email,
-      subject: 'Bem-vindo à Home Stay - Suas Credenciais de Acesso',
+      subject: 'Bem-vindo à Lodgra - Suas Credenciais de Acesso',
       html,
       text,
     })

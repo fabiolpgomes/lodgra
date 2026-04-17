@@ -5,7 +5,7 @@ export default function PropertyNotFound() {
     <div className="min-h-screen bg-white flex flex-col items-center justify-center px-4">
       <header className="absolute top-0 left-0 right-0 border-b border-gray-100 px-4 py-3">
         <div className="max-w-5xl mx-auto">
-          <span className="font-semibold text-gray-900 text-lg">homestay.pt</span>
+          <span className="font-semibold text-gray-900 text-lg">lodgra.pt</span>
         </div>
       </header>
 

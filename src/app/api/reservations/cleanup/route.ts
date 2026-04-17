@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
 
           // Eliminar hóspedes importados associados
           const importedGuestIds = (cancelledReservations as unknown as CancelledReservationRow[])
-            .filter((r) => r.guests?.email?.endsWith('@homestay.local'))
+            .filter((r) => r.guests?.email?.endsWith('@lodgra.local'))
             .map((r) => r.guest_id)
 
           if (importedGuestIds.length > 0) {
@@ -67,12 +67,12 @@ export async function POST(request: NextRequest) {
 
     // Eliminar reservas fantasma (importadas com hóspede temporário)
     if (type === 'phantom' || type === 'all') {
-      // Buscar reservas importadas com hóspede @homestay.local
+      // Buscar reservas importadas com hóspede @lodgra.local
       const { data: phantomReservations } = await supabase
         .from('reservations')
         .select('id, guest_id, guests!inner(id, email)')
         .in('booking_source', ['ical_import', 'ical_auto_sync'])
-        .like('guests.email', '%@homestay.local')
+        .like('guests.email', '%@lodgra.local')
 
       if (phantomReservations && phantomReservations.length > 0) {
         const ids = (phantomReservations as unknown as PhantomReservationRow[]).map((r) => r.id)
@@ -131,7 +131,7 @@ export async function GET(_request: NextRequest) {
       .from('reservations')
       .select('id, guests!inner(email)')
       .in('booking_source', ['ical_import', 'ical_auto_sync'])
-      .like('guests.email', '%@homestay.local')
+      .like('guests.email', '%@lodgra.local')
 
     return NextResponse.json({
       cancelled: cancelledCount || 0,

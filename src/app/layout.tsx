@@ -2,10 +2,10 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { headers } from "next/headers";
 import "./globals.css";
-import { Toaster } from "@/components/ui/sonner";
-import { CookieBanner } from "@/components/ui/CookieBanner";
-import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
-import { ServiceWorkerRegister } from "@/components/pwa/ServiceWorkerRegister";
+import { Toaster } from "@/components/common/ui/sonner";
+import { CookieBanner } from "@/components/common/ui/CookieBanner";
+import { GoogleAnalytics } from "@/components/features/analytics/GoogleAnalytics";
+import { ServiceWorkerRegister } from "@/components/common/pwa/ServiceWorkerRegister";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,41 +23,42 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
-  themeColor: "#1567A8",
+  themeColor: "#1E3A8A",
 };
 
 // Noindex por defeito — páginas públicas fazem override via generateMetadata
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://www.homestay.pt'),
-  title: 'Home Stay',
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://www.lodgra.pt'),
+  title: 'Lodgra',
   robots: { index: false, follow: false },
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'Home Stay',
+    title: 'Lodgra',
   },
   icons: {
+    icon: '/favicon.svg',
     apple: '/icons/apple-touch-icon.png',
   },
 };
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://www.homestay.pt'
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://www.lodgra.pt'
 
 const organizationSchema = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
-  name: 'Home Stay',
+  name: 'Lodgra',
   url: APP_URL,
   logo: `${APP_URL}/opengraph-image`,
-  description: 'Plataforma de gestão de alojamentos locais para anfitriões no Airbnb e Booking.com.',
+  description: 'Plataforma global de gestão de alojamentos locais para anfitriões no Airbnb e Booking.com.',
   contactPoint: {
     '@type': 'ContactPoint',
-    email: 'privacidade@homestay.pt',
+    email: 'support@lodgra.io',
     contactType: 'customer support',
-    availableLanguage: ['Portuguese'],
+    availableLanguage: ['Portuguese', 'English', 'Spanish'],
   },
-  areaServed: ['PT', 'BR', 'US'],
+  areaServed: ['PT', 'BR', 'US', 'ES'],
 }
 
 export default async function RootLayout({

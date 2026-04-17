@@ -1,7 +1,7 @@
 import { ImageResponse } from 'next/og'
 
 export const runtime = 'edge'
-export const alt = 'Home Stay - App de Gestão de Aluguel por Temporada'
+export const alt = 'Lodgra - App de Gestão de Aluguel por Temporada'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
@@ -40,7 +40,7 @@ export default function Image() {
               letterSpacing: '-1px',
             }}
           >
-            Home Stay
+            Lodgra
           </span>
         </div>
 

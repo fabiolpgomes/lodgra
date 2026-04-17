@@ -4,13 +4,14 @@ import { useState, useEffect } from 'react'
 import { useRouter, useLocale } from '@/lib/i18n/routing'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
-import { Building2, Lock, Mail, Eye, EyeOff } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Lock, Mail, Eye, EyeOff } from 'lucide-react'
+import { Button } from '@/components/common/ui/button'
+import { Input } from '@/components/common/ui/input'
+import { Label } from '@/components/common/ui/label'
+import { Alert, AlertDescription } from '@/components/common/ui/alert'
 import { SocialLoginButtons } from '@/components/auth/SocialLoginButtons'
 import { toast } from 'sonner'
+import { Logo } from '@/components/common/ui/Logo'
 import { useTranslations } from 'next-intl'
 
 export default function LoginPage() {
@@ -59,9 +60,8 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         {/* Logo e Título */}
         <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <Building2 className="h-12 w-12 text-blue-600" />
-            <h1 className="text-3xl font-bold text-gray-900">Home Stay</h1>
+          <div className="flex items-center justify-center mb-4">
+            <Logo size="lg" />
           </div>
           <p className="text-gray-600">Sistema de Gestão de Alojamentos</p>
         </div>
@@ -158,7 +158,7 @@ export default function LoginPage() {
 
         {/* Versão */}
         <p className="text-center text-sm text-gray-500 mt-6">
-          Home Stay v2.0 - Multi-usuário
+          Lodgra v2.0 - Multi-usuário
         </p>
       </div>
     </div>

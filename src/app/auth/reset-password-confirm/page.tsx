@@ -4,10 +4,11 @@ import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
-import { Building2, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Lock, Eye, EyeOff, AlertCircle } from 'lucide-react'
+import { Logo } from '@/components/common/ui/Logo'
+import { Input } from '@/components/common/ui/input'
+import { Label } from '@/components/common/ui/label'
+import { Alert, AlertDescription } from '@/components/common/ui/alert'
 import { toast } from 'sonner'
 
 export default function ResetPasswordConfirmPage() {
@@ -118,9 +119,8 @@ export default function ResetPasswordConfirmPage() {
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <div className="text-center">
-            <div className="flex items-center justify-center gap-2 mb-4">
-              <Building2 className="h-12 w-12 text-blue-600" />
-              <h1 className="text-3xl font-bold text-gray-900">Home Stay</h1>
+            <div className="flex items-center justify-center mb-4">
+              <Logo size="lg" />
             </div>
             <p className="text-gray-600">Processando...</p>
           </div>
@@ -134,9 +134,8 @@ export default function ResetPasswordConfirmPage() {
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <Building2 className="h-12 w-12 text-blue-600" />
-            <h1 className="text-3xl font-bold text-gray-900">Home Stay</h1>
+          <div className="flex items-center justify-center mb-4">
+            <Logo size="lg" />
           </div>
           <p className="text-gray-600">Nova Password</p>
         </div>
@@ -300,7 +299,7 @@ export default function ResetPasswordConfirmPage() {
 
         {/* Version */}
         <p className="text-center text-sm text-gray-500 mt-6">
-          Home Stay v1.1 - Seguro
+          Lodgra v1.1 - Seguro
         </p>
       </div>
     </div>

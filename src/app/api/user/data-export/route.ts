@@ -150,7 +150,7 @@ export async function POST() {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
-        'Content-Disposition': `attachment; filename="homestay-data-export-${new Date().toISOString().split('T')[0]}.json"`,
+        'Content-Disposition': `attachment; filename="lodgra-data-export-${new Date().toISOString().split('T')[0]}.json"`,
       },
     })
   } catch (error) {

@@ -2,7 +2,7 @@
  * JSON-LD structured data generators for SEO.
  */
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://www.homestay.pt'
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://www.lodgra.pt'
 
 interface PropertyData {
   name: string
@@ -53,7 +53,7 @@ export function generateWebsiteJsonLd() {
   return {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    name: 'Home Stay',
+    name: 'Lodgra',
     url: APP_URL,
     potentialAction: {
       '@type': 'SearchAction',

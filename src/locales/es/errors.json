@@ -1,0 +1,17 @@
+{
+  "notFound": "No encontrado",
+  "unauthorized": "No autorizado",
+  "forbidden": "Acceso prohibido",
+  "badRequest": "Solicitud inválida",
+  "serverError": "Error del servidor",
+  "connectionError": "Error de conexión",
+  "timeoutError": "Tiempo de espera agotado",
+  "validationError": "Error de validación",
+  "notFoundMessage": "La página que busca no existe",
+  "unauthorizedMessage": "Debe iniciar sesión para acceder a este recurso",
+  "forbiddenMessage": "No tiene permiso para acceder a este recurso",
+  "serverErrorMessage": "Ocurrió un error en el servidor. Por favor, intente más tarde",
+  "tryAgain": "Intentar de Nuevo",
+  "goHome": "Ir al Inicio",
+  "contactSupport": "Contactar Soporte"
+}

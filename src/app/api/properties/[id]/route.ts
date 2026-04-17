@@ -63,7 +63,7 @@ export async function PATCH(
       )
     }
 
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://www.homestay.pt'
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://www.lodgra.pt'
     return NextResponse.json({
       success: true,
       is_public,

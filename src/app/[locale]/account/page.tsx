@@ -1,7 +1,8 @@
 import { requireRole } from '@/lib/auth/requireRole'
 import { redirect } from 'next/navigation'
-import { AuthLayout } from '@/components/layout/AuthLayout'
+import { AuthLayout } from '@/components/common/layout/AuthLayout'
 import { ChangePasswordForm } from '@/components/auth/ChangePasswordForm'
+import { SubscriptionSection } from '@/components/features/account/SubscriptionSection'
 import { KeyRound, User } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 
@@ -16,6 +17,13 @@ export default async function AccountPage() {
     .from('user_profiles')
     .select('email, full_name, role')
     .eq('id', auth.userId!)
+    .single()
+
+  // Fetch organization subscription info
+  const { data: org } = await supabase
+    .from('organizations')
+    .select('subscription_plan, subscription_status')
+    .eq('id', auth.organizationId)
     .single()
 
   const roleLabel = {
@@ -62,6 +70,13 @@ export default async function AccountPage() {
             </div>
           </div>
         </div>
+
+        {/* Subscription Info */}
+        <SubscriptionSection
+          currentPlan={org?.subscription_plan || null}
+          subscriptionStatus={org?.subscription_status || null}
+          isAdmin={auth.role === 'admin'}
+        />
 
         {/* Change Password */}
         <div className="bg-white rounded-lg shadow p-6">

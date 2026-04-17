@@ -46,32 +46,32 @@
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
 
-  /* Home Stay brand tokens */
-  --color-hs-brand-50: var(--hs-brand-50);
-  --color-hs-brand-100: var(--hs-brand-100);
-  --color-hs-brand-200: var(--hs-brand-200);
-  --color-hs-brand-300: var(--hs-brand-300);
-  --color-hs-brand-400: var(--hs-brand-400);
-  --color-hs-brand-500: var(--hs-brand-500);
-  --color-hs-brand-600: var(--hs-brand-600);
-  --color-hs-brand-700: var(--hs-brand-700);
-  --color-hs-brand-900: var(--hs-brand-900);
-  --color-hs-accent-500: var(--hs-accent-500);
-  --color-hs-accent-600: var(--hs-accent-600);
-  --color-hs-neutral-50: var(--hs-neutral-50);
-  --color-hs-neutral-100: var(--hs-neutral-100);
-  --color-hs-neutral-200: var(--hs-neutral-200);
-  --color-hs-neutral-500: var(--hs-neutral-500);
-  --color-hs-neutral-700: var(--hs-neutral-700);
-  --color-hs-neutral-900: var(--hs-neutral-900);
-  --color-hs-success: var(--hs-success);
-  --color-hs-warning: var(--hs-warning);
-  --color-hs-error: var(--hs-error);
-  --color-hs-cta-bg: var(--hs-cta-bg);
-  --color-hs-cta-bg-hover: var(--hs-cta-bg-hover);
-  --color-hs-surface: var(--hs-surface);
-  --color-hs-surface-card: var(--hs-surface-card);
-  --color-hs-border-subtle: var(--hs-border-subtle);
+  /* Lodgra brand tokens */
+  --color-lodgra-brand-50: var(--lodgra-brand-50);
+  --color-lodgra-brand-100: var(--lodgra-brand-100);
+  --color-lodgra-brand-200: var(--lodgra-brand-200);
+  --color-lodgra-brand-300: var(--lodgra-brand-300);
+  --color-lodgra-brand-400: var(--lodgra-brand-400);
+  --color-lodgra-brand-500: var(--lodgra-brand-500);
+  --color-lodgra-brand-600: var(--lodgra-brand-600);
+  --color-lodgra-brand-700: var(--lodgra-brand-700);
+  --color-lodgra-brand-900: var(--lodgra-brand-900);
+  --color-lodgra-accent-500: var(--lodgra-accent-500);
+  --color-lodgra-accent-600: var(--lodgra-accent-600);
+  --color-lodgra-neutral-50: var(--lodgra-neutral-50);
+  --color-lodgra-neutral-100: var(--lodgra-neutral-100);
+  --color-lodgra-neutral-200: var(--lodgra-neutral-200);
+  --color-lodgra-neutral-500: var(--lodgra-neutral-500);
+  --color-lodgra-neutral-700: var(--lodgra-neutral-700);
+  --color-lodgra-neutral-900: var(--lodgra-neutral-900);
+  --color-lodgra-success: var(--lodgra-success);
+  --color-lodgra-warning: var(--lodgra-warning);
+  --color-lodgra-error: var(--lodgra-error);
+  --color-lodgra-cta-bg: var(--lodgra-cta-bg);
+  --color-lodgra-cta-bg-hover: var(--lodgra-cta-bg-hover);
+  --color-lodgra-surface: var(--lodgra-surface);
+  --color-lodgra-surface-card: var(--lodgra-surface-card);
+  --color-lodgra-border-subtle: var(--lodgra-border-subtle);
 }
 
 /* Input text color handled by --foreground token (Shadcn) */
@@ -128,69 +128,69 @@
 :root {
   --radius: 0.75rem;
 
-  /* ─── Home Stay Brand Tokens ─────────────────────────────────── */
+  /* ─── Lodgra Brand Tokens ───────────────────────────────────────── */
 
-  /* Brand scale — Ocean Blue (primary brand identity) */
-  --hs-brand-50:  oklch(0.97 0.01 222);
-  --hs-brand-100: oklch(0.93 0.03 222);
-  --hs-brand-200: oklch(0.86 0.06 222);
-  --hs-brand-300: oklch(0.75 0.09 222);
-  --hs-brand-400: oklch(0.63 0.12 222);
-  --hs-brand-500: oklch(0.52 0.13 222);   /* Primary brand */
-  --hs-brand-600: oklch(0.43 0.12 222);   /* Hover / darker */
-  --hs-brand-700: oklch(0.36 0.10 222);   /* Dark text on light bg */
-  --hs-brand-800: oklch(0.28 0.08 222);
-  --hs-brand-900: oklch(0.21 0.06 222);
-  --hs-brand-950: oklch(0.14 0.04 222);
+  /* Brand scale — Lodgra Blue (#1E3A8A primary brand identity) */
+  --lodgra-brand-50:  oklch(0.97 0.01 263);
+  --lodgra-brand-100: oklch(0.93 0.03 263);
+  --lodgra-brand-200: oklch(0.86 0.06 263);
+  --lodgra-brand-300: oklch(0.75 0.09 263);
+  --lodgra-brand-400: oklch(0.63 0.12 263);
+  --lodgra-brand-500: oklch(0.40 0.15 263);   /* Primary brand - Lodgra Blue #1E3A8A */
+  --lodgra-brand-600: oklch(0.33 0.14 263);   /* Hover / darker */
+  --lodgra-brand-700: oklch(0.28 0.12 263);   /* Dark text on light bg */
+  --lodgra-brand-800: oklch(0.22 0.10 263);
+  --lodgra-brand-900: oklch(0.16 0.08 263);
+  --lodgra-brand-950: oklch(0.10 0.05 263);
 
-  /* Accent scale — Coral Atlantic (CTAs, highlights) */
-  --hs-accent-400: oklch(0.72 0.17 33);
-  --hs-accent-500: oklch(0.62 0.20 32);   /* CTA primary ("Reservar agora") */
-  --hs-accent-600: oklch(0.52 0.18 31);   /* CTA hover */
+  /* Accent scale — Lodgra Gold (#D4AF37 CTAs, highlights) */
+  --lodgra-accent-400: oklch(0.75 0.17 60);
+  --lodgra-accent-500: oklch(0.69 0.16 60);   /* CTA primary - Lodgra Gold #D4AF37 */
+  --lodgra-accent-600: oklch(0.60 0.14 58);   /* CTA hover */
 
   /* Neutral warm scale — Apple-inspired off-whites */
-  --hs-neutral-50:  oklch(0.985 0.002 75);  /* Page background */
-  --hs-neutral-100: oklch(0.962 0.004 75);  /* Card surfaces */
-  --hs-neutral-200: oklch(0.918 0.004 75);  /* Borders */
-  --hs-neutral-300: oklch(0.850 0.004 75);  /* Disabled */
-  --hs-neutral-500: oklch(0.552 0.008 75);  /* Text secondary */
-  --hs-neutral-700: oklch(0.380 0.006 75);  /* Text medium */
-  --hs-neutral-900: oklch(0.138 0.004 75);  /* Text primary (warm near-black) */
+  --lodgra-neutral-50:  oklch(0.985 0.002 75);  /* Page background */
+  --lodgra-neutral-100: oklch(0.962 0.004 75);  /* Card surfaces */
+  --lodgra-neutral-200: oklch(0.918 0.004 75);  /* Borders */
+  --lodgra-neutral-300: oklch(0.850 0.004 75);  /* Disabled */
+  --lodgra-neutral-500: oklch(0.552 0.008 75);  /* Text secondary */
+  --lodgra-neutral-700: oklch(0.380 0.006 75);  /* Text medium */
+  --lodgra-neutral-900: oklch(0.138 0.004 75);  /* Text primary (warm near-black) */
 
   /* Semantic aliases */
-  --hs-success:  oklch(0.527 0.154 145);    /* green-600 */
-  --hs-warning:  oklch(0.666 0.179 58);     /* amber-500 */
-  --hs-error:    oklch(0.577 0.245 27.325); /* red-600 */
+  --lodgra-success:  oklch(0.527 0.154 145);    /* green-600 */
+  --lodgra-warning:  oklch(0.666 0.179 58);     /* amber-500 */
+  --lodgra-error:    oklch(0.577 0.245 27.325); /* red-600 */
 
   /* Public page specific */
-  --hs-surface:         var(--hs-neutral-50);
-  --hs-surface-card:    var(--hs-neutral-100);
-  --hs-border-subtle:   var(--hs-neutral-200);
-  --hs-text-primary:    var(--hs-neutral-900);
-  --hs-text-secondary:  var(--hs-neutral-500);
-  --hs-cta-bg:          var(--hs-accent-500);
-  --hs-cta-bg-hover:    var(--hs-accent-600);
-  --hs-cta-text:        oklch(1 0 0);
+  --lodgra-surface:         var(--lodgra-neutral-50);
+  --lodgra-surface-card:    var(--lodgra-neutral-100);
+  --lodgra-border-subtle:   var(--lodgra-neutral-200);
+  --lodgra-text-primary:    var(--lodgra-neutral-900);
+  --lodgra-text-secondary:  var(--lodgra-neutral-500);
+  --lodgra-cta-bg:          var(--lodgra-accent-500);
+  --lodgra-cta-bg-hover:    var(--lodgra-accent-600);
+  --lodgra-cta-text:        oklch(1 0 0);
 
-  /* ─── Shadcn / Dashboard Tokens (updated to brand) ───────────── */
+  /* ─── Shadcn / Dashboard Tokens (updated to Lodgra brand) ────────── */
   --background: oklch(1 0 0);
   --foreground: oklch(0.138 0.004 75);     /* warm near-black */
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.138 0.004 75);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.138 0.004 75);
-  --primary: oklch(0.52 0.13 222);         /* brand-500 ocean blue */
+  --primary: oklch(0.40 0.15 263);         /* brand-500 Lodgra Blue #1E3A8A */
   --primary-foreground: oklch(1 0 0);      /* white */
   --secondary: oklch(0.962 0.004 75);      /* warm neutral-100 */
   --secondary-foreground: oklch(0.21 0.006 285.885);
   --muted: oklch(0.962 0.004 75);
   --muted-foreground: oklch(0.552 0.008 75);
-  --accent: oklch(0.962 0.004 75);
-  --accent-foreground: oklch(0.21 0.006 285.885);
+  --accent: oklch(0.69 0.16 60);           /* Lodgra Gold #D4AF37 */
+  --accent-foreground: oklch(0.138 0.004 75);
   --destructive: oklch(0.577 0.245 27.325); /* red-600 */
   --border: oklch(0.918 0.004 75);         /* warm neutral-200 */
   --input: oklch(0.918 0.004 75);
-  --ring: oklch(0.52 0.13 222);            /* brand-500 focus ring */
+  --ring: oklch(0.40 0.15 263);            /* brand-500 Lodgra Blue focus ring */
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);

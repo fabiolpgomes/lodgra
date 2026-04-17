@@ -1,6 +1,8 @@
-# 🏠 Home Stay - Sistema de Gestão de Alojamentos
+# 🏢 Lodgra - Global Hospitality Management Platform
 
-Sistema completo para gestão de propriedades, reservas, despesas e análise financeira.
+Platform completa para gestão de propriedades, reservas, despesas e análise financeira - disponível em português, inglês e espanhol.
+
+🌍 **Supported Markets:** 🇧🇷 Brazil (PT-BR) | 🇵🇹 Portugal (PT-PT) | 🇺🇸 USA (EN-US) | 🇪🇸 Spain (ES coming)
 
 ## ✨ Funcionalidades
 

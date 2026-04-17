@@ -1,8 +1,8 @@
 import { requireRole } from '@/lib/auth/requireRole'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { AuthLayout } from '@/components/layout/AuthLayout'
-import { LazyExpensesPdfGenerator as ExpensesPdfGenerator } from '@/components/lazy/LazyPdfGenerators'
+import { AuthLayout } from '@/components/common/layout/AuthLayout'
+import { LazyExpensesPdfGenerator as ExpensesPdfGenerator } from '@/components/common/lazy/LazyPdfGenerators'
 import { getUserPropertyIds } from '@/lib/auth/getUserProperties'
 import { FileText } from 'lucide-react'
 

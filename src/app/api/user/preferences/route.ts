@@ -15,7 +15,7 @@ export async function PATCH(request: NextRequest) {
     const { preferred_locale } = body
 
     // Validate locale
-    const validLocales = ['pt', 'pt-BR', 'en-US', 'es-ES']
+    const validLocales = ['pt', 'pt-BR', 'en-US', 'es']
     if (preferred_locale && !validLocales.includes(preferred_locale)) {
       return NextResponse.json(
         { error: `Invalid locale. Must be one of: ${validLocales.join(', ')}` },

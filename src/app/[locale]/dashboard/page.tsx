@@ -1,9 +1,9 @@
 import Link from 'next/link'
 import { Calendar, TrendingUp, Percent, Users, Home, Euro, Clock, CheckCircle } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
-import { LazyOccupancyChart as OccupancyChart, LazyRevenueChart as RevenueChart, LazyStatusChart as StatusChart } from '@/components/lazy/LazyCharts'
+import { LazyOccupancyChart as OccupancyChart, LazyRevenueChart as RevenueChart, LazyStatusChart as StatusChart } from '@/components/common/lazy/LazyCharts'
 import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
-import { AuthLayout } from '@/components/layout/AuthLayout'
+import { AuthLayout } from '@/components/common/layout/AuthLayout'
 import { redirect } from 'next/navigation'
 
 export default async function DashboardPage({

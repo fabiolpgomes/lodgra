@@ -2,12 +2,12 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ArrowLeft, Edit, Users, MapPin, Building, CreditCard, Phone, Mail, FileText, Scale } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
-import { AuthLayout } from '@/components/layout/AuthLayout'
-import { DeleteOwnerButton } from '@/components/owners/DeleteOwnerButton'
-import { AssignPropertyToOwner } from '@/components/owners/AssignPropertyToOwner'
+import { AuthLayout } from '@/components/common/layout/AuthLayout'
+import { DeleteOwnerButton } from '@/components/features/owners/DeleteOwnerButton'
+import { AssignPropertyToOwner } from '@/components/features/owners/AssignPropertyToOwner'
 import { getUserRole } from '@/lib/auth/getUserRole'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/common/ui/button'
+import { Badge } from '@/components/common/ui/badge'
 
 export default async function OwnerDetailsPage({
   params

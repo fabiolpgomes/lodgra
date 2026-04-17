@@ -3,9 +3,9 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from '@/lib/i18n/routing'
 import Link from 'next/link'
-import { Step1Welcome } from '@/components/onboarding/Step1Welcome'
-import { Step2Property } from '@/components/onboarding/Step2Property'
-import { Step3ICalSetup } from '@/components/onboarding/Step3ICalSetup'
+import { Step1Welcome } from '@/components/features/onboarding/Step1Welcome'
+import { Step2Property } from '@/components/features/onboarding/Step2Property'
+import { Step3ICalSetup } from '@/components/features/onboarding/Step3ICalSetup'
 import { SocialLoginButtons } from '@/components/auth/SocialLoginButtons'
 import { createClient } from '@/lib/supabase/client'
 import { Home } from 'lucide-react'
@@ -85,7 +85,7 @@ export default function OnboardingPage() {
           <div className="text-center mb-8">
             <div className="flex items-center justify-center gap-2 mb-4">
               <Home className="h-10 w-10 text-blue-600" />
-              <h1 className="text-3xl font-bold text-gray-900">Home Stay</h1>
+              <h1 className="text-3xl font-bold text-gray-900">Lodgra</h1>
             </div>
           </div>
           <div className="bg-white rounded-xl shadow-xl p-8">
@@ -117,7 +117,7 @@ export default function OnboardingPage() {
       <header className="bg-white border-b border-gray-100 py-4 px-6">
         <div className="max-w-2xl mx-auto flex items-center gap-2">
           <Home className="h-6 w-6 text-blue-600" />
-          <span className="font-bold text-gray-900 text-lg">Home Stay</span>
+          <span className="font-bold text-gray-900 text-lg">Lodgra</span>
         </div>
       </header>
 

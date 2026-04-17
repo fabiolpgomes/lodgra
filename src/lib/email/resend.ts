@@ -8,7 +8,7 @@ function getResendClient() {
   return new Resend(apiKey)
 }
 
-const FROM_EMAIL = process.env.EMAIL_FROM || 'Home Stay <noreply@resend.dev>'
+const FROM_EMAIL = process.env.EMAIL_FROM || 'Lodgra <noreply@resend.dev>'
 const ADMIN_EMAIL = process.env.EMAIL_ADMIN || ''
 
 interface OwnerReservationNotification {
@@ -91,7 +91,7 @@ export async function sendDailySummary({
   const html = `
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 600px; margin: 0 auto;">
       <div style="background: #2563eb; color: white; padding: 24px; border-radius: 8px 8px 0 0;">
-        <h1 style="margin: 0; font-size: 20px;">Home Stay - Resumo Diário</h1>
+        <h1 style="margin: 0; font-size: 20px;">Lodgra - Resumo Diário</h1>
         <p style="margin: 8px 0 0; opacity: 0.9;">${formattedDate}</p>
       </div>
 
@@ -135,7 +135,7 @@ export async function sendDailySummary({
 
       <div style="background: #f9fafb; padding: 16px; border-radius: 0 0 8px 8px; border: 1px solid #e5e7eb; border-top: none; text-align: center;">
         <p style="margin: 0; font-size: 12px; color: #9ca3af;">
-          Enviado automaticamente pelo Home Stay
+          Enviado automaticamente pelo Lodgra
         </p>
       </div>
     </div>
@@ -151,7 +151,7 @@ export async function sendDailySummary({
     const { data, error } = await resend.emails.send({
       from: FROM_EMAIL,
       to: ADMIN_EMAIL,
-      subject: `Home Stay - ${checkIns.length} chegada(s) e ${checkOuts.length} saída(s) hoje`,
+      subject: `Lodgra - ${checkIns.length} chegada(s) e ${checkOuts.length} saída(s) hoje`,
       html,
     })
 
@@ -177,7 +177,7 @@ export async function sendReservationConfirmation(data: CheckInNotification) {
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 600px; margin: 0 auto;">
       <div style="background: #2563eb; color: white; padding: 24px; border-radius: 8px 8px 0 0;">
         <h1 style="margin: 0; font-size: 20px;">Confirmação de Reserva</h1>
-        <p style="margin: 8px 0 0; opacity: 0.9;">Home Stay</p>
+        <p style="margin: 8px 0 0; opacity: 0.9;">Lodgra</p>
       </div>
 
       <div style="background: white; padding: 24px; border: 1px solid #e5e7eb;">
@@ -218,7 +218,7 @@ export async function sendReservationConfirmation(data: CheckInNotification) {
 
       <div style="background: #f9fafb; padding: 16px; border-radius: 0 0 8px 8px; border: 1px solid #e5e7eb; border-top: none; text-align: center;">
         <p style="margin: 0; font-size: 12px; color: #9ca3af;">
-          Home Stay - Sistema de Gestão de Alojamentos
+          Lodgra - Sistema de Gestão de Alojamentos
         </p>
       </div>
     </div>
@@ -318,7 +318,7 @@ export async function sendOwnerReservationNotification(data: OwnerReservationNot
 
       <div style="background: #f9fafb; padding: 16px; border-radius: 0 0 8px 8px; border: 1px solid #e5e7eb; border-top: none; text-align: center;">
         <p style="margin: 0; font-size: 12px; color: #9ca3af;">
-          Home Stay - Sistema de Gestão de Alojamentos
+          Lodgra - Sistema de Gestão de Alojamentos
         </p>
       </div>
     </div>
@@ -418,7 +418,7 @@ export async function sendOwnerCancellationNotification(data: OwnerCancellationN
 
       <div style="background: #f9fafb; padding: 16px; border-radius: 0 0 8px 8px; border: 1px solid #e5e7eb; border-top: none; text-align: center;">
         <p style="margin: 0; font-size: 12px; color: #9ca3af;">
-          Home Stay - Sistema de Gestão de Alojamentos
+          Lodgra - Sistema de Gestão de Alojamentos
         </p>
       </div>
     </div>

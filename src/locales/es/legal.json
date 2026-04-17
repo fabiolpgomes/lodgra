@@ -1,0 +1,175 @@
+{
+  "privacy": {
+    "title": "Política de Privacidad",
+    "lastUpdated": "Última actualización: 16 de abril de 2026",
+    "version": "Versión 2.0",
+    "intro": {
+      "title": "¿Qué es Lodgra?",
+      "description": "Lodgra es una plataforma global de gestión de alojamientos que ayuda a propietarios y gestores a organizar propiedades de alquiler a corto plazo.",
+      "features": "Características principales:",
+      "feature1": "Gestión de múltiples propiedades",
+      "feature2": "Gestión de reservas y disponibilidad",
+      "feature3": "Sincronización de calendarios (iCal)",
+      "feature4": "Gestión de gastos y finanzas",
+      "feature5": "Gestión de huéspedes y propietarios",
+      "feature6": "Sistema de suscripción con pago seguro"
+    },
+    "about": {
+      "title": "1. Acerca de Esta Política de Privacidad",
+      "text": "Esta Política de Privacidad describe cómo Lodgra recopila, utiliza y protege la información de sus usuarios. Al utilizar la plataforma, acepta los términos aquí descritos."
+    },
+    "dataCollected": {
+      "title": "2. Datos que Recopilamos",
+      "subtitle": "Recopilamos datos para proporcionar funcionalidades esenciales:",
+      "email": "Nombre y Correo Electrónico",
+      "emailDesc": "Autenticación, crear cuenta, recuperación de contraseña, comunicaciones sobre la cuenta.",
+      "properties": "Datos de Propiedades y Reservas",
+      "propertiesDesc": "Gestión de propiedades, reservas, fechas de check-in/out y operación de la plataforma.",
+      "billing": "Datos de Facturación",
+      "billingDesc": "Procesamiento de pagos a través de Stripe — no almacenamos datos de tarjetas en nuestros servidores.",
+      "usage": "Registros de Uso",
+      "usageDesc": "Diagnóstico, seguridad y mejora continua de la plataforma.",
+      "technical": "Datos Técnicos",
+      "technicalDesc": "Tipo de navegador, sistema operativo y ubicación aproximada para compatibilidad y seguridad."
+    },
+    "usage": {
+      "title": "3. Cómo Utilizamos los Datos",
+      "service": "Proporcionar el servicio: gestión de propiedades, reservas y finanzas",
+      "notifications": "Notificaciones sobre cuenta, reservas y eventos importantes",
+      "support": "Soporte técnico",
+      "security": "Seguridad y detección de fraude",
+      "improvements": "Análisis agregado para mejora de la plataforma",
+      "legal": "Cumplimiento legal"
+    },
+    "sharing": {
+      "title": "4. Compartición de Datos",
+      "subtitle": "Compartimos datos con los siguientes servicios:",
+      "supabase": "Supabase — base de datos y autenticación (UE)",
+      "stripe": "Stripe — procesamiento de pagos",
+      "vercel": "Vercel — alojamiento de la aplicación",
+      "resend": "Resend — envío de correos transaccionales",
+      "authorities": "Autoridades legales — cuando sea requerido por ley",
+      "noSell": "Nunca vendemos sus datos personales."
+    },
+    "security": {
+      "title": "5. Seguridad de Datos",
+      "https": "Encriptación HTTPS/TLS para datos en tránsito",
+      "aes": "Encriptación AES-256 para datos sensibles",
+      "rls": "Seguridad a Nivel de Fila — cada organización accede solo a sus datos",
+      "auth": "Autenticación segura con sesiones protegidas",
+      "audit": "Auditoría de acceso y actividades sospechosas"
+    },
+    "retention": {
+      "title": "6. Retención de Datos",
+      "text": "Mantenemos los datos mientras la cuenta esté activa. Después de la cancelación:",
+      "delete30": "Datos eliminados dentro de 30 días",
+      "backup90": "Copias de seguridad eliminadas hasta 90 días",
+      "legal": "Datos fiscales retenidos conforme a obligación legal"
+    },
+    "rights": {
+      "title": "7. Sus Derechos",
+      "subtitle": "Bajo el RGPD, tiene derecho a:",
+      "access": "Acceso: solicitar copia de todos sus datos",
+      "rectification": "Rectificación: corregir datos inexactos",
+      "erasure": "Eliminación: solicitar eliminación de datos",
+      "portability": "Portabilidad: recibir datos en formato transferible",
+      "restriction": "Restricción: limitar el procesamiento",
+      "objection": "Objeción: oponerse al procesamiento",
+      "consent": "Revocar consentimiento en cualquier momento"
+    },
+    "regional": {
+      "title": "8. Información Regional — RGPD (Portugal)",
+      "controller": "Responsable del tratamiento: Lodgra, Portugal",
+      "basis": "Base legal: consentimiento del usuario y ejecución del contrato",
+      "dpo": "Contacto para protección de datos: support@lodgra.io",
+      "authority": "Autoridad de control: Comissão Nacional de Proteção de Dados (CNPD)",
+      "authorityUrl": "https://www.cnpd.pt"
+    },
+    "cookies": {
+      "title": "9. Cookies",
+      "text": "Utilizamos cookies esenciales (funcionamiento) y analíticas (Google Analytics, con consentimiento). Puede gestionar sus preferencias en cualquier momento en el banner de cookies o en Configuración."
+    },
+    "changes": {
+      "title": "10. Cambios en Esta Política",
+      "text": "Podemos actualizar esta política periódicamente. Notificaremos por correo electrónico cambios significativos con al menos 15 días de anticipación."
+    },
+    "contact": {
+      "title": "11. Contacto",
+      "text": "Preguntas sobre privacidad:",
+      "email": "support@lodgra.io",
+      "complaint": "Para reclamaciones: Comissão Nacional de Proteção de Dados (CNPD), Portugal."
+    }
+  },
+  "terms": {
+    "title": "Términos de Servicio",
+    "lastUpdated": "Última actualización: 16 de abril de 2026",
+    "version": "Versión 2.0",
+    "acceptance": {
+      "title": "1. Aceptación de los Términos",
+      "text": "Al acceder o utilizar la plataforma Lodgra, acepta estos Términos de Servicio. Si no acepta, no debe utilizar la plataforma."
+    },
+    "description": {
+      "title": "2. Descripción del Servicio",
+      "text": "Lodgra es una plataforma de gestión de alojamientos que permite gestionar propiedades, reservas, gastos, propietarios y sincronización de calendarios."
+    },
+    "account": {
+      "title": "3. Cuenta y Acceso",
+      "item1": "Es necesario crear una cuenta para utilizar la plataforma",
+      "item2": "Es responsable de mantener la confidencialidad de sus credenciales",
+      "item3": "Debe notificarnos inmediatamente en caso de acceso no autorizado",
+      "item4": "Una cuenta puede tener múltiples usuarios con diferentes niveles de acceso"
+    },
+    "subscription": {
+      "title": "4. Suscripción y Pago",
+      "item1": "El acceso requiere una suscripción paga",
+      "item2": "Pagos procesados por Stripe",
+      "item3": "La suscripción se renueva automáticamente",
+      "item4": "Puede cancelar en cualquier momento — el acceso se mantiene hasta el final del período",
+      "item5": "No se realizan reembolsos por períodos parciales"
+    },
+    "acceptable": {
+      "title": "5. Uso Aceptable",
+      "subtitle": "Se compromete a no utilizar la plataforma para:",
+      "item1": "Actividades ilegales o fraudulentas",
+      "item2": "Violar derechos de terceros",
+      "item3": "Transmitir contenido malicioso",
+      "item4": "Intentar acceder a datos de otras organizaciones"
+    },
+    "dataOwnership": {
+      "title": "6. Propiedad de los Datos",
+      "text": "Los datos introducidos son de su propiedad. Concede a Lodgra una licencia limitada para procesarlos con el único propósito de prestar el servicio. Puede exportar o solicitar la eliminación de datos en cualquier momento."
+    },
+    "availability": {
+      "title": "7. Disponibilidad",
+      "text": "Nos esforzamos por mantener la plataforma disponible, pero no garantizamos disponibilidad ininterrumpida. No somos responsables por pérdidas resultantes de indisponibilidad."
+    },
+    "liability": {
+      "title": "8. Limitación de Responsabilidad",
+      "text": "Lodgra se proporciona \"tal como está\". No somos responsables por daños indirectos. La responsabilidad máxima se limita al monto pagado en los últimos 3 meses."
+    },
+    "changes": {
+      "title": "9. Cambios en los Términos",
+      "text": "Podemos actualizar estos términos periódicamente. Notificaremos con al menos 15 días de anticipación en caso de cambios significativos."
+    },
+    "termination": {
+      "title": "10. Rescisión",
+      "text": "Podemos suspender cuentas que violen estos términos. Después de la rescisión, los datos estarán disponibles para exportación durante 30 días."
+    },
+    "law": {
+      "title": "11. Ley Aplicable",
+      "text": "Estos términos se rigen por la ley portuguesa. Las disputas se someten a los tribunales de Portugal."
+    },
+    "contact": {
+      "title": "12. Contacto",
+      "text": "Para preguntas sobre estos términos:",
+      "email": "support@lodgra.io"
+    }
+  },
+  "consent": {
+    "acceptTerms": "He leído y acepto los",
+    "termsLink": "Términos de Servicio",
+    "and": "y la",
+    "privacyLink": "Política de Privacidad",
+    "required": "Debe aceptar los términos para continuar"
+  }
+}

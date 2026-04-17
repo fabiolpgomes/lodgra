@@ -1,7 +1,7 @@
 import { RefreshCw } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
-import { SyncPanel } from '@/components/sync/SyncPanel'
-import { AuthLayout } from '@/components/layout/AuthLayout'
+import { SyncPanel } from '@/components/features/sync/SyncPanel'
+import { AuthLayout } from '@/components/common/layout/AuthLayout'
 import { getUserPropertyIds } from '@/lib/auth/getUserProperties'
 
 export default async function SyncPage() {

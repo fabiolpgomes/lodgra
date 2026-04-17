@@ -3,8 +3,8 @@ import Link from 'next/link'
 import { ArrowLeft, Tag } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { requireRole } from '@/lib/auth/requireRole'
-import { AuthLayout } from '@/components/layout/AuthLayout'
-import { PricingRulesManager } from '@/components/pricing/PricingRulesManager'
+import { AuthLayout } from '@/components/common/layout/AuthLayout'
+import { PricingRulesManager } from '@/components/features/pricing/PricingRulesManager'
 
 export const dynamic = 'force-dynamic'
 

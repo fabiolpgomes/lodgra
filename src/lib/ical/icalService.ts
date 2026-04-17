@@ -161,11 +161,11 @@ export async function importICalFromUrl(url: string): Promise<ICalEvent[]> {
 export function generateICalFromReservations(reservations: { id: string; check_in: string; check_out: string; status: string; number_of_guests?: number | null; guests?: { first_name: string; last_name: string } | null; property_listings?: { properties?: { name?: string } | null } | null }[]): string {
   const comp = new ICAL.Component(['vcalendar', [], []])
 
-  comp.updatePropertyWithValue('prodid', '-//Home Stay//Reservations//EN')
+  comp.updatePropertyWithValue('prodid', '-//Lodgra//Reservations//EN')
   comp.updatePropertyWithValue('version', '2.0')
   comp.updatePropertyWithValue('calscale', 'GREGORIAN')
   comp.updatePropertyWithValue('method', 'PUBLISH')
-  comp.updatePropertyWithValue('x-wr-calname', 'Home Stay Reservations')
+  comp.updatePropertyWithValue('x-wr-calname', 'Lodgra Reservations')
   comp.updatePropertyWithValue('x-wr-timezone', 'Europe/Lisbon')
 
   reservations.forEach(reservation => {
@@ -184,7 +184,7 @@ export function generateICalFromReservations(reservations: { id: string; check_i
     const vevent = new ICAL.Component('vevent')
     const event = new ICAL.Event(vevent)
 
-    event.uid = `reservation-${reservation.id}@homestay.com`
+    event.uid = `reservation-${reservation.id}@lodgra.com`
     event.summary = `${guestName} - ${propertyName}`
     event.description = `Reserva #${reservation.id}\nStatus: ${reservation.status}\nHóspedes: ${reservation.number_of_guests || 1}`
 

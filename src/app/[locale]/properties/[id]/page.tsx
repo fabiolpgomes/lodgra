@@ -2,15 +2,15 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { MapPin, Users, Bed, Bath, Home, Edit, ArrowLeft } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
-import { DeletePropertyButton } from '@/components/properties/DeletePropertyButton'
-import { TogglePropertyStatusButton } from '@/components/properties/TogglePropertyStatusButton'
-import { PropertyListingsManager } from '@/components/listings/PropertyListingsManager'
-import { QuickActionButtons } from '@/components/properties/QuickActionButtons'
-import { ICalExportCard } from '@/components/properties/ICalExportCard'
-import { AuthLayout } from '@/components/layout/AuthLayout'
+import { DeletePropertyButton } from '@/components/features/properties/DeletePropertyButton'
+import { TogglePropertyStatusButton } from '@/components/features/properties/TogglePropertyStatusButton'
+import { PropertyListingsManager } from '@/components/features/listings/PropertyListingsManager'
+import { QuickActionButtons } from '@/components/features/properties/QuickActionButtons'
+import { ICalExportCard } from '@/components/features/properties/ICalExportCard'
+import { AuthLayout } from '@/components/common/layout/AuthLayout'
 import { getUserRole } from '@/lib/auth/getUserRole'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/common/ui/button'
+import { Badge } from '@/components/common/ui/badge'
 
 export default async function PropertyDetailsPage({
   params
@@ -250,7 +250,7 @@ export default async function PropertyDetailsPage({
             {/* iCal Export */}
             <ICalExportCard
               propertyId={id}
-              appUrl={process.env.NEXT_PUBLIC_APP_URL || 'https://homestay.pt'}
+              appUrl={process.env.NEXT_PUBLIC_APP_URL || 'https://lodgra.pt'}
             />
           </div>
 

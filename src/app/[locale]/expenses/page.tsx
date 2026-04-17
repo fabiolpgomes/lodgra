@@ -2,10 +2,10 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Plus, Receipt, FileText } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
-import { AuthLayout } from '@/components/layout/AuthLayout'
+import { AuthLayout } from '@/components/common/layout/AuthLayout'
 import { getUserAccess } from '@/lib/auth/getUserAccess'
-import { Button } from '@/components/ui/button'
-import { ExpensesFilter } from '@/components/expenses/ExpensesFilter'
+import { Button } from '@/components/common/ui/button'
+import { ExpensesFilter } from '@/components/features/expenses/ExpensesFilter'
 import { parsePage, getRange, PAGE_SIZE } from '@/lib/utils/pagination'
 
 export default async function ExpensesPage({

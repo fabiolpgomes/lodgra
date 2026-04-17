@@ -3,10 +3,10 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Button } from '@/components/common/ui/button'
+import { Input } from '@/components/common/ui/input'
+import { Label } from '@/components/common/ui/label'
+import { Alert, AlertDescription } from '@/components/common/ui/alert'
 import { Lock, AlertCircle, CheckCircle } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -162,7 +162,7 @@ export default function SetPasswordPage() {
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-4">
             <Lock className="h-12 w-12 text-blue-600" />
-            <h1 className="text-3xl font-bold text-gray-900">Home Stay</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Lodgra</h1>
           </div>
           <p className="text-gray-600">Crie sua senha</p>
         </div>

@@ -1,6 +1,7 @@
 {
-  "name": "home-stay",
-  "version": "0.1.0",
+  "name": "lodgra",
+  "version": "1.0.0",
+  "description": "Global hospitality SaaS platform - Next.js, Supabase, Stripe",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -63,7 +64,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "eslint": "^10.0.1",
+    "eslint": "^9.0.0",
     "eslint-config-next": "^16.1.6",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",

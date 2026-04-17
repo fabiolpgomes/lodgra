@@ -2,11 +2,11 @@ import Link from 'next/link'
 import { Users, Plus, Shield, Edit } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { DeleteUserButton } from '@/components/admin/DeleteUserButton'
-import { ResendWelcomeEmailButton } from '@/components/admin/ResendWelcomeEmailButton'
-import { AuthLayout } from '@/components/layout/AuthLayout'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+import { DeleteUserButton } from '@/components/features/admin/DeleteUserButton'
+import { ResendWelcomeEmailButton } from '@/components/features/admin/ResendWelcomeEmailButton'
+import { AuthLayout } from '@/components/common/layout/AuthLayout'
+import { Button } from '@/components/common/ui/button'
+import { Badge } from '@/components/common/ui/badge'
 
 interface UserProfile {
   id: string

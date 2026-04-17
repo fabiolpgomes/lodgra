@@ -1,6 +1,6 @@
 'use client'
 
-import SentryErrorBoundary from '@/components/error/SentryErrorBoundary'
+import SentryErrorBoundary from '@/components/common/error/SentryErrorBoundary'
 
 export default function Error({
   error,

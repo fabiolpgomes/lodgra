@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { AlertCircle, Check, ArrowRight } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/common/ui/button'
 import { PLAN_DISPLAY } from '@/lib/billing/plans'
 
 export default function SubscribePage() {

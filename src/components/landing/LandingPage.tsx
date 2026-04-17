@@ -7,10 +7,10 @@ import {
   Users, Calendar, Receipt, TrendingUp, Lock, ChevronDown, Home,
   Smartphone, Share, PlusSquare, X,
 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { Button } from '@/components/common/ui/button'
+import { Input } from '@/components/common/ui/input'
 import { PLAN_DISPLAY } from '@/lib/billing/plans'
-import { Logo } from '@/components/ui/Logo'
+import { Logo } from '@/components/common/ui/Logo'
 
 type Market = 'BR' | 'PT' | 'US'
 
@@ -398,16 +398,15 @@ const PRICING_L10N: Record<Market, {
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 function CompareCellValue({ val }: { val: string }) {
-  if (val.startsWith('✓')) return <span className="text-hs-success font-semibold">{val}</span>
-  if (val.startsWith('✗')) return <span className="text-hs-error text-sm">{val}</span>
-  return <span className="text-hs-warning text-sm">{val}</span>
+  if (val.startsWith('✓')) return <span className="text-lodgra-success font-semibold">{val}</span>
+  if (val.startsWith('✗')) return <span className="text-lodgra-error text-sm">{val}</span>
+  return <span className="text-lodgra-warning text-sm">{val}</span>
 }
 
 // ─── Component ─────────────────────────────────────────────────────────────────
 export function LandingPage() {
   const [market, setMarket] = useState<Market>('PT')
   const [email, setEmail]   = useState('')
-  const [loading, setLoading]       = useState(false)
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null)
   const [openFaq, setOpenFaq]       = useState<number | null>(null)
   const [scrolled, setScrolled]     = useState(false)
@@ -442,7 +441,7 @@ export function LandingPage() {
   async function handlePlanCheckout(planId: string) {
     setLoadingPlan(planId)
     try {
-      const payload = { email: email || undefined, plan: planId }
+      const payload = { email: email || undefined, plan: planId, currency: c.currency }
       const res = await fetch('/api/stripe/checkout', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -463,7 +462,7 @@ export function LandingPage() {
   }
 
   return (
-    <div className={`min-h-screen bg-hs-neutral-50 transition-all ${showPwaBanner ? 'pb-32 sm:pb-28' : ''}`}>
+    <div className={`min-h-screen bg-lodgra-neutral-50 transition-all ${showPwaBanner ? 'pb-32 sm:pb-28' : ''}`}>
 
       {/* ── Nav ──────────────────────────────────────────────────────────────── */}
       <nav className={`sticky top-0 z-50 bg-white/95 backdrop-blur transition-shadow ${scrolled ? 'shadow-sm' : ''}`}>
@@ -471,13 +470,13 @@ export function LandingPage() {
           <div className="sm:hidden"><Logo variant="default" size="sm" /></div>
           <div className="hidden sm:block"><Logo variant="default" size="md" /></div>
           <div className="flex items-center gap-2 sm:gap-3">
-            <div className="flex items-center bg-hs-neutral-100 rounded-lg p-0.5 sm:p-1 gap-0.5 sm:gap-1">
+            <div className="flex items-center bg-lodgra-neutral-100 rounded-lg p-0.5 sm:p-1 gap-0.5 sm:gap-1">
               {(['PT', 'BR', 'US'] as const).map(m => (
                 <button
                   key={m}
                   onClick={() => setMarket(m)}
                   className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-md text-sm font-medium transition-all ${
-                    market === m ? 'bg-white text-hs-neutral-900 shadow-sm' : 'text-hs-neutral-500 hover:text-hs-neutral-700'
+                    market === m ? 'bg-white text-lodgra-neutral-900 shadow-sm' : 'text-lodgra-neutral-500 hover:text-lodgra-neutral-700'
                   }`}
                 >
                   <span>{CONTENT[m].flag}</span>
@@ -485,10 +484,10 @@ export function LandingPage() {
                 </button>
               ))}
             </div>
-            <Link href="/login" className="text-sm text-hs-neutral-500 hover:text-hs-neutral-900 transition-colors">
+            <Link href="/login" className="text-sm text-lodgra-neutral-500 hover:text-lodgra-neutral-900 transition-colors">
               {c.nav}
             </Link>
-            <Button asChild size="sm" className="bg-hs-cta-bg hover:bg-hs-cta-bg-hover text-white border-0">
+            <Button asChild size="sm" className="bg-lodgra-cta-bg hover:bg-lodgra-cta-bg-hover text-white border-0">
               <Link href="/register">{c.cta}</Link>
             </Button>
           </div>
@@ -497,14 +496,14 @@ export function LandingPage() {
 
       {/* ── PWA Banner (Safari Mobile) ────────────────────────────────────────── */}
       {showPwaBanner && (
-        <div className="fixed bottom-0 left-0 right-0 z-40 bg-hs-brand-500 border-t border-hs-brand-600 shadow-lg animate-in slide-in-from-bottom-2">
+        <div className="fixed bottom-0 left-0 right-0 z-40 bg-lodgra-brand-500 border-t border-lodgra-brand-600 shadow-lg animate-in slide-in-from-bottom-2">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
             <div className="flex items-start sm:items-center justify-between gap-3">
               <div className="flex-1">
                 <h3 className="text-sm sm:text-base font-semibold text-white mb-1">
                   {c.pwaBannerTitle}
                 </h3>
-                <p className="text-xs sm:text-sm text-hs-brand-100">
+                <p className="text-xs sm:text-sm text-lodgra-brand-100">
                   {c.pwaBannerDesc}
                 </p>
               </div>
@@ -517,7 +516,7 @@ export function LandingPage() {
                     }
                     setShowPwaBanner(false)
                   }}
-                  className="px-3 sm:px-4 py-1.5 sm:py-2 bg-white text-hs-brand-600 text-xs sm:text-sm font-medium rounded-lg hover:bg-hs-brand-50 transition-colors whitespace-nowrap"
+                  className="px-3 sm:px-4 py-1.5 sm:py-2 bg-white text-lodgra-brand-600 text-xs sm:text-sm font-medium rounded-lg hover:bg-lodgra-brand-50 transition-colors whitespace-nowrap"
                 >
                   {c.pwaBannerAction}
                 </button>
@@ -526,7 +525,7 @@ export function LandingPage() {
                     setShowPwaBanner(false)
                     sessionStorage.setItem('pwa-banner-dismissed', 'true')
                   }}
-                  className="p-1.5 text-white hover:bg-hs-brand-600 rounded-lg transition-colors"
+                  className="p-1.5 text-white hover:bg-lodgra-brand-600 rounded-lg transition-colors"
                   aria-label="Close banner"
                 >
                   <X className="w-4 h-4" />
@@ -539,14 +538,14 @@ export function LandingPage() {
 
       {/* ── Hero ─────────────────────────────────────────────────────────────── */}
       <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-28 text-center">
-        <div className="inline-flex items-center gap-2 bg-hs-brand-50 text-hs-brand-700 text-sm font-medium px-4 py-1.5 rounded-full mb-6">
+        <div className="inline-flex items-center gap-2 bg-lodgra-brand-50 text-lodgra-brand-700 text-sm font-medium px-4 py-1.5 rounded-full mb-6">
           <Shield className="h-4 w-4" />
           {c.heroBadge}
         </div>
-        <h1 className="text-5xl sm:text-7xl font-extrabold text-hs-neutral-900 mb-6 leading-tight max-w-4xl mx-auto">
+        <h1 className="text-5xl sm:text-7xl font-extrabold text-lodgra-neutral-900 mb-6 leading-tight max-w-4xl mx-auto">
           {c.headline}
         </h1>
-        <p className="text-xl text-hs-neutral-500 max-w-2xl mx-auto mb-10">
+        <p className="text-xl text-lodgra-neutral-500 max-w-2xl mx-auto mb-10">
           {c.subheadline}
         </p>
         <form onSubmit={handleCheckout} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto mb-3">
@@ -558,35 +557,35 @@ export function LandingPage() {
             required
             className="flex-1"
           />
-          <Button type="submit" disabled={loading} className="whitespace-nowrap bg-hs-cta-bg hover:bg-hs-cta-bg-hover text-white border-0">
-            {loading ? '...' : <>{c.cta} <ArrowRight className="h-4 w-4 ml-1" /></>}
+          <Button type="submit" className="whitespace-nowrap bg-lodgra-cta-bg hover:bg-lodgra-cta-bg-hover text-white border-0">
+            <>{c.cta} <ArrowRight className="h-4 w-4 ml-1" /></>
           </Button>
         </form>
-        <p className="text-xs text-hs-neutral-500">{c.ctaSub}</p>
+        <p className="text-xs text-lodgra-neutral-500">{c.ctaSub}</p>
 
         {/* Trust row */}
-        <div className="flex flex-wrap items-center justify-center gap-6 mt-10 text-sm text-hs-neutral-500">
-          <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-hs-success" /> {c.trustSync}</span>
-          <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-hs-success" /> {c.trustCurrencies}</span>
-          <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-hs-success" /> {c.trustOverbookings}</span>
-          <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-hs-success" /> {c.trustCancel}</span>
+        <div className="flex flex-wrap items-center justify-center gap-6 mt-10 text-sm text-lodgra-neutral-500">
+          <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-lodgra-success" /> {c.trustSync}</span>
+          <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-lodgra-success" /> {c.trustCurrencies}</span>
+          <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-lodgra-success" /> {c.trustOverbookings}</span>
+          <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-lodgra-success" /> {c.trustCancel}</span>
         </div>
       </section>
 
       {/* ── Pain ─────────────────────────────────────────────────────────────── */}
-      <section className="bg-hs-accent-50 py-24">
+      <section className="bg-lodgra-accent-50 py-24">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-extrabold text-hs-neutral-900 text-center mb-12">
+          <h2 className="text-3xl font-extrabold text-lodgra-neutral-900 text-center mb-12">
             {c.painTitle}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {c.pains.map(pain => (
-              <div key={pain.title} className="bg-white border border-hs-accent-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+              <div key={pain.title} className="bg-white border border-lodgra-accent-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex items-start gap-3">
-                  <span className="text-hs-accent-500 text-xl mt-0.5 shrink-0">⚠</span>
+                  <span className="text-lodgra-accent-500 text-xl mt-0.5 shrink-0">⚠</span>
                   <div>
-                    <h3 className="font-semibold text-hs-neutral-900 mb-2">{pain.title}</h3>
-                    <p className="text-sm text-hs-neutral-500 leading-relaxed">{pain.desc}</p>
+                    <h3 className="font-semibold text-lodgra-neutral-900 mb-2">{pain.title}</h3>
+                    <p className="text-sm text-lodgra-neutral-500 leading-relaxed">{pain.desc}</p>
                   </div>
                 </div>
               </div>
@@ -596,30 +595,30 @@ export function LandingPage() {
       </section>
 
       {/* ── Solution intro ───────────────────────────────────────────────────── */}
-      <section className="bg-hs-brand-50 py-24">
+      <section className="bg-lodgra-brand-50 py-24">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-hs-neutral-900 mb-4">
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-lodgra-neutral-900 mb-4">
             {c.solutionTitle}
           </h2>
-          <p className="text-lg text-hs-neutral-500 leading-relaxed">{c.solutionDesc}</p>
+          <p className="text-lg text-lodgra-neutral-500 leading-relaxed">{c.solutionDesc}</p>
         </div>
       </section>
 
       {/* ── Features ─────────────────────────────────────────────────────────── */}
-      <section id="features" className="py-24 bg-hs-neutral-50/50">
+      <section id="features" className="py-24 bg-lodgra-neutral-50/50">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
-            <h2 className="text-3xl font-extrabold text-hs-neutral-900 mb-4">{c.sectionFeaturesTitle}</h2>
-            <p className="text-hs-neutral-500 text-lg max-w-xl mx-auto">{c.sectionFeaturesDesc}</p>
+            <h2 className="text-3xl font-extrabold text-lodgra-neutral-900 mb-4">{c.sectionFeaturesTitle}</h2>
+            <p className="text-lodgra-neutral-500 text-lg max-w-xl mx-auto">{c.sectionFeaturesDesc}</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {c.featureCards.map(({ icon: Icon, title, desc }) => (
-              <div key={title} className="bg-white rounded-2xl p-6 shadow-sm border border-hs-border-subtle hover:shadow-lg hover:border-hs-brand-200 transition-all duration-300">
-                <div className="p-4 bg-gradient-to-br from-hs-brand-100 to-hs-brand-50 rounded-xl inline-flex mb-4">
-                  <Icon className="h-6 w-6 text-hs-brand-600" />
+              <div key={title} className="bg-white rounded-2xl p-6 shadow-sm border border-lodgra-border-subtle hover:shadow-lg hover:border-lodgra-brand-200 transition-all duration-300">
+                <div className="p-4 bg-gradient-to-br from-lodgra-brand-100 to-lodgra-brand-50 rounded-xl inline-flex mb-4">
+                  <Icon className="h-6 w-6 text-lodgra-brand-600" />
                 </div>
-                <h3 className="font-semibold text-hs-neutral-900 mb-2 text-sm">{title}</h3>
-                <p className="text-xs text-hs-neutral-500 leading-relaxed">{desc}</p>
+                <h3 className="font-semibold text-lodgra-neutral-900 mb-2 text-sm">{title}</h3>
+                <p className="text-xs text-lodgra-neutral-500 leading-relaxed">{desc}</p>
               </div>
             ))}
           </div>
@@ -627,19 +626,19 @@ export function LandingPage() {
       </section>
 
       {/* ── How it works ─────────────────────────────────────────────────────── */}
-      <section className="py-24 bg-gradient-to-b from-hs-neutral-50/50 to-white">
+      <section className="py-24 bg-gradient-to-b from-lodgra-neutral-50/50 to-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-extrabold text-hs-neutral-900 text-center mb-14">{c.stepsTitle}</h2>
+          <h2 className="text-3xl font-extrabold text-lodgra-neutral-900 text-center mb-14">{c.stepsTitle}</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
             {/* Connector line (desktop) */}
-            <div className="hidden md:block absolute top-8 left-1/3 right-1/3 h-1 bg-gradient-to-r from-hs-brand-200 via-hs-brand-400 to-hs-brand-200 z-0 rounded-full" />
+            <div className="hidden md:block absolute top-8 left-1/3 right-1/3 h-1 bg-gradient-to-r from-lodgra-brand-200 via-lodgra-brand-400 to-lodgra-brand-200 z-0 rounded-full" />
             {c.steps.map(step => (
               <div key={step.num} className="text-center relative z-10">
-                <div className="w-16 h-16 bg-gradient-to-br from-hs-brand-500 to-hs-brand-600 text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-5 shadow-lg">
+                <div className="w-16 h-16 bg-gradient-to-br from-lodgra-brand-500 to-lodgra-brand-600 text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-5 shadow-lg">
                   {step.num}
                 </div>
-                <h3 className="font-bold text-hs-neutral-900 text-lg mb-2">{step.title}</h3>
-                <p className="text-sm text-hs-neutral-500 leading-relaxed">{step.desc}</p>
+                <h3 className="font-bold text-lodgra-neutral-900 text-lg mb-2">{step.title}</h3>
+                <p className="text-sm text-lodgra-neutral-500 leading-relaxed">{step.desc}</p>
               </div>
             ))}
           </div>
@@ -647,13 +646,13 @@ export function LandingPage() {
       </section>
 
       {/* ── Stats bar ────────────────────────────────────────────────────────── */}
-      <section className="bg-gradient-to-r from-hs-brand-700 via-hs-brand-600 to-hs-brand-800 py-24">
+      <section className="bg-gradient-to-r from-lodgra-brand-700 via-lodgra-brand-600 to-lodgra-brand-800 py-24">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
             {c.stats.map(stat => (
               <div key={stat.label} className="backdrop-blur-sm">
                 <div className="text-4xl font-extrabold text-white mb-2">{stat.value}</div>
-                <div className="text-xs sm:text-sm text-hs-brand-100 font-medium">{stat.label}</div>
+                <div className="text-xs sm:text-sm text-lodgra-brand-100 font-medium">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -663,15 +662,15 @@ export function LandingPage() {
       {/* ── Segments ─────────────────────────────────────────────────────────── */}
       <section className="py-24 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-extrabold text-hs-neutral-900 text-center mb-12">{c.segmentsTitle}</h2>
+          <h2 className="text-3xl font-extrabold text-lodgra-neutral-900 text-center mb-12">{c.segmentsTitle}</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {c.segments.map(({ icon: Icon, title, desc }) => (
-              <div key={title} className="border border-hs-border-subtle rounded-2xl p-8 hover:border-hs-brand-400 hover:shadow-xl hover:shadow-hs-brand-500/10 transition-all duration-300 group">
-                <div className="p-4 bg-gradient-to-br from-hs-brand-100 to-hs-brand-50 rounded-xl inline-flex mb-5 group-hover:scale-110 transition-transform duration-300">
-                  <Icon className="h-7 w-7 text-hs-brand-600" />
+              <div key={title} className="border border-lodgra-border-subtle rounded-2xl p-8 hover:border-lodgra-brand-400 hover:shadow-xl hover:shadow-lodgra-brand-500/10 transition-all duration-300 group">
+                <div className="p-4 bg-gradient-to-br from-lodgra-brand-100 to-lodgra-brand-50 rounded-xl inline-flex mb-5 group-hover:scale-110 transition-transform duration-300">
+                  <Icon className="h-7 w-7 text-lodgra-brand-600" />
                 </div>
-                <h3 className="font-bold text-hs-neutral-900 text-lg mb-3">{title}</h3>
-                <p className="text-hs-neutral-500 leading-relaxed">{desc}</p>
+                <h3 className="font-bold text-lodgra-neutral-900 text-lg mb-3">{title}</h3>
+                <p className="text-lodgra-neutral-500 leading-relaxed">{desc}</p>
               </div>
             ))}
           </div>
@@ -679,18 +678,18 @@ export function LandingPage() {
       </section>
 
       {/* ── Compare ──────────────────────────────────────────────────────────── */}
-      <section className="bg-gradient-to-b from-hs-neutral-100 to-white py-24">
+      <section className="bg-gradient-to-b from-lodgra-neutral-100 to-white py-24">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-extrabold text-hs-neutral-900 text-center mb-12">{c.compareTitle}</h2>
-          <div className="overflow-x-auto rounded-2xl shadow-lg border border-hs-border-subtle">
+          <h2 className="text-3xl font-extrabold text-lodgra-neutral-900 text-center mb-12">{c.compareTitle}</h2>
+          <div className="overflow-x-auto rounded-2xl shadow-lg border border-lodgra-border-subtle">
             <table className="w-full bg-white text-sm">
               <thead>
-                <tr className="border-b border-hs-border-subtle bg-gradient-to-r from-hs-brand-500 to-hs-brand-600">
+                <tr className="border-b border-lodgra-border-subtle bg-gradient-to-r from-lodgra-brand-500 to-lodgra-brand-600">
                   {c.compareHeaders.map((h, i) => (
                     <th
                       key={h}
                       className={`px-5 py-4 text-left font-semibold ${
-                        i === 1 ? 'bg-gradient-to-r from-hs-brand-500 to-hs-brand-600 text-white' : i === 0 ? 'text-hs-neutral-700 bg-hs-brand-50' : 'text-white'
+                        i === 1 ? 'bg-gradient-to-r from-lodgra-brand-500 to-lodgra-brand-600 text-white' : i === 0 ? 'text-lodgra-neutral-700 bg-lodgra-brand-50' : 'text-white'
                       }`}
                     >
                       {h}
@@ -700,13 +699,13 @@ export function LandingPage() {
               </thead>
               <tbody>
                 {c.compareRows.map((row, ri) => (
-                  <tr key={ri} className="border-b border-hs-border-subtle last:border-0 hover:bg-hs-brand-50/30 transition-colors">
+                  <tr key={ri} className="border-b border-lodgra-border-subtle last:border-0 hover:bg-lodgra-brand-50/30 transition-colors">
                     {row.map((cell, ci) => (
                       <td
                         key={ci}
                         className={`px-5 py-3.5 ${
-                          ci === 0 ? 'text-hs-neutral-700 font-medium' :
-                          ci === 1 ? 'bg-hs-brand-50/50 font-semibold text-hs-brand-600' : 'text-hs-neutral-500'
+                          ci === 0 ? 'text-lodgra-neutral-700 font-medium' :
+                          ci === 1 ? 'bg-lodgra-brand-50/50 font-semibold text-lodgra-brand-600' : 'text-lodgra-neutral-500'
                         }`}
                       >
                         {ci === 0 ? cell : <CompareCellValue val={cell} />}
@@ -723,21 +722,21 @@ export function LandingPage() {
       {/* ── FAQ ──────────────────────────────────────────────────────────────── */}
       <section className="py-24">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-extrabold text-hs-neutral-900 text-center mb-12">{c.faqTitle}</h2>
+          <h2 className="text-3xl font-extrabold text-lodgra-neutral-900 text-center mb-12">{c.faqTitle}</h2>
           <div className="space-y-3">
             {c.faqs.map((faq, i) => (
-              <div key={i} className="border border-hs-border-subtle rounded-xl overflow-hidden bg-white">
+              <div key={i} className="border border-lodgra-border-subtle rounded-xl overflow-hidden bg-white">
                 <button
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                  className="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-hs-neutral-50 transition-colors"
+                  className="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-lodgra-neutral-50 transition-colors"
                 >
-                  <span className="font-medium text-hs-neutral-900 pr-4">{faq.q}</span>
+                  <span className="font-medium text-lodgra-neutral-900 pr-4">{faq.q}</span>
                   <ChevronDown
-                    className={`h-5 w-5 text-hs-neutral-500 shrink-0 transition-transform ${openFaq === i ? 'rotate-180' : ''}`}
+                    className={`h-5 w-5 text-lodgra-neutral-500 shrink-0 transition-transform ${openFaq === i ? 'rotate-180' : ''}`}
                   />
                 </button>
                 {openFaq === i && (
-                  <div className="px-6 pb-5 text-hs-neutral-500 leading-relaxed border-t border-hs-border-subtle pt-4">
+                  <div className="px-6 pb-5 text-lodgra-neutral-500 leading-relaxed border-t border-lodgra-border-subtle pt-4">
                     {faq.a}
                   </div>
                 )}
@@ -748,46 +747,46 @@ export function LandingPage() {
       </section>
 
       {/* ── PWA Install ────────────────────────────────────────────────────── */}
-      <section id="pwa-install" className="bg-hs-brand-50 py-24">
+      <section id="pwa-install" className="bg-lodgra-brand-50 py-24">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <div className="inline-flex items-center justify-center w-14 h-14 bg-hs-brand-100 rounded-2xl mb-4">
-              <Smartphone className="h-7 w-7 text-hs-brand-600" />
+            <div className="inline-flex items-center justify-center w-14 h-14 bg-lodgra-brand-100 rounded-2xl mb-4">
+              <Smartphone className="h-7 w-7 text-lodgra-brand-600" />
             </div>
-            <h2 className="text-3xl font-extrabold text-hs-neutral-900 mb-3">{c.pwaTitle}</h2>
-            <p className="text-hs-neutral-500 text-lg max-w-xl mx-auto">{c.pwaDesc}</p>
+            <h2 className="text-3xl font-extrabold text-lodgra-neutral-900 mb-3">{c.pwaTitle}</h2>
+            <p className="text-lodgra-neutral-500 text-lg max-w-xl mx-auto">{c.pwaDesc}</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             {c.pwaSteps.map((step, i) => (
-              <div key={i} className="bg-white rounded-xl p-6 shadow-sm border border-hs-border-subtle text-center">
-                <div className="inline-flex items-center justify-center w-12 h-12 bg-hs-brand-50 rounded-xl mb-4">
-                  {step.icon === 'globe' && <Globe className="h-6 w-6 text-hs-brand-600" />}
-                  {step.icon === 'share' && <Share className="h-6 w-6 text-hs-brand-600" />}
-                  {step.icon === 'plus' && <PlusSquare className="h-6 w-6 text-hs-brand-600" />}
+              <div key={i} className="bg-white rounded-xl p-6 shadow-sm border border-lodgra-border-subtle text-center">
+                <div className="inline-flex items-center justify-center w-12 h-12 bg-lodgra-brand-50 rounded-xl mb-4">
+                  {step.icon === 'globe' && <Globe className="h-6 w-6 text-lodgra-brand-600" />}
+                  {step.icon === 'share' && <Share className="h-6 w-6 text-lodgra-brand-600" />}
+                  {step.icon === 'plus' && <PlusSquare className="h-6 w-6 text-lodgra-brand-600" />}
                 </div>
-                <div className="text-sm font-bold text-hs-brand-600 mb-1">
+                <div className="text-sm font-bold text-lodgra-brand-600 mb-1">
                   {i + 1}.
                 </div>
-                <h3 className="font-semibold text-hs-neutral-900 mb-2">{step.title}</h3>
-                <p className="text-sm text-hs-neutral-500 leading-relaxed">{step.desc}</p>
+                <h3 className="font-semibold text-lodgra-neutral-900 mb-2">{step.title}</h3>
+                <p className="text-sm text-lodgra-neutral-500 leading-relaxed">{step.desc}</p>
               </div>
             ))}
           </div>
 
-          <p className="text-center text-sm text-hs-neutral-500 bg-white/60 rounded-lg py-3 px-4 max-w-lg mx-auto">
-            <Smartphone className="h-4 w-4 inline-block mr-1.5 -mt-0.5 text-hs-brand-500" />
+          <p className="text-center text-sm text-lodgra-neutral-500 bg-white/60 rounded-lg py-3 px-4 max-w-lg mx-auto">
+            <Smartphone className="h-4 w-4 inline-block mr-1.5 -mt-0.5 text-lodgra-brand-500" />
             {c.pwaTip}
           </p>
         </div>
       </section>
 
       {/* ── Pricing ──────────────────────────────────────────────────────────── */}
-      <section id="pricing" className="bg-hs-neutral-100 py-24">
+      <section id="pricing" className="bg-lodgra-neutral-100 py-24">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
-            <h2 className="text-3xl font-extrabold text-hs-neutral-900 mb-4">{c.sectionPricingTitle}</h2>
-            <p className="text-hs-neutral-500 text-lg">{c.sectionPricingDesc}</p>
+            <h2 className="text-3xl font-extrabold text-lodgra-neutral-900 mb-4">{c.sectionPricingTitle}</h2>
+            <p className="text-lodgra-neutral-500 text-lg">{c.sectionPricingDesc}</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -798,32 +797,32 @@ export function LandingPage() {
                 <div
                   key={plan.id}
                   className={`bg-white rounded-2xl shadow-sm border-2 p-6 flex flex-col relative ${
-                    plan.highlighted ? 'border-hs-brand-500' : 'border-hs-border-subtle'
+                    plan.highlighted ? 'border-lodgra-brand-500' : 'border-lodgra-border-subtle'
                   }`}
                 >
                   {plan.highlighted && (
                     <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                      <span className="bg-hs-brand-500 text-white text-xs font-semibold px-3 py-1 rounded-full whitespace-nowrap">
+                      <span className="bg-lodgra-brand-500 text-white text-xs font-semibold px-3 py-1 rounded-full whitespace-nowrap">
                         {pl.popularBadge}
                       </span>
                     </div>
                   )}
 
                   <div className="mb-4">
-                    <h3 className="text-lg font-bold text-hs-neutral-900">{plan.name}</h3>
-                    <p className="text-sm text-hs-neutral-500 mt-0.5">{loc.description}</p>
+                    <h3 className="text-lg font-bold text-lodgra-neutral-900">{plan.name}</h3>
+                    <p className="text-sm text-lodgra-neutral-500 mt-0.5">{loc.description}</p>
                   </div>
 
                   <div className="flex items-baseline gap-1 mb-1">
-                    <span className="text-4xl font-extrabold text-hs-neutral-900">{pl.symbol}{plan.price}</span>
-                    <span className="text-hs-neutral-500 text-sm">{pl.period}</span>
+                    <span className="text-4xl font-extrabold text-lodgra-neutral-900">{pl.symbol}{plan.price}</span>
+                    <span className="text-lodgra-neutral-500 text-sm">{pl.period}</span>
                   </div>
-                  <p className="text-xs text-hs-neutral-500 mb-5">{loc.properties}</p>
+                  <p className="text-xs text-lodgra-neutral-500 mb-5">{loc.properties}</p>
 
                   <ul className="space-y-2 mb-6 flex-1">
                     {loc.features.map(f => (
-                      <li key={f} className="flex items-center gap-2 text-sm text-hs-neutral-700">
-                        <Check className="h-4 w-4 text-hs-brand-500 shrink-0" />
+                      <li key={f} className="flex items-center gap-2 text-sm text-lodgra-neutral-700">
+                        <Check className="h-4 w-4 text-lodgra-brand-500 shrink-0" />
                         {f}
                       </li>
                     ))}
@@ -834,8 +833,8 @@ export function LandingPage() {
                     disabled={loadingPlan !== null}
                     variant={plan.highlighted ? 'default' : 'outline'}
                     className={plan.highlighted
-                      ? 'w-full bg-hs-cta-bg hover:bg-hs-cta-bg-hover text-white border-0'
-                      : 'w-full border-hs-brand-500 text-hs-brand-600 hover:bg-hs-brand-50'
+                      ? 'w-full bg-lodgra-cta-bg hover:bg-lodgra-cta-bg-hover text-white border-0'
+                      : 'w-full border-lodgra-brand-500 text-lodgra-brand-600 hover:bg-lodgra-brand-50'
                     }
                   >
                     {loadingPlan === plan.id ? '...' : (
@@ -847,24 +846,24 @@ export function LandingPage() {
             })}
           </div>
 
-          <div className="flex items-center justify-center gap-2 mt-8 text-sm text-hs-neutral-500">
-            <Shield className="h-4 w-4 text-hs-success" />
+          <div className="flex items-center justify-center gap-2 mt-8 text-sm text-lodgra-neutral-500">
+            <Shield className="h-4 w-4 text-lodgra-success" />
             {c.guarantee}
           </div>
         </div>
       </section>
 
       {/* ── Final CTA ────────────────────────────────────────────────────────── */}
-      <section className="bg-gradient-to-r from-hs-brand-600 via-hs-brand-500 to-hs-brand-700 py-24 relative overflow-hidden">
+      <section className="bg-gradient-to-r from-lodgra-brand-600 via-lodgra-brand-500 to-lodgra-brand-700 py-24 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-10 right-10 w-72 h-72 bg-hs-brand-400 rounded-full blur-3xl" />
-          <div className="absolute bottom-10 left-10 w-72 h-72 bg-hs-brand-700 rounded-full blur-3xl" />
+          <div className="absolute top-10 right-10 w-72 h-72 bg-lodgra-brand-400 rounded-full blur-3xl" />
+          <div className="absolute bottom-10 left-10 w-72 h-72 bg-lodgra-brand-700 rounded-full blur-3xl" />
         </div>
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
           <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4">
             {c.finalTitle}
           </h2>
-          <p className="text-hs-brand-100 text-lg mb-8 max-w-2xl mx-auto leading-relaxed">{c.finalDesc}</p>
+          <p className="text-lodgra-brand-100 text-lg mb-8 max-w-2xl mx-auto leading-relaxed">{c.finalDesc}</p>
           <form onSubmit={handleCheckout} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
             <Input
               type="email"
@@ -872,39 +871,38 @@ export function LandingPage() {
               onChange={e => setEmail(e.target.value)}
               placeholder={c.emailPlaceholder}
               required
-              className="flex-1 bg-white/20 border border-white/30 text-white placeholder:text-hs-brand-100 focus:bg-white focus:text-hs-neutral-900 focus:placeholder:text-hs-neutral-500 backdrop-blur-sm rounded-lg"
+              className="flex-1 bg-white/20 border border-white/30 text-white placeholder:text-lodgra-brand-100 focus:bg-white focus:text-lodgra-neutral-900 focus:placeholder:text-lodgra-neutral-500 backdrop-blur-sm rounded-lg"
             />
             <Button
               type="submit"
-              disabled={loading}
-              className="bg-white text-hs-brand-600 hover:bg-hs-brand-50 whitespace-nowrap font-semibold shadow-lg"
+              className="bg-white text-lodgra-brand-600 hover:bg-lodgra-brand-50 whitespace-nowrap font-semibold shadow-lg"
             >
-              {loading ? '...' : <>{c.cta} <ArrowRight className="h-4 w-4 ml-1" /></>}
+              <>{c.cta} <ArrowRight className="h-4 w-4 ml-1" /></>
             </Button>
           </form>
-          <p className="text-hs-brand-200 text-xs mt-4">{c.ctaSub}</p>
+          <p className="text-lodgra-brand-200 text-xs mt-4">{c.ctaSub}</p>
         </div>
       </section>
 
       {/* ── Footer ───────────────────────────────────────────────────────────── */}
-      <footer className="bg-gradient-to-b from-hs-neutral-900 to-hs-neutral-950 py-12 border-t border-white/10">
+      <footer className="bg-gradient-to-b from-lodgra-neutral-900 to-lodgra-neutral-950 py-12 border-t border-white/10">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-8 mb-8">
             <Logo variant="white" size="md" />
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 sm:gap-8">
-              <Link href="/privacy" className="text-xs sm:text-sm text-hs-neutral-400 hover:text-hs-brand-300 transition-colors duration-200">
+              <Link href="/privacy" className="text-xs sm:text-sm text-lodgra-neutral-400 hover:text-lodgra-brand-300 transition-colors duration-200">
                 {c.footerPrivacy}
               </Link>
-              <Link href="/terms" className="text-xs sm:text-sm text-hs-neutral-400 hover:text-hs-brand-300 transition-colors duration-200">
+              <Link href="/terms" className="text-xs sm:text-sm text-lodgra-neutral-400 hover:text-lodgra-brand-300 transition-colors duration-200">
                 {c.footerTerms}
               </Link>
-              <Link href="/login" className="text-xs sm:text-sm text-hs-neutral-400 hover:text-hs-brand-300 transition-colors duration-200">
+              <Link href="/login" className="text-xs sm:text-sm text-lodgra-neutral-400 hover:text-lodgra-brand-300 transition-colors duration-200">
                 {c.footerLinks}
               </Link>
             </div>
           </div>
-          <div className="border-t border-hs-neutral-800 pt-6">
-            <p className="text-xs sm:text-sm text-hs-neutral-500 text-center">
+          <div className="border-t border-lodgra-neutral-800 pt-6">
+            <p className="text-xs sm:text-sm text-lodgra-neutral-500 text-center">
               © {new Date().getFullYear()} Home Stay. {c.footerRights}
             </p>
           </div>
