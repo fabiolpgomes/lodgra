@@ -13,13 +13,13 @@ const sizes = {
 export function Logo({ variant = 'default', size = 'md', className = '' }: LogoProps) {
   const { icon: iconSize, text: textSize, gap } = sizes[size]
 
-  const primaryColor = variant === 'white' ? '#FFFFFF' : 'var(--hs-brand-500, #1567A8)'
-  const accentColor  = variant === 'white' ? 'rgba(255,255,255,0.7)' : 'var(--hs-accent-500, #E8614A)'
-  const textColor    = variant === 'white' ? '#FFFFFF' : 'var(--hs-neutral-900, #111827)'
+  const primaryColor = variant === 'white' ? '#FFFFFF' : 'var(--lodgra-blue-600, #1E3A8A)'
+  const accentColor  = variant === 'white' ? 'rgba(255,255,255,0.8)' : 'var(--lodgra-gold-500, #D4AF37)'
+  const textColor    = variant === 'white' ? '#FFFFFF' : 'var(--lodgra-blue-900, #0F172A)'
 
   return (
     <div className={`inline-flex items-center ${gap} ${className}`}>
-      {/* Icon — stylised roof/home glyph */}
+      {/* Icon — Lodgra house + ascending arrow */}
       <svg
         width={iconSize}
         height={iconSize}
@@ -27,38 +27,50 @@ export function Logo({ variant = 'default', size = 'md', className = '' }: LogoP
         fill="none"
         aria-hidden="true"
       >
-        {/* Roof */}
+        {/* Roof (Golden Ascending Arrow) */}
         <path
-          d="M3 15L16 4L29 15"
-          stroke={primaryColor}
+          d="M4 18L16 6L28 18"
+          stroke={accentColor}
           strokeWidth="2.5"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
-        {/* House body */}
-        <path
-          d="M6 14V27C6 27.552 6.448 28 7 28H13V21H19V28H25C25.552 28 26 27.552 26 27V14"
-          stroke={primaryColor}
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
+        {/* House body (Blue) */}
+        <rect
+          x="8"
+          y="18"
+          width="16"
+          height="14"
+          rx="1"
+          fill={primaryColor}
         />
-        {/* Door accent dot (coral) */}
-        <circle
-          cx="16"
-          cy="22"
-          r="1.5"
+        {/* Windows (subtle gold detail) */}
+        <rect
+          x="12"
+          y="22"
+          width="2.5"
+          height="2.5"
           fill={accentColor}
+          opacity="0.6"
+          rx="0.5"
+        />
+        <rect
+          x="17.5"
+          y="22"
+          width="2.5"
+          height="2.5"
+          fill={accentColor}
+          opacity="0.6"
+          rx="0.5"
         />
       </svg>
 
       {variant !== 'compact' && (
         <span
-          className={`font-semibold tracking-tight ${textSize}`}
+          className={`font-bold tracking-tight ${textSize}`}
           style={{ color: textColor, fontFamily: 'var(--font-geist-sans, system-ui)' }}
         >
-          Home{' '}
-          <span style={{ color: primaryColor }}>Stay</span>
+          Lodgra
         </span>
       )}
     </div>
