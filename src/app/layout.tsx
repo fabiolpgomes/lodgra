@@ -2,10 +2,10 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { headers } from "next/headers";
 import "./globals.css";
-import { Toaster } from "@/components/ui/sonner";
-import { CookieBanner } from "@/components/ui/CookieBanner";
-import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
-import { ServiceWorkerRegister } from "@/components/pwa/ServiceWorkerRegister";
+import { Toaster } from "@/components/common/ui/sonner";
+import { CookieBanner } from "@/components/common/ui/CookieBanner";
+import { GoogleAnalytics } from "@/components/features/analytics/GoogleAnalytics";
+import { ServiceWorkerRegister } from "@/components/common/pwa/ServiceWorkerRegister";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

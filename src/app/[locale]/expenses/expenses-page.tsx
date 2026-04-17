@@ -2,9 +2,9 @@ import Link from 'next/link'
 import { Plus, Receipt, TrendingDown, FileText } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { formatCurrency } from '@/lib/utils/currency'
-import { AuthLayout } from '@/components/layout/AuthLayout'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+import { AuthLayout } from '@/components/common/layout/AuthLayout'
+import { Button } from '@/components/common/ui/button'
+import { Badge } from '@/components/common/ui/badge'
 
 export default async function ExpensesPage() {
   const supabase = await createClient()

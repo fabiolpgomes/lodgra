@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
-import { AuthLayout } from '@/components/layout/AuthLayout'
+import { AuthLayout } from '@/components/common/layout/AuthLayout'
 import { createClient } from '@/lib/supabase/server'
-import { ComplianceDashboard } from '@/components/admin/ComplianceDashboard'
+import { ComplianceDashboard } from '@/components/features/admin/ComplianceDashboard'
 import { Shield } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'

@@ -3,13 +3,13 @@ import Link from 'next/link'
 import { Building2, MapPin, Users, Plus, Home } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { AuthLayout } from '@/components/layout/AuthLayout'
+import { AuthLayout } from '@/components/common/layout/AuthLayout'
 import { getUserAccess } from '@/lib/auth/getUserAccess'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/common/ui/button'
+import { Badge } from '@/components/common/ui/badge'
 import { getPlanLimits } from '@/lib/billing/plans'
-import { PublicUrlBadge } from '@/components/properties/PublicUrlBadge'
-import { PublicPagesUsageBar } from '@/components/properties/PublicPagesUsageBar'
+import { PublicUrlBadge } from '@/components/features/properties/PublicUrlBadge'
+import { PublicPagesUsageBar } from '@/components/features/properties/PublicPagesUsageBar'
 
 export default async function PropertiesPage() {
   const supabase = await createClient()

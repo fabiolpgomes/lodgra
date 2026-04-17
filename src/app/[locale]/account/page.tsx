@@ -1,8 +1,8 @@
 import { requireRole } from '@/lib/auth/requireRole'
 import { redirect } from 'next/navigation'
-import { AuthLayout } from '@/components/layout/AuthLayout'
+import { AuthLayout } from '@/components/common/layout/AuthLayout'
 import { ChangePasswordForm } from '@/components/auth/ChangePasswordForm'
-import { SubscriptionSection } from '@/components/account/SubscriptionSection'
+import { SubscriptionSection } from '@/components/features/account/SubscriptionSection'
 import { KeyRound, User } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 

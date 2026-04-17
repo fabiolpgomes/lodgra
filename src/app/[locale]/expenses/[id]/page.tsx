@@ -2,12 +2,12 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { Receipt, ArrowLeft, Edit, Building2, StickyNote, CreditCard } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
-import { DeleteExpenseButton } from '@/components/expenses/DeleteExpenseButton'
+import { DeleteExpenseButton } from '@/components/features/expenses/DeleteExpenseButton'
 import { formatCurrency } from '@/lib/utils/currency'
-import { AuthLayout } from '@/components/layout/AuthLayout'
+import { AuthLayout } from '@/components/common/layout/AuthLayout'
 import { getUserRole } from '@/lib/auth/getUserRole'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/common/ui/button'
+import { Badge } from '@/components/common/ui/badge'
 
 const categoryLabels: Record<string, string> = {
   cleaning: 'Limpeza',

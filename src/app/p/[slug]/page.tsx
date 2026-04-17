@@ -1,10 +1,10 @@
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import type { Metadata } from 'next'
-import { PropertyImage } from '@/types/property-images'
+import { PropertyImage } from '@/components/features/properties/types/property-images'
 import { generatePropertyJsonLd } from '@/lib/seo/jsonld'
 import { locales } from '../../../../i18n.config'
-import { PropertyPageV2 } from '@/components/public/PropertyPageV2'
+import { PropertyPageV2 } from '@/components/common/public/PropertyPageV2'
 
 export const revalidate = 60 // revalidate every 60 seconds for dynamic content
 

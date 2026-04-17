@@ -1,4 +1,4 @@
-import { AuthLayout } from '@/components/layout/AuthLayout'
+import { AuthLayout } from '@/components/common/layout/AuthLayout'
 
 export default function Loading() {
   return (

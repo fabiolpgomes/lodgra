@@ -8,7 +8,7 @@ import { LogOut, User, KeyRound } from 'lucide-react'
 import { toast } from 'sonner'
 import { useState, useEffect } from 'react'
 import { type User as SupabaseUser } from '@supabase/supabase-js'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/common/ui/button'
 
 interface UserProfile {
   full_name: string | null

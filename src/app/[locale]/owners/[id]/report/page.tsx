@@ -4,10 +4,10 @@ import { useState, useEffect, useCallback } from 'react'
 import { useParams } from '@/lib/i18n/routing'
 import Link from 'next/link'
 import { ArrowLeft, FileText, Building2, Download, TrendingUp, Loader2 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/common/ui/button'
 import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
 // Lazy import: @react-pdf/renderer is ~500KB, only load when user clicks download
-const loadOwnerReportPDF = () => import('@/components/reports/OwnerReportPDF')
+const loadOwnerReportPDF = () => import('@/components/features/reports/OwnerReportPDF')
 
 interface PropertyReport {
   id: string

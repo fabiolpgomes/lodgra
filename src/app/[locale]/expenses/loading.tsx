@@ -1,5 +1,5 @@
-import { AuthLayout } from '@/components/layout/AuthLayout'
-import { Skeleton } from '@/components/ui/skeleton'
+import { AuthLayout } from '@/components/common/layout/AuthLayout'
+import { Skeleton } from '@/components/common/ui/skeleton'
 
 export default function Loading() {
   return (

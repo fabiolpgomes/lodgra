@@ -2,10 +2,10 @@ import Link from 'next/link'
 import { Users, Plus } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { AuthLayout } from '@/components/layout/AuthLayout'
-import { OwnersFilter } from '@/components/owners/OwnersFilter'
+import { AuthLayout } from '@/components/common/layout/AuthLayout'
+import { OwnersFilter } from '@/components/features/owners/OwnersFilter'
 import { getUserRole } from '@/lib/auth/getUserRole'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/common/ui/button'
 import { parsePage, getRange, PAGE_SIZE } from '@/lib/utils/pagination'
 
 export default async function OwnersPage({

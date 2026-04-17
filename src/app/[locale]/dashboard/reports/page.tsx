@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { LazyCommissionDashboard as CommissionDashboard } from '@/components/lazy/LazyCharts'
+import { LazyCommissionDashboard as CommissionDashboard } from '@/components/common/lazy/LazyCharts'
 
 type ReportTab = 'commissions' | 'expenses' | 'revenue' | 'analytics'
 

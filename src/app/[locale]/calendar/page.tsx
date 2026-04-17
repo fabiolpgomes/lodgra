@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { LazyCalendar } from '@/components/lazy/LazyCalendar'
-import { AuthLayout } from '@/components/layout/AuthLayout'
+import { LazyCalendar } from '@/components/common/lazy/LazyCalendar'
+import { AuthLayout } from '@/components/common/layout/AuthLayout'
 
 export default async function CalendarPage({
   params,

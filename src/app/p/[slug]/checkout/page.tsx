@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { CheckoutForm } from '@/components/public/CheckoutForm'
+import { CheckoutForm } from '@/components/common/public/CheckoutForm'
 import { getPriceForRange } from '@/lib/pricing/getPriceForRange'
 import { differenceInDays, parseISO, isValid, isBefore, startOfDay } from 'date-fns'
 import type { Metadata } from 'next'

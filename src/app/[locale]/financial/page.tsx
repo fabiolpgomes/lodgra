@@ -1,8 +1,8 @@
 import { TrendingUp, TrendingDown, DollarSign, Percent } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { formatCurrency, groupByCurrency, type CurrencyCode } from '@/lib/utils/currency'
-import { ProfitCard } from '@/components/dashboard/ProfitCard'
-import { AuthLayout } from '@/components/layout/AuthLayout'
+import { ProfitCard } from '@/components/features/dashboard/ProfitCard'
+import { AuthLayout } from '@/components/common/layout/AuthLayout'
 import { calcManagementFee, calcOwnerNet } from '@/lib/financial/calculations'
 
 export default async function FinancialPage() {

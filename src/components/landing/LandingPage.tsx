@@ -7,10 +7,10 @@ import {
   Users, Calendar, Receipt, TrendingUp, Lock, ChevronDown, Home,
   Smartphone, Share, PlusSquare, X,
 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { Button } from '@/components/common/ui/button'
+import { Input } from '@/components/common/ui/input'
 import { PLAN_DISPLAY } from '@/lib/billing/plans'
-import { Logo } from '@/components/ui/Logo'
+import { Logo } from '@/components/common/ui/Logo'
 
 type Market = 'BR' | 'PT' | 'US'
 

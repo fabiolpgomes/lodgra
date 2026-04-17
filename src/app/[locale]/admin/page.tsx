@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { Clock } from 'lucide-react'
-import { CronJobsManager } from '@/components/admin/CronJobsManager'
-import { AuthLayout } from '@/components/layout/AuthLayout'
+import { CronJobsManager } from '@/components/features/admin/CronJobsManager'
+import { AuthLayout } from '@/components/common/layout/AuthLayout'
 import { createClient } from '@/lib/supabase/server'
 
 export default async function AdminPage() {
