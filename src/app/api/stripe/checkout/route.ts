@@ -14,30 +14,36 @@ export async function POST(request: NextRequest) {
 
     // ── Tier-based checkout (Starter / Professional / Business) ─────────────
     if (plan) {
-      // Support currency-based price IDs
-      const PLAN_PRICE_IDS_BY_CURRENCY: Record<string, Record<string, string>> = {
+      // Support currency-based price IDs (BRL, EUR, USD)
+      const PLAN_PRICE_IDS_BY_CURRENCY: Record<string, Record<string, string | undefined>> = {
         brl: {
-          starter:      process.env.STRIPE_PRICE_ID_STARTER_BRL!,
-          professional: process.env.STRIPE_PRICE_ID_PROFESSIONAL_BRL!,
-          business:     process.env.STRIPE_PRICE_ID_BUSINESS_BRL!,
+          starter:      process.env.STRIPE_PRICE_ID_STARTER_BRL,
+          professional: process.env.STRIPE_PRICE_ID_PROFESSIONAL_BRL,
+          business:     process.env.STRIPE_PRICE_ID_BUSINESS_BRL,
         },
         eur: {
-          starter:      process.env.STRIPE_PRICE_ID_STARTER_EUR!,
-          professional: process.env.STRIPE_PRICE_ID_PROFESSIONAL_EUR!,
-          business:     process.env.STRIPE_PRICE_ID_BUSINESS_EUR!,
+          starter:      process.env.STRIPE_PRICE_ID_STARTER_EUR,
+          professional: process.env.STRIPE_PRICE_ID_PROFESSIONAL_EUR,
+          business:     process.env.STRIPE_PRICE_ID_BUSINESS_EUR,
+        },
+        usd: {
+          starter:      process.env.STRIPE_PRICE_ID_STARTER_USD,
+          professional: process.env.STRIPE_PRICE_ID_PROFESSIONAL_USD,
+          business:     process.env.STRIPE_PRICE_ID_BUSINESS_USD,
         },
       }
 
-      const currencyPrices = PLAN_PRICE_IDS_BY_CURRENCY[currency]
-      if (!currencyPrices) {
-        return NextResponse.json({ error: `Moeda ${currency} não suportada` }, { status: 400 })
-      }
+      // Fallback to EUR if currency not supported or prices missing
+      const targetCurrency = PLAN_PRICE_IDS_BY_CURRENCY[currency] ? currency : 'eur'
+      const currencyPrices = PLAN_PRICE_IDS_BY_CURRENCY[targetCurrency]!
 
       const priceId = currencyPrices[plan]
-      console.log(`[Checkout] Plan: ${plan}, Currency: ${currency}`)
+      console.log(`[Checkout] Plan: ${plan}, Requested Currency: ${currency}, Using: ${targetCurrency}`)
       console.log(`[Checkout] Selected PriceId: ${priceId}`)
       if (!priceId) {
-        return NextResponse.json({ error: `Plano ${plan} não disponível para ${currency}` }, { status: 400 })
+        return NextResponse.json({
+          error: `Plano ${plan} não disponível no momento. Tente novamente em breve.`
+        }, { status: 400 })
       }
 
       const session = await stripe.checkout.sessions.create({
