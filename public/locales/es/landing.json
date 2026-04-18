@@ -1,0 +1,162 @@
+{
+  "hero": {
+    "headline": "Hospedería Inteligente. Resultados Reales.",
+    "subheadline": "Compliance + ROI. Automatización financiera inteligente y optimización de rentabilidad para propietarios profesionales de corta duración.",
+    "ctaPrimary": "Prueba 7 Días — Devolución Garantizada",
+    "ctaSecondary": "Ver Demo"
+  },
+  "valueProposition": {
+    "title": "Transforma Hospedería en Riqueza",
+    "description": "Gestión de propiedades basada en datos, enfocada en resultados financieros. Sin adivinanzas. Solo datos.",
+    "bullets": [
+      "Control 100% de tu ROI",
+      "Automatización inteligente de extremo a extremo",
+      "Soporte de cumplimiento regulatorio"
+    ]
+  },
+  "features": {
+    "title": "Todo lo que necesitas para tener éxito",
+    "items": [
+      {
+        "icon": "pricing",
+        "title": "Precios Inteligentes",
+        "description": "Algoritmo de precios dinámicos ajusta tarifas en tiempo real según demanda, estacionalidad y competencia."
+      },
+      {
+        "icon": "calendar",
+        "title": "Calendarios Sincronizados",
+        "description": "Sincroniza automáticamente con Airbnb, Booking, VRBO y administradores de canales. Cero trabajo manual."
+      },
+      {
+        "icon": "revenue",
+        "title": "Optimización de Ingresos",
+        "description": "La IA identifica oportunidades de crecimiento. Aumenta las reservas un 35% en promedio."
+      },
+      {
+        "icon": "reports",
+        "title": "Informes Financieros",
+        "description": "Paneles en tiempo real con ROI, gastos, impuestos y pronósticos. Domina tus números."
+      },
+      {
+        "icon": "compliance",
+        "title": "Cumplimiento Regulatorio",
+        "description": "Actualizado con GDPR, leyes fiscales locales y regulaciones. Hospedería segura y legal."
+      },
+      {
+        "icon": "support",
+        "title": "Soporte 24/7",
+        "description": "Equipo experto en inglés, portugués y español. Respuesta en minutos, no horas."
+      }
+    ]
+  },
+  "pricing": {
+    "title": "Precios Simples y Transparentes",
+    "tiers": [
+      {
+        "id": "starter",
+        "name": "Inicio",
+        "price": "€25",
+        "period": "/mes",
+        "description": "Perfecto para empezar",
+        "features": [
+          "Hasta 5 propiedades",
+          "Sincronización iCal",
+          "Informes básicos",
+          "Soporte por correo"
+        ]
+      },
+      {
+        "id": "pro",
+        "name": "Pro",
+        "price": "€85",
+        "period": "/mes",
+        "description": "El más popular",
+        "badge": "Recomendado",
+        "isPrimary": true,
+        "features": [
+          "Hasta 25 propiedades",
+          "Precios impulsados por IA",
+          "Informes avanzados",
+          "Soporte prioritario",
+          "Integraciones ilimitadas"
+        ]
+      },
+      {
+        "id": "business",
+        "name": "Negocio",
+        "price": "Personalizado",
+        "period": "",
+        "description": "Para operadores grandes",
+        "features": [
+          "Propiedades ilimitadas",
+          "API completa",
+          "White-label",
+          "SSO/SAML",
+          "Gerente dedicado"
+        ]
+      }
+    ]
+  },
+  "faq": {
+    "title": "Preguntas Frecuentes",
+    "questions": [
+      {
+        "question": "¿Cómo empiezo?",
+        "answer": "Crea una cuenta en 2 minutos con tu tarjeta de crédito. Conecta tus propiedades vía iCal y ¡aprovecha los 7 días de prueba con garantía de reembolso!"
+      },
+      {
+        "question": "¿Cuál es el costo de configuración?",
+        "answer": "Cero. Sin tarifas ocultas. Paga solo la suscripción mensual."
+      },
+      {
+        "question": "¿Soportan mi país?",
+        "answer": "¡Sí! Lodgra soporta Brasil, Portugal, Europa y EUA. Más mercados próximamente."
+      },
+      {
+        "question": "¿Necesito una tarjeta de crédito para probarlo?",
+        "answer": "Sí, requerimos una tarjeta de crédito para iniciar tu prueba. Pero aquí está lo mejor: si no estás completamente satisfecho con Lodgra durante tus 7 días, devolvemos tu dinero 100%. Sin preguntas."
+      },
+      {
+        "question": "¿Cómo me integro con mis canales?",
+        "answer": "Conecta vía iCal (Airbnb, Booking, VRBO) o usa nuestra API. Auto-sincronización 24/7."
+      },
+      {
+        "question": "¿Ofrecen soporte en español?",
+        "answer": "¡Sí! Soporte 24/7 en español, inglés y portugués. Respuesta en minutos."
+      }
+    ]
+  },
+  "finalCta": {
+    "headline": "Comienza a ganar de manera inteligente hoy.",
+    "subheadline": "Prueba Lodgra por 7 días. Si no te encanta, devolvemos tu dinero. Garantizado.",
+    "ctaText": "Prueba 7 Días — Devolución Garantizada",
+    "note": "Acceso completo por 7 días. Reembolso si no estás satisfecho."
+  },
+  "footer": {
+    "copyright": "Lodgra © 2026. Todos los derechos reservados.",
+    "productLinks": [
+      { "label": "Características", "href": "/es/producto/caracteristicas" },
+      { "label": "Precios", "href": "/es/precios" },
+      { "label": "Integraciones", "href": "/es/producto/integraciones" },
+      { "label": "Seguridad", "href": "/es/producto/seguridad" }
+    ],
+    "companyLinks": [
+      { "label": "Acerca de", "href": "/es/empresa/acerca-de" },
+      { "label": "Blog", "href": "/es/empresa/blog" },
+      { "label": "Carreras", "href": "/es/empresa/carreras" },
+      { "label": "Contacto", "href": "/es/empresa/contacto" }
+    ],
+    "supportLinks": [
+      { "label": "Documentación", "href": "/es/soporte/documentacion" },
+      { "label": "Centro de Ayuda", "href": "/es/soporte/ayuda" },
+      { "label": "Comunidad", "href": "/es/soporte/comunidad" },
+      { "label": "Contactar Soporte", "href": "/es/soporte/contacto" }
+    ],
+    "legalLinks": [
+      { "label": "Términos de Servicio", "href": "/es/legal/terminos" },
+      { "label": "Política de Privacidad", "href": "/es/legal/privacidad" },
+      { "label": "Política de Cookies", "href": "/es/legal/cookies" },
+      { "label": "Cumplimiento", "href": "/es/legal/cumplimiento" }
+    ]
+  }
+}

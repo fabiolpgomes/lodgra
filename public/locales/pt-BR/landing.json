@@ -1,0 +1,162 @@
+{
+  "hero": {
+    "headline": "Sua hospedagem, seu patrimônio.",
+    "subheadline": "Gestão inteligente de hospedagem com foco em resultado financeiro. O mercado Airbnb cresce acelerado. Lodgra é a ferramenta que faltava.",
+    "ctaPrimary": "Teste 7 Dias — Seu dinheiro de volta",
+    "ctaSecondary": "Ver Demo"
+  },
+  "valueProposition": {
+    "title": "Transforme Hospedagem em Riqueza",
+    "description": "Gestão inteligente de propriedades com foco em resultado financeiro. Sem guesswork. Só dados.",
+    "bullets": [
+      "100% de controle do ROI",
+      "Automação inteligente end-to-end",
+      "Suporte compliance regulatório"
+    ]
+  },
+  "features": {
+    "title": "Tudo que você precisa para ter sucesso",
+    "items": [
+      {
+        "icon": "pricing",
+        "title": "Preços Inteligentes",
+        "description": "Algoritmo de precificação dinâmica ajusta tarifas em tempo real baseado em demanda, sazonalidade e concorrência."
+      },
+      {
+        "icon": "calendar",
+        "title": "Calendários Sincronizados",
+        "description": "Sincronize automaticamente com Airbnb, Booking, VRBO e gerenciadores de canal. Zero trabalho manual."
+      },
+      {
+        "icon": "revenue",
+        "title": "Otimização de Receita",
+        "description": "IA identifica oportunidades de crescimento. Aumente bookings em 35% em média."
+      },
+      {
+        "icon": "reports",
+        "title": "Relatórios Financeiros",
+        "description": "Dashboards em tempo real com ROI, despesas, impostos e previsões. Dominar seus números."
+      },
+      {
+        "icon": "compliance",
+        "title": "Conformidade Regulatória",
+        "description": "Atualizado com RGPD, LGPD e regulamentos locais. Hospedagem segura e legal."
+      },
+      {
+        "icon": "support",
+        "title": "Suporte 24/7",
+        "description": "Equipe expert em português, inglês e espanhol. Resposta em minutos, não horas."
+      }
+    ]
+  },
+  "pricing": {
+    "title": "Preços Simples e Transparentes",
+    "tiers": [
+      {
+        "id": "starter",
+        "name": "Iniciante",
+        "price": "R$ 99",
+        "period": "/mês",
+        "description": "Perfeito para começar",
+        "features": [
+          "Até 5 propriedades",
+          "Sincronização iCal",
+          "Relatórios básicos",
+          "Suporte por email"
+        ]
+      },
+      {
+        "id": "pro",
+        "name": "Pro",
+        "price": "R$ 299",
+        "period": "/mês",
+        "description": "Mais popular",
+        "badge": "Recomendado",
+        "isPrimary": true,
+        "features": [
+          "Até 25 propriedades",
+          "Preços inteligentes com IA",
+          "Relatórios avançados",
+          "Suporte prioritário",
+          "Integrações ilimitadas"
+        ]
+      },
+      {
+        "id": "business",
+        "name": "Negócio",
+        "price": "Sob Demanda",
+        "period": "",
+        "description": "Para operadores grandes",
+        "features": [
+          "Propriedades ilimitadas",
+          "API completa",
+          "White-label",
+          "SSO/SAML",
+          "Gerente dedicado"
+        ]
+      }
+    ]
+  },
+  "faq": {
+    "title": "Perguntas Frequentes",
+    "questions": [
+      {
+        "question": "Como faço para começar?",
+        "answer": "Crie conta em 2 minutos com seu cartão de crédito. Conecte suas propriedades via iCal e aproveite os 7 dias de teste com garantia de reembolso!"
+      },
+      {
+        "question": "Qual é o custo de configuração?",
+        "answer": "Zero. Não há taxas ocultas. Pague apenas a assinatura mensal."
+      },
+      {
+        "question": "Vocês suportam meu país?",
+        "answer": "Sim! Lodgra suporta Brasil, Portugal, Europa e EUA. Mais mercados em breve."
+      },
+      {
+        "question": "Preciso de cartão de crédito para testar?",
+        "answer": "Sim, solicitamos um cartão de crédito para iniciar seu teste. Mas aqui está o melhor: se você não ficar completamente satisfeito com a Lodgra durante seus 7 dias, devolvemos seu dinheiro 100%. Sem perguntas."
+      },
+      {
+        "question": "Como é feita a integração com meus canais?",
+        "answer": "Conecte via iCal (Airbnb, Booking, VRBO) ou use nossa API. Sincronização automática 24/7."
+      },
+      {
+        "question": "Vocês oferecem suporte em português?",
+        "answer": "Sim! Suporte 24/7 em português, inglês e espanhol. Resposta em minutos."
+      }
+    ]
+  },
+  "finalCta": {
+    "headline": "Comece a ganhar inteligente hoje.",
+    "subheadline": "Teste a Lodgra por 7 dias. Se você não amar, devolvemos seu dinheiro. Garantido.",
+    "ctaText": "Teste 7 Dias — Seu dinheiro de volta",
+    "note": "Acesso completo por 7 dias. Reembolso se não ficar satisfeito."
+  },
+  "footer": {
+    "copyright": "Lodgra © 2026. Todos os direitos reservados.",
+    "productLinks": [
+      { "label": "Funcionalidades", "href": "/pt-BR/produto/funcionalidades" },
+      { "label": "Preços", "href": "/pt-BR/precos" },
+      { "label": "Integrações", "href": "/pt-BR/produto/integracoes" },
+      { "label": "Segurança", "href": "/pt-BR/produto/seguranca" }
+    ],
+    "companyLinks": [
+      { "label": "Sobre", "href": "/pt-BR/empresa/sobre" },
+      { "label": "Blog", "href": "/pt-BR/empresa/blog" },
+      { "label": "Carreiras", "href": "/pt-BR/empresa/carreiras" },
+      { "label": "Contato", "href": "/pt-BR/empresa/contato" }
+    ],
+    "supportLinks": [
+      { "label": "Documentação", "href": "/pt-BR/suporte/docs" },
+      { "label": "Central de Ajuda", "href": "/pt-BR/suporte/ajuda" },
+      { "label": "Comunidade", "href": "/pt-BR/suporte/comunidade" },
+      { "label": "Contate o Suporte", "href": "/pt-BR/suporte/contato" }
+    ],
+    "legalLinks": [
+      { "label": "Termos de Serviço", "href": "/pt-BR/legal/termos" },
+      { "label": "Política de Privacidade", "href": "/pt-BR/legal/privacidade" },
+      { "label": "Política de Cookies", "href": "/pt-BR/legal/cookies" },
+      { "label": "Conformidade", "href": "/pt-BR/legal/conformidade" }
+    ]
+  }
+}

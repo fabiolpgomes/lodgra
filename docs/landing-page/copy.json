@@ -1,0 +1,339 @@
+{
+  "metadata": {
+    "version": "1.0",
+    "created": "2026-04-18",
+    "status": "in-progress",
+    "markets": ["pt-BR", "en-US", "es"]
+  },
+  "hero": {
+    "pt-BR": {
+      "headline": "Sua hospedagem, seu patrimônio.",
+      "subheadline": "Transforme propriedades em ativos financeiros de alta performance.",
+      "cta_primary": "Comece Grátis",
+      "cta_secondary": "Ver Demo (2 min)"
+    },
+    "en-US": {
+      "headline": "Host Smarter. Earn More.",
+      "subheadline": "Turn your properties into high-performance financial assets.",
+      "cta_primary": "Get Started Free",
+      "cta_secondary": "Watch Demo (2 min)"
+    },
+    "es": {
+      "headline": "Hospeda Inteligente. Gana Más.",
+      "subheadline": "Convierte tus propiedades en activos financieros de alto rendimiento.",
+      "cta_primary": "Comenzar Gratis",
+      "cta_secondary": "Ver Demo (2 min)"
+    }
+  },
+  "value_proposition": {
+    "pt-BR": {
+      "title": "Transforme Hospedagem em Riqueza",
+      "description": "Gestão inteligente de propriedades com foco em resultado financeiro. Sem guesswork. Só dados.",
+      "bullet_1": "100% de controle do ROI",
+      "bullet_2": "Automação inteligente end-to-end",
+      "bullet_3": "Suporte compliance regulatório"
+    },
+    "en-US": {
+      "title": "Transform Hosting Into Wealth",
+      "description": "Data-driven property management focused on financial results. No guesswork. Just data.",
+      "bullet_1": "100% control of your ROI",
+      "bullet_2": "Intelligent end-to-end automation",
+      "bullet_3": "Regulatory compliance support"
+    },
+    "es": {
+      "title": "Transforma Hospedería en Riqueza",
+      "description": "Gestión de propiedades basada en datos, enfocada en resultados financieros. Sin adivinanzas. Solo datos.",
+      "bullet_1": "Control 100% de tu ROI",
+      "bullet_2": "Automatización inteligente de extremo a extremo",
+      "bullet_3": "Soporte de cumplimiento regulatorio"
+    }
+  },
+  "features": {
+    "pt-BR": [
+      {
+        "title": "Preços Inteligentes",
+        "description": "Algoritmo de precificação dinâmica ajusta tarifas em tempo real baseado em demanda, sazonalidade e concorrência."
+      },
+      {
+        "title": "Calendários Sincronizados",
+        "description": "Sincronize automaticamente com Airbnb, Booking, VRBO e gerenciadores de canal. Zero trabalho manual."
+      },
+      {
+        "title": "Otimização de Receita",
+        "description": "IA identifica oportunidades de crescimento. Aumente bookings em 35% em média."
+      },
+      {
+        "title": "Relatórios Financeiros",
+        "description": "Dashboards em tempo real com ROI, despesas, impostos e previsões. Dominar seus números."
+      },
+      {
+        "title": "Conformidade Regulatória",
+        "description": "Atualizado com RGPD, LGPD e regulamentos locais. Hospedagem segura e legal."
+      },
+      {
+        "title": "Suporte 24/7",
+        "description": "Equipe expert em português, inglês e espanhol. Resposta em minutos, não horas."
+      }
+    ],
+    "en-US": [
+      {
+        "title": "Smart Pricing",
+        "description": "Dynamic pricing algorithm adjusts rates in real-time based on demand, seasonality, and competition."
+      },
+      {
+        "title": "Synced Calendars",
+        "description": "Auto-sync with Airbnb, Booking, VRBO, and channel managers. Zero manual work."
+      },
+      {
+        "title": "Revenue Optimization",
+        "description": "AI identifies growth opportunities. Increase bookings 35% on average."
+      },
+      {
+        "title": "Financial Reports",
+        "description": "Real-time dashboards with ROI, expenses, taxes, and forecasts. Master your numbers."
+      },
+      {
+        "title": "Regulatory Compliance",
+        "description": "Updated with GDPR, local tax laws, and regulations. Hosting that's safe and legal."
+      },
+      {
+        "title": "24/7 Support",
+        "description": "Expert team in English, Portuguese, and Spanish. Response in minutes, not hours."
+      }
+    ],
+    "es": [
+      {
+        "title": "Precios Inteligentes",
+        "description": "Algoritmo de precios dinámicos ajusta tarifas en tiempo real según demanda, estacionalidad y competencia."
+      },
+      {
+        "title": "Calendarios Sincronizados",
+        "description": "Sincroniza automáticamente con Airbnb, Booking, VRBO y administradores de canales. Cero trabajo manual."
+      },
+      {
+        "title": "Optimización de Ingresos",
+        "description": "La IA identifica oportunidades de crecimiento. Aumenta las reservas un 35% en promedio."
+      },
+      {
+        "title": "Informes Financieros",
+        "description": "Paneles en tiempo real con ROI, gastos, impuestos y pronósticos. Domina tus números."
+      },
+      {
+        "title": "Cumplimiento Regulatorio",
+        "description": "Actualizado con GDPR, leyes fiscales locales y regulaciones. Hospedería segura y legal."
+      },
+      {
+        "title": "Soporte 24/7",
+        "description": "Equipo experto en inglés, portugués y español. Respuesta en minutos, no horas."
+      }
+    ]
+  },
+  "pricing": {
+    "pt-BR": {
+      "title": "Preços Simples e Transparentes",
+      "starter": {
+        "name": "Iniciante",
+        "price": "R$ 99",
+        "period": "/mês",
+        "description": "Perfeito para começar",
+        "features": ["Até 5 propriedades", "Sincronização iCal", "Relatórios básicos", "Suporte por email"]
+      },
+      "pro": {
+        "name": "Pro",
+        "price": "R$ 299",
+        "period": "/mês",
+        "description": "Mais popular",
+        "badge": "Recomendado",
+        "features": ["Até 25 propriedades", "Preços inteligentes com IA", "Relatórios avançados", "Suporte prioritário", "Integrações ilimitadas"]
+      },
+      "business": {
+        "name": "Negócio",
+        "price": "Sob Demanda",
+        "description": "Para operadores grandes",
+        "features": ["Propriedades ilimitadas", "API completa", "White-label", "SSO/SAML", "Gerente dedicado"]
+      }
+    },
+    "en-US": {
+      "title": "Simple, Transparent Pricing",
+      "starter": {
+        "name": "Starter",
+        "price": "$29",
+        "period": "/month",
+        "description": "Perfect to get started",
+        "features": ["Up to 5 properties", "iCal sync", "Basic reports", "Email support"]
+      },
+      "pro": {
+        "name": "Pro",
+        "price": "$99",
+        "period": "/month",
+        "description": "Most popular",
+        "badge": "Recommended",
+        "features": ["Up to 25 properties", "AI-powered pricing", "Advanced reports", "Priority support", "Unlimited integrations"]
+      },
+      "business": {
+        "name": "Business",
+        "price": "Custom",
+        "description": "For large operators",
+        "features": ["Unlimited properties", "Full API", "White-label", "SSO/SAML", "Dedicated manager"]
+      }
+    },
+    "es": {
+      "title": "Precios Simples y Transparentes",
+      "starter": {
+        "name": "Inicio",
+        "price": "€25",
+        "period": "/mes",
+        "description": "Perfecto para empezar",
+        "features": ["Hasta 5 propiedades", "Sincronización iCal", "Informes básicos", "Soporte por correo"]
+      },
+      "pro": {
+        "name": "Pro",
+        "price": "€85",
+        "period": "/mes",
+        "description": "El más popular",
+        "badge": "Recomendado",
+        "features": ["Hasta 25 propiedades", "Precios impulsados por IA", "Informes avanzados", "Soporte prioritario", "Integraciones ilimitadas"]
+      },
+      "business": {
+        "name": "Negocio",
+        "price": "Personalizado",
+        "description": "Para operadores grandes",
+        "features": ["Propiedades ilimitadas", "API completa", "White-label", "SSO/SAML", "Gerente dedicado"]
+      }
+    }
+  },
+  "social_proof": {
+    "pt-BR": {
+      "headline": "Confiado por 1.200+ gestores de propriedade",
+      "rating": "4.8 de 5 estrelas",
+      "reviews": "340+ avaliações",
+      "partners": ["Stripe", "Zapier", "Wave Accounting"]
+    },
+    "en-US": {
+      "headline": "Trusted by 1,200+ property managers",
+      "rating": "4.8 out of 5 stars",
+      "reviews": "340+ reviews",
+      "partners": ["Stripe", "Zapier", "Wave Accounting"]
+    },
+    "es": {
+      "headline": "Confiado por 1.200+ administradores de propiedades",
+      "rating": "4.8 de 5 estrellas",
+      "reviews": "340+ reseñas",
+      "partners": ["Stripe", "Zapier", "Wave Accounting"]
+    }
+  },
+  "faq": {
+    "pt-BR": [
+      {
+        "question": "Como faço para começar?",
+        "answer": "Crie conta em 2 minutos, sem cartão de crédito. Conecte suas propriedades via iCal e pronto!"
+      },
+      {
+        "question": "Qual é o custo de configuração?",
+        "answer": "Zero. Não há taxas ocultas. Pague apenas a assinatura mensal."
+      },
+      {
+        "question": "Vocês suportam meu país?",
+        "answer": "Sim! Lodgra suporta Brasil, Portugal, Europa e EUA. Mais mercados em breve."
+      },
+      {
+        "question": "Preciso fornecer informações de pagamento para tentar?",
+        "answer": "Não. Trial gratuito de 14 dias, sem cartão de crédito necessário."
+      },
+      {
+        "question": "Como é feita a integração com meus canais?",
+        "answer": "Conecte via iCal (Airbnb, Booking, VRBO) ou use nossa API. Sincronização automática 24/7."
+      },
+      {
+        "question": "Vocês oferecem suporte em português?",
+        "answer": "Sim! Suporte 24/7 em português, inglês e espanhol. Resposta em minutos."
+      }
+    ],
+    "en-US": [
+      {
+        "question": "How do I get started?",
+        "answer": "Create an account in 2 minutes, no credit card required. Connect your properties via iCal and you're set!"
+      },
+      {
+        "question": "What's the setup cost?",
+        "answer": "Zero. No hidden fees. Pay only the monthly subscription."
+      },
+      {
+        "question": "Do you support my country?",
+        "answer": "Yes! Lodgra supports Brazil, Portugal, Europe, and USA. More markets coming soon."
+      },
+      {
+        "question": "Do I need to provide payment info to try it?",
+        "answer": "No. 14-day free trial, no credit card required."
+      },
+      {
+        "question": "How do I integrate with my channels?",
+        "answer": "Connect via iCal (Airbnb, Booking, VRBO) or use our API. Auto-sync 24/7."
+      },
+      {
+        "question": "Do you offer support in English?",
+        "answer": "Yes! 24/7 support in English, Portuguese, and Spanish. Response in minutes."
+      }
+    ],
+    "es": [
+      {
+        "question": "¿Cómo empiezo?",
+        "answer": "Crea una cuenta en 2 minutos, sin tarjeta de crédito. ¡Conecta tus propiedades vía iCal y listo!"
+      },
+      {
+        "question": "¿Cuál es el costo de configuración?",
+        "answer": "Cero. Sin tarifas ocultas. Paga solo la suscripción mensual."
+      },
+      {
+        "question": "¿Soportan mi país?",
+        "answer": "¡Sí! Lodgra soporta Brasil, Portugal, Europa y EUA. Más mercados próximamente."
+      },
+      {
+        "question": "¿Necesito proporcionar información de pago para intentarlo?",
+        "answer": "No. Prueba gratuita de 14 días, sin tarjeta de crédito requerida."
+      },
+      {
+        "question": "¿Cómo me integro con mis canales?",
+        "answer": "Conecta vía iCal (Airbnb, Booking, VRBO) o usa nuestra API. Auto-sincronización 24/7."
+      },
+      {
+        "question": "¿Ofrecen soporte en español?",
+        "answer": "¡Sí! Soporte 24/7 en español, inglés y portugués. Respuesta en minutos."
+      }
+    ]
+  },
+  "final_cta": {
+    "pt-BR": {
+      "headline": "Comece a ganhar inteligente hoje.",
+      "subheadline": "Sem cartão de crédito. Sem compromisso. Cancele em qualquer momento.",
+      "cta_button": "Comece Grátis",
+      "note": "Acesso completo por 14 dias. Sem surpresas."
+    },
+    "en-US": {
+      "headline": "Start earning smarter today.",
+      "subheadline": "No credit card. No commitment. Cancel anytime.",
+      "cta_button": "Get Started Free",
+      "note": "Full access for 14 days. No surprises."
+    },
+    "es": {
+      "headline": "Comienza a ganar de manera inteligente hoy.",
+      "subheadline": "Sin tarjeta de crédito. Sin compromiso. Cancela en cualquier momento.",
+      "cta_button": "Comenzar Gratis",
+      "note": "Acceso completo por 14 días. Sin sorpresas."
+    }
+  },
+  "footer": {
+    "pt-BR": {
+      "copyright": "Lodgra © 2026. Todos os direitos reservados.",
+      "links": ["Produto", "Empresa", "Suporte", "Legal"]
+    },
+    "en-US": {
+      "copyright": "Lodgra © 2026. All rights reserved.",
+      "links": ["Product", "Company", "Support", "Legal"]
+    },
+    "es": {
+      "copyright": "Lodgra © 2026. Todos los derechos reservados.",
+      "links": ["Producto", "Empresa", "Soporte", "Legal"]
+    }
+  }
+}

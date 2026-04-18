@@ -1,0 +1,162 @@
+{
+  "hero": {
+    "headline": "Smart hosting. Real returns.",
+    "subheadline": "Compliance meets ROI. Automated financial reporting and intelligent yield optimization for the modern STR operator.",
+    "ctaPrimary": "Try 7 Days — Money-Back Guarantee",
+    "ctaSecondary": "Watch Demo"
+  },
+  "valueProposition": {
+    "title": "Transform Hosting Into Wealth",
+    "description": "Data-driven property management focused on financial results. No guesswork. Just data.",
+    "bullets": [
+      "100% control of your ROI",
+      "Intelligent end-to-end automation",
+      "Regulatory compliance support"
+    ]
+  },
+  "features": {
+    "title": "Everything you need to succeed",
+    "items": [
+      {
+        "icon": "pricing",
+        "title": "Smart Pricing",
+        "description": "Dynamic pricing algorithm adjusts rates in real-time based on demand, seasonality, and competition."
+      },
+      {
+        "icon": "calendar",
+        "title": "Synced Calendars",
+        "description": "Auto-sync with Airbnb, Booking, VRBO, and channel managers. Zero manual work."
+      },
+      {
+        "icon": "revenue",
+        "title": "Revenue Optimization",
+        "description": "AI identifies growth opportunities. Increase bookings 35% on average."
+      },
+      {
+        "icon": "reports",
+        "title": "Financial Reports",
+        "description": "Real-time dashboards with ROI, expenses, taxes, and forecasts. Master your numbers."
+      },
+      {
+        "icon": "compliance",
+        "title": "Regulatory Compliance",
+        "description": "Updated with GDPR, local tax laws, and regulations. Hosting that's safe and legal."
+      },
+      {
+        "icon": "support",
+        "title": "24/7 Support",
+        "description": "Expert team in English, Portuguese, and Spanish. Response in minutes, not hours."
+      }
+    ]
+  },
+  "pricing": {
+    "title": "Simple, Transparent Pricing",
+    "tiers": [
+      {
+        "id": "starter",
+        "name": "Starter",
+        "price": "$29",
+        "period": "/month",
+        "description": "Perfect to get started",
+        "features": [
+          "Up to 5 properties",
+          "iCal sync",
+          "Basic reports",
+          "Email support"
+        ]
+      },
+      {
+        "id": "pro",
+        "name": "Pro",
+        "price": "$99",
+        "period": "/month",
+        "description": "Most popular",
+        "badge": "Recommended",
+        "isPrimary": true,
+        "features": [
+          "Up to 25 properties",
+          "AI-powered pricing",
+          "Advanced reports",
+          "Priority support",
+          "Unlimited integrations"
+        ]
+      },
+      {
+        "id": "business",
+        "name": "Business",
+        "price": "Custom",
+        "period": "",
+        "description": "For large operators",
+        "features": [
+          "Unlimited properties",
+          "Full API",
+          "White-label",
+          "SSO/SAML",
+          "Dedicated manager"
+        ]
+      }
+    ]
+  },
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "questions": [
+      {
+        "question": "How do I get started?",
+        "answer": "Create an account in 2 minutes, no credit card required. Connect your properties via iCal and you're set!"
+      },
+      {
+        "question": "What's the setup cost?",
+        "answer": "Zero. No hidden fees. Pay only the monthly subscription."
+      },
+      {
+        "question": "Do you support my country?",
+        "answer": "Yes! Lodgra supports Brazil, Portugal, Europe, and USA. More markets coming soon."
+      },
+      {
+        "question": "Do I need a credit card to try it?",
+        "answer": "Yes, we require a credit card to start your trial. But here's the great part: if you're not completely satisfied with Lodgra during your 7 days, we'll refund your money 100%. No questions asked."
+      },
+      {
+        "question": "How do I integrate with my channels?",
+        "answer": "Connect via iCal (Airbnb, Booking, VRBO) or use our API. Auto-sync 24/7."
+      },
+      {
+        "question": "Do you offer support in English?",
+        "answer": "Yes! 24/7 support in English, Portuguese, and Spanish. Response in minutes."
+      }
+    ]
+  },
+  "finalCta": {
+    "headline": "Start earning smarter today.",
+    "subheadline": "Try Lodgra for 7 days. If you don't love it, we'll refund your money. Guaranteed.",
+    "ctaText": "Try 7 Days — Money-Back Guarantee",
+    "note": "Full access for 7 days. Money back if not satisfied."
+  },
+  "footer": {
+    "copyright": "Lodgra © 2026. All rights reserved.",
+    "productLinks": [
+      { "label": "Features", "href": "/product/features" },
+      { "label": "Pricing", "href": "/pricing" },
+      { "label": "Integrations", "href": "/product/integrations" },
+      { "label": "Security", "href": "/product/security" }
+    ],
+    "companyLinks": [
+      { "label": "About", "href": "/company/about" },
+      { "label": "Blog", "href": "/company/blog" },
+      { "label": "Careers", "href": "/company/careers" },
+      { "label": "Contact", "href": "/company/contact" }
+    ],
+    "supportLinks": [
+      { "label": "Documentation", "href": "/support/docs" },
+      { "label": "Help Center", "href": "/support/help" },
+      { "label": "Community", "href": "/support/community" },
+      { "label": "Contact Support", "href": "/support/contact" }
+    ],
+    "legalLinks": [
+      { "label": "Terms of Service", "href": "/legal/terms" },
+      { "label": "Privacy Policy", "href": "/legal/privacy" },
+      { "label": "Cookie Policy", "href": "/legal/cookies" },
+      { "label": "Compliance", "href": "/legal/compliance" }
+    ]
+  }
+}
