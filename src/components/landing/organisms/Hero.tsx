@@ -4,6 +4,7 @@ import React from 'react'
 import { Container } from '../atoms/Container'
 import { Button } from '../atoms/Button'
 import { Logo } from '../atoms/Logo'
+import { trackCTA } from '@/lib/analytics/client'
 
 interface HeroProps {
   headline: string
@@ -44,7 +45,10 @@ export const Hero: React.FC<HeroProps> = ({
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center mb-12 sm:mb-16 px-4">
           <Button
             size="lg"
-            onClick={onCtaPrimary}
+            onClick={() => {
+              trackCTA('hero_primary', 'hero')
+              onCtaPrimary()
+            }}
             className="px-8 py-3 text-base font-semibold"
           >
             {ctaPrimary}

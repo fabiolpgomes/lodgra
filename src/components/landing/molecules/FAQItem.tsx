@@ -1,19 +1,27 @@
 'use client'
 
 import React, { useState } from 'react'
+import { trackFAQInteraction } from '@/lib/analytics/client'
 
 interface FAQItemProps {
   question: string
   answer: string
+  index?: number
 }
 
-export const FAQItem: React.FC<FAQItemProps> = ({ question, answer }) => {
+export const FAQItem: React.FC<FAQItemProps> = ({ question, answer, index = 0 }) => {
   const [isOpen, setIsOpen] = useState(false)
+
+  const handleToggle = () => {
+    const newState = !isOpen
+    trackFAQInteraction(index, newState ? 'open' : 'close')
+    setIsOpen(newState)
+  }
 
   return (
     <div className="border border-gray-200 rounded-xl p-6 mb-4 bg-white hover:border-lodgra-primary/30 transition-colors duration-300">
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={handleToggle}
         className="flex items-center justify-between w-full text-left hover:text-lodgra-primary transition-colors duration-300"
         aria-expanded={isOpen}
         aria-label={`${isOpen ? 'Hide' : 'Show'} answer: ${question}`}
