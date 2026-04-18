@@ -15,6 +15,8 @@ export const FAQItem: React.FC<FAQItemProps> = ({ question, answer }) => {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center justify-between w-full text-left hover:text-lodgra-primary transition-colors duration-300"
+        aria-expanded={isOpen}
+        aria-label={`${isOpen ? 'Hide' : 'Show'} answer: ${question}`}
       >
         <span className="font-poppins font-semibold text-lg text-lodgra-primary">{question}</span>
         <svg

@@ -14,15 +14,15 @@ interface FeaturesProps {
 }
 
 export const Features: React.FC<FeaturesProps> = ({ title, features }) => (
-  <section className="bg-gray-50/50 py-20 md:py-32">
+  <section className="bg-gray-50/50 py-12 sm:py-20 md:py-32">
     <Container>
-      <div className="text-center mb-16">
-        <h2 className="font-poppins font-bold text-4xl md:text-5xl lg:text-6xl text-lodgra-primary mb-4 leading-tight tracking-tight">
+      <div className="text-center mb-8 sm:mb-16 px-4">
+        <h2 className="font-poppins font-bold text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-lodgra-primary mb-4 leading-tight tracking-tight">
           {title}
         </h2>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
         {features.map((feature, idx) => (
           <FeatureCard
             key={idx}

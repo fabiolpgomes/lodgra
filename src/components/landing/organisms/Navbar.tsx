@@ -60,6 +60,8 @@ export const Navbar: React.FC<NavbarProps> = ({ locale, onLocaleChange }) => {
               <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 className="flex items-center gap-1 px-3 py-2 text-sm font-inter text-gray-600 hover:text-lodgra-primary transition-colors"
+                aria-label="Toggle language selector"
+                aria-expanded={isDropdownOpen}
               >
                 <span className="hidden sm:inline">{localeLabels[locale]}</span>
                 <span className="sm:hidden">
@@ -90,6 +92,8 @@ export const Navbar: React.FC<NavbarProps> = ({ locale, onLocaleChange }) => {
                           ? 'bg-lodgra-primary text-white'
                           : 'text-gray-700 hover:bg-gray-50'
                       }`}
+                      aria-label={`Switch to ${localeLabels[loc]}`}
+                      aria-current={locale === loc ? 'true' : undefined}
                     >
                       {localeLabels[loc]}
                     </button>

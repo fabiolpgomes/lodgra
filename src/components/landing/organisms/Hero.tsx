@@ -22,26 +22,26 @@ export const Hero: React.FC<HeroProps> = ({
   onCtaPrimary,
   onCtaSecondary,
 }) => (
-  <section className="bg-white pt-16 pb-20 md:pt-24 md:pb-32">
+  <section className="bg-white pt-8 sm:pt-16 pb-16 sm:pb-20 md:pt-24 md:pb-32">
     <Container>
       <div className="text-center max-w-4xl mx-auto">
         {/* Logo - Clean and minimal */}
-        <div className="mb-12 flex justify-center">
+        <div className="mb-6 sm:mb-12 flex justify-center">
           <Logo size="lg" variant="dark" />
         </div>
 
         {/* Headline - Clean and premium */}
-        <h1 className="font-poppins font-bold text-4xl md:text-5xl lg:text-6xl text-lodgra-neutral mb-6 leading-tight tracking-tight">
+        <h1 className="font-poppins font-bold text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-lodgra-neutral mb-4 sm:mb-6 leading-tight tracking-tight">
           {headline}
         </h1>
 
         {/* Subheadline - Elegant and clear */}
-        <p className="text-base md:text-lg text-gray-600 leading-relaxed mb-12 max-w-3xl mx-auto font-inter font-normal">
+        <p className="text-sm sm:text-base md:text-lg text-gray-600 leading-relaxed mb-8 sm:mb-12 max-w-3xl mx-auto font-inter font-normal px-4">
           {subheadline}
         </p>
 
         {/* CTA Buttons - Professional spacing */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center mb-12 sm:mb-16 px-4">
           <Button
             size="lg"
             onClick={onCtaPrimary}

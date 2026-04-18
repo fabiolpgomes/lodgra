@@ -23,9 +23,9 @@ export const Footer: React.FC<FooterProps> = ({
   legalLinks = [],
   socialLinks = [],
 }) => (
-  <footer className="bg-lodgra-neutral text-white py-12">
+  <footer className="bg-lodgra-neutral text-white py-8 sm:py-12">
     <Container>
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-8 mb-12">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-6 sm:gap-8 mb-8 sm:mb-12">
         {/* Branding */}
         <div>
           <div className="font-poppins font-bold text-xl mb-3 text-white">Lodgra</div>

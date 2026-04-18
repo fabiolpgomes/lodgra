@@ -516,7 +516,7 @@ export function LandingPage() {
                     }
                     setShowPwaBanner(false)
                   }}
-                  className="px-3 sm:px-4 py-1.5 sm:py-2 bg-white text-lodgra-brand-600 text-xs sm:text-sm font-medium rounded-lg hover:bg-lodgra-brand-50 transition-colors whitespace-nowrap"
+                  className="px-3 sm:px-4 py-1.5 sm:py-2 bg-white text-lodgra-primary text-xs sm:text-sm font-medium rounded-lg hover:bg-lodgra-brand-50 transition-colors whitespace-nowrap"
                 >
                   {c.pwaBannerAction}
                 </button>
@@ -615,7 +615,7 @@ export function LandingPage() {
             {c.featureCards.map(({ icon: Icon, title, desc }) => (
               <div key={title} className="bg-white rounded-2xl p-6 shadow-sm border border-lodgra-border-subtle hover:shadow-lg hover:border-lodgra-brand-200 transition-all duration-300">
                 <div className="p-4 bg-gradient-to-br from-lodgra-brand-100 to-lodgra-brand-50 rounded-xl inline-flex mb-4">
-                  <Icon className="h-6 w-6 text-lodgra-brand-600" />
+                  <Icon className="h-6 w-6 text-lodgra-primary" />
                 </div>
                 <h3 className="font-semibold text-lodgra-neutral-900 mb-2 text-sm">{title}</h3>
                 <p className="text-xs text-lodgra-neutral-500 leading-relaxed">{desc}</p>
@@ -667,7 +667,7 @@ export function LandingPage() {
             {c.segments.map(({ icon: Icon, title, desc }) => (
               <div key={title} className="border border-lodgra-border-subtle rounded-2xl p-8 hover:border-lodgra-brand-400 hover:shadow-xl hover:shadow-lodgra-brand-500/10 transition-all duration-300 group">
                 <div className="p-4 bg-gradient-to-br from-lodgra-brand-100 to-lodgra-brand-50 rounded-xl inline-flex mb-5 group-hover:scale-110 transition-transform duration-300">
-                  <Icon className="h-7 w-7 text-lodgra-brand-600" />
+                  <Icon className="h-7 w-7 text-lodgra-primary" />
                 </div>
                 <h3 className="font-bold text-lodgra-neutral-900 text-lg mb-3">{title}</h3>
                 <p className="text-lodgra-neutral-500 leading-relaxed">{desc}</p>
@@ -705,7 +705,7 @@ export function LandingPage() {
                         key={ci}
                         className={`px-5 py-3.5 ${
                           ci === 0 ? 'text-lodgra-neutral-700 font-medium' :
-                          ci === 1 ? 'bg-lodgra-brand-50/50 font-semibold text-lodgra-brand-600' : 'text-lodgra-neutral-500'
+                          ci === 1 ? 'bg-lodgra-brand-50/50 font-semibold text-lodgra-primary' : 'text-lodgra-neutral-500'
                         }`}
                       >
                         {ci === 0 ? cell : <CompareCellValue val={cell} />}
@@ -751,7 +751,7 @@ export function LandingPage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <div className="inline-flex items-center justify-center w-14 h-14 bg-lodgra-brand-100 rounded-2xl mb-4">
-              <Smartphone className="h-7 w-7 text-lodgra-brand-600" />
+              <Smartphone className="h-7 w-7 text-lodgra-primary" />
             </div>
             <h2 className="text-3xl font-extrabold text-lodgra-neutral-900 mb-3">{c.pwaTitle}</h2>
             <p className="text-lodgra-neutral-500 text-lg max-w-xl mx-auto">{c.pwaDesc}</p>
@@ -761,11 +761,11 @@ export function LandingPage() {
             {c.pwaSteps.map((step, i) => (
               <div key={i} className="bg-white rounded-xl p-6 shadow-sm border border-lodgra-border-subtle text-center">
                 <div className="inline-flex items-center justify-center w-12 h-12 bg-lodgra-brand-50 rounded-xl mb-4">
-                  {step.icon === 'globe' && <Globe className="h-6 w-6 text-lodgra-brand-600" />}
-                  {step.icon === 'share' && <Share className="h-6 w-6 text-lodgra-brand-600" />}
-                  {step.icon === 'plus' && <PlusSquare className="h-6 w-6 text-lodgra-brand-600" />}
+                  {step.icon === 'globe' && <Globe className="h-6 w-6 text-lodgra-primary" />}
+                  {step.icon === 'share' && <Share className="h-6 w-6 text-lodgra-primary" />}
+                  {step.icon === 'plus' && <PlusSquare className="h-6 w-6 text-lodgra-primary" />}
                 </div>
-                <div className="text-sm font-bold text-lodgra-brand-600 mb-1">
+                <div className="text-sm font-bold text-lodgra-primary mb-1">
                   {i + 1}.
                 </div>
                 <h3 className="font-semibold text-lodgra-neutral-900 mb-2">{step.title}</h3>
@@ -834,7 +834,7 @@ export function LandingPage() {
                     variant={plan.highlighted ? 'default' : 'outline'}
                     className={plan.highlighted
                       ? 'w-full bg-lodgra-cta-bg hover:bg-lodgra-cta-bg-hover text-white border-0'
-                      : 'w-full border-lodgra-brand-500 text-lodgra-brand-600 hover:bg-lodgra-brand-50'
+                      : 'w-full border-lodgra-brand-500 text-lodgra-primary hover:bg-lodgra-brand-50'
                     }
                   >
                     {loadingPlan === plan.id ? '...' : (
@@ -875,7 +875,7 @@ export function LandingPage() {
             />
             <Button
               type="submit"
-              className="bg-white text-lodgra-brand-600 hover:bg-lodgra-brand-50 whitespace-nowrap font-semibold shadow-lg"
+              className="bg-white text-lodgra-primary hover:bg-lodgra-brand-50 whitespace-nowrap font-semibold shadow-lg"
             >
               <>{c.cta} <ArrowRight className="h-4 w-4 ml-1" /></>
             </Button>
