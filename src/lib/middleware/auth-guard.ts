@@ -7,7 +7,7 @@ const PUBLIC_PATHS = [
   '/login', '/register', '/subscribe', '/landing', '/api/stripe/', '/api/debug/',
   '/api/ical/', '/api/auth/', '/auth/', '/opengraph-image', '/sitemap.xml',
   '/robots.txt', '/privacy', '/terms', '/politica-de-privacidade', '/p/',
-  '/api/public/', '/monitoring',
+  '/api/public/', '/monitoring', '/',
 ]
 
 export function isPublicPath(pathname: string): boolean {
