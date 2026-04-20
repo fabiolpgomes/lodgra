@@ -54,45 +54,47 @@
     "tiers": [
       {
         "id": "starter",
-        "name": "Inicio",
-        "price": "€25",
+        "name": "Starter",
+        "price": "19",
         "period": "/mes",
-        "description": "Perfecto para empezar",
+        "description": "Para gestores que empiezan",
         "features": [
-          "Hasta 5 propiedades",
-          "Sincronización iCal",
+          "Hasta 3 propiedades",
+          "Sync iCal (Airbnb, Booking, VRBO)",
+          "Calendario drag-drop",
           "Informes básicos",
-          "Soporte por correo"
+          "Soporte por email"
         ]
       },
       {
-        "id": "pro",
-        "name": "Pro",
-        "price": "€85",
+        "id": "professional",
+        "name": "Professional",
+        "price": "49",
         "period": "/mes",
-        "description": "El más popular",
-        "badge": "Recomendado",
+        "description": "Para gestores en crecimiento",
+        "badge": "Más Popular",
         "isPrimary": true,
         "features": [
-          "Hasta 25 propiedades",
-          "Precios impulsados por IA",
-          "Informes avanzados",
-          "Soporte prioritario",
-          "Integraciones ilimitadas"
+          "Hasta 10 propiedades",
+          "Todo de Starter",
+          "Informes por propietario",
+          "Compliance Fiscal",
+          "Exportar PDF/Excel",
+          "Soporte prioritario"
         ]
       },
       {
         "id": "business",
-        "name": "Negocio",
-        "price": "Personalizado",
-        "period": "",
-        "description": "Para operadores grandes",
+        "name": "Business",
+        "price": "99",
+        "period": "/mes",
+        "description": "Para operaciones profesionales",
         "features": [
           "Propiedades ilimitadas",
-          "API completa",
-          "White-label",
-          "SSO/SAML",
-          "Gerente dedicado"
+          "Todo de Professional",
+          "Soporte prioritario",
+          "2FA (próximamente)",
+          "Acceso API (próximamente)"
         ]
       }
     ]
@@ -135,28 +137,122 @@
   "footer": {
     "copyright": "Lodgra © 2026. Todos los derechos reservados.",
     "productLinks": [
-      { "label": "Características", "href": "/es/producto/caracteristicas" },
-      { "label": "Precios", "href": "/es/precios" },
-      { "label": "Integraciones", "href": "/es/producto/integraciones" },
-      { "label": "Seguridad", "href": "/es/producto/seguridad" }
+      {
+        "label": "Características",
+        "href": "/es/producto/caracteristicas"
+      },
+      {
+        "label": "Precios",
+        "href": "/es/precios"
+      },
+      {
+        "label": "Integraciones",
+        "href": "/es/producto/integraciones"
+      },
+      {
+        "label": "Seguridad",
+        "href": "/es/producto/seguridad"
+      }
     ],
     "companyLinks": [
-      { "label": "Acerca de", "href": "/es/empresa/acerca-de" },
-      { "label": "Blog", "href": "/es/empresa/blog" },
-      { "label": "Carreras", "href": "/es/empresa/carreras" },
-      { "label": "Contacto", "href": "/es/empresa/contacto" }
+      {
+        "label": "Acerca de",
+        "href": "/es/empresa/acerca-de"
+      },
+      {
+        "label": "Blog",
+        "href": "/es/empresa/blog"
+      },
+      {
+        "label": "Carreras",
+        "href": "/es/empresa/carreras"
+      },
+      {
+        "label": "Contacto",
+        "href": "/es/empresa/contacto"
+      }
     ],
     "supportLinks": [
-      { "label": "Documentación", "href": "/es/soporte/documentacion" },
-      { "label": "Centro de Ayuda", "href": "/es/soporte/ayuda" },
-      { "label": "Comunidad", "href": "/es/soporte/comunidad" },
-      { "label": "Contactar Soporte", "href": "/es/soporte/contacto" }
+      {
+        "label": "Documentación",
+        "href": "/es/soporte/documentacion"
+      },
+      {
+        "label": "Centro de Ayuda",
+        "href": "/es/soporte/ayuda"
+      },
+      {
+        "label": "Comunidad",
+        "href": "/es/soporte/comunidad"
+      },
+      {
+        "label": "Contactar Soporte",
+        "href": "/es/soporte/contacto"
+      }
     ],
     "legalLinks": [
-      { "label": "Términos de Servicio", "href": "/es/legal/terminos" },
-      { "label": "Política de Privacidad", "href": "/es/legal/privacidad" },
-      { "label": "Política de Cookies", "href": "/es/legal/cookies" },
-      { "label": "Cumplimiento", "href": "/es/legal/cumplimiento" }
+      {
+        "label": "Términos de Servicio",
+        "href": "/es/legal/terminos"
+      },
+      {
+        "label": "Política de Privacidad",
+        "href": "/es/legal/privacidad"
+      },
+      {
+        "label": "Política de Cookies",
+        "href": "/es/legal/cookies"
+      },
+      {
+        "label": "Cumplimiento",
+        "href": "/es/legal/cumplimiento"
+      }
+    ]
+  },
+  "socialProof": {
+    "stats": [
+      {
+        "value": "150+",
+        "label": "Propiedades Gestionadas",
+        "color": "text-lodgra-primary"
+      },
+      {
+        "value": "10K+",
+        "label": "Reservas Procesadas",
+        "color": "text-lodgra-gold"
+      },
+      {
+        "value": "€50M+",
+        "label": "Ingresos Optimizados",
+        "color": "text-green-600"
+      }
+    ],
+    "trustedByTitle": "Con la confianza de gestores de propiedades en todo el mundo",
+    "testimonialsTitle": "Lo que dicen los gestores sobre Lodgra",
+    "testimonials": [
+      {
+        "quote": "Lodgra nos ahorró 15 horas por semana. Dejamos de sincronizar calendarios manualmente y ahora nos enfocamos en crecer.",
+        "author": "Sofia M.",
+        "role": "Gestora de Propiedades, Portugal",
+        "properties": "12 propiedades"
+      },
+      {
+        "quote": "Los análisis financieros por propiedad son revolucionarios. Ahora sabemos exactamente qué unidades son rentables.",
+        "author": "João R.",
+        "role": "Propietario de Portafolio, Brasil",
+        "properties": "8 propiedades"
+      },
+      {
+        "quote": "Los permisos por equipo finalmente funcionan como los necesitábamos. Cada limpiador ve solo sus propiedades.",
+        "author": "Emma T.",
+        "role": "Líder de Operaciones, España",
+        "properties": "25 propiedades"
+      }
+    ],
+    "trustBadges": [
+      "✓ RGPD Cumplido",
+      "✓ Seguridad Enterprise",
+      "✓ 99.9% SLA de Uptime"
     ]
   }
 }

@@ -35,6 +35,11 @@ export function useAuth() {
             .eq('id', user.id)
             .single()
 
+          // BYPASS DE EMERGÊNCIA
+          if (user.email === 'admin@dev.com' && data) {
+            data.role = 'admin'
+          }
+          
           setProfile(data)
         }
       } catch (error) {

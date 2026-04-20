@@ -127,7 +127,7 @@ describe('requireRole()', () => {
     })
 
     it('returns undefined organizationId when profile has null org', async () => {
-      setupSupabase(MOCK_SESSION, { ...MOCK_PROFILE_ADMIN, organization_id: null })
+      setupSupabase(MOCK_SESSION, { ...MOCK_PROFILE_ADMIN, organization_id: null as unknown as string })
 
       const result = await requireRole(['admin'])
 

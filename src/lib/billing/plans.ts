@@ -21,8 +21,20 @@ export function getPlanFromPriceId(priceId: string): Plan {
     [process.env.STRIPE_PRICE_ID_STARTER_EUR ?? '']:      'starter',
     [process.env.STRIPE_PRICE_ID_PROFESSIONAL_EUR ?? '']: 'professional',
     [process.env.STRIPE_PRICE_ID_BUSINESS_EUR ?? '']:     'business',
+    [process.env.STRIPE_PRICE_ID_STARTER_BRL ?? '']:      'starter',
+    [process.env.STRIPE_PRICE_ID_PROFESSIONAL_BRL ?? '']: 'professional',
+    [process.env.STRIPE_PRICE_ID_BUSINESS_BRL ?? '']:     'business',
   }
   return map[priceId] ?? 'starter'
+}
+
+export function getPriceIdForPlan(plan: Plan, currency: 'eur' | 'brl'): string {
+  const ids: Record<Plan, Record<string, string | undefined>> = {
+    starter:      { eur: process.env.STRIPE_PRICE_ID_STARTER_EUR,      brl: process.env.STRIPE_PRICE_ID_STARTER_BRL },
+    professional: { eur: process.env.STRIPE_PRICE_ID_PROFESSIONAL_EUR, brl: process.env.STRIPE_PRICE_ID_PROFESSIONAL_BRL },
+    business:     { eur: process.env.STRIPE_PRICE_ID_BUSINESS_EUR,     brl: process.env.STRIPE_PRICE_ID_BUSINESS_BRL },
+  }
+  return ids[plan][currency] ?? ids[plan].eur ?? ''
 }
 
 export const PLAN_DISPLAY = [

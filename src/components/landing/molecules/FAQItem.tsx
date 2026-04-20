@@ -19,7 +19,7 @@ export const FAQItem: React.FC<FAQItemProps> = ({ question, answer, index = 0 })
   }
 
   return (
-    <div className="border border-gray-200 rounded-xl p-6 mb-4 bg-white hover:border-lodgra-primary/30 transition-colors duration-300">
+    <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-6 mb-4 bg-white dark:bg-gray-900 hover:border-lodgra-primary/30 dark:hover:border-lodgra-primary/50 transition-colors duration-300">
       <button
         onClick={handleToggle}
         className="flex items-center justify-between w-full text-left hover:text-lodgra-primary transition-colors duration-300"
@@ -40,8 +40,8 @@ export const FAQItem: React.FC<FAQItemProps> = ({ question, answer, index = 0 })
       </button>
 
       {isOpen && (
-        <div className="mt-5 pt-5 border-t border-gray-200 animate-in fade-in duration-200">
-          <p className="text-gray-700 font-inter leading-relaxed text-base">{answer}</p>
+        <div className="mt-5 pt-5 border-t border-gray-200 dark:border-gray-700 animate-in fade-in duration-200">
+          <p className="text-gray-700 dark:text-gray-300 font-inter leading-relaxed text-base">{answer}</p>
         </div>
       )}
     </div>

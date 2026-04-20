@@ -49,50 +49,82 @@
       }
     ]
   },
+  "socialProof": {
+    "stats": [
+      { "value": "150+", "label": "Properties Managed", "color": "text-lodgra-primary" },
+      { "value": "10K+", "label": "Reservations Processed", "color": "text-lodgra-gold" },
+      { "value": "€50M+", "label": "Revenue Optimized", "color": "text-green-600" }
+    ],
+    "trustedByTitle": "Trusted by property managers worldwide",
+    "testimonialsTitle": "What managers say about Lodgra",
+    "testimonials": [
+      {
+        "quote": "Lodgra saved us 15 hours per week. We stopped manually syncing calendars and can now focus on growing our portfolio.",
+        "author": "Sofia M.",
+        "role": "Property Manager, Portugal",
+        "properties": "12 properties"
+      },
+      {
+        "quote": "The financial insights per property are game-changing. Now we know exactly which units are profitable.",
+        "author": "João R.",
+        "role": "Portfolio Owner, Brazil",
+        "properties": "8 properties"
+      },
+      {
+        "quote": "Team permissions finally work the way we needed. Each cleaner and manager sees only their own properties.",
+        "author": "Emma T.",
+        "role": "Operations Lead, Spain",
+        "properties": "25 properties"
+      }
+    ],
+    "trustBadges": ["✓ GDPR Compliant", "✓ Enterprise Grade Security", "✓ 99.9% Uptime SLA"]
+  },
   "pricing": {
     "title": "Simple, Transparent Pricing",
     "tiers": [
       {
         "id": "starter",
         "name": "Starter",
-        "price": "$29",
+        "price": "19",
         "period": "/month",
-        "description": "Perfect to get started",
+        "description": "For managers getting started",
         "features": [
-          "Up to 5 properties",
-          "iCal sync",
+          "Up to 3 properties",
+          "iCal sync (Airbnb, Booking, VRBO)",
+          "Drag-drop calendar",
           "Basic reports",
           "Email support"
         ]
       },
       {
-        "id": "pro",
-        "name": "Pro",
-        "price": "$99",
+        "id": "professional",
+        "name": "Professional",
+        "price": "49",
         "period": "/month",
-        "description": "Most popular",
-        "badge": "Recommended",
+        "description": "For growing managers",
+        "badge": "Most Popular",
         "isPrimary": true,
         "features": [
-          "Up to 25 properties",
-          "AI-powered pricing",
-          "Advanced reports",
-          "Priority support",
-          "Unlimited integrations"
+          "Up to 10 properties",
+          "Everything in Starter",
+          "Owner reports",
+          "Fiscal compliance",
+          "Export PDF/Excel",
+          "Priority support"
         ]
       },
       {
         "id": "business",
         "name": "Business",
-        "price": "Custom",
-        "period": "",
-        "description": "For large operators",
+        "price": "99",
+        "period": "/month",
+        "description": "For professional operations",
         "features": [
           "Unlimited properties",
-          "Full API",
-          "White-label",
-          "SSO/SAML",
-          "Dedicated manager"
+          "Everything in Professional",
+          "Priority support",
+          "2FA (coming soon)",
+          "API access (coming soon)"
         ]
       }
     ]
@@ -102,7 +134,7 @@
     "questions": [
       {
         "question": "How do I get started?",
-        "answer": "Create an account in 2 minutes, no credit card required. Connect your properties via iCal and you're set!"
+        "answer": "Create an account in 2 minutes with your credit card. Connect your properties via iCal and enjoy 7 days with a money-back guarantee!"
       },
       {
         "question": "What's the setup cost?",
@@ -110,7 +142,7 @@
       },
       {
         "question": "Do you support my country?",
-        "answer": "Yes! Lodgra supports Brazil, Portugal, Europe, and USA. More markets coming soon."
+        "answer": "Yes! Lodgra supports Brazil, Portugal, Europe and USA. More markets coming soon."
       },
       {
         "question": "Do I need a credit card to try it?",
@@ -121,8 +153,8 @@
         "answer": "Connect via iCal (Airbnb, Booking, VRBO) or use our API. Auto-sync 24/7."
       },
       {
-        "question": "Do you offer support in English?",
-        "answer": "Yes! 24/7 support in English, Portuguese, and Spanish. Response in minutes."
+        "question": "Can I give my cleaner access without sharing everything?",
+        "answer": "Yes. Create a user with a Viewer or Manager role and assign only the relevant properties. Each person sees only what they need."
       }
     ]
   },
@@ -135,28 +167,25 @@
   "footer": {
     "copyright": "Lodgra © 2026. All rights reserved.",
     "productLinks": [
-      { "label": "Features", "href": "/product/features" },
-      { "label": "Pricing", "href": "/pricing" },
-      { "label": "Integrations", "href": "/product/integrations" },
-      { "label": "Security", "href": "/product/security" }
+      { "label": "Features", "href": "/#features" },
+      { "label": "Pricing", "href": "/#pricing" },
+      { "label": "Integrations", "href": "/#features" },
+      { "label": "Security", "href": "/terms" }
     ],
     "companyLinks": [
-      { "label": "About", "href": "/company/about" },
-      { "label": "Blog", "href": "/company/blog" },
-      { "label": "Careers", "href": "/company/careers" },
-      { "label": "Contact", "href": "/company/contact" }
+      { "label": "About", "href": "/" },
+      { "label": "Blog", "href": "/" },
+      { "label": "Careers", "href": "/" },
+      { "label": "Contact", "href": "/" }
     ],
     "supportLinks": [
-      { "label": "Documentation", "href": "/support/docs" },
-      { "label": "Help Center", "href": "/support/help" },
-      { "label": "Community", "href": "/support/community" },
-      { "label": "Contact Support", "href": "/support/contact" }
+      { "label": "Documentation", "href": "/" },
+      { "label": "Help Center", "href": "/" },
+      { "label": "Contact Support", "href": "/" }
     ],
     "legalLinks": [
-      { "label": "Terms of Service", "href": "/legal/terms" },
-      { "label": "Privacy Policy", "href": "/legal/privacy" },
-      { "label": "Cookie Policy", "href": "/legal/cookies" },
-      { "label": "Compliance", "href": "/legal/compliance" }
+      { "label": "Terms of Service", "href": "/terms" },
+      { "label": "Privacy Policy", "href": "/privacy" }
     ]
   }
 }

@@ -51,7 +51,7 @@ describe('Commission RLS Policies', () => {
       const { data: userData, error: authError } = await adminClient.auth.admin.createUser({
         email: `test-rls-1-${Date.now()}@test.com`,
         password: 'Test123!@#',
-        email_confirmed: true,
+        email_confirm: true,
       })
 
       if (authError) throw authError
@@ -97,7 +97,8 @@ describe('Commission RLS Policies', () => {
       ])
 
       // Get user token (in real test, would use signIn)
-      const { data: session } = await adminClient.auth.admin.createSession(userId)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: session } = await (adminClient.auth.admin as any).createSession(userId)
       if (!session?.session?.access_token) {
         throw new Error('Failed to create session for test user')
       }
@@ -120,7 +121,7 @@ describe('Commission RLS Policies', () => {
       const { data: userData, error: authError } = await adminClient.auth.admin.createUser({
         email: `test-rls-2-${Date.now()}@test.com`,
         password: 'Test123!@#',
-        email_confirmed: true,
+        email_confirm: true,
       })
 
       if (authError) throw authError
@@ -138,7 +139,8 @@ describe('Commission RLS Policies', () => {
       })
 
       // Get user token
-      const { data: session } = await adminClient.auth.admin.createSession(userId)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: session } = await (adminClient.auth.admin as any).createSession(userId)
       if (!session?.session?.access_token) {
         throw new Error('Failed to create session for test user')
       }

@@ -1,21 +1,24 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Poppins, Inter } from "next/font/google";
 import { headers } from "next/headers";
 import "./globals.css";
+import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/common/ui/sonner";
 import { CookieBanner } from "@/components/common/ui/CookieBanner";
 import { GoogleAnalytics } from "@/components/features/analytics/GoogleAnalytics";
 import { ServiceWorkerRegister } from "@/components/common/pwa/ServiceWorkerRegister";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const poppins = Poppins({
+  variable: "--font-poppins",
   subsets: ["latin"],
-  display: "swap", // evita FOIT — melhora CLS
+  weight: ["700"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
+  weight: ["400", "500", "600"],
   display: "swap",
 });
 
@@ -82,14 +85,16 @@ export default async function RootLayout({
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${poppins.variable} ${inter.variable} font-inter antialiased`}
         suppressHydrationWarning
       >
-        {children}
-        <Toaster richColors position="top-right" />
-        <CookieBanner />
-        <GoogleAnalytics nonce={nonce} />
-        <ServiceWorkerRegister />
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
+          {children}
+          <Toaster richColors position="top-right" />
+          <CookieBanner />
+          <GoogleAnalytics nonce={nonce} />
+          <ServiceWorkerRegister />
+        </ThemeProvider>
       </body>
     </html>
   );

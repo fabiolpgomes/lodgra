@@ -4,14 +4,16 @@ import React from 'react'
 import { Container } from '../atoms/Container'
 import { Logo } from '../atoms/Logo'
 import { Button } from '../atoms/Button'
+import { ThemeToggle } from '@/components/common/header/ThemeToggle'
 
 interface NavbarProps {
-  locale: 'pt-BR' | 'en-US' | 'es'
-  onLocaleChange: (locale: 'pt-BR' | 'en-US' | 'es') => void
+  locale: 'pt-BR' | 'en-US' | 'es' | 'pt'
+  onLocaleChange: (locale: 'pt-BR' | 'en-US' | 'es' | 'pt') => void
 }
 
 const localeLabels: Record<string, string> = {
-  'pt-BR': 'Português',
+  'pt-BR': 'Brasil',
+  'pt': 'Portugal',
   'en-US': 'English',
   'es': 'Español',
 }
@@ -20,7 +22,7 @@ export const Navbar: React.FC<NavbarProps> = ({ locale, onLocaleChange }) => {
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(false)
 
   return (
-    <nav className="sticky top-0 z-50 bg-white border-b border-gray-100">
+    <nav className="sticky top-0 z-50 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800">
       <Container>
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo & Brand */}
@@ -35,19 +37,19 @@ export const Navbar: React.FC<NavbarProps> = ({ locale, onLocaleChange }) => {
           <div className="hidden lg:flex items-center gap-8">
             <a
               href="#features"
-              className="text-sm font-inter text-gray-600 hover:text-lodgra-primary transition-colors"
+              className="text-sm font-inter text-gray-600 dark:text-gray-300 hover:text-lodgra-primary dark:hover:text-lodgra-gold transition-colors"
             >
               Features
             </a>
             <a
               href="#pricing"
-              className="text-sm font-inter text-gray-600 hover:text-lodgra-primary transition-colors"
+              className="text-sm font-inter text-gray-600 dark:text-gray-300 hover:text-lodgra-primary dark:hover:text-lodgra-gold transition-colors"
             >
               Pricing
             </a>
             <a
               href="#faq"
-              className="text-sm font-inter text-gray-600 hover:text-lodgra-primary transition-colors"
+              className="text-sm font-inter text-gray-600 dark:text-gray-300 hover:text-lodgra-primary dark:hover:text-lodgra-gold transition-colors"
             >
               FAQ
             </a>
@@ -59,13 +61,13 @@ export const Navbar: React.FC<NavbarProps> = ({ locale, onLocaleChange }) => {
             <div className="relative">
               <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="flex items-center gap-1 px-3 py-2 text-sm font-inter text-gray-600 hover:text-lodgra-primary transition-colors"
+                className="flex items-center gap-1 px-3 py-2 text-sm font-inter text-gray-600 dark:text-gray-300 hover:text-lodgra-primary transition-colors"
                 aria-label="Toggle language selector"
                 aria-expanded={isDropdownOpen}
               >
                 <span className="hidden sm:inline">{localeLabels[locale]}</span>
                 <span className="sm:hidden">
-                  {locale === 'pt-BR' ? '🇧🇷' : locale === 'es' ? '🇪🇸' : '🇺🇸'}
+                  {locale === 'pt-BR' ? '🇧🇷' : locale === 'pt' ? '🇵🇹' : locale === 'es' ? '🇪🇸' : '🇺🇸'}
                 </span>
                 <svg
                   className={`w-4 h-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}
@@ -79,22 +81,23 @@ export const Navbar: React.FC<NavbarProps> = ({ locale, onLocaleChange }) => {
 
               {/* Dropdown Menu */}
               {isDropdownOpen && (
-                <div className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden min-w-max">
-                  {(['pt-BR', 'en-US', 'es'] as const).map((loc) => (
+                <div className="absolute top-full right-0 mt-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg overflow-hidden min-w-max">
+                  {(['pt-BR', 'pt', 'en-US', 'es'] as const).map((loc) => (
                     <button
                       key={loc}
                       onClick={() => {
                         onLocaleChange(loc)
                         setIsDropdownOpen(false)
                       }}
-                      className={`block w-full text-left px-4 py-2 text-sm font-inter transition-colors ${
+                      className={`block w-full text-left px-4 py-3 text-sm font-inter transition-colors ${
                         locale === loc
                           ? 'bg-lodgra-primary text-white'
-                          : 'text-gray-700 hover:bg-gray-50'
+                          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
                       }`}
                       aria-label={`Switch to ${localeLabels[loc]}`}
                       aria-current={locale === loc ? 'true' : undefined}
                     >
+                      <span className="mr-2">{loc === 'pt-BR' ? '🇧🇷' : loc === 'pt' ? '🇵🇹' : loc === 'es' ? '🇪🇸' : '🇺🇸'}</span>
                       {localeLabels[loc]}
                     </button>
                   ))}
@@ -102,10 +105,13 @@ export const Navbar: React.FC<NavbarProps> = ({ locale, onLocaleChange }) => {
               )}
             </div>
 
+            {/* Theme Toggle */}
+            <ThemeToggle />
+
             {/* CTA Button */}
             <Button
               size="sm"
-              onClick={() => (window.location.href = '/signup?plan=free')}
+              onClick={() => (window.location.href = '/register')}
               className="hidden sm:inline-block"
             >
               Get Started

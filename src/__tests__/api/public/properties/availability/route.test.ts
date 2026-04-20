@@ -78,13 +78,13 @@ function buildMockSupabase(options: {
 
 beforeEach(() => {
   jest.clearAllMocks()
-  mockCheckRateLimit.mockResolvedValue(true) // allowed by default
+  mockCheckRateLimit.mockReturnValue(true) // allowed by default
 })
 
 // TODO: Re-enable when public booking API mocks are fixed
 describe.skip('GET /api/public/properties/[slug]/availability', () => {
   it('returns 429 when rate limited', async () => {
-    mockCheckRateLimit.mockResolvedValue(false)
+    mockCheckRateLimit.mockReturnValue(false)
     const supabase = buildMockSupabase()
     mockCreateClient.mockResolvedValue(supabase)
     const req = makeRequest('villa-algarve', { year: '2027', month: '7' })

@@ -40,7 +40,7 @@
       {
         "icon": "compliance",
         "title": "Conformidade Regulatória",
-        "description": "Atualizado com RGPD, LGPD e regulamentos locais. Hospedagem segura e legal."
+        "description": "Atualizado com LGPD, RGPD e regulamentos locais. Hospedagem segura e legal."
       },
       {
         "icon": "support",
@@ -49,50 +49,82 @@
       }
     ]
   },
+  "socialProof": {
+    "stats": [
+      { "value": "150+", "label": "Propriedades Gerenciadas", "color": "text-lodgra-primary" },
+      { "value": "10K+", "label": "Reservas Processadas", "color": "text-lodgra-gold" },
+      { "value": "R$50M+", "label": "Receita Otimizada", "color": "text-green-600" }
+    ],
+    "trustedByTitle": "Confiado por gestores de imóveis no mundo todo",
+    "testimonialsTitle": "O que os gestores dizem sobre a Lodgra",
+    "testimonials": [
+      {
+        "quote": "A Lodgra nos economizou 15 horas por semana. Paramos de sincronizar calendários manualmente e agora focamos em crescer o portfólio.",
+        "author": "Sofia M.",
+        "role": "Gestora de Imóveis, Portugal",
+        "properties": "12 imóveis"
+      },
+      {
+        "quote": "As análises financeiras por imóvel são revolucionárias. Agora sabemos exatamente quais unidades são lucrativas.",
+        "author": "João R.",
+        "role": "Proprietário de Portfólio, Brasil",
+        "properties": "8 imóveis"
+      },
+      {
+        "quote": "As permissões por equipe finalmente funcionam do jeito que precisávamos. Cada faxineiro e gestor vê apenas suas próprias propriedades.",
+        "author": "Emma T.",
+        "role": "Líder de Operações, Espanha",
+        "properties": "25 imóveis"
+      }
+    ],
+    "trustBadges": ["✓ LGPD Conforme", "✓ Segurança Enterprise", "✓ 99.9% SLA de Uptime"]
+  },
   "pricing": {
     "title": "Preços Simples e Transparentes",
     "tiers": [
       {
         "id": "starter",
-        "name": "Iniciante",
-        "price": "R$ 99",
+        "name": "Starter",
+        "price": "97",
         "period": "/mês",
-        "description": "Perfeito para começar",
+        "description": "Para quem está começando",
         "features": [
-          "Até 5 propriedades",
-          "Sincronização iCal",
+          "Até 3 imóveis",
+          "Sync iCal (Airbnb, Booking, VRBO)",
+          "Calendário drag-drop",
           "Relatórios básicos",
           "Suporte por email"
         ]
       },
       {
-        "id": "pro",
-        "name": "Pro",
-        "price": "R$ 299",
+        "id": "professional",
+        "name": "Professional",
+        "price": "297",
         "period": "/mês",
-        "description": "Mais popular",
-        "badge": "Recomendado",
+        "description": "Para gestores em crescimento",
+        "badge": "Mais Popular",
         "isPrimary": true,
         "features": [
-          "Até 25 propriedades",
-          "Preços inteligentes com IA",
-          "Relatórios avançados",
-          "Suporte prioritário",
-          "Integrações ilimitadas"
+          "Até 10 imóveis",
+          "Tudo do Starter",
+          "Relatórios por proprietário",
+          "Compliance Fiscal",
+          "Exportar PDF/Excel",
+          "Suporte prioritário"
         ]
       },
       {
         "id": "business",
-        "name": "Negócio",
-        "price": "Sob Demanda",
-        "period": "",
-        "description": "Para operadores grandes",
+        "name": "Business",
+        "price": "497",
+        "period": "/mês",
+        "description": "Para operações profissionais",
         "features": [
-          "Propriedades ilimitadas",
-          "API completa",
-          "White-label",
-          "SSO/SAML",
-          "Gerente dedicado"
+          "Imóveis ilimitados",
+          "Tudo do Professional",
+          "Suporte prioritário",
+          "2FA (em breve)",
+          "API access (em breve)"
         ]
       }
     ]
@@ -121,8 +153,8 @@
         "answer": "Conecte via iCal (Airbnb, Booking, VRBO) ou use nossa API. Sincronização automática 24/7."
       },
       {
-        "question": "Vocês oferecem suporte em português?",
-        "answer": "Sim! Suporte 24/7 em português, inglês e espanhol. Resposta em minutos."
+        "question": "Posso dar acesso ao meu faxineiro sem compartilhar tudo?",
+        "answer": "Sim. Crie um usuário com função de Visualizador ou Gestor e atribua apenas as propriedades relevantes. Cada pessoa vê só o que precisa."
       }
     ]
   },
@@ -135,28 +167,25 @@
   "footer": {
     "copyright": "Lodgra © 2026. Todos os direitos reservados.",
     "productLinks": [
-      { "label": "Funcionalidades", "href": "/pt-BR/produto/funcionalidades" },
-      { "label": "Preços", "href": "/pt-BR/precos" },
-      { "label": "Integrações", "href": "/pt-BR/produto/integracoes" },
-      { "label": "Segurança", "href": "/pt-BR/produto/seguranca" }
+      { "label": "Funcionalidades", "href": "/#features" },
+      { "label": "Preços", "href": "/#pricing" },
+      { "label": "Integrações", "href": "/#features" },
+      { "label": "Segurança", "href": "/terms" }
     ],
     "companyLinks": [
-      { "label": "Sobre", "href": "/pt-BR/empresa/sobre" },
-      { "label": "Blog", "href": "/pt-BR/empresa/blog" },
-      { "label": "Carreiras", "href": "/pt-BR/empresa/carreiras" },
-      { "label": "Contato", "href": "/pt-BR/empresa/contato" }
+      { "label": "Sobre", "href": "/" },
+      { "label": "Blog", "href": "/" },
+      { "label": "Carreiras", "href": "/" },
+      { "label": "Contato", "href": "/" }
     ],
     "supportLinks": [
-      { "label": "Documentação", "href": "/pt-BR/suporte/docs" },
-      { "label": "Central de Ajuda", "href": "/pt-BR/suporte/ajuda" },
-      { "label": "Comunidade", "href": "/pt-BR/suporte/comunidade" },
-      { "label": "Contate o Suporte", "href": "/pt-BR/suporte/contato" }
+      { "label": "Documentação", "href": "/" },
+      { "label": "Central de Ajuda", "href": "/" },
+      { "label": "Contate o Suporte", "href": "/" }
     ],
     "legalLinks": [
-      { "label": "Termos de Serviço", "href": "/pt-BR/legal/termos" },
-      { "label": "Política de Privacidade", "href": "/pt-BR/legal/privacidade" },
-      { "label": "Política de Cookies", "href": "/pt-BR/legal/cookies" },
-      { "label": "Conformidade", "href": "/pt-BR/legal/conformidade" }
+      { "label": "Termos de Serviço", "href": "/terms" },
+      { "label": "Política de Privacidade", "href": "/privacy" }
     ]
   }
 }

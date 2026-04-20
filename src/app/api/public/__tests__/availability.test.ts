@@ -108,7 +108,7 @@ describe.skip('Availability API', () => {
       const mockClient = await createClient()
 
       // Mock the properties and property_listings queries
-      mockClient.from.mockReturnValue({
+      ;(mockClient.from as jest.Mock).mockReturnValue({
         select: jest.fn(function () {
           return this
         }),

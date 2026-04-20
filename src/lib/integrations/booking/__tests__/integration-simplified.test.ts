@@ -12,6 +12,10 @@
 
 import { syncBookingReservation } from '../reservation-sync'
 import type { BookingWebhookPayload } from '../webhook-validator'
+import { createAdminClient } from '@/lib/supabase/admin'
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const mockCreateAdminClient = createAdminClient as jest.Mock<any>
 
 // Mock the admin client to avoid real database writes
 jest.mock('@/lib/supabase/admin', () => ({
@@ -62,7 +66,7 @@ jest.mock('@/lib/supabase/admin', () => ({
       upsert: jest.fn(async function (data: unknown) {
         // Mock successful upsert
         return {
-          data: { ...data, id: 'generated_id_' + Date.now() },
+          data: { ...(data as Record<string, unknown>), id: 'generated_id_' + Date.now() },
           error: null,
         }
       }),
@@ -133,7 +137,7 @@ describe.skip('Booking.com Webhook - Simplified Integration Tests', () => {
       await syncBookingReservation(validPayload, 'req_123')
 
       // Verify that organization lookup was attempted
-      const adminClient = createAdminClient()
+      const adminClient = mockCreateAdminClient()
       const fromCall = adminClient.from('organizations')
 
       expect(fromCall).toHaveBeenCalled()
@@ -143,7 +147,7 @@ describe.skip('Booking.com Webhook - Simplified Integration Tests', () => {
       jest.clearAllMocks()
 
       // Mock property listing not found
-      createAdminClient.mockReturnValue({
+      mockCreateAdminClient.mockReturnValue({
         from: jest.fn((table: string) => ({
           select: jest.fn(function () {
             return this
@@ -182,7 +186,7 @@ describe.skip('Booking.com Webhook - Simplified Integration Tests', () => {
 
       let upsertedReservationData: unknown = null
 
-      createAdminClient.mockReturnValue({
+      mockCreateAdminClient.mockReturnValue({
         from: jest.fn((table: string) => ({
           select: jest.fn(function () {
             return this
@@ -222,7 +226,7 @@ describe.skip('Booking.com Webhook - Simplified Integration Tests', () => {
             if (table === 'reservations') {
               upsertedReservationData = data
             }
-            return { data: { ...data, id: 'res_' + Date.now() }, error: null }
+            return { data: { ...(data as Record<string, unknown>), id: 'res_' + Date.now() }, error: null }
           }),
           insert: jest.fn(function () {
             return this
@@ -233,7 +237,7 @@ describe.skip('Booking.com Webhook - Simplified Integration Tests', () => {
       const result = await syncBookingReservation(validPayload, 'req_123')
 
       expect(result.success).toBe(true)
-      expect(upsertedReservationData?.organization_id).toBe('org_test_456') // ✅ RLS isolation
+      expect((upsertedReservationData as Record<string, unknown>)?.organization_id).toBe('org_test_456') // ✅ RLS isolation
     })
   })
 
@@ -246,7 +250,7 @@ describe.skip('Booking.com Webhook - Simplified Integration Tests', () => {
 
       // First call returns no duplicate, second call returns the existing reservation
       let callCount = 0
-      createAdminClient.mockReturnValue({
+      mockCreateAdminClient.mockReturnValue({
         from: jest.fn((table: string) => ({
           select: jest.fn(function () {
             return this
@@ -291,7 +295,7 @@ describe.skip('Booking.com Webhook - Simplified Integration Tests', () => {
             return { data: null, error: null }
           }),
           upsert: jest.fn(async function (data: unknown) {
-            return { data: { ...data, id: 'res_existing_123' }, error: null }
+            return { data: { ...(data as Record<string, unknown>), id: 'res_existing_123' }, error: null }
           }),
           insert: jest.fn(function () {
             return this
@@ -323,14 +327,14 @@ describe.skip('Booking.com Webhook - Simplified Integration Tests', () => {
       const testOrgId = 'org_isolation_test_789'
       let capturedOrgId: string | null = null
 
-      createAdminClient.mockReturnValue({
+      mockCreateAdminClient.mockReturnValue({
         from: jest.fn((table: string) => ({
           select: jest.fn(function () {
             return this
           }),
           eq: jest.fn(function (field: string, value: unknown) {
             if (field === 'id' && table === 'organizations') {
-              capturedOrgId = value // Capture organization ID being queried
+              capturedOrgId = value as string // Capture organization ID being queried
             }
             return this
           }),
@@ -362,9 +366,9 @@ describe.skip('Booking.com Webhook - Simplified Integration Tests', () => {
           upsert: jest.fn(async function (data: unknown) {
             // Verify organization_id is set on upsert
             if (table === 'reservations') {
-              expect(data.organization_id).toBe(testOrgId) // ✅ Correct org ID
+              expect((data as Record<string, unknown>).organization_id).toBe(testOrgId) // ✅ Correct org ID
             }
-            return { data: { ...data, id: 'res_test_' + Date.now() }, error: null }
+            return { data: { ...(data as Record<string, unknown>), id: 'res_test_' + Date.now() }, error: null }
           }),
           insert: jest.fn(function () {
             return this
@@ -380,7 +384,7 @@ describe.skip('Booking.com Webhook - Simplified Integration Tests', () => {
 
     it('should return error if organization not found', async () => {
 
-      createAdminClient.mockReturnValue({
+      mockCreateAdminClient.mockReturnValue({
         from: jest.fn((table: string) => ({
           select: jest.fn(function () {
             return this

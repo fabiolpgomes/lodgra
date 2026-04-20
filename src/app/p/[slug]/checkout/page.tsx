@@ -43,7 +43,7 @@ export default async function CheckoutPage({ params, searchParams }: PageProps) 
 
   const { data: property } = await supabase
     .from('properties')
-    .select('id, name, city, base_price, is_public, slug')
+    .select('id, name, city, base_price, is_public, slug, min_nights')
     .eq('slug', slug)
     .eq('is_public', true)
     .single()
@@ -52,17 +52,22 @@ export default async function CheckoutPage({ params, searchParams }: PageProps) 
     redirect('/')
   }
 
+  // Validate minimum stay
+  const minNights = property.min_nights ?? 1
+  if (differenceInDays(checkoutDate, checkinDate) < minNights) {
+    redirect(`/p/${slug}?checkIn=${checkin}&checkOut=${checkout}&minNightsError=1`)
+  }
+
   // Calculate correct price with pricing rules
   const priceData = await getPriceForRange(property.id, checkinDate, checkoutDate)
   const totalPrice = priceData.total
-  const nights = differenceInDays(checkoutDate, checkinDate)
 
   return (
     <div className="min-h-screen bg-white">
       <header className="border-b border-gray-100 px-4 py-3">
         <div className="max-w-lg mx-auto flex items-center justify-between">
           <a href={`/p/${slug}`} className="font-semibold text-gray-900 text-lg">
-            lodgra.pt
+            homestay.pt
           </a>
           <span className="text-sm text-gray-500">Reserva Segura</span>
         </div>
@@ -83,7 +88,7 @@ export default async function CheckoutPage({ params, searchParams }: PageProps) 
       </main>
 
       <footer className="mt-16 border-t border-gray-100 px-4 py-4 text-center text-xs text-gray-400">
-        Pagamento processado com segurança por Stripe · lodgra.pt
+        Pagamento processado com segurança por Stripe · homestay.pt
       </footer>
     </div>
   )

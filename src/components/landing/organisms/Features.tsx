@@ -14,7 +14,7 @@ interface FeaturesProps {
 }
 
 export const Features: React.FC<FeaturesProps> = ({ title, features }) => (
-  <section className="bg-gray-50/50 py-12 sm:py-20 md:py-32">
+  <section className="bg-gray-50/50 dark:bg-gray-900/50 py-12 sm:py-20 md:py-32">
     <Container>
       <div className="text-center mb-8 sm:mb-16 px-4">
         <h2 className="font-poppins font-bold text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-lodgra-primary mb-4 leading-tight tracking-tight">

@@ -10,6 +10,7 @@ import { formatCurrency } from '@/lib/utils/currency'
 import { AuthLayout } from '@/components/common/layout/AuthLayout'
 import { getUserRole } from '@/lib/auth/getUserRole'
 import { Button } from '@/components/common/ui/button'
+import { GeneratePixButton } from '@/components/features/reservations/GeneratePixButton'
 
 export default async function ReservationDetailsPage({
   params
@@ -310,6 +311,16 @@ export default async function ReservationDetailsPage({
                     {reservation.currency || 'EUR'}
                   </span>
                 </div>
+              </div>
+
+              {/* Localização Profunda: Cobrança via PIX (Asaas) */}
+              <div className="mt-8 pt-6 border-t border-gray-100 no-print">
+                 <p className="text-[10px] font-black uppercase tracking-widest text-lodgra-blue mb-4">Localização Brasil</p>
+                 <GeneratePixButton 
+                   reservationId={id} 
+                   initialPaymentLink={reservation.asaas_payment_link}
+                   initialStatus={reservation.asaas_status}
+                 />
               </div>
             </div>
 

@@ -29,7 +29,7 @@ export const Pricing: React.FC<PricingProps> = ({
   onSelectTier,
 }) => {
   return (
-    <section className="bg-white py-20 md:py-32">
+    <section className="bg-white dark:bg-gray-950 py-20 md:py-32">
       <Container>
         <div className="text-center mb-16">
           <h2 className="font-poppins font-bold text-4xl md:text-5xl lg:text-6xl text-lodgra-primary mb-4 leading-tight tracking-tight">

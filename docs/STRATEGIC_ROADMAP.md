@@ -1,24 +1,25 @@
-# 🎯 Home Stay — Strategic Roadmap 2026-2027
+# 🎯 Lodgra — Strategic Roadmap 2026-2027
 
-**Document Version:** 1.0  
+**Document Version:** 1.1  
 **Date:** 2026-04-03  
 **Status:** ACTIVE GUIDE FOR IMPLEMENTATION  
-**Last Updated:** 2026-04-03
+**Last Updated:** 2026-04-19
 
 ---
 
 ## 📋 EXECUTIVE SUMMARY
 
 ### Vision
-Transform Home Stay from **Portuguese-only SaaS** into a **global platform** supporting 3 major markets with localized payment, compliance, and integrations.
+Transform Lodgra from **Portuguese-only SaaS** into a **global platform** supporting 3 major markets with localized payment, compliance, and integrations.
 
-### Current State (TODAY)
-- **Markets:** Portugal only (🇵🇹)
-- **Languages:** PT + PT-BR
-- **Currencies:** EUR only
-- **Users:** ~100-500 (estimate)
-- **Revenue:** €5-10K MRR (estimate)
-- **Tech Stack:** Next.js, Supabase, Stripe, Resend
+### Current State (2026-04-19) ✅ QA Completo + Code Review Completo
+- **Markets:** Portugal, Brasil, Spain (landing pages live)
+- **Languages:** PT + PT-BR + EN-US + ES
+- **Currencies:** EUR + BRL (Asaas PIX) + USD (Stripe)
+- **Branding:** 100% Lodgra (rebranding concluído)
+- **Code Quality:** 0 TypeScript errors · 0 ESLint errors
+- **Tech Stack:** Next.js 15, Supabase, Stripe, Asaas, Resend
+- **Próximo passo:** Production Launch (W6+)
 
 ### Target State (2027-Q1)
 - **Markets:** Portugal, Brazil, USA, Spain (future)
@@ -391,13 +392,16 @@ AUTOMATION
 
 ## 🗺️ IMPLEMENTATION ROADMAP
 
-### PHASE 0: PLANNING & SETUP (THIS WEEK)
+### PHASE 0: PLANNING & SETUP
 **Duration:** 1 week  
 **Owner:** Product, Engineering  
-**Status:** IN PROGRESS
+**Status:** ✅ COMPLETO
 
 #### Tasks
 - [x] Strategic analysis complete (THIS DOCUMENT)
+- [x] Rebranding Home Stay → Lodgra (100% codebase)
+- [x] QA Completo — 0 TypeScript errors, 0 ESLint errors
+- [x] Code Review estruturado (Quinn QA agent)
 - [ ] Create implementation stories in GitHub
 - [ ] Hire/contract compliance specialist
 - [ ] Design UX/UI for mobile
@@ -416,7 +420,7 @@ AUTOMATION
 **Owner:** Engineering  
 **Objective:** Make product market-ready for Brazil + USA
 
-#### Sprint 1-2: Internationalization (PT, EN, ES)
+#### Sprint 1-2: Internationalization (PT, EN, ES) ✅ COMPLETO
 **Duration:** 2 weeks (May 1-15)  
 **Stories:**
 - Refactor i18n system to namespace-based
@@ -887,24 +891,22 @@ LTV:CAC Ratio Target: 5:1
 
 ## 📋 NEXT STEPS (IMMEDIATE)
 
-### THIS WEEK (Week of April 3)
-- [ ] Stakeholder alignment on roadmap
-- [ ] Hire compliance specialist (legal contract)
-- [ ] Create GitHub issues from stories
-- [ ] Schedule daily standup
-- [ ] Set up Sprint 1 planning
+### ✅ CONCLUÍDO até 2026-04-19
+- [x] Rebranding 100% (Home Stay → Lodgra)
+- [x] Multilíngue: PT · PT-BR · EN-US · ES
+- [x] Pricing BRL: Starter R$97 / Pro R$297 / Enterprise R$497
+- [x] Página `/cleaning` no sidebar (BottomNav)
+- [x] QA Completo — 0 TypeScript errors · 0 ESLint errors
+- [x] Code Review estruturado — `<Link>`, types, any, prefer-const, unescaped entities
+- [x] Manifest PWA atualizado para Lodgra
+- [x] User-Agent iCal atualizado para Lodgra
 
-### NEXT WEEK (Week of April 10)
-- [ ] Sprint 1 kick-off (i18n refactor)
-- [ ] Design mobile wireframes review
-- [ ] Set up Stripe test account (multi-currency)
-- [ ] Create legal templates outline
-
-### WEEK 3-4 (Week of April 17)
-- [ ] Sprint 1 review + Sprint 2 planning
-- [ ] Alpha testing (internal team)
-- [ ] Begin English/Spanish translations
-- [ ] Exchange rate API integration
+### 🔜 PRÓXIMOS PASSOS — Production Launch (W6+)
+- [ ] Configurar Stripe webhook (produção)
+- [ ] Variáveis de ambiente no Vercel (produção)
+- [ ] Configuração de domínio `lodgra.io`
+- [ ] Executar migrações SQL em produção
+- [ ] ⚠️ Adicionar validação HMAC ao webhook Asaas (`src/app/api/webhooks/asaas/route.ts`)
 
 ---
 
@@ -1018,6 +1020,6 @@ Budget: €80-120K (consulting + hiring)
 
 ---
 
-**Last Updated:** 2026-04-03  
-**Version:** 1.0  
+**Last Updated:** 2026-04-19  
+**Version:** 1.1  
 **Status:** PUBLISHED ✅

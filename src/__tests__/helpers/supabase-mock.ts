@@ -85,7 +85,7 @@ export class ChainableQueryBuilder {
 
     obj.upsert = jest.fn(async function (data: unknown) {
       self._callbacks.get('upsert')?.({ data })
-      return { data: { ...data, id: 'generated_' + Date.now() }, error: null }
+      return { data: { ...(data as Record<string, unknown>), id: 'generated_' + Date.now() }, error: null }
     })
 
     obj.then = jest.fn(async function () {

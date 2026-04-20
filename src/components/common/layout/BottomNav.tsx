@@ -16,6 +16,7 @@ import {
   Users,
   UserCog,
   Settings,
+  CheckSquare,
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { useLocale } from '@/lib/i18n/routing'
@@ -32,6 +33,7 @@ const MORE_PATHS = [
   { path: '/expenses', label: 'Despesas', icon: Receipt },
   { path: '/financial', label: 'Financeiro', icon: TrendingUp },
   { path: '/reports', label: 'Relatórios', icon: BarChart3 },
+  { path: '/cleaning', label: 'Limpezas', icon: CheckSquare },
 ]
 
 const CONFIG_PATHS = [

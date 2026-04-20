@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Global hospitality SaaS platform - Next.js, Supabase, Stripe",
   "private": true,
+  "packageManager": "npm@11.6.2",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

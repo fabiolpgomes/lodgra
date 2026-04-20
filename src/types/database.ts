@@ -11,6 +11,12 @@ export type Property = {
   bathrooms: number | null
   max_guests: number | null
   property_type: string | null
+  slug: string
+  base_price: number | null
+  currency: string
+  description: string | null
+  amenities: string[]
+  photos: string[] | null
   is_active: boolean
   created_at: string
   updated_at: string

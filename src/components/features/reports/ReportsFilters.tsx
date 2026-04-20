@@ -7,6 +7,7 @@ import { Input } from '@/components/common/ui/input'
 import { Label } from '@/components/common/ui/label'
 
 const REPORT_TABS = [
+  { id: 'dashboard', label: 'Dashboard' },
   { id: 'receitas', label: 'Receitas' },
   { id: 'despesas', label: 'Despesas' },
   { id: 'pl', label: 'P&L' },
@@ -38,7 +39,7 @@ export function ReportsFilters({ properties, startDate, endDate, propertyId, act
     if (localPropertyId) {
       params.set('property_id', localPropertyId)
     }
-    if (tab && tab !== 'receitas') {
+    if (tab && tab !== 'dashboard') {
       params.set('tab', tab)
     }
     return `/reports?${params.toString()}`
@@ -59,7 +60,7 @@ export function ReportsFilters({ properties, startDate, endDate, propertyId, act
     if (propertyId) {
       params.set('property_id', propertyId)
     }
-    if (tab !== 'receitas') {
+    if (tab !== 'dashboard') {
       params.set('tab', tab)
     }
     navigate(`/reports?${params.toString()}`)

@@ -1,114 +1,111 @@
 'use client'
 
-import { useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
-import { X, ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight, X } from 'lucide-react'
 
 interface PropertyLightboxProps {
-  images: string[]
-  currentIndex: number
+  photos: string[]
+  initialIndex?: number
   onClose: () => void
-  onPrev: () => void
-  onNext: () => void
 }
 
 export function PropertyLightbox({
-  images,
-  currentIndex,
+  photos,
+  initialIndex = 0,
   onClose,
-  onPrev,
-  onNext,
 }: PropertyLightboxProps) {
-  const handleKey = useCallback(
-    (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
-      if (e.key === 'ArrowLeft') onPrev()
-      if (e.key === 'ArrowRight') onNext()
-    },
-    [onClose, onPrev, onNext]
-  )
+  const [currentIndex, setCurrentIndex] = useState(initialIndex)
+
+  const nextSlide = useCallback(() => {
+    setCurrentIndex((prev) => (prev + 1) % photos.length)
+  }, [photos.length])
+
+  const prevSlide = useCallback(() => {
+    setCurrentIndex((prev) => (prev - 1 + photos.length) % photos.length)
+  }, [photos.length])
 
   useEffect(() => {
-    document.addEventListener('keydown', handleKey)
-    document.body.style.overflow = 'hidden'
-    return () => {
-      document.removeEventListener('keydown', handleKey)
-      document.body.style.overflow = ''
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+      if (e.key === 'ArrowLeft') prevSlide()
+      if (e.key === 'ArrowRight') nextSlide()
     }
-  }, [handleKey])
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [onClose, nextSlide, prevSlide])
 
   return (
-    <div
-      className="fixed inset-0 z-50 bg-black/95 flex flex-col"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Galeria de fotos"
-    >
-      {/* Top bar */}
-      <div className="flex items-center justify-between px-4 py-3 flex-shrink-0">
-        <span className="text-white/70 text-sm">
-          {currentIndex + 1} / {images.length}
-        </span>
+    <div className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4">
+      {/* Main Image */}
+      <div className="relative w-full h-full max-w-5xl max-h-screen flex items-center justify-center">
+        <Image
+          src={photos[currentIndex]}
+          alt={`Photo ${currentIndex + 1}`}
+          fill
+          className="object-contain"
+          priority
+        />
+
+        {/* Previous Button */}
+        {photos.length > 1 && (
+          <button
+            onClick={prevSlide}
+            className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 rounded-full p-3 transition-all z-10"
+            aria-label="Anterior"
+          >
+            <ChevronLeft className="w-8 h-8 text-white" />
+          </button>
+        )}
+
+        {/* Next Button */}
+        {photos.length > 1 && (
+          <button
+            onClick={nextSlide}
+            className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 rounded-full p-3 transition-all z-10"
+            aria-label="Próximo"
+          >
+            <ChevronRight className="w-8 h-8 text-white" />
+          </button>
+        )}
+
+        {/* Close Button */}
         <button
           onClick={onClose}
-          className="text-white/80 hover:text-white p-2 rounded-full hover:bg-white/10 transition-colors"
-          aria-label="Fechar galeria"
+          className="absolute top-4 right-4 bg-white/10 hover:bg-white/20 rounded-full p-3 transition-all z-10"
+          aria-label="Fechar"
         >
-          <X className="h-6 w-6" />
-        </button>
-      </div>
-
-      {/* Main image */}
-      <div className="flex-1 relative flex items-center justify-center px-12 min-h-0">
-        <button
-          onClick={onPrev}
-          className="absolute left-2 sm:left-4 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
-          aria-label="Foto anterior"
-        >
-          <ChevronLeft className="h-6 w-6" />
+          <X className="w-8 h-8 text-white" />
         </button>
 
-        <div className="relative w-full h-full max-h-[70vh]">
-          <Image
-            src={images[currentIndex]}
-            alt={`Foto ${currentIndex + 1}`}
-            fill
-            className="object-contain"
-            sizes="100vw"
-            priority
-          />
+        {/* Counter */}
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 rounded-full px-4 py-2 text-white text-sm font-medium">
+          {currentIndex + 1} / {photos.length}
         </div>
 
-        <button
-          onClick={onNext}
-          className="absolute right-2 sm:right-4 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
-          aria-label="Próxima foto"
-        >
-          <ChevronRight className="h-6 w-6" />
-        </button>
-      </div>
-
-      {/* Thumbnail strip */}
-      <div className="flex-shrink-0 px-4 py-3 overflow-x-auto">
-        <div className="flex gap-2 justify-center">
-          {images.map((src, i) => (
-            <button
-              key={i}
-              onClick={() => {
-                // navigate to index via onPrev/onNext chain or pass index up
-                const diff = i - currentIndex
-                if (diff > 0) for (let j = 0; j < diff; j++) onNext()
-                else for (let j = 0; j < -diff; j++) onPrev()
-              }}
-              className={`relative h-12 w-16 flex-shrink-0 rounded overflow-hidden border-2 transition-colors ${
-                i === currentIndex ? 'border-white' : 'border-transparent opacity-60 hover:opacity-90'
-              }`}
-              aria-label={`Ver foto ${i + 1}`}
-            >
-              <Image src={src} alt={`Thumb ${i + 1}`} fill className="object-cover" sizes="64px" />
-            </button>
-          ))}
-        </div>
+        {/* Thumbnails */}
+        {photos.length > 1 && (
+          <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex gap-2 overflow-x-auto max-w-xl px-4">
+            {photos.map((photo, idx) => (
+              <button
+                key={idx}
+                onClick={() => setCurrentIndex(idx)}
+                className={`relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 transition-all ${
+                  idx === currentIndex ? 'ring-2 ring-white' : 'opacity-60 hover:opacity-80'
+                }`}
+              >
+                <Image
+                  src={photo}
+                  alt={`Thumbnail ${idx + 1}`}
+                  fill
+                  className="object-cover"
+                  sizes="64px"
+                />
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )

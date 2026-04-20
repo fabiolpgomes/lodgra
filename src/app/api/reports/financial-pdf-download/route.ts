@@ -3,6 +3,14 @@ import { requireRole } from '@/lib/auth/requireRole'
 import { createClient } from '@/lib/supabase/server'
 import { getUserPropertyIds } from '@/lib/auth/getUserProperties'
 
+interface PropertyListings {
+  properties: {
+    id: string
+    name: string
+    city: string
+  }
+}
+
 interface Reservation {
   id: string
   check_in: string
@@ -12,7 +20,7 @@ interface Reservation {
   net_amount: number | null
   currency: string
   source: string | null
-  property_listings: { name: string } | null
+  property_listings: PropertyListings
   guests: { first_name: string; last_name: string } | null
 }
 
@@ -24,8 +32,7 @@ interface Expense {
   category: string
   description: string
   notes: string | null
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  properties: { id: string; name: string; currency: string } | any
+  properties: { id: string; name: string; currency: string }
 }
 
 interface PropertyData {
@@ -172,7 +179,7 @@ function generateHtml(
   <div class="content">
     <div class="container">
       <h1>Relatório Financeiro</h1>
-      <p style="color: #666; font-size: 13px;">Lodgra - Gestão de Propriedades</p>
+      <p style="color: #666; font-size: 13px;">Home Stay - Gestão de Propriedades</p>
 
       <div class="info">
         <p><strong>Período:</strong> ${new Date(data.startDate).toLocaleDateString('pt-BR')} até ${new Date(data.endDate).toLocaleDateString('pt-BR')}</p>
@@ -319,8 +326,8 @@ function generateHtml(
       ` : ''}
 
       <div class="footer">
-        <p>Este relatório foi gerado automaticamente pelo sistema Lodgra.</p>
-        <p>&copy; ${new Date().getFullYear()} Lodgra. Todos os direitos reservados.</p>
+        <p>Este relatório foi gerado automaticamente pelo sistema Home Stay.</p>
+        <p>&copy; ${new Date().getFullYear()} Home Stay. Todos os direitos reservados.</p>
       </div>
     </div>
   </div>

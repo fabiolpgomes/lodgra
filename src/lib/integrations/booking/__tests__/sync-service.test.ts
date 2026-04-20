@@ -14,6 +14,10 @@ import {
   syncPropertyToBooking,
   syncAllPropertiesToBooking,
 } from '../sync-service'
+import { createAdminClient } from '@/lib/supabase/admin'
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const mockCreateAdminClient = createAdminClient as jest.Mock<any>
 
 // Mock dependencies
 jest.mock('@/lib/supabase/admin', () => ({
@@ -70,7 +74,7 @@ jest.mock('../client', () => ({
     ),
     pushAvailabilities: jest.fn(async (avail: unknown[]) =>
       avail.map((a) => ({
-        date: a.date,
+        date: (a as { date: string }).date,
         success: true,
       }))
     ),
@@ -99,7 +103,7 @@ describe.skip('Booking Sync Service', () => {
       jest.clearAllMocks()
 
       // Mock property not linked to Booking
-      createAdminClient.mockReturnValue({
+      mockCreateAdminClient.mockReturnValue({
         from: jest.fn(() => ({
           select: jest.fn(function () {
             return this
@@ -130,7 +134,7 @@ describe.skip('Booking Sync Service', () => {
       jest.clearAllMocks()
 
       // Mock property not linked
-      createAdminClient.mockReturnValue({
+      mockCreateAdminClient.mockReturnValue({
         from: jest.fn(() => ({
           select: jest.fn(function () {
             return this
@@ -161,7 +165,7 @@ describe.skip('Booking Sync Service', () => {
       jest.clearAllMocks()
 
       // Mock failure
-      createAdminClient.mockReturnValue({
+      mockCreateAdminClient.mockReturnValue({
         from: jest.fn(() => ({
           select: jest.fn(function () {
             return this

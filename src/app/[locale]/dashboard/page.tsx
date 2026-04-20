@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Calendar, TrendingUp, Percent, Users, Home, Euro, Clock, CheckCircle } from 'lucide-react'
+import { Calendar, TrendingUp, Percent, Users, Home, Euro, Clock, CheckCircle, Wallet } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { LazyOccupancyChart as OccupancyChart, LazyRevenueChart as RevenueChart, LazyStatusChart as StatusChart } from '@/components/common/lazy/LazyCharts'
 import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
@@ -212,6 +212,22 @@ export default async function DashboardPage({
     })
   }
 
+  // Fetch current month expenses
+  const { data: currentMonthExpenses } = propertyIds.length > 0
+    ? await supabase
+        .from('expenses')
+        .select('amount, currency')
+        .in('property_id', propertyIds)
+        .gte('date', `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`)
+        .lte('date', currentMonthEnd.toISOString().slice(0, 10))
+    : { data: null }
+
+  const monthExpensesByCurrency = (currentMonthExpenses || []).reduce((acc, e) => {
+    const cur = (e.currency || org?.currency || 'EUR') as string
+    acc[cur] = (acc[cur] || 0) + Number(e.amount)
+    return acc
+  }, {} as Record<string, number>)
+
   // Fetch upcoming check-ins
   const today = new Date()
   today.setHours(0, 0, 0, 0)
@@ -254,7 +270,7 @@ export default async function DashboardPage({
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-6 mb-6 sm:mb-8">
           <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="p-3 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl">
@@ -311,6 +327,38 @@ export default async function DashboardPage({
               )}
             </div>
             <p className="text-sm text-gray-500 mt-1">Receita do Mês</p>
+          </div>
+
+          {/* Lucro Real */}
+          <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 border-l-4 border-green-500">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-gradient-to-br from-green-50 to-green-100 rounded-xl">
+                <Wallet className="h-5 w-5 text-green-600" />
+              </div>
+              <span className="text-xs font-medium uppercase tracking-wider text-gray-400">
+                {now.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '').toUpperCase()}
+              </span>
+            </div>
+            <div className="space-y-0.5">
+              {Object.entries(monthRevenueByCurrency).length > 0 ? (
+                Object.entries(monthRevenueByCurrency).map(([cur, rev]) => {
+                  const exp = monthExpensesByCurrency[cur] || 0
+                  const profit = rev - exp
+                  const margin = rev > 0 ? Math.round((profit / rev) * 100) : 0
+                  return (
+                    <div key={cur}>
+                      <h3 className={`text-3xl font-bold tracking-tight ${profit >= 0 ? 'text-green-700' : 'text-red-600'}`}>
+                        {formatCurrency(profit, cur as CurrencyCode)}
+                      </h3>
+                      <p className="text-xs text-gray-400 mt-0.5">Margem: {margin}%</p>
+                    </div>
+                  )
+                })
+              ) : (
+                <h3 className="text-4xl font-bold tracking-tight text-gray-900">—</h3>
+              )}
+            </div>
+            <p className="text-sm text-gray-500 mt-1">Lucro Real</p>
           </div>
         </div>
 

@@ -58,7 +58,7 @@ export async function importICalFromUrl(url: string): Promise<ICalEvent[]> {
   try {
     const response = await fetch(url, {
       headers: {
-        'User-Agent': 'HomeStay-Calendar-Sync/1.0',
+        'User-Agent': 'Lodgra-Calendar-Sync/1.0',
         'Accept': 'text/calendar, text/plain, */*',
       },
     })

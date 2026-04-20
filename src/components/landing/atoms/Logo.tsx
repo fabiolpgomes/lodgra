@@ -3,46 +3,45 @@ import React from 'react'
 interface LogoProps {
   size?: 'sm' | 'md' | 'lg'
   variant?: 'light' | 'dark'
+  className?: string
 }
 
-export const Logo: React.FC<LogoProps> = ({ size = 'md', variant = 'dark' }) => {
+export const Logo: React.FC<LogoProps> = ({ size = 'md', className = '' }) => {
   const sizes = {
     sm: 'w-8 h-8',
     md: 'w-10 h-10',
     lg: 'w-12 h-12',
   }
 
-  const sizeMap = {
-    sm: 48,
-    md: 48,
-    lg: 48,
-  }
-
-  const viewSize = sizeMap[size]
-
   return (
-    <svg
-      className={`${sizes[size]} inline-block`}
-      viewBox="0 0 48 48"
-      fill="none"
+    <svg 
+      viewBox="0 0 24 24" 
+      className={`${sizes[size]} ${className}`}
+      fill="none" 
       xmlns="http://www.w3.org/2000/svg"
     >
-      {/* House base - Verde Primário (#1D9E75) */}
-      <rect x="4" y="20" width="40" height="24" rx="4" fill="#1D9E75" />
-
-      {/* Roof - Verde Escuro (#0F6E56) */}
-      <path d="M 24 4 L 44 20 L 4 20 Z" fill="#0F6E56" />
-
-      {/* Door - Verde muito escuro (#085041) */}
-      <rect x="18" y="30" width="12" height="14" rx="2" fill="#085041" />
-
-      {/* Star background circle - Amarelo claro com opacidade */}
-      <circle cx="36" cy="14" r="5" fill="#FAC775" opacity="0.9" />
-
-      {/* Star - Ouro (#EF9F27) */}
-      <path
-        d="M 36 10 L 37.2 13.1 L 40.5 13.1 L 37.9 15.1 L 38.9 18.3 L 36 16.4 L 33.1 18.3 L 34.1 15.1 L 31.5 13.1 L 34.8 13.1 Z"
-        fill="#EF9F27"
+      {/* Corpo da Casa - Azul Confiança (#1E3A8A) */}
+      <path 
+        d="M4 10V19C4 20.1046 4.89543 21 6 21H18C19.1046 21 20 20.1046 20 19V10" 
+        stroke="#1E3A8A" 
+        strokeWidth="2" 
+        strokeLinecap="round" 
+        strokeLinejoin="round"
+      />
+      {/* Telhado - Ouro Próspero (#D4AF37) */}
+      <path 
+        d="M2 12L12 3L22 12" 
+        stroke="#D4AF37" 
+        strokeWidth="2.5" 
+        strokeLinecap="round" 
+        strokeLinejoin="round"
+      />
+      {/* Chaminé / Detalhe - Ouro Próspero (#D4AF37) */}
+      <path 
+        d="M12 3V7" 
+        stroke="#D4AF37" 
+        strokeWidth="2" 
+        strokeLinecap="round"
       />
     </svg>
   )

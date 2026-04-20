@@ -57,6 +57,8 @@ interface PageProps {
  * - Multi-currency handling: values grouped by currency code
  * - RLS enforced: userPropertyIds scopes all queries
  */
+import { FinancialOverviewCharts } from '@/components/features/dashboard/FinancialOverviewCharts'
+
 export default async function ReportsPage({ searchParams }: PageProps) {
   const params = await searchParams
   const supabase = await createClient()
@@ -70,7 +72,7 @@ export default async function ReportsPage({ searchParams }: PageProps) {
   const startDate = params.start_date || defaultStartDate.toISOString().split('T')[0]
   const endDate = params.end_date || defaultEndDate.toISOString().split('T')[0]
   const propertyId = params.property_id
-  const activeTab = params.tab || 'receitas'
+  const activeTab = params.tab || 'dashboard'
 
   // Buscar propriedades (filtradas por escopo) com management_percentage e owner
   let propertiesQuery = supabase
@@ -637,7 +639,13 @@ export default async function ReportsPage({ searchParams }: PageProps) {
         </div>
 
         {/* Conteúdo da Aba Ativa */}
-        {activeTab === 'receitas' ? (
+        {activeTab === 'dashboard' ? (
+          <FinancialOverviewCharts 
+            monthlyStats={monthlyStats}
+            propertyStats={propertyStats}
+            currency={Object.keys(revenueByCurrency)[0] || 'EUR'}
+          />
+        ) : activeTab === 'receitas' ? (
           <>
             {/* Tabela de Receitas */}
             <RevenueTable

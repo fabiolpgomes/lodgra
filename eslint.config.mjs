@@ -33,6 +33,8 @@ const eslintConfig = defineConfig([
     "coverage/**",
     // Node.js utility scripts (não são código da aplicação)
     "scripts/**",
+    // Scratch/utility scripts (one-off tools, not application code)
+    "scratch/**",
   ]),
 ]);
 

@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import type { Metadata } from 'next'
-import { PropertyImage } from '@/components/features/properties/types/property-images'
+import { PropertyImage } from '@/types/property-images'
 import { generatePropertyJsonLd } from '@/lib/seo/jsonld'
 import { locales } from '../../../../i18n.config'
 import { PropertyPageV2 } from '@/components/common/public/PropertyPageV2'
@@ -10,6 +10,7 @@ export const revalidate = 60 // revalidate every 60 seconds for dynamic content
 
 interface PageProps {
   params: Promise<{ slug: string }>
+  searchParams: Promise<{ checkIn?: string; checkOut?: string; guests?: string; minNightsError?: string }>
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -27,8 +28,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return { title: 'Propriedade não encontrada' }
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.lodgra.pt'
-  const title = `${property.name} — Reserva Directa | Lodgra`
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.homestay.pt'
+  const title = `${property.name} — Reserva Directa | Home Stay`
   const description = property.description || `${property.name} em ${property.city}, ${property.country}. Reserve directamente sem comissões.`
   const image = property.photos?.[0] ?? null
   const canonicalUrl = `${baseUrl}/p/${slug}`
@@ -46,7 +47,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       title,
       description,
       url: canonicalUrl,
-      siteName: 'Lodgra',
+      siteName: 'Home Stay',
       type: 'website',
       locale: 'pt_PT',
       alternateLocale: ['pt_BR', 'en_US'],
@@ -61,13 +62,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 }
 
-export default async function PublicPropertyPage({ params }: PageProps) {
+export default async function PublicPropertyPage({ params, searchParams }: PageProps) {
   const { slug } = await params
+  const { checkIn, checkOut, guests, minNightsError } = await searchParams
   const supabase = await createClient()
 
   const { data: property } = await supabase
     .from('properties')
-    .select('id, name, description, city, country, address, photos, amenities, max_guests, bedrooms, bathrooms, property_type, slug, base_price')
+    .select('id, name, description, city, country, address, photos, amenities, max_guests, bedrooms, bathrooms, property_type, slug, base_price, currency, postal_code, is_active, created_at, updated_at, min_nights')
     .eq('slug', slug)
     .eq('is_public', true)
     .single()
@@ -153,7 +155,16 @@ export default async function PublicPropertyPage({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <PropertyPageV2 property={property} allPhotos={allPhotos} />
+      <PropertyPageV2
+        property={property}
+        allPhotos={allPhotos}
+        currency={property.currency}
+        initialCheckIn={checkIn}
+        initialCheckOut={checkOut}
+        initialGuests={guests ? parseInt(guests) : undefined}
+        minNights={property.min_nights ?? 1}
+        minNightsError={minNightsError === '1' ? (property.min_nights ?? 1) : undefined}
+      />
     </>
   )
 }

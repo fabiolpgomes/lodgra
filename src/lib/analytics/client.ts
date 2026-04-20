@@ -7,8 +7,13 @@
 
 export interface AnalyticsEvent {
   name: string
-  data?: Record<string, any>
+  data?: Record<string, unknown>
   timestamp?: number
+}
+
+type WindowWithAnalytics = Window & {
+  gtag?: (command: string, eventName: string, data?: Record<string, unknown>) => void
+  analytics?: { track: (eventName: string, data?: Record<string, unknown>) => void }
 }
 
 const isEnabled = process.env.NEXT_PUBLIC_ENABLE_ANALYTICS === 'true'
@@ -18,7 +23,7 @@ const isEnabled = process.env.NEXT_PUBLIC_ENABLE_ANALYTICS === 'true'
  * @param eventName - Event name (snake_case)
  * @param eventData - Event data (optional)
  */
-export function trackEvent(eventName: string, eventData?: Record<string, any>) {
+export function trackEvent(eventName: string, eventData?: Record<string, unknown>) {
   if (!isEnabled) {
     if (process.env.NODE_ENV === 'development') {
       console.log(`[Analytics] ${eventName}`, eventData || {})
@@ -34,13 +39,13 @@ export function trackEvent(eventName: string, eventData?: Record<string, any>) {
 
   try {
     // Google Analytics
-    if (typeof window !== 'undefined' && (window as any).gtag) {
-      (window as any).gtag('event', eventName, eventData || {})
+    if (typeof window !== 'undefined' && (window as WindowWithAnalytics).gtag) {
+      (window as WindowWithAnalytics).gtag!('event', eventName, eventData || {})
     }
 
     // Segment (future)
-    if (typeof window !== 'undefined' && (window as any).analytics) {
-      (window as any).analytics.track(eventName, eventData || {})
+    if (typeof window !== 'undefined' && (window as WindowWithAnalytics).analytics) {
+      (window as WindowWithAnalytics).analytics!.track(eventName, eventData || {})
     }
   } catch (error) {
     console.error(`[Analytics] Error tracking event ${eventName}:`, error)
@@ -52,7 +57,7 @@ export function trackEvent(eventName: string, eventData?: Record<string, any>) {
  * @param pageName - Page name
  * @param pageData - Additional page data
  */
-export function trackPageView(pageName: string, pageData?: Record<string, any>) {
+export function trackPageView(pageName: string, pageData?: Record<string, unknown>) {
   trackEvent('page_view', {
     page_name: pageName,
     ...pageData,
@@ -112,7 +117,7 @@ export function trackLocaleChange(newLocale: string, previousLocale: string) {
  * @param formName - Form identifier
  * @param formData - Form data (email, etc - sanitized)
  */
-export function trackFormSubmission(formName: string, formData?: Record<string, any>) {
+export function trackFormSubmission(formName: string, formData?: Record<string, unknown>) {
   trackEvent('form_submission', {
     form_name: formName,
     ...formData,

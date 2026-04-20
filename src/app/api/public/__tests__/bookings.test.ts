@@ -146,7 +146,7 @@ describe('Booking Conflict Validation', () => {
       const mockClient = createAdminClient()
 
       // Mock conflicting reservation exists
-      mockClient.from.mockReturnValue({
+      ;(mockClient.from as jest.Mock).mockReturnValue({
         select: jest.fn(function () {
           return this
         }),

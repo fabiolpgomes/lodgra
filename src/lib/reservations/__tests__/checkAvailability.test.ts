@@ -1,13 +1,12 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { checkPropertyAvailability } from '../checkAvailability'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
 interface MockQuery {
-  select: ReturnType<typeof vi.fn>
-  eq: ReturnType<typeof vi.fn>
-  in?: ReturnType<typeof vi.fn>
-  lt?: ReturnType<typeof vi.fn>
-  gt?: ReturnType<typeof vi.fn>
+  select: jest.Mock
+  eq: jest.Mock
+  in?: jest.Mock
+  lt?: jest.Mock
+  gt?: jest.Mock
 }
 
 describe('checkPropertyAvailability', () => {
@@ -15,34 +14,33 @@ describe('checkPropertyAvailability', () => {
 
   beforeEach(() => {
     mockSupabase = {
-      from: vi.fn(),
+      from: jest.fn(),
     } as unknown as SupabaseClient
   })
 
   it('should return available=true when no conflicts', async () => {
     const mockQuery: MockQuery = {
-      select: vi.fn().mockReturnThis(),
-      eq: vi.fn().mockReturnThis(),
-      in: vi.fn().mockReturnThis(),
-      lt: vi.fn().mockReturnThis(),
-      gt: vi.fn().mockReturnThis(),
+      select: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
+      in: jest.fn().mockReturnThis(),
+      lt: jest.fn().mockReturnThis(),
+      gt: jest.fn().mockReturnThis(),
     }
 
-    // Mock listings query
     const mockListingsQuery: MockQuery = {
-      select: vi.fn().mockReturnThis(),
-      eq: vi.fn().mockReturnValue(Promise.resolve({ data: [{ id: 'listing-1' }], error: null })),
+      select: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnValue(Promise.resolve({ data: [{ id: 'listing-1' }], error: null })),
     }
 
-    // Mock conflicts query
     const mockConflictsQuery: MockQuery = {
-      select: vi.fn().mockReturnThis(),
-      in: vi.fn().mockReturnThis(),
-      lt: vi.fn().mockReturnThis(),
-      gt: vi.fn().mockReturnValue(Promise.resolve({ data: [], error: null })),
+      select: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
+      in: jest.fn().mockReturnThis(),
+      lt: jest.fn().mockReturnThis(),
+      gt: jest.fn().mockReturnValue(Promise.resolve({ data: [], error: null })),
     }
 
-    const fromFn = mockSupabase.from as ReturnType<typeof vi.fn>
+    const fromFn = mockSupabase.from as jest.Mock
     fromFn.mockImplementation((table: string) => {
       if (table === 'property_listings') return mockListingsQuery
       if (table === 'reservations') return mockConflictsQuery
@@ -62,15 +60,16 @@ describe('checkPropertyAvailability', () => {
 
   it('should return available=false when conflicts exist', async () => {
     const mockListingsQuery: MockQuery = {
-      select: vi.fn().mockReturnThis(),
-      eq: vi.fn().mockReturnValue(Promise.resolve({ data: [{ id: 'listing-1' }], error: null })),
+      select: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnValue(Promise.resolve({ data: [{ id: 'listing-1' }], error: null })),
     }
 
     const mockConflictsQuery: MockQuery = {
-      select: vi.fn().mockReturnThis(),
-      in: vi.fn().mockReturnThis(),
-      lt: vi.fn().mockReturnThis(),
-      gt: vi.fn().mockReturnValue(
+      select: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
+      in: jest.fn().mockReturnThis(),
+      lt: jest.fn().mockReturnThis(),
+      gt: jest.fn().mockReturnValue(
         Promise.resolve({
           data: [
             {
@@ -87,12 +86,12 @@ describe('checkPropertyAvailability', () => {
       ),
     }
 
-    const fromFn = mockSupabase.from as ReturnType<typeof vi.fn>
+    const fromFn = mockSupabase.from as jest.Mock
     fromFn.mockImplementation((table: string) => {
       if (table === 'property_listings')
         return {
-          select: vi.fn().mockReturnThis(),
-          eq: vi.fn().mockReturnValue(Promise.resolve({ data: [{ id: 'listing-1' }], error: null })),
+          select: jest.fn().mockReturnThis(),
+          eq: jest.fn().mockReturnValue(Promise.resolve({ data: [{ id: 'listing-1' }], error: null })),
         }
       if (table === 'reservations') return mockConflictsQuery
     })
@@ -110,10 +109,10 @@ describe('checkPropertyAvailability', () => {
   })
 
   it('should validate date format', async () => {
-    const fromFn = mockSupabase.from as ReturnType<typeof vi.fn>
+    const fromFn = mockSupabase.from as jest.Mock
     fromFn.mockImplementation(() => ({
-      select: vi.fn().mockReturnThis(),
-      eq: vi.fn().mockReturnValue(Promise.resolve({ data: [{ id: 'listing-1' }], error: null })),
+      select: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnValue(Promise.resolve({ data: [{ id: 'listing-1' }], error: null })),
     }))
 
     const result = await checkPropertyAvailability(
@@ -129,15 +128,16 @@ describe('checkPropertyAvailability', () => {
 
   it('should exclude reservation when provided', async () => {
     const mockListingsQuery: MockQuery = {
-      select: vi.fn().mockReturnThis(),
-      eq: vi.fn().mockReturnValue(Promise.resolve({ data: [{ id: 'listing-1' }], error: null })),
+      select: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnValue(Promise.resolve({ data: [{ id: 'listing-1' }], error: null })),
     }
 
     const mockConflictsQuery: MockQuery = {
-      select: vi.fn().mockReturnThis(),
-      in: vi.fn().mockReturnThis(),
-      lt: vi.fn().mockReturnThis(),
-      gt: vi.fn().mockReturnValue(
+      select: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
+      in: jest.fn().mockReturnThis(),
+      lt: jest.fn().mockReturnThis(),
+      gt: jest.fn().mockReturnValue(
         Promise.resolve({
           data: [
             {
@@ -154,7 +154,7 @@ describe('checkPropertyAvailability', () => {
       ),
     }
 
-    const fromFn = mockSupabase.from as ReturnType<typeof vi.fn>
+    const fromFn = mockSupabase.from as jest.Mock
     fromFn.mockImplementation((table: string) => {
       if (table === 'property_listings') return mockListingsQuery
       if (table === 'reservations') return mockConflictsQuery
@@ -165,7 +165,7 @@ describe('checkPropertyAvailability', () => {
       'property-1',
       '2026-05-01',
       '2026-05-10',
-      'res-1' // Exclude this reservation
+      'res-1'
     )
 
     expect(result.available).toBe(true)

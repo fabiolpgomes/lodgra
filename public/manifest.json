@@ -1,7 +1,7 @@
 {
-  "name": "Home Stay",
-  "short_name": "HomeStay",
-  "description": "Gerencie alojamentos locais no Airbnb e Booking.com — reservas, calendários, relatórios e pagamentos directos. PT · BR · US.",
+  "name": "Lodgra",
+  "short_name": "Lodgra",
+  "description": "Gestão inteligente de hospedagem com foco em resultado financeiro. Calendários, reservas, relatórios e finanças. PT · BR · ES.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#FAFAF9",

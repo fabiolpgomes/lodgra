@@ -9,40 +9,42 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Lodgra Brand Colors - Official Palette
-        'lodgra-primary': '#1D9E75',      // Verde-esmeralda primário
-        'lodgra-dark': '#0F6E56',         // Verde escuro
-        'lodgra-gold': '#EF9F27',         // Ouro crescimento
-        'lodgra-light': '#E1F5EE',        // Verde claro
-        'lodgra-neutral': '#2C2C2A',      // Cinza neutro
+        // LODGRA Brand Guidelines v1.0 - Official Palette
+        'lodgra-blue': '#1E3A8A',    // Azul Confiança
+        'lodgra-gold': '#D4AF37',    // Ouro Próspero
+        'lodgra-green': '#059669',   // Verde Crescimento
+        'lodgra-gray': '#F3F4F6',    // Cinza Neutro
+        'lodgra-dark': '#374151',    // Cinza Escuro
 
-        // Semantic colors
-        'success': '#1D9E75',
-        'warning': '#EF9F27',
+        // Semantic Colors (aligned with brand)
+        'success': '#059669',
+        'warning': '#D4AF37',
         'error': '#DC2626',
-        'info': '#1D9E75',
+        'info': '#1E3A8A',
       },
       fontFamily: {
-        'poppins': ['Poppins', 'sans-serif'],
-        'inter': ['Inter', 'sans-serif'],
+        'poppins': ['var(--font-poppins)', 'Poppins', 'sans-serif'],
+        'inter': ['var(--font-inter)', 'Inter', 'sans-serif'],
+        'lodgra-heading': ['var(--font-poppins)', 'Poppins', 'sans-serif'],
+        'lodgra-body': ['var(--font-inter)', 'Inter', 'sans-serif'],
       },
       fontSize: {
-        'xs': ['12px', { lineHeight: '1.4' }],
-        'sm': ['14px', { lineHeight: '1.5' }],
-        'base': ['16px', { lineHeight: '1.6' }],
-        'lg': ['18px', { lineHeight: '1.6' }],
-        'xl': ['20px', { lineHeight: '1.6' }],
-        '2xl': ['24px', { lineHeight: '1.5' }],
-        '3xl': ['28px', { lineHeight: '1.4' }],
-        '4xl': ['36px', { lineHeight: '1.3' }],
-        '5xl': ['48px', { lineHeight: '1.2' }],
-        '6xl': ['60px', { lineHeight: '1.1' }],
+        'xs': ['12px', { lineHeight: '1.4', letterSpacing: '0.5px' }],
+        'sm': ['14px', { lineHeight: '1.5', letterSpacing: '0px' }],
+        'base': ['16px', { lineHeight: '1.6', letterSpacing: '0px' }],
+        'lg': ['18px', { lineHeight: '1.6', letterSpacing: '0px' }],
+        'xl': ['20px', { lineHeight: '1.6', letterSpacing: '0px' }],
+        '2xl': ['24px', { lineHeight: '1.5', letterSpacing: '0px' }],
+        '3xl': ['28px', { lineHeight: '1.4', letterSpacing: '0px' }],
+        '4xl': ['36px', { lineHeight: '1.3', letterSpacing: '-0.5px' }],
+        '5xl': ['48px', { lineHeight: '1.2', letterSpacing: '-1px' }],
+        '6xl': ['60px', { lineHeight: '1.1', letterSpacing: '-1.5px' }],
       },
       spacing: {
-        'xs': '4px',
-        'sm': '8px',
-        'md': '16px',
-        'lg': '24px',
+        'micro': '4px',
+        'small': '8px',
+        'medium': '16px',
+        'large': '24px',
         'xl': '32px',
         '2xl': '64px',
       },
@@ -51,6 +53,7 @@ const config: Config = {
         'sm': '8px',
         'md': '12px',
         'lg': '16px',
+        'xl': '24px',
         'full': '9999px',
       },
       boxShadow: {

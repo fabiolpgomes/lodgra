@@ -10,6 +10,7 @@ import { ConsentManagement } from '@/components/features/settings/ConsentManagem
 import { DataExportSection } from '@/components/features/settings/DataExportSection'
 import { AccountDeletionSection } from '@/components/features/settings/AccountDeletionSection'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { PaymentSettings } from '@/components/features/settings/PaymentSettings'
 
 export const dynamic = 'force-dynamic'
 
@@ -43,6 +44,13 @@ export default async function SettingsPage() {
         .eq('organization_id', auth.organizationId)
         .order('created_at', { ascending: false })
     : { data: null }
+
+  // Fetch Organization for payment settings
+  const { data: organization } = await supabase
+    .from('organizations')
+    .select('id, asaas_api_key, asaas_environment')
+    .eq('id', auth.organizationId)
+    .single()
 
   return (
     <AuthLayout>
@@ -85,6 +93,13 @@ export default async function SettingsPage() {
               </p>
               <SettingsUserManagement users={users || []} />
             </div>
+          </section>
+        )}
+        
+        {/* Payment Configuration (Brazil) - Admin Only */}
+        {isAdmin && organization && (
+          <section className="mb-8">
+            <PaymentSettings organization={organization} />
           </section>
         )}
 

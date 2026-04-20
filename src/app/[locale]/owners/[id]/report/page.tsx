@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams } from '@/lib/i18n/routing'
 import Link from 'next/link'
-import { ArrowLeft, FileText, Building2, Download, TrendingUp, Loader2 } from 'lucide-react'
+import { ArrowLeft, FileText, Building2, Download, TrendingUp, Loader2, MessageCircle } from 'lucide-react'
 import { Button } from '@/components/common/ui/button'
 import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
 // Lazy import: @react-pdf/renderer is ~500KB, only load when user clicks download
@@ -137,6 +137,28 @@ export default function OwnerReportPage() {
     URL.revokeObjectURL(url)
   }
 
+  function handleShareWhatsApp() {
+    if (!report) return
+    const { label: periodLabel } = getPeriodDates(period, customFrom, customTo)
+    const ownerName = report.owner.full_name
+    const revenue = formatCurrency(report.summary.revenue, currency)
+    const expenses = formatCurrency(report.summary.expenses, currency)
+    const mgmtFee = formatCurrency(report.summary.managementFee, currency)
+    const net = formatCurrency(report.summary.ownerNet, currency)
+    const text = [
+      `📊 *Relatório Lodgra — ${periodLabel}*`,
+      `👤 Proprietário: ${ownerName}`,
+      ``,
+      `💰 Receita bruta: ${revenue}`,
+      `🔧 Despesas: ${expenses}`,
+      `📋 Taxa de gestão: ${mgmtFee}`,
+      `✅ *Líquido proprietário: ${net}*`,
+      ``,
+      `Gerado via Lodgra 🏠`,
+    ].join('\n')
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank')
+  }
+
   async function handleDownloadPDF() {
     if (!report) return
     setPdfGenerating(true)
@@ -196,6 +218,17 @@ export default function OwnerReportPage() {
                 </Button>
               </div>
             )}
+
+            <Button
+              onClick={handleShareWhatsApp}
+              variant="outline"
+              size="sm"
+              disabled={!report || report.properties.length === 0}
+              className="flex items-center gap-2 text-green-700 border-green-300 hover:bg-green-50"
+            >
+              <MessageCircle className="h-4 w-4" />
+              WhatsApp
+            </Button>
 
             <Button
               onClick={exportToCsv}

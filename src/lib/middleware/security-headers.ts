@@ -12,17 +12,19 @@ export function applySecurityHeaders(response: NextResponse, nonce?: string): Ne
 
   // CSP with nonce for inline scripts (Google Analytics, JSON-LD)
   const scriptNonce = nonce ? `'nonce-${nonce}'` : ''
+  const isDev = process.env.NODE_ENV === 'development'
+  const evalDirective = isDev ? "'unsafe-eval'" : ''
   response.headers.set(
     'Content-Security-Policy',
     [
       "default-src 'self'",
-      `script-src 'self' ${scriptNonce} https://www.googletagmanager.com https://js.stripe.com https://*.sentry.io https://cdnjs.cloudflare.com`,
+      `script-src 'self' ${scriptNonce} ${evalDirective} https://www.googletagmanager.com https://js.stripe.com https://*.sentry.io https://cdnjs.cloudflare.com`.trim(),
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob: https:",
       "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com https://region1.google-analytics.com https://js.stripe.com https://api.stripe.com https://*.sentry.io https://*.ingest.sentry.io https://cdnjs.cloudflare.com",
       "font-src 'self' data:",
       "worker-src 'self' blob:",
-      "frame-src https://js.stripe.com https://hooks.stripe.com https://www.google.com",
+      "frame-src https://js.stripe.com https://hooks.stripe.com https://www.google.com https://maps.google.com",
       "frame-ancestors 'none'",
     ].join('; ')
   )

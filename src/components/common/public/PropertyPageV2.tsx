@@ -1,97 +1,115 @@
 'use client'
 
-import Link from 'next/link'
-import { MapPin, Users, Bed, Bath } from 'lucide-react'
+import { useState } from 'react'
+import type { Property } from '@/types/database'
 import { PropertyPageHeader } from './layout/PropertyPageHeader'
 import { PropertyHeroGallery } from './gallery/PropertyHeroGallery'
-import { BookingWidgetDesktop } from './booking/BookingWidgetDesktop'
-import { BookingWidgetMobile } from './booking/BookingWidgetMobile'
 import { PropertyDescription } from './content/PropertyDescription'
 import { PropertyAmenitiesV2 } from './content/PropertyAmenitiesV2'
 import { PropertyLocation } from './content/PropertyLocation'
+import { BookingWidgetDesktop } from './booking/BookingWidgetDesktop'
+import { BookingWidgetMobile } from './booking/BookingWidgetMobile'
 import { PropertyTrustBadges } from './layout/PropertyTrustBadges'
-import { Logo } from '@/components/common/ui/Logo'
+import { PropertyLightbox } from './gallery/PropertyLightbox'
 
 interface PropertyPageV2Props {
-  property: {
-    id: string
-    name: string
-    description?: string | null
-    city?: string | null
-    country?: string | null
-    address?: string | null
-    photos?: string[] | null
-    amenities?: string[] | null
-    max_guests?: number
-    bedrooms?: number
-    bathrooms?: number
-    property_type?: string | null
-    slug?: string | null
-    base_price?: number | null
-  }
+  property: Property
   allPhotos: string[]
+  currency: string
+  initialCheckIn?: string
+  initialCheckOut?: string
+  initialGuests?: number
+  minNights?: number
+  minNightsError?: number
 }
 
-export function PropertyPageV2({ property, allPhotos }: PropertyPageV2Props) {
-  const location = [property.city, property.country].filter(Boolean).join(', ')
+export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, initialCheckOut, initialGuests, minNights = 1, minNightsError }: PropertyPageV2Props) {
+  const [showLightbox, setShowLightbox] = useState(false)
+  const [lightboxIndex, setLightboxIndex] = useState(0)
+
+  const handleOpenLightbox = (index: number) => {
+    setLightboxIndex(index)
+    setShowLightbox(true)
+  }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--lodgra-surface, #FAFAF9)' }}>
-      {/* Header */}
-      <PropertyPageHeader propertyName={property.name} />
+    <>
+      <PropertyPageHeader
+        propertyName={property.name}
+        city={property.city || ''}
+        country={property.country || ''}
+      />
 
-      <main>
-        {/* Hero Gallery — full width, behind header */}
-        <div className="pt-0">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-20 pb-4">
-            <PropertyHeroGallery
-              photos={allPhotos}
-              name={property.name}
-            />
+      <main className="bg-white">
+        <div className="max-w-7xl mx-auto px-4 md:px-6">
+          {/* Minimum nights error banner */}
+          {minNightsError && (
+            <div className="mt-4 px-4 py-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+              A estadia mínima para esta propriedade é de <strong>{minNightsError} {minNightsError === 1 ? 'noite' : 'noites'}</strong>. Por favor, ajuste as datas.
+            </div>
+          )}
+
+          {/* Hero Section with Gallery and Booking Widget */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 py-6">
+            {/* Left: Gallery (2/3 width on desktop) */}
+            <div className="lg:col-span-2">
+              <PropertyHeroGallery
+                photos={allPhotos}
+                propertyName={property.name}
+                onViewAll={() => handleOpenLightbox(0)}
+                onPhotoClick={handleOpenLightbox}
+              />
+            </div>
+
+            {/* Right: Booking Widget (1/3 width on desktop) */}
+            <div className="hidden lg:block">
+              <BookingWidgetDesktop
+                propertyName={property.name}
+                basePrice={property.base_price || 0}
+                currency={currency}
+                slug={property.slug}
+                initialCheckIn={initialCheckIn}
+                initialCheckOut={initialCheckOut}
+                initialGuests={initialGuests}
+                minNights={minNights}
+              />
+            </div>
           </div>
-        </div>
 
-        {/* Content + Booking — 2 col layout */}
-        <article className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-
-            {/* Left column — property details */}
+          {/* Content Sections */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 py-6">
+            {/* Main Content (2/3) */}
             <div className="lg:col-span-2 space-y-8">
-
-              {/* Title + stats */}
-              <section aria-label="Detalhes da propriedade">
-                <h1 className="text-3xl sm:text-4xl font-extrabold text-lodgra-neutral-900 mb-3 tracking-tight">
-                  {property.name}
-                </h1>
-                {location && (
-                  <p className="flex items-center gap-1.5 text-lodgra-neutral-500 text-sm mb-4">
-                    <MapPin className="h-4 w-4 shrink-0 text-lodgra-brand-400" />
-                    {location}
-                  </p>
+              {/* Quick Stats */}
+              <div className="flex flex-wrap gap-4 pb-6 border-b border-neutral-200">
+                {property.max_guests && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl">👥</span>
+                    <div>
+                      <p className="text-sm text-neutral-600">Hóspedes</p>
+                      <p className="font-semibold">{property.max_guests}</p>
+                    </div>
+                  </div>
                 )}
-                <div className="flex flex-wrap gap-5 text-sm text-lodgra-neutral-700">
-                  {(property.max_guests ?? 0) > 0 && (
-                    <span className="flex items-center gap-1.5">
-                      <Users className="h-4 w-4 text-lodgra-neutral-500" />
-                      {property.max_guests} hóspede{property.max_guests !== 1 ? 's' : ''}
-                    </span>
-                  )}
-                  {(property.bedrooms ?? 0) > 0 && (
-                    <span className="flex items-center gap-1.5">
-                      <Bed className="h-4 w-4 text-lodgra-neutral-500" />
-                      {property.bedrooms} quarto{property.bedrooms !== 1 ? 's' : ''}
-                    </span>
-                  )}
-                  {(property.bathrooms ?? 0) > 0 && (
-                    <span className="flex items-center gap-1.5">
-                      <Bath className="h-4 w-4 text-lodgra-neutral-500" />
-                      {property.bathrooms} casa{property.bathrooms !== 1 ? 's' : ''} de banho
-                    </span>
-                  )}
-                </div>
-              </section>
-
-              <hr className="border-lodgra-neutral-200" />
+                {property.bedrooms && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl">🛏️</span>
+                    <div>
+                      <p className="text-sm text-neutral-600">Quartos</p>
+                      <p className="font-semibold">{property.bedrooms}</p>
+                    </div>
+                  </div>
+                )}
+                {property.bathrooms && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl">🚿</span>
+                    <div>
+                      <p className="text-sm text-neutral-600">Casas de banho</p>
+                      <p className="font-semibold">{property.bathrooms}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
 
               {/* Description */}
               {property.description && (
@@ -100,57 +118,48 @@ export function PropertyPageV2({ property, allPhotos }: PropertyPageV2Props) {
 
               {/* Amenities */}
               {property.amenities && property.amenities.length > 0 && (
-                <>
-                  <hr className="border-lodgra-neutral-200" />
-                  <PropertyAmenitiesV2 amenities={property.amenities} />
-                </>
+                <PropertyAmenitiesV2 amenities={property.amenities} />
               )}
 
               {/* Location */}
-              <hr className="border-lodgra-neutral-200" />
               <PropertyLocation
-                city={property.city}
-                country={property.country}
-                address={property.address}
+                address={property.address || ''}
+                city={property.city || ''}
+                country={property.country || ''}
               />
             </div>
 
-            {/* Right column — booking widget (desktop) */}
-            <div className="lg:col-span-1 hidden lg:block">
-              <BookingWidgetDesktop
-                slug={property.slug!}
-                basePrice={property.base_price ?? 0}
-              />
+            {/* Sidebar Desktop Booking (1/3) - will be hidden on mobile */}
+            <div className="hidden lg:flex lg:flex-col">
+              {/* Desktop booking already shown above, this space is for layout */}
             </div>
           </div>
-        </article>
+
+          {/* Trust Badges */}
+          <PropertyTrustBadges />
+        </div>
       </main>
 
-      {/* Mobile booking bar */}
+      {/* Mobile Booking Widget - Fixed Bottom */}
       <BookingWidgetMobile
-        slug={property.slug!}
-        basePrice={property.base_price ?? 0}
+        propertyName={property.name}
+        basePrice={property.base_price || 0}
+        currency={currency}
+        slug={property.slug}
+        initialCheckIn={initialCheckIn}
+        initialCheckOut={initialCheckOut}
+        initialGuests={initialGuests}
+        minNights={minNights}
       />
 
-      {/* Footer */}
-      <footer className="mt-16 border-t border-lodgra-neutral-200 bg-white px-4 py-10">
-        <div className="max-w-6xl mx-auto space-y-6 text-center">
-          <Logo variant="default" size="sm" className="mx-auto" />
-          <PropertyTrustBadges />
-          <div className="flex flex-wrap justify-center gap-4 text-xs text-lodgra-neutral-500">
-            <Link href="/politica-privacidade" className="hover:text-lodgra-neutral-900 transition-colors">
-              Política de Privacidade
-            </Link>
-            <span>·</span>
-            <Link href="/termos" className="hover:text-lodgra-neutral-900 transition-colors">
-              Termos de Uso
-            </Link>
-          </div>
-          <p className="text-xs text-lodgra-neutral-500">
-            © {new Date().getFullYear()} lodgra.pt · Reservas directas sem comissões
-          </p>
-        </div>
-      </footer>
-    </div>
+      {/* Lightbox Modal */}
+      {showLightbox && (
+        <PropertyLightbox
+          photos={allPhotos}
+          initialIndex={lightboxIndex}
+          onClose={() => setShowLightbox(false)}
+        />
+      )}
+    </>
   )
 }

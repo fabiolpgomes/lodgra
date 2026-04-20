@@ -4,10 +4,11 @@ import { getCachedProfile, setCachedProfile } from '@/lib/cache/profileCache'
 import { getCachedSubscriptionStatus, setCachedSubscriptionStatus } from '@/lib/cache/subscriptionCache'
 
 const PUBLIC_PATHS = [
-  '/login', '/register', '/subscribe', '/landing', '/api/stripe/', '/api/debug/',
+  '/login', '/register', '/subscribe', '/api/stripe/', '/api/debug/',
   '/api/ical/', '/api/auth/', '/auth/', '/opengraph-image', '/sitemap.xml',
   '/robots.txt', '/privacy', '/terms', '/politica-de-privacidade', '/p/',
-  '/api/public/', '/monitoring', '/',
+  '/properties', '/api/properties', '/api/public/', '/monitoring',
+  '/landing-vp',
 ]
 
 export function isPublicPath(pathname: string): boolean {

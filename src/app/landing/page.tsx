@@ -51,15 +51,16 @@ export async function generateMetadata() {
 
 export default async function LandingPage({ searchParams }: PageProps) {
   const params = await searchParams
-  const locale = (params.locale as any) || 'en-US'
+  const rawLocale = params.locale || 'en-US'
+  const validLocales = ['pt-BR', 'en-US', 'es'] as const
+  type ValidLocale = 'pt-BR' | 'en-US' | 'es'
 
-  // Validate locale
-  const validLocales = ['pt-BR', 'en-US', 'es']
-  if (!validLocales.includes(locale)) {
+  if (!(validLocales as readonly string[]).includes(rawLocale)) {
     notFound()
   }
 
-  const content = await getLandingPageContent(locale as any)
+  const locale = rawLocale as ValidLocale
+  const content = await getLandingPageContent(locale)
 
   if (!content) {
     notFound()
@@ -67,7 +68,7 @@ export default async function LandingPage({ searchParams }: PageProps) {
 
   return (
     <main className="bg-white">
-      <LandingPageClient locale={locale as any} content={content} />
+      <LandingPageClient locale={locale} content={content} />
     </main>
   )
 }

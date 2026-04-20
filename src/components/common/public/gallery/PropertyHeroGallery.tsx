@@ -2,176 +2,170 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
-import { Images } from 'lucide-react'
-import { PropertyLightbox } from './PropertyLightbox'
+import { ChevronLeft, ChevronRight, Maximize2 } from 'lucide-react'
 
 interface PropertyHeroGalleryProps {
   photos: string[]
-  name: string
+  propertyName: string
+  onViewAll: () => void
+  onPhotoClick: (index: number) => void
 }
 
-export function PropertyHeroGallery({ photos, name }: PropertyHeroGalleryProps) {
-  const [lightboxOpen, setLightboxOpen] = useState(false)
-  const [lightboxIndex, setLightboxIndex] = useState(0)
+export function PropertyHeroGallery({
+  photos,
+  propertyName,
+  onViewAll,
+  onPhotoClick,
+}: PropertyHeroGalleryProps) {
   const [carouselIndex, setCarouselIndex] = useState(0)
 
-  const allPhotos = photos.length > 0 ? photos : []
+  const heroImage = photos[0]
+  const thumbs = photos.slice(1, 5)
+  const remainingCount = Math.max(0, photos.length - 5)
 
-  // Debug log - remove in production
-  if (typeof window !== 'undefined' && allPhotos.length === 0) {
-    console.warn('⚠️ PropertyHeroGallery: No photos provided for property:', name)
+  // Mobile carousel
+  const nextSlide = () => {
+    setCarouselIndex((prev) => (prev + 1) % photos.length)
   }
 
-  function openLightbox(index: number) {
-    setLightboxIndex(index)
-    setLightboxOpen(true)
+  const prevSlide = () => {
+    setCarouselIndex((prev) => (prev - 1 + photos.length) % photos.length)
   }
 
-  function closeLightbox() {
-    setLightboxOpen(false)
-  }
-
-  function prevPhoto() {
-    setLightboxIndex(i => (i === 0 ? allPhotos.length - 1 : i - 1))
-  }
-
-  function nextPhoto() {
-    setLightboxIndex(i => (i === allPhotos.length - 1 ? 0 : i + 1))
-  }
-
-  if (allPhotos.length === 0) {
+  // Empty state when no photos
+  if (photos.length === 0) {
     return (
-      <div className="w-full h-64 sm:h-80 lg:h-[500px] rounded-2xl bg-lodgra-neutral-100 flex flex-col items-center justify-center text-gray-400 gap-2">
-        <Images className="h-10 w-10 opacity-40" />
-        <span className="text-sm">Fotos em breve</span>
+      <div className="w-full h-80 md:h-96 rounded-xl bg-neutral-100 flex flex-col items-center justify-center gap-3 text-neutral-400">
+        <span className="text-6xl">🏠</span>
+        <p className="text-sm font-medium">Fotos em breve</p>
       </div>
     )
   }
 
-  const mainPhoto = allPhotos[0]
-  const sidePhotos = allPhotos.slice(1, 5)
-
   return (
     <>
-      {/* Desktop: 1+4 grid */}
-      <div className="hidden lg:grid grid-cols-2 gap-2 h-[500px] rounded-2xl overflow-hidden relative">
-        {/* Main photo */}
-        <button
-          className="relative col-span-1 row-span-2 overflow-hidden group"
-          onClick={() => openLightbox(0)}
-          aria-label="Ver foto principal"
+      {/* Desktop: Grid Layout (1 large + 4 thumbs) */}
+      <div className="hidden md:grid grid-cols-5 grid-rows-2 gap-2 rounded-xl overflow-hidden h-96">
+        {/* Hero Image (2x2) */}
+        <div
+          className="col-span-3 row-span-2 relative group cursor-pointer rounded-lg overflow-hidden bg-neutral-100"
+          onClick={() => onPhotoClick(0)}
         >
-          <Image
-            src={mainPhoto}
-            alt={name}
-            fill
-            className="object-cover group-hover:scale-[1.02] transition-transform duration-500"
-            sizes="(min-width: 1024px) 50vw, 100vw"
-            priority
-          />
-        </button>
-
-        {/* 4 thumbnails */}
-        <div className="grid grid-cols-2 gap-2 col-span-1">
-          {[0, 1, 2, 3].map(i => {
-            const photo = sidePhotos[i]
-            if (!photo) {
-              return <div key={i} className="bg-lodgra-neutral-100" />
-            }
-            return (
-              <button
-                key={i}
-                className="relative overflow-hidden group"
-                onClick={() => openLightbox(i + 1)}
-                aria-label={`Ver foto ${i + 2}`}
-              >
-                <Image
-                  src={photo}
-                  alt={`${name} — foto ${i + 2}`}
-                  fill
-                  className="object-cover group-hover:scale-[1.02] transition-transform duration-500"
-                  sizes="25vw"
-                />
-              </button>
-            )
-          })}
+          {heroImage && (
+            <Image
+              src={heroImage}
+              alt={propertyName}
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-200"
+              priority
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            />
+          )}
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
         </div>
 
-        {/* "Ver todas" button */}
-        {allPhotos.length > 1 && (
-          <button
-            onClick={() => openLightbox(0)}
-            className="absolute bottom-4 right-4 flex items-center gap-2 bg-white text-gray-900 text-sm font-semibold px-4 py-2 rounded-full shadow-md hover:shadow-lg transition-shadow"
+        {/* Thumbnails (4 images) */}
+        {thumbs.map((photo, idx) => (
+          <div
+            key={idx}
+            className="relative group cursor-pointer rounded-lg overflow-hidden bg-neutral-100"
+            onClick={() => onPhotoClick(idx + 1)}
           >
-            <Images className="h-4 w-4" />
-            Ver todas as {allPhotos.length} fotos
+            <Image
+              src={photo}
+              alt={`${propertyName} - ${idx + 2}`}
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-200"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 25vw, 16vw"
+            />
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
+            {idx === 3 && remainingCount > 0 && (
+              <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onViewAll()
+                  }}
+                  className="text-white font-semibold text-sm hover:text-white transition-colors"
+                >
+                  +{remainingCount} fotos
+                </button>
+              </div>
+            )}
+          </div>
+        ))}
+
+        {/* View All Button (only show if not already in grid) */}
+        {photos.length > 5 && (
+          <button
+            onClick={onViewAll}
+            className="absolute bottom-4 right-4 bg-white rounded-lg px-4 py-2 font-semibold text-sm shadow-md hover:shadow-lg transition-shadow flex items-center gap-2"
+          >
+            <Maximize2 className="w-4 h-4" />
+            Ver todas as fotos
           </button>
         )}
       </div>
 
-      {/* Mobile: carousel */}
-      <div className="lg:hidden relative h-72 sm:h-80 overflow-hidden rounded-2xl">
-        <Image
-          src={allPhotos[carouselIndex]}
-          alt={`${name} — foto ${carouselIndex + 1}`}
-          fill
-          className="object-cover"
-          sizes="100vw"
-          priority={carouselIndex === 0}
-        />
+      {/* Mobile: Carousel */}
+      <div className="md:hidden relative h-80 rounded-xl overflow-hidden bg-neutral-100">
+        {photos.length > 0 && (
+          <Image
+            src={photos[carouselIndex]}
+            alt={`${propertyName} - ${carouselIndex + 1}`}
+            fill
+            className="object-cover"
+            priority={carouselIndex === 0}
+            sizes="calc(100vw - 2rem)"
+          />
+        )}
 
-        {/* Swipe hint + counter */}
-        <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5">
-          {allPhotos.slice(0, 8).map((_, i) => (
+        {/* Carousel Controls */}
+        <div className="absolute inset-0 flex items-center justify-between p-4">
+          <button
+            onClick={prevSlide}
+            className="bg-white/80 hover:bg-white rounded-full p-2 transition-all"
+            aria-label="Anterior"
+          >
+            <ChevronLeft className="w-6 h-6 text-neutral-900" />
+          </button>
+          <button
+            onClick={nextSlide}
+            className="bg-white/80 hover:bg-white rounded-full p-2 transition-all"
+            aria-label="Próximo"
+          >
+            <ChevronRight className="w-6 h-6 text-neutral-900" />
+          </button>
+        </div>
+
+        {/* Slide Indicators */}
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+          {photos.map((_, idx) => (
             <button
-              key={i}
-              onClick={() => setCarouselIndex(i)}
-              className={`h-1.5 rounded-full transition-all ${
-                i === carouselIndex ? 'w-4 bg-white' : 'w-1.5 bg-white/50'
+              key={idx}
+              onClick={() => setCarouselIndex(idx)}
+              className={`w-2 h-2 rounded-full transition-all ${
+                idx === carouselIndex ? 'bg-white w-6' : 'bg-white/50'
               }`}
-              aria-label={`Ir para foto ${i + 1}`}
+              aria-label={`Ir para foto ${idx + 1}`}
             />
           ))}
         </div>
 
-        {/* Navigation arrows */}
-        {allPhotos.length > 1 && (
-          <>
-            <button
-              onClick={() => setCarouselIndex(i => (i === 0 ? allPhotos.length - 1 : i - 1))}
-              className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-black/30 text-white hover:bg-black/50 transition-colors"
-              aria-label="Foto anterior"
-            >
-              ‹
-            </button>
-            <button
-              onClick={() => setCarouselIndex(i => (i === allPhotos.length - 1 ? 0 : i + 1))}
-              className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-black/30 text-white hover:bg-black/50 transition-colors"
-              aria-label="Próxima foto"
-            >
-              ›
-            </button>
-          </>
-        )}
-
-        {/* Open lightbox */}
+        {/* View All Button */}
         <button
-          onClick={() => openLightbox(carouselIndex)}
-          className="absolute bottom-3 right-3 bg-white/90 text-gray-900 text-xs font-medium px-2 py-1 rounded-full"
+          onClick={onViewAll}
+          className="absolute top-4 right-4 bg-white rounded-lg px-3 py-2 font-semibold text-sm shadow-md hover:shadow-lg transition-shadow flex items-center gap-2"
         >
-          {carouselIndex + 1}/{allPhotos.length}
+          <Maximize2 className="w-4 h-4" />
+          Ver todas
         </button>
       </div>
 
-      {lightboxOpen && (
-        <PropertyLightbox
-          images={allPhotos}
-          currentIndex={lightboxIndex}
-          onClose={closeLightbox}
-          onPrev={prevPhoto}
-          onNext={nextPhoto}
-        />
-      )}
+      {/* Counter */}
+      <p className="mt-3 text-sm text-neutral-600">
+        {carouselIndex + 1} de {photos.length}
+      </p>
     </>
   )
 }

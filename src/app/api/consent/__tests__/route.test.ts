@@ -35,7 +35,13 @@ jest.mock('@/lib/supabase/server', () => ({
 // Mock Supabase admin client
 jest.mock('@/lib/supabase/admin', () => ({
   createAdminClient: jest.fn(() => {
-    const chainable = {
+    type ChainableMock = {
+      select: jest.Mock
+      eq: jest.Mock
+      order: jest.Mock
+      insert: jest.Mock
+    }
+    const chainable: ChainableMock = {
       select: jest.fn(() => chainable),
       eq: jest.fn(() => chainable),
       order: jest.fn(async () => ({

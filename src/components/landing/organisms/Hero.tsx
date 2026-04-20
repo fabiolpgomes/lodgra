@@ -23,7 +23,7 @@ export const Hero: React.FC<HeroProps> = ({
   onCtaPrimary,
   onCtaSecondary,
 }) => (
-  <section className="bg-white pt-8 sm:pt-16 pb-16 sm:pb-20 md:pt-24 md:pb-32">
+  <section className="bg-white dark:bg-gray-950 pt-8 sm:pt-16 pb-16 sm:pb-20 md:pt-24 md:pb-32">
     <Container>
       <div className="text-center max-w-4xl mx-auto">
         {/* Logo - Clean and minimal */}
@@ -32,12 +32,12 @@ export const Hero: React.FC<HeroProps> = ({
         </div>
 
         {/* Headline - Clean and premium */}
-        <h1 className="font-poppins font-bold text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-lodgra-neutral mb-4 sm:mb-6 leading-tight tracking-tight">
+        <h1 className="font-poppins font-bold text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-lodgra-neutral dark:text-white mb-4 sm:mb-6 leading-tight tracking-tight">
           {headline}
         </h1>
 
         {/* Subheadline - Elegant and clear */}
-        <p className="text-sm sm:text-base md:text-lg text-gray-600 leading-relaxed mb-8 sm:mb-12 max-w-3xl mx-auto font-inter font-normal px-4">
+        <p className="text-sm sm:text-base md:text-lg text-gray-600 dark:text-gray-400 leading-relaxed mb-8 sm:mb-12 max-w-3xl mx-auto font-inter font-normal px-4">
           {subheadline}
         </p>
 
@@ -68,7 +68,7 @@ export const Hero: React.FC<HeroProps> = ({
 
         {/* Illustration - Minimal premium */}
         <div className="mt-16 w-full">
-          <div className="relative overflow-hidden rounded-2xl bg-lodgra-light aspect-video shadow-lg border border-lodgra-primary/10">
+          <div className="relative overflow-hidden rounded-2xl bg-lodgra-light dark:bg-gray-800 aspect-video shadow-lg border border-lodgra-primary/10 dark:border-gray-700">
             {/* Content */}
             <div className="h-full flex items-center justify-center">
               <div className="text-center">
@@ -84,7 +84,7 @@ export const Hero: React.FC<HeroProps> = ({
         </div>
 
         {/* Trust badge - Minimal and elegant */}
-        <div className="mt-12 flex justify-center items-center gap-8 text-sm text-gray-500 font-inter">
+        <div className="mt-12 flex justify-center items-center gap-8 text-sm text-gray-500 dark:text-gray-400 font-inter">
           <div className="flex items-center gap-2">
             <svg className="w-4 h-4 text-lodgra-primary" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />

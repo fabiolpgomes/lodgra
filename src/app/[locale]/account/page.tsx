@@ -2,9 +2,10 @@ import { requireRole } from '@/lib/auth/requireRole'
 import { redirect } from 'next/navigation'
 import { AuthLayout } from '@/components/common/layout/AuthLayout'
 import { ChangePasswordForm } from '@/components/auth/ChangePasswordForm'
-import { SubscriptionSection } from '@/components/features/account/SubscriptionSection'
-import { KeyRound, User } from 'lucide-react'
-import { createClient } from '@/lib/supabase/server'
+import { PlanManagement } from '@/components/billing/PlanManagement'
+import { KeyRound, User, CreditCard } from 'lucide-react'
+import { createAdminClient } from '@/lib/supabase/admin'
+import { Plan } from '@/lib/billing/plans'
 
 export const dynamic = 'force-dynamic'
 
@@ -12,26 +13,35 @@ export default async function AccountPage() {
   const auth = await requireRole(['admin', 'gestor', 'viewer'])
   if (!auth.authorized) redirect('/login')
 
-  const supabase = await createClient()
-  const { data: profile } = await supabase
+  const adminClient = createAdminClient()
+  const { data: profile } = await adminClient
     .from('user_profiles')
     .select('email, full_name, role')
     .eq('id', auth.userId!)
     .single()
 
-  // Fetch organization subscription info
-  const { data: org } = await supabase
-    .from('organizations')
-    .select('subscription_plan, subscription_status')
-    .eq('id', auth.organizationId)
-    .single()
+  const role = auth.role ?? profile?.role ?? 'viewer'
 
   const roleLabel = {
     admin: 'Administrador',
     gestor: 'Gestor',
     viewer: 'Visualizador',
     guest: 'Convidado',
-  }[(profile?.role as 'admin' | 'gestor' | 'viewer' | 'guest') || 'viewer']
+  }[role as 'admin' | 'gestor' | 'viewer' | 'guest']
+
+  let orgPlan: Plan = 'starter'
+  let orgStatus = 'active'
+  if (role === 'admin' && auth.organizationId) {
+    const { data: org } = await adminClient
+      .from('organizations')
+      .select('subscription_plan, subscription_status')
+      .eq('id', auth.organizationId)
+      .single()
+    if (org) {
+      orgPlan = (org.subscription_plan as Plan) ?? 'starter'
+      orgStatus = org.subscription_status ?? 'active'
+    }
+  }
 
   return (
     <AuthLayout>
@@ -61,8 +71,8 @@ export default async function AccountPage() {
             <div>
               <p className="text-xs text-gray-500">Função</p>
               <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                profile?.role === 'admin' ? 'bg-red-100 text-red-800' :
-                profile?.role === 'gestor' ? 'bg-blue-100 text-blue-800' :
+                role === 'admin' ? 'bg-red-100 text-red-800' :
+                role === 'gestor' ? 'bg-blue-100 text-blue-800' :
                 'bg-gray-100 text-gray-800'
               }`}>
                 {roleLabel}
@@ -71,12 +81,16 @@ export default async function AccountPage() {
           </div>
         </div>
 
-        {/* Subscription Info */}
-        <SubscriptionSection
-          currentPlan={org?.subscription_plan || null}
-          subscriptionStatus={org?.subscription_status || null}
-          isAdmin={auth.role === 'admin'}
-        />
+        {/* Plan Management — admin only */}
+        {role === 'admin' && (
+          <div className="bg-white rounded-lg shadow p-6 mb-6">
+            <div className="flex items-center gap-2 mb-4">
+              <CreditCard className="h-4 w-4 text-gray-600" />
+              <h2 className="text-sm font-semibold text-gray-900">Plano e Subscrição</h2>
+            </div>
+            <PlanManagement currentPlan={orgPlan} subscriptionStatus={orgStatus} />
+          </div>
+        )}
 
         {/* Change Password */}
         <div className="bg-white rounded-lg shadow p-6">

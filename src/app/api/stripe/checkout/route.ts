@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
+import { getPriceIdForPlan, Plan } from '@/lib/billing/plans'
 
 export const dynamic = 'force-dynamic'
 
@@ -14,36 +15,10 @@ export async function POST(request: NextRequest) {
 
     // ── Tier-based checkout (Starter / Professional / Business) ─────────────
     if (plan) {
-      // Support currency-based price IDs (BRL, EUR, USD)
-      const PLAN_PRICE_IDS_BY_CURRENCY: Record<string, Record<string, string | undefined>> = {
-        brl: {
-          starter:      process.env.STRIPE_PRICE_ID_STARTER_BRL,
-          professional: process.env.STRIPE_PRICE_ID_PROFESSIONAL_BRL,
-          business:     process.env.STRIPE_PRICE_ID_BUSINESS_BRL,
-        },
-        eur: {
-          starter:      process.env.STRIPE_PRICE_ID_STARTER_EUR,
-          professional: process.env.STRIPE_PRICE_ID_PROFESSIONAL_EUR,
-          business:     process.env.STRIPE_PRICE_ID_BUSINESS_EUR,
-        },
-        usd: {
-          starter:      process.env.STRIPE_PRICE_ID_STARTER_USD,
-          professional: process.env.STRIPE_PRICE_ID_PROFESSIONAL_USD,
-          business:     process.env.STRIPE_PRICE_ID_BUSINESS_USD,
-        },
-      }
-
-      // Fallback to EUR if currency not supported or prices missing
-      const targetCurrency = PLAN_PRICE_IDS_BY_CURRENCY[currency] ? currency : 'eur'
-      const currencyPrices = PLAN_PRICE_IDS_BY_CURRENCY[targetCurrency]!
-
-      const priceId = currencyPrices[plan]
-      console.log(`[Checkout] Plan: ${plan}, Requested Currency: ${currency}, Using: ${targetCurrency}`)
-      console.log(`[Checkout] Selected PriceId: ${priceId}`)
+      const planCurrency = ['brl'].includes(currency.toLowerCase()) ? 'brl' : 'eur'
+      const priceId = getPriceIdForPlan(plan as Plan, planCurrency)
       if (!priceId) {
-        return NextResponse.json({
-          error: `Plano ${plan} não disponível no momento. Tente novamente em breve.`
-        }, { status: 400 })
+        return NextResponse.json({ error: 'Plano inválido' }, { status: 400 })
       }
 
       const session = await stripe.checkout.sessions.create({
@@ -53,7 +28,7 @@ export async function POST(request: NextRequest) {
         customer_email: email || undefined,
         success_url: `${process.env.NEXT_PUBLIC_APP_URL}/onboarding?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/`,
-        metadata: { source: 'landing_page', plan, currency },
+        metadata: { source: 'landing_page', plan },
       })
 
       return NextResponse.json({ url: session.url })

@@ -5,10 +5,19 @@ import { Navbar } from './organisms/Navbar'
 import { Hero } from './organisms/Hero'
 import { ValueProposition } from './organisms/ValueProposition'
 import { Features } from './organisms/Features'
+import { SocialProof } from './organisms/SocialProof'
 import { Pricing, type PricingTier } from './organisms/Pricing'
 import { FAQ } from './organisms/FAQ'
 import { FinalCTA } from './organisms/FinalCTA'
 import { Footer } from './organisms/Footer'
+
+interface SocialProofData {
+  stats: Array<{ value: string; label: string; color?: string }>
+  trustedByTitle: string
+  testimonialsTitle: string
+  testimonials: Array<{ quote: string; author: string; role: string; properties: string }>
+  trustBadges: string[]
+}
 
 interface LandingPageClientProps {
   locale: 'pt-BR' | 'en-US' | 'es'
@@ -32,6 +41,7 @@ interface LandingPageClientProps {
         description: string
       }>
     }
+    socialProof: SocialProofData
     pricing: {
       title: string
       tiers: PricingTier[]
@@ -59,36 +69,32 @@ interface LandingPageClientProps {
   }
 }
 
-export const LandingPageClient: React.FC<LandingPageClientProps> = ({
-  locale,
-  content,
-}) => {
+export const LandingPageClient: React.FC<LandingPageClientProps> = ({ locale, content }) => {
   const handleCtaPrimary = useCallback(() => {
-    window.location.href = '/signup?plan=free'
+    window.location.href = '/register'
   }, [])
 
   const handleCtaSecondary = useCallback(() => {
-    const videoSection = document.getElementById('demo-video')
-    videoSection?.scrollIntoView({ behavior: 'smooth' })
+    document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })
   }, [])
 
   const handleSelectPricing = useCallback((tierId: string) => {
-    window.location.href = `/signup?plan=${tierId}`
+    window.location.href = `/register?plan=${tierId}`
   }, [])
 
   const handleFinalCta = useCallback(() => {
-    window.location.href = '/signup?plan=free'
+    window.location.href = '/register'
   }, [])
 
-  const handleLocaleChange = useCallback((newLocale: 'pt-BR' | 'en-US' | 'es') => {
-    const params = new URLSearchParams(window.location.search)
-    params.set('locale', newLocale)
-    window.location.href = `/landing?${params.toString()}`
+  const handleLocaleChange = useCallback((newLocale: 'pt-BR' | 'en-US' | 'es' | 'pt') => {
+    // Redireciona para a rota com prefixo de idioma para facilitar a visualização e SEO
+    window.location.href = `/${newLocale}`
   }, [])
 
   return (
-    <>
+    <div className="min-h-screen bg-white dark:bg-gray-950">
       <Navbar locale={locale} onLocaleChange={handleLocaleChange} />
+
       <Hero
         headline={content.hero.headline}
         subheadline={content.hero.subheadline}
@@ -110,6 +116,14 @@ export const LandingPageClient: React.FC<LandingPageClientProps> = ({
           ...item,
           icon: getIconComponent(item.icon),
         }))}
+      />
+
+      <SocialProof
+        stats={content.socialProof.stats}
+        trustedByTitle={content.socialProof.trustedByTitle}
+        testimonialsTitle={content.socialProof.testimonialsTitle}
+        testimonials={content.socialProof.testimonials}
+        trustBadges={content.socialProof.trustBadges}
       />
 
       <Pricing
@@ -138,38 +152,38 @@ export const LandingPageClient: React.FC<LandingPageClientProps> = ({
         supportLinks={content.footer.supportLinks}
         legalLinks={content.footer.legalLinks}
       />
-    </>
+    </div>
   )
 }
 
 function getIconComponent(icon: string): React.ReactNode {
   const iconMap: Record<string, React.ReactNode> = {
-    'pricing': (
+    pricing: (
       <svg className="w-12 h-12 text-lodgra-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
     ),
-    'calendar': (
+    calendar: (
       <svg className="w-12 h-12 text-lodgra-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
       </svg>
     ),
-    'revenue': (
+    revenue: (
       <svg className="w-12 h-12 text-lodgra-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6M5 21h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
       </svg>
     ),
-    'reports': (
+    reports: (
       <svg className="w-12 h-12 text-lodgra-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
       </svg>
     ),
-    'compliance': (
+    compliance: (
       <svg className="w-12 h-12 text-lodgra-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
     ),
-    'support': (
+    support: (
       <svg className="w-12 h-12 text-lodgra-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
       </svg>
