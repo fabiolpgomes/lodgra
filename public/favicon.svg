@@ -1,28 +1,9 @@
-<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-  <!-- LODGRA LOGO V1 - STANDARD (House + Seta + Wordmark) -->
-
-  <!-- Background (optional, remove for transparent) -->
-  <defs>
-    <style>
-      .lodgra-house { fill: #1E3A8A; }
-      .lodgra-roof { fill: none; stroke: #D4AF37; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
-      .lodgra-text { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 24px; font-weight: 700; fill: #1E3A8A; letter-spacing: -0.5px; }
-    </style>
-  </defs>
-
-  <!-- ICON PART (Reusable as Icon-Only variant) -->
-  <g id="lodgra-icon">
-    <!-- Roof (Golden Ascending Arrow) -->
-    <path class="lodgra-roof" d="M 50 85 L 100 30 L 150 85" />
-
-    <!-- House (Blue) -->
-    <rect class="lodgra-house" x="65" y="85" width="70" height="65" rx="2" />
-
-    <!-- Window (subtle detail for recognition) -->
-    <rect x="80" y="105" width="12" height="12" fill="#D4AF37" opacity="0.4" rx="1" />
-    <rect x="108" y="105" width="12" height="12" fill="#D4AF37" opacity="0.4" rx="1" />
+<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <!-- LODGRA FAVICON — optimised for small sizes -->
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Roof: gold -->
+    <polyline stroke="#D4AF37" stroke-width="2.8" points="4,17 16,4 28,17"/>
+    <!-- Body: blue -->
+    <path stroke="#1E3A8A" stroke-width="2.8" d="M9,17 L9,28 Q9,29 10,29 L22,29 Q23,29 23,28 L23,17"/>
   </g>
-
-  <!-- WORDMARK -->
-  <text class="lodgra-text" x="100" y="175" text-anchor="middle">LODGRA</text>
 </svg>

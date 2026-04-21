@@ -29,19 +29,12 @@ export const Logo: React.FC<LogoProps> = ({ size = 'md', className = '' }) => {
         strokeLinejoin="round"
       />
       {/* Telhado - Ouro Próspero (#D4AF37) */}
-      <path 
-        d="M2 12L12 3L22 12" 
-        stroke="#D4AF37" 
-        strokeWidth="2.5" 
-        strokeLinecap="round" 
-        strokeLinejoin="round"
-      />
-      {/* Chaminé / Detalhe - Ouro Próspero (#D4AF37) */}
-      <path 
-        d="M12 3V7" 
-        stroke="#D4AF37" 
-        strokeWidth="2" 
+      <path
+        d="M2 12L12 3L22 12"
+        stroke="#D4AF37"
+        strokeWidth="2.5"
         strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   )

@@ -41,8 +41,18 @@ export const metadata: Metadata = {
     title: 'Lodgra',
   },
   icons: {
-    icon: '/favicon.svg',
-    apple: '/icons/apple-touch-icon.png',
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/icons/icon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/icons/icon-16x16.png', sizes: '16x16', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/icons/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
+    other: [
+      { rel: 'icon', url: '/icons/icon-192x192.png', sizes: '192x192', type: 'image/png' },
+      { rel: 'icon', url: '/icons/icon-512x512.png', sizes: '512x512', type: 'image/png' },
+    ],
   },
 };
 
@@ -53,7 +63,7 @@ const organizationSchema = {
   '@type': 'Organization',
   name: 'Lodgra',
   url: APP_URL,
-  logo: `${APP_URL}/opengraph-image`,
+  logo: `${APP_URL}/icons/icon-512x512.png`,
   description: 'Plataforma global de gestão de alojamentos locais para anfitriões no Airbnb e Booking.com.',
   contactPoint: {
     '@type': 'ContactPoint',

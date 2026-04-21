@@ -1,0 +1,18 @@
+<svg viewBox="0 0 160 140" xmlns="http://www.w3.org/2000/svg">
+  <!-- LODGRA LOGO — vertical (icon above wordmark) -->
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round" transform="translate(30,8)">
+    <!-- Roof: gold -->
+    <polyline stroke="#D4AF37" stroke-width="6" points="14,52 50,14 86,52"/>
+    <!-- Body: blue -->
+    <path stroke="#1E3A8A" stroke-width="6" d="M28,52 L28,84 Q28,87 31,87 L69,87 Q72,87 72,84 L72,52"/>
+  </g>
+  <!-- Wordmark -->
+  <text
+    x="80" y="128"
+    font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+    font-size="28"
+    font-weight="700"
+    fill="#1E3A8A"
+    letter-spacing="-0.5"
+    text-anchor="middle">Lodgra</text>
+</svg>

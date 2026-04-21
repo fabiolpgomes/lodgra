@@ -1,0 +1,9 @@
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- LODGRA ICON — outline house matching landing page -->
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Roof: gold stroke -->
+    <polyline stroke="#D4AF37" stroke-width="7" points="14,52 50,14 86,52"/>
+    <!-- Body: blue stroke, open top -->
+    <path stroke="#1E3A8A" stroke-width="7" d="M28,52 L28,84 Q28,87 31,87 L69,87 Q72,87 72,84 L72,52"/>
+  </g>
+</svg>
