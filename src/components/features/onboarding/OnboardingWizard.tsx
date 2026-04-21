@@ -11,6 +11,7 @@ type PropertyCount = '1' | '2' | '3' | '4-5'
 interface Step1Data {
   profileType: ProfileType | null
   propertyCount: PropertyCount | null
+  orgName: string
 }
 
 interface Step2Data {
@@ -49,8 +50,9 @@ export function OnboardingWizard({ locale }: OnboardingWizardProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [createdPropertyName, setCreatedPropertyName] = useState('')
+  const [bookingSlug, setBookingSlug] = useState<string | null>(null)
 
-  const [step1, setStep1] = useState<Step1Data>({ profileType: null, propertyCount: null })
+  const [step1, setStep1] = useState<Step1Data>({ profileType: null, propertyCount: null, orgName: '' })
   const [step2, setStep2] = useState<Step2Data>({ propertyName: '', city: '', currency: 'BRL', pricePerNight: '' })
   const [step3, setStep3] = useState<Step3Data>({ airbnbIcal: '', bookingIcal: '', vrboIcal: '' })
 
@@ -119,7 +121,28 @@ export function OnboardingWizard({ locale }: OnboardingWizardProps) {
     router.push(`/${locale}/dashboard`)
   }
 
-  const canAdvanceStep1 = step1.profileType !== null && step1.propertyCount !== null
+  async function handleStep1Advance() {
+    if (!step1.orgName.trim()) return
+    setLoading(true)
+    setError(null)
+    try {
+      const res = await fetch('/api/organization/setup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orgName: step1.orgName.trim() }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Erro ao guardar')
+      setBookingSlug(data.slug)
+      setStep(1)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Erro desconhecido')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const canAdvanceStep1 = step1.profileType !== null && step1.propertyCount !== null && step1.orgName.trim().length > 0
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center p-4">
@@ -207,12 +230,36 @@ export function OnboardingWizard({ locale }: OnboardingWizardProps) {
                 </div>
               </div>
 
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Nome do seu negócio *
+                </label>
+                <input
+                  type="text"
+                  value={step1.orgName}
+                  onChange={e => setStep1(s => ({ ...s, orgName: e.target.value }))}
+                  placeholder="Ex: Alojamentos Silva, Quinta do Vale..."
+                  className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-lodgra-primary focus:border-transparent outline-none"
+                />
+                {step1.orgName.trim() && (
+                  <p className="text-xs text-gray-400 mt-1">
+                    A sua URL de reservas será: <span className="font-medium text-lodgra-blue">
+                      {step1.orgName.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9\s]/g, '').trim().replace(/\s+/g, '-')}.lodgra.io/booking
+                    </span>
+                  </p>
+                )}
+              </div>
+
+              {error && (
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">{error}</div>
+              )}
+
               <Button
                 className="w-full"
-                disabled={!canAdvanceStep1}
-                onClick={() => setStep(1)}
+                disabled={!canAdvanceStep1 || loading}
+                onClick={handleStep1Advance}
               >
-                Próximo <ChevronRight className="h-4 w-4 ml-1" />
+                {loading ? 'A guardar...' : <>Próximo <ChevronRight className="h-4 w-4 ml-1" /></>}
               </Button>
             </div>
           )}
@@ -343,6 +390,18 @@ export function OnboardingWizard({ locale }: OnboardingWizardProps) {
               <p className="text-gray-500 dark:text-gray-400 mb-8">
                 Seu imóvel <strong className="text-gray-700 dark:text-gray-200">{createdPropertyName}</strong> foi criado com sucesso.
               </p>
+
+              {bookingSlug && (
+                <div className="bg-lodgra-blue/5 border border-lodgra-blue/20 rounded-xl p-4 mb-4 text-left">
+                  <p className="text-sm font-semibold text-lodgra-blue mb-1">🔗 A sua URL de reservas directas:</p>
+                  <p className="text-sm font-mono bg-white dark:bg-gray-900 border border-lodgra-blue/20 rounded-lg px-3 py-2 text-lodgra-blue break-all">
+                    {bookingSlug}.lodgra.io/booking
+                  </p>
+                  <p className="text-xs text-gray-500 mt-2">
+                    Partilhe este link com os seus hóspedes para receber reservas directas sem comissões.
+                  </p>
+                </div>
+              )}
 
               <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 mb-8 text-left space-y-3">
                 <p className="text-sm font-medium text-gray-700 dark:text-gray-300">O que você pode fazer agora:</p>
