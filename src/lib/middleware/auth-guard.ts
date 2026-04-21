@@ -9,7 +9,7 @@ const PUBLIC_PATHS = [
   '/robots.txt', '/privacy', '/terms', '/politica-de-privacidade', '/p/',
   '/properties', '/api/properties', '/api/public/', '/monitoring',
   '/landing-vp',
-  '/p',
+  '/booking',
 ]
 
 export function isPublicPath(pathname: string): boolean {
