@@ -28,8 +28,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return { title: 'Propriedade não encontrada' }
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.homestay.pt'
-  const title = `${property.name} — Reserva Directa | Home Stay`
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://lodgra.io'
+  const title = `${property.name} — Reserva Directa | Lodgra`
   const description = property.description || `${property.name} em ${property.city}, ${property.country}. Reserve directamente sem comissões.`
   const image = property.photos?.[0] ?? null
   const canonicalUrl = `${baseUrl}/p/${slug}`
@@ -47,7 +47,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       title,
       description,
       url: canonicalUrl,
-      siteName: 'Home Stay',
+      siteName: 'Lodgra',
       type: 'website',
       locale: 'pt_PT',
       alternateLocale: ['pt_BR', 'en_US'],
