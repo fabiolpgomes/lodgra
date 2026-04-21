@@ -20,6 +20,17 @@ export async function proxy(request: NextRequest) {
   const requestHeaders = new Headers(request.headers)
   requestHeaders.set('x-nonce', nonce)
 
+  // Detect tenant subdomain (e.g. "minha-pousada" from "minha-pousada.lodgra.io")
+  const hostname = request.headers.get('host') ?? ''
+  const rootDomains = ['lodgra.io', 'homestay.pt', 'localhost:3000', 'vercel.app']
+  const isRootDomain = rootDomains.some(d => hostname === d || hostname.endsWith(`.vercel.app`))
+  const subdomain = !isRootDomain
+    ? hostname.split('.')[0]
+    : null
+  if (subdomain && subdomain !== 'www') {
+    requestHeaders.set('x-org-slug', subdomain)
+  }
+
   // 1. CSRF protection
   const csrfError = checkCsrf(request)
   if (csrfError) return csrfError

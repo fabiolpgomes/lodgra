@@ -15,6 +15,7 @@ export interface PropertiesQuery {
   order?: 'asc' | 'desc'
   page?: number
   limit?: number
+  orgSlug?: string
 }
 
 export interface PropertiesResponse {
@@ -58,6 +59,7 @@ function parseQuery(searchParams: URLSearchParams): PropertiesQuery {
   const limit = searchParams.get('limit')
     ? parseInt(searchParams.get('limit')!, 10)
     : DEFAULT_LIMIT
+  const orgSlug = searchParams.get('orgSlug') || undefined
 
   return {
     location,
@@ -72,6 +74,7 @@ function parseQuery(searchParams: URLSearchParams): PropertiesQuery {
     order,
     page,
     limit,
+    orgSlug,
   }
 }
 
@@ -118,6 +121,20 @@ export async function GET(request: Request): Promise<Response> {
     const page = Math.max(query.page || 1, 1)
     const offset = (page - 1) * limit
 
+    // Resolve org ID from slug if provided
+    let orgId: string | undefined
+    if (query.orgSlug) {
+      const { data: org } = await supabase
+        .from('organizations')
+        .select('id')
+        .eq('slug', query.orgSlug)
+        .single()
+      if (!org) {
+        return Response.json({ success: false, error: 'Organization not found' }, { status: 404 })
+      }
+      orgId = org.id
+    }
+
     // Build base query
     let queryBuilder = supabase
       .from('properties')
@@ -141,6 +158,10 @@ export async function GET(request: Request): Promise<Response> {
         { count: 'exact' }
       )
       .eq('is_public', true)
+
+    if (orgId) {
+      queryBuilder = queryBuilder.eq('organization_id', orgId)
+    }
 
     // Note: Location filter is applied after fetching data with accent normalization
     // This allows matching "Portimao" with "Portimão" in the database
