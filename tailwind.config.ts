@@ -21,6 +21,10 @@ const config: Config = {
         'warning': '#D4AF37',
         'error': '#DC2626',
         'info': '#1E3A8A',
+
+        // Legacy hs-* aliases (public property components)
+        'hs-brand': { 400: '#3B82F6', 500: '#1E3A8A', 600: '#1e40af' },
+        'hs-neutral': { 50: '#F9FAFB', 100: '#F3F4F6', 200: '#E5E7EB', 300: '#D1D5DB', 400: '#9CA3AF', 500: '#6B7280', 600: '#4B5563', 700: '#374151', 800: '#1F2937', 900: '#111827' },
       },
       fontFamily: {
         'poppins': ['var(--font-poppins)', 'Poppins', 'sans-serif'],
