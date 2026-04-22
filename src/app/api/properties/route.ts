@@ -267,28 +267,43 @@ export async function GET(request: Request): Promise<Response> {
     const imageMap = new Map<string, string>()
 
     if (propertyIds.length > 0) {
-      const { data: images } = await supabase
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
+
+      // Step 1: get first property_image per property
+      const { data: propImages } = await supabase
         .from('property_images')
-        .select('property_id, storage_path, image_variants(storage_path, variant_type)')
+        .select('id, property_id, storage_path, display_order')
         .in('property_id', propertyIds)
         .order('display_order')
 
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
+      if (propImages && propImages.length > 0) {
+        // Keep only the first image per property
+        const firstImageMap = new Map<string, { id: string; storage_path: string }>()
+        for (const img of propImages) {
+          if (!firstImageMap.has(img.property_id)) {
+            firstImageMap.set(img.property_id, { id: img.id, storage_path: img.storage_path })
+          }
+        }
 
-      if (images) {
-        // Group by property_id, keep first image per property
-        for (const img of images) {
-          if (imageMap.has(img.property_id)) continue
-          const variants = img.image_variants as { storage_path: string; variant_type: string }[] | null
-          const variantPriority = ['desktop', 'tablet', 'mobile', 'thumb', 'original']
+        // Step 2: fetch variants for those image IDs
+        const imageIds = Array.from(firstImageMap.values()).map(v => v.id)
+        const { data: variants } = await supabase
+          .from('image_variants')
+          .select('property_image_id, storage_path, variant_type')
+          .in('property_image_id', imageIds)
+
+        const variantPriority = ['desktop', 'tablet', 'mobile', 'thumb', 'original']
+
+        for (const [propertyId, imgInfo] of firstImageMap) {
+          const imgVariants = variants?.filter(v => v.property_image_id === imgInfo.id) ?? []
           let storagePath = ''
           for (const vt of variantPriority) {
-            const found = variants?.find(v => v.variant_type === vt)?.storage_path
+            const found = imgVariants.find(v => v.variant_type === vt)?.storage_path
             if (found) { storagePath = found; break }
           }
-          if (!storagePath) storagePath = img.storage_path ?? ''
-          if (storagePath) {
-            imageMap.set(img.property_id, `${supabaseUrl}/storage/v1/object/public/property-images/${storagePath}`)
+          if (!storagePath) storagePath = imgInfo.storage_path ?? ''
+          if (storagePath && supabaseUrl) {
+            imageMap.set(propertyId, `${supabaseUrl}/storage/v1/object/public/property-images/${storagePath}`)
           }
         }
       }
