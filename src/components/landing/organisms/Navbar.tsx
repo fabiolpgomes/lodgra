@@ -108,6 +108,14 @@ export const Navbar: React.FC<NavbarProps> = ({ locale, onLocaleChange }) => {
             {/* Theme Toggle */}
             <ThemeToggle />
 
+            {/* Login Button */}
+            <a
+              href="/login"
+              className="hidden sm:inline-block px-4 py-2 text-sm font-inter font-medium text-lodgra-primary dark:text-lodgra-gold border border-lodgra-primary/30 dark:border-lodgra-gold/30 rounded-lg hover:bg-lodgra-primary hover:text-white dark:hover:bg-lodgra-gold dark:hover:text-gray-900 transition-colors"
+            >
+              Entrar
+            </a>
+
             {/* CTA Button */}
             <Button
               size="sm"
