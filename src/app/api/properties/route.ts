@@ -174,12 +174,7 @@ export async function GET(request: Request): Promise<Response> {
       queryBuilder = queryBuilder.lte('base_price', query.priceMax)
     }
 
-    if (query.amenities && query.amenities.length > 0) {
-      // All amenities must be present (AND logic)
-      for (const amenity of query.amenities) {
-        queryBuilder = queryBuilder.contains('amenities', [amenity])
-      }
-    }
+    // Amenity filtering is done in JS (case-insensitive) after fetching
 
     if (query.type) {
       queryBuilder = queryBuilder.eq('property_type', query.type)
@@ -318,6 +313,15 @@ export async function GET(request: Request): Promise<Response> {
           if (!availablePropertyIds.has(prop.id)) {
             return false
           }
+        }
+
+        // Amenity filter: case-insensitive partial match
+        if (query.amenities && query.amenities.length > 0) {
+          const propAmenities = (prop.amenities || []).map((a: string) => a.toLowerCase())
+          const hasAll = query.amenities.every(filter =>
+            propAmenities.some(a => a.includes(filter.toLowerCase()) || filter.toLowerCase().includes(a))
+          )
+          if (!hasAll) return false
         }
 
         // If location filter is set, do accent-insensitive comparison
