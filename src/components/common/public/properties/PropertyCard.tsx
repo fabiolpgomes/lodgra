@@ -72,7 +72,8 @@ export function PropertyCard({
     : `/p/${slug}`
 
   return (
-    <div
+    <Link
+      href={href}
       className="
         rounded-2xl
         overflow-hidden
@@ -83,6 +84,7 @@ export function PropertyCard({
         transition-shadow duration-200
         flex flex-col
         h-full
+        group
       "
       data-testid={`property-card-${id}`}
     >
@@ -209,38 +211,23 @@ export function PropertyCard({
           )}
         </div>
 
-        {/* CTA Button - Mobile First Touch Target */}
-        <Link href={href} className="block mt-2 flex-shrink-0">
-          <button
+        {/* CTA Button */}
+        <div className="block mt-2 flex-shrink-0">
+          <div
             className="
-              w-full
-              py-2.5
-              px-3
-              bg-hs-brand-400
-              text-white
-              text-sm
-              md:text-base
-              rounded-lg
-              font-semibold
-              hover:bg-hs-brand-500
-              active:bg-hs-brand-600
-              transition-colors
-              duration-150
-              min-h-10
-              md:min-h-12
+              w-full py-2.5 px-3
+              bg-lodgra-blue group-hover:bg-blue-900
+              text-white text-sm md:text-base
+              rounded-lg font-semibold
+              transition-colors duration-150
+              min-h-10 md:min-h-12
               flex items-center justify-center
-              focus:outline-none
-              focus:ring-2
-              focus:ring-offset-2
-              focus:ring-hs-brand-400
-              tap-highlight-transparent
             "
-            aria-label={`Ver detalhes de ${name}`}
           >
-            Ver Detalhes
-          </button>
-        </Link>
+            Reservar Agora
+          </div>
+        </div>
       </div>
-    </div>
+    </Link>
   )
 }

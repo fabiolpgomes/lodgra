@@ -90,8 +90,11 @@ export function BookingPageClient({ orgSlug, orgName }: Props) {
           <Link href="/">
             <Logo size="md" />
           </Link>
-          <Link href="/login" className="text-sm font-medium text-lodgra-blue hover:underline">
-            Entrar
+          <Link
+            href="/"
+            className="text-sm font-medium text-lodgra-blue border border-lodgra-blue/30 px-4 py-2 rounded-lg hover:bg-lodgra-blue hover:text-white transition-colors"
+          >
+            Conheça a Lodgra
           </Link>
         </div>
       </header>
