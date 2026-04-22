@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Share2 } from 'lucide-react'
+import { Share2, Check } from 'lucide-react'
 import Link from 'next/link'
 import { Logo } from '@/components/common/ui/Logo'
 
@@ -17,28 +17,49 @@ export function PropertyPageHeader({
   country,
 }: PropertyPageHeaderProps) {
   const [scrolled, setScrolled] = useState(false)
+  const [copied, setCopied] = useState(false)
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 100)
-    }
-
+    const handleScroll = () => setScrolled(window.scrollY > 100)
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  const handleShare = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: propertyName,
-        text: `Descubre ${propertyName} em ${city}, ${country}`,
-        url: window.location.href,
-      })
-    } else {
-      // Fallback: copy URL
-      navigator.clipboard.writeText(window.location.href)
-      alert('Link copiado!')
+  const handleShare = async () => {
+    const url = window.location.href
+    const shareData = {
+      title: propertyName,
+      text: `${propertyName} em ${city}, ${country}`,
+      url,
     }
+
+    // Try native share (mobile)
+    if (navigator.share && navigator.canShare?.(shareData)) {
+      try {
+        await navigator.share(shareData)
+        return
+      } catch {
+        // User cancelled or error — fall through to clipboard
+      }
+    }
+
+    // Fallback: copy to clipboard with visual feedback
+    try {
+      await navigator.clipboard.writeText(url)
+    } catch {
+      // clipboard API not available — use legacy method
+      const el = document.createElement('textarea')
+      el.value = url
+      el.style.position = 'fixed'
+      el.style.opacity = '0'
+      document.body.appendChild(el)
+      el.select()
+      document.execCommand('copy')
+      document.body.removeChild(el)
+    }
+
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
   }
 
   return (
@@ -69,14 +90,24 @@ export function PropertyPageHeader({
           {/* Share Button */}
           <button
             onClick={handleShare}
-            className={`p-2 rounded-lg transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
               scrolled
                 ? 'hover:bg-neutral-100 text-neutral-700'
                 : 'hover:bg-white/20 text-white'
             }`}
             aria-label="Partilhar"
           >
-            <Share2 className="w-5 h-5" />
+            {copied ? (
+              <>
+                <Check className="w-4 h-4 text-green-500" />
+                <span className="hidden sm:inline text-green-500">Copiado!</span>
+              </>
+            ) : (
+              <>
+                <Share2 className="w-4 h-4" />
+                <span className="hidden sm:inline">Partilhar</span>
+              </>
+            )}
           </button>
         </div>
       </div>
