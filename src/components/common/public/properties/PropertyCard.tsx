@@ -213,17 +213,7 @@ export function PropertyCard({
 
         {/* CTA Button */}
         <div className="block mt-2 flex-shrink-0">
-          <div
-            className="
-              w-full py-2.5 px-3
-              bg-lodgra-blue group-hover:bg-blue-900
-              text-white text-sm md:text-base
-              rounded-lg font-semibold
-              transition-colors duration-150
-              min-h-10 md:min-h-12
-              flex items-center justify-center
-            "
-          >
+          <div className="w-full py-2.5 px-3 bg-blue-900 group-hover:bg-blue-950 text-white text-sm md:text-base rounded-lg font-semibold transition-colors duration-150 min-h-10 md:min-h-12 flex items-center justify-center">
             Reservar Agora
           </div>
         </div>
