@@ -262,6 +262,38 @@ export async function GET(request: Request): Promise<Response> {
       }
     }
 
+    // Fetch first image per property from property_images table (new system)
+    const propertyIds = (data as PropertyRecord[] || []).map(p => p.id)
+    const imageMap = new Map<string, string>()
+
+    if (propertyIds.length > 0) {
+      const { data: images } = await supabase
+        .from('property_images')
+        .select('property_id, storage_path, image_variants(storage_path, variant_type)')
+        .in('property_id', propertyIds)
+        .order('display_order')
+
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
+
+      if (images) {
+        // Group by property_id, keep first image per property
+        for (const img of images) {
+          if (imageMap.has(img.property_id)) continue
+          const variants = img.image_variants as { storage_path: string; variant_type: string }[] | null
+          const variantPriority = ['desktop', 'tablet', 'mobile', 'thumb', 'original']
+          let storagePath = ''
+          for (const vt of variantPriority) {
+            const found = variants?.find(v => v.variant_type === vt)?.storage_path
+            if (found) { storagePath = found; break }
+          }
+          if (!storagePath) storagePath = img.storage_path ?? ''
+          if (storagePath) {
+            imageMap.set(img.property_id, `${supabaseUrl}/storage/v1/object/public/property-images/${storagePath}`)
+          }
+        }
+      }
+    }
+
     // Transform and filter properties
     // Additional filtering for location with accent normalization
     const properties = (data as PropertyRecord[] || [])
@@ -282,7 +314,7 @@ export async function GET(request: Request): Promise<Response> {
         return true
       })
       .map((prop: PropertyRecord) => {
-        const image = prop.photos?.[0] || ''
+        const image = imageMap.get(prop.id) || prop.photos?.[0] || ''
 
         return {
           id: prop.id,
