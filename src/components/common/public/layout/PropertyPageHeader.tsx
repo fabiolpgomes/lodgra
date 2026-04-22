@@ -1,7 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Share2, Home } from 'lucide-react'
+import { Share2 } from 'lucide-react'
+import Link from 'next/link'
+import { Logo } from '@/components/common/ui/Logo'
 
 interface PropertyPageHeaderProps {
   propertyName: string
@@ -49,14 +51,9 @@ export function PropertyPageHeader({
     >
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-4 flex items-center justify-between">
         {/* Logo */}
-        <div className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity">
-          <Home className="w-6 h-6 text-blue-600" />
-          <span className={`font-bold text-lg transition-colors ${
-            scrolled ? 'text-neutral-900' : 'text-white'
-          }`}>
-            Home Stay
-          </span>
-        </div>
+        <Link href="/" className="hover:opacity-80 transition-opacity">
+          <Logo size="md" variant={scrolled ? 'default' : 'white'} />
+        </Link>
 
         {/* Right Actions */}
         <div className="flex items-center gap-4">
