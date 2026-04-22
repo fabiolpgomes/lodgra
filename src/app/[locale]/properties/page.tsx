@@ -11,7 +11,8 @@ import { getPlanLimits } from '@/lib/billing/plans'
 import { PublicUrlBadge } from '@/components/features/properties/PublicUrlBadge'
 import { PublicPagesUsageBar } from '@/components/features/properties/PublicPagesUsageBar'
 
-export default async function PropertiesPage() {
+export default async function PropertiesPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params
   const supabase = await createClient()
   const access = await getUserAccess(supabase)
 
@@ -72,7 +73,7 @@ export default async function PropertiesPage() {
           </div>
           {canCreate && (
             <Button asChild>
-              <Link href="/properties/new" className="flex items-center gap-2">
+              <Link href={`/${locale}/properties/new`} className="flex items-center gap-2">
                 <Plus className="h-5 w-5" />
                 Nova Propriedade
               </Link>
@@ -103,7 +104,7 @@ export default async function PropertiesPage() {
             </p>
             {canCreate && (
               <Button asChild>
-                <Link href="/properties/new" className="inline-flex items-center gap-2">
+                <Link href={`/${locale}/properties/new`} className="inline-flex items-center gap-2">
                   <Plus className="h-5 w-5" />
                   Adicionar Primeira Propriedade
                 </Link>
@@ -117,6 +118,7 @@ export default async function PropertiesPage() {
                 key={property.id}
                 property={property}
                 canEdit={canEdit}
+                locale={locale}
               />
             ))}
           </div>
@@ -127,7 +129,7 @@ export default async function PropertiesPage() {
   )
 }
 
-function PropertyCard({ property, canEdit }: {
+function PropertyCard({ property, canEdit, locale }: {
   property: {
     id: string
     name: string
@@ -141,9 +143,10 @@ function PropertyCard({ property, canEdit }: {
     max_guests: number | null
   }
   canEdit: boolean
+  locale: string
 }) {
   return (
-    <Link href={`/properties/${property.id}`}>
+    <Link href={`/${locale}/properties/${property.id}`}>
       <div className={`bg-white rounded-xl border border-lodgra-border-subtle shadow-sm hover:shadow-lg hover:border-lodgra-brand-200 transition-all duration-300 p-6 cursor-pointer ${!property.is_active ? 'opacity-60' : ''}`}>
         <div className="flex items-center justify-between mb-4">
           <Badge variant="outline" className="border-lodgra-border-subtle bg-lodgra-neutral-50">
