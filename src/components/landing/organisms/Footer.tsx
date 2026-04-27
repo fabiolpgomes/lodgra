@@ -38,8 +38,8 @@ export const Footer: React.FC<FooterProps> = ({
         <div>
           <h4 className="font-poppins font-semibold mb-4 text-white text-sm">Produto</h4>
           <ul className="space-y-2">
-            {productLinks.map((link) => (
-              <li key={link.href}>
+            {productLinks.map((link, i) => (
+              <li key={`product-${link.href}-${i}`}>
                 <a
                   href={link.href}
                   className="text-gray-400 hover:text-lodgra-gold transition-colors text-xs font-inter"
@@ -55,8 +55,8 @@ export const Footer: React.FC<FooterProps> = ({
         <div>
           <h4 className="font-poppins font-semibold mb-4 text-white text-sm">Empresa</h4>
           <ul className="space-y-2">
-            {companyLinks.map((link) => (
-              <li key={link.href}>
+            {companyLinks.map((link, i) => (
+              <li key={`company-${link.href}-${i}`}>
                 <a
                   href={link.href}
                   className="text-gray-400 hover:text-lodgra-gold transition-colors text-xs font-inter"
@@ -72,8 +72,8 @@ export const Footer: React.FC<FooterProps> = ({
         <div>
           <h4 className="font-poppins font-semibold mb-4 text-white text-sm">Suporte</h4>
           <ul className="space-y-2">
-            {supportLinks.map((link) => (
-              <li key={link.href}>
+            {supportLinks.map((link, i) => (
+              <li key={`support-${link.href}-${i}`}>
                 <a
                   href={link.href}
                   className="text-gray-400 hover:text-lodgra-gold transition-colors text-xs font-inter"
@@ -89,8 +89,8 @@ export const Footer: React.FC<FooterProps> = ({
         <div>
           <h4 className="font-poppins font-semibold mb-4 text-white text-sm">Legal</h4>
           <ul className="space-y-2">
-            {legalLinks.map((link) => (
-              <li key={link.href}>
+            {legalLinks.map((link, i) => (
+              <li key={`legal-${link.href}-${i}`}>
                 <a
                   href={link.href}
                   className="text-gray-400 hover:text-lodgra-gold transition-colors text-xs font-inter"
