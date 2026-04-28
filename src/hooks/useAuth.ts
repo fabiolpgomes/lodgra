@@ -29,18 +29,18 @@ export function useAuth() {
         setUser(user)
 
         if (user) {
-          const { data } = await supabase
-            .from('user_profiles')
-            .select('*')
-            .eq('id', user.id)
-            .single()
-
-          // BYPASS DE EMERGÊNCIA
-          if (user.email === 'admin@dev.com' && data) {
-            data.role = 'admin'
+          const { data: rpcData } = await supabase.rpc('get_my_profile')
+          if (rpcData && rpcData.length > 0) {
+            const row = rpcData[0]
+            setProfile({
+              id: user.id,
+              email: user.email ?? '',
+              full_name: null,
+              role: row.role as UserRole,
+              avatar_url: null,
+              access_all_properties: row.access_all_properties,
+            })
           }
-          
-          setProfile(data)
         }
       } catch (error) {
         console.error('Error loading user:', error)

@@ -18,14 +18,14 @@ export interface PropertyFiltersProps {
 }
 
 const AMENITIES = [
-  { id: 'pool', label: '🏊 Piscina', value: 'pool' },
-  { id: 'wifi', label: '📶 WiFi', value: 'wifi' },
-  { id: 'ac', label: '❄️ Ar condicionado', value: 'ac' },
-  { id: 'kitchen', label: '🍳 Cozinha', value: 'kitchen' },
-  { id: 'parking', label: '🚗 Estacionamento', value: 'parking' },
-  { id: 'washer', label: '🧺 Máquina lavar', value: 'washer' },
-  { id: 'pets', label: '🐕 Pets', value: 'pets' },
-  { id: 'heating', label: '🔥 Aquecimento', value: 'heating' },
+  { id: 'piscina', label: '🏊 Piscina', value: 'piscina' },
+  { id: 'wifi', label: '📶 Wi-Fi', value: 'wi-fi' },
+  { id: 'cozinha', label: '🍳 Cozinha', value: 'cozinha' },
+  { id: 'varanda', label: '🌿 Varanda', value: 'varanda' },
+  { id: 'estacionamento', label: '🚗 Estacionamento', value: 'garagem' },
+  { id: 'praia', label: '🏖️ Perto da praia', value: 'praia' },
+  { id: 'ar-condicionado', label: '❄️ Ar condicionado', value: 'ar condicionado' },
+  { id: 'jardim', label: '🌳 Jardim', value: 'jardim' },
 ]
 
 const PROPERTY_TYPES = [

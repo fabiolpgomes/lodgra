@@ -31,13 +31,10 @@ export function UserMenu() {
       setUser(user)
 
       if (user) {
-        const { data } = await supabase
-          .from('user_profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single()
-
-        setProfile(data)
+        const { data } = await supabase.rpc('get_my_profile')
+        if (data && data.length > 0) {
+          setProfile({ full_name: null, role: data[0].role })
+        }
       }
 
       setLoading(false)

@@ -169,7 +169,7 @@
     "productLinks": [
       { "label": "Features", "href": "/#features" },
       { "label": "Pricing", "href": "/#pricing" },
-      { "label": "Integrations", "href": "/#features" },
+      { "label": "Integrations", "href": "/#integrations" },
       { "label": "Security", "href": "/terms" }
     ],
     "companyLinks": [

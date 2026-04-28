@@ -6,6 +6,7 @@
   "packageManager": "npm@11.6.2",
   "scripts": {
     "dev": "next dev",
+    "dev:prod-db": "bash -c 'set -a && . ./.env.local && . ./.env.local.prod-db && set +a && exec ./node_modules/.bin/next dev'",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",

@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { Calendar, TrendingUp, Percent, Users, Home, Euro, Clock, CheckCircle, Wallet } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
+import { requireRole } from '@/lib/auth/requireRole'
 import { LazyOccupancyChart as OccupancyChart, LazyRevenueChart as RevenueChart, LazyStatusChart as StatusChart } from '@/components/common/lazy/LazyCharts'
 import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
 import { AuthLayout } from '@/components/common/layout/AuthLayout'
@@ -12,29 +13,18 @@ export default async function DashboardPage({
   params: Promise<{ locale: string }>
 }) {
   const { locale } = await params
-  const supabase = await createClient()
 
-  // Check if user is authenticated
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) {
-    redirect('/')
-  }
-
-  // Check if user is admin - only admins can access dashboard
-  const { data: userProfile } = await supabase
-    .from('user_profiles')
-    .select('role, organization_id')
-    .eq('id', user.id)
-    .maybeSingle()
-
-  if (userProfile?.role !== 'admin') {
+  const auth = await requireRole(['admin'])
+  if (!auth.authorized) {
     redirect(`/${locale}/calendar`)
   }
 
-  const organizationId = userProfile?.organization_id
+  const organizationId = auth.organizationId
   if (!organizationId) {
     redirect('/')
   }
+
+  const supabase = await createClient()
 
   // Fetch properties for this organization
   const { data: properties } = await supabase
@@ -240,12 +230,21 @@ export default async function DashboardPage({
         .select(`
           id,
           check_in,
+          check_out,
           status,
           guest_name,
+          total_amount,
+          currency,
           property_listing_id,
           property_listings(
             property_id,
-            properties(id, name)
+            properties(id, name),
+            platforms(display_name)
+          ),
+          guests(
+            first_name,
+            last_name,
+            email
           )
         `)
         .eq('status', 'confirmed')
@@ -443,8 +442,21 @@ export default async function DashboardPage({
               <div className="space-y-3">
                 {upcomingCheckIns.map((reservation) => {
                   const checkInDate = new Date(reservation.check_in)
-                  const propertyName = reservation.property_listings?.[0]?.properties?.[0]?.name || 'Propriedade'
-                  const guestName = reservation.guest_name || 'Sem nome'
+                  const checkOutDate = new Date(reservation.check_out)
+                  const nights = Math.ceil((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24))
+
+                  const rawListing = reservation.property_listings
+                  const listing = Array.isArray(rawListing) ? rawListing[0] : rawListing
+                  const rawProperty = listing?.properties
+                  const property = Array.isArray(rawProperty) ? rawProperty[0] : rawProperty
+                  const propertyName = property?.name || 'Propriedade'
+                  const platformName = (listing?.platforms as { display_name?: string } | null)?.display_name
+
+                  const rawGuest = reservation.guests
+                  const guest = Array.isArray(rawGuest) ? rawGuest[0] : rawGuest
+                  const guestName = guest
+                    ? `${guest.first_name || ''} ${guest.last_name || ''}`.trim()
+                    : reservation.guest_name || 'Hóspede Importado'
 
                   return (
                     <Link
@@ -452,19 +464,24 @@ export default async function DashboardPage({
                       href={`/${locale}/reservations/${reservation.id}`}
                       className="flex items-center justify-between p-3 bg-gray-50 rounded-xl hover:bg-gray-100 hover:-translate-y-0.5 transition-all duration-150"
                     >
-                      <div>
-                        <p className="font-medium text-gray-900">{guestName}</p>
-                        <p className="text-sm text-gray-600">{propertyName}</p>
+                      <div className="min-w-0 flex-1">
+                        <p className="font-medium text-gray-900 truncate">{guestName}</p>
+                        <p className="text-sm text-gray-600 truncate">{propertyName}</p>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          {platformName && (
+                            <span className="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded font-medium">
+                              {platformName}
+                            </span>
+                          )}
+                          <span className="text-xs text-gray-400">{nights} noite{nights !== 1 ? 's' : ''}</span>
+                        </div>
                       </div>
-                      <div className="text-right">
+                      <div className="text-right ml-3 shrink-0">
                         <p className="text-sm font-medium text-blue-600">
-                          {checkInDate.toLocaleDateString('pt-BR', {
-                            day: '2-digit',
-                            month: 'short'
-                          })}
+                          {checkInDate.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}
                         </p>
-                        <p className="text-xs text-gray-500">
-                          {checkInDate.toLocaleDateString('pt-BR', { weekday: 'short' })}
+                        <p className="text-xs text-gray-400">
+                          até {checkOutDate.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}
                         </p>
                       </div>
                     </Link>

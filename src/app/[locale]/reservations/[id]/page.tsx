@@ -42,6 +42,9 @@ export default async function ReservationDetailsPage({
           bedrooms,
           bathrooms,
           max_guests
+        ),
+        platforms(
+          display_name
         )
       ),
       guests(
@@ -59,7 +62,9 @@ export default async function ReservationDetailsPage({
     notFound()
   }
 
-  const property = reservation.property_listings?.properties
+  const listing = reservation.property_listings
+  const property = listing?.properties
+  const platformName = (listing?.platforms as { display_name?: string } | null)?.display_name
   const guest = reservation.guests
 
   // Calcular número de noites
@@ -331,9 +336,9 @@ export default async function ReservationDetailsPage({
               </h3>
               <div className="space-y-3 text-sm">
                 <div>
-                  <p className="text-gray-600 mb-1">Origem</p>
-                  <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded text-xs font-medium uppercase">
-                    {reservation.source || 'Manual'}
+                  <p className="text-gray-600 mb-1">Plataforma</p>
+                  <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium">
+                    {platformName || reservation.source || 'Manual'}
                   </span>
                 </div>
                 {reservation.external_reservation_id && (
