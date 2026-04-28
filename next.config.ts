@@ -36,26 +36,11 @@ const nextConfig: NextConfig = {
   compress: true,
 };
 
-// Turbopack workaround: create middleware.js.nft.json before build finalization.
-// Turbopack doesn't generate this Node File Trace file but Vercel CLI 51+
-// reads it during finalization. runAfterProductionCompile runs between
-// compilation and finalization — exactly when the file is needed.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-(nextConfig as any).runAfterProductionCompile = async ({ distDir }: { distDir: string }) => {
-  const { join } = await import('path')
-  const { existsSync, writeFileSync } = await import('fs')
-  const nftPath = join(distDir, 'server', 'middleware.js.nft.json')
-  if (!existsSync(nftPath)) {
-    writeFileSync(nftPath, JSON.stringify({ version: 1, files: [] }))
-    console.log('[build] Created middleware.js.nft.json (Turbopack/Vercel workaround)')
-  }
-}
-
 const analyzedConfig = withBundleAnalyzer({
   enabled: process.env.ANALYZE === 'true',
 })(withNextIntl(nextConfig));
 
-export default withSentryConfig(analyzedConfig, {
+const finalConfig = withSentryConfig(analyzedConfig, {
   // For all available options, see:
   // https://www.npmjs.com/package/@sentry/webpack-plugin#options
 
@@ -92,3 +77,24 @@ export default withSentryConfig(analyzedConfig, {
     },
   },
 });
+
+// Turbopack workaround: attach hook AFTER all wrappers so it isn't overridden.
+// Turbopack (Next.js 16 default) doesn't generate middleware.js.nft.json but
+// Vercel CLI 51+ reads it during build finalization. runAfterProductionCompile
+// runs between compilation and finalization — exactly when the file is needed.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const sentryHook = (finalConfig as any).runAfterProductionCompile
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+;(finalConfig as any).runAfterProductionCompile = async (params: { distDir: string }) => {
+  const { join } = await import('path')
+  const { existsSync, writeFileSync } = await import('fs')
+  const nftPath = join(params.distDir, 'server', 'middleware.js.nft.json')
+  if (!existsSync(nftPath)) {
+    writeFileSync(nftPath, JSON.stringify({ version: 1, files: [] }))
+    console.log('[build] Created middleware.js.nft.json (Turbopack workaround)')
+  }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  if (sentryHook) await (sentryHook as any)(params)
+}
+
+export default finalConfig
