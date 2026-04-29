@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/nextjs'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { calculateCommission } from '@/lib/commission/service'
 import type { PlanType } from '@/lib/commission/types'
@@ -43,45 +44,51 @@ export async function syncBookingReservation(
     )
 
     // ──────────────────────────────────────────────────────────────
-    // 1. FIND PROPERTY LISTING
+    // 1. FIND PROPERTY LISTING via channel_listings
     // ──────────────────────────────────────────────────────────────
+    // Booking.com sends property_id (their external ID).
+    // We look it up in channel_listings (created in Story 15.1) where
+    // external_id = Booking.com property_id and channel = 'booking'.
 
-    // Booking.com property_id format: e.g., "12345"
-    // We need to find it in property_listings by matching against external data
-    // For now, we'll look for it via property metadata or a lookup table
-    // TODO: Store Booking.com property_id mapping in property_listings
-
-    const { data: propertyListing, error: listingError } = await adminClient
-      .from('property_listings')
-      .select('id, property_id, properties!inner(id, organization_id)')
-      .eq('platform_id', 'booking') // Assuming we mark Booking listings with platform_id='booking'
-      // TODO: Add external_property_id column to match against propertyId
+    const { data: channelListing, error: listingError } = await adminClient
+      .from('channel_listings')
+      .select(`
+        id,
+        channel_id,
+        organization_id,
+        property_listing_id,
+        channels!inner(name)
+      `)
+      .eq('external_id', propertyId)
+      .eq('channels.name', 'booking')
       .limit(1)
       .single()
 
-    if (listingError || !propertyListing) {
+    if (listingError || !channelListing) {
       console.warn(
-        `[Booking Sync] ${requestId} Property not found for Booking ID: ${propertyId}`
+        `[Booking Sync] ${requestId} channel_listing not found for Booking property_id: ${propertyId}`
       )
       return {
         success: false,
-        error: `Property listing not found for Booking ID: ${propertyId}`,
+        error: `Channel listing not found for property_id: ${propertyId}`,
       }
     }
 
-    const organizationId = (
-      propertyListing.properties as unknown as { organization_id: string }
-    )?.organization_id
+    const propertyListingId = channelListing.property_listing_id
+    const organizationId = channelListing.organization_id
 
-    if (!organizationId) {
+    if (!organizationId || !propertyListingId) {
       console.warn(
-        `[Booking Sync] ${requestId} Organization not found for listing: ${propertyListing.id}`
+        `[Booking Sync] ${requestId} Missing org or listing on channel_listing: ${channelListing.id}`
       )
       return {
         success: false,
-        error: 'Organization not found',
+        error: 'Incomplete channel_listing data',
       }
     }
+
+    // Keep a compatible shape for downstream code
+    const propertyListing = { id: propertyListingId }
 
     // ──────────────────────────────────────────────────────────────
     // 2. CHECK FOR DUPLICATE (IDEMPOTENT)
@@ -218,6 +225,10 @@ export async function syncBookingReservation(
           booking_source: 'booking_api',
           source: 'booking_api',
 
+          // Channel tracking (Story 15.1 columns)
+          channel_id: channelListing.channel_id,
+          raw_data: payload as unknown as Record<string, unknown>,
+
           // Multi-tenancy
           organization_id: organizationId,
 
@@ -259,6 +270,13 @@ export async function syncBookingReservation(
       errorMsg,
       error
     )
+    Sentry.captureException(error, {
+      extra: {
+        request_id: requestId,
+        event_type: payload.event_type,
+        external_id: payload.data?.reservation?.id,
+      },
+    })
     return {
       success: false,
       error: `Sync failed: ${errorMsg}`,
