@@ -345,14 +345,24 @@ export default async function ReportsPage({ searchParams }: PageProps) {
     return acc
   }, {}) || {}
 
+  // Agrupar despesas por propriedade
+  const expensesByProperty = expenses?.reduce((acc: Record<string, number>, e) => {
+    const propId = e.property_id;
+    if (!propId) return acc;
+    if (!acc[propId]) acc[propId] = 0;
+    acc[propId] += Number(e.amount || 0);
+    return acc;
+  }, {}) || {};
+
   // Enriquecer com comissão de gestão e receita líquida do proprietário
   const propertyStats = Object.values(revenueByProperty).map(stat => {
     const meta = propertyMeta[stat.id] ?? { management_percentage: 0, owner_name: null }
+    const propertyExpenses = expensesByProperty[stat.id] || 0;
     return {
       ...stat,
       management_percentage: meta.management_percentage,
       management_fee: calcManagementFee(stat.revenue, meta.management_percentage),
-      owner_net: calcOwnerNet(stat.revenue, meta.management_percentage),
+      owner_net: calcOwnerNet(stat.revenue, meta.management_percentage) - propertyExpenses,
       owner_name: meta.owner_name,
     }
   })
