@@ -102,7 +102,7 @@ function FilterContent({ filters, onFiltersChange, onClose, isLoading }: {
       {/* Price Range — blur-only to avoid per-keystroke refresh */}
       <div>
         <label className="block text-sm font-semibold text-gray-900 mb-2">
-          Intervalo de Preço (€/noite)
+          Intervalo de Preço (noite)
         </label>
         <div className="flex gap-2">
           <input
@@ -113,7 +113,7 @@ function FilterContent({ filters, onFiltersChange, onClose, isLoading }: {
             onBlur={handlePriceMinBlur}
             disabled={isLoading}
             min="0"
-            className={`flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed`}
+            className="w-0 flex-1 px-2 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
             aria-label="Preço mínimo"
           />
           <input
@@ -124,11 +124,10 @@ function FilterContent({ filters, onFiltersChange, onClose, isLoading }: {
             onBlur={handlePriceMaxBlur}
             disabled={isLoading}
             min="0"
-            className={`flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed`}
+            className="w-0 flex-1 px-2 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
             aria-label="Preço máximo"
           />
         </div>
-        <p className="mt-1 text-xs text-gray-500">Aplica ao sair do campo</p>
       </div>
 
       {/* Property Type */}
