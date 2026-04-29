@@ -178,7 +178,7 @@ export function SearchBar({ onSearch, isLoading = false }: SearchBarProps) {
             value={location}
             onChange={handleLocationChange}
             disabled={isLoading}
-            className={`w-full px-3 py-2.5 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-hs-brand-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${errors.location ? 'border-red-500 focus:ring-red-500' : 'border-hs-neutral-300'}`}
+            className={`w-full px-3 py-2.5 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${errors.location ? 'border-red-500 focus:ring-red-500' : 'border-gray-300'}`}
             aria-invalid={!!errors.location}
             aria-describedby={errors.location ? 'location-error' : undefined}
           />
@@ -200,7 +200,7 @@ export function SearchBar({ onSearch, isLoading = false }: SearchBarProps) {
             value={checkIn}
             onChange={handleCheckInChange}
             disabled={isLoading}
-            className={`w-full px-3 py-2.5 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-hs-brand-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${errors.checkIn ? 'border-red-500 focus:ring-red-500' : 'border-hs-neutral-300'}`}
+            className={`w-full px-3 py-2.5 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${errors.checkIn ? 'border-red-500 focus:ring-red-500' : 'border-gray-300'}`}
             aria-invalid={!!errors.checkIn}
             aria-describedby={errors.checkIn ? 'checkin-error' : undefined}
           />
@@ -223,7 +223,7 @@ export function SearchBar({ onSearch, isLoading = false }: SearchBarProps) {
             onChange={handleCheckOutChange}
             disabled={isLoading}
             min={minCheckOutDate}
-            className={`w-full px-3 py-2.5 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-hs-brand-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${errors.checkOut ? 'border-red-500 focus:ring-red-500' : 'border-hs-neutral-300'}`}
+            className={`w-full px-3 py-2.5 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${errors.checkOut ? 'border-red-500 focus:ring-red-500' : 'border-gray-300'}`}
             aria-invalid={!!errors.checkOut}
             aria-describedby={errors.checkOut ? 'checkout-error' : undefined}
           />
@@ -244,7 +244,7 @@ export function SearchBar({ onSearch, isLoading = false }: SearchBarProps) {
             value={guests}
             onChange={(e) => setGuests(parseInt(e.target.value))}
             disabled={isLoading}
-            className={`w-full px-3 py-2.5 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-hs-brand-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${errors.guests ? 'border-red-500 focus:ring-red-500' : 'border-hs-neutral-300'}`}
+            className={`w-full px-3 py-2.5 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${errors.guests ? 'border-red-500 focus:ring-red-500' : 'border-gray-300'}`}
             aria-invalid={!!errors.guests}
             aria-describedby={errors.guests ? 'guests-error' : undefined}
           >
@@ -266,7 +266,7 @@ export function SearchBar({ onSearch, isLoading = false }: SearchBarProps) {
       <button
         type="submit"
         disabled={isLoading}
-        className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-hs-brand-400 text-white font-bold text-base rounded-lg hover:bg-hs-brand-500 active:bg-hs-brand-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-hs-brand-400 focus:ring-offset-2"
+        className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white font-bold text-base rounded-lg hover:bg-blue-700 active:bg-blue-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
       >
         {isLoading ? (
           <>
