@@ -35,25 +35,29 @@ const PROPERTY_TYPES = [
   { id: 'cottage', label: 'Chalé', value: 'cottage' },
 ]
 
+const inputClass = 'w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed'
+
 function FilterContent({ filters, onFiltersChange, onClose, isLoading }: {
   filters: FilterState
   onFiltersChange: (filters: FilterState) => void
   onClose: () => void
   isLoading: boolean
 }) {
+  // Local price state — only propagate on blur to avoid re-fetch on every keystroke
+  const [priceMinInput, setPriceMinInput] = useState(filters.priceMin?.toString() ?? '')
+  const [priceMaxInput, setPriceMaxInput] = useState(filters.priceMax?.toString() ?? '')
 
   const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-    onFiltersChange({ ...filters, location: value })
+    onFiltersChange({ ...filters, location: e.target.value })
   }
 
-  const handlePriceMinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value ? parseFloat(e.target.value) : undefined
+  const handlePriceMinBlur = () => {
+    const value = priceMinInput ? parseFloat(priceMinInput) : undefined
     onFiltersChange({ ...filters, priceMin: value })
   }
 
-  const handlePriceMaxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value ? parseFloat(e.target.value) : undefined
+  const handlePriceMaxBlur = () => {
+    const value = priceMaxInput ? parseFloat(priceMaxInput) : undefined
     onFiltersChange({ ...filters, priceMax: value })
   }
 
@@ -70,6 +74,8 @@ function FilterContent({ filters, onFiltersChange, onClose, isLoading }: {
   }
 
   const handleReset = () => {
+    setPriceMinInput('')
+    setPriceMaxInput('')
     onFiltersChange({})
     onClose()
   }
@@ -78,13 +84,7 @@ function FilterContent({ filters, onFiltersChange, onClose, isLoading }: {
     <div className="space-y-6">
       {/* Location */}
       <div>
-        <label htmlFor="location-filter" className="
-          block
-          text-sm
-          font-semibold
-          text-hs-neutral-900
-          mb-2
-        ">
+        <label htmlFor="location-filter" className="block text-sm font-semibold text-gray-900 mb-2">
           Localização
         </label>
         <input
@@ -94,107 +94,51 @@ function FilterContent({ filters, onFiltersChange, onClose, isLoading }: {
           value={filters.location || ''}
           onChange={handleLocationChange}
           disabled={isLoading}
-          className="
-            w-full
-            px-3
-            py-2
-            text-sm
-            border border-hs-neutral-300
-            rounded-lg
-            focus:outline-none
-            focus:ring-2
-            focus:ring-hs-brand-400
-            disabled:opacity-50
-            disabled:cursor-not-allowed
-          "
+          className={inputClass}
           aria-label="Filtrar por localização"
         />
       </div>
 
-      {/* Price Range */}
+      {/* Price Range — blur-only to avoid per-keystroke refresh */}
       <div>
-        <label className="
-          block
-          text-sm
-          font-semibold
-          text-hs-neutral-900
-          mb-2
-        ">
-          Intervalo de Preço
+        <label className="block text-sm font-semibold text-gray-900 mb-2">
+          Intervalo de Preço (€/noite)
         </label>
         <div className="flex gap-2">
           <input
             type="number"
             placeholder="Mín"
-            value={filters.priceMin || ''}
-            onChange={handlePriceMinChange}
+            value={priceMinInput}
+            onChange={(e) => setPriceMinInput(e.target.value)}
+            onBlur={handlePriceMinBlur}
             disabled={isLoading}
             min="0"
-            className="
-              flex-1
-              px-3
-              py-2
-              text-sm
-              border border-hs-neutral-300
-              rounded-lg
-              focus:outline-none
-              focus:ring-2
-              focus:ring-hs-brand-400
-              disabled:opacity-50
-              disabled:cursor-not-allowed
-            "
+            className={`flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed`}
             aria-label="Preço mínimo"
           />
           <input
             type="number"
             placeholder="Máx"
-            value={filters.priceMax || ''}
-            onChange={handlePriceMaxChange}
+            value={priceMaxInput}
+            onChange={(e) => setPriceMaxInput(e.target.value)}
+            onBlur={handlePriceMaxBlur}
             disabled={isLoading}
             min="0"
-            className="
-              flex-1
-              px-3
-              py-2
-              text-sm
-              border border-hs-neutral-300
-              rounded-lg
-              focus:outline-none
-              focus:ring-2
-              focus:ring-hs-brand-400
-              disabled:opacity-50
-              disabled:cursor-not-allowed
-            "
+            className={`flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed`}
             aria-label="Preço máximo"
           />
         </div>
+        <p className="mt-1 text-xs text-gray-500">Aplica ao sair do campo</p>
       </div>
 
       {/* Property Type */}
       <div>
-        <label className="
-          block
-          text-sm
-          font-semibold
-          text-hs-neutral-900
-          mb-2
-        ">
+        <label className="block text-sm font-semibold text-gray-900 mb-2">
           Tipo de Imóvel
         </label>
         <div className="space-y-2">
           {PROPERTY_TYPES.map((type) => (
-            <label key={type.id} className="
-              flex
-              items-center
-              gap-2
-              cursor-pointer
-              p-2
-              rounded-lg
-              hover:bg-hs-neutral-100
-              transition-colors
-              focus-within:ring-2
-              focus-within:ring-hs-brand-400
-            ">
+            <label key={type.id} className="flex items-center gap-2 cursor-pointer p-2 rounded-lg hover:bg-gray-50 transition-colors">
               <input
                 type="radio"
                 name="property-type"
@@ -202,16 +146,9 @@ function FilterContent({ filters, onFiltersChange, onClose, isLoading }: {
                 checked={filters.propertyType === type.value}
                 onChange={() => handlePropertyTypeChange(type.value)}
                 disabled={isLoading}
-                className="
-                  w-4
-                  h-4
-                  accent-hs-brand-400
-                  cursor-pointer
-                  disabled:opacity-50
-                  disabled:cursor-not-allowed
-                "
+                className="w-4 h-4 accent-blue-600 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               />
-              <span className="text-sm text-hs-neutral-700">{type.label}</span>
+              <span className="text-sm text-gray-700">{type.label}</span>
             </label>
           ))}
         </div>
@@ -219,45 +156,21 @@ function FilterContent({ filters, onFiltersChange, onClose, isLoading }: {
 
       {/* Amenities */}
       <div>
-        <label className="
-          block
-          text-sm
-          font-semibold
-          text-hs-neutral-900
-          mb-2
-        ">
+        <label className="block text-sm font-semibold text-gray-900 mb-2">
           Comodidades (todos selecionados)
         </label>
         <div className="space-y-2">
           {AMENITIES.map((amenity) => (
-            <label key={amenity.id} className="
-              flex
-              items-center
-              gap-2
-              cursor-pointer
-              p-2
-              rounded-lg
-              hover:bg-hs-neutral-100
-              transition-colors
-              focus-within:ring-2
-              focus-within:ring-hs-brand-400
-            ">
+            <label key={amenity.id} className="flex items-center gap-2 cursor-pointer p-2 rounded-lg hover:bg-gray-50 transition-colors">
               <input
                 type="checkbox"
                 value={amenity.value}
                 checked={filters.amenities?.includes(amenity.value) || false}
                 onChange={(e) => handleAmenityChange(amenity.value, e.target.checked)}
                 disabled={isLoading}
-                className="
-                  w-4
-                  h-4
-                  accent-hs-brand-400
-                  cursor-pointer
-                  disabled:opacity-50
-                  disabled:cursor-not-allowed
-                "
+                className="w-4 h-4 accent-blue-600 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               />
-              <span className="text-sm text-hs-neutral-700">{amenity.label}</span>
+              <span className="text-sm text-gray-700">{amenity.label}</span>
             </label>
           ))}
         </div>
@@ -267,26 +180,7 @@ function FilterContent({ filters, onFiltersChange, onClose, isLoading }: {
       <button
         onClick={handleReset}
         disabled={isLoading}
-        className="
-          w-full
-          py-2.5
-          px-3
-          text-sm
-          font-semibold
-          text-hs-brand-400
-          border border-hs-brand-400
-          rounded-lg
-          hover:bg-hs-brand-50
-          active:bg-hs-brand-100
-          transition-colors
-          disabled:opacity-50
-          disabled:cursor-not-allowed
-          focus:outline-none
-          focus:ring-2
-          focus:ring-hs-brand-400
-          focus:ring-offset-2
-          min-h-10
-        "
+        className="w-full py-2.5 px-3 text-sm font-semibold text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 active:bg-blue-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         aria-label="Limpar todos os filtros"
       >
         Limpar Filtros
@@ -314,92 +208,33 @@ export function PropertyFilters({
       <div className="lg:hidden">
         <button
           onClick={() => setIsMobileOpen(true)}
-          className="
-            fixed
-            bottom-6
-            right-6
-            z-40
-            w-14
-            h-14
-            bg-hs-brand-400
-            text-white
-            rounded-full
-            shadow-lg
-            hover:bg-hs-brand-500
-            active:bg-hs-brand-600
-            transition-colors
-            flex items-center justify-center
-            focus:outline-none
-            focus:ring-2
-            focus:ring-hs-brand-400
-            focus:ring-offset-2
-            min-h-12
-            min-w-12
-            p-0
-          "
+          className="fixed bottom-6 right-6 z-40 w-14 h-14 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 active:bg-blue-800 transition-colors flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           aria-label="Abrir filtros"
           aria-expanded={isMobileOpen}
         >
           <span className="text-xl">🔽</span>
         </button>
 
-        {/* Mobile Modal Backdrop */}
         {isMobileOpen && (
           <div
-            className="
-              fixed
-              inset-0
-              z-50
-              bg-black/50
-              transition-opacity
-            "
+            className="fixed inset-0 z-50 bg-black/50 transition-opacity"
             onClick={() => setIsMobileOpen(false)}
             aria-hidden="true"
           />
         )}
 
-        {/* Mobile Modal */}
         {isMobileOpen && (
           <div
-            className="
-              fixed
-              bottom-0
-              left-0
-              right-0
-              z-50
-              bg-white
-              rounded-t-2xl
-              p-4
-              space-y-4
-              max-h-[90vh]
-              overflow-y-auto
-              animate-in
-              slide-in-from-bottom
-            "
+            className="fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-2xl p-4 space-y-4 max-h-[90vh] overflow-y-auto"
             role="dialog"
             aria-modal="true"
             aria-labelledby="mobile-filters-title"
           >
             <div className="flex items-center justify-between mb-4">
-              <h2 id="mobile-filters-title" className="
-                text-lg
-                font-bold
-                text-hs-neutral-900
-              ">
-                Filtros
-              </h2>
+              <h2 id="mobile-filters-title" className="text-lg font-bold text-gray-900">Filtros</h2>
               <button
                 onClick={() => setIsMobileOpen(false)}
-                className="
-                  p-2
-                  text-hs-neutral-600
-                  hover:bg-hs-neutral-100
-                  rounded-lg
-                  transition-colors
-                  focus:outline-none
-                  focus:ring-2
-                  focus:ring-hs-brand-400
-                "
+                className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
                 aria-label="Fechar filtros"
               >
                 ✕
@@ -415,45 +250,17 @@ export function PropertyFilters({
         )}
       </div>
 
-      {/* Desktop: Sidebar */}
-      <aside className="
-        hidden
-        lg:block
-        w-80
-        sticky
-        top-4
-        h-fit
-      ">
-        <div className="
-          bg-white
-          rounded-xl
-          border border-hs-neutral-200
-          p-6
-          space-y-6
-        ">
+      {/* Desktop: Sidebar — w-64 to leave more room for property cards */}
+      <aside className="hidden lg:block w-64 flex-shrink-0 sticky top-4 h-fit">
+        <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="
-              text-lg
-              font-bold
-              text-hs-neutral-900
-            ">
-              Filtros
-            </h2>
+            <h2 className="text-lg font-bold text-gray-900">Filtros</h2>
             {resultCount !== undefined && (
-              <span className="
-                text-xs
-                font-semibold
-                text-hs-neutral-600
-                bg-hs-neutral-100
-                px-2
-                py-1
-                rounded-full
-              ">
+              <span className="text-xs font-semibold text-gray-600 bg-gray-100 px-2 py-1 rounded-full">
                 {resultCount}
               </span>
             )}
           </div>
-
           <FilterContent
             filters={filters}
             onFiltersChange={handleFiltersChange}
