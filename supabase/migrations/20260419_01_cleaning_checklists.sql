@@ -39,6 +39,13 @@ alter table cleaning_checklists enable row level security;
 alter table cleaning_checklist_items enable row level security;
 alter table cleaning_templates enable row level security;
 
+-- Drop policies before recreating (idempotent)
+drop policy if exists "org members view checklists" on cleaning_checklists;
+drop policy if exists "managers manage checklists" on cleaning_checklists;
+drop policy if exists "assigned user update checklist" on cleaning_checklists;
+drop policy if exists "checklist items access" on cleaning_checklist_items;
+drop policy if exists "org templates access" on cleaning_templates;
+
 -- cleaning_checklists: org members can view their org's checklists
 create policy "org members view checklists"
   on cleaning_checklists for select
