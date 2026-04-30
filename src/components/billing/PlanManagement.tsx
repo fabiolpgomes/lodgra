@@ -10,9 +10,12 @@ interface PlanManagementProps {
 }
 
 const PLAN_LABELS: Record<Plan, string> = {
-  starter: 'Starter',
+  starter:      'Starter',
+  growth:       'Growth',
+  pro:          'Pro',
+  enterprise:   'Enterprise',
   professional: 'Professional',
-  business: 'Business',
+  business:     'Business',
 }
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {

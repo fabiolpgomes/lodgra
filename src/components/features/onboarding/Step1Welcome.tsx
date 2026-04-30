@@ -33,8 +33,8 @@ export function Step1Welcome({ orgName, selectedPlan, onOrgNameChange, onPlanCha
         <Label className="block text-sm font-medium text-gray-700 mb-3 text-left max-w-2xl mx-auto">
           Escolha o seu plano
         </Label>
-        <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto mb-4">
-          {PLAN_DISPLAY.map((plan) => (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 max-w-3xl mx-auto mb-4">
+          {PLAN_DISPLAY.filter(p => !p.enterprise).map((plan) => (
             <button
               key={plan.id}
               onClick={() => onPlanChange(plan.id as Plan)}
@@ -49,11 +49,16 @@ export function Step1Welcome({ orgName, selectedPlan, onOrgNameChange, onPlanCha
                   <Check className="h-4 w-4" />
                 </div>
               )}
+              {plan.highlighted && (
+                <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-blue-500 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap">
+                  Mais escolhido
+                </span>
+              )}
               <p className="font-semibold text-gray-900">{plan.name}</p>
-              <p className="text-sm text-gray-500 mb-2">{plan.description}</p>
-              <p className="text-lg font-bold text-blue-600 mb-2">€{plan.price}/mês</p>
-              <p className="text-xs text-gray-600 mb-3">{plan.properties}</p>
-              <ul className="text-xs text-gray-600 space-y-1">
+              <p className="text-xs text-gray-500 mb-2 leading-snug">{plan.description}</p>
+              <p className="text-base font-bold text-blue-600">€{plan.price}</p>
+              <p className="text-[10px] text-gray-500 mb-2">/unidade/mês</p>
+              <ul className="text-xs text-gray-600 space-y-0.5">
                 {plan.features.slice(0, 2).map((f) => (
                   <li key={f}>• {f}</li>
                 ))}

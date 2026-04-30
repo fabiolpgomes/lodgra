@@ -6,6 +6,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { calculateCommission } from '@/lib/commission/service'
 import type { PlanType } from '@/lib/commission/types'
+import { reportBookingFee, reportRevenueFee } from '@/lib/billing/stripe-usage'
 
 export interface BookingReservationPayload {
   external_id: string        // Booking.com reservation ID
@@ -166,6 +167,10 @@ export async function processBookingReservation(
   } catch {
     // RPC may not exist yet; sync_count updated by pull-sync route directly
   }
+
+  // ── 6. Report metered billing usage (Growth: €1/booking, Pro: 1%/revenue) ──
+  void reportBookingFee(orgId)
+  void reportRevenueFee(orgId, payload.total_amount)
 
   return { success: true, reservationId: res.id, isDuplicate: false }
 }

@@ -85,6 +85,7 @@ async function handleCheckoutCompleted(supabase: AdminClient, session: Stripe.Ch
     return
   }
 
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2026-02-25.clover' })
   const customerId = session.customer as string
   const subscriptionId = session.subscription as string
 
@@ -92,6 +93,26 @@ async function handleCheckoutCompleted(supabase: AdminClient, session: Stripe.Ch
   const planFromMeta = session.metadata?.plan
   const priceId = (session as Stripe.Checkout.Session & { line_items?: { data: { price?: { id: string } }[] } }).line_items?.data[0]?.price?.id ?? ''
   const plan = planFromMeta ?? getPlanFromPriceId(priceId)
+
+  // Fetch subscription to extract item IDs (base + metered)
+  let stripeSubscriptionItemId: string | null = null
+  let stripeMeteredItemId: string | null = null
+
+  try {
+    const sub = await stripe.subscriptions.retrieve(subscriptionId, {
+      expand: ['items.data.price'],
+    })
+    for (const item of sub.items.data) {
+      const price = item.price as Stripe.Price
+      if (price.recurring?.usage_type === 'metered') {
+        stripeMeteredItemId = item.id
+      } else {
+        stripeSubscriptionItemId = item.id
+      }
+    }
+  } catch (err) {
+    console.warn('[webhook] Could not fetch subscription items:', err)
+  }
 
   // Criar slug único
   const slug = email
@@ -111,6 +132,9 @@ async function handleCheckoutCompleted(supabase: AdminClient, session: Stripe.Ch
       stripe_subscription_id: subscriptionId,
       subscription_status: 'active',
       subscription_plan: plan,
+      stripe_subscription_item_id: stripeSubscriptionItemId,
+      stripe_metered_item_id: stripeMeteredItemId,
+      billing_unit_count: 1,
     })
     .select()
     .single()
@@ -184,12 +208,32 @@ async function handleSubscriptionUpdated(supabase: AdminClient, subscription: St
     : subscription.status === 'trialing' ? 'trial'
     : subscription.status
 
-  const priceId = subscription.items.data[0]?.price?.id ?? ''
-  const plan = getPlanFromPriceId(priceId)
+  // Identify base item and metered item by usage_type
+  let baseItemId: string | null = null
+  let meteredItemId: string | null = null
+  let plan = 'starter'
+
+  for (const item of subscription.items.data) {
+    const price = item.price as Stripe.Price
+    if (price.recurring?.usage_type === 'metered') {
+      meteredItemId = item.id
+    } else {
+      baseItemId = item.id
+      plan = getPlanFromPriceId(price.id)
+    }
+  }
+
+  const update: Record<string, unknown> = {
+    subscription_status: status,
+    subscription_plan: plan,
+    updated_at: new Date().toISOString(),
+  }
+  if (baseItemId)   update.stripe_subscription_item_id = baseItemId
+  if (meteredItemId) update.stripe_metered_item_id = meteredItemId
 
   const { data: updatedOrgs } = await supabase
     .from('organizations')
-    .update({ subscription_status: status, subscription_plan: plan, updated_at: new Date().toISOString() })
+    .update(update)
     .eq('stripe_subscription_id', subscription.id)
     .select('id')
 

@@ -195,18 +195,18 @@ const CONTENT = {
     ],
     faqTitle: 'Perguntas frequentes',
     faqs: [
+      { q: 'O preço é por unidade — como funciona na prática?', a: 'Paga €9, €14 ou €19 por cada unidade (propriedade) que tem na plataforma, por mês. Se gerir 5 apartamentos no plano Growth, paga €70/mês de subscrição. A isso acresce €1 por reserva processada via API de canal.' },
+      { q: 'O que é a taxa por reserva do plano Growth?', a: 'No plano Growth, além da subscrição por unidade, cobramos €1 por cada reserva que chega via integração API (Booking.com, etc.). Reservas introduzidas manualmente ou via iCal não têm taxa. Garante que só paga quando a integração lhe poupa trabalho real.' },
+      { q: 'Como é calculada a taxa de 1% do plano Pro?', a: 'No plano Pro, cobramos 1% da receita de alojamento processada pela plataforma. Se uma propriedade fizer €3.000/mês em reservas, a taxa é de €30. Em troca, tem pricing dinâmico, automações avançadas e suporte prioritário.' },
+      { q: 'Posso começar no Starter e mudar para um plano superior depois?', a: 'Sim, a qualquer momento. Ao fazer upgrade mantém todos os dados e configurações. O novo plano é activado imediatamente e o valor é calculado proporcionalmente ao período restante.' },
       { q: 'Já uso o Airbnb e Booking, para que preciso de mais um sistema?', a: 'O Airbnb e Booking são óptimos para receber reservas, mas não se falam entre si. O Home Stay é a camada que une tudo: sincroniza calendários, consolida receitas e despesas, e mostra o lucro real do seu negócio.' },
-      { q: 'É difícil de configurar?', a: 'Não. Adicione a propriedade, cole o link iCal das plataformas, e está feito. A sincronização começa sozinha em minutos.' },
-      { q: 'E se tiver propriedades em países diferentes com moedas diferentes?', a: 'Perfeito para isso. Cada propriedade tem a sua moeda. Os relatórios separam automaticamente EUR, USD, BRL e outras. Sem conversões forçadas.' },
-      { q: 'Posso dar acesso ao meu parceiro ou gestor de limpeza sem que veja tudo?', a: 'Sim. Crie um utilizador com role de "Visualizador" ou "Gestor" e atribua apenas as propriedades relevantes. Cada pessoa vê só o que precisa.' },
       { q: 'Funciona no telemóvel?', a: 'Sim. O Home Stay é totalmente responsivo — funciona em desktop, tablet e telemóvel. Gira check-ins na propriedade ou reveja relatórios no sofá.' },
-      { q: 'E se quiser mudar de sistema depois?', a: 'Os seus dados são seus. Exporte relatórios para Excel a qualquer momento. Sem lock-in.' },
     ],
-    priceUnit: '€9,90',
-    pricePer: '/imóvel/mês',
-    propertiesLabel: 'Quantos imóveis gere?',
+    priceUnit: '€9',
+    pricePer: '/unidade/mês',
+    propertiesLabel: 'Quantas unidades gere?',
     totalLabel: 'Total',
-    roiHint: 'Uma propriedade a render €2.000/mês cobre 200× o custo da plataforma.',
+    roiHint: 'Uma propriedade a render €2.000/mês cobre mais de 200× o custo da plataforma.',
     features: [
       'Imóveis ilimitados',
       'Sincronização automática de calendários',
@@ -218,10 +218,10 @@ const CONTENT = {
       'Suporte a 8 moedas',
       'Suporte por e-mail',
     ],
-    sectionPricingTitle: 'Preço simples e transparente',
-    sectionPricingDesc: 'Pague apenas pelos imóveis que gere. Sem custos escondidos.',
-    finalTitle: 'Pare de perder tempo com folhas de cálculo e overbookings.',
-    finalDesc: 'Centralize tudo, automatize o que puder e saiba exactamente quanto ganha por propriedade.',
+    sectionPricingTitle: 'Preço por unidade, escalável com o seu negócio',
+    sectionPricingDesc: 'Pague só pelas unidades que gere. Sem custos fixos exagerados — cresce consigo.',
+    finalTitle: 'Comece hoje. Pague só pelo que usa.',
+    finalDesc: 'Gestão profissional de alojamento local a partir de €9 por unidade. Sem surpresas, sem lock-in.',
     pwaTitle: 'Instale a app no telemóvel',
     pwaDesc: 'Aceda ao Home Stay directamente do seu telemóvel — sem precisar da App Store.',
     pwaSteps: [
@@ -358,40 +358,114 @@ const CONTENT = {
 }
 
 // ─── Pricing localisation ──────────────────────────────────────────────────────
+interface PlanLocale {
+  price: number | null
+  feeLabel: string | null
+  description: string
+  features: string[]
+}
+
 const PRICING_L10N: Record<Market, {
   symbol: string
   period: string
   popularBadge: string
-  plans: { description: string; properties: string; features: string[] }[]
+  ctaEnterprise: string
+  plans: PlanLocale[]
 }> = {
   PT: {
     symbol: '€',
-    period: '/mês',
-    popularBadge: 'Mais popular',
+    period: '/unidade/mês',
+    popularBadge: 'Mais escolhido',
+    ctaEnterprise: 'Falar com a equipa',
     plans: [
-      { description: 'Para gestores que estão a começar', properties: 'Até 3 propriedades', features: ['Calendário drag-drop', 'Reservas manuais', 'Sync iCal', 'Relatórios básicos'] },
-      { description: 'Para gestores em crescimento', properties: 'Até 10 propriedades', features: ['Tudo do Starter', 'Relatórios por proprietário', 'Compliance Fiscal PT (IRS)', 'Exportar PDF/Excel'] },
-      { description: 'Para operações profissionais', properties: 'Propriedades ilimitadas', features: ['Tudo do Professional', 'Suporte prioritário', '2FA (em breve)', 'API access (em breve)'] },
+      {
+        price: 9,
+        feeLabel: null,
+        description: 'Para gestores que estão a começar',
+        features: ['Sync iCal (Airbnb, Booking, VRBO)', 'Calendário unificado', 'Gestão básica de reservas', 'Suporte standard'],
+      },
+      {
+        price: 14,
+        feeLabel: '+ €1 por reserva',
+        description: 'Para gestores em crescimento',
+        features: ['Integração API de canais', 'Dados completos de reservas', 'Automações de tarefas', 'Relatórios financeiros', 'Sync em tempo real'],
+      },
+      {
+        price: 19,
+        feeLabel: '+ 1% da receita',
+        description: 'Para operações profissionais',
+        features: ['Tudo do Growth', 'Pricing dinâmico', 'Automações avançadas', 'Insights de performance', 'Suporte prioritário'],
+      },
+      {
+        price: null,
+        feeLabel: null,
+        description: 'Para grandes operações e grupos hoteleiros',
+        features: ['Tudo do Pro', 'Onboarding dedicado', 'SLA garantido', 'API completa incl. Airbnb'],
+      },
     ],
   },
   BR: {
     symbol: 'R$',
-    period: '/mês',
-    popularBadge: 'Mais popular',
+    period: '/unidade/mês',
+    popularBadge: 'Mais escolhido',
+    ctaEnterprise: 'Falar com a equipe',
     plans: [
-      { description: 'Para quem está começando', properties: 'Até 3 imóveis', features: ['Calendário drag-drop', 'Reservas manuais', 'Sync iCal', 'Relatórios básicos'] },
-      { description: 'Para gestores em crescimento', properties: 'Até 10 imóveis', features: ['Tudo do Starter', 'Relatórios por proprietário', 'Compliance Fiscal', 'Exportar PDF/Excel'] },
-      { description: 'Para operações profissionais', properties: 'Imóveis ilimitados', features: ['Tudo do Professional', 'Suporte prioritário', '2FA (em breve)', 'API access (em breve)'] },
+      {
+        price: 49,
+        feeLabel: null,
+        description: 'Para quem está começando',
+        features: ['Sync iCal (Airbnb, Booking, VRBO)', 'Calendário unificado', 'Gestão básica de reservas', 'Suporte standard'],
+      },
+      {
+        price: 79,
+        feeLabel: '+ R$5 por reserva',
+        description: 'Para gestores em crescimento',
+        features: ['Integração API de canais', 'Dados completos de reservas', 'Automações de tarefas', 'Relatórios financeiros', 'Sync em tempo real'],
+      },
+      {
+        price: 109,
+        feeLabel: '+ 1% da receita',
+        description: 'Para operações profissionais',
+        features: ['Tudo do Growth', 'Pricing dinâmico', 'Automações avançadas', 'Insights de performance', 'Suporte prioritário'],
+      },
+      {
+        price: null,
+        feeLabel: null,
+        description: 'Para grandes operações e redes hoteleiras',
+        features: ['Tudo do Pro', 'Onboarding dedicado', 'SLA garantido', 'API completa incl. Airbnb'],
+      },
     ],
   },
   US: {
     symbol: '$',
-    period: '/mo',
+    period: '/unit/mo',
     popularBadge: 'Most popular',
+    ctaEnterprise: 'Talk to sales',
     plans: [
-      { description: 'For managers getting started', properties: 'Up to 3 properties', features: ['Drag-drop calendar', 'Manual reservations', 'iCal sync', 'Basic reports'] },
-      { description: 'For growing managers', properties: 'Up to 10 properties', features: ['Everything in Starter', 'Owner reports', 'Fiscal compliance', 'Export PDF/Excel'] },
-      { description: 'For professional operations', properties: 'Unlimited properties', features: ['Everything in Professional', 'Priority support', '2FA (coming soon)', 'API access (coming soon)'] },
+      {
+        price: 9,
+        feeLabel: null,
+        description: 'For managers getting started',
+        features: ['iCal sync (Airbnb, Booking, VRBO)', 'Unified calendar', 'Basic reservation management', 'Standard support'],
+      },
+      {
+        price: 14,
+        feeLabel: '+ $1 per booking',
+        description: 'For growing managers',
+        features: ['Channel API integration', 'Full reservation data', 'Task automations', 'Financial reports', 'Real-time sync'],
+      },
+      {
+        price: 19,
+        feeLabel: '+ 1% of revenue',
+        description: 'For professional operations',
+        features: ['Everything in Growth', 'Dynamic pricing', 'Advanced automations', 'Performance insights', 'Priority support'],
+      },
+      {
+        price: null,
+        feeLabel: null,
+        description: 'For large operations and hotel groups',
+        features: ['Everything in Pro', 'Dedicated onboarding', 'Guaranteed SLA', 'Full API incl. Airbnb'],
+      },
     ],
   },
 }
@@ -783,13 +857,13 @@ export function LandingPage() {
 
       {/* ── Pricing ──────────────────────────────────────────────────────────── */}
       <section id="pricing" className="bg-lodgra-neutral-100 py-24">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
             <h2 className="text-3xl font-extrabold text-lodgra-neutral-900 mb-4">{c.sectionPricingTitle}</h2>
             <p className="text-lodgra-neutral-500 text-lg">{c.sectionPricingDesc}</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {PLAN_DISPLAY.map((plan, idx) => {
               const pl = PRICING_L10N[market]
               const loc = pl.plans[idx]
@@ -797,7 +871,11 @@ export function LandingPage() {
                 <div
                   key={plan.id}
                   className={`bg-white rounded-2xl shadow-sm border-2 p-6 flex flex-col relative ${
-                    plan.highlighted ? 'border-lodgra-brand-500' : 'border-lodgra-border-subtle'
+                    plan.highlighted
+                      ? 'border-lodgra-brand-500 shadow-md'
+                      : plan.enterprise
+                        ? 'border-lodgra-neutral-300 bg-lodgra-neutral-50'
+                        : 'border-lodgra-border-subtle'
                   }`}
                 >
                   {plan.highlighted && (
@@ -810,37 +888,63 @@ export function LandingPage() {
 
                   <div className="mb-4">
                     <h3 className="text-lg font-bold text-lodgra-neutral-900">{plan.name}</h3>
-                    <p className="text-sm text-lodgra-neutral-500 mt-0.5">{loc.description}</p>
+                    <p className="text-sm text-lodgra-neutral-500 mt-0.5 leading-snug">{loc.description}</p>
                   </div>
 
-                  <div className="flex items-baseline gap-1 mb-1">
-                    <span className="text-4xl font-extrabold text-lodgra-neutral-900">{pl.symbol}{plan.price}</span>
-                    <span className="text-lodgra-neutral-500 text-sm">{pl.period}</span>
-                  </div>
-                  <p className="text-xs text-lodgra-neutral-500 mb-5">{loc.properties}</p>
+                  {plan.enterprise ? (
+                    <div className="mb-5">
+                      <span className="text-2xl font-extrabold text-lodgra-neutral-900">Custom</span>
+                    </div>
+                  ) : (
+                    <div className="mb-1">
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-3xl font-extrabold text-lodgra-neutral-900">
+                          {pl.symbol}{loc.price}
+                        </span>
+                        <span className="text-lodgra-neutral-500 text-xs leading-tight">{pl.period}</span>
+                      </div>
+                      {loc.feeLabel && (
+                        <span className="inline-block mt-1 text-xs font-medium text-lodgra-brand-600 bg-lodgra-brand-50 px-2 py-0.5 rounded-full">
+                          {loc.feeLabel}
+                        </span>
+                      )}
+                    </div>
+                  )}
+
+                  {!plan.enterprise && <div className="mb-5" />}
 
                   <ul className="space-y-2 mb-6 flex-1">
                     {loc.features.map(f => (
-                      <li key={f} className="flex items-center gap-2 text-sm text-lodgra-neutral-700">
-                        <Check className="h-4 w-4 text-lodgra-brand-500 shrink-0" />
+                      <li key={f} className="flex items-start gap-2 text-sm text-lodgra-neutral-700">
+                        <Check className="h-4 w-4 text-lodgra-brand-500 shrink-0 mt-0.5" />
                         {f}
                       </li>
                     ))}
                   </ul>
 
-                  <Button
-                    onClick={() => handlePlanCheckout(plan.id)}
-                    disabled={loadingPlan !== null}
-                    variant={plan.highlighted ? 'default' : 'outline'}
-                    className={plan.highlighted
-                      ? 'w-full bg-lodgra-cta-bg hover:bg-lodgra-cta-bg-hover text-white border-0'
-                      : 'w-full border-lodgra-brand-500 text-lodgra-primary hover:bg-lodgra-brand-50'
-                    }
-                  >
-                    {loadingPlan === plan.id ? '...' : (
-                      <>{c.cta} <ArrowRight className="h-4 w-4 ml-1" /></>
-                    )}
-                  </Button>
+                  {plan.enterprise ? (
+                    <Button
+                      onClick={() => window.location.href = '/register'}
+                      variant="outline"
+                      className="w-full border-lodgra-neutral-300 text-lodgra-neutral-700 hover:bg-lodgra-neutral-100"
+                    >
+                      {pl.ctaEnterprise} <ArrowRight className="h-4 w-4 ml-1" />
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={() => handlePlanCheckout(plan.id)}
+                      disabled={loadingPlan !== null}
+                      variant={plan.highlighted ? 'default' : 'outline'}
+                      className={plan.highlighted
+                        ? 'w-full bg-lodgra-cta-bg hover:bg-lodgra-cta-bg-hover text-white border-0'
+                        : 'w-full border-lodgra-brand-500 text-lodgra-primary hover:bg-lodgra-brand-50'
+                      }
+                    >
+                      {loadingPlan === plan.id ? '...' : (
+                        <>{c.cta} <ArrowRight className="h-4 w-4 ml-1" /></>
+                      )}
+                    </Button>
+                  )}
                 </div>
               )
             })}

@@ -7,6 +7,11 @@ import { PLAN_DISPLAY, getPlanLimits } from '@/lib/billing/plans'
 import { toast } from 'sonner'
 import { Check, AlertCircle } from 'lucide-react'
 
+const FEE_LABELS: Record<string, string> = {
+  growth: '+ €1 por reserva',
+  pro:    '+ 1% da receita',
+}
+
 interface PlanUpgradeModalProps {
   currentPlan: string | null
   isOpen: boolean
@@ -20,7 +25,8 @@ export function PlanUpgradeModal({ currentPlan, isOpen, onClose }: PlanUpgradeMo
   if (!isOpen) return null
 
   const currentPlanObj = PLAN_DISPLAY.find(p => p.id === currentPlan)
-  const plans = PLAN_DISPLAY.filter(p => p.id !== currentPlan)
+  // Exclude current plan and enterprise (enterprise requires contacting sales)
+  const plans = PLAN_DISPLAY.filter(p => p.id !== currentPlan && !p.enterprise)
 
   async function handleUpgrade() {
     if (!selectedPlan) return
@@ -55,9 +61,9 @@ export function PlanUpgradeModal({ currentPlan, isOpen, onClose }: PlanUpgradeMo
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6 border-b">
-          <h2 className="text-2xl font-bold text-gray-900">Atualizar Plano</h2>
+          <h2 className="text-2xl font-bold text-gray-900">Alterar Plano</h2>
           <p className="text-gray-600 mt-1">
-            Seu plano atual: <strong>{currentPlanObj?.name}</strong>
+            Plano actual: <strong>{currentPlanObj?.name ?? currentPlan ?? '—'}</strong>
           </p>
         </div>
 
@@ -65,7 +71,8 @@ export function PlanUpgradeModal({ currentPlan, isOpen, onClose }: PlanUpgradeMo
           {plans.map(plan => {
             const limits = getPlanLimits(plan.id)
             const isUpgrade = PLAN_DISPLAY.findIndex(p => p.id === plan.id) >
-                            PLAN_DISPLAY.findIndex(p => p.id === currentPlan)
+                              PLAN_DISPLAY.findIndex(p => p.id === currentPlan)
+            const feeLabel = FEE_LABELS[plan.id]
 
             return (
               <div
@@ -81,25 +88,26 @@ export function PlanUpgradeModal({ currentPlan, isOpen, onClose }: PlanUpgradeMo
                   <div>
                     <h3 className="font-bold text-lg text-gray-900">{plan.name}</h3>
                     <p className="text-sm text-gray-600">{plan.description}</p>
-                    <p className="text-sm font-semibold text-gray-900 mt-2">
-                      €{plan.price}/mês
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <div className="flex items-center gap-2">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        isUpgrade ? 'bg-green-100 text-green-800' : 'bg-orange-100 text-orange-800'
-                      }`}>
-                        {isUpgrade ? 'Atualizar' : 'Desatualizar'}
-                      </span>
+                    <div className="flex items-baseline gap-1 mt-2">
+                      <p className="text-sm font-semibold text-gray-900">
+                        €{plan.price}/unidade/mês
+                      </p>
+                      {feeLabel && (
+                        <span className="text-xs text-blue-600 font-medium">{feeLabel}</span>
+                      )}
                     </div>
                   </div>
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                    isUpgrade ? 'bg-green-100 text-green-800' : 'bg-orange-100 text-orange-800'
+                  }`}>
+                    {isUpgrade ? 'Upgrade' : 'Downgrade'}
+                  </span>
                 </div>
 
                 <ul className="space-y-1 mt-3 text-sm text-gray-600">
                   <li className="flex items-center gap-2">
                     <Check className="h-4 w-4 text-green-600" />
-                    {limits.maxProperties === null ? 'Propriedades ilimitadas' : `Até ${limits.maxProperties} propriedades`}
+                    Unidades ilimitadas
                   </li>
                   {limits.ownerReports && (
                     <li className="flex items-center gap-2">
@@ -123,19 +131,15 @@ export function PlanUpgradeModal({ currentPlan, isOpen, onClose }: PlanUpgradeMo
               <AlertCircle className="h-4 w-4 text-blue-600" />
               <AlertDescription className="text-blue-800">
                 {PLAN_DISPLAY.findIndex(p => p.id === selectedPlan) > PLAN_DISPLAY.findIndex(p => p.id === currentPlan)
-                  ? 'Você será cobrado pro-rata pela diferença no seu próximo ciclo de faturação.'
-                  : 'Você receberá crédito pro-rata no seu próximo ciclo de faturação.'}
+                  ? 'Será cobrado pro-rata pela diferença no próximo ciclo de faturação.'
+                  : 'Receberá crédito pro-rata no próximo ciclo de faturação.'}
               </AlertDescription>
             </Alert>
           )}
         </div>
 
         <div className="p-6 border-t flex gap-3 justify-end">
-          <Button
-            variant="outline"
-            onClick={onClose}
-            disabled={loading}
-          >
+          <Button variant="outline" onClick={onClose} disabled={loading}>
             Cancelar
           </Button>
           <Button
@@ -143,7 +147,7 @@ export function PlanUpgradeModal({ currentPlan, isOpen, onClose }: PlanUpgradeMo
             disabled={!selectedPlan || loading}
             className="bg-blue-600 hover:bg-blue-700"
           >
-            {loading ? 'Atualizando...' : 'Atualizar Plano'}
+            {loading ? 'A actualizar...' : 'Confirmar alteração'}
           </Button>
         </div>
       </div>
