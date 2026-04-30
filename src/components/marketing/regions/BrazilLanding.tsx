@@ -214,7 +214,7 @@ export const BrazilLanding: React.FC = () => {
             <p className="text-lg text-lodgra-dark">Preços transparentes, escaláveis e sem taxas de setup gringas.</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
             {[
               {
                 name: 'Essencial', price: '59', sub: 'Por unidade/mês',
@@ -232,10 +232,12 @@ export const BrazilLanding: React.FC = () => {
                 featured: false
               }
             ].map((tier) => (
-              <div key={tier.name} className={`p-10 rounded-[32px] bg-white border-2 flex flex-col transition-all hover:shadow-2xl ${tier.featured ? 'border-lodgra-gold scale-105 shadow-xl relative z-10' : 'border-zinc-100'}`}>
+              <div key={tier.name} className={`p-10 rounded-[32px] bg-white border-2 flex flex-col transition-all hover:shadow-2xl ${tier.featured ? 'border-2 shadow-xl relative z-10' : 'border-zinc-100'}`}
+                style={tier.featured ? { borderColor: '#D4AF37' } : undefined}>
                 {tier.featured && (
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-lodgra-gold text-white px-4 py-1 text-xs font-bold uppercase tracking-widest rounded-full">
-                    Mais recomendado
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white px-4 py-1 text-xs font-bold uppercase tracking-widest rounded-full"
+                    style={{ backgroundColor: '#D4AF37' }}>
+                    Mais Popular
                   </div>
                 )}
                 <div className="mb-8">
@@ -244,7 +246,7 @@ export const BrazilLanding: React.FC = () => {
                     <span className="text-5xl font-bold text-lodgra-blue">R$ {tier.price}</span>
                     <span className="text-zinc-400 font-medium text-sm">/mês</span>
                   </div>
-                  <p className="text-lodgra-gold font-bold text-sm mt-2">{tier.sub}</p>
+                  <p className="font-bold text-sm mt-2" style={{ color: '#D4AF37' }}>{tier.sub}</p>
                 </div>
                 <div className="space-y-5 flex-1 mb-10 text-[15px]">
                   {tier.features.map(f => (
@@ -254,13 +256,23 @@ export const BrazilLanding: React.FC = () => {
                     </div>
                   ))}
                 </div>
-                <Link
-                  href="/register"
-                  className="w-full py-4 text-center rounded-xl font-bold transition-all text-white"
-                  style={{ backgroundColor: tier.name === 'Pro' ? '#6B7280' : '#059669' }}
-                >
-                  {tier.name === 'Pro' ? 'Em breve' : `Escolher ${tier.name}`}
-                </Link>
+                {tier.name === 'Pro' ? (
+                  <button
+                    disabled
+                    className="w-full py-4 text-center rounded-xl font-bold text-white cursor-not-allowed opacity-80"
+                    style={{ backgroundColor: '#1E3A8A' }}
+                  >
+                    Em breve
+                  </button>
+                ) : (
+                  <Link
+                    href="/register"
+                    className="w-full py-4 text-center rounded-xl font-bold transition-all text-white"
+                    style={{ backgroundColor: '#059669' }}
+                  >
+                    Escolher {tier.name}
+                  </Link>
+                )}
               </div>
             ))}
           </div>
