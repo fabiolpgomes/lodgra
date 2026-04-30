@@ -79,3 +79,9 @@ supabase/.temp/
 
 # Sentry Config File
 .env.sentry-build-plugin
+
+# Local secrets and test files
+.env.local.prod-db
+*.mjs
+outputs/
+FireShot*
