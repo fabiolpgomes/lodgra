@@ -217,18 +217,18 @@ export const BrazilLanding: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               {
-                name: 'Starter', price: '97', sub: 'Até 3 imóveis',
-                features: ['Gestão de Canais Nativa', 'Site de Reserva Direta', 'Relatórios Básicos', 'Suporte E-mail'],
+                name: 'Essencial', price: '59', sub: 'Por unidade/mês',
+                features: ['Sync iCal', 'Calendário unificado', 'Gestão básica de reservas', 'Suporte standard'],
                 featured: false
               },
               {
-                name: 'Professional', price: '297', sub: 'Até 10 imóveis',
-                features: ['Tudo do Starter', 'Relatórios Financeiros Avançados', 'Gestão Operacional', 'Suporte WhatsApp 1:1'],
+                name: 'Expansão', price: '89', sub: 'Por unidade/mês + R$5/reserva',
+                features: ['Integração API de canais', 'Dados completos de reservas', 'Automações', 'Relatórios financeiros', 'Sync em tempo real'],
                 featured: true
               },
               {
-                name: 'Enterprise', price: '497', sub: '10+ (Base)',
-                features: ['Tudo do Professional', 'Multi-usuários Ilimitados', 'Portal do Proprietário', 'Sucesso do Cliente Dedicado'],
+                name: 'Pro', price: '130', sub: 'Por unidade/mês + 1% da receita',
+                features: ['Tudo do Expansão', 'Pricing dinâmico', 'Automações avançadas', 'Insights de performance', 'Suporte prioritário'],
                 featured: false
               }
             ].map((tier) => (
@@ -254,8 +254,8 @@ export const BrazilLanding: React.FC = () => {
                     </div>
                   ))}
                 </div>
-                <Link href="/register" className={`w-full py-4 text-center rounded-xl font-bold transition-all ${tier.featured ? 'bg-lodgra-blue text-white hover:bg-lodgra-blue/90' : 'bg-lodgra-gray text-lodgra-blue hover:bg-zinc-200'}`}>
-                  Escolher plano {tier.name}
+                <Link href="/register" className={`w-full py-4 text-center rounded-xl font-bold transition-all ${tier.featured ? 'bg-lodgra-gold text-white hover:bg-lodgra-gold/90' : 'bg-zinc-100 text-lodgra-dark hover:bg-zinc-200'}`}>
+                  {tier.name === 'Pro' ? 'Em breve' : `Escolher ${tier.name}`}
                 </Link>
               </div>
             ))}
