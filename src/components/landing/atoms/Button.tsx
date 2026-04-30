@@ -25,7 +25,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     const variants = {
       primary:
-        'bg-lodgra-gold text-white hover:bg-yellow-500 active:brightness-90',
+        'text-white hover:brightness-90 active:brightness-75',
       secondary:
         'bg-white text-lodgra-primary border-2 border-lodgra-primary hover:bg-gray-50 active:bg-gray-100',
       ghost: 'text-lodgra-primary hover:bg-gray-100 active:bg-gray-200',
@@ -47,6 +47,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           ${sizes[size]}
           ${fullWidth ? 'w-full' : ''}
         `}
+        style={variant === 'primary' ? { backgroundColor: '#D4AF37' } : undefined}
         {...props}
       >
         {isLoading ? (

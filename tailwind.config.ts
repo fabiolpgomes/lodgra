@@ -1,6 +1,5 @@
-import type { Config } from 'tailwindcss'
-
-const config: Config = {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const config: any = {
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
@@ -79,6 +78,12 @@ const config: Config = {
       },
     },
   },
+  safelist: [
+    'bg-lodgra-blue', 'bg-lodgra-gold', 'bg-lodgra-green', 'bg-lodgra-gray', 'bg-lodgra-dark',
+    'text-lodgra-blue', 'text-lodgra-gold', 'text-lodgra-dark',
+    'hover:bg-lodgra-blue', 'hover:bg-lodgra-gold',
+    'border-lodgra-blue', 'border-lodgra-gold',
+  ],
   plugins: [],
 }
 

@@ -28,7 +28,7 @@ export const Navbar: React.FC<NavbarProps> = ({ locale, onLocaleChange }) => {
           {/* Logo & Brand */}
           <div className="flex items-center gap-2 flex-shrink-0">
             <Logo size="md" variant="dark" />
-            <span className="text-xl font-poppins font-bold text-lodgra-primary hidden sm:inline">
+            <span className="text-xl font-poppins font-bold text-lodgra-blue hidden sm:inline">
               Lodgra
             </span>
           </div>
@@ -37,19 +37,19 @@ export const Navbar: React.FC<NavbarProps> = ({ locale, onLocaleChange }) => {
           <div className="hidden lg:flex items-center gap-8">
             <a
               href="#features"
-              className="text-sm font-inter text-gray-600 dark:text-gray-300 hover:text-lodgra-primary dark:hover:text-lodgra-gold transition-colors"
+              className="text-sm font-inter text-gray-600 dark:text-gray-300 hover:text-lodgra-blue dark:hover:text-lodgra-gold transition-colors"
             >
               Features
             </a>
             <a
               href="#pricing"
-              className="text-sm font-inter text-gray-600 dark:text-gray-300 hover:text-lodgra-primary dark:hover:text-lodgra-gold transition-colors"
+              className="text-sm font-inter text-gray-600 dark:text-gray-300 hover:text-lodgra-blue dark:hover:text-lodgra-gold transition-colors"
             >
               Pricing
             </a>
             <a
               href="#faq"
-              className="text-sm font-inter text-gray-600 dark:text-gray-300 hover:text-lodgra-primary dark:hover:text-lodgra-gold transition-colors"
+              className="text-sm font-inter text-gray-600 dark:text-gray-300 hover:text-lodgra-blue dark:hover:text-lodgra-gold transition-colors"
             >
               FAQ
             </a>
@@ -61,7 +61,7 @@ export const Navbar: React.FC<NavbarProps> = ({ locale, onLocaleChange }) => {
             <div className="relative">
               <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="flex items-center gap-1 px-3 py-2 text-sm font-inter text-gray-600 dark:text-gray-300 hover:text-lodgra-primary transition-colors"
+                className="flex items-center gap-1 px-3 py-2 text-sm font-inter text-gray-600 dark:text-gray-300 hover:text-lodgra-blue transition-colors"
                 aria-label="Toggle language selector"
                 aria-expanded={isDropdownOpen}
               >
@@ -91,7 +91,7 @@ export const Navbar: React.FC<NavbarProps> = ({ locale, onLocaleChange }) => {
                       }}
                       className={`block w-full text-left px-4 py-3 text-sm font-inter transition-colors ${
                         locale === loc
-                          ? 'bg-lodgra-primary text-white'
+                          ? 'bg-lodgra-blue text-white'
                           : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
                       }`}
                       aria-label={`Switch to ${localeLabels[loc]}`}
@@ -111,7 +111,7 @@ export const Navbar: React.FC<NavbarProps> = ({ locale, onLocaleChange }) => {
             {/* Login Button */}
             <a
               href="/login"
-              className="hidden sm:inline-block px-4 py-2 text-sm font-inter font-medium text-lodgra-primary dark:text-lodgra-gold border border-lodgra-primary/30 dark:border-lodgra-gold/30 rounded-lg hover:bg-lodgra-primary hover:text-white dark:hover:bg-lodgra-gold dark:hover:text-gray-900 transition-colors"
+              className="hidden sm:inline-block px-4 py-2 text-sm font-inter font-medium text-lodgra-blue dark:text-lodgra-gold border border-lodgra-blue/30 dark:border-lodgra-gold/30 rounded-lg hover:bg-lodgra-blue hover:text-white dark:hover:bg-lodgra-gold dark:hover:text-gray-900 transition-colors"
             >
               Entrar
             </a>
