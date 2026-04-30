@@ -8,13 +8,13 @@ function getStripe() {
 // Returns the Stripe metered price ID for a given plan + currency.
 // Growth: €1 per booking (usage = 1 per booking)
 // Pro:    1% of revenue (usage = revenue_in_euros; price unit = €0.01)
-export function getMeteredPriceId(plan: string, currency: 'eur' | 'brl' = 'eur'): string | null {
+export function getMeteredPriceId(plan: string, currency: 'eur' | 'brl' | 'usd' = 'eur'): string | null {
   const key = `STRIPE_PRICE_ID_${plan.toUpperCase()}_METERED_${currency.toUpperCase()}`
   return process.env[key] ?? null
 }
 
 // Returns the per-unit licensed price ID for a given plan + currency.
-export function getPerUnitPriceId(plan: string, currency: 'eur' | 'brl' = 'eur'): string | null {
+export function getPerUnitPriceId(plan: string, currency: 'eur' | 'brl' | 'usd' = 'eur'): string | null {
   const key = `STRIPE_PRICE_ID_${plan.toUpperCase()}_${currency.toUpperCase()}`
   return process.env[key] ?? null
 }

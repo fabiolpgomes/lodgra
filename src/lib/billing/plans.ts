@@ -28,6 +28,9 @@ export function getPlanFromPriceId(priceId: string): Plan {
     [process.env.STRIPE_PRICE_ID_STARTER_BRL      ?? '']: 'starter',
     [process.env.STRIPE_PRICE_ID_GROWTH_BRL        ?? '']: 'growth',
     [process.env.STRIPE_PRICE_ID_PRO_BRL           ?? '']: 'pro',
+    [process.env.STRIPE_PRICE_ID_STARTER_USD      ?? '']: 'starter',
+    [process.env.STRIPE_PRICE_ID_GROWTH_USD        ?? '']: 'growth',
+    [process.env.STRIPE_PRICE_ID_PRO_USD           ?? '']: 'pro',
     // legacy
     [process.env.STRIPE_PRICE_ID_PROFESSIONAL_EUR ?? '']: 'professional',
     [process.env.STRIPE_PRICE_ID_BUSINESS_EUR     ?? '']: 'business',
@@ -37,15 +40,15 @@ export function getPlanFromPriceId(priceId: string): Plan {
   return map[priceId] ?? 'starter'
 }
 
-export function getPriceIdForPlan(plan: Plan, currency: 'eur' | 'brl'): string {
+export function getPriceIdForPlan(plan: Plan, currency: 'eur' | 'brl' | 'usd'): string {
   const ids: Record<Plan, Record<string, string | undefined>> = {
-    starter:      { eur: process.env.STRIPE_PRICE_ID_STARTER_EUR,      brl: process.env.STRIPE_PRICE_ID_STARTER_BRL },
-    growth:       { eur: process.env.STRIPE_PRICE_ID_GROWTH_EUR,       brl: process.env.STRIPE_PRICE_ID_GROWTH_BRL },
-    pro:          { eur: process.env.STRIPE_PRICE_ID_PRO_EUR,          brl: process.env.STRIPE_PRICE_ID_PRO_BRL },
-    enterprise:   { eur: undefined,                                      brl: undefined },
+    starter:      { eur: process.env.STRIPE_PRICE_ID_STARTER_EUR,      brl: process.env.STRIPE_PRICE_ID_STARTER_BRL,      usd: process.env.STRIPE_PRICE_ID_STARTER_USD },
+    growth:       { eur: process.env.STRIPE_PRICE_ID_GROWTH_EUR,       brl: process.env.STRIPE_PRICE_ID_GROWTH_BRL,       usd: process.env.STRIPE_PRICE_ID_GROWTH_USD },
+    pro:          { eur: process.env.STRIPE_PRICE_ID_PRO_EUR,          brl: process.env.STRIPE_PRICE_ID_PRO_BRL,          usd: process.env.STRIPE_PRICE_ID_PRO_USD },
+    enterprise:   { eur: undefined,                                      brl: undefined,                                     usd: undefined },
     // legacy aliases
-    professional: { eur: process.env.STRIPE_PRICE_ID_PROFESSIONAL_EUR, brl: process.env.STRIPE_PRICE_ID_PROFESSIONAL_BRL },
-    business:     { eur: process.env.STRIPE_PRICE_ID_BUSINESS_EUR,     brl: process.env.STRIPE_PRICE_ID_BUSINESS_BRL },
+    professional: { eur: process.env.STRIPE_PRICE_ID_PROFESSIONAL_EUR, brl: process.env.STRIPE_PRICE_ID_PROFESSIONAL_BRL, usd: undefined },
+    business:     { eur: process.env.STRIPE_PRICE_ID_BUSINESS_EUR,     brl: process.env.STRIPE_PRICE_ID_BUSINESS_BRL,     usd: undefined },
   }
   return ids[plan]?.[currency] ?? ids[plan]?.eur ?? ''
 }

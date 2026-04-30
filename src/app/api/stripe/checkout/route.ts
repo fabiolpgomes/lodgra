@@ -23,7 +23,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Enterprise requer contacto directo' }, { status: 400 })
     }
 
-    const planCurrency: 'eur' | 'brl' = ['brl'].includes(currency.toLowerCase()) ? 'brl' : 'eur'
+    const c = currency.toLowerCase()
+    const planCurrency: 'eur' | 'brl' | 'usd' = c === 'brl' ? 'brl' : c === 'usd' ? 'usd' : 'eur'
     const priceId = getPerUnitPriceId(plan, planCurrency)
 
     if (!priceId) {

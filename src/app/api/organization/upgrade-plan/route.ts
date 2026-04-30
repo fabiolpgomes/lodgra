@@ -71,15 +71,20 @@ export async function POST(request: NextRequest) {
     }
 
     // Detect currency from base price ID
-    let planCurrency: 'eur' | 'brl' = 'eur'
+    let planCurrency: 'eur' | 'brl' | 'usd' = 'eur'
     const basePriceId = baseItem?.price?.id ?? ''
-    if (
-      basePriceId === process.env.STRIPE_PRICE_ID_STARTER_BRL ||
-      basePriceId === process.env.STRIPE_PRICE_ID_GROWTH_BRL ||
-      basePriceId === process.env.STRIPE_PRICE_ID_PRO_BRL
-    ) {
-      planCurrency = 'brl'
-    }
+    const brlPrices = [
+      process.env.STRIPE_PRICE_ID_STARTER_BRL,
+      process.env.STRIPE_PRICE_ID_GROWTH_BRL,
+      process.env.STRIPE_PRICE_ID_PRO_BRL,
+    ]
+    const usdPrices = [
+      process.env.STRIPE_PRICE_ID_STARTER_USD,
+      process.env.STRIPE_PRICE_ID_GROWTH_USD,
+      process.env.STRIPE_PRICE_ID_PRO_USD,
+    ]
+    if (brlPrices.includes(basePriceId)) planCurrency = 'brl'
+    else if (usdPrices.includes(basePriceId)) planCurrency = 'usd'
 
     const newPriceId = getPerUnitPriceId(plan, planCurrency)
     if (!newPriceId) {
