@@ -177,6 +177,11 @@ async function handleCheckoutCompleted(supabase: AdminClient, session: Stripe.Ch
       }
     } else {
       userId = inviteData?.user?.id
+      // Auto-confirm email so the user can set password and log in immediately
+      // after completing the Stripe checkout — avoids the "Email not confirmed" block.
+      if (userId) {
+        await supabase.auth.admin.updateUserById(userId, { email_confirm: true })
+      }
     }
   }
 
