@@ -38,7 +38,7 @@ export const EuropeLanding = async ({ locale }: EuropeLandingProps) => {
   return (
     <main className="bg-white">
       {/* We use the generic LandingPageClient which represent the standard/clean model */}
-      <LandingPageClient locale={locale === 'pt' ? 'pt-BR' : locale} content={content} />
+      <LandingPageClient locale={locale} content={content} />
     </main>
   )
 }

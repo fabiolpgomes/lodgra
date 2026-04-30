@@ -20,7 +20,7 @@ interface SocialProofData {
 }
 
 interface LandingPageClientProps {
-  locale: 'pt-BR' | 'en-US' | 'es'
+  locale: 'pt' | 'pt-BR' | 'en-US' | 'es'
   content: {
     hero: {
       headline: string
