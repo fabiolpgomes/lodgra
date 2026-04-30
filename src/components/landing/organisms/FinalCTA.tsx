@@ -17,7 +17,7 @@ export const FinalCTA: React.FC<FinalCTAProps> = ({
   note,
   onCta,
 }) => (
-  <section className="bg-lodgra-primary py-20 md:py-32">
+  <section className="bg-lodgra-blue py-20 md:py-32">
     <Container>
       <div className="text-center max-w-3xl mx-auto">
         <h2 className="font-poppins font-bold text-3xl md:text-4xl lg:text-5xl text-white mb-4 leading-tight">

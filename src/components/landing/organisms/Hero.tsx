@@ -68,14 +68,14 @@ export const Hero: React.FC<HeroProps> = ({
 
         {/* Illustration - Minimal premium */}
         <div className="mt-16 w-full">
-          <div className="relative overflow-hidden rounded-2xl bg-lodgra-light dark:bg-gray-800 aspect-video shadow-lg border border-lodgra-primary/10 dark:border-gray-700">
+          <div className="relative overflow-hidden rounded-2xl bg-lodgra-gray dark:bg-gray-800 aspect-video shadow-lg border border-lodgra-blue/10 dark:border-gray-700">
             {/* Content */}
             <div className="h-full flex items-center justify-center">
               <div className="text-center">
-                <svg className="w-20 h-20 text-lodgra-primary mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-20 h-20 text-lodgra-blue mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12l2-3m0 0l7-4 7 4M5 9v10a1 1 0 001 1h12a1 1 0 001-1V9m-9 3l3 3m0 0l3-3m-3 3V8" />
                 </svg>
-                <p className="text-lodgra-primary font-inter text-sm font-medium tracking-wide">
+                <p className="text-lodgra-blue font-inter text-sm font-medium tracking-wide">
                   Maximize Your Revenue
                 </p>
               </div>
@@ -86,19 +86,19 @@ export const Hero: React.FC<HeroProps> = ({
         {/* Trust badge - Minimal and elegant */}
         <div className="mt-12 flex justify-center items-center gap-8 text-sm text-gray-500 dark:text-gray-400 font-inter">
           <div className="flex items-center gap-2">
-            <svg className="w-4 h-4 text-lodgra-primary" fill="currentColor" viewBox="0 0 20 20">
+            <svg className="w-4 h-4 text-lodgra-blue" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
             </svg>
             7 days to test
           </div>
           <div className="flex items-center gap-2">
-            <svg className="w-4 h-4 text-lodgra-primary" fill="currentColor" viewBox="0 0 20 20">
+            <svg className="w-4 h-4 text-lodgra-blue" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
             </svg>
             Money-back guarantee
           </div>
           <div className="flex items-center gap-2">
-            <svg className="w-4 h-4 text-lodgra-primary" fill="currentColor" viewBox="0 0 20 20">
+            <svg className="w-4 h-4 text-lodgra-blue" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
             </svg>
             Cancel anytime

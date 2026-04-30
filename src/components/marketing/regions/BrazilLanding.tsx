@@ -77,7 +77,7 @@ export const BrazilLanding: React.FC = () => {
             </div>
 
             <Link href="/login" className="hidden sm:inline-block text-sm font-bold hover:opacity-80 transition-opacity" style={{ color: '#1E3A8A' }}>Entrar</Link>
-            <Link href="/register" className="px-6 py-2.5 text-white text-sm font-bold rounded-full transition-all shadow-md active:scale-95" style={{ backgroundColor: '#D4AF37' }}>
+            <Link href="/register" className="px-6 py-2.5 text-white text-sm font-bold rounded-full transition-all shadow-md active:scale-95" style={{ backgroundColor: '#059669' }}>
               Começar Agora
             </Link>
           </div>
@@ -101,7 +101,7 @@ export const BrazilLanding: React.FC = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-5">
-            <Link href="/register" className="w-full sm:w-auto px-10 py-4 bg-lodgra-gold hover:bg-lodgra-gold/90 text-white font-bold rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 group text-lg">
+            <Link href="/register" className="w-full sm:w-auto px-10 py-4 text-white font-bold rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 group text-lg" style={{ backgroundColor: '#059669' }}>
               Ver demonstração gratuita
               <LucideArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Link>
@@ -254,7 +254,11 @@ export const BrazilLanding: React.FC = () => {
                     </div>
                   ))}
                 </div>
-                <Link href="/register" className={`w-full py-4 text-center rounded-xl font-bold transition-all ${tier.featured ? 'bg-lodgra-gold text-white hover:bg-lodgra-gold/90' : 'bg-zinc-100 text-lodgra-dark hover:bg-zinc-200'}`}>
+                <Link
+                  href="/register"
+                  className="w-full py-4 text-center rounded-xl font-bold transition-all text-white"
+                  style={{ backgroundColor: tier.name === 'Pro' ? '#6B7280' : '#059669' }}
+                >
                   {tier.name === 'Pro' ? 'Em breve' : `Escolher ${tier.name}`}
                 </Link>
               </div>
@@ -273,7 +277,7 @@ export const BrazilLanding: React.FC = () => {
             Junte-se aos gestores que decidiram pela inteligência e design em sua operação de aluguel por temporada.
           </p>
           <div className="flex flex-col sm:flex-row justify-center items-center gap-6">
-            <Link href="/register" className="px-12 py-5 bg-lodgra-blue text-white font-bold rounded-xl text-xl shadow-xl hover:shadow-lodgra-blue/20 transition-all">
+            <Link href="/register" className="px-12 py-5 text-white font-bold rounded-xl text-xl shadow-xl transition-all" style={{ backgroundColor: '#059669' }}>
               Criar minha conta grátis
             </Link>
             <div className="flex items-center gap-4">

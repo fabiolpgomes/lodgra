@@ -47,7 +47,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           ${sizes[size]}
           ${fullWidth ? 'w-full' : ''}
         `}
-        style={variant === 'primary' ? { backgroundColor: '#D4AF37' } : undefined}
+        style={variant === 'primary' ? { backgroundColor: '#059669' } : undefined}
         {...props}
       >
         {isLoading ? (
