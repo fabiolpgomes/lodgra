@@ -160,11 +160,14 @@ async function handleCheckoutCompleted(supabase: AdminClient, session: Stripe.Ch
     console.log(`Utilizador já existe: ${email} (${userId})`)
   } else {
     // Novo utilizador — enviar convite por email
+    // redirectTo aponta para /auth/callback que faz exchangeCodeForSession (PKCE).
+    // Sem isso, o código chega em /onboarding sem ser trocado e a sessão nunca se forma.
+    const inviteNext = encodeURIComponent('/auth/reset-password-confirm?from=invite')
     const { data: inviteData, error: inviteError } = await supabase.auth.admin.inviteUserByEmail(
       email,
       {
         data: { organization_id: org.id },
-        redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/onboarding`,
+        redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback?next=${inviteNext}`,
       }
     )
     if (inviteError) {

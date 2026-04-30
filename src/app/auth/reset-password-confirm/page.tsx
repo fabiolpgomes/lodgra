@@ -15,6 +15,7 @@ export default function ResetPasswordConfirmPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const code = searchParams.get('code')
+  const from = searchParams.get('from')
 
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -101,10 +102,10 @@ export default function ResetPasswordConfirmPage() {
 
       if (updateError) throw updateError
 
-      toast.success('Password alterada com sucesso!')
+      toast.success('Password criada com sucesso!')
 
-      // Redirecionar para login
-      router.push('/login?success=password_reset')
+      // Novo utilizador via invite → onboarding; reset normal → login
+      router.push(from === 'invite' ? '/onboarding' : '/login?success=password_reset')
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Erro ao resetar password'
       console.error('Password reset error:', err)
@@ -143,11 +144,13 @@ export default function ResetPasswordConfirmPage() {
         {/* Card */}
         <div className="bg-white rounded-xl shadow-xl p-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-2 text-center">
-            Reset sua Password
+            {from === 'invite' ? 'Criar sua senha' : 'Reset sua Password'}
           </h2>
 
           <p className="text-sm text-gray-600 text-center mb-6">
-            Escolha uma password segura e forte.
+            {from === 'invite'
+              ? 'Defina uma senha para aceder à sua conta Lodgra.'
+              : 'Escolha uma password segura e forte.'}
           </p>
 
           {error && (
