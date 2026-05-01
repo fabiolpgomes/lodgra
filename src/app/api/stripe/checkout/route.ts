@@ -15,6 +15,14 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { email, currency = 'eur', plan } = body
 
+    // Use request origin so success/cancel URLs always point to the correct domain
+    // regardless of NEXT_PUBLIC_APP_URL env value (which may be stale in Vercel)
+    const origin =
+      request.headers.get('origin') ||
+      request.headers.get('referer')?.replace(/\/[^/]*$/, '') ||
+      process.env.NEXT_PUBLIC_APP_URL ||
+      'https://homestay.pt'
+
     if (!plan) {
       return NextResponse.json({ error: 'Plano obrigatório' }, { status: 400 })
     }
@@ -48,8 +56,8 @@ export async function POST(request: NextRequest) {
       payment_method_types: ['card'],
       line_items: lineItems,
       customer_email: email || undefined,
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/`,
+      success_url: `${origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/`,
       metadata: { source: 'landing_page', plan, currency: planCurrency },
       subscription_data: {
         metadata: { plan, currency: planCurrency },
