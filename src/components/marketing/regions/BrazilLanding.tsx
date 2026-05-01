@@ -17,6 +17,22 @@ import { useState } from 'react'
 
 export const BrazilLanding: React.FC = () => {
   const [isLangOpen, setIsLangOpen] = useState(false)
+  const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null)
+
+  async function handleCheckout(plan: string) {
+    setCheckoutLoading(plan)
+    try {
+      const res = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan, currency: 'brl' }),
+      })
+      const data = await res.json()
+      if (data.url) window.location.href = data.url
+    } catch {
+      setCheckoutLoading(null)
+    }
+  }
 
   const currentLang = { code: 'pt-BR', label: 'Brasil', flag: '🇧🇷' }
 
@@ -77,9 +93,9 @@ export const BrazilLanding: React.FC = () => {
             </div>
 
             <Link href="/login" className="hidden sm:inline-block text-sm font-bold hover:opacity-80 transition-opacity" style={{ color: '#1E3A8A' }}>Entrar</Link>
-            <Link href="/register" className="px-6 py-2.5 text-white text-sm font-bold rounded-full transition-all shadow-md active:scale-95" style={{ backgroundColor: '#059669' }}>
-              Começar Agora
-            </Link>
+            <a href="#pricing" className="px-6 py-2.5 text-white text-sm font-bold rounded-full transition-all shadow-md active:scale-95" style={{ backgroundColor: '#059669' }}>
+              Ver Planos
+            </a>
           </div>
         </div>
       </nav>
@@ -101,14 +117,17 @@ export const BrazilLanding: React.FC = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-5">
-            <Link href="/register" className="w-full sm:w-auto px-10 py-4 text-white font-bold rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 group text-lg" style={{ backgroundColor: '#059669' }}>
-              Ver demonstração gratuita
+            <a href="#pricing" className="w-full sm:w-auto px-10 py-4 text-white font-bold rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 group text-lg" style={{ backgroundColor: '#059669' }}>
+              Ver planos e preços
               <LucideArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </Link>
+            </a>
             <a href="#features" className="w-full sm:w-auto px-10 py-4 bg-white hover:bg-lodgra-gray text-lodgra-blue font-bold rounded-xl transition-all border border-zinc-200">
               Conhecer recursos
             </a>
           </div>
+          <p className="mt-8 text-sm text-zinc-400 font-medium">
+            Sem trial gratuito · Pague o plano · <strong className="text-lodgra-dark">7 dias de garantia de reembolso</strong> se não ficar satisfeito
+          </p>
 
           <div className="mt-20 flex flex-wrap justify-center items-center gap-8 md:gap-16 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
             <span className="font-lodgra-heading font-bold text-xl">AIRBNB</span>
@@ -211,7 +230,10 @@ export const BrazilLanding: React.FC = () => {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold mb-4 text-lodgra-blue font-lodgra-heading">Investimento para prosperar.</h2>
-            <p className="text-lg text-lodgra-dark">Preços transparentes, escaláveis e sem taxas de setup gringas.</p>
+            <p className="text-lg text-lodgra-dark mb-4">Preços transparentes, escaláveis e sem taxas de setup gringas.</p>
+            <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-sm font-bold" style={{ backgroundColor: '#059669', color: 'white' }}>
+              <span>✓</span> 7 dias de garantia de reembolso — sem perguntas
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
@@ -265,16 +287,30 @@ export const BrazilLanding: React.FC = () => {
                     Em breve
                   </button>
                 ) : (
-                  <Link
-                    href="/register"
-                    className="w-full py-4 text-center rounded-xl font-bold transition-all text-white"
+                  <button
+                    onClick={() => handleCheckout(tier.name === 'Essencial' ? 'starter' : 'growth')}
+                    disabled={checkoutLoading !== null}
+                    className="w-full py-4 text-center rounded-xl font-bold transition-all text-white disabled:opacity-70"
                     style={{ backgroundColor: '#059669' }}
                   >
-                    Escolher {tier.name}
-                  </Link>
+                    {checkoutLoading === (tier.name === 'Essencial' ? 'starter' : 'growth')
+                      ? 'Redirecionando...'
+                      : `Escolher ${tier.name}`}
+                  </button>
                 )}
               </div>
             ))}
+          </div>
+
+          {/* Garantia strip */}
+          <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-6 text-sm font-semibold text-zinc-500">
+            <span className="flex items-center gap-2"><span style={{ color: '#059669' }}>✓</span> 7 dias de garantia de reembolso</span>
+            <span className="hidden sm:block text-zinc-200">|</span>
+            <span className="flex items-center gap-2"><span style={{ color: '#059669' }}>✓</span> Sem contrato de fidelidade</span>
+            <span className="hidden sm:block text-zinc-200">|</span>
+            <span className="flex items-center gap-2"><span style={{ color: '#059669' }}>✓</span> Cancele quando quiser</span>
+            <span className="hidden sm:block text-zinc-200">|</span>
+            <span className="flex items-center gap-2"><span style={{ color: '#059669' }}>✓</span> Suporte em português</span>
           </div>
         </div>
       </section>
@@ -285,13 +321,14 @@ export const BrazilLanding: React.FC = () => {
           <h2 className="text-4xl md:text-5xl font-bold mb-8 text-lodgra-blue font-lodgra-heading">
             Pare de lutar com seu software e comece a escalar.
           </h2>
-          <p className="text-xl text-lodgra-dark mb-12 max-w-2xl mx-auto">
-            Junte-se aos gestores que decidiram pela inteligência e design em sua operação de aluguel por temporada.
+          <p className="text-xl text-lodgra-dark mb-4 max-w-2xl mx-auto">
+            Escolha seu plano, pague e teste por 7 dias. Se não ficar satisfeito, devolvemos 100% do valor — sem perguntas.
           </p>
+          <p className="text-sm text-zinc-400 mb-10 font-medium">Sem trial gratuito · Pague e use · Garantia de 7 dias</p>
           <div className="flex flex-col sm:flex-row justify-center items-center gap-6">
-            <Link href="/register" className="px-12 py-5 text-white font-bold rounded-xl text-xl shadow-xl transition-all" style={{ backgroundColor: '#059669' }}>
-              Criar minha conta grátis
-            </Link>
+            <a href="#pricing" className="px-12 py-5 text-white font-bold rounded-xl text-xl shadow-xl transition-all" style={{ backgroundColor: '#059669' }}>
+              Escolher meu plano
+            </a>
             <div className="flex items-center gap-4">
                <div className="flex -space-x-2">
                   {[1,2,3,4].map(i => (

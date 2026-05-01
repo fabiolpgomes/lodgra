@@ -71,19 +71,31 @@ interface LandingPageClientProps {
 
 export const LandingPageClient: React.FC<LandingPageClientProps> = ({ locale, content }) => {
   const handleCtaPrimary = useCallback(() => {
-    window.location.href = '/register'
+    document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })
   }, [])
 
   const handleCtaSecondary = useCallback(() => {
     document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })
   }, [])
 
-  const handleSelectPricing = useCallback((tierId: string) => {
-    window.location.href = `/register?plan=${tierId}`
-  }, [])
+  const handleSelectPricing = useCallback(async (tierId: string) => {
+    const currency = locale === 'pt-BR' ? 'brl' : locale === 'en-US' ? 'usd' : 'eur'
+    try {
+      const res = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan: tierId, currency }),
+      })
+      const data = await res.json()
+      if (data.url) window.location.href = data.url
+    } catch {
+      // fallback para register se o checkout falhar
+      window.location.href = `/register?plan=${tierId}`
+    }
+  }, [locale])
 
   const handleFinalCta = useCallback(() => {
-    window.location.href = '/register'
+    document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })
   }, [])
 
   const handleLocaleChange = useCallback((newLocale: 'pt-BR' | 'en-US' | 'es' | 'pt') => {

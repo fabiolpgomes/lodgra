@@ -2,7 +2,7 @@
   "hero": {
     "headline": "Hospedería Inteligente. Resultados Reales.",
     "subheadline": "Compliance + ROI. Automatización financiera inteligente y optimización de rentabilidad para propietarios profesionales de corta duración.",
-    "ctaPrimary": "Prueba 7 Días — Devolución Garantizada",
+    "ctaPrimary": "Ver planes y precios",
     "ctaSecondary": "Ver Demo"
   },
   "valueProposition": {
@@ -130,9 +130,9 @@
   },
   "finalCta": {
     "headline": "Comienza a ganar de manera inteligente hoy.",
-    "subheadline": "Prueba Lodgra por 7 días. Si no te encanta, devolvemos tu dinero. Garantizado.",
-    "ctaText": "Prueba 7 Días — Devolución Garantizada",
-    "note": "Acceso completo por 7 días. Reembolso si no estás satisfecho."
+    "subheadline": "Elige tu plan, paga y prueba. Si no estás satisfecho en los primeros 7 días, te devolvemos el 100% — sin preguntas.",
+    "ctaText": "Elegir mi plan",
+    "note": "Sin prueba gratuita · Sin contrato · 7 días de garantía de reembolso"
   },
   "footer": {
     "copyright": "Lodgra © 2026. Todos los derechos reservados.",

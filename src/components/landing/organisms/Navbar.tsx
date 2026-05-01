@@ -119,10 +119,10 @@ export const Navbar: React.FC<NavbarProps> = ({ locale, onLocaleChange }) => {
             {/* CTA Button */}
             <Button
               size="sm"
-              onClick={() => (window.location.href = '/register')}
+              onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })}
               className="hidden sm:inline-block"
             >
-              Get Started
+              Ver Planos
             </Button>
           </div>
         </div>

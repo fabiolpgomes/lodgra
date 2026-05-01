@@ -2,7 +2,7 @@
   "hero": {
     "headline": "Smart hosting. Real returns.",
     "subheadline": "Compliance meets ROI. Automated financial reporting and intelligent yield optimization for the modern STR operator.",
-    "ctaPrimary": "Try 7 Days — Money-Back Guarantee",
+    "ctaPrimary": "See plans & pricing",
     "ctaSecondary": "Watch Demo"
   },
   "valueProposition": {
@@ -51,9 +51,21 @@
   },
   "socialProof": {
     "stats": [
-      { "value": "150+", "label": "Properties Managed", "color": "text-lodgra-primary" },
-      { "value": "10K+", "label": "Reservations Processed", "color": "text-lodgra-gold" },
-      { "value": "€50M+", "label": "Revenue Optimized", "color": "text-green-600" }
+      {
+        "value": "150+",
+        "label": "Properties Managed",
+        "color": "text-lodgra-primary"
+      },
+      {
+        "value": "10K+",
+        "label": "Reservations Processed",
+        "color": "text-lodgra-gold"
+      },
+      {
+        "value": "€50M+",
+        "label": "Revenue Optimized",
+        "color": "text-green-600"
+      }
     ],
     "trustedByTitle": "Trusted by property managers worldwide",
     "testimonialsTitle": "What managers say about Lodgra",
@@ -77,7 +89,11 @@
         "properties": "25 properties"
       }
     ],
-    "trustBadges": ["✓ GDPR Compliant", "✓ Enterprise Grade Security", "✓ 99.9% Uptime SLA"]
+    "trustBadges": [
+      "✓ GDPR Compliant",
+      "✓ Enterprise Grade Security",
+      "✓ 99.9% Uptime SLA"
+    ]
   },
   "pricing": {
     "title": "Simple, Transparent Pricing",
@@ -160,32 +176,71 @@
   },
   "finalCta": {
     "headline": "Start earning smarter today.",
-    "subheadline": "Try Lodgra for 7 days. If you don't love it, we'll refund your money. Guaranteed.",
-    "ctaText": "Try 7 Days — Money-Back Guarantee",
-    "note": "Full access for 7 days. Money back if not satisfied."
+    "subheadline": "Choose your plan, pay and start using it. If you are not satisfied within the first 7 days, we refund 100% — no questions asked.",
+    "ctaText": "Choose my plan",
+    "note": "No free trial · No contract · 7-day money-back guarantee"
   },
   "footer": {
     "copyright": "Lodgra © 2026. All rights reserved.",
     "productLinks": [
-      { "label": "Features", "href": "/#features" },
-      { "label": "Pricing", "href": "/#pricing" },
-      { "label": "Integrations", "href": "/#integrations" },
-      { "label": "Security", "href": "/terms" }
+      {
+        "label": "Features",
+        "href": "/#features"
+      },
+      {
+        "label": "Pricing",
+        "href": "/#pricing"
+      },
+      {
+        "label": "Integrations",
+        "href": "/#integrations"
+      },
+      {
+        "label": "Security",
+        "href": "/terms"
+      }
     ],
     "companyLinks": [
-      { "label": "About", "href": "/" },
-      { "label": "Blog", "href": "/" },
-      { "label": "Careers", "href": "/" },
-      { "label": "Contact", "href": "/" }
+      {
+        "label": "About",
+        "href": "/"
+      },
+      {
+        "label": "Blog",
+        "href": "/"
+      },
+      {
+        "label": "Careers",
+        "href": "/"
+      },
+      {
+        "label": "Contact",
+        "href": "/"
+      }
     ],
     "supportLinks": [
-      { "label": "Documentation", "href": "/" },
-      { "label": "Help Center", "href": "/" },
-      { "label": "Contact Support", "href": "/" }
+      {
+        "label": "Documentation",
+        "href": "/"
+      },
+      {
+        "label": "Help Center",
+        "href": "/"
+      },
+      {
+        "label": "Contact Support",
+        "href": "/"
+      }
     ],
     "legalLinks": [
-      { "label": "Terms of Service", "href": "/terms" },
-      { "label": "Privacy Policy", "href": "/privacy" }
+      {
+        "label": "Terms of Service",
+        "href": "/terms"
+      },
+      {
+        "label": "Privacy Policy",
+        "href": "/privacy"
+      }
     ]
   }
 }

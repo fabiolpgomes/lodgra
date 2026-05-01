@@ -2,7 +2,7 @@
   "hero": {
     "headline": "Sua hospedagem, seu patrimônio.",
     "subheadline": "Gestão inteligente de hospedagem com foco em resultado financeiro. O mercado de locação de curta e média estadia cresce acelerado. Lodgra é a ferramenta que faltava.",
-    "ctaPrimary": "Teste 7 Dias — Seu dinheiro de volta",
+    "ctaPrimary": "Ver planos e preços",
     "ctaSecondary": "Ver Demo"
   },
   "valueProposition": {
@@ -51,9 +51,21 @@
   },
   "socialProof": {
     "stats": [
-      { "value": "150+", "label": "Propriedades Gerenciadas", "color": "text-lodgra-primary" },
-      { "value": "10K+", "label": "Reservas Processadas", "color": "text-lodgra-gold" },
-      { "value": "R$50M+", "label": "Receita Otimizada", "color": "text-green-600" }
+      {
+        "value": "150+",
+        "label": "Propriedades Gerenciadas",
+        "color": "text-lodgra-primary"
+      },
+      {
+        "value": "10K+",
+        "label": "Reservas Processadas",
+        "color": "text-lodgra-gold"
+      },
+      {
+        "value": "R$50M+",
+        "label": "Receita Otimizada",
+        "color": "text-green-600"
+      }
     ],
     "trustedByTitle": "Confiado por gestores de imóveis no mundo todo",
     "testimonialsTitle": "O que os gestores dizem sobre a Lodgra",
@@ -77,7 +89,11 @@
         "properties": "25 imóveis"
       }
     ],
-    "trustBadges": ["✓ LGPD Conforme", "✓ Segurança Enterprise", "✓ 99.9% SLA de Uptime"]
+    "trustBadges": [
+      "✓ LGPD Conforme",
+      "✓ Segurança Enterprise",
+      "✓ 99.9% SLA de Uptime"
+    ]
   },
   "pricing": {
     "title": "Preços Simples e Transparentes",
@@ -159,33 +175,72 @@
     ]
   },
   "finalCta": {
-    "headline": "Comece a ganhar inteligente hoje.",
-    "subheadline": "Teste a Lodgra por 7 dias. Se você não amar, devolvemos seu dinheiro. Garantido.",
-    "ctaText": "Teste 7 Dias — Seu dinheiro de volta",
-    "note": "Acesso completo por 7 dias. Reembolso se não ficar satisfeito."
+    "headline": "Pare de adivinhar. Comece a crescer.",
+    "subheadline": "Escolha o plano, pague e use. Se não ficar satisfeito nos primeiros 7 dias, devolvemos 100% do valor — sem perguntas.",
+    "ctaText": "Escolher meu plano",
+    "note": "Sem trial gratuito · Sem contrato · 7 dias de garantia de reembolso"
   },
   "footer": {
     "copyright": "Lodgra © 2026. Todos os direitos reservados.",
     "productLinks": [
-      { "label": "Funcionalidades", "href": "/#features" },
-      { "label": "Preços", "href": "/#pricing" },
-      { "label": "Integrações", "href": "/#integrations" },
-      { "label": "Segurança", "href": "/terms" }
+      {
+        "label": "Funcionalidades",
+        "href": "/#features"
+      },
+      {
+        "label": "Preços",
+        "href": "/#pricing"
+      },
+      {
+        "label": "Integrações",
+        "href": "/#integrations"
+      },
+      {
+        "label": "Segurança",
+        "href": "/terms"
+      }
     ],
     "companyLinks": [
-      { "label": "Sobre", "href": "/" },
-      { "label": "Blog", "href": "/" },
-      { "label": "Carreiras", "href": "/" },
-      { "label": "Contato", "href": "/" }
+      {
+        "label": "Sobre",
+        "href": "/"
+      },
+      {
+        "label": "Blog",
+        "href": "/"
+      },
+      {
+        "label": "Carreiras",
+        "href": "/"
+      },
+      {
+        "label": "Contato",
+        "href": "/"
+      }
     ],
     "supportLinks": [
-      { "label": "Documentação", "href": "/" },
-      { "label": "Central de Ajuda", "href": "/" },
-      { "label": "Contate o Suporte", "href": "/" }
+      {
+        "label": "Documentação",
+        "href": "/"
+      },
+      {
+        "label": "Central de Ajuda",
+        "href": "/"
+      },
+      {
+        "label": "Contate o Suporte",
+        "href": "/"
+      }
     ],
     "legalLinks": [
-      { "label": "Termos de Serviço", "href": "/terms" },
-      { "label": "Política de Privacidade", "href": "/privacy" }
+      {
+        "label": "Termos de Serviço",
+        "href": "/terms"
+      },
+      {
+        "label": "Política de Privacidade",
+        "href": "/privacy"
+      }
     ]
   }
 }
