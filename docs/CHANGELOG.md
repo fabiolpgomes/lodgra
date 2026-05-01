@@ -7,6 +7,51 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.5.0] - 2026-05-01
+
+### Design System, Property Page V2, PWA Brand & Compliance RLS
+
+#### Design System — Lodgra Tokens (Story 14.1)
+
+- `tailwind.config.ts` — `brand` scale (50–950, `#1E3A8A` @ 800) + `accent` scale (300–700, `#D4AF37` @ 500) + typography aliases `lodgra-heading`/`lodgra-body`
+- `src/app/globals.css` — CSS custom properties via `@theme inline` para Tailwind v4
+- `src/lib/design/tokens.ts` — Constantes tipadas: `BRAND`, `ACCENT`, `CTA`, `SEMANTIC`, `SHADOW`, `RADIUS`, `ANIMATION`, `BREAKPOINTS`
+- `src/components/ui/Logo.tsx` — Componente SVG com variantes `default`, `white`, `compact` e prop `size`
+- `src/app/design/page.tsx` — Página de preview `/design` (dev-only, `notFound()` em production)
+
+#### Property Page V2 — Redesign (Story 14.2)
+
+- `PropertyPageHeader.tsx` — Header scroll-aware: transparente → `bg-white shadow-sm` ao scroll > 80px; Logo adapta variante
+- `BookingWidgetDesktop.tsx` / `BookingWidgetMobile.tsx` — CTAs orange migrados para `#059669` (lodgra-green)
+- `PropertyPageV2.tsx` — Quick stats com ícones Lucide (`Users`, `BedDouble`, `Bath`); footer com © Lodgra + links Privacy/Terms
+- `PropertyLocation.tsx` — API key Google Maps hardcoded removida; usa `maps.google.com/maps?q=...&output=embed`
+
+#### PWA Brand Tokens (Story 14.4)
+
+- `public/manifest.json` — `theme_color: "#1E3A8A"`, `background_color: "#FAFAF9"`, branding Lodgra completo
+- `public/brand/` — Logos horizontais e verticais PNG adicionados
+
+#### Compliance RLS — Multi-Tenant Isolation (Story 11.6 — P0 Security)
+
+- `supabase/migrations/20260501_01_compliance_org_isolation_complete.sql` — FK `consent_records.user_id` → ON DELETE SET NULL; constraint `scheduled_at > requested_at` (idempotente)
+- `src/app/api/admin/compliance/route.ts` — `.eq('organization_id', organizationId)` em `consent_records` e `deletion_requests` (AC8)
+- `src/app/api/admin/compliance/csv/route.ts` — Mesmo filtro org no export CSV
+- `src/app/api/admin/compliance/__tests__/org-isolation.test.ts` — 7 testes de isolamento cross-org (todos PASS)
+
+#### Multi-Currency — Símbolos Dinâmicos
+
+- `reservations/[id]/page.tsx`, `reservations/[id]/edit/page.tsx`, `reservations/new/page.tsx` — `€` hardcoded → `getCurrencySymbol()`
+- `properties/[id]/pricing/page.tsx`, `PricingRulesManager.tsx` — Currency symbol dinâmico via prop
+- `RevenueChart.tsx` — Label e tooltips com `getCurrencySymbol(currency)`
+- PIX (`GeneratePixButton`) condicionado a `reservation.currency === 'BRL'`
+
+#### Fixes de Qualidade
+
+- `eslint.config.mjs` — `.vercel/**` adicionado aos ignores (artefactos de build)
+- `Navbar.tsx` — `<a href="/login">` → `<Link href="/login">` (erro ESLint `@next/next/no-html-link-for-pages`)
+
+---
+
 ## [1.4.0] - 2026-05-01
 
 ### Stripe Billing Multi-Market, Auth Flow Fixes & Landing Page Overhaul
