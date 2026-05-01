@@ -33,7 +33,13 @@ export async function POST(request: NextRequest) {
 
     const c = currency.toLowerCase()
     const planCurrency: 'eur' | 'brl' | 'usd' = c === 'brl' ? 'brl' : c === 'usd' ? 'usd' : 'eur'
-    const priceId = getPerUnitPriceId(plan, planCurrency)
+
+    // In test mode use a single test price (live prices don't exist in Stripe test env)
+    const isTestMode = (process.env.STRIPE_SECRET_KEY ?? '').startsWith('sk_test_') ||
+                       (process.env.STRIPE_SECRET_KEY ?? '').startsWith('rk_test_')
+    const testPriceId = process.env.STRIPE_TEST_PRICE_ID
+
+    const priceId = isTestMode && testPriceId ? testPriceId : getPerUnitPriceId(plan, planCurrency)
 
     if (!priceId) {
       return NextResponse.json({ error: 'Plano sem preço configurado — contacte suporte' }, { status: 400 })
@@ -43,8 +49,8 @@ export async function POST(request: NextRequest) {
       { price: priceId, quantity: 1 },
     ]
 
-    // Add metered price item for Growth and Pro plans
-    if (METERED_PLANS.includes(plan)) {
+    // Metered prices only in live mode (test has a single flat price)
+    if (!isTestMode && METERED_PLANS.includes(plan)) {
       const meteredPriceId = getMeteredPriceId(plan, planCurrency)
       if (meteredPriceId) {
         lineItems.push({ price: meteredPriceId })
