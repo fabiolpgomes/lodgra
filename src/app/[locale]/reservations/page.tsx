@@ -41,7 +41,8 @@ export default async function ReservationsPage({
           id,
           name,
           city,
-          country
+          country,
+          currency
         ),
         platforms(
           display_name

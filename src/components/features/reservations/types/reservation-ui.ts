@@ -13,11 +13,13 @@ export interface ReservationUI {
       name: string
       city?: string
       country?: string
+      currency?: string
     } | {
       id: string
       name: string
       city?: string
       country?: string
+      currency?: string
     }[]
     platforms?: { display_name: string } | null
   } | {
@@ -27,11 +29,13 @@ export interface ReservationUI {
       name: string
       city?: string
       country?: string
+      currency?: string
     } | {
       id: string
       name: string
       city?: string
       country?: string
+      currency?: string
     }[]
     platforms?: { display_name: string } | null
   }[]
