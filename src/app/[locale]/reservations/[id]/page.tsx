@@ -41,7 +41,8 @@ export default async function ReservationDetailsPage({
           property_type,
           bedrooms,
           bathrooms,
-          max_guests
+          max_guests,
+          currency
         ),
         platforms(
           display_name
@@ -66,6 +67,9 @@ export default async function ReservationDetailsPage({
   const property = listing?.properties
   const platformName = (listing?.platforms as { display_name?: string } | null)?.display_name
   const guest = reservation.guests
+
+  // Moeda: propriedade é a fonte de verdade; reservation.currency é fallback para compatibilidade
+  const displayCurrency = (property as { currency?: string } | null)?.currency || reservation.currency || 'EUR'
 
   // Calcular número de noites
   const checkIn = new Date(reservation.check_in)
@@ -299,27 +303,27 @@ export default async function ReservationDetailsPage({
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600">Valor Total</span>
                   <span className="text-2xl font-bold text-gray-900">
-                    {formatCurrency(reservation.total_amount, reservation.currency || 'EUR')}
+                    {formatCurrency(reservation.total_amount, displayCurrency)}
                   </span>
                 </div>
                 {reservation.total_amount && nights > 0 && (
                   <div className="flex justify-between items-center text-sm pt-3 border-t">
                     <span className="text-gray-600">Por noite</span>
                     <span className="text-gray-900 font-medium">
-                      {formatCurrency(Number(reservation.total_amount) / nights, reservation.currency || 'EUR')}
+                      {formatCurrency(Number(reservation.total_amount) / nights, displayCurrency)}
                     </span>
                   </div>
                 )}
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-gray-600">Moeda</span>
                   <span className="text-gray-900 font-medium">
-                    {reservation.currency || 'EUR'}
+                    {displayCurrency}
                   </span>
                 </div>
               </div>
 
-              {/* PIX: apenas para reservas em BRL */}
-              {reservation.currency === 'BRL' && (
+              {/* PIX: apenas para propriedades BRL */}
+              {displayCurrency === 'BRL' && (
                 <div className="mt-8 pt-6 border-t border-gray-100 no-print">
                   <p className="text-[10px] font-black uppercase tracking-widest text-lodgra-blue mb-4">Localização Brasil</p>
                   <GeneratePixButton
@@ -373,7 +377,7 @@ export default async function ReservationDetailsPage({
                     `Check-out: ${checkOut.toLocaleDateString('pt-BR')}\n` +
                     `Noites: ${nights}\n` +
                     `Hóspedes: ${reservation.number_of_guests}\n` +
-                    `Valor Total: ${reservation.total_amount ? `${reservation.total_amount} ${reservation.currency || 'EUR'}` : 'N/A'}\n\n` +
+                    `Valor Total: ${reservation.total_amount ? `${reservation.total_amount} ${displayCurrency}` : 'N/A'}\n\n` +
                     `Obrigado!`
                   )}`}
                   className="w-full flex items-center gap-2 px-3 py-2 text-blue-700 hover:bg-blue-100 rounded transition-colors"
