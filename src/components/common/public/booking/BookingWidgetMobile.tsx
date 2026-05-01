@@ -93,21 +93,21 @@ export function BookingWidgetMobile({
               {symbol}{basePrice}<span className="text-sm font-normal text-neutral-600"> /noite</span>
             </p>
             {nights > 0 && (
-              <p className="text-xs text-orange-600 font-semibold">{nights} noite{nights !== 1 ? 's' : ''} · {symbol}{nights * basePrice}</p>
+              <p className="text-xs text-lodgra-green font-semibold">{nights} noite{nights !== 1 ? 's' : ''} · {symbol}{nights * basePrice}</p>
             )}
           </div>
 
           {checkoutHref ? (
             <Link
               href={checkoutHref}
-              className="flex-1 bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white font-semibold py-3 px-4 rounded-lg text-center transition-colors"
+              className="flex-1 bg-lodgra-green hover:opacity-90 active:scale-[0.98] text-white font-semibold py-3 px-4 rounded-lg text-center transition-colors"
             >
               Reservar
             </Link>
           ) : (
             <button
               onClick={() => setShowPanel(true)}
-              className="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 px-4 rounded-lg text-center transition-colors"
+              className="flex-1 bg-lodgra-green hover:opacity-90 text-white font-semibold py-3 px-4 rounded-lg text-center transition-colors"
             >
               Selecionar datas
             </button>
@@ -141,7 +141,7 @@ export function BookingWidgetMobile({
                   value={checkIn}
                   min={today}
                   onChange={e => handleCheckInChange(e.target.value)}
-                  className="w-full px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+                  className="w-full px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-lodgra-green"
                 />
               </div>
               <div>
@@ -152,7 +152,7 @@ export function BookingWidgetMobile({
                   min={minCheckOut || today}
                   onChange={e => handleCheckOutChange(e.target.value)}
                   disabled={!checkIn}
-                  className="w-full px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-lodgra-green disabled:opacity-50 disabled:cursor-not-allowed"
                 />
                 {checkOutError && <p className="mt-1 text-xs text-red-600">{checkOutError}</p>}
               </div>
@@ -163,7 +163,7 @@ export function BookingWidgetMobile({
               <select
                 value={guests}
                 onChange={e => setGuests(parseInt(e.target.value))}
-                className="w-full px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+                className="w-full px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-lodgra-green"
               >
                 {Array.from({ length: 10 }, (_, i) => (
                   <option key={i + 1} value={i + 1}>{i + 1} {i === 0 ? 'hóspede' : 'hóspedes'}</option>
@@ -187,7 +187,7 @@ export function BookingWidgetMobile({
             {checkoutHref ? (
               <Link
                 href={checkoutHref}
-                className="block w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 px-4 rounded-lg text-center transition-colors"
+                className="block w-full bg-lodgra-green hover:opacity-90 text-white font-semibold py-3 px-4 rounded-lg text-center transition-colors"
                 onClick={() => setShowPanel(false)}
               >
                 Reservar agora
@@ -195,7 +195,7 @@ export function BookingWidgetMobile({
             ) : (
               <button
                 disabled
-                className="w-full bg-orange-300 text-white font-semibold py-3 px-4 rounded-lg cursor-not-allowed"
+                className="w-full bg-lodgra-green opacity-40 text-white font-semibold py-3 px-4 rounded-lg cursor-not-allowed"
               >
                 Selecione check-in e check-out
               </button>

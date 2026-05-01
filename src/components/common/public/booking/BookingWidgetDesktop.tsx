@@ -109,7 +109,7 @@ export function BookingWidgetDesktop({
             value={checkIn}
             min={today}
             onChange={e => handleCheckInChange(e.target.value)}
-            className="w-full px-2 py-2 text-sm border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
+            className="w-full px-2 py-2 text-sm border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lodgra-green"
           />
         </div>
         <div>
@@ -120,7 +120,7 @@ export function BookingWidgetDesktop({
             min={minCheckOut || today}
             onChange={e => handleCheckOutChange(e.target.value)}
             disabled={!checkIn}
-            className="w-full px-2 py-2 text-sm border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full px-2 py-2 text-sm border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lodgra-green disabled:opacity-50 disabled:cursor-not-allowed"
           />
           {checkOutError && (
             <p className="mt-1 text-xs text-red-600">{checkOutError}</p>
@@ -134,7 +134,7 @@ export function BookingWidgetDesktop({
         <select
           value={guests}
           onChange={e => setGuests(parseInt(e.target.value))}
-          className="w-full px-2 py-2 text-sm border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
+          className="w-full px-2 py-2 text-sm border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lodgra-green"
         >
           {Array.from({ length: 10 }, (_, i) => (
             <option key={i + 1} value={i + 1}>{i + 1} {i === 0 ? 'hóspede' : 'hóspedes'}</option>
@@ -160,14 +160,16 @@ export function BookingWidgetDesktop({
       {checkoutHref ? (
         <Link
           href={checkoutHref}
-          className="block w-full bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white font-semibold py-3 px-4 rounded-lg text-center transition-colors mb-4"
+          className="block w-full text-white font-semibold py-3 px-4 rounded-lg text-center transition-all mb-4 hover:opacity-90 active:scale-[0.98]"
+          style={{ backgroundColor: '#059669' }}
         >
           Reservar agora
         </Link>
       ) : (
         <button
           disabled
-          className="block w-full bg-orange-300 text-white font-semibold py-3 px-4 rounded-lg text-center cursor-not-allowed mb-4"
+          className="block w-full text-white font-semibold py-3 px-4 rounded-lg text-center cursor-not-allowed mb-4 opacity-50"
+          style={{ backgroundColor: '#059669' }}
         >
           Selecione as datas
         </button>

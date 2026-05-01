@@ -13,15 +13,15 @@ export function PropertyLocation({ city, country, address }: PropertyLocationPro
 
   if (!locationLabel) return null
 
-  // Build search query for Google Maps Embed
+  // Use API-key-free Google Maps embed format
   const searchQuery = address ? `${address}, ${locationLabel}` : locationLabel
-  const embedUrl = `https://www.google.com/maps/embed/v1/place?q=${encodeURIComponent(searchQuery)}&key=AIzaSyACdj3OLNVn1bVqanLVey6aaXDfmFmRxAE`
+  const embedUrl = `https://maps.google.com/maps?q=${encodeURIComponent(searchQuery)}&output=embed&z=14`
 
   return (
     <section aria-label="Localização" className="w-full">
       <h2 className="text-xl font-semibold text-lodgra-neutral-900 mb-3">Localização</h2>
 
-      {/* Google Maps Embed - Interactive iframe */}
+      {/* Google Maps Embed — no API key required */}
       <div className="rounded-xl overflow-hidden border border-lodgra-neutral-200 mb-3 h-44 sm:h-56 bg-lodgra-neutral-100">
         <iframe
           width="100%"

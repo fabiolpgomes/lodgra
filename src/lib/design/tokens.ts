@@ -3,43 +3,60 @@
  * Single source of truth for brand identity.
  * CSS custom properties defined in globals.css — use these constants in
  * TypeScript code (animations, canvas, charts) where CSS vars are unavailable.
+ *
+ * Brand palette: Blue (#1E3A8A = brand-800), Gold (#D4AF37 = accent-500), Green (#059669)
  */
 
-// ─── Brand Scale — Ocean Blue ──────────────────────────────────────────────
+// ─── Brand Scale — Lodgra Blue (#1E3A8A = brand-800) ─────────────────────────
 export const BRAND = {
-  50:  'oklch(0.97 0.01 222)',
-  100: 'oklch(0.93 0.03 222)',
-  200: 'oklch(0.86 0.06 222)',
-  300: 'oklch(0.75 0.09 222)',
-  400: 'oklch(0.63 0.12 222)',
-  500: 'oklch(0.52 0.13 222)',  // Primary brand colour
-  600: 'oklch(0.43 0.12 222)',  // Hover / darker
-  700: 'oklch(0.36 0.10 222)',  // Dark text on light bg
-  800: 'oklch(0.28 0.08 222)',
-  900: 'oklch(0.21 0.06 222)',
-  950: 'oklch(0.14 0.04 222)',
+  50:  '#EEF2FF',
+  100: '#E0E7FF',
+  200: '#C7D2FE',
+  300: '#A5B4FC',
+  400: '#818CF8',
+  500: '#4F63DE',
+  600: '#3A4FC5',
+  700: '#2D3DA8',
+  800: '#1E3A8A',  // Primary brand — Lodgra Blue (Azul Confiança)
+  900: '#162C6B',
+  950: '#0E1B47',
 
-  // Hex fallbacks for environments that don't support oklch
-  hex: {
-    500: '#1567A8',
-    600: '#105490',
-    700: '#0D4070',
+  // CSS var helpers
+  css: {
+    500: 'var(--lodgra-brand-500)',
+    600: 'var(--lodgra-brand-600)',
+    700: 'var(--lodgra-brand-700)',
+    800: 'var(--lodgra-brand-800)',
+    900: 'var(--lodgra-brand-900)',
   },
 } as const
 
-// ─── Accent Scale — Coral Atlantic ─────────────────────────────────────────
+// ─── Accent Scale — Lodgra Gold (#D4AF37 = accent-500) ───────────────────────
 export const ACCENT = {
-  400: 'oklch(0.72 0.17 33)',
-  500: 'oklch(0.62 0.20 32)',  // CTA primary ("Reservar agora")
-  600: 'oklch(0.52 0.18 31)',  // CTA hover
+  300: '#F0DC87',
+  400: '#E5CB5A',
+  500: '#D4AF37',  // CTA primary — Lodgra Gold (Ouro Próspero)
+  600: '#B89229',  // CTA hover
+  700: '#96751C',
 
-  hex: {
-    500: '#E8614A',
-    600: '#CF5040',
+  // CSS var helpers
+  css: {
+    500: 'var(--lodgra-accent-500)',
+    600: 'var(--lodgra-accent-600)',
   },
 } as const
 
-// ─── Neutral Warm Scale — Apple-inspired ───────────────────────────────────
+// ─── CTA — Lodgra Green (#059669) ─────────────────────────────────────────────
+export const CTA = {
+  default: '#059669',  // Verde Crescimento — primary action buttons
+  hover:   '#047857',
+
+  css: {
+    default: 'var(--lodgra-green, #059669)',
+  },
+} as const
+
+// ─── Neutral Warm Scale — Apple-inspired off-whites ───────────────────────────
 export const NEUTRAL = {
   50:  'oklch(0.985 0.002 75)',  // Page background
   100: 'oklch(0.962 0.004 75)', // Card surfaces
@@ -50,18 +67,21 @@ export const NEUTRAL = {
   900: 'oklch(0.138 0.004 75)', // Text primary (warm near-black)
 } as const
 
-// ─── Semantic Tokens ────────────────────────────────────────────────────────
+// ─── Semantic Tokens ────────────────────────────────────────────────────────────
 export const SEMANTIC = {
-  success: 'oklch(0.527 0.154 145)',
-  warning: 'oklch(0.666 0.179 58)',
-  error:   'oklch(0.577 0.245 27.325)',
+  success: '#059669',  // Lodgra Green
+  warning: '#D4AF37',  // Lodgra Gold
+  error:   '#DC2626',
+  info:    '#1E3A8A',  // Lodgra Blue
 } as const
 
-// ─── Typography ─────────────────────────────────────────────────────────────
+// ─── Typography ─────────────────────────────────────────────────────────────────
 export const TYPOGRAPHY = {
   fontFamily: {
-    sans:  'var(--font-geist-sans), system-ui, -apple-system, sans-serif',
-    mono:  'var(--font-geist-mono), "Courier New", monospace',
+    heading: 'var(--font-poppins), Poppins, system-ui, sans-serif',
+    body:    'var(--font-inter), Inter, system-ui, sans-serif',
+    sans:    'var(--font-inter), Inter, system-ui, sans-serif',
+    mono:    '"Courier New", monospace',
   },
   fontSize: {
     xs:   '0.75rem',    // 12px — captions, meta
@@ -109,19 +129,18 @@ export const SPACING = {
   10:   '2.5rem',    // 40px
   12:   '3rem',      // 48px
   16:   '4rem',      // 64px
-  20:   '5rem',      // 80px — section padding (Apple-like)
+  20:   '5rem',      // 80px — section padding
   24:   '6rem',      // 96px
 } as const
 
 // ─── Border Radius ────────────────────────────────────────────────────────────
 export const RADIUS = {
   none: '0',
-  sm:   '0.375rem',  // 6px
-  md:   '0.5rem',    // 8px
-  lg:   '0.75rem',   // 12px — default card radius
-  xl:   '1rem',      // 16px — gallery, modals
-  '2xl': '1.25rem',  // 20px — large cards
-  '3xl': '1.5rem',   // 24px — hero sections
+  sm:   '0.5rem',    // 8px
+  md:   '0.75rem',   // 12px — default card radius
+  lg:   '1rem',      // 16px — gallery, modals
+  xl:   '1.5rem',    // 24px — large cards
+  '2xl': '2rem',     // 32px — hero sections
   full: '9999px',    // pills, avatars
 } as const
 
@@ -173,17 +192,15 @@ export const BREAKPOINTS = {
 } as const
 
 // ─── CSS Variable Helpers ─────────────────────────────────────────────────────
-/** Returns the CSS variable reference for a Lodgra brand token */
-export const hsVar = (token: string) => `var(--lodgra-${token})`
-
-export const HS_VARS = {
-  brand:    (shade: keyof typeof BRAND) => `var(--lodgra-brand-${shade})`,
-  accent:   (shade: 400 | 500 | 600)   => `var(--lodgra-accent-${shade})`,
-  neutral:  (shade: keyof typeof NEUTRAL) => `var(--lodgra-neutral-${shade})`,
+export const LODGRA_VARS = {
+  brand:   (shade: keyof typeof BRAND extends string ? keyof typeof BRAND : never) =>
+             `var(--lodgra-brand-${shade})`,
+  accent:  (shade: 300 | 400 | 500 | 600 | 700) => `var(--lodgra-accent-${shade})`,
+  neutral: (shade: keyof typeof NEUTRAL) => `var(--lodgra-neutral-${shade})`,
   cta: {
-    bg:     'var(--lodgra-cta-bg)',
-    bgHover:'var(--lodgra-cta-bg-hover)',
-    text:   'var(--lodgra-cta-text)',
+    bg:      'var(--lodgra-cta-bg)',
+    bgHover: 'var(--lodgra-cta-bg-hover)',
+    text:    'var(--lodgra-cta-text)',
   },
   surface:  'var(--lodgra-surface)',
   card:     'var(--lodgra-surface-card)',
@@ -193,3 +210,7 @@ export const HS_VARS = {
     secondary: 'var(--lodgra-text-secondary)',
   },
 } as const
+
+// Legacy alias — kept for backward compatibility
+export const HS_VARS = LODGRA_VARS
+export const hsVar = (token: string) => `var(--lodgra-${token})`

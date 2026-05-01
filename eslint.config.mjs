@@ -35,6 +35,8 @@ const eslintConfig = defineConfig([
     "scripts/**",
     // Scratch/utility scripts (one-off tools, not application code)
     "scratch/**",
+    // Vercel build output (artefactos gerados, não código fonte)
+    ".vercel/**",
   ]),
 ]);
 

@@ -12,29 +12,36 @@ export async function GET() {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
+  const organizationId = auth.organizationId
+  if (!organizationId) {
+    return NextResponse.json({ error: 'Admin has no organization' }, { status: 403 })
+  }
+
   try {
     const adminClient = createAdminClient()
 
-    // Fetch all data in parallel
+    // Fetch all data in parallel — scoped to admin's organization (AC8)
     const [
       consentRecordsResult,
       deletionRequestsResult,
       recentExportsResult,
     ] = await Promise.all([
-      // All consent records
+      // Consent records — org-scoped
       adminClient
         .from('consent_records')
         .select('consent_type, consent_value, user_id, created_at')
+        .eq('organization_id', organizationId)
         .order('created_at', { ascending: false })
         .limit(500),
 
-      // All deletion requests
+      // Deletion requests — org-scoped
       adminClient
         .from('deletion_requests')
         .select('id, user_id, requested_at, scheduled_at, status, cancelled_at, completed_at')
+        .eq('organization_id', organizationId)
         .order('requested_at', { ascending: false }),
 
-      // Data exports in last 30 days
+      // Data exports in last 30 days — org-scoped via audit_logs join
       adminClient
         .from('audit_logs')
         .select('id, user_id, created_at')

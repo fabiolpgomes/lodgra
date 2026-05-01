@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 import type { Property } from '@/types/database'
+import Link from 'next/link'
+import { Users, BedDouble, Bath } from 'lucide-react'
 import { PropertyPageHeader } from './layout/PropertyPageHeader'
 import { PropertyHeroGallery } from './gallery/PropertyHeroGallery'
 import { PropertyDescription } from './content/PropertyDescription'
@@ -81,31 +83,37 @@ export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, 
             {/* Main Content (2/3) */}
             <div className="lg:col-span-2 space-y-8">
               {/* Quick Stats */}
-              <div className="flex flex-wrap gap-4 pb-6 border-b border-neutral-200">
+              <div className="flex flex-wrap gap-6 pb-6 border-b border-neutral-200">
                 {property.max_guests && (
-                  <div className="flex items-center gap-2">
-                    <span className="text-2xl">👥</span>
+                  <div className="flex items-center gap-2.5">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-lodgra-brand-50">
+                      <Users className="h-5 w-5 text-lodgra-brand-700" />
+                    </span>
                     <div>
-                      <p className="text-sm text-neutral-600">Hóspedes</p>
-                      <p className="font-semibold">{property.max_guests}</p>
+                      <p className="text-xs text-neutral-500">Hóspedes</p>
+                      <p className="font-semibold text-neutral-900">{property.max_guests}</p>
                     </div>
                   </div>
                 )}
                 {property.bedrooms && (
-                  <div className="flex items-center gap-2">
-                    <span className="text-2xl">🛏️</span>
+                  <div className="flex items-center gap-2.5">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-lodgra-brand-50">
+                      <BedDouble className="h-5 w-5 text-lodgra-brand-700" />
+                    </span>
                     <div>
-                      <p className="text-sm text-neutral-600">Quartos</p>
-                      <p className="font-semibold">{property.bedrooms}</p>
+                      <p className="text-xs text-neutral-500">Quartos</p>
+                      <p className="font-semibold text-neutral-900">{property.bedrooms}</p>
                     </div>
                   </div>
                 )}
                 {property.bathrooms && (
-                  <div className="flex items-center gap-2">
-                    <span className="text-2xl">🚿</span>
+                  <div className="flex items-center gap-2.5">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-lodgra-brand-50">
+                      <Bath className="h-5 w-5 text-lodgra-brand-700" />
+                    </span>
                     <div>
-                      <p className="text-sm text-neutral-600">Casas de banho</p>
-                      <p className="font-semibold">{property.bathrooms}</p>
+                      <p className="text-xs text-neutral-500">Casas de banho</p>
+                      <p className="font-semibold text-neutral-900">{property.bathrooms}</p>
                     </div>
                   </div>
                 )}
@@ -139,6 +147,17 @@ export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, 
           <PropertyTrustBadges />
         </div>
       </main>
+
+      {/* Footer */}
+      <footer className="border-t border-neutral-200 py-6 px-4 md:px-6 mt-4">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-neutral-500">
+          <p>© {new Date().getFullYear()} Lodgra · Reservas directas sem comissões</p>
+          <div className="flex gap-4">
+            <Link href="/privacy" className="hover:text-neutral-700 transition-colors">Política de Privacidade</Link>
+            <Link href="/terms" className="hover:text-neutral-700 transition-colors">Termos</Link>
+          </div>
+        </div>
+      </footer>
 
       {/* Mobile Booking Widget - Fixed Bottom */}
       <BookingWidgetMobile

@@ -21,6 +21,29 @@ const config: any = {
         'error': '#DC2626',
         'info': '#1E3A8A',
 
+        // Brand scale — Lodgra Blue (#1E3A8A = brand-800)
+        'brand': {
+          50:  '#EEF2FF',
+          100: '#E0E7FF',
+          200: '#C7D2FE',
+          300: '#A5B4FC',
+          400: '#818CF8',
+          500: '#4F63DE',
+          600: '#3A4FC5',
+          700: '#2D3DA8',
+          800: '#1E3A8A',  // Lodgra Blue — primary brand
+          900: '#162C6B',
+          950: '#0E1B47',
+        },
+        // Accent scale — Lodgra Gold (#D4AF37 = accent-500)
+        'accent': {
+          300: '#F0DC87',
+          400: '#E5CB5A',
+          500: '#D4AF37',  // Lodgra Gold — highlights, CTAs
+          600: '#B89229',
+          700: '#96751C',
+        },
+
         // Legacy hs-* aliases (public property components)
         'hs-brand': { 400: '#3B82F6', 500: '#1E3A8A', 600: '#1e40af' },
         'hs-neutral': { 50: '#F9FAFB', 100: '#F3F4F6', 200: '#E5E7EB', 300: '#D1D5DB', 400: '#9CA3AF', 500: '#6B7280', 600: '#4B5563', 700: '#374151', 800: '#1F2937', 900: '#111827' },
