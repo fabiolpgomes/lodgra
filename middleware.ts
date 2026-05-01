@@ -8,6 +8,7 @@ const PUBLIC_PATHS = [
   '/forgot-password',
   '/reset-password',
   '/onboarding',
+  '/checkout', // Stripe success/cancel pages
   '/sync',
   '/auth',
   '/monitoring',
