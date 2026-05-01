@@ -12,6 +12,7 @@ import {
   Legend,
   Filler,
 } from 'chart.js'
+import { getCurrencySymbol, type CurrencyCode } from '@/lib/utils/currency'
 
 ChartJS.register(
   CategoryScale,
@@ -29,14 +30,16 @@ interface RevenueChartProps {
     month: string
     revenue: number
   }[]
+  currency?: string
 }
 
-export function RevenueChart({ data }: RevenueChartProps) {
+export function RevenueChart({ data, currency = 'EUR' }: RevenueChartProps) {
+  const currencySymbol = getCurrencySymbol(currency as CurrencyCode)
   const chartData = {
     labels: data.map(d => d.month),
     datasets: [
       {
-        label: 'Receita (€)',
+        label: `Receita (${currencySymbol})`,
         data: data.map(d => d.revenue),
         fill: true,
         backgroundColor: 'rgba(34, 197, 94, 0.2)',
@@ -62,7 +65,7 @@ export function RevenueChart({ data }: RevenueChartProps) {
       tooltip: {
         callbacks: {
           label: function(context: import('chart.js').TooltipItem<'line'>) {
-            return '€' + ((context.parsed.y as number | null) ?? 0).toFixed(2)
+            return currencySymbol + ((context.parsed.y as number | null) ?? 0).toFixed(2)
           },
         },
       },
@@ -72,7 +75,7 @@ export function RevenueChart({ data }: RevenueChartProps) {
         beginAtZero: true,
         ticks: {
           callback: function(value: number | string) {
-            return '€' + value
+            return currencySymbol + value
           },
         },
       },

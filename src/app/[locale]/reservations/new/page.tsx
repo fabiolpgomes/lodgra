@@ -13,6 +13,7 @@ import { Label } from '@/components/common/ui/label'
 import { Alert, AlertDescription } from '@/components/common/ui/alert'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/common/ui/select'
 import { toast } from 'sonner'
+import { getCurrencySymbol, type CurrencyCode } from '@/lib/utils/currency'
 
 export default function NewReservationPage() {
   const router = useRouter()
@@ -520,7 +521,7 @@ export default function NewReservationPage() {
             </h3>
             <div>
               <Label htmlFor="total_amount" className="mb-1">
-                Valor Total (€)
+                Valor Total ({getCurrencySymbol((properties.find(p => p.id === selectedProperty)?.currency || 'EUR') as CurrencyCode)})
               </Label>
               <Input
                 type="number"

@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Plus, Trash2, Pencil, Check, X } from 'lucide-react'
 import { format, parseISO } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
+import { getCurrencySymbol, type CurrencyCode } from '@/lib/utils/currency'
 
 interface PricingRule {
   id: string
@@ -19,6 +20,7 @@ interface Props {
   propertyId: string
   organizationId: string
   initialRules: PricingRule[]
+  currency?: string
 }
 
 const EMPTY_FORM = {
@@ -29,7 +31,7 @@ const EMPTY_FORM = {
   min_nights: '1',
 }
 
-export function PricingRulesManager({ propertyId, organizationId, initialRules }: Props) {
+export function PricingRulesManager({ propertyId, organizationId, initialRules, currency = 'EUR' }: Props) {
   const supabase = createClient()
   const [rules, setRules] = useState<PricingRule[]>(initialRules)
   const [showForm, setShowForm] = useState(false)
@@ -229,7 +231,7 @@ export function PricingRulesManager({ propertyId, organizationId, initialRules }
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Preço / noite (€)</label>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Preço / noite ({getCurrencySymbol(currency as CurrencyCode)})</label>
               <input
                 type="number"
                 min="0"

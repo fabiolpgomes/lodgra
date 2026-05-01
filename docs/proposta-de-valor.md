@@ -7,10 +7,10 @@
 ## 1. HEADLINE PRINCIPAL (Hero Section)
 
 **Headline:**
-> Gerencie todos os seus alojamentos locais num unico lugar — sem overbookings, sem planilhas, sem stress.
+> Gerencie todos os seus imóveis num unico lugar — sem overbookings, sem planilhas, sem stress.
 
 **Sub-headline:**
-> O Home Stay centraliza propriedades, reservas, despesas e calendarios do Airbnb, Booking.com e outras plataformas. Saiba exatamente quanto cada propriedade rende — e recupere horas do seu dia.
+> O Home Stay centraliza imóveis, reservas, despesas e calendários do Airbnb, Booking.com e outras plataformas. Saiba exatamente quanto cada imóvel rende — e recupere horas do seu dia.
 
 **CTA:** Comece Gratis | Agendar Demonstracao
 

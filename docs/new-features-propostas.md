@@ -32,7 +32,7 @@ Integração de código de porta com a maioria das fechaduras inteligentes, onde
 
 integrações com outros Serviços como pricelabs, turno, etc.
 
-Sites de reserva direta
+Sites de reserva direta, concluido e implementado.
 
 Configure várias subcontas para sua equipe.Tenho uma conta de faxineiro (eles podem usar suas próprias credenciais) onde veem meu calendário e nada mais,os co-anfitriões podem ver preços, calendário etc. Ela pode atribuir tarefas aos membros da equipe (como manutenção etc.)
 

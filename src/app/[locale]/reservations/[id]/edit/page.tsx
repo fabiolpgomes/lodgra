@@ -13,6 +13,7 @@ import { Alert, AlertDescription } from '@/components/common/ui/alert'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/common/ui/select'
 import { toast } from 'sonner'
 import { Skeleton } from '@/components/common/ui/skeleton'
+import { getCurrencySymbol, type CurrencyCode } from '@/lib/utils/currency'
 
 export default function EditReservationPage({
   params
@@ -32,6 +33,7 @@ export default function EditReservationPage({
   const [propertyListings, setPropertyListings] = useState<{ id: string; property_id: string; external_listing_id?: string | null; platforms?: { display_name: string } | null }[]>([])
   const [selectedProperty, setSelectedProperty] = useState('')
   const [selectedListing, setSelectedListing] = useState('')
+  const [selectedCurrency, setSelectedCurrency] = useState('EUR')
 
   useEffect(() => {
     async function loadData() {
@@ -79,6 +81,12 @@ export default function EditReservationPage({
 
       setProperties(propertiesData || [])
 
+      // Inicializar moeda a partir da reserva ou da propriedade
+      const initialCurrency = (reservationData.currency as string) ||
+        (propertiesData?.find((p: { id: string; currency: string }) => p.id === reservationData.property_listings.property_id)?.currency) ||
+        'EUR'
+      setSelectedCurrency(initialCurrency)
+
       const { data: listingsData } = await supabase
         .from('property_listings')
         .select('*')
@@ -104,6 +112,9 @@ export default function EditReservationPage({
         setPropertyListings(data || [])
       }
       loadListings()
+      // Actualizar moeda ao mudar propriedade
+      const prop = properties.find(p => p.id === selectedProperty)
+      if (prop?.currency) setSelectedCurrency(prop.currency)
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedProperty])
@@ -426,7 +437,7 @@ export default function EditReservationPage({
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Valor da Reserva</h3>
             <div>
               <Label htmlFor="total_amount" className="mb-1">
-                Valor Total (€)
+                Valor Total ({getCurrencySymbol(selectedCurrency as CurrencyCode)})
               </Label>
               <Input
                 type="number"

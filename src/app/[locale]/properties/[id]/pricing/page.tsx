@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server'
 import { requireRole } from '@/lib/auth/requireRole'
 import { AuthLayout } from '@/components/common/layout/AuthLayout'
 import { PricingRulesManager } from '@/components/features/pricing/PricingRulesManager'
+import { getCurrencySymbol, type CurrencyCode } from '@/lib/utils/currency'
 
 export const dynamic = 'force-dynamic'
 
@@ -22,7 +23,7 @@ export default async function PropertyPricingPage({
 
   const { data: property } = await supabase
     .from('properties')
-    .select('id, name, base_price, organization_id')
+    .select('id, name, base_price, organization_id, currency')
     .eq('id', id)
     .single()
 
@@ -59,7 +60,7 @@ export default async function PropertyPricingPage({
           <p className="text-sm text-gray-600">
             <span className="font-medium">Preço base: </span>
             {property.base_price
-              ? `${parseFloat(String(property.base_price)).toFixed(2)} €/noite`
+              ? `${parseFloat(String(property.base_price)).toFixed(2)} ${getCurrencySymbol((property.currency || 'EUR') as CurrencyCode)}/noite`
               : 'Não definido'}
             {' '}— utilizado quando nenhuma regra se aplica.
           </p>
@@ -78,6 +79,7 @@ export default async function PropertyPricingPage({
             propertyId={id}
             organizationId={property.organization_id}
             initialRules={rules ?? []}
+            currency={property.currency || 'EUR'}
           />
         </div>
       </div>
