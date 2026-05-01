@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lodgra — Planos & Preços</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#ffffff;--bg2:#f8f9fb;--bg3:#f1f4f8;
+  --txt:#0d1117;--txt2:#4a5568;--txt3:#94a3b8;
+  --border:#e2e8f0;--border2:#cbd5e1;
+  --accent:#2563eb;--accent-bg:#eff4ff;--accent-dark:#1d4ed8;
+  --success:#16a34a;--success-bg:#f0fdf4;--success-txt:#15803d;
+  --warn:#b45309;--warn-bg:#fffbeb;
+  --font-h:'Syne',system-ui,sans-serif;
+  --font-b:'DM Sans',system-ui,sans-serif;
+  --r:10px;--rl:16px;
+}
+body{font-family:var(--font-b);background:var(--bg);color:var(--txt);font-size:15px;line-height:1.6}
+
+nav{display:flex;align-items:center;justify-content:space-between;padding:1.2rem 2rem;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(255,255,255,.94);backdrop-filter:blur(12px);z-index:100}
+.logo{font-family:var(--font-h);font-size:20px;font-weight:700;letter-spacing:-.02em;display:flex;align-items:center;gap:8px}
+.logo-dot{width:7px;height:7px;background:var(--accent);border-radius:50%}
+.tagline{font-size:11px;color:var(--txt3);font-weight:400;margin-left:4px}
+
+.switcher{display:flex;gap:3px;background:var(--bg3);padding:4px;border-radius:var(--r);border:1px solid var(--border)}
+.mbt{display:flex;align-items:center;gap:5px;padding:6px 13px;border:1px solid transparent;background:transparent;border-radius:8px;cursor:pointer;font-family:var(--font-b);font-size:12.5px;color:var(--txt2);transition:all .15s}
+.mbt:hover{color:var(--txt);background:rgba(255,255,255,.7)}
+.mbt.active{background:var(--bg);color:var(--txt);font-weight:500;border-color:var(--border);box-shadow:0 1px 3px rgba(0,0,0,.06)}
+
+.hero{text-align:center;padding:4.5rem 2rem 3.5rem;max-width:660px;margin:0 auto}
+.eyebrow{font-size:11.5px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:1.2rem}
+.hero h1{font-family:var(--font-h);font-size:clamp(30px,4.5vw,50px);font-weight:700;line-height:1.15;letter-spacing:-.03em;margin-bottom:1.2rem}
+.hero p{font-size:16px;color:var(--txt2);line-height:1.75;max-width:520px;margin:0 auto}
+
+.anchor-bar{background:var(--success-bg);border:1px solid #bbf7d0;border-radius:var(--r);padding:.9rem 1.5rem;margin:0 2rem 2rem;max-width:1060px;margin-left:auto;margin-right:auto;display:flex;align-items:center;gap:.75rem;font-size:13.5px;color:var(--success-txt)}
+.anchor-bar strong{font-weight:500}
+
+.wrap{padding:0 2rem 5rem;max-width:1100px;margin:0 auto}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:2.5rem}
+
+.card{background:var(--bg);border:1px solid var(--border);border-radius:var(--rl);padding:1.6rem;display:flex;flex-direction:column;transition:box-shadow .2s,border-color .2s;position:relative}
+.card:hover{box-shadow:0 4px 16px rgba(0,0,0,.07);border-color:var(--border2)}
+.card.feat{border:2px solid var(--accent)}
+.card.feat:hover{box-shadow:0 6px 24px rgba(37,99,235,.12)}
+
+.badge-row{height:24px;margin-bottom:.9rem}
+.badge{display:inline-flex;align-items:center;gap:4px;background:var(--accent-bg);color:var(--accent-dark);font-size:11px;font-weight:500;padding:2px 10px;border-radius:100px}
+
+.pname{font-family:var(--font-h);font-size:17px;font-weight:600;margin-bottom:.25rem}
+.pdesc{font-size:12.5px;color:var(--txt3);margin-bottom:1.4rem;min-height:32px;line-height:1.45}
+.pprice{font-family:var(--font-h);font-size:34px;font-weight:700;letter-spacing:-.03em;line-height:1}
+.punit{font-size:12px;color:var(--txt3);margin:.3rem 0}
+.pfee{font-size:12px;color:var(--txt2);background:var(--bg3);padding:3px 9px;border-radius:100px;display:inline-block;margin-bottom:1.4rem}
+.pfee-ph{height:22px;margin-bottom:1.4rem}
+.pcta{margin-top:auto;padding:10px 14px;border-radius:var(--r);font-family:var(--font-b);font-size:13.5px;font-weight:500;cursor:pointer;transition:all .15s;border:1px solid var(--border2);background:var(--bg);color:var(--txt);width:100%;text-align:center}
+.pcta:hover{background:var(--bg3)}
+.card.feat .pcta{background:var(--accent);color:#fff;border-color:var(--accent)}
+.card.feat .pcta:hover{background:var(--accent-dark)}
+
+.section-title{font-family:var(--font-h);font-size:13px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--txt3);margin-bottom:1.2rem;margin-top:2.5rem}
+
+.ftable-wrap{border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;margin-bottom:2rem}
+.ftable{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed}
+.ftable th{padding:10px 14px;font-size:11px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--txt3);background:var(--bg2);border-bottom:1px solid var(--border);text-align:center}
+.ftable th:first-child{text-align:left;width:38%}
+.ftable td{padding:9px 14px;border-bottom:1px solid var(--border);text-align:center;color:var(--txt2)}
+.ftable td:first-child{text-align:left;color:var(--txt)}
+.ftable tr:last-child td{border-bottom:none}
+.ftable tr:nth-child(even) td{background:var(--bg2)}
+.ftable .section-row td{background:var(--bg3);font-weight:500;font-size:11.5px;color:var(--txt2);letter-spacing:.04em;text-transform:uppercase;padding:6px 14px}
+.yes{color:var(--success);font-weight:500}
+.no{color:var(--txt3)}
+.dev{font-size:11px;color:var(--warn);background:var(--warn-bg);padding:1px 7px;border-radius:100px;white-space:nowrap}
+
+.legend{display:flex;gap:1.5rem;font-size:12px;color:var(--txt3);margin-bottom:2rem;flex-wrap:wrap}
+.legend span{display:flex;align-items:center;gap:5px}
+
+.cta-sec{text-align:center;padding:4.5rem 2rem;max-width:580px;margin:0 auto}
+.cta-sec h2{font-family:var(--font-h);font-size:clamp(22px,3.5vw,36px);font-weight:700;letter-spacing:-.02em;margin-bottom:1rem}
+.cta-sec p{color:var(--txt2);font-size:15px;margin-bottom:2rem}
+.btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn-p{background:var(--accent);color:#fff;border:none;padding:12px 26px;border-radius:var(--r);font-family:var(--font-b);font-size:14.5px;font-weight:500;cursor:pointer;transition:background .15s}
+.btn-p:hover{background:var(--accent-dark)}
+.btn-s{background:var(--bg);color:var(--txt);border:1px solid var(--border2);padding:12px 26px;border-radius:var(--r);font-family:var(--font-b);font-size:14.5px;font-weight:500;cursor:pointer;transition:all .15s}
+.btn-s:hover{background:var(--bg3)}
+
+footer{border-top:1px solid var(--border);padding:1.75rem 2rem;text-align:center;font-size:12px;color:var(--txt3)}
+
+@media(prefers-color-scheme:dark){
+  :root{--bg:#0d1117;--bg2:#161b27;--bg3:#1a2035;--txt:#eef2f8;--txt2:#8892a4;--txt3:#4b5568;--border:#1e2740;--border2:#2a3652;--accent-bg:#1a2d4a;--accent-dark:#60a5fa;--success-bg:#062412;--warn-bg:#271b05}
+  nav{background:rgba(13,17,23,.94)}
+  .card.feat{border-color:#3b82f6}
+  .card.feat .pcta{background:#2563eb;border-color:#2563eb}
+}
+@media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:540px){
+  nav{padding:1rem}
+  .switcher{gap:2px}
+  .mbt{padding:5px 9px;font-size:12px}
+  .wrap{padding:0 1rem 3rem}
+  .grid{grid-template-columns:1fr}
+  .anchor-bar{margin:0 1rem 1.5rem;font-size:12.5px}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">
+    <div class="logo-dot"></div>
+    Lodgra
+    <span class="tagline">Revenue. Growth. Stay.</span>
+  </div>
+  <div class="switcher" id="sw">
+    <button class="mbt active" id="btn-br" onclick="set('br')"><span style="font-size:15px">🇧🇷</span>Brasil</button>
+    <button class="mbt" id="btn-pt" onclick="set('pt')"><span style="font-size:15px">🇵🇹</span>Portugal</button>
+    <button class="mbt" id="btn-es" onclick="set('es')"><span style="font-size:15px">🇪🇸</span>España</button>
+    <button class="mbt" id="btn-us" onclick="set('us')"><span style="font-size:15px">🇺🇸</span>USA</button>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="eyebrow">Lodgra — Intelligent Property Management</div>
+  <h1 id="ht"></h1>
+  <p id="hs"></p>
+</section>
+
+<div class="anchor-bar" id="anchor"></div>
+
+<div class="wrap">
+  <div class="grid" id="g"></div>
+  <div class="legend">
+    <span><span class="yes">✓</span> Disponível</span>
+    <span><span class="no">—</span> Não incluído</span>
+    <span><span class="dev">em breve</span> Próxima versão</span>
+  </div>
+  <div class="ftable-wrap"><table class="ftable" id="ft"></table></div>
+</div>
+
+<section class="cta-sec">
+  <h2 id="ct"></h2>
+  <p id="cs"></p>
+  <div class="btns">
+    <button class="btn-p" id="cb1"></button>
+    <button class="btn-s" id="cb2"></button>
+  </div>
+</section>
+
+<footer>© 2025 Lodgra · lodgra.pt · lodgra.io · Revenue. Growth. Stay.</footer>
+
+<script>
+// Feature matrix: [label, starter, growth, pro, enterprise, section?]
+// values: true=yes, false=no, 'dev'=coming soon
+const FEATS = {
+  br: [
+    ['BASE', null],
+    ['Sync iCal',               true, true,  true,  true],
+    ['Calendário unificado',    true, true,  true,  true],
+    ['Gestão de reservas',      true, true,  true,  true],
+    ['Gestão de proprietários', true, true,  true,  true],
+    ['Página pública + booking direto', true, true, true, true],
+    ['Exportação CSV',          true, true,  true,  true],
+    ['Suporte padrão',          true, true,  true,  true],
+    ['GROWTH', null],
+    ['Dados completos de reservas', false, true, true, true],
+    ['Relatórios financeiros (PDF)', false, true, true, true],
+    ['Gestão de despesas',      false, true, true,  true],
+    ['Dashboard de comissões',  false, true, true,  true],
+    ['Checklists de limpeza',   false, true, true,  true],
+    ['Multi-moeda (R$, €, US$)', false, true, true, true],
+    ['Gestão de equipa',        false, true, true,  true],
+    ['Pagamento PIX',           false, true, true,  true],
+    ['Conformidade LGPD',       false, true, true,  true],
+    ['Integração Booking.com',  false, true, true,  true],
+    ['PRO', null],
+    ['Regras de preço manuais', false, false, true,  true],
+    ['Pricing dinâmico (auto)', false, false, 'dev', true],
+    ['Automações de mensagens', false, false, 'dev', true],
+    ['Analytics avançados',     false, false, 'dev', true],
+    ['Sincronização Airbnb',    false, false, 'dev', true],
+    ['Suporte prioritário',     false, false, true,  true],
+    ['ENTERPRISE', null],
+    ['Onboarding dedicado',     false, false, false, true],
+    ['SLA garantido',           false, false, false, true],
+    ['API personalizada',       false, false, false, true],
+    ['Preço negociado',         false, false, false, true],
+  ],
+  pt: [
+    ['BASE', null],
+    ['Sync iCal',               true, true,  true,  true],
+    ['Calendário unificado',    true, true,  true,  true],
+    ['Gestão de reservas',      true, true,  true,  true],
+    ['Gestão de proprietários', true, true,  true,  true],
+    ['Página pública + booking direto', true, true, true, true],
+    ['Exportação CSV',          true, true,  true,  true],
+    ['Suporte padrão',          true, true,  true,  true],
+    ['CRESCIMENTO', null],
+    ['Dados completos de reservas', false, true, true, true],
+    ['Relatórios financeiros (PDF)', false, true, true, true],
+    ['Gestão de despesas',      false, true, true,  true],
+    ['Dashboard de comissões',  false, true, true,  true],
+    ['Checklists de limpeza',   false, true, true,  true],
+    ['Multi-moeda (€, R$, US$)', false, true, true, true],
+    ['Gestão de equipa',        false, true, true,  true],
+    ['Conformidade RGPD',       false, true, true,  true],
+    ['Integração Booking.com',  false, true, true,  true],
+    ['PRO', null],
+    ['Regras de preço manuais', false, false, true,  true],
+    ['Pricing dinâmico (auto)', false, false, 'dev', true],
+    ['Automações de mensagens', false, false, 'dev', true],
+    ['Analytics avançados',     false, false, 'dev', true],
+    ['Sincronização Airbnb',    false, false, 'dev', true],
+    ['Suporte prioritário',     false, false, true,  true],
+    ['ENTERPRISE', null],
+    ['Onboarding dedicado',     false, false, false, true],
+    ['SLA garantido',           false, false, false, true],
+    ['API personalizada',       false, false, false, true],
+    ['Preço negociado',         false, false, false, true],
+  ],
+  es: [
+    ['BASE', null],
+    ['Sync iCal',               true, true,  true,  true],
+    ['Calendario unificado',    true, true,  true,  true],
+    ['Gestión de reservas',     true, true,  true,  true],
+    ['Gestión de propietarios', true, true,  true,  true],
+    ['Página pública + reserva directa', true, true, true, true],
+    ['Exportación CSV',         true, true,  true,  true],
+    ['Soporte estándar',        true, true,  true,  true],
+    ['CRECIMIENTO', null],
+    ['Datos completos de reservas', false, true, true, true],
+    ['Informes financieros (PDF)', false, true, true, true],
+    ['Gestión de gastos',       false, true, true,  true],
+    ['Panel de comisiones',     false, true, true,  true],
+    ['Listas de limpieza',      false, true, true,  true],
+    ['Multi-moneda (€, R$, US$)', false, true, true, true],
+    ['Gestión de equipo',       false, true, true,  true],
+    ['Cumplimiento RGPD',       false, true, true,  true],
+    ['Integración Booking.com', false, true, true,  true],
+    ['PRO', null],
+    ['Reglas de precio manuales', false, false, true, true],
+    ['Precios dinámicos (auto)', false, false, 'dev', true],
+    ['Automatización mensajes', false, false, 'dev', true],
+    ['Analytics avanzados',     false, false, 'dev', true],
+    ['Sincronización Airbnb',   false, false, 'dev', true],
+    ['Soporte prioritario',     false, false, true,  true],
+    ['EMPRESARIAL', null],
+    ['Incorporación dedicada',  false, false, false, true],
+    ['SLA garantizado',         false, false, false, true],
+    ['API personalizada',       false, false, false, true],
+    ['Precio negociado',        false, false, false, true],
+  ],
+  us: [
+    ['BASE', null],
+    ['iCal sync',               true, true,  true,  true],
+    ['Unified calendar',        true, true,  true,  true],
+    ['Reservation management',  true, true,  true,  true],
+    ['Owner management',        true, true,  true,  true],
+    ['Public page + direct booking', true, true, true, true],
+    ['CSV export',              true, true,  true,  true],
+    ['Standard support',        true, true,  true,  true],
+    ['GROWTH', null],
+    ['Full reservation data',   false, true, true,  true],
+    ['Financial reports (PDF)', false, true, true,  true],
+    ['Expense management',      false, true, true,  true],
+    ['Commission dashboard',    false, true, true,  true],
+    ['Cleaning checklists',     false, true, true,  true],
+    ['Multi-currency (€, R$, $)', false, true, true, true],
+    ['Team management',         false, true, true,  true],
+    ['GDPR/LGPD compliance',    false, true, true,  true],
+    ['Booking.com integration', false, true, true,  true],
+    ['PRO', null],
+    ['Manual pricing rules',    false, false, true,  true],
+    ['Dynamic pricing (auto)',  false, false, 'dev', true],
+    ['Automated messaging',     false, false, 'dev', true],
+    ['Advanced analytics',      false, false, 'dev', true],
+    ['Airbnb sync',             false, false, 'dev', true],
+    ['Priority support',        false, false, true,  true],
+    ['ENTERPRISE', null],
+    ['Dedicated onboarding',    false, false, false, true],
+    ['Guaranteed SLA',          false, false, false, true],
+    ['Custom API',              false, false, false, true],
+    ['Negotiated pricing',      false, false, false, true],
+  ]
+}
+
+const D = {
+  br: {
+    lang:'pt-BR',
+    hero:{t:'Gerencie mais.\nTrabalhe menos.',s:'Automatize reservas, aumente receita e elimine trabalho manual — com planos para cada fase do seu negócio.'},
+    anchor:'<strong>💡 Referência de mercado:</strong> Só o PriceLabs (dynamic pricing) custa R$80+/imóvel. O plano <strong>Expansão</strong> da Lodgra entrega gestão completa por R$79.',
+    cta:{t:'Pronto para automatizar sua operação?',s:'Comece gratuitamente. Sem cartão de crédito.',b1:'Começar grátis',b2:'Ver demonstração'},
+    plans:[
+      {k:'starter',n:'Essencial',d:'Para quem está começando a organizar.',p:'R$49',u:'/imóvel/mês',f:null,cta:'Começar grátis',b:null},
+      {k:'growth',n:'Expansão',d:'Para gestores em crescimento que querem automatizar.',p:'R$79',u:'/imóvel/mês',f:'+ R$5 por reserva',cta:'Testar 14 dias grátis',b:'Mais popular'},
+      {k:'pro',n:'Pro',d:'Para operações profissionais focadas em receita.',p:'R$109',u:'/imóvel/mês',f:'+ 1% da receita',cta:'Começar agora',b:null},
+      {k:'enterprise',n:'Empresarial',d:'Para grandes portfólios com necessidades específicas.',p:'Sob consulta',u:'',f:null,cta:'Falar com especialista',b:null}
+    ],
+    hdr:['Essencial','Expansão','Pro','Empresarial']
+  },
+  pt: {
+    lang:'pt-PT',
+    hero:{t:'Gira mais.\nTrabalha menos.',s:'Automatize reservas, aumente receita e elimine trabalho manual — com planos para cada fase do negócio.'},
+    anchor:'<strong>💡 Referência de mercado:</strong> Só o PriceLabs (dynamic pricing) custa €14,90/imóvel. O plano <strong>Crescimento</strong> da Lodgra entrega gestão completa por €19.',
+    cta:{t:'Pronto para automatizar a sua operação?',s:'Comece gratuitamente. Sem cartão de crédito.',b1:'Começar gratuitamente',b2:'Ver demonstração'},
+    plans:[
+      {k:'starter',n:'Essencial',d:'Para quem está a começar a organizar.',p:'€12',u:'/imóvel/mês',f:null,cta:'Começar gratuitamente',b:null},
+      {k:'growth',n:'Crescimento',d:'Para gestores em crescimento que querem automatizar.',p:'€19',u:'/imóvel/mês',f:'+ €1 por reserva',cta:'Experimentar 14 dias',b:'Mais popular'},
+      {k:'pro',n:'Pro',d:'Para operações profissionais focadas em receita.',p:'€29',u:'/imóvel/mês',f:'+ 1% da receita',cta:'Começar agora',b:null},
+      {k:'enterprise',n:'Empresarial',d:'Para grandes portfólios com necessidades específicas.',p:'Sob consulta',u:'',f:null,cta:'Falar com especialista',b:null}
+    ],
+    hdr:['Essencial','Crescimento','Pro','Empresarial']
+  },
+  es: {
+    lang:'es',
+    hero:{t:'Gestiona más.\nTrabaja menos.',s:'Automatiza reservas, aumenta ingresos y elimina el trabajo manual — con planes para cada etapa del negocio.'},
+    anchor:'<strong>💡 Referencia de mercado:</strong> Solo PriceLabs (dynamic pricing) cuesta €14,90/alojamiento. El plan <strong>Crecimiento</strong> de Lodgra incluye gestión completa por €19.',
+    cta:{t:'¿Listo para automatizar tu operación?',s:'Empieza gratis. Sin tarjeta de crédito.',b1:'Empezar gratis',b2:'Ver demostración'},
+    plans:[
+      {k:'starter',n:'Esencial',d:'Para quienes empiezan a organizar.',p:'€12',u:'/aloj./mes',f:null,cta:'Empezar gratis',b:null},
+      {k:'growth',n:'Crecimiento',d:'Para gestores en expansión que quieren automatizar.',p:'€19',u:'/aloj./mes',f:'+ €1 por reserva',cta:'Probar 14 días gratis',b:'Más popular'},
+      {k:'pro',n:'Pro',d:'Para operaciones profesionales enfocadas en ingresos.',p:'€29',u:'/aloj./mes',f:'+ 1% de ingresos',cta:'Comenzar ahora',b:null},
+      {k:'enterprise',n:'Empresarial',d:'Para grandes portfolios con necesidades específicas.',p:'Consultar',u:'',f:null,cta:'Contactar ventas',b:null}
+    ],
+    hdr:['Esencial','Crecimiento','Pro','Empresarial']
+  },
+  us: {
+    lang:'en',
+    hero:{t:'Manage more.\nWork less.',s:'Automate bookings, grow revenue and eliminate manual work — with plans for every stage of your business.'},
+    anchor:'<strong>💡 Market reference:</strong> PriceLabs alone (dynamic pricing) costs $16+/unit. Lodgra\'s <strong>Growth</strong> plan delivers complete management for $18.',
+    cta:{t:'Ready to automate your operation?',s:'Start for free. No credit card required.',b1:'Start free',b2:'Book a demo'},
+    plans:[
+      {k:'starter',n:'Starter',d:'For owners just getting organized.',p:'$15',u:'/unit/month',f:null,cta:'Start free',b:null},
+      {k:'growth',n:'Growth',d:'For growing managers who want automation.',p:'$18',u:'/unit/month',f:'+ $1.50 per booking',cta:'Try 14 days free',b:'Most popular'},
+      {k:'pro',n:'Pro',d:'For professional revenue-focused operations.',p:'$28',u:'/unit/month',f:'+ 1% of revenue',cta:'Get started',b:null},
+      {k:'enterprise',n:'Enterprise',d:'For large portfolios with custom needs.',p:'Custom',u:'',f:null,cta:'Contact sales',b:null}
+    ],
+    hdr:['Starter','Growth','Pro','Enterprise']
+  }
+}
+
+let cur = 'br'
+function set(m){
+  cur = m
+  document.documentElement.lang = D[m].lang
+  ;['br','pt','es','us'].forEach(k=>document.getElementById('btn-'+k).classList.toggle('active',k===m))
+  render()
+}
+
+function cell(v){
+  if(v===true) return `<td><span class="yes">✓</span></td>`
+  if(v===false) return `<td><span class="no">—</span></td>`
+  if(v==='dev') return `<td><span class="dev">em breve</span></td>`
+  return '<td></td>'
+}
+
+function render(){
+  const d = D[cur]
+  document.getElementById('ht').innerHTML = d.hero.t.replace('\n','<br>')
+  document.getElementById('hs').textContent = d.hero.s
+  document.getElementById('anchor').innerHTML = d.anchor
+  document.getElementById('ct').textContent = d.cta.t
+  document.getElementById('cs').textContent = d.cta.s
+  document.getElementById('cb1').textContent = d.cta.b1
+  document.getElementById('cb2').textContent = d.cta.b2
+
+  document.getElementById('g').innerHTML = d.plans.map(p=>`
+    <div class="card ${p.k==='growth'?'feat':''}">
+      <div class="badge-row">${p.b?`<span class="badge">⭐ ${p.b}</span>`:''}</div>
+      <div class="pname">${p.n}</div>
+      <div class="pdesc">${p.d}</div>
+      <div class="pprice">${p.p}</div>
+      <div class="punit">${p.u}</div>
+      ${p.f?`<span class="pfee">${p.f}</span>`:`<div class="pfee-ph"></div>`}
+      <button class="pcta">${p.cta}</button>
+    </div>`).join('')
+
+  const feats = FEATS[cur]
+  const th = `<tr><th>Funcionalidade</th>${d.hdr.map(h=>`<th>${h}</th>`).join('')}</tr>`
+  const rows = feats.map(([l,s,g,p,e])=>{
+    if(s===null) return `<tr class="section-row"><td colspan="5">${l}</td></tr>`
+    return `<tr><td>${l}</td>${cell(s)}${cell(g)}${cell(p)}${cell(e)}</tr>`
+  }).join('')
+  document.getElementById('ft').innerHTML = th+rows
+}
+
+render()
+</script>
+</body>
+</html>

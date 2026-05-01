@@ -1,9 +1,9 @@
-# LODGRA Brand Guidelines v1.0
+# LODGRA Brand Guidelines v1.1
 
 **Status:** Production Ready  
-**Version:** 1.0  
+**Version:** 1.1  
 **Created:** 2026-04-15  
-**Updated:** 2026-04-18  
+**Updated:** 2026-05-01  
 **Brand:** Lodgra - Intelligent Property Management
 
 ---
@@ -12,14 +12,71 @@
 
 | Element | Value |
 |---------|-------|
-| **Primary Color** | Verde Primário #1D9E75 |
-| **Secondary Color** | Ouro Próspero #EF9F27 |
-| **Accent Color** | Verde Escuro #0F6E56 |
-| **Neutral** | Cinza #2C2C2A |
+| **Primary Action Color** | Verde Crescimento (Sábio) #059669 — ALL CTA buttons |
+| **Primary Text/Borders** | Azul Confiança #1E3A8A |
+| **Accent / "Mais Popular"** | Ouro Próspero #D4AF37 |
+| **Background / Light** | Cinza Neutro #F3F4F6 |
+| **Body Text** | Cinza Escuro #374151 |
 | **Heading Font** | Poppins Bold 700 |
 | **Body Font** | Inter Regular 400/500 |
 | **Logo** | SVG (48x48px base) |
 | **Tone** | Confident, Accessible, Empathetic |
+
+---
+
+## 🎨 Production Color Palette (Tailwind)
+
+These are the **canonical** Lodgra colors as defined in `tailwind.config.ts`. Use only these — do not invent variants.
+
+| Tailwind Token | Hex | Name | Primary Use |
+|----------------|-----|------|-------------|
+| `lodgra-blue` | `#1E3A8A` | Azul Confiança | Primary text, borders, Pro plan card, navbar brand |
+| `lodgra-gold` | `#D4AF37` | Ouro Próspero | "Mais Popular" badge, accents, star ratings |
+| `lodgra-green` | `#059669` | Verde Crescimento (Sábio) | **ALL CTA buttons**, success states, active indicators |
+| `lodgra-gray` | `#F3F4F6` | Cinza Neutro | Section backgrounds, card backgrounds, input fills |
+| `lodgra-dark` | `#374151` | Cinza Escuro | Body text, secondary text, descriptions |
+
+### Important Rules
+
+- `lodgra-primary` **does NOT exist** — use `lodgra-blue` for primary text/borders or `lodgra-green` for CTAs
+- `lodgra-light` **does NOT exist** — use `lodgra-gray` for light backgrounds
+- All CTA buttons (primary actions) MUST use `#059669` (lodgra-green / Sábio archetype)
+- For inline styles where Tailwind purges classes: use `style={{ backgroundColor: '#059669' }}` directly
+- The Pro plan card uses `lodgra-blue` (#1E3A8A) background as a premium differentiator
+
+### Tailwind Safelist
+
+The following classes are safelisted in `tailwind.config.ts` to prevent purging:
+
+```javascript
+safelist: [
+  'bg-lodgra-blue',
+  'bg-lodgra-gold',
+  'bg-lodgra-green',
+  'bg-lodgra-gray',
+  'bg-lodgra-dark',
+  'text-lodgra-blue',
+  'text-lodgra-gold',
+  'text-lodgra-green',
+  'border-lodgra-blue',
+  'border-lodgra-gold',
+  'border-lodgra-green',
+]
+```
+
+### CTA Button Standard
+
+```tsx
+// Correct: green CTA button
+<button style={{ backgroundColor: '#059669' }} className="text-white px-6 py-3 rounded-lg font-semibold">
+  Assinar Expansão
+</button>
+
+// Wrong: using non-existent lodgra-primary
+<button className="bg-lodgra-primary text-white ...">  // ❌ lodgra-primary does not exist
+  Assinar Expansão
+</button>
+```
 
 ---
 
@@ -203,12 +260,12 @@
 
 | Usage | Color | Hex | Context |
 |-------|-------|-----|---------|
-| Primary Actions | Verde Primário | #1D9E75 | Home, Calendar, TrendingUp |
-| Revenue/Pricing | Ouro | #EF9F27 | DollarSign, Star, Trending |
-| Success | Verde | #1D9E75 | CheckCircle, Checkmark |
-| Warning | Ouro | #EF9F27 | AlertCircle, ExclamationMark |
-| Security | Verde Escuro | #0F6E56 | Lock, Shield |
-| Neutral | Cinza | #6B7280 | Settings, Info, Help |
+| Primary Actions / CTAs | Verde Crescimento | #059669 | Buttons, CheckCircle, TrendingUp |
+| Brand / Navigation | Azul Confiança | #1E3A8A | Home, Shield, Brand marks |
+| Revenue/Pricing/Accents | Ouro Próspero | #D4AF37 | DollarSign, Star, "Mais Popular" |
+| Success | Verde Crescimento | #059669 | CheckCircle, Checkmark |
+| Warning | Ouro Próspero | #D4AF37 | AlertCircle, ExclamationMark |
+| Neutral | Cinza Escuro | #374151 | Settings, Info, Help |
 
 ### **Core Icon Set (50+ Icons)**
 
@@ -405,11 +462,13 @@ padding: 16px;
 - ✅ Use 16px minimum for body text
 
 **Colors**
-- ✅ Pair Verde + Ouro for maximum impact
-- ✅ Use green for primary actions and success
-- ✅ Use gold for calls-to-action and alerts
-- ✅ Use gray for secondary/neutral content
+- ✅ Use `lodgra-green` (#059669) for ALL primary CTA buttons (Sábio archetype)
+- ✅ Use `lodgra-blue` (#1E3A8A) for primary text, borders, Pro plan accents
+- ✅ Use `lodgra-gold` (#D4AF37) for "Mais Popular" badge, accent elements
+- ✅ Use `lodgra-gray` (#F3F4F6) for section and card backgrounds
+- ✅ Use `lodgra-dark` (#374151) for body text and descriptions
 - ✅ Ensure 4.5:1 contrast on text
+- ✅ Use inline `style={{ backgroundColor: '#059669' }}` if Tailwind class is being purged
 
 **Imagery**
 - ✅ Use professional, high-quality photos
@@ -501,8 +560,8 @@ padding: 16px;
 
 ---
 
-**Brand Guidelines v1.0 — Production Ready ✅**
+**Brand Guidelines v1.1 — Production Ready ✅**
 
 Lodgra. Revenue. Growth. Stay.
 
-— Design System Team | 2026-04-18
+— Design System Team | Updated 2026-05-01 (v1.1: production color palette, Tailwind tokens, CTA standards)

@@ -7,6 +7,87 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.4.0] - 2026-05-01
+
+### Stripe Billing Multi-Market, Auth Flow Fixes & Landing Page Overhaul
+
+#### Stripe Billing — 3-Market Setup (EUR / BRL / USD)
+
+- `src/lib/billing/plans.ts` — Extended with 15 Stripe Price IDs (Starter/Growth/Pro × EUR/BRL/USD × per-unit + metered)
+- `.env.local` / Vercel env vars — All 15 Price IDs configured:
+  - Starter: EUR `price_1TRrfE2cJshbnOoQyyf0WpTM`, BRL `price_1TRrZz2cJshbnOoQRp2gjkpi`, USD `price_1TRrec2cJshbnOoQuK1jUJOV`
+  - Growth per-unit: EUR, BRL, USD (3 IDs)
+  - Growth metered (`booking_fee`): EUR, BRL, USD (3 IDs)
+  - Pro per-unit: EUR, BRL, USD (3 IDs)
+  - Pro metered (`revenue_fee`): EUR, BRL, USD (3 IDs)
+- 2 Stripe Billing Meters configured: `booking_fee` (Growth — R$5/reserva) and `revenue_fee` (Pro — 1% receita)
+- `STRIPE_WEBHOOK_SECRET` configured in both staging and production environments
+- Billing model: per-unit licensed subscription + metered usage hybrid
+  - Growth: R$89/mês (base) + R$5/reserva via booking_fee meter
+  - Pro: R$130/mês (base) + 1% receita via revenue_fee meter
+
+#### Supabase Migrations — Billing Columns
+
+- `supabase/migrations/20260429_03_billing_columns.sql` — New migration applied to BOTH staging (`wrqjpyyopwgyqluqkcga`) and production (`brjumbfpvijrkhrherpt`):
+  ```sql
+  ALTER TABLE organizations
+    ADD COLUMN IF NOT EXISTS stripe_subscription_item_id TEXT,
+    ADD COLUMN IF NOT EXISTS stripe_metered_item_id TEXT,
+    ADD COLUMN IF NOT EXISTS billing_unit_count INTEGER NOT NULL DEFAULT 1;
+  ```
+
+#### Auth / Onboarding Flow Fixes
+
+- `src/app/api/stripe/webhook/route.ts` — After `inviteUserByEmail`, immediately calls `updateUserById(userId, { email_confirm: true })` to auto-confirm email. `redirectTo` changed from `/onboarding` to `/auth/callback?next=/auth/reset-password-confirm?from=invite` (PKCE-safe)
+- `src/app/auth/reset-password-confirm/page.tsx` — Added `from=invite` param detection: when `from=invite`, redirects to `/onboarding` after password creation instead of `/login`. Page title changes to "Criar sua senha" for invite context
+- `src/app/[locale]/register/page.tsx` — Added `emailRedirectTo: ${window.location.origin}/auth/callback?next=/onboarding` in `signUp` call to fix "Email not confirmed" error by routing confirmation through `/auth/callback` (PKCE exchange)
+
+#### Landing Page — Brazil (`src/components/marketing/regions/BrazilLanding.tsx`)
+
+- Pricing tiers updated: **Essencial** R$59, **Expansão** R$89 (Mais Popular), **Pro** R$130 (Em breve)
+- All CTA buttons changed to green (#059669 — Sábio archetype) via inline styles
+- Navbar "Começar Agora" now scrolls to `#pricing` section
+- Hero CTA "Ver demonstração gratuita" → "Ver planos e preços" → scrolls to `#pricing`
+- Pricing cards: call `/api/stripe/checkout` API directly with `plan=starter/growth`, `currency=brl`
+- Pro card: Lodgra blue (#1E3A8A), `disabled` state
+- Expansão card: gold "Mais Popular" badge
+- Added 7-day money-back guarantee badge in pricing section header
+- Added guarantee strip below pricing cards: "7 dias garantia · Sem contrato · Cancele quando quiser · Suporte PT"
+- Final CTA section: "Escolher meu plano" scrolls to `#pricing`; copy updated (removed "grátis" language)
+
+#### Landing Page — PT/ES/EN (`src/components/landing/LandingPageClient.tsx`)
+
+- `handleCtaPrimary`: scrolls to `#pricing` (was: redirect to `/register`)
+- `handleFinalCta`: scrolls to `#pricing` (was: redirect to `/register`)
+- `handleSelectPricing`: calls `/api/stripe/checkout` with correct currency per locale (brl/usd/eur)
+- Extended locale type to include `'pt'` for Portugal passthrough
+
+#### Navbar — Landing (`src/components/landing/organisms/Navbar.tsx`)
+
+- "Get Started" → "Ver Planos", now scrolls to `#pricing` (was: redirect to `/register`)
+- Fixed undefined Tailwind class `lodgra-primary` → `lodgra-blue` throughout
+
+#### Locale JSON Files
+
+- `public/locales/pt-BR/landing.json` — Hero CTA and finalCta copy updated with guarantee messaging
+- `public/locales/es/landing.json` — Same updates in Spanish
+- `public/locales/en-US/landing.json` — Same updates in English
+- All locales: "No free trial · Pay and use · 7-day money-back guarantee"
+
+#### UI / Brand Fixes
+
+- `src/components/landing/atoms/Button.tsx` — Primary variant uses `style={{ backgroundColor: '#059669' }}` inline to avoid Tailwind purge issues
+- `src/components/landing/organisms/FinalCTA.tsx` — `bg-lodgra-primary` → `bg-lodgra-blue`
+- `src/components/landing/organisms/Hero.tsx` — `lodgra-primary` → `lodgra-blue`, `lodgra-light` → `lodgra-gray`
+- `tailwind.config.ts` — Added `safelist` for lodgra brand colors; type changed to `any` for compatibility
+- `src/components/marketing/regions/EuropeLanding.tsx` — Fixed `'pt'` locale passthrough bug (was incorrectly converting `pt` → `pt-BR`)
+
+#### Security / Repository
+
+- `.gitignore` — Added entries: `.env.local.prod-db`, `*.mjs`, `outputs/`, `FireShot*`
+
+---
+
 ## [1.3.0] - 2026-04-19 (Evening)
 
 ### Visual & Operational Overhaul — "BI First & Deep Localization"

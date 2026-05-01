@@ -605,19 +605,22 @@ if (provider === 'google') {
 - [ ] Password reset flow completo
 - [ ] First-login password change implementado
 - [ ] OAuth users NÃO veem password change
-- [ ] Email confirmation flow validado
+- ✅ Email confirmation flow validado — `emailRedirectTo` routes through `/auth/callback` (PKCE) in `src/app/[locale]/register/page.tsx`
+- ✅ Invite email auto-confirmed — webhook calls `updateUserById(userId, { email_confirm: true })` in `src/app/api/stripe/webhook/route.ts`
 - [ ] Session timeout implementado
 - [ ] CSRF protection em todos forms
 - [ ] Rate limiting em auth endpoints
 
 ### **UX Flow**
-- [ ] Landing → Register → Email confirmation → Onboarding → Dashboard
+- ✅ Landing → Stripe Checkout → Webhook → Invite email → `/auth/callback` → Password creation → `/onboarding` → Dashboard (Fluxo comercial v1.4)
+- ✅ Register → Email confirmation → `/auth/callback?next=/onboarding` → Dashboard (self-signup)
+- ✅ `from=invite` param in reset-password-confirm redirects to `/onboarding` instead of `/login`
 - [ ] Landing → Register com Google → Onboarding → Dashboard
 - [ ] Login normal funciona
 - [ ] Login com Google funciona
 - [ ] Password reset funciona
 - [ ] Esqueci senha link visível no login
-- [ ] CTAs da landing page diretos (não confusos)
+- ✅ CTAs da landing page vão para `#pricing` section (não confusos) — implementado em `LandingPageClient.tsx`, `BrazilLanding.tsx`, `Navbar.tsx`
 
 ### **Error Handling**
 - [ ] Erro ao fazer Google OAuth → mensagem clara
@@ -635,26 +638,55 @@ if (provider === 'google') {
 
 ## 📊 ANTES vs DEPOIS
 
-### Antes
+### Antes (pré-v1.4)
 ```
 ❌ Google OAuth não funciona (credenciais vazias)
 ❌ Register sem Google option
 ❌ Sem password reset (user preso se esquece)
 ❌ Onboarding flow ambíguo
 ❌ OAuth users veem password change desnecessário
-❌ Landing CTA confuso
+❌ Landing CTA confuso (redirecionava para /register sem pricing)
+❌ Invite users recebiam email mas não conseguiam confirmar (PKCE faltando)
+❌ Email de registo não passava por /auth/callback → "Email not confirmed" error
+❌ Sem garantia de devolução visível
 ```
 
-### Depois
+### Depois (v1.4 — 2026-05-01)
 ```
-✅ Google OAuth 100% funcional
-✅ Register + Google OAuth
-✅ Password reset automático + seguro
-✅ Onboarding guiado (3 steps)
-✅ OAuth users vão direto para onboarding
-✅ Landing CTAs claros (Entrar vs Começar Agora)
-✅ Prospect pode se signup em 2 minutos
-✅ Pronto para comercialização!
+[ ] Google OAuth 100% funcional (pendente Google Cloud Console setup)
+[ ] Register + Google OAuth (pendente)
+[ ] Password reset automático + seguro (pendente)
+✅ Onboarding guiado: Stripe → Webhook → Invite → Password → /onboarding → Dashboard
+✅ Invite flow corrigido: PKCE via /auth/callback + email auto-confirmado
+✅ Register email confirmation: emailRedirectTo routes through /auth/callback
+✅ from=invite param: reset-password-confirm redireciona para /onboarding
+✅ Landing CTAs: todos vão para #pricing section (BRL + EUR + EN + ES)
+✅ Pricing visível sem fricção: Essencial / Expansão / Pro com garantia 7 dias
+✅ Checkout API: /api/stripe/checkout com currency dinâmica (brl/usd/eur)
+✅ Pronto para comercialização nos mercados BRL, EUR, USD!
+```
+
+### Fluxo Comercial Implementado (v1.4)
+```
+Landing Page (BrazilLanding / LandingPageClient)
+    ↓ Click "Ver Planos" ou scroll to #pricing
+Pricing Section
+    ↓ Click "Assinar Expansão" / "Assinar Starter"
+POST /api/stripe/checkout (plan=starter|growth, currency=brl|eur|usd)
+    ↓ Stripe Checkout Session criada
+Stripe Checkout (hosted)
+    ↓ Pagamento confirmado
+Stripe Webhook (checkout.session.completed)
+    ↓ inviteUserByEmail → updateUserById(email_confirm:true)
+Email de convite enviado
+    ↓ redirectTo = /auth/callback?next=/auth/reset-password-confirm?from=invite
+/auth/callback (PKCE exchange)
+    ↓ Session estabelecida
+/auth/reset-password-confirm?from=invite
+    ↓ Título: "Criar sua senha" — user define password
+Redirect para /onboarding
+    ↓
+/dashboard (Pronto!)
 ```
 
 ---
@@ -669,9 +701,9 @@ if (provider === 'google') {
 5. [ ] Fix: OAuth users skip password change
 
 ### **Semana 2**
-6. [ ] Onboarding flow validation + redirect
-7. [ ] Landing page CTA fixes
-8. [ ] Email confirmation flow + copy
+6. ✅ Onboarding flow validation + redirect — `from=invite` param implementado (`src/app/auth/reset-password-confirm/page.tsx`)
+7. ✅ Landing page CTA fixes — todos CTAs apontam para `#pricing` (`LandingPageClient.tsx`, `BrazilLanding.tsx`, `Navbar.tsx`)
+8. ✅ Email confirmation flow + copy — `emailRedirectTo` via `/auth/callback` + invite auto-confirm no webhook
 9. [ ] Error handling + messages
 10. [ ] Compliance pages (ToS, Privacy)
 
@@ -682,6 +714,12 @@ if (provider === 'google') {
 14. [ ] Mobile responsiveness
 15. [ ] Production deployment checklist
 
+### **Adicional (v1.4 — Comercialização)**
+- ✅ Stripe 3-market billing (EUR/BRL/USD) — Starter/Growth/Pro com metered usage
+- ✅ Checkout API `/api/stripe/checkout` com currency dinâmica
+- ✅ Supabase columns: `stripe_subscription_item_id`, `stripe_metered_item_id`, `billing_unit_count`
+- ✅ Guarantee messaging: 7 dias garantia · Sem contrato · Cancele quando quiser
+
 ---
 
-**Documento Completo para Comercialização** ✅
+**Documento Atualizado — v1.4 (2026-05-01)** ✅
