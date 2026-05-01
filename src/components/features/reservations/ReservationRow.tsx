@@ -59,14 +59,14 @@ export function ReservationRow({ reservation }: ReservationRowProps) {
         </div>
       </td>
 
-      <td className="px-6 py-4 whitespace-nowrap">
-        <div className="flex items-center">
-          <Users className="h-5 w-5 text-gray-400 mr-2" />
-          <div>
-            <div className="text-sm font-medium text-gray-900">
+      <td className="px-6 py-4">
+        <div className="flex items-center max-w-[220px]">
+          <Users className="h-5 w-5 text-gray-400 mr-2 shrink-0" />
+          <div className="min-w-0">
+            <div className="text-sm font-medium text-gray-900 truncate">
               {guest ? `${guest.first_name} ${guest.last_name}` : 'Hóspede não cadastrado'}
             </div>
-            <div className="text-sm text-gray-500">{guest?.email || '-'}</div>
+            <div className="text-sm text-gray-500 truncate">{guest?.email || '-'}</div>
           </div>
         </div>
       </td>

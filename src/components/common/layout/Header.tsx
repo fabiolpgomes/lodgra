@@ -2,7 +2,8 @@
 
 import Link from 'next/link'
 import { useState, useRef, useEffect } from 'react'
-import { Building2, ChevronDown, Settings, RefreshCw, Users, UserCog } from 'lucide-react'
+import { ChevronDown, Settings, RefreshCw, Users, UserCog } from 'lucide-react'
+import { Logo } from '@/components/common/ui/Logo'
 import { UserMenu } from '@/components/auth/UserMenu'
 import { LocaleSelector } from '@/components/common/header/LocaleSelector'
 import { useAuth } from '@/hooks/useAuth'
@@ -78,9 +79,8 @@ export function Header({ serverProfile }: HeaderProps) {
     <header className="sticky top-0 z-50 glass border-b border-black/[0.06]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex items-center justify-between">
-          <Link href={prefix || '/'} className="flex items-center gap-2">
-            <Building2 className="h-8 w-8 text-blue-600" />
-            <h1 className="text-2xl font-bold text-gray-900">Lodgra</h1>
+          <Link href={prefix || '/'} className="flex items-center">
+            <Logo size="lg" />
           </Link>
 
           {/* Desktop nav only */}
