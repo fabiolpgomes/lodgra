@@ -18,6 +18,7 @@ import { toast } from 'sonner'
 export default function RegisterPage() {
   const router = useRouter()
   const locale = useLocale()
+  const tCommon = useTranslations('common')
   let tLegal: (key: string) => string
   try {
     const translations = useTranslations('legal')
@@ -170,7 +171,7 @@ export default function RegisterPage() {
           <div className="flex items-center justify-center mb-4">
             <Logo size="lg" />
           </div>
-          <p className="text-gray-600">Controle total dos seus imóveis em um só lugar. Brasil e Portugal</p>
+          <p className="text-gray-600">{tCommon('tagline')}</p>
         </div>
 
         {/* Card de Registo */}

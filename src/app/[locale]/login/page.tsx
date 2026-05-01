@@ -63,7 +63,7 @@ export default function LoginPage() {
           <div className="flex items-center justify-center mb-4">
             <Logo size="lg" />
           </div>
-          <p className="text-gray-600">Controle total dos seus imóveis em um só lugar. Brasil e Portugal</p>
+          <p className="text-gray-600">{tCommon('tagline')}</p>
         </div>
 
         {/* Card de Login */}
