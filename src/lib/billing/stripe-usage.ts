@@ -2,7 +2,8 @@ import Stripe from 'stripe'
 import { createAdminClient } from '@/lib/supabase/admin'
 
 function getStripe() {
-  return new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2026-02-25.clover' })
+  const key = (process.env.STRIPE_SECRET_KEY ?? '').trim()
+  return new Stripe(key, { apiVersion: '2026-02-25.clover' })
 }
 
 // Returns the Stripe metered price ID for a given plan + currency.

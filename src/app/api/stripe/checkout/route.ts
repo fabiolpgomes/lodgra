@@ -7,7 +7,11 @@ export const dynamic = 'force-dynamic'
 const METERED_PLANS = ['growth', 'pro']
 
 export async function POST(request: NextRequest) {
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  const stripeKey = (process.env.STRIPE_SECRET_KEY ?? '').trim()
+  if (!stripeKey) {
+    return NextResponse.json({ error: 'Stripe não configurado' }, { status: 500 })
+  }
+  const stripe = new Stripe(stripeKey, {
     apiVersion: '2026-02-25.clover',
   })
 
