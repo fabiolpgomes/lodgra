@@ -100,7 +100,7 @@ export const BrazilLanding: React.FC = () => {
               )}
             </div>
 
-            <Link href="/login" className="hidden sm:inline-block text-sm font-bold hover:opacity-80 transition-opacity" style={{ color: '#1E3A8A' }}>Entrar</Link>
+            <Link href="/login" className="text-sm font-bold hover:opacity-80 transition-opacity" style={{ color: '#1E3A8A' }}>Entrar</Link>
             <a href="#pricing" className="px-6 py-2.5 text-white text-sm font-bold rounded-full transition-all shadow-md active:scale-95" style={{ backgroundColor: '#059669' }}>
               Ver Planos
             </a>

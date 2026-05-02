@@ -30,8 +30,11 @@ function SuccessContent() {
         <h1 className="text-2xl font-bold mb-2" style={{ color: '#1E3A8A', fontFamily: 'var(--font-poppins, Poppins, sans-serif)' }}>
           Pagamento confirmado!
         </h1>
-        <p className="text-base mb-8" style={{ color: '#374151' }}>
-          Bem-vindo à Lodgra. A sua subscrição está ativa.
+        <p className="text-base mb-2" style={{ color: '#374151' }}>
+          Bem-vindo à Lodgra. Sua assinatura está ativa.
+        </p>
+        <p className="text-sm font-semibold mb-8" style={{ color: '#059669' }}>
+          Próximo passo: verifique seu email e crie sua senha ↓
         </p>
 
         {/* Instrução principal */}
@@ -43,32 +46,35 @@ function SuccessContent() {
               </svg>
             </div>
             <div>
-              <p className="font-bold mb-1" style={{ color: '#1E3A8A' }}>Verifique o seu email</p>
+              <p className="font-bold mb-1" style={{ color: '#1E3A8A' }}>Verifique o seu email agora</p>
               <p className="text-sm leading-relaxed" style={{ color: '#374151' }}>
-                Enviámos um email com um link para <strong>criar a sua senha</strong> e aceder ao painel.
-                Clique no botão do email para ativar a conta.
+                Enviámos um convite para o email usado no pagamento.
+                Clique no botão <strong>&ldquo;Criar minha senha&rdquo;</strong> para ativar a sua conta.
               </p>
               <p className="text-xs mt-2" style={{ color: '#6B7280' }}>
-                O email é enviado por <strong>noreply@mail.app.supabase.io</strong>.
-                Verifique também a pasta de Spam.
+                O email pode demorar até 2 minutos. Remetente: <strong>noreply@mail.app.supabase.io</strong>.
+                Verifique também a pasta de Spam/Lixo.
               </p>
             </div>
           </div>
         </div>
 
         {/* Passos */}
-        <ol className="text-left space-y-3 mb-8">
+        <ol className="text-left space-y-4 mb-8">
           {[
-            'Abra o email de convite da Lodgra',
-            'Clique em "Criar minha senha"',
-            'Defina uma senha segura',
-            'Aceda ao seu painel e configure as suas propriedades',
+            { label: 'Abra o email de convite da Lodgra', note: 'Assunto: "Você foi convidado para a Lodgra"' },
+            { label: 'Clique em "Criar minha senha"', note: 'Abrirá uma página segura da Lodgra' },
+            { label: 'Defina uma senha segura e confirme', note: 'Mín. 8 caracteres, 1 maiúscula, 1 número' },
+            { label: 'Será redirecionado para o seu painel', note: 'Configure suas propriedades e comece a gerir' },
           ].map((step, i) => (
-            <li key={i} className="flex items-start gap-3 text-sm" style={{ color: '#374151' }}>
-              <span className="flex-shrink-0 w-6 h-6 rounded-full text-white text-xs flex items-center justify-center font-bold mt-0.5" style={{ backgroundColor: '#059669' }}>
+            <li key={i} className="flex items-start gap-3" style={{ color: '#374151' }}>
+              <span className="flex-shrink-0 w-7 h-7 rounded-full text-white text-xs flex items-center justify-center font-bold mt-0.5" style={{ backgroundColor: '#059669' }}>
                 {i + 1}
               </span>
-              {step}
+              <div>
+                <p className="text-sm font-semibold">{step.label}</p>
+                <p className="text-xs mt-0.5" style={{ color: '#6B7280' }}>{step.note}</p>
+              </div>
             </li>
           ))}
         </ol>
@@ -79,12 +85,20 @@ function SuccessContent() {
         </div>
 
         {/* CTA secundário */}
-        <p className="text-sm" style={{ color: '#6B7280' }}>
-          Já configurou a senha?{' '}
-          <Link href="/login" className="font-bold hover:underline" style={{ color: '#1E3A8A' }}>
-            Fazer login
-          </Link>
-        </p>
+        <div className="space-y-3">
+          <p className="text-sm" style={{ color: '#6B7280' }}>
+            Já criou a senha?{' '}
+            <Link href="/login" className="font-bold hover:underline" style={{ color: '#1E3A8A' }}>
+              Entrar na Lodgra
+            </Link>
+          </p>
+          <p className="text-xs" style={{ color: '#9CA3AF' }}>
+            Problemas com o email?{' '}
+            <a href="mailto:suporte@lodgra.com" className="hover:underline" style={{ color: '#6B7280' }}>
+              Contactar suporte
+            </a>
+          </p>
+        </div>
 
         {sessionId && (
           <p className="text-xs mt-4" style={{ color: '#9CA3AF' }}>

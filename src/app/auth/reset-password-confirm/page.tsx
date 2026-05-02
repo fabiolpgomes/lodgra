@@ -102,7 +102,7 @@ export default function ResetPasswordConfirmPage() {
 
       if (updateError) throw updateError
 
-      toast.success('Password criada com sucesso!')
+      toast.success(from === 'invite' ? 'Conta ativada! Bem-vindo à Lodgra.' : 'Password alterada com sucesso!')
 
       // Novo utilizador via invite → onboarding; reset normal → login
       router.push(from === 'invite' ? '/onboarding' : '/login?success=password_reset')
@@ -275,7 +275,7 @@ export default function ResetPasswordConfirmPage() {
               disabled={!isValid || loading}
               className="w-full py-2.5 px-4 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
             >
-              {loading ? 'Processando...' : 'Alterar Password'}
+              {loading ? 'Processando...' : from === 'invite' ? 'Criar senha e entrar' : 'Alterar Password'}
             </button>
           </form>
 
