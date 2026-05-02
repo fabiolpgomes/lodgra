@@ -6,7 +6,7 @@ import { sendBookingConfirmationToGuest, sendBookingNotificationToManager } from
 export const dynamic = 'force-dynamic'
 
 export async function POST(request: NextRequest) {
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  const stripe = new Stripe((process.env.STRIPE_SECRET_KEY ?? '').trim(), {
     apiVersion: '2026-02-25.clover',
   })
 
@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Sem assinatura Stripe' }, { status: 400 })
   }
 
-  const secret = process.env.STRIPE_BOOKING_WEBHOOK_SECRET
+  const secret = (process.env.STRIPE_BOOKING_WEBHOOK_SECRET ?? '').trim() || null
   if (!secret) {
     console.error('[booking-webhook] STRIPE_BOOKING_WEBHOOK_SECRET não configurado')
     return NextResponse.json({ error: 'Webhook não configurado' }, { status: 500 })
@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
   let event: Stripe.Event
 
   try {
-    event = stripe.webhooks.constructEvent(body, sig, secret)
+    event = stripe.webhooks.constructEvent(body, sig, secret!)
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err)
     console.error('[booking-webhook] Falha na verificação da assinatura:', msg)
