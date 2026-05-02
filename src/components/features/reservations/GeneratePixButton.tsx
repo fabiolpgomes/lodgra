@@ -66,7 +66,7 @@ export function GeneratePixButton({ reservationId, initialPaymentLink, initialSt
     <Button 
       onClick={generatePix} 
       disabled={loading}
-      className="w-full h-12 rounded-2xl bg-lodgra-blue hover:bg-blue-800 text-white font-bold shadow-lg shadow-blue-500/10 transition-all active:scale-95"
+      className="w-full h-12 rounded-2xl !bg-blue-700 hover:!bg-blue-800 !text-white font-bold shadow-lg shadow-blue-500/10 transition-all active:scale-95"
     >
       {loading ? (
         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
