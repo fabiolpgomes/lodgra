@@ -9,7 +9,10 @@ type AdminClient = ReturnType<typeof createAdminClient>
 export const dynamic = 'force-dynamic'
 
 export async function POST(request: NextRequest) {
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  const stripeKey = (process.env.STRIPE_SECRET_KEY ?? '').trim()
+  const webhookSecret = (process.env.STRIPE_WEBHOOK_SECRET ?? '').trim()
+
+  const stripe = new Stripe(stripeKey, {
     apiVersion: '2026-02-25.clover',
   })
 
@@ -23,7 +26,7 @@ export async function POST(request: NextRequest) {
   let event: Stripe.Event
 
   try {
-    event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET!)
+    event = stripe.webhooks.constructEvent(body, sig, webhookSecret)
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err)
     console.error('Webhook signature verification failed:', msg)
