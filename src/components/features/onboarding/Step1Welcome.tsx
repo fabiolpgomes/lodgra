@@ -4,6 +4,7 @@ import { Home, Calendar, BarChart3, Check } from 'lucide-react'
 import { Button } from '@/components/common/ui/button'
 import { Input } from '@/components/common/ui/input'
 import { Label } from '@/components/common/ui/label'
+import { Logo } from '@/components/common/ui/Logo'
 import { PLAN_DISPLAY, type Plan } from '@/lib/billing/plans'
 
 interface Props {
@@ -18,12 +19,10 @@ export function Step1Welcome({ orgName, selectedPlan, onOrgNameChange, onPlanCha
   return (
     <div className="text-center">
       <div className="flex justify-center mb-6">
-        <div className="p-4 bg-blue-100 rounded-full">
-          <Home className="h-10 w-10 text-blue-600" />
-        </div>
+        <Logo size="lg" />
       </div>
 
-      <h1 className="text-3xl font-bold text-gray-900 mb-2">Bem-vindo ao Lodgra!</h1>
+      <h1 className="text-3xl font-bold text-lodgra-blue mb-2" style={{ fontFamily: 'var(--font-poppins, Poppins, sans-serif)' }}>Bem-vindo ao Lodgra!</h1>
       <p className="text-gray-500 mb-8 max-w-sm mx-auto">
         Configure a sua conta em 3 passos rápidos e comece a gerir os seus imóveis hoje.
       </p>
@@ -33,30 +32,30 @@ export function Step1Welcome({ orgName, selectedPlan, onOrgNameChange, onPlanCha
         <Label className="block text-sm font-medium text-gray-700 mb-3 text-left max-w-2xl mx-auto">
           Escolha o seu plano
         </Label>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 max-w-3xl mx-auto mb-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 max-w-3xl mx-auto mb-4 pt-4">
           {PLAN_DISPLAY.filter(p => !p.enterprise).map((plan) => (
             <button
               key={plan.id}
               onClick={() => onPlanChange(plan.id as Plan)}
               className={`relative rounded-lg border-2 p-4 text-left transition-all ${
                 selectedPlan === plan.id
-                  ? 'border-blue-600 bg-blue-50'
+                  ? 'border-lodgra-blue bg-blue-50'
                   : 'border-gray-200 bg-white hover:border-gray-300'
-              } ${plan.highlighted ? 'ring-2 ring-blue-400 ring-offset-2' : ''}`}
+              } ${plan.highlighted ? 'ring-2 ring-blue-300 ring-offset-2' : ''}`}
             >
               {selectedPlan === plan.id && (
-                <div className="absolute top-2 right-2 bg-blue-600 text-white rounded-full p-1">
+                <div className="absolute top-2 right-2 bg-lodgra-blue text-white rounded-full p-1">
                   <Check className="h-4 w-4" />
                 </div>
               )}
               {plan.highlighted && (
-                <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-blue-500 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap">
+                <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-lodgra-blue text-white text-[10px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap">
                   Mais escolhido
                 </span>
               )}
               <p className="font-semibold text-gray-900">{plan.name}</p>
               <p className="text-xs text-gray-500 mb-2 leading-snug">{plan.description}</p>
-              <p className="text-base font-bold text-blue-600">€{plan.price}</p>
+              <p className="text-base font-bold text-lodgra-blue">€{plan.price}</p>
               <p className="text-[10px] text-gray-500 mb-2">/unidade/mês</p>
               <ul className="text-xs text-gray-600 space-y-0.5">
                 {plan.features.slice(0, 2).map((f) => (
