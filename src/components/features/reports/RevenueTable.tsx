@@ -12,7 +12,12 @@ interface ReservationRow {
   currency: string | null
   status: string
   guests: { first_name: string; last_name: string } | null
-  property_listings: { properties: { name: string; city: string } }
+  property_listings: { properties: { name: string; city: string; currency?: string | null } }
+}
+
+function getRowCurrency(r: ReservationRow): CurrencyCode {
+  const propertyCurrency = r.property_listings?.properties?.currency
+  return ((propertyCurrency || r.currency || 'EUR') as CurrencyCode)
 }
 
 interface RevenueTableProps {
@@ -37,16 +42,16 @@ export function RevenueTable({ reservations, startDate, endDate }: RevenueTableP
       'Propriedade': r.property_listings.properties.name,
       'Cidade': r.property_listings.properties.city,
       'Status': r.status,
-      'Moeda': r.currency || 'EUR',
+      'Moeda': getRowCurrency(r),
       'Valor Total': r.total_amount ? Number(r.total_amount).toFixed(2) : '0.00',
       'Diária Média': r.total_amount ? (Number(r.total_amount) / nights).toFixed(2) : '0.00',
     }
   })
 
-  // Calcular totais por moeda
+  // Calcular totais por moeda usando property.currency como fonte de verdade
   const totalsByCurrency = groupByCurrency(
     reservations.map(r => ({
-      currency: (r.currency || 'EUR') as CurrencyCode,
+      currency: getRowCurrency(r),
       amount: r.total_amount ? Number(r.total_amount) : 0
     }))
   )
@@ -106,7 +111,7 @@ export function RevenueTable({ reservations, startDate, endDate }: RevenueTableP
                 const nights = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24))
                 const total = reservation.total_amount ? Number(reservation.total_amount) : 0
                 const avgNightly = nights > 0 ? total / nights : 0
-                const currency = (reservation.currency || 'EUR') as CurrencyCode
+                const currency = getRowCurrency(reservation)
                 const guestName = reservation.guests
                   ? `${reservation.guests.first_name} ${reservation.guests.last_name}`
                   : 'Sem nome'
