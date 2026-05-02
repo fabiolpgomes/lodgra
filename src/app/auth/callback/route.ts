@@ -15,7 +15,7 @@ export async function GET(request: Request) {
   // Supabase sends token_hash + type when email OTP verification is enabled.
   if (token_hash && type) {
     const { error } = await supabase.auth.verifyOtp({
-      type: type as Parameters<typeof supabase.auth.verifyOtp>[0]['type'],
+      type: type as 'invite' | 'email' | 'signup' | 'recovery' | 'magiclink' | 'email_change',
       token_hash,
     })
     if (!error) {
