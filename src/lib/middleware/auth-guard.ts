@@ -8,8 +8,10 @@ const PUBLIC_PATHS = [
   '/api/ical/', '/api/auth/', '/auth/', '/opengraph-image', '/sitemap.xml',
   '/robots.txt', '/privacy', '/terms', '/politica-de-privacidade', '/p/',
   '/properties', '/api/properties', '/api/public/', '/monitoring',
-  '/landing-vp',
-  '/booking',
+  '/landing-vp', '/booking',
+  '/checkout',   // Stripe success/cancel pages — always public
+  '/forgot-password', '/reset-password', '/onboarding',
+  '/sync', '/api/',
 ]
 
 export function isPublicPath(pathname: string): boolean {
