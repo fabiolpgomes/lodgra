@@ -8,16 +8,23 @@ import { calcManagementFee, calcOwnerNet } from '@/lib/financial/calculations'
 export default async function FinancialPage() {
   const supabase = await createClient()
 
-  // Buscar reservas confirmadas
+  // Buscar reservas confirmadas com property.currency como fonte de verdade
   const { data: reservations } = await supabase
     .from('reservations')
-    .select('total_amount, currency, property_listings!inner(property_id)')
+    .select(`
+      total_amount,
+      currency,
+      property_listings!inner(
+        property_id,
+        properties!inner(id, currency)
+      )
+    `)
     .eq('status', 'confirmed')
 
-  // Buscar despesas
+  // Buscar despesas com property currency como fallback
   const { data: expenses } = await supabase
     .from('expenses')
-    .select('amount, currency, property_id')
+    .select('amount, currency, property_id, properties(id, currency)')
 
   // Buscar propriedades com management_percentage e owner
   const { data: properties } = await supabase
@@ -25,20 +32,34 @@ export default async function FinancialPage() {
     .select('id, name, currency, management_percentage, owners(full_name)')
     .eq('is_active', true)
 
-  // Calcular receita por moeda
+  // Helper: property.currency tem prioridade sobre reservation.currency
+  // (Airbnb imports gravam 'EUR' mesmo para propriedades BRL)
+  function getResCurrency(r: { currency?: string | null; property_listings?: unknown }): CurrencyCode {
+    const listing = r.property_listings
+    const lObj = Array.isArray(listing) ? listing[0] : listing
+    const prop = (lObj as { properties?: { currency?: string } | { currency?: string }[] } | null)?.properties
+    const propObj = Array.isArray(prop) ? prop[0] : prop
+    return ((propObj?.currency || r.currency || 'EUR') as CurrencyCode)
+  }
+
+  // Calcular receita por moeda usando property.currency
   const revenueByCurrency = groupByCurrency(
     reservations?.map(r => ({
-      currency: (r.currency || 'EUR') as CurrencyCode,
+      currency: getResCurrency(r),
       amount: r.total_amount ? Number(r.total_amount) : 0
     })) || []
   )
 
-  // Calcular despesas por moeda
+  // Calcular despesas por moeda (expense.currency > property.currency > EUR)
   const expensesByCurrency = groupByCurrency(
-    expenses?.map(e => ({
-      currency: (e.currency || 'EUR') as CurrencyCode,
-      amount: Number(e.amount)
-    })) || []
+    expenses?.map(e => {
+      const prop = e.properties as { currency?: string } | { currency?: string }[] | null
+      const propObj = Array.isArray(prop) ? prop[0] : prop
+      return {
+        currency: (e.currency || propObj?.currency || 'EUR') as CurrencyCode,
+        amount: Number(e.amount)
+      }
+    }) || []
   )
 
   // Calcular lucro por moeda
@@ -62,7 +83,11 @@ export default async function FinancialPage() {
   // Análise por propriedade
   const propertyAnalysis = properties?.map(property => {
     const propertyRevenue = reservations
-      ?.filter(r => (r.property_listings as unknown as { property_id: string } | null)?.property_id === property.id)
+      ?.filter(r => {
+        const listing = r.property_listings
+        const lObj = Array.isArray(listing) ? listing[0] : listing
+        return (lObj as { property_id?: string } | null)?.property_id === property.id
+      })
       .reduce((sum, r) => sum + (r.total_amount ? Number(r.total_amount) : 0), 0) || 0
 
     const propertyExpenses = expenses

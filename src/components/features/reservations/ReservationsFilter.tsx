@@ -190,7 +190,14 @@ export function ReservationsFilter({ reservations, canCreate, pagination }: Rese
                     </div>
                     {r.total_amount ? (
                       <span className="text-sm font-semibold text-gray-900">
-                        {formatCurrency(Number(r.total_amount), (r.currency || 'EUR') as CurrencyCode)}
+                        {(() => {
+                          const rawL = r.property_listings
+                          const listing = Array.isArray(rawL) ? rawL[0] : rawL
+                          const rawP = listing?.properties
+                          const prop = Array.isArray(rawP) ? rawP[0] : rawP
+                          const cur = (prop?.currency || r.currency || 'EUR') as CurrencyCode
+                          return formatCurrency(Number(r.total_amount), cur)
+                        })()}
                       </span>
                     ) : null}
                   </div>

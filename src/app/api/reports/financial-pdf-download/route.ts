@@ -4,10 +4,12 @@ import { createClient } from '@/lib/supabase/server'
 import { getUserPropertyIds } from '@/lib/auth/getUserProperties'
 
 interface PropertyListings {
+  property_id?: string
   properties: {
     id: string
     name: string
     city: string
+    currency?: string
   }
 }
 
@@ -404,7 +406,7 @@ export async function GET(request: NextRequest) {
       .from('reservations')
       .select(
         `id, check_in, check_out, total_amount, platform_fee, net_amount, currency, source,
-         status, property_listings!inner(property_id, properties!inner(id, name, city)),
+         status, property_listings!inner(property_id, properties!inner(id, name, city, currency)),
          guests(first_name, last_name)`
       )
       .eq('status', 'confirmed')
@@ -463,15 +465,24 @@ export async function GET(request: NextRequest) {
     const expensesList = (expenses as unknown as Expense[]) || []
     const propertiesList = (properties as unknown as PropertyData[]) || []
 
+    // Helper: property.currency tem prioridade sobre r.currency (Airbnb guarda 'EUR' para propriedades BRL)
+    function getResCur(r: Reservation): string {
+      const listing = r.property_listings
+      const lObj = Array.isArray(listing) ? listing[0] : listing
+      const prop = (lObj as { properties?: { currency?: string } } | null)?.properties
+      const propObj = Array.isArray(prop) ? prop[0] : prop
+      return propObj?.currency || r.currency || 'EUR'
+    }
+
     // Cálculos financeiros
     const revenueByCurrency = groupByCurrency(
-      reservationsList.map(r => ({ currency: r.currency, amount: Number(r.total_amount) || 0 }))
+      reservationsList.map(r => ({ currency: getResCur(r), amount: Number(r.total_amount) || 0 }))
     )
     const platformFeesByCurrency = groupByCurrency(
-      reservationsList.map(r => ({ currency: r.currency, amount: Number(r.platform_fee) || 0 }))
+      reservationsList.map(r => ({ currency: getResCur(r), amount: Number(r.platform_fee) || 0 }))
     )
     const netRevenueByCurrency = groupByCurrency(
-      reservationsList.map(r => ({ currency: r.currency, amount: Number(r.net_amount) || Number(r.total_amount) || 0 }))
+      reservationsList.map(r => ({ currency: getResCur(r), amount: Number(r.net_amount) || Number(r.total_amount) || 0 }))
     )
 
     const operationalExpenses = expensesList.filter(e => e.category !== 'taxes')

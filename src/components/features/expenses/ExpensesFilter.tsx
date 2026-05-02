@@ -135,10 +135,13 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
   // Calculate filtered stats
   const filteredStats = useMemo(() => {
     const totalsByCurrency = groupByCurrency(
-      filtered.map(e => ({
-        currency: (e.currency || 'EUR') as CurrencyCode,
-        amount: e.amount ? Number(e.amount) : 0,
-      }))
+      filtered.map(e => {
+        const prop = Array.isArray(e.properties) ? e.properties[0] : e.properties
+        return {
+          currency: (e.currency || prop?.currency || 'EUR') as CurrencyCode,
+          amount: e.amount ? Number(e.amount) : 0,
+        }
+      })
     )
     return {
       count: filtered.length,
