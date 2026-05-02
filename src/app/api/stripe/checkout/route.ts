@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
     // In test mode use a single test price (live prices don't exist in Stripe test env)
     const isTestMode = (process.env.STRIPE_SECRET_KEY ?? '').startsWith('sk_test_') ||
                        (process.env.STRIPE_SECRET_KEY ?? '').startsWith('rk_test_')
-    const testPriceId = process.env.STRIPE_TEST_PRICE_ID
+    const testPriceId = (process.env.STRIPE_TEST_PRICE_ID ?? '').trim() || null
 
     const priceId = isTestMode && testPriceId ? testPriceId : getPerUnitPriceId(plan, planCurrency)
 
