@@ -87,9 +87,12 @@ export const LandingPageClient: React.FC<LandingPageClientProps> = ({ locale, co
         body: JSON.stringify({ plan: tierId, currency }),
       })
       const data = await res.json()
-      if (data.url) window.location.href = data.url
+      if (data.url) {
+        window.location.href = data.url
+        return
+      }
+      window.location.href = `/register?plan=${tierId}`
     } catch {
-      // fallback para register se o checkout falhar
       window.location.href = `/register?plan=${tierId}`
     }
   }, [locale])

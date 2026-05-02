@@ -28,8 +28,16 @@ export const BrazilLanding: React.FC = () => {
         body: JSON.stringify({ plan, currency: 'brl' }),
       })
       const data = await res.json()
-      if (data.url) window.location.href = data.url
+      if (data.url) {
+        window.location.href = data.url
+        return // keep loading state while browser navigates
+      }
+      // API returned error — fall back to register page
+      window.location.href = `/register?plan=${plan}`
     } catch {
+      // Network error — fall back to register page
+      window.location.href = `/register?plan=${plan}`
+    } finally {
       setCheckoutLoading(null)
     }
   }
