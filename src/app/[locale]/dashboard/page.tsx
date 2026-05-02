@@ -283,71 +283,112 @@ export default async function DashboardPage({
           </p>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-6 mb-6 sm:mb-8">
-          <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
+        {/* Linha 1 — Métricas de volume */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-5">
+          <div className="bg-white rounded-xl shadow-sm p-5 sm:p-6">
             <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl">
+              <div className="p-2.5 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl">
                 <Home className="h-5 w-5 text-blue-600" />
               </div>
-              <span className="text-xs font-medium uppercase tracking-wider text-gray-400">Total</span>
+              <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">Total</span>
             </div>
-            <h3 className="text-4xl font-bold tracking-tight text-gray-900">{totalProperties}</h3>
+            <p className="text-4xl font-bold tracking-tight text-gray-900">{totalProperties}</p>
             <p className="text-sm text-gray-500 mt-1">Propriedades</p>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
+          <div className="bg-white rounded-xl shadow-sm p-5 sm:p-6">
             <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-gradient-to-br from-green-50 to-green-100 rounded-xl">
+              <div className="p-2.5 bg-gradient-to-br from-green-50 to-green-100 rounded-xl">
                 <Calendar className="h-5 w-5 text-green-600" />
               </div>
-              <span className="text-xs font-medium uppercase tracking-wider text-gray-400">Total</span>
+              <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">Total</span>
             </div>
-            <h3 className="text-4xl font-bold tracking-tight text-gray-900">{totalReservations}</h3>
+            <p className="text-4xl font-bold tracking-tight text-gray-900">{totalReservations}</p>
             <p className="text-sm text-gray-500 mt-1">Reservas</p>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
+          <div className="bg-white rounded-xl shadow-sm p-5 sm:p-6">
             <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl">
+              <div className="p-2.5 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl">
                 <Percent className="h-5 w-5 text-purple-600" />
               </div>
-              <span className="text-xs font-medium uppercase tracking-wider text-gray-400">
+              <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">
                 {now.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '').toUpperCase()}
               </span>
             </div>
-            <h3 className="text-4xl font-bold tracking-tight text-gray-900">{currentMonthOccupancy}%</h3>
+            <p className={`text-4xl font-bold tracking-tight ${currentMonthOccupancy >= 70 ? 'text-green-600' : currentMonthOccupancy >= 40 ? 'text-yellow-600' : 'text-gray-900'}`}>
+              {currentMonthOccupancy}%
+            </p>
             <p className="text-sm text-gray-500 mt-1">Taxa de Ocupação</p>
           </div>
+        </div>
 
-          <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl">
-                <Euro className="h-5 w-5 text-orange-600" />
+        {/* Linha 2 — Financeiro do mês (cards mais largos) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
+          {/* Receita do Mês */}
+          <div className="bg-white rounded-xl shadow-sm p-5 sm:p-6">
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl">
+                  <Euro className="h-5 w-5 text-orange-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-gray-700">Receita do Mês</p>
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+                    {now.toLocaleDateString('pt-BR', { month: 'long' }).charAt(0).toUpperCase() +
+                      now.toLocaleDateString('pt-BR', { month: 'long' }).slice(1)}
+                  </p>
+                </div>
               </div>
-              <span className="text-xs font-medium uppercase tracking-wider text-gray-400">
-                {now.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '').toUpperCase()}
-              </span>
             </div>
-            <CurrencyStack totals={monthRevenueByCurrency} size="lg" hideSingleBadge={false} />
-            <p className="text-sm text-gray-500 mt-2">Receita do Mês</p>
+            {Object.keys(monthRevenueByCurrency).length === 0 ? (
+              <p className="text-3xl font-bold text-gray-300">—</p>
+            ) : (
+              <div className="space-y-3">
+                {Object.entries(monthRevenueByCurrency).map(([cur, amount], idx, arr) => {
+                  const badgeColor = cur === 'EUR' ? 'bg-blue-50 text-blue-700 ring-blue-200'
+                    : cur === 'BRL' ? 'bg-green-50 text-green-700 ring-green-200'
+                    : cur === 'USD' ? 'bg-yellow-50 text-yellow-700 ring-yellow-200'
+                    : 'bg-gray-100 text-gray-700 ring-gray-200'
+                  return (
+                    <div key={cur}>
+                      {idx > 0 && <div className="border-t border-dashed border-gray-100 mb-3" />}
+                      <div className="flex items-center justify-between gap-3">
+                        <span className={`inline-flex items-center justify-center min-w-[2.5rem] h-5 px-1.5 text-[10px] font-bold uppercase tracking-widest rounded ring-1 shrink-0 ${badgeColor}`}>
+                          {cur}
+                        </span>
+                        <span className="text-2xl font-bold tabular-nums text-gray-900 text-right">
+                          {formatCurrency(amount, cur as CurrencyCode)}
+                        </span>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
           </div>
 
           {/* Lucro Real */}
-          <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 border-l-4 border-green-500">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-gradient-to-br from-green-50 to-green-100 rounded-xl">
-                <Wallet className="h-5 w-5 text-green-600" />
+          <div className="bg-white rounded-xl shadow-sm p-5 sm:p-6">
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 bg-gradient-to-br from-green-50 to-green-100 rounded-xl">
+                  <Wallet className="h-5 w-5 text-green-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-gray-700">Lucro Real</p>
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+                    {now.toLocaleDateString('pt-BR', { month: 'long' }).charAt(0).toUpperCase() +
+                      now.toLocaleDateString('pt-BR', { month: 'long' }).slice(1)}
+                  </p>
+                </div>
               </div>
-              <span className="text-xs font-medium uppercase tracking-wider text-gray-400">
-                {now.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '').toUpperCase()}
-              </span>
             </div>
             {Object.keys(monthRevenueByCurrency).length === 0 ? (
-              <span className="text-4xl font-bold text-gray-300">—</span>
+              <p className="text-3xl font-bold text-gray-300">—</p>
             ) : (
-              <div className="space-y-1.5">
-                {Object.entries(monthRevenueByCurrency).map(([cur, rev]) => {
+              <div className="space-y-3">
+                {Object.entries(monthRevenueByCurrency).map(([cur, rev], idx) => {
                   const exp = monthExpensesByCurrency[cur] || 0
                   const profit = rev - exp
                   const margin = rev > 0 ? Math.round((profit / rev) * 100) : 0
@@ -357,40 +398,51 @@ export default async function DashboardPage({
                     : 'bg-gray-100 text-gray-700 ring-gray-200'
                   return (
                     <div key={cur}>
-                      <div className="flex items-center gap-2">
+                      {idx > 0 && <div className="border-t border-dashed border-gray-100 mb-3" />}
+                      <div className="flex items-center justify-between gap-3">
                         <span className={`inline-flex items-center justify-center min-w-[2.5rem] h-5 px-1.5 text-[10px] font-bold uppercase tracking-widest rounded ring-1 shrink-0 ${badgeColor}`}>
                           {cur}
                         </span>
-                        <span className={`text-3xl font-bold tabular-nums ${profit >= 0 ? 'text-green-700' : 'text-red-600'}`}>
-                          {formatCurrency(profit, cur as CurrencyCode)}
-                        </span>
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className={`text-2xl font-bold tabular-nums ${profit >= 0 ? 'text-green-700' : 'text-red-600'}`}>
+                            {formatCurrency(profit, cur as CurrencyCode)}
+                          </span>
+                          <span className={`text-xs font-semibold px-1.5 py-0.5 rounded-full shrink-0 ${
+                            margin >= 50 ? 'bg-green-100 text-green-700'
+                            : margin >= 20 ? 'bg-yellow-100 text-yellow-700'
+                            : 'bg-red-100 text-red-600'
+                          }`}>
+                            {margin}%
+                          </span>
+                        </div>
                       </div>
-                      <p className="text-xs text-gray-400 ml-[2.75rem] mt-0.5">Margem: {margin}%</p>
                     </div>
                   )
                 })}
               </div>
             )}
-            <p className="text-sm text-gray-500 mt-2">Lucro Real</p>
           </div>
         </div>
 
         {/* Previsão de Faturamento */}
-        <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 mb-6 sm:mb-8">
-          <div className="flex items-center justify-between mb-4">
+        <div className="bg-white rounded-xl shadow-sm p-5 sm:p-6 mb-6 sm:mb-8">
+          <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-2">
               <TrendingUp className="h-5 w-5 text-green-600" />
-              <h3 className="text-lg font-semibold text-gray-900">Previsão de Faturamento</h3>
+              <div>
+                <h3 className="text-base font-semibold text-gray-900">Previsão de Faturamento</h3>
+                <p className="text-xs text-gray-400 mt-0.5">Reservas confirmadas a partir de hoje</p>
+              </div>
             </div>
-            <span className="text-sm text-gray-500">
-              {futureConfirmedCount} reserva{futureConfirmedCount !== 1 ? 's' : ''} confirmada{futureConfirmedCount !== 1 ? 's' : ''} a partir de hoje
+            <span className="text-xs font-semibold bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full">
+              {futureConfirmedCount} reserva{futureConfirmedCount !== 1 ? 's' : ''}
             </span>
           </div>
 
           {Object.keys(forecastByCurrency).length === 0 ? (
-            <p className="text-gray-500 text-sm">Nenhuma reserva futura com valor registado.</p>
+            <p className="text-gray-400 text-sm">Nenhuma reserva futura com valor registado.</p>
           ) : (
-            <div className="flex flex-wrap gap-x-8 gap-y-4">
+            <div className="flex flex-wrap gap-6">
               {Object.entries(forecastByCurrency)
                 .sort(([a], [b]) => a.localeCompare(b))
                 .map(([currency, amount]) => {
@@ -399,11 +451,11 @@ export default async function DashboardPage({
                     : currency === 'USD' ? 'bg-yellow-50 text-yellow-700 ring-yellow-200'
                     : 'bg-gray-100 text-gray-700 ring-gray-200'
                   return (
-                    <div key={currency} className="flex items-center gap-2">
-                      <span className={`inline-flex items-center justify-center min-w-[2.5rem] h-5 px-1.5 text-[10px] font-bold uppercase tracking-widest rounded ring-1 shrink-0 ${badgeColor}`}>
+                    <div key={currency} className="flex flex-col gap-1.5">
+                      <span className={`inline-flex items-center justify-center self-start min-w-[2.5rem] h-5 px-1.5 text-[10px] font-bold uppercase tracking-widest rounded ring-1 ${badgeColor}`}>
                         {currency}
                       </span>
-                      <span className="text-3xl font-bold text-gray-900 tabular-nums">
+                      <span className="text-2xl font-bold text-gray-900 tabular-nums">
                         {formatCurrency(amount, currency as CurrencyCode)}
                       </span>
                     </div>
