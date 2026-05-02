@@ -9,7 +9,7 @@ import { PLStatement } from '@/components/features/reports/PLStatement'
 import { ChannelAnalysis } from '@/components/features/reports/ChannelAnalysis'
 import { CashFlowForecast } from '@/components/features/reports/CashFlowForecast'
 import { FinancialPdfDownloadButton } from '@/components/features/reports/FinancialPdfDownloadButton'
-import { formatMultiCurrencyTotals, formatCurrency, groupByCurrency, CurrencyCode } from '@/lib/utils/currency'
+import { formatCurrency, groupByCurrency, CurrencyCode } from '@/lib/utils/currency'
 import { normalizeChannelName } from '@/lib/utils/channels'
 import { AuthLayout } from '@/components/common/layout/AuthLayout'
 import { getUserPropertyIds } from '@/lib/auth/getUserProperties'
@@ -114,7 +114,8 @@ export default async function ReportsPage({ searchParams }: PageProps) {
         properties!inner(
           id,
           name,
-          city
+          city,
+          currency
         )
       ),
       guests(
@@ -152,7 +153,8 @@ export default async function ReportsPage({ searchParams }: PageProps) {
         property_id,
         properties!inner(
           id,
-          name
+          name,
+          currency
         )
       ),
       guests(
@@ -205,6 +207,15 @@ export default async function ReportsPage({ searchParams }: PageProps) {
   const expenses = expensesResult.data
   const futureReservations = futureReservationsResult.data || []
 
+  // Helper: use property.currency as primary source (Airbnb imports store 'EUR' in reservation.currency)
+  function getResCurrency(r: { currency?: string | null; property_listings?: unknown }): CurrencyCode {
+    const listing = r.property_listings
+    const lObj = Array.isArray(listing) ? listing[0] : listing
+    const prop = (lObj as { properties?: { currency?: string } } | null)?.properties
+    const propObj = Array.isArray(prop) ? prop[0] : prop
+    return ((propObj?.currency || r.currency || 'EUR') as CurrencyCode)
+  }
+
   // Métricas de ocupação e RevPAR
   const numberOfProperties = propertyId ? 1 : (properties?.length || 1)
   const periodDays = Math.ceil(
@@ -215,19 +226,18 @@ export default async function ReportsPage({ searchParams }: PageProps) {
   // Calcular métricas de receita por moeda
   const revenueByCurrency = groupByCurrency(
     reservations?.map(r => ({
-      currency: (r.currency || 'EUR') as CurrencyCode,
+      currency: getResCurrency(r),
       amount: r.total_amount ? Number(r.total_amount) : 0
     })) || []
   )
 
   const totalReservations = reservations?.length || 0
 
-
   // Calcular noites e contagem de reservas por moeda para ADR e valor médio
   const nightsByCurrency: Record<string, number> = {}
   const reservationCountByCurrency: Record<string, number> = {}
   reservations?.forEach(r => {
-    const currency = r.currency || 'EUR'
+    const currency = getResCurrency(r)
     const checkIn = new Date(r.check_in)
     const checkOut = new Date(r.check_out)
     const nights = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24))
@@ -248,14 +258,14 @@ export default async function ReportsPage({ searchParams }: PageProps) {
   // Taxas de plataforma e receita líquida
   const platformFeesByCurrency = groupByCurrency(
     reservations?.map(r => ({
-      currency: (r.currency || 'EUR') as CurrencyCode,
+      currency: getResCurrency(r),
       amount: r.platform_fee ? Number(r.platform_fee) : 0
     })) || []
   )
 
   const netRevenueByCurrency = groupByCurrency(
     reservations?.map(r => ({
-      currency: (r.currency || 'EUR') as CurrencyCode,
+      currency: getResCurrency(r),
       amount: r.net_amount
         ? Number(r.net_amount)
         : Number(r.total_amount || 0) - (r.platform_fee ? Number(r.platform_fee) : 0)
@@ -326,7 +336,7 @@ export default async function ReportsPage({ searchParams }: PageProps) {
       acc[propertyId] = {
         id: propertyId,
         name: propertyName ?? '',
-        currency: r.currency || 'EUR',
+        currency: getResCurrency(r),
         revenue: 0,
         reservations: 0,
         nights: 0,
@@ -378,7 +388,7 @@ export default async function ReportsPage({ searchParams }: PageProps) {
       acc[monthKey] = {
         monthKey,
         month: monthName,
-        currency: r.currency || 'EUR',
+        currency: getResCurrency(r),
         revenue: 0,
         reservations: 0,
         nights: 0,
@@ -411,7 +421,7 @@ export default async function ReportsPage({ searchParams }: PageProps) {
     const revByCurrency: Record<string, number> = {}
     let totalNights = 0
     rs.forEach(r => {
-      const cur = r.currency || 'EUR'
+      const cur = getResCurrency(r)
       revByCurrency[cur] = (revByCurrency[cur] || 0) + (r.total_amount ? Number(r.total_amount) : 0)
       totalNights += Math.ceil(
         (new Date(r.check_out).getTime() - new Date(r.check_in).getTime()) / (1000 * 60 * 60 * 24)
@@ -461,7 +471,7 @@ export default async function ReportsPage({ searchParams }: PageProps) {
         revenue: 0,
         reservations: 0,
         nights: 0,
-        currency: r.currency || 'EUR',
+        currency: getResCurrency(r),
       }
     }
 
@@ -520,9 +530,9 @@ export default async function ReportsPage({ searchParams }: PageProps) {
             </div>
             <div className="space-y-1">
               {Object.entries(revenueByCurrency).length > 0 ? (
-                Object.entries(revenueByCurrency).slice(0, 2).map(([currency, amount]) => (
+                Object.entries(revenueByCurrency).map(([currency, amount]) => (
                   <h3 key={currency} className="text-2xl font-bold text-green-600">
-                    {formatMultiCurrencyTotals({ [currency]: amount })}
+                    {formatCurrency(amount, currency as CurrencyCode)}
                   </h3>
                 ))
               ) : (

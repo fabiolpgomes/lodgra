@@ -1,7 +1,8 @@
 import Link from 'next/link'
 import { Plus, Receipt, TrendingDown, FileText } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
-import { formatCurrency } from '@/lib/utils/currency'
+import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
+import { CurrencyStack } from '@/components/common/ui/CurrencyStack'
 import { AuthLayout } from '@/components/common/layout/AuthLayout'
 import { Button } from '@/components/common/ui/button'
 import { Badge } from '@/components/common/ui/badge'
@@ -26,7 +27,11 @@ export default async function ExpensesPage() {
   }
 
 
-  const totalExpenses = expenses?.reduce((sum, e) => sum + Number(e.amount), 0) || 0
+  const totalExpensesByCurrency = (expenses || []).reduce((acc, e) => {
+    const cur = (e.currency || e.properties?.currency || 'EUR') as string
+    acc[cur] = (acc[cur] || 0) + Number(e.amount || 0)
+    return acc
+  }, {} as Record<string, number>)
 
   const categoryLabels: Record<string, string> = {
     cleaning: 'Limpeza',
@@ -88,9 +93,9 @@ export default async function ExpensesPage() {
             <div className="flex items-center justify-between mb-4">
               <span className="text-sm text-gray-500">Valor Total</span>
             </div>
-            <h3 className="text-3xl font-bold text-red-600">
-              {formatCurrency(totalExpenses, 'EUR')}
-            </h3>
+            <div className="text-red-600">
+              <CurrencyStack totals={totalExpensesByCurrency} size="lg" />
+            </div>
             <p className="text-sm text-gray-600 mt-1">Todas as despesas</p>
           </div>
         </div>
@@ -157,7 +162,7 @@ export default async function ExpensesPage() {
                       </Badge>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium text-red-600">
-                      {formatCurrency(expense.amount, expense.currency)}
+                      {formatCurrency(expense.amount, (expense.currency || expense.properties?.currency || 'EUR') as CurrencyCode)}
                     </td>
                   </tr>
                 ))}

@@ -2,8 +2,10 @@ import Link from 'next/link'
 import { Calendar, TrendingUp, Percent, Users, Home, Euro, Clock, CheckCircle, Wallet } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { requireRole } from '@/lib/auth/requireRole'
-import { LazyOccupancyChart as OccupancyChart, LazyRevenueChart as RevenueChart, LazyStatusChart as StatusChart } from '@/components/common/lazy/LazyCharts'
+import { LazyOccupancyChart as OccupancyChart, LazyStatusChart as StatusChart } from '@/components/common/lazy/LazyCharts'
 import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
+import { CurrencyStack } from '@/components/common/ui/CurrencyStack'
+import { RevenueChartWrapper } from '@/components/features/dashboard/RevenueChartWrapper'
 import { AuthLayout } from '@/components/common/layout/AuthLayout'
 import { redirect } from 'next/navigation'
 
@@ -29,7 +31,7 @@ export default async function DashboardPage({
   // Fetch properties for this organization
   const { data: properties } = await supabase
     .from('properties')
-    .select('id')
+    .select('id, currency')
     .eq('organization_id', organizationId)
     .eq('is_active', true)
 
@@ -40,19 +42,19 @@ export default async function DashboardPage({
     ? await supabase
         .from('reservations')
         .select(`
-          id, 
-          status, 
-          check_in, 
-          check_out, 
-          total_amount, 
-          currency, 
+          id,
+          status,
+          check_in,
+          check_out,
+          total_amount,
+          currency,
           created_at,
           guest_name,
           property_listing_id,
           property_listings(
             id,
             property_id,
-            properties(id, name)
+            properties(id, name, currency)
           )
         `)
         .in('property_listings.property_id', propertyIds)
@@ -64,6 +66,20 @@ export default async function DashboardPage({
     .select('currency')
     .eq('id', organizationId)
     .single()
+
+  // Build propertyId → currency map for correct multi-currency grouping
+  const propertyCurrencyMap = (properties || []).reduce((acc, p) => {
+    if (p.currency) acc[p.id] = p.currency
+    return acc
+  }, {} as Record<string, string>)
+
+  function getReservationCurrency(r: { currency?: string | null; property_listings?: unknown }): string {
+    const listing = r.property_listings
+    const lObj = Array.isArray(listing) ? listing[0] : listing
+    const propId = (lObj as { property_id?: string } | null)?.property_id
+    const propCur = propId ? propertyCurrencyMap[propId] : undefined
+    return propCur || r.currency || org?.currency || 'EUR'
+  }
 
   const reservationList = reservations || []
   const totalProperties = properties?.length || 0
@@ -80,7 +96,7 @@ export default async function DashboardPage({
   const forecastByCurrency = reservationList
     .filter(r => r.status === 'confirmed' && r.total_amount && r.check_in >= todayStr)
     .reduce((acc, r) => {
-      const currency = r.currency || org?.currency || 'EUR'
+      const currency = getReservationCurrency(r)
       acc[currency] = (acc[currency] || 0) + Number(r.total_amount)
       return acc
     }, {} as Record<string, number>)
@@ -102,7 +118,7 @@ export default async function DashboardPage({
              checkIn <= currentMonthEnd
     })
     .reduce((acc, r) => {
-      const currency = r.currency || org?.currency || 'EUR'
+      const currency = getReservationCurrency(r)
       acc[currency] = (acc[currency] || 0) + Number(r.total_amount)
       return acc
     }, {} as Record<string, number>)
@@ -175,30 +191,31 @@ export default async function DashboardPage({
     })
   }
 
-  // Calculate revenue for last 6 months
-  const revenueData = []
+  // Calculate revenue for last 6 months grouped by currency
+  const revenueDataByCurrency: Record<string, { month: string; revenue: number }[]> = {}
   for (let i = 5; i >= 0; i--) {
     const date = new Date(now.getFullYear(), now.getMonth() - i, 1)
-    const monthName = date.toLocaleDateString('pt-BR', { month: 'short' })
+    const monthLabel = (date.toLocaleDateString('pt-BR', { month: 'short' }).charAt(0).toUpperCase() +
+      date.toLocaleDateString('pt-BR', { month: 'short' }).slice(1))
     const year = date.getFullYear()
     const month = date.getMonth()
-
     const monthStart = new Date(year, month, 1)
     const monthEnd = new Date(year, month + 1, 0)
 
-    const monthRevenue = reservationList
+    const byCur: Record<string, number> = {}
+    reservationList
       .filter(r => {
         const checkIn = new Date(r.check_in)
-        return r.status === 'confirmed' &&
-               r.total_amount &&
-               checkIn >= monthStart &&
-               checkIn <= monthEnd
+        return r.status === 'confirmed' && r.total_amount && checkIn >= monthStart && checkIn <= monthEnd
       })
-      .reduce((sum, r) => sum + Number(r.total_amount), 0)
+      .forEach(r => {
+        const cur = getReservationCurrency(r)
+        byCur[cur] = (byCur[cur] || 0) + Number(r.total_amount)
+      })
 
-    revenueData.push({
-      month: monthName.charAt(0).toUpperCase() + monthName.slice(1),
-      revenue: monthRevenue
+    Object.entries(byCur).forEach(([cur, revenue]) => {
+      if (!revenueDataByCurrency[cur]) revenueDataByCurrency[cur] = []
+      revenueDataByCurrency[cur].push({ month: monthLabel, revenue })
     })
   }
 
@@ -214,7 +231,7 @@ export default async function DashboardPage({
 
   const monthExpensesByCurrency = (currentMonthExpenses || []).reduce((acc, e) => {
     const cur = (e.currency || org?.currency || 'EUR') as string
-    acc[cur] = (acc[cur] || 0) + Number(e.amount)
+    acc[cur] = (acc[cur] || 0) + Number(e.amount || 0)
     return acc
   }, {} as Record<string, number>)
 
@@ -254,8 +271,6 @@ export default async function DashboardPage({
         .order('check_in', { ascending: true })
         .limit(5)
     : { data: null }
-
-  const currencyCode = org?.currency || 'EUR'
 
   return (
     <AuthLayout>
@@ -314,18 +329,8 @@ export default async function DashboardPage({
                 {now.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '').toUpperCase()}
               </span>
             </div>
-            <div className="space-y-0.5">
-              {Object.entries(monthRevenueByCurrency).length > 0 ? (
-                Object.entries(monthRevenueByCurrency).map(([currency, amount]) => (
-                  <h3 key={currency} className="text-3xl font-bold tracking-tight text-gray-900">
-                    {formatCurrency(amount, currency as CurrencyCode)}
-                  </h3>
-                ))
-              ) : (
-                <h3 className="text-4xl font-bold tracking-tight text-gray-900">—</h3>
-              )}
-            </div>
-            <p className="text-sm text-gray-500 mt-1">Receita do Mês</p>
+            <CurrencyStack totals={monthRevenueByCurrency} size="lg" hideSingleBadge={false} />
+            <p className="text-sm text-gray-500 mt-2">Receita do Mês</p>
           </div>
 
           {/* Lucro Real */}
@@ -338,26 +343,35 @@ export default async function DashboardPage({
                 {now.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '').toUpperCase()}
               </span>
             </div>
-            <div className="space-y-0.5">
-              {Object.entries(monthRevenueByCurrency).length > 0 ? (
-                Object.entries(monthRevenueByCurrency).map(([cur, rev]) => {
+            {Object.keys(monthRevenueByCurrency).length === 0 ? (
+              <span className="text-4xl font-bold text-gray-300">—</span>
+            ) : (
+              <div className="space-y-1.5">
+                {Object.entries(monthRevenueByCurrency).map(([cur, rev]) => {
                   const exp = monthExpensesByCurrency[cur] || 0
                   const profit = rev - exp
                   const margin = rev > 0 ? Math.round((profit / rev) * 100) : 0
+                  const badgeColor = cur === 'EUR' ? 'bg-blue-50 text-blue-700 ring-blue-200'
+                    : cur === 'BRL' ? 'bg-green-50 text-green-700 ring-green-200'
+                    : cur === 'USD' ? 'bg-yellow-50 text-yellow-700 ring-yellow-200'
+                    : 'bg-gray-100 text-gray-700 ring-gray-200'
                   return (
                     <div key={cur}>
-                      <h3 className={`text-3xl font-bold tracking-tight ${profit >= 0 ? 'text-green-700' : 'text-red-600'}`}>
-                        {formatCurrency(profit, cur as CurrencyCode)}
-                      </h3>
-                      <p className="text-xs text-gray-400 mt-0.5">Margem: {margin}%</p>
+                      <div className="flex items-center gap-2">
+                        <span className={`inline-flex items-center justify-center min-w-[2.5rem] h-5 px-1.5 text-[10px] font-bold uppercase tracking-widest rounded ring-1 shrink-0 ${badgeColor}`}>
+                          {cur}
+                        </span>
+                        <span className={`text-3xl font-bold tabular-nums ${profit >= 0 ? 'text-green-700' : 'text-red-600'}`}>
+                          {formatCurrency(profit, cur as CurrencyCode)}
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-400 ml-[2.75rem] mt-0.5">Margem: {margin}%</p>
                     </div>
                   )
-                })
-              ) : (
-                <h3 className="text-4xl font-bold tracking-tight text-gray-900">—</h3>
-              )}
-            </div>
-            <p className="text-sm text-gray-500 mt-1">Lucro Real</p>
+                })}
+              </div>
+            )}
+            <p className="text-sm text-gray-500 mt-2">Lucro Real</p>
           </div>
         </div>
 
@@ -376,17 +390,25 @@ export default async function DashboardPage({
           {Object.keys(forecastByCurrency).length === 0 ? (
             <p className="text-gray-500 text-sm">Nenhuma reserva futura com valor registado.</p>
           ) : (
-            <div className="flex flex-wrap gap-6">
+            <div className="flex flex-wrap gap-x-8 gap-y-4">
               {Object.entries(forecastByCurrency)
                 .sort(([a], [b]) => a.localeCompare(b))
-                .map(([currency, amount]) => (
-                  <div key={currency} className="flex flex-col">
-                    <span className="text-3xl font-bold text-gray-900">
-                      {formatCurrency(amount, currency as CurrencyCode)}
-                    </span>
-                    <span className="text-sm text-gray-500 mt-1">{currency}</span>
-                  </div>
-                ))}
+                .map(([currency, amount]) => {
+                  const badgeColor = currency === 'EUR' ? 'bg-blue-50 text-blue-700 ring-blue-200'
+                    : currency === 'BRL' ? 'bg-green-50 text-green-700 ring-green-200'
+                    : currency === 'USD' ? 'bg-yellow-50 text-yellow-700 ring-yellow-200'
+                    : 'bg-gray-100 text-gray-700 ring-gray-200'
+                  return (
+                    <div key={currency} className="flex items-center gap-2">
+                      <span className={`inline-flex items-center justify-center min-w-[2.5rem] h-5 px-1.5 text-[10px] font-bold uppercase tracking-widest rounded ring-1 shrink-0 ${badgeColor}`}>
+                        {currency}
+                      </span>
+                      <span className="text-3xl font-bold text-gray-900 tabular-nums">
+                        {formatCurrency(amount, currency as CurrencyCode)}
+                      </span>
+                    </div>
+                  )
+                })}
             </div>
           )}
         </div>
@@ -410,7 +432,7 @@ export default async function DashboardPage({
               <h3 className="text-base font-semibold text-gray-900">Receita Mensal</h3>
             </div>
             <p className="text-xs text-gray-400 mb-4 ml-7">Últimos 6 meses</p>
-            <RevenueChart data={revenueData} />
+            <RevenueChartWrapper revenueDataByCurrency={revenueDataByCurrency} />
           </div>
         </div>
 
