@@ -64,23 +64,25 @@ export default async function ExpensesPage({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
           <div>
-            <div className="flex items-center gap-3 mb-2">
-              <Receipt className="h-8 w-8 text-red-600" />
-              <h2 className="text-3xl font-bold text-gray-900">Despesas</h2>
+            <div className="flex items-center gap-3 mb-1">
+              <div className="p-2 bg-red-100 rounded-xl">
+                <Receipt className="h-6 w-6 text-red-600" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900">Despesas</h2>
             </div>
-            <p className="text-gray-600">Gerencie todas as despesas das propriedades</p>
+            <p className="text-gray-500 text-sm ml-14">Gerencie todas as despesas das propriedades</p>
           </div>
           {canCreate && (
             <div className="flex gap-2">
               <Button asChild variant="outline">
                 <Link href="expenses/export">
-                  <FileText className="h-5 w-5" />
+                  <FileText className="h-4 w-4" />
                   Exportar PDF
                 </Link>
               </Button>
               <Button asChild>
                 <Link href="/expenses/new">
-                  <Plus className="h-5 w-5" />
+                  <Plus className="h-4 w-4" />
                   Nova Despesa
                 </Link>
               </Button>

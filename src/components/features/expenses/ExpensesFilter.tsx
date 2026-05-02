@@ -8,6 +8,7 @@ import { Button } from '@/components/common/ui/button'
 import { Badge } from '@/components/common/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/common/ui/select'
 import { formatCurrency, type CurrencyCode, groupByCurrency } from '@/lib/utils/currency'
+import { CurrencyStack } from '@/components/common/ui/CurrencyStack'
 import { PaginationNav } from '@/components/common/ui/PaginationNav'
 
 interface Expense {
@@ -174,37 +175,32 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
   return (
     <>
       {/* Filtered Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white rounded-lg shadow p-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-6">
+        {/* Count */}
+        <div className="bg-white rounded-xl shadow-sm p-5">
           <div className="flex items-center justify-between mb-4">
-            <div className="p-3 bg-red-100 rounded-lg">
-              <TrendingDown className="h-6 w-6 text-red-600" />
+            <div className="p-2.5 bg-red-100 rounded-xl">
+              <TrendingDown className="h-5 w-5 text-red-600" />
             </div>
-            <span className="text-sm text-gray-500">Total</span>
+            <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">Total</span>
           </div>
-          <h3 className="text-3xl font-bold text-gray-900">{filteredStats.count}</h3>
-          <p className="text-sm text-gray-600 mt-1">Despesas</p>
+          <p className="text-4xl font-bold text-gray-900">{filteredStats.count}</p>
+          <p className="text-sm text-gray-500 mt-1">Despesas</p>
         </div>
-        <div className="bg-white rounded-lg shadow p-6 col-span-3">
+
+        {/* Totals by currency — span 2 cols */}
+        <div className="bg-white rounded-xl shadow-sm p-5 sm:col-span-2">
           <div className="flex items-center justify-between mb-4">
-            <span className="text-sm text-gray-500">Valor Total</span>
+            <div>
+              <p className="text-sm font-semibold text-gray-700">Valor Total</p>
+              <p className="text-xs text-gray-400 mt-0.5">
+                {propertyFilter !== 'all' || startDate || endDate ? 'Despesas filtradas' : 'Todas as despesas'}
+              </p>
+            </div>
           </div>
-          <div className="space-y-1">
-            {Object.entries(filteredStats.totalsByCurrency).length > 0 ? (
-              Object.entries(filteredStats.totalsByCurrency).map(([currency, amount]) => (
-                <h3 key={currency} className="text-3xl font-bold text-red-600">
-                  {formatCurrency(amount, currency as CurrencyCode)}
-                </h3>
-              ))
-            ) : (
-              <h3 className="text-3xl font-bold text-gray-900">-</h3>
-            )}
+          <div className="text-red-600">
+            <CurrencyStack totals={filteredStats.totalsByCurrency} size="md" showEmpty={true} />
           </div>
-          <p className="text-sm text-gray-600 mt-1">
-            {propertyFilter !== 'all' || startDate || endDate
-              ? `Despesas filtradas${propertyFilter !== 'all' ? ` de ${propertyFilter}` : ''}${startDate || endDate ? ` de ${startDate} a ${endDate}` : ''}`
-              : 'Todas as despesas'}
-          </p>
         </div>
       </div>
 

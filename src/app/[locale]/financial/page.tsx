@@ -1,9 +1,10 @@
-import { TrendingUp, TrendingDown, DollarSign, Percent } from 'lucide-react'
+import { TrendingUp, TrendingDown, DollarSign, Percent, BarChart3 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { formatCurrency, groupByCurrency, type CurrencyCode } from '@/lib/utils/currency'
 import { ProfitCard } from '@/components/features/dashboard/ProfitCard'
 import { AuthLayout } from '@/components/common/layout/AuthLayout'
 import { calcManagementFee, calcOwnerNet } from '@/lib/financial/calculations'
+import { CurrencyStack } from '@/components/common/ui/CurrencyStack'
 
 export default async function FinancialPage() {
   const supabase = await createClient()
@@ -121,14 +122,18 @@ export default async function FinancialPage() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Page Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <DollarSign className="h-8 w-8 text-green-600" />
-            <h2 className="text-3xl font-bold text-gray-900">Análise Financeira</h2>
+        <div className="mb-8 flex items-start justify-between">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 bg-green-100 rounded-xl">
+                <DollarSign className="h-6 w-6 text-green-600" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900">Análise Financeira</h2>
+            </div>
+            <p className="text-gray-500 text-sm ml-14">
+              Visão completa de receitas, despesas e lucro líquido por propriedade
+            </p>
           </div>
-          <p className="text-gray-600">
-            Visão completa de receitas, despesas e lucro líquido
-          </p>
         </div>
 
         {/* Cards de Lucro por Moeda */}
@@ -144,9 +149,10 @@ export default async function FinancialPage() {
         </div>
 
         {/* Análise por Propriedade */}
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">Lucro por Propriedade</h3>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-3">
+            <BarChart3 className="h-5 w-5 text-gray-400" />
+            <h3 className="text-base font-semibold text-gray-900">Análise por Propriedade</h3>
           </div>
           
           <div className="overflow-x-auto">
@@ -244,48 +250,55 @@ export default async function FinancialPage() {
 
         {/* Resumo Geral */}
         <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg shadow p-6">
-            <div className="flex items-center gap-3 mb-3">
-              <TrendingUp className="h-6 w-6 text-green-600" />
-              <h3 className="text-lg font-semibold text-gray-900">Total Receitas</h3>
+          <div className="bg-white rounded-xl shadow-sm border border-green-100 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-2.5 bg-green-100 rounded-xl">
+                <TrendingUp className="h-5 w-5 text-green-600" />
+              </div>
+              <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">Receitas</span>
             </div>
-            <div className="space-y-1">
-              {Object.entries(revenueByCurrency).map(([currency, amount]) => (
-                <p key={currency} className="text-2xl font-bold text-green-700">
-                  {formatCurrency(amount, currency as CurrencyCode)}
-                </p>
-              ))}
+            <div className="text-green-600">
+              <CurrencyStack totals={revenueByCurrency} size="lg" showEmpty={true} />
             </div>
+            <p className="text-sm text-gray-500 mt-2">Total receitas confirmadas</p>
           </div>
 
-          <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-lg shadow p-6">
-            <div className="flex items-center gap-3 mb-3">
-              <TrendingDown className="h-6 w-6 text-red-600" />
-              <h3 className="text-lg font-semibold text-gray-900">Total Despesas</h3>
+          <div className="bg-white rounded-xl shadow-sm border border-red-100 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-2.5 bg-red-100 rounded-xl">
+                <TrendingDown className="h-5 w-5 text-red-600" />
+              </div>
+              <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">Despesas</span>
             </div>
-            <div className="space-y-1">
-              {Object.entries(expensesByCurrency).map(([currency, amount]) => (
-                <p key={currency} className="text-2xl font-bold text-red-700">
-                  {formatCurrency(amount, currency as CurrencyCode)}
-                </p>
-              ))}
+            <div className="text-red-600">
+              <CurrencyStack totals={expensesByCurrency} size="lg" showEmpty={true} />
             </div>
+            <p className="text-sm text-gray-500 mt-2">Total despesas registradas</p>
           </div>
 
-          <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg shadow p-6">
-            <div className="flex items-center gap-3 mb-3">
-              <DollarSign className="h-6 w-6 text-blue-600" />
-              <h3 className="text-lg font-semibold text-gray-900">Lucro Total</h3>
+          <div className="bg-white rounded-xl shadow-sm border border-blue-100 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-2.5 bg-blue-100 rounded-xl">
+                <BarChart3 className="h-5 w-5 text-blue-600" />
+              </div>
+              <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">Lucro</span>
             </div>
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               {Object.entries(profitByCurrency).map(([currency, data]) => (
-                <p key={currency} className={`text-2xl font-bold ${
-                  data.profit >= 0 ? 'text-green-700' : 'text-red-700'
-                }`}>
-                  {formatCurrency(data.profit, currency as CurrencyCode)}
-                </p>
+                <div key={currency} className="flex items-center gap-2">
+                  <span className={`inline-flex items-center justify-center min-w-[2.5rem] h-5 px-1.5 text-[10px] font-bold uppercase tracking-widest rounded ring-1 shrink-0 ${
+                    currency === 'EUR' ? 'bg-blue-50 text-blue-700 ring-blue-200' :
+                    currency === 'BRL' ? 'bg-green-50 text-green-700 ring-green-200' :
+                    currency === 'USD' ? 'bg-yellow-50 text-yellow-700 ring-yellow-200' :
+                    'bg-purple-50 text-purple-700 ring-purple-200'
+                  }`}>{currency}</span>
+                  <span className={`text-2xl font-bold tabular-nums ${data.profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {formatCurrency(data.profit, currency as CurrencyCode)}
+                  </span>
+                </div>
               ))}
             </div>
+            <p className="text-sm text-gray-500 mt-2">Receita menos despesas</p>
           </div>
         </div>
       </main>

@@ -90,17 +90,22 @@ export default async function ReservationsPage({
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Page Header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
           <div>
-            <h2 className="text-3xl font-bold text-gray-900">Reservas</h2>
-            <p className="text-gray-600 mt-1">
+            <div className="flex items-center gap-3 mb-1">
+              <div className="p-2 bg-blue-100 rounded-xl">
+                <Calendar className="h-6 w-6 text-blue-600" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900">Reservas</h2>
+            </div>
+            <p className="text-gray-500 text-sm ml-14">
               Gerencie todas as suas reservas
             </p>
           </div>
           <div className="flex items-center gap-3 shrink-0">
             <Button variant="outline" asChild>
               <Link href="/reservations/export">
-                <Download className="h-5 w-5" />
+                <Download className="h-4 w-4" />
                 Exportar PDF
               </Link>
             </Button>
@@ -109,7 +114,7 @@ export default async function ReservationsPage({
                 <CleanupReservationsButton />
                 <Button asChild>
                   <Link href="/reservations/new">
-                    <Plus className="h-5 w-5" />
+                    <Plus className="h-4 w-4" />
                     Nova Reserva
                   </Link>
                 </Button>
@@ -119,45 +124,49 @@ export default async function ReservationsPage({
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-white rounded-lg shadow p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Total</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+          <div className="bg-white rounded-xl shadow-sm p-5">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-2.5 bg-blue-100 rounded-xl">
+                <Calendar className="h-5 w-5 text-blue-600" />
               </div>
-              <Calendar className="h-8 w-8 text-blue-500" />
+              <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">Total</span>
             </div>
+            <p className="text-4xl font-bold text-gray-900">{stats.total}</p>
+            <p className="text-sm text-gray-500 mt-1">Reservas</p>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Confirmadas</p>
-                <p className="text-2xl font-bold text-green-600">{stats.confirmed}</p>
+          <div className="bg-white rounded-xl shadow-sm p-5">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-2.5 bg-green-100 rounded-xl">
+                <CheckCircle className="h-5 w-5 text-green-600" />
               </div>
-              <CheckCircle className="h-8 w-8 text-green-500" />
+              <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">Status</span>
             </div>
+            <p className="text-4xl font-bold text-green-600">{stats.confirmed}</p>
+            <p className="text-sm text-gray-500 mt-1">Confirmadas</p>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Pendentes</p>
-                <p className="text-2xl font-bold text-orange-600">{stats.pending}</p>
+          <div className="bg-white rounded-xl shadow-sm p-5">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-2.5 bg-orange-100 rounded-xl">
+                <Clock className="h-5 w-5 text-orange-600" />
               </div>
-              <Clock className="h-8 w-8 text-orange-500" />
+              <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">Status</span>
             </div>
+            <p className="text-4xl font-bold text-orange-600">{stats.pending}</p>
+            <p className="text-sm text-gray-500 mt-1">Pendentes</p>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Canceladas</p>
-                <p className="text-2xl font-bold text-red-600">{stats.cancelled}</p>
+          <div className="bg-white rounded-xl shadow-sm p-5">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-2.5 bg-red-100 rounded-xl">
+                <XCircle className="h-5 w-5 text-red-600" />
               </div>
-              <XCircle className="h-8 w-8 text-red-500" />
+              <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">Status</span>
             </div>
+            <p className="text-4xl font-bold text-red-600">{stats.cancelled}</p>
+            <p className="text-sm text-gray-500 mt-1">Canceladas</p>
           </div>
         </div>
 

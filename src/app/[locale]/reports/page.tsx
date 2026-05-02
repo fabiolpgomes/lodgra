@@ -1,4 +1,4 @@
-import { FileText, TrendingUp, TrendingDown, Calendar, DollarSign, BarChart2, Target } from 'lucide-react'
+import { FileText, TrendingUp, TrendingDown, Calendar, DollarSign, BarChart2, Target, BarChart3 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { ReportsFilters } from '@/components/features/reports/ReportsFilters'
 import { RevenueTable } from '@/components/features/reports/RevenueTable'
@@ -10,6 +10,7 @@ import { ChannelAnalysis } from '@/components/features/reports/ChannelAnalysis'
 import { CashFlowForecast } from '@/components/features/reports/CashFlowForecast'
 import { FinancialPdfDownloadButton } from '@/components/features/reports/FinancialPdfDownloadButton'
 import { formatCurrency, groupByCurrency, CurrencyCode } from '@/lib/utils/currency'
+import { CurrencyStack } from '@/components/common/ui/CurrencyStack'
 import { normalizeChannelName } from '@/lib/utils/channels'
 import { AuthLayout } from '@/components/common/layout/AuthLayout'
 import { getUserPropertyIds } from '@/lib/auth/getUserProperties'
@@ -495,21 +496,23 @@ export default async function ReportsPage({ searchParams }: PageProps) {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Page Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-3">
-              <FileText className="h-8 w-8 text-blue-600" />
-              <h2 className="text-3xl font-bold text-gray-900">Relatórios Financeiros</h2>
+        <div className="mb-8 flex items-start justify-between">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 bg-blue-100 rounded-xl">
+                <FileText className="h-6 w-6 text-blue-600" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900">Relatórios Financeiros</h2>
             </div>
-            <FinancialPdfDownloadButton
-              startDate={startDate}
-              endDate={endDate}
-              propertyId={propertyId}
-            />
+            <p className="text-gray-500 text-sm ml-14">
+              Análise detalhada de receitas, despesas e performance das propriedades
+            </p>
           </div>
-          <p className="text-gray-600">
-            Análise detalhada de receitas, despesas e performance das propriedades
-          </p>
+          <FinancialPdfDownloadButton
+            startDate={startDate}
+            endDate={endDate}
+            propertyId={propertyId}
+          />
         </div>
 
         {/* Filtros com Abas */}
@@ -521,139 +524,111 @@ export default async function ReportsPage({ searchParams }: PageProps) {
           activeTab={activeTab}
         />
 
-        {/* Métricas Principais */}
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-gray-600">Receita Total</span>
-              <TrendingUp className="h-5 w-5 text-green-600" />
+        {/* Métricas Principais — Row 1: financials */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-4">
+          <div className="bg-white rounded-xl shadow-sm p-5">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-2.5 bg-green-100 rounded-xl">
+                <TrendingUp className="h-5 w-5 text-green-600" />
+              </div>
+              <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">Receita</span>
             </div>
-            <div className="space-y-1">
-              {Object.entries(revenueByCurrency).length > 0 ? (
-                Object.entries(revenueByCurrency).map(([currency, amount]) => (
-                  <h3 key={currency} className="text-2xl font-bold text-green-600">
-                    {formatCurrency(amount, currency as CurrencyCode)}
-                  </h3>
-                ))
-              ) : (
-                <h3 className="text-2xl font-bold text-gray-900">-</h3>
-              )}
+            <div className="text-green-600">
+              <CurrencyStack totals={revenueByCurrency} size="md" showEmpty={true} />
             </div>
-            <p className="text-sm text-gray-500 mt-1">No período</p>
+            <p className="text-sm text-gray-500 mt-2">Receita bruta no período</p>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-gray-600">Despesas Total</span>
-              <TrendingDown className="h-5 w-5 text-red-600" />
+          <div className="bg-white rounded-xl shadow-sm p-5">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-2.5 bg-red-100 rounded-xl">
+                <TrendingDown className="h-5 w-5 text-red-600" />
+              </div>
+              <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">Despesas</span>
             </div>
-            <div className="space-y-1">
-              {Object.entries(expensesByCurrency).length > 0 ? (
-                Object.entries(expensesByCurrency).map(([currency, amount]) => (
-                  <h3 key={currency} className="text-2xl font-bold text-red-600">
-                    {formatCurrency(amount, currency as CurrencyCode)}
-                  </h3>
-                ))
-              ) : (
-                <h3 className="text-2xl font-bold text-gray-900">-</h3>
-              )}
+            <div className="text-red-600">
+              <CurrencyStack totals={expensesByCurrency} size="md" showEmpty={true} />
             </div>
-            <p className="text-sm text-gray-500 mt-1">No período</p>
+            <p className="text-sm text-gray-500 mt-2">Total despesas no período</p>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-gray-600">Lucro Líquido</span>
-              <DollarSign className="h-5 w-5 text-blue-600" />
+          <div className="bg-white rounded-xl shadow-sm p-5">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-2.5 bg-blue-100 rounded-xl">
+                <BarChart3 className="h-5 w-5 text-blue-600" />
+              </div>
+              <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">Lucro</span>
             </div>
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               {Object.entries(netProfitByCurrency).length > 0 ? (
                 Object.entries(netProfitByCurrency).map(([currency, amount]) => (
-                  <h3 key={currency} className={`text-2xl font-bold ${amount >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    {formatCurrency(amount, currency as CurrencyCode)}
-                  </h3>
+                  <div key={currency} className="flex items-center gap-2">
+                    <span className={`inline-flex items-center justify-center min-w-[2.5rem] h-5 px-1.5 text-[10px] font-bold uppercase tracking-widest rounded ring-1 shrink-0 ${
+                      currency === 'EUR' ? 'bg-blue-50 text-blue-700 ring-blue-200' :
+                      currency === 'BRL' ? 'bg-green-50 text-green-700 ring-green-200' :
+                      currency === 'USD' ? 'bg-yellow-50 text-yellow-700 ring-yellow-200' :
+                      'bg-purple-50 text-purple-700 ring-purple-200'
+                    }`}>{currency}</span>
+                    <span className={`text-xl font-bold tabular-nums ${amount >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      {formatCurrency(amount, currency as CurrencyCode)}
+                    </span>
+                  </div>
                 ))
               ) : (
-                <h3 className="text-2xl font-bold text-gray-900">-</h3>
+                <span className="text-xl font-bold text-gray-300">—</span>
               )}
             </div>
-            <p className="text-sm text-gray-500 mt-1">Por moeda</p>
+            <p className="text-sm text-gray-500 mt-2">Lucro líquido no período</p>
           </div>
+        </div>
 
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-gray-600">Reservas</span>
-              <Calendar className="h-5 w-5 text-blue-600" />
+        {/* Métricas Principais — Row 2: KPIs */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 mb-8">
+          <div className="bg-white rounded-xl shadow-sm p-5">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-2.5 bg-blue-50 rounded-xl">
+                <Calendar className="h-4 w-4 text-blue-600" />
+              </div>
+              <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">Reservas</span>
             </div>
-            <h3 className="text-2xl font-bold text-gray-900">{totalReservations}</h3>
+            <p className="text-4xl font-bold text-gray-900">{totalReservations}</p>
             <p className="text-sm text-gray-500 mt-1">Confirmadas</p>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-gray-600">ADR (Diária Média)</span>
-              <TrendingUp className="h-5 w-5 text-purple-600" />
+          <div className="bg-white rounded-xl shadow-sm p-5">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-2.5 bg-purple-50 rounded-xl">
+                <BarChart2 className="h-4 w-4 text-purple-600" />
+              </div>
+              <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">ADR</span>
             </div>
-            <div className="space-y-1">
-              {Object.entries(adrByCurrency).length > 0 ? (
-                Object.entries(adrByCurrency).map(([currency, amount]) => (
-                  <h3 key={currency} className="text-2xl font-bold text-gray-900">
-                    {formatCurrency(amount, currency as CurrencyCode)}
-                  </h3>
-                ))
-              ) : (
-                <h3 className="text-2xl font-bold text-gray-900">-</h3>
-              )}
-            </div>
-            <p className="text-sm text-gray-500 mt-1">Por noite</p>
+            <CurrencyStack totals={adrByCurrency} size="sm" showEmpty={true} />
+            <p className="text-sm text-gray-500 mt-2">Diária média</p>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-gray-600">Valor Médio</span>
-              <TrendingUp className="h-5 w-5 text-orange-600" />
+          <div className="bg-white rounded-xl shadow-sm p-5">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-2.5 bg-orange-50 rounded-xl">
+                <DollarSign className="h-4 w-4 text-orange-600" />
+              </div>
+              <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">RevPAR</span>
             </div>
-            <div className="space-y-1">
-              {Object.entries(avgBookingByCurrency).length > 0 ? (
-                Object.entries(avgBookingByCurrency).map(([currency, amount]) => (
-                  <h3 key={currency} className="text-2xl font-bold text-gray-900">
-                    {formatCurrency(amount, currency as CurrencyCode)}
-                  </h3>
-                ))
-              ) : (
-                <h3 className="text-2xl font-bold text-gray-900">-</h3>
-              )}
+            <div className="text-purple-700">
+              <CurrencyStack totals={revparByCurrency} size="sm" showEmpty={true} />
             </div>
-            <p className="text-sm text-gray-500 mt-1">Por reserva</p>
+            <p className="text-sm text-gray-500 mt-2">Receita/noite disp.</p>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-gray-600">RevPAR</span>
-              <BarChart2 className="h-5 w-5 text-purple-600" />
+          <div className="bg-white rounded-xl shadow-sm p-5">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-2.5 bg-teal-50 rounded-xl">
+                <Target className="h-4 w-4 text-teal-600" />
+              </div>
+              <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">Ocupação</span>
             </div>
-            <div className="space-y-1">
-              {Object.entries(revparByCurrency).length > 0 ? (
-                Object.entries(revparByCurrency).map(([currency, amount]) => (
-                  <h3 key={currency} className="text-2xl font-bold text-purple-700">
-                    {formatCurrency(amount, currency as CurrencyCode)}
-                  </h3>
-                ))
-              ) : (
-                <h3 className="text-2xl font-bold text-gray-900">—</h3>
-              )}
-            </div>
-            <p className="text-sm text-gray-500 mt-1">Receita/noite disponível</p>
-          </div>
-
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-gray-600">Ocupação</span>
-              <Target className="h-5 w-5 text-teal-600" />
-            </div>
-            <h3 className={`text-2xl font-bold ${occupancyRate >= 70 ? 'text-green-600' : occupancyRate >= 40 ? 'text-yellow-600' : occupancyRate > 0 ? 'text-red-600' : 'text-gray-900'}`}>
+            <p className={`text-4xl font-bold ${occupancyRate >= 70 ? 'text-green-600' : occupancyRate >= 40 ? 'text-yellow-600' : occupancyRate > 0 ? 'text-red-600' : 'text-gray-300'}`}>
               {totalAvailableNights > 0 ? `${occupancyRate.toFixed(1)}%` : '—'}
-            </h3>
+            </p>
             <p className="text-sm text-gray-500 mt-1">Taxa de ocupação</p>
           </div>
         </div>
