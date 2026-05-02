@@ -8,6 +8,7 @@ import { Button } from '@/components/common/ui/button'
 import { Badge } from '@/components/common/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/common/ui/select'
 import { formatCurrency, type CurrencyCode, groupByCurrency } from '@/lib/utils/currency'
+import { CATEGORY_LABELS, CATEGORY_ORDER } from '@/lib/utils/expense-categories'
 import { CurrencyStack } from '@/components/common/ui/CurrencyStack'
 import { PaginationNav } from '@/components/common/ui/PaginationNav'
 
@@ -30,24 +31,6 @@ interface ExpensesFilterProps {
   pagination?: { page: number; total: number; pageSize: number }
 }
 
-// Correct category order per AC6
-const CATEGORY_ORDER = ['water', 'electricity', 'gas', 'phone', 'internet', 'condo', 'cleaning', 'laundry', 'cleaning_supplies', 'repairs', 'insurance', 'management', 'other']
-
-const CATEGORY_LABELS: Record<string, string> = {
-  water: 'Água',
-  electricity: 'Luz',
-  gas: 'Gás',
-  phone: 'Telefone',
-  internet: 'Internet',
-  condo: 'Condomínio',
-  cleaning: 'Limpeza',
-  laundry: 'Lavanderia',
-  cleaning_supplies: 'Material de limpeza',
-  repairs: 'Reparos',
-  insurance: 'Seguro Residencial',
-  management: 'Gestão do Imóvel',
-  other: 'Outros',
-}
 
 function getProperty(expense: Expense) {
   return Array.isArray(expense.properties) ? expense.properties[0] : expense.properties

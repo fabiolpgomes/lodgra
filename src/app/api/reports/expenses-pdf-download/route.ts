@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { requireRole } from '@/lib/auth/requireRole'
 import { createClient } from '@/lib/supabase/server'
 import { getUserPropertyIds } from '@/lib/auth/getUserProperties'
+import { getCategoryLabel } from '@/lib/utils/expense-categories'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 interface Expense {
@@ -15,22 +16,6 @@ interface Expense {
   properties: Record<string, any>
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
-
-const CATEGORY_LABELS: Record<string, string> = {
-  water: 'Agua',
-  electricity: 'Luz',
-  gas: 'Gas',
-  phone: 'Telefone',
-  internet: 'Internet',
-  condo: 'Condominio',
-  cleaning: 'Limpeza',
-  laundry: 'Lavanderia',
-  cleaning_supplies: 'Material de limpeza',
-  repairs: 'Reparos',
-  insurance: 'Seguro Residencial',
-  management: 'Gestao do Imovel',
-  other: 'Outros',
-}
 
 function formatCurrency(amount: number, currency: string): string {
   return new Intl.NumberFormat('pt-BR', {
@@ -59,13 +44,13 @@ function generateHtml(
   }, {})
 
   const groupedByCategory = expenses.reduce((acc: Record<string, number>, e) => {
-    const cat = CATEGORY_LABELS[e.category] || e.category
+    const cat = getCategoryLabel(e.category)
     acc[cat] = (acc[cat] || 0) + Number(e.amount)
     return acc
   }, {})
 
   const propertyLabel = propertyId ? 'Propriedade Selecionada' : 'Todas as Propriedades'
-  const categoryLabel = category ? (CATEGORY_LABELS[category] || category) : 'Todas'
+  const categoryLabel = category ? getCategoryLabel(category) : 'Todas'
 
   return `<!DOCTYPE html>
 <html>
@@ -183,7 +168,7 @@ function generateHtml(
                 ${propExpenses
                   .map(e => `<tr>
                     <td>${new Date(e.expense_date).toLocaleDateString('pt-BR')}</td>
-                    <td>${CATEGORY_LABELS[e.category] || e.category}</td>
+                    <td>${getCategoryLabel(e.category)}</td>
                     <td>${e.description}${e.notes ? ' (' + e.notes + ')' : ''}</td>
                     <td class="currency">${formatCurrency(Number(e.amount), e.currency || 'EUR')}</td>
                   </tr>`)
