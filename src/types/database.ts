@@ -67,11 +67,14 @@ export type Reservation = {
   check_in: string
   check_out: string
   number_of_guests: number | null
+  adults: number
+  children: number
   total_amount: number | null
   currency: string
   platform_fee: number | null
   net_amount: number | null
   status: ReservationStatus
+  notes: string | null
   synced_at: string | null
   source: string | null
   created_at: string
