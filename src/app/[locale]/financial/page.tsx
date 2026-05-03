@@ -186,15 +186,31 @@ export default async function FinancialPage() {
                 {propertyAnalysis.map((property) => (
                   <tr key={property.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">{property.name}</div>
-                      {property.owner_name && (
-                        <div className="text-xs text-gray-500 mt-0.5">{property.owner_name}</div>
-                      )}
-                      {property.management_percentage > 0 && (
-                        <span className="text-xs bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded-full font-medium">
-                          {property.management_percentage}% gestão
-                        </span>
-                      )}
+                      <div className="flex items-start gap-2">
+                        {property.currency && (() => {
+                          const badgeColor = property.currency === 'EUR' ? 'bg-blue-50 text-blue-700 ring-blue-200'
+                            : property.currency === 'BRL' ? 'bg-green-50 text-green-700 ring-green-200'
+                            : property.currency === 'USD' ? 'bg-yellow-50 text-yellow-700 ring-yellow-200'
+                            : property.currency === 'GBP' ? 'bg-purple-50 text-purple-700 ring-purple-200'
+                            : 'bg-gray-100 text-gray-700 ring-gray-200'
+                          return (
+                            <span className={`mt-0.5 inline-flex items-center justify-center min-w-[2.5rem] h-5 px-1.5 text-[10px] font-bold uppercase tracking-widest rounded ring-1 shrink-0 ${badgeColor}`}>
+                              {property.currency}
+                            </span>
+                          )
+                        })()}
+                        <div>
+                          <div className="text-sm font-medium text-gray-900">{property.name}</div>
+                          {property.owner_name && (
+                            <div className="text-xs text-gray-500 mt-0.5">{property.owner_name}</div>
+                          )}
+                          {property.management_percentage > 0 && (
+                            <span className="text-xs bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded-full font-medium">
+                              {property.management_percentage}% gestão
+                            </span>
+                          )}
+                        </div>
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right">
                       <div className="flex items-center justify-end gap-1">

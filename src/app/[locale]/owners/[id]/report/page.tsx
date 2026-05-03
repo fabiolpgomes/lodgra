@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { ArrowLeft, FileText, Building2, Download, TrendingUp, Loader2, MessageCircle } from 'lucide-react'
 import { Button } from '@/components/common/ui/button'
 import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
+import { CurrencyStack } from '@/components/common/ui/CurrencyStack'
 // Lazy import: @react-pdf/renderer is ~500KB, only load when user clicks download
 const loadOwnerReportPDF = () => import('@/components/features/reports/OwnerReportPDF')
 
@@ -20,10 +21,18 @@ interface PropertyReport {
   ownerNet: number
 }
 
+interface CurrencySummary {
+  revenue: number
+  managementFee: number
+  expenses: number
+  ownerNet: number
+}
+
 interface ReportData {
   owner: { id: string; full_name: string; email: string; preferred_currency: string }
   properties: PropertyReport[]
   summary: { revenue: number; managementFee: number; expenses: number; ownerNet: number }
+  summaryByCurrency: Record<string, CurrencySummary>
 }
 
 type Period = 'month' | 'quarter' | 'year' | 'custom'
@@ -53,6 +62,23 @@ function getPeriodDates(period: Period, customFrom?: string, customTo?: string):
     to: customTo ?? new Date(y, m + 1, 0).toISOString().slice(0, 10),
     label: `${customFrom} a ${customTo}`,
   }
+}
+
+const BADGE_COLORS: Record<string, string> = {
+  EUR: 'bg-blue-50 text-blue-700 ring-blue-200',
+  BRL: 'bg-green-50 text-green-700 ring-green-200',
+  USD: 'bg-yellow-50 text-yellow-700 ring-yellow-200',
+  GBP: 'bg-purple-50 text-purple-700 ring-purple-200',
+}
+const DEFAULT_BADGE = 'bg-gray-100 text-gray-700 ring-gray-200'
+
+function CurrencyBadge({ currency }: { currency: string }) {
+  const color = BADGE_COLORS[currency] ?? DEFAULT_BADGE
+  return (
+    <span className={`inline-flex items-center justify-center min-w-[2.5rem] h-5 px-1.5 text-[10px] font-bold uppercase tracking-widest rounded ring-1 shrink-0 ${color}`}>
+      {currency}
+    </span>
+  )
 }
 
 export default function OwnerReportPage() {
@@ -94,11 +120,30 @@ export default function OwnerReportPage() {
   }, [period, fetchReport])
 
   const { label } = getPeriodDates(period, customFrom, customTo)
-  const currency = (report?.owner?.preferred_currency || 'EUR') as CurrencyCode
+
+  // Resolve summaryByCurrency — fallback for old API responses without the field
+  function getSummaryByCurrency(): Record<string, CurrencySummary> {
+    if (!report) return {}
+    if (report.summaryByCurrency && Object.keys(report.summaryByCurrency).length > 0) {
+      return report.summaryByCurrency
+    }
+    // Fallback: build from properties
+    const byCur: Record<string, CurrencySummary> = {}
+    report.properties.forEach(p => {
+      const cur = p.currency || 'EUR'
+      if (!byCur[cur]) byCur[cur] = { revenue: 0, managementFee: 0, expenses: 0, ownerNet: 0 }
+      byCur[cur].revenue += p.revenue
+      byCur[cur].managementFee += p.managementFee
+      byCur[cur].expenses += p.expenses
+      byCur[cur].ownerNet += p.ownerNet
+    })
+    return byCur
+  }
 
   function exportToCsv() {
     if (!report) return
     const rows: Record<string, unknown>[] = report.properties.map(p => ({
+      'Moeda': p.currency || 'EUR',
       'Propriedade': p.name,
       'Receita Bruta': p.revenue.toFixed(2),
       'Comissão Gestão (%)': p.management_percentage,
@@ -106,13 +151,18 @@ export default function OwnerReportPage() {
       'Despesas': p.expenses.toFixed(2),
       'Receita Líquida': p.ownerNet.toFixed(2),
     }))
-    rows.push({
-      'Propriedade': 'TOTAL',
-      'Receita Bruta': report.summary.revenue.toFixed(2),
-      'Comissão Gestão (%)': '',
-      'Comissão Gestão': report.summary.managementFee.toFixed(2),
-      'Despesas': report.summary.expenses.toFixed(2),
-      'Receita Líquida': report.summary.ownerNet.toFixed(2),
+    // One total row per currency
+    const byCur = getSummaryByCurrency()
+    Object.entries(byCur).forEach(([cur, s]) => {
+      rows.push({
+        'Moeda': cur,
+        'Propriedade': `TOTAL (${cur})`,
+        'Receita Bruta': s.revenue.toFixed(2),
+        'Comissão Gestão (%)': '',
+        'Comissão Gestão': s.managementFee.toFixed(2),
+        'Despesas': s.expenses.toFixed(2),
+        'Receita Líquida': s.ownerNet.toFixed(2),
+      })
     })
 
     const headers = Object.keys(rows[0])
@@ -128,7 +178,7 @@ export default function OwnerReportPage() {
 
     const ownerSlug = report.owner.full_name.toLowerCase().replace(/\s+/g, '-')
     const periodSlug = label.replace(/\s+/g, '-')
-    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' })
+    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
@@ -141,18 +191,33 @@ export default function OwnerReportPage() {
     if (!report) return
     const { label: periodLabel } = getPeriodDates(period, customFrom, customTo)
     const ownerName = report.owner.full_name
-    const revenue = formatCurrency(report.summary.revenue, currency)
-    const expenses = formatCurrency(report.summary.expenses, currency)
-    const mgmtFee = formatCurrency(report.summary.managementFee, currency)
-    const net = formatCurrency(report.summary.ownerNet, currency)
+    const byCur = getSummaryByCurrency()
+    const currencies = Object.keys(byCur)
+
+    let financialLines: string[]
+    if (currencies.length === 1) {
+      const cur = currencies[0] as CurrencyCode
+      const s = byCur[cur]
+      financialLines = [
+        `💰 Receita bruta: ${formatCurrency(s.revenue, cur)}`,
+        `🔧 Despesas: ${formatCurrency(s.expenses, cur)}`,
+        `📋 Taxa de gestão: ${formatCurrency(s.managementFee, cur)}`,
+        `✅ *Líquido proprietário: ${formatCurrency(s.ownerNet, cur)}*`,
+      ]
+    } else {
+      financialLines = currencies.flatMap(cur => {
+        const s = byCur[cur]
+        return [
+          `[${cur}] 💰 ${formatCurrency(s.revenue, cur as CurrencyCode)} | 🔧 ${formatCurrency(s.expenses, cur as CurrencyCode)} | ✅ ${formatCurrency(s.ownerNet, cur as CurrencyCode)}`,
+        ]
+      })
+    }
+
     const text = [
       `📊 *Relatório Lodgra — ${periodLabel}*`,
       `👤 Proprietário: ${ownerName}`,
       ``,
-      `💰 Receita bruta: ${revenue}`,
-      `🔧 Despesas: ${expenses}`,
-      `📋 Taxa de gestão: ${mgmtFee}`,
-      `✅ *Líquido proprietário: ${net}*`,
+      ...financialLines,
       ``,
       `Gerado via Lodgra 🏠`,
     ].join('\n')
@@ -332,14 +397,19 @@ export default function OwnerReportPage() {
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
                       {report.properties.map(prop => {
-                        const propCurrency = (prop.currency || currency) as CurrencyCode
+                        const propCurrency = (prop.currency || 'EUR') as CurrencyCode
                         return (
                           <tr key={prop.id}>
                             <td className="px-6 py-4">
-                              <div className="text-sm font-medium text-gray-900">{prop.name}</div>
-                              {prop.management_percentage > 0 && (
-                                <div className="text-xs text-gray-500">{prop.management_percentage}% gestão</div>
-                              )}
+                              <div className="flex items-center gap-2">
+                                <CurrencyBadge currency={prop.currency || 'EUR'} />
+                                <div>
+                                  <div className="text-sm font-medium text-gray-900">{prop.name}</div>
+                                  {prop.management_percentage > 0 && (
+                                    <div className="text-xs text-gray-500">{prop.management_percentage}% gestão</div>
+                                  )}
+                                </div>
+                              </div>
                             </td>
                             <td className="px-6 py-4 text-right text-sm text-gray-900">
                               {formatCurrency(prop.revenue, propCurrency)}
@@ -359,44 +429,67 @@ export default function OwnerReportPage() {
                         )
                       })}
                     </tbody>
-                    {/* Totals row */}
+                    {/* One total row per currency — never mix currencies */}
                     <tfoot className="bg-gray-50 border-t-2 border-gray-300">
-                      <tr>
-                        <td className="px-6 py-4 text-sm font-bold text-gray-900 uppercase">Total</td>
-                        <td className="px-6 py-4 text-right text-sm font-bold text-gray-900">
-                          {formatCurrency(report.summary.revenue, currency)}
-                        </td>
-                        <td className="px-6 py-4 text-right text-sm font-bold text-orange-600">
-                          {formatCurrency(report.summary.managementFee, currency)}
-                        </td>
-                        <td className="px-6 py-4 text-right text-sm font-bold text-red-600">
-                          {formatCurrency(report.summary.expenses, currency)}
-                        </td>
-                        <td className="px-6 py-4 text-right text-sm font-bold text-teal-700">
-                          {formatCurrency(report.summary.ownerNet, currency)}
-                        </td>
-                      </tr>
+                      {Object.entries(getSummaryByCurrency()).map(([cur, s]) => (
+                        <tr key={cur}>
+                          <td className="px-6 py-4 text-sm font-bold text-gray-900 uppercase">
+                            <div className="flex items-center gap-2">
+                              <CurrencyBadge currency={cur} />
+                              Total
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 text-right text-sm font-bold text-gray-900">
+                            {formatCurrency(s.revenue, cur as CurrencyCode)}
+                          </td>
+                          <td className="px-6 py-4 text-right text-sm font-bold text-orange-600">
+                            {formatCurrency(s.managementFee, cur as CurrencyCode)}
+                          </td>
+                          <td className="px-6 py-4 text-right text-sm font-bold text-red-600">
+                            {formatCurrency(s.expenses, cur as CurrencyCode)}
+                          </td>
+                          <td className="px-6 py-4 text-right text-sm font-bold text-teal-700">
+                            {formatCurrency(s.ownerNet, cur as CurrencyCode)}
+                          </td>
+                        </tr>
+                      ))}
                     </tfoot>
                   </table>
                 </div>
 
-                {/* Summary cards */}
+                {/* Summary cards — grouped by currency */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 no-print">
-                  <div className="bg-green-50 rounded-lg p-4 text-center">
-                    <p className="text-xs text-gray-500 uppercase font-medium mb-1">Receita Bruta</p>
-                    <p className="text-xl font-bold text-green-700">{formatCurrency(report.summary.revenue, currency)}</p>
+                  <div className="bg-green-50 rounded-lg p-4">
+                    <p className="text-xs text-gray-500 uppercase font-medium mb-2">Receita Bruta</p>
+                    <CurrencyStack
+                      totals={Object.fromEntries(Object.entries(getSummaryByCurrency()).map(([c, s]) => [c, s.revenue]))}
+                      size="sm"
+                      showEmpty={true}
+                    />
                   </div>
-                  <div className="bg-orange-50 rounded-lg p-4 text-center">
-                    <p className="text-xs text-gray-500 uppercase font-medium mb-1">Comissão</p>
-                    <p className="text-xl font-bold text-orange-600">{formatCurrency(report.summary.managementFee, currency)}</p>
+                  <div className="bg-orange-50 rounded-lg p-4">
+                    <p className="text-xs text-gray-500 uppercase font-medium mb-2">Comissão</p>
+                    <CurrencyStack
+                      totals={Object.fromEntries(Object.entries(getSummaryByCurrency()).map(([c, s]) => [c, s.managementFee]))}
+                      size="sm"
+                      showEmpty={true}
+                    />
                   </div>
-                  <div className="bg-red-50 rounded-lg p-4 text-center">
-                    <p className="text-xs text-gray-500 uppercase font-medium mb-1">Despesas</p>
-                    <p className="text-xl font-bold text-red-600">{formatCurrency(report.summary.expenses, currency)}</p>
+                  <div className="bg-red-50 rounded-lg p-4">
+                    <p className="text-xs text-gray-500 uppercase font-medium mb-2">Despesas</p>
+                    <CurrencyStack
+                      totals={Object.fromEntries(Object.entries(getSummaryByCurrency()).map(([c, s]) => [c, s.expenses]))}
+                      size="sm"
+                      showEmpty={true}
+                    />
                   </div>
-                  <div className="bg-teal-50 rounded-lg p-4 text-center">
-                    <p className="text-xs text-gray-500 uppercase font-medium mb-1">Líquido Proprietário</p>
-                    <p className="text-xl font-bold text-teal-700">{formatCurrency(report.summary.ownerNet, currency)}</p>
+                  <div className="bg-teal-50 rounded-lg p-4">
+                    <p className="text-xs text-gray-500 uppercase font-medium mb-2">Líquido Proprietário</p>
+                    <CurrencyStack
+                      totals={Object.fromEntries(Object.entries(getSummaryByCurrency()).map(([c, s]) => [c, s.ownerNet]))}
+                      size="sm"
+                      showEmpty={true}
+                    />
                   </div>
                 </div>
               </>

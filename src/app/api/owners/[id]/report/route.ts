@@ -144,7 +144,20 @@ export async function GET(
       }
     })
 
-    // Totais
+    // Totais por moeda (nunca somar entre moedas diferentes)
+    const summaryByCurrency: Record<string, { revenue: number; managementFee: number; expenses: number; ownerNet: number }> = {}
+    propertyResults.forEach(p => {
+      const cur = p.currency || 'EUR'
+      if (!summaryByCurrency[cur]) {
+        summaryByCurrency[cur] = { revenue: 0, managementFee: 0, expenses: 0, ownerNet: 0 }
+      }
+      summaryByCurrency[cur].revenue += p.revenue
+      summaryByCurrency[cur].managementFee += p.managementFee
+      summaryByCurrency[cur].expenses += p.expenses
+      summaryByCurrency[cur].ownerNet += p.ownerNet
+    })
+
+    // Manter summary agregado para retrocompatibilidade (single-currency owners)
     const summary = propertyResults.reduce(
       (acc, p) => ({
         revenue: acc.revenue + p.revenue,
@@ -155,7 +168,7 @@ export async function GET(
       { revenue: 0, managementFee: 0, expenses: 0, ownerNet: 0 }
     )
 
-    return NextResponse.json({ owner, properties: propertyResults, summary })
+    return NextResponse.json({ owner, properties: propertyResults, summary, summaryByCurrency })
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
     return NextResponse.json({ error: msg }, { status: 500 })
