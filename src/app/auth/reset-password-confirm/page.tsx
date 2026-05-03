@@ -72,7 +72,16 @@ export default function ResetPasswordConfirmPage() {
         return
       }
 
-      // No token/code: assume session already active (e.g. logged-in user changing password)
+      // No token/code: Supabase old flow returns session in URL hash (#access_token=xxx).
+      // createBrowserClient has detectSessionInUrl: true, so getSession() picks it up.
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        if (!session) {
+          setError('Link inválido ou expirado. Por favor, solicite um novo convite.')
+        }
+      } catch {
+        setError('Erro ao verificar sessão. Por favor, tente novamente.')
+      }
       setSessionReady(true)
     }
 

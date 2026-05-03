@@ -163,18 +163,18 @@ async function handleCheckoutCompleted(supabase: AdminClient, session: Stripe.Ch
     console.log(`Utilizador já existe: ${email} (${userId})`)
   } else {
     // Novo utilizador — enviar convite por email
-    // redirectTo aponta para /auth/callback que faz exchangeCodeForSession (PKCE).
-    // Sem isso, o código chega em /onboarding sem ser trocado e a sessão nunca se forma.
-    // Strip any locale prefix from APP_URL (e.g. /pt-BR) so the callback route
-    // resolves to /auth/callback, which exists, not /pt-BR/auth/callback, which does not.
+    // redirectTo aponta directamente para a página cliente de definição de password.
+    // O Supabase usa o fluxo antigo (não-PKCE) e devolve a sessão no fragmento
+    // (#access_token=xxx). O Route Handler do servidor nunca vê fragmentos, por isso
+    // enviamos o utilizador directamente para a página React que consegue detectá-los
+    // via supabase.auth.getSession() (detectSessionInUrl: true por defeito).
     const rawAppUrl = (process.env.NEXT_PUBLIC_APP_URL ?? '').trim().replace(/\/$/, '')
     const appUrl = rawAppUrl.replace(/\/(pt-BR|pt|en-US|es)$/, '')
-    const inviteNext = encodeURIComponent('/auth/reset-password-confirm?from=invite')
     const { data: inviteData, error: inviteError } = await supabase.auth.admin.inviteUserByEmail(
       email,
       {
         data: { organization_id: org.id },
-        redirectTo: `${appUrl}/auth/callback?next=${inviteNext}`,
+        redirectTo: `${appUrl}/auth/reset-password-confirm?from=invite`,
       }
     )
     if (inviteError) {
