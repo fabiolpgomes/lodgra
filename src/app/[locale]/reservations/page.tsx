@@ -13,11 +13,16 @@ import { parsePage, getRange, PAGE_SIZE } from '@/lib/utils/pagination'
 export default async function ReservationsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string }>
+  searchParams: Promise<{ page?: string; month?: string }>
 }) {
   const params = await searchParams
   const page = parsePage(params)
   const { from, to } = getRange(page)
+
+  const monthParam = params.month || new Date().toISOString().slice(0, 7)
+  const [mYear, mMonth] = monthParam.split('-').map(Number)
+  const monthStart = `${monthParam}-01`
+  const monthEnd = `${monthParam}-${String(new Date(mYear, mMonth, 0).getDate()).padStart(2, '0')}`
 
   const supabase = await createClient()
   const access = await getUserAccess(supabase)
@@ -55,13 +60,15 @@ export default async function ReservationsPage({
         email
       )
     `, { count: 'exact' })
+    .gte('check_in', monthStart)
+    .lte('check_in', monthEnd)
     .order('check_in', { ascending: true })
     .range(from, to)
 
   // Queries de contagem HEAD (sem transferir dados) para stats
-  let cConf = supabase.from('reservations').select('id, property_listings!inner(property_id)', { count: 'exact', head: true }).eq('status', 'confirmed')
-  let cPend = supabase.from('reservations').select('id, property_listings!inner(property_id)', { count: 'exact', head: true }).eq('status', 'pending')
-  let cCanc = supabase.from('reservations').select('id, property_listings!inner(property_id)', { count: 'exact', head: true }).eq('status', 'cancelled')
+  let cConf = supabase.from('reservations').select('id, property_listings!inner(property_id)', { count: 'exact', head: true }).eq('status', 'confirmed').gte('check_in', monthStart).lte('check_in', monthEnd)
+  let cPend = supabase.from('reservations').select('id, property_listings!inner(property_id)', { count: 'exact', head: true }).eq('status', 'pending').gte('check_in', monthStart).lte('check_in', monthEnd)
+  let cCanc = supabase.from('reservations').select('id, property_listings!inner(property_id)', { count: 'exact', head: true }).eq('status', 'cancelled').gte('check_in', monthStart).lte('check_in', monthEnd)
 
   if (propertyIds) {
     dataQuery = dataQuery.in('property_listings.properties.id', propertyIds)
@@ -175,6 +182,7 @@ export default async function ReservationsPage({
           reservations={(reservations || []) as unknown as ReservationUI[]}
           canCreate={canCreate}
           pagination={{ page, total: stats.total, pageSize: PAGE_SIZE }}
+          currentMonth={monthParam}
         />
       </main>
     </AuthLayout>

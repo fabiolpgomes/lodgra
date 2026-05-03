@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect } from 'react'
 import { Search, Filter, Calendar, Plus, ArrowRight } from 'lucide-react'
+import { MonthNavigator } from '@/components/common/ui/MonthNavigator'
 import Link from 'next/link'
 import { Input } from '@/components/common/ui/input'
 import { Button } from '@/components/common/ui/button'
@@ -16,6 +17,7 @@ interface ReservationsFilterProps {
   reservations: ReservationUI[]
   canCreate: boolean
   pagination?: { page: number; total: number; pageSize: number }
+  currentMonth?: string
 }
 
 type StatusFilter = 'all' | 'confirmed' | 'pending' | 'cancelled'
@@ -50,7 +52,7 @@ function getReservationData(r: ReservationUI) {
   return { guestName, propertyName }
 }
 
-export function ReservationsFilter({ reservations, canCreate, pagination }: ReservationsFilterProps) {
+export function ReservationsFilter({ reservations, canCreate, pagination, currentMonth }: ReservationsFilterProps) {
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
   const [propertyFilter, setPropertyFilter] = useState<string>(() => localStorage.getItem(getStorageKey('property')) || 'all')
@@ -115,6 +117,13 @@ export function ReservationsFilter({ reservations, canCreate, pagination }: Rese
 
   return (
     <>
+      {/* Month Navigator */}
+      {currentMonth && (
+        <div className="flex items-center justify-between mb-4">
+          <MonthNavigator currentMonth={currentMonth} />
+        </div>
+      )}
+
       {/* Search + Filters */}
       <div className="bg-white rounded-lg shadow p-4 mb-6">
         <div className="flex flex-col gap-4">

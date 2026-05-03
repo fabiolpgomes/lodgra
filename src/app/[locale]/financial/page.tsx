@@ -5,11 +5,22 @@ import { ProfitCard } from '@/components/features/dashboard/ProfitCard'
 import { AuthLayout } from '@/components/common/layout/AuthLayout'
 import { calcManagementFee, calcOwnerNet } from '@/lib/financial/calculations'
 import { CurrencyStack } from '@/components/common/ui/CurrencyStack'
+import { MonthNavigator } from '@/components/common/ui/MonthNavigator'
 
-export default async function FinancialPage() {
+export default async function FinancialPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ month?: string }>
+}) {
+  const params = await searchParams
+  const monthParam = params.month || new Date().toISOString().slice(0, 7)
+  const [mYear, mMonth] = monthParam.split('-').map(Number)
+  const monthStart = `${monthParam}-01`
+  const monthEnd = `${monthParam}-${String(new Date(mYear, mMonth, 0).getDate()).padStart(2, '0')}`
+
   const supabase = await createClient()
 
-  // Buscar reservas confirmadas com property.currency como fonte de verdade
+  // Buscar reservas confirmadas com check_in no mês seleccionado
   const { data: reservations } = await supabase
     .from('reservations')
     .select(`
@@ -21,11 +32,15 @@ export default async function FinancialPage() {
       )
     `)
     .eq('status', 'confirmed')
+    .gte('check_in', monthStart)
+    .lte('check_in', monthEnd)
 
-  // Buscar despesas com property currency como fallback
+  // Buscar despesas do mês seleccionado
   const { data: expenses } = await supabase
     .from('expenses')
     .select('amount, currency, property_id, properties(id, currency)')
+    .gte('expense_date', monthStart)
+    .lte('expense_date', monthEnd)
 
   // Buscar propriedades com management_percentage e owner
   const { data: properties } = await supabase
@@ -131,9 +146,10 @@ export default async function FinancialPage() {
               <h2 className="text-2xl font-bold text-gray-900">Análise Financeira</h2>
             </div>
             <p className="text-gray-500 text-sm ml-14">
-              Visão completa de receitas, despesas e lucro líquido por propriedade
+              Receitas, despesas e lucro do mês seleccionado
             </p>
           </div>
+          <MonthNavigator currentMonth={monthParam} />
         </div>
 
         {/* Cards de Lucro por Moeda */}
