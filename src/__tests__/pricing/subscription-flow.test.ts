@@ -15,46 +15,50 @@ import { getPlanLimits, PLAN_LIMITS, PLAN_DISPLAY, getPlanFromPriceId } from '@/
 
 describe('Subscription Flow', () => {
   describe('Plan Definitions', () => {
-    it('should define all three plan tiers', () => {
-      expect(PLAN_DISPLAY).toHaveLength(3)
-      expect(PLAN_DISPLAY.map(p => p.id)).toEqual(['starter', 'professional', 'business'])
+    it('should define all four plan tiers', () => {
+      expect(PLAN_DISPLAY).toHaveLength(4)
+      expect(PLAN_DISPLAY.map(p => p.id)).toEqual(['starter', 'growth', 'pro', 'enterprise'])
     })
 
     it('should have correct property limits', () => {
-      expect(PLAN_LIMITS.starter.maxProperties).toBe(3)
-      expect(PLAN_LIMITS.professional.maxProperties).toBe(10)
-      expect(PLAN_LIMITS.business.maxProperties).toBeNull() // unlimited
+      // All plans support unlimited properties
+      expect(PLAN_LIMITS.starter.maxProperties).toBeNull()
+      expect(PLAN_LIMITS.growth.maxProperties).toBeNull()
+      expect(PLAN_LIMITS.pro.maxProperties).toBeNull()
+      expect(PLAN_LIMITS.enterprise.maxProperties).toBeNull()
     })
 
-    it('should restrict ownerReports to professional+', () => {
+    it('should restrict ownerReports to growth+', () => {
       expect(PLAN_LIMITS.starter.ownerReports).toBe(false)
-      expect(PLAN_LIMITS.professional.ownerReports).toBe(true)
-      expect(PLAN_LIMITS.business.ownerReports).toBe(true)
+      expect(PLAN_LIMITS.growth.ownerReports).toBe(true)
+      expect(PLAN_LIMITS.pro.ownerReports).toBe(true)
+      expect(PLAN_LIMITS.enterprise.ownerReports).toBe(true)
     })
 
-    it('should restrict fiscalCompliance to professional+', () => {
+    it('should restrict fiscalCompliance to growth+', () => {
       expect(PLAN_LIMITS.starter.fiscalCompliance).toBe(false)
-      expect(PLAN_LIMITS.professional.fiscalCompliance).toBe(true)
-      expect(PLAN_LIMITS.business.fiscalCompliance).toBe(true)
+      expect(PLAN_LIMITS.growth.fiscalCompliance).toBe(true)
+      expect(PLAN_LIMITS.pro.fiscalCompliance).toBe(true)
+      expect(PLAN_LIMITS.enterprise.fiscalCompliance).toBe(true)
     })
   })
 
   describe('Feature Enforcement', () => {
     it('should return correct limits for each plan', () => {
       const starterLimits = getPlanLimits('starter')
-      expect(starterLimits.maxProperties).toBe(3)
+      expect(starterLimits.maxProperties).toBeNull()
       expect(starterLimits.ownerReports).toBe(false)
       expect(starterLimits.fiscalCompliance).toBe(false)
 
-      const profLimits = getPlanLimits('professional')
-      expect(profLimits.maxProperties).toBe(10)
-      expect(profLimits.ownerReports).toBe(true)
-      expect(profLimits.fiscalCompliance).toBe(true)
+      const growthLimits = getPlanLimits('growth')
+      expect(growthLimits.maxProperties).toBeNull()
+      expect(growthLimits.ownerReports).toBe(true)
+      expect(growthLimits.fiscalCompliance).toBe(true)
 
-      const bizLimits = getPlanLimits('business')
-      expect(bizLimits.maxProperties).toBeNull()
-      expect(bizLimits.ownerReports).toBe(true)
-      expect(bizLimits.fiscalCompliance).toBe(true)
+      const proLimits = getPlanLimits('pro')
+      expect(proLimits.maxProperties).toBeNull()
+      expect(proLimits.ownerReports).toBe(true)
+      expect(proLimits.fiscalCompliance).toBe(true)
     })
 
     it('should return starter limits for unknown plan', () => {
@@ -70,29 +74,25 @@ describe('Subscription Flow', () => {
 
   describe('Price ID to Plan Mapping', () => {
     it('should map Stripe price IDs to plans', () => {
-      // This test assumes price IDs are configured in environment
-      // In production, these would be actual Stripe price IDs
-      const mockPriceId = 'price_1234567890'
-
       // getPlanFromPriceId should return starter as default if price doesn't match
-      const plan = getPlanFromPriceId(mockPriceId)
-      expect(['starter', 'professional', 'business']).toContain(plan)
+      const plan = getPlanFromPriceId('price_1234567890')
+      expect(['starter', 'professional', 'business', 'growth', 'pro', 'enterprise']).toContain(plan)
     })
   })
 
   describe('Pricing Display', () => {
     it('should display correct pricing information', () => {
       const starter = PLAN_DISPLAY.find(p => p.id === 'starter')
-      expect(starter?.price).toBe(19)
+      expect(starter?.price).toBe(9)
       expect(starter?.highlighted).toBe(false)
 
-      const pro = PLAN_DISPLAY.find(p => p.id === 'professional')
-      expect(pro?.price).toBe(49)
-      expect(pro?.highlighted).toBe(true) // Most popular
+      const growth = PLAN_DISPLAY.find(p => p.id === 'growth')
+      expect(growth?.price).toBe(14)
+      expect(growth?.highlighted).toBe(true) // Most popular
 
-      const biz = PLAN_DISPLAY.find(p => p.id === 'business')
-      expect(biz?.price).toBe(99)
-      expect(biz?.highlighted).toBe(false)
+      const pro = PLAN_DISPLAY.find(p => p.id === 'pro')
+      expect(pro?.price).toBe(19)
+      expect(pro?.highlighted).toBe(false)
     })
 
     it('should have features listed for each plan', () => {
@@ -105,44 +105,41 @@ describe('Subscription Flow', () => {
   })
 
   describe('Plan Progression', () => {
-    it('should allow upgrade from starter to professional', () => {
+    it('should allow upgrade from starter to growth', () => {
       const starterLimits = getPlanLimits('starter')
-      const proLimits = getPlanLimits('professional')
+      const growthLimits = getPlanLimits('growth')
 
-      // More properties
-      expect(proLimits.maxProperties! > starterLimits.maxProperties!).toBe(true)
-      // More features
-      expect(proLimits.ownerReports && !starterLimits.ownerReports).toBe(true)
+      // Growth unlocks owner reports and fiscal compliance
+      expect(growthLimits.ownerReports && !starterLimits.ownerReports).toBe(true)
+      expect(growthLimits.fiscalCompliance && !starterLimits.fiscalCompliance).toBe(true)
     })
 
-    it('should allow upgrade from professional to business', () => {
-      const proLimits = getPlanLimits('professional')
-      const bizLimits = getPlanLimits('business')
+    it('should allow upgrade from growth to pro', () => {
+      const growthLimits = getPlanLimits('growth')
+      const proLimits = getPlanLimits('pro')
 
-      // Business has unlimited properties
-      expect(bizLimits.maxProperties).toBeNull()
-      expect(proLimits.maxProperties).not.toBeNull()
+      // Both have unlimited properties and full features
+      expect(proLimits.maxProperties).toBeNull()
+      expect(growthLimits.maxProperties).toBeNull()
+      expect(proLimits.ownerReports).toBe(true)
     })
 
     it('should not allow downgrading beyond starter', () => {
       const starterLimits = getPlanLimits('starter')
-      // Starter is the baseline, no plan below it
-      expect(starterLimits.maxProperties).toBe(3)
+      // Starter is the baseline with limited features
+      expect(starterLimits.ownerReports).toBe(false)
+      expect(starterLimits.fiscalCompliance).toBe(false)
     })
   })
 
   describe('Multi-Currency Support', () => {
     it('should support multiple currencies for each plan', () => {
       // BRL, EUR, USD should all be supported
-      // This is validated at checkout time
       const currencies = ['brl', 'eur', 'usd']
-      const plans = ['starter', 'professional', 'business']
+      const plans = ['starter', 'growth', 'pro', 'enterprise']
 
-      // Just verify plan structure supports this
       expect(PLAN_DISPLAY.length).toBe(plans.length)
       currencies.forEach(curr => {
-        // Price IDs for each currency would be in .env
-        // This test just ensures the plan structure is compatible
         expect(curr).toBeDefined()
       })
     })

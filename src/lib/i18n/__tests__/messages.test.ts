@@ -85,7 +85,8 @@ describe('i18n - Messages', () => {
     })
 
     it('should return PT for unsupported locales', () => {
-      const locale = detectLocale('es,en;q=0.9')
+      // 'ja' and 'zh' are not supported — must fall back to 'pt'
+      const locale = detectLocale('ja,zh;q=0.9')
       expect(locale).toBe('pt')
     })
   })
