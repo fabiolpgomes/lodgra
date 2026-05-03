@@ -13,18 +13,26 @@ export async function GET(request: Request) {
 
   // ── Email OTP path (invite, magic link, recovery via token_hash) ──────────
   // Supabase sends token_hash + type when email OTP verification is enabled.
+  // For invite/recovery: delegate verifyOtp to the client page so the session
+  // is established directly in the browser (server-side cookies are not
+  // forwarded through NextResponse.redirect, causing session loss).
   if (token_hash && type) {
+    if (type === 'invite') {
+      return NextResponse.redirect(
+        `${origin}/auth/reset-password-confirm?token_hash=${token_hash}&type=invite&from=invite`
+      )
+    }
+    if (type === 'recovery') {
+      return NextResponse.redirect(
+        `${origin}/auth/reset-password-confirm?token_hash=${token_hash}&type=recovery`
+      )
+    }
+    // For other OTP types (signup, magiclink, email_change) verify server-side
     const { error } = await supabase.auth.verifyOtp({
-      type: type as 'invite' | 'email' | 'signup' | 'recovery' | 'magiclink' | 'email_change',
+      type: type as 'email' | 'signup' | 'magiclink' | 'email_change',
       token_hash,
     })
     if (!error) {
-      if (type === 'invite') {
-        return NextResponse.redirect(`${origin}/auth/reset-password-confirm?from=invite`)
-      }
-      if (type === 'recovery') {
-        return NextResponse.redirect(`${origin}/auth/reset-password-confirm`)
-      }
       return NextResponse.redirect(`${origin}${next}`)
     }
     console.error(`[auth/callback] verifyOtp failed for type=${type}:`, error.message)

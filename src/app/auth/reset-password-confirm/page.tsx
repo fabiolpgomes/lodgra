@@ -15,6 +15,8 @@ export default function ResetPasswordConfirmPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const code = searchParams.get('code')
+  const token_hash = searchParams.get('token_hash')
+  const otp_type = searchParams.get('type')
   const from = searchParams.get('from')
 
   const [password, setPassword] = useState('')
@@ -25,41 +27,57 @@ export default function ResetPasswordConfirmPage() {
   const [error, setError] = useState('')
   const [sessionReady, setSessionReady] = useState(false)
 
-  // Process recovery code on mount
+  // Process OTP token_hash or PKCE code on mount to establish session
   useEffect(() => {
-    async function processRecoveryCode() {
-      if (!code) {
+    async function processToken() {
+      const supabase = createClient()
+
+      // token_hash path: invite or recovery via email OTP
+      if (token_hash && otp_type) {
+        try {
+          const { error } = await supabase.auth.verifyOtp({
+            type: otp_type as 'invite' | 'recovery' | 'email' | 'signup' | 'magiclink' | 'email_change',
+            token_hash,
+          })
+          if (error) {
+            setError(`Link inválido ou expirado: ${error.message}`)
+          }
+        } catch (err) {
+          console.error('Error verifying OTP:', err)
+          setError('Erro ao verificar o link. Por favor, solicite um novo.')
+        }
         setSessionReady(true)
         return
       }
 
-      try {
-        const supabase = createClient()
-        const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
-        if (exchangeError) {
-          setError(`Código inválido: ${exchangeError.message}`)
-          setSessionReady(true)
-          return
-        }
+      // PKCE code path: recovery via code exchange
+      if (code) {
+        try {
+          const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
+          if (exchangeError) {
+            setError(`Código inválido: ${exchangeError.message}`)
+            setSessionReady(true)
+            return
+          }
 
-        // Verify that session was actually created
-        const { data: { user }, error: getUserError } = await supabase.auth.getUser()
-        if (getUserError || !user) {
-          setError('Sessão expirada. Por favor, solicite um novo link de reset.')
-          setSessionReady(true)
-          return
+          const { data: { user }, error: getUserError } = await supabase.auth.getUser()
+          if (getUserError || !user) {
+            setError('Sessão expirada. Por favor, solicite um novo link de reset.')
+          }
+        } catch (err) {
+          console.error('Error processing recovery code:', err)
+          setError('Erro ao processar código de recovery. Por favor, tente novamente.')
         }
-
         setSessionReady(true)
-      } catch (err) {
-        console.error('Error processing recovery code:', err)
-        setError('Erro ao processar código de recovery. Por favor, tente novamente.')
-        setSessionReady(true)
+        return
       }
+
+      // No token/code: assume session already active (e.g. logged-in user changing password)
+      setSessionReady(true)
     }
 
-    processRecoveryCode()
-  }, [code])
+    processToken()
+  }, [code, token_hash, otp_type])
 
   // Validação em tempo real
   const passwordStrength = {
