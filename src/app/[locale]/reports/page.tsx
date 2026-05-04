@@ -163,7 +163,7 @@ export default async function ReportsPage({ searchParams }: PageProps) {
         last_name
       )
     `)
-    .gte('check_in', today)
+    .gte('check_out', today)
     .eq('status', 'confirmed')
     .order('check_in', { ascending: true })
 
@@ -413,42 +413,71 @@ export default async function ReportsPage({ searchParams }: PageProps) {
   )
 
   // Horizontes de previsão (30/60/90 dias)
+  // Business rule: reservations spanning multiple months (Airbnb, Booking, VRBO, etc.)
+  // are distributed proportionally — monthly_value = total_amount / (total_days / 30).
+  // Each 30-day window receives the share proportional to the days that fall within it.
   const now = new Date()
   const day30 = new Date(now); day30.setDate(now.getDate() + 30)
   const day60 = new Date(now); day60.setDate(now.getDate() + 60)
   const day90 = new Date(now); day90.setDate(now.getDate() + 90)
 
-  function summarizeHorizon(rs: typeof futureReservations) {
-    const revByCurrency: Record<string, number> = {}
-    let totalNights = 0
-    rs.forEach(r => {
-      const cur = getResCurrency(r)
-      revByCurrency[cur] = (revByCurrency[cur] || 0) + (r.total_amount ? Number(r.total_amount) : 0)
-      totalNights += Math.ceil(
-        (new Date(r.check_out).getTime() - new Date(r.check_in).getTime()) / (1000 * 60 * 60 * 24)
-      )
-    })
-    return { revenueByCurrency: revByCurrency, reservations: rs.length, nights: totalNights }
+  function overlapDays(checkIn: Date, checkOut: Date, winStart: Date, winEnd: Date): number {
+    const start = checkIn < winStart ? winStart : checkIn
+    const end = checkOut > winEnd ? winEnd : checkOut
+    if (start >= end) return 0
+    return Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24))
   }
 
-  const futureHorizon30 = summarizeHorizon(
-    futureReservations.filter(r => new Date(r.check_in) <= day30)
-  )
-  const futureHorizon60 = summarizeHorizon(
-    futureReservations.filter(r => new Date(r.check_in) > day30 && new Date(r.check_in) <= day60)
-  )
-  const futureHorizon90 = summarizeHorizon(
-    futureReservations.filter(r => new Date(r.check_in) > day60 && new Date(r.check_in) <= day90)
-  )
+  function summarizeHorizon(winStart: Date, winEnd: Date) {
+    const revByCurrency: Record<string, number> = {}
+    let totalNights = 0
+    const ids = new Set<string>()
+    futureReservations.forEach(r => {
+      const checkIn = new Date(r.check_in)
+      const checkOut = new Date(r.check_out)
+      const totalDays = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24))
+      if (totalDays <= 0) return
+      const overlap = overlapDays(checkIn, checkOut, winStart, winEnd)
+      if (overlap <= 0) return
+      const cur = getResCurrency(r)
+      const amount = r.total_amount ? Number(r.total_amount) : 0
+      // Proportional share: total_amount × (overlap_days / total_days)
+      // Equivalent to: (total_amount / (total_days/30)) per 30-day window
+      revByCurrency[cur] = (revByCurrency[cur] || 0) + amount * (overlap / totalDays)
+      totalNights += overlap
+      ids.add(r.id)
+    })
+    return { revenueByCurrency: revByCurrency, reservations: ids.size, nights: totalNights }
+  }
 
-  // Agrupar reservas futuras por mês
+  const futureHorizon30 = summarizeHorizon(now, day30)
+  const futureHorizon60 = summarizeHorizon(day30, day60)
+  const futureHorizon90 = summarizeHorizon(day60, day90)
+
+  // Agrupar reservas futuras por mês — reservas longas aparecem em cada mês que abrangem
+  // com o valor proporcional (total_amount / coef, coef = total_days/30)
   const futureByMonth = futureReservations.reduce(
     (acc: Record<string, { month: string; reservations: typeof futureReservations }>, r) => {
-      const date = new Date(r.check_in)
-      const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
-      const label = date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
-      if (!acc[key]) acc[key] = { month: label, reservations: [] }
-      acc[key].reservations.push(r)
+      const checkIn = new Date(r.check_in)
+      const checkOut = new Date(r.check_out)
+      const totalDays = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24))
+      // Iterate over each calendar month the reservation covers
+      const cursor = new Date(checkIn.getFullYear(), checkIn.getMonth(), 1)
+      while (cursor <= checkOut) {
+        const monthStart = new Date(cursor)
+        const monthEnd = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 0, 23, 59, 59)
+        const overlap = overlapDays(checkIn, checkOut, monthStart, monthEnd)
+        if (overlap > 0) {
+          const key = `${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, '0')}`
+          const label = cursor.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
+          if (!acc[key]) acc[key] = { month: label, reservations: [] }
+          const proportionalAmount = totalDays > 0
+            ? (r.total_amount ? Number(r.total_amount) : 0) * (overlap / totalDays)
+            : 0
+          acc[key].reservations.push({ ...r, total_amount: proportionalAmount })
+        }
+        cursor.setMonth(cursor.getMonth() + 1)
+      }
       return acc
     },
     {}
