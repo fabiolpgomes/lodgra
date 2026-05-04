@@ -12,6 +12,9 @@ interface Reservation extends Record<string, any> {
   total_amount: number | null
   currency: string
   number_of_guests: number
+  adults: number | null
+  children: number | null
+  notes: string | null
   property_listings: Record<string, any>
   guests: Record<string, any> | null
 }
@@ -95,11 +98,16 @@ function generateHtml(
     .summary { background: #f0f0f0; padding: 15px; margin: 20px 0; border-radius: 5px; }
     .summary-item { margin: 8px 0; }
     h2 { background: #3b82f6; color: white; padding: 10px; margin: 20px 0 10px 0; }
-    table { width: 100%; border-collapse: collapse; margin: 15px 0; }
-    th, td { border: 1px solid #ddd; padding: 10px; text-align: left; font-size: 12px; }
+    table { width: 100%; border-collapse: collapse; margin: 15px 0; table-layout: fixed; }
+    th, td { border: 1px solid #ddd; padding: 6px 8px; text-align: left; font-size: 11px; overflow: hidden; }
     th { background: #f0f0f0; font-weight: bold; }
     tr:nth-child(even) { background: #f9f9f9; }
     .currency { text-align: right; font-weight: bold; color: #059669; }
+    .col-date { width: 9%; }
+    .col-guest { width: 18%; }
+    .col-num { width: 6%; text-align: center; }
+    .col-notes { width: 22%; word-break: break-word; }
+    .col-value { width: 11%; }
     .footer { margin-top: 30px; padding-top: 15px; border-top: 1px solid #ddd; font-size: 11px; text-align: center; color: #666; }
     @media print {
       .toolbar { display: none !important; }
@@ -142,11 +150,14 @@ function generateHtml(
             <table>
               <thead>
                 <tr>
-                  <th>Check-in</th>
-                  <th>Check-out</th>
-                  <th>Hóspede</th>
-                  <th>Noites</th>
-                  ${isAdmin ? '<th>Valor</th>' : ''}
+                  <th class="col-date">Check-in</th>
+                  <th class="col-date">Check-out</th>
+                  <th class="col-guest">Hóspede</th>
+                  <th class="col-num">Ad.</th>
+                  <th class="col-num">Cr.</th>
+                  <th class="col-num">Noites</th>
+                  <th class="col-notes">Notas</th>
+                  ${isAdmin ? '<th class="col-value">Valor</th>' : ''}
                 </tr>
               </thead>
               <tbody>
@@ -157,12 +168,17 @@ function generateHtml(
                     const nights = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24))
                     const guest = r.guests
                     const guestName = guest ? guest.first_name + ' ' + guest.last_name : 'N/A'
+                    const notesRaw = r.notes || ''
+                    const notesTrunc = notesRaw.length > 40 ? notesRaw.substring(0, 40) + '…' : notesRaw
                     return `<tr>
-                      <td>${checkIn.toLocaleDateString('pt-BR')}</td>
-                      <td>${checkOut.toLocaleDateString('pt-BR')}</td>
-                      <td>${guestName}</td>
-                      <td>${nights}</td>
-                      ${isAdmin ? '<td class="currency">' + formatCurrency(Number(r.total_amount) || 0, r.currency || 'EUR') + '</td>' : ''}
+                      <td class="col-date">${checkIn.toLocaleDateString('pt-BR')}</td>
+                      <td class="col-date">${checkOut.toLocaleDateString('pt-BR')}</td>
+                      <td class="col-guest">${guestName}</td>
+                      <td class="col-num" style="text-align:center">${r.adults ?? '—'}</td>
+                      <td class="col-num" style="text-align:center">${r.children ?? '—'}</td>
+                      <td class="col-num" style="text-align:center">${nights}</td>
+                      <td class="col-notes">${notesTrunc}</td>
+                      ${isAdmin ? '<td class="col-value currency">' + formatCurrency(Number(r.total_amount) || 0, r.currency || 'EUR') + '</td>' : ''}
                     </tr>`
                   })
                   .join('')}
@@ -195,7 +211,7 @@ function generateHtml(
               filename: '${fileName}',
               image: { type: 'jpeg', quality: 0.98 },
               html2canvas: { scale: 2, useCORS: true },
-              jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+              jsPDF: { orientation: 'landscape', unit: 'mm', format: 'a4' }
             }).from(element).save();
           }
         });
@@ -259,6 +275,9 @@ export async function GET(request: NextRequest) {
         total_amount,
         currency,
         number_of_guests,
+        adults,
+        children,
+        notes,
         property_listings!inner(
           properties!inner(
             id,

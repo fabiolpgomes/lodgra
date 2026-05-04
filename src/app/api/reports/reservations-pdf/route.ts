@@ -12,6 +12,9 @@ interface Reservation extends Record<string, any> {
   total_amount: number | null
   currency: string
   number_of_guests: number
+  adults: number | null
+  children: number | null
+  notes: string | null
   property_listings: Record<string, any>
   guests: Record<string, any> | null
 }
@@ -50,6 +53,9 @@ export async function GET(request: NextRequest) {
         total_amount,
         currency,
         number_of_guests,
+        adults,
+        children,
+        notes,
         property_listings!inner(
           properties!inner(
             id,
