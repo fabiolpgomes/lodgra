@@ -27,6 +27,15 @@ function formatCurrency(amount: number, currency: string): string {
   }).format(amount)
 }
 
+// property.currency takes priority: Airbnb imports reservations with currency='EUR' even for BRL properties
+function getResCurrency(r: Reservation): string {
+  const listing = r.property_listings
+  const lObj = Array.isArray(listing) ? listing[0] : listing
+  const prop = (lObj as { properties?: { currency?: string } } | null)?.properties
+  const propObj = Array.isArray(prop) ? prop[0] : prop
+  return propObj?.currency || r.currency || 'EUR'
+}
+
 function calculateTotalNights(reservations: Reservation[]): number {
   return reservations.reduce((total, r) => {
     const checkIn = new Date(r.check_in)
@@ -45,7 +54,11 @@ function generateHtml(
   fileName: string,
   nonce: string
 ): string {
-  const totalAmount = reservations.reduce((sum, r) => sum + (Number(r.total_amount) || 0), 0)
+  const currencyTotals = reservations.reduce((acc: Record<string, number>, r) => {
+    const cur = getResCurrency(r)
+    acc[cur] = (acc[cur] || 0) + (Number(r.total_amount) || 0)
+    return acc
+  }, {})
   const groupedByProperty = reservations.reduce((acc: Record<string, Reservation[]>, r) => {
     const propId = r.property_listings.properties.id
     if (!acc[propId]) acc[propId] = []
@@ -137,8 +150,10 @@ function generateHtml(
 
       <div class="summary">
         <div class="summary-item"><strong>Total de Reservas:</strong> ${reservations.length}</div>
-        ${isAdmin ? `<div class="summary-item"><strong>Receita Total:</strong> ${formatCurrency(totalAmount, 'EUR')}</div>` : ''}
-        ${isAdmin ? `<div class="summary-item"><strong>Média por Reserva:</strong> ${reservations.length > 0 ? formatCurrency(totalAmount / reservations.length, 'EUR') : '€0,00'}</div>` : ''}
+        ${isAdmin ? Object.entries(currencyTotals).map(([cur, total]) =>
+          `<div class="summary-item"><strong>Receita Total (${cur}):</strong> ${formatCurrency(total, cur)}</div>`
+        ).join('') : ''}
+        ${isAdmin && Object.keys(currencyTotals).length === 1 ? `<div class="summary-item"><strong>Média por Reserva:</strong> ${reservations.length > 0 ? formatCurrency(Object.values(currencyTotals)[0] / reservations.length, Object.keys(currencyTotals)[0]) : formatCurrency(0, Object.keys(currencyTotals)[0] || 'EUR')}</div>` : ''}
         <div class="summary-item"><strong>Noites Reservadas:</strong> ${totalNights}</div>
       </div>
 
@@ -178,7 +193,7 @@ function generateHtml(
                       <td class="col-num" style="text-align:center">${r.children ?? '—'}</td>
                       <td class="col-num" style="text-align:center">${nights}</td>
                       <td class="col-notes">${notesTrunc}</td>
-                      ${isAdmin ? '<td class="col-value currency">' + formatCurrency(Number(r.total_amount) || 0, r.currency || 'EUR') + '</td>' : ''}
+                      ${isAdmin ? '<td class="col-value currency">' + formatCurrency(Number(r.total_amount) || 0, getResCurrency(r)) + '</td>' : ''}
                     </tr>`
                   })
                   .join('')}
@@ -282,7 +297,8 @@ export async function GET(request: NextRequest) {
           properties!inner(
             id,
             name,
-            city
+            city,
+            currency
           )
         ),
         guests(
