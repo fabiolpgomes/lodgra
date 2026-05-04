@@ -264,6 +264,16 @@ export default async function ReservationDetailsPage({
                     <p className="text-sm text-gray-600">
                       {reservation.number_of_guests} {reservation.number_of_guests === 1 ? 'hóspede' : 'hóspedes'}
                     </p>
+                    {(reservation.adults != null || reservation.children != null) && (
+                      <div className="flex items-center gap-3 mt-1 text-sm text-gray-600">
+                        {reservation.adults != null && (
+                          <span>{reservation.adults} {reservation.adults === 1 ? 'adulto' : 'adultos'}</span>
+                        )}
+                        {reservation.children != null && reservation.children > 0 && (
+                          <span>· {reservation.children} {reservation.children === 1 ? 'criança' : 'crianças'}</span>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -353,6 +363,12 @@ export default async function ReservationDetailsPage({
                     <p className="text-gray-900 font-mono text-xs">
                       {reservation.external_reservation_id}
                     </p>
+                  </div>
+                )}
+                {reservation.notes && (
+                  <div>
+                    <p className="text-gray-600 mb-1">Notas</p>
+                    <p className="text-gray-900 text-xs">{reservation.notes}</p>
                   </div>
                 )}
                 <div className="pt-3 border-t">

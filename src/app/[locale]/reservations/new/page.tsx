@@ -258,6 +258,9 @@ export default function NewReservationPage() {
           check_in: formData.get('check_in') as string,
           check_out: formData.get('check_out') as string,
           number_of_guests: parseInt(formData.get('number_of_guests') as string) || 1,
+          adults: parseInt(formData.get('adults') as string) || 1,
+          children: parseInt(formData.get('children') as string) || 0,
+          notes: (formData.get('notes') as string) || null,
           total_amount: parseFloat(formData.get('total_amount') as string) || null,
           currency: propertyCurrency,
           status: 'confirmed',
@@ -509,6 +512,46 @@ export default function NewReservationPage() {
                   min="1"
                   defaultValue="1"
                   required
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="adults" className="mb-1">
+                    Adultos *
+                  </Label>
+                  <Input
+                    type="number"
+                    id="adults"
+                    name="adults"
+                    min="1"
+                    defaultValue="1"
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="children" className="mb-1">
+                    Crianças (até 12 anos)
+                  </Label>
+                  <Input
+                    type="number"
+                    id="children"
+                    name="children"
+                    min="0"
+                    defaultValue="0"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="notes" className="mb-1">
+                  Notas
+                </Label>
+                <Input
+                  type="text"
+                  id="notes"
+                  name="notes"
+                  placeholder="Observações internas sobre a reserva..."
                 />
               </div>
             </div>
