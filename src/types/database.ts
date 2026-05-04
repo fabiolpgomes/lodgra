@@ -133,6 +133,16 @@ export type UnifiedCalendarEvent = {
   platform_id: string | null
 }
 
+export type ExpenseDocument = {
+  id: string
+  expense_id: string
+  file_name: string
+  file_path: string
+  file_size: number | null
+  mime_type: string | null
+  created_at: string
+}
+
 // Tipos compostos para uso na UI
 export type PropertyWithListings = Property & {
   listings: PropertyListing[]

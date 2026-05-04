@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { Receipt, ArrowLeft, Edit, Building2, StickyNote, CreditCard } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { DeleteExpenseButton } from '@/components/features/expenses/DeleteExpenseButton'
+import { ExpenseDocuments } from '@/components/features/expenses/ExpenseDocuments'
 import { formatCurrency } from '@/lib/utils/currency'
 import { AuthLayout } from '@/components/common/layout/AuthLayout'
 import { getUserRole } from '@/lib/auth/getUserRole'
@@ -195,6 +196,9 @@ export default async function ExpenseDetailsPage({
                 <p className="text-gray-700 whitespace-pre-wrap">{expense.notes}</p>
               </div>
             )}
+
+            {/* Documentos anexados */}
+            <ExpenseDocuments expenseId={id} canEdit={canEdit} />
           </div>
 
           {/* Sidebar */}
