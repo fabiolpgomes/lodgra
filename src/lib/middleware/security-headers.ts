@@ -13,7 +13,9 @@ export function applySecurityHeaders(response: NextResponse, nonce?: string): Ne
   // CSP with nonce for inline scripts (Google Analytics, JSON-LD)
   const scriptNonce = nonce ? `'nonce-${nonce}'` : ''
   const isDev = process.env.NODE_ENV === 'development'
-  const evalDirective = isDev ? "'unsafe-eval'" : ''
+  // 'wasm-unsafe-eval' allows WebAssembly compilation (@react-pdf/renderer uses WASM for fonts)
+  // without opening arbitrary JS eval. 'unsafe-eval' retained only in dev for hot-reload.
+  const evalDirective = isDev ? "'unsafe-eval'" : "'wasm-unsafe-eval'"
   response.headers.set(
     'Content-Security-Policy',
     [
