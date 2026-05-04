@@ -73,10 +73,11 @@ export function validateBookingWebhookSignature(
     const computedSignature = hmac.digest('base64')
 
     // Timing-safe comparison to prevent timing attacks
-    return crypto.timingSafeEqual(
-      Buffer.from(signature),
-      Buffer.from(computedSignature)
-    )
+    // Buffer lengths must match — different lengths mean invalid signature
+    const sigBuf = Buffer.from(signature)
+    const compBuf = Buffer.from(computedSignature)
+    if (sigBuf.length !== compBuf.length) return false
+    return crypto.timingSafeEqual(sigBuf, compBuf)
   } catch (error) {
     console.error('[Booking Validator] Signature validation error:', error)
     return false
