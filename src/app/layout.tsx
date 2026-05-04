@@ -91,6 +91,7 @@ export default async function RootLayout({
         <link rel="dns-prefetch" href="https://pxmcsdqfcwutywrzuoal.supabase.co" />
         <script
           type="application/ld+json"
+          nonce={nonce}
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
         />
       </head>
