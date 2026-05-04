@@ -265,12 +265,18 @@ export default async function ReservationDetailsPage({
                       {reservation.number_of_guests} {reservation.number_of_guests === 1 ? 'hóspede' : 'hóspedes'}
                     </p>
                     {(reservation.adults != null || reservation.children != null) && (
-                      <div className="flex items-center gap-3 mt-1 text-sm text-gray-600">
+                      <div className="mt-2 space-y-1 text-sm">
                         {reservation.adults != null && (
-                          <span>{reservation.adults} {reservation.adults === 1 ? 'adulto' : 'adultos'}</span>
+                          <p className="text-gray-700">
+                            <span className="text-gray-500">Adultos: </span>
+                            <span className="font-medium">{reservation.adults}</span>
+                          </p>
                         )}
-                        {reservation.children != null && reservation.children > 0 && (
-                          <span>· {reservation.children} {reservation.children === 1 ? 'criança' : 'crianças'}</span>
+                        {reservation.children != null && (
+                          <p className="text-gray-700">
+                            <span className="text-gray-500">Crianças (até 12 anos): </span>
+                            <span className="font-medium">{reservation.children}</span>
+                          </p>
                         )}
                       </div>
                     )}
@@ -299,6 +305,14 @@ export default async function ReservationDetailsPage({
                 <p className="text-gray-500">Hóspede não cadastrado</p>
               )}
             </div>
+
+            {/* Notas — visível apenas na impressão */}
+            {reservation.notes && (
+              <div className="print-only bg-white rounded-lg p-6 border border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900 mb-3">Notas</h3>
+                <p className="text-gray-700 text-sm whitespace-pre-wrap">{reservation.notes}</p>
+              </div>
+            )}
           </div>
 
           {/* Sidebar */}
@@ -366,7 +380,7 @@ export default async function ReservationDetailsPage({
                   </div>
                 )}
                 {reservation.notes && (
-                  <div>
+                  <div className="no-print">
                     <p className="text-gray-600 mb-1">Notas</p>
                     <p className="text-gray-900 text-xs">{reservation.notes}</p>
                   </div>

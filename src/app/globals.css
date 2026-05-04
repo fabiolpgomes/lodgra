@@ -82,11 +82,19 @@
 /* Input text color handled by --foreground token (Shadcn) */
 
 /* Print styles */
+.print-only {
+  display: none;
+}
+
 @media print {
   /* Esconder header, navegação e elementos interativos */
   header,
   .no-print {
     display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
   }
 
   /* Remover sombras e bordas desnecessárias */
