@@ -13,8 +13,9 @@ let mockInsertedAudit: Record<string, unknown> | null = null
 jest.mock('@/lib/supabase/server', () => ({
   createClient: jest.fn(async () => ({
     auth: {
-      getSession: jest.fn(async () => ({
-        data: { session: mockSessionUser ? { user: mockSessionUser } : null },
+      getUser: jest.fn(async () => ({
+        data: { user: mockSessionUser },
+        error: mockSessionUser ? null : { message: 'Not authenticated' },
       })),
     },
   })),

@@ -22,8 +22,9 @@ const mockSetCachedProfile = setCachedProfile as jest.Mock
 function buildSupabaseMock(sessionUser: { id: string } | null, rpcProfile: object | null) {
   return {
     auth: {
-      getSession: jest.fn().mockResolvedValue({
-        data: { session: sessionUser ? { user: sessionUser } : null },
+      getUser: jest.fn().mockResolvedValue({
+        data: { user: sessionUser },
+        error: sessionUser ? null : { message: 'Not authenticated' },
       }),
     },
     rpc: jest.fn().mockReturnValue({

@@ -28,8 +28,7 @@ export interface UserAccess {
 export async function getUserAccess(
   supabase: SupabaseClient
 ): Promise<UserAccess | null> {
-  const { data: { session } } = await supabase.auth.getSession()
-  const user = session?.user
+  const { data: { user } } = await supabase.auth.getUser()
   if (!user) return null
 
   const adminClient = createAdminClient()

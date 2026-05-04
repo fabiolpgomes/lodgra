@@ -8,8 +8,7 @@ export type Role = 'admin' | 'gestor' | 'viewer'
  * Usa admin client para bypass RLS (auth.uid() não está disponível em server context)
  */
 export async function getUserRole(supabase: SupabaseClient): Promise<Role> {
-  const { data: { session } } = await supabase.auth.getSession()
-  const user = session?.user
+  const { data: { user } } = await supabase.auth.getUser()
   if (!user) return 'viewer'
 
   // Use admin client to bypass RLS

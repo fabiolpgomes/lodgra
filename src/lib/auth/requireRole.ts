@@ -18,31 +18,25 @@ interface AuthResult {
  * Verifica autenticação e role do utilizador server-side.
  * Retorna 401 se não autenticado, 403 se role insuficiente.
  *
- * Fluxo optimizado (3 níveis de custo decrescente):
- *
- *   Cache HIT:  getSession() [local, ~0ms] + Redis   [~1ms]  ≈ 1ms
- *   Cache MISS: getSession() [local, ~0ms] + RPC DB  [~15ms] ≈ 15ms
- *   vs. antes:  getUser()   [HTTP,  ~50ms] + DB query[~5ms]  ≈ 55ms
- *
- * getSession() não revalida com o servidor de Auth — a validação JWT
- * ocorre a nível Postgres no rpc('get_my_profile') nos cache misses,
- * e o middleware já faz getUser() em cada page request (token refresh).
+ * getUser() valida o JWT com o servidor de Auth em cada request,
+ * garantindo que tokens revogados são rejeitados imediatamente.
+ * Roles e perfil são cached no Redis para minimizar round trips à DB.
  * Roles alterados invalidam o cache imediatamente via invalidateCachedProfile().
  */
 export async function requireRole(minimumRoles: Role[]): Promise<AuthResult> {
   const supabase = await createClient()
 
-  // 1. Decode local do JWT (sem HTTP) — obtém userId para lookup no cache
-  const { data: { session } } = await supabase.auth.getSession()
+  // Valida JWT com o servidor de Auth (rejeita tokens revogados)
+  const { data: { user } } = await supabase.auth.getUser()
 
-  if (!session) {
+  if (!user) {
     return {
       authorized: false,
       response: NextResponse.json({ error: 'Não autenticado' }, { status: 401 }),
     }
   }
 
-  const userId = session.user.id
+  const userId = user.id
 
   let userRole: Role
   let accessAllProperties: boolean

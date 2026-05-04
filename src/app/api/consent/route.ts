@@ -45,8 +45,8 @@ export async function POST(request: NextRequest) {
     let userId: string | null = null
     try {
       const supabase = await createClient()
-      const { data: { session } } = await supabase.auth.getSession()
-      userId = session?.user?.id || null
+      const { data: { user } } = await supabase.auth.getUser()
+      userId = user?.id || null
     } catch {
       // Anonymous user — proceed without user_id
     }
@@ -92,9 +92,9 @@ export async function POST(request: NextRequest) {
 export async function GET() {
   try {
     const supabase = await createClient()
-    const { data: { session } } = await supabase.auth.getSession()
+    const { data: { user } } = await supabase.auth.getUser()
 
-    if (!session?.user) {
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -104,7 +104,7 @@ export async function GET() {
     const { data: records, error } = await adminClient
       .from('consent_records')
       .select('consent_type, consent_value, created_at')
-      .eq('user_id', session.user.id)
+      .eq('user_id', user.id)
       .order('created_at', { ascending: false })
 
     if (error) {

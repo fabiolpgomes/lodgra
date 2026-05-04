@@ -12,13 +12,13 @@ export async function POST() {
   try {
     // Authenticate user
     const supabase = await createClient()
-    const { data: { session } } = await supabase.auth.getSession()
+    const { data: { user } } = await supabase.auth.getUser()
 
-    if (!session?.user) {
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const userId = session.user.id
+    const userId = user.id
     const adminClient = createAdminClient()
 
     // Rate limit: check for export in last 24h

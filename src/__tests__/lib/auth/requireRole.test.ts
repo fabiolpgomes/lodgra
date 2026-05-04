@@ -36,14 +36,14 @@ const MOCK_PROFILE_VIEWER = {
 function setupSupabase(session: typeof MOCK_SESSION | null, profile: typeof MOCK_PROFILE_ADMIN | null) {
   const mockMaybeSingle = jest.fn().mockResolvedValue({ data: profile })
   const mockRpc = jest.fn().mockReturnValue({ maybeSingle: mockMaybeSingle })
-  const mockGetSession = jest.fn().mockResolvedValue({ data: { session } })
+  const mockGetUser = jest.fn().mockResolvedValue({ data: { user: session?.user ?? null } })
 
   ;(createClient as jest.Mock).mockResolvedValue({
-    auth: { getSession: mockGetSession },
+    auth: { getUser: mockGetUser },
     rpc: mockRpc,
   })
 
-  return { mockGetSession, mockRpc, mockMaybeSingle }
+  return { mockGetUser, mockRpc, mockMaybeSingle }
 }
 
 beforeEach(() => {

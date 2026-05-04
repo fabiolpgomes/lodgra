@@ -18,13 +18,13 @@ export async function POST(request: NextRequest) {
     }
 
     const supabase = await createClient()
-    const { data: { session } } = await supabase.auth.getSession()
+    const { data: { user } } = await supabase.auth.getUser()
 
-    if (!session?.user) {
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const userId = session.user.id
+    const userId = user.id
     const adminClient = createAdminClient()
 
     // Check for existing pending request
@@ -105,9 +105,9 @@ export async function POST(request: NextRequest) {
 export async function GET() {
   try {
     const supabase = await createClient()
-    const { data: { session } } = await supabase.auth.getSession()
+    const { data: { user } } = await supabase.auth.getUser()
 
-    if (!session?.user) {
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -115,7 +115,7 @@ export async function GET() {
     const { data: request } = await adminClient
       .from('deletion_requests')
       .select('id, requested_at, scheduled_at, status, cancelled_at')
-      .eq('user_id', session.user.id)
+      .eq('user_id', user.id)
       .eq('status', 'pending')
       .order('requested_at', { ascending: false })
       .limit(1)
