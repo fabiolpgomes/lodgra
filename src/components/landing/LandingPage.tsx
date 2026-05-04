@@ -151,9 +151,9 @@ const CONTENT = {
       { title: 'Acordar sem saber quem chega e quem sai hoje', desc: 'Check-ins esquecidos, chaves não entregues, limpeza não agendada — tudo porque não havia um lembrete claro do dia.' },
     ],
     solutionTitle: 'O Home Stay resolve tudo isto numa única plataforma.',
-    solutionDesc: 'Um sistema completo de gestão de alojamento local que centraliza propriedades, reservas, despesas, calendários e equipa. Sincroniza automaticamente com Airbnb, Booking.com e outras plataformas.',
+    solutionDesc: 'Um sistema completo de gestão de imóveis que centraliza propriedades, reservas, despesas, calendários e equipa. Sincroniza automaticamente com Airbnb, Booking.com e outras plataformas.',
     sectionFeaturesTitle: 'Tudo o que precisa para gerir o seu negócio',
-    sectionFeaturesDesc: 'Uma plataforma completa para gestores de alojamento local.',
+    sectionFeaturesDesc: 'Uma plataforma completa para gestores de imóveis.',
     featureCards: [
       { icon: RefreshCcw, title: 'Sync automático de calendários',     desc: 'Importe e exporte via iCal. Reservas do Airbnb e Booking aparecem automaticamente — e vice-versa. Zero overbookings.' },
       { icon: BarChart3,  title: 'Dashboard com visão 360° do negócio', desc: 'Receita total, taxa de ocupação, próximos check-ins — tudo num único ecrã. Gráficos de tendência para decisões rápidas.' },
@@ -221,7 +221,7 @@ const CONTENT = {
     sectionPricingTitle: 'Preço por unidade, escalável com o seu negócio',
     sectionPricingDesc: 'Pague só pelas unidades que gere. Sem custos fixos exagerados — cresce consigo.',
     finalTitle: 'Comece hoje. Pague só pelo que usa.',
-    finalDesc: 'Gestão profissional de alojamento local a partir de €9 por unidade. Sem surpresas, sem lock-in.',
+    finalDesc: 'Gestão profissional de imóveis a partir de €9 por unidade. Sem surpresas, sem lock-in.',
     pwaTitle: 'Instale a app no telemóvel',
     pwaDesc: 'Aceda ao Home Stay directamente do seu telemóvel — sem precisar da App Store.',
     pwaSteps: [
