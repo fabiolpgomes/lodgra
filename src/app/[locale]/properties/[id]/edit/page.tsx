@@ -38,7 +38,6 @@ export default function EditPropertyPage({
   const [isPublic, setIsPublic] = useState(false)
   const [description, setDescription] = useState('')
   const [amenities, setAmenities] = useState('')
-  const [photos, setPhotos] = useState('')
   const [basePrice, setBasePrice] = useState<string>('')
   const [minNights, setMinNights] = useState<string>('1')
   const [isActive, setIsActive] = useState(true)
@@ -113,7 +112,6 @@ export default function EditPropertyPage({
       setIsActive(propResult.data.is_active ?? true)
       setDescription(propResult.data.description || '')
       setAmenities((propResult.data.amenities as string[] | null)?.join(', ') || '')
-      setPhotos((propResult.data.photos as string[] | null)?.join('\n') || '')
       setBasePrice((propResult.data.base_price as number | null)?.toString() || '')
       setMinNights((propResult.data.min_nights as number | null)?.toString() || '1')
       setOwners(ownersResult.data || [])
@@ -153,8 +151,7 @@ export default function EditPropertyPage({
       const propertyName = formData.get('name') as string
       const finalSlug = slug.trim() || slugify(propertyName)
 
-      // Parse photos (one URL per line) and amenities (comma separated)
-      const photosArray = photos.split('\n').map(s => s.trim()).filter(Boolean)
+      // Parse amenities (comma separated)
       const amenitiesArray = amenities.split(',').map(s => s.trim()).filter(Boolean)
 
       const { error: updateError } = await supabase
@@ -177,7 +174,6 @@ export default function EditPropertyPage({
           is_public: isPublic,
           is_active: isActive,
           description: description.trim() || null,
-          photos: photosArray,
           amenities: amenitiesArray,
           updated_at: new Date().toISOString(),
         })
@@ -556,22 +552,7 @@ export default function EditPropertyPage({
                 />
                 <p className="text-xs text-gray-500 mt-1">Separadas por vírgula.</p>
               </div>
-              <div>
-                <Label htmlFor="photos" className="mb-1">
-                  URLs das Fotos
-                </Label>
-                <textarea
-                  id="photos"
-                  value={photos}
-                  onChange={(e) => setPhotos(e.target.value)}
-                  rows={3}
-                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  placeholder="https://exemplo.com/foto1.jpg&#10;https://exemplo.com/foto2.jpg"
-                />
-                <p className="text-xs text-gray-500 mt-1">Uma URL por linha.</p>
-              </div>
-
-              {/* New Gallery Section */}
+              {/* Gallery Section */}
               {propertyId && (
                 <div className="space-y-4 border-t pt-6">
                   <div>

@@ -7,6 +7,7 @@ import { TogglePropertyStatusButton } from '@/components/features/properties/Tog
 import { PropertyListingsManager } from '@/components/features/listings/PropertyListingsManager'
 import { QuickActionButtons } from '@/components/features/properties/QuickActionButtons'
 import { ICalExportCard } from '@/components/features/properties/ICalExportCard'
+import { PropertyDocuments } from '@/components/features/properties/PropertyDocuments'
 import { AuthLayout } from '@/components/common/layout/AuthLayout'
 import { getUserRole } from '@/lib/auth/getUserRole'
 import { Button } from '@/components/common/ui/button'
@@ -252,6 +253,9 @@ export default async function PropertyDetailsPage({
               propertyId={id}
               appUrl={process.env.NEXT_PUBLIC_APP_URL || 'https://lodgra.pt'}
             />
+
+            {/* Documentos da Propriedade */}
+            <PropertyDocuments propertyId={id} canEdit={canEdit} />
           </div>
 
           {/* Sidebar de Resumo */}

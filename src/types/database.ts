@@ -133,6 +133,17 @@ export type UnifiedCalendarEvent = {
   platform_id: string | null
 }
 
+export type PropertyDocument = {
+  id: string
+  property_id: string
+  file_name: string
+  file_path: string
+  file_size: number | null
+  mime_type: string | null
+  document_type: string | null
+  created_at: string
+}
+
 export type ExpenseDocument = {
   id: string
   expense_id: string

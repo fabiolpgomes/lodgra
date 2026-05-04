@@ -13,22 +13,42 @@ export const ALLOWED_DOCUMENT_TYPES = [
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
 ]
 
-const MAX_FILE_SIZE = 20 * 1024 * 1024 // 20MB
-const MAX_FILES = 5
+const DEFAULT_MAX_FILE_SIZE = 20 * 1024 * 1024 // 20MB
+const DEFAULT_MAX_FILES = 5
 
 interface FileUploadProps {
   onUpload: (files: File[]) => Promise<void>
   currentCount: number
   disabled?: boolean
+  /** Override allowed MIME types (defaults to ALLOWED_DOCUMENT_TYPES) */
+  allowedTypes?: string[]
+  /** Override max file size in bytes (defaults to 20MB) */
+  maxFileSize?: number
+  /** Max total files allowed (defaults to 5) */
+  maxFiles?: number
+  /** HTML accept attribute string (defaults to common docs) */
+  acceptAttr?: string
+  /** Hint text shown below the drop zone label */
+  hint?: string
 }
 
-export function FileUpload({ onUpload, currentCount, disabled }: FileUploadProps) {
+export function FileUpload({
+  onUpload,
+  currentCount,
+  disabled,
+  allowedTypes = ALLOWED_DOCUMENT_TYPES,
+  maxFileSize = DEFAULT_MAX_FILE_SIZE,
+  maxFiles = DEFAULT_MAX_FILES,
+  acceptAttr = '.pdf,.jpg,.jpeg,.doc,.docx,.xls,.xlsx',
+  hint,
+}: FileUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [dragging, setDragging] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [errors, setErrors] = useState<string[]>([])
 
-  const remaining = MAX_FILES - currentCount
+  const remaining = maxFiles - currentCount
+  const maxMB = Math.round(maxFileSize / (1024 * 1024))
 
   async function handleFiles(fileList: FileList | null) {
     if (!fileList || fileList.length === 0) return
@@ -38,20 +58,20 @@ export function FileUpload({ onUpload, currentCount, disabled }: FileUploadProps
     const errs: string[] = []
 
     for (const file of Array.from(fileList)) {
-      if (!ALLOWED_DOCUMENT_TYPES.includes(file.type)) {
+      if (!allowedTypes.includes(file.type)) {
         errs.push(`${file.name}: tipo não permitido`)
         continue
       }
-      if (file.size > MAX_FILE_SIZE) {
-        errs.push(`${file.name}: excede 20MB`)
+      if (file.size > maxFileSize) {
+        errs.push(`${file.name}: excede ${maxMB}MB`)
         continue
       }
       valid.push(file)
     }
 
-    const canAdd = MAX_FILES - currentCount
+    const canAdd = maxFiles - currentCount
     if (valid.length > canAdd) {
-      errs.push(`Apenas ${canAdd} ficheiro${canAdd !== 1 ? 's' : ''} adicionado${canAdd !== 1 ? 's' : ''} (limite de ${MAX_FILES})`)
+      errs.push(`Apenas ${canAdd} ficheiro${canAdd !== 1 ? 's' : ''} adicionado${canAdd !== 1 ? 's' : ''} (limite de ${maxFiles})`)
       valid.splice(canAdd)
     }
 
@@ -90,11 +110,11 @@ export function FileUpload({ onUpload, currentCount, disabled }: FileUploadProps
               <span className="text-blue-600 font-medium">clique para seleccionar</span>
             </p>
             <p className="text-xs text-gray-500 mt-1">
-              PDF, JPEG, Word, Excel · Máx. 20MB · {remaining} espaço{remaining !== 1 ? 's' : ''} disponível{remaining !== 1 ? 'is' : ''}
+              {hint ?? `Máx. ${maxMB}MB · ${remaining} espaço${remaining !== 1 ? 's' : ''} disponível${remaining !== 1 ? 'is' : ''}`}
             </p>
           </>
         ) : (
-          <p className="text-sm text-gray-500">Limite de {MAX_FILES} ficheiros atingido</p>
+          <p className="text-sm text-gray-500">Limite de {maxFiles} ficheiros atingido</p>
         )}
       </div>
 
@@ -102,7 +122,7 @@ export function FileUpload({ onUpload, currentCount, disabled }: FileUploadProps
         ref={inputRef}
         type="file"
         multiple
-        accept=".pdf,.jpg,.jpeg,.doc,.docx,.xls,.xlsx"
+        accept={acceptAttr}
         className="hidden"
         onChange={(e) => handleFiles(e.target.files)}
         disabled={disabled || remaining <= 0 || uploading}
