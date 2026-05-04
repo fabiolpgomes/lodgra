@@ -604,7 +604,7 @@ export default function EditPropertyPage({
               {propertyId && (
                 <div className="pt-2">
                   <Link
-                    href={`/properties/${propertyId}/pricing`}
+                    href={`/${locale}/properties/${propertyId}/pricing`}
                     className="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 transition-colors"
                   >
                     <Tag size={14} />
