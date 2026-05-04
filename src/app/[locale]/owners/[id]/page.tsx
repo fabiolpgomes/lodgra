@@ -12,9 +12,9 @@ import { Badge } from '@/components/common/ui/badge'
 export default async function OwnerDetailsPage({
   params
 }: {
-  params: Promise<{ id: string }>
+  params: Promise<{ locale: string; id: string }>
 }) {
-  const { id } = await params
+  const { id, locale } = await params
   const supabase = await createClient()
   const userRole = await getUserRole(supabase)
   const canEdit = userRole === 'admin' || userRole === 'gestor'
@@ -56,15 +56,15 @@ export default async function OwnerDetailsPage({
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-sm text-gray-600 mb-6">
-          <Link href="/" className="hover:text-gray-900">Dashboard</Link>
+          <Link href={`/${locale}`} className="hover:text-gray-900">Dashboard</Link>
           <span>/</span>
-          <Link href="/owners" className="hover:text-gray-900">Proprietários</Link>
+          <Link href={`/${locale}/owners`} className="hover:text-gray-900">Proprietários</Link>
           <span>/</span>
           <span className="text-gray-900 font-medium">{owner.full_name}</span>
         </div>
 
         <Link
-          href="/owners"
+          href={`/${locale}/owners`}
           className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -93,7 +93,7 @@ export default async function OwnerDetailsPage({
           <div className="flex gap-3">
             {canEdit && (
               <Button asChild variant="outline">
-                <Link href={`/owners/${id}/fiscal`} className="flex items-center gap-2">
+                <Link href={`/${locale}/owners/${id}/fiscal`} className="flex items-center gap-2">
                   <Scale className="h-4 w-4" />
                   Relatório Fiscal
                 </Link>
@@ -101,7 +101,7 @@ export default async function OwnerDetailsPage({
             )}
             {canEdit && (
               <Button asChild variant="outline">
-                <Link href={`/owners/${id}/report`} className="flex items-center gap-2">
+                <Link href={`/${locale}/owners/${id}/report`} className="flex items-center gap-2">
                   <FileText className="h-4 w-4" />
                   Ver Relatório
                 </Link>
@@ -109,7 +109,7 @@ export default async function OwnerDetailsPage({
             )}
             {canEdit && (
               <Button asChild>
-                <Link href={`/owners/${id}/edit`} className="flex items-center gap-2">
+                <Link href={`/${locale}/owners/${id}/edit`} className="flex items-center gap-2">
                   <Edit className="h-4 w-4" />
                   Editar
                 </Link>
@@ -273,7 +273,7 @@ export default async function OwnerDetailsPage({
                   {properties.map((prop) => (
                     <Link
                       key={prop.id}
-                      href={`/properties/${prop.id}`}
+                      href={`/${locale}/properties/${prop.id}`}
                       className="block p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                     >
                       <p className="font-medium text-gray-900">{prop.name}</p>

@@ -44,10 +44,20 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // Redirect root to default locale
   const url = request.nextUrl.clone()
   url.pathname = `/${defaultLocale}${pathname === '/' ? '' : pathname}`
-  return NextResponse.redirect(url)
+
+  // RSC navigation (fetch with redirect:manual) doesn't follow HTTP redirects —
+  // the response becomes opaque (status 0) which Next.js reports as 404.
+  // Use a transparent rewrite instead so the correct locale page is served
+  // without the client needing to follow a redirect.
+  const isRscNavigation =
+    request.headers.get('RSC') === '1' ||
+    request.nextUrl.searchParams.has('_rsc')
+
+  return isRscNavigation
+    ? NextResponse.rewrite(url)
+    : NextResponse.redirect(url)
 }
 
 export const config = {

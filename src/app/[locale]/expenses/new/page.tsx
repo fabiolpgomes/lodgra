@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from '@/lib/i18n/routing'
+import { useRouter, useLocale } from '@/lib/i18n/routing'
 import Link from 'next/link'
 import { ArrowLeft, Save } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
@@ -16,6 +16,7 @@ import { toast } from 'sonner'
 
 export default function NewExpensePage() {
   const router = useRouter()
+  const locale = useLocale()
   const supabase = createClient()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -99,7 +100,7 @@ export default function NewExpensePage() {
       {/* Main Content */}
       <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Link
-          href="/expenses"
+          href={`/${locale}/expenses`}
           className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -224,7 +225,7 @@ export default function NewExpensePage() {
             {/* Botões */}
             <div className="flex items-center justify-end gap-4 pt-6 border-t">
               <Button asChild variant="outline">
-                <Link href="/expenses">
+                <Link href={`/${locale}/expenses`}>
                   Cancelar
                 </Link>
               </Button>

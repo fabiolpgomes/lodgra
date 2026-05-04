@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from '@/lib/i18n/routing'
+import { useRouter, useLocale } from '@/lib/i18n/routing'
 import Link from 'next/link'
 import { ArrowLeft, Save } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
@@ -16,6 +16,7 @@ import { toast } from 'sonner'
 
 export default function NewOwnerPage() {
   const router = useRouter()
+  const locale = useLocale()
   const supabase = createClient()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -123,7 +124,7 @@ export default function NewOwnerPage() {
     <AuthLayout>
       <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Link
-          href="/owners"
+          href={`/${locale}/owners`}
           className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -462,7 +463,7 @@ export default function NewOwnerPage() {
               )}
             </Button>
             <Button asChild variant="outline">
-              <Link href="/owners">
+              <Link href={`/${locale}/owners`}>
                 Cancelar
               </Link>
             </Button>

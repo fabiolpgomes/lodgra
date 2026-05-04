@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { getLocale } from 'next-intl/server'
 import { Users, Plus, Shield, Edit } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
@@ -24,6 +25,7 @@ interface PropertyRef {
 }
 
 export default async function UsersPage() {
+  const locale = await getLocale()
   const supabase = await createClient()
 
   // Verificar se é admin
@@ -70,7 +72,7 @@ export default async function UsersPage() {
             <p className="text-gray-600">Gerencie os utilizadores e suas permissões</p>
           </div>
           <Button asChild>
-            <Link href="/admin/users/new" className="flex items-center gap-2">
+            <Link href={`/${locale}/admin/users/new`} className="flex items-center gap-2">
               <Plus className="h-5 w-5" />
               Novo Utilizador
             </Link>

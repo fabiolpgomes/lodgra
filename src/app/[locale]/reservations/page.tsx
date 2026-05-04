@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import { getLocale } from 'next-intl/server'
 import Link from 'next/link'
 import { Calendar, Plus, Clock, CheckCircle, XCircle, Download } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
@@ -15,6 +16,7 @@ export default async function ReservationsPage({
 }: {
   searchParams: Promise<{ page?: string; month?: string }>
 }) {
+  const locale = await getLocale()
   const params = await searchParams
   const page = parsePage(params)
   const { from, to } = getRange(page)
@@ -111,7 +113,7 @@ export default async function ReservationsPage({
           </div>
           <div className="flex items-center gap-3 shrink-0">
             <Button variant="outline" asChild>
-              <Link href="/reservations/export">
+              <Link href={`/${locale}/reservations/export`}>
                 <Download className="h-4 w-4" />
                 Exportar PDF
               </Link>
@@ -120,7 +122,7 @@ export default async function ReservationsPage({
               <>
                 <CleanupReservationsButton />
                 <Button asChild>
-                  <Link href="/reservations/new">
+                  <Link href={`/${locale}/reservations/new`}>
                     <Plus className="h-4 w-4" />
                     Nova Reserva
                   </Link>

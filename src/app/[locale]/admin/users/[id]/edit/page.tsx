@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, use } from 'react'
-import { useRouter } from '@/lib/i18n/routing'
+import { useRouter, useLocale } from '@/lib/i18n/routing'
 import Link from 'next/link'
 import { ArrowLeft, UserCog } from 'lucide-react'
 import { AuthLayout } from '@/components/common/layout/AuthLayout'
@@ -31,6 +31,7 @@ interface UserData {
 export default function EditUserPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
   const router = useRouter()
+  const locale = useLocale()
   const [loading, setLoading] = useState(false)
   const [loadingData, setLoadingData] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -170,7 +171,7 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-6">
           <Link
-            href="/admin/users"
+            href={`/${locale}/admin/users`}
             className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -321,7 +322,7 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
               {loading ? 'Salvando...' : 'Salvar Alterações'}
             </Button>
             <Button asChild variant="outline">
-              <Link href="/admin/users">
+              <Link href={`/${locale}/admin/users`}>
                 Cancelar
               </Link>
             </Button>

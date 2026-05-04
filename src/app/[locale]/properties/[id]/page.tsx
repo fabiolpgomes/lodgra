@@ -16,9 +16,9 @@ import { Badge } from '@/components/common/ui/badge'
 export default async function PropertyDetailsPage({
   params
 }: {
-  params: Promise<{ id: string }>
+  params: Promise<{ locale: string; id: string }>
 }) {
-  const { id } = await params
+  const { id, locale } = await params
   const supabase = await createClient()
   const userRole = await getUserRole(supabase)
   const canEdit = userRole === 'admin' || userRole === 'gestor'
@@ -107,16 +107,16 @@ export default async function PropertyDetailsPage({
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-sm text-gray-600 mb-6">
-          <Link href="/" className="hover:text-gray-900">Dashboard</Link>
+          <Link href={`/${locale}`} className="hover:text-gray-900">Dashboard</Link>
           <span>/</span>
-          <Link href="/properties" className="hover:text-gray-900">Propriedades</Link>
+          <Link href={`/${locale}/properties`} className="hover:text-gray-900">Propriedades</Link>
           <span>/</span>
           <span className="text-gray-900 font-medium">{property.name}</span>
         </div>
 
         {/* Back Button */}
         <Link
-          href="/properties"
+          href={`/${locale}/properties`}
           className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -143,7 +143,7 @@ export default async function PropertyDetailsPage({
           <div className="flex gap-3">
             {canEdit && (
               <Button asChild>
-                <Link href={`/properties/${id}/edit`} className="flex items-center gap-2">
+                <Link href={`/${locale}/properties/${id}/edit`} className="flex items-center gap-2">
                   <Edit className="h-4 w-4" />
                   Editar
                 </Link>
@@ -269,7 +269,7 @@ export default async function PropertyDetailsPage({
               {owner ? (
                 <div className="space-y-2">
                   <Link
-                    href={`/owners/${owner.id}`}
+                    href={`/${locale}/owners/${owner.id}`}
                     className="text-blue-600 hover:underline font-medium"
                   >
                     {owner.full_name}

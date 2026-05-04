@@ -27,9 +27,9 @@ const categoryLabels: Record<string, string> = {
 export default async function ExpenseDetailsPage({
   params
 }: {
-  params: Promise<{ id: string }>
+  params: Promise<{ locale: string; id: string }>
 }) {
-  const { id } = await params
+  const { id, locale } = await params
   const supabase = await createClient()
   const userRole = await getUserRole(supabase)
   const canEdit = userRole === 'admin' || userRole === 'gestor'
@@ -61,16 +61,16 @@ export default async function ExpenseDetailsPage({
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-sm text-gray-600 mb-6">
-          <Link href="/" className="hover:text-gray-900">Dashboard</Link>
+          <Link href={`/${locale}`} className="hover:text-gray-900">Dashboard</Link>
           <span>/</span>
-          <Link href="/expenses" className="hover:text-gray-900">Despesas</Link>
+          <Link href={`/${locale}/expenses`} className="hover:text-gray-900">Despesas</Link>
           <span>/</span>
           <span className="text-gray-900 font-medium">Detalhes</span>
         </div>
 
         {/* Back Button */}
         <Link
-          href="/expenses"
+          href={`/${locale}/expenses`}
           className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -102,7 +102,7 @@ export default async function ExpenseDetailsPage({
             <div className="flex gap-3">
               {canEdit && (
                 <Button asChild>
-                  <Link href={`/expenses/${id}/edit`}>
+                  <Link href={`/${locale}/expenses/${id}/edit`}>
                     <Edit className="h-4 w-4" />
                     Editar
                   </Link>
@@ -167,7 +167,7 @@ export default async function ExpenseDetailsPage({
               {property ? (
                 <div>
                   <Link
-                    href={`/properties/${property.id}`}
+                    href={`/${locale}/properties/${property.id}`}
                     className="text-xl font-semibold text-blue-600 hover:text-blue-700"
                   >
                     {property.name}

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from '@/lib/i18n/routing'
+import { useRouter, useLocale } from '@/lib/i18n/routing'
 import Link from 'next/link'
 import { ArrowLeft, Save } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
@@ -21,6 +21,7 @@ export default function EditExpensePage({
   params: Promise<{ id: string }>
 }) {
   const router = useRouter()
+  const locale = useLocale()
   const supabase = createClient()
   const [loading, setLoading] = useState(false)
   const [loadingData, setLoadingData] = useState(true)
@@ -135,7 +136,7 @@ export default function EditExpensePage({
         <div className="flex items-center justify-center min-h-64">
           <div className="text-center">
             <p className="text-red-600 mb-4">{error}</p>
-            <Link href="/expenses" className="text-blue-600 hover:underline">
+            <Link href={`/${locale}/expenses`} className="text-blue-600 hover:underline">
               Voltar para Despesas
             </Link>
           </div>

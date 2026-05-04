@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import { getLocale } from 'next-intl/server'
 import { Plus, Receipt, FileText } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { AuthLayout } from '@/components/common/layout/AuthLayout'
@@ -13,6 +14,7 @@ export default async function ExpensesPage({
 }: {
   searchParams: Promise<{ page?: string }>
 }) {
+  const locale = await getLocale()
   const params = await searchParams
   const page = parsePage(params)
   const { from, to } = getRange(page)
@@ -81,7 +83,7 @@ export default async function ExpensesPage({
                 </Link>
               </Button>
               <Button asChild>
-                <Link href="/expenses/new">
+                <Link href={`/${locale}/expenses/new`}>
                   <Plus className="h-4 w-4" />
                   Nova Despesa
                 </Link>

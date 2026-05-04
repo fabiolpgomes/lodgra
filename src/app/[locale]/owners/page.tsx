@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { getLocale } from 'next-intl/server'
 import { Users, Plus } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
@@ -13,6 +14,7 @@ export default async function OwnersPage({
 }: {
   searchParams: Promise<{ page?: string }>
 }) {
+  const locale = await getLocale()
   const params = await searchParams
   const page = parsePage(params)
   const { from, to } = getRange(page)
@@ -50,7 +52,7 @@ export default async function OwnersPage({
           </div>
           {canEdit && (
             <Button asChild>
-              <Link href="/owners/new" className="flex items-center gap-2">
+              <Link href={`/${locale}/owners/new`} className="flex items-center gap-2">
                 <Plus className="h-5 w-5" />
                 Novo Proprietário
               </Link>
