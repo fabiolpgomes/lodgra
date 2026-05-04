@@ -1,10 +1,21 @@
 status:
-  branch: null
+  branch: main
   modifiedFiles: []
-  recentCommits: []
+  recentCommits:
+    - e1a211c fix(routing): locale-aware links + RSC rewrite
+    - 73d3a72 fix(auth): getSession → getUser across all server-side auth
+    - 744838f fix(webhook-validator): timingSafeEqual buffer guard
+    - 0bfd9de feat(properties): document & video attachments (Story 17.2)
+    - 068a5f3 feat(expenses): document attachments (Story 17.1)
+    - 901e9fa feat(reports): adults/children/notes in reservations PDF (Story 16.4)
+    - f99541d feat(reservations): print/PDF guest fields (Story 16.3)
+    - 5abf1eb feat(reservations): adults/children/notes fields (Story 16.2)
+    - 23509fc feat(db): adults/children columns in reservations (Story 16.1)
+    - 932120b feat(reservations,financial): month filter with navigation
   currentEpic: null
   currentStory: null
-  lastUpdate: '2026-05-01T19:57:05.067Z'
-  isGitRepo: false
-timestamp: 1777665425071
+  lastVersion: 1.6.0
+  lastUpdate: '2026-05-04T00:00:00.000Z'
+  isGitRepo: true
+timestamp: 1778000000000
 ttl: 60

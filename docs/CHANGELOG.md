@@ -7,6 +7,60 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.6.0] - 2026-05-04
+
+### Guest Fields, File Attachments, Month Navigation & Security Hardening
+
+#### Epic 16 — Reservas: Dados de Hóspedes e PDF (Stories 16.1–16.4)
+
+- **Story 16.1 — Migração DB:** `supabase/migrations/20260504_01_reservations_adults_children.sql` — colunas `adults` (integer NOT NULL DEFAULT 1) e `children` (integer NOT NULL DEFAULT 0) adicionadas à tabela `reservations`; tipos TypeScript actualizados
+- **Story 16.2 — Formulários:** campos Adultos/Crianças adicionados ao formulário de criação (`/reservations/new`) e edição (`/reservations/[id]/edit`); campo de notas de hóspede (`notes`) adicionado; validação client-side (adultos ≥ 1, crianças ≥ 0); página de detalhe mostra os novos campos
+- **Story 16.3 — Impressão/PDF da reserva:** componente de detalhe de reserva e visualização de impressão actualizados para mostrar adultos, crianças e notas do hóspede
+- **Story 16.4 — PDF de relatório:** colunas Adultos, Crianças e Notas adicionadas ao PDF de listagem de reservas exportado nos relatórios
+
+#### Epic 17 — Anexos de Documentos (Stories 17.1–17.2)
+
+- **Story 17.1 — Despesas:** nova tabela `expense_documents` + bucket Supabase Storage `expense-documents` com RLS; componente reutilizável `FileUpload` (drag-and-drop, validação MIME/tamanho, até 5 ficheiros); componente `ExpenseDocuments` com download via signed URL e eliminação; rotas API `GET/POST /expenses/[id]/documents` e `GET/DELETE /expenses/[id]/documents/[docId]`; tipo `ExpenseDocument` adicionado a `database.ts`
+- **Story 17.2 — Propriedades:** nova tabela `property_documents` + bucket `property-documents`; `FileUpload` estendido com `allowedTypes`, `maxFileSize`, `maxFiles` e `hint` configuráveis; componente `PropertyDocuments` com duas zonas de upload (documentos ≤ 20 MB / vídeos ≤ 100 MB, mp4/mov) e lista unificada; rotas API `GET/POST /properties/[id]/documents` e `GET/DELETE /properties/[id]/documents/[docId]`; campo "URLs das Fotos" (textarea) removido do formulário de edição de propriedade (coluna DB preservada)
+
+#### Filtro por Mês com Navegação
+
+- `src/components/common/ui/MonthNavigator.tsx` — componente cliente partilhado com navegação URL-based (`?month=YYYY-MM`)
+- `/reservations` — filtra por `check_in` dentro do mês seleccionado; stats cards reflectem o mês activo; mês corrente por defeito
+- `/financial` — filtra reservas (`check_in`) e despesas (`expense_date`) pelo mesmo mês seleccionado
+
+#### Multicurrency — Correcção de Soma Cross-Currency
+
+- API de relatório de proprietário retorna `summaryByCurrency` (agrupado por moeda da propriedade) em vez de somar EUR + BRL
+- Página de relatório de proprietário renderiza linhas `tfoot` por moeda, cards `CurrencyStack`, partilha WhatsApp multi-moeda e exportação CSV com coluna "Moeda"
+- Tabela de análise de propriedades na página financeira mostra badge de moeda (EUR/BRL/USD/GBP) por propriedade
+
+#### Segurança — `getUser()` em vez de `getSession()`
+
+- **`src/lib/auth/requireRole.ts`**, **`getUserRole.ts`**, **`getUserAccess.ts`** — `getSession()` substituído por `getUser()` (valida token com servidor Auth em cada chamada; previne tokens revogados a passar silenciosamente)
+- **6 routes API** (`cancel-deletion`, `data-export`, `delete-request` ×2, `consent` ×2) — mesmo padrão de migração
+- **`src/hooks/useAuth.ts`** — `onAuthStateChange` deixou de usar user object não verificado do evento de sessão; chama `loadUser()` que usa `getUser()` internamente
+- **`src/app/auth/reset-password-confirm/page.tsx`** — verificação de sessão hash (old-flow) migrada
+- **6 ficheiros de teste** — mocks actualizados de `getSession` → `getUser` com assinatura `{ data: { user }, error }`
+
+#### Routing — Links Locale-Aware (fix RSC 404)
+
+- **`middleware.ts`** — detecta pedidos RSC via header `RSC: 1` ou query param `?_rsc=` e usa `NextResponse.rewrite()` em vez de `redirect()`; evita resposta opaca (status 0) em navegações Next.js App Router
+- **16 páginas `[locale]`** actualizadas com hrefs prefixados `/${locale}`: `properties/[id]`, `owners/[id]`, `expenses/[id]` (server components com `getLocale()`), `admin/users/page`, `expenses/page`, `owners/page`, `reservations/page` e todos os formulários client-side com `useLocale()`
+
+#### Bug Fixes — Auth & Stripe (pós-v1.5.0)
+
+- `fix(auth)`: fluxo de convite via link de email — `token_hash + type=invite` tratado em `/auth/callback`; OTP verificado client-side para preservar sessão de browser; redirect de old-flow via URL hash tratado em `reset-password-confirm`
+- `fix(webhook)`: webhook de subscrição Stripe não sobrescreve `organization_id` em utilizadores já existentes na re-subscrição
+- `fix(webhook-validator)`: `crypto.timingSafeEqual` protegido com verificação de comprimento de buffer (evitava `ERR_CRYPTO_TIMING_SAFE_EQUAL_LENGTH` e SIGSEGV em Node 24)
+- `fix(stripe)`: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_BOOKING_WEBHOOK_SECRET` e Price IDs com `.trim()` para remover caracteres invisíveis das env vars
+- `fix(middleware)`: rota `/checkout` adicionada às paths públicas do auth-guard
+- `fix(checkout)`: botão "Redirecionando..." preso resolvido
+- `fix(onboarding)`: ícone `Home` substituído por componente `Logo`; pricing cards alinhados
+- `fix(tests)`: 12 falhas de testes pré-existentes resolvidas (locale fallback e mock Supabase `.eq()` duplo)
+
+---
+
 ## [1.5.0] - 2026-05-01
 
 ### Design System, Property Page V2, PWA Brand & Compliance RLS
