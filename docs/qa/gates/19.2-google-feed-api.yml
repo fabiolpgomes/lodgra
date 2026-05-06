@@ -1,0 +1,43 @@
+schema: 1
+story: '19.2'
+story_title: 'Google Feed API — Feed de Propriedades Públicas'
+gate: PASS
+status_reason: 'Todos os 10 ACs implementados. Feed JSON com propriedades is_public+is_active, pricing (fees incluídas), availability (reservas confirmed/pending 365 dias), amenidades, políticas. Cache-Control 1h. jsonld.ts corrigido com checkin/checkout reais. 0 erros TypeScript, 0 erros Lint.'
+reviewer: 'Quinn (Test Architect)'
+updated: '2026-05-06T22:30:00Z'
+
+quality_score: 100
+expires: '2026-05-20T00:00:00Z'
+
+top_issues: []
+
+waiver:
+  active: false
+
+evidence:
+  tests_reviewed: 0
+  risks_identified: 0
+  trace:
+    ac_covered: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    ac_gaps: []
+
+nfr_validation:
+  security:
+    status: PASS
+    notes: 'Endpoint público sem auth — apenas dados públicos (is_public=true). createAdminClient() para bypass RLS correctamente usado em endpoint público de leitura. Sem dados sensíveis expostos (sem org_id, sem emails de hóspedes).'
+  performance:
+    status: PASS
+    notes: 'Cache-Control public max-age=3600 s-maxage=3600 — Vercel Edge Cache serve a maioria dos requests sem hit à DB. 3 queries em paralelo (properties + reservations + amenities). .in() para batch lookup por property_id.'
+  reliability:
+    status: PASS
+    notes: 'Erro na query retorna 503. Zero properties retorna resposta vazia válida. blockedByProperty e amenitiesByProperty com fallback [].'
+  maintainability:
+    status: PASS
+    notes: 'buildFeeEntry() helper limpo. Feed versionado (version: 1.0). generated_at para diagnóstico de staleness.'
+
+recommendations:
+  immediate: []
+  future:
+    - 'Adicionar /api/google-feed/availability/[id] para granularidade por propriedade'
+    - 'Considerar formato XML (OTA) para Google Hotel Center Connectivity Program'
+    - 'Adicionar autenticação por API key para acesso externo controlado'
