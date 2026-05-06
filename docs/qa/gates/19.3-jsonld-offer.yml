@@ -1,0 +1,43 @@
+schema: 1
+story: '19.3'
+story_title: 'Schema.org Offer — Preços Estruturados no JSON-LD'
+gate: PASS
+status_reason: 'Todos os 8 ACs implementados. @type VacationRental. priceRange string substituído por makesOffer com Offer(s) exacto(s) — preço nocturno + limpeza + pet (condicionais). eligibleQuantity com minNights quando > 1. Call site inalterado. 0 erros TypeScript, 0 erros Lint.'
+reviewer: 'Quinn (Test Architect)'
+updated: '2026-05-06T22:45:00Z'
+
+quality_score: 100
+expires: '2026-05-20T00:00:00Z'
+
+top_issues: []
+
+waiver:
+  active: false
+
+evidence:
+  tests_reviewed: 0
+  risks_identified: 0
+  trace:
+    ac_covered: [1, 2, 3, 4, 5, 6, 7, 8]
+    ac_gaps: []
+
+nfr_validation:
+  security:
+    status: PASS
+    notes: 'JSON-LD server-side, sem dados sensíveis. Apenas campos públicos da propriedade.'
+  performance:
+    status: PASS
+    notes: 'Geração síncrona no server component. Sem queries extras — usa dados já carregados.'
+  reliability:
+    status: PASS
+    notes: 'Offers só incluídos quando campos não-nulos e > 0. currency com fallback EUR. minNights com fallback 1.'
+  maintainability:
+    status: PASS
+    notes: 'Interface PropertyData extensível. makesOffer como array — fácil adicionar novos tipos de fee.'
+
+recommendations:
+  immediate: []
+  future:
+    - 'Submeter ao Google Rich Results Test após deploy'
+    - 'Adicionar @type Accommodation para quartos individuais (schema.org GVR spec)'
+    - 'Considerar priceValidUntil no Offer para cache hints do Google'
