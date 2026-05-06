@@ -1,5 +1,7 @@
 // Database Types - baseado em DATABASE_SCHEMA.md
 
+export type FeeType = 'per_stay' | 'per_night'
+
 export type Property = {
   id: string
   name: string
@@ -18,8 +20,52 @@ export type Property = {
   amenities: string[]
   photos: string[] | null
   is_active: boolean
+  // Taxas adicionais (opcional — nem todas as queries seleccionam estes campos)
+  cleaning_fee?: number | null
+  cleaning_fee_type?: FeeType | null
+  pet_fee?: number | null
+  pet_fee_type?: FeeType | null
+  // Horários
+  checkin_from?: string | null    // HH:MM
+  checkin_until?: string | null   // HH:MM
+  checkout_until?: string | null  // HH:MM
   created_at: string
   updated_at: string
+}
+
+export type AmenityCategory = 'destaque' | 'sala' | 'quarto' | 'cozinha' | 'banheiro' | 'seguranca' | 'geral'
+
+export type Amenity = {
+  id: string
+  name: string
+  icon: string
+  category: AmenityCategory
+  sort_order: number
+}
+
+export type BedType = 'single' | 'double' | 'queen' | 'king' | 'sofa_bed' | 'bunk'
+
+export type PropertyRoom = {
+  id: string
+  property_id: string
+  name: string | null
+  bed_type: BedType
+  bed_count: number
+  provides_linen: boolean
+  sort_order: number
+  created_at: string
+}
+
+export type BathroomType = 'wc' | 'full'
+
+export type PropertyBathroom = {
+  id: string
+  property_id: string
+  name: string | null
+  bathroom_type: BathroomType
+  amenities: string[]
+  sort_order: number
+  created_at: string
 }
 
 export type Platform = {
