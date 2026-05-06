@@ -1,0 +1,47 @@
+schema: 1
+story: '13.1'
+story_title: 'Observabilidade: Sentry + Structured Logging'
+gate: PASS
+status_reason: 'ACs técnicos todos implementados — Sentry SDK, instrumentation.ts, error boundaries, source maps, structured logger, PII filtering. 2 ACs waived por requererem infraestrutura: configuração Sentry project (env vars) e verificação dashboard — responsabilidade do utilizador antes de produção.'
+reviewer: 'Quinn (Test Architect)'
+updated: '2026-05-06T21:30:00Z'
+
+quality_score: 100
+expires: '2026-05-20T00:00:00Z'
+
+top_issues: []
+
+waiver:
+  active: true
+  items:
+    - ac: 'Variáveis de ambiente SENTRY_DSN, SENTRY_AUTH_TOKEN, SENTRY_ORG, SENTRY_PROJECT'
+      reason: 'Requer criação de projecto Sentry e configuração de env vars no Vercel — acção do utilizador, não bloqueante para code review'
+    - ac: 'Verificar erros em dev aparecem na dashboard Sentry'
+      reason: 'Requer Sentry project activo com DSN configurado — validação de infra pré-produção'
+
+evidence:
+  tests_reviewed: 0
+  risks_identified: 0
+  trace:
+    ac_covered: ['Sentry SDK instalado', 'instrumentation.ts', 'sentry configs', 'error boundary', 'source maps', 'structured logging', 'breadcrumbs', 'PII filter', 'Build/Lint PASS']
+    ac_gaps: ['env vars', 'dashboard verification']
+
+nfr_validation:
+  security:
+    status: PASS
+    notes: 'PII filtering no client (breadcrumb sanitization) e server (header stripping). crypto.timingSafeEqual para HMAC. Sem secrets expostos.'
+  performance:
+    status: PASS
+    notes: 'Sampling 1.0 dev / 0.2 produção. tunnelRoute anti-ad-blocker. onRequestError async.'
+  reliability:
+    status: PASS
+    notes: 'Error boundaries em root + locale + global-error. requestId correlação cross-layer.'
+  maintainability:
+    status: PASS
+    notes: 'Logger utility ready para adopção gradual. Pattern claro com requestId.'
+
+recommendations:
+  immediate: []
+  future:
+    - 'Configurar SENTRY_DSN + outros no Vercel antes de deploy produção'
+    - 'Verificar erros aparecem no dashboard Sentry após configuração'

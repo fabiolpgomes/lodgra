@@ -1,0 +1,41 @@
+schema: 1
+story: '15.1'
+story_title: 'Schema Multi-Channel (Base de Dados)'
+gate: PASS
+status_reason: 'Todos os 7 ACs implementados. Tabelas channels (seed booking/direct), guests, channel_listings criadas. Colunas raw_data e channel_id adicionadas a reservations. RLS policies em guests e channel_listings com org isolation. 5 índices de performance. Rollback script documentado. IF NOT EXISTS guards em toda a migração.'
+reviewer: 'Quinn (Test Architect)'
+updated: '2026-05-06T21:30:00Z'
+
+quality_score: 100
+expires: '2026-05-20T00:00:00Z'
+
+top_issues: []
+
+waiver:
+  active: false
+
+evidence:
+  tests_reviewed: 0
+  risks_identified: 0
+  trace:
+    ac_covered: [1, 2, 3, 4, 5, 6, 7]
+    ac_gaps: []
+
+nfr_validation:
+  security:
+    status: PASS
+    notes: 'RLS em guests (existente) e channel_listings com org isolation. channels: read-only para authenticated. service_role full access via bypass RLS.'
+  performance:
+    status: PASS
+    notes: '5 índices: external_id, property_listing_id, channel_id, org_id em channel_listings. Lookup O(log n) para webhook processing.'
+  reliability:
+    status: PASS
+    notes: 'IF NOT EXISTS guards — migração idempotente. Novas colunas nullable — sem breaking changes em reservas existentes. Rollback documentado.'
+  maintainability:
+    status: PASS
+    notes: 'Schema forward-compatible para novos canais (Airbnb, VRBO) via channels table. external_id + organization_id como natural key.'
+
+recommendations:
+  immediate: []
+  future:
+    - 'Aplicar migração em produção antes de activar BOOKING_CHANNEL_ENABLED'

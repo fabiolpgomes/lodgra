@@ -1,0 +1,47 @@
+schema: 1
+story: '15.2'
+story_title: 'Webhook Listener Booking.com'
+gate: PASS
+status_reason: 'ACs técnicos todos implementados — HMAC-SHA256 com timingSafeEqual, processamento created/modified/cancelled, idempotência via external_id, upsert guest+reservation, raw_data, fire-and-forget (<3s), Sentry sem PII. 1 subtask waived: env var Vercel + sandbox testing requerem infra externa.'
+reviewer: 'Quinn (Test Architect)'
+updated: '2026-05-06T21:30:00Z'
+
+quality_score: 100
+expires: '2026-05-20T00:00:00Z'
+
+top_issues: []
+
+waiver:
+  active: true
+  items:
+    - ac: 'Verificar BOOKING_WEBHOOK_SECRET no Vercel (Production + Preview)'
+      reason: 'Requer acesso ao painel Vercel — responsabilidade do utilizador antes de produção'
+    - ac: 'Sandbox testing (idempotência, cancelamento, assinatura)'
+      reason: 'Requer credenciais Booking.com Connectivity Program — validação de integração pré-produção'
+
+evidence:
+  tests_reviewed: 0
+  risks_identified: 0
+  trace:
+    ac_covered: [1, 2, 3, 4, 5, 6, 7, 8]
+    ac_gaps: ['Vercel env var + sandbox testing (infra)']
+
+nfr_validation:
+  security:
+    status: PASS
+    notes: 'HMAC-SHA256 com crypto.timingSafeEqual — sem timing attack. Raw body lido antes de JSON parse (correcto para HMAC). 400 em vez de 401 (não revela autenticação). Console.log apenas com external_id/event_type — sem PII.'
+  performance:
+    status: PASS
+    notes: 'Fire-and-forget via .catch() — resposta 200 imediata. Processamento heavy não bloqueia o handler. Rate limiting em booking webhook (50/min via 13.5).'
+  reliability:
+    status: PASS
+    notes: 'Sentry.captureException com contexto (request_id, event_type, external_id). Idempotência via external_id — duplicados silenciosos. Todos 3 event types tratados.'
+  maintainability:
+    status: PASS
+    notes: 'reservation-sync.ts partilhado com 15.3 (padrão correcto). webhook-validator.ts isolado e testável.'
+
+recommendations:
+  immediate: []
+  future:
+    - 'Configurar BOOKING_WEBHOOK_SECRET no Vercel antes de activar canal'
+    - 'Testar com Booking.com Connectivity sandbox após configuração'

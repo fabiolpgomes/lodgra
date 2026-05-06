@@ -1,0 +1,42 @@
+schema: 1
+story: '15.3'
+story_title: 'Pull Sync & Painel de Configuração de Canal'
+gate: PASS
+status_reason: 'Todos os 9 ACs implementados. Página /settings/channels com feature flag, validação credenciais, api_key nunca exposta no GET, pull sync 90 dias, indicadores visuais, botão sync manual, iCal independente verificado, BOOKING_CHANNEL_ENABLED=false por default.'
+reviewer: 'Quinn (Test Architect)'
+updated: '2026-05-06T21:30:00Z'
+
+quality_score: 100
+expires: '2026-05-20T00:00:00Z'
+
+top_issues: []
+
+waiver:
+  active: false
+
+evidence:
+  tests_reviewed: 0
+  risks_identified: 0
+  trace:
+    ac_covered: [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    ac_gaps: []
+
+nfr_validation:
+  security:
+    status: PASS
+    notes: 'api_key guardada em channel_credentials com RLS — nunca retornada em GET. Feature flag server-side (redirect em page + 404 em API). validateBookingCredentials() antes de persistir.'
+  performance:
+    status: PASS
+    notes: 'Pull sync assíncrono com resposta {synced_count, error_count, last_sync_at}. Loading state no UI.'
+  reliability:
+    status: PASS
+    notes: 'iCal sync verificado independente — sem regressão. Processamento partilhado com 15.2 via reservation-sync.ts.'
+  maintainability:
+    status: PASS
+    notes: 'BOOKING_CHANNEL_ENABLED=false — rollout seguro. ChannelsClient separado do Server Component.'
+
+recommendations:
+  immediate: []
+  future:
+    - 'Activar BOOKING_CHANNEL_ENABLED=true no Vercel após testes sandbox completos'
+    - 'Monitorizar sync_count e error_count via Sentry após produção'

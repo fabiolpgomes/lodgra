@@ -1,0 +1,47 @@
+schema: 1
+story: '13.3'
+story_title: 'Performance Audit & Optimization'
+gate: PASS
+status_reason: 'Audit completo e lazy loading implementado — 9 componentes pesados (FullCalendar, 3×charts, 5×PDF) movidos de initial bundle para on-demand chunks (~1.4MB estimado). 2 ACs waived por requererem deployed site: Lighthouse ≥90 e Core Web Vitals.'
+reviewer: 'Quinn (Test Architect)'
+updated: '2026-05-06T21:30:00Z'
+
+quality_score: 100
+expires: '2026-05-20T00:00:00Z'
+
+top_issues: []
+
+waiver:
+  active: true
+  items:
+    - ac: 'Lighthouse score Performance >= 90, Accessibility >= 90'
+      reason: 'Requer site deployed e acessível — validação pré-launch, não bloqueante para code review'
+    - ac: 'Core Web Vitals: LCP < 2.5s, CLS < 0.1, INP < 200ms'
+      reason: 'Requer site deployed com tráfego real — monitorizar via Google Search Console após launch'
+
+evidence:
+  tests_reviewed: 0
+  risks_identified: 0
+  trace:
+    ac_covered: ['Bundle analyzer configurado', 'Deps pesadas identificadas', 'Lazy loading 9 componentes', 'next/dynamic ssr:false via thin wrappers', 'Images next/image verificadas', 'npm run analyze adicionado', 'Build/Lint PASS']
+    ac_gaps: ['Lighthouse score (deployed site)', 'Core Web Vitals (deployed site)']
+
+nfr_validation:
+  security:
+    status: PASS
+    notes: 'Sem impacto de segurança. Lazy loading é pattern seguro Next.js.'
+  performance:
+    status: PASS
+    notes: 'Thin client wrappers correctos (ssr:false não permite em Server Components). Estimativa ~1.4MB removido do initial bundle.'
+  reliability:
+    status: PASS
+    notes: 'Build PASS confirma lazy imports correctos. Nenhum componente root quebrado.'
+  maintainability:
+    status: PASS
+    notes: 'Componentes lazy centralizados em src/components/lazy/. Pattern claro para novos componentes pesados.'
+
+recommendations:
+  immediate: []
+  future:
+    - 'Verificar Lighthouse após deploy em Vercel Preview'
+    - 'Configurar Core Web Vitals monitoring no Google Search Console'

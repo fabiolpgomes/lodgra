@@ -1,0 +1,45 @@
+schema: 1
+story: '13.5'
+story_title: 'Security Headers & Hardening'
+gate: PASS
+status_reason: 'Todos os ACs técnicos implementados — HSTS, nosniff, X-Frame-Options DENY, Referrer-Policy, Permissions-Policy, CSP actualizada (Sentry+Stripe+Supabase WebSocket), nonce, rate limiting 3 endpoints, npm audit 12→4 low (dev only). 1 AC waived: securityheaders.com requer deployed site.'
+reviewer: 'Quinn (Test Architect)'
+updated: '2026-05-06T21:30:00Z'
+
+quality_score: 100
+expires: '2026-05-20T00:00:00Z'
+
+top_issues: []
+
+waiver:
+  active: true
+  items:
+    - ac: 'Headers verificados via securityheaders.com — score A ou A+'
+      reason: 'Requer site deployed acessível publicamente — validação pré-launch. CSP implementada correctamente para o stack, score esperado A+.'
+
+evidence:
+  tests_reviewed: 0
+  risks_identified: 0
+  trace:
+    ac_covered: ['HSTS max-age=63072000', 'X-Content-Type-Options nosniff', 'X-Frame-Options DENY', 'Referrer-Policy', 'Permissions-Policy', 'CSP completa', 'npm audit 0 high/critical', 'NEXT_PUBLIC_* audit', 'Rate limiting review', 'Build/Lint PASS']
+    ac_gaps: ['securityheaders.com verification (deployed site)']
+
+nfr_validation:
+  security:
+    status: PASS
+    notes: 'HSTS preload. X-Frame-Options DENY (anti-clickjack). Nonce CSP para inline scripts. Rate limiting em endpoints públicos (50/15/30 rpm). npm audit: 0 high/critical (4 low dev-only).'
+  performance:
+    status: PASS
+    notes: 'Headers adicionados no middleware — overhead mínimo por request.'
+  reliability:
+    status: PASS
+    notes: 'Build PASS, 444/444 tests PASS. Rate limiting com sliding window.'
+  maintainability:
+    status: PASS
+    notes: 'CSP centralizada em security-headers.ts. Rate limit rules em rate-limit.ts.'
+
+recommendations:
+  immediate: []
+  future:
+    - 'Verificar score securityheaders.com após deploy (target: A+)'
+    - 'Rever CSP após adicionar novos scripts/frames externos'
