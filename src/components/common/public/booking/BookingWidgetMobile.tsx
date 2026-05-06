@@ -4,6 +4,12 @@ import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import { differenceInDays, parseISO, isValid, addDays, format, startOfDay, isBefore } from 'date-fns'
 
+interface PricingRule {
+  start_date: string
+  end_date: string
+  min_nights: number
+}
+
 interface BookingWidgetMobileProps {
   propertyName: string
   basePrice: number
@@ -13,6 +19,7 @@ interface BookingWidgetMobileProps {
   initialCheckOut?: string
   initialGuests?: number
   minNights?: number
+  pricingRules?: PricingRule[]
 }
 
 export function BookingWidgetMobile({
@@ -23,6 +30,7 @@ export function BookingWidgetMobile({
   initialCheckOut,
   initialGuests = 1,
   minNights = 1,
+  pricingRules = [],
 }: BookingWidgetMobileProps) {
   const [showPanel, setShowPanel] = useState(false)
   const [checkIn, setCheckIn] = useState(initialCheckIn || '')
@@ -35,10 +43,19 @@ export function BookingWidgetMobile({
 
   const today = format(startOfDay(new Date()), 'yyyy-MM-dd')
 
+  // Effective min nights: max of property base and any pricing rule covering the selected check-in date
+  const effectiveMinNights = useMemo(() => {
+    if (!checkIn || !pricingRules.length) return minNights
+    const applicable = pricingRules.filter(r => r.start_date <= checkIn && r.end_date >= checkIn)
+    return applicable.length > 0
+      ? Math.max(minNights, ...applicable.map(r => r.min_nights))
+      : minNights
+  }, [checkIn, pricingRules, minNights])
+
   const minCheckOut = useMemo(() => {
     if (!checkIn) return ''
-    return format(addDays(parseISO(checkIn), Math.max(1, minNights)), 'yyyy-MM-dd')
-  }, [checkIn, minNights])
+    return format(addDays(parseISO(checkIn), Math.max(1, effectiveMinNights)), 'yyyy-MM-dd')
+  }, [checkIn, effectiveMinNights])
 
   const nights = useMemo(() => {
     if (!checkIn || !checkOut) return 0
@@ -56,7 +73,7 @@ export function BookingWidgetMobile({
   const handleCheckInChange = (val: string) => {
     setCheckIn(val)
     if (checkOut && val) {
-      const newMin = addDays(parseISO(val), Math.max(1, minNights))
+      const newMin = addDays(parseISO(val), Math.max(1, effectiveMinNights))
       if (isBefore(parseISO(checkOut), newMin)) {
         setCheckOut('')
         setCheckOutError('')
@@ -68,11 +85,11 @@ export function BookingWidgetMobile({
     setCheckOut(val)
     if (val && checkIn) {
       const nights = differenceInDays(parseISO(val), parseISO(checkIn))
-      if (nights < minNights) {
+      if (nights < effectiveMinNights) {
         setCheckOutError(
-          minNights === 1
+          effectiveMinNights === 1
             ? 'Check-out deve ser mínimo 1 dia após check-in'
-            : `Estadia mínima: ${minNights} noites`
+            : `Estadia mínima: ${effectiveMinNights} noites`
         )
       } else {
         setCheckOutError('')
@@ -127,9 +144,9 @@ export function BookingWidgetMobile({
               <h3 className="font-bold text-lg text-neutral-900">Selecionar datas</h3>
               <button onClick={() => setShowPanel(false)} className="text-neutral-500 text-xl">✕</button>
             </div>
-            {minNights > 1 && (
+            {effectiveMinNights > 1 && (
               <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1">
-                Estadia mínima: {minNights} noites
+                Estadia mínima: {effectiveMinNights} noites
               </p>
             )}
 

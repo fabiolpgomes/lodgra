@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import type { Metadata } from 'next'
 import { PropertyImage } from '@/types/property-images'
 import { generatePropertyJsonLd } from '@/lib/seo/jsonld'
@@ -66,6 +67,7 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
   const { slug } = await params
   const { checkIn, checkOut, guests, minNightsError } = await searchParams
   const supabase = await createClient()
+  const adminClient = createAdminClient()
 
   const { data: property } = await supabase
     .from('properties')
@@ -149,6 +151,40 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
     allPhotos = property.photos.filter(Boolean)
   }
 
+  // Load pricing rules (admin client bypasses RLS for public page)
+  const nowDate = new Date()
+  const today = nowDate.toISOString().split('T')[0]
+  const futureDate = new Date(nowDate.getFullYear() + 1, nowDate.getMonth(), nowDate.getDate()).toISOString().split('T')[0]
+  const { data: pricingRulesRaw } = await adminClient
+    .from('pricing_rules')
+    .select('start_date, end_date, min_nights')
+    .eq('property_id', property.id)
+    .gte('end_date', today)
+    .lte('start_date', futureDate)
+    .order('start_date', { ascending: true })
+
+  const pricingRules = (pricingRulesRaw ?? []).map((r: { start_date: string; end_date: string; min_nights: number }) => ({
+    start_date: r.start_date,
+    end_date: r.end_date,
+    min_nights: r.min_nights,
+  }))
+
+  // Load amenities from property_amenities + amenities catalog (admin bypasses RLS)
+  const { data: propertyAmenitiesRaw } = await adminClient
+    .from('property_amenities')
+    .select('amenities(id, name, icon, category)')
+    .eq('property_id', property.id)
+
+  type AmenityRow = { id: string; name: string; icon: string; category: string }
+  const structuredAmenities: AmenityRow[] = (propertyAmenitiesRaw ?? [])
+    .map((row: { amenities: AmenityRow | AmenityRow[] | null }) =>
+      Array.isArray(row.amenities) ? row.amenities[0] : row.amenities
+    )
+    .filter((a): a is AmenityRow => a != null)
+
+  // minNightsError now carries the actual required count (not a boolean flag)
+  const minNightsErrorCount = minNightsError ? parseInt(minNightsError) : undefined
+
   return (
     <>
       <script
@@ -163,7 +199,9 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
         initialCheckOut={checkOut}
         initialGuests={guests ? parseInt(guests) : undefined}
         minNights={property.min_nights ?? 1}
-        minNightsError={minNightsError === '1' ? (property.min_nights ?? 1) : undefined}
+        pricingRules={pricingRules}
+        structuredAmenities={structuredAmenities}
+        minNightsError={minNightsErrorCount && minNightsErrorCount > 0 ? minNightsErrorCount : undefined}
       />
     </>
   )

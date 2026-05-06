@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { CheckoutForm } from '@/components/common/public/CheckoutForm'
 import { Logo } from '@/components/common/ui/Logo'
-import { getPriceForRange } from '@/lib/pricing/getPriceForRange'
+import { getPriceForRangePublic } from '@/lib/pricing/getPriceForRange'
 import { differenceInDays, parseISO, isValid, isBefore, startOfDay } from 'date-fns'
 import type { Metadata } from 'next'
 
@@ -38,6 +38,7 @@ export default async function CheckoutPage({ params, searchParams }: PageProps) 
     redirect(`/p/${slug}`)
   }
 
+  const nights = differenceInDays(checkoutDate, checkinDate)
   const guests = Math.max(1, parseInt(guestsParam ?? '1') || 1)
 
   const supabase = await createClient()
@@ -53,14 +54,14 @@ export default async function CheckoutPage({ params, searchParams }: PageProps) 
     redirect('/')
   }
 
-  // Validate minimum stay
-  const minNights = property.min_nights ?? 1
-  if (differenceInDays(checkoutDate, checkinDate) < minNights) {
-    redirect(`/p/${slug}?checkIn=${checkin}&checkOut=${checkout}&minNightsError=1`)
+  // Calculate price with pricing rules first (admin client bypasses RLS on public page)
+  const priceData = await getPriceForRangePublic(property.id, checkinDate, checkoutDate)
+
+  // Validate minimum stay using effective minNights (includes pricing rule overrides)
+  if (nights < priceData.minNights) {
+    redirect(`/p/${slug}?checkIn=${checkin}&checkOut=${checkout}&minNightsError=${priceData.minNights}`)
   }
 
-  // Calculate correct price with pricing rules
-  const priceData = await getPriceForRange(property.id, checkinDate, checkoutDate)
   const totalPrice = priceData.total
 
   return (

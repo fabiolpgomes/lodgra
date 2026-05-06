@@ -7,12 +7,18 @@ import { Users, BedDouble, Bath } from 'lucide-react'
 import { PropertyPageHeader } from './layout/PropertyPageHeader'
 import { PropertyHeroGallery } from './gallery/PropertyHeroGallery'
 import { PropertyDescription } from './content/PropertyDescription'
-import { PropertyAmenitiesV2 } from './content/PropertyAmenitiesV2'
+import { PropertyAmenitiesV2, type StructuredAmenity } from './content/PropertyAmenitiesV2'
 import { PropertyLocation } from './content/PropertyLocation'
 import { BookingWidgetDesktop } from './booking/BookingWidgetDesktop'
 import { BookingWidgetMobile } from './booking/BookingWidgetMobile'
 import { PropertyTrustBadges } from './layout/PropertyTrustBadges'
 import { PropertyLightbox } from './gallery/PropertyLightbox'
+
+interface PricingRule {
+  start_date: string
+  end_date: string
+  min_nights: number
+}
 
 interface PropertyPageV2Props {
   property: Property
@@ -22,10 +28,12 @@ interface PropertyPageV2Props {
   initialCheckOut?: string
   initialGuests?: number
   minNights?: number
+  pricingRules?: PricingRule[]
+  structuredAmenities?: StructuredAmenity[]
   minNightsError?: number
 }
 
-export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, initialCheckOut, initialGuests, minNights = 1, minNightsError }: PropertyPageV2Props) {
+export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, initialCheckOut, initialGuests, minNights = 1, pricingRules = [], structuredAmenities, minNightsError }: PropertyPageV2Props) {
   const [showLightbox, setShowLightbox] = useState(false)
   const [lightboxIndex, setLightboxIndex] = useState(0)
 
@@ -74,6 +82,7 @@ export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, 
                 initialCheckOut={initialCheckOut}
                 initialGuests={initialGuests}
                 minNights={minNights}
+                pricingRules={pricingRules}
               />
             </div>
           </div>
@@ -125,9 +134,12 @@ export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, 
               )}
 
               {/* Amenities */}
-              {property.amenities && property.amenities.length > 0 && (
-                <PropertyAmenitiesV2 amenities={property.amenities} />
-              )}
+              {(structuredAmenities?.length || property.amenities?.length) ? (
+                <PropertyAmenitiesV2
+                  amenities={property.amenities ?? []}
+                  structuredAmenities={structuredAmenities}
+                />
+              ) : null}
 
               {/* Location */}
               <PropertyLocation
@@ -169,6 +181,7 @@ export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, 
         initialCheckOut={initialCheckOut}
         initialGuests={initialGuests}
         minNights={minNights}
+        pricingRules={pricingRules}
       />
 
       {/* Lightbox Modal */}
