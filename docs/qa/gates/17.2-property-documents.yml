@@ -1,0 +1,40 @@
+schema: 1
+story: '17.2'
+story_title: 'Propriedades — documentos, vídeos e remoção campo URL fotos'
+gate: PASS
+status_reason: 'AC1–AC8 todos implementados. Limite diferenciado 20MB/100MB para docs/vídeos, campo URL fotos completamente removido, coluna DB preservada.'
+reviewer: 'Quinn (Test Architect)'
+updated: '2026-05-06T19:30:00Z'
+
+quality_score: 100
+expires: '2026-05-20T00:00:00Z'
+
+top_issues: []
+
+waiver:
+  active: false
+
+evidence:
+  tests_reviewed: 0
+  risks_identified: 0
+  trace:
+    ac_covered: [1, 2, 3, 4, 5, 6, 7, 8]
+    ac_gaps: []
+
+nfr_validation:
+  security:
+    status: PASS
+    notes: 'requireRole admin/gestor para escrita. verifyPropertyAccess directo via organization_id. Bucket privado, signed URLs. Filename sanitizado.'
+  performance:
+    status: PASS
+    notes: 'Limite diferenciado por tipo: isVideo ? MAX_VIDEO_SIZE : MAX_DOC_SIZE. Admin client para Storage.'
+  reliability:
+    status: PASS
+    notes: 'Rollback storage file se DB insert falhar. FileUpload.tsx actualizado com props configuráveis (allowedTypes, maxFileSize, maxFiles, acceptAttr, hint).'
+  maintainability:
+    status: PASS
+    notes: 'FileUpload.tsx genérico e reutilizável. Padrão consistente com 17.1.'
+
+recommendations:
+  immediate: []
+  future: []

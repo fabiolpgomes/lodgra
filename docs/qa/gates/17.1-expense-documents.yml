@@ -1,0 +1,40 @@
+schema: 1
+story: '17.1'
+story_title: 'Despesas — upload e gestão de documentos'
+gate: PASS
+status_reason: 'AC1–AC7 todos implementados. MIME validation server-side, signed URLs 60min, rollback storage-on-insert-fail, RLS por org via join expenses→properties.'
+reviewer: 'Quinn (Test Architect)'
+updated: '2026-05-06T19:30:00Z'
+
+quality_score: 100
+expires: '2026-05-20T00:00:00Z'
+
+top_issues: []
+
+waiver:
+  active: false
+
+evidence:
+  tests_reviewed: 0
+  risks_identified: 0
+  trace:
+    ac_covered: [1, 2, 3, 4, 5, 6, 7]
+    ac_gaps: []
+
+nfr_validation:
+  security:
+    status: PASS
+    notes: 'requireRole admin/gestor para escrita, viewer para leitura. verifyExpenseAccess verifica org membership. Bucket privado, acesso via signed URLs 60min. Filename sanitizado (replace non-alphanumeric).'
+  performance:
+    status: PASS
+    notes: 'Admin client para Storage (bypass RLS). Signed URLs geradas on-demand.'
+  reliability:
+    status: PASS
+    notes: 'Rollback storage file se DB insert falhar. MAX_FILES verificado antes do upload. FileUpload reutilizável de 17.1.'
+  maintainability:
+    status: PASS
+    notes: 'verifyExpenseAccess extraído como helper. Padrão idêntico a property-images route existente.'
+
+recommendations:
+  immediate: []
+  future: []

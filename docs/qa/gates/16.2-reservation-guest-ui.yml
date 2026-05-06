@@ -1,0 +1,40 @@
+schema: 1
+story: '16.2'
+story_title: 'UI — campos adultos/crianças no formulário de reserva'
+gate: PASS
+status_reason: 'AC1–AC6 todos implementados. Campos em new/edit/detail, min="1" e min="0" correctos, parseInt com fallbacks defensivos.'
+reviewer: 'Quinn (Test Architect)'
+updated: '2026-05-06T19:30:00Z'
+
+quality_score: 100
+expires: '2026-05-20T00:00:00Z'
+
+top_issues: []
+
+waiver:
+  active: false
+
+evidence:
+  tests_reviewed: 0
+  risks_identified: 0
+  trace:
+    ac_covered: [1, 2, 3, 4, 5, 6]
+    ac_gaps: []
+
+nfr_validation:
+  security:
+    status: PASS
+    notes: 'parseInt com fallback defensivo (|| 1 e || 0). Validação HTML5 nativa (min attribute).'
+  performance:
+    status: PASS
+    notes: 'Campos adicionados às queries existentes. Sem overhead.'
+  reliability:
+    status: PASS
+    notes: 'Detalhe mostra adultos/crianças condicionalmente (só se não null). Campo notes incluído por completude.'
+  maintainability:
+    status: PASS
+    notes: 'Padrão consistente nos 3 formulários (new/edit/detail).'
+
+recommendations:
+  immediate: []
+  future: []

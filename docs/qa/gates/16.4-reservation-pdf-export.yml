@@ -1,0 +1,40 @@
+schema: 1
+story: '16.4'
+story_title: 'Export PDF listagem — colunas adultos, crianças e notas'
+gate: PASS
+status_reason: 'AC1–AC4 todos implementados. Ambas as routes actualizadas, notas truncadas a 40 chars, layout landscape com col classes.'
+reviewer: 'Quinn (Test Architect)'
+updated: '2026-05-06T19:30:00Z'
+
+quality_score: 100
+expires: '2026-05-20T00:00:00Z'
+
+top_issues: []
+
+waiver:
+  active: false
+
+evidence:
+  tests_reviewed: 0
+  risks_identified: 0
+  trace:
+    ac_covered: [1, 2, 3, 4]
+    ac_gaps: []
+
+nfr_validation:
+  security:
+    status: PASS
+    notes: 'Routes existentes — acesso controlado pelos middlewares pré-existentes.'
+  performance:
+    status: PASS
+    notes: 'table-layout: fixed + col classes garantem renderização eficiente.'
+  reliability:
+    status: PASS
+    notes: 'Notas truncadas a 40 chars para evitar overflow no PDF. Fallback ?? "—" para valores null.'
+  maintainability:
+    status: PASS
+    notes: 'Ambas as routes (JSON + download) actualizadas de forma consistente.'
+
+recommendations:
+  immediate: []
+  future: []

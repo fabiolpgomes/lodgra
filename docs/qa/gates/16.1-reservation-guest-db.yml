@@ -1,0 +1,40 @@
+schema: 1
+story: '16.1'
+story_title: 'Migração DB — colunas adults e children em reservations'
+gate: PASS
+status_reason: 'AC1–AC5 todos implementados. IF NOT EXISTS para idempotência, CHECK constraints, tipos TS actualizados em database.ts e reservation-ui.ts.'
+reviewer: 'Quinn (Test Architect)'
+updated: '2026-05-06T19:30:00Z'
+
+quality_score: 100
+expires: '2026-05-20T00:00:00Z'
+
+top_issues: []
+
+waiver:
+  active: false
+
+evidence:
+  tests_reviewed: 0
+  risks_identified: 0
+  trace:
+    ac_covered: [1, 2, 3, 4, 5]
+    ac_gaps: []
+
+nfr_validation:
+  security:
+    status: PASS
+    notes: 'Migração apenas adiciona colunas. RLS não afectada.'
+  performance:
+    status: PASS
+    notes: 'NOT NULL com DEFAULT — sem impacto em queries existentes.'
+  reliability:
+    status: PASS
+    notes: 'ADD COLUMN IF NOT EXISTS garante idempotência. CHECK constraints validam integridade.'
+  maintainability:
+    status: PASS
+    notes: 'Tipos TypeScript actualizados em database.ts e reservation-ui.ts (campos opcionais para retrocompatibilidade).'
+
+recommendations:
+  immediate: []
+  future: []

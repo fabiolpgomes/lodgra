@@ -1,0 +1,40 @@
+schema: 1
+story: '16.3'
+story_title: 'PDF individual — adultos, crianças e notas'
+gate: PASS
+status_reason: 'AC1–AC4 todos implementados. Classes print-only/no-print no globals.css. Notas como card print-only, sidebar com no-print para evitar duplicação.'
+reviewer: 'Quinn (Test Architect)'
+updated: '2026-05-06T19:30:00Z'
+
+quality_score: 100
+expires: '2026-05-20T00:00:00Z'
+
+top_issues: []
+
+waiver:
+  active: false
+
+evidence:
+  tests_reviewed: 0
+  risks_identified: 0
+  trace:
+    ac_covered: [1, 2, 3, 4]
+    ac_gaps: []
+
+nfr_validation:
+  security:
+    status: PASS
+    notes: 'Print é client-side (window.print()). Sem exposição de dados adicional.'
+  performance:
+    status: PASS
+    notes: 'CSS @media print — sem overhead de runtime.'
+  reliability:
+    status: PASS
+    notes: 'Secção notas condicional (só aparece se reservation.notes truthy). Sem duplicação via no-print na sidebar.'
+  maintainability:
+    status: PASS
+    notes: 'Classes reutilizáveis print-only/no-print em globals.css.'
+
+recommendations:
+  immediate: []
+  future: []
