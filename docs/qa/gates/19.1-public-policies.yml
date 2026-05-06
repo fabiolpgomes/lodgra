@@ -1,0 +1,42 @@
+schema: 1
+story: '19.1'
+story_title: 'Página Pública — Taxas e Horários de Check-in/out'
+gate: PASS
+status_reason: 'Todos os 6 ACs implementados. Query actualizada com 7 campos Epic 18.5. PropertyPolicies condicional (só aparece se dados preenchidos). Fees formatadas com currency do imóvel. Tipo Property já continha os campos. 0 erros TypeScript, 0 erros Lint.'
+reviewer: 'Quinn (Test Architect)'
+updated: '2026-05-06T22:15:00Z'
+
+quality_score: 100
+expires: '2026-05-20T00:00:00Z'
+
+top_issues: []
+
+waiver:
+  active: false
+
+evidence:
+  tests_reviewed: 0
+  risks_identified: 0
+  trace:
+    ac_covered: [1, 2, 3, 4, 5, 6]
+    ac_gaps: []
+
+nfr_validation:
+  security:
+    status: PASS
+    notes: 'Apenas campos públicos da propriedade expostos. is_public=true guard mantido. Sem dados sensíveis.'
+  performance:
+    status: PASS
+    notes: 'Campos adicionados ao SELECT existente — zero queries extra. Componente condicional (null retornado quando sem dados).'
+  reliability:
+    status: PASS
+    notes: 'Condicional hasFees e hasSchedules correctos. TypeScript confirma tipos nullable (string | null, number | null).'
+  maintainability:
+    status: PASS
+    notes: 'PropertyPolicies isolado e reutilizável. feeLabel() helper limpo. Props bem tipadas.'
+
+recommendations:
+  immediate: []
+  future:
+    - 'Adicionar fees ao JSON-LD da propriedade (Offer schema) para GVR'
+    - 'Verificar display em mobile (secção cards em grid 2 col → 1 col em sm)'
