@@ -1,6 +1,6 @@
 # Epic: Multi-Currency Display — Totalizar por Moeda
 
-**Status:** Ready for Review
+**Status:** Done
 **Priority:** High
 **Effort:** Medium
 **Risk:** Low (no schema changes required)
@@ -76,3 +76,20 @@ claude-sonnet-4-6
 ### Change Log
 
 - 2026-05-03: Implemented multi-currency display fixes across owner report + financial page (Dex, claude-sonnet-4-6)
+
+---
+
+## QA Results
+
+### Review Date: 2026-05-06
+### Reviewed By: Quinn (Test Architect)
+
+### Code Quality Assessment
+
+Todos os 6 ACs implementados. summaryByCurrency correctamente calculado no API route com fallback para respostas antigas. CurrencyStack usado consistentemente (4 cards + tfoot). Financial page com currency badge. CSV com coluna Moeda e TOTAL por moeda. groupByCurrency() como single source of truth.
+
+### Gate Status
+Gate: PASS (100/100) → docs/qa/gates/mc-multicurrency-display.yml
+
+### Recommended Status
+[✓ Ready for Done]

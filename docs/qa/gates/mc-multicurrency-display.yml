@@ -1,0 +1,40 @@
+schema: 1
+story: 'MC'
+story_title: 'Multi-Currency Display — Totalizar por Moeda'
+gate: PASS
+status_reason: 'Todos os 6 ACs implementados. summaryByCurrency adicionado ao API /owners/[id]/report, CurrencyStack usado em 4 cards + tfoot rows. Financial page com currency badge por propriedade. CSV com coluna Moeda + TOTAL por moeda. groupByCurrency() consistente em todas as páginas.'
+reviewer: 'Quinn (Test Architect)'
+updated: '2026-05-06T22:00:00Z'
+
+quality_score: 100
+expires: '2026-05-20T00:00:00Z'
+
+top_issues: []
+
+waiver:
+  active: false
+
+evidence:
+  tests_reviewed: 0
+  risks_identified: 0
+  trace:
+    ac_covered: ['No cross-currency sums', 'All totals grouped by currency', 'Dashboard BRL/EUR separate', 'Reports/PDF currency separation', 'Consistent visual pattern', 'groupByCurrency() used throughout']
+    ac_gaps: []
+
+nfr_validation:
+  security:
+    status: PASS
+    notes: 'Sem impacto de segurança. Grouping client-side a partir de dados já autorizados por RLS.'
+  performance:
+    status: PASS
+    notes: 'summaryByCurrency calculado no API route (O(n) sobre properties). fallback para old API responses sem o campo.'
+  reliability:
+    status: PASS
+    notes: 'Fallback computation em page.tsx para respostas de API antigas. CurrencyStack null-safe.'
+  maintainability:
+    status: PASS
+    notes: 'groupByCurrency() e formatMultiCurrencyTotals() centralizados em lib/utils/currency.ts. CurrencyStack reutilizável.'
+
+recommendations:
+  immediate: []
+  future: []
