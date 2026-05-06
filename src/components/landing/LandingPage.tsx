@@ -1007,7 +1007,7 @@ export function LandingPage() {
           </div>
           <div className="border-t border-lodgra-neutral-800 pt-6">
             <p className="text-xs sm:text-sm text-lodgra-neutral-500 text-center">
-              © {new Date().getFullYear()} Home Stay. {c.footerRights}
+              © {new Date().getFullYear()} Lodgra. {c.footerRights}
             </p>
           </div>
         </div>

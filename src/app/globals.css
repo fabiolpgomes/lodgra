@@ -58,6 +58,8 @@
   --color-lodgra-brand-800: var(--lodgra-brand-800);
   --color-lodgra-brand-900: var(--lodgra-brand-900);
   --color-lodgra-brand-950: var(--lodgra-brand-950);
+  --color-lodgra-accent-50: oklch(0.97 0.04 62);
+  --color-lodgra-accent-200: oklch(0.92 0.08 62);
   --color-lodgra-accent-300: var(--lodgra-accent-300);
   --color-lodgra-accent-400: var(--lodgra-accent-400);
   --color-lodgra-accent-500: var(--lodgra-accent-500);
@@ -66,9 +68,13 @@
   --color-lodgra-neutral-50: var(--lodgra-neutral-50);
   --color-lodgra-neutral-100: var(--lodgra-neutral-100);
   --color-lodgra-neutral-200: var(--lodgra-neutral-200);
+  --color-lodgra-neutral-400: oklch(0.700 0.006 75);
   --color-lodgra-neutral-500: var(--lodgra-neutral-500);
   --color-lodgra-neutral-700: var(--lodgra-neutral-700);
+  --color-lodgra-neutral-800: oklch(0.260 0.005 75);
   --color-lodgra-neutral-900: var(--lodgra-neutral-900);
+  --color-lodgra-neutral-950: oklch(0.080 0.003 75);
+  --color-lodgra-primary: var(--lodgra-brand-600);
   --color-lodgra-success: var(--lodgra-success);
   --color-lodgra-warning: var(--lodgra-warning);
   --color-lodgra-error: var(--lodgra-error);
