@@ -40,7 +40,8 @@ export function RoomsEditor({ propertyId }: RoomsEditorProps) {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [loadError, setLoadError] = useState<string | null>(null)
+  const [saveError, setSaveError] = useState<string | null>(null)
   const [confirmingId, setConfirmingId] = useState<string | null>(null)
 
   useEffect(() => {
@@ -51,7 +52,7 @@ export function RoomsEditor({ propertyId }: RoomsEditorProps) {
         const data = await res.json()
         setRooms(data.map((r: RoomRow & { id?: string }) => ({ ...r, _id: r.id ?? makeId() })))
       } catch {
-        setError('Não foi possível carregar os quartos. Tente novamente.')
+        setLoadError('Não foi possível carregar os quartos. Tente novamente.')
       } finally {
         setLoading(false)
       }
@@ -78,6 +79,7 @@ export function RoomsEditor({ propertyId }: RoomsEditorProps) {
   async function save() {
     setSaving(true)
     setSaved(false)
+    setSaveError(null)
     try {
       const res = await fetch(`/api/properties/${propertyId}/rooms`, {
         method: 'PUT',
@@ -87,14 +89,14 @@ export function RoomsEditor({ propertyId }: RoomsEditorProps) {
       if (!res.ok) throw new Error('Falha ao guardar')
       setSaved(true)
     } catch {
-      setError('Não foi possível guardar os quartos. Tente novamente.')
+      setSaveError('Não foi possível guardar os quartos. Tente novamente.')
     } finally {
       setSaving(false)
     }
   }
 
   if (loading) return <p className="text-sm text-gray-500">A carregar quartos…</p>
-  if (error) return <p className="text-sm text-red-600">{error}</p>
+  if (loadError) return <p className="text-sm text-red-600">{loadError}</p>
 
   return (
     <div className="space-y-3">
@@ -213,6 +215,7 @@ export function RoomsEditor({ propertyId }: RoomsEditorProps) {
         </button>
 
         {saved && <span className="text-sm text-green-600 font-medium">✓ Guardado</span>}
+        {saveError && <span className="text-sm text-red-600">{saveError}</span>}
       </div>
     </div>
   )

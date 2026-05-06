@@ -1,0 +1,53 @@
+schema: 1
+story: '18.3'
+story_title: 'Quartos — tipos de cama, capacidade e lençóis'
+gate: PASS
+status_reason: 'AC1–AC7 todos implementados. Um MEDIUM corrigido durante a review (save error destruía o formulário). Padrão consistente com 18.2. Sem issues em aberto.'
+reviewer: 'Quinn (Test Architect)'
+updated: '2026-05-06T02:30:00Z'
+
+quality_score: 100
+expires: '2026-05-20T00:00:00Z'
+
+top_issues:
+  - id: '18.3-01'
+    severity: medium
+    title: 'save() error destruía o formulário inteiro'
+    status: resolved
+    resolution: 'Estado error separado em loadError (bloqueia render) e saveError (inline junto ao botão)'
+
+  - id: '18.3-02'
+    severity: low
+    title: 'BED_TYPE_LABELS duplicado entre RoomsEditor.tsx e page.tsx'
+    status: open
+    recommendation: 'Extrair para @/lib/constants/property se outros componentes precisarem. Não urgente.'
+
+waiver:
+  active: false
+
+evidence:
+  tests_reviewed: 0
+  risks_identified: 2
+  trace:
+    ac_covered: [1, 2, 3, 4, 5, 6, 7]
+    ac_gaps: []
+
+nfr_validation:
+  security:
+    status: PASS
+    notes: 'GET viewer+, PUT admin/gestor. Array validado, bed_count sanitizado, name trimado/null.'
+  performance:
+    status: PASS
+    notes: 'Full replace adequado para listas pequenas. Padrão idêntico ao 18.2.'
+  reliability:
+    status: PASS
+    notes: 'loadError bloqueia componente. saveError inline permite retry sem perder o formulário.'
+  maintainability:
+    status: PASS
+    notes: 'BED_TYPE_LABELS inline — aceitável por agora, candidato a extracção futura.'
+
+recommendations:
+  immediate: []
+  future:
+    - action: 'Extrair BED_TYPE_LABELS para constante partilhada se 18.4/18.5 criarem padrão similar'
+      refs: ['src/components/features/properties/RoomsEditor.tsx', 'src/app/[locale]/properties/[id]/page.tsx']
