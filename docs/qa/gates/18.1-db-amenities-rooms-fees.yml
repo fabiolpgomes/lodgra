@@ -1,0 +1,75 @@
+schema: 1
+story: '18.1'
+story_title: 'Migração DB — comodidades, quartos, banheiros, taxas e horários'
+gate: PASS
+status_reason: 'Todos os issues resolvidos após fix: índice em amenity_id adicionado, CHECK constraints em fee_type aplicadas, tipo PropertyAmenity exportado. Schema completo, RLS correcto, TypeScript alinhado.'
+reviewer: 'Quinn (Test Architect)'
+updated: '2026-05-06T01:00:00Z'
+
+quality_score: 100
+expires: '2026-05-20T00:00:00Z'
+
+top_issues:
+  - id: '18.1-04'
+    severity: low
+    title: 'Ícones Lucide duplicados no seed'
+    description: "Vários ícones repetidos: 'Wind' para Máquina de Lavar e Secador de cabelo; 'Droplets' para Sabonete, Shampoo e Lava-louças; 'Flame' para Lareira e Fogão e Extintor. Impacto apenas visual na UI."
+    location: 'supabase/migrations/20260506_01_property_amenities_rooms_fees.sql:186-245'
+    suggested_owner: dev
+    recommendation: 'Rever ícones no contexto da UI de story 18.2 — substituir por ícones mais específicos (ex: ShowerHead para Shampoo, Washer para Máquina de Lavar)'
+    status: open
+
+  # Resolvidos em 2026-05-06
+  - id: '18.1-01'
+    severity: medium
+    title: 'Índice em property_amenities(amenity_id)'
+    status: resolved
+    resolution: 'Aplicado manualmente via Supabase editor + migração 20260506_02_property_amenities_indexes_constraints.sql'
+
+  - id: '18.1-02'
+    severity: medium
+    title: 'CHECK constraints em *_fee_type'
+    status: resolved
+    resolution: 'Aplicado manualmente via Supabase editor + migração 20260506_02_property_amenities_indexes_constraints.sql'
+
+  - id: '18.1-03'
+    severity: low
+    title: 'Tipo PropertyAmenity exportado'
+    status: resolved
+    resolution: 'Adicionado em src/types/database.ts'
+
+waiver:
+  active: false
+
+evidence:
+  tests_reviewed: 0
+  risks_identified: 4
+  trace:
+    ac_covered: [1, 2, 3, 4, 5, 6, 7]
+    ac_gaps: []
+
+nfr_validation:
+  security:
+    status: PASS
+    notes: 'RLS habilitado em todas as novas tabelas. Catálogo amenities com SELECT público (correcto). Tabelas de propriedade escopadas via organization_id. Sem exposição de dados sensíveis.'
+  performance:
+    status: PASS
+    notes: 'Índice idx_property_amenities_amenity_id adicionado. Índices no property_id presentes em property_rooms e property_bathrooms.'
+  reliability:
+    status: PASS
+    notes: 'IF NOT EXISTS em todos os CREATE TABLE e ADD COLUMN garante idempotência. ON CONFLICT DO NOTHING no seed. ON DELETE CASCADE mantém integridade referencial.'
+  maintainability:
+    status: PASS
+    notes: 'Union types (FeeType, AmenityCategory, BedType, BathroomType) evitam magic strings. Novos campos em Property marcados como opcionais para não quebrar queries existentes.'
+
+recommendations:
+  immediate: []
+  future:
+    - action: 'Adicionar índice em property_amenities(amenity_id) numa migração de follow-up'
+      refs: ['supabase/migrations/']
+    - action: 'Adicionar CHECK constraints para *_fee_type antes de go-live'
+      refs: ['supabase/migrations/']
+    - action: 'Exportar tipo PropertyAmenity quando story 18.2 consumir a relação N:N'
+      refs: ['src/types/database.ts']
+    - action: 'Rever ícones Lucide duplicados no seed durante implementação da UI (story 18.2)'
+      refs: ['supabase/migrations/20260506_01_property_amenities_rooms_fees.sql']

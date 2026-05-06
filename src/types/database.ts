@@ -43,6 +43,11 @@ export type Amenity = {
   sort_order: number
 }
 
+export type PropertyAmenity = {
+  property_id: string
+  amenity_id: string
+}
+
 export type BedType = 'single' | 'double' | 'queen' | 'king' | 'sofa_bed' | 'bunk'
 
 export type PropertyRoom = {
