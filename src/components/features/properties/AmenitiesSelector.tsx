@@ -1,17 +1,8 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
-import * as LucideIcons from 'lucide-react'
-import { LucideProps } from 'lucide-react'
 import type { Amenity, AmenityCategory } from '@/types/database'
-
-type IconName = keyof typeof LucideIcons
-
-function AmenityIcon({ name, ...props }: { name: string } & LucideProps) {
-  const Icon = LucideIcons[name as IconName] as React.ComponentType<LucideProps> | undefined
-  if (!Icon) return <LucideIcons.Star {...props} />
-  return <Icon {...props} />
-}
+import { AmenityIcon } from './AmenityIcon'
 
 const CATEGORY_LABELS: Record<AmenityCategory, string> = {
   destaque: 'Destaques',
@@ -35,18 +26,25 @@ export function AmenitiesSelector({ propertyId }: AmenitiesSelectorProps) {
   const [saving, setSaving] = useState(false)
   const [loading, setLoading] = useState(true)
   const [saved, setSaved] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     async function load() {
-      const [catalogRes, selectedRes] = await Promise.all([
-        fetch('/api/amenities'),
-        fetch(`/api/properties/${propertyId}/amenities`),
-      ])
-      const catalogData: Amenity[] = await catalogRes.json()
-      const selectedData: string[] = await selectedRes.json()
-      setCatalog(catalogData)
-      setSelected(new Set(selectedData))
-      setLoading(false)
+      try {
+        const [catalogRes, selectedRes] = await Promise.all([
+          fetch('/api/amenities'),
+          fetch(`/api/properties/${propertyId}/amenities`),
+        ])
+        if (!catalogRes.ok || !selectedRes.ok) throw new Error('Erro ao carregar comodidades')
+        const catalogData: Amenity[] = await catalogRes.json()
+        const selectedData: string[] = await selectedRes.json()
+        setCatalog(catalogData)
+        setSelected(new Set(selectedData))
+      } catch {
+        setError('Não foi possível carregar as comodidades. Tente novamente.')
+      } finally {
+        setLoading(false)
+      }
     }
     load()
   }, [propertyId])
@@ -63,17 +61,28 @@ export function AmenitiesSelector({ propertyId }: AmenitiesSelectorProps) {
 
   async function save() {
     setSaving(true)
-    await fetch(`/api/properties/${propertyId}/amenities`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify([...selected]),
-    })
-    setSaving(false)
-    setSaved(true)
+    setSaved(false)
+    try {
+      const res = await fetch(`/api/properties/${propertyId}/amenities`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify([...selected]),
+      })
+      if (!res.ok) throw new Error('Falha ao guardar')
+      setSaved(true)
+    } catch {
+      setError('Não foi possível guardar as comodidades. Tente novamente.')
+    } finally {
+      setSaving(false)
+    }
   }
 
   if (loading) {
     return <p className="text-sm text-gray-500">A carregar comodidades…</p>
+  }
+
+  if (error) {
+    return <p className="text-sm text-red-600">{error}</p>
   }
 
   const byCategory = CATEGORY_ORDER.reduce<Record<string, Amenity[]>>((acc, cat) => {

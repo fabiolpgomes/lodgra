@@ -8,6 +8,7 @@ import { PropertyListingsManager } from '@/components/features/listings/Property
 import { QuickActionButtons } from '@/components/features/properties/QuickActionButtons'
 import { ICalExportCard } from '@/components/features/properties/ICalExportCard'
 import { PropertyDocuments } from '@/components/features/properties/PropertyDocuments'
+import { AmenityIcon } from '@/components/features/properties/AmenityIcon'
 import { AuthLayout } from '@/components/common/layout/AuthLayout'
 import { getUserRole } from '@/lib/auth/getUserRole'
 import { Button } from '@/components/common/ui/button'
@@ -266,6 +267,7 @@ export default async function PropertyDetailsPage({
                       key={a.id}
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-800 text-sm rounded-full"
                     >
+                      <AmenityIcon name={a.icon} className="h-3.5 w-3.5 shrink-0" />
                       <span className="text-xs">{a.name}</span>
                     </span>
                   ))}

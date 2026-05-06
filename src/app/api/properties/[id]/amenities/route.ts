@@ -29,7 +29,12 @@ export async function PUT(
   if (!auth.authorized) return auth.response!
 
   const { id } = await params
-  const amenityIds: string[] = await req.json()
+  const body = await req.json()
+
+  if (!Array.isArray(body) || body.some(v => typeof v !== 'string')) {
+    return NextResponse.json({ error: 'Invalid payload' }, { status: 400 })
+  }
+  const amenityIds: string[] = body
 
   const supabase = await createClient()
 
