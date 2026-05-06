@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import Link from 'next/link'
 import { differenceInDays, parseISO, isValid, addDays, format, startOfDay, isBefore } from 'date-fns'
 
@@ -9,6 +9,11 @@ interface PricingRule {
   end_date: string
   min_nights: number
 }
+
+type PriceState =
+  | { status: 'idle' }
+  | { status: 'loading' }
+  | { status: 'ready'; total: number; breakdown?: { date: string; price: number }[] }
 
 interface BookingWidgetMobileProps {
   propertyName: string
@@ -37,6 +42,7 @@ export function BookingWidgetMobile({
   const [checkOut, setCheckOut] = useState(initialCheckOut || '')
   const [guests, setGuests] = useState(initialGuests)
   const [checkOutError, setCheckOutError] = useState('')
+  const [priceState, setPriceState] = useState<PriceState>({ status: 'idle' })
 
   const currencySymbols: Record<string, string> = { BRL: 'R$', EUR: '€', USD: '$' }
   const symbol = currencySymbols[currency] || currency
@@ -65,6 +71,32 @@ export function BookingWidgetMobile({
     return Math.max(0, differenceInDays(d2, d1))
   }, [checkIn, checkOut])
 
+  // Fetch real price from pricing rules API when dates are selected
+  const fetchKey = checkIn && checkOut && nights >= 1 ? `${checkIn}|${checkOut}` : null
+
+  useEffect(() => {
+    if (!fetchKey) return
+    let cancelled = false
+    setPriceState({ status: 'loading' })
+    fetch(`/api/public/properties/${slug}/pricing?checkin=${checkIn}&checkout=${checkOut}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (!cancelled) {
+          setPriceState(data ? { status: 'ready', total: data.total, breakdown: data.breakdown } : { status: 'idle' })
+        }
+      })
+      .catch(() => { if (!cancelled) setPriceState({ status: 'idle' }) })
+    return () => { cancelled = true }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetchKey, slug])
+
+  const isReady = priceState.status === 'ready' && fetchKey !== null
+  const isPriceFetching = priceState.status === 'loading'
+  const displayTotal = isReady ? priceState.total : nights * basePrice
+  const hasVaryingPrices = isReady && priceState.breakdown && priceState.breakdown.length > 1
+    && priceState.breakdown.some(b => b.price !== priceState.breakdown![0].price)
+  const avgPerNight = nights > 0 ? Math.round(displayTotal / nights) : basePrice
+
   const checkoutHref = useMemo(() => {
     if (!checkIn || !checkOut || nights < 1) return null
     return `/p/${slug}/checkout?checkin=${checkIn}&checkout=${checkOut}&guests=${guests}`
@@ -84,8 +116,8 @@ export function BookingWidgetMobile({
   const handleCheckOutChange = (val: string) => {
     setCheckOut(val)
     if (val && checkIn) {
-      const nights = differenceInDays(parseISO(val), parseISO(checkIn))
-      if (nights < effectiveMinNights) {
+      const n = differenceInDays(parseISO(val), parseISO(checkIn))
+      if (n < effectiveMinNights) {
         setCheckOutError(
           effectiveMinNights === 1
             ? 'Check-out deve ser mínimo 1 dia após check-in'
@@ -105,12 +137,20 @@ export function BookingWidgetMobile({
       <div className="fixed bottom-0 left-0 right-0 lg:hidden bg-white border-t border-neutral-200 shadow-lg z-40">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
           <div>
-            <p className="text-xs text-neutral-600">Preço base</p>
+            <p className="text-xs text-neutral-600">
+              {nights > 0 && isReady ? (hasVaryingPrices ? 'Preço médio' : 'Por noite') : 'Preço base'}
+            </p>
             <p className="font-bold text-neutral-900">
-              {symbol}{basePrice}<span className="text-sm font-normal text-neutral-600"> /noite</span>
+              {symbol}{nights > 0 && isReady ? avgPerNight : basePrice}
+              <span className="text-sm font-normal text-neutral-600"> /noite</span>
             </p>
             {nights > 0 && (
-              <p className="text-xs text-lodgra-green font-semibold">{nights} noite{nights !== 1 ? 's' : ''} · {symbol}{nights * basePrice}</p>
+              <p className="text-xs text-lodgra-green font-semibold">
+                {isPriceFetching
+                  ? 'A calcular…'
+                  : `${nights} noite${nights !== 1 ? 's' : ''} · ${symbol}${Math.round(displayTotal)}`
+                }
+              </p>
             )}
           </div>
 
@@ -190,14 +230,36 @@ export function BookingWidgetMobile({
 
             {nights > 0 && (
               <div className="p-3 bg-neutral-50 rounded-lg text-sm space-y-1">
-                <div className="flex justify-between text-neutral-700">
-                  <span>{symbol}{basePrice} × {nights} noite{nights !== 1 ? 's' : ''}</span>
-                  <span>{symbol}{nights * basePrice}</span>
-                </div>
-                <div className="flex justify-between font-bold text-neutral-900 pt-1 border-t border-neutral-200">
-                  <span>Total</span>
-                  <span>{symbol}{nights * basePrice}</span>
-                </div>
+                {isPriceFetching ? (
+                  <>
+                    <div className="flex justify-between text-neutral-400 animate-pulse">
+                      <span>{nights} noite{nights !== 1 ? 's' : ''}</span>
+                      <span className="bg-neutral-200 rounded w-16">&nbsp;</span>
+                    </div>
+                    <div className="flex justify-between font-bold text-neutral-300 pt-1 border-t border-neutral-200 animate-pulse">
+                      <span>Total</span>
+                      <span className="bg-neutral-200 rounded w-20">&nbsp;</span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="flex justify-between text-neutral-700">
+                      {hasVaryingPrices ? (
+                        <span>{nights} noite{nights !== 1 ? 's' : ''} · preço por época</span>
+                      ) : (
+                        <span>{symbol}{avgPerNight} × {nights} noite{nights !== 1 ? 's' : ''}</span>
+                      )}
+                      <span>{symbol}{Math.round(displayTotal)}</span>
+                    </div>
+                    {hasVaryingPrices && (
+                      <p className="text-xs text-neutral-500">Inclui regras de preço por época</p>
+                    )}
+                    <div className="flex justify-between font-bold text-neutral-900 pt-1 border-t border-neutral-200">
+                      <span>Total</span>
+                      <span>{symbol}{Math.round(displayTotal)}</span>
+                    </div>
+                  </>
+                )}
               </div>
             )}
 
