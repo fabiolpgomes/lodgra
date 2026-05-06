@@ -20,6 +20,7 @@ import { PropertyGalleryV2 } from '@/components/features/properties/PropertyGall
 import { PropertyImage } from '@/components/features/properties/types/property-images'
 import { AmenitiesSelector } from '@/components/features/properties/AmenitiesSelector'
 import { RoomsEditor } from '@/components/features/properties/RoomsEditor'
+import { BathroomsEditor } from '@/components/features/properties/BathroomsEditor'
 
 export default function EditPropertyPage({
   params
@@ -546,6 +547,12 @@ export default function EditPropertyPage({
                 <div className="border-t pt-6">
                   <h4 className="text-sm font-medium text-gray-700 mb-4">Quartos</h4>
                   <RoomsEditor propertyId={propertyId} />
+                </div>
+              )}
+              {propertyId && (
+                <div className="border-t pt-6">
+                  <h4 className="text-sm font-medium text-gray-700 mb-4">Banheiros</h4>
+                  <BathroomsEditor propertyId={propertyId} />
                 </div>
               )}
               {/* Gallery Section */}

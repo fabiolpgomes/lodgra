@@ -113,6 +113,17 @@ export default async function PropertyDetailsPage({
     king: 'King', sofa_bed: 'Sofá-cama', bunk: 'Beliche',
   }
 
+  // Buscar banheiros
+  const { data: bathroomsData } = await supabase
+    .from('property_bathrooms')
+    .select('id, name, bathroom_type, amenities')
+    .eq('property_id', id)
+    .order('sort_order')
+
+  const BATHROOM_TYPE_LABELS: Record<string, string> = {
+    wc: 'WC', full: 'Banheiro completo',
+  }
+
   // Buscar comodidades seleccionadas
   const { data: propertyAmenities } = await supabase
     .from('property_amenities')
@@ -303,6 +314,34 @@ export default async function PropertyDetailsPage({
                           {room.provides_linen ? ' · Lençóis incluídos' : ''}
                         </p>
                       </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Banheiros */}
+            {bathroomsData && bathroomsData.length > 0 && (
+              <div className="bg-white rounded-lg shadow p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Banheiros</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {bathroomsData.map((bathroom, idx) => (
+                    <div key={bathroom.id} className="p-3 border border-gray-100 rounded-lg">
+                      <p className="text-sm font-medium text-gray-800">
+                        {bathroom.name || `Banheiro ${idx + 1}`}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        {BATHROOM_TYPE_LABELS[bathroom.bathroom_type] ?? bathroom.bathroom_type}
+                      </p>
+                      {bathroom.amenities?.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-2">
+                          {bathroom.amenities.map((a: string) => (
+                            <span key={a} className="text-xs bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded">
+                              {a}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
