@@ -46,6 +46,13 @@ export default function EditPropertyPage({
   const [isActive, setIsActive] = useState(true)
   const [galleryImages, setGalleryImages] = useState<PropertyImage[]>([])
   const [uploadError, setUploadError] = useState<string | null>(null)
+  const [cleaningFee, setCleaningFee] = useState<string>('')
+  const [cleaningFeeType, setCleaningFeeType] = useState<string>('per_stay')
+  const [petFee, setPetFee] = useState<string>('')
+  const [petFeeType, setPetFeeType] = useState<string>('per_stay')
+  const [checkinFrom, setCheckinFrom] = useState<string>('')
+  const [checkinUntil, setCheckinUntil] = useState<string>('')
+  const [checkoutUntil, setCheckoutUntil] = useState<string>('')
 
   async function reloadGallery(id: string): Promise<void> {
     try {
@@ -116,6 +123,13 @@ export default function EditPropertyPage({
       setDescription(propResult.data.description || '')
       setBasePrice((propResult.data.base_price as number | null)?.toString() || '')
       setMinNights((propResult.data.min_nights as number | null)?.toString() || '1')
+      setCleaningFee((propResult.data.cleaning_fee as number | null)?.toString() || '')
+      setCleaningFeeType((propResult.data.cleaning_fee_type as string | null) || 'per_stay')
+      setPetFee((propResult.data.pet_fee as number | null)?.toString() || '')
+      setPetFeeType((propResult.data.pet_fee_type as string | null) || 'per_stay')
+      setCheckinFrom((propResult.data.checkin_from as string | null) || '')
+      setCheckinUntil((propResult.data.checkin_until as string | null) || '')
+      setCheckoutUntil((propResult.data.checkout_until as string | null) || '')
       setOwners(ownersResult.data || [])
 
       // Load variants for images (optimized: 1 query for all variants, not N queries)
@@ -173,6 +187,13 @@ export default function EditPropertyPage({
           is_public: isPublic,
           is_active: isActive,
           description: description.trim() || null,
+          cleaning_fee: cleaningFee ? parseFloat(cleaningFee) : null,
+          cleaning_fee_type: cleaningFee ? cleaningFeeType : null,
+          pet_fee: petFee ? parseFloat(petFee) : null,
+          pet_fee_type: petFee ? petFeeType : null,
+          checkin_from: checkinFrom || null,
+          checkin_until: checkinUntil || null,
+          checkout_until: checkoutUntil || null,
           updated_at: new Date().toISOString(),
         })
         .eq('id', propertyId)
@@ -470,6 +491,94 @@ export default function EditPropertyPage({
                 <p className="text-xs text-gray-500 mt-1">
                   Percentual aplicado aos valores de receita para gestão
                 </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Taxas e Horários */}
+          <div className="mb-8">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Taxas e Horários</h3>
+            <div className="space-y-6">
+              <div>
+                <h4 className="text-sm font-medium text-gray-700 mb-3">Taxas Adicionais</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <Label className="mb-1">Taxa de Limpeza</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={cleaningFee}
+                        onChange={(e) => setCleaningFee(e.target.value)}
+                        placeholder="0.00"
+                        className="flex-1"
+                      />
+                      <Select value={cleaningFeeType} onValueChange={setCleaningFeeType}>
+                        <SelectTrigger className="w-36">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="per_stay">Por Estadia</SelectItem>
+                          <SelectItem value="per_night">Por Noite</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="mb-1">Taxa de Animais</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={petFee}
+                        onChange={(e) => setPetFee(e.target.value)}
+                        placeholder="0.00"
+                        className="flex-1"
+                      />
+                      <Select value={petFeeType} onValueChange={setPetFeeType}>
+                        <SelectTrigger className="w-36">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="per_stay">Por Estadia</SelectItem>
+                          <SelectItem value="per_night">Por Noite</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">Deixar vazio = sem taxa</p>
+              </div>
+              <div>
+                <h4 className="text-sm font-medium text-gray-700 mb-3">Horários de Check-in / Check-out</h4>
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <Label className="mb-1">Check-in a partir das</Label>
+                    <Input
+                      type="time"
+                      value={checkinFrom}
+                      onChange={(e) => setCheckinFrom(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label className="mb-1">Check-in até às (opcional)</Label>
+                    <Input
+                      type="time"
+                      value={checkinUntil}
+                      onChange={(e) => setCheckinUntil(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label className="mb-1">Checkout até às</Label>
+                    <Input
+                      type="time"
+                      value={checkoutUntil}
+                      onChange={(e) => setCheckoutUntil(e.target.value)}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           </div>

@@ -348,6 +348,55 @@ export default async function PropertyDetailsPage({
               </div>
             )}
 
+            {/* Taxas e Horários */}
+            {(property.cleaning_fee || property.pet_fee || property.checkin_from || property.checkout_until) && (
+              <div className="bg-white rounded-lg shadow p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Taxas e Horários</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {(property.cleaning_fee || property.pet_fee) && (
+                    <div>
+                      <p className="text-sm font-medium text-gray-700 mb-2">Taxas Adicionais</p>
+                      <div className="space-y-1">
+                        {property.cleaning_fee && (
+                          <p className="text-sm text-gray-600">
+                            Limpeza: <span className="font-medium text-gray-900">{currency} {Number(property.cleaning_fee).toFixed(2)}</span>
+                            <span className="text-xs text-gray-400 ml-1">
+                              {property.cleaning_fee_type === 'per_night' ? '/ noite' : '/ estadia'}
+                            </span>
+                          </p>
+                        )}
+                        {property.pet_fee && (
+                          <p className="text-sm text-gray-600">
+                            Animais: <span className="font-medium text-gray-900">{currency} {Number(property.pet_fee).toFixed(2)}</span>
+                            <span className="text-xs text-gray-400 ml-1">
+                              {property.pet_fee_type === 'per_night' ? '/ noite' : '/ estadia'}
+                            </span>
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  {(property.checkin_from || property.checkout_until) && (
+                    <div>
+                      <p className="text-sm font-medium text-gray-700 mb-2">Horários</p>
+                      <div className="space-y-1">
+                        {property.checkin_from && (
+                          <p className="text-sm text-gray-600">
+                            Check-in: <span className="font-medium text-gray-900">{property.checkin_from}{property.checkin_until ? ` – ${property.checkin_until}` : ''}</span>
+                          </p>
+                        )}
+                        {property.checkout_until && (
+                          <p className="text-sm text-gray-600">
+                            Checkout: <span className="font-medium text-gray-900">até às {property.checkout_until}</span>
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Anúncios */}
             <PropertyListingsManager propertyId={id} />
 
