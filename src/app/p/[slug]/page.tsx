@@ -71,7 +71,7 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
 
   const { data: property } = await supabase
     .from('properties')
-    .select('id, name, description, city, country, address, photos, amenities, max_guests, bedrooms, bathrooms, property_type, slug, base_price, currency, postal_code, is_active, created_at, updated_at, min_nights')
+    .select('id, name, description, city, country, address, photos, amenities, max_guests, bedrooms, bathrooms, property_type, slug, base_price, currency, postal_code, is_active, created_at, updated_at, min_nights, cleaning_fee, cleaning_fee_type, pet_fee, pet_fee_type, checkin_from, checkin_until, checkout_until')
     .eq('slug', slug)
     .eq('is_public', true)
     .single()
@@ -202,6 +202,13 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
         pricingRules={pricingRules}
         structuredAmenities={structuredAmenities}
         minNightsError={minNightsErrorCount && minNightsErrorCount > 0 ? minNightsErrorCount : undefined}
+        cleaningFee={property.cleaning_fee}
+        cleaningFeeType={property.cleaning_fee_type}
+        petFee={property.pet_fee}
+        petFeeType={property.pet_fee_type}
+        checkinFrom={property.checkin_from}
+        checkinUntil={property.checkin_until}
+        checkoutUntil={property.checkout_until}
       />
     </>
   )

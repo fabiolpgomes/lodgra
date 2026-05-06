@@ -9,6 +9,7 @@ import { PropertyHeroGallery } from './gallery/PropertyHeroGallery'
 import { PropertyDescription } from './content/PropertyDescription'
 import { PropertyAmenitiesV2, type StructuredAmenity } from './content/PropertyAmenitiesV2'
 import { PropertyLocation } from './content/PropertyLocation'
+import { PropertyPolicies } from './content/PropertyPolicies'
 import { BookingWidgetDesktop } from './booking/BookingWidgetDesktop'
 import { BookingWidgetMobile } from './booking/BookingWidgetMobile'
 import { PropertyTrustBadges } from './layout/PropertyTrustBadges'
@@ -31,9 +32,16 @@ interface PropertyPageV2Props {
   pricingRules?: PricingRule[]
   structuredAmenities?: StructuredAmenity[]
   minNightsError?: number
+  cleaningFee?: number | null
+  cleaningFeeType?: string | null
+  petFee?: number | null
+  petFeeType?: string | null
+  checkinFrom?: string | null
+  checkinUntil?: string | null
+  checkoutUntil?: string | null
 }
 
-export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, initialCheckOut, initialGuests, minNights = 1, pricingRules = [], structuredAmenities, minNightsError }: PropertyPageV2Props) {
+export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, initialCheckOut, initialGuests, minNights = 1, pricingRules = [], structuredAmenities, minNightsError, cleaningFee, cleaningFeeType, petFee, petFeeType, checkinFrom, checkinUntil, checkoutUntil }: PropertyPageV2Props) {
   const [showLightbox, setShowLightbox] = useState(false)
   const [lightboxIndex, setLightboxIndex] = useState(0)
 
@@ -140,6 +148,18 @@ export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, 
                   structuredAmenities={structuredAmenities}
                 />
               ) : null}
+
+              {/* Policies — fees and check-in/out schedules from Epic 18.5 */}
+              <PropertyPolicies
+                cleaningFee={cleaningFee}
+                cleaningFeeType={cleaningFeeType}
+                petFee={petFee}
+                petFeeType={petFeeType}
+                checkinFrom={checkinFrom}
+                checkinUntil={checkinUntil}
+                checkoutUntil={checkoutUntil}
+                currency={currency}
+              />
 
               {/* Location */}
               <PropertyLocation
