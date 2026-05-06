@@ -18,6 +18,7 @@ import { revalidatePropertyPage } from './actions'
 import { ImageUploadDragDrop } from '@/components/features/properties/ImageUploadDragDrop'
 import { PropertyGalleryV2 } from '@/components/features/properties/PropertyGalleryV2'
 import { PropertyImage } from '@/components/features/properties/types/property-images'
+import { AmenitiesSelector } from '@/components/features/properties/AmenitiesSelector'
 
 export default function EditPropertyPage({
   params
@@ -38,7 +39,6 @@ export default function EditPropertyPage({
   const [slug, setSlug] = useState('')
   const [isPublic, setIsPublic] = useState(false)
   const [description, setDescription] = useState('')
-  const [amenities, setAmenities] = useState('')
   const [basePrice, setBasePrice] = useState<string>('')
   const [minNights, setMinNights] = useState<string>('1')
   const [isActive, setIsActive] = useState(true)
@@ -112,7 +112,6 @@ export default function EditPropertyPage({
       setIsPublic(propResult.data.is_public || false)
       setIsActive(propResult.data.is_active ?? true)
       setDescription(propResult.data.description || '')
-      setAmenities((propResult.data.amenities as string[] | null)?.join(', ') || '')
       setBasePrice((propResult.data.base_price as number | null)?.toString() || '')
       setMinNights((propResult.data.min_nights as number | null)?.toString() || '1')
       setOwners(ownersResult.data || [])
@@ -152,9 +151,6 @@ export default function EditPropertyPage({
       const propertyName = formData.get('name') as string
       const finalSlug = slug.trim() || slugify(propertyName)
 
-      // Parse amenities (comma separated)
-      const amenitiesArray = amenities.split(',').map(s => s.trim()).filter(Boolean)
-
       const { error: updateError } = await supabase
         .from('properties')
         .update({
@@ -175,7 +171,6 @@ export default function EditPropertyPage({
           is_public: isPublic,
           is_active: isActive,
           description: description.trim() || null,
-          amenities: amenitiesArray,
           updated_at: new Date().toISOString(),
         })
         .eq('id', propertyId)
@@ -540,19 +535,12 @@ export default function EditPropertyPage({
                   placeholder="Descreva a propriedade para potenciais hóspedes..."
                 />
               </div>
-              <div>
-                <Label htmlFor="amenities" className="mb-1">
-                  Comodidades
-                </Label>
-                <Input
-                  type="text"
-                  id="amenities"
-                  value={amenities}
-                  onChange={(e) => setAmenities(e.target.value)}
-                  placeholder="Wi-Fi, Piscina, Estacionamento, Ar condicionado"
-                />
-                <p className="text-xs text-gray-500 mt-1">Separadas por vírgula.</p>
-              </div>
+              {propertyId && (
+                <div className="border-t pt-6">
+                  <h4 className="text-sm font-medium text-gray-700 mb-4">Comodidades</h4>
+                  <AmenitiesSelector propertyId={propertyId} />
+                </div>
+              )}
               {/* Gallery Section */}
               {propertyId && (
                 <div className="space-y-4 border-t pt-6">

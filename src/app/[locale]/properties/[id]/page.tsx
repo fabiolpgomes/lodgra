@@ -100,6 +100,17 @@ export default async function PropertyDetailsPage({
     owner = data
   }
 
+  // Buscar comodidades seleccionadas
+  const { data: propertyAmenities } = await supabase
+    .from('property_amenities')
+    .select('amenities(id, name, icon, category)')
+    .eq('property_id', id)
+
+  type AmenityRow = { id: string; name: string; icon: string; category: string }
+  const amenities: AmenityRow[] = (propertyAmenities || [])
+    .flatMap(r => (Array.isArray(r.amenities) ? r.amenities : r.amenities ? [r.amenities] : []))
+    .filter((a): a is AmenityRow => !!a)
+
   return (
     <AuthLayout>
 
@@ -244,6 +255,23 @@ export default async function PropertyDetailsPage({
                 </div>
               </div>
             </div>
+
+            {/* Comodidades */}
+            {amenities.length > 0 && (
+              <div className="bg-white rounded-lg shadow p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Comodidades</h3>
+                <div className="flex flex-wrap gap-2">
+                  {amenities.map(a => (
+                    <span
+                      key={a.id}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-800 text-sm rounded-full"
+                    >
+                      <span className="text-xs">{a.name}</span>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Anúncios */}
             <PropertyListingsManager propertyId={id} />
