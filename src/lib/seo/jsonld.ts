@@ -17,6 +17,9 @@ interface PropertyData {
   bathrooms?: number | null
   slug?: string | null
   property_type?: string | null
+  checkin_from?: string | null
+  checkin_until?: string | null
+  checkout_until?: string | null
 }
 
 export function generatePropertyJsonLd(property: PropertyData) {
@@ -36,8 +39,8 @@ export function generatePropertyJsonLd(property: PropertyData) {
     ...(property.slug && { url: `${APP_URL}/p/${property.slug}` }),
     address,
     ...(property.base_price && { priceRange: property.base_price < 50 ? '€' : property.base_price < 150 ? '€€' : '€€€' }),
-    checkinTime: '15:00',
-    checkoutTime: '11:00',
+    checkinTime: property.checkin_from ?? '15:00',
+    checkoutTime: property.checkout_until ?? '11:00',
     ...(property.max_guests && {
       amenityFeature: [
         { '@type': 'LocationFeatureSpecification', name: 'Max Guests', value: property.max_guests },
