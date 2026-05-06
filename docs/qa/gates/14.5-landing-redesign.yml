@@ -1,12 +1,12 @@
 schema: 1
 story: '14.5'
 story_title: 'Landing Page — Redesign com Design System'
-gate: CONCERNS
-status_reason: 'AC1–AC9, AC11–AC15, AC17–AC21 correctos. Paleta correcta: ouro Lodgra Gold (#D4AF37) via lodgra-cta-bg — Dev Notes mencionava "coral" por ser texto do Home Stay original, não um bug. Problemas reais: text-lodgra-primary indefinido (AC10/AC16), 5 tokens em falta no @theme inline, copyright "Home Stay" no footer.'
+gate: PASS
+status_reason: 'AC1–AC21 todos implementados após fixes. Tokens em falta adicionados ao @theme inline (primary, accent-50/200, neutral-400/800/950). Copyright corrigido para Lodgra. Paleta ouro (#D4AF37) correcta para Lodgra — sem coral.'
 reviewer: 'Quinn (Test Architect)'
-updated: '2026-05-06T20:00:00Z'
+updated: '2026-05-06T20:15:00Z'
 
-quality_score: 82
+quality_score: 100
 expires: '2026-05-20T00:00:00Z'
 
 top_issues:
