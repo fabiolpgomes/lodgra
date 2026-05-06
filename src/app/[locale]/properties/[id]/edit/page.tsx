@@ -19,6 +19,7 @@ import { ImageUploadDragDrop } from '@/components/features/properties/ImageUploa
 import { PropertyGalleryV2 } from '@/components/features/properties/PropertyGalleryV2'
 import { PropertyImage } from '@/components/features/properties/types/property-images'
 import { AmenitiesSelector } from '@/components/features/properties/AmenitiesSelector'
+import { RoomsEditor } from '@/components/features/properties/RoomsEditor'
 
 export default function EditPropertyPage({
   params
@@ -539,6 +540,12 @@ export default function EditPropertyPage({
                 <div className="border-t pt-6">
                   <h4 className="text-sm font-medium text-gray-700 mb-4">Comodidades</h4>
                   <AmenitiesSelector propertyId={propertyId} />
+                </div>
+              )}
+              {propertyId && (
+                <div className="border-t pt-6">
+                  <h4 className="text-sm font-medium text-gray-700 mb-4">Quartos</h4>
+                  <RoomsEditor propertyId={propertyId} />
                 </div>
               )}
               {/* Gallery Section */}

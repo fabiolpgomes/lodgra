@@ -101,6 +101,18 @@ export default async function PropertyDetailsPage({
     owner = data
   }
 
+  // Buscar quartos
+  const { data: roomsData } = await supabase
+    .from('property_rooms')
+    .select('id, name, bed_type, bed_count, provides_linen')
+    .eq('property_id', id)
+    .order('sort_order')
+
+  const BED_TYPE_LABELS: Record<string, string> = {
+    single: 'Solteiro', double: 'Casal', queen: 'Queen',
+    king: 'King', sofa_bed: 'Sofá-cama', bunk: 'Beliche',
+  }
+
   // Buscar comodidades seleccionadas
   const { data: propertyAmenities } = await supabase
     .from('property_amenities')
@@ -270,6 +282,28 @@ export default async function PropertyDetailsPage({
                       <AmenityIcon name={a.icon} className="h-3.5 w-3.5 shrink-0" />
                       <span className="text-xs">{a.name}</span>
                     </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Quartos */}
+            {roomsData && roomsData.length > 0 && (
+              <div className="bg-white rounded-lg shadow p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Quartos</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {roomsData.map((room, idx) => (
+                    <div key={room.id} className="flex items-start gap-3 p-3 border border-gray-100 rounded-lg">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-800">
+                          {room.name || `Quarto ${idx + 1}`}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-0.5">
+                          {room.bed_count}× {BED_TYPE_LABELS[room.bed_type] ?? room.bed_type}
+                          {room.provides_linen ? ' · Lençóis incluídos' : ''}
+                        </p>
+                      </div>
+                    </div>
                   ))}
                 </div>
               </div>
