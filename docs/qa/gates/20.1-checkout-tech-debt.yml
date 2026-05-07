@@ -1,0 +1,42 @@
+story_id: "20.1"
+title: "Checkout Flow — Correcção de Débitos Técnicos"
+review_date: "2026-05-07"
+reviewed_by: "Quinn (Test Architect)"
+agent_model: "claude-sonnet-4-6"
+
+acceptance_criteria:
+  AC1:
+    description: "blockedRanges usa check_in/check_out (não start_date/end_date)"
+    status: PASS
+    evidence: ".select('check_in, check_out') — page.tsx linha corrigida"
+  AC2:
+    description: "Query filtra via property_listing_id IN (listingIds)"
+    status: PASS
+    evidence: "Two-step: fetch listing IDs → .in('property_listing_id', listingIds)"
+  AC3:
+    description: "Status inclui confirmed + pending_payment + pending"
+    status: PASS
+    evidence: ".in('status', ['confirmed', 'pending_payment', 'pending'])"
+  AC4:
+    description: "BookingSummary usa currency dinâmico"
+    status: PASS
+    evidence: "currencySymbols map + sym variable; BRL→R$, EUR→€, USD→$"
+  AC5:
+    description: "booking-confirmed usa currency da reserva"
+    status: PASS
+    evidence: "currency added to .select(), used in total display with dynamic sym"
+  AC6:
+    description: "Build PASS + Lint PASS"
+    status: PASS
+    evidence: "tsc --noEmit: 0 errors; ESLint: 0 errors (62 pre-existing warnings)"
+
+code_quality:
+  root_cause_analysis: "CORRECT — bug root cause identified: reservations table schema uses check_in/check_out, not start_date/end_date; links via property_listing_id not property_id"
+  idempotent_fix: "CORRECT — empty blockedRanges when no listings (not crash)"
+  currency_propagation: "CORRECT — checkout/page → CheckoutForm → BookingSummary → display; booking-confirmed fetches from DB"
+  webhook_status: "INFO — /api/stripe/booking-webhook already fully implemented; no changes needed"
+
+quality_score: 100
+gate_decision: PASS
+
+recommended_status: "Done"
