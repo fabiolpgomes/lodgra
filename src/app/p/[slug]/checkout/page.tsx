@@ -46,13 +46,18 @@ export default async function CheckoutPage({ params, searchParams }: PageProps) 
 
   const { data: property } = await supabase
     .from('properties')
-    .select('id, name, city, base_price, currency, is_public, slug, min_nights')
+    .select('id, name, city, base_price, currency, is_public, slug, min_nights, max_guests')
     .eq('slug', slug)
     .eq('is_public', true)
     .single()
 
   if (!property) {
     redirect('/')
+  }
+
+  // Validate guests against property capacity
+  if (property.max_guests && guests > property.max_guests) {
+    redirect(`/p/${slug}?checkIn=${checkin}&checkOut=${checkout}&guests=${property.max_guests}`)
   }
 
   // Availability check: redirect back if dates are already taken
