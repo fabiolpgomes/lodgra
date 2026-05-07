@@ -24,6 +24,7 @@ export default async function BookingConfirmedPage({ params, searchParams }: Pag
     guest_name: string | null
     guest_email: string | null
     total_amount: string | null
+    currency: string | null
     num_guests: number | null
   } | null = null
 
@@ -37,6 +38,7 @@ export default async function BookingConfirmedPage({ params, searchParams }: Pag
         guest_name,
         guest_email,
         total_amount,
+        currency,
         num_guests,
         property_listings!inner(
           properties!inner(slug)
@@ -61,13 +63,19 @@ export default async function BookingConfirmedPage({ params, searchParams }: Pag
 
     if (data) {
       // Data from query matches the reservation interface
+      const d = data as unknown as {
+        check_in: string; check_out: string; guest_name: string | null
+        guest_email: string | null; total_amount: string | null
+        currency: string | null; num_guests: number | null
+      }
       reservation = {
-        check_in: (data as unknown as { check_in: string }).check_in,
-        check_out: (data as unknown as { check_out: string }).check_out,
-        guest_name: (data as unknown as { guest_name: string | null }).guest_name || null,
-        guest_email: (data as unknown as { guest_email: string | null }).guest_email || null,
-        total_amount: (data as unknown as { total_amount: string | null }).total_amount || null,
-        num_guests: (data as unknown as { num_guests: number | null }).num_guests || null,
+        check_in: d.check_in,
+        check_out: d.check_out,
+        guest_name: d.guest_name || null,
+        guest_email: d.guest_email || null,
+        total_amount: d.total_amount || null,
+        currency: d.currency || 'EUR',
+        num_guests: d.num_guests || null,
       }
     }
   }
@@ -115,7 +123,7 @@ export default async function BookingConfirmedPage({ params, searchParams }: Pag
             )}
             {reservation.total_amount && (
               <p className="text-sm font-semibold text-gray-900 pt-1 border-t border-gray-100">
-                Total pago: {parseFloat(reservation.total_amount).toFixed(2)} €
+                Total pago: {{ BRL: 'R$', EUR: '€', USD: '$' }[reservation.currency ?? 'EUR'] || reservation.currency}{parseFloat(reservation.total_amount).toFixed(2)}
               </p>
             )}
           </div>

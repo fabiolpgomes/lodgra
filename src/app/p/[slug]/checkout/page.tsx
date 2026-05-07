@@ -45,7 +45,7 @@ export default async function CheckoutPage({ params, searchParams }: PageProps) 
 
   const { data: property } = await supabase
     .from('properties')
-    .select('id, name, city, base_price, is_public, slug, min_nights')
+    .select('id, name, city, base_price, currency, is_public, slug, min_nights')
     .eq('slug', slug)
     .eq('is_public', true)
     .single()
@@ -86,6 +86,7 @@ export default async function CheckoutPage({ params, searchParams }: PageProps) 
           checkout={checkout}
           guests={guests}
           totalPrice={totalPrice}
+          currency={property.currency ?? 'EUR'}
         />
       </main>
 

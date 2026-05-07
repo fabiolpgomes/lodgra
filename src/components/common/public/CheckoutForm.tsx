@@ -13,6 +13,7 @@ interface CheckoutFormProps {
   checkout: string
   guests: number
   totalPrice: number
+  currency?: string
 }
 
 type Step = 'summary' | 'guest' | 'payment'
@@ -45,6 +46,7 @@ export function CheckoutForm({
   checkout,
   guests,
   totalPrice,
+  currency = 'EUR',
 }: CheckoutFormProps) {
   const router = useRouter()
   const [step, setStep] = useState<Step>('summary')
@@ -150,6 +152,7 @@ export function CheckoutForm({
             checkout={checkout}
             guests={guests}
             totalPrice={totalPrice}
+            currency={currency}
           />
           <button
             onClick={() => setStep('guest')}
@@ -306,7 +309,7 @@ export function CheckoutForm({
                 A processar...
               </>
             ) : (
-              `Pagar ${totalPrice.toFixed(2)} €`
+              `Pagar ${{ BRL: 'R$', EUR: '€', USD: '$' }[currency] || currency}${totalPrice.toFixed(2)}`
             )}
           </button>
 

@@ -169,18 +169,29 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
     min_nights: r.min_nights,
   }))
 
-  // Load blocked date ranges from confirmed/pending reservations (public availability)
-  const { data: blockedReservationsRaw } = await adminClient
-    .from('reservations')
-    .select('start_date, end_date')
+  // Load listing IDs for this property (reservations link via property_listing_id, not property_id)
+  const { data: propertyListingsData } = await adminClient
+    .from('property_listings')
+    .select('id')
     .eq('property_id', property.id)
-    .in('status', ['confirmed', 'pending'])
-    .gte('end_date', today)
-    .lte('start_date', futureDate)
 
-  const blockedRanges = (blockedReservationsRaw ?? []).map(
-    (r: { start_date: string; end_date: string }) => ({ start: r.start_date, end: r.end_date })
-  )
+  const listingIds = (propertyListingsData ?? []).map((l: { id: string }) => l.id)
+
+  // Load blocked date ranges from confirmed/pending reservations (public availability)
+  let blockedRanges: { start: string; end: string }[] = []
+  if (listingIds.length > 0) {
+    const { data: blockedReservationsRaw } = await adminClient
+      .from('reservations')
+      .select('check_in, check_out')
+      .in('property_listing_id', listingIds)
+      .in('status', ['confirmed', 'pending_payment', 'pending'])
+      .gte('check_out', today)
+      .lte('check_in', futureDate)
+
+    blockedRanges = (blockedReservationsRaw ?? []).map(
+      (r: { check_in: string; check_out: string }) => ({ start: r.check_in, end: r.check_out })
+    )
+  }
 
   // Load amenities from property_amenities + amenities catalog (admin bypasses RLS)
   const { data: propertyAmenitiesRaw } = await adminClient

@@ -10,6 +10,7 @@ interface BookingSummaryProps {
   guests: number
   pricePerNight?: number
   totalPrice: number  // Final price respecting pricing rules
+  currency?: string
   compact?: boolean
 }
 
@@ -21,12 +22,15 @@ export function BookingSummary({
   guests,
   pricePerNight = 0,
   totalPrice,
+  currency = 'EUR',
   compact = false,
 }: BookingSummaryProps) {
   const checkinDate = parseISO(checkin)
   const checkoutDate = parseISO(checkout)
   const nights = differenceInDays(checkoutDate, checkinDate)
   const total = totalPrice
+  const currencySymbols: Record<string, string> = { BRL: 'R$', EUR: '€', USD: '$' }
+  const sym = currencySymbols[currency] || currency
 
   const fmtDate = (d: Date) =>
     format(d, "d 'de' MMMM yyyy", { locale: ptBR })
@@ -38,7 +42,7 @@ export function BookingSummary({
         <p className="text-gray-500">
           {format(checkinDate, 'dd/MM/yyyy')} → {format(checkoutDate, 'dd/MM/yyyy')} · {nights} noite{nights !== 1 ? 's' : ''}
         </p>
-        <p className="font-semibold text-gray-900">{total.toFixed(2)} €</p>
+        <p className="font-semibold text-gray-900">{sym}{total.toFixed(2)}</p>
       </div>
     )
   }
@@ -71,12 +75,12 @@ export function BookingSummary({
 
       <div className="border-t border-gray-100 pt-3 space-y-1 text-sm">
         <div className="flex justify-between text-gray-600">
-          <span>{(nights > 0 ? (total / nights).toFixed(2) : '0.00')} € × {nights} noite{nights !== 1 ? 's' : ''}</span>
-          <span>{total.toFixed(2)} €</span>
+          <span>{sym}{(nights > 0 ? (total / nights).toFixed(2) : '0.00')} × {nights} noite{nights !== 1 ? 's' : ''}</span>
+          <span>{sym}{total.toFixed(2)}</span>
         </div>
         <div className="flex justify-between font-semibold text-gray-900 text-base pt-1">
           <span>Total</span>
-          <span>{total.toFixed(2)} €</span>
+          <span>{sym}{total.toFixed(2)}</span>
         </div>
         <p className="text-xs text-gray-400">Impostos incluídos</p>
       </div>
