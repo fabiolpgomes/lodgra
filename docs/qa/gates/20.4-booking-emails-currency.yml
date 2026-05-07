@@ -1,0 +1,26 @@
+gate: 20.4-booking-emails-currency
+story: docs/stories/20.4.story.md
+date: 2026-05-07
+reviewed_by: Quinn
+decision: PASS
+quality_score: 100
+
+summary: >
+  Três hardcodes de '€' em emails de reserva corrigidos. BookingEmailData agora tem
+  currency?: string. Symbol calculado por função com fallback EUR. Webhook selecciona
+  currency da reserva e passa a emailData. Padrão idêntico ao fix de 20.1/20.2.
+  Cobre guest email body, manager email body, e manager email subject.
+
+acceptance_criteria:
+  AC1: PASS  # BookingEmailData.currency?: string
+  AC2: PASS  # webhook selecciona currency + passa a emailData
+  AC3: PASS  # guest email body usa símbolo dinâmico
+  AC4: PASS  # manager email body usa símbolo dinâmico
+  AC5: PASS  # manager email subject usa símbolo dinâmico
+  AC6: PASS  # 0 TypeScript errors, 0 ESLint errors
+
+concerns: []
+
+files_reviewed:
+  - src/lib/email/bookingConfirmationGuest.ts
+  - src/app/api/stripe/booking-webhook/route.ts

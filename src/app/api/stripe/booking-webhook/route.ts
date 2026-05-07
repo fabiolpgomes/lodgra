@@ -71,7 +71,7 @@ async function handleBookingCompleted(supabase: AdminClient, session: Stripe.Che
   // ── Idempotency check ────────────────────────────────────────────────────────
   const { data: existing } = await supabase
     .from('reservations')
-    .select('status, check_in, check_out, guest_name, guest_email, total_amount, num_guests, property_listing_id')
+    .select('status, check_in, check_out, guest_name, guest_email, total_amount, num_guests, property_listing_id, currency')
     .eq('id', reservationId)
     .single()
 
@@ -130,6 +130,7 @@ async function handleBookingCompleted(supabase: AdminClient, session: Stripe.Che
     guestEmail: existing.guest_email ?? null,
     numGuests: existing.num_guests ?? 1,
     totalAmount: existing.total_amount ? parseFloat(String(existing.total_amount)) : 0,
+    currency: existing.currency ?? 'EUR',
     appUrl: process.env.NEXT_PUBLIC_APP_URL ?? '',
   }
 

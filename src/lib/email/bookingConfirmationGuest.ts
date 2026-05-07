@@ -21,6 +21,7 @@ export interface BookingEmailData {
   guestEmail: string | null
   numGuests: number
   totalAmount: number
+  currency?: string
   appUrl: string
 }
 
@@ -44,6 +45,7 @@ export async function sendBookingConfirmationToGuest(data: BookingEmailData): Pr
   const propertyUrl = data.propertySlug
     ? `${data.appUrl}/p/${data.propertySlug}`
     : data.appUrl
+  const sym = ({ BRL: 'R$', EUR: '€', USD: '$' } as Record<string, string>)[data.currency ?? 'EUR'] ?? (data.currency ?? '€')
 
   const html = `
 <!DOCTYPE html>
@@ -102,7 +104,7 @@ export async function sendBookingConfirmationToGuest(data: BookingEmailData): Pr
         </tr>
         <tr>
           <td style="padding:10px 12px;color:#6b7280;font-size:14px;">Total pago</td>
-          <td style="padding:10px 12px;font-weight:700;color:#111827;font-size:15px;">${data.totalAmount.toFixed(2)} €</td>
+          <td style="padding:10px 12px;font-weight:700;color:#111827;font-size:15px;">${sym}${data.totalAmount.toFixed(2)}</td>
         </tr>
       </table>
 
@@ -164,6 +166,7 @@ export async function sendBookingNotificationToManager(data: BookingEmailData): 
 
   const nights = differenceInDays(parseISO(data.checkOut), parseISO(data.checkIn))
   const dashboardUrl = `${data.appUrl}/reservations`
+  const sym = ({ BRL: 'R$', EUR: '€', USD: '$' } as Record<string, string>)[data.currency ?? 'EUR'] ?? (data.currency ?? '€')
 
   const html = `
 <!DOCTYPE html>
@@ -233,7 +236,7 @@ export async function sendBookingNotificationToManager(data: BookingEmailData): 
         </tr>
         <tr>
           <td style="padding:10px 12px;color:#6b7280;font-size:14px;">Valor recebido</td>
-          <td style="padding:10px 12px;font-weight:700;color:#16a34a;font-size:15px;">${data.totalAmount.toFixed(2)} €</td>
+          <td style="padding:10px 12px;font-weight:700;color:#16a34a;font-size:15px;">${sym}${data.totalAmount.toFixed(2)}</td>
         </tr>
       </table>
 
@@ -256,7 +259,7 @@ export async function sendBookingNotificationToManager(data: BookingEmailData): 
     const { error } = await resend.emails.send({
       from: FROM_EMAIL,
       to: ADMIN_EMAIL,
-      subject: `🎉 Nova reserva directa — ${data.propertyName} (${data.totalAmount.toFixed(2)} €)`,
+      subject: `🎉 Nova reserva directa — ${data.propertyName} (${sym}${data.totalAmount.toFixed(2)})`,
       html,
     })
     if (error) console.error('[email] Erro ao enviar notificação ao gestor:', error)
