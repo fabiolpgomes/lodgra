@@ -36,21 +36,37 @@ export async function GET() {
   const today = new Date().toISOString().split('T')[0]
   const futureDate = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
 
-  // Fetch blocked date ranges for all properties in one query
-  const { data: reservations } = await adminClient
-    .from('reservations')
-    .select('property_id, start_date, end_date')
+  // Step 1: fetch all listing IDs for public properties + build reverse map
+  const { data: listingsData } = await adminClient
+    .from('property_listings')
+    .select('id, property_id')
     .in('property_id', propertyIds)
-    .in('status', ['confirmed', 'pending'])
-    .gte('end_date', today)
-    .lte('start_date', futureDate)
-    .order('start_date', { ascending: true })
 
-  // Index blocked ranges by property_id
+  const listingToProperty: Record<string, string> = {}
+  const allListingIds: string[] = []
+  for (const l of listingsData ?? []) {
+    listingToProperty[l.id] = l.property_id
+    allListingIds.push(l.id)
+  }
+
+  // Step 2: query reservations via listing IDs using correct columns
   const blockedByProperty: Record<string, { start: string; end: string }[]> = {}
-  for (const r of reservations ?? []) {
-    if (!blockedByProperty[r.property_id]) blockedByProperty[r.property_id] = []
-    blockedByProperty[r.property_id].push({ start: r.start_date, end: r.end_date })
+  if (allListingIds.length > 0) {
+    const { data: reservations } = await adminClient
+      .from('reservations')
+      .select('property_listing_id, check_in, check_out')
+      .in('property_listing_id', allListingIds)
+      .in('status', ['confirmed', 'pending_payment', 'pending'])
+      .gte('check_out', today)
+      .lte('check_in', futureDate)
+      .order('check_in', { ascending: true })
+
+    for (const r of reservations ?? []) {
+      const propId = listingToProperty[r.property_listing_id]
+      if (!propId) continue
+      if (!blockedByProperty[propId]) blockedByProperty[propId] = []
+      blockedByProperty[propId].push({ start: r.check_in, end: r.check_out })
+    }
   }
 
   // Fetch amenities for all properties

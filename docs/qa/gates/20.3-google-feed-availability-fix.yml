@@ -1,0 +1,27 @@
+gate: 20.3-google-feed-availability-fix
+story: docs/stories/20.3.story.md
+date: 2026-05-07
+reviewed_by: Quinn
+decision: PASS
+quality_score: 100
+
+summary: >
+  Bug crítico no google feed corrigido. Query de disponibilidade usava property_id/start_date/end_date
+  (colunas inexistentes). Fix aplica o padrão two-step validado em Story 20.1:
+  property_listings → allListingIds → reservations via property_listing_id.
+  Mapa inverso listingToProperty resolve listing→property sem N+1.
+  Guard para listingIds vazio previne IN () inválido.
+  Status alargado a pending_payment. Colunas check_in/check_out correctas.
+
+acceptance_criteria:
+  AC1: PASS  # Two-step query via property_listing_id
+  AC2: PASS  # check_in / check_out colunas correctas
+  AC3: PASS  # status includes pending_payment
+  AC4: PASS  # guard allListingIds.length > 0
+  AC5: PASS  # blockedByProperty indexed via listingToProperty reverse map
+  AC6: PASS  # 0 TypeScript errors, 0 ESLint errors
+
+concerns: []
+
+files_reviewed:
+  - src/app/api/google-feed/route.ts
