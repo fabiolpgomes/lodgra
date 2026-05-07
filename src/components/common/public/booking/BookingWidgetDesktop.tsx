@@ -29,6 +29,7 @@ interface BookingWidgetDesktopProps {
   initialCheckOut?: string
   initialGuests?: number
   minNights?: number
+  maxGuests?: number
   pricingRules?: PricingRule[]
   blockedRanges?: BlockedRange[]
 }
@@ -49,12 +50,13 @@ export function BookingWidgetDesktop({
   initialCheckOut,
   initialGuests = 1,
   minNights = 1,
+  maxGuests = 10,
   pricingRules = [],
   blockedRanges = [],
 }: BookingWidgetDesktopProps) {
   const [checkIn, setCheckIn] = useState(initialCheckIn || '')
   const [checkOut, setCheckOut] = useState(initialCheckOut || '')
-  const [guests, setGuests] = useState(initialGuests)
+  const [guests, setGuests] = useState(Math.min(initialGuests, Math.max(1, maxGuests)))
   const [checkInError, setCheckInError] = useState('')
   const [checkOutError, setCheckOutError] = useState('')
   const [priceState, setPriceState] = useState<PriceState>({ status: 'idle' })
@@ -213,7 +215,7 @@ export function BookingWidgetDesktop({
           onChange={e => setGuests(parseInt(e.target.value))}
           className="w-full px-2 py-2 text-sm border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lodgra-green"
         >
-          {Array.from({ length: 10 }, (_, i) => (
+          {Array.from({ length: Math.max(1, maxGuests) }, (_, i) => (
             <option key={i + 1} value={i + 1}>{i + 1} {i === 0 ? 'hóspede' : 'hóspedes'}</option>
           ))}
         </select>

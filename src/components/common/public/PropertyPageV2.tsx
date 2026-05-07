@@ -103,6 +103,7 @@ export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, 
                 initialCheckOut={initialCheckOut}
                 initialGuests={initialGuests}
                 minNights={minNights}
+                maxGuests={property.max_guests ?? undefined}
                 pricingRules={pricingRules}
                 blockedRanges={blockedRanges}
               />
@@ -221,6 +222,7 @@ export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, 
         initialCheckOut={initialCheckOut}
         initialGuests={initialGuests}
         minNights={minNights}
+        maxGuests={property.max_guests ?? undefined}
         pricingRules={pricingRules}
         blockedRanges={blockedRanges}
       />

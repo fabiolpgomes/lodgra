@@ -1,0 +1,28 @@
+gate: 22.1-booking-widget-max-guests
+story: docs/stories/22.1.story.md
+date: 2026-05-07
+reviewed_by: Quinn
+decision: PASS
+quality_score: 100
+
+summary: >
+  max_guests prop adicionada a BookingWidgetDesktop e BookingWidgetMobile.
+  initialGuests clampado para prevenir URL manipulation.
+  PropertyPageV2 passa property.max_guests aos dois widgets.
+  Default 10 garante backward compatibility.
+  0 TypeScript errors, 0 ESLint errors.
+
+acceptance_criteria:
+  AC1: PASS  # BookingWidgetDesktop com prop maxGuests
+  AC2: PASS  # BookingWidgetMobile com prop maxGuests
+  AC3: PASS  # initialGuests clampado
+  AC4: PASS  # PropertyPageV2 passa max_guests
+  AC5: PASS  # default 10 (backward compatible)
+  AC6: PASS  # build + lint pass
+
+concerns: []
+
+files_reviewed:
+  - src/components/common/public/booking/BookingWidgetDesktop.tsx
+  - src/components/common/public/booking/BookingWidgetMobile.tsx
+  - src/components/common/public/PropertyPageV2.tsx
