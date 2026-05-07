@@ -153,7 +153,7 @@ export function PricingRulesManager({ propertyId, organizationId, initialRules, 
                 <th className="pb-2 pr-4 font-medium">Nome</th>
                 <th className="pb-2 pr-4 font-medium">Início</th>
                 <th className="pb-2 pr-4 font-medium">Fim</th>
-                <th className="pb-2 pr-4 font-medium text-right">€/noite</th>
+                <th className="pb-2 pr-4 font-medium text-right">{getCurrencySymbol(currency as CurrencyCode)}/noite</th>
                 <th className="pb-2 pr-4 font-medium text-right">Mín. noites</th>
                 <th className="pb-2 font-medium"></th>
               </tr>
@@ -164,7 +164,7 @@ export function PricingRulesManager({ propertyId, organizationId, initialRules, 
                   <td className="py-3 pr-4 font-medium text-gray-900">{rule.name}</td>
                   <td className="py-3 pr-4 text-gray-600">{fmtDate(rule.start_date)}</td>
                   <td className="py-3 pr-4 text-gray-600">{fmtDate(rule.end_date)}</td>
-                  <td className="py-3 pr-4 text-right font-semibold">{rule.price_per_night.toFixed(2)} €</td>
+                  <td className="py-3 pr-4 text-right font-semibold">{getCurrencySymbol(currency as CurrencyCode)}{rule.price_per_night.toFixed(2)}</td>
                   <td className="py-3 pr-4 text-right text-gray-600">{rule.min_nights}</td>
                   <td className="py-3 flex gap-2 justify-end">
                     <button
