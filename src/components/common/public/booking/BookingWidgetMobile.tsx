@@ -15,6 +15,11 @@ type PriceState =
   | { status: 'loading' }
   | { status: 'ready'; total: number; breakdown?: { date: string; price: number }[] }
 
+interface BlockedRange {
+  start: string
+  end: string
+}
+
 interface BookingWidgetMobileProps {
   propertyName: string
   basePrice: number
@@ -25,6 +30,15 @@ interface BookingWidgetMobileProps {
   initialGuests?: number
   minNights?: number
   pricingRules?: PricingRule[]
+  blockedRanges?: BlockedRange[]
+}
+
+function isDateBlocked(date: string, ranges: BlockedRange[]): boolean {
+  return ranges.some(r => date >= r.start && date < r.end)
+}
+
+function isRangeOverlapping(ci: string, co: string, ranges: BlockedRange[]): boolean {
+  return ranges.some(r => ci < r.end && co > r.start)
 }
 
 export function BookingWidgetMobile({
@@ -36,11 +50,13 @@ export function BookingWidgetMobile({
   initialGuests = 1,
   minNights = 1,
   pricingRules = [],
+  blockedRanges = [],
 }: BookingWidgetMobileProps) {
   const [showPanel, setShowPanel] = useState(false)
   const [checkIn, setCheckIn] = useState(initialCheckIn || '')
   const [checkOut, setCheckOut] = useState(initialCheckOut || '')
   const [guests, setGuests] = useState(initialGuests)
+  const [checkInError, setCheckInError] = useState('')
   const [checkOutError, setCheckOutError] = useState('')
   const [priceState, setPriceState] = useState<PriceState>({ status: 'idle' })
 
@@ -104,6 +120,11 @@ export function BookingWidgetMobile({
 
   const handleCheckInChange = (val: string) => {
     setCheckIn(val)
+    if (val && isDateBlocked(val, blockedRanges)) {
+      setCheckInError('Data indisponível')
+    } else {
+      setCheckInError('')
+    }
     if (checkOut && val) {
       const newMin = addDays(parseISO(val), Math.max(1, effectiveMinNights))
       if (isBefore(parseISO(checkOut), newMin)) {
@@ -123,6 +144,8 @@ export function BookingWidgetMobile({
             ? 'Check-out deve ser mínimo 1 dia após check-in'
             : `Estadia mínima: ${effectiveMinNights} noites`
         )
+      } else if (isRangeOverlapping(checkIn, val, blockedRanges)) {
+        setCheckOutError('Período contém datas reservadas')
       } else {
         setCheckOutError('')
       }
@@ -154,7 +177,7 @@ export function BookingWidgetMobile({
             )}
           </div>
 
-          {checkoutHref ? (
+          {checkoutHref && !checkInError && !checkOutError ? (
             <Link
               href={checkoutHref}
               className="flex-1 bg-lodgra-green hover:opacity-90 active:scale-[0.98] text-white font-semibold py-3 px-4 rounded-lg text-center transition-colors"
@@ -200,6 +223,7 @@ export function BookingWidgetMobile({
                   onChange={e => handleCheckInChange(e.target.value)}
                   className="w-full px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-lodgra-green"
                 />
+                {checkInError && <p className="mt-1 text-xs text-red-600">{checkInError}</p>}
               </div>
               <div>
                 <label className="block text-sm font-semibold text-neutral-700 mb-1">Check-out</label>
@@ -263,7 +287,7 @@ export function BookingWidgetMobile({
               </div>
             )}
 
-            {checkoutHref ? (
+            {checkoutHref && !checkInError && !checkOutError ? (
               <Link
                 href={checkoutHref}
                 className="block w-full bg-lodgra-green hover:opacity-90 text-white font-semibold py-3 px-4 rounded-lg text-center transition-colors"
@@ -276,7 +300,7 @@ export function BookingWidgetMobile({
                 disabled
                 className="w-full bg-lodgra-green opacity-40 text-white font-semibold py-3 px-4 rounded-lg cursor-not-allowed"
               >
-                Selecione check-in e check-out
+                {checkInError || checkOutError ? 'Datas indisponíveis' : 'Selecione check-in e check-out'}
               </button>
             )}
           </div>

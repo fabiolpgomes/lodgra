@@ -169,6 +169,19 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
     min_nights: r.min_nights,
   }))
 
+  // Load blocked date ranges from confirmed/pending reservations (public availability)
+  const { data: blockedReservationsRaw } = await adminClient
+    .from('reservations')
+    .select('start_date, end_date')
+    .eq('property_id', property.id)
+    .in('status', ['confirmed', 'pending'])
+    .gte('end_date', today)
+    .lte('start_date', futureDate)
+
+  const blockedRanges = (blockedReservationsRaw ?? []).map(
+    (r: { start_date: string; end_date: string }) => ({ start: r.start_date, end: r.end_date })
+  )
+
   // Load amenities from property_amenities + amenities catalog (admin bypasses RLS)
   const { data: propertyAmenitiesRaw } = await adminClient
     .from('property_amenities')
@@ -209,6 +222,7 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
         checkinFrom={property.checkin_from}
         checkinUntil={property.checkin_until}
         checkoutUntil={property.checkout_until}
+        blockedRanges={blockedRanges}
       />
     </>
   )

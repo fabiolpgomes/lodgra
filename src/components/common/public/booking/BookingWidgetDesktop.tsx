@@ -15,6 +15,11 @@ type PriceState =
   | { status: 'loading' }
   | { status: 'ready'; total: number; breakdown?: { date: string; price: number }[] }
 
+interface BlockedRange {
+  start: string
+  end: string
+}
+
 interface BookingWidgetDesktopProps {
   propertyName: string
   basePrice: number
@@ -25,6 +30,15 @@ interface BookingWidgetDesktopProps {
   initialGuests?: number
   minNights?: number
   pricingRules?: PricingRule[]
+  blockedRanges?: BlockedRange[]
+}
+
+function isDateBlocked(date: string, ranges: BlockedRange[]): boolean {
+  return ranges.some(r => date >= r.start && date < r.end)
+}
+
+function isRangeOverlapping(ci: string, co: string, ranges: BlockedRange[]): boolean {
+  return ranges.some(r => ci < r.end && co > r.start)
 }
 
 export function BookingWidgetDesktop({
@@ -36,10 +50,12 @@ export function BookingWidgetDesktop({
   initialGuests = 1,
   minNights = 1,
   pricingRules = [],
+  blockedRanges = [],
 }: BookingWidgetDesktopProps) {
   const [checkIn, setCheckIn] = useState(initialCheckIn || '')
   const [checkOut, setCheckOut] = useState(initialCheckOut || '')
   const [guests, setGuests] = useState(initialGuests)
+  const [checkInError, setCheckInError] = useState('')
   const [checkOutError, setCheckOutError] = useState('')
   const [priceState, setPriceState] = useState<PriceState>({ status: 'idle' })
 
@@ -104,6 +120,11 @@ export function BookingWidgetDesktop({
 
   const handleCheckInChange = (val: string) => {
     setCheckIn(val)
+    if (val && isDateBlocked(val, blockedRanges)) {
+      setCheckInError('Data indisponível')
+    } else {
+      setCheckInError('')
+    }
     if (checkOut && val) {
       const newMin = addDays(parseISO(val), Math.max(1, effectiveMinNights))
       if (isBefore(parseISO(checkOut), newMin)) {
@@ -123,6 +144,8 @@ export function BookingWidgetDesktop({
             ? 'Check-out deve ser no mínimo 1 dia após check-in'
             : `Esta propriedade exige estadia mínima de ${effectiveMinNights} noites`
         )
+      } else if (isRangeOverlapping(checkIn, val, blockedRanges)) {
+        setCheckOutError('Período contém datas reservadas')
       } else {
         setCheckOutError('')
       }
@@ -162,6 +185,9 @@ export function BookingWidgetDesktop({
             onChange={e => handleCheckInChange(e.target.value)}
             className="w-full px-2 py-2 text-sm border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lodgra-green"
           />
+          {checkInError && (
+            <p className="mt-1 text-xs text-red-600">{checkInError}</p>
+          )}
         </div>
         <div>
           <label className="block text-xs font-semibold text-neutral-700 mb-1">Check-out</label>
@@ -230,7 +256,7 @@ export function BookingWidgetDesktop({
       )}
 
       {/* CTA */}
-      {checkoutHref ? (
+      {checkoutHref && !checkInError && !checkOutError ? (
         <Link
           href={checkoutHref}
           className="block w-full text-white font-semibold py-3 px-4 rounded-lg text-center transition-all mb-4 hover:opacity-90 active:scale-[0.98]"
@@ -244,7 +270,7 @@ export function BookingWidgetDesktop({
           className="block w-full text-white font-semibold py-3 px-4 rounded-lg text-center cursor-not-allowed mb-4 opacity-50"
           style={{ backgroundColor: '#059669' }}
         >
-          Selecione as datas
+          {checkInError || checkOutError ? 'Datas indisponíveis' : 'Selecione as datas'}
         </button>
       )}
 

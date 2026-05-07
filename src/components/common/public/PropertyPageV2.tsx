@@ -39,9 +39,10 @@ interface PropertyPageV2Props {
   checkinFrom?: string | null
   checkinUntil?: string | null
   checkoutUntil?: string | null
+  blockedRanges?: { start: string; end: string }[]
 }
 
-export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, initialCheckOut, initialGuests, minNights = 1, pricingRules = [], structuredAmenities, minNightsError, cleaningFee, cleaningFeeType, petFee, petFeeType, checkinFrom, checkinUntil, checkoutUntil }: PropertyPageV2Props) {
+export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, initialCheckOut, initialGuests, minNights = 1, pricingRules = [], structuredAmenities, minNightsError, cleaningFee, cleaningFeeType, petFee, petFeeType, checkinFrom, checkinUntil, checkoutUntil, blockedRanges = [] }: PropertyPageV2Props) {
   const [showLightbox, setShowLightbox] = useState(false)
   const [lightboxIndex, setLightboxIndex] = useState(0)
 
@@ -91,6 +92,7 @@ export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, 
                 initialGuests={initialGuests}
                 minNights={minNights}
                 pricingRules={pricingRules}
+                blockedRanges={blockedRanges}
               />
             </div>
           </div>
@@ -202,6 +204,7 @@ export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, 
         initialGuests={initialGuests}
         minNights={minNights}
         pricingRules={pricingRules}
+        blockedRanges={blockedRanges}
       />
 
       {/* Lightbox Modal */}
