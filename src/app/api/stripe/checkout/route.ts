@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
       request.headers.get('origin') ||
       request.headers.get('referer')?.replace(/\/[^/]*$/, '') ||
       process.env.NEXT_PUBLIC_APP_URL ||
-      'https://homestay.pt'
+      'https://lodgra.io'
 
     if (!plan) {
       return NextResponse.json({ error: 'Plano obrigatório' }, { status: 400 })
