@@ -1,0 +1,26 @@
+gate: 21.4-public-bathrooms-display
+story: docs/stories/21.4.story.md
+date: 2026-05-07
+reviewed_by: Quinn
+decision: PASS
+quality_score: 100
+
+summary: >
+  PropertyBathrooms componente adicionado à página pública seguindo padrão de PropertyRooms (21.1).
+  Query via adminClient contorna RLS. Render null quando vazio. Chips para equipamentos.
+  0 TypeScript errors, 0 ESLint errors.
+
+acceptance_criteria:
+  AC1: PASS  # PropertyBathrooms componente renderiza lista
+  AC2: PASS  # tipo + ícone + nome por casa de banho
+  AC3: PASS  # equipamentos como chips
+  AC4: PASS  # render null quando vazio
+  AC5: PASS  # adminClient query em p/[slug]/page.tsx
+  AC6: PASS  # build + lint pass
+
+concerns: []
+
+files_reviewed:
+  - src/components/common/public/content/PropertyBathrooms.tsx
+  - src/components/common/public/PropertyPageV2.tsx
+  - src/app/p/[slug]/page.tsx

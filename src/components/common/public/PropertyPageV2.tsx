@@ -11,6 +11,7 @@ import { PropertyAmenitiesV2, type StructuredAmenity } from './content/PropertyA
 import { PropertyLocation } from './content/PropertyLocation'
 import { PropertyPolicies } from './content/PropertyPolicies'
 import { PropertyRooms, type PropertyRoom } from './content/PropertyRooms'
+import { PropertyBathrooms, type PropertyBathroom } from './content/PropertyBathrooms'
 import { BookingWidgetDesktop } from './booking/BookingWidgetDesktop'
 import { BookingWidgetMobile } from './booking/BookingWidgetMobile'
 import { PropertyTrustBadges } from './layout/PropertyTrustBadges'
@@ -33,6 +34,7 @@ interface PropertyPageV2Props {
   pricingRules?: PricingRule[]
   structuredAmenities?: StructuredAmenity[]
   rooms?: PropertyRoom[]
+  bathrooms?: PropertyBathroom[]
   minNightsError?: number
   datesUnavailable?: boolean
   cleaningFee?: number | null
@@ -45,7 +47,7 @@ interface PropertyPageV2Props {
   blockedRanges?: { start: string; end: string }[]
 }
 
-export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, initialCheckOut, initialGuests, minNights = 1, pricingRules = [], structuredAmenities, rooms, minNightsError, datesUnavailable, cleaningFee, cleaningFeeType, petFee, petFeeType, checkinFrom, checkinUntil, checkoutUntil, blockedRanges = [] }: PropertyPageV2Props) {
+export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, initialCheckOut, initialGuests, minNights = 1, pricingRules = [], structuredAmenities, rooms, bathrooms, minNightsError, datesUnavailable, cleaningFee, cleaningFeeType, petFee, petFeeType, checkinFrom, checkinUntil, checkoutUntil, blockedRanges = [] }: PropertyPageV2Props) {
   const [showLightbox, setShowLightbox] = useState(false)
   const [lightboxIndex, setLightboxIndex] = useState(0)
 
@@ -163,6 +165,9 @@ export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, 
 
               {/* Rooms — bed types and linen from Epic 18.3 */}
               <PropertyRooms rooms={rooms ?? []} />
+
+              {/* Bathrooms — type and fixtures from Epic 18.4 */}
+              <PropertyBathrooms bathrooms={bathrooms ?? []} />
 
               {/* Policies — fees and check-in/out schedules from Epic 18.5 */}
               <PropertyPolicies
