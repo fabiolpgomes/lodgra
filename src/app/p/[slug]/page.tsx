@@ -193,6 +193,21 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
     )
   }
 
+  // Load rooms from property_rooms (admin bypasses RLS for public page)
+  const { data: propertyRoomsRaw } = await adminClient
+    .from('property_rooms')
+    .select('id, name, bed_type, bed_count, provides_linen')
+    .eq('property_id', property.id)
+    .order('sort_order')
+
+  const propertyRooms = (propertyRoomsRaw ?? []) as Array<{
+    id: string
+    name: string | null
+    bed_type: string
+    bed_count: number
+    provides_linen: boolean
+  }>
+
   // Load amenities from property_amenities + amenities catalog (admin bypasses RLS)
   const { data: propertyAmenitiesRaw } = await adminClient
     .from('property_amenities')
@@ -225,6 +240,7 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
         minNights={property.min_nights ?? 1}
         pricingRules={pricingRules}
         structuredAmenities={structuredAmenities}
+        rooms={propertyRooms}
         minNightsError={minNightsErrorCount && minNightsErrorCount > 0 ? minNightsErrorCount : undefined}
         cleaningFee={property.cleaning_fee}
         cleaningFeeType={property.cleaning_fee_type}

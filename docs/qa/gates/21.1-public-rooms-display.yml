@@ -1,0 +1,26 @@
+gate: 21.1-public-rooms-display
+story: docs/stories/21.1.story.md
+date: 2026-05-07
+reviewed_by: Quinn
+decision: PASS
+quality_score: 100
+
+summary: >
+  Quartos com tipo de cama agora exibidos na página pública. PropertyRooms component
+  renderiza null quando sem quartos. Admin client bypass RLS correcto. Ícones Lucide
+  mapeados por tipo. Labels PT completos. Consistente com PropertyPolicies em estrutura.
+
+acceptance_criteria:
+  AC1: PASS  # property_rooms query via admin client
+  AC2: PASS  # rooms prop em PropertyPageV2
+  AC3: PASS  # secção entre amenities e policies
+  AC4: PASS  # ícone + nome + tipo + nº camas + lençóis
+  AC5: PASS  # null quando sem quartos
+  AC6: PASS  # 0 TypeScript errors, 0 ESLint errors
+
+concerns: []
+
+files_reviewed:
+  - src/components/common/public/content/PropertyRooms.tsx
+  - src/components/common/public/PropertyPageV2.tsx
+  - src/app/p/[slug]/page.tsx
