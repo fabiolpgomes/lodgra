@@ -91,7 +91,7 @@ export async function POST(request: NextRequest) {
 
   const { data: property } = await adminClient
     .from('properties')
-    .select('id, name, base_price, min_nights, organization_id, is_public, max_guests')
+    .select('id, name, base_price, currency, min_nights, organization_id, is_public, max_guests')
     .eq('slug', slug as string)
     .eq('is_public', true)
     .single()
@@ -270,7 +270,7 @@ export async function POST(request: NextRequest) {
       check_out: checkout as string,
       number_of_guests: guests,
       total_amount: totalAmount,
-      currency: 'EUR',
+      currency: property.currency ?? 'EUR',
       status: 'pending_payment',
       booking_source: 'direct',
       guest_name: (guest_name as string).trim(),
@@ -307,7 +307,7 @@ export async function POST(request: NextRequest) {
       line_items: [
         {
           price_data: {
-            currency: 'eur',
+            currency: (property.currency ?? 'EUR').toLowerCase(),
             unit_amount: Math.round(totalAmount * 100),
             product_data: {
               name: `${property.name} — ${nights} noite${nights !== 1 ? 's' : ''}`,
