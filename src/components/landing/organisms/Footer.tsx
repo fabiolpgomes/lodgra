@@ -21,7 +21,7 @@ export const Footer: React.FC<FooterProps> = ({
   companyLinks = [],
   supportLinks = [],
   legalLinks = [],
-  socialLinks = [],
+  socialLinks: _socialLinks = [],
 }) => (
   <footer className="bg-lodgra-neutral text-white py-8 sm:py-12">
     <Container>

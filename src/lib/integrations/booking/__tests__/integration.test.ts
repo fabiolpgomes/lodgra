@@ -14,14 +14,14 @@
 
 import { createAdminClient } from '@/lib/supabase/admin'
 import { syncBookingReservation } from '../reservation-sync'
-import { validateBookingWebhookSignature } from '../webhook-validator'
+import { validateBookingWebhookSignature as _validateBookingWebhookSignature } from '../webhook-validator'
 import type { BookingWebhookPayload } from '../webhook-validator'
 import crypto from 'crypto'
 
 // TODO: Re-enable when Booking.com native integration is reactivated
 describe.skip('Booking.com Webhook - Integration Tests', () => {
   const adminClient = createAdminClient()
-  const WEBHOOK_SECRET = process.env.BOOKING_WEBHOOK_SECRET || 'test-secret-key'
+  const _WEBHOOK_SECRET = process.env.BOOKING_WEBHOOK_SECRET || 'test-secret-key'
 
   // Test data
   let testOrgId: string

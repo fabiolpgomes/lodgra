@@ -5,7 +5,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
  * Emergency endpoint to apply pending migrations
  * Only works with admin client (bypasses auth)
  */
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   const adminClient = createAdminClient()
 
   try {

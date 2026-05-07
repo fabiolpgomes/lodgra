@@ -2,28 +2,19 @@
 
 import React, { useMemo } from 'react'
 import { 
-  AreaChart, 
-  Area, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer, 
-  PieChart, 
-  Pie, 
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
   Cell,
-  BarChart,
-  Bar,
-  Legend
 } from 'recharts'
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  Info, 
-  LayoutDashboard,
-  Percent,
+import {
   ArrowUpRight,
-  ArrowDownRight
 } from 'lucide-react'
 import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
 

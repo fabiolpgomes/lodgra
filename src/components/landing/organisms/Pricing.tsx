@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React from 'react'
 import { Container } from '../atoms/Container'
 import { PricingCard } from '../molecules/PricingCard'
 
@@ -25,7 +25,7 @@ interface PricingProps {
 export const Pricing: React.FC<PricingProps> = ({
   title,
   tiers,
-  currencySymbol = '$',
+  currencySymbol: _currencySymbol = '$',
   onSelectTier,
 }) => {
   return (

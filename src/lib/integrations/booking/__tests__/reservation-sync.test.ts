@@ -9,7 +9,7 @@
  * - Error handling
  */
 
-import { syncBookingReservation } from '../reservation-sync'
+import { syncBookingReservation as _syncBookingReservation } from '../reservation-sync'
 import type { BookingWebhookPayload } from '../webhook-validator'
 
 // Mock the admin client
@@ -34,7 +34,7 @@ jest.mock('@/lib/commission/service', () => ({
 }))
 
 describe('syncBookingReservation', () => {
-  const validPayload: BookingWebhookPayload = {
+  const _validPayload: BookingWebhookPayload = {
     event_id: 'evt_123456',
     timestamp: '2026-03-31T12:00:00Z',
     event_type: 'reservation.created',

@@ -20,7 +20,7 @@ export function BookingSummary({
   checkin,
   checkout,
   guests,
-  pricePerNight = 0,
+  pricePerNight: _pricePerNight = 0,
   totalPrice,
   currency = 'EUR',
   compact = false,

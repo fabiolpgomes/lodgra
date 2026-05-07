@@ -3,7 +3,6 @@
  * Tests: GET /api/commissions/dashboard, /history, /export
  */
 
-import { createClient } from '@/lib/supabase/server'
 
 describe('Commission API Routes', () => {
   describe('GET /api/commissions/dashboard', () => {

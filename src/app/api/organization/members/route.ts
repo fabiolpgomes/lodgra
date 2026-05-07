@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
  * GET /api/organization/members
  * List all members in the organization (admin only)
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   const auth = await requireRole(['admin'])
   if (!auth.authorized) return auth.response!
 

@@ -243,7 +243,7 @@ describe('BookingComClient', () => {
 
   describe('Exponential Backoff', () => {
     it('should calculate increasing delays', async () => {
-      const client = new BookingComClient(mockPropertyId, mockApiKey, undefined, {
+      new BookingComClient(mockPropertyId, mockApiKey, undefined, {
         maxRetries: 3,
         initialDelayMs: 100,
         maxDelayMs: 5000,

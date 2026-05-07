@@ -40,14 +40,14 @@ export function checkRateLimit(
   return true;
 }
 
-// Global cleanup interval for all namespaces
+// Global cleanup interval for all namespaces — .unref() prevents this from blocking process exit in tests
 setInterval(() => {
   const now = Date.now();
   for (const store of rateLimitStores.values()) {
     for (const [ip, entry] of store.entries()) {
-      if (now - entry.windowStart > 5 * 60 * 1000) { // Keep cleanup threshold generous
+      if (now - entry.windowStart > 5 * 60 * 1000) {
         store.delete(ip);
       }
     }
   }
-}, 5 * 60 * 1000);
+}, 5 * 60 * 1000).unref();

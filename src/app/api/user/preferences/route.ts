@@ -43,7 +43,7 @@ export async function PATCH(request: NextRequest) {
   }
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // Verify user is authenticated (all roles can read their own preferences)
     const authResult = await requireRole(['admin', 'gestor', 'viewer', 'guest'])

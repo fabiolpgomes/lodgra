@@ -112,7 +112,6 @@ export async function POST(request: NextRequest) {
 }
 
 // GET para obter contagens antes de confirmar
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function GET(_request: NextRequest) {
   try {
     const auth = await requireRole(['admin', 'gestor'])

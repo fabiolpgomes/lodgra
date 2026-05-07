@@ -4,7 +4,6 @@ import { createClient } from '@/lib/supabase/server'
 import { requireRole } from '@/lib/auth/requireRole'
 import { LazyOccupancyChart as OccupancyChart, LazyStatusChart as StatusChart } from '@/components/common/lazy/LazyCharts'
 import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
-import { CurrencyStack } from '@/components/common/ui/CurrencyStack'
 import { RevenueChartWrapper } from '@/components/features/dashboard/RevenueChartWrapper'
 import { AuthLayout } from '@/components/common/layout/AuthLayout'
 import { redirect } from 'next/navigation'
@@ -345,7 +344,7 @@ export default async function DashboardPage({
               <p className="text-3xl font-bold text-gray-300">—</p>
             ) : (
               <div className="space-y-3">
-                {Object.entries(monthRevenueByCurrency).map(([cur, amount], idx, arr) => {
+                {Object.entries(monthRevenueByCurrency).map(([cur, amount], idx, _arr) => {
                   const badgeColor = cur === 'EUR' ? 'bg-blue-50 text-blue-700 ring-blue-200'
                     : cur === 'BRL' ? 'bg-green-50 text-green-700 ring-green-200'
                     : cur === 'USD' ? 'bg-yellow-50 text-yellow-700 ring-yellow-200'

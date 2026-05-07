@@ -5,7 +5,6 @@ import { CreditCard, ArrowRight, Trash2 } from 'lucide-react'
 import { PLAN_DISPLAY } from '@/lib/billing/plans'
 import { PlanUpgradeModal } from './PlanUpgradeModal'
 import { toast } from 'sonner'
-import Link from 'next/link'
 
 interface SubscriptionSectionProps {
   currentPlan: string | null

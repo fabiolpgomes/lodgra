@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Power, AlertTriangle, CheckCircle } from 'lucide-react'
+import { Power, CheckCircle } from 'lucide-react'
 import { Button } from '@/components/common/ui/button'
 import { Alert, AlertDescription } from '@/components/common/ui/alert'
 import {

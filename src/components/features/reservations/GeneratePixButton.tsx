@@ -14,7 +14,7 @@ interface Props {
 export function GeneratePixButton({ reservationId, initialPaymentLink, initialStatus }: Props) {
   const [loading, setLoading] = useState(false)
   const [paymentLink, setPaymentLink] = useState(initialPaymentLink)
-  const [status, setStatus] = useState(initialStatus)
+  const [, setStatus] = useState(initialStatus)
 
   async function generatePix() {
     setLoading(true)
@@ -33,7 +33,7 @@ export function GeneratePixButton({ reservationId, initialPaymentLink, initialSt
       } else {
         toast.error(data.error || 'Erro ao gerar PIX')
       }
-    } catch (err) {
+    } catch {
       toast.error('Erro de conexão')
     } finally {
       setLoading(false)

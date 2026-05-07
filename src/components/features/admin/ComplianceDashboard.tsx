@@ -66,7 +66,7 @@ export function ComplianceDashboard() {
       }
     }
     fetchData()
-  }, [])
+  }, [t])
 
   async function handleCsvExport() {
     try {

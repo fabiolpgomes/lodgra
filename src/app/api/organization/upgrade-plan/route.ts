@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { requireRole } from '@/lib/auth/requireRole'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { getPlanFromPriceId } from '@/lib/billing/plans'
 import { getPerUnitPriceId, getMeteredPriceId } from '@/lib/billing/stripe-usage'
 
 export const dynamic = 'force-dynamic'

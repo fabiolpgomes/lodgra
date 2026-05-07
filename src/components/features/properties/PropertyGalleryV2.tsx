@@ -70,7 +70,7 @@ export function PropertyGalleryV2({
       }
       return '';
     },
-    [SUPABASE_URL]
+    []
   );
 
   const handlePrev = () => {

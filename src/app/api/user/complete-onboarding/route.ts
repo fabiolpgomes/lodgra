@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/client'
 import { createAdminClient } from '@/lib/supabase/admin'
 
 // POST /api/user/complete-onboarding — promover usuário para admin após completar onboarding
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   const supabase = createClient()
 
   // Verificar autenticação

@@ -5,7 +5,7 @@ import { ICalSyncSettings } from '@/components/features/settings/ICalSyncSetting
 import { ICalExportSection } from '@/components/features/settings/ICalExportSection'
 import { SettingsUserManagement } from '@/components/features/settings/SettingsUserManagement'
 import { ChangePasswordSection } from '@/components/features/settings/ChangePasswordSection'
-import { Settings, Upload, Download, Users, Shield } from 'lucide-react'
+import { Settings, Upload, Download, Users } from 'lucide-react'
 import { ConsentManagement } from '@/components/features/settings/ConsentManagement'
 import { DataExportSection } from '@/components/features/settings/DataExportSection'
 import { AccountDeletionSection } from '@/components/features/settings/AccountDeletionSection'

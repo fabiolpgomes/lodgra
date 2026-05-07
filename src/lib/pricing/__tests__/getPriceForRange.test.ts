@@ -1,8 +1,6 @@
 import { calculatePrice, ruleForDate, PricingRule } from '../getPriceForRange'
-import { format } from 'date-fns'
 
 describe('calculatePrice', () => {
-  const today = new Date('2026-04-02')
   const checkIn = new Date('2026-04-05')
   const checkOut = new Date('2026-04-10') // 5 nights
 

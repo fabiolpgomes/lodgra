@@ -7,7 +7,7 @@ import { POST, GET } from '../route'
 
 let mockSessionUser: { id: string } | null = null
 let mockPendingRequests: Array<Record<string, unknown>> = []
-let mockInsertedData: Record<string, unknown> | null = null
+let _mockInsertedData: Record<string, unknown> | null = null
 let mockInsertedAudit: Record<string, unknown> | null = null
 
 jest.mock('@/lib/supabase/server', () => ({
@@ -33,7 +33,7 @@ jest.mock('@/lib/supabase/admin', () => ({
       chain.insert = jest.fn(async (d: Record<string, unknown>) => {
         // Track both audit and deletion inserts
         if ('action' in d) mockInsertedAudit = d
-        else mockInsertedData = d
+        else _mockInsertedData = d
         return { error: null }
       })
       return chain
@@ -52,7 +52,7 @@ describe('POST /api/user/delete-request', () => {
   beforeEach(() => {
     mockSessionUser = null
     mockPendingRequests = []
-    mockInsertedData = null
+    _mockInsertedData = null
     mockInsertedAudit = null
   })
 

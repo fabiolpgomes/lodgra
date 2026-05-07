@@ -8,7 +8,7 @@
  */
 
 import { createAdminClient } from '@/lib/supabase/admin'
-import { BookingComClient, createBookingComClient } from './client'
+import { createBookingComClient } from './client'
 
 interface SyncPrice {
   date: string

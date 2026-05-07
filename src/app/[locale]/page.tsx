@@ -37,7 +37,7 @@ export default async function LocalizedRootPage({
   // BYPASS DE EMERGÊNCIA PARA TESTES
   const isDevAdmin = user.email === 'admin@dev.com'
   const effectiveRole = isDevAdmin ? 'admin' : (profile?.role || 'viewer')
-  const effectiveOrgId = isDevAdmin ? (profile?.organization_id || '6ad77f39-0a6b-44d5-b7fa-5603e1b53d66') : profile?.organization_id
+  const _effectiveOrgId = isDevAdmin ? (profile?.organization_id || '6ad77f39-0a6b-44d5-b7fa-5603e1b53d66') : profile?.organization_id
 
   if (effectiveRole === 'admin' || effectiveRole === 'gestor') {
     redirect(`/${locale}/dashboard`)

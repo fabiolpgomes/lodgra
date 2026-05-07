@@ -21,7 +21,7 @@ process.env.BOOKING_WEBHOOK_SECRET = 'test-webhook-secret'
 
 // Mock checkRateLimit
 jest.mock('@/lib/rateLimit', () => ({
-  checkRateLimit: jest.fn(async (key: string, limit: number, window: number) => {
+  checkRateLimit: jest.fn(async (_key: string, _limit: number, _window: number) => {
     // Simulate rate limiting: allow first 5 requests, block 6th
     const callCount = (POST as unknown as { __callCount?: number }).__callCount || 0;
     (POST as unknown as { __callCount?: number }).__callCount = callCount + 1

@@ -62,7 +62,7 @@ export function CleaningPageClient({ properties, members, userRole }: Props) {
   }, [fetchChecklists])
 
   const pendingCount = checklists.filter(c => c.status === 'pending').length
-  const inProgressCount = checklists.filter(c => c.status === 'in_progress').length
+  const _inProgressCount = checklists.filter(c => c.status === 'in_progress').length
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-10 pb-24">

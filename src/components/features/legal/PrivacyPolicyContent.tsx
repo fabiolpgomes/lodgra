@@ -2,12 +2,9 @@
 
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
-import { useLocale } from '@/lib/i18n/routing'
 
 export function PrivacyPolicyContent() {
   const t = useTranslations('legal')
-  const locale = useLocale()
-
   const contactEmail = 'suporte@lodgra.pt'
 
   return (

@@ -3,7 +3,7 @@
  * Converts pricing results from EUR to user's target currency
  */
 
-import { convertCurrency, convertToMultipleCurrencies } from '@/lib/currency/convert'
+import { convertCurrency } from '@/lib/currency/convert'
 import type { SupportedCurrency } from '@/lib/currency/config'
 
 /**

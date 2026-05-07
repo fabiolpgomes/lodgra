@@ -49,7 +49,7 @@ describe('POST /api/public/bookings - Minimum Stay Validation', () => {
     })
 
     it('should include error message in response', () => {
-      const nights = 2
+      const _nights = 2
       const minNights = 5
       const message = `Estadia mínima: ${minNights} noites`
       expect(message).toBe('Estadia mínima: 5 noites')

@@ -7,9 +7,11 @@
 
 import { locales, defaultLocale } from './i18n.config'
 
-export default {
+const nextIntlConfig = {
   locales,
   defaultLocale,
   // Messages are loaded per-locale via dynamic imports in pages/middleware
   messages: {},
 }
+
+export default nextIntlConfig

@@ -31,12 +31,6 @@ export function trackEvent(eventName: string, eventData?: Record<string, unknown
     return
   }
 
-  const event: AnalyticsEvent = {
-    name: eventName,
-    data: eventData,
-    timestamp: Date.now(),
-  }
-
   try {
     // Google Analytics
     if (typeof window !== 'undefined' && (window as WindowWithAnalytics).gtag) {
@@ -124,7 +118,7 @@ export function trackFormSubmission(formName: string, formData?: Record<string, 
   })
 }
 
-export default {
+const analyticsClient = {
   trackEvent,
   trackPageView,
   trackCTA,
@@ -133,3 +127,5 @@ export default {
   trackLocaleChange,
   trackFormSubmission,
 }
+
+export default analyticsClient

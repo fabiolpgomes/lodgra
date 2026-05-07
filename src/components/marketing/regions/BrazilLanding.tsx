@@ -5,7 +5,6 @@ import Link from 'next/link'
 import {
   LucideBarChart3,
   LucideGlobe,
-  LucideSmartphone,
   LucideZap,
   LucideArrowRight,
   LucideCheckCircle2,
