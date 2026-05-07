@@ -1,0 +1,25 @@
+gate: 21.3-checkout-availability-check
+story: docs/stories/21.3.story.md
+date: 2026-05-07
+reviewed_by: Quinn
+decision: PASS
+quality_score: 100
+
+summary: >
+  Checkout page agora verifica disponibilidade no load. Two-step query inclui
+  pending_payment para cobrir race condition com Stripe checkout em curso.
+  Guard para listingIds vazio presente. Redirect para url semântica.
+  Banner âmbar na página pública. Boolean prop em PropertyPageV2.
+
+acceptance_criteria:
+  AC1: PASS  # two-step availability check em checkout/page.tsx
+  AC2: PASS  # redirect /p/[slug]?datesUnavailable=1 se conflito
+  AC3: PASS  # banner âmbar em PropertyPageV2
+  AC4: PASS  # 0 TypeScript errors, 0 ESLint errors
+
+concerns: []
+
+files_reviewed:
+  - src/app/p/[slug]/checkout/page.tsx
+  - src/app/p/[slug]/page.tsx
+  - src/components/common/public/PropertyPageV2.tsx

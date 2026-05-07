@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { CheckoutForm } from '@/components/common/public/CheckoutForm'
 import { Logo } from '@/components/common/ui/Logo'
 import { getPriceForRangePublic } from '@/lib/pricing/getPriceForRange'
@@ -52,6 +53,30 @@ export default async function CheckoutPage({ params, searchParams }: PageProps) 
 
   if (!property) {
     redirect('/')
+  }
+
+  // Availability check: redirect back if dates are already taken
+  const adminClient = createAdminClient()
+  const { data: listingsForCheck } = await adminClient
+    .from('property_listings')
+    .select('id')
+    .eq('property_id', property.id)
+
+  const listingIdsForCheck = (listingsForCheck ?? []).map((l: { id: string }) => l.id)
+
+  if (listingIdsForCheck.length > 0) {
+    const { data: conflicts } = await adminClient
+      .from('reservations')
+      .select('id')
+      .in('property_listing_id', listingIdsForCheck)
+      .in('status', ['confirmed', 'pending_payment'])
+      .lt('check_in', checkout)
+      .gt('check_out', checkin)
+      .limit(1)
+
+    if ((conflicts ?? []).length > 0) {
+      redirect(`/p/${slug}?datesUnavailable=1`)
+    }
   }
 
   // Calculate price with pricing rules first (admin client bypasses RLS on public page)

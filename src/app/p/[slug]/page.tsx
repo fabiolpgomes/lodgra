@@ -11,7 +11,7 @@ export const revalidate = 60 // revalidate every 60 seconds for dynamic content
 
 interface PageProps {
   params: Promise<{ slug: string }>
-  searchParams: Promise<{ checkIn?: string; checkOut?: string; guests?: string; minNightsError?: string }>
+  searchParams: Promise<{ checkIn?: string; checkOut?: string; guests?: string; minNightsError?: string; datesUnavailable?: string }>
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -65,7 +65,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function PublicPropertyPage({ params, searchParams }: PageProps) {
   const { slug } = await params
-  const { checkIn, checkOut, guests, minNightsError } = await searchParams
+  const { checkIn, checkOut, guests, minNightsError, datesUnavailable } = await searchParams
   const supabase = await createClient()
   const adminClient = createAdminClient()
 
@@ -242,6 +242,7 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
         structuredAmenities={structuredAmenities}
         rooms={propertyRooms}
         minNightsError={minNightsErrorCount && minNightsErrorCount > 0 ? minNightsErrorCount : undefined}
+        datesUnavailable={datesUnavailable === '1'}
         cleaningFee={property.cleaning_fee}
         cleaningFeeType={property.cleaning_fee_type}
         petFee={property.pet_fee}

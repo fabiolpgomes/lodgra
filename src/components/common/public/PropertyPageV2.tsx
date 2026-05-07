@@ -34,6 +34,7 @@ interface PropertyPageV2Props {
   structuredAmenities?: StructuredAmenity[]
   rooms?: PropertyRoom[]
   minNightsError?: number
+  datesUnavailable?: boolean
   cleaningFee?: number | null
   cleaningFeeType?: string | null
   petFee?: number | null
@@ -44,7 +45,7 @@ interface PropertyPageV2Props {
   blockedRanges?: { start: string; end: string }[]
 }
 
-export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, initialCheckOut, initialGuests, minNights = 1, pricingRules = [], structuredAmenities, rooms, minNightsError, cleaningFee, cleaningFeeType, petFee, petFeeType, checkinFrom, checkinUntil, checkoutUntil, blockedRanges = [] }: PropertyPageV2Props) {
+export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, initialCheckOut, initialGuests, minNights = 1, pricingRules = [], structuredAmenities, rooms, minNightsError, datesUnavailable, cleaningFee, cleaningFeeType, petFee, petFeeType, checkinFrom, checkinUntil, checkoutUntil, blockedRanges = [] }: PropertyPageV2Props) {
   const [showLightbox, setShowLightbox] = useState(false)
   const [lightboxIndex, setLightboxIndex] = useState(0)
 
@@ -63,6 +64,13 @@ export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, 
 
       <main className="bg-white">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
+          {/* Dates unavailable banner (redirected from checkout) */}
+          {datesUnavailable && (
+            <div className="mt-4 px-4 py-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800">
+              As datas seleccionadas já não estão disponíveis. Por favor, escolha novas datas.
+            </div>
+          )}
+
           {/* Minimum nights error banner */}
           {minNightsError && (
             <div className="mt-4 px-4 py-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
