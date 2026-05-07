@@ -1,0 +1,43 @@
+story_id: "19.4"
+title: "Disponibilidade Pública — Bloquear Datas Reservadas"
+review_date: "2026-05-07"
+reviewed_by: "Quinn (Test Architect)"
+agent_model: "claude-sonnet-4-6"
+
+acceptance_criteria:
+  AC1:
+    description: "Page /p/[slug] query reservas confirmed + pending dos próximos 365 dias"
+    status: PASS
+    evidence: "adminClient.from('reservations').in('status', ['confirmed','pending']).gte('end_date', today).lte('start_date', futureDate) — src/app/p/[slug]/page.tsx"
+  AC2:
+    description: "blockedRanges passados via PropertyPageV2 → ambos widgets"
+    status: PASS
+    evidence: "PropertyPageV2.tsx prop interface + forwarding; both widgets destructure blockedRanges = []"
+  AC3:
+    description: "Se check-in cair dentro de reserva → erro inline 'Data indisponível'"
+    status: PASS
+    evidence: "isDateBlocked(val, blockedRanges) in handleCheckInChange; checkInError state shown under check-in input in both widgets"
+  AC4:
+    description: "Se período [ci, co] sobrepuser reserva → erro inline 'Período contém datas reservadas'"
+    status: PASS
+    evidence: "isRangeOverlapping(checkIn, val, blockedRanges) in handleCheckOutChange, AFTER effectiveMinNights check; checkOutError shown under checkout"
+  AC5:
+    description: "Botão Reservar desactivado enquanto houver erro de sobreposição"
+    status: PASS
+    evidence: "CTA Link replaced by disabled <button> when checkInError || checkOutError; both widgets updated"
+  AC6:
+    description: "Build PASS + Lint PASS"
+    status: PASS
+    evidence: "tsc --noEmit: 0 errors; ESLint: 0 errors (62 pre-existing warnings)"
+
+code_quality:
+  half_open_interval: "CORRECT — isDateBlocked: date >= r.start && date < r.end; isRangeOverlapping: ci < r.end && co > r.start"
+  ordering: "CORRECT — availability check runs AFTER effectiveMinNights pricing-rule check per user requirement"
+  state_management: "CORRECT — separate checkInError + checkOutError states; cleared on valid input"
+  no_new_deps: "CORRECT — pure date-string comparisons, no new libraries"
+  both_widgets: "CORRECT — identical logic applied to Desktop and Mobile widgets"
+
+quality_score: 100
+gate_decision: PASS
+
+recommended_status: "Done"
