@@ -25,9 +25,8 @@ function PropertyCardSkeleton() {
       animate-pulse
     ">
       <div className="
-        h-40
-        md:h-48
-        lg:h-52
+        w-full
+        aspect-[4/3]
         bg-hs-neutral-200
         rounded-lg
       " />

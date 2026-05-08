@@ -91,12 +91,10 @@ export function PropertyCard({
       {/* Image Container - Mobile First */}
       <div className="
         relative
-        h-40
         w-full
+        aspect-[4/3]
         bg-gray-200
         overflow-hidden
-        md:h-48
-        lg:h-52
         flex items-center justify-center
       ">
         {image ? (
@@ -212,9 +210,9 @@ export function PropertyCard({
         </div>
 
         {/* CTA Button */}
-        <div className="block mt-2 flex-shrink-0">
-          <div className="w-full py-2.5 px-3 bg-blue-900 group-hover:bg-blue-950 text-white text-sm md:text-base rounded-lg font-semibold transition-colors duration-150 min-h-10 md:min-h-12 flex items-center justify-center">
-            Reservar Agora
+        <div className="block mt-4 flex-shrink-0">
+          <div className="w-full py-3 px-4 bg-lodgra-gold hover:brightness-110 text-lodgra-dark text-sm md:text-base rounded-xl font-bold transition-all duration-200 min-h-12 flex items-center justify-center shadow-md">
+             Reservar Agora
           </div>
         </div>
       </div>
