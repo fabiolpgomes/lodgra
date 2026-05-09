@@ -165,9 +165,9 @@ export function BookingWidgetMobile({
             <p className="text-xs text-neutral-600">
               {nights > 0 && isReady ? (hasVaryingPrices ? 'Preço médio' : 'Por noite') : 'Preço base'}
             </p>
-            <p className="font-bold text-neutral-900">
+            <p className="text-xl font-black text-neutral-900">
               {symbol}{nights > 0 && isReady ? avgPerNight : basePrice}
-              <span className="text-sm font-normal text-neutral-600"> /noite</span>
+              <span className="text-sm font-medium text-neutral-600"> /noite</span>
             </p>
             {nights > 0 && (
               <p className="text-xs text-lodgra-green font-semibold">
@@ -182,14 +182,14 @@ export function BookingWidgetMobile({
           {checkoutHref && !checkInError && !checkOutError ? (
             <Link
               href={checkoutHref}
-              className="flex-1 bg-lodgra-green hover:opacity-90 active:scale-[0.98] text-white font-semibold py-3 px-4 rounded-lg text-center transition-colors"
+              className="flex-1 bg-[#D4AF37] hover:brightness-110 active:scale-[0.98] text-white font-bold py-3 px-4 rounded-lg text-center transition-all shadow-md"
             >
               Reservar
             </Link>
           ) : (
             <button
               onClick={() => setShowPanel(true)}
-              className="flex-1 bg-lodgra-green hover:opacity-90 text-white font-semibold py-3 px-4 rounded-lg text-center transition-colors"
+              className="flex-1 bg-[#D4AF37] hover:brightness-110 text-white font-bold py-3 px-4 rounded-lg text-center transition-all shadow-md"
             >
               Selecionar datas
             </button>
@@ -292,7 +292,7 @@ export function BookingWidgetMobile({
             {checkoutHref && !checkInError && !checkOutError ? (
               <Link
                 href={checkoutHref}
-                className="block w-full bg-lodgra-green hover:opacity-90 text-white font-semibold py-3 px-4 rounded-lg text-center transition-colors"
+                className="block w-full bg-[#D4AF37] hover:brightness-110 text-white font-bold py-3 px-4 rounded-lg text-center transition-all shadow-md"
                 onClick={() => setShowPanel(false)}
               >
                 Reservar agora
@@ -300,7 +300,7 @@ export function BookingWidgetMobile({
             ) : (
               <button
                 disabled
-                className="w-full bg-lodgra-green opacity-40 text-white font-semibold py-3 px-4 rounded-lg cursor-not-allowed"
+                className="w-full bg-[#D4AF37] opacity-50 text-white font-bold py-3 px-4 rounded-lg cursor-not-allowed"
               >
                 {checkInError || checkOutError ? 'Datas indisponíveis' : 'Selecione check-in e check-out'}
               </button>

@@ -164,10 +164,10 @@ export function BookingWidgetDesktop({
           {nights > 0 && isReady && hasVaryingPrices ? 'Preço médio' : 'Preço base'}
         </p>
         <div className="flex items-baseline gap-1">
-          <span className="text-4xl font-bold text-neutral-900">
+          <span className="text-4xl font-black text-neutral-900">
             {symbol}{nights > 0 && isReady ? avgPerNight : basePrice}
           </span>
-          <span className="text-neutral-600">/noite</span>
+          <span className="text-lg font-medium text-neutral-600">/noite</span>
         </div>
         {effectiveMinNights > 1 && (
           <p className="mt-1 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1 inline-block">
@@ -261,16 +261,14 @@ export function BookingWidgetDesktop({
       {checkoutHref && !checkInError && !checkOutError ? (
         <Link
           href={checkoutHref}
-          className="block w-full text-white font-semibold py-3 px-4 rounded-lg text-center transition-all mb-4 hover:opacity-90 active:scale-[0.98]"
-          style={{ backgroundColor: '#059669' }}
+          className="block w-full bg-[#D4AF37] text-white font-bold py-3 px-4 rounded-lg text-center transition-all shadow-md mb-4 hover:brightness-110 active:scale-[0.98]"
         >
           Reservar agora
         </Link>
       ) : (
         <button
           disabled
-          className="block w-full text-white font-semibold py-3 px-4 rounded-lg text-center cursor-not-allowed mb-4 opacity-50"
-          style={{ backgroundColor: '#059669' }}
+          className="block w-full bg-[#D4AF37] text-white font-bold py-3 px-4 rounded-lg text-center cursor-not-allowed mb-4 opacity-50 shadow-md"
         >
           {checkInError || checkOutError ? 'Datas indisponíveis' : 'Selecione as datas'}
         </button>
