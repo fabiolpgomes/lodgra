@@ -266,7 +266,7 @@ export function SearchBar({ onSearch, isLoading = false }: SearchBarProps) {
       <button
         type="submit"
         disabled={isLoading}
-        className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white font-bold text-base rounded-lg hover:bg-blue-700 active:bg-blue-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-[#1E3A8A] text-white font-bold text-base rounded-lg hover:brightness-110 active:scale-[0.98] transition-all shadow-md disabled:opacity-70 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
       >
         {isLoading ? (
           <>

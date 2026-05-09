@@ -300,7 +300,7 @@ export function BookingWidgetMobile({
             ) : (
               <button
                 disabled
-                className="w-full bg-[#1E3A8A] opacity-50 text-white font-bold py-3 px-4 rounded-lg cursor-not-allowed"
+                className="w-full bg-[#1E3A8A] opacity-80 text-white font-bold py-3 px-4 rounded-lg cursor-not-allowed shadow-sm"
               >
                 {checkInError || checkOutError ? 'Datas indisponíveis' : 'Selecione check-in e check-out'}
               </button>
