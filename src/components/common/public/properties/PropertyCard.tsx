@@ -211,7 +211,7 @@ export function PropertyCard({
 
         {/* CTA Button */}
         <div className="block mt-4 flex-shrink-0">
-          <div className="w-full py-3 px-4 bg-lodgra-cta-bg hover:bg-lodgra-cta-bg-hover text-white text-sm md:text-base rounded-xl font-bold transition-all duration-200 min-h-12 flex items-center justify-center shadow-md">
+          <div className="w-full py-3 px-4 bg-[#1E3A8A] hover:brightness-110 text-white text-sm md:text-base rounded-xl font-bold transition-all duration-200 min-h-12 flex items-center justify-center shadow-md">
              Reservar Agora
           </div>
         </div>

@@ -182,14 +182,14 @@ export function BookingWidgetMobile({
           {checkoutHref && !checkInError && !checkOutError ? (
             <Link
               href={checkoutHref}
-              className="flex-1 bg-[#D4AF37] hover:brightness-110 active:scale-[0.98] text-white font-bold py-3 px-4 rounded-lg text-center transition-all shadow-md"
+              className="flex-1 bg-[#1E3A8A] hover:brightness-110 active:scale-[0.98] text-white font-bold py-3 px-4 rounded-lg text-center transition-all shadow-md"
             >
               Reservar
             </Link>
           ) : (
             <button
               onClick={() => setShowPanel(true)}
-              className="flex-1 bg-[#D4AF37] hover:brightness-110 text-white font-bold py-3 px-4 rounded-lg text-center transition-all shadow-md"
+              className="flex-1 bg-[#1E3A8A] hover:brightness-110 text-white font-bold py-3 px-4 rounded-lg text-center transition-all shadow-md"
             >
               Selecionar datas
             </button>
@@ -292,7 +292,7 @@ export function BookingWidgetMobile({
             {checkoutHref && !checkInError && !checkOutError ? (
               <Link
                 href={checkoutHref}
-                className="block w-full bg-[#D4AF37] hover:brightness-110 text-white font-bold py-3 px-4 rounded-lg text-center transition-all shadow-md"
+                className="block w-full bg-[#1E3A8A] hover:brightness-110 text-white font-bold py-3 px-4 rounded-lg text-center transition-all shadow-md"
                 onClick={() => setShowPanel(false)}
               >
                 Reservar agora
@@ -300,7 +300,7 @@ export function BookingWidgetMobile({
             ) : (
               <button
                 disabled
-                className="w-full bg-[#D4AF37] opacity-50 text-white font-bold py-3 px-4 rounded-lg cursor-not-allowed"
+                className="w-full bg-[#1E3A8A] opacity-50 text-white font-bold py-3 px-4 rounded-lg cursor-not-allowed"
               >
                 {checkInError || checkOutError ? 'Datas indisponíveis' : 'Selecione check-in e check-out'}
               </button>
