@@ -41,7 +41,7 @@ export function checkRateLimit(
 }
 
 // Global cleanup interval for all namespaces — .unref() prevents this from blocking process exit in tests
-setInterval(() => {
+const cleanupInterval = setInterval(() => {
   const now = Date.now();
   for (const store of rateLimitStores.values()) {
     for (const [ip, entry] of store.entries()) {
@@ -50,4 +50,8 @@ setInterval(() => {
       }
     }
   }
-}, 5 * 60 * 1000).unref();
+}, 5 * 60 * 1000);
+
+if (cleanupInterval && typeof (cleanupInterval as any).unref === 'function') {
+  (cleanupInterval as any).unref();
+}

@@ -162,13 +162,12 @@ export function SearchBar({ onSearch, isLoading = false }: SearchBarProps) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="w-full bg-white rounded-xl border border-hs-neutral-200 p-4 md:p-6 shadow-sm"
+      className="w-full bg-[#ffffff] rounded-none border border-[#e6e6e6] p-[24px]"
     >
-      {/* Inputs: 2-col on mobile, 4-col on desktop */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-[16px] mb-[24px]">
         {/* Location Input */}
         <div className="col-span-2 md:col-span-1">
-          <label htmlFor="location" className="block text-sm font-semibold text-hs-neutral-900 mb-1">
+          <label htmlFor="location" className="block text-[12px] font-bold text-[#6b6b6b] uppercase tracking-[0.5px] mb-2">
             Para onde?
           </label>
           <input
@@ -178,12 +177,12 @@ export function SearchBar({ onSearch, isLoading = false }: SearchBarProps) {
             value={location}
             onChange={handleLocationChange}
             disabled={isLoading}
-            className={`w-full px-3 py-2.5 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${errors.location ? 'border-red-500 focus:ring-red-500' : 'border-gray-300'}`}
+            className={`w-full px-[16px] py-[14px] text-[16px] font-light border rounded-none focus:outline-none focus:border-[#262626] disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${errors.location ? 'border-[#dc2626]' : 'border-[#e6e6e6] text-[#262626]'}`}
             aria-invalid={!!errors.location}
             aria-describedby={errors.location ? 'location-error' : undefined}
           />
           {errors.location && (
-            <p id="location-error" className="mt-1 text-xs text-red-600 font-semibold" role="alert">
+            <p id="location-error" className="mt-1 text-[12px] text-[#dc2626] font-bold" role="alert">
               {errors.location}
             </p>
           )}
@@ -191,7 +190,7 @@ export function SearchBar({ onSearch, isLoading = false }: SearchBarProps) {
 
         {/* Check-in Date */}
         <div>
-          <label htmlFor="checkin" className="block text-sm font-semibold text-hs-neutral-900 mb-1">
+          <label htmlFor="checkin" className="block text-[12px] font-bold text-[#6b6b6b] uppercase tracking-[0.5px] mb-2">
             Check-in
           </label>
           <input
@@ -200,12 +199,12 @@ export function SearchBar({ onSearch, isLoading = false }: SearchBarProps) {
             value={checkIn}
             onChange={handleCheckInChange}
             disabled={isLoading}
-            className={`w-full px-3 py-2.5 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${errors.checkIn ? 'border-red-500 focus:ring-red-500' : 'border-gray-300'}`}
+            className={`w-full px-[16px] py-[14px] text-[16px] font-light border rounded-none focus:outline-none focus:border-[#262626] disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${errors.checkIn ? 'border-[#dc2626]' : 'border-[#e6e6e6] text-[#262626]'}`}
             aria-invalid={!!errors.checkIn}
             aria-describedby={errors.checkIn ? 'checkin-error' : undefined}
           />
           {errors.checkIn && (
-            <p id="checkin-error" className="mt-1 text-xs text-red-600 font-semibold" role="alert">
+            <p id="checkin-error" className="mt-1 text-[12px] text-[#dc2626] font-bold" role="alert">
               {errors.checkIn}
             </p>
           )}
@@ -213,7 +212,7 @@ export function SearchBar({ onSearch, isLoading = false }: SearchBarProps) {
 
         {/* Check-out Date */}
         <div>
-          <label htmlFor="checkout" className="block text-sm font-semibold text-hs-neutral-900 mb-1">
+          <label htmlFor="checkout" className="block text-[12px] font-bold text-[#6b6b6b] uppercase tracking-[0.5px] mb-2">
             Check-out
           </label>
           <input
@@ -223,12 +222,12 @@ export function SearchBar({ onSearch, isLoading = false }: SearchBarProps) {
             onChange={handleCheckOutChange}
             disabled={isLoading}
             min={minCheckOutDate}
-            className={`w-full px-3 py-2.5 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${errors.checkOut ? 'border-red-500 focus:ring-red-500' : 'border-gray-300'}`}
+            className={`w-full px-[16px] py-[14px] text-[16px] font-light border rounded-none focus:outline-none focus:border-[#262626] disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${errors.checkOut ? 'border-[#dc2626]' : 'border-[#e6e6e6] text-[#262626]'}`}
             aria-invalid={!!errors.checkOut}
             aria-describedby={errors.checkOut ? 'checkout-error' : undefined}
           />
           {errors.checkOut && (
-            <p id="checkout-error" className="mt-1 text-xs text-red-600 font-semibold" role="alert">
+            <p id="checkout-error" className="mt-1 text-[12px] text-[#dc2626] font-bold" role="alert">
               {errors.checkOut}
             </p>
           )}
@@ -236,7 +235,7 @@ export function SearchBar({ onSearch, isLoading = false }: SearchBarProps) {
 
         {/* Guests Dropdown */}
         <div>
-          <label htmlFor="guests" className="block text-sm font-semibold text-hs-neutral-900 mb-1">
+          <label htmlFor="guests" className="block text-[12px] font-bold text-[#6b6b6b] uppercase tracking-[0.5px] mb-2">
             Hóspedes
           </label>
           <select
@@ -244,7 +243,7 @@ export function SearchBar({ onSearch, isLoading = false }: SearchBarProps) {
             value={guests}
             onChange={(e) => setGuests(parseInt(e.target.value))}
             disabled={isLoading}
-            className={`w-full px-3 py-2.5 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${errors.guests ? 'border-red-500 focus:ring-red-500' : 'border-gray-300'}`}
+            className={`w-full px-[16px] py-[14px] text-[16px] font-light border rounded-none focus:outline-none focus:border-[#262626] disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${errors.guests ? 'border-[#dc2626]' : 'border-[#e6e6e6] text-[#262626]'}`}
             aria-invalid={!!errors.guests}
             aria-describedby={errors.guests ? 'guests-error' : undefined}
           >
@@ -255,35 +254,19 @@ export function SearchBar({ onSearch, isLoading = false }: SearchBarProps) {
             ))}
           </select>
           {errors.guests && (
-            <p id="guests-error" className="mt-1 text-xs text-red-600 font-semibold" role="alert">
+            <p id="guests-error" className="mt-1 text-[12px] text-[#dc2626] font-bold" role="alert">
               {errors.guests}
             </p>
           )}
         </div>
       </div>
 
-      {/* Search Button — always full-width, always visible */}
       <button
         type="submit"
         disabled={isLoading}
-        className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-[#1E3A8A] text-white font-bold text-base rounded-lg hover:brightness-110 active:scale-[0.98] transition-all shadow-md disabled:opacity-70 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        className="w-full flex items-center justify-center gap-2 px-[32px] py-[14px] bg-[#1c69d4] hover:bg-[#0653b6] text-[#ffffff] font-bold text-[14px] uppercase tracking-[1.5px] rounded-none transition-colors disabled:opacity-70 disabled:cursor-not-allowed focus:outline-none h-[48px]"
       >
-        {isLoading ? (
-          <>
-            <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-            </svg>
-            A pesquisar...
-          </>
-        ) : (
-          <>
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
-            </svg>
-            Pesquisar propriedades
-          </>
-        )}
+        {isLoading ? 'PESQUISANDO...' : 'PESQUISAR PROPRIEDADES'}
       </button>
     </form>
   )

@@ -15,29 +15,29 @@ export interface PropertyGridProps {
 function PropertyCardSkeleton() {
   return (
     <div className="
-      rounded-2xl
-      overflow-hidden
-      border border-hs-neutral-200
-      bg-white
-      space-y-3
-      p-4
+      rounded-none
+      border border-[#e6e6e6]
+      bg-[#ffffff]
+      p-[24px]
       h-full
       animate-pulse
+      flex flex-col
     ">
       <div className="
         w-full
         aspect-[4/3]
-        bg-hs-neutral-200
-        rounded-lg
+        bg-[#fafafa]
+        rounded-none
+        mb-[24px]
       " />
-      <div className="space-y-2">
-        <div className="h-4 bg-hs-neutral-200 rounded w-3/4" />
-        <div className="h-3 bg-hs-neutral-200 rounded w-1/2" />
-        <div className="h-3 bg-hs-neutral-200 rounded w-2/3" />
+      <div className="space-y-4 flex-1">
+        <div className="h-[24px] bg-[#f7f7f7] rounded-none w-3/4" />
+        <div className="h-[16px] bg-[#f7f7f7] rounded-none w-1/2" />
+        <div className="h-[16px] bg-[#f7f7f7] rounded-none w-2/3" />
       </div>
-      <div className="pt-2 space-y-2">
-        <div className="h-4 bg-hs-neutral-200 rounded" />
-        <div className="h-8 bg-hs-brand-100 rounded w-full" />
+      <div className="pt-[24px] space-y-4 mt-auto border-t border-[#e6e6e6]">
+        <div className="h-[24px] bg-[#f7f7f7] rounded-none w-1/3" />
+        <div className="h-[48px] bg-[#f7f7f7] rounded-none w-full" />
       </div>
     </div>
   )
@@ -61,27 +61,25 @@ function PaginationButton({
       aria-label={typeof page === 'number' ? `Página ${page}` : `${page}`}
       aria-current={isActive ? 'page' : undefined}
       className={`
-        px-3
-        py-2
-        rounded-lg
-        font-semibold
-        text-sm
+        px-[16px]
+        py-[12px]
+        rounded-none
+        font-bold
+        text-[14px]
         transition-colors
-        min-h-10
-        min-w-10
+        min-h-[48px]
+        min-w-[48px]
         flex
         items-center
         justify-center
         focus:outline-none
-        focus:ring-2
-        focus:ring-offset-2
-        focus:ring-hs-brand-400
         disabled:opacity-50
         disabled:cursor-not-allowed
+        border
         ${
           isActive
-            ? 'bg-hs-brand-400 text-white'
-            : 'bg-hs-neutral-100 text-hs-neutral-700 hover:bg-hs-neutral-200'
+            ? 'bg-[#1c69d4] text-[#ffffff] border-[#1c69d4]'
+            : 'bg-[#ffffff] text-[#262626] border-[#e6e6e6] hover:bg-[#fafafa] hover:border-[#262626]'
         }
       `}
     >
@@ -115,28 +113,14 @@ export function PropertyGrid({
 
   return (
     <div className="flex-1">
-      {/* Results Count */}
-      {resultCount !== undefined && (
-        <div className="
-          mb-6
-          text-sm
-          font-semibold
-          text-hs-neutral-600
-        ">
-          {resultCount} propriedade{resultCount !== 1 ? 's' : ''} encontrada{resultCount !== 1 ? 's' : ''}
-        </div>
-      )}
-
       {/* Grid */}
       {isLoading ? (
         <div className="
           grid
           grid-cols-1
           md:grid-cols-2
-          lg:grid-cols-4
-          gap-4
-          md:gap-5
-          lg:gap-6
+          xl:grid-cols-3
+          gap-[24px]
         ">
           {Array.from({ length: 12 }).map((_, i) => (
             <PropertyCardSkeleton key={`skeleton-${i}`} />
@@ -148,10 +132,8 @@ export function PropertyGrid({
             grid
             grid-cols-1
             md:grid-cols-2
-            lg:grid-cols-4
-            gap-4
-            md:gap-5
-            lg:gap-6
+            xl:grid-cols-3
+            gap-[24px]
           ">
             {properties.map((property) => (
               <PropertyCard
@@ -165,15 +147,15 @@ export function PropertyGrid({
           {totalPages > 1 && (
             <nav
               className="
-                mt-12
+                mt-[48px]
                 flex
                 flex-col
                 items-center
-                gap-4
+                gap-[24px]
               "
               aria-label="Paginação"
             >
-              <div className="flex gap-2 flex-wrap justify-center">
+              <div className="flex gap-[8px] flex-wrap justify-center">
                 {/* Previous Button */}
                 <PaginationButton
                   page="←"
@@ -207,8 +189,11 @@ export function PropertyGrid({
 
               {/* Current Page Info */}
               <p className="
-                text-xs
-                text-hs-neutral-600
+                text-[12px]
+                text-[#9a9a9a]
+                font-bold
+                uppercase
+                tracking-[0.5px]
               ">
                 Página {currentPage} de {totalPages}
               </p>
@@ -221,22 +206,27 @@ export function PropertyGrid({
           flex-col
           items-center
           justify-center
-          py-12
+          py-[96px]
           text-center
+          bg-[#ffffff]
+          border
+          border-[#e6e6e6]
+          rounded-none
         ">
-          <div className="text-4xl mb-4">🔍</div>
+          <div className="text-[48px] mb-[24px]">🔍</div>
           <h3 className="
-            text-lg
+            text-[24px]
             font-bold
-            text-hs-neutral-900
-            mb-2
+            text-[#262626]
+            mb-[16px]
           ">
             Nenhuma propriedade encontrada
           </h3>
           <p className="
-            text-sm
-            text-hs-neutral-600
-            max-w-md
+            text-[16px]
+            text-[#6b6b6b]
+            font-light
+            max-w-[400px]
           ">
             Tente ajustar seus filtros ou pesquisar por outra localização
           </p>

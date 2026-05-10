@@ -38,7 +38,7 @@ const AMENITY_ICONS: Record<string, string> = {
 function AmenityIcon({ type, className = '' }: { type: string; className?: string }) {
   const icon = AMENITY_ICONS[type] || '✓'
   return (
-    <span className={`text-lg ${className}`} title={type}>
+    <span className={`text-[16px] opacity-70 grayscale ${className}`} title={type}>
       {icon}
     </span>
   )
@@ -66,143 +66,70 @@ export function PropertyCard({
   const currencySymbol = getCurrencySymbol(currency)
   const displayAmenities = amenities.slice(0, 3)
 
-  // Build URL with optional search params
   const href = checkIn && checkOut
     ? `/p/${slug}?checkIn=${checkIn}&checkOut=${checkOut}`
     : `/p/${slug}`
 
   return (
-    <Link
-      href={href}
-      className="
-        rounded-2xl
-        overflow-hidden
-        border border-hs-neutral-200
-        shadow-sm
-        hover:shadow-md
-        active:shadow-lg
-        transition-shadow duration-200
-        flex flex-col
-        h-full
-        group
-      "
+    <div
+      className="bg-[#ffffff] rounded-none border border-[#e6e6e6] flex flex-col h-full hover:border-[#262626] transition-colors group"
       data-testid={`property-card-${id}`}
     >
-      {/* Image Container - Mobile First */}
-      <div className="
-        relative
-        w-full
-        aspect-[4/3]
-        bg-gray-200
-        overflow-hidden
-        flex items-center justify-center
-      ">
+      {/* Image Container */}
+      <div className="relative w-full aspect-[4/3] bg-[#fafafa] overflow-hidden flex items-center justify-center p-[4px]">
         {image ? (
           <Image
             src={image}
             alt={name}
             width={1440}
-            height={960}
+            height={1080}
             loading="lazy"
             sizes="(max-width: 768px) 100vw, (max-width: 1024px) 48vw, 25vw"
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover rounded-none"
           />
         ) : (
-          <div className="text-gray-400 text-4xl">🏠</div>
+          <div className="text-[#9a9a9a] text-[32px]">🏠</div>
         )}
         {isFeatured && (
-          <div className="absolute top-2 left-2 bg-yellow-400 text-yellow-900 px-2.5 py-1 rounded-full text-xs font-semibold">
-            ⭐ Anfitriões Estrela
+          <div className="absolute top-4 left-4 bg-[#1a2129] text-[#ffffff] px-[12px] py-[6px] rounded-none text-[10px] font-bold uppercase tracking-[1.5px]">
+            Destaque
           </div>
         )}
       </div>
 
-      {/* Content Container - Mobile First */}
-      <div className="
-        p-3
-        space-y-2
-        md:p-4
-        md:space-y-3
-        flex flex-col flex-1
-      ">
+      {/* Content Container */}
+      <div className="p-[24px] flex flex-col flex-1">
         {/* Title + Location */}
-        <div>
-          <h3 className="
-            font-bold
-            text-base
-            md:text-lg
-            line-clamp-2
-            text-hs-neutral-900
-          ">
+        <div className="mb-[16px]">
+          <h3 className="font-bold text-[18px] text-[#262626] line-clamp-2 leading-[1.4] mb-1">
             {name}
           </h3>
-          <p className="
-            text-xs
-            md:text-sm
-            text-hs-neutral-500
-            flex items-center gap-1 mt-1
-          ">
-            📍 {city}, {country}
+          <p className="text-[14px] font-light text-[#6b6b6b] flex items-center gap-1">
+            {city}, {country}
           </p>
         </div>
 
-        {/* Amenities Icons */}
-        <div className="flex gap-1 flex-wrap">
-          {displayAmenities.map((amenity) => (
-            <AmenityIcon
-              key={amenity}
-              type={amenity}
-              className="h-5 w-5 md:h-6 md:w-6"
-            />
-          ))}
-        </div>
-
         {/* Specs */}
-        <div className="
-          flex
-          gap-2
-          text-xs
-          md:text-sm
-          md:gap-3
-          text-hs-neutral-600
-          flex-wrap
-        ">
-          <span className="flex items-center gap-1">
-            👥 {maxGuests}
-          </span>
-          <span className="flex items-center gap-1">
-            🛏️ {bedrooms}
-          </span>
-          <span className="flex items-center gap-1">
-            🚿 {bathrooms}
-          </span>
+        <div className="flex gap-[16px] text-[14px] font-light text-[#3c3c3c] flex-wrap mb-[16px]">
+          <span className="flex items-center gap-1">👥 {maxGuests}</span>
+          <span className="flex items-center gap-1">🛏️ {bedrooms}</span>
+          <span className="flex items-center gap-1">🚿 {bathrooms}</span>
         </div>
 
         {/* Price + Rating */}
-        <div className="
-          flex
-          items-end
-          justify-between
-          pt-2
-          border-t border-hs-neutral-100
-          flex-col
-          gap-2
-          md:flex-row
-          md:items-center
-          mt-auto
-        ">
+        <div className="flex items-end justify-between pt-[16px] border-t border-[#e6e6e6] flex-row mt-auto">
           <div>
-            <p className="text-xl md:text-2xl font-bold text-hs-neutral-900">
-              {price}
+            <p className="text-[24px] font-bold text-[#262626] leading-[1.1]">
+              {currencySymbol}{price}
             </p>
-            <p className="text-xs text-hs-neutral-500">
-              {currencySymbol} / noite
+            <p className="text-[12px] font-light text-[#6b6b6b] mt-1 uppercase tracking-[0.5px]">
+              / NOITE
             </p>
           </div>
           {rating !== undefined && rating > 0 && (
-            <div className="text-right text-sm md:text-base">
-              <p className="font-bold">⭐ {rating.toFixed(1)}</p>
-              <p className="text-xs text-hs-neutral-500">
+            <div className="text-right">
+              <p className="font-bold text-[14px] text-[#262626]">⭐ {rating.toFixed(1)}</p>
+              <p className="text-[12px] font-light text-[#6b6b6b]">
                 {reviewCount || 0} avaliações
               </p>
             </div>
@@ -210,12 +137,15 @@ export function PropertyCard({
         </div>
 
         {/* CTA Button */}
-        <div className="block mt-4 flex-shrink-0">
-          <div className="w-full py-3 px-4 bg-[#1E3A8A] hover:brightness-110 text-white text-sm md:text-base rounded-xl font-bold transition-all duration-200 min-h-12 flex items-center justify-center shadow-md">
-             Reservar Agora
-          </div>
+        <div className="mt-[24px]">
+          <Link
+            href={href}
+            className="w-full bg-[#1c69d4] hover:bg-[#0653b6] text-[#ffffff] text-[13px] rounded-none font-bold uppercase tracking-[1.5px] transition-colors h-[48px] flex items-center justify-center"
+          >
+            RESERVAR AGORA ›
+          </Link>
         </div>
       </div>
-    </Link>
+    </div>
   )
 }

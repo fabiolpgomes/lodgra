@@ -83,49 +83,51 @@ export function BookingPageClient({ orgSlug, orgName }: Props) {
     : 'Encontre a propriedade perfeita para sua próxima viagem'
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-4 md:px-6 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <Link href="/">
+    <div className="min-h-screen bg-[#f7f7f7] font-light text-[#3c3c3c]">
+      {/* Header - top-nav */}
+      <header className="bg-[#ffffff] border-b border-[#e6e6e6] px-6 h-[64px] flex items-center justify-center sticky top-0 z-50">
+        <div className="w-full max-w-[1440px] mx-auto flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-3">
             <Logo size="md" />
+            <span className="text-[18px] font-bold tracking-tight text-[#262626]">LODGRA</span>
           </Link>
           <Link
             href="/"
-            className="text-sm font-medium text-lodgra-blue border border-lodgra-blue/30 px-4 py-2 rounded-lg hover:bg-lodgra-blue hover:text-white transition-colors"
+            className="text-[13px] font-bold tracking-[1.5px] uppercase text-[#262626] hover:text-[#1c69d4] transition-colors"
           >
             Conheça a Lodgra
           </Link>
         </div>
       </header>
 
-      {/* Page Title */}
-      <div className="bg-white border-b border-gray-200 px-4 md:px-6 py-6 md:py-8">
-        <div className="max-w-7xl mx-auto">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">{title}</h1>
-          <p className="text-gray-600">{subtitle}</p>
+      {/* Page Title - Hero Band Light Canvas */}
+      <div className="bg-[#ffffff] px-6 py-[48px] border-b border-[#e6e6e6]">
+        <div className="max-w-[1440px] mx-auto">
+          <h1 className="text-[32px] md:text-[48px] font-bold text-[#262626] leading-[1.1] mb-[16px]">{title}</h1>
+          <p className="text-[16px] font-light text-[#3c3c3c] leading-[1.55]">{subtitle}</p>
+          <div className="w-[48px] h-[4px] bg-[#1c69d4] mt-[24px]"></div>
         </div>
       </div>
 
-      {/* Search Bar */}
-      <div className="bg-white border-b border-gray-200 px-4 md:px-6 py-6">
-        <div className="max-w-7xl mx-auto">
+      {/* Search Bar container */}
+      <div className="bg-[#ffffff] border-b border-[#e6e6e6] px-6 py-[32px]">
+        <div className="max-w-[1440px] mx-auto">
           <SearchBar onSearch={handleSearch} isLoading={isLoading} />
         </div>
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 px-4 md:px-6 py-4 mx-4 md:mx-6 mt-4 rounded-lg">
-          <p className="text-red-700 font-semibold">Erro ao carregar propriedades</p>
-          <p className="text-red-600 text-sm">{error}</p>
+        <div className="bg-[#1a2129] border border-[#dc2626] px-6 py-4 mx-6 mt-[24px] max-w-[1440px] xl:mx-auto rounded-none">
+          <p className="text-[#dc2626] font-bold text-[14px] uppercase tracking-[0.5px] mb-1">Erro</p>
+          <p className="text-[#ffffff] text-[14px] font-light">{error}</p>
         </div>
       )}
 
       {/* Content */}
-      <div className="px-4 md:px-6 py-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex gap-6">
-            <div className="hidden lg:block flex-shrink-0">
+      <div className="px-6 py-[48px]">
+        <div className="max-w-[1440px] mx-auto">
+          <div className="flex flex-col lg:flex-row gap-[48px]">
+            <div className="hidden lg:block w-[300px] flex-shrink-0">
               <PropertyFilters
                 onFilterChange={handleFilterChange}
                 isLoading={isLoading}
@@ -133,7 +135,7 @@ export function BookingPageClient({ orgSlug, orgName }: Props) {
               />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="lg:hidden mb-4">
+              <div className="lg:hidden mb-[32px]">
                 <PropertyFilters
                   onFilterChange={handleFilterChange}
                   isLoading={isLoading}
