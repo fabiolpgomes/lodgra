@@ -385,7 +385,7 @@ export const BrazilLanding: React.FC = () => {
              ].map((testimonial, i) => (
                <div key={i} className="bg-[#ffffff] p-[32px] rounded-none border border-[#e6e6e6] flex flex-col">
                   <div className="text-[12px] text-[#1c69d4] mb-[24px]">{'★★★★★'}</div>
-                  <p className="text-[#3c3c3c] text-[16px] font-light leading-[1.55] mb-[32px] italic">"{testimonial.quote}"</p>
+                  <p className="text-[#3c3c3c] text-[16px] font-light leading-[1.55] mb-[32px] italic">&ldquo;{testimonial.quote}&rdquo;</p>
                   <div className="flex items-center gap-[16px] mt-auto">
                      <div className="w-[40px] h-[40px] bg-[#f7f7f7] border border-[#e6e6e6] rounded-none flex items-center justify-center font-bold text-[#262626]">
                        {testimonial.initial}

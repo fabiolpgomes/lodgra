@@ -52,6 +52,7 @@ const cleanupInterval = setInterval(() => {
   }
 }, 5 * 60 * 1000);
 
-if (cleanupInterval && typeof (cleanupInterval as any).unref === 'function') {
-  (cleanupInterval as any).unref();
+const interval = cleanupInterval as ReturnType<typeof setInterval> & { unref?: () => void }
+if (typeof interval.unref === 'function') {
+  interval.unref()
 }
