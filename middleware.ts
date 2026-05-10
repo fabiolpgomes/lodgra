@@ -26,17 +26,18 @@ export async function middleware(request: NextRequest) {
   const requestHeaders = new Headers(request.headers)
   requestHeaders.set('x-nonce', nonce)
 
-  // Tenant subdomain detection (e.g. "pousada" from "pousada.lodgra.io")
-  const hostname = request.headers.get('host') ?? ''
-
   // Permanent redirect: homestay.pt → lodgra.io (path-preserving)
-  if (hostname === 'homestay.pt' || hostname === 'www.homestay.pt') {
+  // Use nextUrl.hostname (parsed from URL) — more reliable than Host header in Vercel
+  const nextHostname = request.nextUrl.hostname
+  if (nextHostname === 'homestay.pt' || nextHostname.endsWith('.homestay.pt')) {
     const url = request.nextUrl.clone()
     url.protocol = 'https:'
     url.host = 'lodgra.io'
     return NextResponse.redirect(url, { status: 301 })
   }
 
+  // Tenant subdomain detection (e.g. "pousada" from "pousada.lodgra.io")
+  const hostname = request.headers.get('host') ?? ''
   const rootDomains = ['lodgra.io', 'homestay.pt', 'localhost:3000', 'vercel.app']
   const isRootDomain = rootDomains.some(d => hostname === d || hostname.endsWith('.vercel.app'))
   const subdomain = !isRootDomain ? hostname.split('.')[0] : null
