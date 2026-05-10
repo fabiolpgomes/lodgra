@@ -11,7 +11,7 @@ export default async function SyncPage() {
   // Buscar propriedades (filtradas por escopo)
   let propertiesQuery = supabase
     .from('properties')
-    .select('id, name')
+    .select('id, name, ical_export_token')
     .eq('is_active', true)
     .order('name')
   if (propertyIds) propertiesQuery = propertiesQuery.in('id', propertyIds)

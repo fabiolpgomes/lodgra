@@ -15,7 +15,7 @@ interface Listing {
 }
 
 interface SyncPanelProps {
-  properties: { id: string; name: string }[]
+  properties: { id: string; name: string; ical_export_token?: string | null }[]
   listings: Listing[]
 }
 
@@ -120,11 +120,12 @@ export function SyncPanel({ properties, listings }: SyncPanelProps) {
     }
   }
 
-  const getExportUrl = (propertyId: string) => {
-    if (typeof window === 'undefined') {
-      return `http://localhost:3000/api/ical/${propertyId}`
-    }
-    return `${window.location.origin}/api/ical/${propertyId}`
+  const getExportUrl = (propertyId: string, token?: string | null) => {
+    const base = typeof window === 'undefined'
+      ? `http://localhost:3000`
+      : window.location.origin
+    if (!token) return `${base}/api/ical/${propertyId}`
+    return `${base}/api/ical/${propertyId}?token=${token}`
   }
 
   const copyToClipboard = (text: string) => {
@@ -288,7 +289,7 @@ export function SyncPanel({ properties, listings }: SyncPanelProps) {
         ) : (
           <div className="space-y-3">
             {properties.map((property) => {
-              const exportUrl = getExportUrl(property.id)
+              const exportUrl = getExportUrl(property.id, property.ical_export_token)
 
               return (
                 <div
