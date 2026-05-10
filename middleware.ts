@@ -28,6 +28,15 @@ export async function middleware(request: NextRequest) {
 
   // Tenant subdomain detection (e.g. "pousada" from "pousada.lodgra.io")
   const hostname = request.headers.get('host') ?? ''
+
+  // Permanent redirect: homestay.pt → lodgra.io (path-preserving)
+  if (hostname === 'homestay.pt' || hostname === 'www.homestay.pt') {
+    const url = request.nextUrl.clone()
+    url.protocol = 'https:'
+    url.host = 'lodgra.io'
+    return NextResponse.redirect(url, { status: 301 })
+  }
+
   const rootDomains = ['lodgra.io', 'homestay.pt', 'localhost:3000', 'vercel.app']
   const isRootDomain = rootDomains.some(d => hostname === d || hostname.endsWith('.vercel.app'))
   const subdomain = !isRootDomain ? hostname.split('.')[0] : null
