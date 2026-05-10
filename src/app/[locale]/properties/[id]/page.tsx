@@ -8,6 +8,7 @@ import { PropertyListingsManager } from '@/components/features/listings/Property
 import { QuickActionButtons } from '@/components/features/properties/QuickActionButtons'
 import { ICalExportCard } from '@/components/features/properties/ICalExportCard'
 import { PropertyDocuments } from '@/components/features/properties/PropertyDocuments'
+import { ReviewsManager } from '@/components/features/properties/ReviewsManager'
 import { AmenityIcon } from '@/components/features/properties/AmenityIcon'
 import { AuthLayout } from '@/components/common/layout/AuthLayout'
 import { getUserRole } from '@/lib/auth/getUserRole'
@@ -408,6 +409,14 @@ export default async function PropertyDetailsPage({
 
             {/* Documentos da Propriedade */}
             <PropertyDocuments propertyId={id} canEdit={canEdit} />
+
+            {/* Avaliações */}
+            {canEdit && (
+              <div className="bg-white rounded-lg shadow p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Avaliações</h3>
+                <ReviewsManager propertyId={id} />
+              </div>
+            )}
           </div>
 
           {/* Sidebar de Resumo */}
