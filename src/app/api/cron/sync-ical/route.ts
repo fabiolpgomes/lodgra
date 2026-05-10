@@ -60,9 +60,15 @@ async function syncOneListing(
       .from('reservations').select('id').eq('external_id', event.uid).single()
 
     if (existingReservation) {
+      const updatedBookingData = parseBookingDescription(event.description)
       const { error } = await supabase
         .from('reservations')
-        .update({ check_in: checkIn, check_out: checkOut, updated_at: new Date().toISOString() })
+        .update({
+          check_in: checkIn,
+          check_out: checkOut,
+          updated_at: new Date().toISOString(),
+          ...(updatedBookingData.numGuests ? { number_of_guests: updatedBookingData.numGuests } : {}),
+        })
         .eq('id', existingReservation.id)
       if (error) { skipped++ } else { updated++ }
     } else {
