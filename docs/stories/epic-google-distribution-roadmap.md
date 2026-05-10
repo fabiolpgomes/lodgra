@@ -1,6 +1,6 @@
 # Epic: Google Vacation Rentals Distribution — Roadmap
 
-**Status:** Roadmap (Não iniciar antes de Epic 14, 17 e 18 estarem completos)
+**Status:** Ready to Start — decisão 2026-05-10, próximo foco pós Go-Live
 **Priority:** High (estratégico)
 **Effort:** Very High
 **Risk:** High
@@ -11,10 +11,10 @@ Transformar o Lodgra num canal de distribuição directo via Google Hotel Center
 
 ## Pré-requisitos (antes de iniciar este épico)
 
-- [ ] Epic 14 completo — páginas públicas por propriedade com URL única
-- [ ] Epic 17 completo — fotos e documentos por propriedade
-- [ ] Epic 18 completo — comodidades, quartos, taxas e horários estruturados
-- [ ] Schema.org (LodgingBusiness) implementado nas páginas públicas
+- [x] Epic 14 completo — páginas públicas por propriedade com URL única ✅
+- [x] Epic 17 completo — fotos e documentos por propriedade ✅
+- [x] Epic 18 completo — comodidades, quartos, taxas e horários estruturados ✅
+- [ ] Schema.org (LodgingBusiness) implementado nas páginas públicas ← **primeiro passo**
 
 ## Scope
 
