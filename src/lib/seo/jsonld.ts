@@ -1,8 +1,14 @@
 /**
- * JSON-LD structured data generators for SEO.
+ * JSON-LD structured data generators for SEO / Google Vacation Rentals.
  */
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://www.lodgra.pt'
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://lodgra.io'
+
+interface AmenityItem {
+  name: string
+  icon?: string
+  category?: string
+}
 
 interface PropertyData {
   name: string
@@ -10,7 +16,9 @@ interface PropertyData {
   city?: string | null
   country?: string | null
   address?: string | null
+  postal_code?: string | null
   photos?: string[] | null
+  imageUrls?: string[]
   base_price?: number | null
   currency?: string | null
   min_nights?: number | null
@@ -26,6 +34,7 @@ interface PropertyData {
   cleaning_fee_type?: string | null
   pet_fee?: number | null
   pet_fee_type?: string | null
+  structuredAmenities?: AmenityItem[]
 }
 
 export function generatePropertyJsonLd(property: PropertyData) {
@@ -33,11 +42,18 @@ export function generatePropertyJsonLd(property: PropertyData) {
     '@type': 'PostalAddress' as const,
     ...(property.address && { streetAddress: property.address }),
     ...(property.city && { addressLocality: property.city }),
+    ...(property.postal_code && { postalCode: property.postal_code }),
     ...(property.country && { addressCountry: property.country }),
   }
 
   const currency = property.currency ?? 'EUR'
   const minNights = property.min_nights ?? 1
+
+  // Resolve images: prefer optimised WebP gallery, fall back to legacy photos[]
+  const images = property.imageUrls?.length
+    ? property.imageUrls
+    : (property.photos?.filter(Boolean) ?? [])
+  const imageField = images.length > 1 ? images : images[0] ?? undefined
 
   const offers: object[] = []
 
@@ -78,25 +94,37 @@ export function generatePropertyJsonLd(property: PropertyData) {
     })
   }
 
+  // Build amenityFeature: capacity specs + catalog amenities
+  const amenityFeature: object[] = [
+    ...(property.max_guests ? [{ '@type': 'LocationFeatureSpecification', name: 'Max Guests', value: property.max_guests }] : []),
+    ...(property.bedrooms ? [{ '@type': 'LocationFeatureSpecification', name: 'Bedrooms', value: property.bedrooms }] : []),
+    ...(property.bathrooms ? [{ '@type': 'LocationFeatureSpecification', name: 'Bathrooms', value: property.bathrooms }] : []),
+    ...(property.structuredAmenities?.map(a => ({
+      '@type': 'LocationFeatureSpecification',
+      name: a.name,
+      value: true,
+    })) ?? []),
+  ]
+
+  const pageUrl = property.slug ? `${APP_URL}/p/${property.slug}` : undefined
+
   return {
     '@context': 'https://schema.org',
     '@type': 'VacationRental',
+    ...(pageUrl && { '@id': pageUrl, url: pageUrl }),
     name: property.name,
     ...(property.description && { description: property.description }),
-    ...(property.photos?.[0] && { image: property.photos[0] }),
-    ...(property.slug && { url: `${APP_URL}/p/${property.slug}` }),
+    ...(imageField && { image: imageField }),
     address,
     checkinTime: property.checkin_from ?? '15:00',
     checkoutTime: property.checkout_until ?? '11:00',
-    ...(offers.length > 0 && { makesOffer: offers }),
     ...(property.max_guests && {
-      amenityFeature: [
-        { '@type': 'LocationFeatureSpecification', name: 'Max Guests', value: property.max_guests },
-        ...(property.bedrooms ? [{ '@type': 'LocationFeatureSpecification', name: 'Bedrooms', value: property.bedrooms }] : []),
-        ...(property.bathrooms ? [{ '@type': 'LocationFeatureSpecification', name: 'Bathrooms', value: property.bathrooms }] : []),
-      ],
+      occupancy: { '@type': 'QuantitativeValue', maxValue: property.max_guests },
     }),
-    ...(property.max_guests && { numberOfRooms: property.bedrooms || 1 }),
+    ...(property.bedrooms && { numberOfRooms: property.bedrooms }),
+    ...(property.bathrooms && { numberOfBathroomsTotal: property.bathrooms }),
+    ...(offers.length > 0 && { makesOffer: offers }),
+    ...(amenityFeature.length > 0 && { amenityFeature }),
   }
 }
 
