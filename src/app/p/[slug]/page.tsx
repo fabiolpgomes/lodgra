@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation'
+import { headers } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import type { Metadata } from 'next'
@@ -104,8 +105,6 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
       })
     )
   }
-
-  const jsonLd = generatePropertyJsonLd(property)
 
   // Consolidate all photos: prefer new gallery system, fall back to legacy photos[]
   let allPhotos: string[] = []
@@ -238,10 +237,18 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
   // minNightsError now carries the actual required count (not a boolean flag)
   const minNightsErrorCount = minNightsError ? parseInt(minNightsError) : undefined
 
+  const nonce = (await headers()).get('x-nonce') ?? undefined
+  const jsonLd = generatePropertyJsonLd({
+    ...property,
+    imageUrls: allPhotos,
+    structuredAmenities,
+  })
+
   return (
     <>
       <script
         type="application/ld+json"
+        nonce={nonce}
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <PropertyPageV2

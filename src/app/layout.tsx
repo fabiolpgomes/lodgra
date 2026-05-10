@@ -7,6 +7,7 @@ import { Toaster } from "@/components/common/ui/sonner";
 import { CookieBanner } from "@/components/common/ui/CookieBanner";
 import { GoogleAnalytics } from "@/components/features/analytics/GoogleAnalytics";
 import { ServiceWorkerRegister } from "@/components/common/pwa/ServiceWorkerRegister";
+import { generateWebsiteJsonLd } from "@/lib/seo/jsonld";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -31,7 +32,7 @@ export const viewport: Viewport = {
 
 // Noindex por defeito — páginas públicas fazem override via generateMetadata
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://www.lodgra.pt'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://lodgra.io'),
   title: 'Lodgra',
   robots: { index: false, follow: false },
   manifest: '/manifest.json',
@@ -56,7 +57,7 @@ export const metadata: Metadata = {
   },
 };
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://www.lodgra.pt'
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://lodgra.io'
 
 const organizationSchema = {
   '@context': 'https://schema.org',
@@ -93,6 +94,11 @@ export default async function RootLayout({
           type="application/ld+json"
           nonce={nonce}
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          nonce={nonce}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(generateWebsiteJsonLd()) }}
         />
       </head>
       <body
