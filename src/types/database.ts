@@ -73,6 +73,22 @@ export type PropertyBathroom = {
   created_at: string
 }
 
+export type ReviewSource = 'booking' | 'airbnb' | 'google' | 'tripadvisor' | 'direct' | 'other'
+
+export type PropertyReview = {
+  id: string
+  organization_id: string
+  property_id: string
+  source: ReviewSource
+  reviewer_name: string
+  rating: number
+  review_text: string | null
+  review_date: string       // ISO date string 'YYYY-MM-DD'
+  is_featured: boolean
+  created_at: string
+  updated_at: string
+}
+
 export type Platform = {
   id: string
   name: string
