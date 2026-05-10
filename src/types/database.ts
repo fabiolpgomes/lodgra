@@ -221,6 +221,18 @@ export type ExpenseDocument = {
   created_at: string
 }
 
+export type OtaScore = {
+  source: ReviewSource
+  avg: number
+  count: number
+}
+
+export type ReviewScoreData = {
+  globalAvg: number
+  totalCount: number
+  bySource: OtaScore[]
+}
+
 // Tipos compostos para uso na UI
 export type PropertyWithListings = Property & {
   listings: PropertyListing[]

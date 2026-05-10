@@ -5,6 +5,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import type { Metadata } from 'next'
 import { PropertyImage } from '@/types/property-images'
 import { generatePropertyJsonLd } from '@/lib/seo/jsonld'
+import type { ReviewSource, ReviewScoreData } from '@/types/database'
 import { locales } from '../../../../i18n.config'
 import { PropertyPageV2 } from '@/components/common/public/PropertyPageV2'
 
@@ -234,6 +235,33 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
     )
     .filter((a): a is AmenityRow => a != null)
 
+  // Load reviews for score aggregation (public — RLS allows select)
+  const { data: reviewsRaw } = await adminClient
+    .from('property_reviews')
+    .select('source, rating')
+    .eq('property_id', property.id)
+
+  const reviews = reviewsRaw ?? []
+  let reviewScore: ReviewScoreData | null = null
+
+  if (reviews.length > 0) {
+    const globalAvg = Math.round((reviews.reduce((s: number, r: { rating: number }) => s + Number(r.rating), 0) / reviews.length) * 10) / 10
+
+    const bySourceMap = new Map<string, number[]>()
+    for (const r of reviews) {
+      if (!bySourceMap.has(r.source)) bySourceMap.set(r.source, [])
+      bySourceMap.get(r.source)!.push(Number(r.rating))
+    }
+
+    const bySource = Array.from(bySourceMap.entries()).map(([source, ratings]) => ({
+      source: source as ReviewSource,
+      avg: Math.round((ratings.reduce((s: number, v: number) => s + v, 0) / ratings.length) * 10) / 10,
+      count: ratings.length,
+    }))
+
+    reviewScore = { globalAvg, totalCount: reviews.length, bySource }
+  }
+
   // minNightsError now carries the actual required count (not a boolean flag)
   const minNightsErrorCount = minNightsError ? parseInt(minNightsError) : undefined
 
@@ -273,6 +301,7 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
         checkinUntil={property.checkin_until}
         checkoutUntil={property.checkout_until}
         blockedRanges={blockedRanges}
+        reviewScore={reviewScore}
       />
     </>
   )

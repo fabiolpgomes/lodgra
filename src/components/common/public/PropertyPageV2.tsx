@@ -9,6 +9,8 @@ import { PropertyHeroGallery } from './gallery/PropertyHeroGallery'
 import { PropertyDescription } from './content/PropertyDescription'
 import { PropertyAmenitiesV2, type StructuredAmenity } from './content/PropertyAmenitiesV2'
 import { PropertyLocation } from './content/PropertyLocation'
+import { PropertyReviewScore } from './content/PropertyReviewScore'
+import type { ReviewScoreData } from '@/types/database'
 import { PropertyPolicies } from './content/PropertyPolicies'
 import { PropertyRooms, type PropertyRoom } from './content/PropertyRooms'
 import { PropertyBathrooms, type PropertyBathroom } from './content/PropertyBathrooms'
@@ -46,9 +48,10 @@ interface PropertyPageV2Props {
   checkinUntil?: string | null
   checkoutUntil?: string | null
   blockedRanges?: { start: string; end: string }[]
+  reviewScore?: ReviewScoreData | null
 }
 
-export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, initialCheckOut, initialGuests, minNights = 1, pricingRules = [], structuredAmenities, rooms, bathrooms, minNightsError, datesUnavailable, cleaningFee, cleaningFeeType, petFee, petFeeType, checkinFrom, checkinUntil, checkoutUntil, blockedRanges = [] }: PropertyPageV2Props) {
+export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, initialCheckOut, initialGuests, minNights = 1, pricingRules = [], structuredAmenities, rooms, bathrooms, minNightsError, datesUnavailable, cleaningFee, cleaningFeeType, petFee, petFeeType, checkinFrom, checkinUntil, checkoutUntil, blockedRanges = [], reviewScore }: PropertyPageV2Props) {
   const [showLightbox, setShowLightbox] = useState(false)
   const [lightboxIndex, setLightboxIndex] = useState(0)
 
@@ -188,6 +191,9 @@ export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, 
                 checkoutUntil={checkoutUntil}
                 currency={currency}
               />
+
+              {/* Review Score */}
+              <PropertyReviewScore reviewScore={reviewScore} />
 
               {/* Location */}
               <PropertyLocation
