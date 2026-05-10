@@ -11,6 +11,24 @@ const nextConfig: NextConfig = {
   // Remove X-Powered-By header (minor security + bandwidth gain)
   poweredByHeader: false,
 
+  // Permanent redirect: homestay.pt → lodgra.io (host-based, path-preserving)
+  async redirects() {
+    return [
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'homestay.pt' }],
+        destination: 'https://lodgra.io/:path*',
+        permanent: true,
+      },
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'www.homestay.pt' }],
+        destination: 'https://lodgra.io/:path*',
+        permanent: true,
+      },
+    ]
+  },
+
   // Optimise images: serve WebP/AVIF automatically
   images: {
     formats: ["image/avif", "image/webp"],
