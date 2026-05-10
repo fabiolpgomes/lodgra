@@ -16,6 +16,7 @@ import { BookingWidgetDesktop } from './booking/BookingWidgetDesktop'
 import { BookingWidgetMobile } from './booking/BookingWidgetMobile'
 import { PropertyTrustBadges } from './layout/PropertyTrustBadges'
 import { PropertyLightbox } from './gallery/PropertyLightbox'
+import { Logo } from '@/components/common/ui/Logo'
 
 interface PricingRule {
   start_date: string
@@ -114,6 +115,12 @@ export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 py-6">
             {/* Main Content (2/3) */}
             <div className="lg:col-span-2 space-y-8">
+              {/* Property identity — logo + title */}
+              <div className="flex flex-col items-start gap-2 pb-2">
+                <Logo size="md" />
+                <h1 className="text-2xl font-bold text-neutral-900 leading-tight">{property.name}</h1>
+              </div>
+
               {/* Quick Stats */}
               <div className="flex flex-wrap gap-6 pb-6 border-b border-neutral-200">
                 {property.max_guests && (
