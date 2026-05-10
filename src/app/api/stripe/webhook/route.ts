@@ -82,6 +82,12 @@ export async function POST(request: NextRequest) {
 }
 
 async function handleCheckoutCompleted(supabase: AdminClient, session: Stripe.Checkout.Session) {
+  // Direct booking checkouts have reservation_id in metadata — skip, handled by booking-webhook
+  if (session.metadata?.reservation_id) {
+    console.log('[webhook] Checkout de reserva directa — ignorado neste handler')
+    return
+  }
+
   const email = session.customer_email || session.customer_details?.email
   if (!email) {
     console.error('Checkout completado sem email de cliente')

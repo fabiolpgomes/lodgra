@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { sendBookingConfirmationToGuest, sendBookingNotificationToManager } from '@/lib/email/bookingConfirmationGuest'
+import { enqueueEmail } from '@/lib/email/queue'
 
 export const dynamic = 'force-dynamic'
 
@@ -106,7 +107,7 @@ async function handleBookingCompleted(supabase: AdminClient, session: Stripe.Che
   console.log(`[booking-webhook] Fetching property listing: ${existing.property_listing_id}`)
   const { data: listing, error: listingError } = await supabase
     .from('property_listings')
-    .select('property_id, properties(name, city, slug, organization_id)')
+    .select('property_id, properties(name, city, slug, organization_id, owner_id)')
     .eq('id', existing.property_listing_id)
     .single()
 
@@ -115,7 +116,7 @@ async function handleBookingCompleted(supabase: AdminClient, session: Stripe.Che
     return
   }
 
-  const property = listing?.properties as unknown as { name: string; city: string | null; slug: string | null; organization_id: string } | null
+  const property = listing?.properties as unknown as { name: string; city: string | null; slug: string | null; organization_id: string; owner_id: string | null } | null
   console.log(`[booking-webhook] Property found: ${property?.name ?? 'Unknown'}`)
 
   // ── Send emails (non-blocking) ──────────────────────────────────────────────
@@ -147,6 +148,35 @@ async function handleBookingCompleted(supabase: AdminClient, session: Stripe.Che
       console.error(`[booking-webhook] Email ${index === 0 ? 'guest' : 'manager'} failed:`, result.reason)
     }
   })
+
+  // ── Notify property owner ────────────────────────────────────────────────────
+  if (property?.owner_id) {
+    const { data: owner } = await supabase
+      .from('owners')
+      .select('full_name, email')
+      .eq('id', property.owner_id)
+      .single()
+
+    if (owner?.email) {
+      const nights = Math.round(
+        (new Date(existing.check_out).getTime() - new Date(existing.check_in).getTime()) / 86400000
+      )
+      await enqueueEmail({
+        type: 'owner_reservation',
+        ownerName: owner.full_name ?? 'Proprietário',
+        ownerEmail: owner.email,
+        guestName: existing.guest_name ?? 'Hóspede',
+        propertyName: property.name,
+        checkIn: existing.check_in,
+        checkOut: existing.check_out,
+        nights,
+        totalAmount: existing.total_amount ? String(existing.total_amount) : undefined,
+        currency: existing.currency ?? 'EUR',
+        source: 'direct',
+      })
+      console.log(`[booking-webhook] Notificação ao proprietário enviada para ${owner.email}`)
+    }
+  }
 }
 
 async function handleBookingExpired(supabase: AdminClient, session: Stripe.Checkout.Session) {
