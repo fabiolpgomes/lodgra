@@ -3,6 +3,8 @@
  * Structure follows Google's "Aluguel por temporada" spec:
  * VacationRental → containsPlace → Accommodation (address, amenities)
  * geo coordinates (lat/lng) live directly on VacationRental per Google requirement.
+ * checkinTime, checkoutTime, priceSpecification live BOTH at VacationRental root
+ * AND inside the main makesOffer Offer — Google validates inside the Offer.
  */
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://lodgra.io'
@@ -48,7 +50,7 @@ interface PropertyData {
   beds?: BedItem[]
 }
 
-// ISO 8601 time with timezone offset — Google requires no leading "T" and a tz suffix
+// ISO 8601 time with timezone offset — Google docs example: "14:30:00+08:00"
 function toIsoTime(t: string | null | undefined, fallback: string, offset = '+00:00'): string {
   const val = t ?? fallback
   const parts = val.split(':')
@@ -56,29 +58,28 @@ function toIsoTime(t: string | null | undefined, fallback: string, offset = '+00
   return `${normalised}${offset}`
 }
 
-// Map property_type values to schema.org additionalType URLs
-function toAdditionalType(propertyType: string | null | undefined): string | undefined {
+// Map property_type to schema.org @type for containsPlace
+// Use specific subtypes instead of generic Accommodation + additionalType to avoid
+// "itemtype invalid" errors in Google's Rich Results Test
+function toAccommodationType(propertyType: string | null | undefined): string {
   const map: Record<string, string> = {
-    apartment: 'https://schema.org/Apartment',
-    house: 'https://schema.org/House',
-    villa: 'https://schema.org/House',
-    studio: 'https://schema.org/Apartment',
+    apartment: 'Apartment',
+    studio: 'Apartment',
+    house: 'House',
+    villa: 'House',
   }
-  return propertyType ? map[propertyType] : undefined
+  return (propertyType && map[propertyType]) || 'Accommodation'
 }
 
 // Map full country names to ISO 3166-1 alpha-2 codes (Google requires 2-letter codes)
 function toCountryCode(country: string | null | undefined): string | undefined {
   if (!country) return undefined
   const trimmed = country.trim()
-  // Already a 2-letter code
   if (trimmed.length === 2) return trimmed.toUpperCase()
   const map: Record<string, string> = {
     portugal: 'PT',
-    spain: 'ES',
-    espanha: 'ES',
-    france: 'FR',
-    franca: 'FR',
+    spain: 'ES', espanha: 'ES',
+    france: 'FR', franca: 'FR',
     'united kingdom': 'GB', 'reino unido': 'GB',
     germany: 'DE', alemanha: 'DE',
     italy: 'IT', itália: 'IT',
@@ -114,7 +115,6 @@ export function generatePropertyJsonLd(property: PropertyData) {
       typeOfBed: b.bed_type,
     }))
 
-  // PostalAddress (lives inside containsPlace.Accommodation)
   const postalAddress = {
     '@type': 'PostalAddress',
     ...(property.address && { streetAddress: property.address.trim() }),
@@ -123,13 +123,9 @@ export function generatePropertyJsonLd(property: PropertyData) {
     ...(property.country && { addressCountry: toCountryCode(property.country) }),
   }
 
-  const additionalType = toAdditionalType(property.property_type)
-
-  // containsPlace: the physical Accommodation unit
-  // geo lives on VacationRental (Google requirement), not here
+  // containsPlace: use specific @type (Apartment, House…) — no additionalType
   const containsPlace = {
-    '@type': 'Accommodation',
-    ...(additionalType && { additionalType }),
+    '@type': toAccommodationType(property.property_type),
     address: postalAddress,
     ...(property.bedrooms && { numberOfBedrooms: property.bedrooms }),
     ...(property.bathrooms && { numberOfBathroomsTotal: property.bathrooms }),
@@ -140,7 +136,7 @@ export function generatePropertyJsonLd(property: PropertyData) {
     ...(amenityFeature.length > 0 && { amenityFeature }),
   }
 
-  // priceSpecification: nightly base price (Google requires UnitPriceSpecification)
+  // Nightly base price spec (reused at root and inside main Offer)
   const priceSpecification = property.base_price && property.base_price > 0
     ? {
         '@type': 'UnitPriceSpecification',
@@ -157,10 +153,23 @@ export function generatePropertyJsonLd(property: PropertyData) {
       }
     : undefined
 
-  // makesOffer: extra fees only (cleaning, pet) — not the base price
-  const extraOffers: object[] = []
+  const checkinTime = toIsoTime(property.checkin_from, '15:00')
+  const checkoutTime = toIsoTime(property.checkout_until, '11:00')
+
+  // Main rental Offer: Google validates checkinTime, checkoutTime, priceSpecification,
+  // and identifier inside the Offer within makesOffer — not just at root level
+  const mainOffer: Record<string, unknown> = {
+    '@type': 'Offer',
+    identifier: `offer-${property.slug ?? 'main'}`,
+    checkinTime,
+    checkoutTime,
+    ...(priceSpecification && { priceSpecification }),
+  }
+
+  // Extra fee offers (cleaning, pet)
+  const allOffers: object[] = [mainOffer]
   if (property.cleaning_fee && property.cleaning_fee > 0) {
-    extraOffers.push({
+    allOffers.push({
       '@type': 'Offer',
       name: 'Taxa de limpeza',
       price: property.cleaning_fee,
@@ -169,7 +178,7 @@ export function generatePropertyJsonLd(property: PropertyData) {
     })
   }
   if (property.pet_fee && property.pet_fee > 0) {
-    extraOffers.push({
+    allOffers.push({
       '@type': 'Offer',
       name: 'Taxa de animais de estimação',
       price: property.pet_fee,
@@ -179,8 +188,6 @@ export function generatePropertyJsonLd(property: PropertyData) {
   }
 
   const pageUrl = property.slug ? `${APP_URL}/p/${property.slug}` : undefined
-
-  // Google requires lat/lng with ≥5 decimal places directly on VacationRental
   const hasGeo = !!(property.latitude && property.longitude)
 
   return {
@@ -201,10 +208,12 @@ export function generatePropertyJsonLd(property: PropertyData) {
       },
     }),
     containsPlace,
-    checkinTime: toIsoTime(property.checkin_from, '15:00'),
-    checkoutTime: toIsoTime(property.checkout_until, '11:00'),
+    // Keep at root level (schema.org LodgingBusiness spec)
+    checkinTime,
+    checkoutTime,
     ...(priceSpecification && { priceSpecification }),
-    ...(extraOffers.length > 0 && { makesOffer: extraOffers }),
+    // makesOffer: main offer first (with all required fields), then extra fees
+    makesOffer: allOffers,
   }
 }
 
