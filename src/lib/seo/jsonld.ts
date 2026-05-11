@@ -67,6 +67,27 @@ function toAdditionalType(propertyType: string | null | undefined): string | und
   return propertyType ? map[propertyType] : undefined
 }
 
+// Map full country names to ISO 3166-1 alpha-2 codes (Google requires 2-letter codes)
+function toCountryCode(country: string | null | undefined): string | undefined {
+  if (!country) return undefined
+  const trimmed = country.trim()
+  // Already a 2-letter code
+  if (trimmed.length === 2) return trimmed.toUpperCase()
+  const map: Record<string, string> = {
+    portugal: 'PT',
+    spain: 'ES',
+    espanha: 'ES',
+    france: 'FR',
+    franca: 'FR',
+    'united kingdom': 'GB', 'reino unido': 'GB',
+    germany: 'DE', alemanha: 'DE',
+    italy: 'IT', itália: 'IT',
+    netherlands: 'NL', 'países baixos': 'NL',
+    brazil: 'BR', brasil: 'BR',
+  }
+  return map[trimmed.toLowerCase()] ?? trimmed
+}
+
 export function generatePropertyJsonLd(property: PropertyData) {
   const currency = property.currency ?? 'EUR'
   const minNights = property.min_nights ?? 1
@@ -96,10 +117,10 @@ export function generatePropertyJsonLd(property: PropertyData) {
   // PostalAddress (lives inside containsPlace.Accommodation)
   const postalAddress = {
     '@type': 'PostalAddress',
-    ...(property.address && { streetAddress: property.address }),
-    ...(property.city && { addressLocality: property.city }),
-    ...(property.postal_code && { postalCode: property.postal_code }),
-    ...(property.country && { addressCountry: property.country }),
+    ...(property.address && { streetAddress: property.address.trim() }),
+    ...(property.city && { addressLocality: property.city.trim() }),
+    ...(property.postal_code && { postalCode: property.postal_code.trim() }),
+    ...(property.country && { addressCountry: toCountryCode(property.country) }),
   }
 
   const additionalType = toAdditionalType(property.property_type)
