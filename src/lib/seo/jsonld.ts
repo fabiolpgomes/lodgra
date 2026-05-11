@@ -36,6 +36,8 @@ interface PropertyData {
   cleaning_fee_type?: string | null
   pet_fee?: number | null
   pet_fee_type?: string | null
+  latitude?: number | null
+  longitude?: number | null
   structuredAmenities?: AmenityItem[]
 }
 
@@ -74,10 +76,16 @@ export function generatePropertyJsonLd(property: PropertyData) {
   }
 
   // containsPlace: the physical Accommodation unit
-  // geo (GeoCoordinates) omitted — requires lat/lng migration (see story backlog)
   const containsPlace = {
     '@type': 'Accommodation',
     address: postalAddress,
+    ...(property.latitude && property.longitude && {
+      geo: {
+        '@type': 'GeoCoordinates',
+        latitude: property.latitude,
+        longitude: property.longitude,
+      },
+    }),
     ...(property.bedrooms && { numberOfRooms: property.bedrooms }),
     ...(property.bathrooms && { numberOfBathroomsTotal: property.bathrooms }),
     ...(property.max_guests && {

@@ -53,6 +53,8 @@ export default function EditPropertyPage({
   const [checkinFrom, setCheckinFrom] = useState<string>('')
   const [checkinUntil, setCheckinUntil] = useState<string>('')
   const [checkoutUntil, setCheckoutUntil] = useState<string>('')
+  const [latitude, setLatitude] = useState<string>('')
+  const [longitude, setLongitude] = useState<string>('')
 
   async function reloadGallery(id: string): Promise<void> {
     try {
@@ -130,6 +132,8 @@ export default function EditPropertyPage({
       setCheckinFrom((propResult.data.checkin_from as string | null) || '')
       setCheckinUntil((propResult.data.checkin_until as string | null) || '')
       setCheckoutUntil((propResult.data.checkout_until as string | null) || '')
+      setLatitude((propResult.data.latitude as number | null)?.toString() || '')
+      setLongitude((propResult.data.longitude as number | null)?.toString() || '')
       setOwners(ownersResult.data || [])
 
       // Load variants for images (optimized: 1 query for all variants, not N queries)
@@ -194,6 +198,8 @@ export default function EditPropertyPage({
           checkin_from: checkinFrom || null,
           checkin_until: checkinUntil || null,
           checkout_until: checkoutUntil || null,
+          latitude: latitude ? parseFloat(latitude) : null,
+          longitude: longitude ? parseFloat(longitude) : null,
           updated_at: new Date().toISOString(),
         })
         .eq('id', propertyId)
@@ -386,6 +392,41 @@ export default function EditPropertyPage({
                   defaultValue={(property?.country as string) || ''}
                 />
               </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="latitude" className="mb-1">
+                    Latitude
+                  </Label>
+                  <Input
+                    type="number"
+                    id="latitude"
+                    step="any"
+                    min="-90"
+                    max="90"
+                    value={latitude}
+                    onChange={(e) => setLatitude(e.target.value)}
+                    placeholder="Ex: 38.7223"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="longitude" className="mb-1">
+                    Longitude
+                  </Label>
+                  <Input
+                    type="number"
+                    id="longitude"
+                    step="any"
+                    min="-180"
+                    max="180"
+                    value={longitude}
+                    onChange={(e) => setLongitude(e.target.value)}
+                    placeholder="Ex: -9.1393"
+                  />
+                </div>
+              </div>
+              <p className="text-xs text-gray-500">
+                Coordenadas geográficas para Google Vacation Rentals. Obter via Google Maps → clique direito → copiar coordenadas.
+              </p>
             </div>
           </div>
 
