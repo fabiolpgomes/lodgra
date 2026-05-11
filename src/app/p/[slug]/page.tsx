@@ -246,7 +246,17 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
   let reviewScore: ReviewScoreData | null = null
 
   if (reviews.length > 0) {
-    const globalAvg = Math.round((reviews.reduce((s: number, r: { rating: number }) => s + Number(r.rating), 0) / reviews.length) * 10) / 10
+    // Escalas nativas: Airbnb/Google/TripAdvisor usam /5; Booking/Direct/Other usam /10
+    const SOURCE_MAX: Record<string, number> = {
+      booking: 10, airbnb: 5, google: 5, tripadvisor: 5, direct: 10, other: 10,
+    }
+    const toBase10 = (rating: number, source: string) =>
+      (rating / (SOURCE_MAX[source] ?? 10)) * 10
+
+    const globalAvg = Math.round(
+      (reviews.reduce((s: number, r: { rating: number; source: string }) =>
+        s + toBase10(Number(r.rating), r.source), 0) / reviews.length) * 10
+    ) / 10
 
     const bySourceMap = new Map<string, number[]>()
     for (const r of reviews) {
@@ -254,11 +264,12 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
       bySourceMap.get(r.source)!.push(Number(r.rating))
     }
 
-    const bySource = Array.from(bySourceMap.entries()).map(([source, ratings]) => ({
-      source: source as ReviewSource,
-      avg: Math.round((ratings.reduce((s: number, v: number) => s + v, 0) / ratings.length) * 10) / 10,
-      count: ratings.length,
-    }))
+    const bySource = Array.from(bySourceMap.entries()).map(([source, ratings]) => {
+      const nativeMax = SOURCE_MAX[source] ?? 10
+      const nativeAvg = Math.round((ratings.reduce((s: number, v: number) => s + v, 0) / ratings.length) * 10) / 10
+      const avg = Math.round((nativeAvg / nativeMax) * 100) / 10
+      return { source: source as ReviewSource, avg, nativeAvg, nativeMax, count: ratings.length }
+    })
 
     reviewScore = { globalAvg, totalCount: reviews.length, bySource }
   }

@@ -12,6 +12,20 @@ const SOURCE_LABELS: Record<ReviewSource, string> = {
   other: 'Outra',
 }
 
+const SOURCE_COLORS: Record<ReviewSource, string> = {
+  booking: 'text-blue-700',
+  airbnb: 'text-rose-600',
+  google: 'text-amber-700',
+  tripadvisor: 'text-green-700',
+  direct: 'text-lodgra-brand-700',
+  other: 'text-neutral-600',
+}
+
+// Escala máxima nativa de cada plataforma
+const SOURCE_MAX: Record<ReviewSource, number> = {
+  booking: 10, airbnb: 5, google: 5, tripadvisor: 5, direct: 10, other: 10,
+}
+
 function formatDate(dateStr: string): string {
   const d = new Date(dateStr + 'T00:00:00')
   return d.toLocaleDateString('pt-PT', { month: 'long', year: 'numeric' })
@@ -24,15 +38,20 @@ interface ReviewCardProps {
 function ReviewCard({ review }: ReviewCardProps) {
   const [expanded, setExpanded] = useState(false)
   const hasLongText = review.review_text && review.review_text.length > 160
+  const nativeMax = SOURCE_MAX[review.source] ?? 10
+  const rating = Number(review.rating).toFixed(1)
 
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-neutral-200 bg-white p-5 min-w-[280px] snap-start sm:min-w-0">
+    <div className="flex flex-col gap-3 rounded-xl border border-neutral-200 bg-white p-5 min-w-[280px] snap-start sm:min-w-0 shadow-sm">
       {/* Header: nota + fonte */}
       <div className="flex items-center justify-between gap-2">
-        <span className="text-sm font-semibold text-lodgra-brand-700 bg-lodgra-brand-50 px-2 py-0.5 rounded-md">
-          {Number(review.rating).toFixed(1)}/10
+        <div className="flex items-baseline gap-0.5">
+          <span className="text-base font-bold text-neutral-900">{rating}</span>
+          <span className="text-xs text-neutral-400">/{nativeMax}</span>
+        </div>
+        <span className={`text-xs font-semibold truncate ${SOURCE_COLORS[review.source]}`}>
+          {SOURCE_LABELS[review.source]}
         </span>
-        <span className="text-xs text-neutral-500 truncate">{SOURCE_LABELS[review.source]}</span>
       </div>
 
       {/* Texto da review */}

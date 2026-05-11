@@ -223,7 +223,9 @@ export type ExpenseDocument = {
 
 export type OtaScore = {
   source: ReviewSource
-  avg: number
+  avg: number        // normalizado para /10
+  nativeAvg: number  // média na escala nativa da plataforma
+  nativeMax: number  // escala máxima da plataforma (5 ou 10)
   count: number
 }
 
