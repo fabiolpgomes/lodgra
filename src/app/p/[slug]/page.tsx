@@ -5,7 +5,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import type { Metadata } from 'next'
 import { PropertyImage } from '@/types/property-images'
 import { generatePropertyJsonLd } from '@/lib/seo/jsonld'
-import type { ReviewSource, ReviewScoreData } from '@/types/database'
+import type { ReviewSource, ReviewScoreData, PropertyReview } from '@/types/database'
 import { locales } from '../../../../i18n.config'
 import { PropertyPageV2 } from '@/components/common/public/PropertyPageV2'
 
@@ -263,6 +263,17 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
     reviewScore = { globalAvg, totalCount: reviews.length, bySource }
   }
 
+  // Load featured reviews for carousel (max 6, public)
+  const { data: featuredReviewsRaw } = await adminClient
+    .from('property_reviews')
+    .select('*')
+    .eq('property_id', property.id)
+    .eq('is_featured', true)
+    .order('review_date', { ascending: false })
+    .limit(6)
+
+  const featuredReviews = (featuredReviewsRaw ?? []) as PropertyReview[]
+
   // minNightsError now carries the actual required count (not a boolean flag)
   const minNightsErrorCount = minNightsError ? parseInt(minNightsError) : undefined
 
@@ -303,6 +314,7 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
         checkoutUntil={property.checkout_until}
         blockedRanges={blockedRanges}
         reviewScore={reviewScore}
+        featuredReviews={featuredReviews}
       />
     </>
   )

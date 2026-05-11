@@ -10,7 +10,8 @@ import { PropertyDescription } from './content/PropertyDescription'
 import { PropertyAmenitiesV2, type StructuredAmenity } from './content/PropertyAmenitiesV2'
 import { PropertyLocation } from './content/PropertyLocation'
 import { PropertyReviewScore } from './content/PropertyReviewScore'
-import type { ReviewScoreData } from '@/types/database'
+import { PropertyReviewCards } from './content/PropertyReviewCards'
+import type { ReviewScoreData, PropertyReview } from '@/types/database'
 import { PropertyPolicies } from './content/PropertyPolicies'
 import { PropertyRooms, type PropertyRoom } from './content/PropertyRooms'
 import { PropertyBathrooms, type PropertyBathroom } from './content/PropertyBathrooms'
@@ -49,9 +50,10 @@ interface PropertyPageV2Props {
   checkoutUntil?: string | null
   blockedRanges?: { start: string; end: string }[]
   reviewScore?: ReviewScoreData | null
+  featuredReviews?: PropertyReview[]
 }
 
-export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, initialCheckOut, initialGuests, minNights = 1, pricingRules = [], structuredAmenities, rooms, bathrooms, minNightsError, datesUnavailable, cleaningFee, cleaningFeeType, petFee, petFeeType, checkinFrom, checkinUntil, checkoutUntil, blockedRanges = [], reviewScore }: PropertyPageV2Props) {
+export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, initialCheckOut, initialGuests, minNights = 1, pricingRules = [], structuredAmenities, rooms, bathrooms, minNightsError, datesUnavailable, cleaningFee, cleaningFeeType, petFee, petFeeType, checkinFrom, checkinUntil, checkoutUntil, blockedRanges = [], reviewScore, featuredReviews }: PropertyPageV2Props) {
   const [showLightbox, setShowLightbox] = useState(false)
   const [lightboxIndex, setLightboxIndex] = useState(0)
 
@@ -194,6 +196,9 @@ export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, 
 
               {/* Review Score */}
               <PropertyReviewScore reviewScore={reviewScore} />
+
+              {/* Featured Review Cards Carousel */}
+              <PropertyReviewCards featuredReviews={featuredReviews} />
 
               {/* Location */}
               <PropertyLocation
