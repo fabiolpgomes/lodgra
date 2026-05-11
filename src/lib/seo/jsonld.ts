@@ -82,14 +82,14 @@ export function generatePropertyJsonLd(property: PropertyData) {
     ...(property.latitude && property.longitude && {
       geo: {
         '@type': 'GeoCoordinates',
-        latitude: property.latitude,
-        longitude: property.longitude,
+        latitude: property.latitude.toFixed(6),
+        longitude: property.longitude.toFixed(6),
       },
     }),
     ...(property.bedrooms && { numberOfRooms: property.bedrooms }),
     ...(property.bathrooms && { numberOfBathroomsTotal: property.bathrooms }),
     ...(property.max_guests && {
-      occupancy: { '@type': 'QuantitativeValue', maxValue: property.max_guests },
+      occupancy: { '@type': 'QuantitativeValue', value: property.max_guests },
     }),
     ...(amenityFeature.length > 0 && { amenityFeature }),
   }
