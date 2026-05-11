@@ -282,6 +282,7 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
     ...property,
     imageUrls: allPhotos,
     structuredAmenities,
+    beds: propertyRooms.map(r => ({ bed_type: r.bed_type, bed_count: r.bed_count })),
   })
 
   return (
