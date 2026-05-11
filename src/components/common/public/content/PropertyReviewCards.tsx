@@ -83,28 +83,62 @@ function ReviewCard({ review }: ReviewCardProps) {
   )
 }
 
+const PAGE_SIZE = 6
+
 interface PropertyReviewCardsProps {
   featuredReviews?: PropertyReview[]
 }
 
 export function PropertyReviewCards({ featuredReviews }: PropertyReviewCardsProps) {
+  const [showAll, setShowAll] = useState(false)
+
   if (!featuredReviews || featuredReviews.length === 0) return null
+
+  const visible = showAll ? featuredReviews : featuredReviews.slice(0, PAGE_SIZE)
+  const hasMore = featuredReviews.length > PAGE_SIZE
 
   return (
     <section className="pt-4">
       {/* Mobile: carousel com scroll horizontal */}
       <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-2 sm:hidden -mx-4 px-4">
-        {featuredReviews.map(review => (
+        {visible.map(review => (
           <ReviewCard key={review.id} review={review} />
         ))}
       </div>
 
       {/* Desktop: grid 2–3 colunas */}
       <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {featuredReviews.map(review => (
+        {visible.map(review => (
           <ReviewCard key={review.id} review={review} />
         ))}
       </div>
+
+      {/* Botão expandir / colapsar */}
+      {hasMore && (
+        <div className="mt-5 flex justify-center">
+          <button
+            type="button"
+            onClick={() => setShowAll(prev => !prev)}
+            className="inline-flex items-center gap-2 rounded-full border border-neutral-300 bg-white px-5 py-2 text-sm font-medium text-neutral-700 shadow-sm hover:bg-neutral-50 transition-colors"
+          >
+            {showAll ? (
+              <>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" />
+                </svg>
+                Ver menos
+              </>
+            ) : (
+              <>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+                Ver mais {featuredReviews.length - PAGE_SIZE} avaliações
+              </>
+            )}
+          </button>
+        </div>
+      )}
     </section>
   )
 }

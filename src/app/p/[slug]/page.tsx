@@ -274,14 +274,13 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
     reviewScore = { globalAvg, totalCount: reviews.length, bySource }
   }
 
-  // Load featured reviews for carousel (max 6, public)
+  // Load featured reviews for public page (all featured, no cap — component handles pagination)
   const { data: featuredReviewsRaw } = await adminClient
     .from('property_reviews')
     .select('*')
     .eq('property_id', property.id)
     .eq('is_featured', true)
     .order('review_date', { ascending: false })
-    .limit(6)
 
   const featuredReviews = (featuredReviewsRaw ?? []) as PropertyReview[]
 
