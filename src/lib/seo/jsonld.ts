@@ -116,8 +116,8 @@ export function generatePropertyJsonLd(property: PropertyData) {
     ...(property.description && { description: property.description }),
     ...(imageField && { image: imageField }),
     address,
-    checkinTime: property.checkin_from ?? '15:00',
-    checkoutTime: property.checkout_until ?? '11:00',
+    checkinTime: `T${property.checkin_from ?? '15:00'}`,
+    checkoutTime: `T${property.checkout_until ?? '11:00'}`,
     ...(property.max_guests && {
       occupancy: { '@type': 'QuantitativeValue', maxValue: property.max_guests },
     }),
