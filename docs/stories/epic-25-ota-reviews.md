@@ -1,6 +1,6 @@
 # Epic 25: OTA Reviews — Social Proof na Página de Reserva Direta
 
-**Status:** Ready for Story Breakdown
+**Status:** Done
 **Priority:** High
 **Effort:** Medium
 **Risk:** Low (sem dependências de APIs externas)
@@ -79,10 +79,10 @@ create table property_reviews (
 
 ## Stories
 
-- [ ] **Story 25.1** — DB Migration: tabela `property_reviews` + RLS + índices
-- [ ] **Story 25.2** — Admin: gestão de reviews por propriedade (CRUD + destaque)
-- [ ] **Story 25.3** — Página pública: secção de score agregado por OTA
-- [ ] **Story 25.4** — Página pública: carousel de review cards (destaque)
+- [x] **Story 25.1** — DB Migration: tabela `property_reviews` + RLS + índices
+- [x] **Story 25.2** — Admin: gestão de reviews por propriedade (CRUD + destaque)
+- [x] **Story 25.3** — Página pública: secção de score agregado por OTA
+- [x] **Story 25.4** — Página pública: carousel de review cards (destaque)
 
 ---
 
