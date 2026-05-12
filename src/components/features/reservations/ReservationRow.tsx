@@ -10,6 +10,16 @@ interface ReservationRowProps {
   reservation: ReservationUI
 }
 
+const COUNTRY_FLAGS: Record<string, string> = {
+  Portugal: '🇵🇹',
+  Brasil: '🇧🇷',
+  Spain: '🇪🇸',
+  France: '🇫🇷',
+  UK: '🇬🇧',
+  Germany: '🇩🇪',
+  Italy: '🇮🇹',
+}
+
 export function ReservationRow({ reservation }: ReservationRowProps) {
   const router = useRouter()
 
@@ -21,6 +31,13 @@ export function ReservationRow({ reservation }: ReservationRowProps) {
   const platformName = listing?.platforms?.display_name
   const rawGuest = reservation.guests
   const guest = Array.isArray(rawGuest) ? rawGuest[0] : rawGuest
+
+  const truncateName = (name: string | undefined, maxChars: number = 40): string => {
+    if (!name) return 'Propriedade não encontrada'
+    return name.length > maxChars ? `${name.substring(0, maxChars)}...` : name
+  }
+
+  const countryFlag = property?.country ? COUNTRY_FLAGS[property.country] || '🌍' : ''
 
   const statusConfig = {
     pending: { label: 'Pendente', className: 'bg-orange-100 text-orange-800 hover:bg-orange-100' },
@@ -40,17 +57,19 @@ export function ReservationRow({ reservation }: ReservationRowProps) {
       className="hover:bg-gray-50 cursor-pointer transition-colors"
       onClick={handleClick}
     >
-      <td className="px-6 py-4 whitespace-nowrap">
-        <div className="flex items-center">
-          <Building2 className="h-5 w-5 text-gray-400 mr-2" />
-          <div>
-            <div className="text-sm font-medium text-gray-900">
-              {property?.name || 'Propriedade não encontrada'}
+      <td className="px-4 py-3">
+        <div className="flex items-start gap-2">
+          <div className="shrink-0 mt-0.5">
+            <Building2 className="h-4 w-4 text-gray-400" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="text-xs font-medium text-gray-900 line-clamp-1">
+              {truncateName(property?.name)}
             </div>
-            <div className="text-sm text-gray-500">
-              {property?.city}, {property?.country}
+            <div className="text-xs text-gray-500">
+              {property?.city}
               {platformName && (
-                <span className="ml-2 px-1.5 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 rounded">
+                <span className="ml-1 px-1 py-0.5 text-[10px] font-medium bg-blue-100 text-blue-700 rounded">
                   {platformName}
                 </span>
               )}
@@ -59,39 +78,48 @@ export function ReservationRow({ reservation }: ReservationRowProps) {
         </div>
       </td>
 
-      <td className="px-6 py-4">
-        <div className="flex items-center max-w-[220px]">
-          <Users className="h-5 w-5 text-gray-400 mr-2 shrink-0" />
+      <td className="px-4 py-3">
+        <div className="flex items-center gap-2">
+          <Users className="h-4 w-4 text-gray-400 shrink-0" />
           <div className="min-w-0">
-            <div className="text-sm font-medium text-gray-900 truncate">
+            <div className="text-xs font-medium text-gray-900 truncate">
               {guest ? `${guest.first_name} ${guest.last_name}` : 'Hóspede não cadastrado'}
             </div>
-            <div className="text-sm text-gray-500 truncate">{guest?.email || '-'}</div>
+            <div className="text-xs text-gray-500 truncate">{guest?.email || '-'}</div>
           </div>
         </div>
       </td>
 
-      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+      <td className="px-4 py-3 whitespace-nowrap text-xs text-gray-900">
         {new Date(reservation.check_in).toLocaleDateString('pt-BR')}
       </td>
 
-      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+      <td className="px-4 py-3 whitespace-nowrap text-xs text-gray-900">
         {new Date(reservation.check_out).toLocaleDateString('pt-BR')}
       </td>
 
-      <td className="px-6 py-4 whitespace-nowrap">
-        <Badge className={status.className}>
+      <td className="px-4 py-3 whitespace-nowrap">
+        <Badge className={`${status.className} text-xs`}>
           {status.label}
         </Badge>
       </td>
 
-      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+      <td className="px-4 py-3 whitespace-nowrap text-xs text-gray-900">
         {formatCurrency(reservation.total_amount, ((property as { currency?: string } | null)?.currency || reservation.currency || 'EUR') as CurrencyCode)}
       </td>
 
-      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-        <span className="text-blue-600 hover:text-blue-900 font-medium">
-          Ver detalhes →
+      <td className="px-4 py-3 whitespace-nowrap text-right">
+        <div className="flex items-center justify-end gap-1.5">
+          <span className="text-lg">{countryFlag}</span>
+          <span className="text-xs font-medium text-[#1E3A8A] hover:text-[#D4AF37] transition-colors cursor-pointer">
+            {property?.country || '-'}
+          </span>
+        </div>
+      </td>
+
+      <td className="px-4 py-3 whitespace-nowrap text-right">
+        <span className="text-xs font-medium text-blue-600 hover:text-blue-900">
+          Ver →
         </span>
       </td>
     </tr>
