@@ -105,7 +105,7 @@ export default async function RootLayout({
         className={`${poppins.variable} ${inter.variable} font-inter antialiased`}
         suppressHydrationWarning
       >
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} nonce={nonce}>
           {children}
           <Toaster richColors position="top-right" />
           <CookieBanner />
