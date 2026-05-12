@@ -94,10 +94,10 @@ export function LocaleSelector() {
         aria-expanded={isOpen}
         aria-haspopup="listbox"
       >
-        <span className="text-lg">{currentOption.flag}</span>
+        <span className="text-xl leading-none flex-shrink-0">{currentOption.flag}</span>
         <span className="hidden sm:inline text-sm font-medium text-gray-700">{currentOption.label}</span>
         <ChevronDown
-          className={`h-4 w-4 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+          className={`h-4 w-4 text-gray-400 transition-transform flex-shrink-0 ${isOpen ? 'rotate-180' : ''}`}
           aria-hidden="true"
         />
       </button>
@@ -105,7 +105,7 @@ export function LocaleSelector() {
       {/* Dropdown menu */}
       {isOpen && (
         <div
-          className="absolute right-0 top-full mt-2 w-48 rounded-lg border border-gray-200 bg-white shadow-lg py-1 z-50"
+          className="absolute right-0 top-full mt-2 w-56 rounded-lg border border-gray-200 bg-white shadow-lg py-2 z-50"
           role="listbox"
           aria-label="Opções de idioma"
         >
@@ -127,10 +127,10 @@ export function LocaleSelector() {
               role="option"
               aria-selected={option.code === currentLocale}
             >
-              <span className="text-lg">{option.flag}</span>
-              <div className="flex flex-col">
-                <span className="font-medium">{option.name}</span>
-                <span className="text-xs text-gray-500">{option.label}</span>
+              <span className="text-xl leading-none flex-shrink-0">{option.flag}</span>
+              <div className="flex flex-col min-w-0">
+                <span className="font-medium truncate">{option.name}</span>
+                <span className="text-xs text-gray-500 truncate">{option.label}</span>
               </div>
             </button>
           ))}

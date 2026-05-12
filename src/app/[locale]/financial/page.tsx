@@ -171,110 +171,118 @@ export default async function FinancialPage({
             <h3 className="text-xs font-black text-lodgra-blue uppercase tracking-widest font-display">Análise por Propriedade</h3>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="min-w-full">
+          <div className="w-full">
+            <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-200">
-                  <th className="px-5 py-3 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
+                  <th className="px-3 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider max-w-[240px]">
                     Propriedade
                   </th>
-                  <th className="px-5 py-3 text-right text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
-                    Receita Bruta
+                  <th className="px-2 py-3 text-right text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
+                    Receita
                   </th>
-                  <th className="px-5 py-3 text-right text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
-                    Comissão Gestão
+                  <th className="px-2 py-3 text-right text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
+                    Comissão
                   </th>
-                  <th className="px-5 py-3 text-right text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
-                    Líquido Proprietário
+                  <th className="px-2 py-3 text-right text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
+                    Líquido
                   </th>
-                  <th className="px-5 py-3 text-right text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
+                  <th className="px-2 py-3 text-right text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
                     Despesas
                   </th>
-                  <th className="px-5 py-3 text-right text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
+                  <th className="px-2 py-3 text-right text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
                     Lucro
                   </th>
-                  <th className="px-5 py-3 text-right text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
+                  <th className="px-2 py-3 text-right text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
                     Margem
                   </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {propertyAnalysis.map((property) => (
-                  <tr key={property.id} className="hover:bg-gray-50/60">
-                    <td className="px-5 py-4 whitespace-nowrap">
-                      <div className="flex items-start gap-2">
-                        {property.currency && (() => {
-                          const badgeColor = property.currency === 'EUR' ? 'bg-blue-50 text-blue-700 ring-blue-200'
-                            : property.currency === 'BRL' ? 'bg-green-50 text-green-700 ring-green-200'
-                            : property.currency === 'USD' ? 'bg-yellow-50 text-yellow-700 ring-yellow-200'
-                            : property.currency === 'GBP' ? 'bg-purple-50 text-purple-700 ring-purple-200'
-                            : 'bg-gray-100 text-gray-700 ring-gray-200'
-                          return (
-                            <span className={`mt-0.5 inline-flex items-center justify-center min-w-[2.5rem] h-5 px-1.5 text-[10px] font-bold uppercase tracking-widest rounded ring-1 shrink-0 ${badgeColor}`}>
-                              {property.currency}
-                            </span>
-                          )
-                        })()}
-                        <div>
-                          <div className="text-sm font-medium text-gray-900">{property.name}</div>
-                          {property.owner_name && (
-                            <div className="text-xs text-gray-500 mt-0.5">{property.owner_name}</div>
-                          )}
-                          {property.management_percentage > 0 && (
-                            <span className="text-xs bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded-full font-medium">
-                              {property.management_percentage}% gestão
-                            </span>
-                          )}
+                {propertyAnalysis.map((property) => {
+                  const truncatedName = property.name.length > 40
+                    ? property.name.substring(0, 40) + '...'
+                    : property.name
+
+                  return (
+                    <tr key={property.id} className="hover:bg-gray-50/60">
+                      <td className="px-3 py-3 max-w-[240px]">
+                        <div className="flex items-start gap-2">
+                          {property.currency && (() => {
+                            const badgeColor = property.currency === 'EUR' ? 'bg-blue-50 text-blue-700 ring-blue-200'
+                              : property.currency === 'BRL' ? 'bg-green-50 text-green-700 ring-green-200'
+                              : property.currency === 'USD' ? 'bg-yellow-50 text-yellow-700 ring-yellow-200'
+                              : property.currency === 'GBP' ? 'bg-purple-50 text-purple-700 ring-purple-200'
+                              : 'bg-gray-100 text-gray-700 ring-gray-200'
+                            return (
+                              <span className={`mt-0.5 inline-flex items-center justify-center min-w-[2.5rem] h-5 px-1.5 text-[10px] font-bold uppercase tracking-widest rounded ring-1 shrink-0 ${badgeColor}`}>
+                                {property.currency}
+                              </span>
+                            )
+                          })()}
+                          <div className="min-w-0">
+                            <div className="text-xs font-medium text-gray-900 truncate" title={property.name}>
+                              {truncatedName}
+                            </div>
+                            {property.owner_name && (
+                              <div className="text-xs text-gray-500 mt-0.5 truncate">{property.owner_name}</div>
+                            )}
+                            {property.management_percentage > 0 && (
+                              <span className="text-[9px] bg-blue-50 text-blue-700 px-1 py-0.5 rounded-full font-medium inline-block mt-1">
+                                {property.management_percentage}% gestão
+                              </span>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <TrendingUp className="h-4 w-4 text-green-600" />
-                        <span className="text-sm font-medium text-gray-900">
-                          {formatCurrency(property.revenue, property.currency as CurrencyCode)}
+                      </td>
+                      <td className="px-2 py-3 whitespace-nowrap text-right">
+                        <div className="flex items-center justify-end gap-0.5">
+                          <TrendingUp className="h-3 w-3 text-green-600" />
+                          <span className="text-xs font-medium text-gray-900">
+                            {formatCurrency(property.revenue, property.currency as CurrencyCode)}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-2 py-3 whitespace-nowrap text-right">
+                        <span className="text-xs font-medium text-orange-600">
+                          {property.management_percentage > 0
+                            ? formatCurrency(property.management_fee, property.currency as CurrencyCode)
+                            : '—'}
                         </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right">
-                      <span className="text-sm font-medium text-orange-600">
-                        {property.management_percentage > 0
-                          ? formatCurrency(property.management_fee, property.currency as CurrencyCode)
-                          : '—'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right">
-                      <span className="text-sm font-medium text-teal-600">
-                        {formatCurrency(property.owner_net, property.currency as CurrencyCode)}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <TrendingDown className="h-4 w-4 text-red-600" />
-                        <span className="text-sm font-medium text-gray-900">
-                          {formatCurrency(property.expenses, property.currency as CurrencyCode)}
+                      </td>
+                      <td className="px-2 py-3 whitespace-nowrap text-right">
+                        <span className="text-xs font-medium text-teal-600">
+                          {formatCurrency(property.owner_net, property.currency as CurrencyCode)}
                         </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right">
-                      <span className={`text-sm font-bold ${
-                        property.profit >= 0 ? 'text-green-600' : 'text-red-600'
-                      }`}>
-                        {formatCurrency(property.profit, property.currency as CurrencyCode)}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <Percent className="h-4 w-4 text-gray-400" />
-                        <span className={`text-sm font-bold ${
-                          property.profitMargin >= 0 ? 'text-green-600' : 'text-red-600'
+                      </td>
+                      <td className="px-2 py-3 whitespace-nowrap text-right">
+                        <div className="flex items-center justify-end gap-0.5">
+                          <TrendingDown className="h-3 w-3 text-red-600" />
+                          <span className="text-xs font-medium text-gray-900">
+                            {formatCurrency(property.expenses, property.currency as CurrencyCode)}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-2 py-3 whitespace-nowrap text-right">
+                        <span className={`text-xs font-bold ${
+                          property.profit >= 0 ? 'text-green-600' : 'text-red-600'
                         }`}>
-                          {property.profitMargin.toFixed(1)}%
+                          {formatCurrency(property.profit, property.currency as CurrencyCode)}
                         </span>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                      <td className="px-2 py-3 whitespace-nowrap text-right">
+                        <div className="flex items-center justify-end gap-0.5">
+                          <Percent className="h-3 w-3 text-gray-400" />
+                          <span className={`text-xs font-bold ${
+                            property.profitMargin >= 0 ? 'text-green-600' : 'text-red-600'
+                          }`}>
+                            {property.profitMargin.toFixed(1)}%
+                          </span>
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                })}
               </tbody>
             </table>
           </div>
