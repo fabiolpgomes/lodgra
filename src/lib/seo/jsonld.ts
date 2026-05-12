@@ -50,11 +50,12 @@ interface PropertyData {
   beds?: BedItem[]
 }
 
-// ISO 8601 time with timezone offset — Google docs example: "14:30:00+08:00"
+// ISO 8601 time — Google docs example: "14:30:00+08:00"
+// Guard against double-appending offset if value already contains one
 function toIsoTime(t: string | null | undefined, fallback: string, offset = '+00:00'): string {
   const val = t ?? fallback
-  const parts = val.split(':')
-  const normalised = parts.length >= 3 ? val : `${val}:00`
+  const stripped = val.replace(/([+-]\d{2}:\d{2}|Z)$/, '')
+  const normalised = stripped.split(':').length >= 3 ? stripped : `${stripped}:00`
   return `${normalised}${offset}`
 }
 
@@ -67,8 +68,12 @@ function toAccommodationType(propertyType: string | null | undefined): string {
     studio: 'Apartment',
     house: 'House',
     villa: 'House',
+    condo: 'Apartment',
+    townhouse: 'House',
+    cabin: 'House',
+    chalet: 'House',
   }
-  return (propertyType && map[propertyType]) || 'Accommodation'
+  return (propertyType && map[propertyType]) || 'Apartment'
 }
 
 // Map full country names to ISO 3166-1 alpha-2 codes (Google requires 2-letter codes)
@@ -147,7 +152,6 @@ export function generatePropertyJsonLd(property: PropertyData) {
           eligibleQuantity: {
             '@type': 'QuantitativeValue',
             minValue: minNights,
-            unitText: 'noites',
           },
         }),
       }
@@ -166,27 +170,6 @@ export function generatePropertyJsonLd(property: PropertyData) {
     ...(priceSpecification && { priceSpecification }),
   }
 
-  // Extra fee offers (cleaning, pet)
-  const allOffers: object[] = [mainOffer]
-  if (property.cleaning_fee && property.cleaning_fee > 0) {
-    allOffers.push({
-      '@type': 'Offer',
-      name: 'Taxa de limpeza',
-      price: property.cleaning_fee,
-      priceCurrency: currency,
-      description: property.cleaning_fee_type === 'per_night' ? 'por noite' : 'por estadia',
-    })
-  }
-  if (property.pet_fee && property.pet_fee > 0) {
-    allOffers.push({
-      '@type': 'Offer',
-      name: 'Taxa de animais de estimação',
-      price: property.pet_fee,
-      priceCurrency: currency,
-      description: property.pet_fee_type === 'per_night' ? 'por noite' : 'por estadia',
-    })
-  }
-
   const pageUrl = property.slug ? `${APP_URL}/p/${property.slug}` : undefined
   const hasGeo = !!(property.latitude && property.longitude)
 
@@ -198,6 +181,8 @@ export function generatePropertyJsonLd(property: PropertyData) {
     name: property.name,
     ...(property.description && { description: property.description }),
     ...(imageField && { image: imageField }),
+    // address at root level — required by Google Vacation Rentals spec
+    address: postalAddress,
     ...(hasGeo && {
       geo: {
         '@type': 'GeoCoordinates',
@@ -206,12 +191,9 @@ export function generatePropertyJsonLd(property: PropertyData) {
       },
     }),
     containsPlace,
-    // Keep at root level (schema.org LodgingBusiness spec)
     checkinTime,
     checkoutTime,
-    ...(priceSpecification && { priceSpecification }),
-    // makesOffer: main offer first (with all required fields), then extra fees
-    makesOffer: allOffers,
+    makesOffer: mainOffer,
   }
 }
 
