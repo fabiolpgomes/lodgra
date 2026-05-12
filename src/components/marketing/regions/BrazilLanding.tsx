@@ -46,20 +46,20 @@ export const BrazilLanding: React.FC = () => {
   ]
 
   return (
-    <div className="min-h-screen bg-[#ffffff] text-[#3c3c3c] font-light selection:bg-[#1c69d4]/10">
+    <div className="min-h-screen bg-[#ffffff] text-[#181818] font-[family-name:var(--font-hanken-grotesk)] selection:bg-[#ffc000]/20">
       {/* Navbar - top-nav */}
-      <nav className="fixed top-0 w-full z-50 bg-[#ffffff] border-b border-[#e6e6e6]">
-        <div className="max-w-[1440px] mx-auto px-6 h-[64px] flex items-center justify-between">
+      <nav className="fixed top-0 w-full z-50 bg-[#ffffff] border-b border-[#1E3A8A]/10">
+        <div className="max-w-[1440px] mx-auto px-6 h-[72px] flex items-center justify-between">
           <div className="flex items-center gap-8">
             <div className="flex items-center gap-3">
               <Logo size="md" />
-              <span className="text-[18px] font-bold tracking-tight text-[#262626]">LODGRA</span>
+              <span className="text-[20px] font-black tracking-tight text-[#1E3A8A] uppercase">LODGRA</span>
             </div>
 
-            <div className="hidden lg:flex items-center gap-8 text-[14px] font-normal tracking-[0.3px] text-[#262626]">
-              <a href="#features" className="hover:text-[#1c69d4] transition-colors">Funcionalidades</a>
-              <a href="#comparison" className="hover:text-[#1c69d4] transition-colors">Diferenciais</a>
-              <a href="#pricing" className="hover:text-[#1c69d4] transition-colors">Planos</a>
+            <div className="hidden lg:flex items-center gap-8 text-[13px] font-black tracking-[1px] text-[#1E3A8A] uppercase">
+              <a href="#features" className="hover:text-[#ffc000] transition-colors">Funcionalidades</a>
+              <a href="#comparison" className="hover:text-[#ffc000] transition-colors">Diferenciais</a>
+              <a href="#pricing" className="hover:text-[#ffc000] transition-colors">Planos</a>
             </div>
           </div>
 
@@ -67,7 +67,7 @@ export const BrazilLanding: React.FC = () => {
             <div className="relative">
               <button
                 onClick={() => setIsLangOpen(!isLangOpen)}
-                className="flex items-center gap-2 text-[14px] font-normal tracking-[0.3px] text-[#262626] hover:text-[#1c69d4] transition-colors py-2"
+                className="flex items-center gap-2 text-[13px] font-black tracking-[1px] text-[#1E3A8A] uppercase hover:text-[#ffc000] transition-colors py-2"
               >
                 {currentLang.flag} <span className="hidden sm:inline">{currentLang.label}</span>
                 <LucideChevronDown className={`w-4 h-4 transition-transform ${isLangOpen ? 'rotate-180' : ''}`} />
@@ -79,9 +79,9 @@ export const BrazilLanding: React.FC = () => {
                     <Link
                       key={lang.code}
                       href={`/${lang.code}`}
-                      className={`flex items-center gap-3 px-4 py-3 text-[14px] transition-colors ${
+                      className={`flex items-center gap-3 px-4 py-3 text-[13px] transition-colors uppercase tracking-[1px] ${
                         lang.code === 'pt-BR'
-                        ? 'bg-[#1c69d4] text-[#ffffff] font-bold'
+                        ? 'bg-[#1E3A8A] text-[#ffffff] font-black'
                         : 'text-[#262626] hover:bg-[#fafafa]'
                       }`}
                     >
@@ -93,33 +93,33 @@ export const BrazilLanding: React.FC = () => {
               )}
             </div>
 
-            <Link href="/login" className="text-[13px] font-bold tracking-[1.5px] uppercase text-[#262626] hover:text-[#1c69d4] transition-colors">
+            <Link href="/login" className="text-[13px] font-black tracking-[1.5px] uppercase text-[#1E3A8A] hover:text-[#ffc000] transition-colors">
               Entrar
             </Link>
-            <a href="#pricing" className="bg-[#1c69d4] text-[#ffffff] rounded-none uppercase font-bold text-[14px] tracking-[0.5px] px-[32px] h-[48px] flex items-center justify-center hover:bg-[#0653b6] transition-colors">
+            <a href="#pricing" className="bg-[#ffc000] text-[#1E3A8A] rounded-none uppercase font-black text-[14px] tracking-[1px] px-[32px] h-[48px] flex items-center justify-center hover:bg-[#e6ac00] transition-colors">
               Ver Planos
             </a>
           </div>
         </div>
       </nav>
 
-      {/* Hero Section - hero-band-dark */}
-      <section className="relative bg-[#1a2129] pt-[144px] pb-[80px] px-6">
+      {/* Hero Section - Clinical Performance */}
+      <section className="relative bg-[#1E3A8A] pt-[144px] pb-[80px] px-6 border-b border-[#ffffff]/10">
         <div className="max-w-[1440px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-[80px] items-center">
           <div>
-            <h1 className="text-[40px] md:text-[64px] font-bold mb-6 leading-[1.05] text-[#ffffff]">
-              Transforme sua propriedade em uma máquina de faturamento.
+            <h1 className="text-[40px] md:text-[64px] font-black mb-6 leading-[1.05] text-[#ffffff] uppercase tracking-[-1px]">
+              PRECISÃO EM GESTÃO.<br />RESULTADOS EM ESCALA.
             </h1>
-            <p className="text-[16px] font-light text-[#bbbbbb] mb-[48px] leading-[1.55] max-w-[600px]">
-              O PMS definitivo para gestão profissional de aluguel por temporada focada em dados. Escale sua operação com um motor de reserva direta integrado e controle total de calendário e finanças.
+            <p className="text-[17px] font-light text-[#f8f8f8]/70 mb-[48px] leading-[1.6] max-w-[600px]">
+              O PMS definitivo para gestão profissional de aluguel por temporada focada em infraestrutura de dados. Escale sua operação com um motor de reserva direta de alta performance e controle cirúrgico.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center gap-4">
-              <a href="#pricing" className="w-full sm:w-auto bg-[#1c69d4] hover:bg-[#0653b6] text-[#ffffff] rounded-none uppercase font-bold text-[14px] tracking-[0.5px] px-[32px] h-[48px] flex items-center justify-center transition-colors">
-                Iniciar teste
+              <a href="#pricing" className="w-full sm:w-auto bg-[#ffc000] hover:bg-[#e6ac00] text-[#1E3A8A] rounded-none uppercase font-black text-[14px] tracking-[1.5px] px-[40px] h-[56px] flex items-center justify-center transition-all">
+                Iniciar Operação
               </a>
-              <a href="#features" className="w-full sm:w-auto bg-transparent border border-[#ffffff] text-[#ffffff] hover:bg-[#ffffff] hover:text-[#1a2129] rounded-none uppercase font-bold text-[14px] tracking-[0.5px] px-[32px] h-[48px] flex items-center justify-center transition-colors">
-                Ver demonstração
+              <a href="#features" className="w-full sm:w-auto bg-transparent border border-[#ffffff]/20 text-[#ffffff] hover:bg-[#ffffff] hover:text-[#1E3A8A] rounded-none uppercase font-black text-[14px] tracking-[1.5px] px-[40px] h-[56px] flex items-center justify-center transition-all">
+                Dossier Técnico
               </a>
             </div>
             
@@ -128,26 +128,26 @@ export const BrazilLanding: React.FC = () => {
             </p>
           </div>
           
-          <div className="bg-[#262e38] p-[24px] border border-[#3c3c3c] rounded-none w-full hidden md:block">
-             <div className="bg-[#1a2129] p-[24px] rounded-none border border-[#3c3c3c]">
-                <div className="flex justify-between items-center mb-6 border-b border-[#3c3c3c] pb-4">
-                  <h3 className="text-[18px] font-bold text-[#ffffff]">Performance Geral</h3>
-                  <div className="text-[12px] font-normal tracking-[0.5px] text-[#22c55e] uppercase">Crescimento +18%</div>
+          <div className="bg-[#1a2e6b] p-[32px] border border-[#ffffff]/10 rounded-none w-full hidden lg:block shadow-2xl">
+             <div className="bg-[#1E3A8A] p-[32px] rounded-none border border-[#ffffff]/10">
+                <div className="flex justify-between items-center mb-6 border-b border-[#ffffff]/10 pb-4">
+                  <h3 className="text-[14px] font-black text-[#ffffff] uppercase tracking-[2px]">Métrica de Performance</h3>
+                  <div className="text-[12px] font-black tracking-[1px] text-[#059669] uppercase bg-[#059669]/10 px-3 py-1">CRESCIMENTO +18.4%</div>
                 </div>
-                <div className="h-[160px] flex items-end gap-2">
+                <div className="h-[160px] flex items-end gap-3">
                   {[40, 60, 45, 80, 65, 90, 75].map((h, i) => (
-                    <div key={i} className="flex-1 bg-[#1c69d4] hover:bg-[#0653b6] transition-colors rounded-none" style={{ height: `${h}%` }}></div>
+                    <div key={i} className="flex-1 bg-[#ffc000] hover:bg-[#e6ac00] transition-all rounded-none" style={{ height: `${h}%` }}></div>
                   ))}
                 </div>
              </div>
              <div className="grid grid-cols-2 gap-4 mt-4">
-               <div className="bg-[#1a2129] p-[24px] rounded-none border border-[#3c3c3c]">
-                  <div className="text-[12px] text-[#9a9a9a] uppercase tracking-[0.5px] mb-2">Receita Direta</div>
-                  <div className="text-[24px] font-bold text-[#ffffff]">R$ 32.450</div>
+               <div className="bg-[#1E3A8A] p-[24px] rounded-none border border-[#ffffff]/10">
+                  <div className="text-[11px] text-[#ffffff]/50 uppercase font-black tracking-[1.5px] mb-2">Receita Direta</div>
+                  <div className="text-[28px] font-black text-[#ffffff] tracking-tight">R$ 32.450</div>
                </div>
-               <div className="bg-[#1a2129] p-[24px] rounded-none border border-[#3c3c3c]">
-                  <div className="text-[12px] text-[#9a9a9a] uppercase tracking-[0.5px] mb-2">Ocupação</div>
-                  <div className="text-[24px] font-bold text-[#ffffff]">78%</div>
+               <div className="bg-[#1E3A8A] p-[24px] rounded-none border border-[#ffffff]/10">
+                  <div className="text-[11px] text-[#ffffff]/50 uppercase font-black tracking-[1.5px] mb-2">Ocupação</div>
+                  <div className="text-[28px] font-black text-[#ffffff] tracking-tight">78.2%</div>
                </div>
              </div>
           </div>
@@ -159,30 +159,30 @@ export const BrazilLanding: React.FC = () => {
         <div className="max-w-[1440px] mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-[80px] items-center">
             <div>
-              <h2 className="text-[32px] md:text-[48px] font-bold mb-[24px] text-[#262626] leading-[1.1]">
-                O coração da sua operação:<br />Reserva Direta e Finanças Claras.
+              <h2 className="text-[32px] md:text-[48px] font-black mb-[24px] text-[#1E3A8A] leading-[1.1] uppercase tracking-[-0.5px]">
+                INFRAESTRUTURA<br />DE ALTA PERFORMANCE.
               </h2>
-              <p className="text-[16px] font-light text-[#3c3c3c] mb-[32px] leading-[1.55]">
-                Pare de perder margem para as OTAs. Lodgra traz um motor de reserva direta robusto e calcula o lucro líquido real por unidade, descontando taxas e impostos automaticamente.
+              <p className="text-[17px] font-light text-[#181818] mb-[32px] leading-[1.6]">
+                Elimine a dependência de intermediários. O Lodgra integra um motor de reserva direta de grau industrial que processa dados financeiros e operacionais com precisão cirúrgica.
               </p>
-              <div className="w-[48px] h-[4px] bg-[#1c69d4] mb-[32px]"></div>
+              <div className="w-[64px] h-[4px] bg-[#ffc000] mb-[32px]"></div>
               
               <ul className="space-y-[16px]">
                 {[
-                  "Motor de Reserva Direta livre de comissões",
-                  "Sincronização de Calendário via iCal instantânea",
-                  "Dashboard de Profit & Loss (P&L) em tempo real",
-                  "Cálculo automático de repasse para proprietários",
+                  "Motor de Reserva Direta com latência zero",
+                  "Sincronização Atômica via iCal real-time",
+                  "Dashboard P&L com granularidade total",
+                  "Cálculo de repasse via algoritmo proprietário",
                 ].map((item, i) => (
-                  <li key={i} className="flex items-start gap-4 text-[16px] font-light text-[#262626]">
-                    <div className="mt-1 w-[8px] h-[8px] bg-[#1c69d4] rounded-none flex-shrink-0" />
+                  <li key={i} className="flex items-start gap-4 text-[15px] font-black text-[#1E3A8A] uppercase tracking-[0.5px]">
+                    <div className="mt-1.5 w-[10px] h-[10px] bg-[#ffc000] rounded-none flex-shrink-0" />
                     {item}
                   </li>
                 ))}
               </ul>
               
-              <a href="#comparison" className="inline-flex items-center gap-2 mt-[48px] text-[13px] font-bold uppercase tracking-[1.5px] text-[#262626] hover:text-[#1c69d4] transition-colors">
-                VER TODAS FUNCIONALIDADES <LucideChevronRight className="w-4 h-4" />
+              <a href="#comparison" className="inline-flex items-center gap-2 mt-[48px] text-[13px] font-black uppercase tracking-[1.5px] text-[#1E3A8A] hover:text-[#ffc000] transition-colors border-b-2 border-[#ffc000] pb-1">
+                ESPECIFICAÇÕES TÉCNICAS <LucideChevronRight className="w-4 h-4" />
               </a>
             </div>
             
@@ -191,14 +191,14 @@ export const BrazilLanding: React.FC = () => {
                   <div className="flex justify-between items-center mb-6 border-b border-[#e6e6e6] pb-4">
                     <h3 className="text-[16px] font-bold text-[#262626] uppercase tracking-[1.5px]">Profit & Loss</h3>
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <div className="text-[12px] font-normal tracking-[0.5px] text-[#6b6b6b] mb-1">Receita Mensal</div>
-                      <div className="text-[24px] font-bold text-[#262626]">R$ 24.500</div>
+                      <div className="text-[11px] font-black tracking-[1.5px] text-[#1E3A8A]/50 mb-1 uppercase">Receita Bruta</div>
+                      <div className="text-[24px] font-black text-[#1E3A8A]">R$ 24.500</div>
                     </div>
                     <div>
-                      <div className="text-[12px] font-normal tracking-[0.5px] text-[#6b6b6b] mb-1">Lucro Líquido</div>
-                      <div className="text-[24px] font-bold text-[#262626]">R$ 14.230</div>
+                      <div className="text-[11px] font-black tracking-[1.5px] text-[#059669] mb-1 uppercase">Eficiência Líquida</div>
+                      <div className="text-[24px] font-black text-[#059669]">R$ 14.230</div>
                     </div>
                   </div>
                </div>
@@ -213,10 +213,10 @@ export const BrazilLanding: React.FC = () => {
       {/* Difference Grid - Surface Soft */}
       <section id="comparison" className="py-[80px] px-6 bg-[#f7f7f7]">
         <div className="max-w-[1440px] mx-auto">
-          <div className="mb-[48px]">
-            <h2 className="text-[32px] md:text-[48px] font-bold mb-[16px] text-[#262626] leading-[1.1]">Diferenciais de Conversão.</h2>
-            <p className="text-[16px] font-light text-[#3c3c3c] leading-[1.55]">Ferramentas essenciais para gestores profissionais operarem no piloto automático.</p>
-            <div className="w-[48px] h-[4px] bg-[#1c69d4] mt-[32px]"></div>
+          <div className="mb-[64px]">
+            <h2 className="text-[32px] md:text-[48px] font-black mb-[16px] text-[#1E3A8A] leading-[1.1] uppercase tracking-[-0.5px]">DIFERENCIAIS TÉCNICOS.</h2>
+            <p className="text-[17px] font-light text-[#181818] leading-[1.6]">Ferramentas de engenharia para gestores que operam com rigor profissional.</p>
+            <div className="w-[64px] h-[4px] bg-[#ffc000] mt-[32px]"></div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[24px]">
@@ -252,10 +252,10 @@ export const BrazilLanding: React.FC = () => {
                 desc: 'Dinheiro da reserva separado: parte do proprietário, gestor e taxa de limpeza. Zero bitributação.'
               }
             ].map((feature, i) => (
-              <div key={i} className="bg-[#ffffff] p-[24px] rounded-none border border-[#e6e6e6] hover:border-[#262626] transition-colors">
-                 {feature.icon}
-                 <h3 className="text-[18px] font-bold mb-[16px] text-[#262626] leading-[1.4]">{feature.title}</h3>
-                 <p className="text-[14px] font-light text-[#3c3c3c] leading-[1.55]">{feature.desc}</p>
+              <div key={i} className="bg-[#ffffff] p-[32px] rounded-none border border-[#1E3A8A]/10 hover:border-[#ffc000] transition-all group">
+                 {React.cloneElement(feature.icon as React.ReactElement, { className: 'w-10 h-10 text-[#1E3A8A] mb-[24px] stroke-[2] group-hover:text-[#ffc000] transition-colors' })}
+                 <h3 className="text-[18px] font-black mb-[16px] text-[#1E3A8A] leading-[1.4] uppercase tracking-[0.5px]">{feature.title}</h3>
+                 <p className="text-[14px] font-light text-[#181818]/80 leading-[1.6]">{feature.desc}</p>
               </div>
             ))}
           </div>
@@ -265,47 +265,47 @@ export const BrazilLanding: React.FC = () => {
       {/* Pricing - Light Canvas */}
       <section id="pricing" className="py-[80px] px-6 bg-[#ffffff]">
         <div className="max-w-[1440px] mx-auto">
-          <div className="mb-[48px]">
-            <h2 className="text-[32px] md:text-[48px] font-bold mb-[16px] text-[#262626] leading-[1.1]">Planos de Investimento.</h2>
-            <p className="text-[16px] font-light text-[#3c3c3c] leading-[1.55]">Preços transparentes, escaláveis e sem taxas de setup.</p>
-            <div className="w-[48px] h-[4px] bg-[#1c69d4] mt-[32px]"></div>
+          <div className="mb-[64px]">
+            <h2 className="text-[32px] md:text-[48px] font-black mb-[16px] text-[#1E3A8A] leading-[1.1] uppercase tracking-[-0.5px]">PLANOS DE INVESTIMENTO.</h2>
+            <p className="text-[17px] font-light text-[#181818] leading-[1.6]">Infraestrutura escalável com precificação transparente.</p>
+            <div className="w-[64px] h-[4px] bg-[#ffc000] mt-[32px]"></div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-[24px]">
             {[
               {
-                name: 'Essencial', price: '59', sub: 'Por unidade/mês',
+                name: 'Essencial', price: '59', sub: 'por unidade / mes',
                 description: 'Ideal para iniciar a profissionalização com reservas diretas e iCal.',
                 features: ['Motor de Reserva Direta', 'Sync iCal', 'Calendário unificado', 'Gestão básica de reservas'],
                 featured: false
               },
               {
-                name: 'Expansão', price: '89', sub: 'Por unidade/mês + R$5/reserva',
+                name: 'Expansão', price: '89', sub: 'por unidade / mes + R$5 / reserva',
                 description: 'Desbloqueie relatórios financeiros, P&L e automações avançadas.',
                 features: ['Tudo do Essencial', 'Relatórios Financeiros', 'Split de Pagamentos', 'Gestão Operacional (Limpeza)'],
                 featured: true
               },
               {
-                name: 'Pro', price: '130', sub: 'Por unidade/mês + 1% da receita',
+                name: 'Pro', price: '130', sub: 'por unidade / mes + 1% da receita',
                 description: 'Inteligência para grandes portfólios e gestão de múltiplos proprietários.',
                 features: ['Tudo do Expansão', 'Portal do Proprietário', 'Pricing Dinâmico', 'Suporte Prioritário VIP'],
                 featured: false
               }
             ].map((tier) => (
-              <div key={tier.name} className={`bg-[#fafafa] p-[32px] rounded-none border transition-colors ${tier.featured ? 'border-[#262626]' : 'border-[#e6e6e6]'}`}>
+              <div key={tier.name} className={`bg-[#ffffff] p-[40px] rounded-none border transition-all ${tier.featured ? 'border-[#1E3A8A] shadow-xl' : 'border-[#1E3A8A]/10'}`}>
                 {tier.featured && (
-                  <div className="mb-[24px] text-[13px] font-bold uppercase tracking-[1.5px] text-[#1c69d4]">
+                  <div className="mb-[24px] text-[11px] font-black uppercase tracking-[2px] text-[#ffc000] bg-[#1E3A8A] inline-block px-3 py-1">
                     MAIS POPULAR
                   </div>
                 )}
                 <div className="mb-[32px]">
-                  <h3 className="text-[24px] font-bold text-[#262626] leading-[1.25] mb-[8px]">{tier.name}</h3>
+                  <h3 className="text-[28px] font-black text-[#1E3A8A] leading-[1.1] mb-[8px] uppercase">{tier.name}</h3>
                   <div className="flex items-baseline gap-1 mt-4">
-                    <span className="text-[32px] font-bold text-[#262626]">R$ {tier.price}</span>
-                    <span className="text-[14px] font-light text-[#6b6b6b]">/mês</span>
+                    <span className="text-[40px] font-black text-[#1E3A8A] tracking-tighter">R$ {tier.price}</span>
+                    <span className="text-[14px] font-light text-[#181818]/60">/unidade</span>
                   </div>
-                  <p className="text-[14px] font-bold text-[#262626] mt-[8px]">{tier.sub}</p>
-                  <p className="text-[14px] font-light text-[#3c3c3c] mt-[16px] leading-[1.55] min-h-[44px]">{tier.description}</p>
+                  <p className="text-[12px] font-black text-[#059669] bg-[#059669]/5 inline-block px-2 py-0.5 mt-[8px] uppercase tracking-[1px]">{tier.sub}</p>
+                  <p className="text-[15px] font-light text-[#181818]/80 mt-[24px] leading-[1.6] min-h-[44px]">{tier.description}</p>
                 </div>
                 
                 <div className="w-full h-[1px] bg-[#e6e6e6] mb-[32px]"></div>
@@ -321,7 +321,7 @@ export const BrazilLanding: React.FC = () => {
                 {tier.name === 'Pro' ? (
                   <button
                     disabled
-                    className="w-full bg-[#ebebeb] text-[#9a9a9a] rounded-none uppercase font-bold text-[14px] tracking-[0.5px] px-[32px] h-[48px] flex items-center justify-center cursor-not-allowed"
+                    className="w-full bg-[#ffffff] text-[#ef4444] border border-[#ef4444]/20 rounded-none uppercase font-black text-[14px] tracking-[1.5px] px-[32px] h-[56px] flex items-center justify-center cursor-not-allowed"
                   >
                     Em breve
                   </button>
@@ -329,15 +329,15 @@ export const BrazilLanding: React.FC = () => {
                   <button
                     onClick={() => handleCheckout(tier.name === 'Essencial' ? 'starter' : 'growth')}
                     disabled={checkoutLoading !== null}
-                    className={`w-full rounded-none uppercase font-bold text-[14px] tracking-[0.5px] px-[32px] h-[48px] flex items-center justify-center transition-colors ${
+                    className={`w-full rounded-none uppercase font-black text-[14px] tracking-[1.5px] px-[32px] h-[56px] flex items-center justify-center transition-all ${
                       tier.featured 
-                        ? 'bg-[#1c69d4] hover:bg-[#0653b6] text-[#ffffff]' 
-                        : 'bg-transparent border border-[#262626] text-[#262626] hover:bg-[#262626] hover:text-[#ffffff]'
+                        ? 'bg-[#1E3A8A] hover:bg-[#152a66] text-[#ffc000]' 
+                        : 'bg-transparent border-2 border-[#1E3A8A] text-[#1E3A8A] hover:bg-[#1E3A8A] hover:text-[#ffffff]'
                     } disabled:opacity-70`}
                   >
                     {checkoutLoading === (tier.name === 'Essencial' ? 'starter' : 'growth')
                       ? 'PROCESSANDO...'
-                      : `ESCOLHER ${tier.name.toUpperCase()}`}
+                      : `ATIVAR ${tier.name.toUpperCase()}`}
                   </button>
                 )}
               </div>
@@ -357,10 +357,10 @@ export const BrazilLanding: React.FC = () => {
       {/* Testimonials - Surface Card */}
       <section className="py-[80px] px-6 bg-[#fafafa]">
         <div className="max-w-[1440px] mx-auto">
-          <div className="mb-[48px]">
-            <h2 className="text-[32px] md:text-[48px] font-bold mb-[16px] text-[#262626] leading-[1.1]">Gestores que confiam.</h2>
-            <p className="text-[16px] font-light text-[#3c3c3c] leading-[1.55]">Mais de 800 propriedades gerenciadas com alta performance diária.</p>
-            <div className="w-[48px] h-[4px] bg-[#1c69d4] mt-[32px]"></div>
+          <div className="mb-[64px]">
+            <h2 className="text-[32px] md:text-[48px] font-black mb-[16px] text-[#1E3A8A] leading-[1.1] uppercase tracking-[-0.5px]">RELATOS DE PERFORMANCE.</h2>
+            <p className="text-[17px] font-light text-[#181818] leading-[1.6]">Gestores que operam no limite da eficiência.</p>
+            <div className="w-[64px] h-[4px] bg-[#ffc000] mt-[32px]"></div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-[24px]">
              {[
@@ -383,16 +383,16 @@ export const BrazilLanding: React.FC = () => {
                  role: "Host Profissional, RJ"
                }
              ].map((testimonial, i) => (
-               <div key={i} className="bg-[#ffffff] p-[32px] rounded-none border border-[#e6e6e6] flex flex-col">
-                  <div className="text-[12px] text-[#1c69d4] mb-[24px]">{'★★★★★'}</div>
-                  <p className="text-[#3c3c3c] text-[16px] font-light leading-[1.55] mb-[32px] italic">&ldquo;{testimonial.quote}&rdquo;</p>
+               <div key={i} className="bg-[#ffffff] p-[40px] rounded-none border border-[#1E3A8A]/10 flex flex-col hover:border-[#ffc000] transition-all">
+                  <div className="text-[12px] text-[#ffc000] mb-[24px]">{'★★★★★'}</div>
+                  <p className="text-[#181818] text-[16px] font-light leading-[1.6] mb-[32px] italic">&ldquo;{testimonial.quote}&rdquo;</p>
                   <div className="flex items-center gap-[16px] mt-auto">
-                     <div className="w-[40px] h-[40px] bg-[#f7f7f7] border border-[#e6e6e6] rounded-none flex items-center justify-center font-bold text-[#262626]">
+                     <div className="w-[48px] h-[48px] bg-[#1E3A8A] text-[#ffffff] rounded-none flex items-center justify-center font-black text-[16px]">
                        {testimonial.initial}
                      </div>
                      <div>
-                       <div className="font-bold text-[14px] text-[#262626]">{testimonial.name}</div>
-                       <div className="text-[12px] font-light text-[#6b6b6b]">{testimonial.role}</div>
+                       <div className="font-black text-[14px] text-[#1E3A8A] uppercase tracking-[0.5px]">{testimonial.name}</div>
+                       <div className="text-[12px] font-light text-[#181818]/60">{testimonial.role}</div>
                      </div>
                   </div>
                </div>
@@ -401,18 +401,18 @@ export const BrazilLanding: React.FC = () => {
         </div>
       </section>
 
-      {/* CTA final - Dark Band */}
-      <section className="bg-[#1a2129] py-[80px] px-6">
+      {/* CTA final - Clinical Performance */}
+      <section className="bg-[#1E3A8A] py-[120px] px-6 border-t border-[#ffc000]/20">
         <div className="max-w-[1440px] mx-auto text-center">
-          <h2 className="text-[32px] md:text-[48px] font-bold mb-[24px] text-[#ffffff] leading-[1.1] max-w-[800px] mx-auto">
-            Pare de lutar com seu software e comece a escalar.
+          <h2 className="text-[32px] md:text-[56px] font-black mb-[24px] text-[#ffffff] leading-[1.1] max-w-[900px] mx-auto uppercase tracking-[-1px]">
+            ENCERRE A INEFICIÊNCIA.<br />DOMINE SUA OPERAÇÃO.
           </h2>
-          <p className="text-[16px] font-light text-[#bbbbbb] mb-[48px] max-w-[600px] mx-auto leading-[1.55]">
-            Escolha seu plano, pague e teste por 7 dias. Se não ficar satisfeito, devolvemos 100% do valor — sem perguntas.
+          <p className="text-[18px] font-light text-[#f8f8f8]/60 mb-[64px] max-w-[700px] mx-auto leading-[1.6]">
+            Implemente a infraestrutura LODGRA hoje. 7 dias de garantia total de performance.
           </p>
           <div className="flex justify-center">
-            <a href="#pricing" className="bg-[#ffffff] text-[#1a2129] hover:bg-[#e6e6e6] rounded-none uppercase font-bold text-[14px] tracking-[0.5px] px-[32px] h-[48px] flex items-center justify-center transition-colors">
-              ESCOLHER MEU PLANO
+            <a href="#pricing" className="bg-[#ffc000] text-[#1E3A8A] hover:bg-[#e6ac00] rounded-none uppercase font-black text-[16px] tracking-[2px] px-[48px] h-[64px] flex items-center justify-center transition-all shadow-lg">
+              ATIVAR AGORA
             </a>
           </div>
         </div>
@@ -423,31 +423,31 @@ export const BrazilLanding: React.FC = () => {
         <div className="max-w-[1440px] mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-start gap-[48px] mb-[64px]">
             <div className="max-w-[300px]">
-               <div className="flex items-center gap-3 mb-[24px]">
+               <div className="flex items-center gap-3 mb-[32px]">
                   <Logo size="sm" />
-                  <span className="text-[16px] font-bold text-[#262626] tracking-tight">LODGRA</span>
+                  <span className="text-[20px] font-black text-[#1E3A8A] tracking-tight uppercase">LODGRA</span>
                </div>
-               <p className="text-[#3c3c3c] text-[14px] font-light leading-[1.55]">
-                 A plataforma de inteligência financeira para gestores profissionais de aluguel por temporada no Brasil e no mundo.
+               <p className="text-[#181818]/60 text-[14px] font-light leading-[1.6]">
+                 A infraestrutura de inteligência financeira para gestores profissionais que não aceitam menos que a excelência.
                </p>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-[48px] text-[14px] font-light">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-[48px] text-[13px] font-black uppercase tracking-[1px]">
                <div className="flex flex-col gap-[16px]">
-                  <span className="text-[#9a9a9a] uppercase tracking-[1.5px] text-[12px] font-bold">Produto</span>
-                  <a href="#" className="text-[#3c3c3c] hover:text-[#1c69d4] transition-colors">Funcionalidades</a>
-                  <a href="#" className="text-[#3c3c3c] hover:text-[#1c69d4] transition-colors">Relatórios</a>
-                  <a href="#" className="text-[#3c3c3c] hover:text-[#1c69d4] transition-colors">Precificação</a>
+                  <span className="text-[#1E3A8A]/30 text-[11px]">Sistema</span>
+                  <a href="#" className="text-[#1E3A8A] hover:text-[#ffc000] transition-colors">Dossier</a>
+                  <a href="#" className="text-[#1E3A8A] hover:text-[#ffc000] transition-colors">Performance</a>
+                  <a href="#" className="text-[#1E3A8A] hover:text-[#ffc000] transition-colors">Rede</a>
                </div>
                <div className="flex flex-col gap-[16px]">
-                  <span className="text-[#9a9a9a] uppercase tracking-[1.5px] text-[12px] font-bold">Empresa</span>
-                  <a href="#" className="text-[#3c3c3c] hover:text-[#1c69d4] transition-colors">Sobre</a>
-                  <a href="#" className="text-[#3c3c3c] hover:text-[#1c69d4] transition-colors">Suporte</a>
-                  <a href="#" className="text-[#3c3c3c] hover:text-[#1c69d4] transition-colors">Blog</a>
+                  <span className="text-[#1E3A8A]/30 text-[11px]">Empresa</span>
+                  <a href="#" className="text-[#1E3A8A] hover:text-[#ffc000] transition-colors">Engenharia</a>
+                  <a href="#" className="text-[#1E3A8A] hover:text-[#ffc000] transition-colors">Base</a>
+                  <a href="#" className="text-[#1E3A8A] hover:text-[#ffc000] transition-colors">Log</a>
                </div>
                <div className="flex flex-col gap-[16px]">
-                  <span className="text-[#9a9a9a] uppercase tracking-[1.5px] text-[12px] font-bold">Legal</span>
-                  <Link href="/terms" className="text-[#3c3c3c] hover:text-[#1c69d4] transition-colors">Termos</Link>
-                  <Link href="/privacy" className="text-[#3c3c3c] hover:text-[#1c69d4] transition-colors">Privacidade</Link>
+                  <span className="text-[#1E3A8A]/30 text-[11px]">Legal</span>
+                  <Link href="/terms" className="text-[#1E3A8A] hover:text-[#ffc000] transition-colors">Protocolo</Link>
+                  <Link href="/privacy" className="text-[#1E3A8A] hover:text-[#ffc000] transition-colors">Privacidade</Link>
                </div>
             </div>
           </div>

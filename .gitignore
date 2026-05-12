@@ -85,3 +85,7 @@ supabase/.temp/
 *.mjs
 outputs/
 FireShot*
+
+# AIOX Local (AIOX)
+.aiox-core/local/
+.aiox/install-log.txt

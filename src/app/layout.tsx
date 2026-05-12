@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Poppins, Inter } from "next/font/google";
+import { Poppins, Inter, Hanken_Grotesk } from "next/font/google";
 import { headers } from "next/headers";
 import "./globals.css";
 import { ThemeProvider } from "next-themes";
@@ -20,6 +20,13 @@ const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
   weight: ["400", "500", "600"],
+  display: "swap",
+});
+
+const hankenGrotesk = Hanken_Grotesk({
+  variable: "--font-hanken-grotesk",
+  subsets: ["latin"],
+  weight: ["300", "400", "700", "800", "900"],
   display: "swap",
 });
 
@@ -102,7 +109,7 @@ export default async function RootLayout({
         />
       </head>
       <body
-        className={`${poppins.variable} ${inter.variable} font-inter antialiased`}
+        className={`${poppins.variable} ${inter.variable} ${hankenGrotesk.variable} font-inter antialiased`}
         suppressHydrationWarning
       >
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} nonce={nonce}>
