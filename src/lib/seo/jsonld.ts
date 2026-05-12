@@ -130,7 +130,7 @@ export function generatePropertyJsonLd(property: PropertyData) {
     ...(property.bedrooms && { numberOfBedrooms: property.bedrooms }),
     ...(property.bathrooms && { numberOfBathroomsTotal: property.bathrooms }),
     ...(property.max_guests && {
-      occupancy: { '@type': 'QuantitativeValue', value: property.max_guests },
+      occupancy: { '@type': 'QuantitativeValue', maxValue: property.max_guests },
     }),
     ...(bedDetails.length > 0 && { bed: bedDetails }),
     ...(amenityFeature.length > 0 && { amenityFeature }),
@@ -199,12 +199,10 @@ export function generatePropertyJsonLd(property: PropertyData) {
     ...(property.description && { description: property.description }),
     ...(imageField && { image: imageField }),
     ...(hasGeo && {
-      latitude: property.latitude!.toFixed(6),
-      longitude: property.longitude!.toFixed(6),
       geo: {
         '@type': 'GeoCoordinates',
-        latitude: property.latitude!.toFixed(6),
-        longitude: property.longitude!.toFixed(6),
+        latitude: property.latitude,
+        longitude: property.longitude,
       },
     }),
     containsPlace,
