@@ -253,7 +253,7 @@ export const BrazilLanding: React.FC = () => {
               }
             ].map((feature, i) => (
               <div key={i} className="bg-[#ffffff] p-[32px] rounded-none border border-[#1E3A8A]/10 hover:border-[#ffc000] transition-all group">
-                 {React.cloneElement(feature.icon as React.ReactElement, { className: 'w-10 h-10 text-[#1E3A8A] mb-[24px] stroke-[2] group-hover:text-[#ffc000] transition-colors' })}
+                 {React.cloneElement(feature.icon as React.ReactElement<any>, { className: 'w-10 h-10 text-[#1E3A8A] mb-[24px] stroke-[2] group-hover:text-[#ffc000] transition-colors' })}
                  <h3 className="text-[18px] font-black mb-[16px] text-[#1E3A8A] leading-[1.4] uppercase tracking-[0.5px]">{feature.title}</h3>
                  <p className="text-[14px] font-light text-[#181818]/80 leading-[1.6]">{feature.desc}</p>
               </div>
