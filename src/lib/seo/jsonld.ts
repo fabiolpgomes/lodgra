@@ -1,7 +1,10 @@
 /**
  * JSON-LD structured data generators for SEO / Google Vacation Rentals.
- * Follows Google's VacationRental spec exactly — no containsPlace, no BedDetails,
- * no eligibleQuantity. All properties at VacationRental root. makesOffer is an array.
+ * Spec: https://developers.google.com/search/docs/appearance/structured-data/vacation-rental
+ *
+ * Required fields (confirmed via Google Rich Results Test):
+ *   identifier (PropertyValue), containsPlace (Accommodation),
+ *   makesOffer.checkinTime / checkoutTime (HH:MM format), makesOffer.priceSpecification
  */
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://lodgra.io'
@@ -41,13 +44,12 @@ interface PropertyData {
   structuredAmenities?: AmenityItem[]
 }
 
-// ISO 8601 time — Google VR spec format: "T15:00+00:00" (T prefix, HH:MM, no seconds)
-// Guard against double-appending offset if value already contains one
-function toIsoTime(t: string | null | undefined, fallback: string, offset = '+00:00'): string {
+// HH:MM format — Google VR spec uses plain time strings (no T prefix, no seconds, no timezone)
+function toHHMM(t: string | null | undefined, fallback: string): string {
   const val = t ?? fallback
-  const stripped = val.replace(/([+-]\d{2}:\d{2}|Z)$/, '')
-  const hhmm = stripped.split(':').slice(0, 2).join(':')
-  return `T${hhmm}${offset}`
+  // Strip timezone, T prefix, and seconds — keep only HH:MM
+  const stripped = val.replace(/^T/, '').replace(/([+-]\d{2}:\d{2}|Z)$/, '')
+  return stripped.split(':').slice(0, 2).join(':')
 }
 
 // Map full country names to ISO 3166-1 alpha-2 codes (Google requires 2-letter codes)
@@ -77,8 +79,6 @@ export function generatePropertyJsonLd(property: PropertyData) {
     : (property.photos?.filter(Boolean) ?? [])
   const imageField = images.length > 1 ? images : images[0] ?? undefined
 
-  // Amenities at VacationRental root (not inside containsPlace — Google validator
-  // treats nested @type objects as independent items and fails validation)
   const amenityFeature: object[] = property.structuredAmenities?.map(a => ({
     '@type': 'LocationFeatureSpecification',
     name: a.name,
@@ -93,7 +93,11 @@ export function generatePropertyJsonLd(property: PropertyData) {
     ...(property.country && { addressCountry: toCountryCode(property.country) }),
   }
 
-  // Minimal priceSpecification — no eligibleQuantity (not in Google VR spec)
+  // Time strings in HH:MM format — Google VR spec example: "15:00", "11:00"
+  const checkinTime = toHHMM(property.checkin_from, '15:00')
+  const checkoutTime = toHHMM(property.checkout_until, '11:00')
+
+  // priceSpecification inside the Offer
   const priceSpecification = property.base_price && property.base_price > 0
     ? {
         '@type': 'UnitPriceSpecification',
@@ -103,10 +107,17 @@ export function generatePropertyJsonLd(property: PropertyData) {
       }
     : undefined
 
-  const checkinTime = toIsoTime(property.checkin_from, '15:00')
-  const checkoutTime = toIsoTime(property.checkout_until, '11:00')
+  // containsPlace — required by Google VR spec (Accommodation with room/guest details)
+  const containsPlace = {
+    '@type': 'Accommodation',
+    ...(property.bedrooms && { numberOfBedrooms: property.bedrooms }),
+    ...(property.bathrooms && { numberOfBathroomsTotal: property.bathrooms }),
+    ...(property.max_guests && {
+      occupancy: { '@type': 'QuantitativeValue', maxValue: property.max_guests },
+    }),
+  }
 
-  // Offer — no identifier (not in Google VR spec example)
+  // Offer — required inside makesOffer
   const mainOffer = {
     '@type': 'Offer',
     checkinTime,
@@ -118,9 +129,17 @@ export function generatePropertyJsonLd(property: PropertyData) {
   const hasGeo = !!(property.latitude && property.longitude)
 
   return {
-    '@context': 'https://schema.org/',
+    '@context': 'https://schema.org',
     '@type': 'VacationRental',
     name: property.name,
+    // identifier — required by Google VR spec
+    ...(property.slug && {
+      identifier: {
+        '@type': 'PropertyValue',
+        name: 'PropertyID',
+        value: property.slug,
+      },
+    }),
     ...(property.description && { description: property.description }),
     ...(pageUrl && { url: pageUrl }),
     ...(imageField && { image: imageField }),
@@ -132,15 +151,10 @@ export function generatePropertyJsonLd(property: PropertyData) {
         longitude: property.longitude,
       },
     }),
-    checkinTime,
-    checkoutTime,
-    // Recommended fields at VacationRental root
-    ...(property.bedrooms && { numberOfRooms: property.bedrooms }),
-    ...(property.bathrooms && { numberOfBathroomsTotal: property.bathrooms }),
-    ...(property.max_guests && {
-      occupancy: { '@type': 'QuantitativeValue', maxValue: property.max_guests },
-    }),
+    // containsPlace — required by Google VR spec
+    containsPlace,
     ...(amenityFeature.length > 0 && { amenityFeature }),
+    // makesOffer — required by Google VR spec (array)
     makesOffer: [mainOffer],
   }
 }
