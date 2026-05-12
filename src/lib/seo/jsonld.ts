@@ -44,14 +44,13 @@ interface PropertyData {
   structuredAmenities?: AmenityItem[]
 }
 
-// HH:MM:SS format — schema.org Time type requires seconds: hh:mm:ss[Z|(+|-)hh:mm]
-// No T prefix (that would make it a datetime), no timezone offset needed
+// Google VR spec Time format: T15:00:00 (T prefix + HH:MM:SS, no timezone offset)
 function toHHMM(t: string | null | undefined, fallback: string): string {
   const val = t ?? fallback
   // Strip T prefix and timezone, keep only HH:MM, then append :00 for seconds
   const stripped = val.replace(/^T/, '').replace(/([+-]\d{2}:\d{2}|Z)$/, '')
   const hhmm = stripped.split(':').slice(0, 2).join(':')
-  return `${hhmm}:00`
+  return `T${hhmm}:00`
 }
 
 // Map full country names to ISO 3166-1 alpha-2 codes (Google requires 2-letter codes)
@@ -95,23 +94,22 @@ export function generatePropertyJsonLd(property: PropertyData) {
     ...(property.country && { addressCountry: toCountryCode(property.country) }),
   }
 
-  // Time strings in HH:MM format — Google VR spec example: "15:00", "11:00"
+  // Google VR spec format: "T15:00:00" (T prefix required by validator)
   const checkinTime = toHHMM(property.checkin_from, '15:00')
   const checkoutTime = toHHMM(property.checkout_until, '11:00')
 
   // priceSpecification inside the Offer
   const priceSpecification = property.base_price && property.base_price > 0
     ? {
-        '@type': 'UnitPriceSpecification',
+        '@type': 'PriceSpecification',
         price: property.base_price,
         priceCurrency: currency,
-        unitCode: 'DAY',
       }
     : undefined
 
   // containsPlace — required by Google VR spec (Accommodation with room/guest details)
   const containsPlace = {
-    '@type': 'Accommodation',
+    '@type': 'Apartment',
     ...(property.bedrooms && { numberOfBedrooms: property.bedrooms }),
     ...(property.bathrooms && { numberOfBathroomsTotal: property.bathrooms }),
     ...(property.max_guests && {
