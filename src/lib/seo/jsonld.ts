@@ -44,12 +44,14 @@ interface PropertyData {
   structuredAmenities?: AmenityItem[]
 }
 
-// HH:MM format — Google VR spec uses plain time strings (no T prefix, no seconds, no timezone)
+// HH:MM:SS format — schema.org Time type requires seconds: hh:mm:ss[Z|(+|-)hh:mm]
+// No T prefix (that would make it a datetime), no timezone offset needed
 function toHHMM(t: string | null | undefined, fallback: string): string {
   const val = t ?? fallback
-  // Strip timezone, T prefix, and seconds — keep only HH:MM
+  // Strip T prefix and timezone, keep only HH:MM, then append :00 for seconds
   const stripped = val.replace(/^T/, '').replace(/([+-]\d{2}:\d{2}|Z)$/, '')
-  return stripped.split(':').slice(0, 2).join(':')
+  const hhmm = stripped.split(':').slice(0, 2).join(':')
+  return `${hhmm}:00`
 }
 
 // Map full country names to ISO 3166-1 alpha-2 codes (Google requires 2-letter codes)
@@ -154,8 +156,8 @@ export function generatePropertyJsonLd(property: PropertyData) {
     // containsPlace — required by Google VR spec
     containsPlace,
     ...(amenityFeature.length > 0 && { amenityFeature }),
-    // makesOffer — required by Google VR spec (array)
-    makesOffer: [mainOffer],
+    // makesOffer — required by Google VR spec (single Offer object per docs example)
+    makesOffer: mainOffer,
   }
 }
 
