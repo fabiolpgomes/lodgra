@@ -102,12 +102,12 @@ export default async function ReservationsPage({
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
           <div>
             <div className="flex items-center gap-3 mb-1">
-              <div className="p-2 bg-blue-100 rounded-xl">
-                <Calendar className="h-6 w-6 text-blue-600" />
+              <div className="be-icon w-10 h-10 bg-[#EFF6FF]">
+                <Calendar className="h-5 w-5 text-[#1E3A8A]" />
               </div>
               <h2 className="text-2xl font-bold text-gray-900">Reservas</h2>
             </div>
-            <p className="text-gray-500 text-sm ml-14">
+            <p className="text-gray-500 text-sm ml-[52px]">
               Gerencie todas as suas reservas
             </p>
           </div>
@@ -134,10 +134,10 @@ export default async function ReservationsPage({
 
         {/* Stats Cards */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-          <div className="bg-white rounded-xl shadow-sm p-5">
+          <div className="be-card p-5">
             <div className="flex items-center justify-between mb-4">
-              <div className="p-2.5 bg-blue-100 rounded-xl">
-                <Calendar className="h-5 w-5 text-blue-600" />
+              <div className="be-icon w-9 h-9 bg-[#EFF6FF]">
+                <Calendar className="h-5 w-5 text-[#1E3A8A]" />
               </div>
               <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">Total</span>
             </div>
@@ -145,31 +145,31 @@ export default async function ReservationsPage({
             <p className="text-sm text-gray-500 mt-1">Reservas</p>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm p-5">
+          <div className="be-card p-5">
             <div className="flex items-center justify-between mb-4">
-              <div className="p-2.5 bg-green-100 rounded-xl">
-                <CheckCircle className="h-5 w-5 text-green-600" />
+              <div className="be-icon w-9 h-9 bg-[#ECFDF5]">
+                <CheckCircle className="h-5 w-5 text-[#059669]" />
               </div>
               <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">Status</span>
             </div>
-            <p className="text-4xl font-bold text-green-600">{stats.confirmed}</p>
+            <p className="text-4xl font-bold text-[#059669]">{stats.confirmed}</p>
             <p className="text-sm text-gray-500 mt-1">Confirmadas</p>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm p-5">
+          <div className="be-card p-5">
             <div className="flex items-center justify-between mb-4">
-              <div className="p-2.5 bg-orange-100 rounded-xl">
-                <Clock className="h-5 w-5 text-orange-600" />
+              <div className="be-icon w-9 h-9 bg-[#FFFBEB]">
+                <Clock className="h-5 w-5 text-[#ffc000]" />
               </div>
               <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">Status</span>
             </div>
-            <p className="text-4xl font-bold text-orange-600">{stats.pending}</p>
+            <p className="text-4xl font-bold text-[#ffc000]">{stats.pending}</p>
             <p className="text-sm text-gray-500 mt-1">Pendentes</p>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm p-5">
+          <div className="be-card p-5">
             <div className="flex items-center justify-between mb-4">
-              <div className="p-2.5 bg-red-100 rounded-xl">
+              <div className="be-icon w-9 h-9 bg-[#FEF2F2]">
                 <XCircle className="h-5 w-5 text-red-600" />
               </div>
               <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">Status</span>

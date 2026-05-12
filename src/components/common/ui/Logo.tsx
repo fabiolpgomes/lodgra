@@ -44,15 +44,12 @@ export function Logo({ variant = 'default', size = 'md', className = '' }: LogoP
           strokeLinejoin="round"
         />
       </svg>
-
-      {variant !== 'compact' && (
-        <span
-          className={`font-bold tracking-tight ${textSize}`}
-          style={{ color: textColor, fontFamily: 'var(--font-geist-sans, system-ui)' }}
-        >
-          Lodgra
-        </span>
-      )}
+      <span
+        className={`font-black tracking-tight ${textSize} font-[family-name:var(--font-hanken-grotesk)]`}
+        style={{ color: textColor }}
+      >
+        Lodgra
+      </span>
     </div>
   )
 }

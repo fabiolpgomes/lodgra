@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lodgra — Design System Precision Prototype</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            lodgra: {
+              blue: '#1E3A8A',
+              navy: '#030447',
+              gold: '#ffc000',
+              green: '#059669',
+            }
+          },
+          fontFamily: {
+            display: ['Hanken Grotesk', 'sans-serif'],
+            body: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Inter', sans-serif; background: #f8f8f8; }
+    .font-display { font-family: 'Hanken Grotesk', sans-serif; }
+    .be-card { background: #fff; border-radius: 0; border: 1px solid #e5e7eb; transition: all 0.2s; }
+    .be-card-hover:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(30, 58, 138, 0.1); border-color: rgba(30, 58, 138, 0.3); }
+    .sidebar-item { display: flex; align-items: center; gap: 12px; padding: 12px 24px; font-size: 12.5px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; color: rgba(255, 255, 255, 0.6); transition: all 0.2s; border-radius: 0; cursor: pointer; }
+    .sidebar-item:hover { color: #ffc000; background: rgba(255, 255, 255, 0.05); }
+    .sidebar-item.active { background: #ffc000; color: #1E3A8A; }
+    .be-icon { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 0; }
+    .be-button { padding: 10px 20px; font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px; font-size: 11px; border-radius: 0; transition: all 0.2s; }
+    .be-button-primary { background: #1E3A8A; color: #fff; }
+    .be-button-primary:hover { background: #030447; }
+    .be-button-secondary { background: transparent; color: #1E3A8A; border: 1px solid rgba(30, 58, 138, 0.2); }
+    .badge { border-radius: 0; font-size: 10px; font-weight: 900; padding: 3px 10px; text-transform: uppercase; letter-spacing: 1px; }
+    .badge-blue { background: rgba(30, 58, 138, 0.05); color: #1E3A8A; }
+    .badge-green { background: rgba(5, 150, 105, 0.05); color: #059669; }
+    .badge-red { background: rgba(220, 38, 38, 0.05); color: #dc2626; }
+    .page { display: none; }
+    .page.active { display: block; }
+  </style>
+</head>
+<body class="flex">
+
+  <!-- Sidebar -->
+  <aside class="w-[260px] h-screen bg-lodgra-blue fixed left-0 top-0 z-50 flex flex-col border-r border-white/10">
+    <!-- Logo Area -->
+    <div class="px-8 py-10 bg-white border-b border-lodgra-blue/10 flex items-center justify-center gap-3">
+      <div class="w-10 h-10 bg-lodgra-blue flex items-center justify-center">
+        <svg class="w-6 h-6 text-lodgra-gold" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
+      </div>
+      <span class="font-display font-black text-2xl text-lodgra-blue tracking-tighter uppercase">Lodgra</span>
+    </div>
+
+    <nav class="flex-1 py-8 space-y-1 overflow-y-auto">
+      <div class="sidebar-item active" onclick="showPage('dashboard', this)"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg> Dashboard</div>
+      <div class="sidebar-item" onclick="showPage('reservas', this)"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg> Reservas</div>
+      <div class="sidebar-item" onclick="showPage('propriedades', this)"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m4 0h1m-5 4h1m4 0h1m-5 4h1m4 0h1"/></svg> Imóveis</div>
+      <div class="sidebar-item" onclick="showPage('despesas', this)"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"/></svg> Despesas</div>
+      <div class="sidebar-item" onclick="showPage('financeiro', this)"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg> Financeiro</div>
+      <div class="sidebar-item" onclick="showPage('calendario', this)"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> Calendário</div>
+      
+      <div class="pt-8">
+        <p class="px-8 mb-4 text-[10px] font-black text-white/30 uppercase tracking-[2px] font-display">Configuração</p>
+        <div class="sidebar-item" onclick="showPage('proprietarios', this)"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg> Proprietários</div>
+        <div class="sidebar-item" onclick="showPage('configuracao', this)"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg> Definições</div>
+      </div>
+    </nav>
+
+    <div class="px-6 py-8 border-t border-white/10 bg-lodgra-navy/30">
+      <div class="flex items-center gap-3 px-3 py-3 bg-white/5 border border-white/10">
+        <div class="w-10 h-10 bg-lodgra-gold flex items-center justify-center font-display font-black text-lodgra-blue">FG</div>
+        <div class="flex-1 min-w-0">
+          <p class="text-[12px] font-black text-white uppercase tracking-wider font-display">Fabio Gomes</p>
+          <p class="text-[10px] text-white/40 uppercase font-bold tracking-widest font-display">Admin</p>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="flex-1 ml-[260px] min-h-screen">
+    
+    <!-- TopBar -->
+    <header class="h-[72px] bg-white border-b border-lodgra-blue/10 px-10 flex items-center justify-between sticky top-0 z-40">
+      <h1 id="page-title-display" class="font-display font-black text-lodgra-blue uppercase tracking-[2px] text-sm">Dashboard</h1>
+      <div class="flex items-center gap-6">
+        <div class="flex items-center gap-1.5 text-sm text-lodgra-blue font-black uppercase tracking-wider cursor-pointer">
+          <span>🇧🇷</span><span>Brasil</span>
+        </div>
+        <button class="be-button be-button-secondary text-xs" style="padding:8px 16px">Sair</button>
+      </div>
+    </header>
+
+    <div class="p-10">
+
+<!-- ===== PAGE: DASHBOARD ===== -->
+<div id="page-dashboard" class="page active">
+<main class="max-w-7xl mx-auto px-6 py-8">
+  <div class="mb-8">
+    <h2 class="font-display text-2xl font-bold text-gray-900 mb-1">Dashboard</h2>
+    <p class="text-sm text-gray-500">Visão geral do seu negócio de aluguel de temporada</p>
+  </div>
+
+  <!-- KPI Row 1 -->
+  <div class="grid grid-cols-3 gap-4 mb-4">
+    <div class="be-card p-5">
+      <div class="flex items-center justify-between mb-4">
+        <div class="w-9 h-9 rounded-be flex items-center justify-center" style="background:#EFF6FF">
+          <svg class="w-5 h-5" style="color:#1E3A8A" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        </div>
+        <span class="badge badge-gray">Total</span>
+      </div>
+      <p class="kpi-number text-4xl text-gray-900">7</p>
+      <p class="text-sm text-gray-500 mt-1">Propriedades</p>
+    </div>
+    <div class="be-card p-5">
+      <div class="flex items-center justify-between mb-4">
+        <div class="w-9 h-9 rounded-be flex items-center justify-center" style="background:#ECFDF5">
+          <svg class="w-5 h-5" style="color:#059669" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        </div>
+        <span class="badge badge-gray">Total</span>
+      </div>
+      <p class="kpi-number text-4xl text-gray-900">57</p>
+      <p class="text-sm text-gray-500 mt-1">Reservas</p>
+    </div>
+    <div class="be-card p-5">
+      <div class="flex items-center justify-between mb-4">
+        <div class="w-9 h-9 rounded-be flex items-center justify-center" style="background:#FFFBEB">
+          <svg class="w-5 h-5" style="color:#ffc000" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        </div>
+        <span class="badge badge-gray">MAI</span>
+      </div>
+      <p class="kpi-number text-4xl" style="color:#ffc000">28%</p>
+      <p class="text-sm text-gray-500 mt-1">Taxa de Ocupação</p>
+    </div>
+  </div>
+
+  <!-- KPI Row 2 -->
+  <div class="grid grid-cols-2 gap-4 mb-4">
+    <div class="be-card p-5">
+      <div class="flex items-center gap-3 mb-5">
+        <div class="w-9 h-9 rounded-be flex items-center justify-center" style="background:#FFF7ED">
+          <svg class="w-5 h-5" style="color:#ea580c" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <div>
+          <p class="text-sm font-semibold text-gray-700">Receita do Mês</p>
+          <p class="text-[11px] font-semibold uppercase tracking-wider text-gray-400">Maio</p>
+        </div>
+      </div>
+      <div class="space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="currency-badge cb-eur">EUR</span>
+          <span class="kpi-number text-2xl text-gray-900">2.495,03 €</span>
+        </div>
+        <div class="border-t border-dashed border-gray-100 pt-3 flex items-center justify-between">
+          <span class="currency-badge cb-brl">BRL</span>
+          <span class="kpi-number text-2xl text-gray-900">R$ 17.230,00</span>
+        </div>
+      </div>
+    </div>
+    <div class="be-card p-5">
+      <div class="flex items-center gap-3 mb-5">
+        <div class="w-9 h-9 rounded-be flex items-center justify-center" style="background:#ECFDF5">
+          <svg class="w-5 h-5" style="color:#059669" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+        </div>
+        <div>
+          <p class="text-sm font-semibold text-gray-700">Lucro Real</p>
+          <p class="text-[11px] font-semibold uppercase tracking-wider text-gray-400">Maio</p>
+        </div>
+      </div>
+      <div class="space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="currency-badge cb-eur">EUR</span>
+          <div class="flex items-center gap-2">
+            <span class="kpi-number text-2xl" style="color:#059669">2.495,03 €</span>
+            <span class="badge badge-green">100%</span>
+          </div>
+        </div>
+        <div class="border-t border-dashed border-gray-100 pt-3 flex items-center justify-between">
+          <span class="currency-badge cb-brl">BRL</span>
+          <div class="flex items-center gap-2">
+            <span class="kpi-number text-2xl" style="color:#059669">R$ 17.230,00</span>
+            <span class="badge badge-green">100%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Previsão -->
+  <div class="be-card p-5 mb-4">
+    <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center gap-2">
+        <svg class="w-5 h-5" style="color:#059669" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+        <div>
+          <h3 class="text-base font-semibold text-gray-900">Previsão de Faturamento</h3>
+          <p class="text-xs text-gray-400">Reservas confirmadas a partir de hoje</p>
+        </div>
+      </div>
+      <span class="badge badge-blue">44 reservas</span>
+    </div>
+    <div class="flex gap-6">
+      <div>
+        <span class="currency-badge cb-eur block mb-1">EUR</span>
+        <span class="kpi-number text-3xl text-gray-900">21.836,12 €</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts -->
+  <div class="grid grid-cols-2 gap-4 mb-4">
+    <div class="be-card p-5">
+      <div class="flex items-center gap-2 mb-1">
+        <svg class="w-5 h-5" style="color:#1E3A8A" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+        <h3 class="font-display text-sm font-semibold text-gray-900">Taxa de Ocupação</h3>
+      </div>
+      <p class="text-xs text-gray-400 mb-4 ml-7">Últimos 6 meses</p>
+      <canvas id="occupancyChart" height="160"></canvas>
+    </div>
+    <div class="be-card p-5">
+      <div class="flex items-center gap-2 mb-1">
+        <svg class="w-5 h-5" style="color:#059669" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <h3 class="font-display text-sm font-semibold text-gray-900">Receita Mensal</h3>
+      </div>
+      <p class="text-xs text-gray-400 mb-1 ml-7">Últimos 6 meses</p>
+      <div class="flex gap-2 mb-3 ml-7"><span class="currency-badge cb-eur">EUR</span><span class="currency-badge cb-brl">BRL</span></div>
+      <canvas id="revenueChart" height="160"></canvas>
+    </div>
+  </div>
+
+  <!-- Status + Chegadas -->
+  <div class="grid grid-cols-2 gap-4 mb-4">
+    <div class="be-card p-5">
+      <div class="flex items-center gap-2 mb-1">
+        <svg class="w-5 h-5" style="color:#1E3A8A" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <h3 class="font-display text-sm font-semibold text-gray-900">Reservas por Status</h3>
+      </div>
+      <p class="text-xs text-gray-400 mb-4 ml-7">Distribuição atual</p>
+      <div class="flex items-center gap-6">
+        <canvas id="statusChart" width="160" height="160" style="max-width:160px"></canvas>
+        <div class="flex flex-col gap-2 text-sm">
+          <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-sm inline-block" style="background:#059669"></span><span class="text-gray-600">Confirmadas <strong>50</strong></span></div>
+          <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-sm inline-block" style="background:#ffc000"></span><span class="text-gray-600">Pendentes <strong>5</strong></span></div>
+          <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-sm inline-block" style="background:#dc2626"></span><span class="text-gray-600">Canceladas <strong>2</strong></span></div>
+        </div>
+      </div>
+    </div>
+    <div class="be-card p-5">
+      <div class="flex items-center gap-2 mb-1">
+        <svg class="w-5 h-5" style="color:#1E3A8A" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <h3 class="font-display text-sm font-semibold text-gray-900">Próximas Chegadas</h3>
+      </div>
+      <p class="text-xs text-gray-400 mb-4 ml-7">Próximos 7 dias</p>
+      <div class="space-y-2">
+        <div class="be-card be-card-hover p-3 flex items-center justify-between cursor-pointer">
+          <div>
+            <p class="font-semibold text-gray-900 text-sm">Ana Cardeal</p>
+            <p class="text-xs text-gray-500">AHS T2 Espaçoso, Claro | 5min da Praia...</p>
+            <div class="flex gap-2 mt-1">
+              <span class="badge badge-blue" style="font-size:10px">Booking.com</span>
+              <span class="text-xs text-gray-400">3 noites</span>
+            </div>
+          </div>
+          <div class="text-right">
+            <p class="text-sm font-semibold" style="color:#1E3A8A">14 mai.</p>
+            <p class="text-xs text-gray-400">até 17 mai.</p>
+          </div>
+        </div>
+        <div class="be-card be-card-hover p-3 flex items-center justify-between cursor-pointer">
+          <div>
+            <p class="font-semibold text-gray-900 text-sm">Carmelina Sequeira</p>
+            <p class="text-xs text-gray-500">AHS T2 Espaçoso, Claro | 5min da Praia...</p>
+            <div class="flex gap-2 mt-1">
+              <span class="badge badge-blue" style="font-size:10px">Booking.com</span>
+              <span class="text-xs text-gray-400">3 noites</span>
+            </div>
+          </div>
+          <div class="text-right">
+            <p class="text-sm font-semibold" style="color:#1E3A8A">18 mai.</p>
+            <p class="text-xs text-gray-400">até 21 mai.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ações Rápidas -->
+  <div class="be-card p-5">
+    <h3 class="font-display text-sm font-semibold text-gray-900 mb-4">Ações Rápidas</h3>
+    <div class="grid grid-cols-4 gap-3">
+      <button class="be-card be-card-hover flex items-center gap-3 p-3 cursor-pointer" style="text-align:left">
+        <div class="w-9 h-9 rounded-be flex items-center justify-center" style="background:#EFF6FF">
+          <svg class="w-5 h-5" style="color:#1E3A8A" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        </div>
+        <span class="text-sm font-medium text-gray-800">Nova Propriedade</span>
+      </button>
+      <button class="be-card be-card-hover flex items-center gap-3 p-3 cursor-pointer">
+        <div class="w-9 h-9 rounded-be flex items-center justify-center" style="background:#ECFDF5">
+          <svg class="w-5 h-5" style="color:#059669" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        </div>
+        <span class="text-sm font-medium text-gray-800">Nova Reserva</span>
+      </button>
+      <button class="be-card be-card-hover flex items-center gap-3 p-3 cursor-pointer">
+        <div class="w-9 h-9 rounded-be flex items-center justify-center" style="background:#FFFBEB">
+          <svg class="w-5 h-5" style="color:#ffc000" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        </div>
+        <span class="text-sm font-medium text-gray-800">Ver Calendário</span>
+      </button>
+      <button class="be-card be-card-hover flex items-center gap-3 p-3 cursor-pointer">
+        <div class="w-9 h-9 rounded-be flex items-center justify-center" style="background:#F5F3FF">
+          <svg class="w-5 h-5" style="color:#7c3aed" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        </div>
+        <span class="text-sm font-medium text-gray-800">Ver Reservas</span>
+      </button>
+    </div>
+  </div>
+</main>
+</div>
+
+<!-- ===== PAGE: RESERVAS ===== -->
+<div id="page-reservas" class="page">
+<main class="max-w-7xl mx-auto px-6 py-8">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h2 class="font-display text-2xl font-bold text-gray-900">Reservas</h2>
+      <p class="text-sm text-gray-500">Gerencie todas as suas reservas</p>
+    </div>
+    <button class="be-button be-button-primary flex items-center gap-2">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+      Nova Reserva
+    </button>
+  </div>
+  <div class="be-card overflow-hidden">
+    <table>
+      <thead>
+        <tr>
+          <th>Propriedade</th>
+          <th>Hóspede</th>
+          <th>Check-in</th>
+          <th>Check-out</th>
+          <th>Status</th>
+          <th>Valor</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <div class="font-medium text-gray-900 text-sm">AHS T0 Sesimbra | Vista Infinita Falésia</div>
+            <div class="text-xs text-gray-400">Sesimbra, Portugal <span class="badge badge-blue ml-1">Booking.com</span></div>
+          </td>
+          <td><div class="text-sm font-medium">Elena Popova</div><div class="text-xs text-gray-400">epopov.241831@guest...</div></td>
+          <td class="text-sm">01/05/2026</td>
+          <td class="text-sm">03/05/2026</td>
+          <td><span class="badge badge-green">Confirmada</span></td>
+          <td class="kpi-number font-semibold text-sm">130,00 €</td>
+          <td><a href="#" class="text-sm font-medium" style="color:#1E3A8A">Ver detalhes →</a></td>
+        </tr>
+        <tr>
+          <td>
+            <div class="font-medium text-gray-900 text-sm">AHS 2 Dorms Bela Vista | Piscina + Academia</div>
+            <div class="text-xs text-gray-400">São Paulo, Brasil <span class="badge badge-yellow ml-1">Airbnb</span></div>
+          </td>
+          <td><div class="text-sm font-medium">Mark Tosan</div><div class="text-xs text-gray-400">imported-177763...</div></td>
+          <td class="text-sm">02/05/2026</td>
+          <td class="text-sm">04/08/2026</td>
+          <td><span class="badge badge-green">Confirmada</span></td>
+          <td class="kpi-number font-semibold text-sm">R$ 17.230,00</td>
+          <td><a href="#" class="text-sm font-medium" style="color:#1E3A8A">Ver detalhes →</a></td>
+        </tr>
+        <tr>
+          <td>
+            <div class="font-medium text-gray-900 text-sm">AHS T2 Espaçoso, Claro | 5min da Praia</div>
+            <div class="text-xs text-gray-400">Armação de Pêra, Portugal <span class="badge badge-blue ml-1">Booking.com</span></div>
+          </td>
+          <td><div class="text-sm font-medium">Emanuele Caruso</div><div class="text-xs text-gray-400">ecarus.790019@guest...</div></td>
+          <td class="text-sm">02/05/2026</td>
+          <td class="text-sm">06/05/2026</td>
+          <td><span class="badge badge-green">Confirmada</span></td>
+          <td class="kpi-number font-semibold text-sm">227,00 €</td>
+          <td><a href="#" class="text-sm font-medium" style="color:#1E3A8A">Ver detalhes →</a></td>
+        </tr>
+        <tr>
+          <td>
+            <div class="font-medium text-gray-900 text-sm">AHS T0 Sesimbra | Vista Infinita Falésia</div>
+            <div class="text-xs text-gray-400">Sesimbra, Portugal <span class="badge badge-blue ml-1">Booking.com</span></div>
+          </td>
+          <td><div class="text-sm font-medium">Maria Jose Reis Marques</div><div class="text-xs text-gray-400">mmarqu.814693@...</div></td>
+          <td class="text-sm">23/05/2026</td>
+          <td class="text-sm">24/05/2026</td>
+          <td><span class="badge badge-red">Cancelada</span></td>
+          <td class="kpi-number font-semibold text-sm">74,00 €</td>
+          <td><a href="#" class="text-sm font-medium" style="color:#1E3A8A">Ver detalhes →</a></td>
+        </tr>
+        <tr>
+          <td>
+            <div class="font-medium text-gray-900 text-sm">AHS T2 Espaçoso, Claro | 5min da Praia</div>
+            <div class="text-xs text-gray-400">Armação de Pêra, Portugal <span class="badge badge-blue ml-1">Booking.com</span></div>
+          </td>
+          <td><div class="text-sm font-medium">Laura Feghaly Flatio)</div><div class="text-xs text-gray-400">imported-177...</div></td>
+          <td class="text-sm">29/05/2026</td>
+          <td class="text-sm">26/06/2026</td>
+          <td><span class="badge badge-green">Confirmada</span></td>
+          <td class="kpi-number font-semibold text-sm">1.288,03 €</td>
+          <td><a href="#" class="text-sm font-medium" style="color:#1E3A8A">Ver detalhes →</a></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+</div>
+
+<!-- ===== PAGE: PROPRIEDADES ===== -->
+<div id="page-propriedades" class="page">
+<main class="max-w-7xl mx-auto px-6 py-8">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h2 class="font-display text-2xl font-bold text-gray-900">Propriedades</h2>
+      <p class="text-sm text-gray-500">Gerencie suas propriedades e anúncios</p>
+    </div>
+    <button class="be-button be-button-primary flex items-center gap-2">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+      Nova Propriedade
+    </button>
+  </div>
+  <!-- Banner -->
+  <div class="be-card p-4 mb-6 flex items-center justify-between" style="background:#EFF6FF; border-color:#BFDBFE">
+    <div class="flex items-center gap-2">
+      <svg class="w-5 h-5" style="color:#1E3A8A" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
+      <span class="text-sm font-semibold" style="color:#1E3A8A">Páginas Públicas</span>
+      <span class="text-sm text-gray-600">Páginas públicas ilimitadas com o plano Starter</span>
+    </div>
+    <span class="badge badge-blue">7 / ∞</span>
+  </div>
+  <div class="grid grid-cols-3 gap-4">
+    <div class="be-card be-card-hover p-5 cursor-pointer">
+      <div class="flex items-center justify-between mb-3">
+        <span class="badge badge-gray">apartment</span>
+        <span class="badge badge-green">Ativo</span>
+      </div>
+      <h3 class="font-display text-sm font-bold text-gray-900 mb-2">AHS T2 Armação de Pera | Praia dos Pescadores | 10 min a pé da praia</h3>
+      <p class="text-xs text-gray-500 flex items-center gap-1 mb-1">📍 Armação de Pera, Portugal</p>
+      <p class="text-xs text-gray-500 mb-4">🛏 2 quartos &nbsp;·&nbsp; 👥 4 hóspedes</p>
+      <div class="flex items-center justify-between">
+        <span class="badge badge-blue">Pública</span>
+        <button class="text-xs font-medium" style="color:#1E3A8A">URL →</button>
+      </div>
+    </div>
+    <div class="be-card be-card-hover p-5 cursor-pointer">
+      <div class="flex items-center justify-between mb-3">
+        <span class="badge badge-gray">apartment</span>
+        <span class="badge badge-green">Ativo</span>
+      </div>
+      <h3 class="font-display text-sm font-bold text-gray-900 mb-2">AHS T1 Portimão | Iluminado com varanda + piscina | 12 min a pé da praia</h3>
+      <p class="text-xs text-gray-500 mb-1">📍 Portimão, Portugal</p>
+      <p class="text-xs text-gray-500 mb-4">🛏 1 quarto &nbsp;·&nbsp; 👥 3 hóspedes</p>
+      <div class="flex items-center justify-between">
+        <span class="badge badge-blue">Pública</span>
+        <button class="text-xs font-medium" style="color:#1E3A8A">URL →</button>
+      </div>
+    </div>
+    <div class="be-card be-card-hover p-5 cursor-pointer">
+      <div class="flex items-center justify-between mb-3">
+        <span class="badge badge-gray">studio</span>
+        <span class="badge badge-green">Ativo</span>
+      </div>
+      <h3 class="font-display text-sm font-bold text-gray-900 mb-2">AHS T0 Sesimbra | Vista Infinita Falésia | Pé na areia</h3>
+      <p class="text-xs text-gray-500 mb-1">📍 Sesimbra, Portugal</p>
+      <p class="text-xs text-gray-500 mb-4">🛏 1 quarto &nbsp;·&nbsp; 👥 4 hóspedes</p>
+      <div class="flex items-center justify-between">
+        <span class="badge badge-blue">Pública</span>
+        <button class="text-xs font-medium" style="color:#1E3A8A">URL →</button>
+      </div>
+    </div>
+    <div class="be-card be-card-hover p-5 cursor-pointer">
+      <div class="flex items-center justify-between mb-3">
+        <span class="badge badge-gray">apartment</span>
+        <span class="badge badge-green">Ativo</span>
+      </div>
+      <h3 class="font-display text-sm font-bold text-gray-900 mb-2">AHS T1 Armação de Pêra | Piscina + Garagem + Jardim | 6 min a pé da praia</h3>
+      <p class="text-xs text-gray-500 mb-1">📍 Armação de Pêra, Portugal</p>
+      <p class="text-xs text-gray-500 mb-4">🛏 1 quarto &nbsp;·&nbsp; 👥 4 hóspedes</p>
+      <div class="flex items-center justify-between">
+        <span class="badge badge-blue">Pública</span>
+        <button class="text-xs font-medium" style="color:#1E3A8A">URL →</button>
+      </div>
+    </div>
+    <div class="be-card be-card-hover p-5 cursor-pointer">
+      <div class="flex items-center justify-between mb-3">
+        <span class="badge badge-gray">house</span>
+        <span class="badge badge-green">Ativo</span>
+      </div>
+      <h3 class="font-display text-sm font-bold text-gray-900 mb-2">AHS Refúgio Perfeito na Natureza em Loulé | Cabana com Piscina + Jardim + Garage</h3>
+      <p class="text-xs text-gray-500 mb-1">📍 Loule, Portugal</p>
+      <p class="text-xs text-gray-500 mb-4">🛏 2 quartos &nbsp;·&nbsp; 👥 6 hóspedes</p>
+      <div class="flex items-center justify-between">
+        <span class="badge badge-blue">Pública</span>
+        <button class="text-xs font-medium" style="color:#1E3A8A">URL →</button>
+      </div>
+    </div>
+    <div class="be-card be-card-hover p-5 cursor-pointer">
+      <div class="flex items-center justify-between mb-3">
+        <span class="badge badge-gray">apartment</span>
+        <span class="badge badge-green">Ativo</span>
+      </div>
+      <h3 class="font-display text-sm font-bold text-gray-900 mb-2">AHS 2 Dorms Bela Vista | Piscina + Academia + Coworking | 5 min da Praça da Sé</h3>
+      <p class="text-xs text-gray-500 mb-1">📍 São Paulo, Brasil</p>
+      <p class="text-xs text-gray-500 mb-4">🛏 2 quartos &nbsp;·&nbsp; 👥 3 hóspedes</p>
+      <div class="flex items-center justify-between">
+        <span class="badge badge-blue">Pública</span>
+        <button class="text-xs font-medium" style="color:#1E3A8A">URL →</button>
+      </div>
+    </div>
+  </div>
+</main>
+</div>
+
+<!-- ===== PAGE: DESPESAS ===== -->
+<div id="page-despesas" class="page">
+<main class="max-w-7xl mx-auto px-6 py-8">
+  <div class="flex items-center justify-between mb-6">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-be flex items-center justify-center" style="background:#FEF2F2">
+        <svg class="w-5 h-5" style="color:#dc2626" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"/></svg>
+      </div>
+      <div>
+        <h2 class="font-display text-2xl font-bold text-gray-900">Despesas</h2>
+        <p class="text-sm text-gray-500">Gerencie todas as despesas das propriedades</p>
+      </div>
+    </div>
+    <div class="flex gap-2">
+      <button class="be-button be-button-secondary flex items-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        Exportar PDF
+      </button>
+      <button class="be-button be-button-primary flex items-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        Nova Despesa
+      </button>
+    </div>
+  </div>
+  <div class="grid grid-cols-2 gap-4 mb-6">
+    <div class="be-card p-5">
+      <div class="flex items-center justify-between mb-3">
+        <div class="w-9 h-9 rounded-be flex items-center justify-center" style="background:#FEF9C3">
+          <svg class="w-5 h-5" style="color:#ca8a04" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"/></svg>
+        </div>
+        <span class="badge badge-gray">Total</span>
+      </div>
+      <p class="kpi-number text-3xl text-gray-900">35</p>
+      <p class="text-sm text-gray-500">Despesas</p>
+    </div>
+    <div class="be-card p-5">
+      <p class="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">Valor Total — Todas as despesas</p>
+      <div class="flex items-center gap-3 mb-2">
+        <span class="currency-badge cb-eur">EUR</span>
+        <span class="kpi-number text-2xl text-gray-900">4.839,10 €</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="currency-badge cb-brl">BRL</span>
+        <span class="kpi-number text-2xl text-gray-900">R$ 100,00</span>
+      </div>
+    </div>
+  </div>
+  <div class="be-card overflow-hidden">
+    <table>
+      <thead><tr><th>Data</th><th>Propriedade</th><th>Categoria</th><th>Valor</th><th>Ação</th></tr></thead>
+      <tbody>
+        <tr><td class="text-sm">04/05/2026</td><td class="text-sm">AHS T1 Armação de Pêra | Piscina...</td><td><span class="badge badge-gray">Suprimentos</span></td><td class="kpi-number text-sm font-semibold" style="color:#dc2626">67,90 €</td><td><button style="color:#1E3A8A">👁</button></td></tr>
+        <tr><td class="text-sm">08/04/2026</td><td class="text-sm">AHS T2 Espaçoso, Claro | 5min da Praia</td><td><span class="badge badge-gray">Outros</span></td><td class="kpi-number text-sm font-semibold" style="color:#dc2626">9,99 €</td><td><button style="color:#1E3A8A">👁</button></td></tr>
+        <tr><td class="text-sm">07/04/2026</td><td class="text-sm">AHS T2 Espaçoso, Claro | 5min da Praia</td><td><span class="badge badge-gray">Serviços</span></td><td class="kpi-number text-sm font-semibold" style="color:#dc2626">26,28 €</td><td><button style="color:#1E3A8A">👁</button></td></tr>
+        <tr><td class="text-sm">01/04/2026</td><td class="text-sm">AHS T2 Espaçoso, Claro | 5min da Praia</td><td><span class="badge badge-gray">Hipoteca</span></td><td class="kpi-number text-sm font-semibold" style="color:#dc2626">905,19 €</td><td><button style="color:#1E3A8A">👁</button></td></tr>
+        <tr><td class="text-sm">01/04/2026</td><td class="text-sm">AHS T2 Espaçoso, Claro | 5min da Praia</td><td><span class="badge badge-gray">Seguro Residencial</span></td><td class="kpi-number text-sm font-semibold" style="color:#dc2626">21,90 €</td><td><button style="color:#1E3A8A">👁</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+</div>
+
+<!-- ===== PAGE: FINANCEIRO ===== -->
+<div id="page-financeiro" class="page">
+<main class="max-w-7xl mx-auto px-6 py-8">
+  <div class="flex items-center justify-between mb-6">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-be flex items-center justify-center" style="background:#ECFDF5">
+        <svg class="w-5 h-5" style="color:#059669" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      </div>
+      <div>
+        <h2 class="font-display text-2xl font-bold text-gray-900">Análise Financeira</h2>
+        <p class="text-sm text-gray-500">Receitas, despesas e lucro do mês seleccionado</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <button class="be-button be-button-secondary" style="padding:6px 12px">‹</button>
+      <span class="font-display font-semibold text-gray-900">Maio De 2026</span>
+      <button class="be-button be-button-secondary" style="padding:6px 12px">›</button>
+    </div>
+  </div>
+  <div class="grid grid-cols-2 gap-4 mb-6">
+    <div class="be-card p-5">
+      <div class="flex items-center justify-between mb-3">
+        <div class="w-9 h-9 rounded-be" style="background:#EFF6FF; display:flex; align-items:center; justify-content:center">
+          <svg class="w-5 h-5" style="color:#1E3A8A" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <span class="badge badge-gray">Lucro</span>
+      </div>
+      <p class="kpi-number text-3xl font-bold mb-1" style="color:#059669">2.427,13 €</p>
+      <p class="text-sm text-gray-500 mb-4">Lucro Líquido</p>
+      <div class="space-y-1.5 text-sm">
+        <div class="flex justify-between"><span style="color:#059669" class="font-medium">↗ Receita</span><span class="text-gray-700">2.495,03 €</span></div>
+        <div class="flex justify-between"><span style="color:#dc2626" class="font-medium">↘ Despesas</span><span class="text-gray-700">67,90 €</span></div>
+        <div class="flex justify-between border-t pt-1.5 mt-1.5"><span class="text-gray-600 font-medium">Margem</span><span class="font-bold" style="color:#059669">97.3%</span></div>
+      </div>
+    </div>
+    <div class="be-card p-5">
+      <div class="flex items-center justify-between mb-3">
+        <div class="w-9 h-9 rounded-be" style="background:#EFF6FF; display:flex; align-items:center; justify-content:center">
+          <svg class="w-5 h-5" style="color:#1E3A8A" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <span class="badge badge-gray">Lucro</span>
+      </div>
+      <p class="kpi-number text-3xl font-bold mb-1" style="color:#059669">R$ 17.230,00</p>
+      <p class="text-sm text-gray-500 mb-4">Lucro Líquido</p>
+      <div class="space-y-1.5 text-sm">
+        <div class="flex justify-between"><span style="color:#059669" class="font-medium">↗ Receita</span><span class="text-gray-700">R$ 17.230,00</span></div>
+        <div class="flex justify-between"><span style="color:#dc2626" class="font-medium">↘ Despesas</span><span class="text-gray-700">R$ 0,00</span></div>
+        <div class="flex justify-between border-t pt-1.5 mt-1.5"><span class="text-gray-600 font-medium">Margem</span><span class="font-bold" style="color:#059669">100.0%</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="be-card overflow-hidden">
+    <div class="p-4 border-b border-gray-100 flex items-center gap-2">
+      <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+      <span class="font-display text-sm font-semibold text-gray-900">Análise por Propriedade</span>
+    </div>
+    <table>
+      <thead><tr><th>Propriedade</th><th>Receita Bruta</th><th>Comissão Gestão</th><th>Líquido Proprietário</th><th>Despesas</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><div class="flex items-center gap-2"><span class="currency-badge cb-brl">BRL</span><div><p class="font-medium text-sm">AHS 2 Dorms Bela Vista...</p><p class="text-xs text-gray-400">Fabio Luis Pinto Gomes</p></div></div></td>
+          <td class="text-sm" style="color:#059669">↗ R$ 17.230,00</td>
+          <td class="text-sm text-gray-400">—</td>
+          <td class="text-sm font-semibold" style="color:#059669">R$ 17.230,00</td>
+          <td class="text-sm" style="color:#dc2626">↘ R$ 0,00</td>
+        </tr>
+        <tr>
+          <td><div class="flex items-center gap-2"><span class="currency-badge cb-eur">EUR</span><div><p class="font-medium text-sm">AHS T2 Espaçoso, Claro...</p><p class="text-xs text-gray-400">Fabio Luis Pinto Gomes</p></div></div></td>
+          <td class="text-sm" style="color:#059669">↗ 2245,03 €</td>
+          <td class="text-sm text-gray-400">—</td>
+          <td class="text-sm font-semibold" style="color:#059669">2245,03 €</td>
+          <td class="text-sm" style="color:#dc2626">↘ 0,00 €</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+</div>
+
+<!-- ===== PAGE: CALENDÁRIO ===== -->
+<div id="page-calendario" class="page">
+<main class="max-w-7xl mx-auto px-6 py-8">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="font-display text-2xl font-bold text-gray-900">Calendário</h2>
+    <select class="input-be" style="width:auto; min-width:200px">
+      <option>Todas as propriedades</option>
+    </select>
+  </div>
+  <div class="be-card p-4">
+    <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center gap-2">
+        <button class="be-button be-button-secondary" style="padding:4px 10px">‹</button>
+        <button class="be-button be-button-secondary" style="padding:4px 10px">›</button>
+        <button class="be-button be-button-primary" style="padding:4px 14px">Hoje</button>
+      </div>
+      <h3 class="font-display font-semibold text-gray-900">maio de 2026</h3>
+      <div class="flex gap-1">
+        <button class="tab-inner active">Mês</button>
+        <button class="tab-inner">Semana</button>
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+      <table style="min-width:700px">
+        <thead>
+          <tr>
+            <th>seg.</th><th>ter.</th><th>qua.</th><th>qui.</th><th>sex.</th><th>sáb.</th><th>dom.</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="height:80px; vertical-align:top">
+            <td class="text-right text-xs text-gray-400 p-1">27</td>
+            <td class="text-right text-xs text-gray-400 p-1">28</td>
+            <td class="text-right text-xs text-gray-400 p-1">29</td>
+            <td class="text-right text-xs text-gray-400 p-1">30</td>
+            <td class="text-right text-xs p-1">1</td>
+            <td class="text-right text-xs p-1">2</td>
+            <td class="text-right text-xs p-1">3</td>
+          </tr>
+          <tr style="height:80px; vertical-align:top">
+            <td class="text-right text-xs p-1" colspan="1">4</td>
+            <td class="text-right text-xs p-1">5</td>
+            <td class="text-right text-xs p-1">6</td>
+            <td class="text-right text-xs p-1">7</td>
+            <td class="text-right text-xs p-1">8</td>
+            <td class="text-right text-xs p-1">9</td>
+            <td class="text-right text-xs p-1">10</td>
+          </tr>
+          <tr style="height:80px; vertical-align:top">
+            <td class="text-right text-xs p-1">11</td>
+            <td class="text-right text-xs p-1">12</td>
+            <td class="text-right text-xs p-1">13</td>
+            <td class="text-right text-xs p-1">14</td>
+            <td class="text-right text-xs p-1">15</td>
+            <td class="text-right text-xs p-1">16</td>
+            <td class="text-right text-xs p-1">17</td>
+          </tr>
+          <tr style="height:80px; vertical-align:top">
+            <td class="text-right text-xs p-1">18</td>
+            <td class="text-right text-xs p-1">19</td>
+            <td class="text-right text-xs p-1">20</td>
+            <td class="text-right text-xs p-1">21</td>
+            <td class="text-right text-xs p-1">22</td>
+            <td class="text-right text-xs p-1">23</td>
+            <td class="text-right text-xs p-1">24</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="flex gap-4 mt-3 pt-3 border-t border-gray-100">
+      <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full inline-block" style="background:#ffc000"></span><span class="text-xs text-gray-500">Pendente</span></div>
+      <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full inline-block" style="background:#1E3A8A"></span><span class="text-xs text-gray-500">Confirmada</span></div>
+    </div>
+  </div>
+</main>
+</div>
+
+<!-- ===== PAGE: RELATÓRIOS ===== -->
+<div id="page-relatorios" class="page">
+<main class="max-w-7xl mx-auto px-6 py-8">
+  <div class="flex items-center justify-between mb-6">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-be flex items-center justify-center" style="background:#EFF6FF">
+        <svg class="w-5 h-5" style="color:#1E3A8A" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+      </div>
+      <div>
+        <h2 class="font-display text-2xl font-bold text-gray-900">Relatórios Financeiros</h2>
+        <p class="text-sm text-gray-500">Análise detalhada de receitas, despesas e performance das propriedades</p>
+      </div>
+    </div>
+    <button class="be-button be-button-primary flex items-center gap-2">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+      Download PDF
+    </button>
+  </div>
+  <div class="be-card mb-4">
+    <div class="flex border-b border-gray-100 px-4">
+      <button class="tab-inner active mr-2 my-2">Dashboard</button>
+      <button class="tab-inner mr-2 my-2">Receitas</button>
+      <button class="tab-inner mr-2 my-2">Despesas</button>
+      <button class="tab-inner mr-2 my-2">P&L</button>
+      <button class="tab-inner mr-2 my-2">Canais</button>
+      <button class="tab-inner mr-2 my-2">Previsão</button>
+    </div>
+    <div class="p-4">
+      <div class="flex items-center gap-2 mb-4">
+        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z"/></svg>
+        <span class="font-display text-sm font-semibold text-gray-900">Filtros</span>
+      </div>
+      <div class="grid grid-cols-4 gap-3">
+        <div><label class="text-xs text-gray-500 mb-1 block">Data Início</label><input type="date" value="2026-02-12" class="input-be" /></div>
+        <div><label class="text-xs text-gray-500 mb-1 block">Data Fim</label><input type="date" value="2026-05-12" class="input-be" /></div>
+        <div><label class="text-xs text-gray-500 mb-1 block">Propriedade</label><select class="input-be"><option>Todas as propriedades</option></select></div>
+        <div class="flex items-end gap-2">
+          <button class="be-button be-button-primary w-full">Filtrar</button>
+          <button class="be-button be-button-secondary">Limpar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="grid grid-cols-3 gap-4 mb-4">
+    <div class="be-card p-5">
+      <div class="flex items-center justify-between mb-3"><div class="w-8 h-8 rounded-be flex items-center justify-center" style="background:#ECFDF5"><svg class="w-4 h-4" style="color:#059669" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg></div><span class="badge badge-gray text-[10px]">Receita</span></div>
+      <div class="flex items-center gap-2 mb-1"><span class="currency-badge cb-eur">EUR</span><span class="kpi-number text-xl text-gray-900">3.354,86 €</span></div>
+      <div class="flex items-center gap-2"><span class="currency-badge cb-brl">BRL</span><span class="kpi-number text-xl text-gray-900">R$ 17.230,00</span></div>
+      <p class="text-xs text-gray-400 mt-2">Receita bruta no período</p>
+    </div>
+    <div class="be-card p-5">
+      <div class="flex items-center justify-between mb-3"><div class="w-8 h-8 rounded-be flex items-center justify-center" style="background:#FEF2F2"><svg class="w-4 h-4" style="color:#dc2626" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"/></svg></div><span class="badge badge-gray text-[10px]">Despesas</span></div>
+      <div class="flex items-center gap-2 mb-1"><span class="currency-badge cb-eur">EUR</span><span class="kpi-number text-xl text-gray-900">2.523,29 €</span></div>
+      <p class="text-xs text-gray-400 mt-2">Total despesas no período</p>
+    </div>
+    <div class="be-card p-5">
+      <div class="flex items-center justify-between mb-3"><div class="w-8 h-8 rounded-be flex items-center justify-center" style="background:#EFF6FF"><svg class="w-4 h-4" style="color:#1E3A8A" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg></div><span class="badge badge-gray text-[10px]">Lucro</span></div>
+      <div class="flex items-center gap-2 mb-1"><span class="currency-badge cb-eur">EUR</span><span class="kpi-number text-xl" style="color:#059669">831,57 €</span></div>
+      <div class="flex items-center gap-2"><span class="currency-badge cb-brl">BRL</span><span class="kpi-number text-xl" style="color:#059669">R$ 17.230,00</span></div>
+      <p class="text-xs text-gray-400 mt-2">Lucro líquido no período</p>
+    </div>
+  </div>
+</main>
+</div>
+
+<!-- ===== PAGE: PROPRIETÁRIOS ===== -->
+<div id="page-proprietarios" class="page">
+<main class="max-w-7xl mx-auto px-6 py-8">
+  <div class="flex items-center justify-between mb-6">
+    <div class="flex items-center gap-3">
+      <svg class="w-8 h-8" style="color:#1E3A8A" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+      <div>
+        <h2 class="font-display text-2xl font-bold text-gray-900">Proprietários</h2>
+        <p class="text-sm text-gray-500">Gerencie os proprietários dos imóveis</p>
+      </div>
+    </div>
+    <button class="be-button be-button-primary flex items-center gap-2">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+      Novo Proprietário
+    </button>
+  </div>
+  <div class="flex gap-3 mb-4">
+    <div class="flex-1 relative">
+      <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+      <input class="input-be" style="padding-left:36px" placeholder="Pesquisar por nome ou email..." />
+    </div>
+    <div class="flex gap-1">
+      <button class="tab-inner active">Todos</button>
+      <button class="tab-inner">Ativos</button>
+      <button class="tab-inner">Inativos</button>
+    </div>
+  </div>
+  <div class="be-card overflow-hidden">
+    <table>
+      <thead><tr><th>Nome</th><th>Email</th><th>Telefone</th><th>NIF/CPF</th><th>Propriedades</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        <tr>
+          <td><div class="font-medium text-sm text-gray-900">Alina Nailievna Kharunova</div><div class="text-xs text-gray-400">Portimão, Portugal</div></td>
+          <td class="text-sm">cabeleireirolagoa2019@gmail.com</td>
+          <td class="text-sm">+351920457878</td>
+          <td class="text-sm">265454603</td>
+          <td><span class="badge badge-blue">1 imóveis</span></td>
+          <td><span class="badge badge-green">Ativo</span></td>
+          <td class="flex gap-2"><button class="text-gray-400 hover:text-gray-600">👁</button><button class="text-gray-400 hover:text-gray-600">✏️</button><button class="be-button be-button-danger" style="padding:2px 8px; font-size:12px">Eli</button></td>
+        </tr>
+        <tr>
+          <td><div class="font-medium text-sm text-gray-900">Augusto Alves Gonçalves</div><div class="text-xs text-gray-400">SÃO JOÃO DAS LAMPAS, Portugal</div></td>
+          <td class="text-sm">gerente.alueislda@gmail.com</td>
+          <td class="text-sm">351 969 374 048</td>
+          <td class="text-sm">181468212</td>
+          <td><span class="badge badge-blue">2 imóveis</span></td>
+          <td><span class="badge badge-green">Ativo</span></td>
+          <td class="flex gap-2"><button class="text-gray-400">👁</button><button class="text-gray-400">✏️</button><button class="be-button be-button-danger" style="padding:2px 8px; font-size:12px">Eli</button></td>
+        </tr>
+        <tr>
+          <td><div class="font-medium text-sm text-gray-900">Fabio Luis Pinto Gomes</div><div class="text-xs text-gray-400">Antwerpen, Belgium</div></td>
+          <td class="text-sm">fabiolpgomes@gmail.com</td>
+          <td class="text-sm">+351 912 647 423</td>
+          <td class="text-sm">227558200</td>
+          <td><span class="badge badge-blue">2 imóveis</span></td>
+          <td><span class="badge badge-green">Ativo</span></td>
+          <td class="flex gap-2"><button class="text-gray-400">👁</button><button class="text-gray-400">✏️</button><button class="be-button be-button-danger" style="padding:2px 8px; font-size:12px">Eli</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+</div>
+
+<!-- ===== PAGE: UTILIZADORES ===== -->
+<div id="page-utilizadores" class="page">
+<main class="max-w-7xl mx-auto px-6 py-8">
+  <div class="flex items-center justify-between mb-6">
+    <div class="flex items-center gap-3">
+      <svg class="w-8 h-8" style="color:#1E3A8A" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+      <div>
+        <h2 class="font-display text-2xl font-bold text-gray-900">Utilizadores</h2>
+        <p class="text-sm text-gray-500">Gerencie os utilizadores e suas permissões</p>
+      </div>
+    </div>
+    <button class="be-button be-button-primary flex items-center gap-2">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+      Novo Utilizador
+    </button>
+  </div>
+  <div class="be-card overflow-hidden">
+    <table>
+      <thead><tr><th>Nome</th><th>Email</th><th>Role</th><th>Propriedades</th><th></th></tr></thead>
+      <tbody>
+        <tr style="vertical-align:top">
+          <td class="font-medium text-sm text-gray-900 pt-4">Cintia beirao</td>
+          <td class="text-sm pt-4">cintiabeirao20@gmail.com</td>
+          <td class="pt-4"><span class="badge" style="background:#ECFDF5; color:#059669">Gestor</span></td>
+          <td class="pt-4">
+            <div class="flex flex-wrap gap-1">
+              <span class="badge badge-gray text-[10px]">AHS 2 Dorms Bela Vista...</span>
+              <span class="badge badge-gray text-[10px]">AHS T1 Portimão...</span>
+              <span class="badge badge-gray text-[10px]">AHS T0 Sesimbra...</span>
+              <span class="badge badge-gray text-[10px]">+4 mais</span>
+            </div>
+          </td>
+          <td class="pt-4"><button class="text-gray-400">✏️</button></td>
+        </tr>
+        <tr>
+          <td class="font-medium text-sm text-gray-900">fabiolpgomes</td>
+          <td class="text-sm">fabiolpgomes@hotmail.com</td>
+          <td><span class="badge badge-red">Administrador</span></td>
+          <td><span class="badge badge-green">⊙ Todas</span></td>
+          <td><button class="text-gray-400">✏️</button></td>
+        </tr>
+        <tr>
+          <td class="font-medium text-sm text-gray-900">Rosangela Cordeiro</td>
+          <td class="text-sm">rosangelacordeiro_adv@hotmail.com</td>
+          <td><span class="badge badge-red">Administrador</span></td>
+          <td><span class="badge badge-green">⊙ Todas</span></td>
+          <td><button class="text-gray-400">✏️</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+</div>
+
+<!-- ===== PAGE: CONFIGURAÇÃO ===== -->
+<div id="page-configuracao" class="page">
+<main class="max-w-3xl mx-auto px-6 py-8">
+  <h2 class="font-display text-2xl font-bold text-gray-900 mb-2">Definições</h2>
+  <p class="text-sm text-gray-500 mb-6">Gerencie utilizadores, sincronização iCal e exportações</p>
+  <div class="be-card p-5 mb-4">
+    <div class="flex items-center gap-2 mb-4">
+      <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+      <h3 class="font-display text-base font-semibold text-gray-900">Alterar Senha</h3>
+    </div>
+    <div class="space-y-3">
+      <div><label class="text-xs text-gray-500 mb-1 block">Nova Senha</label><input class="input-be" type="password" placeholder="Mínimo 8 caracteres" /></div>
+      <div><label class="text-xs text-gray-500 mb-1 block">Confirmar Nova Senha</label><input class="input-be" type="password" placeholder="Repita a nova senha" /></div>
+      <button class="be-button be-button-primary w-full">🔑 Alterar Senha</button>
+    </div>
+  </div>
+  <div class="be-card p-5 mb-4">
+    <h3 class="font-display text-base font-semibold text-gray-900 mb-4">Gestão de Utilizadores</h3>
+    <button class="be-button be-button-primary mb-4">+ Novo Utilizador</button>
+    <table>
+      <thead><tr><th>Email</th><th>Nome</th><th>Função</th><th>Data Criação</th><th>Ações</th></tr></thead>
+      <tbody>
+        <tr><td class="text-sm">cintiabeirao20@gmail.com</td><td class="text-sm">Cintia beirão</td><td><span class="badge badge-green">Gestor</span></td><td class="text-sm">13/04/2026</td><td class="flex gap-2"><button class="text-gray-400">✏️</button><button class="text-gray-400">🗑</button></td></tr>
+        <tr><td class="text-sm">rosangelacordeiro_adv@hotmail.com</td><td class="text-sm">Rosangela Cordeiro</td><td><span class="badge badge-red">Admin</span></td><td class="text-sm">09/04/2026</td><td class="flex gap-2"><button class="text-gray-400">✏️</button><button class="text-gray-400">🗑</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+</div>
+
+<!-- ===== PAGE: MINHA CONTA ===== -->
+<div id="page-minha-conta" class="page">
+<main class="max-w-2xl mx-auto px-6 py-8">
+  <div class="flex items-center gap-3 mb-6">
+    <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background:#EFF6FF">
+      <svg class="w-7 h-7" style="color:#1E3A8A" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+    </div>
+    <div>
+      <h2 class="font-display text-2xl font-bold text-gray-900">Minha Conta</h2>
+      <p class="text-sm text-gray-500">Gerencie as suas informações pessoais</p>
+    </div>
+  </div>
+  <div class="be-card p-5 mb-4">
+    <h3 class="font-display text-base font-semibold text-gray-900 mb-4">Informações do Perfil</h3>
+    <div class="space-y-3">
+      <div><p class="text-xs text-gray-400 mb-0.5">Nome</p><p class="text-sm font-medium text-gray-900">fabiolpgomes</p></div>
+      <div><p class="text-xs text-gray-400 mb-0.5">Email</p><p class="text-sm font-medium text-gray-900">fabiolpgomes@gmail.com</p></div>
+      <div><p class="text-xs text-gray-400 mb-0.5">Função</p><span class="badge badge-red">Administrador</span></div>
+    </div>
+  </div>
+  <div class="be-card p-5 mb-4">
+    <div class="flex items-center gap-2 mb-4">
+      <svg class="w-5 h-5" style="color:#1E3A8A" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+      <h3 class="font-display text-base font-semibold text-gray-900">Plano e Subscrição</h3>
+    </div>
+    <div class="be-card p-4 mb-3" style="background:#EFF6FF; border-color:#BFDBFE">
+      <p class="text-[10px] font-bold uppercase tracking-wider" style="color:#1E3A8A">Plano Actual</p>
+      <div class="flex items-center justify-between mt-1">
+        <p class="font-display text-xl font-bold" style="color:#1E3A8A">Starter</p>
+        <span class="badge badge-green">Activa</span>
+      </div>
+      <p class="text-sm" style="color:#1E3A8A">Propriedades ilimitadas</p>
+    </div>
+    <div class="space-y-2">
+      <div class="be-card p-3 flex items-center justify-between">
+        <div><p class="font-medium text-sm text-gray-900">Starter ✓</p><p class="text-xs text-gray-400">A partir de 1 unidade</p></div>
+        <span class="kpi-number font-bold text-sm text-gray-900">€9/mês</span>
+      </div>
+      <div class="be-card p-3 flex items-center justify-between">
+        <div><p class="font-medium text-sm text-gray-900">Growth</p><p class="text-xs text-gray-400">A partir de 1 unidade</p></div>
+        <div class="flex items-center gap-2"><span class="kpi-number font-bold text-sm text-gray-900">€14/mês</span><button class="be-button be-button-primary" style="padding:4px 12px; font-size:12px">Upgrade</button></div>
+      </div>
+      <div class="be-card p-3 flex items-center justify-between">
+        <div><p class="font-medium text-sm text-gray-900">Pro</p><p class="text-xs text-gray-400">A partir de 1 unidade</p></div>
+        <div class="flex items-center gap-2"><span class="kpi-number font-bold text-sm text-gray-900">€19/mês</span><button class="be-button be-button-primary" style="padding:4px 12px; font-size:12px">Upgrade</button></div>
+      </div>
+    </div>
+    <a href="#" class="flex items-center gap-2 mt-3 text-sm" style="color:#1E3A8A">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+      Gerir faturação, faturas e cancelamento
+    </a>
+  </div>
+  <div class="be-card p-5">
+    <div class="flex items-center gap-2 mb-4">
+      <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+      <h3 class="font-display text-base font-semibold text-gray-900">Alterar Senha</h3>
+    </div>
+    <div class="space-y-3">
+      <div><label class="text-xs text-gray-500 mb-1 block">Nova Senha</label><input class="input-be" type="password" placeholder="Mínimo 8 caracteres" /><p class="text-xs text-gray-400 mt-1">Mínimo 8 caracteres, 1 letra maiúscula, 1 número</p></div>
+      <div><label class="text-xs text-gray-500 mb-1 block">Confirmar Nova Senha</label><input class="input-be" type="password" placeholder="Repita a nova senha" /></div>
+      <button class="be-button be-button-primary w-full">🔑 Alterar Senha</button>
+    </div>
+  </div>
+</main>
+</div>
+
+<!-- Footer -->
+<footer style="background:#030447; padding: 16px 24px; margin-top: 48px; border-top: 2px solid #C5A059;">
+  <p style="font-family: monospace; font-size: 9px; letter-spacing: 0.15em; color: #94a3b8; text-transform: uppercase;">
+    Lodgra v2.0 &nbsp;·&nbsp; Design System Prototype &nbsp;·&nbsp; Behance Aesthetic &nbsp;·&nbsp; Space Grotesk + Inter
+  </p>
+</footer>
+
+<script>
+    document.querySelectorAll('.page-tab').forEach(t => t.classList.remove('active'));
+  function showPage(pageId, btn) {
+    // Hide all pages
+    const pages = document.querySelectorAll('.page');
+    pages.forEach(p => p.classList.remove('active'));
+    
+    // Show selected page
+    const target = document.getElementById('page-' + pageId);
+    if (target) target.classList.add('active');
+    
+    // Update sidebar items
+    const items = document.querySelectorAll('.sidebar-item');
+    items.forEach(i => i.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    
+    // Update TopBar title
+    const titleDisplay = document.getElementById('page-title-display');
+    if (titleDisplay) {
+      const titles = {
+        'dashboard': 'Performance Dashboard',
+        'reservas': 'Gestão de Reservas',
+        'propriedades': 'Inventário de Imóveis',
+        'despesas': 'Controlo de Custos',
+        'financeiro': 'Análise de Lucro',
+        'calendario': 'Calendário Unificado',
+        'relatorios': 'Relatórios Executivos',
+        'proprietarios': 'Gestão de Donos',
+        'utilizadores': 'Controlo de Acessos',
+        'configuracao': 'Definições do Sistema',
+        'minha-conta': 'Perfil do Utilizador'
+      };
+      titleDisplay.textContent = titles[pageId] || pageId.toUpperCase();
+    }
+    
+    // Scroll to top
+    window.scrollTo(0, 0);
+  }
+
+  function renderCharts() {
+    const occ = document.getElementById('occupancyChart');
+    const rev = document.getElementById('revenueChart');
+    const sta = document.getElementById('statusChart');
+    if (occ._chart) occ._chart.destroy();
+    if (rev._chart) rev._chart.destroy();
+    if (sta._chart) sta._chart.destroy();
+
+    occ._chart = new Chart(occ, {
+      type: 'bar',
+      data: {
+        labels: ['Dez', 'Jan', 'Fev', 'Mar', 'Abr', 'Mai'],
+        datasets: [{ data: [0, 0, 0, 12, 22, 28], backgroundColor: '#1E3A8A', borderRadius: 3, borderSkipped: false }]
+      },
+      options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { min:0, max:100, ticks: { callback: v => v+'%', font:{size:10} }, grid:{color:'#f3f4f6'} }, x: { ticks:{font:{size:10}}, grid:{display:false} } } }
+    });
+
+    rev._chart = new Chart(rev, {
+      type: 'line',
+      data: {
+        labels: ['Mar', 'Abr', 'Mai'],
+        datasets: [
+          { label:'EUR', data:[800,600,2495], borderColor:'#1E3A8A', backgroundColor:'rgba(30,58,138,0.07)', borderWidth:2, fill:true, tension:0.4, pointRadius:4, pointBackgroundColor:'#1E3A8A' },
+          { label:'BRL', data:[4000,9000,17230], borderColor:'#059669', backgroundColor:'rgba(5,150,105,0.07)', borderWidth:2, fill:true, tension:0.4, pointRadius:4, pointBackgroundColor:'#059669' }
+        ]
+      },
+      options: { responsive: true, plugins: { legend:{display:false} }, scales: { y:{ticks:{font:{size:10}},grid:{color:'#f3f4f6'}}, x:{ticks:{font:{size:10}},grid:{display:false}} } }
+    });
+
+    sta._chart = new Chart(sta, {
+      type: 'doughnut',
+      data: {
+        labels: ['Confirmadas','Pendentes','Canceladas'],
+        datasets: [{ data:[50,5,2], backgroundColor:['#059669','#ffc000','#dc2626'], borderWidth:0, hoverOffset:4 }]
+      },
+      options: { responsive:false, cutout:'68%', plugins:{legend:{display:false}} }
+    });
+  }
+
+  renderCharts();
+</script>
+</body>
+</html>

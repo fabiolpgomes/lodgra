@@ -15,21 +15,21 @@ export function ProfitCard({ revenue, expenses, currency }: ProfitCardProps) {
   const isProfit = profit >= 0
 
   return (
-    <div className="bg-white rounded-lg shadow p-4 sm:p-6">
+    <div className="bg-white border border-lodgra-blue/10 p-4 sm:p-6 rounded-none">
       <div className="flex items-center justify-between mb-4">
-        <div className="p-3 bg-blue-100 rounded-lg">
-          <DollarSign className="h-6 w-6 text-blue-600" />
+        <div className="p-3 bg-lodgra-blue/5 rounded-none">
+          <DollarSign className="h-6 w-6 text-lodgra-blue" />
         </div>
-        <span className="text-sm text-gray-500">Lucro</span>
+        <span className="text-[10px] font-black uppercase tracking-widest text-lodgra-navy/30 font-display">Lucro</span>
       </div>
       
       <div className="space-y-3">
         {/* Lucro Líquido */}
         <div>
-          <h3 className={`text-3xl font-bold ${isProfit ? 'text-green-600' : 'text-red-600'}`}>
+          <h3 className={`text-3xl font-black font-display ${isProfit ? 'text-lodgra-blue' : 'text-red-600'}`}>
             {formatCurrency(profit, currency as CurrencyCode)}
           </h3>
-          <p className="text-sm text-gray-600 mt-1">Lucro Líquido</p>
+          <p className="text-[10px] font-black uppercase tracking-wider text-lodgra-navy/30 mt-1">Lucro Líquido</p>
         </div>
 
         {/* Detalhamento */}

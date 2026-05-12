@@ -1,0 +1,59 @@
+'use client'
+
+import { usePathname } from 'next/navigation'
+import { Bell, Search } from 'lucide-react'
+
+const PATH_LABELS: Record<string, string> = {
+  '/': 'Dashboard',
+  '/properties': 'Propriedades',
+  '/reservations': 'Reservas',
+  '/expenses': 'Despesas',
+  '/financial': 'Financeiro',
+  '/calendar': 'Calendário',
+  '/reports': 'Relatórios',
+  '/owners': 'Proprietários',
+  '/sync': 'Sincronização',
+  '/settings': 'Definições',
+  '/admin/users': 'Utilizadores',
+}
+
+function getPageTitle(pathname: string): string {
+  // Strip locale prefix (e.g. /pt, /en, /es)
+  const withoutLocale = pathname.replace(/^\/[a-z]{2}(\/|$)/, '/')
+  const normalized = withoutLocale === '' ? '/' : withoutLocale
+
+  // Exact match first
+  if (PATH_LABELS[normalized]) return PATH_LABELS[normalized]
+
+  // Prefix match (e.g. /properties/123 → Propriedades)
+  for (const [key, label] of Object.entries(PATH_LABELS)) {
+    if (key !== '/' && normalized.startsWith(key)) return label
+  }
+
+  return ''
+}
+
+export function TopBar() {
+  const pathname = usePathname()
+  const title = getPageTitle(pathname)
+
+  return (
+    <header className="hidden md:flex items-center justify-between h-[64px] px-8 bg-white border-b border-[#1E3A8A]/10 sticky top-0 z-30">
+      <h1 className="text-[13px] font-black text-[#1E3A8A] uppercase tracking-[1.5px] font-[family-name:var(--font-hanken-grotesk)]">{title}</h1>
+
+      <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 mr-4 px-3 py-1.5 bg-[#f8f8f8] border border-[#1E3A8A]/5">
+           <Search className="h-4 w-4 text-[#1E3A8A]/40" />
+           <span className="text-[11px] font-bold text-[#1E3A8A]/30 uppercase tracking-[1px] font-[family-name:var(--font-hanken-grotesk)]">Pesquisar...</span>
+        </div>
+        
+        <button
+          className="p-2 text-[#1E3A8A]/40 hover:text-[#1E3A8A] hover:bg-[#1E3A8A]/5 transition-all"
+          aria-label="Notificações"
+        >
+          <Bell className="h-4 w-4" />
+        </button>
+      </div>
+    </header>
+  )
+}

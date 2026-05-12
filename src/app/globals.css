@@ -296,4 +296,32 @@
     transform: translateY(-2px);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.09), 0 2px 8px rgba(0, 0, 0, 0.05);
   }
+
+  /* Lodgra Behance Design System — be-card */
+  .be-card {
+    background: #ffffff;
+    border-radius: 0px;
+    border: 1px solid #e5e7eb;
+    transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .be-card-hover:hover {
+    border-color: rgba(30, 58, 138, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(30, 58, 138, 0.12);
+  }
+  .be-icon {
+    border-radius: 0px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+}
+@layer base {
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-hanken-grotesk), sans-serif;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
 }

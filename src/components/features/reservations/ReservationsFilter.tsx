@@ -125,21 +125,21 @@ export function ReservationsFilter({ reservations, canCreate, pagination, curren
       )}
 
       {/* Search + Filters */}
-      <div className="bg-white rounded-lg shadow p-4 mb-6">
+      <div className="be-card p-4 mb-6">
         <div className="flex flex-col gap-4">
           {/* Row 1: Search and Property Filter */}
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
                 placeholder="Pesquisar por hóspede ou propriedade..."
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                className="pl-9"
+                className="pl-9 rounded"
               />
             </div>
             <Select value={propertyFilter} onValueChange={setPropertyFilter}>
-              <SelectTrigger className="w-full sm:w-48">
+              <SelectTrigger className="w-full sm:w-52 rounded">
                 <SelectValue placeholder="Propriedade" />
               </SelectTrigger>
               <SelectContent>
@@ -151,19 +151,21 @@ export function ReservationsFilter({ reservations, canCreate, pagination, curren
             </Select>
           </div>
 
-          {/* Row 2: Status Filters */}
+          {/* Row 2: Status Filters — pill tabs */}
           <div className="flex items-center gap-2 flex-wrap">
-            <Filter className="h-5 w-5 text-gray-400 shrink-0" />
+            <Filter className="h-4 w-4 text-gray-400 shrink-0" />
             {STATUS_FILTERS.map(f => (
-              <Button
+              <button
                 key={f.value}
-                size="sm"
-                variant={statusFilter === f.value ? 'default' : 'ghost'}
-                className={statusFilter === f.value ? 'bg-blue-600 text-white hover:bg-blue-700' : 'text-gray-600'}
                 onClick={() => setStatusFilter(f.value)}
+                className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors ${
+                  statusFilter === f.value
+                    ? 'bg-[#1E3A8A] text-white'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
               >
                 {f.label}
-              </Button>
+              </button>
             ))}
           </div>
         </div>
@@ -220,28 +222,28 @@ export function ReservationsFilter({ reservations, canCreate, pagination, curren
             )}
           </div>
 
-          {/* Tablet+: tabela */}
-          <div className="hidden sm:block bg-white rounded-lg shadow overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Propriedade</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hóspede</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Check-in</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Check-out</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Valor</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+          {/* Tablet+: tabela Behance */}
+          <div className="hidden sm:block be-card overflow-x-auto">
+            <table className="min-w-full">
+              <thead>
+                <tr className="border-b border-gray-200">
+                  <th className="px-5 py-3 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Propriedade</th>
+                  <th className="px-5 py-3 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Hóspede</th>
+                  <th className="px-5 py-3 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Check-in</th>
+                  <th className="px-5 py-3 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Check-out</th>
+                  <th className="px-5 py-3 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Status</th>
+                  <th className="px-5 py-3 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Valor</th>
+                  <th className="px-5 py-3 text-right text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Ações</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="divide-y divide-gray-100">
                 {filtered.map(r => (
                   <ReservationRow key={r.id} reservation={r} />
                 ))}
               </tbody>
             </table>
             {filtered.length < reservations.length && (
-              <div className="px-6 py-3 bg-gray-50 text-sm text-gray-500 border-t">
+              <div className="px-5 py-3 text-xs text-gray-400 border-t border-gray-100">
                 Mostrando {filtered.length} de {reservations.length} reservas nesta página
               </div>
             )}

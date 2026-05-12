@@ -75,42 +75,42 @@ export function FinancialOverviewCharts({ monthlyStats, propertyStats, currency 
     <div className="space-y-8 animate-fade-in pb-12">
       {/* High Level Insights - The "UAU" Factor */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-gradient-to-br from-lodgra-blue to-blue-900 rounded-[28px] p-6 text-white shadow-lg relative overflow-hidden group">
-          <div className="absolute -right-4 -top-4 w-24 h-24 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700" />
-          <p className="text-white/70 text-sm font-bold uppercase tracking-wider mb-2">Faturamento Total</p>
-          <h2 className="text-3xl font-black mb-4">
+        <div className="bg-lodgra-blue p-6 text-white relative overflow-hidden group border border-white/10 rounded-none">
+          <div className="absolute -right-4 -top-4 w-24 h-24 bg-white/5 rounded-none" />
+          <p className="text-white/60 text-[11px] font-black uppercase tracking-wider mb-2 font-display">Faturamento Total</p>
+          <h2 className="text-3xl font-black mb-4 font-display">
             {formatCurrency(totals.revenue, currencyCode)}
           </h2>
-          <div className="flex items-center gap-2 bg-white/20 w-fit px-3 py-1 rounded-full text-xs font-bold">
+          <div className="flex items-center gap-2 bg-white/10 w-fit px-3 py-1 rounded-none text-[10px] font-black uppercase tracking-widest border border-white/10">
             <ArrowUpRight className="h-3 w-3" /> +14.5% vs ano ant.
           </div>
         </div>
 
-        <div className="bg-white rounded-[28px] p-6 border border-gray-100 shadow-sm relative group">
-          <p className="text-gray-500 text-sm font-bold uppercase tracking-wider mb-2">Sua Comissão (EBITDA)</p>
-          <h2 className="text-3xl font-black text-lodgra-blue mb-4">
+        <div className="bg-white p-6 border border-lodgra-blue/10 relative group rounded-none">
+          <p className="text-lodgra-navy/50 text-[11px] font-black uppercase tracking-wider mb-2 font-display">Sua Comissão (EBITDA)</p>
+          <h2 className="text-3xl font-black text-lodgra-blue mb-4 font-display">
             {formatCurrency(totals.mgmt, currencyCode)}
           </h2>
-          <div className="flex items-center gap-2 text-lodgra-blue font-bold text-sm">
-            <div className="w-8 h-1.5 bg-lodgra-gold rounded-full" /> 
+          <div className="flex items-center gap-2 text-lodgra-blue font-black text-[10px] uppercase tracking-widest">
+            <div className="w-6 h-1 bg-lodgra-gold rounded-none" /> 
             MARGEM {((totals.mgmt / totals.revenue) * 100).toFixed(0)}%
           </div>
         </div>
 
-        <div className="bg-white rounded-[28px] p-6 border border-gray-100 shadow-sm relative group">
-          <p className="text-gray-500 text-sm font-bold uppercase tracking-wider mb-2">Repasse Proprietários</p>
-          <h2 className="text-3xl font-black text-lodgra-gold mb-4">
+        <div className="bg-white p-6 border border-lodgra-blue/10 relative group rounded-none">
+          <p className="text-lodgra-navy/50 text-[11px] font-black uppercase tracking-wider mb-2 font-display">Repasse Proprietários</p>
+          <h2 className="text-3xl font-black text-lodgra-gold mb-4 font-display">
             {formatCurrency(totals.owner, currencyCode)}
           </h2>
-          <p className="text-xs text-lodgra-dark/60 font-medium">Líquido a ser repassado este mês</p>
+          <p className="text-[10px] text-lodgra-navy/40 font-black uppercase tracking-wider">Líquido a ser repassado este mês</p>
         </div>
 
-        <div className="bg-lodgra-gray rounded-[28px] p-6 border border-zinc-200 relative group">
-          <p className="text-lodgra-blue/70 text-sm font-bold uppercase tracking-wider mb-2">Taxa de Ocupação</p>
-          <h2 className="text-4xl font-black text-lodgra-blue mb-2">
+        <div className="bg-lodgra-neutral-50 p-6 border border-lodgra-blue/10 relative group rounded-none">
+          <p className="text-lodgra-blue/40 text-[11px] font-black uppercase tracking-wider mb-2 font-display">Taxa de Ocupação</p>
+          <h2 className="text-4xl font-black text-lodgra-blue mb-2 font-display">
             {totals.occupancy.toFixed(0)}%
           </h2>
-          <div className="w-full bg-gray-200 h-2 rounded-full mt-4 overflow-hidden">
+          <div className="w-full bg-lodgra-blue/5 h-1.5 rounded-none mt-4 overflow-hidden">
             <div 
               className="h-full bg-lodgra-blue transition-all duration-1000" 
               style={{ width: `${totals.occupancy}%` }} 
@@ -122,20 +122,20 @@ export function FinancialOverviewCharts({ monthlyStats, propertyStats, currency 
       {/* Main Visual Panels */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Chart - Revenue vs Expenses */}
-        <div className="lg:col-span-2 bg-white rounded-[32px] shadow-sm border border-gray-100 p-8">
+        <div className="lg:col-span-2 bg-white border border-lodgra-blue/10 p-8 rounded-none">
           <div className="flex items-center justify-between mb-10">
             <div>
-              <h4 className="text-lg font-bold text-lodgra-blue">Fluxo de Caixa Mensal</h4>
-              <p className="text-sm text-gray-500 font-medium pt-1">Receita vs Lucro Operacional</p>
+              <h4 className="text-sm font-black text-lodgra-blue uppercase tracking-widest font-display">Fluxo de Caixa Mensal</h4>
+              <p className="text-[10px] text-lodgra-navy/40 font-black uppercase tracking-[2px] pt-1">Receita vs Lucro Operacional</p>
             </div>
             <div className="flex gap-6">
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-lodgra-blue" />
-                <span className="text-xs font-bold text-gray-400">RECEITA</span>
+                <div className="w-2 h-2 rounded-none bg-lodgra-blue" />
+                <span className="text-[10px] font-black text-lodgra-navy/30 uppercase tracking-widest">RECEITA</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-lodgra-gold" />
-                <span className="text-xs font-bold text-gray-400">LUCRO</span>
+                <div className="w-2 h-2 rounded-none bg-lodgra-gold" />
+                <span className="text-[10px] font-black text-lodgra-navy/30 uppercase tracking-widest">LUCRO</span>
               </div>
             </div>
           </div>
@@ -193,8 +193,8 @@ export function FinancialOverviewCharts({ monthlyStats, propertyStats, currency 
         </div>
 
         {/* Distribution - Revenue By Property */}
-        <div className="bg-white rounded-[32px] shadow-sm border border-gray-100 p-8">
-          <h4 className="text-lg font-bold text-lodgra-blue mb-8">Participação por Unidade</h4>
+        <div className="bg-white border border-lodgra-blue/10 p-8 rounded-none">
+          <h4 className="text-sm font-black text-lodgra-blue uppercase tracking-widest font-display mb-8">Participação por Unidade</h4>
           <div className="h-[260px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>

@@ -540,17 +540,17 @@ export function LandingPage() {
 
       {/* ── Nav ──────────────────────────────────────────────────────────────── */}
       <nav className={`sticky top-0 z-50 bg-white/95 backdrop-blur transition-shadow ${scrolled ? 'shadow-sm' : ''}`}>
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           <div className="sm:hidden"><Logo variant="default" size="sm" /></div>
           <div className="hidden sm:block"><Logo variant="default" size="md" /></div>
-          <div className="flex items-center gap-2 sm:gap-3">
-            <div className="flex items-center bg-lodgra-neutral-100 rounded-lg p-0.5 sm:p-1 gap-0.5 sm:gap-1">
+          <div className="flex items-center gap-2 sm:gap-4">
+            <div className="flex items-center bg-lodgra-neutral-100 rounded-none p-1 gap-1">
               {(['PT', 'BR', 'US'] as const).map(m => (
                 <button
                   key={m}
                   onClick={() => setMarket(m)}
-                  className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-md text-sm font-medium transition-all ${
-                    market === m ? 'bg-white text-lodgra-neutral-900 shadow-sm' : 'text-lodgra-neutral-500 hover:text-lodgra-neutral-700'
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-none text-[11px] font-black uppercase tracking-wider transition-all ${
+                    market === m ? 'bg-white text-lodgra-navy shadow-sm' : 'text-lodgra-neutral-500 hover:text-lodgra-neutral-700'
                   }`}
                 >
                   <span>{CONTENT[m].flag}</span>
@@ -558,10 +558,10 @@ export function LandingPage() {
                 </button>
               ))}
             </div>
-            <Link href="/login" className="text-sm text-lodgra-neutral-500 hover:text-lodgra-neutral-900 transition-colors">
+            <Link href="/login" className="text-[11px] font-black uppercase tracking-widest text-lodgra-navy hover:text-lodgra-blue transition-colors">
               {c.nav}
             </Link>
-            <Button asChild size="sm" className="bg-lodgra-cta-bg hover:bg-lodgra-cta-bg-hover text-white border-0">
+            <Button asChild size="sm" className="bg-lodgra-blue hover:bg-lodgra-navy text-white border-0 rounded-none h-11 px-6 font-black uppercase tracking-widest text-[11px]">
               <Link href="/register">{c.cta}</Link>
             </Button>
           </div>
@@ -570,14 +570,14 @@ export function LandingPage() {
 
       {/* ── PWA Banner (Safari Mobile) ────────────────────────────────────────── */}
       {showPwaBanner && (
-        <div className="fixed bottom-0 left-0 right-0 z-40 bg-lodgra-brand-500 border-t border-lodgra-brand-600 shadow-lg animate-in slide-in-from-bottom-2">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
-            <div className="flex items-start sm:items-center justify-between gap-3">
+        <div className="fixed bottom-0 left-0 right-0 z-[60] bg-lodgra-navy border-t border-lodgra-gold/30 shadow-2xl animate-in slide-in-from-bottom-2">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div className="flex items-start sm:items-center justify-between gap-4">
               <div className="flex-1">
-                <h3 className="text-sm sm:text-base font-semibold text-white mb-1">
+                <h3 className="text-sm font-black text-lodgra-gold uppercase tracking-wider mb-0.5 font-display">
                   {c.pwaBannerTitle}
                 </h3>
-                <p className="text-xs sm:text-sm text-lodgra-brand-100">
+                <p className="text-xs text-white/60 font-medium">
                   {c.pwaBannerDesc}
                 </p>
               </div>
@@ -611,55 +611,55 @@ export function LandingPage() {
       )}
 
       {/* ── Hero ─────────────────────────────────────────────────────────────── */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-28 text-center">
-        <div className="inline-flex items-center gap-2 bg-lodgra-brand-50 text-lodgra-brand-700 text-sm font-medium px-4 py-1.5 rounded-full mb-6">
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-32 text-center">
+        <div className="inline-flex items-center gap-2 bg-lodgra-gold text-lodgra-navy text-[11px] font-black uppercase tracking-[2px] px-6 py-2 rounded-none mb-10 shadow-sm">
           <Shield className="h-4 w-4" />
           {c.heroBadge}
         </div>
-        <h1 className="text-5xl sm:text-7xl font-extrabold text-lodgra-neutral-900 mb-6 leading-tight max-w-4xl mx-auto">
+        <h1 className="text-5xl sm:text-7xl font-black text-lodgra-navy mb-8 leading-[1.1] max-w-5xl mx-auto font-display uppercase tracking-tighter">
           {c.headline}
         </h1>
-        <p className="text-xl text-lodgra-neutral-500 max-w-2xl mx-auto mb-10">
+        <p className="text-xl text-lodgra-neutral-500 max-w-3xl mx-auto mb-12 font-medium">
           {c.subheadline}
         </p>
-        <form onSubmit={handleCheckout} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto mb-3">
+        <form onSubmit={handleCheckout} className="flex flex-col sm:flex-row gap-0 max-w-lg mx-auto mb-4 border border-lodgra-navy/10 p-1 bg-white">
           <Input
             type="email"
             value={email}
             onChange={e => setEmail(e.target.value)}
             placeholder={c.emailPlaceholder}
             required
-            className="flex-1"
+            className="flex-1 border-0 rounded-none h-14 px-6 text-base focus-visible:ring-0"
           />
-          <Button type="submit" className="whitespace-nowrap bg-lodgra-cta-bg hover:bg-lodgra-cta-bg-hover text-white border-0">
-            <>{c.cta} <ArrowRight className="h-4 w-4 ml-1" /></>
+          <Button type="submit" className="whitespace-nowrap bg-lodgra-blue hover:bg-lodgra-navy text-white border-0 rounded-none h-14 px-10 font-black uppercase tracking-widest text-xs">
+            <>{c.cta} <ArrowRight className="h-4 w-4 ml-2" /></>
           </Button>
         </form>
-        <p className="text-xs text-lodgra-neutral-500">{c.ctaSub}</p>
+        <p className="text-[10px] font-bold uppercase tracking-widest text-lodgra-neutral-400">{c.ctaSub}</p>
 
         {/* Trust row */}
-        <div className="flex flex-wrap items-center justify-center gap-6 mt-10 text-sm text-lodgra-neutral-500">
-          <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-lodgra-success" /> {c.trustSync}</span>
-          <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-lodgra-success" /> {c.trustCurrencies}</span>
-          <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-lodgra-success" /> {c.trustOverbookings}</span>
-          <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-lodgra-success" /> {c.trustCancel}</span>
+        <div className="flex flex-wrap items-center justify-center gap-8 mt-16 text-[11px] font-black uppercase tracking-widest text-lodgra-navy/40">
+          <span className="flex items-center gap-2"><Check className="h-4 w-4 text-lodgra-success" /> {c.trustSync}</span>
+          <span className="flex items-center gap-2"><Check className="h-4 w-4 text-lodgra-success" /> {c.trustCurrencies}</span>
+          <span className="flex items-center gap-2"><Check className="h-4 w-4 text-lodgra-success" /> {c.trustOverbookings}</span>
+          <span className="flex items-center gap-2"><Check className="h-4 w-4 text-lodgra-success" /> {c.trustCancel}</span>
         </div>
       </section>
 
       {/* ── Pain ─────────────────────────────────────────────────────────────── */}
-      <section className="bg-lodgra-accent-50 py-24">
+      <section className="bg-lodgra-neutral-100 py-32 border-y border-lodgra-navy/5">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-extrabold text-lodgra-neutral-900 text-center mb-12">
+          <h2 className="text-3xl font-black text-lodgra-navy text-center mb-16 font-display uppercase tracking-wider">
             {c.painTitle}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {c.pains.map(pain => (
-              <div key={pain.title} className="bg-white border border-lodgra-accent-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex items-start gap-3">
-                  <span className="text-lodgra-accent-500 text-xl mt-0.5 shrink-0">⚠</span>
+              <div key={pain.title} className="bg-white border border-lodgra-navy/10 rounded-none p-8 shadow-none hover:border-lodgra-gold/50 transition-all group">
+                <div className="flex items-start gap-4">
+                  <span className="text-lodgra-gold text-2xl font-black mt-[-2px] shrink-0">!</span>
                   <div>
-                    <h3 className="font-semibold text-lodgra-neutral-900 mb-2">{pain.title}</h3>
-                    <p className="text-sm text-lodgra-neutral-500 leading-relaxed">{pain.desc}</p>
+                    <h3 className="font-black text-lodgra-navy mb-3 uppercase tracking-wider text-sm font-display">{pain.title}</h3>
+                    <p className="text-xs text-lodgra-neutral-500 leading-relaxed font-medium">{pain.desc}</p>
                   </div>
                 </div>
               </div>
@@ -669,30 +669,30 @@ export function LandingPage() {
       </section>
 
       {/* ── Solution intro ───────────────────────────────────────────────────── */}
-      <section className="bg-lodgra-brand-50 py-24">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-lodgra-neutral-900 mb-4">
+      <section className="bg-lodgra-navy py-32">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-4xl sm:text-5xl font-black text-white mb-6 font-display uppercase tracking-wider">
             {c.solutionTitle}
           </h2>
-          <p className="text-lg text-lodgra-neutral-500 leading-relaxed">{c.solutionDesc}</p>
+          <p className="text-xl text-white/60 leading-relaxed font-medium">{c.solutionDesc}</p>
         </div>
       </section>
 
       {/* ── Features ─────────────────────────────────────────────────────────── */}
-      <section id="features" className="py-24 bg-lodgra-neutral-50/50">
+      <section id="features" className="py-32 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-14">
-            <h2 className="text-3xl font-extrabold text-lodgra-neutral-900 mb-4">{c.sectionFeaturesTitle}</h2>
-            <p className="text-lodgra-neutral-500 text-lg max-w-xl mx-auto">{c.sectionFeaturesDesc}</p>
+          <div className="text-center mb-20">
+            <h2 className="text-4xl font-black text-lodgra-navy mb-4 font-display uppercase tracking-wider">{c.sectionFeaturesTitle}</h2>
+            <p className="text-lodgra-neutral-500 text-xl max-w-2xl mx-auto font-medium">{c.sectionFeaturesDesc}</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-0 border-t border-l border-lodgra-navy/10">
             {c.featureCards.map(({ icon: Icon, title, desc }) => (
-              <div key={title} className="bg-white rounded-2xl p-6 shadow-sm border border-lodgra-border-subtle hover:shadow-lg hover:border-lodgra-brand-200 transition-all duration-300">
-                <div className="p-4 bg-gradient-to-br from-lodgra-brand-100 to-lodgra-brand-50 rounded-xl inline-flex mb-4">
-                  <Icon className="h-6 w-6 text-lodgra-primary" />
+              <div key={title} className="bg-white p-10 border-r border-b border-lodgra-navy/10 hover:bg-lodgra-neutral-50 transition-all group">
+                <div className="w-12 h-12 bg-lodgra-navy flex items-center justify-center mb-6 group-hover:bg-lodgra-gold transition-colors">
+                  <Icon className="h-6 w-6 text-white group-hover:text-lodgra-navy" />
                 </div>
-                <h3 className="font-semibold text-lodgra-neutral-900 mb-2 text-sm">{title}</h3>
-                <p className="text-xs text-lodgra-neutral-500 leading-relaxed">{desc}</p>
+                <h3 className="font-black text-lodgra-navy mb-3 text-xs uppercase tracking-widest font-display">{title}</h3>
+                <p className="text-[11px] text-lodgra-neutral-500 leading-relaxed font-semibold uppercase">{desc}</p>
               </div>
             ))}
           </div>
@@ -708,7 +708,7 @@ export function LandingPage() {
             <div className="hidden md:block absolute top-8 left-1/3 right-1/3 h-1 bg-gradient-to-r from-lodgra-brand-200 via-lodgra-brand-400 to-lodgra-brand-200 z-0 rounded-full" />
             {c.steps.map(step => (
               <div key={step.num} className="text-center relative z-10">
-                <div className="w-16 h-16 bg-gradient-to-br from-lodgra-brand-500 to-lodgra-brand-600 text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-5 shadow-lg">
+                <div className="w-16 h-16 bg-gradient-to-br from-lodgra-brand-500 to-lodgra-brand-600 text-white rounded-none flex items-center justify-center text-2xl font-extrabold mx-auto mb-5 shadow-lg">
                   {step.num}
                 </div>
                 <h3 className="font-bold text-lodgra-neutral-900 text-lg mb-2">{step.title}</h3>
@@ -739,8 +739,8 @@ export function LandingPage() {
           <h2 className="text-3xl font-extrabold text-lodgra-neutral-900 text-center mb-12">{c.segmentsTitle}</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {c.segments.map(({ icon: Icon, title, desc }) => (
-              <div key={title} className="border border-lodgra-border-subtle rounded-2xl p-8 hover:border-lodgra-brand-400 hover:shadow-xl hover:shadow-lodgra-brand-500/10 transition-all duration-300 group">
-                <div className="p-4 bg-gradient-to-br from-lodgra-brand-100 to-lodgra-brand-50 rounded-xl inline-flex mb-5 group-hover:scale-110 transition-transform duration-300">
+              <div key={title} className="border border-lodgra-border-subtle rounded-none p-8 hover:border-lodgra-brand-400 hover:shadow-xl hover:shadow-lodgra-brand-500/10 transition-all duration-300 group">
+                <div className="p-4 bg-gradient-to-br from-lodgra-brand-100 to-lodgra-brand-50 rounded-none inline-flex mb-5 group-hover:scale-110 transition-transform duration-300">
                   <Icon className="h-7 w-7 text-lodgra-primary" />
                 </div>
                 <h3 className="font-bold text-lodgra-neutral-900 text-lg mb-3">{title}</h3>
@@ -755,7 +755,7 @@ export function LandingPage() {
       <section className="bg-gradient-to-b from-lodgra-neutral-100 to-white py-24">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-extrabold text-lodgra-neutral-900 text-center mb-12">{c.compareTitle}</h2>
-          <div className="overflow-x-auto rounded-2xl shadow-lg border border-lodgra-border-subtle">
+          <div className="overflow-x-auto rounded-none shadow-lg border border-lodgra-border-subtle">
             <table className="w-full bg-white text-sm">
               <thead>
                 <tr className="border-b border-lodgra-border-subtle bg-gradient-to-r from-lodgra-brand-500 to-lodgra-brand-600">
@@ -797,20 +797,18 @@ export function LandingPage() {
       <section className="py-24">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-extrabold text-lodgra-neutral-900 text-center mb-12">{c.faqTitle}</h2>
-          <div className="space-y-3">
+          <div className="space-y-1">
             {c.faqs.map((faq, i) => (
-              <div key={i} className="border border-lodgra-border-subtle rounded-xl overflow-hidden bg-white">
+              <div key={i} className="border border-lodgra-navy/10 rounded-none bg-white">
                 <button
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                  className="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-lodgra-neutral-50 transition-colors"
+                  className="w-full flex items-center justify-between px-8 py-6 text-left hover:bg-lodgra-neutral-50 transition-colors"
                 >
-                  <span className="font-medium text-lodgra-neutral-900 pr-4">{faq.q}</span>
-                  <ChevronDown
-                    className={`h-5 w-5 text-lodgra-neutral-500 shrink-0 transition-transform ${openFaq === i ? 'rotate-180' : ''}`}
-                  />
+                  <span className="font-black text-lodgra-navy uppercase tracking-wider text-sm font-display">{faq.q}</span>
+                  <ChevronDown className={`h-5 w-5 text-lodgra-navy/40 transition-transform ${openFaq === i ? 'rotate-180' : ''}`} />
                 </button>
                 {openFaq === i && (
-                  <div className="px-6 pb-5 text-lodgra-neutral-500 leading-relaxed border-t border-lodgra-border-subtle pt-4">
+                  <div className="px-8 pb-6 text-sm text-lodgra-neutral-500 font-medium leading-relaxed border-t border-lodgra-navy/5 pt-4">
                     {faq.a}
                   </div>
                 )}
@@ -821,136 +819,88 @@ export function LandingPage() {
       </section>
 
       {/* ── PWA Install ────────────────────────────────────────────────────── */}
-      <section id="pwa-install" className="bg-lodgra-brand-50 py-24">
+      <section id="pwa-install" className="bg-lodgra-navy py-32 border-y border-white/5">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center justify-center w-14 h-14 bg-lodgra-brand-100 rounded-2xl mb-4">
-              <Smartphone className="h-7 w-7 text-lodgra-primary" />
+          <div className="text-center mb-20">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-lodgra-gold rounded-none mb-6">
+              <Smartphone className="h-8 w-8 text-lodgra-navy" />
             </div>
-            <h2 className="text-3xl font-extrabold text-lodgra-neutral-900 mb-3">{c.pwaTitle}</h2>
-            <p className="text-lodgra-neutral-500 text-lg max-w-xl mx-auto">{c.pwaDesc}</p>
+            <h2 className="text-4xl font-black text-white mb-4 font-display uppercase tracking-wider">{c.pwaTitle}</h2>
+            <p className="text-white/60 text-xl max-w-xl mx-auto font-medium">{c.pwaDesc}</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-0 border border-white/10">
             {c.pwaSteps.map((step, i) => (
-              <div key={i} className="bg-white rounded-xl p-6 shadow-sm border border-lodgra-border-subtle text-center">
-                <div className="inline-flex items-center justify-center w-12 h-12 bg-lodgra-brand-50 rounded-xl mb-4">
-                  {step.icon === 'globe' && <Globe className="h-6 w-6 text-lodgra-primary" />}
-                  {step.icon === 'share' && <Share className="h-6 w-6 text-lodgra-primary" />}
-                  {step.icon === 'plus' && <PlusSquare className="h-6 w-6 text-lodgra-primary" />}
+              <div key={i} className="bg-white/5 p-10 text-center border-r border-white/10 last:border-r-0 hover:bg-white/10 transition-colors">
+                <div className="inline-flex items-center justify-center w-12 h-12 bg-lodgra-gold rounded-none mb-6">
+                  {step.icon === 'globe' && <Globe className="h-6 w-6 text-lodgra-navy" />}
+                  {step.icon === 'share' && <Share className="h-6 w-6 text-lodgra-navy" />}
+                  {step.icon === 'plus' && <PlusSquare className="h-6 w-6 text-lodgra-navy" />}
                 </div>
-                <div className="text-sm font-bold text-lodgra-primary mb-1">
-                  {i + 1}.
+                <div className="text-[10px] font-black text-lodgra-gold mb-2 uppercase tracking-[2px]">
+                  Passo {i + 1}
                 </div>
-                <h3 className="font-semibold text-lodgra-neutral-900 mb-2">{step.title}</h3>
-                <p className="text-sm text-lodgra-neutral-500 leading-relaxed">{step.desc}</p>
+                <h3 className="font-black text-white mb-3 text-xs uppercase tracking-widest font-display">{step.title}</h3>
+                <p className="text-[11px] text-white/50 leading-relaxed font-semibold uppercase">{step.desc}</p>
               </div>
             ))}
           </div>
 
-          <p className="text-center text-sm text-lodgra-neutral-500 bg-white/60 rounded-lg py-3 px-4 max-w-lg mx-auto">
-            <Smartphone className="h-4 w-4 inline-block mr-1.5 -mt-0.5 text-lodgra-brand-500" />
+          <p className="text-center text-[10px] font-black uppercase tracking-[2px] text-lodgra-gold mt-12">
             {c.pwaTip}
           </p>
         </div>
       </section>
 
       {/* ── Pricing ──────────────────────────────────────────────────────────── */}
-      <section id="pricing" className="bg-lodgra-neutral-100 py-24">
+      <section id="pricing" className="py-32 bg-lodgra-neutral-50">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-14">
-            <h2 className="text-3xl font-extrabold text-lodgra-neutral-900 mb-4">{c.sectionPricingTitle}</h2>
-            <p className="text-lodgra-neutral-500 text-lg">{c.sectionPricingDesc}</p>
+          <div className="text-center mb-20">
+            <h2 className="text-4xl font-black text-lodgra-navy mb-4 font-display uppercase tracking-wider">{c.sectionPricingTitle}</h2>
+            <p className="text-lodgra-neutral-500 text-xl font-medium">{c.sectionPricingDesc}</p>
           </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {PLAN_DISPLAY.map((plan, idx) => {
-              const pl = PRICING_L10N[market]
-              const loc = pl.plans[idx]
-              return (
-                <div
-                  key={plan.id}
-                  className={`bg-white rounded-2xl shadow-sm border-2 p-6 flex flex-col relative ${
-                    plan.highlighted
-                      ? 'border-lodgra-brand-500 shadow-md'
-                      : plan.enterprise
-                        ? 'border-lodgra-neutral-300 bg-lodgra-neutral-50'
-                        : 'border-lodgra-border-subtle'
-                  }`}
-                >
-                  {plan.highlighted && (
-                    <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                      <span className="bg-lodgra-brand-500 text-white text-xs font-semibold px-3 py-1 rounded-full whitespace-nowrap">
-                        {pl.popularBadge}
-                      </span>
-                    </div>
-                  )}
-
-                  <div className="mb-4">
-                    <h3 className="text-lg font-bold text-lodgra-neutral-900">{plan.name}</h3>
-                    <p className="text-sm text-lodgra-neutral-500 mt-0.5 leading-snug">{loc.description}</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {PRICING_L10N[market].plans.map((plan, i) => (
+              <div key={i} className={`bg-white border ${i === 1 ? 'border-lodgra-gold' : 'border-lodgra-navy/10'} p-10 flex flex-col relative`}>
+                {i === 1 && (
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-lodgra-gold text-lodgra-navy text-[9px] font-black uppercase tracking-[2px] px-4 py-1.5 whitespace-nowrap">
+                    {PRICING_L10N[market].popularBadge}
                   </div>
-
-                  {plan.enterprise ? (
-                    <div className="mb-5">
-                      <span className="text-2xl font-extrabold text-lodgra-neutral-900">Custom</span>
+                )}
+                <h3 className="text-[10px] font-black text-lodgra-neutral-400 uppercase tracking-[3px] mb-6 font-display">
+                  {PLAN_DISPLAY[market === 'US' ? 'US' : 'PT'][i]?.name || 'ENTERPRISE'}
+                </h3>
+                <div className="mb-8">
+                  {plan.price !== null ? (
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-4xl font-black text-lodgra-navy font-display">{PRICING_L10N[market].symbol}{plan.price}</span>
+                      <span className="text-[10px] font-black text-lodgra-neutral-400 uppercase tracking-widest">{PRICING_L10N[market].period}</span>
                     </div>
                   ) : (
-                    <div className="mb-1">
-                      <div className="flex items-baseline gap-1">
-                        <span className="text-3xl font-extrabold text-lodgra-neutral-900">
-                          {pl.symbol}{loc.price}
-                        </span>
-                        <span className="text-lodgra-neutral-500 text-xs leading-tight">{pl.period}</span>
-                      </div>
-                      {loc.feeLabel && (
-                        <span className="inline-block mt-1 text-xs font-medium text-lodgra-brand-600 bg-lodgra-brand-50 px-2 py-0.5 rounded-full">
-                          {loc.feeLabel}
-                        </span>
-                      )}
-                    </div>
+                    <span className="text-2xl font-black text-lodgra-navy font-display uppercase tracking-wider">Sob consulta</span>
                   )}
-
-                  {!plan.enterprise && <div className="mb-5" />}
-
-                  <ul className="space-y-2 mb-6 flex-1">
-                    {loc.features.map(f => (
-                      <li key={f} className="flex items-start gap-2 text-sm text-lodgra-neutral-700">
-                        <Check className="h-4 w-4 text-lodgra-brand-500 shrink-0 mt-0.5" />
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
-
-                  {plan.enterprise ? (
-                    <Button
-                      onClick={() => window.location.href = '/register'}
-                      variant="outline"
-                      className="w-full border-lodgra-neutral-300 text-lodgra-neutral-700 hover:bg-lodgra-neutral-100"
-                    >
-                      {pl.ctaEnterprise} <ArrowRight className="h-4 w-4 ml-1" />
-                    </Button>
-                  ) : (
-                    <Button
-                      onClick={() => handlePlanCheckout(plan.id)}
-                      disabled={loadingPlan !== null}
-                      variant={plan.highlighted ? 'default' : 'outline'}
-                      className={plan.highlighted
-                        ? 'w-full bg-lodgra-cta-bg hover:bg-lodgra-cta-bg-hover text-white border-0'
-                        : 'w-full border-lodgra-brand-500 text-lodgra-primary hover:bg-lodgra-brand-50'
-                      }
-                    >
-                      {loadingPlan === plan.id ? '...' : (
-                        <>{c.cta} <ArrowRight className="h-4 w-4 ml-1" /></>
-                      )}
-                    </Button>
+                  {plan.feeLabel && (
+                    <p className="text-[10px] font-black text-lodgra-gold uppercase tracking-widest mt-2">{plan.feeLabel}</p>
                   )}
                 </div>
-              )
-            })}
+                <ul className="space-y-4 mb-10 flex-1">
+                  {plan.features.map(f => (
+                    <li key={f} className="flex items-start gap-3 text-[11px] font-bold uppercase tracking-wider text-lodgra-navy/60">
+                      <Check className="h-4 w-4 text-lodgra-success shrink-0" />
+                      <span>{f}</span>
+                    </li>
+                  ))}
+                </ul>
+                <Button 
+                  onClick={() => plan.price !== null ? handlePlanCheckout(PLAN_DISPLAY[market === 'US' ? 'US' : 'PT'][i].id) : null}
+                  className={`w-full h-12 rounded-none font-black uppercase tracking-widest text-[11px] ${i === 1 ? 'bg-lodgra-blue text-white' : 'bg-transparent border border-lodgra-navy/10 text-lodgra-navy hover:bg-lodgra-neutral-50'}`}
+                >
+                  {plan.price !== null ? c.cta : PRICING_L10N[market].ctaEnterprise}
+                </Button>
+              </div>
+            ))}
           </div>
-
-          <div className="flex items-center justify-center gap-2 mt-8 text-sm text-lodgra-neutral-500">
+          <div className="flex items-center justify-center gap-2 mt-12 text-[10px] font-black uppercase tracking-widest text-lodgra-navy/40">
             <Shield className="h-4 w-4 text-lodgra-success" />
             {c.guarantee}
           </div>
@@ -958,60 +908,35 @@ export function LandingPage() {
       </section>
 
       {/* ── Final CTA ────────────────────────────────────────────────────────── */}
-      <section className="bg-gradient-to-r from-lodgra-brand-600 via-lodgra-brand-500 to-lodgra-brand-700 py-24 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-10 right-10 w-72 h-72 bg-lodgra-brand-400 rounded-full blur-3xl" />
-          <div className="absolute bottom-10 left-10 w-72 h-72 bg-lodgra-brand-700 rounded-full blur-3xl" />
-        </div>
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4">
+      <section className="bg-lodgra-navy py-32 text-center relative border-t border-lodgra-gold/20">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-4xl sm:text-5xl font-black text-white mb-6 font-display uppercase tracking-wider">
             {c.finalTitle}
           </h2>
-          <p className="text-lodgra-brand-100 text-lg mb-8 max-w-2xl mx-auto leading-relaxed">{c.finalDesc}</p>
-          <form onSubmit={handleCheckout} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-            <Input
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              placeholder={c.emailPlaceholder}
-              required
-              className="flex-1 bg-white/20 border border-white/30 text-white placeholder:text-lodgra-brand-100 focus:bg-white focus:text-lodgra-neutral-900 focus:placeholder:text-lodgra-neutral-500 backdrop-blur-sm rounded-lg"
-            />
-            <Button
-              type="submit"
-              className="bg-white text-lodgra-primary hover:bg-lodgra-brand-50 whitespace-nowrap font-semibold shadow-lg"
-            >
-              <>{c.cta} <ArrowRight className="h-4 w-4 ml-1" /></>
-            </Button>
-          </form>
-          <p className="text-lodgra-brand-200 text-xs mt-4">{c.ctaSub}</p>
+          <p className="text-xl text-white/60 mb-12 font-medium">
+            {c.finalDesc}
+          </p>
+          <Button asChild size="lg" className="bg-lodgra-gold text-lodgra-navy hover:brightness-110 border-0 h-16 px-12 text-xs font-black uppercase tracking-[3px] rounded-none">
+            <Link href="/register">{c.cta}</Link>
+          </Button>
         </div>
       </section>
 
       {/* ── Footer ───────────────────────────────────────────────────────────── */}
-      <footer className="bg-gradient-to-b from-lodgra-neutral-900 to-lodgra-neutral-950 py-12 border-t border-white/10">
+      <footer className="bg-lodgra-navy py-20 border-t border-white/5">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-8 mb-8">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-10">
             <Logo variant="white" size="md" />
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 sm:gap-8">
-              <Link href="/privacy" className="text-xs sm:text-sm text-lodgra-neutral-400 hover:text-lodgra-brand-300 transition-colors duration-200">
-                {c.footerPrivacy}
-              </Link>
-              <Link href="/terms" className="text-xs sm:text-sm text-lodgra-neutral-400 hover:text-lodgra-brand-300 transition-colors duration-200">
-                {c.footerTerms}
-              </Link>
-              <Link href="/login" className="text-xs sm:text-sm text-lodgra-neutral-400 hover:text-lodgra-brand-300 transition-colors duration-200">
-                {c.footerLinks}
-              </Link>
+            <div className="flex flex-wrap items-center justify-center gap-8 text-[11px] font-black uppercase tracking-[2px] text-white/30">
+              <Link href="/privacy" className="hover:text-lodgra-gold transition-colors">{c.footerPrivacy}</Link>
+              <Link href="/terms" className="hover:text-lodgra-gold transition-colors">{c.footerTerms}</Link>
+              <Link href="/login" className="hover:text-lodgra-gold transition-colors">{c.footerLinks}</Link>
+              <span className="md:ml-4 opacity-50">© {new Date().getFullYear()} LODGRA. {c.footerRights}</span>
             </div>
-          </div>
-          <div className="border-t border-lodgra-neutral-800 pt-6">
-            <p className="text-xs sm:text-sm text-lodgra-neutral-500 text-center">
-              © {new Date().getFullYear()} Lodgra. {c.footerRights}
-            </p>
           </div>
         </div>
       </footer>
+
     </div>
   )
 }

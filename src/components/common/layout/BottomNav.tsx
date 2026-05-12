@@ -87,7 +87,7 @@ export function BottomNav() {
 
   return (
     <>
-      <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden glass border-t border-black/[0.06] safe-area-pb">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white border-t border-[#1E3A8A]/10 pb-safe">
         <div className="flex items-stretch">
           {PRIMARY_NAV.map(({ href, label, icon: Icon }) => {
             const active = pathname === href
@@ -95,12 +95,12 @@ export function BottomNav() {
               <Link
                 key={href}
                 href={href}
-                className={`flex flex-1 flex-col items-center justify-center gap-0.5 py-2 min-h-[56px] transition-colors ${
-                  active ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'
+                className={`flex flex-1 flex-col items-center justify-center gap-1 py-3 min-h-[64px] transition-all ${
+                  active ? 'text-[#ffc000] bg-[#1E3A8A]' : 'text-[#1E3A8A]/60 hover:bg-[#1E3A8A]/5'
                 }`}
               >
                 <Icon className={`h-5 w-5 ${active ? 'stroke-[2.5]' : ''}`} />
-                <span className="text-[10px] font-medium leading-none">{label}</span>
+                <span className="text-[10px] font-black uppercase tracking-[1px] leading-none font-[family-name:var(--font-hanken-grotesk)]">{label}</span>
               </Link>
             )
           })}
@@ -108,24 +108,24 @@ export function BottomNav() {
           {/* Mais */}
           <button
             onClick={() => setMoreOpen(true)}
-            className={`flex flex-1 flex-col items-center justify-center gap-0.5 py-2 min-h-[56px] transition-colors ${
-              isMoreActive ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'
+            className={`flex flex-1 flex-col items-center justify-center gap-1 py-3 min-h-[64px] transition-all ${
+              isMoreActive ? 'text-[#ffc000] bg-[#1E3A8A]' : 'text-[#1E3A8A]/60 hover:bg-[#1E3A8A]/5'
             }`}
           >
             <MoreHorizontal className="h-5 w-5" />
-            <span className="text-[10px] font-medium leading-none">Mais</span>
+            <span className="text-[10px] font-black uppercase tracking-[1px] leading-none font-[family-name:var(--font-hanken-grotesk)]">Mais</span>
           </button>
         </div>
       </nav>
 
       <Sheet open={moreOpen} onOpenChange={setMoreOpen}>
-        <SheetContent side="bottom" className="rounded-t-2xl pb-safe">
-          <SheetHeader className="mb-4">
-            <SheetTitle className="text-left text-base font-semibold text-gray-900">Menu</SheetTitle>
+        <SheetContent side="bottom" className="rounded-none pb-safe border-t border-[#1E3A8A]/10">
+          <SheetHeader className="mb-6">
+            <SheetTitle className="text-left text-[14px] font-black text-[#1E3A8A] uppercase tracking-[2px] font-[family-name:var(--font-hanken-grotesk)]">MENU GLOBAL</SheetTitle>
           </SheetHeader>
-          <div className="space-y-4 pb-6">
+          <div className="space-y-6 pb-8">
             {/* Geral */}
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 gap-2">
               {visibleMoreNav.map(({ href, label, icon: Icon }) => {
                 const active = pathname === href
                 return (
@@ -133,14 +133,14 @@ export function BottomNav() {
                     key={href}
                     href={href}
                     onClick={() => setMoreOpen(false)}
-                    className={`flex flex-col items-center gap-2 p-4 rounded-xl transition-colors ${
+                    className={`flex items-center gap-3 p-4 rounded-none border transition-all ${
                       active
-                        ? 'bg-blue-50 text-blue-600'
-                        : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+                        ? 'bg-[#ffc000] border-[#ffc000] text-[#1E3A8A]'
+                        : 'bg-[#f8f8f8] border-[#1E3A8A]/5 text-[#1E3A8A]/70 hover:border-[#ffc000]/30'
                     }`}
                   >
-                    <Icon className="h-6 w-6" />
-                    <span className="text-xs font-medium text-center leading-tight">{label}</span>
+                    <Icon className="h-5 w-5 shrink-0" />
+                    <span className="text-[11px] font-black uppercase tracking-[1px] font-[family-name:var(--font-hanken-grotesk)]">{label}</span>
                   </Link>
                 )
               })}
@@ -148,8 +148,8 @@ export function BottomNav() {
 
             {/* Configuração */}
             <div>
-              <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2 px-1">Configuração</p>
-              <div className="grid grid-cols-3 gap-3">
+              <p className="text-[10px] font-black text-[#1E3A8A]/30 uppercase tracking-[2px] mb-3 px-1 font-[family-name:var(--font-hanken-grotesk)]">Configuração</p>
+              <div className="grid grid-cols-2 gap-2">
                 {CONFIG_NAV.map(({ href, label, icon: Icon }) => {
                   const active = pathname === href
                   return (
@@ -157,14 +157,14 @@ export function BottomNav() {
                       key={href}
                       href={href}
                       onClick={() => setMoreOpen(false)}
-                      className={`flex flex-col items-center gap-2 p-4 rounded-xl transition-colors ${
+                      className={`flex items-center gap-3 p-4 rounded-none border transition-all ${
                         active
-                          ? 'bg-blue-50 text-blue-600'
-                          : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+                          ? 'bg-[#ffc000] border-[#ffc000] text-[#1E3A8A]'
+                          : 'bg-[#f8f8f8] border-[#1E3A8A]/5 text-[#1E3A8A]/70 hover:border-[#ffc000]/30'
                       }`}
                     >
-                      <Icon className="h-6 w-6" />
-                      <span className="text-xs font-medium text-center leading-tight">{label}</span>
+                      <Icon className="h-5 w-5 shrink-0" />
+                      <span className="text-[11px] font-black uppercase tracking-[1px] font-[family-name:var(--font-hanken-grotesk)]">{label}</span>
                     </Link>
                   )
                 })}
@@ -172,14 +172,14 @@ export function BottomNav() {
                   <Link
                     href={`${prefix}/admin/users`}
                     onClick={() => setMoreOpen(false)}
-                    className={`flex flex-col items-center gap-2 p-4 rounded-xl transition-colors ${
+                    className={`flex items-center gap-3 p-4 rounded-none border transition-all ${
                       pathname === `${prefix}/admin/users`
-                        ? 'bg-blue-50 text-blue-600'
-                        : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+                        ? 'bg-[#ffc000] border-[#ffc000] text-[#1E3A8A]'
+                        : 'bg-[#f8f8f8] border-[#1E3A8A]/5 text-[#1E3A8A]/70 hover:border-[#ffc000]/30'
                     }`}
                   >
-                    <UserCog className="h-6 w-6" />
-                    <span className="text-xs font-medium text-center leading-tight">Utilizadores</span>
+                    <UserCog className="h-5 w-5 shrink-0" />
+                    <span className="text-[11px] font-black uppercase tracking-[1px] font-[family-name:var(--font-hanken-grotesk)]">Utilizadores</span>
                   </Link>
                 )}
               </div>

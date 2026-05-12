@@ -555,110 +555,110 @@ export default async function ReportsPage({ searchParams }: PageProps) {
 
         {/* Métricas Principais — Row 1: financials */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-4">
-          <div className="bg-white rounded-xl shadow-sm p-5">
+          <div className="bg-white border border-lodgra-blue/10 p-5 rounded-none">
             <div className="flex items-center justify-between mb-4">
-              <div className="p-2.5 bg-green-100 rounded-xl">
-                <TrendingUp className="h-5 w-5 text-green-600" />
+              <div className="p-2.5 bg-lodgra-blue/5 rounded-none">
+                <TrendingUp className="h-5 w-5 text-lodgra-blue" />
               </div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">Receita</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-lodgra-navy/30 font-display">Receita</span>
             </div>
-            <div className="text-green-600">
+            <div className="text-lodgra-blue">
               <CurrencyStack totals={revenueByCurrency} size="md" showEmpty={true} />
             </div>
-            <p className="text-sm text-gray-500 mt-2">Receita bruta no período</p>
+            <p className="text-[10px] font-black uppercase tracking-wider text-lodgra-navy/20 mt-2">Receita bruta no período</p>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm p-5">
+          <div className="bg-white border border-lodgra-blue/10 p-5 rounded-none">
             <div className="flex items-center justify-between mb-4">
-              <div className="p-2.5 bg-red-100 rounded-xl">
+              <div className="p-2.5 bg-red-50 rounded-none">
                 <TrendingDown className="h-5 w-5 text-red-600" />
               </div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">Despesas</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-lodgra-navy/30 font-display">Despesas</span>
             </div>
             <div className="text-red-600">
               <CurrencyStack totals={expensesByCurrency} size="md" showEmpty={true} />
             </div>
-            <p className="text-sm text-gray-500 mt-2">Total despesas no período</p>
+            <p className="text-[10px] font-black uppercase tracking-wider text-lodgra-navy/20 mt-2">Total despesas no período</p>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm p-5">
+          <div className="bg-white border border-lodgra-blue/10 p-5 rounded-none">
             <div className="flex items-center justify-between mb-4">
-              <div className="p-2.5 bg-blue-100 rounded-xl">
-                <BarChart3 className="h-5 w-5 text-blue-600" />
+              <div className="p-2.5 bg-lodgra-blue/5 rounded-none">
+                <BarChart3 className="h-5 w-5 text-lodgra-blue" />
               </div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">Lucro</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-lodgra-navy/30 font-display">Lucro</span>
             </div>
             <div className="space-y-1.5">
               {Object.entries(netProfitByCurrency).length > 0 ? (
                 Object.entries(netProfitByCurrency).map(([currency, amount]) => (
                   <div key={currency} className="flex items-center gap-2">
-                    <span className={`inline-flex items-center justify-center min-w-[2.5rem] h-5 px-1.5 text-[10px] font-bold uppercase tracking-widest rounded ring-1 shrink-0 ${
-                      currency === 'EUR' ? 'bg-blue-50 text-blue-700 ring-blue-200' :
+                    <span className={`inline-flex items-center justify-center min-w-[2.5rem] h-5 px-1.5 text-[10px] font-black uppercase tracking-widest rounded-none ring-1 shrink-0 ${
+                      currency === 'EUR' ? 'bg-lodgra-blue/5 text-lodgra-blue ring-lodgra-blue/20' :
                       currency === 'BRL' ? 'bg-green-50 text-green-700 ring-green-200' :
                       currency === 'USD' ? 'bg-yellow-50 text-yellow-700 ring-yellow-200' :
                       'bg-purple-50 text-purple-700 ring-purple-200'
                     }`}>{currency}</span>
-                    <span className={`text-xl font-bold tabular-nums ${amount >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    <span className={`text-xl font-black tabular-nums font-display ${amount >= 0 ? 'text-lodgra-blue' : 'text-red-600'}`}>
                       {formatCurrency(amount, currency as CurrencyCode)}
                     </span>
                   </div>
                 ))
               ) : (
-                <span className="text-xl font-bold text-gray-300">—</span>
+                <span className="text-xl font-black text-gray-200 font-display">—</span>
               )}
             </div>
-            <p className="text-sm text-gray-500 mt-2">Lucro líquido no período</p>
+            <p className="text-[10px] font-black uppercase tracking-wider text-lodgra-navy/20 mt-2">Lucro líquido no período</p>
           </div>
         </div>
 
         {/* Métricas Principais — Row 2: KPIs */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 mb-8">
-          <div className="bg-white rounded-xl shadow-sm p-5">
+          <div className="bg-white border border-lodgra-blue/10 p-5 rounded-none">
             <div className="flex items-center justify-between mb-4">
-              <div className="p-2.5 bg-blue-50 rounded-xl">
-                <Calendar className="h-4 w-4 text-blue-600" />
+              <div className="p-2.5 bg-lodgra-blue/5 rounded-none">
+                <Calendar className="h-4 w-4 text-lodgra-blue" />
               </div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">Reservas</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-lodgra-navy/30 font-display">Reservas</span>
             </div>
-            <p className="text-4xl font-bold text-gray-900">{totalReservations}</p>
-            <p className="text-sm text-gray-500 mt-1">Confirmadas</p>
+            <p className="text-4xl font-black text-lodgra-blue font-display tracking-tighter">{totalReservations}</p>
+            <p className="text-[10px] font-black uppercase tracking-wider text-lodgra-navy/20 mt-1">Confirmadas</p>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm p-5">
+          <div className="bg-white border border-lodgra-blue/10 p-5 rounded-none">
             <div className="flex items-center justify-between mb-4">
-              <div className="p-2.5 bg-purple-50 rounded-xl">
-                <BarChart2 className="h-4 w-4 text-purple-600" />
+              <div className="p-2.5 bg-lodgra-gold/5 rounded-none">
+                <BarChart2 className="h-4 w-4 text-lodgra-gold" />
               </div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">ADR</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-lodgra-navy/30 font-display">ADR</span>
             </div>
             <CurrencyStack totals={adrByCurrency} size="sm" showEmpty={true} />
-            <p className="text-sm text-gray-500 mt-2">Diária média</p>
+            <p className="text-[10px] font-black uppercase tracking-wider text-lodgra-navy/20 mt-2">Diária média</p>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm p-5">
+          <div className="bg-white border border-lodgra-blue/10 p-5 rounded-none">
             <div className="flex items-center justify-between mb-4">
-              <div className="p-2.5 bg-orange-50 rounded-xl">
-                <DollarSign className="h-4 w-4 text-orange-600" />
+              <div className="p-2.5 bg-lodgra-gold/5 rounded-none">
+                <DollarSign className="h-4 w-4 text-lodgra-gold" />
               </div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">RevPAR</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-lodgra-navy/30 font-display">RevPAR</span>
             </div>
-            <div className="text-purple-700">
+            <div className="text-lodgra-gold">
               <CurrencyStack totals={revparByCurrency} size="sm" showEmpty={true} />
             </div>
-            <p className="text-sm text-gray-500 mt-2">Receita/noite disp.</p>
+            <p className="text-[10px] font-black uppercase tracking-wider text-lodgra-navy/20 mt-2">Receita/noite disp.</p>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm p-5">
+          <div className="bg-white border border-lodgra-blue/10 p-5 rounded-none">
             <div className="flex items-center justify-between mb-4">
-              <div className="p-2.5 bg-teal-50 rounded-xl">
+              <div className="p-2.5 bg-teal-50 rounded-none">
                 <Target className="h-4 w-4 text-teal-600" />
               </div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">Ocupação</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-lodgra-navy/30 font-display">Ocupação</span>
             </div>
-            <p className={`text-4xl font-bold ${occupancyRate >= 70 ? 'text-green-600' : occupancyRate >= 40 ? 'text-yellow-600' : occupancyRate > 0 ? 'text-red-600' : 'text-gray-300'}`}>
+            <p className={`text-4xl font-black font-display tracking-tighter ${occupancyRate >= 70 ? 'text-green-600' : occupancyRate >= 40 ? 'text-yellow-600' : occupancyRate > 0 ? 'text-red-600' : 'text-gray-200'}`}>
               {totalAvailableNights > 0 ? `${occupancyRate.toFixed(1)}%` : '—'}
             </p>
-            <p className="text-sm text-gray-500 mt-1">Taxa de ocupação</p>
+            <p className="text-[10px] font-black uppercase tracking-wider text-lodgra-navy/20 mt-1">Taxa de ocupação</p>
           </div>
         </div>
 
