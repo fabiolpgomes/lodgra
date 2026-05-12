@@ -50,13 +50,13 @@ interface PropertyData {
   beds?: BedItem[]
 }
 
-// ISO 8601 time — Google docs example: "14:30:00+08:00"
+// ISO 8601 time — Google VR spec format: "T15:00+00:00" (T prefix, HH:MM, no seconds)
 // Guard against double-appending offset if value already contains one
 function toIsoTime(t: string | null | undefined, fallback: string, offset = '+00:00'): string {
   const val = t ?? fallback
   const stripped = val.replace(/([+-]\d{2}:\d{2}|Z)$/, '')
-  const normalised = stripped.split(':').length >= 3 ? stripped : `${stripped}:00`
-  return `${normalised}${offset}`
+  const hhmm = stripped.split(':').slice(0, 2).join(':')
+  return `T${hhmm}${offset}`
 }
 
 // Map property_type to schema.org @type for containsPlace
@@ -193,7 +193,7 @@ export function generatePropertyJsonLd(property: PropertyData) {
     containsPlace,
     checkinTime,
     checkoutTime,
-    makesOffer: mainOffer,
+    makesOffer: [mainOffer],
   }
 }
 
