@@ -2,9 +2,12 @@
  * JSON-LD structured data generators for SEO / Google Vacation Rentals.
  * Spec: https://developers.google.com/search/docs/appearance/structured-data/vacation-rental
  *
- * Required fields (confirmed via Google Rich Results Test):
- *   identifier (PropertyValue), containsPlace (Accommodation),
- *   makesOffer.checkinTime / checkoutTime (HH:MM format), makesOffer.priceSpecification
+ * Validated structure (Google Rich Results Test):
+ *   - identifier: plain string (PropertyValue rejected by validator)
+ *   - checkinTime / checkoutTime: "HH:MM" on VacationRental (not inside Offer)
+ *   - containsPlace: concrete type e.g. "Apartment" (abstract "Accommodation" rejected)
+ *   - occupancy: QuantitativeValue with "value" (not "maxValue")
+ *   - makesOffer: Offer with price+priceCurrency directly (priceSpecification types rejected)
  */
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://lodgra.io'
@@ -44,13 +47,11 @@ interface PropertyData {
   structuredAmenities?: AmenityItem[]
 }
 
-// Google VR spec Time format: T15:00:00 (T prefix + HH:MM:SS, no timezone offset)
+// Google VR spec Time: "HH:MM" (plain hh:mm, no T prefix, no seconds, no timezone)
 function toHHMM(t: string | null | undefined, fallback: string): string {
   const val = t ?? fallback
-  // Strip T prefix and timezone, keep only HH:MM, then append :00 for seconds
   const stripped = val.replace(/^T/, '').replace(/([+-]\d{2}:\d{2}|Z)$/, '')
-  const hhmm = stripped.split(':').slice(0, 2).join(':')
-  return `T${hhmm}:00`
+  return stripped.split(':').slice(0, 2).join(':')
 }
 
 // Map full country names to ISO 3166-1 alpha-2 codes (Google requires 2-letter codes)
@@ -94,35 +95,26 @@ export function generatePropertyJsonLd(property: PropertyData) {
     ...(property.country && { addressCountry: toCountryCode(property.country) }),
   }
 
-  // Google VR spec format: "T15:00:00" (T prefix required by validator)
+  // Time in "HH:MM" format on VacationRental (LodgingBusiness property — not inside Offer)
   const checkinTime = toHHMM(property.checkin_from, '15:00')
   const checkoutTime = toHHMM(property.checkout_until, '11:00')
 
-  // priceSpecification inside the Offer
-  const priceSpecification = property.base_price && property.base_price > 0
-    ? {
-        '@type': 'PriceSpecification',
-        price: property.base_price,
-        priceCurrency: currency,
-      }
-    : undefined
-
-  // containsPlace — required by Google VR spec (Accommodation with room/guest details)
+  // containsPlace — concrete Apartment type (abstract Accommodation rejected by validator)
   const containsPlace = {
     '@type': 'Apartment',
     ...(property.bedrooms && { numberOfBedrooms: property.bedrooms }),
     ...(property.bathrooms && { numberOfBathroomsTotal: property.bathrooms }),
     ...(property.max_guests && {
-      occupancy: { '@type': 'QuantitativeValue', maxValue: property.max_guests },
+      // value (not maxValue) — validator requires "value" field on QuantitativeValue
+      occupancy: { '@type': 'QuantitativeValue', value: property.max_guests },
     }),
   }
 
-  // Offer — required inside makesOffer
-  const mainOffer = {
-    '@type': 'Offer',
-    checkinTime,
-    checkoutTime,
-    ...(priceSpecification && { priceSpecification }),
+  // Offer — price/priceCurrency directly (priceSpecification subtypes rejected by validator)
+  const mainOffer: Record<string, unknown> = { '@type': 'Offer' }
+  if (property.base_price && property.base_price > 0) {
+    mainOffer.price = property.base_price
+    mainOffer.priceCurrency = currency
   }
 
   const pageUrl = property.slug ? `${APP_URL}/p/${property.slug}` : undefined
@@ -132,14 +124,8 @@ export function generatePropertyJsonLd(property: PropertyData) {
     '@context': 'https://schema.org',
     '@type': 'VacationRental',
     name: property.name,
-    // identifier — required by Google VR spec
-    ...(property.slug && {
-      identifier: {
-        '@type': 'PropertyValue',
-        name: 'PropertyID',
-        value: property.slug,
-      },
-    }),
+    // identifier as plain string (PropertyValue object rejected by Google VR validator)
+    ...(property.slug && { identifier: property.slug }),
     ...(property.description && { description: property.description }),
     ...(pageUrl && { url: pageUrl }),
     ...(imageField && { image: imageField }),
@@ -151,10 +137,13 @@ export function generatePropertyJsonLd(property: PropertyData) {
         longitude: property.longitude,
       },
     }),
+    // checkinTime/checkoutTime on VacationRental (LodgingBusiness properties — not on Offer)
+    checkinTime,
+    checkoutTime,
     // containsPlace — required by Google VR spec
     containsPlace,
     ...(amenityFeature.length > 0 && { amenityFeature }),
-    // makesOffer — required by Google VR spec (single Offer object per docs example)
+    // makesOffer — required by Google VR spec
     makesOffer: mainOffer,
   }
 }
