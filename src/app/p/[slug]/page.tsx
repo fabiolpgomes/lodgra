@@ -292,6 +292,18 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
     ...property,
     imageUrls: allPhotos,
     structuredAmenities,
+    reviewScore: reviewScore
+      ? { globalAvg: reviewScore.globalAvg, totalCount: reviewScore.totalCount }
+      : null,
+    featuredReviews: featuredReviews.length > 0
+      ? featuredReviews.map(r => ({
+          reviewer_name: r.reviewer_name ?? null,
+          rating: Number(r.rating),
+          source: r.source,
+          comment: r.review_text ?? null,
+          review_date: r.review_date ?? null,
+        }))
+      : null,
   })
 
   return (
