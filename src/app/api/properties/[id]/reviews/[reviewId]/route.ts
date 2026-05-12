@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 
 type RouteParams = { params: Promise<{ id: string; reviewId: string }> }
 
-async function getAuthContext(userId: string, propertyId: string, orgId: string) {
+async function getAuthContext(propertyId: string, orgId: string) {
   const supabase = await createClient()
   const { data: property } = await supabase
     .from('properties')
@@ -30,7 +30,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
   }
 
   const { id: propertyId, reviewId } = await params
-  const { supabase: sb, property } = await getAuthContext(user.id, propertyId, profile.organization_id)
+  const { supabase: sb, property } = await getAuthContext(propertyId, profile.organization_id)
 
   if (!property) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 

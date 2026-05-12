@@ -69,6 +69,7 @@ export function ReviewsManager({ propertyId }: ReviewsManagerProps) {
 
   const [confirmingDeleteId, setConfirmingDeleteId] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
 
   const [featureError, setFeatureError] = useState<string | null>(null)
 
@@ -143,13 +144,18 @@ export function ReviewsManager({ propertyId }: ReviewsManagerProps) {
 
   const handleDelete = useCallback(async (reviewId: string) => {
     setDeleting(true)
+    setDeleteError(null)
     try {
       const res = await fetch(`/api/properties/${propertyId}/reviews/${reviewId}`, { method: 'DELETE' })
-      if (!res.ok) return
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        setDeleteError(data.error ?? 'Erro ao eliminar avaliação.')
+        return
+      }
       setReviews(prev => prev.filter(r => r.id !== reviewId))
       setConfirmingDeleteId(null)
     } catch {
-      // silent
+      setDeleteError('Erro de rede. Tente novamente.')
     } finally {
       setDeleting(false)
     }
@@ -182,6 +188,9 @@ export function ReviewsManager({ propertyId }: ReviewsManagerProps) {
     <div className="space-y-4">
       {featureError && (
         <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-md">{featureError}</p>
+      )}
+      {deleteError && (
+        <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-md">{deleteError}</p>
       )}
 
       {reviews.length === 0 && !showAddForm && (
@@ -257,7 +266,7 @@ export function ReviewsManager({ propertyId }: ReviewsManagerProps) {
                       </button>
                       <button
                         type="button"
-                        onClick={() => setConfirmingDeleteId(null)}
+                        onClick={() => { setConfirmingDeleteId(null); setDeleteError(null) }}
                         className="px-2 py-0.5 bg-gray-200 text-gray-700 rounded text-xs hover:bg-gray-300"
                       >
                         Não
@@ -266,7 +275,7 @@ export function ReviewsManager({ propertyId }: ReviewsManagerProps) {
                   ) : (
                     <button
                       type="button"
-                      onClick={() => setConfirmingDeleteId(review.id)}
+                      onClick={() => { setConfirmingDeleteId(review.id); setDeleteError(null) }}
                       title="Eliminar"
                       className="p-1.5 text-gray-400 hover:text-red-500 rounded transition-colors"
                     >

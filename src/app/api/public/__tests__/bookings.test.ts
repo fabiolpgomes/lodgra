@@ -135,6 +135,13 @@ jest.mock('@/lib/rateLimit', () => ({
 }))
 
 describe('Booking Conflict Validation', () => {
+  // Dynamic future dates — avoids hardcoded dates becoming stale
+  function futureDateStr(daysFromNow: number): string {
+    const d = new Date()
+    d.setDate(d.getDate() + daysFromNow)
+    return d.toISOString().split('T')[0]
+  }
+
   beforeEach(() => {
     jest.clearAllMocks()
     process.env.STRIPE_SECRET_KEY = 'sk_test_123'
@@ -143,63 +150,69 @@ describe('Booking Conflict Validation', () => {
 
   describe('Test 1: Booking creation fails if pending_payment conflict exists (409)', () => {
     it('should return 409 Conflict when pending_payment reservation overlaps', async () => {
-      const mockClient = createAdminClient()
+      // Creates a chainable Supabase mock that resolves via .single() OR direct await (thenable).
+      // Direct await works because the chain object exposes a .then method (Promise/A+ thenable).
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      function makeChain(resolveData: unknown): any {
+        const response = { data: resolveData, error: null }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const chain: any = {
+          select: jest.fn(() => chain),
+          eq:     jest.fn(() => chain),
+          in:     jest.fn(() => chain),
+          lt:     jest.fn(() => chain),
+          gt:     jest.fn(() => chain),
+          lte:    jest.fn(() => chain),
+          gte:    jest.fn(() => chain),
+          limit:  jest.fn(() => chain),
+          insert: jest.fn(() => chain),
+          update: jest.fn(() => chain),
+          upsert: jest.fn(() => chain),
+          single: jest.fn(async () => response),
+          then:   jest.fn((resolve: (v: unknown) => unknown) =>
+            Promise.resolve(response).then(resolve)
+          ),
+        }
+        return chain
+      }
 
-      // Mock conflicting reservation exists
-      ;(mockClient.from as jest.Mock).mockReturnValue({
-        select: jest.fn(function () {
-          return this
-        }),
-        eq: jest.fn(function () {
-          return this
-        }),
-        in: jest.fn(function (field: string, values: string[]) {
-          // Verify that 'pending_payment' is included in status filter
+      // Track from() call order to return the right mock per table
+      let fromCallCount = 0
+      const fromMock = jest.fn(() => {
+        fromCallCount++
+        if (fromCallCount === 1) {
+          // from('properties') — property lookup
+          return makeChain({
+            id: 'prop_123', name: 'Test Property', base_price: 100,
+            currency: 'EUR', min_nights: 1, organization_id: 'org_123',
+            is_public: true, max_guests: 4,
+          })
+        }
+        if (fromCallCount === 2) {
+          // from('property_listings') — returns a listing so the conflict check runs
+          return makeChain([{ id: 'listing_123' }])
+        }
+        // from('reservations') — conflict exists; verify status filter includes pending_payment
+        const conflictChain = makeChain([{ id: 'conflict_res_456' }])
+        conflictChain.in = jest.fn((field: string, values: string[]) => {
           if (field === 'status') {
             expect(values).toContain('pending_payment')
             expect(values).toContain('confirmed')
           }
-          return this
-        }),
-        lt: jest.fn(function () {
-          return this
-        }),
-        gt: jest.fn(function () {
-          return this
-        }),
-        limit: jest.fn(function () {
-          return this
-        }),
-        insert: jest.fn(function () {
-          return this
-        }),
-        update: jest.fn(function () {
-          return this
-        }),
-        upsert: jest.fn(function () {
-          return this
-        }),
-        single: jest.fn(async function () {
-          return {
-            data: {
-              id: 'prop_123',
-              name: 'Test Property',
-              base_price: 100,
-              organization_id: 'org_123',
-              is_public: true,
-              max_guests: 4,
-            },
-            error: null,
-          }
-        }),
+          return conflictChain
+        })
+        return conflictChain
       })
+
+      // Override createAdminClient so the route uses our controlled mock client
+      ;(createAdminClient as jest.Mock).mockReturnValue({ from: fromMock })
 
       const mockRequest = new NextRequest('http://localhost/api/public/bookings', {
         method: 'POST',
         body: JSON.stringify({
           slug: 'test-property',
-          checkin: '2026-05-10',
-          checkout: '2026-05-15',
+          checkin: futureDateStr(30),
+          checkout: futureDateStr(35),
           num_guests: 2,
           guest_name: 'João Silva',
           guest_email: 'joao@example.com',
@@ -207,7 +220,7 @@ describe('Booking Conflict Validation', () => {
       })
 
       const response = await POST(mockRequest)
-      expect([200, 409, 500]).toContain(response.status)
+      expect(response.status).toBe(409)
     })
   })
 
@@ -217,8 +230,8 @@ describe('Booking Conflict Validation', () => {
         method: 'POST',
         body: JSON.stringify({
           slug: 'test-property',
-          checkin: '2026-05-20',
-          checkout: '2026-05-25',
+          checkin: futureDateStr(40),
+          checkout: futureDateStr(45),
           num_guests: 2,
           guest_name: 'Maria Santos',
           guest_email: 'maria@example.com',
@@ -238,8 +251,8 @@ describe('Booking Conflict Validation', () => {
         method: 'POST',
         body: JSON.stringify({
           slug: 'test-property',
-          checkin: '2026-06-01',
-          checkout: '2026-06-05',
+          checkin: futureDateStr(50),
+          checkout: futureDateStr(54),
           num_guests: 2,
           guest_name: 'Alice Johnson',
           guest_email: 'alice@example.com',
@@ -250,8 +263,8 @@ describe('Booking Conflict Validation', () => {
         method: 'POST',
         body: JSON.stringify({
           slug: 'test-property',
-          checkin: '2026-06-02',
-          checkout: '2026-06-06',
+          checkin: futureDateStr(51),
+          checkout: futureDateStr(55),
           num_guests: 2,
           guest_name: 'Bob Wilson',
           guest_email: 'bob@example.com',
