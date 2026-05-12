@@ -868,7 +868,7 @@ export function LandingPage() {
                   </div>
                 )}
                 <h3 className="text-[10px] font-black text-lodgra-neutral-400 uppercase tracking-[3px] mb-6 font-display">
-                  {PLAN_DISPLAY[market === 'US' ? 'US' : 'PT'][i]?.name || 'ENTERPRISE'}
+                  {PLAN_DISPLAY[i]?.name || 'ENTERPRISE'}
                 </h3>
                 <div className="mb-8">
                   {plan.price !== null ? (
@@ -891,8 +891,8 @@ export function LandingPage() {
                     </li>
                   ))}
                 </ul>
-                <Button 
-                  onClick={() => plan.price !== null ? handlePlanCheckout(PLAN_DISPLAY[market === 'US' ? 'US' : 'PT'][i].id) : null}
+                <Button
+                  onClick={() => plan.price !== null ? handlePlanCheckout(PLAN_DISPLAY[i].id) : null}
                   className={`w-full h-12 rounded-none font-black uppercase tracking-widest text-[11px] ${i === 1 ? 'bg-lodgra-blue text-white' : 'bg-transparent border border-lodgra-navy/10 text-lodgra-navy hover:bg-lodgra-neutral-50'}`}
                 >
                   {plan.price !== null ? c.cta : PRICING_L10N[market].ctaEnterprise}

@@ -53,7 +53,6 @@ export const BrazilLanding: React.FC = () => {
           <div className="flex items-center gap-8">
             <div className="flex items-center gap-3">
               <Logo size="md" />
-              <span className="text-[20px] font-black tracking-tight text-[#1E3A8A] uppercase">LODGRA</span>
             </div>
 
             <div className="hidden lg:flex items-center gap-8 text-[13px] font-black tracking-[1px] text-[#1E3A8A] uppercase">
@@ -253,7 +252,7 @@ export const BrazilLanding: React.FC = () => {
               }
             ].map((feature, i) => (
               <div key={i} className="bg-[#ffffff] p-[32px] rounded-none border border-[#1E3A8A]/10 hover:border-[#ffc000] transition-all group">
-                 {React.cloneElement(feature.icon as React.ReactElement<any>, { className: 'w-10 h-10 text-[#1E3A8A] mb-[24px] stroke-[2] group-hover:text-[#ffc000] transition-colors' })}
+                 {React.cloneElement(feature.icon as React.ReactElement<React.SVGProps<SVGSVGElement>, 'svg'>, { className: 'w-10 h-10 text-[#1E3A8A] mb-[24px] stroke-[2] group-hover:text-[#ffc000] transition-colors' })}
                  <h3 className="text-[18px] font-black mb-[16px] text-[#1E3A8A] leading-[1.4] uppercase tracking-[0.5px]">{feature.title}</h3>
                  <p className="text-[14px] font-light text-[#181818]/80 leading-[1.6]">{feature.desc}</p>
               </div>
@@ -425,7 +424,6 @@ export const BrazilLanding: React.FC = () => {
             <div className="max-w-[300px]">
                <div className="flex items-center gap-3 mb-[32px]">
                   <Logo size="sm" />
-                  <span className="text-[20px] font-black text-[#1E3A8A] tracking-tight uppercase">LODGRA</span>
                </div>
                <p className="text-[#181818]/60 text-[14px] font-light leading-[1.6]">
                  A infraestrutura de inteligência financeira para gestores profissionais que não aceitam menos que a excelência.

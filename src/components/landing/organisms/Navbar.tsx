@@ -29,9 +29,6 @@ export const Navbar: React.FC<NavbarProps> = ({ locale, onLocaleChange }) => {
           {/* Logo & Brand */}
           <div className="flex items-center gap-2 flex-shrink-0">
             <Logo size="md" variant="dark" />
-            <span className="text-xl font-poppins font-bold text-lodgra-blue hidden sm:inline">
-              Lodgra
-            </span>
           </div>
 
           {/* Center Navigation (desktop only) */}

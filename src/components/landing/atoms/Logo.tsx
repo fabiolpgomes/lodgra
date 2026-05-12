@@ -1,4 +1,5 @@
 import React from 'react'
+import Image from 'next/image'
 
 interface LogoProps {
   size?: 'sm' | 'md' | 'lg'
@@ -6,36 +7,25 @@ interface LogoProps {
   className?: string
 }
 
+const sizes = {
+  sm: { height: 32, width: 36 },
+  md: { height: 40, width: 45 },
+  lg: { height: 48, width: 54 },
+}
+
 export const Logo: React.FC<LogoProps> = ({ size = 'md', className = '' }) => {
-  const sizes = {
-    sm: 'w-8 h-8',
-    md: 'w-10 h-10',
-    lg: 'w-12 h-12',
-  }
+  const { height, width } = sizes[size]
 
   return (
-    <svg 
-      viewBox="0 0 24 24" 
-      className={`${sizes[size]} ${className}`}
-      fill="none" 
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      {/* Corpo da Casa - Azul Confiança (#1E3A8A) */}
-      <path 
-        d="M4 10V19C4 20.1046 4.89543 21 6 21H18C19.1046 21 20 20.1046 20 19V10" 
-        stroke="#1E3A8A" 
-        strokeWidth="2" 
-        strokeLinecap="round" 
-        strokeLinejoin="round"
+    <div className={`relative ${className}`}>
+      <Image
+        src="/brand/lodgra-logo-vertical.png"
+        alt="Lodgra"
+        height={height}
+        width={width}
+        className="object-contain"
+        priority
       />
-      {/* Telhado - Ouro Próspero (#D4AF37) */}
-      <path
-        d="M2 12L12 3L22 12"
-        stroke="#D4AF37"
-        strokeWidth="2.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
+    </div>
   )
 }

@@ -1,3 +1,5 @@
+import Image from 'next/image'
+
 interface LogoProps {
   variant?: 'default' | 'white' | 'compact'
   size?: 'sm' | 'md' | 'lg'
@@ -5,51 +7,28 @@ interface LogoProps {
 }
 
 const sizes = {
-  sm: { icon: 20, text: 'text-sm', gap: 'gap-1.5' },
-  md: { icon: 26, text: 'text-base', gap: 'gap-2' },
-  lg: { icon: 32, text: 'text-xl', gap: 'gap-2.5' },
+  sm: { height: 32, width: 36 },
+  md: { height: 48, width: 54 },
+  lg: { height: 64, width: 72 },
 }
 
-export function Logo({ variant = 'default', size = 'md', className = '' }: LogoProps) {
-  const { icon: iconSize, text: textSize, gap } = sizes[size]
+export function Logo({ size = 'md', className = '' }: LogoProps) {
+  const { height, width } = sizes[size]
 
-  const primaryColor = variant === 'white' ? '#FFFFFF' : 'var(--lodgra-blue-600, #1E3A8A)'
-  const accentColor  = variant === 'white' ? 'rgba(255,255,255,0.8)' : 'var(--lodgra-gold-500, #D4AF37)'
-  const textColor    = variant === 'white' ? '#FFFFFF' : 'var(--lodgra-blue-900, #0F172A)'
+  // Note: For 'white' variant, we might need a different image file if one exists.
+  // Since only the vertical logo was provided, we use it as default.
+  const src = '/brand/lodgra-logo-vertical.png'
 
   return (
-    <div className={`inline-flex items-center ${gap} ${className}`}>
-      {/* Icon — Lodgra house outline */}
-      <svg
-        width={iconSize}
-        height={iconSize}
-        viewBox="0 0 24 24"
-        fill="none"
-        aria-hidden="true"
-      >
-        {/* Roof: gold chevron */}
-        <path
-          d="M2 12L12 3L22 12"
-          stroke={accentColor}
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        {/* House body: blue outline, open top */}
-        <path
-          d="M4 10V19C4 20.1046 4.89543 21 6 21H18C19.1046 21 20 20.1046 20 19V10"
-          stroke={primaryColor}
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-      <span
-        className={`font-black tracking-tight ${textSize} font-[family-name:var(--font-hanken-grotesk)]`}
-        style={{ color: textColor }}
-      >
-        Lodgra
-      </span>
+    <div className={`inline-flex items-center ${className}`}>
+      <Image
+        src={src}
+        alt="Lodgra Logo"
+        height={height}
+        width={width}
+        className="object-contain"
+        priority
+      />
     </div>
   )
 }

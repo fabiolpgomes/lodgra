@@ -4,7 +4,7 @@ colors:
   lamborghini-gold: '#ffc000'
   navy-blue: '#1E3A8A'
   accent-green: '#059669'
-  dark-iron: '#181818'
+  dark-iron: '#030447ff'
   near-white: '#f8f8f8'
   pure-white: '#ffffff'
 typography:
