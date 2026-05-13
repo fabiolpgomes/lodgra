@@ -37,6 +37,11 @@ export function ReservationRow({ reservation }: ReservationRowProps) {
     return name.length > maxChars ? `${name.substring(0, maxChars)}...` : name
   }
 
+  const truncateEmail = (email: string | undefined, maxChars: number = 40): string => {
+    if (!email) return '-'
+    return email.length > maxChars ? `${email.substring(0, maxChars)}...` : email
+  }
+
   const countryFlag = property?.country ? COUNTRY_FLAGS[property.country] || '🌍' : ''
 
   const statusConfig = {
@@ -85,7 +90,7 @@ export function ReservationRow({ reservation }: ReservationRowProps) {
             <div className="text-xs font-medium text-gray-900 truncate">
               {guest ? `${guest.first_name} ${guest.last_name}` : 'Hóspede não cadastrado'}
             </div>
-            <div className="text-xs text-gray-500 truncate">{guest?.email || '-'}</div>
+            <div className="text-xs text-gray-500 truncate" title={guest?.email}>{truncateEmail(guest?.email)}</div>
           </div>
         </div>
       </td>

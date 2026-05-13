@@ -88,7 +88,7 @@ export function Sidebar({ serverProfile }: SidebarProps) {
 
   return (
     <aside
-      className="hidden md:flex flex-col fixed top-0 left-0 h-screen z-40 bg-[#1E3A8A] border-r border-[#ffffff]/10"
+      className="hidden md:flex flex-col fixed top-0 left-0 h-screen z-40 bg-white border-r border-[#1E3A8A]/10"
       style={{ width: '260px' }}
     >
       <div className="px-6 py-10 bg-white border-b border-lodgra-blue/10 flex items-center justify-center">
@@ -109,7 +109,7 @@ export function Sidebar({ serverProfile }: SidebarProps) {
               className={`flex items-center gap-3 px-4 py-3 rounded-none text-[13px] font-black uppercase tracking-[1px] transition-all font-[family-name:var(--font-hanken-grotesk)] ${
                 active
                   ? 'bg-[#ffc000] text-[#1E3A8A]'
-                  : 'text-[#ffffff]/70 hover:text-[#ffc000] hover:bg-[#ffffff]/5'
+                  : 'text-[#1E3A8A] hover:text-[#1E3A8A] hover:bg-[#ffc000]/10'
               }`}
             >
               <Icon className="h-4 w-4 shrink-0" />
@@ -120,7 +120,7 @@ export function Sidebar({ serverProfile }: SidebarProps) {
 
         {/* Config group */}
         <div className="pt-8">
-          <p className="px-4 mb-4 text-[10px] font-black uppercase tracking-[2px] text-[#ffffff]/30 font-[family-name:var(--font-hanken-grotesk)]">
+          <p className="px-4 mb-4 text-[10px] font-black uppercase tracking-[2px] text-[#1E3A8A]/40 font-[family-name:var(--font-hanken-grotesk)]">
             Configuração
           </p>
           {configLinks.map(({ href, label, icon: Icon }) => {
@@ -132,7 +132,7 @@ export function Sidebar({ serverProfile }: SidebarProps) {
                 className={`flex items-center gap-3 px-4 py-3 rounded-none text-[13px] font-black uppercase tracking-[1px] transition-all font-[family-name:var(--font-hanken-grotesk)] ${
                   active
                     ? 'bg-[#ffc000] text-[#1E3A8A]'
-                    : 'text-[#ffffff]/70 hover:text-[#ffc000] hover:bg-[#ffffff]/5'
+                    : 'text-[#1E3A8A] hover:text-[#1E3A8A] hover:bg-[#ffc000]/10'
                 }`}
               >
                 <Icon className="h-4 w-4 shrink-0" />
