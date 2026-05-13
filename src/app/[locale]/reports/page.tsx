@@ -378,6 +378,18 @@ export default async function ReportsPage({ searchParams }: PageProps) {
     }
   })
 
+  // Calcular totais por moeda (para FinancialOverviewCharts)
+  const totalsByCurrency: Record<string, { revenue: number; mgmt: number; owner: number }> = {}
+  propertyStats.forEach(stat => {
+    const currency = stat.currency as CurrencyCode
+    if (!totalsByCurrency[currency]) {
+      totalsByCurrency[currency] = { revenue: 0, mgmt: 0, owner: 0 }
+    }
+    totalsByCurrency[currency].revenue += stat.revenue
+    totalsByCurrency[currency].mgmt += stat.management_fee
+    totalsByCurrency[currency].owner += stat.owner_net
+  })
+
   // Agrupar por mês
   const revenueByMonth = reservations?.reduce((acc: Record<string, { monthKey: string; month: string; currency: string; revenue: number; reservations: number; nights: number; availableNights: number }>, r) => {
     const date = new Date(r.check_in)
@@ -664,10 +676,10 @@ export default async function ReportsPage({ searchParams }: PageProps) {
 
         {/* Conteúdo da Aba Ativa */}
         {activeTab === 'dashboard' ? (
-          <FinancialOverviewCharts 
+          <FinancialOverviewCharts
             monthlyStats={monthlyStats}
             propertyStats={propertyStats}
-            currency={Object.keys(revenueByCurrency)[0] || 'EUR'}
+            totalsByCurrency={totalsByCurrency}
           />
         ) : activeTab === 'receitas' ? (
           <>

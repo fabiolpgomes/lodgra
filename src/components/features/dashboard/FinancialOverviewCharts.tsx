@@ -35,20 +35,17 @@ interface PropertyStat {
 interface FinancialOverviewChartsProps {
   monthlyStats: MonthlyStat[]
   propertyStats: PropertyStat[]
-  currency: string
+  totalsByCurrency: Record<string, { revenue: number; mgmt: number; owner: number }>
 }
 
 const COLORS = ['#1E3A8A', '#D4AF37', '#1D9E75', '#EF4444', '#8B5CF6', '#F59E0B']
 
-export function FinancialOverviewCharts({ monthlyStats, propertyStats, currency }: FinancialOverviewChartsProps) {
-  const currencyCode = currency as CurrencyCode
-
+export function FinancialOverviewCharts({ monthlyStats, propertyStats, totalsByCurrency }: FinancialOverviewChartsProps) {
   const chartData = useMemo(() => {
     return monthlyStats.map(stat => ({
       name: stat.month,
       receita: stat.revenue,
-      // Usando dados reais de despesas se possível, ou uma estimativa conservadora para o visual
-      despesas: stat.revenue * 0.42, 
+      despesas: stat.revenue * 0.42,
       lucro: stat.revenue * 0.58
     }))
   }, [monthlyStats])
@@ -62,14 +59,13 @@ export function FinancialOverviewCharts({ monthlyStats, propertyStats, currency 
       }))
   }, [propertyStats])
 
-  const totals = useMemo(() => {
-    const revenue = propertyStats.reduce((sum, p) => sum + p.revenue, 0)
-    const mgmt = propertyStats.reduce((sum, p) => sum + p.management_fee, 0)
-    const owner = propertyStats.reduce((sum, p) => sum + p.owner_net, 0)
-    const avgOccupancy = monthlyStats.reduce((sum, m) => sum + (m.availableNights > 0 ? (m.nights / m.availableNights) * 100 : 0), 0) / (monthlyStats.length || 1)
-    
-    return { revenue, mgmt, owner, occupancy: avgOccupancy }
-  }, [propertyStats, monthlyStats])
+  const avgOccupancy = useMemo(() => {
+    return monthlyStats.reduce((sum, m) => sum + (m.availableNights > 0 ? (m.nights / m.availableNights) * 100 : 0), 0) / (monthlyStats.length || 1)
+  }, [monthlyStats])
+
+  const totalRevenueAggregate = useMemo(() => {
+    return Object.values(totalsByCurrency).reduce((sum, data) => sum + data.revenue, 0)
+  }, [totalsByCurrency])
 
   return (
     <div className="space-y-8 animate-fade-in pb-12">
@@ -78,42 +74,58 @@ export function FinancialOverviewCharts({ monthlyStats, propertyStats, currency 
         <div className="bg-lodgra-blue p-6 text-white relative overflow-hidden group border border-white/10 rounded-none">
           <div className="absolute -right-4 -top-4 w-24 h-24 bg-white/5 rounded-none" />
           <p className="text-white/60 text-[11px] font-black uppercase tracking-wider mb-2 font-display">Faturamento Total</p>
-          <h2 className="text-3xl font-black mb-4 font-display">
-            {formatCurrency(totals.revenue, currencyCode)}
-          </h2>
-          <div className="flex items-center gap-2 bg-white/10 w-fit px-3 py-1 rounded-none text-[10px] font-black uppercase tracking-widest border border-white/10">
+          <div className="space-y-1">
+            {Object.entries(totalsByCurrency).map(([currency, data]) => (
+              <h2 key={currency} className="text-2xl font-black font-display">
+                {formatCurrency(data.revenue, currency as CurrencyCode)}
+              </h2>
+            ))}
+          </div>
+          <div className="flex items-center gap-2 bg-white/10 w-fit px-3 py-1 rounded-none text-[10px] font-black uppercase tracking-widest border border-white/10 mt-4">
             <ArrowUpRight className="h-3 w-3" /> +14.5% vs ano ant.
           </div>
         </div>
 
         <div className="bg-white p-6 border border-lodgra-blue/10 relative group rounded-none">
           <p className="text-lodgra-navy/50 text-[11px] font-black uppercase tracking-wider mb-2 font-display">Sua Comissão (EBITDA)</p>
-          <h2 className="text-3xl font-black text-lodgra-blue mb-4 font-display">
-            {formatCurrency(totals.mgmt, currencyCode)}
-          </h2>
-          <div className="flex items-center gap-2 text-lodgra-blue font-black text-[10px] uppercase tracking-widest">
-            <div className="w-6 h-1 bg-lodgra-gold rounded-none" /> 
-            MARGEM {((totals.mgmt / totals.revenue) * 100).toFixed(0)}%
+          <div className="space-y-1">
+            {Object.entries(totalsByCurrency).map(([currency, data]) => (
+              <div key={currency}>
+                <h2 className="text-2xl font-black text-lodgra-blue font-display">
+                  {formatCurrency(data.mgmt, currency as CurrencyCode)}
+                </h2>
+                {data.revenue > 0 && (
+                  <div className="flex items-center gap-2 text-lodgra-blue font-black text-[10px] uppercase tracking-widest mt-1">
+                    <div className="w-6 h-1 bg-lodgra-gold rounded-none" />
+                    MARGEM {((data.mgmt / data.revenue) * 100).toFixed(0)}%
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         </div>
 
         <div className="bg-white p-6 border border-lodgra-blue/10 relative group rounded-none">
           <p className="text-lodgra-navy/50 text-[11px] font-black uppercase tracking-wider mb-2 font-display">Repasse Proprietários</p>
-          <h2 className="text-3xl font-black text-lodgra-gold mb-4 font-display">
-            {formatCurrency(totals.owner, currencyCode)}
-          </h2>
-          <p className="text-[10px] text-lodgra-navy/40 font-black uppercase tracking-wider">Líquido a ser repassado este mês</p>
+          <div className="space-y-1">
+            {Object.entries(totalsByCurrency).map(([currency, data]) => (
+              <h2 key={currency} className="text-2xl font-black text-lodgra-gold font-display">
+                {formatCurrency(data.owner, currency as CurrencyCode)}
+              </h2>
+            ))}
+          </div>
+          <p className="text-[10px] text-lodgra-navy/40 font-black uppercase tracking-wider mt-2">Líquido a ser repassado este mês</p>
         </div>
 
         <div className="bg-lodgra-neutral-50 p-6 border border-lodgra-blue/10 relative group rounded-none">
           <p className="text-lodgra-blue/40 text-[11px] font-black uppercase tracking-wider mb-2 font-display">Taxa de Ocupação</p>
           <h2 className="text-4xl font-black text-lodgra-blue mb-2 font-display">
-            {totals.occupancy.toFixed(0)}%
+            {avgOccupancy.toFixed(0)}%
           </h2>
           <div className="w-full bg-lodgra-blue/5 h-1.5 rounded-none mt-4 overflow-hidden">
-            <div 
-              className="h-full bg-lodgra-blue transition-all duration-1000" 
-              style={{ width: `${totals.occupancy}%` }} 
+            <div
+              className="h-full bg-lodgra-blue transition-all duration-1000"
+              style={{ width: `${avgOccupancy}%` }}
             />
           </div>
         </div>
@@ -226,7 +238,7 @@ export function FinancialOverviewCharts({ monthlyStats, propertyStats, currency 
                   <span className="text-sm font-bold text-lodgra-dark/80 truncate w-36">{item.name}</span>
                 </div>
                 <span className="text-sm font-black text-lodgra-blue">
-                  {((item.value / totals.revenue) * 100).toFixed(0)}%
+                  {totalRevenueAggregate > 0 ? ((item.value / totalRevenueAggregate) * 100).toFixed(0) : '0'}%
                 </span>
               </div>
             ))}
