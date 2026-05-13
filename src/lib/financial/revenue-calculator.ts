@@ -72,14 +72,15 @@ export function calculateRevenueForReservation(
   const checkOut = new Date(`${checkOutStr}T00:00:00Z`)
   const durationDays = calculateDaysBetween(checkIn, checkOut)
   const checkOutMonthKey = getMonthKey(checkOut)
+  const checkInMonthKey = getMonthKey(checkIn)
 
   const monthlyBreakdown: RevenueCalculationResult['monthlyBreakdown'] = []
 
   if (durationDays <= 30) {
     // AC2: Reservas < 30 dias → 100% no mês do checkout
-    // isActual: true se mês >= checkout month (pagamento no mês do checkout ou depois)
+    // isActual: true if month is checkout month
     const month = checkOutMonthKey
-    const isActual = month >= checkOutMonthKey // True if month is checkout month or later
+    const isActual = month >= checkOutMonthKey
     monthlyBreakdown.push({
       month,
       value: roundTwoDecimals(reservation.totalAmount),
@@ -88,9 +89,9 @@ export function calculateRevenueForReservation(
     })
   } else if (durationDays <= 60) {
     // AC2b: Reservas 30-60 dias → 100% no mês do checkout
-    // isActual: true se mês >= checkout month
+    // isActual: true if month is checkout month
     const month = checkOutMonthKey
-    const isActual = month >= checkOutMonthKey // True if month is checkout month or later
+    const isActual = month >= checkOutMonthKey
     monthlyBreakdown.push({
       month,
       value: roundTwoDecimals(reservation.totalAmount),
@@ -98,10 +99,13 @@ export function calculateRevenueForReservation(
       isActual
     })
   } else {
-    // AC3: Reservas > 60 dias → Distribuição proporcional (Total / 30 dias considerando leap years)
+    // AC3: Reservas > 60 dias → Distribuição proporcional (Total / dias × dias_do_mês)
+    // Valor Real: apenas no mês do CHECK-IN
+    // Valor Previsto: nos meses seguintes
     let remainingAmount = reservation.totalAmount
     let remainingDays = durationDays
     let currentDate = new Date(checkIn)
+    let isFirstMonth = true
 
     while (remainingDays > 0) {
       const year = currentDate.getUTCFullYear()
@@ -114,7 +118,7 @@ export function calculateRevenueForReservation(
       // For other months: count all days = daysInMonth
       const daysToUse = Math.min(
         remainingDays,
-        monthlyBreakdown.length === 0
+        isFirstMonth
           ? daysInCurrentMonth - dayOfMonthStart
           : daysInCurrentMonth
       )
@@ -122,9 +126,9 @@ export function calculateRevenueForReservation(
       // AC3 formula: Receita = (Saldo / Dias Restantes) × Dias do Mês
       const monthlyValue = roundTwoDecimals((remainingAmount / remainingDays) * daysToUse)
 
-      // isActual: true se mês >= checkout month (pagamento proporcional a partir do checkout)
+      // isActual: true only for check-in month (Valor Real)
       const currentMonthKey = getMonthKey(currentDate)
-      const isActual = currentMonthKey >= checkOutMonthKey
+      const isActual = isFirstMonth // Only first month (check-in) is Real
 
       monthlyBreakdown.push({
         month: currentMonthKey,
@@ -135,6 +139,7 @@ export function calculateRevenueForReservation(
 
       remainingAmount -= monthlyValue
       remainingDays -= daysToUse
+      isFirstMonth = false
 
       // Move to first day of next month (UTC-safe)
       currentDate = new Date(Date.UTC(year, monthIndex + 1, 1))

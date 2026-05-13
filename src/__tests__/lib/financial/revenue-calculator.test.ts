@@ -323,11 +323,12 @@ describe('Revenue Calculator', () => {
     })
 
     it('should classify > 60 days with proportional distribution', () => {
-      // Reserva 15/05-04/08 (81 dias - > 60)
+      // Reserva 02/05-04/08 (94 dias - > 60)
+      // Real em Maio (check-in month), Previsto em Junho/Julho/Agosto
       const reservation = {
         id: 'res-001',
-        totalAmount: 8100,
-        checkIn: '2026-05-15',
+        totalAmount: 17230,
+        checkIn: '2026-05-02',
         checkOut: '2026-08-04',
         currency: 'BRL',
         status: 'confirmed' as const
@@ -335,33 +336,35 @@ describe('Revenue Calculator', () => {
 
       const result = calculateRevenueForReservation(reservation)
 
-      expect(result.durationDays).toBe(81)
-      expect(result.monthlyBreakdown.length).toBeGreaterThan(1)
+      expect(result.durationDays).toBe(94)
+      expect(result.monthlyBreakdown.length).toBe(4)
 
-      // All months >= checkout month (2026-08) should be Real/Actual
-      const checkoutMonth = '2026-08'
-      const months = result.monthlyBreakdown.map(m => m.month)
-
-      // May and June should be Previsto (Predicted)
+      // May (check-in month) should be Real
       const mayBreakdown = result.monthlyBreakdown.find(m => m.month === '2026-05')
+      expect(mayBreakdown?.isActual).toBe(true) // Check-in month - Real
+      // Allow rounding variance (≈ 0.04%)
+      expect(mayBreakdown?.value).toBeGreaterThan(5310)
+      expect(mayBreakdown?.value).toBeLessThan(5325)
+
+      // June, July, August should be Previsto (Predicted)
       const juneBreakdown = result.monthlyBreakdown.find(m => m.month === '2026-06')
-
-      expect(mayBreakdown?.isActual).toBe(false) // Before checkout
-      expect(juneBreakdown?.isActual).toBe(false) // Before checkout
-
-      // July and August should contain checkout month logic
       const julyBreakdown = result.monthlyBreakdown.find(m => m.month === '2026-07')
       const augBreakdown = result.monthlyBreakdown.find(m => m.month === '2026-08')
 
-      expect(julyBreakdown?.isActual).toBe(false) // Before checkout (Aug 4)
-      expect(augBreakdown?.isActual).toBe(true) // Checkout month - Real
+      expect(juneBreakdown?.isActual).toBe(false) // Previsto
+      expect(julyBreakdown?.isActual).toBe(false) // Previsto
+      expect(augBreakdown?.isActual).toBe(false) // Previsto
+
+      // Total should match
+      const total = result.monthlyBreakdown.reduce((sum, m) => sum + m.value, 0)
+      expect(total).toBeCloseTo(17230, 0)
     })
 
     it('should consider leap year (Feb 29) in > 60 days calculation', () => {
-      // 2024 is leap year - crossing Feb 29
+      // 2024 is leap year - crossing Feb 29 (69 days > 60)
       const reservation = {
         id: 'res-001',
-        totalAmount: 9000,
+        totalAmount: 6900,
         checkIn: '2024-02-01',
         checkOut: '2024-04-10',
         currency: 'USD',
@@ -370,16 +373,18 @@ describe('Revenue Calculator', () => {
 
       const result = calculateRevenueForReservation(reservation)
 
-      // Should span Feb (29 days - leap year), Mar (31 days), Apr (partial)
+      // Should span Feb (31 days - leap year), Mar (31 days), Apr (7 days)
       const febBreakdown = result.monthlyBreakdown.find(m => m.month === '2024-02')
       const marBreakdown = result.monthlyBreakdown.find(m => m.month === '2024-03')
+      const aprilBreakdown = result.monthlyBreakdown.find(m => m.month === '2024-04')
 
       expect(febBreakdown?.daysInMonth).toBe(29) // Leap year Feb
       expect(marBreakdown?.daysInMonth).toBe(31) // March has 31 days
 
-      // All should be Real (checkout in April, all before/at checkout)
-      const aprilBreakdown = result.monthlyBreakdown.find(m => m.month === '2024-04')
-      expect(aprilBreakdown?.isActual).toBe(true) // Checkout month - Real
+      // February (check-in month) should be Real, others Previsto
+      expect(febBreakdown?.isActual).toBe(true) // Check-in month - Real
+      expect(marBreakdown?.isActual).toBe(false) // Previsto
+      expect(aprilBreakdown?.isActual).toBe(false) // Previsto
     })
   })
 
