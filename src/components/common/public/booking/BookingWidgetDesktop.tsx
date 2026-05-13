@@ -32,6 +32,10 @@ interface BookingWidgetDesktopProps {
   maxGuests?: number
   pricingRules?: PricingRule[]
   blockedRanges?: BlockedRange[]
+  cleaningFee?: number | null
+  cleaningFeeType?: string | null
+  petFee?: number | null
+  petFeeType?: string | null
 }
 
 function isDateBlocked(date: string, ranges: BlockedRange[]): boolean {
@@ -53,6 +57,10 @@ export function BookingWidgetDesktop({
   maxGuests = 10,
   pricingRules = [],
   blockedRanges = [],
+  cleaningFee,
+  cleaningFeeType,
+  petFee,
+  petFeeType,
 }: BookingWidgetDesktopProps) {
   const [checkIn, setCheckIn] = useState(initialCheckIn || '')
   const [checkOut, setCheckOut] = useState(initialCheckOut || '')
@@ -96,7 +104,15 @@ export function BookingWidgetDesktop({
     if (!fetchKey) return
     let cancelled = false
     setPriceState({ status: 'loading' })
-    fetch(`/api/public/properties/${slug}/pricing?checkin=${checkIn}&checkout=${checkOut}`)
+    const params = new URLSearchParams({
+      checkin: checkIn,
+      checkout: checkOut,
+      ...(cleaningFee !== undefined && cleaningFee !== null && { cleaningFee: cleaningFee.toString() }),
+      ...(cleaningFeeType && { cleaningFeeType }),
+      ...(petFee !== undefined && petFee !== null && { petFee: petFee.toString() }),
+      ...(petFeeType && { petFeeType }),
+    })
+    fetch(`/api/public/properties/${slug}/pricing?${params}`)
       .then(r => r.ok ? r.json() : null)
       .then(data => {
         if (!cancelled) {
@@ -106,7 +122,7 @@ export function BookingWidgetDesktop({
       .catch(() => { if (!cancelled) setPriceState({ status: 'idle' }) })
     return () => { cancelled = true }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fetchKey, slug])
+  }, [fetchKey, slug, cleaningFee, cleaningFeeType, petFee, petFeeType])
 
   const isReady = priceState.status === 'ready' && fetchKey !== null
   const isPriceFetching = priceState.status === 'loading'

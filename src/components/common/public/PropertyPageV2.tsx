@@ -112,6 +112,10 @@ export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, 
                 maxGuests={property.max_guests ?? undefined}
                 pricingRules={pricingRules}
                 blockedRanges={blockedRanges}
+                cleaningFee={cleaningFee}
+                cleaningFeeType={cleaningFeeType}
+                petFee={petFee}
+                petFeeType={petFeeType}
               />
             </div>
           </div>
@@ -243,6 +247,10 @@ export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, 
         maxGuests={property.max_guests ?? undefined}
         pricingRules={pricingRules}
         blockedRanges={blockedRanges}
+        cleaningFee={cleaningFee}
+        cleaningFeeType={cleaningFeeType}
+        petFee={petFee}
+        petFeeType={petFeeType}
       />
 
       {/* Lightbox Modal */}

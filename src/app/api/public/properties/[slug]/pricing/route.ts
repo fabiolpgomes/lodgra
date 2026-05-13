@@ -24,6 +24,10 @@ export async function GET(
   const checkinStr = searchParams.get('checkin')
   const checkoutStr = searchParams.get('checkout')
   const currencyParam = searchParams.get('currency')
+  const cleaningFeeStr = searchParams.get('cleaningFee')
+  const cleaningFeeTypeStr = searchParams.get('cleaningFeeType')
+  const petFeeStr = searchParams.get('petFee')
+  const petFeeTypeStr = searchParams.get('petFeeType')
 
   if (!checkinStr || !checkoutStr) {
     return NextResponse.json({ error: 'checkin and checkout are required' }, { status: 400 })
@@ -38,6 +42,20 @@ export async function GET(
 
   // Validate and parse currency parameter (defaults to EUR)
   const targetCurrency = (currencyParam && isSupportedCurrency(currencyParam)) ? currencyParam : 'EUR'
+
+  // Parse fees
+  const cleaningFee = cleaningFeeStr ? parseFloat(cleaningFeeStr) : 0
+  const petFee = petFeeStr ? parseFloat(petFeeStr) : 0
+  const nights = differenceInDays(checkOut, checkIn)
+
+  // Calculate additional fees
+  let additionalFees = 0
+  if (cleaningFee > 0) {
+    additionalFees += cleaningFeeTypeStr === 'per_night' ? cleaningFee * nights : cleaningFee
+  }
+  if (petFee > 0) {
+    additionalFees += petFeeTypeStr === 'per_night' ? petFee * nights : petFee
+  }
 
   const supabase = createAdminClient()
 
@@ -58,7 +76,13 @@ export async function GET(
     // Convert pricing to requested currency
     const convertedResult = await convertPricingResult(result as PricingResult, targetCurrency as SupportedCurrency)
 
-    return NextResponse.json(convertedResult)
+    // Add fees to the total
+    const finalResult = {
+      ...convertedResult,
+      total: (convertedResult.total || 0) + additionalFees,
+    }
+
+    return NextResponse.json(finalResult)
   } catch (err) {
     console.error('[pricing] Error:', err)
     return NextResponse.json({ error: 'Internal error' }, { status: 500 })
