@@ -2,6 +2,10 @@
  * Revenue calculator for proportional distribution across months.
  * Handles both simple (≤30 days) and complex (>30 days) reservation scenarios.
  * Formula: (Total / Days) × 30 for >30 day reservations
+ *
+ * TIMEZONE: All date calculations use UTC to ensure consistency across timezones.
+ * Check-in/check-out dates are always interpreted as UTC dates, regardless of browser/server timezone.
+ * This prevents edge cases where a user in UTC+8 gets different month distribution than UTC-8.
  */
 
 interface ReservationData {
@@ -37,11 +41,14 @@ function roundTwoDecimals(value: number): number {
 }
 
 function getDaysInMonth(year: number, month: number): number {
-  return new Date(year, month + 1, 0).getDate()
+  // UTC-safe: Get last day of month using UTC dates
+  const lastDay = new Date(Date.UTC(year, month + 1, 0))
+  return lastDay.getUTCDate()
 }
 
 function getMonthKey(date: Date): string {
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
+  // UTC-safe: Use UTC components for month key
+  return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}`
 }
 
 function calculateDaysBetween(checkIn: Date, checkOut: Date): number {
@@ -57,8 +64,12 @@ function calculateDaysBetween(checkIn: Date, checkOut: Date): number {
 export function calculateRevenueForReservation(
   reservation: ReservationData
 ): RevenueCalculationResult {
-  const checkIn = new Date(reservation.checkIn)
-  const checkOut = new Date(reservation.checkOut)
+  // Parse dates as UTC (treat input strings as UTC dates)
+  const checkInStr = typeof reservation.checkIn === 'string' ? reservation.checkIn : reservation.checkIn.toISOString().split('T')[0]
+  const checkOutStr = typeof reservation.checkOut === 'string' ? reservation.checkOut : reservation.checkOut.toISOString().split('T')[0]
+
+  const checkIn = new Date(`${checkInStr}T00:00:00Z`)
+  const checkOut = new Date(`${checkOutStr}T00:00:00Z`)
   const durationDays = calculateDaysBetween(checkIn, checkOut)
 
   const monthlyBreakdown: RevenueCalculationResult['monthlyBreakdown'] = []
@@ -69,7 +80,7 @@ export function calculateRevenueForReservation(
     monthlyBreakdown.push({
       month,
       value: roundTwoDecimals(reservation.totalAmount),
-      daysInMonth: getDaysInMonth(checkIn.getFullYear(), checkIn.getMonth()),
+      daysInMonth: getDaysInMonth(checkIn.getUTCFullYear(), checkIn.getUTCMonth()),
       isActual: true
     })
   } else {
@@ -79,10 +90,10 @@ export function calculateRevenueForReservation(
     let currentDate = new Date(checkIn)
 
     while (remainingDays > 0) {
-      const year = currentDate.getFullYear()
-      const monthIndex = currentDate.getMonth()
+      const year = currentDate.getUTCFullYear()
+      const monthIndex = currentDate.getUTCMonth()
       const daysInCurrentMonth = getDaysInMonth(year, monthIndex)
-      const dayOfMonthStart = currentDate.getDate()
+      const dayOfMonthStart = currentDate.getUTCDate()
 
       // Days in this month
       // For first month: exclude check-in day itself, count rest = daysInMonth - dayOfCheckin
@@ -107,8 +118,8 @@ export function calculateRevenueForReservation(
       remainingAmount -= monthlyValue
       remainingDays -= daysToUse
 
-      // Move to first day of next month
-      currentDate = new Date(year, monthIndex + 1, 1)
+      // Move to first day of next month (UTC-safe)
+      currentDate = new Date(Date.UTC(year, monthIndex + 1, 1))
     }
   }
 

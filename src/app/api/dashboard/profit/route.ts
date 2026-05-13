@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { aggregateMonthlyRevenue, calculateProfit } from '@/lib/financial/revenue-calculator'
+import { cache } from '@/lib/cache/simple-cache'
 
 export const dynamic = 'force-dynamic'
 
@@ -10,20 +11,44 @@ export async function GET(request: NextRequest) {
     const currency = searchParams.get('currency')
     const month = searchParams.get('month') || new Date().toISOString().slice(0, 7)
 
-    const supabase = await createClient()
+    // Check cache first (TTL: 1 hour = 3600 seconds)
+    const revenueCacheKey = 'revenue:all'
+    let revenueByMonth = cache.get<Map<string, any>>(revenueCacheKey)
 
-    // Fetch confirmed reservations
-    const { data: reservations, error: reservError } = await supabase
-      .from('reservations')
-      .select('id, total_amount, check_in, check_out, currency, status')
-      .eq('status', 'confirmed')
+    if (!revenueByMonth) {
+      const supabase = await createClient()
 
-    if (reservError) {
-      return NextResponse.json(
-        { error: `Failed to fetch reservations: ${reservError.message}` },
-        { status: 500 }
-      )
+      // Fetch confirmed reservations
+      const { data: reservations, error: reservError } = await supabase
+        .from('reservations')
+        .select('id, total_amount, check_in, check_out, currency, status')
+        .eq('status', 'confirmed')
+
+      if (reservError) {
+        return NextResponse.json(
+          { error: `Failed to fetch reservations: ${reservError.message}` },
+          { status: 500 }
+        )
+      }
+
+      // Transform reservations
+      const transformedReservations = reservations.map(r => ({
+        id: r.id,
+        totalAmount: r.total_amount,
+        checkIn: new Date(r.check_in),
+        checkOut: new Date(r.check_out),
+        currency: r.currency,
+        status: r.status as 'confirmed' | 'cancelled' | 'pending'
+      }))
+
+      // Calculate revenue
+      revenueByMonth = aggregateMonthlyRevenue(transformedReservations)
+
+      // Cache result for 1 hour
+      cache.set(revenueCacheKey, revenueByMonth, 3600)
     }
+
+    const supabase = await createClient()
 
     // Fetch expenses for the month
     const { data: expenses, error: expensesError } = await supabase
@@ -38,19 +63,6 @@ export async function GET(request: NextRequest) {
         { status: 500 }
       )
     }
-
-    // Transform reservations
-    const transformedReservations = reservations.map(r => ({
-      id: r.id,
-      totalAmount: r.total_amount,
-      checkIn: new Date(r.check_in),
-      checkOut: new Date(r.check_out),
-      currency: r.currency,
-      status: r.status as 'confirmed' | 'cancelled' | 'pending'
-    }))
-
-    // Calculate revenue
-    const revenueByMonth = aggregateMonthlyRevenue(transformedReservations)
 
     // Aggregate expenses by currency
     const expensesByurrency: Record<string, number> = {}
