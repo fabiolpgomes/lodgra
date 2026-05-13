@@ -54,6 +54,7 @@ export function EditReservationForm({ reservation, listings }: EditReservationFo
     guest_email: reservation.guests?.email || '',
     guest_phone: reservation.guests?.phone || '',
   })
+  const [sendConfirmation, setSendConfirmation] = useState(false)
 
   // Calcular noites
   const calculateNights = () => {
@@ -99,6 +100,15 @@ export function EditReservationForm({ reservation, listings }: EditReservationFo
       const data = await response.json()
 
       if (response.ok) {
+        // Enviar email de confirmação se solicitado (fire-and-forget)
+        if (sendConfirmation && formData.guest_email) {
+          fetch('/api/email/send-confirmation', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ reservationId: reservation.id }),
+          }).catch(err => console.error('Erro ao enviar email de confirmação:', err))
+        }
+
         toast.success('Reserva atualizada com sucesso!')
         router.push(`/reservations/${reservation.id}`)
         router.refresh()
@@ -243,6 +253,18 @@ export function EditReservationForm({ reservation, listings }: EditReservationFo
               onChange={handleChange}
             />
           </div>
+        </div>
+
+        <div className="mt-4">
+          <label className="flex items-center gap-2 text-sm text-gray-700">
+            <input
+              type="checkbox"
+              checked={sendConfirmation}
+              onChange={(e) => setSendConfirmation(e.target.checked)}
+              className="rounded border-gray-300"
+            />
+            Enviar email de confirmação ao hóspede
+          </label>
         </div>
       </div>
 

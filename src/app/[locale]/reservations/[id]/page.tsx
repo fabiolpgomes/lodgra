@@ -1,11 +1,12 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { Calendar, Users, Mail, Phone, MapPin, CreditCard, Clock, ArrowLeft, Edit, Building2, Send } from 'lucide-react'
+import { Calendar, Users, Mail, Phone, MapPin, CreditCard, Clock, ArrowLeft, Edit, Building2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { CancelReservationButton } from '@/components/features/reservations/CancelReservationButton'
 import { DeleteReservationButton } from '@/components/features/reservations/DeleteReservationButton'
 import { InternalNotes } from '@/components/features/reservations/InternalNotes'
 import { PrintReservationButton } from '@/components/features/reservations/PrintReservationButton'
+import { SendConfirmationButton } from '@/components/features/reservations/SendConfirmationButton'
 import { formatCurrency } from '@/lib/utils/currency'
 import { AuthLayout } from '@/components/common/layout/AuthLayout'
 import { getUserRole } from '@/lib/auth/getUserRole'
@@ -398,23 +399,10 @@ export default async function ReservationDetailsPage({
             <div className="bg-blue-50 rounded-lg p-4 border border-blue-200 no-print">
               <h4 className="font-semibold text-gray-900 mb-2">Ações Rápidas</h4>
               <div className="space-y-2 text-sm">
-                <a
-                  href={`mailto:${guest?.email || ''}?subject=${encodeURIComponent(`Confirmação de Reserva #${reservation.confirmation_code || id.slice(0, 8).toUpperCase()}`)}&body=${encodeURIComponent(
-                    `Olá ${guest?.first_name || ''},\n\nConfirmamos a sua reserva:\n\n` +
-                    `Reserva: #${reservation.confirmation_code || id.slice(0, 8).toUpperCase()}\n` +
-                    `Propriedade: ${property?.name || 'N/A'}\n` +
-                    `Check-in: ${checkIn.toLocaleDateString('pt-BR')}\n` +
-                    `Check-out: ${checkOut.toLocaleDateString('pt-BR')}\n` +
-                    `Noites: ${nights}\n` +
-                    `Hóspedes: ${reservation.number_of_guests}\n` +
-                    `Valor Total: ${reservation.total_amount ? `${reservation.total_amount} ${displayCurrency}` : 'N/A'}\n\n` +
-                    `Obrigado!`
-                  )}`}
-                  className="w-full flex items-center gap-2 px-3 py-2 text-blue-700 hover:bg-blue-100 rounded transition-colors"
-                >
-                  <Send className="h-4 w-4" />
-                  Enviar confirmação por email
-                </a>
+                <SendConfirmationButton
+                  reservationId={id}
+                  guestEmail={guest?.email}
+                />
                 <Link
                   href={`${prefix}/calendar`}
                   className="w-full flex items-center gap-2 px-3 py-2 text-blue-700 hover:bg-blue-100 rounded transition-colors"

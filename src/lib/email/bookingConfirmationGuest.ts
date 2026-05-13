@@ -45,6 +45,7 @@ export async function sendBookingConfirmationToGuest(data: BookingEmailData): Pr
   const propertyUrl = data.propertySlug
     ? `${data.appUrl}/p/${data.propertySlug}`
     : data.appUrl
+  const logoUrl = `${data.appUrl}/brand/lodgra-logo-vertical.png`
   const sym = ({ BRL: 'R$', EUR: '€', USD: '$' } as Record<string, string>)[data.currency ?? 'EUR'] ?? (data.currency ?? '€')
 
   const html = `
@@ -55,8 +56,8 @@ export async function sendBookingConfirmationToGuest(data: BookingEmailData): Pr
   <div style="max-width:560px;margin:32px auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.1);">
 
     <!-- Header -->
-    <div style="background:#111827;padding:28px 32px;">
-      <p style="margin:0;color:#fff;font-size:18px;font-weight:600;">lodgra.pt</p>
+    <div style="background:#fff;padding:28px 32px;text-align:center;border-bottom:1px solid #e5e7eb;">
+      <img src="${logoUrl}" alt="Lodgra" style="height:60px;object-fit:contain;display:inline-block;" />
     </div>
 
     <!-- Green banner -->
@@ -166,6 +167,7 @@ export async function sendBookingNotificationToManager(data: BookingEmailData): 
 
   const nights = differenceInDays(parseISO(data.checkOut), parseISO(data.checkIn))
   const dashboardUrl = `${data.appUrl}/reservations`
+  const logoUrl = `${data.appUrl}/brand/lodgra-logo-vertical.png`
   const sym = ({ BRL: 'R$', EUR: '€', USD: '$' } as Record<string, string>)[data.currency ?? 'EUR'] ?? (data.currency ?? '€')
 
   const html = `
@@ -176,8 +178,8 @@ export async function sendBookingNotificationToManager(data: BookingEmailData): 
   <div style="max-width:560px;margin:32px auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.1);">
 
     <!-- Header -->
-    <div style="background:#111827;padding:28px 32px;">
-      <p style="margin:0;color:#fff;font-size:18px;font-weight:600;">lodgra.pt</p>
+    <div style="background:#fff;padding:28px 32px;text-align:center;border-bottom:1px solid #e5e7eb;">
+      <img src="${logoUrl}" alt="Lodgra" style="height:60px;object-fit:contain;display:inline-block;" />
     </div>
 
     <!-- Banner -->

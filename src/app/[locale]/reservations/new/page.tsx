@@ -296,6 +296,13 @@ export default function NewReservationPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ reservation_id: data.id }),
         }).catch(err => console.error('Erro ao notificar proprietário:', err))
+
+        // Enviar email de confirmação ao hóspede (fire-and-forget, não bloqueia navegação)
+        fetch('/api/email/send-confirmation', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ reservationId: data.id }),
+        }).catch(err => console.error('Erro ao enviar email de confirmação:', err))
       }
 
       toast.success('Reserva criada com sucesso!')
