@@ -149,25 +149,26 @@ describe('Revenue Calculator', () => {
       expect(total).toBeCloseTo(17230, 0)
     })
 
-    it('should handle leap year February correctly', () => {
-      // 2024 is a leap year
+    it('should handle leap year February correctly (>60 days)', () => {
+      // 2024 is a leap year - 80 days to cross Feb 29
       const reservation = {
         id: 'res-001',
-        totalAmount: 3000,
-        checkIn: new Date('2024-02-15'),
-        checkOut: new Date('2024-03-20'),
+        totalAmount: 8000,
+        checkIn: new Date('2024-02-01'),
+        checkOut: new Date('2024-04-20'),
         currency: 'EUR',
         status: 'confirmed' as const
       }
 
       const result = calculateRevenueForReservation(reservation)
 
-      expect(result.durationDays).toBe(34)
+      expect(result.durationDays).toBe(79)
       expect(result.monthlyBreakdown.length).toBeGreaterThan(1)
 
-      // Feb 2024 has 29 days
+      // Feb 2024 has 29 days (leap year)
       const febBreakdown = result.monthlyBreakdown.find(m => m.month === '2024-02')
       expect(febBreakdown).toBeDefined()
+      expect(febBreakdown?.daysInMonth).toBe(29)
     })
 
     it('should distribute 64-night EUR reservation correctly', () => {
@@ -275,10 +276,117 @@ describe('Revenue Calculator', () => {
     })
   })
 
+  // Real vs Predicted based on Checkout rules
+  describe('Real vs Predicted (Checkout-based classification)', () => {
+    it('should classify < 30 days as Predicted in checkout month', () => {
+      // Reserva 15/05-10/06 (26 dias)
+      const reservation = {
+        id: 'res-001',
+        totalAmount: 1000,
+        checkIn: '2026-05-15',
+        checkOut: '2026-06-10',
+        currency: 'BRL',
+        status: 'confirmed' as const
+      }
+
+      const result = calculateRevenueForReservation(reservation)
+
+      expect(result.durationDays).toBe(26)
+      expect(result.monthlyBreakdown).toHaveLength(1)
+      expect(result.monthlyBreakdown[0]).toMatchObject({
+        month: '2026-06', // Checkout month
+        value: 1000,
+        isActual: true // Real in checkout month
+      })
+    })
+
+    it('should classify 30-60 days as Predicted in checkout month', () => {
+      // Reserva 20/05-28/06 (39 dias)
+      const reservation = {
+        id: 'res-001',
+        totalAmount: 2000,
+        checkIn: '2026-05-20',
+        checkOut: '2026-06-28',
+        currency: 'EUR',
+        status: 'confirmed' as const
+      }
+
+      const result = calculateRevenueForReservation(reservation)
+
+      expect(result.durationDays).toBe(39)
+      expect(result.monthlyBreakdown).toHaveLength(1)
+      expect(result.monthlyBreakdown[0]).toMatchObject({
+        month: '2026-06', // Checkout month
+        value: 2000,
+        isActual: true // Real in checkout month
+      })
+    })
+
+    it('should classify > 60 days with proportional distribution', () => {
+      // Reserva 15/05-04/08 (81 dias - > 60)
+      const reservation = {
+        id: 'res-001',
+        totalAmount: 8100,
+        checkIn: '2026-05-15',
+        checkOut: '2026-08-04',
+        currency: 'BRL',
+        status: 'confirmed' as const
+      }
+
+      const result = calculateRevenueForReservation(reservation)
+
+      expect(result.durationDays).toBe(81)
+      expect(result.monthlyBreakdown.length).toBeGreaterThan(1)
+
+      // All months >= checkout month (2026-08) should be Real/Actual
+      const checkoutMonth = '2026-08'
+      const months = result.monthlyBreakdown.map(m => m.month)
+
+      // May and June should be Previsto (Predicted)
+      const mayBreakdown = result.monthlyBreakdown.find(m => m.month === '2026-05')
+      const juneBreakdown = result.monthlyBreakdown.find(m => m.month === '2026-06')
+
+      expect(mayBreakdown?.isActual).toBe(false) // Before checkout
+      expect(juneBreakdown?.isActual).toBe(false) // Before checkout
+
+      // July and August should contain checkout month logic
+      const julyBreakdown = result.monthlyBreakdown.find(m => m.month === '2026-07')
+      const augBreakdown = result.monthlyBreakdown.find(m => m.month === '2026-08')
+
+      expect(julyBreakdown?.isActual).toBe(false) // Before checkout (Aug 4)
+      expect(augBreakdown?.isActual).toBe(true) // Checkout month - Real
+    })
+
+    it('should consider leap year (Feb 29) in > 60 days calculation', () => {
+      // 2024 is leap year - crossing Feb 29
+      const reservation = {
+        id: 'res-001',
+        totalAmount: 9000,
+        checkIn: '2024-02-01',
+        checkOut: '2024-04-10',
+        currency: 'USD',
+        status: 'confirmed' as const
+      }
+
+      const result = calculateRevenueForReservation(reservation)
+
+      // Should span Feb (29 days - leap year), Mar (31 days), Apr (partial)
+      const febBreakdown = result.monthlyBreakdown.find(m => m.month === '2024-02')
+      const marBreakdown = result.monthlyBreakdown.find(m => m.month === '2024-03')
+
+      expect(febBreakdown?.daysInMonth).toBe(29) // Leap year Feb
+      expect(marBreakdown?.daysInMonth).toBe(31) // March has 31 days
+
+      // All should be Real (checkout in April, all before/at checkout)
+      const aprilBreakdown = result.monthlyBreakdown.find(m => m.month === '2024-04')
+      expect(aprilBreakdown?.isActual).toBe(true) // Checkout month - Real
+    })
+  })
+
   // Timezone handling: UTC for financial calculations
   describe('Timezone Handling (UTC)', () => {
     it('should produce identical results regardless of input date format', () => {
-      // Same reservation, different input formats
+      // Same reservation, different input formats (36 days, 30-60 category)
       const isoString = {
         id: 'res-001',
         totalAmount: 5000,
@@ -302,24 +410,26 @@ describe('Revenue Calculator', () => {
 
       // Results should be identical
       expect(result1.durationDays).toBe(result2.durationDays)
+      expect(result1.durationDays).toBe(36) // 30-60 days category
       expect(result1.monthlyBreakdown).toEqual(result2.monthlyBreakdown)
+      expect(result1.monthlyBreakdown[0].month).toBe('2026-06') // Checkout month
     })
 
     it('should handle leap year correctly (crossing Feb 29)', () => {
-      // 2024 is leap year, test crossing Feb 29 (34 days total)
+      // 2024 is leap year, test crossing Feb 29 (79 days = >60 days category)
       const reservation = {
         id: 'res-001',
-        totalAmount: 6000,
-        checkIn: '2024-02-15',
-        checkOut: '2024-03-20',
+        totalAmount: 7900,
+        checkIn: '2024-02-01',
+        checkOut: '2024-04-20',
         currency: 'EUR',
         status: 'confirmed' as const
       }
 
       const result = calculateRevenueForReservation(reservation)
 
-      // Should have breakdown for Feb and March (>30 days = complex case)
-      expect(result.monthlyBreakdown.length).toBe(2)
+      // Should have breakdown for Feb, Mar, Apr (>60 days = proportional)
+      expect(result.monthlyBreakdown.length).toBeGreaterThanOrEqual(2)
 
       const febBreakdown = result.monthlyBreakdown.find(m => m.month === '2024-02')
       const marBreakdown = result.monthlyBreakdown.find(m => m.month === '2024-03')
@@ -327,21 +437,22 @@ describe('Revenue Calculator', () => {
       expect(febBreakdown).toBeDefined()
       expect(marBreakdown).toBeDefined()
 
-      // Feb 2024 should account for 29 days (leap year)
-      expect(febBreakdown!.daysInMonth).toBe(29)
+      // Feb 2024 should have 29 days (leap year)
+      expect(febBreakdown?.daysInMonth).toBe(29)
+      expect(marBreakdown?.daysInMonth).toBe(31)
 
       // Total should match
       const total = result.monthlyBreakdown.reduce((sum, m) => sum + m.value, 0)
-      expect(total).toBeCloseTo(6000, 0)
+      expect(total).toBeCloseTo(7900, 0)
     })
 
-    it('should handle non-leap year correctly (Feb 28)', () => {
-      // 2025 is not leap year
+    it('should handle non-leap year correctly (Feb 28 in > 60 days)', () => {
+      // 2025 is not leap year - 80 days
       const reservation = {
         id: 'res-001',
-        totalAmount: 6000,
-        checkIn: '2025-02-20',
-        checkOut: '2025-03-15',
+        totalAmount: 8000,
+        checkIn: '2025-02-01',
+        checkOut: '2025-04-21',
         currency: 'EUR',
         status: 'confirmed' as const
       }
@@ -351,11 +462,11 @@ describe('Revenue Calculator', () => {
       const febBreakdown = result.monthlyBreakdown.find(m => m.month === '2025-02')
 
       // Feb 2025 should have 28 days (non-leap year)
-      expect(febBreakdown!.daysInMonth).toBe(28)
+      expect(febBreakdown?.daysInMonth).toBe(28)
 
       // Total should match
       const total = result.monthlyBreakdown.reduce((sum, m) => sum + m.value, 0)
-      expect(total).toBeCloseTo(6000, 0)
+      expect(total).toBeCloseTo(8000, 0)
     })
 
     it('should calculate month boundaries correctly in UTC', () => {

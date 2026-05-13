@@ -71,20 +71,34 @@ export function calculateRevenueForReservation(
   const checkIn = new Date(`${checkInStr}T00:00:00Z`)
   const checkOut = new Date(`${checkOutStr}T00:00:00Z`)
   const durationDays = calculateDaysBetween(checkIn, checkOut)
+  const checkOutMonthKey = getMonthKey(checkOut)
 
   const monthlyBreakdown: RevenueCalculationResult['monthlyBreakdown'] = []
 
   if (durationDays <= 30) {
-    // AC2: Simple case - entire amount in check-in month
-    const month = getMonthKey(checkIn)
+    // AC2: Reservas < 30 dias → 100% no mês do checkout
+    // isActual: true se mês >= checkout month (pagamento no mês do checkout ou depois)
+    const month = checkOutMonthKey
+    const isActual = month >= checkOutMonthKey // True if month is checkout month or later
     monthlyBreakdown.push({
       month,
       value: roundTwoDecimals(reservation.totalAmount),
-      daysInMonth: getDaysInMonth(checkIn.getUTCFullYear(), checkIn.getUTCMonth()),
-      isActual: true
+      daysInMonth: getDaysInMonth(checkOut.getUTCFullYear(), checkOut.getUTCMonth()),
+      isActual
+    })
+  } else if (durationDays <= 60) {
+    // AC2b: Reservas 30-60 dias → 100% no mês do checkout
+    // isActual: true se mês >= checkout month
+    const month = checkOutMonthKey
+    const isActual = month >= checkOutMonthKey // True if month is checkout month or later
+    monthlyBreakdown.push({
+      month,
+      value: roundTwoDecimals(reservation.totalAmount),
+      daysInMonth: getDaysInMonth(checkOut.getUTCFullYear(), checkOut.getUTCMonth()),
+      isActual
     })
   } else {
-    // AC3: Complex case - proportional distribution
+    // AC3: Reservas > 60 dias → Distribuição proporcional (Total / 30 dias considerando leap years)
     let remainingAmount = reservation.totalAmount
     let remainingDays = durationDays
     let currentDate = new Date(checkIn)
@@ -108,11 +122,15 @@ export function calculateRevenueForReservation(
       // AC3 formula: Receita = (Saldo / Dias Restantes) × Dias do Mês
       const monthlyValue = roundTwoDecimals((remainingAmount / remainingDays) * daysToUse)
 
+      // isActual: true se mês >= checkout month (pagamento proporcional a partir do checkout)
+      const currentMonthKey = getMonthKey(currentDate)
+      const isActual = currentMonthKey >= checkOutMonthKey
+
       monthlyBreakdown.push({
-        month: getMonthKey(currentDate),
+        month: currentMonthKey,
         value: monthlyValue,
         daysInMonth: daysInCurrentMonth,
-        isActual: remainingDays === durationDays // Only first month is "actual"
+        isActual
       })
 
       remainingAmount -= monthlyValue
