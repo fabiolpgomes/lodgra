@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { aggregateMonthlyRevenue, calculateProfit } from '@/lib/financial/revenue-calculator'
+import { aggregateMonthlyRevenue, calculateProfit, type MonthlyRevenue } from '@/lib/financial/revenue-calculator'
 import { cache } from '@/lib/cache/simple-cache'
 
 export const dynamic = 'force-dynamic'
@@ -90,7 +90,7 @@ export async function GET(request: NextRequest) {
 
     for (const curr of allCurrencies) {
       const monthlyData = revenueByMonth.get(curr) || []
-      const currentMonth = monthlyData.find(item => item.month === month)
+      const currentMonth = monthlyData.find((item: MonthlyRevenue) => item.month === month)
       const actualRevenue = currentMonth?.actual || 0
       const totalExpenses = expensesByurrency[curr] || 0
       const profit = calculateProfit(actualRevenue, totalExpenses)

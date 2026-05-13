@@ -17,7 +17,7 @@ interface ReservationData {
   status: 'confirmed' | 'cancelled' | 'pending'
 }
 
-interface MonthlyRevenue {
+export interface MonthlyRevenue {
   month: string
   actual: number
   predicted: number
