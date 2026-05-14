@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createAdminClient } from '@/lib/supabase/admin'
+import { createClient } from '@/lib/supabase/server'
 
 export const dynamic = 'force-dynamic'
+
+const MAX_QUERY_LENGTH = 200
 
 interface SearchResult {
   id: string
@@ -12,23 +14,35 @@ interface SearchResult {
   icon?: string
 }
 
+function escapeLikePattern(str: string): string {
+  return str.replace(/[%_\\]/g, '\\$&')
+}
+
 export async function GET(request: NextRequest) {
+  // Add authentication check
+  const supabase = await createClient()
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+
+  if (authError || !user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   const { searchParams } = new URL(request.url)
   const q = searchParams.get('q')?.trim()
 
-  if (!q || q.length < 2) {
+  if (!q || q.length < 2 || q.length > MAX_QUERY_LENGTH) {
     return NextResponse.json({ results: [] })
   }
 
-  const supabase = createAdminClient()
   const results: SearchResult[] = []
+  const escapedQ = escapeLikePattern(q)
 
   try {
     // Search properties
     const { data: properties } = await supabase
       .from('properties')
       .select('id, name, city, currency')
-      .ilike('name', `%${q}%`)
+      .ilike('name', `%${escapedQ}%`)
       .limit(5)
 
     if (properties) {
@@ -44,11 +58,11 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Search reservations
+    // Search reservations by guest name (more user-friendly than ID)
     const { data: reservations } = await supabase
       .from('reservations')
       .select('id, property_listings(properties(name)), guests(first_name, last_name), check_in')
-      .ilike('id', `%${q}%`)
+      .or(`guests.first_name.ilike.%${escapedQ}%,guests.last_name.ilike.%${escapedQ}%`)
       .limit(5)
 
     if (reservations) {
@@ -76,7 +90,7 @@ export async function GET(request: NextRequest) {
     const { data: expenses } = await supabase
       .from('expenses')
       .select('id, description, category, property_id, properties(name)')
-      .or(`description.ilike.%${q}%,category.ilike.%${q}%`)
+      .or(`description.ilike.%${escapedQ}%,category.ilike.%${escapedQ}%`)
       .limit(5)
 
     if (expenses) {
@@ -95,11 +109,11 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Search owners
+    // Search owners (no PII exposure - removed email)
     const { data: owners } = await supabase
       .from('profiles')
-      .select('id, full_name, email')
-      .ilike('full_name', `%${q}%`)
+      .select('id, full_name')
+      .ilike('full_name', `%${escapedQ}%`)
       .eq('role', 'proprietario')
       .limit(5)
 
@@ -109,7 +123,6 @@ export async function GET(request: NextRequest) {
           id: o.id,
           type: 'owner' as const,
           title: o.full_name,
-          subtitle: o.email,
           href: `/owners/${o.id}`,
           icon: '👤',
         }))
@@ -118,7 +131,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ results })
   } catch (error) {
-    console.error('[Global Search] Error:', error)
+    console.error('[Global Search] Error:', error instanceof Error ? error.message : 'Unknown error')
     return NextResponse.json({ results: [], error: 'Search failed' }, { status: 500 })
   }
 }

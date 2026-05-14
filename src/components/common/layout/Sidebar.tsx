@@ -155,7 +155,7 @@ export function Sidebar({ serverProfile }: SidebarProps) {
             <p className="text-[12px] font-black text-[#1E3A8A] truncate uppercase tracking-[0.5px] font-[family-name:var(--font-hanken-grotesk)]">
               {profile?.full_name || profile?.email || 'Utilizador'}
             </p>
-            <p className="text-[10px] text-[#1E3A8A]/60 uppercase font-bold tracking-[1px] font-[family-name:var(--font-hanken-grotesk)]">{profile?.role || 'admin'}</p>
+            <p className="text-[10px] text-[#1E3A8A]/60 uppercase font-bold tracking-[1px] font-[family-name:var(--font-hanken-grotesk)]">{profile?.role || 'user'}</p>
           </div>
           <button
             onClick={handleSignOut}

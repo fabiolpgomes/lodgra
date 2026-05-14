@@ -1,5 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 
+const REQUEST_TIMEOUT_MS = 10000
+
 export interface SearchResult {
   id: string
   type: 'property' | 'reservation' | 'expense' | 'owner'
@@ -25,6 +27,7 @@ export function useGlobalSearch() {
   })
 
   const debounceTimer = useRef<NodeJS.Timeout | null>(null)
+  const abortController = useRef<AbortController | null>(null)
 
   const search = useCallback(async (q: string) => {
     if (!q.trim() || q.length < 2) {
@@ -32,10 +35,27 @@ export function useGlobalSearch() {
       return
     }
 
+    // Cancel previous request
+    if (abortController.current) {
+      abortController.current.abort()
+    }
+    abortController.current = new AbortController()
+
     setState(prev => ({ ...prev, query: q, isLoading: true }))
 
     try {
-      const res = await fetch(`/api/search/global?q=${encodeURIComponent(q)}`)
+      const timeoutId = setTimeout(() => abortController.current?.abort(), REQUEST_TIMEOUT_MS)
+
+      const res = await fetch(`/api/search/global?q=${encodeURIComponent(q)}`, {
+        signal: abortController.current.signal,
+      })
+
+      clearTimeout(timeoutId)
+
+      if (!res.ok) {
+        throw new Error(`Search failed with status ${res.status}`)
+      }
+
       const data = await res.json()
 
       setState(prev => ({
@@ -44,6 +64,10 @@ export function useGlobalSearch() {
         isLoading: false,
       }))
     } catch (error) {
+      // Don't update state if request was aborted
+      if (error instanceof Error && error.name === 'AbortError') {
+        return
+      }
       console.error('[Global Search] Error:', error)
       setState(prev => ({ ...prev, results: [], isLoading: false }))
     }
@@ -73,6 +97,14 @@ export function useGlobalSearch() {
   }, [])
 
   const handleClear = useCallback(() => {
+    // Cancel pending debounced search and any in-flight requests
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current)
+      debounceTimer.current = null
+    }
+    if (abortController.current) {
+      abortController.current.abort()
+    }
     setState({
       query: '',
       results: [],
@@ -85,6 +117,9 @@ export function useGlobalSearch() {
     return () => {
       if (debounceTimer.current) {
         clearTimeout(debounceTimer.current)
+      }
+      if (abortController.current) {
+        abortController.current.abort()
       }
     }
   }, [])

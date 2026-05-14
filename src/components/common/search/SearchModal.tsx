@@ -59,6 +59,9 @@ export function SearchModal({
         <div
           className="w-full max-w-2xl mx-4 bg-white rounded-xl shadow-xl overflow-hidden"
           onClick={e => e.stopPropagation()}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Buscar propriedades, reservas, despesas e proprietários"
         >
           {/* Search Input */}
           <div className="px-6 py-4 border-b border-[#1E3A8A]/10 bg-white">
@@ -71,11 +74,13 @@ export function SearchModal({
                 onChange={e => onQueryChange(e.target.value)}
                 placeholder="Pesquisar propriedades, reservas, despesas, proprietários..."
                 className="flex-1 text-lg outline-none text-[#1E3A8A] placeholder:text-[#1E3A8A]/40"
+                aria-label="Buscar propriedades, reservas, despesas, proprietários"
               />
               {isLoading && <Loader2 className="h-5 w-5 text-[#1E3A8A]/40 animate-spin" />}
               <button
                 onClick={onClose}
                 className="p-1 text-[#1E3A8A]/40 hover:text-[#1E3A8A] transition-colors"
+                aria-label="Fechar busca"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -94,12 +99,21 @@ export function SearchModal({
               </div>
             ) : results.length === 0 ? (
               <div className="px-6 py-12 text-center text-[#1E3A8A]/50">
-                <p className="text-sm">Nenhum resultado encontrado para "{query}"</p>
+                <p className="text-sm">Nenhum resultado encontrado para &quot;{query}&quot;</p>
               </div>
             ) : (
               <div className="divide-y divide-[#1E3A8A]/5">
                 {/* Group results by type */}
-                {['property', 'reservation', 'expense', 'owner'].map(type => {
+                {(() => {
+                  const TYPE_ORDER = ['property', 'reservation', 'expense', 'owner'] as const
+                  const uniqueTypes = Array.from(new Set(results.map(r => r.type)))
+                    .sort((a, b) => {
+                      const aIndex = TYPE_ORDER.indexOf(a)
+                      const bIndex = TYPE_ORDER.indexOf(b)
+                      return (aIndex === -1 ? Infinity : aIndex) - (bIndex === -1 ? Infinity : bIndex)
+                    })
+                  return uniqueTypes
+                })().map(type => {
                   const typeResults = results.filter(r => r.type === type)
                   if (typeResults.length === 0) return null
 
