@@ -156,8 +156,11 @@ export default async function FinancialPage({
     }
   }) || []
 
+  // Filtrar apenas propriedades com receita ou despesas no mês
+  const activePropertyAnalysis = propertyAnalysis.filter(p => p.revenue > 0 || p.expenses > 0)
+
   // Ordenar por lucro
-  propertyAnalysis.sort((a, b) => b.profit - a.profit)
+  activePropertyAnalysis.sort((a, b) => b.profit - a.profit)
 
   return (
     <AuthLayout>
@@ -227,7 +230,7 @@ export default async function FinancialPage({
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {propertyAnalysis.map((property) => {
+                {activePropertyAnalysis.map((property) => {
                   const truncatedName = property.name.length > 40
                     ? property.name.substring(0, 40) + '...'
                     : property.name
