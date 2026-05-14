@@ -77,25 +77,25 @@ export function calculateRevenueForReservation(
   const monthlyBreakdown: RevenueCalculationResult['monthlyBreakdown'] = []
 
   if (durationDays <= 30) {
-    // AC2: Reservas < 30 dias → 100% no mês do checkout
-    // isActual: true if month is checkout month
-    const month = checkOutMonthKey
-    const isActual = month >= checkOutMonthKey
+    // AC2: Reservas ≤ 30 dias → 100% no mês do CHECK-IN
+    // isActual: true (real revenue when guest checks in)
+    const month = checkInMonthKey
+    const isActual = true
     monthlyBreakdown.push({
       month,
       value: roundTwoDecimals(reservation.totalAmount),
-      daysInMonth: getDaysInMonth(checkOut.getUTCFullYear(), checkOut.getUTCMonth()),
+      daysInMonth: getDaysInMonth(checkIn.getUTCFullYear(), checkIn.getUTCMonth()),
       isActual
     })
   } else if (durationDays <= 60) {
-    // AC2b: Reservas 30-60 dias → 100% no mês do checkout
-    // isActual: true if month is checkout month
-    const month = checkOutMonthKey
-    const isActual = month >= checkOutMonthKey
+    // AC2b: Reservas 30-60 dias → 100% no mês do CHECK-IN
+    // isActual: true (real revenue when guest checks in)
+    const month = checkInMonthKey
+    const isActual = true
     monthlyBreakdown.push({
       month,
       value: roundTwoDecimals(reservation.totalAmount),
-      daysInMonth: getDaysInMonth(checkOut.getUTCFullYear(), checkOut.getUTCMonth()),
+      daysInMonth: getDaysInMonth(checkIn.getUTCFullYear(), checkIn.getUTCMonth()),
       isActual
     })
   } else {

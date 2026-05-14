@@ -329,9 +329,9 @@ describe('Revenue Calculator', () => {
     })
   })
 
-  // Real vs Predicted based on Checkout rules
-  describe('Real vs Predicted (Checkout-based classification)', () => {
-    it('should classify < 30 days as Predicted in checkout month', () => {
+  // Real vs Predicted based on Check-in rules
+  describe('Real vs Predicted (Check-in-based classification)', () => {
+    it('should classify < 30 days as Real in check-in month', () => {
       // Reserva 15/05-10/06 (26 dias)
       const reservation = {
         id: 'res-001',
@@ -347,13 +347,13 @@ describe('Revenue Calculator', () => {
       expect(result.durationDays).toBe(26)
       expect(result.monthlyBreakdown).toHaveLength(1)
       expect(result.monthlyBreakdown[0]).toMatchObject({
-        month: '2026-06', // Checkout month
+        month: '2026-05', // Check-in month
         value: 1000,
-        isActual: true // Real in checkout month
+        isActual: true // Real in check-in month
       })
     })
 
-    it('should classify 30-60 days as Predicted in checkout month', () => {
+    it('should classify 30-60 days as Real in check-in month', () => {
       // Reserva 20/05-28/06 (39 dias)
       const reservation = {
         id: 'res-001',
@@ -369,9 +369,9 @@ describe('Revenue Calculator', () => {
       expect(result.durationDays).toBe(39)
       expect(result.monthlyBreakdown).toHaveLength(1)
       expect(result.monthlyBreakdown[0]).toMatchObject({
-        month: '2026-06', // Checkout month
+        month: '2026-05', // Check-in month
         value: 2000,
-        isActual: true // Real in checkout month
+        isActual: true // Real in check-in month
       })
     })
 
@@ -470,7 +470,7 @@ describe('Revenue Calculator', () => {
       expect(result1.durationDays).toBe(result2.durationDays)
       expect(result1.durationDays).toBe(36) // 30-60 days category
       expect(result1.monthlyBreakdown).toEqual(result2.monthlyBreakdown)
-      expect(result1.monthlyBreakdown[0].month).toBe('2026-06') // Checkout month
+      expect(result1.monthlyBreakdown[0].month).toBe('2026-05') // Check-in month
     })
 
     it('should handle leap year correctly (crossing Feb 29)', () => {
