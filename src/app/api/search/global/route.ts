@@ -29,6 +29,7 @@ export async function GET(request: NextRequest) {
 
   const { searchParams } = new URL(request.url)
   const q = searchParams.get('q')?.trim()
+  const locale = searchParams.get('locale') || 'pt-BR'
 
   if (!q || q.length < 2 || q.length > MAX_QUERY_LENGTH) {
     return NextResponse.json({ results: [] })
@@ -52,7 +53,7 @@ export async function GET(request: NextRequest) {
           type: 'property' as const,
           title: p.name,
           subtitle: p.city,
-          href: `/properties/${p.id}`,
+          href: `/${locale}/properties/${p.id}`,
           icon: '🏠',
         }))
       )
@@ -79,7 +80,7 @@ export async function GET(request: NextRequest) {
               type: 'reservation' as const,
               title: `Reserva ${r.id.substring(0, 8)}`,
               subtitle: `${guest?.first_name || ''} ${guest?.last_name || ''} - ${property?.name || ''}`,
-              href: `/reservations/${r.id}`,
+              href: `/${locale}/reservations/${r.id}`,
               icon: '📅',
             }
           })
@@ -102,7 +103,7 @@ export async function GET(request: NextRequest) {
             type: 'expense' as const,
             title: e.description,
             subtitle: `${e.category} - ${props?.name || ''}`,
-            href: `/expenses/${e.id}`,
+            href: `/${locale}/expenses/${e.id}`,
             icon: '💰',
           }
         })
@@ -123,7 +124,7 @@ export async function GET(request: NextRequest) {
           id: o.id,
           type: 'owner' as const,
           title: o.full_name,
-          href: `/owners/${o.id}`,
+          href: `/${locale}/owners/${o.id}`,
           icon: '👤',
         }))
       )

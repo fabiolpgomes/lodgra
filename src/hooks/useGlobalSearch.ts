@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
+import { useLocale } from 'next-intl'
 
 const REQUEST_TIMEOUT_MS = 10000
 
@@ -19,6 +20,7 @@ interface UseGlobalSearchState {
 }
 
 export function useGlobalSearch() {
+  const locale = useLocale()
   const [state, setState] = useState<UseGlobalSearchState>({
     query: '',
     results: [],
@@ -46,7 +48,7 @@ export function useGlobalSearch() {
     try {
       const timeoutId = setTimeout(() => abortController.current?.abort(), REQUEST_TIMEOUT_MS)
 
-      const res = await fetch(`/api/search/global?q=${encodeURIComponent(q)}`, {
+      const res = await fetch(`/api/search/global?q=${encodeURIComponent(q)}&locale=${encodeURIComponent(locale)}`, {
         signal: abortController.current.signal,
       })
 
@@ -71,7 +73,7 @@ export function useGlobalSearch() {
       console.error('[Global Search] Error:', error)
       setState(prev => ({ ...prev, results: [], isLoading: false }))
     }
-  }, [])
+  }, [locale])
 
   const handleInputChange = useCallback(
     (q: string) => {
