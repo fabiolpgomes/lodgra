@@ -1,4 +1,4 @@
-const CACHE_NAME = 'homestay-v1'
+const CACHE_NAME = 'lodgra-v1'
 
 const PRECACHE_URLS = [
   '/offline',
