@@ -13,6 +13,8 @@ interface CheckoutFormProps {
   checkout: string
   guests: number
   totalPrice: number
+  accommodationTotal?: number
+  fees?: { label: string; amount: number }[]
   currency?: string
 }
 
@@ -46,6 +48,8 @@ export function CheckoutForm({
   checkout,
   guests,
   totalPrice,
+  accommodationTotal,
+  fees,
   currency = 'EUR',
 }: CheckoutFormProps) {
   const router = useRouter()
@@ -152,6 +156,8 @@ export function CheckoutForm({
             checkout={checkout}
             guests={guests}
             totalPrice={totalPrice}
+            accommodationTotal={accommodationTotal}
+            fees={fees}
             currency={currency}
           />
           <button

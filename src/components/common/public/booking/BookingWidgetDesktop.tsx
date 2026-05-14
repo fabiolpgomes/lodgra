@@ -13,7 +13,7 @@ interface PricingRule {
 type PriceState =
   | { status: 'idle' }
   | { status: 'loading' }
-  | { status: 'ready'; total: number; breakdown?: { date: string; price: number }[] }
+  | { status: 'ready'; total: number; accommodationTotal?: number; fees?: { label: string; amount: number }[]; breakdown?: { date: string; price: number }[] }
 
 interface BlockedRange {
   start: string
@@ -127,9 +127,12 @@ export function BookingWidgetDesktop({
   const isReady = priceState.status === 'ready' && fetchKey !== null
   const isPriceFetching = priceState.status === 'loading'
   const displayTotal = isReady ? priceState.total : nights * basePrice
+  const accommodationTotal = isReady && priceState.accommodationTotal != null
+    ? priceState.accommodationTotal
+    : displayTotal
   const hasVaryingPrices = isReady && priceState.breakdown && priceState.breakdown.length > 1
     && priceState.breakdown.some(b => b.price !== priceState.breakdown![0].price)
-  const avgPerNight = nights > 0 ? Math.round(displayTotal / nights) : 0
+  const avgPerNight = nights > 0 ? Math.round(accommodationTotal / nights) : 0
 
   const checkoutHref = useMemo(() => {
     if (!checkIn || !checkOut || nights < 1) return null
@@ -259,11 +262,17 @@ export function BookingWidgetDesktop({
                 ) : (
                   <span>{symbol}{avgPerNight} × {nights} noite{nights !== 1 ? 's' : ''}</span>
                 )}
-                <span>{symbol}{Math.round(displayTotal)}</span>
+                <span>{symbol}{Math.round(accommodationTotal)}</span>
               </div>
               {hasVaryingPrices && (
                 <p className="text-xs text-neutral-500">Inclui regras de preço por época</p>
               )}
+              {isReady && priceState.fees?.map((fee, i) => (
+                <div key={i} className="flex justify-between text-neutral-700">
+                  <span>{fee.label}</span>
+                  <span>{symbol}{Math.round(fee.amount)}</span>
+                </div>
+              ))}
               <div className="flex justify-between font-bold text-neutral-900 pt-1 border-t border-neutral-200">
                 <span>Total</span>
                 <span>{symbol}{Math.round(displayTotal)}</span>

@@ -10,6 +10,8 @@ interface BookingSummaryProps {
   guests: number
   pricePerNight?: number
   totalPrice: number  // Final price respecting pricing rules
+  accommodationTotal?: number
+  fees?: { label: string; amount: number }[]
   currency?: string
   compact?: boolean
 }
@@ -22,6 +24,8 @@ export function BookingSummary({
   guests,
   pricePerNight: _pricePerNight = 0,
   totalPrice,
+  accommodationTotal,
+  fees,
   currency = 'EUR',
   compact = false,
 }: BookingSummaryProps) {
@@ -75,9 +79,15 @@ export function BookingSummary({
 
       <div className="border-t border-gray-100 pt-3 space-y-1 text-sm">
         <div className="flex justify-between text-gray-600">
-          <span>{sym}{(nights > 0 ? (total / nights).toFixed(2) : '0.00')} × {nights} noite{nights !== 1 ? 's' : ''}</span>
-          <span>{sym}{total.toFixed(2)}</span>
+          <span>{sym}{(nights > 0 ? ((accommodationTotal ?? total) / nights).toFixed(2) : '0.00')} × {nights} noite{nights !== 1 ? 's' : ''}</span>
+          <span>{sym}{(accommodationTotal ?? total).toFixed(2)}</span>
         </div>
+        {fees?.map((fee, i) => (
+          <div key={i} className="flex justify-between text-gray-600">
+            <span>{fee.label}</span>
+            <span>{sym}{fee.amount.toFixed(2)}</span>
+          </div>
+        ))}
         <div className="flex justify-between font-semibold text-gray-900 text-base pt-1">
           <span>Total</span>
           <span>{sym}{total.toFixed(2)}</span>

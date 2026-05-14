@@ -48,15 +48,6 @@ export async function GET(
   const petFee = petFeeStr ? parseFloat(petFeeStr) : 0
   const nights = differenceInDays(checkOut, checkIn)
 
-  // Calculate additional fees
-  let additionalFees = 0
-  if (cleaningFee > 0) {
-    additionalFees += cleaningFeeTypeStr === 'per_night' ? cleaningFee * nights : cleaningFee
-  }
-  if (petFee > 0) {
-    additionalFees += petFeeTypeStr === 'per_night' ? petFee * nights : petFee
-  }
-
   const supabase = createAdminClient()
 
   const { data: property } = await supabase
@@ -76,10 +67,25 @@ export async function GET(
     // Convert pricing to requested currency
     const convertedResult = await convertPricingResult(result as PricingResult, targetCurrency as SupportedCurrency)
 
+    // Build fees array
+    const fees: { label: string; amount: number }[] = []
+    if (cleaningFee > 0) {
+      const amount = cleaningFeeTypeStr === 'per_night' ? cleaningFee * nights : cleaningFee
+      fees.push({ label: 'Taxa de limpeza', amount })
+    }
+    if (petFee > 0) {
+      const amount = petFeeTypeStr === 'per_night' ? petFee * nights : petFee
+      fees.push({ label: 'Taxa de animais', amount })
+    }
+
+    const feesTotal = fees.reduce((sum, f) => sum + f.amount, 0)
+
     // Add fees to the total
     const finalResult = {
       ...convertedResult,
-      total: (convertedResult.total || 0) + additionalFees,
+      accommodationTotal: convertedResult.total || 0,
+      fees,
+      total: (convertedResult.total || 0) + feesTotal,
     }
 
     return NextResponse.json(finalResult)

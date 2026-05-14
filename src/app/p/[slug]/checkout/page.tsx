@@ -46,7 +46,7 @@ export default async function CheckoutPage({ params, searchParams }: PageProps) 
 
   const { data: property } = await supabase
     .from('properties')
-    .select('id, name, city, base_price, currency, is_public, slug, min_nights, max_guests')
+    .select('id, name, city, base_price, currency, is_public, slug, min_nights, max_guests, cleaning_fee, cleaning_fee_type, pet_fee, pet_fee_type')
     .eq('slug', slug)
     .eq('is_public', true)
     .single()
@@ -92,7 +92,22 @@ export default async function CheckoutPage({ params, searchParams }: PageProps) 
     redirect(`/p/${slug}?checkIn=${checkin}&checkOut=${checkout}&minNightsError=${priceData.minNights}`)
   }
 
-  const totalPrice = priceData.total
+  // Calculate fees
+  const cleaningFee = property.cleaning_fee ?? 0
+  const petFee = property.pet_fee ?? 0
+  const fees: { label: string; amount: number }[] = []
+
+  if (cleaningFee > 0) {
+    const amount = property.cleaning_fee_type === 'per_night' ? cleaningFee * nights : cleaningFee
+    fees.push({ label: 'Taxa de limpeza', amount })
+  }
+  if (petFee > 0) {
+    const amount = property.pet_fee_type === 'per_night' ? petFee * nights : petFee
+    fees.push({ label: 'Taxa de animais', amount })
+  }
+
+  const feesTotal = fees.reduce((sum, f) => sum + f.amount, 0)
+  const totalPrice = priceData.total + feesTotal
 
   return (
     <div className="min-h-screen bg-white">
@@ -116,6 +131,8 @@ export default async function CheckoutPage({ params, searchParams }: PageProps) 
           checkout={checkout}
           guests={guests}
           totalPrice={totalPrice}
+          accommodationTotal={priceData.total}
+          fees={fees}
           currency={property.currency ?? 'EUR'}
         />
       </main>
