@@ -83,7 +83,8 @@ export async function middleware(request: NextRequest) {
   // RSC navigation (Next.js App Router) fetches with redirect:manual — HTTP
   // redirects become opaque (status 0). Use rewrite instead so the correct
   // locale page is served transparently without a client-side redirect.
-  if (isPageRoute && !hasLocale && !isPublic) {
+  // Always add locale to root path ("/") regardless of public/private status
+  if (isPageRoute && !hasLocale && (!isPublic || pathname === '/')) {
     const url = request.nextUrl.clone()
     url.pathname = `/${defaultLocale}${pathname === '/' ? '' : pathname}`
 
