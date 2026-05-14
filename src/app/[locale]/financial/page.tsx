@@ -185,14 +185,16 @@ export default async function FinancialPage({
 
         {/* Cards de Lucro por Moeda */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {Object.entries(profitByCurrency).map(([currency, data]) => (
-            <ProfitCard
-              key={currency}
-              revenue={data.revenue}
-              expenses={data.expenses}
-              currency={currency}
-            />
-          ))}
+          {Object.entries(profitByCurrency)
+            .sort(([currencyA], [currencyB]) => currencyA.localeCompare(currencyB))
+            .map(([currency, data]) => (
+              <ProfitCard
+                key={currency}
+                revenue={data.revenue}
+                expenses={data.expenses}
+                currency={currency}
+              />
+            ))}
         </div>
 
         {/* Análise por Propriedade */}
