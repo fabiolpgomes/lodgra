@@ -567,17 +567,17 @@ export default async function ReportsPage({ searchParams }: PageProps) {
 
         {/* Métricas Principais — Row 1: financials */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-4">
-          <div className="bg-white border border-lodgra-blue/10 p-5 rounded-none">
+          <div className="border border-[#ffc000]/20 p-5 rounded-none shadow-none" style={{ backgroundColor: '#ffc000' }}>
             <div className="flex items-center justify-between mb-4">
-              <div className="p-2.5 bg-lodgra-blue/5 rounded-none">
-                <TrendingUp className="h-5 w-5 text-lodgra-blue" />
+              <div className="p-2.5 rounded-none">
+                <TrendingUp className="h-5 w-5" style={{ color: '#1E3A8A' }} />
               </div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-lodgra-navy/30 font-display">Receita</span>
+              <span className="text-[10px] font-black uppercase tracking-widest font-display" style={{ color: '#1E3A8A' }}>Receita</span>
             </div>
-            <div className="text-lodgra-blue">
+            <div style={{ color: '#1E3A8A' }}>
               <CurrencyStack totals={revenueByCurrency} size="md" showEmpty={true} />
             </div>
-            <p className="text-[10px] font-black uppercase tracking-wider text-lodgra-navy/20 mt-2">Receita bruta no período</p>
+            <p className="text-[10px] font-black uppercase tracking-wider mt-2" style={{ color: '#1E3A8A' }}>Receita bruta no período</p>
           </div>
 
           <div className="bg-white border border-lodgra-blue/10 p-5 rounded-none">
