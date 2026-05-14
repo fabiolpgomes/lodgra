@@ -1,7 +1,12 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
-import { useLocale } from 'next-intl'
+import { usePathname } from 'next/navigation'
 
 const REQUEST_TIMEOUT_MS = 10000
+
+function extractLocaleFromPathname(pathname: string): string {
+  const match = pathname.match(/^\/([a-z]{2}(?:-[A-Z]{2})?)/)
+  return match ? match[1] : 'pt-BR'
+}
 
 export interface SearchResult {
   id: string
@@ -20,7 +25,8 @@ interface UseGlobalSearchState {
 }
 
 export function useGlobalSearch() {
-  const locale = useLocale()
+  const pathname = usePathname()
+  const locale = extractLocaleFromPathname(pathname)
   const [state, setState] = useState<UseGlobalSearchState>({
     query: '',
     results: [],
