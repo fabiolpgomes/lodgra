@@ -130,7 +130,6 @@ export default async function DashboardPage({
   // Calculate current month revenue using proportional distribution for >30 day reservations
   const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1)
   const currentMonthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0)
-  const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
 
   const monthRevenueByCurrency = reservationList
     .filter(r => r.status === 'confirmed' && r.total_amount)
