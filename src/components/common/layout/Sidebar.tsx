@@ -17,7 +17,6 @@ import {
   LogOut,
 } from 'lucide-react'
 import { Logo } from '@/components/common/ui/Logo'
-import { LocaleSelector } from '@/components/common/header/LocaleSelector'
 import { useAuth } from '@/hooks/useAuth'
 import { useLocale } from '@/lib/i18n/routing'
 import { createClient } from '@/lib/supabase/client'
@@ -143,13 +142,9 @@ export function Sidebar({ serverProfile }: SidebarProps) {
         </div>
       </nav>
 
-      {/* Bottom: profile + locale + signout */}
-      <div className="px-4 py-6 border-t border-[#ffffff]/10 space-y-4 bg-[#030447]/30">
-        <div className="flex items-center justify-between px-2">
-          <LocaleSelector />
-        </div>
-
-        <div className="flex items-center gap-3 px-2 py-3 bg-[#ffffff]/5 border border-[#ffffff]/10">
+      {/* Bottom: profile + signout */}
+      <div className="px-4 py-6 border-t border-[#1E3A8A]/10 space-y-4 bg-white">
+        <div className="flex items-center gap-3 px-2 py-3 bg-white border border-[#1E3A8A]/10 rounded-lg">
           <div
             className="w-9 h-9 rounded-none flex items-center justify-center text-[14px] font-black text-[#1E3A8A] shrink-0 font-[family-name:var(--font-hanken-grotesk)]"
             style={{ background: '#ffc000' }}
@@ -157,14 +152,14 @@ export function Sidebar({ serverProfile }: SidebarProps) {
             {initials}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-[12px] font-black text-[#ffffff] truncate uppercase tracking-[0.5px] font-[family-name:var(--font-hanken-grotesk)]">
+            <p className="text-[12px] font-black text-[#1E3A8A] truncate uppercase tracking-[0.5px] font-[family-name:var(--font-hanken-grotesk)]">
               {profile?.full_name || profile?.email || 'Utilizador'}
             </p>
-            <p className="text-[10px] text-[#ffffff]/40 uppercase font-bold tracking-[1px] font-[family-name:var(--font-hanken-grotesk)]">{profile?.role || 'admin'}</p>
+            <p className="text-[10px] text-[#1E3A8A]/60 uppercase font-bold tracking-[1px] font-[family-name:var(--font-hanken-grotesk)]">{profile?.role || 'admin'}</p>
           </div>
           <button
             onClick={handleSignOut}
-            className="p-2 text-[#ffffff]/40 hover:text-[#ffc000] hover:bg-[#ffffff]/10 transition-all"
+            className="p-2 text-[#1E3A8A]/40 hover:text-[#ffc000] hover:bg-[#ffc000]/10 transition-all rounded"
             title="Sair"
           >
             <LogOut className="h-4 w-4" />
