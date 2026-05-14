@@ -98,11 +98,15 @@ export default async function DashboardPage({
     .filter(r => r.status === 'confirmed' && r.total_amount)
     .reduce((acc, r) => {
       // Calculate revenue breakdown using proportional distribution
+      // IMPORTANT: Convert date strings to UTC to avoid timezone issues
+      const checkInStr = typeof r.check_in === 'string' ? r.check_in : new Date(r.check_in).toISOString().split('T')[0]
+      const checkOutStr = typeof r.check_out === 'string' ? r.check_out : new Date(r.check_out).toISOString().split('T')[0]
+
       const revenueBreakdown = calculateRevenueForReservation({
         id: r.id,
         totalAmount: Number(r.total_amount),
-        checkIn: new Date(r.check_in),
-        checkOut: new Date(r.check_out),
+        checkIn: checkInStr,
+        checkOut: checkOutStr,
         currency: getReservationCurrency(r),
         status: 'confirmed'
       })
@@ -135,11 +139,15 @@ export default async function DashboardPage({
     .filter(r => r.status === 'confirmed' && r.total_amount)
     .reduce((acc, r) => {
       // Use proportional distribution calculation for all reservations
+      // IMPORTANT: Convert date strings to UTC to avoid timezone issues
+      const checkInStr = typeof r.check_in === 'string' ? r.check_in : new Date(r.check_in).toISOString().split('T')[0]
+      const checkOutStr = typeof r.check_out === 'string' ? r.check_out : new Date(r.check_out).toISOString().split('T')[0]
+
       const revenueBreakdown = calculateRevenueForReservation({
         id: r.id,
         totalAmount: Number(r.total_amount),
-        checkIn: new Date(r.check_in),
-        checkOut: new Date(r.check_out),
+        checkIn: checkInStr,
+        checkOut: checkOutStr,
         currency: getReservationCurrency(r),
         status: 'confirmed'
       })
@@ -242,11 +250,13 @@ export default async function DashboardPage({
       .filter(r => r.status === 'confirmed' && r.total_amount)
       .forEach(r => {
         // Use proportional distribution for all reservations
+        const checkInStr = typeof r.check_in === 'string' ? r.check_in : r.check_in.toISOString().split('T')[0]
+        const checkOutStr = typeof r.check_out === 'string' ? r.check_out : r.check_out.toISOString().split('T')[0]
         const revenueBreakdown = calculateRevenueForReservation({
           id: r.id,
           totalAmount: Number(r.total_amount),
-          checkIn: new Date(r.check_in),
-          checkOut: new Date(r.check_out),
+          checkIn: checkInStr,
+          checkOut: checkOutStr,
           currency: getReservationCurrency(r),
           status: 'confirmed'
         })
