@@ -8,7 +8,11 @@ import {
 describe('Revenue Calculator', () => {
   // AC1: Forecast by currency
   describe('AC1: Forecast (by currency)', () => {
-    it('should aggregate forecasts by currency', () => {
+    it('should calculate pending revenue (excluding current month allocation)', () => {
+      // Reference date: May 2026
+      // Reservations all check-in in May, so 100% allocated to May = 0 pending
+      // Future check-ins (June+) = full amount pending
+      const referenceDate = new Date('2026-05-15')
       const reservations = [
         {
           id: 'res-001',
@@ -21,48 +25,52 @@ describe('Revenue Calculator', () => {
         {
           id: 'res-002',
           totalAmount: 2000,
-          checkIn: '2026-05-10',
-          checkOut: '2026-05-20',
+          checkIn: '2026-06-10', // Future month - fully pending
+          checkOut: '2026-06-20',
           currency: 'EUR',
           status: 'confirmed' as const
         },
         {
           id: 'res-003',
           totalAmount: 1500,
-          checkIn: '2026-05-05',
-          checkOut: '2026-05-15',
+          checkIn: '2026-06-05', // Future month - fully pending
+          checkOut: '2026-06-15',
           currency: 'BRL',
           status: 'confirmed' as const
         }
       ]
 
-      const forecast = calculateForecast(reservations)
+      const forecast = calculateForecast(reservations, referenceDate)
 
-      expect(forecast.get('EUR')).toBe(3000)
+      // res-001 (May): 100% in May = 0 pending
+      // res-002 (June): 100% pending (not in May)
+      // res-003 (June): 100% pending (not in May)
+      expect(forecast.get('EUR')).toBe(2000)
       expect(forecast.get('BRL')).toBe(1500)
     })
 
     it('should exclude cancelled reservations from forecast', () => {
+      const referenceDate = new Date('2026-05-15')
       const reservations = [
         {
           id: 'res-001',
           totalAmount: 1000,
-          checkIn: '2026-05-01',
-          checkOut: '2026-05-06',
+          checkIn: '2026-06-01', // Future - pending
+          checkOut: '2026-06-06',
           currency: 'EUR',
           status: 'confirmed' as const
         },
         {
           id: 'res-002',
           totalAmount: 2000,
-          checkIn: '2026-05-10',
-          checkOut: '2026-05-20',
+          checkIn: '2026-06-10',
+          checkOut: '2026-06-20',
           currency: 'EUR',
           status: 'cancelled' as const
         }
       ]
 
-      const forecast = calculateForecast(reservations)
+      const forecast = calculateForecast(reservations, referenceDate)
 
       expect(forecast.get('EUR')).toBe(1000)
     })

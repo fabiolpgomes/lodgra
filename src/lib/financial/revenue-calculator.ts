@@ -225,15 +225,38 @@ export function calculateProfit(
 
 /**
  * AC1: Aggregate all reservations by currency to show booking forecast.
+ * Returns only the PENDING/PREDICTED revenue (not yet received in current month).
+ *
+ * For each reservation:
+ * - If check-in is in current month: subtract the actual revenue already allocated
+ * - If check-in is in future months: include full amount (will be predicted/actual later)
+ *
+ * Example: Reservation R$17.230 (02/05-04/08):
+ * - May (current): allocated R$5.318,08 → forecast shows R$11.728,51 (remaining)
  */
-export function calculateForecast(reservations: ReservationData[]): Map<string, number> {
+export function calculateForecast(reservations: ReservationData[], referenceDate: Date = new Date()): Map<string, number> {
   const byCurrency = new Map<string, number>()
+  const currentMonthKey = `${referenceDate.getUTCFullYear()}-${String(referenceDate.getUTCMonth() + 1).padStart(2, '0')}`
 
   const confirmedReservations = reservations.filter(r => r.status === 'confirmed')
 
   for (const reservation of confirmedReservations) {
-    const current = byCurrency.get(reservation.currency) || 0
-    byCurrency.set(reservation.currency, current + reservation.totalAmount)
+    // Calculate revenue breakdown to get actual amount in current month
+    const revenueBreakdown = calculateRevenueForReservation(reservation)
+
+    // Find how much is allocated to the current month
+    const currentMonthValue = revenueBreakdown.monthlyBreakdown
+      .find(m => m.month === currentMonthKey)
+      ?.value || 0
+
+    // Forecast = Total - Current Month Actual = Pending/Predicted revenue
+    const forecastValue = revenueBreakdown.totalAmount - currentMonthValue
+
+    if (forecastValue > 0) {
+      const currency = reservation.currency
+      const current = byCurrency.get(currency) || 0
+      byCurrency.set(currency, current + forecastValue)
+    }
   }
 
   return byCurrency

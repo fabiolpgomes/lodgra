@@ -89,15 +89,37 @@ export default async function DashboardPage({
   const pendingReservations = reservationList.filter(r => r.status === 'pending').length
   const cancelledReservations = reservationList.filter(r => r.status === 'cancelled').length
 
-  // Calculate revenue forecast
+  // Calculate revenue forecast (pending/predicted revenue not yet received in current month)
   const now = new Date()
   const todayStr = now.toISOString().split('T')[0]
+  const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
 
   const forecastByCurrency = reservationList
-    .filter(r => r.status === 'confirmed' && r.total_amount && r.check_in >= todayStr)
+    .filter(r => r.status === 'confirmed' && r.total_amount)
     .reduce((acc, r) => {
-      const currency = getReservationCurrency(r)
-      acc[currency] = (acc[currency] || 0) + Number(r.total_amount)
+      // Calculate revenue breakdown using proportional distribution
+      const revenueBreakdown = calculateRevenueForReservation({
+        id: r.id,
+        totalAmount: Number(r.total_amount),
+        checkIn: new Date(r.check_in),
+        checkOut: new Date(r.check_out),
+        currency: getReservationCurrency(r),
+        status: 'confirmed'
+      })
+
+      // Find how much is allocated to the current month (already in "Receita do Mês")
+      const currentMonthValue = revenueBreakdown.monthlyBreakdown
+        .find(m => m.month === currentMonthKey)
+        ?.value || 0
+
+      // Forecast = Total - Current Month = Pending/Predicted revenue
+      const forecastValue = revenueBreakdown.totalAmount - currentMonthValue
+
+      if (forecastValue > 0) {
+        const currency = getReservationCurrency(r)
+        acc[currency] = (acc[currency] || 0) + forecastValue
+      }
+
       return acc
     }, {} as Record<string, number>)
 
