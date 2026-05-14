@@ -71,17 +71,17 @@ export function FinancialOverviewCharts({ monthlyStats, propertyStats, totalsByC
     <div className="space-y-8 animate-fade-in pb-12">
       {/* High Level Insights - The "UAU" Factor */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-lodgra-blue p-6 text-white relative overflow-hidden group border border-white/10 rounded-none">
-          <div className="absolute -right-4 -top-4 w-24 h-24 bg-white/5 rounded-none" />
-          <p className="text-white/60 text-[11px] font-black uppercase tracking-wider mb-2 font-display">Faturamento Total</p>
+        <div className="p-6 relative overflow-hidden group border rounded-none shadow-none" style={{ backgroundColor: '#ffc000' }}>
+          <div className="absolute -right-4 -top-4 w-24 h-24 rounded-none" style={{ backgroundColor: 'rgba(30, 58, 138, 0.05)' }} />
+          <p className="text-[11px] font-black uppercase tracking-wider mb-2 font-display" style={{ color: '#1E3A8A' }}>Faturamento Total</p>
           <div className="space-y-1">
             {Object.entries(totalsByCurrency).map(([currency, data]) => (
-              <h2 key={currency} className="text-2xl font-black font-display">
+              <h2 key={currency} className="text-2xl font-black font-display" style={{ color: '#1E3A8A' }}>
                 {formatCurrency(data.revenue, currency as CurrencyCode)}
               </h2>
             ))}
           </div>
-          <div className="flex items-center gap-2 bg-white/10 w-fit px-3 py-1 rounded-none text-[10px] font-black uppercase tracking-widest border border-white/10 mt-4">
+          <div className="flex items-center gap-2 w-fit px-3 py-1 rounded-none text-[10px] font-black uppercase tracking-widest border mt-4" style={{ backgroundColor: 'rgba(30, 58, 138, 0.1)', borderColor: '#1E3A8A', color: '#1E3A8A' }}>
             <ArrowUpRight className="h-3 w-3" /> +14.5% vs ano ant.
           </div>
         </div>
