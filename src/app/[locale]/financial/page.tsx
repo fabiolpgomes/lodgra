@@ -6,6 +6,7 @@ import { AuthLayout } from '@/components/common/layout/AuthLayout'
 import { calcManagementFee, calcOwnerNet } from '@/lib/financial/calculations'
 import { CurrencyStack } from '@/components/common/ui/CurrencyStack'
 import { MonthNavigator } from '@/components/common/ui/MonthNavigator'
+import { calculateRevenueForReservation } from '@/lib/financial/revenue-calculator'
 
 export default async function FinancialPage({
   searchParams,
@@ -20,20 +21,21 @@ export default async function FinancialPage({
 
   const supabase = await createClient()
 
-  // Buscar reservas confirmadas com check_in no mês seleccionado
+  // Buscar TODAS as reservas confirmadas para cálculo de distribuição proporcional
   const { data: reservations } = await supabase
     .from('reservations')
     .select(`
+      id,
       total_amount,
       currency,
+      check_in,
+      check_out,
       property_listings!inner(
         property_id,
         properties!inner(id, currency)
       )
     `)
     .eq('status', 'confirmed')
-    .gte('check_in', monthStart)
-    .lte('check_in', monthEnd)
 
   // Buscar despesas do mês seleccionado
   const { data: expenses } = await supabase
@@ -58,12 +60,27 @@ export default async function FinancialPage({
     return ((propObj?.currency || r.currency || 'EUR') as CurrencyCode)
   }
 
-  // Calcular receita por moeda usando property.currency
+  // Calcular receita por moeda usando distribuição proporcional
+  const monthKey = `${mYear}-${String(mMonth).padStart(2, '0')}`
   const revenueByCurrency = groupByCurrency(
-    reservations?.map(r => ({
-      currency: getResCurrency(r),
-      amount: r.total_amount ? Number(r.total_amount) : 0
-    })) || []
+    (reservations || []).flatMap(r => {
+      const revenueBreakdown = calculateRevenueForReservation({
+        id: r.id,
+        totalAmount: Number(r.total_amount || 0),
+        checkIn: typeof r.check_in === 'string' ? r.check_in : r.check_in.toISOString().split('T')[0],
+        checkOut: typeof r.check_out === 'string' ? r.check_out : r.check_out.toISOString().split('T')[0],
+        currency: getResCurrency(r),
+        status: 'confirmed'
+      })
+
+      // Obter apenas o valor alocado ao mês selecionado
+      const monthlyValue = revenueBreakdown.monthlyBreakdown.find(m => m.month === monthKey)?.value || 0
+
+      return monthlyValue > 0 ? [{
+        currency: getResCurrency(r),
+        amount: monthlyValue
+      }] : []
+    })
   )
 
   // Calcular despesas por moeda (expense.currency > property.currency > EUR)
@@ -98,13 +115,24 @@ export default async function FinancialPage({
 
   // Análise por propriedade
   const propertyAnalysis = properties?.map(property => {
-    const propertyRevenue = reservations
-      ?.filter(r => {
+    const propertyRevenue = (reservations || [])
+      .filter(r => {
         const listing = r.property_listings
         const lObj = Array.isArray(listing) ? listing[0] : listing
         return (lObj as { property_id?: string } | null)?.property_id === property.id
       })
-      .reduce((sum, r) => sum + (r.total_amount ? Number(r.total_amount) : 0), 0) || 0
+      .reduce((sum, r) => {
+        const revenueBreakdown = calculateRevenueForReservation({
+          id: r.id,
+          totalAmount: Number(r.total_amount || 0),
+          checkIn: typeof r.check_in === 'string' ? r.check_in : r.check_in.toISOString().split('T')[0],
+          checkOut: typeof r.check_out === 'string' ? r.check_out : r.check_out.toISOString().split('T')[0],
+          currency: getResCurrency(r),
+          status: 'confirmed'
+        })
+        const monthlyValue = revenueBreakdown.monthlyBreakdown.find(m => m.month === monthKey)?.value || 0
+        return sum + monthlyValue
+      }, 0) || 0
 
     const propertyExpenses = expenses
       ?.filter(e => e.property_id === property.id)
