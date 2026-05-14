@@ -184,9 +184,11 @@ export function aggregateMonthlyRevenue(
       }
 
       const existing = currencyData.get(monthData.month)!
-      const currentMonthKey = getMonthKey(referenceDate)
 
-      if (monthData.month === currentMonthKey) {
+      // Use the isActual flag already calculated in calculateRevenueForReservation
+      // For >60 days: isActual=true only for check-in month, false for others
+      // For ≤60 days: isActual based on checkout month comparison
+      if (monthData.isActual) {
         existing.actual += monthData.value
       } else {
         existing.predicted += monthData.value

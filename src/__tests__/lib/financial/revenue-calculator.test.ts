@@ -234,6 +234,51 @@ describe('Revenue Calculator', () => {
       expect(eurData).toBeDefined()
       expect(eurData![0].actual).toBeCloseTo(1500, 1)
     })
+
+    it('should classify > 60 days reservations correctly: Actual in check-in month only, Predicted in others', () => {
+      // 94-day reservation (02/05/2026 - 04/08/2026): > 60 days
+      // Should be Actual ONLY in May (check-in month), Predicted in June/July/August
+      const reservations = [
+        {
+          id: 'res-001',
+          totalAmount: 17230,
+          checkIn: '2026-05-02',
+          checkOut: '2026-08-04',
+          currency: 'BRL',
+          status: 'confirmed' as const
+        }
+      ]
+
+      const result = aggregateMonthlyRevenue(reservations)
+      const brlData = result.get('BRL')
+
+      expect(brlData).toBeDefined()
+      expect(brlData!.length).toBe(4) // May, June, July, August
+
+      // May should have actual value (check-in month)
+      const mayData = brlData!.find(m => m.month === '2026-05')
+      expect(mayData).toBeDefined()
+      expect(mayData!.actual).toBeGreaterThan(5310) // ~5318
+      expect(mayData!.predicted).toBe(0) // No predicted in check-in month
+
+      // June, July, August should have ONLY predicted (no actual)
+      const juneData = brlData!.find(m => m.month === '2026-06')
+      const julyData = brlData!.find(m => m.month === '2026-07')
+      const augData = brlData!.find(m => m.month === '2026-08')
+
+      expect(juneData!.actual).toBe(0) // No actual
+      expect(juneData!.predicted).toBeGreaterThan(5490) // ~5498
+
+      expect(julyData!.actual).toBe(0) // No actual
+      expect(julyData!.predicted).toBeGreaterThan(5490) // ~5496
+
+      expect(augData!.actual).toBe(0) // No actual
+      expect(augData!.predicted).toBeGreaterThan(730) // ~734
+
+      // Verify total matches
+      const total = brlData!.reduce((sum, m) => sum + m.actual + m.predicted, 0)
+      expect(total).toBeCloseTo(17230, 0)
+    })
   })
 
   // AC5: Profit calculation
