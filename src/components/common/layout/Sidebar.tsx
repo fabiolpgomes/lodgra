@@ -10,6 +10,7 @@ import {
   Receipt,
   TrendingUp,
   BarChart3,
+  CheckSquare,
   RefreshCw,
   Users,
   Settings,
@@ -30,6 +31,7 @@ const PRIMARY_PATHS = [
   { path: '/expenses', label: 'Despesas', icon: Receipt },
   { path: '/financial', label: 'Financeiro', icon: TrendingUp },
   { path: '/calendar', label: 'Calendário', icon: CalendarDays },
+  { path: '/cleaning', label: 'Limpezas', icon: CheckSquare },
   { path: '/reports', label: 'Relatórios', icon: BarChart3 },
 ]
 
