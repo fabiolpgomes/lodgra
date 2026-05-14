@@ -88,14 +88,14 @@ export function calculateRevenueForReservation(
       isActual
     })
   } else if (durationDays <= 60) {
-    // AC2b: Reservas 30-60 dias → 100% no mês do CHECK-IN
-    // isActual: true (real revenue when guest checks in)
-    const month = checkInMonthKey
+    // AC2b: Reservas 30-60 dias → 100% no mês do CHECKOUT
+    // isActual: true (real revenue when guest checks out)
+    const month = checkOutMonthKey
     const isActual = true
     monthlyBreakdown.push({
       month,
       value: roundTwoDecimals(reservation.totalAmount),
-      daysInMonth: getDaysInMonth(checkIn.getUTCFullYear(), checkIn.getUTCMonth()),
+      daysInMonth: getDaysInMonth(checkOut.getUTCFullYear(), checkOut.getUTCMonth()),
       isActual
     })
   } else {
