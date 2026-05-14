@@ -7,6 +7,7 @@ import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
 import { RevenueChartWrapper } from '@/components/features/dashboard/RevenueChartWrapper'
 import { AuthLayout } from '@/components/common/layout/AuthLayout'
 import { redirect } from 'next/navigation'
+import { calculateRevenueForReservation } from '@/lib/financial/revenue-calculator'
 
 export default async function DashboardPage({
   params,
@@ -104,21 +105,34 @@ export default async function DashboardPage({
     r => r.status === 'confirmed' && r.check_in >= todayStr
   ).length
 
-  // Calculate current month revenue
+  // Calculate current month revenue using proportional distribution for >30 day reservations
   const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1)
   const currentMonthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+  const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
 
   const monthRevenueByCurrency = reservationList
-    .filter(r => {
-      const checkIn = new Date(r.check_in)
-      return r.status === 'confirmed' &&
-             r.total_amount &&
-             checkIn >= currentMonthStart &&
-             checkIn <= currentMonthEnd
-    })
+    .filter(r => r.status === 'confirmed' && r.total_amount)
     .reduce((acc, r) => {
-      const currency = getReservationCurrency(r)
-      acc[currency] = (acc[currency] || 0) + Number(r.total_amount)
+      // Use proportional distribution calculation for all reservations
+      const revenueBreakdown = calculateRevenueForReservation({
+        id: r.id,
+        totalAmount: Number(r.total_amount),
+        checkIn: new Date(r.check_in),
+        checkOut: new Date(r.check_out),
+        currency: getReservationCurrency(r),
+        status: 'confirmed'
+      })
+
+      // Sum only the revenue allocated to the current month
+      const monthlyValue = revenueBreakdown.monthlyBreakdown
+        .find(m => m.month === currentMonthKey)
+        ?.value || 0
+
+      if (monthlyValue > 0) {
+        const currency = getReservationCurrency(r)
+        acc[currency] = (acc[currency] || 0) + monthlyValue
+      }
+
       return acc
     }, {} as Record<string, number>)
 
@@ -190,7 +204,7 @@ export default async function DashboardPage({
     })
   }
 
-  // Calculate revenue for last 6 months grouped by currency
+  // Calculate revenue for last 6 months grouped by currency (using proportional distribution)
   const revenueDataByCurrency: Record<string, { month: string; revenue: number }[]> = {}
   for (let i = 5; i >= 0; i--) {
     const date = new Date(now.getFullYear(), now.getMonth() - i, 1)
@@ -200,16 +214,31 @@ export default async function DashboardPage({
     const month = date.getMonth()
     const monthStart = new Date(year, month, 1)
     const monthEnd = new Date(year, month + 1, 0)
+    const monthKey = `${year}-${String(month + 1).padStart(2, '0')}`
 
     const byCur: Record<string, number> = {}
     reservationList
-      .filter(r => {
-        const checkIn = new Date(r.check_in)
-        return r.status === 'confirmed' && r.total_amount && checkIn >= monthStart && checkIn <= monthEnd
-      })
+      .filter(r => r.status === 'confirmed' && r.total_amount)
       .forEach(r => {
-        const cur = getReservationCurrency(r)
-        byCur[cur] = (byCur[cur] || 0) + Number(r.total_amount)
+        // Use proportional distribution for all reservations
+        const revenueBreakdown = calculateRevenueForReservation({
+          id: r.id,
+          totalAmount: Number(r.total_amount),
+          checkIn: new Date(r.check_in),
+          checkOut: new Date(r.check_out),
+          currency: getReservationCurrency(r),
+          status: 'confirmed'
+        })
+
+        // Sum only the revenue allocated to this month
+        const monthlyValue = revenueBreakdown.monthlyBreakdown
+          .find(m => m.month === monthKey)
+          ?.value || 0
+
+        if (monthlyValue > 0) {
+          const cur = getReservationCurrency(r)
+          byCur[cur] = (byCur[cur] || 0) + monthlyValue
+        }
       })
 
     Object.entries(byCur).forEach(([cur, revenue]) => {
