@@ -349,7 +349,7 @@ export default async function FinancialPage({
             <p className="text-[10px] font-black uppercase tracking-wider text-lodgra-navy/20 mt-2">Total despesas registradas</p>
           </div>
 
-          <div className="be-card p-5 border border-[#ffc000]/20 rounded-none shadow-none" style={{ backgroundColor: '#ffc000' }}>
+          <div className="be-card p-5 border border-lodgra-blue/10 rounded-none shadow-none" style={{ backgroundColor: '#FFFFFF' }}>
             <div className="flex items-center justify-between mb-4">
               <div className="p-2.5 rounded-none">
                 <BarChart3 className="h-4 w-4" style={{ color: '#1E3A8A' }} />

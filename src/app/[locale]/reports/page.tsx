@@ -567,7 +567,7 @@ export default async function ReportsPage({ searchParams }: PageProps) {
 
         {/* Métricas Principais — Row 1: financials */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-4">
-          <div className="border border-[#ffc000]/20 p-5 rounded-none shadow-none" style={{ backgroundColor: '#ffc000' }}>
+          <div className="border border-lodgra-blue/10 p-5 rounded-none shadow-none" style={{ backgroundColor: '#FFFFFF' }}>
             <div className="flex items-center justify-between mb-4">
               <div className="p-2.5 rounded-none">
                 <TrendingUp className="h-5 w-5" style={{ color: '#1E3A8A' }} />

@@ -36,11 +36,12 @@ interface FinancialOverviewChartsProps {
   monthlyStats: MonthlyStat[]
   propertyStats: PropertyStat[]
   totalsByCurrency: Record<string, { revenue: number; mgmt: number; owner: number }>
+  yoyPercentage?: number
 }
 
 const COLORS = ['#1E3A8A', '#D4AF37', '#1D9E75', '#EF4444', '#8B5CF6', '#F59E0B']
 
-export function FinancialOverviewCharts({ monthlyStats, propertyStats, totalsByCurrency }: FinancialOverviewChartsProps) {
+export function FinancialOverviewCharts({ monthlyStats, propertyStats, totalsByCurrency, yoyPercentage = 14.5 }: FinancialOverviewChartsProps) {
   const chartData = useMemo(() => {
     return monthlyStats.map(stat => ({
       name: stat.month,
@@ -71,8 +72,8 @@ export function FinancialOverviewCharts({ monthlyStats, propertyStats, totalsByC
     <div className="space-y-8 animate-fade-in pb-12">
       {/* High Level Insights - The "UAU" Factor */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="p-6 relative overflow-hidden group border rounded-none shadow-none" style={{ backgroundColor: '#ffc000' }}>
-          <div className="absolute -right-4 -top-4 w-24 h-24 rounded-none" style={{ backgroundColor: 'rgba(30, 58, 138, 0.05)' }} />
+        <div className="p-6 relative overflow-hidden group border rounded-none shadow-none" style={{ backgroundColor: '#FFFFFF', borderColor: '#1E3A8A' }}>
+          <div className="absolute -right-4 -top-4 w-24 h-24 rounded-none" style={{ backgroundColor: 'rgba(30, 58, 138, 0.02)' }} />
           <p className="text-[11px] font-black uppercase tracking-wider mb-2 font-display" style={{ color: '#1E3A8A' }}>Faturamento Total</p>
           <div className="space-y-1">
             {Object.entries(totalsByCurrency).map(([currency, data]) => (
@@ -81,8 +82,12 @@ export function FinancialOverviewCharts({ monthlyStats, propertyStats, totalsByC
               </h2>
             ))}
           </div>
-          <div className="flex items-center gap-2 w-fit px-3 py-1 rounded-none text-[10px] font-black uppercase tracking-widest border mt-4" style={{ backgroundColor: 'rgba(30, 58, 138, 0.1)', borderColor: '#1E3A8A', color: '#1E3A8A' }}>
-            <ArrowUpRight className="h-3 w-3" /> +14.5% vs ano ant.
+          <div className="flex items-center gap-2 w-fit px-3 py-1 rounded-none text-[10px] font-black uppercase tracking-widest border mt-4" style={{
+            backgroundColor: yoyPercentage >= 0 ? 'rgba(29, 158, 117, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+            borderColor: yoyPercentage >= 0 ? '#1D9E75' : '#EF4444',
+            color: yoyPercentage >= 0 ? '#1D9E75' : '#EF4444'
+          }}>
+            <ArrowUpRight className="h-3 w-3" /> {yoyPercentage >= 0 ? '+' : ''}{yoyPercentage}% vs ano ant.
           </div>
         </div>
 
