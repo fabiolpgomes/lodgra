@@ -1,0 +1,52 @@
+/* Design Tokens — Colors
+ * Generated from tokens.yaml (2026-05-14)
+ * W3C Design Tokens Community Group (DTCG) Format
+ */
+
+:root {
+  /* ========== BRAND COLORS ========== */
+
+  /* Primary Brand Color */
+  --lodgra-primary: #1E3A8A;
+  --lodgra-primary-rgb: 30, 58, 138;
+
+  /* Accent Color */
+  --lodgra-accent: #ffc000;
+  --lodgra-accent-rgb: 255, 192, 0;
+
+  /* Neutral Colors */
+  --lodgra-white: #ffffff;
+  --lodgra-bg-light: #f8f8f8;
+  --lodgra-bg-dark: #f0f0f0;
+
+  /* ========== SEMANTIC COLORS ========== */
+
+  /* Border Colors */
+  --lodgra-border-primary: rgba(30, 58, 138, 0.1);
+  --lodgra-border-light: rgba(0, 0, 0, 0.06);
+
+  /* Text Colors */
+  --lodgra-text-primary: #1E3A8A;
+  --lodgra-text-secondary: rgba(30, 58, 138, 0.4);
+  --lodgra-text-tertiary: rgba(30, 58, 138, 0.3);
+  --lodgra-text-disabled: rgba(30, 58, 138, 0.6);
+  --lodgra-text-light: rgba(30, 58, 138, 0.2);
+
+  /* ========== UTILITY OPACITY VARIANTS ========== */
+  /* For use with Tailwind: text-lodgra-primary/20 */
+  --lodgra-primary-20: rgba(30, 58, 138, 0.2);
+  --lodgra-primary-30: rgba(30, 58, 138, 0.3);
+  --lodgra-primary-40: rgba(30, 58, 138, 0.4);
+  --lodgra-primary-60: rgba(30, 58, 138, 0.6);
+
+  --lodgra-accent-10: rgba(255, 192, 0, 0.1);
+  --lodgra-accent-20: rgba(255, 192, 0, 0.2);
+}
+
+/* Optional: Dark mode variants (if needed) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Dark mode could have different color values here */
+    /* For now, using same as light mode */
+  }
+}

@@ -1,0 +1,295 @@
+# Design Tokens — Lodgra
+# W3C Design Tokens Community Group (DTCG) Format
+# Extracted from: src/components/common/layout/* audit
+# Generated: 2026-05-14
+
+# ============================================================================
+# COLOR TOKENS
+# ============================================================================
+
+colors:
+  # Brand Colors (Primary Palette)
+  brand:
+    primary:
+      value: '#1E3A8A'
+      description: 'Primary brand blue - used across navigation, text, borders'
+      category: 'semantic'
+      usages:
+        - 'TopBar heading'
+        - 'Sidebar navigation'
+        - 'Text emphasis'
+        - 'Border accents'
+
+    accent:
+      value: '#ffc000'
+      description: 'Accent yellow - hover states, active states'
+      category: 'semantic'
+      usages:
+        - 'Active navigation item background'
+        - 'Hover state backgrounds'
+        - 'Button hover effects'
+
+    neutral:
+      light:
+        value: '#f8f8f8'
+        description: 'Light neutral background'
+        usages:
+          - 'AuthLayout background'
+          - 'Search button background'
+      white:
+        value: '#ffffff'
+        description: 'White background for containers'
+        usages:
+          - 'Headers'
+          - 'Navigation bars'
+          - 'Component backgrounds'
+
+  # Semantic Colors
+  semantic:
+    border:
+      primary:
+        value: 'rgba(30, 58, 138, 0.1)'  # #1E3A8A/10
+        description: 'Primary border color'
+      light:
+        value: 'rgba(0, 0, 0, 0.06)'  # black/[0.06]
+        description: 'Light border color'
+
+    text:
+      primary:
+        value: '#1E3A8A'
+        description: 'Primary text color'
+      secondary:
+        value: 'rgba(30, 58, 138, 0.4)'  # #1E3A8A/40
+        description: 'Secondary text color'
+      tertiary:
+        value: 'rgba(30, 58, 138, 0.3)'  # #1E3A8A/30
+        description: 'Tertiary/muted text color'
+      disabled:
+        value: 'rgba(30, 58, 138, 0.6)'  # #1E3A8A/60
+        description: 'Disabled text color'
+
+# ============================================================================
+# TYPOGRAPHY TOKENS
+# ============================================================================
+
+typography:
+  font-families:
+    heading:
+      value: 'var(--font-hanken-grotesk)'
+      description: 'Primary heading font (custom Hanken Grotesk)'
+    body:
+      value: 'system-ui, -apple-system, sans-serif'
+      description: 'Default body font'
+
+  font-sizes:
+    xs:
+      value: '10px'
+      description: 'Extra small text (labels, captions)'
+      usages:
+        - 'Navigation labels'
+        - 'Configuration section headers'
+
+    sm:
+      value: '11px'
+      description: 'Small text'
+      usages:
+        - 'Search button text'
+        - 'Menu item labels'
+
+    base:
+      value: '13px'
+      description: 'Base/default text size'
+      usages:
+        - 'TopBar heading'
+        - 'Primary navigation items'
+
+    md:
+      value: '12px'
+      description: 'Medium text'
+      usages:
+        - 'Profile name in sidebar'
+
+    lg:
+      value: '14px'
+      description: 'Large text'
+      usages:
+        - 'Sheet titles'
+
+  font-weights:
+    bold:
+      value: 700
+      description: 'Bold weight'
+
+    black:
+      value: 900
+      description: 'Black weight (extra bold)'
+      usages:
+        - 'Navigation items'
+        - 'Headings'
+        - 'Labels'
+
+  line-heights:
+    tight:
+      value: '1'
+      description: 'Tight line height'
+    normal:
+      value: '1.5'
+      description: 'Normal line height'
+
+  letter-spacing:
+    normal:
+      value: '0'
+      description: 'Normal letter spacing'
+
+    wide:
+      value: '0.5px'  # tracking-[0.5px]
+      description: 'Wide letter spacing (0.5px)'
+
+    wider:
+      value: '1px'    # tracking-[1px]
+      description: 'Wider letter spacing (1px)'
+
+    widest:
+      value: '1.5px'  # tracking-[1.5px]
+      description: 'Widest letter spacing (1.5px)'
+
+    ultra-wide:
+      value: '2px'    # tracking-[2px]
+      description: 'Ultra-wide letter spacing (2px)'
+
+# ============================================================================
+# SPACING TOKENS
+# ============================================================================
+
+spacing:
+  # Padding
+  padding:
+    xs:
+      value: '4px'
+    sm:
+      value: '8px'
+    md:
+      value: '12px'
+    lg:
+      value: '16px'    # px-4
+    xl:
+      value: '24px'    # px-6
+    '2xl':
+      value: '32px'    # px-8
+    '3xl':
+      value: '40px'    # py-10
+
+  # Sizing
+  sizes:
+    icon-sm:
+      value: '16px'    # h-4, w-4
+    icon-md:
+      value: '20px'    # h-5, w-5
+    icon-lg:
+      value: '24px'
+    full:
+      value: '100%'
+    screen:
+      value: '100vh'
+    max-content:
+      value: '48px'    # w-48 (modal width)
+
+# ============================================================================
+# BORDER & RADIUS TOKENS
+# ============================================================================
+
+border:
+  width:
+    default:
+      value: '1px'
+      description: 'Default border width'
+
+  radius:
+    none:
+      value: '0'
+      description: 'No border radius'
+    sm:
+      value: '4px'
+    md:
+      value: '8px'
+
+# ============================================================================
+# SHADOW & ELEVATION TOKENS
+# ============================================================================
+
+shadow:
+  none:
+    value: 'none'
+  sm:
+    value: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+  md:
+    value: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+
+# ============================================================================
+# Z-INDEX TOKENS
+# ============================================================================
+
+z-index:
+  base:
+    value: 0
+  dropdown:
+    value: 30
+    description: 'TopBar z-index'
+  sidebar:
+    value: 40
+    description: 'Sidebar z-index'
+  modal:
+    value: 50
+    description: 'Modal/Popover z-index (Header, BottomNav, Sheet)'
+
+# ============================================================================
+# COMPONENT-SPECIFIC TOKENS
+# ============================================================================
+
+components:
+  header:
+    height:
+      value: '64px'
+      description: 'TopBar/Header height'
+    background:
+      value: '{colors.brand.neutral.white}'
+    border-color:
+      value: '{colors.semantic.border.primary}'
+
+  sidebar:
+    width:
+      value: '260px'
+      description: 'Fixed sidebar width'
+    background:
+      value: '{colors.brand.neutral.white}'
+
+  bottom-nav:
+    height:
+      value: '64px'
+      description: 'Minimum height for mobile navigation'
+
+  button:
+    padding-horizontal:
+      value: '12px'
+    padding-vertical:
+      value: '8px'
+    border-radius:
+      value: '{border.radius.sm}'
+
+# ============================================================================
+# METADATA
+# ============================================================================
+
+metadata:
+  version: '1.0.0'
+  created: '2026-05-14'
+  source: 'Design audit of src/components/common/layout/'
+  format: 'W3C Design Tokens Community Group (DTCG)'
+  status: 'extracted'
+  extracted-by: 'Uma (UX Design Expert)'
+  files-analyzed:
+    - 'src/components/common/layout/TopBar.tsx'
+    - 'src/components/common/layout/Sidebar.tsx'
+    - 'src/components/common/layout/BottomNav.tsx'
+    - 'src/components/common/layout/AuthLayout.tsx'
+    - 'src/components/common/layout/Header.tsx'

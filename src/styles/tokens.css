@@ -1,0 +1,173 @@
+/* Design System Tokens — Global Entry Point
+ * Imports all token definitions from modular CSS files
+ * W3C Design Tokens Community Group (DTCG) Format
+ *
+ * Generated: 2026-05-14
+ * Source: tokens.yaml + Phase 3 Setup
+ */
+
+/* Import token modules in order */
+@import './tokens/colors.css';
+@import './tokens/typography.css';
+@import './tokens/spacing.css';
+@import './tokens/components.css';
+
+/* ========== GLOBAL DEFAULTS ========== */
+
+:root {
+  /* Default colors */
+  color: var(--lodgra-text-primary);
+  background-color: var(--lodgra-white);
+
+  /* Default typography */
+  font-family: var(--font-body);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-normal);
+  letter-spacing: var(--letter-spacing-normal);
+}
+
+/* ========== SEMANTIC COLOR UTILITIES ========== */
+/* High-level utilities for common use cases */
+
+.text-brand {
+  color: var(--lodgra-primary);
+}
+
+.text-accent {
+  color: var(--lodgra-accent);
+}
+
+.bg-brand {
+  background-color: var(--lodgra-primary);
+}
+
+.bg-accent {
+  background-color: var(--lodgra-accent);
+}
+
+.border-brand {
+  border-color: var(--lodgra-primary);
+}
+
+.border-accent {
+  border-color: var(--lodgra-accent);
+}
+
+/* ========== HEADING TYPOGRAPHY UTILITIES ========== */
+
+.heading-primary {
+  font-family: var(--font-heading);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-black);
+  letter-spacing: var(--letter-spacing-widest);
+  text-transform: uppercase;
+}
+
+.heading-secondary {
+  font-family: var(--font-heading);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-black);
+  letter-spacing: var(--letter-spacing-wider);
+  text-transform: uppercase;
+}
+
+.heading-tertiary {
+  font-family: var(--font-heading);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+}
+
+/* ========== COMPONENT-SPECIFIC DEFAULTS ========== */
+
+/* Buttons */
+button {
+  transition: all var(--transition-base);
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+/* Links */
+a {
+  color: var(--lodgra-primary);
+  text-decoration: none;
+}
+
+a:hover {
+  opacity: 0.8;
+}
+
+/* Borders */
+input,
+textarea,
+select {
+  border: var(--border-width-default) solid var(--lodgra-border-primary);
+  border-radius: var(--border-radius-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--lodgra-primary);
+  box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+}
+
+/* ========== ACCESSIBILITY ========== */
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ========== DOCUMENTATION ========== */
+
+/*
+ * Token Organization:
+ *
+ * colors.css
+ *   - Brand colors (primary, accent)
+ *   - Semantic colors (borders, text)
+ *   - Utility opacity variants
+ *
+ * typography.css
+ *   - Font families
+ *   - Font sizes (xs, sm, base, md, lg)
+ *   - Font weights (normal, bold, black)
+ *   - Letter spacing (normal, wide, wider, widest, ultra-wide)
+ *
+ * spacing.css
+ *   - Spacing scale (xs–3xl)
+ *   - Icon sizes (sm, md, lg)
+ *   - Component sizes (header, sidebar, bottom-nav)
+ *
+ * components.css
+ *   - Z-index (base, dropdown, sidebar, modal)
+ *   - Border styles (width, radius)
+ *   - Shadows
+ *   - Transitions
+ *   - Breakpoints
+ *
+ * Usage Examples:
+ *
+ *   <!-- Using CSS variables -->
+ *   <header style="height: var(--header-height);">
+ *
+ *   <!-- Using Tailwind classes (see tailwind.config.ts) -->
+ *   <h1 class="text-lodgra-primary font-heading text-lg">Heading</h1>
+ *
+ *   <!-- Using utility classes defined above -->
+ *   <button class="heading-secondary">Button</button>
+ */

@@ -1,0 +1,87 @@
+/* Design Tokens — Spacing, Sizing & Layout
+ * Generated from tokens.yaml (2026-05-14)
+ * W3C Design Tokens Community Group (DTCG) Format
+ */
+
+:root {
+  /* ========== SPACING SCALE ========== */
+
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;    /* px-4 in Tailwind */
+  --spacing-xl: 24px;    /* px-6 in Tailwind */
+  --spacing-2xl: 32px;   /* px-8 in Tailwind */
+  --spacing-3xl: 40px;   /* py-10 in Tailwind */
+
+  /* ========== ICON SIZES ========== */
+
+  --icon-sm: 16px;  /* h-4, w-4 */
+  --icon-md: 20px;  /* h-5, w-5 */
+  --icon-lg: 24px;
+
+  /* ========== COMPONENT SIZES ========== */
+
+  --header-height: 64px;
+  --sidebar-width: 260px;
+  --bottom-nav-height: 64px;
+  --mobile-modal-width: 48px; /* w-48 in Tailwind */
+
+  /* ========== LAYOUT CONSTRAINTS ========== */
+
+  --max-width-container: 1280px;
+  --max-width-content: 900px;
+}
+
+/* ========== UTILITY CLASSES ========== */
+
+/* Spacing utilities for padding/margin */
+.gap-xs {
+  gap: var(--spacing-xs);
+}
+
+.gap-sm {
+  gap: var(--spacing-sm);
+}
+
+.gap-md {
+  gap: var(--spacing-md);
+}
+
+.gap-lg {
+  gap: var(--spacing-lg);
+}
+
+.gap-xl {
+  gap: var(--spacing-xl);
+}
+
+/* Icon size utilities */
+.icon-sm {
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+}
+
+.icon-md {
+  width: var(--icon-md);
+  height: var(--icon-md);
+}
+
+.icon-lg {
+  width: var(--icon-lg);
+  height: var(--icon-lg);
+}
+
+/* Component-specific sizing */
+.header {
+  height: var(--header-height);
+}
+
+.sidebar {
+  width: var(--sidebar-width);
+  min-height: 100vh;
+}
+
+.bottom-nav {
+  height: var(--bottom-nav-height);
+}
