@@ -136,7 +136,7 @@ export function BottomNav() {
                     className={`flex items-center gap-3 p-4 rounded-none border transition-all ${
                       active
                         ? 'bg-[#ffc000] border-[#ffc000] text-[#1E3A8A]'
-                        : 'bg-[#f8f8f8] border-[#1E3A8A]/5 text-[#1E3A8A]/70 hover:border-[#ffc000]/30'
+                        : 'border-[#1E3A8A]/10 text-[#1E3A8A] hover:bg-[#ffc000]/10'
                     }`}
                   >
                     <Icon className="h-5 w-5 shrink-0" />
@@ -160,7 +160,7 @@ export function BottomNav() {
                       className={`flex items-center gap-3 p-4 rounded-none border transition-all ${
                         active
                           ? 'bg-[#ffc000] border-[#ffc000] text-[#1E3A8A]'
-                          : 'bg-[#f8f8f8] border-[#1E3A8A]/5 text-[#1E3A8A]/70 hover:border-[#ffc000]/30'
+                          : 'border-[#1E3A8A]/10 text-[#1E3A8A] hover:bg-[#ffc000]/10'
                       }`}
                     >
                       <Icon className="h-5 w-5 shrink-0" />
@@ -175,7 +175,7 @@ export function BottomNav() {
                     className={`flex items-center gap-3 p-4 rounded-none border transition-all ${
                       pathname === `${prefix}/admin/users`
                         ? 'bg-[#ffc000] border-[#ffc000] text-[#1E3A8A]'
-                        : 'bg-[#f8f8f8] border-[#1E3A8A]/5 text-[#1E3A8A]/70 hover:border-[#ffc000]/30'
+                        : 'border-[#1E3A8A]/10 text-[#1E3A8A] hover:bg-[#ffc000]/10'
                     }`}
                   >
                     <UserCog className="h-5 w-5 shrink-0" />

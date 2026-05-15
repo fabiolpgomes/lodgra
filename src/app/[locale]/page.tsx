@@ -21,8 +21,8 @@ export default async function LocalizedRootPage({
     if (locale === 'pt-BR') {
       return <BrazilLanding />
     }
-    if (locale === 'pt' || locale === 'es' || locale === 'en-US') {
-      return <EuropeLanding locale={locale as 'pt' | 'es' | 'en-US'} />
+    if (locale === 'es' || locale === 'en-US') {
+      return <EuropeLanding locale={locale as 'es' | 'en-US'} />
     }
     return <EuropeLanding locale="en-US" />
   }

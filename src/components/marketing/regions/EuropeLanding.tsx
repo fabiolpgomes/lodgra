@@ -2,7 +2,7 @@ import React from 'react'
 import { LandingPageClient } from '@/components/landing/LandingPageClient'
 
 interface EuropeLandingProps {
-  locale: 'pt' | 'es' | 'en-US'
+  locale: 'es' | 'en-US'
 }
 
 // Helper to load content - similarity to src/app/landing/page.tsx
@@ -10,10 +10,6 @@ async function getLandingPageContent(locale: string) {
   try {
     let content
     switch (locale) {
-      case 'pt':
-        // Portugal version
-        content = await import('../../../../public/locales/pt-BR/landing.json').then(m => m.default)
-        break
       case 'es':
         content = await import('../../../../public/locales/es/landing.json').then(m => m.default)
         break

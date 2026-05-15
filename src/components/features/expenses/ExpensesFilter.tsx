@@ -217,7 +217,7 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
           {/* Row 2: Date Range and Category Filters */}
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1">
-              <label className="block text-xs font-medium text-gray-700 mb-1">Data inicial</label>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Data inicial <span className="text-gray-400">(dd/mm/aaaa)</span></label>
               <div className="relative">
                 <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
@@ -229,7 +229,7 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
               </div>
             </div>
             <div className="flex-1">
-              <label className="block text-xs font-medium text-gray-700 mb-1">Data final</label>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Data final <span className="text-gray-400">(dd/mm/aaaa)</span></label>
               <div className="relative">
                 <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input

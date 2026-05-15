@@ -147,6 +147,32 @@
   }
 }
 
+/* Date Input — Brazilian Format (dd/mm/aaaa) */
+input[type="date"] {
+  position: relative;
+}
+
+/* Show format hint when empty — Brazilian format dd/mm/aaaa */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  border-radius: 4px;
+  margin-right: 2px;
+  opacity: 0.6;
+  filter: invert(0.8);
+}
+
+/* Placeholder hint for date inputs */
+input[type="date"]::placeholder {
+  color: var(--muted-foreground);
+}
+
+/* Label hint next to date input */
+[data-date-format]::after {
+  content: " (dd/mm/aaaa)";
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  margin-left: 0.5rem;
+}
 
 :root {
   --radius: 0.75rem;

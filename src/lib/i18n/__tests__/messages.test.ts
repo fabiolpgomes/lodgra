@@ -66,17 +66,17 @@ describe('i18n - Messages', () => {
 
     it('should default to PT when header is missing', () => {
       const locale = detectLocale(undefined)
-      expect(locale).toBe('pt')
+      expect(locale).toBe('pt-BR')
     })
 
     it('should default to PT when header is empty', () => {
       const locale = detectLocale('')
-      expect(locale).toBe('pt')
+      expect(locale).toBe('pt-BR')
     })
 
     it('should return PT for standard Portuguese', () => {
       const locale = detectLocale('pt,pt;q=0.9')
-      expect(locale).toBe('pt')
+      expect(locale).toBe('pt-BR')
     })
 
     it('should be case-insensitive for BR detection', () => {
@@ -87,7 +87,7 @@ describe('i18n - Messages', () => {
     it('should return PT for unsupported locales', () => {
       // 'ja' and 'zh' are not supported — must fall back to 'pt'
       const locale = detectLocale('ja,zh;q=0.9')
-      expect(locale).toBe('pt')
+      expect(locale).toBe('pt-BR')
     })
   })
 

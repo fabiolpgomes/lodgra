@@ -230,7 +230,7 @@ export function CalendarPageClient() {
           ref={calendarRef}
           plugins={[dayGridPlugin, interactionPlugin]}
           initialView="dayGridMonth"
-          locale="pt"
+          locale="pt-br"
           firstDay={1}
           headerToolbar={{
             left: 'prev,next today',

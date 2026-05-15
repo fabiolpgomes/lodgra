@@ -1,7 +1,9 @@
+import { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { MapPin, Users, Bed, Bath, Home, Edit, ArrowLeft } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
+import { generateLodgingBusinessSchema } from '@/lib/schema-generators'
 import { DeletePropertyButton } from '@/components/features/properties/DeletePropertyButton'
 import { TogglePropertyStatusButton } from '@/components/features/properties/TogglePropertyStatusButton'
 import { PropertyListingsManager } from '@/components/features/listings/PropertyListingsManager'
@@ -14,6 +16,83 @@ import { AuthLayout } from '@/components/common/layout/AuthLayout'
 import { getUserRole } from '@/lib/auth/getUserRole'
 import { Button } from '@/components/common/ui/button'
 import { Badge } from '@/components/common/ui/badge'
+
+export async function generateMetadata(
+  { params }: { params: Promise<{ locale: string; id: string }> }
+): Promise<Metadata> {
+  const { id } = await params
+  const supabase = await createClient()
+
+  // Fetch property
+  const { data: property } = await supabase
+    .from('properties')
+    .select('*')
+    .eq('id', id)
+    .single()
+
+  if (!property) {
+    return {
+      title: 'Property Not Found',
+    }
+  }
+
+  // Fetch property images
+  const { data: images } = await supabase
+    .from('property_media')
+    .select('url')
+    .eq('property_id', id)
+    .limit(5)
+
+  // Fetch property reviews for aggregateRating
+  const { data: reviews } = await supabase
+    .from('property_reviews')
+    .select('rating')
+    .eq('property_id', id)
+    .gt('rating', 0)
+
+  // Calculate aggregate rating
+  let aggregateRating
+  if (reviews && reviews.length > 0) {
+    const avgRating = reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / reviews.length
+    aggregateRating = {
+      rating: avgRating,
+      reviewCount: reviews.length,
+    }
+  }
+
+  // Generate JSON-LD schema
+  const schema = generateLodgingBusinessSchema(
+    {
+      id: property.id,
+      name: property.name,
+      description: property.description || 'Luxury property rental',
+      slug: property.slug || property.id,
+      address: property.address || '',
+      city: property.city || '',
+      zipcode: property.zipcode || '',
+      country: property.country || 'PT',
+      phone: property.phone,
+      email: property.email,
+    },
+    (images || []).map(img => ({ url: img.url })),
+    aggregateRating
+  )
+
+  return {
+    title: property.name,
+    description: property.description || 'Luxury property rental on Lodgra',
+    openGraph: {
+      title: property.name,
+      description: property.description || 'Luxury property rental on Lodgra',
+      type: 'website',
+      url: `${process.env.NEXT_PUBLIC_APP_URL}/properties/${id}`,
+      images: images && images.length > 0 ? [{ url: images[0].url }] : [],
+    },
+    other: {
+      'application/ld+json': JSON.stringify(schema),
+    },
+  }
+}
 
 export default async function PropertyDetailsPage({
   params

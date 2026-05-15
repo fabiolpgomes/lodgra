@@ -20,8 +20,8 @@ export default async function RootPage() {
     return <BrazilLanding />
   }
 
-  // 2. Europa (Portugal, Espanha, etc): Modelo clean/premium universal.
-  if (locale === 'pt' || locale === 'es') {
+  // 2. Europa (Espanha, etc): Modelo clean/premium universal.
+  if (locale === 'es') {
     return <EuropeLanding locale={locale} />
   }
 

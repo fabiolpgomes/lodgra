@@ -90,7 +90,7 @@ export default async function RootLayout({
 }>) {
   const nonce = (await headers()).get('x-nonce') ?? undefined
   return (
-    <html lang="pt" suppressHydrationWarning>
+    <html lang="pt-BR" suppressHydrationWarning>
       <head>
         {/* next/font self-hosta Geist — não precisa de preconnect para Google Fonts */}
         {/* Preconnect para Stripe (checkout na landing) — reduz latência em 50-200ms */}

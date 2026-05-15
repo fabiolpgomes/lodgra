@@ -94,7 +94,7 @@ export function ReportsFilters({ properties, startDate, endDate, propertyId, act
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div>
           <Label htmlFor="start_date">
-            Data Início
+            Data Início <span className="text-xs text-gray-500">(dd/mm/aaaa)</span>
           </Label>
           <Input
             type="date"
@@ -106,7 +106,7 @@ export function ReportsFilters({ properties, startDate, endDate, propertyId, act
 
         <div>
           <Label htmlFor="end_date">
-            Data Fim
+            Data Fim <span className="text-xs text-gray-500">(dd/mm/aaaa)</span>
           </Label>
           <Input
             type="date"
