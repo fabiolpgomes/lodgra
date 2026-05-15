@@ -44,7 +44,7 @@ export async function getTranslations({
   // Validate locale
   if (!locales.includes(locale as unknown as typeof locales[number])) {
     console.warn(`Invalid locale: ${locale}, using default`)
-    locale = 'pt'
+    locale = 'pt-BR'
   }
 
   const messages = await loadTranslation(locale, namespace)

@@ -8,13 +8,12 @@ import { Button } from '../atoms/Button'
 import { ThemeToggle } from '@/components/common/header/ThemeToggle'
 
 interface NavbarProps {
-  locale: 'pt-BR' | 'en-US' | 'es' | 'pt'
-  onLocaleChange: (locale: 'pt-BR' | 'en-US' | 'es' | 'pt') => void
+  locale: 'pt-BR' | 'en-US' | 'es'
+  onLocaleChange: (locale: 'pt-BR' | 'en-US' | 'es') => void
 }
 
 const localeLabels: Record<string, string> = {
   'pt-BR': 'Brasil',
-  'pt': 'Portugal',
   'en-US': 'English',
   'es': 'Español',
 }
@@ -65,7 +64,7 @@ export const Navbar: React.FC<NavbarProps> = ({ locale, onLocaleChange }) => {
               >
                 <span className="hidden sm:inline">{localeLabels[locale]}</span>
                 <span className="sm:hidden">
-                  {locale === 'pt-BR' ? '🇧🇷' : locale === 'pt' ? '🇵🇹' : locale === 'es' ? '🇪🇸' : '🇺🇸'}
+                  {locale === 'pt-BR' ? '🇧🇷' : locale === 'es' ? '🇪🇸' : '🇺🇸'}
                 </span>
                 <svg
                   className={`w-4 h-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}
@@ -80,7 +79,7 @@ export const Navbar: React.FC<NavbarProps> = ({ locale, onLocaleChange }) => {
               {/* Dropdown Menu */}
               {isDropdownOpen && (
                 <div className="absolute top-full right-0 mt-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg overflow-hidden min-w-max">
-                  {(['pt-BR', 'pt', 'en-US', 'es'] as const).map((loc) => (
+                  {(['pt-BR', 'en-US', 'es'] as const).map((loc) => (
                     <button
                       key={loc}
                       onClick={() => {
@@ -95,7 +94,7 @@ export const Navbar: React.FC<NavbarProps> = ({ locale, onLocaleChange }) => {
                       aria-label={`Switch to ${localeLabels[loc]}`}
                       aria-current={locale === loc ? 'true' : undefined}
                     >
-                      <span className="mr-2">{loc === 'pt-BR' ? '🇧🇷' : loc === 'pt' ? '🇵🇹' : loc === 'es' ? '🇪🇸' : '🇺🇸'}</span>
+                      <span className="mr-2">{loc === 'pt-BR' ? '🇧🇷' : loc === 'es' ? '🇪🇸' : '🇺🇸'}</span>
                       {localeLabels[loc]}
                     </button>
                   ))}

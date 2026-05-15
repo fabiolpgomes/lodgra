@@ -14,11 +14,6 @@ import type { Locale } from '@/i18n.config'
 
 describe('Currency Configuration', () => {
   describe('getLocaleCurrency', () => {
-    it('should map pt locale to EUR', () => {
-      const result = getLocaleCurrency('pt' as Locale)
-      expect(result).toBe('EUR')
-    })
-
     it('should map pt-BR locale to BRL', () => {
       const result = getLocaleCurrency('pt-BR' as Locale)
       expect(result).toBe('BRL')
@@ -29,17 +24,22 @@ describe('Currency Configuration', () => {
       expect(result).toBe('USD')
     })
 
-    it('should default to EUR for unknown locales', () => {
-      const result = getLocaleCurrency('unknown' as Locale)
+    it('should map es locale to EUR', () => {
+      const result = getLocaleCurrency('es' as Locale)
       expect(result).toBe('EUR')
+    })
+
+    it('should default to BRL for unknown locales', () => {
+      const result = getLocaleCurrency('unknown' as Locale)
+      expect(result).toBe('BRL')
     })
   })
 
   describe('getCurrencyByLocale', () => {
     it('should return correct currency for each locale', () => {
-      expect(getCurrencyByLocale('pt' as Locale)).toBe('EUR')
       expect(getCurrencyByLocale('pt-BR' as Locale)).toBe('BRL')
       expect(getCurrencyByLocale('en-US' as Locale)).toBe('USD')
+      expect(getCurrencyByLocale('es' as Locale)).toBe('EUR')
     })
   })
 
@@ -97,7 +97,7 @@ describe('Currency Configuration', () => {
       expect(eur.code).toBe('EUR')
       expect(eur.symbol).toBe('€')
       expect(eur.name).toBe('Euro')
-      expect(eur.locale).toBe('pt')
+      expect(eur.locale).toBe('es')
     })
 
     it('should have correct BRL config', () => {

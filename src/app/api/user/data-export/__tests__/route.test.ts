@@ -79,7 +79,7 @@ describe('POST /api/user/data-export', () => {
       email: 'test@example.com',
       full_name: 'Test User',
       role: 'admin',
-      preferred_locale: 'pt',
+      preferred_locale: 'pt-BR',
       organization_id: 'org-1',
       created_at: '2026-01-01T00:00:00Z',
     }

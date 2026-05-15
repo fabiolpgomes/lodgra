@@ -14,9 +14,9 @@ interface LocaleOption {
 }
 
 const LOCALE_OPTIONS: LocaleOption[] = [
-  { code: 'pt', name: 'Português', flag: '🇵🇹', label: 'Portugal' },
   { code: 'pt-BR', name: 'Português (Brasil)', flag: '🇧🇷', label: 'Brasil' },
   { code: 'en-US', name: 'English', flag: '🇺🇸', label: 'USA' },
+  { code: 'es', name: 'Español', flag: '🇪🇸', label: 'Español' },
 ]
 
 export function LocaleSelector() {

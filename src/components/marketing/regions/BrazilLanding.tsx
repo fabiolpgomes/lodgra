@@ -40,7 +40,6 @@ export const BrazilLanding: React.FC = () => {
 
   const languages = [
     { code: 'pt-BR', label: 'Brasil', flag: '🇧🇷' },
-    { code: 'pt', label: 'Portugal', flag: '🇵🇹' },
     { code: 'en-US', label: 'English', flag: '🇺🇸' },
     { code: 'es', label: 'Español', flag: '🇪🇸' },
   ]

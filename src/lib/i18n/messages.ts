@@ -32,7 +32,7 @@ export const messages: Messages = {
 /**
  * Get translated message and interpolate variables
  * @param key Message key (e.g., 'errors.minimum_stay_required')
- * @param locale Language locale (default: 'pt')
+ * @param locale Language locale (default: 'pt-BR')
  * @param variables Variables to interpolate ({minNights, nights, etc})
  * @returns Translated and interpolated message
  */
@@ -95,12 +95,12 @@ export function formatMinimumStayValidation(minNights: number, nights: number, l
  * @returns Detected locale
  */
 export function detectLocale(acceptLanguage?: string): Locale {
-  if (!acceptLanguage) return 'pt'
+  if (!acceptLanguage) return 'pt-BR'
 
   const lower = acceptLanguage.toLowerCase()
 
   // Simple detection: if 'br' or 'pt-BR' in Accept-Language, use 'pt-BR'
-  if (lower.includes('pt-br') || lower.includes('br')) {
+  if (lower.includes('pt-br') || lower.includes('pt') || lower.includes('br')) {
     return 'pt-BR'
   }
 
@@ -114,6 +114,6 @@ export function detectLocale(acceptLanguage?: string): Locale {
     return 'es'
   }
 
-  // Default to 'pt' (Portugal)
-  return 'pt'
+  // Default to 'pt-BR' (Brazilian Portuguese)
+  return 'pt-BR'
 }

@@ -22,7 +22,7 @@ export const CURRENCY_CONFIG: Record<SupportedCurrency, CurrencyConfig> = {
     code: 'EUR',
     symbol: '€',
     name: 'Euro',
-    locale: 'pt',
+    locale: 'es',
   },
   BRL: {
     code: 'BRL',
@@ -44,14 +44,14 @@ export const CURRENCY_CONFIG: Record<SupportedCurrency, CurrencyConfig> = {
  */
 export function getLocaleCurrency(locale: Locale): SupportedCurrency {
   switch (locale) {
-    case 'pt':
-      return 'EUR'
     case 'pt-BR':
       return 'BRL'
     case 'en-US':
       return 'USD'
+    case 'es':
+      return 'EUR'
     default:
-      return 'EUR' // Default fallback
+      return 'BRL' // Default fallback
   }
 }
 
