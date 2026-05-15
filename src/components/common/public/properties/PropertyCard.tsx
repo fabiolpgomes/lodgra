@@ -13,7 +13,6 @@ export interface PropertyCardProps {
   image: string
   price: number
   currency: string
-  amenities: string[]
   bedrooms: number
   bathrooms: number
   maxGuests: number
@@ -22,26 +21,6 @@ export interface PropertyCardProps {
   isFeatured?: boolean
   checkIn?: string
   checkOut?: string
-}
-
-const AMENITY_ICONS: Record<string, string> = {
-  pool: '🏊',
-  wifi: '📶',
-  ac: '❄️',
-  kitchen: '🍳',
-  parking: '🚗',
-  washer: '🧺',
-  pets: '🐕',
-  heating: '🔥',
-}
-
-function AmenityIcon({ type, className = '' }: { type: string; className?: string }) {
-  const icon = AMENITY_ICONS[type] || '✓'
-  return (
-    <span className={`text-[16px] opacity-70 grayscale ${className}`} title={type}>
-      {icon}
-    </span>
-  )
 }
 
 export function PropertyCard({
@@ -53,7 +32,6 @@ export function PropertyCard({
   image,
   price,
   currency,
-  amenities,
   bedrooms,
   bathrooms,
   maxGuests,
@@ -64,7 +42,6 @@ export function PropertyCard({
   checkOut,
 }: PropertyCardProps) {
   const currencySymbol = getCurrencySymbol(currency)
-  const displayAmenities = amenities.slice(0, 3)
 
   const href = checkIn && checkOut
     ? `/p/${slug}?checkIn=${checkIn}&checkOut=${checkOut}`

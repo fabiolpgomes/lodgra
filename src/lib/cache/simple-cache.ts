@@ -9,7 +9,7 @@ interface CacheEntry<T> {
 }
 
 class SimpleCache {
-  private cache = new Map<string, CacheEntry<any>>()
+  private cache = new Map<string, CacheEntry<unknown>>()
 
   set<T>(key: string, value: T, ttlSeconds: number = 3600): void {
     const expiresAt = Date.now() + ttlSeconds * 1000

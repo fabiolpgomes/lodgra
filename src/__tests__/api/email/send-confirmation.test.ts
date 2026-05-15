@@ -201,7 +201,7 @@ describe('POST /api/email/send-confirmation', () => {
 
     const req = makeConfirmationRequest({ reservationId: 'res-001' })
     const res = await POST(req)
-    const json = await res.json()
+    const _json = await res.json()
 
     expect(res.status).toBe(404)
     expect(mockSendGuest).not.toHaveBeenCalled()

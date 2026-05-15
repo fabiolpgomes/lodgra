@@ -113,6 +113,14 @@ export interface PieChartProps {
   size?: 'sm' | 'md' | 'lg'
 }
 
+interface PieSlice {
+  path: string
+  label: string
+  value: number
+  color: string
+  percentage: string
+}
+
 export function PieChart({ data, size = 'md' }: PieChartProps) {
   const sizeMap = { sm: 200, md: 300, lg: 400 }
   const diameter = sizeMap[size]
@@ -121,29 +129,33 @@ export function PieChart({ data, size = 'md' }: PieChartProps) {
   const cy = diameter / 2
 
   const total = data.reduce((sum, item) => sum + item.value, 0)
-  let currentAngle = -Math.PI / 2
 
-  const slices = data.map((item) => {
-    const sliceAngle = (item.value / total) * 2 * Math.PI
-    const startAngle = currentAngle
-    const endAngle = currentAngle + sliceAngle
-    currentAngle = endAngle
+  const slices: PieSlice[] = data.reduce<{ slices: PieSlice[]; angle: number }>(
+    (acc, item) => {
+      const currentAngle = acc.angle
+      const sliceAngle = (item.value / total) * 2 * Math.PI
+      const startAngle = currentAngle
+      const endAngle = currentAngle + sliceAngle
 
-    const x1 = cx + radius * Math.cos(startAngle)
-    const y1 = cy + radius * Math.sin(startAngle)
-    const x2 = cx + radius * Math.cos(endAngle)
-    const y2 = cy + radius * Math.sin(endAngle)
+      const x1 = cx + radius * Math.cos(startAngle)
+      const y1 = cy + radius * Math.sin(startAngle)
+      const x2 = cx + radius * Math.cos(endAngle)
+      const y2 = cy + radius * Math.sin(endAngle)
 
-    const largeArc = sliceAngle > Math.PI ? 1 : 0
+      const largeArc = sliceAngle > Math.PI ? 1 : 0
 
-    return {
-      path: `M ${cx} ${cy} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2} Z`,
-      label: item.label,
-      value: item.value,
-      color: item.color || '#1E3A8A',
-      percentage: ((item.value / total) * 100).toFixed(1),
-    }
-  })
+      acc.slices.push({
+        path: `M ${cx} ${cy} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2} Z`,
+        label: item.label,
+        value: item.value,
+        color: item.color || '#1E3A8A',
+        percentage: ((item.value / total) * 100).toFixed(1),
+      })
+
+      return { ...acc, angle: endAngle }
+    },
+    { slices: [], angle: -Math.PI / 2 }
+  ).slices
 
   return (
     <div className="w-full bg-white rounded-sm border border-lodgra-primary/10 p-6">

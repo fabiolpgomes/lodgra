@@ -241,8 +241,8 @@ export default async function DashboardPage({
       date.toLocaleDateString('pt-BR', { month: 'short' }).slice(1))
     const year = date.getFullYear()
     const month = date.getMonth()
-    const monthStart = new Date(year, month, 1)
-    const monthEnd = new Date(year, month + 1, 0)
+    const _monthStart = new Date(year, month, 1)
+    const _monthEnd = new Date(year, month + 1, 0)
     const monthKey = `${year}-${String(month + 1).padStart(2, '0')}`
 
     const byCur: Record<string, number> = {}

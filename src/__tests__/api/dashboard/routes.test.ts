@@ -5,6 +5,12 @@
 
 import { cache } from '@/lib/cache/simple-cache'
 
+interface MonthlyRevenue {
+  month: string
+  actual: number
+  predicted: number
+}
+
 describe('Dashboard API Routes', () => {
   beforeEach(() => {
     cache.clear()
@@ -18,7 +24,7 @@ describe('Dashboard API Routes', () => {
 
       cache.set('revenue:all', testData, 3600)
 
-      const cached = cache.get<Map<string, any>>('revenue:all')
+      const cached = cache.get<Map<string, MonthlyRevenue[]>>('revenue:all')
       expect(cached).toBeDefined()
       expect(cached?.get('EUR')).toBeDefined()
     })
@@ -116,7 +122,7 @@ describe('Dashboard API Routes', () => {
       const monthlyData = data?.get('EUR')
 
       // Simulate month filtering
-      const filtered = monthlyData?.filter((m: any) => m.month === '2026-05')
+      const filtered = monthlyData?.filter((m: MonthlyRevenue) => m.month === '2026-05')
       expect(filtered).toHaveLength(1)
       expect(filtered?.[0].month).toBe('2026-05')
     })

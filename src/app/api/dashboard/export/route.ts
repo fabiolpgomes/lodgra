@@ -13,11 +13,6 @@ interface ReservationData {
   status: 'confirmed' | 'cancelled' | 'pending'
 }
 
-function calculateDaysBetween(checkIn: Date, checkOut: Date): number {
-  const oneDay = 24 * 60 * 60 * 1000
-  return Math.ceil((checkOut.getTime() - checkIn.getTime()) / oneDay)
-}
-
 function formatDate(dateStr: string): string {
   const date = new Date(dateStr)
   return date.toLocaleDateString('pt-BR')

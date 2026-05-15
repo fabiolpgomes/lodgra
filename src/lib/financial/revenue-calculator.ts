@@ -161,7 +161,7 @@ export function calculateRevenueForReservation(
  */
 export function aggregateMonthlyRevenue(
   reservations: ReservationData[],
-  referenceDate: Date = new Date()
+  _referenceDate: Date = new Date()
 ): Map<string, MonthlyRevenue[]> {
   const byCurrency = new Map<string, Map<string, { actual: number; predicted: number }>>()
 

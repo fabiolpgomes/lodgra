@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { generateICalFromReservations, generateICalWithBlocks } from '@/lib/ical/icalService'
+import { generateICalWithBlocks } from '@/lib/ical/icalService'
 
 export async function GET(
   request: NextRequest,
@@ -37,7 +37,7 @@ export async function GET(
       .eq('property_id', propertyId)
 
     // Fetch calendar blocks for this property (always include, even if no listings)
-    const { data: blocks, error: blocksError } = await supabase
+    const { data: blocks } = await supabase
       .from('calendar_blocks')
       .select('id, start_date, end_date, notes')
       .eq('property_id', propertyId)

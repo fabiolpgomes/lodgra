@@ -33,6 +33,9 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // AIOS framework files (não fazem parte do projeto Next.js)
     ".aios-core/**",
+    ".aiox-core/**",
+    // Claude hooks (ferramentas internas do Claude Code)
+    ".claude/**",
     // Playwright e2e tests (não são arquivos React)
     "e2e/**",
     // Relatórios gerados pelo Playwright (arquivos minificados, não código fonte)
@@ -47,6 +50,8 @@ const eslintConfig = defineConfig([
     "scratch/**",
     // Vercel build output (artefactos gerados, não código fonte)
     ".vercel/**",
+    // Package build scripts (legitimate CommonJS usage)
+    "packages/*/scripts/**",
   ]),
 ]);
 

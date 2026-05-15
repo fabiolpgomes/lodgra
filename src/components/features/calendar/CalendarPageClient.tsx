@@ -26,6 +26,13 @@ interface CalendarEvent {
   color: string
 }
 
+interface CalendarBlock {
+  id: string
+  notes?: string
+  start_date: string
+  end_date: string
+}
+
 function propertyColor(propertyId: string): string {
   let hash = 0
   for (let i = 0; i < propertyId.length; i++) {
@@ -100,7 +107,7 @@ export function CalendarPageClient() {
       const blocks = await blocksRes.json()
 
       // Convert blocks to calendar events
-      const blockEvents = (Array.isArray(blocks) ? blocks : []).map((block: any) => ({
+      const blockEvents = (Array.isArray(blocks) ? blocks : []).map((block: CalendarBlock) => ({
         id: `block-${block.id}`,
         title: block.notes || 'Bloqueado',
         start: block.start_date,

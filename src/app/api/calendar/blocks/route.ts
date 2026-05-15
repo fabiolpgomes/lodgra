@@ -1,16 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/client'
-import { headers } from 'next/headers'
-
-interface CalendarBlock {
-  id: string
-  property_id: string
-  start_date: string
-  end_date: string
-  notes?: string | null
-  blocked_by?: string | null
-  created_at: string
-}
 
 // GET /api/calendar/blocks?from=YYYY-MM-DD&to=YYYY-MM-DD&property_id=uuid
 export async function GET(request: NextRequest) {

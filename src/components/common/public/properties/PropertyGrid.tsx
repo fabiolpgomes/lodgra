@@ -9,7 +9,6 @@ export interface PropertyGridProps {
   currentPage: number
   totalPages: number
   onPageChange: (page: number) => void
-  resultCount?: number
 }
 
 function PropertyCardSkeleton() {
@@ -94,7 +93,6 @@ export function PropertyGrid({
   currentPage,
   totalPages,
   onPageChange,
-  resultCount,
 }: PropertyGridProps) {
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' })

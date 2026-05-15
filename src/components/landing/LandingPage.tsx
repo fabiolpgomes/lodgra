@@ -481,7 +481,7 @@ function CompareCellValue({ val }: { val: string }) {
 export function LandingPage() {
   const [market, setMarket] = useState<Market>('PT')
   const [email, setEmail]   = useState('')
-  const [loadingPlan, setLoadingPlan] = useState<string | null>(null)
+  const [_loadingPlan, setLoadingPlan] = useState<string | null>(null)
   const [openFaq, setOpenFaq]       = useState<number | null>(null)
   const [scrolled, setScrolled]     = useState(false)
   const [showPwaBanner, setShowPwaBanner] = useState(false)

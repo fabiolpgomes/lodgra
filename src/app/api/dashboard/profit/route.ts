@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
 
     // Check cache first (TTL: 1 hour = 3600 seconds)
     const revenueCacheKey = 'revenue:all'
-    let revenueByMonth = cache.get<Map<string, any>>(revenueCacheKey)
+    let revenueByMonth = cache.get<Map<string, MonthlyRevenue[]>>(revenueCacheKey)
 
     if (!revenueByMonth) {
       const supabase = await createClient()

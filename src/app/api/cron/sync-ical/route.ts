@@ -233,7 +233,6 @@ async function syncOneListing(
     .not('external_uid', 'is', null) // Only platform-synced blocks
 
   if (existingBlocks) {
-    const today = new Date().toISOString().split('T')[0]
     for (const block of existingBlocks) {
       // Skip past blocks — platforms remove them from iCal after check-out
       if (block.external_uid && !receivedUids.has(block.external_uid)) {

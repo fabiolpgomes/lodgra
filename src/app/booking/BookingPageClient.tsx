@@ -148,7 +148,6 @@ export function BookingPageClient({ orgSlug, orgName }: Props) {
                 currentPage={currentPage}
                 totalPages={totalPages}
                 onPageChange={setCurrentPage}
-                resultCount={resultCount}
               />
             </div>
           </div>

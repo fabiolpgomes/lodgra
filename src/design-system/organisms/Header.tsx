@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import Image from 'next/image'
 import { SearchBox } from '@/design-system/molecules/SearchBox'
 import { Menu, X } from 'lucide-react'
 
@@ -36,7 +37,7 @@ export function Header({
           {/* Logo */}
           {logo && (
             <a href={logo.href || '/'} className="flex items-center gap-2 flex-shrink-0">
-              <img src={logo.src} alt={logo.alt} className="h-8 w-auto" />
+              <Image src={logo.src} alt={logo.alt} width={32} height={32} className="h-8 w-auto" />
             </a>
           )}
 
