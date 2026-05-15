@@ -15,9 +15,13 @@ jest.mock('@/lib/supabase/admin', () => ({
       order: jest.fn().mockReturnThis(),
       range: jest.fn().mockReturnThis(),
       limit: jest.fn().mockReturnThis(),
-      single: jest.fn().mockReturnThis(),
-      catch: jest.fn().mockReturnValue({ data: null }),
-      then: jest.fn((fn: (arg: { data: unknown[]; error: null }) => void) => fn({ data: [], error: null })),
+      single: jest.fn().mockReturnValue(Promise.resolve({ data: null, error: null })),
+      // Make the whole chain awaitable
+      [Symbol.toStringTag]: 'Query',
+      // Return a resolved promise when awaited
+      then: jest.fn((onFulfilled: (arg: { data: unknown[] }) => unknown) =>
+        Promise.resolve(onFulfilled({ data: [] }))
+      ),
     }),
   }),
 }))

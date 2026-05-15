@@ -71,20 +71,21 @@ export async function generateGoogleVacationRentalsFeed(
   // Fetch related data for each property
   const enrichedProperties = await Promise.all(
     properties.map(async (prop) => {
-      const [{ data: images }, { data: reviews }] = await Promise.all([
+      const [{ data: images }, reviewResult] = await Promise.all([
         supabase.from('property_media').select('url, alt').eq('property_id', prop.id).limit(5),
         supabase
           .from('property_reviews')
           .select('rating, review_count')
           .eq('property_id', prop.id)
-          .single()
-          .catch(() => ({ data: null })),
+          .single(),
       ])
+
+      const reviews = reviewResult.data || { rating: 0, review_count: 0 }
 
       return {
         property: prop,
         images: images || [],
-        review: reviews || { rating: 0, review_count: 0 },
+        review: reviews,
       }
     })
   )
