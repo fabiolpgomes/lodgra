@@ -3,6 +3,9 @@
  * Configuration and global test setup
  */
 
+// Import Testing Library matchers
+import '@testing-library/jest-dom'
+
 // Load environment variables from .env.local
 import('dotenv').then((dotenv) => {
   dotenv.config({ path: '.env.local' })
