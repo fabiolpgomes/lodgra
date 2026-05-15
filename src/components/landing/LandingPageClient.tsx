@@ -20,7 +20,7 @@ interface SocialProofData {
 }
 
 interface LandingPageClientProps {
-  locale: 'pt' | 'pt-BR' | 'en-US' | 'es'
+  locale: 'pt-BR' | 'en-US' | 'es'
   content: {
     hero: {
       headline: string
@@ -101,7 +101,7 @@ export const LandingPageClient: React.FC<LandingPageClientProps> = ({ locale, co
     document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })
   }, [])
 
-  const handleLocaleChange = useCallback((newLocale: 'pt-BR' | 'en-US' | 'es' | 'pt') => {
+  const handleLocaleChange = useCallback((newLocale: 'pt-BR' | 'en-US' | 'es') => {
     // Redireciona para a rota com prefixo de idioma para facilitar a visualização e SEO
     window.location.href = `/${newLocale}`
   }, [])

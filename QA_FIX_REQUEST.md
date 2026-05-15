@@ -1,53 +1,102 @@
-# QA Fix Request — Global Search Feature
+# QA Fix Request — Story 27.1
 
-**Generated:** 2026-05-14T07:52:31Z  
-**Feature:** feat(search): implement global search with modal interface  
-**Commit:** 9756d76  
-**Status:** ⚠️ CONCERNS — 3 Critical Security Issues Blocking Merge  
-**Reviewer:** Quinn (QA Agent)  
-
----
-
-## Executive Summary
-
-The global search implementation is feature-complete but has **3 critical security issues** and **6 accessibility issues** that must be fixed before merge.
-
-**Critical Issues (Blocking):**
-- Missing authentication — endpoint accessible to unauthenticated users
-- SQL injection vulnerability — query parameters not escaped in LIKE patterns
-- Race condition — concurrent requests can return stale results
-
-**Accessibility Issues (Required for compliance):**
-- Missing ARIA attributes on modal dialog
-- Missing ARIA labels on interactive elements
-
-**Quality Issues (Recommended fixes):**
-- Missing HTTP status validation
-- Missing request timeout
-- Hardcoded type filtering
-- Misleading role defaults
+**Status:** BLOCKING  
+**Severity:** CRITICAL  
+**Assigned to:** @dev (Dex)  
+**Issue Date:** 2026-05-15  
+**Gate Decision:** FAIL (pending fix)  
+**Commit:** ae833d2
 
 ---
 
-## Critical Issues (MUST FIX)
+## Issue Summary
 
-### 1. 🔒 Missing Authentication — Unauthenticated Data Access
+**TypeScript compilation failure** due to locale type mismatch in i18n refactoring.
 
-**File:** `src/app/api/search/global/route.ts`  
-**Lines:** 23-24, 60  
-**Severity:** 🔴 CRITICAL  
-**Risk:** Unauthenticated users can search and retrieve sensitive data (PII, financial info, owner contacts)
-
-**Current Code:**
-```typescript
-export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url)
-  const q = searchParams.get('q')?.trim()
-  // ...
-  const supabase = createAdminClient()  // ← No auth check
+```
+Type '"pt-BR" | "en-US" | "es" | "pt"' is not assignable to type '"pt-BR" | "en-US" | "es"'
 ```
 
-**Fix:**
+The build compiled successfully in 2.9 minutes but failed during TypeScript type checking phase.
+
+---
+
+## Root Cause
+
+The i18n refactoring included in commit ae833d2 introduced a locale type inconsistency:
+
+- **Type Definition** (restrictive): `"pt-BR" | "en-US" | "es"`
+- **Code Usage** (includes): `"pt-BR" | "en-US" | "es" | "pt"`
+
+Somewhere in the codebase, locale `'pt'` is being used but the TypeScript type definition doesn't allow it.
+
+---
+
+## What Needs Fixing
+
+Locate and fix the type mismatch. Two options:
+
+### Option 1: Expand Type Definition
+If `'pt'` is a valid/intentional locale, update the type definition to include it:
+
+```typescript
+// Before
+type Locale = 'pt-BR' | 'en-US' | 'es';
+
+// After
+type Locale = 'pt-BR' | 'en-US' | 'es' | 'pt';
+```
+
+**Find:** Look for type definitions in:
+- `src/i18n/` (i18n config)
+- `src/lib/i18n/` (i18n utilities)
+- `src/types/` (global types)
+- `src/app/` (app configuration)
+
+### Option 2: Replace `'pt'` with `'pt-BR'`
+If `'pt'` should be `'pt-BR'`, replace all references:
+
+```bash
+# Find all uses of 'pt' locale
+grep -r "['\"']pt['\"']" src/ --include="*.ts" --include="*.tsx"
+```
+
+---
+
+## Verification Steps
+
+After fixing:
+
+1. Run: `npm run build`
+2. Verify output: `✓ Compiled successfully` AND TypeScript check passes
+3. Run: `npm run test` (ensure all tests still pass)
+4. Commit fix with message: `fix: resolve locale type mismatch (ts-error) [Story 27.1]`
+
+---
+
+## Impact
+
+- **Current Status:** Build blocked, Story 27.1 cannot be approved
+- **Gate Decision:** Will remain FAIL until this is fixed
+- **Scope:** Only affects locale type system, not Story 27.1 implementation
+- **Risk:** Low (straightforward type fix)
+
+---
+
+## Next Steps for @dev
+
+1. Identify the locale type definition
+2. Determine correct locale(s) to support
+3. Fix the type definition OR replace 'pt' references
+4. Verify build passes
+5. Notify @qa when fixed
+6. @qa will re-run quality gate
+
+---
+
+**Created by:** @qa (Quinn)  
+**Awaiting fix from:** @dev (Dex)  
+**Gate Status:** ⏸️ SUSPENDED (pending fix)
 ```typescript
 import { createClient } from '@/lib/supabase/server'
 
