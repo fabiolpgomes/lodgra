@@ -20,7 +20,10 @@
     "version:tokens:check": "node scripts/version-tokens.js --check",
     "version:tokens:patch": "node scripts/version-tokens.js --patch",
     "version:tokens:minor": "node scripts/version-tokens.js --minor",
-    "version:tokens:major": "node scripts/version-tokens.js --major"
+    "version:tokens:major": "node scripts/version-tokens.js --major",
+    "storybook": "storybook dev -p 6006",
+    "storybook:build": "storybook build -o storybook-static",
+    "tokens:build": "cd packages/design-tokens && npm run build"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",

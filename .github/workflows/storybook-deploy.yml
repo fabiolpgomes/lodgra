@@ -1,0 +1,58 @@
+name: Build and Deploy Storybook
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/design-system/**'
+      - '.storybook/**'
+      - 'package.json'
+  workflow_dispatch:
+
+jobs:
+  build-storybook:
+    runs-on: ubuntu-latest
+    name: Build Storybook
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Storybook
+        run: npm run build-storybook -- --output-dir ./storybook-static
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: storybook-build
+          path: storybook-static/
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        if: github.ref == 'refs/heads/main'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./storybook-static
+          cname: storybook.lodgra.dev
+
+      - name: Comment PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '📖 **Storybook Preview** — View component changes: https://storybook.lodgra.dev'
+            })

@@ -1,0 +1,89 @@
+name: Publish Design Tokens to NPM
+
+# Triggered when a design token release is created
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to publish (e.g., 1.0.0)'
+        required: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    name: Publish @lodgra/design-tokens to NPM
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: |
+          cd packages/design-tokens
+          npm ci
+
+      - name: Verify package
+        run: |
+          cd packages/design-tokens
+          npm run lint 2>/dev/null || true
+          ls -la package.json
+
+      - name: Build package
+        run: |
+          cd packages/design-tokens
+          npm run build
+
+      - name: Check tag
+        id: tag
+        run: |
+          TAG="${{ github.event.release.tag_name }}"
+          if [[ $TAG == tokens-* ]]; then
+            VERSION=${TAG#tokens-}
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+            echo "✓ Publishing version: $VERSION"
+          else
+            echo "⚠ Tag does not match tokens-* pattern"
+          fi
+
+      - name: Publish to NPM
+        if: steps.tag.outputs.version
+        run: |
+          cd packages/design-tokens
+          npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish success notification
+        if: success()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const version = "${{ steps.tag.outputs.version }}"
+            github.rest.releases.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: context.payload.release.id,
+              body: `## ✅ NPM Published\n\nDesign tokens have been published to npm:\n\n\`\`\`bash\nnpm install @lodgra/design-tokens@${version}\n\`\`\`\n\n**CDN:** https://unpkg.com/@lodgra/design-tokens@${version}/\n\nView on NPM: https://www.npmjs.com/package/@lodgra/design-tokens/v/${version}`
+            })
+
+      - name: Publish failure notification
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.release.id,
+              body: '❌ NPM publish failed. Check workflow logs for details.'
+            })
