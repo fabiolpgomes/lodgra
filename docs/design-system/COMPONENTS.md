@@ -191,6 +191,165 @@ interface LabelProps extends React.LabelHTMLAttributes<HTMLLabelElement> {
 
 ---
 
+## 🧪 Molecules (Simple Combinations)
+
+### FormField
+
+Combines Label + Input for form fields with integrated validation.
+
+#### Usage
+
+```tsx
+import { FormField } from '@/design-system/molecules'
+
+// Basic form field
+<FormField label="Email" inputProps={{ type: 'email', placeholder: 'name@example.com' }} />
+
+// With error
+<FormField
+  label="Username"
+  inputProps={{ placeholder: 'Username' }}
+  error
+  errorMessage="Username already taken"
+/>
+
+// With helper text
+<FormField
+  label="Password"
+  inputProps={{ type: 'password' }}
+  helperText="Min 8 characters"
+/>
+
+// Optional field
+<FormField
+  label="Phone"
+  inputProps={{ type: 'tel' }}
+  required={false}
+/>
+```
+
+#### Props
+
+```typescript
+interface FormFieldProps {
+  label: string
+  labelProps?: Omit<LabelProps, 'children'>
+  inputProps: InputProps
+  error?: boolean
+  errorMessage?: string
+  helperText?: string
+  required?: boolean
+}
+```
+
+---
+
+### SearchBox
+
+Combines Input + Icon + Button for search functionality.
+
+#### Usage
+
+```tsx
+import { SearchBox } from '@/design-system/molecules'
+
+// Basic search
+<SearchBox inputProps={{ placeholder: 'Pesquisar...' }} />
+
+// With custom handler
+<SearchBox
+  inputProps={{ placeholder: 'Pesquisar usuários...' }}
+  onSearch={(value) => console.log('Search:', value)}
+/>
+
+// Without button
+<SearchBox
+  inputProps={{ placeholder: 'Type to search...' }}
+  showButton={false}
+/>
+
+// Custom button text
+<SearchBox
+  inputProps={{ placeholder: 'Pesquisar...' }}
+  buttonProps={{ children: 'Ir' }}
+/>
+```
+
+#### Props
+
+```typescript
+interface SearchBoxProps {
+  inputProps: Omit<InputProps, 'className'>
+  buttonProps?: Omit<ButtonProps, 'children'>
+  icon?: React.ReactNode
+  onSearch?: (value: string) => void
+  showButton?: boolean
+}
+```
+
+---
+
+### Card
+
+Container component for displaying grouped content with optional title and footer.
+
+#### Usage
+
+```tsx
+import { Card } from '@/design-system/molecules'
+
+// Basic card
+<Card title="Informações">
+  <p>Card content here</p>
+</Card>
+
+// With subtitle and footer
+<Card
+  title="Pagamento"
+  subtitle="Detalhes do pedido"
+  footer={<Button>Confirmar</Button>}
+>
+  <p>Payment details</p>
+</Card>
+
+// Elevated variant
+<Card variant="elevated" title="Destaque">
+  Important content
+</Card>
+
+// Outlined variant
+<Card variant="outlined" title="Alternativo">
+  Alternative styling
+</Card>
+
+// Custom padding
+<Card title="Compacto" padding="sm">
+  Small padding
+</Card>
+```
+
+#### Props
+
+```typescript
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+  title?: React.ReactNode
+  subtitle?: React.ReactNode
+  footer?: React.ReactNode
+  variant?: 'default' | 'elevated' | 'outlined'
+  padding?: 'sm' | 'md' | 'lg'
+}
+```
+
+#### Variants
+
+| Variant | Style | Usage |
+|---------|-------|-------|
+| **default** | Border with subtle shadow | Standard containers |
+| **elevated** | Shadow depth | Highlighted sections |
+| **outlined** | Thick border | Alternative emphasis |
+
+---
+
 ## 🧪 Token Usage in Components
 
 ### Color Tokens
@@ -325,22 +484,34 @@ Components automatically use design tokens via:
 
 ---
 
-## 🚀 Next Steps (Phase 4-5)
+## ✅ Phase 4 Complete
 
-1. **Molecule Building** (`*compose`)
-   - FormField (Label + Input)
-   - SearchBox (Input + Icon + Button)
-   - Card (Container + Title + Content)
+### Atomic Components (Atoms)
+- [x] Button (4 variants, 3 sizes)
+- [x] Input (3 sizes, error states)
+- [x] Label (3 sizes, optional indicator)
 
-2. **Organism Building**
+### Simple Combinations (Molecules)
+- [x] FormField (Label + Input)
+- [x] SearchBox (Input + Icon + Button)
+- [x] Card (Container + Title + Footer)
+
+## 🚀 Next Steps (Phase 5)
+
+1. **Organism Building** (Complex sections)
    - Header (Logo + Nav + Search)
    - Sidebar (Nav + Brand)
    - Form (Multiple FormFields + Button)
 
-3. **Documentation**
+2. **Documentation**
    - Storybook integration
    - Component patterns
    - Usage guidelines
+
+3. **Quality Assurance**
+   - Accessibility audit (WCAG AA/AAA)
+   - Component testing
+   - Performance validation
 
 ---
 
