@@ -31,6 +31,7 @@ export const Danger: ButtonStory = {
 }
 
 export const AllSizes: ButtonStory = {
+  args: { children: '' },
   render: () => (
     <div className="flex gap-4">
       <Button size="sm">Small</Button>
@@ -83,10 +84,10 @@ export const InputWithHelper: StoryObj<typeof _InputMeta> = {
 // Label Stories
 const _LabelMeta = {
   title: 'Atoms/Label',
-  component: Label,
+  component: _Label,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
-} satisfies Meta<typeof Label>
+} satisfies Meta<typeof _Label>
 
 export const LabelPrimary: StoryObj<typeof _LabelMeta> = {
   args: { htmlFor: 'field', children: 'Field Name' },
@@ -97,6 +98,7 @@ export const LabelOptional: StoryObj<typeof _LabelMeta> = {
 }
 
 export const LabelAllSizes: StoryObj<typeof _LabelMeta> = {
+  args: { children: '' },
   render: () => (
     <div className="flex gap-4">
       <_Label size="sm">Small</_Label>
