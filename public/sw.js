@@ -2,7 +2,7 @@ const CACHE_NAME = 'lodgra-v1'
 const CACHE_ASSETS = 'lodgra-assets-v1'
 
 const OFFLINE_HTML = `<!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
