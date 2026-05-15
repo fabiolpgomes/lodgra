@@ -65,17 +65,19 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish success notification
-        if: success()
+        if: success() && github.event_name == 'release'
         uses: actions/github-script@v7
         with:
           script: |
             const version = "${{ steps.tag.outputs.version }}"
-            github.rest.releases.update({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              release_id: context.payload.release.id,
-              body: `## ✅ NPM Published\n\nDesign tokens have been published to npm:\n\n\`\`\`bash\nnpm install @lodgra/design-tokens@${version}\n\`\`\`\n\n**CDN:** https://unpkg.com/@lodgra/design-tokens@${version}/\n\nView on NPM: https://www.npmjs.com/package/@lodgra/design-tokens/v/${version}`
-            })
+            if (context.payload.release) {
+              github.rest.releases.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                release_id: context.payload.release.id,
+                body: `## ✅ NPM Published\n\nDesign tokens have been published to npm:\n\n\`\`\`bash\nnpm install @lodgra/design-tokens@${version}\n\`\`\`\n\n**CDN:** https://unpkg.com/@lodgra/design-tokens@${version}/\n\nView on NPM: https://www.npmjs.com/package/@lodgra/design-tokens/v/${version}`
+              })
+            }
 
       - name: Publish failure notification
         if: failure()
