@@ -8,6 +8,13 @@ const config: any = {
   theme: {
     extend: {
       colors: {
+        // ========== DESIGN TOKENS (Phase 3) ==========
+        // Token-based colors (CSS variables from tokens.css)
+        'lodgra-primary': 'var(--lodgra-primary)',      // #1E3A8A
+        'lodgra-accent': 'var(--lodgra-accent)',        // #ffc000
+        'lodgra-bg-light': 'var(--lodgra-bg-light)',    // #f8f8f8
+
+        // ========== EXISTING BRAND COLORS ==========
         // LODGRA Brand Guidelines v1.0 - Official Palette
         'lodgra-blue': '#1E3A8A',    // Azul Confiança
         'lodgra-gold': '#D4AF37',    // Ouro Próspero
@@ -49,12 +56,23 @@ const config: any = {
         'hs-neutral': { 50: '#F9FAFB', 100: '#F3F4F6', 200: '#E5E7EB', 300: '#D1D5DB', 400: '#9CA3AF', 500: '#6B7280', 600: '#4B5563', 700: '#374151', 800: '#1F2937', 900: '#111827' },
       },
       fontFamily: {
+        // Design tokens
+        'heading': 'var(--font-heading)',
+        'body': 'var(--font-body)',
+        // Existing fonts
         'poppins': ['var(--font-poppins)', 'Poppins', 'sans-serif'],
         'inter': ['var(--font-inter)', 'Inter', 'sans-serif'],
         'lodgra-heading': ['var(--font-poppins)', 'Poppins', 'sans-serif'],
         'lodgra-body': ['var(--font-inter)', 'Inter', 'sans-serif'],
       },
       fontSize: {
+        // Design tokens (10px, 11px, 13px custom sizes)
+        'design-xs': ['10px', { lineHeight: '1' }],
+        'design-sm': ['11px', { lineHeight: '1' }],
+        'design-base': ['13px', { lineHeight: '1.5' }],
+        'design-md': ['12px', { lineHeight: '1.5' }],
+        'design-lg': ['14px', { lineHeight: '1.5' }],
+        // Existing sizes
         'xs': ['12px', { lineHeight: '1.4', letterSpacing: '0.5px' }],
         'sm': ['14px', { lineHeight: '1.5', letterSpacing: '0px' }],
         'base': ['16px', { lineHeight: '1.6', letterSpacing: '0px' }],
@@ -65,6 +83,13 @@ const config: any = {
         '4xl': ['36px', { lineHeight: '1.3', letterSpacing: '-0.5px' }],
         '5xl': ['48px', { lineHeight: '1.2', letterSpacing: '-1px' }],
         '6xl': ['60px', { lineHeight: '1.1', letterSpacing: '-1.5px' }],
+      },
+      letterSpacing: {
+        // Design tokens
+        'wide': '0.5px',
+        'wider': '1px',
+        'widest': '1.5px',
+        'ultra-wide': '2px',
       },
       spacing: {
         'micro': '4px',
@@ -87,6 +112,12 @@ const config: any = {
         'md': '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
         'lg': '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
         'xl': '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
+      },
+      zIndex: {
+        // Design tokens
+        'dropdown': '30',
+        'sidebar': '40',
+        'modal': '50',
       },
       animation: {
         'spin': 'spin 1s linear infinite',

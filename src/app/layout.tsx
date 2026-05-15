@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Poppins, Inter, Hanken_Grotesk } from "next/font/google";
 import { headers } from "next/headers";
 import "./globals.css";
+import "@/styles/tokens.css";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/common/ui/sonner";
 import { CookieBanner } from "@/components/common/ui/CookieBanner";
