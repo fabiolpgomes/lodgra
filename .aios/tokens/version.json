@@ -1,0 +1,15 @@
+{
+  "version": "1.0.0",
+  "releaseDate": "2026-05-15",
+  "lastUpdated": "2026-05-15T00:00:00Z",
+  "released": true,
+  "summary": "Initial semantic versioning of design tokens from Lodgra design system audit",
+  "tokenCount": 67,
+  "files": [
+    "tokens.yaml",
+    "src/styles/tokens/colors.css",
+    "src/styles/tokens/typography.css",
+    "src/styles/tokens/spacing.css",
+    "src/styles/tokens/components.css"
+  ]
+}

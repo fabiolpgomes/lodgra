@@ -15,7 +15,12 @@
     "test:coverage": "jest --coverage",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "analyze": "ANALYZE=true next build"
+    "analyze": "ANALYZE=true next build",
+    "version:tokens": "node scripts/version-tokens.js",
+    "version:tokens:check": "node scripts/version-tokens.js --check",
+    "version:tokens:patch": "node scripts/version-tokens.js --patch",
+    "version:tokens:minor": "node scripts/version-tokens.js --minor",
+    "version:tokens:major": "node scripts/version-tokens.js --major"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",

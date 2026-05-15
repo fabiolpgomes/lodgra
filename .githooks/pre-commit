@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# Design Tokens Pre-Commit Hook
+# Validates tokens.yaml before commit
+#
+# Installation:
+#   git config core.hooksPath .githooks
+#   chmod +x .githooks/pre-commit
+
+TOKENS_FILE="tokens.yaml"
+
+# Check if tokens.yaml is in the commit
+if git diff --cached --name-only | grep -q "$TOKENS_FILE"; then
+  echo "🎨 Validating design tokens..."
+
+  # Check YAML syntax (basic validation)
+  if ! python3 -c "import yaml; yaml.safe_load(open('$TOKENS_FILE'))" 2>/dev/null; then
+    echo "❌ YAML syntax error in $TOKENS_FILE"
+    echo "   Please fix the YAML syntax before committing."
+    exit 1
+  fi
+
+  echo "✅ Tokens validation passed"
+fi
+
+exit 0

@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# Design Tokens Commit Message Hook
+# Suggests conventional commit format for token changes
+#
+# Installation:
+#   git config core.hooksPath .githooks
+#   chmod +x .githooks/prepare-commit-msg
+
+TOKENS_FILE="tokens.yaml"
+COMMIT_MSG_FILE=$1
+COMMIT_SOURCE=$2
+
+# Skip for merge commits and other special commits
+if [ "$COMMIT_SOURCE" != "" ]; then
+  exit 0
+fi
+
+# Check if tokens.yaml is in the commit
+if git diff --cached --name-only | grep -q "$TOKENS_FILE"; then
+  CURRENT_MSG=$(cat "$COMMIT_MSG_FILE")
+
+  # Only suggest if message is empty or is default (from merge/revert)
+  if [ -z "$CURRENT_MSG" ] || echo "$CURRENT_MSG" | grep -q "^# "; then
+    echo "chore(tokens): update design tokens" > "$COMMIT_MSG_FILE"
+    echo "" >> "$COMMIT_MSG_FILE"
+    echo "# Design Token Change Suggestions:" >> "$COMMIT_MSG_FILE"
+    echo "# - chore(tokens): bug fixes, value adjustments (PATCH)" >> "$COMMIT_MSG_FILE"
+    echo "# - feat(tokens): new tokens added (MINOR)" >> "$COMMIT_MSG_FILE"
+    echo "# - BREAKING CHANGE: token removal or rename (MAJOR)" >> "$COMMIT_MSG_FILE"
+  fi
+fi
+
+exit 0

@@ -720,7 +720,7 @@ class CoverageAnalyzer {
           const match = content.match(/module\.exports\s*=\s*(\{[\s\S]*\})/);
           if (match) {
             try {
-              // eslint-disable-next-line no-eval
+               
               return eval('(' + match[1] + ')');
             } catch {
               return {};
