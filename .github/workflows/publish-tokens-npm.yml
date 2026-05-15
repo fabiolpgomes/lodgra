@@ -30,7 +30,7 @@ jobs:
       - name: Install dependencies
         run: |
           cd packages/design-tokens
-          npm ci
+          npm install
 
       - name: Verify package
         run: |
