@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { importICalFromUrl } from '@/lib/ical/icalService'
+import { importICalFromUrl, isBlockedEvent } from '@/lib/ical/icalService'
 import { enqueueEmail } from '@/lib/email/queue'
 import { parseBookingDescription, detectSource } from '@/lib/ical/bookingParser'
 
@@ -35,6 +35,9 @@ async function syncOneListing(
 ): Promise<SyncResult> {
   let created = 0, updated = 0, skipped = 0, cancelled = 0
 
+  // Extract organization_id from listing (needed for both reservations and blocks)
+  const cronOrgId = (listing.properties as unknown as { organization_id?: string })?.organization_id as string | undefined
+
   console.log(`[Cron] Sincronizando anúncio ${listing.id}...`)
   const events = await importICalFromUrl(listing.ical_url)
   console.log(`[Cron] Listing ${listing.id}: ${events.length} evento(s)`)
@@ -54,6 +57,29 @@ async function syncOneListing(
     if (durationDays > 180) {
       console.log(`[Cron] Evento sazonal (${durationDays}d) ignorado: "${event.summary}"`)
       skipped++; continue
+    }
+
+    // Check if this event is a blocked/unavailable date (not a guest reservation)
+    if (isBlockedEvent(event)) {
+      // Create or update block instead of reservation
+      const { error: blockError } = await supabase
+        .from('calendar_blocks')
+        .upsert({
+          property_id: listing.property_id,
+          organization_id: cronOrgId,
+          start_date: checkIn,
+          end_date: checkOut,
+          notes: event.summary || 'Bloqueado pela plataforma',
+          external_uid: event.uid,
+          block_type: 'platform_sync',
+        }, { onConflict: 'external_uid' })
+
+      if (!blockError) {
+        console.log(`[Cron] Bloqueio criado/atualizado: ${event.uid}`)
+      } else {
+        console.error(`[Cron] Erro ao criar bloqueio: ${blockError}`)
+      }
+      continue
     }
 
     const { data: existingReservation } = await supabase
@@ -101,8 +127,6 @@ async function syncOneListing(
         if (parts.length >= 2) { guestFirstName = parts[0]; guestLastName = parts.slice(1).join(' ') }
         else if (parts.length === 1) { guestFirstName = parts[0]; guestLastName = '' }
       }
-
-      const cronOrgId = (listing.properties as unknown as ListingPropertyInfo)?.organization_id as string | undefined
 
       const { data: guest, error: guestError } = await supabase
         .from('guests')
@@ -196,6 +220,30 @@ async function syncOneListing(
               }
             }
           }
+        }
+      }
+    }
+  }
+
+  // Auto-remove blocks that disappeared from iCal
+  const { data: existingBlocks } = await supabase
+    .from('calendar_blocks')
+    .select('id, external_uid')
+    .eq('property_id', listing.property_id)
+    .not('external_uid', 'is', null) // Only platform-synced blocks
+
+  if (existingBlocks) {
+    const today = new Date().toISOString().split('T')[0]
+    for (const block of existingBlocks) {
+      // Skip past blocks — platforms remove them from iCal after check-out
+      if (block.external_uid && !receivedUids.has(block.external_uid)) {
+        const { error: deleteError } = await supabase
+          .from('calendar_blocks')
+          .delete()
+          .eq('id', block.id)
+
+        if (!deleteError) {
+          console.log(`[Cron] Bloqueio removido (não mais no iCal): ${block.external_uid}`)
         }
       }
     }

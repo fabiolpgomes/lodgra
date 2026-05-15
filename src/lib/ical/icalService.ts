@@ -208,3 +208,90 @@ export function generateICalFromReservations(reservations: { id: string; check_i
 
   return comp.toString()
 }
+
+/**
+ * Generate iCal from reservations AND blocks
+ * Blocks are exported with TRANSP:TRANSPARENT so platforms (Airbnb, Booking)
+ * recognize them as "Not available" and not as guest reservations
+ */
+export function generateICalWithBlocks(
+  reservations: { id: string; check_in: string; check_out: string; status: string; number_of_guests?: number | null; guests?: { first_name: string; last_name: string } | null; property_listings?: { properties?: { name?: string } | null } | null }[],
+  blocks: { id: string; start_date: string; end_date: string; notes?: string | null }[]
+): string {
+  const comp = new ICAL.Component(['vcalendar', [], []])
+
+  comp.updatePropertyWithValue('prodid', '-//Lodgra//Reservations//EN')
+  comp.updatePropertyWithValue('version', '2.0')
+  comp.updatePropertyWithValue('calscale', 'GREGORIAN')
+  comp.updatePropertyWithValue('method', 'PUBLISH')
+  comp.updatePropertyWithValue('x-wr-calname', 'Lodgra Reservations')
+  comp.updatePropertyWithValue('x-wr-timezone', 'Europe/Lisbon')
+
+  // Add reservations
+  reservations.forEach(reservation => {
+    if (!reservation.check_in || !reservation.check_out) {
+      console.warn(`Reserva ${reservation.id} sem datas válidas`)
+      return
+    }
+
+    const guestName = reservation.guests
+      ? `${reservation.guests.first_name} ${reservation.guests.last_name}`
+      : 'Hóspede'
+
+    const propertyName = reservation.property_listings?.properties?.name || 'Propriedade'
+
+    const vevent = new ICAL.Component('vevent')
+    const event = new ICAL.Event(vevent)
+
+    event.uid = `reservation-${reservation.id}@lodgra.com`
+    event.summary = `${guestName} - ${propertyName}`
+    event.description = `Reserva #${reservation.id}\nStatus: ${reservation.status}\nHóspedes: ${reservation.number_of_guests || 1}`
+
+    try {
+      const checkInStr = reservation.check_in.split('T')[0]
+      const checkOutStr = reservation.check_out.split('T')[0]
+
+      const startDate = ICAL.Time.fromDateString(checkInStr)
+      event.startDate = startDate
+
+      const endDate = ICAL.Time.fromDateString(checkOutStr)
+      event.endDate = endDate
+
+      comp.addSubcomponent(vevent)
+    } catch (error) {
+      console.error(`Erro ao processar datas da reserva ${reservation.id}:`, error)
+    }
+  })
+
+  // Add blocks as transparent events
+  blocks.forEach(block => {
+    if (!block.start_date || !block.end_date) {
+      console.warn(`Bloqueio ${block.id} sem datas válidas`)
+      return
+    }
+
+    const vevent = new ICAL.Component('vevent')
+    const event = new ICAL.Event(vevent)
+
+    event.uid = `block-${block.id}@lodgra.com`
+    event.summary = 'Not available'
+    event.description = block.notes || 'Data bloqueada'
+
+    // Mark as transparent so platforms don't treat it as a guest reservation
+    vevent.addPropertyWithValue('transp', 'TRANSPARENT')
+
+    try {
+      const startDate = ICAL.Time.fromDateString(block.start_date)
+      event.startDate = startDate
+
+      const endDate = ICAL.Time.fromDateString(block.end_date)
+      event.endDate = endDate
+
+      comp.addSubcomponent(vevent)
+    } catch (error) {
+      console.error(`Erro ao processar datas do bloqueio ${block.id}:`, error)
+    }
+  })
+
+  return comp.toString()
+}

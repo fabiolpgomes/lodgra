@@ -4,11 +4,14 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import interactionPlugin from '@fullcalendar/interaction'
-import type { EventDropArg, DateSelectArg, DatesSetArg } from '@fullcalendar/core'
+import type { EventClickArg, EventDropArg, DateSelectArg, DatesSetArg } from '@fullcalendar/core'
 import { toast } from 'sonner'
 import { usePermissions } from '@/hooks/useAuth'
 import { NewReservationModal } from './NewReservationModal'
+import { BlockDatesModal } from './BlockDatesModal'
+import { SelectActionModal } from './SelectActionModal'
 import { createClient } from '@/lib/supabase/client'
+import { addDays } from 'date-fns'
 
 interface Property {
   id: string
@@ -43,6 +46,8 @@ export function CalendarPageClient() {
   const [selectedPropertyId, setSelectedPropertyId] = useState('')
   const [dateRange, setDateRange] = useState<{ from: string; to: string } | null>(null)
   const [newResModal, setNewResModal] = useState<{ checkIn: string; checkOut: string } | null>(null)
+  const [blockModal, setBlockModal] = useState<{ checkIn: string; checkOut: string } | null>(null)
+  const [selectActionModal, setSelectActionModal] = useState<{ checkIn: string; checkOut: string } | null>(null)
   const [loading, setLoading] = useState(false)
   const [dayMaxEvents, setDayMaxEvents] = useState(3)
   const [swipeActive, setSwipeActive] = useState(false)
@@ -84,11 +89,40 @@ export function CalendarPageClient() {
     try {
       const params = new URLSearchParams({ from, to })
       if (propertyId) params.set('property_id', propertyId)
-      const res = await fetch(`/api/calendar/reservations?${params}`)
-      const data = await res.json()
-      if (Array.isArray(data)) setEvents(data)
+
+      // Fetch reservations and blocks in parallel
+      const [resRes, blocksRes] = await Promise.all([
+        fetch(`/api/calendar/reservations?${params}`),
+        fetch(`/api/calendar/blocks?${params}`),
+      ])
+
+      const reservations = await resRes.json()
+      const blocks = await blocksRes.json()
+
+      // Convert blocks to calendar events
+      const blockEvents = (Array.isArray(blocks) ? blocks : []).map((block: any) => ({
+        id: `block-${block.id}`,
+        title: block.notes || 'Bloqueado',
+        start: block.start_date,
+        end: addDays(new Date(block.end_date), 1).toISOString().split('T')[0], // FullCalendar end is exclusive
+        color: '#6b7280',
+        textColor: '#ffffff',
+        display: 'background',
+        extendedProps: {
+          type: 'block',
+          blockId: block.id,
+        },
+      }))
+
+      // Combine reservations and block events
+      const allEvents = [
+        ...(Array.isArray(reservations) ? reservations : []),
+        ...blockEvents,
+      ]
+
+      setEvents(allEvents)
     } catch {
-      toast.error('Erro ao carregar reservas')
+      toast.error('Erro ao carregar eventos')
     } finally {
       setLoading(false)
     }
@@ -125,7 +159,8 @@ export function CalendarPageClient() {
 
   const handleDateSelect = useCallback(({ startStr, endStr }: DateSelectArg) => {
     if (!isEditable) return
-    setNewResModal({ checkIn: startStr, checkOut: endStr })
+    // Show modal to choose between creating reservation or blocking dates
+    setSelectActionModal({ checkIn: startStr, checkOut: endStr })
   }, [isEditable])
 
   const handleSwipeLeft = useCallback(() => {
@@ -139,6 +174,35 @@ export function CalendarPageClient() {
     calendarRef.current?.getApi().prev()
     setTimeout(() => setSwipeActive(false), 300)
   }, [])
+
+  const handleEventClick = useCallback(async ({ event }: EventClickArg) => {
+    // Handle block deletion
+    if (event.extendedProps.type === 'block' && isEditable) {
+      const blockId = event.extendedProps.blockId
+      const confirmed = window.confirm('Eliminar este bloqueio?')
+      if (!confirmed) return
+
+      try {
+        const response = await fetch(`/api/calendar/blocks/${blockId}`, {
+          method: 'DELETE',
+        })
+
+        if (!response.ok) {
+          toast.error('Erro ao eliminar bloqueio')
+          return
+        }
+
+        toast.success('Bloqueio eliminado')
+        // Refresh calendar
+        if (dateRange) {
+          fetchEvents(dateRange.from, dateRange.to, selectedPropertyId)
+        }
+      } catch (error) {
+        console.error('Erro ao eliminar bloqueio:', error)
+        toast.error('Erro ao eliminar bloqueio')
+      }
+    }
+  }, [isEditable, dateRange, selectedPropertyId, fetchEvents])
 
   // Simple touch swipe detection
   useEffect(() => {
@@ -250,6 +314,7 @@ export function CalendarPageClient() {
           datesSet={handleDatesSet}
           eventDrop={handleEventDrop}
           select={handleDateSelect}
+          eventClick={handleEventClick}
           dayMaxEvents={dayMaxEvents}
           displayEventTime={false}
           height="auto"
@@ -370,6 +435,10 @@ export function CalendarPageClient() {
             <span className="w-2 h-2 sm:w-3 sm:h-3 rounded-sm bg-blue-500 inline-block" />
             Confirmada
           </span>
+          <span className="flex items-center gap-1">
+            <span className="w-2 h-2 sm:w-3 sm:h-3 rounded-sm bg-gray-500 inline-block" />
+            Bloqueado
+          </span>
         </div>
         {isEditable && (
           <p className="text-[10px] sm:text-xs text-gray-400">
@@ -378,6 +447,30 @@ export function CalendarPageClient() {
         )}
       </div>
 
+      {/* Select action modal (reservation vs block) */}
+      {selectActionModal && (
+        <SelectActionModal
+          checkIn={selectActionModal.checkIn}
+          checkOut={selectActionModal.checkOut}
+          onSelectReservation={() => {
+            setNewResModal({
+              checkIn: selectActionModal.checkIn,
+              checkOut: selectActionModal.checkOut,
+            })
+            setSelectActionModal(null)
+          }}
+          onSelectBlock={() => {
+            setBlockModal({
+              checkIn: selectActionModal.checkIn,
+              checkOut: selectActionModal.checkOut,
+            })
+            setSelectActionModal(null)
+          }}
+          onClose={() => setSelectActionModal(null)}
+        />
+      )}
+
+      {/* New reservation modal */}
       <NewReservationModal
         open={!!newResModal}
         checkIn={newResModal?.checkIn ?? ''}
@@ -385,6 +478,23 @@ export function CalendarPageClient() {
         properties={properties}
         onClose={() => setNewResModal(null)}
       />
+
+      {/* Block dates modal */}
+      {blockModal && (
+        <BlockDatesModal
+          checkIn={blockModal.checkIn}
+          checkOut={blockModal.checkOut}
+          properties={properties}
+          selectedPropertyId={selectedPropertyId}
+          onClose={() => setBlockModal(null)}
+          onSuccess={() => {
+            // Refresh calendar
+            if (dateRange) {
+              fetchEvents(dateRange.from, dateRange.to, selectedPropertyId)
+            }
+          }}
+        />
+      )}
     </div>
   )
 }

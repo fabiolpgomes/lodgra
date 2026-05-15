@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { generateICalFromReservations } from '@/lib/ical/icalService'
+import { generateICalFromReservations, generateICalWithBlocks } from '@/lib/ical/icalService'
 
 export async function GET(
   request: NextRequest,
@@ -36,8 +36,15 @@ export async function GET(
       .select('id, ical_url, platform_id, sync_enabled, is_active, platforms(name, display_name)')
       .eq('property_id', propertyId)
 
+    // Fetch calendar blocks for this property (always include, even if no listings)
+    const { data: blocks, error: blocksError } = await supabase
+      .from('calendar_blocks')
+      .select('id, start_date, end_date, notes')
+      .eq('property_id', propertyId)
+      .order('start_date', { ascending: true })
+
     if (!listings || listings.length === 0) {
-      const icalData = generateICalFromReservations([])
+      const icalData = generateICalWithBlocks([], (blocks || []) as unknown as Parameters<typeof generateICalWithBlocks>[1])
       const headers = new Headers({
         'Content-Type': 'text/calendar; charset=utf-8',
         'Content-Disposition': `attachment; filename="property-${propertyId}.ics"`,
@@ -77,8 +84,11 @@ export async function GET(
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    // Gerar arquivo iCal
-    const icalData = generateICalFromReservations((reservations || []) as unknown as Parameters<typeof generateICalFromReservations>[0])
+    // Gerar arquivo iCal com reservas e bloqueios
+    const icalData = generateICalWithBlocks(
+      (reservations || []) as unknown as Parameters<typeof generateICalWithBlocks>[0],
+      (blocks || []) as unknown as Parameters<typeof generateICalWithBlocks>[1]
+    )
 
     // Retornar como arquivo .ics
     const headers = new Headers({
