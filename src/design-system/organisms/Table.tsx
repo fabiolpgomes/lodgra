@@ -29,7 +29,7 @@ export function Table<T extends Record<string, unknown>>({
   data,
   columns,
   striped = true,
-  _bordered = true,
+  bordered: _bordered = true,
   hoverable = true,
   sortBy,
   sortDirection = 'asc',
@@ -107,7 +107,7 @@ export function Table<T extends Record<string, unknown>>({
               >
                 {columns.map((column) => (
                   <td key={String(column.key)} className="px-4 py-3 text-design-sm text-lodgra-primary">
-                    {column.render ? column.render(row[column.key], row) : row[column.key]}
+                    {column.render ? column.render(row[column.key], row) : String(row[column.key])}
                   </td>
                 ))}
               </tr>
