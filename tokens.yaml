@@ -293,3 +293,4 @@ metadata:
     - 'src/components/common/layout/BottomNav.tsx'
     - 'src/components/common/layout/AuthLayout.tsx'
     - 'src/components/common/layout/Header.tsx'
+Testing Storybook automation workflow
