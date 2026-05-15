@@ -1,1 +1,6 @@
 scratch/
+.aiox-core/
+.aios-core/
+node_modules/
+dist/
+build/
