@@ -52,5 +52,8 @@
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
+  },
+  "dependencies": {
+    "yaml": "^2.3.0"
   }
 }
