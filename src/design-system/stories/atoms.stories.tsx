@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import { Button } from '@/design-system/atoms/Button'
 import { Input } from '@/design-system/atoms/Input'
-import { Label } from '@/design-system/atoms/Label'
+import { Label as _Label } from '@/design-system/atoms/Label'
 
 // Button Stories
 const ButtonMeta = {
@@ -49,22 +49,22 @@ export const Disabled: ButtonStory = {
 }
 
 // Input Stories
-const InputMeta = {
+const _InputMeta = {
   title: 'Atoms/Input',
   component: Input,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
 } satisfies Meta<typeof Input>
 
-export const InputPrimary: StoryObj<typeof InputMeta> = {
+export const InputPrimary: StoryObj<typeof _InputMeta> = {
   args: { placeholder: 'Enter text', size: 'md' },
 }
 
-export const InputWithLabel: StoryObj<typeof InputMeta> = {
+export const InputWithLabel: StoryObj<typeof _InputMeta> = {
   args: { label: 'Email', type: 'email', placeholder: 'your@email.com' },
 }
 
-export const InputWithError: StoryObj<typeof InputMeta> = {
+export const InputWithError: StoryObj<typeof _InputMeta> = {
   args: {
     label: 'Username',
     error: true,
@@ -72,7 +72,7 @@ export const InputWithError: StoryObj<typeof InputMeta> = {
   },
 }
 
-export const InputWithHelper: StoryObj<typeof InputMeta> = {
+export const InputWithHelper: StoryObj<typeof _InputMeta> = {
   args: {
     label: 'Password',
     type: 'password',
@@ -81,27 +81,27 @@ export const InputWithHelper: StoryObj<typeof InputMeta> = {
 }
 
 // Label Stories
-const LabelMeta = {
+const _LabelMeta = {
   title: 'Atoms/Label',
   component: Label,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
 } satisfies Meta<typeof Label>
 
-export const LabelPrimary: StoryObj<typeof LabelMeta> = {
+export const LabelPrimary: StoryObj<typeof _LabelMeta> = {
   args: { htmlFor: 'field', children: 'Field Name' },
 }
 
-export const LabelOptional: StoryObj<typeof LabelMeta> = {
+export const LabelOptional: StoryObj<typeof _LabelMeta> = {
   args: { htmlFor: 'phone', optional: true, children: 'Phone' },
 }
 
-export const LabelAllSizes: StoryObj<typeof LabelMeta> = {
+export const LabelAllSizes: StoryObj<typeof _LabelMeta> = {
   render: () => (
     <div className="flex gap-4">
-      <Label size="sm">Small</Label>
-      <Label size="md">Medium</Label>
-      <Label size="lg">Large</Label>
+      <_Label size="sm">Small</_Label>
+      <_Label size="md">Medium</_Label>
+      <_Label size="lg">Large</_Label>
     </div>
   ),
 }

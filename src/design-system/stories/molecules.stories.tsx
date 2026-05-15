@@ -48,27 +48,27 @@ export const Optional: FormFieldStory = {
 }
 
 // SearchBox Stories
-const SearchBoxMeta = {
+const _SearchBoxMeta = {
   title: 'Molecules/SearchBox',
   component: SearchBox,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
 } satisfies Meta<typeof SearchBox>
 
-export const SearchBoxBasic: StoryObj<typeof SearchBoxMeta> = {
+export const SearchBoxBasic: StoryObj<typeof _SearchBoxMeta> = {
   args: {
     inputProps: { placeholder: 'Search...' },
   },
 }
 
-export const SearchBoxWithHandler: StoryObj<typeof SearchBoxMeta> = {
+export const SearchBoxWithHandler: StoryObj<typeof _SearchBoxMeta> = {
   args: {
     inputProps: { placeholder: 'Search services...' },
     onSearch: (value) => console.log('Search:', value),
   },
 }
 
-export const SearchBoxNoButton: StoryObj<typeof SearchBoxMeta> = {
+export const SearchBoxNoButton: StoryObj<typeof _SearchBoxMeta> = {
   args: {
     inputProps: { placeholder: 'Live search...' },
     showButton: false,
@@ -76,21 +76,21 @@ export const SearchBoxNoButton: StoryObj<typeof SearchBoxMeta> = {
 }
 
 // Card Stories
-const CardMeta = {
+const _CardMeta = {
   title: 'Molecules/Card',
   component: Card,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
 } satisfies Meta<typeof Card>
 
-export const CardBasic: StoryObj<typeof CardMeta> = {
+export const CardBasic: StoryObj<typeof _CardMeta> = {
   args: {
     title: 'Card Title',
     children: <p>Card content goes here</p>,
   },
 }
 
-export const CardWithSubtitle: StoryObj<typeof CardMeta> = {
+export const CardWithSubtitle: StoryObj<typeof _CardMeta> = {
   args: {
     title: 'Service',
     subtitle: 'Premium Cleaning',
@@ -98,7 +98,7 @@ export const CardWithSubtitle: StoryObj<typeof CardMeta> = {
   },
 }
 
-export const CardWithFooter: StoryObj<typeof CardMeta> = {
+export const CardWithFooter: StoryObj<typeof _CardMeta> = {
   args: {
     title: 'Action Card',
     children: <p>This card has an action footer</p>,
@@ -106,7 +106,7 @@ export const CardWithFooter: StoryObj<typeof CardMeta> = {
   },
 }
 
-export const CardElevated: StoryObj<typeof CardMeta> = {
+export const CardElevated: StoryObj<typeof _CardMeta> = {
   args: {
     title: 'Elevated Card',
     variant: 'elevated',
@@ -114,7 +114,7 @@ export const CardElevated: StoryObj<typeof CardMeta> = {
   },
 }
 
-export const CardOutlined: StoryObj<typeof CardMeta> = {
+export const CardOutlined: StoryObj<typeof _CardMeta> = {
   args: {
     title: 'Outlined Card',
     variant: 'outlined',
@@ -122,7 +122,7 @@ export const CardOutlined: StoryObj<typeof CardMeta> = {
   },
 }
 
-export const CardComplex: StoryObj<typeof CardMeta> = {
+export const CardComplex: StoryObj<typeof _CardMeta> = {
   args: {
     title: 'Booking Card',
     subtitle: 'Schedule your service',

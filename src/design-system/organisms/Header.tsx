@@ -2,7 +2,6 @@
 
 import React from 'react'
 import { SearchBox } from '@/design-system/molecules/SearchBox'
-import { Button } from '@/design-system/atoms/Button'
 import { Menu, X } from 'lucide-react'
 
 export interface HeaderProps {

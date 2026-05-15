@@ -9,10 +9,10 @@ export interface TableColumn<T> {
   label: string
   sortable?: boolean
   width?: string
-  render?: (value: any, row: T) => React.ReactNode
+  render?: (value: unknown, row: T) => React.ReactNode
 }
 
-export interface TableProps<T> {
+export interface TableProps<T extends Record<string, unknown>> {
   data: T[]
   columns: TableColumn<T>[]
   striped?: boolean
@@ -25,11 +25,11 @@ export interface TableProps<T> {
   emptyState?: React.ReactNode
 }
 
-export function Table<T extends Record<string, any>>({
+export function Table<T extends Record<string, unknown>>({
   data,
   columns,
   striped = true,
-  bordered = true,
+  _bordered = true,
   hoverable = true,
   sortBy,
   sortDirection = 'asc',
