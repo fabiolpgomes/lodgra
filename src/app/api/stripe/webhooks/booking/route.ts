@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { verifyStripeSignature } from '@/lib/stripe/verify-webhook'
 import { getClientIp, checkWebhookRateLimit } from '@/lib/middleware/rate-limit'
+import { processWebhookWithRetry } from '@/lib/stripe/webhooks/retry'
 
 const STRIPE_PT_WEBHOOK_SECRET = process.env.STRIPE_PT_WEBHOOK_SECRET || ''
 
@@ -83,42 +84,48 @@ export async function POST(request: NextRequest) {
 
     switch (event.type) {
       case 'charge.succeeded':
-        await adminClient
-          .from('payments')
-          .update({
-            status: 'succeeded',
-            updated_at: new Date().toISOString(),
-          })
-          .eq('stripe_payment_id', charge.id)
-        console.log(
-          `[webhooks/booking] Charge succeeded: ${charge.id} (${charge.amount})`
-        )
+        await processWebhookWithRetry(event.id, async () => {
+          await adminClient
+            .from('payments')
+            .update({
+              status: 'succeeded',
+              updated_at: new Date().toISOString(),
+            })
+            .eq('stripe_payment_id', charge.id)
+          console.log(
+            `[webhooks/booking] Charge succeeded: ${charge.id} (${charge.amount})`
+          )
+        })
         break
 
       case 'charge.failed':
-        await adminClient
-          .from('payments')
-          .update({
-            status: 'failed',
-            updated_at: new Date().toISOString(),
-          })
-          .eq('stripe_payment_id', charge.id)
-        console.warn(`[webhooks/booking] Charge failed: ${charge.id}`)
+        await processWebhookWithRetry(event.id, async () => {
+          await adminClient
+            .from('payments')
+            .update({
+              status: 'failed',
+              updated_at: new Date().toISOString(),
+            })
+            .eq('stripe_payment_id', charge.id)
+          console.warn(`[webhooks/booking] Charge failed: ${charge.id}`)
+        })
         break
 
       case 'charge.refunded':
         const refund = charge.refunds?.data?.[0]
         if (refund) {
-          await adminClient
-            .from('payments')
-            .update({
-              status: 'refunded',
-              updated_at: new Date().toISOString(),
-            })
-            .eq('stripe_payment_id', charge.id)
-          console.log(
-            `[webhooks/booking] Charge refunded: ${charge.id} (${refund.amount})`
-          )
+          await processWebhookWithRetry(event.id, async () => {
+            await adminClient
+              .from('payments')
+              .update({
+                status: 'refunded',
+                updated_at: new Date().toISOString(),
+              })
+              .eq('stripe_payment_id', charge.id)
+            console.log(
+              `[webhooks/booking] Charge refunded: ${charge.id} (${refund.amount})`
+            )
+          })
         }
         break
 
