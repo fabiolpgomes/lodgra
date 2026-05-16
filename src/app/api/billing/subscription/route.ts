@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { stripeBR } from '@/lib/stripe/client-br'
 import { requireRole } from '@/lib/auth/requireRole'
+import { onSubscriptionUpgraded } from '@/lib/billing/alerts'
 
 export async function POST(request: NextRequest) {
   try {
@@ -155,7 +156,7 @@ export async function PUT(request: NextRequest) {
     const adminClient = createAdminClient()
     const { data: org } = await adminClient
       .from('organizations')
-      .select('stripe_br_customer_id')
+      .select('stripe_br_customer_id, subscription_plan')
       .eq('id', auth.organizationId)
       .single()
 
@@ -175,8 +176,7 @@ export async function PUT(request: NextRequest) {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const sub = subscription as any
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const updatedSubscription = await stripeBR.subscriptions.update(sub.id, {
+    const result = await stripeBR.subscriptions.update(sub.id, {
       items: [
         {
           id: sub.items.data[0].id,
@@ -185,6 +185,8 @@ export async function PUT(request: NextRequest) {
       ],
       proration_behavior: 'create_prorations',
     })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const updatedSubscription = result as any
 
     await adminClient
       .from('organizations')
@@ -196,6 +198,20 @@ export async function PUT(request: NextRequest) {
     console.log(
       `[billing/subscription] Upgraded subscription: ${sub.id} → ${plan}`
     )
+
+    // Send upgrade notification email
+    onSubscriptionUpgraded({
+      customerId: org.stripe_br_customer_id,
+      subscriptionId: updatedSubscription.id,
+      status: updatedSubscription.status,
+      oldPlan: org.subscription_plan || 'Starter',
+      newPlan: plan,
+      newAmount: updatedSubscription.items.data[0]?.price?.unit_amount || 0,
+      currency: updatedSubscription.currency.toUpperCase(),
+      effectiveDate: new Date().toLocaleDateString('pt-PT'),
+    }).catch((error) => {
+      console.error('[billing/subscription] Failed to send upgrade email:', error)
+    })
 
     return NextResponse.json({
       subscription_id: updatedSubscription.id,
