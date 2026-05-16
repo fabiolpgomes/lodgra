@@ -6,6 +6,7 @@
  * Supports pagination, filtering, and caching
  */
 
+import * as Sentry from '@sentry/nextjs'
 import { NextRequest, NextResponse } from 'next/server'
 import { generateGoogleVacationRentalsFeed, validateFeedStructure } from '@/lib/feeds/google-feed-generator'
 
@@ -71,6 +72,10 @@ export async function GET(request: NextRequest) {
       headers,
     })
   } catch (error) {
+    Sentry.captureException(error, {
+      tags: { endpoint: 'google-feed-generator' },
+      level: 'error',
+    })
     console.error('[Google Feed API] Error:', error instanceof Error ? error.message : 'Unknown error')
     return NextResponse.json(
       { error: 'Failed to generate feed' },
@@ -107,7 +112,11 @@ export async function HEAD(request: NextRequest) {
     })
 
     return new NextResponse(null, { status: 200, headers })
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error, {
+      tags: { endpoint: 'google-feed-generator-head' },
+      level: 'warning',
+    })
     return new NextResponse(null, { status: 500 })
   }
 }

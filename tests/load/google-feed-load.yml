@@ -1,0 +1,37 @@
+config:
+  target: 'http://localhost:3000'
+  phases:
+    - duration: 30
+      arrivalRate: 10
+      name: 'Warm-up load'
+  defaults:
+    headers:
+      User-Agent: 'Artillery LoadTest'
+  plugins:
+    statsd:
+      host: localhost
+      port: 8125
+      prefix: 'artillery'
+
+scenarios:
+  - name: 'Google Feed Load Test'
+    flow:
+      - get:
+          url: '/api/feeds/google-vacation-rentals?limit=500'
+          expect:
+            - statusCode: 200
+          capture:
+            - json: 'response.headers.x-generation-time-ms'
+              as: 'genTime'
+      - get:
+          url: '/api/feeds/google-vacation-rentals?limit=100&offset=0'
+          expect:
+            - statusCode: 200
+      - get:
+          url: '/api/feeds/google-vacation-rentals?limit=100&include_reviews=true'
+          expect:
+            - statusCode: 200
+      - get:
+          url: '/api/feeds/google-vacation-rentals?currency=EUR'
+          expect:
+            - statusCode: 200

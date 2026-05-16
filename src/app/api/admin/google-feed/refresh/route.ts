@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/nextjs'
 import { createClient } from '@/lib/supabase/server'
 import { randomUUID } from 'crypto'
 
@@ -112,6 +113,10 @@ export async function POST(request: Request) {
       }
     )
   } catch (error) {
+    Sentry.captureException(error, {
+      tags: { endpoint: 'google-feed-refresh' },
+      level: 'error',
+    })
     console.error('Refresh endpoint error:', error)
     return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
