@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 const { withSentryConfig } = require("@sentry/nextjs");
 const createNextIntlPlugin = require('next-intl/plugin');
 const withBundleAnalyzer = require('@next/bundle-analyzer');

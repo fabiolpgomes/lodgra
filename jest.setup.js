@@ -6,14 +6,26 @@
 // Import Testing Library matchers
 import '@testing-library/jest-dom'
 
+// Add TextEncoder/TextDecoder polyfill for postal-mime (Resend library)
+import { TextEncoder, TextDecoder } from 'util'
+if (typeof global.TextEncoder === 'undefined') {
+  global.TextEncoder = TextEncoder
+}
+if (typeof global.TextDecoder === 'undefined') {
+  global.TextDecoder = TextDecoder
+}
+
 // Add Request/Response polyfill for Next.js API route testing
 if (typeof global.Request === 'undefined') {
   global.Request = class Request {
     constructor(url, init = {}) {
-      this.url = url
+      this._url = url
       this.method = init.method || 'GET'
       this.headers = init.headers || {}
       this._body = init.body
+    }
+    get url() {
+      return this._url
     }
     json() {
       return Promise.resolve(this._body ? JSON.parse(this._body) : {})
