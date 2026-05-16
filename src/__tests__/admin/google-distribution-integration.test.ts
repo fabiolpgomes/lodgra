@@ -11,6 +11,31 @@ import {
   getLatestFeedLogs,
 } from '@/lib/google-distribution-dashboard'
 
+interface MockMetrics {
+  totalIndexed: number
+  pendingCount: number
+  errorCount: number
+  rejectedCount: number
+}
+
+interface MockPropertyStatus {
+  propertyId: string
+  propertyName: string
+  status: 'indexed' | 'pending' | 'error' | 'rejected'
+  submittedDate: string
+  lastUpdatedDate: string
+}
+
+interface MockFeedLog {
+  id: string
+  timestamp: string
+  action: string
+  status: 'success' | 'failed' | 'queued'
+  properties_count: number
+  duration_ms: number
+  error_message: string | null
+}
+
 const mockComputeMetrics = computeAggregatedMetrics as jest.MockedFunction<
   typeof computeAggregatedMetrics
 >
@@ -26,14 +51,15 @@ describe('Google Distribution Dashboard Integration', () => {
 
   describe('Data Loading', () => {
     it('should load aggregated metrics', async () => {
-      mockComputeMetrics.mockResolvedValue({
+      const metrics: MockMetrics = {
         totalIndexed: 100,
         pendingCount: 10,
         errorCount: 5,
         rejectedCount: 2,
-      } as any)
+      }
+      mockComputeMetrics.mockResolvedValue(metrics)
 
-      const result = await mockComputeMetrics({} as any, 'org-1')
+      const result = await mockComputeMetrics({} as Record<string, unknown>, 'org-1')
       expect(result).toEqual(
         expect.objectContaining({
           totalIndexed: 100,
@@ -43,7 +69,7 @@ describe('Google Distribution Dashboard Integration', () => {
     })
 
     it('should load property feed statuses', async () => {
-      const mockProperties = [
+      const mockProperties: MockPropertyStatus[] = [
         {
           propertyId: 'prop-1',
           propertyName: 'Beach House',
@@ -53,15 +79,15 @@ describe('Google Distribution Dashboard Integration', () => {
         },
       ]
 
-      mockGetStatuses.mockResolvedValue(mockProperties as any)
+      mockGetStatuses.mockResolvedValue(mockProperties)
 
-      const result = await mockGetStatuses({} as any, 'org-1', 50, 0)
+      const result = await mockGetStatuses({} as Record<string, unknown>, 'org-1', 50, 0)
       expect(result).toHaveLength(1)
       expect(result[0]).toEqual(expect.objectContaining({ propertyId: 'prop-1' }))
     })
 
     it('should load feed generation logs', async () => {
-      const mockLogs = [
+      const mockLogs: MockFeedLog[] = [
         {
           id: 'log-1',
           timestamp: '2026-05-15T10:00:00Z',
@@ -73,27 +99,28 @@ describe('Google Distribution Dashboard Integration', () => {
         },
       ]
 
-      mockGetLogs.mockResolvedValue(mockLogs as any)
+      mockGetLogs.mockResolvedValue(mockLogs)
 
-      const result = await mockGetLogs({} as any, 'org-1', 20)
+      const result = await mockGetLogs({} as Record<string, unknown>, 'org-1', 20)
       expect(result).toHaveLength(1)
       expect(result[0]).toEqual(expect.objectContaining({ action: 'manual' }))
     })
 
     it('should handle empty results gracefully', async () => {
-      mockComputeMetrics.mockResolvedValue({
+      const emptyMetrics: MockMetrics = {
         totalIndexed: 0,
         pendingCount: 0,
         errorCount: 0,
         rejectedCount: 0,
-      } as any)
+      }
+      mockComputeMetrics.mockResolvedValue(emptyMetrics)
 
-      mockGetStatuses.mockResolvedValue([] as any)
-      mockGetLogs.mockResolvedValue([] as any)
+      mockGetStatuses.mockResolvedValue([])
+      mockGetLogs.mockResolvedValue([])
 
-      const metrics = await mockComputeMetrics({} as any, 'org-1')
-      const statuses = await mockGetStatuses({} as any, 'org-1', 50, 0)
-      const logs = await mockGetLogs({} as any, 'org-1', 20)
+      const metrics = await mockComputeMetrics({} as Record<string, unknown>, 'org-1')
+      const statuses = await mockGetStatuses({} as Record<string, unknown>, 'org-1', 50, 0)
+      const logs = await mockGetLogs({} as Record<string, unknown>, 'org-1', 20)
 
       expect(metrics.totalIndexed).toBe(0)
       expect(statuses).toHaveLength(0)
@@ -103,14 +130,15 @@ describe('Google Distribution Dashboard Integration', () => {
 
   describe('Data Validation', () => {
     it('should validate metrics structure', async () => {
-      mockComputeMetrics.mockResolvedValue({
+      const metrics: MockMetrics = {
         totalIndexed: 50,
         pendingCount: 5,
         errorCount: 2,
         rejectedCount: 1,
-      } as any)
+      }
+      mockComputeMetrics.mockResolvedValue(metrics)
 
-      const result = await mockComputeMetrics({} as any, 'org-1')
+      const result = await mockComputeMetrics({} as Record<string, unknown>, 'org-1')
 
       expect(result).toHaveProperty('totalIndexed')
       expect(result).toHaveProperty('pendingCount')
@@ -128,9 +156,9 @@ describe('Google Distribution Dashboard Integration', () => {
           submittedDate: '2026-04-01T00:00:00Z',
           lastUpdatedDate: '2026-05-15T00:00:00Z',
         },
-      ] as any)
+      ])
 
-      const result = await mockGetStatuses({} as any, 'org-1', 50, 0)
+      const result = await mockGetStatuses({} as Record<string, unknown>, 'org-1', 50, 0)
 
       expect(result[0]).toHaveProperty('propertyId')
       expect(result[0]).toHaveProperty('propertyName')
@@ -149,9 +177,9 @@ describe('Google Distribution Dashboard Integration', () => {
           duration_ms: 2500,
           error_message: null,
         },
-      ] as any)
+      ])
 
-      const result = await mockGetLogs({} as any, 'org-1', 20)
+      const result = await mockGetLogs({} as Record<string, unknown>, 'org-1', 20)
 
       expect(result[0]).toHaveProperty('id')
       expect(result[0]).toHaveProperty('timestamp')
@@ -168,9 +196,9 @@ describe('Google Distribution Dashboard Integration', () => {
         pendingCount: 5,
         errorCount: 0,
         rejectedCount: 0,
-      } as any)
+      } as Record<string, unknown>)
 
-      const result = await mockComputeMetrics({} as any, 'org-1')
+      const result = await mockComputeMetrics({} as Record<string, unknown>, 'org-1')
 
       // If metrics load successfully, premium gating passed
       expect(result).toBeDefined()
@@ -178,14 +206,15 @@ describe('Google Distribution Dashboard Integration', () => {
     })
 
     it('should indicate no properties for free tier', async () => {
-      mockComputeMetrics.mockResolvedValue({
+      const emptyMetrics: MockMetrics = {
         totalIndexed: 0,
         pendingCount: 0,
         errorCount: 0,
         rejectedCount: 0,
-      } as any)
+      }
+      mockComputeMetrics.mockResolvedValue(emptyMetrics)
 
-      const result = await mockComputeMetrics({} as any, 'org-1')
+      const result = await mockComputeMetrics({} as Record<string, unknown>, 'org-1')
 
       // Free tier shows 0 metrics
       expect(result.totalIndexed).toBe(0)
@@ -213,7 +242,7 @@ describe('Google Distribution Dashboard Integration', () => {
       mockComputeMetrics.mockRejectedValue(new Error('DB error'))
 
       try {
-        await mockComputeMetrics({} as any, 'org-1')
+        await mockComputeMetrics({} as Record<string, unknown>, 'org-1')
         expect(true).toBe(false) // Should not reach here
       } catch (error) {
         expect(error).toBeDefined()
@@ -224,7 +253,7 @@ describe('Google Distribution Dashboard Integration', () => {
       mockGetStatuses.mockRejectedValue(new Error('DB error'))
 
       try {
-        await mockGetStatuses({} as any, 'org-1', 50, 0)
+        await mockGetStatuses({} as Record<string, unknown>, 'org-1', 50, 0)
         expect(true).toBe(false)
       } catch (error) {
         expect(error).toBeDefined()
@@ -235,7 +264,7 @@ describe('Google Distribution Dashboard Integration', () => {
       mockGetLogs.mockRejectedValue(new Error('DB error'))
 
       try {
-        await mockGetLogs({} as any, 'org-1', 20)
+        await mockGetLogs({} as Record<string, unknown>, 'org-1', 20)
         expect(true).toBe(false)
       } catch (error) {
         expect(error).toBeDefined()
@@ -248,9 +277,9 @@ describe('Google Distribution Dashboard Integration', () => {
       mockGetStatuses.mockResolvedValue([
         { propertyId: 'prop-1' },
         { propertyId: 'prop-2' },
-      ] as any)
+      ])
 
-      const result = await mockGetStatuses({} as any, 'org-1', 50, 0)
+      const result = await mockGetStatuses({} as Record<string, unknown>, 'org-1', 50, 0)
 
       // Verify function accepts limit/offset
       expect(mockGetStatuses).toHaveBeenCalledWith({}, 'org-1', 50, 0)
@@ -270,9 +299,9 @@ describe('Google Distribution Dashboard Integration', () => {
           duration_ms: 4500,
           error_message: null,
         },
-      ] as any)
+      ])
 
-      const result = await mockGetLogs({} as any, 'org-1', 20)
+      const result = await mockGetLogs({} as Record<string, unknown>, 'org-1', 20)
 
       // Feed generation logs should still load correctly
       expect(result[0].properties_count).toBe(100)
@@ -285,11 +314,11 @@ describe('Google Distribution Dashboard Integration', () => {
         pendingCount: 10,
         errorCount: 0,
         rejectedCount: 0,
-      } as any)
+      } as Record<string, unknown>)
 
       // Multiple simultaneous calls should work
-      const result1 = await mockComputeMetrics({} as any, 'org-1')
-      const result2 = await mockComputeMetrics({} as any, 'org-1')
+      const result1 = await mockComputeMetrics({} as Record<string, unknown>, 'org-1')
+      const result2 = await mockComputeMetrics({} as Record<string, unknown>, 'org-1')
 
       expect(result1.totalIndexed).toBe(100)
       expect(result2.totalIndexed).toBe(100)
