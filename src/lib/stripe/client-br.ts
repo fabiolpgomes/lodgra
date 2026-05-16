@@ -5,7 +5,6 @@ if (!process.env.STRIPE_BR_SECRET_KEY) {
 }
 
 export const stripeBR = new Stripe(process.env.STRIPE_BR_SECRET_KEY, {
-  apiVersion: '2024-04-10',
   maxNetworkRetries: 3,
   timeout: 30000,
 })
