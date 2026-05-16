@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { stripeBR } from '@/lib/stripe/client-br'
 import { NextResponse } from 'next/server'
 
 export async function GET(request: Request) {
@@ -111,6 +112,25 @@ export async function GET(request: Request) {
                 requires_password_change: !isOAuthUser,
                 password_changed_at: isOAuthUser ? new Date().toISOString() : null,
               })
+
+              try {
+                const customer = await stripeBR.customers.create({
+                  email: user.email || undefined,
+                  name: user.user_metadata?.full_name || user.email || undefined,
+                  metadata: {
+                    organization_id: newOrg.id,
+                  },
+                })
+
+                await adminClient
+                  .from('organizations')
+                  .update({ stripe_br_customer_id: customer.id })
+                  .eq('id', newOrg.id)
+
+                console.log('[auth/callback] Stripe customer created:', customer.id)
+              } catch (stripeErr) {
+                console.error('[auth/callback] Failed to create Stripe customer:', stripeErr)
+              }
             }
           } catch (err) {
             console.error('[auth/callback] failed to create profile:', err)

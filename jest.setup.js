@@ -6,6 +6,39 @@
 // Import Testing Library matchers
 import '@testing-library/jest-dom'
 
+// Add Request/Response polyfill for Next.js API route testing
+if (typeof global.Request === 'undefined') {
+  global.Request = class Request {
+    constructor(url, init = {}) {
+      this.url = url
+      this.method = init.method || 'GET'
+      this.headers = init.headers || {}
+      this._body = init.body
+    }
+    json() {
+      return Promise.resolve(this._body ? JSON.parse(this._body) : {})
+    }
+    text() {
+      return Promise.resolve(this._body || '')
+    }
+  }
+}
+if (typeof global.Response === 'undefined') {
+  global.Response = class Response {
+    constructor(body, init = {}) {
+      this.body = body
+      this.status = init.status || 200
+      this.headers = init.headers || {}
+    }
+    json() {
+      return Promise.resolve(typeof this.body === 'string' ? JSON.parse(this.body) : this.body)
+    }
+    text() {
+      return Promise.resolve(typeof this.body === 'string' ? this.body : JSON.stringify(this.body))
+    }
+  }
+}
+
 // Load environment variables from .env.local
 import('dotenv').then((dotenv) => {
   dotenv.config({ path: '.env.local' })
