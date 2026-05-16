@@ -5,12 +5,14 @@
 
 import { createAdminClient } from '@/lib/supabase/admin'
 import crypto from 'crypto'
+import { aggregatePropertyReviews, type PropertyReviewsAggregate } from './review-aggregator'
 
 export interface FeedOptions {
   limit?: number
   offset?: number
   updated_since?: string
   currency?: string
+  include_reviews?: boolean
 }
 
 interface Property {
@@ -48,6 +50,7 @@ export async function generateGoogleVacationRentalsFeed(
   const limit = Math.min(options.limit || 100, 1000)
   const offset = options.offset || 0
   const currency = options.currency || 'EUR'
+  const includeReviews = options.include_reviews !== false // Default: true
 
   const supabase = createAdminClient()
 
@@ -71,13 +74,14 @@ export async function generateGoogleVacationRentalsFeed(
   // Fetch related data for each property
   const enrichedProperties = await Promise.all(
     properties.map(async (prop) => {
-      const [{ data: images }, reviewResult] = await Promise.all([
+      const [{ data: images }, reviewResult, aggregatedReviews] = await Promise.all([
         supabase.from('property_media').select('url, alt').eq('property_id', prop.id).limit(5),
         supabase
           .from('property_reviews')
           .select('rating, review_count')
           .eq('property_id', prop.id)
           .single(),
+        includeReviews ? aggregatePropertyReviews(prop.id) : Promise.resolve(null),
       ])
 
       const reviews = reviewResult.data || { rating: 0, review_count: 0 }
@@ -86,6 +90,7 @@ export async function generateGoogleVacationRentalsFeed(
         property: prop,
         images: images || [],
         review: reviews,
+        aggregatedReviews,
       }
     })
   )
@@ -99,8 +104,8 @@ export async function generateGoogleVacationRentalsFeed(
   xml += `  <updated>${now}</updated>\n`
   xml += `  <id>urn:lodgra:feed:properties</id>\n`
 
-  for (const { property, images, review } of enrichedProperties) {
-    xml += generateFeedEntry(property, images, review, currency)
+  for (const { property, images, review, aggregatedReviews } of enrichedProperties) {
+    xml += generateFeedEntry(property, images, review, aggregatedReviews, currency)
   }
 
   xml += `</feed>\n`
@@ -118,6 +123,7 @@ function generateFeedEntry(
   property: Property,
   images: PropertyMedia[],
   review: PropertyReview,
+  aggregatedReviews: PropertyReviewsAggregate | null,
   currency: string
 ): string {
   const baseUrl = 'https://lodgra.app'
@@ -169,6 +175,31 @@ function generateFeedEntry(
   // Check-in/out times
   entry += `    <property:checkInTime>14:00</property:checkInTime>\n`
   entry += `    <property:checkOutTime>11:00</property:checkOutTime>\n`
+
+  // Reviews section (if aggregated reviews available)
+  if (aggregatedReviews && aggregatedReviews.reviews.length > 0) {
+    entry += `    <reviews>\n`
+
+    // Individual reviews (max 5 most recent)
+    aggregatedReviews.reviews.slice(0, 5).forEach((review) => {
+      entry += `      <review>\n`
+      entry += `        <rating>${review.rating}</rating>\n`
+      entry += `        <source>${escapeXml(review.source)}</source>\n`
+      entry += `        <text>${escapeXml(review.text.substring(0, 200))}</text>\n`
+      entry += `        <author>${escapeXml(review.author)}</author>\n`
+      entry += `        <date>${review.date}</date>\n`
+      entry += `      </review>\n`
+    })
+
+    // Aggregate rating
+    entry += `      <aggregateRating>\n`
+    entry += `        <average>${aggregatedReviews.aggregateRating.average}</average>\n`
+    entry += `        <count>${aggregatedReviews.aggregateRating.count}</count>\n`
+    entry += `        <bestRating>${aggregatedReviews.aggregateRating.bestRating}</bestRating>\n`
+    entry += `        <worstRating>${aggregatedReviews.aggregateRating.worstRating}</worstRating>\n`
+    entry += `      </aggregateRating>\n`
+    entry += `    </reviews>\n`
+  }
 
   entry += `  </entry>\n`
 

@@ -20,6 +20,7 @@ export async function GET(request: NextRequest) {
     const offset = parseInt(searchParams.get('offset') || '0')
     const updated_since = searchParams.get('updated_since') || undefined
     const currency = searchParams.get('currency') || 'EUR'
+    const include_reviews = searchParams.get('include_reviews') !== 'false' // Default: true
 
     // Validate parameters
     if (limit < 1 || limit > 1000) {
@@ -39,6 +40,7 @@ export async function GET(request: NextRequest) {
       offset,
       updated_since,
       currency,
+      include_reviews,
     })
     const generationTime = Date.now() - startTime
 
@@ -85,12 +87,14 @@ export async function HEAD(request: NextRequest) {
     const offset = parseInt(searchParams.get('offset') || '0')
     const updated_since = searchParams.get('updated_since') || undefined
     const currency = searchParams.get('currency') || 'EUR'
+    const include_reviews = searchParams.get('include_reviews') !== 'false' // Default: true
 
     const { xml, eTag, count } = await generateGoogleVacationRentalsFeed({
       limit,
       offset,
       updated_since,
       currency,
+      include_reviews,
     })
 
     const headers = new Headers({

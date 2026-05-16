@@ -7,7 +7,14 @@ export async function GET(request: Request) {
   const code       = searchParams.get('code')
   const token_hash = searchParams.get('token_hash')
   const type       = searchParams.get('type')
-  const next       = searchParams.get('next') ?? '/'
+
+  // For OAuth: read next from cookie (set by SocialLoginButtons)
+  let next = '/'
+  const cookieHeader = request.headers.get('cookie') || ''
+  const authRedirectMatch = cookieHeader.match(/auth_redirect_next=([^;]+)/)
+  if (authRedirectMatch) {
+    next = decodeURIComponent(authRedirectMatch[1])
+  }
 
   const supabase = await createClient()
 
