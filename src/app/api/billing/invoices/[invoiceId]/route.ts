@@ -5,7 +5,7 @@ import { requireRole } from '@/lib/auth/requireRole'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { invoiceId: string } }
+  { params }: { params: Promise<{ invoiceId: string }> }
 ) {
   try {
     const auth = await requireRole(['admin', 'gestor', 'viewer'])
@@ -14,6 +14,8 @@ export async function GET(
     if (!auth.organizationId) {
       return NextResponse.json({ error: 'No organization found' }, { status: 404 })
     }
+
+    const { invoiceId } = await params
 
     const adminClient = createAdminClient()
     const { data: org } = await adminClient
@@ -26,9 +28,9 @@ export async function GET(
       return NextResponse.json({ error: 'No Stripe customer' }, { status: 400 })
     }
 
-    const invoice = await stripeBR.invoices.retrieve(params.invoiceId)
+    const invoice = (await stripeBR.invoices.retrieve(invoiceId)) as any
 
-    if (invoice.customer !== org.stripe_br_customer_id) {
+    if ((invoice.customer as string) !== org.stripe_br_customer_id) {
       return NextResponse.json({ error: 'Invoice not found' }, { status: 404 })
     }
 
@@ -42,8 +44,10 @@ export async function GET(
       created: new Date(invoice.created * 1000).toISOString(),
       due_date: invoice.due_date ? new Date(invoice.due_date * 1000).toISOString() : null,
       pdf_url: invoice.invoice_pdf,
-      paid_at: invoice.paid_at ? new Date(invoice.paid_at * 1000).toISOString() : null,
-      subscription_id: invoice.subscription,
+      paid_at: invoice.status_transitions?.paid_at
+        ? new Date(invoice.status_transitions.paid_at * 1000).toISOString()
+        : null,
+      subscription_id: String((invoice as any).subscription || ''),
       lines: invoice.lines.data.map((line) => ({
         description: line.description,
         amount: line.amount,
