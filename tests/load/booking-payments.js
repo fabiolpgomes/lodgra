@@ -32,7 +32,7 @@ export const options = {
 
 const BASE_URL = __ENV.BASE_URL || 'http://localhost:3000'
 
-export default function () {
+export default function bookingPaymentLoadTest() {
   // 1. Create booking payload
   const bookingPayload = {
     property_id: `prop_${Math.floor(Math.random() * 1000)}`,

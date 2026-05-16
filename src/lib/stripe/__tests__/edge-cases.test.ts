@@ -40,14 +40,14 @@ describe('Payment Edge Cases', () => {
 
   describe('Invalid Card', () => {
     it('should identify card_error type', () => {
-      const cardError: Record<string, unknown> = {
+      const cardError = {
         name: 'StripeCardError',
         code: 'card_declined',
         decline_code: 'generic_decline',
         message: 'Your card was declined',
       }
 
-      const result = parseStripeError(cardError)
+      const result = parseStripeError(cardError as Record<string, unknown>)
 
       expect(result.type).toBe('card_error')
       expect(result.retryable).toBe(false)
@@ -102,7 +102,7 @@ describe('Payment Edge Cases', () => {
         name: 'StripeInvalidRequestError',
         code: 'fraud_warning',
         message: 'Fraudulent activity detected',
-      } as unknown as Stripe.StripeAPIError
+      }
 
       const result = parseStripeError(fraudError)
 
@@ -137,7 +137,7 @@ describe('Payment Edge Cases', () => {
         name: 'StripeInvalidRequestError',
         code: 'resource_missing',
         message: 'Subscription schedule has been released',
-      } as unknown as Stripe.StripeAPIError
+      }
 
       const result = parseStripeError(expiredError)
 
@@ -149,7 +149,7 @@ describe('Payment Edge Cases', () => {
         name: 'StripeInvalidRequestError',
         code: 'subscription_trial_already_set',
         message: 'Cannot set a trial on a customer that has already used a trial',
-      } as unknown as Stripe.StripeAPIError
+      }
 
       const result = parseStripeError(trialError)
 
@@ -182,7 +182,7 @@ describe('Payment Edge Cases', () => {
         name: 'StripeRateLimitError',
         code: 'rate_limit',
         message: 'Too many requests',
-      } as unknown as Stripe.StripeAPIError
+      }
 
       const result = parseStripeError(rateLimitError)
 
@@ -195,7 +195,7 @@ describe('Payment Edge Cases', () => {
         name: 'StripeAPIError',
         code: 'api_error',
         message: 'Service temporarily unavailable',
-      } as unknown as Stripe.StripeAPIError
+      }
 
       const result = parseStripeError(serviceError)
 

@@ -5,6 +5,14 @@
 
 import * as Sentry from '@sentry/nextjs'
 
+interface StripeError extends Record<string, unknown> {
+  type?: string
+  name?: string
+  code?: string
+  decline_code?: string
+  message?: string
+}
+
 export interface ParsedError {
   type: string
   retryable: boolean
@@ -30,26 +38,27 @@ const WEBHOOK_MAX_AGE_SECONDS = 2 * 60 * 60 // 2 hours
 /**
  * Parse Stripe and generic errors into structured format
  */
-export function parseStripeError(error: Error | Record<string, unknown>): ParsedError {
+export function parseStripeError(error: Error | StripeError): ParsedError {
+  const stripeErr = error instanceof Error ? { message: error.message, name: error.name } : error
   const baseError: ParsedError = {
     type: 'unknown_error',
     retryable: false,
-    message: error.message || String(error),
+    message: stripeErr.message as string || String(error),
     userMessage: 'An error occurred processing your payment. Please try again.',
   }
 
   // Handle Stripe API errors
-  if (error.type === 'StripeCardError' || error.name === 'StripeCardError') {
+  if (stripeErr.type === 'StripeCardError' || stripeErr.name === 'StripeCardError') {
     return {
       ...baseError,
       type: 'card_error',
       retryable: false,
-      decline_code: error.decline_code,
-      userMessage: getCardErrorMessage(error.decline_code),
+      decline_code: stripeErr.decline_code,
+      userMessage: getCardErrorMessage((stripeErr.decline_code as string) || ''),
     }
   }
 
-  if (error.type === 'StripeRateLimitError' || error.code === 'rate_limit') {
+  if (stripeErr.type === 'StripeRateLimitError' || stripeErr.code === 'rate_limit') {
     return {
       ...baseError,
       type: 'rate_limit_error',
@@ -59,8 +68,8 @@ export function parseStripeError(error: Error | Record<string, unknown>): Parsed
   }
 
   if (
-    error.type === 'StripeInvalidRequestError' ||
-    error.name === 'StripeInvalidRequestError'
+    stripeErr.type === 'StripeInvalidRequestError' ||
+    stripeErr.name === 'StripeInvalidRequestError'
   ) {
     const result: ParsedError = {
       ...baseError,
@@ -68,12 +77,13 @@ export function parseStripeError(error: Error | Record<string, unknown>): Parsed
       retryable: false,
     }
 
-    if (error.code === 'subscription_trial_already_set') {
+    if (stripeErr.code === 'subscription_trial_already_set') {
       result.trial_issue = true
       result.userMessage = 'You have already used a trial. Please upgrade to continue.'
     }
 
-    if (error.code === 'fraud_warning' || error.message?.includes('fraud')) {
+    const msgStr = stripeErr.message as string || ''
+    if (stripeErr.code === 'fraud_warning' || msgStr.includes('fraud')) {
       result.fraud_signal = true
       result.userMessage = 'Your payment could not be processed. Please contact support.'
     }
@@ -82,7 +92,8 @@ export function parseStripeError(error: Error | Record<string, unknown>): Parsed
   }
 
   // Handle fraud_warning directly
-  if (error.code === 'fraud_warning' || error.message?.includes('fraud')) {
+  const msgStr = stripeErr.message as string || ''
+  if (stripeErr.code === 'fraud_warning' || msgStr.includes('fraud')) {
     return {
       ...baseError,
       type: 'invalid_request_error',
@@ -91,7 +102,7 @@ export function parseStripeError(error: Error | Record<string, unknown>): Parsed
     }
   }
 
-  if (error.type === 'StripeAPIError' || error.name === 'StripeAPIError') {
+  if (stripeErr.type === 'StripeAPIError' || stripeErr.name === 'StripeAPIError') {
     return {
       ...baseError,
       type: 'api_error',
@@ -116,8 +127,8 @@ export function parseStripeError(error: Error | Record<string, unknown>): Parsed
 /**
  * Determine if error is a network/connectivity issue
  */
-function isNetworkError(error: Error | Record<string, unknown>): boolean {
-  const errorMessage = error.message || String(error)
+function isNetworkError(error: Error | StripeError): boolean {
+  const errorMessage = error instanceof Error ? error.message : (error.message as string) || String(error)
   const networkErrors = [
     'ECONNREFUSED',
     'ETIMEDOUT',
@@ -151,7 +162,7 @@ function getCardErrorMessage(declineCode: string): string {
  * Handle payment error with context
  */
 export async function handlePaymentError(
-  error: Error | Record<string, unknown>,
+  error: Error | StripeError,
   context: Record<string, unknown>
 ): Promise<ErrorHandlingResult> {
   const parsed = parseStripeError(error)
@@ -241,7 +252,8 @@ function determineAction(parsed: ParsedError): string {
  * Validate webhook payload structure
  */
 export function validateWebhookPayload(payload: Record<string, unknown>): boolean {
-  return !!(payload?.data?.object && payload?.type && payload?.id)
+  const data = payload.data as Record<string, unknown> | undefined
+  return !!(data?.object && payload.type && payload.id)
 }
 
 /**

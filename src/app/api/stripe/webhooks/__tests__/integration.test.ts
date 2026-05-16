@@ -1,23 +1,12 @@
-describe('Stripe Webhooks Integration Tests', () => {
-  // Mock Stripe SDK - actual SDK tested via integration fixtures
-  const mockStripe = {
-    events: {
-      retrieve: jest.fn(),
-    },
-    webhookEndpoints: {
-      list: jest.fn(),
-    },
-  }
+import crypto from 'crypto'
 
+describe('Stripe Webhooks Integration Tests', () => {
   // ============ Signature Verification Tests ============
   describe('Webhook Signature Verification', () => {
     test('should verify valid webhook signature', () => {
       const secret = 'whsec_test123'
       const timestamp = Math.floor(Date.now() / 1000)
       const payload = JSON.stringify({ type: 'charge.succeeded', id: 'evt_123' })
-
-      // Stripe uses HMAC-SHA256
-      const crypto = require('crypto')
       const hmac = crypto.createHmac('sha256', secret)
       const signed = `${timestamp}.${payload}`
       hmac.update(signed)
@@ -86,7 +75,7 @@ describe('Stripe Webhooks Integration Tests', () => {
       return new Promise(resolve => setTimeout(resolve, ms))
     }
 
-    async function processWithRetry(fn: () => Promise<any>, retryCount = 0): Promise<any> {
+    async function processWithRetry<T>(fn: () => Promise<T>, retryCount = 0): Promise<T> {
       try {
         return await fn()
       } catch (error) {
@@ -185,7 +174,6 @@ describe('Stripe Webhooks Integration Tests', () => {
   // ============ Full Booking Payment Flow Tests ============
   describe('Full Booking Payment Flow', () => {
     test('should create payment intent for booking', () => {
-      const bookingId = 'booking_123'
       const amount = 10000 // €100
       expect(amount).toBeGreaterThan(0)
     })

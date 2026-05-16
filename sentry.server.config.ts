@@ -146,7 +146,7 @@ export function captureWebhookError(
  */
 export function addPaymentBreadcrumb(
   message: string,
-  data: Record<string, any>
+  data: Record<string, string | number | boolean>
 ) {
   Sentry.addBreadcrumb({
     category: "payment",
