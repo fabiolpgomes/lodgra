@@ -176,7 +176,7 @@ export async function PUT(request: NextRequest) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const sub = subscription as any
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const updatedSubscription = (await stripeBR.subscriptions.update(sub.id, {
+    const updatedSubscription = await stripeBR.subscriptions.update(sub.id, {
       items: [
         {
           id: sub.items.data[0].id,
@@ -184,7 +184,7 @@ export async function PUT(request: NextRequest) {
         },
       ],
       proration_behavior: 'create_prorations',
-    })) as any
+    })
 
     await adminClient
       .from('organizations')
