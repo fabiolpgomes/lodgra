@@ -112,6 +112,7 @@ export async function GET(_request: NextRequest) {
         )
       : null
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const sub = subscription as any
     return NextResponse.json({
       subscription_id: sub.id,
@@ -120,6 +121,7 @@ export async function GET(_request: NextRequest) {
       current_period_end: new Date(sub.current_period_end * 1000).toISOString(),
       trial_end: org.trial_ends_at,
       trial_days_remaining: trialEndsIn,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       items: sub.items.data.map((item: any) => ({
         price_id: item.price.id,
         product: item.price.product,
@@ -171,7 +173,9 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'No active subscription' }, { status: 400 })
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const sub = subscription as any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const updatedSubscription = (await stripeBR.subscriptions.update(sub.id, {
       items: [
         {
@@ -217,7 +221,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'No organization found' }, { status: 404 })
     }
 
-    const { mode } = await request.json()
+    const { mode: _mode } = await request.json()
     const adminClient = createAdminClient()
     const { data: org } = await adminClient
       .from('organizations')
@@ -239,7 +243,9 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'No active subscription' }, { status: 400 })
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const sub = subscription as any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const canceledSubscription = (await (stripeBR.subscriptions as any).del(sub.id)) as any
 
     await adminClient

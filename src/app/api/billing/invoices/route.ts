@@ -3,7 +3,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { stripeBR } from '@/lib/stripe/client-br'
 import { requireRole } from '@/lib/auth/requireRole'
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const auth = await requireRole(['admin', 'gestor', 'viewer'])
     if (!auth.authorized) return auth.response!

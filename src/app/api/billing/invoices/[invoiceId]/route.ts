@@ -28,6 +28,7 @@ export async function GET(
       return NextResponse.json({ error: 'No Stripe customer' }, { status: 400 })
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const invoice = (await stripeBR.invoices.retrieve(invoiceId)) as any
 
     if ((invoice.customer as string) !== org.stripe_br_customer_id) {
@@ -47,7 +48,8 @@ export async function GET(
       paid_at: invoice.status_transitions?.paid_at
         ? new Date(invoice.status_transitions.paid_at * 1000).toISOString()
         : null,
-      subscription_id: String((invoice as any).subscription || ''),
+      subscription_id: String(invoice.subscription || ''),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       lines: invoice.lines.data.map((line: any) => ({
         description: line.description,
         amount: line.amount,
