@@ -64,7 +64,9 @@ export async function GET(request: Request) {
     }
 
     // OAuth / generic code: exchange and create profile if missing
+    console.log('[auth/callback] Exchanging code for session:', code?.substring(0, 20) + '...')
     const { error } = await supabase.auth.exchangeCodeForSession(code)
+    console.log('[auth/callback] exchangeCodeForSession result:', { error: error?.message })
     if (!error) {
       const { data: { user } } = await supabase.auth.getUser()
 

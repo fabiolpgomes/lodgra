@@ -1,13 +1,12 @@
-import type { NextConfig } from "next";
-import { withSentryConfig } from "@sentry/nextjs";
-import createNextIntlPlugin from 'next-intl/plugin';
-import withBundleAnalyzer from '@next/bundle-analyzer';
+const { withSentryConfig } = require("@sentry/nextjs");
+const createNextIntlPlugin = require('next-intl/plugin');
+const withBundleAnalyzer = require('@next/bundle-analyzer');
 
 // Configure next-intl without aggressive routing redirects
 // Root path (/) is NOT redirected - landing page works without locale
 const withNextIntl = createNextIntlPlugin('./i18n.ts');
 
-const nextConfig: NextConfig = {
+const nextConfig = {
   // Remove X-Powered-By header (minor security + bandwidth gain)
   poweredByHeader: false,
 
@@ -96,4 +95,4 @@ const finalConfig = withSentryConfig(analyzedConfig, {
   },
 });
 
-export default finalConfig
+module.exports = finalConfig

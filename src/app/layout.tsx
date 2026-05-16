@@ -88,7 +88,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const nonce = (await headers()).get('x-nonce') ?? undefined
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <head>
@@ -100,12 +99,10 @@ export default async function RootLayout({
         <link rel="dns-prefetch" href="https://pxmcsdqfcwutywrzuoal.supabase.co" />
         <script
           type="application/ld+json"
-          nonce={nonce}
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
         />
         <script
           type="application/ld+json"
-          nonce={nonce}
           dangerouslySetInnerHTML={{ __html: JSON.stringify(generateWebsiteJsonLd()) }}
         />
       </head>
@@ -113,11 +110,11 @@ export default async function RootLayout({
         className={`${poppins.variable} ${inter.variable} ${hankenGrotesk.variable} font-inter antialiased`}
         suppressHydrationWarning
       >
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} nonce={nonce}>
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
           {children}
           <Toaster richColors position="top-right" />
           <CookieBanner />
-          <GoogleAnalytics nonce={nonce} />
+          <GoogleAnalytics />
           <ServiceWorkerRegister />
         </ThemeProvider>
       </body>
