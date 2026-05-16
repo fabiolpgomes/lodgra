@@ -16,7 +16,12 @@ const customJestConfig = {
   testEnvironment: 'jsdom',
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
+    '^@upstash/redis$': '<rootDir>/src/__mocks__/@upstash/redis.ts',
+    '^@upstash/qstash$': '<rootDir>/src/__mocks__/@upstash/qstash.ts',
   },
+  transformIgnorePatterns: [
+    'node_modules/(?!(@upstash|@stripe|jose|@supabase)/)',
+  ],
   collectCoverageFrom: [
     'src/**/*.{js,jsx,ts,tsx}',
     '!src/**/*.d.ts',
