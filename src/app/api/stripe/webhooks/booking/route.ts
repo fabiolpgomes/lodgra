@@ -1,10 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { verifyStripeSignature } from '@/lib/stripe/verify-webhook'
+import { getClientIp, checkWebhookRateLimit } from '@/lib/middleware/rate-limit'
 
 const STRIPE_PT_WEBHOOK_SECRET = process.env.STRIPE_PT_WEBHOOK_SECRET || ''
 
 export async function POST(request: NextRequest) {
+  // Story 12.4: Apply rate limiting (10 req/min per IP)
+  const ip = getClientIp(request)
+  const rateCheck = await checkWebhookRateLimit(ip)
+
+  if (!rateCheck.allowed) {
+    console.warn(`[webhooks/booking] Rate limit exceeded for IP: ${ip}`)
+    return NextResponse.json(
+      { error: 'Too Many Requests', message: 'Rate limit exceeded (10 req/min)' },
+      {
+        status: 429,
+        headers: {
+          'Retry-After': '60',
+          'X-RateLimit-Limit': '10',
+          'X-RateLimit-Remaining': '0',
+        },
+      }
+    )
+  }
+
   const signature = request.headers.get('stripe-signature')
   const body = await request.text()
 

@@ -2,11 +2,31 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { stripePT } from '@/lib/stripe/client-pt'
 import { requireRole } from '@/lib/auth/requireRole'
+import { checkBillingRateLimit } from '@/lib/middleware/rate-limit'
 
 export async function POST(request: NextRequest) {
   try {
     const auth = await requireRole(['admin', 'gestor'])
     if (!auth.authorized) return auth.response!
+
+    // Story 12.4: Apply rate limiting (5 req/min per user)
+    const userId = auth.userId || auth.organizationId || 'anonymous'
+    const rateCheck = await checkBillingRateLimit(userId)
+
+    if (!rateCheck.allowed) {
+      console.warn(`[api/billing/refunds] Rate limit exceeded for user: ${userId}`)
+      return NextResponse.json(
+        { error: 'Too Many Requests', message: 'Rate limit exceeded (5 req/min per user)' },
+        {
+          status: 429,
+          headers: {
+            'Retry-After': '60',
+            'X-RateLimit-Limit': '5',
+            'X-RateLimit-Remaining': '0',
+          },
+        }
+      )
+    }
 
     const { booking_id, amount_eur, reason } = await request.json()
 
