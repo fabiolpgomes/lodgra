@@ -1,30 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { stripeBR } from '@/lib/stripe/client-br'
-import { getServerSession } from 'next-auth/next'
+import { requireRole } from '@/lib/auth/requireRole'
 
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession()
-    if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+    const auth = await requireRole(['admin', 'gestor', 'viewer'])
+    if (!auth.authorized) return auth.response!
 
-    const adminClient = createAdminClient()
-    const { data: profile } = await adminClient
-      .from('profiles')
-      .select('organization_id')
-      .eq('email', session.user.email)
-      .single()
-
-    if (!profile?.organization_id) {
+    if (!auth.organizationId) {
       return NextResponse.json({ error: 'No organization found' }, { status: 404 })
     }
 
+    const adminClient = createAdminClient()
     const { data: org } = await adminClient
       .from('organizations')
       .select('stripe_br_customer_id')
-      .eq('id', profile.organization_id)
+      .eq('id', auth.organizationId)
       .single()
 
     if (!org?.stripe_br_customer_id) {
@@ -47,7 +39,9 @@ export async function GET(_request: NextRequest) {
         created: new Date(invoice.created * 1000).toISOString(),
         due_date: invoice.due_date ? new Date(invoice.due_date * 1000).toISOString() : null,
         pdf_url: invoice.invoice_pdf,
-        paid_at: invoice.paid_at ? new Date(invoice.paid_at * 1000).toISOString() : null,
+        paid_at: invoice.status_transitions?.paid_at
+          ? new Date(invoice.status_transitions.paid_at * 1000).toISOString()
+          : null,
       })),
     })
   } catch (error) {

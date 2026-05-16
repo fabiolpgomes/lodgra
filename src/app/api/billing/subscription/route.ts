@@ -1,23 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { stripeBR } from '@/lib/stripe/client-br'
-import { getServerSession } from 'next-auth/next'
+import { requireRole } from '@/lib/auth/requireRole'
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession()
-    if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+    const auth = await requireRole(['admin', 'gestor', 'viewer'])
+    if (!auth.authorized) return auth.response!
 
-    const adminClient = createAdminClient()
-    const { data: profile } = await adminClient
-      .from('profiles')
-      .select('organization_id')
-      .eq('email', session.user.email)
-      .single()
-
-    if (!profile?.organization_id) {
+    if (!auth.organizationId) {
       return NextResponse.json({ error: 'No organization found' }, { status: 404 })
     }
 
@@ -28,10 +19,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid plan' }, { status: 400 })
     }
 
+    const adminClient = createAdminClient()
     const { data: org } = await adminClient
       .from('organizations')
       .select('stripe_br_customer_id')
-      .eq('id', profile.organization_id)
+      .eq('id', auth.organizationId)
       .single()
 
     if (!org?.stripe_br_customer_id) {
@@ -56,7 +48,7 @@ export async function POST(request: NextRequest) {
         subscription_status: 'trialing',
         trial_ends_at: trialEndDate.toISOString(),
       })
-      .eq('id', profile.organization_id)
+      .eq('id', auth.organizationId)
 
     console.log(`[billing/subscription] Subscription created: ${subscription.id} (plan: ${plan})`)
 
@@ -77,26 +69,18 @@ export async function POST(request: NextRequest) {
 
 export async function GET(_request: NextRequest) {
   try {
-    const session = await getServerSession()
-    if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+    const auth = await requireRole(['admin', 'gestor', 'viewer'])
+    if (!auth.authorized) return auth.response!
 
-    const adminClient = createAdminClient()
-    const { data: profile } = await adminClient
-      .from('profiles')
-      .select('organization_id')
-      .eq('email', session.user.email)
-      .single()
-
-    if (!profile?.organization_id) {
+    if (!auth.organizationId) {
       return NextResponse.json({ error: 'No organization found' }, { status: 404 })
     }
 
+    const adminClient = createAdminClient()
     const { data: org } = await adminClient
       .from('organizations')
       .select('stripe_br_customer_id, subscription_plan, subscription_status, trial_ends_at')
-      .eq('id', profile.organization_id)
+      .eq('id', auth.organizationId)
       .single()
 
     if (!org?.stripe_br_customer_id) {
@@ -128,14 +112,15 @@ export async function GET(_request: NextRequest) {
         )
       : null
 
+    const sub = subscription as any
     return NextResponse.json({
-      subscription_id: subscription.id,
+      subscription_id: sub.id,
       plan: org.subscription_plan,
-      status: subscription.status,
-      current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+      status: sub.status,
+      current_period_end: new Date(sub.current_period_end * 1000).toISOString(),
       trial_end: org.trial_ends_at,
       trial_days_remaining: trialEndsIn,
-      items: subscription.items.data.map((item) => ({
+      items: sub.items.data.map((item: any) => ({
         price_id: item.price.id,
         product: item.price.product,
       })),
@@ -151,19 +136,10 @@ export async function GET(_request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    const session = await getServerSession()
-    if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+    const auth = await requireRole(['admin', 'gestor'])
+    if (!auth.authorized) return auth.response!
 
-    const adminClient = createAdminClient()
-    const { data: profile } = await adminClient
-      .from('profiles')
-      .select('organization_id')
-      .eq('email', session.user.email)
-      .single()
-
-    if (!profile?.organization_id) {
+    if (!auth.organizationId) {
       return NextResponse.json({ error: 'No organization found' }, { status: 404 })
     }
 
@@ -174,10 +150,11 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid plan' }, { status: 400 })
     }
 
+    const adminClient = createAdminClient()
     const { data: org } = await adminClient
       .from('organizations')
       .select('stripe_br_customer_id')
-      .eq('id', profile.organization_id)
+      .eq('id', auth.organizationId)
       .single()
 
     if (!org?.stripe_br_customer_id) {
@@ -194,25 +171,26 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'No active subscription' }, { status: 400 })
     }
 
-    const updatedSubscription = await stripeBR.subscriptions.update(subscription.id, {
+    const sub = subscription as any
+    const updatedSubscription = (await stripeBR.subscriptions.update(sub.id, {
       items: [
         {
-          id: subscription.items.data[0].id,
+          id: sub.items.data[0].id,
           price: newPlanId,
         },
       ],
       proration_behavior: 'create_prorations',
-    })
+    })) as any
 
     await adminClient
       .from('organizations')
       .update({
         subscription_plan: plan,
       })
-      .eq('id', profile.organization_id)
+      .eq('id', auth.organizationId)
 
     console.log(
-      `[billing/subscription] Upgraded subscription: ${subscription.id} → ${plan}`
+      `[billing/subscription] Upgraded subscription: ${sub.id} → ${plan}`
     )
 
     return NextResponse.json({
@@ -232,27 +210,19 @@ export async function PUT(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    const session = await getServerSession()
-    if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+    const auth = await requireRole(['admin', 'gestor'])
+    if (!auth.authorized) return auth.response!
 
-    const adminClient = createAdminClient()
-    const { data: profile } = await adminClient
-      .from('profiles')
-      .select('organization_id')
-      .eq('email', session.user.email)
-      .single()
-
-    if (!profile?.organization_id) {
+    if (!auth.organizationId) {
       return NextResponse.json({ error: 'No organization found' }, { status: 404 })
     }
 
     const { mode } = await request.json()
+    const adminClient = createAdminClient()
     const { data: org } = await adminClient
       .from('organizations')
       .select('stripe_br_customer_id')
-      .eq('id', profile.organization_id)
+      .eq('id', auth.organizationId)
       .single()
 
     if (!org?.stripe_br_customer_id) {
@@ -269,12 +239,8 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'No active subscription' }, { status: 400 })
     }
 
-    const _cancelationDate = mode === 'end_of_period' ? undefined : 'now'
-
-    const canceledSubscription = await stripeBR.subscriptions.del(subscription.id, {
-      invoice_now: mode === 'now',
-      prorate: mode === 'now',
-    })
+    const sub = subscription as any
+    const canceledSubscription = (await (stripeBR.subscriptions as any).del(sub.id)) as any
 
     await adminClient
       .from('organizations')
@@ -282,9 +248,9 @@ export async function DELETE(request: NextRequest) {
         subscription_status: 'canceled',
         subscription_plan: null,
       })
-      .eq('id', profile.organization_id)
+      .eq('id', auth.organizationId)
 
-    console.log(`[billing/subscription] Subscription canceled: ${subscription.id}`)
+    console.log(`[billing/subscription] Subscription canceled: ${sub.id}`)
 
     return NextResponse.json({
       subscription_id: canceledSubscription.id,

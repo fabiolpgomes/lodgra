@@ -48,7 +48,7 @@ export async function GET(
         ? new Date(invoice.status_transitions.paid_at * 1000).toISOString()
         : null,
       subscription_id: String((invoice as any).subscription || ''),
-      lines: invoice.lines.data.map((line) => ({
+      lines: invoice.lines.data.map((line: any) => ({
         description: line.description,
         amount: line.amount,
         currency: line.currency,
