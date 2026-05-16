@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
@@ -16,6 +17,7 @@ import {
   Settings,
   UserCog,
   LogOut,
+  Globe,
 } from 'lucide-react'
 import { Logo } from '@/components/common/ui/Logo'
 import { useAuth } from '@/hooks/useAuth'
@@ -51,10 +53,43 @@ export function Sidebar({ serverProfile }: SidebarProps) {
   const pathname = usePathname()
   const locale = useLocale()
   const router = useRouter()
+  const [hasPremium, setHasPremium] = useState(false)
 
   const isAdmin = profile?.role === 'admin'
   const isGestor = profile?.role === 'gestor'
   const prefix = locale ? `/${locale}` : ''
+
+  useEffect(() => {
+    const checkPremiumTier = async () => {
+      if (!profile?.id) return
+
+      try {
+        const supabase = createClient()
+
+        const { data: userProfile } = await supabase
+          .from('user_profiles')
+          .select('organization_id')
+          .eq('user_id', profile.id)
+          .single()
+
+        if (!userProfile?.organization_id) return
+
+        const { data: properties } = await supabase
+          .from('properties')
+          .select('tier')
+          .eq('organization_id', userProfile.organization_id)
+          .limit(1)
+
+        const hasPremiumProperty = properties?.some((p) => p.tier === 'premium')
+        setHasPremium(!!hasPremiumProperty)
+      } catch (error) {
+        console.error('Error checking premium tier:', error)
+        setHasPremium(false)
+      }
+    }
+
+    checkPremiumTier()
+  }, [profile?.id])
 
   const primaryLinks = PRIMARY_PATHS
     .filter(({ path }) => {
@@ -67,9 +102,14 @@ export function Sidebar({ serverProfile }: SidebarProps) {
       icon,
     }))
 
+  const adminLinks = [
+    ...(isAdmin ? [{ href: `${prefix}/admin/users`, label: 'Utilizadores', icon: UserCog }] : []),
+    ...(hasPremium ? [{ href: `${prefix}/admin/google-distribution`, label: 'Google Distribution', icon: Globe }] : []),
+  ]
+
   const configLinks = [
     ...CONFIG_PATHS.map(({ path, label, icon }) => ({ href: `${prefix}${path}`, label, icon })),
-    ...(isAdmin ? [{ href: `${prefix}/admin/users`, label: 'Utilizadores', icon: UserCog }] : []),
+    ...adminLinks,
   ]
 
   function isActive(href: string) {
