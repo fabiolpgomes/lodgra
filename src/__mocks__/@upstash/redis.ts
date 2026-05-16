@@ -6,4 +6,5 @@ export const Redis = jest.fn(() => ({
   exists: jest.fn().mockResolvedValue(0),
 }))
 
-export default { Redis }
+const mockRedis = { Redis }
+export default mockRedis

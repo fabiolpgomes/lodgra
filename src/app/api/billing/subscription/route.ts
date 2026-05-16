@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const session = await getServerSession()
     if (!session?.user?.email) {
@@ -269,7 +269,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'No active subscription' }, { status: 400 })
     }
 
-    const cancelationDate = mode === 'end_of_period' ? undefined : 'now'
+    const _cancelationDate = mode === 'end_of_period' ? undefined : 'now'
 
     const canceledSubscription = await stripeBR.subscriptions.del(subscription.id, {
       invoice_now: mode === 'now',

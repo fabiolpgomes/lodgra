@@ -3,7 +3,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { stripeBR } from '@/lib/stripe/client-br'
 import { getServerSession } from 'next-auth/next'
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const session = await getServerSession()
     if (!session?.user?.email) {

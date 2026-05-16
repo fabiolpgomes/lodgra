@@ -3,4 +3,5 @@ export const Client = jest.fn(() => ({
   publish: jest.fn().mockResolvedValue({ messageId: 'mock-id' }),
 }))
 
-export default { Client }
+const mockQstash = { Client }
+export default mockQstash

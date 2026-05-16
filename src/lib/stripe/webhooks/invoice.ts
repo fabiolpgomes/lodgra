@@ -1,7 +1,8 @@
 import { SupabaseClient } from '@supabase/supabase-js'
+import Stripe from 'stripe'
 
 export async function handleInvoiceEvent(
-  event: any,
+  event: Stripe.Event,
   adminClient: SupabaseClient
 ) {
   const invoice = event.data.object
