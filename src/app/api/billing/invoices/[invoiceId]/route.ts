@@ -1,33 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { stripeBR } from '@/lib/stripe/client-br'
-import { getServerSession } from 'next-auth/next'
+import { requireRole } from '@/lib/auth/requireRole'
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { invoiceId: string } }
 ) {
   try {
-    const session = await getServerSession()
-    if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+    const auth = await requireRole(['admin', 'gestor', 'viewer'])
+    if (!auth.authorized) return auth.response!
 
-    const adminClient = createAdminClient()
-    const { data: profile } = await adminClient
-      .from('profiles')
-      .select('organization_id')
-      .eq('email', session.user.email)
-      .single()
-
-    if (!profile?.organization_id) {
+    if (!auth.organizationId) {
       return NextResponse.json({ error: 'No organization found' }, { status: 404 })
     }
 
+    const adminClient = createAdminClient()
     const { data: org } = await adminClient
       .from('organizations')
       .select('stripe_br_customer_id')
-      .eq('id', profile.organization_id)
+      .eq('id', auth.organizationId)
       .single()
 
     if (!org?.stripe_br_customer_id) {
