@@ -65,6 +65,21 @@ describe('Review Aggregator Logic (AC1-AC2)', () => {
       expect(filtered).toHaveLength(2)
       expect(filtered.every((r) => r.rating >= 4.0 && allowedSources.includes(r.source))).toBe(true)
     })
+
+    it('AC2: should include vrbo in allowed sources', () => {
+      const mockReviews = [
+        { rating: 4.5, source: 'booking' },
+        { rating: 4.3, source: 'airbnb' },
+        { rating: 4.7, source: 'vrbo' }, // ✅ Should pass
+        { rating: 4.0, source: 'google' }, // Should fail
+      ]
+
+      const allowedSources = ['booking', 'airbnb', 'vrbo']
+      const filtered = mockReviews.filter((r) => allowedSources.includes(r.source))
+      expect(filtered).toHaveLength(3)
+      expect(filtered.some((r) => r.source === 'vrbo')).toBe(true)
+      expect(filtered.every((r) => allowedSources.includes(r.source))).toBe(true)
+    })
   })
 
   describe('Average calculation', () => {

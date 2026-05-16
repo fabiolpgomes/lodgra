@@ -33,7 +33,7 @@ export interface PropertyReviewsAggregate {
   }
 }
 
-const ALLOWED_SOURCES = ['booking', 'airbnb']
+const ALLOWED_SOURCES = ['booking', 'airbnb', 'vrbo']
 const MIN_RATING = 4.0
 
 /**
