@@ -247,3 +247,81 @@ export type ReservationWithDetails = Reservation & {
     platform: Platform
   }
 }
+
+// Supabase Database type for type-safe queries
+export type Database = {
+  public: {
+    Tables: {
+      properties: {
+        Row: Property
+        Insert: Omit<Property, 'created_at' | 'updated_at'>
+        Update: Partial<Omit<Property, 'created_at' | 'updated_at'>>
+      }
+      property_reviews: {
+        Row: PropertyReview
+        Insert: Omit<PropertyReview, 'created_at' | 'updated_at'>
+        Update: Partial<Omit<PropertyReview, 'created_at' | 'updated_at'>>
+      }
+      property_listings: {
+        Row: PropertyListing
+        Insert: Omit<PropertyListing, 'created_at' | 'updated_at'>
+        Update: Partial<Omit<PropertyListing, 'created_at' | 'updated_at'>>
+      }
+      guests: {
+        Row: Guest
+        Insert: Omit<Guest, 'created_at' | 'updated_at'>
+        Update: Partial<Omit<Guest, 'created_at' | 'updated_at'>>
+      }
+      reservations: {
+        Row: Reservation
+        Insert: Omit<Reservation, 'created_at' | 'updated_at'>
+        Update: Partial<Omit<Reservation, 'created_at' | 'updated_at'>>
+      }
+      platforms: {
+        Row: Platform
+        Insert: Omit<Platform, 'created_at'>
+        Update: Partial<Omit<Platform, 'created_at'>>
+      }
+      calendar_blocks: {
+        Row: CalendarBlock
+        Insert: Omit<CalendarBlock, 'created_at' | 'updated_at'>
+        Update: Partial<Omit<CalendarBlock, 'created_at' | 'updated_at'>>
+      }
+      sync_logs: {
+        Row: SyncLog
+      }
+      financial_transactions: {
+        Row: FinancialTransaction
+        Insert: Omit<FinancialTransaction, 'created_at'>
+        Update: Partial<Omit<FinancialTransaction, 'created_at'>>
+      }
+      property_rooms: {
+        Row: PropertyRoom
+        Insert: Omit<PropertyRoom, 'created_at'>
+        Update: Partial<Omit<PropertyRoom, 'created_at'>>
+      }
+      property_bathrooms: {
+        Row: PropertyBathroom
+        Insert: Omit<PropertyBathroom, 'created_at'>
+        Update: Partial<Omit<PropertyBathroom, 'created_at'>>
+      }
+      amenities: {
+        Row: Amenity
+      }
+      property_amenities: {
+        Row: PropertyAmenity
+      }
+      property_documents: {
+        Row: PropertyDocument
+      }
+      expense_documents: {
+        Row: ExpenseDocument
+      }
+    }
+    Views: {
+      unified_calendar_events: {
+        Row: UnifiedCalendarEvent
+      }
+    }
+  }
+}

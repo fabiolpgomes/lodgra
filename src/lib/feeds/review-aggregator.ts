@@ -14,6 +14,14 @@ function getSupabaseClient() {
   return createClient<Database>(url, key)
 }
 
+export interface ReviewRow {
+  rating: number
+  source: string
+  review_text: string | null
+  reviewer_name: string
+  review_date: string
+}
+
 export interface AggregatedReview {
   rating: number
   source: string
@@ -53,6 +61,7 @@ export async function aggregatePropertyReviews(
       .in('source', ALLOWED_SOURCES)
       .limit(5)
       .order('review_date', { ascending: false })
+      .returns<ReviewRow[]>()
 
     if (error) {
       console.error(`Error fetching reviews for property ${propertyId}:`, error)
