@@ -21,7 +21,7 @@ export async function PATCH(request: NextRequest) {
   }
 
   if (plan && typeof plan === 'string') {
-    const validPlans = ['starter', 'professional', 'business']
+    const validPlans = ['essencial', 'expansao', 'pro', 'enterprise', 'starter', 'growth', 'professional', 'business']
     if (!validPlans.includes(plan)) {
       return NextResponse.json({ error: 'Plano inválido' }, { status: 400 })
     }

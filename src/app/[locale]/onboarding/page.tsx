@@ -17,7 +17,7 @@ export default function OnboardingPage() {
   const router = useRouter()
   const [step, setStep] = useState(0)
   const [orgName, setOrgName] = useState('')
-  const [selectedPlan, setSelectedPlan] = useState<Plan>('starter')
+  const [selectedPlan, setSelectedPlan] = useState<Plan>('essencial')
   const [propertyId, setPropertyId] = useState<string | undefined>()
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
 

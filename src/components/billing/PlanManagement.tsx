@@ -10,12 +10,16 @@ interface PlanManagementProps {
 }
 
 const PLAN_LABELS: Record<Plan, string> = {
-  starter:      'Starter',
-  growth:       'Growth',
-  pro:          'Pro',
+  essencial:    'Essencial',
+  expansao:     'Expansão',
+  premium:      'Premium',
   enterprise:   'Enterprise',
-  professional: 'Professional',
-  business:     'Business',
+  // Legacy aliases
+  starter:      'Essencial',
+  growth:       'Expansão',
+  professional: 'Expansão',
+  business:     'Premium',
+  pro:          'Premium',
 }
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
@@ -69,7 +73,7 @@ export function PlanManagement({ currentPlan, subscriptionStatus }: PlanManageme
     }
   }
 
-  const planOrder: Plan[] = ['starter', 'professional', 'business']
+  const planOrder: Plan[] = ['essencial', 'expansao', 'premium']
   const currentIndex = planOrder.indexOf(currentPlan)
 
   return (

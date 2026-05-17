@@ -253,7 +253,7 @@ export async function POST(request: NextRequest) {
   console.log('[Bookings API] Organization found, plan:', org.plan)
 
   // Calculate commission based on subscription plan
-  const commissionCalc = calculateCommission(totalAmount, (org.plan || 'starter') as PlanType)
+  const commissionCalc = calculateCommission(totalAmount, (org.plan || 'essencial') as PlanType)
   const commissionAmount = commissionCalc.commissionAmount
   const commissionRate = commissionCalc.commissionRate
   const commissionCalculatedAt = new Date().toISOString()

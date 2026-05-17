@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { plan } = body
 
-    const validPlans = ['starter', 'growth', 'pro', 'professional', 'business']
+    const validPlans = ['essencial', 'expansao', 'premium', 'enterprise', 'starter', 'growth', 'professional', 'business', 'pro']
     if (!plan || !validPlans.includes(plan)) {
       return NextResponse.json(
         { error: 'Plano inválido' },
@@ -73,11 +73,19 @@ export async function POST(request: NextRequest) {
     let planCurrency: 'eur' | 'brl' | 'usd' = 'eur'
     const basePriceId = baseItem?.price?.id ?? ''
     const brlPrices = [
+      process.env.STRIPE_PRICE_ID_ESSENCIAL_BRL,
+      process.env.STRIPE_PRICE_ID_EXPANSAO_BRL,
+      process.env.STRIPE_PRICE_ID_PREMIUM_BRL,
+      // Legacy
       process.env.STRIPE_PRICE_ID_STARTER_BRL,
       process.env.STRIPE_PRICE_ID_GROWTH_BRL,
       process.env.STRIPE_PRICE_ID_PRO_BRL,
     ]
     const usdPrices = [
+      process.env.STRIPE_PRICE_ID_ESSENCIAL_USD,
+      process.env.STRIPE_PRICE_ID_EXPANSAO_USD,
+      process.env.STRIPE_PRICE_ID_PREMIUM_USD,
+      // Legacy
       process.env.STRIPE_PRICE_ID_STARTER_USD,
       process.env.STRIPE_PRICE_ID_GROWTH_USD,
       process.env.STRIPE_PRICE_ID_PRO_USD,
@@ -94,7 +102,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Build subscription update: swap base item price, handle metered items
-    const METERED_PLANS = ['growth', 'pro']
+    const METERED_PLANS = ['expansao', 'premium', 'growth', 'pro']
     const itemUpdates: Stripe.SubscriptionUpdateParams.Item[] = []
 
     // Update base price

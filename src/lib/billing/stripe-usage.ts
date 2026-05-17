@@ -7,8 +7,8 @@ function getStripe() {
 }
 
 // Returns the Stripe metered price ID for a given plan + currency.
-// Growth: €1 per booking (usage = 1 per booking)
-// Pro:    1% of revenue (usage = revenue_in_euros; price unit = €0.01)
+// Expansao: €1 per booking (usage = 1 per booking)
+// Premium:    1% of revenue (usage = revenue_in_euros; price unit = €0.01)
 export function getMeteredPriceId(plan: string, currency: 'eur' | 'brl' | 'usd' = 'eur'): string | null {
   const key = `STRIPE_PRICE_ID_${plan.toUpperCase()}_METERED_${currency.toUpperCase()}`
   return (process.env[key] ?? '').trim() || null
@@ -38,21 +38,21 @@ async function getOrgBillingInfo(orgId: string): Promise<OrgBillingInfo | null> 
   if (!data) return null
 
   return {
-    plan: data.subscription_plan ?? 'starter',
+    plan: data.subscription_plan ?? 'essencial',
     stripeCustomerId: data.stripe_customer_id ?? null,
     stripeSubscriptionItemId: data.stripe_subscription_item_id ?? null,
     billingUnitCount: data.billing_unit_count ?? 1,
   }
 }
 
-// Report one booking fee for Growth plan (€1 per booking via Stripe Billing Meter).
-// No-op for starter/enterprise/pro.
+// Report one booking fee for Expansao plan (€1 per booking via Stripe Billing Meter).
+// No-op for essencial/enterprise/premium.
 export async function reportBookingFee(orgId: string): Promise<void> {
-  const eventName = process.env.STRIPE_METER_EVENT_GROWTH
+  const eventName = process.env.STRIPE_METER_EVENT_EXPANSAO
   if (!eventName) return
 
   const billing = await getOrgBillingInfo(orgId)
-  if (!billing || billing.plan !== 'growth') return
+  if (!billing || (billing.plan !== 'expansao' && billing.plan !== 'growth')) return
   if (!billing.stripeCustomerId) return
 
   try {
@@ -70,14 +70,14 @@ export async function reportBookingFee(orgId: string): Promise<void> {
   }
 }
 
-// Report revenue for Pro plan (1% of revenue via Stripe Billing Meter).
+// Report revenue for Premium plan (1% of revenue via Stripe Billing Meter).
 // Meter price should be configured at €0.01/unit → reporting revenue_in_euros gives 1%.
 export async function reportRevenueFee(orgId: string, revenueAmount: number): Promise<void> {
-  const eventName = process.env.STRIPE_METER_EVENT_PRO
+  const eventName = process.env.STRIPE_METER_EVENT_PREMIUM
   if (!eventName) return
 
   const billing = await getOrgBillingInfo(orgId)
-  if (!billing || billing.plan !== 'pro') return
+  if (!billing || (billing.plan !== 'premium' && billing.plan !== 'pro')) return
   if (!billing.stripeCustomerId) return
   if (revenueAmount <= 0) return
 

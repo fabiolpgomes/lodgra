@@ -28,7 +28,7 @@ export async function GET() {
       .single()
 
     const currentRate = org?.plan
-      ? { starter: 0.2, professional: 0.15, business: 0.1 }[org.plan as string] ?? 0.15
+      ? { essencial: 0.2, expansao: 0.15, premium: 0.1, starter: 0.2, professional: 0.15, business: 0.1, growth: 0.15, pro: 0.1 }[org.plan as string] ?? 0.15
       : 0.15
 
     // Current month

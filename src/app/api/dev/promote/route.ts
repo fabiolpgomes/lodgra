@@ -24,10 +24,10 @@ export async function GET(request: Request) {
     // Se não houver organização, vamos tentar ver se existe no seed
     orgId = '00000000-0000-0000-0000-00000000e2e1'
     // Tenta criar essa org se ela não existir
-    await supabase.from('organizations').upsert({ 
-      id: orgId, 
+    await supabase.from('organizations').upsert({
+      id: orgId,
       name: 'Lodgra Test Org',
-      plan: 'professional',
+      plan: 'expansao',
       currency: 'EUR'
     })
   }

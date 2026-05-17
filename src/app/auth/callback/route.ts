@@ -92,7 +92,7 @@ export async function GET(request: Request) {
                 name: user.user_metadata?.full_name || user.email || 'New Organization',
                 slug: orgSlug,
                 subscription_status: 'trial',
-                plan: 'starter',
+                plan: 'essencial',
               })
               .select('id')
               .single()

@@ -29,7 +29,7 @@ export default async function AccountPage() {
     guest: 'Convidado',
   }[role as 'admin' | 'gestor' | 'viewer' | 'guest']
 
-  let orgPlan: Plan = 'starter'
+  let orgPlan: Plan = 'essencial'
   let orgStatus = 'active'
   if (role === 'admin' && auth.organizationId) {
     const { data: org } = await adminClient
@@ -38,7 +38,7 @@ export default async function AccountPage() {
       .eq('id', auth.organizationId)
       .single()
     if (org) {
-      orgPlan = (org.subscription_plan as Plan) ?? 'starter'
+      orgPlan = (org.subscription_plan as Plan) ?? 'essencial'
       orgStatus = org.subscription_status ?? 'active'
     }
   }

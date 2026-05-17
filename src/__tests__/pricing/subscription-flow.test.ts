@@ -17,82 +17,82 @@ describe('Subscription Flow', () => {
   describe('Plan Definitions', () => {
     it('should define all four plan tiers', () => {
       expect(PLAN_DISPLAY).toHaveLength(4)
-      expect(PLAN_DISPLAY.map(p => p.id)).toEqual(['starter', 'growth', 'pro', 'enterprise'])
+      expect(PLAN_DISPLAY.map(p => p.id)).toEqual(['essencial', 'expansao', 'premium', 'enterprise'])
     })
 
     it('should have correct property limits', () => {
       // All plans support unlimited properties
-      expect(PLAN_LIMITS.starter.maxProperties).toBeNull()
-      expect(PLAN_LIMITS.growth.maxProperties).toBeNull()
-      expect(PLAN_LIMITS.pro.maxProperties).toBeNull()
+      expect(PLAN_LIMITS.essencial.maxProperties).toBeNull()
+      expect(PLAN_LIMITS.expansao.maxProperties).toBeNull()
+      expect(PLAN_LIMITS.premium.maxProperties).toBeNull()
       expect(PLAN_LIMITS.enterprise.maxProperties).toBeNull()
     })
 
-    it('should restrict ownerReports to growth+', () => {
-      expect(PLAN_LIMITS.starter.ownerReports).toBe(false)
-      expect(PLAN_LIMITS.growth.ownerReports).toBe(true)
-      expect(PLAN_LIMITS.pro.ownerReports).toBe(true)
+    it('should restrict ownerReports to expansao+', () => {
+      expect(PLAN_LIMITS.essencial.ownerReports).toBe(false)
+      expect(PLAN_LIMITS.expansao.ownerReports).toBe(true)
+      expect(PLAN_LIMITS.premium.ownerReports).toBe(true)
       expect(PLAN_LIMITS.enterprise.ownerReports).toBe(true)
     })
 
-    it('should restrict fiscalCompliance to growth+', () => {
-      expect(PLAN_LIMITS.starter.fiscalCompliance).toBe(false)
-      expect(PLAN_LIMITS.growth.fiscalCompliance).toBe(true)
-      expect(PLAN_LIMITS.pro.fiscalCompliance).toBe(true)
+    it('should restrict fiscalCompliance to expansao+', () => {
+      expect(PLAN_LIMITS.essencial.fiscalCompliance).toBe(false)
+      expect(PLAN_LIMITS.expansao.fiscalCompliance).toBe(true)
+      expect(PLAN_LIMITS.premium.fiscalCompliance).toBe(true)
       expect(PLAN_LIMITS.enterprise.fiscalCompliance).toBe(true)
     })
   })
 
   describe('Feature Enforcement', () => {
     it('should return correct limits for each plan', () => {
-      const starterLimits = getPlanLimits('starter')
-      expect(starterLimits.maxProperties).toBeNull()
-      expect(starterLimits.ownerReports).toBe(false)
-      expect(starterLimits.fiscalCompliance).toBe(false)
+      const essencialLimits = getPlanLimits('essencial')
+      expect(essencialLimits.maxProperties).toBeNull()
+      expect(essencialLimits.ownerReports).toBe(false)
+      expect(essencialLimits.fiscalCompliance).toBe(false)
 
-      const growthLimits = getPlanLimits('growth')
-      expect(growthLimits.maxProperties).toBeNull()
-      expect(growthLimits.ownerReports).toBe(true)
-      expect(growthLimits.fiscalCompliance).toBe(true)
+      const expansaoLimits = getPlanLimits('expansao')
+      expect(expansaoLimits.maxProperties).toBeNull()
+      expect(expansaoLimits.ownerReports).toBe(true)
+      expect(expansaoLimits.fiscalCompliance).toBe(true)
 
-      const proLimits = getPlanLimits('pro')
-      expect(proLimits.maxProperties).toBeNull()
-      expect(proLimits.ownerReports).toBe(true)
-      expect(proLimits.fiscalCompliance).toBe(true)
+      const premiumLimits = getPlanLimits('premium')
+      expect(premiumLimits.maxProperties).toBeNull()
+      expect(premiumLimits.ownerReports).toBe(true)
+      expect(premiumLimits.fiscalCompliance).toBe(true)
     })
 
-    it('should return starter limits for unknown plan', () => {
+    it('should return essencial limits for unknown plan', () => {
       const limits = getPlanLimits('unknown')
-      expect(limits).toEqual(PLAN_LIMITS.starter)
+      expect(limits).toEqual(PLAN_LIMITS.essencial)
     })
 
     it('should handle null plan gracefully', () => {
       const limits = getPlanLimits(null)
-      expect(limits).toEqual(PLAN_LIMITS.starter)
+      expect(limits).toEqual(PLAN_LIMITS.essencial)
     })
   })
 
   describe('Price ID to Plan Mapping', () => {
     it('should map Stripe price IDs to plans', () => {
-      // getPlanFromPriceId should return starter as default if price doesn't match
+      // getPlanFromPriceId should return essencial as default if price doesn't match
       const plan = getPlanFromPriceId('price_1234567890')
-      expect(['starter', 'professional', 'business', 'growth', 'pro', 'enterprise']).toContain(plan)
+      expect(['essencial', 'expansao', 'premium', 'enterprise']).toContain(plan)
     })
   })
 
   describe('Pricing Display', () => {
     it('should display correct pricing information', () => {
-      const starter = PLAN_DISPLAY.find(p => p.id === 'starter')
-      expect(starter?.price).toBe(9)
-      expect(starter?.highlighted).toBe(false)
+      const essencial = PLAN_DISPLAY.find(p => p.id === 'essencial')
+      expect(essencial?.price).toBe(59)
+      expect(essencial?.highlighted).toBe(false)
 
-      const growth = PLAN_DISPLAY.find(p => p.id === 'growth')
-      expect(growth?.price).toBe(14)
-      expect(growth?.highlighted).toBe(true) // Most popular
+      const expansao = PLAN_DISPLAY.find(p => p.id === 'expansao')
+      expect(expansao?.price).toBe(89)
+      expect(expansao?.highlighted).toBe(true) // Most popular
 
-      const pro = PLAN_DISPLAY.find(p => p.id === 'pro')
-      expect(pro?.price).toBe(19)
-      expect(pro?.highlighted).toBe(false)
+      const premium = PLAN_DISPLAY.find(p => p.id === 'premium')
+      expect(premium?.price).toBe(130)
+      expect(premium?.highlighted).toBe(false)
     })
 
     it('should have features listed for each plan', () => {
@@ -105,30 +105,30 @@ describe('Subscription Flow', () => {
   })
 
   describe('Plan Progression', () => {
-    it('should allow upgrade from starter to growth', () => {
-      const starterLimits = getPlanLimits('starter')
-      const growthLimits = getPlanLimits('growth')
+    it('should allow upgrade from essencial to expansao', () => {
+      const essencialLimits = getPlanLimits('essencial')
+      const expansaoLimits = getPlanLimits('expansao')
 
-      // Growth unlocks owner reports and fiscal compliance
-      expect(growthLimits.ownerReports && !starterLimits.ownerReports).toBe(true)
-      expect(growthLimits.fiscalCompliance && !starterLimits.fiscalCompliance).toBe(true)
+      // Expansao unlocks owner reports and fiscal compliance
+      expect(expansaoLimits.ownerReports && !essencialLimits.ownerReports).toBe(true)
+      expect(expansaoLimits.fiscalCompliance && !essencialLimits.fiscalCompliance).toBe(true)
     })
 
-    it('should allow upgrade from growth to pro', () => {
-      const growthLimits = getPlanLimits('growth')
-      const proLimits = getPlanLimits('pro')
+    it('should allow upgrade from expansao to premium', () => {
+      const expansaoLimits = getPlanLimits('expansao')
+      const premiumLimits = getPlanLimits('premium')
 
       // Both have unlimited properties and full features
-      expect(proLimits.maxProperties).toBeNull()
-      expect(growthLimits.maxProperties).toBeNull()
-      expect(proLimits.ownerReports).toBe(true)
+      expect(premiumLimits.maxProperties).toBeNull()
+      expect(expansaoLimits.maxProperties).toBeNull()
+      expect(premiumLimits.ownerReports).toBe(true)
     })
 
-    it('should not allow downgrading beyond starter', () => {
-      const starterLimits = getPlanLimits('starter')
-      // Starter is the baseline with limited features
-      expect(starterLimits.ownerReports).toBe(false)
-      expect(starterLimits.fiscalCompliance).toBe(false)
+    it('should not allow downgrading beyond essencial', () => {
+      const essencialLimits = getPlanLimits('essencial')
+      // Essencial is the baseline with limited features
+      expect(essencialLimits.ownerReports).toBe(false)
+      expect(essencialLimits.fiscalCompliance).toBe(false)
     })
   })
 
@@ -136,7 +136,7 @@ describe('Subscription Flow', () => {
     it('should support multiple currencies for each plan', () => {
       // BRL, EUR, USD should all be supported
       const currencies = ['brl', 'eur', 'usd']
-      const plans = ['starter', 'growth', 'pro', 'enterprise']
+      const plans = ['essencial', 'expansao', 'premium', 'enterprise']
 
       expect(PLAN_DISPLAY.length).toBe(plans.length)
       currencies.forEach(curr => {

@@ -254,7 +254,7 @@ async function handleSubscriptionUpdated(supabase: AdminClient, subscription: St
   // Identify base item and metered item by usage_type
   let baseItemId: string | null = null
   let meteredItemId: string | null = null
-  let plan = 'starter'
+  let plan = 'essencial'
 
   for (const item of subscription.items.data) {
     const price = item.price as Stripe.Price

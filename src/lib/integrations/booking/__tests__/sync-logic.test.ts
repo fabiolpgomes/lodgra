@@ -154,9 +154,9 @@ describe('Booking Sync Business Logic', () => {
       expect(result.commissionRate).toBe(0.15)
     })
 
-    it('should calculate commission for pro plan (10%)', () => {
+    it('should calculate commission for premium plan (10%)', () => {
       const amount = 500.0
-      const plan = 'pro'
+      const plan = 'premium'
       const result = mockCalculateCommission(amount, plan)
 
       expect(result.commissionAmount).toBe(50.0) // 500 * 0.10

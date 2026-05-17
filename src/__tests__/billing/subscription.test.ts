@@ -12,16 +12,17 @@ describe('Billing - Subscription Tests', () => {
     it('should validate plan IDs correctly', () => {
       const getPlanId = (plan: string): string | null => {
         const planIds: Record<string, string> = {
-          starter: 'price_test_starter_59brl',
-          professional: 'price_test_professional_89brl',
+          essencial: 'price_test_essencial_59brl',
+          expansao: 'price_test_expansao_89brl',
+          premium: 'price_test_premium_130brl',
           enterprise: 'price_test_enterprise_130brl',
         }
         return planIds[plan] || null
       }
 
-      expect(getPlanId('starter')).toBe('price_test_starter_59brl')
-      expect(getPlanId('professional')).toBe('price_test_professional_89brl')
-      expect(getPlanId('enterprise')).toBe('price_test_enterprise_130brl')
+      expect(getPlanId('essencial')).toBe('price_test_essencial_59brl')
+      expect(getPlanId('expansao')).toBe('price_test_expansao_89brl')
+      expect(getPlanId('premium')).toBe('price_test_premium_130brl')
       expect(getPlanId('invalid')).toBeNull()
     })
 
@@ -53,8 +54,8 @@ describe('Billing - Subscription Tests', () => {
 
   describe('Subscription Upgrades/Downgrades', () => {
     it('should detect plan changes correctly', () => {
-      const previousPriceId = 'price_test_starter_59brl'
-      const currentPriceId = 'price_test_professional_89brl'
+      const previousPriceId = 'price_test_essencial_59brl'
+      const currentPriceId = 'price_test_premium_130brl'
 
       const planChanged = previousPriceId !== currentPriceId
       expect(planChanged).toBe(true)
@@ -62,21 +63,21 @@ describe('Billing - Subscription Tests', () => {
 
     it('should identify upgrades vs downgrades', () => {
       const planPrices: Record<string, number> = {
-        starter: 59,
-        professional: 89,
-        enterprise: 130,
+        essencial: 59,
+        expansao: 89,
+        premium: 130,
       }
 
-      const upgrade = planPrices['professional'] > planPrices['starter']
-      const downgrade = planPrices['starter'] > planPrices['professional']
+      const upgrade = planPrices['expansao'] > planPrices['essencial']
+      const downgrade = planPrices['essencial'] > planPrices['expansao']
 
       expect(upgrade).toBe(true)
       expect(downgrade).toBe(false)
     })
 
     it('should handle same-plan updates without changes', () => {
-      const previousPriceId = 'price_test_starter_59brl'
-      const currentPriceId = 'price_test_starter_59brl'
+      const previousPriceId = 'price_test_premium_130brl'
+      const currentPriceId = 'price_test_premium_130brl'
 
       const planChanged = previousPriceId !== currentPriceId
       expect(planChanged).toBe(false)
@@ -271,13 +272,13 @@ describe('Billing - Subscription Tests', () => {
       const getPlanId = (plan: string): string | null => {
         if (!plan || typeof plan !== 'string') return null
         const planIds: Record<string, string> = {
-          starter: 'price_test_starter_59brl',
+          premium: 'price_test_premium_130brl',
         }
         return planIds[plan.toLowerCase()] || null
       }
 
       expect(getPlanId('')).toBeNull()
-      expect(getPlanId('STARTER')).toBe('price_test_starter_59brl')
+      expect(getPlanId('PREMIUM')).toBe('price_test_premium_130brl')
       expect(getPlanId(null as unknown as string)).toBeNull()
     })
 

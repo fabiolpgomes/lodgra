@@ -4,7 +4,7 @@ import { getPerUnitPriceId, getMeteredPriceId } from '@/lib/billing/stripe-usage
 
 export const dynamic = 'force-dynamic'
 
-const METERED_PLANS = ['growth', 'pro']
+const METERED_PLANS = ['growth', 'premium', 'pro', 'expansao']
 
 export async function POST(request: NextRequest) {
   const stripeKey = (process.env.STRIPE_SECRET_KEY ?? '').trim()

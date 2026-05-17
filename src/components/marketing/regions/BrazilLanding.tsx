@@ -284,7 +284,7 @@ export const BrazilLanding: React.FC = () => {
                 featured: true
               },
               {
-                name: 'Pro', price: '130', sub: 'por unidade / mes + 1% da receita',
+                name: 'Premium', price: '130', sub: 'por unidade / mes + 1% da receita',
                 description: 'Inteligência para grandes portfólios e gestão de múltiplos proprietários.',
                 features: ['Tudo do Expansão', 'Portal do Proprietário', 'Pricing Dinâmico', 'Suporte Prioritário VIP'],
                 featured: false
@@ -316,24 +316,31 @@ export const BrazilLanding: React.FC = () => {
                     </div>
                   ))}
                 </div>
-                {tier.name === 'Pro' ? (
+                {tier.name === 'Premium' ? (
                   <button
-                    disabled
-                    className="w-full bg-[#ffffff] text-[#ef4444] border border-[#ef4444]/20 rounded-none uppercase font-black text-[14px] tracking-[1.5px] px-[32px] h-[56px] flex items-center justify-center cursor-not-allowed"
-                  >
-                    Em breve
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => handleCheckout(tier.name === 'Essencial' ? 'starter' : 'growth')}
+                    onClick={() => handleCheckout('premium')}
                     disabled={checkoutLoading !== null}
                     className={`w-full rounded-none uppercase font-black text-[14px] tracking-[1.5px] px-[32px] h-[56px] flex items-center justify-center transition-all ${
-                      tier.featured 
-                        ? 'bg-[#1E3A8A] hover:bg-[#152a66] text-[#ffc000]' 
+                      tier.featured
+                        ? 'bg-[#1E3A8A] hover:bg-[#152a66] text-[#ffc000]'
                         : 'bg-transparent border-2 border-[#1E3A8A] text-[#1E3A8A] hover:bg-[#1E3A8A] hover:text-[#ffffff]'
                     } disabled:opacity-70`}
                   >
-                    {checkoutLoading === (tier.name === 'Essencial' ? 'starter' : 'growth')
+                    {checkoutLoading === 'premium'
+                      ? 'PROCESSANDO...'
+                      : `ATIVAR ${tier.name.toUpperCase()}`}
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => handleCheckout(tier.name === 'Essencial' ? 'essencial' : 'expansao')}
+                    disabled={checkoutLoading !== null}
+                    className={`w-full rounded-none uppercase font-black text-[14px] tracking-[1.5px] px-[32px] h-[56px] flex items-center justify-center transition-all ${
+                      tier.featured
+                        ? 'bg-[#1E3A8A] hover:bg-[#152a66] text-[#ffc000]'
+                        : 'bg-transparent border-2 border-[#1E3A8A] text-[#1E3A8A] hover:bg-[#1E3A8A] hover:text-[#ffffff]'
+                    } disabled:opacity-70`}
+                  >
+                    {checkoutLoading === (tier.name === 'Essencial' ? 'essencial' : 'expansao')
                       ? 'PROCESSANDO...'
                       : `ATIVAR ${tier.name.toUpperCase()}`}
                   </button>

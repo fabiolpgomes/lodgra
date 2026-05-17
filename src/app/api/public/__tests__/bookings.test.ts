@@ -77,7 +77,7 @@ jest.mock('@/lib/supabase/admin', () => ({
         }
         if (table === 'organizations') {
           return {
-            data: { id: 'org_123', plan: 'starter' },
+            data: { id: 'org_123', plan: 'essencial' },
             error: null,
           }
         }
