@@ -111,9 +111,9 @@ export default function SetPasswordPage() {
       setSuccess(true)
       toast.success('Senha criada com sucesso!')
 
-      // Redirect to login after 2 seconds
+      // Redirect to subscription/pricing page after 2 seconds
       setTimeout(() => {
-        router.push('/login')
+        router.push('/subscribe')
       }, 2000)
     } catch (err) {
       console.error('Erro ao criar senha:', err)
@@ -176,10 +176,10 @@ export default function SetPasswordPage() {
               </div>
               <h2 className="text-2xl font-bold text-gray-900 mb-2">Sucesso!</h2>
               <p className="text-gray-600 mb-6">
-                Sua senha foi criada com sucesso. Você será redirecionado para o login em instantes.
+                Sua senha foi criada com sucesso. Você será redirecionado para escolher seu plano em instantes.
               </p>
-              <Button onClick={() => router.push('/login')} className="w-full">
-                Ir para Login
+              <Button onClick={() => router.push('/subscribe')} className="w-full">
+                Ir para Planos
               </Button>
             </div>
           ) : (

@@ -66,6 +66,19 @@ export async function sendNewUserWelcomeEmail(params: NewUserWelcomeParams): Pro
         <p style="margin: 16px 0 0; color: #6b7280; font-size: 12px;">
           Se você não solicitou a criação desta conta, ignore este email.
         </p>
+
+        <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #e5e7eb;">
+          <p style="margin: 0 0 12px; color: #6b7280; font-size: 12px;">
+            <strong>Precisa de ajuda?</strong>
+          </p>
+          <p style="margin: 0; color: #6b7280; font-size: 12px;">
+            Entre em contato com nossa equipa de suporte: <a href="mailto:suporte@lodgra.com" style="color: #2563eb; text-decoration: none;">suporte@lodgra.com</a>
+          </p>
+        </div>
+      </div>
+
+      <div style="background: #f3f4f6; padding: 16px; border-radius: 0 0 8px 8px; text-align: center; font-size: 12px; color: #6b7280;">
+        <p style="margin: 0;">© 2026 Lodgra. Todos os direitos reservados.</p>
       </div>
     </div>
   `
@@ -84,6 +97,13 @@ ${setPasswordUrl}
 Email da sua conta: ${params.email}
 
 Se você não solicitou a criação desta conta, ignore este email.
+
+---
+
+Precisa de ajuda?
+Entre em contato com nossa equipa de suporte: suporte@lodgra.com
+
+© 2026 Lodgra. Todos os direitos reservados.
   `.trim()
 
   try {
