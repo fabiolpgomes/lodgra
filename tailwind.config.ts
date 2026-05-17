@@ -5,6 +5,7 @@ const config: any = {
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
@@ -139,6 +140,8 @@ const config: any = {
     'h-14', 'py-3', 'pl-14',  // Input fields in login form
     'hover:bg-lodgra-blue', 'hover:bg-lodgra-gold',
     'border-lodgra-blue', 'border-lodgra-gold',
+    'hover:bg-[#ffc000]/10',  // Mobile menu hover states
+    'border-[#ffc000]', 'text-[#ffc000]', 'bg-transparent',  // Mobile menu active states
   ],
   plugins: [],
 }

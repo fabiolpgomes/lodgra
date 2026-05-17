@@ -6,6 +6,7 @@ import { ChevronDown, Settings, RefreshCw, Users, UserCog } from 'lucide-react'
 import { Logo } from '@/components/common/ui/Logo'
 import { UserMenu } from '@/components/auth/UserMenu'
 import { LocaleSelector } from '@/components/common/header/LocaleSelector'
+import { ThemeToggle } from '@/components/common/header/ThemeToggle'
 import { useAuth } from '@/hooks/useAuth'
 import { useLocale } from '@/lib/i18n/routing'
 import type { UserProfile } from '@/lib/auth/getUserAccess'
@@ -132,9 +133,10 @@ export function Header({ serverProfile }: HeaderProps) {
             </div>
           </nav>
 
-          {/* Right side: Locale Selector + User Menu */}
+          {/* Right side: Locale Selector + Theme Toggle + User Menu */}
           <div className="flex items-center gap-2 md:gap-4">
             <LocaleSelector />
+            <ThemeToggle />
             <UserMenu />
           </div>
         </div>

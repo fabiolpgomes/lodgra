@@ -96,7 +96,7 @@ export function BottomNav() {
                 key={href}
                 href={href}
                 className={`flex flex-1 flex-col items-center justify-center gap-1 py-3 min-h-[64px] transition-all ${
-                  active ? 'text-[#ffc000] bg-[#1E3A8A]' : 'text-[#1E3A8A]/60 hover:bg-[#1E3A8A]/5'
+                  active ? 'text-[#ffc000]' : 'text-[#1E3A8A]/60 hover:bg-[#ffc000]/10'
                 }`}
               >
                 <Icon className={`h-5 w-5 ${active ? 'stroke-[2.5]' : ''}`} />
@@ -109,7 +109,7 @@ export function BottomNav() {
           <button
             onClick={() => setMoreOpen(true)}
             className={`flex flex-1 flex-col items-center justify-center gap-1 py-3 min-h-[64px] transition-all ${
-              isMoreActive ? 'text-[#ffc000] bg-[#1E3A8A]' : 'text-[#1E3A8A]/60 hover:bg-[#1E3A8A]/5'
+              isMoreActive ? 'text-[#ffc000]' : 'text-[#1E3A8A]/60 hover:bg-[#ffc000]/10'
             }`}
           >
             <MoreHorizontal className="h-5 w-5" />
@@ -135,7 +135,7 @@ export function BottomNav() {
                     onClick={() => setMoreOpen(false)}
                     className={`flex items-center gap-3 p-4 rounded-none border transition-all ${
                       active
-                        ? 'bg-[#ffc000] border-[#ffc000] text-[#1E3A8A]'
+                        ? 'border-[#ffc000] text-[#ffc000] bg-transparent'
                         : 'border-[#1E3A8A]/10 text-[#1E3A8A] hover:bg-[#ffc000]/10'
                     }`}
                   >
@@ -159,7 +159,7 @@ export function BottomNav() {
                       onClick={() => setMoreOpen(false)}
                       className={`flex items-center gap-3 p-4 rounded-none border transition-all ${
                         active
-                          ? 'bg-[#ffc000] border-[#ffc000] text-[#1E3A8A]'
+                          ? 'border-[#ffc000] text-[#ffc000] bg-transparent'
                           : 'border-[#1E3A8A]/10 text-[#1E3A8A] hover:bg-[#ffc000]/10'
                       }`}
                     >
@@ -174,7 +174,7 @@ export function BottomNav() {
                     onClick={() => setMoreOpen(false)}
                     className={`flex items-center gap-3 p-4 rounded-none border transition-all ${
                       pathname === `${prefix}/admin/users`
-                        ? 'bg-[#ffc000] border-[#ffc000] text-[#1E3A8A]'
+                        ? 'border-[#ffc000] text-[#ffc000] bg-transparent'
                         : 'border-[#1E3A8A]/10 text-[#1E3A8A] hover:bg-[#ffc000]/10'
                     }`}
                   >
