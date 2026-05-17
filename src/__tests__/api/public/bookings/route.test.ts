@@ -3,8 +3,8 @@
  * Covers: validation, double-booking, max_guests, pricing, Stripe session creation
  */
 
+import { createTestRequest } from '@/__tests__/utils/test-request'
 import { POST } from '@/app/api/public/bookings/route'
-import { NextRequest } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { checkRateLimit } from '@/lib/rateLimit'
 import { getPriceForRangePublic } from '@/lib/pricing/getPriceForRange'
@@ -32,7 +32,7 @@ const mockGetPriceForRangePublic = getPriceForRangePublic as jest.MockedFunction
 const BASE_URL = 'http://localhost:3000'
 
 function makeRequest(body: Record<string, unknown>): NextRequest {
-  return new NextRequest(`${BASE_URL}/api/public/bookings`, {
+  return createTestRequest(`${BASE_URL}/api/public/bookings`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),

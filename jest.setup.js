@@ -91,19 +91,19 @@ afterAll(() => {
   console.error = originalError
 })
 
-// Fix NextRequest headers initialization for tests (deferred import)
-if (typeof global.NextRequest !== 'undefined') {
-  const OriginalNextRequest = global.NextRequest
-  global.NextRequest = class MockNextRequest extends OriginalNextRequest {
-    constructor(input, init) {
-      if (init && typeof init.headers === 'object' && !(init.headers instanceof Headers)) {
-        const headers = new Headers()
-        for (const [key, value] of Object.entries(init.headers)) {
-          headers.set(key, String(value))
-        }
-        init = { ...init, headers }
-      }
-      super(input, init)
-    }
+// Mock NextResponse.json() for tests
+jest.mock('next/server', () => {
+  const actual = jest.requireActual('next/server')
+  return {
+    ...actual,
+    NextResponse: {
+      ...actual.NextResponse,
+      json: jest.fn((data, init) => ({
+        status: init?.status || 200,
+        json: () => Promise.resolve(data),
+        text: () => Promise.resolve(JSON.stringify(data)),
+        headers: new Map(),
+      })),
+    },
   }
-}
+})

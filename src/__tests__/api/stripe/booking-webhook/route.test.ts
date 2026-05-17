@@ -3,6 +3,7 @@
  * Covers: signature verification, idempotency, confirmation, expiry, email dispatch
  */
 
+import { createTestRequest } from '@/__tests__/utils/test-request'
 import { POST } from '@/app/api/stripe/booking-webhook/route'
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
@@ -33,7 +34,7 @@ const BASE_URL = 'http://localhost:3000'
 function makeWebhookRequest(body = '{}', sig = 'valid-sig'): NextRequest {
   const headers = new Headers()
   headers.set('stripe-signature', sig)
-  return new NextRequest(`${BASE_URL}/api/stripe/booking-webhook`, {
+  return createTestRequest(`${BASE_URL}/api/stripe/booking-webhook`, {
     method: 'POST',
     headers,
     body,
@@ -108,7 +109,7 @@ describe.skip('POST /api/stripe/booking-webhook', () => {
   // Fix: Either refactor to use mocked responses or setup proper Next.js test environment
   it.skip('returns 400 when stripe-signature header is missing', async () => {
     const headers = new Headers()
-    const req = new NextRequest(`${BASE_URL}/api/stripe/booking-webhook`, {
+    const req = createTestRequest(`${BASE_URL}/api/stripe/booking-webhook`, {
       method: 'POST',
       headers,
       body: '{}',

@@ -4,12 +4,12 @@
  */
 
 import { POST } from '@/app/api/email/send-confirmation/route'
-import { NextRequest } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import {
   sendBookingConfirmationToGuest,
   sendBookingNotificationToManager,
 } from '@/lib/email/bookingConfirmationGuest'
+import { createTestRequest } from '@/__tests__/utils/test-request'
 
 jest.mock('@/lib/supabase/admin')
 jest.mock('@/lib/email/bookingConfirmationGuest')
@@ -20,8 +20,8 @@ const mockSendManager = sendBookingNotificationToManager as jest.MockedFunction<
 
 const BASE_URL = 'http://localhost:3000'
 
-function makeConfirmationRequest(body: { reservationId?: string } = {}): NextRequest {
-  return new NextRequest(`${BASE_URL}/api/email/send-confirmation`, {
+function makeConfirmationRequest(body: { reservationId?: string } = {}) {
+  return createTestRequest(`${BASE_URL}/api/email/send-confirmation`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),

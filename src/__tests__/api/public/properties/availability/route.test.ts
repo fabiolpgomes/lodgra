@@ -3,8 +3,8 @@
  * Covers: validation, property not found, blocked dates, past dates, rate limit
  */
 
+import { createTestRequest } from '@/__tests__/utils/test-request'
 import { GET } from '@/app/api/public/properties/[slug]/availability/route'
-import { NextRequest } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { checkRateLimit } from '@/lib/rateLimit'
 
@@ -19,7 +19,7 @@ const BASE_URL = 'http://localhost:3000'
 function makeRequest(slug: string, params: Record<string, string> = {}): NextRequest {
   const qs = new URLSearchParams(params).toString()
   const url = `${BASE_URL}/api/public/properties/${slug}/availability${qs ? `?${qs}` : ''}`
-  return new NextRequest(url)
+  return createTestRequest(url)
 }
 
 const mockProperty = {

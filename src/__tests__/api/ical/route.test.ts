@@ -3,8 +3,8 @@
  * Tests iCal export endpoint with token validation
  */
 
+import { createTestRequest } from '@/__tests__/utils/test-request'
 import { GET } from '@/app/api/ical/[propertyId]/route'
-import { NextRequest } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { generateICalFromReservations } from '@/lib/ical/icalService'
 
@@ -54,7 +54,7 @@ describe('GET /api/ical/[propertyId]', () => {
     mockGenerateICalFromReservations.mockReturnValue(expectedICalData)
 
     // Create request
-    const request = new NextRequest(`${baseUrl}/api/ical/${propertyId}?token=${validToken}`)
+    const request = createTestRequest(`${baseUrl}/api/ical/${propertyId}?token=${validToken}`)
 
     // Execute
     const response = await GET(request, { params: Promise.resolve({ propertyId }) })
@@ -83,7 +83,7 @@ describe('GET /api/ical/[propertyId]', () => {
       }),
     })
 
-    const request = new NextRequest(`${baseUrl}/api/ical/${propertyId}?token=wrong-token`)
+    const request = createTestRequest(`${baseUrl}/api/ical/${propertyId}?token=wrong-token`)
     const response = await GET(request, { params: Promise.resolve({ propertyId }) })
 
     expect(response.status).toBe(401)
@@ -109,7 +109,7 @@ describe('GET /api/ical/[propertyId]', () => {
       }),
     })
 
-    const request = new NextRequest(`${baseUrl}/api/ical/${propertyId}`)
+    const request = createTestRequest(`${baseUrl}/api/ical/${propertyId}`)
     const response = await GET(request, { params: Promise.resolve({ propertyId }) })
 
     expect(response.status).toBe(401)
@@ -130,7 +130,7 @@ describe('GET /api/ical/[propertyId]', () => {
       }),
     })
 
-    const request = new NextRequest(`${baseUrl}/api/ical/${propertyId}?token=${validToken}`)
+    const request = createTestRequest(`${baseUrl}/api/ical/${propertyId}?token=${validToken}`)
     const response = await GET(request, { params: Promise.resolve({ propertyId }) })
 
     expect(response.status).toBe(404)
@@ -176,7 +176,7 @@ describe('GET /api/ical/[propertyId]', () => {
 
     mockGenerateICalFromReservations.mockReturnValue(emptyICalData)
 
-    const request = new NextRequest(`${baseUrl}/api/ical/${propertyId}?token=${validToken}`)
+    const request = createTestRequest(`${baseUrl}/api/ical/${propertyId}?token=${validToken}`)
     const response = await GET(request, { params: Promise.resolve({ propertyId }) })
 
     expect(response.status).toBe(200)
@@ -233,7 +233,7 @@ describe('GET /api/ical/[propertyId]', () => {
       return undefined
     })
 
-    const request = new NextRequest(`${baseUrl}/api/ical/${propertyId}?token=${validToken}`)
+    const request = createTestRequest(`${baseUrl}/api/ical/${propertyId}?token=${validToken}`)
     const response = await GET(request, { params: Promise.resolve({ propertyId }) })
 
     expect(response.status).toBe(500)
@@ -314,7 +314,7 @@ describe('GET /api/ical/[propertyId]', () => {
 
     mockGenerateICalFromReservations.mockReturnValue(expectedICalData)
 
-    const request = new NextRequest(`${baseUrl}/api/ical/${propertyId}?token=${validToken}`)
+    const request = createTestRequest(`${baseUrl}/api/ical/${propertyId}?token=${validToken}`)
     const response = await GET(request, { params: Promise.resolve({ propertyId }) })
 
     expect(response.status).toBe(200)
@@ -352,7 +352,7 @@ describe('GET /api/ical/[propertyId]', () => {
 
     mockGenerateICalFromReservations.mockReturnValue('BEGIN:VCALENDAR\nEND:VCALENDAR')
 
-    const request = new NextRequest(`${baseUrl}/api/ical/${propertyId}?token=${validToken}`)
+    const request = createTestRequest(`${baseUrl}/api/ical/${propertyId}?token=${validToken}`)
     const response = await GET(request, { params: Promise.resolve({ propertyId }) })
 
     const disposition = response.headers.get('Content-Disposition')
