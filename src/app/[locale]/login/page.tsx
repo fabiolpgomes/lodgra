@@ -109,7 +109,7 @@ export default function LoginPage() {
                   id="password"
                   name="password"
                   required
-                  className="pl-12 pr-10"
+                  className="pl-12 pr-12"
                   placeholder={t('placeholders.enterPassword')}
                 />
                 <button
