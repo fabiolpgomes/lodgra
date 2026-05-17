@@ -91,7 +91,7 @@ export default function LoginPage() {
                   id="email"
                   name="email"
                   required
-                  className="pl-14"
+                  className="pl-14 py-3 h-14"
                   placeholder={t('placeholders.enterEmail')}
                 />
               </div>
@@ -109,7 +109,7 @@ export default function LoginPage() {
                   id="password"
                   name="password"
                   required
-                  className="pl-14 pr-12"
+                  className="pl-14 pr-12 py-3 h-14"
                   placeholder={t('placeholders.enterPassword')}
                 />
                 <button
