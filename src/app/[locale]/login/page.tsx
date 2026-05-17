@@ -85,13 +85,13 @@ export default function LoginPage() {
                 {t('labels.email')}
               </Label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
+                <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
                 <Input
                   type="email"
                   id="email"
                   name="email"
                   required
-                  className="pl-12"
+                  className="pl-14"
                   placeholder={t('placeholders.enterEmail')}
                 />
               </div>
@@ -103,13 +103,13 @@ export default function LoginPage() {
                 {t('labels.password')}
               </Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
+                <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
                 <Input
                   type={showPassword ? 'text' : 'password'}
                   id="password"
                   name="password"
                   required
-                  className="pl-12 pr-12"
+                  className="pl-14 pr-12"
                   placeholder={t('placeholders.enterPassword')}
                 />
                 <button
