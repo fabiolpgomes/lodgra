@@ -3,6 +3,11 @@
 // Story 12.4: Enhanced payment error monitoring and webhook tracking
 
 import * as Sentry from "@sentry/nextjs";
+import {
+  httpIntegration,
+  onUncaughtExceptionIntegration,
+  onUnhandledRejectionIntegration,
+} from "@sentry/nextjs";
 
 const environment = process.env.NODE_ENV || "development";
 const isDevelopment = environment === "development";
@@ -23,11 +28,11 @@ Sentry.init({
   // Do NOT send PII (emails, IPs, tokens) — RGPD/LGPD compliance
   sendDefaultPii: false,
 
-  // Integrations for payment tracking
+  // Integrations for payment tracking (v10.x API)
   integrations: [
-    new Sentry.Integrations.Http({ tracing: true }),
-    new Sentry.Integrations.OnUncaughtException(),
-    new Sentry.Integrations.OnUnhandledRejection(),
+    httpIntegration(),
+    onUncaughtExceptionIntegration(),
+    onUnhandledRejectionIntegration(),
   ],
 
   // Filter expected errors and strip sensitive headers
