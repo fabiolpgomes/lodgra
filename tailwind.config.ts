@@ -135,6 +135,8 @@ const config: any = {
   safelist: [
     'bg-lodgra-blue', 'bg-lodgra-gold', 'bg-lodgra-green', 'bg-lodgra-gray', 'bg-lodgra-dark',
     'text-lodgra-blue', 'text-lodgra-gold', 'text-lodgra-dark',
+    'text-white', 'shadow-none',  // Button component primary variant
+    'h-14', 'py-3', 'pl-14',  // Input fields in login form
     'hover:bg-lodgra-blue', 'hover:bg-lodgra-gold',
     'border-lodgra-blue', 'border-lodgra-gold',
   ],

@@ -328,7 +328,7 @@ async function runValidation() {
 
     if (ptIssues.length === 0) {
       success('✓ Portuguese (PT) amenity mapping is correct')
-      if (VERBOSE && ptSchema.amenityFeature) {
+      if (VERBOSE && ptSchema.amenityFeature && Array.isArray(ptSchema.amenityFeature)) {
         log('  Mapped amenities:')
         ptSchema.amenityFeature.forEach((a: any) => log(`    - ${a.name}`))
       }
