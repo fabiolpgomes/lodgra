@@ -112,18 +112,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 #### Stripe Billing — 3-Market Setup (EUR / BRL / USD)
 
-- `src/lib/billing/plans.ts` — Extended with 15 Stripe Price IDs (Starter/Growth/Pro × EUR/BRL/USD × per-unit + metered)
+- `src/lib/billing/plans.ts` — Extended with 15 Stripe Price IDs (Essencial/Expansao/Premium × EUR/BRL/USD × per-unit + metered)
 - `.env.local` / Vercel env vars — All 15 Price IDs configured:
-  - Starter: EUR `price_1TRrfE2cJshbnOoQyyf0WpTM`, BRL `price_1TRrZz2cJshbnOoQRp2gjkpi`, USD `price_1TRrec2cJshbnOoQuK1jUJOV`
-  - Growth per-unit: EUR, BRL, USD (3 IDs)
-  - Growth metered (`booking_fee`): EUR, BRL, USD (3 IDs)
-  - Pro per-unit: EUR, BRL, USD (3 IDs)
-  - Pro metered (`revenue_fee`): EUR, BRL, USD (3 IDs)
-- 2 Stripe Billing Meters configured: `booking_fee` (Growth — R$5/reserva) and `revenue_fee` (Pro — 1% receita)
+  - Essencial: EUR `price_1TRrfE2cJshbnOoQyyf0WpTM`, BRL `price_1TRrZz2cJshbnOoQRp2gjkpi`, USD `price_1TRrec2cJshbnOoQuK1jUJOV`
+  - Expansao per-unit: EUR, BRL, USD (3 IDs)
+  - Expansao metered (`booking_fee`): EUR, BRL, USD (3 IDs)
+  - Premium per-unit: EUR, BRL, USD (3 IDs)
+  - Premium metered (`revenue_fee`): EUR, BRL, USD (3 IDs)
+- 2 Stripe Billing Meters configured: `booking_fee` (Expansao — R$5/reserva) and `revenue_fee` (Premium — 1% receita)
 - `STRIPE_WEBHOOK_SECRET` configured in both staging and production environments
 - Billing model: per-unit licensed subscription + metered usage hybrid
-  - Growth: R$89/mês (base) + R$5/reserva via booking_fee meter
-  - Pro: R$130/mês (base) + 1% receita via revenue_fee meter
+  - Expansao: R$89/mês (base) + R$5/reserva via booking_fee meter
+  - Premium: R$130/mês (base) + 1% receita via revenue_fee meter
 
 #### Supabase Migrations — Billing Columns
 
@@ -271,9 +271,9 @@ Funcionalidades e bug fixes sincronizados do repositório Home Stay:
 - **ThemeToggle:** Copiado para `src/components/common/header/ThemeToggle.tsx`
 - **SocialProof:** Novo organismo com stats, logos, testemunhos e trust badges
   - `src/components/landing/organisms/SocialProof.tsx`
-- **Pricing real:** Locales actualizados com planos Stripe reais (Starter/Professional/Business)
-  - EUR: €19 / €49 / €99
-  - BRL: R$29 / R$99 / R$199
+- **Pricing real:** Locales actualizados com planos Stripe reais (Essencial/Expansao/Premium)
+  - EUR: €9/ €14 / €19
+  - BRL: R$59 / R$89 / R$130
 - **CTAs corrigidos:** Redirecionam para `/register` (não `/signup`)
 - **Locale switcher:** Redirecciona para `/?locale=` (root page)
 - **Locales actualizados:** `pt-BR`, `en-US`, `es` — todos com `socialProof` + pricing corrigido

@@ -4,8 +4,7 @@ import { verifyStripeSignature } from '@/lib/stripe/verify-webhook'
 import { handleSubscriptionEvent } from '@/lib/stripe/webhooks/subscription'
 import { handleInvoiceEvent } from '@/lib/stripe/webhooks/invoice'
 import { getClientIp, checkWebhookRateLimit } from '@/lib/middleware/rate-limit'
-
-const STRIPE_BR_WEBHOOK_SECRET = process.env.STRIPE_BR_WEBHOOK_SECRET || ''
+import { webhookSecret } from '@/lib/stripe/client'
 
 export async function POST(request: NextRequest) {
   // Story 12.4: Apply rate limiting (10 req/min per IP)
@@ -36,7 +35,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const isValid = verifyStripeSignature(body, signature, STRIPE_BR_WEBHOOK_SECRET)
+    const isValid = verifyStripeSignature(body, signature, webhookSecret)
     if (!isValid) {
       console.error('[webhooks/billing] Invalid signature')
       return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
