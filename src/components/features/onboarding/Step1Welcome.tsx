@@ -22,7 +22,7 @@ export function Step1Welcome({ orgName, selectedPlan, onOrgNameChange, onPlanCha
         <Logo size="lg" />
       </div>
 
-      <h1 className="text-3xl font-bold text-lodgra-blue mb-2" style={{ fontFamily: 'var(--font-poppins, Poppins, sans-serif)' }}>Bem-vindo ao Lodgra!</h1>
+      <h1 className="text-3xl font-bold text-lodgra-blue mb-2" style={{ fontFamily: 'var(--font-poppins, Poppins, sans-serif)' }}>Bem-vindo à Lodgra!</h1>
       <p className="text-gray-500 mb-8 max-w-sm mx-auto">
         Configure a sua conta em 3 passos rápidos e comece a gerir os seus imóveis hoje.
       </p>

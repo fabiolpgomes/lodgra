@@ -64,7 +64,7 @@ export default function OnboardingPage() {
       // Continuar de qualquer forma (não bloquear por erro)
     }
 
-    router.push('/')
+    router.push('/dashboard')
     router.refresh()
   }
 
