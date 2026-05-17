@@ -10,8 +10,8 @@
  * 6. GET — returns 401 for unauthenticated user
  */
 
+import { createTestRequest } from '@/__tests__/utils/test-request'
 import { POST, GET } from '../route'
-import { NextRequest } from 'next/server'
 
 // Track mock state
 let mockSessionUser: { id: string } | null = null
@@ -59,7 +59,7 @@ jest.mock('@/lib/supabase/admin', () => ({
 }))
 
 function createRequest(body: Record<string, unknown>, method = 'POST'): NextRequest {
-  return new NextRequest('http://localhost:3000/api/consent', {
+  return createTestRequest('http://localhost:3000/api/consent', {
     method,
     headers: {
       'Content-Type': 'application/json',

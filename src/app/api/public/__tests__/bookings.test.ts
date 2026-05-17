@@ -8,8 +8,8 @@
  */
 
 import { POST } from '../bookings/route'
-import { NextRequest } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { createTestRequest } from '@/__tests__/utils/test-request'
 
 // Mock Supabase admin client
 jest.mock('@/lib/supabase/admin', () => ({
@@ -207,7 +207,7 @@ describe('Booking Conflict Validation', () => {
       // Override createAdminClient so the route uses our controlled mock client
       ;(createAdminClient as jest.Mock).mockReturnValue({ from: fromMock })
 
-      const mockRequest = new NextRequest('http://localhost/api/public/bookings', {
+      const mockRequest = createTestRequest('http://localhost/api/public/bookings', {
         method: 'POST',
         body: JSON.stringify({
           slug: 'test-property',
@@ -226,7 +226,7 @@ describe('Booking Conflict Validation', () => {
 
   describe('Test 2: Booking creation succeeds if no overlap', () => {
     it('should return 200 OK when no conflicting reservations', async () => {
-      const mockRequest = new NextRequest('http://localhost/api/public/bookings', {
+      const mockRequest = createTestRequest('http://localhost/api/public/bookings', {
         method: 'POST',
         body: JSON.stringify({
           slug: 'test-property',
@@ -247,7 +247,7 @@ describe('Booking Conflict Validation', () => {
 
   describe('Test 3: Idempotency — race condition simulation', () => {
     it('should handle simultaneous bookings correctly', async () => {
-      const mockRequest1 = new NextRequest('http://localhost/api/public/bookings', {
+      const mockRequest1 = createTestRequest('http://localhost/api/public/bookings', {
         method: 'POST',
         body: JSON.stringify({
           slug: 'test-property',
@@ -259,7 +259,7 @@ describe('Booking Conflict Validation', () => {
         }),
       })
 
-      const mockRequest2 = new NextRequest('http://localhost/api/public/bookings', {
+      const mockRequest2 = createTestRequest('http://localhost/api/public/bookings', {
         method: 'POST',
         body: JSON.stringify({
           slug: 'test-property',

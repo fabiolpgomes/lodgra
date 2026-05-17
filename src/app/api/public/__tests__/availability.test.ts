@@ -6,8 +6,8 @@
  * 2. Overlapping bookings are correctly detected
  */
 
+import { createTestRequest } from '@/__tests__/utils/test-request'
 import { GET } from '../properties/[slug]/availability/route'
-import { NextRequest } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
 // Mock Supabase client
@@ -144,7 +144,7 @@ describe.skip('Availability API', () => {
       })
 
       // Create mock request
-      const mockRequest = new NextRequest('http://localhost/api/public/properties/test-property/availability?year=2026&month=3', {
+      const mockRequest = createTestRequest('http://localhost/api/public/properties/test-property/availability?year=2026&month=3', {
         method: 'GET',
       })
 
@@ -162,7 +162,7 @@ describe.skip('Availability API', () => {
 
   describe('Test 2: Overlapping bookings are correctly detected', () => {
     it('should return 409 when booking overlaps with pending_payment reservation', async () => {
-      const mockRequest = new NextRequest('http://localhost/api/public/properties/test-property/availability?year=2026&month=3', {
+      const mockRequest = createTestRequest('http://localhost/api/public/properties/test-property/availability?year=2026&month=3', {
         method: 'GET',
       })
 
