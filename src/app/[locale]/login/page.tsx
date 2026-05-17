@@ -4,10 +4,9 @@ import { useState } from 'react'
 import { useRouter, useLocale } from '@/lib/i18n/routing'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
-import { Lock, Mail, Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff } from 'lucide-react'
 import { Button } from '@/components/common/ui/button'
 import { Input } from '@/components/common/ui/input'
-import { Label } from '@/components/common/ui/label'
 import { Alert, AlertDescription } from '@/components/common/ui/alert'
 import { SocialLoginButtons } from '@/components/auth/SocialLoginButtons'
 import { toast } from 'sonner'
@@ -78,53 +77,41 @@ export default function LoginPage() {
             </Alert>
           )}
 
-          <form onSubmit={handleLogin} className="space-y-6">
+          <form onSubmit={handleLogin} className="space-y-4">
             {/* Email */}
             <div>
-              <Label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                {t('labels.email')}
-              </Label>
-              <div className="relative">
-                <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
-                <Input
-                  type="email"
-                  id="email"
-                  name="email"
-                  required
-                  className="pl-14 py-3 h-14"
-                  placeholder={t('placeholders.enterEmail')}
-                />
-              </div>
+              <Input
+                type="email"
+                id="email"
+                name="email"
+                required
+                className="py-3 h-14"
+                placeholder={t('placeholders.enterEmail')}
+              />
             </div>
 
             {/* Senha */}
-            <div>
-              <Label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                {t('labels.password')}
-              </Label>
-              <div className="relative">
-                <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
-                <Input
-                  type={showPassword ? 'text' : 'password'}
-                  id="password"
-                  name="password"
-                  required
-                  className="pl-14 pr-12 py-3 h-14"
-                  placeholder={t('placeholders.enterPassword')}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors z-10"
-                  tabIndex={-1}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-5 w-5" />
-                  ) : (
-                    <Eye className="h-5 w-5" />
-                  )}
-                </button>
-              </div>
+            <div className="relative">
+              <Input
+                type={showPassword ? 'text' : 'password'}
+                id="password"
+                name="password"
+                required
+                className="pr-12 py-3 h-14"
+                placeholder={t('placeholders.enterPassword')}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors z-10"
+                tabIndex={-1}
+              >
+                {showPassword ? (
+                  <EyeOff className="h-5 w-5" />
+                ) : (
+                  <Eye className="h-5 w-5" />
+                )}
+              </button>
             </div>
 
             {/* Esqueci minha senha */}
