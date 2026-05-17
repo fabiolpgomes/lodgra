@@ -5,7 +5,6 @@
 
 import { createTestRequest } from '@/__tests__/utils/test-request'
 import { POST } from '@/app/api/stripe/booking-webhook/route'
-import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import {
   sendBookingConfirmationToGuest,
