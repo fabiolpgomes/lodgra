@@ -10,11 +10,17 @@ export async function GET(request: Request) {
   const type       = searchParams.get('type')
 
   // For OAuth: read next from cookie (set by SocialLoginButtons)
-  let next = '/'
+  let next = '/onboarding' // Default to onboarding for new users
   const cookieHeader = request.headers.get('cookie') || ''
   const authRedirectMatch = cookieHeader.match(/auth_redirect_next=([^;]+)/)
   if (authRedirectMatch) {
     next = decodeURIComponent(authRedirectMatch[1])
+  }
+
+  // Check if 'next' was explicitly provided in URL params
+  const nextParam = searchParams.get('next')
+  if (nextParam) {
+    next = nextParam
   }
 
   const supabase = await createClient()
