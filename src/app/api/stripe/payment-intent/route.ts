@@ -22,12 +22,24 @@ export async function POST(request: NextRequest) {
 
     const { data: booking } = await adminClient
       .from('bookings')
-      .select('id, organization_id, guest_id')
+      .select('id, organization_id, guest_id, property_id')
       .eq('id', booking_id)
       .single()
 
     if (!booking) {
       return NextResponse.json({ error: 'Booking not found' }, { status: 404 })
+    }
+
+    let managementPercentage = 15
+    if (booking.property_id) {
+      const { data: property } = await adminClient
+        .from('properties')
+        .select('management_percentage')
+        .eq('id', booking.property_id)
+        .single()
+      if (property?.management_percentage != null) {
+        managementPercentage = Number(property.management_percentage)
+      }
     }
 
     const { data: org } = await adminClient
@@ -44,7 +56,7 @@ export async function POST(request: NextRequest) {
     }
 
     const amountInCents = Math.round(amount_eur * 100)
-    const split = calculateSplit(amountInCents)
+    const split = calculateSplit(amountInCents, managementPercentage)
 
     if (!validateSplit(split)) {
       return NextResponse.json({ error: 'Invalid split calculation' }, { status: 500 })

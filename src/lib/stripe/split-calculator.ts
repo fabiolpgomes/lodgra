@@ -4,8 +4,8 @@ export interface SplitBreakdown {
   ownerAmount: number // Owner payout (85%) in cents
 }
 
-export function calculateSplit(totalAmountInCents: number): SplitBreakdown {
-  const lodgraCommissionPercentage = 0.15
+export function calculateSplit(totalAmountInCents: number, managementPercentage = 15): SplitBreakdown {
+  const lodgraCommissionPercentage = Math.max(0, Math.min(100, managementPercentage)) / 100
 
   const lodgraFee = Math.round(totalAmountInCents * lodgraCommissionPercentage)
   const ownerAmount = totalAmountInCents - lodgraFee
