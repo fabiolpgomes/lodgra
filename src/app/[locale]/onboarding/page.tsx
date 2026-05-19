@@ -63,6 +63,29 @@ export default function OnboardingPage() {
       const supabase = createClient()
       const { data: { user } } = await supabase.auth.getUser()
 
+      // Se já tem subscrição ativa (pagou via landing page), activar conta e ir ao dashboard
+      if (user) {
+        const { data: profile } = await supabase
+          .from('user_profiles')
+          .select('organization_id')
+          .eq('id', user.id)
+          .single()
+
+        if (profile?.organization_id) {
+          const { data: org } = await supabase
+            .from('organizations')
+            .select('subscription_status')
+            .eq('id', profile.organization_id)
+            .single()
+
+          if (org?.subscription_status === 'active' || org?.subscription_status === 'trialing') {
+            await fetch('/api/user/complete-onboarding', { method: 'POST' })
+            window.location.href = `/${locale}/dashboard`
+            return
+          }
+        }
+      }
+
       const res = await fetch('/api/stripe/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

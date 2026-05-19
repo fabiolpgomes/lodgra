@@ -85,8 +85,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ url: session.url })
   } catch (error: unknown) {
     console.error('[checkout] Erro ao criar sessão Stripe:', error)
+    // Não expor erros internos do Stripe (price IDs, chaves) ao utilizador
+    const isStripeError = error instanceof Error && (
+      error.message.includes('No such price') ||
+      error.message.includes('No such plan') ||
+      error.message.includes('Invalid API Key') ||
+      error.message.includes('sk_')
+    )
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Erro ao iniciar checkout' },
+      { error: isStripeError ? 'Plano não disponível. Contacte o suporte.' : 'Erro ao iniciar checkout' },
       { status: 500 }
     )
   }
