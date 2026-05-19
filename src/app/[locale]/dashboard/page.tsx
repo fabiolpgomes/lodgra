@@ -18,7 +18,7 @@ export default async function DashboardPage({
 
   const auth = await requireRole(['admin'])
   if (!auth.authorized) {
-    redirect(`/${locale}/calendar`)
+    redirect(`/${locale}/onboarding/pendente`)
   }
 
   const organizationId = auth.organizationId

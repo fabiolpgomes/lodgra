@@ -11,6 +11,8 @@ import { Alert, AlertDescription } from '@/components/common/ui/alert'
 interface Props {
   propertyId?: string
   onFinish: () => void
+  checkoutLoading?: boolean
+  checkoutError?: string | null
 }
 
 const PLATFORM_INSTRUCTIONS = [
@@ -31,7 +33,7 @@ const PLATFORM_INSTRUCTIONS = [
   },
 ]
 
-export function Step3ICalSetup({ propertyId, onFinish }: Props) {
+export function Step3ICalSetup({ propertyId, onFinish, checkoutLoading, checkoutError }: Props) {
   const [icalUrl, setIcalUrl] = useState('')
   const [loading, setLoading] = useState(false)
   const [saved, setSaved] = useState(false)
@@ -165,22 +167,29 @@ export function Step3ICalSetup({ propertyId, onFinish }: Props) {
           </Alert>
         )}
 
+        {checkoutError && (
+          <Alert variant="destructive">
+            <AlertDescription>{checkoutError}</AlertDescription>
+          </Alert>
+        )}
+
         <Button
           type="submit"
-          disabled={loading || !icalUrl.trim() || !propertyId}
+          disabled={loading || checkoutLoading || !icalUrl.trim() || !propertyId}
           className="w-full"
         >
-          {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-          Ligar e ir para o painel →
+          {(loading || checkoutLoading) && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+          {checkoutLoading ? 'A preparar pagamento...' : 'Ligar e ir para o checkout →'}
         </Button>
 
         <Button
           type="button"
           variant="ghost"
           onClick={onFinish}
+          disabled={checkoutLoading}
           className="w-full text-sm text-gray-400"
         >
-          Saltar — configurar mais tarde em Propriedades
+          {checkoutLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Saltar — configurar mais tarde'}
         </Button>
       </form>
     </div>

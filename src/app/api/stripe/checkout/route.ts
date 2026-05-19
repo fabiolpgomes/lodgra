@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json()
-    const { email, currency = 'eur', plan } = body
+    const { email, currency = 'eur', plan, source, locale } = body
 
     // Use request origin so success/cancel URLs always point to the correct domain
     // regardless of NEXT_PUBLIC_APP_URL env value (which may be stale in Vercel)
@@ -61,14 +61,22 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    const isOnboarding = source === 'onboarding'
+    const successUrl = isOnboarding
+      ? `${origin}/onboarding/ativado?session_id={CHECKOUT_SESSION_ID}`
+      : `${origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`
+    const cancelUrl = isOnboarding
+      ? `${origin}/${locale ?? 'pt-BR'}/onboarding/pendente`
+      : `${origin}/`
+
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
       payment_method_types: ['card'],
       line_items: lineItems,
       customer_email: email || undefined,
-      success_url: `${origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/`,
-      metadata: { source: 'landing_page', plan, currency: planCurrency },
+      success_url: successUrl,
+      cancel_url: cancelUrl,
+      metadata: { source: isOnboarding ? 'onboarding' : 'landing_page', plan, currency: planCurrency },
       subscription_data: {
         metadata: { plan, currency: planCurrency },
       },

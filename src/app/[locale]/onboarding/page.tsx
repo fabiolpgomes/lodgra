@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from '@/lib/i18n/routing'
+import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { Step1Welcome } from '@/components/features/onboarding/Step1Welcome'
 import { Step2Property } from '@/components/features/onboarding/Step2Property'
@@ -14,12 +14,15 @@ import { type Plan } from '@/lib/billing/plans'
 const STEPS = ['Bem-vindo', 'Propriedade', 'Calendário']
 
 export default function OnboardingPage() {
-  const router = useRouter()
+  const params = useParams()
+  const locale = (params?.locale as string) ?? 'pt-BR'
   const [step, setStep] = useState(0)
   const [orgName, setOrgName] = useState('')
   const [selectedPlan, setSelectedPlan] = useState<Plan>('essencial')
   const [propertyId, setPropertyId] = useState<string | undefined>()
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
+  const [checkoutLoading, setCheckoutLoading] = useState(false)
+  const [checkoutError, setCheckoutError] = useState<string | null>(null)
 
   useEffect(() => {
     const supabase = createClient()
@@ -53,19 +56,36 @@ export default function OnboardingPage() {
   }
 
   async function handleFinish() {
-    // Promover usuário para admin ao completar onboarding
+    setCheckoutLoading(true)
+    setCheckoutError(null)
+
     try {
-      await fetch('/api/user/complete-onboarding', {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+
+      const res = await fetch('/api/stripe/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          plan: selectedPlan,
+          email: user?.email,
+          source: 'onboarding',
+          locale,
+        }),
       })
-    } catch (error) {
-      console.error('Erro ao completar onboarding:', error)
-      // Continuar de qualquer forma (não bloquear por erro)
-    }
 
-    router.push('/dashboard')
-    router.refresh()
+      const data = await res.json()
+
+      if (data.url) {
+        window.location.href = data.url
+      } else {
+        setCheckoutError(data.error || 'Erro ao iniciar checkout')
+        setCheckoutLoading(false)
+      }
+    } catch {
+      setCheckoutError('Erro de ligação. Tente novamente.')
+      setCheckoutLoading(false)
+    }
   }
 
   // A verificar autenticação
@@ -176,6 +196,8 @@ export default function OnboardingPage() {
             <Step3ICalSetup
               propertyId={propertyId}
               onFinish={handleFinish}
+              checkoutLoading={checkoutLoading}
+              checkoutError={checkoutError}
             />
           )}
         </div>
