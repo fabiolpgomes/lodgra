@@ -29,37 +29,46 @@ export function Step1Welcome({ orgName, selectedPlan, onOrgNameChange, onPlanCha
 
       {/* Seleção de Plano */}
       <div className="mb-8">
-        <Label className="block text-sm font-medium text-gray-700 mb-3 text-left max-w-2xl mx-auto">
+        <Label className="block text-sm font-medium text-gray-700 mb-6 text-left max-w-4xl mx-auto">
           Escolha o seu plano
         </Label>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 max-w-3xl mx-auto mb-4 pt-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-6xl mx-auto mb-4 pt-4 px-4 md:px-0">
           {PLAN_DISPLAY.filter(p => !p.enterprise).map((plan) => (
             <button
               key={plan.id}
               onClick={() => onPlanChange(plan.id as Plan)}
-              className={`relative rounded-lg border-2 p-4 text-left transition-all ${
+              className={`relative rounded-xl border-2 p-6 text-left transition-all duration-200 transform ${
                 selectedPlan === plan.id
-                  ? 'border-lodgra-blue bg-blue-50'
-                  : 'border-gray-200 bg-white hover:border-gray-300'
-              } ${plan.highlighted ? 'ring-2 ring-blue-300 ring-offset-2' : ''}`}
+                  ? 'border-lodgra-blue bg-blue-50 scale-100 shadow-lg'
+                  : 'border-gray-200 bg-white hover:border-lodgra-blue hover:shadow-xl hover:scale-105'
+              } ${plan.highlighted ? 'ring-2 ring-lodgra-blue ring-offset-2' : ''}`}
             >
               {selectedPlan === plan.id && (
-                <div className="absolute top-2 right-2 bg-lodgra-blue text-white rounded-full p-1">
-                  <Check className="h-4 w-4" />
+                <div className="absolute top-3 right-3 bg-lodgra-blue text-white rounded-full p-1.5 shadow-md">
+                  <Check className="h-5 w-5" />
                 </div>
               )}
               {plan.highlighted && (
-                <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-lodgra-blue text-white text-[10px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap">
+                <span className="absolute -top-4 left-1/2 -translate-x-1/2 bg-lodgra-blue text-white text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap shadow-md">
                   Mais escolhido
                 </span>
               )}
-              <p className="font-semibold text-gray-900">{plan.name}</p>
-              <p className="text-xs text-gray-500 mb-2 leading-snug">{plan.description}</p>
-              <p className="text-base font-bold text-lodgra-blue">€{plan.price}</p>
-              <p className="text-[10px] text-gray-500 mb-2">/unidade/mês</p>
-              <ul className="text-xs text-gray-600 space-y-0.5">
-                {plan.features.slice(0, 2).map((f) => (
-                  <li key={f}>• {f}</li>
+              <div className="mb-4">
+                <p className="font-bold text-lg text-gray-900">{plan.name}</p>
+                <p className="text-sm text-gray-600 mt-1 leading-relaxed">{plan.description}</p>
+              </div>
+
+              <div className="mb-5 pb-5 border-b border-gray-200">
+                <p className="text-3xl font-bold text-lodgra-blue">€{plan.price}</p>
+                <p className="text-xs text-gray-500 mt-1">/unidade/mês</p>
+              </div>
+
+              <ul className="text-sm text-gray-700 space-y-2">
+                {plan.features.slice(0, 3).map((f) => (
+                  <li key={f} className="flex items-start">
+                    <span className="text-lodgra-blue mr-2 mt-0.5">✓</span>
+                    <span>{f}</span>
+                  </li>
                 ))}
               </ul>
             </button>
