@@ -1,4 +1,5 @@
 import { createAdminClient } from '@/lib/supabase/admin'
+import { createClient } from '@/lib/supabase/server'
 import { containsNormalized } from '@/lib/utils/normalize-text'
 import type { PropertyCardProps } from '@/components/common/public/properties/PropertyCard'
 
@@ -388,5 +389,56 @@ export async function GET(request: Request): Promise<Response> {
       { success: false, error: 'Internal server error' },
       { status: 500 }
     )
+  }
+}
+
+// POST /api/properties — criar imóvel (utilizador autenticado, durante onboarding ou painel)
+export async function POST(request: Request): Promise<Response> {
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) {
+      return Response.json({ error: 'Não autenticado' }, { status: 401 })
+    }
+
+    const { data: profile } = await supabase
+      .from('user_profiles')
+      .select('organization_id')
+      .eq('id', user.id)
+      .single()
+
+    if (!profile?.organization_id) {
+      return Response.json({ error: 'Organização não encontrada' }, { status: 400 })
+    }
+
+    const body = await request.json()
+    const name: string = body.name?.trim() ?? ''
+    const address: string | null = body.address?.trim() || null
+
+    if (!name) {
+      return Response.json({ error: 'Nome é obrigatório' }, { status: 400 })
+    }
+
+    const { data: property, error: dbError } = await supabase
+      .from('properties')
+      .insert({
+        name,
+        address,
+        organization_id: profile.organization_id,
+        is_active: true,
+      })
+      .select('id, name')
+      .single()
+
+    if (dbError) {
+      console.error('[POST /api/properties] DB error:', dbError)
+      return Response.json({ error: 'Erro ao criar imóvel' }, { status: 500 })
+    }
+
+    return Response.json(property, { status: 201 })
+  } catch (error) {
+    console.error('[POST /api/properties] Error:', error)
+    return Response.json({ error: 'Erro interno' }, { status: 500 })
   }
 }

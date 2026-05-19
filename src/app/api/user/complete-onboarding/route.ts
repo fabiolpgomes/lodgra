@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
-import { createClient } from '@/lib/supabase/client'
+import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { invalidateCachedProfile } from '@/lib/cache/profileCache'
 
 // POST /api/user/complete-onboarding — promover usuário para admin após completar onboarding
 export async function POST(_request: NextRequest) {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   // Verificar autenticação
   const {
@@ -47,6 +48,9 @@ export async function POST(_request: NextRequest) {
       { status: 500 }
     )
   }
+
+  // Invalidar cache Redis para que requireRole leia o role atualizado imediatamente
+  await invalidateCachedProfile(user.id)
 
   // Revalidar caches de páginas que podem ter mudado
   revalidatePath('/properties')
