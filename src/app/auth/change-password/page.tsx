@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/common/ui/button'
 import { Input } from '@/components/common/ui/input'
 import { Label } from '@/components/common/ui/label'
@@ -12,11 +13,7 @@ import { toast } from 'sonner'
 
 export default function ChangePasswordPage() {
   const router = useRouter()
-  const [supabase] = useState(() => {
-    // Lazy import to avoid build-time initialization
-    const { createClient } = require('@/lib/supabase/client')
-    return createClient()
-  })
+  const supabase = createClient()
 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
