@@ -293,7 +293,7 @@ export async function POST(request: NextRequest) {
 
   // ── Create Stripe Checkout Session ──────────────────────────────────────────
 
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  const stripe = new Stripe(process.env.STRIPE_PT_SECRET_KEY!, {
     apiVersion: '2026-02-25.clover',
   })
 

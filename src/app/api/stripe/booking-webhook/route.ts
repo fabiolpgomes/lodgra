@@ -7,7 +7,7 @@ import { enqueueEmail } from '@/lib/email/queue'
 export const dynamic = 'force-dynamic'
 
 export async function POST(request: NextRequest) {
-  const stripe = new Stripe((process.env.STRIPE_SECRET_KEY ?? '').trim(), {
+  const stripe = new Stripe((process.env.STRIPE_PT_SECRET_KEY ?? '').trim(), {
     apiVersion: '2026-02-25.clover',
   })
 
@@ -18,9 +18,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Sem assinatura Stripe' }, { status: 400 })
   }
 
-  const secret = (process.env.STRIPE_BOOKING_WEBHOOK_SECRET ?? '').trim() || null
+  const secret = (process.env.STRIPE_PT_WEBHOOK_SECRET ?? '').trim() || null
   if (!secret) {
-    console.error('[booking-webhook] STRIPE_BOOKING_WEBHOOK_SECRET não configurado')
+    console.error('[booking-webhook] STRIPE_PT_WEBHOOK_SECRET não configurado')
     return NextResponse.json({ error: 'Webhook não configurado' }, { status: 500 })
   }
 
