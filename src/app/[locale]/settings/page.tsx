@@ -3,9 +3,9 @@ import { redirect } from 'next/navigation'
 import { AuthLayout } from '@/components/common/layout/AuthLayout'
 import { ICalSyncSettings } from '@/components/features/settings/ICalSyncSettings'
 import { ICalExportSection } from '@/components/features/settings/ICalExportSection'
-import { SettingsUserManagement } from '@/components/features/settings/SettingsUserManagement'
 import { ChangePasswordSection } from '@/components/features/settings/ChangePasswordSection'
-import { Settings, Upload, Download, Users } from 'lucide-react'
+import { Settings, Upload, Download, Users, ArrowRight } from 'lucide-react'
+import Link from 'next/link'
 import { ConsentManagement } from '@/components/features/settings/ConsentManagement'
 import { DataExportSection } from '@/components/features/settings/DataExportSection'
 import { AccountDeletionSection } from '@/components/features/settings/AccountDeletionSection'
@@ -36,14 +36,8 @@ export default async function SettingsPage() {
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
-  // Fetch users only for admin
-  const { data: users } = isAdmin
-    ? await supabase
-        .from('user_profiles')
-        .select('id, email, full_name, role, created_at')
-        .eq('organization_id', auth.organizationId)
-        .order('created_at', { ascending: false })
-    : { data: null }
+  const { getLocale } = await import('next-intl/server')
+  const locale = await getLocale()
 
   // Fetch Organization for payment settings
   const { data: organization } = await supabase
@@ -84,14 +78,22 @@ export default async function SettingsPage() {
         {isAdmin && (
           <section className="mb-8">
             <div className="bg-white rounded-lg shadow p-6">
-              <div className="flex items-center gap-2 mb-4">
-                <Users className="h-5 w-5 text-gray-600" />
-                <h2 className="text-lg font-semibold text-gray-900">Gestão de Utilizadores</h2>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <Users className="h-5 w-5 text-gray-600" />
+                  <h2 className="text-lg font-semibold text-gray-900">Gestão de Utilizadores</h2>
+                </div>
+                <Link
+                  href={`/${locale}/admin/users`}
+                  className="inline-flex items-center gap-1 text-sm font-medium text-[#1E3A8A] hover:text-[#1E3A8A]/80"
+                >
+                  Gerir utilizadores
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
               </div>
-              <p className="text-sm text-gray-600 mb-4">
-                Gerencie os utilizadores da sua organização e defina as suas funções de acesso.
+              <p className="text-sm text-gray-500">
+                Adicione, edite e defina permissões de acesso dos utilizadores da sua organização.
               </p>
-              <SettingsUserManagement users={users || []} />
             </div>
           </section>
         )}
