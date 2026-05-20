@@ -1,0 +1,4 @@
+Contact: security@lodgra.io
+Expires: 2027-05-20T12:00:00Z
+Preferred-Languages: pt, en
+Canonical: https://lodgra.io/.well-known/security.txt
