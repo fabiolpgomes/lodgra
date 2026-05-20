@@ -71,7 +71,7 @@ export default async function UsersPage() {
             </div>
             <p className="text-gray-600">Gerencie os utilizadores e suas permissões</p>
           </div>
-          <Button asChild>
+          <Button asChild variant="action">
             <Link href={`/${locale}/admin/users/new`} className="flex items-center gap-2">
               <Plus className="h-5 w-5" />
               Novo Utilizador
@@ -149,8 +149,8 @@ export default async function UsersPage() {
                         ) : assignedProperties.length > 0 ? (
                           <div className="flex flex-wrap gap-1">
                             {assignedProperties.map((prop: PropertyRef) => (
-                              <Badge key={prop.id} variant="secondary">
-                                {prop.name}
+                              <Badge key={prop.id} variant="secondary" title={prop.name}>
+                                {prop.name.length > 30 ? prop.name.slice(0, 30) + '…' : prop.name}
                               </Badge>
                             ))}
                           </div>
