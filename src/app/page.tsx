@@ -1,10 +1,25 @@
 export const dynamic = 'force-dynamic'
 
+import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { getLocale } from 'next-intl/server'
 import { BrazilLanding } from '@/components/marketing/regions/BrazilLanding'
 import { EuropeLanding } from '@/components/marketing/regions/EuropeLanding'
+
+export const metadata: Metadata = {
+  title: 'Lodgra - Gestão Inteligente de Hospedagem',
+  description: 'Transforma tus propiedades en activos financieros de alto rendimiento. Gestiona calendarios, reservas, gastos y finanzas en una sola plataforma.',
+  robots: { index: true, follow: true },
+  openGraph: {
+    title: 'Lodgra - Hospedagem Inteligente',
+    description: 'Automatiza a gestão das tuas propriedades e maximiza lucros com inteligência artificial.',
+    url: 'https://lodgra.io',
+    siteName: 'Lodgra',
+    locale: 'pt_PT',
+    type: 'website',
+  },
+}
 
 export default async function RootPage() {
   const supabase = await createClient()
