@@ -126,7 +126,7 @@ export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, 
             <div className="lg:col-span-2 space-y-8">
               {/* Property identity — logo + title */}
               <div className="flex flex-col items-start gap-2 pb-2">
-                <Logo size="md" />
+                <Logo size="lg" />
                 <h1 className="text-2xl font-bold text-neutral-900 leading-tight">{property.name}</h1>
               </div>
 

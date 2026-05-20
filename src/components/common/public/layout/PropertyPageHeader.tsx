@@ -73,7 +73,7 @@ export function PropertyPageHeader({
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-4 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="hover:opacity-80 transition-opacity">
-          <Logo size="md" variant={scrolled ? 'default' : 'white'} />
+          <Logo size="lg" variant={scrolled ? 'default' : 'white'} />
         </Link>
 
         {/* Right Actions */}
