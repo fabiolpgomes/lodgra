@@ -137,7 +137,7 @@ export default async function ReservationDetailsPage({
             <div className="flex gap-3 no-print">
               <PrintReservationButton />
               {canEdit && (
-                <Button asChild>
+                <Button asChild variant="action">
                   <Link href={`${prefix}/reservations/${id}/edit`}>
                     <Edit className="h-4 w-4" />
                     Editar

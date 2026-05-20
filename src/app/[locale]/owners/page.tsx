@@ -51,7 +51,7 @@ export default async function OwnersPage({
             <p className="text-gray-600">Gerencie os proprietários dos imóveis</p>
           </div>
           {canEdit && (
-            <Button asChild>
+            <Button asChild variant="action">
               <Link href={`/${locale}/owners/new`} className="flex items-center gap-2">
                 <Plus className="h-5 w-5" />
                 Novo Proprietário

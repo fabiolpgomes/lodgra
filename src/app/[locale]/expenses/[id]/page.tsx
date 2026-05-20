@@ -101,7 +101,7 @@ export default async function ExpenseDetailsPage({
 
             <div className="flex gap-3">
               {canEdit && (
-                <Button asChild>
+                <Button asChild variant="action">
                   <Link href={`/${locale}/expenses/${id}/edit`}>
                     <Edit className="h-4 w-4" />
                     Editar

@@ -67,7 +67,7 @@ export default async function ExpensesPage() {
                 Exportar PDF
               </Link>
             </Button>
-            <Button asChild>
+            <Button asChild variant="action">
               <Link href="/expenses/new">
                 <Plus className="h-5 w-5" />
                 Nova Despesa
@@ -110,7 +110,7 @@ export default async function ExpensesPage() {
             <p className="text-gray-600 mb-6">
               Comece adicionando sua primeira despesa para controlar custos
             </p>
-            <Button asChild>
+            <Button asChild variant="action">
               <Link href="/expenses/new">
                 <Plus className="h-5 w-5" />
                 Adicionar Primeira Despesa

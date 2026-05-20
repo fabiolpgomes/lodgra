@@ -121,7 +121,7 @@ export default async function ReservationsPage({
             {canCreate && (
               <>
                 <CleanupReservationsButton />
-                <Button asChild>
+                <Button asChild variant="action">
                   <Link href={`/${locale}/reservations/new`}>
                     <Plus className="h-4 w-4" />
                     Nova Reserva

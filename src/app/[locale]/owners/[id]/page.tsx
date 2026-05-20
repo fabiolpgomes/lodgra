@@ -108,7 +108,7 @@ export default async function OwnerDetailsPage({
               </Button>
             )}
             {canEdit && (
-              <Button asChild>
+              <Button asChild variant="action">
                 <Link href={`/${locale}/owners/${id}/edit`} className="flex items-center gap-2">
                   <Edit className="h-4 w-4" />
                   Editar

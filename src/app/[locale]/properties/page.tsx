@@ -71,7 +71,7 @@ export default async function PropertiesPage({ params }: { params: Promise<{ loc
             </p>
           </div>
           {canCreate && (
-            <Button asChild>
+            <Button asChild variant="action">
               <Link href={`/${locale}/properties/new`} className="flex items-center gap-2">
                 <Plus className="h-5 w-5" />
                 Nova Propriedade
@@ -102,7 +102,7 @@ export default async function PropertiesPage({ params }: { params: Promise<{ loc
                 : 'Nenhuma propriedade atribuída à sua conta.'}
             </p>
             {canCreate && (
-              <Button asChild>
+              <Button asChild variant="action">
                 <Link href={`/${locale}/properties/new`} className="inline-flex items-center gap-2">
                   <Plus className="h-5 w-5" />
                   Adicionar Primeira Propriedade

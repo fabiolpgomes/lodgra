@@ -82,7 +82,7 @@ export default async function ExpensesPage({
                   Exportar PDF
                 </Link>
               </Button>
-              <Button asChild>
+              <Button asChild variant="action">
                 <Link href={`/${locale}/expenses/new`}>
                   <Plus className="h-4 w-4" />
                   Nova Despesa
