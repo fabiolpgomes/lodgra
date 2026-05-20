@@ -37,11 +37,11 @@ export const viewport: Viewport = {
   themeColor: "#1E3A8A",
 };
 
-// Noindex por defeito — páginas públicas fazem override via generateMetadata
+// Index enabled for public pages — private pages can override via generateMetadata
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://lodgra.io'),
   title: 'Lodgra',
-  robots: { index: false, follow: false },
+  robots: { index: true, follow: true },
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
