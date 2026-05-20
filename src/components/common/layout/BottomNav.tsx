@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { useState } from 'react'
 import {
   Home,
@@ -17,10 +17,14 @@ import {
   UserCog,
   Settings,
   CheckSquare,
+  LogOut,
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { useLocale } from '@/lib/i18n/routing'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/common/ui/sheet'
+import { createClient } from '@/lib/supabase/client'
+import { toast } from 'sonner'
+import { Button } from '@/components/common/ui/button'
 
 const PRIMARY_PATHS = [
   { path: '/', label: 'Início', icon: Home },
@@ -43,12 +47,27 @@ const CONFIG_PATHS = [
 ]
 
 export function BottomNav() {
+  const router = useRouter()
   const pathname = usePathname()
   const { profile } = useAuth()
   const locale = useLocale()
   const isAdmin = profile?.role === 'admin'
   const isGestor = profile?.role === 'gestor'
   const [moreOpen, setMoreOpen] = useState(false)
+
+  async function handleLogout() {
+    try {
+      const supabase = createClient()
+      const { error } = await supabase.auth.signOut()
+      if (error) throw error
+      toast.success('Sessão terminada!')
+      setMoreOpen(false)
+      router.push(`${locale ? `/${locale}` : ''}/login`)
+      router.refresh()
+    } catch {
+      toast.error('Erro ao terminar sessão')
+    }
+  }
 
   const prefix = locale ? `/${locale}` : ''
 
@@ -183,6 +202,18 @@ export function BottomNav() {
                   </Link>
                 )}
               </div>
+            </div>
+
+            {/* Logout */}
+            <div className="pt-4 border-t border-[#1E3A8A]/10">
+              <Button
+                onClick={handleLogout}
+                className="w-full flex items-center justify-center gap-2 h-12 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 font-black uppercase tracking-[1px] text-[11px] font-[family-name:var(--font-hanken-grotesk)]"
+                variant="ghost"
+              >
+                <LogOut className="h-5 w-5" />
+                Sair
+              </Button>
             </div>
           </div>
         </SheetContent>
