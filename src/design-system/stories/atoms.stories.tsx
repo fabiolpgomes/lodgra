@@ -31,7 +31,7 @@ export const Danger: ButtonStory = {
 }
 
 export const AllSizes: ButtonStory = {
-  args: { children: '' },
+  args: { variant: 'primary', size: 'md', children: 'Button' },
   render: () => (
     <div className="flex gap-4">
       <Button size="sm">Small</Button>
