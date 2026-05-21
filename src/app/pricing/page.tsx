@@ -6,15 +6,15 @@ const plans = [
   {
     name: 'Essencial',
     price: 'R$ 49',
-    period: '/mês',
-    description: 'Para proprietários iniciantes',
+    period: '/imóvel/mês',
+    description: 'Para começar com 1-2 imóveis',
     features: [
-      'Até 2 imóveis',
       'Sincronização com Airbnb e Booking',
       'Dashboard de lucros básico',
       'Suporte por email',
       'Histórico de 3 meses',
       'Relatórios mensais',
+      'Cancelamento a qualquer momento',
     ],
     cta: 'Começar com Essencial',
     highlight: false,
@@ -22,10 +22,9 @@ const plans = [
   {
     name: 'Expansão',
     price: 'R$ 99',
-    period: '/mês',
-    description: 'Para proprietários em crescimento',
+    period: '/imóvel/mês',
+    description: 'Para crescimento de 3-10 imóveis',
     features: [
-      'Até 10 imóveis',
       'Sincronização com múltiplas plataformas',
       'Pricing dinâmico inteligente',
       'Análise avançada de lucros',
@@ -33,6 +32,7 @@ const plans = [
       'Histórico de 1 ano',
       'API access',
       'Automação de workflows',
+      'Relatórios customizados',
     ],
     cta: 'Escolher Expansão',
     highlight: true,
@@ -40,17 +40,16 @@ const plans = [
   {
     name: 'Premium',
     price: 'R$ 199',
-    period: '/mês',
-    description: 'Para grandes operações',
+    period: '/imóvel/mês',
+    description: 'Para operações de 10+ imóveis',
     features: [
-      'Imóveis ilimitados',
-      'Pricing inteligente com IA',
+      'Pricing inteligente com IA avançada',
       'Automação completa',
-      'Relatórios customizados',
+      'Relatórios avançados e BI',
       'Suporte prioritário 24/7',
       'Histórico completo',
       'API avançada com webhooks',
-      'Integração customizada',
+      'Integrações customizadas',
       'Account manager dedicado',
     ],
     cta: 'Escolher Premium',
@@ -67,9 +66,38 @@ export default function PricingPage() {
           <h1 className="text-4xl md:text-5xl font-bold mb-6">
             Preços Transparentes e Flexíveis
           </h1>
-          <p className="text-xl text-blue-100 max-w-2xl mx-auto">
-            Comece grátis, escale conforme cresce. Sem taxas escondidas, sem contrato de longa duração.
+          <p className="text-xl text-blue-100 max-w-2xl mx-auto mb-4">
+            Pague apenas pelo que usa. Preços por imóvel, sem taxas escondidas.
           </p>
+          <p className="text-lg text-blue-200">
+            Quanto mais imóveis, mais economia você tem. Escalabilidade sem limite.
+          </p>
+        </div>
+      </section>
+
+      {/* How It Works */}
+      <section className="py-16 bg-blue-50">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-white rounded-lg p-8 border border-blue-200">
+            <h2 className="text-2xl font-bold mb-6">Como Funciona</h2>
+            <div className="grid md:grid-cols-3 gap-8">
+              <div className="text-center">
+                <div className="text-3xl font-bold text-blue-900 mb-2">1 Imóvel</div>
+                <p className="text-gray-600">R$ 49-199/mês (Essencial a Premium)</p>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-blue-900 mb-2">2 Imóveis</div>
+                <p className="text-gray-600">Dobra o valor do seu plano</p>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-blue-900 mb-2">N Imóveis</div>
+                <p className="text-gray-600">Você paga por cada um adicionado</p>
+              </div>
+            </div>
+            <p className="text-center text-gray-600 mt-8">
+              Exemplo: Com plano Expansão (R$ 99/imóvel) + 5 imóveis = R$ 495/mês total
+            </p>
+          </div>
         </div>
       </section>
 
