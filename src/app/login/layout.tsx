@@ -1,9 +1,23 @@
 import type { Metadata } from 'next'
+import { seoMetadata, ogDefaults, twitterDefaults } from '@/lib/seo/metadata'
 
 export const metadata: Metadata = {
-  title: 'Entrar — Lodgra',
-  description: 'Aceda à sua conta Lodgra e gira os seus alojamentos no Airbnb e Booking num só lugar.',
+  title: seoMetadata.login.title,
+  description: seoMetadata.login.description,
+  keywords: seoMetadata.login.keywords,
   robots: { index: true, follow: true },
+  openGraph: {
+    title: seoMetadata.login.title,
+    description: seoMetadata.login.description,
+    url: 'https://lodgra.io/login',
+    ...ogDefaults,
+    type: 'website',
+  },
+  twitter: {
+    ...twitterDefaults,
+    title: seoMetadata.login.title,
+    description: seoMetadata.login.description,
+  },
 }
 
 export default function LoginLayout({ children }: { children: React.ReactNode }) {

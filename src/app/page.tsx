@@ -6,18 +6,23 @@ import { redirect } from 'next/navigation'
 import { getLocale } from 'next-intl/server'
 import { BrazilLanding } from '@/components/marketing/regions/BrazilLanding'
 import { EuropeLanding } from '@/components/marketing/regions/EuropeLanding'
+import { seoMetadata, ogDefaults, twitterDefaults } from '@/lib/seo/metadata'
 
 export const metadata: Metadata = {
-  title: 'Lodgra - Gestão Inteligente de Hospedagem',
-  description: 'Transforma tus propiedades en activos financieros de alto rendimiento. Gestiona calendarios, reservas, gastos y finanzas en una sola plataforma.',
+  title: seoMetadata.home.title,
+  description: seoMetadata.home.description,
+  keywords: seoMetadata.home.keywords,
   robots: { index: true, follow: true },
   openGraph: {
-    title: 'Lodgra - Hospedagem Inteligente',
-    description: 'Automatiza a gestão das tuas propriedades e maximiza lucros com inteligência artificial.',
+    title: seoMetadata.home.title,
+    description: seoMetadata.home.description,
     url: 'https://lodgra.io',
-    siteName: 'Lodgra',
-    locale: 'pt_PT',
-    type: 'website',
+    ...ogDefaults,
+  },
+  twitter: {
+    ...twitterDefaults,
+    title: seoMetadata.home.title,
+    description: seoMetadata.home.description,
   },
 }
 
