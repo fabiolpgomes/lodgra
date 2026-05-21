@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import { Button } from '@/components/ui/button';
-import { useAuth } from '@/lib/auth/useAuth';
+import { Button } from '@/components/common/ui/button';
+import { useAuth } from '@/hooks/useAuth';
 import TaskTable from '@/components/cleaning/TaskTable';
 import TaskForm from '@/components/cleaning/TaskForm';
 import TaskFilters from '@/components/cleaning/TaskFilters';

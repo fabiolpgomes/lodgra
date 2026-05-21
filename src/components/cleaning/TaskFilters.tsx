@@ -1,8 +1,8 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Button } from '@/components/common/ui/button';
+import { Input } from '@/components/common/ui/input';
 
 interface TaskFiltersProps {
   onFilterChange: (filters: Record<string, string | undefined>) => void;

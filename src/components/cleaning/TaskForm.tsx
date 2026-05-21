@@ -5,16 +5,8 @@ import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Button } from '@/components/ui/button';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+import { Button } from '@/components/common/ui/button';
+import { Input } from '@/components/common/ui/input';
 import { CleaningTask } from '@/app/[locale]/cleaning/manage/page';
 
 interface PropertyOption {
@@ -58,9 +50,7 @@ export default function TaskForm({
   onCancel,
 }: TaskFormProps) {
   const t = useTranslations('cleaning.manage.form');
-  const [properties, setProperties] = useState<
-    Array<{ id: string; name: string }>
-  >([]);
+  const [properties, setProperties] = useState<PropertyOption[]>([]);
   const [cleaners, setCleaners] = useState<
     Array<{ id: string; name: string }>
   >([]);
@@ -69,7 +59,12 @@ export default function TaskForm({
   >([]);
   const [submitting, setSubmitting] = useState(false);
 
-  const form = useForm<TaskFormData>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    watch,
+  } = useForm<TaskFormData>({
     resolver: zodResolver(taskSchema),
     defaultValues: task
       ? {
@@ -154,142 +149,108 @@ export default function TaskForm({
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        {/* Property */}
-        <FormField
-          control={form.control}
-          name="property_id"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{t('property')}</FormLabel>
-              <FormControl>
-                <select
-                  {...field}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2"
-                >
-                  <option value="">{t('select_property')}</option>
-                  {properties.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.name}
-                    </option>
-                  ))}
-                </select>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      {/* Property */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          {t('property')}
+        </label>
+        <select
+          {...register('property_id')}
+          className="w-full rounded-md border border-gray-300 px-3 py-2"
+        >
+          <option value="">{t('select_property')}</option>
+          {properties.map((p) => (
+            <option key={p.id} value={p.id}>
+              {p.name}
+            </option>
+          ))}
+        </select>
+        {errors.property_id && (
+          <p className="text-red-500 text-sm mt-1">
+            {errors.property_id.message}
+          </p>
+        )}
+      </div>
 
-        {/* Date */}
-        <FormField
-          control={form.control}
-          name="scheduled_date"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{t('date')}</FormLabel>
-              <FormControl>
-                <Input type="date" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+      {/* Date */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          {t('date')}
+        </label>
+        <Input type="date" {...register('scheduled_date')} />
+        {errors.scheduled_date && (
+          <p className="text-red-500 text-sm mt-1">
+            {errors.scheduled_date.message}
+          </p>
+        )}
+      </div>
 
-        {/* Time */}
-        <FormField
-          control={form.control}
-          name="scheduled_time"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{t('time')}</FormLabel>
-              <FormControl>
-                <Input type="time" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+      {/* Time */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          {t('time')}
+        </label>
+        <Input type="time" {...register('scheduled_time')} />
+      </div>
 
-        {/* Cleaner */}
-        <FormField
-          control={form.control}
-          name="cleaner_id"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{t('cleaner')}</FormLabel>
-              <FormControl>
-                <select
-                  {...field}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2"
-                >
-                  <option value="">{t('select_cleaner')}</option>
-                  {cleaners.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name}
-                    </option>
-                  ))}
-                </select>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+      {/* Cleaner */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          {t('cleaner')}
+        </label>
+        <select
+          {...register('cleaner_id')}
+          className="w-full rounded-md border border-gray-300 px-3 py-2"
+        >
+          <option value="">{t('select_cleaner')}</option>
+          {cleaners.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.name}
+            </option>
+          ))}
+        </select>
+      </div>
 
-        {/* Template */}
-        <FormField
-          control={form.control}
-          name="checklist_template_id"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{t('template')}</FormLabel>
-              <FormControl>
-                <select
-                  {...field}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2"
-                >
-                  <option value="">{t('select_template')}</option>
-                  {templates.map((t) => (
-                    <option key={t.id} value={t.id}>
-                      {t.name}
-                    </option>
-                  ))}
-                </select>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+      {/* Template */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          {t('template')}
+        </label>
+        <select
+          {...register('checklist_template_id')}
+          className="w-full rounded-md border border-gray-300 px-3 py-2"
+        >
+          <option value="">{t('select_template')}</option>
+          {templates.map((t) => (
+            <option key={t.id} value={t.id}>
+              {t.name}
+            </option>
+          ))}
+        </select>
+      </div>
 
-        {/* Notes */}
-        <FormField
-          control={form.control}
-          name="notes"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{t('notes')}</FormLabel>
-              <FormControl>
-                <textarea
-                  {...field}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2"
-                  rows={4}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+      {/* Notes */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          {t('notes')}
+        </label>
+        <textarea
+          {...register('notes')}
+          className="w-full rounded-md border border-gray-300 px-3 py-2"
+          rows={4}
         />
+      </div>
 
-        {/* Buttons */}
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <Button type="submit" disabled={submitting} className="w-full sm:w-auto">
-            {submitting ? t('submitting') : t('submit')}
-          </Button>
-          <Button type="button" variant="outline" onClick={onCancel} className="w-full sm:w-auto">
-            {t('cancel')}
-          </Button>
-        </div>
-      </form>
-    </Form>
+      {/* Buttons */}
+      <div className="flex flex-col gap-2 sm:flex-row">
+        <Button type="submit" disabled={submitting} className="w-full sm:w-auto">
+          {submitting ? t('submitting') : t('submit')}
+        </Button>
+        <Button type="button" variant="outline" onClick={onCancel} className="w-full sm:w-auto">
+          {t('cancel')}
+        </Button>
+      </div>
+    </form>
   );
 }

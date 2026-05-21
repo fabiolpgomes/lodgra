@@ -3,15 +3,7 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/common/ui/button';
 import { CleaningTask } from '@/app/[locale]/cleaning/manage/page';
 
 interface TaskTableProps {
@@ -87,25 +79,37 @@ export default function TaskTable({
 
   return (
     <div className="overflow-x-auto">
-      <Table>
-        <TableHeader>
-          <TableRow className="border-b border-gray-200 bg-gray-50">
-            <TableHead className="w-[200px]">{t('property')}</TableHead>
-            <TableHead className="w-[150px]">{t('date')}</TableHead>
-            <TableHead className="w-[150px]">{t('cleaner')}</TableHead>
-            <TableHead className="w-[120px]">{t('status')}</TableHead>
-            <TableHead className="w-[200px]">{t('actions')}</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
+      <table className="w-full border-collapse">
+        <thead className="border-b border-gray-200 bg-gray-50">
+          <tr>
+            <th className="w-[200px] text-left px-4 py-2 font-semibold text-sm">
+              {t('property')}
+            </th>
+            <th className="w-[150px] text-left px-4 py-2 font-semibold text-sm">
+              {t('date')}
+            </th>
+            <th className="w-[150px] text-left px-4 py-2 font-semibold text-sm">
+              {t('cleaner')}
+            </th>
+            <th className="w-[120px] text-left px-4 py-2 font-semibold text-sm">
+              {t('status')}
+            </th>
+            <th className="w-[200px] text-left px-4 py-2 font-semibold text-sm">
+              {t('actions')}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
           {tasks.map((task) => (
-            <TableRow key={task.id} className="border-b border-gray-200">
-              <TableCell className="font-medium">{task.property_id}</TableCell>
-              <TableCell>
+            <tr key={task.id} className="border-b border-gray-200 hover:bg-gray-50">
+              <td className="px-4 py-3 font-medium text-sm">{task.property_id}</td>
+              <td className="px-4 py-3 text-sm">
                 {new Date(task.scheduled_date).toLocaleDateString()}
-              </TableCell>
-              <TableCell>{task.cleaner_id || t('unassigned')}</TableCell>
-              <TableCell>
+              </td>
+              <td className="px-4 py-3 text-sm">
+                {task.cleaner_id || t('unassigned')}
+              </td>
+              <td className="px-4 py-3 text-sm">
                 <span
                   className={`inline-block rounded-full px-2 py-1 text-sm font-medium ${
                     statusColors[task.status as keyof typeof statusColors]
@@ -113,8 +117,8 @@ export default function TaskTable({
                 >
                   {statusLabels[task.status] || task.status}
                 </span>
-              </TableCell>
-              <TableCell>
+              </td>
+              <td className="px-4 py-3">
                 <div className="flex gap-2">
                   <Button
                     variant="outline"
@@ -152,11 +156,11 @@ export default function TaskTable({
                     {t('delete')}
                   </Button>
                 </div>
-              </TableCell>
-            </TableRow>
+              </td>
+            </tr>
           ))}
-        </TableBody>
-      </Table>
+        </tbody>
+      </table>
     </div>
   );
 }
