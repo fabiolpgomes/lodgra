@@ -118,7 +118,7 @@ export default function TaskForm({
     setSubmitting(true);
     try {
       const method = task ? 'PATCH' : 'POST';
-      const url = task ? `/api/cleaning/${task.id}` : '/api/cleaning';
+      const url = task ? `/api/cleaning/tasks/${task.id}` : '/api/cleaning/tasks';
 
       const response = await fetch(url, {
         method,

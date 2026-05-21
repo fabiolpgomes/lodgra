@@ -47,7 +47,7 @@ export default function TaskTable({
     if (!confirm(t('delete_confirm'))) return;
 
     try {
-      const response = await fetch(`/api/cleaning/${taskId}`, {
+      const response = await fetch(`/api/cleaning/tasks/${taskId}`, {
         method: 'DELETE',
       });
 

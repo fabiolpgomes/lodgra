@@ -1,0 +1,56 @@
+{
+  "manage": {
+    "title": "Gestionar Tareas de Limpieza",
+    "subtitle": "Crear, editar y rastrear tareas de limpieza para sus propiedades",
+    "create_button": "Nueva Tarea",
+    "create_form_title": "Crear Nueva Tarea de Limpieza",
+    "loading": "Cargando tareas...",
+    "no_tasks": "No se encontraron tareas de limpieza",
+    "page": "Página",
+    "of": "de",
+    "previous": "Anterior",
+    "next": "Siguiente",
+    "form": {
+      "property": "Propiedad",
+      "select_property": "Seleccione una propiedad",
+      "date": "Fecha Programada",
+      "time": "Hora Programada",
+      "cleaner": "Asignado a",
+      "select_cleaner": "Seleccione un responsable",
+      "template": "Plantilla de Lista de Verificación",
+      "select_template": "Seleccione una plantilla",
+      "notes": "Notas",
+      "submit": "Crear Tarea",
+      "cancel": "Cancelar",
+      "submitting": "Guardando...",
+      "submit_error": "Error al guardar la tarea. Intente de nuevo."
+    },
+    "table": {
+      "property": "Propiedad",
+      "date": "Fecha",
+      "cleaner": "Asignado a",
+      "status": "Estado",
+      "actions": "Acciones",
+      "unassigned": "Sin asignar",
+      "view": "Ver",
+      "edit": "Editar",
+      "mark_done": "Marcar como Completada",
+      "delete": "Eliminar",
+      "delete_confirm": "¿Está seguro de que desea eliminar esta tarea?",
+      "mark_done_confirm": "¿Marcar esta tarea como completada?",
+      "delete_error": "Error al eliminar la tarea. Intente de nuevo.",
+      "update_error": "Error al actualizar la tarea. Intente de nuevo."
+    },
+    "filters": {
+      "status": "Estado",
+      "all": "Todos",
+      "pending": "Pendiente",
+      "in_progress": "En Progreso",
+      "done": "Completada",
+      "issue": "Problema",
+      "date_from": "Fecha de Inicio",
+      "date_to": "Fecha de Finalización",
+      "reset": "Borrar Filtros"
+    }
+  }
+}

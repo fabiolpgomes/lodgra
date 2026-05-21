@@ -1,0 +1,56 @@
+{
+  "manage": {
+    "title": "Gerenciar Tarefas de Limpeza",
+    "subtitle": "Crie, edite e acompanhe tarefas de limpeza para suas propriedades",
+    "create_button": "Nova Tarefa",
+    "create_form_title": "Criar Nova Tarefa de Limpeza",
+    "loading": "Carregando tarefas...",
+    "no_tasks": "Nenhuma tarefa de limpeza encontrada",
+    "page": "Página",
+    "of": "de",
+    "previous": "Anterior",
+    "next": "Próxima",
+    "form": {
+      "property": "Propriedade",
+      "select_property": "Selecione uma propriedade",
+      "date": "Data Agendada",
+      "time": "Hora Agendada",
+      "cleaner": "Responsável",
+      "select_cleaner": "Selecione um responsável",
+      "template": "Modelo de Checklist",
+      "select_template": "Selecione um modelo",
+      "notes": "Anotações",
+      "submit": "Criar Tarefa",
+      "cancel": "Cancelar",
+      "submitting": "Salvando...",
+      "submit_error": "Erro ao salvar tarefa. Tente novamente."
+    },
+    "table": {
+      "property": "Propriedade",
+      "date": "Data",
+      "cleaner": "Responsável",
+      "status": "Status",
+      "actions": "Ações",
+      "unassigned": "Não atribuído",
+      "view": "Ver",
+      "edit": "Editar",
+      "mark_done": "Marcar como Concluída",
+      "delete": "Excluir",
+      "delete_confirm": "Tem certeza que deseja excluir esta tarefa?",
+      "mark_done_confirm": "Marcar esta tarefa como concluída?",
+      "delete_error": "Erro ao excluir tarefa. Tente novamente.",
+      "update_error": "Erro ao atualizar tarefa. Tente novamente."
+    },
+    "filters": {
+      "status": "Status",
+      "all": "Todos",
+      "pending": "Pendente",
+      "in_progress": "Em Progresso",
+      "done": "Concluída",
+      "issue": "Problema",
+      "date_from": "Data Início",
+      "date_to": "Data Fim",
+      "reset": "Limpar Filtros"
+    }
+  }
+}

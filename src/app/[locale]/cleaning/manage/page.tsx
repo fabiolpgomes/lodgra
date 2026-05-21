@@ -58,7 +58,7 @@ export default function ManagerDashboardPage() {
         params.append('page', filters.page.toString());
         params.append('limit', '20');
 
-        const response = await fetch(`/api/cleaning?${params.toString()}`);
+        const response = await fetch(`/api/cleaning/tasks?${params.toString()}`);
         if (!response.ok) throw new Error('Failed to fetch tasks');
 
         const data = await response.json();
