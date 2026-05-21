@@ -11,6 +11,7 @@ const PUBLIC_PATHS = [
   '/landing-vp', '/booking',
   '/checkout',   // Stripe success/cancel pages — always public
   '/forgot-password', '/reset-password', '/onboarding',
+  '/features', '/pricing', '/docs', '/blog',  // Public marketing pages
   '/sync', '/api/',
 ]
 
