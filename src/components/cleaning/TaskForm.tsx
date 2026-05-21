@@ -17,6 +17,21 @@ import {
 import { Input } from '@/components/ui/input';
 import { CleaningTask } from '@/app/[locale]/cleaning/manage/page';
 
+interface PropertyOption {
+  id: string;
+  name: string;
+}
+
+interface CleanerOption {
+  id: string;
+  full_name: string;
+}
+
+interface TemplateOption {
+  id: string;
+  name: string;
+}
+
 const taskSchema = z.object({
   property_id: z.string().min(1, 'Property is required'),
   scheduled_date: z.string().refine(
@@ -87,21 +102,21 @@ export default function TaskForm({
 
         if (propsRes.ok)
           setProperties(
-            (await propsRes.json()).map((p: any) => ({
+            (await propsRes.json()).map((p: PropertyOption) => ({
               id: p.id,
               name: p.name,
             }))
           );
         if (cleanersRes.ok)
           setCleaners(
-            (await cleanersRes.json()).map((u: any) => ({
+            (await cleanersRes.json()).map((u: CleanerOption) => ({
               id: u.id,
               name: u.full_name,
             }))
           );
         if (templatesRes.ok)
           setTemplates(
-            (await templatesRes.json()).map((t: any) => ({
+            (await templatesRes.json()).map((t: TemplateOption) => ({
               id: t.id,
               name: t.name,
             }))

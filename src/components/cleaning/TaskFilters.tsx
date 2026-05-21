@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
 interface TaskFiltersProps {
-  onFilterChange: (filters: Record<string, any>) => void;
+  onFilterChange: (filters: Record<string, string | undefined>) => void;
 }
 
 export default function TaskFilters({ onFilterChange }: TaskFiltersProps) {
