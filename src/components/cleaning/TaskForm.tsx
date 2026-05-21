@@ -63,7 +63,6 @@ export default function TaskForm({
     register,
     handleSubmit,
     formState: { errors },
-    watch,
   } = useForm<TaskFormData>({
     resolver: zodResolver(taskSchema),
     defaultValues: task
