@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   title: seoMetadata.login.title,
   description: seoMetadata.login.description,
   keywords: seoMetadata.login.keywords,
-  robots: { index: true, follow: true },
+  robots: { index: false, follow: false },
   openGraph: {
     title: seoMetadata.login.title,
     description: seoMetadata.login.description,
