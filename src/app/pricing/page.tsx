@@ -4,39 +4,43 @@ import Link from 'next/link'
 
 const plans = [
   {
-    name: 'Starter',
-    price: 'Grátis',
-    description: 'Perfeito para começar',
+    name: 'Essencial',
+    price: 'R$ 49',
+    period: '/mês',
+    description: 'Para proprietários iniciantes',
     features: [
       'Até 2 imóveis',
-      'Sincronização básica',
-      'Dashboard de lucros',
+      'Sincronização com Airbnb e Booking',
+      'Dashboard de lucros básico',
       'Suporte por email',
-      'Histórico de 30 dias',
+      'Histórico de 3 meses',
+      'Relatórios mensais',
     ],
-    cta: 'Começar Grátis',
+    cta: 'Começar com Essencial',
     highlight: false,
   },
   {
-    name: 'Professional',
+    name: 'Expansão',
     price: 'R$ 99',
     period: '/mês',
     description: 'Para proprietários em crescimento',
     features: [
       'Até 10 imóveis',
       'Sincronização com múltiplas plataformas',
-      'Pricing dinâmico básico',
+      'Pricing dinâmico inteligente',
       'Análise avançada de lucros',
       'Suporte por chat e email',
       'Histórico de 1 ano',
       'API access',
+      'Automação de workflows',
     ],
-    cta: 'Escolher Professional',
+    cta: 'Escolher Expansão',
     highlight: true,
   },
   {
-    name: 'Enterprise',
-    price: 'Personalizado',
+    name: 'Premium',
+    price: 'R$ 199',
+    period: '/mês',
     description: 'Para grandes operações',
     features: [
       'Imóveis ilimitados',
@@ -45,10 +49,11 @@ const plans = [
       'Relatórios customizados',
       'Suporte prioritário 24/7',
       'Histórico completo',
-      'API avançada',
+      'API avançada com webhooks',
       'Integração customizada',
+      'Account manager dedicado',
     ],
-    cta: 'Falar com Sales',
+    cta: 'Escolher Premium',
     highlight: false,
   },
 ]
@@ -121,16 +126,16 @@ export default function PricingPage() {
           <div className="space-y-6">
             {[
               {
+                q: 'Há período de teste gratuito?',
+                a: 'Oferecemos 7 dias de teste PAGO. Se não gostar, devolvemos 100% do seu dinheiro, sem perguntas.',
+              },
+              {
                 q: 'Posso cancelar a qualquer momento?',
                 a: 'Sim, sem penalidades. Você pode cancelar sua assinatura a qualquer momento pelo dashboard.',
               },
               {
-                q: 'Há período de teste gratuito?',
-                a: 'Sim! O plano Starter é permanentemente gratuito. Atualize para Professional quando precisar.',
-              },
-              {
                 q: 'Vocês oferecem desconto anual?',
-                a: 'Sim, planos anuais têm 20% de desconto. Fale com nosso time de vendas.',
+                a: 'Sim, planos anuais têm até 20% de desconto. Fale com nosso time de vendas para mais detalhes.',
               },
             ].map((faq, idx) => (
               <div key={idx} className="border-b pb-6">
