@@ -33,7 +33,6 @@ export async function GET(request: NextRequest) {
     const clientIp =
       request.headers.get('x-forwarded-for') ||
       request.headers.get('x-real-ip') ||
-      request.ip ||
       '0.0.0.0';
 
     try {
