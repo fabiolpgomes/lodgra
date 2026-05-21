@@ -138,7 +138,7 @@ export default function DocsPage() {
           <p className="text-lg text-gray-600 mb-8">
             Nosso time de suporte está pronto para ajudar
           </p>
-          <Link href="mailto:support@lodgra.io">
+          <Link href="mailto:suporte@lodgra.io">
             <Button size="lg">Enviar Email para Suporte</Button>
           </Link>
         </div>
