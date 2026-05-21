@@ -36,21 +36,20 @@ export async function GET(request: NextRequest) {
       '0.0.0.0';
 
     try {
-      const { success, resetAfter } = await ratelimit.limit(
+      const result = await ratelimit.limit(
         `verify-token:${clientIp}`
       );
 
-      if (!success) {
+      if (!result.success) {
         return NextResponse.json(
           {
             valid: false,
             error: 'Too many requests. Please try again later.',
-            retryAfter: resetAfter,
           },
           {
             status: 429,
             headers: {
-              'Retry-After': Math.ceil(resetAfter / 1000).toString(),
+              'Retry-After': '60', // 60 seconds default retry
             },
           }
         );
