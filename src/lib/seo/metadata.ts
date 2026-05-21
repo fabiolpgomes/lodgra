@@ -72,6 +72,49 @@ export const seoMetadata = {
     description: 'Leia nossos termos de serviço e condições de uso da plataforma Lodgra.',
     keywords: 'termos, condições, serviço',
   },
+
+  // Additional pages
+  booking: {
+    title: 'Booking - Lodgra | Gerenciar Reservas',
+    description: 'Gerencie todas as suas reservas em um único lugar. Sincronize Airbnb, Booking e outras plataformas automaticamente.',
+    keywords: 'booking, reservas, integração',
+  },
+
+  dashboard: {
+    title: 'Dashboard - Lodgra | Seu Painel de Controle',
+    description: 'Visualize todas as métricas do seu negócio: ocupação, receita, despesas e muito mais em tempo real.',
+    keywords: 'dashboard, painel, controle',
+  },
+
+  properties: {
+    title: 'Propriedades - Lodgra | Gerencie Seus Imóveis',
+    description: 'Gerencie todas as suas propriedades, calendários e integrações em um único lugar.',
+    keywords: 'propriedades, imóveis, gerenciamento',
+  },
+
+  financial: {
+    title: 'Financeiro - Lodgra | Controle Suas Finanças',
+    description: 'Acompanhe receitas, despesas, lucros e relatórios financeiros detalhados de suas propriedades.',
+    keywords: 'financeiro, receita, despesa, lucro',
+  },
+
+  cleaning: {
+    title: 'Limpeza - Lodgra | Gerencie Limpezas',
+    description: 'Organize e gerencie as limpezas entre as suas reservas e mantenha seus hóspedes satisfeitos.',
+    keywords: 'limpeza, manutenção, hóspedes',
+  },
+
+  calendar: {
+    title: 'Calendário - Lodgra | Sincronize Suas Reservas',
+    description: 'Veja o calendário consolidado de todas as suas propriedades e plataformas em um único lugar.',
+    keywords: 'calendário, reservas, sincronização',
+  },
+
+  reports: {
+    title: 'Relatórios - Lodgra | Análise de Desempenho',
+    description: 'Gere relatórios detalhados sobre ocupação, receita, despesas e desempenho das suas propriedades.',
+    keywords: 'relatórios, análise, desempenho',
+  },
 };
 
 /**

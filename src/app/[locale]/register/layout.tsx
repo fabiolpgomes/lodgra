@@ -1,9 +1,23 @@
 import type { Metadata } from 'next'
+import { seoMetadata, ogDefaults, twitterDefaults } from '@/lib/seo/metadata'
 
 export const metadata: Metadata = {
-  title: 'Criar Conta — Lodgra',
-  description: 'Crie a sua conta gratuita e comece a gerir os seus alojamentos no Airbnb e Booking. A partir de €9,90/imóvel/mês.',
+  title: seoMetadata.register.title,
+  description: seoMetadata.register.description,
+  keywords: seoMetadata.register.keywords,
   robots: { index: true, follow: true },
+  openGraph: {
+    title: seoMetadata.register.title,
+    description: seoMetadata.register.description,
+    url: 'https://lodgra.io/register',
+    ...ogDefaults,
+    type: 'website',
+  },
+  twitter: {
+    ...twitterDefaults,
+    title: seoMetadata.register.title,
+    description: seoMetadata.register.description,
+  },
 }
 
 export default function RegisterLayout({ children }: { children: React.ReactNode }) {
