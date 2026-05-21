@@ -34,8 +34,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://lodgra.io'
   const title = `${property.name} — Reserva Directa | Lodgra`
   const description = property.description || `${property.name} em ${property.city}, ${property.country}. Reserve directamente sem comissões.`
-  const image = property.photos?.[0] ?? null
   const canonicalUrl = `${baseUrl}/p/${slug}`
+  const ogImageUrl = `${baseUrl}/p/${slug}/opengraph-image`
 
   return {
     title,
@@ -55,13 +55,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       type: 'website',
       locale: 'pt_PT',
       alternateLocale: ['pt_BR', 'en_US'],
-      ...(image ? { images: [{ url: image, width: 1200, height: 630, alt: property.name }] } : {}),
+      images: [{ url: ogImageUrl, width: 1200, height: 630, alt: property.name }],
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
-      ...(image ? { images: [image] } : {}),
+      images: [ogImageUrl],
     },
   }
 }
