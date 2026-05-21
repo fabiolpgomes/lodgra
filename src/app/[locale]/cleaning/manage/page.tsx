@@ -95,15 +95,15 @@ export default function ManagerDashboardPage() {
   return (
     <div className="container mx-auto py-8">
       {/* Header */}
-      <div className="mb-8 flex items-center justify-between">
+      <div className="mb-8 flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
         <div>
-          <h1 className="text-3xl font-bold">{t('title')}</h1>
-          <p className="mt-2 text-gray-600">{t('subtitle')}</p>
+          <h1 className="text-2xl font-bold md:text-3xl">{t('title')}</h1>
+          <p className="mt-2 text-sm text-gray-600 md:text-base">{t('subtitle')}</p>
         </div>
         <Button
           onClick={() => setShowCreateForm(true)}
           size="lg"
-          className="gap-2"
+          className="w-full gap-2 md:w-auto"
         >
           <span>+</span>
           {t('create_button')}
