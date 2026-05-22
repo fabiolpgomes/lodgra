@@ -57,5 +57,22 @@
       "date_to": "Data Fim",
       "reset": "Limpar Filtros"
     }
+  },
+  "photos": {
+    "uploader": {
+      "add_photos": "Adicionar Fotos",
+      "upload": "Carregar",
+      "uploading": "Carregando...",
+      "upload_error": "Erro ao carregar foto. Tente novamente.",
+      "max_photos_error": "Número máximo de fotos atingido (10)",
+      "invalid_format": "Formato de imagem inválido. Use JPEG ou PNG."
+    },
+    "gallery": {
+      "loading": "Carregando fotos...",
+      "no_photos": "Nenhuma foto enviada",
+      "load_error": "Erro ao carregar fotos",
+      "delete_error": "Erro ao excluir foto",
+      "delete_confirm": "Tem certeza que deseja excluir esta foto?"
+    }
   }
 }

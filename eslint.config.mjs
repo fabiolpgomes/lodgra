@@ -54,6 +54,8 @@ const eslintConfig = defineConfig([
     ".vercel/**",
     // Package build scripts (legitimate CommonJS usage)
     "packages/*/scripts/**",
+    // Storybook config (causes ESLint regex issues with dynamic routes)
+    ".storybook/**",
   ]),
 ]);
 

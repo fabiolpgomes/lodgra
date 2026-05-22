@@ -57,5 +57,22 @@
       "date_to": "Fecha de Finalización",
       "reset": "Borrar Filtros"
     }
+  },
+  "photos": {
+    "uploader": {
+      "add_photos": "Agregar Fotos",
+      "upload": "Cargar",
+      "uploading": "Cargando...",
+      "upload_error": "Error al cargar la foto. Intente de nuevo.",
+      "max_photos_error": "Número máximo de fotos alcanzado (10)",
+      "invalid_format": "Formato de imagen inválido. Use JPEG o PNG."
+    },
+    "gallery": {
+      "loading": "Cargando fotos...",
+      "no_photos": "Sin fotos cargadas",
+      "load_error": "Error al cargar fotos",
+      "delete_error": "Error al eliminar foto",
+      "delete_confirm": "¿Está seguro de que desea eliminar esta foto?"
+    }
   }
 }

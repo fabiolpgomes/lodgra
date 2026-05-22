@@ -57,5 +57,22 @@
       "date_to": "End Date",
       "reset": "Clear Filters"
     }
+  },
+  "photos": {
+    "uploader": {
+      "add_photos": "Add Photos",
+      "upload": "Upload",
+      "uploading": "Uploading...",
+      "upload_error": "Error uploading photo. Please try again.",
+      "max_photos_error": "Maximum photos reached (10)",
+      "invalid_format": "Invalid image format. Use JPEG or PNG."
+    },
+    "gallery": {
+      "loading": "Loading photos...",
+      "no_photos": "No photos uploaded",
+      "load_error": "Error loading photos",
+      "delete_error": "Error deleting photo",
+      "delete_confirm": "Are you sure you want to delete this photo?"
+    }
   }
 }
