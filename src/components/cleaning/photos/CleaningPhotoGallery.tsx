@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Button } from '@/components/common/ui/button';
 import { Trash2 } from 'lucide-react';
 
 interface Photo {
@@ -27,26 +26,26 @@ export default function CleaningPhotoGallery({ taskId, isManager = false }: Prop
   const [deleting, setDeleting] = useState<string | null>(null);
 
   useEffect(() => {
-    loadPhotos();
-    // Refresh photos every 5 seconds for real-time updates
-    const interval = setInterval(loadPhotos, 5000);
-    return () => clearInterval(interval);
-  }, [taskId]);
+    const load = async () => {
+      try {
+        const response = await fetch(`/api/cleaner/tasks/${taskId}/photos`);
+        if (!response.ok) throw new Error('Failed to load photos');
+        const data = await response.json();
+        setPhotos(data);
+        setError(null);
+      } catch (err) {
+        console.error('Error loading photos:', err);
+        setError(t('load_error'));
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const loadPhotos = async () => {
-    try {
-      const response = await fetch(`/api/cleaner/tasks/${taskId}/photos`);
-      if (!response.ok) throw new Error('Failed to load photos');
-      const data = await response.json();
-      setPhotos(data);
-      setError(null);
-    } catch (err) {
-      console.error('Error loading photos:', err);
-      setError(t('load_error'));
-    } finally {
-      setLoading(false);
-    }
-  };
+    load();
+    // Refresh photos every 5 seconds for real-time updates
+    const interval = setInterval(load, 5000);
+    return () => clearInterval(interval);
+  }, [taskId, t]);
 
   const handleDelete = async (photoId: string) => {
     if (!confirm(t('delete_confirm'))) return;

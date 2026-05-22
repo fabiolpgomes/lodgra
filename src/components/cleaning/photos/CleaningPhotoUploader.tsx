@@ -75,6 +75,11 @@ export default function CleaningPhotoUploader({ taskId, onUploadComplete }: Prop
         continue;
       }
 
+      if (file.size > MAX_FILE_SIZE) {
+        alert(t('file_too_large'));
+        continue;
+      }
+
       const reader = new FileReader();
       reader.onload = (event) => {
         const newPhoto: Photo = {
