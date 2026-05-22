@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/common/ui/button';
 import { ImagePlus, X } from 'lucide-react';
+import Image from 'next/image';
 
 interface Photo {
   id?: string;
@@ -31,6 +32,21 @@ interface Props {
 const MAX_PHOTOS = 10;
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
 const QUALITY = 0.8;
+const SUPPORTED_FORMATS = ['image/jpeg', 'image/png', 'image/heic', 'image/heif'];
+
+async function convertHeicToJpeg(file: File): Promise<File> {
+  try {
+    const heic2any = (await import('heic2any')).default;
+    const blob = await heic2any({ blob: file });
+    return new File([blob as Blob], file.name.replace(/\.[^/.]+$/, '.jpg'), {
+      type: 'image/jpeg',
+      lastModified: file.lastModified,
+    });
+  } catch (err) {
+    console.error('HEIC conversion failed:', err);
+    throw new Error('Failed to convert HEIC image');
+  }
+}
 
 async function compressImage(file: File): Promise<Blob> {
   return new Promise((resolve, reject) => {
@@ -69,8 +85,8 @@ export default function CleaningPhotoUploader({ taskId, onUploadComplete }: Prop
       return;
     }
 
-    for (const file of files) {
-      if (!['image/jpeg', 'image/png'].includes(file.type)) {
+    for (let file of files) {
+      if (!SUPPORTED_FORMATS.includes(file.type)) {
         alert(t('invalid_format'));
         continue;
       }
@@ -78,6 +94,16 @@ export default function CleaningPhotoUploader({ taskId, onUploadComplete }: Prop
       if (file.size > MAX_FILE_SIZE) {
         alert(t('file_too_large'));
         continue;
+      }
+
+      // Convert HEIC to JPEG if needed
+      if (file.type === 'image/heic' || file.type === 'image/heif') {
+        try {
+          file = await convertHeicToJpeg(file);
+        } catch (err) {
+          alert(`HEIC conversion failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
+          continue;
+        }
       }
 
       const reader = new FileReader();
@@ -144,7 +170,7 @@ export default function CleaningPhotoUploader({ taskId, onUploadComplete }: Prop
           <input
             type="file"
             multiple
-            accept="image/jpeg,image/png"
+            accept="image/jpeg,image/png,image/heic,image/heif"
             onChange={handleFileSelect}
             disabled={photos.length >= MAX_PHOTOS}
             className="hidden"
@@ -159,11 +185,17 @@ export default function CleaningPhotoUploader({ taskId, onUploadComplete }: Prop
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {photos.map((photo, i) => (
             <div key={i} className="relative group">
-              <img
-                src={photo.preview}
-                alt={`preview-${i}`}
-                className="w-full h-24 object-cover rounded-lg"
-              />
+              <div className="relative w-full h-24 rounded-lg overflow-hidden">
+                <Image
+                  src={photo.preview}
+                  alt={`preview-${i}`}
+                  fill
+                  className="object-cover"
+                  placeholder="blur"
+                  blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8VAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCwAA//2Q=="
+                  sizes="96px"
+                />
+              </div>
 
               <button
                 onClick={() => handleRemove(i)}

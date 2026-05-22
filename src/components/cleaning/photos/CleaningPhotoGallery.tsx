@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Trash2 } from 'lucide-react';
+import { createClient } from '@supabase/supabase-js';
+import Image from 'next/image';
 
 interface Photo {
   id: string;
@@ -17,6 +19,11 @@ interface Props {
   taskId: string;
   isManager?: boolean;
 }
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+);
 
 export default function CleaningPhotoGallery({ taskId, isManager = false }: Props) {
   const t = useTranslations('cleaning.photos.gallery');
@@ -42,10 +49,35 @@ export default function CleaningPhotoGallery({ taskId, isManager = false }: Prop
     };
 
     load();
-    // Refresh photos every 5 seconds for real-time updates
-    const interval = setInterval(load, 5000);
-    return () => clearInterval(interval);
-  }, [taskId, t]);
+
+    // Subscribe to Realtime updates for this task's photos
+    const channel = supabase
+      .channel(`cleaning_photos:task_id=eq.${taskId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'cleaning_photos',
+          filter: `task_id=eq.${taskId}`,
+        },
+        async (payload) => {
+          if (payload.eventType === 'INSERT') {
+            // Reload photos on insert to get signed URL
+            load();
+          } else if (payload.eventType === 'DELETE') {
+            setPhotos((prev) => prev.filter((p) => p.id !== (payload.old as Photo).id));
+          } else if (payload.eventType === 'UPDATE') {
+            load();
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      channel.unsubscribe();
+    };
+  }, [taskId]);
 
   const handleDelete = async (photoId: string) => {
     if (!confirm(t('delete_confirm'))) return;
@@ -85,11 +117,17 @@ export default function CleaningPhotoGallery({ taskId, isManager = false }: Prop
         {photos.map((photo) => (
           <div key={photo.id} className="relative group">
             {photo.url && (
-              <img
-                src={photo.url}
-                alt="Cleaning photo"
-                className="w-full h-24 object-cover rounded-lg"
-              />
+              <div className="relative w-full h-24 rounded-lg overflow-hidden">
+                <Image
+                  src={photo.url}
+                  alt="Cleaning photo"
+                  fill
+                  className="object-cover"
+                  placeholder="blur"
+                  blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8VAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCwAA//2Q=="
+                  sizes="(max-width: 768px) 50vw, 25vw"
+                />
+              </div>
             )}
 
             {isManager && (

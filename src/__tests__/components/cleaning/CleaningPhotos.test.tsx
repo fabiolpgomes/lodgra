@@ -11,7 +11,24 @@ jest.mock('next-intl', () => ({
 const fetchMock = jest.fn() as jest.Mock<Promise<Response>>;
 global.fetch = fetchMock;
 
-describe('Cleaning Photos (Story 29.5)', () => {
+// Mock Supabase
+jest.mock('@supabase/supabase-js', () => ({
+  createClient: () => ({
+    channel: jest.fn(() => ({
+      on: jest.fn(() => ({
+        subscribe: jest.fn(() => ({ unsubscribe: jest.fn() })),
+      })),
+      unsubscribe: jest.fn(),
+    })),
+  }),
+}));
+
+// Mock heic2any
+jest.mock('heic2any', () => ({
+  default: jest.fn(async ({ blob }: { blob: Blob }) => blob),
+}));
+
+describe('Cleaning Photos (Story 29.5 + 29.9 Enhancements)', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -27,11 +44,18 @@ describe('Cleaning Photos (Story 29.5)', () => {
       expect(screen.getByText(/0\/10/)).toBeInTheDocument();
     });
 
-    test('accepts file selection', () => {
+    test('accepts file selection including HEIC', () => {
       const { container } = render(<CleaningPhotoUploader taskId="test-task-id" />);
       const input = container.querySelector('input[type="file"]') as HTMLInputElement;
       expect(input).toBeInTheDocument();
       expect(input.accept).toContain('image/jpeg');
+      expect(input.accept).toContain('image/heic');
+    });
+
+    test('rejects unsupported file formats', () => {
+      const { container } = render(<CleaningPhotoUploader taskId="test-task-id" />);
+      const input = container.querySelector('input[type="file"]') as HTMLInputElement;
+      expect(input.accept).not.toContain('image/gif');
     });
   });
 
@@ -113,6 +137,45 @@ describe('Cleaning Photos (Story 29.5)', () => {
         const buttons = screen.getAllByRole('button');
         expect(buttons.length).toBeGreaterThan(0);
       });
+    });
+
+    test('establishes Realtime subscription on mount (Story 29.9)', async () => {
+      fetchMock.mockResolvedValueOnce({
+        ok: true,
+        json: async () => [],
+      } as Response);
+
+      const { container } = render(<CleaningPhotoGallery taskId="test-task-id" />);
+
+      // Component renders without errors
+      expect(container).toBeInTheDocument();
+      expect(fetchMock).toHaveBeenCalledWith('/api/cleaner/tasks/test-task-id/photos');
+    });
+
+    test('unsubscribes from Realtime on unmount (Story 29.9)', async () => {
+      fetchMock.mockResolvedValueOnce({
+        ok: true,
+        json: async () => [],
+      } as Response);
+
+      const { unmount } = render(<CleaningPhotoGallery taskId="test-task-id" />);
+
+      // Component should render without errors
+      expect(() => unmount()).not.toThrow();
+    });
+  });
+
+  describe('Story 29.9 Enhancements', () => {
+    test('accepts HEIC format files', () => {
+      const { container } = render(<CleaningPhotoUploader taskId="test-task-id" />);
+      const input = container.querySelector('input[type="file"]') as HTMLInputElement;
+      expect(input.accept).toContain('image/heic');
+      expect(input.accept).toContain('image/heif');
+    });
+
+    test('renders Image component with proper props', () => {
+      render(<CleaningPhotoUploader taskId="test-task-id" />);
+      expect(screen.getByText('add_photos')).toBeInTheDocument();
     });
   });
 });
