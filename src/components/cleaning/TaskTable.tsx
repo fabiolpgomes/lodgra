@@ -1,4 +1,14 @@
-type CleaningTask = any;
+interface CleaningTask {
+  id: string;
+  property_id: string;
+  scheduled_date: string;
+  scheduled_time?: string;
+  cleaner_id?: string;
+  checklist_template_id?: string;
+  notes?: string;
+  status?: 'pending' | 'in_progress' | 'done' | 'issue';
+  completed_at?: string;
+}
 
 'use client';
 

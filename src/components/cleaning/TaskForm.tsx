@@ -8,7 +8,24 @@ import { z } from 'zod';
 import { Button } from '@/components/common/ui/button';
 import { Input } from '@/components/common/ui/input';
 
-type CleaningTask = any;
+interface CleaningTaskInput {
+  property_id: string;
+  scheduled_date: string;
+  scheduled_time?: string;
+  cleaner_id?: string;
+  checklist_template_id?: string;
+  notes?: string;
+}
+
+interface CleaningTask extends CleaningTaskInput {
+  id: string;
+  organization_id: string;
+  reservation_id?: string | null;
+  status: string;
+  completed_at?: string | null;
+  created_at: string;
+  updated_at: string;
+}
 
 interface PropertyOption {
   id: string;
@@ -37,7 +54,7 @@ const taskSchema = z.object({
   notes: z.string().optional(),
 });
 
-type TaskFormData = z.infer<typeof taskSchema>;
+type TaskFormData = z.infer<typeof taskSchema> & Omit<CleaningTaskInput, 'scheduled_date'> & { scheduled_date: string };
 
 interface TaskFormProps {
   task?: CleaningTask;

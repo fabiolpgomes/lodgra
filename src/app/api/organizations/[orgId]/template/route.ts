@@ -47,7 +47,16 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   const adminClient = createAdminClient()
   const { data: existingTemplate } = await adminClient.from('organization_templates').select('id').eq('organization_id', orgId).single()
 
-  const updateData: Record<string, any> = { updated_at: new Date().toISOString() }
+  interface TemplateUpdate {
+    updated_at: string
+    booking_headline?: string
+    booking_description?: string
+    featured_property_ids?: string[]
+    show_all_properties?: boolean
+    template_type?: string
+    cta_button_text?: string
+  }
+  const updateData: TemplateUpdate = { updated_at: new Date().toISOString() }
   if (booking_headline !== undefined) updateData.booking_headline = booking_headline
   if (booking_description !== undefined) updateData.booking_description = booking_description
   if (featured_property_ids !== undefined) updateData.featured_property_ids = featured_property_ids

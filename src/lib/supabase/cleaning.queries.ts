@@ -252,9 +252,16 @@ export async function createCleaningPhotoBucket() {
 // REALTIME SUBSCRIPTIONS
 // ============================================================================
 
+interface RealtimePayload {
+  eventType?: string;
+  new?: Record<string, unknown>;
+  old?: Record<string, unknown>;
+  [key: string]: unknown;
+}
+
 export function subscribeToCleaningTasks(
   organizationId: string,
-  callback: (payload: any) => void
+  callback: (payload: RealtimePayload) => void
 ) {
   return supabase
     .channel(`cleaning_tasks:org_id=eq.${organizationId}`)
@@ -273,7 +280,7 @@ export function subscribeToCleaningTasks(
 
 export function subscribeToCleaningPhotos(
   taskId: string,
-  callback: (payload: any) => void
+  callback: (payload: RealtimePayload) => void
 ) {
   return supabase
     .channel(`cleaning_photos:task_id=eq.${taskId}`)
