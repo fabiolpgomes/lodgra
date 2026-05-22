@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { seoMetadata, ogDefaults, twitterDefaults } from '@/lib/seo/metadata'
+import { ogDefaults, twitterDefaults } from '@/lib/seo/metadata'
 
 export const metadata: Metadata = {
   title: 'Funcionalidades - Lodgra | Gestão Completa de Imóveis',

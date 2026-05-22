@@ -36,10 +36,15 @@
       "edit": "Editar",
       "mark_done": "Marcar como Concluída",
       "delete": "Excluir",
+      "assign_cleaner": "Atribuir Responsável",
+      "assign": "Atribuir",
+      "select_cleaner": "Selecione responsável",
+      "cancel": "Cancelar",
       "delete_confirm": "Tem certeza que deseja excluir esta tarefa?",
       "mark_done_confirm": "Marcar esta tarefa como concluída?",
       "delete_error": "Erro ao excluir tarefa. Tente novamente.",
-      "update_error": "Erro ao atualizar tarefa. Tente novamente."
+      "update_error": "Erro ao atualizar tarefa. Tente novamente.",
+      "assign_error": "Erro ao atribuir responsável. Tente novamente."
     },
     "filters": {
       "status": "Status",

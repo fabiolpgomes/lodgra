@@ -1,5 +1,3 @@
-import { verifyCleanerToken } from '@/lib/middleware/verify-cleaner-token';
-
 describe('Cleaner Token Verification Middleware', () => {
   describe('Token Extraction', () => {
     it('should extract token from query parameter', async () => {

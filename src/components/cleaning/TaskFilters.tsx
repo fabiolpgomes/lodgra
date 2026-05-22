@@ -74,6 +74,7 @@ export default function TaskFilters({ onFilterChange }: TaskFiltersProps) {
           <Button
             variant="outline"
             onClick={handleReset}
+            size="lg"
             className="w-full"
           >
             {t('reset')}

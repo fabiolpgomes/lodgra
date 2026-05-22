@@ -1,0 +1,129 @@
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import TaskTable from '@/components/cleaning/TaskTable';
+import { CleaningTask } from '@/app/[locale]/cleaning/manage/page';
+
+// Mock next-intl
+jest.mock('next-intl', () => ({
+  useTranslations: () => (key: string) => key,
+}));
+
+// Mock next/navigation
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: jest.fn(),
+  }),
+}));
+
+// Mock fetch
+global.fetch = jest.fn();
+
+describe('TaskTable', () => {
+  const mockTasks: CleaningTask[] = [
+    {
+      id: '1',
+      property_id: 'prop-1',
+      scheduled_date: '2026-05-25',
+      scheduled_time: '10:00',
+      cleaner_id: null,
+      status: 'pending',
+      checklist_template_id: null,
+      notes: null,
+      completed_at: null,
+      created_at: '2026-05-22T00:00:00Z',
+      updated_at: '2026-05-22T00:00:00Z',
+      organization_id: 'org-1',
+    },
+  ];
+
+  const mockOnUpdate = jest.fn();
+  const mockOnDelete = jest.fn();
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => [
+        { id: 'cleaner-1', full_name: 'John Doe' },
+        { id: 'cleaner-2', full_name: 'Jane Smith' },
+      ],
+    });
+  });
+
+  test('renders task table with columns', () => {
+    render(
+      <TaskTable
+        tasks={mockTasks}
+        onUpdate={mockOnUpdate}
+        onDelete={mockOnDelete}
+      />
+    );
+
+    expect(screen.getByText('table.property')).toBeInTheDocument();
+    expect(screen.getByText('table.date')).toBeInTheDocument();
+    expect(screen.getByText('table.cleaner')).toBeInTheDocument();
+    expect(screen.getByText('table.status')).toBeInTheDocument();
+    expect(screen.getByText('table.actions')).toBeInTheDocument();
+  });
+
+  test('renders assign cleaner button', async () => {
+    render(
+      <TaskTable
+        tasks={mockTasks}
+        onUpdate={mockOnUpdate}
+        onDelete={mockOnDelete}
+      />
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('table.assign_cleaner')).toBeInTheDocument();
+    });
+  });
+
+  test('opens cleaner dropdown on assign button click', async () => {
+    render(
+      <TaskTable
+        tasks={mockTasks}
+        onUpdate={mockOnUpdate}
+        onDelete={mockOnDelete}
+      />
+    );
+
+    const assignButton = await screen.findByText('table.assign_cleaner');
+    fireEvent.click(assignButton);
+
+    await waitFor(() => {
+      expect(screen.getByDisplayValue('table.select_cleaner')).toBeInTheDocument();
+    });
+  });
+
+  test('assigns cleaner and calls onUpdate', async () => {
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ ...mockTasks[0], cleaner_id: 'cleaner-1' }),
+    });
+
+    render(
+      <TaskTable
+        tasks={mockTasks}
+        onUpdate={mockOnUpdate}
+        onDelete={mockOnDelete}
+      />
+    );
+
+    // Open dropdown
+    const assignButton = await screen.findByText('table.assign_cleaner');
+    fireEvent.click(assignButton);
+
+    // Select cleaner
+    const select = await screen.findByDisplayValue('table.select_cleaner') as HTMLSelectElement;
+    fireEvent.change(select, { target: { value: 'cleaner-1' } });
+
+    // Click assign
+    const confirmButton = screen.getByText('table.assign');
+    fireEvent.click(confirmButton);
+
+    await waitFor(() => {
+      expect(mockOnUpdate).toHaveBeenCalled();
+    });
+  });
+});

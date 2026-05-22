@@ -36,6 +36,8 @@ const eslintConfig = defineConfig([
     ".aiox-core/**",
     // Claude hooks (ferramentas internas do Claude Code)
     ".claude/**",
+    ".codex/**",
+    ".agents/**",
     // Playwright e2e tests (não são arquivos React)
     "e2e/**",
     // Relatórios gerados pelo Playwright (arquivos minificados, não código fonte)

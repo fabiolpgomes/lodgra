@@ -1,10 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/common/ui/button';
 import { CleaningTask } from '@/app/[locale]/cleaning/manage/page';
+
+interface CleanerOption {
+  id: string;
+  full_name: string;
+}
 
 interface TaskTableProps {
   tasks: CleaningTask[];
@@ -34,6 +39,24 @@ export default function TaskTable({
   const t = useTranslations('cleaning.manage.table');
   const router = useRouter();
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [cleaners, setCleaners] = useState<CleanerOption[]>([]);
+  const [assigningTaskId, setAssigningTaskId] = useState<string | null>(null);
+  const [selectedCleanerId, setSelectedCleanerId] = useState<string>('');
+
+  useEffect(() => {
+    const fetchCleaners = async () => {
+      try {
+        const response = await fetch('/api/users?type=cleaner');
+        if (response.ok) {
+          const data = await response.json();
+          setCleaners(data);
+        }
+      } catch (error) {
+        console.error('Error fetching cleaners:', error);
+      }
+    };
+    fetchCleaners();
+  }, []);
 
   const handleDelete = async (taskId: string) => {
     if (!confirm(t('delete_confirm'))) return;
@@ -74,6 +97,33 @@ export default function TaskTable({
     } catch (error) {
       console.error('Update error:', error);
       alert(t('update_error'));
+    }
+  };
+
+  const handleAssignCleaner = async (task: CleaningTask) => {
+    if (!selectedCleanerId) {
+      alert(t('select_cleaner'));
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/cleaning/tasks/${task.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          cleaner_id: selectedCleanerId,
+        }),
+      });
+
+      if (!response.ok) throw new Error('Assign failed');
+
+      const updated = await response.json();
+      onUpdate(updated);
+      setAssigningTaskId(null);
+      setSelectedCleanerId('');
+    } catch (error) {
+      console.error('Assign error:', error);
+      alert(t('assign_error') || 'Error assigning cleaner');
     }
   };
 
@@ -119,42 +169,85 @@ export default function TaskTable({
                 </span>
               </td>
               <td className="px-4 py-3">
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() =>
-                      router.push(`/cleaning/tasks/${task.id}`)
-                    }
-                  >
-                    {t('view')}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() =>
-                      router.push(`/cleaning/manage/${task.id}/edit`)
-                    }
-                  >
-                    {t('edit')}
-                  </Button>
-                  {task.status !== 'done' && (
+                <div className="flex flex-col gap-2">
+                  <div className="flex gap-2">
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleMarkDone(task)}
+                      onClick={() =>
+                        router.push(`/cleaning/tasks/${task.id}`)
+                      }
                     >
-                      {t('mark_done')}
+                      {t('view')}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        router.push(`/cleaning/manage/${task.id}/edit`)
+                      }
+                    >
+                      {t('edit')}
+                    </Button>
+                    {task.status !== 'done' && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleMarkDone(task)}
+                      >
+                        {t('mark_done')}
+                      </Button>
+                    )}
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleDelete(task.id)}
+                      disabled={deletingId === task.id}
+                    >
+                      {t('delete')}
+                    </Button>
+                  </div>
+                  {assigningTaskId === task.id && (
+                    <div className="flex gap-2 bg-blue-50 p-2 rounded">
+                      <select
+                        value={selectedCleanerId}
+                        onChange={(e) => setSelectedCleanerId(e.target.value)}
+                        className="flex-1 rounded-md border border-gray-300 px-2 py-1 text-sm"
+                      >
+                        <option value="">{t('select_cleaner')}</option>
+                        {cleaners.map((cleaner) => (
+                          <option key={cleaner.id} value={cleaner.id}>
+                            {cleaner.full_name}
+                          </option>
+                        ))}
+                      </select>
+                      <Button
+                        size="sm"
+                        onClick={() => handleAssignCleaner(task)}
+                      >
+                        {t('assign')}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setAssigningTaskId(null);
+                          setSelectedCleanerId('');
+                        }}
+                      >
+                        {t('cancel')}
+                      </Button>
+                    </div>
+                  )}
+                  {assigningTaskId !== task.id && (
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => setAssigningTaskId(task.id)}
+                    >
+                      {t('assign_cleaner')}
                     </Button>
                   )}
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => handleDelete(task.id)}
-                    disabled={deletingId === task.id}
-                  >
-                    {t('delete')}
-                  </Button>
                 </div>
               </td>
             </tr>

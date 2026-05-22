@@ -36,10 +36,15 @@
       "edit": "Edit",
       "mark_done": "Mark Done",
       "delete": "Delete",
+      "assign_cleaner": "Assign Cleaner",
+      "assign": "Assign",
+      "select_cleaner": "Select a cleaner",
+      "cancel": "Cancel",
       "delete_confirm": "Are you sure you want to delete this task?",
       "mark_done_confirm": "Mark this task as done?",
       "delete_error": "Error deleting task. Please try again.",
-      "update_error": "Error updating task. Please try again."
+      "update_error": "Error updating task. Please try again.",
+      "assign_error": "Error assigning cleaner. Please try again."
     },
     "filters": {
       "status": "Status",

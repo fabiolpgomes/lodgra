@@ -36,10 +36,15 @@
       "edit": "Editar",
       "mark_done": "Marcar como Completada",
       "delete": "Eliminar",
+      "assign_cleaner": "Asignar Responsable",
+      "assign": "Asignar",
+      "select_cleaner": "Seleccione responsable",
+      "cancel": "Cancelar",
       "delete_confirm": "¿Está seguro de que desea eliminar esta tarea?",
       "mark_done_confirm": "¿Marcar esta tarea como completada?",
       "delete_error": "Error al eliminar la tarea. Intente de nuevo.",
-      "update_error": "Error al actualizar la tarea. Intente de nuevo."
+      "update_error": "Error al actualizar la tarea. Intente de nuevo.",
+      "assign_error": "Error al asignar responsable. Intente de nuevo."
     },
     "filters": {
       "status": "Estado",
