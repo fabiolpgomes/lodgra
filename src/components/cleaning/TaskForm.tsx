@@ -7,7 +7,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/common/ui/button';
 import { Input } from '@/components/common/ui/input';
-import { CleaningTask } from '@/app/[locale]/cleaning/manage/page';
+
+type CleaningTask = any;
 
 interface PropertyOption {
   id: string;

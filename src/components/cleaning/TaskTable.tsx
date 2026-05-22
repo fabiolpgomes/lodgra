@@ -1,10 +1,11 @@
+type CleaningTask = any;
+
 'use client';
 
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/common/ui/button';
-import { CleaningTask } from '@/app/[locale]/cleaning/manage/page';
 
 interface CleanerOption {
   id: string;

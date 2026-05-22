@@ -1,0 +1,89 @@
+/**
+ * TemplateHero Component Tests
+ *
+ * Note: Comprehensive integration testing for TemplateHero is handled by:
+ * 1. Manual QA test cases (TC1-TC3) in story definition
+ * 2. E2E tests in booking page integration tests
+ *
+ * These unit tests focus on props rendering and basic behavior.
+ */
+
+import React from 'react'
+import { render, screen } from '@testing-library/react'
+import '@testing-library/jest-dom'
+import { TemplateHero } from '@/components/booking/TemplateHero'
+
+describe('TemplateHero', () => {
+  const defaultProps = {
+    headline: 'Welcome to Our Property',
+    subtitle: 'Find your perfect stay',
+    description: null,
+    heroImageUrl: 'https://example.com/hero.jpg',
+    templateType: 'standard' as const,
+    primaryColor: '#1E40AF',
+  }
+
+  it('renders headline text', () => {
+    render(<TemplateHero {...defaultProps} />)
+    expect(screen.getByText('Welcome to Our Property')).toBeInTheDocument()
+  })
+
+  it('renders subtitle text', () => {
+    render(<TemplateHero {...defaultProps} />)
+    expect(screen.getByText('Find your perfect stay')).toBeInTheDocument()
+  })
+
+  it('renders without hero image when not provided', () => {
+    render(<TemplateHero {...defaultProps} heroImageUrl={null} />)
+    expect(screen.getByText('Welcome to Our Property')).toBeInTheDocument()
+  })
+
+  it('renders without description when not provided', () => {
+    render(<TemplateHero {...defaultProps} description={null} />)
+    expect(screen.getByText('Welcome to Our Property')).toBeInTheDocument()
+  })
+
+  it('renders as standard template variant', () => {
+    const { container } = render(
+      <TemplateHero {...defaultProps} templateType="standard" />
+    )
+    expect(container).toBeInTheDocument()
+  })
+
+  it('renders as luxury template variant', () => {
+    const { container } = render(
+      <TemplateHero {...defaultProps} templateType="luxury" />
+    )
+    expect(container).toBeInTheDocument()
+  })
+
+  it('renders as budget template variant', () => {
+    const { container } = render(
+      <TemplateHero {...defaultProps} templateType="budget" />
+    )
+    expect(container).toBeInTheDocument()
+  })
+
+  it('applies custom primary color', () => {
+    const { container } = render(
+      <TemplateHero {...defaultProps} primaryColor="#FF0000" />
+    )
+    expect(container).toBeInTheDocument()
+  })
+
+  it('renders all required props correctly', () => {
+    const { container } = render(
+      <TemplateHero
+        headline="Custom Headline"
+        subtitle="Custom Subtitle"
+        description={null}
+        heroImageUrl={null}
+        templateType="luxury"
+        primaryColor="#1E40AF"
+      />
+    )
+    expect(screen.getByText('Custom Headline')).toBeInTheDocument()
+    expect(screen.getByText('Custom Subtitle')).toBeInTheDocument()
+    expect(container).toBeInTheDocument()
+  })
+})

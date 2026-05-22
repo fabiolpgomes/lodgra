@@ -70,7 +70,7 @@ export async function renderEmailTemplate(
  * Handlebars {{variable}} automatically HTML-escapes, but we double-check
  */
 function sanitizeVariables(variables: EmailVariables): EmailVariables {
-  const sanitized: EmailVariables = {}
+  const sanitized: EmailVariables = {} as EmailVariables
 
   for (const [key, value] of Object.entries(variables)) {
     if (typeof value === 'string') {
