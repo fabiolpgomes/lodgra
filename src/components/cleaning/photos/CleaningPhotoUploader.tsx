@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/common/ui/button';
 import { ImagePlus, X } from 'lucide-react';
-import Image from 'next/image';
+import NextImage from 'next/image';
 
 interface Photo {
   id?: string;
@@ -53,7 +53,7 @@ async function compressImage(file: File): Promise<Blob> {
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = (e) => {
-      const img = new Image();
+      const img: HTMLImageElement = new Image();
       img.src = e.target?.result as string;
       img.onload = () => {
         const canvas = document.createElement('canvas');
@@ -186,7 +186,7 @@ export default function CleaningPhotoUploader({ taskId, onUploadComplete }: Prop
           {photos.map((photo, i) => (
             <div key={i} className="relative group">
               <div className="relative w-full h-24 rounded-lg overflow-hidden">
-                <Image
+                <NextImage
                   src={photo.preview}
                   alt={`preview-${i}`}
                   fill
