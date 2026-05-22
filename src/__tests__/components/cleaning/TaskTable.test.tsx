@@ -58,11 +58,11 @@ describe('TaskTable', () => {
       />
     );
 
-    expect(screen.getByText('table.property')).toBeInTheDocument();
-    expect(screen.getByText('table.date')).toBeInTheDocument();
-    expect(screen.getByText('table.cleaner')).toBeInTheDocument();
-    expect(screen.getByText('table.status')).toBeInTheDocument();
-    expect(screen.getByText('table.actions')).toBeInTheDocument();
+    expect(screen.getByText('property')).toBeInTheDocument();
+    expect(screen.getByText('date')).toBeInTheDocument();
+    expect(screen.getByText('cleaner')).toBeInTheDocument();
+    expect(screen.getByText('status')).toBeInTheDocument();
+    expect(screen.getByText('actions')).toBeInTheDocument();
   });
 
   test('renders assign cleaner button', async () => {
@@ -75,7 +75,7 @@ describe('TaskTable', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText('table.assign_cleaner')).toBeInTheDocument();
+      expect(screen.getByText('assign_cleaner')).toBeInTheDocument();
     });
   });
 
@@ -88,11 +88,11 @@ describe('TaskTable', () => {
       />
     );
 
-    const assignButton = await screen.findByText('table.assign_cleaner');
+    const assignButton = await screen.findByText('assign_cleaner');
     fireEvent.click(assignButton);
 
     await waitFor(() => {
-      expect(screen.getByDisplayValue('table.select_cleaner')).toBeInTheDocument();
+      expect(screen.getByDisplayValue('select_cleaner')).toBeInTheDocument();
     });
   });
 
@@ -111,15 +111,15 @@ describe('TaskTable', () => {
     );
 
     // Open dropdown
-    const assignButton = await screen.findByText('table.assign_cleaner');
+    const assignButton = await screen.findByText('assign_cleaner');
     fireEvent.click(assignButton);
 
     // Select cleaner
-    const select = await screen.findByDisplayValue('table.select_cleaner') as HTMLSelectElement;
+    const select = await screen.findByDisplayValue('select_cleaner') as HTMLSelectElement;
     fireEvent.change(select, { target: { value: 'cleaner-1' } });
 
     // Click assign
-    const confirmButton = screen.getByText('table.assign');
+    const confirmButton = screen.getByText('assign');
     fireEvent.click(confirmButton);
 
     await waitFor(() => {
