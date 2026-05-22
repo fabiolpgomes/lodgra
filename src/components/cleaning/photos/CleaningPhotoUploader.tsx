@@ -14,9 +14,18 @@ interface Photo {
   progress?: number;
 }
 
+interface UploadedPhoto {
+  id: string;
+  task_id: string;
+  file_path: string;
+  url?: string;
+  uploader_id: string;
+  uploaded_at: string;
+}
+
 interface Props {
   taskId: string;
-  onUploadComplete?: (photo: any) => void;
+  onUploadComplete?: (photo: UploadedPhoto) => void;
 }
 
 const MAX_PHOTOS = 10;

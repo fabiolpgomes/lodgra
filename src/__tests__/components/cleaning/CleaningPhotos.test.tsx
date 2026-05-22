@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import CleaningPhotoUploader from '@/components/cleaning/photos/CleaningPhotoUploader';
 import CleaningPhotoGallery from '@/components/cleaning/photos/CleaningPhotoGallery';
 
@@ -8,7 +8,8 @@ jest.mock('next-intl', () => ({
 }));
 
 // Mock fetch
-global.fetch = jest.fn();
+const fetchMock = jest.fn() as jest.Mock<Promise<Response>>;
+global.fetch = fetchMock;
 
 describe('Cleaning Photos (Story 29.5)', () => {
   beforeEach(() => {
@@ -36,7 +37,7 @@ describe('Cleaning Photos (Story 29.5)', () => {
 
   describe('CleaningPhotoGallery', () => {
     test('renders loading state', () => {
-      (global.fetch as jest.Mock).mockImplementation(
+      fetchMock.mockImplementation(
         () => new Promise(() => {}) // Never resolves
       );
       render(<CleaningPhotoGallery taskId="test-task-id" />);
@@ -44,7 +45,7 @@ describe('Cleaning Photos (Story 29.5)', () => {
     });
 
     test('handles empty gallery', async () => {
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
+      fetchMock.mockResolvedValueOnce({
         ok: true,
         json: async () => [],
       });
@@ -68,7 +69,7 @@ describe('Cleaning Photos (Story 29.5)', () => {
         },
       ];
 
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
+      fetchMock.mockResolvedValueOnce({
         ok: true,
         json: async () => mockPhotos,
       });
@@ -93,7 +94,7 @@ describe('Cleaning Photos (Story 29.5)', () => {
         },
       ];
 
-      (global.fetch as jest.Mock)
+      fetchMock
         .mockResolvedValueOnce({
           ok: true,
           json: async () => mockPhotos,
