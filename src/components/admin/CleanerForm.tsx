@@ -16,9 +16,17 @@ const cleanerSchema = z.object({
 
 type CleanerFormData = z.infer<typeof cleanerSchema>;
 
+interface Cleaner extends CleanerFormData {
+  id: string;
+  organization_id: string;
+  role: string;
+  guest_type: string;
+  is_active: boolean;
+}
+
 interface CleanerFormProps {
   organizationId: string;
-  onSuccess?: (cleaner: any) => void;
+  onSuccess?: (cleaner: Cleaner) => void;
 }
 
 export default function CleanerForm({ organizationId, onSuccess }: CleanerFormProps) {
