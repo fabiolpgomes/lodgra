@@ -176,7 +176,7 @@ export default function TaskTable({
                     statusColors[task.status as keyof typeof statusColors]
                   }`}
                 >
-                  {statusLabels[task.status] || task.status}
+                  {statusLabels[task.status as keyof typeof statusLabels] || task.status}
                 </span>
               </td>
               <td className="px-4 py-3">
