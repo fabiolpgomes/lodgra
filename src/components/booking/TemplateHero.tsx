@@ -3,7 +3,7 @@
 import Image from 'next/image'
 import { useMemo } from 'react'
 import remarkGfm from 'remark-gfm'
-import { ReactMarkdown } from 'react-markdown'
+import ReactMarkdown from 'react-markdown'
 import rehypeSanitize from 'rehype-sanitize'
 
 interface TemplateHeroProps {
