@@ -1,0 +1,100 @@
+<mjml>
+  <mj-head>
+    <mj-title>{{subject}}</mj-title>
+    <mj-preview>Your booking confirmation for {{propertyName}}</mj-preview>
+    <mj-style>
+      .button-text { color: #ffffff; text-decoration: none; }
+      .header-text { color: {{primaryColor}}; font-weight: bold; }
+    </mj-style>
+  </mj-head>
+  <mj-body background-color="#f4f4f4">
+    <!-- Header with logo -->
+    <mj-section background-color="#ffffff" padding="20px 0">
+      <mj-column>
+        {{#if logoUrl}}
+        <mj-image src="{{logoUrl}}" alt="{{organizationName}}" width="120px" />
+        {{/if}}
+        <mj-text align="center" font-size="28px" font-weight="bold" color="{{primaryColor}}">
+          {{organizationName}}
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- Main content -->
+    <mj-section background-color="#ffffff" padding="30px 20px">
+      <mj-column>
+        <mj-text font-size="20px" font-weight="bold" color="#1f2937">
+          {{subject}}
+        </mj-text>
+
+        <mj-text color="#6b7280" padding-top="20px">
+          Dear {{customerName}},
+        </mj-text>
+
+        <mj-text color="#6b7280" line-height="1.6">
+          Thank you for your booking! We're excited to welcome you.
+        </mj-text>
+
+        <!-- Custom message (if provided) -->
+        {{#if confirmationMessage}}
+        <mj-text color="#6b7280" line-height="1.6" padding="20px 0">
+          {{confirmationMessage}}
+        </mj-text>
+        {{/if}}
+
+        <!-- Booking details -->
+        <mj-table padding="20px 0">
+          <tr style="border-bottom: 1px solid #e5e7eb;">
+            <td style="padding: 10px 0; font-weight: bold; color: #1f2937;">Property</td>
+            <td style="padding: 10px 0; color: #6b7280;">{{propertyName}}</td>
+          </tr>
+          <tr style="border-bottom: 1px solid #e5e7eb;">
+            <td style="padding: 10px 0; font-weight: bold; color: #1f2937;">Check-in</td>
+            <td style="padding: 10px 0; color: #6b7280;">{{checkInDate}}</td>
+          </tr>
+          <tr style="border-bottom: 1px solid #e5e7eb;">
+            <td style="padding: 10px 0; font-weight: bold; color: #1f2937;">Check-out</td>
+            <td style="padding: 10px 0; color: #6b7280;">{{checkOutDate}}</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px 0; font-weight: bold; color: #1f2937;">Total Price</td>
+            <td style="padding: 10px 0; color: #1f2937; font-weight: bold; font-size: 18px;">{{currency}} {{totalPrice}}</td>
+          </tr>
+        </mj-table>
+
+        <!-- CTA Button -->
+        <mj-button
+          padding="20px 0"
+          background-color="{{primaryColor}}"
+          href="{{bookingUrl}}"
+          font-size="16px"
+          border-radius="4px">
+          View Your Booking
+        </mj-button>
+
+        <mj-text color="#6b7280" padding-top="20px">
+          If you have any questions, please contact us at {{replyToEmail}}.
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- Footer -->
+    <mj-section background-color="#f9fafb" padding="20px">
+      <mj-column>
+        {{#if footerText}}
+        <mj-text font-size="13px" color="#6b7280" align="center">
+          {{footerText}}
+        </mj-text>
+        {{/if}}
+
+        <mj-text font-size="12px" color="#9ca3af" align="center" padding-top="10px">
+          © {{year}} {{organizationName}}. All rights reserved.
+        </mj-text>
+
+        <mj-text font-size="12px" color="#9ca3af" align="center" padding-top="10px">
+          <a href="{{unsubscribeUrl}}" style="color: #9ca3af; text-decoration: underline;">Unsubscribe</a>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
