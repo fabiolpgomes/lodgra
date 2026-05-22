@@ -33,24 +33,33 @@ export default function CleaningPhotoGallery({ taskId, isManager = false }: Prop
   const [deleting, setDeleting] = useState<string | null>(null);
 
   useEffect(() => {
+    let pollInterval: NodeJS.Timeout | null = null;
+    let mounted = true;
+
     const load = async () => {
       try {
         const response = await fetch(`/api/cleaner/tasks/${taskId}/photos`);
         if (!response.ok) throw new Error('Failed to load photos');
         const data = await response.json();
-        setPhotos(data);
-        setError(null);
+        if (mounted) {
+          setPhotos(data);
+          setError(null);
+        }
       } catch (err) {
-        console.error('Error loading photos:', err);
-        setError(t('load_error'));
+        if (mounted) {
+          console.error('Error loading photos:', err);
+          setError(t('load_error'));
+        }
       } finally {
-        setLoading(false);
+        if (mounted) {
+          setLoading(false);
+        }
       }
     };
 
     load();
 
-    // Subscribe to Realtime updates for this task's photos
+    // Subscribe to Realtime updates for this task's photos with lifecycle management
     const channel = supabase
       .channel(`cleaning_photos:task_id=eq.${taskId}`)
       .on(
@@ -72,12 +81,46 @@ export default function CleaningPhotoGallery({ taskId, isManager = false }: Prop
           }
         }
       )
-      .subscribe();
+      .on('system', { event: 'join' }, () => {
+        if (mounted) {
+          console.log('✅ Realtime connected');
+          // Clear polling if active
+          if (pollInterval) {
+            clearInterval(pollInterval);
+            pollInterval = null;
+          }
+        }
+      })
+      .on('system', { event: 'leave' }, () => {
+        if (mounted) {
+          console.log('⚠️ Realtime disconnected, starting polling fallback');
+          // Start polling fallback
+          pollInterval = setInterval(load, 5000);
+        }
+      })
+      .subscribe(async (status) => {
+        console.log('Realtime status:', status);
+        if (status === 'SUBSCRIBED') {
+          if (mounted && pollInterval) {
+            clearInterval(pollInterval);
+            pollInterval = null;
+          }
+        } else if (status === 'CHANNEL_ERROR' || status === 'CLOSED') {
+          if (mounted && !pollInterval) {
+            console.log('Starting polling fallback due to:', status);
+            pollInterval = setInterval(load, 5000);
+          }
+        }
+      });
 
     return () => {
+      mounted = false;
       channel.unsubscribe();
+      if (pollInterval) {
+        clearInterval(pollInterval);
+      }
     };
-  }, [taskId]);
+  }, [taskId, t]);
 
   const handleDelete = async (photoId: string) => {
     if (!confirm(t('delete_confirm'))) return;
