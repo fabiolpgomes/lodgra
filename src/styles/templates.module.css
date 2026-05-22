@@ -1,0 +1,287 @@
+/* Template Type Base Styles */
+
+.template {
+  background-color: var(--color-bg, #ffffff);
+  color: var(--color-text, #1f2937);
+}
+
+/* STANDARD Template - Cards Grid (Default) */
+.templateStandard {
+  --hero-padding: 3rem 1rem;
+  --hero-image-height: 320px;
+  --hero-title-size: 2.25rem;
+  --property-grid: repeat(auto-fill, minmax(300px, 1fr));
+  --property-card-radius: 0.5rem;
+  --property-image-height: 200px;
+  --property-title-size: 1.125rem;
+}
+
+.templateStandard .heroSection {
+  padding: var(--hero-padding);
+}
+
+.templateStandard .heroImage {
+  height: var(--hero-image-height);
+  border-radius: var(--property-card-radius);
+  margin-bottom: 2rem;
+}
+
+.templateStandard .heroTitle {
+  font-size: var(--hero-title-size);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.templateStandard .heroSubtitle {
+  font-size: 1.125rem;
+  color: var(--color-secondary, #6b7280);
+  margin-top: 0.5rem;
+}
+
+.templateStandard .heroDescription {
+  margin-top: 1.5rem;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.templateStandard .propertiesGrid {
+  display: grid;
+  grid-template-columns: var(--property-grid);
+  gap: 1.5rem;
+  padding: 3rem 1rem;
+}
+
+.templateStandard .propertyCard {
+  border-radius: var(--property-card-radius);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: box-shadow 0.3s ease;
+  background: white;
+}
+
+.templateStandard .propertyCard:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.templateStandard .propertyImage {
+  height: var(--property-image-height);
+  object-fit: cover;
+}
+
+.templateStandard .propertyTitle {
+  font-size: var(--property-title-size);
+  font-weight: 600;
+  padding: 1rem 1rem 0 1rem;
+}
+
+.templateStandard .propertyPrice {
+  font-size: 0.875rem;
+  color: var(--color-primary, #1e40af);
+  font-weight: 600;
+  padding: 0 1rem 1rem 1rem;
+}
+
+/* LUXURY Template - Premium Spacing & Large Images */
+.templateLuxury {
+  --hero-padding: 5rem 1.5rem;
+  --hero-image-height: 480px;
+  --hero-title-size: 3rem;
+  --property-grid: repeat(auto-fill, minmax(400px, 1fr));
+  --property-card-radius: 1rem;
+  --property-image-height: 320px;
+  --property-title-size: 1.5rem;
+}
+
+.templateLuxury .heroSection {
+  padding: var(--hero-padding);
+  background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+}
+
+.templateLuxury .heroImage {
+  height: var(--hero-image-height);
+  border-radius: var(--property-card-radius);
+  margin-bottom: 3rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.templateLuxury .heroTitle {
+  font-size: var(--hero-title-size);
+  font-weight: 300;
+  letter-spacing: 0.05em;
+  color: var(--color-primary, #1e40af);
+}
+
+.templateLuxury .heroSubtitle {
+  font-size: 1.5rem;
+  color: var(--color-secondary, #6b7280);
+  margin-top: 1rem;
+  font-weight: 300;
+}
+
+.templateLuxury .heroDescription {
+  margin-top: 2rem;
+  font-size: 1.125rem;
+  line-height: 1.8;
+  max-width: 800px;
+  color: var(--color-secondary, #6b7280);
+}
+
+.templateLuxury .propertiesGrid {
+  display: grid;
+  grid-template-columns: var(--property-grid);
+  gap: 2rem;
+  padding: 5rem 1.5rem;
+  background: white;
+}
+
+.templateLuxury .propertyCard {
+  border-radius: var(--property-card-radius);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+  overflow: hidden;
+  transition: all 0.4s ease;
+  background: white;
+  border: 1px solid #e5e7eb;
+}
+
+.templateLuxury .propertyCard:hover {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  transform: translateY(-4px);
+  border-color: var(--color-primary, #1e40af);
+}
+
+.templateLuxury .propertyImage {
+  height: var(--property-image-height);
+  object-fit: cover;
+}
+
+.templateLuxury .propertyTitle {
+  font-size: var(--property-title-size);
+  font-weight: 400;
+  padding: 1.5rem 1.5rem 0.5rem 1.5rem;
+  letter-spacing: -0.01em;
+}
+
+.templateLuxury .propertyPrice {
+  font-size: 1.25rem;
+  color: var(--color-primary, #1e40af);
+  font-weight: 300;
+  padding: 0 1.5rem 1.5rem 1.5rem;
+}
+
+/* BUDGET Template - Compact List */
+.templateBudget {
+  --hero-padding: 2rem 1rem;
+  --hero-image-height: 240px;
+  --hero-title-size: 1.875rem;
+  --property-grid: repeat(auto-fill, minmax(240px, 1fr));
+  --property-card-radius: 0.25rem;
+  --property-image-height: 160px;
+  --property-title-size: 1rem;
+}
+
+.templateBudget .heroSection {
+  padding: var(--hero-padding);
+  background: #f9fafb;
+}
+
+.templateBudget .heroImage {
+  height: var(--hero-image-height);
+  border-radius: var(--property-card-radius);
+  margin-bottom: 1rem;
+}
+
+.templateBudget .heroTitle {
+  font-size: var(--hero-title-size);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.templateBudget .heroSubtitle {
+  font-size: 0.875rem;
+  color: var(--color-secondary, #6b7280);
+  margin-top: 0.25rem;
+}
+
+.templateBudget .heroDescription {
+  margin-top: 1rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.templateBudget .propertiesGrid {
+  display: grid;
+  grid-template-columns: var(--property-grid);
+  gap: 1rem;
+  padding: 2rem 1rem;
+}
+
+.templateBudget .propertyCard {
+  border: 1px solid #d1d5db;
+  border-radius: var(--property-card-radius);
+  background: white;
+  transition: border-color 0.2s ease;
+}
+
+.templateBudget .propertyCard:hover {
+  border-color: var(--color-primary, #1e40af);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.templateBudget .propertyImage {
+  height: var(--property-image-height);
+  object-fit: cover;
+}
+
+.templateBudget .propertyTitle {
+  font-size: var(--property-title-size);
+  font-weight: 700;
+  padding: 0.75rem 0.75rem 0.25rem 0.75rem;
+}
+
+.templateBudget .propertyPrice {
+  font-size: 0.875rem;
+  color: var(--color-primary, #1e40af);
+  font-weight: 700;
+  padding: 0 0.75rem 0.75rem 0.75rem;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 640px) {
+  .templateLuxury {
+    --hero-padding: 3rem 1rem;
+    --hero-title-size: 2rem;
+    --property-grid: repeat(auto-fill, minmax(280px, 1fr));
+  }
+
+  .templateStandard .propertiesGrid,
+  .templateBudget .propertiesGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .templateLuxury .propertiesGrid {
+    grid-template-columns: 1fr;
+    padding: 3rem 1rem;
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .templateStandard .propertyCard,
+  .templateLuxury .propertyCard,
+  .templateBudget .propertyCard {
+    transition: none;
+  }
+
+  .templateLuxury .propertyCard:hover {
+    transform: none;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .templateStandard .propertyCard:hover,
+  .templateLuxury .propertyCard:hover,
+  .templateBudget .propertyCard:hover {
+    box-shadow: none;
+  }
+}
