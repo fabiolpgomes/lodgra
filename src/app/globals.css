@@ -87,6 +87,11 @@
   --color-lodgra-surface: var(--lodgra-surface);
   --color-lodgra-surface-card: var(--lodgra-surface-card);
   --color-lodgra-border-subtle: var(--lodgra-border-subtle);
+
+  /* Organization branding colors (Story 31.2) */
+  --color-primary: #1E40AF;
+  --color-secondary: #6B7280;
+  --color-accent: #FFC000;
 }
 
 /* Input text color handled by --foreground token (Shadcn) */
