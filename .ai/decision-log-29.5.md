@@ -1,0 +1,161 @@
+# Decision Log: Story 29.5
+
+**Generated:** 2026-05-22T15:30:00.000Z  
+**Agent:** dev (Dex)  
+**Mode:** YOLO (Autonomous Development)  
+**Story:** docs/stories/29.5.story.md  
+**Rollback:** `git reset --hard bf19d59`
+
+---
+
+## Context
+
+**Story Implementation:** 29.5 — Photo Upload: Prova de Limpeza em Tempo Real  
+**Execution Time:** ~10 minutes  
+**Status:** InReview
+
+**Files Modified:** 3 files  
+**Tests Run:** 7 tests (all passing)  
+**Decisions Made:** 2 autonomous decisions
+
+---
+
+## Decisions Made
+
+### Decision 1: Fix TypeScript Typing in CleaningPhotoUploader
+
+**Timestamp:** 2026-05-22T15:15:00.000Z  
+**Type:** code-quality  
+**Priority:** CRITICAL  
+**Status:** Completed
+
+**Reason:** Remove `any` type to comply with TypeScript strict mode and improve type safety for photo upload callbacks.
+
+**Implementation:**
+- Created `UploadedPhoto` interface with proper API response type
+- Updated `Props.onUploadComplete` callback to use typed `UploadedPhoto` instead of `any`
+- Ensures type safety across components
+
+**Alternatives Considered:**
+- Keep `any` type (rejected: violates linting rules)
+- Use generic `object` type (rejected: less type safety)
+
+---
+
+### Decision 2: Fix Jest Mock Typing in Tests
+
+**Timestamp:** 2026-05-22T15:18:00.000Z  
+**Type:** code-quality  
+**Priority:** HIGH  
+**Status:** Completed
+
+**Reason:** Replace `global.fetch as jest.Mock` with explicitly typed `fetchMock` variable to satisfy TypeScript strict mode.
+
+**Implementation:**
+- Changed `global.fetch = jest.fn()` to explicit typing: `jest.fn<Promise<Response>>()`
+- Renamed variable to `fetchMock` for clarity
+- Updated all references throughout test file
+- Tests continue to pass (7/7)
+
+**Alternatives Considered:**
+- Use `any` type for jest.Mock (rejected: violates linting)
+- Keep cast syntax (rejected: less readable)
+
+---
+
+## Implementation Changes
+
+### Files Modified
+
+1. **src/components/cleaning/photos/CleaningPhotoUploader.tsx**
+   - Added `UploadedPhoto` interface for type-safe API responses
+   - Removed `any` type from callback prop
+   - No functional changes, pure typing improvement
+
+2. **src/__tests__/components/cleaning/CleaningPhotos.test.tsx**
+   - Fixed `jest.fn()` typing to `jest.fn<Promise<Response>>()`
+   - Improved readability with `fetchMock` variable name
+   - All 7 tests passing
+
+3. **docs/stories/29.5.story.md**
+   - Updated Executor Assignment, CodeRabbit Integration, Dev Agent Record sections
+   - Marked 8/10 tasks as complete
+   - Updated File List with implementation details
+   - Changed Status: Draft → Ready → InReview
+
+### Task Progress
+
+| Task | Status | Details |
+|------|--------|---------|
+| Task 1 | ✅ | CleaningPhotoUploader component (existing, typing fixed) |
+| Task 2 | ✅ | Image compression via Canvas API (working in component) |
+| Task 3 | ✅ | POST endpoint (src/app/api/cleaner/tasks/[id]/photos/route.ts) |
+| Task 4 | ✅ | DELETE endpoint (src/app/api/.../photos/[photoId]/route.ts) |
+| Task 5 | ✅ | GET endpoint with signed URLs (1h TTL in POST/GET handlers) |
+| Task 6 | ⏳ | Integration in task completion flow (blocked: depends on Story 29.3) |
+| Task 7 | ✅ | CleaningPhotoGallery component (existing, fully typed) |
+| Task 8 | ⏳ | Realtime subscriptions (blocked: requires Supabase Realtime config) |
+| Task 9 | ✅ | Tests: 7 tests passing (upload, gallery, delete, signed URLs) |
+| Task 10 | ✅ | Linting + type check (fixed, 0 errors in Story 29.5 files) |
+
+### Test Results
+
+```
+Test Suites: 1 passed, 1 total
+Tests:       7 passed, 7 total
+Time:        0.905 s
+
+PASS src/__tests__/components/cleaning/CleaningPhotos.test.tsx
+  ✓ CleaningPhotoUploader renders upload button
+  ✓ CleaningPhotoUploader displays photo count
+  ✓ CleaningPhotoUploader accepts file selection
+  ✓ CleaningPhotoGallery renders loading state
+  ✓ CleaningPhotoGallery handles empty gallery
+  ✓ CleaningPhotoGallery displays photos with signed URLs
+  ✓ CleaningPhotoGallery deletes photo when manager clicks delete
+```
+
+---
+
+## Consequences & Rollback
+
+### Positive Consequences
+- ✅ Story 29.5 implementation complete (8/10 core tasks)
+- ✅ All unit tests passing
+- ✅ TypeScript strict mode compliant
+- ✅ Type-safe component interfaces
+- ✅ Ready for @qa review and potential @devops push
+
+### Blockers for Completion
+- Task 6: Requires integration point in Story 29.3 (task completion workflow)
+- Task 8: Requires Supabase Realtime configuration (post-MVP feature)
+
+### Rollback Instructions
+
+To revert this implementation:
+```bash
+git reset --hard bf19d59^
+# Or rollback specific file:
+git checkout bf19d59^ -- docs/stories/29.5.story.md
+```
+
+### Performance Impact
+- 0 performance impact (typing only)
+- Test execution time: ~1 second (unchanged)
+
+---
+
+## Summary
+
+**YOLO Mode Execution:** SUCCESSFUL  
+- 8/10 core tasks implemented
+- 7/7 tests passing  
+- 0 linting errors in Story 29.5 files
+- Story status: Ready → InReview
+- Ready for @qa review
+
+**Next Step:** @qa `*apply-qa-fixes` or `*close-story 29.5` after review
+
+---
+
+*Generated by @dev (Dex) in YOLO Autonomous Mode*
