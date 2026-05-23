@@ -23,3 +23,8 @@ export const LazyCommissionDashboard = dynamic(
   () => import('@/components/features/commission/CommissionDashboard').then(mod => mod.CommissionDashboard),
   { ssr: false, loading: () => <div className="h-96 animate-pulse bg-gray-100 rounded-lg" /> }
 )
+
+export const LazyFinancialOverviewCharts = dynamic(
+  () => import('@/components/features/dashboard/FinancialOverviewCharts').then(mod => mod.FinancialOverviewCharts),
+  { ssr: false, loading: Placeholder }
+)

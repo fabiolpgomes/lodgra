@@ -1,10 +1,12 @@
 'use client'
 
 import { usePathname } from 'next/navigation'
+import dynamic from 'next/dynamic'
 import { Bell, Search } from 'lucide-react'
 import { LocaleSelector } from '@/components/common/header/LocaleSelector'
-import { SearchModal } from '@/components/common/search/SearchModal'
 import { useGlobalSearch } from '@/hooks/useGlobalSearch'
+
+const SearchModal = dynamic(() => import('@/components/common/search/SearchModal').then(mod => mod.SearchModal), { ssr: false })
 
 const PATH_LABELS: Record<string, string> = {
   '/': 'Dashboard',

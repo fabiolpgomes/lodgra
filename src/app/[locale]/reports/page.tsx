@@ -58,7 +58,7 @@ interface PageProps {
  * - Multi-currency handling: values grouped by currency code
  * - RLS enforced: userPropertyIds scopes all queries
  */
-import { FinancialOverviewCharts } from '@/components/features/dashboard/FinancialOverviewCharts'
+import { LazyFinancialOverviewCharts } from '@/components/common/lazy/LazyCharts'
 
 export default async function ReportsPage({ searchParams }: PageProps) {
   const params = await searchParams
@@ -676,7 +676,7 @@ export default async function ReportsPage({ searchParams }: PageProps) {
 
         {/* Conteúdo da Aba Ativa */}
         {activeTab === 'dashboard' ? (
-          <FinancialOverviewCharts
+          <LazyFinancialOverviewCharts
             monthlyStats={monthlyStats}
             propertyStats={propertyStats}
             totalsByCurrency={totalsByCurrency}

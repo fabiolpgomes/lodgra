@@ -227,7 +227,7 @@ export function BookingWidgetMobile({
           />
           <div className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-white rounded-t-2xl p-5 space-y-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="font-bold text-lg text-neutral-900">Selecionar datas</h3>
+              <h2 className="font-bold text-lg text-neutral-900">Selecionar datas</h2>
               <button onClick={() => setShowPanel(false)} className="text-neutral-500 text-xl">✕</button>
             </div>
             {effectiveMinNights > 1 && (

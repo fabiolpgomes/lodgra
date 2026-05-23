@@ -18,7 +18,7 @@ import { PropertyBathrooms, type PropertyBathroom } from './content/PropertyBath
 import { BookingWidgetDesktop } from './booking/BookingWidgetDesktop'
 import { BookingWidgetMobile } from './booking/BookingWidgetMobile'
 import { PropertyTrustBadges } from './layout/PropertyTrustBadges'
-import { PropertyLightbox } from './gallery/PropertyLightbox'
+import { LazyPropertyLightbox } from '@/components/common/lazy/LazyPublic'
 import { Logo } from '@/components/common/ui/Logo'
 
 interface PricingRule {
@@ -255,7 +255,7 @@ export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, 
 
       {/* Lightbox Modal */}
       {showLightbox && (
-        <PropertyLightbox
+        <LazyPropertyLightbox
           photos={allPhotos}
           initialIndex={lightboxIndex}
           onClose={() => setShowLightbox(false)}
