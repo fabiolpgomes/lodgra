@@ -29,6 +29,11 @@ interface Property {
   latitude?: number
   longitude?: number
   updated_at?: string
+  min_nights?: number
+  cleaning_fee?: number
+  pet_fee?: number | null
+  check_in_time?: string
+  check_out_time?: string
 }
 
 interface PropertyMedia {
@@ -39,6 +44,11 @@ interface PropertyMedia {
 interface PropertyReview {
   rating: number
   review_count: number
+}
+
+interface BlockedDate {
+  start: string
+  end: string
 }
 
 /**
@@ -57,7 +67,7 @@ export async function generateGoogleVacationRentalsFeed(
   // Fetch properties with filters
   let query = supabase
     .from('properties')
-    .select('id, name, description, slug, address, city, zipcode, country, phone, email, latitude, longitude, updated_at')
+    .select('id, name, description, slug, address, city, zipcode, country, phone, email, latitude, longitude, updated_at, min_nights, cleaning_fee, pet_fee, check_in_time, check_out_time')
     .order('updated_at', { ascending: false })
     .range(offset, offset + limit - 1)
 
@@ -74,7 +84,10 @@ export async function generateGoogleVacationRentalsFeed(
   // Fetch related data for each property
   const enrichedProperties = await Promise.all(
     properties.map(async (prop) => {
-      const [{ data: images }, reviewResult, aggregatedReviews] = await Promise.all([
+      const nextYear = new Date()
+      nextYear.setFullYear(nextYear.getFullYear() + 1)
+
+      const [{ data: images }, reviewResult, aggregatedReviews, { data: reservations }, { data: amenities }] = await Promise.all([
         supabase.from('property_media').select('url, alt').eq('property_id', prop.id).limit(5),
         supabase
           .from('property_reviews')
@@ -82,15 +95,41 @@ export async function generateGoogleVacationRentalsFeed(
           .eq('property_id', prop.id)
           .single(),
         includeReviews ? aggregatePropertyReviews(prop.id) : Promise.resolve(null),
+        supabase
+          .from('reservations')
+          .select('check_in, check_out, status')
+          .eq('property_id', prop.id)
+          .in('status', ['confirmed', 'pending'])
+          .lte('check_out', nextYear.toISOString()),
+        supabase
+          .from('property_amenities')
+          .select('amenity_id, amenities(name)')
+          .eq('property_id', prop.id),
       ])
 
       const reviews = reviewResult.data || { rating: 0, review_count: 0 }
+
+      // Calculate blocked dates from reservations
+      const blockedDates = (reservations || []).map((res) => ({
+        start: res.check_in,
+        end: res.check_out,
+      }))
+
+      // Extract amenity names
+      const amenityNames = (amenities || [])
+        .map((a) => {
+          const amenity = a.amenities as { name: string } | null
+          return amenity?.name
+        })
+        .filter(Boolean)
 
       return {
         property: prop,
         images: images || [],
         review: reviews,
         aggregatedReviews,
+        blockedDates,
+        amenities: amenityNames,
       }
     })
   )
@@ -104,8 +143,8 @@ export async function generateGoogleVacationRentalsFeed(
   xml += `  <updated>${now}</updated>\n`
   xml += `  <id>urn:lodgra:feed:properties</id>\n`
 
-  for (const { property, images, review, aggregatedReviews } of enrichedProperties) {
-    xml += generateFeedEntry(property, images, review, aggregatedReviews, currency)
+  for (const { property, images, review, aggregatedReviews, blockedDates, amenities } of enrichedProperties) {
+    xml += generateFeedEntry(property, images, review, aggregatedReviews, blockedDates, amenities, currency)
   }
 
   xml += `</feed>\n`
@@ -124,12 +163,19 @@ function generateFeedEntry(
   images: PropertyMedia[],
   review: PropertyReview,
   aggregatedReviews: PropertyReviewsAggregate | null,
+  blockedDates: BlockedDate[],
+  amenities: string[],
   currency: string
 ): string {
   const baseUrl = 'https://lodgra.app'
   const lat = property.latitude || 0
   const lon = property.longitude || 0
   const price = currency === 'EUR' ? 150 : currency === 'USD' ? 165 : 600 // Example conversion
+  const minNights = property.min_nights || 1
+  const cleaningFee = property.cleaning_fee || 0
+  const petFee = property.pet_fee || null
+  const checkInTime = property.check_in_time || '14:00'
+  const checkOutTime = property.check_out_time || '11:00'
 
   let entry = `  <entry>\n`
   entry += `    <id>urn:lodgra:property:${property.id}</id>\n`
@@ -156,8 +202,15 @@ function generateFeedEntry(
     entry += `    <gd:rating average="${review.rating.toFixed(1)}" min="1" max="5"/>\n`
   }
 
-  // Price
+  // Price with fees
   entry += `    <gd:money amount="${price.toFixed(2)}" currencyCode="${currency}"/>\n`
+  entry += `    <property:minNights>${minNights}</property:minNights>\n`
+  if (cleaningFee > 0) {
+    entry += `    <property:cleaningFee amount="${cleaningFee.toFixed(2)}" currencyCode="${currency}"/>\n`
+  }
+  if (petFee !== null && petFee > 0) {
+    entry += `    <property:petFee amount="${petFee.toFixed(2)}" currencyCode="${currency}"/>\n`
+  }
 
   // Geolocation
   if (lat && lon) {
@@ -172,9 +225,27 @@ function generateFeedEntry(
   entry += `      <property:country>${escapeXml(property.country)}</property:country>\n`
   entry += `    </property:address>\n`
 
-  // Check-in/out times
-  entry += `    <property:checkInTime>14:00</property:checkInTime>\n`
-  entry += `    <property:checkOutTime>11:00</property:checkOutTime>\n`
+  // Check-in/out times (dynamic)
+  entry += `    <property:checkInTime>${checkInTime}</property:checkInTime>\n`
+  entry += `    <property:checkOutTime>${checkOutTime}</property:checkOutTime>\n`
+
+  // Amenities
+  if (amenities.length > 0) {
+    entry += `    <property:amenities>\n`
+    amenities.forEach((amenity) => {
+      entry += `      <property:amenity>${escapeXml(amenity)}</property:amenity>\n`
+    })
+    entry += `    </property:amenities>\n`
+  }
+
+  // Availability (blocked dates)
+  if (blockedDates.length > 0) {
+    entry += `    <property:availability>\n`
+    blockedDates.forEach((range) => {
+      entry += `      <property:blockedRange start="${range.start}" end="${range.end}"/>\n`
+    })
+    entry += `    </property:availability>\n`
+  }
 
   // Reviews section (if aggregated reviews available)
   if (aggregatedReviews && aggregatedReviews.reviews.length > 0) {

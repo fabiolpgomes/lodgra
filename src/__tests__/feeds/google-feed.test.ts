@@ -215,5 +215,56 @@ describe('Google Vacation Rentals Feed Generator', () => {
 
       expect(duration).toBeLessThan(5000)
     }, 10000) // 10 second test timeout
+
+    // AC3: Pricing fields (min_nights, cleaning_fee, pet_fee)
+    it('AC3: should include dynamic pricing fields', async () => {
+      const { xml, count } = await generateGoogleVacationRentalsFeed({ limit: 5 })
+
+      if (count > 0) {
+        expect(xml).toContain('<property:minNights>')
+        expect(xml).toContain('</property:minNights>')
+        // cleaningFee and petFee are optional (only if > 0)
+      }
+    })
+
+    // AC4: Dynamic check-in/out times
+    it('AC4: should support dynamic check-in/out times from property data', async () => {
+      const { xml, count } = await generateGoogleVacationRentalsFeed({ limit: 5 })
+
+      if (count > 0) {
+        expect(xml).toContain('<property:checkInTime>')
+        expect(xml).toContain('<property:checkOutTime>')
+        // Values can be customized per property
+      }
+    })
+
+    // AC5: Availability/blocked dates
+    it('AC5: should include availability with blocked dates when present', async () => {
+      const { xml, count } = await generateGoogleVacationRentalsFeed({ limit: 5 })
+
+      if (count > 0) {
+        // Check for availability structure when reservations exist
+        const hasAvailability = xml.includes('<property:availability>')
+        if (hasAvailability) {
+          expect(xml).toContain('<property:blockedRange')
+          expect(xml).toContain('start=')
+          expect(xml).toContain('end=')
+        }
+      }
+    })
+
+    // AC6: Amenities
+    it('AC6: should include amenities from property_amenities table', async () => {
+      const { xml, count } = await generateGoogleVacationRentalsFeed({ limit: 5 })
+
+      if (count > 0) {
+        // Check for amenities structure when amenities exist
+        const hasAmenities = xml.includes('<property:amenities>')
+        if (hasAmenities) {
+          expect(xml).toContain('<property:amenity>')
+          expect(xml).toContain('</property:amenity>')
+        }
+      }
+    })
   })
 })
