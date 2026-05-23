@@ -2,22 +2,24 @@ export type Plan = 'essencial' | 'expansao' | 'premium' | 'enterprise' | 'starte
 
 export interface PlanLimits {
   maxProperties: number | null // null = unlimited
+  maxAllowed: number | null // Maximum properties allowed on this plan (ceiling, can add extras)
+  extraPropertyPrice: number // Cost per extra property (R$ in BRL)
   ownerReports: boolean
   fiscalCompliance: boolean
 }
 
 export const PLAN_LIMITS: Record<Plan, PlanLimits> = {
-  // Current: Brasil strategy (2026)
-  essencial:    { maxProperties: null, ownerReports: false, fiscalCompliance: false },
-  expansao:     { maxProperties: null, ownerReports: true,  fiscalCompliance: true  },
-  premium:      { maxProperties: null, ownerReports: true,  fiscalCompliance: true  },
-  enterprise:   { maxProperties: null, ownerReports: true,  fiscalCompliance: true  },
-  // Legacy aliases (backward compatibility)
-  starter:      { maxProperties: null, ownerReports: false, fiscalCompliance: false },
-  growth:       { maxProperties: null, ownerReports: true,  fiscalCompliance: true  },
-  professional: { maxProperties: null, ownerReports: true,  fiscalCompliance: true  },
-  business:     { maxProperties: null, ownerReports: true,  fiscalCompliance: true  },
-  pro:          { maxProperties: null, ownerReports: true,  fiscalCompliance: true  },
+  // Current: Brasil strategy (2026) — pricing with property limits & extras
+  essencial:    { maxProperties: 1,  maxAllowed: 10,   extraPropertyPrice: 49, ownerReports: false, fiscalCompliance: false },
+  expansao:     { maxProperties: 3,  maxAllowed: 10,   extraPropertyPrice: 49, ownerReports: true,  fiscalCompliance: true  },
+  premium:      { maxProperties: 10, maxAllowed: null, extraPropertyPrice: 49, ownerReports: true,  fiscalCompliance: true  },
+  enterprise:   { maxProperties: null, maxAllowed: null, extraPropertyPrice: 0, ownerReports: true,  fiscalCompliance: true  },
+  // Legacy aliases (backward compatibility — map to modern plans)
+  starter:      { maxProperties: 1,  maxAllowed: 10,   extraPropertyPrice: 49, ownerReports: false, fiscalCompliance: false },
+  growth:       { maxProperties: 3,  maxAllowed: 10,   extraPropertyPrice: 49, ownerReports: true,  fiscalCompliance: true  },
+  professional: { maxProperties: 10, maxAllowed: null, extraPropertyPrice: 49, ownerReports: true,  fiscalCompliance: true  },
+  business:     { maxProperties: 10, maxAllowed: null, extraPropertyPrice: 49, ownerReports: true,  fiscalCompliance: true  },
+  pro:          { maxProperties: 10, maxAllowed: null, extraPropertyPrice: 49, ownerReports: true,  fiscalCompliance: true  },
 }
 
 export function getPlanLimits(plan: string | null): PlanLimits {
@@ -79,22 +81,22 @@ export interface PlanDisplay {
 export const PLAN_DISPLAY: PlanDisplay[] = [
   {
     id: 'essencial', name: 'Essencial', highlighted: false, enterprise: false,
-    price: 59, description: 'Ideal para iniciar a profissionalização com reservas diretas e iCal.', properties: 'A partir de 1 unidade',
+    price: 59, description: 'Saia da planilha. Controle uma unidade com lucro claro.', properties: '1 unidade incluída (+R$49/extra até 10)',
     features: ['Motor de Reserva Direta', 'Sync iCal', 'Calendário unificado', 'Gestão básica de reservas'],
   },
   {
     id: 'expansao', name: 'Expansão', highlighted: true, enterprise: false,
-    price: 89, description: 'Desbloqueie relatórios financeiros, P&L e automações avançadas.', properties: 'A partir de 1 unidade',
-    features: ['Tudo do Essencial', 'Relatórios Financeiros', 'Split de Pagamentos', 'Gestão Operacional (Limpeza)'],
+    price: 149, description: 'Coordene sem caos. Até 3 unidades e automações de limpeza.', properties: '3 unidades incluídas (+R$49/extra até 10)',
+    features: ['Tudo do Essencial', 'Portal de Limpadores (WhatsApp)', 'Relatórios por Proprietário', 'Equipe até 5 pessoas'],
   },
   {
     id: 'premium', name: 'Premium', highlighted: false, enterprise: false,
-    price: 130, description: 'Inteligência para grandes portfólios e gestão de múltiplos proprietários.', properties: 'A partir de 1 unidade',
-    features: ['Tudo do Expansão', 'Portal do Proprietário', 'Pricing Dinâmico', 'Suporte Prioritário VIP'],
+    price: 397, description: 'Automatize operação e receita. Inteligência para grandes portfólios.', properties: '10 unidades incluídas (+R$49/extra ilimitado)',
+    features: ['Tudo do Expansão', 'API Completa', 'Forecast & BI Avançado', 'Gerente Dedicado', 'Unidades extras ilimitadas'],
   },
   {
     id: 'enterprise', name: 'Enterprise', highlighted: false, enterprise: true,
     price: 0, description: 'Para grandes operações com requisitos customizados', properties: 'Volume personalizado',
-    features: ['Tudo do Premium', 'Onboarding dedicado', 'SLA garantido', 'API completa incl. Airbnb'],
+    features: ['Tudo do Premium', 'Onboarding dedicado', 'SLA garantido', 'Contrato customizado'],
   },
 ]
