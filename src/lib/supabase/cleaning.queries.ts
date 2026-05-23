@@ -227,7 +227,7 @@ export async function uploadCleaningPhoto(
   const fileName = `${Date.now()}_${file.name}`;
   const storagePath = `organizations/${organizationId}/tasks/${taskId}/${fileName}`;
 
-  const { data, error } = await supabase.storage
+  const { data: _data, error } = await supabase.storage
     .from('cleaning-photos')
     .upload(storagePath, file);
 
