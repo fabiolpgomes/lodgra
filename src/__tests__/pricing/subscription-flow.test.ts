@@ -21,10 +21,13 @@ describe('Subscription Flow', () => {
     })
 
     it('should have correct property limits', () => {
-      // All plans support unlimited properties
-      expect(PLAN_LIMITS.essencial.maxProperties).toBeNull()
-      expect(PLAN_LIMITS.expansao.maxProperties).toBeNull()
-      expect(PLAN_LIMITS.premium.maxProperties).toBeNull()
+      // Essencial: 1 included, max 10 with extras
+      expect(PLAN_LIMITS.essencial.maxProperties).toBe(1)
+      // Expansão: 3 included, max 10 with extras
+      expect(PLAN_LIMITS.expansao.maxProperties).toBe(3)
+      // Premium: 10 included, unlimited with extras
+      expect(PLAN_LIMITS.premium.maxProperties).toBe(10)
+      // Enterprise: unlimited
       expect(PLAN_LIMITS.enterprise.maxProperties).toBeNull()
     })
 
@@ -46,17 +49,17 @@ describe('Subscription Flow', () => {
   describe('Feature Enforcement', () => {
     it('should return correct limits for each plan', () => {
       const essencialLimits = getPlanLimits('essencial')
-      expect(essencialLimits.maxProperties).toBeNull()
+      expect(essencialLimits.maxProperties).toBe(1)
       expect(essencialLimits.ownerReports).toBe(false)
       expect(essencialLimits.fiscalCompliance).toBe(false)
 
       const expansaoLimits = getPlanLimits('expansao')
-      expect(expansaoLimits.maxProperties).toBeNull()
+      expect(expansaoLimits.maxProperties).toBe(3)
       expect(expansaoLimits.ownerReports).toBe(true)
       expect(expansaoLimits.fiscalCompliance).toBe(true)
 
       const premiumLimits = getPlanLimits('premium')
-      expect(premiumLimits.maxProperties).toBeNull()
+      expect(premiumLimits.maxProperties).toBe(10)
       expect(premiumLimits.ownerReports).toBe(true)
       expect(premiumLimits.fiscalCompliance).toBe(true)
     })
@@ -87,11 +90,11 @@ describe('Subscription Flow', () => {
       expect(essencial?.highlighted).toBe(false)
 
       const expansao = PLAN_DISPLAY.find(p => p.id === 'expansao')
-      expect(expansao?.price).toBe(89)
+      expect(expansao?.price).toBe(149)
       expect(expansao?.highlighted).toBe(true) // Most popular
 
       const premium = PLAN_DISPLAY.find(p => p.id === 'premium')
-      expect(premium?.price).toBe(130)
+      expect(premium?.price).toBe(397)
       expect(premium?.highlighted).toBe(false)
     })
 
@@ -118,9 +121,9 @@ describe('Subscription Flow', () => {
       const expansaoLimits = getPlanLimits('expansao')
       const premiumLimits = getPlanLimits('premium')
 
-      // Both have unlimited properties and full features
-      expect(premiumLimits.maxProperties).toBeNull()
-      expect(expansaoLimits.maxProperties).toBeNull()
+      // Premium allows more included properties (10 vs 3)
+      expect(premiumLimits.maxProperties).toBe(10)
+      expect(expansaoLimits.maxProperties).toBe(3)
       expect(premiumLimits.ownerReports).toBe(true)
     })
 
