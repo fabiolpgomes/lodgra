@@ -3,6 +3,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { stripeBR } from '@/lib/stripe/client-br'
 import { requireRole } from '@/lib/auth/requireRole'
 import { checkBillingRateLimit } from '@/lib/middleware/rate-limit'
+import type Stripe from 'stripe'
 
 const EXTRA_PROPERTY_PRICE_ID = process.env.STRIPE_PRICE_ID_PREMIUM_EXTRA_PROPERTY
 
@@ -101,7 +102,7 @@ export async function POST(request: NextRequest) {
       subscription_id: updated.id,
       extra_properties_count: newExtraCount,
       status: updated.status,
-      current_period_end: new Date(updated.current_period_end * 1000).toISOString(),
+      current_period_end: new Date((updated as unknown as Record<string, number>).current_period_end * 1000).toISOString(),
       items: updated.items.data.map((item: Stripe.SubscriptionItem) => ({
         price_id: item.price.id,
         quantity: item.quantity,
@@ -198,7 +199,7 @@ export async function DELETE(request: NextRequest) {
       subscription_id: updated.id,
       extra_properties_count: newExtraCount,
       status: updated.status,
-      current_period_end: new Date(updated.current_period_end * 1000).toISOString(),
+      current_period_end: new Date((updated as unknown as Record<string, number>).current_period_end * 1000).toISOString(),
     })
   } catch (error) {
     console.error('[billing/add-extra-property] DELETE error:', error)
