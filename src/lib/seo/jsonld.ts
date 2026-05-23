@@ -357,7 +357,7 @@ export function generateLocalBusinessJsonLd(property: PropertyData) {
         },
       }),
     ...(aggregateRating && { aggregateRating }),
-    offers: offer,
+    makesOffer: offer,
   }
 }
 
