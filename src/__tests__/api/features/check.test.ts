@@ -1,7 +1,7 @@
 import { GET } from '@/app/api/features/check/route'
-import { createClient } from '@supabase/supabase-js'
+import { createClient } from '@/lib/supabase/server'
 
-jest.mock('@supabase/supabase-js')
+jest.mock('@/lib/supabase/server')
 jest.mock('@/lib/features/hasFeature', () => ({
   hasFeature: jest.fn(),
   FEATURE_MATRIX: {
@@ -21,15 +21,22 @@ describe('GET /api/features/check', () => {
     const module = await import('@/lib/features/hasFeature')
     mockHasFeature = module.hasFeature
 
-    mockSupabase = {
-      from: jest.fn().mockReturnThis(),
+    // Create chainable mock that maintains context
+    const createMockChain = () => ({
       select: jest.fn().mockReturnThis(),
       eq: jest.fn().mockReturnThis(),
-      order: jest.fn().mockReturnThis(),
-      limit: jest.fn().mockReturnThis(),
       single: jest.fn(),
+    })
+
+    const mockChain = createMockChain()
+    mockChain.single.mockResolvedValue({ data: null, error: null })
+
+    mockSupabase = {
+      from: jest.fn().mockReturnValue(mockChain),
+      single: mockChain.single,
     }
-    ;(createClient as jest.Mock).mockReturnValue(mockSupabase)
+
+    ;(createClient as jest.Mock).mockResolvedValue(mockSupabase)
   })
 
   test('should return 400 when feature parameter is missing', async () => {
