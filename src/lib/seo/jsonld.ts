@@ -291,3 +291,139 @@ export function generateWebsiteJsonLd() {
     },
   }
 }
+
+/**
+ * Generate LocalBusiness schema for property pages
+ * Complement to VacationRental with business-focused info (reviews, contact)
+ */
+export function generateLocalBusinessJsonLd(property: PropertyData) {
+  const currency = property.currency ?? 'EUR'
+  const pageUrl = property.slug ? `${APP_URL}/p/${property.slug}` : APP_URL
+
+  const postalAddress = {
+    '@type': 'PostalAddress',
+    ...(property.address && { streetAddress: property.address.trim() }),
+    ...(property.city && { addressLocality: property.city.trim() }),
+    ...(property.postal_code && { postalCode: property.postal_code.trim() }),
+    ...(property.country && { addressCountry: toCountryCode(property.country) }),
+  }
+
+  const images = property.imageUrls?.length
+    ? property.imageUrls
+    : (property.photos?.filter(Boolean) ?? [])
+  const imageField = images.length > 1 ? images : images[0] ?? undefined
+
+  const aggregateRating =
+    property.reviewScore && property.reviewScore.totalCount > 0
+      ? {
+          '@type': 'AggregateRating',
+          ratingValue: property.reviewScore.globalAvg,
+          ratingCount: property.reviewScore.totalCount,
+          bestRating: 10,
+          worstRating: 1,
+        }
+      : undefined
+
+  const offer = {
+    '@type': 'Offer',
+    ...(property.base_price && property.base_price > 0 && {
+      price: property.base_price,
+      priceCurrency: currency,
+    }),
+    availability: 'https://schema.org/InStock',
+  }
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'LocalBusiness',
+    '@id': pageUrl,
+    name: property.name,
+    ...(property.description && { description: property.description }),
+    address: postalAddress,
+    url: pageUrl,
+    ...(imageField && {
+      image: {
+        '@type': 'ImageObject',
+        url: typeof imageField === 'string' ? imageField : imageField[0],
+        ...(typeof imageField === 'string' && { width: 800, height: 600 }),
+      },
+    }),
+    ...(property.latitude &&
+      property.longitude && {
+        geo: {
+          '@type': 'GeoCoordinates',
+          latitude: property.latitude,
+          longitude: property.longitude,
+        },
+      }),
+    ...(aggregateRating && { aggregateRating }),
+    offers: offer,
+  }
+}
+
+/**
+ * Generate BreadcrumbList schema for navigation pages
+ */
+interface BreadcrumbItem {
+  position: number
+  name: string
+  item: string
+}
+
+export function generateBreadcrumbJsonLd(items: BreadcrumbItem[]) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: items.map(item => ({
+      '@type': 'ListItem',
+      position: item.position,
+      name: item.name,
+      item: item.item,
+    })),
+  }
+}
+
+/**
+ * Generate Organization schema for company/brand info
+ */
+interface OrganizationConfig {
+  name?: string
+  url?: string
+  logo?: string
+  description?: string
+  sameAs?: string[]
+  contactEmail?: string
+  contactLanguages?: string[]
+}
+
+export function generateOrganizationJsonLd(config: OrganizationConfig = {}) {
+  const {
+    name = 'Lodgra',
+    url = APP_URL,
+    logo = `${APP_URL}/logo.png`,
+    description = 'Software de gestão de alojamentos para Airbnb, Booking.com e outros OTAs',
+    sameAs = [
+      'https://facebook.com/lodgra',
+      'https://twitter.com/lodgra',
+      'https://linkedin.com/company/lodgra',
+    ],
+    contactEmail = 'suporte@lodgra.io',
+    contactLanguages = ['pt', 'es', 'en'],
+  } = config
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name,
+    url,
+    logo,
+    description,
+    sameAs,
+    contactPoint: {
+      '@type': 'ContactPoint',
+      contactType: 'Customer Support',
+      email: contactEmail,
+      availableLanguage: contactLanguages,
+    },
+  }
+}

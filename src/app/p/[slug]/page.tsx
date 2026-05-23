@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import type { Metadata } from 'next'
 import { PropertyImage } from '@/types/property-images'
-import { generatePropertyJsonLd } from '@/lib/seo/jsonld'
+import { generatePropertyJsonLd, generateLocalBusinessJsonLd } from '@/lib/seo/jsonld'
 import type { ReviewSource, ReviewScoreData, PropertyReview } from '@/types/database'
 import { locales } from '../../../../i18n.config'
 import { PropertyPageV2 } from '@/components/common/public/PropertyPageV2'
@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const { data: property } = await supabase
     .from('properties')
-    .select('name, description, photos, city, country')
+    .select('name, description, photos, city, country, address, postal_code, latitude, longitude, base_price, currency, amenities, bedrooms, bathrooms, max_guests, property_type, rating, review_count')
     .eq('slug', slug)
     .eq('is_public', true)
     .single()
@@ -36,6 +36,26 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const description = property.description || `${property.name} em ${property.city}, ${property.country}. Reserve directamente sem comissões.`
   const canonicalUrl = `${baseUrl}/p/${slug}`
   const ogImageUrl = `${baseUrl}/p/${slug}/opengraph-image`
+
+  // Generate LocalBusiness JSON-LD for rich snippets
+  const localBusinessJsonLd = generateLocalBusinessJsonLd({
+    name: property.name,
+    description: property.description,
+    city: property.city,
+    country: property.country,
+    address: property.address,
+    postal_code: property.postal_code,
+    latitude: property.latitude,
+    longitude: property.longitude,
+    photos: property.photos,
+    base_price: property.base_price,
+    currency: property.currency,
+    slug,
+    reviewScore: property.rating && property.review_count ? {
+      globalAvg: property.rating,
+      totalCount: property.review_count,
+    } : null,
+  })
 
   return {
     title,
@@ -63,6 +83,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       description,
       images: [ogImageUrl],
     },
+    jsonLd: [localBusinessJsonLd],
   }
 }
 

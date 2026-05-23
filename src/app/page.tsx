@@ -7,6 +7,9 @@ import { getLocale } from 'next-intl/server'
 import { BrazilLanding } from '@/components/marketing/regions/BrazilLanding'
 import { EuropeLanding } from '@/components/marketing/regions/EuropeLanding'
 import { seoMetadata, ogDefaults, twitterDefaults } from '@/lib/seo/metadata'
+import { generateOrganizationJsonLd, generateWebsiteJsonLd } from '@/lib/seo/jsonld'
+
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://lodgra.io'
 
 export const metadata: Metadata = {
   title: seoMetadata.home.title,
@@ -24,6 +27,22 @@ export const metadata: Metadata = {
     title: seoMetadata.home.title,
     description: seoMetadata.home.description,
   },
+  jsonLd: [
+    generateWebsiteJsonLd(),
+    generateOrganizationJsonLd({
+      name: 'Lodgra',
+      url: baseUrl,
+      logo: `${baseUrl}/logo.png`,
+      description: 'Software de gestão de alojamentos para Airbnb, Booking.com e outros OTAs',
+      sameAs: [
+        'https://facebook.com/lodgra',
+        'https://twitter.com/lodgra',
+        'https://linkedin.com/company/lodgra',
+      ],
+      contactEmail: 'suporte@lodgra.io',
+      contactLanguages: ['pt', 'es', 'en'],
+    }),
+  ],
 }
 
 export default async function RootPage() {
