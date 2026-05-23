@@ -4,7 +4,6 @@ import {
   getPlanLimits,
   getPlanFromPriceId,
   getPriceIdForPlan,
-  type Plan,
 } from '@/lib/billing/plans'
 
 describe('Billing Plans System', () => {
@@ -196,7 +195,7 @@ describe('Billing Plans System', () => {
     })
 
     test('should handle undefined plan (defaults to starter/essencial)', () => {
-      const limits = getPlanLimits(undefined as any)
+      const limits = getPlanLimits(undefined as unknown as string)
       expect(limits).toEqual(PLAN_LIMITS.essencial)
     })
 

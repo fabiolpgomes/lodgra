@@ -1,6 +1,5 @@
 import { GET } from '@/app/api/properties/check-limit/route'
 import { createClient } from '@supabase/supabase-js'
-import { NextResponse } from 'next/server'
 
 jest.mock('@supabase/supabase-js')
 jest.mock('next/headers', () => ({
@@ -8,7 +7,7 @@ jest.mock('next/headers', () => ({
 }))
 
 describe('GET /api/properties/check-limit', () => {
-  let mockSupabase: any
+  let mockSupabase: Record<string, jest.Mock>
 
   beforeEach(() => {
     jest.clearAllMocks()

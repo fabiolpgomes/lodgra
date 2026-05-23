@@ -67,11 +67,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Add extra property line item to subscription
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const sub = subscription as any
+    const sub = subscription as Stripe.Subscription
     const updatedSubscription = await stripeBR.subscriptions.update(sub.id, {
       items: [
-        ...sub.items.data.map((item: any) => ({
+        ...sub.items.data.map((item: Stripe.SubscriptionItem) => ({
           id: item.id,
           // Keep existing items as-is
         })),
@@ -96,15 +95,14 @@ export async function POST(request: NextRequest) {
       `[billing/add-extra-property] Added extra property: org=${auth.organizationId}, count=${newExtraCount}, sub=${sub.id}`
     )
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const updated = updatedSubscription as any
+    const updated = updatedSubscription as Stripe.Subscription
     return NextResponse.json({
       success: true,
       subscription_id: updated.id,
       extra_properties_count: newExtraCount,
       status: updated.status,
       current_period_end: new Date(updated.current_period_end * 1000).toISOString(),
-      items: updated.items.data.map((item: any) => ({
+      items: updated.items.data.map((item: Stripe.SubscriptionItem) => ({
         price_id: item.price.id,
         quantity: item.quantity,
         amount: item.price.unit_amount,
@@ -160,10 +158,9 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Find and remove the extra property item
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const sub = subscription as any
+    const sub = subscription as Stripe.Subscription
     const extraPropertyItem = sub.items.data.find(
-      (item: any) => item.price.id === EXTRA_PROPERTY_PRICE_ID
+      (item: Stripe.SubscriptionItem) => item.price.id === EXTRA_PROPERTY_PRICE_ID
     )
 
     if (!extraPropertyItem) {
@@ -175,8 +172,8 @@ export async function DELETE(request: NextRequest) {
 
     const updatedSubscription = await stripeBR.subscriptions.update(sub.id, {
       items: sub.items.data
-        .filter((item: any) => item.id !== extraPropertyItem.id)
-        .map((item: any) => ({
+        .filter((item: Stripe.SubscriptionItem) => item.id !== extraPropertyItem.id)
+        .map((item: Stripe.SubscriptionItem) => ({
           id: item.id,
         })),
       proration_behavior: 'create_prorations',
@@ -195,8 +192,7 @@ export async function DELETE(request: NextRequest) {
       `[billing/add-extra-property] Removed extra property: org=${auth.organizationId}, count=${newExtraCount}, sub=${sub.id}`
     )
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const updated = updatedSubscription as any
+    const updated = updatedSubscription as Stripe.Subscription
     return NextResponse.json({
       success: true,
       subscription_id: updated.id,

@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
       .eq('id', orgId)
       .single()
 
-    const plan = (org as any)?.subscription_plan || (org as any)?.plan || 'essencial'
+    const plan = (org as unknown as Record<string, unknown>)?.subscription_plan || (org as unknown as Record<string, unknown>)?.plan || 'essencial'
 
     // Check if feature is accessible
     const hasAccess = await hasFeature(orgId, feature)

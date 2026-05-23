@@ -557,7 +557,7 @@ function TestHookWrapper({
   orgId?: string
 }) {
   const { loading, hasAccess, plan, error } = useFeatureAccess(
-    feature as any,
+    feature || '',
     orgId
   )
 

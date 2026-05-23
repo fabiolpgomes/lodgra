@@ -18,8 +18,8 @@ describe('GET /api/features/check', () => {
 
   beforeEach(async () => {
     jest.clearAllMocks()
-    const module = await import('@/lib/features/hasFeature')
-    mockHasFeature = module.hasFeature
+    const { hasFeature } = await import('@/lib/features/hasFeature')
+    mockHasFeature = hasFeature
 
     // Create chainable mock that maintains context
     const createMockChain = () => ({
