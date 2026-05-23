@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
-import { createClient } from '@/utils/supabase/client'
+import { createClient } from '@/lib/supabase/client'
 import { useSupabaseRealtimeSubscription } from '@/hooks/useSupabaseRealtimeSubscription'
 import CleanerTaskCard from '../_components/CleanerTaskCard'
 import { CleaningTask } from '@/types/cleaning'
