@@ -5,8 +5,6 @@ import { useEffect, useState } from 'react'
 interface BillingData {
   subscription: {
     plan: string
-    status: string
-    current_period_end: string
   } | null
   propertyCount: number
 }

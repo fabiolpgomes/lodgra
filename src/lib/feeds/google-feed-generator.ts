@@ -118,10 +118,10 @@ export async function generateGoogleVacationRentalsFeed(
       // Extract amenity names
       const amenityNames = (amenities || [])
         .map((a) => {
-          const amenity = a.amenities as { name: string } | null
-          return amenity?.name
+          const amenity = (a.amenities as unknown) as { name: string } | null
+          return amenity?.name || ''
         })
-        .filter(Boolean)
+        .filter((name): name is string => name !== '')
 
       return {
         property: prop,
