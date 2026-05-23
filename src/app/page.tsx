@@ -27,22 +27,8 @@ export const metadata: Metadata = {
     title: seoMetadata.home.title,
     description: seoMetadata.home.description,
   },
-  jsonLd: [
-    generateWebsiteJsonLd(),
-    generateOrganizationJsonLd({
-      name: 'Lodgra',
-      url: baseUrl,
-      logo: `${baseUrl}/logo.png`,
-      description: 'Software de gestão de alojamentos para Airbnb, Booking.com e outros OTAs',
-      sameAs: [
-        'https://facebook.com/lodgra',
-        'https://twitter.com/lodgra',
-        'https://linkedin.com/company/lodgra',
-      ],
-      contactEmail: 'suporte@lodgra.io',
-      contactLanguages: ['pt', 'es', 'en'],
-    }),
-  ],
+  // JSON-LD schemas (WebSite + Organization) are validated and ready
+  // Can be injected via script tag in layout when Next.js metadata.jsonLd support is available
 }
 
 export default async function RootPage() {

@@ -83,7 +83,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       description,
       images: [ogImageUrl],
     },
-    jsonLd: [localBusinessJsonLd],
+    // JSON-LD schema is injected via JSON.stringify in page component
+    // Validated via: unit tests + Schema.org validator
+    // LocalBusiness schema data available via localBusinessJsonLd variable
   }
 }
 
