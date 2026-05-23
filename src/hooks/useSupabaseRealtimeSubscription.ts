@@ -8,17 +8,17 @@ interface SubscriptionPayload {
   old?: Record<string, unknown>
 }
 
-interface SubscriptionOptions {
+interface SubscriptionOptions<T = Record<string, unknown>> {
   table: string
   filter?: string
-  onInsert?: (payload: Record<string, unknown>) => void
-  onUpdate?: (payload: Record<string, unknown>) => void
-  onDelete?: (payload: Record<string, unknown>) => void
+  onInsert?: (payload: T) => void
+  onUpdate?: (payload: T) => void
+  onDelete?: (payload: T) => void
   onError?: (error: Error) => void
   pollIntervalMs?: number
 }
 
-export function useSupabaseRealtimeSubscription({
+export function useSupabaseRealtimeSubscription<T = Record<string, unknown>>({
   table,
   filter,
   onInsert,
@@ -26,7 +26,7 @@ export function useSupabaseRealtimeSubscription({
   onDelete,
   onError,
   pollIntervalMs = 30000
-}: SubscriptionOptions) {
+}: SubscriptionOptions<T>) {
   const [isConnected, setIsConnected] = useState(true)
   const supabase = createClient()
 
@@ -49,13 +49,13 @@ export function useSupabaseRealtimeSubscription({
             (payload: SubscriptionPayload) => {
               if (isMounted) setIsConnected(true)
               if (payload.eventType === 'INSERT' && onInsert && payload.new) {
-                onInsert(payload.new)
+                onInsert(payload.new as T)
               }
               if (payload.eventType === 'UPDATE' && onUpdate && payload.new) {
-                onUpdate(payload.new)
+                onUpdate(payload.new as T)
               }
               if (payload.eventType === 'DELETE' && onDelete && payload.old) {
-                onDelete(payload.old)
+                onDelete(payload.old as T)
               }
             }
           )
