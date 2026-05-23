@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { FeatureName } from './hasFeature'
 
 interface FeatureGateProps {
@@ -32,8 +32,8 @@ export function FeatureGate({
   const router = useRouter()
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     checkFeatureAccess()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [feature, orgId])
 
   async function checkFeatureAccess() {

@@ -1,3 +1,5 @@
+'use client';
+
 interface CleaningTask {
   id: string;
   property_id: string;
@@ -9,8 +11,6 @@ interface CleaningTask {
   status?: 'pending' | 'in_progress' | 'done' | 'issue';
   completed_at?: string;
 }
-
-'use client';
 
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';

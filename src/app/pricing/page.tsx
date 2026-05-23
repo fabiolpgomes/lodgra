@@ -1,60 +1,72 @@
-import { Check } from 'lucide-react'
+import { Check, X } from 'lucide-react'
 import { Button } from '@/components/common/ui/button'
 import Link from 'next/link'
 
 const plans = [
   {
     name: 'Essencial',
-    price: 'R$ 49',
-    period: '/imóvel/mês',
-    description: 'Para começar com 1-2 imóveis',
+    price: 'R$ 59',
+    period: '/mês',
+    description: 'Saia da planilha. Controle uma unidade com lucro claro.',
+    properties: '1 unidade incluída',
+    extra: '+R$49/extra até 10',
     features: [
-      'Sincronização com Airbnb e Booking',
-      'Dashboard de lucros básico',
+      'Motor de Reserva Direta',
+      'Sync iCal',
+      'Calendário unificado',
+      'Gestão básica de reservas',
+      'Dashboard de lucros',
       'Suporte por email',
-      'Histórico de 3 meses',
-      'Relatórios mensais',
-      'Cancelamento a qualquer momento',
     ],
     cta: 'Começar com Essencial',
     highlight: false,
   },
   {
     name: 'Expansão',
-    price: 'R$ 99',
-    period: '/imóvel/mês',
-    description: 'Para crescimento de 3-10 imóveis',
+    price: 'R$ 149',
+    period: '/mês',
+    description: 'Coordene sem caos. Até 3 unidades e automações de limpeza.',
+    properties: '3 unidades incluídas',
+    extra: '+R$49/extra até 10',
     features: [
-      'Sincronização com múltiplas plataformas',
-      'Pricing dinâmico inteligente',
-      'Análise avançada de lucros',
-      'Suporte por chat e email',
-      'Histórico de 1 ano',
-      'API access',
+      'Tudo do Essencial',
+      'Portal de Limpadores (WhatsApp)',
+      'Relatórios por Proprietário',
+      'Equipe até 5 pessoas',
       'Automação de workflows',
-      'Relatórios customizados',
+      'Suporte por chat e email',
     ],
     cta: 'Escolher Expansão',
     highlight: true,
   },
   {
     name: 'Premium',
-    price: 'R$ 199',
-    period: '/imóvel/mês',
-    description: 'Para operações de 10+ imóveis',
+    price: 'R$ 397',
+    period: '/mês',
+    description: 'Automatize operação e receita. Inteligência para grandes portfólios.',
+    properties: '10 unidades incluídas',
+    extra: '+R$49/extra ilimitado',
     features: [
-      'Pricing inteligente com IA avançada',
-      'Automação completa',
-      'Relatórios avançados e BI',
+      'Tudo do Expansão',
+      'API Completa',
+      'Forecast & BI Avançado',
+      'Gerente Dedicado',
+      'Unidades extras ilimitadas',
       'Suporte prioritário 24/7',
-      'Histórico completo',
-      'API avançada com webhooks',
-      'Integrações customizadas',
-      'Account manager dedicado',
     ],
     cta: 'Escolher Premium',
     highlight: false,
   },
+]
+
+const featureMatrix = [
+  { name: 'Motor de Reserva Direta', essencial: true, expansao: true, premium: true },
+  { name: 'Portal de Limpadores (WhatsApp)', essencial: false, expansao: true, premium: true },
+  { name: 'Relatórios por Proprietário', essencial: false, expansao: true, premium: true },
+  { name: 'API Completa', essencial: false, expansao: false, premium: true },
+  { name: 'Forecast & BI Avançado', essencial: false, expansao: false, premium: true },
+  { name: 'Automação de Workflows', essencial: false, expansao: true, premium: true },
+  { name: 'Equipe Colaborativa', essencial: false, expansao: true, premium: true },
 ]
 
 export default function PricingPage() {
@@ -147,12 +159,71 @@ export default function PricingPage() {
         </div>
       </section>
 
+      {/* Feature Comparison */}
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold text-center mb-12">Comparação de Funcionalidades</h2>
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-blue-900 text-white">
+                  <th className="border border-gray-300 p-4 text-left">Funcionalidade</th>
+                  <th className="border border-gray-300 p-4 text-center">Essencial</th>
+                  <th className="border border-gray-300 p-4 text-center">Expansão</th>
+                  <th className="border border-gray-300 p-4 text-center">Premium</th>
+                </tr>
+              </thead>
+              <tbody>
+                {featureMatrix.map((row) => (
+                  <tr key={row.name} className="hover:bg-gray-100">
+                    <td className="border border-gray-300 p-4">{row.name}</td>
+                    <td className="border border-gray-300 p-4 text-center">
+                      {row.essencial ? (
+                        <Check className="w-6 h-6 text-green-600 mx-auto" />
+                      ) : (
+                        <X className="w-6 h-6 text-gray-300 mx-auto" />
+                      )}
+                    </td>
+                    <td className="border border-gray-300 p-4 text-center">
+                      {row.expansao ? (
+                        <Check className="w-6 h-6 text-green-600 mx-auto" />
+                      ) : (
+                        <X className="w-6 h-6 text-gray-300 mx-auto" />
+                      )}
+                    </td>
+                    <td className="border border-gray-300 p-4 text-center">
+                      {row.premium ? (
+                        <Check className="w-6 h-6 text-green-600 mx-auto" />
+                      ) : (
+                        <X className="w-6 h-6 text-gray-300 mx-auto" />
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
       {/* FAQ */}
       <section className="py-20 bg-white">
         <div className="max-w-4xl mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12">Perguntas Frequentes</h2>
           <div className="space-y-6">
             {[
+              {
+                q: 'Como funciona o modelo de propriedades?',
+                a: 'Cada plano inclui um número de propriedades. Se precisar de mais, pague apenas R$49/mês por cada propriedade extra. Sem surpresas.',
+              },
+              {
+                q: 'Posso mudar de plano depois?',
+                a: 'Sim! Você pode fazer upgrade ou downgrade a qualquer momento. Ajustamos o valor de forma proporcional no seu próximo ciclo de cobrança.',
+              },
+              {
+                q: 'E se eu não precisar mais de propriedades extras?',
+                a: 'Você pode remover propriedades extras quando quiser. Elas sairão da sua cobrança no próximo ciclo.',
+              },
               {
                 q: 'Há período de teste gratuito?',
                 a: 'Oferecemos 7 dias de teste PAGO. Se não gostar, devolvemos 100% do seu dinheiro, sem perguntas.',

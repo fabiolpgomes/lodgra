@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { X } from 'lucide-react'
 
 interface UpgradeModalProps {
@@ -29,20 +29,10 @@ export function UpgradeModal({
   onUpgrade,
 }: UpgradeModalProps) {
   const [dismissed, setDismissed] = useState(false)
-  const [isAnimating, setIsAnimating] = useState(false)
-
-  useEffect(() => {
-    if (isOpen) {
-      setIsAnimating(true)
-    }
-  }, [isOpen])
 
   const handleClose = () => {
-    setIsAnimating(false)
-    setTimeout(() => {
-      setDismissed(true)
-      onClose()
-    }, 300)
+    setDismissed(true)
+    onClose()
   }
 
   if (!isOpen || dismissed) return null
@@ -82,16 +72,8 @@ export function UpgradeModal({
   }
 
   return (
-    <div
-      className={`fixed inset-0 z-50 flex items-center justify-center transition-all duration-300 ${
-        isAnimating ? 'bg-black/50' : 'bg-black/0'
-      }`}
-    >
-      <div
-        className={`w-full max-w-md transform rounded-lg bg-white p-6 shadow-2xl transition-all duration-300 ${
-          isAnimating ? 'scale-100 opacity-100' : 'scale-95 opacity-0'
-        }`}
-      >
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+      <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-2xl">
         {/* Header */}
         <div className="mb-6 flex items-start justify-between">
           <div className="flex-1">
