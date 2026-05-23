@@ -7,6 +7,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.7.0] - 2026-05-23
+
+### SEO Growth — Dynamic OG Images & Schema.org Rich Snippets
+
+#### Epic 2 — Crescimento Orgânico & Aquisição (Stories 2.2, 2.4)
+
+**Story 2.2 — Dynamic OG Images (2026-05-22)**
+- `src/app/p/[slug]/opengraph-image.tsx` — Route handler com Next.js `ImageResponse` (1200×630px, WebP)
+- `src/components/marketing/og/PropertyOGImage.tsx` — Componente React para render de imagens OG dinâmicas com propriedade info
+- `src/components/marketing/og/FallbackImage.tsx` — Fallback quando propriedade não tem dados completos
+- Caching 24h via header `Cache-Control: public, max-age=86400`
+- 4 testes unit (`PropertyOGImage.test.tsx`, `opengraph-image.test.tsx`) — all PASS
+- Documentação: `docs/seo/og-images.md` (guia completo com exemplos)
+
+**Story 2.4 — Schema.org & Rich Snippets (2026-05-23)**
+- `src/lib/seo/jsonld.ts` — Generators para 5 schemas:
+  - `generatePropertyJsonLd()` — VacationRental (Google Vacation Rentals spec)
+  - `generateLocalBusinessJsonLd()` — LocalBusiness com rating agregado
+  - `generateOrganizationJsonLd()` — Organization com dados da empresa
+  - `generateWebsiteJsonLd()` — WebSite com SearchAction
+  - `generateBreadcrumbJsonLd()` — BreadcrumbList para navegação
+- `src/app/p/[slug]/page.tsx` — LocalBusiness schema integrado (metadata, address, geo, rating, offers)
+- `src/app/page.tsx` — Organization + WebSite schemas adicionados (metadata)
+- Validação manual: Schema.org validator — **0 erros, 0 warnings** em todas as schemas
+- 87 unit testes (`src/__tests__/seo/schema.test.ts`) — AMENITY_MAP, source normalization, structured data format — all PASS
+- Documentação: `docs/seo/schema-org.md` (400+ linhas, exemplos completos, troubleshooting)
+
+**Sitemap Dinâmico**
+- `src/app/sitemap.ts` — Gera XML com:
+  - Páginas estáticas: home, features, pricing, docs, blog (priority 0.8-1.0)
+  - Propriedades dinâmicas: `/p/{slug}` com alternativas de linguagem (`/pt/p/{slug}`, `/es/p/{slug}`, etc.)
+  - lastModified baseado em `property.updated_at`
+  - Graceful degradation se DB indisponível
+
+**Production Deployment**
+- Build: ✅ TypeScript successful, zero linting errors
+- Tests: ✅ 87 schema tests PASS + OG image tests PASS
+- Deployment: 2026-05-23 via Vercel
+  - URL: https://www.lodgra.io
+  - Status: READY
+  - Commit: c4a02a0 (Story 2.2 & 2.4 com metadata fix)
+
+---
+
 ## [1.6.0] - 2026-05-04
 
 ### Guest Fields, File Attachments, Month Navigation & Security Hardening
