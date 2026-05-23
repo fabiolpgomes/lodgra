@@ -151,12 +151,12 @@ describe('Schema.org Generators', () => {
       expect(schema.aggregateRating).toBeUndefined()
     })
 
-    it('should include offers with availability', () => {
+    it('should include makesOffer with availability', () => {
       const schema = generateLocalBusinessJsonLd(mockProperty)
 
-      expect(schema.offers['@type']).toBe('Offer')
-      expect(schema.offers.availability).toBe('https://schema.org/InStock')
-      expect(schema.offers.price).toBe(250)
+      expect(schema.makesOffer['@type']).toBe('Offer')
+      expect(schema.makesOffer.availability).toBe('https://schema.org/InStock')
+      expect(schema.makesOffer.price).toBe(250)
     })
   })
 
