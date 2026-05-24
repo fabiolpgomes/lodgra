@@ -34,22 +34,22 @@ export default async function LocaleLayout({
   const { locale } = await params;
   console.error(`[Layout] Starting for locale: ${locale}`);
 
-  let messages;
+  // Validate locale FIRST
+  if (!locales.includes(locale as Locale)) {
+    console.error(`[Layout] Locale not found. Got: ${locale}, allowed: ${locales.join(', ')}`);
+    notFound();
+  }
+
+  let messages = {};
   try {
     messages = await getMessages();
     console.error(`[Layout] getMessages() succeeded, keys: ${Object.keys(messages || {}).join(', ')}`);
   } catch (error) {
-    console.error(`[Layout] getMessages() failed:`, error);
-    throw error;
+    console.error(`[Layout] getMessages() failed, using empty object:`, error);
+    messages = {};
   }
 
-  // Validate locale
-  if (!locales.includes(locale as Locale)) {
-    console.error(`[Layout] Locale not found in allowed locales. Got: ${locale}, allowed: ${locales.join(', ')}`);
-    notFound();
-  }
-
-  console.error(`[Layout] Locale validation passed for: ${locale}`);
+  console.error(`[Layout] Rendering with messages:`, Object.keys(messages).length);
 
   return (
     <NextIntlClientProvider messages={messages}>
