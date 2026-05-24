@@ -1,5 +1,3 @@
-export const dynamic = 'force-dynamic'
-
 import type { Metadata } from "next";
 import "../globals.css";
 import { notFound } from "next/navigation";
@@ -15,13 +13,25 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: 'common' });
 
-  return {
-    metadataBase: new URL(APP_URL),
-    title: t('appName'),
-    robots: { index: false, follow: false },
-  };
+  if (!locales.includes(locale as Locale)) {
+    notFound();
+  }
+
+  try {
+    const t = await getTranslations({ locale, namespace: 'common' });
+    return {
+      metadataBase: new URL(APP_URL),
+      title: t('appName'),
+      robots: { index: false, follow: false },
+    };
+  } catch {
+    return {
+      metadataBase: new URL(APP_URL),
+      title: 'Lodgra',
+      robots: { index: false, follow: false },
+    };
+  }
 }
 
 export default async function LocaleLayout({
@@ -32,24 +42,18 @@ export default async function LocaleLayout({
   params: Promise<{ locale: string }>;
 }>) {
   const { locale } = await params;
-  console.error(`[Layout] Starting for locale: ${locale}`);
 
-  // Validate locale FIRST
   if (!locales.includes(locale as Locale)) {
-    console.error(`[Layout] Locale not found. Got: ${locale}, allowed: ${locales.join(', ')}`);
     notFound();
   }
 
   let messages = {};
   try {
     messages = await getMessages();
-    console.error(`[Layout] getMessages() succeeded, keys: ${Object.keys(messages || {}).join(', ')}`);
   } catch (error) {
-    console.error(`[Layout] getMessages() failed, using empty object:`, error);
+    console.warn(`[Layout] getMessages() failed for ${locale}:`, error);
     messages = {};
   }
-
-  console.error(`[Layout] Rendering with messages:`, Object.keys(messages).length);
 
   return (
     <NextIntlClientProvider messages={messages}>

@@ -1,57 +1,25 @@
-import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
 import { BrazilLanding } from '@/components/marketing/regions/BrazilLanding'
 import { EuropeLanding } from '@/components/marketing/regions/EuropeLanding'
 
 /**
- * /[locale] — Renderiza a landing page regional se o usuário não estiver logado,
- * ou redireciona para o dashboard se estiver logado.
+ * /[locale] — Landing page (unauthenticated users)
+ * This is a PUBLIC route, so it always renders the landing page
+ * User auth/redirects are handled by middleware
  */
 export default async function LocalizedRootPage({
   params,
 }: {
   params: Promise<{ locale: string }>
 }) {
-  try {
-    const { locale } = await params
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+  const { locale } = await params
 
-    // --- Fluxo para usuários NÃO LOGADOS (Landing Pages Regionais) ---
-    if (!user) {
-      if (locale === 'pt-BR') {
-        return <BrazilLanding />
-      }
-      if (locale === 'es' || locale === 'en-US') {
-        return <EuropeLanding locale={locale as 'es' | 'en-US'} />
-      }
-      return <EuropeLanding locale="en-US" />
-    }
-
-    // --- Fluxo para usuários LOGADOS (Painel Interno) ---
-    const { data: profile } = await supabase
-      .from('user_profiles')
-      .select('role, organization_id')
-      .eq('id', user.id)
-      .maybeSingle()
-
-    // BYPASS DE EMERGÊNCIA PARA TESTES
-    const isDevAdmin = user.email === 'admin@dev.com'
-    const effectiveRole = isDevAdmin ? 'admin' : (profile?.role || 'viewer')
-    const _effectiveOrgId = isDevAdmin ? (profile?.organization_id || '6ad77f39-0a6b-44d5-b7fa-5603e1b53d66') : profile?.organization_id
-
-    if (effectiveRole === 'admin' || effectiveRole === 'gestor') {
-      redirect(`/${locale}/dashboard`)
-    } else {
-      redirect(`/${locale}/calendar`)
-    }
-  } catch (error) {
-    console.error('[LocalizedRootPage] Error:', error)
-    // Render landing page on any error to prevent 404
-    const { locale } = await params
-    if (locale === 'pt-BR') {
-      return <BrazilLanding />
-    }
-    return <EuropeLanding locale={(locale === 'es' || locale === 'en-US') ? locale : 'en-US'} />
+  if (locale === 'pt-BR') {
+    return <BrazilLanding />
   }
+
+  if (locale === 'es' || locale === 'en-US') {
+    return <EuropeLanding locale={locale as 'es' | 'en-US'} />
+  }
+
+  return <EuropeLanding locale="en-US" />
 }
