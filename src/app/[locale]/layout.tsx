@@ -36,12 +36,24 @@ export default async function LocaleLayout({
   params: Promise<{ locale: string }>;
 }>) {
   const { locale } = await params;
-  const messages = await getMessages();
+  console.error(`[Layout] Starting for locale: ${locale}`);
+
+  let messages;
+  try {
+    messages = await getMessages();
+    console.error(`[Layout] getMessages() succeeded, keys: ${Object.keys(messages || {}).join(', ')}`);
+  } catch (error) {
+    console.error(`[Layout] getMessages() failed:`, error);
+    throw error;
+  }
 
   // Validate locale
   if (!locales.includes(locale as Locale)) {
+    console.error(`[Layout] Locale not found in allowed locales. Got: ${locale}, allowed: ${locales.join(', ')}`);
     notFound();
   }
+
+  console.error(`[Layout] Locale validation passed for: ${locale}`);
 
   return (
     <NextIntlClientProvider messages={messages}>
