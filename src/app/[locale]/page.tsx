@@ -4,6 +4,7 @@ export async function generateStaticParams() {
   return [{ locale: 'pt-BR' }, { locale: 'en-US' }, { locale: 'es' }];
 }
 
-export default function Page({ params }: { params: { locale: string } }) {
-  redirect(`/${params.locale}/landing-vp`)
+export default async function Page({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params
+  redirect(`/${locale}/landing-vp`)
 }
