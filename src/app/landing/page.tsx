@@ -1,16 +1,12 @@
 import { notFound } from 'next/navigation'
-import { readFile } from 'fs/promises'
-import { join } from 'path'
 import { LandingPageClient } from '@/components/landing/LandingPageClient'
 
-// Data loader - static content
 async function getLandingPageContent() {
   try {
-    const filePath = join(process.cwd(), 'public', 'locales', 'pt-BR', 'landing.json')
-    const fileContent = await readFile(filePath, 'utf-8')
-    return JSON.parse(fileContent)
+    const content = await import('../../../public/locales/pt-BR/landing.json').then(m => m.default)
+    return content
   } catch (error) {
-    console.error('Failed to load content for locale pt-BR:', error)
+    console.error('Failed to load landing content:', error)
     return null
   }
 }
