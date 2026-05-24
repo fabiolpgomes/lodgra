@@ -74,8 +74,23 @@ export default function SelectPlanPage() {
   const handleSelectPlan = async () => {
     setIsLoading(true)
     try {
-      // Redirect to Stripe checkout with selected plan
-      window.location.href = `/api/billing/checkout?plan=${selectedPlan}`
+      const response = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          plan: selectedPlan,
+          source: 'onboarding',
+          currency: 'brl',
+        }),
+      })
+
+      const data = await response.json()
+      if (data.url) {
+        window.location.href = data.url
+      } else {
+        console.error('No checkout URL returned')
+        setIsLoading(false)
+      }
     } catch (error) {
       console.error('Error redirecting to checkout:', error)
       setIsLoading(false)
