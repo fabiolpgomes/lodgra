@@ -1,4 +1,6 @@
-import React from 'react'
+'use client'
+
+import React, { useState } from 'react'
 import Link from 'next/link'
 import {
   LucideBarChart3,
@@ -11,6 +13,14 @@ import {
 } from 'lucide-react'
 
 export default function LandingVPPage() {
+  const [menuOpen, setMenuOpen] = useState(false)
+
+  const navLinks = [
+    { href: '#features', label: 'Funcionalidades' },
+    { href: '#comparison', label: 'Diferenciais' },
+    { href: '#pricing', label: 'Planos' },
+  ]
+
   return (
     <div className="min-h-screen bg-white text-lodgra-dark font-lodgra-body selection:bg-lodgra-blue/10">
       {/* Navbar */}
@@ -29,18 +39,53 @@ export default function LandingVPPage() {
           </div>
 
           <div className="hidden md:flex items-center gap-10 text-sm font-semibold text-lodgra-dark">
-            <a href="#features" className="hover:text-lodgra-blue transition-colors">Funcionalidades</a>
-            <a href="#comparison" className="hover:text-lodgra-blue transition-colors">Diferenciais</a>
-            <a href="#pricing" className="hover:text-lodgra-blue transition-colors">Planos</a>
+            {navLinks.map(link => (
+              <a key={link.href} href={link.href} className="hover:text-lodgra-blue transition-colors">{link.label}</a>
+            ))}
           </div>
 
-          <div className="flex items-center gap-6">
-            <Link href="/login" className="text-sm font-bold text-lodgra-blue hover:opacity-80 transition-opacity">Entrar</Link>
-            <Link href="/register" className="px-6 py-2.5 bg-lodgra-blue text-white text-sm font-bold rounded-full hover:bg-lodgra-blue/90 transition-all shadow-md active:scale-95">
+          <div className="flex items-center gap-4">
+            <Link href="/login" className="hidden sm:block text-sm font-bold text-lodgra-blue hover:opacity-80 transition-opacity">Entrar</Link>
+            <Link href="/register" className="hidden sm:block px-6 py-2.5 bg-lodgra-blue text-white text-sm font-bold rounded-full hover:bg-lodgra-blue/90 transition-all shadow-md active:scale-95">
               Começar Agora
             </Link>
+            {/* Hamburger (mobile only) */}
+            <button
+              className="md:hidden flex flex-col justify-center items-center w-8 h-8 gap-1.5"
+              onClick={() => setMenuOpen(prev => !prev)}
+              aria-label="Abrir menu"
+              aria-expanded={menuOpen}
+            >
+              <span className={`block h-0.5 w-6 bg-lodgra-blue transition-transform duration-200 ${menuOpen ? 'translate-y-2 rotate-45' : ''}`} />
+              <span className={`block h-0.5 w-6 bg-lodgra-blue transition-opacity duration-200 ${menuOpen ? 'opacity-0' : ''}`} />
+              <span className={`block h-0.5 w-6 bg-lodgra-blue transition-transform duration-200 ${menuOpen ? '-translate-y-2 -rotate-45' : ''}`} />
+            </button>
           </div>
         </div>
+
+        {/* Mobile Menu Dropdown */}
+        {menuOpen && (
+          <div className="md:hidden border-t border-lodgra-gray bg-white/95 backdrop-blur-xl">
+            <div className="max-w-7xl mx-auto px-6 py-4 flex flex-col gap-4">
+              {navLinks.map(link => (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setMenuOpen(false)}
+                  className="text-sm font-semibold text-lodgra-dark hover:text-lodgra-blue transition-colors py-1"
+                >
+                  {link.label}
+                </a>
+              ))}
+              <div className="flex flex-col gap-3 pt-2 border-t border-lodgra-gray">
+                <Link href="/login" className="text-sm font-bold text-lodgra-blue py-2">Entrar</Link>
+                <Link href="/register" className="px-6 py-2.5 bg-lodgra-blue text-white text-sm font-bold rounded-full text-center">
+                  Começar Agora
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* Hero Section */}
