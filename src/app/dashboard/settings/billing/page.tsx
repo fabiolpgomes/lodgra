@@ -75,7 +75,7 @@ export default function BillingPage() {
               Como faço upgrade do meu plano?
             </summary>
             <p className="mt-3 text-gray-600">
-              Clique em "Alterar Plano" acima ou navegue até a página de planos. Escolha o novo plano e complete o checkout. Sua assinatura será atualizada imediatamente com crédito proporcional aplicado.
+              Clique em &quot;Alterar Plano&quot; acima ou navegue até a página de planos. Escolha o novo plano e complete o checkout. Sua assinatura será atualizada imediatamente com crédito proporcional aplicado.
             </p>
           </details>
 
@@ -84,7 +84,7 @@ export default function BillingPage() {
               Posso adicionar propriedades extras?
             </summary>
             <p className="mt-3 text-gray-600">
-              Sim! Você pode adicionar propriedades extras a R$49/mês cada uma. Clique no botão "Adicionar Propriedade Extra" acima para começar.
+              Sim! Você pode adicionar propriedades extras a R$49/mês cada uma. Clique no botão &quot;Adicionar Propriedade Extra&quot; acima para começar.
             </p>
           </details>
 
@@ -93,7 +93,7 @@ export default function BillingPage() {
               Como cancelo minha assinatura?
             </summary>
             <p className="mt-3 text-gray-600">
-              Você pode cancelar a qualquer momento sem penalidades. Acesse o portal Stripe clicando no botão "Gerenciar no Stripe" ou entre em contato com nosso suporte.
+              Você pode cancelar a qualquer momento sem penalidades. Acesse o portal Stripe clicando no botão &quot;Gerenciar no Stripe&quot; ou entre em contato com nosso suporte.
             </p>
           </details>
 

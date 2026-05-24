@@ -9,7 +9,7 @@ jest.mock('next/navigation', () => ({
 
 // Mock BillingPreview
 jest.mock('@/components/billing/BillingPreview', () => ({
-  BillingPreview: ({ orgId, onManagePlan, onAddExtraProperty }: any) => (
+  BillingPreview: ({ orgId, onManagePlan, onAddExtraProperty }: { orgId: string; onManagePlan: () => void; onAddExtraProperty: () => void }) => (
     <div data-testid="billing-preview" data-org-id={orgId}>
       <button onClick={onManagePlan}>Manage Plan</button>
       <button onClick={onAddExtraProperty}>Add Extra</button>
@@ -19,9 +19,11 @@ jest.mock('@/components/billing/BillingPreview', () => ({
 
 // Mock next/link
 jest.mock('next/link', () => {
-  return ({ children, href }: any) => (
+  const Link = ({ children, href }: { children: React.ReactNode; href: string }) => (
     <a href={href}>{children}</a>
   )
+  Link.displayName = 'Link'
+  return Link
 })
 
 describe('Dashboard Billing Page', () => {
@@ -85,6 +87,7 @@ describe('Dashboard Billing Page', () => {
     }))
 
     // Re-import after mock reset
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const BillingPageNoId = require('@/app/dashboard/settings/billing/page').default
 
     render(<BillingPageNoId />)
