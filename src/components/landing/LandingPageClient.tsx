@@ -20,7 +20,6 @@ interface SocialProofData {
 }
 
 interface LandingPageClientProps {
-  locale: 'pt-BR' | 'en-US' | 'es'
   content: {
     hero: {
       headline: string
@@ -69,7 +68,7 @@ interface LandingPageClientProps {
   }
 }
 
-export const LandingPageClient: React.FC<LandingPageClientProps> = ({ locale, content }) => {
+export const LandingPageClient: React.FC<LandingPageClientProps> = ({ content }) => {
   const handleCtaPrimary = useCallback(() => {
     document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })
   }, [])
@@ -79,7 +78,7 @@ export const LandingPageClient: React.FC<LandingPageClientProps> = ({ locale, co
   }, [])
 
   const handleSelectPricing = useCallback(async (tierId: string) => {
-    const currency = locale === 'pt-BR' ? 'brl' : locale === 'en-US' ? 'usd' : 'eur'
+    const currency = 'brl'
     try {
       const res = await fetch('/api/stripe/checkout', {
         method: 'POST',
@@ -95,20 +94,15 @@ export const LandingPageClient: React.FC<LandingPageClientProps> = ({ locale, co
     } catch {
       window.location.href = `/register?plan=${tierId}`
     }
-  }, [locale])
+  }, [])
 
   const handleFinalCta = useCallback(() => {
     document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })
   }, [])
 
-  const handleLocaleChange = useCallback((newLocale: 'pt-BR' | 'en-US' | 'es') => {
-    // Redireciona para a rota com prefixo de idioma para facilitar a visualização e SEO
-    window.location.href = `/${newLocale}`
-  }, [])
-
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950">
-      <Navbar locale={locale} onLocaleChange={handleLocaleChange} />
+      <Navbar />
 
       <Hero
         headline={content.hero.headline}

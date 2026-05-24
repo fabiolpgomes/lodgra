@@ -7,20 +7,7 @@ import { Logo } from '../atoms/Logo'
 import { Button } from '../atoms/Button'
 import { ThemeToggle } from '@/components/common/header/ThemeToggle'
 
-interface NavbarProps {
-  locale: 'pt-BR' | 'en-US' | 'es'
-  onLocaleChange: (locale: 'pt-BR' | 'en-US' | 'es') => void
-}
-
-const localeLabels: Record<string, string> = {
-  'pt-BR': 'Brasil',
-  'en-US': 'English',
-  'es': 'Español',
-}
-
-export const Navbar: React.FC<NavbarProps> = ({ locale, onLocaleChange }) => {
-  const [isDropdownOpen, setIsDropdownOpen] = React.useState(false)
-
+export const Navbar: React.FC = () => {
   return (
     <nav className="sticky top-0 z-50 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800">
       <Container>
@@ -52,56 +39,8 @@ export const Navbar: React.FC<NavbarProps> = ({ locale, onLocaleChange }) => {
             </a>
           </div>
 
-          {/* Right: Language Selector + CTA */}
+          {/* Right: Theme Toggle + CTA */}
           <div className="flex items-center gap-4">
-            {/* Language Selector Dropdown */}
-            <div className="relative">
-              <button
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="flex items-center gap-1 px-3 py-2 text-sm font-inter text-gray-600 dark:text-gray-300 hover:text-lodgra-blue transition-colors"
-                aria-label="Toggle language selector"
-                aria-expanded={isDropdownOpen}
-              >
-                <span className="hidden sm:inline">{localeLabels[locale]}</span>
-                <span className="sm:hidden">
-                  {locale === 'pt-BR' ? '🇧🇷' : locale === 'es' ? '🇪🇸' : '🇺🇸'}
-                </span>
-                <svg
-                  className={`w-4 h-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                </svg>
-              </button>
-
-              {/* Dropdown Menu */}
-              {isDropdownOpen && (
-                <div className="absolute top-full right-0 mt-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg overflow-hidden min-w-max">
-                  {(['pt-BR', 'en-US', 'es'] as const).map((loc) => (
-                    <button
-                      key={loc}
-                      onClick={() => {
-                        onLocaleChange(loc)
-                        setIsDropdownOpen(false)
-                      }}
-                      className={`block w-full text-left px-4 py-3 text-sm font-inter transition-colors ${
-                        locale === loc
-                          ? 'bg-lodgra-blue text-white'
-                          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
-                      }`}
-                      aria-label={`Switch to ${localeLabels[loc]}`}
-                      aria-current={locale === loc ? 'true' : undefined}
-                    >
-                      <span className="mr-2">{loc === 'pt-BR' ? '🇧🇷' : loc === 'es' ? '🇪🇸' : '🇺🇸'}</span>
-                      {localeLabels[loc]}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
             {/* Theme Toggle */}
             <ThemeToggle />
 

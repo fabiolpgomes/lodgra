@@ -1,28 +1,13 @@
 import { notFound } from 'next/navigation'
 import { LandingPageClient } from '@/components/landing/LandingPageClient'
 
-interface PageProps {
-  searchParams: Promise<{ locale?: string }>
-}
-
 // Data loader - static content
-async function getLandingPageContent(locale: 'pt-BR' | 'en-US' | 'es') {
+async function getLandingPageContent() {
   try {
-    let content
-    switch (locale) {
-      case 'pt-BR':
-        content = await import('../../../public/locales/pt-BR/landing.json').then(m => m.default)
-        break
-      case 'es':
-        content = await import('../../../public/locales/es/landing.json').then(m => m.default)
-        break
-      case 'en-US':
-      default:
-        content = await import('../../../public/locales/en-US/landing.json').then(m => m.default)
-    }
+    const content = await import('../../../public/locales/pt-BR/landing.json').then(m => m.default)
     return content
   } catch (error) {
-    console.error(`Failed to load content for locale ${locale}:`, error)
+    console.error('Failed to load content for locale pt-BR:', error)
     return null
   }
 }
@@ -49,18 +34,8 @@ export async function generateMetadata() {
   }
 }
 
-export default async function LandingPage({ searchParams }: PageProps) {
-  const params = await searchParams
-  const rawLocale = params.locale || 'en-US'
-  const validLocales = ['pt-BR', 'en-US', 'es'] as const
-  type ValidLocale = 'pt-BR' | 'en-US' | 'es'
-
-  if (!(validLocales as readonly string[]).includes(rawLocale)) {
-    notFound()
-  }
-
-  const locale = rawLocale as ValidLocale
-  const content = await getLandingPageContent(locale)
+export default async function LandingPage() {
+  const content = await getLandingPageContent()
 
   if (!content) {
     notFound()
@@ -68,7 +43,7 @@ export default async function LandingPage({ searchParams }: PageProps) {
 
   return (
     <main className="bg-white">
-      <LandingPageClient locale={locale} content={content} />
+      <LandingPageClient content={content} />
     </main>
   )
 }
