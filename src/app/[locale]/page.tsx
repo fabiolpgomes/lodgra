@@ -1,14 +1,7 @@
-export default async function LocalizedRootPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>
-}) {
-  const { locale } = await params
+export async function generateStaticParams() {
+  return [{ locale: 'pt-BR' }, { locale: 'en-US' }, { locale: 'es' }];
+}
 
-  return (
-    <div>
-      <h1>Landing Page - {locale}</h1>
-      <p>If you see this, the route is working!</p>
-    </div>
-  )
+export default function Page() {
+  return <h1>Test</h1>
 }

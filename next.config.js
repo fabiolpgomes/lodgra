@@ -3,8 +3,7 @@ const { withSentryConfig } = require("@sentry/nextjs");
 const createNextIntlPlugin = require('next-intl/plugin');
 const withBundleAnalyzer = require('@next/bundle-analyzer');
 
-// Configure next-intl without aggressive routing redirects
-// Root path (/) is NOT redirected - landing page works without locale
+// next-intl plugin re-enabled - it may be needed for Next.js to recognize [locale] routes
 const withNextIntl = createNextIntlPlugin('./i18n.ts');
 
 const nextConfig = {
