@@ -19,7 +19,7 @@ async function loadMessages(locale: string): Promise<any> {
 
   try {
     // Combine all translation namespaces for the locale
-    const namespaces = ['common', 'navigation', 'dashboard', 'calendar', 'reports', 'forms', 'errors', 'consent', 'legal']
+    const namespaces = ['common', 'navigation', 'dashboard', 'forms', 'errors', 'consent', 'legal', 'cleaning']
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const messages: any = {}
 
