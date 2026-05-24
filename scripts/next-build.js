@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 'use strict'
 
+// TESTING: Temporarily disable --webpack to test Turbopack
+// Original comment:
 // Force webpack instead of Turbopack for production builds.
 // Turbopack (Next.js 16 default) compiles middleware as edge chunks and does
 // NOT generate middleware.js or middleware.js.nft.json, which Vercel CLI 51+
