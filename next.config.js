@@ -1,10 +1,9 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 const { withSentryConfig } = require("@sentry/nextjs");
-const createNextIntlPlugin = require('next-intl/plugin');
 const withBundleAnalyzer = require('@next/bundle-analyzer');
 
-// next-intl plugin re-enabled - it may be needed for Next.js to recognize [locale] routes
-const withNextIntl = createNextIntlPlugin('./i18n.ts');
+// next-intl plugin removed - managing i18n via middleware instead
+// [locale] routes are not compiling with the plugin enabled
 
 const nextConfig = {
   // Remove X-Powered-By header (minor security + bandwidth gain)
@@ -55,7 +54,7 @@ const nextConfig = {
 
 const analyzedConfig = withBundleAnalyzer({
   enabled: process.env.ANALYZE === 'true',
-})(withNextIntl(nextConfig));
+})(nextConfig);
 
 const finalConfig = withSentryConfig(analyzedConfig, {
   // For all available options, see:
