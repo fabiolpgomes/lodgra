@@ -5,6 +5,10 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 }
 
+export async function generateStaticParams() {
+  return [{}]
+}
+
 export default function RootPage() {
   return <div>Root page - middleware should redirect this to /[locale]</div>
 }

@@ -1,3 +1,7 @@
+export async function generateStaticParams() {
+  return [{}]
+}
+
 export default function LandingPage() {
   return (
     <main>
