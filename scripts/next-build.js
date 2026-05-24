@@ -8,5 +8,5 @@
 // NOT generate middleware.js or middleware.js.nft.json, which Vercel CLI 51+
 // requires during build finalization. Webpack generates both files correctly.
 const nextBin = require.resolve('next/dist/bin/next')
-process.argv = [process.execPath, nextBin, 'build', '--webpack', ...process.argv.slice(2)]
+process.argv = [process.execPath, nextBin, 'build', ...process.argv.slice(2)]
 require(nextBin)
