@@ -54,9 +54,14 @@ const nextConfig = {
   compress: true,
 };
 
+// TODO: Fix next-intl plugin compatibility with dynamic locale routes
+// const analyzedConfig = withBundleAnalyzer({
+//   enabled: process.env.ANALYZE === 'true',
+// })(withNextIntl(nextConfig));
+
 const analyzedConfig = withBundleAnalyzer({
   enabled: process.env.ANALYZE === 'true',
-})(withNextIntl(nextConfig));
+})(nextConfig);
 
 const finalConfig = withSentryConfig(analyzedConfig, {
   // For all available options, see:
