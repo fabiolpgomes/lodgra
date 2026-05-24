@@ -6,18 +6,25 @@ export const dynamic = 'force-dynamic'
 
 const METERED_PLANS = ['growth', 'premium', 'pro', 'expansao']
 
-export async function POST(request: NextRequest) {
-  const stripeKey = (process.env.STRIPE_SECRET_KEY ?? '').trim()
-  if (!stripeKey) {
-    return NextResponse.json({ error: 'Stripe não configurado' }, { status: 500 })
-  }
-  const stripe = new Stripe(stripeKey, {
-    apiVersion: '2026-02-25.clover',
-  })
+function getStripeKey(currency: string): string {
+  const c = currency.toLowerCase()
+  if (c === 'brl') return (process.env.STRIPE_BR_SECRET_KEY ?? '').trim()
+  if (c === 'eur') return (process.env.STRIPE_PT_SECRET_KEY ?? '').trim()
+  return (process.env.STRIPE_SECRET_KEY ?? process.env.STRIPE_BR_SECRET_KEY ?? '').trim()
+}
 
+export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     const { email, currency = 'eur', plan, source, locale } = body
+
+    const stripeKey = getStripeKey(currency)
+    if (!stripeKey) {
+      return NextResponse.json({ error: 'Stripe não configurado' }, { status: 500 })
+    }
+    const stripe = new Stripe(stripeKey, {
+      apiVersion: '2026-02-25.clover',
+    })
 
     // Use request origin so success/cancel URLs always point to the correct domain
     // regardless of NEXT_PUBLIC_APP_URL env value (which may be stale in Vercel)
@@ -39,8 +46,7 @@ export async function POST(request: NextRequest) {
     const planCurrency: 'eur' | 'brl' | 'usd' = c === 'brl' ? 'brl' : c === 'usd' ? 'usd' : 'eur'
 
     // In test mode use a single test price (live prices don't exist in Stripe test env)
-    const isTestMode = (process.env.STRIPE_SECRET_KEY ?? '').startsWith('sk_test_') ||
-                       (process.env.STRIPE_SECRET_KEY ?? '').startsWith('rk_test_')
+    const isTestMode = stripeKey.startsWith('sk_test_') || stripeKey.startsWith('rk_test_')
     const testPriceId = (process.env.STRIPE_TEST_PRICE_ID ?? '').trim() || null
 
     const priceId = isTestMode && testPriceId ? testPriceId : getPerUnitPriceId(plan, planCurrency)

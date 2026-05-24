@@ -14,9 +14,15 @@ export function getMeteredPriceId(plan: string, currency: 'eur' | 'brl' | 'usd' 
   return (process.env[key] ?? '').trim() || null
 }
 
+// Landing page plan aliases → Stripe plan names
+const PLAN_ALIASES: Record<string, string> = {
+  starter: 'essencial',
+}
+
 // Returns the per-unit licensed price ID for a given plan + currency.
 export function getPerUnitPriceId(plan: string, currency: 'eur' | 'brl' | 'usd' = 'eur'): string | null {
-  const key = `STRIPE_PRICE_ID_${plan.toUpperCase()}_${currency.toUpperCase()}`
+  const resolved = PLAN_ALIASES[plan.toLowerCase()] ?? plan
+  const key = `STRIPE_PRICE_ID_${resolved.toUpperCase()}_${currency.toUpperCase()}`
   return (process.env[key] ?? '').trim() || null
 }
 
