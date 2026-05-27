@@ -7,6 +7,20 @@
 
 ---
 
+## Status Update — 2026-05-27
+
+O roadmap original abaixo continua útil como plano macro, mas o estado operacional mudou:
+
+- ✅ **Week 1 SEO:** concluída e documentada em `docs/seo/WEEK1-EXECUTION-TRACKER.md`.
+- ✅ **Story 2.2:** Dynamic Open Graph Images concluída.
+- ✅ **Story 2.3:** Internal Linking concluída e reconciliada na Story 2.6.
+- ✅ **Story 2.4:** Schema.org / Rich Snippets concluída e reconciliada na Story 2.6.
+- ✅ **Story 2.5:** Landing Brazil-first concluída.
+- ⚠️ **hreflang:** deixou de ser “100% multi-país” no curto prazo por decisão Brazil-first. Estado atual: home canonical `pt-BR` + `x-default`; páginas de propriedade mantêm alternates por locale.
+- ⏳ **Próximo trabalho SEO:** verificação pós-deploy em GSC/Rich Results e auditoria de produção.
+
+---
+
 ## 📋 Executive Summary
 
 **Objetivo:** Transformar Lodgra de "boa performance" para "lider de SEO" em 4 semanas

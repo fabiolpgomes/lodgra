@@ -1,5 +1,7 @@
 # Internal Linking Strategy
 
+**Status Update — 2026-05-27:** componentes da Story 2.3 foram reconciliados e integrados nas páginas públicas na Story 2.6: `PublicNav`/`PublicFooter` em `/features`, `/pricing`, `/docs`; `Breadcrumb` em `/docs`; `SimilarProperties` em `/p/[slug]`.
+
 ## Overview
 
 Internal linking é fundamental para SEO. Essa documentação descreve como Lodgra implementa uma arquitetura de links internos que:

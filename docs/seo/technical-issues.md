@@ -6,6 +6,20 @@
 
 ---
 
+## Status Update — 2026-05-27
+
+Esta auditoria preserva o diagnóstico original de 21 de Maio para histórico. O estado atual do roadmap SEO avançou e parte dos pontos críticos abaixo já foi tratada:
+
+- ✅ **Open Graph:** implementado para home/páginas públicas e imagens dinâmicas de propriedade via Story 2.2.
+- ✅ **Schema.org:** implementado via `src/lib/seo/jsonld.ts`, layout global, `/docs` e `/p/[slug]` via Stories 2.4 e 2.6.
+- ✅ **Internal Linking:** componentes criados na Story 2.3 e integrados nas páginas públicas na Story 2.6.
+- ⚠️ **hreflang:** política ajustada para Brazil-first. A home usa `pt-BR` + `x-default`; páginas de propriedade mantêm alternates por locale no metadata/sitemap. Expansão multi-país completa fica fora do escopo atual.
+- ⏳ **GSC/Rich Results:** continua dependente de verificação manual no Google Search Console e ferramentas oficiais após deploy.
+
+Use as secções críticas abaixo como histórico/risco, não como status operacional final.
+
+---
+
 ## 🚨 Executive Summary
 
 **Audit Status:** ⚠️ **FAILS CRITICAL GATES**

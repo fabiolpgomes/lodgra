@@ -5,6 +5,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import type { Metadata } from 'next'
 import { PropertyImage } from '@/types/property-images'
 import { generatePropertyJsonLd, generateLocalBusinessJsonLd } from '@/lib/seo/jsonld'
+import { getSimilarProperties } from '@/lib/supabase/properties'
 import type { ReviewSource, ReviewScoreData, PropertyReview } from '@/types/database'
 import { locales } from '../../../../i18n.config'
 import { PropertyPageV2 } from '@/components/common/public/PropertyPageV2'
@@ -105,6 +106,11 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
   if (!property) {
     notFound()
   }
+
+  const similarProperties = await getSimilarProperties(property.id, {
+    city: property.city || '',
+    limit: 3,
+  })
 
   // Load images from new property_images table
   const { data: galleryImages } = await supabase
@@ -360,6 +366,7 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
         blockedRanges={blockedRanges}
         reviewScore={reviewScore}
         featuredReviews={featuredReviews}
+        similarProperties={similarProperties}
       />
     </>
   )

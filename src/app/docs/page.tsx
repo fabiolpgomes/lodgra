@@ -1,6 +1,10 @@
 import { BookOpen, Zap, BarChart3, Settings, Shield, HelpCircle } from 'lucide-react'
 import { Button } from '@/components/common/ui/button'
 import Link from 'next/link'
+import { Breadcrumb, docsBreadcrumbs } from '@/components/common/Breadcrumb'
+import { PublicNav } from '@/components/landing/organisms/PublicNav'
+import { PublicFooter } from '@/components/landing/organisms/PublicFooter'
+import { generateBreadcrumbJsonLd } from '@/lib/seo/jsonld'
 
 const docCategories = [
   {
@@ -66,8 +70,23 @@ const docCategories = [
 ]
 
 export default function DocsPage() {
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://lodgra.io'
+  const breadcrumbJsonLd = generateBreadcrumbJsonLd([
+    { position: 1, name: 'Home', item: baseUrl },
+    { position: 2, name: 'Documentação', item: `${baseUrl}/docs` },
+  ])
+
   return (
-    <main className="min-h-screen bg-white">
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+      <PublicNav />
+      <main className="min-h-screen bg-white pt-[72px]">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+        <Breadcrumb items={[...docsBreadcrumbs.root]} className="mb-0" />
+      </div>
       {/* Hero */}
       <section className="bg-gradient-to-r from-blue-900 to-blue-800 text-white py-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -143,6 +162,8 @@ export default function DocsPage() {
           </Link>
         </div>
       </section>
-    </main>
+      </main>
+      <PublicFooter />
+    </>
   )
 }

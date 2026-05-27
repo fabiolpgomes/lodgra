@@ -20,6 +20,8 @@ import { BookingWidgetMobile } from './booking/BookingWidgetMobile'
 import { PropertyTrustBadges } from './layout/PropertyTrustBadges'
 import { LazyPropertyLightbox } from '@/components/common/lazy/LazyPublic'
 import { Logo } from '@/components/common/ui/Logo'
+import { SimilarProperties } from '@/components/properties/SimilarProperties'
+import type { SimilarProperty } from '@/lib/supabase/properties'
 
 interface PricingRule {
   start_date: string
@@ -51,9 +53,10 @@ interface PropertyPageV2Props {
   blockedRanges?: { start: string; end: string }[]
   reviewScore?: ReviewScoreData | null
   featuredReviews?: PropertyReview[]
+  similarProperties?: SimilarProperty[]
 }
 
-export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, initialCheckOut, initialGuests, minNights = 1, pricingRules = [], structuredAmenities, rooms, bathrooms, minNightsError, datesUnavailable, cleaningFee, cleaningFeeType, petFee, petFeeType, checkinFrom, checkinUntil, checkoutUntil, blockedRanges = [], reviewScore, featuredReviews }: PropertyPageV2Props) {
+export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, initialCheckOut, initialGuests, minNights = 1, pricingRules = [], structuredAmenities, rooms, bathrooms, minNightsError, datesUnavailable, cleaningFee, cleaningFeeType, petFee, petFeeType, checkinFrom, checkinUntil, checkoutUntil, blockedRanges = [], reviewScore, featuredReviews, similarProperties = [] }: PropertyPageV2Props) {
   const [showLightbox, setShowLightbox] = useState(false)
   const [lightboxIndex, setLightboxIndex] = useState(0)
 
@@ -217,6 +220,11 @@ export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, 
               {/* Desktop booking already shown above, this space is for layout */}
             </div>
           </div>
+
+          <SimilarProperties
+            properties={similarProperties}
+            description={`Outras opções em ${property.city || 'sua região'} para comparar localização, preço e comodidades.`}
+          />
 
           {/* Trust Badges */}
           <PropertyTrustBadges />

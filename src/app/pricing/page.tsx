@@ -1,6 +1,8 @@
 import { Check, X } from 'lucide-react'
 import { Button } from '@/components/common/ui/button'
 import Link from 'next/link'
+import { PublicNav } from '@/components/landing/organisms/PublicNav'
+import { PublicFooter } from '@/components/landing/organisms/PublicFooter'
 
 const plans = [
   {
@@ -71,7 +73,9 @@ const featureMatrix = [
 
 export default function PricingPage() {
   return (
-    <main className="min-h-screen bg-white">
+    <>
+      <PublicNav />
+      <main className="min-h-screen bg-white pt-[72px]">
       {/* Hero */}
       <section className="bg-gradient-to-r from-blue-900 to-blue-800 text-white py-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -245,6 +249,8 @@ export default function PricingPage() {
           </div>
         </div>
       </section>
-    </main>
+      </main>
+      <PublicFooter />
+    </>
   )
 }

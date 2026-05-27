@@ -7,6 +7,18 @@
 
 ---
 
+## Status Update — 2026-05-27
+
+Week 2+ já avançou após este tracker:
+
+- ✅ Dynamic OG Images concluído (Story 2.2).
+- ✅ Internal Linking concluído e reconciliado (Stories 2.3 + 2.6).
+- ✅ Schema.org concluído e reconciliado (Stories 2.4 + 2.6).
+- ✅ Landing Brazil-first concluída (Story 2.5).
+- ⚠️ hreflang multi-país completo continua fora do escopo imediato por decisão Brazil-first. A política atual prioriza canonical `pt-BR` + `x-default` na home e alternates em propriedades públicas.
+
+---
+
 ## 📋 Week 1 Checklist
 
 ### Task 1.1: Meta Description Implementation

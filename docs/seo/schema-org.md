@@ -397,7 +397,7 @@ Total: ~1.4 KB per page
 
 - [ ] FAQSchema para FAQ pages
 - [ ] ArticleSchema para blog posts
-- [ ] BreadcrumbList completo para /docs
+- [x] BreadcrumbList completo para /docs
 - [ ] ProductSchema para /pricing (opcional)
 - [ ] Video markup para property videos
 - [ ] Analytics tracking para social shares
