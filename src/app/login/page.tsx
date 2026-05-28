@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { Eye, EyeOff } from 'lucide-react'
@@ -12,8 +12,24 @@ import { SocialLoginButtons } from '@/components/auth/SocialLoginButtons'
 import { toast } from 'sonner'
 import { Logo } from '@/components/common/ui/Logo'
 
+const DEFAULT_AUTH_REDIRECT = '/pt-BR/dashboard'
+const LOCALE_PREFIX_RE = /^\/(pt-BR|en-US|es)(\/|$)/
+
+function getSafeRedirect(redirectTo: string | null): string {
+  if (
+    redirectTo?.startsWith('/') &&
+    !redirectTo.includes('landing-vp') &&
+    !redirectTo.startsWith('/login') &&
+    redirectTo !== '/'
+  ) {
+    return LOCALE_PREFIX_RE.test(redirectTo) ? redirectTo : `/pt-BR${redirectTo}`
+  }
+
+  return DEFAULT_AUTH_REDIRECT
+}
+
 export default function LoginPage() {
-  const router = useRouter()
+  const searchParams = useSearchParams()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -38,8 +54,10 @@ export default function LoginPage() {
       if (error) throw error
 
       toast.success('Login successful!')
-      router.push('/dashboard')
-      router.refresh()
+      const redirectTo = searchParams.get('redirectTo') || searchParams.get('next')
+      const safeRedirect = getSafeRedirect(redirectTo)
+
+      window.location.assign(safeRedirect)
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Login failed'
       setError(message)

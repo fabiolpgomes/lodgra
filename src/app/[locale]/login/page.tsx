@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter, useLocale } from '@/lib/i18n/routing'
+import { useLocale, useSearchParams } from '@/lib/i18n/routing'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { Eye, EyeOff } from 'lucide-react'
@@ -11,11 +11,28 @@ import { Alert, AlertDescription } from '@/components/common/ui/alert'
 import { SocialLoginButtons } from '@/components/auth/SocialLoginButtons'
 import { toast } from 'sonner'
 import { Logo } from '@/components/common/ui/Logo'
-import { useTranslations } from 'next-intl'
+import { useTranslations } from '@/lib/i18n/useTranslations'
+
+const LOCALE_PREFIX_RE = /^\/(pt-BR|en-US|es)(\/|$)/
+
+function getSafeRedirect(redirectTo: string | null, locale: string): string {
+  if (
+    redirectTo?.startsWith('/') &&
+    !redirectTo.includes('landing-vp') &&
+    !redirectTo.startsWith('/login') &&
+    !redirectTo.startsWith(`/${locale}/login`) &&
+    redirectTo !== '/' &&
+    redirectTo !== `/${locale}`
+  ) {
+    return LOCALE_PREFIX_RE.test(redirectTo) ? redirectTo : `/${locale}${redirectTo}`
+  }
+
+  return `/${locale}/dashboard`
+}
 
 export default function LoginPage() {
-  const router = useRouter()
   const locale = useLocale()
+  const searchParams = useSearchParams()
   const t = useTranslations('forms')
   const tCommon = useTranslations('common')
   const [loading, setLoading] = useState(false)
@@ -42,9 +59,10 @@ export default function LoginPage() {
       if (error) throw error
 
       toast.success('Login efetuado com sucesso!')
-      // Redirecionar para dashboard
-      router.push('/')
-      router.refresh()
+      const redirectTo = searchParams.get('redirectTo') || searchParams.get('next')
+      const safeRedirect = getSafeRedirect(redirectTo, locale || 'pt-BR')
+
+      window.location.assign(safeRedirect)
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Erro ao fazer login'
       setError(message)
