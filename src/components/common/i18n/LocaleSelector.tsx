@@ -11,6 +11,8 @@ import {
   SelectValue,
 } from '@/components/common/ui/select'
 
+const VISIBLE_LOCALES = new Set<string>(['pt-BR'])
+
 /**
  * Locale Selector Component
  * Allows users to switch between supported locales
@@ -42,7 +44,7 @@ export function LocaleSelector() {
         <SelectValue placeholder="Select language" />
       </SelectTrigger>
       <SelectContent>
-        {locales.map((loc) => (
+        {locales.filter((loc) => VISIBLE_LOCALES.has(loc)).map((loc) => (
           <SelectItem key={loc} value={loc}>
             {localeLabels[loc as typeof locales[number]]}
           </SelectItem>

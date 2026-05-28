@@ -19,6 +19,9 @@ const LOCALE_OPTIONS: LocaleOption[] = [
   { code: 'es', name: 'Español', flag: '🇪🇸', label: 'Español' },
 ]
 
+const VISIBLE_LOCALE_CODES = new Set(['pt-BR'])
+const VISIBLE_LOCALE_OPTIONS = LOCALE_OPTIONS.filter(option => VISIBLE_LOCALE_CODES.has(option.code))
+
 export function LocaleSelector() {
   const router = useRouter()
   const pathname = usePathname()
@@ -28,7 +31,7 @@ export function LocaleSelector() {
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   // Get current locale option
-  const currentOption = LOCALE_OPTIONS.find(opt => opt.code === currentLocale) || LOCALE_OPTIONS[0]
+  const currentOption = VISIBLE_LOCALE_OPTIONS.find(opt => opt.code === currentLocale) || VISIBLE_LOCALE_OPTIONS[0]
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -109,7 +112,7 @@ export function LocaleSelector() {
           role="listbox"
           aria-label="Opções de idioma"
         >
-          {LOCALE_OPTIONS.map(option => (
+          {VISIBLE_LOCALE_OPTIONS.map(option => (
             <button
               key={option.code}
               onClick={() => handleLocaleChange(option.code)}

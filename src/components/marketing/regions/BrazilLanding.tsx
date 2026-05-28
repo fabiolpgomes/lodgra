@@ -43,6 +43,7 @@ export const BrazilLanding: React.FC = () => {
     { code: 'en-US', label: 'English', flag: '🇺🇸' },
     { code: 'es', label: 'Español', flag: '🇪🇸' },
   ]
+  const visibleLanguages = languages.filter((lang) => lang.code === 'pt-BR')
 
   return (
     <div className="min-h-screen bg-[#ffffff] text-[#181818] font-[family-name:var(--font-hanken-grotesk)] selection:bg-[#ffc000]/20">
@@ -73,7 +74,7 @@ export const BrazilLanding: React.FC = () => {
 
               {isLangOpen && (
                 <div className="absolute top-full right-0 mt-4 bg-[#ffffff] border border-[#e6e6e6] min-w-[170px] shadow-sm rounded-none z-50">
-                  {languages.map((lang) => (
+                  {visibleLanguages.map((lang) => (
                     <Link
                       key={lang.code}
                       href={`/${lang.code}`}
@@ -91,7 +92,7 @@ export const BrazilLanding: React.FC = () => {
               )}
             </div>
 
-            <Link href="/login" className="text-[13px] font-black tracking-[1.5px] uppercase text-[#1E3A8A] hover:text-[#ffc000] transition-colors">
+            <Link href="/pt-BR/login" className="text-[13px] font-black tracking-[1.5px] uppercase text-[#1E3A8A] hover:text-[#ffc000] transition-colors">
               Entrar
             </Link>
             <a href="#pricing" className="bg-[#ffc000] text-[#1E3A8A] rounded-none uppercase font-black text-[14px] tracking-[1px] px-[32px] h-[48px] flex items-center justify-center hover:bg-[#e6ac00] transition-colors">

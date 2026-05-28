@@ -24,6 +24,7 @@ export const PublicNav: React.FC<PublicNavProps> = ({ variant = 'light', compact
     { code: 'en-US', label: 'English', flag: '🇺🇸' },
     { code: 'es', label: 'Español', flag: '🇪🇸' },
   ]
+  const visibleLanguages = languages.filter((lang) => lang.code === 'pt-BR')
 
   const bgClass = variant === 'dark' ? 'bg-[#1E3A8A]' : 'bg-white'
   const borderClass = variant === 'dark' ? 'border-[#ffffff]/10' : 'border-[#1E3A8A]/10'
@@ -67,7 +68,7 @@ export const PublicNav: React.FC<PublicNavProps> = ({ variant = 'light', compact
 
             {isLangOpen && (
               <div className={`absolute top-full right-0 mt-4 ${bgClass} border ${borderClass} min-w-[170px] shadow-sm z-50`}>
-                {languages.map((lang) => (
+                {visibleLanguages.map((lang) => (
                   <Link
                     key={lang.code}
                     href={`/${lang.code}`}

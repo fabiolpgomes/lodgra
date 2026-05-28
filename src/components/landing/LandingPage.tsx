@@ -13,6 +13,7 @@ import { PLAN_DISPLAY } from '@/lib/billing/plans'
 import { Logo } from '@/components/common/ui/Logo'
 
 type Market = 'BR' | 'PT' | 'US'
+const VISIBLE_MARKETS: Market[] = ['BR']
 
 // ─── Content ───────────────────────────────────────────────────────────────────
 const CONTENT = {
@@ -479,7 +480,7 @@ function CompareCellValue({ val }: { val: string }) {
 
 // ─── Component ─────────────────────────────────────────────────────────────────
 export function LandingPage() {
-  const [market, setMarket] = useState<Market>('PT')
+  const [market, setMarket] = useState<Market>('BR')
   const [email, setEmail]   = useState('')
   const [_loadingPlan, setLoadingPlan] = useState<string | null>(null)
   const [openFaq, setOpenFaq]       = useState<number | null>(null)
@@ -545,7 +546,7 @@ export function LandingPage() {
           <div className="hidden sm:block"><Logo variant="default" size="md" /></div>
           <div className="flex items-center gap-2 sm:gap-4">
             <div className="flex items-center bg-lodgra-neutral-100 rounded-none p-1 gap-1">
-              {(['PT', 'BR', 'US'] as const).map(m => (
+              {VISIBLE_MARKETS.map(m => (
                 <button
                   key={m}
                   onClick={() => setMarket(m)}
