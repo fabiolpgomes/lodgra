@@ -13,6 +13,16 @@ const nextConfig = {
   async redirects() {
     return [
       {
+        source: '/landing-vp',
+        destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/:locale/landing-vp',
+        destination: '/',
+        permanent: true,
+      },
+      {
         source: '/:path*',
         has: [{ type: 'host', value: 'homestay.pt' }],
         destination: 'https://lodgra.io/:path*',

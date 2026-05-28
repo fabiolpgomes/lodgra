@@ -21,6 +21,10 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
   const ip = getClientIp(request)
 
+  if (pathname === '/landing-vp' || pathname.endsWith('/landing-vp')) {
+    return NextResponse.redirect(new URL('/', request.url), 308)
+  }
+
   const nonce = Buffer.from(crypto.randomUUID()).toString('base64')
   const requestHeaders = new Headers(request.headers)
   requestHeaders.set('x-nonce', nonce)
@@ -73,7 +77,7 @@ export async function proxy(request: NextRequest) {
   const isPageRoute = !pathname.startsWith('/api/') && !pathname.includes('.')
   const hasLocale = hasLocalePrefix(pathname)
 
-  if (isPageRoute && !hasLocale && (!isPublic || pathname === '/')) {
+  if (isPageRoute && !hasLocale && !isPublic) {
     const url = request.nextUrl.clone()
     url.pathname = `/${defaultLocale}${pathname === '/' ? '' : pathname}`
 

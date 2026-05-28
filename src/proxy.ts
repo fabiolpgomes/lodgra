@@ -15,6 +15,10 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
   const ip = getClientIp(request)
 
+  if (pathname === '/landing-vp' || pathname.endsWith('/landing-vp')) {
+    return NextResponse.redirect(new URL('/', request.url), 308)
+  }
+
   // Generate per-request nonce for CSP
   const nonce = Buffer.from(crypto.randomUUID()).toString('base64')
   const requestHeaders = new Headers(request.headers)

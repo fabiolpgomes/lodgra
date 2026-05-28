@@ -1,5 +1,5 @@
-import { BrazilLanding } from '@/components/marketing/regions/BrazilLanding'
+import { permanentRedirect } from 'next/navigation'
 
 export default function LandingVPPage() {
-  return <BrazilLanding />
+  permanentRedirect('/')
 }

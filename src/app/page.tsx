@@ -1,5 +1,5 @@
-import { redirect } from 'next/navigation'
 import type { Metadata } from 'next'
+import { BrazilLanding } from '@/components/marketing/regions/BrazilLanding'
 import { seoMetadata, twitterDefaults } from '@/lib/seo/metadata'
 
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://lodgra.io'
@@ -52,6 +52,5 @@ export const metadata: Metadata = {
 }
 
 export default function RootPage() {
-  redirect('/pt-BR/landing-vp')
+  return <BrazilLanding />
 }
-
