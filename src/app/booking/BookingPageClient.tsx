@@ -1,13 +1,13 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import Link from 'next/link'
+import { ExternalLink, Mail, MessageCircle, Phone } from 'lucide-react'
 import { Logo } from '@/components/common/ui/Logo'
 import { SearchBar, type SearchParams } from '@/components/common/public/properties/SearchBar'
 import { PropertyFilters, type FilterState } from '@/components/common/public/properties/PropertyFilters'
 import { PropertyGrid } from '@/components/common/public/properties/PropertyGrid'
 import { TemplateHero } from '@/components/booking/TemplateHero'
-import { TemplateProperties } from '@/components/booking/TemplateProperties'
 import type { PropertyCardProps } from '@/components/common/public/properties/PropertyCard'
 
 interface TemplateConfig {
@@ -22,23 +22,56 @@ interface TemplateConfig {
   secondary_color: string
 }
 
+interface PublicContactProfile {
+  contact_email: string | null
+  contact_phone: string | null
+  whatsapp_number: string | null
+  website_url: string | null
+  instagram_url: string | null
+  public_contact_message: string | null
+  address_line: string | null
+  city: string | null
+  country: string | null
+}
+
 interface Props {
   orgSlug: string | null
   orgName: string | null
+  orgLogoUrl: string | null
+  publicProfile: PublicContactProfile | null
+  initialData: {
+    properties: PropertyCardProps[]
+    pagination: { totalPages: number; totalItems: number }
+  }
 }
 
-export function BookingPageClient({ orgSlug, orgName }: Props) {
+function getWhatsAppHref(number: string) {
+  const digits = number.replace(/[^\d]/g, '')
+  return digits ? `https://wa.me/${digits}` : null
+}
+
+function getLocationText(profile: PublicContactProfile) {
+  return [profile.address_line, profile.city, profile.country].filter(Boolean).join(', ')
+}
+
+function getPhoneHref(number: string) {
+  const normalized = number.replace(/[^\d+]/g, '')
+  return normalized ? `tel:${normalized}` : null
+}
+
+export function BookingPageClient({ orgSlug, orgName, orgLogoUrl, publicProfile, initialData }: Props) {
   const [filters, setFilters] = useState<FilterState>({})
   const [searchParams, setSearchParams] = useState<SearchParams | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [data, setData] = useState<{
     properties: PropertyCardProps[]
     pagination: { totalPages: number; totalItems: number }
-  } | null>(null)
+  } | null>(initialData)
   const [template, setTemplate] = useState<TemplateConfig | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [templateLoading, setTemplateLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const hasSkippedInitialFetch = useRef(false)
 
   const handleFilterChange = useCallback((newFilters: FilterState) => {
     setFilters(newFilters)
@@ -79,6 +112,16 @@ export function BookingPageClient({ orgSlug, orgName }: Props) {
   }, [orgSlug])
 
   useEffect(() => {
+    const isInitialView =
+      currentPage === 1 &&
+      !searchParams &&
+      Object.keys(filters).length === 0
+
+    if (!hasSkippedInitialFetch.current && initialData && isInitialView) {
+      hasSkippedInitialFetch.current = true
+      return
+    }
+
     const timer = setTimeout(async () => {
       setIsLoading(true)
       try {
@@ -112,37 +155,135 @@ export function BookingPageClient({ orgSlug, orgName }: Props) {
       } finally {
         setIsLoading(false)
       }
-    }, 500)
+    }, 150)
 
     return () => clearTimeout(timer)
-  }, [filters, searchParams, currentPage, orgSlug])
+  }, [filters, searchParams, currentPage, orgSlug, initialData])
 
   const properties = data?.properties ?? []
   const totalPages = data?.pagination?.totalPages ?? 1
   const resultCount = data?.pagination?.totalItems
 
-  const title = template?.booking_headline ?? (orgName ? `${orgName} — Propriedades` : 'Descobrir Propriedades')
+  const title = template?.booking_headline ?? 'Sua casa de férias, sem complicações.'
   const subtitle = template?.booking_subtitle ?? (orgName
     ? `Reserve directamente com ${orgName}`
     : 'Encontre a propriedade perfeita para sua próxima viagem')
+  const whatsappHref = publicProfile?.whatsapp_number ? getWhatsAppHref(publicProfile.whatsapp_number) : null
+  const phoneHref = publicProfile?.contact_phone ? getPhoneHref(publicProfile.contact_phone) : null
+  const locationText = publicProfile ? getLocationText(publicProfile) : ''
+  const hasPublicContact = Boolean(
+    publicProfile?.whatsapp_number ||
+    publicProfile?.contact_email ||
+    publicProfile?.contact_phone ||
+    publicProfile?.website_url ||
+    publicProfile?.instagram_url ||
+    publicProfile?.public_contact_message ||
+    locationText
+  )
+  const contactButtonClass =
+    'group inline-flex h-10 items-center gap-2 border border-[#d8d8d8] bg-white px-4 text-[12px] font-bold uppercase tracking-[1.2px] text-[#1E40AF] transition-colors hover:border-[#1E40AF] hover:bg-[#1E40AF]'
+  const contactButtonIconClass = 'h-4 w-4 text-[#1E40AF] transition-colors group-hover:text-white'
+  const contactButtonTextClass = 'text-[#1E40AF] transition-colors group-hover:text-white'
 
   return (
     <div className="min-h-screen bg-[#f7f7f7] font-light text-[#3c3c3c]">
       {/* Header - top-nav */}
-      <header className="bg-[#ffffff] border-b border-[#e6e6e6] px-6 h-[64px] flex items-center justify-center sticky top-0 z-50">
+      <header className="bg-[#ffffff] border-b border-[#e6e6e6] px-6 h-[72px] flex items-center justify-center sticky top-0 z-50">
         <div className="w-full max-w-[1440px] mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3">
             <Logo size="md" />
             <span className="text-[18px] font-bold tracking-tight text-[#262626]">LODGRA</span>
           </Link>
-          <Link
-            href="/"
-            className="text-[13px] font-bold tracking-[1.5px] uppercase text-[#262626] hover:text-[#1c69d4] transition-colors"
-          >
-            Conheça a Lodgra
-          </Link>
+          {orgName && (
+            <div className="ml-4 flex min-w-0 items-center justify-end gap-4 border-l border-[#e6e6e6] pl-5">
+              {orgLogoUrl && (
+                <div className="flex h-14 w-20 shrink-0 items-center justify-center overflow-visible">
+                  <img
+                    src={orgLogoUrl}
+                    alt={`Logotipo ${orgName}`}
+                    className="h-full w-full scale-125 object-contain"
+                  />
+                </div>
+              )}
+              <span className="truncate text-right text-[15px] font-bold tracking-[0.4px] text-[#262626] sm:text-[18px]">
+                {orgName}
+              </span>
+            </div>
+          )}
         </div>
       </header>
+
+      {hasPublicContact && publicProfile && (
+        <section className="border-b border-[#e6e6e6] bg-white px-6 py-4">
+          <div className="mx-auto flex max-w-[1440px] flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="min-w-0">
+              <p className="text-[13px] font-bold uppercase tracking-[1.4px] text-[#262626]">
+                Fale diretamente com {orgName ?? 'a empresa'}
+              </p>
+              {(publicProfile.public_contact_message || locationText) && (
+                <p className="mt-1 text-[14px] font-light leading-[1.5] text-[#5f5f5f]">
+                  {publicProfile.public_contact_message || locationText}
+                  {publicProfile.public_contact_message && locationText ? ` · ${locationText}` : ''}
+                </p>
+              )}
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              {whatsappHref && (
+                <a
+                  href={whatsappHref}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={contactButtonClass}
+                >
+                  <MessageCircle className={contactButtonIconClass} />
+                  <span className={contactButtonTextClass}>WhatsApp</span>
+                </a>
+              )}
+              {publicProfile.contact_email && (
+                <a
+                  href={`mailto:${publicProfile.contact_email}`}
+                  className={contactButtonClass}
+                >
+                  <Mail className={contactButtonIconClass} />
+                  <span className={contactButtonTextClass}>Email</span>
+                </a>
+              )}
+              {phoneHref && (
+                <a
+                  href={phoneHref}
+                  className={contactButtonClass}
+                >
+                  <Phone className={contactButtonIconClass} />
+                  <span className={contactButtonTextClass}>Telefone</span>
+                </a>
+              )}
+              {publicProfile.website_url && (
+                <a
+                  href={publicProfile.website_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={contactButtonClass}
+                >
+                  <ExternalLink className={contactButtonIconClass} />
+                  <span className={contactButtonTextClass}>Site</span>
+                </a>
+              )}
+              {publicProfile.instagram_url && (
+                <a
+                  href={publicProfile.instagram_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={contactButtonClass}
+                >
+                  <ExternalLink className={contactButtonIconClass} />
+                  <span className={contactButtonTextClass}>Instagram</span>
+                </a>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Hero Section - Template or Default */}
       {template && !templateLoading ? (
