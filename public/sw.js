@@ -1,5 +1,5 @@
-const CACHE_NAME = 'lodgra-v1'
-const CACHE_ASSETS = 'lodgra-assets-v1'
+const CACHE_NAME = 'lodgra-v3'
+const CACHE_ASSETS = 'lodgra-assets-v3'
 
 const OFFLINE_HTML = `<!DOCTYPE html>
 <html lang="pt-BR">
@@ -60,14 +60,23 @@ self.addEventListener('activate', (event) => {
   self.clients.claim()
 })
 
-// Fetch: network-first for pages, cache-first for assets
+// Fetch: network-only for pages, cache-first for assets
 self.addEventListener('fetch', (event) => {
   // Only handle GET requests
   if (event.request.method !== 'GET') return
 
-  // Skip API routes and auth
   const url = new URL(event.request.url)
-  if (url.pathname.startsWith('/api/')) return
+
+  // Service workers can see extension and browser-internal requests in Chrome.
+  // Those schemes cannot be stored in Cache Storage and should be ignored.
+  if (!['http:', 'https:'].includes(url.protocol)) return
+
+  // Only handle this app. Let extensions, Stripe, Supabase, and other origins
+  // go directly through the browser/network stack.
+  if (url.origin !== self.location.origin) return
+
+  // Skip API routes and local development hosts.
+  if (url.hostname === 'localhost' || url.hostname === '127.0.0.1' || url.pathname.startsWith('/api/')) return
 
   const isAsset = /\.(js|css|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot)(\?.*)?$/i.test(url.pathname)
 
@@ -77,38 +86,27 @@ self.addEventListener('fetch', (event) => {
       caches.match(event.request).then((cached) => {
         if (cached) return cached
         return fetch(event.request).then((response) => {
-          if (response.ok) {
+          if (response.ok && response.type === 'basic') {
             const clone = response.clone()
-            caches.open(CACHE_ASSETS).then((cache) => cache.put(event.request, clone))
+            caches.open(CACHE_ASSETS).then((cache) => cache.put(event.request, clone)).catch(() => {})
           }
           return response
         }).catch(() => new Response('Asset offline', { status: 503 }))
       })
     )
   } else {
-    // Network-first strategy for pages and API responses
+    // Never cache HTML/navigation responses. Marketing pages change often, and
+    // stale cached pages can keep old redirects alive in installed PWAs.
     event.respondWith(
       fetch(event.request)
-        .then((response) => {
-          // Cache successful page responses
-          if (response.ok && response.type === 'basic') {
-            const clone = response.clone()
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone))
+        .catch(() => {
+          if (event.request.mode === 'navigate') {
+            return new Response(OFFLINE_HTML, {
+              headers: { 'Content-Type': 'text/html; charset=utf-8' }
+            })
           }
-          return response
+          return new Response('Offline', { status: 503 })
         })
-        .catch(() =>
-          caches.match(event.request).then((cached) => {
-            if (cached) return cached
-            // For navigation requests, show offline page
-            if (event.request.mode === 'navigate') {
-              return new Response(OFFLINE_HTML, {
-                headers: { 'Content-Type': 'text/html; charset=utf-8' }
-              })
-            }
-            return new Response('Offline', { status: 503 })
-          })
-        )
     )
   }
 })

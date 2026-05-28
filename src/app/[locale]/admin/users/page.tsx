@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import { getLocale } from 'next-intl/server'
 import { Users, Plus, Shield, Edit } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
@@ -24,8 +23,12 @@ interface PropertyRef {
   name: string
 }
 
-export default async function UsersPage() {
-  const locale = await getLocale()
+export default async function UsersPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}) {
+  const { locale } = await params
   const supabase = await createClient()
 
   // Verificar se é admin

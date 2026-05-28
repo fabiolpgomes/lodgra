@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import { getLocale } from 'next-intl/server'
 import { Users, Plus } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
@@ -10,13 +9,15 @@ import { Button } from '@/components/common/ui/button'
 import { parsePage, getRange, PAGE_SIZE } from '@/lib/utils/pagination'
 
 export default async function OwnersPage({
+  params,
   searchParams,
 }: {
+  params: Promise<{ locale: string }>
   searchParams: Promise<{ page?: string }>
 }) {
-  const locale = await getLocale()
-  const params = await searchParams
-  const page = parsePage(params)
+  const { locale } = await params
+  const queryParams = await searchParams
+  const page = parsePage(queryParams)
   const { from, to } = getRange(page)
 
   const supabase = await createClient()
