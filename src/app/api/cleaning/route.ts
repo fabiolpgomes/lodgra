@@ -101,8 +101,8 @@ export async function POST(request: NextRequest) {
       const { generateAccessToken, hashToken } = await import('@/lib/cleaner-tokens')
       const plainToken = await generateAccessToken()
       const tokenHash = hashToken(plainToken)
-      const expiresAt = new Date()
-      expiresAt.setHours(expiresAt.getHours() + 24)
+      // Set expiration 7 days from now (updated from 24h for better UX)
+      const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
 
       await supabase.from('cleaner_access_tokens').insert({
         cleaner_id: assigned_to,

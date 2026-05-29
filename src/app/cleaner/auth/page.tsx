@@ -4,6 +4,13 @@ import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
+interface AuthContext {
+  property?: string;
+  taskDate?: string;
+  companyName?: string;
+  companyLogo?: string;
+}
+
 export default function CleanerAuthPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -11,6 +18,7 @@ export default function CleanerAuthPage() {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [context, setContext] = useState<AuthContext | null>(null);
 
   useEffect(() => {
     const authenticate = async () => {
@@ -21,6 +29,19 @@ export default function CleanerAuthPage() {
       }
 
       try {
+        // Fetch context (company info) first
+        const contextResponse = await fetch('/api/cleaners/auth/context', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token }),
+        });
+
+        if (contextResponse.ok) {
+          const contextData = await contextResponse.json();
+          setContext(contextData);
+        }
+
+        // Authenticate
         const response = await fetch('/api/cleaners/auth', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -64,13 +85,17 @@ export default function CleanerAuthPage() {
           {/* Logo */}
           <div className="mb-8">
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-100">
-              <span className="text-2xl font-black text-blue-600">🏠</span>
+              <span className="text-2xl font-black text-blue-600">
+                {typeof context?.companyLogo === 'string' && context.companyLogo.startsWith('http')
+                  ? <img src={context.companyLogo} alt="Logo" className="w-8 h-8" />
+                  : context?.companyLogo || '🏠'}
+              </span>
             </div>
           </div>
 
           {/* Branding */}
           <h2 className="text-xs font-black uppercase tracking-widest text-gray-500 mb-3">Portal de Limpeza</h2>
-          <h1 className="text-3xl font-black text-blue-600 mb-6">Lodgra</h1>
+          <h1 className="text-3xl font-black text-blue-600 mb-6">{context?.companyName || 'Lodgra'}</h1>
 
           {/* Error */}
           <div className="mb-6">
