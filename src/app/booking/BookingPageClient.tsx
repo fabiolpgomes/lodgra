@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef } from 'react'
 import Link from 'next/link'
-import { ExternalLink, Mail, MessageCircle, Phone } from 'lucide-react'
+import { ExternalLink, Mail, MessageCircle, Phone, ChevronDown } from 'lucide-react'
 import { Logo } from '@/components/common/ui/Logo'
 import { SearchBar, type SearchParams } from '@/components/common/public/properties/SearchBar'
 import { PropertyFilters, type FilterState } from '@/components/common/public/properties/PropertyFilters'
@@ -71,6 +71,7 @@ export function BookingPageClient({ orgSlug, orgName, orgLogoUrl, publicProfile,
   const [isLoading, setIsLoading] = useState(false)
   const [templateLoading, setTemplateLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [contactExpanded, setContactExpanded] = useState(false)
   const hasSkippedInitialFetch = useRef(false)
 
   const handleFilterChange = useCallback((newFilters: FilterState) => {
@@ -83,45 +84,25 @@ export function BookingPageClient({ orgSlug, orgName, orgLogoUrl, publicProfile,
     setCurrentPage(1)
   }, [])
 
-  // Fetch template config if orgSlug exists
   useEffect(() => {
-    if (!orgSlug) {
-      setTemplate(null)
-      return
-    }
-
+    if (!orgSlug) { setTemplate(null); return }
     const fetchTemplate = async () => {
       setTemplateLoading(true)
       try {
         const response = await fetch(`/api/organizations/${orgSlug}/template`)
-        if (response.ok) {
-          const config = await response.json()
-          setTemplate(config)
-        } else {
-          setTemplate(null)
-        }
-      } catch (err) {
-        console.error('Error fetching template:', err)
-        setTemplate(null)
-      } finally {
-        setTemplateLoading(false)
-      }
+        setTemplate(response.ok ? await response.json() : null)
+      } catch { setTemplate(null) }
+      finally { setTemplateLoading(false) }
     }
-
     fetchTemplate()
   }, [orgSlug])
 
   useEffect(() => {
-    const isInitialView =
-      currentPage === 1 &&
-      !searchParams &&
-      Object.keys(filters).length === 0
-
+    const isInitialView = currentPage === 1 && !searchParams && Object.keys(filters).length === 0
     if (!hasSkippedInitialFetch.current && initialData && isInitialView) {
       hasSkippedInitialFetch.current = true
       return
     }
-
     const timer = setTimeout(async () => {
       setIsLoading(true)
       try {
@@ -129,83 +110,71 @@ export function BookingPageClient({ orgSlug, orgName, orgLogoUrl, publicProfile,
         params.set('limit', '12')
         params.set('page', String(currentPage))
         if (orgSlug) params.set('orgSlug', orgSlug)
-
-        if (searchParams?.location) {
-          params.set('location', searchParams.location)
-        } else if (filters.location) {
-          params.set('location', filters.location)
-        }
+        if (searchParams?.location) params.set('location', searchParams.location)
+        else if (filters.location) params.set('location', filters.location)
         if (filters.priceMin !== undefined) params.set('priceMin', String(filters.priceMin))
         if (filters.priceMax !== undefined) params.set('priceMax', String(filters.priceMax))
-        if (filters.amenities && filters.amenities.length > 0) {
-          filters.amenities.forEach(a => params.append('amenities', a))
-        }
+        if (filters.amenities?.length) filters.amenities.forEach(a => params.append('amenities', a))
         if (filters.propertyType) params.set('type', filters.propertyType)
         if (filters.minRating !== undefined) params.set('minRating', String(filters.minRating))
         if (searchParams?.checkIn) params.set('checkIn', searchParams.checkIn)
         if (searchParams?.checkOut) params.set('checkOut', searchParams.checkOut)
         if (searchParams?.guests) params.set('guests', String(searchParams.guests))
-
         const response = await fetch(`/api/properties?${params.toString()}`)
-        const result = await response.json()
-        setData(result.data)
+        setData((await response.json()).data)
         setError(null)
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Unknown error')
-      } finally {
-        setIsLoading(false)
-      }
+      } finally { setIsLoading(false) }
     }, 150)
-
     return () => clearTimeout(timer)
   }, [filters, searchParams, currentPage, orgSlug, initialData])
 
   const properties = data?.properties ?? []
   const totalPages = data?.pagination?.totalPages ?? 1
   const resultCount = data?.pagination?.totalItems
-
   const title = template?.booking_headline ?? 'Sua casa de férias, sem complicações.'
-  const subtitle = template?.booking_subtitle ?? (orgName
-    ? `Reserve directamente com ${orgName}`
-    : 'Encontre a propriedade perfeita para sua próxima viagem')
+  const subtitle = template?.booking_subtitle ?? (orgName ? `Reserve directamente com ${orgName}` : 'Encontre a propriedade perfeita para sua próxima viagem')
   const whatsappHref = publicProfile?.whatsapp_number ? getWhatsAppHref(publicProfile.whatsapp_number) : null
   const phoneHref = publicProfile?.contact_phone ? getPhoneHref(publicProfile.contact_phone) : null
   const locationText = publicProfile ? getLocationText(publicProfile) : ''
   const hasPublicContact = Boolean(
-    publicProfile?.whatsapp_number ||
-    publicProfile?.contact_email ||
-    publicProfile?.contact_phone ||
-    publicProfile?.website_url ||
-    publicProfile?.instagram_url ||
-    publicProfile?.public_contact_message ||
-    locationText
+    publicProfile?.whatsapp_number || publicProfile?.contact_email ||
+    publicProfile?.contact_phone || publicProfile?.website_url ||
+    publicProfile?.instagram_url || publicProfile?.public_contact_message || locationText
   )
-  const contactButtonClass =
-    'group inline-flex h-10 items-center gap-2 border border-[#d8d8d8] bg-white px-4 text-[12px] font-bold uppercase tracking-[1.2px] text-[#1E40AF] transition-colors hover:border-[#1E40AF] hover:bg-[#1E40AF]'
-  const contactButtonIconClass = 'h-4 w-4 text-[#1E40AF] transition-colors group-hover:text-white'
-  const contactButtonTextClass = 'text-[#1E40AF] transition-colors group-hover:text-white'
+
+  const contactLinks = [
+    whatsappHref && { href: whatsappHref, icon: <MessageCircle className="h-4 w-4 shrink-0" />, label: 'WhatsApp', external: true },
+    publicProfile?.contact_email && { href: `mailto:${publicProfile.contact_email}`, icon: <Mail className="h-4 w-4 shrink-0" />, label: 'Email', external: false },
+    phoneHref && { href: phoneHref, icon: <Phone className="h-4 w-4 shrink-0" />, label: 'Telefone', external: false },
+    publicProfile?.website_url && { href: publicProfile.website_url, icon: <ExternalLink className="h-4 w-4 shrink-0" />, label: 'Site', external: true },
+    publicProfile?.instagram_url && { href: publicProfile.instagram_url, icon: <ExternalLink className="h-4 w-4 shrink-0" />, label: 'Instagram', external: true },
+  ].filter(Boolean) as { href: string; icon: React.ReactNode; label: string; external: boolean }[]
+
+  const primaryContacts = contactLinks.slice(0, 2)
+  const secondaryContacts = contactLinks.slice(2)
+
+  const btnBase = 'inline-flex h-11 items-center gap-2 border border-gray-300 bg-white px-4 text-[12px] font-bold uppercase tracking-[1.2px] text-brand-800 transition-colors hover:border-brand-800 hover:bg-brand-800 hover:text-white active:scale-95'
 
   return (
-    <div className="min-h-screen bg-[#f7f7f7] font-light text-[#3c3c3c]">
-      {/* Header - top-nav */}
-      <header className="bg-[#ffffff] border-b border-[#e6e6e6] px-6 h-[72px] flex items-center justify-center sticky top-0 z-50">
+    <div className="min-h-screen bg-gray-50 font-light text-gray-700">
+
+      {/* ── Header ─────────────────────────────────────────── */}
+      <header className="bg-white border-b border-gray-200 px-4 sm:px-6 h-14 sm:h-[72px] flex items-center sticky top-0 z-40">
         <div className="w-full max-w-[1440px] mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3">
-            <Logo size="md" />
-            <span className="text-[18px] font-bold tracking-tight text-[#262626]">LODGRA</span>
+          <Link href="/" className="flex items-center gap-2 sm:gap-3 shrink-0">
+            <Logo size="sm" />
+            <span className="text-[16px] sm:text-[18px] font-bold tracking-tight text-gray-900">LODGRA</span>
           </Link>
           {orgName && (
-            <div className="ml-4 flex min-w-0 items-center justify-end gap-4 border-l border-[#e6e6e6] pl-5">
+            <div className="ml-3 flex min-w-0 items-center gap-2 sm:gap-4 border-l border-gray-200 pl-3 sm:pl-5">
               {orgLogoUrl && (
-                <div className="flex h-14 w-20 shrink-0 items-center justify-center overflow-visible">
-                  <img
-                    src={orgLogoUrl}
-                    alt={`Logotipo ${orgName}`}
-                    className="h-full w-full scale-125 object-contain"
-                  />
+                <div className="flex h-10 w-14 sm:h-14 sm:w-20 shrink-0 items-center justify-center overflow-visible">
+                  <img src={orgLogoUrl} alt={`Logotipo ${orgName}`} className="h-full w-full scale-125 object-contain" />
                 </div>
               )}
-              <span className="truncate text-right text-[15px] font-bold tracking-[0.4px] text-[#262626] sm:text-[18px]">
+              <span className="truncate text-right text-[13px] sm:text-[18px] font-bold tracking-[0.4px] text-gray-900 max-w-[140px] sm:max-w-none">
                 {orgName}
               </span>
             </div>
@@ -213,79 +182,7 @@ export function BookingPageClient({ orgSlug, orgName, orgLogoUrl, publicProfile,
         </div>
       </header>
 
-      {hasPublicContact && publicProfile && (
-        <section className="border-b border-[#e6e6e6] bg-white px-6 py-4">
-          <div className="mx-auto flex max-w-[1440px] flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <div className="min-w-0">
-              <p className="text-[13px] font-bold uppercase tracking-[1.4px] text-[#262626]">
-                Fale diretamente com {orgName ?? 'a empresa'}
-              </p>
-              {(publicProfile.public_contact_message || locationText) && (
-                <p className="mt-1 text-[14px] font-light leading-[1.5] text-[#5f5f5f]">
-                  {publicProfile.public_contact_message || locationText}
-                  {publicProfile.public_contact_message && locationText ? ` · ${locationText}` : ''}
-                </p>
-              )}
-            </div>
-
-            <div className="flex flex-wrap gap-2">
-              {whatsappHref && (
-                <a
-                  href={whatsappHref}
-                  target="_blank"
-                  rel="noreferrer"
-                  className={contactButtonClass}
-                >
-                  <MessageCircle className={contactButtonIconClass} />
-                  <span className={contactButtonTextClass}>WhatsApp</span>
-                </a>
-              )}
-              {publicProfile.contact_email && (
-                <a
-                  href={`mailto:${publicProfile.contact_email}`}
-                  className={contactButtonClass}
-                >
-                  <Mail className={contactButtonIconClass} />
-                  <span className={contactButtonTextClass}>Email</span>
-                </a>
-              )}
-              {phoneHref && (
-                <a
-                  href={phoneHref}
-                  className={contactButtonClass}
-                >
-                  <Phone className={contactButtonIconClass} />
-                  <span className={contactButtonTextClass}>Telefone</span>
-                </a>
-              )}
-              {publicProfile.website_url && (
-                <a
-                  href={publicProfile.website_url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className={contactButtonClass}
-                >
-                  <ExternalLink className={contactButtonIconClass} />
-                  <span className={contactButtonTextClass}>Site</span>
-                </a>
-              )}
-              {publicProfile.instagram_url && (
-                <a
-                  href={publicProfile.instagram_url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className={contactButtonClass}
-                >
-                  <ExternalLink className={contactButtonIconClass} />
-                  <span className={contactButtonTextClass}>Instagram</span>
-                </a>
-              )}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Hero Section - Template or Default */}
+      {/* ── Hero — compact on mobile ───────────────────────── */}
       {template && !templateLoading ? (
         <TemplateHero
           headline={template.booking_headline}
@@ -295,47 +192,105 @@ export function BookingPageClient({ orgSlug, orgName, orgLogoUrl, publicProfile,
           templateType={template.template_type}
         />
       ) : (
-        <div className="bg-[#ffffff] px-6 py-12 border-b border-[#e6e6e6]">
+        <div className="bg-white px-4 sm:px-6 py-6 sm:py-12 border-b border-gray-200">
           <div className="max-w-[1440px] mx-auto">
-            <h1 className="text-[32px] md:text-[48px] font-bold text-[#262626] leading-[1.1] mb-4">{title}</h1>
-            <p className="text-[16px] font-light text-[#3c3c3c] leading-[1.55]">{subtitle}</p>
-            <div className="w-[48px] h-[4px] bg-[#1c69d4] mt-6"></div>
+            <h1 className="text-2xl sm:text-[48px] font-bold text-gray-900 leading-[1.15] mb-2 sm:mb-4">{title}</h1>
+            <p className="text-sm sm:text-[16px] font-light text-gray-600 leading-[1.55]">{subtitle}</p>
+            <div className="w-10 h-1 bg-brand-600 mt-4 sm:mt-6" />
           </div>
         </div>
       )}
 
-      {/* Search Bar container */}
-      <div className="bg-[#ffffff] border-b border-[#e6e6e6] px-6 py-8">
+      {/* ── Search ─────────────────────────────────────────── */}
+      <div className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4 sm:py-8">
         <div className="max-w-[1440px] mx-auto">
-          <SearchBar onSearch={handleSearch} isLoading={isLoading} />
+          <SearchBar onSearch={handleSearch} isLoading={isLoading} hideLocation={!!orgSlug} />
         </div>
       </div>
 
+      {/* ── Contact bar — collapsed on mobile ─────────────── */}
+      {hasPublicContact && publicProfile && contactLinks.length > 0 && (
+        <section className="border-b border-gray-200 bg-white px-4 sm:px-6 py-3 sm:py-4">
+          <div className="mx-auto max-w-[1440px]">
+            {/* Mobile: compact row */}
+            <div className="flex items-center gap-2 sm:hidden">
+              <p className="text-[11px] font-bold uppercase tracking-[1.2px] text-gray-500 shrink-0 mr-1">
+                Contacto:
+              </p>
+              <div className="flex flex-1 items-center gap-2 overflow-hidden">
+                {primaryContacts.map(({ href, icon, label, external }) => (
+                  <a key={label} href={href} target={external ? '_blank' : undefined} rel={external ? 'noreferrer' : undefined}
+                    className={`${btnBase} flex-1 justify-center`}>
+                    {icon}<span>{label}</span>
+                  </a>
+                ))}
+              </div>
+              {secondaryContacts.length > 0 && (
+                <button
+                  onClick={() => setContactExpanded(v => !v)}
+                  className="h-11 w-11 shrink-0 flex items-center justify-center border border-gray-300 bg-white text-gray-600 hover:border-brand-800 hover:text-brand-800 transition-colors"
+                  aria-label="Ver mais contactos"
+                >
+                  <ChevronDown className={`h-4 w-4 transition-transform ${contactExpanded ? 'rotate-180' : ''}`} />
+                </button>
+              )}
+            </div>
+
+            {/* Mobile: expanded secondary contacts */}
+            {contactExpanded && secondaryContacts.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-2 sm:hidden">
+                {secondaryContacts.map(({ href, icon, label, external }) => (
+                  <a key={label} href={href} target={external ? '_blank' : undefined} rel={external ? 'noreferrer' : undefined}
+                    className={btnBase}>
+                    {icon}<span>{label}</span>
+                  </a>
+                ))}
+              </div>
+            )}
+
+            {/* Desktop: full contact bar */}
+            <div className="hidden sm:flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+              <div className="min-w-0">
+                <p className="text-[13px] font-bold uppercase tracking-[1.4px] text-gray-900">
+                  Fale diretamente com {orgName ?? 'a empresa'}
+                </p>
+                {(publicProfile.public_contact_message || locationText) && (
+                  <p className="mt-1 text-[14px] font-light leading-[1.5] text-gray-600">
+                    {publicProfile.public_contact_message || locationText}
+                    {publicProfile.public_contact_message && locationText ? ` · ${locationText}` : ''}
+                  </p>
+                )}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {contactLinks.map(({ href, icon, label, external }) => (
+                  <a key={label} href={href} target={external ? '_blank' : undefined} rel={external ? 'noreferrer' : undefined}
+                    className={btnBase}>
+                    {icon}<span>{label}</span>
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
       {error && (
-        <div className="bg-[#1a2129] border border-[#dc2626] px-6 py-4 mx-6 mt-6 max-w-[1440px] xl:mx-auto rounded-none">
-          <p className="text-[#dc2626] font-bold text-[14px] uppercase tracking-[0.5px] mb-1">Erro</p>
-          <p className="text-[#ffffff] text-[14px] font-light">{error}</p>
+        <div className="bg-gray-900 border border-red-600 px-4 py-4 mx-4 mt-4 max-w-[1440px] xl:mx-auto rounded-none">
+          <p className="text-red-500 font-bold text-[14px] uppercase tracking-[0.5px] mb-1">Erro</p>
+          <p className="text-white text-[14px] font-light">{error}</p>
         </div>
       )}
 
-      {/* Content */}
-      <div className="px-6 py-12">
+      {/* ── Content ────────────────────────────────────────── */}
+      <div className="px-4 sm:px-6 py-6 sm:py-12">
         <div className="max-w-[1440px] mx-auto">
-          <div className="flex flex-col lg:flex-row gap-12">
+          <div className="flex flex-col lg:flex-row gap-6 sm:gap-12">
             <div className="hidden lg:block w-[300px] flex-shrink-0">
-              <PropertyFilters
-                onFilterChange={handleFilterChange}
-                isLoading={isLoading}
-                resultCount={resultCount}
-              />
+              <PropertyFilters onFilterChange={handleFilterChange} isLoading={isLoading} resultCount={resultCount} />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="lg:hidden mb-8">
-                <PropertyFilters
-                  onFilterChange={handleFilterChange}
-                  isLoading={isLoading}
-                  resultCount={resultCount}
-                />
+              <div className="lg:hidden mb-6">
+                <PropertyFilters onFilterChange={handleFilterChange} isLoading={isLoading} resultCount={resultCount} />
               </div>
               <PropertyGrid
                 properties={properties}

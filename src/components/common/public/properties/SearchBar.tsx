@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback, useMemo } from 'react'
+import { Search } from 'lucide-react'
 
 export interface SearchParams {
   location: string
@@ -12,6 +13,7 @@ export interface SearchParams {
 export interface SearchBarProps {
   onSearch: (params: SearchParams) => void
   isLoading?: boolean
+  hideLocation?: boolean
 }
 
 interface ValidationErrors {
@@ -21,41 +23,30 @@ interface ValidationErrors {
   guests?: string
 }
 
-function validateSearchParams(params: SearchParams): ValidationErrors {
+function validateSearchParams(params: SearchParams, hideLocation: boolean): ValidationErrors {
   const errors: ValidationErrors = {}
-
-  if (!params.location || params.location.trim().length === 0) {
+  if (!hideLocation && (!params.location || params.location.trim().length === 0)) {
     errors.location = 'Localização é obrigatória'
   }
-
-  if (!params.checkIn) {
-    errors.checkIn = 'Data de check-in é obrigatória'
-  }
-
-  if (!params.checkOut) {
-    errors.checkOut = 'Data de check-out é obrigatória'
-  }
-
+  if (!params.checkIn) errors.checkIn = 'Data de check-in é obrigatória'
+  if (!params.checkOut) errors.checkOut = 'Data de check-out é obrigatória'
   if (params.checkIn && params.checkOut) {
     const checkInDate = new Date(params.checkIn)
-    const checkOutDate = new Date(params.checkOut)
     const minCheckOut = new Date(checkInDate)
     minCheckOut.setDate(minCheckOut.getDate() + 1)
-
-    // Checkout must be at least 1 day after check-in
-    if (checkOutDate < minCheckOut) {
+    if (new Date(params.checkOut) < minCheckOut) {
       errors.checkOut = 'Check-out deve ser no mínimo 1 dia após check-in'
     }
   }
-
-  if (params.guests < 1 || params.guests > 10) {
-    errors.guests = 'Selecione entre 1 e 10 hóspedes'
-  }
-
+  if (params.guests < 1 || params.guests > 10) errors.guests = 'Selecione entre 1 e 10 hóspedes'
   return errors
 }
 
-export function SearchBar({ onSearch, isLoading = false }: SearchBarProps) {
+const inputClass = (hasError: boolean) =>
+  `w-full px-4 py-4 text-[16px] font-light border focus:outline-none focus:ring-2 focus:ring-brand-800 focus:border-transparent transition-colors rounded-none appearance-none bg-white
+  ${hasError ? 'border-red-500' : 'border-gray-300 text-gray-900'}`
+
+export function SearchBar({ onSearch, isLoading = false, hideLocation = false }: SearchBarProps) {
   const [location, setLocation] = useState('')
   const [checkIn, setCheckIn] = useState('')
   const [checkOut, setCheckOut] = useState('')
@@ -63,210 +54,137 @@ export function SearchBar({ onSearch, isLoading = false }: SearchBarProps) {
   const [errors, setErrors] = useState<ValidationErrors>({})
   const [submitted, setSubmitted] = useState(false)
 
+  const today = useMemo(() => new Date().toISOString().split('T')[0], [])
   const minCheckOutDate = useMemo(() => {
     if (!checkIn) return ''
-    const checkInDate = new Date(checkIn)
-    checkInDate.setDate(checkInDate.getDate() + 1)
-    return checkInDate.toISOString().split('T')[0]
+    const d = new Date(checkIn)
+    d.setDate(d.getDate() + 1)
+    return d.toISOString().split('T')[0]
   }, [checkIn])
 
   const handleSubmit = useCallback((e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-
-    const params: SearchParams = {
-      location: location.trim(),
-      checkIn,
-      checkOut,
-      guests,
-    }
-
-    const validationErrors = validateSearchParams(params)
-
+    const params: SearchParams = { location: hideLocation ? '' : location.trim(), checkIn, checkOut, guests }
+    const validationErrors = validateSearchParams(params, hideLocation)
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors)
       setSubmitted(true)
       return
     }
-
     setErrors({})
     setSubmitted(false)
     onSearch(params)
-  }, [location, checkIn, checkOut, guests, onSearch])
-
-  const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setLocation(e.target.value)
-    if (submitted) {
-      const newErrors = { ...errors }
-      if (e.target.value.trim().length > 0) {
-        delete newErrors.location
-      }
-      setErrors(newErrors)
-    }
-  }
+  }, [location, checkIn, checkOut, guests, onSearch, hideLocation])
 
   const handleCheckInChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newCheckIn = e.target.value
-    setCheckIn(newCheckIn)
-
+    const val = e.target.value
+    setCheckIn(val)
     const newErrors = { ...errors }
-
-    if (newCheckIn) {
+    if (val) {
       delete newErrors.checkIn
-
-      // Clear checkout if it's invalid for the new check-in date
       if (checkOut) {
-        const checkOutDate = new Date(checkOut)
-        const checkInDate = new Date(newCheckIn)
-        const minCheckOut = new Date(checkInDate)
-        minCheckOut.setDate(minCheckOut.getDate() + 1)
-
-        if (checkOutDate < minCheckOut) {
-          setCheckOut('')
-          newErrors.checkOut = 'Data de check-out inválida para este check-in'
-        }
+        const minOut = new Date(val)
+        minOut.setDate(minOut.getDate() + 1)
+        if (new Date(checkOut) < minOut) { setCheckOut(''); newErrors.checkOut = 'Data inválida' }
       }
-    } else {
-      delete newErrors.checkIn
-      delete newErrors.checkOut
-    }
-
+    } else { delete newErrors.checkIn; delete newErrors.checkOut }
     setErrors(newErrors)
   }
 
   const handleCheckOutChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newCheckOut = e.target.value
-    setCheckOut(newCheckOut)
-
+    const val = e.target.value
+    setCheckOut(val)
     const newErrors = { ...errors }
-
-    if (newCheckOut && checkIn) {
-      const checkOutDate = new Date(newCheckOut)
-      const checkInDate = new Date(checkIn)
-      const minCheckOut = new Date(checkInDate)
-      minCheckOut.setDate(minCheckOut.getDate() + 1)
-
-      if (checkOutDate >= minCheckOut) {
-        delete newErrors.checkOut
-      } else {
-        newErrors.checkOut = 'Check-out deve ser no mínimo 1 dia após check-in'
-      }
-    } else if (newCheckOut && !checkIn) {
+    if (val && checkIn) {
+      const minOut = new Date(checkIn)
+      minOut.setDate(minOut.getDate() + 1)
+      if (new Date(val) >= minOut) delete newErrors.checkOut
+      else newErrors.checkOut = 'Check-out deve ser após check-in'
+    } else if (val && !checkIn) {
       newErrors.checkOut = 'Selecione o check-in primeiro'
-    } else if (!newCheckOut) {
-      delete newErrors.checkOut
-    }
-
+    } else { delete newErrors.checkOut }
     setErrors(newErrors)
+    if (!submitted) return
   }
 
-  return (
-    <form
-      onSubmit={handleSubmit}
-      className="w-full bg-[#ffffff] rounded-none border border-[#e6e6e6] p-6"
-    >
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        {/* Location Input */}
-        <div className="col-span-2 md:col-span-1">
-          <label htmlFor="location" className="block text-[12px] font-bold text-[#6b6b6b] uppercase tracking-[0.5px] mb-2">
-            Para onde?
-          </label>
-          <input
-            id="location"
-            type="text"
-            placeholder="Cidade, país..."
-            value={location}
-            onChange={handleLocationChange}
-            disabled={isLoading}
-            className={`w-full px-4 py-3.5 text-[16px] font-light border rounded-none focus:outline-none focus:border-[#262626] disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${errors.location ? 'border-[#dc2626]' : 'border-[#e6e6e6] text-[#262626]'}`}
-            aria-invalid={!!errors.location}
-            aria-describedby={errors.location ? 'location-error' : undefined}
-          />
-          {errors.location && (
-            <p id="location-error" className="mt-1 text-[12px] text-[#dc2626] font-bold" role="alert">
-              {errors.location}
-            </p>
-          )}
-        </div>
+  const colCount = hideLocation ? 'sm:grid-cols-3' : 'sm:grid-cols-2 md:grid-cols-4'
 
-        {/* Check-in Date */}
+  return (
+    <form onSubmit={handleSubmit} className="w-full" noValidate>
+      {/* Fields */}
+      <div className={`grid grid-cols-1 ${colCount} gap-3 mb-3`}>
+        {!hideLocation && (
+          <div className="sm:col-span-2 md:col-span-1">
+            <label htmlFor="location" className="block text-[11px] font-bold text-gray-600 uppercase tracking-[0.6px] mb-1.5">
+              Para onde?
+            </label>
+            <input
+              id="location" type="text" placeholder="Cidade, região..."
+              value={location} onChange={e => { setLocation(e.target.value); if (submitted && e.target.value.trim()) setErrors(p => { const n = {...p}; delete n.location; return n }) }}
+              disabled={isLoading}
+              className={inputClass(!!errors.location)}
+              aria-invalid={!!errors.location}
+            />
+            {errors.location && <p className="mt-1 text-[11px] text-red-600 font-medium" role="alert">{errors.location}</p>}
+          </div>
+        )}
+
+        {/* Check-in */}
         <div>
-          <label htmlFor="checkin" className="block text-[12px] font-bold text-[#6b6b6b] uppercase tracking-[0.5px] mb-2">
+          <label htmlFor="checkin" className="block text-[11px] font-bold text-gray-600 uppercase tracking-[0.6px] mb-1.5">
             Check-in
           </label>
           <input
-            id="checkin"
-            type="date"
-            value={checkIn}
-            onChange={handleCheckInChange}
-            disabled={isLoading}
-            className={`w-full px-4 py-3.5 text-[16px] font-light border rounded-none focus:outline-none focus:border-[#262626] disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${errors.checkIn ? 'border-[#dc2626]' : 'border-[#e6e6e6] text-[#262626]'}`}
+            id="checkin" type="date" value={checkIn} min={today}
+            onChange={handleCheckInChange} disabled={isLoading}
+            className={inputClass(!!errors.checkIn)}
             aria-invalid={!!errors.checkIn}
-            aria-describedby={errors.checkIn ? 'checkin-error' : undefined}
           />
-          {errors.checkIn && (
-            <p id="checkin-error" className="mt-1 text-[12px] text-[#dc2626] font-bold" role="alert">
-              {errors.checkIn}
-            </p>
-          )}
+          {errors.checkIn && <p className="mt-1 text-[11px] text-red-600 font-medium" role="alert">{errors.checkIn}</p>}
         </div>
 
-        {/* Check-out Date */}
+        {/* Check-out */}
         <div>
-          <label htmlFor="checkout" className="block text-[12px] font-bold text-[#6b6b6b] uppercase tracking-[0.5px] mb-2">
+          <label htmlFor="checkout" className="block text-[11px] font-bold text-gray-600 uppercase tracking-[0.6px] mb-1.5">
             Check-out
           </label>
           <input
-            id="checkout"
-            type="date"
-            value={checkOut}
-            onChange={handleCheckOutChange}
-            disabled={isLoading}
-            min={minCheckOutDate}
-            className={`w-full px-4 py-3.5 text-[16px] font-light border rounded-none focus:outline-none focus:border-[#262626] disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${errors.checkOut ? 'border-[#dc2626]' : 'border-[#e6e6e6] text-[#262626]'}`}
+            id="checkout" type="date" value={checkOut} min={minCheckOutDate}
+            onChange={handleCheckOutChange} disabled={isLoading}
+            className={inputClass(!!errors.checkOut)}
             aria-invalid={!!errors.checkOut}
-            aria-describedby={errors.checkOut ? 'checkout-error' : undefined}
           />
-          {errors.checkOut && (
-            <p id="checkout-error" className="mt-1 text-[12px] text-[#dc2626] font-bold" role="alert">
-              {errors.checkOut}
-            </p>
-          )}
+          {errors.checkOut && <p className="mt-1 text-[11px] text-red-600 font-medium" role="alert">{errors.checkOut}</p>}
         </div>
 
-        {/* Guests Dropdown */}
+        {/* Guests */}
         <div>
-          <label htmlFor="guests" className="block text-[12px] font-bold text-[#6b6b6b] uppercase tracking-[0.5px] mb-2">
+          <label htmlFor="guests" className="block text-[11px] font-bold text-gray-600 uppercase tracking-[0.6px] mb-1.5">
             Hóspedes
           </label>
           <select
-            id="guests"
-            value={guests}
-            onChange={(e) => setGuests(parseInt(e.target.value))}
+            id="guests" value={guests}
+            onChange={e => setGuests(parseInt(e.target.value))}
             disabled={isLoading}
-            className={`w-full px-4 py-3.5 text-[16px] font-light border rounded-none focus:outline-none focus:border-[#262626] disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${errors.guests ? 'border-[#dc2626]' : 'border-[#e6e6e6] text-[#262626]'}`}
+            className={inputClass(!!errors.guests)}
             aria-invalid={!!errors.guests}
-            aria-describedby={errors.guests ? 'guests-error' : undefined}
           >
             {Array.from({ length: 10 }).map((_, i) => (
-              <option key={i + 1} value={i + 1}>
-                {i + 1} {i + 1 === 1 ? 'hóspede' : 'hóspedes'}
-              </option>
+              <option key={i + 1} value={i + 1}>{i + 1} {i + 1 === 1 ? 'hóspede' : 'hóspedes'}</option>
             ))}
           </select>
-          {errors.guests && (
-            <p id="guests-error" className="mt-1 text-[12px] text-[#dc2626] font-bold" role="alert">
-              {errors.guests}
-            </p>
-          )}
+          {errors.guests && <p className="mt-1 text-[11px] text-red-600 font-medium" role="alert">{errors.guests}</p>}
         </div>
       </div>
 
+      {/* CTA */}
       <button
-        type="submit"
-        disabled={isLoading}
-        className="w-full flex items-center justify-center gap-2 px-8 py-3.5 bg-[#1c69d4] hover:bg-[#0653b6] text-[#ffffff] font-bold text-[14px] uppercase tracking-[1.5px] rounded-none transition-colors disabled:opacity-70 disabled:cursor-not-allowed focus:outline-none h-[48px]"
+        type="submit" disabled={isLoading}
+        className="w-full flex items-center justify-center gap-2 h-14 bg-brand-800 hover:bg-brand-900 active:bg-brand-950 text-white font-bold text-[14px] uppercase tracking-[1.5px] transition-colors disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-brand-800 focus:ring-offset-2 rounded-none"
       >
-        {isLoading ? 'PESQUISANDO...' : 'PESQUISAR PROPRIEDADES'}
+        <Search className="h-4 w-4 shrink-0" />
+        <span className="sm:hidden">{isLoading ? 'A pesquisar...' : 'Pesquisar'}</span>
+        <span className="hidden sm:inline">{isLoading ? 'A pesquisar...' : 'Pesquisar Propriedades'}</span>
       </button>
     </form>
   )
