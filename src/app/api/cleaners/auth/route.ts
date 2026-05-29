@@ -23,11 +23,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Hash token to match stored token_hash
+    const { hashToken } = await import('@/lib/cleaner-tokens');
+    const tokenHash = hashToken(token);
+
     // Validate token in cleaner_access_tokens
     const { data: tokenRecord, error: tokenError } = await supabase
       .from('cleaner_access_tokens')
       .select('*')
-      .eq('token', token)
+      .eq('token_hash', tokenHash)
       .single();
 
     if (tokenError || !tokenRecord) {

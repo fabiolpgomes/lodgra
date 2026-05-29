@@ -59,16 +59,58 @@ export default function CleanerAuthPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 to-red-100">
-        <div className="bg-white rounded-lg shadow-lg p-8 max-w-md text-center">
-          <h1 className="text-2xl font-semibold text-red-600 mb-4">Erro na Autenticação</h1>
-          <p className="text-gray-700 mb-6">{error}</p>
-          <Link
-            href="/cleaner/request-link"
-            className="inline-block px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
-          >
-            Solicitar Novo Link
-          </Link>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4">
+        <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md text-center">
+          {/* Logo */}
+          <div className="mb-8">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-100">
+              <span className="text-2xl font-black text-blue-600">🏠</span>
+            </div>
+          </div>
+
+          {/* Branding */}
+          <h2 className="text-xs font-black uppercase tracking-widest text-gray-500 mb-3">Portal de Limpeza</h2>
+          <h1 className="text-3xl font-black text-blue-600 mb-6">Lodgra</h1>
+
+          {/* Error */}
+          <div className="mb-6">
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-red-100 mb-4">
+              <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <p className="text-2xl font-bold text-gray-900 mb-2">Erro na Autenticação</p>
+            <p className="text-sm text-gray-600">{error}</p>
+          </div>
+
+          {/* Help Text */}
+          <div className="bg-blue-50 rounded-xl p-4 mb-6 text-left">
+            <p className="text-xs font-bold text-blue-900 mb-2">💡 O que fazer?</p>
+            <ul className="text-xs text-blue-800 space-y-1">
+              <li>• Verifique se o link está completo</li>
+              <li>• Copie o link exato do WhatsApp</li>
+              <li>• Solicite um novo link ao seu gestor</li>
+            </ul>
+          </div>
+
+          {/* Buttons */}
+          <div className="space-y-3">
+            <Link
+              href="/cleaner/request-link"
+              className="block w-full px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-colors"
+            >
+              Solicitar Novo Link
+            </Link>
+            <a
+              href="mailto:support@lodgra.io?subject=Erro%20ao%20acessar%20Portal%20de%20Limpeza"
+              className="block w-full px-6 py-3 bg-gray-100 text-gray-800 rounded-xl font-bold hover:bg-gray-200 transition-colors"
+            >
+              Contactar Suporte
+            </a>
+          </div>
+
+          {/* Footer */}
+          <p className="text-xs text-gray-400 mt-6">Lodgra © 2026 — Portal de Gestão de Limpezas</p>
         </div>
       </div>
     );
