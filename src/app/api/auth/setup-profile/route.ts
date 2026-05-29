@@ -47,6 +47,7 @@ export async function POST(_request: NextRequest) {
       slug: orgSlug,
       subscription_status: 'trial',
       plan: 'essencial',
+      subscription_plan: 'essencial',
     })
     .select('id')
     .single()

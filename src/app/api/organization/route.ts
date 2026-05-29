@@ -21,11 +21,12 @@ export async function PATCH(request: NextRequest) {
   }
 
   if (plan && typeof plan === 'string') {
-    const validPlans = ['essencial', 'expansao', 'pro', 'enterprise', 'starter', 'growth', 'professional', 'business']
+    const validPlans = ['essencial', 'expansao', 'premium']
     if (!validPlans.includes(plan)) {
       return NextResponse.json({ error: 'Plano inválido' }, { status: 400 })
     }
     updateData.plan = plan
+    updateData.subscription_plan = plan
   }
 
   if (Object.keys(updateData).length === 1) {

@@ -17,6 +17,8 @@ export interface FeedLogEntry {
 export interface PropertyFeedStatus {
   propertyId: string
   propertyName: string
+  propertySlug?: string | null
+  organizationSlug?: string | null
   status: PropertyStatus
   submittedDate?: string
   lastUpdatedDate: string
@@ -172,14 +174,21 @@ export async function getPropertyFeedStatuses(
   offset = 0
 ): Promise<PropertyFeedStatus[]> {
   try {
+    const { data: organization } = await supabase
+      .from('organizations')
+      .select('slug')
+      .eq('id', organizationId)
+      .single()
+    const organizationSlug = (organization as unknown as { slug?: string | null } | null)?.slug
+
     // Get properties with their names
     const { data: properties, error: propsError } = await supabase
       .from('properties')
-      .select('id, name')
+      .select('id, name, slug')
       .eq('organization_id', organizationId)
       .order('name')
       .range(offset, offset + limit - 1)
-      .returns<Array<{ id: string; name: string }>>()
+      .returns<Array<{ id: string; name: string; slug?: string | null }>>()
 
     if (propsError) {
       console.error('Error fetching properties:', propsError)
@@ -195,11 +204,22 @@ export async function getPropertyFeedStatuses(
     // Get latest log entry for each property
     const { data: latestLogs, error: logsError } = await supabase
       .from('google_feed_logs')
-      .select('id, property_id, timestamp, status, action, error_message')
+      .select('id, property_id, timestamp, status, action, duration_ms, error_message, properties_count')
       .in('property_id', propertyIds)
       .order('property_id')
       .order('timestamp', { ascending: false })
-      .returns<Array<{ id: string; property_id: string; timestamp: string; status: FeedLogStatus; action: 'auto' | 'manual'; error_message?: string | null }>>()
+      .returns<
+        Array<{
+          id: string
+          property_id: string
+          timestamp: string
+          status: FeedLogStatus
+          action: 'auto' | 'manual'
+          duration_ms?: number | null
+          error_message?: string | null
+          properties_count?: number | null
+        }>
+      >()
 
     if (logsError) {
       console.error('Error fetching logs:', logsError)
@@ -225,13 +245,17 @@ export async function getPropertyFeedStatuses(
             timestamp: latestLog.timestamp,
             action: latestLog.action as 'auto' | 'manual',
             status: latestLog.status as FeedLogStatus,
+            duration_ms: latestLog.duration_ms,
             error_message: latestLog.error_message,
+            properties_count: latestLog.properties_count,
           }
         : null
 
       return {
         propertyId: prop.id,
         propertyName: prop.name,
+        propertySlug: prop.slug,
+        organizationSlug,
         status: derivePropertyStatus(feedEntry),
         submittedDate: latestLog?.timestamp,
         lastUpdatedDate: latestLog?.timestamp || new Date().toISOString(),

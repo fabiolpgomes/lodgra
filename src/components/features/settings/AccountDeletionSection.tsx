@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Trash2, AlertTriangle, XCircle } from 'lucide-react'
-import { useTranslations } from 'use-intl'
+import { useTranslations } from '@/lib/i18n/useTranslations'
 
 interface DeletionRequest {
   id: string

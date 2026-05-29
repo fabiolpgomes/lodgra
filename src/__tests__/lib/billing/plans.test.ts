@@ -16,17 +16,17 @@ describe('Billing Plans System', () => {
     })
 
     describe('Property limits - Current Strategy (2026)', () => {
-      test('Essencial: 1 included, max 10 with extras', () => {
+      test('Essencial: 1 included, extras available', () => {
         const limits = PLAN_LIMITS.essencial
         expect(limits.maxProperties).toBe(1)
-        expect(limits.maxAllowed).toBe(10)
+        expect(limits.maxAllowed).toBeNull()
         expect(limits.extraPropertyPrice).toBe(49)
       })
 
-      test('Expansão: 3 included, max 10 with extras', () => {
+      test('Expansão: 3 included, extras available', () => {
         const limits = PLAN_LIMITS.expansao
         expect(limits.maxProperties).toBe(3)
-        expect(limits.maxAllowed).toBe(10)
+        expect(limits.maxAllowed).toBeNull()
         expect(limits.extraPropertyPrice).toBe(49)
       })
 
@@ -154,9 +154,9 @@ describe('Billing Plans System', () => {
         expect(plan.price).toBe(397)
       })
 
-      test('should mention 10 included properties + unlimited extras', () => {
+      test('should mention 10 included properties + extras', () => {
         expect(plan.properties).toContain('10')
-        expect(plan.properties).toContain('ilimitado')
+        expect(plan.properties).toContain('+R$49')
       })
 
       test('should list premium features', () => {
@@ -186,7 +186,7 @@ describe('Billing Plans System', () => {
     test('should return limits for valid plan', () => {
       const limits = getPlanLimits('essencial')
       expect(limits.maxProperties).toBe(1)
-      expect(limits.maxAllowed).toBe(10)
+      expect(limits.maxAllowed).toBeNull()
     })
 
     test('should handle null plan (defaults to starter/essencial)', () => {

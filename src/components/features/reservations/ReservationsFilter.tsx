@@ -12,6 +12,7 @@ import { ReservationRow } from './ReservationRow'
 import { ReservationUI } from './types/reservation-ui'
 import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
 import { PaginationNav } from '@/components/common/ui/PaginationNav'
+import { getLocalizedPath, useLocale } from '@/lib/i18n/routing'
 
 interface ReservationsFilterProps {
   reservations: ReservationUI[]
@@ -53,6 +54,7 @@ function getReservationData(r: ReservationUI) {
 }
 
 export function ReservationsFilter({ reservations, canCreate, pagination, currentMonth }: ReservationsFilterProps) {
+  const locale = useLocale() || 'pt-BR'
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
   const [propertyFilter, setPropertyFilter] = useState<string>(() => localStorage.getItem(getStorageKey('property')) || 'all')
@@ -106,7 +108,7 @@ export function ReservationsFilter({ reservations, canCreate, pagination, curren
       </p>
       {reservations.length === 0 && canCreate && (
         <Button asChild>
-          <Link href="/reservations/new">
+          <Link href={getLocalizedPath('/reservations/new', locale)}>
             <Plus className="h-5 w-5" />
             Criar Primeira Reserva
           </Link>
@@ -183,7 +185,7 @@ export function ReservationsFilter({ reservations, canCreate, pagination, curren
               return (
                 <Link
                   key={r.id}
-                  href={`/reservations/${r.id}`}
+                  href={getLocalizedPath(`/reservations/${r.id}`, locale)}
                   className="block bg-white rounded-xl shadow p-4 active:bg-gray-50"
                 >
                   <div className="flex items-start justify-between mb-2">

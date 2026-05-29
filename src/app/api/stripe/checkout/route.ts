@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
-import { getPerUnitPriceId, getMeteredPriceId } from '@/lib/billing/stripe-usage'
+import { getPerUnitPriceId } from '@/lib/billing/stripe-usage'
 
 export const dynamic = 'force-dynamic'
-
-const METERED_PLANS = ['growth', 'premium', 'pro', 'expansao']
 
 function getStripeKey(currency: string): string {
   const c = currency.toLowerCase()
@@ -45,11 +43,8 @@ export async function POST(request: NextRequest) {
     const c = currency.toLowerCase()
     const planCurrency: 'eur' | 'brl' | 'usd' = c === 'brl' ? 'brl' : c === 'usd' ? 'usd' : 'eur'
 
-    // In test mode use a single test price (live prices don't exist in Stripe test env)
-    const isTestMode = stripeKey.startsWith('sk_test_') || stripeKey.startsWith('rk_test_')
-    const testPriceId = (process.env.STRIPE_TEST_PRICE_ID ?? '').trim() || null
-
-    const priceId = isTestMode && testPriceId ? testPriceId : getPerUnitPriceId(plan, planCurrency)
+    // Get price ID based on plan and currency
+    const priceId = getPerUnitPriceId(plan, planCurrency)
 
     if (!priceId) {
       return NextResponse.json({ error: 'Plano sem preço configurado — contacte suporte' }, { status: 400 })
@@ -59,17 +54,10 @@ export async function POST(request: NextRequest) {
       { price: priceId, quantity: 1 },
     ]
 
-    // Metered prices only in live mode (test has a single flat price)
-    if (!isTestMode && METERED_PLANS.includes(plan)) {
-      const meteredPriceId = getMeteredPriceId(plan, planCurrency)
-      if (meteredPriceId) {
-        lineItems.push({ price: meteredPriceId })
-      }
-    }
-
     const isOnboarding = source === 'onboarding'
+    const onboardingLocale = encodeURIComponent(locale ?? 'pt-BR')
     const successUrl = isOnboarding
-      ? `${origin}/onboarding/ativado?session_id={CHECKOUT_SESSION_ID}`
+      ? `${origin}/onboarding/ativado?session_id={CHECKOUT_SESSION_ID}&locale=${onboardingLocale}`
       : `${origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`
     const cancelUrl = isOnboarding
       ? `${origin}/${locale ?? 'pt-BR'}/onboarding/pendente`

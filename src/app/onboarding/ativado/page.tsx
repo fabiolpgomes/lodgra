@@ -1,37 +1,89 @@
-import { createClient } from '@/lib/supabase/server'
-import { createAdminClient } from '@/lib/supabase/admin'
-import { invalidateCachedProfile } from '@/lib/cache/profileCache'
-import { redirect } from 'next/navigation'
-import { defaultLocale } from '../../../../i18n.config'
+'use client'
 
-export const dynamic = 'force-dynamic'
+import { useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { Check } from 'lucide-react'
+import { Button } from '@/components/common/ui/button'
+import { Logo } from '@/components/common/ui/Logo'
 
-// Página de aterragem após checkout Stripe bem-sucedido (onboarding flow).
-// Promove o utilizador para admin e redireciona para o dashboard.
-export default async function OnboardingAtivadoPage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+const STEPS = [
+  {
+    title: 'Empresa',
+    description: 'Nome da organização e subdomínio de reserva direta.',
+  },
+  {
+    title: 'Propriedade',
+    description: 'Cadastro da primeira propriedade.',
+  },
+  {
+    title: 'Calendário',
+    description: 'Conexão e sincronização do calendário.',
+  },
+  {
+    title: 'Página pronta',
+    description: 'Página de reserva direta pronta para vender.',
+  },
+]
 
-  if (!user) {
-    redirect('/login')
-  }
+export default function OnboardingAtivadoPage() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const [redirecting, setRedirecting] = useState(false)
+  const locale = searchParams.get('locale') || 'pt-BR'
+  const sessionId = searchParams.get('session_id')
+  const onboardingUrl = sessionId
+    ? `/${locale}/onboarding?session_id=${encodeURIComponent(sessionId)}`
+    : `/${locale}/onboarding`
 
-  const { data: profile } = await supabase
-    .from('user_profiles')
-    .select('role, organization_id, preferred_locale')
-    .eq('id', user.id)
-    .single()
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+      <div className="w-full max-w-lg bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center">
+        <div className="flex justify-center mb-6">
+          <Logo size="md" />
+        </div>
 
-  if (profile && profile.role !== 'admin' && profile.organization_id) {
-    const adminClient = createAdminClient()
-    await adminClient
-      .from('user_profiles')
-      .update({ role: 'admin', updated_at: new Date().toISOString() })
-      .eq('id', user.id)
+        <div className="flex justify-center mb-4">
+          <div className="p-3 bg-green-100 rounded-full">
+            <Check className="h-8 w-8 text-green-600" />
+          </div>
+        </div>
 
-    await invalidateCachedProfile(user.id)
-  }
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">
+          Pagamento concluído!
+        </h1>
+        <p className="text-gray-600 text-sm mb-6">
+          Vamos iniciar o onboarding da sua conta em 4 etapas simples.
+        </p>
 
-  const locale = profile?.preferred_locale || defaultLocale
-  redirect(`/${locale}/dashboard`)
+        <div className="space-y-3 mb-6">
+          {STEPS.map((step, index) => (
+            <div key={step.title} className="flex items-center gap-3 rounded-lg border border-gray-100 bg-gray-50 px-4 py-3 text-left">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-700">
+                {index + 1}
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-gray-900">{step.title}</p>
+                <p className="text-xs text-gray-500">{step.description}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <Button
+          onClick={() => {
+            setRedirecting(true)
+            router.push(onboardingUrl)
+          }}
+          disabled={redirecting}
+          className="w-full font-semibold py-3 rounded-lg"
+        >
+          {redirecting ? 'Iniciando onboarding...' : 'Iniciar onboarding'}
+        </Button>
+
+        <p className="text-xs text-gray-400 mt-6">
+          Clique acima para configurar sua organização e publicar sua primeira página de reserva direta.
+        </p>
+      </div>
+    </div>
+  )
 }

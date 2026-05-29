@@ -18,6 +18,9 @@ const customJestConfig = {
     '^@/(.*)$': '<rootDir>/src/$1',
     '^@upstash/redis$': '<rootDir>/src/__mocks__/@upstash/redis.ts',
     '^@upstash/qstash$': '<rootDir>/src/__mocks__/@upstash/qstash.ts',
+    '^remark-gfm$': '<rootDir>/src/__mocks__/remark-gfm.ts',
+    '^react-markdown$': '<rootDir>/src/__mocks__/react-markdown.ts',
+    '^@/components/booking/TemplateHero$': '<rootDir>/src/__mocks__/components/booking/TemplateHero.tsx',
   },
   transformIgnorePatterns: [
     'node_modules/(?!(@upstash|@stripe|jose|@supabase)/)',

@@ -1,6 +1,8 @@
 import * as Sentry from '@sentry/nextjs'
 import { createClient } from '@/lib/supabase/server'
-import { randomUUID } from 'crypto'
+import { generateGoogleVacationRentalsFeed, validateFeedStructure } from '@/lib/feeds/google-feed-generator'
+
+const PREMIUM_PLAN_VALUES = new Set(['premium', 'professional', 'business', 'pro'])
 
 export async function POST(request: Request) {
   try {
@@ -26,7 +28,7 @@ export async function POST(request: Request) {
     const { data: profile, error: profileError } = await supabase
       .from('user_profiles')
       .select('organization_id')
-      .eq('user_id', authData.user.id)
+      .eq('id', authData.user.id)
       .single()
 
     if (profileError || !profile) {
@@ -36,15 +38,15 @@ export async function POST(request: Request) {
       })
     }
 
-    // Verify premium tier: at least one property must be premium
-    const { data: premiumProps, error: tierError } = await supabase
-      .from('properties')
-      .select('id')
-      .eq('organization_id', profile.organization_id)
-      .eq('tier', 'premium')
-      .limit(1)
+    // Verify premium plan on the organization
+    const { data: organization, error: planError } = await supabase
+      .from('organizations')
+      .select('plan, subscription_plan')
+      .eq('id', profile.organization_id)
+      .single()
 
-    if (tierError || !premiumProps || premiumProps.length === 0) {
+    const plan = organization?.subscription_plan || organization?.plan
+    if (planError || !plan || !PREMIUM_PLAN_VALUES.has(plan)) {
       return new Response(JSON.stringify({ error: 'Premium tier required' }), {
         status: 403,
         headers: { 'Content-Type': 'application/json' },
@@ -55,63 +57,110 @@ export async function POST(request: Request) {
     let propertyIds = body.propertyIds || []
     let allProperties = true
 
-    if (propertyIds.length === 0) {
-      // Refresh all premium properties in organization
-      const { data: props, error: propsError } = await supabase
-        .from('properties')
-        .select('id')
-        .eq('organization_id', profile.organization_id)
-        .eq('tier', 'premium')
-
-      if (propsError || !props) {
-        return new Response(JSON.stringify({ error: 'Failed to fetch properties' }), {
-          status: 400,
-          headers: { 'Content-Type': 'application/json' },
-        })
-      }
-
-      propertyIds = props.map((p) => p.id)
-    } else {
+    if (propertyIds.length > 0) {
       allProperties = false
     }
 
-    // Create feed generation log entry
-    const jobId = randomUUID()
-    const timestamp = new Date().toISOString()
+    const { data: props, error: propsError } = await supabase
+      .from('properties')
+      .select('id')
+      .eq('organization_id', profile.organization_id)
 
-    // Log this refresh attempt (insert one entry for organization-level refresh)
-    const { error: logError } = await supabase.from('google_feed_logs').insert({
-      id: jobId,
-      organization_id: profile.organization_id,
-      property_id: propertyIds[0] || '', // Use first property for the log (or could create per-property logs)
-      timestamp,
-      action: 'manual',
-      status: 'queued',
-      properties_count: propertyIds.length,
-    })
-
-    if (logError) {
-      console.error('Error creating feed log:', logError)
-      return new Response(JSON.stringify({ error: 'Failed to queue refresh job' }), {
-        status: 500,
+    if (propsError || !props) {
+      return new Response(JSON.stringify({ error: 'Failed to fetch properties' }), {
+        status: 400,
         headers: { 'Content-Type': 'application/json' },
       })
     }
 
-    // Return 202 Accepted with job info
-    return new Response(
-      JSON.stringify({
-        jobId,
-        status: 'queued',
-        timestamp,
-        propertiesCount: propertyIds.length,
-        allProperties,
-      }),
-      {
-        status: 202,
+    const organizationPropertyIds = new Set(props.map((p) => p.id))
+    propertyIds = propertyIds.length === 0
+      ? Array.from(organizationPropertyIds)
+      : propertyIds.filter((propertyId) => organizationPropertyIds.has(propertyId))
+
+    if (propertyIds.length === 0) {
+      return new Response(JSON.stringify({ error: 'No properties found for refresh' }), {
+        status: 400,
         headers: { 'Content-Type': 'application/json' },
+      })
+    }
+
+    const timestamp = new Date().toISOString()
+    const startTime = Date.now()
+
+    try {
+      const { xml, eTag, count } = await generateGoogleVacationRentalsFeed({
+        organization_id: profile.organization_id,
+        property_ids: propertyIds,
+        limit: Math.max(propertyIds.length, 1),
+      })
+
+      const durationMs = Date.now() - startTime
+      const isValid = validateFeedStructure(xml)
+      const status = isValid ? 'success' : 'failed'
+      const errorMessage = isValid ? null : 'Invalid Google Vacation Rentals XML feed structure'
+
+      const logRows = propertyIds.map((propertyId) => ({
+        organization_id: profile.organization_id,
+        property_id: propertyId,
+        timestamp,
+        action: 'manual',
+        status,
+        duration_ms: durationMs,
+        error_message: errorMessage,
+        properties_count: count,
+      }))
+
+      const { error: logError } = await supabase.from('google_feed_logs').insert(logRows)
+
+      if (logError) {
+        console.error('Error creating feed logs:', logError)
+        return new Response(JSON.stringify({ error: 'Failed to record refresh result' }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        })
       }
-    )
+
+      return new Response(
+        JSON.stringify({
+          status,
+          timestamp,
+          propertiesCount: count,
+          requestedPropertiesCount: propertyIds.length,
+          allProperties,
+          durationMs,
+          eTag,
+        }),
+        {
+          status: isValid ? 200 : 500,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      )
+    } catch (feedError) {
+      const durationMs = Date.now() - startTime
+      const message = feedError instanceof Error ? feedError.message : 'Feed generation failed'
+      const logRows = propertyIds.map((propertyId) => ({
+        organization_id: profile.organization_id,
+        property_id: propertyId,
+        timestamp,
+        action: 'manual',
+        status: 'failed',
+        duration_ms: durationMs,
+        error_message: message,
+        properties_count: propertyIds.length,
+      }))
+
+      await supabase.from('google_feed_logs').insert(logRows)
+      Sentry.captureException(feedError, {
+        tags: { endpoint: 'google-feed-refresh', stage: 'feed-generation' },
+        level: 'error',
+      })
+
+      return new Response(JSON.stringify({ error: message }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
   } catch (error) {
     Sentry.captureException(error, {
       tags: { endpoint: 'google-feed-refresh' },

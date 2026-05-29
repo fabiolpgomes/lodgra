@@ -115,7 +115,7 @@ describe('Google Vacation Rentals Feed API - E2E', () => {
       const { xml } = await generateGoogleVacationRentalsFeed()
 
       expect(xml).toContain('<title>Lodgra Property Feed</title>')
-      expect(xml).toContain('<link href="https://lodgra.app"')
+      expect(xml).toContain('<link href="https://lodgra.io"')
       expect(xml).toContain('<updated>')
       expect(xml).toContain('<id>urn:lodgra:feed:properties</id>')
       expect(xml).toContain('</feed>')

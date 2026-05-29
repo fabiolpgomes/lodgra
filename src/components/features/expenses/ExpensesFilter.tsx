@@ -11,6 +11,7 @@ import { formatCurrency, type CurrencyCode, groupByCurrency } from '@/lib/utils/
 import { CATEGORY_LABELS, CATEGORY_ORDER } from '@/lib/utils/expense-categories'
 import { CurrencyStack } from '@/components/common/ui/CurrencyStack'
 import { PaginationNav } from '@/components/common/ui/PaginationNav'
+import { useLocale } from '@/lib/i18n/routing'
 
 interface Expense {
   id: string
@@ -41,6 +42,8 @@ function getStorageKey(key: string): string {
 }
 
 export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, pagination }: ExpensesFilterProps) {
+  const locale = useLocale()
+  const prefix = locale ? `/${locale}` : ''
   const [search, setSearch] = useState(() => localStorage.getItem(getStorageKey('search')) || '')
   const [categoryFilter, setCategoryFilter] = useState(() => localStorage.getItem(getStorageKey('category')) || 'all')
   const [propertyFilter, setPropertyFilter] = useState<string>(() => localStorage.getItem(getStorageKey('property')) || 'all')
@@ -146,7 +149,7 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
       </p>
       {expenses.length === 0 && canCreate && (
         <Button asChild>
-          <Link href="/expenses/new">
+          <Link href={`${prefix}/expenses/new`}>
             <Plus className="h-5 w-5" />
             Adicionar Primeira Despesa
           </Link>
@@ -267,7 +270,7 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
               return (
                 <Link
                   key={expense.id}
-                  href={`/expenses/${expense.id}`}
+                  href={`${prefix}/expenses/${expense.id}`}
                   className="block bg-white rounded-xl shadow p-4 active:bg-gray-50"
                 >
                   <div className="flex items-start justify-between mb-1">
@@ -315,17 +318,17 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
                   return (
                     <tr key={expense.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        <Link href={`/expenses/${expense.id}`} className="hover:text-blue-600">
+                        <Link href={`${prefix}/expenses/${expense.id}`} className="hover:text-blue-600">
                           {new Date(expense.expense_date).toLocaleDateString('pt-BR')}
                         </Link>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <Link href={`/expenses/${expense.id}`} className="text-sm font-medium text-gray-900 hover:text-blue-600">
+                        <Link href={`${prefix}/expenses/${expense.id}`} className="text-sm font-medium text-gray-900 hover:text-blue-600">
                           {property?.name}
                         </Link>
                       </td>
                       <td className="px-6 py-4">
-                        <Link href={`/expenses/${expense.id}`} className="block">
+                        <Link href={`${prefix}/expenses/${expense.id}`} className="block">
                           <div className="text-sm text-gray-900 hover:text-blue-600">{expense.description}</div>
                           {expense.notes && <div className="text-xs text-gray-500 mt-1">{expense.notes}</div>}
                         </Link>
@@ -341,7 +344,7 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
                       <td className="px-6 py-4 whitespace-nowrap text-right">
                         <div className="flex items-center justify-end gap-2">
                           <Link
-                            href={`/expenses/${expense.id}`}
+                            href={`${prefix}/expenses/${expense.id}`}
                             className="p-1.5 text-gray-400 hover:text-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
                             title="Ver detalhes"
                           >
@@ -349,7 +352,7 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
                           </Link>
                           {canEdit && (
                             <Link
-                              href={`/expenses/${expense.id}/edit`}
+                              href={`${prefix}/expenses/${expense.id}/edit`}
                               className="p-1.5 text-[#1E3A8A] rounded-lg bg-[#ffc000] hover:bg-[#ffc000]/80 transition-colors"
                               title="Editar"
                             >

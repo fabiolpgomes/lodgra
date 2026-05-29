@@ -7,7 +7,7 @@ import type Stripe from 'stripe'
 
 const EXTRA_PROPERTY_PRICE_ID = process.env.STRIPE_PRICE_ID_PREMIUM_EXTRA_PROPERTY
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     const auth = await requireRole(['admin', 'gestor'])
     if (!auth.authorized) return auth.response!
@@ -49,9 +49,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No Stripe customer found' }, { status: 400 })
     }
 
-    if (org.subscription_plan !== 'premium' && org.subscription_plan !== 'professional' && org.subscription_plan !== 'business' && org.subscription_plan !== 'pro') {
+    const extraPropertyPlans = ['essencial', 'expansao', 'premium', 'starter', 'growth', 'professional', 'business', 'pro']
+    if (!extraPropertyPlans.includes(org.subscription_plan)) {
       return NextResponse.json(
-        { error: 'Extra properties only available on Premium plans' },
+        { error: 'Extra properties are not available for this plan' },
         { status: 400 }
       )
     }
@@ -118,7 +119,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function DELETE(request: NextRequest) {
+export async function DELETE(_request: NextRequest) {
   try {
     const auth = await requireRole(['admin', 'gestor'])
     if (!auth.authorized) return auth.response!

@@ -1,5 +1,4 @@
 import { redirect } from 'next/navigation'
-import { getLocale } from 'next-intl/server'
 import Link from 'next/link'
 import { Calendar, Plus, Clock, CheckCircle, XCircle, Download } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
@@ -12,16 +11,18 @@ import { ReservationUI } from '@/components/features/reservations/types/reservat
 import { parsePage, getRange, PAGE_SIZE } from '@/lib/utils/pagination'
 
 export default async function ReservationsPage({
+  params,
   searchParams,
 }: {
+  params: Promise<{ locale: string }>
   searchParams: Promise<{ page?: string; month?: string }>
 }) {
-  const locale = await getLocale()
-  const params = await searchParams
-  const page = parsePage(params)
+  const { locale } = await params
+  const queryParams = await searchParams
+  const page = parsePage(queryParams)
   const { from, to } = getRange(page)
 
-  const monthParam = params.month || new Date().toISOString().slice(0, 7)
+  const monthParam = queryParams.month || new Date().toISOString().slice(0, 7)
   const [mYear, mMonth] = monthParam.split('-').map(Number)
   const monthStart = `${monthParam}-01`
   const monthEnd = `${monthParam}-${String(new Date(mYear, mMonth, 0).getDate()).padStart(2, '0')}`
@@ -94,7 +95,7 @@ export default async function ReservationsPage({
   }
 
   return (
-    <AuthLayout>
+    <AuthLayout profile={profile}>
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

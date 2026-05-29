@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import type { Metadata } from 'next'
 import { PropertyImage } from '@/types/property-images'
-import { generatePropertyJsonLd, generateLocalBusinessJsonLd } from '@/lib/seo/jsonld'
+import { generatePropertyJsonLd } from '@/lib/seo/jsonld'
 import { getSimilarProperties } from '@/lib/supabase/properties'
 import type { ReviewSource, ReviewScoreData, PropertyReview } from '@/types/database'
 import { locales } from '../../../../i18n.config'
@@ -38,26 +38,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const canonicalUrl = `${baseUrl}/p/${slug}`
   const ogImageUrl = `${baseUrl}/p/${slug}/opengraph-image`
 
-  // Generate LocalBusiness JSON-LD for rich snippets
-  const localBusinessJsonLd = generateLocalBusinessJsonLd({
-    name: property.name,
-    description: property.description,
-    city: property.city,
-    country: property.country,
-    address: property.address,
-    postal_code: property.postal_code,
-    latitude: property.latitude,
-    longitude: property.longitude,
-    photos: property.photos,
-    base_price: property.base_price,
-    currency: property.currency,
-    slug,
-    reviewScore: property.rating && property.review_count ? {
-      globalAvg: property.rating,
-      totalCount: property.review_count,
-    } : null,
-  })
-
   return {
     title,
     description,
@@ -86,7 +66,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     },
     // JSON-LD schema is injected via JSON.stringify in page component
     // Validated via: unit tests + Schema.org validator
-    // LocalBusiness schema data available via localBusinessJsonLd variable
   }
 }
 

@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import Link from 'next/link'
 import { useLocale } from '@/lib/i18n/routing'
-import { useTranslations } from 'next-intl'
+import { useTranslations } from '@/lib/i18n/useTranslations'
 
 const CONSENT_KEY = 'cookie_consent'
 const ANALYTICS_CONSENT_KEY = 'cookie_consent_analytics'
@@ -43,34 +43,19 @@ async function registerConsent(consentType: string, consentValue: boolean): Prom
 
 export function CookieBanner() {
   const locale = useLocale()
-  let t: (key: string) => string
-  try {
-    const translations = useTranslations('consent')
-    t = (key: string) => translations(`banner.${key}`)
-  } catch {
-    // Fallback if translations not available (e.g., outside locale context)
-    const fallback: Record<string, string> = {
-      title: 'Definições de Cookies',
-      description: 'Utilizamos cookies para melhorar a sua experiência. Os cookies essenciais são sempre activos. Pode optar por activar ou desactivar os cookies analíticos.',
-      essential: 'Essenciais',
-      essentialDescription: 'Necessários para o funcionamento da plataforma. Sempre activos.',
-      analytics: 'Analíticos',
-      analyticsDescription: 'Google Analytics — ajudam-nos a compreender como a plataforma é utilizada.',
-      acceptAll: 'Aceitar Todos',
-      rejectAll: 'Rejeitar Opcionais',
-      savePreferences: 'Guardar Preferências',
-      privacyPolicy: 'Política de Privacidade',
-      alwaysActive: 'Sempre activo',
-    }
-    t = (key: string) => fallback[key] || key
-  }
+  const translations = useTranslations('consent')
+  const t = (key: string) => translations(`banner.${key}`)
 
   const [mounted, setMounted] = useState(false)
   const [visible, setVisible] = useState(false)
 
   useEffect(() => {
-    setMounted(true)
-    setVisible(!getConsent())
+    const timer = window.setTimeout(() => {
+      setMounted(true)
+      setVisible(!getConsent())
+    }, 0)
+
+    return () => window.clearTimeout(timer)
   }, [])
 
   const [analyticsEnabled, setAnalyticsEnabled] = useState<boolean>(false)

@@ -69,19 +69,19 @@ export function Sidebar({ serverProfile }: SidebarProps) {
         const { data: userProfile } = await supabase
           .from('user_profiles')
           .select('organization_id')
-          .eq('user_id', profile.id)
+          .eq('id', profile.id)
           .single()
 
         if (!userProfile?.organization_id) return
 
-        const { data: properties } = await supabase
-          .from('properties')
-          .select('tier')
-          .eq('organization_id', userProfile.organization_id)
-          .limit(1)
+        const { data: organization } = await supabase
+          .from('organizations')
+          .select('plan, subscription_plan')
+          .eq('id', userProfile.organization_id)
+          .single()
 
-        const hasPremiumProperty = properties?.some((p) => p.tier === 'premium')
-        setHasPremium(!!hasPremiumProperty)
+        const plan = organization?.subscription_plan || organization?.plan
+        setHasPremium(plan === 'premium')
       } catch (error) {
         console.error('Error checking premium tier:', error)
         setHasPremium(false)

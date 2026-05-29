@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { RefreshCcw, Loader2, CheckCircle, ExternalLink, Info } from 'lucide-react'
-import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/common/ui/button'
 import { Input } from '@/components/common/ui/input'
 import { Label } from '@/components/common/ui/label'
@@ -13,6 +12,7 @@ interface Props {
   onFinish: () => void
   checkoutLoading?: boolean
   checkoutError?: string | null
+  onboardingSessionId?: string
 }
 
 const PLATFORM_INSTRUCTIONS = [
@@ -33,7 +33,7 @@ const PLATFORM_INSTRUCTIONS = [
   },
 ]
 
-export function Step3ICalSetup({ propertyId, onFinish, checkoutLoading, checkoutError }: Props) {
+export function Step3ICalSetup({ propertyId, onFinish, checkoutLoading, checkoutError, onboardingSessionId }: Props) {
   const [icalUrl, setIcalUrl] = useState('')
   const [loading, setLoading] = useState(false)
   const [saved, setSaved] = useState(false)
@@ -47,34 +47,19 @@ export function Step3ICalSetup({ propertyId, onFinish, checkoutLoading, checkout
     setError('')
 
     try {
-      const supabase = createClient()
-
-      // Obter organization_id do usuário
-      const { data: profile } = await supabase
-        .from('user_profiles')
-        .select('organization_id')
-        .eq('id', (await supabase.auth.getUser()).data.user?.id || '')
-        .single()
-
-      if (!profile?.organization_id) {
-        setError('Organização não encontrada')
-        setLoading(false)
-        return
-      }
-
-      const { error: insertError } = await supabase
-        .from('property_listings')
-        .insert({
+      const res = await fetch('/api/onboarding/ical', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
           property_id: propertyId,
-          platform_id: null,
           ical_url: icalUrl.trim(),
-          is_active: true,
-          sync_enabled: true,
-          organization_id: profile.organization_id,
-        })
+          session_id: onboardingSessionId,
+        }),
+      })
+      const data = await res.json()
 
-      if (insertError) {
-        setError(insertError.message)
+      if (!res.ok) {
+        setError(data.error || 'Erro ao guardar iCal')
         return
       }
 
@@ -179,7 +164,7 @@ export function Step3ICalSetup({ propertyId, onFinish, checkoutLoading, checkout
           className="w-full"
         >
           {(loading || checkoutLoading) && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-          {checkoutLoading ? 'A preparar pagamento...' : 'Ligar e ir para o checkout →'}
+          {checkoutLoading ? 'A finalizar...' : 'Ligar calendário e ver página'}
         </Button>
 
         <Button
@@ -189,7 +174,7 @@ export function Step3ICalSetup({ propertyId, onFinish, checkoutLoading, checkout
           disabled={checkoutLoading}
           className="w-full text-sm text-gray-400"
         >
-          {checkoutLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Saltar — configurar mais tarde'}
+          {checkoutLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Saltar e ver página agora'}
         </Button>
       </form>
     </div>

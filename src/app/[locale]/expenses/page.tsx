@@ -1,6 +1,5 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { getLocale } from 'next-intl/server'
 import { Plus, Receipt, FileText } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { AuthLayout } from '@/components/common/layout/AuthLayout'
@@ -10,13 +9,15 @@ import { ExpensesFilter } from '@/components/features/expenses/ExpensesFilter'
 import { parsePage, getRange, PAGE_SIZE } from '@/lib/utils/pagination'
 
 export default async function ExpensesPage({
+  params,
   searchParams,
 }: {
+  params: Promise<{ locale: string }>
   searchParams: Promise<{ page?: string }>
 }) {
-  const locale = await getLocale()
-  const params = await searchParams
-  const page = parsePage(params)
+  const { locale } = await params
+  const queryParams = await searchParams
+  const page = parsePage(queryParams)
   const { from, to } = getRange(page)
 
   const supabase = await createClient()
@@ -62,7 +63,7 @@ export default async function ExpensesPage({
   }
 
   return (
-    <AuthLayout>
+    <AuthLayout profile={profile}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
           <div>
@@ -77,7 +78,7 @@ export default async function ExpensesPage({
           {canCreate && (
             <div className="flex gap-2">
               <Button asChild variant="outline">
-                <Link href="expenses/export">
+                <Link href={`/${locale}/expenses/export`}>
                   <FileText className="h-4 w-4" />
                   Exportar PDF
                 </Link>

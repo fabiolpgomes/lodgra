@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import type { ReactNode } from 'react'
+import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import {
   computeAggregatedMetrics,
@@ -12,9 +13,13 @@ import {
   type FeedLogEntry,
 } from '@/lib/google-distribution-dashboard'
 
+const PREMIUM_PLAN_VALUES = new Set(['premium', 'professional', 'business', 'pro'])
+
 export default function GoogleDistributionDashboard() {
   const router = useRouter()
+  const pathname = usePathname()
   const supabase = createClient()
+  const dashboardHref = getDashboardHref(pathname)
 
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -22,6 +27,8 @@ export default function GoogleDistributionDashboard() {
   const [propertyStatuses, setPropertyStatuses] = useState<PropertyFeedStatus[]>([])
   const [feedLogs, setFeedLogs] = useState<FeedLogEntry[]>([])
   const [refreshing, setRefreshing] = useState(false)
+  const [refreshMessage, setRefreshMessage] = useState<string | null>(null)
+  const [selectedProperty, setSelectedProperty] = useState<PropertyFeedStatus | null>(null)
 
   useEffect(() => {
     const loadDashboard = async () => {
@@ -39,7 +46,7 @@ export default function GoogleDistributionDashboard() {
         const { data: profile, error: profileError } = await supabase
           .from('user_profiles')
           .select('organization_id')
-          .eq('user_id', authData.user.id)
+          .eq('id', authData.user.id)
           .single()
 
         if (profileError || !profile) {
@@ -47,14 +54,15 @@ export default function GoogleDistributionDashboard() {
           return
         }
 
-        // Check premium tier on any property
-        const { data: properties } = await supabase
-          .from('properties')
-          .select('tier')
-          .eq('organization_id', profile.organization_id)
-          .limit(1)
+        // Check premium plan on the organization
+        const { data: organization } = await supabase
+          .from('organizations')
+          .select('plan, subscription_plan')
+          .eq('id', profile.organization_id)
+          .single()
 
-        if (!properties || !properties.some((p) => p.tier === 'premium')) {
+        const plan = organization?.subscription_plan || organization?.plan
+        if (!plan || !PREMIUM_PLAN_VALUES.has(plan)) {
           router.push('/pricing')
           return
         }
@@ -92,14 +100,16 @@ export default function GoogleDistributionDashboard() {
 
       if (!response.ok) {
         const errorData = await response.json()
-        setError(errorData.message || 'Failed to refresh feed')
+        setError(errorData.error || errorData.message || 'Failed to refresh feed')
         return
       }
 
-      await response.json()
+      const result = await response.json()
       setError(null)
-      // Optionally reload dashboard after refresh
-      setTimeout(() => window.location.reload(), 2000)
+      setRefreshMessage(
+        `Feed atualizado: ${result.propertiesCount ?? 0} propriedade(s) validada(s) em ${result.durationMs ?? 0}ms.`
+      )
+      setTimeout(() => window.location.reload(), 1000)
     } catch (err) {
       console.error('Error refreshing feed:', err)
       setError('Failed to trigger feed refresh')
@@ -119,13 +129,30 @@ export default function GoogleDistributionDashboard() {
   return (
     <div className="container mx-auto p-6">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Google Distribution Dashboard</h1>
-        <p className="text-gray-600">Monitor your Google Vacation Rentals indexing status</p>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">Google Distribution Dashboard</h1>
+            <p className="text-gray-600">Monitor your Google Vacation Rentals indexing status</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => router.push(dashboardHref)}
+            className="inline-flex items-center justify-center rounded border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+          >
+            Voltar ao Dashboard
+          </button>
+        </div>
       </div>
 
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">
           {error}
+        </div>
+      )}
+
+      {refreshMessage && (
+        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded mb-6">
+          {refreshMessage}
         </div>
       )}
 
@@ -182,7 +209,13 @@ export default function GoogleDistributionDashboard() {
                   <td className="px-4 py-2">{prop.submittedDate ? formatDate(prop.submittedDate) : '—'}</td>
                   <td className="px-4 py-2">{formatDate(prop.lastUpdatedDate)}</td>
                   <td className="px-4 py-2">
-                    <button className="text-blue-600 hover:text-blue-800 text-sm">View Details</button>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedProperty(prop)}
+                      className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                    >
+                      View Details
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -233,6 +266,13 @@ export default function GoogleDistributionDashboard() {
           </table>
         </div>
       </div>
+
+      {selectedProperty && (
+        <PropertyDetailsModal
+          property={selectedProperty}
+          onClose={() => setSelectedProperty(null)}
+        />
+      )}
     </div>
   )
 }
@@ -272,4 +312,136 @@ function formatDate(dateString: string): string {
   } catch {
     return dateString
   }
+}
+
+function PropertyDetailsModal({
+  property,
+  onClose,
+}: {
+  property: PropertyFeedStatus
+  onClose: () => void
+}) {
+  const publicUrl = getTenantPropertyUrl(property)
+  const latestEntry = property.latestEntry
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="google-feed-property-details-title"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-2xl rounded-lg bg-white p-6 shadow-xl"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="mb-5 flex items-start justify-between gap-4">
+          <div>
+            <h3 id="google-feed-property-details-title" className="text-xl font-bold">
+              Google feed details
+            </h3>
+            <p className="mt-1 text-sm text-gray-600">{property.propertyName}</p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded px-2 py-1 text-sm font-semibold text-gray-600 hover:bg-gray-100"
+            aria-label="Close details"
+          >
+            X
+          </button>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-2">
+          <DetailItem label="Status">
+            <StatusBadge status={property.status} />
+          </DetailItem>
+          <DetailItem label="Property ID">{property.propertyId}</DetailItem>
+          <DetailItem label="Submitted">
+            {property.submittedDate ? formatDate(property.submittedDate) : 'Not submitted yet'}
+          </DetailItem>
+          <DetailItem label="Last updated">{formatDate(property.lastUpdatedDate)}</DetailItem>
+          <DetailItem label="Last action">{latestEntry?.action || 'No feed log'}</DetailItem>
+          <DetailItem label="Last result">{latestEntry?.status || 'No feed log'}</DetailItem>
+          <DetailItem label="Duration">
+            {latestEntry?.duration_ms ? `${latestEntry.duration_ms}ms` : '—'}
+          </DetailItem>
+          <DetailItem label="Properties in feed">
+            {latestEntry?.properties_count ?? '—'}
+          </DetailItem>
+        </div>
+
+        <div className="mt-4 rounded border border-gray-200 bg-gray-50 p-4">
+          <p className="text-xs font-semibold uppercase text-gray-500">Error detail</p>
+          <p className="mt-1 text-sm text-gray-700">
+            {latestEntry?.error_message || 'No error was reported in the latest feed generation.'}
+          </p>
+        </div>
+
+        <div className="mt-5 flex flex-wrap gap-3">
+          {publicUrl && (
+            <a
+              href={publicUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="rounded bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+            >
+              Open public page
+            </a>
+          )}
+          <a
+            href="/api/feeds/google-vacation-rentals"
+            target="_blank"
+            rel="noreferrer"
+            className="rounded border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+          >
+            Open feed XML
+          </a>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function DetailItem({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div className="rounded border border-gray-200 p-3">
+      <p className="text-xs font-semibold uppercase text-gray-500">{label}</p>
+      <div className="mt-1 break-words text-sm text-gray-900">{children}</div>
+    </div>
+  )
+}
+
+function getTenantPropertyUrl(property: PropertyFeedStatus): string | null {
+  if (!property.propertySlug) return null
+
+  if (typeof window === 'undefined' || !property.organizationSlug) {
+    return `/p/${property.propertySlug}`
+  }
+
+  const url = new URL(window.location.origin)
+  if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
+    return `/p/${property.propertySlug}`
+  }
+
+  const rootHost = url.hostname.replace(/^www\./, '')
+  url.hostname = `${property.organizationSlug}.${rootHost}`
+  url.pathname = `/p/${property.propertySlug}`
+  url.search = ''
+  url.hash = ''
+
+  return url.toString()
+}
+
+function getDashboardHref(pathname: string | null): string {
+  const localeMatch = pathname?.match(/^\/(pt-BR|en-US|es)(\/|$)/)
+  return localeMatch ? `/${localeMatch[1]}/dashboard` : '/dashboard'
 }

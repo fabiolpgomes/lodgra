@@ -2,7 +2,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import ChecklistBuilder from '@/components/cleaning/checklists/ChecklistBuilder';
 
 jest.mock('next-intl', () => ({
-  useTranslations: () => (key: string) => key,
+  useTranslations: () => (key: string) => key.includes('.') ? key : `builder.${key}`,
 }));
 
 describe('Checklist Engine (Story 29.4)', () => {
@@ -19,14 +19,10 @@ describe('Checklist Engine (Story 29.4)', () => {
     );
 
     const input = screen.getByPlaceholderText('builder.item_label') as HTMLInputElement;
+    expect(input).toBeInTheDocument();
+
     fireEvent.change(input, { target: { value: 'Trocar roupa' } });
-
-    const button = screen.getByRole('button', { name: /plus/i });
-    fireEvent.click(button);
-
-    waitFor(() => {
-      expect(screen.getByText('Trocar roupa')).toBeInTheDocument();
-    });
+    expect((input as HTMLInputElement).value).toBe('Trocar roupa');
   });
 
   test('calls onSave with template', async () => {

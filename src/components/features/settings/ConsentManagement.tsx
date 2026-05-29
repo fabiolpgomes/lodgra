@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { Shield } from 'lucide-react'
-import { useTranslations } from 'use-intl'
+import { useTranslations } from '@/lib/i18n/useTranslations'
 import { getAnalyticsConsent } from '@/components/common/ui/CookieBanner'
 
 interface ConsentState {

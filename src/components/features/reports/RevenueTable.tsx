@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { ExportToExcelButton } from './ExportToExcelButton'
 import { formatCurrency, groupByCurrency, type CurrencyCode } from '@/lib/utils/currency'
+import { getLocalizedPath, useLocale } from '@/lib/i18n/routing'
 
 interface ReservationRow {
   id: string
@@ -27,6 +28,8 @@ interface RevenueTableProps {
 }
 
 export function RevenueTable({ reservations, startDate, endDate }: RevenueTableProps) {
+  const locale = useLocale() || 'pt-BR'
+
   // Preparar dados para exportação
   const exportData = reservations.map(r => {
     const checkIn = new Date(r.check_in)
@@ -126,7 +129,7 @@ export function RevenueTable({ reservations, startDate, endDate }: RevenueTableP
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
                       <Link
-                        href={`/reservations/${reservation.id}`}
+                        href={getLocalizedPath(`/reservations/${reservation.id}`, locale)}
                         className="text-blue-600 hover:underline"
                       >
                         {guestName}

@@ -60,7 +60,7 @@ const PLANS: Plan[] = [
       'API Completa',
       'Forecast & BI Avançado',
       'Gerente Dedicado',
-      'Unidades extras ilimitadas',
+      'Unidades extras sob demanda',
       'Suporte prioritário 24/7',
     ],
   },
@@ -150,7 +150,7 @@ export default function SelectPlanPage() {
               {/* Properties Included */}
               <div className="mb-6 pb-6 border-b border-gray-200">
                 <p className="text-sm font-semibold text-gray-900">{plan.properties}</p>
-                <p className="text-xs text-gray-600 mt-1">+R$49/extra até {plan.id === 'premium' ? 'ilimitado' : '10'}</p>
+                <p className="text-xs text-gray-600 mt-1">+R$49 por unidade extra</p>
               </div>
 
               {/* Features */}

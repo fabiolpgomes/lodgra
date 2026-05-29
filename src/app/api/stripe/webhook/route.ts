@@ -127,6 +127,7 @@ async function handleCheckoutCompleted(supabase: AdminClient, session: Stripe.Ch
     stripe_customer_id: customerId,
     stripe_subscription_id: subscriptionId,
     subscription_status: 'active' as const,
+    plan,
     subscription_plan: plan,
     stripe_subscription_item_id: stripeSubscriptionItemId,
     stripe_metered_item_id: stripeMeteredItemId,
@@ -268,6 +269,7 @@ async function handleSubscriptionUpdated(supabase: AdminClient, subscription: St
 
   const update: Record<string, unknown> = {
     subscription_status: status,
+    plan,
     subscription_plan: plan,
     updated_at: new Date().toISOString(),
   }

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter } from '@/lib/i18n/routing'
 import { Save, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { getCurrencySymbol, type CurrencyCode } from '@/lib/utils/currency'

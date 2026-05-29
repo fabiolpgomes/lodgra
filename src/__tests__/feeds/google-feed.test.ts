@@ -9,6 +9,7 @@ jest.mock('@/lib/supabase/admin', () => ({
     from: (_table: string) => ({
       select: jest.fn().mockReturnThis(),
       eq: jest.fn().mockReturnThis(),
+      in: jest.fn().mockReturnThis(),
       gte: jest.fn().mockReturnThis(),
       order: jest.fn().mockReturnThis(),
       range: jest.fn().mockReturnThis(),
@@ -93,7 +94,7 @@ describe('Google Vacation Rentals Feed Generator', () => {
       const { xml } = await generateGoogleVacationRentalsFeed()
 
       expect(xml).toContain('<title>Lodgra Property Feed</title>')
-      expect(xml).toContain('<link href="https://lodgra.app"')
+      expect(xml).toContain('<link href="https://lodgra.io"')
       expect(xml).toContain('<updated>')
       expect(xml).toContain('<id>urn:lodgra:feed:properties</id>')
     })

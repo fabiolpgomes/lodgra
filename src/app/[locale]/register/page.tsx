@@ -11,29 +11,15 @@ import { Alert, AlertDescription } from '@/components/common/ui/alert'
 import { SocialLoginButtons } from '@/components/auth/SocialLoginButtons'
 import { Logo } from '@/components/common/ui/Logo'
 import { useLocale } from '@/lib/i18n/routing'
-import { useTranslations } from 'next-intl'
+import { useTranslations } from '@/lib/i18n/useTranslations'
 import { toast } from 'sonner'
 
 export default function RegisterPage() {
   const router = useRouter()
   const locale = useLocale()
   const tCommon = useTranslations('common')
-  let tLegal: (key: string) => string
-  try {
-    const translations = useTranslations('legal')
-    tLegal = (key: string) => translations(`consent.${key}`)
-  } catch {
-    tLegal = (key: string) => {
-      const fb: Record<string, string> = {
-        acceptTerms: 'Li e aceito os',
-        termsLink: 'Termos de Serviço',
-        and: 'e a',
-        privacyLink: 'Política de Privacidade',
-        required: 'Deve aceitar os termos para continuar',
-      }
-      return fb[key] || key
-    }
-  }
+  const translations = useTranslations('legal')
+  const tLegal = (key: string) => translations(`consent.${key}`)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)

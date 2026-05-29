@@ -1,38 +1,31 @@
-import { AuthLayout } from '@/components/common/layout/AuthLayout'
-
 export default function Loading() {
   return (
-    <AuthLayout>
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="animate-pulse space-y-8">
-          {/* Header skeleton */}
-          <div>
-            <div className="h-8 bg-gray-200 rounded w-48 mb-2"></div>
-            <div className="h-4 bg-gray-200 rounded w-72"></div>
+    <main className="min-h-screen bg-white">
+      <div className="mx-auto flex min-h-screen max-w-6xl flex-col px-4 py-6 sm:px-6 lg:px-8">
+        <header className="flex items-center justify-between border-b border-gray-100 pb-5">
+          <div className="flex items-center gap-3">
+            <div className="h-8 w-8 rounded bg-gray-100" />
+            <div className="h-5 w-24 rounded bg-gray-100" />
+          </div>
+          <div className="hidden h-9 w-28 rounded bg-gray-100 sm:block" />
+        </header>
+
+        <section className="grid flex-1 items-center gap-10 py-10 lg:grid-cols-[1fr_420px]">
+          <div className="animate-pulse space-y-5">
+            <div className="h-4 w-36 rounded bg-emerald-100" />
+            <div className="h-10 w-full max-w-xl rounded bg-gray-200" />
+            <div className="h-10 w-5/6 max-w-lg rounded bg-gray-200" />
+            <div className="h-5 w-full max-w-md rounded bg-gray-100" />
+            <div className="h-5 w-4/5 max-w-sm rounded bg-gray-100" />
           </div>
 
-          {/* Stats cards skeleton */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="bg-white rounded-lg shadow p-6">
-                <div className="h-4 bg-gray-200 rounded w-20 mb-4"></div>
-                <div className="h-8 bg-gray-200 rounded w-16 mb-2"></div>
-                <div className="h-3 bg-gray-200 rounded w-24"></div>
-              </div>
-            ))}
+          <div className="animate-pulse rounded-lg border border-gray-100 bg-gray-50 p-4 shadow-sm">
+            <div className="aspect-[4/3] rounded-md bg-gray-200" />
+            <div className="mt-4 h-5 w-3/4 rounded bg-gray-200" />
+            <div className="mt-3 h-4 w-1/2 rounded bg-gray-100" />
           </div>
-
-          {/* Content skeleton */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {[...Array(2)].map((_, i) => (
-              <div key={i} className="bg-white rounded-lg shadow p-6">
-                <div className="h-5 bg-gray-200 rounded w-40 mb-4"></div>
-                <div className="h-48 bg-gray-200 rounded"></div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </main>
-    </AuthLayout>
+        </section>
+      </div>
+    </main>
   )
 }

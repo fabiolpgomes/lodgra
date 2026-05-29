@@ -13,10 +13,14 @@ export interface FeedOptions {
   updated_since?: string
   currency?: string
   include_reviews?: boolean
+  organization_id?: string
+  property_ids?: string[]
+  base_url?: string
 }
 
 interface Property {
   id: string
+  organization_id?: string | null
   name: string
   description: string
   slug: string
@@ -24,8 +28,6 @@ interface Property {
   city: string
   zipcode: string
   country: string
-  phone?: string
-  email?: string
   latitude?: number
   longitude?: number
   updated_at?: string
@@ -34,6 +36,7 @@ interface Property {
   pet_fee?: number | null
   check_in_time?: string
   check_out_time?: string
+  photos?: unknown
 }
 
 interface PropertyMedia {
@@ -61,13 +64,16 @@ export async function generateGoogleVacationRentalsFeed(
   const offset = options.offset || 0
   const currency = options.currency || 'EUR'
   const includeReviews = options.include_reviews !== false // Default: true
+  const baseUrl = normalizeBaseUrl(
+    options.base_url || process.env.NEXT_PUBLIC_APP_URL || 'https://lodgra.io'
+  )
 
   const supabase = createAdminClient()
 
   // Fetch properties with filters
   let query = supabase
     .from('properties')
-    .select('id, name, description, slug, address, city, zipcode, country, phone, email, latitude, longitude, updated_at, min_nights, cleaning_fee, pet_fee, check_in_time, check_out_time')
+    .select('id, organization_id, name, description, slug, address, city, zipcode:postal_code, country, latitude, longitude, updated_at, min_nights, cleaning_fee, pet_fee, check_in_time:checkin_from, check_out_time:checkout_until, photos')
     .order('updated_at', { ascending: false })
     .range(offset, offset + limit - 1)
 
@@ -75,11 +81,24 @@ export async function generateGoogleVacationRentalsFeed(
     query = query.gte('updated_at', options.updated_since)
   }
 
+  if (options.organization_id) {
+    query = query.eq('organization_id', options.organization_id)
+  }
+
+  if (options.property_ids?.length) {
+    query = query.in('id', options.property_ids)
+  }
+
   const { data: properties, error } = await query
 
   if (error || !properties) {
     throw new Error(`Failed to fetch properties: ${error?.message}`)
   }
+
+  const organizationSlugs = await getOrganizationSlugs(
+    supabase,
+    properties.map((property) => property.organization_id).filter((id): id is string => Boolean(id))
+  )
 
   // Fetch related data for each property
   const enrichedProperties = await Promise.all(
@@ -125,7 +144,7 @@ export async function generateGoogleVacationRentalsFeed(
 
       return {
         property: prop,
-        images: images || [],
+        images: images || getImagesFromPropertyPhotos(prop.photos),
         review: reviews,
         aggregatedReviews,
         blockedDates,
@@ -139,12 +158,21 @@ export async function generateGoogleVacationRentalsFeed(
   let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`
   xml += `<feed xmlns="http://www.w3.org/2005/Atom" xmlns:gd="http://schemas.google.com/g/2005" xmlns:georss="http://www.georss.org/georss" xmlns:property="http://www.google.com/feeds/property">\n`
   xml += `  <title>Lodgra Property Feed</title>\n`
-  xml += `  <link href="https://lodgra.app" rel="alternate"/>\n`
+  xml += `  <link href="${escapeXml(baseUrl)}" rel="alternate"/>\n`
   xml += `  <updated>${now}</updated>\n`
   xml += `  <id>urn:lodgra:feed:properties</id>\n`
 
   for (const { property, images, review, aggregatedReviews, blockedDates, amenities } of enrichedProperties) {
-    xml += generateFeedEntry(property, images, review, aggregatedReviews, blockedDates, amenities, currency)
+    xml += generateFeedEntry(
+      property,
+      images,
+      review,
+      aggregatedReviews,
+      blockedDates,
+      amenities,
+      currency,
+      getTenantBaseUrl(baseUrl, property.organization_id ? organizationSlugs.get(property.organization_id) : null)
+    )
   }
 
   xml += `</feed>\n`
@@ -165,9 +193,9 @@ function generateFeedEntry(
   aggregatedReviews: PropertyReviewsAggregate | null,
   blockedDates: BlockedDate[],
   amenities: string[],
-  currency: string
+  currency: string,
+  baseUrl: string
 ): string {
-  const baseUrl = 'https://lodgra.app'
   const lat = property.latitude || 0
   const lon = property.longitude || 0
   const price = currency === 'EUR' ? 150 : currency === 'USD' ? 165 : 600 // Example conversion
@@ -182,7 +210,7 @@ function generateFeedEntry(
   entry += `    <title>${escapeXml(property.name)}</title>\n`
   entry += `    <content type="xhtml">\n`
   entry += `      <div xmlns="http://www.w3.org/1999/xhtml">\n`
-  entry += `        <p>${escapeXml(property.description.substring(0, 500))}</p>\n`
+  entry += `        <p>${escapeXml((property.description || '').substring(0, 500))}</p>\n`
   entry += `      </div>\n`
   entry += `    </content>\n`
   entry += `    <link href="${baseUrl}/p/${property.slug}" rel="alternate"/>\n`
@@ -219,10 +247,10 @@ function generateFeedEntry(
 
   // Address
   entry += `    <property:address>\n`
-  entry += `      <property:streetAddress>${escapeXml(property.address)}</property:streetAddress>\n`
-  entry += `      <property:city>${escapeXml(property.city)}</property:city>\n`
+  entry += `      <property:streetAddress>${escapeXml(property.address || '')}</property:streetAddress>\n`
+  entry += `      <property:city>${escapeXml(property.city || '')}</property:city>\n`
   entry += `      <property:postalCode>${escapeXml(property.zipcode || '')}</property:postalCode>\n`
-  entry += `      <property:country>${escapeXml(property.country)}</property:country>\n`
+  entry += `      <property:country>${escapeXml(property.country || '')}</property:country>\n`
   entry += `    </property:address>\n`
 
   // Check-in/out times (dynamic)
@@ -275,6 +303,77 @@ function generateFeedEntry(
   entry += `  </entry>\n`
 
   return entry
+}
+
+function normalizeBaseUrl(url: string): string {
+  return url.replace(/\/+$/, '')
+}
+
+async function getOrganizationSlugs(
+  supabase: ReturnType<typeof createAdminClient>,
+  organizationIds: string[]
+): Promise<Map<string, string>> {
+  const uniqueIds = [...new Set(organizationIds)]
+  if (uniqueIds.length === 0) return new Map()
+
+  const { data, error } = await supabase
+    .from('organizations')
+    .select('id, slug')
+    .in('id', uniqueIds)
+
+  if (error || !data) {
+    return new Map()
+  }
+
+  return new Map(
+    data
+      .filter((organization): organization is { id: string; slug: string } => {
+        return typeof organization.id === 'string' && typeof organization.slug === 'string'
+      })
+      .map((organization) => [organization.id, organization.slug])
+  )
+}
+
+function getTenantBaseUrl(baseUrl: string, organizationSlug?: string | null): string {
+  if (!organizationSlug) return baseUrl
+
+  try {
+    const url = new URL(baseUrl)
+    if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
+      return baseUrl
+    }
+
+    const rootHost = url.hostname.replace(/^www\./, '')
+    url.hostname = `${organizationSlug}.${rootHost}`
+    return normalizeBaseUrl(url.toString())
+  } catch {
+    return baseUrl
+  }
+}
+
+function getImagesFromPropertyPhotos(photos: unknown): PropertyMedia[] {
+  if (!Array.isArray(photos)) return []
+
+  return photos
+    .map((photo) => {
+      if (typeof photo === 'string') {
+        return { url: photo }
+      }
+
+      if (photo && typeof photo === 'object') {
+        const candidate = photo as { url?: unknown; src?: unknown; path?: unknown; alt?: unknown }
+        const url = candidate.url || candidate.src || candidate.path
+        if (typeof url === 'string' && url.length > 0) {
+          return {
+            url,
+            alt: typeof candidate.alt === 'string' ? candidate.alt : undefined,
+          }
+        }
+      }
+
+      return null
+    })
+    .filter((photo): photo is PropertyMedia => Boolean(photo))
 }
 
 /**

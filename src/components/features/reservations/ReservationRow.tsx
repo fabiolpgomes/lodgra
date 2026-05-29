@@ -1,6 +1,6 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
+import { useRouter } from '@/lib/i18n/routing'
 import { Building2, Users } from 'lucide-react'
 import { formatCurrency, CurrencyCode } from '@/lib/utils/currency'
 import { ReservationUI } from './types/reservation-ui'

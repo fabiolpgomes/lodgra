@@ -61,38 +61,50 @@ async function handleSubscriptionUpdated(
   adminClient: ReturnType<typeof createAdminClient>
 ) {
   try {
-    // Find organization by Stripe customer ID
+    const customerId = subscription.customer as string
+
+    // Find organization by stripe_customer_id or stripe_br_customer_id
     const { data: org } = await adminClient
       .from('organizations')
       .select('id')
-      .eq('stripe_br_customer_id', subscription.customer as string)
+      .or(`stripe_customer_id.eq.${customerId},stripe_br_customer_id.eq.${customerId}`)
       .single()
 
     if (!org) {
       console.warn(
-        `[webhooks/stripe] Organization not found for customer: ${subscription.customer}`
+        `[webhooks/stripe] Organization not found for customer: ${customerId}. Skipping update.`
       )
       return
     }
 
-    // Count extra property items in subscription
-    // Extra properties are identified by price ID
-    const EXTRA_PROPERTY_PRICE_ID = process.env.STRIPE_PRICE_ID_PREMIUM_EXTRA_PROPERTY
+    // Get first subscription item to determine plan
+    const firstItem = subscription.items.data[0]
+    let plan = 'essencial'
 
-    const extraPropertyCount = subscription.items.data.filter(
-      (item: Stripe.SubscriptionItem) => item.price.id === EXTRA_PROPERTY_PRICE_ID
-    ).length
+    if (firstItem?.price?.id === process.env.STRIPE_PRICE_ID_ESSENCIAL_BRL) {
+      plan = 'essencial'
+    } else if (firstItem?.price?.id === process.env.STRIPE_PRICE_ID_EXPANSAO_BRL) {
+      plan = 'expansao'
+    } else if (firstItem?.price?.id === process.env.STRIPE_PRICE_ID_PREMIUM_BRL) {
+      plan = 'premium'
+    }
 
-    // Update organization with current extra property count
+    // Update organization with subscription details
     await adminClient
       .from('organizations')
       .update({
-        premium_extra_properties_count: extraPropertyCount,
+        stripe_customer_id: customerId,
+        stripe_br_customer_id: customerId,
+        subscription_id: subscription.id,
+        plan,
+        subscription_plan: plan,
+        subscription_status: subscription.status,
+        updated_at: new Date().toISOString(),
       })
       .eq('id', org.id)
 
     console.log(
-      `[webhooks/stripe] Updated subscription: org=${org.id}, extra_properties=${extraPropertyCount}, status=${subscription.status}`
+      `[webhooks/stripe] Updated subscription: org=${org.id}, plan=${plan}, status=${subscription.status}`
     )
   } catch (error) {
     console.error('[webhooks/stripe] handleSubscriptionUpdated error:', error)

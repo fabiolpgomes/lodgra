@@ -21,9 +21,9 @@ describe('Subscription Flow', () => {
     })
 
     it('should have correct property limits', () => {
-      // Essencial: 1 included, max 10 with extras
+      // Essencial: 1 included, paid extras available
       expect(PLAN_LIMITS.essencial.maxProperties).toBe(1)
-      // Expansão: 3 included, max 10 with extras
+      // Expansão: 3 included, paid extras available
       expect(PLAN_LIMITS.expansao.maxProperties).toBe(3)
       // Premium: 10 included, unlimited with extras
       expect(PLAN_LIMITS.premium.maxProperties).toBe(10)

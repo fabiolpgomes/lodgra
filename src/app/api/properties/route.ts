@@ -1,6 +1,8 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
+import { getPlanLimits } from '@/lib/billing/plans'
 import { containsNormalized } from '@/lib/utils/normalize-text'
+import { getOrganizationFromCheckoutSession } from '@/lib/onboarding/checkout-session'
 import type { PropertyCardProps } from '@/components/common/public/properties/PropertyCard'
 
 export interface PropertiesQuery {
@@ -35,6 +37,20 @@ export interface PropertiesResponse {
 
 const DEFAULT_LIMIT = 12
 const MAX_LIMIT = 100
+
+function toSlug(name: string): string {
+  const slug = name
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .slice(0, 50)
+
+  return slug || 'propriedade'
+}
 
 function parseQuery(searchParams: URLSearchParams): PropertiesQuery {
   const location = searchParams.get('location') || undefined
@@ -395,40 +411,138 @@ export async function GET(request: Request): Promise<Response> {
 // POST /api/properties — criar imóvel (utilizador autenticado, durante onboarding ou painel)
 export async function POST(request: Request): Promise<Response> {
   try {
+    const body = await request.json()
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
-    if (!user) {
+    let organizationId: string | null = null
+
+    if (body.session_id) {
+      try {
+        const { organization } = await getOrganizationFromCheckoutSession(body.session_id)
+        organizationId = organization.id
+      } catch (error) {
+        console.warn('[POST /api/properties] Checkout session access failed:', error)
+        return Response.json({ error: 'Pagamento ainda não confirmado' }, { status: 409 })
+      }
+    }
+
+    if (!user && !organizationId) {
       return Response.json({ error: 'Não autenticado' }, { status: 401 })
     }
 
-    const { data: profile } = await supabase
-      .from('user_profiles')
-      .select('organization_id')
-      .eq('id', user.id)
-      .single()
+    if (!organizationId && user) {
+      const { data: profile } = await supabase
+        .from('user_profiles')
+        .select('organization_id')
+        .eq('id', user.id)
+        .single()
 
-    if (!profile?.organization_id) {
+      organizationId = profile?.organization_id ?? null
+    }
+
+    if (!organizationId) {
       return Response.json({ error: 'Organização não encontrada' }, { status: 400 })
     }
 
-    const body = await request.json()
     const name: string = body.name?.trim() ?? ''
     const address: string | null = body.address?.trim() || null
+    const city: string | null = body.city?.trim() || null
+    const country: string = body.country?.trim() || 'Brasil'
+    const currency: string = body.currency?.trim() || (country === 'Brasil' ? 'BRL' : 'EUR')
+    const basePrice = Number(body.base_price ?? body.basePrice ?? 0)
+    const maxGuests = Number(body.max_guests ?? body.maxGuests ?? 2)
 
     if (!name) {
       return Response.json({ error: 'Nome é obrigatório' }, { status: 400 })
     }
 
-    const { data: property, error: dbError } = await supabase
+    if (!city) {
+      return Response.json({ error: 'Cidade é obrigatória' }, { status: 400 })
+    }
+
+    if (!Number.isFinite(basePrice) || basePrice < 0) {
+      return Response.json({ error: 'Preço inválido' }, { status: 400 })
+    }
+
+    if (!Number.isFinite(maxGuests) || maxGuests < 1) {
+      return Response.json({ error: 'Número de hóspedes inválido' }, { status: 400 })
+    }
+
+    const adminClient = createAdminClient()
+
+    const { data: org } = await adminClient
+      .from('organizations')
+      .select('plan, subscription_plan, premium_extra_properties_count')
+      .eq('id', organizationId)
+      .single()
+
+    if (org) {
+      const plan = org.subscription_plan || org.plan || 'essencial'
+      const limits = getPlanLimits(plan)
+      const includedLimit = limits.maxProperties
+      const extraCount = Number(org.premium_extra_properties_count ?? 0)
+      const allowedProperties = includedLimit === null ? null : includedLimit + extraCount
+
+      if (allowedProperties !== null) {
+        const { count, error: countError } = await adminClient
+          .from('properties')
+          .select('id', { count: 'exact', head: true })
+          .eq('organization_id', organizationId)
+
+        if (countError) {
+          console.error('[POST /api/properties] Count error:', countError)
+          return Response.json({ error: 'Erro ao validar limite de imóveis' }, { status: 500 })
+        }
+
+        if ((count ?? 0) >= allowedProperties) {
+          return Response.json(
+            {
+              error: 'property_limit_reached',
+              limit: allowedProperties,
+              includedLimit,
+              extraCount,
+              plan,
+              extraPropertyPrice: limits.extraPropertyPrice,
+            },
+            { status: 403 }
+          )
+        }
+      }
+    }
+
+    const baseSlug = toSlug(name)
+    let slug = baseSlug
+    let attempt = 0
+
+    while (attempt < 20) {
+      const { data: existing } = await adminClient
+        .from('properties')
+        .select('id')
+        .eq('slug', slug)
+        .maybeSingle()
+
+      if (!existing) break
+      attempt++
+      slug = `${baseSlug}-${attempt}`
+    }
+
+    const { data: property, error: dbError } = await adminClient
       .from('properties')
       .insert({
         name,
         address,
-        organization_id: profile.organization_id,
+        city,
+        country,
+        currency,
+        slug,
+        base_price: basePrice,
+        max_guests: maxGuests,
+        organization_id: organizationId,
         is_active: true,
+        is_public: true,
       })
-      .select('id, name')
+      .select('id, name, slug')
       .single()
 
     if (dbError) {

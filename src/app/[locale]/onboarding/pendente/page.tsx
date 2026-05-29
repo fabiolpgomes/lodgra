@@ -48,7 +48,7 @@ export default function OnboardingPendentePage() {
       const res = await fetch('/api/stripe/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plan, email, source: 'onboarding', locale }),
+        body: JSON.stringify({ plan, email, source: 'onboarding', locale, currency: 'brl' }),
       })
 
       const data = await res.json()

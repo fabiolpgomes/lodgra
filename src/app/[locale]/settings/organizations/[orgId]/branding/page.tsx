@@ -1,8 +1,8 @@
 "use client"
 
+import Link from "next/link"
 import { useState, useEffect, useRef } from "react"
-import { useTranslations } from "next-intl"
-import Image from "next/image"
+import { LayoutDashboard } from "lucide-react"
 
 interface BrandingData {
   id: string | null
@@ -24,6 +24,7 @@ export default function BrandingPage(props: { params: Promise<{ orgId: string; l
   const [success, setSuccess] = useState<string | null>(null)
   const [showPreview, setShowPreview] = useState(false)
   const [orgId, setOrgId] = useState<string>("")
+  const [locale, setLocale] = useState<string>("pt-BR")
 
   const [formData, setFormData] = useState({
     primary_color: "#1E40AF",
@@ -38,6 +39,7 @@ export default function BrandingPage(props: { params: Promise<{ orgId: string; l
     const resolveParams = async () => {
       const params = await props.params
       setOrgId(params.orgId)
+      setLocale(params.locale)
 
       try {
         const response = await fetch(`/api/organizations/${params.orgId}/branding-admin`)
@@ -83,7 +85,7 @@ export default function BrandingPage(props: { params: Promise<{ orgId: string; l
 
       const data = await response.json()
       setBranding(data)
-      setSuccess("Colors updated successfully")
+      setSuccess("Cores atualizadas com sucesso")
       setTimeout(() => setSuccess(null), 3000)
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save colors")
@@ -113,7 +115,7 @@ export default function BrandingPage(props: { params: Promise<{ orgId: string; l
 
       const data = await response.json()
       setBranding(data)
-      setSuccess(`${type === "logo" ? "Logo" : "Favicon"} uploaded successfully`)
+      setSuccess(`${type === "logo" ? "Logotipo" : "Ícone"} enviado com sucesso`)
       setTimeout(() => setSuccess(null), 3000)
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed")
@@ -126,21 +128,30 @@ export default function BrandingPage(props: { params: Promise<{ orgId: string; l
 
   return (
     <div className="max-w-4xl mx-auto p-4 space-y-6">
-      <h1 className="text-2xl font-bold">Brand Customization</h1>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="text-2xl font-bold">Logo e marca da empresa</h1>
+        <Link
+          href={`/${locale}/dashboard`}
+          className="inline-flex items-center justify-center gap-2 rounded-md border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+        >
+          <LayoutDashboard className="h-4 w-4" />
+          Voltar ao Dashboard
+        </Link>
+      </div>
 
       {error && <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded">{error}</div>}
       {success && <div className="bg-green-50 border border-green-200 text-green-700 p-4 rounded">{success}</div>}
 
       <div className="border rounded-lg p-6">
-        <h2 className="text-lg font-semibold mb-4">Logo</h2>
+        <h2 className="text-lg font-semibold mb-4">Logotipo</h2>
         <div className="flex items-center gap-4 mb-4">
-          {branding?.logo_url && <Image src={branding.logo_url} alt="Company logo" width={100} height={100} className="object-contain" />}
+          {branding?.logo_url && <img src={branding.logo_url} alt="Logotipo da empresa" className="h-[100px] w-[100px] object-contain" />}
           <button
             onClick={() => logoInputRef.current?.click()}
             disabled={saving}
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
           >
-            {branding?.logo_url ? "Change Logo" : "Upload Logo"}
+            {branding?.logo_url ? "Alterar logotipo" : "Enviar logotipo"}
           </button>
           <input
             ref={logoInputRef}
@@ -152,18 +163,18 @@ export default function BrandingPage(props: { params: Promise<{ orgId: string; l
             }}
             hidden
           />
-          <p className="text-sm text-gray-600">PNG or JPEG, max 2MB</p>
+          <p className="text-sm text-gray-600">PNG ou JPEG, até 2MB</p>
         </div>
       </div>
 
       <div className="border rounded-lg p-6">
-        <h2 className="text-lg font-semibold mb-4">Favicon</h2>
+        <h2 className="text-lg font-semibold mb-4">Ícone do site</h2>
         <button
           onClick={() => faviconInputRef.current?.click()}
           disabled={saving}
           className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
         >
-          {branding?.favicon_url ? "Change Favicon" : "Upload Favicon"}
+          {branding?.favicon_url ? "Alterar ícone" : "Enviar ícone"}
         </button>
         <input
           ref={faviconInputRef}
@@ -175,15 +186,15 @@ export default function BrandingPage(props: { params: Promise<{ orgId: string; l
           }}
           hidden
         />
-        <p className="text-sm text-gray-600 mt-2">PNG or ICO, max 100KB</p>
+        <p className="text-sm text-gray-600 mt-2">PNG ou ICO, até 512KB</p>
       </div>
 
       <div className="border rounded-lg p-6 space-y-4">
-        <h2 className="text-lg font-semibold">Brand Colors</h2>
+        <h2 className="text-lg font-semibold">Cores da marca</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label className="block text-sm font-medium mb-2">Primary Color</label>
+            <label className="block text-sm font-medium mb-2">Cor principal</label>
             <div className="flex items-center gap-2">
               <input type="color" value={formData.primary_color} onChange={e => handleColorChange("primary_color", e.target.value)} className="w-16 h-16 border rounded cursor-pointer" />
               <input type="text" value={formData.primary_color} onChange={e => handleColorChange("primary_color", e.target.value)} className="flex-1 px-3 py-2 border rounded" />
@@ -191,7 +202,7 @@ export default function BrandingPage(props: { params: Promise<{ orgId: string; l
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">Secondary Color</label>
+            <label className="block text-sm font-medium mb-2">Cor secundária</label>
             <div className="flex items-center gap-2">
               <input type="color" value={formData.secondary_color} onChange={e => handleColorChange("secondary_color", e.target.value)} className="w-16 h-16 border rounded cursor-pointer" />
               <input type="text" value={formData.secondary_color} onChange={e => handleColorChange("secondary_color", e.target.value)} className="flex-1 px-3 py-2 border rounded" />
@@ -199,7 +210,7 @@ export default function BrandingPage(props: { params: Promise<{ orgId: string; l
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">Accent Color</label>
+            <label className="block text-sm font-medium mb-2">Cor de destaque</label>
             <div className="flex items-center gap-2">
               <input type="color" value={formData.accent_color} onChange={e => handleColorChange("accent_color", e.target.value)} className="w-16 h-16 border rounded cursor-pointer" />
               <input type="text" value={formData.accent_color} onChange={e => handleColorChange("accent_color", e.target.value)} className="flex-1 px-3 py-2 border rounded" />
@@ -209,26 +220,26 @@ export default function BrandingPage(props: { params: Promise<{ orgId: string; l
 
         <div className="flex gap-2">
           <button onClick={handleSaveColors} disabled={saving} className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50">
-            Save Colors
+            Guardar cores
           </button>
           <button onClick={() => setShowPreview(!showPreview)} className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">
-            {showPreview ? "Close Preview" : "Preview"}
+            {showPreview ? "Fechar prévia" : "Prévia"}
           </button>
         </div>
       </div>
 
       {showPreview && (
         <div className="border rounded-lg p-6 bg-gray-50">
-          <h2 className="text-lg font-semibold mb-4">Preview</h2>
+          <h2 className="text-lg font-semibold mb-4">Prévia</h2>
           <div className="border rounded p-4 bg-white" style={{ "--color-primary": formData.primary_color, "--color-secondary": formData.secondary_color, "--color-accent": formData.accent_color } as React.CSSProperties}>
             <div className="flex items-center gap-4 mb-4">
-              {branding?.logo_url && <Image src={branding.logo_url} alt="Preview" width={60} height={60} className="object-contain" />}
+              {branding?.logo_url && <img src={branding.logo_url} alt="Prévia do logotipo" className="h-[60px] w-[60px] object-contain" />}
               <h3 className="text-xl font-semibold" style={{ color: formData.primary_color }}>
-                Book Now
+                Reservar agora
               </h3>
             </div>
             <button style={{ backgroundColor: formData.primary_color }} className="px-6 py-2 text-white rounded hover:opacity-90">
-              Search Properties
+              Procurar propriedades
             </button>
           </div>
         </div>

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Download } from 'lucide-react'
-import { useTranslations } from 'use-intl'
+import { useTranslations } from '@/lib/i18n/useTranslations'
 
 export function DataExportSection() {
   const t = useTranslations('consent')
