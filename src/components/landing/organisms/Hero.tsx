@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { Container } from '../atoms/Container'
-import { Button } from '../atoms/Button'
+import { Button } from '@/design-system/atoms/Button'
 import { Logo } from '../atoms/Logo'
 import { trackCTA } from '@/lib/analytics/client'
 
@@ -28,7 +28,7 @@ export const Hero: React.FC<HeroProps> = ({
       <div className="text-center max-w-4xl mx-auto">
         {/* Logo - Clean and minimal */}
         <div className="mb-6 sm:mb-12 flex justify-center">
-          <Logo size="lg" variant="dark" />
+          <Logo size="lg" variant="default" />
         </div>
 
         {/* Headline - Clean and premium */}

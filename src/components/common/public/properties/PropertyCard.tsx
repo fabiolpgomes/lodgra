@@ -117,7 +117,7 @@ export function PropertyCard({
         <div className="mt-[24px]">
           <Link
             href={href}
-            className="w-full bg-[#1E3A8A] hover:bg-[#162d6e] text-[13px] rounded-none font-bold uppercase tracking-[1.5px] transition-colors h-[48px] flex items-center justify-center"
+            className="w-full bg-lodgra-blue hover:bg-[#162d6e] text-[13px] rounded-none font-bold uppercase tracking-[1.5px] transition-colors h-[48px] flex items-center justify-center"
             style={{ color: '#ffffff' }}
           >
             RESERVAR AGORA ›

@@ -116,7 +116,7 @@ export function ReservationRow({ reservation }: ReservationRowProps) {
       <td className="px-4 py-3 whitespace-nowrap text-right">
         <div className="flex items-center justify-end gap-1.5">
           <span className="text-lg">{countryFlag}</span>
-          <span className="text-xs font-medium text-[#1E3A8A] hover:text-[#D4AF37] transition-colors cursor-pointer">
+          <span className="text-xs font-medium text-lodgra-blue hover:text-lodgra-gold transition-colors cursor-pointer">
             {property?.country || '-'}
           </span>
         </div>

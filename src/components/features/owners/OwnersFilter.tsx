@@ -211,7 +211,7 @@ export function OwnersFilter({ owners, countMap, canEdit, canDelete, pagination 
                           <Link href={`/owners/${owner.id}`}><Eye className="h-4 w-4" /></Link>
                         </Button>
                         {canEdit && (
-                          <Button asChild variant="ghost" size="sm" className="p-1.5 text-[#1E3A8A] bg-[#ffc000] hover:bg-[#ffc000]/80" title="Editar">
+                          <Button asChild variant="ghost" size="sm" className="p-1.5 text-lodgra-blue bg-lodgra-accent hover:bg-lodgra-accent/80" title="Editar">
                             <Link href={`/owners/${owner.id}/edit`}><Edit className="h-4 w-4" /></Link>
                           </Button>
                         )}

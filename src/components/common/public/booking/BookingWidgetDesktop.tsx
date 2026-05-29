@@ -286,7 +286,7 @@ export function BookingWidgetDesktop({
       {checkoutHref && !checkInError && !checkOutError ? (
         <Link
           href={checkoutHref}
-          className="block w-full bg-[#1E3A8A] font-bold py-3 px-4 rounded-lg text-center transition-all mb-4 hover:brightness-110 active:scale-[0.98]"
+          className="block w-full bg-lodgra-blue font-bold py-3 px-4 rounded-lg text-center transition-all mb-4 hover:brightness-110 active:scale-[0.98]"
           style={{ color: '#ffffff' }}
         >
           Reservar agora
@@ -294,7 +294,7 @@ export function BookingWidgetDesktop({
       ) : (
         <button
           disabled
-          className="block w-full bg-[#1E3A8A] font-bold py-3 px-4 rounded-lg text-center cursor-not-allowed mb-4 opacity-80"
+          className="block w-full bg-lodgra-blue font-bold py-3 px-4 rounded-lg text-center cursor-not-allowed mb-4 opacity-80"
           style={{ color: '#ffffff' }}
         >
           {checkInError || checkOutError ? 'Datas indisponíveis' : 'Selecione as datas'}

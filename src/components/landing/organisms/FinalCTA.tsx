@@ -1,6 +1,6 @@
 import React from 'react'
 import { Container } from '../atoms/Container'
-import { Button } from '../atoms/Button'
+import { Button } from '@/design-system/atoms/Button'
 
 interface FinalCTAProps {
   headline: string

@@ -106,7 +106,7 @@ export function BottomNav() {
 
   return (
     <>
-      <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white border-t border-[#1E3A8A]/10 pb-safe">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white border-t border-lodgra-blue/10 pb-safe">
         <div className="flex items-stretch">
           {PRIMARY_NAV.map(({ href, label, icon: Icon }) => {
             const active = pathname === href
@@ -115,7 +115,7 @@ export function BottomNav() {
                 key={href}
                 href={href}
                 className={`flex flex-1 flex-col items-center justify-center gap-1 py-3 min-h-[64px] transition-all ${
-                  active ? 'text-[#ffc000]' : 'text-[#1E3A8A]/60 hover:bg-[#ffc000]/10'
+                  active ? 'text-lodgra-accent' : 'text-lodgra-blue/60 hover:bg-lodgra-accent/10'
                 }`}
               >
                 <Icon className={`h-5 w-5 ${active ? 'stroke-[2.5]' : ''}`} />
@@ -128,7 +128,7 @@ export function BottomNav() {
           <button
             onClick={() => setMoreOpen(true)}
             className={`flex flex-1 flex-col items-center justify-center gap-1 py-3 min-h-[64px] transition-all ${
-              isMoreActive ? 'text-[#ffc000]' : 'text-[#1E3A8A]/60 hover:bg-[#ffc000]/10'
+              isMoreActive ? 'text-lodgra-accent' : 'text-lodgra-blue/60 hover:bg-lodgra-accent/10'
             }`}
           >
             <MoreHorizontal className="h-5 w-5" />
@@ -138,9 +138,9 @@ export function BottomNav() {
       </nav>
 
       <Sheet open={moreOpen} onOpenChange={setMoreOpen}>
-        <SheetContent side="bottom" className="rounded-none pb-safe border-t border-[#1E3A8A]/10">
+        <SheetContent side="bottom" className="rounded-none pb-safe border-t border-lodgra-blue/10">
           <SheetHeader className="mb-6">
-            <SheetTitle className="text-left text-[14px] font-black text-[#1E3A8A] uppercase tracking-[2px] font-[family-name:var(--font-hanken-grotesk)]">MENU GLOBAL</SheetTitle>
+            <SheetTitle className="text-left text-[14px] font-black text-lodgra-blue uppercase tracking-[2px] font-[family-name:var(--font-hanken-grotesk)]">MENU GLOBAL</SheetTitle>
           </SheetHeader>
           <div className="space-y-6 pb-8">
             {/* Geral */}
@@ -154,8 +154,8 @@ export function BottomNav() {
                     onClick={() => setMoreOpen(false)}
                     className={`flex items-center gap-3 p-4 rounded-none border transition-all ${
                       active
-                        ? 'border-[#ffc000] text-[#ffc000] bg-transparent'
-                        : 'border-[#1E3A8A]/10 text-[#1E3A8A] hover:bg-[#ffc000]/10'
+                        ? 'border-lodgra-accent text-lodgra-accent bg-transparent'
+                        : 'border-lodgra-blue/10 text-lodgra-blue hover:bg-lodgra-accent/10'
                     }`}
                   >
                     <Icon className="h-5 w-5 shrink-0" />
@@ -167,7 +167,7 @@ export function BottomNav() {
 
             {/* Configuração */}
             <div>
-              <p className="text-[10px] font-black text-[#1E3A8A]/30 uppercase tracking-[2px] mb-3 px-1 font-[family-name:var(--font-hanken-grotesk)]">Configuração</p>
+              <p className="text-[10px] font-black text-lodgra-blue/30 uppercase tracking-[2px] mb-3 px-1 font-[family-name:var(--font-hanken-grotesk)]">Configuração</p>
               <div className="grid grid-cols-2 gap-2">
                 {CONFIG_NAV.map(({ href, label, icon: Icon }) => {
                   const active = pathname === href
@@ -178,8 +178,8 @@ export function BottomNav() {
                       onClick={() => setMoreOpen(false)}
                       className={`flex items-center gap-3 p-4 rounded-none border transition-all ${
                         active
-                          ? 'border-[#ffc000] text-[#ffc000] bg-transparent'
-                          : 'border-[#1E3A8A]/10 text-[#1E3A8A] hover:bg-[#ffc000]/10'
+                          ? 'border-lodgra-accent text-lodgra-accent bg-transparent'
+                          : 'border-lodgra-blue/10 text-lodgra-blue hover:bg-lodgra-accent/10'
                       }`}
                     >
                       <Icon className="h-5 w-5 shrink-0" />
@@ -193,8 +193,8 @@ export function BottomNav() {
                     onClick={() => setMoreOpen(false)}
                     className={`flex items-center gap-3 p-4 rounded-none border transition-all ${
                       pathname === `${prefix}/admin/users`
-                        ? 'border-[#ffc000] text-[#ffc000] bg-transparent'
-                        : 'border-[#1E3A8A]/10 text-[#1E3A8A] hover:bg-[#ffc000]/10'
+                        ? 'border-lodgra-accent text-lodgra-accent bg-transparent'
+                        : 'border-lodgra-blue/10 text-lodgra-blue hover:bg-lodgra-accent/10'
                     }`}
                   >
                     <UserCog className="h-5 w-5 shrink-0" />
@@ -205,7 +205,7 @@ export function BottomNav() {
             </div>
 
             {/* Logout */}
-            <div className="pt-4 border-t border-[#1E3A8A]/10">
+            <div className="pt-4 border-t border-lodgra-blue/10">
               <Button
                 onClick={handleLogout}
                 className="w-full flex items-center justify-center gap-2 h-12 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 font-black uppercase tracking-[1px] text-[11px] font-[family-name:var(--font-hanken-grotesk)]"

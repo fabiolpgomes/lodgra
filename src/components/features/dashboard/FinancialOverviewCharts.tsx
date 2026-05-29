@@ -17,6 +17,7 @@ import {
   ArrowUpRight,
 } from 'lucide-react'
 import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
+import { BRAND, ACCENT } from '@/lib/design/tokens'
 
 interface MonthlyStat {
   month: string
@@ -39,7 +40,7 @@ interface FinancialOverviewChartsProps {
   yoyPercentage?: number
 }
 
-const COLORS = ['#1E3A8A', '#D4AF37', '#1D9E75', '#EF4444', '#8B5CF6', '#F59E0B']
+const COLORS = [BRAND[800], ACCENT[500], '#1D9E75', '#EF4444', '#8B5CF6', '#F59E0B']
 
 export function FinancialOverviewCharts({ monthlyStats, propertyStats, totalsByCurrency, yoyPercentage = 14.5 }: FinancialOverviewChartsProps) {
   const chartData = useMemo(() => {
@@ -72,12 +73,12 @@ export function FinancialOverviewCharts({ monthlyStats, propertyStats, totalsByC
     <div className="space-y-8 animate-fade-in pb-12">
       {/* High Level Insights - The "UAU" Factor */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="p-6 relative overflow-hidden group border rounded-none shadow-none" style={{ backgroundColor: '#FFFFFF', borderColor: '#1E3A8A' }}>
+        <div className="p-6 relative overflow-hidden group border rounded-none shadow-none" style={{ backgroundColor: '#FFFFFF', borderColor: BRAND[800] }}>
           <div className="absolute -right-4 -top-4 w-24 h-24 rounded-none" style={{ backgroundColor: 'rgba(30, 58, 138, 0.02)' }} />
-          <p className="text-[11px] font-black uppercase tracking-wider mb-2 font-display" style={{ color: '#1E3A8A' }}>Faturamento Total</p>
+          <p className="text-[11px] font-black uppercase tracking-wider mb-2 font-display" style={{ color: BRAND[800] }}>Faturamento Total</p>
           <div className="space-y-1">
             {Object.entries(totalsByCurrency).map(([currency, data]) => (
-              <h2 key={currency} className="text-2xl font-black font-display" style={{ color: '#1E3A8A' }}>
+              <h2 key={currency} className="text-2xl font-black font-display" style={{ color: BRAND[800] }}>
                 {formatCurrency(data.revenue, currency as CurrencyCode)}
               </h2>
             ))}
@@ -162,12 +163,12 @@ export function FinancialOverviewCharts({ monthlyStats, propertyStats, totalsByC
               <AreaChart data={chartData}>
                 <defs>
                   <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#1E3A8A" stopOpacity={0.15}/>
-                    <stop offset="95%" stopColor="#1E3A8A" stopOpacity={0}/>
+                    <stop offset="5%" stopColor={BRAND[800]} stopOpacity={0.15}/>
+                    <stop offset="95%" stopColor={BRAND[800]} stopOpacity={0}/>
                   </linearGradient>
                   <linearGradient id="colorProfit" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#D4AF37" stopOpacity={0.15}/>
-                    <stop offset="95%" stopColor="#D4AF37" stopOpacity={0}/>
+                    <stop offset="5%" stopColor={ACCENT[500]} stopOpacity={0.15}/>
+                    <stop offset="95%" stopColor={ACCENT[500]} stopOpacity={0}/>
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="5 5" vertical={false} stroke="#F3F4F6" />
@@ -191,7 +192,7 @@ export function FinancialOverviewCharts({ monthlyStats, propertyStats, totalsByC
                 <Area 
                   type="monotone" 
                   dataKey="receita" 
-                  stroke="#1E3A8A" 
+                  stroke={BRAND[800]} 
                   strokeWidth={4}
                   fillOpacity={1} 
                   fill="url(#colorRev)" 
@@ -199,7 +200,7 @@ export function FinancialOverviewCharts({ monthlyStats, propertyStats, totalsByC
                 <Area 
                   type="monotone" 
                   dataKey="lucro" 
-                  stroke="#D4AF37" 
+                  stroke={ACCENT[500]} 
                   strokeWidth={4}
                   fillOpacity={1} 
                   fill="url(#colorProfit)" 

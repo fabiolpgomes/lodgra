@@ -162,7 +162,7 @@ export function ReservationsFilter({ reservations, canCreate, pagination, curren
                 onClick={() => setStatusFilter(f.value)}
                 className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors ${
                   statusFilter === f.value
-                    ? 'bg-[#1E3A8A] text-white'
+                    ? 'bg-lodgra-blue text-white'
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                 }`}
               >

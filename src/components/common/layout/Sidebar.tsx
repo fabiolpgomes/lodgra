@@ -128,7 +128,7 @@ export function Sidebar({ serverProfile }: SidebarProps) {
 
   return (
     <aside
-      className="hidden md:flex flex-col fixed top-0 left-0 h-screen z-40 bg-white border-r border-[#1E3A8A]/10"
+      className="hidden md:flex flex-col fixed top-0 left-0 h-screen z-40 bg-white border-r border-lodgra-blue/10"
       style={{ width: '260px' }}
     >
       <div className="px-6 py-10 bg-white border-b border-lodgra-blue/10 flex items-center justify-center">
@@ -148,8 +148,8 @@ export function Sidebar({ serverProfile }: SidebarProps) {
               href={href}
               className={`flex items-center gap-3 px-4 py-3 rounded-none text-[13px] font-black uppercase tracking-[1px] transition-all font-[family-name:var(--font-hanken-grotesk)] ${
                 active
-                  ? 'bg-[#ffc000] text-[#1E3A8A]'
-                  : 'text-[#1E3A8A] hover:text-[#1E3A8A] hover:bg-[#ffc000]/10'
+                  ? 'bg-lodgra-accent text-lodgra-blue'
+                  : 'text-lodgra-blue hover:text-lodgra-blue hover:bg-lodgra-accent/10'
               }`}
             >
               <Icon className="h-4 w-4 shrink-0" />
@@ -160,7 +160,7 @@ export function Sidebar({ serverProfile }: SidebarProps) {
 
         {/* Config group */}
         <div className="pt-8">
-          <p className="px-4 mb-4 text-[10px] font-black uppercase tracking-[2px] text-[#1E3A8A]/40 font-[family-name:var(--font-hanken-grotesk)]">
+          <p className="px-4 mb-4 text-[10px] font-black uppercase tracking-[2px] text-lodgra-blue/40 font-[family-name:var(--font-hanken-grotesk)]">
             Configuração
           </p>
           {configLinks.map(({ href, label, icon: Icon }) => {
@@ -171,8 +171,8 @@ export function Sidebar({ serverProfile }: SidebarProps) {
                 href={href}
                 className={`flex items-center gap-3 px-4 py-3 rounded-none text-[13px] font-black uppercase tracking-[1px] transition-all font-[family-name:var(--font-hanken-grotesk)] ${
                   active
-                    ? 'bg-[#ffc000] text-[#1E3A8A]'
-                    : 'text-[#1E3A8A] hover:text-[#1E3A8A] hover:bg-[#ffc000]/10'
+                    ? 'bg-lodgra-accent text-lodgra-blue'
+                    : 'text-lodgra-blue hover:text-lodgra-blue hover:bg-lodgra-accent/10'
                 }`}
               >
                 <Icon className="h-4 w-4 shrink-0" />
@@ -184,23 +184,22 @@ export function Sidebar({ serverProfile }: SidebarProps) {
       </nav>
 
       {/* Bottom: profile + signout */}
-      <div className="px-4 py-6 border-t border-[#1E3A8A]/10 space-y-4 bg-white">
-        <div className="flex items-center gap-3 px-2 py-3 bg-white border border-[#1E3A8A]/10 rounded-lg">
+      <div className="px-4 py-6 border-t border-lodgra-blue/10 space-y-4 bg-white">
+        <div className="flex items-center gap-3 px-2 py-3 bg-white border border-lodgra-blue/10 rounded-lg">
           <div
-            className="w-9 h-9 rounded-none flex items-center justify-center text-[14px] font-black text-[#1E3A8A] shrink-0 font-[family-name:var(--font-hanken-grotesk)]"
-            style={{ background: '#ffc000' }}
+            className="w-9 h-9 rounded-none flex items-center justify-center text-[14px] font-black text-lodgra-blue shrink-0 font-[family-name:var(--font-hanken-grotesk)] bg-lodgra-accent"
           >
             {initials}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-[12px] font-black text-[#1E3A8A] truncate uppercase tracking-[0.5px] font-[family-name:var(--font-hanken-grotesk)]">
+            <p className="text-[12px] font-black text-lodgra-blue truncate uppercase tracking-[0.5px] font-[family-name:var(--font-hanken-grotesk)]">
               {profile?.full_name || profile?.email || 'Utilizador'}
             </p>
-            <p className="text-[10px] text-[#1E3A8A]/60 uppercase font-bold tracking-[1px] font-[family-name:var(--font-hanken-grotesk)]">{profile?.role || 'user'}</p>
+            <p className="text-[10px] text-lodgra-blue/60 uppercase font-bold tracking-[1px] font-[family-name:var(--font-hanken-grotesk)]">{profile?.role || 'user'}</p>
           </div>
           <button
             onClick={handleSignOut}
-            className="p-2 text-[#1E3A8A]/40 hover:text-[#ffc000] hover:bg-[#ffc000]/10 transition-all rounded"
+            className="p-2 text-lodgra-blue/40 hover:text-lodgra-accent hover:bg-lodgra-accent/10 transition-all rounded"
             title="Sair"
           >
             <LogOut className="h-4 w-4" />

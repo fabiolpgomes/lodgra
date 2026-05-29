@@ -26,10 +26,10 @@ export const PublicNav: React.FC<PublicNavProps> = ({ variant = 'light', compact
   ]
   const visibleLanguages = languages.filter((lang) => lang.code === 'pt-BR')
 
-  const bgClass = variant === 'dark' ? 'bg-[#1E3A8A]' : 'bg-white'
-  const borderClass = variant === 'dark' ? 'border-[#ffffff]/10' : 'border-[#1E3A8A]/10'
-  const textClass = variant === 'dark' ? 'text-white' : 'text-[#1E3A8A]'
-  const hoverClass = variant === 'dark' ? 'hover:text-[#ffc000]' : 'hover:text-[#1E3A8A]'
+  const bgClass = variant === 'dark' ? 'bg-lodgra-blue' : 'bg-white'
+  const borderClass = variant === 'dark' ? 'border-[#ffffff]/10' : 'border-lodgra-blue/10'
+  const textClass = variant === 'dark' ? 'text-white' : 'text-lodgra-blue'
+  const hoverClass = variant === 'dark' ? 'hover:text-lodgra-accent' : 'hover:text-lodgra-blue'
 
   return (
     <nav className={`fixed top-0 w-full z-50 ${bgClass} border-b ${borderClass}`}>
@@ -74,7 +74,7 @@ export const PublicNav: React.FC<PublicNavProps> = ({ variant = 'light', compact
                     href={`/${lang.code}`}
                     className={`flex items-center gap-3 px-4 py-3 text-[13px] transition-colors uppercase tracking-[1px] ${
                       lang.code === 'pt-BR'
-                        ? `bg-[#1E3A8A] ${variant === 'dark' ? 'text-white' : 'text-white'} font-black`
+                        ? `bg-lodgra-blue ${variant === 'dark' ? 'text-white' : 'text-white'} font-black`
                         : variant === 'dark'
                           ? 'text-white hover:bg-[#ffffff]/10'
                           : 'text-[#262626] hover:bg-[#fafafa]'
@@ -97,7 +97,7 @@ export const PublicNav: React.FC<PublicNavProps> = ({ variant = 'light', compact
 
           <Link
             href="/pricing"
-            className={`bg-[#ffc000] text-[#1E3A8A] rounded-none uppercase font-black text-[14px] tracking-[1px] px-[32px] h-[48px] flex items-center justify-center hover:bg-[#e6ac00] transition-colors`}
+            className={`bg-lodgra-accent text-lodgra-blue rounded-none uppercase font-black text-[14px] tracking-[1px] px-[32px] h-[48px] flex items-center justify-center hover:bg-[#e6ac00] transition-colors`}
           >
             Ver Planos
           </Link>

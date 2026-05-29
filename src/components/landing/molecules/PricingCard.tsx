@@ -1,6 +1,6 @@
 import React from 'react'
 import { Card } from '../atoms/Card'
-import { Button } from '../atoms/Button'
+import { Button } from '@/design-system/atoms/Button'
 import { Badge } from '../atoms/Badge'
 
 interface PricingCardProps {

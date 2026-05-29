@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import Link from 'next/link'
 import { Container } from '../atoms/Container'
 import { Logo } from '../atoms/Logo'
-import { Button } from '../atoms/Button'
+import { Button } from '@/design-system/atoms/Button'
 import { ThemeToggle } from '@/components/common/header/ThemeToggle'
 
 export const Navbar: React.FC = () => {

@@ -25,7 +25,7 @@ export const PublicFooter: React.FC = () => {
   ]
 
   return (
-    <footer className="bg-[#1E3A8A] text-white py-12 sm:py-16 mt-16">
+    <footer className="bg-lodgra-blue text-white py-12 sm:py-16 mt-16">
       <Container>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 mb-8">
           {/* Branding */}
@@ -44,7 +44,7 @@ export const PublicFooter: React.FC = () => {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm text-gray-300 hover:text-[#ffc000] transition-colors"
+                    className="text-sm text-gray-300 hover:text-lodgra-accent transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -63,7 +63,7 @@ export const PublicFooter: React.FC = () => {
                     href={link.href}
                     target={link.href.startsWith('http') ? '_blank' : undefined}
                     rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                    className="text-sm text-gray-300 hover:text-[#ffc000] transition-colors"
+                    className="text-sm text-gray-300 hover:text-lodgra-accent transition-colors"
                   >
                     {link.label}
                   </a>
@@ -80,7 +80,7 @@ export const PublicFooter: React.FC = () => {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm text-gray-300 hover:text-[#ffc000] transition-colors"
+                    className="text-sm text-gray-300 hover:text-lodgra-accent transition-colors"
                   >
                     {link.label}
                   </Link>
