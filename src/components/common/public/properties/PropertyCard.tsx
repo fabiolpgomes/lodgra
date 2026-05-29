@@ -67,9 +67,9 @@ export function PropertyCard({
       {/* Content */}
       <div className="p-4 sm:p-5 flex flex-col flex-1">
         <div className="mb-3">
-          <h3 className="font-bold text-[16px] sm:text-[17px] text-gray-900 line-clamp-2 leading-[1.35] mb-1">
+          <h2 className="font-bold text-[16px] sm:text-[17px] text-gray-900 line-clamp-2 leading-[1.35] mb-1">
             {name}
-          </h3>
+          </h2>
           <p className="text-[13px] text-gray-600 flex items-center gap-1">
             <MapPin className="h-3.5 w-3.5 shrink-0 text-gray-400" />
             {city}, {country}

@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { ExternalLink, Mail, MessageCircle, Phone, ChevronDown } from 'lucide-react'
 import { Logo } from '@/components/common/ui/Logo'
 import { SearchBar, type SearchParams } from '@/components/common/public/properties/SearchBar'
@@ -171,7 +172,13 @@ export function BookingPageClient({ orgSlug, orgName, orgLogoUrl, publicProfile,
             <div className="ml-3 flex min-w-0 items-center gap-2 sm:gap-4 border-l border-gray-200 pl-3 sm:pl-5">
               {orgLogoUrl && (
                 <div className="flex h-10 w-14 sm:h-14 sm:w-20 shrink-0 items-center justify-center overflow-visible">
-                  <img src={orgLogoUrl} alt={`Logotipo ${orgName}`} className="h-full w-full scale-125 object-contain" />
+                  <Image
+                    src={orgLogoUrl}
+                    alt={`Logotipo ${orgName}`}
+                    width={80} height={56}
+                    priority
+                    className="h-full w-full scale-125 object-contain"
+                  />
                 </div>
               )}
               <span className="truncate text-right text-[13px] sm:text-[18px] font-bold tracking-[0.4px] text-gray-900 max-w-[140px] sm:max-w-none">

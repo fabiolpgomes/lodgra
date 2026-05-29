@@ -112,9 +112,9 @@ export function CookieBanner() {
     >
       <div className="max-w-3xl mx-auto">
         <h3 className="text-sm font-semibold mb-2">{t('title')}</h3>
-        <p className="text-sm text-gray-500 leading-relaxed mb-4">
+        <p className="text-sm text-gray-300 leading-relaxed mb-4">
           {t('description')}{' '}
-          <Link href={privacyPath} className="underline hover:text-white">
+          <Link href={privacyPath} className="text-white underline hover:text-gray-200">
             {t('privacyPolicy')}
           </Link>
         </p>
@@ -125,7 +125,7 @@ export function CookieBanner() {
           <div className="flex items-center justify-between bg-gray-800 rounded-lg px-4 py-3">
             <div>
               <p className="text-sm font-medium">{t('essential')}</p>
-              <p className="text-xs text-gray-500">{t('essentialDescription')}</p>
+              <p className="text-xs text-gray-400">{t('essentialDescription')}</p>
             </div>
             <span className="text-xs text-green-400 font-medium whitespace-nowrap ml-4">
               {t('alwaysActive')}
@@ -136,12 +136,13 @@ export function CookieBanner() {
           <div className="flex items-center justify-between bg-gray-800 rounded-lg px-4 py-3">
             <div>
               <p className="text-sm font-medium">{t('analytics')}</p>
-              <p className="text-xs text-gray-500">{t('analyticsDescription')}</p>
+              <p className="text-xs text-gray-400">{t('analyticsDescription')}</p>
             </div>
             <button
               onClick={() => setAnalyticsEnabled(!analyticsEnabled)}
               role="switch"
               aria-checked={analyticsEnabled}
+              aria-label={t('analytics')}
               className={`relative ml-4 inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900 ${
                 analyticsEnabled ? 'bg-brand-500' : 'bg-gray-600'
               }`}
