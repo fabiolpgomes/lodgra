@@ -11,12 +11,11 @@ const DEFAULTS = {
 }
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ orgId: string }> }) {
-  const auth = await requireRole(['admin'])
-  if (!auth.authorized) return auth.response!
-
   const orgId = (await params).orgId
   if (!orgId) return NextResponse.json({ error: 'Organization ID required' }, { status: 400 })
-  if (auth.organizationId !== orgId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  // For GET: Allow unauthenticated access (used by public booking pages)
+  // Organization data is public anyway
 
   const adminClient = createAdminClient()
   const { data: template, error } = await adminClient.from('organization_templates').select('*').eq('organization_id', orgId).single()

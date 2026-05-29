@@ -213,7 +213,13 @@ export async function POST(request: NextRequest) {
   // ── Calculate price (uses dynamic pricing rules, falls back to base_price) ──
 
   console.log('[Bookings API] Calculating price for property:', property.id)
-  const pricing = await getPriceForRangePublic(property.id, checkinDate, checkoutDate)
+  let pricing
+  try {
+    pricing = await getPriceForRangePublic(property.id, checkinDate, checkoutDate)
+  } catch (pricingError) {
+    console.error('[Bookings API] Erro ao calcular preço:', pricingError)
+    return NextResponse.json({ error: 'Erro ao calcular preço da reserva. Tente novamente.' }, { status: 500 })
+  }
   const totalAmount = pricing.total
   console.log('[Bookings API] Price calculated:', totalAmount)
 
@@ -361,11 +367,14 @@ export async function POST(request: NextRequest) {
   }
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error)
-    console.error('[Bookings API] Fatal error:', errorMessage, error)
+    const errorStack = error instanceof Error ? error.stack : ''
+    console.error('[Bookings API] Fatal error:', errorMessage)
+    console.error('[Bookings API] Stack:', errorStack)
+    console.error('[Bookings API] Full error:', error)
     return NextResponse.json(
       {
         error: 'Erro ao processar reserva',
-        details: process.env.NODE_ENV === 'development' ? errorMessage : undefined
+        details: process.env.NODE_ENV === 'development' ? `${errorMessage} | ${errorStack}` : undefined
       },
       { status: 500 }
     )
