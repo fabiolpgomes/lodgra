@@ -241,20 +241,6 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  // ── Fetch organization Stripe Connect info ─────────────────────────────────────
-
-  console.log('[Bookings API] Fetching organization:', property.organization_id)
-  const { data: org, error: orgError } = await adminClient
-    .from('organizations')
-    .select('stripe_pt_connect_id, stripe_pt_connect_onboarded')
-    .eq('id', property.organization_id)
-    .single()
-
-  if (orgError || !org) {
-    console.error('[Bookings API] Erro ao buscar organização:', orgError)
-    return NextResponse.json({ error: 'Erro ao processar reserva' }, { status: 500 })
-  }
-  console.log('[Bookings API] Organization found, connect_id:', org.stripe_pt_connect_id)
 
   // ── Create reservation (pending_payment) ────────────────────────────────────
 
@@ -332,18 +318,6 @@ export async function POST(request: NextRequest) {
         reservation_id: reservation.id,
         property_slug: slug as string,
       },
-    }
-
-    // Use Stripe Connect if the organization has completed onboarding
-    if (org.stripe_pt_connect_id && org.stripe_pt_connect_onboarded) {
-      const PLATFORM_FEE_RATE = 0.05 // 5% platform fee
-      sessionParams.payment_intent_data = {
-        application_fee_amount: Math.round(amountInCents * PLATFORM_FEE_RATE),
-        transfer_data: { destination: org.stripe_pt_connect_id },
-      }
-      console.log('[Bookings API] Using Stripe Connect:', org.stripe_pt_connect_id)
-    } else {
-      console.log('[Bookings API] No Connect account — direct payment to platform')
     }
 
     const session = await stripe.checkout.sessions.create(sessionParams)
