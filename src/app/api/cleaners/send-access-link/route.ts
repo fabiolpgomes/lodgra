@@ -47,16 +47,18 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate token: 32 bytes hex = 256 bits entropy
-    const token = Buffer.from(crypto.getRandomValues(new Uint8Array(32))).toString('hex');
+    const plainToken = Buffer.from(crypto.getRandomValues(new Uint8Array(32))).toString('hex');
+    const { hashToken } = await import('@/lib/cleaner-tokens');
+    const tokenHash = hashToken(plainToken);
     const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
 
-    // Store token in cleaner_access_tokens
+    // Store token hash in cleaner_access_tokens
     const { data: tokenRecord, error: tokenError } = await supabase
       .from('cleaner_access_tokens')
       .insert({
         cleaner_id: cleanerId,
         organization_id: organizationId,
-        token,
+        token_hash: tokenHash,
         expires_at: expiresAt,
         used_at: null,
         revoked_at: null,
@@ -74,7 +76,7 @@ export async function POST(request: NextRequest) {
 
     // Build access link
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://app.lodgra.io';
-    const accessLink = `${appUrl}/cleaner/auth?token=${token}`;
+    const accessLink = `${appUrl}/cleaner/auth?token=${plainToken}`;
 
     // Send WhatsApp message (mock for now, real API in Story 30.1)
     await sendWhatsAppMessage(
