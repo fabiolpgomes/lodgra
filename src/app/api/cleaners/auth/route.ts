@@ -1,12 +1,7 @@
-import { createClient } from '@supabase/supabase-js';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { SignJWT } from 'jose';
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-);
 
 const JWT_SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET_KEY || 'dev-secret-key-change-in-production'
@@ -23,12 +18,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const adminClient = createAdminClient();
+
     // Hash token to match stored token_hash
     const { hashToken } = await import('@/lib/cleaner-tokens');
     const tokenHash = hashToken(token);
 
     // Validate token in cleaner_access_tokens
-    const { data: tokenRecord, error: tokenError } = await supabase
+    const { data: tokenRecord, error: tokenError } = await adminClient
       .from('cleaner_access_tokens')
       .select('*')
       .eq('token_hash', tokenHash)
@@ -58,13 +55,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Mark token as used
-    await supabase
+    await adminClient
       .from('cleaner_access_tokens')
       .update({ used_at: new Date().toISOString() })
       .eq('id', tokenRecord.id);
 
     // Get cleaner details
-    const { data: cleaner, error: cleanerError } = await supabase
+    const { data: cleaner, error: cleanerError } = await adminClient
       .from('user_profiles')
       .select('id, organization_id, full_name')
       .eq('id', tokenRecord.cleaner_id)
