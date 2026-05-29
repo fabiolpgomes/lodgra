@@ -22,7 +22,7 @@ export const Navbar: React.FC = () => {
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
           <div className="flex items-center gap-2 flex-shrink-0">
-            <Logo size="md" variant="dark" />
+            <Logo size="md" />
           </div>
 
           {/* Center Navigation (desktop only) */}
