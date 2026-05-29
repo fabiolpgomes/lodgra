@@ -293,11 +293,20 @@ export async function POST(request: NextRequest) {
 
   // ── Create Stripe Checkout Session ──────────────────────────────────────────
 
-  const stripe = new Stripe(process.env.STRIPE_PT_SECRET_KEY!, {
+  const stripeKey = process.env.STRIPE_PT_SECRET_KEY || process.env.STRIPE_SECRET_KEY
+  if (!stripeKey) {
+    console.error('[Bookings API] Erro: STRIPE_PT_SECRET_KEY ou STRIPE_SECRET_KEY não configurados')
+    return NextResponse.json(
+      { error: 'Serviço de pagamento não configurado. Contacte o suporte.' },
+      { status: 500 }
+    )
+  }
+
+  const stripe = new Stripe(stripeKey, {
     apiVersion: '2026-02-25.clover',
   })
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL!
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://lodgra.io'
 
   try {
     console.log('[Bookings API] Creating Stripe checkout session')
