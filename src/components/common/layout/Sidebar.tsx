@@ -27,7 +27,7 @@ import { useRouter } from 'next/navigation'
 import type { UserProfile } from '@/lib/auth/getUserAccess'
 
 const PRIMARY_PATHS = [
-  { path: '/', label: 'Dashboard', icon: Home },
+  { path: '/dashboard', label: 'Dashboard', icon: Home },
   { path: '/properties', label: 'Propriedades', icon: Building2 },
   { path: '/reservations', label: 'Reservas', icon: Calendar },
   { path: '/expenses', label: 'Despesas', icon: Receipt },
@@ -113,8 +113,7 @@ export function Sidebar({ serverProfile }: SidebarProps) {
   ]
 
   function isActive(href: string) {
-    if (href === (prefix || '/')) return pathname === href
-    return pathname.startsWith(href)
+    return pathname === href || (href !== '/' && pathname.startsWith(href))
   }
 
   async function handleSignOut() {
