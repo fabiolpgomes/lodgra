@@ -4,9 +4,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { checkRateLimit } from '@/lib/rateLimit'
 import { differenceInDays, parseISO, isValid, isBefore, startOfDay } from 'date-fns'
 import { getPriceForRangePublic } from '@/lib/pricing/getPriceForRange'
-import { calculateCommission } from '@/lib/commission/service'
 import { formatMinimumStayError, detectLocale } from '@/lib/i18n/messages'
-import type { PlanType } from '@/lib/commission/types'
 
 // POST /api/public/bookings — create direct booking + Stripe Checkout Session
 // Public — no auth required
@@ -243,12 +241,12 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  // ── Fetch organization plan and calculate commission ───────────────────────────
+  // ── Fetch organization Stripe Connect info ─────────────────────────────────────
 
   console.log('[Bookings API] Fetching organization:', property.organization_id)
   const { data: org, error: orgError } = await adminClient
     .from('organizations')
-    .select('plan')
+    .select('stripe_pt_connect_id, stripe_pt_connect_onboarded')
     .eq('id', property.organization_id)
     .single()
 
@@ -256,13 +254,7 @@ export async function POST(request: NextRequest) {
     console.error('[Bookings API] Erro ao buscar organização:', orgError)
     return NextResponse.json({ error: 'Erro ao processar reserva' }, { status: 500 })
   }
-  console.log('[Bookings API] Organization found, plan:', org.plan)
-
-  // Calculate commission based on subscription plan
-  const commissionCalc = calculateCommission(totalAmount, (org.plan || 'essencial') as PlanType)
-  const commissionAmount = commissionCalc.commissionAmount
-  const commissionRate = commissionCalc.commissionRate
-  const commissionCalculatedAt = new Date().toISOString()
+  console.log('[Bookings API] Organization found, connect_id:', org.stripe_pt_connect_id)
 
   // ── Create reservation (pending_payment) ────────────────────────────────────
 
@@ -284,9 +276,6 @@ export async function POST(request: NextRequest) {
       guest_phone: (guest_phone as string) || null,
       num_guests: guests,
       organization_id: property.organization_id,
-      commission_amount: commissionAmount,
-      commission_rate: commissionRate,
-      commission_calculated_at: commissionCalculatedAt,
     })
     .select('id')
     .single()
@@ -316,14 +305,17 @@ export async function POST(request: NextRequest) {
 
   try {
     console.log('[Bookings API] Creating Stripe checkout session')
-    const session = await stripe.checkout.sessions.create({
+    const amountInCents = Math.round(totalAmount * 100)
+    const currency = (property.currency ?? 'EUR').toLowerCase()
+
+    const sessionParams: Stripe.Checkout.SessionCreateParams = {
       payment_method_types: ['card'],
       mode: 'payment',
       line_items: [
         {
           price_data: {
-            currency: (property.currency ?? 'EUR').toLowerCase(),
-            unit_amount: Math.round(totalAmount * 100),
+            currency,
+            unit_amount: amountInCents,
             product_data: {
               name: `${property.name} — ${nights} noite${nights !== 1 ? 's' : ''}`,
               description: `Check-in: ${checkin} · Check-out: ${checkout}`,
@@ -335,12 +327,26 @@ export async function POST(request: NextRequest) {
       customer_email: (guest_email as string).toLowerCase().trim(),
       success_url: `${appUrl}/p/${slug}/booking-confirmed?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${appUrl}/p/${slug}`,
-      expires_at: Math.floor(Date.now() / 1000) + 30 * 60, // 30 min expiry
+      expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
       metadata: {
         reservation_id: reservation.id,
         property_slug: slug as string,
       },
-    })
+    }
+
+    // Use Stripe Connect if the organization has completed onboarding
+    if (org.stripe_pt_connect_id && org.stripe_pt_connect_onboarded) {
+      const PLATFORM_FEE_RATE = 0.05 // 5% platform fee
+      sessionParams.payment_intent_data = {
+        application_fee_amount: Math.round(amountInCents * PLATFORM_FEE_RATE),
+        transfer_data: { destination: org.stripe_pt_connect_id },
+      }
+      console.log('[Bookings API] Using Stripe Connect:', org.stripe_pt_connect_id)
+    } else {
+      console.log('[Bookings API] No Connect account — direct payment to platform')
+    }
+
+    const session = await stripe.checkout.sessions.create(sessionParams)
 
     console.log('[Bookings API] Stripe session created:', session.id)
 
