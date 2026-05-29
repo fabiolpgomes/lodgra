@@ -93,7 +93,7 @@ export function PropertyCard({
           </div>
           <Link
             href={href}
-            className="shrink-0 bg-brand-800 hover:bg-brand-900 active:scale-95 text-white text-[12px] font-bold uppercase tracking-[1.2px] transition-all px-4 h-11 flex items-center justify-center rounded"
+            className="shrink-0 bg-brand-800 hover:bg-brand-900 active:scale-95 text-white text-[12px] font-bold uppercase tracking-[1.2px] transition-all px-4 min-h-[44px] flex items-center justify-center rounded"
           >
             Reservar
           </Link>

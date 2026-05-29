@@ -155,7 +155,7 @@ export function BookingPageClient({ orgSlug, orgName, orgLogoUrl, publicProfile,
   const primaryContacts = contactLinks.slice(0, 2)
   const secondaryContacts = contactLinks.slice(2)
 
-  const btnBase = 'inline-flex h-11 items-center gap-2 border border-gray-300 bg-white px-4 text-[12px] font-bold uppercase tracking-[1.2px] text-brand-800 transition-colors hover:border-brand-800 hover:bg-brand-800 hover:text-white active:scale-95'
+  const btnBase = 'inline-flex min-h-[44px] items-center gap-2 border border-gray-300 bg-white px-4 text-[12px] font-bold uppercase tracking-[1.2px] text-brand-800 transition-colors hover:border-brand-800 hover:bg-brand-800 hover:text-white active:scale-95'
 
   return (
     <div className="min-h-screen bg-gray-50 font-light text-gray-700">
@@ -163,7 +163,7 @@ export function BookingPageClient({ orgSlug, orgName, orgLogoUrl, publicProfile,
       {/* ── Header ─────────────────────────────────────────── */}
       <header className="bg-white border-b border-gray-200 px-4 sm:px-6 h-14 sm:h-[72px] flex items-center sticky top-0 z-40">
         <div className="w-full max-w-[1440px] mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 sm:gap-3 shrink-0">
+          <Link href="/" className="flex items-center gap-2 sm:gap-3 shrink-0 min-h-[44px]">
             <Logo size="sm" />
             <span className="text-[16px] sm:text-[18px] font-bold tracking-tight text-gray-900">LODGRA</span>
           </Link>
@@ -231,7 +231,7 @@ export function BookingPageClient({ orgSlug, orgName, orgLogoUrl, publicProfile,
               {secondaryContacts.length > 0 && (
                 <button
                   onClick={() => setContactExpanded(v => !v)}
-                  className="h-11 w-11 shrink-0 flex items-center justify-center border border-gray-300 bg-white text-gray-600 hover:border-brand-800 hover:text-brand-800 transition-colors"
+                  className="min-h-[44px] min-w-[44px] shrink-0 flex items-center justify-center border border-gray-300 bg-white text-gray-600 hover:border-brand-800 hover:text-brand-800 transition-colors"
                   aria-label="Ver mais contactos"
                 >
                   <ChevronDown className={`h-4 w-4 transition-transform ${contactExpanded ? 'rotate-180' : ''}`} />

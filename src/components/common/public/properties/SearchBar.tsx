@@ -43,8 +43,7 @@ function validateSearchParams(params: SearchParams, hideLocation: boolean): Vali
 }
 
 const inputClass = (hasError: boolean) =>
-  `w-full px-4 py-4 text-[16px] font-light border focus:outline-none focus:ring-2 focus:ring-brand-800 focus:border-transparent transition-colors rounded-none appearance-none bg-white
-  ${hasError ? 'border-red-500' : 'border-gray-300 text-gray-900'}`
+  `w-full px-4 py-[13px] min-h-[44px] text-[16px] font-light border focus:outline-none focus:ring-2 focus:ring-brand-800 focus:border-transparent transition-colors rounded-none appearance-none bg-white ${hasError ? 'border-red-500' : 'border-gray-300 text-gray-900'}`
 
 export function SearchBar({ onSearch, isLoading = false, hideLocation = false }: SearchBarProps) {
   const [location, setLocation] = useState('')
