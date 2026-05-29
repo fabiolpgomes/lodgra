@@ -122,7 +122,7 @@ export default async function UsersPage({
                               profile.role === 'admin'
                                 ? 'bg-red-100 text-red-800 hover:bg-red-100'
                                 : profile.role === 'gestor'
-                                ? 'bg-brand-100 text-brand-800 hover:bg-blue-100'
+                                ? 'bg-brand-100 text-brand-800 hover:bg-brand-100'
                                 : profile.role === 'viewer'
                                 ? 'bg-gray-100 text-gray-800 hover:bg-gray-100'
                                 : profile.role === 'guest'
@@ -163,7 +163,7 @@ export default async function UsersPage({
                             asChild
                             variant="ghost"
                             size="sm"
-                            className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50"
+                            className="p-1.5 text-gray-500 hover:text-brand-600 hover:bg-brand-50"
                             title="Editar"
                           >
                             <Link href={`/admin/users/${profile.id}/edit`}>

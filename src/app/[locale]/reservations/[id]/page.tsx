@@ -213,7 +213,7 @@ export default async function ReservationDetailsPage({
                     <div>
                       <Link
                         href={`${prefix}/properties/${property.id}`}
-                        className="text-xl font-semibold text-brand-600 hover:text-blue-700"
+                        className="text-xl font-semibold text-brand-600 hover:text-brand-700"
                       >
                         {property.name}
                       </Link>
@@ -287,7 +287,7 @@ export default async function ReservationDetailsPage({
                     {guest.email && (
                       <div className="flex items-center gap-2 text-gray-700">
                         <Mail className="h-4 w-4 text-gray-500" />
-                        <a href={`mailto:${guest.email}`} className="hover:text-blue-600">
+                        <a href={`mailto:${guest.email}`} className="hover:text-brand-600">
                           {guest.email}
                         </a>
                       </div>
@@ -295,7 +295,7 @@ export default async function ReservationDetailsPage({
                     {guest.phone && (
                       <div className="flex items-center gap-2 text-gray-700">
                         <Phone className="h-4 w-4 text-gray-500" />
-                        <a href={`tel:${guest.phone}`} className="hover:text-blue-600">
+                        <a href={`tel:${guest.phone}`} className="hover:text-brand-600">
                           {guest.phone}
                         </a>
                       </div>
@@ -405,7 +405,7 @@ export default async function ReservationDetailsPage({
                 />
                 <Link
                   href={`${prefix}/calendar`}
-                  className="w-full flex items-center gap-2 px-3 py-2 text-brand-700 hover:bg-blue-100 rounded transition-colors"
+                  className="w-full flex items-center gap-2 px-3 py-2 text-brand-700 hover:bg-brand-100 rounded transition-colors"
                 >
                   <Calendar className="h-4 w-4" />
                   Ver no calendário

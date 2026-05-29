@@ -43,7 +43,7 @@ export default function RequestLinkPage() {
         {/* Button */}
         <Link
           href="/"
-          className="block w-full px-6 py-3 bg-brand-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-colors"
+          className="block w-full px-6 py-3 bg-brand-600 text-white rounded-xl font-bold hover:bg-brand-700 transition-colors"
         >
           Voltar à Página Inicial
         </Link>

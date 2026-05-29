@@ -122,7 +122,7 @@ export default function CleanerAuthPage() {
           <div className="space-y-3">
             <Link
               href="/cleaner/request-link"
-              className="block w-full px-6 py-3 bg-brand-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-colors"
+              className="block w-full px-6 py-3 bg-brand-600 text-white rounded-xl font-bold hover:bg-brand-700 transition-colors"
             >
               Solicitar Novo Link
             </Link>

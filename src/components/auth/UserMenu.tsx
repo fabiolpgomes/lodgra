@@ -91,7 +91,7 @@ export function UserMenu() {
       {/* Account Button (mobile) */}
       <Link
         href={`${prefix}/account`}
-        className="md:hidden p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg"
+        className="md:hidden p-2 text-gray-600 hover:text-brand-600 hover:bg-brand-50 rounded-lg"
         title="Minha Conta"
       >
         <KeyRound className="h-4 w-4" />

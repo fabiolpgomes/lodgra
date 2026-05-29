@@ -120,7 +120,7 @@ export function ExpenseDocuments({ expenseId, canEdit }: ExpenseDocumentsProps) 
                       size="sm"
                       onClick={() => handleDownload(doc)}
                       title="Download"
-                      className="text-brand-600 hover:text-blue-700 hover:bg-blue-50"
+                      className="text-brand-600 hover:text-brand-700 hover:bg-brand-50"
                     >
                       <Download className="h-4 w-4" />
                     </Button>

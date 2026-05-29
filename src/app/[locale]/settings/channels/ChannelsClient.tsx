@@ -107,7 +107,7 @@ function ConnectForm({
             placeholder="12345678"
             required
             disabled={loading}
-            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 disabled:opacity-50"
           />
         </div>
         <div>
@@ -125,7 +125,7 @@ function ConnectForm({
             placeholder="sk_live_..."
             required
             disabled={loading}
-            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 disabled:opacity-50"
             autoComplete="new-password"
           />
         </div>
@@ -148,7 +148,7 @@ function ConnectForm({
       <button
         type="submit"
         disabled={loading || !externalId.trim() || !apiKey.trim()}
-        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-brand-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-brand-600 rounded-lg hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
         {loading ? (
           <Loader2 className="h-4 w-4 animate-spin" />
@@ -205,7 +205,7 @@ function SyncButton({
       <button
         onClick={handleSync}
         disabled={loading}
-        className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-brand-700 border border-brand-300 rounded-lg hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-brand-700 border border-brand-300 rounded-lg hover:bg-brand-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
         <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
         {loading ? 'A sincronizar...' : 'Sincronizar agora'}

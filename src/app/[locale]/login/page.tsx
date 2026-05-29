@@ -134,7 +134,7 @@ export default function LoginPage() {
 
             {/* Esqueci minha senha */}
             <div className="text-right">
-              <Link href="/auth/reset-password" className="text-sm text-brand-600 hover:text-blue-700 font-medium">
+              <Link href="/auth/reset-password" className="text-sm text-brand-600 hover:text-brand-700 font-medium">
                 Esqueci minha senha
               </Link>
             </div>
@@ -155,7 +155,7 @@ export default function LoginPage() {
           <div className="mt-6 text-center text-sm text-gray-600">
             <p>
               Não tem uma conta?{' '}
-              <Link href={locale ? `/${locale}/register` : '/register'} className="text-brand-600 hover:text-blue-700 font-medium">
+              <Link href={locale ? `/${locale}/register` : '/register'} className="text-brand-600 hover:text-brand-700 font-medium">
                 {tCommon('ok')}
               </Link>
             </p>

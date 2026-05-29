@@ -28,7 +28,7 @@ export default function CalendarError({
             <p className="text-sm text-gray-600 mb-6">{error.message || 'Erro desconhecido'}</p>
             <button
               onClick={reset}
-              className="px-4 py-2 bg-brand-600 text-white rounded hover:bg-blue-700"
+              className="px-4 py-2 bg-brand-600 text-white rounded hover:bg-brand-700"
             >
               Tentar Novamente
             </button>

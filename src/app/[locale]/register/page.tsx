@@ -249,7 +249,7 @@ export default function RegisterPage() {
                 id="acceptTerms"
                 checked={acceptedTerms}
                 onChange={(e) => setAcceptedTerms(e.target.checked)}
-                className="mt-1 h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-blue-500"
+                className="mt-1 h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500"
               />
               <label htmlFor="acceptTerms" className="text-sm text-gray-600 leading-tight">
                 {tLegal('acceptTerms')}{' '}
@@ -279,7 +279,7 @@ export default function RegisterPage() {
           <div className="mt-6 text-center text-sm text-gray-600">
             <p>
               Já tem uma conta?{' '}
-              <Link href="/login" className="text-brand-600 hover:text-blue-700 font-medium">
+              <Link href="/login" className="text-brand-600 hover:text-brand-700 font-medium">
                 Entrar
               </Link>
             </p>

@@ -144,7 +144,7 @@ export function EditReservationForm({ reservation, listings }: EditReservationFo
           value={formData.property_listing_id}
           onChange={handleChange}
           required
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
         >
           <option value="">Selecione...</option>
           {listings.map((listing) => (
@@ -283,7 +283,7 @@ export function EditReservationForm({ reservation, listings }: EditReservationFo
               value={formData.status}
               onChange={handleChange}
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
             >
               <option value="pending">Pendente</option>
               <option value="confirmed">Confirmada</option>

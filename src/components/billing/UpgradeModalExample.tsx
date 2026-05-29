@@ -41,13 +41,13 @@ export function UpgradeModalExample() {
       <div className="space-y-2">
         <button
           onClick={() => modal.openForFeature('cleaner_portal')}
-          className="w-full rounded bg-brand-500 px-4 py-2 text-white hover:bg-blue-600"
+          className="w-full rounded bg-brand-500 px-4 py-2 text-white hover:bg-brand-600"
         >
           Test Feature Block: Cleaner Portal
         </button>
         <button
           onClick={() => modal.openForFeature('api_access')}
-          className="w-full rounded bg-brand-500 px-4 py-2 text-white hover:bg-blue-600"
+          className="w-full rounded bg-brand-500 px-4 py-2 text-white hover:bg-brand-600"
         >
           Test Feature Block: API Access
         </button>

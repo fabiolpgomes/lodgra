@@ -164,7 +164,7 @@ export default function CleaningPhotoUploader({ taskId, onUploadComplete }: Prop
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
-        <label className="flex items-center gap-2 px-4 py-2 bg-brand-50 border border-brand-300 rounded-lg cursor-pointer hover:bg-blue-100">
+        <label className="flex items-center gap-2 px-4 py-2 bg-brand-50 border border-brand-300 rounded-lg cursor-pointer hover:bg-brand-100">
           <ImagePlus size={20} className="text-brand-600" />
           <span className="text-sm font-medium">{t('add_photos')}</span>
           <input

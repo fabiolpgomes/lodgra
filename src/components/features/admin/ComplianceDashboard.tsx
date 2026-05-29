@@ -154,7 +154,7 @@ export function ComplianceDashboard() {
           </div>
           <button
             onClick={handleCsvExport}
-            className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-white bg-brand-600 rounded-lg hover:bg-blue-700 transition-colors"
+            className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-white bg-brand-600 rounded-lg hover:bg-brand-700 transition-colors"
           >
             <Download className="h-4 w-4" />
             {t('dashboard.summary.exportCsv')}

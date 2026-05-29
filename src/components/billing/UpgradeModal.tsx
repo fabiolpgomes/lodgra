@@ -98,7 +98,7 @@ export function UpgradeModal({
                 onAddExtra?.()
                 handleClose()
               }}
-              className="w-full transform rounded-lg border-2 border-brand-500 bg-brand-50 p-4 text-left transition-all hover:border-blue-600 hover:bg-blue-100 active:scale-95"
+              className="w-full transform rounded-lg border-2 border-brand-500 bg-brand-50 p-4 text-left transition-all hover:border-brand-600 hover:bg-brand-100 active:scale-95"
             >
               <div className="flex items-start justify-between">
                 <div>

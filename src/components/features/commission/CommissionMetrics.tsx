@@ -66,7 +66,7 @@ export function CommissionMetrics() {
           <p className="text-red-600 text-sm font-medium">{error || 'Failed to load metrics'}</p>
           <button
             onClick={() => window.location.reload()}
-            className="mt-2 px-4 py-2 bg-brand-600 text-white text-sm rounded hover:bg-blue-700"
+            className="mt-2 px-4 py-2 bg-brand-600 text-white text-sm rounded hover:bg-brand-700"
           >
             Retry
           </button>

@@ -247,7 +247,7 @@ export function PropertyListingsManager({ propertyId }: { propertyId: string }) 
                   variant="outline"
                   size="sm"
                   onClick={() => setEditingListing(listing)}
-                  className="text-brand-700 border-brand-300 hover:bg-blue-50"
+                  className="text-brand-700 border-brand-300 hover:bg-brand-50"
                   title="Editar"
                 >
                   <Edit className="h-4 w-4 mr-1" />
@@ -397,7 +397,7 @@ function ListingModal({
               id="platform_id"
               name="platform_id"
               defaultValue={listing?.platform_id || ''}
-              className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
             >
               <option value="">Manual / Outro</option>
               {platforms.map((platform) => (
@@ -449,7 +449,7 @@ function ListingModal({
               id="sync_enabled"
               name="sync_enabled"
               defaultChecked={listing?.sync_enabled ?? true}
-              className="w-4 h-4 text-brand-600 border-gray-300 rounded focus:ring-blue-500"
+              className="w-4 h-4 text-brand-600 border-gray-300 rounded focus:ring-brand-500"
             />
             <Label htmlFor="sync_enabled">
               Habilitar sincronização automática

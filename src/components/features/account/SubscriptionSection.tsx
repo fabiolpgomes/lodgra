@@ -90,7 +90,7 @@ export function SubscriptionSection({
             {currentPlan !== 'business' && isActive && (
               <button
                 onClick={() => setUpgradeModalOpen(true)}
-                className="inline-flex items-center gap-1 text-sm text-brand-600 hover:text-blue-700 font-medium"
+                className="inline-flex items-center gap-1 text-sm text-brand-600 hover:text-brand-700 font-medium"
               >
                 Atualizar Plano <ArrowRight className="h-4 w-4" />
               </button>

@@ -140,7 +140,7 @@ export default function SubscriptionPage() {
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
-          <Link href={`/${locale}/billing`} className="text-brand-600 hover:text-blue-700 mb-4 inline-block">
+          <Link href={`/${locale}/billing`} className="text-brand-600 hover:text-brand-700 mb-4 inline-block">
             ← Voltar ao Faturamento
           </Link>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Escolher Plano</h1>
@@ -188,7 +188,7 @@ export default function SubscriptionPage() {
                   <button
                     onClick={() => handlePlanChange(plan.id)}
                     disabled={isSubmitting}
-                    className="w-full px-4 py-2 bg-brand-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium mb-6"
+                    className="w-full px-4 py-2 bg-brand-600 text-white rounded hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium mb-6"
                   >
                     {isSubmitting ? 'Processando...' : 'Escolher'}
                   </button>

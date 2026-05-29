@@ -200,7 +200,7 @@ export default function NewUserPage() {
                 id="accessAllProperties"
                 checked={accessAllProperties}
                 onChange={(e) => setAccessAllProperties(e.target.checked)}
-                className="h-4 w-4 text-brand-600 border-gray-300 rounded focus:ring-blue-500"
+                className="h-4 w-4 text-brand-600 border-gray-300 rounded focus:ring-brand-500"
               />
               <label htmlFor="accessAllProperties" className="text-sm font-medium text-gray-700">
                 Acesso a todas as propriedades
@@ -221,7 +221,7 @@ export default function NewUserPage() {
                         type="checkbox"
                         checked={selectedProperties.includes(property.id)}
                         onChange={() => toggleProperty(property.id)}
-                        className="h-4 w-4 text-brand-600 border-gray-300 rounded focus:ring-blue-500"
+                        className="h-4 w-4 text-brand-600 border-gray-300 rounded focus:ring-brand-500"
                       />
                       <span className="text-sm text-gray-700">{property.name}</span>
                     </label>
@@ -279,7 +279,7 @@ export default function NewUserPage() {
                   </code>
                   <button
                     onClick={copyToClipboard}
-                    className="px-3 py-2 bg-brand-50 text-brand-600 hover:bg-blue-100 border border-brand-200 rounded transition-colors"
+                    className="px-3 py-2 bg-brand-50 text-brand-600 hover:bg-brand-100 border border-brand-200 rounded transition-colors"
                   >
                     {copied ? (
                       <Check className="h-4 w-4" />

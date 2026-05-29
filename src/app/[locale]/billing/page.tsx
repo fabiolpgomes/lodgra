@@ -114,7 +114,7 @@ export default function BillingPage() {
           <p className="text-red-600 mb-4">Erro ao carregar dados: {error}</p>
           <button
             onClick={() => router.refresh()}
-            className="px-4 py-2 bg-brand-600 text-white rounded hover:bg-blue-700"
+            className="px-4 py-2 bg-brand-600 text-white rounded hover:bg-brand-700"
           >
             Tentar Novamente
           </button>
@@ -165,7 +165,7 @@ export default function BillingPage() {
 
               <Link
                 href={`/${locale}/billing/subscription`}
-                className="inline-block px-4 py-2 bg-brand-600 text-white rounded hover:bg-blue-700"
+                className="inline-block px-4 py-2 bg-brand-600 text-white rounded hover:bg-brand-700"
               >
                 Alterar Plano
               </Link>
@@ -175,7 +175,7 @@ export default function BillingPage() {
               <p className="text-gray-600 mb-4">Você não tem uma subscrição ativa</p>
               <Link
                 href={`/${locale}/billing/subscription`}
-                className="inline-block px-4 py-2 bg-brand-600 text-white rounded hover:bg-blue-700"
+                className="inline-block px-4 py-2 bg-brand-600 text-white rounded hover:bg-brand-700"
               >
                 Escolher Plano
               </Link>
@@ -189,7 +189,7 @@ export default function BillingPage() {
             <h2 className="text-xl font-semibold text-gray-900">Faturas Recentes</h2>
             <Link
               href={`/${locale}/billing/invoices`}
-              className="text-brand-600 hover:text-blue-700 text-sm"
+              className="text-brand-600 hover:text-brand-700 text-sm"
             >
               Ver Todas →
             </Link>
@@ -244,7 +244,7 @@ export default function BillingPage() {
                             href={invoice.pdf_url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-brand-600 hover:text-blue-700"
+                            className="text-brand-600 hover:text-brand-700"
                           >
                             PDF
                           </a>

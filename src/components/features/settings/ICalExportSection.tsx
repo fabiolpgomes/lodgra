@@ -77,7 +77,7 @@ export function ICalExportSection({ properties, appUrl }: ICalExportSectionProps
                     </code>
                     <button
                       onClick={() => copyToClipboard(exportUrl)}
-                      className="px-3 py-2 bg-brand-100 text-brand-700 rounded hover:bg-blue-200 flex items-center gap-1 text-sm font-medium"
+                      className="px-3 py-2 bg-brand-100 text-brand-700 rounded hover:bg-brand-200 flex items-center gap-1 text-sm font-medium"
                     >
                       <Copy className="h-3 w-3" />
                       Copiar

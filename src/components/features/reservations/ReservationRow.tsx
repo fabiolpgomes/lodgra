@@ -123,7 +123,7 @@ export function ReservationRow({ reservation }: ReservationRowProps) {
       </td>
 
       <td className="px-4 py-3 whitespace-nowrap text-right">
-        <span className="text-xs font-medium text-brand-600 hover:text-blue-900">
+        <span className="text-xs font-medium text-brand-600 hover:text-brand-900">
           Ver →
         </span>
       </td>

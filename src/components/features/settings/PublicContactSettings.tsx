@@ -101,7 +101,7 @@ export function PublicContactSettings({ organizationId, initialProfile }: Props)
             value={form.whatsapp_number}
             onChange={(event) => updateField('whatsapp_number', event.target.value)}
             placeholder="+55 11 99999-9999"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
           />
         </label>
 
@@ -114,7 +114,7 @@ export function PublicContactSettings({ organizationId, initialProfile }: Props)
             value={form.contact_email}
             onChange={(event) => updateField('contact_email', event.target.value)}
             placeholder="reservas@empresa.com"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
           />
         </label>
 
@@ -127,7 +127,7 @@ export function PublicContactSettings({ organizationId, initialProfile }: Props)
             value={form.contact_phone}
             onChange={(event) => updateField('contact_phone', event.target.value)}
             placeholder="+351 900 000 000"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
           />
         </label>
       </div>
@@ -139,7 +139,7 @@ export function PublicContactSettings({ organizationId, initialProfile }: Props)
           onChange={(event) => updateField('public_contact_message', event.target.value)}
           maxLength={180}
           placeholder="Fale connosco para reservas, dúvidas ou condições especiais."
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
         />
       </label>
 
@@ -150,7 +150,7 @@ export function PublicContactSettings({ organizationId, initialProfile }: Props)
             value={form.website_url}
             onChange={(event) => updateField('website_url', event.target.value)}
             placeholder="https://empresa.com"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
           />
         </label>
 
@@ -160,7 +160,7 @@ export function PublicContactSettings({ organizationId, initialProfile }: Props)
             value={form.instagram_url}
             onChange={(event) => updateField('instagram_url', event.target.value)}
             placeholder="https://instagram.com/empresa"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
           />
         </label>
       </div>
@@ -172,7 +172,7 @@ export function PublicContactSettings({ organizationId, initialProfile }: Props)
             value={form.address_line}
             onChange={(event) => updateField('address_line', event.target.value)}
             placeholder="Rua, número, bairro"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
           />
         </label>
 
@@ -182,7 +182,7 @@ export function PublicContactSettings({ organizationId, initialProfile }: Props)
             value={form.city}
             onChange={(event) => updateField('city', event.target.value)}
             placeholder="Lisboa"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
           />
         </label>
 
@@ -192,7 +192,7 @@ export function PublicContactSettings({ organizationId, initialProfile }: Props)
             value={form.country}
             onChange={(event) => updateField('country', event.target.value)}
             placeholder="Portugal"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
           />
         </label>
       </div>
@@ -204,7 +204,7 @@ export function PublicContactSettings({ organizationId, initialProfile }: Props)
         type="button"
         onClick={save}
         disabled={saving}
-        className="inline-flex items-center gap-2 rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+        className="inline-flex items-center gap-2 rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
       >
         <Save className="h-4 w-4" />
         {saving ? 'A guardar...' : 'Guardar contatos públicos'}

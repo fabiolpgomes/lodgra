@@ -113,7 +113,7 @@ export default function DocsPage() {
           <input
             type="text"
             placeholder="Buscar na documentação..."
-            className="w-full px-6 py-3 rounded-lg border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-900"
+            className="w-full px-6 py-3 rounded-lg border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-900"
           />
         </div>
       </section>

@@ -85,7 +85,7 @@ export default function ResetPasswordPage() {
 
             <Link
               href="/login"
-              className="inline-block w-full py-2 px-4 bg-brand-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+              className="inline-block w-full py-2 px-4 bg-brand-600 text-white font-medium rounded-lg hover:bg-brand-700 transition-colors"
             >
               Voltar ao Login
             </Link>
@@ -147,7 +147,7 @@ export default function ResetPasswordPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2.5 px-4 bg-brand-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+              className="w-full py-2.5 px-4 bg-brand-600 text-white font-medium rounded-lg hover:bg-brand-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
             >
               {loading ? 'Enviando...' : 'Enviar Link de Reset'}
             </button>

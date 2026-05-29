@@ -124,7 +124,7 @@ export function ReportsFilters({ properties, startDate, endDate, propertyId, act
             id="property_id"
             value={localPropertyId}
             onChange={(e) => setLocalPropertyId(e.target.value)}
-            className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
           >
             <option value="">Todas as propriedades</option>
             {properties.map((property) => (

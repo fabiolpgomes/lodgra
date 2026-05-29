@@ -250,7 +250,7 @@ export default function SetPasswordPage() {
 
               <p className="text-center text-sm text-gray-600 mt-6">
                 Já tem uma conta?{' '}
-                <Link href="/login" className="text-brand-600 hover:text-blue-700 font-medium">
+                <Link href="/login" className="text-brand-600 hover:text-brand-700 font-medium">
                   Faça login
                 </Link>
               </p>

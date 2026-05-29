@@ -123,7 +123,7 @@ export default function SelectPlanPage() {
               className={`rounded-lg border-2 p-8 cursor-pointer transition-all ${
                 selectedPlan === plan.id
                   ? 'border-brand-900 bg-brand-50 ring-2 ring-brand-900'
-                  : 'border-gray-200 bg-white hover:border-blue-500'
+                  : 'border-gray-200 bg-white hover:border-brand-500'
               } ${plan.id === 'expansao' ? 'md:scale-105 md:shadow-xl' : ''}`}
             >
               {/* Badge for recommended */}
@@ -178,7 +178,7 @@ export default function SelectPlanPage() {
           <Button
             onClick={handleSelectPlan}
             disabled={isLoading}
-            className="flex-1 bg-brand-900 hover:bg-blue-800 text-white font-semibold py-3 rounded-lg"
+            className="flex-1 bg-brand-900 hover:bg-brand-800 text-white font-semibold py-3 rounded-lg"
           >
             {isLoading ? 'Redirecionando...' : `Começar com ${PLANS.find(p => p.id === selectedPlan)?.name}`}
           </Button>

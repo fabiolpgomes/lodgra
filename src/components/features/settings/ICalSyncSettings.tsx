@@ -120,7 +120,7 @@ export function ICalSyncSettings({ listings, propertyId }: ICalSyncSettingsProps
                     [listing.id]: { ...prev[listing.id], url: e.target.value }
                   }))}
                   placeholder="https://..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
                 />
               </div>
 
@@ -140,7 +140,7 @@ export function ICalSyncSettings({ listings, propertyId }: ICalSyncSettingsProps
               <div className="flex gap-2">
                 <button
                   onClick={() => handleSave(listing.id)}
-                  className="px-3 py-1.5 text-sm font-medium bg-brand-600 text-white rounded-lg hover:bg-blue-700"
+                  className="px-3 py-1.5 text-sm font-medium bg-brand-600 text-white rounded-lg hover:bg-brand-700"
                 >
                   Guardar
                 </button>

@@ -161,7 +161,7 @@ export function SyncPanel({ properties, listings }: SyncPanelProps) {
                 type="checkbox"
                 checked={selectedProperties.size === syncableProperties.length}
                 onChange={toggleAll}
-                className="h-4 w-4 text-brand-600 rounded border-gray-300 focus:ring-blue-500"
+                className="h-4 w-4 text-brand-600 rounded border-gray-300 focus:ring-brand-500"
               />
               <span className="text-sm font-semibold text-gray-900">
                 Selecionar Todas ({syncableProperties.length})
@@ -188,7 +188,7 @@ export function SyncPanel({ properties, listings }: SyncPanelProps) {
                         type="checkbox"
                         checked={selectedProperties.has(property.id)}
                         onChange={() => toggleProperty(property.id)}
-                        className="h-4 w-4 text-brand-600 rounded border-gray-300 focus:ring-blue-500"
+                        className="h-4 w-4 text-brand-600 rounded border-gray-300 focus:ring-brand-500"
                       />
                       <div>
                         <p className="text-sm font-medium text-gray-900">{property.name}</p>

@@ -115,7 +115,7 @@ export function Step3ICalSetup({ propertyId, onFinish, checkoutLoading, checkout
         type="button"
         variant="ghost"
         onClick={() => setShowInstructions(!showInstructions)}
-        className="flex items-center gap-2 text-sm text-brand-600 hover:text-blue-700 mb-4 px-0"
+        className="flex items-center gap-2 text-sm text-brand-600 hover:text-brand-700 mb-4 px-0"
       >
         <ExternalLink className="h-4 w-4" />
         {showInstructions ? 'Ocultar instruções' : 'Como encontrar o URL iCal?'}

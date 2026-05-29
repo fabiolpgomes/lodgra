@@ -276,7 +276,7 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
                 id="accessAllProperties"
                 checked={accessAllProperties}
                 onChange={(e) => setAccessAllProperties(e.target.checked)}
-                className="h-4 w-4 text-brand-600 border-gray-300 rounded focus:ring-blue-500"
+                className="h-4 w-4 text-brand-600 border-gray-300 rounded focus:ring-brand-500"
               />
               <label htmlFor="accessAllProperties" className="text-sm font-medium text-gray-700">
                 Acesso a todas as propriedades
@@ -297,7 +297,7 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
                         type="checkbox"
                         checked={selectedProperties.includes(property.id)}
                         onChange={() => toggleProperty(property.id)}
-                        className="h-4 w-4 text-brand-600 border-gray-300 rounded focus:ring-blue-500"
+                        className="h-4 w-4 text-brand-600 border-gray-300 rounded focus:ring-brand-500"
                       />
                       <span className="text-sm text-gray-700">{property.name}</span>
                     </label>

@@ -318,18 +318,18 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
                   return (
                     <tr key={expense.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        <Link href={`${prefix}/expenses/${expense.id}`} className="hover:text-blue-600">
+                        <Link href={`${prefix}/expenses/${expense.id}`} className="hover:text-brand-600">
                           {new Date(expense.expense_date).toLocaleDateString('pt-BR')}
                         </Link>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <Link href={`${prefix}/expenses/${expense.id}`} className="text-sm font-medium text-gray-900 hover:text-blue-600">
+                        <Link href={`${prefix}/expenses/${expense.id}`} className="text-sm font-medium text-gray-900 hover:text-brand-600">
                           {property?.name}
                         </Link>
                       </td>
                       <td className="px-6 py-4">
                         <Link href={`${prefix}/expenses/${expense.id}`} className="block">
-                          <div className="text-sm text-gray-900 hover:text-blue-600">{expense.description}</div>
+                          <div className="text-sm text-gray-900 hover:text-brand-600">{expense.description}</div>
                           {expense.notes && <div className="text-xs text-gray-600 mt-1">{expense.notes}</div>}
                         </Link>
                       </td>
@@ -345,7 +345,7 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
                         <div className="flex items-center justify-end gap-2">
                           <Link
                             href={`${prefix}/expenses/${expense.id}`}
-                            className="p-1.5 text-gray-500 hover:text-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
+                            className="p-1.5 text-gray-500 hover:text-brand-600 rounded-lg hover:bg-brand-50 transition-colors"
                             title="Ver detalhes"
                           >
                             <Eye className="h-4 w-4" />

@@ -636,7 +636,7 @@ export default async function DashboardPage({
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <Link
               href={`/${locale}/properties/new`}
-              className="flex items-center gap-3 p-3 sm:p-4 min-h-[48px] border border-gray-100 rounded-xl bg-gradient-to-br from-white to-brand-50/50 hover:border-blue-200 hover:from-blue-50 hover:to-blue-100/50 hover:-translate-y-0.5 hover:shadow-sm transition-all duration-150"
+              className="flex items-center gap-3 p-3 sm:p-4 min-h-[48px] border border-gray-100 rounded-xl bg-gradient-to-br from-white to-brand-50/50 hover:border-brand-200 hover:from-brand-50 hover:to-brand-100/50 hover:-translate-y-0.5 hover:shadow-sm transition-all duration-150"
             >
               <div className="p-2.5 bg-brand-100 rounded-lg">
                 <Home className="h-5 w-5 text-brand-600" />

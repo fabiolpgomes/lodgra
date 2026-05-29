@@ -156,7 +156,7 @@ export function CleaningChecklistCard({ checklist, onUpdate, onDelete }: Props) 
                 className={`group/item w-full flex items-center gap-4 p-4 rounded-2xl text-left transition-all active:scale-[0.98] ${
                   item.is_done
                     ? 'bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-100/50'
-                    : 'bg-lodgra-gray dark:bg-zinc-800 hover:bg-white border border-transparent hover:border-blue-100'
+                    : 'bg-lodgra-gray dark:bg-zinc-800 hover:bg-white border border-transparent hover:border-brand-100'
                 }`}
               >
                 <div className={`h-6 w-6 rounded-full flex items-center justify-center transition-all ${

@@ -97,7 +97,7 @@ export function OwnersFilter({ owners, countMap, canEdit, canDelete, pagination 
                 key={f.value}
                 size="sm"
                 variant={statusFilter === f.value ? 'default' : 'ghost'}
-                className={statusFilter === f.value ? 'bg-brand-600 text-white hover:bg-blue-700' : 'text-gray-600'}
+                className={statusFilter === f.value ? 'bg-brand-600 text-white hover:bg-brand-700' : 'text-gray-600'}
                 onClick={() => setStatusFilter(f.value)}
               >
                 {f.label}
@@ -207,7 +207,7 @@ export function OwnersFilter({ owners, countMap, canEdit, canDelete, pagination 
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right">
                       <div className="flex items-center justify-end gap-2">
-                        <Button asChild variant="ghost" size="sm" className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50" title="Ver detalhes">
+                        <Button asChild variant="ghost" size="sm" className="p-1.5 text-gray-500 hover:text-brand-600 hover:bg-brand-50" title="Ver detalhes">
                           <Link href={`/owners/${owner.id}`}><Eye className="h-4 w-4" /></Link>
                         </Button>
                         {canEdit && (

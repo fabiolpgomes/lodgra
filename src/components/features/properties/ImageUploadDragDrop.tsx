@@ -226,7 +226,7 @@ export function ImageUploadDragDrop({
               e.stopPropagation();
               handleClick();
             }}
-            className="mx-auto px-6 py-2 bg-brand-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm"
+            className="mx-auto px-6 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors font-medium text-sm"
           >
             📁 Selecionar Fotos
           </button>
@@ -269,7 +269,7 @@ export function ImageUploadDragDrop({
                 error: undefined,
               }));
             }}
-            className="mt-2 text-sm text-brand-600 hover:text-blue-700 underline"
+            className="mt-2 text-sm text-brand-600 hover:text-brand-700 underline"
           >
             Try again
           </button>

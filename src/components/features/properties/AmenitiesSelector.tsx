@@ -134,7 +134,7 @@ export function AmenitiesSelector({ propertyId }: AmenitiesSelectorProps) {
           type="button"
           onClick={save}
           disabled={saving}
-          className="px-4 py-2 bg-brand-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 disabled:opacity-50 transition-colors"
+          className="px-4 py-2 bg-brand-600 text-white text-sm font-medium rounded-md hover:bg-brand-700 disabled:opacity-50 transition-colors"
         >
           {saving ? 'A guardar…' : 'Guardar Comodidades'}
         </button>

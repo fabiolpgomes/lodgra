@@ -70,7 +70,7 @@ export function PaymentSettings({ organization }: Props) {
                   value="sandbox" 
                   checked={environment === 'sandbox'} 
                   onChange={(e) => setEnvironment(e.target.value)}
-                  className="text-brand-600 focus:ring-blue-500"
+                  className="text-brand-600 focus:ring-brand-500"
                 />
                 <span className="text-sm text-gray-600">Sandbox (Testes)</span>
               </label>
@@ -81,7 +81,7 @@ export function PaymentSettings({ organization }: Props) {
                   value="production" 
                   checked={environment === 'production'} 
                   onChange={(e) => setEnvironment(e.target.value)}
-                  className="text-brand-600 focus:ring-blue-500"
+                  className="text-brand-600 focus:ring-brand-500"
                 />
                 <span className="text-sm text-gray-600 font-medium">Produção (Real)</span>
               </label>
@@ -97,7 +97,7 @@ export function PaymentSettings({ organization }: Props) {
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
               placeholder="\$aak_..."
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all font-mono"
+              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all font-mono"
             />
           </div>
         </div>
@@ -117,7 +117,7 @@ export function PaymentSettings({ organization }: Props) {
           <Button 
             onClick={handleSave} 
             disabled={loading}
-            className="bg-brand-600 hover:bg-blue-700 text-white gap-2 h-11 px-8 rounded-xl font-bold transition-all shadow-lg shadow-brand-500/10"
+            className="bg-brand-600 hover:bg-brand-700 text-white gap-2 h-11 px-8 rounded-xl font-bold transition-all shadow-lg shadow-brand-500/10"
           >
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             Salvar Configurações

@@ -52,7 +52,7 @@ export const SimilarProperties: React.FC<SimilarPropertiesProps> = ({
               {/* Content */}
               <div className="p-4">
                 {/* Name */}
-                <h3 className="font-semibold text-lg text-gray-900 mb-2 group-hover:text-blue-600 transition-colors line-clamp-2">
+                <h3 className="font-semibold text-lg text-gray-900 mb-2 group-hover:text-brand-600 transition-colors line-clamp-2">
                   {property.name}
                 </h3>
 

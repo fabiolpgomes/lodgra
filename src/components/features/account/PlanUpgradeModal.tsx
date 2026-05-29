@@ -145,7 +145,7 @@ export function PlanUpgradeModal({ currentPlan, isOpen, onClose }: PlanUpgradeMo
           <Button
             onClick={handleUpgrade}
             disabled={!selectedPlan || loading}
-            className="bg-brand-600 hover:bg-blue-700"
+            className="bg-brand-600 hover:bg-brand-700"
           >
             {loading ? 'A actualizar...' : 'Confirmar alteração'}
           </Button>

@@ -221,7 +221,7 @@ export function UserManagement({ users, onUserUpdated }: UserManagementProps) {
               <button
                 type="submit"
                 disabled={loading}
-                className="px-4 py-2 bg-brand-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
+                className="px-4 py-2 bg-brand-600 text-white rounded-lg text-sm font-medium hover:bg-brand-700 disabled:opacity-50"
               >
                 {loading ? 'Criando...' : 'Criar Utilizador'}
               </button>
@@ -242,7 +242,7 @@ export function UserManagement({ users, onUserUpdated }: UserManagementProps) {
       {!showCreateForm && (
         <button
           onClick={() => setShowCreateForm(true)}
-          className="mb-4 flex items-center gap-2 px-4 py-2 bg-brand-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700"
+          className="mb-4 flex items-center gap-2 px-4 py-2 bg-brand-600 text-white rounded-lg text-sm font-medium hover:bg-brand-700"
         >
           <Plus className="h-4 w-4" />
           Novo Utilizador
@@ -319,7 +319,7 @@ export function UserManagement({ users, onUserUpdated }: UserManagementProps) {
                         <>
                           <button
                             onClick={() => handleEditStart(user)}
-                            className="p-1 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded"
+                            className="p-1 text-gray-500 hover:text-brand-600 hover:bg-brand-50 rounded"
                           >
                             <Edit2 className="h-4 w-4" />
                           </button>
@@ -367,7 +367,7 @@ export function UserManagement({ users, onUserUpdated }: UserManagementProps) {
                 </code>
                 <button
                   onClick={copyToClipboard}
-                  className="px-3 py-2 bg-brand-50 text-brand-600 hover:bg-blue-100 border border-brand-200 rounded transition-colors"
+                  className="px-3 py-2 bg-brand-50 text-brand-600 hover:bg-brand-100 border border-brand-200 rounded transition-colors"
                 >
                   {copied ? (
                     <Check className="h-4 w-4" />

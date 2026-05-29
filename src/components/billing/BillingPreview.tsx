@@ -109,7 +109,7 @@ export function BillingPreview({ orgId, onAddExtraProperty, onManagePlan }: Bill
         {extraCount < 10 && maxIncluded < 10 && (
           <button
             onClick={onAddExtraProperty}
-            className="flex-1 rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-600"
+            className="flex-1 rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-600"
           >
             + Adicionar Propriedade Extra
           </button>

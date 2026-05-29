@@ -179,7 +179,7 @@ export default function GoogleDistributionDashboard() {
         <button
           onClick={handleRefreshFeed}
           disabled={refreshing}
-          className="bg-brand-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold py-2 px-6 rounded"
+          className="bg-brand-600 hover:bg-brand-700 disabled:bg-gray-400 text-white font-semibold py-2 px-6 rounded"
         >
           {refreshing ? 'Refreshing...' : 'Refresh Feed'}
         </button>
@@ -212,7 +212,7 @@ export default function GoogleDistributionDashboard() {
                     <button
                       type="button"
                       onClick={() => setSelectedProperty(prop)}
-                      className="text-brand-600 hover:text-blue-800 text-sm font-medium"
+                      className="text-brand-600 hover:text-brand-800 text-sm font-medium"
                     >
                       View Details
                     </button>
@@ -385,7 +385,7 @@ function PropertyDetailsModal({
               href={publicUrl}
               target="_blank"
               rel="noreferrer"
-              className="rounded bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+              className="rounded bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700"
             >
               Open public page
             </a>

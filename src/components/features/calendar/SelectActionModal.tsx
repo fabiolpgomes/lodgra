@@ -27,7 +27,7 @@ export function SelectActionModal({
           {/* Nova Reserva */}
           <button
             onClick={onSelectReservation}
-            className="w-full text-left p-4 border border-brand-200 rounded-lg hover:bg-blue-50 transition-colors"
+            className="w-full text-left p-4 border border-brand-200 rounded-lg hover:bg-brand-50 transition-colors"
           >
             <div className="font-semibold text-gray-900">Nova Reserva</div>
             <div className="text-sm text-gray-600">Criar uma reserva de hóspede para este período</div>

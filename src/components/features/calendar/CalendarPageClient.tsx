@@ -265,7 +265,7 @@ export function CalendarPageClient() {
             <select
               value={selectedPropertyId}
               onChange={e => setSelectedPropertyId(e.target.value)}
-              className="border border-gray-300 rounded-lg px-3 py-2.5 sm:py-2 text-[13px] sm:text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[44px] sm:min-h-auto"
+              className="border border-gray-300 rounded-lg px-3 py-2.5 sm:py-2 text-[13px] sm:text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent min-h-[44px] sm:min-h-auto"
             >
               <option value="">Todas as propriedades</option>
               {properties.map(p => (

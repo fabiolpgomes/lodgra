@@ -113,7 +113,7 @@ export function EmailConnection({ initialEmail, initialLastSync }: EmailConnecti
               value={daysBack}
               onChange={e => setDaysBack(Number(e.target.value))}
               disabled={syncing}
-              className="h-8 rounded-md border border-gray-200 bg-white px-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="h-8 rounded-md border border-gray-200 bg-white px-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-500"
             >
               <option value={30}>Últimos 30 dias</option>
               <option value={60}>Últimos 60 dias</option>

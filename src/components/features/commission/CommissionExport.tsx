@@ -86,7 +86,7 @@ export function CommissionExport({
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
               max={today}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
             />
             <p className="text-xs text-gray-600 mt-1">Padrão: Todos os tempos</p>
           </div>
@@ -101,7 +101,7 @@ export function CommissionExport({
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
               max={today}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
             />
             <p className="text-xs text-gray-600 mt-1">Padrão: Hoje</p>
           </div>
@@ -159,7 +159,7 @@ export function CommissionExport({
           <button
             onClick={handleExport}
             disabled={isLoading}
-            className="flex items-center gap-2 px-4 py-2 bg-brand-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-brand-600 text-white font-medium rounded-lg hover:bg-brand-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
           >
             {isLoading ? (
               <>
