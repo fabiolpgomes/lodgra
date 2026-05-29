@@ -178,15 +178,15 @@ export function BookingWidgetMobile({
   return (
     <>
       {/* Fixed bottom bar */}
-      <div className="fixed bottom-0 left-0 right-0 lg:hidden bg-white border-t border-neutral-200 shadow-lg z-40">
+      <div className="fixed bottom-0 left-0 right-0 lg:hidden bg-white border-t border-gray-200 shadow-lg z-40">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
           <div>
-            <p className="text-xs text-neutral-600">
+            <p className="text-xs text-gray-600">
               {nights > 0 && isReady ? (hasVaryingPrices ? 'Preço médio' : 'Por noite') : 'Preço base'}
             </p>
-            <p className="text-xl font-black text-neutral-900">
+            <p className="text-xl font-black text-gray-900">
               {symbol}{nights > 0 && isReady ? avgPerNight : basePrice}
-              <span className="text-sm font-medium text-neutral-600"> /noite</span>
+              <span className="text-sm font-medium text-gray-600"> /noite</span>
             </p>
             {nights > 0 && (
               <p className="text-xs text-lodgra-green font-semibold">
@@ -227,8 +227,8 @@ export function BookingWidgetMobile({
           />
           <div className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-white rounded-t-2xl p-5 space-y-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-2">
-              <h2 className="font-bold text-lg text-neutral-900">Selecionar datas</h2>
-              <button onClick={() => setShowPanel(false)} className="text-neutral-500 text-xl">✕</button>
+              <h2 className="font-bold text-lg text-gray-900">Selecionar datas</h2>
+              <button onClick={() => setShowPanel(false)} className="text-gray-500 text-xl">✕</button>
             </div>
             {effectiveMinNights > 1 && (
               <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1">
@@ -238,36 +238,36 @@ export function BookingWidgetMobile({
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-sm font-semibold text-neutral-700 mb-1">Check-in</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Check-in</label>
                 <input
                   type="date"
                   value={checkIn}
                   min={today}
                   onChange={e => handleCheckInChange(e.target.value)}
-                  className="w-full px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-lodgra-green"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-lodgra-green"
                 />
                 {checkInError && <p className="mt-1 text-xs text-red-600">{checkInError}</p>}
               </div>
               <div>
-                <label className="block text-sm font-semibold text-neutral-700 mb-1">Check-out</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Check-out</label>
                 <input
                   type="date"
                   value={checkOut}
                   min={minCheckOut || today}
                   onChange={e => handleCheckOutChange(e.target.value)}
                   disabled={!checkIn}
-                  className="w-full px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-lodgra-green disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-lodgra-green disabled:opacity-50 disabled:cursor-not-allowed"
                 />
                 {checkOutError && <p className="mt-1 text-xs text-red-600">{checkOutError}</p>}
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-neutral-700 mb-1">Hóspedes</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">Hóspedes</label>
               <select
                 value={guests}
                 onChange={e => setGuests(parseInt(e.target.value))}
-                className="w-full px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-lodgra-green"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-lodgra-green"
               >
                 {Array.from({ length: Math.max(1, maxGuests) }, (_, i) => (
                   <option key={i + 1} value={i + 1}>{i + 1} {i === 0 ? 'hóspede' : 'hóspedes'}</option>
@@ -276,21 +276,21 @@ export function BookingWidgetMobile({
             </div>
 
             {nights > 0 && (
-              <div className="p-3 bg-neutral-50 rounded-lg text-sm space-y-1">
+              <div className="p-3 bg-gray-50 rounded-lg text-sm space-y-1">
                 {isPriceFetching ? (
                   <>
-                    <div className="flex justify-between text-neutral-400 animate-pulse">
+                    <div className="flex justify-between text-gray-400 animate-pulse">
                       <span>{nights} noite{nights !== 1 ? 's' : ''}</span>
-                      <span className="bg-neutral-200 rounded w-16">&nbsp;</span>
+                      <span className="bg-gray-200 rounded w-16">&nbsp;</span>
                     </div>
-                    <div className="flex justify-between font-bold text-neutral-300 pt-1 border-t border-neutral-200 animate-pulse">
+                    <div className="flex justify-between font-bold text-gray-300 pt-1 border-t border-gray-200 animate-pulse">
                       <span>Total</span>
-                      <span className="bg-neutral-200 rounded w-20">&nbsp;</span>
+                      <span className="bg-gray-200 rounded w-20">&nbsp;</span>
                     </div>
                   </>
                 ) : (
                   <>
-                    <div className="flex justify-between text-neutral-700">
+                    <div className="flex justify-between text-gray-700">
                       {hasVaryingPrices ? (
                         <span>{nights} noite{nights !== 1 ? 's' : ''} · preço por época</span>
                       ) : (
@@ -299,15 +299,15 @@ export function BookingWidgetMobile({
                       <span>{symbol}{Math.round(accommodationTotal)}</span>
                     </div>
                     {hasVaryingPrices && (
-                      <p className="text-xs text-neutral-500">Inclui regras de preço por época</p>
+                      <p className="text-xs text-gray-500">Inclui regras de preço por época</p>
                     )}
                     {isReady && priceState.fees?.map((fee, i) => (
-                      <div key={i} className="flex justify-between text-neutral-700">
+                      <div key={i} className="flex justify-between text-gray-700">
                         <span>{fee.label}</span>
                         <span>{symbol}{Math.round(fee.amount)}</span>
                       </div>
                     ))}
-                    <div className="flex justify-between font-bold text-neutral-900 pt-1 border-t border-neutral-200">
+                    <div className="flex justify-between font-bold text-gray-900 pt-1 border-t border-gray-200">
                       <span>Total</span>
                       <span>{symbol}{Math.round(displayTotal)}</span>
                     </div>

@@ -109,7 +109,7 @@ export function ChannelAnalysis({ channelStats, totalRevenue, startDate, endDate
                 <div key={channel.name}>
                   <div className="flex items-start justify-between mb-1">
                     <div className="flex items-center gap-2">
-                      <BarChart2 className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                      <BarChart2 className="h-4 w-4 text-brand-500 flex-shrink-0" />
                       <span className="font-semibold text-gray-900 text-sm">{channel.name}</span>
                     </div>
                     <span className="text-sm font-bold text-gray-900">

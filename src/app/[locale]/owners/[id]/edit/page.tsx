@@ -165,7 +165,7 @@ export default function EditOwnerPage({
         <div className="flex items-center justify-center min-h-64">
           <div className="text-center">
             <p className="text-red-600 mb-4">{error}</p>
-            <Link href={`/${locale}/owners`} className="text-blue-600 hover:underline">
+            <Link href={`/${locale}/owners`} className="text-brand-600 hover:underline">
               Voltar para Proprietários
             </Link>
           </div>

@@ -72,7 +72,7 @@ export function TemplateHero({
                 rehypePlugins={[rehypeSanitize]}
                 components={{
                   a: ({ href, children }) => (
-                    <a href={href} className="text-blue-600 hover:underline">
+                    <a href={href} className="text-brand-600 hover:underline">
                       {children}
                     </a>
                   ),

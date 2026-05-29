@@ -130,7 +130,7 @@ export function RevenueTable({ reservations, startDate, endDate }: RevenueTableP
                     <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
                       <Link
                         href={getLocalizedPath(`/reservations/${reservation.id}`, locale)}
-                        className="text-blue-600 hover:underline"
+                        className="text-brand-600 hover:underline"
                       >
                         {guestName}
                       </Link>

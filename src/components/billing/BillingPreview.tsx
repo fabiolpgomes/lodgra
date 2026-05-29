@@ -109,7 +109,7 @@ export function BillingPreview({ orgId, onAddExtraProperty, onManagePlan }: Bill
         {extraCount < 10 && maxIncluded < 10 && (
           <button
             onClick={onAddExtraProperty}
-            className="flex-1 rounded-lg bg-blue-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-600"
+            className="flex-1 rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-600"
           >
             + Adicionar Propriedade Extra
           </button>
@@ -125,8 +125,8 @@ export function BillingPreview({ orgId, onAddExtraProperty, onManagePlan }: Bill
 
       {/* Upgrade Suggestion */}
       {extraCount > 0 && plan === 'essencial' && (
-        <div className="mt-4 rounded-lg bg-blue-50 p-3 border border-blue-200">
-          <p className="text-xs text-blue-800">
+        <div className="mt-4 rounded-lg bg-brand-50 p-3 border border-brand-200">
+          <p className="text-xs text-brand-800">
             💡 <strong>Dica:</strong> Plano Expansão inclui 3 propriedades. Considerando fazer upgrade?
           </p>
         </div>

@@ -67,7 +67,7 @@ export default function CleanerTaskCard({ task, onStatusChange }: CleanerTaskCar
           <button
             onClick={handleStartCleaning}
             disabled={isLoading}
-            className="px-3 py-1 bg-blue-600 text-white text-sm font-medium rounded hover:bg-blue-700 disabled:opacity-50 touch-min"
+            className="px-3 py-1 bg-brand-600 text-white text-sm font-medium rounded hover:bg-blue-700 disabled:opacity-50 touch-min"
             style={{ minHeight: '44px', minWidth: '44px' }}
           >
             {isLoading ? '...' : '● Iniciar'}

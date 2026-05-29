@@ -67,9 +67,9 @@ export function ICalExportCard({ propertyId, appUrl }: { propertyId: string; app
     <div className="bg-white rounded-lg shadow p-6">
       <h3 className="text-lg font-semibold text-gray-900 mb-4">Exportar iCal</h3>
 
-      <Alert className="mb-6 bg-blue-50 border-blue-200">
-        <AlertCircle className="h-4 w-4 text-blue-600" />
-        <AlertDescription className="text-blue-800 ml-2">
+      <Alert className="mb-6 bg-brand-50 border-brand-200">
+        <AlertCircle className="h-4 w-4 text-brand-600" />
+        <AlertDescription className="text-brand-800 ml-2">
           Use esta URL iCal para sincronizar com Booking.com, Airbnb e outras plataformas
         </AlertDescription>
       </Alert>

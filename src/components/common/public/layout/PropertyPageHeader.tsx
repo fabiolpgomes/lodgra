@@ -66,7 +66,7 @@ export function PropertyPageHeader({
     <header
       className={`sticky top-0 z-40 transition-all duration-300 ${
         scrolled
-          ? 'bg-white border-b border-neutral-200 shadow-sm'
+          ? 'bg-white border-b border-gray-200 shadow-sm'
           : 'bg-transparent'
       }`}
     >
@@ -90,7 +90,7 @@ export function PropertyPageHeader({
             onClick={handleShare}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
               scrolled
-                ? 'text-neutral-700 hover:bg-neutral-100'
+                ? 'text-gray-700 hover:bg-neutral-100'
                 : 'text-white hover:bg-white/20'
             }`}
             aria-label="Partilhar"

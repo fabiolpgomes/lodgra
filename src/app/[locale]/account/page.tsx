@@ -47,8 +47,8 @@ export default async function AccountPage() {
     <AuthLayout>
       <div className="max-w-lg mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex items-center gap-3 mb-8">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100">
-            <User className="h-5 w-5 text-blue-600" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-100">
+            <User className="h-5 w-5 text-brand-600" />
           </div>
           <div>
             <h1 className="text-xl font-semibold text-gray-900">Minha Conta</h1>
@@ -72,7 +72,7 @@ export default async function AccountPage() {
               <p className="text-xs text-gray-600">Função</p>
               <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                 role === 'admin' ? 'bg-red-100 text-red-800' :
-                role === 'gestor' ? 'bg-blue-100 text-blue-800' :
+                role === 'gestor' ? 'bg-brand-100 text-brand-800' :
                 'bg-gray-100 text-gray-800'
               }`}>
                 {roleLabel}

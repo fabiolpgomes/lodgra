@@ -126,7 +126,7 @@ export function CommissionChart({ days = 30 }: CommissionChartProps) {
               onClick={() => setTimeRange(range)}
               className={`px-3 py-1 text-sm font-medium rounded transition-colors ${
                 timeRange === range
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-brand-600 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >

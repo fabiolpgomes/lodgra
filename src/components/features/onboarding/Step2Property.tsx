@@ -84,9 +84,9 @@ export function Step2Property({ onNext, onSkip, onContinueExisting, onboardingSe
       </p>
 
       {/* Dica */}
-      <div className="flex gap-2 bg-blue-50 border border-blue-100 rounded-lg p-3 mb-6">
-        <Info className="h-4 w-4 text-blue-500 shrink-0 mt-0.5" />
-        <p className="text-xs text-blue-700">
+      <div className="flex gap-2 bg-brand-50 border border-brand-100 rounded-lg p-3 mb-6">
+        <Info className="h-4 w-4 text-brand-500 shrink-0 mt-0.5" />
+        <p className="text-xs text-brand-700">
           Um imóvel pode ter vários anúncios — por exemplo o mesmo apartamento anunciado no Airbnb e no Booking ao mesmo tempo.
         </p>
       </div>

@@ -63,7 +63,7 @@ export default function SubscribePage() {
                 key={plan.id}
                 className={`bg-white rounded-2xl shadow-sm border-2 p-6 flex flex-col relative ${
                   plan.highlighted
-                    ? 'border-blue-500 shadow-md'
+                    ? 'border-brand-500 shadow-md'
                     : plan.enterprise
                       ? 'border-gray-300 bg-gray-50'
                       : 'border-gray-200'
@@ -71,7 +71,7 @@ export default function SubscribePage() {
               >
                 {plan.highlighted && (
                   <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                    <span className="bg-blue-500 text-white text-xs font-semibold px-3 py-1 rounded-full whitespace-nowrap">
+                    <span className="bg-brand-500 text-white text-xs font-semibold px-3 py-1 rounded-full whitespace-nowrap">
                       Mais escolhido
                     </span>
                   </div>
@@ -93,7 +93,7 @@ export default function SubscribePage() {
                       <span className="text-gray-600 text-xs">/unidade/mês</span>
                     </div>
                     {feeLabel && (
-                      <span className="inline-block mt-1 text-xs font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
+                      <span className="inline-block mt-1 text-xs font-medium text-brand-600 bg-brand-50 px-2 py-0.5 rounded-full">
                         {feeLabel}
                       </span>
                     )}
@@ -105,7 +105,7 @@ export default function SubscribePage() {
                 <ul className="space-y-2 mb-6 flex-1">
                   {plan.features.map(f => (
                     <li key={f} className="flex items-start gap-2 text-sm text-gray-700">
-                      <Check className="h-4 w-4 text-blue-600 shrink-0 mt-0.5" />
+                      <Check className="h-4 w-4 text-brand-600 shrink-0 mt-0.5" />
                       {f}
                     </li>
                   ))}
@@ -130,7 +130,7 @@ export default function SubscribePage() {
 
         <p className="text-center mt-8 text-sm text-gray-600">
           Já tem conta?{' '}
-          <Link href="/login" className="text-blue-600 hover:underline">
+          <Link href="/login" className="text-brand-600 hover:underline">
             Entrar com outra conta
           </Link>
         </p>

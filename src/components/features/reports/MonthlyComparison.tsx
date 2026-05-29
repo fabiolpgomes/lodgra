@@ -38,7 +38,7 @@ export function MonthlyComparison({ monthlyStats }: MonthlyComparisonProps) {
     <div className="bg-white rounded-lg shadow p-6">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <Calendar className="h-5 w-5 text-blue-600" />
+          <Calendar className="h-5 w-5 text-brand-600" />
           <h3 className="text-lg font-semibold text-gray-900">Comparativo Mensal</h3>
         </div>
         {monthlyStats.length > 0 && (
@@ -128,7 +128,7 @@ export function MonthlyComparison({ monthlyStats }: MonthlyComparisonProps) {
               </div>
               <div>
                 <p className="text-sm text-gray-600">Média Mensal</p>
-                <p className="text-xl font-bold text-blue-600">
+                <p className="text-xl font-bold text-brand-600">
                   {formatCurrency(monthlyStats.reduce((sum: number, s) => sum + s.revenue, 0) / monthlyStats.length, currency)}
                 </p>
               </div>

@@ -45,7 +45,7 @@ export function PaymentSettings({ organization }: Props) {
     <div className="bg-white rounded-lg shadow overflow-hidden">
       <div className="p-6 border-b border-gray-100 bg-gray-50/50">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-100 text-blue-600">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-100 text-brand-600">
             <CreditCard className="h-5 w-5" />
           </div>
           <div>
@@ -70,7 +70,7 @@ export function PaymentSettings({ organization }: Props) {
                   value="sandbox" 
                   checked={environment === 'sandbox'} 
                   onChange={(e) => setEnvironment(e.target.value)}
-                  className="text-blue-600 focus:ring-blue-500"
+                  className="text-brand-600 focus:ring-blue-500"
                 />
                 <span className="text-sm text-gray-600">Sandbox (Testes)</span>
               </label>
@@ -81,7 +81,7 @@ export function PaymentSettings({ organization }: Props) {
                   value="production" 
                   checked={environment === 'production'} 
                   onChange={(e) => setEnvironment(e.target.value)}
-                  className="text-blue-600 focus:ring-blue-500"
+                  className="text-brand-600 focus:ring-blue-500"
                 />
                 <span className="text-sm text-gray-600 font-medium">Produção (Real)</span>
               </label>
@@ -102,9 +102,9 @@ export function PaymentSettings({ organization }: Props) {
           </div>
         </div>
 
-        <div className="bg-blue-50 rounded-xl p-4 flex gap-3 border border-blue-100">
-          <ShieldCheck className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
-          <div className="text-xs text-blue-800 leading-relaxed">
+        <div className="bg-brand-50 rounded-xl p-4 flex gap-3 border border-brand-100">
+          <ShieldCheck className="h-5 w-5 text-brand-600 flex-shrink-0 mt-0.5" />
+          <div className="text-xs text-brand-800 leading-relaxed">
             <p className="font-bold mb-1">Segurança de Dados</p>
             Suas chaves de API são usadas exclusivamente para gerar as cobranças em seu nome. O dinheiro cai direto na sua conta Asaas.
             <a href="https://www.asaas.com" target="_blank" rel="noreferrer" className="flex items-center gap-1 mt-2 font-bold hover:underline">
@@ -117,7 +117,7 @@ export function PaymentSettings({ organization }: Props) {
           <Button 
             onClick={handleSave} 
             disabled={loading}
-            className="bg-blue-600 hover:bg-blue-700 text-white gap-2 h-11 px-8 rounded-xl font-bold transition-all shadow-lg shadow-blue-500/10"
+            className="bg-brand-600 hover:bg-blue-700 text-white gap-2 h-11 px-8 rounded-xl font-bold transition-all shadow-lg shadow-brand-500/10"
           >
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             Salvar Configurações

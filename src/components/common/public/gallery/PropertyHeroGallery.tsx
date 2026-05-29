@@ -35,7 +35,7 @@ export function PropertyHeroGallery({
   // Empty state when no photos
   if (photos.length === 0) {
     return (
-      <div className="w-full h-80 md:h-96 rounded-xl bg-neutral-100 flex flex-col items-center justify-center gap-3 text-neutral-400">
+      <div className="w-full h-80 md:h-96 rounded-xl bg-gray-100 flex flex-col items-center justify-center gap-3 text-gray-400">
         <span className="text-6xl">🏠</span>
         <p className="text-sm font-medium">Fotos em breve</p>
       </div>
@@ -48,7 +48,7 @@ export function PropertyHeroGallery({
       <div className="hidden md:grid grid-cols-5 grid-rows-2 gap-2 rounded-xl overflow-hidden h-96">
         {/* Hero Image (2x2) */}
         <div
-          className="col-span-3 row-span-2 relative group cursor-pointer rounded-lg overflow-hidden bg-neutral-100"
+          className="col-span-3 row-span-2 relative group cursor-pointer rounded-lg overflow-hidden bg-gray-100"
           onClick={() => onPhotoClick(0)}
         >
           {heroImage && (
@@ -68,7 +68,7 @@ export function PropertyHeroGallery({
         {thumbs.map((photo, idx) => (
           <div
             key={idx}
-            className="relative group cursor-pointer rounded-lg overflow-hidden bg-neutral-100"
+            className="relative group cursor-pointer rounded-lg overflow-hidden bg-gray-100"
             onClick={() => onPhotoClick(idx + 1)}
           >
             <Image
@@ -108,7 +108,7 @@ export function PropertyHeroGallery({
       </div>
 
       {/* Mobile: Carousel */}
-      <div className="md:hidden relative h-80 rounded-xl overflow-hidden bg-neutral-100">
+      <div className="md:hidden relative h-80 rounded-xl overflow-hidden bg-gray-100">
         {photos.length > 0 && (
           <Image
             src={photos[carouselIndex]}
@@ -127,14 +127,14 @@ export function PropertyHeroGallery({
             className="bg-white/80 hover:bg-white rounded-full p-2 transition-all"
             aria-label="Anterior"
           >
-            <ChevronLeft className="w-6 h-6 text-neutral-900" />
+            <ChevronLeft className="w-6 h-6 text-gray-900" />
           </button>
           <button
             onClick={nextSlide}
             className="bg-white/80 hover:bg-white rounded-full p-2 transition-all"
             aria-label="Próximo"
           >
-            <ChevronRight className="w-6 h-6 text-neutral-900" />
+            <ChevronRight className="w-6 h-6 text-gray-900" />
           </button>
         </div>
 
@@ -163,7 +163,7 @@ export function PropertyHeroGallery({
       </div>
 
       {/* Counter */}
-      <p className="mt-3 text-sm text-neutral-600">
+      <p className="mt-3 text-sm text-gray-600">
         {carouselIndex + 1} de {photos.length}
       </p>
     </>

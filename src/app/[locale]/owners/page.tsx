@@ -46,7 +46,7 @@ export default async function OwnersPage({
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <Users className="h-8 w-8 text-blue-600" />
+              <Users className="h-8 w-8 text-brand-600" />
               <h2 className="text-3xl font-bold text-gray-900">Proprietários</h2>
             </div>
             <p className="text-gray-600">Gerencie os proprietários dos imóveis</p>

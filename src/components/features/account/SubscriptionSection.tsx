@@ -29,7 +29,7 @@ export function SubscriptionSection({
     active: 'bg-green-100 text-green-800',
     cancelled: 'bg-red-100 text-red-800',
     past_due: 'bg-yellow-100 text-yellow-800',
-    trial: 'bg-blue-100 text-blue-800',
+    trial: 'bg-brand-100 text-brand-800',
   }[subscriptionStatus as string] || 'bg-gray-100 text-gray-800'
 
   const statusLabel = {
@@ -73,7 +73,7 @@ export function SubscriptionSection({
     <>
       <div className="bg-white rounded-lg shadow p-6 mb-6">
         <div className="flex items-center gap-2 mb-4">
-          <CreditCard className="h-4 w-4 text-blue-600" />
+          <CreditCard className="h-4 w-4 text-brand-600" />
           <h2 className="text-sm font-semibold text-gray-900">Plano de Subscrição</h2>
         </div>
         <div className="space-y-3">
@@ -90,7 +90,7 @@ export function SubscriptionSection({
             {currentPlan !== 'business' && isActive && (
               <button
                 onClick={() => setUpgradeModalOpen(true)}
-                className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 font-medium"
+                className="inline-flex items-center gap-1 text-sm text-brand-600 hover:text-blue-700 font-medium"
               >
                 Atualizar Plano <ArrowRight className="h-4 w-4" />
               </button>

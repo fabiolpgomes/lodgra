@@ -439,7 +439,7 @@ export function CalendarPageClient() {
             Pendente
           </span>
           <span className="flex items-center gap-1">
-            <span className="w-2 h-2 sm:w-3 sm:h-3 rounded-sm bg-blue-500 inline-block" />
+            <span className="w-2 h-2 sm:w-3 sm:h-3 rounded-sm bg-brand-500 inline-block" />
             Confirmada
           </span>
           <span className="flex items-center gap-1">

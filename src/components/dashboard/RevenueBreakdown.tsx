@@ -86,7 +86,7 @@ export function RevenueBreakdown({ currency, month, className = '' }: RevenueBre
                       <div>
                         <span className="text-sm text-gray-600">Predicted: </span>
                         <span
-                          className="font-semibold text-blue-600"
+                          className="font-semibold text-brand-600"
                           title="Predicted revenue (proportional formula for >30 day reservations)"
                         >
                           {isSupportedCurrency(curr)

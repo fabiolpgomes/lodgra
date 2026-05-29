@@ -242,7 +242,7 @@ export default async function FinancialPage({
                       <td className="px-3 py-3 max-w-[240px]">
                         <div className="flex items-start gap-2">
                           {property.currency && (() => {
-                            const badgeColor = property.currency === 'EUR' ? 'bg-blue-50 text-blue-700 ring-blue-200'
+                            const badgeColor = property.currency === 'EUR' ? 'bg-brand-50 text-brand-700 ring-brand-200'
                               : property.currency === 'BRL' ? 'bg-green-50 text-green-700 ring-green-200'
                               : property.currency === 'USD' ? 'bg-yellow-50 text-yellow-700 ring-yellow-200'
                               : property.currency === 'GBP' ? 'bg-purple-50 text-purple-700 ring-purple-200'
@@ -261,7 +261,7 @@ export default async function FinancialPage({
                               <div className="text-xs text-gray-600 mt-0.5 truncate">{property.owner_name}</div>
                             )}
                             {property.management_percentage > 0 && (
-                              <span className="text-[9px] bg-blue-50 text-blue-700 px-1 py-0.5 rounded-full font-medium inline-block mt-1">
+                              <span className="text-[9px] bg-brand-50 text-brand-700 px-1 py-0.5 rounded-full font-medium inline-block mt-1">
                                 {property.management_percentage}% gestão
                               </span>
                             )}

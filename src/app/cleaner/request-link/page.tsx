@@ -4,18 +4,18 @@ import Link from 'next/link';
 
 export default function RequestLinkPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-brand-50 to-indigo-100 px-4">
       <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md text-center">
         {/* Logo */}
         <div className="mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-100">
-            <span className="text-2xl font-black text-blue-600">🏠</span>
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-brand-100">
+            <span className="text-2xl font-black text-brand-600">🏠</span>
           </div>
         </div>
 
         {/* Branding */}
         <h2 className="text-xs font-black uppercase tracking-widest text-gray-600 mb-3">Portal de Limpeza</h2>
-        <h1 className="text-3xl font-black text-blue-600 mb-6">Lodgra</h1>
+        <h1 className="text-3xl font-black text-brand-600 mb-6">Lodgra</h1>
 
         {/* Message */}
         <div className="mb-8">
@@ -31,9 +31,9 @@ export default function RequestLinkPage() {
         </div>
 
         {/* Help Text */}
-        <div className="bg-blue-50 rounded-xl p-4 mb-6 text-left">
-          <p className="text-xs font-bold text-blue-900 mb-2">📞 Como contactar o seu gestor?</p>
-          <ul className="text-xs text-blue-800 space-y-1">
+        <div className="bg-brand-50 rounded-xl p-4 mb-6 text-left">
+          <p className="text-xs font-bold text-brand-900 mb-2">📞 Como contactar o seu gestor?</p>
+          <ul className="text-xs text-brand-800 space-y-1">
             <li>• Envie uma mensagem pelo WhatsApp</li>
             <li>• Ligue ou envie um email</li>
             <li>• Peça um novo link de acesso</li>
@@ -43,7 +43,7 @@ export default function RequestLinkPage() {
         {/* Button */}
         <Link
           href="/"
-          className="block w-full px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-colors"
+          className="block w-full px-6 py-3 bg-brand-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-colors"
         >
           Voltar à Página Inicial
         </Link>

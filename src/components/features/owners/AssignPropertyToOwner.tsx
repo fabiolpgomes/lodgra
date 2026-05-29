@@ -63,7 +63,7 @@ export function AssignPropertyToOwner({ ownerId }: { ownerId: string }) {
 
   if (showSelect) {
     return (
-      <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+      <div className="mt-4 p-3 bg-brand-50 rounded-lg">
         <div className="flex items-center justify-between mb-2">
           <p className="text-sm font-medium text-gray-700">Associar propriedade</p>
           <Button

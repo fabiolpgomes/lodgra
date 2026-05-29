@@ -115,8 +115,8 @@ export default async function ReservationDetailsPage({
         <div className="bg-white rounded-lg shadow p-6 mb-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="flex-shrink-0 w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                <Calendar className="h-6 w-6 text-blue-600" />
+              <div className="flex-shrink-0 w-12 h-12 bg-brand-100 rounded-full flex items-center justify-center">
+                <Calendar className="h-6 w-6 text-brand-600" />
               </div>
               <div>
                 <h2 className="text-2xl font-bold text-gray-900">
@@ -171,7 +171,7 @@ export default async function ReservationDetailsPage({
                 Período da Reserva
               </h3>
               <div className="grid grid-cols-3 gap-4">
-                <div className="text-center p-4 bg-blue-50 rounded-lg">
+                <div className="text-center p-4 bg-brand-50 rounded-lg">
                   <p className="text-sm text-gray-600 mb-1">Check-in</p>
                   <p className="text-xl font-bold text-gray-900">
                     {checkIn.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}
@@ -213,7 +213,7 @@ export default async function ReservationDetailsPage({
                     <div>
                       <Link
                         href={`${prefix}/properties/${property.id}`}
-                        className="text-xl font-semibold text-blue-600 hover:text-blue-700"
+                        className="text-xl font-semibold text-brand-600 hover:text-blue-700"
                       >
                         {property.name}
                       </Link>
@@ -225,7 +225,7 @@ export default async function ReservationDetailsPage({
                         {property.city}, {property.country}
                       </p>
                     </div>
-                    <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full capitalize">
+                    <span className="px-3 py-1 bg-brand-100 text-brand-800 text-sm font-medium rounded-full capitalize">
                       {property.property_type}
                     </span>
                   </div>
@@ -368,7 +368,7 @@ export default async function ReservationDetailsPage({
               <div className="space-y-3 text-sm">
                 <div>
                   <p className="text-gray-600 mb-1">Plataforma</p>
-                  <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium">
+                  <span className="px-2 py-1 bg-brand-100 text-brand-700 rounded text-xs font-medium">
                     {platformName || reservation.source || 'Manual'}
                   </span>
                 </div>
@@ -396,7 +396,7 @@ export default async function ReservationDetailsPage({
             </div>
 
             {/* Ações Rápidas */}
-            <div className="bg-blue-50 rounded-lg p-4 border border-blue-200 no-print">
+            <div className="bg-brand-50 rounded-lg p-4 border border-brand-200 no-print">
               <h4 className="font-semibold text-gray-900 mb-2">Ações Rápidas</h4>
               <div className="space-y-2 text-sm">
                 <SendConfirmationButton
@@ -405,7 +405,7 @@ export default async function ReservationDetailsPage({
                 />
                 <Link
                   href={`${prefix}/calendar`}
-                  className="w-full flex items-center gap-2 px-3 py-2 text-blue-700 hover:bg-blue-100 rounded transition-colors"
+                  className="w-full flex items-center gap-2 px-3 py-2 text-brand-700 hover:bg-blue-100 rounded transition-colors"
                 >
                   <Calendar className="h-4 w-4" />
                   Ver no calendário

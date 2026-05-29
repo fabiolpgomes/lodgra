@@ -150,8 +150,8 @@ export function ReservationsPdfGenerator({ properties, userRole }: ReservationsP
   return (
     <div className="bg-white rounded-lg shadow p-6">
       <div className="flex items-center gap-3 mb-6">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100">
-          <FileText className="h-5 w-5 text-blue-600" />
+        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-100">
+          <FileText className="h-5 w-5 text-brand-600" />
         </div>
         <div>
           <h2 className="text-lg font-semibold text-gray-900">Gerar PDF de Reservas</h2>
@@ -212,8 +212,8 @@ export function ReservationsPdfGenerator({ properties, userRole }: ReservationsP
         </div>
 
         {/* Info */}
-        <Alert className="border-blue-200 bg-blue-50">
-          <AlertDescription className="text-blue-800 text-sm">
+        <Alert className="border-brand-200 bg-brand-50">
+          <AlertDescription className="text-brand-800 text-sm">
             O relatório incluirá todas as reservas confirmadas dentro do período selecionado.
           </AlertDescription>
         </Alert>
@@ -307,8 +307,8 @@ export function ReservationsPdfGenerator({ properties, userRole }: ReservationsP
               </div>
 
               {/* Info */}
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                <p className="text-xs text-blue-800">
+              <div className="bg-brand-50 border border-brand-200 rounded-lg p-3">
+                <p className="text-xs text-brand-800">
                   💡 O PDF foi gerado com sucesso. Use o botão &quot;Download PDF&quot; para salvá-lo no seu dispositivo.
                 </p>
               </div>

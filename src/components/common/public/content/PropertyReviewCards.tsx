@@ -13,12 +13,12 @@ const SOURCE_LABELS: Record<ReviewSource, string> = {
 }
 
 const SOURCE_COLORS: Record<ReviewSource, string> = {
-  booking: 'text-blue-700',
+  booking: 'text-brand-700',
   airbnb: 'text-rose-600',
   google: 'text-amber-700',
   tripadvisor: 'text-green-700',
   direct: 'text-lodgra-brand-700',
-  other: 'text-neutral-600',
+  other: 'text-gray-600',
 }
 
 // Escala máxima nativa de cada plataforma
@@ -42,12 +42,12 @@ function ReviewCard({ review }: ReviewCardProps) {
   const rating = Number(review.rating).toFixed(1)
 
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-neutral-200 bg-white p-5 min-w-[280px] snap-start sm:min-w-0 shadow-sm">
+    <div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-5 min-w-[280px] snap-start sm:min-w-0 shadow-sm">
       {/* Header: nota + fonte */}
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-baseline gap-0.5">
-          <span className="text-base font-bold text-neutral-900">{rating}</span>
-          <span className="text-xs text-neutral-400">/{nativeMax}</span>
+          <span className="text-base font-bold text-gray-900">{rating}</span>
+          <span className="text-xs text-gray-400">/{nativeMax}</span>
         </div>
         <span className={`text-xs font-semibold truncate ${SOURCE_COLORS[review.source]}`}>
           {SOURCE_LABELS[review.source]}
@@ -57,7 +57,7 @@ function ReviewCard({ review }: ReviewCardProps) {
       {/* Texto da review */}
       {review.review_text ? (
         <div>
-          <p className={`text-sm text-neutral-700 leading-relaxed ${!expanded && hasLongText ? 'line-clamp-3' : ''}`}>
+          <p className={`text-sm text-gray-700 leading-relaxed ${!expanded && hasLongText ? 'line-clamp-3' : ''}`}>
             {review.review_text}
           </p>
           {hasLongText && (
@@ -71,13 +71,13 @@ function ReviewCard({ review }: ReviewCardProps) {
           )}
         </div>
       ) : (
-        <p className="text-sm text-neutral-400 italic">Sem comentário escrito.</p>
+        <p className="text-sm text-gray-400 italic">Sem comentário escrito.</p>
       )}
 
       {/* Footer: nome + data */}
-      <div className="mt-auto pt-2 border-t border-neutral-100 flex items-center justify-between gap-2">
-        <span className="text-sm font-medium text-neutral-800 truncate">{review.reviewer_name}</span>
-        <span className="text-xs text-neutral-400 shrink-0">{formatDate(review.review_date)}</span>
+      <div className="mt-auto pt-2 border-t border-gray-100 flex items-center justify-between gap-2">
+        <span className="text-sm font-medium text-gray-800 truncate">{review.reviewer_name}</span>
+        <span className="text-xs text-gray-400 shrink-0">{formatDate(review.review_date)}</span>
       </div>
     </div>
   )
@@ -119,7 +119,7 @@ export function PropertyReviewCards({ featuredReviews }: PropertyReviewCardsProp
           <button
             type="button"
             onClick={() => setShowAll(prev => !prev)}
-            className="inline-flex items-center gap-2 rounded-full border border-neutral-300 bg-white px-5 py-2 text-sm font-medium text-neutral-700 shadow-sm hover:bg-neutral-50 transition-colors"
+            className="inline-flex items-center gap-2 rounded-full border border-gray-300 bg-white px-5 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-neutral-50 transition-colors"
           >
             {showAll ? (
               <>

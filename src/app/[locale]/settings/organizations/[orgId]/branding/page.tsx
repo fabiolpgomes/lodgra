@@ -149,7 +149,7 @@ export default function BrandingPage(props: { params: Promise<{ orgId: string; l
           <button
             onClick={() => logoInputRef.current?.click()}
             disabled={saving}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+            className="px-4 py-2 bg-brand-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
           >
             {branding?.logo_url ? "Alterar logotipo" : "Enviar logotipo"}
           </button>
@@ -172,7 +172,7 @@ export default function BrandingPage(props: { params: Promise<{ orgId: string; l
         <button
           onClick={() => faviconInputRef.current?.click()}
           disabled={saving}
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+          className="px-4 py-2 bg-brand-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
         >
           {branding?.favicon_url ? "Alterar ícone" : "Enviar ícone"}
         </button>

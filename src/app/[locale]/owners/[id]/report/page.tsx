@@ -65,7 +65,7 @@ function getPeriodDates(period: Period, customFrom?: string, customTo?: string):
 }
 
 const BADGE_COLORS: Record<string, string> = {
-  EUR: 'bg-blue-50 text-blue-700 ring-blue-200',
+  EUR: 'bg-brand-50 text-brand-700 ring-brand-200',
   BRL: 'bg-green-50 text-green-700 ring-green-200',
   USD: 'bg-yellow-50 text-yellow-700 ring-yellow-200',
   GBP: 'bg-purple-50 text-purple-700 ring-purple-200',
@@ -338,7 +338,7 @@ export default function OwnerReportPage() {
             </div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Funcionalidade exclusiva do plano Professional</h3>
             <p className="text-gray-600 mb-6">Faça upgrade para aceder a relatórios por proprietário e compliance fiscal.</p>
-            <Link href="/#pricing" className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-blue-700 transition-colors">
+            <Link href="/#pricing" className="inline-flex items-center gap-2 bg-brand-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-blue-700 transition-colors">
               Ver planos
             </Link>
           </div>
@@ -355,7 +355,7 @@ export default function OwnerReportPage() {
             {/* Report Header */}
             <div className="mb-8 print:mb-6">
               <div className="flex items-center gap-3 mb-2">
-                <FileText className="h-6 w-6 text-blue-600 no-print" />
+                <FileText className="h-6 w-6 text-brand-600 no-print" />
                 <h1 className="text-2xl font-bold text-gray-900">Relatório do Proprietário</h1>
               </div>
               <p className="text-gray-600 text-lg">{report.owner.full_name}</p>

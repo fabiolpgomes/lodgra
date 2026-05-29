@@ -119,7 +119,7 @@ export default function CleanerDashboard() {
           onClick={() => setActiveTab('today')}
           className={`px-4 py-2 font-medium text-sm border-b-2 transition ${
             activeTab === 'today'
-              ? 'border-blue-600 text-blue-600'
+              ? 'border-brand-600 text-brand-600'
               : 'border-transparent text-gray-600 hover:text-gray-900'
           }`}
           style={{ minHeight: '44px' }}
@@ -130,7 +130,7 @@ export default function CleanerDashboard() {
           onClick={() => setActiveTab('next')}
           className={`px-4 py-2 font-medium text-sm border-b-2 transition ${
             activeTab === 'next'
-              ? 'border-blue-600 text-blue-600'
+              ? 'border-brand-600 text-brand-600'
               : 'border-transparent text-gray-600 hover:text-gray-900'
           }`}
           style={{ minHeight: '44px' }}

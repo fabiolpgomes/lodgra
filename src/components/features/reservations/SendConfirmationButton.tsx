@@ -52,7 +52,7 @@ export function SendConfirmationButton({ reservationId, guestEmail }: SendConfir
       <button
         onClick={handleSendConfirmation}
         disabled={isLoading || !guestEmail}
-        className="w-full flex items-center justify-between gap-2 px-3 py-2 text-blue-700 hover:bg-blue-100 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full flex items-center justify-between gap-2 px-3 py-2 text-brand-700 hover:bg-blue-100 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <span className="flex items-center gap-2">
           {isLoading ? (

@@ -540,8 +540,8 @@ export default async function ReportsPage({ searchParams }: PageProps) {
         <div className="mb-8 flex items-start justify-between">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 bg-blue-100 rounded-xl">
-                <FileText className="h-6 w-6 text-blue-600" />
+              <div className="p-2 bg-brand-100 rounded-xl">
+                <FileText className="h-6 w-6 text-brand-600" />
               </div>
               <h2 className="text-2xl font-bold text-gray-900">Relatórios Financeiros</h2>
             </div>

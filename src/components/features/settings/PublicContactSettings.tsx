@@ -204,7 +204,7 @@ export function PublicContactSettings({ organizationId, initialProfile }: Props)
         type="button"
         onClick={save}
         disabled={saving}
-        className="inline-flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+        className="inline-flex items-center gap-2 rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
       >
         <Save className="h-4 w-4" />
         {saving ? 'A guardar...' : 'Guardar contatos públicos'}

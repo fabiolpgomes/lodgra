@@ -49,7 +49,7 @@ export function PropertyAnalysis({ propertyStats }: PropertyAnalysisProps) {
     <div className="bg-white rounded-lg shadow p-6">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <Building2 className="h-5 w-5 text-blue-600" />
+          <Building2 className="h-5 w-5 text-brand-600" />
           <h3 className="text-lg font-semibold text-gray-900">Análise por Propriedade</h3>
         </div>
         {sortedStats.length > 0 && (
@@ -85,7 +85,7 @@ export function PropertyAnalysis({ propertyStats }: PropertyAnalysisProps) {
                     )}
                   </div>
                   {(stat.management_percentage ?? 0) > 0 && (
-                    <span className="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full font-medium">
+                    <span className="text-xs bg-brand-50 text-brand-700 px-2 py-0.5 rounded-full font-medium">
                       {stat.management_percentage}% gestão
                     </span>
                   )}
@@ -99,7 +99,7 @@ export function PropertyAnalysis({ propertyStats }: PropertyAnalysisProps) {
 
                   <div>
                     <p className="text-sm text-gray-600">Reservas</p>
-                    <p className="text-xl font-bold text-blue-600">{stat.reservations}</p>
+                    <p className="text-xl font-bold text-brand-600">{stat.reservations}</p>
                   </div>
 
                   {(stat.management_percentage ?? 0) > 0 && (

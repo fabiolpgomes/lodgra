@@ -193,7 +193,7 @@ export function BathroomsEditor({ propertyId }: BathroomsEditorProps) {
                     key={amenity}
                     className={`flex items-center gap-1.5 px-2 py-1.5 rounded-md border cursor-pointer text-xs transition-colors select-none ${
                       checked
-                        ? 'border-blue-500 bg-blue-50 text-blue-800'
+                        ? 'border-brand-500 bg-brand-50 text-brand-800'
                         : 'border-gray-200 hover:border-gray-300 text-gray-700'
                     }`}
                   >
@@ -226,7 +226,7 @@ export function BathroomsEditor({ propertyId }: BathroomsEditorProps) {
           type="button"
           onClick={save}
           disabled={saving}
-          className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 disabled:opacity-50 transition-colors"
+          className="px-4 py-2 bg-brand-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 disabled:opacity-50 transition-colors"
         >
           {saving ? 'A guardar…' : 'Guardar Banheiros'}
         </button>

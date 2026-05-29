@@ -129,7 +129,7 @@ export default async function BookingConfirmedPage({ params, searchParams }: Pag
           </div>
         )}
 
-        <div className="rounded-lg bg-blue-50 border border-blue-100 p-4 text-sm text-blue-700 text-left mb-6">
+        <div className="rounded-lg bg-brand-50 border border-brand-100 p-4 text-sm text-brand-700 text-left mb-6">
           <p className="font-medium mb-1">Próximos passos</p>
           <p>O gestor da propriedade irá contactá-lo em breve com as instruções de check-in.</p>
         </div>

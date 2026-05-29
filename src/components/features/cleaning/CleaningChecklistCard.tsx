@@ -84,7 +84,7 @@ export function CleaningChecklistCard({ checklist, onUpdate, onDelete }: Props) 
 
   const THEMES = {
     pending: 'border-amber-100 bg-amber-50/30',
-    in_progress: 'border-lodgra-blue bg-blue-50/20 shadow-lg shadow-blue-500/10',
+    in_progress: 'border-lodgra-blue bg-brand-50/20 shadow-lg shadow-brand-500/10',
     completed: 'border-emerald-100 bg-emerald-50/20 opacity-80'
   }
 
@@ -103,7 +103,7 @@ export function CleaningChecklistCard({ checklist, onUpdate, onDelete }: Props) 
               <span>•</span>
               <span className={`px-2 py-0.5 rounded-full ${
                 status === 'completed' ? 'text-emerald-600' : 
-                status === 'in_progress' ? 'text-blue-600' : 'text-amber-600'
+                status === 'in_progress' ? 'text-brand-600' : 'text-amber-600'
               }`}>
                 {status === 'pending' ? 'Pendente' : status === 'in_progress' ? 'Executando' : 'Finalizado'}
               </span>
@@ -142,7 +142,7 @@ export function CleaningChecklistCard({ checklist, onUpdate, onDelete }: Props) 
             <Button 
               size="lg" 
               onClick={markInProgress} 
-              className="w-full mb-6 rounded-2xl h-14 text-base font-bold shadow-xl shadow-blue-500/20 active:scale-95 transition-transform"
+              className="w-full mb-6 rounded-2xl h-14 text-base font-bold shadow-xl shadow-brand-500/20 active:scale-95 transition-transform"
             >
               Iniciar Checkout de Limpeza
             </Button>

@@ -94,7 +94,7 @@ export function CommissionHistory({ pageSize = 50 }: CommissionHistoryProps) {
         <p className="text-red-600 text-sm font-medium">{error}</p>
         <button
           onClick={() => window.location.reload()}
-          className="mt-2 px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
+          className="mt-2 px-4 py-2 bg-brand-600 text-white text-sm rounded hover:bg-blue-700"
         >
           Retry
         </button>

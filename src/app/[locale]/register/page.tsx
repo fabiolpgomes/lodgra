@@ -111,7 +111,7 @@ export default function RegisterPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-brand-50 to-indigo-100 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
             <div className="mb-4">
@@ -129,7 +129,7 @@ export default function RegisterPage() {
             <p className="text-gray-600 mb-6">
               Enviámos um link de confirmação para o seu email. Clique no link para ativar a sua conta.
             </p>
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 text-left">
+            <div className="bg-brand-50 border border-brand-200 rounded-lg p-4 mb-6 text-left">
               <p className="text-sm text-gray-700 mb-2">
                 <strong>💡 Dica:</strong> Se não receber o email em alguns minutos:
               </p>
@@ -249,15 +249,15 @@ export default function RegisterPage() {
                 id="acceptTerms"
                 checked={acceptedTerms}
                 onChange={(e) => setAcceptedTerms(e.target.checked)}
-                className="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                className="mt-1 h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-blue-500"
               />
               <label htmlFor="acceptTerms" className="text-sm text-gray-600 leading-tight">
                 {tLegal('acceptTerms')}{' '}
-                <Link href={locale ? `/${locale}/terms` : '/terms'} target="_blank" className="text-blue-600 hover:underline">
+                <Link href={locale ? `/${locale}/terms` : '/terms'} target="_blank" className="text-brand-600 hover:underline">
                   {tLegal('termsLink')}
                 </Link>{' '}
                 {tLegal('and')}{' '}
-                <Link href={locale ? `/${locale}/privacy` : '/privacy'} target="_blank" className="text-blue-600 hover:underline">
+                <Link href={locale ? `/${locale}/privacy` : '/privacy'} target="_blank" className="text-brand-600 hover:underline">
                   {tLegal('privacyLink')}
                 </Link>
               </label>
@@ -279,7 +279,7 @@ export default function RegisterPage() {
           <div className="mt-6 text-center text-sm text-gray-600">
             <p>
               Já tem uma conta?{' '}
-              <Link href="/login" className="text-blue-600 hover:text-blue-700 font-medium">
+              <Link href="/login" className="text-brand-600 hover:text-blue-700 font-medium">
                 Entrar
               </Link>
             </p>

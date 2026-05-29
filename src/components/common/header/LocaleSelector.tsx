@@ -122,7 +122,7 @@ export function LocaleSelector() {
                 transition-colors
                 ${
                   option.code === currentLocale
-                    ? 'bg-blue-50 text-blue-900 font-semibold'
+                    ? 'bg-brand-50 text-brand-900 font-semibold'
                     : 'text-gray-700 hover:bg-gray-50'
                 }
                 disabled:opacity-50 disabled:cursor-not-allowed

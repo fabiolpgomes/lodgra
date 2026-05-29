@@ -33,14 +33,14 @@ function PLRow({
   const colorMap = {
     positive: 'text-green-700',
     negative: 'text-red-700',
-    subtotal: 'text-blue-700',
+    subtotal: 'text-brand-700',
     total: 'text-gray-900',
   }
 
   const hasValues = Object.values(values).some(v => v !== 0)
 
   return (
-    <div className={`flex items-center justify-between py-3 ${type === 'total' ? 'border-t-2 border-gray-900 mt-1' : type === 'subtotal' ? 'border-t border-blue-200 bg-blue-50 px-3 rounded' : 'border-t border-gray-100'}`}>
+    <div className={`flex items-center justify-between py-3 ${type === 'total' ? 'border-t-2 border-gray-900 mt-1' : type === 'subtotal' ? 'border-t border-brand-200 bg-brand-50 px-3 rounded' : 'border-t border-gray-100'}`}>
       <div className={`flex items-center gap-2 ${indent ? 'ml-4' : ''}`}>
         <span className={`text-sm ${bold ? 'font-semibold' : 'font-normal'} text-gray-700`}>
           {type === 'positive' ? '(+)' : type === 'negative' ? '(−)' : type === 'subtotal' ? '(=)' : '(=)'}

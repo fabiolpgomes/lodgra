@@ -96,18 +96,18 @@ export function FileUpload({
         onClick={() => !disabled && remaining > 0 && !uploading && inputRef.current?.click()}
         className={[
           'border-2 border-dashed rounded-lg p-6 text-center transition-colors',
-          dragging ? 'border-blue-400 bg-blue-50' : 'border-gray-300 hover:border-gray-400',
+          dragging ? 'border-brand-400 bg-brand-50' : 'border-gray-300 hover:border-gray-400',
           disabled || remaining <= 0 || uploading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer',
         ].join(' ')}
       >
         <Upload className="h-8 w-8 text-gray-500 mx-auto mb-2" />
         {uploading ? (
-          <p className="text-sm text-blue-600 font-medium">A fazer upload…</p>
+          <p className="text-sm text-brand-600 font-medium">A fazer upload…</p>
         ) : remaining > 0 ? (
           <>
             <p className="text-sm text-gray-600">
               Arraste ficheiros ou{' '}
-              <span className="text-blue-600 font-medium">clique para seleccionar</span>
+              <span className="text-brand-600 font-medium">clique para seleccionar</span>
             </p>
             <p className="text-xs text-gray-600 mt-1">
               {hint ?? `Máx. ${maxMB}MB · ${remaining} espaço${remaining !== 1 ? 's' : ''} disponível${remaining !== 1 ? 'is' : ''}`}

@@ -178,7 +178,7 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
             Voltar para Utilizadores
           </Link>
           <div className="flex items-center gap-3">
-            <UserCog className="h-8 w-8 text-blue-600" />
+            <UserCog className="h-8 w-8 text-brand-600" />
             <h2 className="text-3xl font-bold text-gray-900">Editar Utilizador</h2>
           </div>
         </div>
@@ -276,7 +276,7 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
                 id="accessAllProperties"
                 checked={accessAllProperties}
                 onChange={(e) => setAccessAllProperties(e.target.checked)}
-                className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                className="h-4 w-4 text-brand-600 border-gray-300 rounded focus:ring-blue-500"
               />
               <label htmlFor="accessAllProperties" className="text-sm font-medium text-gray-700">
                 Acesso a todas as propriedades
@@ -297,7 +297,7 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
                         type="checkbox"
                         checked={selectedProperties.includes(property.id)}
                         onChange={() => toggleProperty(property.id)}
-                        className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                        className="h-4 w-4 text-brand-600 border-gray-300 rounded focus:ring-blue-500"
                       />
                       <span className="text-sm text-gray-700">{property.name}</span>
                     </label>

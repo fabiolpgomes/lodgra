@@ -215,9 +215,9 @@ export function PropertyListingsManager({ propertyId }: { propertyId: string }) 
               {/* Card Body */}
               <div className="p-4 space-y-3">
                 {listing.ical_url && (
-                  <div className="bg-blue-50 rounded p-3 border border-blue-100">
-                    <p className="text-xs text-blue-600 font-medium mb-1">iCal URL:</p>
-                    <p className="text-xs text-blue-700 font-mono break-all">{listing.ical_url}</p>
+                  <div className="bg-brand-50 rounded p-3 border border-brand-100">
+                    <p className="text-xs text-brand-600 font-medium mb-1">iCal URL:</p>
+                    <p className="text-xs text-brand-700 font-mono break-all">{listing.ical_url}</p>
                   </div>
                 )}
 
@@ -247,7 +247,7 @@ export function PropertyListingsManager({ propertyId }: { propertyId: string }) 
                   variant="outline"
                   size="sm"
                   onClick={() => setEditingListing(listing)}
-                  className="text-blue-700 border-blue-300 hover:bg-blue-50"
+                  className="text-brand-700 border-brand-300 hover:bg-blue-50"
                   title="Editar"
                 >
                   <Edit className="h-4 w-4 mr-1" />
@@ -449,7 +449,7 @@ function ListingModal({
               id="sync_enabled"
               name="sync_enabled"
               defaultChecked={listing?.sync_enabled ?? true}
-              className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              className="w-4 h-4 text-brand-600 border-gray-300 rounded focus:ring-blue-500"
             />
             <Label htmlFor="sync_enabled">
               Habilitar sincronização automática
@@ -457,12 +457,12 @@ function ListingModal({
           </div>
 
           {/* Info Box */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+          <div className="bg-brand-50 border border-brand-200 rounded-lg p-3">
             <div className="flex gap-2">
-              <AlertCircle className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
-              <div className="text-sm text-blue-800">
+              <AlertCircle className="h-5 w-5 text-brand-600 flex-shrink-0 mt-0.5" />
+              <div className="text-sm text-brand-800">
                 <p className="font-medium mb-1">Sobre anúncios:</p>
-                <ul className="list-disc list-inside space-y-1 text-blue-700">
+                <ul className="list-disc list-inside space-y-1 text-brand-700">
                   <li>Cada propriedade pode ter múltiplos anúncios</li>
                   <li>Use para conectar com Airbnb, Booking.com, etc</li>
                   <li>O iCal permite sincronização automática de reservas</li>

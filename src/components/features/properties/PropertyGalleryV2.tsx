@@ -308,7 +308,7 @@ export function PropertyGalleryV2({
                 relative aspect-square rounded-lg overflow-hidden
                 transition-all duration-200 select-none
                 ${idx === currentIndex
-                  ? 'ring-2 ring-blue-500 ring-offset-2'
+                  ? 'ring-2 ring-brand-500 ring-offset-2'
                   : ''
                 }
                 ${isEditable && draggedImage === img.id ? 'opacity-50' : ''}

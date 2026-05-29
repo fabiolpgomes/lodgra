@@ -102,7 +102,7 @@ export default function SelectPlanPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-blue-50 to-white py-20">
+    <main className="min-h-screen bg-gradient-to-b from-brand-50 to-white py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-16">
@@ -122,14 +122,14 @@ export default function SelectPlanPage() {
               onClick={() => setSelectedPlan(plan.id)}
               className={`rounded-lg border-2 p-8 cursor-pointer transition-all ${
                 selectedPlan === plan.id
-                  ? 'border-blue-900 bg-blue-50 ring-2 ring-blue-900'
+                  ? 'border-brand-900 bg-brand-50 ring-2 ring-brand-900'
                   : 'border-gray-200 bg-white hover:border-blue-500'
               } ${plan.id === 'expansao' ? 'md:scale-105 md:shadow-xl' : ''}`}
             >
               {/* Badge for recommended */}
               {plan.id === 'expansao' && (
                 <div className="mb-4">
-                  <span className="inline-block bg-blue-900 text-white text-xs font-semibold px-3 py-1 rounded-full">
+                  <span className="inline-block bg-brand-900 text-white text-xs font-semibold px-3 py-1 rounded-full">
                     Recomendado
                   </span>
                 </div>
@@ -166,7 +166,7 @@ export default function SelectPlanPage() {
               {/* Selection Indicator */}
               <div
                 className={`h-1 rounded-full transition-all ${
-                  selectedPlan === plan.id ? 'bg-blue-900 h-2' : 'bg-gray-200'
+                  selectedPlan === plan.id ? 'bg-brand-900 h-2' : 'bg-gray-200'
                 }`}
               />
             </div>
@@ -178,7 +178,7 @@ export default function SelectPlanPage() {
           <Button
             onClick={handleSelectPlan}
             disabled={isLoading}
-            className="flex-1 bg-blue-900 hover:bg-blue-800 text-white font-semibold py-3 rounded-lg"
+            className="flex-1 bg-brand-900 hover:bg-blue-800 text-white font-semibold py-3 rounded-lg"
           >
             {isLoading ? 'Redirecionando...' : `Começar com ${PLANS.find(p => p.id === selectedPlan)?.name}`}
           </Button>

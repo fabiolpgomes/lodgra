@@ -35,7 +35,7 @@ export default async function ReservationsExportPage() {
         {/* Page Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
-            <FileText className="h-8 w-8 text-blue-600" />
+            <FileText className="h-8 w-8 text-brand-600" />
             <h1 className="text-3xl font-bold text-gray-900">Exportar Reservas</h1>
           </div>
           <p className="text-gray-600">
@@ -51,9 +51,9 @@ export default async function ReservationsExportPage() {
 
         {/* Info Section */}
         <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-blue-50 rounded-lg p-6 border border-blue-200">
-            <h3 className="text-lg font-semibold text-blue-900 mb-2">O que está incluído?</h3>
-            <ul className="text-sm text-blue-800 space-y-2">
+          <div className="bg-brand-50 rounded-lg p-6 border border-brand-200">
+            <h3 className="text-lg font-semibold text-brand-900 mb-2">O que está incluído?</h3>
+            <ul className="text-sm text-brand-800 space-y-2">
               <li>✓ Todas as reservas confirmadas no período</li>
               <li>✓ Dados do hóspede (nome, email)</li>
               <li>✓ Datas de check-in e check-out</li>

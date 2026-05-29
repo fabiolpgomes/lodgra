@@ -30,7 +30,7 @@ interface TaskTableProps {
 
 const statusColors = {
   pending: 'bg-yellow-100 text-yellow-800',
-  in_progress: 'bg-blue-100 text-blue-800',
+  in_progress: 'bg-brand-100 text-brand-800',
   done: 'bg-green-100 text-green-800',
   issue: 'bg-red-100 text-red-800',
 };
@@ -219,7 +219,7 @@ export default function TaskTable({
                     </Button>
                   </div>
                   {assigningTaskId === task.id && (
-                    <div className="flex gap-2 bg-blue-50 p-2 rounded">
+                    <div className="flex gap-2 bg-brand-50 p-2 rounded">
                       <select
                         value={selectedCleanerId}
                         onChange={(e) => setSelectedCleanerId(e.target.value)}

@@ -69,7 +69,7 @@ export default function ResetPasswordPage() {
               Enviámos um link de reset para <strong>{email}</strong>
             </p>
 
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 text-left space-y-2">
+            <div className="bg-brand-50 border border-brand-200 rounded-lg p-4 mb-6 text-left space-y-2">
               <p className="text-sm font-medium text-gray-900">💡 Próximas etapas:</p>
               <ol className="text-sm text-gray-600 space-y-1 list-decimal list-inside">
                 <li>Verifique o seu email</li>
@@ -85,7 +85,7 @@ export default function ResetPasswordPage() {
 
             <Link
               href="/login"
-              className="inline-block w-full py-2 px-4 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+              className="inline-block w-full py-2 px-4 bg-brand-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
             >
               Voltar ao Login
             </Link>
@@ -147,7 +147,7 @@ export default function ResetPasswordPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2.5 px-4 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+              className="w-full py-2.5 px-4 bg-brand-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
             >
               {loading ? 'Enviando...' : 'Enviar Link de Reset'}
             </button>

@@ -188,7 +188,7 @@ export function ImageUploadDragDrop({
         relative rounded-lg border-2 border-dashed p-8 text-center
         cursor-pointer transition-colors duration-200
         ${state.isDragging
-          ? 'border-blue-500 bg-blue-50'
+          ? 'border-brand-500 bg-brand-50'
           : 'border-gray-300 hover:border-gray-400 bg-gray-50'
         }
         ${state.isUploading ? 'pointer-events-none' : ''}
@@ -215,7 +215,7 @@ export function ImageUploadDragDrop({
               <p className="text-sm text-gray-600">
                 ou clique no botão abaixo (JPEG, PNG, WebP • Máx 10MB)
               </p>
-              <p className="text-xs text-blue-600 font-medium mt-1">
+              <p className="text-xs text-brand-600 font-medium mt-1">
                 ✓ Suporta múltiplas fotos
               </p>
             </div>
@@ -226,7 +226,7 @@ export function ImageUploadDragDrop({
               e.stopPropagation();
               handleClick();
             }}
-            className="mx-auto px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm"
+            className="mx-auto px-6 py-2 bg-brand-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm"
           >
             📁 Selecionar Fotos
           </button>
@@ -235,12 +235,12 @@ export function ImageUploadDragDrop({
 
       {state.isUploading && state.fileName && (
         <div className="space-y-3">
-          <Loader className="mx-auto h-8 w-8 animate-spin text-blue-500" />
+          <Loader className="mx-auto h-8 w-8 animate-spin text-brand-500" />
           <div>
             <p className="font-medium text-gray-900">{state.fileName}</p>
             <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
               <div
-                className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+                className="bg-brand-500 h-2 rounded-full transition-all duration-300"
                 style={{ width: `${state.progress}%` }}
               />
             </div>
@@ -269,7 +269,7 @@ export function ImageUploadDragDrop({
                 error: undefined,
               }));
             }}
-            className="mt-2 text-sm text-blue-600 hover:text-blue-700 underline"
+            className="mt-2 text-sm text-brand-600 hover:text-blue-700 underline"
           >
             Try again
           </button>

@@ -159,7 +159,7 @@ export function CommissionExport({
           <button
             onClick={handleExport}
             disabled={isLoading}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-brand-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
           >
             {isLoading ? (
               <>
@@ -188,8 +188,8 @@ export function CommissionExport({
         </div>
 
         {/* Info */}
-        <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-          <p className="text-xs text-blue-700">
+        <div className="mt-4 p-3 bg-brand-50 border border-brand-200 rounded-lg">
+          <p className="text-xs text-brand-700">
             <strong>CSV Format:</strong> Includes reservation ID, property, guest, dates, revenue,
             commission rate, commission amount, and calculation date. Compatible with Excel.
           </p>

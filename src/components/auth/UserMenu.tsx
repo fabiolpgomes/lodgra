@@ -77,8 +77,8 @@ export function UserMenu() {
     <div className="flex items-center gap-2">
       {/* User Info + Account Link */}
       <Link href={`${prefix}/account`} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-        <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
-          <User className="h-5 w-5 text-blue-600" />
+        <div className="h-8 w-8 rounded-full bg-brand-100 flex items-center justify-center">
+          <User className="h-5 w-5 text-brand-600" />
         </div>
         <div className="hidden md:block">
           <p className="text-sm font-medium text-gray-900">

@@ -78,7 +78,7 @@ export function TemplateProperties({
     return {
       standard: 'text-sm text-gray-600',
       luxury: 'text-lg text-gray-700 font-light',
-      budget: 'text-sm font-bold text-blue-600',
+      budget: 'text-sm font-bold text-brand-600',
     }[templateType]
   }, [templateType])
 

@@ -13,7 +13,7 @@ export function TermsContent() {
         <h2 className="text-xl font-semibold text-gray-700 mb-1">{t('terms.title')}</h2>
         <div className="flex items-center gap-3 mb-10">
           <p className="text-sm text-gray-600">{t('terms.lastUpdated')}</p>
-          <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded font-medium">
+          <span className="text-xs bg-brand-100 text-brand-700 px-2 py-0.5 rounded font-medium">
             {t('terms.version')}
           </span>
         </div>
@@ -107,7 +107,7 @@ export function TermsContent() {
             <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('terms.contact.title')}</h3>
             <p>
               {t('terms.contact.text')}{' '}
-              <a href={`mailto:${contactEmail}`} className="text-blue-600 hover:underline">
+              <a href={`mailto:${contactEmail}`} className="text-brand-600 hover:underline">
                 {t('terms.contact.email')}
               </a>
             </p>

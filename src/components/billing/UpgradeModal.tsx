@@ -98,19 +98,19 @@ export function UpgradeModal({
                 onAddExtra?.()
                 handleClose()
               }}
-              className="w-full transform rounded-lg border-2 border-blue-500 bg-blue-50 p-4 text-left transition-all hover:border-blue-600 hover:bg-blue-100 active:scale-95"
+              className="w-full transform rounded-lg border-2 border-brand-500 bg-brand-50 p-4 text-left transition-all hover:border-blue-600 hover:bg-blue-100 active:scale-95"
             >
               <div className="flex items-start justify-between">
                 <div>
-                  <h3 className="font-semibold text-blue-900">
+                  <h3 className="font-semibold text-brand-900">
                     + Adicionar Unidade Extra
                   </h3>
-                  <p className="mt-1 text-sm text-blue-700">
+                  <p className="mt-1 text-sm text-brand-700">
                     R$49/mês por unidade • Sem compromisso de plano
                   </p>
                 </div>
                 <div className="ml-2 flex-shrink-0">
-                  <div className="rounded bg-blue-200 px-2 py-1 text-xs font-semibold text-blue-900">
+                  <div className="rounded bg-brand-200 px-2 py-1 text-xs font-semibold text-brand-900">
                     R$49
                   </div>
                 </div>

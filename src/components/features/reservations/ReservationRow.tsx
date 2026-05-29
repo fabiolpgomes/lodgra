@@ -74,7 +74,7 @@ export function ReservationRow({ reservation }: ReservationRowProps) {
             <div className="text-xs text-gray-600">
               {property?.city}
               {platformName && (
-                <span className="ml-1 px-1 py-0.5 text-[10px] font-medium bg-blue-100 text-blue-700 rounded">
+                <span className="ml-1 px-1 py-0.5 text-[10px] font-medium bg-brand-100 text-brand-700 rounded">
                   {platformName}
                 </span>
               )}
@@ -123,7 +123,7 @@ export function ReservationRow({ reservation }: ReservationRowProps) {
       </td>
 
       <td className="px-4 py-3 whitespace-nowrap text-right">
-        <span className="text-xs font-medium text-blue-600 hover:text-blue-900">
+        <span className="text-xs font-medium text-brand-600 hover:text-blue-900">
           Ver →
         </span>
       </td>

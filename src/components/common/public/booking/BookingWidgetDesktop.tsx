@@ -176,17 +176,17 @@ export function BookingWidgetDesktop({
   }
 
   return (
-    <div className="sticky top-24 bg-white border border-neutral-200 rounded-xl p-6 shadow-lg">
+    <div className="sticky top-24 bg-white border border-gray-200 rounded-xl p-6 shadow-lg">
       {/* Price header */}
       <div className="mb-5">
-        <p className="text-sm text-neutral-600 mb-1">
+        <p className="text-sm text-gray-600 mb-1">
           {nights > 0 && isReady && hasVaryingPrices ? 'Preço médio' : 'Preço base'}
         </p>
         <div className="flex items-baseline gap-1">
-          <span className="text-4xl font-black text-neutral-900">
+          <span className="text-4xl font-black text-gray-900">
             {symbol}{nights > 0 && isReady ? avgPerNight : basePrice}
           </span>
-          <span className="text-lg font-medium text-neutral-600">/noite</span>
+          <span className="text-lg font-medium text-gray-600">/noite</span>
         </div>
         {effectiveMinNights > 1 && (
           <p className="mt-1 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1 inline-block">
@@ -198,27 +198,27 @@ export function BookingWidgetDesktop({
       {/* Date pickers */}
       <div className="grid grid-cols-2 gap-2 mb-3">
         <div>
-          <label className="block text-xs font-semibold text-neutral-700 mb-1">Check-in</label>
+          <label className="block text-xs font-semibold text-gray-700 mb-1">Check-in</label>
           <input
             type="date"
             value={checkIn}
             min={today}
             onChange={e => handleCheckInChange(e.target.value)}
-            className="w-full px-2 py-2 text-sm border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lodgra-green"
+            className="w-full px-2 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lodgra-green"
           />
           {checkInError && (
             <p className="mt-1 text-xs text-red-600">{checkInError}</p>
           )}
         </div>
         <div>
-          <label className="block text-xs font-semibold text-neutral-700 mb-1">Check-out</label>
+          <label className="block text-xs font-semibold text-gray-700 mb-1">Check-out</label>
           <input
             type="date"
             value={checkOut}
             min={minCheckOut || today}
             onChange={e => handleCheckOutChange(e.target.value)}
             disabled={!checkIn}
-            className="w-full px-2 py-2 text-sm border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lodgra-green disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full px-2 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lodgra-green disabled:opacity-50 disabled:cursor-not-allowed"
           />
           {checkOutError && (
             <p className="mt-1 text-xs text-red-600">{checkOutError}</p>
@@ -228,11 +228,11 @@ export function BookingWidgetDesktop({
 
       {/* Guests */}
       <div className="mb-5">
-        <label className="block text-xs font-semibold text-neutral-700 mb-1">Hóspedes</label>
+        <label className="block text-xs font-semibold text-gray-700 mb-1">Hóspedes</label>
         <select
           value={guests}
           onChange={e => setGuests(parseInt(e.target.value))}
-          className="w-full px-2 py-2 text-sm border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lodgra-green"
+          className="w-full px-2 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lodgra-green"
         >
           {Array.from({ length: Math.max(1, maxGuests) }, (_, i) => (
             <option key={i + 1} value={i + 1}>{i + 1} {i === 0 ? 'hóspede' : 'hóspedes'}</option>
@@ -242,21 +242,21 @@ export function BookingWidgetDesktop({
 
       {/* Price summary */}
       {nights > 0 && (
-        <div className="mb-4 p-3 bg-neutral-50 rounded-lg text-sm space-y-1">
+        <div className="mb-4 p-3 bg-gray-50 rounded-lg text-sm space-y-1">
           {isPriceFetching ? (
             <>
-              <div className="flex justify-between text-neutral-400 animate-pulse">
+              <div className="flex justify-between text-gray-400 animate-pulse">
                 <span>{nights} noite{nights !== 1 ? 's' : ''}</span>
-                <span className="bg-neutral-200 rounded w-16">&nbsp;</span>
+                <span className="bg-gray-200 rounded w-16">&nbsp;</span>
               </div>
-              <div className="flex justify-between font-bold text-neutral-300 pt-1 border-t border-neutral-200 animate-pulse">
+              <div className="flex justify-between font-bold text-gray-300 pt-1 border-t border-gray-200 animate-pulse">
                 <span>Total</span>
-                <span className="bg-neutral-200 rounded w-20">&nbsp;</span>
+                <span className="bg-gray-200 rounded w-20">&nbsp;</span>
               </div>
             </>
           ) : (
             <>
-              <div className="flex justify-between text-neutral-700">
+              <div className="flex justify-between text-gray-700">
                 {hasVaryingPrices ? (
                   <span>{nights} noite{nights !== 1 ? 's' : ''} · preço por época</span>
                 ) : (
@@ -265,15 +265,15 @@ export function BookingWidgetDesktop({
                 <span>{symbol}{Math.round(accommodationTotal)}</span>
               </div>
               {hasVaryingPrices && (
-                <p className="text-xs text-neutral-500">Inclui regras de preço por época</p>
+                <p className="text-xs text-gray-500">Inclui regras de preço por época</p>
               )}
               {isReady && priceState.fees?.map((fee, i) => (
-                <div key={i} className="flex justify-between text-neutral-700">
+                <div key={i} className="flex justify-between text-gray-700">
                   <span>{fee.label}</span>
                   <span>{symbol}{Math.round(fee.amount)}</span>
                 </div>
               ))}
-              <div className="flex justify-between font-bold text-neutral-900 pt-1 border-t border-neutral-200">
+              <div className="flex justify-between font-bold text-gray-900 pt-1 border-t border-gray-200">
                 <span>Total</span>
                 <span>{symbol}{Math.round(displayTotal)}</span>
               </div>
@@ -303,9 +303,9 @@ export function BookingWidgetDesktop({
 
       {/* Trust Info */}
       <div className="space-y-2 text-sm">
-        <p className="flex items-center gap-2 text-neutral-700"><span>✓</span>Sem comissões</p>
-        <p className="flex items-center gap-2 text-neutral-700"><span>✓</span>Pagamento seguro</p>
-        <p className="flex items-center gap-2 text-neutral-700"><span>✓</span>Confirmação instantânea</p>
+        <p className="flex items-center gap-2 text-gray-700"><span>✓</span>Sem comissões</p>
+        <p className="flex items-center gap-2 text-gray-700"><span>✓</span>Pagamento seguro</p>
+        <p className="flex items-center gap-2 text-gray-700"><span>✓</span>Confirmação instantânea</p>
       </div>
     </div>
   )

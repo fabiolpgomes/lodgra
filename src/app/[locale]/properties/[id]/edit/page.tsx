@@ -256,7 +256,7 @@ export default function EditPropertyPage({
         <div className="flex items-center justify-center min-h-64">
           <div className="text-center">
             <p className="text-red-600 mb-4">{error}</p>
-            <Link href={`/${locale}/properties`} className="text-blue-600 hover:underline">
+            <Link href={`/${locale}/properties`} className="text-brand-600 hover:underline">
               Voltar para Propriedades
             </Link>
           </div>
@@ -757,7 +757,7 @@ export default function EditPropertyPage({
                 <div className="pt-2">
                   <Link
                     href={`/${locale}/properties/${propertyId}/pricing`}
-                    className="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 transition-colors"
+                    className="inline-flex items-center gap-2 text-sm text-brand-600 hover:text-blue-800 transition-colors"
                   >
                     <Tag size={14} />
                     Gerir regras de preço por época →

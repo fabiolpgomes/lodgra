@@ -300,17 +300,17 @@ export default function ResetPasswordConfirmPage() {
             <button
               type="submit"
               disabled={!isValid || loading}
-              className="w-full py-2.5 px-4 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+              className="w-full py-2.5 px-4 bg-brand-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
             >
               {loading ? 'Processando...' : from === 'invite' ? 'Criar senha e entrar' : 'Alterar Password'}
             </button>
           </form>
 
           {/* Info Box */}
-          <div className="mt-6 rounded-lg bg-blue-50 border border-blue-200 p-4">
+          <div className="mt-6 rounded-lg bg-brand-50 border border-brand-200 p-4">
             <div className="flex gap-3">
-              <AlertCircle className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
-              <p className="text-xs text-blue-700">
+              <AlertCircle className="h-5 w-5 text-brand-600 flex-shrink-0 mt-0.5" />
+              <p className="text-xs text-brand-700">
                 Esta password será utilizada para fazer login. Guarde num local seguro.
               </p>
             </div>

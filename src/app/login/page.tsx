@@ -68,7 +68,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-brand-50 to-indigo-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo and Title */}
         <div className="text-center mb-8">
@@ -129,7 +129,7 @@ export default function LoginPage() {
 
             {/* Forgot Password */}
             <div className="text-right">
-              <Link href="/auth/reset-password" className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+              <Link href="/auth/reset-password" className="text-sm text-brand-600 hover:text-blue-700 font-medium">
                 Forgot password?
               </Link>
             </div>
@@ -150,7 +150,7 @@ export default function LoginPage() {
           <div className="mt-6 text-center text-sm text-gray-600">
             <p>
               Don&apos;t have an account?{' '}
-              <Link href="/register" className="text-blue-600 hover:text-blue-700 font-medium">
+              <Link href="/register" className="text-brand-600 hover:text-blue-700 font-medium">
                 Sign up
               </Link>
             </p>

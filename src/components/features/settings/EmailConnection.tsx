@@ -79,8 +79,8 @@ export function EmailConnection({ initialEmail, initialLastSync }: EmailConnecti
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-6">
       <div className="flex items-center gap-3 mb-4">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50">
-          <Mail className="h-5 w-5 text-blue-600" />
+        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-50">
+          <Mail className="h-5 w-5 text-brand-600" />
         </div>
         <div>
           <h3 className="font-semibold text-gray-900">Ligação Gmail</h3>

@@ -77,7 +77,7 @@ export function ICalExportSection({ properties, appUrl }: ICalExportSectionProps
                     </code>
                     <button
                       onClick={() => copyToClipboard(exportUrl)}
-                      className="px-3 py-2 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 flex items-center gap-1 text-sm font-medium"
+                      className="px-3 py-2 bg-brand-100 text-brand-700 rounded hover:bg-blue-200 flex items-center gap-1 text-sm font-medium"
                     >
                       <Copy className="h-3 w-3" />
                       Copiar
@@ -85,9 +85,9 @@ export function ICalExportSection({ properties, appUrl }: ICalExportSectionProps
                   </div>
                 </div>
 
-                <div className="bg-blue-50 border border-blue-200 rounded p-3 text-xs text-blue-800">
+                <div className="bg-brand-50 border border-brand-200 rounded p-3 text-xs text-brand-800">
                   <p className="font-medium mb-1">Como usar:</p>
-                  <ul className="list-disc list-inside space-y-1 text-blue-700">
+                  <ul className="list-disc list-inside space-y-1 text-brand-700">
                     <li>Cole este URL nas configurações de sincronização da sua plataforma (Airbnb, Flatio, etc.)</li>
                     <li>A plataforma importará automaticamente as suas reservas</li>
                     <li>Use uma URL diferente para cada propriedade</li>

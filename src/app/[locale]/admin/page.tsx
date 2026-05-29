@@ -26,7 +26,7 @@ export default async function AdminPage() {
         {/* Page Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
-            <Clock className="h-8 w-8 text-blue-600" />
+            <Clock className="h-8 w-8 text-brand-600" />
             <h2 className="text-3xl font-bold text-gray-900">Automação e Cron Jobs</h2>
           </div>
           <p className="text-gray-600">

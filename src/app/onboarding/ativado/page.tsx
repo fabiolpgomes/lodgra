@@ -36,7 +36,7 @@ export default function OnboardingAtivadoPage() {
     : `/${locale}/onboarding`
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-brand-50 to-indigo-100 flex items-center justify-center p-4">
       <div className="w-full max-w-lg bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center">
         <div className="flex justify-center mb-6">
           <Logo size="md" />
@@ -58,7 +58,7 @@ export default function OnboardingAtivadoPage() {
         <div className="space-y-3 mb-6">
           {STEPS.map((step, index) => (
             <div key={step.title} className="flex items-center gap-3 rounded-lg border border-gray-100 bg-gray-50 px-4 py-3 text-left">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-700">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-100 text-sm font-bold text-brand-700">
                 {index + 1}
               </div>
               <div>

@@ -43,12 +43,12 @@ export default function FeaturesPage() {
       <PublicNav />
       <main className="min-h-screen bg-white pt-18">
       {/* Hero */}
-      <section className="bg-gradient-to-r from-blue-900 to-blue-800 text-white py-20">
+      <section className="bg-gradient-to-r from-brand-900 to-brand-800 text-white py-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <h1 className="text-4xl md:text-5xl font-bold mb-6">
             Funcionalidades que Maximizam seus Lucros
           </h1>
-          <p className="text-xl text-blue-100 mb-8 max-w-2xl">
+          <p className="text-xl text-brand-100 mb-8 max-w-2xl">
             Descubra como Lodgra ajuda milhares de proprietários a aumentar ganhos em até 30% através de automação inteligente e análise de dados.
           </p>
           <Link href="/register">
@@ -68,7 +68,7 @@ export default function FeaturesPage() {
               const Icon = feature.icon
               return (
                 <div key={feature.title} className="bg-white p-8 rounded-lg shadow-sm hover:shadow-md transition">
-                  <Icon className="w-10 h-10 text-blue-900 mb-4" />
+                  <Icon className="w-10 h-10 text-brand-900 mb-4" />
                   <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
                   <p className="text-gray-600">{feature.description}</p>
                 </div>

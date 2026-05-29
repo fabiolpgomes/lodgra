@@ -66,7 +66,7 @@ export function CommissionMetrics() {
           <p className="text-red-600 text-sm font-medium">{error || 'Failed to load metrics'}</p>
           <button
             onClick={() => window.location.reload()}
-            className="mt-2 px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
+            className="mt-2 px-4 py-2 bg-brand-600 text-white text-sm rounded hover:bg-blue-700"
           >
             Retry
           </button>
@@ -80,7 +80,7 @@ export function CommissionMetrics() {
       title: 'Current Month',
       label: 'March 2026',
       ...data.currentMonth,
-      color: 'from-blue-500 to-blue-600',
+      color: 'from-brand-500 to-brand-600',
     },
     {
       title: 'Year to Date',

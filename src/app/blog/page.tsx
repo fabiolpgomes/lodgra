@@ -63,12 +63,12 @@ export default function BlogPage() {
   return (
     <main className="min-h-screen bg-white">
       {/* Hero */}
-      <section className="bg-gradient-to-r from-blue-900 to-blue-800 text-white py-20">
+      <section className="bg-gradient-to-r from-brand-900 to-brand-800 text-white py-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <h1 className="text-4xl md:text-5xl font-bold mb-6">
             Blog Lodgra
           </h1>
-          <p className="text-xl text-blue-100 max-w-2xl">
+          <p className="text-xl text-brand-100 max-w-2xl">
             Artigos, dicas e tendências sobre gestão de imóveis, pricing dinâmico e maximização de lucros.
           </p>
         </div>
@@ -79,9 +79,9 @@ export default function BlogPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition">
             <div className="md:flex">
-              <div className="md:w-1/3 bg-gradient-to-r from-blue-900 to-blue-800" />
+              <div className="md:w-1/3 bg-gradient-to-r from-brand-900 to-brand-800" />
               <div className="p-8 md:w-2/3">
-                <span className="inline-block px-3 py-1 bg-blue-100 text-blue-900 rounded-full text-sm font-semibold mb-4">
+                <span className="inline-block px-3 py-1 bg-brand-100 text-brand-900 rounded-full text-sm font-semibold mb-4">
                   {blogPosts[0].category}
                 </span>
                 <h2 className="text-3xl font-bold mb-4">{blogPosts[0].title}</h2>
@@ -96,7 +96,7 @@ export default function BlogPage() {
                     {blogPosts[0].date}
                   </span>
                 </div>
-                <Link href={`#${blogPosts[0].slug}`} className="inline-flex items-center gap-2 text-blue-900 font-semibold hover:gap-3 transition">
+                <Link href={`#${blogPosts[0].slug}`} className="inline-flex items-center gap-2 text-brand-900 font-semibold hover:gap-3 transition">
                   Ler artigo completo <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>
@@ -117,7 +117,7 @@ export default function BlogPage() {
               >
                 <div className="bg-gradient-to-r from-gray-300 to-gray-400 h-48" />
                 <div className="p-6">
-                  <span className="inline-block px-3 py-1 bg-blue-100 text-blue-900 rounded-full text-xs font-semibold mb-3">
+                  <span className="inline-block px-3 py-1 bg-brand-100 text-brand-900 rounded-full text-xs font-semibold mb-3">
                     {post.category}
                   </span>
                   <h3 className="text-xl font-bold mb-3 line-clamp-2">{post.title}</h3>
@@ -132,7 +132,7 @@ export default function BlogPage() {
                       {post.date}
                     </span>
                   </div>
-                  <Link href={`#${post.slug}`} className="text-blue-900 font-semibold hover:underline flex items-center gap-2">
+                  <Link href={`#${post.slug}`} className="text-brand-900 font-semibold hover:underline flex items-center gap-2">
                     Ler mais <ArrowRight className="w-3 h-3" />
                   </Link>
                 </div>
@@ -143,10 +143,10 @@ export default function BlogPage() {
       </section>
 
       {/* Newsletter CTA */}
-      <section className="bg-blue-900 text-white py-20">
+      <section className="bg-brand-900 text-white py-20">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold mb-4">Receba Dicas Exclusivas</h2>
-          <p className="text-lg text-blue-100 mb-8">
+          <p className="text-lg text-brand-100 mb-8">
             Inscreva-se na nossa newsletter e receba artigos, tendências e dicas exclusivas direto no seu email.
           </p>
           <div className="flex gap-4 max-w-md mx-auto">

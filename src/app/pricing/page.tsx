@@ -77,70 +77,70 @@ export default function PricingPage() {
       <PublicNav />
       <main className="min-h-screen bg-white pt-18">
       {/* Hero */}
-      <section className="bg-gradient-to-r from-blue-900 to-blue-800 text-white py-20">
+      <section className="bg-gradient-to-r from-brand-900 to-brand-800 text-white py-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-6">
             Preços Transparentes e Flexíveis
           </h1>
-          <p className="text-xl text-blue-100 max-w-2xl mx-auto mb-4">
+          <p className="text-xl text-brand-100 max-w-2xl mx-auto mb-4">
             Pague apenas pelo que usa. Preços por imóvel, sem taxas escondidas.
           </p>
-          <p className="text-lg text-blue-200">
+          <p className="text-lg text-brand-200">
             Quanto mais imóveis, mais economia você tem. Escalabilidade sem limite.
           </p>
         </div>
       </section>
 
       {/* How It Works */}
-      <section className="py-16 bg-blue-50">
+      <section className="py-16 bg-brand-50">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white rounded-lg p-8 border border-blue-200">
+          <div className="bg-white rounded-lg p-8 border border-brand-200">
             <h2 className="text-2xl font-bold mb-6">Como Funciona</h2>
             <p className="text-gray-600 mb-8">
               Escolha um plano com propriedades incluídas. Precisar de mais? Adicione propriedades extras por R$ 49/mês cada.
             </p>
             <div className="grid md:grid-cols-3 gap-8">
               <div className="text-center">
-                <div className="text-2xl font-bold text-blue-900 mb-2">Essencial</div>
+                <div className="text-2xl font-bold text-brand-900 mb-2">Essencial</div>
                 <p className="text-gray-600 text-sm">
-                  <span className="block font-semibold text-lg text-blue-900">R$ 59/mês</span>
+                  <span className="block font-semibold text-lg text-brand-900">R$ 59/mês</span>
                   1 propriedade incluída
                   <span className="block text-xs mt-1">+ R$ 49/extra</span>
                 </p>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-blue-900 mb-2">Expansão</div>
+                <div className="text-2xl font-bold text-brand-900 mb-2">Expansão</div>
                 <p className="text-gray-600 text-sm">
-                  <span className="block font-semibold text-lg text-blue-900">R$ 149/mês</span>
+                  <span className="block font-semibold text-lg text-brand-900">R$ 149/mês</span>
                   3 propriedades incluídas
                   <span className="block text-xs mt-1">+ R$ 49/extra</span>
                 </p>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-blue-900 mb-2">Premium</div>
+                <div className="text-2xl font-bold text-brand-900 mb-2">Premium</div>
                 <p className="text-gray-600 text-sm">
-                  <span className="block font-semibold text-lg text-blue-900">R$ 397/mês</span>
+                  <span className="block font-semibold text-lg text-brand-900">R$ 397/mês</span>
                   10 propriedades incluídas
                   <span className="block text-xs mt-1">+ R$ 49/extra</span>
                 </p>
               </div>
             </div>
-            <div className="border-t border-blue-200 mt-8 pt-8">
+            <div className="border-t border-brand-200 mt-8 pt-8">
               <p className="text-center text-gray-600 font-semibold mb-4">Exemplos de Custo Mensal</p>
               <div className="grid md:grid-cols-3 gap-4 text-sm">
                 <div className="bg-gray-50 p-4 rounded">
                   <p className="font-semibold text-gray-900">Essencial + 2 extras</p>
-                  <p className="text-blue-900 font-bold mt-1">R$ 157/mês</p>
+                  <p className="text-brand-900 font-bold mt-1">R$ 157/mês</p>
                   <p className="text-gray-600 text-xs mt-1">R$ 59 + (2 × R$ 49)</p>
                 </div>
                 <div className="bg-gray-50 p-4 rounded">
                   <p className="font-semibold text-gray-900">Expansão + 2 extras</p>
-                  <p className="text-blue-900 font-bold mt-1">R$ 247/mês</p>
+                  <p className="text-brand-900 font-bold mt-1">R$ 247/mês</p>
                   <p className="text-gray-600 text-xs mt-1">R$ 149 + (2 × R$ 49)</p>
                 </div>
                 <div className="bg-gray-50 p-4 rounded">
                   <p className="font-semibold text-gray-900">Premium + 5 extras</p>
-                  <p className="text-blue-900 font-bold mt-1">R$ 642/mês</p>
+                  <p className="text-brand-900 font-bold mt-1">R$ 642/mês</p>
                   <p className="text-gray-600 text-xs mt-1">R$ 397 + (5 × R$ 49)</p>
                 </div>
               </div>
@@ -157,7 +157,7 @@ export default function PricingPage() {
               <div
                 key={plan.name}
                 className={`rounded-lg shadow-lg overflow-hidden transition transform hover:scale-105 ${
-                  plan.highlight ? 'ring-2 ring-blue-900 md:scale-105 bg-blue-50' : 'bg-white'
+                  plan.highlight ? 'ring-2 ring-brand-900 md:scale-105 bg-brand-50' : 'bg-white'
                 }`}
               >
                 <div className="p-8">
@@ -202,7 +202,7 @@ export default function PricingPage() {
           <div className="overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>
-                <tr className="bg-blue-900 text-white">
+                <tr className="bg-brand-900 text-white">
                   <th className="border border-gray-300 p-4 text-left">Funcionalidade</th>
                   <th className="border border-gray-300 p-4 text-center">Essencial</th>
                   <th className="border border-gray-300 p-4 text-center">Expansão</th>

@@ -14,14 +14,14 @@ export function PrivacyPolicyContent() {
         <h2 className="text-xl font-semibold text-gray-700 mb-1">{t('privacy.title')}</h2>
         <div className="flex items-center gap-3 mb-10">
           <p className="text-sm text-gray-600">{t('privacy.lastUpdated')}</p>
-          <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded font-medium">
+          <span className="text-xs bg-brand-100 text-brand-700 px-2 py-0.5 rounded font-medium">
             {t('privacy.version')}
           </span>
         </div>
 
         <section className="space-y-8 text-gray-700 leading-relaxed">
           {/* Intro */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+          <div className="bg-brand-50 border border-brand-200 rounded-lg p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('privacy.intro.title')}</h3>
             <p className="mb-3">{t('privacy.intro.description')}</p>
             <p className="mb-3 font-semibold">{t('privacy.intro.features')}</p>
@@ -120,7 +120,7 @@ export function PrivacyPolicyContent() {
                 <li>
                   {t('privacy.regional.authority')}{' '}
                   {t('privacy.regional.authorityUrl') && (
-                    <Link href={t('privacy.regional.authorityUrl')} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                    <Link href={t('privacy.regional.authorityUrl')} target="_blank" rel="noopener noreferrer" className="text-brand-600 hover:underline">
                       {t('privacy.regional.authorityUrl')}
                     </Link>
                   )}
@@ -146,7 +146,7 @@ export function PrivacyPolicyContent() {
             <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('privacy.contact.title')}</h3>
             <p className="mb-3">
               {t('privacy.contact.text')}{' '}
-              <a href={`mailto:${contactEmail}`} className="text-blue-600 hover:underline font-semibold">
+              <a href={`mailto:${contactEmail}`} className="text-brand-600 hover:underline font-semibold">
                 {t('privacy.contact.email')}
               </a>
             </p>

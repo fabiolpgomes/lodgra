@@ -139,7 +139,7 @@ export function SyncPanel({ properties, listings }: SyncPanelProps) {
       {/* Sync Section */}
       <div className="bg-white rounded-lg shadow p-6">
         <div className="flex items-center gap-2 mb-4">
-          <Upload className="h-5 w-5 text-blue-600" />
+          <Upload className="h-5 w-5 text-brand-600" />
           <h3 className="text-lg font-semibold text-gray-900">Sincronizar Calendários</h3>
         </div>
 
@@ -161,7 +161,7 @@ export function SyncPanel({ properties, listings }: SyncPanelProps) {
                 type="checkbox"
                 checked={selectedProperties.size === syncableProperties.length}
                 onChange={toggleAll}
-                className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                className="h-4 w-4 text-brand-600 rounded border-gray-300 focus:ring-blue-500"
               />
               <span className="text-sm font-semibold text-gray-900">
                 Selecionar Todas ({syncableProperties.length})
@@ -179,7 +179,7 @@ export function SyncPanel({ properties, listings }: SyncPanelProps) {
                     key={property.id}
                     className={`flex items-center justify-between p-3 border rounded-lg cursor-pointer transition-colors ${
                       selectedProperties.has(property.id)
-                        ? 'border-blue-300 bg-blue-50'
+                        ? 'border-brand-300 bg-brand-50'
                         : 'border-gray-200 hover:border-gray-300'
                     }`}
                   >
@@ -188,7 +188,7 @@ export function SyncPanel({ properties, listings }: SyncPanelProps) {
                         type="checkbox"
                         checked={selectedProperties.has(property.id)}
                         onChange={() => toggleProperty(property.id)}
-                        className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                        className="h-4 w-4 text-brand-600 rounded border-gray-300 focus:ring-blue-500"
                       />
                       <div>
                         <p className="text-sm font-medium text-gray-900">{property.name}</p>

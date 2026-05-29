@@ -132,7 +132,7 @@ function MonthGroup({
                   <p className="text-xs text-gray-600">→ {r.check_out} ({nights}n)</p>
                 </div>
                 <div className="hidden md:block">
-                  <span className="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full">
+                  <span className="text-xs bg-brand-50 text-brand-700 px-2 py-0.5 rounded-full">
                     {channel}
                   </span>
                 </div>
@@ -190,7 +190,7 @@ export function CashFlowForecast({
         <div className="flex items-center justify-between mb-2">
           <div>
             <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-blue-600" />
+              <TrendingUp className="h-5 w-5 text-brand-600" />
               Fluxo de Caixa Previsto
             </h3>
             <p className="text-sm text-gray-600 mt-1">
@@ -233,7 +233,7 @@ export function CashFlowForecast({
               label="61–90 dias"
               sublabel="Longo prazo"
               summary={horizon90}
-              color="border-blue-500"
+              color="border-brand-500"
             />
           </div>
 

@@ -325,8 +325,8 @@ export function EditReservationForm({ reservation, listings }: EditReservationFo
 
       {/* Informações da Importação */}
       {reservation.booking_source && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <p className="text-sm text-blue-800">
+        <div className="bg-brand-50 border border-brand-200 rounded-lg p-4">
+          <p className="text-sm text-brand-800">
             <strong>Origem:</strong> {reservation.booking_source}
             {reservation.external_id && (
               <> | <strong>ID Externo:</strong> {reservation.external_id.substring(0, 20)}...</>

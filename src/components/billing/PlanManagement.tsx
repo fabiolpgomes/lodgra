@@ -24,7 +24,7 @@ const PLAN_LABELS: Record<Plan, string> = {
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   active:    { label: 'Activa',       color: 'bg-green-100 text-green-800' },
-  trial:     { label: 'Trial',        color: 'bg-blue-100 text-blue-800' },
+  trial:     { label: 'Trial',        color: 'bg-brand-100 text-brand-800' },
   past_due:  { label: 'Pagamento em atraso', color: 'bg-red-100 text-red-800' },
   cancelled: { label: 'Cancelada',    color: 'bg-gray-100 text-gray-800' },
 }
@@ -79,11 +79,11 @@ export function PlanManagement({ currentPlan, subscriptionStatus }: PlanManageme
   return (
     <div className="space-y-4">
       {/* Current plan summary */}
-      <div className="flex items-center justify-between p-4 bg-blue-50 border border-blue-200 rounded-lg">
+      <div className="flex items-center justify-between p-4 bg-brand-50 border border-brand-200 rounded-lg">
         <div>
-          <p className="text-xs text-blue-700 font-medium uppercase tracking-wide">Plano actual</p>
-          <p className="text-lg font-bold text-blue-900">{PLAN_LABELS[currentPlan]}</p>
-          <p className="text-xs text-blue-700 mt-0.5">
+          <p className="text-xs text-brand-700 font-medium uppercase tracking-wide">Plano actual</p>
+          <p className="text-lg font-bold text-brand-900">{PLAN_LABELS[currentPlan]}</p>
+          <p className="text-xs text-brand-700 mt-0.5">
             {limits.maxProperties ? `Até ${limits.maxProperties} propriedades` : 'Propriedades ilimitadas'}
           </p>
         </div>
@@ -110,28 +110,28 @@ export function PlanManagement({ currentPlan, subscriptionStatus }: PlanManageme
               key={plan.id}
               className={`flex items-center justify-between p-4 rounded-lg border ${
                 isCurrent
-                  ? 'border-blue-300 bg-blue-50'
-                  : 'border-neutral-200 bg-white'
+                  ? 'border-brand-300 bg-brand-50'
+                  : 'border-gray-200 bg-white'
               }`}
             >
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <p className="font-semibold text-neutral-900 text-sm">{plan.name}</p>
-                  {isCurrent && <CheckCircle2 className="w-4 h-4 text-blue-600 flex-shrink-0" />}
+                  <p className="font-semibold text-gray-900 text-sm">{plan.name}</p>
+                  {isCurrent && <CheckCircle2 className="w-4 h-4 text-brand-600 flex-shrink-0" />}
                 </div>
-                <p className="text-xs text-neutral-500">{plan.properties}</p>
+                <p className="text-xs text-gray-500">{plan.properties}</p>
               </div>
 
               <div className="flex items-center gap-3 ml-4">
-                <p className="text-sm font-bold text-neutral-900">€{plan.price}<span className="text-xs font-normal text-neutral-500">/mês</span></p>
+                <p className="text-sm font-bold text-gray-900">€{plan.price}<span className="text-xs font-normal text-gray-500">/mês</span></p>
                 {!isCurrent && (
                   <button
                     onClick={() => handleUpgrade(planKey)}
                     disabled={!!upgrading || !!success}
                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                       isUpgrade
-                        ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                        : 'bg-neutral-100 hover:bg-neutral-200 text-neutral-700'
+                        ? 'bg-brand-600 hover:bg-blue-700 text-white'
+                        : 'bg-gray-100 hover:bg-neutral-200 text-gray-700'
                     } disabled:opacity-50 disabled:cursor-not-allowed`}
                   >
                     {isLoading ? (
@@ -152,7 +152,7 @@ export function PlanManagement({ currentPlan, subscriptionStatus }: PlanManageme
       <button
         onClick={handlePortal}
         disabled={openingPortal}
-        className="flex items-center gap-2 text-sm text-neutral-600 hover:text-neutral-900 transition-colors disabled:opacity-50"
+        className="flex items-center gap-2 text-sm text-gray-600 hover:text-neutral-900 transition-colors disabled:opacity-50"
       >
         {openingPortal ? <Loader2 className="w-4 h-4 animate-spin" /> : <ExternalLink className="w-4 h-4" />}
         Gerir faturação, faturas e cancelamento

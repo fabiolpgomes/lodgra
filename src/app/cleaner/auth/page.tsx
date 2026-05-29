@@ -68,7 +68,7 @@ export default function CleanerAuthPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-brand-50 to-indigo-100">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
           <h1 className="text-2xl font-semibold text-gray-800">A validar o seu acesso...</h1>
@@ -80,12 +80,12 @@ export default function CleanerAuthPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-brand-50 to-indigo-100 px-4">
         <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md text-center">
           {/* Logo */}
           <div className="mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-100">
-              <span className="text-2xl font-black text-blue-600">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-brand-100">
+              <span className="text-2xl font-black text-brand-600">
                 {typeof context?.companyLogo === 'string' && context.companyLogo.startsWith('http')
                   ? <img src={context.companyLogo} alt="Logo" className="w-8 h-8" />
                   : context?.companyLogo || '🏠'}
@@ -95,7 +95,7 @@ export default function CleanerAuthPage() {
 
           {/* Branding */}
           <h2 className="text-xs font-black uppercase tracking-widest text-gray-600 mb-3">Portal de Limpeza</h2>
-          <h1 className="text-3xl font-black text-blue-600 mb-6">{context?.companyName || 'Lodgra'}</h1>
+          <h1 className="text-3xl font-black text-brand-600 mb-6">{context?.companyName || 'Lodgra'}</h1>
 
           {/* Error */}
           <div className="mb-6">
@@ -109,9 +109,9 @@ export default function CleanerAuthPage() {
           </div>
 
           {/* Help Text */}
-          <div className="bg-blue-50 rounded-xl p-4 mb-6 text-left">
-            <p className="text-xs font-bold text-blue-900 mb-2">💡 O que fazer?</p>
-            <ul className="text-xs text-blue-800 space-y-1">
+          <div className="bg-brand-50 rounded-xl p-4 mb-6 text-left">
+            <p className="text-xs font-bold text-brand-900 mb-2">💡 O que fazer?</p>
+            <ul className="text-xs text-brand-800 space-y-1">
               <li>• Verifique se o link está completo</li>
               <li>• Copie o link exato do WhatsApp</li>
               <li>• Solicite um novo link ao seu gestor</li>
@@ -122,7 +122,7 @@ export default function CleanerAuthPage() {
           <div className="space-y-3">
             <Link
               href="/cleaner/request-link"
-              className="block w-full px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-colors"
+              className="block w-full px-6 py-3 bg-brand-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-colors"
             >
               Solicitar Novo Link
             </Link>

@@ -140,7 +140,7 @@ export function ICalSyncSettings({ listings, propertyId }: ICalSyncSettingsProps
               <div className="flex gap-2">
                 <button
                   onClick={() => handleSave(listing.id)}
-                  className="px-3 py-1.5 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  className="px-3 py-1.5 text-sm font-medium bg-brand-600 text-white rounded-lg hover:bg-blue-700"
                 >
                   Guardar
                 </button>

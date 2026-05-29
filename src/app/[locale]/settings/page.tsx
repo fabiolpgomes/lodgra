@@ -100,7 +100,7 @@ export default async function SettingsPage(props: { params: Promise<{ locale: st
                           href={bookingUrl}
                           target="_blank"
                           rel="noreferrer"
-                          className="mt-1 inline-flex max-w-full items-center gap-1 truncate text-sm font-medium text-blue-700 hover:text-blue-800"
+                          className="mt-1 inline-flex max-w-full items-center gap-1 truncate text-sm font-medium text-brand-700 hover:text-blue-800"
                         >
                           <span className="truncate">{bookingUrl}</span>
                           <ExternalLink className="h-3.5 w-3.5 shrink-0" />

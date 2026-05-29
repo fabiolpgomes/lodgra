@@ -114,7 +114,7 @@ export function InternalNotes({
             variant="ghost"
             size="sm"
             onClick={() => setIsEditing(true)}
-            className="text-blue-600 hover:text-blue-700 px-0"
+            className="text-brand-600 hover:text-blue-700 px-0"
           >
             {notes ? 'Editar nota' : 'Adicionar nota'}
           </Button>

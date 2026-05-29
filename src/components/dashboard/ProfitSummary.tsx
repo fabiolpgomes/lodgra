@@ -93,7 +93,7 @@ export function ProfitSummary({ currency, month, className = '' }: ProfitSummary
             </div>
           </div>
 
-          <div className="mt-4 p-3 bg-blue-50 rounded text-sm text-gray-700">
+          <div className="mt-4 p-3 bg-brand-50 rounded text-sm text-gray-700">
             <p className="mb-1">
               <strong>Formula:</strong> Real Profit = Revenue (Real) - Total Expenses
             </p>

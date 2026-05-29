@@ -50,8 +50,8 @@ export function Step1Welcome({
       </div>
 
       <div className="flex justify-center mb-5">
-        <div className="p-4 bg-blue-100 rounded-full">
-          <Building2 className="h-9 w-9 text-blue-700" />
+        <div className="p-4 bg-brand-100 rounded-full">
+          <Building2 className="h-9 w-9 text-brand-700" />
         </div>
       </div>
 
@@ -85,15 +85,15 @@ export function Step1Welcome({
         </p>
       </div>
 
-      <div className="rounded-xl border border-blue-100 bg-blue-50 p-4 text-left mb-6">
+      <div className="rounded-xl border border-brand-100 bg-brand-50 p-4 text-left mb-6">
         <div className="flex items-start gap-3">
-          <Globe2 className="h-5 w-5 text-blue-700 mt-0.5 shrink-0" />
+          <Globe2 className="h-5 w-5 text-brand-700 mt-0.5 shrink-0" />
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-blue-950 mb-1">Link público da sua empresa</p>
-            <p className="font-mono text-sm text-blue-800 break-all">
+            <p className="text-sm font-semibold text-brand-950 mb-1">Link público da sua empresa</p>
+            <p className="font-mono text-sm text-brand-800 break-all">
               https://{slug}.lodgra.io/booking
             </p>
-            <p className="text-xs text-blue-700 mt-2">
+            <p className="text-xs text-brand-700 mt-2">
               Se este subdomínio já existir, a Lodgra adiciona um sufixo automaticamente.
             </p>
           </div>

@@ -97,7 +97,7 @@ export function OwnersFilter({ owners, countMap, canEdit, canDelete, pagination 
                 key={f.value}
                 size="sm"
                 variant={statusFilter === f.value ? 'default' : 'ghost'}
-                className={statusFilter === f.value ? 'bg-blue-600 text-white hover:bg-blue-700' : 'text-gray-600'}
+                className={statusFilter === f.value ? 'bg-brand-600 text-white hover:bg-blue-700' : 'text-gray-600'}
                 onClick={() => setStatusFilter(f.value)}
               >
                 {f.label}
@@ -146,7 +146,7 @@ export function OwnersFilter({ owners, countMap, canEdit, canDelete, pagination 
                   {canDelete && (
                     <DeleteOwnerButton ownerId={owner.id} ownerName={owner.full_name} />
                   )}
-                  <Button asChild variant="ghost" size="sm" className="h-9 px-3 text-blue-600 ml-auto">
+                  <Button asChild variant="ghost" size="sm" className="h-9 px-3 text-brand-600 ml-auto">
                     <Link href={`/owners/${owner.id}`}>
                       Ver <ArrowRight className="h-3 w-3 ml-1" />
                     </Link>

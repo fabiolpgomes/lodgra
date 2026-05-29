@@ -216,7 +216,7 @@ export function ReviewsManager({ propertyId }: ReviewsManagerProps) {
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-sm font-medium text-gray-800">{review.reviewer_name}</span>
                     <span className="text-xs text-gray-600">{SOURCE_LABELS[review.source]}</span>
-                    <span className="text-xs font-semibold text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded">
+                    <span className="text-xs font-semibold text-brand-700 bg-brand-50 px-1.5 py-0.5 rounded">
                       {Number(review.rating).toFixed(1)}/10
                     </span>
                     <span className="text-xs text-gray-500">{review.review_date}</span>
@@ -290,7 +290,7 @@ export function ReviewsManager({ propertyId }: ReviewsManagerProps) {
       ))}
 
       {showAddForm ? (
-        <div className="border border-blue-200 rounded-lg p-4 bg-blue-50 space-y-3">
+        <div className="border border-brand-200 rounded-lg p-4 bg-brand-50 space-y-3">
           <p className="text-sm font-medium text-gray-800">Nova Avaliação</p>
           <ReviewForm
             form={addForm}
@@ -405,7 +405,7 @@ function ReviewForm({ form, onChange, onSubmit, onCancel, submitLabel, disabled,
           type="button"
           onClick={onSubmit}
           disabled={disabled}
-          className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 disabled:opacity-50 transition-colors"
+          className="px-4 py-2 bg-brand-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 disabled:opacity-50 transition-colors"
         >
           {submitLabel}
         </button>

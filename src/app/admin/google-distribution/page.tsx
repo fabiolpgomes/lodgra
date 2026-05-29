@@ -164,7 +164,7 @@ export default function GoogleDistributionDashboard() {
             value={metrics.totalIndexed}
             color="bg-green-50 border-green-200"
           />
-          <MetricCard label="Pending" value={metrics.pendingCount} color="bg-blue-50 border-blue-200" />
+          <MetricCard label="Pending" value={metrics.pendingCount} color="bg-brand-50 border-brand-200" />
           <MetricCard
             label="Rejected"
             value={metrics.rejectedCount}
@@ -179,7 +179,7 @@ export default function GoogleDistributionDashboard() {
         <button
           onClick={handleRefreshFeed}
           disabled={refreshing}
-          className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold py-2 px-6 rounded"
+          className="bg-brand-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold py-2 px-6 rounded"
         >
           {refreshing ? 'Refreshing...' : 'Refresh Feed'}
         </button>
@@ -212,7 +212,7 @@ export default function GoogleDistributionDashboard() {
                     <button
                       type="button"
                       onClick={() => setSelectedProperty(prop)}
-                      className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                      className="text-brand-600 hover:text-blue-800 text-sm font-medium"
                     >
                       View Details
                     </button>
@@ -251,7 +251,7 @@ export default function GoogleDistributionDashboard() {
                           ? 'bg-green-100 text-green-800'
                           : log.status === 'failed'
                             ? 'bg-red-100 text-red-800'
-                            : 'bg-blue-100 text-blue-800'
+                            : 'bg-brand-100 text-brand-800'
                       }`}
                     >
                       {log.status}
@@ -289,7 +289,7 @@ function MetricCard({ label, value, color }: { label: string; value: number; col
 function StatusBadge({ status }: { status: string }) {
   const colors: Record<string, string> = {
     indexed: 'bg-green-100 text-green-800',
-    pending: 'bg-blue-100 text-blue-800',
+    pending: 'bg-brand-100 text-brand-800',
     error: 'bg-red-100 text-red-800',
     rejected: 'bg-yellow-100 text-yellow-800',
   }
@@ -385,7 +385,7 @@ function PropertyDetailsModal({
               href={publicUrl}
               target="_blank"
               rel="noreferrer"
-              className="rounded bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+              className="rounded bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
             >
               Open public page
             </a>

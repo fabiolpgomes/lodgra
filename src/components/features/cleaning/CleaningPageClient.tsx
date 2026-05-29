@@ -84,7 +84,7 @@ export function CleaningPageClient({ properties, members, userRole }: Props) {
           </p>
         </div>
         {isAdmin && (
-          <Button onClick={() => setShowModal(true)} size="lg" className="rounded-2xl h-14 w-14 p-0 shadow-lg shadow-blue-500/20">
+          <Button onClick={() => setShowModal(true)} size="lg" className="rounded-2xl h-14 w-14 p-0 shadow-lg shadow-brand-500/20">
             <Plus className="h-6 w-6" />
           </Button>
         )}

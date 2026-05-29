@@ -69,7 +69,7 @@ export default async function UsersPage({
         <div className="flex items-center justify-between mb-8">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <Users className="h-8 w-8 text-blue-600" />
+              <Users className="h-8 w-8 text-brand-600" />
               <h2 className="text-3xl font-bold text-gray-900">Utilizadores</h2>
             </div>
             <p className="text-gray-600">Gerencie os utilizadores e suas permissões</p>
@@ -122,7 +122,7 @@ export default async function UsersPage({
                               profile.role === 'admin'
                                 ? 'bg-red-100 text-red-800 hover:bg-red-100'
                                 : profile.role === 'gestor'
-                                ? 'bg-blue-100 text-blue-800 hover:bg-blue-100'
+                                ? 'bg-brand-100 text-brand-800 hover:bg-blue-100'
                                 : profile.role === 'viewer'
                                 ? 'bg-gray-100 text-gray-800 hover:bg-gray-100'
                                 : profile.role === 'guest'

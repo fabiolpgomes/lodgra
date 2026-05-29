@@ -76,7 +76,7 @@ export function ReportsFilters({ properties, startDate, endDate, propertyId, act
             onClick={() => handleTabChange(tab.id)}
             className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
               activeTab === tab.id
-                ? 'border-blue-600 text-blue-600'
+                ? 'border-brand-600 text-brand-600'
                 : 'border-transparent text-gray-600 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
@@ -87,7 +87,7 @@ export function ReportsFilters({ properties, startDate, endDate, propertyId, act
 
       {/* Filtros */}
       <div className="flex items-center gap-2 mb-4">
-        <Filter className="h-5 w-5 text-blue-600" />
+        <Filter className="h-5 w-5 text-brand-600" />
         <h3 className="text-lg font-semibold text-gray-900">Filtros</h3>
       </div>
 

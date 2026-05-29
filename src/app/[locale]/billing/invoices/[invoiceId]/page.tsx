@@ -99,7 +99,7 @@ export default function InvoiceDetailPage() {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <p className="text-red-600 mb-4">Erro ao carregar fatura: {error}</p>
-          <Link href={`/${locale}/billing/invoices`} className="text-blue-600 hover:text-blue-700">
+          <Link href={`/${locale}/billing/invoices`} className="text-brand-600 hover:text-blue-700">
             Voltar à Lista de Faturas
           </Link>
         </div>
@@ -110,7 +110,7 @@ export default function InvoiceDetailPage() {
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
-        <Link href={`/${locale}/billing/invoices`} className="text-blue-600 hover:text-blue-700 mb-4 inline-block">
+        <Link href={`/${locale}/billing/invoices`} className="text-brand-600 hover:text-blue-700 mb-4 inline-block">
           ← Voltar à Lista de Faturas
         </Link>
 
@@ -235,7 +235,7 @@ export default function InvoiceDetailPage() {
                   href={invoice.pdf_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 font-medium"
+                  className="px-4 py-2 bg-brand-600 text-white rounded hover:bg-blue-700 font-medium"
                 >
                   Baixar PDF
                 </a>

@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { LazyRevenueChart as RevenueChart } from '@/components/common/lazy/LazyCharts'
 
 const ACTIVE_COLORS: Record<string, string> = {
-  EUR: 'bg-blue-600',
+  EUR: 'bg-brand-600',
   BRL: 'bg-green-600',
   USD: 'bg-yellow-600',
   GBP: 'bg-purple-600',
@@ -29,7 +29,7 @@ export function RevenueChartWrapper({ revenueDataByCurrency }: RevenueChartWrapp
               onClick={() => setSelected(cur)}
               className={`text-[11px] font-bold px-2 py-0.5 rounded-full transition-colors ${
                 selected === cur
-                  ? `${ACTIVE_COLORS[cur] || 'bg-blue-600'} text-white`
+                  ? `${ACTIVE_COLORS[cur] || 'bg-brand-600'} text-white`
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
