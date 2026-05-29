@@ -101,11 +101,14 @@ const config: any = {
         '2xl': '64px',
       },
       borderRadius: {
+        // Semantic scale: none(0) → xs(4) → sm(8) → md(12) → lg(16) → xl(24) → 2xl(32) → full
         'none': '0',
-        'sm': '8px',
-        'md': '12px',
-        'lg': '16px',
-        'xl': '24px',
+        'xs':   '4px',   // shadcn close buttons
+        'sm':   '8px',   // badges, chips
+        'md':   '12px',  // inputs, buttons
+        'lg':   '16px',  // cards, containers (dominant)
+        'xl':   '24px',  // widgets, property cards
+        '2xl':  '32px',  // modals, auth forms (was 16px = bug; now distinct)
         'full': '9999px',
       },
       boxShadow: {
