@@ -38,7 +38,15 @@ export function AmenitiesSelector({ propertyId }: AmenitiesSelectorProps) {
         if (!catalogRes.ok || !selectedRes.ok) throw new Error('Erro ao carregar comodidades')
         const catalogData: Amenity[] = await catalogRes.json()
         const selectedData: string[] = await selectedRes.json()
-        setCatalog(catalogData)
+        const seen = new Set<string>()
+        const unique = catalogData.filter(a => {
+          if (!a.name?.trim()) return false
+          const key = `${a.category}:${a.name}`
+          if (seen.has(key)) return false
+          seen.add(key)
+          return true
+        })
+        setCatalog(unique)
         setSelected(new Set(selectedData))
       } catch {
         setError('Não foi possível carregar as comodidades. Tente novamente.')
