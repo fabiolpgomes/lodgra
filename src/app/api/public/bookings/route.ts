@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
 
   const { data: property } = await adminClient
     .from('properties')
-    .select('id, name, base_price, currency, min_nights, organization_id, is_public, max_guests')
+    .select('id, name, base_price, currency, min_nights, organization_id, is_public, max_guests, cleaning_fee, cleaning_fee_type, pet_fee, pet_fee_type')
     .eq('slug', slug as string)
     .eq('is_public', true)
     .single()
@@ -116,16 +116,29 @@ export async function POST(request: NextRequest) {
   const listingIds = (listings ?? []).map((l: { id: string }) => l.id)
 
   if (listingIds.length > 0) {
-    const { data: conflicts } = await adminClient
+    // Stripe sessions expire in 30 min — pending_payment older than 35 min are stale
+    const stripeSessionExpiry = new Date(Date.now() - 35 * 60 * 1000).toISOString()
+
+    const { data: confirmedConflicts } = await adminClient
       .from('reservations')
       .select('id')
       .in('property_listing_id', listingIds)
-      .in('status', ['confirmed', 'pending_payment'])
+      .eq('status', 'confirmed')
       .lt('check_in', checkout as string)
       .gt('check_out', checkin as string)
       .limit(1)
 
-    if ((conflicts ?? []).length > 0) {
+    const { data: pendingConflicts } = await adminClient
+      .from('reservations')
+      .select('id')
+      .in('property_listing_id', listingIds)
+      .eq('status', 'pending_payment')
+      .gte('created_at', stripeSessionExpiry) // only block if created within last 35 min
+      .lt('check_in', checkout as string)
+      .gt('check_out', checkin as string)
+      .limit(1)
+
+    if ((confirmedConflicts ?? []).length > 0 || (pendingConflicts ?? []).length > 0) {
       return NextResponse.json(
         { error: 'As datas seleccionadas já não estão disponíveis.' },
         { status: 409 }
@@ -218,8 +231,17 @@ export async function POST(request: NextRequest) {
     console.error('[Bookings API] Erro ao calcular preço:', pricingError)
     return NextResponse.json({ error: 'Erro ao calcular preço da reserva. Tente novamente.' }, { status: 500 })
   }
-  const totalAmount = pricing.total
-  console.log('[Bookings API] Price calculated:', totalAmount)
+  // Add cleaning fee and pet fee to total (same logic as checkout page)
+  const cleaningFee = property.cleaning_fee ?? 0
+  const petFee = property.pet_fee ?? 0
+  const cleaningFeeTotal = cleaningFee > 0
+    ? (property.cleaning_fee_type === 'per_night' ? cleaningFee * nights : cleaningFee)
+    : 0
+  const petFeeTotal = petFee > 0
+    ? (property.pet_fee_type === 'per_night' ? petFee * nights : petFee)
+    : 0
+  const totalAmount = pricing.total + cleaningFeeTotal + petFeeTotal
+  console.log('[Bookings API] Price calculated:', pricing.total, '+ fees:', cleaningFeeTotal + petFeeTotal, '= total:', totalAmount)
 
   if (totalAmount <= 0) {
     return NextResponse.json(
