@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { CheckCircle2, Clock, Home } from 'lucide-react'
+import { CheckCircle2, Clock, Home, Trash2 } from 'lucide-react'
 import { Button } from '@/components/common/ui/button'
 
 interface ChecklistItem {
@@ -25,14 +25,16 @@ interface Checklist {
 interface Props {
   checklist: Checklist
   onUpdate: () => void
+  onDelete?: (id: string) => void
 }
 
 
-export function CleaningChecklistCard({ checklist, onUpdate }: Props) {
+export function CleaningChecklistCard({ checklist, onUpdate, onDelete }: Props) {
   const [expanded, setExpanded] = useState(checklist.status !== 'completed')
   const [items, setItems] = useState(checklist.cleaning_checklist_items.sort((a, b) => a.position - b.position))
   const [status, setStatus] = useState(checklist.status)
   const [, startTransition] = useTransition()
+  const [deleting, setDeleting] = useState(false)
 
   const doneCount = items.filter(i => i.is_done).length
   const total = items.length
@@ -65,6 +67,14 @@ export function CleaningChecklistCard({ checklist, onUpdate }: Props) {
       body: JSON.stringify({ status: 'in_progress' }),
     })
     onUpdate()
+  }
+
+  async function handleDelete() {
+    if (!confirm('Tem certeza que deseja deletar esta limpeza?')) return
+    setDeleting(true)
+    const res = await fetch(`/api/cleaning/${checklist.id}`, { method: 'DELETE' })
+    setDeleting(false)
+    if (res.ok && onDelete) onDelete(checklist.id)
   }
 
   const propertyName = checklist.properties?.name ?? 'Imóvel'
@@ -174,6 +184,17 @@ export function CleaningChecklistCard({ checklist, onUpdate }: Props) {
              {status === 'completed' && (
                <button className="flex-1 bg-emerald-100 text-emerald-700 p-4 rounded-2xl text-sm font-bold transition-colors">
                  Relatório Gerado
+               </button>
+             )}
+             {status === 'pending' && (
+               <button
+                 onClick={handleDelete}
+                 disabled={deleting}
+                 className="flex-1 bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-400 p-4 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 hover:bg-red-200 transition-colors disabled:opacity-50"
+                 title="Deletar esta limpeza"
+               >
+                 <Trash2 className="h-4 w-4" />
+                 {deleting ? 'Deletando...' : 'Deletar'}
                </button>
              )}
           </div>

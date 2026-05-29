@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { X } from 'lucide-react'
+import { X, Copy, Check } from 'lucide-react'
 import { Button } from '@/components/common/ui/button'
 
 interface Property { id: string; name: string }
@@ -21,6 +21,8 @@ export function NewChecklistModal({ properties, members, onClose, onCreated }: P
   const [notes, setNotes] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState<{ link: string; cleaner: string } | null>(null)
+  const [copied, setCopied] = useState(false)
 
   async function handleSubmit() {
     if (!propertyId || !date) { setError('Imóvel e data são obrigatórios'); return }
@@ -32,11 +34,73 @@ export function NewChecklistModal({ properties, members, onClose, onCreated }: P
       body: JSON.stringify({ property_id: propertyId, scheduled_date: date, assigned_to: assignedTo || null, notes: notes || null }),
     })
     setLoading(false)
-    if (res.ok) onCreated()
-    else {
+    if (res.ok) {
+      const data = await res.json()
+      if (data.accessLink && assignedTo) {
+        const cleanerName = members.find(m => m.id === assignedTo)?.full_name || 'Cleaner'
+        setSuccess({ link: data.accessLink, cleaner: cleanerName })
+      } else {
+        onCreated()
+      }
+    } else {
       const d = await res.json()
       setError(d.error ?? 'Erro ao criar limpeza')
     }
+  }
+
+  function copyToClipboard() {
+    const fullLink = `${window.location.origin}${success?.link}`
+    navigator.clipboard.writeText(fullLink)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  function handleSuccess() {
+    setSuccess(null)
+    onCreated()
+  }
+
+  // Success screen
+  if (success) {
+    const fullLink = `${window.location.origin}${success.link}`
+    return (
+      <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center p-4">
+        <div className="bg-white dark:bg-gray-900 rounded-2xl w-full max-w-md shadow-xl">
+          <div className="p-8 text-center space-y-6">
+            <div className="flex items-center justify-center w-12 h-12 rounded-full bg-emerald-100 mx-auto">
+              <Check className="h-6 w-6 text-emerald-600" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Limpeza Criada!</h2>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Link de acesso gerado para <strong>{success.cleaner}</strong></p>
+            </div>
+
+            <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
+              <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">Link de Acesso:</p>
+              <div className="flex items-center gap-2">
+                <code className="flex-1 text-xs break-all text-gray-900 dark:text-white font-mono">{fullLink}</code>
+                <button
+                  onClick={copyToClipboard}
+                  className="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition"
+                  title="Copiar link"
+                >
+                  {copied ? <Check className="h-4 w-4 text-emerald-600" /> : <Copy className="h-4 w-4 text-gray-600" />}
+                </button>
+              </div>
+            </div>
+
+            <p className="text-xs text-gray-500 dark:text-gray-500">
+              Compartilhe este link via WhatsApp ou email com o limpador
+            </p>
+
+            <div className="flex gap-3">
+              <Button variant="outline" onClick={onClose} className="flex-1">Fechar</Button>
+              <Button onClick={handleSuccess} className="flex-1">Concluído</Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (

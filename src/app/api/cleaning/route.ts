@@ -94,5 +94,29 @@ export async function POST(request: NextRequest) {
 
   await supabase.from('cleaning_checklist_items').insert(itemsToInsert)
 
-  return NextResponse.json(checklist, { status: 201 })
+  // Generate access token if assigned_to exists
+  let accessLink = null
+  if (assigned_to) {
+    try {
+      const { generateAccessToken, hashToken } = await import('@/lib/cleaner-tokens')
+      const plainToken = await generateAccessToken()
+      const tokenHash = hashToken(plainToken)
+      const expiresAt = new Date()
+      expiresAt.setHours(expiresAt.getHours() + 24)
+
+      await supabase.from('cleaner_access_tokens').insert({
+        cleaner_id: assigned_to,
+        token_hash: tokenHash,
+        expires_at: expiresAt.toISOString(),
+        ip_address: '0.0.0.0',
+        user_agent: 'system',
+      })
+
+      accessLink = `/cleaner/auth?token=${plainToken}`
+    } catch (tokenError) {
+      console.error('Error generating access token:', tokenError)
+    }
+  }
+
+  return NextResponse.json({ ...checklist, accessLink }, { status: 201 })
 }
