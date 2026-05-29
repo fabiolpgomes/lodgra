@@ -4,22 +4,23 @@ export interface PlanLimits {
   maxProperties: number | null // null = unlimited
   maxAllowed: number | null // Maximum properties allowed on this plan (ceiling, can add extras)
   extraPropertyPrice: number // Cost per extra property (R$ in BRL)
+  maxUsers: number | null // null = unlimited
   ownerReports: boolean
   fiscalCompliance: boolean
 }
 
 export const PLAN_LIMITS: Record<Plan, PlanLimits> = {
   // Current: Brasil strategy (2026) — pricing with property limits & extras
-  essencial:    { maxProperties: 1,  maxAllowed: null, extraPropertyPrice: 49, ownerReports: false, fiscalCompliance: false },
-  expansao:     { maxProperties: 3,  maxAllowed: null, extraPropertyPrice: 49, ownerReports: true,  fiscalCompliance: true  },
-  premium:      { maxProperties: 10, maxAllowed: null, extraPropertyPrice: 49, ownerReports: true,  fiscalCompliance: true  },
-  enterprise:   { maxProperties: null, maxAllowed: null, extraPropertyPrice: 0, ownerReports: true,  fiscalCompliance: true  },
+  essencial:    { maxProperties: 1,  maxAllowed: null, extraPropertyPrice: 49, maxUsers: 1, ownerReports: false, fiscalCompliance: false },
+  expansao:     { maxProperties: 3,  maxAllowed: null, extraPropertyPrice: 49, maxUsers: 5, ownerReports: true,  fiscalCompliance: true  },
+  premium:      { maxProperties: 10, maxAllowed: null, extraPropertyPrice: 49, maxUsers: 10, ownerReports: true,  fiscalCompliance: true  },
+  enterprise:   { maxProperties: null, maxAllowed: null, extraPropertyPrice: 0, maxUsers: null, ownerReports: true,  fiscalCompliance: true  },
   // Legacy aliases (backward compatibility — map to modern plans)
-  starter:      { maxProperties: 1,  maxAllowed: null, extraPropertyPrice: 49, ownerReports: false, fiscalCompliance: false },
-  growth:       { maxProperties: 3,  maxAllowed: null, extraPropertyPrice: 49, ownerReports: true,  fiscalCompliance: true  },
-  professional: { maxProperties: 10, maxAllowed: null, extraPropertyPrice: 49, ownerReports: true,  fiscalCompliance: true  },
-  business:     { maxProperties: 10, maxAllowed: null, extraPropertyPrice: 49, ownerReports: true,  fiscalCompliance: true  },
-  pro:          { maxProperties: 10, maxAllowed: null, extraPropertyPrice: 49, ownerReports: true,  fiscalCompliance: true  },
+  starter:      { maxProperties: 1,  maxAllowed: null, extraPropertyPrice: 49, maxUsers: 1, ownerReports: false, fiscalCompliance: false },
+  growth:       { maxProperties: 3,  maxAllowed: null, extraPropertyPrice: 49, maxUsers: 5, ownerReports: true,  fiscalCompliance: true  },
+  professional: { maxProperties: 10, maxAllowed: null, extraPropertyPrice: 49, maxUsers: 10, ownerReports: true,  fiscalCompliance: true  },
+  business:     { maxProperties: 10, maxAllowed: null, extraPropertyPrice: 49, maxUsers: 10, ownerReports: true,  fiscalCompliance: true  },
+  pro:          { maxProperties: 10, maxAllowed: null, extraPropertyPrice: 49, maxUsers: 10, ownerReports: true,  fiscalCompliance: true  },
 }
 
 export function getPlanLimits(plan: string | null): PlanLimits {

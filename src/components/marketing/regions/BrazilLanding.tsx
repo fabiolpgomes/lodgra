@@ -273,21 +273,24 @@ export const BrazilLanding: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-[24px]">
             {[
               {
-                name: 'Essencial', price: '59', sub: 'por unidade / mes',
-                description: 'Ideal para iniciar a profissionalização com reservas diretas e iCal.',
+                name: 'Essencial', price: '59', sub: 'mês · 1 unidade',
+                description: 'Saia da planilha. Controle uma unidade com lucro claro.',
+                properties: '1 unidade incluída (+R$49 por unidade extra)',
                 features: ['Motor de Reserva Direta', 'Sync iCal', 'Calendário unificado', 'Gestão básica de reservas'],
                 featured: false
               },
               {
-                name: 'Expansão', price: '89', sub: 'por unidade / mes + R$5 / reserva',
-                description: 'Desbloqueie relatórios financeiros, P&L e automações avançadas.',
-                features: ['Tudo do Essencial', 'Relatórios Financeiros', 'Split de Pagamentos', 'Gestão Operacional (Limpeza)'],
+                name: 'Expansão', price: '149', sub: 'mês · 3 unidades',
+                description: 'Coordene sem caos. Até 3 unidades e automações de limpeza.',
+                properties: '3 unidades incluídas (+R$49 por unidade extra)',
+                features: ['Tudo do Essencial', 'Portal de Limpadores (WhatsApp)', 'Relatórios por Proprietário', 'Equipe até 5 pessoas'],
                 featured: true
               },
               {
-                name: 'Premium', price: '130', sub: 'por unidade / mes + 1% da receita',
-                description: 'Inteligência para grandes portfólios e gestão de múltiplos proprietários.',
-                features: ['Tudo do Expansão', 'Portal do Proprietário', 'Pricing Dinâmico', 'Suporte Prioritário VIP'],
+                name: 'Premium', price: '397', sub: 'mês · 10 unidades',
+                description: 'Automatize operação e receita. Inteligência para grandes portfólios.',
+                properties: '10 unidades incluídas (+R$49 por unidade extra)',
+                features: ['Tudo do Expansão', 'API Completa', 'Forecast & BI Avançado', 'Gerente Dedicado', 'Até 10 propriedades'],
                 featured: false
               }
             ].map((tier) => (
@@ -301,9 +304,9 @@ export const BrazilLanding: React.FC = () => {
                   <h3 className="text-[28px] font-black text-[#1E3A8A] leading-[1.1] mb-[8px] uppercase">{tier.name}</h3>
                   <div className="flex items-baseline gap-1 mt-4">
                     <span className="text-[40px] font-black text-[#1E3A8A] tracking-tighter">R$ {tier.price}</span>
-                    <span className="text-[14px] font-light text-[#181818]/60">/unidade</span>
+                    <span className="text-[14px] font-light text-[#181818]/60">/{tier.sub}</span>
                   </div>
-                  <p className="text-[12px] font-black text-[#059669] bg-[#059669]/5 inline-block px-2 py-0.5 mt-[8px] uppercase tracking-[1px]">{tier.sub}</p>
+                  <p className="text-[12px] font-bold text-[#1E3A8A] bg-[#1E3A8A]/5 inline-block px-2 py-0.5 mt-[8px] uppercase tracking-[1px]">{tier.properties}</p>
                   <p className="text-[15px] font-light text-[#181818]/80 mt-[24px] leading-[1.6] min-h-[44px]">{tier.description}</p>
                 </div>
                 

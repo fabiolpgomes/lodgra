@@ -108,12 +108,23 @@ export default function SetPasswordPage() {
         return
       }
 
+      const data = await response.json()
       setSuccess(true)
       toast.success('Senha criada com sucesso!')
 
-      // Redirect to subscription/pricing page after 2 seconds
+      // Redirect based on user's organization and role
+      let redirectPath = '/subscribe'
+      if (data.organization_id) {
+        if (data.role === 'admin') {
+          redirectPath = '/pt-BR/dashboard'
+        } else if (data.role === 'gestor') {
+          redirectPath = '/pt-BR/calendar'
+        }
+      }
+
+      // Redirect after 2 seconds
       setTimeout(() => {
-        router.push('/subscribe')
+        router.push(redirectPath)
       }, 2000)
     } catch (err) {
       console.error('Erro ao criar senha:', err)

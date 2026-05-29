@@ -62,9 +62,18 @@ export async function POST(request: NextRequest) {
       console.warn('Failed to update password_reset_required flag:', profileError)
     }
 
+    // Get user profile to include organization_id and role in response
+    const { data: profile } = await adminClient
+      .from('user_profiles')
+      .select('organization_id, role')
+      .eq('id', userId)
+      .single()
+
     return NextResponse.json({
       success: true,
       message: 'Senha criada com sucesso',
+      organization_id: profile?.organization_id,
+      role: profile?.role,
     })
   } catch (error) {
     console.error('Error setting password:', error)

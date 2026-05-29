@@ -8,6 +8,7 @@ import { parsePage, getRange } from '@/lib/utils/pagination'
 import { generateProvisionalPassword } from '@/lib/auth/generateProvisionalPassword'
 import { sendNewUserWelcomeEmail } from '@/lib/email/newUserWelcome'
 import { createPasswordResetToken } from '@/lib/auth/passwordResetToken'
+import { getPlanLimits } from '@/lib/billing/plans'
 
 const USERS_PAGE_SIZE = 50
 
@@ -69,6 +70,28 @@ export async function POST(request: Request) {
   }
 
   const adminClient = createAdminClient()
+
+  // Verificar limite de utilizadores por plano
+  const { count: userCount } = await adminClient
+    .from('user_profiles')
+    .select('*', { count: 'exact', head: true })
+    .eq('organization_id', organizationId)
+
+  const { data: org } = await adminClient
+    .from('organizations')
+    .select('subscription_plan, plan')
+    .eq('id', organizationId)
+    .single()
+
+  const planName = org?.subscription_plan || org?.plan || 'essencial'
+  const limits = getPlanLimits(planName)
+
+  if (limits.maxUsers !== null && (userCount ?? 0) >= limits.maxUsers) {
+    return NextResponse.json(
+      { error: `Limite de utilizadores (${limits.maxUsers}) atingido para o plano ${planName}. Faça upgrade para adicionar mais membros.` },
+      { status: 403 }
+    )
+  }
 
   // Gerar senha provisória se não fornecida
   const finalPassword = password || generateProvisionalPassword()
