@@ -95,13 +95,13 @@ export function RoomsEditor({ propertyId }: RoomsEditorProps) {
     }
   }
 
-  if (loading) return <p className="text-sm text-gray-500">A carregar quartos…</p>
+  if (loading) return <p className="text-sm text-gray-600">A carregar quartos…</p>
   if (loadError) return <p className="text-sm text-red-600">{loadError}</p>
 
   return (
     <div className="space-y-3">
       {rooms.length === 0 && (
-        <p className="text-sm text-gray-400 italic">Nenhum quarto adicionado.</p>
+        <p className="text-sm text-gray-500 italic">Nenhum quarto adicionado.</p>
       )}
 
       {rooms.map((room, idx) => (
@@ -134,7 +134,7 @@ export function RoomsEditor({ propertyId }: RoomsEditorProps) {
               <button
                 type="button"
                 onClick={() => setConfirmingId(room._id)}
-                className="text-gray-400 hover:text-red-500 transition-colors"
+                className="text-gray-500 hover:text-red-500 transition-colors"
                 aria-label="Remover quarto"
               >
                 <Trash2 className="h-4 w-4" />
@@ -144,7 +144,7 @@ export function RoomsEditor({ propertyId }: RoomsEditorProps) {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs text-gray-500 mb-1">Nome (opcional)</label>
+              <label className="block text-xs text-gray-600 mb-1">Nome (opcional)</label>
               <input
                 type="text"
                 value={room.name}
@@ -155,7 +155,7 @@ export function RoomsEditor({ propertyId }: RoomsEditorProps) {
             </div>
 
             <div>
-              <label className="block text-xs text-gray-500 mb-1">Tipo de cama</label>
+              <label className="block text-xs text-gray-600 mb-1">Tipo de cama</label>
               <select
                 value={room.bed_type}
                 onChange={e => updateRoom(room._id, { bed_type: e.target.value as BedType })}
@@ -168,7 +168,7 @@ export function RoomsEditor({ propertyId }: RoomsEditorProps) {
             </div>
 
             <div>
-              <label className="block text-xs text-gray-500 mb-1">Nº de camas</label>
+              <label className="block text-xs text-gray-600 mb-1">Nº de camas</label>
               <input
                 type="number"
                 min={1}

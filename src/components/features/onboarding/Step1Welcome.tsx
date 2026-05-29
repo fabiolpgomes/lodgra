@@ -58,13 +58,13 @@ export function Step1Welcome({
       <h1 className="text-3xl font-bold text-lodgra-blue mb-2" style={{ fontFamily: 'var(--font-poppins, Poppins, sans-serif)' }}>
         Configure a sua empresa
       </h1>
-      <p className="text-gray-500 mb-8 max-w-sm mx-auto">
+      <p className="text-gray-600 mb-8 max-w-sm mx-auto">
         Este nome cria o seu canal direto de reservas com subdomínio próprio.
       </p>
 
       {organizationCode && (
         <div className="rounded-lg border border-gray-100 bg-gray-50 px-4 py-3 text-left mb-6">
-          <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Código da organização</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Código da organização</p>
           <p className="font-mono text-sm text-gray-700 break-all mt-1">{organizationCode}</p>
         </div>
       )}
@@ -80,7 +80,7 @@ export function Step1Welcome({
           onChange={e => onOrgNameChange(e.target.value)}
           placeholder="Ex: Alojamentos Silva"
         />
-        <p className="text-xs text-gray-400 mt-1">
+        <p className="text-xs text-gray-500 mt-1">
           Pode ser o nome da empresa, marca ou alojamento.
         </p>
       </div>

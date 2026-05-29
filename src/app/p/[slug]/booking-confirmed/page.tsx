@@ -99,7 +99,7 @@ export default async function BookingConfirmedPage({ params, searchParams }: Pag
         </div>
 
         <h1 className="text-2xl font-bold text-gray-900 mb-2">Reserva confirmada!</h1>
-        <p className="text-gray-500 mb-8">
+        <p className="text-gray-600 mb-8">
           O seu pagamento foi processado com sucesso. Recebe um email de confirmação em breve.
         </p>
 
@@ -109,15 +109,15 @@ export default async function BookingConfirmedPage({ params, searchParams }: Pag
               <p className="font-medium text-gray-900">{reservation.guest_name}</p>
             )}
             <div className="flex items-start gap-2 text-sm text-gray-700">
-              <Calendar className="h-4 w-4 mt-0.5 text-gray-400 shrink-0" />
+              <Calendar className="h-4 w-4 mt-0.5 text-gray-500 shrink-0" />
               <div>
                 <p>Check-in: {fmtDate(reservation.check_in)}</p>
                 <p>Check-out: {fmtDate(reservation.check_out)}</p>
               </div>
             </div>
             {reservation.guest_email && (
-              <div className="flex items-center gap-2 text-sm text-gray-500">
-                <Mail className="h-4 w-4 text-gray-400 shrink-0" />
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <Mail className="h-4 w-4 text-gray-500 shrink-0" />
                 <span>Confirmação enviada para {reservation.guest_email}</span>
               </div>
             )}
@@ -142,7 +142,7 @@ export default async function BookingConfirmedPage({ params, searchParams }: Pag
         </a>
       </main>
 
-      <footer className="mt-8 border-t border-gray-100 px-4 py-4 text-center text-xs text-gray-400">
+      <footer className="mt-8 border-t border-gray-100 px-4 py-4 text-center text-xs text-gray-500">
         © {new Date().getFullYear()} lodgra.pt · Obrigado pela sua reserva!
       </footer>
     </div>

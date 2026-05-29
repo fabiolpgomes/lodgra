@@ -30,7 +30,7 @@ export function RevenueChartWrapper({ revenueDataByCurrency }: RevenueChartWrapp
               className={`text-[11px] font-bold px-2 py-0.5 rounded-full transition-colors ${
                 selected === cur
                   ? `${ACTIVE_COLORS[cur] || 'bg-blue-600'} text-white`
-                  : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
               {cur}

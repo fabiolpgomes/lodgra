@@ -263,7 +263,7 @@ export function UserManagement({ users, onUserUpdated }: UserManagementProps) {
           <tbody>
             {users.length === 0 ? (
               <tr>
-                <td colSpan={5} className="text-center py-8 text-gray-500">
+                <td colSpan={5} className="text-center py-8 text-gray-600">
                   Nenhum utilizador encontrado
                 </td>
               </tr>
@@ -310,7 +310,7 @@ export function UserManagement({ users, onUserUpdated }: UserManagementProps) {
                           <button
                             onClick={() => setEditingId(null)}
                             disabled={loading}
-                            className="p-1 text-gray-400 hover:bg-gray-100 rounded disabled:opacity-50"
+                            className="p-1 text-gray-500 hover:bg-gray-100 rounded disabled:opacity-50"
                           >
                             <X className="h-4 w-4" />
                           </button>
@@ -319,14 +319,14 @@ export function UserManagement({ users, onUserUpdated }: UserManagementProps) {
                         <>
                           <button
                             onClick={() => handleEditStart(user)}
-                            className="p-1 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded"
+                            className="p-1 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded"
                           >
                             <Edit2 className="h-4 w-4" />
                           </button>
                           <button
                             onClick={() => handleDelete(user.id)}
                             disabled={deleting === user.id}
-                            className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded disabled:opacity-50"
+                            className="p-1 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded disabled:opacity-50"
                           >
                             <Trash2 className="h-4 w-4" />
                           </button>

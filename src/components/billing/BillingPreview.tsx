@@ -98,7 +98,7 @@ export function BillingPreview({ orgId, onAddExtraProperty, onManagePlan }: Bill
             <span className="font-semibold text-gray-900">Valor esperado/mês:</span>
             <span className="font-bold text-green-600">R${totalMonthly}</span>
           </div>
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-gray-600">
             Será cobrado no próximo ciclo (incluindo créditos/taxas de ajuste)
           </p>
         </div>

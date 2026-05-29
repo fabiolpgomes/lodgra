@@ -107,7 +107,7 @@ export function CleanupReservationsButton() {
 
           {loadingCounts ? (
             <div className="flex items-center justify-center py-8">
-              <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+              <Loader2 className="h-6 w-6 animate-spin text-gray-500" />
             </div>
           ) : counts ? (
             <div className="space-y-3 mb-6">
@@ -118,7 +118,7 @@ export function CleanupReservationsButton() {
               >
                 <div className="text-left">
                   <p className="font-medium text-gray-900">Canceladas</p>
-                  <p className="text-sm text-gray-500">Reservas com status cancelado</p>
+                  <p className="text-sm text-gray-600">Reservas com status cancelado</p>
                 </div>
                 <span className="px-3 py-1 bg-red-100 text-red-800 text-sm font-bold rounded-full">
                   {counts.cancelled}
@@ -132,7 +132,7 @@ export function CleanupReservationsButton() {
               >
                 <div className="text-left">
                   <p className="font-medium text-gray-900">Fantasmas</p>
-                  <p className="text-sm text-gray-500">Importadas por iCal sem dados reais de hóspede</p>
+                  <p className="text-sm text-gray-600">Importadas por iCal sem dados reais de hóspede</p>
                 </div>
                 <span className="px-3 py-1 bg-orange-100 text-orange-800 text-sm font-bold rounded-full">
                   {counts.phantom}
@@ -154,7 +154,7 @@ export function CleanupReservationsButton() {
               </button>
             </div>
           ) : (
-            <p className="text-gray-500 py-4">Erro ao carregar contagens</p>
+            <p className="text-gray-600 py-4">Erro ao carregar contagens</p>
           )}
 
           {loading && (

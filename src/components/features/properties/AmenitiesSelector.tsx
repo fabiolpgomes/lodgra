@@ -78,7 +78,7 @@ export function AmenitiesSelector({ propertyId }: AmenitiesSelectorProps) {
   }
 
   if (loading) {
-    return <p className="text-sm text-gray-500">A carregar comodidades…</p>
+    return <p className="text-sm text-gray-600">A carregar comodidades…</p>
   }
 
   if (error) {

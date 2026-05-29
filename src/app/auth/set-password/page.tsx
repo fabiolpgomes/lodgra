@@ -218,7 +218,7 @@ export default function SetPasswordPage() {
                     disabled={loading}
                     className="w-full"
                   />
-                  <p className="text-xs text-gray-500 mt-2">
+                  <p className="text-xs text-gray-600 mt-2">
                     Mínimo 8 caracteres, com letra maiúscula e número
                   </p>
                 </div>

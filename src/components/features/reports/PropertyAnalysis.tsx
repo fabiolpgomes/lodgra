@@ -62,7 +62,7 @@ export function PropertyAnalysis({ propertyStats }: PropertyAnalysisProps) {
       </div>
 
       {sortedStats.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
+        <div className="text-center py-8 text-gray-600">
           <p>Nenhum dado disponível</p>
         </div>
       ) : (
@@ -81,7 +81,7 @@ export function PropertyAnalysis({ propertyStats }: PropertyAnalysisProps) {
                   <div>
                     <h4 className="font-semibold text-gray-900">{stat.name}</h4>
                     {stat.owner_name && (
-                      <p className="text-xs text-gray-500 mt-0.5">Proprietário: {stat.owner_name}</p>
+                      <p className="text-xs text-gray-600 mt-0.5">Proprietário: {stat.owner_name}</p>
                     )}
                   </div>
                   {(stat.management_percentage ?? 0) > 0 && (

@@ -113,22 +113,22 @@ export function ComplianceDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {/* Consent totals */}
         <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
+          <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
             <Shield className="h-4 w-4" />
             {t('dashboard.summary.consent')}
           </div>
           <p className="text-2xl font-bold text-gray-900">{data.consent.total}</p>
-          <p className="text-xs text-gray-400 mt-1">{t('dashboard.summary.consentSmall')}</p>
+          <p className="text-xs text-gray-500 mt-1">{t('dashboard.summary.consentSmall')}</p>
         </div>
 
         {/* Deletions pending */}
         <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
+          <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
             <Trash2 className="h-4 w-4" />
             {t('dashboard.summary.deletions')}
           </div>
           <p className="text-2xl font-bold text-amber-600">{data.deletions.stats.pending}</p>
-          <p className="text-xs text-gray-400 mt-1">
+          <p className="text-xs text-gray-500 mt-1">
             {t('dashboard.summary.deletionsSmall', {
               completed: data.deletions.stats.completed,
               cancelled: data.deletions.stats.cancelled
@@ -138,17 +138,17 @@ export function ComplianceDashboard() {
 
         {/* Exports */}
         <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
+          <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
             <FileText className="h-4 w-4" />
             {t('dashboard.summary.exports')}
           </div>
           <p className="text-2xl font-bold text-gray-900">{data.exports.last_30_days}</p>
-          <p className="text-xs text-gray-400 mt-1">{t('dashboard.summary.exportsSmall')}</p>
+          <p className="text-xs text-gray-500 mt-1">{t('dashboard.summary.exportsSmall')}</p>
         </div>
 
         {/* CSV Export */}
         <div className="bg-white rounded-lg shadow p-6 flex flex-col justify-between">
-          <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
+          <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">
             <Download className="h-4 w-4" />
             {t('dashboard.summary.report')}
           </div>
@@ -190,7 +190,7 @@ export function ComplianceDashboard() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b text-left text-gray-500">
+              <tr className="border-b text-left text-gray-600">
                 <th className="pb-2 pr-4">{t('dashboard.table.user')}</th>
                 <th className="pb-2 pr-4">{t('dashboard.table.type')}</th>
                 <th className="pb-2 pr-4">{t('dashboard.table.value')}</th>
@@ -215,14 +215,14 @@ export function ComplianceDashboard() {
                       </span>
                     )}
                   </td>
-                  <td className="py-2 text-gray-400 text-xs">
+                  <td className="py-2 text-gray-500 text-xs">
                     {new Date(record.created_at).toLocaleString()}
                   </td>
                 </tr>
               ))}
               {data.consent.recent.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="py-4 text-center text-gray-400">{t('dashboard.table.noRecords')}</td>
+                  <td colSpan={4} className="py-4 text-center text-gray-500">{t('dashboard.table.noRecords')}</td>
                 </tr>
               )}
             </tbody>
@@ -236,7 +236,7 @@ export function ComplianceDashboard() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b text-left text-gray-500">
+              <tr className="border-b text-left text-gray-600">
                 <th className="pb-2 pr-4">{t('dashboard.table.user')}</th>
                 <th className="pb-2 pr-4">{t('dashboard.deletions.status')}</th>
                 <th className="pb-2 pr-4">{t('dashboard.deletions.requested')}</th>
@@ -262,25 +262,25 @@ export function ComplianceDashboard() {
                       </span>
                     )}
                     {req.status === 'cancelled' && (
-                      <span className="inline-flex items-center gap-1 text-gray-400">
+                      <span className="inline-flex items-center gap-1 text-gray-500">
                         <XCircle className="h-3 w-3" /> {t('dashboard.deletions.cancelled')}
                       </span>
                     )}
                   </td>
-                  <td className="py-2 pr-4 text-gray-400 text-xs">
+                  <td className="py-2 pr-4 text-gray-500 text-xs">
                     {new Date(req.requested_at).toLocaleDateString()}
                   </td>
-                  <td className="py-2 pr-4 text-gray-400 text-xs">
+                  <td className="py-2 pr-4 text-gray-500 text-xs">
                     {new Date(req.scheduled_at).toLocaleDateString()}
                   </td>
-                  <td className="py-2 text-gray-400 text-xs">
+                  <td className="py-2 text-gray-500 text-xs">
                     {req.completed_at ? new Date(req.completed_at).toLocaleDateString() : '—'}
                   </td>
                 </tr>
               ))}
               {data.deletions.requests.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="py-4 text-center text-gray-400">{t('dashboard.deletions.noRequests')}</td>
+                  <td colSpan={5} className="py-4 text-center text-gray-500">{t('dashboard.deletions.noRequests')}</td>
                 </tr>
               )}
             </tbody>

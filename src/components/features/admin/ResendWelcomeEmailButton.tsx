@@ -44,7 +44,7 @@ export function ResendWelcomeEmailButton({ userId, userEmail }: ResendWelcomeEma
       disabled={isLoading}
       variant="ghost"
       size="sm"
-      className="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50"
+      className="p-1.5 text-gray-500 hover:text-green-600 hover:bg-green-50"
       title="Reenviar email de boas-vindas"
     >
       <Mail className="h-4 w-4" />

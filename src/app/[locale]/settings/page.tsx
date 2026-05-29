@@ -74,7 +74,7 @@ export default async function SettingsPage(props: { params: Promise<{ locale: st
           </div>
           <div>
             <h1 className="text-xl font-semibold text-gray-900">Definições</h1>
-            <p className="text-sm text-gray-500">Gerencie utilizadores, sincronização iCal e exportações</p>
+            <p className="text-sm text-gray-600">Gerencie utilizadores, sincronização iCal e exportações</p>
           </div>
         </div>
 
@@ -91,11 +91,11 @@ export default async function SettingsPage(props: { params: Promise<{ locale: st
                     O nome da empresa define o endereço público usado na página de reserva direta.
                   </p>
                   <div className="mt-4 rounded-md border border-gray-200 bg-gray-50 px-4 py-3">
-                    <p className="text-xs font-medium uppercase tracking-wide text-gray-500">Nome da empresa</p>
+                    <p className="text-xs font-medium uppercase tracking-wide text-gray-600">Nome da empresa</p>
                     <p className="mt-1 truncate text-sm font-semibold text-gray-900">{organization.name}</p>
                     {bookingUrl && (
                       <>
-                        <p className="mt-3 text-xs font-medium uppercase tracking-wide text-gray-500">Página pública</p>
+                        <p className="mt-3 text-xs font-medium uppercase tracking-wide text-gray-600">Página pública</p>
                         <a
                           href={bookingUrl}
                           target="_blank"

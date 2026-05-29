@@ -208,25 +208,25 @@ export default async function FinancialPage({
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-200">
-                  <th className="px-3 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider max-w-[240px]">
+                  <th className="px-3 py-3 text-left text-[10px] font-semibold text-gray-500 uppercase tracking-wider max-w-[240px]">
                     Propriedade
                   </th>
-                  <th className="px-2 py-3 text-right text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
+                  <th className="px-2 py-3 text-right text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
                     Receita
                   </th>
-                  <th className="px-2 py-3 text-right text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
+                  <th className="px-2 py-3 text-right text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
                     Comissão
                   </th>
-                  <th className="px-2 py-3 text-right text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
+                  <th className="px-2 py-3 text-right text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
                     Líquido
                   </th>
-                  <th className="px-2 py-3 text-right text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
+                  <th className="px-2 py-3 text-right text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
                     Despesas
                   </th>
-                  <th className="px-2 py-3 text-right text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
+                  <th className="px-2 py-3 text-right text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
                     Lucro
                   </th>
-                  <th className="px-2 py-3 text-right text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
+                  <th className="px-2 py-3 text-right text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
                     Margem
                   </th>
                 </tr>
@@ -258,7 +258,7 @@ export default async function FinancialPage({
                               {truncatedName}
                             </div>
                             {property.owner_name && (
-                              <div className="text-xs text-gray-500 mt-0.5 truncate">{property.owner_name}</div>
+                              <div className="text-xs text-gray-600 mt-0.5 truncate">{property.owner_name}</div>
                             )}
                             {property.management_percentage > 0 && (
                               <span className="text-[9px] bg-blue-50 text-blue-700 px-1 py-0.5 rounded-full font-medium inline-block mt-1">
@@ -305,7 +305,7 @@ export default async function FinancialPage({
                       </td>
                       <td className="px-2 py-3 whitespace-nowrap text-right">
                         <div className="flex items-center justify-end gap-0.5">
-                          <Percent className="h-3 w-3 text-gray-400" />
+                          <Percent className="h-3 w-3 text-gray-500" />
                           <span className={`text-xs font-bold ${
                             property.profitMargin >= 0 ? 'text-green-600' : 'text-red-600'
                           }`}>

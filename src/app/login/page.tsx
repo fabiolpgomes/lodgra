@@ -116,7 +116,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors z-10"
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-600 transition-colors z-10"
                 tabIndex={-1}
               >
                 {showPassword ? (
@@ -158,7 +158,7 @@ export default function LoginPage() {
         </div>
 
         {/* Version */}
-        <p className="text-center text-sm text-gray-500 mt-6">
+        <p className="text-center text-sm text-gray-600 mt-6">
           Lodgra v2.0 - Multi-tenant
         </p>
       </div>

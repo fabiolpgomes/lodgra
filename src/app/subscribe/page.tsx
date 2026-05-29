@@ -53,7 +53,7 @@ export default function SubscribePage() {
         </div>
 
         <h1 className="text-3xl font-bold text-gray-900 text-center mb-2">Escolha o seu plano</h1>
-        <p className="text-gray-500 text-center mb-10">Retome o acesso imediatamente após o pagamento.</p>
+        <p className="text-gray-600 text-center mb-10">Retome o acesso imediatamente após o pagamento.</p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {PLAN_DISPLAY.map(plan => {
@@ -79,7 +79,7 @@ export default function SubscribePage() {
 
                 <div className="mb-4">
                   <h2 className="text-lg font-bold text-gray-900">{plan.name}</h2>
-                  <p className="text-sm text-gray-500 mt-0.5 leading-snug">{plan.description}</p>
+                  <p className="text-sm text-gray-600 mt-0.5 leading-snug">{plan.description}</p>
                 </div>
 
                 {plan.enterprise ? (
@@ -90,7 +90,7 @@ export default function SubscribePage() {
                   <div className="mb-1">
                     <div className="flex items-baseline gap-1">
                       <span className="text-3xl font-extrabold text-gray-900">€{plan.price}</span>
-                      <span className="text-gray-500 text-xs">/unidade/mês</span>
+                      <span className="text-gray-600 text-xs">/unidade/mês</span>
                     </div>
                     {feeLabel && (
                       <span className="inline-block mt-1 text-xs font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
@@ -128,7 +128,7 @@ export default function SubscribePage() {
           })}
         </div>
 
-        <p className="text-center mt-8 text-sm text-gray-500">
+        <p className="text-center mt-8 text-sm text-gray-600">
           Já tem conta?{' '}
           <Link href="/login" className="text-blue-600 hover:underline">
             Entrar com outra conta

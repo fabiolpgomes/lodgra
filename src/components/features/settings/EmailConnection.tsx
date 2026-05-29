@@ -84,7 +84,7 @@ export function EmailConnection({ initialEmail, initialLastSync }: EmailConnecti
         </div>
         <div>
           <h3 className="font-semibold text-gray-900">Ligação Gmail</h3>
-          <p className="text-sm text-gray-500">Importação automática de reservas por email</p>
+          <p className="text-sm text-gray-600">Importação automática de reservas por email</p>
         </div>
       </div>
 
@@ -94,7 +94,7 @@ export function EmailConnection({ initialEmail, initialLastSync }: EmailConnecti
             <CheckCircle className="h-4 w-4" />
             <span>Conectado como <strong>{email}</strong></span>
           </div>
-          <div className="text-sm text-gray-500">
+          <div className="text-sm text-gray-600">
             Última sincronização: {formatLastSync(lastSync)}
           </div>
           {error && (
@@ -142,11 +142,11 @@ export function EmailConnection({ initialEmail, initialLastSync }: EmailConnecti
         </div>
       ) : (
         <div className="space-y-3">
-          <div className="flex items-center gap-2 text-sm text-gray-500">
+          <div className="flex items-center gap-2 text-sm text-gray-600">
             <XCircle className="h-4 w-4" />
             <span>Não conectado</span>
           </div>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-600">
             Conecta o teu Gmail para importar automaticamente reservas do Airbnb, Booking.com e Flatio.
           </p>
           {error && (

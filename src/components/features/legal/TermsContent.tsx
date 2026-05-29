@@ -12,7 +12,7 @@ export function TermsContent() {
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Lodgra</h1>
         <h2 className="text-xl font-semibold text-gray-700 mb-1">{t('terms.title')}</h2>
         <div className="flex items-center gap-3 mb-10">
-          <p className="text-sm text-gray-500">{t('terms.lastUpdated')}</p>
+          <p className="text-sm text-gray-600">{t('terms.lastUpdated')}</p>
           <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded font-medium">
             {t('terms.version')}
           </span>

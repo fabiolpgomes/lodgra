@@ -79,7 +79,7 @@ export default function ResetPasswordPage() {
               </ol>
             </div>
 
-            <p className="text-xs text-gray-500 mb-6">
+            <p className="text-xs text-gray-600 mb-6">
               ⏰ O link expira em 24 horas
             </p>
 
@@ -129,7 +129,7 @@ export default function ResetPasswordPage() {
                 Email
               </Label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-500" />
                 <Input
                   type="email"
                   id="email"
@@ -166,7 +166,7 @@ export default function ResetPasswordPage() {
         </div>
 
         {/* Version */}
-        <p className="text-center text-sm text-gray-500 mt-6">
+        <p className="text-center text-sm text-gray-600 mt-6">
           Lodgra v1.1 - Seguro
         </p>
       </div>

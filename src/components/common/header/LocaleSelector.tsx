@@ -100,7 +100,7 @@ export function LocaleSelector() {
         <span className="text-xl leading-none flex-shrink-0">{currentOption.flag}</span>
         <span className="hidden sm:inline text-sm font-medium text-gray-700">{currentOption.label}</span>
         <ChevronDown
-          className={`h-4 w-4 text-gray-400 transition-transform flex-shrink-0 ${isOpen ? 'rotate-180' : ''}`}
+          className={`h-4 w-4 text-gray-500 transition-transform flex-shrink-0 ${isOpen ? 'rotate-180' : ''}`}
           aria-hidden="true"
         />
       </button>
@@ -133,7 +133,7 @@ export function LocaleSelector() {
               <span className="text-xl leading-none flex-shrink-0">{option.flag}</span>
               <div className="flex flex-col min-w-0">
                 <span className="font-medium truncate">{option.name}</span>
-                <span className="text-xs text-gray-500 truncate">{option.label}</span>
+                <span className="text-xs text-gray-600 truncate">{option.label}</span>
               </div>
             </button>
           ))}

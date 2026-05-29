@@ -78,7 +78,7 @@ export function SubscriptionSection({
         </div>
         <div className="space-y-3">
           <div>
-            <p className="text-xs text-gray-500">Plano Atual</p>
+            <p className="text-xs text-gray-600">Plano Atual</p>
             <div className="flex items-center justify-between">
               <p className="text-sm font-medium text-gray-900">{planName}</p>
               <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColor}`}>

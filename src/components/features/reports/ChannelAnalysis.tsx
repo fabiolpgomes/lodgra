@@ -64,7 +64,7 @@ export function ChannelAnalysis({ channelStats, totalRevenue, startDate, endDate
       <div className="flex items-center justify-between mb-6">
         <div>
           <h3 className="text-lg font-semibold text-gray-900">Receita por Canal</h3>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-sm text-gray-600 mt-1">
             {startDate} → {endDate}
           </p>
         </div>
@@ -78,14 +78,14 @@ export function ChannelAnalysis({ channelStats, totalRevenue, startDate, endDate
       </div>
 
       {channelStats.length === 0 ? (
-        <div className="text-center py-12 text-gray-500">
-          <DollarSign className="h-10 w-10 mx-auto mb-3 text-gray-300" />
+        <div className="text-center py-12 text-gray-600">
+          <DollarSign className="h-10 w-10 mx-auto mb-3 text-gray-500" />
           <p>Nenhum dado disponível para o período selecionado.</p>
         </div>
       ) : (
         <>
           {/* Legenda de risco */}
-          <div className="flex items-center gap-4 text-xs text-gray-500 mb-4 pb-3 border-b border-gray-100">
+          <div className="flex items-center gap-4 text-xs text-gray-600 mb-4 pb-3 border-b border-gray-100">
             <span className="flex items-center gap-1">
               <span className="inline-block w-3 h-3 rounded-full bg-red-500" />
               Concentração alta (&gt;50%)
@@ -119,7 +119,7 @@ export function ChannelAnalysis({ channelStats, totalRevenue, startDate, endDate
 
                   <DependencyBar pct={pct} />
 
-                  <div className="flex items-center justify-between mt-2 text-xs text-gray-500">
+                  <div className="flex items-center justify-between mt-2 text-xs text-gray-600">
                     <div className="flex gap-4">
                       <span>{channel.reservations} reservas</span>
                       <span>{channel.nights} noites</span>

@@ -181,7 +181,7 @@ export function ReviewsManager({ propertyId }: ReviewsManagerProps) {
     }
   }, [propertyId])
 
-  if (loading) return <p className="text-sm text-gray-500">A carregar avaliações…</p>
+  if (loading) return <p className="text-sm text-gray-600">A carregar avaliações…</p>
   if (loadError) return <p className="text-sm text-red-600">{loadError}</p>
 
   return (
@@ -194,7 +194,7 @@ export function ReviewsManager({ propertyId }: ReviewsManagerProps) {
       )}
 
       {reviews.length === 0 && !showAddForm && (
-        <p className="text-sm text-gray-400 italic">Nenhuma avaliação adicionada.</p>
+        <p className="text-sm text-gray-500 italic">Nenhuma avaliação adicionada.</p>
       )}
 
       {reviews.map(review => (
@@ -215,11 +215,11 @@ export function ReviewsManager({ propertyId }: ReviewsManagerProps) {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-sm font-medium text-gray-800">{review.reviewer_name}</span>
-                    <span className="text-xs text-gray-500">{SOURCE_LABELS[review.source]}</span>
+                    <span className="text-xs text-gray-600">{SOURCE_LABELS[review.source]}</span>
                     <span className="text-xs font-semibold text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded">
                       {Number(review.rating).toFixed(1)}/10
                     </span>
-                    <span className="text-xs text-gray-400">{review.review_date}</span>
+                    <span className="text-xs text-gray-500">{review.review_date}</span>
                     {review.is_featured && (
                       <span className="inline-flex items-center gap-1 text-xs text-yellow-700 bg-yellow-50 px-1.5 py-0.5 rounded">
                         <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />
@@ -240,7 +240,7 @@ export function ReviewsManager({ propertyId }: ReviewsManagerProps) {
                     type="button"
                     onClick={() => handleToggleFeatured(review)}
                     title={review.is_featured ? 'Remover destaque' : 'Destacar'}
-                    className={`p-1.5 rounded transition-colors ${review.is_featured ? 'text-yellow-500 hover:text-yellow-600' : 'text-gray-400 hover:text-yellow-500'}`}
+                    className={`p-1.5 rounded transition-colors ${review.is_featured ? 'text-yellow-500 hover:text-yellow-600' : 'text-gray-500 hover:text-yellow-500'}`}
                   >
                     <Star className={`h-4 w-4 ${review.is_featured ? 'fill-yellow-500' : ''}`} />
                   </button>
@@ -248,7 +248,7 @@ export function ReviewsManager({ propertyId }: ReviewsManagerProps) {
                     type="button"
                     onClick={() => startEdit(review)}
                     title="Editar"
-                    className="p-1.5 text-gray-400 hover:text-blue-600 rounded transition-colors"
+                    className="p-1.5 text-gray-500 hover:text-blue-600 rounded transition-colors"
                   >
                     <Pencil className="h-4 w-4" />
                   </button>
@@ -277,7 +277,7 @@ export function ReviewsManager({ propertyId }: ReviewsManagerProps) {
                       type="button"
                       onClick={() => { setConfirmingDeleteId(review.id); setDeleteError(null) }}
                       title="Eliminar"
-                      className="p-1.5 text-gray-400 hover:text-red-500 rounded transition-colors"
+                      className="p-1.5 text-gray-500 hover:text-red-500 rounded transition-colors"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
@@ -333,7 +333,7 @@ function ReviewForm({ form, onChange, onSubmit, onCancel, submitLabel, disabled,
     <div className="space-y-3">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
-          <label className="block text-xs text-gray-500 mb-1">Fonte OTA *</label>
+          <label className="block text-xs text-gray-600 mb-1">Fonte OTA *</label>
           <select
             value={form.source}
             onChange={e => set({ source: e.target.value as ReviewSource })}
@@ -346,7 +346,7 @@ function ReviewForm({ form, onChange, onSubmit, onCancel, submitLabel, disabled,
         </div>
 
         <div>
-          <label className="block text-xs text-gray-500 mb-1">Nota (1–10) *</label>
+          <label className="block text-xs text-gray-600 mb-1">Nota (1–10) *</label>
           <input
             type="number"
             min={1}
@@ -360,7 +360,7 @@ function ReviewForm({ form, onChange, onSubmit, onCancel, submitLabel, disabled,
         </div>
 
         <div>
-          <label className="block text-xs text-gray-500 mb-1">Nome do Hóspede *</label>
+          <label className="block text-xs text-gray-600 mb-1">Nome do Hóspede *</label>
           <input
             type="text"
             value={form.reviewer_name}
@@ -371,7 +371,7 @@ function ReviewForm({ form, onChange, onSubmit, onCancel, submitLabel, disabled,
         </div>
 
         <div>
-          <label className="block text-xs text-gray-500 mb-1">Data *</label>
+          <label className="block text-xs text-gray-600 mb-1">Data *</label>
           <input
             type="date"
             value={form.review_date}
@@ -382,9 +382,9 @@ function ReviewForm({ form, onChange, onSubmit, onCancel, submitLabel, disabled,
       </div>
 
       <div>
-        <label className="block text-xs text-gray-500 mb-1">
+        <label className="block text-xs text-gray-600 mb-1">
           Texto da Avaliação (opcional)
-          <span className={`ml-2 ${form.review_text.length > 500 ? 'text-red-500' : 'text-gray-400'}`}>
+          <span className={`ml-2 ${form.review_text.length > 500 ? 'text-red-500' : 'text-gray-500'}`}>
             {form.review_text.length}/500
           </span>
         </label>

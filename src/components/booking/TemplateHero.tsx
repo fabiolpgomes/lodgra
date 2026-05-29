@@ -40,7 +40,7 @@ export function TemplateHero({
   const subtitleClass = useMemo(() => {
     return {
       standard: 'text-lg text-gray-600 mt-2',
-      luxury: 'text-xl text-gray-500 mt-4 font-light',
+      luxury: 'text-xl text-gray-600 mt-4 font-light',
       budget: 'text-base text-gray-600 mt-1',
     }[templateType]
   }, [templateType])

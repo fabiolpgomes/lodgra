@@ -78,7 +78,7 @@ export function ChangePasswordForm() {
           required
           autoComplete="new-password"
         />
-        <p className="mt-1 text-xs text-gray-500">
+        <p className="mt-1 text-xs text-gray-600">
           Mínimo 8 caracteres, 1 letra maiúscula, 1 número
         </p>
       </div>

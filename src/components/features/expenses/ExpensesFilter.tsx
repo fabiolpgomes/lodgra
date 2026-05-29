@@ -138,7 +138,7 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
 
   const emptyState = (
     <div className="bg-white rounded-lg shadow p-12 text-center">
-      <Receipt className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+      <Receipt className="h-16 w-16 text-gray-500 mx-auto mb-4" />
       <h3 className="text-xl font-semibold text-gray-900 mb-2">
         {expenses.length === 0 ? 'Nenhuma despesa cadastrada' : 'Nenhum resultado encontrado'}
       </h3>
@@ -168,10 +168,10 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
             <div className="p-2.5 bg-red-100 rounded-xl">
               <TrendingDown className="h-5 w-5 text-red-600" />
             </div>
-            <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">Total</span>
+            <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">Total</span>
           </div>
           <p className="text-4xl font-bold text-gray-900">{filteredStats.count}</p>
-          <p className="text-sm text-gray-500 mt-1">Despesas</p>
+          <p className="text-sm text-gray-600 mt-1">Despesas</p>
         </div>
 
         {/* Totals by currency — span 2 cols */}
@@ -179,7 +179,7 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
           <div className="flex items-center justify-between mb-4">
             <div>
               <p className="text-sm font-semibold text-gray-700">Valor Total</p>
-              <p className="text-xs text-gray-400 mt-0.5">
+              <p className="text-xs text-gray-500 mt-0.5">
                 {propertyFilter !== 'all' || startDate || endDate ? 'Despesas filtradas' : 'Todas as despesas'}
               </p>
             </div>
@@ -196,7 +196,7 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
           {/* Row 1: Search and Property Filter */}
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
               <Input
                 placeholder="Pesquisar por descrição ou propriedade..."
                 value={search}
@@ -220,9 +220,9 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
           {/* Row 2: Date Range and Category Filters */}
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1">
-              <label className="block text-xs font-medium text-gray-700 mb-1">Data inicial <span className="text-gray-400">(dd/mm/aaaa)</span></label>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Data inicial <span className="text-gray-500">(dd/mm/aaaa)</span></label>
               <div className="relative">
-                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
                 <Input
                   type="date"
                   value={startDate}
@@ -232,9 +232,9 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
               </div>
             </div>
             <div className="flex-1">
-              <label className="block text-xs font-medium text-gray-700 mb-1">Data final <span className="text-gray-400">(dd/mm/aaaa)</span></label>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Data final <span className="text-gray-500">(dd/mm/aaaa)</span></label>
               <div className="relative">
-                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
                 <Input
                   type="date"
                   value={endDate}
@@ -277,12 +277,12 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
                     <Badge variant="secondary" className="bg-gray-100 text-gray-800 text-xs">
                       {CATEGORY_LABELS[expense.category] || expense.category}
                     </Badge>
-                    <ArrowRight className="h-4 w-4 text-gray-400 shrink-0" />
+                    <ArrowRight className="h-4 w-4 text-gray-500 shrink-0" />
                   </div>
                   <p className="font-semibold text-gray-900 text-sm mt-2">{expense.description}</p>
-                  <p className="text-gray-500 text-xs mt-0.5">{property?.name}</p>
+                  <p className="text-gray-600 text-xs mt-0.5">{property?.name}</p>
                   <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-gray-600">
                       {new Date(expense.expense_date).toLocaleDateString('pt-BR')}
                     </span>
                     <span className="text-sm font-semibold text-red-600">
@@ -293,7 +293,7 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
               )
             })}
             {filtered.length < expenses.length && (
-              <p className="text-center text-sm text-gray-500 py-2">
+              <p className="text-center text-sm text-gray-600 py-2">
                 Mostrando {filtered.length} de {expenses.length} despesas
               </p>
             )}
@@ -304,12 +304,12 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Propriedade</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Forma de Pagamento</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categoria</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Valor</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Data</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Propriedade</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Forma de Pagamento</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Categoria</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">Valor</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">Ações</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -330,7 +330,7 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
                       <td className="px-6 py-4">
                         <Link href={`${prefix}/expenses/${expense.id}`} className="block">
                           <div className="text-sm text-gray-900 hover:text-blue-600">{expense.description}</div>
-                          {expense.notes && <div className="text-xs text-gray-500 mt-1">{expense.notes}</div>}
+                          {expense.notes && <div className="text-xs text-gray-600 mt-1">{expense.notes}</div>}
                         </Link>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -345,7 +345,7 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
                         <div className="flex items-center justify-end gap-2">
                           <Link
                             href={`${prefix}/expenses/${expense.id}`}
-                            className="p-1.5 text-gray-400 hover:text-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
+                            className="p-1.5 text-gray-500 hover:text-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
                             title="Ver detalhes"
                           >
                             <Eye className="h-4 w-4" />
@@ -367,7 +367,7 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
               </tbody>
             </table>
             {filtered.length < expenses.length && (
-              <div className="px-6 py-3 bg-gray-50 text-sm text-gray-500 border-t">
+              <div className="px-6 py-3 bg-gray-50 text-sm text-gray-600 border-t">
                 Mostrando {filtered.length} de {expenses.length} despesas nesta página
               </div>
             )}

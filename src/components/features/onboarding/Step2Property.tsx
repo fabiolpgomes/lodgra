@@ -79,7 +79,7 @@ export function Step2Property({ onNext, onSkip, onContinueExisting, onboardingSe
       <h2 className="text-2xl font-bold text-gray-900 text-center mb-1">
         Adicione o seu primeiro imóvel
       </h2>
-      <p className="text-gray-500 text-center text-sm mb-6">
+      <p className="text-gray-600 text-center text-sm mb-6">
         Estes dados mínimos colocam o imóvel na sua página pública de reservas.
       </p>
 
@@ -104,12 +104,12 @@ export function Step2Property({ onNext, onSkip, onContinueExisting, onboardingSe
             placeholder="Ex: Apartamento Lisboa Centro"
             required
           />
-          <p className="text-xs text-gray-400 mt-1">Use um nome que o ajude a identificar facilmente.</p>
+          <p className="text-xs text-gray-500 mt-1">Use um nome que o ajude a identificar facilmente.</p>
         </div>
 
         <div>
           <Label htmlFor="property-address" className="block text-sm font-medium text-gray-700 mb-1">
-            Endereço <span className="text-gray-400">(opcional)</span>
+            Endereço <span className="text-gray-500">(opcional)</span>
           </Label>
           <Input
             id="property-address"
@@ -152,7 +152,7 @@ export function Step2Property({ onNext, onSkip, onContinueExisting, onboardingSe
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <Label htmlFor="property-price" className="block text-sm font-medium text-gray-700 mb-1">
-              Diária base <span className="text-gray-400">(opcional)</span>
+              Diária base <span className="text-gray-500">(opcional)</span>
             </Label>
             <Input
               id="property-price"
@@ -223,7 +223,7 @@ export function Step2Property({ onNext, onSkip, onContinueExisting, onboardingSe
           type="button"
           variant="ghost"
           onClick={onSkip}
-          className="w-full text-sm text-gray-400"
+          className="w-full text-sm text-gray-500"
         >
           Saltar por agora
         </Button>

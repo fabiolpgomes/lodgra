@@ -142,14 +142,14 @@ export function PricingRulesManager({ propertyId, organizationId, initialRules, 
     <div className="space-y-4">
       {/* Rules list */}
       {rules.length === 0 ? (
-        <p className="text-sm text-gray-500 py-4 text-center">
+        <p className="text-sm text-gray-600 py-4 text-center">
           Sem regras de preço configuradas. O preço base da propriedade será sempre utilizado.
         </p>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b text-gray-500 text-left">
+              <tr className="border-b text-gray-600 text-left">
                 <th className="pb-2 pr-4 font-medium">Nome</th>
                 <th className="pb-2 pr-4 font-medium">Início</th>
                 <th className="pb-2 pr-4 font-medium">Fim</th>
@@ -169,14 +169,14 @@ export function PricingRulesManager({ propertyId, organizationId, initialRules, 
                   <td className="py-3 flex gap-2 justify-end">
                     <button
                       onClick={() => startEdit(rule)}
-                      className="text-gray-400 hover:text-gray-700 transition-colors"
+                      className="text-gray-500 hover:text-gray-700 transition-colors"
                       title="Editar"
                     >
                       <Pencil size={15} />
                     </button>
                     <button
                       onClick={() => handleDelete(rule.id)}
-                      className="text-gray-400 hover:text-red-600 transition-colors"
+                      className="text-gray-500 hover:text-red-600 transition-colors"
                       title="Eliminar"
                     >
                       <Trash2 size={15} />

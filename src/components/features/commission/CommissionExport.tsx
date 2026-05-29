@@ -78,7 +78,7 @@ export function CommissionExport({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label htmlFor="startDate" className="block text-sm font-medium text-gray-700 mb-1">
-              Data Inicial (opcional) <span className="text-gray-500 text-xs">(dd/mm/aaaa)</span>
+              Data Inicial (opcional) <span className="text-gray-600 text-xs">(dd/mm/aaaa)</span>
             </label>
             <input
               id="startDate"
@@ -88,12 +88,12 @@ export function CommissionExport({
               max={today}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            <p className="text-xs text-gray-500 mt-1">Padrão: Todos os tempos</p>
+            <p className="text-xs text-gray-600 mt-1">Padrão: Todos os tempos</p>
           </div>
 
           <div>
             <label htmlFor="endDate" className="block text-sm font-medium text-gray-700 mb-1">
-              Data Final (opcional) <span className="text-gray-500 text-xs">(dd/mm/aaaa)</span>
+              Data Final (opcional) <span className="text-gray-600 text-xs">(dd/mm/aaaa)</span>
             </label>
             <input
               id="endDate"
@@ -103,7 +103,7 @@ export function CommissionExport({
               max={today}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            <p className="text-xs text-gray-500 mt-1">Padrão: Hoje</p>
+            <p className="text-xs text-gray-600 mt-1">Padrão: Hoje</p>
           </div>
         </div>
 
@@ -174,7 +174,7 @@ export function CommissionExport({
             )}
           </button>
 
-          <div className="flex-1 flex items-center text-xs text-gray-500">
+          <div className="flex-1 flex items-center text-xs text-gray-600">
             <span>
               {startDate && endDate
                 ? `${startDate} to ${endDate}`

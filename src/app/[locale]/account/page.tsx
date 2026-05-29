@@ -52,7 +52,7 @@ export default async function AccountPage() {
           </div>
           <div>
             <h1 className="text-xl font-semibold text-gray-900">Minha Conta</h1>
-            <p className="text-sm text-gray-500">Gerencie as suas informações pessoais</p>
+            <p className="text-sm text-gray-600">Gerencie as suas informações pessoais</p>
           </div>
         </div>
 
@@ -61,15 +61,15 @@ export default async function AccountPage() {
           <h2 className="text-sm font-semibold text-gray-900 mb-4">Informações do Perfil</h2>
           <div className="space-y-3">
             <div>
-              <p className="text-xs text-gray-500">Nome</p>
+              <p className="text-xs text-gray-600">Nome</p>
               <p className="text-sm font-medium text-gray-900">{profile?.full_name || '—'}</p>
             </div>
             <div>
-              <p className="text-xs text-gray-500">Email</p>
+              <p className="text-xs text-gray-600">Email</p>
               <p className="text-sm font-medium text-gray-900">{profile?.email}</p>
             </div>
             <div>
-              <p className="text-xs text-gray-500">Função</p>
+              <p className="text-xs text-gray-600">Função</p>
               <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                 role === 'admin' ? 'bg-red-100 text-red-800' :
                 role === 'gestor' ? 'bg-blue-100 text-blue-800' :

@@ -14,7 +14,7 @@ export default function RequestLinkPage() {
         </div>
 
         {/* Branding */}
-        <h2 className="text-xs font-black uppercase tracking-widest text-gray-500 mb-3">Portal de Limpeza</h2>
+        <h2 className="text-xs font-black uppercase tracking-widest text-gray-600 mb-3">Portal de Limpeza</h2>
         <h1 className="text-3xl font-black text-blue-600 mb-6">Lodgra</h1>
 
         {/* Message */}
@@ -49,7 +49,7 @@ export default function RequestLinkPage() {
         </Link>
 
         {/* Footer */}
-        <p className="text-xs text-gray-400 mt-6">Lodgra © 2026 — Portal de Gestão de Limpezas</p>
+        <p className="text-xs text-gray-500 mt-6">Lodgra © 2026 — Portal de Gestão de Limpezas</p>
       </div>
     </div>
   );

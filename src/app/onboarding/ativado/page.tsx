@@ -63,7 +63,7 @@ export default function OnboardingAtivadoPage() {
               </div>
               <div>
                 <p className="text-sm font-semibold text-gray-900">{step.title}</p>
-                <p className="text-xs text-gray-500">{step.description}</p>
+                <p className="text-xs text-gray-600">{step.description}</p>
               </div>
             </div>
           ))}
@@ -80,7 +80,7 @@ export default function OnboardingAtivadoPage() {
           {redirecting ? 'Iniciando onboarding...' : 'Iniciar onboarding'}
         </Button>
 
-        <p className="text-xs text-gray-400 mt-6">
+        <p className="text-xs text-gray-500 mt-6">
           Clique acima para configurar sua organização e publicar sua primeira página de reserva direta.
         </p>
       </div>

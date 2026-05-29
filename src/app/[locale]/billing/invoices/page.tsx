@@ -179,7 +179,7 @@ export default function InvoicesPage() {
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                         {invoice.number}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                         {invoice.due_date
                           ? new Date(invoice.due_date).toLocaleDateString('pt-PT')
                           : '—'}

@@ -56,7 +56,7 @@ export function OwnersFilter({ owners, countMap, canEdit, canDelete, pagination 
 
   const emptyState = (
     <div className="bg-white rounded-lg shadow p-12 text-center">
-      <Users className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+      <Users className="h-16 w-16 text-gray-500 mx-auto mb-4" />
       <h3 className="text-xl font-semibold text-gray-900 mb-2">
         {owners.length === 0 ? 'Nenhum proprietário encontrado' : 'Nenhum resultado encontrado'}
       </h3>
@@ -82,7 +82,7 @@ export function OwnersFilter({ owners, countMap, canEdit, canDelete, pagination 
       <div className="bg-white rounded-lg shadow p-4 mb-6">
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
             <Input
               placeholder="Pesquisar por nome ou email..."
               value={search}
@@ -91,7 +91,7 @@ export function OwnersFilter({ owners, countMap, canEdit, canDelete, pagination 
             />
           </div>
           <div className="flex items-center gap-2">
-            <Filter className="h-5 w-5 text-gray-400 shrink-0" />
+            <Filter className="h-5 w-5 text-gray-500 shrink-0" />
             {STATUS_FILTERS.map(f => (
               <Button
                 key={f.value}
@@ -123,21 +123,21 @@ export function OwnersFilter({ owners, countMap, canEdit, canDelete, pagination 
                         <Badge variant="outline" className="text-xs shrink-0">Inativo</Badge>
                       )}
                     </div>
-                    {owner.email && <p className="text-gray-500 text-xs truncate">{owner.email}</p>}
-                    {owner.city && <p className="text-gray-400 text-xs">{owner.city}, {owner.country}</p>}
+                    {owner.email && <p className="text-gray-600 text-xs truncate">{owner.email}</p>}
+                    {owner.city && <p className="text-gray-500 text-xs">{owner.city}, {owner.country}</p>}
                   </div>
                   <Badge variant="secondary" className="ml-2 shrink-0">
                     {countMap[owner.id] || 0} imóveis
                   </Badge>
                 </div>
                 <div className="flex items-center justify-end gap-1 mt-3 pt-3 border-t border-gray-100">
-                  <Button asChild variant="ghost" size="sm" className="h-9 px-3 text-gray-500">
+                  <Button asChild variant="ghost" size="sm" className="h-9 px-3 text-gray-600">
                     <Link href={`/owners/${owner.id}`}>
                       <Eye className="h-4 w-4" />
                     </Link>
                   </Button>
                   {canEdit && (
-                    <Button asChild variant="ghost" size="sm" className="h-9 px-3 text-gray-500">
+                    <Button asChild variant="ghost" size="sm" className="h-9 px-3 text-gray-600">
                       <Link href={`/owners/${owner.id}/edit`}>
                         <Edit className="h-4 w-4" />
                       </Link>
@@ -155,7 +155,7 @@ export function OwnersFilter({ owners, countMap, canEdit, canDelete, pagination 
               </div>
             ))}
             {filtered.length < owners.length && (
-              <p className="text-center text-sm text-gray-500 py-2">
+              <p className="text-center text-sm text-gray-600 py-2">
                 Mostrando {filtered.length} de {owners.length} proprietários
               </p>
             )}
@@ -166,13 +166,13 @@ export function OwnersFilter({ owners, countMap, canEdit, canDelete, pagination 
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Telefone</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">NIF/CPF</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Propriedades</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Nome</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Email</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Telefone</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">NIF/CPF</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Propriedades</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">Ações</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -181,7 +181,7 @@ export function OwnersFilter({ owners, countMap, canEdit, canDelete, pagination 
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">{owner.full_name}</div>
                       {owner.city && (
-                        <div className="text-xs text-gray-500">{owner.city}, {owner.country}</div>
+                        <div className="text-xs text-gray-600">{owner.city}, {owner.country}</div>
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
@@ -207,7 +207,7 @@ export function OwnersFilter({ owners, countMap, canEdit, canDelete, pagination 
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right">
                       <div className="flex items-center justify-end gap-2">
-                        <Button asChild variant="ghost" size="sm" className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50" title="Ver detalhes">
+                        <Button asChild variant="ghost" size="sm" className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50" title="Ver detalhes">
                           <Link href={`/owners/${owner.id}`}><Eye className="h-4 w-4" /></Link>
                         </Button>
                         {canEdit && (
@@ -225,7 +225,7 @@ export function OwnersFilter({ owners, countMap, canEdit, canDelete, pagination 
               </tbody>
             </table>
             {filtered.length < owners.length && (
-              <div className="px-6 py-3 bg-gray-50 text-sm text-gray-500 border-t">
+              <div className="px-6 py-3 bg-gray-50 text-sm text-gray-600 border-t">
                 Mostrando {filtered.length} de {owners.length} proprietários nesta página
               </div>
             )}

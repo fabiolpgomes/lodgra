@@ -111,7 +111,7 @@ export function Header({ serverProfile }: HeaderProps) {
                       onClick={() => setConfigOpen(false)}
                       className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                     >
-                      <Icon className="h-4 w-4 text-gray-400" />
+                      <Icon className="h-4 w-4 text-gray-500" />
                       {label}
                     </Link>
                   ))}
@@ -123,7 +123,7 @@ export function Header({ serverProfile }: HeaderProps) {
                         onClick={() => setConfigOpen(false)}
                         className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                       >
-                        <UserCog className="h-4 w-4 text-gray-400" />
+                        <UserCog className="h-4 w-4 text-gray-500" />
                         Utilizadores
                       </Link>
                     </>

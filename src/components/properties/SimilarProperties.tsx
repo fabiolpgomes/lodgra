@@ -72,7 +72,7 @@ export const SimilarProperties: React.FC<SimilarPropertiesProps> = ({
                           className={`w-4 h-4 ${
                             i < Math.floor(property.rating || 0)
                               ? 'fill-yellow-400 text-yellow-400'
-                              : 'text-gray-300'
+                              : 'text-gray-500'
                           }`}
                         />
                       ))}
@@ -81,7 +81,7 @@ export const SimilarProperties: React.FC<SimilarPropertiesProps> = ({
                       {property.rating?.toFixed(1)}
                     </span>
                     {property.review_count ? (
-                      <span className="text-xs text-gray-500">({property.review_count})</span>
+                      <span className="text-xs text-gray-600">({property.review_count})</span>
                     ) : null}
                   </div>
                 )}

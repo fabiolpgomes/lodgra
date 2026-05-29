@@ -373,7 +373,7 @@ function PropertyDetailsModal({
         </div>
 
         <div className="mt-4 rounded border border-gray-200 bg-gray-50 p-4">
-          <p className="text-xs font-semibold uppercase text-gray-500">Error detail</p>
+          <p className="text-xs font-semibold uppercase text-gray-600">Error detail</p>
           <p className="mt-1 text-sm text-gray-700">
             {latestEntry?.error_message || 'No error was reported in the latest feed generation.'}
           </p>
@@ -414,7 +414,7 @@ function PropertyDetailsModal({
 function DetailItem({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="rounded border border-gray-200 p-3">
-      <p className="text-xs font-semibold uppercase text-gray-500">{label}</p>
+      <p className="text-xs font-semibold uppercase text-gray-600">{label}</p>
       <div className="mt-1 break-words text-sm text-gray-900">{children}</div>
     </div>
   )

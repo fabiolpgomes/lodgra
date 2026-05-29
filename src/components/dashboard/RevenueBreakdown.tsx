@@ -63,7 +63,7 @@ export function RevenueBreakdown({ currency, month, className = '' }: RevenueBre
           <h3 className="text-lg font-semibold mb-4">{curr} Revenue</h3>
 
           {revenues.length === 0 ? (
-            <p className="text-gray-500">No revenue data available</p>
+            <p className="text-gray-600">No revenue data available</p>
           ) : (
             <div className="space-y-3">
               {revenues.map(item => (
@@ -100,10 +100,10 @@ export function RevenueBreakdown({ currency, month, className = '' }: RevenueBre
               ))}
 
               <div className="mt-4 pt-3 border-t-2">
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-gray-600">
                   💡 Reservations ≤30 days: 100% counted in check-in month
                 </p>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-600 mt-1">
                   💡 Reservations &gt;30 days: Proportional distribution using formula (Total / Days) × 30
                 </p>
               </div>

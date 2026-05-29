@@ -108,7 +108,7 @@ export default async function ReservationsPage({
               </div>
               <h2 className="text-2xl font-bold text-gray-900">Reservas</h2>
             </div>
-            <p className="text-gray-500 text-sm ml-[52px]">
+            <p className="text-gray-600 text-sm ml-[52px]">
               Gerencie todas as suas reservas
             </p>
           </div>
@@ -140,10 +140,10 @@ export default async function ReservationsPage({
               <div className="be-icon w-9 h-9 bg-[#EFF6FF]">
                 <Calendar className="h-5 w-5 text-[#1E3A8A]" />
               </div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">Total</span>
+              <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">Total</span>
             </div>
             <p className="text-4xl font-bold text-gray-900">{stats.total}</p>
-            <p className="text-sm text-gray-500 mt-1">Reservas</p>
+            <p className="text-sm text-gray-600 mt-1">Reservas</p>
           </div>
 
           <div className="be-card p-5">
@@ -151,10 +151,10 @@ export default async function ReservationsPage({
               <div className="be-icon w-9 h-9 bg-[#ECFDF5]">
                 <CheckCircle className="h-5 w-5 text-[#059669]" />
               </div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">Status</span>
+              <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">Status</span>
             </div>
             <p className="text-4xl font-bold text-[#059669]">{stats.confirmed}</p>
-            <p className="text-sm text-gray-500 mt-1">Confirmadas</p>
+            <p className="text-sm text-gray-600 mt-1">Confirmadas</p>
           </div>
 
           <div className="be-card p-5">
@@ -162,10 +162,10 @@ export default async function ReservationsPage({
               <div className="be-icon w-9 h-9 bg-[#FFFBEB]">
                 <Clock className="h-5 w-5 text-[#ffc000]" />
               </div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">Status</span>
+              <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">Status</span>
             </div>
             <p className="text-4xl font-bold text-[#ffc000]">{stats.pending}</p>
-            <p className="text-sm text-gray-500 mt-1">Pendentes</p>
+            <p className="text-sm text-gray-600 mt-1">Pendentes</p>
           </div>
 
           <div className="be-card p-5">
@@ -173,10 +173,10 @@ export default async function ReservationsPage({
               <div className="be-icon w-9 h-9 bg-[#FEF2F2]">
                 <XCircle className="h-5 w-5 text-red-600" />
               </div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">Status</span>
+              <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">Status</span>
             </div>
             <p className="text-4xl font-bold text-red-600">{stats.cancelled}</p>
-            <p className="text-sm text-gray-500 mt-1">Canceladas</p>
+            <p className="text-sm text-gray-600 mt-1">Canceladas</p>
           </div>
         </div>
 

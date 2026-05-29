@@ -242,7 +242,7 @@ export function ChannelsClient({ listings, existingConfigs }: ChannelsClientProp
 
   if (listings.length === 0) {
     return (
-      <p className="text-sm text-gray-500">
+      <p className="text-sm text-gray-600">
         Sem propriedades com listings configurados. Adicione um listing primeiro.
       </p>
     )
@@ -266,13 +266,13 @@ export function ChannelsClient({ listings, existingConfigs }: ChannelsClientProp
                 </h3>
                 {isConnected ? (
                   <div className="mt-1 space-y-0.5">
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-gray-600">
                       ID externo:{' '}
                       <span className="font-mono text-gray-700">
                         {config.external_property_id}
                       </span>
                     </p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-gray-600">
                       Último sync: {formatRelativeTime(config.last_synced_at)}
                       {config.sync_count > 0 && (
                         <span className="ml-1 text-green-700 font-medium">
@@ -282,7 +282,7 @@ export function ChannelsClient({ listings, existingConfigs }: ChannelsClientProp
                     </p>
                   </div>
                 ) : (
-                  <p className="text-xs text-gray-400 mt-0.5">Não configurado</p>
+                  <p className="text-xs text-gray-500 mt-0.5">Não configurado</p>
                 )}
               </div>
 
@@ -293,7 +293,7 @@ export function ChannelsClient({ listings, existingConfigs }: ChannelsClientProp
                     Ligado
                   </span>
                 ) : (
-                  <span className="inline-flex items-center text-xs font-medium text-gray-500 bg-gray-100 rounded-full px-2.5 py-1">
+                  <span className="inline-flex items-center text-xs font-medium text-gray-600 bg-gray-100 rounded-full px-2.5 py-1">
                     Não configurado
                   </span>
                 )}

@@ -82,7 +82,7 @@ export function UpgradeModal({
           </div>
           <button
             onClick={handleClose}
-            className="ml-2 rounded-lg p-1 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600"
+            className="ml-2 rounded-lg p-1 text-gray-500 transition hover:bg-gray-100 hover:text-gray-600"
             aria-label="Fechar modal"
           >
             <X className="h-5 w-5" />
@@ -156,7 +156,7 @@ export function UpgradeModal({
         </button>
 
         {/* Info text */}
-        <p className="mt-3 text-center text-xs text-gray-500">
+        <p className="mt-3 text-center text-xs text-gray-600">
           Você pode acessar planos e preços a qualquer momento em Configurações
         </p>
       </div>

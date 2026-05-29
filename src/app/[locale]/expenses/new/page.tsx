@@ -204,7 +204,7 @@ export default function NewExpensePage() {
                 min="0"
                 placeholder="0.00"
               />
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-600 mt-1">
                 A moeda será a mesma da propriedade selecionada
               </p>
             </div>

@@ -143,7 +143,7 @@ export default function CleaningPhotoGallery({ taskId, isManager = false }: Prop
   };
 
   if (loading) {
-    return <div className="text-gray-500">{t('loading')}</div>;
+    return <div className="text-gray-600">{t('loading')}</div>;
   }
 
   if (error) {
@@ -151,7 +151,7 @@ export default function CleaningPhotoGallery({ taskId, isManager = false }: Prop
   }
 
   if (photos.length === 0) {
-    return <div className="text-gray-500">{t('no_photos')}</div>;
+    return <div className="text-gray-600">{t('no_photos')}</div>;
   }
 
   return (

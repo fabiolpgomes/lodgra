@@ -47,7 +47,7 @@ function PLRow({
           {' '}{label}
         </span>
         {note && (
-          <span className="flex items-center gap-1 text-xs text-gray-400">
+          <span className="flex items-center gap-1 text-xs text-gray-500">
             <Info className="h-3 w-3" />
             {note}
           </span>
@@ -61,7 +61,7 @@ function PLRow({
             </p>
           ))
         ) : (
-          <p className="text-sm text-gray-400">—</p>
+          <p className="text-sm text-gray-500">—</p>
         )}
       </div>
     </div>
@@ -113,7 +113,7 @@ export function PLStatement({
       <div className="flex items-center justify-between mb-6">
         <div>
           <h3 className="text-lg font-semibold text-gray-900">Demonstrativo de Resultado (P&amp;L)</h3>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-sm text-gray-600 mt-1">
             {startDate} → {endDate}
           </p>
         </div>
@@ -127,8 +127,8 @@ export function PLStatement({
       </div>
 
       {currencies.length === 0 ? (
-        <div className="text-center py-12 text-gray-500">
-          <DollarSign className="h-10 w-10 mx-auto mb-3 text-gray-300" />
+        <div className="text-center py-12 text-gray-600">
+          <DollarSign className="h-10 w-10 mx-auto mb-3 text-gray-500" />
           <p>Nenhum dado disponível para o período selecionado.</p>
         </div>
       ) : (

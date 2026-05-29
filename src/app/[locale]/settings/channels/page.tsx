@@ -67,7 +67,7 @@ export default async function ChannelsSettingsPage() {
             <h1 className="text-xl font-semibold text-gray-900">
               Canais API
             </h1>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-600">
               Ligue o Booking.com via API para importar reservas com dados completos
             </p>
           </div>
@@ -81,7 +81,7 @@ export default async function ChannelsSettingsPage() {
               API Oficial
             </span>
           </div>
-          <p className="text-sm text-gray-500 mb-5">
+          <p className="text-sm text-gray-600 mb-5">
             Introduza as credenciais por propriedade para receber reservas em tempo real com nome do hóspede,
             contacto e valor. Requer aprovação no{' '}
             <span className="font-medium text-gray-700">Booking.com Connectivity Program</span>.

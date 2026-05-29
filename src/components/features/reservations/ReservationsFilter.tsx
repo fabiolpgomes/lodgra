@@ -97,7 +97,7 @@ export function ReservationsFilter({ reservations, canCreate, pagination, curren
 
   const emptyState = (
     <div className="bg-white rounded-lg shadow p-12 text-center">
-      <Calendar className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+      <Calendar className="h-16 w-16 text-gray-500 mx-auto mb-4" />
       <h3 className="text-xl font-semibold text-gray-900 mb-2">
         {reservations.length === 0 ? 'Nenhuma reserva cadastrada' : 'Nenhum resultado encontrado'}
       </h3>
@@ -132,7 +132,7 @@ export function ReservationsFilter({ reservations, canCreate, pagination, curren
           {/* Row 1: Search and Property Filter */}
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
               <Input
                 placeholder="Pesquisar por hóspede ou propriedade..."
                 value={search}
@@ -155,7 +155,7 @@ export function ReservationsFilter({ reservations, canCreate, pagination, curren
 
           {/* Row 2: Status Filters — pill tabs */}
           <div className="flex items-center gap-2 flex-wrap">
-            <Filter className="h-4 w-4 text-gray-400 shrink-0" />
+            <Filter className="h-4 w-4 text-gray-500 shrink-0" />
             {STATUS_FILTERS.map(f => (
               <button
                 key={f.value}
@@ -192,14 +192,14 @@ export function ReservationsFilter({ reservations, canCreate, pagination, curren
                     <Badge className={`${status.className} hover:${status.className} text-xs`}>
                       {status.label}
                     </Badge>
-                    <ArrowRight className="h-4 w-4 text-gray-400 shrink-0 mt-0.5" />
+                    <ArrowRight className="h-4 w-4 text-gray-500 shrink-0 mt-0.5" />
                   </div>
                   <p className="font-semibold text-gray-900 text-sm">{guestName}</p>
-                  <p className="text-gray-500 text-xs mt-0.5">{propertyName}</p>
+                  <p className="text-gray-600 text-xs mt-0.5">{propertyName}</p>
                   <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
                     <div className="flex items-center gap-4 text-xs text-gray-600">
-                      <span><span className="text-gray-400">In </span>{checkIn}</span>
-                      <span><span className="text-gray-400">Out </span>{checkOut}</span>
+                      <span><span className="text-gray-500">In </span>{checkIn}</span>
+                      <span><span className="text-gray-500">Out </span>{checkOut}</span>
                     </div>
                     {r.total_amount ? (
                       <span className="text-sm font-semibold text-gray-900">
@@ -218,7 +218,7 @@ export function ReservationsFilter({ reservations, canCreate, pagination, curren
               )
             })}
             {filtered.length < reservations.length && (
-              <p className="text-center text-sm text-gray-500 py-2">
+              <p className="text-center text-sm text-gray-600 py-2">
                 Mostrando {filtered.length} de {reservations.length} reservas
               </p>
             )}
@@ -229,14 +229,14 @@ export function ReservationsFilter({ reservations, canCreate, pagination, curren
             <table className="min-w-full">
               <thead>
                 <tr className="border-b border-gray-200">
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Propriedade</th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Hóspede</th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Check-in</th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Check-out</th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Status</th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Valor</th>
-                  <th className="px-4 py-2 text-right text-xs font-semibold text-gray-400 uppercase tracking-wider">País</th>
-                  <th className="px-4 py-2 text-right text-xs font-semibold text-gray-400 uppercase tracking-wider">Ações</th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Propriedade</th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Hóspede</th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Check-in</th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Check-out</th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Valor</th>
+                  <th className="px-4 py-2 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">País</th>
+                  <th className="px-4 py-2 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Ações</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -246,7 +246,7 @@ export function ReservationsFilter({ reservations, canCreate, pagination, curren
               </tbody>
             </table>
             {filtered.length < reservations.length && (
-              <div className="px-5 py-3 text-xs text-gray-400 border-t border-gray-100">
+              <div className="px-5 py-3 text-xs text-gray-500 border-t border-gray-100">
                 Mostrando {filtered.length} de {reservations.length} reservas nesta página
               </div>
             )}

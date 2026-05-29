@@ -89,7 +89,7 @@ export function NewChecklistModal({ properties, members, onClose, onCreated }: P
               </div>
             </div>
 
-            <p className="text-xs text-gray-500 dark:text-gray-500">
+            <p className="text-xs text-gray-600 dark:text-gray-500">
               Compartilhe este link via WhatsApp ou email com o limpador
             </p>
 
@@ -109,7 +109,7 @@ export function NewChecklistModal({ properties, members, onClose, onCreated }: P
         <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-800">
           <h2 className="font-semibold text-gray-900 dark:text-white">Nova Limpeza</h2>
           <button onClick={onClose} className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800">
-            <X className="h-5 w-5 text-gray-500" />
+            <X className="h-5 w-5 text-gray-600" />
           </button>
         </div>
 
@@ -162,7 +162,7 @@ export function NewChecklistModal({ properties, members, onClose, onCreated }: P
             />
           </div>
 
-          <p className="text-xs text-gray-400">11 itens padrão serão adicionados automaticamente.</p>
+          <p className="text-xs text-gray-500">11 itens padrão serão adicionados automaticamente.</p>
         </div>
 
         <div className="flex gap-3 p-4 border-t border-gray-100 dark:border-gray-800">

@@ -110,13 +110,13 @@ export function BathroomsEditor({ propertyId }: BathroomsEditorProps) {
     }
   }
 
-  if (loading) return <p className="text-sm text-gray-500">A carregar banheiros…</p>
+  if (loading) return <p className="text-sm text-gray-600">A carregar banheiros…</p>
   if (loadError) return <p className="text-sm text-red-600">{loadError}</p>
 
   return (
     <div className="space-y-3">
       {bathrooms.length === 0 && (
-        <p className="text-sm text-gray-400 italic">Nenhum banheiro adicionado.</p>
+        <p className="text-sm text-gray-500 italic">Nenhum banheiro adicionado.</p>
       )}
 
       {bathrooms.map((bathroom, idx) => (
@@ -149,7 +149,7 @@ export function BathroomsEditor({ propertyId }: BathroomsEditorProps) {
               <button
                 type="button"
                 onClick={() => setConfirmingId(bathroom._id)}
-                className="text-gray-400 hover:text-red-500 transition-colors"
+                className="text-gray-500 hover:text-red-500 transition-colors"
                 aria-label="Remover banheiro"
               >
                 <Trash2 className="h-4 w-4" />
@@ -159,7 +159,7 @@ export function BathroomsEditor({ propertyId }: BathroomsEditorProps) {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs text-gray-500 mb-1">Nome (opcional)</label>
+              <label className="block text-xs text-gray-600 mb-1">Nome (opcional)</label>
               <input
                 type="text"
                 value={bathroom.name}
@@ -170,7 +170,7 @@ export function BathroomsEditor({ propertyId }: BathroomsEditorProps) {
             </div>
 
             <div>
-              <label className="block text-xs text-gray-500 mb-1">Tipo</label>
+              <label className="block text-xs text-gray-600 mb-1">Tipo</label>
               <select
                 value={bathroom.bathroom_type}
                 onChange={e => updateBathroom(bathroom._id, { bathroom_type: e.target.value as BathroomType })}
@@ -184,7 +184,7 @@ export function BathroomsEditor({ propertyId }: BathroomsEditorProps) {
           </div>
 
           <div>
-            <p className="text-xs text-gray-500 mb-2">Artigos disponíveis</p>
+            <p className="text-xs text-gray-600 mb-2">Artigos disponíveis</p>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {BATHROOM_AMENITIES.map(amenity => {
                 const checked = bathroom.amenities.includes(amenity)

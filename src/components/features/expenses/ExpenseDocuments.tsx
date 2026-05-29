@@ -97,7 +97,7 @@ export function ExpenseDocuments({ expenseId, canEdit }: ExpenseDocumentsProps) 
       </h3>
 
       {loading ? (
-        <p className="text-sm text-gray-500">A carregar…</p>
+        <p className="text-sm text-gray-600">A carregar…</p>
       ) : (
         <div className="space-y-4">
           {documents.length > 0 && (
@@ -105,10 +105,10 @@ export function ExpenseDocuments({ expenseId, canEdit }: ExpenseDocumentsProps) 
               {documents.map(doc => (
                 <li key={doc.id} className="flex items-center justify-between px-4 py-3 gap-3 hover:bg-gray-50">
                   <div className="flex items-center gap-3 min-w-0">
-                    <FileText className="h-5 w-5 text-gray-400 flex-shrink-0" />
+                    <FileText className="h-5 w-5 text-gray-500 flex-shrink-0" />
                     <div className="min-w-0">
                       <p className="text-sm font-medium text-gray-900 truncate">{doc.file_name}</p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-gray-600">
                         {fileTypeLabel(doc.mime_type)}
                         {doc.file_size ? ` · ${formatFileSize(doc.file_size)}` : ''}
                       </p>
@@ -147,7 +147,7 @@ export function ExpenseDocuments({ expenseId, canEdit }: ExpenseDocumentsProps) 
           )}
 
           {documents.length === 0 && !canEdit && (
-            <p className="text-sm text-gray-500">Sem documentos anexados.</p>
+            <p className="text-sm text-gray-600">Sem documentos anexados.</p>
           )}
         </div>
       )}

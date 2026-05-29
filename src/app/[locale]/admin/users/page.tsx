@@ -84,7 +84,7 @@ export default async function UsersPage({
 
         {!profiles || profiles.length === 0 ? (
           <div className="bg-white rounded-lg shadow p-12 text-center">
-            <Users className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+            <Users className="h-16 w-16 text-gray-500 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-gray-900 mb-2">Nenhum utilizador encontrado</h3>
           </div>
         ) : (
@@ -92,11 +92,11 @@ export default async function UsersPage({
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Propriedades</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Nome</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Email</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Role</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Propriedades</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">Ações</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -133,7 +133,7 @@ export default async function UsersPage({
                             {roleLabels[profile.role] || profile.role}
                           </Badge>
                           {profile.role === 'guest' && profile.guest_type && (
-                            <span className="text-xs text-gray-500 font-medium">
+                            <span className="text-xs text-gray-600 font-medium">
                               ({profile.guest_type === 'staff' ? 'Portaria' : 'Proprietário'})
                             </span>
                           )}
@@ -154,7 +154,7 @@ export default async function UsersPage({
                             ))}
                           </div>
                         ) : (
-                          <span className="text-xs text-gray-400">Nenhuma</span>
+                          <span className="text-xs text-gray-500">Nenhuma</span>
                         )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right">
@@ -163,7 +163,7 @@ export default async function UsersPage({
                             asChild
                             variant="ghost"
                             size="sm"
-                            className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50"
+                            className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50"
                             title="Editar"
                           >
                             <Link href={`/admin/users/${profile.id}/edit`}>

@@ -27,7 +27,7 @@ export const Breadcrumb: React.FC<BreadcrumbProps> = ({ items, className = '' })
       {/* Breadcrumb Items */}
       {items.map((item, index) => (
         <React.Fragment key={`${item.label}-${index}`}>
-          <ChevronRight className="w-4 h-4 text-gray-400 flex-shrink-0" />
+          <ChevronRight className="w-4 h-4 text-gray-500 flex-shrink-0" />
 
           {item.current || !item.href ? (
             <span className="text-gray-900 font-medium">{item.label}</span>

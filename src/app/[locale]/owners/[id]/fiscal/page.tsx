@@ -166,7 +166,7 @@ export default function OwnerFiscalPage() {
       {/* Report content */}
       <div className="max-w-4xl mx-auto px-6 py-8 report-container">
         {loading && (
-          <div className="text-center py-16 text-gray-500">A carregar relatório fiscal…</div>
+          <div className="text-center py-16 text-gray-600">A carregar relatório fiscal…</div>
         )}
 
         {planUpgradeRequired && (
@@ -202,14 +202,14 @@ export default function OwnerFiscalPage() {
                 <div>
                   <p className="text-gray-600 text-lg">{data.owner.full_name}</p>
                   {data.owner.email && (
-                    <p className="text-gray-500 text-sm">{data.owner.email}</p>
+                    <p className="text-gray-600 text-sm">{data.owner.email}</p>
                   )}
-                  <p className="text-gray-400 text-xs mt-1">
+                  <p className="text-gray-500 text-xs mt-1">
                     Rendimentos Categoria F · IRS {data.year} · Artigo 8.º CIRS
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-xs text-gray-400 uppercase font-medium mb-0.5">NIF</p>
+                  <p className="text-xs text-gray-500 uppercase font-medium mb-0.5">NIF</p>
                   {data.owner.tax_id
                     ? <p className="text-lg font-mono font-bold text-purple-700 tracking-wider">{data.owner.tax_id}</p>
                     : <p className="text-sm text-red-500">Não preenchido</p>
@@ -219,8 +219,8 @@ export default function OwnerFiscalPage() {
             </div>
 
             {data.properties.length === 0 ? (
-              <div className="bg-white rounded-lg shadow p-12 text-center text-gray-500">
-                <Building2 className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+              <div className="bg-white rounded-lg shadow p-12 text-center text-gray-600">
+                <Building2 className="h-12 w-12 mx-auto mb-4 text-gray-500" />
                 <p className="font-medium">Sem dados fiscais para {data.year}</p>
                 <p className="text-sm mt-1">Nenhuma propriedade com movimentos no ano {data.year}.</p>
               </div>
@@ -231,19 +231,19 @@ export default function OwnerFiscalPage() {
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
                           Imóvel / Identificação
                         </th>
-                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">
                           Rendas Recebidas
                         </th>
-                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">
                           Deduções<br />
-                          <span className="text-xs font-normal normal-case text-gray-400">(manut./reparos/seguros/impostos)</span>
+                          <span className="text-xs font-normal normal-case text-gray-500">(manut./reparos/seguros/impostos)</span>
                         </th>
-                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">
                           Resultado<br />
-                          <span className="text-xs font-normal normal-case text-gray-400">Líquido Tributável</span>
+                          <span className="text-xs font-normal normal-case text-gray-500">Líquido Tributável</span>
                         </th>
                       </tr>
                     </thead>
@@ -255,7 +255,7 @@ export default function OwnerFiscalPage() {
                             <td className="px-6 py-4">
                               <div className="text-sm font-medium text-gray-900">{prop.name}</div>
                               {prop.address && prop.address !== prop.name && (
-                                <div className="text-xs text-gray-500 mt-0.5">{prop.address}</div>
+                                <div className="text-xs text-gray-600 mt-0.5">{prop.address}</div>
                               )}
                             </td>
                             <td className="px-6 py-4 text-right text-sm text-gray-900">
@@ -295,15 +295,15 @@ export default function OwnerFiscalPage() {
                 {/* Summary cards */}
                 <div className="grid grid-cols-3 gap-4 no-print">
                   <div className="bg-blue-50 rounded-lg p-4 text-center">
-                    <p className="text-xs text-gray-500 uppercase font-medium mb-1">Rendas Totais</p>
+                    <p className="text-xs text-gray-600 uppercase font-medium mb-1">Rendas Totais</p>
                     <p className="text-xl font-bold text-blue-700">{formatCurrency(data.summary.totalRevenue, currency)}</p>
                   </div>
                   <div className="bg-green-50 rounded-lg p-4 text-center">
-                    <p className="text-xs text-gray-500 uppercase font-medium mb-1">Deduções Cat. F</p>
+                    <p className="text-xs text-gray-600 uppercase font-medium mb-1">Deduções Cat. F</p>
                     <p className="text-xl font-bold text-green-700">{formatCurrency(data.summary.deductibleExpenses, currency)}</p>
                   </div>
                   <div className="bg-purple-50 rounded-lg p-4 text-center">
-                    <p className="text-xs text-gray-500 uppercase font-medium mb-1">Líquido Tributável</p>
+                    <p className="text-xs text-gray-600 uppercase font-medium mb-1">Líquido Tributável</p>
                     <p className="text-xl font-bold text-purple-700">{formatCurrency(data.summary.taxableNet, currency)}</p>
                   </div>
                 </div>

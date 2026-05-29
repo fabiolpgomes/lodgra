@@ -87,7 +87,7 @@ export function ExpensesTable({ expenses, startDate, endDate }: ExpensesTablePro
         </div>
 
         {expenses.length === 0 ? (
-          <div className="text-center py-12 text-gray-500">
+          <div className="text-center py-12 text-gray-600">
             <p>Nenhuma despesa registrada no período selecionado</p>
           </div>
         ) : (
@@ -95,19 +95,19 @@ export function ExpensesTable({ expenses, startDate, endDate }: ExpensesTablePro
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
                     Data
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
                     Propriedade
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
                     Descrição
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
                     Categoria
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">
                     Valor
                   </th>
                 </tr>
@@ -124,7 +124,7 @@ export function ExpensesTable({ expenses, startDate, endDate }: ExpensesTablePro
                     <td className="px-4 py-3 text-sm text-gray-900">
                       {expense.description}
                       {expense.notes && (
-                        <span className="block text-xs text-gray-500 mt-1">{expense.notes}</span>
+                        <span className="block text-xs text-gray-600 mt-1">{expense.notes}</span>
                       )}
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap">
@@ -178,14 +178,14 @@ export function ExpensesTable({ expenses, startDate, endDate }: ExpensesTablePro
                   const percentage = (amt / currencyTotal) * 100
                   return (
                     <div key={cur} className="flex items-center gap-2 mb-1">
-                      <span className="text-xs text-gray-500 w-8">{cur}</span>
+                      <span className="text-xs text-gray-600 w-8">{cur}</span>
                       <div className="flex-1 bg-gray-200 rounded-full h-2">
                         <div
                           className="bg-red-500 h-2 rounded-full"
                           style={{ width: `${percentage}%` }}
                         />
                       </div>
-                      <span className="text-xs text-gray-500 w-12 text-right">{percentage.toFixed(0)}%</span>
+                      <span className="text-xs text-gray-600 w-12 text-right">{percentage.toFixed(0)}%</span>
                     </div>
                   )
                 })}

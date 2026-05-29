@@ -140,7 +140,7 @@ export function PropertyListingsManager({ propertyId }: { propertyId: string }) 
       <div className="flex items-center justify-between mb-6">
         <div>
           <h3 className="text-lg font-semibold text-gray-900">
-            Anúncios {listings.length > 0 && <span className="text-gray-500 font-normal text-base">({listings.length} total)</span>}
+            Anúncios {listings.length > 0 && <span className="text-gray-600 font-normal text-base">({listings.length} total)</span>}
           </h3>
           {listings.length > 0 && (
             <div className="flex gap-4 mt-2">
@@ -149,7 +149,7 @@ export function PropertyListingsManager({ propertyId }: { propertyId: string }) 
               </span>
               {inactiveListings > 0 && (
                 <span className="text-sm text-gray-600">
-                  <span className="font-medium text-gray-500">{inactiveListings} inativo{inactiveListings !== 1 ? 's' : ''}</span>
+                  <span className="font-medium text-gray-600">{inactiveListings} inativo{inactiveListings !== 1 ? 's' : ''}</span>
                 </span>
               )}
             </div>
@@ -167,7 +167,7 @@ export function PropertyListingsManager({ propertyId }: { propertyId: string }) 
       {/* Lista de Anúncios */}
       {listings.length === 0 ? (
         <div className="text-center py-12 bg-gray-50 rounded-lg">
-          <LinkIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+          <LinkIcon className="h-12 w-12 text-gray-500 mx-auto mb-4" />
           <h4 className="text-lg font-medium text-gray-900 mb-2">
             Nenhum anúncio cadastrado
           </h4>
@@ -195,7 +195,7 @@ export function PropertyListingsManager({ propertyId }: { propertyId: string }) 
                       {listing.platforms?.display_name || 'Manual'}
                     </p>
                     {listing.external_listing_id && (
-                      <p className="text-xs text-gray-500 font-mono">ID: {listing.external_listing_id}</p>
+                      <p className="text-xs text-gray-600 font-mono">ID: {listing.external_listing_id}</p>
                     )}
                   </div>
                 </div>
@@ -222,7 +222,7 @@ export function PropertyListingsManager({ propertyId }: { propertyId: string }) 
                 )}
 
                 {listing.last_synced_at && (
-                  <div className="text-xs text-gray-500">
+                  <div className="text-xs text-gray-600">
                     Última sincronização: <span className="font-medium">{new Date(listing.last_synced_at).toLocaleString('pt-BR')}</span>
                   </div>
                 )}
@@ -420,7 +420,7 @@ function ListingModal({
               defaultValue={listing?.external_listing_id || ''}
               placeholder="Ex: 12345678"
             />
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-gray-600 mt-1">
               O ID único do anúncio na plataforma externa (Airbnb, Booking, etc)
             </p>
           </div>
@@ -437,7 +437,7 @@ function ListingModal({
               defaultValue={listing?.ical_url || ''}
               placeholder="https://..."
             />
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-gray-600 mt-1">
               URL para sincronização automática do calendário
             </p>
           </div>

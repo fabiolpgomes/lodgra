@@ -97,7 +97,7 @@ export function CleaningChecklistCard({ checklist, onUpdate, onDelete }: Props) 
       >
         <div className="flex items-start justify-between w-full">
           <div>
-            <div className="flex items-center gap-2 mb-1.5 font-bold uppercase tracking-widest text-[10px] text-gray-400">
+            <div className="flex items-center gap-2 mb-1.5 font-bold uppercase tracking-widest text-[10px] text-gray-500">
               <Clock className="h-3 w-3" />
               <span>{date}</span>
               <span>•</span>
@@ -113,7 +113,7 @@ export function CleaningChecklistCard({ checklist, onUpdate, onDelete }: Props) 
             </h3>
           </div>
           <div className={`p-3 rounded-2xl transition-colors ${
-            status === 'in_progress' ? 'bg-lodgra-blue text-white' : 'bg-gray-100 text-gray-500'
+            status === 'in_progress' ? 'bg-lodgra-blue text-white' : 'bg-gray-100 text-gray-600'
           }`}>
             <Home className="h-5 w-5" />
           </div>

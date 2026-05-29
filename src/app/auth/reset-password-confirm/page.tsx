@@ -193,7 +193,7 @@ export default function ResetPasswordConfirmPage() {
                 Nova Password
               </Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-500" />
                 <Input
                   type={showPassword ? 'text' : 'password'}
                   id="password"
@@ -206,7 +206,7 @@ export default function ResetPasswordConfirmPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-600"
                 >
                   {showPassword ? (
                     <EyeOff className="h-5 w-5" />
@@ -226,7 +226,7 @@ export default function ResetPasswordConfirmPage() {
                   />
                   <span
                     className={`text-xs ${
-                      passwordStrength.hasLength ? 'text-green-700' : 'text-gray-500'
+                      passwordStrength.hasLength ? 'text-green-700' : 'text-gray-600'
                     }`}
                   >
                     Mínimo 8 caracteres
@@ -240,7 +240,7 @@ export default function ResetPasswordConfirmPage() {
                   />
                   <span
                     className={`text-xs ${
-                      passwordStrength.hasUppercase ? 'text-green-700' : 'text-gray-500'
+                      passwordStrength.hasUppercase ? 'text-green-700' : 'text-gray-600'
                     }`}
                   >
                     Incluir 1 letra maiúscula (A-Z)
@@ -254,7 +254,7 @@ export default function ResetPasswordConfirmPage() {
                   />
                   <span
                     className={`text-xs ${
-                      passwordStrength.hasNumber ? 'text-green-700' : 'text-gray-500'
+                      passwordStrength.hasNumber ? 'text-green-700' : 'text-gray-600'
                     }`}
                   >
                     Incluir 1 número (0-9)
@@ -269,7 +269,7 @@ export default function ResetPasswordConfirmPage() {
                 Confirmar Password
               </Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-500" />
                 <Input
                   type={showConfirmPassword ? 'text' : 'password'}
                   id="confirmPassword"
@@ -282,7 +282,7 @@ export default function ResetPasswordConfirmPage() {
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-600"
                 >
                   {showConfirmPassword ? (
                     <EyeOff className="h-5 w-5" />
@@ -328,7 +328,7 @@ export default function ResetPasswordConfirmPage() {
         </div>
 
         {/* Version */}
-        <p className="text-center text-sm text-gray-500 mt-6">
+        <p className="text-center text-sm text-gray-600 mt-6">
           Lodgra v1.1 - Seguro
         </p>
       </div>

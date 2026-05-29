@@ -209,7 +209,7 @@ export function PropertyGalleryV2({
         <div className="text-center">
           <p className="text-gray-600">No images uploaded yet</p>
           {isEditable && (
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-sm text-gray-600 mt-1">
               Scroll up to add your first image
             </p>
           )}
@@ -356,7 +356,7 @@ export function PropertyGalleryV2({
       </div>
 
       {/* Stats */}
-      <div className="text-sm text-gray-500">
+      <div className="text-sm text-gray-600">
         {images.length} image{images.length !== 1 ? 's' : ''} in gallery
       </div>
     </div>

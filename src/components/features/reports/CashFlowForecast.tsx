@@ -49,10 +49,10 @@ function HorizonCard({
   return (
     <div className={`bg-white rounded-lg shadow p-5 border-t-4 ${color}`}>
       <div className="flex items-center gap-2 mb-3">
-        <Calendar className="h-5 w-5 text-gray-500" />
+        <Calendar className="h-5 w-5 text-gray-600" />
         <div>
           <p className="font-semibold text-gray-900 text-sm">{label}</p>
-          <p className="text-xs text-gray-500">{sublabel}</p>
+          <p className="text-xs text-gray-600">{sublabel}</p>
         </div>
       </div>
       <div className="space-y-1 mb-3">
@@ -63,10 +63,10 @@ function HorizonCard({
             </p>
           ))
         ) : (
-          <p className="text-2xl font-bold text-gray-400">—</p>
+          <p className="text-2xl font-bold text-gray-500">—</p>
         )}
       </div>
-      <div className="flex gap-4 text-xs text-gray-500">
+      <div className="flex gap-4 text-xs text-gray-600">
         <span>{summary.reservations} reservas</span>
         <span>{summary.nights} noites</span>
       </div>
@@ -91,12 +91,12 @@ function MonthGroup({
       >
         <div className="flex items-center gap-2">
           {open ? (
-            <ChevronDown className="h-4 w-4 text-gray-500" />
+            <ChevronDown className="h-4 w-4 text-gray-600" />
           ) : (
-            <ChevronRight className="h-4 w-4 text-gray-500" />
+            <ChevronRight className="h-4 w-4 text-gray-600" />
           )}
           <span className="font-semibold text-gray-800 capitalize">{month}</span>
-          <span className="text-xs text-gray-500 bg-gray-200 px-2 py-0.5 rounded-full">
+          <span className="text-xs text-gray-600 bg-gray-200 px-2 py-0.5 rounded-full">
             {reservations.length} reservas
           </span>
         </div>
@@ -125,11 +125,11 @@ function MonthGroup({
               <div key={r.id} className="px-4 py-3 grid grid-cols-2 md:grid-cols-5 gap-2 text-sm items-center">
                 <div>
                   <p className="font-medium text-gray-900">{propName}</p>
-                  <p className="text-xs text-gray-500">{guestName}</p>
+                  <p className="text-xs text-gray-600">{guestName}</p>
                 </div>
                 <div>
                   <p className="text-gray-700">{r.check_in}</p>
-                  <p className="text-xs text-gray-500">→ {r.check_out} ({nights}n)</p>
+                  <p className="text-xs text-gray-600">→ {r.check_out} ({nights}n)</p>
                 </div>
                 <div className="hidden md:block">
                   <span className="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full">
@@ -193,7 +193,7 @@ export function CashFlowForecast({
               <TrendingUp className="h-5 w-5 text-blue-600" />
               Fluxo de Caixa Previsto
             </h3>
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-sm text-gray-600 mt-1">
               Baseado em reservas confirmadas a partir de hoje · Independente dos filtros de data
             </p>
           </div>
@@ -208,8 +208,8 @@ export function CashFlowForecast({
       </div>
 
       {allFuture.length === 0 ? (
-        <div className="bg-white rounded-lg shadow p-12 text-center text-gray-500">
-          <DollarSign className="h-10 w-10 mx-auto mb-3 text-gray-300" />
+        <div className="bg-white rounded-lg shadow p-12 text-center text-gray-600">
+          <DollarSign className="h-10 w-10 mx-auto mb-3 text-gray-500" />
           <p className="font-medium">Sem reservas futuras confirmadas.</p>
           <p className="text-sm mt-1">As reservas confirmadas aparecerão aqui assim que forem criadas.</p>
         </div>

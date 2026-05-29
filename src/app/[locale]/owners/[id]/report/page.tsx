@@ -271,7 +271,7 @@ export default function OwnerReportPage() {
                   onChange={e => setCustomFrom(e.target.value)}
                   className="border border-gray-300 rounded px-2 py-1 text-sm"
                 />
-                <span className="text-gray-500">→</span>
+                <span className="text-gray-600">→</span>
                 <input
                   type="date"
                   value={customTo}
@@ -326,7 +326,7 @@ export default function OwnerReportPage() {
       {/* Report content */}
       <div className="max-w-4xl mx-auto px-6 py-8 report-container">
         {loading && (
-          <div className="text-center py-16 text-gray-500">A carregar relatório…</div>
+          <div className="text-center py-16 text-gray-600">A carregar relatório…</div>
         )}
 
         {planUpgradeRequired && (
@@ -359,15 +359,15 @@ export default function OwnerReportPage() {
                 <h1 className="text-2xl font-bold text-gray-900">Relatório do Proprietário</h1>
               </div>
               <p className="text-gray-600 text-lg">{report.owner.full_name}</p>
-              <p className="text-gray-500 text-sm mt-1">Período: {label}</p>
+              <p className="text-gray-600 text-sm mt-1">Período: {label}</p>
               {report.owner.email && (
-                <p className="text-gray-500 text-sm">{report.owner.email}</p>
+                <p className="text-gray-600 text-sm">{report.owner.email}</p>
               )}
             </div>
 
             {report.properties.length === 0 ? (
-              <div className="bg-white rounded-lg shadow p-12 text-center text-gray-500">
-                <Building2 className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+              <div className="bg-white rounded-lg shadow p-12 text-center text-gray-600">
+                <Building2 className="h-12 w-12 mx-auto mb-4 text-gray-500" />
                 <p className="font-medium">Nenhuma propriedade associada</p>
                 <p className="text-sm mt-1">Este proprietário não tem propriedades com dados no período seleccionado.</p>
               </div>
@@ -378,19 +378,19 @@ export default function OwnerReportPage() {
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
                           Propriedade
                         </th>
-                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">
                           Receita Bruta
                         </th>
-                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">
                           Comissão Gestão
                         </th>
-                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">
                           Despesas
                         </th>
-                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">
                           Líquido Proprietário
                         </th>
                       </tr>
@@ -406,7 +406,7 @@ export default function OwnerReportPage() {
                                 <div>
                                   <div className="text-sm font-medium text-gray-900">{prop.name}</div>
                                   {prop.management_percentage > 0 && (
-                                    <div className="text-xs text-gray-500">{prop.management_percentage}% gestão</div>
+                                    <div className="text-xs text-gray-600">{prop.management_percentage}% gestão</div>
                                   )}
                                 </div>
                               </div>
@@ -460,7 +460,7 @@ export default function OwnerReportPage() {
                 {/* Summary cards — grouped by currency */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 no-print">
                   <div className="bg-green-50 rounded-lg p-4">
-                    <p className="text-xs text-gray-500 uppercase font-medium mb-2">Receita Bruta</p>
+                    <p className="text-xs text-gray-600 uppercase font-medium mb-2">Receita Bruta</p>
                     <CurrencyStack
                       totals={Object.fromEntries(Object.entries(getSummaryByCurrency()).map(([c, s]) => [c, s.revenue]))}
                       size="sm"
@@ -468,7 +468,7 @@ export default function OwnerReportPage() {
                     />
                   </div>
                   <div className="bg-orange-50 rounded-lg p-4">
-                    <p className="text-xs text-gray-500 uppercase font-medium mb-2">Comissão</p>
+                    <p className="text-xs text-gray-600 uppercase font-medium mb-2">Comissão</p>
                     <CurrencyStack
                       totals={Object.fromEntries(Object.entries(getSummaryByCurrency()).map(([c, s]) => [c, s.managementFee]))}
                       size="sm"
@@ -476,7 +476,7 @@ export default function OwnerReportPage() {
                     />
                   </div>
                   <div className="bg-red-50 rounded-lg p-4">
-                    <p className="text-xs text-gray-500 uppercase font-medium mb-2">Despesas</p>
+                    <p className="text-xs text-gray-600 uppercase font-medium mb-2">Despesas</p>
                     <CurrencyStack
                       totals={Object.fromEntries(Object.entries(getSummaryByCurrency()).map(([c, s]) => [c, s.expenses]))}
                       size="sm"
@@ -484,7 +484,7 @@ export default function OwnerReportPage() {
                     />
                   </div>
                   <div className="bg-teal-50 rounded-lg p-4">
-                    <p className="text-xs text-gray-500 uppercase font-medium mb-2">Líquido Proprietário</p>
+                    <p className="text-xs text-gray-600 uppercase font-medium mb-2">Líquido Proprietário</p>
                     <CurrencyStack
                       totals={Object.fromEntries(Object.entries(getSummaryByCurrency()).map(([c, s]) => [c, s.ownerNet]))}
                       size="sm"

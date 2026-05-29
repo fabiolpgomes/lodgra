@@ -94,7 +94,7 @@ export function PublicContactSettings({ organizationId, initialProfile }: Props)
       <div className="grid gap-4 md:grid-cols-3">
         <label className="block">
           <span className="mb-1 flex items-center gap-1.5 text-sm font-medium text-gray-700">
-            <MessageCircle className="h-4 w-4 text-gray-500" />
+            <MessageCircle className="h-4 w-4 text-gray-600" />
             WhatsApp
           </span>
           <input
@@ -107,7 +107,7 @@ export function PublicContactSettings({ organizationId, initialProfile }: Props)
 
         <label className="block">
           <span className="mb-1 flex items-center gap-1.5 text-sm font-medium text-gray-700">
-            <Mail className="h-4 w-4 text-gray-500" />
+            <Mail className="h-4 w-4 text-gray-600" />
             Email
           </span>
           <input
@@ -120,7 +120,7 @@ export function PublicContactSettings({ organizationId, initialProfile }: Props)
 
         <label className="block">
           <span className="mb-1 flex items-center gap-1.5 text-sm font-medium text-gray-700">
-            <Phone className="h-4 w-4 text-gray-500" />
+            <Phone className="h-4 w-4 text-gray-600" />
             Telefone
           </span>
           <input

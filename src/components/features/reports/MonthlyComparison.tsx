@@ -51,7 +51,7 @@ export function MonthlyComparison({ monthlyStats }: MonthlyComparisonProps) {
       </div>
 
       {monthlyStats.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
+        <div className="text-center py-8 text-gray-600">
           <p>Nenhum dado disponível</p>
         </div>
       ) : (

@@ -81,10 +81,10 @@ export default function OnboardingPendentePage() {
         <h1 className="text-xl font-bold text-gray-900 mb-2">
           Pagamento pendente
         </h1>
-        <p className="text-gray-500 text-sm mb-2">
+        <p className="text-gray-600 text-sm mb-2">
           A sua conta está criada mas precisa de uma subscrição activa para aceder ao painel.
         </p>
-        <p className="text-gray-400 text-xs mb-6">
+        <p className="text-gray-500 text-xs mb-6">
           Os seus dados (organização e imóvel) foram guardados e estão prontos para usar.
         </p>
 
@@ -105,7 +105,7 @@ export default function OnboardingPendentePage() {
           }
         </Button>
 
-        <p className="text-xs text-gray-400">
+        <p className="text-xs text-gray-500">
           Tem dúvidas?{' '}
           <a href="mailto:suporte@lodgra.com" className="underline hover:text-gray-600">
             Contactar suporte

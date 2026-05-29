@@ -65,13 +65,13 @@ export function ReservationRow({ reservation }: ReservationRowProps) {
       <td className="px-4 py-3">
         <div className="flex items-start gap-2">
           <div className="shrink-0 mt-0.5">
-            <Building2 className="h-4 w-4 text-gray-400" />
+            <Building2 className="h-4 w-4 text-gray-500" />
           </div>
           <div className="min-w-0 flex-1">
             <div className="text-xs font-medium text-gray-900 line-clamp-1">
               {truncateName(property?.name)}
             </div>
-            <div className="text-xs text-gray-500">
+            <div className="text-xs text-gray-600">
               {property?.city}
               {platformName && (
                 <span className="ml-1 px-1 py-0.5 text-[10px] font-medium bg-blue-100 text-blue-700 rounded">
@@ -85,12 +85,12 @@ export function ReservationRow({ reservation }: ReservationRowProps) {
 
       <td className="px-4 py-3">
         <div className="flex items-center gap-2">
-          <Users className="h-4 w-4 text-gray-400 shrink-0" />
+          <Users className="h-4 w-4 text-gray-500 shrink-0" />
           <div className="min-w-0">
             <div className="text-xs font-medium text-gray-900 truncate">
               {guest ? `${guest.first_name} ${guest.last_name}` : 'Hóspede não cadastrado'}
             </div>
-            <div className="text-xs text-gray-500 truncate" title={guest?.email}>{truncateEmail(guest?.email)}</div>
+            <div className="text-xs text-gray-600 truncate" title={guest?.email}>{truncateEmail(guest?.email)}</div>
           </div>
         </div>
       </td>

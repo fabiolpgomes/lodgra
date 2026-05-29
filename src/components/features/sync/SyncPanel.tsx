@@ -148,8 +148,8 @@ export function SyncPanel({ properties, listings }: SyncPanelProps) {
         </p>
 
         {syncableProperties.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
-            <RefreshCw className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+          <div className="text-center py-8 text-gray-600">
+            <RefreshCw className="h-12 w-12 mx-auto mb-3 text-gray-500" />
             <p>Nenhuma propriedade com calendário iCal configurado.</p>
             <p className="text-sm mt-1">Configure URLs iCal nos anúncios das propriedades.</p>
           </div>
@@ -192,13 +192,13 @@ export function SyncPanel({ properties, listings }: SyncPanelProps) {
                       />
                       <div>
                         <p className="text-sm font-medium text-gray-900">{property.name}</p>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-gray-600">
                           {icalCount} calendário(s) iCal
                         </p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-xs text-gray-500">Última sync:</p>
+                      <p className="text-xs text-gray-600">Última sync:</p>
                       <p className="text-xs text-gray-700">{lastSync}</p>
                     </div>
                   </label>
@@ -285,7 +285,7 @@ export function SyncPanel({ properties, listings }: SyncPanelProps) {
         </p>
 
         {properties.length === 0 ? (
-          <p className="text-gray-500 text-center py-4">Nenhuma propriedade disponível</p>
+          <p className="text-gray-600 text-center py-4">Nenhuma propriedade disponível</p>
         ) : (
           <div className="space-y-3">
             {properties.map((property) => {
@@ -299,7 +299,7 @@ export function SyncPanel({ properties, listings }: SyncPanelProps) {
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-gray-900 mb-1">{property.name}</p>
                     <div className="flex items-center gap-2">
-                      <LinkIcon className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                      <LinkIcon className="h-4 w-4 text-gray-500 flex-shrink-0" />
                       <p className="text-xs text-gray-600 font-mono break-all select-all">{exportUrl}</p>
                     </div>
                   </div>

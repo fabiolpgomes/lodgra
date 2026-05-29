@@ -43,7 +43,7 @@ export function BookingSummary({
     return (
       <div className="rounded-lg bg-gray-50 p-4 space-y-1 text-sm">
         <p className="font-medium text-gray-900">{propertyName}</p>
-        <p className="text-gray-500">
+        <p className="text-gray-600">
           {format(checkinDate, 'dd/MM/yyyy')} → {format(checkoutDate, 'dd/MM/yyyy')} · {nights} noite{nights !== 1 ? 's' : ''}
         </p>
         <p className="font-semibold text-gray-900">{sym}{total.toFixed(2)}</p>
@@ -56,7 +56,7 @@ export function BookingSummary({
       <div>
         <h3 className="font-semibold text-gray-900 text-base">{propertyName}</h3>
         {city && (
-          <p className="flex items-center gap-1 text-sm text-gray-500 mt-0.5">
+          <p className="flex items-center gap-1 text-sm text-gray-600 mt-0.5">
             <MapPin className="h-3.5 w-3.5" />
             {city}
           </p>
@@ -65,14 +65,14 @@ export function BookingSummary({
 
       <div className="space-y-2 text-sm">
         <div className="flex items-start gap-2 text-gray-700">
-          <Calendar className="h-4 w-4 mt-0.5 text-gray-400 shrink-0" />
+          <Calendar className="h-4 w-4 mt-0.5 text-gray-500 shrink-0" />
           <div>
             <p>{fmtDate(checkinDate)}</p>
-            <p className="text-gray-400 text-xs">→ {fmtDate(checkoutDate)}</p>
+            <p className="text-gray-500 text-xs">→ {fmtDate(checkoutDate)}</p>
           </div>
         </div>
         <div className="flex items-center gap-2 text-gray-700">
-          <Users className="h-4 w-4 text-gray-400 shrink-0" />
+          <Users className="h-4 w-4 text-gray-500 shrink-0" />
           <span>{guests} hóspede{guests !== 1 ? 's' : ''}</span>
         </div>
       </div>
@@ -92,7 +92,7 @@ export function BookingSummary({
           <span>Total</span>
           <span>{sym}{total.toFixed(2)}</span>
         </div>
-        <p className="text-xs text-gray-400">Impostos incluídos</p>
+        <p className="text-xs text-gray-500">Impostos incluídos</p>
       </div>
     </div>
   )

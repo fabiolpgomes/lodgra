@@ -337,7 +337,7 @@ export default async function DashboardPage({
         {/* Welcome */}
         <div className="mb-6 sm:mb-8">
           <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-gray-900 mb-1">Dashboard</h2>
-          <p className="text-sm sm:text-base text-gray-500">
+          <p className="text-sm sm:text-base text-gray-600">
             Visão geral do seu negócio de aluguel de temporada
           </p>
         </div>
@@ -349,10 +349,10 @@ export default async function DashboardPage({
               <div className="p-2.5 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl">
                 <Home className="h-5 w-5 text-blue-600" />
               </div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">Total</span>
+              <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">Total</span>
             </div>
             <p className="text-4xl font-bold tracking-tight text-gray-900">{totalProperties}</p>
-            <p className="text-sm text-gray-500 mt-1">Propriedades</p>
+            <p className="text-sm text-gray-600 mt-1">Propriedades</p>
           </div>
 
           <div className="bg-white rounded-xl shadow-sm p-5 sm:p-6">
@@ -360,10 +360,10 @@ export default async function DashboardPage({
               <div className="p-2.5 bg-gradient-to-br from-green-50 to-green-100 rounded-xl">
                 <Calendar className="h-5 w-5 text-green-600" />
               </div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">Total</span>
+              <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">Total</span>
             </div>
             <p className="text-4xl font-bold tracking-tight text-gray-900">{totalReservations}</p>
-            <p className="text-sm text-gray-500 mt-1">Reservas</p>
+            <p className="text-sm text-gray-600 mt-1">Reservas</p>
           </div>
 
           <div className="bg-white rounded-xl shadow-sm p-5 sm:p-6">
@@ -371,14 +371,14 @@ export default async function DashboardPage({
               <div className="p-2.5 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl">
                 <Percent className="h-5 w-5 text-purple-600" />
               </div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">
+              <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">
                 {now.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '').toUpperCase()}
               </span>
             </div>
             <p className={`text-4xl font-bold tracking-tight ${currentMonthOccupancy >= 70 ? 'text-green-600' : currentMonthOccupancy >= 40 ? 'text-yellow-600' : 'text-gray-900'}`}>
               {currentMonthOccupancy}%
             </p>
-            <p className="text-sm text-gray-500 mt-1">Taxa de Ocupação</p>
+            <p className="text-sm text-gray-600 mt-1">Taxa de Ocupação</p>
           </div>
         </div>
 
@@ -393,7 +393,7 @@ export default async function DashboardPage({
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-gray-700">Receita do Mês</p>
-                  <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">
                     {now.toLocaleDateString('pt-BR', { month: 'long' }).charAt(0).toUpperCase() +
                       now.toLocaleDateString('pt-BR', { month: 'long' }).slice(1)}
                   </p>
@@ -401,7 +401,7 @@ export default async function DashboardPage({
               </div>
             </div>
             {Object.keys(monthRevenueByCurrency).length === 0 ? (
-              <p className="text-3xl font-bold text-gray-300">—</p>
+              <p className="text-3xl font-bold text-gray-500">—</p>
             ) : (
               <div className="space-y-3">
                 {Object.entries(monthRevenueByCurrency).map(([cur, amount], idx, _arr) => {
@@ -436,7 +436,7 @@ export default async function DashboardPage({
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-gray-700">Lucro Real</p>
-                  <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">
                     {now.toLocaleDateString('pt-BR', { month: 'long' }).charAt(0).toUpperCase() +
                       now.toLocaleDateString('pt-BR', { month: 'long' }).slice(1)}
                   </p>
@@ -444,7 +444,7 @@ export default async function DashboardPage({
               </div>
             </div>
             {Object.keys(monthRevenueByCurrency).length === 0 ? (
-              <p className="text-3xl font-bold text-gray-300">—</p>
+              <p className="text-3xl font-bold text-gray-500">—</p>
             ) : (
               <div className="space-y-3">
                 {Object.entries(monthRevenueByCurrency).map(([cur, rev], idx) => {
@@ -490,7 +490,7 @@ export default async function DashboardPage({
               <TrendingUp className="h-5 w-5 text-green-600" />
               <div>
                 <h3 className="text-base font-semibold text-gray-900">Previsão de Faturamento</h3>
-                <p className="text-xs text-gray-400 mt-0.5">Reservas confirmadas a partir de hoje</p>
+                <p className="text-xs text-gray-500 mt-0.5">Reservas confirmadas a partir de hoje</p>
               </div>
             </div>
             <span className="text-xs font-semibold bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full">
@@ -499,7 +499,7 @@ export default async function DashboardPage({
           </div>
 
           {Object.keys(forecastByCurrency).length === 0 ? (
-            <p className="text-gray-400 text-sm">Nenhuma reserva futura com valor registado.</p>
+            <p className="text-gray-500 text-sm">Nenhuma reserva futura com valor registado.</p>
           ) : (
             <div className="flex flex-wrap gap-6">
               {Object.entries(forecastByCurrency)
@@ -532,7 +532,7 @@ export default async function DashboardPage({
               <TrendingUp className="h-5 w-5 text-blue-600" />
               <h3 className="text-base font-semibold text-gray-900">Taxa de Ocupação</h3>
             </div>
-            <p className="text-xs text-gray-400 mb-4 ml-7">Últimos 6 meses</p>
+            <p className="text-xs text-gray-500 mb-4 ml-7">Últimos 6 meses</p>
             <OccupancyChart data={occupancyData} />
           </div>
 
@@ -542,7 +542,7 @@ export default async function DashboardPage({
               <Euro className="h-5 w-5 text-green-600" />
               <h3 className="text-base font-semibold text-gray-900">Receita Mensal</h3>
             </div>
-            <p className="text-xs text-gray-400 mb-4 ml-7">Últimos 6 meses</p>
+            <p className="text-xs text-gray-500 mb-4 ml-7">Últimos 6 meses</p>
             <RevenueChartWrapper revenueDataByCurrency={revenueDataByCurrency} />
           </div>
         </div>
@@ -555,7 +555,7 @@ export default async function DashboardPage({
               <CheckCircle className="h-5 w-5 text-blue-600" />
               <h3 className="text-base font-semibold text-gray-900">Reservas por Status</h3>
             </div>
-            <p className="text-xs text-gray-400 mb-4 ml-7">Distribuição atual</p>
+            <p className="text-xs text-gray-500 mb-4 ml-7">Distribuição atual</p>
             <StatusChart
               confirmed={confirmedReservations}
               pending={pendingReservations}
@@ -569,7 +569,7 @@ export default async function DashboardPage({
               <Clock className="h-5 w-5 text-blue-600" />
               <h3 className="text-base font-semibold text-gray-900">Próximas Chegadas</h3>
             </div>
-            <p className="text-xs text-gray-400 mb-4 ml-7">Próximos 7 dias</p>
+            <p className="text-xs text-gray-500 mb-4 ml-7">Próximos 7 dias</p>
 
             {upcomingCheckIns && upcomingCheckIns.length > 0 ? (
               <div className="space-y-3">
@@ -606,14 +606,14 @@ export default async function DashboardPage({
                               {platformName}
                             </span>
                           )}
-                          <span className="text-xs text-gray-400">{nights} noite{nights !== 1 ? 's' : ''}</span>
+                          <span className="text-xs text-gray-500">{nights} noite{nights !== 1 ? 's' : ''}</span>
                         </div>
                       </div>
                       <div className="text-right ml-3 shrink-0">
                         <p className="text-sm font-medium text-blue-600">
                           {checkInDate.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}
                         </p>
-                        <p className="text-xs text-gray-400">
+                        <p className="text-xs text-gray-500">
                           até {checkOutDate.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}
                         </p>
                       </div>
@@ -622,8 +622,8 @@ export default async function DashboardPage({
                 })}
               </div>
             ) : (
-              <div className="text-center py-8 text-gray-500">
-                <Clock className="h-12 w-12 mx-auto mb-2 text-gray-400" />
+              <div className="text-center py-8 text-gray-600">
+                <Clock className="h-12 w-12 mx-auto mb-2 text-gray-500" />
                 <p>Nenhuma chegada prevista</p>
               </div>
             )}

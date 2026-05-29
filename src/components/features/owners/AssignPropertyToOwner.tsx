@@ -82,7 +82,7 @@ export function AssignPropertyToOwner({ ownerId }: { ownerId: string }) {
         )}
 
         {availableProperties.length === 0 ? (
-          <p className="text-xs text-gray-500">Todas as propriedades já têm proprietário atribuído.</p>
+          <p className="text-xs text-gray-600">Todas as propriedades já têm proprietário atribuído.</p>
         ) : (
           <div className="space-y-1 max-h-48 overflow-y-auto">
             {availableProperties.map((prop) => (
@@ -95,7 +95,7 @@ export function AssignPropertyToOwner({ ownerId }: { ownerId: string }) {
               >
                 <span className="font-medium text-gray-900">{prop.name}</span>
                 {prop.city && (
-                  <span className="text-xs text-gray-500 ml-1">({prop.city})</span>
+                  <span className="text-xs text-gray-600 ml-1">({prop.city})</span>
                 )}
               </Button>
             ))}

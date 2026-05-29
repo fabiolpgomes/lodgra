@@ -131,17 +131,17 @@ export function CheckoutForm({
                   ? 'bg-gray-900 text-white'
                   : i + 1 < stepNumber
                   ? 'bg-green-500 text-white'
-                  : 'bg-gray-100 text-gray-400'
+                  : 'bg-gray-100 text-gray-500'
               }`}
             >
               {i + 1 < stepNumber ? '✓' : i + 1}
             </div>
             <span
-              className={`text-sm ${i + 1 === stepNumber ? 'font-medium text-gray-900' : 'text-gray-400'}`}
+              className={`text-sm ${i + 1 === stepNumber ? 'font-medium text-gray-900' : 'text-gray-500'}`}
             >
               {label}
             </span>
-            {i < steps.length - 1 && <span className="text-gray-200 text-sm">›</span>}
+            {i < steps.length - 1 && <span className="text-gray-500 text-sm">›</span>}
           </div>
         ))}
       </div>
@@ -168,7 +168,7 @@ export function CheckoutForm({
           </button>
           <button
             onClick={() => router.push(`/p/${slug}`)}
-            className="w-full text-sm text-gray-500 hover:text-gray-700 flex items-center justify-center gap-1"
+            className="w-full text-sm text-gray-600 hover:text-gray-700 flex items-center justify-center gap-1"
           >
             <ArrowLeft className="h-3.5 w-3.5" /> Alterar datas
           </button>
@@ -223,7 +223,7 @@ export function CheckoutForm({
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Telefone *
               </label>
-              <p className="text-xs text-gray-500 mb-2">
+              <p className="text-xs text-gray-600 mb-2">
                 Usaremos este número para enviar a confirmação do seu pagamento via SMS.
               </p>
               <input
@@ -300,7 +300,7 @@ export function CheckoutForm({
             </div>
           )}
 
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-gray-600">
             Ao clicar em Pagar, será redireccionado para a página segura de pagamento do Stripe.
           </p>
 
@@ -322,7 +322,7 @@ export function CheckoutForm({
           <button
             onClick={() => setStep('guest')}
             disabled={submitting}
-            className="w-full text-sm text-gray-500 hover:text-gray-700 flex items-center justify-center gap-1"
+            className="w-full text-sm text-gray-600 hover:text-gray-700 flex items-center justify-center gap-1"
           >
             <ArrowLeft className="h-3.5 w-3.5" /> Corrigir dados
           </button>

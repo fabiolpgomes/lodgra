@@ -192,7 +192,7 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
               value={userData.email}
               disabled
             />
-            <p className="text-xs text-gray-500 mt-1">O email não pode ser alterado</p>
+            <p className="text-xs text-gray-600 mt-1">O email não pode ser alterado</p>
           </div>
 
           <div>
@@ -233,7 +233,7 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
                   <SelectItem value="owner">Proprietário do Imóvel</SelectItem>
                 </SelectContent>
               </Select>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-600 mt-1">
                 {guestType === 'staff'
                   ? 'Acesso restrito ao calendário e check-in/check-out'
                   : 'Acesso aos relatórios e reservas das suas propriedades'}
@@ -243,7 +243,7 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
 
           {/* Nova Senha (opcional) */}
           <div className="border border-gray-200 rounded-lg p-4 space-y-4">
-            <p className="text-sm font-medium text-gray-700">Redefinir Senha <span className="text-xs text-gray-400 font-normal">(opcional — deixe em branco para não alterar)</span></p>
+            <p className="text-sm font-medium text-gray-700">Redefinir Senha <span className="text-xs text-gray-500 font-normal">(opcional — deixe em branco para não alterar)</span></p>
             <div>
               <Label htmlFor="newPassword" className="mb-1">Nova Senha</Label>
               <Input
@@ -254,7 +254,7 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
                 placeholder="Mínimo 8 caracteres"
                 autoComplete="new-password"
               />
-              <p className="mt-1 text-xs text-gray-500">Mínimo 8 caracteres, 1 letra maiúscula, 1 número</p>
+              <p className="mt-1 text-xs text-gray-600">Mínimo 8 caracteres, 1 letra maiúscula, 1 número</p>
             </div>
             <div>
               <Label htmlFor="confirmPassword" className="mb-1">Confirmar Nova Senha</Label>
@@ -288,7 +288,7 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
             <div>
               <Label className="mb-2">Propriedades</Label>
               {properties.length === 0 ? (
-                <p className="text-sm text-gray-500">Nenhuma propriedade disponível</p>
+                <p className="text-sm text-gray-600">Nenhuma propriedade disponível</p>
               ) : (
                 <div className="space-y-2 max-h-60 overflow-y-auto border border-gray-200 rounded-lg p-3">
                   {properties.map((property) => (

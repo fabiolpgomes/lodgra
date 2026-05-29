@@ -180,7 +180,7 @@ export default function NewUserPage() {
                   <SelectItem value="owner">Proprietário do Imóvel</SelectItem>
                 </SelectContent>
               </Select>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-600 mt-1">
                 {guestType === 'staff'
                   ? 'Acesso restrito ao calendário e check-in/check-out'
                   : 'Acesso aos relatórios e reservas das suas propriedades'}
@@ -212,7 +212,7 @@ export default function NewUserPage() {
             <div>
               <Label className="mb-2">Propriedades</Label>
               {properties.length === 0 ? (
-                <p className="text-sm text-gray-500">Nenhuma propriedade disponível</p>
+                <p className="text-sm text-gray-600">Nenhuma propriedade disponível</p>
               ) : (
                 <div className="space-y-2 max-h-60 overflow-y-auto border border-gray-200 rounded-lg p-3">
                   {properties.map((property) => (

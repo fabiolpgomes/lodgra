@@ -176,7 +176,7 @@ export default async function ReservationDetailsPage({
                   <p className="text-xl font-bold text-gray-900">
                     {checkIn.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}
                   </p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-gray-600">
                     {checkIn.toLocaleDateString('pt-BR', { year: 'numeric' })}
                   </p>
                 </div>
@@ -184,7 +184,7 @@ export default async function ReservationDetailsPage({
                 <div className="text-center p-4 bg-gray-50 rounded-lg">
                   <p className="text-sm text-gray-600 mb-1">Duração</p>
                   <p className="text-xl font-bold text-gray-900">{nights}</p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-gray-600">
                     {nights === 1 ? 'noite' : 'noites'}
                   </p>
                 </div>
@@ -194,7 +194,7 @@ export default async function ReservationDetailsPage({
                   <p className="text-xl font-bold text-gray-900">
                     {checkOut.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}
                   </p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-gray-600">
                     {checkOut.toLocaleDateString('pt-BR', { year: 'numeric' })}
                   </p>
                 </div>
@@ -246,7 +246,7 @@ export default async function ReservationDetailsPage({
                   </div>
                 </div>
               ) : (
-                <p className="text-gray-500">Propriedade não encontrada</p>
+                <p className="text-gray-600">Propriedade não encontrada</p>
               )}
             </div>
 
@@ -269,13 +269,13 @@ export default async function ReservationDetailsPage({
                       <div className="mt-2 space-y-1 text-sm">
                         {reservation.adults != null && (
                           <p className="text-gray-700">
-                            <span className="text-gray-500">Adultos: </span>
+                            <span className="text-gray-600">Adultos: </span>
                             <span className="font-medium">{reservation.adults}</span>
                           </p>
                         )}
                         {reservation.children != null && (
                           <p className="text-gray-700">
-                            <span className="text-gray-500">Crianças (até 12 anos): </span>
+                            <span className="text-gray-600">Crianças (até 12 anos): </span>
                             <span className="font-medium">{reservation.children}</span>
                           </p>
                         )}
@@ -286,7 +286,7 @@ export default async function ReservationDetailsPage({
                   <div className="space-y-2">
                     {guest.email && (
                       <div className="flex items-center gap-2 text-gray-700">
-                        <Mail className="h-4 w-4 text-gray-400" />
+                        <Mail className="h-4 w-4 text-gray-500" />
                         <a href={`mailto:${guest.email}`} className="hover:text-blue-600">
                           {guest.email}
                         </a>
@@ -294,7 +294,7 @@ export default async function ReservationDetailsPage({
                     )}
                     {guest.phone && (
                       <div className="flex items-center gap-2 text-gray-700">
-                        <Phone className="h-4 w-4 text-gray-400" />
+                        <Phone className="h-4 w-4 text-gray-500" />
                         <a href={`tel:${guest.phone}`} className="hover:text-blue-600">
                           {guest.phone}
                         </a>
@@ -303,7 +303,7 @@ export default async function ReservationDetailsPage({
                   </div>
                 </div>
               ) : (
-                <p className="text-gray-500">Hóspede não cadastrado</p>
+                <p className="text-gray-600">Hóspede não cadastrado</p>
               )}
             </div>
 

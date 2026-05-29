@@ -25,7 +25,7 @@ export default function CalendarError({
         <div className="bg-white rounded-lg shadow p-6">
           <div className="text-center py-12">
             <p className="text-gray-600 mb-4">Não conseguimos carregar o calendário.</p>
-            <p className="text-sm text-gray-500 mb-6">{error.message || 'Erro desconhecido'}</p>
+            <p className="text-sm text-gray-600 mb-6">{error.message || 'Erro desconhecido'}</p>
             <button
               onClick={reset}
               className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"

@@ -397,7 +397,7 @@ export default function NewReservationPage() {
                       })}
                     </SelectContent>
                   </Select>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-gray-600 mt-1">
                     Se não houver anúncios, crie um primeiro na página de propriedades
                   </p>
                 </div>
@@ -581,7 +581,7 @@ export default function NewReservationPage() {
                 min="0"
                 placeholder="0.00"
               />
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-600 mt-1">
                 Opcional - pode ser preenchido depois
               </p>
             </div>

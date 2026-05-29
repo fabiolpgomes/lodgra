@@ -73,7 +73,7 @@ export default async function ExpensesPage({
               </div>
               <h2 className="text-2xl font-bold text-gray-900">Despesas</h2>
             </div>
-            <p className="text-gray-500 text-sm ml-14">Gerencie todas as despesas das propriedades</p>
+            <p className="text-gray-600 text-sm ml-14">Gerencie todas as despesas das propriedades</p>
           </div>
           {canCreate && (
             <div className="flex gap-2">

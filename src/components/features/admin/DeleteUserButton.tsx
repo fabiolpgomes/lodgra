@@ -61,7 +61,7 @@ export function DeleteUserButton({
         size="sm"
         onClick={() => setShowModal(true)}
         title="Eliminar utilizador"
-        className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50"
+        className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50"
       >
         <Trash2 className="h-4 w-4" />
       </Button>

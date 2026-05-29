@@ -100,7 +100,7 @@ export function FileUpload({
           disabled || remaining <= 0 || uploading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer',
         ].join(' ')}
       >
-        <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+        <Upload className="h-8 w-8 text-gray-500 mx-auto mb-2" />
         {uploading ? (
           <p className="text-sm text-blue-600 font-medium">A fazer upload…</p>
         ) : remaining > 0 ? (
@@ -109,12 +109,12 @@ export function FileUpload({
               Arraste ficheiros ou{' '}
               <span className="text-blue-600 font-medium">clique para seleccionar</span>
             </p>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-gray-600 mt-1">
               {hint ?? `Máx. ${maxMB}MB · ${remaining} espaço${remaining !== 1 ? 's' : ''} disponível${remaining !== 1 ? 'is' : ''}`}
             </p>
           </>
         ) : (
-          <p className="text-sm text-gray-500">Limite de {maxFiles} ficheiros atingido</p>
+          <p className="text-sm text-gray-600">Limite de {maxFiles} ficheiros atingido</p>
         )}
       </div>
 

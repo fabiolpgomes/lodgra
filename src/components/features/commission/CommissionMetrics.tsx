@@ -106,7 +106,7 @@ export function CommissionMetrics() {
           <div className="flex items-start justify-between mb-4">
             <div>
               <p className="text-sm text-gray-600 font-medium">{metric.title}</p>
-              <p className="text-xs text-gray-500">{metric.label}</p>
+              <p className="text-xs text-gray-600">{metric.label}</p>
             </div>
           </div>
 
@@ -114,7 +114,7 @@ export function CommissionMetrics() {
             <p className="text-3xl font-bold text-gray-900">
               €{metric.total.toFixed(2)}
             </p>
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-sm text-gray-600 mt-1">
               {metric.count} booking{metric.count !== 1 ? 's' : ''}
             </p>
           </div>

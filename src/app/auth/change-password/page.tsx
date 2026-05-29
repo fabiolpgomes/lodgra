@@ -140,7 +140,7 @@ export default function ChangePasswordPage() {
               placeholder="Mínimo 8 caracteres"
               disabled={loading}
             />
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-gray-600 mt-1">
               A senha deve conter letra maiúscula e número
             </p>
           </div>
@@ -168,7 +168,7 @@ export default function ChangePasswordPage() {
           </Button>
         </form>
 
-        <p className="text-xs text-gray-500 text-center mt-4">
+        <p className="text-xs text-gray-600 text-center mt-4">
           Após alterar sua senha, você será redirecionado para o dashboard.
         </p>
       </div>

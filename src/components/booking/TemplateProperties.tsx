@@ -102,7 +102,7 @@ export function TemplateProperties({
 
         {filteredProperties.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-gray-500">No properties available</p>
+            <p className="text-gray-600">No properties available</p>
           </div>
         ) : (
           <div className={`grid ${gridClass}`}>

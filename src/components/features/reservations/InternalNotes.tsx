@@ -108,7 +108,7 @@ export function InternalNotes({
           {notes ? (
             <p className="text-sm text-gray-700 whitespace-pre-wrap mb-3">{notes}</p>
           ) : (
-            <p className="text-sm text-gray-400 italic mb-3">Sem notas internas</p>
+            <p className="text-sm text-gray-500 italic mb-3">Sem notas internas</p>
           )}
           <Button
             variant="ghost"

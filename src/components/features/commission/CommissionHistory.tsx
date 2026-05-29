@@ -128,7 +128,7 @@ export function CommissionHistory({ pageSize = 50 }: CommissionHistoryProps) {
           ))}
         </div>
       ) : data.length === 0 ? (
-        <p className="text-gray-500 text-center py-8">No bookings found</p>
+        <p className="text-gray-600 text-center py-8">No bookings found</p>
       ) : (
         <>
           {/* Desktop Table */}
@@ -180,7 +180,7 @@ export function CommissionHistory({ pageSize = 50 }: CommissionHistoryProps) {
                 <div className="flex justify-between items-start">
                   <div>
                     <p className="font-semibold text-gray-900">{row.propertyName}</p>
-                    <p className="text-xs text-gray-500">{row.guestName}</p>
+                    <p className="text-xs text-gray-600">{row.guestName}</p>
                   </div>
                   <p className="text-sm font-semibold text-gray-900">
                     €{row.commissionAmount.toFixed(2)}

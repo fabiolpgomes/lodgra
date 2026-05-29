@@ -97,11 +97,11 @@ export function ConsentManagement() {
       <div className="flex items-center justify-between py-4 border-t border-gray-100">
         <div>
           <p className="text-sm font-medium text-gray-900">{t('settings.analytics')}</p>
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-xs text-gray-600 mt-1">
             {t('banner.analyticsDescription')}
           </p>
           {formattedDate && (
-            <p className="text-xs text-gray-400 mt-1">
+            <p className="text-xs text-gray-500 mt-1">
               {t('settings.lastUpdated')}: {formattedDate}
             </p>
           )}
@@ -132,7 +132,7 @@ export function ConsentManagement() {
       <div className="flex items-center justify-between py-4 border-t border-gray-100">
         <div>
           <p className="text-sm font-medium text-gray-900">{t('settings.essential') || t('banner.essential')}</p>
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-xs text-gray-600 mt-1">
             {t('settings.essentialDescription') || t('banner.essentialDescription')}
           </p>
         </div>

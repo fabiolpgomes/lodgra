@@ -77,7 +77,7 @@ export function ReportsFilters({ properties, startDate, endDate, propertyId, act
             className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
               activeTab === tab.id
                 ? 'border-blue-600 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                : 'border-transparent text-gray-600 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
             {tab.label}
@@ -94,7 +94,7 @@ export function ReportsFilters({ properties, startDate, endDate, propertyId, act
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div>
           <Label htmlFor="start_date">
-            Data Início <span className="text-xs text-gray-500">(dd/mm/aaaa)</span>
+            Data Início <span className="text-xs text-gray-600">(dd/mm/aaaa)</span>
           </Label>
           <Input
             type="date"
@@ -106,7 +106,7 @@ export function ReportsFilters({ properties, startDate, endDate, propertyId, act
 
         <div>
           <Label htmlFor="end_date">
-            Data Fim <span className="text-xs text-gray-500">(dd/mm/aaaa)</span>
+            Data Fim <span className="text-xs text-gray-600">(dd/mm/aaaa)</span>
           </Label>
           <Input
             type="date"

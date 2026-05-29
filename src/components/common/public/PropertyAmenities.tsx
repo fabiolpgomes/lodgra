@@ -44,7 +44,7 @@ export function PropertyAmenities({ amenities }: PropertyAmenitiesProps) {
         const Icon = AMENITY_ICONS[key] ?? CheckCircle2
         return (
           <li key={amenity} className="flex items-center gap-2 text-sm text-gray-700">
-            <Icon className="h-4 w-4 text-gray-400 shrink-0" />
+            <Icon className="h-4 w-4 text-gray-500 shrink-0" />
             <span>{amenity}</span>
           </li>
         )

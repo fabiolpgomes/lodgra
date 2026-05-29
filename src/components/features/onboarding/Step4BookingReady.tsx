@@ -28,7 +28,7 @@ export function Step4BookingReady({ orgName, orgSlug, onDashboard, dashboardLoad
       <h2 className="text-2xl font-bold text-gray-900 mb-2">
         Sua página de reservas está pronta
       </h2>
-      <p className="text-gray-500 text-sm mb-6">
+      <p className="text-gray-600 text-sm mb-6">
         {orgName || 'Sua empresa'} já tem um canal direto para receber reservas sem depender apenas das OTAs.
       </p>
 

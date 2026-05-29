@@ -173,7 +173,7 @@ export function CommissionChart({ days = 30 }: CommissionChartProps) {
         </LineChart>
       </ResponsiveContainer>
 
-      <div className="mt-4 text-xs text-gray-500 text-center">
+      <div className="mt-4 text-xs text-gray-600 text-center">
         Showing {data.length} {timeRange} periods
       </div>
     </Card>

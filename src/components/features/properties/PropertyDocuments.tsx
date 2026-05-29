@@ -116,7 +116,7 @@ export function PropertyDocuments({ propertyId, canEdit }: PropertyDocumentsProp
       </h3>
 
       {loading ? (
-        <p className="text-sm text-gray-500">A carregar…</p>
+        <p className="text-sm text-gray-600">A carregar…</p>
       ) : (
         <div className="space-y-5">
           {/* File list */}
@@ -127,10 +127,10 @@ export function PropertyDocuments({ propertyId, canEdit }: PropertyDocumentsProp
                   <div className="flex items-center gap-3 min-w-0">
                     {isVideo(doc.mime_type)
                       ? <Film className="h-5 w-5 text-purple-400 flex-shrink-0" />
-                      : <FileText className="h-5 w-5 text-gray-400 flex-shrink-0" />}
+                      : <FileText className="h-5 w-5 text-gray-500 flex-shrink-0" />}
                     <div className="min-w-0">
                       <p className="text-sm font-medium text-gray-900 truncate">{doc.file_name}</p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-gray-600">
                         {fileTypeLabel(doc.mime_type)}
                         {doc.file_size ? ` · ${formatFileSize(doc.file_size)}` : ''}
                         {' · '}{new Date(doc.created_at).toLocaleDateString('pt-BR')}
@@ -196,7 +196,7 @@ export function PropertyDocuments({ propertyId, canEdit }: PropertyDocumentsProp
           )}
 
           {documents.length === 0 && !canEdit && (
-            <p className="text-sm text-gray-500">Sem documentos anexados.</p>
+            <p className="text-sm text-gray-600">Sem documentos anexados.</p>
           )}
         </div>
       )}

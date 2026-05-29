@@ -79,7 +79,7 @@ export function CleaningPageClient({ properties, members, userRole }: Props) {
             Próximas <br />
             Limpezas
           </h1>
-          <p className="text-sm font-bold text-gray-400 mt-2">
+          <p className="text-sm font-bold text-gray-500 mt-2">
             {pendingCount > 0 ? `${pendingCount} tarefas aguardando início` : 'Tudo em dia por aqui!'}
           </p>
         </div>
@@ -99,7 +99,7 @@ export function CleaningPageClient({ properties, members, userRole }: Props) {
             className={`px-5 py-2.5 rounded-2xl text-xs font-black uppercase tracking-wider transition-all whitespace-nowrap ${
               filterStatus === s
                 ? 'bg-lodgra-blue text-white shadow-md'
-                : 'bg-white dark:bg-zinc-800 text-gray-400 border border-gray-100 dark:border-zinc-700'
+                : 'bg-white dark:bg-zinc-800 text-gray-500 border border-gray-100 dark:border-zinc-700'
             }`}
           >
             {s === 'pending' ? 'Pendentes' : s === 'in_progress' ? 'Em curso' : s === 'completed' ? 'Feitas' : 'Todas'}
@@ -126,7 +126,7 @@ export function CleaningPageClient({ properties, members, userRole }: Props) {
           ))}
         </div>
       ) : checklists.length === 0 ? (
-        <div className="text-center py-16 text-gray-400">
+        <div className="text-center py-16 text-gray-500">
           <CheckSquare className="h-12 w-12 mx-auto mb-3 opacity-30" />
           <p className="font-medium">Nenhuma limpeza {filterStatus === 'all' ? '' : filterStatus === 'pending' ? 'pendente' : 'encontrada'}</p>
           {isAdmin && (

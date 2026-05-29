@@ -273,7 +273,7 @@ export function ExpensesPdfGenerator({ properties }: ExpensesPdfGeneratorProps) 
               <h2 className="text-xl font-semibold text-gray-900">PDF Gerado!</h2>
               <button
                 onClick={closeShareModal}
-                className="text-gray-500 hover:text-gray-700 transition"
+                className="text-gray-600 hover:text-gray-700 transition"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -331,7 +331,7 @@ export function ExpensesPdfGenerator({ properties }: ExpensesPdfGeneratorProps) 
                   Abrir WhatsApp
                 </Button>
 
-                <p className="text-xs text-gray-500 mt-2 text-center">
+                <p className="text-xs text-gray-600 mt-2 text-center">
                   Copie a mensagem ou abra o WhatsApp para compartilhar
                 </p>
               </div>

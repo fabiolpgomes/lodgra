@@ -135,7 +135,7 @@ export function ICalExportCard({ propertyId, appUrl }: { propertyId: string; app
           </div>
         </div>
       ) : (
-        <p className="text-gray-500">Erro ao carregar URL iCal</p>
+        <p className="text-gray-600">Erro ao carregar URL iCal</p>
       )}
     </div>
   )

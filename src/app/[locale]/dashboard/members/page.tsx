@@ -106,7 +106,7 @@ export default function MembersPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+        <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
       </div>
     )
   }
@@ -115,7 +115,7 @@ export default function MembersPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Gestão de Membros</h1>
-        <p className="text-sm text-gray-500 mt-1">Atribua propriedades aos membros da sua organização</p>
+        <p className="text-sm text-gray-600 mt-1">Atribua propriedades aos membros da sua organização</p>
       </div>
 
       {error && (
@@ -133,7 +133,7 @@ export default function MembersPage() {
             </div>
             <div className="divide-y max-h-[600px] overflow-y-auto">
               {members.length === 0 ? (
-                <p className="px-4 py-8 text-sm text-gray-500 text-center">Nenhum membro encontrado</p>
+                <p className="px-4 py-8 text-sm text-gray-600 text-center">Nenhum membro encontrado</p>
               ) : (
                 members.map(member => (
                   <button
@@ -146,7 +146,7 @@ export default function MembersPage() {
                     }`}
                   >
                     <div className="font-medium">{member.user_id.slice(0, 8)}</div>
-                    <div className={`text-xs mt-0.5 ${selectedMember === member.id ? 'text-gray-300' : 'text-gray-500'}`}>
+                    <div className={`text-xs mt-0.5 ${selectedMember === member.id ? 'text-gray-500' : 'text-gray-600'}`}>
                       {member.role} • {member.user_properties.length} propriedade(s)
                     </div>
                   </button>
@@ -167,7 +167,7 @@ export default function MembersPage() {
               </div>
               <div className="p-4">
                 {properties.length === 0 ? (
-                  <p className="text-sm text-gray-500 text-center py-8">Nenhuma propriedade disponível</p>
+                  <p className="text-sm text-gray-600 text-center py-8">Nenhuma propriedade disponível</p>
                 ) : (
                   <div className="space-y-2 max-h-[500px] overflow-y-auto">
                     {properties.map(property => (

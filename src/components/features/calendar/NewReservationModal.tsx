@@ -54,18 +54,18 @@ export function NewReservationModal({ open, checkIn, checkOut, properties, onClo
         <div className="space-y-4 py-2">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label className="text-xs text-gray-500 mb-1 block">Check-in</Label>
+              <Label className="text-xs text-gray-600 mb-1 block">Check-in</Label>
               <Input value={checkIn} readOnly className="bg-gray-50" />
             </div>
             <div>
-              <Label className="text-xs text-gray-500 mb-1 block">Check-out</Label>
+              <Label className="text-xs text-gray-600 mb-1 block">Check-out</Label>
               <Input value={checkOut} readOnly className="bg-gray-50" />
             </div>
           </div>
 
           {properties.length > 0 && (
             <div>
-              <Label className="text-xs text-gray-500 mb-1 block">Propriedade (opcional)</Label>
+              <Label className="text-xs text-gray-600 mb-1 block">Propriedade (opcional)</Label>
               <Select value={selectedPropertyId} onValueChange={setSelectedPropertyId}>
                 <SelectTrigger>
                   <SelectValue placeholder="Seleccionar propriedade…" />

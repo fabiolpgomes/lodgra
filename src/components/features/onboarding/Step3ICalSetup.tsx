@@ -81,8 +81,8 @@ export function Step3ICalSetup({ propertyId, onFinish, checkoutLoading, checkout
           </div>
         </div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Tudo configurado!</h2>
-        <p className="text-gray-500">A sincronização vai começar em breve.</p>
-        <p className="text-gray-400 text-sm mt-2">A redirecionar para o painel...</p>
+        <p className="text-gray-600">A sincronização vai começar em breve.</p>
+        <p className="text-gray-500 text-sm mt-2">A redirecionar para o painel...</p>
       </div>
     )
   }
@@ -98,7 +98,7 @@ export function Step3ICalSetup({ propertyId, onFinish, checkoutLoading, checkout
       <h2 className="text-2xl font-bold text-gray-900 text-center mb-1">
         Ligar calendário iCal
       </h2>
-      <p className="text-gray-500 text-center text-sm mb-6">
+      <p className="text-gray-600 text-center text-sm mb-6">
         Sincronize as reservas do Airbnb, Booking ou outra plataforma automaticamente.
       </p>
 
@@ -126,7 +126,7 @@ export function Step3ICalSetup({ propertyId, onFinish, checkoutLoading, checkout
           {PLATFORM_INSTRUCTIONS.map(p => (
             <div key={p.name} className="bg-gray-50 rounded-lg p-3 border border-gray-100">
               <p className="text-sm font-semibold text-gray-800 mb-1">{p.emoji} {p.name}</p>
-              <p className="text-xs text-gray-500">{p.steps}</p>
+              <p className="text-xs text-gray-600">{p.steps}</p>
             </div>
           ))}
         </div>
@@ -172,7 +172,7 @@ export function Step3ICalSetup({ propertyId, onFinish, checkoutLoading, checkout
           variant="ghost"
           onClick={onFinish}
           disabled={checkoutLoading}
-          className="w-full text-sm text-gray-400"
+          className="w-full text-sm text-gray-500"
         >
           {checkoutLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Saltar e ver página agora'}
         </Button>

@@ -29,7 +29,7 @@ export default async function CompliancePage() {
           </div>
           <div>
             <h1 className="text-xl font-semibold text-gray-900">Compliance Dashboard</h1>
-            <p className="text-sm text-gray-500">RGPD / LGPD — Estado de consentimentos e pedidos de eliminação</p>
+            <p className="text-sm text-gray-600">RGPD / LGPD — Estado de consentimentos e pedidos de eliminação</p>
           </div>
         </div>
 

@@ -119,7 +119,7 @@ export function PropertyAmenitiesV2({ amenities = [], structuredAmenities }: Pro
             <div className="fixed inset-x-4 top-1/2 -translate-y-1/2 z-50 bg-white rounded-2xl p-6 max-h-[80vh] overflow-y-auto sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 sm:w-full sm:max-w-lg">
               <div className="flex items-center justify-between mb-5">
                 <h3 className="text-lg font-semibold text-lodgra-neutral-900">Todas as comodidades</h3>
-                <button onClick={() => setShowAll(false)} className="p-1 rounded-full hover:bg-gray-100 text-gray-500" aria-label="Fechar">
+                <button onClick={() => setShowAll(false)} className="p-1 rounded-full hover:bg-gray-100 text-gray-600" aria-label="Fechar">
                   <X className="h-5 w-5" />
                 </button>
               </div>
@@ -189,7 +189,7 @@ export function PropertyAmenitiesV2({ amenities = [], structuredAmenities }: Pro
           <div className="fixed inset-x-4 top-1/2 -translate-y-1/2 z-50 bg-white rounded-2xl p-6 max-h-[80vh] overflow-y-auto sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 sm:w-full sm:max-w-lg">
             <div className="flex items-center justify-between mb-5">
               <h3 className="text-lg font-semibold text-lodgra-neutral-900">Todas as comodidades</h3>
-              <button onClick={() => setShowAll(false)} className="p-1 rounded-full hover:bg-gray-100 text-gray-500" aria-label="Fechar">
+              <button onClick={() => setShowAll(false)} className="p-1 rounded-full hover:bg-gray-100 text-gray-600" aria-label="Fechar">
                 <X className="h-5 w-5" />
               </button>
             </div>

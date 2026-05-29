@@ -159,11 +159,11 @@ export function OnboardingWizard({ locale }: OnboardingWizardProps) {
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
                     done ? 'bg-lodgra-primary text-white' :
                     active ? 'bg-lodgra-primary/10 border-2 border-lodgra-primary text-lodgra-primary' :
-                    'bg-gray-100 dark:bg-gray-800 text-gray-400'
+                    'bg-gray-100 dark:bg-gray-800 text-gray-500'
                   }`}>
                     {done ? <Check className="h-5 w-5" /> : <Icon className="h-5 w-5" />}
                   </div>
-                  <span className={`text-xs mt-1 font-medium ${active ? 'text-lodgra-primary' : 'text-gray-400'}`}>
+                  <span className={`text-xs mt-1 font-medium ${active ? 'text-lodgra-primary' : 'text-gray-500'}`}>
                     {s.label}
                   </span>
                 </div>
@@ -182,7 +182,7 @@ export function OnboardingWizard({ locale }: OnboardingWizardProps) {
           {step === 0 && (
             <div>
               <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">Bem-vindo(a) à Lodgra! 🏠</h1>
-              <p className="text-gray-500 dark:text-gray-400 mb-6">Vamos configurar sua conta em menos de 15 minutos.</p>
+              <p className="text-gray-600 dark:text-gray-400 mb-6">Vamos configurar sua conta em menos de 15 minutos.</p>
 
               <div className="mb-6">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
@@ -242,7 +242,7 @@ export function OnboardingWizard({ locale }: OnboardingWizardProps) {
                   className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-lodgra-primary focus:border-transparent outline-none"
                 />
                 {step1.orgName.trim() && (
-                  <p className="text-xs text-gray-400 mt-1">
+                  <p className="text-xs text-gray-500 mt-1">
                     A sua URL de reservas será: <span className="font-medium text-lodgra-blue">
                       {step1.orgName.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9\s]/g, '').trim().replace(/\s+/g, '-')}.lodgra.io/booking
                     </span>
@@ -268,7 +268,7 @@ export function OnboardingWizard({ locale }: OnboardingWizardProps) {
           {step === 1 && (
             <div>
               <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">Adicionar primeiro imóvel</h2>
-              <p className="text-gray-500 dark:text-gray-400 mb-6">Você pode adicionar mais depois.</p>
+              <p className="text-gray-600 dark:text-gray-400 mb-6">Você pode adicionar mais depois.</p>
 
               {error && (
                 <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">{error}</div>
@@ -342,7 +342,7 @@ export function OnboardingWizard({ locale }: OnboardingWizardProps) {
           {step === 2 && (
             <div>
               <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">Conectar seus canais</h2>
-              <p className="text-gray-500 dark:text-gray-400 mb-6">Cole o link iCal de cada canal.</p>
+              <p className="text-gray-600 dark:text-gray-400 mb-6">Cole o link iCal de cada canal.</p>
 
               {error && (
                 <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">{error}</div>
@@ -367,7 +367,7 @@ export function OnboardingWizard({ locale }: OnboardingWizardProps) {
                 ))}
               </div>
 
-              <p className="text-xs text-gray-400 mb-6">
+              <p className="text-xs text-gray-500 mb-6">
                 💡 Onde encontrar? No Airbnb: Calendário → Exportar Calendário → Copiar link
               </p>
 
@@ -387,7 +387,7 @@ export function OnboardingWizard({ locale }: OnboardingWizardProps) {
             <div className="text-center">
               <div className="text-5xl mb-4">🎉</div>
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Tudo pronto!</h2>
-              <p className="text-gray-500 dark:text-gray-400 mb-8">
+              <p className="text-gray-600 dark:text-gray-400 mb-8">
                 Seu imóvel <strong className="text-gray-700 dark:text-gray-200">{createdPropertyName}</strong> foi criado com sucesso.
               </p>
 
@@ -397,7 +397,7 @@ export function OnboardingWizard({ locale }: OnboardingWizardProps) {
                   <p className="text-sm font-mono bg-white dark:bg-gray-900 border border-lodgra-blue/20 rounded-lg px-3 py-2 text-lodgra-blue break-all">
                     {bookingSlug}.lodgra.io/booking
                   </p>
-                  <p className="text-xs text-gray-500 mt-2">
+                  <p className="text-xs text-gray-600 mt-2">
                     Partilhe este link com os seus hóspedes para receber reservas directas sem comissões.
                   </p>
                 </div>

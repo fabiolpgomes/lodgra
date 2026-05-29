@@ -84,7 +84,7 @@ export function UserMenu() {
           <p className="text-sm font-medium text-gray-900">
             {profile?.full_name || user.email?.split('@')[0]}
           </p>
-          <p className="text-xs text-gray-500">{roleLabel}</p>
+          <p className="text-xs text-gray-600">{roleLabel}</p>
         </div>
       </Link>
 

@@ -50,7 +50,7 @@ export function PaymentSettings({ organization }: Props) {
           </div>
           <div>
             <h2 className="text-lg font-bold text-gray-900">Configuração de Pagamentos (Brasil)</h2>
-            <p className="text-xs text-gray-500">Conecte sua conta Asaas para receber via PIX direto dos hóspedes</p>
+            <p className="text-xs text-gray-600">Conecte sua conta Asaas para receber via PIX direto dos hóspedes</p>
           </div>
         </div>
       </div>
@@ -60,7 +60,7 @@ export function PaymentSettings({ organization }: Props) {
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-1 flex items-center gap-2">
               Ambiente
-              <span className="text-[10px] font-normal text-gray-400 bg-gray-100 px-2 py-0.5 rounded">Escolha Sandbox para testes</span>
+              <span className="text-[10px] font-normal text-gray-500 bg-gray-100 px-2 py-0.5 rounded">Escolha Sandbox para testes</span>
             </label>
             <div className="flex gap-4">
               <label className="flex items-center gap-2 cursor-pointer">

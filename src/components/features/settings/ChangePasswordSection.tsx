@@ -124,7 +124,7 @@ export function ChangePasswordSection() {
             disabled={loading}
             className="bg-gray-50"
           />
-          <p className="text-xs text-gray-500 mt-2">
+          <p className="text-xs text-gray-600 mt-2">
             Requisitos: Mínimo 8 caracteres, letra maiúscula e número
           </p>
         </div>

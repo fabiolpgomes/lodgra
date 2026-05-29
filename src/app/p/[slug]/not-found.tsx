@@ -10,9 +10,9 @@ export default function PropertyNotFound() {
       </header>
 
       <div className="text-center max-w-md">
-        <h1 className="text-6xl font-bold text-gray-200 mb-4">404</h1>
+        <h1 className="text-6xl font-bold text-gray-500 mb-4">404</h1>
         <h2 className="text-xl font-semibold text-gray-900 mb-2">Propriedade não encontrada</h2>
-        <p className="text-gray-500 mb-6">
+        <p className="text-gray-600 mb-6">
           Esta propriedade não existe ou não está disponível publicamente.
         </p>
         <Link

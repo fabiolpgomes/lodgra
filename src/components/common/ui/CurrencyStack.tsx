@@ -34,7 +34,7 @@ export function CurrencyStack({
 
   if (entries.length === 0) {
     return showEmpty ? (
-      <span className={`${SIZE_CLASSES[size]} text-gray-300`}>—</span>
+      <span className={`${SIZE_CLASSES[size]} text-gray-500`}>—</span>
     ) : null
   }
 

@@ -214,7 +214,7 @@ export default function NewOwnerPage() {
                     </option>
                   ))}
                 </select>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-600 mt-1">
                   Se o proprietário também é utilizador do sistema, pode vinculá-lo aqui
                 </p>
               </div>

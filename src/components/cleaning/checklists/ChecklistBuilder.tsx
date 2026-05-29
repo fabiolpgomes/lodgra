@@ -69,7 +69,7 @@ export default function ChecklistBuilder({ onSave, onCancel }: Props) {
         {items.map((item, i) => (
           <div key={i} className="flex gap-2 p-2 bg-gray-50 rounded">
             <span className="flex-1">{item.label}</span>
-            <span className="text-sm text-gray-500">{item.category}</span>
+            <span className="text-sm text-gray-600">{item.category}</span>
             <button onClick={() => removeItem(i)} className="text-red-600">
               <Trash2 size={16} />
             </button>

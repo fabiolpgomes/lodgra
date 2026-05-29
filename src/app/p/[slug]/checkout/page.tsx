@@ -116,7 +116,7 @@ export default async function CheckoutPage({ params, searchParams }: PageProps) 
           <a href={`/p/${slug}`} aria-label="Lodgra">
             <Logo size="sm" />
           </a>
-          <span className="text-sm text-gray-500">Reserva Segura</span>
+          <span className="text-sm text-gray-600">Reserva Segura</span>
         </div>
       </header>
 
@@ -137,7 +137,7 @@ export default async function CheckoutPage({ params, searchParams }: PageProps) 
         />
       </main>
 
-      <footer className="mt-16 border-t border-gray-100 px-4 py-4 text-center text-xs text-gray-400">
+      <footer className="mt-16 border-t border-gray-100 px-4 py-4 text-center text-xs text-gray-500">
         Pagamento processado com segurança por Stripe · lodgra.io
       </footer>
     </div>

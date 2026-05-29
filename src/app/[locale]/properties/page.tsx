@@ -92,7 +92,7 @@ export default async function PropertiesPage({ params }: { params: Promise<{ loc
         {/* Properties List */}
         {!properties || properties.length === 0 ? (
           <div className="bg-white rounded-lg shadow p-12 text-center">
-            <Home className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+            <Home className="h-16 w-16 text-gray-500 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-lodgra-neutral-900 mb-2">
               Nenhuma propriedade cadastrada
             </h3>
@@ -157,7 +157,7 @@ function PropertyCard({ property, canEdit, locale }: {
           <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-xs font-semibold ${
             property.is_active
               ? 'bg-[#ECFDF5] text-[#059669]'
-              : 'bg-gray-100 text-gray-500'
+              : 'bg-gray-100 text-gray-600'
           }`}>
             <span className={`w-1.5 h-1.5 rounded-full ${property.is_active ? 'bg-[#059669]' : 'bg-gray-400'}`} />
             {property.is_active ? 'Ativo' : 'Inativo'}
@@ -170,7 +170,7 @@ function PropertyCard({ property, canEdit, locale }: {
         </h3>
 
         {/* Location */}
-        <div className="flex items-center gap-1.5 text-gray-500 mb-3">
+        <div className="flex items-center gap-1.5 text-gray-600 mb-3">
           <MapPin className="h-3.5 w-3.5 shrink-0" />
           <span className="text-xs">
             {property.city}{property.country ? `, ${property.country}` : ''}
@@ -178,7 +178,7 @@ function PropertyCard({ property, canEdit, locale }: {
         </div>
 
         {/* Capacity row */}
-        <div className="flex items-center gap-4 text-xs text-gray-500 mb-4">
+        <div className="flex items-center gap-4 text-xs text-gray-600 mb-4">
           <div className="flex items-center gap-1">
             <Building2 className="h-3.5 w-3.5" />
             <span>{property.bedrooms || 0} quartos</span>

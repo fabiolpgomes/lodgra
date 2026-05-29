@@ -268,7 +268,7 @@ export default function NewPropertyPage() {
                     <SelectItem value="AUD">A$ Dólar Australiano (AUD)</SelectItem>
                   </SelectContent>
                 </Select>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-600 mt-1">
                   Moeda usada para preços e receitas desta propriedade
                 </p>
               </div>
@@ -342,7 +342,7 @@ export default function NewPropertyPage() {
                   defaultValue="0"
                   placeholder="Ex: 10.5"
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-600 mt-1">
                   Percentual aplicado aos valores de receita para gestão
                 </p>
               </div>

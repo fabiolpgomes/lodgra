@@ -256,7 +256,7 @@ export function CalendarPageClient() {
         <div>
           <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">Calendário</h1>
           {!isEditable && (
-            <p className="text-[11px] sm:text-xs text-gray-500 mt-0.5">Modo leitura — sem permissão para modificar reservas</p>
+            <p className="text-[11px] sm:text-xs text-gray-600 mt-0.5">Modo leitura — sem permissão para modificar reservas</p>
           )}
         </div>
 
@@ -275,7 +275,7 @@ export function CalendarPageClient() {
           )}
 
           {loading && (
-            <span className="text-[11px] sm:text-xs text-gray-500 py-2 sm:py-0">A carregar…</span>
+            <span className="text-[11px] sm:text-xs text-gray-600 py-2 sm:py-0">A carregar…</span>
           )}
         </div>
       </div>
@@ -433,7 +433,7 @@ export function CalendarPageClient() {
       </div>
 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between flex-wrap gap-2 sm:gap-3">
-        <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-[10px] sm:text-xs text-gray-500">
+        <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-[10px] sm:text-xs text-gray-600">
           <span className="flex items-center gap-1">
             <span className="w-2 h-2 sm:w-3 sm:h-3 rounded-sm bg-[#d97706] opacity-70 inline-block" />
             Pendente
@@ -448,7 +448,7 @@ export function CalendarPageClient() {
           </span>
         </div>
         {isEditable && (
-          <p className="text-[10px] sm:text-xs text-gray-400">
+          <p className="text-[10px] sm:text-xs text-gray-500">
             {dayMaxEvents === 1 ? 'Deslize para navegar · Toque para criar' : 'Arraste para mover · Clique num período para criar'}
           </p>
         )}

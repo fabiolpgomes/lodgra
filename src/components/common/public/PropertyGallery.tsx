@@ -14,7 +14,7 @@ export function PropertyGallery({ photos, name }: PropertyGalleryProps) {
 
   if (!photos || photos.length === 0) {
     return (
-      <div className="w-full h-64 sm:h-80 lg:h-96 rounded-xl bg-gray-100 flex flex-col items-center justify-center text-gray-400">
+      <div className="w-full h-64 sm:h-80 lg:h-96 rounded-xl bg-gray-100 flex flex-col items-center justify-center text-gray-500">
         <ImageOff className="h-10 w-10 mb-2" />
         <span className="text-sm">Fotos em breve</span>
       </div>

@@ -100,7 +100,7 @@ export function CronJobsManager() {
                   {job.name}
                 </h3>
                 <p className="text-sm text-gray-600 mb-2">{job.description}</p>
-                <div className="flex items-center gap-2 text-sm text-gray-500">
+                <div className="flex items-center gap-2 text-sm text-gray-600">
                   <RefreshCw className="h-4 w-4" />
                   <span>{job.schedule}</span>
                 </div>

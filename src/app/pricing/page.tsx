@@ -131,17 +131,17 @@ export default function PricingPage() {
                 <div className="bg-gray-50 p-4 rounded">
                   <p className="font-semibold text-gray-900">Essencial + 2 extras</p>
                   <p className="text-blue-900 font-bold mt-1">R$ 157/mês</p>
-                  <p className="text-gray-500 text-xs mt-1">R$ 59 + (2 × R$ 49)</p>
+                  <p className="text-gray-600 text-xs mt-1">R$ 59 + (2 × R$ 49)</p>
                 </div>
                 <div className="bg-gray-50 p-4 rounded">
                   <p className="font-semibold text-gray-900">Expansão + 2 extras</p>
                   <p className="text-blue-900 font-bold mt-1">R$ 247/mês</p>
-                  <p className="text-gray-500 text-xs mt-1">R$ 149 + (2 × R$ 49)</p>
+                  <p className="text-gray-600 text-xs mt-1">R$ 149 + (2 × R$ 49)</p>
                 </div>
                 <div className="bg-gray-50 p-4 rounded">
                   <p className="font-semibold text-gray-900">Premium + 5 extras</p>
                   <p className="text-blue-900 font-bold mt-1">R$ 642/mês</p>
-                  <p className="text-gray-500 text-xs mt-1">R$ 397 + (5 × R$ 49)</p>
+                  <p className="text-gray-600 text-xs mt-1">R$ 397 + (5 × R$ 49)</p>
                 </div>
               </div>
             </div>
@@ -217,21 +217,21 @@ export default function PricingPage() {
                       {row.essencial ? (
                         <Check className="w-6 h-6 text-green-600 mx-auto" />
                       ) : (
-                        <X className="w-6 h-6 text-gray-300 mx-auto" />
+                        <X className="w-6 h-6 text-gray-500 mx-auto" />
                       )}
                     </td>
                     <td className="border border-gray-300 p-4 text-center">
                       {row.expansao ? (
                         <Check className="w-6 h-6 text-green-600 mx-auto" />
                       ) : (
-                        <X className="w-6 h-6 text-gray-300 mx-auto" />
+                        <X className="w-6 h-6 text-gray-500 mx-auto" />
                       )}
                     </td>
                     <td className="border border-gray-300 p-4 text-center">
                       {row.premium ? (
                         <Check className="w-6 h-6 text-green-600 mx-auto" />
                       ) : (
-                        <X className="w-6 h-6 text-gray-300 mx-auto" />
+                        <X className="w-6 h-6 text-gray-500 mx-auto" />
                       )}
                     </td>
                   </tr>

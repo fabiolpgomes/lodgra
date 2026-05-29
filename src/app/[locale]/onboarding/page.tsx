@@ -181,12 +181,12 @@ export default function OnboardingPage() {
                         className={`w-7 h-7 rounded-full flex items-center justify-center text-sm font-semibold transition-colors ${
                           i === 0
                             ? 'bg-blue-100 text-blue-600 border-2 border-blue-600'
-                            : 'bg-gray-100 text-gray-400'
+                            : 'bg-gray-100 text-gray-500'
                         }`}
                       >
                         {i + 1}
                       </div>
-                      <span className={`text-sm font-medium hidden sm:block ${i === 0 ? 'text-blue-600' : 'text-gray-400'}`}>
+                      <span className={`text-sm font-medium hidden sm:block ${i === 0 ? 'text-blue-600' : 'text-gray-500'}`}>
                         {label}
                       </span>
                     </div>
@@ -210,7 +210,7 @@ export default function OnboardingPage() {
                 buttonLabel="Aguardando ativação da conta"
                 buttonDisabled
               />
-              <p className="mt-5 text-center text-xs text-gray-500">
+              <p className="mt-5 text-center text-xs text-gray-600">
                 O pagamento já foi recebido. A Lodgra está preparando o acesso administrativo vinculado ao e-mail usado no checkout.
               </p>
             </div>
@@ -246,7 +246,7 @@ export default function OnboardingPage() {
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-gray-900">{label}</p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-gray-600">
                       {index === 0 && 'Nome da organização e subdomínio de reserva direta.'}
                       {index === 1 && 'Cadastro da primeira propriedade.'}
                       {index === 2 && 'Conexão e sincronização do calendário.'}
@@ -264,7 +264,7 @@ export default function OnboardingPage() {
               Iniciar onboarding
             </Button>
 
-            <p className="mt-6 text-center text-sm text-gray-500">
+            <p className="mt-6 text-center text-sm text-gray-600">
               Clique acima para configurar sua organização e publicar sua primeira página de reserva direta.
             </p>
           </div>
@@ -295,14 +295,14 @@ export default function OnboardingPage() {
                         ? 'bg-blue-600 text-white'
                         : i === step
                         ? 'bg-blue-100 text-blue-600 border-2 border-blue-600'
-                        : 'bg-gray-100 text-gray-400'
+                        : 'bg-gray-100 text-gray-500'
                     }`}
                   >
                     {i < step ? '✓' : i + 1}
                   </div>
                   <span
                     className={`text-sm font-medium hidden sm:block ${
-                      i === step ? 'text-blue-600' : i < step ? 'text-gray-700' : 'text-gray-400'
+                      i === step ? 'text-blue-600' : i < step ? 'text-gray-700' : 'text-gray-500'
                     }`}
                   >
                     {label}

@@ -182,7 +182,7 @@ export default async function ExpenseDetailsPage({
                   </p>
                 </div>
               ) : (
-                <p className="text-gray-500">Propriedade não encontrada</p>
+                <p className="text-gray-600">Propriedade não encontrada</p>
               )}
             </div>
 

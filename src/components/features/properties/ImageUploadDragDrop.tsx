@@ -207,12 +207,12 @@ export function ImageUploadDragDrop({
       {!state.isUploading && !state.success && !state.error && (
         <div className="space-y-4">
           <div className="space-y-2">
-            <Upload className="mx-auto h-8 w-8 text-gray-400" />
+            <Upload className="mx-auto h-8 w-8 text-gray-500" />
             <div>
               <p className="font-medium text-gray-900">
                 Arraste múltiplas fotos aqui
               </p>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-600">
                 ou clique no botão abaixo (JPEG, PNG, WebP • Máx 10MB)
               </p>
               <p className="text-xs text-blue-600 font-medium mt-1">

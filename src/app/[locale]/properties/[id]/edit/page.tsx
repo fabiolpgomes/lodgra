@@ -424,7 +424,7 @@ export default function EditPropertyPage({
                   />
                 </div>
               </div>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-gray-600">
                 Coordenadas geográficas para Google Vacation Rentals. Obter via Google Maps → clique direito → copiar coordenadas.
               </p>
             </div>
@@ -488,7 +488,7 @@ export default function EditPropertyPage({
                   onChange={(e) => setBasePrice(e.target.value)}
                   placeholder="Ex: 100.00"
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-600 mt-1">
                   Preço padrão por noite quando nenhuma regra de preço se aplica
                 </p>
               </div>
@@ -505,7 +505,7 @@ export default function EditPropertyPage({
                   onChange={(e) => setMinNights(e.target.value)}
                   placeholder="Ex: 3"
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-600 mt-1">
                   Mínimo de noites requeridas quando nenhuma regra de preço se aplica. As regras de preço podem sobrepor este valor.
                 </p>
               </div>
@@ -529,7 +529,7 @@ export default function EditPropertyPage({
                   defaultValue={(property?.management_percentage as number) || 0}
                   placeholder="Ex: 10.5"
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-600 mt-1">
                   Percentual aplicado aos valores de receita para gestão
                 </p>
               </div>
@@ -590,7 +590,7 @@ export default function EditPropertyPage({
                     </div>
                   </div>
                 </div>
-                <p className="text-xs text-gray-500 mt-1">Deixar vazio = sem taxa</p>
+                <p className="text-xs text-gray-600 mt-1">Deixar vazio = sem taxa</p>
               </div>
               <div>
                 <h4 className="text-sm font-medium text-gray-700 mb-3">Horários de Check-in / Check-out</h4>
@@ -627,10 +627,10 @@ export default function EditPropertyPage({
           {/* Página Pública */}
           <div className="mb-8">
             <h3 className="text-lg font-semibold text-gray-900 mb-1 flex items-center gap-2">
-              <Globe className="h-5 w-5 text-gray-400" />
+              <Globe className="h-5 w-5 text-gray-500" />
               Página Pública
             </h3>
-            <p className="text-xs text-gray-500 mb-4">
+            <p className="text-xs text-gray-600 mb-4">
               Configure a página pública desta propriedade para aceitar reservas directas.
             </p>
             <div className="space-y-4">
@@ -663,7 +663,7 @@ export default function EditPropertyPage({
                   URL Slug
                 </Label>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-400 shrink-0">/p/</span>
+                  <span className="text-sm text-gray-500 shrink-0">/p/</span>
                   <Input
                     type="text"
                     id="slug"
@@ -672,7 +672,7 @@ export default function EditPropertyPage({
                     placeholder={property?.name ? slugify(property.name as string) : 'gerado-automaticamente'}
                   />
                 </div>
-                <p className="text-xs text-gray-500 mt-1">Deixar em branco para gerar automaticamente a partir do nome.</p>
+                <p className="text-xs text-gray-600 mt-1">Deixar em branco para gerar automaticamente a partir do nome.</p>
               </div>
               <div>
                 <Label htmlFor="description" className="mb-1">

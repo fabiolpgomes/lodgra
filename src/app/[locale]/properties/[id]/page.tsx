@@ -389,7 +389,7 @@ export default async function PropertyDetailsPage({
                         <p className="text-sm font-medium text-gray-800">
                           {room.name || `Quarto ${idx + 1}`}
                         </p>
-                        <p className="text-xs text-gray-500 mt-0.5">
+                        <p className="text-xs text-gray-600 mt-0.5">
                           {room.bed_count}× {BED_TYPE_LABELS[room.bed_type] ?? room.bed_type}
                           {room.provides_linen ? ' · Lençóis incluídos' : ''}
                         </p>
@@ -410,7 +410,7 @@ export default async function PropertyDetailsPage({
                       <p className="text-sm font-medium text-gray-800">
                         {bathroom.name || `Banheiro ${idx + 1}`}
                       </p>
-                      <p className="text-xs text-gray-500 mt-0.5">
+                      <p className="text-xs text-gray-600 mt-0.5">
                         {BATHROOM_TYPE_LABELS[bathroom.bathroom_type] ?? bathroom.bathroom_type}
                       </p>
                       {bathroom.amenities?.length > 0 && (
@@ -440,7 +440,7 @@ export default async function PropertyDetailsPage({
                         {property.cleaning_fee && (
                           <p className="text-sm text-gray-600">
                             Limpeza: <span className="font-medium text-gray-900">{currency} {Number(property.cleaning_fee).toFixed(2)}</span>
-                            <span className="text-xs text-gray-400 ml-1">
+                            <span className="text-xs text-gray-500 ml-1">
                               {property.cleaning_fee_type === 'per_night' ? '/ noite' : '/ estadia'}
                             </span>
                           </p>
@@ -448,7 +448,7 @@ export default async function PropertyDetailsPage({
                         {property.pet_fee && (
                           <p className="text-sm text-gray-600">
                             Animais: <span className="font-medium text-gray-900">{currency} {Number(property.pet_fee).toFixed(2)}</span>
-                            <span className="text-xs text-gray-400 ml-1">
+                            <span className="text-xs text-gray-500 ml-1">
                               {property.pet_fee_type === 'per_night' ? '/ noite' : '/ estadia'}
                             </span>
                           </p>
@@ -522,7 +522,7 @@ export default async function PropertyDetailsPage({
                   )}
                 </div>
               ) : (
-                <p className="text-sm text-gray-500">Nenhum proprietário atribuído</p>
+                <p className="text-sm text-gray-600">Nenhum proprietário atribuído</p>
               )}
             </div>
 

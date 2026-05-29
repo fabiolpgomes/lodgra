@@ -83,7 +83,7 @@ export default async function ExpensesPage() {
               <div className="p-3 bg-red-100 rounded-lg">
                 <TrendingDown className="h-6 w-6 text-red-600" />
               </div>
-              <span className="text-sm text-gray-500">Total</span>
+              <span className="text-sm text-gray-600">Total</span>
             </div>
             <h3 className="text-3xl font-bold text-gray-900">{expenses?.length || 0}</h3>
             <p className="text-sm text-gray-600 mt-1">Despesas</p>
@@ -91,7 +91,7 @@ export default async function ExpensesPage() {
 
           <div className="bg-white rounded-lg shadow p-6 col-span-3">
             <div className="flex items-center justify-between mb-4">
-              <span className="text-sm text-gray-500">Valor Total</span>
+              <span className="text-sm text-gray-600">Valor Total</span>
             </div>
             <div className="text-red-600">
               <CurrencyStack totals={totalExpensesByCurrency} size="lg" />
@@ -103,7 +103,7 @@ export default async function ExpensesPage() {
         {/* Lista de Despesas */}
         {!expenses || expenses.length === 0 ? (
           <div className="bg-white rounded-lg shadow p-12 text-center">
-            <Receipt className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+            <Receipt className="h-16 w-16 text-gray-500 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-gray-900 mb-2">
               Nenhuma despesa cadastrada
             </h3>
@@ -122,19 +122,19 @@ export default async function ExpensesPage() {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
                     Data
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
                     Propriedade
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
                     Descrição
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
                     Categoria
                   </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">
                     Valor
                   </th>
                 </tr>
@@ -153,7 +153,7 @@ export default async function ExpensesPage() {
                     <td className="px-6 py-4">
                       <div className="text-sm text-gray-900">{expense.description}</div>
                       {expense.notes && (
-                        <div className="text-xs text-gray-500 mt-1">{expense.notes}</div>
+                        <div className="text-xs text-gray-600 mt-1">{expense.notes}</div>
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">

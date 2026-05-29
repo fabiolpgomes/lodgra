@@ -545,7 +545,7 @@ export default async function ReportsPage({ searchParams }: PageProps) {
               </div>
               <h2 className="text-2xl font-bold text-gray-900">Relatórios Financeiros</h2>
             </div>
-            <p className="text-gray-500 text-sm ml-14">
+            <p className="text-gray-600 text-sm ml-14">
               Análise detalhada de receitas, despesas e performance das propriedades
             </p>
           </div>
@@ -616,7 +616,7 @@ export default async function ReportsPage({ searchParams }: PageProps) {
                   </div>
                 ))
               ) : (
-                <span className="text-xl font-black text-gray-200 font-display">—</span>
+                <span className="text-xl font-black text-gray-500 font-display">—</span>
               )}
             </div>
             <p className="text-[10px] font-black uppercase tracking-wider text-lodgra-navy/20 mt-2">Lucro líquido no período</p>
@@ -667,7 +667,7 @@ export default async function ReportsPage({ searchParams }: PageProps) {
               </div>
               <span className="text-[10px] font-black uppercase tracking-widest text-lodgra-navy/30 font-display">Ocupação</span>
             </div>
-            <p className={`text-4xl font-black font-display tracking-tighter ${occupancyRate >= 70 ? 'text-green-600' : occupancyRate >= 40 ? 'text-yellow-600' : occupancyRate > 0 ? 'text-red-600' : 'text-gray-200'}`}>
+            <p className={`text-4xl font-black font-display tracking-tighter ${occupancyRate >= 70 ? 'text-green-600' : occupancyRate >= 40 ? 'text-yellow-600' : occupancyRate > 0 ? 'text-red-600' : 'text-gray-500'}`}>
               {totalAvailableNights > 0 ? `${occupancyRate.toFixed(1)}%` : '—'}
             </p>
             <p className="text-[10px] font-black uppercase tracking-wider text-lodgra-navy/20 mt-1">Taxa de ocupação</p>

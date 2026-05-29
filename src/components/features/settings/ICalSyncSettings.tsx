@@ -97,7 +97,7 @@ export function ICalSyncSettings({ listings, propertyId }: ICalSyncSettingsProps
             <div>
               <h3 className="font-medium text-gray-900">{listing.name}</h3>
               {listing.last_synced_at && (
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-600 mt-1">
                   Última sincronização: {new Date(listing.last_synced_at).toLocaleDateString('pt-PT')} às{' '}
                   {new Date(listing.last_synced_at).toLocaleTimeString('pt-PT')}
                 </p>

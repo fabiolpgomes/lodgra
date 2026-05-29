@@ -144,7 +144,7 @@ export default async function OwnerDetailsPage({
                   <p className="text-sm text-gray-600 mb-1">Email</p>
                   <p className="font-medium text-gray-900 flex items-center gap-1">
                     {owner.email ? (
-                      <><Mail className="h-4 w-4 text-gray-400" />{owner.email}</>
+                      <><Mail className="h-4 w-4 text-gray-500" />{owner.email}</>
                     ) : '-'}
                   </p>
                 </div>
@@ -152,7 +152,7 @@ export default async function OwnerDetailsPage({
                   <p className="text-sm text-gray-600 mb-1">Telefone</p>
                   <p className="font-medium text-gray-900 flex items-center gap-1">
                     {owner.phone ? (
-                      <><Phone className="h-4 w-4 text-gray-400" />{owner.phone}</>
+                      <><Phone className="h-4 w-4 text-gray-500" />{owner.phone}</>
                     ) : '-'}
                   </p>
                 </div>
@@ -247,7 +247,7 @@ export default async function OwnerDetailsPage({
               )}
 
               {!showPT && !showBR && (
-                <p className="text-gray-500 text-sm">Nenhum dado bancário registado.</p>
+                <p className="text-gray-600 text-sm">Nenhum dado bancário registado.</p>
               )}
             </div>
 
@@ -277,15 +277,15 @@ export default async function OwnerDetailsPage({
                       className="block p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                     >
                       <p className="font-medium text-gray-900">{prop.name}</p>
-                      <p className="text-xs text-gray-500">{prop.city}, {prop.country}</p>
+                      <p className="text-xs text-gray-600">{prop.city}, {prop.country}</p>
                       {!prop.is_active && (
-                        <span className="text-xs text-gray-400">Inativa</span>
+                        <span className="text-xs text-gray-500">Inativa</span>
                       )}
                     </Link>
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-gray-500">Nenhuma propriedade associada.</p>
+                <p className="text-sm text-gray-600">Nenhuma propriedade associada.</p>
               )}
               {canEdit && (
                 <AssignPropertyToOwner ownerId={id} />
