@@ -262,6 +262,7 @@ export async function POST(request: NextRequest) {
       guest_phone: (guest_phone as string) || null,
       num_guests: guests,
       organization_id: property.organization_id,
+      commission_calculated_at: new Date().toISOString(),
     })
     .select('id')
     .single()
