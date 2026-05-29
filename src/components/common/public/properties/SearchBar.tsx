@@ -162,9 +162,9 @@ export function SearchBar({ onSearch, isLoading = false }: SearchBarProps) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="w-full bg-[#ffffff] rounded-none border border-[#e6e6e6] p-[24px]"
+      className="w-full bg-[#ffffff] rounded-none border border-[#e6e6e6] p-6"
     >
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-[16px] mb-[24px]">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         {/* Location Input */}
         <div className="col-span-2 md:col-span-1">
           <label htmlFor="location" className="block text-[12px] font-bold text-[#6b6b6b] uppercase tracking-[0.5px] mb-2">
@@ -177,7 +177,7 @@ export function SearchBar({ onSearch, isLoading = false }: SearchBarProps) {
             value={location}
             onChange={handleLocationChange}
             disabled={isLoading}
-            className={`w-full px-[16px] py-[14px] text-[16px] font-light border rounded-none focus:outline-none focus:border-[#262626] disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${errors.location ? 'border-[#dc2626]' : 'border-[#e6e6e6] text-[#262626]'}`}
+            className={`w-full px-4 py-3.5 text-[16px] font-light border rounded-none focus:outline-none focus:border-[#262626] disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${errors.location ? 'border-[#dc2626]' : 'border-[#e6e6e6] text-[#262626]'}`}
             aria-invalid={!!errors.location}
             aria-describedby={errors.location ? 'location-error' : undefined}
           />
@@ -199,7 +199,7 @@ export function SearchBar({ onSearch, isLoading = false }: SearchBarProps) {
             value={checkIn}
             onChange={handleCheckInChange}
             disabled={isLoading}
-            className={`w-full px-[16px] py-[14px] text-[16px] font-light border rounded-none focus:outline-none focus:border-[#262626] disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${errors.checkIn ? 'border-[#dc2626]' : 'border-[#e6e6e6] text-[#262626]'}`}
+            className={`w-full px-4 py-3.5 text-[16px] font-light border rounded-none focus:outline-none focus:border-[#262626] disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${errors.checkIn ? 'border-[#dc2626]' : 'border-[#e6e6e6] text-[#262626]'}`}
             aria-invalid={!!errors.checkIn}
             aria-describedby={errors.checkIn ? 'checkin-error' : undefined}
           />
@@ -222,7 +222,7 @@ export function SearchBar({ onSearch, isLoading = false }: SearchBarProps) {
             onChange={handleCheckOutChange}
             disabled={isLoading}
             min={minCheckOutDate}
-            className={`w-full px-[16px] py-[14px] text-[16px] font-light border rounded-none focus:outline-none focus:border-[#262626] disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${errors.checkOut ? 'border-[#dc2626]' : 'border-[#e6e6e6] text-[#262626]'}`}
+            className={`w-full px-4 py-3.5 text-[16px] font-light border rounded-none focus:outline-none focus:border-[#262626] disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${errors.checkOut ? 'border-[#dc2626]' : 'border-[#e6e6e6] text-[#262626]'}`}
             aria-invalid={!!errors.checkOut}
             aria-describedby={errors.checkOut ? 'checkout-error' : undefined}
           />
@@ -243,7 +243,7 @@ export function SearchBar({ onSearch, isLoading = false }: SearchBarProps) {
             value={guests}
             onChange={(e) => setGuests(parseInt(e.target.value))}
             disabled={isLoading}
-            className={`w-full px-[16px] py-[14px] text-[16px] font-light border rounded-none focus:outline-none focus:border-[#262626] disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${errors.guests ? 'border-[#dc2626]' : 'border-[#e6e6e6] text-[#262626]'}`}
+            className={`w-full px-4 py-3.5 text-[16px] font-light border rounded-none focus:outline-none focus:border-[#262626] disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${errors.guests ? 'border-[#dc2626]' : 'border-[#e6e6e6] text-[#262626]'}`}
             aria-invalid={!!errors.guests}
             aria-describedby={errors.guests ? 'guests-error' : undefined}
           >
@@ -264,7 +264,7 @@ export function SearchBar({ onSearch, isLoading = false }: SearchBarProps) {
       <button
         type="submit"
         disabled={isLoading}
-        className="w-full flex items-center justify-center gap-2 px-[32px] py-[14px] bg-[#1c69d4] hover:bg-[#0653b6] text-[#ffffff] font-bold text-[14px] uppercase tracking-[1.5px] rounded-none transition-colors disabled:opacity-70 disabled:cursor-not-allowed focus:outline-none h-[48px]"
+        className="w-full flex items-center justify-center gap-2 px-8 py-3.5 bg-[#1c69d4] hover:bg-[#0653b6] text-[#ffffff] font-bold text-[14px] uppercase tracking-[1.5px] rounded-none transition-colors disabled:opacity-70 disabled:cursor-not-allowed focus:outline-none h-[48px]"
       >
         {isLoading ? 'PESQUISANDO...' : 'PESQUISAR PROPRIEDADES'}
       </button>

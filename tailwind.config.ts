@@ -92,14 +92,7 @@ const config: any = {
         'widest': '1.5px',
         'ultra-wide': '2px',
       },
-      spacing: {
-        'micro': '4px',
-        'small': '8px',
-        'medium': '16px',
-        'large': '24px',
-        'xl': '32px',
-        '2xl': '64px',
-      },
+      // spacing uses Tailwind numeric scale (1 unit = 4px): p-1=4px, p-2=8px, p-4=16px, p-6=24px, p-8=32px
       borderRadius: {
         // Semantic scale: none(0) → xs(4) → sm(8) → md(12) → lg(16) → xl(24) → 2xl(32) → full
         'none': '0',

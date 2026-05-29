@@ -295,33 +295,33 @@ export function BookingPageClient({ orgSlug, orgName, orgLogoUrl, publicProfile,
           templateType={template.template_type}
         />
       ) : (
-        <div className="bg-[#ffffff] px-6 py-[48px] border-b border-[#e6e6e6]">
+        <div className="bg-[#ffffff] px-6 py-12 border-b border-[#e6e6e6]">
           <div className="max-w-[1440px] mx-auto">
-            <h1 className="text-[32px] md:text-[48px] font-bold text-[#262626] leading-[1.1] mb-[16px]">{title}</h1>
+            <h1 className="text-[32px] md:text-[48px] font-bold text-[#262626] leading-[1.1] mb-4">{title}</h1>
             <p className="text-[16px] font-light text-[#3c3c3c] leading-[1.55]">{subtitle}</p>
-            <div className="w-[48px] h-[4px] bg-[#1c69d4] mt-[24px]"></div>
+            <div className="w-[48px] h-[4px] bg-[#1c69d4] mt-6"></div>
           </div>
         </div>
       )}
 
       {/* Search Bar container */}
-      <div className="bg-[#ffffff] border-b border-[#e6e6e6] px-6 py-[32px]">
+      <div className="bg-[#ffffff] border-b border-[#e6e6e6] px-6 py-8">
         <div className="max-w-[1440px] mx-auto">
           <SearchBar onSearch={handleSearch} isLoading={isLoading} />
         </div>
       </div>
 
       {error && (
-        <div className="bg-[#1a2129] border border-[#dc2626] px-6 py-4 mx-6 mt-[24px] max-w-[1440px] xl:mx-auto rounded-none">
+        <div className="bg-[#1a2129] border border-[#dc2626] px-6 py-4 mx-6 mt-6 max-w-[1440px] xl:mx-auto rounded-none">
           <p className="text-[#dc2626] font-bold text-[14px] uppercase tracking-[0.5px] mb-1">Erro</p>
           <p className="text-[#ffffff] text-[14px] font-light">{error}</p>
         </div>
       )}
 
       {/* Content */}
-      <div className="px-6 py-[48px]">
+      <div className="px-6 py-12">
         <div className="max-w-[1440px] mx-auto">
-          <div className="flex flex-col lg:flex-row gap-[48px]">
+          <div className="flex flex-col lg:flex-row gap-12">
             <div className="hidden lg:block w-[300px] flex-shrink-0">
               <PropertyFilters
                 onFilterChange={handleFilterChange}
@@ -330,7 +330,7 @@ export function BookingPageClient({ orgSlug, orgName, orgLogoUrl, publicProfile,
               />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="lg:hidden mb-[32px]">
+              <div className="lg:hidden mb-8">
                 <PropertyFilters
                   onFilterChange={handleFilterChange}
                   isLoading={isLoading}

@@ -53,7 +53,7 @@ export function PropertyCard({
       data-testid={`property-card-${id}`}
     >
       {/* Image Container */}
-      <div className="relative w-full aspect-[4/3] bg-[#fafafa] overflow-hidden flex items-center justify-center p-[4px]">
+      <div className="relative w-full aspect-[4/3] bg-[#fafafa] overflow-hidden flex items-center justify-center p-1">
         {image ? (
           <Image
             src={image}
@@ -68,16 +68,16 @@ export function PropertyCard({
           <div className="text-[#9a9a9a] text-[32px]">🏠</div>
         )}
         {isFeatured && (
-          <div className="absolute top-4 left-4 bg-[#1a2129] text-[#ffffff] px-[12px] py-[6px] rounded-none text-[10px] font-bold uppercase tracking-[1.5px]">
+          <div className="absolute top-4 left-4 bg-[#1a2129] text-[#ffffff] px-3 py-1.5 rounded-none text-[10px] font-bold uppercase tracking-[1.5px]">
             Destaque
           </div>
         )}
       </div>
 
       {/* Content Container */}
-      <div className="p-[24px] flex flex-col flex-1">
+      <div className="p-6 flex flex-col flex-1">
         {/* Title + Location */}
-        <div className="mb-[16px]">
+        <div className="mb-4">
           <h3 className="font-bold text-[18px] text-[#262626] line-clamp-2 leading-[1.4] mb-1">
             {name}
           </h3>
@@ -87,14 +87,14 @@ export function PropertyCard({
         </div>
 
         {/* Specs */}
-        <div className="flex gap-[16px] text-[14px] font-light text-[#3c3c3c] flex-wrap mb-[16px]">
+        <div className="flex gap-4 text-[14px] font-light text-[#3c3c3c] flex-wrap mb-4">
           <span className="flex items-center gap-1">👥 {maxGuests}</span>
           <span className="flex items-center gap-1">🛏️ {bedrooms}</span>
           <span className="flex items-center gap-1">🚿 {bathrooms}</span>
         </div>
 
         {/* Price + Rating */}
-        <div className="flex items-end justify-between pt-[16px] border-t border-[#e6e6e6] flex-row mt-auto">
+        <div className="flex items-end justify-between pt-4 border-t border-[#e6e6e6] flex-row mt-auto">
           <div>
             <p className="text-[24px] font-bold text-[#262626] leading-[1.1]">
               {currencySymbol}{price}
@@ -114,7 +114,7 @@ export function PropertyCard({
         </div>
 
         {/* CTA Button */}
-        <div className="mt-[24px]">
+        <div className="mt-6">
           <Link
             href={href}
             className="w-full bg-lodgra-blue hover:bg-[#162d6e] text-[13px] rounded-none font-bold uppercase tracking-[1.5px] transition-colors h-[48px] flex items-center justify-center"

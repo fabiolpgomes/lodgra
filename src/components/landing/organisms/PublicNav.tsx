@@ -97,7 +97,7 @@ export const PublicNav: React.FC<PublicNavProps> = ({ variant = 'light', compact
 
           <Link
             href="/pricing"
-            className={`bg-lodgra-accent text-lodgra-blue rounded-none uppercase font-black text-[14px] tracking-[1px] px-[32px] h-[48px] flex items-center justify-center hover:bg-[#e6ac00] transition-colors`}
+            className={`bg-lodgra-accent text-lodgra-blue rounded-none uppercase font-black text-[14px] tracking-[1px] px-8 h-[48px] flex items-center justify-center hover:bg-[#e6ac00] transition-colors`}
           >
             Ver Planos
           </Link>

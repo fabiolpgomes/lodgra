@@ -17,7 +17,7 @@ function PropertyCardSkeleton() {
       rounded-none
       border border-[#e6e6e6]
       bg-[#ffffff]
-      p-[24px]
+      p-6
       h-full
       animate-pulse
       flex flex-col
@@ -27,14 +27,14 @@ function PropertyCardSkeleton() {
         aspect-[4/3]
         bg-[#fafafa]
         rounded-none
-        mb-[24px]
+        mb-6
       " />
       <div className="space-y-4 flex-1">
         <div className="h-[24px] bg-[#f7f7f7] rounded-none w-3/4" />
         <div className="h-[16px] bg-[#f7f7f7] rounded-none w-1/2" />
         <div className="h-[16px] bg-[#f7f7f7] rounded-none w-2/3" />
       </div>
-      <div className="pt-[24px] space-y-4 mt-auto border-t border-[#e6e6e6]">
+      <div className="pt-6 space-y-4 mt-auto border-t border-[#e6e6e6]">
         <div className="h-[24px] bg-[#f7f7f7] rounded-none w-1/3" />
         <div className="h-[48px] bg-[#f7f7f7] rounded-none w-full" />
       </div>
@@ -60,8 +60,8 @@ function PaginationButton({
       aria-label={typeof page === 'number' ? `Página ${page}` : `${page}`}
       aria-current={isActive ? 'page' : undefined}
       className={`
-        px-[16px]
-        py-[12px]
+        px-4
+        py-3
         rounded-none
         font-bold
         text-[14px]
@@ -118,7 +118,7 @@ export function PropertyGrid({
           grid-cols-1
           md:grid-cols-2
           xl:grid-cols-3
-          gap-[24px]
+          gap-6
         ">
           {Array.from({ length: 12 }).map((_, i) => (
             <PropertyCardSkeleton key={`skeleton-${i}`} />
@@ -131,7 +131,7 @@ export function PropertyGrid({
             grid-cols-1
             md:grid-cols-2
             xl:grid-cols-3
-            gap-[24px]
+            gap-6
           ">
             {properties.map((property) => (
               <PropertyCard
@@ -145,15 +145,15 @@ export function PropertyGrid({
           {totalPages > 1 && (
             <nav
               className="
-                mt-[48px]
+                mt-12
                 flex
                 flex-col
                 items-center
-                gap-[24px]
+                gap-6
               "
               aria-label="Paginação"
             >
-              <div className="flex gap-[8px] flex-wrap justify-center">
+              <div className="flex gap-2 flex-wrap justify-center">
                 {/* Previous Button */}
                 <PaginationButton
                   page="←"
@@ -204,19 +204,19 @@ export function PropertyGrid({
           flex-col
           items-center
           justify-center
-          py-[96px]
+          py-24
           text-center
           bg-[#ffffff]
           border
           border-[#e6e6e6]
           rounded-none
         ">
-          <div className="text-[48px] mb-[24px]">🔍</div>
+          <div className="text-[48px] mb-6">🔍</div>
           <h3 className="
             text-[24px]
             font-bold
             text-[#262626]
-            mb-[16px]
+            mb-4
           ">
             Nenhuma propriedade encontrada
           </h3>

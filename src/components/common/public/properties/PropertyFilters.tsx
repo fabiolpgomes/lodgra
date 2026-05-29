@@ -35,7 +35,7 @@ const PROPERTY_TYPES = [
   { id: 'cottage', label: 'Chalé', value: 'cottage' },
 ]
 
-const inputClass = 'w-full px-[16px] py-[14px] text-[16px] font-light border border-[#e6e6e6] rounded-none focus:outline-none focus:border-[#262626] disabled:opacity-50 disabled:cursor-not-allowed text-[#262626]'
+const inputClass = 'w-full px-4 py-3.5 text-[16px] font-light border border-[#e6e6e6] rounded-none focus:outline-none focus:border-[#262626] disabled:opacity-50 disabled:cursor-not-allowed text-[#262626]'
 
 function FilterContent({ filters, onFiltersChange, onClose, isLoading }: {
   filters: FilterState
@@ -80,7 +80,7 @@ function FilterContent({ filters, onFiltersChange, onClose, isLoading }: {
   }
 
   return (
-    <div className="space-y-[32px]">
+    <div className="space-y-8">
       {/* Location */}
       <div>
         <label htmlFor="location-filter" className="block text-[12px] font-bold text-[#6b6b6b] uppercase tracking-[0.5px] mb-2">
@@ -112,7 +112,7 @@ function FilterContent({ filters, onFiltersChange, onClose, isLoading }: {
             onBlur={handlePriceMinBlur}
             disabled={isLoading}
             min="0"
-            className="w-0 flex-1 px-[16px] py-[14px] text-[16px] font-light border border-[#e6e6e6] rounded-none focus:outline-none focus:border-[#262626] disabled:opacity-50 text-[#262626]"
+            className="w-0 flex-1 px-4 py-3.5 text-[16px] font-light border border-[#e6e6e6] rounded-none focus:outline-none focus:border-[#262626] disabled:opacity-50 text-[#262626]"
             aria-label="Preço mínimo"
           />
           <input
@@ -123,7 +123,7 @@ function FilterContent({ filters, onFiltersChange, onClose, isLoading }: {
             onBlur={handlePriceMaxBlur}
             disabled={isLoading}
             min="0"
-            className="w-0 flex-1 px-[16px] py-[14px] text-[16px] font-light border border-[#e6e6e6] rounded-none focus:outline-none focus:border-[#262626] disabled:opacity-50 text-[#262626]"
+            className="w-0 flex-1 px-4 py-3.5 text-[16px] font-light border border-[#e6e6e6] rounded-none focus:outline-none focus:border-[#262626] disabled:opacity-50 text-[#262626]"
             aria-label="Preço máximo"
           />
         </div>
@@ -175,11 +175,11 @@ function FilterContent({ filters, onFiltersChange, onClose, isLoading }: {
       </div>
 
       {/* Reset Button */}
-      <div className="pt-[16px] border-t border-[#e6e6e6]">
+      <div className="pt-4 border-t border-[#e6e6e6]">
         <button
           onClick={handleReset}
           disabled={isLoading}
-          className="w-full py-[14px] px-[32px] text-[13px] font-bold uppercase tracking-[1.5px] text-[#262626] border border-[#e6e6e6] rounded-none hover:bg-[#fafafa] hover:border-[#262626] transition-colors disabled:opacity-50 h-[48px]"
+          className="w-full py-3.5 px-8 text-[13px] font-bold uppercase tracking-[1.5px] text-[#262626] border border-[#e6e6e6] rounded-none hover:bg-[#fafafa] hover:border-[#262626] transition-colors disabled:opacity-50 h-[48px]"
         >
           LIMPAR FILTROS
         </button>
@@ -224,7 +224,7 @@ export function PropertyFilters({
 
         {isMobileOpen && (
           <div
-            className="fixed bottom-0 left-0 right-0 z-50 bg-[#ffffff] rounded-none p-[24px] space-y-[24px] max-h-[90vh] overflow-y-auto border-t border-[#e6e6e6]"
+            className="fixed bottom-0 left-0 right-0 z-50 bg-[#ffffff] rounded-none p-6 space-y-6 max-h-[90vh] overflow-y-auto border-t border-[#e6e6e6]"
             role="dialog"
             aria-modal="true"
             aria-labelledby="mobile-filters-title"
@@ -251,8 +251,8 @@ export function PropertyFilters({
 
       {/* Desktop: Sidebar */}
       <aside className="hidden lg:block w-full flex-shrink-0 sticky top-[96px] h-fit">
-        <div className="bg-[#ffffff] rounded-none border border-[#e6e6e6] p-[32px]">
-          <div className="flex items-center justify-between mb-[32px] pb-[16px] border-b border-[#e6e6e6]">
+        <div className="bg-[#ffffff] rounded-none border border-[#e6e6e6] p-8">
+          <div className="flex items-center justify-between mb-8 pb-4 border-b border-[#e6e6e6]">
             <h2 className="text-[20px] font-bold text-[#262626]">Filtros</h2>
             {resultCount !== undefined && (
               <span className="text-[10px] font-bold text-[#6b6b6b] uppercase tracking-[1.5px]">
