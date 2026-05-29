@@ -54,8 +54,8 @@ export default function CleanerAuthPage() {
           throw new Error(data.error || 'Falha na autenticação');
         }
 
-        // Redirect to dashboard
-        router.push('/cleaner/dashboard');
+        // Redirect to dashboard with locale
+        router.push('/pt-BR/cleaner/dashboard');
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Erro desconhecido';
         setError(message);
