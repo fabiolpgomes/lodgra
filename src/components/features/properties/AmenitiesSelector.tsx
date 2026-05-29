@@ -107,10 +107,10 @@ export function AmenitiesSelector({ propertyId }: AmenitiesSelectorProps) {
                 return (
                   <label
                     key={amenity.id}
-                    className={`flex items-center gap-2 p-2 rounded-md border cursor-pointer transition-colors select-none ${
+                    className={`flex items-center gap-2 p-2 rounded-md border cursor-pointer transition-all select-none active:scale-95 ${
                       checked
-                        ? 'border-brand-500 bg-brand-50 text-brand-800'
-                        : 'border-gray-200 hover:border-gray-300 text-gray-700'
+                        ? 'border-brand-600 bg-brand-600 text-white shadow-sm'
+                        : 'border-gray-200 bg-white text-gray-700 hover:border-brand-400 hover:bg-brand-50'
                     }`}
                   >
                     <input
@@ -121,6 +121,11 @@ export function AmenitiesSelector({ propertyId }: AmenitiesSelectorProps) {
                     />
                     <AmenityIcon name={amenity.icon} className="h-4 w-4 shrink-0" />
                     <span className="text-xs font-medium leading-tight">{amenity.name}</span>
+                    {checked && (
+                      <svg className="ml-auto h-3.5 w-3.5 shrink-0" viewBox="0 0 12 12" fill="none">
+                        <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    )}
                   </label>
                 )
               })}

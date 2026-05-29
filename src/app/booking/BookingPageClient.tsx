@@ -182,31 +182,34 @@ export function BookingPageClient({ orgSlug, orgName, orgLogoUrl, publicProfile,
         </div>
       </header>
 
-      {/* ── Hero — compact on mobile ───────────────────────── */}
+      {/* ── Hero + Search — integrated section ───────────────── */}
       {template && !templateLoading ? (
-        <TemplateHero
-          headline={template.booking_headline}
-          subtitle={template.booking_subtitle}
-          description={template.booking_description}
-          heroImageUrl={template.hero_image_url}
-          templateType={template.template_type}
-        />
+        <>
+          <TemplateHero
+            headline={template.booking_headline}
+            subtitle={template.booking_subtitle}
+            description={template.booking_description}
+            heroImageUrl={template.hero_image_url}
+            templateType={template.template_type}
+          />
+          <div className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4 sm:py-6">
+            <div className="max-w-[1440px] mx-auto">
+              <SearchBar onSearch={handleSearch} isLoading={isLoading} hideLocation={!!orgSlug} />
+            </div>
+          </div>
+        </>
       ) : (
-        <div className="bg-white px-4 sm:px-6 py-6 sm:py-12 border-b border-gray-200">
+        <div className="bg-white border-b border-gray-200 px-4 sm:px-6 pt-6 sm:pt-12 pb-6 sm:pb-10">
           <div className="max-w-[1440px] mx-auto">
-            <h1 className="text-2xl sm:text-[48px] font-bold text-gray-900 leading-[1.15] mb-2 sm:mb-4">{title}</h1>
-            <p className="text-sm sm:text-[16px] font-light text-gray-600 leading-[1.55]">{subtitle}</p>
-            <div className="w-10 h-1 bg-brand-600 mt-4 sm:mt-6" />
+            <div className="mb-6 sm:mb-8">
+              <h1 className="text-2xl sm:text-[44px] font-bold text-gray-900 leading-[1.15] mb-2 sm:mb-3">{title}</h1>
+              <p className="text-sm sm:text-[16px] font-light text-gray-600 leading-[1.55]">{subtitle}</p>
+              <div className="w-10 h-1 bg-brand-600 mt-3 sm:mt-5" />
+            </div>
+            <SearchBar onSearch={handleSearch} isLoading={isLoading} hideLocation={!!orgSlug} />
           </div>
         </div>
       )}
-
-      {/* ── Search ─────────────────────────────────────────── */}
-      <div className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4 sm:py-8">
-        <div className="max-w-[1440px] mx-auto">
-          <SearchBar onSearch={handleSearch} isLoading={isLoading} hideLocation={!!orgSlug} />
-        </div>
-      </div>
 
       {/* ── Contact bar — collapsed on mobile ─────────────── */}
       {hasPublicContact && publicProfile && contactLinks.length > 0 && (

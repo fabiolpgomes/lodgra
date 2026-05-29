@@ -13,41 +13,22 @@ export interface PropertyGridProps {
 
 function PropertyCardSkeleton() {
   return (
-    <div className="
-      rounded-none
-      border border-[#e6e6e6]
-      bg-[#ffffff]
-      p-6
-      h-full
-      animate-pulse
-      flex flex-col
-    ">
-      <div className="
-        w-full
-        aspect-[4/3]
-        bg-[#fafafa]
-        rounded-none
-        mb-6
-      " />
-      <div className="space-y-4 flex-1">
-        <div className="h-[24px] bg-[#f7f7f7] rounded-none w-3/4" />
-        <div className="h-[16px] bg-[#f7f7f7] rounded-none w-1/2" />
-        <div className="h-[16px] bg-[#f7f7f7] rounded-none w-2/3" />
+    <div className="rounded-lg border border-gray-200 bg-white h-full animate-pulse flex flex-col overflow-hidden">
+      <div className="w-full aspect-[4/3] bg-gray-100" />
+      <div className="p-5 space-y-3 flex-1">
+        <div className="h-5 bg-gray-100 rounded w-3/4" />
+        <div className="h-4 bg-gray-100 rounded w-1/2" />
+        <div className="h-4 bg-gray-100 rounded w-2/3" />
       </div>
-      <div className="pt-6 space-y-4 mt-auto border-t border-[#e6e6e6]">
-        <div className="h-[24px] bg-[#f7f7f7] rounded-none w-1/3" />
-        <div className="h-[48px] bg-[#f7f7f7] rounded-none w-full" />
+      <div className="px-5 pb-5 pt-4 border-t border-gray-100 flex items-center justify-between">
+        <div className="h-6 bg-gray-100 rounded w-1/3" />
+        <div className="h-10 bg-gray-100 rounded w-1/4" />
       </div>
     </div>
   )
 }
 
-function PaginationButton({
-  page,
-  isActive,
-  isDisabled,
-  onClick,
-}: {
+function PaginationButton({ page, isActive, isDisabled, onClick }: {
   page: number | string
   isActive: boolean
   isDisabled: boolean
@@ -57,178 +38,73 @@ function PaginationButton({
     <button
       onClick={onClick}
       disabled={isDisabled}
-      aria-label={typeof page === 'number' ? `Página ${page}` : `${page}`}
+      aria-label={typeof page === 'number' ? `Página ${page}` : String(page)}
       aria-current={isActive ? 'page' : undefined}
-      className={`
-        px-4
-        py-3
-        rounded-none
-        font-bold
-        text-[14px]
-        transition-colors
-        min-h-[48px]
-        min-w-[48px]
-        flex
-        items-center
-        justify-center
-        focus:outline-none
-        disabled:opacity-50
-        disabled:cursor-not-allowed
-        border
-        ${
-          isActive
-            ? 'bg-[#1c69d4] text-[#ffffff] border-[#1c69d4]'
-            : 'bg-[#ffffff] text-[#262626] border-[#e6e6e6] hover:bg-[#fafafa] hover:border-[#262626]'
-        }
-      `}
+      className={`h-11 min-w-[44px] px-3 rounded font-bold text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-brand-800 focus:ring-offset-1 disabled:opacity-40 disabled:cursor-not-allowed border
+        ${isActive
+          ? 'bg-brand-800 text-white border-brand-800'
+          : 'bg-white text-gray-900 border-gray-200 hover:border-brand-800 hover:text-brand-800'
+        }`}
     >
       {page}
     </button>
   )
 }
 
-export function PropertyGrid({
-  properties,
-  isLoading,
-  currentPage,
-  totalPages,
-  onPageChange,
-}: PropertyGridProps) {
+const gridClass = 'grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 sm:gap-6'
+
+export function PropertyGrid({ properties, isLoading, currentPage, totalPages, onPageChange }: PropertyGridProps) {
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }, [currentPage])
 
   const handlePageChange = (page: number) => {
-    if (page !== currentPage && page > 0 && page <= totalPages) {
-      onPageChange(page)
-    }
+    if (page !== currentPage && page > 0 && page <= totalPages) onPageChange(page)
   }
 
-  const prevPage = currentPage - 1
-  const nextPage = currentPage + 1
   const canPrevious = currentPage > 1
   const canNext = currentPage < totalPages
 
+  if (isLoading) {
+    return (
+      <div className={gridClass}>
+        {Array.from({ length: 12 }).map((_, i) => <PropertyCardSkeleton key={`skeleton-${i}`} />)}
+      </div>
+    )
+  }
+
+  if (!properties.length) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-center bg-white border border-gray-200 rounded-lg">
+        <div className="text-5xl mb-5">🔍</div>
+        <h3 className="text-xl font-bold text-gray-900 mb-3">Nenhuma propriedade encontrada</h3>
+        <p className="text-base text-gray-600 font-light max-w-sm">
+          Tente ajustar os filtros ou pesquisar por outra data
+        </p>
+      </div>
+    )
+  }
+
   return (
     <div className="flex-1">
-      {/* Grid */}
-      {isLoading ? (
-        <div className="
-          grid
-          grid-cols-1
-          md:grid-cols-2
-          xl:grid-cols-3
-          gap-6
-        ">
-          {Array.from({ length: 12 }).map((_, i) => (
-            <PropertyCardSkeleton key={`skeleton-${i}`} />
-          ))}
-        </div>
-      ) : properties.length > 0 ? (
-        <>
-          <div className="
-            grid
-            grid-cols-1
-            md:grid-cols-2
-            xl:grid-cols-3
-            gap-6
-          ">
-            {properties.map((property) => (
-              <PropertyCard
-                key={property.id}
-                {...property}
-              />
-            ))}
+      <div className={gridClass}>
+        {properties.map(property => <PropertyCard key={property.id} {...property} />)}
+      </div>
+
+      {totalPages > 1 && (
+        <nav className="mt-10 flex flex-col items-center gap-4" aria-label="Paginação">
+          <div className="flex gap-1.5 flex-wrap justify-center">
+            <PaginationButton page="←" isActive={false} isDisabled={!canPrevious} onClick={() => handlePageChange(currentPage - 1)} />
+            {Array.from({ length: totalPages }).map((_, i) => {
+              const p = i + 1
+              return <PaginationButton key={p} page={p} isActive={p === currentPage} isDisabled={false} onClick={() => handlePageChange(p)} />
+            })}
+            <PaginationButton page="→" isActive={false} isDisabled={!canNext} onClick={() => handlePageChange(currentPage + 1)} />
           </div>
-
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <nav
-              className="
-                mt-12
-                flex
-                flex-col
-                items-center
-                gap-6
-              "
-              aria-label="Paginação"
-            >
-              <div className="flex gap-2 flex-wrap justify-center">
-                {/* Previous Button */}
-                <PaginationButton
-                  page="←"
-                  isActive={false}
-                  isDisabled={!canPrevious}
-                  onClick={() => handlePageChange(prevPage)}
-                />
-
-                {/* Page Numbers */}
-                {Array.from({ length: totalPages }).map((_, i) => {
-                  const pageNum = i + 1
-                  return (
-                    <PaginationButton
-                      key={pageNum}
-                      page={pageNum}
-                      isActive={pageNum === currentPage}
-                      isDisabled={false}
-                      onClick={() => handlePageChange(pageNum)}
-                    />
-                  )
-                })}
-
-                {/* Next Button */}
-                <PaginationButton
-                  page="→"
-                  isActive={false}
-                  isDisabled={!canNext}
-                  onClick={() => handlePageChange(nextPage)}
-                />
-              </div>
-
-              {/* Current Page Info */}
-              <p className="
-                text-[12px]
-                text-[#9a9a9a]
-                font-bold
-                uppercase
-                tracking-[0.5px]
-              ">
-                Página {currentPage} de {totalPages}
-              </p>
-            </nav>
-          )}
-        </>
-      ) : (
-        <div className="
-          flex
-          flex-col
-          items-center
-          justify-center
-          py-24
-          text-center
-          bg-[#ffffff]
-          border
-          border-[#e6e6e6]
-          rounded-none
-        ">
-          <div className="text-[48px] mb-6">🔍</div>
-          <h3 className="
-            text-[24px]
-            font-bold
-            text-[#262626]
-            mb-4
-          ">
-            Nenhuma propriedade encontrada
-          </h3>
-          <p className="
-            text-[16px]
-            text-[#6b6b6b]
-            font-light
-            max-w-[400px]
-          ">
-            Tente ajustar seus filtros ou pesquisar por outra localização
+          <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider">
+            Página {currentPage} de {totalPages}
           </p>
-        </div>
+        </nav>
       )}
     </div>
   )
