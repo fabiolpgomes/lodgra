@@ -51,7 +51,8 @@ function PaginationButton({ page, isActive, isDisabled, onClick }: {
   )
 }
 
-const gridClass = 'grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 sm:gap-6'
+// Mobile: 1 col cards | Tablet: 2 col cards | Desktop: 1 col horizontal list
+const gridClass = 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 gap-4 sm:gap-5 md:gap-4'
 
 export function PropertyGrid({ properties, isLoading, currentPage, totalPages, onPageChange }: PropertyGridProps) {
   useEffect(() => {
