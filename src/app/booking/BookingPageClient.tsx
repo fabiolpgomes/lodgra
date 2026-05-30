@@ -10,6 +10,7 @@ import { PropertyFilters, type FilterState } from '@/components/common/public/pr
 import { PropertyGrid } from '@/components/common/public/properties/PropertyGrid'
 import { TemplateHero } from '@/components/booking/TemplateHero'
 import type { PropertyCardProps } from '@/components/common/public/properties/PropertyCard'
+import { InstallPromptButton } from '@/components/booking/InstallPromptButton'
 
 interface TemplateConfig {
   booking_headline: string
@@ -188,6 +189,13 @@ export function BookingPageClient({ orgSlug, orgName, orgLogoUrl, publicProfile,
           )}
         </div>
       </header>
+
+      {/* Install App Button — centered */}
+      <div className="bg-white border-b border-gray-100 py-3">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 flex justify-center">
+          <InstallPromptButton orgName={orgName} />
+        </div>
+      </div>
 
       {/* ── Hero + Search — integrated section ───────────────── */}
       {template && !templateLoading ? (
