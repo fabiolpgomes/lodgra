@@ -22,6 +22,7 @@ import { PropertyTrustBadges } from './layout/PropertyTrustBadges'
 import { LazyPropertyLightbox } from '@/components/common/lazy/LazyPublic'
 import { SimilarProperties } from '@/components/properties/SimilarProperties'
 import { InstallPromptButton } from '@/components/booking/InstallPromptButton'
+import { Logo } from '@/components/common/ui/Logo'
 import type { SimilarProperty } from '@/lib/supabase/properties'
 
 interface PricingRule {
@@ -100,9 +101,10 @@ export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, 
 
   return (
     <>
-      {/* Top Header — with org info (similar to booking page) */}
+      {/* Top Header — matching booking page style */}
       <header className="sticky top-0 z-20 border-b border-gray-200 bg-white">
-        <div className="max-w-7xl mx-auto px-4 md:px-6 py-3 flex items-center justify-center">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 py-3 flex items-center justify-between">
+          <Logo size="md" />
           <span className="text-[14px] font-semibold text-gray-900">{orgName || 'Lodgra'}</span>
         </div>
       </header>
@@ -112,6 +114,53 @@ export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, 
         <div className="bg-white border-b border-gray-100 py-4">
           <div className="max-w-7xl mx-auto px-4 md:px-6 flex justify-center">
             <InstallPromptButton orgName={orgName} />
+          </div>
+        </div>
+      )}
+
+      {/* Contact Bar — "Fale Directamente" section */}
+      {hasContact && publicProfile && (
+        <div className="bg-gray-50 border-b border-gray-200 py-6">
+          <div className="max-w-7xl mx-auto px-4 md:px-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="min-w-0">
+                <p className="text-[14px] font-bold uppercase tracking-[1.2px] text-gray-900">
+                  Fale directamente com {orgName ?? 'a empresa'}
+                </p>
+                {publicProfile.public_contact_message && (
+                  <p className="mt-1 text-[13px] font-light leading-[1.5] text-gray-600">
+                    {publicProfile.public_contact_message}
+                  </p>
+                )}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {whatsappHref && (
+                  <a href={whatsappHref} target="_blank" rel="noreferrer" className={contactBtnClass}>
+                    <MessageCircle className="h-4 w-4" /><span>WhatsApp</span>
+                  </a>
+                )}
+                {publicProfile.contact_email && (
+                  <a href={`mailto:${publicProfile.contact_email}`} className={contactBtnClass}>
+                    <Mail className="h-4 w-4" /><span>Email</span>
+                  </a>
+                )}
+                {phoneHref && (
+                  <a href={phoneHref} className={contactBtnClass}>
+                    <Phone className="h-4 w-4" /><span>Telefone</span>
+                  </a>
+                )}
+                {publicProfile.website_url && (
+                  <a href={publicProfile.website_url} target="_blank" rel="noreferrer" className={contactBtnClass}>
+                    <ExternalLink className="h-4 w-4" /><span>Site</span>
+                  </a>
+                )}
+                {publicProfile.instagram_url && (
+                  <a href={publicProfile.instagram_url} target="_blank" rel="noreferrer" className={contactBtnClass}>
+                    <ExternalLink className="h-4 w-4" /><span>Instagram</span>
+                  </a>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -223,51 +272,6 @@ export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, 
               <PropertyReviewCards featuredReviews={featuredReviews} />
               <PropertyLocation address={property.address || ''} city={property.city || ''} country={property.country || ''} />
 
-              {/* Contact bar — item 3 */}
-              {hasContact && publicProfile && (
-                <div className="border border-gray-200 rounded-xl p-5 bg-white">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div className="min-w-0">
-                      <p className="text-[13px] font-bold uppercase tracking-[1.4px] text-gray-900">
-                        Fale directamente com {orgName ?? 'a empresa'}
-                      </p>
-                      {(publicProfile.public_contact_message || locationText) && (
-                        <p className="mt-1 text-[13px] font-light leading-[1.5] text-gray-600">
-                          {publicProfile.public_contact_message || locationText}
-                          {publicProfile.public_contact_message && locationText ? ` · ${locationText}` : ''}
-                        </p>
-                      )}
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {whatsappHref && (
-                        <a href={whatsappHref} target="_blank" rel="noreferrer" className={contactBtnClass}>
-                          <MessageCircle className="h-4 w-4" /><span>WhatsApp</span>
-                        </a>
-                      )}
-                      {publicProfile.contact_email && (
-                        <a href={`mailto:${publicProfile.contact_email}`} className={contactBtnClass}>
-                          <Mail className="h-4 w-4" /><span>Email</span>
-                        </a>
-                      )}
-                      {phoneHref && (
-                        <a href={phoneHref} className={contactBtnClass}>
-                          <Phone className="h-4 w-4" /><span>Telefone</span>
-                        </a>
-                      )}
-                      {publicProfile.website_url && (
-                        <a href={publicProfile.website_url} target="_blank" rel="noreferrer" className={contactBtnClass}>
-                          <ExternalLink className="h-4 w-4" /><span>Site</span>
-                        </a>
-                      )}
-                      {publicProfile.instagram_url && (
-                        <a href={publicProfile.instagram_url} target="_blank" rel="noreferrer" className={contactBtnClass}>
-                          <ExternalLink className="h-4 w-4" /><span>Instagram</span>
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
 
             {/* RIGHT — sticky booking widget (item 8) */}
