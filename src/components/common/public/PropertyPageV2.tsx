@@ -123,7 +123,7 @@ export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, 
         <div className="bg-gray-50 border-b border-gray-200 py-6">
           <div className="max-w-7xl mx-auto px-4 md:px-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div className="min-w-0">
+              <div className="min-w-0 sm:text-left text-center">
                 <p className="text-[14px] font-bold uppercase tracking-[1.2px] text-gray-900">
                   Fale directamente com {orgName ?? 'a empresa'}
                 </p>
@@ -133,7 +133,7 @@ export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, 
                   </p>
                 )}
               </div>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2 justify-center sm:justify-end w-full sm:w-auto">
                 {whatsappHref && (
                   <a href={whatsappHref} target="_blank" rel="noreferrer" className={contactBtnClass}>
                     <MessageCircle className="h-4 w-4" /><span>WhatsApp</span>
