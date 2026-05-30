@@ -92,7 +92,8 @@ function MonthGrid({ baseDate, today, checkIn, checkOut, hoverDate, blockedRange
           if (isPast || isBlocked) {
             cellClass += 'text-gray-300 cursor-not-allowed '
           } else if (isCI || isCO) {
-            cellClass += 'bg-brand-800 text-white rounded-full font-bold cursor-pointer z-10 '
+            cellClass += 'bg-brand-800 text-white rounded-full font-bold cursor-pointer z-10 shadow-md border-2 border-brand-600 '
+
           } else if (inRange) {
             // Check if range is too short
             const rangeNights = Math.round((parse(checkOut).getTime() - parse(checkIn).getTime()) / 86400000)
@@ -201,15 +202,22 @@ export function AvailabilityCalendar({
         )}
       </div>
 
-      <p className="text-sm text-gray-500 mb-5">
-        {!checkIn && 'Clique numa data de entrada para começar'}
-        {checkIn && !checkOut && 'Agora clique na data de saída'}
-        {checkIn && checkOut && nightsCount && (
-          <span className="text-brand-800 font-medium">
-            {format(parse(checkIn), 'd MMM', { locale: ptBR })} → {format(parse(checkOut), 'd MMM yyyy', { locale: ptBR })} · {nightsCount} {nightsCount === 1 ? 'noite' : 'noites'}
-          </span>
+      <div className="mb-5">
+        <p className="text-sm text-gray-500">
+          {!checkIn && 'Clique numa data de entrada para começar'}
+          {checkIn && !checkOut && 'Agora clique na data de saída'}
+          {checkIn && checkOut && nightsCount && (
+            <span className="text-brand-800 font-medium">
+              {format(parse(checkIn), 'd MMM', { locale: ptBR })} → {format(parse(checkOut), 'd MMM yyyy', { locale: ptBR })} · {nightsCount} {nightsCount === 1 ? 'noite' : 'noites'}
+            </span>
+          )}
+        </p>
+        {checkIn && checkOut && nightsCount && nightsCount < minNights && (
+          <p className="mt-2 text-[13px] text-amber-700 bg-amber-50 border border-amber-200 rounded px-3 py-2 inline-block">
+            ⚠️ Período mínimo: {minNights} {minNights === 1 ? 'noite' : 'noites'}. Actualmente: {nightsCount} {nightsCount === 1 ? 'noite' : 'noites'}
+          </p>
         )}
-      </p>
+      </div>
 
       {/* Navigation */}
       <div className="flex items-center justify-between mb-4">
