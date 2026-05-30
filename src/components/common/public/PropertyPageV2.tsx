@@ -20,7 +20,6 @@ import { AvailabilityCalendar } from './booking/AvailabilityCalendar'
 import { BookingWidgetMobile } from './booking/BookingWidgetMobile'
 import { PropertyTrustBadges } from './layout/PropertyTrustBadges'
 import { LazyPropertyLightbox } from '@/components/common/lazy/LazyPublic'
-import { Logo } from '@/components/common/ui/Logo'
 import { SimilarProperties } from '@/components/properties/SimilarProperties'
 import { InstallPromptButton } from '@/components/booking/InstallPromptButton'
 import type { SimilarProperty } from '@/lib/supabase/properties'
@@ -103,8 +102,7 @@ export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, 
     <>
       {/* Top Header — with org info (similar to booking page) */}
       <header className="sticky top-0 z-20 border-b border-gray-200 bg-white">
-        <div className="max-w-7xl mx-auto px-4 md:px-6 py-3 flex items-center justify-between">
-          <Logo size="md" />
+        <div className="max-w-7xl mx-auto px-4 md:px-6 py-3 flex items-center justify-center">
           <span className="text-[14px] font-semibold text-gray-900">{orgName || 'Lodgra'}</span>
         </div>
       </header>
@@ -163,7 +161,6 @@ export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, 
 
               {/* Property identity */}
               <div className="flex flex-col items-start gap-2 pb-2">
-                <Logo size="lg" />
                 <h1 className="text-2xl font-bold text-gray-900 leading-tight">{property.name}</h1>
               </div>
 
