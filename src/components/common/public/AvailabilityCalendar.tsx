@@ -237,7 +237,7 @@ export function AvailabilityCalendar({ slug, basePrice, minNights = 1 }: Availab
             </div>
           <a
             href={`/p/${slug}/checkout${checkoutParams}`}
-            className="mt-2 flex w-full items-center justify-center rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-gray-700 transition-colors"
+            className="mt-2 flex w-full items-center justify-center rounded-lg bg-lodgra-cta-bg px-4 py-2.5 text-sm font-semibold text-white hover:bg-lodgra-cta-bg-hover transition-colors"
           >
             Reservar agora
           </a>
