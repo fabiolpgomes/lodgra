@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import { Share2, Check } from 'lucide-react'
 import Link from 'next/link'
-import { Logo } from '@/components/common/ui/Logo'
 
 interface PropertyPageHeaderProps {
   propertyName: string
@@ -70,12 +69,7 @@ export function PropertyPageHeader({
           : 'bg-transparent'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 md:px-6 py-4 flex items-center justify-between">
-        {/* Logo */}
-        <Link href="/" className="hover:opacity-80 transition-opacity">
-          <Logo size="lg" variant={scrolled ? 'default' : 'white'} />
-        </Link>
-
+      <div className="max-w-7xl mx-auto px-4 md:px-6 py-4 flex items-center justify-end">
         {/* Right Actions */}
         <div className="flex items-center gap-3">
           {/* Badge */}
