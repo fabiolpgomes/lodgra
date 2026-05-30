@@ -115,11 +115,11 @@ export function AmenitiesSelector({ propertyId }: AmenitiesSelectorProps) {
                 return (
                   <label
                     key={amenity.id}
-                    className={`flex items-center gap-2 p-2 rounded-md border cursor-pointer transition-all select-none active:scale-95 ${
-                      checked
-                        ? 'border-brand-600 bg-brand-600 text-white shadow-sm'
-                        : 'border-gray-200 bg-white text-gray-700 hover:border-brand-400 hover:bg-brand-50'
-                    }`}
+                    style={checked
+                      ? { backgroundColor: '#3A4FC5', borderColor: '#3A4FC5', color: 'white' }
+                      : { backgroundColor: 'white', borderColor: '#e5e7eb', color: '#374151' }
+                    }
+                    className="flex items-center gap-2 p-2 rounded-md border cursor-pointer transition-all select-none active:scale-95"
                   >
                     <input
                       type="checkbox"
