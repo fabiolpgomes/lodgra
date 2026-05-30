@@ -320,6 +320,99 @@ export function BookingPageClient({ orgSlug, orgName, orgLogoUrl, publicProfile,
           </div>
         </div>
       </div>
+
+      {/* ── Install footer ─────────────────────────────────── */}
+      <footer className="border-t border-gray-200 bg-white px-4 sm:px-6 py-10 sm:py-12 mt-4">
+        <div className="max-w-[1440px] mx-auto">
+          <div className="text-center mb-8">
+            <p className="text-[11px] font-bold uppercase tracking-[1.5px] text-gray-500 mb-2">Acesso rápido</p>
+            <h3 className="text-[20px] sm:text-[24px] font-bold text-gray-900">
+              Instala {orgName || 'esta página'} no teu dispositivo
+            </h3>
+            <p className="text-[14px] text-gray-600 mt-2 max-w-md mx-auto">
+              Acede directamente ao catálogo de propriedades sem abrir o browser.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto">
+            {/* iPhone / iPad */}
+            <div className="border border-gray-200 rounded-xl p-5 flex flex-col gap-3">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">🍎</span>
+                <div>
+                  <p className="font-bold text-[14px] text-gray-900">iPhone / iPad</p>
+                  <p className="text-[12px] text-gray-500">Safari</p>
+                </div>
+              </div>
+              <ol className="space-y-2 text-[13px] text-gray-700">
+                <li className="flex items-start gap-2">
+                  <span className="flex-shrink-0 w-5 h-5 rounded-full bg-brand-50 text-brand-800 text-[11px] font-bold flex items-center justify-center mt-0.5">1</span>
+                  <span>Toca no ícone <strong>Partilhar</strong> <span className="text-brand-800">⎋</span> na barra do Safari</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="flex-shrink-0 w-5 h-5 rounded-full bg-brand-50 text-brand-800 text-[11px] font-bold flex items-center justify-center mt-0.5">2</span>
+                  <span>Selecciona <strong>&ldquo;Adicionar ao ecrã de início&rdquo;</strong></span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="flex-shrink-0 w-5 h-5 rounded-full bg-brand-50 text-brand-800 text-[11px] font-bold flex items-center justify-center mt-0.5">3</span>
+                  <span>Toca em <strong>Adicionar</strong></span>
+                </li>
+              </ol>
+            </div>
+
+            {/* Android */}
+            <div className="border border-gray-200 rounded-xl p-5 flex flex-col gap-3">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">🤖</span>
+                <div>
+                  <p className="font-bold text-[14px] text-gray-900">Android</p>
+                  <p className="text-[12px] text-gray-500">Chrome</p>
+                </div>
+              </div>
+              <ol className="space-y-2 text-[13px] text-gray-700">
+                <li className="flex items-start gap-2">
+                  <span className="flex-shrink-0 w-5 h-5 rounded-full bg-brand-50 text-brand-800 text-[11px] font-bold flex items-center justify-center mt-0.5">1</span>
+                  <span>O banner de instalação aparece <strong>automaticamente</strong> no fundo do ecrã</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="flex-shrink-0 w-5 h-5 rounded-full bg-brand-50 text-brand-800 text-[11px] font-bold flex items-center justify-center mt-0.5">2</span>
+                  <span>Toca em <strong>&ldquo;Instalar&rdquo;</strong></span>
+                </li>
+              </ol>
+              <p className="text-[12px] text-gray-500">Em alternativa: menu <strong>⋮</strong> → &ldquo;Adicionar ao ecrã inicial&rdquo;</p>
+            </div>
+
+            {/* Mac / Windows */}
+            <div className="border border-gray-200 rounded-xl p-5 flex flex-col gap-3">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">💻</span>
+                <div>
+                  <p className="font-bold text-[14px] text-gray-900">Mac / Windows</p>
+                  <p className="text-[12px] text-gray-500">Chrome · Edge · Safari</p>
+                </div>
+              </div>
+              <ol className="space-y-2 text-[13px] text-gray-700">
+                <li className="flex items-start gap-2">
+                  <span className="flex-shrink-0 w-5 h-5 rounded-full bg-brand-50 text-brand-800 text-[11px] font-bold flex items-center justify-center mt-0.5">1</span>
+                  <span><strong>Chrome/Edge:</strong> clica em <strong>⊕</strong> na barra de endereço</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="flex-shrink-0 w-5 h-5 rounded-full bg-brand-50 text-brand-800 text-[11px] font-bold flex items-center justify-center mt-0.5">2</span>
+                  <span><strong>Safari Mac:</strong> menu <strong>Arquivo</strong> → &ldquo;Adicionar ao Dock&rdquo;</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="flex-shrink-0 w-5 h-5 rounded-full bg-brand-50 text-brand-800 text-[11px] font-bold flex items-center justify-center mt-0.5">3</span>
+                  <span>Confirma clicando em <strong>Adicionar</strong></span>
+                </li>
+              </ol>
+            </div>
+          </div>
+
+          <p className="text-center text-[12px] text-gray-400 mt-8">
+            Powered by <span className="font-semibold text-gray-600">Lodgra</span>
+          </p>
+        </div>
+      </footer>
     </div>
   )
 }
