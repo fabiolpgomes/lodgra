@@ -61,6 +61,7 @@ export function PropertyCard({
     <div
       className="relative group bg-white rounded-lg border border-gray-200
         hover:shadow-xl hover:border-brand-200 hover:-translate-y-0.5
+        active:scale-[0.99] active:shadow-md
         transition-all duration-200 overflow-hidden flex flex-col md:flex-row"
       data-testid={`property-card-${id}`}
     >
@@ -131,9 +132,9 @@ export function PropertyCard({
           </div>
         )}
 
-        {/* Rating — desktop only, below amenities (item 1) */}
+        {/* Rating — desktop below amenities, mobile below specs (item 1) */}
         {rl && (
-          <div className="hidden md:flex items-center gap-3 mt-3 pt-3 border-t border-gray-100">
+          <div className="flex items-center gap-3 mt-3 pt-3 border-t border-gray-100 md:mt-3">
             <div className="flex items-baseline gap-0.5 leading-none">
               <span className="text-[26px] font-black text-brand-900">{rating!.toFixed(1)}</span>
               <span className="text-[13px] text-gray-400 ml-0.5">/10</span>

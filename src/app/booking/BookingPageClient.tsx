@@ -9,7 +9,6 @@ import { SearchBar, type SearchParams } from '@/components/common/public/propert
 import { PropertyFilters, type FilterState } from '@/components/common/public/properties/PropertyFilters'
 import { PropertyGrid } from '@/components/common/public/properties/PropertyGrid'
 import { TemplateHero } from '@/components/booking/TemplateHero'
-import { InstallPromptButton } from '@/components/booking/InstallPromptButton'
 import type { PropertyCardProps } from '@/components/common/public/properties/PropertyCard'
 
 interface TemplateConfig {
@@ -189,9 +188,6 @@ export function BookingPageClient({ orgSlug, orgName, orgLogoUrl, publicProfile,
           )}
         </div>
       </header>
-
-      {/* Install prompt — Android bottom bar / iOS modal */}
-      <InstallPromptButton orgName={orgName} />
 
       {/* ── Hero + Search — integrated section ───────────────── */}
       {template && !templateLoading ? (

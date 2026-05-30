@@ -22,6 +22,7 @@ import { PropertyTrustBadges } from './layout/PropertyTrustBadges'
 import { LazyPropertyLightbox } from '@/components/common/lazy/LazyPublic'
 import { Logo } from '@/components/common/ui/Logo'
 import { SimilarProperties } from '@/components/properties/SimilarProperties'
+import { InstallPromptButton } from '@/components/booking/InstallPromptButton'
 import type { SimilarProperty } from '@/lib/supabase/properties'
 
 interface PricingRule {
@@ -100,6 +101,23 @@ export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, 
 
   return (
     <>
+      {/* Top Header — with org info (similar to booking page) */}
+      <header className="sticky top-0 z-20 border-b border-gray-200 bg-white">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 py-3 flex items-center justify-between">
+          <Logo size="md" />
+          <span className="text-[14px] font-semibold text-gray-900">{orgName || 'Lodgra'}</span>
+        </div>
+      </header>
+
+      {/* Install App Button — centered */}
+      {orgName && (
+        <div className="bg-white border-b border-gray-100 py-4">
+          <div className="max-w-7xl mx-auto px-4 md:px-6 flex justify-center">
+            <InstallPromptButton orgName={orgName} />
+          </div>
+        </div>
+      )}
+
       {/* Back button (item 6) */}
       <div className="bg-white border-b border-gray-100 px-4 md:px-6 py-2">
         <div className="max-w-7xl mx-auto">
@@ -310,8 +328,8 @@ export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, 
         basePrice={property.base_price || 0}
         currency={currency}
         slug={property.slug}
-        initialCheckIn={initialCheckIn}
-        initialCheckOut={initialCheckOut}
+        initialCheckIn={sharedCheckIn}
+        initialCheckOut={sharedCheckOut}
         initialGuests={initialGuests}
         minNights={minNights}
         maxGuests={property.max_guests ?? undefined}
@@ -321,6 +339,8 @@ export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, 
         cleaningFeeType={cleaningFeeType}
         petFee={petFee}
         petFeeType={petFeeType}
+        externalCheckIn={sharedCheckIn}
+        externalCheckOut={sharedCheckOut}
       />
 
       {/* Lightbox Modal */}

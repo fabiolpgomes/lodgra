@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { differenceInDays, parseISO, isValid, addDays, format, startOfDay, isBefore } from 'date-fns'
 
@@ -36,6 +36,8 @@ interface BookingWidgetMobileProps {
   cleaningFeeType?: string | null
   petFee?: number | null
   petFeeType?: string | null
+  externalCheckIn?: string
+  externalCheckOut?: string
 }
 
 function isDateBlocked(date: string, ranges: BlockedRange[]): boolean {
@@ -61,10 +63,23 @@ export function BookingWidgetMobile({
   cleaningFeeType,
   petFee,
   petFeeType,
+  externalCheckIn,
+  externalCheckOut,
 }: BookingWidgetMobileProps) {
   const [showPanel, setShowPanel] = useState(false)
   const [checkIn, setCheckIn] = useState(initialCheckIn || '')
   const [checkOut, setCheckOut] = useState(initialCheckOut || '')
+  const mountedRef = useRef(false)
+  useEffect(() => {
+    if (!mountedRef.current) { mountedRef.current = true; return }
+    if (externalCheckIn !== undefined) {
+      setCheckIn(externalCheckIn)
+      if (externalCheckIn) setShowPanel(true) // open panel when calendar sets a date
+    }
+  }, [externalCheckIn])
+  useEffect(() => {
+    if (externalCheckOut !== undefined) setCheckOut(externalCheckOut)
+  }, [externalCheckOut])
   const [guests, setGuests] = useState(Math.min(initialGuests, Math.max(1, maxGuests)))
   const [checkInError, setCheckInError] = useState('')
   const [checkOutError, setCheckOutError] = useState('')

@@ -94,7 +94,10 @@ function MonthGrid({ baseDate, today, checkIn, checkOut, hoverDate, blockedRange
           } else if (isCI || isCO) {
             cellClass += 'bg-brand-800 text-white rounded-full font-bold cursor-pointer z-10 '
           } else if (inRange) {
-            cellClass += 'bg-brand-100 text-brand-900 '
+            // Check if range is too short
+            const rangeNights = Math.round((parse(checkOut).getTime() - parse(checkIn).getTime()) / 86400000)
+            const isInvalidRange = rangeNights < minNights
+            cellClass += isInvalidRange ? 'bg-amber-100 text-amber-900 ' : 'bg-brand-100 text-brand-900 '
           } else if (inHover) {
             cellClass += 'bg-brand-50 text-brand-800 '
           } else {
