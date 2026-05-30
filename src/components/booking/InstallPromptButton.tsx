@@ -63,7 +63,6 @@ export function InstallPromptButton({ orgName }: Props) {
 
   if (!visible) return null
 
-  const platform = platformRef.current
   const appName = orgName || 'esta página'
 
   // Android: native install prompt
