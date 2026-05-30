@@ -47,13 +47,29 @@ export async function generateMetadata(): Promise<Metadata> {
   const hdrs = await headers()
   const orgSlug = getOrgSlugFromHeaders(hdrs)
 
+  // PWA manifest dinâmico para todos os tenants (nome, ícone, cor da marca)
+  const pwaBase: Metadata = {
+    manifest: '/api/booking-manifest',
+    appleWebApp: {
+      capable: true,
+      statusBarStyle: 'default',
+      title: 'Lodgra Booking',
+    },
+  }
+
   if (orgSlug !== ALGARVE_HOME_STAY_SLUG) {
-    return {}
+    return pwaBase
   }
 
   return {
+    ...pwaBase,
     title: 'Algarve Home Stay',
     description: ALGARVE_HOME_STAY_DESCRIPTION,
+    appleWebApp: {
+      capable: true,
+      statusBarStyle: 'default',
+      title: 'Algarve Home Stay',
+    },
     alternates: {
       canonical: ALGARVE_HOME_STAY_URL,
     },
@@ -63,14 +79,7 @@ export async function generateMetadata(): Promise<Metadata> {
       title: 'Algarve Home Stay',
       description: ALGARVE_HOME_STAY_DESCRIPTION,
       siteName: 'Algarve Home Stay',
-      images: [
-        {
-          url: ALGARVE_HOME_STAY_IMAGE_URL,
-          width: 1377,
-          height: 768,
-          alt: 'Algarve Home Stay',
-        },
-      ],
+      images: [{ url: ALGARVE_HOME_STAY_IMAGE_URL, width: 1377, height: 768, alt: 'Algarve Home Stay' }],
     },
     twitter: {
       card: 'summary_large_image',

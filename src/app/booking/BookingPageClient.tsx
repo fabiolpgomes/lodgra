@@ -9,6 +9,7 @@ import { SearchBar, type SearchParams } from '@/components/common/public/propert
 import { PropertyFilters, type FilterState } from '@/components/common/public/properties/PropertyFilters'
 import { PropertyGrid } from '@/components/common/public/properties/PropertyGrid'
 import { TemplateHero } from '@/components/booking/TemplateHero'
+import { InstallPromptButton } from '@/components/booking/InstallPromptButton'
 import type { PropertyCardProps } from '@/components/common/public/properties/PropertyCard'
 
 interface TemplateConfig {
@@ -168,6 +169,9 @@ export function BookingPageClient({ orgSlug, orgName, orgLogoUrl, publicProfile,
             <Logo size="sm" />
             <span className="text-[16px] sm:text-[18px] font-bold tracking-tight text-gray-900">LODGRA</span>
           </Link>
+          <div className="hidden sm:flex items-center ml-4">
+            <InstallPromptButton orgName={orgName} />
+          </div>
           {orgName && (
             <div className="ml-3 flex min-w-0 items-center gap-2 sm:gap-4 border-l border-gray-200 pl-3 sm:pl-5">
               {orgLogoUrl && (
@@ -188,6 +192,9 @@ export function BookingPageClient({ orgSlug, orgName, orgLogoUrl, publicProfile,
           )}
         </div>
       </header>
+
+      {/* Install prompt — Android bottom bar / iOS modal */}
+      <InstallPromptButton orgName={orgName} />
 
       {/* ── Hero + Search — integrated section ───────────────── */}
       {template && !templateLoading ? (
