@@ -169,9 +169,6 @@ export function BookingPageClient({ orgSlug, orgName, orgLogoUrl, publicProfile,
             <Logo size="sm" />
             <span className="text-[16px] sm:text-[18px] font-bold tracking-tight text-gray-900">LODGRA</span>
           </Link>
-          <div className="hidden sm:flex items-center ml-4">
-            <InstallPromptButton orgName={orgName} />
-          </div>
           {orgName && (
             <div className="ml-3 flex min-w-0 items-center gap-2 sm:gap-4 border-l border-gray-200 pl-3 sm:pl-5">
               {orgLogoUrl && (

@@ -77,7 +77,7 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
 
   const { data: property } = await supabase
     .from('properties')
-    .select('id, name, description, city, country, address, photos, amenities, max_guests, bedrooms, bathrooms, property_type, slug, base_price, currency, postal_code, is_active, created_at, updated_at, min_nights, cleaning_fee, cleaning_fee_type, pet_fee, pet_fee_type, checkin_from, checkin_until, checkout_until, latitude, longitude')
+    .select('id, name, description, city, country, address, photos, amenities, max_guests, bedrooms, bathrooms, property_type, slug, base_price, currency, postal_code, is_active, created_at, updated_at, min_nights, cleaning_fee, cleaning_fee_type, pet_fee, pet_fee_type, checkin_from, checkin_until, checkout_until, latitude, longitude, organization_id')
     .eq('slug', slug)
     .eq('is_public', true)
     .single()
@@ -292,6 +292,28 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
 
   const featuredReviews = (featuredReviewsRaw ?? []) as PropertyReview[]
 
+  // Load org public profile for contact bar
+  let orgPublicProfile: { contact_email: string | null; contact_phone: string | null; whatsapp_number: string | null; website_url: string | null; instagram_url: string | null; public_contact_message: string | null; address_line: string | null; city: string | null; country: string | null } | null = null
+  let orgName: string | null = null
+
+  if (property.organization_id) {
+    const { data: orgData } = await adminClient
+      .from('organizations')
+      .select('id, name')
+      .eq('id', property.organization_id)
+      .single()
+
+    if (orgData) {
+      orgName = orgData.name ?? null
+      const { data: profileData } = await adminClient
+        .from('organization_public_profile')
+        .select('contact_email, contact_phone, whatsapp_number, website_url, instagram_url, public_contact_message, address_line, city, country')
+        .eq('organization_id', orgData.id)
+        .maybeSingle()
+      orgPublicProfile = profileData ?? null
+    }
+  }
+
   // minNightsError now carries the actual required count (not a boolean flag)
   const minNightsErrorCount = minNightsError ? parseInt(minNightsError) : undefined
 
@@ -346,6 +368,8 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
         reviewScore={reviewScore}
         featuredReviews={featuredReviews}
         similarProperties={similarProperties}
+        orgName={orgName}
+        publicProfile={orgPublicProfile}
       />
     </>
   )

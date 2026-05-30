@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import type { Property } from '@/types/database'
 import Link from 'next/link'
-import { Users, BedDouble, Bath } from 'lucide-react'
+import { Users, BedDouble, Bath, ArrowLeft, ExternalLink, Mail, MessageCircle, Phone } from 'lucide-react'
 import { PropertyPageHeader } from './layout/PropertyPageHeader'
 import { PropertyHeroGallery } from './gallery/PropertyHeroGallery'
 import { PropertyDescription } from './content/PropertyDescription'
@@ -54,9 +54,21 @@ interface PropertyPageV2Props {
   reviewScore?: ReviewScoreData | null
   featuredReviews?: PropertyReview[]
   similarProperties?: SimilarProperty[]
+  orgName?: string | null
+  publicProfile?: {
+    contact_email: string | null
+    contact_phone: string | null
+    whatsapp_number: string | null
+    website_url: string | null
+    instagram_url: string | null
+    public_contact_message: string | null
+    address_line: string | null
+    city: string | null
+    country: string | null
+  } | null
 }
 
-export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, initialCheckOut, initialGuests, minNights = 1, pricingRules = [], structuredAmenities, rooms, bathrooms, minNightsError, datesUnavailable, cleaningFee, cleaningFeeType, petFee, petFeeType, checkinFrom, checkinUntil, checkoutUntil, blockedRanges = [], reviewScore, featuredReviews, similarProperties = [] }: PropertyPageV2Props) {
+export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, initialCheckOut, initialGuests, minNights = 1, pricingRules = [], structuredAmenities, rooms, bathrooms, minNightsError, datesUnavailable, cleaningFee, cleaningFeeType, petFee, petFeeType, checkinFrom, checkinUntil, checkoutUntil, blockedRanges = [], reviewScore, featuredReviews, similarProperties = [], orgName, publicProfile }: PropertyPageV2Props) {
   const [showLightbox, setShowLightbox] = useState(false)
   const [lightboxIndex, setLightboxIndex] = useState(0)
 
@@ -65,8 +77,32 @@ export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, 
     setShowLightbox(true)
   }
 
+  // Contact bar helpers
+  const whatsappHref = publicProfile?.whatsapp_number
+    ? `https://wa.me/${publicProfile.whatsapp_number.replace(/[^\d]/g, '')}`
+    : null
+  const phoneHref = publicProfile?.contact_phone
+    ? `tel:${publicProfile.contact_phone.replace(/[^\d+]/g, '')}`
+    : null
+  const locationText = publicProfile
+    ? [publicProfile.address_line, publicProfile.city, publicProfile.country].filter(Boolean).join(', ')
+    : ''
+  const hasContact = !!(publicProfile?.whatsapp_number || publicProfile?.contact_email ||
+    publicProfile?.contact_phone || publicProfile?.website_url || publicProfile?.instagram_url)
+  const contactBtnClass = 'inline-flex min-h-[44px] items-center gap-2 border border-gray-300 bg-white px-4 text-[12px] font-bold uppercase tracking-[1.2px] text-brand-800 transition-colors hover:border-brand-800 hover:bg-brand-800 hover:text-white'
+
   return (
     <>
+      {/* Back button (item 6) */}
+      <div className="bg-white border-b border-gray-100 px-4 md:px-6 py-2">
+        <div className="max-w-7xl mx-auto">
+          <Link href="/booking" className="inline-flex items-center gap-2 text-[13px] text-brand-800 hover:text-brand-600 font-medium transition-colors min-h-[44px]">
+            <ArrowLeft className="h-4 w-4" />
+            Voltar às propriedades
+          </Link>
+        </div>
+      </div>
+
       <PropertyPageHeader
         propertyName={property.name}
         city={property.city || ''}
@@ -75,59 +111,32 @@ export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, 
 
       <main className="bg-white">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
-          {/* Dates unavailable banner (redirected from checkout) */}
+          {/* Error banners */}
           {datesUnavailable && (
             <div className="mt-4 px-4 py-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800">
               As datas seleccionadas já não estão disponíveis. Por favor, escolha novas datas.
             </div>
           )}
-
-          {/* Minimum nights error banner */}
           {minNightsError && (
             <div className="mt-4 px-4 py-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
-              A estadia mínima para esta propriedade é de <strong>{minNightsError} {minNightsError === 1 ? 'noite' : 'noites'}</strong>. Por favor, ajuste as datas.
+              A estadia mínima é de <strong>{minNightsError} {minNightsError === 1 ? 'noite' : 'noites'}</strong>. Por favor, ajuste as datas.
             </div>
           )}
 
-          {/* Hero Section with Gallery and Booking Widget */}
+          {/* ── Single grid: content (2/3) + sticky booking widget (1/3) (item 8) ── */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 py-6">
-            {/* Left: Gallery (2/3 width on desktop) */}
-            <div className="lg:col-span-2">
+
+            {/* LEFT — gallery + all content */}
+            <div className="lg:col-span-2 space-y-8">
+              {/* Gallery */}
               <PropertyHeroGallery
                 photos={allPhotos}
                 propertyName={property.name}
                 onViewAll={() => handleOpenLightbox(0)}
                 onPhotoClick={handleOpenLightbox}
               />
-            </div>
 
-            {/* Right: Booking Widget (1/3 width on desktop) */}
-            <div className="hidden lg:block">
-              <BookingWidgetDesktop
-                propertyName={property.name}
-                basePrice={property.base_price || 0}
-                currency={currency}
-                slug={property.slug}
-                initialCheckIn={initialCheckIn}
-                initialCheckOut={initialCheckOut}
-                initialGuests={initialGuests}
-                minNights={minNights}
-                maxGuests={property.max_guests ?? undefined}
-                pricingRules={pricingRules}
-                blockedRanges={blockedRanges}
-                cleaningFee={cleaningFee}
-                cleaningFeeType={cleaningFeeType}
-                petFee={petFee}
-                petFeeType={petFeeType}
-              />
-            </div>
-          </div>
-
-          {/* Content Sections */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 py-6">
-            {/* Main Content (2/3) */}
-            <div className="lg:col-span-2 space-y-8">
-              {/* Property identity — logo + title */}
+              {/* Property identity */}
               <div className="flex flex-col items-start gap-2 pb-2">
                 <Logo size="lg" />
                 <h1 className="text-2xl font-bold text-gray-900 leading-tight">{property.name}</h1>
@@ -170,54 +179,85 @@ export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, 
                 )}
               </div>
 
-              {/* Description */}
-              {property.description && (
-                <PropertyDescription description={property.description} />
-              )}
-
-              {/* Amenities */}
+              {property.description && <PropertyDescription description={property.description} />}
               {(structuredAmenities?.length || property.amenities?.length) ? (
-                <PropertyAmenitiesV2
-                  amenities={property.amenities ?? []}
-                  structuredAmenities={structuredAmenities}
-                />
+                <PropertyAmenitiesV2 amenities={property.amenities ?? []} structuredAmenities={structuredAmenities} />
               ) : null}
-
-              {/* Rooms — bed types and linen from Epic 18.3 */}
               <PropertyRooms rooms={rooms ?? []} />
-
-              {/* Bathrooms — type and fixtures from Epic 18.4 */}
               <PropertyBathrooms bathrooms={bathrooms ?? []} />
-
-              {/* Policies — fees and check-in/out schedules from Epic 18.5 */}
-              <PropertyPolicies
-                cleaningFee={cleaningFee}
-                cleaningFeeType={cleaningFeeType}
-                petFee={petFee}
-                petFeeType={petFeeType}
-                checkinFrom={checkinFrom}
-                checkinUntil={checkinUntil}
-                checkoutUntil={checkoutUntil}
-                currency={currency}
-              />
-
-              {/* Review Score */}
+              <PropertyPolicies cleaningFee={cleaningFee} cleaningFeeType={cleaningFeeType} petFee={petFee} petFeeType={petFeeType} checkinFrom={checkinFrom} checkinUntil={checkinUntil} checkoutUntil={checkoutUntil} currency={currency} />
               <PropertyReviewScore reviewScore={reviewScore} />
-
-              {/* Featured Review Cards Carousel */}
               <PropertyReviewCards featuredReviews={featuredReviews} />
+              <PropertyLocation address={property.address || ''} city={property.city || ''} country={property.country || ''} />
 
-              {/* Location */}
-              <PropertyLocation
-                address={property.address || ''}
-                city={property.city || ''}
-                country={property.country || ''}
-              />
+              {/* Contact bar — item 3 */}
+              {hasContact && publicProfile && (
+                <div className="border border-gray-200 rounded-xl p-5 bg-white">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div className="min-w-0">
+                      <p className="text-[13px] font-bold uppercase tracking-[1.4px] text-gray-900">
+                        Fale directamente com {orgName ?? 'a empresa'}
+                      </p>
+                      {(publicProfile.public_contact_message || locationText) && (
+                        <p className="mt-1 text-[13px] font-light leading-[1.5] text-gray-600">
+                          {publicProfile.public_contact_message || locationText}
+                          {publicProfile.public_contact_message && locationText ? ` · ${locationText}` : ''}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {whatsappHref && (
+                        <a href={whatsappHref} target="_blank" rel="noreferrer" className={contactBtnClass}>
+                          <MessageCircle className="h-4 w-4" /><span>WhatsApp</span>
+                        </a>
+                      )}
+                      {publicProfile.contact_email && (
+                        <a href={`mailto:${publicProfile.contact_email}`} className={contactBtnClass}>
+                          <Mail className="h-4 w-4" /><span>Email</span>
+                        </a>
+                      )}
+                      {phoneHref && (
+                        <a href={phoneHref} className={contactBtnClass}>
+                          <Phone className="h-4 w-4" /><span>Telefone</span>
+                        </a>
+                      )}
+                      {publicProfile.website_url && (
+                        <a href={publicProfile.website_url} target="_blank" rel="noreferrer" className={contactBtnClass}>
+                          <ExternalLink className="h-4 w-4" /><span>Site</span>
+                        </a>
+                      )}
+                      {publicProfile.instagram_url && (
+                        <a href={publicProfile.instagram_url} target="_blank" rel="noreferrer" className={contactBtnClass}>
+                          <ExternalLink className="h-4 w-4" /><span>Instagram</span>
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
-            {/* Sidebar Desktop Booking (1/3) - will be hidden on mobile */}
-            <div className="hidden lg:flex lg:flex-col">
-              {/* Desktop booking already shown above, this space is for layout */}
+            {/* RIGHT — sticky booking widget (item 8) */}
+            <div className="hidden lg:block">
+              <div className="sticky top-24">
+                <BookingWidgetDesktop
+                  propertyName={property.name}
+                  basePrice={property.base_price || 0}
+                  currency={currency}
+                  slug={property.slug}
+                  initialCheckIn={initialCheckIn}
+                  initialCheckOut={initialCheckOut}
+                  initialGuests={initialGuests}
+                  minNights={minNights}
+                  maxGuests={property.max_guests ?? undefined}
+                  pricingRules={pricingRules}
+                  blockedRanges={blockedRanges}
+                  cleaningFee={cleaningFee}
+                  cleaningFeeType={cleaningFeeType}
+                  petFee={petFee}
+                  petFeeType={petFeeType}
+                />
+              </div>
             </div>
           </div>
 

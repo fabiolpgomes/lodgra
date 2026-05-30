@@ -176,63 +176,60 @@ export function BookingWidgetDesktop({
   }
 
   return (
-    <div className="sticky top-24 bg-white border border-gray-200 rounded-xl p-6 shadow-lg">
-      {/* Price header */}
+    <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-lg">
+      {/* Price */}
       <div className="mb-5">
-        <p className="text-sm text-gray-600 mb-1">
+        <p className="text-sm text-gray-500 mb-0.5">
           {nights > 0 && isReady && hasVaryingPrices ? 'Preço médio' : 'Preço base'}
         </p>
-        <div className="flex items-baseline gap-1">
-          <span className="text-4xl font-black text-gray-900">
+        <div className="flex items-baseline gap-1.5">
+          <span className="text-[36px] font-black text-gray-900 leading-none">
             {symbol}{nights > 0 && isReady ? avgPerNight : basePrice}
           </span>
-          <span className="text-lg font-medium text-gray-600">/noite</span>
+          <span className="text-[16px] font-medium text-gray-500">/noite</span>
         </div>
         {effectiveMinNights > 1 && (
-          <p className="mt-1 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1 inline-block">
+          <p className="mt-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-full px-3 py-1 inline-block">
             Mínimo {effectiveMinNights} noites
           </p>
         )}
       </div>
 
-      {/* Date pickers */}
-      <div className="grid grid-cols-2 gap-2 mb-3">
-        <div>
-          <label className="block text-xs font-semibold text-gray-700 mb-1">Check-in</label>
-          <input
-            type="date"
-            value={checkIn}
-            min={today}
-            onChange={e => handleCheckInChange(e.target.value)}
-            className="w-full px-2 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lodgra-green"
-          />
-          {checkInError && (
-            <p className="mt-1 text-xs text-red-600">{checkInError}</p>
-          )}
-        </div>
-        <div>
-          <label className="block text-xs font-semibold text-gray-700 mb-1">Check-out</label>
-          <input
-            type="date"
-            value={checkOut}
-            min={minCheckOut || today}
-            onChange={e => handleCheckOutChange(e.target.value)}
-            disabled={!checkIn}
-            className="w-full px-2 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lodgra-green disabled:opacity-50 disabled:cursor-not-allowed"
-          />
-          {checkOutError && (
-            <p className="mt-1 text-xs text-red-600">{checkOutError}</p>
-          )}
+      {/* Dates — grouped Holidu-style */}
+      <div className="mb-3 border border-gray-300 rounded-xl overflow-hidden">
+        <p className="px-4 pt-3 pb-1 text-[12px] font-bold text-gray-700 bg-gray-50 border-b border-gray-200">
+          Seleccione as datas para ver o preço exacto
+        </p>
+        <div className="grid grid-cols-2">
+          <div className="px-4 py-3 border-r border-gray-200">
+            <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wide mb-1">Check-in</label>
+            <input
+              type="date" value={checkIn} min={today}
+              onChange={e => handleCheckInChange(e.target.value)}
+              className="w-full text-sm text-gray-900 bg-transparent focus:outline-none"
+            />
+            {checkInError && <p className="mt-1 text-[11px] text-red-600">{checkInError}</p>}
+          </div>
+          <div className="px-4 py-3">
+            <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wide mb-1">Check-out</label>
+            <input
+              type="date" value={checkOut} min={minCheckOut || today}
+              onChange={e => handleCheckOutChange(e.target.value)}
+              disabled={!checkIn}
+              className="w-full text-sm text-gray-900 bg-transparent focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed"
+            />
+            {checkOutError && <p className="mt-1 text-[11px] text-red-600">{checkOutError}</p>}
+          </div>
         </div>
       </div>
 
       {/* Guests */}
-      <div className="mb-5">
-        <label className="block text-xs font-semibold text-gray-700 mb-1">Hóspedes</label>
+      <div className="mb-5 border border-gray-300 rounded-xl px-4 py-3">
+        <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wide mb-1">Hóspedes</label>
         <select
           value={guests}
           onChange={e => setGuests(parseInt(e.target.value))}
-          className="w-full px-2 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lodgra-green"
+          className="w-full text-sm text-gray-900 bg-transparent focus:outline-none appearance-none cursor-pointer"
         >
           {Array.from({ length: Math.max(1, maxGuests) }, (_, i) => (
             <option key={i + 1} value={i + 1}>{i + 1} {i === 0 ? 'hóspede' : 'hóspedes'}</option>
@@ -242,38 +239,28 @@ export function BookingWidgetDesktop({
 
       {/* Price summary */}
       {nights > 0 && (
-        <div className="mb-4 p-3 bg-gray-50 rounded-lg text-sm space-y-1">
+        <div className="mb-4 p-3 bg-gray-50 rounded-xl text-sm space-y-1.5">
           {isPriceFetching ? (
-            <>
-              <div className="flex justify-between text-gray-400 animate-pulse">
-                <span>{nights} noite{nights !== 1 ? 's' : ''}</span>
-                <span className="bg-gray-200 rounded w-16">&nbsp;</span>
-              </div>
-              <div className="flex justify-between font-bold text-gray-300 pt-1 border-t border-gray-200 animate-pulse">
-                <span>Total</span>
-                <span className="bg-gray-200 rounded w-20">&nbsp;</span>
-              </div>
-            </>
+            <div className="flex justify-between text-gray-400 animate-pulse">
+              <span>{nights} noite{nights !== 1 ? 's' : ''}</span>
+              <span className="bg-gray-200 rounded w-16">&nbsp;</span>
+            </div>
           ) : (
             <>
               <div className="flex justify-between text-gray-700">
-                {hasVaryingPrices ? (
-                  <span>{nights} noite{nights !== 1 ? 's' : ''} · preço por época</span>
-                ) : (
-                  <span>{symbol}{avgPerNight} × {nights} noite{nights !== 1 ? 's' : ''}</span>
-                )}
+                {hasVaryingPrices
+                  ? <span>{nights} noite{nights !== 1 ? 's' : ''} · por época</span>
+                  : <span>{symbol}{avgPerNight} × {nights} noite{nights !== 1 ? 's' : ''}</span>
+                }
                 <span>{symbol}{Math.round(accommodationTotal)}</span>
               </div>
-              {hasVaryingPrices && (
-                <p className="text-xs text-gray-500">Inclui regras de preço por época</p>
-              )}
               {isReady && priceState.fees?.map((fee, i) => (
                 <div key={i} className="flex justify-between text-gray-700">
                   <span>{fee.label}</span>
                   <span>{symbol}{Math.round(fee.amount)}</span>
                 </div>
               ))}
-              <div className="flex justify-between font-bold text-gray-900 pt-1 border-t border-gray-200">
+              <div className="flex justify-between font-bold text-gray-900 pt-1.5 border-t border-gray-200">
                 <span>Total</span>
                 <span>{symbol}{Math.round(displayTotal)}</span>
               </div>
@@ -286,26 +273,24 @@ export function BookingWidgetDesktop({
       {checkoutHref && !checkInError && !checkOutError ? (
         <Link
           href={checkoutHref}
-          className="block w-full bg-lodgra-blue font-bold py-3 px-4 rounded-lg text-center transition-all mb-4 hover:brightness-110 active:scale-[0.98]"
-          style={{ color: '#ffffff' }}
+          className="block w-full bg-brand-800 hover:bg-brand-900 active:scale-[0.98] text-white font-bold py-4 px-4 rounded-xl text-center text-[15px] uppercase tracking-wide transition-all mb-4"
         >
           Reservar agora
         </Link>
       ) : (
         <button
           disabled
-          className="block w-full bg-lodgra-blue font-bold py-3 px-4 rounded-lg text-center cursor-not-allowed mb-4 opacity-80"
-          style={{ color: '#ffffff' }}
+          className="block w-full bg-brand-800 text-white font-bold py-4 px-4 rounded-xl text-center text-[15px] uppercase tracking-wide cursor-not-allowed opacity-60 mb-4"
         >
-          {checkInError || checkOutError ? 'Datas indisponíveis' : 'Selecione as datas'}
+          {checkInError || checkOutError ? 'Datas indisponíveis' : 'Seleccione as datas'}
         </button>
       )}
 
-      {/* Trust Info */}
-      <div className="space-y-2 text-sm">
-        <p className="flex items-center gap-2 text-gray-700"><span>✓</span>Sem comissões</p>
-        <p className="flex items-center gap-2 text-gray-700"><span>✓</span>Pagamento seguro</p>
-        <p className="flex items-center gap-2 text-gray-700"><span>✓</span>Confirmação instantânea</p>
+      {/* Trust */}
+      <div className="space-y-1.5 text-[13px] text-gray-600">
+        <p className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span>Sem comissões</p>
+        <p className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span>Pagamento seguro</p>
+        <p className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span>Confirmação instantânea</p>
       </div>
     </div>
   )
