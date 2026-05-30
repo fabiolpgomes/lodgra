@@ -12,7 +12,7 @@ interface Props {
   orgName: string | null
 }
 
-type Platform = 'android' | 'ios' | 'other'
+type Platform = 'android' | 'ios' | 'desktop' | 'other'
 
 const DISMISS_KEY = 'pwa_install_dismissed'
 
@@ -24,7 +24,11 @@ export function InstallPromptButton({ orgName }: Props) {
 
   useEffect(() => {
     const ua = navigator.userAgent
-    const detected: Platform = /iPad|iPhone|iPod/.test(ua) ? 'ios' : /Android/.test(ua) ? 'android' : 'other'
+    const isMobile = /iPhone|iPad|iPod|Android/.test(ua)
+    const detected: Platform = /iPad|iPhone|iPod/.test(ua) ? 'ios'
+      : /Android/.test(ua) ? 'android'
+      : !isMobile ? 'desktop'
+      : 'other'
 
     const standalone = window.matchMedia('(display-mode: standalone)').matches ||
       (window.navigator as { standalone?: boolean }).standalone === true
@@ -64,6 +68,72 @@ export function InstallPromptButton({ orgName }: Props) {
   if (!visible) return null
 
   const appName = orgName || 'esta página'
+
+  // Desktop (Mac/Windows) — Chrome/Edge: native prompt button
+  if (platform === 'desktop' && deferredPrompt) {
+    return (
+      <button
+        onClick={handleInstallAndroid}
+        className="hidden sm:flex items-center gap-2 text-[12px] font-bold text-brand-800 uppercase tracking-wide px-3 min-h-[36px] border border-brand-200 rounded hover:bg-brand-50 transition-colors whitespace-nowrap"
+        title={`Instalar ${appName}`}
+      >
+        <Download className="h-3.5 w-3.5" />
+        Instalar App
+      </button>
+    )
+  }
+
+  // Desktop Safari (Sonoma+) — no deferredPrompt, show instructions
+  if (platform === 'desktop' && !deferredPrompt && showIOSHint) {
+    return (
+      <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" onClick={() => setShowIOSHint(false)}>
+        <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl" onClick={e => e.stopPropagation()}>
+          <div className="flex items-start justify-between mb-4">
+            <h3 className="text-[16px] font-bold text-gray-900">Adicionar ao Dock</h3>
+            <button onClick={() => setShowIOSHint(false)} className="p-1 text-gray-400 hover:text-gray-600 min-h-[44px] min-w-[44px] flex items-center justify-center" aria-label="Fechar">
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+          <p className="text-[14px] text-gray-600 mb-5">
+            Instala <strong>{appName}</strong> no teu Mac para aceder rapidamente.
+          </p>
+          <ol className="space-y-3 text-[14px] text-gray-700">
+            <li className="flex items-start gap-3">
+              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-brand-800 text-white text-[11px] font-bold flex items-center justify-center">1</span>
+              <span>No <strong>Safari</strong>, abre o menu <strong>Arquivo</strong></span>
+            </li>
+            <li className="flex items-start gap-3">
+              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-brand-800 text-white text-[11px] font-bold flex items-center justify-center">2</span>
+              <span>Selecciona <strong>&ldquo;Adicionar ao Dock&rdquo;</strong></span>
+            </li>
+            <li className="flex items-start gap-3">
+              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-brand-800 text-white text-[11px] font-bold flex items-center justify-center">3</span>
+              <span>Clica em <strong>Adicionar</strong> na janela que aparece</span>
+            </li>
+          </ol>
+          <p className="mt-4 text-[12px] text-gray-500 bg-gray-50 rounded p-3">
+            💡 No Chrome/Edge: clica no ícone <strong>⊕</strong> na barra de endereço para instalar directamente.
+          </p>
+          <button onClick={() => setShowIOSHint(false)} className="mt-5 w-full bg-brand-800 text-white font-bold text-[14px] min-h-[48px] rounded-lg">
+            Percebido
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  if (platform === 'desktop' && !deferredPrompt) {
+    return (
+      <button
+        onClick={() => setShowIOSHint(true)}
+        className="hidden sm:flex items-center gap-2 text-[12px] font-bold text-brand-800 uppercase tracking-wide px-3 min-h-[36px] border border-brand-200 rounded hover:bg-brand-50 transition-colors whitespace-nowrap"
+        title="Como instalar"
+      >
+        <Download className="h-3.5 w-3.5" />
+        Instalar App
+      </button>
+    )
+  }
 
   // Android: native install prompt
   if (platform === 'android' && deferredPrompt) {
