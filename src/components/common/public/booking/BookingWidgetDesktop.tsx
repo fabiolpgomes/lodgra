@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { differenceInDays, parseISO, isValid, isBefore, startOfDay, addDays, format } from 'date-fns'
 
@@ -36,6 +36,11 @@ interface BookingWidgetDesktopProps {
   cleaningFeeType?: string | null
   petFee?: number | null
   petFeeType?: string | null
+  /** Controlled from outside (e.g. availability calendar) */
+  externalCheckIn?: string
+  externalCheckOut?: string
+  onCheckInChange?: (v: string) => void
+  onCheckOutChange?: (v: string) => void
 }
 
 function isDateBlocked(date: string, ranges: BlockedRange[]): boolean {
@@ -61,9 +66,23 @@ export function BookingWidgetDesktop({
   cleaningFeeType,
   petFee,
   petFeeType,
+  externalCheckIn,
+  externalCheckOut,
+  onCheckInChange,
+  onCheckOutChange,
 }: BookingWidgetDesktopProps) {
   const [checkIn, setCheckIn] = useState(initialCheckIn || '')
   const [checkOut, setCheckOut] = useState(initialCheckOut || '')
+
+  // Sync from calendar — ignore initial mount
+  const mountedRef = useRef(false)
+  useEffect(() => {
+    if (!mountedRef.current) { mountedRef.current = true; return }
+    if (externalCheckIn !== undefined) setCheckIn(externalCheckIn)
+  }, [externalCheckIn])
+  useEffect(() => {
+    if (externalCheckOut !== undefined) setCheckOut(externalCheckOut)
+  }, [externalCheckOut])
   const [guests, setGuests] = useState(Math.min(initialGuests, Math.max(1, maxGuests)))
   const [checkInError, setCheckInError] = useState('')
   const [checkOutError, setCheckOutError] = useState('')
@@ -141,6 +160,7 @@ export function BookingWidgetDesktop({
 
   const handleCheckInChange = (val: string) => {
     setCheckIn(val)
+    onCheckInChange?.(val)
     if (val && isDateBlocked(val, blockedRanges)) {
       setCheckInError('Data indisponível')
     } else {
@@ -150,6 +170,7 @@ export function BookingWidgetDesktop({
       const newMin = addDays(parseISO(val), Math.max(1, effectiveMinNights))
       if (isBefore(parseISO(checkOut), newMin)) {
         setCheckOut('')
+        onCheckOutChange?.('')
         setCheckOutError('')
       }
     }
@@ -157,6 +178,7 @@ export function BookingWidgetDesktop({
 
   const handleCheckOutChange = (val: string) => {
     setCheckOut(val)
+    onCheckOutChange?.(val)
     if (val && checkIn) {
       const n = differenceInDays(parseISO(val), parseISO(checkIn))
       if (n < effectiveMinNights) {

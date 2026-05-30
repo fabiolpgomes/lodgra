@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import type { Property } from '@/types/database'
 import Link from 'next/link'
 import { Users, BedDouble, Bath, ArrowLeft, ExternalLink, Mail, MessageCircle, Phone } from 'lucide-react'
@@ -16,6 +16,7 @@ import { PropertyPolicies } from './content/PropertyPolicies'
 import { PropertyRooms, type PropertyRoom } from './content/PropertyRooms'
 import { PropertyBathrooms, type PropertyBathroom } from './content/PropertyBathrooms'
 import { BookingWidgetDesktop } from './booking/BookingWidgetDesktop'
+import { AvailabilityCalendar } from './booking/AvailabilityCalendar'
 import { BookingWidgetMobile } from './booking/BookingWidgetMobile'
 import { PropertyTrustBadges } from './layout/PropertyTrustBadges'
 import { LazyPropertyLightbox } from '@/components/common/lazy/LazyPublic'
@@ -71,11 +72,17 @@ interface PropertyPageV2Props {
 export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, initialCheckOut, initialGuests, minNights = 1, pricingRules = [], structuredAmenities, rooms, bathrooms, minNightsError, datesUnavailable, cleaningFee, cleaningFeeType, petFee, petFeeType, checkinFrom, checkinUntil, checkoutUntil, blockedRanges = [], reviewScore, featuredReviews, similarProperties = [], orgName, publicProfile }: PropertyPageV2Props) {
   const [showLightbox, setShowLightbox] = useState(false)
   const [lightboxIndex, setLightboxIndex] = useState(0)
+  // Shared date state — synced between AvailabilityCalendar ↔ BookingWidgetDesktop
+  const [sharedCheckIn, setSharedCheckIn] = useState(initialCheckIn || '')
+  const [sharedCheckOut, setSharedCheckOut] = useState(initialCheckOut || '')
 
   const handleOpenLightbox = (index: number) => {
     setLightboxIndex(index)
     setShowLightbox(true)
   }
+
+  const handleCheckInChange = useCallback((v: string) => setSharedCheckIn(v), [])
+  const handleCheckOutChange = useCallback((v: string) => setSharedCheckOut(v), [])
 
   // Contact bar helpers
   const whatsappHref = publicProfile?.whatsapp_number
@@ -186,6 +193,17 @@ export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, 
               <PropertyRooms rooms={rooms ?? []} />
               <PropertyBathrooms bathrooms={bathrooms ?? []} />
               <PropertyPolicies cleaningFee={cleaningFee} cleaningFeeType={cleaningFeeType} petFee={petFee} petFeeType={petFeeType} checkinFrom={checkinFrom} checkinUntil={checkinUntil} checkoutUntil={checkoutUntil} currency={currency} />
+
+              {/* Availability Calendar — item 7 */}
+              <AvailabilityCalendar
+                blockedRanges={blockedRanges}
+                minNights={minNights}
+                checkIn={sharedCheckIn}
+                checkOut={sharedCheckOut}
+                onCheckInChange={handleCheckInChange}
+                onCheckOutChange={handleCheckOutChange}
+              />
+
               <PropertyReviewScore reviewScore={reviewScore} />
               <PropertyReviewCards featuredReviews={featuredReviews} />
               <PropertyLocation address={property.address || ''} city={property.city || ''} country={property.country || ''} />
@@ -245,8 +263,8 @@ export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, 
                   basePrice={property.base_price || 0}
                   currency={currency}
                   slug={property.slug}
-                  initialCheckIn={initialCheckIn}
-                  initialCheckOut={initialCheckOut}
+                  initialCheckIn={sharedCheckIn}
+                  initialCheckOut={sharedCheckOut}
                   initialGuests={initialGuests}
                   minNights={minNights}
                   maxGuests={property.max_guests ?? undefined}
@@ -256,6 +274,10 @@ export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, 
                   cleaningFeeType={cleaningFeeType}
                   petFee={petFee}
                   petFeeType={petFeeType}
+                  externalCheckIn={sharedCheckIn}
+                  externalCheckOut={sharedCheckOut}
+                  onCheckInChange={handleCheckInChange}
+                  onCheckOutChange={handleCheckOutChange}
                 />
               </div>
             </div>
