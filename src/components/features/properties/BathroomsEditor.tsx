@@ -191,11 +191,11 @@ export function BathroomsEditor({ propertyId }: BathroomsEditorProps) {
                 return (
                   <label
                     key={amenity}
-                    className={`flex items-center gap-1.5 px-2 py-1.5 rounded-md border cursor-pointer text-xs transition-colors select-none ${
-                      checked
-                        ? 'border-brand-500 bg-brand-50 text-brand-800'
-                        : 'border-gray-200 hover:border-gray-300 text-gray-700'
-                    }`}
+                    style={checked
+                      ? { backgroundColor: '#3A4FC5', borderColor: '#3A4FC5', color: 'white' }
+                      : { backgroundColor: 'white', borderColor: '#e5e7eb', color: '#374151' }
+                    }
+                    className="flex items-center gap-1.5 px-2 py-1.5 rounded-md border cursor-pointer text-xs transition-all select-none active:scale-95"
                   >
                     <input
                       type="checkbox"
@@ -204,6 +204,11 @@ export function BathroomsEditor({ propertyId }: BathroomsEditorProps) {
                       onChange={() => toggleAmenity(bathroom._id, amenity)}
                     />
                     <span>{amenity}</span>
+                    {checked && (
+                      <svg className="ml-auto h-3 w-3 shrink-0" viewBox="0 0 12 12" fill="none">
+                        <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    )}
                   </label>
                 )
               })}
