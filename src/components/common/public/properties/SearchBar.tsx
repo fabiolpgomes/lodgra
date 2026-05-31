@@ -193,50 +193,114 @@ export function SearchBar({ onSearch, isLoading = false, hideLocation = false }:
   }
 
   // Generic page (with location field)
+  const ctaBg = '#1E3A8A'
+  const ctaBgHover = '#1e3374'
+
   return (
     <form onSubmit={handleSubmit} className="w-full" noValidate>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 mb-3">
-        <div className="sm:col-span-2 md:col-span-1">
-          <label htmlFor="location" className={fieldLabel}>Para onde?</label>
-          <input id="location" type="text" placeholder="Cidade, região..."
-            value={location} onChange={e => { setLocation(e.target.value); if (submitted && e.target.value.trim()) setErrors(p => { const n = {...p}; delete n.location; return n }) }}
-            disabled={isLoading} className={inputClass(!!errors.location)} aria-invalid={!!errors.location}
+      {/* Desktop: integrated inline strip [location | check-in | check-out | guests | btn] */}
+      <div className="hidden sm:grid sm:grid-cols-[1.5fr_1fr_1fr_1fr_auto] gap-0 border border-gray-300 rounded-none overflow-hidden">
+        <div className="px-4 pt-3 pb-2 border-r border-gray-200">
+          <label htmlFor="location-d" className={fieldLabel}>Para onde?</label>
+          <input id="location-d" type="text" placeholder="Cidade, região..."
+            value={location}
+            onChange={e => { setLocation(e.target.value); if (submitted && e.target.value.trim()) setErrors(p => { const n = {...p}; delete n.location; return n }) }}
+            disabled={isLoading}
+            className="w-full text-[15px] text-gray-900 bg-transparent focus:outline-none disabled:opacity-50 pb-2 placeholder-gray-400"
+          />
+          {errors.location && <p className="text-[11px] text-red-600 font-medium pb-1">{errors.location}</p>}
+        </div>
+        <div className="px-4 pt-3 pb-2 border-r border-gray-200">
+          <label htmlFor="checkin-d" className={fieldLabel}>Check-in</label>
+          <input id="checkin-d" type="date" value={checkIn} min={today}
+            onChange={handleCheckInChange} disabled={isLoading}
+            className="w-full text-[15px] text-gray-900 bg-transparent focus:outline-none disabled:opacity-50 pb-2"
+            aria-invalid={!!errors.checkIn}
+          />
+          {errors.checkIn && <p className="text-[11px] text-red-600 font-medium pb-1">{errors.checkIn}</p>}
+        </div>
+        <div className="px-4 pt-3 pb-2 border-r border-gray-200">
+          <label htmlFor="checkout-d" className={fieldLabel}>Check-out</label>
+          <input id="checkout-d" type="date" value={checkOut} min={minCheckOutDate}
+            onChange={handleCheckOutChange} disabled={isLoading}
+            className="w-full text-[15px] text-gray-900 bg-transparent focus:outline-none disabled:opacity-50 pb-2"
+            aria-invalid={!!errors.checkOut}
+          />
+          {errors.checkOut && <p className="text-[11px] text-red-600 font-medium pb-1">{errors.checkOut}</p>}
+        </div>
+        <div className="px-4 pt-3 pb-2 border-r border-gray-200">
+          <label htmlFor="guests-d" className={fieldLabel}>Hóspedes</label>
+          <select id="guests-d" value={guests}
+            onChange={e => setGuests(parseInt(e.target.value))}
+            disabled={isLoading}
+            className="w-full text-[15px] text-gray-900 bg-transparent focus:outline-none disabled:opacity-50 pb-2 appearance-none"
+          >
+            {Array.from({ length: 10 }).map((_, i) => (
+              <option key={i + 1} value={i + 1}>{i + 1} {i + 1 === 1 ? 'hóspede' : 'hóspedes'}</option>
+            ))}
+          </select>
+          {errors.guests && <p className="text-[11px] text-red-600 font-medium pb-1">{errors.guests}</p>}
+        </div>
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="flex items-center justify-center gap-2 px-8 whitespace-nowrap font-bold text-[14px] uppercase tracking-[1.5px] text-white transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+          style={{ backgroundColor: ctaBg }}
+          onMouseEnter={e => { if (!isLoading) (e.currentTarget as HTMLButtonElement).style.backgroundColor = ctaBgHover }}
+          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = ctaBg }}
+        >
+          <Search className="h-4 w-4 shrink-0" />
+          <span>{isLoading ? 'A pesquisar...' : 'Pesquisar'}</span>
+        </button>
+      </div>
+
+      {/* Mobile: stacked fields + button */}
+      <div className="sm:hidden grid grid-cols-1 gap-3 mb-3">
+        <div>
+          <label htmlFor="location-m" className={fieldLabel}>Para onde?</label>
+          <input id="location-m" type="text" placeholder="Cidade, região..."
+            value={location}
+            onChange={e => { setLocation(e.target.value); if (submitted && e.target.value.trim()) setErrors(p => { const n = {...p}; delete n.location; return n }) }}
+            disabled={isLoading} className={inputClass(!!errors.location)}
           />
           {errors.location && <p className="mt-1 text-[11px] text-red-600 font-medium" role="alert">{errors.location}</p>}
         </div>
         <div>
-          <label htmlFor="checkin" className={fieldLabel}>Check-in</label>
-          <input id="checkin" type="date" value={checkIn} min={today}
+          <label htmlFor="checkin-m" className={fieldLabel}>Check-in</label>
+          <input id="checkin-m" type="date" value={checkIn} min={today}
             onChange={handleCheckInChange} disabled={isLoading}
             className={inputClass(!!errors.checkIn)} aria-invalid={!!errors.checkIn}
           />
           {errors.checkIn && <p className="mt-1 text-[11px] text-red-600 font-medium" role="alert">{errors.checkIn}</p>}
         </div>
         <div>
-          <label htmlFor="checkout" className={fieldLabel}>Check-out</label>
-          <input id="checkout" type="date" value={checkOut} min={minCheckOutDate}
+          <label htmlFor="checkout-m" className={fieldLabel}>Check-out</label>
+          <input id="checkout-m" type="date" value={checkOut} min={minCheckOutDate}
             onChange={handleCheckOutChange} disabled={isLoading}
             className={inputClass(!!errors.checkOut)} aria-invalid={!!errors.checkOut}
           />
           {errors.checkOut && <p className="mt-1 text-[11px] text-red-600 font-medium" role="alert">{errors.checkOut}</p>}
         </div>
         <div>
-          <label htmlFor="guests" className={fieldLabel}>Hóspedes</label>
-          <select id="guests" value={guests}
+          <label htmlFor="guests-m" className={fieldLabel}>Hóspedes</label>
+          <select id="guests-m" value={guests}
             onChange={e => setGuests(parseInt(e.target.value))}
-            disabled={isLoading} className={inputClass(!!errors.guests)} aria-invalid={!!errors.guests}
+            disabled={isLoading} className={inputClass(false)}
           >
             {Array.from({ length: 10 }).map((_, i) => (
               <option key={i + 1} value={i + 1}>{i + 1} {i + 1 === 1 ? 'hóspede' : 'hóspedes'}</option>
             ))}
           </select>
-          {errors.guests && <p className="mt-1 text-[11px] text-red-600 font-medium" role="alert">{errors.guests}</p>}
         </div>
       </div>
-      <button type="submit" disabled={isLoading} className={`w-full ${btnClass}`}>
+      <button
+        type="submit"
+        disabled={isLoading}
+        className="sm:hidden w-full flex items-center justify-center gap-2 h-14 font-bold text-[14px] uppercase tracking-[1.5px] text-white disabled:opacity-60 disabled:cursor-not-allowed"
+        style={{ backgroundColor: ctaBg }}
+      >
         <Search className="h-4 w-4 shrink-0" />
-        <span className="sm:hidden">{isLoading ? 'A pesquisar...' : 'Pesquisar'}</span>
-        <span className="hidden sm:inline">{isLoading ? 'A pesquisar...' : 'Pesquisar Propriedades'}</span>
+        <span>{isLoading ? 'A pesquisar...' : 'Pesquisar'}</span>
       </button>
     </form>
   )
