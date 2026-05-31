@@ -14,7 +14,7 @@ interface Reservation extends Record<string, any> {
   number_of_guests: number
   adults: number | null
   children: number | null
-  notes: string | null
+  internal_notes: string | null
   property_listings: Record<string, any>
   guests: Record<string, any> | null
 }
@@ -34,6 +34,23 @@ function getResCurrency(r: Reservation): string {
   const prop = (lObj as { properties?: { currency?: string } } | null)?.properties
   const propObj = Array.isArray(prop) ? prop[0] : prop
   return propObj?.currency || r.currency || 'EUR'
+}
+
+function calculateProportionalAmount(r: Reservation, startDate: string, endDate: string): number {
+  const checkIn = new Date(r.check_in + 'T00:00:00')
+  const checkOut = new Date(r.check_out + 'T00:00:00')
+  const periodStart = new Date(startDate + 'T00:00:00')
+  const periodEndInclusive = new Date(endDate + 'T00:00:00')
+  periodEndInclusive.setDate(periodEndInclusive.getDate() + 1)
+
+  const overlapStart = new Date(Math.max(checkIn.getTime(), periodStart.getTime()))
+  const overlapEnd = new Date(Math.min(checkOut.getTime(), periodEndInclusive.getTime()))
+
+  const nightsInPeriod = Math.max(0, Math.round((overlapEnd.getTime() - overlapStart.getTime()) / (1000 * 60 * 60 * 24)))
+  const totalNights = Math.round((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24))
+
+  if (totalNights <= 0 || nightsInPeriod <= 0) return 0
+  return (nightsInPeriod / totalNights) * (Number(r.total_amount) || 0)
 }
 
 function calculateTotalNights(reservations: Reservation[]): number {
@@ -56,7 +73,7 @@ function generateHtml(
 ): string {
   const currencyTotals = reservations.reduce((acc: Record<string, number>, r) => {
     const cur = getResCurrency(r)
-    acc[cur] = (acc[cur] || 0) + (Number(r.total_amount) || 0)
+    acc[cur] = (acc[cur] || 0) + calculateProportionalAmount(r, startDate, endDate)
     return acc
   }, {})
   const groupedByProperty = reservations.reduce((acc: Record<string, Reservation[]>, r) => {
@@ -183,8 +200,8 @@ function generateHtml(
                     const nights = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24))
                     const guest = r.guests
                     const guestName = guest ? guest.first_name + ' ' + guest.last_name : 'N/A'
-                    const notesRaw = r.notes || ''
-                    const notesTrunc = notesRaw.length > 40 ? notesRaw.substring(0, 40) + '…' : notesRaw
+                    const notesRaw = r.internal_notes || ''
+                    const proportionalAmount = calculateProportionalAmount(r, startDate, endDate)
                     return `<tr>
                       <td class="col-date">${checkIn.toLocaleDateString('pt-BR')}</td>
                       <td class="col-date">${checkOut.toLocaleDateString('pt-BR')}</td>
@@ -192,8 +209,8 @@ function generateHtml(
                       <td class="col-num" style="text-align:center">${r.adults ?? '—'}</td>
                       <td class="col-num" style="text-align:center">${r.children ?? '—'}</td>
                       <td class="col-num" style="text-align:center">${nights}</td>
-                      <td class="col-notes">${notesTrunc}</td>
-                      ${isAdmin ? '<td class="col-value currency">' + formatCurrency(Number(r.total_amount) || 0, getResCurrency(r)) + '</td>' : ''}
+                      <td class="col-notes">${notesRaw}</td>
+                      ${isAdmin ? '<td class="col-value currency">' + formatCurrency(proportionalAmount, getResCurrency(r)) + '</td>' : ''}
                     </tr>`
                   })
                   .join('')}
@@ -292,7 +309,7 @@ export async function GET(request: NextRequest) {
         number_of_guests,
         adults,
         children,
-        notes,
+        internal_notes,
         property_listings!inner(
           properties!inner(
             id,
