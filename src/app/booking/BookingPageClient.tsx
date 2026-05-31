@@ -209,7 +209,7 @@ export function BookingPageClient({ orgSlug, orgName, orgLogoUrl, publicProfile,
           />
           <div className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4 sm:py-6">
             <div className="max-w-[1440px] mx-auto">
-              <SearchBar onSearch={handleSearch} isLoading={isLoading} hideLocation={!!orgSlug} />
+              <SearchBar onSearch={handleSearch} isLoading={isLoading} />
             </div>
           </div>
         </>
@@ -221,7 +221,7 @@ export function BookingPageClient({ orgSlug, orgName, orgLogoUrl, publicProfile,
               <p className="text-sm sm:text-[16px] font-light text-gray-600 leading-[1.55]">{subtitle}</p>
               <div className="w-10 h-1 bg-brand-600 mt-3 sm:mt-5" />
             </div>
-            <SearchBar onSearch={handleSearch} isLoading={isLoading} hideLocation={!!orgSlug} />
+            <SearchBar onSearch={handleSearch} isLoading={isLoading} />
           </div>
         </div>
       )}

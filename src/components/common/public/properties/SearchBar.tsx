@@ -23,11 +23,8 @@ interface ValidationErrors {
   guests?: string
 }
 
-function validateSearchParams(params: SearchParams, hideLocation: boolean): ValidationErrors {
+function validateSearchParams(params: SearchParams): ValidationErrors {
   const errors: ValidationErrors = {}
-  if (!hideLocation && (!params.location || params.location.trim().length === 0)) {
-    errors.location = 'Localização é obrigatória'
-  }
   if (!params.checkIn) errors.checkIn = 'Data de check-in é obrigatória'
   if (!params.checkOut) errors.checkOut = 'Data de check-out é obrigatória'
   if (params.checkIn && params.checkOut) {
@@ -64,7 +61,7 @@ export function SearchBar({ onSearch, isLoading = false, hideLocation = false }:
   const handleSubmit = useCallback((e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const params: SearchParams = { location: hideLocation ? '' : location.trim(), checkIn, checkOut, guests }
-    const validationErrors = validateSearchParams(params, hideLocation)
+    const validationErrors = validateSearchParams(params)
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors)
       setSubmitted(true)
