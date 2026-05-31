@@ -12,7 +12,7 @@ export interface PriceForRange {
   minNights: number
 }
 
-interface PricingRule {
+export interface PricingRule {
   id: string
   name: string
   start_date: string

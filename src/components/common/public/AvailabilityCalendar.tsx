@@ -178,7 +178,7 @@ export function AvailabilityCalendar({ slug, basePrice, minNights = 1 }: Availab
           selected={range}
           onSelect={handleSelect}
           month={month}
-          onMonthChange={(m) => setMonth(m)}
+          onMonthChange={(m: Date) => setMonth(m)}
           locale={ptBR}
           disabled={isDisabled}
           numberOfMonths={1}

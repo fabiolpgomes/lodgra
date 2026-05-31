@@ -184,7 +184,7 @@ function buildMockSupabase(overrides: {
 
 beforeEach(() => {
   jest.clearAllMocks()
-  mockCheckRateLimit.mockResolvedValue(true) // allowed by default
+  mockCheckRateLimit.mockReturnValue(true) // allowed by default
   mockGetPriceForRangePublic.mockResolvedValue({
     total: 500,
     breakdown: [],
@@ -197,7 +197,7 @@ beforeEach(() => {
 // TODO: Re-enable when public booking API mocks are fixed
 describe.skip('POST /api/public/bookings', () => {
   it('returns 429 when rate limited', async () => {
-    mockCheckRateLimit.mockResolvedValue(false)
+    mockCheckRateLimit.mockReturnValue(false)
     const req = makeRequest(validBody)
     const res = await POST(req)
     expect(res.status).toBe(429)

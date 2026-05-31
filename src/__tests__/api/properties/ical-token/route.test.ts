@@ -42,7 +42,7 @@ describe('POST /api/properties/[id]/ical-token', () => {
       role: 'admin',
       accessAllProperties: true,
       organizationId,
-      response: null,
+      response: undefined,
     })
 
     // Mock property lookup
@@ -99,7 +99,7 @@ describe('POST /api/properties/[id]/ical-token', () => {
       role: 'gestor',
       accessAllProperties: false,
       organizationId,
-      response: null,
+      response: undefined,
     })
 
     // Mock property lookup
@@ -197,7 +197,7 @@ describe('POST /api/properties/[id]/ical-token', () => {
       role: 'admin',
       accessAllProperties: true,
       organizationId: 'org-different', // Different organization
-      response: null,
+      response: undefined,
     })
 
     // Mock property lookup - returns null (different org)
@@ -233,7 +233,7 @@ describe('POST /api/properties/[id]/ical-token', () => {
       role: 'admin',
       accessAllProperties: true,
       organizationId,
-      response: null,
+      response: undefined,
     })
 
     const mockProperty = {
@@ -284,7 +284,7 @@ describe('POST /api/properties/[id]/ical-token', () => {
       role: 'admin',
       accessAllProperties: true,
       organizationId,
-      response: null,
+      response: undefined,
     })
 
     const mockProperty = {
@@ -341,7 +341,7 @@ describe('POST /api/properties/[id]/ical-token', () => {
       role: 'admin',
       accessAllProperties: true,
       organizationId,
-      response: null,
+      response: undefined,
     })
 
     // Mock property not found

@@ -12,6 +12,7 @@
 
 import { syncBookingReservation } from '../reservation-sync'
 import type { BookingWebhookPayload } from '../webhook-validator'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 // Mock the admin client to avoid real database writes
 jest.mock('@/lib/supabase/admin', () => ({
