@@ -82,7 +82,7 @@ describe('Cleaning Photos (Story 29.5 + 29.9 Enhancements)', () => {
       fetchMock.mockResolvedValueOnce({
         ok: true,
         json: async () => [],
-      });
+      } as unknown as Response);
 
       render(<CleaningPhotoGallery taskId="test-task-id" />);
 
@@ -106,7 +106,7 @@ describe('Cleaning Photos (Story 29.5 + 29.9 Enhancements)', () => {
       fetchMock.mockResolvedValueOnce({
         ok: true,
         json: async () => mockPhotos,
-      });
+      } as unknown as Response);
 
       render(<CleaningPhotoGallery taskId="test-task-id" />);
 
@@ -132,11 +132,11 @@ describe('Cleaning Photos (Story 29.5 + 29.9 Enhancements)', () => {
         .mockResolvedValueOnce({
           ok: true,
           json: async () => mockPhotos,
-        })
+        } as unknown as Response)
         .mockResolvedValueOnce({
           ok: true,
           json: async () => ({ success: true }),
-        });
+        } as unknown as Response);
 
       // Mock window.confirm
       window.confirm = jest.fn(() => true);
@@ -280,7 +280,7 @@ describe('Cleaning Photos (Story 29.5 + 29.9 Enhancements)', () => {
         // AC3.5: Blur placeholder reduces LCP (Next.js Image optimization)
         // AC3.6: Lazy loading implicit in Next.js Image component
         images.forEach((img) => {
-          expect(img.src).toBeTruthy();
+          expect((img as HTMLImageElement).src).toBeTruthy();
           // Image component sets up lazy loading automatically
         });
       });

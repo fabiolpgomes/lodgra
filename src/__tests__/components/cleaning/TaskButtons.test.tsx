@@ -13,7 +13,7 @@ global.fetch = jest.fn(() =>
     ok: true,
     json: () => Promise.resolve([]),
   })
-);
+) as unknown as typeof fetch;
 
 describe('Button Height Accessibility (Task 1)', () => {
   test('TaskForm renders submit button', () => {

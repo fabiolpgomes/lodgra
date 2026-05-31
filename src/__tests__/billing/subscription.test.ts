@@ -54,8 +54,8 @@ describe('Billing - Subscription Tests', () => {
 
   describe('Subscription Upgrades/Downgrades', () => {
     it('should detect plan changes correctly', () => {
-      const previousPriceId = 'price_test_essencial_59brl'
-      const currentPriceId = 'price_test_premium_130brl'
+      const previousPriceId: string = 'price_test_essencial_59brl'
+      const currentPriceId: string = 'price_test_premium_130brl'
 
       const planChanged = previousPriceId !== currentPriceId
       expect(planChanged).toBe(true)
@@ -263,7 +263,7 @@ describe('Billing - Subscription Tests', () => {
 
   describe('Error Handling', () => {
     it('should handle missing Stripe customer gracefully', () => {
-      const org = null
+      const org = null as { stripe_br_customer_id?: string } | null
       const hasCustomer = org?.stripe_br_customer_id
       expect(hasCustomer).toBeUndefined()
     })
@@ -283,7 +283,7 @@ describe('Billing - Subscription Tests', () => {
     })
 
     it('should handle null subscription gracefully', () => {
-      const subscription = null
+      const subscription = null as { status?: string } | null
       const isActive = subscription?.status === 'active'
       expect(isActive).toBeFalsy()
     })

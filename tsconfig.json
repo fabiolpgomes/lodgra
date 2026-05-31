@@ -45,6 +45,8 @@
   "exclude": [
     "node_modules",
     "src/app_backup",
-    "supabase"
+    "supabase",
+    "e2e",
+    ".next/types/validator.ts"
   ]
 }

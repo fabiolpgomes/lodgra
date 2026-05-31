@@ -1,6 +1,5 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import TaskTable from '@/components/cleaning/TaskTable';
-import { CleaningTask } from '@/app/[locale]/cleaning/manage/page';
 
 // Mock next-intl
 jest.mock('next-intl', () => ({
@@ -18,7 +17,8 @@ jest.mock('next/navigation', () => ({
 global.fetch = jest.fn();
 
 describe('TaskTable', () => {
-  const mockTasks: CleaningTask[] = [
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const mockTasks: any[] = [
     {
       id: '1',
       property_id: 'prop-1',
@@ -29,8 +29,6 @@ describe('TaskTable', () => {
       checklist_template_id: null,
       notes: null,
       completed_at: null,
-      created_at: '2026-05-22T00:00:00Z',
-      updated_at: '2026-05-22T00:00:00Z',
       organization_id: 'org-1',
     },
   ];

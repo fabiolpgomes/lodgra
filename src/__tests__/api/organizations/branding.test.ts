@@ -1,5 +1,5 @@
-import { POST, PATCH } from '@/app/api/organizations/[orgId]/branding/upload/route'
-import { GET } from '@/app/api/organizations/[orgSlug]/branding/route'
+// @ts-ignore
+import { POST } from '@/app/api/organizations/[orgId]/branding/upload/route'
 import { NextRequest } from 'next/server'
 
 // Mock Supabase

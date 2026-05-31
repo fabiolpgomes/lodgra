@@ -228,7 +228,7 @@ describe('Stripe Booking Payments', () => {
     it('should skip events without booking_id', () => {
       const charge = {
         id: 'ch_test_123',
-        metadata: {},
+        metadata: {} as Record<string, string | undefined>,
       }
 
       const shouldProcess = charge.metadata.booking_id !== undefined
@@ -268,13 +268,13 @@ describe('Stripe Booking Payments', () => {
 
   describe('Error Handling', () => {
     it('should handle missing organization', () => {
-      const org = null
+      const org = null as { stripe_pt_connect_id?: string } | null
       const hasConnect = org?.stripe_pt_connect_id
       expect(hasConnect).toBeUndefined()
     })
 
     it('should handle missing booking', () => {
-      const booking = null
+      const booking = null as { stripe_charge_id?: string } | null
       const hasCharge = booking?.stripe_charge_id
       expect(hasCharge).toBeUndefined()
     })

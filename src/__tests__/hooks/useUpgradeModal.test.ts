@@ -5,7 +5,7 @@ describe('useUpgradeModal Hook', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     delete (window as unknown as Record<string, unknown>).location
-    window.location = { href: '' } as Location
+    ;(window as unknown as Record<string, unknown>).location = { href: '' }
   })
 
   describe('Initial State', () => {

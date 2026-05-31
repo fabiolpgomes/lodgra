@@ -1,6 +1,7 @@
 import React from 'react'
 import { render, screen, waitFor } from '@testing-library/react'
 import { FeatureGate, useFeatureAccess } from '@/lib/features/featureGate'
+import { FeatureName } from '@/lib/features/hasFeature'
 
 // Mock next/navigation
 jest.mock('next/navigation', () => ({
@@ -396,7 +397,7 @@ describe('useFeatureAccess Hook', () => {
 
       const TestComponent = () => {
         const { error, loading, hasAccess } = useFeatureAccess(
-          'invalid_feature',
+          'invalid_feature' as unknown as FeatureName,
           'test-org'
         )
 
@@ -557,7 +558,7 @@ function TestHookWrapper({
   orgId?: string
 }) {
   const { loading, hasAccess, plan, error } = useFeatureAccess(
-    feature || '',
+    (feature || '') as unknown as FeatureName,
     orgId
   )
 

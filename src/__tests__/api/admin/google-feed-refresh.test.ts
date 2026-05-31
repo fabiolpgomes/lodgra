@@ -1,4 +1,5 @@
 import { POST } from '@/app/api/admin/google-feed/refresh/route'
+import { SupabaseClient } from '@supabase/supabase-js'
 
 jest.mock('@/lib/supabase/server')
 
@@ -11,11 +12,11 @@ interface MockRequestBody {
   force?: boolean
 }
 
-interface MockSupabaseClient {
+type MockSupabaseClient = {
   auth: {
     getUser: jest.Mock
   }
-  from: jest.Mock
+  from?: jest.Mock
 }
 
 function createMockRequest(body: MockRequestBody = {}): Request {
@@ -34,7 +35,7 @@ describe('POST /api/admin/google-feed/refresh', () => {
       auth: {
         getUser: jest.fn().mockResolvedValue({ data: { user: null }, error: null }),
       },
-    } as unknown as MockSupabaseClient)
+    } as unknown as SupabaseClient<any>)
 
     const response = await POST(createMockRequest({}))
     expect(response.status).toBe(401)
@@ -55,7 +56,7 @@ describe('POST /api/admin/google-feed/refresh', () => {
           })),
         })),
       })),
-    } as unknown as MockSupabaseClient)
+    } as unknown as SupabaseClient<any>)
 
     const response = await POST(createMockRequest({}))
     expect(response.status).toBe(400)
@@ -90,7 +91,7 @@ describe('POST /api/admin/google-feed/refresh', () => {
           })),
         }
       }),
-    } as unknown as MockSupabaseClient)
+    } as unknown as SupabaseClient<any>)
 
     const response = await POST(createMockRequest({}))
     expect(response.status).toBe(403)
@@ -135,7 +136,7 @@ describe('POST /api/admin/google-feed/refresh', () => {
         }
         return {}
       }),
-    } as unknown as MockSupabaseClient)
+    } as unknown as SupabaseClient<any>)
 
     const response = await POST(createMockRequest({}))
     expect(response.status).toBe(202)
@@ -184,7 +185,7 @@ describe('POST /api/admin/google-feed/refresh', () => {
         }
         return {}
       }),
-    } as unknown as MockSupabaseClient)
+    } as unknown as SupabaseClient<any>)
 
     const response = await POST(
       createMockRequest({ propertyIds: ['prop-1', 'prop-2'] })
@@ -234,7 +235,7 @@ describe('POST /api/admin/google-feed/refresh', () => {
         }
         return {}
       }),
-    } as unknown as MockSupabaseClient)
+    } as unknown as SupabaseClient<any>)
 
     const response = await POST(createMockRequest({}))
     const data = await response.json()
@@ -280,7 +281,7 @@ describe('POST /api/admin/google-feed/refresh', () => {
         }
         return {}
       }),
-    } as unknown as MockSupabaseClient)
+    } as unknown as SupabaseClient<any>)
 
     await POST(createMockRequest({}))
 
@@ -331,7 +332,7 @@ describe('POST /api/admin/google-feed/refresh', () => {
         }
         return {}
       }),
-    } as unknown as MockSupabaseClient)
+    } as unknown as SupabaseClient<any>)
 
     const response = await POST(createMockRequest({}))
     expect(response.status).toBe(500)
@@ -372,7 +373,7 @@ describe('POST /api/admin/google-feed/refresh', () => {
         }
         return {}
       }),
-    } as unknown as MockSupabaseClient)
+    } as unknown as SupabaseClient<any>)
 
     const response = await POST(createMockRequest({}))
     expect(response.status).toBe(400)
@@ -383,7 +384,7 @@ describe('POST /api/admin/google-feed/refresh', () => {
       auth: {
         getUser: jest.fn().mockResolvedValue({ data: { user: null }, error: null }),
       },
-    } as unknown as MockSupabaseClient)
+    } as unknown as SupabaseClient<any>)
 
     const response = await POST(createMockRequest({}))
     const data = await response.json()

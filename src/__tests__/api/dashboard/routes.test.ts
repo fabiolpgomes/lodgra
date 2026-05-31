@@ -99,7 +99,7 @@ describe('Dashboard API Routes', () => {
 
       cache.set(cacheKey, testData, 3600)
 
-      const data = cache.get(cacheKey)
+      const data = cache.get<Map<string, MonthlyRevenue[]>>(cacheKey)
       expect(data?.get('EUR')).toBeDefined()
       expect(data?.get('BRL')).toBeDefined()
     })
@@ -118,7 +118,7 @@ describe('Dashboard API Routes', () => {
 
       cache.set(cacheKey, testData, 3600)
 
-      const data = cache.get(cacheKey)
+      const data = cache.get<Map<string, MonthlyRevenue[]>>(cacheKey)
       const monthlyData = data?.get('EUR')
 
       // Simulate month filtering

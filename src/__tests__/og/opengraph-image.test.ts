@@ -22,7 +22,7 @@ describe('opengraph-image route', () => {
     }
 
     ;(getPropertyBySlug as jest.Mock).mockResolvedValueOnce(mockProperty)
-    ;(ImageResponse as jest.Mock).mockReturnValueOnce({
+    ;(ImageResponse as unknown as jest.Mock).mockReturnValueOnce({
       status: 200,
       headers: new Map([['content-type', 'image/png']]),
     })
@@ -37,7 +37,7 @@ describe('opengraph-image route', () => {
 
   it('should return fallback image for non-existent property', async () => {
     ;(getPropertyBySlug as jest.Mock).mockResolvedValueOnce(null)
-    ;(ImageResponse as jest.Mock).mockReturnValueOnce({
+    ;(ImageResponse as unknown as jest.Mock).mockReturnValueOnce({
       status: 200,
       headers: new Map([['content-type', 'image/png']]),
     })
@@ -60,7 +60,7 @@ describe('opengraph-image route', () => {
     }
 
     ;(getPropertyBySlug as jest.Mock).mockResolvedValueOnce(mockProperty)
-    ;(ImageResponse as jest.Mock).mockReturnValueOnce({
+    ;(ImageResponse as unknown as jest.Mock).mockReturnValueOnce({
       status: 200,
       headers: new Map([['content-type', 'image/png']]),
     })
@@ -73,7 +73,7 @@ describe('opengraph-image route', () => {
 
   it('should handle errors gracefully', async () => {
     ;(getPropertyBySlug as jest.Mock).mockRejectedValueOnce(new Error('DB error'))
-    ;(ImageResponse as jest.Mock).mockReturnValueOnce({
+    ;(ImageResponse as unknown as jest.Mock).mockReturnValueOnce({
       status: 200,
       headers: new Map([['content-type', 'image/png']]),
     })

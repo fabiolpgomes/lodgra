@@ -65,19 +65,19 @@ describe('Schema.org Generators', () => {
     it('should include GeoCoordinates', () => {
       const schema = generatePropertyJsonLd(mockProperty)
 
-      expect(schema.geo['@type']).toBe('GeoCoordinates')
-      expect(schema.geo.latitude).toBe(37.1644)
-      expect(schema.geo.longitude).toBe(-8.6734)
+      expect(schema.geo!['@type']).toBe('GeoCoordinates')
+      expect(schema.geo!.latitude).toBe(37.1644)
+      expect(schema.geo!.longitude).toBe(-8.6734)
     })
 
     it('should include aggregateRating with ratingCount', () => {
       const schema = generatePropertyJsonLd(mockProperty)
 
-      expect(schema.aggregateRating['@type']).toBe('AggregateRating')
-      expect(schema.aggregateRating.ratingValue).toBe(8.5)
-      expect(schema.aggregateRating.ratingCount).toBe(42)
-      expect(schema.aggregateRating.bestRating).toBe(10)
-      expect(schema.aggregateRating.worstRating).toBe(1)
+      expect(schema.aggregateRating!['@type']).toBe('AggregateRating')
+      expect(schema.aggregateRating!.ratingValue).toBe(8.5)
+      expect(schema.aggregateRating!.ratingCount).toBe(42)
+      expect(schema.aggregateRating!.bestRating).toBe(10)
+      expect(schema.aggregateRating!.worstRating).toBe(1)
     })
 
     it('should include containsPlace with accommodation details', () => {
@@ -87,7 +87,7 @@ describe('Schema.org Generators', () => {
       expect(schema.containsPlace.additionalType).toBe('EntirePlace')
       expect(schema.containsPlace.numberOfBedrooms).toBe(3)
       expect(schema.containsPlace.numberOfBathroomsTotal).toBe(2)
-      expect(schema.containsPlace.occupancy.value).toBe(6)
+      expect((schema.containsPlace.occupancy as { value: number }).value).toBe(6)
     })
 
     it('should include makesOffer with price and currency', () => {
@@ -109,8 +109,8 @@ describe('Schema.org Generators', () => {
       const schema = generatePropertyJsonLd(propertyWithAmenities)
 
       expect(Array.isArray(schema.amenityFeature)).toBe(true)
-      expect(schema.amenityFeature.length).toBe(2)
-      expect(schema.amenityFeature[0]['@type']).toBe('LocationFeatureSpecification')
+      expect(schema.amenityFeature!.length).toBe(2)
+      expect((schema.amenityFeature![0] as Record<string, unknown>)['@type']).toBe('LocationFeatureSpecification')
     })
 
     it('should omit amenityFeature when no structuredAmenities', () => {
@@ -134,14 +134,14 @@ describe('Schema.org Generators', () => {
       const schema = generateLocalBusinessJsonLd(mockProperty)
 
       expect(schema.address['@type']).toBe('PostalAddress')
-      expect(schema.geo['@type']).toBe('GeoCoordinates')
+      expect(schema.geo!['@type']).toBe('GeoCoordinates')
     })
 
     it('should include aggregateRating when rating exists', () => {
       const schema = generateLocalBusinessJsonLd(mockProperty)
 
-      expect(schema.aggregateRating['@type']).toBe('AggregateRating')
-      expect(schema.aggregateRating.ratingValue).toBe(8.5)
+      expect(schema.aggregateRating!['@type']).toBe('AggregateRating')
+      expect(schema.aggregateRating!.ratingValue).toBe(8.5)
     })
 
     it('should not include aggregateRating when rating is null', () => {

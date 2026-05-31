@@ -9,7 +9,16 @@ import {
   computeAggregatedMetrics,
   getPropertyFeedStatuses,
   getLatestFeedLogs,
+  AggregatedMetrics,
+  PropertyFeedStatus,
+  FeedLogEntry,
 } from '@/lib/google-distribution-dashboard'
+import { SupabaseClient } from '@supabase/supabase-js'
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+type _FeedLogEntry = FeedLogEntry
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+type _PropertyFeedStatus = PropertyFeedStatus
 
 interface MockMetrics {
   totalIndexed: number
@@ -57,9 +66,9 @@ describe('Google Distribution Dashboard Integration', () => {
         errorCount: 5,
         rejectedCount: 2,
       }
-      mockComputeMetrics.mockResolvedValue(metrics)
+      mockComputeMetrics.mockResolvedValue(metrics as unknown as AggregatedMetrics)
 
-      const result = await mockComputeMetrics({} as Record<string, unknown>, 'org-1')
+      const result = await mockComputeMetrics({} as unknown as SupabaseClient<any>, 'org-1')
       expect(result).toEqual(
         expect.objectContaining({
           totalIndexed: 100,
@@ -79,9 +88,9 @@ describe('Google Distribution Dashboard Integration', () => {
         },
       ]
 
-      mockGetStatuses.mockResolvedValue(mockProperties)
+      mockGetStatuses.mockResolvedValue(mockProperties as unknown as PropertyFeedStatus[])
 
-      const result = await mockGetStatuses({} as Record<string, unknown>, 'org-1', 50, 0)
+      const result = await mockGetStatuses({} as unknown as SupabaseClient<any>, 'org-1', 50, 0)
       expect(result).toHaveLength(1)
       expect(result[0]).toEqual(expect.objectContaining({ propertyId: 'prop-1' }))
     })
@@ -99,9 +108,9 @@ describe('Google Distribution Dashboard Integration', () => {
         },
       ]
 
-      mockGetLogs.mockResolvedValue(mockLogs)
+      mockGetLogs.mockResolvedValue(mockLogs as unknown as FeedLogEntry[])
 
-      const result = await mockGetLogs({} as Record<string, unknown>, 'org-1', 20)
+      const result = await mockGetLogs({} as unknown as SupabaseClient<any>, 'org-1', 20)
       expect(result).toHaveLength(1)
       expect(result[0]).toEqual(expect.objectContaining({ action: 'manual' }))
     })
@@ -113,14 +122,14 @@ describe('Google Distribution Dashboard Integration', () => {
         errorCount: 0,
         rejectedCount: 0,
       }
-      mockComputeMetrics.mockResolvedValue(emptyMetrics)
+      mockComputeMetrics.mockResolvedValue(emptyMetrics as unknown as AggregatedMetrics)
 
       mockGetStatuses.mockResolvedValue([])
       mockGetLogs.mockResolvedValue([])
 
-      const metrics = await mockComputeMetrics({} as Record<string, unknown>, 'org-1')
-      const statuses = await mockGetStatuses({} as Record<string, unknown>, 'org-1', 50, 0)
-      const logs = await mockGetLogs({} as Record<string, unknown>, 'org-1', 20)
+      const metrics = await mockComputeMetrics({} as unknown as SupabaseClient<any>, 'org-1')
+      const statuses = await mockGetStatuses({} as unknown as SupabaseClient<any>, 'org-1', 50, 0)
+      const logs = await mockGetLogs({} as unknown as SupabaseClient<any>, 'org-1', 20)
 
       expect(metrics.totalIndexed).toBe(0)
       expect(statuses).toHaveLength(0)
@@ -136,9 +145,9 @@ describe('Google Distribution Dashboard Integration', () => {
         errorCount: 2,
         rejectedCount: 1,
       }
-      mockComputeMetrics.mockResolvedValue(metrics)
+      mockComputeMetrics.mockResolvedValue(metrics as unknown as AggregatedMetrics)
 
-      const result = await mockComputeMetrics({} as Record<string, unknown>, 'org-1')
+      const result = await mockComputeMetrics({} as unknown as SupabaseClient<any>, 'org-1')
 
       expect(result).toHaveProperty('totalIndexed')
       expect(result).toHaveProperty('pendingCount')
@@ -156,9 +165,9 @@ describe('Google Distribution Dashboard Integration', () => {
           submittedDate: '2026-04-01T00:00:00Z',
           lastUpdatedDate: '2026-05-15T00:00:00Z',
         },
-      ])
+      ] as unknown as PropertyFeedStatus[])
 
-      const result = await mockGetStatuses({} as Record<string, unknown>, 'org-1', 50, 0)
+      const result = await mockGetStatuses({} as unknown as SupabaseClient<any>, 'org-1', 50, 0)
 
       expect(result[0]).toHaveProperty('propertyId')
       expect(result[0]).toHaveProperty('propertyName')
@@ -177,9 +186,9 @@ describe('Google Distribution Dashboard Integration', () => {
           duration_ms: 2500,
           error_message: null,
         },
-      ])
+      ] as unknown as FeedLogEntry[])
 
-      const result = await mockGetLogs({} as Record<string, unknown>, 'org-1', 20)
+      const result = await mockGetLogs({} as unknown as SupabaseClient<any>, 'org-1', 20)
 
       expect(result[0]).toHaveProperty('id')
       expect(result[0]).toHaveProperty('timestamp')
@@ -196,9 +205,9 @@ describe('Google Distribution Dashboard Integration', () => {
         pendingCount: 5,
         errorCount: 0,
         rejectedCount: 0,
-      } as Record<string, unknown>)
+      } as unknown as AggregatedMetrics)
 
-      const result = await mockComputeMetrics({} as Record<string, unknown>, 'org-1')
+      const result = await mockComputeMetrics({} as unknown as SupabaseClient<any>, 'org-1')
 
       // If metrics load successfully, premium gating passed
       expect(result).toBeDefined()
@@ -212,9 +221,9 @@ describe('Google Distribution Dashboard Integration', () => {
         errorCount: 0,
         rejectedCount: 0,
       }
-      mockComputeMetrics.mockResolvedValue(emptyMetrics)
+      mockComputeMetrics.mockResolvedValue(emptyMetrics as unknown as AggregatedMetrics)
 
-      const result = await mockComputeMetrics({} as Record<string, unknown>, 'org-1')
+      const result = await mockComputeMetrics({} as unknown as SupabaseClient<any>, 'org-1')
 
       // Free tier shows 0 metrics
       expect(result.totalIndexed).toBe(0)
@@ -242,7 +251,7 @@ describe('Google Distribution Dashboard Integration', () => {
       mockComputeMetrics.mockRejectedValue(new Error('DB error'))
 
       try {
-        await mockComputeMetrics({} as Record<string, unknown>, 'org-1')
+        await mockComputeMetrics({} as unknown as SupabaseClient<any>, 'org-1')
         expect(true).toBe(false) // Should not reach here
       } catch (error) {
         expect(error).toBeDefined()
@@ -253,7 +262,7 @@ describe('Google Distribution Dashboard Integration', () => {
       mockGetStatuses.mockRejectedValue(new Error('DB error'))
 
       try {
-        await mockGetStatuses({} as Record<string, unknown>, 'org-1', 50, 0)
+        await mockGetStatuses({} as unknown as SupabaseClient<any>, 'org-1', 50, 0)
         expect(true).toBe(false)
       } catch (error) {
         expect(error).toBeDefined()
@@ -264,7 +273,7 @@ describe('Google Distribution Dashboard Integration', () => {
       mockGetLogs.mockRejectedValue(new Error('DB error'))
 
       try {
-        await mockGetLogs({} as Record<string, unknown>, 'org-1', 20)
+        await mockGetLogs({} as unknown as SupabaseClient<any>, 'org-1', 20)
         expect(true).toBe(false)
       } catch (error) {
         expect(error).toBeDefined()
@@ -275,11 +284,11 @@ describe('Google Distribution Dashboard Integration', () => {
   describe('Data Pagination', () => {
     it('should support limit and offset parameters', async () => {
       mockGetStatuses.mockResolvedValue([
-        { propertyId: 'prop-1' },
-        { propertyId: 'prop-2' },
-      ])
+        { propertyId: 'prop-1', propertyName: '', status: 'indexed', lastUpdatedDate: '' },
+        { propertyId: 'prop-2', propertyName: '', status: 'pending', lastUpdatedDate: '' },
+      ] as unknown as PropertyFeedStatus[])
 
-      const result = await mockGetStatuses({} as Record<string, unknown>, 'org-1', 50, 0)
+      const result = await mockGetStatuses({} as unknown as SupabaseClient<any>, 'org-1', 50, 0)
 
       // Verify function accepts limit/offset
       expect(mockGetStatuses).toHaveBeenCalledWith({}, 'org-1', 50, 0)
@@ -293,15 +302,15 @@ describe('Google Distribution Dashboard Integration', () => {
         {
           id: 'log-1',
           timestamp: '2026-05-15T10:00:00Z',
-          action: 'automatic',
+          action: 'auto',
           status: 'success',
           properties_count: 100,
           duration_ms: 4500,
           error_message: null,
         },
-      ])
+      ] as unknown as FeedLogEntry[])
 
-      const result = await mockGetLogs({} as Record<string, unknown>, 'org-1', 20)
+      const result = await mockGetLogs({} as unknown as SupabaseClient<any>, 'org-1', 20)
 
       // Feed generation logs should still load correctly
       expect(result[0].properties_count).toBe(100)
@@ -314,11 +323,11 @@ describe('Google Distribution Dashboard Integration', () => {
         pendingCount: 10,
         errorCount: 0,
         rejectedCount: 0,
-      } as Record<string, unknown>)
+      } as unknown as AggregatedMetrics)
 
       // Multiple simultaneous calls should work
-      const result1 = await mockComputeMetrics({} as Record<string, unknown>, 'org-1')
-      const result2 = await mockComputeMetrics({} as Record<string, unknown>, 'org-1')
+      const result1 = await mockComputeMetrics({} as unknown as SupabaseClient<any>, 'org-1')
+      const result2 = await mockComputeMetrics({} as unknown as SupabaseClient<any>, 'org-1')
 
       expect(result1.totalIndexed).toBe(100)
       expect(result2.totalIndexed).toBe(100)

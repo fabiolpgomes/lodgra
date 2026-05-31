@@ -128,8 +128,8 @@ describe('Cleaner Authentication (Story 29.2)', () => {
     });
 
     it('should prevent access to other organization data', () => {
-      const userOrg = 'org-456';
-      const requestedOrg = 'org-789';
+      const userOrg: string = 'org-456';
+      const requestedOrg: string = 'org-789';
       const hasAccess = userOrg === requestedOrg;
       expect(hasAccess).toBe(false);
     });
