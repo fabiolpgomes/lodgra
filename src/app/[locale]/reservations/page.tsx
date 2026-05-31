@@ -63,15 +63,15 @@ export default async function ReservationsPage({
         email
       )
     `, { count: 'exact' })
-    .gte('check_in', monthStart)
     .lte('check_in', monthEnd)
+    .gte('check_out', monthStart)
     .order('check_in', { ascending: true })
     .range(from, to)
 
   // Queries de contagem HEAD (sem transferir dados) para stats
-  let cConf = supabase.from('reservations').select('id, property_listings!inner(property_id)', { count: 'exact', head: true }).eq('status', 'confirmed').gte('check_in', monthStart).lte('check_in', monthEnd)
-  let cPend = supabase.from('reservations').select('id, property_listings!inner(property_id)', { count: 'exact', head: true }).eq('status', 'pending').gte('check_in', monthStart).lte('check_in', monthEnd)
-  let cCanc = supabase.from('reservations').select('id, property_listings!inner(property_id)', { count: 'exact', head: true }).eq('status', 'cancelled').gte('check_in', monthStart).lte('check_in', monthEnd)
+  let cConf = supabase.from('reservations').select('id, property_listings!inner(property_id)', { count: 'exact', head: true }).eq('status', 'confirmed').lte('check_in', monthEnd).gte('check_out', monthStart)
+  let cPend = supabase.from('reservations').select('id, property_listings!inner(property_id)', { count: 'exact', head: true }).eq('status', 'pending').lte('check_in', monthEnd).gte('check_out', monthStart)
+  let cCanc = supabase.from('reservations').select('id, property_listings!inner(property_id)', { count: 'exact', head: true }).eq('status', 'cancelled').lte('check_in', monthEnd).gte('check_out', monthStart)
 
   if (propertyIds) {
     dataQuery = dataQuery.in('property_listings.properties.id', propertyIds)

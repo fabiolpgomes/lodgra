@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
     const thirtyMinAgo = new Date(Date.now() - 30 * 60 * 1000).toISOString()
     const adminClient = createAdminClient()
 
-    const { data: expiredPending, error: expiredError } = await adminClient
+    const { data: expiredPendingPayment, error: expiredError } = await adminClient
       .from('reservations')
       .update({ status: 'cancelled' })
       .eq('status', 'pending_payment')
@@ -48,19 +48,32 @@ export async function GET(request: NextRequest) {
       .select('id')
 
     if (expiredError) {
-      console.error('Erro ao cancelar reservas expiradas:', expiredError)
+      console.error('Erro ao cancelar reservas expiradas (pending_payment):', expiredError)
     }
 
-    const cancelledPendingCount = expiredPending?.length ?? 0
+    // Cancel expired pending (direct) reservations (>30 min) — orphaned booking attempts
+    const { data: expiredPending, error: expiredPendingError } = await adminClient
+      .from('reservations')
+      .update({ status: 'cancelled' })
+      .eq('status', 'pending')
+      .eq('booking_source', 'direct')
+      .lt('created_at', thirtyMinAgo)
+      .select('id')
+
+    if (expiredPendingError) {
+      console.error('Erro ao cancelar reservas expiradas (pending):', expiredPendingError)
+    }
+
+    const cancelledPendingCount = (expiredPendingPayment?.length ?? 0) + (expiredPending?.length ?? 0)
     if (cancelledPendingCount > 0) {
-      console.log(`Reservas pending_payment canceladas (>30 min): ${cancelledPendingCount}`)
+      console.log(`Reservas direct expiradas canceladas (>30 min): ${cancelledPendingCount}`)
     }
 
     const result = {
       success: true,
       cutoffDate,
       oldCancelledReservations: oldCancelledCount || 0,
-      expiredPendingPaymentCancelled: cancelledPendingCount,
+      expiredDirectCancelled: cancelledPendingCount,
       action: 'counted',
       timestamp: new Date().toISOString(),
     }
