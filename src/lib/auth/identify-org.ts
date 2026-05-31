@@ -4,12 +4,6 @@ import { createClient } from '@supabase/supabase-js'
  * Identify organization by user email
  * Uses admin client to bypass RLS
  */
-interface OrgData {
-  name: string | null
-  slug: string | null
-  organization_branding: Array<{ logo_url: string | null }>
-}
-
 export async function identifyOrgByEmail(email: string): Promise<{
   orgName: string | null
   orgSlug: string | null
