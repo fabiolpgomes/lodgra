@@ -12,6 +12,7 @@
  * Uses jest.mock for rate limiting and signature validation
  */
 
+import { NextRequest } from 'next/server'
 import { createTestRequest } from '@/__tests__/utils/test-request'
 import crypto from 'crypto'
 import { POST } from '../route'
@@ -87,11 +88,11 @@ describe.skip('POST /api/webhooks/booking/reservation', () => {
       },
     })
 
-    return createTestRequest(new Request('http://localhost/api/webhooks/booking/reservation', {
+    return new NextRequest('http://localhost/api/webhooks/booking/reservation', {
       method: 'POST',
       headers,
       body: stream,
-    }))
+    })
   }
 
   // ──────────────────────────────────────────────────────────────

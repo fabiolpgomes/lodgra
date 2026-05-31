@@ -10,6 +10,7 @@
  * 6. GET — returns 401 for unauthenticated user
  */
 
+import { NextRequest } from 'next/server'
 import { createTestRequest } from '@/__tests__/utils/test-request'
 import { POST, GET } from '../route'
 

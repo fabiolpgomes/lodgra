@@ -18,7 +18,7 @@ describe('Design System Components', () => {
 
     it('Button should render all variants', () => {
       const { rerender } = render(<Button variant="primary">Primary</Button>)
-      expect(screen.getByRole('button')).toHaveClass('bg-lodgra-primary')
+      expect(screen.getByRole('button')).toHaveClass('bg-primary')
 
       rerender(<Button variant="secondary">Secondary</Button>)
       expect(screen.getByRole('button')).toHaveClass('bg-lodgra-accent')
@@ -26,13 +26,13 @@ describe('Design System Components', () => {
 
     it('Button should render all sizes', () => {
       const { rerender } = render(<Button size="sm">Small</Button>)
-      expect(screen.getByRole('button')).toHaveClass('px-3', 'py-1.5')
+      expect(screen.getByRole('button')).toHaveClass('px-3', 'h-8')
 
       rerender(<Button size="md">Medium</Button>)
-      expect(screen.getByRole('button')).toHaveClass('px-4', 'py-2.5')
+      expect(screen.getByRole('button')).toHaveClass('px-4', 'py-2')
 
       rerender(<Button size="lg">Large</Button>)
-      expect(screen.getByRole('button')).toHaveClass('px-6', 'py-3.5')
+      expect(screen.getByRole('button')).toHaveClass('px-6', 'h-10')
     })
 
     it('Input should render', () => {
@@ -235,7 +235,7 @@ describe('Design System Components', () => {
   describe('Accessibility', () => {
     it('Button should have focus ring', () => {
       render(<Button>Button</Button>)
-      expect(screen.getByRole('button')).toHaveClass('focus:ring-2')
+      expect(screen.getByRole('button')).toHaveClass('focus-visible:ring-[3px]')
     })
 
     it('Input should be associated with label', () => {

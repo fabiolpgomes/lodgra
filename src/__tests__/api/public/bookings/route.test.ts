@@ -3,6 +3,7 @@
  * Covers: validation, double-booking, max_guests, pricing, Stripe session creation
  */
 
+import { NextRequest } from 'next/server'
 import { createTestRequest } from '@/__tests__/utils/test-request'
 import { POST } from '@/app/api/public/bookings/route'
 import { createAdminClient } from '@/lib/supabase/admin'

@@ -3,6 +3,7 @@
  * Covers: signature verification, idempotency, confirmation, expiry, email dispatch
  */
 
+import { NextRequest } from 'next/server'
 import { createTestRequest } from '@/__tests__/utils/test-request'
 import { POST } from '@/app/api/stripe/booking-webhook/route'
 import { createAdminClient } from '@/lib/supabase/admin'
@@ -31,11 +32,9 @@ const mockSendManager = sendBookingNotificationToManager as jest.MockedFunction<
 const BASE_URL = 'http://localhost:3000'
 
 function makeWebhookRequest(body = '{}', sig = 'valid-sig'): NextRequest {
-  const headers = new Headers()
-  headers.set('stripe-signature', sig)
   return createTestRequest(`${BASE_URL}/api/stripe/booking-webhook`, {
     method: 'POST',
-    headers,
+    headers: { 'stripe-signature': sig },
     body,
   })
 }
@@ -107,10 +106,9 @@ describe.skip('POST /api/stripe/booking-webhook', () => {
   // Issue: NextResponse.json() doesn't work in test environment
   // Fix: Either refactor to use mocked responses or setup proper Next.js test environment
   it.skip('returns 400 when stripe-signature header is missing', async () => {
-    const headers = new Headers()
     const req = createTestRequest(`${BASE_URL}/api/stripe/booking-webhook`, {
       method: 'POST',
-      headers,
+      headers: {},
       body: '{}',
     })
     const res = await POST(req)

@@ -3,6 +3,7 @@
  * Covers: validation, property not found, blocked dates, past dates, rate limit
  */
 
+import { NextRequest } from 'next/server'
 import { createTestRequest } from '@/__tests__/utils/test-request'
 import { GET } from '@/app/api/public/properties/[slug]/availability/route'
 import { createClient } from '@/lib/supabase/server'
