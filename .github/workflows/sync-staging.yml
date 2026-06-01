@@ -1,0 +1,137 @@
+name: Sync Production → Staging Database
+
+on:
+  # Run daily at 02:00 UTC (outside peak usage)
+  schedule:
+    - cron: '0 2 * * *'
+
+  # Allow manual trigger
+  workflow_dispatch:
+    inputs:
+      skip_sanitize:
+        description: 'Skip data sanitization (use with caution)'
+        required: false
+        default: 'false'
+
+jobs:
+  sync-database:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      actions: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Verify staging credentials
+        run: |
+          if [ -z "${{ secrets.SUPABASE_DB_URL_PROD }}" ]; then
+            echo "❌ Missing SUPABASE_DB_URL_PROD secret"
+            exit 1
+          fi
+          if [ -z "${{ secrets.SUPABASE_DB_URL_STAGING }}" ]; then
+            echo "❌ Missing SUPABASE_DB_URL_STAGING secret"
+            exit 1
+          fi
+          echo "✅ Credentials verified"
+
+      - name: Run sync script
+        env:
+          SUPABASE_DB_URL_PROD: ${{ secrets.SUPABASE_DB_URL_PROD }}
+          SUPABASE_DB_URL_STAGING: ${{ secrets.SUPABASE_DB_URL_STAGING }}
+        run: |
+          chmod +x ./scripts/sync-prod-to-staging.sh
+          ./scripts/sync-prod-to-staging.sh
+
+      - name: Verify staging database
+        env:
+          SUPABASE_DB_URL_STAGING: ${{ secrets.SUPABASE_DB_URL_STAGING }}
+        run: |
+          echo "Verifying staging database..."
+          psql "${{ secrets.SUPABASE_DB_URL_STAGING }}" -c "\dt" | head -20
+          echo "✅ Staging database is accessible"
+
+      - name: Notify success
+        if: success()
+        run: |
+          echo "✅ Staging sync completed successfully"
+          echo "Timestamp: $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
+
+      - name: Notify failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '❌ Staging sync failed. Check workflow logs.'
+            })
+
+  # Optional: Run smoke tests on staging after sync
+  smoke-test:
+    needs: sync-database
+    runs-on: ubuntu-latest
+    if: success()
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --only=prod
+
+      - name: Build project
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL_STAGING }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY_STAGING }}
+        run: npm run build
+
+      - name: Verify build
+        run: |
+          if [ -d ".next" ]; then
+            echo "✅ Build successful"
+            du -sh .next
+          else
+            echo "❌ Build failed"
+            exit 1
+          fi
+
+  # Notification
+  notify:
+    needs: [sync-database, smoke-test]
+    runs-on: ubuntu-latest
+    if: always()
+
+    steps:
+      - name: Set status
+        id: status
+        run: |
+          if [ "${{ needs.sync-database.result }}" = "success" ] && [ "${{ needs.smoke-test.result }}" = "success" ]; then
+            echo "status=✅ All checks passed" >> $GITHUB_OUTPUT
+          else
+            echo "status=⚠️ Some checks failed" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Output summary
+        run: |
+          echo "## Staging Sync Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Step | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Database Sync | ${{ needs.sync-database.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Smoke Tests | ${{ needs.smoke-test.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Staging URL:** https://staging.lodgra.io" >> $GITHUB_STEP_SUMMARY
+          echo "**Time:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY

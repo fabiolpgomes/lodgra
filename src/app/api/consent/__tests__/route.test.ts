@@ -10,9 +10,8 @@
  * 6. GET — returns 401 for unauthenticated user
  */
 
-import { NextRequest } from 'next/server'
-import { createTestRequest } from '@/__tests__/utils/test-request'
 import { POST, GET } from '../route'
+import { NextRequest } from 'next/server'
 
 // Track mock state
 let mockSessionUser: { id: string } | null = null
@@ -24,9 +23,10 @@ let mockSelectData: Array<Record<string, unknown>> = []
 jest.mock('@/lib/supabase/server', () => ({
   createClient: jest.fn(async () => ({
     auth: {
-      getUser: jest.fn(async () => ({
-        data: { user: mockSessionUser },
-        error: mockSessionUser ? null : { message: 'Not authenticated' },
+      getSession: jest.fn(async () => ({
+        data: {
+          session: mockSessionUser ? { user: mockSessionUser } : null,
+        },
       })),
     },
   })),
@@ -35,13 +35,7 @@ jest.mock('@/lib/supabase/server', () => ({
 // Mock Supabase admin client
 jest.mock('@/lib/supabase/admin', () => ({
   createAdminClient: jest.fn(() => {
-    type ChainableMock = {
-      select: jest.Mock
-      eq: jest.Mock
-      order: jest.Mock
-      insert: jest.Mock
-    }
-    const chainable: ChainableMock = {
+    const chainable: Record<string, jest.Mock> = {
       select: jest.fn(() => chainable),
       eq: jest.fn(() => chainable),
       order: jest.fn(async () => ({
@@ -60,7 +54,7 @@ jest.mock('@/lib/supabase/admin', () => ({
 }))
 
 function createRequest(body: Record<string, unknown>, method = 'POST'): NextRequest {
-  return createTestRequest('http://localhost:3000/api/consent', {
+  return new NextRequest('http://localhost:3000/api/consent', {
     method,
     headers: {
       'Content-Type': 'application/json',

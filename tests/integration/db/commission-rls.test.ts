@@ -97,8 +97,8 @@ describe('Commission RLS Policies', () => {
       ])
 
       // Get user token (in real test, would use signIn)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: session } = await (adminClient.auth.admin as any).createSession(userId)
+      const { data: session } = // eslint-disable-next-line @typescript-eslint/no-explicit-any
+(adminClient.auth.admin as any).createSession(userId)
       if (!session?.session?.access_token) {
         throw new Error('Failed to create session for test user')
       }
@@ -139,8 +139,8 @@ describe('Commission RLS Policies', () => {
       })
 
       // Get user token
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: session } = await (adminClient.auth.admin as any).createSession(userId)
+      const { data: session } = // eslint-disable-next-line @typescript-eslint/no-explicit-any
+(adminClient.auth.admin as any).createSession(userId)
       if (!session?.session?.access_token) {
         throw new Error('Failed to create session for test user')
       }
