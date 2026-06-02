@@ -166,7 +166,7 @@ export default async function UsersPage({
                             className="p-1.5 text-gray-500 hover:text-brand-600 hover:bg-brand-50"
                             title="Editar"
                           >
-                            <Link href={`/admin/users/${profile.id}/edit`}>
+                            <Link href={`/${locale}/admin/users/${profile.id}/edit`}>
                               <Edit className="h-4 w-4" />
                             </Link>
                           </Button>
