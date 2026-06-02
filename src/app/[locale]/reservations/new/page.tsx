@@ -422,7 +422,7 @@ export default function NewReservationPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="check_in" className="mb-1">
-                  Check-in *
+                  Check-in * <span className="text-xs text-gray-600">(dd/mm/aaaa)</span>
                 </Label>
                 <Input
                   type="date"
@@ -436,7 +436,7 @@ export default function NewReservationPage() {
 
               <div>
                 <Label htmlFor="check_out" className="mb-1">
-                  Check-out *
+                  Check-out * <span className="text-xs text-gray-600">(dd/mm/aaaa)</span>
                 </Label>
                 <Input
                   type="date"

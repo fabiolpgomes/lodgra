@@ -189,7 +189,7 @@ export default function EditExpensePage({
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="expense_date" className="mb-1">
-                  Data *
+                  Data * <span className="text-xs text-gray-600">(dd/mm/aaaa)</span>
                 </Label>
                 <Input
                   type="date"

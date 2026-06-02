@@ -264,21 +264,27 @@ export default function OwnerReportPage() {
             </div>
 
             {period === 'custom' && (
-              <div className="flex items-center gap-2">
-                <input
-                  type="date"
-                  value={customFrom}
-                  onChange={e => setCustomFrom(e.target.value)}
-                  className="border border-gray-300 rounded px-2 py-1 text-sm"
-                />
-                <span className="text-gray-600">→</span>
-                <input
-                  type="date"
-                  value={customTo}
-                  onChange={e => setCustomTo(e.target.value)}
-                  className="border border-gray-300 rounded px-2 py-1 text-sm"
-                />
-                <Button size="sm" onClick={fetchReport} disabled={!customFrom || !customTo}>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                <div className="flex flex-col">
+                  <label className="text-xs text-gray-600 mb-1">De (dd/mm/aaaa)</label>
+                  <input
+                    type="date"
+                    value={customFrom}
+                    onChange={e => setCustomFrom(e.target.value)}
+                    className="border border-gray-300 rounded px-2 py-1 text-sm"
+                  />
+                </div>
+                <span className="text-gray-600 hidden sm:block">→</span>
+                <div className="flex flex-col">
+                  <label className="text-xs text-gray-600 mb-1">Até (dd/mm/aaaa)</label>
+                  <input
+                    type="date"
+                    value={customTo}
+                    onChange={e => setCustomTo(e.target.value)}
+                    className="border border-gray-300 rounded px-2 py-1 text-sm"
+                  />
+                </div>
+                <Button size="sm" onClick={fetchReport} disabled={!customFrom || !customTo} className="sm:mt-auto">
                   Carregar
                 </Button>
               </div>

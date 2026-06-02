@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { Button } from '@/components/common/ui/button'
 import { Input } from '@/components/common/ui/input'
 import { Label } from '@/components/common/ui/label'
+import { useRouter } from '@/lib/i18n/routing'
 
 const REPORT_TABS = [
   { id: 'dashboard', label: 'Dashboard' },
@@ -23,11 +24,8 @@ interface ReportsFiltersProps {
   activeTab: string
 }
 
-function navigate(url: string) {
-  window.location.assign(url)
-}
-
 export function ReportsFilters({ properties, startDate, endDate, propertyId, activeTab }: ReportsFiltersProps) {
+  const router = useRouter()
   const [localStartDate, setLocalStartDate] = useState(startDate)
   const [localEndDate, setLocalEndDate] = useState(endDate)
   const [localPropertyId, setLocalPropertyId] = useState(propertyId || '')
@@ -46,11 +44,11 @@ export function ReportsFilters({ properties, startDate, endDate, propertyId, act
   }
 
   const handleFilter = () => {
-    navigate(buildUrl(activeTab))
+    router.push(buildUrl(activeTab))
   }
 
   const handleReset = () => {
-    navigate('/reports')
+    router.push('/reports')
   }
 
   const handleTabChange = (tab: string) => {
@@ -63,7 +61,7 @@ export function ReportsFilters({ properties, startDate, endDate, propertyId, act
     if (tab !== 'dashboard') {
       params.set('tab', tab)
     }
-    navigate(`/reports?${params.toString()}`)
+    router.push(`/reports?${params.toString()}`)
   }
 
   return (
