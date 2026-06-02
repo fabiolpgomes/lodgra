@@ -26,12 +26,15 @@ jest.mock('@upstash/ratelimit', () => ({
 }))
 
 // Add the static method to the Ratelimit mock
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const RatelimitMock = require('@upstash/ratelimit').Ratelimit
 RatelimitMock.slidingWindow = jest.fn(() => ({}))
 
 // Import POST after mocks are set up
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const { POST } = require('@/app/api/auth/identify-org/route')
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const { identifyOrgByEmail, validateEmail } = require('@/lib/auth/identify-org')
 
 describe('/api/auth/identify-org', () => {

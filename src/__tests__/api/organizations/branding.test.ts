@@ -1,4 +1,4 @@
-// @ts-ignore
+// @ts-expect-error - Dynamic import resolution
 import { POST } from '@/app/api/organizations/[orgId]/branding/upload/route'
 import { NextRequest } from 'next/server'
 
