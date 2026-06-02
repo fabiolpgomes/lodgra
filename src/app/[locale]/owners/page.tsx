@@ -63,6 +63,7 @@ export default async function OwnersPage({
 
         {/* Filter + Search + List */}
         <OwnersFilter
+          locale={locale}
           owners={owners || []}
           countMap={countMap}
           canEdit={canEdit}

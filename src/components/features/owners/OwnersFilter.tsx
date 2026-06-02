@@ -21,6 +21,7 @@ interface Owner {
 }
 
 interface OwnersFilterProps {
+  locale: string
   owners: Owner[]
   countMap: Record<string, number>
   canEdit: boolean
@@ -36,7 +37,7 @@ const STATUS_FILTERS: { value: StatusFilter; label: string }[] = [
   { value: 'inactive', label: 'Inativos' },
 ]
 
-export function OwnersFilter({ owners, countMap, canEdit, canDelete, pagination }: OwnersFilterProps) {
+export function OwnersFilter({ locale, owners, countMap, canEdit, canDelete, pagination }: OwnersFilterProps) {
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
 
@@ -67,7 +68,7 @@ export function OwnersFilter({ owners, countMap, canEdit, canDelete, pagination 
       </p>
       {owners.length === 0 && canEdit && (
         <Button asChild>
-          <Link href="/owners/new" className="inline-flex items-center gap-2">
+          <Link href={`/${locale}/owners/new`} className="inline-flex items-center gap-2">
             <Plus className="h-5 w-5" />
             Novo Proprietário
           </Link>
@@ -132,13 +133,13 @@ export function OwnersFilter({ owners, countMap, canEdit, canDelete, pagination 
                 </div>
                 <div className="flex items-center justify-end gap-1 mt-3 pt-3 border-t border-gray-100">
                   <Button asChild variant="ghost" size="sm" className="h-9 px-3 text-gray-600">
-                    <Link href={`/owners/${owner.id}`}>
+                    <Link href={`/${locale}/owners/${owner.id}`}>
                       <Eye className="h-4 w-4" />
                     </Link>
                   </Button>
                   {canEdit && (
                     <Button asChild variant="ghost" size="sm" className="h-9 px-3 text-gray-600">
-                      <Link href={`/owners/${owner.id}/edit`}>
+                      <Link href={`/${locale}/owners/${owner.id}/edit`}>
                         <Edit className="h-4 w-4" />
                       </Link>
                     </Button>
@@ -147,7 +148,7 @@ export function OwnersFilter({ owners, countMap, canEdit, canDelete, pagination 
                     <DeleteOwnerButton ownerId={owner.id} ownerName={owner.full_name} />
                   )}
                   <Button asChild variant="ghost" size="sm" className="h-9 px-3 text-brand-600 ml-auto">
-                    <Link href={`/owners/${owner.id}`}>
+                    <Link href={`/${locale}/owners/${owner.id}`}>
                       Ver <ArrowRight className="h-3 w-3 ml-1" />
                     </Link>
                   </Button>
@@ -208,11 +209,11 @@ export function OwnersFilter({ owners, countMap, canEdit, canDelete, pagination 
                     <td className="px-6 py-4 whitespace-nowrap text-right">
                       <div className="flex items-center justify-end gap-2">
                         <Button asChild variant="ghost" size="sm" className="p-1.5 text-gray-500 hover:text-brand-600 hover:bg-brand-50" title="Ver detalhes">
-                          <Link href={`/owners/${owner.id}`}><Eye className="h-4 w-4" /></Link>
+                          <Link href={`/${locale}/owners/${owner.id}`}><Eye className="h-4 w-4" /></Link>
                         </Button>
                         {canEdit && (
                           <Button asChild variant="ghost" size="sm" className="p-1.5 text-lodgra-blue bg-lodgra-accent hover:bg-lodgra-accent/80" title="Editar">
-                            <Link href={`/owners/${owner.id}/edit`}><Edit className="h-4 w-4" /></Link>
+                            <Link href={`/${locale}/owners/${owner.id}/edit`}><Edit className="h-4 w-4" /></Link>
                           </Button>
                         )}
                         {canDelete && (
