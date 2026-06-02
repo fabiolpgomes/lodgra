@@ -50,9 +50,40 @@ Simples assim! Não precisa de configuração adicional.
 - ✅ Desktop e Mobile (responsivo)
 
 ### PWA (Progressive Web App)
-- **iOS:** Safari → Share → Add to Home Screen
-- **Android:** Chrome → Menu → Install app
-- ✅ App funciona offline (com dados em cache)
+✅ App funciona offline (com dados em cache)
+
+#### 📱 Android (Chrome)
+1. Abra: https://www.lodgra.io em **Chrome**
+2. Clique no **Menu** (⋮) no canto superior direito
+3. Selecione **"Instalar app"** ou **"Install app"**
+4. Confirme **"Instalar"**
+5. O app aparecerá na sua **Home Screen**
+6. Ícone: Logo Lodgra (personalizável)
+
+**Alternativa:** Menu → "Add to Home Screen"
+
+#### 🍎 Mac (Safari)
+1. Abra: https://www.lodgra.io em **Safari**
+2. Clique em **Arquivo** (File) no menu superior
+3. Selecione **"Add to Dock"** ou **"Add to Home Screen"**
+4. Nomeie a app (ex: "Lodgra")
+5. Clique **"Adicionar"** (Add)
+6. App será instalada como uma app independente
+
+**Dica:** Aparecerá no Dock do Mac e na Launchpad
+
+#### 🖥️ Windows (Chrome/Edge)
+1. Abra: https://www.lodgra.io
+2. Clique no **ícone de instalação** (⬇️) na barra de endereço
+3. Selecione **"Instalar"** ou **"Install"**
+4. App será adicionada ao Menu Iniciar e Desktop
+
+#### 🐧 Linux (Chrome)
+1. Abra: https://www.lodgra.io em **Chrome**
+2. Clique no **Menu** (⋮)
+3. Selecione **"Instalar"** ou **"Install Lodgra"**
+4. Confirme a instalação
+5. App será disponível via terminal: `lodgra`
 
 ---
 
@@ -63,7 +94,7 @@ Simples assim! Não precisa de configuração adicional.
    - Tempo: < 2 segundos
 
 2. **Redirect para onboarding** (primeira vez)
-   - Seleção de plano (Essencial, Growth, Premium)
+   - Seleção de plano (Essencial, Expansão, Premium)
    - Configuração de organização
    - Tempo: ~1-2 minutos
 

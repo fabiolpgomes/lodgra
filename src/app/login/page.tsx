@@ -157,8 +157,20 @@ export default function LoginPage() {
           </div>
         </div>
 
+        {/* Help Link */}
+        <div className="text-center mt-6">
+          <a
+            href="https://github.com/fabiolpgomes/lodgra/blob/main/docs/COLLABORATOR_ACCESS.md"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm text-brand-600 hover:text-brand-700 font-medium transition-colors"
+          >
+            Need help? → Collaborator Guide
+          </a>
+        </div>
+
         {/* Version */}
-        <p className="text-center text-sm text-gray-600 mt-6">
+        <p className="text-center text-sm text-gray-600 mt-4">
           Lodgra v2.0 - Multi-tenant
         </p>
       </div>
