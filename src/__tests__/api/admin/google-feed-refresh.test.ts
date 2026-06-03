@@ -7,7 +7,7 @@ import { createClient } from '@/lib/supabase/server'
 
 const mockCreateClient = createClient as jest.MockedFunction<typeof createClient>
 
-function createMockRequest(body: any = {}): Request {
+function createMockRequest(body: Record<string, unknown> = {}): Request {
   return {
     json: async () => body,
   } as unknown as Request
@@ -27,7 +27,7 @@ describe('POST /api/admin/google-feed/refresh', () => {
         }),
       },
     }
-    mockCreateClient.mockResolvedValue(mockSupabase as any)
+    mockCreateClient.mockResolvedValue(mockSupabase as unknown as ReturnType<typeof createClient>)
 
     const response = await POST(createMockRequest({}))
     expect(response.status).toBe(401)
@@ -54,7 +54,7 @@ describe('POST /api/admin/google-feed/refresh', () => {
         }),
       }),
     }
-    mockCreateClient.mockResolvedValue(mockSupabase as any)
+    mockCreateClient.mockResolvedValue(mockSupabase as unknown as ReturnType<typeof createClient>)
 
     const response = await POST(createMockRequest({}))
     expect(response.status).toBe(400)

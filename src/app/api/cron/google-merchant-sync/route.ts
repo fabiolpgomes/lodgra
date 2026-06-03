@@ -2,7 +2,7 @@ import * as Sentry from '@sentry/nextjs'
 import { createClient } from '@/lib/supabase/server'
 import { syncGoogleMerchantStatus } from '@/lib/workers/google-merchant-sync'
 
-export async function GET(_req: Request) {
+export async function GET(req: Request) {
   // Verify cron secret for security
   const authHeader = req.headers.get('authorization')
   const cronSecret = process.env.VERCEL_CRON_SECRET

@@ -329,6 +329,7 @@ export async function getPropertyMerchantStatuses(
       .eq('organization_id', organizationId)
       .order('last_fetched', { ascending: false })
       .range(offset, offset + limit - 1)
+      .returns<Array<{ property_id: string; status: string; last_fetched?: string | null; error_message?: string | null }>>()
 
     if (syncError || !syncStatuses) {
       console.error('Error fetching merchant sync status:', syncError)
@@ -346,6 +347,7 @@ export async function getPropertyMerchantStatuses(
       .from('properties')
       .select('id, name, slug')
       .in('id', propertyIds)
+      .returns<Array<{ id: string; name: string; slug?: string | null }>>()
 
     if (propsError) {
       console.error('Error fetching properties:', propsError)
