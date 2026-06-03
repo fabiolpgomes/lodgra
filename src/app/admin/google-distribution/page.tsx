@@ -8,6 +8,8 @@ import {
   computeAggregatedMetrics,
   getPropertyFeedStatuses,
   getLatestFeedLogs,
+  getPropertyMerchantStatuses,
+  getLatestMerchantSyncLogs,
   type AggregatedMetrics,
   type PropertyFeedStatus,
   type FeedLogEntry,
@@ -26,9 +28,14 @@ export default function GoogleDistributionDashboard() {
   const [metrics, setMetrics] = useState<AggregatedMetrics | null>(null)
   const [propertyStatuses, setPropertyStatuses] = useState<PropertyFeedStatus[]>([])
   const [feedLogs, setFeedLogs] = useState<FeedLogEntry[]>([])
+  const [merchantStatuses, setMerchantStatuses] = useState<PropertyFeedStatus[]>([])
+  const [merchantSyncLogs, setMerchantSyncLogs] = useState<Array<{ timestamp: string; status: string; propertiesSynced: number; durationMs: number; error?: string }>>([])
   const [refreshing, setRefreshing] = useState(false)
   const [refreshMessage, setRefreshMessage] = useState<string | null>(null)
+  const [syncingMerchant, setSyncingMerchant] = useState(false)
+  const [syncMessage, setSyncMessage] = useState<string | null>(null)
   const [selectedProperty, setSelectedProperty] = useState<PropertyFeedStatus | null>(null)
+  const [organizationId, setOrganizationId] = useState<string | null>(null)
 
   useEffect(() => {
     const loadDashboard = async () => {
@@ -68,15 +75,20 @@ export default function GoogleDistributionDashboard() {
         }
 
         // Load dashboard data
-        const [metricsData, statusesData, logsData] = await Promise.all([
+        const [metricsData, statusesData, logsData, merchantStatusesData, merchantLogsData] = await Promise.all([
           computeAggregatedMetrics(supabase, profile.organization_id),
           getPropertyFeedStatuses(supabase, profile.organization_id, 50, 0),
           getLatestFeedLogs(supabase, profile.organization_id, 20),
+          getPropertyMerchantStatuses(supabase, profile.organization_id, 50, 0),
+          getLatestMerchantSyncLogs(supabase, profile.organization_id, 20),
         ])
 
+        setOrganizationId(profile.organization_id)
         setMetrics(metricsData)
         setPropertyStatuses(statusesData)
         setFeedLogs(logsData)
+        setMerchantStatuses(merchantStatusesData)
+        setMerchantSyncLogs(merchantLogsData)
         setError(null)
       } catch (err) {
         console.error('Error loading dashboard:', err)
@@ -118,6 +130,46 @@ export default function GoogleDistributionDashboard() {
     }
   }
 
+  const handleSyncMerchant = async () => {
+    try {
+      setSyncingMerchant(true)
+      setSyncMessage(null)
+
+      const response = await fetch('/api/cron/google-merchant-sync', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_CRON_SECRET || ''}`,
+        },
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        setError(errorData.error || errorData.message || 'Failed to sync merchant status')
+        return
+      }
+
+      const result = await response.json()
+      setSyncMessage(
+        `Google Merchant sync concluído: ${result.propertiesSynced ?? 0}/${result.organizations ?? 0} orgs sincronizadas em ${result.totalDurationMs ?? 0}ms`
+      )
+
+      // Reload merchant data after sync
+      if (organizationId) {
+        const [merchantStatusesData, merchantLogsData] = await Promise.all([
+          getPropertyMerchantStatuses(supabase, organizationId, 50, 0),
+          getLatestMerchantSyncLogs(supabase, organizationId, 20),
+        ])
+        setMerchantStatuses(merchantStatusesData)
+        setMerchantSyncLogs(merchantLogsData)
+      }
+    } catch (err) {
+      console.error('Error syncing merchant status:', err)
+      setError('Failed to trigger merchant sync')
+    } finally {
+      setSyncingMerchant(false)
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -156,6 +208,12 @@ export default function GoogleDistributionDashboard() {
         </div>
       )}
 
+      {syncMessage && (
+        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded mb-6">
+          {syncMessage}
+        </div>
+      )}
+
       {/* Refresh Action Button - Always Visible */}
       <div className="mb-8 p-4 bg-brand-50 border border-brand-200 rounded-lg">
         <div className="flex items-center justify-between">
@@ -172,6 +230,26 @@ export default function GoogleDistributionDashboard() {
             type="button"
           >
             {refreshing ? 'Refreshing...' : 'Refresh Feed'}
+          </button>
+        </div>
+      </div>
+
+      {/* Google Merchant Center Sync Button */}
+      <div className="mb-8 p-4 bg-brand-50 border border-brand-200 rounded-lg">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="font-semibold text-brand-900">Sync Google Merchant Center Status</h3>
+            <p className="text-sm text-brand-700 mt-1">
+              Manually trigger a sync to fetch real-time property indexing status from Google Merchant Center
+            </p>
+          </div>
+          <button
+            onClick={handleSyncMerchant}
+            disabled={syncingMerchant}
+            className="whitespace-nowrap bg-brand-600 hover:bg-brand-700 disabled:bg-gray-400 text-white font-semibold py-2 px-6 rounded"
+            type="button"
+          >
+            {syncingMerchant ? 'Syncing...' : 'Sync Now'}
           </button>
         </div>
       </div>
@@ -234,7 +312,7 @@ export default function GoogleDistributionDashboard() {
       </div>
 
       {/* Feed Generation History */}
-      <div>
+      <div className="mb-8">
         <h2 className="text-2xl font-bold mb-4">Feed Generation History</h2>
         <div className="overflow-x-auto border rounded">
           <table className="w-full text-sm">
@@ -274,6 +352,88 @@ export default function GoogleDistributionDashboard() {
             </tbody>
           </table>
         </div>
+      </div>
+
+      {/* Google Merchant Center Status */}
+      <div className="mb-8">
+        <h2 className="text-2xl font-bold mb-4">Google Merchant Center Status</h2>
+        <div className="overflow-x-auto border rounded">
+          <table className="w-full text-sm">
+            <thead className="bg-gray-100 border-b">
+              <tr>
+                <th className="px-4 py-2 text-left">Property</th>
+                <th className="px-4 py-2 text-left">Status</th>
+                <th className="px-4 py-2 text-left">Last Synced</th>
+                <th className="px-4 py-2 text-left">Freshness</th>
+                <th className="px-4 py-2 text-left">Error</th>
+              </tr>
+            </thead>
+            <tbody>
+              {merchantStatuses.map((prop) => (
+                <tr key={prop.propertyId} className="border-b hover:bg-gray-50">
+                  <td className="px-4 py-2">{prop.propertyName}</td>
+                  <td className="px-4 py-2">
+                    <StatusBadge status={prop.status} />
+                  </td>
+                  <td className="px-4 py-2">{formatDate(prop.lastUpdatedDate)}</td>
+                  <td className="px-4 py-2">
+                    <FreshnessIndicator timestamp={prop.lastUpdatedDate} />
+                  </td>
+                  <td className="px-4 py-2 text-red-600 text-xs">
+                    {prop.latestEntry?.error_message || '—'}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        {merchantStatuses.length === 0 && (
+          <p className="text-gray-600 mt-4">No merchant status data available yet. Click &quot;Sync Now&quot; to fetch status from Google.</p>
+        )}
+      </div>
+
+      {/* Google Merchant Sync History */}
+      <div>
+        <h2 className="text-2xl font-bold mb-4">Merchant Sync History</h2>
+        <div className="overflow-x-auto border rounded">
+          <table className="w-full text-sm">
+            <thead className="bg-gray-100 border-b">
+              <tr>
+                <th className="px-4 py-2 text-left">Timestamp</th>
+                <th className="px-4 py-2 text-left">Status</th>
+                <th className="px-4 py-2 text-left">Properties Synced</th>
+                <th className="px-4 py-2 text-left">Duration</th>
+                <th className="px-4 py-2 text-left">Error</th>
+              </tr>
+            </thead>
+            <tbody>
+              {merchantSyncLogs.map((log, idx) => (
+                <tr key={`${log.timestamp}-${idx}`} className="border-b hover:bg-gray-50">
+                  <td className="px-4 py-2">{formatDate(log.timestamp)}</td>
+                  <td className="px-4 py-2">
+                    <span
+                      className={`px-2 py-1 rounded text-xs font-semibold ${
+                        log.status === 'completed'
+                          ? 'bg-green-100 text-green-800'
+                          : log.status === 'failed'
+                            ? 'bg-red-100 text-red-800'
+                            : 'bg-brand-100 text-brand-800'
+                      }`}
+                    >
+                      {log.status}
+                    </span>
+                  </td>
+                  <td className="px-4 py-2">{log.propertiesSynced || '—'}</td>
+                  <td className="px-4 py-2">{log.durationMs ? `${log.durationMs}ms` : '—'}</td>
+                  <td className="px-4 py-2 text-red-600 text-xs">{log.error || '—'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        {merchantSyncLogs.length === 0 && (
+          <p className="text-gray-600 mt-4">No sync history available yet.</p>
+        )}
       </div>
 
       {selectedProperty && (
@@ -453,4 +613,27 @@ function getTenantPropertyUrl(property: PropertyFeedStatus): string | null {
 function getDashboardHref(pathname: string | null): string {
   const localeMatch = pathname?.match(/^\/(pt-BR|en-US|es)(\/|$)/)
   return localeMatch ? `/${localeMatch[1]}/dashboard` : '/dashboard'
+}
+
+function FreshnessIndicator({ timestamp }: { timestamp: string }) {
+  const now = new Date()
+  const syncDate = new Date(timestamp)
+  const hoursOld = (now.getTime() - syncDate.getTime()) / (1000 * 60 * 60)
+
+  let color = 'bg-green-100 text-green-800'
+  let label = 'Fresh'
+
+  if (hoursOld >= 12) {
+    color = 'bg-red-100 text-red-800'
+    label = 'Stale'
+  } else if (hoursOld >= 1) {
+    color = 'bg-yellow-100 text-yellow-800'
+    label = 'Aging'
+  }
+
+  return (
+    <span className={`px-2 py-1 rounded text-xs font-semibold ${color}`}>
+      {label} ({Math.round(hoursOld)}h)
+    </span>
+  )
 }
