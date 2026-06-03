@@ -2,7 +2,6 @@
 
 import Script from 'next/script'
 import { useEffect } from 'react'
-import { getAnalyticsConsent } from '@/components/common/ui/CookieBanner'
 
 declare global {
   interface Window {
@@ -38,7 +37,6 @@ export function GoogleAnalytics({ nonce }: { nonce?: string }) {
           function gtag(){dataLayer.push(arguments);}
           gtag('js', new Date());
           gtag('consent', 'default', {analytics_storage: 'denied'});
-          ${getAnalyticsConsent() ? "gtag('consent', 'update', {analytics_storage: 'granted'});" : ''}
           gtag('config', '${GA_ID}');
         `}
       </Script>
