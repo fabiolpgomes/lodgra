@@ -4,6 +4,12 @@ import Script from 'next/script'
 import { useEffect } from 'react'
 import { getAnalyticsConsent } from '@/components/common/ui/CookieBanner'
 
+declare global {
+  interface Window {
+    gtag?: (...args: unknown[]) => void
+  }
+}
+
 const GA_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
 
 export function GoogleAnalytics({ nonce }: { nonce?: string }) {
