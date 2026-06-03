@@ -156,6 +156,26 @@ export default function GoogleDistributionDashboard() {
         </div>
       )}
 
+      {/* Refresh Action Button - Always Visible */}
+      <div className="mb-8 p-4 bg-brand-50 border border-brand-200 rounded-lg">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="font-semibold text-brand-900">Refresh Feed Status</h3>
+            <p className="text-sm text-brand-700 mt-1">
+              Manually trigger a feed refresh to check for updated property statuses on Google
+            </p>
+          </div>
+          <button
+            onClick={handleRefreshFeed}
+            disabled={refreshing}
+            className="whitespace-nowrap bg-brand-600 hover:bg-brand-700 disabled:bg-gray-400 text-white font-semibold py-2 px-6 rounded"
+            type="button"
+          >
+            {refreshing ? 'Refreshing...' : 'Refresh Feed'}
+          </button>
+        </div>
+      </div>
+
       {/* Metrics Section */}
       {metrics && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -173,17 +193,6 @@ export default function GoogleDistributionDashboard() {
           <MetricCard label="Error" value={metrics.errorCount} color="bg-red-50 border-red-200" />
         </div>
       )}
-
-      {/* Action Button */}
-      <div className="mb-6">
-        <button
-          onClick={handleRefreshFeed}
-          disabled={refreshing}
-          className="bg-brand-600 hover:bg-brand-700 disabled:bg-gray-400 text-white font-semibold py-2 px-6 rounded"
-        >
-          {refreshing ? 'Refreshing...' : 'Refresh Feed'}
-        </button>
-      </div>
 
       {/* Property Status Table */}
       <div className="mb-8">

@@ -4,8 +4,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/design-system/atoms/Button';
 import { Input } from '@/design-system/atoms/Input';
 import { AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
-
-const GA_ID_REGEX = /^G-[A-Z0-9]{10}$/;
+import { isValidGAId } from '@/lib/analytics/validation';
 
 interface AnalyticsConfig {
   id: string;
@@ -53,10 +52,6 @@ export default function AnalyticsSettingsClient() {
     }
   };
 
-  const validateGaId = (id: string): boolean => {
-    return GA_ID_REGEX.test(id);
-  };
-
   const handleConnect = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -67,7 +62,7 @@ export default function AnalyticsSettingsClient() {
       return;
     }
 
-    if (!validateGaId(gaId)) {
+    if (!isValidGAId(gaId)) {
       setError('Invalid GA Measurement ID format. Expected: G-XXXXXXXXXX');
       return;
     }
