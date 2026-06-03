@@ -8,6 +8,7 @@ import { CookieBanner } from "@/components/common/ui/CookieBanner";
 import { GoogleAnalytics } from "@/components/features/analytics/GoogleAnalytics";
 import { ServiceWorkerRegister } from "@/components/common/pwa/ServiceWorkerRegister";
 import { generateWebsiteJsonLd } from "@/lib/seo/jsonld";
+import { getTenantGAId } from "@/lib/analytics/server";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -86,6 +87,8 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const tenantGAId = await getTenantGAId();
+
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <head>
@@ -114,7 +117,7 @@ export default async function RootLayout({
           {children}
           <Toaster richColors position="top-right" />
           <CookieBanner />
-          <GoogleAnalytics />
+          <GoogleAnalytics gaId={tenantGAId} />
           <ServiceWorkerRegister />
         </ThemeProvider>
       </body>

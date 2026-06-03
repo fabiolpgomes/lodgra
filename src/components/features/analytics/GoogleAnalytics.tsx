@@ -9,9 +9,15 @@ declare global {
   }
 }
 
-const GA_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
+export interface GoogleAnalyticsProps {
+  gaId?: string | null
+  nonce?: string
+}
 
-export function GoogleAnalytics({ nonce }: { nonce?: string }) {
+export function GoogleAnalytics({ gaId, nonce }: GoogleAnalyticsProps) {
+  // Use provided GA ID, fallback to env variable
+  const GA_ID = gaId || process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
+
   useEffect(() => {
     function onAccept() {
       if (typeof window !== 'undefined' && window.gtag) {
