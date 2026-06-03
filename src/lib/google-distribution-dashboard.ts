@@ -304,3 +304,123 @@ export async function getLatestFeedLogs(
     return []
   }
 }
+
+/**
+ * Fetches real Google Merchant Center status from sync tables
+ */
+export async function getPropertyMerchantStatuses(
+  supabase: SupabaseClient<Database>,
+  organizationId: string,
+  limit = 50,
+  offset = 0
+): Promise<PropertyFeedStatus[]> {
+  try {
+    const { data: organization } = await supabase
+      .from('organizations')
+      .select('slug')
+      .eq('id', organizationId)
+      .single()
+    const organizationSlug = (organization as unknown as { slug?: string | null } | null)?.slug
+
+    // Get latest merchant sync status for properties
+    const { data: syncStatuses, error: syncError } = await supabase
+      .from('google_merchant_sync_status')
+      .select('property_id, status, last_fetched, error_message')
+      .eq('organization_id', organizationId)
+      .order('last_fetched', { ascending: false })
+      .range(offset, offset + limit - 1)
+
+    if (syncError || !syncStatuses) {
+      console.error('Error fetching merchant sync status:', syncError)
+      return []
+    }
+
+    if (syncStatuses.length === 0) {
+      return []
+    }
+
+    const propertyIds = syncStatuses.map((s) => s.property_id)
+
+    // Get property details
+    const { data: properties, error: propsError } = await supabase
+      .from('properties')
+      .select('id, name, slug')
+      .in('id', propertyIds)
+
+    if (propsError) {
+      console.error('Error fetching properties:', propsError)
+      return []
+    }
+
+    const propertyMap = new Map((properties || []).map((p) => [p.id, p]))
+
+    return syncStatuses
+      .map((sync) => {
+        const prop = propertyMap.get(sync.property_id)
+        if (!prop) return null
+
+        return {
+          propertyId: sync.property_id,
+          propertyName: prop.name,
+          propertySlug: prop.slug,
+          organizationSlug,
+          status: sync.status as PropertyStatus,
+          submittedDate: sync.last_fetched,
+          lastUpdatedDate: sync.last_fetched,
+          latestEntry: {
+            id: `sync-${sync.property_id}`,
+            timestamp: sync.last_fetched,
+            action: 'manual' as const,
+            status: 'success' as FeedLogStatus,
+            error_message: sync.error_message,
+          },
+        }
+      })
+      .filter((s) => s !== null) as PropertyFeedStatus[]
+  } catch (err) {
+    console.error('Exception fetching merchant statuses:', err)
+    return []
+  }
+}
+
+/**
+ * Fetches latest Google Merchant sync logs
+ */
+export async function getLatestMerchantSyncLogs(
+  supabase: SupabaseClient<Database>,
+  organizationId: string,
+  limit = 20
+): Promise<Array<{ timestamp: string; status: string; propertiesSynced: number; durationMs: number; error?: string }>> {
+  try {
+    const { data: logs, error } = await supabase
+      .from('google_merchant_sync_logs')
+      .select('created_at, status, properties_synced, duration_ms, error_message')
+      .eq('organization_id', organizationId)
+      .order('created_at', { ascending: false })
+      .limit(limit)
+
+    if (error || !logs) {
+      console.error('Error fetching merchant sync logs:', error)
+      return []
+    }
+
+    return logs.map(
+      (log: {
+        created_at: string
+        status: string
+        properties_synced?: number | null
+        duration_ms?: number | null
+        error_message?: string | null
+      }) => ({
+        timestamp: log.created_at,
+        status: log.status,
+        propertiesSynced: log.properties_synced || 0,
+        durationMs: log.duration_ms || 0,
+        error: log.error_message || undefined,
+      })
+    )
+  } catch (err) {
+    console.error('Exception fetching merchant sync logs:', err)
+    return []
+  }
+}
