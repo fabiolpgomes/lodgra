@@ -1,13 +1,21 @@
 import { createCipheriv, createDecipheriv, randomBytes } from 'crypto';
 
 const ALGORITHM = 'aes-256-gcm';
-const KEY = Buffer.from(process.env.ANALYTICS_ENCRYPTION_KEY!, 'hex');
 const IV_LENGTH = 16;
 const AUTH_TAG_LENGTH = 16;
 
+function getKey(): Buffer {
+  const keyHex = process.env.ANALYTICS_ENCRYPTION_KEY;
+  if (!keyHex) {
+    throw new Error('ANALYTICS_ENCRYPTION_KEY not set');
+  }
+  return Buffer.from(keyHex, 'hex');
+}
+
 export function encryptGAId(gaId: string): Buffer {
+  const key = getKey();
   const iv = randomBytes(IV_LENGTH);
-  const cipher = createCipheriv(ALGORITHM, KEY, iv);
+  const cipher = createCipheriv(ALGORITHM, key, iv);
 
   let encrypted = cipher.update(gaId, 'utf8', 'hex');
   encrypted += cipher.final('hex');
@@ -19,11 +27,12 @@ export function encryptGAId(gaId: string): Buffer {
 }
 
 export function decryptGAId(encrypted: Buffer): string {
+  const key = getKey();
   const iv = encrypted.slice(0, IV_LENGTH);
   const authTag = encrypted.slice(-AUTH_TAG_LENGTH);
   const ciphertext = encrypted.slice(IV_LENGTH, -AUTH_TAG_LENGTH);
 
-  const decipher = createDecipheriv(ALGORITHM, KEY, iv);
+  const decipher = createDecipheriv(ALGORITHM, key, iv);
   decipher.setAuthTag(authTag);
 
   let decrypted = decipher.update(ciphertext.toString('hex'), 'hex', 'utf8');
@@ -46,7 +55,7 @@ export function validateEncryptionKey(): boolean {
       return false;
     }
     return true;
-  } catch (e) {
+  } catch (_e) {
     console.error('Invalid ANALYTICS_ENCRYPTION_KEY format (must be hex)');
     return false;
   }

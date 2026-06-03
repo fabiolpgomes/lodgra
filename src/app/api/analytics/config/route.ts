@@ -1,35 +1,46 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { requireRole } from '@/lib/auth/requireRole';
+import { upsertAnalyticsConfig } from '@/lib/database/analytics';
 
 export async function POST(req: NextRequest) {
   try {
-    // TODO: Story 1.3 Implementation
-    // 1. Validate session & get tenant_id
-    // 2. Parse & validate GA ID format (G-[A-Z0-9]{10})
-    // 3. Encrypt GA ID using encryptGAId()
-    // 4. Save to database (insert or update)
-    // 5. Log audit event
-    // 6. Return config (no GA ID exposed)
+    // 1. Validate auth & get organizationId
+    const auth = await requireRole(['admin', 'gestor']);
+    if (!auth.authorized) return auth.response!;
 
+    const tenantId = auth.organizationId;
+    if (!tenantId) {
+      return NextResponse.json(
+        { error: 'No organization found for user' },
+        { status: 400 }
+      );
+    }
+
+    // 2. Parse & validate GA ID format
     const body = await req.json();
     const { ga_measurement_id } = body;
 
     if (!ga_measurement_id || !/^G-[A-Z0-9]{10}$/.test(ga_measurement_id)) {
       return NextResponse.json(
-        { error: 'Invalid GA measurement ID format' },
+        { error: 'Invalid GA measurement ID format. Expected: G-XXXXXXXXXX' },
         { status: 400 }
       );
     }
 
-    // Placeholder response
+    // 3-5. Encrypt, save, and log (handled in upsertAnalyticsConfig)
+    const config = await upsertAnalyticsConfig(tenantId, ga_measurement_id);
+
+    // 6. Return config (no GA ID exposed)
     return NextResponse.json(
       {
         success: true,
         data: {
-          id: 'placeholder-id',
-          tenant_id: 'placeholder-tenant',
-          ga_enabled: true,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
+          id: config.id,
+          tenant_id: config.tenant_id,
+          ga_enabled: config.ga_enabled,
+          created_at: config.created_at,
+          updated_at: config.updated_at
+          // NOTE: ga_measurement_id is intentionally NOT returned
         }
       },
       { status: 201 }
@@ -43,18 +54,38 @@ export async function POST(req: NextRequest) {
   }
 }
 
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   try {
-    // TODO: Story 1.4 Implementation
-    // 1. Validate session & get tenant_id
-    // 2. Query GA config from database (cached, 1h TTL)
-    // 3. Return config status (no GA ID exposed)
-    // 4. If no config: return {ga_configured: false}
+    // 1. Validate auth & get organizationId
+    const auth = await requireRole(['admin', 'gestor']);
+    if (!auth.authorized) return auth.response!;
 
+    const tenantId = auth.organizationId;
+    if (!tenantId) {
+      return NextResponse.json(
+        { error: 'No organization found for user' },
+        { status: 400 }
+      );
+    }
+
+    // 2. Import and use getAnalyticsConfig (with request cache)
+    const { getAnalyticsConfig } = await import('@/lib/database/analytics');
+
+    // 3. Query GA config
+    const config = await getAnalyticsConfig(tenantId);
+
+    // 4. Return status
     return NextResponse.json({
       success: true,
       data: {
-        ga_configured: false
+        ...(config && {
+          id: config.id,
+          tenant_id: config.tenant_id,
+          ga_enabled: config.ga_enabled,
+          created_at: config.created_at,
+          updated_at: config.updated_at
+        }),
+        ga_configured: !!config
       }
     });
   } catch (error) {
@@ -66,17 +97,30 @@ export async function GET(req: NextRequest) {
   }
 }
 
-export async function DELETE(req: NextRequest) {
+export async function DELETE(_req: NextRequest) {
   try {
-    // TODO: Story 1.5 Implementation
-    // 1. Validate session & get tenant_id
-    // 2. Soft delete GA config (set deleted_at, ga_enabled = false)
-    // 3. Log audit event
-    // 4. Return success message
+    // 1. Validate auth & get organizationId
+    const auth = await requireRole(['admin', 'gestor']);
+    if (!auth.authorized) return auth.response!;
 
+    const tenantId = auth.organizationId;
+    if (!tenantId) {
+      return NextResponse.json(
+        { error: 'No organization found for user' },
+        { status: 400 }
+      );
+    }
+
+    // Import deleteAnalyticsConfig
+    const { deleteAnalyticsConfig } = await import('@/lib/database/analytics');
+
+    // 2-3. Soft delete & log (handled in deleteAnalyticsConfig)
+    await deleteAnalyticsConfig(tenantId);
+
+    // 4. Return success
     return NextResponse.json({
       success: true,
-      message: 'GA configuration removed'
+      message: 'GA configuration removed. Tracking reverted to Lodgra GA.'
     });
   } catch (error) {
     console.error('[Analytics Config DELETE] Error:', error);
