@@ -1,26 +1,23 @@
 'use client'
 
 import Script from 'next/script'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { getAnalyticsConsent } from '@/components/common/ui/CookieBanner'
 
 const GA_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
 
 export function GoogleAnalytics({ nonce }: { nonce?: string }) {
-  const [enabled, setEnabled] = useState<boolean>(() => {
-    if (typeof window === 'undefined') return false
-    return getAnalyticsConsent()
-  })
-
   useEffect(() => {
     function onAccept() {
-      setEnabled(true)
+      if (typeof window !== 'undefined' && window.gtag) {
+        window.gtag('consent', 'update', { analytics_storage: 'granted' })
+      }
     }
     window.addEventListener('cookie_consent_accepted', onAccept)
     return () => window.removeEventListener('cookie_consent_accepted', onAccept)
   }, [])
 
-  if (!enabled || !GA_ID) return null
+  if (!GA_ID) return null
 
   return (
     <>
@@ -34,6 +31,8 @@ export function GoogleAnalytics({ nonce }: { nonce?: string }) {
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
           gtag('js', new Date());
+          gtag('consent', 'default', {analytics_storage: 'denied'});
+          ${getAnalyticsConsent() ? "gtag('consent', 'update', {analytics_storage: 'granted'});" : ''}
           gtag('config', '${GA_ID}');
         `}
       </Script>
