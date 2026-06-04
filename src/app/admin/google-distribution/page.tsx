@@ -135,11 +135,10 @@ export default function GoogleDistributionDashboard() {
       setSyncingMerchant(true)
       setSyncMessage(null)
 
-      const response = await fetch('/api/cron/google-merchant-sync', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_CRON_SECRET || ''}`,
-        },
+      // Call secure server-side endpoint (no client-side secret exposure)
+      const response = await fetch('/api/admin/google-merchant-sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
       })
 
       if (!response.ok) {
@@ -150,7 +149,7 @@ export default function GoogleDistributionDashboard() {
 
       const result = await response.json()
       setSyncMessage(
-        `Google Merchant sync concluído: ${result.propertiesSynced ?? 0}/${result.organizations ?? 0} orgs sincronizadas em ${result.totalDurationMs ?? 0}ms`
+        `Google Merchant sync concluído: ${result.propertiesSynced ?? 0} propriedade(s) sincronizada(s) em ${result.totalDurationMs ?? 0}ms.`
       )
 
       // Reload merchant data after sync
