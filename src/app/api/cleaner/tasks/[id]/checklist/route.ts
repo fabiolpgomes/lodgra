@@ -15,9 +15,10 @@ interface ChecklistResponse {
  */
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
     const { responses } = body as { responses: ChecklistResponse[] };
 
@@ -29,7 +30,7 @@ export async function PUT(
     }
 
     const supabase = createAdminClient();
-    const taskId = params.id;
+    const taskId = id;
 
     // Upsert responses (update if exists, insert if not)
     const itemsToUpsert = responses.map((response) => ({
