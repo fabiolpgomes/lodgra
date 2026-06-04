@@ -68,8 +68,12 @@ export async function POST(_req: Request) {
       throw new Error('VERCEL_CRON_SECRET not configured')
     }
 
+    console.log('📡 Calling cron endpoint for sync...')
+
     // Call the actual cron endpoint from server-side (no client exposure)
     const origin = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000'
+    console.log(`Origin: ${origin}`)
+
     const cronResponse = await fetch(`${origin}/api/cron/google-merchant-sync`, {
       method: 'GET',
       headers: {
@@ -77,17 +81,38 @@ export async function POST(_req: Request) {
       },
     })
 
+    console.log(`Cron response status: ${cronResponse.status}`)
+
     if (!cronResponse.ok) {
-      const errorData = await cronResponse.json()
+      console.error(`Cron endpoint error: ${cronResponse.status}`)
+      const errorText = await cronResponse.text()
+      console.error(`Error response: ${errorText}`)
+
+      let errorData: any = { error: 'Failed to trigger sync' }
+      try {
+        errorData = JSON.parse(errorText)
+      } catch (e) {
+        // If not JSON, return the text as error
+        errorData = { error: errorText || 'Failed to trigger sync' }
+      }
+
       return Response.json(
         {
           error: errorData.error || 'Failed to trigger sync',
+          status: cronResponse.status,
         },
         { status: cronResponse.status }
       )
     }
 
-    const result = await cronResponse.json()
+    let result
+    try {
+      result = await cronResponse.json()
+      console.log(`✅ Sync completed:`, result)
+    } catch (e) {
+      console.error('Failed to parse cron response:', e)
+      throw new Error(`Failed to parse cron response: ${e instanceof Error ? e.message : String(e)}`)
+    }
 
     return Response.json(
       {
