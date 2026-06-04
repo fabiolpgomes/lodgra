@@ -121,10 +121,10 @@ export default function CleanerTaskPage({
           <h3 className="font-semibold text-gray-900 mb-3">Instruções</h3>
           <ul className="space-y-2 text-sm text-gray-700">
             <li>✓ Marque cada item conforme concluir</li>
-            <li>✓ Itens com ⚠ "Obrigatório" não podem ser saltados</li>
+            <li>✓ Itens com ⚠ &quot;Obrigatório&quot; não podem ser saltados</li>
             <li>✓ Adicione notas se precisar relatar algo</li>
             <li>✓ As mudanças são salvas automaticamente</li>
-            <li>✓ Clique "Concluir Limpeza" quando terminar</li>
+            <li>✓ Clique &quot;Concluir Limpeza&quot; quando terminar</li>
           </ul>
         </div>
       </div>
