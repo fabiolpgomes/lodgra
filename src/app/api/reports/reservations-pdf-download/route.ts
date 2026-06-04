@@ -37,19 +37,28 @@ function getResCurrency(r: Reservation): string {
 }
 
 function calculateProportionalAmount(r: Reservation, startDate: string, endDate: string): number {
-  const checkIn = new Date(r.check_in + 'T00:00:00')
-  const checkOut = new Date(r.check_out + 'T00:00:00')
-  const periodStart = new Date(startDate + 'T00:00:00')
-  const periodEndInclusive = new Date(endDate + 'T00:00:00')
-  periodEndInclusive.setDate(periodEndInclusive.getDate() + 1)
+  const reservationCheckIn = r.check_in.split('T')[0]
+  const reservationCheckOut = r.check_out.split('T')[0]
 
-  const overlapStart = new Date(Math.max(checkIn.getTime(), periodStart.getTime()))
-  const overlapEnd = new Date(Math.min(checkOut.getTime(), periodEndInclusive.getTime()))
+  const checkIn = new Date(reservationCheckIn + 'T00:00:00Z').getTime()
+  const checkOut = new Date(reservationCheckOut + 'T00:00:00Z').getTime()
+  const periodStart = new Date(startDate + 'T00:00:00Z').getTime()
+  const periodEndMidnight = new Date(endDate + 'T00:00:00Z').getTime()
 
-  const nightsInPeriod = Math.max(0, Math.round((overlapEnd.getTime() - overlapStart.getTime()) / (1000 * 60 * 60 * 24)))
-  const totalNights = Math.round((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24))
+  // If reservation is completely within period, return full amount
+  if (checkIn >= periodStart && checkOut <= periodEndMidnight) {
+    return Number(r.total_amount) || 0
+  }
 
-  if (totalNights <= 0 || nightsInPeriod <= 0) return 0
+  const overlapStart = Math.max(checkIn, periodStart)
+  const overlapEnd = Math.min(checkOut, periodEndMidnight)
+
+  if (overlapStart >= overlapEnd) return 0
+
+  const nightsInPeriod = (overlapEnd - overlapStart) / (1000 * 60 * 60 * 24)
+  const totalNights = (checkOut - checkIn) / (1000 * 60 * 60 * 24)
+
+  if (totalNights <= 0) return 0
   return (nightsInPeriod / totalNights) * (Number(r.total_amount) || 0)
 }
 
