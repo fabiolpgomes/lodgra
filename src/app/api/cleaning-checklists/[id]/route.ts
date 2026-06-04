@@ -17,8 +17,9 @@ interface ChecklistItem {
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   const { error: authError, user } = await requireRole(['admin', 'gestor']);
   if (authError) return authError;
 
@@ -29,7 +30,7 @@ export async function GET(
     const { data: template, error: templateError } = await supabase
       .from('cleaning_checklist_templates')
       .select('*')
-      .eq('id', params.id)
+      .eq('id', id)
       .eq('organization_id', orgId)
       .single();
 
@@ -47,7 +48,7 @@ export async function GET(
     const { data: items, error: itemsError } = await supabase
       .from('cleaning_checklist_items')
       .select('*')
-      .eq('template_id', params.id)
+      .eq('template_id', id)
       .order('order_index', { ascending: true });
 
     if (itemsError) throw itemsError;
@@ -96,7 +97,7 @@ export async function PUT(
         property_id: property_id || null,
         updated_at: new Date().toISOString()
       })
-      .eq('id', params.id)
+      .eq('id', id)
       .eq('organization_id', orgId)
       .select()
       .single();
@@ -109,12 +110,12 @@ export async function PUT(
       await supabase
         .from('cleaning_checklist_items')
         .delete()
-        .eq('template_id', params.id);
+        .eq('template_id', id);
 
       // Insert new items
       if (items.length > 0) {
         const itemsToInsert = items.map((item: ChecklistItem, index: number) => ({
-          template_id: params.id,
+          template_id: id,
           label: item.label || '',
           category: item.category || 'Geral',
           is_required: item.is_required || false,
@@ -158,12 +159,12 @@ export async function DELETE(
     const { error: deleteError } = await supabase
       .from('cleaning_checklist_templates')
       .delete()
-      .eq('id', params.id)
+      .eq('id', id)
       .eq('organization_id', orgId);
 
     if (deleteError) throw deleteError;
 
-    return NextResponse.json({ data: { id: params.id } });
+    return NextResponse.json({ data: { id: id } });
   } catch (error) {
     console.error('[Checklists] DELETE error:', error);
     return NextResponse.json(
