@@ -2,6 +2,7 @@ import { requireRole } from '@/lib/auth/requireRole';
 import { ChecklistBuilder } from '@/components/settings/ChecklistBuilder';
 import Link from 'next/link';
 import { ChevronLeft } from 'lucide-react';
+import { redirect } from 'next/navigation';
 
 export default async function EditChecklistPage({
   params
@@ -9,11 +10,11 @@ export default async function EditChecklistPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const { error } = await requireRole(['admin', 'gestor']);
-  if (error) return error;
+  const auth = await requireRole(['admin', 'gestor']);
+  if (!auth.authorized) redirect('/auth/login');
 
   // TODO: Fetch template from API
-  const template = null;
+  const template: { id: string; name: string } | null = null;
 
   if (!template) {
     return (
@@ -41,11 +42,10 @@ export default async function EditChecklistPage({
         </Link>
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Editar Modelo</h1>
-          <p className="mt-1 text-gray-600">{template.name}</p>
         </div>
       </div>
 
-      <ChecklistBuilder initialTemplate={template} />
+      <ChecklistBuilder initialTemplate={template ?? undefined} />
     </div>
   );
 }

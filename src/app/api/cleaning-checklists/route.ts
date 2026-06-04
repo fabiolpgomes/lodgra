@@ -16,14 +16,16 @@ interface ChecklistItem {
  * List templates for organization with optional property filter
  */
 export async function GET(request: NextRequest) {
-  const { error: authError, user } = await requireRole(['admin', 'gestor']);
-  if (authError) return authError;
+  const auth = await requireRole(['admin', 'gestor']);
+  if (!auth.authorized) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+  }
 
   try {
     const supabase = createAdminClient();
     const { searchParams } = new URL(request.url);
     const propertyId = searchParams.get('property_id');
-    const orgId = user?.organization_id;
+    const orgId = auth.organizationId;
 
     let query = supabase
       .from('cleaning_checklist_templates')
@@ -54,8 +56,10 @@ export async function GET(request: NextRequest) {
  * Create new checklist template
  */
 export async function POST(request: NextRequest) {
-  const { error: authError, user } = await requireRole(['admin', 'gestor']);
-  if (authError) return authError;
+  const auth = await requireRole(['admin', 'gestor']);
+  if (!auth.authorized) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+  }
 
   try {
     const body = await request.json();
@@ -70,7 +74,7 @@ export async function POST(request: NextRequest) {
     }
 
     const supabase = createAdminClient();
-    const orgId = user?.organization_id;
+    const orgId = auth.organizationId;
 
     // Create template
     const { data: template, error: templateError } = await supabase

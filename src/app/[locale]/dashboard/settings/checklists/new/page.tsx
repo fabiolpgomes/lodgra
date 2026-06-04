@@ -2,10 +2,11 @@ import { requireRole } from '@/lib/auth/requireRole';
 import { ChecklistBuilder } from '@/components/settings/ChecklistBuilder';
 import Link from 'next/link';
 import { ChevronLeft } from 'lucide-react';
+import { redirect } from 'next/navigation';
 
 export default async function NewChecklistPage() {
-  const { error } = await requireRole(['admin', 'gestor']);
-  if (error) return error;
+  const auth = await requireRole(['admin', 'gestor']);
+  if (!auth.authorized) redirect('/auth/login');
 
   return (
     <div className="space-y-6">

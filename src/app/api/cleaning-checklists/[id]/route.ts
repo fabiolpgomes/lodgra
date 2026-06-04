@@ -20,12 +20,14 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const { error: authError, user } = await requireRole(['admin', 'gestor']);
-  if (authError) return authError;
+  const auth = await requireRole(['admin', 'gestor']);
+  if (!auth.authorized) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+  }
 
   try {
     const supabase = createAdminClient();
-    const orgId = user?.organization_id;
+    const orgId = auth.organizationId;
 
     const { data: template, error: templateError } = await supabase
       .from('cleaning_checklist_templates')
@@ -72,8 +74,10 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id: templateId } = await params;
-  const { error: authError, user } = await requireRole(['admin', 'gestor']);
-  if (authError) return authError;
+  const auth = await requireRole(['admin', 'gestor']);
+  if (!auth.authorized) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+  }
 
   try {
     const body = await request.json();
@@ -87,7 +91,7 @@ export async function PUT(
     }
 
     const supabase = createAdminClient();
-    const orgId = user?.organization_id;
+    const orgId = auth.organizationId;
 
     // Update template
     const { data: template, error: templateError } = await supabase
@@ -150,12 +154,14 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const { error: authError, user } = await requireRole(['admin', 'gestor']);
-  if (authError) return authError;
+  const auth = await requireRole(['admin', 'gestor']);
+  if (!auth.authorized) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+  }
 
   try {
     const supabase = createAdminClient();
-    const orgId = user?.organization_id;
+    const orgId = auth.organizationId;
 
     // Items are auto-deleted via ON DELETE CASCADE
     const { error: deleteError } = await supabase

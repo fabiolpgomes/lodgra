@@ -58,12 +58,13 @@ const mockTask = {
   }
 };
 
-export default function CleanerTaskPage({
+export default async function CleanerTaskPage({
   params
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
   // TODO: Fetch real task data
+  const _id = await params;
   const task = mockTask;
 
   const handleTaskComplete = async () => {

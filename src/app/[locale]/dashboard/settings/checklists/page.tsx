@@ -1,13 +1,14 @@
 import { requireRole } from '@/lib/auth/requireRole';
 import Link from 'next/link';
 import { ChevronRight, Plus, Edit2, Trash2 } from 'lucide-react';
+import { redirect } from 'next/navigation';
 
 export default async function ChecklistsPage() {
-  const { error } = await requireRole(['admin', 'gestor']);
-  if (error) return error;
+  const auth = await requireRole(['admin', 'gestor']);
+  if (!auth.authorized) redirect('/auth/login');
 
   // TODO: Fetch templates from API
-  const templates = [];
+  const templates: Array<{ id: string; name: string; description?: string; property_id?: string; items?: Array<{ id: string }> }> = [];
 
   return (
     <div className="space-y-6">
@@ -41,7 +42,7 @@ export default async function ChecklistsPage() {
         </div>
       ) : (
         <div className="grid gap-4">
-          {templates.map((template: { id: string; name: string }) => (
+          {templates.map((template: { id: string; name: string; description?: string; property_id?: string; items?: Array<{ id: string }> }) => (
             <div
               key={template.id}
               className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition"
