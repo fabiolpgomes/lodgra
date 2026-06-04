@@ -225,7 +225,7 @@ export default function GoogleDistributionDashboard() {
           <button
             onClick={handleRefreshFeed}
             disabled={refreshing}
-            className="flex-shrink-0 ml-4 whitespace-nowrap bg-brand-600 hover:bg-brand-700 disabled:bg-gray-400 text-white font-semibold py-2 px-6 rounded"
+            className="flex-shrink-0 ml-4 whitespace-nowrap bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold py-2 px-6 rounded"
             type="button"
           >
             {refreshing ? 'Refreshing...' : 'Refresh Feed'}
@@ -245,7 +245,7 @@ export default function GoogleDistributionDashboard() {
           <button
             onClick={handleSyncMerchant}
             disabled={syncingMerchant}
-            className="flex-shrink-0 ml-4 whitespace-nowrap bg-brand-600 hover:bg-brand-700 disabled:bg-gray-400 text-white font-semibold py-2 px-6 rounded"
+            className="flex-shrink-0 ml-4 whitespace-nowrap bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold py-2 px-6 rounded"
             type="button"
           >
             {syncingMerchant ? 'Syncing...' : 'Sync Now'}
