@@ -3,8 +3,14 @@ import { createClient } from '@/lib/supabase/server'
 /**
  * DEBUG endpoint - Testing each step of the sync process
  */
+interface DebugStep {
+  step: string
+  status: string
+  [key: string]: string | number | undefined
+}
+
 export async function POST(_req: Request) {
-  const results: any[] = []
+  const results: DebugStep[] = []
 
   try {
     results.push({ step: 'start', status: 'ok' })

@@ -41,7 +41,7 @@ export default async function ChecklistsPage() {
         </div>
       ) : (
         <div className="grid gap-4">
-          {templates.map((template: any) => (
+          {templates.map((template: { id: string; name: string }) => (
             <div
               key={template.id}
               className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition"
