@@ -1,15 +1,22 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Button } from '@/design-system/atoms/Button';
 import { Loader2 } from 'lucide-react';
+
+interface ChecklistItem {
+  id: string;
+  label: string;
+  category: string;
+  is_required: boolean;
+  order_index: number;
+}
 
 interface Template {
   id: string;
   name: string;
   description?: string;
   property_id?: string;
-  items?: any[];
+  items?: ChecklistItem[];
 }
 
 interface TemplateSelectorProps {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { CheckCircle2, Circle, AlertCircle, Loader2 } from 'lucide-react';
 
 interface ChecklistResponse {
@@ -35,7 +35,7 @@ export function ChecklistProgress({
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
   // Fetch checklist progress
-  const fetchProgress = async () => {
+  const fetchProgress = useCallback(async () => {
     try {
       const res = await fetch(`/api/cleaner/tasks/${taskId}/checklist`);
 
@@ -61,7 +61,7 @@ export function ChecklistProgress({
     } finally {
       setLoading(false);
     }
-  };
+  }, [taskId]);
 
   // Initial fetch + polling
   useEffect(() => {
@@ -70,7 +70,7 @@ export function ChecklistProgress({
     const interval = setInterval(fetchProgress, pollInterval);
 
     return () => clearInterval(interval);
-  }, [taskId, pollInterval]);
+  }, [taskId, pollInterval, fetchProgress]);
 
   // Calculate progress
   const checkedCount = Array.from(responses.values()).filter(
