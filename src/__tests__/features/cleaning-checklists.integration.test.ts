@@ -6,17 +6,17 @@ import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
  */
 
 describe('Story 29.4 — Cleaning Checklist Engine', () => {
-  const testOrgId = 'test-org-123';
-  const testUserId = 'test-user-123';
+  const _testOrgId = 'test-org-123';
+  const _testUserId = 'test-user-123';
 
   // Mock API calls
-  const mockFetch = (url: string, options?: RequestInit) => {
+  const mockFetch = (_url: string, _options?: RequestInit) => {
     return Promise.resolve({
       ok: true,
       status: 200,
       json: async () => ({ success: true }),
       headers: { 'Content-Type': 'application/json' }
-    } as any);
+    } as Response);
   };
 
   beforeEach(() => {
