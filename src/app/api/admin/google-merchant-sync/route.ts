@@ -83,35 +83,43 @@ export async function POST(_req: Request) {
 
     console.log(`Cron response status: ${cronResponse.status}`)
 
+    // Always parse as text first to avoid JSON errors
+    const responseText = await cronResponse.text()
+    console.log(`Cron response text length: ${responseText.length}`)
+
     if (!cronResponse.ok) {
       console.error(`Cron endpoint error: ${cronResponse.status}`)
-      const errorText = await cronResponse.text()
-      console.error(`Error response: ${errorText}`)
+      console.error(`Error response preview: ${responseText.substring(0, 500)}`)
 
-      let errorData: any = { error: 'Failed to trigger sync' }
+      // Try to parse as JSON, fallback to text
+      let errorMessage = responseText
       try {
-        errorData = JSON.parse(errorText)
+        const parsed = JSON.parse(responseText)
+        errorMessage = parsed.error || parsed.message || responseText
       } catch (e) {
-        // If not JSON, return the text as error
-        errorData = { error: errorText || 'Failed to trigger sync' }
+        // Not JSON, use as-is (truncated)
+        errorMessage = responseText.substring(0, 500)
       }
 
       return Response.json(
         {
-          error: errorData.error || 'Failed to trigger sync',
-          status: cronResponse.status,
+          error: 'Cron sync failed',
+          cronStatus: cronResponse.status,
+          message: errorMessage,
         },
         { status: cronResponse.status }
       )
     }
 
+    // Parse successful response as JSON
     let result
     try {
-      result = await cronResponse.json()
+      result = JSON.parse(responseText)
       console.log(`✅ Sync completed:`, result)
     } catch (e) {
-      console.error('Failed to parse cron response:', e)
-      throw new Error(`Failed to parse cron response: ${e instanceof Error ? e.message : String(e)}`)
+      console.error('Failed to parse cron response as JSON:', e)
+      console.error('Response was:', responseText.substring(0, 500))
+      throw new Error(`Invalid JSON from cron endpoint: ${e instanceof Error ? e.message : String(e)}`)
     }
 
     return Response.json(
