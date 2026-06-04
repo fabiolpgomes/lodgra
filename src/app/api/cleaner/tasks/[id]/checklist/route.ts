@@ -10,6 +10,40 @@ interface ChecklistResponse {
 }
 
 /**
+ * GET /api/cleaner/tasks/[id]/checklist
+ * Fetch current checklist progress (for real-time dashboard)
+ */
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id: taskId } = await params;
+
+    const supabase = createAdminClient();
+
+    const { data: responses, error } = await supabase
+      .from('cleaning_checklist_responses')
+      .select('*')
+      .eq('task_id', taskId);
+
+    if (error) throw error;
+
+    return NextResponse.json({
+      taskId,
+      responses: responses || [],
+      updatedAt: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('[Checklist GET] Error:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch checklist progress' },
+      { status: 500 }
+    );
+  }
+}
+
+/**
  * PUT /api/cleaner/tasks/[id]/checklist
  * Auto-save checklist responses from cleaner
  */
