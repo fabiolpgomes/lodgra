@@ -69,8 +69,9 @@ export async function GET(
  */
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id: templateId } = await params;
   const { error: authError, user } = await requireRole(['admin', 'gestor']);
   if (authError) return authError;
 
@@ -97,7 +98,7 @@ export async function PUT(
         property_id: property_id || null,
         updated_at: new Date().toISOString()
       })
-      .eq('id', id)
+      .eq('id', templateId)
       .eq('organization_id', orgId)
       .select()
       .single();
@@ -110,12 +111,12 @@ export async function PUT(
       await supabase
         .from('cleaning_checklist_items')
         .delete()
-        .eq('template_id', id);
+        .eq('template_id', templateId);
 
       // Insert new items
       if (items.length > 0) {
         const itemsToInsert = items.map((item: ChecklistItem, index: number) => ({
-          template_id: id,
+          template_id: templateId,
           label: item.label || '',
           category: item.category || 'Geral',
           is_required: item.is_required || false,
@@ -146,8 +147,9 @@ export async function PUT(
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   const { error: authError, user } = await requireRole(['admin', 'gestor']);
   if (authError) return authError;
 
