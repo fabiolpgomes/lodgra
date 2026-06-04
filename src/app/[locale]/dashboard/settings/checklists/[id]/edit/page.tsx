@@ -6,8 +6,9 @@ import { ChevronLeft } from 'lucide-react';
 export default async function EditChecklistPage({
   params
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
+  const { id } = await params
   const { error } = await requireRole(['admin', 'gestor']);
   if (error) return error;
 
