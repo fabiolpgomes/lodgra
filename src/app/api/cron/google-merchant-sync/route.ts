@@ -3,26 +3,50 @@ import { createClient } from '@/lib/supabase/server'
 import { syncGoogleMerchantStatus } from '@/lib/workers/google-merchant-sync'
 
 export async function GET(req: Request) {
+  console.log('🔄 [CRON] Google Merchant Sync started')
+
   // Verify cron secret for security
   const authHeader = req.headers.get('authorization')
   const cronSecret = process.env.VERCEL_CRON_SECRET
 
-  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
-    return new Response('Unauthorized', { status: 401 })
+  console.log('🔑 [CRON] Verifying authorization...')
+  if (!cronSecret) {
+    console.error('❌ [CRON] VERCEL_CRON_SECRET not configured')
+    return Response.json({ status: 'failed', error: 'VERCEL_CRON_SECRET not configured' }, { status: 500 })
   }
 
+  if (authHeader !== `Bearer ${cronSecret}`) {
+    console.error('❌ [CRON] Invalid authorization token')
+    return Response.json({ status: 'failed', error: 'Unauthorized' }, { status: 401 })
+  }
+
+  console.log('✅ [CRON] Authorization verified')
+
   try {
+    console.log('📊 [CRON] Creating Supabase client...')
     const supabase = await createClient()
+    console.log('✅ [CRON] Supabase client created')
 
     // Get all organizations with premium plans that have properties
+    console.log('📦 [CRON] Fetching organizations with premium plans...')
     const { data: orgs, error: orgsError } = await supabase
       .from('organizations')
       .select('id')
       .in('subscription_plan', ['premium', 'professional', 'business', 'pro'])
 
-    if (orgsError || !orgs) {
-      throw new Error(`Failed to fetch organizations: ${orgsError?.message}`)
+    if (orgsError) {
+      const errorMsg = `Failed to fetch organizations: ${orgsError.message}`
+      console.error('❌ [CRON]', errorMsg)
+      throw new Error(errorMsg)
     }
+
+    if (!orgs) {
+      const errorMsg = 'No organizations found'
+      console.error('❌ [CRON]', errorMsg)
+      throw new Error(errorMsg)
+    }
+
+    console.log(`✅ [CRON] Found ${orgs.length} premium organizations`)
 
     const results: Array<{
       organizationId: string
@@ -106,14 +130,20 @@ export async function GET(req: Request) {
       { status: 200 }
     )
   } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : String(error)
+    console.error('❌ [CRON] Exception caught:', errorMsg)
+    console.error('❌ [CRON] Stack:', error instanceof Error ? error.stack : 'N/A')
+
     Sentry.captureException(error, {
       tags: { component: 'cron-google-merchant-sync', stage: 'initialization' },
+      extra: { errorMessage: errorMsg },
     })
 
     return Response.json(
       {
         status: 'failed',
-        error: error instanceof Error ? error.message : String(error),
+        error: errorMsg,
+        timestamp: new Date().toISOString(),
       },
       { status: 500 }
     )
