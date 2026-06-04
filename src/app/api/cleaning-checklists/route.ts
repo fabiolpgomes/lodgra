@@ -1,4 +1,5 @@
-import { createClient } from '@supabase/supabase-js';
+import { createAdminClient } from '@/lib/supabase/admin';
+import { requireRole } from '@/lib/auth/requireRole';
 import { NextRequest, NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
@@ -7,58 +8,108 @@ interface ChecklistItem {
   label: string;
   category: string;
   is_required: boolean;
+  order_index?: number;
 }
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
-
+/**
+ * GET /api/cleaning-checklists
+ * List templates for organization with optional property filter
+ */
 export async function GET(request: NextRequest) {
+  const { error: authError, user } = await requireRole(['admin', 'gestor']);
+  if (authError) return authError;
+
   try {
-    const { data, error } = await supabase
+    const supabase = createAdminClient();
+    const { searchParams } = new URL(request.url);
+    const propertyId = searchParams.get('property_id');
+    const orgId = user?.organization_id;
+
+    let query = supabase
       .from('cleaning_checklist_templates')
-      .select('*,cleaning_checklist_items(*)')
+      .select('id, name, description, is_active, property_id, created_at, updated_at')
+      .eq('organization_id', orgId)
       .order('created_at', { ascending: false });
 
+    // Include property-specific + global templates
+    if (propertyId) {
+      query = query.or(`property_id.eq.${propertyId},property_id.is.null`);
+    }
+
+    const { data, error } = await query;
+
     if (error) throw error;
-    return NextResponse.json(data);
+    return NextResponse.json({ data });
   } catch (error) {
-    console.error('GET templates:', error);
-    return NextResponse.json({ error: 'Failed' }, { status: 500 });
+    console.error('[Checklists] GET error:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch templates' },
+      { status: 500 }
+    );
   }
 }
 
+/**
+ * POST /api/cleaning-checklists
+ * Create new checklist template
+ */
 export async function POST(request: NextRequest) {
+  const { error: authError, user } = await requireRole(['admin', 'gestor']);
+  if (authError) return authError;
+
   try {
     const body = await request.json();
-    const { name, items } = body;
+    const { name, description, property_id, items } = body;
 
-    const { data: template, error: e1 } = await supabase
+    // Validation
+    if (!name || !name.trim()) {
+      return NextResponse.json(
+        { error: 'Template name is required' },
+        { status: 400 }
+      );
+    }
+
+    const supabase = createAdminClient();
+    const orgId = user?.organization_id;
+
+    // Create template
+    const { data: template, error: templateError } = await supabase
       .from('cleaning_checklist_templates')
-      .insert({ name })
+      .insert({
+        organization_id: orgId,
+        name: name.trim(),
+        description: description || null,
+        property_id: property_id || null,
+        is_active: true
+      })
       .select()
       .single();
 
-    if (e1) throw e1;
+    if (templateError) throw templateError;
 
-    if (items.length > 0) {
-      await supabase
+    // Create items if provided
+    if (items && Array.isArray(items) && items.length > 0) {
+      const itemsToInsert = items.map((item: ChecklistItem, index: number) => ({
+        template_id: template.id,
+        label: item.label || '',
+        category: item.category || 'Geral',
+        is_required: item.is_required || false,
+        order_index: item.order_index ?? index
+      }));
+
+      const { error: itemsError } = await supabase
         .from('cleaning_checklist_items')
-        .insert(
-          items.map((item: ChecklistItem, i: number) => ({
-            template_id: template.id,
-            label: item.label,
-            category: item.category,
-            is_required: item.is_required,
-            order: i,
-          }))
-        );
+        .insert(itemsToInsert);
+
+      if (itemsError) throw itemsError;
     }
 
-    return NextResponse.json({ ...template, items }, { status: 201 });
+    return NextResponse.json({ data: template }, { status: 201 });
   } catch (error) {
-    console.error('POST template:', error);
-    return NextResponse.json({ error: 'Failed' }, { status: 500 });
+    console.error('[Checklists] POST error:', error);
+    return NextResponse.json(
+      { error: 'Failed to create template' },
+      { status: 500 }
+    );
   }
 }
