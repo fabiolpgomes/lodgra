@@ -98,9 +98,8 @@ export async function syncGoogleMerchantStatus(options: SyncOptions): Promise<Sy
               organization_id: orgId,
               property_id: property.id,
               status: result.status,
-              indexed_date: result.indexedDate ? new Date(result.indexedDate) : null,
               error_message: result.errorMessage || null,
-              raw_data: result.rawData || null,
+              data: result.rawData || null,
               last_fetched: new Date(),
             },
             { onConflict: 'organization_id,property_id' }
