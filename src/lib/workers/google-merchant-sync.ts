@@ -25,18 +25,23 @@ export async function syncGoogleMerchantStatus(options: SyncOptions): Promise<Sy
   try {
     const supabase = await createClient()
 
-    // Get user's organization
-    const { data: profile, error: profileError } = await supabase
-      .from('user_profiles')
-      .select('organization_id')
-      .eq('id', (await supabase.auth.getUser()).data.user?.id)
-      .single()
+    // Use organizationId from options (for cron jobs) or fetch from user profile
+    let orgId = options.organizationId
 
-    if (profileError || !profile) {
-      throw new Error('User profile not found')
+    // If not provided in options, try to get from authenticated user
+    if (!orgId) {
+      const { data: profile, error: profileError } = await supabase
+        .from('user_profiles')
+        .select('organization_id')
+        .eq('id', (await supabase.auth.getUser()).data.user?.id)
+        .single()
+
+      if (profileError || !profile) {
+        throw new Error('User profile not found')
+      }
+
+      orgId = profile.organization_id
     }
-
-    const orgId = profile.organization_id
 
     // Fetch properties to sync
     let properties: Array<{ id: string; slug: string }> = []
