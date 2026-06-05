@@ -43,20 +43,26 @@ function calculateProportionalAmount(r: Reservation, startDate: string, endDate:
   const checkIn = new Date(reservationCheckIn + 'T00:00:00Z').getTime()
   const checkOut = new Date(reservationCheckOut + 'T00:00:00Z').getTime()
   const periodStart = new Date(startDate + 'T00:00:00Z').getTime()
-  const periodEndMidnight = new Date(endDate + 'T00:00:00Z').getTime()
+  const periodEndInclusive = new Date(endDate + 'T23:59:59Z').getTime()
 
-  // If reservation is completely within period, return full amount
-  if (checkIn >= periodStart && checkOut <= periodEndMidnight) {
-    return Number(r.total_amount) || 0
+  const totalNights = (checkOut - checkIn) / (1000 * 60 * 60 * 24)
+
+  // For reservations < 30 days: if check-in OR check-out is within period, return full amount
+  if (totalNights < 30) {
+    const checkInInPeriod = checkIn >= periodStart && checkIn <= periodEndInclusive
+    const checkOutInPeriod = checkOut >= periodStart && checkOut <= periodEndInclusive
+    if (checkInInPeriod || checkOutInPeriod) {
+      return Number(r.total_amount) || 0
+    }
   }
 
+  // For reservations >= 30 days or those not touching the period: use proportional calculation
   const overlapStart = Math.max(checkIn, periodStart)
-  const overlapEnd = Math.min(checkOut, periodEndMidnight)
+  const overlapEnd = Math.min(checkOut, periodEndInclusive)
 
   if (overlapStart >= overlapEnd) return 0
 
   const nightsInPeriod = (overlapEnd - overlapStart) / (1000 * 60 * 60 * 24)
-  const totalNights = (checkOut - checkIn) / (1000 * 60 * 60 * 24)
 
   if (totalNights <= 0) return 0
   return (nightsInPeriod / totalNights) * (Number(r.total_amount) || 0)
