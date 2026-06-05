@@ -16,12 +16,15 @@ CREATE TABLE IF NOT EXISTS google_merchant_sync_status (
 CREATE TABLE IF NOT EXISTS google_merchant_sync_logs (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   organization_id UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
-  job_id VARCHAR(255),
-  status VARCHAR(50), -- completed, failed, partial
+  sync_job_id VARCHAR(255),
+  action VARCHAR(50), -- 'manual' or 'scheduled'
+  status VARCHAR(50), -- 'success', 'partial', 'failed'
+  properties_count INTEGER DEFAULT 0,
   properties_synced INTEGER DEFAULT 0,
   properties_failed INTEGER DEFAULT 0,
-  total_duration_ms INTEGER DEFAULT 0,
+  duration_ms INTEGER DEFAULT 0,
   error_message TEXT,
+  api_quota_used INTEGER DEFAULT 0,
   sync_details JSONB, -- Store details of each property sync
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
