@@ -9,6 +9,7 @@
 import * as Sentry from '@sentry/nextjs'
 import { NextRequest, NextResponse } from 'next/server'
 import { generateGoogleVacationRentalsFeed, validateFeedStructure } from '@/lib/feeds/google-feed-generator'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
@@ -22,6 +23,30 @@ export async function GET(request: NextRequest) {
     const updated_since = searchParams.get('updated_since') || undefined
     const currency = searchParams.get('currency') || 'EUR'
     const include_reviews = searchParams.get('include_reviews') !== 'false' // Default: true
+
+    // Detect organization from subdomain
+    const host = request.headers.get('host') || ''
+    const subdomain = extractSubdomain(host)
+    let organizationId: string | undefined
+
+    if (subdomain) {
+      // Fetch organization by slug
+      const supabase = createAdminClient()
+      const { data: organization, error: orgError } = await supabase
+        .from('organizations')
+        .select('id')
+        .eq('slug', subdomain)
+        .single()
+
+      if (orgError || !organization) {
+        return NextResponse.json(
+          { error: 'Organization not found' },
+          { status: 404 }
+        )
+      }
+
+      organizationId = organization.id
+    }
 
     // Validate parameters
     if (limit < 1 || limit > 1000) {
@@ -42,6 +67,7 @@ export async function GET(request: NextRequest) {
       updated_since,
       currency,
       include_reviews,
+      organization_id: organizationId,
     })
     const generationTime = Date.now() - startTime
 
@@ -94,12 +120,31 @@ export async function HEAD(request: NextRequest) {
     const currency = searchParams.get('currency') || 'EUR'
     const include_reviews = searchParams.get('include_reviews') !== 'false' // Default: true
 
+    // Detect organization from subdomain
+    const host = request.headers.get('host') || ''
+    const subdomain = extractSubdomain(host)
+    let organizationId: string | undefined
+
+    if (subdomain) {
+      const supabase = createAdminClient()
+      const { data: organization, error: orgError } = await supabase
+        .from('organizations')
+        .select('id')
+        .eq('slug', subdomain)
+        .single()
+
+      if (!orgError && organization) {
+        organizationId = organization.id
+      }
+    }
+
     const { xml, eTag, count } = await generateGoogleVacationRentalsFeed({
       limit,
       offset,
       updated_since,
       currency,
       include_reviews,
+      organization_id: organizationId,
     })
 
     const headers = new Headers({
@@ -119,4 +164,25 @@ export async function HEAD(request: NextRequest) {
     })
     return new NextResponse(null, { status: 500 })
   }
+}
+
+function extractSubdomain(host: string): string | null {
+  // Format: subdomain.domain.tld or domain.tld or localhost:port
+  const parts = host.split(':')[0].split('.')
+
+  // localhost or localhost:3000 → no subdomain
+  if (parts[0] === 'localhost' || parts.length === 1) {
+    return null
+  }
+
+  // algarve-home-stay.lodgra.io → algarve-home-stay
+  // www.lodgra.io → null (www is not a subdomain slug)
+  if (parts.length >= 3) {
+    const subdomain = parts[0]
+    if (subdomain !== 'www' && subdomain !== 'api') {
+      return subdomain
+    }
+  }
+
+  return null
 }
