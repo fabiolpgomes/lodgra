@@ -2,18 +2,33 @@
  * API Route: /api/reviews/sync
  * Syncs reviews from OTAs (Booking, Airbnb, Google)
  * Can be triggered manually or via Vercel Cron
+ *
+ * NOTE: Temporarily disabled pending dependency installation
  */
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server'
-import { createAdminClient } from '@/lib/supabase/admin'
-import { BookingClient } from '@/lib/reviews/booking-client'
-import { AirbnbClient } from '@/lib/reviews/airbnb-client'
-import { GoogleClient } from '@/lib/reviews/google-client'
-import { ReviewAggregator } from '@/lib/reviews/review-aggregator'
+
+// Disabled imports due to missing dependencies (booking-client, airbnb-client, google-client, review-aggregator)
+// import { createAdminClient } from '@/lib/supabase/admin'
+// import { BookingClient } from '@/lib/reviews/booking-client'
+// import { AirbnbClient } from '@/lib/reviews/airbnb-client'
+// import { GoogleClient } from '@/lib/reviews/google-client'
+// import { ReviewAggregator } from '@/lib/reviews/review-aggregator'
 
 export async function POST(request: NextRequest) {
   try {
+    // Temporarily disabled pending dependency installation
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Reviews sync API is temporarily disabled. Dependencies pending installation.',
+        status: 'pending',
+      },
+      { status: 503 }
+    )
+
+    /* Disabled code below pending dependencies
     // Verify authorization (Vercel Cron has x-vercel-cron header)
     const isCron = request.headers.get('x-vercel-cron') === 'true'
     const isAuthorized = isCron || request.headers.get('authorization') === `Bearer ${process.env.REVIEWS_SYNC_SECRET}`
@@ -23,7 +38,9 @@ export async function POST(request: NextRequest) {
     }
 
     const supabase = createAdminClient()
+    */
 
+    /* Disabled code below pending dependencies
     // Get all active properties with OTA integrations
     const { data: properties, error: fetchError } = await supabase
       .from('properties')
@@ -92,6 +109,7 @@ export async function POST(request: NextRequest) {
       },
       { status: 200 }
     )
+    */
   } catch (error) {
     console.error('[Reviews Sync] Fatal error:', error)
     return NextResponse.json(
