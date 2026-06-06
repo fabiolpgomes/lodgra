@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ReviewAggregator } from '@/lib/reviews/review-aggregator'
 
 describe('ReviewAggregator', () => {
