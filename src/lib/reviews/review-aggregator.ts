@@ -3,6 +3,7 @@
  * Merges reviews from multiple sources and deduplicates
  */
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import crypto from 'crypto'
 
 export interface AggregatedReview {
@@ -29,7 +30,6 @@ export class ReviewAggregator {
   /**
    * Merge reviews from multiple sources and deduplicate
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static aggregateReviews(
     bookingReviews: any[] = [],
     airbnbReviews: any[] = [],
