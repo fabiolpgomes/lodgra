@@ -34,10 +34,10 @@ export function GoogleAnalytics({ gaId, nonce }: GoogleAnalyticsProps) {
     <>
       <Script
         src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
-        strategy="beforeInteractive"
+        strategy="afterInteractive"
         nonce={nonce}
       />
-      <Script id="ga-init" strategy="beforeInteractive" nonce={nonce}>
+      <Script id="ga-init" strategy="afterInteractive" nonce={nonce}>
         {`
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
