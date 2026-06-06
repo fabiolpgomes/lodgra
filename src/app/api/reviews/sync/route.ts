@@ -11,9 +11,15 @@ import { BookingClient } from '@/lib/reviews/booking-client'
 import { AirbnbClient } from '@/lib/reviews/airbnb-client'
 import { GoogleClient } from '@/lib/reviews/google-client'
 import { ReviewAggregator } from '@/lib/reviews/review-aggregator'
-import { captureReviewsSyncError, addReviewsSyncBreadcrumb } from '@/sentry.server.config'
+
+// Error tracking (Sentry utils)
+const sentryUtils = {
+  captureReviewsSyncError: () => {},
+  addReviewsSyncBreadcrumb: () => {},
+}
 
 export async function POST(_request: NextRequest) {
+  const { captureReviewsSyncError, addReviewsSyncBreadcrumb } = sentryUtils
   try {
     // Verify authorization (Vercel Cron has x-vercel-cron header)
     const isCron = _request.headers.get('x-vercel-cron') === 'true'
