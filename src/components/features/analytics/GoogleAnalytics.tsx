@@ -15,8 +15,8 @@ export interface GoogleAnalyticsProps {
 }
 
 export function GoogleAnalytics({ gaId, nonce }: GoogleAnalyticsProps) {
-  // Use provided GA ID, fallback to env variable
-  const GA_ID = gaId || process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
+  // Use provided GA ID, fallback to env variable, then hardcoded fallback
+  const GA_ID = gaId || process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || 'G-MRXN40ZBMT'
 
   useEffect(() => {
     function onAccept() {
