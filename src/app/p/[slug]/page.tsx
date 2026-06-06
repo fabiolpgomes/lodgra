@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import type { Metadata } from 'next'
 import { PropertyImage } from '@/types/property-images'
-import { generatePropertyJsonLd } from '@/lib/seo/jsonld'
+import { generateLodgingBusinessJsonLd } from '@/lib/seo/lodgingBusinessSchema'
 import { getSimilarProperties } from '@/lib/supabase/properties'
 import type { ReviewSource, ReviewScoreData, PropertyReview } from '@/types/database'
 import { locales } from '../../../../i18n.config'
@@ -318,7 +318,7 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
   const minNightsErrorCount = minNightsError ? parseInt(minNightsError) : undefined
 
   const nonce = (await headers()).get('x-nonce') ?? undefined
-  const jsonLd = generatePropertyJsonLd({
+  const jsonLd = generateLodgingBusinessJsonLd({
     ...property,
     imageUrls: allPhotos,
     structuredAmenities,
