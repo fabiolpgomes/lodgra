@@ -12,10 +12,10 @@ import { AirbnbClient } from '@/lib/reviews/airbnb-client'
 import { GoogleClient } from '@/lib/reviews/google-client'
 import { ReviewAggregator } from '@/lib/reviews/review-aggregator'
 
-// Error tracking (Sentry utils)
+// Error tracking (Sentry utils - placeholder)
 const sentryUtils = {
-  captureReviewsSyncError: () => {},
-  addReviewsSyncBreadcrumb: () => {},
+  captureReviewsSyncError: (..._args: any[]) => {},
+  addReviewsSyncBreadcrumb: (..._args: any[]) => {},
 }
 
 export async function POST(_request: NextRequest) {
