@@ -43,9 +43,9 @@ export async function POST(request: NextRequest) {
     // Sync reviews for each property
     for (const property of properties || []) {
       try {
-        const bookingReviews = property.booking_id ? await this.fetchBookingReviews(property.booking_id) : []
-        const airbnbReviews = property.airbnb_id ? await this.fetchAirbnbReviews(property.airbnb_id) : []
-        const googleReviews = property.google_gmb_id ? await this.fetchGoogleReviews(property.google_gmb_id) : []
+        const bookingReviews = property.booking_id ? await fetchBookingReviews(property.booking_id) : []
+        const airbnbReviews = property.airbnb_id ? await fetchAirbnbReviews(property.airbnb_id) : []
+        const googleReviews = property.google_gmb_id ? await fetchGoogleReviews(property.google_gmb_id) : []
 
         // Aggregate and deduplicate
         const { reviews } = ReviewAggregator.aggregateReviews(bookingReviews, airbnbReviews, googleReviews)
