@@ -6,7 +6,7 @@ import { ICalSyncSettings } from '@/components/features/settings/ICalSyncSetting
 import { ICalExportSection } from '@/components/features/settings/ICalExportSection'
 import { SettingsUserManagement } from '@/components/features/settings/SettingsUserManagement'
 import { ChangePasswordSection } from '@/components/features/settings/ChangePasswordSection'
-import { Building2, ExternalLink, Palette, Settings, Upload, Download, Users } from 'lucide-react'
+import { Building2, ExternalLink, Palette, Settings, Upload, Download, Users, BarChart3 } from 'lucide-react'
 import { ConsentManagement } from '@/components/features/settings/ConsentManagement'
 import { DataExportSection } from '@/components/features/settings/DataExportSection'
 import { AccountDeletionSection } from '@/components/features/settings/AccountDeletionSection'
@@ -195,6 +195,29 @@ export default async function SettingsPage(props: { params: Promise<{ locale: st
             Use estes URLs para sincronizar as suas reservas com outras plataformas. Cada propriedade tem o seu próprio URL seguro com token de autenticação.
           </p>
           <ICalExportSection properties={properties || []} appUrl={appUrl} />
+        </section>
+
+        {/* Google Analytics Configuration */}
+        <section className="mb-8">
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-2">
+                  <BarChart3 className="h-5 w-5 text-blue-600" />
+                  <h2 className="text-lg font-semibold text-gray-900">Google Analytics</h2>
+                </div>
+                <p className="text-sm text-gray-600">
+                  Configure seu Google Analytics para rastrear o desempenho das suas propriedades.
+                </p>
+              </div>
+              <Link
+                href={`/${locale}/settings/analytics`}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+              >
+                Configurar <ExternalLink className="h-4 w-4" />
+              </Link>
+            </div>
+          </div>
         </section>
 
         {/* Account Deletion — RGPD/LGPD */}

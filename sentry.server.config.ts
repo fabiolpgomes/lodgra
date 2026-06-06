@@ -178,4 +178,50 @@ export function clearPaymentUserContext() {
   Sentry.setUser(null);
 }
 
+/**
+ * Story 27.3: Capture reviews sync errors
+ */
+export function captureReviewsSyncError(
+  error: Error | unknown,
+  context: {
+    syncedCount?: number;
+    errorCount?: number;
+    failedProperties?: string[];
+  }
+) {
+  if (!process.env.SENTRY_DSN) return;
+
+  const errorInstance = error instanceof Error ? error : new Error(String(error));
+
+  Sentry.captureException(errorInstance, {
+    tags: {
+      sync_type: "reviews",
+      severity: context.errorCount && context.errorCount > 3 ? "critical" : "error",
+    },
+    contexts: {
+      reviews_sync: {
+        synced_count: context.syncedCount,
+        error_count: context.errorCount,
+        failed_properties: context.failedProperties?.join(","),
+      },
+    },
+    level: context.errorCount && context.errorCount > 3 ? "fatal" : "error",
+  });
+}
+
+/**
+ * Story 27.3: Add breadcrumb for reviews sync tracking
+ */
+export function addReviewsSyncBreadcrumb(
+  message: string,
+  data: Record<string, string | number | boolean>
+) {
+  Sentry.addBreadcrumb({
+    category: "reviews_sync",
+    message,
+    level: "info",
+    data,
+  });
+}
+
 export default Sentry;

@@ -11,6 +11,7 @@ import { BookingClient } from '@/lib/reviews/booking-client'
 import { AirbnbClient } from '@/lib/reviews/airbnb-client'
 import { GoogleClient } from '@/lib/reviews/google-client'
 import { ReviewAggregator } from '@/lib/reviews/review-aggregator'
+import { captureReviewsSyncError, addReviewsSyncBreadcrumb } from '@/sentry.server.config'
 
 export async function POST(_request: NextRequest) {
   try {
@@ -39,6 +40,12 @@ export async function POST(_request: NextRequest) {
     let syncedCount = 0
     let errorCount = 0
     const errors: Array<{ propertyId: string; error: string }> = []
+    const failedPropertyIds: string[] = []
+
+    addReviewsSyncBreadcrumb('Starting reviews sync', {
+      total_properties: properties?.length || 0,
+      is_cron: isCron ? 1 : 0,
+    })
 
     // Sync reviews for each property
     for (const property of properties || []) {
@@ -50,7 +57,7 @@ export async function POST(_request: NextRequest) {
         // Aggregate and deduplicate
         const { reviews } = ReviewAggregator.aggregateReviews(bookingReviews, airbnbReviews, googleReviews)
 
-        // Save to database
+        // Save to database (graceful degradation: continue if DB write fails)
         if (reviews.length > 0) {
           const { error: insertError } = await supabase.from('property_reviews').upsert(
             reviews.map((r) => ({
@@ -66,22 +73,40 @@ export async function POST(_request: NextRequest) {
           )
 
           if (insertError) {
-            throw new Error(`Failed to insert reviews: ${insertError.message}`)
+            console.warn(`[Reviews Sync] DB insert warning for property ${property.id}: ${insertError.message}`)
+            // Don't throw — graceful degradation: property has reviews but DB write failed
+            // Reviews will be served from cache on next page load
           }
         }
 
         syncedCount++
       } catch (error) {
         errorCount++
+        failedPropertyIds.push(property.id)
         errors.push({
           propertyId: property.id,
           error: error instanceof Error ? error.message : String(error),
         })
+        console.error(`[Reviews Sync] Error syncing property ${property.id}:`, error)
       }
     }
 
+    // Alert on consecutive failures (>3 failed syncs)
+    if (errorCount > 3) {
+      captureReviewsSyncError(new Error(`Reviews sync: ${errorCount} properties failed`), {
+        syncedCount,
+        errorCount,
+        failedProperties: failedPropertyIds,
+      })
+    }
+
     // Log results
-    console.log(`[Reviews Sync] Completed. Synced: ${syncedCount}, Errors: ${errorCount}`)
+    const resultMessage = `[Reviews Sync] Completed. Synced: ${syncedCount}, Errors: ${errorCount}`
+    console.log(resultMessage)
+    addReviewsSyncBreadcrumb(resultMessage, {
+      synced_count: syncedCount,
+      error_count: errorCount,
+    })
 
     return NextResponse.json(
       {
@@ -94,6 +119,8 @@ export async function POST(_request: NextRequest) {
     )
   } catch (error) {
     console.error('[Reviews Sync] Fatal error:', error)
+    captureReviewsSyncError(error, {})
+
     return NextResponse.json(
       {
         success: false,
