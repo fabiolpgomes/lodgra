@@ -1,59 +1,58 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireRole } from '@/lib/auth/requireRole';
-import { getGAMeasurementId } from '@/lib/database/analytics';
 import { createAdminClient } from '@/lib/supabase/admin';
 
-export async function POST(_req: NextRequest) {
+export async function GET(_req: NextRequest) {
   try {
-    // 1. Validate auth & get organizationId
+    console.log('[Analytics Test] Starting test endpoint');
+
+    // Test 1: Check auth
     const auth = await requireRole(['admin', 'gestor']);
-    if (!auth.authorized) return auth.response!;
+    console.log('[Analytics Test] Auth check:', { authorized: auth.authorized, organizationId: auth.organizationId });
 
-    const tenantId = auth.organizationId;
-    if (!tenantId) {
-      return NextResponse.json(
-        { error: 'No organization found for user' },
-        { status: 400 }
-      );
+    if (!auth.authorized) {
+      return NextResponse.json({ error: 'Not authorized' }, { status: 401 });
     }
 
-    // 2. Get GA config from database
-    const gaId = await getGAMeasurementId(tenantId);
-    if (!gaId) {
-      return NextResponse.json(
-        { error: 'GA not configured. Please set up GA ID first.' },
-        { status: 400 }
-      );
+    const organizationId = auth.organizationId;
+    if (!organizationId) {
+      return NextResponse.json({ error: 'No organization ID' }, { status: 400 });
     }
 
-    // 4. Generate test event ID
-    const testEventId = `test_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
-    const testFiredAt = new Date().toISOString();
-
-    // 5. Log test event
+    // Test 2: Check Supabase connection
     const supabase = createAdminClient();
-    await supabase.from('analytics_test_events').insert({
-      tenant_id: tenantId,
-      event_id: testEventId,
-      ga_measurement_id: gaId,
-      test_fired_at: testFiredAt,
-      status: 'pending'
-    });
+    console.log('[Analytics Test] Supabase client created');
 
-    // 6. Return test event ID + instructions
+    // Test 3: Query the table directly
+    const { data, error } = await supabase
+      .from('organization_analytics_config')
+      .select('*')
+      .eq('organization_id', organizationId)
+      .eq('deleted_at', null)
+      .maybeSingle();
+
+    console.log('[Analytics Test] Query result:', { data, error });
+
+    if (error) {
+      return NextResponse.json({
+        error: 'Database query failed',
+        details: error.message,
+        code: error.code
+      }, { status: 500 });
+    }
+
     return NextResponse.json({
       success: true,
-      data: {
-        test_event_id: testEventId,
-        test_fired_at: testFiredAt,
-        instructions: 'Check your Google Analytics in 5-10 seconds for event: lodgra_config_test'
-      }
+      organizationId,
+      config: data,
+      message: 'Test successful'
     });
   } catch (error) {
-    console.error('[Analytics Test] Error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.error('[Analytics Test] Error:', errorMsg, error);
+    return NextResponse.json({
+      error: 'Test failed',
+      details: errorMsg
+    }, { status: 500 });
   }
 }
