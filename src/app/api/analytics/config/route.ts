@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
         success: true,
         data: {
           id: config.id,
-          tenant_id: config.tenant_id,
+          organization_id: config.organization_id,
           ga_enabled: config.ga_enabled,
           created_at: config.created_at,
           updated_at: config.updated_at
@@ -80,7 +80,7 @@ export async function GET(_req: NextRequest) {
       data: {
         ...(config && {
           id: config.id,
-          tenant_id: config.tenant_id,
+          organization_id: config.organization_id,
           ga_enabled: config.ga_enabled,
           created_at: config.created_at,
           updated_at: config.updated_at
