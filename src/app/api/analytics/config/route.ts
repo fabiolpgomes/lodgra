@@ -8,8 +8,8 @@ export async function POST(req: NextRequest) {
     const auth = await requireRole(['admin', 'gestor']);
     if (!auth.authorized) return auth.response!;
 
-    const tenantId = auth.organizationId;
-    if (!tenantId) {
+    const organizationId = auth.organizationId;
+    if (!organizationId) {
       return NextResponse.json(
         { error: 'No organization found for user' },
         { status: 400 }
@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 3-5. Encrypt, save, and log (handled in upsertAnalyticsConfig)
-    const config = await upsertAnalyticsConfig(tenantId, ga_measurement_id);
+    const config = await upsertAnalyticsConfig(organizationId, ga_measurement_id);
 
     // 6. Return config (no GA ID exposed)
     return NextResponse.json(
@@ -60,8 +60,8 @@ export async function GET(_req: NextRequest) {
     const auth = await requireRole(['admin', 'gestor']);
     if (!auth.authorized) return auth.response!;
 
-    const tenantId = auth.organizationId;
-    if (!tenantId) {
+    const organizationId = auth.organizationId;
+    if (!organizationId) {
       return NextResponse.json(
         { error: 'No organization found for user' },
         { status: 400 }
@@ -72,7 +72,7 @@ export async function GET(_req: NextRequest) {
     const { getAnalyticsConfig } = await import('@/lib/database/analytics');
 
     // 3. Query GA config
-    const config = await getAnalyticsConfig(tenantId);
+    const config = await getAnalyticsConfig(organizationId);
 
     // 4. Return status
     return NextResponse.json({
@@ -103,8 +103,8 @@ export async function DELETE(_req: NextRequest) {
     const auth = await requireRole(['admin', 'gestor']);
     if (!auth.authorized) return auth.response!;
 
-    const tenantId = auth.organizationId;
-    if (!tenantId) {
+    const organizationId = auth.organizationId;
+    if (!organizationId) {
       return NextResponse.json(
         { error: 'No organization found for user' },
         { status: 400 }
@@ -115,7 +115,7 @@ export async function DELETE(_req: NextRequest) {
     const { deleteAnalyticsConfig } = await import('@/lib/database/analytics');
 
     // 2-3. Soft delete & log (handled in deleteAnalyticsConfig)
-    await deleteAnalyticsConfig(tenantId);
+    await deleteAnalyticsConfig(organizationId);
 
     // 4. Return success
     return NextResponse.json({

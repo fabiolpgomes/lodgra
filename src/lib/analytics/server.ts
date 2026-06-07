@@ -5,8 +5,8 @@ import { createAdminClient } from '@/lib/supabase/admin';
 const ROOT_DOMAINS = ['lodgra.io', 'localhost', 'vercel.app'];
 
 /**
- * Get tenant GA Measurement ID for the current subdomain
- * Returns the tenant's GA ID if configured, otherwise returns Lodgra's GA ID
+ * Get organization GA Measurement ID for the current subdomain
+ * Returns the organization's GA ID if configured, otherwise returns Lodgra's GA ID
  *
  * @returns GA Measurement ID (customer's or Lodgra's fallback)
  */
@@ -33,7 +33,7 @@ export async function getTenantGAId(): Promise<string | null> {
       return process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || null;
     }
 
-    // Get tenant by subdomain
+    // Get organization by subdomain
     const supabase = createAdminClient();
     const { data: org } = await supabase
       .from('organizations')
@@ -46,20 +46,20 @@ export async function getTenantGAId(): Promise<string | null> {
       return process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || null;
     }
 
-    // Get tenant's GA config
+    // Get organization's GA config
     try {
-      const tenantGAId = await getGAMeasurementId(org.id);
-      if (tenantGAId) {
-        return tenantGAId;
+      const organizationGAId = await getGAMeasurementId(org.id);
+      if (organizationGAId) {
+        return organizationGAId;
       }
     } catch (err) {
-      console.error('[Analytics Server] Failed to get tenant GA ID, falling back:', err);
+      console.error('[Analytics Server] Failed to get organization GA ID, falling back:', err);
       // Fall back to Lodgra GA on error
     }
 
     return process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || null;
   } catch (err) {
-    console.error('[Analytics Server] Error getting tenant GA ID:', err);
+    console.error('[Analytics Server] Error getting organization GA ID:', err);
     // Always fall back to Lodgra GA on error
     return process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || null;
   }

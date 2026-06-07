@@ -64,7 +64,7 @@ export function BlockDatesModal({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+      <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md max-h-[85vh] overflow-y-auto">
         <h2 className="text-xl font-bold text-gray-900 mb-4">Bloquear Datas</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">

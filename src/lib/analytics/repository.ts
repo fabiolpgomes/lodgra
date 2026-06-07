@@ -3,7 +3,7 @@ import { encryptGAId, decryptGAId } from '@/lib/encryption/analytics';
 
 export interface AnalyticsConfig {
   id: string;
-  tenant_id: string;
+  organization_id: string;
   ga_enabled: boolean;
   created_at: string;
   updated_at: string;
@@ -11,7 +11,7 @@ export interface AnalyticsConfig {
 
 interface AuditLogEntry {
   id: string;
-  tenant_id: string;
+  organization_id: string;
   action: string;
   old_values?: Record<string, unknown>;
   new_values?: Record<string, unknown>;
@@ -32,11 +32,11 @@ export class AnalyticsRepository {
   /**
    * Get analytics config for tenant (basic metadata)
    */
-  async getConfig(tenantId: string): Promise<AnalyticsConfig | null> {
+  async getConfig(organizationId: string): Promise<AnalyticsConfig | null> {
     const { data, error } = await this.supabase
-      .from('tenant_analytics_config')
+      .from('organization_analytics_config')
       .select('id, tenant_id, ga_enabled, created_at, updated_at')
-      .eq('tenant_id', tenantId)
+      .eq('tenant_id', organizationId)
       .eq('deleted_at', null)
       .single();
 
@@ -52,11 +52,11 @@ export class AnalyticsRepository {
    * Get GA Measurement ID (decrypted)
    * Returns null if not configured, disabled, or decrypt fails
    */
-  async getGAMeasurementId(tenantId: string): Promise<string | null> {
+  async getGAMeasurementId(organizationId: string): Promise<string | null> {
     const { data, error } = await this.supabase
-      .from('tenant_analytics_config')
+      .from('organization_analytics_config')
       .select('ga_measurement_id_encrypted')
-      .eq('tenant_id', tenantId)
+      .eq('tenant_id', organizationId)
       .eq('deleted_at', null)
       .eq('ga_enabled', true)
       .single();
@@ -69,7 +69,7 @@ export class AnalyticsRepository {
     try {
       return decryptGAId(Buffer.from(data.ga_measurement_id_encrypted));
     } catch (err) {
-      console.error('[Analytics] Decryption failed for tenant:', tenantId, err);
+      console.error('[Analytics] Decryption failed for tenant:', organizationId, err);
       return null;
     }
   }
@@ -77,14 +77,14 @@ export class AnalyticsRepository {
   /**
    * Create or update analytics config
    */
-  async upsertConfig(tenantId: string, gaMeasurementId: string): Promise<AnalyticsConfig> {
+  async upsertConfig(organizationId: string, gaMeasurementId: string): Promise<AnalyticsConfig> {
     const encrypted = encryptGAId(gaMeasurementId);
 
     // Check if exists
     const { data: existing, error: checkError } = await this.supabase
-      .from('tenant_analytics_config')
+      .from('organization_analytics_config')
       .select('id')
-      .eq('tenant_id', tenantId)
+      .eq('tenant_id', organizationId)
       .eq('deleted_at', null)
       .single();
 
@@ -98,13 +98,13 @@ export class AnalyticsRepository {
     if (existing) {
       // Update
       const { data, error } = await this.supabase
-        .from('tenant_analytics_config')
+        .from('organization_analytics_config')
         .update({
           ga_measurement_id_encrypted: encrypted,
           ga_enabled: true,
           updated_at: new Date().toISOString()
         })
-        .eq('tenant_id', tenantId)
+        .eq('tenant_id', organizationId)
         .select('id, tenant_id, ga_enabled, created_at, updated_at')
         .single();
 
@@ -114,9 +114,9 @@ export class AnalyticsRepository {
     } else {
       // Create
       const { data, error } = await this.supabase
-        .from('tenant_analytics_config')
+        .from('organization_analytics_config')
         .insert({
-          tenant_id: tenantId,
+          tenant_id: organizationId,
           ga_measurement_id_encrypted: encrypted,
           ga_enabled: true
         })
@@ -128,7 +128,7 @@ export class AnalyticsRepository {
     }
 
     // Log audit event
-    await this.logAuditEvent(tenantId, action, null, { ga_enabled: true }, 'system');
+    await this.logAuditEvent(organizationId, action, null, { ga_enabled: true }, 'system');
 
     return result;
   }
@@ -136,21 +136,21 @@ export class AnalyticsRepository {
   /**
    * Delete analytics config (soft delete)
    */
-  async deleteConfig(tenantId: string): Promise<AnalyticsConfig> {
+  async deleteConfig(organizationId: string): Promise<AnalyticsConfig> {
     const { data, error } = await this.supabase
-      .from('tenant_analytics_config')
+      .from('organization_analytics_config')
       .update({
         deleted_at: new Date().toISOString(),
         ga_enabled: false
       })
-      .eq('tenant_id', tenantId)
+      .eq('tenant_id', organizationId)
       .select('id, tenant_id, ga_enabled, created_at, updated_at')
       .single();
 
     if (error) throw this.handleDatabaseError('deleteConfig', error);
 
     // Log audit event
-    await this.logAuditEvent(tenantId, 'deleted', { ga_enabled: true }, { ga_enabled: false }, 'system');
+    await this.logAuditEvent(organizationId, 'deleted', { ga_enabled: true }, { ga_enabled: false }, 'system');
 
     return data;
   }
@@ -159,7 +159,7 @@ export class AnalyticsRepository {
    * Log audit event
    */
   async logAuditEvent(
-    tenantId: string,
+    organizationId: string,
     action: string,
     oldValues: Record<string, unknown> | null,
     newValues: Record<string, unknown> | null,
@@ -167,7 +167,7 @@ export class AnalyticsRepository {
     ipAddress?: string
   ): Promise<void> {
     const { error } = await this.supabase.from('analytics_config_audit_log').insert({
-      tenant_id: tenantId,
+      tenant_id: organizationId,
       action,
       old_values: oldValues,
       new_values: newValues,
@@ -184,11 +184,11 @@ export class AnalyticsRepository {
   /**
    * Get audit log for tenant
    */
-  async getAuditLog(tenantId: string, limit: number = 50): Promise<AuditLogEntry[]> {
+  async getAuditLog(organizationId: string, limit: number = 50): Promise<AuditLogEntry[]> {
     const { data, error } = await this.supabase
       .from('analytics_config_audit_log')
       .select('*')
-      .eq('tenant_id', tenantId)
+      .eq('tenant_id', organizationId)
       .order('created_at', { ascending: false })
       .limit(limit);
 
