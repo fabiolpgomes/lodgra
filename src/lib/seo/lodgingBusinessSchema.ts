@@ -189,7 +189,7 @@ export function generateLodgingBusinessJsonLd(
   const reviews =
     property.reviewScore && property.reviewScore.totalCount > 0
       ? property.featuredReviews
-          ?.slice(0, 3)
+          ?.slice(0, 5)
           .filter((r) => r.review_date)
           .map((r) => {
             const sourceMax: Record<string, number> = {
