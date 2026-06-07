@@ -35,8 +35,8 @@ export class AnalyticsRepository {
   async getConfig(organizationId: string): Promise<AnalyticsConfig | null> {
     const { data, error } = await this.supabase
       .from('organization_analytics_config')
-      .select('id, tenant_id, ga_enabled, created_at, updated_at')
-      .eq('tenant_id', organizationId)
+      .select('id, organization_id, ga_enabled, created_at, updated_at')
+      .eq('organization_id', organizationId)
       .eq('deleted_at', null)
       .single();
 
@@ -56,7 +56,7 @@ export class AnalyticsRepository {
     const { data, error } = await this.supabase
       .from('organization_analytics_config')
       .select('ga_measurement_id_encrypted')
-      .eq('tenant_id', organizationId)
+      .eq('organization_id', organizationId)
       .eq('deleted_at', null)
       .eq('ga_enabled', true)
       .single();
@@ -69,7 +69,7 @@ export class AnalyticsRepository {
     try {
       return decryptGAId(Buffer.from(data.ga_measurement_id_encrypted));
     } catch (err) {
-      console.error('[Analytics] Decryption failed for tenant:', organizationId, err);
+      console.error('[Analytics] Decryption failed for organization:', organizationId, err);
       return null;
     }
   }
@@ -84,7 +84,7 @@ export class AnalyticsRepository {
     const { data: existing, error: checkError } = await this.supabase
       .from('organization_analytics_config')
       .select('id')
-      .eq('tenant_id', organizationId)
+      .eq('organization_id', organizationId)
       .eq('deleted_at', null)
       .single();
 
@@ -104,8 +104,8 @@ export class AnalyticsRepository {
           ga_enabled: true,
           updated_at: new Date().toISOString()
         })
-        .eq('tenant_id', organizationId)
-        .select('id, tenant_id, ga_enabled, created_at, updated_at')
+        .eq('organization_id', organizationId)
+        .select('id, organization_id, ga_enabled, created_at, updated_at')
         .single();
 
       if (error) throw this.handleDatabaseError('upsertConfig (update)', error);
@@ -116,11 +116,11 @@ export class AnalyticsRepository {
       const { data, error } = await this.supabase
         .from('organization_analytics_config')
         .insert({
-          tenant_id: organizationId,
+          organization_id: organizationId,
           ga_measurement_id_encrypted: encrypted,
           ga_enabled: true
         })
-        .select('id, tenant_id, ga_enabled, created_at, updated_at')
+        .select('id, organization_id, ga_enabled, created_at, updated_at')
         .single();
 
       if (error) throw this.handleDatabaseError('upsertConfig (insert)', error);
@@ -143,8 +143,8 @@ export class AnalyticsRepository {
         deleted_at: new Date().toISOString(),
         ga_enabled: false
       })
-      .eq('tenant_id', organizationId)
-      .select('id, tenant_id, ga_enabled, created_at, updated_at')
+      .eq('organization_id', organizationId)
+      .select('id, organization_id, ga_enabled, created_at, updated_at')
       .single();
 
     if (error) throw this.handleDatabaseError('deleteConfig', error);
@@ -167,7 +167,7 @@ export class AnalyticsRepository {
     ipAddress?: string
   ): Promise<void> {
     const { error } = await this.supabase.from('analytics_config_audit_log').insert({
-      tenant_id: organizationId,
+      organization_id: organizationId,
       action,
       old_values: oldValues,
       new_values: newValues,
@@ -188,7 +188,7 @@ export class AnalyticsRepository {
     const { data, error } = await this.supabase
       .from('analytics_config_audit_log')
       .select('*')
-      .eq('tenant_id', organizationId)
+      .eq('organization_id', organizationId)
       .order('created_at', { ascending: false })
       .limit(limit);
 
