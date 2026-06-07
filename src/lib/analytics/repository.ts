@@ -171,8 +171,8 @@ export class AnalyticsRepository {
       action,
       old_values: oldValues,
       new_values: newValues,
-      changed_by: changedBy,
-      ip_address: ipAddress
+      changed_by: changedBy || 'system',
+      ip_address: ipAddress || null
     });
 
     if (error) {

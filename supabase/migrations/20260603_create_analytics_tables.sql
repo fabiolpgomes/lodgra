@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS analytics_config_audit_log (
   action VARCHAR(50) NOT NULL,
   old_values JSONB,
   new_values JSONB,
-  changed_by UUID NOT NULL REFERENCES users(id),
+  changed_by VARCHAR(100) DEFAULT 'system',
   ip_address INET,
   user_agent VARCHAR(500),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
