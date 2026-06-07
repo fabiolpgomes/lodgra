@@ -1,6 +1,16 @@
 export async function register() {
   if (process.env.NEXT_RUNTIME === 'nodejs') {
     await import('../sentry.server.config');
+
+    // Validate Google Service Account credentials at startup (production only)
+    if (process.env.NODE_ENV === 'production') {
+      const { validateGoogleCredentials } = await import('@/lib/init/validate-google-credentials');
+      await validateGoogleCredentials().catch((error) => {
+        console.error('Failed to validate Google credentials at startup:', error.message);
+        // Don't throw - allow app to start but log warning
+        // Sync will fail later if credentials are invalid
+      });
+    }
   }
 
   if (process.env.NEXT_RUNTIME === 'edge') {

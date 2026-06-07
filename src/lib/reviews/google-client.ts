@@ -3,7 +3,6 @@
  * Fetches property reviews from Google My Business API
  */
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { GoogleAuth } from 'google-auth-library'
 
 export interface GoogleReview {
@@ -41,6 +40,31 @@ export class GoogleClient {
       keyFile: keyFilePath,
       scopes: ['https://www.googleapis.com/auth/business.manage'],
     })
+  }
+
+  /**
+   * Validate that credentials are working (test call to Google API)
+   * Should be called during app startup to fail fast if credentials are invalid
+   */
+  async validateCredentials(): Promise<boolean> {
+    try {
+      const client = await this.auth.getClient()
+      const response = await client.request({
+        url: `${this.baseUrl}/accounts`,
+        method: 'GET',
+        timeout: 5000,
+      })
+
+      if (response.status === 200 || response.status === 404) {
+        // 200 = success, 404 = no accounts (but credentials valid)
+        return true
+      }
+
+      throw new Error(`Unexpected response status: ${response.status}`)
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error)
+      throw new Error(`Google Service Account validation failed: ${message}`)
+    }
   }
 
   /**
