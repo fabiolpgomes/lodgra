@@ -71,8 +71,10 @@ export async function GET(_req: NextRequest) {
     // 2. Import and use getAnalyticsConfig (with request cache)
     const { getAnalyticsConfig } = await import('@/lib/database/analytics');
 
+    console.log('[Analytics Config GET] Fetching config for organization:', organizationId);
     // 3. Query GA config
     const config = await getAnalyticsConfig(organizationId);
+    console.log('[Analytics Config GET] Config retrieved:', config ? 'found' : 'not found');
 
     // 4. Return status
     return NextResponse.json({
@@ -89,9 +91,10 @@ export async function GET(_req: NextRequest) {
       }
     });
   } catch (error) {
-    console.error('[Analytics Config GET] Error:', error);
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.error('[Analytics Config GET] Error:', errorMsg, error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error', details: errorMsg },
       { status: 500 }
     );
   }
