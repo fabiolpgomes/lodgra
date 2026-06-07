@@ -67,7 +67,8 @@ export class AnalyticsRepository {
     }
 
     try {
-      return decryptGAId(Buffer.from(data.ga_measurement_id_encrypted));
+      // ga_measurement_id_encrypted is now TEXT (base64 encoded)
+      return decryptGAId(Buffer.from(data.ga_measurement_id_encrypted, 'base64'));
     } catch (err) {
       console.error('[Analytics] Decryption failed for organization:', organizationId, err);
       return null;

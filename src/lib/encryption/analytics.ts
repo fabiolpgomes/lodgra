@@ -12,7 +12,7 @@ function getKey(): Buffer {
   return Buffer.from(keyHex, 'hex');
 }
 
-export function encryptGAId(gaId: string): Buffer {
+export function encryptGAId(gaId: string): string {
   const key = getKey();
   const iv = randomBytes(IV_LENGTH);
   const cipher = createCipheriv(ALGORITHM, key, iv);
@@ -23,7 +23,8 @@ export function encryptGAId(gaId: string): Buffer {
   const authTag = cipher.getAuthTag();
   const result = Buffer.concat([iv, Buffer.from(encrypted, 'hex'), authTag]);
 
-  return result;
+  // Return as base64 string for TEXT storage
+  return result.toString('base64');
 }
 
 export function decryptGAId(encrypted: Buffer): string {
