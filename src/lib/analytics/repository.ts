@@ -37,7 +37,7 @@ export class AnalyticsRepository {
       .from('organization_analytics_config')
       .select('id, organization_id, ga_enabled, created_at, updated_at')
       .eq('organization_id', organizationId)
-      .eq('deleted_at', null)
+      .is('deleted_at', null)
       .single();
 
     if (error) {
@@ -57,7 +57,7 @@ export class AnalyticsRepository {
       .from('organization_analytics_config')
       .select('ga_measurement_id_encrypted')
       .eq('organization_id', organizationId)
-      .eq('deleted_at', null)
+      .is('deleted_at', null)
       .eq('ga_enabled', true)
       .single();
 
@@ -86,7 +86,7 @@ export class AnalyticsRepository {
       .from('organization_analytics_config')
       .select('id')
       .eq('organization_id', organizationId)
-      .eq('deleted_at', null)
+      .is('deleted_at', null)
       .single();
 
     if (checkError && checkError.code !== PGRST_NOT_FOUND) {
