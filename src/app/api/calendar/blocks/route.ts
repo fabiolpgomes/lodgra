@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/client'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 // GET /api/calendar/blocks?from=YYYY-MM-DD&to=YYYY-MM-DD&property_id=uuid
 export async function GET(request: NextRequest) {
@@ -51,10 +51,19 @@ export async function GET(request: NextRequest) {
 // POST /api/calendar/blocks
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createClient()
+    const supabase = createAdminClient()
 
-    // Get current user
-    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    // Get current user from request headers (passed from client)
+    const authHeader = request.headers.get('authorization')
+    if (!authHeader?.startsWith('Bearer ')) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
+    const token = authHeader.substring(7)
+    const { data: { user }, error: userError } = await supabase.auth.getUser(token)
     if (userError || !user) {
       return NextResponse.json(
         { error: 'Unauthorized' },
