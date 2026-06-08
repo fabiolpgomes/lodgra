@@ -97,10 +97,19 @@ export function CalendarPageClient() {
       const params = new URLSearchParams({ from, to })
       if (propertyId) params.set('property_id', propertyId)
 
+      // Get auth token
+      const supabase = createClient()
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token
+
       // Fetch reservations and blocks in parallel
+      const fetchOptions = token ? {
+        headers: { Authorization: `Bearer ${token}` }
+      } : {}
+
       const [resRes, blocksRes] = await Promise.all([
-        fetch(`/api/calendar/reservations?${params}`),
-        fetch(`/api/calendar/blocks?${params}`),
+        fetch(`/api/calendar/reservations?${params}`, fetchOptions),
+        fetch(`/api/calendar/blocks?${params}`, fetchOptions),
       ])
 
       const reservations = await resRes.json()
