@@ -51,17 +51,8 @@ export async function POST(request: NextRequest) {
   try {
     const supabase = createAdminClient()
 
-    // Get current user from request headers (passed from client)
-    const authHeader = request.headers.get('authorization')
-    if (!authHeader?.startsWith('Bearer ')) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
-    }
-
-    const token = authHeader.substring(7)
-    const { data: { user }, error: userError } = await supabase.auth.getUser(token)
+    // Get current user from session (via cookies)
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
     if (userError || !user) {
       return NextResponse.json(
         { error: 'Unauthorized' },
