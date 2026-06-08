@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
+import { createClient } from '@/lib/supabase/client'
 
 interface BlockDatesModalProps {
   checkIn: string
@@ -23,6 +24,17 @@ export function BlockDatesModal({
   const [propertyId, setPropertyId] = useState(selectedPropertyId || '')
   const [notes, setNotes] = useState('')
   const [loading, setLoading] = useState(false)
+  const [token, setToken] = useState<string | null>(null)
+
+  // Get auth token on mount
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.access_token) {
+        setToken(session.access_token)
+      }
+    })
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -34,9 +46,14 @@ export function BlockDatesModal({
 
     setLoading(true)
     try {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`
+      }
+
       const response = await fetch('/api/calendar/blocks', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           property_id: propertyId,
           start_date: checkIn,
