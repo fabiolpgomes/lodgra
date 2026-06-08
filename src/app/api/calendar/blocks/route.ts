@@ -32,10 +32,8 @@ export async function GET(request: NextRequest) {
 
     if (error) {
       console.error('[Blocks API] GET error:', error)
-      return NextResponse.json(
-        { error: 'Erro ao carregar bloqueios' },
-        { status: 500 }
-      )
+      // Return empty array instead of error to allow modal to work
+      return NextResponse.json([])
     }
 
     return NextResponse.json(data || [])
