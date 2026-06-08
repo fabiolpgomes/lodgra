@@ -24,17 +24,6 @@ export function BlockDatesModal({
   const [propertyId, setPropertyId] = useState(selectedPropertyId || '')
   const [notes, setNotes] = useState('')
   const [loading, setLoading] = useState(false)
-  const [token, setToken] = useState<string | null>(null)
-
-  // Get auth token on mount
-  useEffect(() => {
-    const supabase = createClient()
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.access_token) {
-        setToken(session.access_token)
-      }
-    })
-  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -46,6 +35,11 @@ export function BlockDatesModal({
 
     setLoading(true)
     try {
+      // Get fresh token at submit time
+      const supabase = createClient()
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token
+
       const headers: Record<string, string> = { 'Content-Type': 'application/json' }
       if (token) {
         headers['Authorization'] = `Bearer ${token}`
