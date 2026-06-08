@@ -3,13 +3,14 @@ import { POST } from '@/app/api/organizations/[orgId]/branding/upload/route'
 import { NextRequest } from 'next/server'
 
 // Mock Supabase
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 jest.mock('@/lib/supabase/admin', () => ({
   createAdminClient: () => ({
     from: jest.fn(() => ({
       select: jest.fn().mockReturnThis(),
       eq: jest.fn().mockReturnThis(),
       single: jest.fn().mockResolvedValue({ data: null, error: null }),
-      insert: jest.fn().mockReturnThis(),
+      insert: (jest.fn() as jest.Mock).mockReturnThis(),
       update: jest.fn().mockReturnThis(),
     })),
   }),

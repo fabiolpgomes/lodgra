@@ -10,6 +10,7 @@ describe('checkPropertyAvailability', () => {
     } as unknown as SupabaseClient
   })
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const createMockChain = (finalData: any) => {
     const chain = {
       select: jest.fn(),
