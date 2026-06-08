@@ -1,14 +1,6 @@
 import { checkPropertyAvailability } from '../checkAvailability'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
-interface MockQuery {
-  select: jest.Mock
-  eq: jest.Mock
-  in?: jest.Mock
-  lt?: jest.Mock
-  gt?: jest.Mock
-}
-
 describe('checkPropertyAvailability', () => {
   let mockSupabase: SupabaseClient
 
@@ -18,35 +10,32 @@ describe('checkPropertyAvailability', () => {
     } as unknown as SupabaseClient
   })
 
+  const createMockChain = (finalData: any) => {
+    const chain = {
+      select: jest.fn(),
+      eq: jest.fn(),
+      in: jest.fn(),
+      lt: jest.fn(),
+      gt: jest.fn(),
+    }
+
+    chain.select.mockReturnValue(chain)
+    chain.eq.mockReturnValue(chain)
+    chain.in.mockReturnValue(chain)
+    chain.lt.mockReturnValue(chain)
+    chain.gt.mockReturnValue(Promise.resolve(finalData))
+
+    return chain
+  }
+
   it('should return available=true when no conflicts', async () => {
-    const mockQuery: MockQuery = {
-      select: jest.fn().mockReturnThis(),
-      eq: jest.fn().mockReturnThis(),
-      in: jest.fn().mockReturnThis(),
-      lt: jest.fn().mockReturnThis(),
-      gt: jest.fn().mockReturnThis(),
-    }
-
-    // Mock listings query
-    const mockListingsQuery: MockQuery = {
-      select: jest.fn().mockReturnThis(),
-      eq: jest.fn().mockReturnValue(Promise.resolve({ data: [{ id: 'listing-1' }], error: null })),
-    }
-
-    // Mock conflicts query
-    const mockConflictsQuery: MockQuery = {
-      select: jest.fn().mockReturnThis(),
-      eq: jest.fn().mockReturnThis(),
-      in: jest.fn().mockReturnThis(),
-      lt: jest.fn().mockReturnThis(),
-      gt: jest.fn().mockReturnValue(Promise.resolve({ data: [], error: null })),
-    }
+    const mockListingsChain = createMockChain({ data: [{ id: 'listing-1' }], error: null })
+    const mockConflictsChain = createMockChain({ data: [], error: null })
 
     const fromFn = mockSupabase.from as jest.Mock
     fromFn.mockImplementation((table: string) => {
-      if (table === 'property_listings') return mockListingsQuery
-      if (table === 'reservations') return mockConflictsQuery
-      return mockQuery
+      if (table === 'property_listings') return mockListingsChain
+      if (table === 'reservations') return mockConflictsChain
     })
 
     const result = await checkPropertyAvailability(
@@ -61,41 +50,26 @@ describe('checkPropertyAvailability', () => {
   })
 
   it('should return available=false when conflicts exist', async () => {
-    const mockListingsQuery: MockQuery = {
-      select: jest.fn().mockReturnThis(),
-      eq: jest.fn().mockReturnValue(Promise.resolve({ data: [{ id: 'listing-1' }], error: null })),
-    }
+    const mockListingsChain = createMockChain({ data: [{ id: 'listing-1' }], error: null })
 
-    const mockConflictsQuery: MockQuery = {
-      select: jest.fn().mockReturnThis(),
-      eq: jest.fn().mockReturnThis(),
-      in: jest.fn().mockReturnThis(),
-      lt: jest.fn().mockReturnThis(),
-      gt: jest.fn().mockReturnValue(
-        Promise.resolve({
-          data: [
-            {
-              id: 'res-1',
-              check_in: '2026-05-05',
-              check_out: '2026-05-08',
-              status: 'confirmed',
-              source: 'booking',
-              guests: { first_name: 'John', last_name: 'Doe' },
-            },
-          ],
-          error: null,
-        })
-      ),
-    }
+    const mockConflictsChain = createMockChain({
+      data: [
+        {
+          id: 'res-1',
+          check_in: '2026-05-05',
+          check_out: '2026-05-08',
+          status: 'confirmed',
+          source: 'booking',
+          guest_name: 'John Doe',
+        },
+      ],
+      error: null,
+    })
 
     const fromFn = mockSupabase.from as jest.Mock
     fromFn.mockImplementation((table: string) => {
-      if (table === 'property_listings')
-        return {
-          select: jest.fn().mockReturnThis(),
-          eq: jest.fn().mockReturnValue(Promise.resolve({ data: [{ id: 'listing-1' }], error: null })),
-        }
-      if (table === 'reservations') return mockConflictsQuery
+      if (table === 'property_listings') return mockListingsChain
+      if (table === 'reservations') return mockConflictsChain
     })
 
     const result = await checkPropertyAvailability(
@@ -111,11 +85,10 @@ describe('checkPropertyAvailability', () => {
   })
 
   it('should validate date format', async () => {
+    const mockListingsChain = createMockChain({ data: [{ id: 'listing-1' }], error: null })
+
     const fromFn = mockSupabase.from as jest.Mock
-    fromFn.mockImplementation(() => ({
-      select: jest.fn().mockReturnThis(),
-      eq: jest.fn().mockReturnValue(Promise.resolve({ data: [{ id: 'listing-1' }], error: null })),
-    }))
+    fromFn.mockImplementation(() => mockListingsChain)
 
     const result = await checkPropertyAvailability(
       mockSupabase,
@@ -129,37 +102,26 @@ describe('checkPropertyAvailability', () => {
   })
 
   it('should exclude reservation when provided', async () => {
-    const mockListingsQuery: MockQuery = {
-      select: jest.fn().mockReturnThis(),
-      eq: jest.fn().mockReturnValue(Promise.resolve({ data: [{ id: 'listing-1' }], error: null })),
-    }
+    const mockListingsChain = createMockChain({ data: [{ id: 'listing-1' }], error: null })
 
-    const mockConflictsQuery: MockQuery = {
-      select: jest.fn().mockReturnThis(),
-      eq: jest.fn().mockReturnThis(),
-      in: jest.fn().mockReturnThis(),
-      lt: jest.fn().mockReturnThis(),
-      gt: jest.fn().mockReturnValue(
-        Promise.resolve({
-          data: [
-            {
-              id: 'res-1',
-              check_in: '2026-05-05',
-              check_out: '2026-05-08',
-              status: 'confirmed',
-              source: 'manual',
-              guests: null,
-            },
-          ],
-          error: null,
-        })
-      ),
-    }
+    const mockConflictsChain = createMockChain({
+      data: [
+        {
+          id: 'res-1',
+          check_in: '2026-05-05',
+          check_out: '2026-05-08',
+          status: 'confirmed',
+          source: 'manual',
+          guest_name: null,
+        },
+      ],
+      error: null,
+    })
 
     const fromFn = mockSupabase.from as jest.Mock
     fromFn.mockImplementation((table: string) => {
-      if (table === 'property_listings') return mockListingsQuery
-      if (table === 'reservations') return mockConflictsQuery
+      if (table === 'property_listings') return mockListingsChain
+      if (table === 'reservations') return mockConflictsChain
     })
 
     const result = await checkPropertyAvailability(
@@ -167,7 +129,7 @@ describe('checkPropertyAvailability', () => {
       'property-1',
       '2026-05-01',
       '2026-05-10',
-      'res-1' // Exclude this reservation
+      'res-1'
     )
 
     expect(result.available).toBe(true)

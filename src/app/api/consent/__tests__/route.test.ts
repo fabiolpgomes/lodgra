@@ -54,13 +54,15 @@ jest.mock('@/lib/supabase/admin', () => ({
 }))
 
 function createRequest(body: Record<string, unknown>, method = 'POST'): NextRequest {
+  const headers = new Headers({
+    'Content-Type': 'application/json',
+    'x-forwarded-for': '192.168.1.1',
+    'user-agent': 'TestAgent/1.0',
+  })
+
   return new NextRequest('http://localhost:3000/api/consent', {
     method,
-    headers: {
-      'Content-Type': 'application/json',
-      'x-forwarded-for': '192.168.1.1',
-      'user-agent': 'TestAgent/1.0',
-    },
+    headers,
     body: JSON.stringify(body),
   })
 }
