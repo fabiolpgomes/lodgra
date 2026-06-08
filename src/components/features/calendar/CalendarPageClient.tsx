@@ -10,6 +10,7 @@ import { usePermissions } from '@/hooks/useAuth'
 import { NewReservationModal } from './NewReservationModal'
 import { BlockDatesModal } from './BlockDatesModal'
 import { SelectActionModal } from './SelectActionModal'
+import { createClient } from '@/lib/supabase/client'
 import { addDays } from 'date-fns'
 
 interface Property {
