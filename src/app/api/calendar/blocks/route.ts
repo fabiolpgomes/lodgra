@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const supabase = createClient()
+    const supabase = createAdminClient()
 
     let query = supabase
       .from('calendar_blocks')
