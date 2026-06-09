@@ -54,6 +54,7 @@ export async function POST(request: NextRequest) {
     // Get current user from session (via cookies)
     const { data: { user }, error: userError } = await supabase.auth.getUser()
     if (userError || !user) {
+      console.error('[Blocks API] User error:', userError)
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -68,6 +69,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (profileError || !profile) {
+      console.error('[Blocks API] Profile error:', profileError)
       return NextResponse.json(
         { error: 'User profile not found' },
         { status: 403 }
@@ -75,6 +77,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (!['admin', 'gestor'].includes(profile.role)) {
+      console.error('[Blocks API] Insufficient role:', profile.role)
       return NextResponse.json(
         { error: 'Only admins and gestors can create blocks' },
         { status: 403 }
@@ -100,6 +103,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (propError || !property) {
+      console.error('[Blocks API] Property error:', propError)
       return NextResponse.json(
         { error: 'Property not found' },
         { status: 404 }
@@ -107,6 +111,10 @@ export async function POST(request: NextRequest) {
     }
 
     if (property.organization_id !== profile.organization_id) {
+      console.error('[Blocks API] Org mismatch:', {
+        propertyOrg: property.organization_id,
+        userOrg: profile.organization_id,
+      })
       return NextResponse.json(
         { error: 'Property does not belong to your organization' },
         { status: 403 }
