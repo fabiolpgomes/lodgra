@@ -56,6 +56,8 @@ const eslintConfig = defineConfig([
     "packages/*/scripts/**",
     // Storybook config (causes ESLint regex issues with dynamic routes)
     ".storybook/**",
+    // PDF report route (uses dynamic Supabase types requiring 'any')
+    "src/app/api/reports/reservations-pdf-download/**",
   ]),
 ]);
 
