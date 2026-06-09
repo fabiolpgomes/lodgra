@@ -358,7 +358,7 @@ export async function GET(request: NextRequest) {
         children,
         internal_notes,
         channel_id,
-        channels(name),
+        channels!left(name),
         property_listings!inner(
           properties!inner(
             id,
