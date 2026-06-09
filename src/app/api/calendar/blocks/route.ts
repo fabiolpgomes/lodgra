@@ -126,20 +126,18 @@ export async function POST(request: NextRequest) {
       .from('calendar_blocks')
       .insert({
         property_id,
-        organization_id: profile.organization_id,
         start_date,
         end_date,
         notes,
-        blocked_by: user.id,
         block_type: 'manual',
       })
       .select()
       .single()
 
     if (error) {
-      console.error('[Blocks API] POST insert error:', error)
+      console.error('[Blocks API] POST insert error:', JSON.stringify(error))
       return NextResponse.json(
-        { error: 'Erro ao criar bloqueio' },
+        { error: error.message || 'Erro ao criar bloqueio' },
         { status: 500 }
       )
     }
