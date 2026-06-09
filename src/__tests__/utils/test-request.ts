@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Test utilities for creating NextRequest with proper Headers initialization
  */

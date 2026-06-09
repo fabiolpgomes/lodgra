@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { checkPropertyAvailability } from '../checkAvailability'
 import type { SupabaseClient } from '@supabase/supabase-js'
 

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @next/next/no-sync-scripts */
 import { render } from '@testing-library/react';
 import { GoogleAnalytics } from '@/components/features/analytics/GoogleAnalytics';
 

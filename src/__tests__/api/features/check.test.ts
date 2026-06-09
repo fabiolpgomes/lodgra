@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest } from 'next/server'
 import { GET } from '@/app/api/features/check/route'
 import { createClient } from '@/lib/supabase/server'
