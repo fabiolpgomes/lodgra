@@ -1,10 +1,28 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server'
 import { requireRole } from '@/lib/auth/requireRole'
 import { createClient } from '@/lib/supabase/server'
 import { getUserPropertyIds } from '@/lib/auth/getUserProperties'
 
-interface Reservation extends Record<string, any> {
+type PropertyListing = {
+  properties?: {
+    id?: string
+    name?: string
+    city?: string
+    currency?: string
+  }
+}
+
+type Channel = {
+  name?: string
+}
+
+type Guest = {
+  first_name?: string
+  last_name?: string
+  email?: string
+}
+
+interface Reservation {
   id: string
   check_in: string
   check_out: string
@@ -16,9 +34,9 @@ interface Reservation extends Record<string, any> {
   children: number | null
   internal_notes: string | null
   channel_id: string | null
-  channels: Record<string, any> | null
-  property_listings: Record<string, any>
-  guests: Record<string, any> | null
+  channels: Channel | null
+  property_listings: PropertyListing
+  guests: Guest | null
 }
 
 function formatCurrency(amount: number, currency: string): string {
@@ -87,13 +105,13 @@ function generateHtml(
   fileName: string,
   nonce: string
 ): string {
-  const currencyTotals = reservations.reduce((acc: Record<string, number>, r) => {
+  const currencyTotals = reservations.reduce<Record<string, number>>((acc, r) => {
     const cur = getResCurrency(r)
     acc[cur] = (acc[cur] || 0) + calculateProportionalAmount(r, startDate, endDate)
     return acc
   }, {})
-  const groupedByProperty = reservations.reduce((acc: Record<string, Reservation[]>, r) => {
-    const propId = r.property_listings.properties.id
+  const groupedByProperty = reservations.reduce<Record<string, Reservation[]>>((acc, r) => {
+    const propId = r.property_listings.properties?.id || 'unknown'
     if (!acc[propId]) acc[propId] = []
     acc[propId].push(r)
     return acc
