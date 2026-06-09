@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
 
     let query = supabase
       .from('calendar_blocks')
-      .select('id, property_id, start_date, end_date, notes, blocked_by, created_at')
+      .select('id, property_id, start_date, end_date, notes, created_at')
       .gte('end_date', from)
       .lte('start_date', to)
 
