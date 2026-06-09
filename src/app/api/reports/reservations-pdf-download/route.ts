@@ -15,6 +15,8 @@ interface Reservation extends Record<string, any> {
   adults: number | null
   children: number | null
   internal_notes: string | null
+  channel_id: string | null
+  channels: Record<string, any> | null
   property_listings: Record<string, any>
   guests: Record<string, any> | null
 }
@@ -142,16 +144,17 @@ function generateHtml(
     .info { margin: 20px 0; font-size: 13px; }
     .summary { background: #f0f0f0; padding: 15px; margin: 20px 0; border-radius: 5px; }
     .summary-item { margin: 8px 0; }
-    h2 { background: #3b82f6; color: white; padding: 10px; margin: 20px 0 10px 0; }
+    h2 { background: #3b82f6; color: white; padding: 10px; margin: 20px 0 10px 0; font-size: 16px; }
     table { width: 100%; border-collapse: collapse; margin: 15px 0; table-layout: fixed; }
     th, td { border: 1px solid #ddd; padding: 6px 8px; text-align: left; font-size: 11px; overflow: hidden; }
     th { background: #f0f0f0; font-weight: bold; }
     tr:nth-child(even) { background: #f9f9f9; }
     .currency { text-align: right; font-weight: bold; color: #059669; }
+    .col-channel { width: 11%; }
     .col-date { width: 9%; }
-    .col-guest { width: 18%; }
+    .col-guest { width: 15%; }
     .col-num { width: 6%; text-align: center; }
-    .col-notes { width: 22%; word-break: break-word; }
+    .col-notes { width: 18%; word-break: break-word; }
     .col-value { width: 11%; }
     .footer { margin-top: 30px; padding-top: 15px; border-top: 1px solid #ddd; font-size: 11px; text-align: center; color: #666; }
     @media print {
@@ -197,6 +200,7 @@ function generateHtml(
             <table>
               <thead>
                 <tr>
+                  <th class="col-channel">Canal</th>
                   <th class="col-date">Check-in</th>
                   <th class="col-date">Check-out</th>
                   <th class="col-guest">Hóspede</th>
@@ -217,7 +221,9 @@ function generateHtml(
                     const guestName = guest ? guest.first_name + ' ' + guest.last_name : 'N/A'
                     const notesRaw = r.internal_notes || ''
                     const proportionalAmount = calculateProportionalAmount(r, startDate, endDate)
+                    const channelName = r.channels?.name || 'Direct'
                     return `<tr>
+                      <td class="col-channel">${channelName}</td>
                       <td class="col-date">${checkIn.toLocaleDateString('pt-BR')}</td>
                       <td class="col-date">${checkOut.toLocaleDateString('pt-BR')}</td>
                       <td class="col-guest">${guestName}</td>
@@ -325,6 +331,8 @@ export async function GET(request: NextRequest) {
         adults,
         children,
         internal_notes,
+        channel_id,
+        channels(name),
         property_listings!inner(
           properties!inner(
             id,
