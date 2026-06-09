@@ -51,8 +51,9 @@ if (typeof global.Response === 'undefined') {
   }
 }
 
-// Load environment variables from .env.local
+// Load environment variables from .env.local.test first, then .env.local
 import('dotenv').then((dotenv) => {
+  dotenv.config({ path: '.env.local.test' })
   dotenv.config({ path: '.env.local' })
 })
 
@@ -67,6 +68,10 @@ if (!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
 
 if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
   process.env.SUPABASE_SERVICE_ROLE_KEY = 'test-service-key'
+}
+
+if (!process.env.ANALYTICS_ENCRYPTION_KEY) {
+  process.env.ANALYTICS_ENCRYPTION_KEY = '9d967949840a543b925f372778841736e246711a15c1df3050285327165db839'
 }
 
 // Enable longer timeout for integration tests
