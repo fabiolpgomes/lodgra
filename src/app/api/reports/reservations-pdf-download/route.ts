@@ -358,7 +358,6 @@ export async function GET(request: NextRequest) {
         children,
         internal_notes,
         channel_id,
-        channels!left(name),
         property_listings!inner(
           properties!inner(
             id,
@@ -389,9 +388,36 @@ export async function GET(request: NextRequest) {
     const { data: reservations, error } = await reservationsQuery
 
     if (error) {
-      console.error('Error fetching reservations:', error)
-      return NextResponse.json({ error: 'Erro ao buscar reservas' }, { status: 500 })
+      console.error('Error fetching reservations:', JSON.stringify(error, null, 2))
+      return NextResponse.json({
+        error: 'Erro ao buscar reservas',
+        details: error?.message || 'Unknown error'
+      }, { status: 500 })
     }
+
+    // Fetch channel names separately if reservations exist
+    const channelMap: Record<string, string> = {}
+    if (reservations && reservations.length > 0) {
+      const channelIds = [...new Set(reservations.map((r: any) => r.channel_id).filter(Boolean))]
+      if (channelIds.length > 0) {
+        const { data: channels } = await supabase
+          .from('channels')
+          .select('id, name')
+          .in('id', channelIds)
+
+        if (channels) {
+          channels.forEach((c: any) => {
+            channelMap[c.id] = c.name
+          })
+        }
+      }
+    }
+
+    // Enrich reservations with channel names
+    const enrichedReservations = (reservations || []).map((r: any) => ({
+      ...r,
+      channels: r.channel_id && channelMap[r.channel_id] ? { name: channelMap[r.channel_id] } : null
+    }))
 
     const fileName = `reservas-${startDate}-${endDate}.pdf`
 
@@ -400,7 +426,7 @@ export async function GET(request: NextRequest) {
 
     // Generate HTML with embedded PDF download capability
     const html = generateHtml(
-      reservations as Reservation[],
+      enrichedReservations as Reservation[],
       startDate,
       endDate,
       propertyId,
