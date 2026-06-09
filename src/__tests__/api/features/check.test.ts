@@ -41,9 +41,9 @@ describe('GET /api/features/check', () => {
   })
 
   test('should return 400 when feature parameter is missing', async () => {
-    const request = new NextRequest('http://localhost/api/features/check?org_id=test-org')
+    const request = new Request('http://localhost/api/features/check?org_id=test-org')
 
-    const response = await GET(request)
+    const response = await GET(request as any)
 
     expect(response.status).toBe(400)
     const data = await response.json()
@@ -51,9 +51,9 @@ describe('GET /api/features/check', () => {
   })
 
   test('should return 400 when org_id parameter is missing', async () => {
-    const request = new NextRequest('http://localhost/api/features/check?feature=cleaner_portal')
+    const request = new Request('http://localhost/api/features/check?feature=cleaner_portal')
 
-    const response = await GET(request)
+    const response = await GET(request as any)
 
     expect(response.status).toBe(400)
     const data = await response.json()

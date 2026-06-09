@@ -42,7 +42,6 @@ const customJestConfig = {
     'checkAvailability.test.ts',
     'AnalyticsSettings.test.tsx',
     'GoogleAnalytics.test.tsx',
-    'features/check.test.ts',
     'analytics/repository.e2e.test.ts',
     'encryption/analytics.test.ts',
   ],
