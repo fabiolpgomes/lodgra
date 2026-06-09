@@ -1,5 +1,4 @@
-// @ts-nocheck
-// eslint-disable
+/* eslint-disable @typescript-eslint/no-explicit-any, @next/next/no-sync-scripts */
 /**
  * Reservations PDF Report Generation
  *
