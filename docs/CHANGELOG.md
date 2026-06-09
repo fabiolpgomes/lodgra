@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.7.1] - 2026-06-09
+
+### Calendar Blocks API Fix — Block Dates Modal
+
+**Bug Fix: `/api/calendar/blocks` Endpoint**
+- **Issue:** POST request returning 500 error when trying to block property dates
+- **Root Cause:** Schema mismatch — API attempted to INSERT/SELECT non-existent columns (`blocked_by`, `organization_id`)
+- **Solution:**
+  - Simplified INSERT to use only core fields: `property_id, start_date, end_date, notes, block_type`
+  - Removed `blocked_by` and `organization_id` from payload (not yet implemented in migrations)
+  - Improved error logging in POST handler for future diagnostics
+- **Files Modified:**
+  - `src/app/api/calendar/blocks/route.ts` — Streamlined INSERT/SELECT queries
+- **Commits:**
+  - `e69be0f` — Enhanced logging
+  - `cd0c555` — Removed `blocked_by` from SELECT
+  - `c00ec4c` — Simplified INSERT to core fields
+- **Status:** ✅ FIXED — Block Dates modal now working in production
+- **Testing:** Verified on https://www.lodgra.io/pt-BR/calendar — modal successfully blocks property dates
+
+---
+
 ## [1.7.0] - 2026-05-23
 
 ### SEO Growth — Dynamic OG Images & Schema.org Rich Snippets

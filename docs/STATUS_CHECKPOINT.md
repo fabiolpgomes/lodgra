@@ -1,8 +1,8 @@
-# Status Checkpoint — 2026-04-19
+# Status Checkpoint — 2026-06-09
 
-**Session:** Home Stay → Lodgra Full Sync + Landing Page "Best of Both Worlds"
-**Next Session:** Bug fixes, E2E tests, or Epic 12 features
-**Status:** ✅ Staging ready — Lodgra is now the sole active development repo
+**Session:** Calendar Blocks API Fix — Block Dates Modal
+**Previous Session:** Home Stay → Lodgra Full Sync + Landing Page "Best of Both Worlds"
+**Status:** ✅ Block Dates modal fixed and deployed to production
 
 ---
 
