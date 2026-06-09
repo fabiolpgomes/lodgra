@@ -1,3 +1,11 @@
+/**
+ * Reservations PDF Report Generation
+ *
+ * Generates HTML/PDF reports for reservation data with channel information,
+ * property details, and guest information from Supabase.
+ *
+ * @route GET /api/reports/reservations-pdf-download
+ */
 import { NextRequest, NextResponse } from 'next/server'
 import { requireRole } from '@/lib/auth/requireRole'
 import { createClient } from '@/lib/supabase/server'
