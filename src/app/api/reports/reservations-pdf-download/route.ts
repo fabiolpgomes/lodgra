@@ -200,9 +200,9 @@ function generateHtml(
             <table>
               <thead>
                 <tr>
-                  <th class="col-channel">Canal</th>
                   <th class="col-date">Check-in</th>
                   <th class="col-date">Check-out</th>
+                  <th class="col-channel">Canal</th>
                   <th class="col-guest">Hóspede</th>
                   <th class="col-num">Ad.</th>
                   <th class="col-num">Cr.</th>
@@ -221,11 +221,11 @@ function generateHtml(
                     const guestName = guest ? guest.first_name + ' ' + guest.last_name : 'N/A'
                     const notesRaw = r.internal_notes || ''
                     const proportionalAmount = calculateProportionalAmount(r, startDate, endDate)
-                    const channelName = r.channels?.name || 'Direct'
+                    const channelName = r.channels?.name || 'Direto'
                     return `<tr>
-                      <td class="col-channel">${channelName}</td>
                       <td class="col-date">${checkIn.toLocaleDateString('pt-BR')}</td>
                       <td class="col-date">${checkOut.toLocaleDateString('pt-BR')}</td>
+                      <td class="col-channel">${channelName}</td>
                       <td class="col-guest">${guestName}</td>
                       <td class="col-num" style="text-align:center">${r.adults ?? '—'}</td>
                       <td class="col-num" style="text-align:center">${r.children ?? '—'}</td>
