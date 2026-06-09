@@ -2,8 +2,6 @@
  * Test utilities for creating NextRequest with proper Headers initialization
  */
 
-import { NextRequest } from 'next/server'
-
 export function createTestRequest(
   url: string,
   options: {
@@ -11,18 +9,13 @@ export function createTestRequest(
     headers?: Record<string, string>
     body?: string | BodyInit
   } = {}
-): NextRequest {
-  const headers = new Headers()
-
-  if (options.headers) {
-    for (const [key, value] of Object.entries(options.headers)) {
-      headers.set(key, value)
-    }
-  }
-
-  return new NextRequest(url, {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+): any {
+  const req = new Request(url, {
     method: options.method || 'GET',
-    headers,
+    headers: options.headers || {},
     body: options.body,
-  })
+  }) as any
+
+  return req
 }

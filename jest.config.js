@@ -40,8 +40,6 @@ const customJestConfig = {
     'AnalyticsSettings.test.tsx',
     'GoogleAnalytics.test.tsx',
     'analytics/repository.e2e.test.ts',
-    'bookings.test.ts',
-    'send-confirmation.test.ts',
     'requireRole.test.ts',
   ],
   coverageThreshold: {

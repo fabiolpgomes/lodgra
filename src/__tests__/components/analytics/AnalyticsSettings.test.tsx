@@ -8,8 +8,32 @@ global.fetch = jest.fn();
 const mockFetch = fetch as jest.MockedFunction<typeof fetch>;
 
 describe('AnalyticsSettingsClient', () => {
+  // Track fetch calls to mock different endpoints
+  let fetchCallCount = 0;
+
   beforeEach(() => {
     jest.clearAllMocks();
+    fetchCallCount = 0;
+
+    // Default fetch implementation — handles both GET (config) and POST (submit)
+    (global.fetch as jest.Mock).mockImplementation(async (url: string) => {
+      if (url.includes('/api/analytics/config')) {
+        // Initial config fetch on mount
+        return {
+          ok: true,
+          json: async () => ({
+            data: {
+              ga_configured: false,
+            },
+          }),
+        } as Response;
+      }
+      // Default response for other endpoints
+      return {
+        ok: true,
+        json: async () => ({ success: true }),
+      } as Response;
+    });
   });
 
   describe('Initial Load', () => {
@@ -54,19 +78,12 @@ describe('AnalyticsSettingsClient', () => {
   });
 
   describe('Form Submission', () => {
-    beforeEach(() => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          data: {
-            ga_configured: false,
-          },
-        }),
-      } as Response);
-    });
-
     it('should validate GA ID format', async () => {
       render(<AnalyticsSettingsClient />);
+
+      await waitFor(() => {
+        expect(screen.getByPlaceholderText('G-XXXXXXXXXX')).toBeInTheDocument();
+      });
 
       const input = screen.getByPlaceholderText('G-XXXXXXXXXX');
       const button = screen.getByRole('button', { name: /connect ga/i });
@@ -80,21 +97,36 @@ describe('AnalyticsSettingsClient', () => {
     });
 
     it('should accept valid GA ID format', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          data: {
-            id: '123',
-            tenant_id: 'tenant-1',
-            ga_enabled: true,
-            ga_configured: true,
-            created_at: '2026-01-01T00:00:00Z',
-            updated_at: '2026-01-01T00:00:00Z',
-          },
-        }),
-      } as Response);
+      mockFetch.mockImplementation(async (url: string) => {
+        if (url.includes('/api/analytics/config')) {
+          return {
+            ok: true,
+            json: async () => ({
+              data: { ga_configured: false },
+            }),
+          } as Response;
+        }
+        // POST response for save
+        return {
+          ok: true,
+          json: async () => ({
+            data: {
+              id: '123',
+              tenant_id: 'tenant-1',
+              ga_enabled: true,
+              ga_configured: true,
+              created_at: '2026-01-01T00:00:00Z',
+              updated_at: '2026-01-01T00:00:00Z',
+            },
+          }),
+        } as Response;
+      });
 
       render(<AnalyticsSettingsClient />);
+
+      await waitFor(() => {
+        expect(screen.getByPlaceholderText('G-XXXXXXXXXX')).toBeInTheDocument();
+      });
 
       const input = screen.getByPlaceholderText('G-XXXXXXXXXX');
       const button = screen.getByRole('button', { name: /connect ga/i });
@@ -108,15 +140,30 @@ describe('AnalyticsSettingsClient', () => {
     });
 
     it('should handle API errors gracefully', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 400,
-        json: async () => ({
-          error: 'Invalid GA ID',
-        }),
-      } as Response);
+      mockFetch.mockImplementation(async (url: string) => {
+        if (url.includes('/api/analytics/config')) {
+          return {
+            ok: true,
+            json: async () => ({
+              data: { ga_configured: false },
+            }),
+          } as Response;
+        }
+        // Error response for POST
+        return {
+          ok: false,
+          status: 400,
+          json: async () => ({
+            error: 'Invalid GA ID',
+          }),
+        } as Response;
+      });
 
       render(<AnalyticsSettingsClient />);
+
+      await waitFor(() => {
+        expect(screen.getByPlaceholderText('G-XXXXXXXXXX')).toBeInTheDocument();
+      });
 
       const input = screen.getByPlaceholderText('G-XXXXXXXXXX');
       const button = screen.getByRole('button', { name: /connect ga/i });
