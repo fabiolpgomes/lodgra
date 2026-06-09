@@ -357,7 +357,6 @@ export async function GET(request: NextRequest) {
         adults,
         children,
         internal_notes,
-        channel_id,
         property_listings!inner(
           properties!inner(
             id,
@@ -395,28 +394,11 @@ export async function GET(request: NextRequest) {
       }, { status: 500 })
     }
 
-    // Fetch channel names separately if reservations exist
-    const channelMap: Record<string, string> = {}
-    if (reservations && reservations.length > 0) {
-      const channelIds = [...new Set(reservations.map((r: any) => r.channel_id).filter(Boolean))]
-      if (channelIds.length > 0) {
-        const { data: channels } = await supabase
-          .from('channels')
-          .select('id, name')
-          .in('id', channelIds)
-
-        if (channels) {
-          channels.forEach((c: any) => {
-            channelMap[c.id] = c.name
-          })
-        }
-      }
-    }
-
-    // Enrich reservations with channel names
+    // For now, all reservations use fallback channel name "Direto"
+    // TODO: Once channel_id column is added to reservations table, implement channel lookup
     const enrichedReservations = (reservations || []).map((r: any) => ({
       ...r,
-      channels: r.channel_id && channelMap[r.channel_id] ? { name: channelMap[r.channel_id] } : null
+      channels: { name: 'Direto' }
     }))
 
     const fileName = `reservas-${startDate}-${endDate}.pdf`
