@@ -5,8 +5,6 @@
  * We mock it to always allow requests for testing purposes.
  */
 
-import { NextRequest } from 'next/server'
-
 // Mock lib first
 jest.mock('@/lib/auth/identify-org', () => ({
   identifyOrgByEmail: jest.fn(),
@@ -54,16 +52,16 @@ describe('/api/auth/identify-org', () => {
         orgLogoUrl: 'https://images.lodgra.io/logos/algarve.png',
       })
 
-      const req = new NextRequest('http://localhost:3000/api/auth/identify-org', {
+      const req = new Request('http://localhost:3000/api/auth/identify-org', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'x-forwarded-for': '192.168.1.1',
         },
         body: JSON.stringify({ email: 'user@algarve-home-stay.com' }),
-      })
+      }) as any
 
-      const response = await POST(req)
+      const response = await POST(req as any)
       const data = await response.json()
 
       expect(response.status).toBe(200)
@@ -83,7 +81,7 @@ describe('/api/auth/identify-org', () => {
         orgLogoUrl: null,
       })
 
-      const req = new NextRequest('http://localhost:3000/api/auth/identify-org', {
+      const req = new Request('http://localhost:3000/api/auth/identify-org', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -92,7 +90,7 @@ describe('/api/auth/identify-org', () => {
         body: JSON.stringify({ email: 'nonexistent@example.com' }),
       })
 
-      const response = await POST(req)
+      const response = await POST(req as any)
       const data = await response.json()
 
       expect(response.status).toBe(200)
@@ -111,7 +109,7 @@ describe('/api/auth/identify-org', () => {
         orgLogoUrl: null,
       })
 
-      const req = new NextRequest('http://localhost:3000/api/auth/identify-org', {
+      const req = new Request('http://localhost:3000/api/auth/identify-org', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -120,7 +118,7 @@ describe('/api/auth/identify-org', () => {
         body: JSON.stringify({ email: 'USER@TEST.COM' }),
       })
 
-      const response = await POST(req)
+      const response = await POST(req as any)
       const data = await response.json()
 
       expect(response.status).toBe(200)
@@ -131,7 +129,7 @@ describe('/api/auth/identify-org', () => {
 
   describe('POST - Invalid input', () => {
     it('returns 400 when email is missing', async () => {
-      const req = new NextRequest('http://localhost:3000/api/auth/identify-org', {
+      const req = new Request('http://localhost:3000/api/auth/identify-org', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -140,7 +138,7 @@ describe('/api/auth/identify-org', () => {
         body: JSON.stringify({}),
       })
 
-      const response = await POST(req)
+      const response = await POST(req as any)
       const data = await response.json()
 
       expect(response.status).toBe(400)
@@ -150,7 +148,7 @@ describe('/api/auth/identify-org', () => {
     it('returns 400 when email format is invalid', async () => {
       mockValidateEmail.mockReturnValue(false)
 
-      const req = new NextRequest('http://localhost:3000/api/auth/identify-org', {
+      const req = new Request('http://localhost:3000/api/auth/identify-org', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -159,7 +157,7 @@ describe('/api/auth/identify-org', () => {
         body: JSON.stringify({ email: 'invalid-email' }),
       })
 
-      const response = await POST(req)
+      const response = await POST(req as any)
       const data = await response.json()
 
       expect(response.status).toBe(400)
@@ -167,7 +165,7 @@ describe('/api/auth/identify-org', () => {
     })
 
     it('returns 400 when email is not a string', async () => {
-      const req = new NextRequest('http://localhost:3000/api/auth/identify-org', {
+      const req = new Request('http://localhost:3000/api/auth/identify-org', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -176,7 +174,7 @@ describe('/api/auth/identify-org', () => {
         body: JSON.stringify({ email: 12345 }),
       })
 
-      const response = await POST(req)
+      const response = await POST(req as any)
       const data = await response.json()
 
       expect(response.status).toBe(400)
@@ -189,7 +187,7 @@ describe('/api/auth/identify-org', () => {
       mockValidateEmail.mockReturnValue(true)
       mockIdentifyOrgByEmail.mockRejectedValue(new Error('Supabase connection error'))
 
-      const req = new NextRequest('http://localhost:3000/api/auth/identify-org', {
+      const req = new Request('http://localhost:3000/api/auth/identify-org', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -198,7 +196,7 @@ describe('/api/auth/identify-org', () => {
         body: JSON.stringify({ email: 'user@example.com' }),
       })
 
-      const response = await POST(req)
+      const response = await POST(req as any)
       const data = await response.json()
 
       expect(response.status).toBe(500)
@@ -206,7 +204,7 @@ describe('/api/auth/identify-org', () => {
     })
 
     it('returns 500 on invalid JSON body', async () => {
-      const req = new NextRequest('http://localhost:3000/api/auth/identify-org', {
+      const req = new Request('http://localhost:3000/api/auth/identify-org', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -215,7 +213,7 @@ describe('/api/auth/identify-org', () => {
         body: 'invalid json',
       })
 
-      const response = await POST(req)
+      const response = await POST(req as any)
       const data = await response.json()
 
       expect(response.status).toBe(500)

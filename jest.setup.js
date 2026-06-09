@@ -21,7 +21,17 @@ if (typeof global.Request === 'undefined') {
     constructor(url, init = {}) {
       this._url = url
       this.method = init.method || 'GET'
-      this.headers = init.headers || {}
+      const headerInit = init.headers || {}
+      const headerMap = new Map(
+        typeof headerInit === 'object'
+          ? Object.entries(headerInit)
+          : Array.isArray(headerInit)
+          ? headerInit
+          : []
+      )
+      this.headers = {
+        get: (key) => headerMap.get(key.toLowerCase()),
+      }
       this._body = init.body
     }
     get url() {
@@ -49,6 +59,11 @@ if (typeof global.Response === 'undefined') {
       return Promise.resolve(typeof this.body === 'string' ? this.body : JSON.stringify(this.body))
     }
   }
+}
+
+// Add fetch polyfill if needed
+if (typeof global.fetch === 'undefined') {
+  global.fetch = jest.fn()
 }
 
 // Load environment variables from .env.local.test first, then .env.local

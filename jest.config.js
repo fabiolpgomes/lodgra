@@ -36,14 +36,13 @@ const customJestConfig = {
     '<rootDir>/src/**/__tests__/**/*.spec.{js,jsx,ts,tsx}',
   ],
   testPathIgnorePatterns: [
-    'identify-org.test.ts',
     'consent.*test.ts',
-    'requireRole.test.ts',
-    'checkAvailability.test.ts',
     'AnalyticsSettings.test.tsx',
     'GoogleAnalytics.test.tsx',
     'analytics/repository.e2e.test.ts',
-    'encryption/analytics.test.ts',
+    'bookings.test.ts',
+    'send-confirmation.test.ts',
+    'requireRole.test.ts',
   ],
   coverageThreshold: {
     global: {

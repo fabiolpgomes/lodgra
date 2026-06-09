@@ -13,7 +13,7 @@ describe('Analytics Encryption', () => {
   describe('encryptGAId', () => {
     it('should encrypt GA ID', () => {
       const encrypted = encryptGAId(testGAId);
-      expect(encrypted).toBeInstanceOf(Buffer);
+      expect(typeof encrypted).toBe('string');
       expect(encrypted.length).toBeGreaterThan(0);
     });
 
@@ -32,14 +32,16 @@ describe('Analytics Encryption', () => {
 
   describe('decryptGAId', () => {
     it('should decrypt encrypted GA ID', () => {
-      const encrypted = encryptGAId(testGAId);
+      const encryptedBase64 = encryptGAId(testGAId);
+      const encrypted = Buffer.from(encryptedBase64, 'base64');
       const decrypted = decryptGAId(encrypted);
       expect(decrypted).toBe(testGAId);
     });
 
     it('should handle round-trip encryption/decryption', () => {
       const original = 'G-ABCDEFGHIJ';
-      const encrypted = encryptGAId(original);
+      const encryptedBase64 = encryptGAId(original);
+      const encrypted = Buffer.from(encryptedBase64, 'base64');
       const decrypted = decryptGAId(encrypted);
       expect(decrypted).toBe(original);
     });
@@ -50,9 +52,10 @@ describe('Analytics Encryption', () => {
     });
 
     it('should throw error on tampered auth tag', () => {
-      const encrypted = encryptGAId(testGAId);
+      const encryptedBase64 = encryptGAId(testGAId);
+      const encrypted = Buffer.from(encryptedBase64, 'base64');
       // Tamper with last byte (auth tag)
-      encrypted[encrypted.length - 1] = encrypted[encrypted.length - 1] ^ 0xff;
+      encrypted[encrypted.length - 1] ^= 0xff;
       expect(() => decryptGAId(encrypted)).toThrow();
     });
   });
@@ -66,16 +69,19 @@ describe('Analytics Encryption', () => {
 
   describe('Security Properties', () => {
     it('should not expose plaintext in encrypted buffer', () => {
-      const encrypted = encryptGAId(testGAId);
-      const encryptedString = encrypted.toString('hex');
-      expect(encryptedString).not.toContain(testGAId);
+      const encryptedBase64 = encryptGAId(testGAId);
+      const encrypted = Buffer.from(encryptedBase64, 'base64');
+      const encryptedHex = encrypted.toString('hex');
+      expect(encryptedHex).not.toContain(testGAId);
     });
 
     it('should maintain encryption strength', () => {
       // Encrypt multiple times, all should be different
       const encryptions = new Set();
       for (let i = 0; i < 100; i++) {
-        encryptions.add(encryptGAId(testGAId).toString('hex'));
+        const encryptedBase64 = encryptGAId(testGAId);
+        const encrypted = Buffer.from(encryptedBase64, 'base64');
+        encryptions.add(encrypted.toString('hex'));
       }
       // All 100 encryptions should be unique
       expect(encryptions.size).toBe(100);
