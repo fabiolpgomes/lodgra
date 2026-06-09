@@ -335,7 +335,7 @@ export default function EditReservationPage({
               <Calendar className="h-5 w-5" />
               Período da Reserva
             </h3>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="check_in" className="mb-1">
                   Check-in * <span className="text-xs text-gray-600">(dd/mm/aaaa)</span>
@@ -369,7 +369,7 @@ export default function EditReservationPage({
               Informações do Hóspede
             </h3>
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="guest_first_name" className="mb-1">
                     Nome *
@@ -395,7 +395,7 @@ export default function EditReservationPage({
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="guest_email" className="mb-1">
                     Email *
@@ -434,7 +434,7 @@ export default function EditReservationPage({
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="adults" className="mb-1">
                     Adultos *
@@ -495,7 +495,7 @@ export default function EditReservationPage({
             </div>
           </div>
 
-          <div className="flex gap-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
             <Button
               type="submit"
               disabled={loading || !selectedProperty || propertyListings.length === 0}
@@ -503,7 +503,7 @@ export default function EditReservationPage({
             >
               {loading ? <>Salvando...</> : <><Save className="h-5 w-5" />Salvar Alterações</>}
             </Button>
-            <Button variant="outline" asChild>
+            <Button variant="outline" asChild className="sm:w-auto">
               <Link href={reservationId ? `${prefix}/reservations/${reservationId}` : `${prefix}/reservations`}>
                 Cancelar
               </Link>

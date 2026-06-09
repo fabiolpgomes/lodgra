@@ -113,7 +113,7 @@ export default async function ReservationDetailsPage({
 
         {/* Header com Status e Ações */}
         <div className="bg-white rounded-lg shadow p-6 mb-6">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div className="flex items-center gap-4">
               <div className="flex-shrink-0 w-12 h-12 bg-brand-100 rounded-full flex items-center justify-center">
                 <Calendar className="h-6 w-6 text-brand-600" />
@@ -122,8 +122,8 @@ export default async function ReservationDetailsPage({
                 <h2 className="text-2xl font-bold text-gray-900">
                   Reserva #{reservation.confirmation_code || id.slice(0, 8).toUpperCase()}
                 </h2>
-                <div className="flex items-center gap-3 mt-1">
-                  <span className={`px-3 py-1 inline-flex items-center gap-1 text-sm font-semibold rounded-full ${status.color}`}>
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3 mt-1">
+                  <span className={`px-3 py-1 inline-flex items-center gap-1 text-sm font-semibold rounded-full ${status.color} w-fit`}>
                     <StatusIcon className="h-4 w-4" />
                     {status.label}
                   </span>
@@ -134,7 +134,7 @@ export default async function ReservationDetailsPage({
               </div>
             </div>
 
-            <div className="flex gap-3 no-print">
+            <div className="flex flex-col gap-2 sm:flex-row sm:gap-3 no-print">
               <PrintReservationButton />
               {canEdit && (
                 <Button asChild variant="action">
