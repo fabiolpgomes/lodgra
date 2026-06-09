@@ -37,8 +37,6 @@ const customJestConfig = {
   ],
   testPathIgnorePatterns: [
     'consent.*test.ts',
-    'AnalyticsSettings.test.tsx',
-    'GoogleAnalytics.test.tsx',
     'analytics/repository.e2e.test.ts',
     'requireRole.test.ts',
   ],
