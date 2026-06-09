@@ -1,9 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server'
 import { requireRole } from '@/lib/auth/requireRole'
 import { createClient } from '@/lib/supabase/server'
 import { getUserPropertyIds } from '@/lib/auth/getUserProperties'
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 interface Reservation extends Record<string, any> {
   id: string
   check_in: string
@@ -20,7 +20,6 @@ interface Reservation extends Record<string, any> {
   property_listings: Record<string, any>
   guests: Record<string, any> | null
 }
-/* eslint-enable @typescript-eslint/no-explicit-any */
 
 function formatCurrency(amount: number, currency: string): string {
   return new Intl.NumberFormat('pt-BR', {
