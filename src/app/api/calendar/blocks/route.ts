@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createAdminClient } from '@/lib/supabase/admin'
+import { createClient } from '@/lib/supabase/server'
 
 // GET /api/calendar/blocks?from=YYYY-MM-DD&to=YYYY-MM-DD&property_id=uuid
 export async function GET(request: NextRequest) {
@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const supabase = createAdminClient()
+    const supabase = await createClient()
 
     let query = supabase
       .from('calendar_blocks')
@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
 // POST /api/calendar/blocks
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createAdminClient()
+    const supabase = await createClient()
 
     // Get current user from session (via cookies)
     const { data: { user }, error: userError } = await supabase.auth.getUser()
