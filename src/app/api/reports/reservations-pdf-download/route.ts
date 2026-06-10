@@ -379,6 +379,9 @@ export async function GET(request: NextRequest) {
             name,
             city,
             currency
+          ),
+          platforms(
+            display_name
           )
         ),
         guests(
@@ -410,11 +413,16 @@ export async function GET(request: NextRequest) {
       }, { status: 500 })
     }
 
-    // Enrich reservations with channel names from source field
-    const enrichedReservations = (reservations || []).map((r: any) => ({
-      ...r,
-      channels: { name: getChannelName(r.source) }
-    }))
+    // Enrich reservations with platform display names
+    const enrichedReservations = (reservations || []).map((r: any) => {
+      // Prefer platform display_name from property_listings.platforms, fallback to source field
+      const platformName = (r.property_listings?.platforms as { display_name?: string } | null)?.display_name
+      const channelName = platformName || getChannelName(r.source)
+      return {
+        ...r,
+        channels: { name: channelName }
+      }
+    })
 
     const fileName = `reservas-${startDate}-${endDate}.pdf`
 
