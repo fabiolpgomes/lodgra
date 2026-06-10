@@ -42,7 +42,7 @@ interface Reservation {
   adults: number | null
   children: number | null
   internal_notes: string | null
-  channel_id: string | null
+  source: string | null
   channels: Channel | null
   property_listings: PropertyListing
   guests: Guest | null
@@ -103,6 +103,21 @@ function calculateTotalNights(reservations: Reservation[]): number {
     const nights = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24))
     return total + nights
   }, 0)
+}
+
+function getChannelName(source: string | null | undefined): string {
+  if (!source) return 'Direto'
+
+  const sourceMap: Record<string, string> = {
+    'airbnb': 'Airbnb',
+    'booking': 'Booking',
+    'flatio': 'Flatio',
+    'vrbo': 'VRBO',
+    'direct': 'Direto',
+    'lodgra': 'Lodgra',
+  }
+
+  return sourceMap[source.toLowerCase()] || source
 }
 
 function generateHtml(
@@ -357,6 +372,7 @@ export async function GET(request: NextRequest) {
         adults,
         children,
         internal_notes,
+        source,
         property_listings!inner(
           properties!inner(
             id,
@@ -394,11 +410,10 @@ export async function GET(request: NextRequest) {
       }, { status: 500 })
     }
 
-    // For now, all reservations use fallback channel name "Direto"
-    // TODO: Once channel_id column is added to reservations table, implement channel lookup
+    // Enrich reservations with channel names from source field
     const enrichedReservations = (reservations || []).map((r: any) => ({
       ...r,
-      channels: { name: 'Direto' }
+      channels: { name: getChannelName(r.source) }
     }))
 
     const fileName = `reservas-${startDate}-${endDate}.pdf`
