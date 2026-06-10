@@ -54,6 +54,18 @@ export async function PUT(
     return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
   }
 
+  // Get amenity names for the properties.amenities column (for backwards compatibility)
+  let amenityNames: string[] = []
+  if (amenityIds.length > 0) {
+    const { data: amenityData, error: amenityError } = await supabase
+      .from('amenities')
+      .select('name')
+      .in('id', amenityIds)
+
+    if (amenityError) return NextResponse.json({ error: amenityError.message }, { status: 500 })
+    amenityNames = amenityData?.map(a => a.name) || []
+  }
+
   // Replace all — delete existing then insert new
   const { error: delError } = await supabase
     .from('property_amenities')
@@ -69,6 +81,14 @@ export async function PUT(
 
     if (insError) return NextResponse.json({ error: insError.message }, { status: 500 })
   }
+
+  // Sync with properties.amenities column (backwards compatibility)
+  const { error: updateError } = await supabase
+    .from('properties')
+    .update({ amenities: amenityNames, updated_at: new Date().toISOString() })
+    .eq('id', id)
+
+  if (updateError) return NextResponse.json({ error: updateError.message }, { status: 500 })
 
   return NextResponse.json({ ok: true })
 }
