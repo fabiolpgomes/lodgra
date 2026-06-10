@@ -76,10 +76,19 @@ export function AmenitiesSelector({ propertyId }: AmenitiesSelectorProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify([...selected]),
       })
-      if (!res.ok) throw new Error('Falha ao guardar')
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({ error: 'Erro desconhecido' }))
+        const errorMsg = errorData.error || `Falha ao guardar (${res.status})`
+        throw new Error(errorMsg)
+      }
+
       setSaved(true)
-    } catch {
-      setError('Não foi possível guardar as comodidades. Tente novamente.')
+      setError(null)
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Não foi possível guardar as comodidades. Tente novamente.'
+      setError(message)
+      console.error('Error saving amenities:', err)
     } finally {
       setSaving(false)
     }

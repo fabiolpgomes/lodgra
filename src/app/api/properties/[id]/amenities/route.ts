@@ -38,6 +38,25 @@ export async function PUT(
 
   const supabase = await createClient()
 
+  // Verify property belongs to user's organization
+  const { data: property, error: propError } = await supabase
+    .from('properties')
+    .select('id, organization_id')
+    .eq('id', id)
+    .maybeSingle()
+
+  if (propError) {
+    return NextResponse.json({ error: propError.message }, { status: 500 })
+  }
+
+  if (!property) {
+    return NextResponse.json({ error: 'Property not found' }, { status: 404 })
+  }
+
+  if (property.organization_id !== auth.organizationId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
+  }
+
   // Replace all — delete existing then insert new
   const { error: delError } = await supabase
     .from('property_amenities')
