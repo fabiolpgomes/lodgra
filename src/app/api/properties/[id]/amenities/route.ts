@@ -6,9 +6,6 @@ export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const auth = await requireRole(['admin', 'gestor', 'viewer'])
-  if (!auth.authorized) return auth.response!
-
   const { id } = await params
   const supabase = await createClient()
 
