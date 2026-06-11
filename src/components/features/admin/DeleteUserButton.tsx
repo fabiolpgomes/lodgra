@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { Trash2, AlertTriangle } from 'lucide-react'
 import { Button } from '@/components/common/ui/button'
 import { Alert, AlertDescription } from '@/components/common/ui/alert'
@@ -23,6 +23,7 @@ export function DeleteUserButton({
   userName?: string
 }) {
   const router = useRouter()
+  const pathname = usePathname()
   const [showModal, setShowModal] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -42,8 +43,13 @@ export function DeleteUserButton({
         throw new Error(data.error || 'Erro ao eliminar utilizador')
       }
 
+      // Handle both /admin/users and /[locale]/admin/users routes
+      const pathParts = pathname.split('/').filter(Boolean)
+      const locale = ['pt', 'en', 'es'].includes(pathParts[0]) ? pathParts[0] : null
+      const redirectPath = locale ? `/${locale}/admin/users` : '/admin/users'
+
       toast.success('Utilizador eliminado com sucesso!')
-      router.push('/admin/users')
+      router.push(redirectPath)
       router.refresh()
     } catch (err: unknown) {
       console.error('Erro ao eliminar utilizador:', err)
