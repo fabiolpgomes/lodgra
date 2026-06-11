@@ -211,6 +211,28 @@ describe('Billing Plans System', () => {
     })
   })
 
+  describe('User Limits by Plan (Phase 2 AC5-AC7)', () => {
+    test('AC5: essencial plan allows 1 user', () => {
+      const limits = getPlanLimits('essencial')
+      expect(limits.maxUsers).toBe(1)
+    })
+
+    test('AC6: expansao plan allows 5 users', () => {
+      const limits = getPlanLimits('expansao')
+      expect(limits.maxUsers).toBe(5)
+    })
+
+    test('AC7: premium plan allows 10 users', () => {
+      const limits = getPlanLimits('premium')
+      expect(limits.maxUsers).toBe(10)
+    })
+
+    test('enterprise plan allows unlimited users', () => {
+      const limits = getPlanLimits('enterprise')
+      expect(limits.maxUsers).toBeNull()
+    })
+  })
+
   describe('getPlanFromPriceId function', () => {
     beforeEach(() => {
       // Set up environment variables for testing
