@@ -4,6 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { MapPin, Users, BedDouble, Bath, ArrowRight } from 'lucide-react'
 import { getCurrencySymbol } from '@/lib/currency/symbols'
+import type { StructuredAmenity } from '../content/PropertyAmenitiesV2'
 
 export interface PropertyCardProps {
   id: string
@@ -18,6 +19,7 @@ export interface PropertyCardProps {
   bathrooms: number
   maxGuests: number
   amenities?: string[]
+  structuredAmenities?: StructuredAmenity[]
   rating?: number
   reviewCount?: number
   isFeatured?: boolean
