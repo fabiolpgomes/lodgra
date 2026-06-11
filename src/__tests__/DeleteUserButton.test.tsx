@@ -1,6 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { DeleteUserButton } from '@/components/features/admin/DeleteUserButton'
 import { useRouter, usePathname } from 'next/navigation'
+import { toast } from 'sonner'
 
 // Mock next/navigation
 jest.mock('next/navigation', () => ({
@@ -113,8 +114,6 @@ describe('DeleteUserButton', () => {
         json: () => Promise.resolve({ error: 'Falha na operação' }),
       })
     ) as jest.Mock
-
-    const { toast } = require('sonner')
 
     render(<DeleteUserButton userId="user-999" userName="Test User" />)
 
