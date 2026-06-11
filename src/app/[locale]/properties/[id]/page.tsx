@@ -38,8 +38,8 @@ export async function generateMetadata(
 
   // Fetch property images
   const { data: images } = await supabase
-    .from('property_media')
-    .select('url')
+    .from('property_images')
+    .select('id, storage_path')
     .eq('property_id', id)
     .limit(5)
 
@@ -74,7 +74,7 @@ export async function generateMetadata(
       phone: property.phone,
       email: property.email,
     },
-    (images || []).map(img => ({ url: img.url })),
+    (images || []).map(img => ({ url: img.storage_path || '' })),
     aggregateRating
   )
 
@@ -86,7 +86,7 @@ export async function generateMetadata(
       description: property.description || 'Luxury property rental on Lodgra',
       type: 'website',
       url: `${process.env.NEXT_PUBLIC_APP_URL}/properties/${id}`,
-      images: images && images.length > 0 ? [{ url: images[0].url }] : [],
+      images: images && images.length > 0 ? [{ url: images[0].storage_path || '' }] : [],
     },
     other: {
       'application/ld+json': JSON.stringify(schema),
