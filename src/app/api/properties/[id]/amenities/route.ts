@@ -74,14 +74,20 @@ export async function PUT(
     .delete()
     .eq('property_id', id)
 
-  if (delError) return NextResponse.json({ error: delError.message }, { status: 500 })
+  if (delError) {
+    console.error('[PUT amenities] Delete error:', delError)
+    return NextResponse.json({ error: `Delete failed: ${delError.message}`, code: delError.code }, { status: 500 })
+  }
 
   if (amenityIds.length > 0) {
     const { error: insError } = await adminClient
       .from('property_amenities')
       .insert(amenityIds.map(amenity_id => ({ property_id: id, amenity_id })))
 
-    if (insError) return NextResponse.json({ error: insError.message }, { status: 500 })
+    if (insError) {
+      console.error('[PUT amenities] Insert error:', insError)
+      return NextResponse.json({ error: `Insert failed: ${insError.message}`, code: insError.code }, { status: 500 })
+    }
   }
 
   // Sync with properties.amenities column (backwards compatibility)
@@ -90,7 +96,11 @@ export async function PUT(
     .update({ amenities: amenityNames, updated_at: new Date().toISOString() })
     .eq('id', id)
 
-  if (updateError) return NextResponse.json({ error: updateError.message }, { status: 500 })
+  if (updateError) {
+    console.error('[PUT amenities] Update properties error:', updateError)
+    return NextResponse.json({ error: `Update failed: ${updateError.message}`, code: updateError.code }, { status: 500 })
+  }
 
-  return NextResponse.json({ ok: true })
+  console.log('[PUT amenities] Success:', { property_id: id, amenity_count: amenityIds.length, names: amenityNames })
+  return NextResponse.json({ ok: true, saved_count: amenityIds.length })
 }
