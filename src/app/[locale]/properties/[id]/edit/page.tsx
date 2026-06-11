@@ -5,6 +5,7 @@ import { useRouter, useLocale } from '@/lib/i18n/routing'
 import Link from 'next/link'
 import { ArrowLeft, Save, Globe, Tag } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { AuthLayout } from '@/components/common/layout/AuthLayout'
 import { Button } from '@/components/common/ui/button'
 import { Input } from '@/components/common/ui/input'
@@ -104,11 +105,12 @@ export default function EditPropertyPage({
     async function loadProperty() {
       const { id } = await params
       setPropertyId(id)
+      const adminClient = createAdminClient()
 
       const [propResult, ownersResult, imagesResult] = await Promise.all([
-        supabase.from('properties').select('*').eq('id', id).single(),
+        adminClient.from('properties').select('*').eq('id', id).single(),
         supabase.from('owners').select('id, full_name').eq('is_active', true).order('full_name'),
-        supabase.from('property_images').select('*').eq('property_id', id).order('display_order'),
+        adminClient.from('property_images').select('*').eq('property_id', id).order('display_order'),
       ])
 
       if (propResult.error || !propResult.data) {
@@ -139,7 +141,7 @@ export default function EditPropertyPage({
       // Load variants for images (optimized: 1 query for all variants, not N queries)
       if (imagesResult.data && imagesResult.data.length > 0) {
         const imageIds = imagesResult.data.map((img) => img.id)
-        const { data: allVariants } = await supabase
+        const { data: allVariants } = await adminClient
           .from('image_variants')
           .select('*')
           .in('property_image_id', imageIds)
