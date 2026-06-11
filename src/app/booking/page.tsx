@@ -142,6 +142,7 @@ async function getInitialProperties(orgSlug: string | null) {
   const properties = propertiesRaw ?? []
   const propertyIds = properties.map((property) => property.id)
   const imageMap = new Map<string, string>()
+  const amenitiesMap = new Map<string, Array<{ id: string; name: string; icon: string; category: string }>>()
 
   if (propertyIds.length > 0) {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
@@ -182,6 +183,35 @@ async function getInitialProperties(orgSlug: string | null) {
         imageMap.set(propertyId, `${supabaseUrl}/storage/v1/object/public/property-images/${storagePath}`)
       }
     }
+
+    const adminClient = createAdminClient()
+    const { data: propertyAmenitiesRaw } = await adminClient
+      .from('property_amenities')
+      .select('property_id, amenities(id, name, icon, category)')
+      .in('property_id', propertyIds)
+
+    interface AmenityRow {
+      id: string
+      name: string
+      icon: string
+      category: string
+    }
+
+    for (const row of propertyAmenitiesRaw ?? []) {
+      if (!amenitiesMap.has(row.property_id)) {
+        amenitiesMap.set(row.property_id, [])
+      }
+      const rowAmenities = row.amenities as AmenityRow | AmenityRow[] | null
+      const amenity = Array.isArray(rowAmenities) ? rowAmenities[0] : rowAmenities
+      if (amenity && typeof amenity === 'object' && amenity.id) {
+        amenitiesMap.get(row.property_id)!.push({
+          id: amenity.id,
+          name: amenity.name,
+          icon: amenity.icon,
+          category: amenity.category,
+        })
+      }
+    }
   }
 
   const cards: PropertyCardProps[] = properties.map((property) => ({
@@ -194,6 +224,7 @@ async function getInitialProperties(orgSlug: string | null) {
     price: property.base_price,
     currency: property.currency,
     amenities: property.amenities || [],
+    structuredAmenities: amenitiesMap.get(property.id),
     bedrooms: property.bedrooms,
     bathrooms: property.bathrooms,
     maxGuests: property.max_guests,

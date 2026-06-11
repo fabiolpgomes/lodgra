@@ -321,6 +321,40 @@ export async function GET(request: Request): Promise<Response> {
       }
     }
 
+    // Fetch structured amenities for all properties
+    interface AmenityItem {
+      id: string
+      name: string
+      icon: string
+      category: string
+    }
+
+    const adminClient = createAdminClient()
+    const amenitiesMap = new Map<string, AmenityItem[]>()
+
+    if (propertyIds.length > 0) {
+      const { data: propertyAmenitiesRaw } = await adminClient
+        .from('property_amenities')
+        .select('property_id, amenities(id, name, icon, category)')
+        .in('property_id', propertyIds)
+
+      for (const row of propertyAmenitiesRaw ?? []) {
+        if (!amenitiesMap.has(row.property_id)) {
+          amenitiesMap.set(row.property_id, [])
+        }
+        const rowAmenities = row.amenities as AmenityItem | AmenityItem[] | null
+        const amenity = Array.isArray(rowAmenities) ? rowAmenities[0] : rowAmenities
+        if (amenity && typeof amenity === 'object' && amenity.id) {
+          amenitiesMap.get(row.property_id)!.push({
+            id: amenity.id,
+            name: amenity.name,
+            icon: amenity.icon,
+            category: amenity.category,
+          })
+        }
+      }
+    }
+
     // Transform and filter properties
     // Additional filtering for location with accent normalization
     const properties = (data as PropertyRecord[] || [])
@@ -362,6 +396,7 @@ export async function GET(request: Request): Promise<Response> {
           price: prop.base_price,
           currency: prop.currency,
           amenities: prop.amenities || [],
+          structuredAmenities: amenitiesMap.get(prop.id),
           bedrooms: prop.bedrooms,
           bathrooms: prop.bathrooms,
           maxGuests: prop.max_guests,
