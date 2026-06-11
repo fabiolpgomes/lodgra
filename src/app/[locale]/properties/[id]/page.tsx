@@ -23,17 +23,16 @@ export async function generateMetadata(
   const { id } = await params
   const supabase = await createClient()
 
-  // Fetch property
+  // Fetch property (RLS: must be public)
   const { data: property } = await supabase
     .from('properties')
     .select('*')
     .eq('id', id)
+    .eq('is_public', true)
     .single()
 
   if (!property) {
-    return {
-      title: 'Property Not Found',
-    }
+    notFound()
   }
 
   // Fetch property images
