@@ -9,6 +9,7 @@ import { generateProvisionalPassword } from '@/lib/auth/generateProvisionalPassw
 import { sendNewUserWelcomeEmail } from '@/lib/email/newUserWelcome'
 import { createPasswordResetToken } from '@/lib/auth/passwordResetToken'
 import { getPlanLimits } from '@/lib/billing/plans'
+import { UserRole } from '@/lib/auth/role-types'
 
 const USERS_PAGE_SIZE = 50
 

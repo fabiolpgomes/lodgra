@@ -7,6 +7,7 @@ import { POST } from '@/app/api/properties/[id]/ical-token/route'
 import { NextResponse } from 'next/server'
 import { requireRole } from '@/lib/auth/requireRole'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { UserRole } from '@/lib/auth/role-types'
 
 // Mock dependencies
 jest.mock('@/lib/auth/requireRole')
@@ -39,7 +40,7 @@ describe('POST /api/properties/[id]/ical-token', () => {
     mockRequireRole.mockResolvedValue({
       authorized: true,
       userId: 'user-123',
-      role: 'admin',
+      role: UserRole.ADMIN,
       accessAllProperties: true,
       organizationId,
       response: undefined,
@@ -96,7 +97,7 @@ describe('POST /api/properties/[id]/ical-token', () => {
     mockRequireRole.mockResolvedValue({
       authorized: true,
       userId: 'user-456',
-      role: 'gestor',
+      role: UserRole.GESTOR,
       accessAllProperties: false,
       organizationId,
       response: undefined,
@@ -194,7 +195,7 @@ describe('POST /api/properties/[id]/ical-token', () => {
     mockRequireRole.mockResolvedValue({
       authorized: true,
       userId: 'user-789',
-      role: 'admin',
+      role: UserRole.ADMIN,
       accessAllProperties: true,
       organizationId: 'org-different', // Different organization
       response: undefined,
@@ -230,7 +231,7 @@ describe('POST /api/properties/[id]/ical-token', () => {
     mockRequireRole.mockResolvedValue({
       authorized: true,
       userId: 'user-123',
-      role: 'admin',
+      role: UserRole.ADMIN,
       accessAllProperties: true,
       organizationId,
       response: undefined,
@@ -281,7 +282,7 @@ describe('POST /api/properties/[id]/ical-token', () => {
     mockRequireRole.mockResolvedValue({
       authorized: true,
       userId: 'user-123',
-      role: 'admin',
+      role: UserRole.ADMIN,
       accessAllProperties: true,
       organizationId,
       response: undefined,
@@ -338,7 +339,7 @@ describe('POST /api/properties/[id]/ical-token', () => {
     mockRequireRole.mockResolvedValue({
       authorized: true,
       userId: 'user-123',
-      role: 'admin',
+      role: UserRole.ADMIN,
       accessAllProperties: true,
       organizationId,
       response: undefined,
