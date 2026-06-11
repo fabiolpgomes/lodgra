@@ -1,15 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireRole } from '@/lib/auth/requireRole'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params
-  const supabase = await createClient()
+  const adminClient = createAdminClient()
 
-  const { data, error } = await supabase
+  const { data, error } = await adminClient
     .from('property_amenities')
     .select('amenity_id')
     .eq('property_id', id)
@@ -34,6 +35,7 @@ export async function PUT(
   const amenityIds: string[] = body
 
   const supabase = await createClient()
+  const adminClient = createAdminClient()
 
   // Verify property belongs to user's organization
   const { data: property, error: propError } = await supabase
@@ -57,7 +59,7 @@ export async function PUT(
   // Get amenity names for the properties.amenities column (for backwards compatibility)
   let amenityNames: string[] = []
   if (amenityIds.length > 0) {
-    const { data: amenityData, error: amenityError } = await supabase
+    const { data: amenityData, error: amenityError } = await adminClient
       .from('amenities')
       .select('name')
       .in('id', amenityIds)
@@ -66,8 +68,8 @@ export async function PUT(
     amenityNames = amenityData?.map(a => a.name) || []
   }
 
-  // Replace all — delete existing then insert new
-  const { error: delError } = await supabase
+  // Replace all — delete existing then insert new (using admin client to bypass RLS)
+  const { error: delError } = await adminClient
     .from('property_amenities')
     .delete()
     .eq('property_id', id)
@@ -75,7 +77,7 @@ export async function PUT(
   if (delError) return NextResponse.json({ error: delError.message }, { status: 500 })
 
   if (amenityIds.length > 0) {
-    const { error: insError } = await supabase
+    const { error: insError } = await adminClient
       .from('property_amenities')
       .insert(amenityIds.map(amenity_id => ({ property_id: id, amenity_id })))
 
@@ -83,7 +85,7 @@ export async function PUT(
   }
 
   // Sync with properties.amenities column (backwards compatibility)
-  const { error: updateError } = await supabase
+  const { error: updateError } = await adminClient
     .from('properties')
     .update({ amenities: amenityNames, updated_at: new Date().toISOString() })
     .eq('id', id)
