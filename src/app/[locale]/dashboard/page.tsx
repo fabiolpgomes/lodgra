@@ -16,7 +16,7 @@ export default async function DashboardPage({
 }) {
   const { locale } = await params
 
-  const auth = await requireRole(['admin'])
+  const auth = await requireRole(['admin', 'gestor'])
   if (!auth.authorized) {
     redirect(`/${locale}/onboarding/pendente`)
   }
