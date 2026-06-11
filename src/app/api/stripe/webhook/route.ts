@@ -4,6 +4,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { invalidateCachedSubscriptionStatus } from '@/lib/cache/subscriptionCache'
 import { getPlanFromPriceId } from '@/lib/billing/plans'
 import { UserRole } from '@/lib/auth/role-types'
+import { createUserProfile } from '@/lib/auth/create-user-profile'
 
 type AdminClient = ReturnType<typeof createAdminClient>
 
@@ -223,25 +224,20 @@ async function handleCheckoutCompleted(supabase: AdminClient, session: Stripe.Ch
 
   // Create/update profile — only set organization_id for users without an org
   if (userId) {
-    const profileData: Record<string, unknown> = {
-      id: userId,
-      email,
-      full_name: email.split('@')[0],
-      role: UserRole.ADMIN,
-      access_all_properties: true,
-    }
-    if (!existingProfile?.organization_id) {
-      profileData.organization_id = org!.id
-    }
-
-    const { error: profileError } = await supabase
-      .from('user_profiles')
-      .upsert(profileData, { onConflict: 'id' })
-
-    if (profileError) {
-      console.error('[webhook] Erro ao criar/actualizar perfil:', profileError)
-    } else {
-      console.log(`[webhook] Perfil admin criado/actualizado: ${email} → org ${org!.id}`)
+    try {
+      const organizationId = existingProfile?.organization_id || org!.id
+      await createUserProfile({
+        userId,
+        email,
+        fullName: email.split('@')[0],
+        role: UserRole.ADMIN,
+        accessAllProperties: true,
+        organizationId,
+      })
+      console.log(`[webhook] Perfil admin criado/actualizado: ${email} → org ${organizationId}`)
+    } catch (error) {
+      console.error('[webhook] Erro ao criar/actualizar perfil para', email, ':', error)
+      throw error
     }
   }
 }

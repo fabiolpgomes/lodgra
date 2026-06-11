@@ -9,6 +9,7 @@ import { generateProvisionalPassword } from '@/lib/auth/generateProvisionalPassw
 import { sendNewUserWelcomeEmail } from '@/lib/email/newUserWelcome'
 import { createPasswordResetToken } from '@/lib/auth/passwordResetToken'
 import { getPlanLimits } from '@/lib/billing/plans'
+import { createUserProfile } from '@/lib/auth/create-user-profile'
 import { UserRole } from '@/lib/auth/role-types'
 
 const USERS_PAGE_SIZE = 50
@@ -117,33 +118,23 @@ export async function POST(request: Request) {
     )
   }
 
-  // Criar/atualizar perfil (upsert porque o trigger pode já ter criado)
-  const { error: profileError } = await adminClient
-    .from('user_profiles')
-    .upsert({
-      id: newUser.user.id,
+  // Criar/atualizar perfil usando helper centralizado
+  try {
+    await createUserProfile({
+      userId: newUser.user.id,
       email,
-      full_name,
+      fullName: full_name,
+      organizationId,
       role: role || 'viewer',
-      access_all_properties: access_all_properties || false,
-      organization_id: organizationId,
-      password_reset_required: isProvisionalPassword,
-    }, { onConflict: 'id' })
-
-  if (profileError) {
+      accessAllProperties: access_all_properties || false,
+      passwordResetRequired: isProvisionalPassword,
+    })
+  } catch (error) {
     await adminClient.auth.admin.deleteUser(newUser.user.id)
     return NextResponse.json(
-      { error: 'Erro ao criar perfil: ' + profileError.message },
+      { error: `Erro ao criar perfil: ${error instanceof Error ? error.message : String(error)}` },
       { status: 500 }
     )
-  }
-
-  // Garantir que password_reset_required está correcto (evita race condition com trigger)
-  if (isProvisionalPassword) {
-    await adminClient
-      .from('user_profiles')
-      .update({ password_reset_required: true })
-      .eq('id', newUser.user.id)
   }
 
   // Atribuir propriedades

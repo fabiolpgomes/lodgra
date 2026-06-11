@@ -3,6 +3,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { stripeBR } from '@/lib/stripe/client-br'
 import { NextResponse } from 'next/server'
 import { UserRole } from '@/lib/auth/role-types'
+import { createUserProfile } from '@/lib/auth/create-user-profile'
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
@@ -105,20 +106,30 @@ export async function GET(request: Request) {
               .single()
 
             if (newOrg) {
+              if (!user.email) {
+                console.error(`[auth/callback] User ${user.id} has no email, cannot create profile for org ${newOrg.id}`)
+                return NextResponse.redirect(`${origin}/login?error=no_email`)
+              }
+
               const isOAuthUser =
                 user.app_metadata?.providers?.includes('google') ||
                 user.identities?.some((id: { provider: string }) => id.provider === 'google')
 
-              await adminClient.from('user_profiles').insert({
-                id: user.id,
-                email: user.email,
-                full_name: user.user_metadata?.full_name || '',
-                role: UserRole.ADMIN,
-                access_all_properties: true,
-                organization_id: newOrg.id,
-                requires_password_change: !isOAuthUser,
-                password_changed_at: isOAuthUser ? new Date().toISOString() : null,
-              })
+              try {
+                await createUserProfile({
+                  userId: user.id,
+                  email: user.email,
+                  fullName: user.user_metadata?.full_name || '',
+                  role: UserRole.ADMIN,
+                  accessAllProperties: true,
+                  organizationId: newOrg.id,
+                  passwordResetRequired: !isOAuthUser,
+                  passwordChangedAt: isOAuthUser ? new Date().toISOString() : null,
+                })
+              } catch (profileErr) {
+                console.error(`[auth/callback] Failed to create profile for org ${newOrg.id}:`, profileErr)
+                return NextResponse.redirect(`${origin}/login?error=profile_creation_failed`)
+              }
 
               try {
                 const customer = await stripeBR.customers.create({
