@@ -69,19 +69,16 @@ export async function GET() {
     }
   }
 
-  // Fetch amenities for all properties
-  const { data: amenityRows } = await adminClient
-    .from('property_amenities')
-    .select('property_id, amenities(name)')
-    .in('property_id', propertyIds)
+  // Fetch amenities for all properties from properties.amenities column
+  const { data: propertiesWithAmenities } = await adminClient
+    .from('properties')
+    .select('id, amenities')
+    .in('id', propertyIds)
 
-  type AmenityResult = { property_id: string; amenities: { name: string } | { name: string }[] | null }
   const amenitiesByProperty: Record<string, string[]> = {}
-  for (const row of (amenityRows as AmenityResult[] | null) ?? []) {
-    const amenity = Array.isArray(row.amenities) ? row.amenities[0] : row.amenities
-    if (amenity?.name) {
-      if (!amenitiesByProperty[row.property_id]) amenitiesByProperty[row.property_id] = []
-      amenitiesByProperty[row.property_id].push(amenity.name)
+  for (const prop of propertiesWithAmenities ?? []) {
+    if (Array.isArray(prop.amenities) && prop.amenities.length > 0) {
+      amenitiesByProperty[prop.id] = prop.amenities
     }
   }
 
