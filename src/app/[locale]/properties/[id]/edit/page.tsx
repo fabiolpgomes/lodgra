@@ -105,16 +105,29 @@ export default function EditPropertyPage({
       const { id } = await params
       setPropertyId(id)
 
-      const [propResult, ownersResult, imagesResult] = await Promise.all([
-        supabase.from('properties').select('*').eq('id', id).single(),
-        supabase.from('owners').select('id, full_name').eq('is_active', true).order('full_name'),
-        supabase.from('property_images').select('*').eq('property_id', id).order('display_order'),
-      ])
+      try {
+        // Use API route to bypass RLS
+        const propRes = await fetch(`/api/properties/${id}/edit`)
+        if (!propRes.ok) {
+          setError('Propriedade não encontrada')
+          setLoadingData(false)
+          return
+        }
+        const propData = await propRes.json()
 
-      if (propResult.error || !propResult.data) {
-        setError('Propriedade não encontrada')
-        return
-      }
+        const [ownersResult, imagesResult] = await Promise.all([
+          supabase.from('owners').select('id, full_name').eq('is_active', true).order('full_name'),
+          supabase.from('property_images').select('*').eq('property_id', id).order('display_order'),
+        ])
+
+        if (!propData) {
+          setError('Propriedade não encontrada')
+          setLoadingData(false)
+          return
+        }
+
+        // Manually construct propResult to match original code
+        const propResult = { data: propData, error: null }
 
       setProperty(propResult.data)
       setOwnerId(propResult.data.owner_id || '')
@@ -153,7 +166,12 @@ export default function EditPropertyPage({
       } else {
         setGalleryImages([])
       }
-      setLoadingData(false)
+      } catch (err) {
+        console.error('Error loading property:', err)
+        setError('Erro ao carregar propriedade')
+      } finally {
+        setLoadingData(false)
+      }
     }
 
     loadProperty()
