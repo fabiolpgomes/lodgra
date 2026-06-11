@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { getCachedProfile, setCachedProfile } from '@/lib/cache/profileCache'
 import { UserRole } from '@/lib/auth/role-types'
 
-type Role = 'admin' | 'gestor' | 'viewer' | 'guest'
+type Role = 'admin' | 'gestor' | 'owner' | 'viewer' | 'guest'
 
 interface AuthResult {
   authorized: boolean
