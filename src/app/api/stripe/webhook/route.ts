@@ -3,6 +3,7 @@ import Stripe from 'stripe'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { invalidateCachedSubscriptionStatus } from '@/lib/cache/subscriptionCache'
 import { getPlanFromPriceId } from '@/lib/billing/plans'
+import { UserRole } from '@/lib/auth/role-types'
 
 type AdminClient = ReturnType<typeof createAdminClient>
 
@@ -226,7 +227,7 @@ async function handleCheckoutCompleted(supabase: AdminClient, session: Stripe.Ch
       id: userId,
       email,
       full_name: email.split('@')[0],
-      role: 'admin',
+      role: UserRole.ADMIN,
       access_all_properties: true,
     }
     if (!existingProfile?.organization_id) {

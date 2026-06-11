@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getCachedProfile, setCachedProfile } from '@/lib/cache/profileCache'
+import { UserRole } from '@/lib/auth/role-types'
 
 type Role = 'admin' | 'gestor' | 'viewer' | 'guest'
 

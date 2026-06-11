@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { stripeBR } from '@/lib/stripe/client-br'
 import { NextResponse } from 'next/server'
+import { UserRole } from '@/lib/auth/role-types'
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
@@ -112,7 +113,7 @@ export async function GET(request: Request) {
                 id: user.id,
                 email: user.email,
                 full_name: user.user_metadata?.full_name || '',
-                role: 'admin',
+                role: UserRole.ADMIN,
                 access_all_properties: true,
                 organization_id: newOrg.id,
                 requires_password_change: !isOAuthUser,
