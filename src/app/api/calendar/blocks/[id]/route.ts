@@ -9,22 +9,38 @@ export async function DELETE(
 ) {
   try {
     const auth = await requireRole(['admin', 'gestor'])
-    if (!auth.authorized) return auth.response!
+    if (!auth.authorized) {
+      console.error('[Blocks API] Unauthorized:', { organizationId: auth.organizationId })
+      return auth.response!
+    }
 
     const { id } = await params
     const supabase = await createClient()
 
-    // Verify block exists
+    // Verify block exists and belongs to user's organization
     const { data: block, error: blockError } = await supabase
       .from('calendar_blocks')
-      .select('id')
+      .select('id, organization_id')
       .eq('id', id)
       .single()
 
     if (blockError || !block) {
+      console.error('[Blocks API] Block not found:', { id, blockError })
       return NextResponse.json(
         { error: 'Block not found' },
         { status: 404 }
+      )
+    }
+
+    // Verify ownership
+    if (block.organization_id !== auth.organizationId) {
+      console.error('[Blocks API] Organization mismatch:', {
+        blockOrg: block.organization_id,
+        userOrg: auth.organizationId,
+      })
+      return NextResponse.json(
+        { error: 'Block does not belong to your organization' },
+        { status: 403 }
       )
     }
 
