@@ -24,6 +24,10 @@ interface CalendarEvent {
   start: string
   end: string
   color: string
+  extendedProps?: {
+    type?: string
+    blockId?: string
+  }
 }
 
 interface CalendarBlock {
@@ -33,6 +37,12 @@ interface CalendarBlock {
   end_date: string
 }
 
+interface ExistingEvent {
+  type: 'reservation' | 'block'
+  id: string
+  title: string
+}
+
 function propertyColor(propertyId: string): string {
   let hash = 0
   for (let i = 0; i < propertyId.length; i++) {
@@ -40,6 +50,25 @@ function propertyColor(propertyId: string): string {
   }
   const hue = hash % 360
   return `hsl(${hue}, 60%, 45%)`
+}
+
+function findExistingEvents(events: CalendarEvent[], startStr: string, endStr: string): ExistingEvent[] {
+  const selectedStart = new Date(startStr)
+  const selectedEnd = new Date(endStr)
+
+  return events.filter(event => {
+    const eventStart = new Date(event.start)
+    const eventEnd = new Date(event.end)
+
+    // Check if event overlaps with selected range
+    const overlaps = eventStart < selectedEnd && eventEnd > selectedStart
+
+    return overlaps && (event.extendedProps?.type === 'reservation' || event.extendedProps?.type === 'block')
+  }).map(event => ({
+    type: event.extendedProps?.type as 'reservation' | 'block',
+    id: event.id,
+    title: event.title,
+  }))
 }
 
 export function CalendarPageClient() {
@@ -54,7 +83,7 @@ export function CalendarPageClient() {
   const [dateRange, setDateRange] = useState<{ from: string; to: string } | null>(null)
   const [newResModal, setNewResModal] = useState<{ checkIn: string; checkOut: string } | null>(null)
   const [blockModal, setBlockModal] = useState<{ checkIn: string; checkOut: string } | null>(null)
-  const [selectActionModal, setSelectActionModal] = useState<{ checkIn: string; checkOut: string } | null>(null)
+  const [selectActionModal, setSelectActionModal] = useState<{ checkIn: string; checkOut: string; existingEvents?: ExistingEvent[] } | null>(null)
   const [loading, setLoading] = useState(false)
   const [dayMaxEvents, setDayMaxEvents] = useState(3)
   const [swipeActive, setSwipeActive] = useState(false)
@@ -166,9 +195,11 @@ export function CalendarPageClient() {
 
   const handleDateSelect = useCallback(({ startStr, endStr }: DateSelectArg) => {
     if (!isEditable) return
+    // Detect if there are existing events in the selected range
+    const existingEvents = findExistingEvents(events, startStr, endStr)
     // Show modal to choose between creating reservation or blocking dates
-    setSelectActionModal({ checkIn: startStr, checkOut: endStr })
-  }, [isEditable])
+    setSelectActionModal({ checkIn: startStr, checkOut: endStr, existingEvents })
+  }, [isEditable, events])
 
   const handleSwipeLeft = useCallback(() => {
     setSwipeActive(true)
@@ -489,6 +520,7 @@ export function CalendarPageClient() {
         <SelectActionModal
           checkIn={selectActionModal.checkIn}
           checkOut={selectActionModal.checkOut}
+          existingEvents={selectActionModal.existingEvents}
           onSelectReservation={() => {
             setNewResModal({
               checkIn: selectActionModal.checkIn,
@@ -502,6 +534,57 @@ export function CalendarPageClient() {
               checkOut: selectActionModal.checkOut,
             })
             setSelectActionModal(null)
+          }}
+          onCancelReservation={async (reservationId) => {
+            const confirmed = window.confirm('Cancelar esta reserva?')
+            if (!confirmed) return
+
+            try {
+              const response = await fetch(`/api/calendar/reservations/${reservationId}`, {
+                method: 'DELETE',
+              })
+
+              if (!response.ok) {
+                const data = await response.json()
+                toast.error(data.error ?? 'Erro ao cancelar reserva')
+                return
+              }
+
+              toast.success('Reserva cancelada')
+              setSelectActionModal(null)
+              // Refresh calendar
+              if (dateRange) {
+                fetchEvents(dateRange.from, dateRange.to, selectedPropertyId)
+              }
+            } catch (error) {
+              console.error('Erro ao cancelar reserva:', error)
+              toast.error('Erro ao cancelar reserva')
+            }
+          }}
+          onCancelBlock={async (blockId) => {
+            const confirmed = window.confirm('Eliminar este bloqueio?')
+            if (!confirmed) return
+
+            try {
+              const response = await fetch(`/api/calendar/blocks/${blockId}`, {
+                method: 'DELETE',
+              })
+
+              if (!response.ok) {
+                toast.error('Erro ao eliminar bloqueio')
+                return
+              }
+
+              toast.success('Bloqueio eliminado')
+              setSelectActionModal(null)
+              // Refresh calendar
+              if (dateRange) {
+                fetchEvents(dateRange.from, dateRange.to, selectedPropertyId)
+              }
+            } catch (error) {
+              console.error('Erro ao eliminar bloqueio:', error)
+              toast.error('Erro ao eliminar bloqueio')
+            }
           }}
           onClose={() => setSelectActionModal(null)}
         />
