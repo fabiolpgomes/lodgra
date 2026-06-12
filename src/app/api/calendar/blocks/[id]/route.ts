@@ -16,15 +16,20 @@ export async function DELETE(
 
     const { id } = await params
     console.log('[Blocks API] DELETE received ID:', { id, type: typeof id, length: id?.length })
+    console.log('[Blocks API] Auth info:', { userId: auth.userId, userRole: auth.role, orgId: auth.organizationId })
 
     const supabase = await createClient()
+    console.log('[Blocks API] Supabase client created')
 
     // Verify block exists and belongs to user's organization
+    console.log('[Blocks API] Querying block with ID:', id)
     const { data: block, error: blockError } = await supabase
       .from('calendar_blocks')
       .select('id, organization_id')
       .eq('id', id)
       .single()
+
+    console.log('[Blocks API] Query result:', { block: block?.id, error: blockError?.message, errorCode: blockError?.code })
 
     if (blockError || !block) {
       console.error('[Blocks API] Block not found with RLS:', {
