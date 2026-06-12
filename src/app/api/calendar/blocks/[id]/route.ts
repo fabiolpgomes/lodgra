@@ -7,11 +7,8 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  console.log('[Blocks API] DELETE handler called')
   try {
-    console.log('[Blocks API] Before requireRole')
     const auth = await requireRole(['admin', 'gestor'])
-    console.log('[Blocks API] After requireRole:', { authorized: auth.authorized })
     if (!auth.authorized) {
       console.error('[Blocks API] Unauthorized:', { organizationId: auth.organizationId })
       return auth.response!
