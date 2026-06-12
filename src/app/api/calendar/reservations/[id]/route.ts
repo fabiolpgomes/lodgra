@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { requireRole } from '@/lib/auth/requireRole'
 import { notifyPlatformSync } from '@/lib/ical/syncWebhook'
+import { enqueueEmail } from '@/lib/email/queue'
 
 export async function PATCH(
   request: NextRequest,
@@ -145,6 +147,48 @@ export async function DELETE(
           reason: 'Cancelada pelo proprietário',
         },
       })
+    }
+
+    // Notify owner via email
+    try {
+      const adminSupabase = createAdminClient()
+      const nights = Math.ceil(
+        (new Date(reservation.check_out).getTime() - new Date(reservation.check_in).getTime()) /
+        (1000 * 60 * 60 * 24)
+      )
+
+      // Get property and owner info
+      const { data: property } = await adminSupabase
+        .from('properties')
+        .select('id, name, owner_id')
+        .eq('id', propertyId)
+        .single()
+
+      if (property?.owner_id) {
+        const { data: owner } = await adminSupabase
+          .from('owners')
+          .select('full_name, email')
+          .eq('id', property.owner_id)
+          .single()
+
+        if (owner?.email) {
+          await enqueueEmail({
+            type: 'owner_cancellation',
+            ownerName: owner.full_name,
+            ownerEmail: owner.email,
+            guestName,
+            propertyName: property.name || 'Propriedade',
+            checkIn: reservation.check_in,
+            checkOut: reservation.check_out,
+            nights,
+            cancellationReason: 'Cancelada pelo proprietário no calendário',
+            source: 'calendar_manual',
+          })
+        }
+      }
+    } catch (emailError) {
+      console.error('[Reservations API] Erro ao enviar email de cancelamento:', emailError)
+      // Don't fail the request if email fails
     }
 
     return NextResponse.json({ success: true })
