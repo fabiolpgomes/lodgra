@@ -27,12 +27,19 @@ export async function DELETE(
       .single()
 
     if (blockError || !block) {
-      console.error('[Blocks API] Block not found:', { id, blockError })
+      console.error('[Blocks API] Block not found with RLS:', {
+        id,
+        blockError: blockError?.message,
+        blockError_code: blockError?.code,
+        auth_organizationId: auth.organizationId,
+      })
       return NextResponse.json(
         { error: 'Block not found' },
         { status: 404 }
       )
     }
+
+    console.log('[Blocks API] Block found:', { id: block.id, org: block.organization_id, userOrg: auth.organizationId })
 
     // Verify ownership
     if (block.organization_id !== auth.organizationId) {
