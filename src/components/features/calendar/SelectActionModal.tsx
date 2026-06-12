@@ -71,7 +71,14 @@ export function SelectActionModal({
             <button
               onClick={() => {
                 const block = existingEvents.find(e => e.type === 'block')
-                if (block) onCancelBlock(block.id)
+                if (block) {
+                  console.log('[SelectActionModal] Cancelar Bloqueio clicked:', {
+                    block_id: block.id,
+                    block_type: typeof block.id,
+                    block_length: block.id?.length,
+                  })
+                  onCancelBlock(block.id)
+                }
               }}
               className="w-full text-left p-4 border border-gray-400 rounded-lg hover:bg-gray-100 transition-colors"
             >

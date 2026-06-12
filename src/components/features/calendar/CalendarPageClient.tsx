@@ -64,11 +64,21 @@ function findExistingEvents(events: CalendarEvent[], startStr: string, endStr: s
     const overlaps = eventStart < selectedEnd && eventEnd > selectedStart
 
     return overlaps && (event.extendedProps?.type === 'reservation' || event.extendedProps?.type === 'block')
-  }).map(event => ({
-    type: event.extendedProps?.type as 'reservation' | 'block',
-    id: event.extendedProps?.type === 'block' ? event.extendedProps.blockId! : event.id,
-    title: event.title,
-  }))
+  }).map(event => {
+    const returnedId = event.extendedProps?.type === 'block' ? event.extendedProps.blockId! : event.id
+    if (event.extendedProps?.type === 'block') {
+      console.log('[findExistingEvents] Block found:', {
+        event_id: event.id,
+        extendedProps_blockId: event.extendedProps.blockId,
+        returned_id: returnedId,
+      })
+    }
+    return {
+      type: event.extendedProps?.type as 'reservation' | 'block',
+      id: returnedId,
+      title: event.title,
+    }
+  })
 }
 
 export function CalendarPageClient() {
