@@ -66,7 +66,7 @@ function findExistingEvents(events: CalendarEvent[], startStr: string, endStr: s
     return overlaps && (event.extendedProps?.type === 'reservation' || event.extendedProps?.type === 'block')
   }).map(event => ({
     type: event.extendedProps?.type as 'reservation' | 'block',
-    id: event.id,
+    id: event.extendedProps?.type === 'block' ? event.extendedProps.blockId! : event.id,
     title: event.title,
   }))
 }
