@@ -183,8 +183,10 @@ export function CalendarPageClient() {
   }, [])
 
   const handleEventClick = useCallback(async ({ event }: EventClickArg) => {
+    if (!isEditable) return
+
     // Handle block deletion
-    if (event.extendedProps.type === 'block' && isEditable) {
+    if (event.extendedProps.type === 'block') {
       const blockId = event.extendedProps.blockId
       const confirmed = window.confirm('Eliminar este bloqueio?')
       if (!confirmed) return
@@ -207,6 +209,34 @@ export function CalendarPageClient() {
       } catch (error) {
         console.error('Erro ao eliminar bloqueio:', error)
         toast.error('Erro ao eliminar bloqueio')
+      }
+    }
+
+    // Handle reservation deletion
+    if (event.extendedProps.type === 'reservation') {
+      const reservationId = event.id
+      const confirmed = window.confirm('Cancelar esta reserva?')
+      if (!confirmed) return
+
+      try {
+        const response = await fetch(`/api/calendar/reservations/${reservationId}`, {
+          method: 'DELETE',
+        })
+
+        if (!response.ok) {
+          const data = await response.json()
+          toast.error(data.error ?? 'Erro ao cancelar reserva')
+          return
+        }
+
+        toast.success('Reserva cancelada')
+        // Refresh calendar
+        if (dateRange) {
+          fetchEvents(dateRange.from, dateRange.to, selectedPropertyId)
+        }
+      } catch (error) {
+        console.error('Erro ao cancelar reserva:', error)
+        toast.error('Erro ao cancelar reserva')
       }
     }
   }, [isEditable, dateRange, selectedPropertyId, fetchEvents])
@@ -341,7 +371,7 @@ export function CalendarPageClient() {
 
         <style>{`
           .fc-wrapper .fc-event {
-            cursor: ${isEditable ? 'grab' : 'pointer'};
+            cursor: pointer;
             border-radius: 4px;
             border: none;
             min-height: 24px;

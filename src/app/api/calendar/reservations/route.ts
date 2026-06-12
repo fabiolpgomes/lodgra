@@ -101,6 +101,7 @@ export async function GET(request: NextRequest) {
           textColor: '#ffffff',
           borderColor: r.status === 'pending' ? '#92400e' : color,
           extendedProps: {
+            type: 'reservation',
             guest_name: guestName,
             property_name: propName,
             property_id: propId,

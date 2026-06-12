@@ -73,3 +73,49 @@ export async function PATCH(
     return NextResponse.json({ error: msg }, { status: 500 })
   }
 }
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const auth = await requireRole(['admin', 'gestor'])
+    if (!auth.authorized) return auth.response!
+
+    const { id } = await params
+    const supabase = await createClient()
+
+    // Verify reservation exists
+    const { data: reservation, error: fetchError } = await supabase
+      .from('reservations')
+      .select('id')
+      .eq('id', id)
+      .single()
+
+    if (fetchError || !reservation) {
+      return NextResponse.json({ error: 'Reserva não encontrada' }, { status: 404 })
+    }
+
+    // Delete reservation
+    const { error: deleteError } = await supabase
+      .from('reservations')
+      .delete()
+      .eq('id', id)
+
+    if (deleteError) {
+      console.error('[Reservations API] DELETE error:', deleteError)
+      return NextResponse.json(
+        { error: 'Erro ao eliminar reserva' },
+        { status: 500 }
+      )
+    }
+
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error('[Reservations API] DELETE exception:', error)
+    return NextResponse.json(
+      { error: 'Erro inesperado ao eliminar reserva' },
+      { status: 500 }
+    )
+  }
+}
