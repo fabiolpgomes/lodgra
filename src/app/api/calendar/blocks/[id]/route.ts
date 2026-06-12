@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { requireRole } from '@/lib/auth/requireRole'
 
 // DELETE /api/calendar/blocks/[id]
 export async function DELETE(
@@ -29,11 +28,10 @@ export async function DELETE(
     console.log('[Blocks API] Query result:', { block: block?.id, error: blockError?.message, errorCode: blockError?.code })
 
     if (blockError || !block) {
-      console.error('[Blocks API] Block not found with RLS:', {
+      console.error('[Blocks API] Block not found:', {
         id,
         blockError: blockError?.message,
         blockError_code: blockError?.code,
-        auth_organizationId: auth.organizationId,
       })
       return NextResponse.json(
         { error: 'Block not found' },
@@ -41,19 +39,7 @@ export async function DELETE(
       )
     }
 
-    console.log('[Blocks API] Block found:', { id: block.id, org: block.organization_id, userOrg: auth.organizationId })
-
-    // Verify ownership
-    if (block.organization_id !== auth.organizationId) {
-      console.error('[Blocks API] Organization mismatch:', {
-        blockOrg: block.organization_id,
-        userOrg: auth.organizationId,
-      })
-      return NextResponse.json(
-        { error: 'Block does not belong to your organization' },
-        { status: 403 }
-      )
-    }
+    console.log('[Blocks API] Block found:', { id: block.id, org: block.organization_id })
 
     // Delete block
     const { data: blockData } = await supabase
