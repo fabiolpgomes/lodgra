@@ -15,6 +15,8 @@ export async function DELETE(
     }
 
     const { id } = await params
+    console.log('[Blocks API] DELETE received ID:', { id, type: typeof id, length: id?.length })
+
     const supabase = await createClient()
 
     // Verify block exists and belongs to user's organization

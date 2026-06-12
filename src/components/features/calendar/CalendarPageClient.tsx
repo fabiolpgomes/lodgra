@@ -562,11 +562,14 @@ export function CalendarPageClient() {
             }
           }}
           onCancelBlock={async (blockId) => {
+            console.log('[CalendarClient] onCancelBlock called with:', { blockId, type: typeof blockId })
             const confirmed = window.confirm('Eliminar este bloqueio?')
             if (!confirmed) return
 
             try {
-              const response = await fetch(`/api/calendar/blocks/${blockId}`, {
+              const url = `/api/calendar/blocks/${blockId}`
+              console.log('[CalendarClient] Sending DELETE to:', { url })
+              const response = await fetch(url, {
                 method: 'DELETE',
               })
 

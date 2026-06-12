@@ -36,6 +36,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json([])
     }
 
+    console.log('[Blocks API] GET returning blocks:', { count: data?.length, sampleIds: data?.slice(0, 2).map(b => ({ id: b.id, type: typeof b.id })) })
     return NextResponse.json(data || [])
   } catch (error) {
     console.error('[Blocks API] GET exception:', error)
