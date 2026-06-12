@@ -54,7 +54,7 @@ export async function GET(
 
     const listingIds = listings.map(l => l.id)
 
-    // Buscar reservas confirmadas/pendentes dos listings desta propriedade
+    // Buscar reservas confirmadas/pendentes dos listings desta propriedade (exclui canceladas)
     const { data: reservations, error } = await supabase
       .from('reservations')
       .select(`
@@ -78,6 +78,7 @@ export async function GET(
       `)
       .in('property_listing_id', listingIds)
       .in('status', ['confirmed', 'pending'])
+      .neq('status', 'cancelled')
       .order('check_in', { ascending: true })
 
     if (error) {

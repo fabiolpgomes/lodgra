@@ -49,6 +49,7 @@ export async function GET(request: NextRequest) {
         )
       `)
       .in('status', ['confirmed', 'pending'])
+      .neq('status', 'cancelled')
       .gte('check_out', from ?? defaultFrom)
       .lte('check_in', to ?? defaultTo)
 

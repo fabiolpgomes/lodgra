@@ -13,27 +13,46 @@ jest.mock('@/lib/auth/requireRole', () => ({
   })),
 }))
 
+jest.mock('@/lib/ical/syncWebhook', () => ({
+  notifyPlatformSync: jest.fn().mockResolvedValue(undefined),
+}))
+
 describe('DELETE /api/calendar/reservations/[id]', () => {
   beforeEach(() => {
     jest.clearAllMocks()
   })
 
-  it('should delete a reservation successfully', async () => {
+  it('should cancel a reservation successfully', async () => {
     const mockSupabase = {
-      from: jest.fn().mockReturnValue({
-        select: jest.fn().mockReturnValue({
-          eq: jest.fn().mockReturnValue({
-            single: jest.fn().mockResolvedValue({
-              data: { id: 'res-123' },
-              error: null,
+      from: jest.fn((table: string) => {
+        if (table === 'reservations') {
+          return {
+            select: jest.fn().mockReturnValue({
+              eq: jest.fn().mockReturnValue({
+                single: jest.fn().mockResolvedValue({
+                  data: {
+                    id: 'res-123',
+                    check_in: '2026-06-23',
+                    check_out: '2026-06-24',
+                    guests: { first_name: 'João', last_name: 'Silva' },
+                    property_listings: { property_id: 'prop-123' },
+                  },
+                  error: null,
+                }),
+              }),
             }),
-          }),
-        }),
-        delete: jest.fn().mockReturnValue({
-          eq: jest.fn().mockResolvedValue({
-            error: null,
-          }),
-        }),
+            update: jest.fn().mockReturnValue({
+              eq: jest.fn().mockResolvedValue({
+                error: null,
+              }),
+            }),
+          }
+        }
+        return {
+          select: jest.fn(),
+          update: jest.fn(),
+          delete: jest.fn(),
+        }
       }),
     }
 

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { requireRole } from '@/lib/auth/requireRole'
+import { notifyPlatformSync } from '@/lib/ical/syncWebhook'
 
 export async function PATCH(
   request: NextRequest,
@@ -85,10 +86,10 @@ export async function DELETE(
     const { id } = await params
     const supabase = await createClient()
 
-    // Verify reservation exists
+    // Verify reservation exists and get required data
     const { data: reservation, error: fetchError } = await supabase
       .from('reservations')
-      .select('id')
+      .select('id, check_in, check_out, property_listing_id, guests(first_name, last_name), property_listings(property_id)')
       .eq('id', id)
       .single()
 
@@ -96,25 +97,61 @@ export async function DELETE(
       return NextResponse.json({ error: 'Reserva não encontrada' }, { status: 404 })
     }
 
-    // Delete reservation
-    const { error: deleteError } = await supabase
+    // Mark reservation as cancelled instead of deleting (preserves history)
+    const { error: updateError } = await supabase
       .from('reservations')
-      .delete()
+      .update({
+        status: 'cancelled',
+        cancelled_at: new Date().toISOString(),
+        cancellation_reason: 'Cancelada pelo proprietário no calendário',
+        updated_at: new Date().toISOString(),
+      })
       .eq('id', id)
 
-    if (deleteError) {
-      console.error('[Reservations API] DELETE error:', deleteError)
+    if (updateError) {
+      console.error('[Reservations API] UPDATE error:', updateError)
       return NextResponse.json(
-        { error: 'Erro ao eliminar reserva' },
+        { error: 'Erro ao cancelar reserva' },
         { status: 500 }
       )
+    }
+
+    // Log cancellation for audit trail
+    const guest = (reservation.guests as { first_name?: string; last_name?: string } | null)
+    const guestName = guest
+      ? `${guest.first_name || ''} ${guest.last_name || ''}`.trim()
+      : 'Desconhecido'
+
+    console.log(
+      `[Audit] Reserva cancelada: ID=${id}, Hóspede="${guestName}", ` +
+      `Período=${reservation.check_in} até ${reservation.check_out}`
+    )
+
+    // Get property ID for webhook notification
+    const propertyId = (reservation.property_listings as { property_id?: string } | null)?.property_id
+
+    // Notify platforms about the cancellation for faster sync
+    if (propertyId) {
+      await notifyPlatformSync({
+        event: 'reservation_cancelled',
+        timestamp: new Date().toISOString(),
+        propertyId,
+        eventId: id,
+        eventData: {
+          type: 'reservation',
+          checkIn: reservation.check_in,
+          checkOut: reservation.check_out,
+          title: guestName,
+          reason: 'Cancelada pelo proprietário',
+        },
+      })
     }
 
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('[Reservations API] DELETE exception:', error)
     return NextResponse.json(
-      { error: 'Erro inesperado ao eliminar reserva' },
+      { error: 'Erro inesperado ao cancelar reserva' },
       { status: 500 }
     )
   }
