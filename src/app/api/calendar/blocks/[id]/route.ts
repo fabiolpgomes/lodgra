@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/client'
+import { createClient } from '@/lib/supabase/server'
+import { requireRole } from '@/lib/auth/requireRole'
 
 // DELETE /api/calendar/blocks/[id]
 export async function DELETE(
@@ -7,43 +8,16 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = await requireRole(['admin', 'gestor'])
+    if (!auth.authorized) return auth.response!
+
     const { id } = await params
-    const supabase = createClient()
+    const supabase = await createClient()
 
-    // Get current user
-    const { data: { user }, error: userError } = await supabase.auth.getUser()
-    if (userError || !user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
-    }
-
-    // Check user role (must be admin or gestor)
-    const { data: profile, error: profileError } = await supabase
-      .from('user_profiles')
-      .select('role, organization_id')
-      .eq('id', user.id)
-      .single()
-
-    if (profileError || !profile) {
-      return NextResponse.json(
-        { error: 'User profile not found' },
-        { status: 403 }
-      )
-    }
-
-    if (!['admin', 'gestor'].includes(profile.role)) {
-      return NextResponse.json(
-        { error: 'Only admins and gestors can delete blocks' },
-        { status: 403 }
-      )
-    }
-
-    // Verify block exists and belongs to user's organization
+    // Verify block exists
     const { data: block, error: blockError } = await supabase
       .from('calendar_blocks')
-      .select('id, organization_id')
+      .select('id')
       .eq('id', id)
       .single()
 
@@ -51,13 +25,6 @@ export async function DELETE(
       return NextResponse.json(
         { error: 'Block not found' },
         { status: 404 }
-      )
-    }
-
-    if (block.organization_id !== profile.organization_id) {
-      return NextResponse.json(
-        { error: 'Block does not belong to your organization' },
-        { status: 403 }
       )
     }
 
