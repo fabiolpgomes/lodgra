@@ -229,34 +229,15 @@ export function CalendarPageClient() {
     // Handle block deletion
     if (event.extendedProps.type === 'block') {
       const blockId = event.extendedProps.blockId
-      console.log('[DELETE BLOCK] Starting deletion:', {
-        blockId,
-        blockIdType: typeof blockId,
-        blockIdLength: blockId?.length,
-        eventId: event.id,
-        eventTitle: event.title,
-      })
-
       const confirmed = window.confirm('Eliminar este bloqueio?')
       if (!confirmed) return
 
       try {
-        const url = `/api/calendar/blocks/${blockId}`
-        console.log('[DELETE BLOCK] Fetch URL:', { url })
-
-        const response = await fetch(url, {
+        const response = await fetch(`/api/calendar/blocks/${blockId}`, {
           method: 'DELETE',
         })
 
-        console.log('[DELETE BLOCK] Response:', {
-          ok: response.ok,
-          status: response.status,
-          statusText: response.statusText,
-        })
-
         if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}))
-          console.error('[DELETE BLOCK] Error response:', { status: response.status, errorData })
           toast.error('Erro ao eliminar bloqueio')
           return
         }
@@ -267,7 +248,7 @@ export function CalendarPageClient() {
           fetchEvents(dateRange.from, dateRange.to, selectedPropertyId)
         }
       } catch (error) {
-        console.error('[DELETE BLOCK] Exception:', error)
+        console.error('Erro ao eliminar bloqueio:', error)
         toast.error('Erro ao eliminar bloqueio')
       }
     }

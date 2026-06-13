@@ -8,71 +8,27 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    console.log('[Blocks API] DELETE handler started')
-
     const auth = await requireRole(['admin', 'gestor'])
-    console.log('[Blocks API] Auth check:', {
-      authorized: auth.authorized,
-      organizationId: auth.organizationId,
-    })
-
     if (!auth.authorized) {
-      console.error('[Blocks API] Unauthorized:', { organizationId: auth.organizationId })
       return auth.response!
     }
 
     const { id } = await params
-    console.log('[Blocks API] DELETE received ID:', { id, type: typeof id, length: id?.length })
-
     const supabase = await createClient()
-
-    // First, verify block exists with admin client (bypass RLS) to check if it exists
-    const { createAdminClient } = await import('@/lib/supabase/admin')
-    const adminSupabase = createAdminClient()
-    const { data: adminBlock, error: adminError } = await adminSupabase
-      .from('calendar_blocks')
-      .select('*')
-      .eq('id', id)
-      .single()
-
-    console.log('[Blocks API] Admin check (bypass RLS):', {
-      blockExists: !!adminBlock,
-      blockOrgId: adminBlock?.organization_id,
-      blockPropertyId: adminBlock?.property_id,
-      adminError: adminError ? { message: adminError.message, code: adminError.code, details: adminError.details } : null,
-    })
 
     // Verify block exists and belongs to user's organization
     const { data: block, error: blockError } = await supabase
       .from('calendar_blocks')
-      .select('id, organization_id, property_id')
+      .select('id, organization_id')
       .eq('id', id)
       .single()
 
-    console.log('[Blocks API] RLS check result:', {
-      blockExists: !!block,
-      blockPropertyId: block?.property_id,
-      blockOrgId: block?.organization_id,
-      blockError: blockError ? { message: blockError.message, code: blockError.code, details: blockError.details } : null,
-      userOrgId: auth.organizationId,
-    })
-
     if (blockError || !block) {
-      console.error('[Blocks API] Block not found or RLS denied:', {
-        id,
-        blockExists_adminCheck: !!adminBlock,
-        blockError: blockError?.message,
-        blockError_code: blockError?.code,
-        auth_organizationId: auth.organizationId,
-        block_organizationId: adminBlock?.organization_id,
-      })
       return NextResponse.json(
         { error: 'Block not found' },
         { status: 404 }
       )
     }
-
-    console.log('[Blocks API] Block found:', { id: block.id, org: block.organization_id, userOrg: auth.organizationId })
 
     // Verify ownership
     if (block.organization_id !== auth.organizationId) {
