@@ -1,0 +1,330 @@
+Algarve home stay é uma empresa de gestao de propriedade de locacao de curat temporada utiliuzando plataforma propria de reserva e trabalhando com plataformas parceiras como Airbnb, Booking, flatio . Preciso fazer o controle financeiro das recebimentos, valores pagos por clientes nas plataformas, gerir despecas, compras e repasse de dinheiro aos proprietários de imóveis, cobramos uma taxa de gestão, vinculada a propriedade.  Estas sao as telas que temos no nosso sistema criado o lodgra. Me ajude a organizar e como posso controlar o financeiro
+
+O que o Lodgra precisa controlar
+
+Hoje você possui:
+
+✅ Reservas
+
+✅ Receitas
+
+✅ Despesas
+
+✅ Proprietários
+
+✅ Relatórios
+
+Mas ainda falta o mais importante:
+
+❌ Conta Corrente do Proprietário
+
+❌ Extrato Financeiro
+
+❌ Repasses
+
+❌ Conciliação Bancária
+
+❌ Contas a Receber
+
+❌ Contas a Pagar
+
+❌ Comissões
+
+❌ Fundo de Reserva
+
+Modelo financeiro ideal
+
+Cada reserva deve gerar automaticamente um movimento financeiro.
+
+Exemplo:
+
+Reserva Airbnb
+
+Valor recebido: 1.000€
+
+Taxa Airbnb: 150€
+
+Limpeza: 50€
+
+Comissão Algarve Home Stay (20%): 160€
+
+Valor líquido proprietário: 640€
+
+Sistema gera:
+
+Movimento	Valor
+Receita Bruta	1.000€
+Taxa Airbnb	-150€
+Limpeza	-50€
+Comissão AHS	-160€
+Saldo Proprietário	640€
+Criar um módulo novo: Conta Corrente do Proprietário
+
+Menu:
+
+Financeiro
+├── Receitas
+├── Despesas
+├── Repasses
+├── Proprietários
+└── Conta Corrente
+
+Extrato do proprietário
+
+Luciana Alves
+
+Saldo Anterior: 2.300€
+
+Movimentos
+
+Data	Descrição	Crédito	Débito
+02/05	Reserva Airbnb	450€	
+03/05	Limpeza		40€
+04/05	Comissão Gestão		90€
+10/05	Repasse realizado		320€
+
+Saldo Atual: 2.300€
+
+Isso reduz em 90% as dúvidas dos proprietários.
+
+Estrutura financeira correta
+
+Você precisa separar:
+
+1. Dinheiro da empresa
+
+Algarve Home Stay
+
+Receitas:
+
+Comissões
+Check-in
+Limpeza
+Concierge
+Upsell
+2. Dinheiro dos proprietários
+
+Passivo
+
+Não é receita sua.
+
+Você apenas guarda temporariamente.
+
+Exemplo:
+
+Booking pagou 2.000€
+
+Não é receita Algarve Home Stay.
+
+Receita Algarve Home Stay:
+
+400€ comissão
+
+1.600€ pertence ao proprietário.
+
+Novo Dashboard Financeiro
+
+Sugiro substituir alguns KPIs atuais.
+
+Hoje:
+
+Receita
+Despesa
+Lucro
+
+Sugestão:
+
+Recebido das Plataformas
+
+20.584€
+
+Comissão Gerada
+
+4.116€
+
+Saldo Proprietários
+
+15.860€
+
+Repasses Pendentes
+
+8.200€
+
+Repasses Efetuados Mês
+
+7.660€
+
+Caixa Empresa
+
+3.200€
+
+Fluxo financeiro completo
+
+Reserva criada
+
+↓
+
+Reserva confirmada
+
+↓
+
+Recebimento previsto
+
+↓
+
+Recebimento confirmado
+
+↓
+
+Despesas vinculadas
+
+↓
+
+Comissão calculada
+
+↓
+
+Saldo proprietário atualizado
+
+↓
+
+Repasse gerado
+
+↓
+
+Repasse pago
+
+↓
+
+Extrato fechado
+
+Adicionar centro de custos
+
+Hoje você controla despesas.
+
+Mas precisa saber para qual imóvel.
+
+Categorias:
+
+Água
+Luz
+Gás
+Internet
+Condomínio
+IMI
+Seguro
+Limpeza
+Lavandaria
+Manutenção
+Marketing
+Comissão Plataforma
+Mobiliário
+Criar DRE da Gestora
+
+Empresa:
+
+Algarve Home Stay
+
+Receitas
+
+Comissões
+Limpeza
+Concierge
+
+Despesas
+
+Marketing
+Software
+Contabilidade
+Equipa
+Viagens
+
+Lucro Operacional
+
+EBITDA
+
+Isso mostra se a empresa ganha dinheiro.
+
+Criar Demonstrativo do Proprietário
+
+Relatório mensal automático.
+
+Exemplo:
+
+AHS T2 Armação de Pêra
+
+Maio 2026
+
+Receita Bruta: 2.500€
+
+Booking: 1.400€
+
+Airbnb: 1.100€
+
+Despesas:
+
+Limpeza: 120€
+
+Internet: 25€
+
+Água: 18€
+
+Comissão Gestão (20%): 500€
+
+Valor Líquido Proprietário:
+
+1.837€
+
+Repasse realizado:
+
+1.837€
+
+Data:
+
+05/06/2026
+
+Integração bancária futura
+
+Quando escalar para mais de 20 imóveis, implemente:
+
+Banco Inter
+Wise
+Revolut Business
+Millennium BCP
+Caixa Geral
+
+Importação automática de extratos OFX/CSV.
+
+Conciliação automática:
+
+Reserva Booking
+
+Entrada bancária
+
+Repasse proprietário
+
+Saída bancária
+
+O que eu desenvolveria primeiro no Lodgra
+
+Ordem de prioridade:
+
+Fase 1 (Urgente)
+Conta Corrente do Proprietário
+Repasses
+Comissão por propriedade
+Extrato do proprietário
+Fase 2
+Contas a receber
+Contas a pagar
+Conciliação bancária
+Fase 3
+Demonstração financeira do proprietário
+DRE da gestora
+Integração bancária
+Fase 4
+Stripe Connect
+Pagamentos automáticos aos proprietários
+Split de pagamentos
+
+Se o Lodgra implementar apenas Conta Corrente do Proprietário + Repasses + Comissões automáticas, ele já ficará mais avançado financeiramente do que a maioria dos PMS pequenos utilizados por gestores de 5 a 100 imóveis em Portugal.
