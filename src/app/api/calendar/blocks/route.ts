@@ -131,6 +131,7 @@ export async function POST(request: NextRequest) {
         end_date,
         notes,
         block_type: 'manual',
+        organization_id: profile.organization_id,
       })
       .select()
       .single()
