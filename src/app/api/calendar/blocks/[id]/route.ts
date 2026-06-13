@@ -31,27 +31,29 @@ export async function DELETE(
     const adminSupabase = createAdminClient()
     const { data: adminBlock, error: adminError } = await adminSupabase
       .from('calendar_blocks')
-      .select('id, organization_id')
+      .select('*')
       .eq('id', id)
       .single()
 
     console.log('[Blocks API] Admin check (bypass RLS):', {
       blockExists: !!adminBlock,
       blockOrgId: adminBlock?.organization_id,
-      adminError: adminError?.message,
+      blockPropertyId: adminBlock?.property_id,
+      adminError: adminError ? { message: adminError.message, code: adminError.code, details: adminError.details } : null,
     })
 
     // Verify block exists and belongs to user's organization
     const { data: block, error: blockError } = await supabase
       .from('calendar_blocks')
-      .select('id, organization_id')
+      .select('id, organization_id, property_id')
       .eq('id', id)
       .single()
 
     console.log('[Blocks API] RLS check result:', {
       blockExists: !!block,
-      blockError: blockError?.message,
-      blockError_code: blockError?.code,
+      blockPropertyId: block?.property_id,
+      blockOrgId: block?.organization_id,
+      blockError: blockError ? { message: blockError.message, code: blockError.code, details: blockError.details } : null,
       userOrgId: auth.organizationId,
     })
 
