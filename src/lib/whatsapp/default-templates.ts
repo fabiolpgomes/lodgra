@@ -104,6 +104,21 @@ Gestor, há uma nova reserva:
 Verifique no painel de controlo para mais detalhes.`,
     description: 'Alerta de nova reserva para o gestor',
   },
+  cleaner_checkout_notification: {
+    key: 'cleaner_checkout_notification',
+    body: `🏠 *{{property_name}}*
+📍 {{property_address}}
+
+Olá {{cleaner_name}}!
+
+O hóspede fez checkout às {{checkout_time}}.
+A propriedade está pronta para limpeza!
+
+{{task_link}}
+
+Obrigado! 🧹`,
+    description: 'Notificação ao cleaner após checkout',
+  },
 };
 
 export const DEFAULT_TEMPLATES_ES: Record<string, DefaultTemplate> = {
@@ -200,6 +215,21 @@ Gestor, hay una nueva reserva:
 
 Consulta el panel de control para más detalles.`,
     description: 'Alerta de nueva reserva para el gestor',
+  },
+  cleaner_checkout_notification: {
+    key: 'cleaner_checkout_notification',
+    body: `🏠 *{{property_name}}*
+📍 {{property_address}}
+
+¡Hola {{cleaner_name}}!
+
+El huésped hizo checkout a las {{checkout_time}}.
+¡La propiedad está lista para limpiar!
+
+{{task_link}}
+
+¡Gracias! 🧹`,
+    description: 'Notificación al cleaner después del checkout',
   },
 };
 
