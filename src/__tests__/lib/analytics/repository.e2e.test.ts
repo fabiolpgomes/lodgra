@@ -25,7 +25,7 @@ describe('AnalyticsRepository E2E', () => {
       const config = await analyticsRepository.upsertConfig(testTenantId, testGAId);
 
       expect(config).toBeDefined();
-      expect(config.tenant_id).toBe(testTenantId);
+      expect(config.organization_id).toBe(testTenantId);
       expect(config.ga_enabled).toBe(true);
       expect(config.id).toBeDefined();
     });
@@ -44,7 +44,7 @@ describe('AnalyticsRepository E2E', () => {
       const config = await analyticsRepository.getConfig(testTenantId);
 
       expect(config).toBeDefined();
-      expect(config?.tenant_id).toBe(testTenantId);
+      expect(config?.organization_id).toBe(testTenantId);
       expect(config?.ga_enabled).toBe(true);
     });
 
@@ -102,7 +102,7 @@ describe('AnalyticsRepository E2E', () => {
 
       const createLog = logs.find(log => log.action === 'created');
       expect(createLog).toBeDefined();
-      expect(createLog?.tenant_id).toBe(auditTenantId);
+      expect(createLog?.organization_id).toBe(auditTenantId);
       expect(createLog?.new_values).toEqual({ ga_enabled: true });
     });
 
@@ -219,8 +219,8 @@ describe('AnalyticsRepository E2E', () => {
       const logs1 = await analyticsRepository.getAuditLog(tenant1, 10);
       const logs2 = await analyticsRepository.getAuditLog(tenant2, 10);
 
-      expect(logs1.every(log => log.tenant_id === tenant1)).toBe(true);
-      expect(logs2.every(log => log.tenant_id === tenant2)).toBe(true);
+      expect(logs1.every(log => log.organization_id === tenant1)).toBe(true);
+      expect(logs2.every(log => log.organization_id === tenant2)).toBe(true);
       expect(logs1.length).toBeGreaterThan(0);
       expect(logs2.length).toBeGreaterThan(0);
     });

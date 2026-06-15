@@ -89,9 +89,16 @@ export async function POST(req: NextRequest) {
     const testEventId = `test_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
     // Send test event to Google Analytics
+    const apiSecret = process.env.GOOGLE_ANALYTICS_API_SECRET;
+    if (!apiSecret) {
+      return NextResponse.json({
+        error: 'API secret not configured',
+        success: false
+      }, { status: 500 });
+    }
+
     const testEvent = {
       measurement_id: gaMeasurementId,
-      api_secret: process.env.GOOGLE_ANALYTICS_API_SECRET || 'test_secret',
       events: [{
         name: 'test_connection',
         params: {
@@ -104,7 +111,11 @@ export async function POST(req: NextRequest) {
 
     let gaResponse;
     try {
-      gaResponse = await fetch('https://www.google-analytics.com/mp/collect', {
+      const gaUrl = new URL('https://www.google-analytics.com/mp/collect');
+      gaUrl.searchParams.append('api_secret', apiSecret);
+      gaUrl.searchParams.append('measurement_id', gaMeasurementId);
+
+      gaResponse = await fetch(gaUrl.toString(), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(testEvent)
