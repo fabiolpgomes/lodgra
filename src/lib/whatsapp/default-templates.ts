@@ -68,6 +68,42 @@ Lembrança: tem limpeza em 2 horas ({{task_time}})
 Por favor confirme a sua chegada.`,
     description: 'Enviado 2h antes da tarefa de limpeza',
   },
+  reservation_confirmation: {
+    key: 'reservation_confirmation',
+    body: `✅ *Sua reserva foi confirmada!*
+
+🏠 *{{property_name}}*
+📍 {{property_address}}
+
+Olá {{guest_name}},
+
+Sua reserva foi confirmada com sucesso!
+
+📅 Check-in: {{checkin_date}}
+📅 Checkout: {{checkout_date}}
+💰 Preço: {{total_price}}
+
+Receberá mais detalhes sobre o código de acesso 24h antes do check-in.
+
+Obrigado por escolher a Lodgra! 🎉`,
+    description: 'Confirmação de reserva enviada ao hóspede',
+  },
+  new_booking_alert: {
+    key: 'new_booking_alert',
+    body: `📬 *Nova Reserva!*
+
+Gestor, há uma nova reserva:
+
+🏠 {{property_name}}
+👤 Hóspede: {{guest_name}}
+📅 Check-in: {{checkin_date}}
+📅 Checkout: {{checkout_date}}
+💰 Valor: {{total_price}}
+📞 Contacto: {{guest_phone}}
+
+Verifique no painel de controlo para mais detalhes.`,
+    description: 'Alerta de nova reserva para o gestor',
+  },
 };
 
 export const DEFAULT_TEMPLATES_ES: Record<string, DefaultTemplate> = {
@@ -128,6 +164,42 @@ Recordatorio: tienes limpieza en 2 horas ({{task_time}})
 
 Por favor confirma tu llegada.`,
     description: 'Enviado 2h antes de la tarea de limpieza',
+  },
+  reservation_confirmation: {
+    key: 'reservation_confirmation',
+    body: `✅ *¡Tu reserva ha sido confirmada!*
+
+🏠 *{{property_name}}*
+📍 {{property_address}}
+
+¡Hola {{guest_name}},
+
+¡Tu reserva ha sido confirmada con éxito!
+
+📅 Check-in: {{checkin_date}}
+📅 Checkout: {{checkout_date}}
+💰 Precio: {{total_price}}
+
+Recibirás más detalles sobre el código de acceso 24h antes del check-in.
+
+¡Gracias por elegir Lodgra! 🎉`,
+    description: 'Confirmación de reserva enviada al huésped',
+  },
+  new_booking_alert: {
+    key: 'new_booking_alert',
+    body: `📬 *¡Nueva Reserva!*
+
+Gestor, hay una nueva reserva:
+
+🏠 {{property_name}}
+👤 Huésped: {{guest_name}}
+📅 Check-in: {{checkin_date}}
+📅 Checkout: {{checkout_date}}
+💰 Valor: {{total_price}}
+📞 Contacto: {{guest_phone}}
+
+Consulta el panel de control para más detalles.`,
+    description: 'Alerta de nueva reserva para el gestor',
   },
 };
 
