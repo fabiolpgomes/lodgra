@@ -165,7 +165,7 @@ describe('E2E: Complete WhatsApp Automation Flows', () => {
     });
 
     it('should log all retry attempts', async () => {
-      const logs: any[] = [];
+      const logs: Array<{ attempt: number; status: string; timestamp: string }> = [];
 
       for (let i = 0; i < 3; i++) {
         logs.push({

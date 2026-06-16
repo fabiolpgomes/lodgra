@@ -245,10 +245,10 @@ export default function CleanerTaskPage() {
           <p className="text-sm font-semibold text-blue-900 mb-2">💡 Instruções</p>
           <ul className="text-sm text-blue-800 space-y-1">
             <li>✓ Marque cada item conforme concluir</li>
-            <li>✓ Itens com ⚠ "Obrigatório" não podem ser saltados</li>
+            <li>✓ Itens com ⚠ &quot;Obrigatório&quot; não podem ser saltados</li>
             <li>✓ Adicione fotos de antes/depois se necessário</li>
             <li>✓ Adicione notas se encontrar problemas</li>
-            <li>✓ Clique "Concluir Limpeza" quando terminar</li>
+            <li>✓ Clique &quot;Concluir Limpeza&quot; quando terminar</li>
           </ul>
         </div>
 

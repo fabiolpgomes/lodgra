@@ -53,7 +53,8 @@ export async function POST(request: NextRequest) {
 
       // Check if invoice contains WhatsApp add-on
       const hasWhatsAppAddon = lines.data.some(
-        (line: any) => line.price.product === process.env.STRIPE_WHATSAPP_ADDON_ID
+        (line: Record<string, unknown>) =>
+          (line.price as Record<string, unknown>).product === process.env.STRIPE_WHATSAPP_ADDON_ID
       );
 
       if (hasWhatsAppAddon) {

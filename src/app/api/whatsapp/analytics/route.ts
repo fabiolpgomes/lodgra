@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
         if (log.status === 'failed') acc[log.message_type].failed++;
         return acc;
       },
-      {} as Record<string, any>
+      {} as Record<string, { total: number; successful: number; failed: number }>
     );
 
     // Group by recipient type
@@ -67,7 +67,7 @@ export async function GET(request: NextRequest) {
         if (log.status === 'failed') acc[log.recipient_type].failed++;
         return acc;
       },
-      {} as Record<string, any>
+      {} as Record<string, { total: number; successful: number; failed: number }>
     );
 
     // Trend data (last 30 days)

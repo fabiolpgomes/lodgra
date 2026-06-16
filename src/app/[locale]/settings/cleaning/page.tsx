@@ -2,6 +2,7 @@
  * Story 29.7: Manager View Dashboard for cleaning tasks
  */
 
+import { redirect } from 'next/navigation';
 import { requireRole } from '@/lib/auth/requireRole';
 import CleaningManagerDashboard from '@/components/cleaning/CleaningManagerDashboard';
 
@@ -13,7 +14,7 @@ export const metadata = {
 export default async function CleaningPage() {
   const auth = await requireRole(['admin', 'gestor']);
   if (!auth.authorized) {
-    return auth.response;
+    redirect('/');
   }
 
   return (

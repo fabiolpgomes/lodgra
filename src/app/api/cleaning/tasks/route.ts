@@ -90,20 +90,32 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to fetch tasks' }, { status: 500 });
     }
 
-    const enrichedTasks = (tasks || []).map((task: any) => ({
-      ...task,
-      property: Array.isArray(task.properties) ? task.properties[0] : task.properties,
-      reservation: Array.isArray(task.reservations) ? task.reservations[0] : task.reservations,
-      cleaner: Array.isArray(task.user_profiles) ? task.user_profiles[0] : task.user_profiles,
-      photo_count: task.cleaning_photos?.length || 0,
-      checklist_completion: task.cleaning_checklist_responses
-        ? Math.round(
-            (task.cleaning_checklist_responses.filter((r: any) => r.is_checked).length /
-              task.cleaning_checklist_responses.length) *
-              100
-          )
-        : 0,
-    }));
+    const enrichedTasks = (tasks || []).map(
+      (task: Record<string, unknown>) => ({
+        ...task,
+        property: Array.isArray(task.properties)
+          ? task.properties[0]
+          : task.properties,
+        reservation: Array.isArray(task.reservations)
+          ? task.reservations[0]
+          : task.reservations,
+        cleaner: Array.isArray(task.user_profiles)
+          ? task.user_profiles[0]
+          : task.user_profiles,
+        photo_count: (task.cleaning_photos as Array<unknown>)?.length || 0,
+        checklist_completion:
+          task.cleaning_checklist_responses &&
+          Array.isArray(task.cleaning_checklist_responses)
+            ? Math.round(
+                ((task.cleaning_checklist_responses as Array<Record<string, unknown>>).filter(
+                  (r) => r.is_checked
+                ).length /
+                  task.cleaning_checklist_responses.length) *
+                  100
+              )
+            : 0,
+      })
+    );
 
     return NextResponse.json({
       tasks: enrichedTasks,
@@ -130,7 +142,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     const supabase = await createClient();
-    const updateData: any = { status };
+    const updateData: Record<string, string> = { status };
     if (notes !== undefined) updateData.notes = notes;
     if (status === 'done') updateData.completed_at = new Date().toISOString();
 

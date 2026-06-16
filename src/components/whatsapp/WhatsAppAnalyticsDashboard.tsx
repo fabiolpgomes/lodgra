@@ -14,8 +14,8 @@ interface Analytics {
     delivery_rate: number;
     read_rate: number;
   };
-  by_message_type: Record<string, any>;
-  by_recipient_type: Record<string, any>;
+  by_message_type: Record<string, { total: number; successful: number; failed: number }>;
+  by_recipient_type: Record<string, { total: number; successful: number; failed: number }>;
   trend: Array<{
     date: string;
     sent: number;

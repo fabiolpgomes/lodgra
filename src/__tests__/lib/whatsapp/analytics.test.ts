@@ -60,12 +60,13 @@ describe('WhatsApp Analytics & Reporting', () => {
       ];
 
       const byType = logs.reduce(
-        (acc, log) => {
-          if (!acc[log.message_type]) acc[log.message_type] = [];
-          acc[log.message_type].push(log);
+        (acc: Record<string, unknown[]>, log: Record<string, unknown>) => {
+          const key = log.message_type as string;
+          if (!acc[key]) acc[key] = [];
+          (acc[key] as unknown[]).push(log);
           return acc;
         },
-        {} as Record<string, any[]>
+        {}
       );
 
       expect(byType.confirmation).toHaveLength(2);
@@ -104,12 +105,13 @@ describe('WhatsApp Analytics & Reporting', () => {
       ];
 
       const byRecipient = logs.reduce(
-        (acc, log) => {
-          if (!acc[log.recipient_type]) acc[log.recipient_type] = [];
-          acc[log.recipient_type].push(log);
+        (acc: Record<string, unknown[]>, log: Record<string, unknown>) => {
+          const key = log.recipient_type as string;
+          if (!acc[key]) acc[key] = [];
+          (acc[key] as unknown[]).push(log);
           return acc;
         },
-        {} as Record<string, any[]>
+        {}
       );
 
       expect(byRecipient.guest).toHaveLength(2);
@@ -128,13 +130,14 @@ describe('WhatsApp Analytics & Reporting', () => {
       ];
 
       const byDate = logs.reduce(
-        (acc, log) => {
-          if (!acc[log.date]) acc[log.date] = { sent: 0, failed: 0 };
-          if (log.status === 'sent') acc[log.date].sent++;
-          else acc[log.date].failed++;
+        (acc: Record<string, { sent: number; failed: number }>, log: Record<string, unknown>) => {
+          const key = log.date as string;
+          if (!acc[key]) acc[key] = { sent: 0, failed: 0 };
+          if (log.status === 'sent') acc[key].sent++;
+          else acc[key].failed++;
           return acc;
         },
-        {} as Record<string, any>
+        {}
       );
 
       expect(byDate['2026-07-01'].sent).toBe(2);

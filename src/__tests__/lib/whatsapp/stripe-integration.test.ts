@@ -103,7 +103,8 @@ describe('Stripe Webhook Integration: WhatsApp Automation', () => {
       };
 
       const hasWhatsAppAddon = webhook.data.object.lines.data.some(
-        (line: any) => line.price.product === whatsappAddonId
+        (line: Record<string, unknown>) =>
+          (line.price as Record<string, unknown>).product === whatsappAddonId
       );
 
       expect(hasWhatsAppAddon).toBe(true);
@@ -130,7 +131,8 @@ describe('Stripe Webhook Integration: WhatsApp Automation', () => {
       };
 
       const hasWhatsAppAddon = webhook.data.object.lines.data.some(
-        (line: any) => line.price.product === whatsappAddonId
+        (line: Record<string, unknown>) =>
+          (line.price as Record<string, unknown>).product === whatsappAddonId
       );
 
       expect(hasWhatsAppAddon).toBe(false);
@@ -201,7 +203,8 @@ describe('Stripe Webhook Integration: WhatsApp Automation', () => {
       };
 
       const hasActiveAddon = org.subscriptions.some(
-        (sub: any) => sub.product_id === 'prod_whatsapp_addon' && sub.status === 'active'
+        (sub: Record<string, unknown>) =>
+          sub.product_id === 'prod_whatsapp_addon' && sub.status === 'active'
       );
 
       // Should NOT disable if add-on is active
