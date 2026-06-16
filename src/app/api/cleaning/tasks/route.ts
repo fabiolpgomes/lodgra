@@ -1,57 +1,115 @@
+/**
+ * GET cleaning tasks for manager view (Story 29.7)
+ * Returns all tasks with cleaner info, reservation details, and photos
+ */
+
 import { NextRequest, NextResponse } from 'next/server';
+import { requireRole } from '@/lib/auth/requireRole';
 import { createClient } from '@/lib/supabase/server';
 
 export async function GET(request: NextRequest) {
   try {
+    const auth = await requireRole(['admin', 'gestor']);
+    if (!auth.authorized) return auth.response!;
+
     const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
-    const { data: profile } = await supabase
-      .from('user_profiles')
-      .select('organization_id, role')
-      .eq('id', user.id)
-      .single();
-
-    if (!profile) return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
-
     const { searchParams } = new URL(request.url);
-    const property_id = searchParams.get('property_id');
+
     const status = searchParams.get('status');
-    const cleaner_id = searchParams.get('cleaner_id');
-    const date_from = searchParams.get('date_from');
-    const date_to = searchParams.get('date_to');
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '20');
+    const propertyId = searchParams.get('propertyId');
+    const cleanerId = searchParams.get('cleanerId');
+    const startDate = searchParams.get('startDate');
+    const endDate = searchParams.get('endDate');
 
     let query = supabase
       .from('cleaning_tasks')
-      .select('*', { count: 'exact' })
-      .eq('organization_id', profile.organization_id);
+      .select(
+        `
+        id,
+        organization_id,
+        property_id,
+        reservation_id,
+        cleaner_id,
+        status,
+        scheduled_date,
+        scheduled_time,
+        notes,
+        completed_at,
+        created_at,
+        updated_at,
+        properties (
+          id,
+          name,
+          address,
+          city,
+          postal_code
+        ),
+        reservations (
+          id,
+          guest_id,
+          check_in_date,
+          check_out_date,
+          guests (
+            full_name,
+            phone,
+            email
+          )
+        ),
+        user_profiles:cleaner_id (
+          id,
+          full_name,
+          phone,
+          email
+        ),
+        cleaning_photos (
+          id,
+          storage_path,
+          uploaded_at
+        ),
+        cleaning_checklist_responses (
+          id,
+          is_checked
+        )
+      `,
+        { count: 'exact' }
+      )
+      .eq('organization_id', auth.organizationId);
 
-    if (property_id) query = query.eq('property_id', property_id);
     if (status) query = query.eq('status', status);
-    if (cleaner_id) query = query.eq('cleaner_id', cleaner_id);
-    if (date_from) query = query.gte('scheduled_date', date_from);
-    if (date_to) query = query.lte('scheduled_date', date_to);
+    if (propertyId) query = query.eq('property_id', propertyId);
+    if (cleanerId) query = query.eq('cleaner_id', cleanerId);
+    if (startDate) query = query.gte('scheduled_date', startDate);
+    if (endDate) query = query.lte('scheduled_date', endDate);
 
-    const { data, count, error } = await query
-      .order('scheduled_date', { ascending: false })
-      .range((page - 1) * limit, page * limit - 1);
+    query = query.order('scheduled_date', { ascending: true });
 
-    if (error) throw error;
+    const { data: tasks, error, count } = await query;
+
+    if (error) {
+      console.error('Error fetching cleaning tasks:', error);
+      return NextResponse.json({ error: 'Failed to fetch tasks' }, { status: 500 });
+    }
+
+    const enrichedTasks = (tasks || []).map((task: any) => ({
+      ...task,
+      property: Array.isArray(task.properties) ? task.properties[0] : task.properties,
+      reservation: Array.isArray(task.reservations) ? task.reservations[0] : task.reservations,
+      cleaner: Array.isArray(task.user_profiles) ? task.user_profiles[0] : task.user_profiles,
+      photo_count: task.cleaning_photos?.length || 0,
+      checklist_completion: task.cleaning_checklist_responses
+        ? Math.round(
+            (task.cleaning_checklist_responses.filter((r: any) => r.is_checked).length /
+              task.cleaning_checklist_responses.length) *
+              100
+          )
+        : 0,
+    }));
 
     return NextResponse.json({
-      tasks: data,
-      pagination: {
-        page,
-        limit,
-        total: count || 0,
-        totalPages: Math.ceil((count || 0) / limit),
-      },
+      tasks: enrichedTasks,
+      total: count,
+      filters: { status, propertyId, cleanerId, startDate, endDate },
+      timestamp: new Date().toISOString(),
     });
   } catch (error) {
     console.error('GET /api/cleaning/tasks error:', error);
@@ -59,41 +117,39 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function PATCH(request: NextRequest) {
   try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
-    const { data: profile } = await supabase
-      .from('user_profiles')
-      .select('organization_id, role')
-      .eq('id', user.id)
-      .single();
-
-    if (!profile || !['admin', 'manager'].includes(profile.role)) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
+    const auth = await requireRole(['admin', 'gestor']);
+    if (!auth.authorized) return auth.response!;
 
     const body = await request.json();
+    const { taskId, status, notes } = body;
 
-    const { data, error } = await supabase
+    if (!taskId || !status) {
+      return NextResponse.json({ error: 'taskId and status required' }, { status: 400 });
+    }
+
+    const supabase = await createClient();
+    const updateData: any = { status };
+    if (notes !== undefined) updateData.notes = notes;
+    if (status === 'done') updateData.completed_at = new Date().toISOString();
+
+    const { data: task, error } = await supabase
       .from('cleaning_tasks')
-      .insert({
-        ...body,
-        organization_id: profile.organization_id,
-      })
+      .update(updateData)
+      .eq('id', taskId)
+      .eq('organization_id', auth.organizationId)
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error('Error updating cleaning task:', error);
+      return NextResponse.json({ error: 'Failed to update task' }, { status: 500 });
+    }
 
-    return NextResponse.json(data, { status: 201 });
+    return NextResponse.json({ success: true, task, message: `Task marked as ${status}` });
   } catch (error) {
-    console.error('POST /api/cleaning/tasks error:', error);
+    console.error('PATCH /api/cleaning/tasks error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
