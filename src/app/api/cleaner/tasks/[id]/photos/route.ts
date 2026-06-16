@@ -1,129 +1,90 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { NextRequest, NextResponse } from 'next/server';
 
-export async function POST(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = await params;
     const supabase = await createClient();
+    const { id: taskId } = await params;
+
     const {
       data: { user },
     } = await supabase.auth.getUser();
 
-    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
-    const { data: profile } = await supabase
-      .from('user_profiles')
-      .select('organization_id, role, id')
-      .eq('id', user.id)
-      .single();
-
-    if (!profile) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
-    // Verify task belongs to user's organization
+    // Verify task belongs to cleaner
     const { data: task } = await supabase
       .from('cleaning_tasks')
-      .select('id, organization_id')
-      .eq('id', id)
-      .eq('organization_id', profile.organization_id)
+      .select('*')
+      .eq('id', taskId)
+      .eq('cleaner_id', user.id)
       .single();
 
-    if (!task) return NextResponse.json({ error: 'Task not found' }, { status: 404 });
+    if (!task) {
+      return NextResponse.json({ error: 'Task not found' }, { status: 404 });
+    }
 
+    // Parse form data
     const formData = await request.formData();
-    const file = formData.get('file') as File;
+    const files = formData.getAll('photos') as File[];
 
-    if (!file) return NextResponse.json({ error: 'No file provided' }, { status: 400 });
+    if (!files || files.length === 0) {
+      return NextResponse.json({ error: 'No photos provided' }, { status: 400 });
+    }
 
-    const fileName = `${profile.organization_id}/${id}/${Date.now()}-${file.name}`;
-    const buffer = await file.arrayBuffer();
+    const uploadedPhotos: string[] = [];
 
-    const { data: uploadData, error: uploadError } = await supabase.storage
-      .from('cleaning-photos')
-      .upload(fileName, buffer, {
-        contentType: file.type,
+    // Upload each photo to Supabase Storage
+    for (const file of files) {
+      const timestamp = Date.now();
+      const fileName = `${taskId}/${timestamp}-${file.name}`;
+      const bucket = 'cleaning-task-photos';
+
+      const { data, error } = await supabase.storage.from(bucket).upload(fileName, file, {
+        cacheControl: '3600',
         upsert: false,
       });
 
-    if (uploadError) throw uploadError;
+      if (error) {
+        console.error('Upload error:', error);
+        continue;
+      }
 
-    const { data: photoRecord, error: dbError } = await supabase
-      .from('cleaning_photos')
-      .insert({
-        task_id: id,
-        file_path: uploadData.path,
-        uploader_id: user.id,
-      })
-      .select()
-      .single();
+      const { data: publicUrlData } = supabase.storage
+        .from(bucket)
+        .getPublicUrl(fileName);
 
-    if (dbError) throw dbError;
+      uploadedPhotos.push(publicUrlData.publicUrl);
+    }
 
-    return NextResponse.json(photoRecord, { status: 201 });
-  } catch (error) {
-    console.error('POST /api/cleaner/tasks/[id]/photos error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
-  }
-}
+    // Update task with photo count
+    const currentPhotos = task.photos || [];
+    const allPhotos = [...currentPhotos, ...uploadedPhotos];
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const { id } = await params;
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
-    const { data: profile } = await supabase
-      .from('user_profiles')
-      .select('organization_id')
-      .eq('id', user.id)
-      .single();
-
-    if (!profile) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
-    // Verify task belongs to user's organization
-    const { data: task } = await supabase
+    const { error: updateError } = await supabase
       .from('cleaning_tasks')
-      .select('id, organization_id')
-      .eq('id', id)
-      .eq('organization_id', profile.organization_id)
-      .single();
-
-    if (!task) return NextResponse.json({ error: 'Task not found' }, { status: 404 });
-
-    const { data: photos, error } = await supabase
-      .from('cleaning_photos')
-      .select('*')
-      .eq('task_id', id)
-      .order('uploaded_at', { ascending: false });
-
-    if (error) throw error;
-
-    // Generate signed URLs for each photo (1 hour expiry)
-    const photosWithUrls = await Promise.all(
-      (photos || []).map(async (photo) => {
-        const { data } = await supabase.storage
-          .from('cleaning-photos')
-          .createSignedUrl(photo.file_path, 3600);
-
-        return {
-          ...photo,
-          url: data?.signedUrl || null,
-        };
+      .update({
+        photos: allPhotos,
+        photo_count: allPhotos.length,
+        updated_at: new Date().toISOString(),
       })
-    );
+      .eq('id', taskId);
 
-    return NextResponse.json(photosWithUrls);
+    if (updateError) throw updateError;
+
+    return NextResponse.json({
+      success: true,
+      uploaded: uploadedPhotos.length,
+      totalPhotos: allPhotos.length,
+      photos: uploadedPhotos,
+    });
   } catch (error) {
-    console.error('GET /api/cleaner/tasks/[id]/photos error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error('Error uploading photos:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Failed to upload photos' },
+      { status: 500 }
+    );
   }
 }

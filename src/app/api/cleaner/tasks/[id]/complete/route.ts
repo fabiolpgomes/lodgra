@@ -26,19 +26,19 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       return NextResponse.json({ error: 'Task not found' }, { status: 404 });
     }
 
-    // Update task status to in_progress
+    // Update task status to done
     const { error } = await supabase
       .from('cleaning_tasks')
-      .update({ status: 'in_progress', started_at: new Date().toISOString() })
+      .update({ status: 'done', completed_at: new Date().toISOString() })
       .eq('id', taskId);
 
     if (error) throw error;
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Error starting task:', error);
+    console.error('Error completing task:', error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Failed to start task' },
+      { error: error instanceof Error ? error.message : 'Failed to complete task' },
       { status: 500 }
     );
   }

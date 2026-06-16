@@ -1,98 +1,63 @@
-import { createAdminClient } from '@/lib/supabase/admin';
+import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 
-export const dynamic = 'force-dynamic';
-
-interface ChecklistResponse {
-  item_id: string;
-  checked: boolean;
+interface ChecklistItem {
+  id: string;
+  completed: boolean;
   notes?: string;
 }
 
-/**
- * GET /api/cleaner/tasks/[id]/checklist
- * Fetch current checklist progress (for real-time dashboard)
- */
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const supabase = await createClient();
     const { id: taskId } = await params;
+    const { items, notes } = await request.json() as { items: ChecklistItem[]; notes?: string };
 
-    const supabase = createAdminClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-    const { data: responses, error } = await supabase
-      .from('cleaning_checklist_responses')
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Verify task belongs to cleaner
+    const { data: task } = await supabase
+      .from('cleaning_tasks')
       .select('*')
-      .eq('task_id', taskId);
+      .eq('id', taskId)
+      .eq('cleaner_id', user.id)
+      .single();
+
+    if (!task) {
+      return NextResponse.json({ error: 'Task not found' }, { status: 404 });
+    }
+
+    // Calculate completion percentage
+    const completedCount = items.filter((item) => item.completed).length;
+    const completionPercentage = Math.round((completedCount / items.length) * 100);
+
+    // Update task with checklist data
+    const { error } = await supabase
+      .from('cleaning_tasks')
+      .update({
+        checklist_completion: completionPercentage,
+        checklist_items: items,
+        notes: notes || task.notes,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', taskId);
 
     if (error) throw error;
 
     return NextResponse.json({
-      taskId,
-      responses: responses || [],
-      updatedAt: new Date().toISOString()
+      success: true,
+      completionPercentage,
     });
   } catch (error) {
-    console.error('[Checklist GET] Error:', error);
+    console.error('Error updating checklist:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch checklist progress' },
-      { status: 500 }
-    );
-  }
-}
-
-/**
- * PUT /api/cleaner/tasks/[id]/checklist
- * Auto-save checklist responses from cleaner
- */
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const { id } = await params;
-    const body = await request.json();
-    const { responses } = body as { responses: ChecklistResponse[] };
-
-    if (!Array.isArray(responses)) {
-      return NextResponse.json(
-        { error: 'Invalid request format' },
-        { status: 400 }
-      );
-    }
-
-    const supabase = createAdminClient();
-    const taskId = id;
-
-    // Upsert responses (update if exists, insert if not)
-    const itemsToUpsert = responses.map((response) => ({
-      task_id: taskId,
-      item_id: response.item_id,
-      checked: response.checked,
-      notes: response.notes || null,
-      updated_at: new Date().toISOString()
-    }));
-
-    // Delete old responses and insert new ones
-    // (simpler than upsert for this case)
-    await supabase
-      .from('cleaning_checklist_responses')
-      .delete()
-      .eq('task_id', taskId);
-
-    const { error: insertError } = await supabase
-      .from('cleaning_checklist_responses')
-      .insert(itemsToUpsert);
-
-    if (insertError) throw insertError;
-
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error('[Checklist Auto-save] Error:', error);
-    return NextResponse.json(
-      { error: 'Failed to save checklist' },
+      { error: error instanceof Error ? error.message : 'Failed to update checklist' },
       { status: 500 }
     );
   }

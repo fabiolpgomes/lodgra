@@ -2,24 +2,25 @@
 
 import { CleaningTask } from '@/types/cleaning'
 import { useState } from 'react'
+import Link from 'next/link'
 
-const statusColors: Record<string, { bg: string; text: string; label: string }> = {
-  pending: { bg: 'bg-gray-100', text: 'text-gray-700', label: 'Pendente' },
-  in_progress: { bg: 'bg-yellow-100', text: 'text-yellow-700', label: 'Em Progresso' },
-  done: { bg: 'bg-green-100', text: 'text-green-700', label: 'Concluída' },
-  issue: { bg: 'bg-red-100', text: 'text-red-700', label: 'Problema' }
+const statusColors: Record<string, { bg: string; text: string; label: string; border: string }> = {
+  pending: { bg: 'bg-gray-50', text: 'text-gray-700', label: 'Pendente', border: 'border-gray-200' },
+  in_progress: { bg: 'bg-yellow-50', text: 'text-yellow-700', label: 'Em Progresso', border: 'border-yellow-200' },
+  done: { bg: 'bg-green-50', text: 'text-green-700', label: 'Concluída', border: 'border-green-200' },
+  issue: { bg: 'bg-red-50', text: 'text-red-700', label: 'Problema', border: 'border-red-200' }
 }
 
 interface CleanerTaskCardProps {
   task: CleaningTask
-  onStatusChange: (taskId: string, newStatus: string) => void
+  onStatusChange?: (taskId: string, newStatus: string) => void
 }
 
 export default function CleanerTaskCard({ task, onStatusChange }: CleanerTaskCardProps) {
   const [isLoading, setIsLoading] = useState(false)
   const colors = statusColors[task.status] || statusColors.pending
 
-  const handleStartCleaning = async () => {
+  const handleStartCleaning = async (): Promise<void> => {
     setIsLoading(true)
     try {
       const response = await fetch(`/api/cleaner/tasks/${task.id}/start`, {
@@ -27,8 +28,13 @@ export default function CleanerTaskCard({ task, onStatusChange }: CleanerTaskCar
         headers: { 'Content-Type': 'application/json' }
       })
       if (response.ok) {
-        onStatusChange(task.id, 'in_progress')
+        onStatusChange?.(task.id, 'in_progress')
+      } else {
+        alert('Erro ao iniciar tarefa')
       }
+    } catch (error) {
+      console.error('Error starting task:', error)
+      alert('Erro ao iniciar tarefa')
     } finally {
       setIsLoading(false)
     }
@@ -46,44 +52,55 @@ export default function CleanerTaskCard({ task, onStatusChange }: CleanerTaskCar
       })
     : null
 
+  const progressText = task.checklist_completion
+    ? `${task.checklist_completion}% completo`
+    : ''
+
   return (
-    <div className={`p-4 rounded-lg border mb-3 ${colors.bg}`}>
-      <div className="flex items-start justify-between mb-2">
-        <div className="flex-1">
-          <div className="text-sm font-semibold text-gray-600">⏰ {scheduledTime}</div>
-          <div className="text-base font-bold text-gray-900 mt-1">{task.property_name}</div>
-          <div className="text-sm text-gray-600 mt-1">
-            Reserva #{task.booking_id} · {task.guest_name}
+    <Link href={`/pt-BR/cleaner/tasks/${task.id}`}>
+      <div className={`p-4 rounded-lg border mb-3 cursor-pointer transition hover:shadow-md ${colors.bg} ${colors.border}`}>
+        <div className="flex items-start justify-between mb-3">
+          <div className="flex-1">
+            <div className="text-sm font-semibold text-gray-600">⏰ {scheduledTime}</div>
+            <div className="text-base font-bold text-gray-900 mt-1">{task.property_name}</div>
+            <div className="text-xs text-gray-600 mt-1">
+              Reserva #{task.booking_id} · {task.guest_name}
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="flex items-center justify-between mt-3">
-        <span className={`text-xs font-semibold px-2 py-1 rounded ${colors.text} ${colors.bg}`}>
-          {task.status === 'done' && completionTime ? `✅ ${completionTime}` : colors.label}
-        </span>
-
-        {task.status === 'pending' && (
-          <button
-            onClick={handleStartCleaning}
-            disabled={isLoading}
-            className="px-3 py-1 bg-brand-600 text-white text-sm font-medium rounded hover:bg-brand-700 disabled:opacity-50 touch-min"
-            style={{ minHeight: '44px', minWidth: '44px' }}
-          >
-            {isLoading ? '...' : '● Iniciar'}
-          </button>
+        {/* Progress Bar */}
+        {task.status !== 'done' && task.checklist_completion > 0 && (
+          <div className="mb-3">
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div
+                className="bg-brand-600 h-2 rounded-full transition-all"
+                style={{ width: `${task.checklist_completion}%` }}
+              ></div>
+            </div>
+            <p className="text-xs text-gray-600 mt-1">{progressText}</p>
+          </div>
         )}
 
-        {task.status === 'in_progress' && (
-          <span className="text-sm font-medium text-yellow-700">✓ Em Progresso</span>
-        )}
-      </div>
+        <div className="flex items-center justify-between">
+          <span className={`text-xs font-semibold px-2 py-1 rounded-full ${colors.text} ${colors.bg} border ${colors.border}`}>
+            {task.status === 'done' && completionTime ? `✅ ${completionTime}` : colors.label}
+          </span>
 
-      {task.notes && task.status === 'issue' && (
-        <div className="mt-2 text-sm text-red-700 bg-red-50 p-2 rounded">
-          {task.notes}
+          <div className="flex items-center gap-2 text-xs text-gray-600">
+            {task.photo_count ? (
+              <span>📸 {task.photo_count}</span>
+            ) : null}
+            <span>→</span>
+          </div>
         </div>
-      )}
-    </div>
+
+        {task.notes && (task.status === 'issue' || task.status === 'in_progress') && (
+          <div className="mt-2 text-xs text-gray-700 bg-white p-2 rounded border border-gray-200">
+            📝 {task.notes}
+          </div>
+        )}
+      </div>
+    </Link>
   )
 }
