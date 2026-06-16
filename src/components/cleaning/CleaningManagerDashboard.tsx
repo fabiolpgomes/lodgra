@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
+import CreateTaskModal from './CreateTaskModal';
 
 interface Task {
   id: string;
@@ -17,13 +18,29 @@ interface Task {
   completed_at: string;
 }
 
+interface Property {
+  id: string;
+  name: string;
+}
+
+interface Cleaner {
+  id: string;
+  full_name: string;
+  phone: string;
+}
+
 export default function CleaningManagerDashboard() {
   const t = useTranslations('cleaning.manager');
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [cleaners, setCleaners] = useState<Cleaner[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [dateFilter, setDateFilter] = useState<string>(new Date().toISOString().split('T')[0]);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [regeneratingTaskId, setRegeneratingTaskId] = useState<string | null>(null);
 
+  // Fetch tasks
   useEffect(() => {
     const fetchTasks = async () => {
       try {
@@ -48,7 +65,33 @@ export default function CleaningManagerDashboard() {
     fetchTasks();
   }, [statusFilter, dateFilter]);
 
-  const getStatusColor = (status: string) => {
+  // Fetch properties and cleaners on mount
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [propsRes, cleanersRes] = await Promise.all([
+          fetch('/api/properties'),
+          fetch('/api/users?role=cleaner'),
+        ]);
+
+        if (propsRes.ok) {
+          const propsData = await propsRes.json();
+          setProperties(propsData);
+        }
+
+        if (cleanersRes.ok) {
+          const cleanersData = await cleanersRes.json();
+          setCleaners(cleanersData);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const getStatusColor = (status: string): string => {
     switch (status) {
       case 'pending':
         return 'bg-yellow-100 text-yellow-800 border-yellow-300';
@@ -63,7 +106,7 @@ export default function CleaningManagerDashboard() {
     }
   };
 
-  const getStatusLabel = (status: string) => {
+  const getStatusLabel = (status: string): string => {
     switch (status) {
       case 'pending':
         return 'Pendente';
@@ -78,7 +121,7 @@ export default function CleaningManagerDashboard() {
     }
   };
 
-  const handleStatusChange = async (taskId: string, newStatus: string) => {
+  const handleStatusChange = async (taskId: string, newStatus: string): Promise<void> => {
     try {
       const res = await fetch('/api/cleaning/tasks', {
         method: 'PATCH',
@@ -87,14 +130,36 @@ export default function CleaningManagerDashboard() {
       });
 
       if (!res.ok) throw new Error('Failed to update task');
-      const data = await res.json();
 
       setTasks((prev) =>
-        prev.map((t) => (t.id === taskId ? { ...t, status: newStatus as any } : t))
+        prev.map((t) => (t.id === taskId ? { ...t, status: newStatus as Task['status'] } : t))
       );
     } catch (error) {
       console.error('Error updating task:', error);
       alert('Erro ao atualizar tarefa');
+    }
+  };
+
+  const handleRegenerateLink = async (taskId: string): Promise<void> => {
+    setRegeneratingTaskId(taskId);
+    try {
+      const res = await fetch('/api/cleaning/regenerate-token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ taskId }),
+      });
+
+      if (!res.ok) throw new Error('Failed to regenerate token');
+      const data: { accessLink: string } = await res.json();
+
+      const fullLink = `${window.location.origin}${data.accessLink}`;
+      await navigator.clipboard.writeText(fullLink);
+      alert('✅ Novo link copiado ao clipboard!\n\n' + fullLink);
+    } catch (error) {
+      console.error('Error regenerating link:', error);
+      alert('Erro ao regenerar link');
+    } finally {
+      setRegeneratingTaskId(null);
     }
   };
 
@@ -104,8 +169,9 @@ export default function CleaningManagerDashboard() {
 
   return (
     <div className="space-y-6">
+      {/* Header with Create Button */}
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">{t('title')}</h1>
+        <h1 className="text-3xl font-bold">Gestão de Limpezas</h1>
         <div className="flex gap-4">
           <input
             type="date"
@@ -124,11 +190,31 @@ export default function CleaningManagerDashboard() {
             <option value="done">Concluída</option>
             <option value="issue">Problema</option>
           </select>
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition"
+          >
+            + Criar Tarefa
+          </button>
         </div>
       </div>
 
+      {/* Modal */}
+      <CreateTaskModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        properties={properties}
+        cleaners={cleaners}
+        onTaskCreated={() => {
+          setShowCreateModal(false);
+          // Refetch tasks
+          window.location.reload();
+        }}
+      />
+
+      {/* Tasks List */}
       {tasks.length === 0 ? (
-        <div className="text-center py-12 text-gray-500">{t('no_tasks')}</div>
+        <div className="text-center py-12 text-gray-500">Nenhuma tarefa encontrada</div>
       ) : (
         <div className="space-y-4">
           {tasks.map((task) => (
@@ -140,14 +226,12 @@ export default function CleaningManagerDashboard() {
                   <p className="text-sm text-gray-600">
                     📍 {task.property.address}, {task.property.city}
                   </p>
-                  <p className="text-sm text-gray-600">
-                    👤 {task.reservation.guests.full_name}
-                  </p>
+                  <p className="text-sm text-gray-600">👤 {task.reservation.guests.full_name}</p>
                 </div>
 
                 {/* Cleaner Info */}
                 <div>
-                  <p className="font-semibold">{t('cleaner')}</p>
+                  <p className="font-semibold">Cleaner</p>
                   <p className="text-sm">{task.cleaner?.full_name || 'Não atribuído'}</p>
                   <p className="text-xs text-gray-600">
                     📞 {task.cleaner?.phone || '-'}
@@ -159,21 +243,19 @@ export default function CleaningManagerDashboard() {
 
                 {/* Task Info */}
                 <div>
-                  <p className="font-semibold">{t('scheduled')}</p>
+                  <p className="font-semibold">Agendado</p>
                   <p className="text-sm">
                     📅 {new Date(task.scheduled_date).toLocaleDateString('pt-BR')}
                   </p>
-                  <p className="text-sm">
-                    🕐 {task.scheduled_time || '-'}
-                  </p>
+                  <p className="text-sm">🕐 {task.scheduled_time || '-'}</p>
                   <p className="text-xs text-gray-600 mt-1">
                     {task.photo_count} foto(s) • {task.checklist_completion}% checklist
                   </p>
                 </div>
 
-                {/* Status & Actions */}
+                {/* Status & Regenerate */}
                 <div>
-                  <label className="block text-sm font-semibold mb-2">{t('status')}</label>
+                  <label className="block text-sm font-semibold mb-2">Status</label>
                   <select
                     value={task.status}
                     onChange={(e) => handleStatusChange(task.id, e.target.value)}
@@ -184,6 +266,16 @@ export default function CleaningManagerDashboard() {
                     <option value="done">Concluída</option>
                     <option value="issue">Problema</option>
                   </select>
+                  
+                  {task.cleaner && (
+                    <button
+                      onClick={() => handleRegenerateLink(task.id)}
+                      disabled={regeneratingTaskId === task.id}
+                      className="mt-2 w-full px-2 py-1 text-xs bg-gray-200 text-gray-800 rounded hover:bg-gray-300 disabled:opacity-50"
+                    >
+                      {regeneratingTaskId === task.id ? '🔄 Gerando...' : '🔗 Novo Link'}
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -213,11 +305,7 @@ export default function CleaningManagerDashboard() {
 
       {/* Summary Stats */}
       <div className="grid grid-cols-4 gap-4 mt-8">
-        <SummaryCard
-          label="Total"
-          value={tasks.length}
-          color="bg-gray-100"
-        />
+        <SummaryCard label="Total" value={tasks.length} color="bg-gray-100" />
         <SummaryCard
           label="Pendentes"
           value={tasks.filter((t) => t.status === 'pending').length}
