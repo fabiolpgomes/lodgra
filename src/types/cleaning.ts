@@ -13,6 +13,10 @@ export interface CleaningTask {
   started_at: string | null
   created_at: string
   updated_at: string
+  // Progress tracking
+  checklist_completion?: number
+  photo_count?: number
+  photos?: string[]
   // Joined fields for display
   property_name?: string
   guest_name?: string
