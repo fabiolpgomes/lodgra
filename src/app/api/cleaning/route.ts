@@ -20,18 +20,29 @@ export async function GET(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
+  const { data: profile } = await supabase
+    .from('user_profiles')
+    .select('organization_id')
+    .eq('id', user.id)
+    .maybeSingle()
+
+  if (!profile?.organization_id) {
+    return NextResponse.json({ error: 'No organization found' }, { status: 403 })
+  }
+
   const { searchParams } = new URL(request.url)
   const propertyId = searchParams.get('property_id')
   const status = searchParams.get('status')
   const date = searchParams.get('date')
 
   let query = supabase
-    .from('cleaning_checklists')
+    .from('cleaning_tasks')
     .select(`
-      id, property_id, reservation_id, assigned_to, scheduled_date, status, notes, completed_at, created_at,
+      id, property_id, reservation_id, cleaner_id, scheduled_date, status, notes, completed_at, created_at,
       properties(id, name),
-      cleaning_checklist_items(id, label, is_done, done_at, position)
+      cleaning_checklist_responses(id, is_done)
     `)
+    .eq('organization_id', profile.organization_id)
     .order('scheduled_date', { ascending: true })
 
   if (propertyId) query = query.eq('property_id', propertyId)
@@ -60,19 +71,20 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json()
-  const { property_id, scheduled_date, assigned_to, reservation_id, notes, items } = body
+  const { property_id, scheduled_date, scheduled_time, cleaner_id, reservation_id, notes } = body
 
   if (!property_id || !scheduled_date) {
     return NextResponse.json({ error: 'property_id and scheduled_date are required' }, { status: 400 })
   }
 
-  const { data: checklist, error: checklistError } = await supabase
-    .from('cleaning_checklists')
+  const { data: task, error: taskError } = await supabase
+    .from('cleaning_tasks')
     .insert({
       organization_id: profile.organization_id,
       property_id,
       scheduled_date,
-      assigned_to: assigned_to || null,
+      scheduled_time: scheduled_time || null,
+      cleaner_id: cleaner_id || null,
       reservation_id: reservation_id || null,
       notes: notes || null,
       status: 'pending',
@@ -80,32 +92,20 @@ export async function POST(request: NextRequest) {
     .select()
     .single()
 
-  if (checklistError) return NextResponse.json({ error: checklistError.message }, { status: 500 })
+  if (taskError) return NextResponse.json({ error: taskError.message }, { status: 500 })
 
-  // Insert items (use provided items or defaults)
-  const itemsToInsert = (items && items.length > 0 ? items : DEFAULT_ITEMS).map(
-    (label: string, position: number) => ({
-      checklist_id: checklist.id,
-      label,
-      position,
-      is_done: false,
-    })
-  )
-
-  await supabase.from('cleaning_checklist_items').insert(itemsToInsert)
-
-  // Generate access token if assigned_to exists
+  // Generate access token if cleaner_id exists
   let accessLink = null
-  if (assigned_to) {
+  if (cleaner_id) {
     try {
       const { generateAccessToken, hashToken } = await import('@/lib/cleaner-tokens')
       const plainToken = await generateAccessToken()
       const tokenHash = hashToken(plainToken)
-      // Set expiration 7 days from now (updated from 24h for better UX)
+      // Set expiration 7 days from now
       const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
 
       await supabase.from('cleaner_access_tokens').insert({
-        cleaner_id: assigned_to,
+        cleaner_id,
         token_hash: tokenHash,
         expires_at: expiresAt.toISOString(),
         ip_address: '0.0.0.0',
@@ -118,5 +118,5 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  return NextResponse.json({ ...checklist, accessLink }, { status: 201 })
+  return NextResponse.json({ ...task, accessLink }, { status: 201 })
 }
