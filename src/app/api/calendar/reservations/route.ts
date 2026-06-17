@@ -41,6 +41,7 @@ export async function GET(request: NextRequest) {
         check_out,
         status,
         number_of_guests,
+        guest_name,
         property_listing_id,
         guests ( first_name, last_name ),
         property_listings!inner (
@@ -80,7 +81,7 @@ export async function GET(request: NextRequest) {
         const pl = r.property_listings as unknown as PropertyListing
         const guest = r.guests as unknown as Guest
         const property = pl?.properties
-        const guestName = [guest?.first_name, guest?.last_name].filter(Boolean).join(' ') || 'Hóspede'
+        const guestName = [guest?.first_name, guest?.last_name].filter(Boolean).join(' ') || (r.guest_name as string) || 'Hóspede'
         const propName = property?.name || '—'
         const propId = pl?.property_id ?? ''
 

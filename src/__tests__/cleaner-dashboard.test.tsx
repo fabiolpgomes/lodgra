@@ -81,7 +81,7 @@ describe('CleanerTaskCard', () => {
     expect(screen.getByText('Em Progresso')).toBeInTheDocument()
   })
 
-  it('should render start button for pending tasks', () => {
+  it('should render task link for pending tasks', () => {
     render(
       <CleanerTaskCard
         task={mockTasks[0]}
@@ -89,11 +89,12 @@ describe('CleanerTaskCard', () => {
       />
     )
 
-    const startButton = screen.getByRole('button', { name: /Iniciar/i })
-    expect(startButton).toBeInTheDocument()
+    const taskLink = screen.getByRole('link')
+    expect(taskLink).toBeInTheDocument()
+    expect(taskLink).toHaveAttribute('href', expect.stringContaining('task-1'))
   })
 
-  it('should not render start button for in_progress tasks', () => {
+  it('should render task link for in_progress tasks', () => {
     render(
       <CleanerTaskCard
         task={mockTasks[1]}
@@ -101,30 +102,8 @@ describe('CleanerTaskCard', () => {
       />
     )
 
-    const startButton = screen.queryByRole('button', { name: /Iniciar/i })
-    expect(startButton).not.toBeInTheDocument()
-  })
-
-  it('should handle button click for starting task', async () => {
-    global.fetch = jest.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({...mockTasks[0], status: 'in_progress'})
-    })
-
-    const onStatusChange = jest.fn()
-
-    render(
-      <CleanerTaskCard
-        task={mockTasks[0]}
-        onStatusChange={onStatusChange}
-      />
-    )
-
-    const startButton = screen.getByRole('button', { name: /Iniciar/i })
-    fireEvent.click(startButton)
-
-    await waitFor(() => {
-      expect(onStatusChange).toHaveBeenCalledWith(mockTasks[0].id, 'in_progress')
-    })
+    const taskLink = screen.getByRole('link')
+    expect(taskLink).toBeInTheDocument()
+    expect(taskLink).toHaveAttribute('href', expect.stringContaining('task-2'))
   })
 })

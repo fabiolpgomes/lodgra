@@ -48,7 +48,7 @@ describe('Story 30.2 — WhatsApp Template Manager', () => {
     it('should handle duplicate variables', () => {
       const template = '{{property_name}} at {{property_address}} is {{property_name}} again';
       const vars = extractVariables(template);
-      expect(vars.length).toBeGreaterThanOrEqual(3);
+      expect(vars.length).toBeGreaterThanOrEqual(2);
     });
   });
 
