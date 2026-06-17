@@ -220,16 +220,6 @@ export default function NewReservationPage() {
 
         if (checkData.exists && checkData.guest) {
           guestId = checkData.guest.id
-          // Update existing guest with new data (name and phone may have changed)
-          const { error: updateError } = await supabase
-            .from('guests')
-            .update({
-              first_name: guestFirstName,
-              last_name: guestLastName,
-              phone: formData.get('guest_phone') as string || null,
-            })
-            .eq('id', guestId)
-          if (updateError) throw updateError
         } else {
           // Criar novo hóspede com organization_id
           const { data: newGuest, error: guestError } = await supabase

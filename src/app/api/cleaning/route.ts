@@ -16,43 +16,51 @@ const DEFAULT_ITEMS = [
 ]
 
 export async function GET(request: NextRequest) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { data: profile } = await supabase
-    .from('user_profiles')
-    .select('organization_id')
-    .eq('id', user.id)
-    .maybeSingle()
+    const { data: profile } = await supabase
+      .from('user_profiles')
+      .select('organization_id')
+      .eq('id', user.id)
+      .maybeSingle()
 
-  if (!profile?.organization_id) {
-    return NextResponse.json({ error: 'No organization found' }, { status: 403 })
+    if (!profile?.organization_id) {
+      return NextResponse.json({ error: 'No organization found' }, { status: 403 })
+    }
+
+    const { searchParams } = new URL(request.url)
+    const propertyId = searchParams.get('property_id')
+    const status = searchParams.get('status')
+    const date = searchParams.get('date')
+
+    let query = supabase
+      .from('cleaning_tasks')
+      .select(`
+        id, property_id, reservation_id, cleaner_id, scheduled_date, status, notes, completed_at, created_at,
+        properties(id, name),
+        cleaning_checklist_responses(id, is_done)
+      `)
+      .eq('organization_id', profile.organization_id)
+      .order('scheduled_date', { ascending: true })
+
+    if (propertyId) query = query.eq('property_id', propertyId)
+    if (status) query = query.eq('status', status)
+    if (date) query = query.eq('scheduled_date', date)
+
+    const { data, error } = await query
+    if (error) {
+      console.error('Error fetching cleaning tasks:', error)
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+
+    return NextResponse.json(data || [])
+  } catch (error) {
+    console.error('GET /api/cleaning error:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
-
-  const { searchParams } = new URL(request.url)
-  const propertyId = searchParams.get('property_id')
-  const status = searchParams.get('status')
-  const date = searchParams.get('date')
-
-  let query = supabase
-    .from('cleaning_tasks')
-    .select(`
-      id, property_id, reservation_id, cleaner_id, scheduled_date, status, notes, completed_at, created_at,
-      properties(id, name),
-      cleaning_checklist_responses(id, is_done)
-    `)
-    .eq('organization_id', profile.organization_id)
-    .order('scheduled_date', { ascending: true })
-
-  if (propertyId) query = query.eq('property_id', propertyId)
-  if (status) query = query.eq('status', status)
-  if (date) query = query.eq('scheduled_date', date)
-
-  const { data, error } = await query
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-
-  return NextResponse.json(data)
 }
 
 export async function POST(request: NextRequest) {
