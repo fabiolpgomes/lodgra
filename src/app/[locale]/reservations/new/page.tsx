@@ -518,7 +518,8 @@ export default function NewReservationPage() {
                   <Input
                     type="email"
                     id="guest_email"
-                    name="guest_email"\n                    placeholder="Opcional - deixe em branco se não tiver email"
+                    name="guest_email"
+                    placeholder="Opcional - deixe em branco se não tiver email"
                   />
                 </div>
 
