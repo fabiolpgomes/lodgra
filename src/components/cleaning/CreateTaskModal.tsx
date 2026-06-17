@@ -26,7 +26,8 @@ export default function CreateTaskModal({
   const [formData, setFormData] = useState({
     property_id: '',
     scheduled_date: '',
-    assigned_to: '',
+    scheduled_time: '',
+    cleaner_id: '',
     notes: '',
   });
 
@@ -56,7 +57,7 @@ export default function CreateTaskModal({
 
       const data: { accessLink: string } = await response.json();
       setGeneratedLink(data.accessLink);
-      setFormData({ property_id: '', scheduled_date: '', assigned_to: '', notes: '' });
+      setFormData({ property_id: '', scheduled_date: '', scheduled_time: '', cleaner_id: '', notes: '' });
       onTaskCreated?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro desconhecido');
@@ -147,8 +148,8 @@ export default function CreateTaskModal({
             <div>
               <label className="block text-sm font-semibold mb-1">Cleaner *</label>
               <select
-                name="assigned_to"
-                value={formData.assigned_to}
+                name="cleaner_id"
+                value={formData.cleaner_id}
                 onChange={handleInputChange}
                 required
                 className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
