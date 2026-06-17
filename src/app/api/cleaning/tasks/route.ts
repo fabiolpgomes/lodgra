@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
         ),
         cleaning_checklist_responses (
           id,
-          is_checked
+          is_done
         )
       `,
         { count: 'exact' }
@@ -108,7 +108,7 @@ export async function GET(request: NextRequest) {
           Array.isArray(task.cleaning_checklist_responses)
             ? Math.round(
                 ((task.cleaning_checklist_responses as Array<Record<string, unknown>>).filter(
-                  (r) => r.is_checked
+                  (r) => r.is_done
                 ).length /
                   task.cleaning_checklist_responses.length) *
                   100
