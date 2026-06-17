@@ -200,6 +200,7 @@ export default function NewReservationPage() {
 
       let guestId = null
 
+      // Criar ou buscar hóspede
       if (guestEmail) {
         // Verificar se hóspede já existe via API endpoint (bypasses RLS)
         const checkResponse = await fetch('/api/guests/check', {
@@ -247,6 +248,22 @@ export default function NewReservationPage() {
           if (guestError) throw guestError
           guestId = newGuest.id
         }
+      } else {
+        // Cliente de primeira vez sem email - criar guest sem email
+        const { data: newGuest, error: guestError } = await supabase
+          .from('guests')
+          .insert({
+            first_name: guestFirstName,
+            last_name: guestLastName,
+            email: null,
+            phone: formData.get('guest_phone') as string || null,
+            organization_id: organizationId,
+          })
+          .select()
+          .single()
+
+        if (guestError) throw guestError
+        guestId = newGuest.id
       }
 
       // Buscar moeda da propriedade
@@ -496,13 +513,12 @@ export default function NewReservationPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="guest_email" className="mb-1">
-                    Email *
+                    Email
                   </Label>
                   <Input
                     type="email"
                     id="guest_email"
-                    name="guest_email"
-                    required
+                    name="guest_email"\n                    placeholder="Opcional - deixe em branco se não tiver email"
                   />
                 </div>
 
