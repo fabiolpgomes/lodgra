@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import CreateTaskModal from './CreateTaskModal';
+import TaskHistory from './TaskHistory';
 
 interface Task {
   id: string;
@@ -39,6 +40,7 @@ export default function CleaningManagerDashboard() {
   const [dateFilter, setDateFilter] = useState<string>(new Date().toISOString().split('T')[0]);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [regeneratingTaskId, setRegeneratingTaskId] = useState<string | null>(null);
+  const [selectedTaskForHistory, setSelectedTaskForHistory] = useState<string | null>(null);
 
   // Fetch tasks
   useEffect(() => {
@@ -199,7 +201,7 @@ export default function CleaningManagerDashboard() {
         </div>
       </div>
 
-      {/* Modal */}
+      {/* Modals */}
       <CreateTaskModal
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}
@@ -210,6 +212,12 @@ export default function CleaningManagerDashboard() {
           // Refetch tasks
           window.location.reload();
         }}
+      />
+
+      <TaskHistory
+        taskId={selectedTaskForHistory || ''}
+        isOpen={!!selectedTaskForHistory}
+        onClose={() => setSelectedTaskForHistory(null)}
       />
 
       {/* Tasks List */}
@@ -268,13 +276,21 @@ export default function CleaningManagerDashboard() {
                   </select>
                   
                   {task.cleaner && (
-                    <button
-                      onClick={() => handleRegenerateLink(task.id)}
-                      disabled={regeneratingTaskId === task.id}
-                      className="mt-2 w-full px-2 py-1 text-xs bg-gray-200 text-gray-800 rounded hover:bg-gray-300 disabled:opacity-50"
-                    >
-                      {regeneratingTaskId === task.id ? '🔄 Gerando...' : '🔗 Novo Link'}
-                    </button>
+                    <div className="mt-2 space-y-2">
+                      <button
+                        onClick={() => handleRegenerateLink(task.id)}
+                        disabled={regeneratingTaskId === task.id}
+                        className="w-full px-2 py-1 text-xs bg-gray-200 text-gray-800 rounded hover:bg-gray-300 disabled:opacity-50"
+                      >
+                        {regeneratingTaskId === task.id ? '🔄 Gerando...' : '🔗 Novo Link'}
+                      </button>
+                      <button
+                        onClick={() => setSelectedTaskForHistory(task.id)}
+                        className="w-full px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded hover:bg-blue-200"
+                      >
+                        📜 Ver Histórico
+                      </button>
+                    </div>
                   )}
                 </div>
               </div>
