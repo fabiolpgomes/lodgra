@@ -56,6 +56,8 @@ export default function CleanerTaskCard({ task, onStatusChange }: CleanerTaskCar
     ? `${task.checklist_completion}% completo`
     : ''
 
+  const completionPercent = task.checklist_completion ?? 0
+
   return (
     <Link href={`/pt-BR/cleaner/tasks/${task.id}`}>
       <div className={`p-4 rounded-lg border mb-3 cursor-pointer transition hover:shadow-md ${colors.bg} ${colors.border}`}>
@@ -70,12 +72,12 @@ export default function CleanerTaskCard({ task, onStatusChange }: CleanerTaskCar
         </div>
 
         {/* Progress Bar */}
-        {task.status !== 'done' && task.checklist_completion > 0 && (
+        {task.status !== 'done' && completionPercent > 0 && (
           <div className="mb-3">
             <div className="w-full bg-gray-200 rounded-full h-2">
               <div
                 className="bg-brand-600 h-2 rounded-full transition-all"
-                style={{ width: `${task.checklist_completion}%` }}
+                style={{ width: `${completionPercent}%` }}
               ></div>
             </div>
             <p className="text-xs text-gray-600 mt-1">{progressText}</p>
@@ -88,7 +90,7 @@ export default function CleanerTaskCard({ task, onStatusChange }: CleanerTaskCar
           </span>
 
           <div className="flex items-center gap-2 text-xs text-gray-600">
-            {task.photo_count ? (
+            {(task.photo_count ?? 0) > 0 ? (
               <span>📸 {task.photo_count}</span>
             ) : null}
             <span>→</span>
