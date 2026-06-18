@@ -31,9 +31,9 @@ interface Checklist {
   status: 'pending' | 'in_progress' | 'completed'
   scheduled_date: string
   notes: string | null
-  properties: { id: string; name: string } | null
-  assigned_to: string | null
-  cleaning_checklist_items: ChecklistItem[]
+  properties?: { id: string; name: string } | null
+  assigned_to?: string | null
+  cleaning_checklist_items?: ChecklistItem[]
 }
 
 export function CleaningPageClient({ properties, members, userRole }: Props) {

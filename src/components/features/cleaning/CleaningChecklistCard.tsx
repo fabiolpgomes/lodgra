@@ -31,7 +31,7 @@ interface Props {
 
 export function CleaningChecklistCard({ checklist, onUpdate, onDelete }: Props) {
   const [expanded, setExpanded] = useState(checklist.status !== 'completed')
-  const [items, setItems] = useState(checklist.cleaning_checklist_items.sort((a, b) => a.position - b.position))
+  const [items, setItems] = useState((checklist.cleaning_checklist_items || []).sort((a, b) => a.position - b.position))
   const [status, setStatus] = useState(checklist.status)
   const [, startTransition] = useTransition()
   const [deleting, setDeleting] = useState(false)
