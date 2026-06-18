@@ -187,17 +187,15 @@ export function CleaningChecklistCard({ checklist, onUpdate, onDelete }: Props) 
                  Relatório Gerado
                </button>
              )}
-             {status === 'pending' && (
-               <button
-                 onClick={handleDelete}
-                 disabled={deleting}
-                 className="flex-1 bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-400 p-4 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 hover:bg-red-200 transition-colors disabled:opacity-50"
-                 title="Deletar esta limpeza"
-               >
-                 <Trash2 className="h-4 w-4" />
-                 {deleting ? 'Deletando...' : 'Deletar'}
-               </button>
-             )}
+             <button
+               onClick={handleDelete}
+               disabled={deleting}
+               className="flex-1 bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-400 p-4 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 hover:bg-red-200 transition-colors disabled:opacity-50"
+               title="Deletar esta limpeza"
+             >
+               <Trash2 className="h-4 w-4" />
+               {deleting ? 'Deletando...' : 'Deletar'}
+             </button>
           </div>
 
           {checklist.notes && (
