@@ -13,9 +13,15 @@ import { createAdminClient } from '@/lib/supabase/admin'
  */
 export async function GET(request: Request) {
   try {
-    // Detect host dynamically from request (supports subdomains like algarve-home-stay.lodgra.io)
-    const host = request.headers.get('host') || 'lodgra.io'
+    // Detect host dynamically from request
+    // For subdomains like algarve-home-stay.lodgra.io, use x-forwarded-host
+    // For root domain, use process.env or fallback
+    const forwardedHost = request.headers.get('x-forwarded-host')
+    const requestHost = request.headers.get('host')
     const protocol = request.headers.get('x-forwarded-proto') || 'https'
+
+    // Prioritize: forwarded host > request host > env > default
+    const host = forwardedHost || requestHost || process.env.NEXT_PUBLIC_APP_URL?.replace(/^https?:\/\//, '') || 'lodgra.io'
     const baseUrl = `${protocol}://${host}`
     const supabase = createAdminClient()
 
