@@ -45,7 +45,7 @@ export default function CreateTaskModal({
     setGeneratedLink(null);
 
     try {
-      const response = await fetch('/api/cleaning', {
+      const response = await fetch('/api/cleaning/tasks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
