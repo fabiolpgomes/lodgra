@@ -125,21 +125,38 @@ export async function PATCH(request: NextRequest) {
     if (!auth.authorized) return auth.response!;
 
     const body = await request.json();
-    const { taskId, status, notes } = body;
+    const { id, item_id, status, notes, is_checked } = body;
 
-    if (!taskId || !status) {
-      return NextResponse.json({ error: 'taskId and status required' }, { status: 400 });
+    // Update checklist item
+    if (item_id !== undefined && is_checked !== undefined) {
+      const supabase = await createClient();
+      const { error } = await supabase
+        .from('cleaning_checklist_responses')
+        .update({ is_checked, checked_at: is_checked ? new Date().toISOString() : null })
+        .eq('id', item_id);
+
+      if (error) {
+        console.error('Error updating checklist item:', error);
+        return NextResponse.json({ error: 'Failed to update item' }, { status: 500 });
+      }
+
+      return NextResponse.json({ success: true });
+    }
+
+    // Update task status
+    if (!id || !status) {
+      return NextResponse.json({ error: 'id and status required' }, { status: 400 });
     }
 
     const supabase = await createClient();
     const updateData: Record<string, string> = { status };
     if (notes !== undefined) updateData.notes = notes;
-    if (status === 'done') updateData.completed_at = new Date().toISOString();
+    if (status === 'completed') updateData.completed_at = new Date().toISOString();
 
     const { data: task, error } = await supabase
       .from('cleaning_tasks')
       .update(updateData)
-      .eq('id', taskId)
+      .eq('id', id)
       .eq('organization_id', auth.organizationId)
       .select()
       .single();

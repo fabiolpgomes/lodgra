@@ -44,13 +44,13 @@ export async function PATCH(
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await request.json()
-  const { status, notes, item_id, is_done } = body
+  const { status, notes, item_id, is_checked } = body
 
   // Toggle individual item
-  if (item_id !== undefined && is_done !== undefined) {
+  if (item_id !== undefined && is_checked !== undefined) {
     const { error } = await supabase
       .from('cleaning_checklist_items')
-      .update({ is_done, done_at: is_done ? new Date().toISOString() : null })
+      .update({ is_checked, checked_at: is_checked ? new Date().toISOString() : null })
       .eq('id', item_id)
       .eq('checklist_id', id)
 
@@ -59,10 +59,10 @@ export async function PATCH(
     // Check if all items done → auto-complete checklist
     const { data: items } = await supabase
       .from('cleaning_checklist_items')
-      .select('is_done')
+      .select('is_checked')
       .eq('checklist_id', id)
 
-    const allDone = items?.every(i => i.is_done)
+    const allDone = items?.every(i => i.is_checked)
     if (allDone) {
       await supabase
         .from('cleaning_checklists')

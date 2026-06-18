@@ -9,7 +9,7 @@ import Image from 'next/image';
 interface Photo {
   id: string;
   task_id: string;
-  file_path: string;
+  storage_path: string;
   uploaded_at: string;
   uploader_id: string;
   url?: string;

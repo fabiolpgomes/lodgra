@@ -10,7 +10,22 @@ import type { ReviewSource, ReviewScoreData, PropertyReview } from '@/types/data
 import { locales } from '../../../../i18n.config'
 import { PropertyPageV2 } from '@/components/common/public/PropertyPageV2'
 
-export const revalidate = 60 // revalidate every 60 seconds for dynamic content
+export const revalidate = 86400 // ISR: 24 hours (2592000 = 30 days on-demand via API)
+export const dynamicParams = true // Enable beyond static params from generateStaticParams
+
+// Pre-render all public properties at build time
+export async function generateStaticParams() {
+  const supabase = createAdminClient()
+
+  const { data: properties } = await supabase
+    .from('properties')
+    .select('slug')
+    .eq('is_public', true)
+
+  return (properties || []).map((property) => ({
+    slug: property.slug,
+  }))
+}
 
 interface PageProps {
   params: Promise<{ slug: string }>

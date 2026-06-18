@@ -21,8 +21,8 @@ type FilterStatus = 'all' | 'pending' | 'in_progress' | 'completed'
 interface ChecklistItem {
   id: string
   label: string
-  is_done: boolean
-  done_at: string | null
+  is_checked: boolean
+  checked_at: string | null
   position: number
 }
 

@@ -7,8 +7,8 @@ import { Button } from '@/components/common/ui/button'
 interface ChecklistItem {
   id: string
   label: string
-  is_done: boolean
-  done_at: string | null
+  is_checked: boolean
+  checked_at: string | null
   position: number
 }
 
@@ -17,9 +17,9 @@ interface Checklist {
   status: 'pending' | 'in_progress' | 'completed'
   scheduled_date: string
   notes: string | null
-  properties: { id: string; name: string } | null
-  assigned_to: string | null
-  cleaning_checklist_items: ChecklistItem[]
+  properties?: { id: string; name: string } | null
+  assigned_to?: string | null
+  cleaning_checklist_items?: ChecklistItem[]
 }
 
 interface Props {
@@ -31,29 +31,29 @@ interface Props {
 
 export function CleaningChecklistCard({ checklist, onUpdate, onDelete }: Props) {
   const [expanded, setExpanded] = useState(checklist.status !== 'completed')
-  const [items, setItems] = useState((checklist.cleaning_checklist_items || []).sort((a, b) => a.position - b.position))
+  const [items, setItems] = useState(((checklist.cleaning_checklist_items) || []).sort((a, b) => a.position - b.position))
   const [status, setStatus] = useState(checklist.status)
   const [, startTransition] = useTransition()
   const [deleting, setDeleting] = useState(false)
 
-  const doneCount = items.filter(i => i.is_done).length
+  const doneCount = items.filter(i => i.is_checked).length
   const total = items.length
   const progress = total > 0 ? Math.round((doneCount / total) * 100) : 0
 
   async function toggleItem(item: ChecklistItem) {
-    const newDone = !item.is_done
-    setItems(prev => prev.map(i => i.id === item.id ? { ...i, is_done: newDone } : i))
+    const newChecked = !item.is_checked
+    setItems(prev => prev.map(i => i.id === item.id ? { ...i, is_checked: newChecked } : i))
 
     startTransition(async () => {
       const res = await fetch(`/api/cleaning/tasks/${checklist.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ item_id: item.id, is_done: newDone }),
+        body: JSON.stringify({ item_id: item.id, is_checked: newChecked }),
       })
       if (res.ok) {
-        const newDoneCount = items.filter(i => i.id === item.id ? newDone : i.is_done).length
-        if (newDoneCount === total) setStatus('completed')
-        else if (newDoneCount > 0) setStatus('in_progress')
+        const newCheckedCount = items.filter(i => i.id === item.id ? newChecked : i.is_checked).length
+        if (newCheckedCount === total) setStatus('completed')
+        else if (newCheckedCount > 0) setStatus('in_progress')
         onUpdate()
       }
     })
@@ -154,21 +154,21 @@ export function CleaningChecklistCard({ checklist, onUpdate, onDelete }: Props) 
                 key={item.id}
                 onClick={() => toggleItem(item)}
                 className={`group/item w-full flex items-center gap-4 p-4 rounded-2xl text-left transition-all active:scale-[0.98] ${
-                  item.is_done
+                  item.is_checked
                     ? 'bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-100/50'
                     : 'bg-lodgra-gray dark:bg-zinc-800 hover:bg-white border border-transparent hover:border-brand-100'
                 }`}
               >
                 <div className={`h-6 w-6 rounded-full flex items-center justify-center transition-all ${
-                  item.is_done 
-                    ? 'bg-emerald-500 text-white' 
+                  item.is_checked
+                    ? 'bg-emerald-500 text-white'
                     : 'bg-white border-2 border-gray-200 text-transparent'
                 }`}>
                   <CheckCircle2 className="h-4 w-4" />
                 </div>
                 <div className="flex-1">
                   <span className={`text-[15px] font-bold transition-all ${
-                    item.is_done ? 'text-emerald-800/50 line-through' : 'text-lodgra-blue'
+                    item.is_checked ? 'text-emerald-800/50 line-through' : 'text-lodgra-blue'
                   }`}>
                     {item.label}
                   </span>
