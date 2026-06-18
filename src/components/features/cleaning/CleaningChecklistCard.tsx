@@ -4,7 +4,7 @@ import { useState, useTransition } from 'react'
 import { CheckCircle2, Clock, Home, Trash2 } from 'lucide-react'
 import { Button } from '@/components/common/ui/button'
 
-interface ChecklistItem {
+export interface ChecklistItem {
   id: string
   label: string
   is_checked: boolean
@@ -12,7 +12,7 @@ interface ChecklistItem {
   position: number
 }
 
-interface Checklist {
+export interface Checklist {
   id: string
   status: 'pending' | 'in_progress' | 'completed'
   scheduled_date: string

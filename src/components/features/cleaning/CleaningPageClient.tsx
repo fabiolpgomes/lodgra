@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Plus, CheckSquare } from 'lucide-react'
 import { Button } from '@/components/common/ui/button'
-import { CleaningChecklistCard } from './CleaningChecklistCard'
+import { CleaningChecklistCard, type Checklist } from './CleaningChecklistCard'
 import { NewChecklistModal } from './NewChecklistModal'
 
 interface Property { id: string; name: string }
@@ -17,24 +17,6 @@ interface Props {
 }
 
 type FilterStatus = 'all' | 'pending' | 'in_progress' | 'completed'
-
-interface ChecklistItem {
-  id: string
-  label: string
-  is_checked: boolean
-  checked_at: string | null
-  position: number
-}
-
-interface Checklist {
-  id: string
-  status: 'pending' | 'in_progress' | 'completed'
-  scheduled_date: string
-  notes: string | null
-  properties?: { id: string; name: string } | null
-  assigned_to?: string | null
-  cleaning_checklist_items?: ChecklistItem[]
-}
 
 export function CleaningPageClient({ properties, members, userRole }: Props) {
   const [checklists, setChecklists] = useState<Checklist[]>([])
