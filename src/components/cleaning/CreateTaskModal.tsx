@@ -52,11 +52,16 @@ export default function CreateTaskModal({
       });
 
       if (!response.ok) {
-        throw new Error('Falha ao criar tarefa');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Falha ao criar tarefa');
       }
 
-      const data: { accessLink: string } = await response.json();
-      setGeneratedLink(data.accessLink);
+      const data: { accessLink?: string } = await response.json();
+      if (data.accessLink) {
+        setGeneratedLink(data.accessLink);
+      } else {
+        throw new Error('Nenhum link gerado');
+      }
       setFormData({ property_id: '', scheduled_date: '', scheduled_time: '', cleaner_id: '', notes: '' });
       onTaskCreated?.();
     } catch (err) {
