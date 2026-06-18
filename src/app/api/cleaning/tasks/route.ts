@@ -80,6 +80,69 @@ export async function GET(request: NextRequest) {
   }
 }
 
+export async function POST(request: NextRequest) {
+  try {
+    const auth = await requireRole(['admin', 'gestor']);
+    if (!auth.authorized) return auth.response!;
+
+    const body = await request.json();
+    const { property_id, scheduled_date, scheduled_time, cleaner_id, reservation_id, notes } = body;
+
+    if (!property_id || !scheduled_date) {
+      return NextResponse.json({ error: 'property_id and scheduled_date are required' }, { status: 400 });
+    }
+
+    const supabase = await createClient();
+    const { data: task, error: taskError } = await supabase
+      .from('cleaning_tasks')
+      .insert({
+        organization_id: auth.organizationId,
+        property_id,
+        scheduled_date,
+        scheduled_time: scheduled_time || null,
+        cleaner_id: cleaner_id || null,
+        reservation_id: reservation_id || null,
+        notes: notes || null,
+        status: 'pending',
+      })
+      .select()
+      .single();
+
+    if (taskError) {
+      console.error('Error creating cleaning task:', taskError);
+      return NextResponse.json({ error: taskError.message }, { status: 500 });
+    }
+
+    // Generate access token if cleaner_id exists
+    let accessLink = null;
+    if (cleaner_id) {
+      try {
+        const { generateAccessToken, hashToken } = await import('@/lib/cleaner-tokens');
+        const plainToken = await generateAccessToken();
+        const tokenHash = hashToken(plainToken);
+        const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+
+        await supabase.from('cleaner_access_tokens').insert({
+          cleaner_id,
+          token_hash: tokenHash,
+          expires_at: expiresAt.toISOString(),
+          ip_address: '0.0.0.0',
+          user_agent: 'system',
+        });
+
+        accessLink = `/cleaner/auth?token=${plainToken}`;
+      } catch (tokenError) {
+        console.error('Error generating access token:', tokenError);
+      }
+    }
+
+    return NextResponse.json({ ...task, accessLink }, { status: 201 });
+  } catch (error) {
+    console.error('POST /api/cleaning/tasks error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
 export async function PATCH(request: NextRequest) {
   try {
     const auth = await requireRole(['admin', 'gestor']);
