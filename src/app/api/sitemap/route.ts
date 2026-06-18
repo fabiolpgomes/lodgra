@@ -11,9 +11,12 @@ import { createAdminClient } from '@/lib/supabase/admin'
  *
  * Used by search engines and AI crawlers for discovery
  */
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://lodgra.io'
+    // Detect host dynamically from request (supports subdomains like algarve-home-stay.lodgra.io)
+    const host = request.headers.get('host') || 'lodgra.io'
+    const protocol = request.headers.get('x-forwarded-proto') || 'https'
+    const baseUrl = `${protocol}://${host}`
     const supabase = createAdminClient()
 
     // Fetch all public properties with updated_at for lastmod
