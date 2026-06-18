@@ -1,11 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-);
-
 // Mock WhatsApp service (Story 30.1 will replace with real implementation)
 async function sendWhatsAppMessage(phoneNumber: string, cleanerName: string, accessLink: string) {
   console.log(`[MOCK WhatsApp] Sending to ${phoneNumber}:`);
@@ -29,6 +24,11 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+    );
 
     // Get cleaner details
     const { data: cleaner, error: cleanerError } = await supabase

@@ -5,9 +5,12 @@ import Stripe from 'stripe'
  * Gerencia subscriptions SaaS em Real (R$)
  * - Planos: Essencial (R$59), Expansão (R$89), Premium (R$130)
  * - Webhooks: /api/stripe/webhooks/billing
+ *
+ * Note: During build time, STRIPE_BR_SECRET_KEY may not be available.
+ * This is expected - Vercel will provide it at runtime.
  */
 const stripe = new Stripe(
-  process.env.STRIPE_BR_SECRET_KEY || '',
+  process.env.STRIPE_BR_SECRET_KEY || 'sk_test_dummy',
   {
     typescript: true,
   }

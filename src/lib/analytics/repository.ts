@@ -27,13 +27,15 @@ const PGRST_NOT_FOUND = 'PGRST116';
  * Handles: CRUD operations, encryption, audit logging, error handling
  */
 export class AnalyticsRepository {
-  private supabase = createAdminClient();
+  private getSupabase() {
+    return createAdminClient();
+  }
 
   /**
    * Get analytics config for tenant (basic metadata)
    */
   async getConfig(organizationId: string): Promise<AnalyticsConfig | null> {
-    const { data, error } = await this.supabase
+    const { data, error } = await this.getSupabase()
       .from('organization_analytics_config')
       .select('id, organization_id, ga_enabled, created_at, updated_at')
       .eq('organization_id', organizationId)
@@ -53,7 +55,7 @@ export class AnalyticsRepository {
    * Returns null if not configured, disabled, or decrypt fails
    */
   async getGAMeasurementId(organizationId: string): Promise<string | null> {
-    const { data, error } = await this.supabase
+    const { data, error } = await this.getSupabase()
       .from('organization_analytics_config')
       .select('ga_measurement_id_encrypted')
       .eq('organization_id', organizationId)
@@ -82,7 +84,7 @@ export class AnalyticsRepository {
     const encrypted = encryptGAId(gaMeasurementId);
 
     // Check if exists
-    const { data: existing, error: checkError } = await this.supabase
+    const { data: existing, error: checkError } = await this.getSupabase()
       .from('organization_analytics_config')
       .select('id')
       .eq('organization_id', organizationId)
@@ -98,7 +100,7 @@ export class AnalyticsRepository {
 
     if (existing) {
       // Update
-      const { data, error } = await this.supabase
+      const { data, error } = await this.getSupabase()
         .from('organization_analytics_config')
         .update({
           ga_measurement_id_encrypted: encrypted,
@@ -114,7 +116,7 @@ export class AnalyticsRepository {
       action = 'updated';
     } else {
       // Create
-      const { data, error } = await this.supabase
+      const { data, error } = await this.getSupabase()
         .from('organization_analytics_config')
         .insert({
           organization_id: organizationId,
@@ -138,7 +140,7 @@ export class AnalyticsRepository {
    * Delete analytics config (soft delete)
    */
   async deleteConfig(organizationId: string): Promise<AnalyticsConfig> {
-    const { data, error } = await this.supabase
+    const { data, error } = await this.getSupabase()
       .from('organization_analytics_config')
       .update({
         deleted_at: new Date().toISOString(),
@@ -167,7 +169,7 @@ export class AnalyticsRepository {
     changedBy: string = 'system',
     ipAddress?: string
   ): Promise<void> {
-    const { error } = await this.supabase.from('analytics_config_audit_log').insert({
+    const { error } = await this.getSupabase().from('analytics_config_audit_log').insert({
       organization_id: organizationId,
       action,
       old_values: oldValues,
@@ -186,7 +188,7 @@ export class AnalyticsRepository {
    * Get audit log for tenant
    */
   async getAuditLog(organizationId: string, limit: number = 50): Promise<AuditLogEntry[]> {
-    const { data, error } = await this.supabase
+    const { data, error } = await this.getSupabase()
       .from('analytics_config_audit_log')
       .select('*')
       .eq('organization_id', organizationId)

@@ -15,16 +15,22 @@ export const dynamicParams = true // Enable beyond static params from generateSt
 
 // Pre-render all public properties at build time
 export async function generateStaticParams() {
-  const supabase = createAdminClient()
+  try {
+    const supabase = createAdminClient()
 
-  const { data: properties } = await supabase
-    .from('properties')
-    .select('slug')
-    .eq('is_public', true)
+    const { data: properties } = await supabase
+      .from('properties')
+      .select('slug')
+      .eq('is_public', true)
 
-  return (properties || []).map((property) => ({
-    slug: property.slug,
-  }))
+    return (properties || []).map((property) => ({
+      slug: property.slug,
+    }))
+  } catch (error) {
+    // During build, DB may not be accessible - return empty array
+    // Fallback to dynamicParams=true
+    return []
+  }
 }
 
 interface PageProps {
