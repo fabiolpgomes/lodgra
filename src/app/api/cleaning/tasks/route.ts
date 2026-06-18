@@ -23,23 +23,7 @@ export async function GET(request: NextRequest) {
 
     let query = supabase
       .from('cleaning_tasks')
-      .select(`
-        id,
-        status,
-        scheduled_date,
-        scheduled_time,
-        notes,
-        completed_at,
-        created_at,
-        updated_at,
-        properties: property_id(id, name),
-        checklist_responses: cleaning_checklist_responses(
-          id,
-          is_checked,
-          notes,
-          item: item_id(id, label, category, is_required, order_index)
-        )
-      `, { count: 'exact' })
+      .select('*', { count: 'exact' })
       .eq('organization_id', auth.organizationId);
 
     if (status) query = query.eq('status', status);
