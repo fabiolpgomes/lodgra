@@ -28,10 +28,10 @@ export function NewChecklistModal({ properties, members, onClose, onCreated }: P
     if (!propertyId || !date) { setError('Imóvel e data são obrigatórios'); return }
     setLoading(true)
     setError('')
-    const res = await fetch('/api/cleaning', {
+    const res = await fetch('/api/cleaning/tasks', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ property_id: propertyId, scheduled_date: date, assigned_to: assignedTo || null, notes: notes || null }),
+      body: JSON.stringify({ property_id: propertyId, scheduled_date: date, cleaner_id: assignedTo || null, notes: notes || null }),
     })
     setLoading(false)
     if (res.ok) {

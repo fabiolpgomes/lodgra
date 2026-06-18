@@ -34,6 +34,7 @@ export function ReservationsPdfGenerator({ properties, userRole }: ReservationsP
   )
   const [endDate, setEndDate] = useState<string>(new Date().toISOString().split('T')[0])
   const [selectedPropertyId, setSelectedPropertyId] = useState<string>('all')
+  const [showValues, setShowValues] = useState<boolean>(true)
   const [loading, setLoading] = useState(false)
   const [shareModal, setShareModal] = useState<ShareModalState>({
     isOpen: false,
@@ -41,10 +42,11 @@ export function ReservationsPdfGenerator({ properties, userRole }: ReservationsP
     whatsappText: '',
     copied: false,
   })
-  const pdfParamsRef = useRef<{ startDate: string; endDate: string; propertyId: string }>({
+  const pdfParamsRef = useRef<{ startDate: string; endDate: string; propertyId: string; showValues: boolean }>({
     startDate: '',
     endDate: '',
     propertyId: '',
+    showValues: true,
   })
 
   async function handleGeneratePdf() {
@@ -65,6 +67,7 @@ export function ReservationsPdfGenerator({ properties, userRole }: ReservationsP
         endDate,
         propertyId: selectedPropertyId === 'all' ? '' : selectedPropertyId,
         role: userRole,
+        showValues: String(showValues),
       })
 
       const response = await fetch(`/api/reports/reservations-pdf?${params}`)
@@ -79,6 +82,7 @@ export function ReservationsPdfGenerator({ properties, userRole }: ReservationsP
         startDate: data.startDate,
         endDate: data.endDate,
         propertyId: data.propertyId,
+        showValues,
       }
 
       const fileName = `reservas-${startDate}-${endDate}.pdf`
@@ -116,6 +120,7 @@ export function ReservationsPdfGenerator({ properties, userRole }: ReservationsP
         endDate: params.endDate,
         propertyId: params.propertyId,
         role: userRole,
+        showValues: String(params.showValues),
       })
 
       // Open report in new window - user can click "Download PDF" button there
@@ -209,6 +214,24 @@ export function ReservationsPdfGenerator({ properties, userRole }: ReservationsP
               className="bg-gray-50"
             />
           </div>
+        </div>
+
+        {/* Opções de Exibição */}
+        <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
+          <input
+            type="checkbox"
+            id="showValues"
+            checked={showValues}
+            onChange={(e) => setShowValues(e.target.checked)}
+            disabled={loading}
+            className="w-4 h-4 rounded cursor-pointer"
+          />
+          <label htmlFor="showValues" className="cursor-pointer text-sm text-gray-700">
+            <span className="font-medium">Exibir valores monetários</span>
+            <span className="block text-xs text-gray-600 mt-1">
+              Desmarque se o relatório for compartilhado com a equipe de limpeza
+            </span>
+          </label>
         </div>
 
         {/* Info */}

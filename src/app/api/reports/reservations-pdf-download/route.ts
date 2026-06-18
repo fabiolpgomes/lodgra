@@ -125,7 +125,7 @@ function generateHtml(
   startDate: string,
   endDate: string,
   propertyId: string,
-  isAdmin: boolean,
+  showValues: boolean,
   fileName: string,
   nonce: string
 ): string {
@@ -226,16 +226,30 @@ function generateHtml(
 
       <div class="summary">
         <div class="summary-item"><strong>Total de Reservas:</strong> ${reservations.length}</div>
-        ${isAdmin ? Object.entries(currencyTotals).map(([cur, total]) =>
+        ${showValues ? Object.entries(currencyTotals).map(([cur, total]) =>
           `<div class="summary-item"><strong>Receita Total (${cur}):</strong> ${formatCurrency(total, cur)}</div>`
         ).join('') : ''}
-        ${isAdmin && Object.keys(currencyTotals).length === 1 ? `<div class="summary-item"><strong>Média por Reserva:</strong> ${reservations.length > 0 ? formatCurrency(Object.values(currencyTotals)[0] / reservations.length, Object.keys(currencyTotals)[0]) : formatCurrency(0, Object.keys(currencyTotals)[0] || 'EUR')}</div>` : ''}
+        ${showValues && Object.keys(currencyTotals).length === 1 ? `<div class="summary-item"><strong>Média por Reserva:</strong> ${reservations.length > 0 ? formatCurrency(Object.values(currencyTotals)[0] / reservations.length, Object.keys(currencyTotals)[0]) : formatCurrency(0, Object.keys(currencyTotals)[0] || 'EUR')}</div>` : ''}
         <div class="summary-item"><strong>Noites Reservadas:</strong> ${totalNights}</div>
       </div>
 
       ${Object.entries(groupedByProperty)
         .map(([, propReservations]: [string, Reservation[]]) => {
           const propData = propReservations[0]?.property_listings.properties
+          const propCurrency = propData?.currency || 'EUR'
+
+          // Calculate property totals
+          const propertyTotalNights = propReservations.reduce((total, r) => {
+            const checkIn = new Date(r.check_in)
+            const checkOut = new Date(r.check_out)
+            const nights = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24))
+            return total + nights
+          }, 0)
+
+          const propertyTotalAmount = propReservations.reduce((total, r) => {
+            return total + calculateProportionalAmount(r, startDate, endDate)
+          }, 0)
+
           return `
             <h2>${propData?.name || 'Propriedade'} - ${propData?.city || ''}</h2>
             <table>
@@ -249,7 +263,7 @@ function generateHtml(
                   <th class="col-num">Cr.</th>
                   <th class="col-num">Noites</th>
                   <th class="col-notes">Notas</th>
-                  ${isAdmin ? '<th class="col-value">Valor</th>' : ''}
+                  ${showValues ? '<th class="col-value">Valor</th>' : ''}
                 </tr>
               </thead>
               <tbody>
@@ -272,10 +286,16 @@ function generateHtml(
                       <td class="col-num" style="text-align:center">${r.children ?? '—'}</td>
                       <td class="col-num" style="text-align:center">${nights}</td>
                       <td class="col-notes">${notesRaw}</td>
-                      ${isAdmin ? '<td class="col-value currency">' + formatCurrency(proportionalAmount, getResCurrency(r)) + '</td>' : ''}
+                      ${showValues ? '<td class="col-value currency">' + formatCurrency(proportionalAmount, getResCurrency(r)) + '</td>' : ''}
                     </tr>`
                   })
                   .join('')}
+                <tr style="background: #e8f4f8; font-weight: bold; border-top: 2px solid #3b82f6;">
+                  <td colspan="6" style="text-align: right; padding: 8px;">TOTAL:</td>
+                  <td class="col-num" style="text-align:center; border: 1px solid #ddd; padding: 6px 8px;">${propertyTotalNights} dias</td>
+                  <td></td>
+                  ${showValues ? '<td class="col-value currency" style="border: 1px solid #ddd; padding: 6px 8px;">' + formatCurrency(propertyTotalAmount, propCurrency) + '</td>' : ''}
+                </tr>
               </tbody>
             </table>
           `
@@ -346,6 +366,8 @@ export async function GET(request: NextRequest) {
     const endDate = searchParams.get('endDate')
     const propertyId = searchParams.get('propertyId') || ''
     const roleParam = searchParams.get('role') || auth.role || 'viewer'
+    const showValuesParam = searchParams.get('showValues')
+    const showValues = showValuesParam === null ? true : showValuesParam === 'true'
 
     if (!startDate || !endDate) {
       return NextResponse.json(
@@ -356,7 +378,6 @@ export async function GET(request: NextRequest) {
 
     const supabase = await createClient()
     const userPropertyIds = await getUserPropertyIds(supabase)
-    const isAdmin = roleParam === 'admin'
 
     // Build query
     let reservationsQuery = supabase
@@ -435,7 +456,7 @@ export async function GET(request: NextRequest) {
       startDate,
       endDate,
       propertyId,
-      isAdmin,
+      showValues,
       fileName,
       nonce
     )
