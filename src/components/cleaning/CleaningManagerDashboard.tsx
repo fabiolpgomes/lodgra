@@ -54,11 +54,14 @@ export default function CleaningManagerDashboard() {
         }
 
         const res = await fetch(url.toString());
-        if (!res.ok) throw new Error('Failed to fetch tasks');
+        if (!res.ok) {
+          throw new Error(`API error: ${res.status} ${res.statusText}`);
+        }
         const data = await res.json();
         setTasks(Array.isArray(data.tasks) ? data.tasks : []);
       } catch (error) {
         console.error('Error fetching tasks:', error);
+        setTasks([]);
       } finally {
         setLoading(false);
       }
