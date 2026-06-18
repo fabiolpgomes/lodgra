@@ -77,7 +77,8 @@ export function CleaningChecklistCard({ checklist, onUpdate, onDelete }: Props) 
     if (res.ok && onDelete) onDelete(checklist.id)
   }
 
-  const propertyName = checklist.properties?.name ?? 'Imóvel'
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const propertyName = (checklist as any).property_name || checklist.properties?.name || 'Imóvel'
   const date = new Date(checklist.scheduled_date + 'T12:00:00').toLocaleDateString('pt-BR', {
     day: '2-digit', month: 'long'
   })
