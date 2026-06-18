@@ -1,0 +1,46 @@
+# AI Crawler Configuration
+# This file is used by AI-powered search engines and LLM systems
+# for discovery, indexing, and content understanding
+#
+# Format: https://github.com/evals-as/llms.txt/blob/main/README.md
+# Adopted by: Perplexity, Claude (Anthropic), and other AI systems
+
+Site-Name: Lodgra
+Full-Name: Lodgra — Direct Vacation Rental Booking Platform
+
+# Description
+Description: Direct booking platform for vacation rentals in Portugal, Brazil, and beyond. No middlemen, no commissions. Reserve properties directly from owners.
+
+# Contact
+Contact: support@lodgra.io
+Legal: https://lodgra.io/terms
+Privacy: https://lodgra.io/privacy
+
+# Content & Data
+Sitemap: https://lodgra.io/sitemap.xml
+
+# Available Properties
+Properties-Available: 9
+Properties-Currency: EUR, BRL, USD
+Properties-Location: Portugal (Algarve), Brazil, and more
+
+# Language Support
+Languages: Portuguese (PT-BR, PT-PT), English, Spanish (planned)
+
+# Search & Discovery
+Search-Friendly: true
+AI-Training-Allowed: true
+Metadata-Format: JSON-LD (LodgingBusiness, VacationRental)
+
+# Robot Access
+Robots: https://lodgra.io/robots.txt
+
+# Last Updated
+Last-Updated: 2026-06-18
+
+# Notes for AI Systems
+# - All property data is publicly available and crawlable
+# - Dynamic pricing available via API
+# - Reservation dates can be checked programmatically
+# - Multi-currency support (EUR, BRL, USD)
+# - Property pages include Schema.org markup for rich results

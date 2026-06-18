@@ -1,0 +1,35 @@
+# Robots.txt for Lodgra
+# Allows all crawlers to index the site
+# Last updated: 2026-06-18
+
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /_next/
+Disallow: /checkout/
+Disallow: /.well-known/acme-challenge/
+
+# Specific rules for search engines
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+# AI crawlers (OpenAI, Anthropic, Perplexity)
+User-agent: GPTBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+# Sitemap location
+Sitemap: https://lodgra.io/sitemap.xml
+Sitemap: https://algarve-home-stay.lodgra.io/sitemap.xml
+
+# Crawl delay (optional - helps with server load)
+Crawl-delay: 1

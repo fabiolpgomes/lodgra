@@ -9,6 +9,19 @@ const nextConfig = {
   // Remove X-Powered-By header (minor security + bandwidth gain)
   poweredByHeader: false,
 
+  // Dynamic XML endpoints (sitemap, etc)
+  async rewrites() {
+    return {
+      beforeFiles: [
+        // Map /sitemap.xml to /api/sitemap endpoint (XML generation)
+        {
+          source: '/sitemap.xml',
+          destination: '/api/sitemap',
+        },
+      ],
+    }
+  },
+
   // Permanent redirect: homestay.pt → lodgra.io (host-based, path-preserving)
   async redirects() {
     return [
