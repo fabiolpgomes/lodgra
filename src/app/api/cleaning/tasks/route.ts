@@ -23,56 +23,7 @@ export async function GET(request: NextRequest) {
 
     let query = supabase
       .from('cleaning_tasks')
-      .select(
-        `
-        id,
-        organization_id,
-        property_id,
-        reservation_id,
-        cleaner_id,
-        status,
-        scheduled_date,
-        scheduled_time,
-        notes,
-        completed_at,
-        created_at,
-        updated_at,
-        properties (
-          id,
-          name,
-          address,
-          city,
-          postal_code
-        ),
-        reservations (
-          id,
-          guest_id,
-          check_in_date,
-          check_out_date,
-          guests (
-            full_name,
-            phone,
-            email
-          )
-        ),
-        user_profiles:cleaner_id (
-          id,
-          full_name,
-          phone,
-          email
-        ),
-        cleaning_photos (
-          id,
-          storage_path,
-          uploaded_at
-        ),
-        cleaning_checklist_responses (
-          id,
-          is_done
-        )
-      `,
-        { count: 'exact' }
-      )
+      .select('*', { count: 'exact' })
       .eq('organization_id', auth.organizationId);
 
     if (status) query = query.eq('status', status);
