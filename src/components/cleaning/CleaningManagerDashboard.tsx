@@ -53,6 +53,7 @@ export default function CleaningManagerDashboard() {
           url.searchParams.append('endDate', dateFilter);
         }
 
+        console.log('📡 Fetching tasks from:', url.toString());
         const res = await fetch(url.toString());
         if (!res.ok) {
           throw new Error(`API error: ${res.status} ${res.statusText}`);

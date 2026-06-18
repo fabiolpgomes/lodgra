@@ -50,8 +50,11 @@ export function CleaningPageClient({ properties, members, userRole }: Props) {
     if (filterStatus !== 'all') params.set('status', filterStatus)
     if (filterProperty) params.set('property_id', filterProperty)
 
-    const res = await fetch(`/api/cleaning?${params}`)
-    if (res.ok) setChecklists(await res.json())
+    const res = await fetch(`/api/cleaning/tasks?${params}`)
+    if (res.ok) {
+      const data = await res.json()
+      setChecklists(data.tasks || [])
+    }
     setLoading(false)
   }, [filterStatus, filterProperty])
 

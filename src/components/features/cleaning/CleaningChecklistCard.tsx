@@ -45,7 +45,7 @@ export function CleaningChecklistCard({ checklist, onUpdate, onDelete }: Props) 
     setItems(prev => prev.map(i => i.id === item.id ? { ...i, is_done: newDone } : i))
 
     startTransition(async () => {
-      const res = await fetch(`/api/cleaning/${checklist.id}`, {
+      const res = await fetch(`/api/cleaning/tasks/${checklist.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ item_id: item.id, is_done: newDone }),
@@ -61,7 +61,7 @@ export function CleaningChecklistCard({ checklist, onUpdate, onDelete }: Props) 
 
   async function markInProgress() {
     setStatus('in_progress')
-    await fetch(`/api/cleaning/${checklist.id}`, {
+    await fetch(`/api/cleaning/tasks/${checklist.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: 'in_progress' }),
@@ -72,7 +72,7 @@ export function CleaningChecklistCard({ checklist, onUpdate, onDelete }: Props) 
   async function handleDelete() {
     if (!confirm('Tem certeza que deseja deletar esta limpeza?')) return
     setDeleting(true)
-    const res = await fetch(`/api/cleaning/${checklist.id}`, { method: 'DELETE' })
+    const res = await fetch(`/api/cleaning/tasks/${checklist.id}`, { method: 'DELETE' })
     setDeleting(false)
     if (res.ok && onDelete) onDelete(checklist.id)
   }
