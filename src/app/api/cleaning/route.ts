@@ -39,9 +39,7 @@ export async function GET(request: NextRequest) {
     let query = supabase
       .from('cleaning_tasks')
       .select(`
-        id, property_id, reservation_id, cleaner_id, scheduled_date, status, notes, completed_at, created_at,
-        properties(id, name),
-        cleaning_checklist_responses(id, is_done)
+        id, property_id, reservation_id, cleaner_id, scheduled_date, status, notes, completed_at, created_at
       `)
       .eq('organization_id', profile.organization_id)
       .order('scheduled_date', { ascending: true })
