@@ -107,7 +107,12 @@ export async function generateGoogleVacationRentalsFeed(
       nextYear.setFullYear(nextYear.getFullYear() + 1)
 
       const [{ data: images }, reviewResult, aggregatedReviews, { data: reservations }, { data: amenities }] = await Promise.all([
-        supabase.from('property_media').select('url, alt').eq('property_id', prop.id).limit(5),
+        supabase
+          .from('property_images')
+          .select('storage_path, alt_text')
+          .eq('property_id', prop.id)
+          .order('display_order', { ascending: true })
+          .limit(5),
         supabase
           .from('property_reviews')
           .select('rating, review_count')
@@ -144,7 +149,7 @@ export async function generateGoogleVacationRentalsFeed(
 
       return {
         property: prop,
-        images: images || getImagesFromPropertyPhotos(prop.photos),
+        images: images ? convertPropertyImagesToMedia(images) : getImagesFromPropertyPhotos(prop.photos),
         review: reviews,
         aggregatedReviews,
         blockedDates,
@@ -349,6 +354,22 @@ function getTenantBaseUrl(baseUrl: string, organizationSlug?: string | null): st
   } catch {
     return baseUrl
   }
+}
+
+function convertPropertyImagesToMedia(images: Array<{ storage_path?: string; alt_text?: string | null }>): PropertyMedia[] {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://your-supabase-url.supabase.co'
+  const storageBucket = 'property-images'
+
+  return images
+    .filter((img) => img.storage_path)
+    .map((img) => {
+      const storagePath = img.storage_path || ''
+      const url = `${supabaseUrl}/storage/v1/object/public/${storageBucket}/${storagePath}`
+      return {
+        url,
+        alt: img.alt_text || undefined,
+      }
+    })
 }
 
 function getImagesFromPropertyPhotos(photos: unknown): PropertyMedia[] {
