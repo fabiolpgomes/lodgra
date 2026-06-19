@@ -63,6 +63,26 @@ export default function NewUserPage() {
     setError(null)
 
     try {
+      // Validação específica para cleaners - telefone obrigatório
+      if (role === 'guest' && guestType === 'cleaner') {
+        if (!phoneNumber.trim()) {
+          throw new Error('📱 Telefone é obrigatório para Limpadores. Informe um número válido (ex: +351912345678)')
+        }
+        if (!/^\+?[1-9]\d{1,14}$/.test(phoneNumber)) {
+          throw new Error('Formato de telefone inválido. Use o formato internacional: +351912345678')
+        }
+      }
+
+      // Validação geral: pelo menos email ou telefone
+      if (!email.trim() && !phoneNumber.trim()) {
+        throw new Error('Informe pelo menos um: Email ou Telefone WhatsApp')
+      }
+
+      // Se email fornecido, telefone é obrigatório
+      if (email.trim() && !phoneNumber.trim()) {
+        throw new Error('Telefone é obrigatório quando Email é informado')
+      }
+
       const payload: Record<string, unknown> = {
         email: email || '',
         full_name: fullName,
@@ -198,7 +218,9 @@ export default function NewUserPage() {
 
           {/* Phone Number for All Users - WhatsApp Communication */}
           <div>
-            <Label htmlFor="phoneNumber" className="mb-1">Telefone WhatsApp 📱 (Opcional)</Label>
+            <Label htmlFor="phoneNumber" className="mb-1">
+              Telefone WhatsApp 📱 {role === 'guest' && guestType === 'cleaner' && <span className="text-red-600">*</span>}
+            </Label>
             <Input
               id="phoneNumber"
               type="tel"
@@ -208,7 +230,10 @@ export default function NewUserPage() {
               className="font-mono"
             />
             <p className="text-xs text-gray-600 mt-1">
-              Formato: +país + número (ex: +351912345678) — Será usado para notificações via WhatsApp
+              {role === 'guest' && guestType === 'cleaner'
+                ? '🧹 Obrigatório para limpadores. Formato: +país + número (ex: +351912345678)'
+                : 'Opcional. Formato: +país + número (ex: +351912345678) — Será usado para notificações via WhatsApp'
+              }
             </p>
           </div>
 
