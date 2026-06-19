@@ -11,6 +11,8 @@ export interface UserProfile {
   avatar_url: string | null
   access_all_properties: boolean
   organization_id?: string
+  phone_number?: string | null
+  accepts_whatsapp?: boolean
 }
 
 export interface UserAccess {

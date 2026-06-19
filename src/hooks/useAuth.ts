@@ -13,6 +13,8 @@ export interface UserProfile {
   role: UserRole
   avatar_url: string | null
   access_all_properties: boolean
+  phone_number?: string | null
+  accepts_whatsapp?: boolean
 }
 
 export function useAuth() {
