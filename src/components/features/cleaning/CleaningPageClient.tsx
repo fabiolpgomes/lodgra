@@ -6,6 +6,7 @@ import { Button } from '@/components/common/ui/button'
 import { CleaningChecklistCard, type Checklist } from './CleaningChecklistCard'
 import { NewChecklistModal } from './NewChecklistModal'
 import { WorkflowFlowModal } from './WorkflowFlowModal'
+import { PropertyFilter } from './PropertyFilter'
 
 interface Property { id: string; name: string }
 interface Member { id: string; full_name: string; role: string }
@@ -105,14 +106,11 @@ export function CleaningPageClient({ properties, members, userRole }: Props) {
         ))}
 
         {properties.length > 1 && (
-          <select
+          <PropertyFilter
+            properties={properties}
             value={filterProperty}
-            onChange={e => setFilterProperty(e.target.value)}
-            className="px-3 py-1.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-none outline-none"
-          >
-            <option value="">Todos imóveis</option>
-            {properties.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-          </select>
+            onChange={setFilterProperty}
+          />
         )}
       </div>
 
