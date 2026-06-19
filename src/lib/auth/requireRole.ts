@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { getCachedProfile, setCachedProfile } from '@/lib/cache/profileCache'
 
 export type Role = 'admin' | 'gestor' | 'owner' | 'viewer' | 'guest'
+export type GuestType = 'staff' | 'owner' | 'cleaner'
 
 interface AuthResult {
   authorized: boolean
@@ -10,7 +11,7 @@ interface AuthResult {
   role?: Role
   accessAllProperties?: boolean
   organizationId?: string
-  guestType?: 'staff' | 'owner'
+  guestType?: GuestType
   response?: NextResponse
 }
 
@@ -41,7 +42,7 @@ export async function requireRole(minimumRoles: Role[]): Promise<AuthResult> {
   let userRole: Role
   let accessAllProperties: boolean
   let organizationId: string | undefined
-  let guestType: 'staff' | 'owner' | undefined
+  let guestType: GuestType | undefined
 
   // 2. Cache Redis — evita qualquer round trip à DB
   const cached = await getCachedProfile(userId)
@@ -50,7 +51,7 @@ export async function requireRole(minimumRoles: Role[]): Promise<AuthResult> {
     userRole = (cached.role as Role) || 'viewer'
     accessAllProperties = cached.access_all_properties
     organizationId = cached.organization_id ?? undefined
-    guestType = cached.guest_type as 'staff' | 'owner' | undefined
+    guestType = cached.guest_type as GuestType | undefined
   } else {
     // 3. Cache miss: RPC autentica a nível Postgres E lê perfil numa só call
     //    auth.uid() retorna NULL se JWT inválido → 0 linhas → perfil null
@@ -68,7 +69,7 @@ export async function requireRole(minimumRoles: Role[]): Promise<AuthResult> {
     userRole = ((profile.role as Role) || 'viewer') as Role
     accessAllProperties = profile.access_all_properties === true
     organizationId = (profile.organization_id as string | null) ?? undefined
-    guestType = (profile.guest_type as 'staff' | 'owner' | null) ?? undefined
+    guestType = (profile.guest_type as GuestType | null) ?? undefined
 
     await setCachedProfile(userId, {
       role: userRole,
