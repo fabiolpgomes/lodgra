@@ -28,7 +28,7 @@ export default function NewUserPage() {
   const [email, setEmail] = useState('')
   const [fullName, setFullName] = useState('')
   const [role, setRole] = useState('viewer')
-  const [guestType, setGuestType] = useState<'staff' | 'owner' | 'cleaner'>('staff')
+  const [guestType, setGuestType] = useState<'staff' | 'owner' | 'cleaner'>('cleaner')
   const [accessAllProperties, setAccessAllProperties] = useState(false)
   const [selectedProperties, setSelectedProperties] = useState<string[]>([])
 
@@ -155,7 +155,12 @@ export default function NewUserPage() {
 
           <div>
             <Label htmlFor="role" className="mb-1">Role</Label>
-            <Select value={role} onValueChange={setRole}>
+            <Select value={role} onValueChange={(newRole) => {
+              setRole(newRole)
+              if (newRole === 'guest') {
+                setGuestType('cleaner')
+              }
+            }}>
               <SelectTrigger id="role" className="w-full">
                 <SelectValue />
               </SelectTrigger>
@@ -163,28 +168,26 @@ export default function NewUserPage() {
                 <SelectItem value="admin">Administrador</SelectItem>
                 <SelectItem value="gestor">Gestor</SelectItem>
                 <SelectItem value="viewer">Visualizador</SelectItem>
-                <SelectItem value="guest">Convidado</SelectItem>
+                <SelectItem value="guest">🧹 Limpador / Limpadora</SelectItem>
+                <SelectItem value="guest-staff">Convidado (Portaria/Serviços)</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
-          {role === 'guest' && (
+          {role === 'guest' && guestType !== 'cleaner' && (
             <div>
               <Label htmlFor="guestType" className="mb-1">Tipo de Convidado</Label>
-              <Select value={guestType} onValueChange={(value) => setGuestType(value as 'staff' | 'owner' | 'cleaner')}>
+              <Select value={guestType} onValueChange={(value) => setGuestType(value as 'staff' | 'owner')}>
                 <SelectTrigger id="guestType" className="w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="cleaner">🧹 Limpador / Limpadora</SelectItem>
                   <SelectItem value="staff">Portaria / Serviços</SelectItem>
                   <SelectItem value="owner">Proprietário do Imóvel</SelectItem>
                 </SelectContent>
               </Select>
               <p className="text-xs text-gray-600 mt-1">
-                {guestType === 'cleaner'
-                  ? 'Acesso ao portal de limpeza e tarefas de limpeza'
-                  : guestType === 'staff'
+                {guestType === 'staff'
                   ? 'Acesso restrito ao calendário e check-in/check-out'
                   : 'Acesso aos relatórios e reservas das suas propriedades'}
               </p>
