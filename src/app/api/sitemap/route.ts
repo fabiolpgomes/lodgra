@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 
+// This route must be dynamic because it reads request.headers
+export const dynamic = 'force-dynamic'
+
 /**
  * GET /api/sitemap.xml
  *
