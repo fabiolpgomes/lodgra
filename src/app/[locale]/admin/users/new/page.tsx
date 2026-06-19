@@ -63,14 +63,9 @@ export default function NewUserPage() {
     setError(null)
 
     try {
-      // Validar telefone para cleaners
-      if (role === 'guest' && guestType === 'cleaner') {
-        if (!phoneNumber.trim()) {
-          throw new Error('Telefone é obrigatório para limpadores')
-        }
-        if (!/^\+?[1-9]\d{1,14}$/.test(phoneNumber)) {
-          throw new Error('Formato de telefone inválido. Use: +351912345678')
-        }
+      // Validar telefone se fornecido
+      if (phoneNumber.trim() && !/^\+?[1-9]\d{1,14}$/.test(phoneNumber)) {
+        throw new Error('Formato de telefone inválido. Use: +351912345678')
       }
 
       const payload: Record<string, unknown> = {
@@ -81,12 +76,14 @@ export default function NewUserPage() {
         property_ids: accessAllProperties && role !== 'guest' ? [] : selectedProperties,
       }
 
+      // Adicionar telefone e WhatsApp consent para todos os usuários
+      if (phoneNumber.trim()) {
+        payload.phone_number = phoneNumber
+        payload.accepts_whatsapp = true
+      }
+
       if (role === 'guest') {
         payload.guest_type = guestType
-        payload.accepts_whatsapp = true
-        if (guestType === 'cleaner') {
-          payload.phone_number = phoneNumber
-        }
       }
 
       const response = await fetch('/api/users', {
@@ -196,23 +193,21 @@ export default function NewUserPage() {
             </Select>
           </div>
 
-          {/* Phone Number for Cleaners */}
-          {role === 'guest' && guestType === 'cleaner' && (
-            <div>
-              <Label htmlFor="phoneNumber" className="mb-1">Telefone WhatsApp 📱</Label>
-              <Input
-                id="phoneNumber"
-                type="tel"
-                value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
-                placeholder="+351912345678"
-                className="font-mono"
-              />
-              <p className="text-xs text-gray-600 mt-1">
-                Formato: +país + número (ex: +351912345678)
-              </p>
-            </div>
-          )}
+          {/* Phone Number for All Users - WhatsApp Communication */}
+          <div>
+            <Label htmlFor="phoneNumber" className="mb-1">Telefone WhatsApp 📱 (Opcional)</Label>
+            <Input
+              id="phoneNumber"
+              type="tel"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
+              placeholder="+351912345678"
+              className="font-mono"
+            />
+            <p className="text-xs text-gray-600 mt-1">
+              Formato: +país + número (ex: +351912345678) — Será usado para notificações via WhatsApp
+            </p>
+          </div>
 
           {role === 'guest' && guestType !== 'cleaner' && (
             <div>
