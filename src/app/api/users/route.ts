@@ -63,7 +63,8 @@ export async function POST(request: Request) {
   const validation = validate(CreateUserSchema, body)
   if (!validation.ok) return validation.response
 
-  let { email, full_name, password, role, guest_type, phone_number, accepts_whatsapp, access_all_properties, property_ids } = validation.data
+  const { full_name, password, role, guest_type, phone_number, accepts_whatsapp, access_all_properties, property_ids } = validation.data
+  let email = validation.data.email
 
   // Se email vazio, gerar baseado em telefone
   if (!email || email.trim().length === 0) {
