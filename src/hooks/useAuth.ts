@@ -23,10 +23,9 @@ export function useAuth() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const supabase = createClient()
-
     async function loadUser() {
       try {
+        const supabase = createClient()
         const { data: { user } } = await supabase.auth.getUser()
         setUser(user)
 
@@ -54,17 +53,23 @@ export function useAuth() {
     loadUser()
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) {
-        loadUser()
-      } else {
-        setUser(null)
-        setProfile(null)
-      }
-    })
+    try {
+      const supabase = createClient()
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+        if (session?.user) {
+          loadUser()
+        } else {
+          setUser(null)
+          setProfile(null)
+        }
+      })
 
-    return () => {
-      subscription.unsubscribe()
+      return () => {
+        subscription.unsubscribe()
+      }
+    } catch (error) {
+      console.error('Error setting up auth listener:', error)
+      return () => {}
     }
   }, [])
 
