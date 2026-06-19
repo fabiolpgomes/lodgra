@@ -63,7 +63,17 @@ export async function POST(request: Request) {
   const validation = validate(CreateUserSchema, body)
   if (!validation.ok) return validation.response
 
-  const { email, full_name, password, role, guest_type, phone_number, accepts_whatsapp, access_all_properties, property_ids } = validation.data
+  let { email, full_name, password, role, guest_type, phone_number, accepts_whatsapp, access_all_properties, property_ids } = validation.data
+
+  // Se email vazio, gerar baseado em telefone
+  if (!email || email.trim().length === 0) {
+    if (!phone_number) {
+      return NextResponse.json({ error: 'Email ou Telefone é obrigatório' }, { status: 400 })
+    }
+    // Gerar email temporário baseado em telefone
+    const sanitizedPhone = phone_number.replace(/\D/g, '').slice(-10)
+    email = `phone_${sanitizedPhone}_${Date.now()}@cleaner.internal`
+  }
 
   // Herdar organization_id do utilizador que faz o pedido
   const organizationId = auth.organizationId

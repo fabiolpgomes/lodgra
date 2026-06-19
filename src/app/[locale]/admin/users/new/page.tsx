@@ -63,20 +63,15 @@ export default function NewUserPage() {
     setError(null)
 
     try {
-      // Validar telefone se fornecido
-      if (phoneNumber.trim() && !/^\+?[1-9]\d{1,14}$/.test(phoneNumber)) {
-        throw new Error('Formato de telefone inválido. Use: +351912345678')
-      }
-
       const payload: Record<string, unknown> = {
-        email,
+        email: email || '',
         full_name: fullName,
         role,
         access_all_properties: accessAllProperties && role !== 'guest',
         property_ids: accessAllProperties && role !== 'guest' ? [] : selectedProperties,
       }
 
-      // Adicionar telefone e WhatsApp consent para todos os usuários
+      // Adicionar telefone e WhatsApp consent
       if (phoneNumber.trim()) {
         payload.phone_number = phoneNumber
         payload.accepts_whatsapp = true
@@ -104,12 +99,18 @@ export default function NewUserPage() {
         setTimeout(() => {
           router.push(`/${locale}/admin/users`)
         }, 2000)
-      } else {
-        // Para outros usuários, mostra dialog com senha provisória
+      } else if (email.trim()) {
+        // Mostra dialog de senha apenas se email foi informado
         setCreatedEmail(email)
         setCreatedPassword(data.provisionalPassword || 'Senha enviada por email')
         setShowPasswordDialog(true)
         toast.success('Usuário criado com sucesso! Senha provisória enviada por email.')
+      } else {
+        // Usuário criado só com telefone, sem senha
+        toast.success('Usuário criado com sucesso! Acesso será feito via WhatsApp.')
+        setTimeout(() => {
+          router.push(`/${locale}/admin/users`)
+        }, 2000)
       }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err)
@@ -148,15 +149,17 @@ export default function NewUserPage() {
 
         <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6 space-y-6">
           <div>
-            <Label htmlFor="email" className="mb-1">Email</Label>
+            <Label htmlFor="email" className="mb-1">Email (ou Telefone)</Label>
             <Input
               id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              required
               placeholder="utilizador@exemplo.com"
             />
+            <p className="text-xs text-gray-600 mt-1">
+              Opcional se Telefone informado. Obrigatório se Email informado.
+            </p>
           </div>
 
           <div>

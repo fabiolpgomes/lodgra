@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server'
 // ─── Schemas ──────────────────────────────────────────────────────────────────
 
 export const CreateUserSchema = z.object({
-  email: z.string().email('Email inválido'),
+  email: z.string().email('Email inválido').optional().or(z.literal('')),
   password: z
     .string()
     .min(8, 'Senha deve ter no mínimo 8 caracteres')
@@ -22,7 +22,33 @@ export const CreateUserSchema = z.object({
   accepts_whatsapp: z.boolean().optional().default(false),
   access_all_properties: z.boolean().optional().default(false),
   property_ids: z.array(z.string().uuid('ID de propriedade inválido')).optional().default([]),
-})
+}).refine(
+  (data) => {
+    // Pelo menos um deve estar preenchido: email ou phone_number
+    const hasEmail = data.email && data.email.trim().length > 0
+    const hasPhone = data.phone_number && data.phone_number.trim().length > 0
+    return hasEmail || hasPhone
+  },
+  {
+    message: 'Informe pelo menos um: Email ou Telefone',
+    path: ['email'], // Campo que vai aparecer o erro
+  }
+).refine(
+  (data) => {
+    // Se email está preenchido, telefone é obrigatório
+    const hasEmail = data.email && data.email.trim().length > 0
+    const hasPhone = data.phone_number && data.phone_number.trim().length > 0
+
+    if (hasEmail && !hasPhone) {
+      return false
+    }
+    return true
+  },
+  {
+    message: 'Telefone é obrigatório quando Email é informado',
+    path: ['phone_number'],
+  }
+)
 
 export const UpdateUserSchema = z.object({
   full_name: z.string().min(1).max(100).optional(),
