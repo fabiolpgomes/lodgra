@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { CheckCircle2, Clock, Home, Trash2 } from 'lucide-react'
+import { CheckCircle2, Clock, Home, Trash2, Edit2 } from 'lucide-react'
 import { Button } from '@/components/common/ui/button'
+import { EditTaskModal } from './EditTaskModal'
 
 export interface ChecklistItem {
   id: string
@@ -19,22 +20,25 @@ export interface Checklist {
   notes: string | null
   properties?: { id: string; name: string } | null
   assigned_to?: string | null
+  cleaner_id?: string | null
   cleaning_checklist_items?: ChecklistItem[]
 }
 
 interface Props {
   checklist: Checklist
+  members?: Array<{ id: string; full_name: string }>
   onUpdate: () => void
   onDelete?: (id: string) => void
 }
 
 
-export function CleaningChecklistCard({ checklist, onUpdate, onDelete }: Props) {
+export function CleaningChecklistCard({ checklist, members = [], onUpdate, onDelete }: Props) {
   const [expanded, setExpanded] = useState(checklist.status !== 'completed')
   const [items, setItems] = useState(((checklist.cleaning_checklist_items) || []).sort((a, b) => a.position - b.position))
   const [status, setStatus] = useState(checklist.status)
   const [, startTransition] = useTransition()
   const [deleting, setDeleting] = useState(false)
+  const [editOpen, setEditOpen] = useState(false)
 
   const doneCount = items.filter(i => i.is_checked).length
   const total = items.length
@@ -179,19 +183,27 @@ export function CleaningChecklistCard({ checklist, onUpdate, onDelete }: Props) 
             ))}
           </div>
 
-          <div className="mt-8 pt-6 border-t border-gray-100 flex gap-4">
-             <button className="flex-1 bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-gray-400 p-4 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 hover:bg-gray-200 transition-colors">
+          <div className="mt-8 pt-6 border-t border-gray-100 grid grid-cols-2 gap-3">
+             <button className="bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-gray-400 p-4 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 hover:bg-gray-200 transition-colors">
                📸 Foto de Evidência
              </button>
+             <button
+               onClick={() => setEditOpen(true)}
+               className="bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-400 p-4 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 hover:bg-blue-200 transition-colors"
+               title="Editar tarefa"
+             >
+               <Edit2 className="h-4 w-4" />
+               Editar
+             </button>
              {status === 'completed' && (
-               <button className="flex-1 bg-emerald-100 text-emerald-700 p-4 rounded-2xl text-sm font-bold transition-colors">
+               <button className="col-span-2 bg-emerald-100 text-emerald-700 p-4 rounded-2xl text-sm font-bold transition-colors">
                  Relatório Gerado
                </button>
              )}
              <button
                onClick={handleDelete}
                disabled={deleting}
-               className="flex-1 bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-400 p-4 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 hover:bg-red-200 transition-colors disabled:opacity-50"
+               className="col-span-2 bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-400 p-4 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 hover:bg-red-200 transition-colors disabled:opacity-50"
                title="Deletar esta limpeza"
              >
                <Trash2 className="h-4 w-4" />
@@ -206,6 +218,24 @@ export function CleaningChecklistCard({ checklist, onUpdate, onDelete }: Props) 
             </div>
           )}
         </div>
+      )}
+
+      {editOpen && (
+        <EditTaskModal
+          task={{
+            id: checklist.id,
+            status: status as 'pending' | 'in_progress' | 'completed',
+            scheduled_date: checklist.scheduled_date || '',
+            notes: checklist.notes || null,
+          }}
+          members={members || []}
+          taskAssignedTo={checklist.cleaner_id}
+          onClose={() => setEditOpen(false)}
+          onSave={async () => {
+            setEditOpen(false)
+            onUpdate()
+          }}
+        />
       )}
     </div>
   )

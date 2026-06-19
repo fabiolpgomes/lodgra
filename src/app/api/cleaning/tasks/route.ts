@@ -130,7 +130,7 @@ export async function PATCH(request: NextRequest) {
     if (!auth.authorized) return auth.response!;
 
     const body = await request.json();
-    const { id, item_id, status, notes, is_checked } = body;
+    const { id, item_id, status, notes, is_checked, scheduled_date, cleaner_id } = body;
 
     // Update checklist item
     if (item_id !== undefined && is_checked !== undefined) {
@@ -148,14 +148,19 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ success: true });
     }
 
-    // Update task status
-    if (!id || !status) {
-      return NextResponse.json({ error: 'id and status required' }, { status: 400 });
+    // Update task properties
+    if (!id) {
+      return NextResponse.json({ error: 'id is required' }, { status: 400 });
     }
 
     const supabase = await createClient();
-    const updateData: Record<string, string> = { status };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const updateData: Record<string, any> = {};
+
+    if (status !== undefined) updateData.status = status;
     if (notes !== undefined) updateData.notes = notes;
+    if (scheduled_date !== undefined) updateData.scheduled_date = scheduled_date;
+    if (cleaner_id !== undefined) updateData.cleaner_id = cleaner_id;
     if (status === 'completed') updateData.completed_at = new Date().toISOString();
 
     const { data: task, error } = await supabase
@@ -171,7 +176,7 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to update task' }, { status: 500 });
     }
 
-    return NextResponse.json({ success: true, task, message: `Task marked as ${status}` });
+    return NextResponse.json({ success: true, task });
   } catch (error) {
     console.error('PATCH /api/cleaning/tasks error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

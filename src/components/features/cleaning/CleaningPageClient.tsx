@@ -128,6 +128,7 @@ export function CleaningPageClient({ properties, members, userRole }: Props) {
             <CleaningChecklistCard
               key={c.id}
               checklist={c}
+              members={members}
               onUpdate={fetchChecklists}
               onDelete={() => {
                 setChecklists(prev => prev.filter(ch => ch.id !== c.id))
