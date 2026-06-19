@@ -274,23 +274,21 @@ export default function NewUserPage() {
             </div>
           )}
 
-          {/* Properties Section - Only for non-cleaner roles */}
-          {!(role === 'guest' && guestType === 'cleaner') && (
+          {/* Properties Section */}
+          {role !== 'guest' && (
             <>
-              {role !== 'guest' && (
-                <div className="flex items-center gap-3">
-                  <input
-                    type="checkbox"
-                    id="accessAllProperties"
-                    checked={accessAllProperties}
-                    onChange={(e) => setAccessAllProperties(e.target.checked)}
-                    className="h-4 w-4 text-brand-600 border-gray-300 rounded focus:ring-brand-500"
-                  />
-                  <label htmlFor="accessAllProperties" className="text-sm font-medium text-gray-700">
-                    Acesso a todas as propriedades
-                  </label>
-                </div>
-              )}
+              <div className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  id="accessAllProperties"
+                  checked={accessAllProperties}
+                  onChange={(e) => setAccessAllProperties(e.target.checked)}
+                  className="h-4 w-4 text-brand-600 border-gray-300 rounded focus:ring-brand-500"
+                />
+                <label htmlFor="accessAllProperties" className="text-sm font-medium text-gray-700">
+                  Acesso a todas as propriedades
+                </label>
+              </div>
 
               {!accessAllProperties && (
                 <div>
@@ -315,6 +313,31 @@ export default function NewUserPage() {
                 </div>
               )}
             </>
+          )}
+
+          {/* Properties Selection for Cleaners */}
+          {role === 'guest' && guestType === 'cleaner' && (
+            <div>
+              <Label className="mb-2">🧹 Propriedades para Limpeza</Label>
+              <p className="text-xs text-gray-600 mb-3">Selecione as propriedades nas quais este limpador irá trabalhar</p>
+              {properties.length === 0 ? (
+                <p className="text-sm text-gray-600">Nenhuma propriedade disponível</p>
+              ) : (
+                <div className="space-y-2 max-h-60 overflow-y-auto border border-gray-200 rounded-lg p-3">
+                  {properties.map((property) => (
+                    <label key={property.id} className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={selectedProperties.includes(property.id)}
+                        onChange={() => toggleProperty(property.id)}
+                        className="h-4 w-4 text-brand-600 border-gray-300 rounded focus:ring-brand-500"
+                      />
+                      <span className="text-sm text-gray-700">{property.name}</span>
+                    </label>
+                  ))}
+                </div>
+              )}
+            </div>
           )}
 
           {error && (
