@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
 
   if (!userProfile) {
     return NextResponse.json(
-      { error: 'Utilizador não encontrado nesta organização' },
+      { error: 'Usuário não encontrado nesta organização' },
       { status: 404 }
     )
   }

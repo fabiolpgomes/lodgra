@@ -48,7 +48,7 @@ export function DeleteUserButton({
       const locale = ['pt', 'en', 'es'].includes(pathParts[0]) ? pathParts[0] : null
       const redirectPath = locale ? `/${locale}/admin/users` : '/admin/users'
 
-      toast.success('Utilizador eliminado com sucesso!')
+      toast.success('Usuário eliminado com sucesso!')
       router.push(redirectPath)
       router.refresh()
     } catch (err: unknown) {
@@ -80,7 +80,7 @@ export function DeleteUserButton({
                 <AlertTriangle className="h-6 w-6 text-red-600" />
               </div>
               <div>
-                <DialogTitle>Eliminar Utilizador</DialogTitle>
+                <DialogTitle>Eliminar Usuário</DialogTitle>
                 <DialogDescription>Esta ação é permanente e irreversível</DialogDescription>
               </div>
             </div>

@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
       
       // Enviamos a confirmação mas sem fazer a api esperar ou falhar o request caso dê erro
       sendDeletionRequestConfirmation({
-        guestName: profile.full_name || 'Utilizador',
+        guestName: profile.full_name || 'Usuário',
         guestEmail: profile.email,
         scheduledAt: scheduledAt.toISOString(),
         appUrl: origin,

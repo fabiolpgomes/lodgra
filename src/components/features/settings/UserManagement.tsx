@@ -161,7 +161,7 @@ export function UserManagement({ users, onUserUpdated }: UserManagementProps) {
       {/* Create User Form */}
       {showCreateForm && (
         <div className="mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50">
-          <h3 className="text-sm font-semibold text-gray-900 mb-4">Criar Novo Utilizador</h3>
+          <h3 className="text-sm font-semibold text-gray-900 mb-4">Criar Novo Usuário</h3>
           <form onSubmit={handleCreateUser} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
@@ -223,7 +223,7 @@ export function UserManagement({ users, onUserUpdated }: UserManagementProps) {
                 disabled={loading}
                 className="px-4 py-2 bg-brand-600 text-white rounded-lg text-sm font-medium hover:bg-brand-700 disabled:opacity-50"
               >
-                {loading ? 'Criando...' : 'Criar Utilizador'}
+                {loading ? 'Criando...' : 'Criar Usuário'}
               </button>
               <button
                 type="button"
@@ -245,7 +245,7 @@ export function UserManagement({ users, onUserUpdated }: UserManagementProps) {
           className="mb-4 flex items-center gap-2 px-4 py-2 bg-brand-600 text-white rounded-lg text-sm font-medium hover:bg-brand-700"
         >
           <Plus className="h-4 w-4" />
-          Novo Utilizador
+          Novo Usuário
         </button>
       )}
 
@@ -345,7 +345,7 @@ export function UserManagement({ users, onUserUpdated }: UserManagementProps) {
       <Dialog open={showPasswordDialog} onOpenChange={setShowPasswordDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Utilizador Criado com Sucesso</DialogTitle>
+            <DialogTitle>Usuário Criado com Sucesso</DialogTitle>
             <DialogDescription>
               Guarde a senha temporária abaixo. O utilizador pode alterá-la após fazer login.
             </DialogDescription>

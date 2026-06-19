@@ -19,7 +19,7 @@ const PATH_LABELS: Record<string, string> = {
   '/owners': 'Proprietários',
   '/sync': 'Sincronização',
   '/settings': 'Definições',
-  '/admin/users': 'Utilizadores',
+  '/admin/users': 'Usuários',
 }
 
 function getPageTitle(pathname: string): string {

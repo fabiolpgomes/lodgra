@@ -199,7 +199,7 @@ export default function NewOwnerPage() {
 
               <div>
                 <Label htmlFor="user_id" className="mb-1">
-                  Vincular a Utilizador do Sistema (opcional)
+                  Vincular a Usuário do Sistema (opcional)
                 </Label>
                 <select
                   id="user_id"

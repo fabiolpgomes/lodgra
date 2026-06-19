@@ -156,7 +156,7 @@ export default async function SettingsPage(props: { params: Promise<{ locale: st
             <div className="bg-white rounded-lg shadow p-6">
               <div className="flex items-center gap-2 mb-4">
                 <Users className="h-5 w-5 text-gray-600" />
-                <h2 className="text-lg font-semibold text-gray-900">Gestão de Utilizadores</h2>
+                <h2 className="text-lg font-semibold text-gray-900">Gestão de Usuários</h2>
               </div>
               <p className="text-sm text-gray-600 mb-4">
                 Gerencie os utilizadores da sua organização e defina as suas funções de acesso.

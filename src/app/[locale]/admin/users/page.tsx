@@ -70,14 +70,14 @@ export default async function UsersPage({
           <div>
             <div className="flex items-center gap-3 mb-2">
               <Users className="h-8 w-8 text-brand-600" />
-              <h2 className="text-3xl font-bold text-gray-900">Utilizadores</h2>
+              <h2 className="text-3xl font-bold text-gray-900">Usuários</h2>
             </div>
             <p className="text-gray-600">Gerencie os utilizadores e suas permissões</p>
           </div>
           <Button asChild>
             <Link href={`/${locale}/admin/users/new`} className="flex items-center gap-2">
               <Plus className="h-5 w-5" />
-              Novo Utilizador
+              Novo Usuário
             </Link>
           </Button>
         </div>

@@ -103,7 +103,7 @@ export function Sidebar({ serverProfile }: SidebarProps) {
     }))
 
   const adminLinks = [
-    ...(isAdmin ? [{ href: `${prefix}/admin/users`, label: 'Utilizadores', icon: UserCog }] : []),
+    ...(isAdmin ? [{ href: `${prefix}/admin/users`, label: 'Usuários', icon: UserCog }] : []),
     ...(hasPremium ? [{ href: `${prefix}/admin/google-distribution`, label: 'Google Distribution', icon: Globe }] : []),
   ]
 
@@ -193,7 +193,7 @@ export function Sidebar({ serverProfile }: SidebarProps) {
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-[12px] font-black text-lodgra-blue truncate uppercase tracking-[0.5px] font-[family-name:var(--font-hanken-grotesk)]">
-              {profile?.full_name || profile?.email || 'Utilizador'}
+              {profile?.full_name || profile?.email || 'Usuário'}
             </p>
             <p className="text-[10px] text-lodgra-blue/60 uppercase font-bold tracking-[1px] font-[family-name:var(--font-hanken-grotesk)]">{profile?.role || 'user'}</p>
           </div>

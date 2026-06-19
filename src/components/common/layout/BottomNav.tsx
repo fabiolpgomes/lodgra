@@ -198,7 +198,7 @@ export function BottomNav() {
                     }`}
                   >
                     <UserCog className="h-5 w-5 shrink-0" />
-                    <span className="text-[11px] font-black uppercase tracking-[1px] font-[family-name:var(--font-hanken-grotesk)]">Utilizadores</span>
+                    <span className="text-[11px] font-black uppercase tracking-[1px] font-[family-name:var(--font-hanken-grotesk)]">Usuários</span>
                   </Link>
                 )}
               </div>

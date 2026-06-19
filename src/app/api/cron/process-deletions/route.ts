@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic'
  *
  * Anonymization strategy (per story spec):
  * - user_profiles: DELETE
- * - reservations: anonymize guest_name → "Utilizador removido"
+ * - reservations: anonymize guest_name → "Usuário removido"
  * - expenses: keep values, anonymize description references
  * - owners: anonymize email/phone
  * - consent_records: keep (proof of consent)
@@ -83,7 +83,7 @@ export async function GET(request: NextRequest) {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function processUserDeletion(adminClient: any, userId: string, requestId: string) {
-  const anonymizedName = 'Utilizador removido'
+  const anonymizedName = 'Usuário removido'
   const anonymizedEmail = null
 
   // 1. Get user's organization for scoped queries

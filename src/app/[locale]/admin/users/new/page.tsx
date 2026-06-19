@@ -28,7 +28,7 @@ export default function NewUserPage() {
   const [email, setEmail] = useState('')
   const [fullName, setFullName] = useState('')
   const [role, setRole] = useState('viewer')
-  const [guestType, setGuestType] = useState<'staff' | 'owner'>('staff')
+  const [guestType, setGuestType] = useState<'staff' | 'owner' | 'cleaner'>('staff')
   const [accessAllProperties, setAccessAllProperties] = useState(false)
   const [selectedProperties, setSelectedProperties] = useState<string[]>([])
 
@@ -91,7 +91,7 @@ export default function NewUserPage() {
       setCreatedEmail(email)
       setCreatedPassword(data.provisionalPassword || 'Senha enviada por email')
       setShowPasswordDialog(true)
-      toast.success('Utilizador criado com sucesso! Senha provisória enviada por email.')
+      toast.success('Usuário criado com sucesso! Senha provisória enviada por email.')
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err)
       setError(message)
@@ -119,11 +119,11 @@ export default function NewUserPage() {
             className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4"
           >
             <ArrowLeft className="h-4 w-4" />
-            Voltar para Utilizadores
+            Voltar para Usuários
           </Link>
           <div className="flex items-center gap-3">
             <UserPlus className="h-8 w-8 text-brand-600" />
-            <h2 className="text-3xl font-bold text-gray-900">Novo Utilizador</h2>
+            <h2 className="text-3xl font-bold text-gray-900">Novo Usuário</h2>
           </div>
         </div>
 
@@ -171,17 +171,20 @@ export default function NewUserPage() {
           {role === 'guest' && (
             <div>
               <Label htmlFor="guestType" className="mb-1">Tipo de Convidado</Label>
-              <Select value={guestType} onValueChange={(value) => setGuestType(value as 'staff' | 'owner')}>
+              <Select value={guestType} onValueChange={(value) => setGuestType(value as 'staff' | 'owner' | 'cleaner')}>
                 <SelectTrigger id="guestType" className="w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="staff">Portaria / Limpeza / Serviços</SelectItem>
+                  <SelectItem value="cleaner">🧹 Limpador / Limpadora</SelectItem>
+                  <SelectItem value="staff">Portaria / Serviços</SelectItem>
                   <SelectItem value="owner">Proprietário do Imóvel</SelectItem>
                 </SelectContent>
               </Select>
               <p className="text-xs text-gray-600 mt-1">
-                {guestType === 'staff'
+                {guestType === 'cleaner'
+                  ? 'Acesso ao portal de limpeza e tarefas de limpeza'
+                  : guestType === 'staff'
                   ? 'Acesso restrito ao calendário e check-in/check-out'
                   : 'Acesso aos relatórios e reservas das suas propriedades'}
               </p>
@@ -243,7 +246,7 @@ export default function NewUserPage() {
               disabled={loading}
               className="flex-1"
             >
-              {loading ? 'Criando...' : 'Criar Utilizador'}
+              {loading ? 'Criando...' : 'Criar Usuário'}
             </Button>
             <Button asChild variant="outline">
               <Link href={`/${locale}/admin/users`}>
@@ -257,7 +260,7 @@ export default function NewUserPage() {
         <Dialog open={showPasswordDialog} onOpenChange={setShowPasswordDialog}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Utilizador Criado com Sucesso</DialogTitle>
+              <DialogTitle>Usuário Criado com Sucesso</DialogTitle>
               <DialogDescription>
                 Guarde a senha temporária abaixo. O utilizador pode alterá-la após fazer login.
               </DialogDescription>
@@ -299,7 +302,7 @@ export default function NewUserPage() {
                 }}
                 className="w-full"
               >
-                Ir para a Lista de Utilizadores
+                Ir para a Lista de Usuários
               </Button>
             </DialogFooter>
           </DialogContent>

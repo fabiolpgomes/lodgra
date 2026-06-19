@@ -4,7 +4,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 /**
  * Retorna os IDs das propriedades do utilizador autenticado.
  * - Admin ou access_all_properties = true → retorna null (sem filtro)
- * - Utilizador normal → retorna array de property_id
+ * - Usuário normal → retorna array de property_id
  *
  * Usa admin client para bypass RLS (auth.uid() não está disponível em server context)
  */

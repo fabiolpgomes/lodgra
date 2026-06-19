@@ -11,7 +11,9 @@ interface WorkflowFlowModalProps {
 export function WorkflowFlowModal({ isOpen, onClose }: WorkflowFlowModalProps) {
   const [expandedState, setExpandedState] = useState<string | null>('pending')
 
-  if (!isOpen) return null
+  if (!isOpen) {
+    return <></>
+  }
 
   const states = [
     {
@@ -77,8 +79,8 @@ export function WorkflowFlowModal({ isOpen, onClose }: WorkflowFlowModalProps) {
   ]
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-zinc-900 rounded-3xl max-w-2xl w-full shadow-2xl max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" suppressHydrationWarning>
+      <div className="bg-white dark:bg-zinc-900 rounded-3xl max-w-2xl w-full shadow-2xl max-h-[90vh] overflow-y-auto" suppressHydrationWarning>
         {/* Header */}
         <div className="sticky top-0 bg-gradient-to-r from-lodgra-blue to-blue-600 p-6 flex items-center justify-between rounded-t-3xl">
           <div>

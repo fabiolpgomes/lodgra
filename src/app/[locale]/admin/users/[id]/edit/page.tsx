@@ -120,7 +120,7 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
         throw new Error(data.error || 'Erro ao atualizar utilizador')
       }
 
-      toast.success('Utilizador atualizado com sucesso!')
+      toast.success('Usuário atualizado com sucesso!')
       router.push('/admin/users')
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err)
@@ -160,7 +160,7 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
     return (
       <AuthLayout>
         <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <p className="text-gray-600">Utilizador não encontrado</p>
+          <p className="text-gray-600">Usuário não encontrado</p>
         </div>
       </AuthLayout>
     )
@@ -175,11 +175,11 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
             className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4"
           >
             <ArrowLeft className="h-4 w-4" />
-            Voltar para Utilizadores
+            Voltar para Usuários
           </Link>
           <div className="flex items-center gap-3">
             <UserCog className="h-8 w-8 text-brand-600" />
-            <h2 className="text-3xl font-bold text-gray-900">Editar Utilizador</h2>
+            <h2 className="text-3xl font-bold text-gray-900">Editar Usuário</h2>
           </div>
         </div>
 
