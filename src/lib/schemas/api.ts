@@ -12,7 +12,14 @@ export const CreateUserSchema = z.object({
     .regex(/[0-9]/, 'Senha deve conter pelo menos um número')
     .optional(),
   full_name: z.string().min(1, 'Nome é obrigatório').max(100),
-  role: z.enum(['admin', 'gestor', 'viewer']).optional().default('viewer'),
+  role: z.enum(['admin', 'gestor', 'viewer', 'guest']).optional().default('viewer'),
+  guest_type: z.enum(['staff', 'owner', 'cleaner']).optional(),
+  phone_number: z
+    .string()
+    .regex(/^\+?[1-9]\d{1,14}$/, 'Formato de telefone inválido. Use: +351912345678')
+    .optional()
+    .nullable(),
+  accepts_whatsapp: z.boolean().optional().default(false),
   access_all_properties: z.boolean().optional().default(false),
   property_ids: z.array(z.string().uuid('ID de propriedade inválido')).optional().default([]),
 })

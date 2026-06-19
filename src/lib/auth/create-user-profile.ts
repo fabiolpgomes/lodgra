@@ -7,6 +7,9 @@ export async function createUserProfile(input: {
   fullName: string
   organizationId: string
   role?: string | UserRole
+  guestType?: 'staff' | 'owner' | 'cleaner'
+  phoneNumber?: string
+  acceptsWhatsapp?: boolean
   accessAllProperties?: boolean
   passwordResetRequired?: boolean
   passwordChangedAt?: string | null
@@ -21,6 +24,18 @@ export async function createUserProfile(input: {
     access_all_properties: input.accessAllProperties || false,
     organization_id: input.organizationId,
     password_reset_required: input.passwordResetRequired ?? false,
+  }
+
+  if (input.guestType) {
+    profile.guest_type = input.guestType
+  }
+
+  if (input.phoneNumber) {
+    profile.phone_number = input.phoneNumber
+  }
+
+  if (input.acceptsWhatsapp !== undefined) {
+    profile.accepts_whatsapp = input.acceptsWhatsapp
   }
 
   if (input.passwordChangedAt !== undefined) {

@@ -29,6 +29,7 @@ export default function NewUserPage() {
   const [fullName, setFullName] = useState('')
   const [role, setRole] = useState('viewer')
   const [guestType, setGuestType] = useState<'staff' | 'owner' | 'cleaner'>('cleaner')
+  const [phoneNumber, setPhoneNumber] = useState('')
   const [accessAllProperties, setAccessAllProperties] = useState(false)
   const [selectedProperties, setSelectedProperties] = useState<string[]>([])
 
@@ -62,10 +63,19 @@ export default function NewUserPage() {
     setError(null)
 
     try {
+      // Validar telefone para cleaners
+      if (role === 'guest' && guestType === 'cleaner') {
+        if (!phoneNumber.trim()) {
+          throw new Error('Telefone é obrigatório para limpadores')
+        }
+        if (!/^\+?[1-9]\d{1,14}$/.test(phoneNumber)) {
+          throw new Error('Formato de telefone inválido. Use: +351912345678')
+        }
+      }
+
       const payload: Record<string, unknown> = {
         email,
         full_name: fullName,
-        // NÃO enviar password — deixar que o servidor gere a senha provisória
         role,
         access_all_properties: accessAllProperties && role !== 'guest',
         property_ids: accessAllProperties && role !== 'guest' ? [] : selectedProperties,
@@ -73,6 +83,10 @@ export default function NewUserPage() {
 
       if (role === 'guest') {
         payload.guest_type = guestType
+        payload.accepts_whatsapp = true
+        if (guestType === 'cleaner') {
+          payload.phone_number = phoneNumber
+        }
       }
 
       const response = await fetch('/api/users', {
@@ -87,11 +101,19 @@ export default function NewUserPage() {
         throw new Error(data.error || 'Erro ao criar utilizador')
       }
 
-      // Servidor envia a senha provisória na resposta
-      setCreatedEmail(email)
-      setCreatedPassword(data.provisionalPassword || 'Senha enviada por email')
-      setShowPasswordDialog(true)
-      toast.success('Usuário criado com sucesso! Senha provisória enviada por email.')
+      // Para cleaners, não mostra dialog de senha
+      if (role === 'guest' && guestType === 'cleaner') {
+        toast.success('🧹 Limpador criado com sucesso! Link de acesso será enviado via WhatsApp.')
+        setTimeout(() => {
+          router.push(`/${locale}/admin/users`)
+        }, 2000)
+      } else {
+        // Para outros usuários, mostra dialog com senha provisória
+        setCreatedEmail(email)
+        setCreatedPassword(data.provisionalPassword || 'Senha enviada por email')
+        setShowPasswordDialog(true)
+        toast.success('Usuário criado com sucesso! Senha provisória enviada por email.')
+      }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err)
       setError(message)
@@ -173,6 +195,24 @@ export default function NewUserPage() {
               </SelectContent>
             </Select>
           </div>
+
+          {/* Phone Number for Cleaners */}
+          {role === 'guest' && guestType === 'cleaner' && (
+            <div>
+              <Label htmlFor="phoneNumber" className="mb-1">Telefone WhatsApp 📱</Label>
+              <Input
+                id="phoneNumber"
+                type="tel"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                placeholder="+351912345678"
+                className="font-mono"
+              />
+              <p className="text-xs text-gray-600 mt-1">
+                Formato: +país + número (ex: +351912345678)
+              </p>
+            </div>
+          )}
 
           {role === 'guest' && guestType !== 'cleaner' && (
             <div>

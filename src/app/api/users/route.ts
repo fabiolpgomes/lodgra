@@ -63,7 +63,7 @@ export async function POST(request: Request) {
   const validation = validate(CreateUserSchema, body)
   if (!validation.ok) return validation.response
 
-  const { email, full_name, password, role, access_all_properties, property_ids } = validation.data
+  const { email, full_name, password, role, guest_type, phone_number, accepts_whatsapp, access_all_properties, property_ids } = validation.data
 
   // Herdar organization_id do utilizador que faz o pedido
   const organizationId = auth.organizationId
@@ -126,6 +126,9 @@ export async function POST(request: Request) {
       fullName: full_name,
       organizationId,
       role: role || 'viewer',
+      guestType: guest_type,
+      phoneNumber: phone_number || undefined,
+      acceptsWhatsapp: accepts_whatsapp || false,
       accessAllProperties: access_all_properties || false,
       passwordResetRequired: isProvisionalPassword,
     })
