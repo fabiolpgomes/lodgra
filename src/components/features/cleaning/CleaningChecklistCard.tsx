@@ -92,18 +92,15 @@ export function CleaningChecklistCard({ checklist, onUpdate, onDelete }: Props) 
   return (
     <div className={`overflow-hidden rounded-[28px] border-2 transition-all duration-300 ${THEMES[status]} bg-white dark:bg-zinc-900 mb-6 group`}>
       {/* Header Visual */}
-      <button
-        onClick={() => setExpanded(e => !e)}
-        className="w-full p-6 pb-4 flex flex-col gap-4 text-left"
-      >
+      <div className="p-6 pb-4 flex flex-col gap-4">
         <div className="flex items-start justify-between w-full">
-          <div>
+          <div className="flex-1">
             <div className="flex items-center gap-2 mb-1.5 font-bold uppercase tracking-widest text-[10px] text-gray-500">
               <Clock className="h-3 w-3" />
               <span>{date}</span>
               <span>•</span>
               <span className={`px-2 py-0.5 rounded-full ${
-                status === 'completed' ? 'text-emerald-600' : 
+                status === 'completed' ? 'text-emerald-600' :
                 status === 'in_progress' ? 'text-brand-600' : 'text-amber-600'
               }`}>
                 {status === 'pending' ? 'Pendente' : status === 'in_progress' ? 'Executando' : 'Finalizado'}
@@ -113,11 +110,15 @@ export function CleaningChecklistCard({ checklist, onUpdate, onDelete }: Props) 
               {propertyName}
             </h3>
           </div>
-          <div className={`p-3 rounded-2xl transition-colors ${
-            status === 'in_progress' ? 'bg-lodgra-blue text-white' : 'bg-gray-100 text-gray-600'
-          }`}>
+          <button
+            onClick={() => setExpanded(e => !e)}
+            className={`p-3 rounded-2xl transition-colors ${
+              status === 'in_progress' ? 'bg-lodgra-blue text-white' : 'bg-gray-100 text-gray-600'
+            } hover:opacity-80`}
+            title={expanded ? 'Fechar detalhes' : 'Ver detalhes'}
+          >
             <Home className="h-5 w-5" />
-          </div>
+          </button>
         </div>
 
         {/* Progress HUD */}
@@ -134,7 +135,7 @@ export function CleaningChecklistCard({ checklist, onUpdate, onDelete }: Props) 
             {progress}%
           </span>
         </div>
-      </button>
+      </div>
 
       {/* Checklist Surface */}
       {expanded && (
