@@ -1,10 +1,11 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { Plus, CheckSquare } from 'lucide-react'
+import { Plus, CheckSquare, HelpCircle } from 'lucide-react'
 import { Button } from '@/components/common/ui/button'
 import { CleaningChecklistCard, type Checklist } from './CleaningChecklistCard'
 import { NewChecklistModal } from './NewChecklistModal'
+import { WorkflowFlowModal } from './WorkflowFlowModal'
 
 interface Property { id: string; name: string }
 interface Member { id: string; full_name: string; role: string }
@@ -24,6 +25,7 @@ export function CleaningPageClient({ properties, members, userRole }: Props) {
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('pending')
   const [filterProperty, setFilterProperty] = useState('')
   const [showModal, setShowModal] = useState(false)
+  const [showWorkflowModal, setShowWorkflowModal] = useState(false)
 
   const isAdmin = ['admin', 'manager'].includes(userRole)
 
@@ -70,11 +72,20 @@ export function CleaningPageClient({ properties, members, userRole }: Props) {
             {pendingCount > 0 ? `${pendingCount} tarefas aguardando início` : 'Tudo em dia por aqui!'}
           </p>
         </div>
-        {isAdmin && (
-          <Button onClick={() => setShowModal(true)} size="lg" className="rounded-2xl h-14 w-14 p-0 shadow-lg shadow-brand-500/20">
-            <Plus className="h-6 w-6" />
-          </Button>
-        )}
+        <div className="flex gap-3">
+          <button
+            onClick={() => setShowWorkflowModal(true)}
+            className="p-3 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-2xl hover:bg-blue-200 dark:hover:bg-blue-900/50 transition shadow-lg"
+            title="Ver fluxo de trabalho"
+          >
+            <HelpCircle className="h-6 w-6" />
+          </button>
+          {isAdmin && (
+            <Button onClick={() => setShowModal(true)} size="lg" className="rounded-2xl h-14 w-14 p-0 shadow-lg shadow-brand-500/20">
+              <Plus className="h-6 w-6" />
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Modern Filter HUD */}
@@ -146,6 +157,8 @@ export function CleaningPageClient({ properties, members, userRole }: Props) {
           onCreated={() => { setShowModal(false); fetchChecklists() }}
         />
       )}
+
+      <WorkflowFlowModal isOpen={showWorkflowModal} onClose={() => setShowWorkflowModal(false)} />
     </div>
   )
 }
