@@ -194,47 +194,63 @@ export default function NewUserPage() {
             </div>
           )}
 
-          <div className="p-3 bg-brand-50 border border-brand-200 rounded-lg text-sm text-brand-700">
-            <p className="font-medium mb-1">Senha Provisória:</p>
-            <p className="text-xs">Uma senha provisória será gerada automaticamente e enviada por email ao utilizador. Na primeira vez que fizer login, será obrigado a alterá-la.</p>
-          </div>
-
-          {role !== 'guest' && (
-            <div className="flex items-center gap-3">
-              <input
-                type="checkbox"
-                id="accessAllProperties"
-                checked={accessAllProperties}
-                onChange={(e) => setAccessAllProperties(e.target.checked)}
-                className="h-4 w-4 text-brand-600 border-gray-300 rounded focus:ring-brand-500"
-              />
-              <label htmlFor="accessAllProperties" className="text-sm font-medium text-gray-700">
-                Acesso a todas as propriedades
-              </label>
+          {/* Password Info - Only for non-cleaner roles */}
+          {!(role === 'guest' && guestType === 'cleaner') && (
+            <div className="p-3 bg-brand-50 border border-brand-200 rounded-lg text-sm text-brand-700">
+              <p className="font-medium mb-1">Senha Provisória:</p>
+              <p className="text-xs">Uma senha provisória será gerada automaticamente e enviada por email ao utilizador. Na primeira vez que fizer login, será obrigado a alterá-la.</p>
             </div>
           )}
 
-          {!accessAllProperties && (
-            <div>
-              <Label className="mb-2">Propriedades</Label>
-              {properties.length === 0 ? (
-                <p className="text-sm text-gray-600">Nenhuma propriedade disponível</p>
-              ) : (
-                <div className="space-y-2 max-h-60 overflow-y-auto border border-gray-200 rounded-lg p-3">
-                  {properties.map((property) => (
-                    <label key={property.id} className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={selectedProperties.includes(property.id)}
-                        onChange={() => toggleProperty(property.id)}
-                        className="h-4 w-4 text-brand-600 border-gray-300 rounded focus:ring-brand-500"
-                      />
-                      <span className="text-sm text-gray-700">{property.name}</span>
-                    </label>
-                  ))}
+          {/* Cleaner Access Info */}
+          {role === 'guest' && guestType === 'cleaner' && (
+            <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-sm text-emerald-700">
+              <p className="font-medium mb-1">🧹 Acesso do Limpador:</p>
+              <p className="text-xs">Este usuário acessará as tarefas de limpeza designadas através de um link de acesso enviado por WhatsApp. Não precisa de senha.</p>
+            </div>
+          )}
+
+          {/* Properties Section - Only for non-cleaner roles */}
+          {!(role === 'guest' && guestType === 'cleaner') && (
+            <>
+              {role !== 'guest' && (
+                <div className="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    id="accessAllProperties"
+                    checked={accessAllProperties}
+                    onChange={(e) => setAccessAllProperties(e.target.checked)}
+                    className="h-4 w-4 text-brand-600 border-gray-300 rounded focus:ring-brand-500"
+                  />
+                  <label htmlFor="accessAllProperties" className="text-sm font-medium text-gray-700">
+                    Acesso a todas as propriedades
+                  </label>
                 </div>
               )}
-            </div>
+
+              {!accessAllProperties && (
+                <div>
+                  <Label className="mb-2">Propriedades</Label>
+                  {properties.length === 0 ? (
+                    <p className="text-sm text-gray-600">Nenhuma propriedade disponível</p>
+                  ) : (
+                    <div className="space-y-2 max-h-60 overflow-y-auto border border-gray-200 rounded-lg p-3">
+                      {properties.map((property) => (
+                        <label key={property.id} className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={selectedProperties.includes(property.id)}
+                            onChange={() => toggleProperty(property.id)}
+                            className="h-4 w-4 text-brand-600 border-gray-300 rounded focus:ring-brand-500"
+                          />
+                          <span className="text-sm text-gray-700">{property.name}</span>
+                        </label>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </>
           )}
 
           {error && (
