@@ -95,7 +95,7 @@ export function EditTaskModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-zinc-900 rounded-2xl max-w-md w-full shadow-2xl">
+      <div className="bg-white dark:bg-zinc-900 rounded-2xl max-w-md w-full shadow-2xl max-h-[90vh] flex flex-col overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-zinc-700">
           <h2 className="text-xl font-bold text-lodgra-blue dark:text-white">
@@ -110,7 +110,7 @@ export function EditTaskModal({
         </div>
 
         {/* Body */}
-        <div className="p-6 space-y-4">
+        <div className="flex-1 overflow-y-auto p-6 space-y-4">
           {/* Status */}
           <div>
             <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
@@ -170,7 +170,7 @@ export function EditTaskModal({
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Adicione observações sobre esta tarefa..."
-              rows={3}
+              rows={2}
               className="w-full px-3 py-2 border border-gray-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none"
             />
           </div>
