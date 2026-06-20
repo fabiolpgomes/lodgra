@@ -6,12 +6,27 @@ import { useSupabaseRealtimeSubscription } from '@/hooks/useSupabaseRealtimeSubs
 import CleanerTaskCard from '../_components/CleanerTaskCard'
 import { CleaningTask } from '@/types/cleaning'
 
+function decodeJWT(token: string) {
+  try {
+    const base64Url = token.split('.')[1]
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map((c) => {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+    }).join(''))
+    return JSON.parse(jsonPayload)
+  } catch (error) {
+    console.error('Failed to decode JWT:', error)
+    return null
+  }
+}
+
 export default function CleanerDashboard() {
   const supabase = createClient()
   const [tasks, setTasks] = useState<CleaningTask[]>([])
   const [nextWeekTasks, setNextWeekTasks] = useState<CleaningTask[]>([])
   const [activeTab, setActiveTab] = useState<'today' | 'next'>('today')
   const [cleanerName, setCleanerName] = useState('')
+  const [cleanerId, setCleanerId] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -19,23 +34,35 @@ export default function CleanerDashboard() {
   const fetchTasks = useCallback(async () => {
     try {
       setLoading(true)
-      const { data: sessionData } = await supabase.auth.getSession()
-      if (!sessionData.session?.user) {
+
+      // Get cleaner info from JWT cookie
+      const cookieString = document.cookie
+      const cleanerSessionCookie = cookieString
+        .split('; ')
+        .find(row => row.startsWith('cleaner_session='))
+
+      if (!cleanerSessionCookie) {
         setError('Not authenticated')
         return
       }
 
-      const cleanerId = sessionData.session.user.id
+      let currentCleanerId: string
+      try {
+        const token = cleanerSessionCookie.split('=')[1]
+        const decoded = decodeJWT(token)
 
-      // Fetch cleaner profile
-      const { data: cleanerData } = await supabase
-        .from('user_profiles')
-        .select('full_name')
-        .eq('id', cleanerId)
-        .single()
+        if (!decoded || !decoded.sub) {
+          setError('Sessão inválida')
+          return
+        }
 
-      if (cleanerData) {
-        setCleanerName(cleanerData.full_name || 'Limpador')
+        currentCleanerId = decoded.sub
+        setCleanerId(decoded.sub)
+        setCleanerName(decoded.name || 'Limpador')
+      } catch (decodeError) {
+        console.error('Failed to decode token:', decodeError)
+        setError('Erro ao processar sessão')
+        return
       }
 
       // Fetch today's tasks
@@ -50,7 +77,7 @@ export default function CleanerDashboard() {
       const { data: todayTasksData, error: todayError } = await supabase
         .from('cleaning_tasks')
         .select('*')
-        .eq('cleaner_id', cleanerId)
+        .eq('cleaner_id', currentCleanerId)
         .eq('scheduled_date', todayStr)
         .order('scheduled_date', { ascending: true })
 
@@ -65,7 +92,7 @@ export default function CleanerDashboard() {
       const { data: nextWeekData, error: nextWeekError } = await supabase
         .from('cleaning_tasks')
         .select('*')
-        .eq('cleaner_id', cleanerId)
+        .eq('cleaner_id', currentCleanerId)
         .gte('scheduled_date', tomorrowStr)
         .lte('scheduled_date', sevenDaysStr)
         .order('scheduled_date', { ascending: true })
