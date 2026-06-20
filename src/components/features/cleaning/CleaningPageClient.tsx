@@ -97,8 +97,8 @@ export function CleaningPageClient({ properties, members, userRole }: Props) {
             onClick={() => setFilterStatus(s)}
             className={`px-5 py-2.5 rounded-2xl text-xs font-black uppercase tracking-wider transition-all whitespace-nowrap ${
               filterStatus === s
-                ? 'bg-lodgra-blue text-white shadow-md'
-                : 'bg-white dark:bg-zinc-800 text-gray-500 border border-gray-100 dark:border-zinc-700'
+                ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/30'
+                : 'bg-white dark:bg-zinc-800 text-gray-500 border border-gray-100 dark:border-zinc-700 hover:border-gray-200'
             }`}
           >
             {s === 'pending' ? 'Pendentes' : s === 'in_progress' ? 'Em curso' : s === 'completed' ? 'Feitas' : 'Todas'}
