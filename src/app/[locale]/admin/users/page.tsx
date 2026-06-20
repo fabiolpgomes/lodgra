@@ -74,7 +74,7 @@ export default async function UsersPage({
             </div>
             <p className="text-gray-600">Gerencie os utilizadores e suas permissões</p>
           </div>
-          <Button asChild>
+          <Button asChild className="bg-brand-600 text-white hover:bg-brand-700">
             <Link href={`/${locale}/admin/users/new`} className="flex items-center gap-2">
               <Plus className="h-5 w-5" />
               Novo Usuário
