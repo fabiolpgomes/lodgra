@@ -1,8 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { X, Link2 } from 'lucide-react'
-import { AccessLinkModal } from './AccessLinkModal'
+import { X, Link2, Copy, Check } from 'lucide-react'
+import { toast } from 'sonner'
 
 interface EditTaskModalProps {
   task: {
@@ -30,7 +30,37 @@ export function EditTaskModal({
   const [scheduledDate, setScheduledDate] = useState(task.scheduled_date)
   const [assignedTo, setAssignedTo] = useState(taskAssignedTo || '')
   const [saving, setSaving] = useState(false)
-  const [showAccessLinkModal, setShowAccessLinkModal] = useState(false)
+  const [copyingLink, setCopyingLink] = useState(false)
+  const [linkCopied, setLinkCopied] = useState(false)
+
+  const handleCopyAccessLink = async () => {
+    setCopyingLink(true)
+    try {
+      const response = await fetch(`/api/cleaning/tasks/${task.id}/regenerate-access-link`, {
+        method: 'POST',
+        credentials: 'include',
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Erro ao gerar link')
+      }
+
+      const fullLink = `${window.location.origin}${data.accessLink}`
+      await navigator.clipboard.writeText(fullLink)
+
+      setLinkCopied(true)
+      toast.success('Link copiado para clipboard!')
+
+      setTimeout(() => setLinkCopied(false), 2000)
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Erro ao copiar link'
+      toast.error(message)
+    } finally {
+      setCopyingLink(false)
+    }
+  }
 
   const handleSave = async () => {
     setSaving(true)
@@ -147,11 +177,30 @@ export function EditTaskModal({
         <div className="space-y-3 p-6 border-t border-gray-200 dark:border-zinc-700">
           {taskAssignedTo && (
             <button
-              onClick={() => setShowAccessLinkModal(true)}
-              className="w-full px-4 py-2 bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-400 rounded-lg font-bold flex items-center justify-center gap-2 hover:bg-green-200 dark:hover:bg-green-900 transition"
+              onClick={handleCopyAccessLink}
+              disabled={copyingLink}
+              className={`w-full px-4 py-2 rounded-lg font-bold flex items-center justify-center gap-2 transition ${
+                linkCopied
+                  ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400'
+                  : 'bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-900'
+              } disabled:opacity-50`}
             >
-              <Link2 className="h-4 w-4" />
-              Ver Link de Acesso
+              {linkCopied ? (
+                <>
+                  <Check className="h-4 w-4" />
+                  Link Copiado!
+                </>
+              ) : copyingLink ? (
+                <>
+                  <div className="h-4 w-4 border-2 border-green-400 border-t-green-700 rounded-full animate-spin" />
+                  Copiando...
+                </>
+              ) : (
+                <>
+                  <Copy className="h-4 w-4" />
+                  Copie Link
+                </>
+              )}
             </button>
           )}
           <div className="flex gap-3">
@@ -171,12 +220,6 @@ export function EditTaskModal({
           </div>
         </div>
       </div>
-
-      <AccessLinkModal
-        isOpen={showAccessLinkModal}
-        onClose={() => setShowAccessLinkModal(false)}
-        taskId={task.id}
-      />
     </div>
   )
 }
