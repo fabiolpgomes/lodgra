@@ -40,7 +40,7 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
 
   const [fullName, setFullName] = useState('')
   const [role, setRole] = useState('viewer')
-  const [guestType, setGuestType] = useState<'staff' | 'owner'>('staff')
+  const [guestType, setGuestType] = useState<'staff' | 'owner' | 'cleaner'>('staff')
   const [accessAllProperties, setAccessAllProperties] = useState(false)
   const [selectedProperties, setSelectedProperties] = useState<string[]>([])
   const [newPassword, setNewPassword] = useState('')
@@ -100,7 +100,11 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
         full_name: fullName,
         role,
         access_all_properties: accessAllProperties && role !== 'guest',
-        property_ids: accessAllProperties && role !== 'guest' ? [] : selectedProperties,
+        property_ids: (accessAllProperties && role !== 'guest')
+          ? []
+          : (role === 'guest' && guestType === 'cleaner')
+          ? selectedProperties
+          : role !== 'guest' ? selectedProperties : [],
         ...(newPassword ? { password: newPassword } : {}),
       }
 
@@ -111,6 +115,7 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
       const response = await fetch(`/api/users/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(payload),
       })
 
@@ -224,17 +229,20 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
           {role === 'guest' && (
             <div>
               <Label htmlFor="guestType" className="mb-1">Tipo de Convidado</Label>
-              <Select value={guestType} onValueChange={(value) => setGuestType(value as 'staff' | 'owner')}>
+              <Select value={guestType} onValueChange={(value) => setGuestType(value as 'staff' | 'owner' | 'cleaner')}>
                 <SelectTrigger id="guestType" className="w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="staff">Portaria / Limpeza / Serviços</SelectItem>
+                  <SelectItem value="cleaner">🧹 Limpador / Limpadora</SelectItem>
+                  <SelectItem value="staff">Portaria / Serviços</SelectItem>
                   <SelectItem value="owner">Proprietário do Imóvel</SelectItem>
                 </SelectContent>
               </Select>
               <p className="text-xs text-gray-600 mt-1">
-                {guestType === 'staff'
+                {guestType === 'cleaner'
+                  ? 'Acesso às tarefas de limpeza designadas'
+                  : guestType === 'staff'
                   ? 'Acesso restrito ao calendário e check-in/check-out'
                   : 'Acesso aos relatórios e reservas das suas propriedades'}
               </p>
@@ -284,9 +292,9 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
             </div>
           )}
 
-          {!accessAllProperties && (
+          {!accessAllProperties && (role !== 'guest' || guestType === 'cleaner') && (
             <div>
-              <Label className="mb-2">Propriedades</Label>
+              <Label className="mb-2">{guestType === 'cleaner' ? '🧹 Propriedades para Limpeza' : 'Propriedades'}</Label>
               {properties.length === 0 ? (
                 <p className="text-sm text-gray-600">Nenhuma propriedade disponível</p>
               ) : (
