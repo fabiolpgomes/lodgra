@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { X } from 'lucide-react'
+import { X, Link2 } from 'lucide-react'
+import { AccessLinkModal } from './AccessLinkModal'
 
 interface EditTaskModalProps {
   task: {
@@ -29,6 +30,7 @@ export function EditTaskModal({
   const [scheduledDate, setScheduledDate] = useState(task.scheduled_date)
   const [assignedTo, setAssignedTo] = useState(taskAssignedTo || '')
   const [saving, setSaving] = useState(false)
+  const [showAccessLinkModal, setShowAccessLinkModal] = useState(false)
 
   const handleSave = async () => {
     setSaving(true)
@@ -142,22 +144,39 @@ export function EditTaskModal({
         </div>
 
         {/* Footer */}
-        <div className="flex gap-3 p-6 border-t border-gray-200 dark:border-zinc-700">
-          <button
-            onClick={onClose}
-            className="flex-1 px-4 py-2 border border-gray-300 dark:border-zinc-600 rounded-lg text-gray-700 dark:text-gray-300 font-bold hover:bg-gray-50 dark:hover:bg-zinc-800 transition"
-          >
-            Cancelar
-          </button>
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="flex-1 px-4 py-2 bg-lodgra-blue text-white rounded-lg font-bold hover:bg-lodgra-blue/90 transition disabled:opacity-50"
-          >
-            {saving ? 'Salvando...' : 'Salvar'}
-          </button>
+        <div className="space-y-3 p-6 border-t border-gray-200 dark:border-zinc-700">
+          {taskAssignedTo && (
+            <button
+              onClick={() => setShowAccessLinkModal(true)}
+              className="w-full px-4 py-2 bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-400 rounded-lg font-bold flex items-center justify-center gap-2 hover:bg-green-200 dark:hover:bg-green-900 transition"
+            >
+              <Link2 className="h-4 w-4" />
+              Ver Link de Acesso
+            </button>
+          )}
+          <div className="flex gap-3">
+            <button
+              onClick={onClose}
+              className="flex-1 px-4 py-2 border border-gray-300 dark:border-zinc-600 rounded-lg text-gray-700 dark:text-gray-300 font-bold hover:bg-gray-50 dark:hover:bg-zinc-800 transition"
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              className="flex-1 px-4 py-2 bg-lodgra-blue text-white rounded-lg font-bold hover:bg-lodgra-blue/90 transition disabled:opacity-50"
+            >
+              {saving ? 'Salvando...' : 'Salvar'}
+            </button>
+          </div>
         </div>
       </div>
+
+      <AccessLinkModal
+        isOpen={showAccessLinkModal}
+        onClose={() => setShowAccessLinkModal(false)}
+        taskId={task.id}
+      />
     </div>
   )
 }

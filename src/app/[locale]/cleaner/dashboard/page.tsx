@@ -29,28 +29,30 @@ export default function CleanerDashboard() {
 
       // Fetch cleaner profile
       const { data: cleanerData } = await supabase
-        .from('cleaners')
+        .from('user_profiles')
         .select('full_name')
         .eq('id', cleanerId)
         .single()
 
       if (cleanerData) {
-        setCleanerName(cleanerData.full_name || 'Cleaner')
+        setCleanerName(cleanerData.full_name || 'Limpador')
       }
 
       // Fetch today's tasks
       const today = new Date()
       today.setHours(0, 0, 0, 0)
+      const todayStr = today.toISOString().split('T')[0]
+
       const tomorrow = new Date(today)
       tomorrow.setDate(tomorrow.getDate() + 1)
+      const tomorrowStr = tomorrow.toISOString().split('T')[0]
 
       const { data: todayTasksData, error: todayError } = await supabase
         .from('cleaning_tasks')
         .select('*')
         .eq('cleaner_id', cleanerId)
-        .gte('scheduled_time', today.toISOString())
-        .lt('scheduled_time', tomorrow.toISOString())
-        .order('scheduled_time', { ascending: true })
+        .eq('scheduled_date', todayStr)
+        .order('scheduled_date', { ascending: true })
 
       if (todayError) throw todayError
       setTasks(todayTasksData || [])
@@ -58,14 +60,15 @@ export default function CleanerDashboard() {
       // Fetch next 7 days tasks
       const sevenDaysLater = new Date(today)
       sevenDaysLater.setDate(sevenDaysLater.getDate() + 7)
+      const sevenDaysStr = sevenDaysLater.toISOString().split('T')[0]
 
       const { data: nextWeekData, error: nextWeekError } = await supabase
         .from('cleaning_tasks')
         .select('*')
         .eq('cleaner_id', cleanerId)
-        .gte('scheduled_time', tomorrow.toISOString())
-        .lt('scheduled_time', sevenDaysLater.toISOString())
-        .order('scheduled_time', { ascending: true })
+        .gte('scheduled_date', tomorrowStr)
+        .lte('scheduled_date', sevenDaysStr)
+        .order('scheduled_date', { ascending: true })
 
       if (nextWeekError) throw nextWeekError
       setNextWeekTasks(nextWeekData || [])
