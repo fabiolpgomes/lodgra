@@ -6,20 +6,6 @@ import { useSupabaseRealtimeSubscription } from '@/hooks/useSupabaseRealtimeSubs
 import CleanerTaskCard from '../_components/CleanerTaskCard'
 import { CleaningTask } from '@/types/cleaning'
 
-function decodeJWT(token: string) {
-  try {
-    const base64Url = token.split('.')[1]
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
-    const jsonPayload = decodeURIComponent(atob(base64).split('').map((c) => {
-      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
-    }).join(''))
-    return JSON.parse(jsonPayload)
-  } catch (error) {
-    console.error('Failed to decode JWT:', error)
-    return null
-  }
-}
-
 export default function CleanerDashboard() {
   const supabase = createClient()
   const [tasks, setTasks] = useState<CleaningTask[]>([])
@@ -35,35 +21,21 @@ export default function CleanerDashboard() {
     try {
       setLoading(true)
 
-      // Get cleaner info from JWT cookie
-      const cookieString = document.cookie
-      const cleanerSessionCookie = cookieString
-        .split('; ')
-        .find(row => row.startsWith('cleaner_session='))
+      // Get cleaner info from API endpoint
+      const response = await fetch('/api/cleaners/me', {
+        credentials: 'include',
+      })
 
-      if (!cleanerSessionCookie) {
+      if (!response.ok) {
         setError('Not authenticated')
         return
       }
 
-      let currentCleanerId: string
-      try {
-        const token = cleanerSessionCookie.split('=')[1]
-        const decoded = decodeJWT(token)
+      const cleanerData = await response.json()
+      const currentCleanerId = cleanerData.cleanerId
 
-        if (!decoded || !decoded.sub) {
-          setError('Sessão inválida')
-          return
-        }
-
-        currentCleanerId = decoded.sub
-        setCleanerId(decoded.sub)
-        setCleanerName(decoded.name || 'Limpador')
-      } catch (decodeError) {
-        console.error('Failed to decode token:', decodeError)
-        setError('Erro ao processar sessão')
-        return
-      }
+      setCleanerId(currentCleanerId)
+      setCleanerName(cleanerData.name || 'Limpador')
 
       // Fetch today's tasks
       const today = new Date()
