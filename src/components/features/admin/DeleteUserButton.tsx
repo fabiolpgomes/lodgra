@@ -35,6 +35,7 @@ export function DeleteUserButton({
     try {
       const response = await fetch(`/api/users/${userId}`, {
         method: 'DELETE',
+        credentials: 'include',
       })
 
       const data = await response.json()
