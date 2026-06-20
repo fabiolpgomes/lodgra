@@ -52,7 +52,8 @@ export const CreateUserSchema = z.object({
 
 export const UpdateUserSchema = z.object({
   full_name: z.string().min(1).max(100).optional(),
-  role: z.enum(['admin', 'gestor', 'viewer']).optional(),
+  role: z.enum(['admin', 'gestor', 'viewer', 'guest']).optional(),
+  guest_type: z.enum(['staff', 'owner', 'cleaner']).optional(),
   access_all_properties: z.boolean().optional(),
   property_ids: z.array(z.string().uuid()).optional(),
   password: z

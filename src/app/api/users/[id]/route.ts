@@ -18,7 +18,7 @@ export async function PUT(
   const validation = validate(UpdateUserSchema, body)
   if (!validation.ok) return validation.response
 
-  const { full_name, role, access_all_properties, property_ids, password } = validation.data
+  const { full_name, role, guest_type, access_all_properties, property_ids, password } = validation.data
 
   const adminClient = createAdminClient()
 
@@ -51,6 +51,7 @@ export async function PUT(
   const updateData: Record<string, string | boolean> = {}
   if (full_name !== undefined) updateData.full_name = full_name
   if (role !== undefined) updateData.role = role
+  if (guest_type !== undefined) updateData.guest_type = guest_type
   if (access_all_properties !== undefined) updateData.access_all_properties = access_all_properties
 
   if (Object.keys(updateData).length > 0) {
