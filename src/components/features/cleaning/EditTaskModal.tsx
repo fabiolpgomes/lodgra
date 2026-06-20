@@ -65,15 +65,18 @@ export function EditTaskModal({
   const handleSave = async () => {
     setSaving(true)
     try {
+      const payload = {
+        status,
+        notes: notes || null,
+        scheduled_date: scheduledDate,
+        cleaner_id: assignedTo || null,
+      }
+      console.log('Saving task with payload:', payload)
+
       const response = await fetch(`/api/cleaning/tasks/${task.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          status,
-          notes: notes || null,
-          scheduled_date: scheduledDate,
-          cleaner_id: assignedTo || null,
-        }),
+        body: JSON.stringify(payload),
         credentials: 'include',
       })
 
