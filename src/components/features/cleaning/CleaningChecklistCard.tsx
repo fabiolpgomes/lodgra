@@ -1,9 +1,10 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { CheckCircle2, Clock, Home, Trash2, Edit2 } from 'lucide-react'
+import { CheckCircle2, Clock, Home, Trash2, Edit2, Link2 } from 'lucide-react'
 import { Button } from '@/components/common/ui/button'
 import { EditTaskModal } from './EditTaskModal'
+import { AccessLinkModal } from './AccessLinkModal'
 
 export interface ChecklistItem {
   id: string
@@ -39,6 +40,7 @@ export function CleaningChecklistCard({ checklist, members = [], onUpdate, onDel
   const [, startTransition] = useTransition()
   const [deleting, setDeleting] = useState(false)
   const [editOpen, setEditOpen] = useState(false)
+  const [showAccessLinkModal, setShowAccessLinkModal] = useState(false)
 
   const doneCount = items.filter(i => i.is_checked).length
   const total = items.length
@@ -184,9 +186,16 @@ export function CleaningChecklistCard({ checklist, members = [], onUpdate, onDel
           </div>
 
           <div className="mt-8 pt-6 border-t border-gray-100 grid grid-cols-2 gap-3">
-             <button className="bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-gray-400 p-4 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 hover:bg-gray-200 transition-colors">
-               📸 Foto de Evidência
-             </button>
+             {checklist.cleaner_id && (
+               <button
+                 onClick={() => setShowAccessLinkModal(true)}
+                 className="bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-400 p-4 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 hover:bg-green-200 transition-colors"
+                 title="Ver link de acesso do limpador"
+               >
+                 <Link2 className="h-4 w-4" />
+                 Ver Link
+               </button>
+             )}
              <button
                onClick={() => setEditOpen(true)}
                className="bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-400 p-4 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 hover:bg-blue-200 transition-colors"
@@ -237,6 +246,12 @@ export function CleaningChecklistCard({ checklist, members = [], onUpdate, onDel
           }}
         />
       )}
+
+      <AccessLinkModal
+        isOpen={showAccessLinkModal}
+        onClose={() => setShowAccessLinkModal(false)}
+        taskId={checklist.id}
+      />
     </div>
   )
 }
