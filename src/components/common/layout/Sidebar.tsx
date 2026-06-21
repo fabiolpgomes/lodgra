@@ -33,7 +33,7 @@ const PRIMARY_PATHS = [
   { path: '/expenses', label: 'Despesas', icon: Receipt },
   { path: '/financial', label: 'Financeiro', icon: TrendingUp },
   { path: '/calendar', label: 'Calendário', icon: CalendarDays },
-  { path: '/cleaning', label: 'Limpezas', icon: CheckSquare },
+  { path: '/cleaning', label: 'Limpeza', icon: CheckSquare },
   { path: '/reports', label: 'Relatórios', icon: BarChart3 },
 ]
 
