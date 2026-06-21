@@ -296,7 +296,7 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
     const bySource = Array.from(bySourceMap.entries()).map(([source, ratings]) => {
       const nativeMax = SOURCE_MAX[source] ?? 10
       const nativeAvg = Math.round((ratings.reduce((s: number, v: number) => s + v, 0) / ratings.length) * 10) / 10
-      const avg = Math.round((nativeAvg / nativeMax) * 100) / 10
+      const avg = toBase10(nativeAvg, source)
       return { source: source as ReviewSource, avg, nativeAvg, nativeMax, count: ratings.length }
     })
 

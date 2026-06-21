@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { ArrowLeft, Clock, MapPin, FileText, CheckCircle, AlertCircle } from 'lucide-react'
+import { ArrowLeft, Clock, MapPin, FileText, CheckCircle, AlertCircle, Upload, Image } from 'lucide-react'
 import { CleaningTask } from '@/types/cleaning'
 
 export default function CleanerTaskDetailPage() {
@@ -14,6 +14,9 @@ export default function CleanerTaskDetailPage() {
   const [task, setTask] = useState<CleaningTask | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [workDescription, setWorkDescription] = useState('')
+  const [photos, setPhotos] = useState<File[]>([])
+  const [uploading, setUploading] = useState(false)
   const supabase = createClient()
 
   useEffect(() => {
@@ -69,6 +72,76 @@ export default function CleanerTaskDetailPage() {
       })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao atualizar tarefa')
+    }
+  }
+
+  const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setPhotos(Array.from(e.target.files))
+    }
+  }
+
+  const handleUploadPhotos = async () => {
+    if (photos.length === 0 || !task) return
+
+    setUploading(true)
+    try {
+      // Upload each photo to Supabase storage
+      const uploadedPhotos = []
+      for (const photo of photos) {
+        const fileName = `${taskId}/${Date.now()}-${photo.name}`
+        const { error: uploadError } = await supabase.storage
+          .from('cleaning-task-photos')
+          .upload(fileName, photo)
+
+        if (uploadError) throw uploadError
+        uploadedPhotos.push(fileName)
+      }
+
+      // Save photo records to database
+      const photoRecords = uploadedPhotos.map(fileName => ({
+        task_id: taskId,
+        file_path: fileName,
+        uploaded_at: new Date().toISOString(),
+      }))
+
+      const { error: dbError } = await supabase
+        .from('cleaning_photos')
+        .insert(photoRecords)
+
+      if (dbError) throw dbError
+
+      // Save work description if provided
+      if (workDescription.trim()) {
+        const { error: noteError } = await supabase
+          .from('cleaning_tasks')
+          .update({ notes: workDescription })
+          .eq('id', taskId)
+
+        if (noteError) throw noteError
+      }
+
+      setPhotos([])
+      setWorkDescription('')
+      setError(null)
+      // Refresh task
+      const { data } = await supabase
+        .from('cleaning_tasks')
+        .select('*, properties(id, name)')
+        .eq('id', taskId)
+        .single()
+
+      if (data) {
+        const enriched = {
+          ...data,
+          property_name: data.properties?.name || 'Imóvel Desconhecido',
+        }
+        setTask(enriched as CleaningTask)
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao enviar fotos')
+    } finally {
+      setUploading(false)
     }
   }
 
@@ -169,6 +242,73 @@ export default function CleanerTaskDetailPage() {
           </div>
         )}
       </div>
+
+      {/* Work Documentation Section */}
+      {task.status === 'in_progress' && (
+        <div className="mb-8 space-y-4">
+          <h2 className="text-lg font-bold text-gray-900">Documentar Trabalho</h2>
+
+          {/* Work Description */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              O que foi feito? (opcional)
+            </label>
+            <textarea
+              value={workDescription}
+              onChange={(e) => setWorkDescription(e.target.value)}
+              placeholder="Descreva o trabalho realizado..."
+              rows={3}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-lodgra-blue focus:border-transparent"
+            />
+          </div>
+
+          {/* Photo Upload */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Fotos do Trabalho
+            </label>
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+              <input
+                type="file"
+                multiple
+                accept="image/*"
+                onChange={handlePhotoSelect}
+                className="hidden"
+                id="photo-input"
+              />
+              <label htmlFor="photo-input" className="cursor-pointer">
+                <Image className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                <p className="text-sm text-gray-600">Clique para selecionar fotos</p>
+                <p className="text-xs text-gray-500 mt-1">(PNG, JPG, máx 10MB)</p>
+              </label>
+            </div>
+
+            {photos.length > 0 && (
+              <div className="mt-4">
+                <p className="text-sm text-gray-600 mb-2">
+                  {photos.length} foto(s) selecionada(s):
+                </p>
+                <ul className="text-sm text-gray-700">
+                  {photos.map((photo, idx) => (
+                    <li key={idx} className="py-1">• {photo.name}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {(photos.length > 0 || workDescription.trim()) && (
+              <button
+                onClick={handleUploadPhotos}
+                disabled={uploading}
+                className="w-full mt-4 px-4 py-2 bg-lodgra-blue text-white rounded-lg font-semibold hover:bg-lodgra-blue/90 transition disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                <Upload className="h-4 w-4" />
+                {uploading ? 'Enviando...' : 'Enviar Documentação'}
+              </button>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Action Buttons */}
       <div className="space-y-3">
