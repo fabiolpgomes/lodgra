@@ -275,16 +275,11 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
   let reviewScore: ReviewScoreData | null = null
 
   if (reviews.length > 0) {
-    // Escalas nativas: Airbnb/Google/TripAdvisor usam /5; Booking/Direct/Other usam /10
-    const SOURCE_MAX: Record<string, number> = {
-      booking: 10, airbnb: 5, google: 5, tripadvisor: 5, direct: 10, other: 10,
-    }
-    const toBase10 = (rating: number, source: string) =>
-      (rating / (SOURCE_MAX[source] ?? 10)) * 10
-
+    // Todos os ratings são normalizados para 1-10 scale quando salvos no BD
+    // (Google/Airbnb/TripAdvisor são convertidos de 1-5 → 1-10 antes de salvar)
     const globalAvg = Math.round(
-      (reviews.reduce((s: number, r: { rating: number; source: string }) =>
-        s + toBase10(Number(r.rating), r.source), 0) / reviews.length) * 10
+      (reviews.reduce((s: number, r: { rating: number }) =>
+        s + Number(r.rating), 0) / reviews.length) * 10
     ) / 10
 
     const bySourceMap = new Map<string, number[]>()
@@ -294,10 +289,9 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
     }
 
     const bySource = Array.from(bySourceMap.entries()).map(([source, ratings]) => {
-      const nativeMax = SOURCE_MAX[source] ?? 10
       const nativeAvg = Math.round((ratings.reduce((s: number, v: number) => s + v, 0) / ratings.length) * 10) / 10
-      const avg = toBase10(nativeAvg, source)
-      return { source: source as ReviewSource, avg, nativeAvg, nativeMax, count: ratings.length }
+      const nativeMax = 10 // Todos estão em escala 1-10
+      return { source: source as ReviewSource, avg: nativeAvg, nativeAvg, nativeMax, count: ratings.length }
     })
 
     reviewScore = { globalAvg, totalCount: reviews.length, bySource }
