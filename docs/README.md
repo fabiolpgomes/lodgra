@@ -35,6 +35,12 @@ Complete guides for development, deployment, and operations.
   - 6-month optimization roadmap
   - Performance metrics & monitoring
 
+- **[Reviews & Ratings System](../REVIEWS_AND_RATINGS_SYSTEM.md)**
+  - Multi-platform review aggregation (Booking, Airbnb, Google, TripAdvisor)
+  - Rating normalization to 1-10 scale
+  - Calculation logic and UI components
+  - Bug fixes and maintenance checklist
+
 ### Architecture
 
 - **[System Architecture](architecture/README.md)** *(to be created)*
@@ -213,6 +219,6 @@ Documentation standards:
 
 ---
 
-**Last Updated:** 2026-05-20  
-**Total Guides:** 7 documented, 6 planned  
-**Next Review:** 2026-06-20
+**Last Updated:** 2026-06-21  
+**Total Guides:** 8 documented, 6 planned  
+**Next Review:** 2026-07-21

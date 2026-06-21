@@ -1,6 +1,9 @@
 /**
  * Review Aggregator
  * Merges reviews from multiple sources and deduplicates
+ *
+ * Documentation: docs/REVIEWS_AND_RATINGS_SYSTEM.md
+ * All ratings are pre-normalized to 1-10 scale before saving
  */
 
 /* eslint-disable @typescript-eslint/no-explicit-any */

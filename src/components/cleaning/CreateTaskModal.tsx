@@ -1,7 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
+
+interface Template {
+  id: string;
+  name: string;
+  is_default?: boolean;
+}
 
 interface CreateTaskModalProps {
   isOpen: boolean;
@@ -22,14 +28,42 @@ export default function CreateTaskModal({
   const [loading, setLoading] = useState(false);
   const [generatedLink, setGeneratedLink] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [templates, setTemplates] = useState<Template[]>([]);
+  const [loadingTemplates, setLoadingTemplates] = useState(false);
 
   const [formData, setFormData] = useState({
     property_id: '',
     scheduled_date: '',
     scheduled_time: '',
     cleaner_id: '',
+    checklist_template_id: '',
     notes: '',
   });
+
+  useEffect(() => {
+    if (formData.property_id && isOpen) {
+      loadTemplates(formData.property_id);
+    }
+  }, [formData.property_id, isOpen]);
+
+  const loadTemplates = async (propertyId: string) => {
+    setLoadingTemplates(true);
+    try {
+      const response = await fetch(`/api/cleaning/templates?propertyId=${propertyId}`);
+      if (response.ok) {
+        const { templates: data } = await response.json();
+        setTemplates(data);
+        const defaultTemplate = data.find((t: Template) => t.is_default);
+        if (defaultTemplate) {
+          setFormData((prev) => ({ ...prev, checklist_template_id: defaultTemplate.id }));
+        }
+      }
+    } catch (err) {
+      console.error('Error loading templates:', err);
+    } finally {
+      setLoadingTemplates(false);
+    }
+  };
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -62,7 +96,14 @@ export default function CreateTaskModal({
       } else {
         throw new Error('Nenhum link gerado');
       }
-      setFormData({ property_id: '', scheduled_date: '', scheduled_time: '', cleaner_id: '', notes: '' });
+      setFormData({
+        property_id: '',
+        scheduled_date: '',
+        scheduled_time: '',
+        cleaner_id: '',
+        checklist_template_id: '',
+        notes: '',
+      });
       onTaskCreated?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro desconhecido');
@@ -148,6 +189,29 @@ export default function CreateTaskModal({
                 ))}
               </select>
             </div>
+
+            {/* Template */}
+            {formData.property_id && templates.length > 0 && (
+              <div>
+                <label className="block text-sm font-semibold mb-1">
+                  Template de Limpeza {loadingTemplates && '(carregando...)'}
+                </label>
+                <select
+                  name="checklist_template_id"
+                  value={formData.checklist_template_id}
+                  onChange={handleInputChange}
+                  disabled={loadingTemplates}
+                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Sem template (checklist em branco)</option>
+                  {templates.map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {t.name} {t.is_default ? '(Padrão)' : ''}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
 
             {/* Cleaner */}
             <div>

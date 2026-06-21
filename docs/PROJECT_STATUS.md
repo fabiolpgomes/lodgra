@@ -1,12 +1,31 @@
-# Lodgra — Project Status (2026-05-23)
+# Lodgra — Project Status (2026-06-21)
 
 ## Overview
 
 **Lodgra** é uma plataforma SaaS de gestão de propriedades para alojamentos curtos, com suporte multi-moeda, multi-idioma e integração com sistemas de terceiros.
 
 **Current Version:** 1.7.0  
-**Last Updated:** 2026-05-23  
-**Status:** Production (v1.7.0 live) — SEO optimization complete  
+**Last Updated:** 2026-06-21  
+**Status:** Production (v1.7.0 live) — SEO optimization complete, Rating calculation fixed  
+
+---
+
+## Recent Updates (2026-06-21)
+
+### 🐛 Bug Fix: Rating Calculation
+
+**Issue:** Property ratings displayed incorrectly (e.g., 12.5/10 instead of 8.25/10)
+
+**Root Cause:** Code attempted to re-normalize ratings that were already normalized to 1-10 scale when saved
+
+**Fix Applied:**
+- Removed redundant `SOURCE_MAX` differentiation (all ratings stored as 1-10 in DB)
+- Simplified calculation to directly average normalized values
+- Documented the rating normalization flow
+
+**Details:** See [REVIEWS_AND_RATINGS_SYSTEM.md](./REVIEWS_AND_RATINGS_SYSTEM.md)
+
+**Commit:** `c9c0b72` — "fix: correct rating calculation by removing redundant normalization"
 
 ---
 

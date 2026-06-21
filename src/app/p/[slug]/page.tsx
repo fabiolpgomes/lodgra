@@ -277,6 +277,7 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
   if (reviews.length > 0) {
     // Todos os ratings são normalizados para 1-10 scale quando salvos no BD
     // (Google/Airbnb/TripAdvisor são convertidos de 1-5 → 1-10 antes de salvar)
+    // See: docs/REVIEWS_AND_RATINGS_SYSTEM.md for full documentation
     const globalAvg = Math.round(
       (reviews.reduce((s: number, r: { rating: number }) =>
         s + Number(r.rating), 0) / reviews.length) * 10
