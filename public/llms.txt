@@ -22,7 +22,12 @@ Proprietários de imóveis e empresas de alojamento local que querem:
 
 ## Exemplos de Tenants (Clientes)
 
-- Algarve Home Stay (`algarve-home-stay.lodgra.io`) — Gestão de propriedades no Algarve, Portugal
+### Algarve Home Stay
+- **Site de Reserva:** https://algarve-home-stay.lodgra.io
+- **Site de Informação:** https://algarvehomestay.pt
+- **Serviço:** Gestão profissional de propriedades e alojamento local no Algarve, Portugal
+- **Contacto:** +351 912 647 423 (telefone/WhatsApp) · ahspropriedades@gmail.com
+- **Localização:** Armação de Pêra, Portimão, Albufeira, Vilamoura, Algarve
 
 ## Tecnologia
 
