@@ -18,6 +18,7 @@ import {
   UserCog,
   LogOut,
   Globe,
+  ChevronDown,
 } from 'lucide-react'
 import { Logo } from '@/components/common/ui/Logo'
 import { useAuth } from '@/hooks/useAuth'
@@ -34,7 +35,11 @@ const PRIMARY_PATHS = [
   { path: '/financial', label: 'Financeiro', icon: TrendingUp },
   { path: '/calendar', label: 'Calendário', icon: CalendarDays },
   { path: '/cleaning', label: 'Limpeza', icon: CheckSquare },
-  { path: '/reports', label: 'Relatórios', icon: BarChart3 },
+]
+
+const REPORTS_MODULES = [
+  { id: 'financeiro', label: 'Financeiro', icon: TrendingUp },
+  { id: 'reservas', label: 'Reservas', icon: Calendar },
 ]
 
 const CONFIG_PATHS = [
@@ -54,6 +59,7 @@ export function Sidebar({ serverProfile }: SidebarProps) {
   const locale = useLocale()
   const router = useRouter()
   const [hasPremium, setHasPremium] = useState(false)
+  const [reportsExpanded, setReportsExpanded] = useState(false)
 
   const isAdmin = profile?.role === 'admin'
   const isGestor = profile?.role === 'gestor'
@@ -90,6 +96,11 @@ export function Sidebar({ serverProfile }: SidebarProps) {
 
     checkPremiumTier()
   }, [profile?.id])
+
+  useEffect(() => {
+    const isReportsPage = pathname.includes('/reports')
+    setReportsExpanded(isReportsPage)
+  }, [pathname])
 
   const primaryLinks = PRIMARY_PATHS
     .filter(({ path }) => {
@@ -157,6 +168,49 @@ export function Sidebar({ serverProfile }: SidebarProps) {
             </Link>
           )
         })}
+
+        {/* Reports submenu */}
+        <div>
+          <button
+            onClick={() => setReportsExpanded(!reportsExpanded)}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-none text-[13px] font-black uppercase tracking-[1px] transition-all font-[family-name:var(--font-hanken-grotesk)] ${
+              reportsExpanded || pathname.includes('/reports')
+                ? 'bg-lodgra-accent text-lodgra-blue'
+                : 'text-lodgra-blue hover:text-lodgra-blue hover:bg-lodgra-accent/10'
+            }`}
+          >
+            <BarChart3 className="h-4 w-4 shrink-0" />
+            <span className="flex-1 text-left">Relatórios</span>
+            <ChevronDown
+              className={`h-4 w-4 shrink-0 transition-transform ${
+                reportsExpanded ? 'rotate-180' : ''
+              }`}
+            />
+          </button>
+
+          {/* Reports submenu items */}
+          {reportsExpanded && (
+            <div className="ml-4 mt-1 space-y-1">
+              {REPORTS_MODULES.map(({ id, label }) => {
+                const href = `${prefix}/reports/${id}`
+                const active = pathname === href
+                return (
+                  <Link
+                    key={id}
+                    href={href}
+                    className={`flex items-center gap-3 px-4 py-2 rounded-none text-[12px] font-bold uppercase tracking-[0.5px] transition-all font-[family-name:var(--font-hanken-grotesk)] ${
+                      active
+                        ? 'bg-lodgra-accent/70 text-lodgra-blue'
+                        : 'text-lodgra-blue/70 hover:text-lodgra-blue hover:bg-lodgra-accent/20'
+                    }`}
+                  >
+                    {label}
+                  </Link>
+                )
+              })}
+            </div>
+          )}
+        </div>
 
         {/* Config group */}
         <div className="pt-8">
