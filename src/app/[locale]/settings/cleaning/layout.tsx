@@ -2,7 +2,7 @@ import { ReactNode } from 'react';
 import Link from 'next/link';
 import { requireRole } from '@/lib/auth/requireRole';
 import { redirect } from 'next/navigation';
-import { Broom, FileText } from 'lucide-react';
+import { Sparkles, FileText } from 'lucide-react';
 
 export const metadata = {
   title: 'Cleaning Settings | Lodgra',

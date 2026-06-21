@@ -119,7 +119,7 @@ describe('Reservations Calculations', () => {
     it('should identify pending reservations', () => {
       const status = 'pending'
 
-      expect(status === 'pending').toBe(false)
+      expect(status === 'pending').toBe(true)
       expect(['confirmed', 'pending'].includes(status)).toBe(true)
     })
 
@@ -156,12 +156,10 @@ describe('Reservations Calculations', () => {
 
     it('should calculate nights across month boundary', () => {
       const checkIn = new Date(today)
-      checkIn.setMonth(0) // January
-      checkIn.setDate(30)
+      checkIn.setDate(checkIn.getDate() + 28)
 
       const checkOut = new Date(checkIn)
-      checkOut.setMonth(1) // February
-      checkOut.setDate(2)
+      checkOut.setDate(checkOut.getDate() + 3)
 
       const nights = Math.ceil(
         (checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24)

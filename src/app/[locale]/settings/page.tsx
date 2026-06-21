@@ -6,7 +6,7 @@ import { ICalSyncSettings } from '@/components/features/settings/ICalSyncSetting
 import { ICalExportSection } from '@/components/features/settings/ICalExportSection'
 import { SettingsUserManagement } from '@/components/features/settings/SettingsUserManagement'
 import { ChangePasswordSection } from '@/components/features/settings/ChangePasswordSection'
-import { Building2, ExternalLink, Palette, Settings, Upload, Download, Users, BarChart3, Broom } from 'lucide-react'
+import { Building2, ExternalLink, Palette, Settings, Upload, Download, Users, BarChart3, Wrench } from 'lucide-react'
 import { ConsentManagement } from '@/components/features/settings/ConsentManagement'
 import { DataExportSection } from '@/components/features/settings/DataExportSection'
 import { AccountDeletionSection } from '@/components/features/settings/AccountDeletionSection'
@@ -226,7 +226,7 @@ export default async function SettingsPage(props: { params: Promise<{ locale: st
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-2">
-                  <Broom className="h-5 w-5 text-purple-600" />
+                  <Wrench className="h-5 w-5 text-purple-600" />
                   <h2 className="text-lg font-semibold text-gray-900">Portal de Limpeza</h2>
                 </div>
                 <p className="text-sm text-gray-600">

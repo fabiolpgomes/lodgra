@@ -52,7 +52,7 @@ export function TodaySummary({
       ? properties.filter((p) => p.id === propertyId)
       : properties
 
-    let totalProperties = periodicProperties.length
+    const totalProperties = periodicProperties.length
     let occupiedProperties = 0
 
     const checkIns: Reservation[] = []
