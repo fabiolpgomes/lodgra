@@ -2,6 +2,8 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { Star, Trash2, Plus, Pencil } from 'lucide-react'
+import { RatingStars } from '@/components/ratings/RatingStars'
+import { normalizeRating } from '@/lib/ratings/normalize'
 import type { PropertyReview, ReviewSource } from '@/types/database'
 
 const SOURCE_LABELS: Record<ReviewSource, string> = {
@@ -37,10 +39,15 @@ function formFromReview(r: PropertyReview): FormData {
   }
 }
 
+function getRatingMax(source: ReviewSource): number {
+  return source === 'booking' ? 10 : 5
+}
+
 function validateForm(f: FormData): string | null {
   if (!f.source) return 'Fonte é obrigatória.'
   const r = Number(f.rating)
-  if (!f.rating || isNaN(r) || r < 1 || r > 10) return 'Nota deve estar entre 1 e 10.'
+  const max = getRatingMax(f.source)
+  if (!f.rating || isNaN(r) || r < 1 || r > max) return `Nota deve estar entre 1 e ${max}.`
   if (!f.reviewer_name.trim()) return 'Nome do hóspede é obrigatório.'
   if (!f.review_date) return 'Data é obrigatória.'
   if (f.review_text.length > 500) return 'Texto não pode exceder 500 caracteres.'
@@ -216,9 +223,16 @@ export function ReviewsManager({ propertyId }: ReviewsManagerProps) {
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-sm font-medium text-gray-800">{review.reviewer_name}</span>
                     <span className="text-xs text-gray-600">{SOURCE_LABELS[review.source]}</span>
-                    <span className="text-xs font-semibold text-brand-700 bg-brand-50 px-1.5 py-0.5 rounded">
-                      {Number(review.rating).toFixed(1)}/10
-                    </span>
+                    <div className="flex items-center gap-1">
+                      <RatingStars
+                        rating={normalizeRating(SOURCE_LABELS[review.source], Number(review.rating))}
+                        size="sm"
+                        showText={false}
+                      />
+                      <span className="text-xs font-semibold text-brand-700">
+                        {Number(review.rating).toFixed(1)}/{getRatingMax(review.source)}
+                      </span>
+                    </div>
                     <span className="text-xs text-gray-500">{review.review_date}</span>
                     {review.is_featured && (
                       <span className="inline-flex items-center gap-1 text-xs text-yellow-700 bg-yellow-50 px-1.5 py-0.5 rounded">
@@ -346,15 +360,17 @@ function ReviewForm({ form, onChange, onSubmit, onCancel, submitLabel, disabled,
         </div>
 
         <div>
-          <label className="block text-xs text-gray-600 mb-1">Nota (1–10) *</label>
+          <label className="block text-xs text-gray-600 mb-1">
+            Nota (1–{getRatingMax(form.source)}) *
+          </label>
           <input
             type="number"
             min={1}
-            max={10}
+            max={getRatingMax(form.source)}
             step={0.1}
             value={form.rating}
             onChange={e => set({ rating: e.target.value })}
-            placeholder="ex: 9.2"
+            placeholder={`ex: ${getRatingMax(form.source) === 10 ? '8.5' : '4.5'}`}
             className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           />
         </div>
