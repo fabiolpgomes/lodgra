@@ -1,4 +1,6 @@
 import type { ReviewScoreData, ReviewSource } from '@/types/database'
+import { RatingStars } from '@/components/ratings/RatingStars'
+import { normalizeRating } from '@/lib/ratings/normalize'
 
 const SOURCE_LABELS: Record<ReviewSource, string> = {
   booking: 'Booking.com',
@@ -43,11 +45,19 @@ export function PropertyReviewScore({ reviewScore }: PropertyReviewScoreProps) {
 
       {/* Score global */}
       <div className="flex items-center gap-5 mb-6">
-        <div className="flex items-end gap-1.5 leading-none">
-          <span className="text-6xl font-extrabold text-lodgra-brand-700 leading-none">
-            {reviewScore.globalAvg.toFixed(1)}
-          </span>
-          <span className="text-xl text-gray-400 mb-1">/10</span>
+        <div className="flex flex-col gap-2">
+          <div className="flex items-end gap-1.5 leading-none">
+            <span className="text-6xl font-extrabold text-lodgra-brand-700 leading-none">
+              {reviewScore.globalAvg.toFixed(1)}
+            </span>
+            <span className="text-xl text-gray-400 mb-1">/10</span>
+          </div>
+          <RatingStars
+            rating={normalizeRating('Booking', reviewScore.globalAvg)}
+            size="md"
+            showText={false}
+            className="mt-1"
+          />
         </div>
         <div className="flex flex-col gap-1">
           {label && (
@@ -77,6 +87,11 @@ export function PropertyReviewScore({ reviewScore }: PropertyReviewScoreProps) {
                 </span>
                 <span className="text-sm text-gray-400">/{nativeMax}</span>
               </div>
+              <RatingStars
+                rating={normalizeRating(SOURCE_LABELS[source], nativeAvg)}
+                size="sm"
+                showText={false}
+              />
               <span className="text-xs text-gray-400">
                 {count} {count === 1 ? 'avaliação' : 'avaliações'}
               </span>

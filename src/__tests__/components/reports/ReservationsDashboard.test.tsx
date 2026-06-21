@@ -1,6 +1,10 @@
 import { render, screen } from '@testing-library/react'
 import { ReservationsDashboard } from '@/components/features/reports/ReservationsDashboard'
 
+jest.mock('@/components/common/ui/CurrencyStack', () => ({
+  CurrencyStack: () => <div data-testid="currency-stack">Currency Stack</div>,
+}))
+
 describe('ReservationsDashboard', () => {
   const mockProperties = [
     { id: '1', name: 'Property 1' },
