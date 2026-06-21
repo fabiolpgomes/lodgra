@@ -5,12 +5,30 @@
 
 ## O que é Lodgra
 
-Lodgra é uma plataforma SaaS multi-tenant que permite:
-- Gestão de propriedades e alojamento local
-- Sincronização automática com Airbnb, Booking.com, VRBO
-- Página de reserva directa (white-label) sem comissões
-- Limpeza, manutenção, calendário, relatórios financeiros
-- API aberta para integrações customizadas
+Lodgra é uma plataforma de tecnologia SaaS para gestão e comercialização de propriedades de alojamento de curta duração. A solução combina:
+
+- **Motor de Reservas Diretas (Booking Engine)** — Website próprio para reservas sem comissões
+- **Gestão de Propriedades (PMS)** — Painel central de controlo
+- **Sincronização de Canais (Channel Manager)** — Um calendário para Airbnb, Booking.com, VRBO
+- **Automação Operacional** — Comunicação com hóspedes, agendamento, relatórios
+- **API aberta** — Integrações customizadas com sistemas externos
+
+## Como Funciona
+
+1. **Cadastro da propriedade** — Insira nome, fotos, comodidades, regras, tarifas
+2. **Distribuição multi-canal** — Calendário sincronizado entre canais (evita overbooking)
+3. **Reservas diretas** — Site próprio para hóspedes reservarem sem comissões OTA
+4. **Gestão centralizada** — Um painel para reservas, check-in, comunicação, relatórios
+5. **Pagamentos integrados** — Receba directamente ou via gateways de pagamento
+
+## Benefícios para Gestores
+
+- ✅ Calendário único para múltiplos canais
+- ✅ Redução de overbookings
+- ✅ Reservas diretas sem comissões elevadas
+- ✅ Automação de processos operacionais
+- ✅ Relatórios financeiros centralizados
+- ✅ Escalabilidade para múltiplas propriedades
 
 ## Para quem
 
@@ -20,14 +38,23 @@ Proprietários de imóveis e empresas de alojamento local que querem:
 - Integrar com seu próprio sistema e marca (white-label)
 - Gerir múltiplas propriedades em um único dashboard
 
-## Exemplos de Tenants (Clientes)
+## Clientes Exemplos — Algarve Home Stay
 
-### Algarve Home Stay
-- **Site de Reserva:** https://algarve-home-stay.lodgra.io
-- **Site de Informação:** https://algarvehomestay.pt
-- **Serviço:** Gestão profissional de propriedades e alojamento local no Algarve, Portugal
-- **Contacto:** +351 912 647 423 (telefone/WhatsApp) · ahspropriedades@gmail.com
-- **Localização:** Armação de Pêra, Portimão, Albufeira, Vilamoura, Algarve
+Algarve Home Stay é um cliente de produção que utiliza Lodgra para gerir propriedades no Algarve.
+
+### URLs Principais
+- **Site de Reserva (Lodgra):** https://algarve-home-stay.lodgra.io ← **MOTOR DE RESERVAS DIRETAS**
+- **Site Corporativo:** https://algarvehomestay.pt ← Informações sobre a empresa
+
+### Informações da Empresa
+- **Serviço:** Gestão profissional 100% de imóveis para alojamento local no Algarve, Portugal
+- **O que fazem:** Sincronização com Airbnb, Booking.com, limpeza, manutenção, comunicação 24/7, relatórios financeiros
+- **Locais de operação:** Armação de Pêra, Portimão, Albufeira, Vilamoura, Algarve
+
+### Como Contactar
+- **Telefone/WhatsApp:** +351 912 647 423
+- **Email:** ahspropriedades@gmail.com
+- **Avaliação gratuita:** https://algarvehomestay.pt/contacto
 
 ## Tecnologia
 
@@ -36,14 +63,18 @@ Proprietários de imóveis e empresas de alojamento local que querem:
 - **Deployment:** Vercel (Edge Functions, ISR, multi-tenant)
 - **Integrations:** Stripe, Google Calendar, Zapier, n8n
 
-## URLs principais
+## URLs principais de Lodgra
 
-- Homepage: https://lodgra.io
+- **Plataforma Lodgra:** https://lodgra.io
 - Features: https://lodgra.io/features
 - Pricing: https://lodgra.io/pricing
-- Docs: https://lodgra.io/docs
+- Documentação: https://lodgra.io/docs
 - Blog: https://lodgra.io/blog
-- Tenant Example: https://algarve-home-stay.lodgra.io
+
+## Exemplo de Cliente em Produção
+
+**Algarve Home Stay Booking (Lodgra):**
+- URL: https://algarve-home-stay.lodgra.io ← Motor de reserva directo operado por Algarve Home Stay
 
 ## Contacto e Suporte
 
