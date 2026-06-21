@@ -2,11 +2,22 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
+import ChecklistPreview from './ChecklistPreview';
+import { Eye, EyeOff } from 'lucide-react';
+
+interface ChecklistItem {
+  id?: string;
+  label: string;
+  category?: string;
+  is_required?: boolean;
+}
 
 interface Template {
   id: string;
   name: string;
+  description?: string;
   is_default?: boolean;
+  items?: ChecklistItem[];
 }
 
 interface CreateTaskModalProps {
@@ -30,6 +41,8 @@ export default function CreateTaskModal({
   const [error, setError] = useState<string | null>(null);
   const [templates, setTemplates] = useState<Template[]>([]);
   const [loadingTemplates, setLoadingTemplates] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
+  const [showPreview, setShowPreview] = useState(false);
 
   const [formData, setFormData] = useState({
     property_id: '',
@@ -56,6 +69,7 @@ export default function CreateTaskModal({
         const defaultTemplate = data.find((t: Template) => t.is_default);
         if (defaultTemplate) {
           setFormData((prev) => ({ ...prev, checklist_template_id: defaultTemplate.id }));
+          await loadTemplateDetails(defaultTemplate.id);
         }
       }
     } catch (err) {
@@ -65,11 +79,27 @@ export default function CreateTaskModal({
     }
   };
 
+  const loadTemplateDetails = async (templateId: string) => {
+    try {
+      const response = await fetch(`/api/cleaning/templates/${templateId}`);
+      if (response.ok) {
+        const { template } = await response.json();
+        setSelectedTemplate(template);
+      }
+    } catch (err) {
+      console.error('Error loading template details:', err);
+    }
+  };
+
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ): void => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+
+    if (name === 'checklist_template_id' && value) {
+      loadTemplateDetails(value);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
@@ -193,9 +223,30 @@ export default function CreateTaskModal({
             {/* Template */}
             {formData.property_id && templates.length > 0 && (
               <div>
-                <label className="block text-sm font-semibold mb-1">
-                  Template de Limpeza {loadingTemplates && '(carregando...)'}
-                </label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-sm font-semibold">
+                    Template de Limpeza {loadingTemplates && '(carregando...)'}
+                  </label>
+                  {selectedTemplate && (
+                    <button
+                      type="button"
+                      onClick={() => setShowPreview(!showPreview)}
+                      className="text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1 px-2 py-1 rounded hover:bg-blue-50"
+                    >
+                      {showPreview ? (
+                        <>
+                          <EyeOff className="h-3 w-3" />
+                          Esconder
+                        </>
+                      ) : (
+                        <>
+                          <Eye className="h-3 w-3" />
+                          Ver checklist
+                        </>
+                      )}
+                    </button>
+                  )}
+                </div>
                 <select
                   name="checklist_template_id"
                   value={formData.checklist_template_id}
@@ -210,6 +261,21 @@ export default function CreateTaskModal({
                     </option>
                   ))}
                 </select>
+
+                {/* Checklist Preview */}
+                {showPreview && selectedTemplate?.items && selectedTemplate.items.length > 0 && (
+                  <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg max-h-48 overflow-y-auto">
+                    <ChecklistPreview
+                      items={selectedTemplate.items}
+                      title={selectedTemplate.name}
+                      compact
+                    />
+                  </div>
+                )}
+
+                {selectedTemplate?.description && (
+                  <p className="text-xs text-gray-600 mt-2 italic">{selectedTemplate.description}</p>
+                )}
               </div>
             )}
 

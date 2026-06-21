@@ -3,6 +3,7 @@ import { requireRole } from '@/lib/auth/requireRole';
 import { createClient } from '@/lib/supabase/server';
 import TemplatesManager from '@/components/cleaning/TemplatesManager';
 import TemplateOnboarding from '@/components/cleaning/TemplateOnboarding';
+import TemplateStats from '@/components/cleaning/TemplateStats';
 import { HelpCircle, Zap } from 'lucide-react';
 
 export const metadata = {
@@ -72,6 +73,9 @@ export default async function TemplatesPage() {
             </div>
           </div>
         </div>
+
+        {/* Statistics */}
+        <TemplateStats />
 
         {/* Main Content */}
         <TemplatesManager
