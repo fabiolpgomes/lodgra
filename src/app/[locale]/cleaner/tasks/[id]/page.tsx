@@ -179,17 +179,20 @@ export default function CleanerTaskDetailPage() {
 
   const colors = statusColors[task.status] || statusColors.pending
 
-  const scheduledTime = new Date(task.scheduled_time).toLocaleTimeString('pt-BR', {
-    hour: '2-digit',
-    minute: '2-digit',
-  })
+  // Parse time from HH:MM:SS format (scheduled_time is stored as TIME type, not timestamp)
+  const scheduledTime = task.scheduled_time 
+    ? task.scheduled_time.slice(0, 5)
+    : '00:00'
 
-  const scheduledDate = new Date(task.scheduled_date + 'T12:00:00').toLocaleDateString('pt-BR', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
+  // Parse date from YYYY-MM-DD format
+  const scheduledDate = task.scheduled_date
+    ? new Date(task.scheduled_date + 'T12:00:00').toLocaleDateString('pt-BR', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      })
+    : 'Data não disponível'
 
   return (
     <div className="min-h-screen bg-white p-4">
