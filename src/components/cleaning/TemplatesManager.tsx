@@ -29,6 +29,7 @@ export default function TemplatesManager({
 }: TemplatesManagerProps) {
   const [templates, setTemplates] = useState<Template[]>(initialTemplates);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
