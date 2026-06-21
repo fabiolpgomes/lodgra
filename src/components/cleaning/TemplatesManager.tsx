@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import TemplateModal from './TemplateModal';
+import InitializeTemplatesButton from './InitializeTemplatesButton';
 
 interface Template {
   id: string;
@@ -278,10 +279,27 @@ export default function TemplatesManager({
       />
 
       {templates.length === 0 && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
-          <p className="text-blue-900">
-            Nenhum template criado ainda. Clique em &quot;Novo Template&quot; para começar!
-          </p>
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-8 text-center space-y-4">
+          <div>
+            <p className="text-blue-900 font-semibold mb-2">Bem-vindo aos Templates de Limpeza!</p>
+            <p className="text-blue-800 text-sm">
+              Comece criando seus próprios templates ou use nossos templates padrão.
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+            <button
+              onClick={() => {
+                setSelectedTemplate(null);
+                setEditPropertyId(null);
+                setIsModalOpen(true);
+              }}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+            >
+              + Criar Custom
+            </button>
+            <InitializeTemplatesButton onComplete={refreshTemplates} />
+          </div>
         </div>
       )}
     </div>
