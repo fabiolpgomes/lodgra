@@ -35,7 +35,7 @@ export function NewChecklistModal({ properties, members, onClose, onCreated }: P
       body: JSON.stringify({
         property_id: propertyId,
         scheduled_date: date,
-        scheduled_time: `${date}T${time}:00`,
+        scheduled_time: `${time}:00`,
         cleaner_id: assignedTo || null,
         notes: notes || null
       }),
