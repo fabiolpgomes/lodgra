@@ -11,7 +11,7 @@ interface ChecklistItem {
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const auth = await requireRole(['admin', 'gestor']);
@@ -21,7 +21,7 @@ export async function POST(
     const { name, property_id } = body;
 
     const supabase = await createClient();
-    const { id } = params;
+    const { id } = await params;
 
     // Get original template and items
     const { data: original, error: getError } = await supabase
