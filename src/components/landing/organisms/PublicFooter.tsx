@@ -24,6 +24,11 @@ export const PublicFooter: React.FC = () => {
     { href: 'https://lodgra.io', label: 'Website Oficial' },
   ]
 
+  const clientLinks = [
+    { href: 'https://algarve-home-stay.lodgra.io', label: 'Algarve Home Stay', external: true },
+    { href: 'https://algarvehomestay.pt', label: 'AHS Informações', external: true },
+  ]
+
   return (
     <footer className="bg-lodgra-blue text-white py-12 sm:py-16 mt-16">
       <Container>
@@ -72,18 +77,20 @@ export const PublicFooter: React.FC = () => {
             </ul>
           </div>
 
-          {/* Legal */}
+          {/* Clientes */}
           <div>
-            <h4 className="font-semibold text-sm mb-4 uppercase tracking-wider">Legal</h4>
+            <h4 className="font-semibold text-sm mb-4 uppercase tracking-wider">Clientes</h4>
             <ul className="space-y-2">
-              {legalLinks.map(link => (
+              {clientLinks.map(link => (
                 <li key={link.href}>
-                  <Link
+                  <a
                     href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="text-sm text-gray-300 hover:text-lodgra-accent transition-colors"
                   >
                     {link.label}
-                  </Link>
+                  </a>
                 </li>
               ))}
             </ul>

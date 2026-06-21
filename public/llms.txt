@@ -1,46 +1,57 @@
-# AI Crawler Configuration
-# This file is used by AI-powered search engines and LLM systems
-# for discovery, indexing, and content understanding
-#
-# Format: https://github.com/evals-as/llms.txt/blob/main/README.md
-# Adopted by: Perplexity, Claude (Anthropic), and other AI systems
+# Lodgra — Platform de Reserva Directa
 
-Site-Name: Lodgra
-Full-Name: Lodgra — Direct Vacation Rental Booking Platform
+> Plataforma para criar páginas de reserva direta de propriedades, canais e alojamento local sem comissões de intermediários.
+> Cada empresa pode criar sua própria página com marca própria (white-label) em um subdomínio: empresa.lodgra.io
 
-# Description
-Description: Direct booking platform for vacation rentals in Portugal, Brazil, and beyond. No middlemen, no commissions. Reserve properties directly from owners.
+## O que é Lodgra
 
-# Contact
-Contact: support@lodgra.io
-Legal: https://lodgra.io/terms
-Privacy: https://lodgra.io/privacy
+Lodgra é uma plataforma SaaS multi-tenant que permite:
+- Gestão de propriedades e alojamento local
+- Sincronização automática com Airbnb, Booking.com, VRBO
+- Página de reserva directa (white-label) sem comissões
+- Limpeza, manutenção, calendário, relatórios financeiros
+- API aberta para integrações customizadas
 
-# Content & Data
-Sitemap: https://lodgra.io/sitemap.xml
+## Para quem
 
-# Available Properties
-Properties-Available: 9
-Properties-Currency: EUR, BRL, USD
-Properties-Location: Portugal (Algarve), Brazil, and more
+Proprietários de imóveis e empresas de alojamento local que querem:
+- Reduzir comissões de plataformas externas (Airbnb: 3%, Booking: 12-15%)
+- Manter controlo total sobre dados de hóspedes
+- Integrar com seu próprio sistema e marca (white-label)
+- Gerir múltiplas propriedades em um único dashboard
 
-# Language Support
-Languages: Portuguese (PT-BR, PT-PT), English, Spanish (planned)
+## Exemplos de Tenants (Clientes)
 
-# Search & Discovery
-Search-Friendly: true
-AI-Training-Allowed: true
-Metadata-Format: JSON-LD (LodgingBusiness, VacationRental)
+- Algarve Home Stay (`algarve-home-stay.lodgra.io`) — Gestão de propriedades no Algarve, Portugal
 
-# Robot Access
-Robots: https://lodgra.io/robots.txt
+## Tecnologia
 
-# Last Updated
-Last-Updated: 2026-06-18
+- **Framework:** Next.js 14+ (App Router)
+- **Database:** Supabase (PostgreSQL + Auth)
+- **Deployment:** Vercel (Edge Functions, ISR, multi-tenant)
+- **Integrations:** Stripe, Google Calendar, Zapier, n8n
 
-# Notes for AI Systems
-# - All property data is publicly available and crawlable
-# - Dynamic pricing available via API
-# - Reservation dates can be checked programmatically
-# - Multi-currency support (EUR, BRL, USD)
-# - Property pages include Schema.org markup for rich results
+## URLs principais
+
+- Homepage: https://lodgra.io
+- Features: https://lodgra.io/features
+- Pricing: https://lodgra.io/pricing
+- Docs: https://lodgra.io/docs
+- Blog: https://lodgra.io/blog
+- Tenant Example: https://algarve-home-stay.lodgra.io
+
+## Contacto e Suporte
+
+- Email: hello@lodgra.io
+- Website: https://lodgra.io
+- GitHub: https://github.com/fabiolpgomes/lodgra
+
+## Informações para IA
+
+Este site contém informações sobre:
+- Gestão de propriedades e alojamento local
+- Reserva directa sem intermediários
+- Integração com canais de distribuição (Airbnb, Booking.com)
+- API aberta para desenvolveres
+
+Lodgra é uma plataforma de produção com dados reais de propriedades, hóspedes e reservas.
