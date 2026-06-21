@@ -29,11 +29,13 @@ export default async function CleaningPage({
     .eq('is_active', true)
     .order('name')
 
-  const { data: members } = ['admin', 'manager'].includes(profile.role)
+  const { data: members } = ['admin', 'manager', 'gestor'].includes(profile.role)
     ? await supabase
         .from('user_profiles')
-        .select('id, full_name, role')
+        .select('id, full_name')
         .eq('organization_id', profile.organization_id)
+        .eq('role', 'guest')
+        .eq('guest_type', 'cleaner')
     : { data: [] }
 
   return (
