@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import TemplatesManager from '@/components/cleaning/TemplatesManager';
 import TemplateOnboarding from '@/components/cleaning/TemplateOnboarding';
 import TemplateStats from '@/components/cleaning/TemplateStats';
+import TemplateInsights from '@/components/cleaning/TemplateInsights';
 import { HelpCircle, Zap } from 'lucide-react';
 
 export const metadata = {
@@ -76,6 +77,9 @@ export default async function TemplatesPage() {
 
         {/* Statistics */}
         <TemplateStats />
+
+        {/* Insights */}
+        <TemplateInsights />
 
         {/* Main Content */}
         <TemplatesManager

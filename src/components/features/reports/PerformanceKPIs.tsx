@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react'
 import { TrendingUp } from 'lucide-react'
-import { CurrencyStack } from '@/components/shared/CurrencyStack'
+import { CurrencyStack } from '@/components/common/ui/CurrencyStack'
 
 export interface Reservation {
   id: string
