@@ -39,7 +39,7 @@ export default function TemplateBuilder({
 
     const newItem: TemplateItem = {
       label: newItemLabel,
-      category: newItemCategory || null,
+      category: newItemCategory || undefined,
       is_required: false,
       order_index: items.length,
     };
