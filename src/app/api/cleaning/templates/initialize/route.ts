@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireRole } from '@/lib/auth/requireRole';
 import { seedCleaningTemplates } from '@/lib/seeds/cleaning-templates.seed';
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     const auth = await requireRole(['admin']);
     if (!auth.authorized) return auth.response!;

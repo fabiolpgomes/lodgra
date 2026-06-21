@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireRole } from '@/lib/auth/requireRole';
 import { createClient } from '@/lib/supabase/server';
 
+interface ChecklistItem {
+  label: string;
+  category?: string;
+  is_required?: boolean;
+}
+
 export async function GET(request: NextRequest) {
   try {
     const auth = await requireRole(['admin', 'gestor']);
@@ -74,7 +80,7 @@ export async function POST(request: NextRequest) {
 
     // Create template items if provided
     if (items && Array.isArray(items) && items.length > 0) {
-      const itemsToInsert = items.map((item: any, index: number) => ({
+      const itemsToInsert = items.map((item: ChecklistItem, index: number) => ({
         template_id: template.id,
         label: item.label,
         category: item.category || null,

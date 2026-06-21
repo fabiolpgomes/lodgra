@@ -2,6 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireRole } from '@/lib/auth/requireRole';
 import { createClient } from '@/lib/supabase/server';
 
+interface ChecklistItem {
+  label: string;
+  category?: string;
+  is_required?: boolean;
+  order_index?: number;
+}
+
 export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -53,7 +60,7 @@ export async function POST(
 
     // Duplicate items
     if (original.items && original.items.length > 0) {
-      const itemsToInsert = original.items.map((item: any) => ({
+      const itemsToInsert = original.items.map((item: ChecklistItem) => ({
         template_id: newTemplate.id,
         label: item.label,
         category: item.category,

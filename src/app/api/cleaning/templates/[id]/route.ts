@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireRole } from '@/lib/auth/requireRole';
 import { createClient } from '@/lib/supabase/server';
 
+interface ChecklistItem {
+  label: string;
+  category?: string;
+  is_required?: boolean;
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -82,7 +88,7 @@ export async function PUT(
 
       // Insert new items
       if (items.length > 0) {
-        const itemsToInsert = items.map((item: any, index: number) => ({
+        const itemsToInsert = items.map((item: ChecklistItem, index: number) => ({
           template_id: id,
           label: item.label,
           category: item.category || null,
