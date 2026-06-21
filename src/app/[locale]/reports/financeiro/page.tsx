@@ -321,7 +321,27 @@ export default async function FinanceiroPage({ searchParams }: PageProps) {
     return acc
   }, {}) || {}
 
-  const propertyStats = Object.values(revenueByProperty).sort((a, b) => b.revenue - a.revenue)
+  // Agrupar despesas por propriedade
+  const expensesByProperty = expenses?.reduce((acc: Record<string, number>, e) => {
+    const propId = e.property_id;
+    if (!propId) return acc;
+    if (!acc[propId]) acc[propId] = 0;
+    acc[propId] += Number(e.amount || 0);
+    return acc;
+  }, {}) || {};
+
+  // Calcular management fee e owner net
+  const propertyStats = Object.values(revenueByProperty).map(stat => {
+    const meta = propertyMeta[stat.id] ?? { management_percentage: 0, owner_name: null }
+    const propertyExpenses = expensesByProperty[stat.id] || 0;
+    return {
+      ...stat,
+      management_percentage: meta.management_percentage,
+      management_fee: (stat.revenue * meta.management_percentage) / 100,
+      owner_net: (stat.revenue * (1 - meta.management_percentage / 100)) - propertyExpenses,
+      owner_name: meta.owner_name,
+    }
+  }).sort((a, b) => b.revenue - a.revenue)
 
   // Agrupar por mês para gráfico
   const revenueByMonth = reservations?.reduce((acc: Record<string, { monthKey: string; month: string; currency: string; revenue: number; reservations: number; nights: number; availableNights: number }>, r) => {
@@ -456,13 +476,16 @@ export default async function FinanceiroPage({ searchParams }: PageProps) {
   const channelStats = Object.values(revenueByChannel).sort((a, b) => b.revenue - a.revenue)
   const totalRevenueAllChannels = channelStats.reduce((sum, c) => sum + c.revenue, 0)
 
-  const totalsByCurrency: Record<CurrencyCode, { revenue: number; expenses: number; profit: number }> = {}
-  Object.keys(revenueByCurrency).forEach(currency => {
-    totalsByCurrency[currency as CurrencyCode] = {
-      revenue: revenueByCurrency[currency as CurrencyCode] || 0,
-      expenses: expensesByCurrency[currency as CurrencyCode] || 0,
-      profit: netProfitByCurrency[currency as CurrencyCode] || 0,
+  // Calcular totais por moeda (para FinancialOverviewCharts)
+  const totalsByCurrency: Record<string, { revenue: number; mgmt: number; owner: number }> = {}
+  propertyStats.forEach(stat => {
+    const currency = stat.currency as CurrencyCode
+    if (!totalsByCurrency[currency]) {
+      totalsByCurrency[currency] = { revenue: 0, mgmt: 0, owner: 0 }
     }
+    totalsByCurrency[currency].revenue += stat.revenue
+    totalsByCurrency[currency].mgmt += stat.management_fee
+    totalsByCurrency[currency].owner += stat.owner_net
   })
 
   return (

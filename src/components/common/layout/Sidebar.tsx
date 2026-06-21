@@ -59,7 +59,7 @@ export function Sidebar({ serverProfile }: SidebarProps) {
   const locale = useLocale()
   const router = useRouter()
   const [hasPremium, setHasPremium] = useState(false)
-  const [reportsExpanded, setReportsExpanded] = useState(false)
+  const [reportsExpanded, setReportsExpanded] = useState(pathname.includes('/reports'))
 
   const isAdmin = profile?.role === 'admin'
   const isGestor = profile?.role === 'gestor'
@@ -96,11 +96,6 @@ export function Sidebar({ serverProfile }: SidebarProps) {
 
     checkPremiumTier()
   }, [profile?.id])
-
-  useEffect(() => {
-    const isReportsPage = pathname.includes('/reports')
-    setReportsExpanded(isReportsPage)
-  }, [pathname])
 
   const primaryLinks = PRIMARY_PATHS
     .filter(({ path }) => {

@@ -194,6 +194,13 @@ export default function CleanerTaskDetailPage() {
       })
     : 'Data não disponível'
 
+  // Check if task date is in the future (cannot edit before scheduled date)
+  const scheduledDateObj = task.scheduled_date ? new Date(task.scheduled_date + 'T00:00:00') : null
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const isTaskInFuture = scheduledDateObj && scheduledDateObj > today
+  const canEditTask = !isTaskInFuture
+
   return (
     <div className="min-h-screen bg-white p-4">
       {/* Header */}
@@ -314,7 +321,12 @@ export default function CleanerTaskDetailPage() {
       )}
 
       {/* Action Buttons */}
-      <div className="space-y-3">
+      {isTaskInFuture ? (
+        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg text-blue-700 text-center font-semibold">
+          ℹ️ Tarefa disponível a partir de {scheduledDate}
+        </div>
+      ) : (
+        <div className="space-y-3">
         {task.status === 'pending' && (
           <button
             onClick={() => handleStatusChange('in_progress')}
@@ -356,6 +368,7 @@ export default function CleanerTaskDetailPage() {
           </div>
         )}
       </div>
+        )}
     </div>
   )
 }
