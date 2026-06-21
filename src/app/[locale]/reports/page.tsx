@@ -9,6 +9,7 @@ import { PLStatement } from '@/components/features/reports/PLStatement'
 import { ChannelAnalysis } from '@/components/features/reports/ChannelAnalysis'
 import { CashFlowForecast } from '@/components/features/reports/CashFlowForecast'
 import { FinancialPdfDownloadButton } from '@/components/features/reports/FinancialPdfDownloadButton'
+import { ReservationsDashboard } from '@/components/features/reports/ReservationsDashboard'
 import { formatCurrency, groupByCurrency, CurrencyCode } from '@/lib/utils/currency'
 import { CurrencyStack } from '@/components/common/ui/CurrencyStack'
 import { normalizeChannelName } from '@/lib/utils/channels'
@@ -696,6 +697,15 @@ export default async function ReportsPage({ searchParams }: PageProps) {
               <MonthlyComparison monthlyStats={monthlyStats} />
             </div>
           </>
+        ) : activeTab === 'reservas' ? (
+          <ReservationsDashboard
+            _reservations={reservations || []}
+            futureReservations={futureReservations || []}
+            properties={properties || []}
+            _startDate={startDate}
+            _endDate={endDate}
+            propertyId={propertyId}
+          />
         ) : activeTab === 'pl' ? (
           <PLStatement
             grossRevenue={revenueByCurrency}

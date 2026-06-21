@@ -10,6 +10,7 @@ import { useRouter } from '@/lib/i18n/routing'
 const REPORT_TABS = [
   { id: 'dashboard', label: 'Dashboard' },
   { id: 'receitas', label: 'Receitas' },
+  { id: 'reservas', label: 'Reservas' },
   { id: 'despesas', label: 'Despesas' },
   { id: 'pl', label: 'P&L' },
   { id: 'canais', label: 'Canais' },
