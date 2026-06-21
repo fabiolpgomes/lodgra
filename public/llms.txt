@@ -78,7 +78,7 @@ Algarve Home Stay é um cliente de produção que utiliza Lodgra para gerir prop
 
 ## Contacto e Suporte
 
-- Email: hello@lodgra.io
+- Email: contato@lodgra.io
 - Website: https://lodgra.io
 - GitHub: https://github.com/fabiolpgomes/lodgra
 
