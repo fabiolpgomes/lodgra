@@ -2,7 +2,7 @@ import { ReactNode } from 'react';
 import Link from 'next/link';
 import { requireRole } from '@/lib/auth/requireRole';
 import { redirect } from 'next/navigation';
-import { Sparkles, FileText } from 'lucide-react';
+import { Sparkles, FileText, Wrench } from 'lucide-react';
 
 export const metadata = {
   title: 'Cleaning Settings | Lodgra',
@@ -25,7 +25,7 @@ export default async function CleaningSettingsLayout({
     {
       label: 'Tarefas',
       href: `/${locale}/settings/cleaning`,
-      icon: Broom,
+      icon: Wrench,
       description: 'Dashboard de tarefas de limpeza',
     },
     {
@@ -43,7 +43,7 @@ export default async function CleaningSettingsLayout({
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-6">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100">
-              <Broom className="h-5 w-5 text-blue-600" />
+              <Wrench className="h-5 w-5 text-blue-600" />
             </div>
             <div>
               <h1 className="text-3xl font-bold text-gray-900">Limpeza</h1>
