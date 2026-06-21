@@ -7,7 +7,7 @@ export async function POST(_request: NextRequest) {
     const auth = await requireRole(['admin']);
     if (!auth.authorized) return auth.response!;
 
-    const result = await seedCleaningTemplates(auth.organizationId);
+    const result = await seedCleaningTemplates(auth.organizationId!);
     return NextResponse.json({ success: true, result });
   } catch (error) {
     console.error('Error initializing templates:', error);
