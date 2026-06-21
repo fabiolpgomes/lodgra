@@ -85,9 +85,16 @@ export function CleaningChecklistCard({ checklist, members = [], onUpdate, onDel
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const propertyName = (checklist as any).property_name || checklist.properties?.name || 'Imóvel'
-  const date = new Date(checklist.scheduled_date + 'T12:00:00').toLocaleDateString('pt-BR', {
-    day: '2-digit', month: 'long'
-  })
+  
+  // Safe date parsing - handle invalid dates
+  const date = checklist.scheduled_date
+    ? new Date(checklist.scheduled_date + 'T12:00:00').toLocaleDateString('pt-BR', {
+        day: '2-digit', month: 'long'
+      })
+    : 'Data não disponível'
+  
+  // Check if date is valid
+  const isValidDate = checklist.scheduled_date && !isNaN(new Date(checklist.scheduled_date + 'T12:00:00').getTime())
 
   const THEMES = {
     pending: 'border-amber-100 bg-amber-50/30',
