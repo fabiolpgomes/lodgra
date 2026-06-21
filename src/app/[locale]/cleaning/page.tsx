@@ -32,7 +32,7 @@ export default async function CleaningPage({
   const { data: members } = ['admin', 'manager', 'gestor'].includes(profile.role)
     ? await supabase
         .from('user_profiles')
-        .select('id, full_name')
+        .select('id, full_name, role')
         .eq('organization_id', profile.organization_id)
         .eq('role', 'guest')
         .eq('guest_type', 'cleaner')
