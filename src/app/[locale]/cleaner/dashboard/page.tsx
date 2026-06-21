@@ -54,6 +54,7 @@ export default function CleanerDashboard() {
         .order('scheduled_date', { ascending: true })
 
       if (todayError) throw todayError
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const enrichedTodayTasks = (todayTasksData || []).map((task: any) => ({
         ...task,
         property_name: task.properties?.name || 'Imóvel Desconhecido',
@@ -74,6 +75,7 @@ export default function CleanerDashboard() {
         .order('scheduled_date', { ascending: true })
 
       if (nextWeekError) throw nextWeekError
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const enrichedNextWeekTasks = (nextWeekData || []).map((task: any) => ({
         ...task,
         property_name: task.properties?.name || 'Imóvel Desconhecido',
