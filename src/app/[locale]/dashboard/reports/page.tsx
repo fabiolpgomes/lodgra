@@ -1,15 +1,82 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { LazyCommissionDashboard as CommissionDashboard } from '@/components/common/lazy/LazyCharts'
+import { ReservationsDashboard } from '@/components/features/reports/ReservationsDashboard'
 
-type ReportTab = 'commissions' | 'expenses' | 'revenue' | 'analytics'
+type ReportTab = 'commissions' | 'expenses' | 'revenue' | 'analytics' | 'reservas'
+
+interface Reservation {
+  id: string
+  check_in: string
+  check_out: string
+  status: 'confirmed' | 'pending' | 'cancelled'
+  total_amount?: number
+  currency?: string
+  source?: string
+  number_of_guests?: number
+  created_at?: string
+  platform_fee?: number
+  net_amount?: number
+  property_listings?: Array<{
+    id?: string
+    property_id: string
+    properties?: Array<{
+      id: string
+      name: string
+      currency: string
+      city?: string
+    }>
+  }>
+  guests?: Array<{
+    first_name: string
+    last_name: string
+  }>
+}
+
+interface Property {
+  id: string
+  name: string
+  currency?: string
+  is_active?: boolean
+}
 
 export default function ReportsPage() {
   const [activeTab, setActiveTab] = useState<ReportTab>('commissions')
+  const [reservations, setReservations] = useState<Reservation[]>([])
+  const [properties, setProperties] = useState<Property[]>([])
+  const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true)
+      try {
+        const [resRes, propsRes] = await Promise.all([
+          fetch('/api/reservations?status=confirmed'),
+          fetch('/api/properties'),
+        ])
+
+        if (resRes.ok) {
+          const data = await resRes.json()
+          setReservations(data)
+        }
+        if (propsRes.ok) {
+          const data = await propsRes.json()
+          setProperties(data)
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [])
 
   const tabs: Array<{ id: ReportTab; label: string; description: string }> = [
     { id: 'commissions', label: 'Commissions', description: 'Platform commission tracking' },
+    { id: 'reservas', label: 'Reservas', description: 'Reservation dashboard' },
     { id: 'expenses', label: 'Expenses', description: 'Property expenses (coming soon)' },
     { id: 'revenue', label: 'Revenue', description: 'Booking revenue analysis (coming soon)' },
     { id: 'analytics', label: 'Analytics', description: 'Advanced analytics (coming soon)' },
@@ -55,6 +122,26 @@ export default function ReportsPage() {
         {activeTab === 'commissions' && (
           <div>
             <CommissionDashboard />
+          </div>
+        )}
+
+        {activeTab === 'reservas' && (
+          <div>
+            {loading ? (
+              <div className="bg-white rounded-lg shadow p-8 text-center">
+                <p className="text-gray-600">Carregando...</p>
+              </div>
+            ) : (
+              <ReservationsDashboard
+                _reservations={reservations}
+                futureReservations={reservations}
+                properties={properties}
+                _startDate={new Date().toISOString().split('T')[0]}
+                _endDate={new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+                  .toISOString()
+                  .split('T')[0]}
+              />
+            )}
           </div>
         )}
 

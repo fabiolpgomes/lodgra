@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import ChecklistPreview from './ChecklistPreview';
+import QuickTemplateSelector from './QuickTemplateSelector';
 import { Eye, EyeOff } from 'lucide-react';
 
 interface ChecklistItem {
@@ -275,6 +276,18 @@ export default function CreateTaskModal({
 
                 {selectedTemplate?.description && (
                   <p className="text-xs text-gray-600 mt-2 italic">{selectedTemplate.description}</p>
+                )}
+
+                {/* Quick Template Selector */}
+                {formData.property_id && (
+                  <QuickTemplateSelector
+                    propertyId={formData.property_id}
+                    selectedTemplateId={formData.checklist_template_id}
+                    onSelectTemplate={(templateId) => {
+                      setFormData((prev) => ({ ...prev, checklist_template_id: templateId }));
+                      loadTemplateDetails(templateId);
+                    }}
+                  />
                 )}
               </div>
             )}
