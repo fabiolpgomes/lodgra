@@ -17,6 +17,7 @@ interface Props {
 export function NewChecklistModal({ properties, members, onClose, onCreated }: Props) {
   const [propertyId, setPropertyId] = useState(properties[0]?.id ?? '')
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10))
+  const [time, setTime] = useState('09:00')
   const [assignedTo, setAssignedTo] = useState('')
   const [notes, setNotes] = useState('')
   const [loading, setLoading] = useState(false)
@@ -31,7 +32,13 @@ export function NewChecklistModal({ properties, members, onClose, onCreated }: P
     const res = await fetch('/api/cleaning/tasks', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ property_id: propertyId, scheduled_date: date, cleaner_id: assignedTo || null, notes: notes || null }),
+      body: JSON.stringify({
+        property_id: propertyId,
+        scheduled_date: date,
+        scheduled_time: `${date}T${time}:00`,
+        cleaner_id: assignedTo || null,
+        notes: notes || null
+      }),
     })
     setLoading(false)
     if (res.ok) {
@@ -135,6 +142,17 @@ export function NewChecklistModal({ properties, members, onClose, onCreated }: P
               onChange={e => setDate(e.target.value)}
               className="w-full px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl dark:bg-gray-800 dark:text-white outline-none focus:ring-2 focus:ring-lodgra-primary"
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Hora Disponível *</label>
+            <input
+              type="time"
+              value={time}
+              onChange={e => setTime(e.target.value)}
+              className="w-full px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl dark:bg-gray-800 dark:text-white outline-none focus:ring-2 focus:ring-lodgra-primary"
+            />
+            <p className="text-xs text-gray-500 mt-1">A partir de que horas o imóvel está disponível para limpeza</p>
           </div>
 
           {members.length > 0 && (
