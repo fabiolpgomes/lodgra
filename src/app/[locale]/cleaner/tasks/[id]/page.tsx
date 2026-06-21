@@ -60,9 +60,9 @@ export default function CleanerTaskDetailPage() {
 
       if (error) throw error
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       setTask({
         ...task,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         status: newStatus as any,
         started_at: newStatus === 'in_progress' && !task.started_at ? new Date().toISOString() : task.started_at,
         completed_at: newStatus === 'done' ? new Date().toISOString() : task.completed_at,
