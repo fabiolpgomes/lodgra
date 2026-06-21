@@ -1,6 +1,6 @@
 import { Calendar } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
-import { ReportsFilters } from '@/components/features/reports/ReportsFilters'
+import { ReservationsFilters } from '@/components/features/reports/ReservationsFilters'
 import { ReservationsDashboard } from '@/components/features/reports/ReservationsDashboard'
 import { AuthLayout } from '@/components/common/layout/AuthLayout'
 import { getUserPropertyIds } from '@/lib/auth/getUserProperties'
@@ -142,12 +142,11 @@ export default async function ReservasPage({ searchParams }: PageProps) {
         </div>
 
         {/* Filtros */}
-        <ReportsFilters
+        <ReservationsFilters
           properties={properties || []}
           startDate={startDate}
           endDate={endDate}
           propertyId={propertyId}
-          activeTab="reservas"
         />
 
         {/* Reservations Dashboard */}
