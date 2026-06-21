@@ -60,6 +60,7 @@ export default function CleanerTaskDetailPage() {
 
       if (error) throw error
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       setTask({
         ...task,
         status: newStatus as any,
