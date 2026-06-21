@@ -65,6 +65,15 @@ export function PerformanceKPIs({
     ]
   }, [metrics])
 
+  const currencyTotals = useMemo(() => {
+    const totals: Record<string, number> = {}
+    reservations.forEach((r) => {
+      const currency = r.currency || 'EUR'
+      totals[currency] = (totals[currency] || 0) + (r.total_amount || 0)
+    })
+    return totals
+  }, [reservations])
+
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-6">
       <h2 className="mb-6 flex items-center gap-2 text-xl font-semibold">
@@ -84,7 +93,7 @@ export function PerformanceKPIs({
 
       <div className="mt-6">
         <h3 className="mb-4 font-semibold text-gray-700">Distribuição de Receita</h3>
-        <CurrencyStack reservations={reservations} />
+        <CurrencyStack totals={currencyTotals} />
       </div>
     </div>
   )

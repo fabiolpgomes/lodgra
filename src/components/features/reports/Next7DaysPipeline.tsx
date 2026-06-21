@@ -56,7 +56,7 @@ export function Next7DaysPipeline({
     const start = new Date(startDate)
     start.setHours(0, 0, 0, 0)
 
-    const dayArray = []
+    const dayArray: Date[] = []
     const currentDate = new Date(start)
     for (let i = 0; i < 7; i++) {
       dayArray.push(new Date(currentDate))
