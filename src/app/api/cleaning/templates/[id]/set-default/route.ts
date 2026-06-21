@@ -4,14 +4,14 @@ import { createClient } from '@/lib/supabase/server';
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const auth = await requireRole(['admin', 'gestor']);
     if (!auth.authorized) return auth.response!;
 
     const supabase = await createClient();
-    const { id } = params;
+    const { id } = await params;
 
     // Get template to find property_id
     const { data: template, error: getError } = await supabase

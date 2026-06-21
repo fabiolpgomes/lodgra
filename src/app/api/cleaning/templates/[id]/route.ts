@@ -10,14 +10,14 @@ interface ChecklistItem {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const auth = await requireRole(['admin', 'gestor']);
     if (!auth.authorized) return auth.response!;
 
     const supabase = await createClient();
-    const { id } = params;
+    const { id } = await params;
 
     const { data: template, error } = await supabase
       .from('cleaning_checklist_templates')
@@ -44,7 +44,7 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const auth = await requireRole(['admin', 'gestor']);
@@ -53,7 +53,7 @@ export async function PUT(
     const body = await request.json();
     const { name, description, is_active, items } = body;
     const supabase = await createClient();
-    const { id } = params;
+    const { id } = await params;
 
     // Update template
     const { data: template, error: updateError } = await supabase
@@ -116,14 +116,14 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const auth = await requireRole(['admin', 'gestor']);
     if (!auth.authorized) return auth.response!;
 
     const supabase = await createClient();
-    const { id } = params;
+    const { id } = await params;
 
     // Check if template is in use
     const { count: taskCount } = await supabase
