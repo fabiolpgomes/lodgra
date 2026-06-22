@@ -42,7 +42,7 @@ export function TodaySummary({
   const today = useMemo(() => {
     // Use UTC date, not local browser timezone
     const t = new Date()
-    const utcDate = new Date(t.getUTCFullYear(), t.getUTCMonth(), t.getUTCDate(), 0, 0, 0, 0)
+    const utcDate = new Date(Date.UTC(t.getUTCFullYear(), t.getUTCMonth(), t.getUTCDate(), 0, 0, 0, 0))
     return utcDate
   }, [])
 
