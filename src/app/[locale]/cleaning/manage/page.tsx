@@ -17,6 +17,18 @@ interface FilterState {
   page: number;
 }
 
+interface CleaningTask {
+  id: string;
+  property_id: string;
+  scheduled_date: string;
+  scheduled_time?: string;
+  cleaner_id?: string;
+  checklist_template_id?: string;
+  notes?: string;
+  status?: 'pending' | 'in_progress' | 'done' | 'issue';
+  completed_at?: string;
+}
+
 export default function ManagerDashboardPage() {
   const t = useTranslations('cleaning.manage');
   const { user } = useAuth();
@@ -126,7 +138,7 @@ export default function ManagerDashboardPage() {
         ) : (
           <>
             <TaskTable
-              tasks={tasks as Record<string, unknown>[]}
+              tasks={tasks as CleaningTask[]}
               onUpdate={handleTaskUpdate}
               onDelete={handleTaskDelete}
             />
