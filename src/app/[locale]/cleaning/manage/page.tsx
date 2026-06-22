@@ -8,22 +8,6 @@ import TaskTable from '@/components/cleaning/TaskTable';
 import TaskForm from '@/components/cleaning/TaskForm';
 import TaskFilters from '@/components/cleaning/TaskFilters';
 
-export interface CleaningTask {
-  id: string;
-  organization_id: string;
-  property_id: string;
-  cleaner_id?: string;
-  checklist_template_id?: string;
-  reservation_id?: string | null;
-  status: string;
-  scheduled_date: string;
-  scheduled_time?: string;
-  notes?: string;
-  completed_at?: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
 interface FilterState {
   property_id?: string;
   status?: string;
@@ -37,7 +21,7 @@ export default function ManagerDashboardPage() {
   const t = useTranslations('cleaning.manage');
   const { user } = useAuth();
 
-  const [tasks, setTasks] = useState<CleaningTask[]>([]);
+  const [tasks, setTasks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [filters, setFilters] = useState<FilterState>({ page: 1 });
@@ -75,13 +59,13 @@ export default function ManagerDashboardPage() {
     fetchTasks();
   }, [filters, user]);
 
-  const handleCreateTask = (newTask: CleaningTask) => {
+  const handleCreateTask = (newTask: any) => {
     // Optimistic update
     setTasks([newTask, ...tasks]);
     setShowCreateForm(false);
   };
 
-  const handleTaskUpdate = (updatedTask: CleaningTask) => {
+  const handleTaskUpdate = (updatedTask: any) => {
     setTasks(tasks.map((t) => (t.id === updatedTask.id ? updatedTask : t)));
   };
 
