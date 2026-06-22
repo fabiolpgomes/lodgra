@@ -59,8 +59,10 @@ export default function ManagerDashboardPage() {
         if (!response.ok) throw new Error('Failed to fetch tasks');
 
         const data = await response.json();
-        setTasks(data.tasks);
-        setTotalPages(data.pagination.totalPages);
+        setTasks(data.tasks || []);
+        const limit = 20;
+        const total = data.total || 0;
+        setTotalPages(Math.ceil(total / limit));
       } catch (error) {
         console.error('Error fetching tasks:', error);
       } finally {
