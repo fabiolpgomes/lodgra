@@ -74,7 +74,7 @@ export default function ManagerDashboardPage() {
   };
 
   const handleTaskDelete = (taskId: string) => {
-    setTasks(tasks.filter((t) => t.id !== taskId));
+    setTasks(tasks.filter((t) => (t as Record<string, unknown>).id !== taskId));
   };
 
   const handleFilterChange = (newFilters: Partial<FilterState>) => {
