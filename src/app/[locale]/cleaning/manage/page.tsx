@@ -47,11 +47,11 @@ export default function ManagerDashboardPage() {
       setLoading(true);
       try {
         const params = new URLSearchParams();
-        if (filters.property_id) params.append('property_id', filters.property_id);
+        if (filters.property_id) params.append('propertyId', filters.property_id);
         if (filters.status) params.append('status', filters.status);
-        if (filters.cleaner_id) params.append('cleaner_id', filters.cleaner_id);
-        if (filters.dateFrom) params.append('date_from', filters.dateFrom);
-        if (filters.dateTo) params.append('date_to', filters.dateTo);
+        if (filters.cleaner_id) params.append('cleanerId', filters.cleaner_id);
+        if (filters.dateFrom) params.append('startDate', filters.dateFrom);
+        if (filters.dateTo) params.append('endDate', filters.dateTo);
         params.append('page', filters.page.toString());
         params.append('limit', '20');
 
