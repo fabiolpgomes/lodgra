@@ -14,7 +14,7 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const auth = await requireRole(['admin', 'gestor']);
+    const auth = await requireRole(['admin', 'manager', 'gestor']);
     if (!auth.authorized) return auth.response!;
 
     const body = await request.json();

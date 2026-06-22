@@ -9,7 +9,7 @@ import { createClient } from '@/lib/supabase/server';
 
 export async function GET(request: NextRequest) {
   try {
-    const auth = await requireRole(['admin', 'gestor']);
+    const auth = await requireRole(['admin', 'manager', 'gestor']);
     if (!auth.authorized) return auth.response!;
 
     const supabase = await createClient();
@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const auth = await requireRole(['admin', 'gestor']);
+    const auth = await requireRole(['admin', 'manager', 'gestor']);
     if (!auth.authorized) return auth.response!;
 
     const body = await request.json();
@@ -126,7 +126,7 @@ export async function POST(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   try {
-    const auth = await requireRole(['admin', 'gestor']);
+    const auth = await requireRole(['admin', 'manager', 'gestor']);
     if (!auth.authorized) return auth.response!;
 
     const body = await request.json();

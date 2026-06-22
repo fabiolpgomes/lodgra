@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 
 export async function GET() {
   try {
-    const auth = await requireRole(['admin', 'gestor']);
+    const auth = await requireRole(['admin', 'manager', 'gestor']);
     if (!auth.authorized) return auth.response!;
 
     const supabase = await createClient();

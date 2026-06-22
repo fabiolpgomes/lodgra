@@ -13,7 +13,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const auth = await requireRole(['admin', 'gestor']);
+    const auth = await requireRole(['admin', 'manager', 'gestor']);
     if (!auth.authorized) return auth.response!;
 
     const supabase = await createClient();
@@ -47,7 +47,7 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const auth = await requireRole(['admin', 'gestor']);
+    const auth = await requireRole(['admin', 'manager', 'gestor']);
     if (!auth.authorized) return auth.response!;
 
     const body = await request.json();
@@ -119,7 +119,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const auth = await requireRole(['admin', 'gestor']);
+    const auth = await requireRole(['admin', 'manager', 'gestor']);
     if (!auth.authorized) return auth.response!;
 
     const supabase = await createClient();
