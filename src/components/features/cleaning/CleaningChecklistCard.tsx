@@ -44,7 +44,7 @@ export function CleaningChecklistCard({ checklist, members = [], onUpdate, onDel
 
   const doneCount = items.filter(i => i.is_checked).length
   const total = items.length
-  const progress = total > 0 ? Math.round((doneCount / total) * 100) : 0
+  const progress = status === 'completed' ? 100 : total > 0 ? Math.round((doneCount / total) * 100) : 0
 
   async function toggleItem(item: ChecklistItem) {
     const newChecked = !item.is_checked
