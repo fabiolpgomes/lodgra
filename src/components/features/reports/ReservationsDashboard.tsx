@@ -63,25 +63,29 @@ export function ReservationsDashboard({
   }, [])
 
   const nextSevenDays = useMemo(() => {
-    const nsd = new Date(today)
-    nsd.setDate(nsd.getDate() + 7)
-    return nsd
+    const t = new Date(today)
+    return new Date(Date.UTC(t.getUTCFullYear(), t.getUTCMonth(), t.getUTCDate() + 7, 0, 0, 0, 0))
   }, [today])
 
   const sevenDayReservations = useMemo(() => {
     return (futureReservations || []).filter((r) => {
-      const checkIn = new Date(r.check_in)
+      const checkInParts = r.check_in.split('T')[0].split('-')
+      const checkIn = new Date(Date.UTC(parseInt(checkInParts[0]), parseInt(checkInParts[1]) - 1, parseInt(checkInParts[2])))
       return checkIn >= today && checkIn <= nextSevenDays && r.status === 'confirmed'
     })
   }, [futureReservations, today, nextSevenDays])
 
   const todaysReservations = useMemo(() => {
-    const tomorrowStart = new Date(today)
-    tomorrowStart.setDate(tomorrowStart.getDate() + 1)
+    const t = new Date(today)
+    const tomorrowStart = new Date(Date.UTC(t.getUTCFullYear(), t.getUTCMonth(), t.getUTCDate() + 1, 0, 0, 0, 0))
 
     return sevenDayReservations.filter((r) => {
-      const checkIn = new Date(r.check_in)
-      const checkOut = new Date(r.check_out)
+      const checkInParts = r.check_in.split('T')[0].split('-')
+      const checkIn = new Date(Date.UTC(parseInt(checkInParts[0]), parseInt(checkInParts[1]) - 1, parseInt(checkInParts[2])))
+
+      const checkOutParts = r.check_out.split('T')[0].split('-')
+      const checkOut = new Date(Date.UTC(parseInt(checkOutParts[0]), parseInt(checkOutParts[1]) - 1, parseInt(checkOutParts[2])))
+
       return (
         (checkIn >= today && checkIn < tomorrowStart) ||
         (checkOut > today && checkOut <= tomorrowStart)
@@ -106,8 +110,11 @@ export function ReservationsDashboard({
     totalAvailableNights = daysDiff * periodicProperties.length
 
     periodicReservations.forEach((r) => {
-      const checkIn = new Date(r.check_in)
-      const checkOut = new Date(r.check_out)
+      const checkInParts = r.check_in.split('T')[0].split('-')
+      const checkIn = new Date(Date.UTC(parseInt(checkInParts[0]), parseInt(checkInParts[1]) - 1, parseInt(checkInParts[2])))
+
+      const checkOutParts = r.check_out.split('T')[0].split('-')
+      const checkOut = new Date(Date.UTC(parseInt(checkOutParts[0]), parseInt(checkOutParts[1]) - 1, parseInt(checkOutParts[2])))
 
       const windowStart = checkIn < today ? today : checkIn
       const windowEnd = checkOut > nextSevenDays ? nextSevenDays : checkOut
