@@ -34,7 +34,11 @@ const PRIMARY_PATHS = [
   { path: '/expenses', label: 'Despesas', icon: Receipt },
   { path: '/financial', label: 'Financeiro', icon: TrendingUp },
   { path: '/calendar', label: 'Calendário', icon: CalendarDays },
-  { path: '/cleaning', label: 'Limpeza', icon: CheckSquare },
+]
+
+const CLEANING_SUBMENU = [
+  { path: '/cleaning', label: 'Próximas Limpezas' },
+  { path: '/cleaning/manage', label: 'Gerenciar' },
 ]
 
 const REPORTS_MODULES = [
@@ -60,6 +64,7 @@ export function Sidebar({ serverProfile }: SidebarProps) {
   const router = useRouter()
   const [hasPremium, setHasPremium] = useState(false)
   const [reportsExpanded, setReportsExpanded] = useState(pathname.includes('/reports'))
+  const [cleaningExpanded, setCleaningExpanded] = useState(pathname.includes('/cleaning'))
 
   const isAdmin = profile?.role === 'admin'
   const isGestor = profile?.role === 'gestor'
@@ -163,6 +168,49 @@ export function Sidebar({ serverProfile }: SidebarProps) {
             </Link>
           )
         })}
+
+        {/* Cleaning submenu */}
+        <div>
+          <button
+            onClick={() => setCleaningExpanded(!cleaningExpanded)}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-none text-[13px] font-black uppercase tracking-[1px] transition-all font-[family-name:var(--font-hanken-grotesk)] ${
+              cleaningExpanded || pathname.includes('/cleaning')
+                ? 'bg-lodgra-accent text-lodgra-blue'
+                : 'text-lodgra-blue hover:text-lodgra-blue hover:bg-lodgra-accent/10'
+            }`}
+          >
+            <CheckSquare className="h-4 w-4 shrink-0" />
+            <span className="flex-1 text-left">Limpeza</span>
+            <ChevronDown
+              className={`h-4 w-4 shrink-0 transition-transform ${
+                cleaningExpanded ? 'rotate-180' : ''
+              }`}
+            />
+          </button>
+
+          {/* Cleaning submenu items */}
+          {cleaningExpanded && (
+            <div className="ml-4 mt-1 space-y-1">
+              {CLEANING_SUBMENU.map(({ path, label: submenuLabel }) => {
+                const href = path === '/' ? (prefix || '/') : `${prefix}${path}`
+                const active = pathname === href
+                return (
+                  <Link
+                    key={path}
+                    href={href}
+                    className={`flex items-center gap-3 px-4 py-2 rounded-none text-[12px] font-bold uppercase tracking-[0.5px] transition-all font-[family-name:var(--font-hanken-grotesk)] ${
+                      active
+                        ? 'bg-lodgra-accent/70 text-lodgra-blue'
+                        : 'text-lodgra-blue/70 hover:text-lodgra-blue hover:bg-lodgra-accent/20'
+                    }`}
+                  >
+                    {submenuLabel}
+                  </Link>
+                )
+              })}
+            </div>
+          )}
+        </div>
 
         {/* Reports submenu */}
         <div>
