@@ -161,19 +161,7 @@ export function EditTaskModal({
             </select>
           </div>
 
-          {/* Notes */}
-          <div>
-            <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
-              Notas
-            </label>
-            <textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Adicione observações sobre esta tarefa..."
-              rows={2}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none"
-            />
-          </div>
+
         </div>
 
         {/* Footer */}
