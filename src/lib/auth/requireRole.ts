@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getCachedProfile, setCachedProfile } from '@/lib/cache/profileCache'
 
-export type Role = 'admin' | 'gestor' | 'owner' | 'viewer' | 'guest'
+export type Role = 'admin' | 'manager' | 'gestor' | 'owner' | 'viewer' | 'guest'
 export type GuestType = 'staff' | 'owner' | 'cleaner'
 
 interface AuthResult {
