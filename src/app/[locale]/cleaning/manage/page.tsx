@@ -126,7 +126,7 @@ export default function ManagerDashboardPage() {
         ) : (
           <>
             <TaskTable
-              tasks={tasks}
+              tasks={tasks as Record<string, unknown>[]}
               onUpdate={handleTaskUpdate}
               onDelete={handleTaskDelete}
             />
