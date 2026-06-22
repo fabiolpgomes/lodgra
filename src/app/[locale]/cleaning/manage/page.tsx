@@ -17,11 +17,13 @@ interface FilterState {
   page: number;
 }
 
+type Task = Record<string, unknown> & { id: string };
+
 export default function ManagerDashboardPage() {
   const t = useTranslations('cleaning.manage');
   const { user } = useAuth();
 
-  const [tasks, setTasks] = useState<any[]>([]);
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [filters, setFilters] = useState<FilterState>({ page: 1 });
@@ -59,13 +61,13 @@ export default function ManagerDashboardPage() {
     fetchTasks();
   }, [filters, user]);
 
-  const handleCreateTask = (newTask: any) => {
+  const handleCreateTask = (newTask: Task) => {
     // Optimistic update
     setTasks([newTask, ...tasks]);
     setShowCreateForm(false);
   };
 
-  const handleTaskUpdate = (updatedTask: any) => {
+  const handleTaskUpdate = (updatedTask: Task) => {
     setTasks(tasks.map((t) => (t.id === updatedTask.id ? updatedTask : t)));
   };
 
