@@ -40,12 +40,19 @@ export function TodaySummary({
   const [expandedCheckOuts, setExpandedCheckOuts] = useState(false)
 
   const today = useMemo(() => {
+    // Use UTC date, not local browser timezone
     const t = new Date()
-    t.setHours(0, 0, 0, 0)
-    return t
+    const utcDate = new Date(t.getUTCFullYear(), t.getUTCMonth(), t.getUTCDate(), 0, 0, 0, 0)
+    return utcDate
   }, [])
 
-  const todayStr = today.toISOString().split('T')[0]
+  const todayStr = useMemo(() => {
+    // Format as YYYY-MM-DD in UTC
+    const year = today.getUTCFullYear()
+    const month = String(today.getUTCMonth() + 1).padStart(2, '0')
+    const date = String(today.getUTCDate()).padStart(2, '0')
+    return `${year}-${month}-${date}`
+  }, [today])
 
   const summary = useMemo(() => {
     const periodicProperties = propertyId
@@ -61,15 +68,16 @@ export function TodaySummary({
     const occupiedIds = new Set<string>()
 
     todaysReservations.forEach((r) => {
-      const checkIn = new Date(r.check_in)
-      const checkOut = new Date(r.check_out)
+      // Parse check-in/check-out as UTC dates
+      const checkInParts = r.check_in.split('T')[0].split('-')
+      const checkIn = new Date(Date.UTC(parseInt(checkInParts[0]), parseInt(checkInParts[1]) - 1, parseInt(checkInParts[2])))
 
-      checkIn.setHours(0, 0, 0, 0)
-      checkOut.setHours(0, 0, 0, 0)
+      const checkOutParts = r.check_out.split('T')[0].split('-')
+      const checkOut = new Date(Date.UTC(parseInt(checkOutParts[0]), parseInt(checkOutParts[1]) - 1, parseInt(checkOutParts[2])))
 
       const today_0 = new Date(today)
       const tomorrow_0 = new Date(today)
-      tomorrow_0.setDate(tomorrow_0.getDate() + 1)
+      tomorrow_0.setUTCDate(tomorrow_0.getUTCDate() + 1)
 
       if (checkIn.getTime() === today_0.getTime()) {
         checkIns.push(r)

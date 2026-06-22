@@ -53,14 +53,15 @@ export function Next7DaysPipeline({
   }
 
   const { days, propertyReservations } = useMemo(() => {
-    const start = new Date(startDate)
-    start.setHours(0, 0, 0, 0)
+    // Parse start date as UTC
+    const startParts = startDate.split('-')
+    const start = new Date(Date.UTC(parseInt(startParts[0]), parseInt(startParts[1]) - 1, parseInt(startParts[2])))
 
     const dayArray: Date[] = []
     const currentDate = new Date(start)
     for (let i = 0; i < 7; i++) {
       dayArray.push(new Date(currentDate))
-      currentDate.setDate(currentDate.getDate() + 1)
+      currentDate.setUTCDate(currentDate.getUTCDate() + 1)
     }
 
     const periodicProperties = propertyId
@@ -77,10 +78,12 @@ export function Next7DaysPipeline({
     })
 
     reservations.forEach((r) => {
-      const checkIn = new Date(r.check_in)
-      const checkOut = new Date(r.check_out)
-      checkIn.setHours(0, 0, 0, 0)
-      checkOut.setHours(0, 0, 0, 0)
+      // Parse check-in/check-out as UTC dates
+      const checkInParts = r.check_in.split('T')[0].split('-')
+      const checkIn = new Date(Date.UTC(parseInt(checkInParts[0]), parseInt(checkInParts[1]) - 1, parseInt(checkInParts[2])))
+
+      const checkOutParts = r.check_out.split('T')[0].split('-')
+      const checkOut = new Date(Date.UTC(parseInt(checkOutParts[0]), parseInt(checkOutParts[1]) - 1, parseInt(checkOutParts[2])))
 
       const propId = r.property_listings?.[0]?.properties?.[0]?.id || ''
 
@@ -126,12 +129,13 @@ export function Next7DaysPipeline({
           <div className="mb-4 grid grid-cols-[150px_repeat(7,1fr)] gap-2">
             <div className="font-semibold text-gray-600">Propriedade</div>
             {days.map((day, i) => {
-              const dayName = day.toLocaleDateString('pt-PT', { weekday: 'short' })
-              const dayNum = day.getDate()
+              const dayName = day.toUTCString().split(' ')[0]
+              const dayNum = day.getUTCDate()
+              const monthNum = day.getUTCMonth() + 1
               return (
                 <div key={i} className="text-center text-sm font-semibold text-gray-600">
                   <p>{dayName}</p>
-                  <p className="text-xs">{dayNum}</p>
+                  <p className="text-xs">{dayNum}/{monthNum}</p>
                 </div>
               )
             })}
