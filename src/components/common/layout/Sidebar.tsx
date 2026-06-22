@@ -139,7 +139,7 @@ export function Sidebar({ serverProfile }: SidebarProps) {
 
   return (
     <aside
-      className="hidden md:flex flex-col fixed top-0 left-0 h-screen z-40 bg-white border-r border-lodgra-blue/10"
+      className="flex flex-col fixed top-0 left-0 h-screen z-40 bg-white border-r border-lodgra-blue/10"
       style={{ width: '260px' }}
     >
       <div className="px-6 py-10 bg-white border-b border-lodgra-blue/10 flex items-center justify-center">
