@@ -135,7 +135,7 @@ export function Next7DaysPipeline({
               return (
                 <div key={i} className="text-center text-sm font-semibold text-gray-600">
                   <p>{dayName}</p>
-                  <p className="text-xs">{dayNum}/{monthNum}</p>
+                  <p className="text-xs">{String(dayNum).padStart(2, '0')}/{String(monthNum).padStart(2, '0')}</p>
                 </div>
               )
             })}

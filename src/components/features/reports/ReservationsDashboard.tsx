@@ -59,8 +59,7 @@ export function ReservationsDashboard({
 }: ReservationsDashboardProps) {
   const today = useMemo(() => {
     const t = new Date()
-    t.setHours(0, 0, 0, 0)
-    return t
+    return new Date(Date.UTC(t.getUTCFullYear(), t.getUTCMonth(), t.getUTCDate(), 0, 0, 0, 0))
   }, [])
 
   const nextSevenDays = useMemo(() => {

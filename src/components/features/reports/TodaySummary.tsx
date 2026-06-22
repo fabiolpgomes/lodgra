@@ -47,11 +47,11 @@ export function TodaySummary({
   }, [])
 
   const todayStr = useMemo(() => {
-    // Format as YYYY-MM-DD in UTC
+    // Format as DD/MM/YYYY in Portuguese (UTC)
     const year = today.getUTCFullYear()
     const month = String(today.getUTCMonth() + 1).padStart(2, '0')
     const date = String(today.getUTCDate()).padStart(2, '0')
-    return `${year}-${month}-${date}`
+    return `${date}/${month}/${year}`
   }, [today])
 
   const summary = useMemo(() => {
