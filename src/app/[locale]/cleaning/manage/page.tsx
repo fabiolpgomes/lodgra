@@ -17,13 +17,11 @@ interface FilterState {
   page: number;
 }
 
-type Task = Record<string, unknown> & { id: string };
-
 export default function ManagerDashboardPage() {
   const t = useTranslations('cleaning.manage');
   const { user } = useAuth();
 
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const [tasks, setTasks] = useState<unknown[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [filters, setFilters] = useState<FilterState>({ page: 1 });
@@ -61,14 +59,18 @@ export default function ManagerDashboardPage() {
     fetchTasks();
   }, [filters, user]);
 
-  const handleCreateTask = (newTask: Task) => {
+  const handleCreateTask = (newTask: unknown) => {
     // Optimistic update
     setTasks([newTask, ...tasks]);
     setShowCreateForm(false);
   };
 
-  const handleTaskUpdate = (updatedTask: Task) => {
-    setTasks(tasks.map((t) => (t.id === updatedTask.id ? updatedTask : t)));
+  const handleTaskUpdate = (updatedTask: unknown) => {
+    const updatedId = (updatedTask as Record<string, unknown>).id;
+    setTasks(tasks.map((t) => {
+      const taskId = (t as Record<string, unknown>).id;
+      return taskId === updatedId ? updatedTask : t;
+    }));
   };
 
   const handleTaskDelete = (taskId: string) => {
