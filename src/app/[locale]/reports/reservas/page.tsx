@@ -78,8 +78,9 @@ export default async function ReservasPage({ searchParams }: PageProps) {
     reservationsQuery = reservationsQuery.in('property_listings.property_id', userPropertyIds)
   }
 
-  // Query de reservas futuras (a partir de hoje)
-  const today = new Date().toISOString().split('T')[0]
+  // Query de reservas futuras (a partir de hoje em UTC)
+  const nowUTC = new Date()
+  const today = `${nowUTC.getUTCFullYear()}-${String(nowUTC.getUTCMonth() + 1).padStart(2, '0')}-${String(nowUTC.getUTCDate()).padStart(2, '0')}`
 
   let futureReservationsQuery = supabase
     .from('reservations')
