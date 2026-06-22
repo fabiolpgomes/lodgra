@@ -18,13 +18,12 @@ export default async function ReservasPage({ searchParams }: PageProps) {
   const supabase = await createClient()
   const userPropertyIds = await getUserPropertyIds(supabase)
 
-  // Datas padrão: últimos 3 meses
-  const defaultEndDate = new Date()
-  const defaultStartDate = new Date()
-  defaultStartDate.setMonth(defaultStartDate.getMonth() - 3)
+  // Datas padrão: sempre começar do dia de hoje
+  const nowUTC = new Date()
+  const todayStr = `${nowUTC.getUTCFullYear()}-${String(nowUTC.getUTCMonth() + 1).padStart(2, '0')}-${String(nowUTC.getUTCDate()).padStart(2, '0')}`
 
-  const startDate = params.start_date || defaultStartDate.toISOString().split('T')[0]
-  const endDate = params.end_date || defaultEndDate.toISOString().split('T')[0]
+  const startDate = params.start_date || todayStr
+  const endDate = params.end_date || todayStr
   const propertyId = params.property_id
 
   // Buscar propriedades
@@ -79,8 +78,7 @@ export default async function ReservasPage({ searchParams }: PageProps) {
   }
 
   // Query de reservas futuras (a partir de hoje em UTC)
-  const nowUTC = new Date()
-  const today = `${nowUTC.getUTCFullYear()}-${String(nowUTC.getUTCMonth() + 1).padStart(2, '0')}-${String(nowUTC.getUTCDate()).padStart(2, '0')}`
+  const today = todayStr
 
   let futureReservationsQuery = supabase
     .from('reservations')

@@ -30,8 +30,10 @@ interface CleaningTask {
 }
 
 export default function ManagerDashboardPage() {
+  console.log('[DEBUG] ManagerDashboardPage rendering...');
   const t = useTranslations('cleaning.manage');
   const { user } = useAuth();
+  console.log('[DEBUG] Auth user:', user?.id);
 
   const [tasks, setTasks] = useState<unknown[]>([]);
   const [loading, setLoading] = useState(true);
@@ -46,6 +48,7 @@ export default function ManagerDashboardPage() {
     const fetchTasks = async () => {
       setLoading(true);
       try {
+        console.log('[DEBUG] Fetching cleaning tasks...');
         const params = new URLSearchParams();
         if (filters.property_id) params.append('propertyId', filters.property_id);
         if (filters.status) params.append('status', filters.status);
@@ -55,16 +58,26 @@ export default function ManagerDashboardPage() {
         params.append('page', filters.page.toString());
         params.append('limit', '20');
 
-        const response = await fetch(`/api/cleaning/tasks?${params.toString()}`);
-        if (!response.ok) throw new Error('Failed to fetch tasks');
+        const url = `/api/cleaning/tasks?${params.toString()}`;
+        console.log('[DEBUG] Fetch URL:', url);
+        const response = await fetch(url);
+        console.log('[DEBUG] Response status:', response.status);
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('[DEBUG] Response error:', errorText);
+          throw new Error(`Failed to fetch tasks: ${response.status}`);
+        }
 
         const data = await response.json();
+        console.log('[DEBUG] Response data:', data);
         setTasks(data.tasks || []);
         const limit = 20;
         const total = data.total || 0;
         setTotalPages(Math.ceil(total / limit));
       } catch (error) {
         console.error('Error fetching tasks:', error);
+        throw error;
       } finally {
         setLoading(false);
       }

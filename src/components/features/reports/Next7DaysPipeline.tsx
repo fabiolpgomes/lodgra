@@ -87,8 +87,8 @@ export function Next7DaysPipeline({
 
       const propId = r.property_listings?.[0]?.properties?.[0]?.id || ''
 
-      // Initialize property map if not exists (defensive against missing properties)
-      if (propId && !propResMap[propId]) {
+      // Initialize property map if not exists (always initialize even if propId empty)
+      if (!propResMap[propId]) {
         propResMap[propId] = {}
         for (let j = 0; j < 7; j++) {
           propResMap[propId][j] = []
