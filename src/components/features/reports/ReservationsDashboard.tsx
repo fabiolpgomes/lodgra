@@ -71,7 +71,12 @@ export function ReservationsDashboard({
     return (futureReservations || []).filter((r) => {
       const checkInParts = r.check_in.split('T')[0].split('-')
       const checkIn = new Date(Date.UTC(parseInt(checkInParts[0]), parseInt(checkInParts[1]) - 1, parseInt(checkInParts[2])))
-      return checkIn >= today && checkIn <= nextSevenDays && r.status === 'confirmed'
+
+      const checkOutParts = r.check_out.split('T')[0].split('-')
+      const checkOut = new Date(Date.UTC(parseInt(checkOutParts[0]), parseInt(checkOutParts[1]) - 1, parseInt(checkOutParts[2])))
+
+      // Include reservations that overlap with the 7-day window (started before today but end within 7 days, or start within 7 days)
+      return (checkIn <= nextSevenDays && checkOut >= today) && r.status === 'confirmed'
     })
   }, [futureReservations, today, nextSevenDays])
 

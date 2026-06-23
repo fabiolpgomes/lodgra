@@ -118,8 +118,7 @@ export function Next7DaysPipeline({
 
       for (let i = 0; i < 7; i++) {
         const dayStart = dayArray[i]
-        const dayEnd = new Date(dayStart)
-        dayEnd.setDate(dayEnd.getDate() + 1)
+        const dayEnd = new Date(Date.UTC(dayStart.getUTCFullYear(), dayStart.getUTCMonth(), dayStart.getUTCDate() + 1))
 
         if (checkIn < dayEnd && checkOut > dayStart) {
           if (propResMap[propId] && propResMap[propId][i]) {
