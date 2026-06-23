@@ -10,6 +10,8 @@ interface CleaningTask {
   notes?: string;
   status?: 'pending' | 'in_progress' | 'done' | 'issue';
   completed_at?: string;
+  property_name?: string;
+  cleaner_name?: string;
 }
 
 import { useState, useEffect } from 'react';
@@ -184,12 +186,12 @@ export default function TaskTable({
         <tbody>
           {tasks.map((task) => (
             <tr key={task.id} className="border-b border-gray-200 hover:bg-gray-50">
-              <td className="px-4 py-3 font-medium text-sm">{task.property_id}</td>
+              <td className="px-4 py-3 font-medium text-sm">{task.property_name || task.property_id}</td>
               <td className="px-4 py-3 text-sm">
                 {new Date(task.scheduled_date).toLocaleDateString()}
               </td>
               <td className="px-4 py-3 text-sm">
-                {task.cleaner_id || t_table.unassigned}
+                {task.cleaner_name || t_table.unassigned}
               </td>
               <td className="px-4 py-3 text-sm">
                 <span

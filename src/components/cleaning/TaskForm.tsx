@@ -190,13 +190,18 @@ export default function TaskForm({
         <select
           {...register('property_id')}
           className="w-full rounded-md border border-gray-300 px-3 py-2"
+          defaultValue=""
         >
           <option value="">{t_form.select_property}</option>
-          {properties.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.name}
-            </option>
-          ))}
+          {properties && properties.length > 0 ? (
+            properties.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name}
+              </option>
+            ))
+          ) : (
+            <option disabled>Carregando propriedades...</option>
+          )}
         </select>
         {errors.property_id && (
           <p className="text-red-500 text-sm mt-1">

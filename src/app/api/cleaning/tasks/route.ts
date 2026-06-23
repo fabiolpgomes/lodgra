@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
 
     let query = supabase
       .from('cleaning_tasks')
-      .select('*, properties(id, name)', { count: 'exact' })
+      .select('*, properties(id, name), users(id, full_name)', { count: 'exact' })
       .eq('organization_id', auth.organizationId);
 
     if (status) query = query.eq('status', status);
@@ -41,11 +41,12 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to fetch tasks' }, { status: 500 });
     }
 
-    // Return tasks with property info
+    // Return tasks with property and cleaner info
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const enrichedTasks = (tasks || []).map((task: any) => ({
       ...task,
       property_name: task.properties?.name || 'Imóvel Desconhecido',
+      cleaner_name: task.users?.full_name || 'Não atribuído',
     }));
 
     return NextResponse.json({
