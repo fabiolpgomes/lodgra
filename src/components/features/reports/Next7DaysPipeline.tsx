@@ -142,7 +142,17 @@ export function Next7DaysPipeline({
     if (Array.isArray(r.guests) && r.guests.length > 0 && 'first_name' in r.guests[0]) {
       return `${r.guests[0].first_name} ${r.guests[0].last_name || ''}`
     }
+    if (r.guests && !Array.isArray(r.guests) && 'first_name' in r.guests) {
+      return `${r.guests.first_name} ${r.guests.last_name || ''}`
+    }
     return 'Hóspede'
+  }
+
+  const getPropertyName = (r: Reservation) => {
+    if (r.property_listings && !Array.isArray(r.property_listings)) {
+      return r.property_listings.name || 'Propriedade'
+    }
+    return 'Propriedade'
   }
 
   const periodicProperties = propertyId
@@ -200,6 +210,7 @@ export function Next7DaysPipeline({
                         <div className="space-y-1 text-xs">
                           <div>
                             <p className="font-semibold">{getGuestName(res)}</p>
+                            <p className="text-gray-500 text-[11px]">{getPropertyName(res)}</p>
                             <p className="text-gray-500">
                               {new Date(res.check_in).toLocaleDateString('pt-PT')} →{' '}
                               {new Date(res.check_out).toLocaleDateString('pt-PT')}
