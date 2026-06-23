@@ -116,81 +116,32 @@ export default function ManagerDashboardPage() {
           <h1 className="text-2xl font-bold md:text-3xl">{t('title')}</h1>
           <p className="mt-2 text-sm text-gray-600 md:text-base">{t('subtitle')}</p>
         </div>
-        <Button
-          onClick={() => setShowCreateForm(true)}
-          size="lg"
-          className="w-full gap-2 md:w-auto"
-        >
-          <span>+</span>
-          {t('create_button')}
-        </Button>
       </div>
 
-      {/* Filters */}
-      <TaskFilters onFilterChange={handleFilterChange} />
+      {/* Status */}
+      <div className="mb-8 p-4 bg-blue-50 rounded-lg">
+        <p className="text-sm">Usuário: {user?.id || 'não autenticado'}</p>
+        <p className="text-sm">Tarefas carregadas: {tasks.length}</p>
+        <p className="text-sm">Carregando: {loading ? 'sim' : 'não'}</p>
+      </div>
 
-      {/* Create Form Modal */}
-      {showCreateForm && (
-        <div className="mb-8 rounded-lg border border-gray-200 bg-gray-50 p-6">
-          <h2 className="mb-4 text-xl font-semibold">{t('create_form_title')}</h2>
-          <TaskForm
-            onSuccess={handleCreateTask}
-            onCancel={() => setShowCreateForm(false)}
-          />
-        </div>
-      )}
-
-      {/* Tasks Table */}
-      <div className="rounded-lg border border-gray-200 bg-white">
+      {/* Simplified Tasks Table */}
+      <div className="rounded-lg border border-gray-200 bg-white p-6">
         {loading ? (
-          <div className="flex items-center justify-center py-12">
-            <p className="text-gray-500">{t('loading')}</p>
-          </div>
+          <p className="text-gray-500">{t('loading')}</p>
         ) : tasks.length === 0 ? (
-          <div className="flex items-center justify-center py-12">
-            <p className="text-gray-500">{t('no_tasks')}</p>
-          </div>
+          <p className="text-gray-500">{t('no_tasks')}</p>
         ) : (
-          <>
-            <TaskTable
-              tasks={tasks as CleaningTask[]}
-              onUpdate={handleTaskUpdate}
-              onDelete={handleTaskDelete}
-            />
-
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="flex items-center justify-between border-t border-gray-200 px-6 py-4">
-                <div className="text-sm text-gray-600">
-                  {t('page')} {filters.page} {t('of')} {totalPages}
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() =>
-                      handleFilterChange({ page: Math.max(1, filters.page - 1) })
-                    }
-                    disabled={filters.page === 1}
-                  >
-                    {t('previous')}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() =>
-                      handleFilterChange({
-                        page: Math.min(totalPages, filters.page + 1),
-                      })
-                    }
-                    disabled={filters.page === totalPages}
-                  >
-                    {t('next')}
-                  </Button>
-                </div>
-              </div>
-            )}
-          </>
+          <ul className="space-y-2">
+            {tasks.map((task) => {
+              const taskData = task as Record<string, unknown>;
+              return (
+                <li key={taskData.id as string} className="text-sm border-b pb-2">
+                  {(taskData.property_name as string) || 'Imóvel'} - {taskData.scheduled_date as string} ({taskData.status as string})
+                </li>
+              );
+            })}
+          </ul>
         )}
       </div>
     </div>
