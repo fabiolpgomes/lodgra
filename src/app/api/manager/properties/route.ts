@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     const supabase = await createClient();
 
     const { data: properties, error } = await supabase
-      .from('property_listings')
+      .from('properties')
       .select('id, name, address')
       .eq('organization_id', auth.organizationId)
       .order('name', { ascending: true });

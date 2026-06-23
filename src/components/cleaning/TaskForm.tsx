@@ -76,6 +76,7 @@ interface TaskFormProps {
   task?: CleaningTask;
   onSuccess: (task: CleaningTask) => void;
   onCancel: () => void;
+  showHeader?: boolean;
 }
 
 export default function TaskForm({

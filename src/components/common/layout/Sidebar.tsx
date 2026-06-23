@@ -38,7 +38,8 @@ const PRIMARY_PATHS = [
 
 const CLEANING_SUBMENU = [
   { path: '/cleaning', label: 'Próximas Limpezas' },
-  { path: '/cleaning/manage', label: 'Gerenciar' },
+  { path: '/cleaning/manage', label: 'Gerenciar Tarefas' },
+  { path: '/cleaning/templates', label: 'Modelos de Checklist' },
 ]
 
 const REPORTS_MODULES = [

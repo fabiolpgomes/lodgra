@@ -1,8 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/common/ui/button';
 import { useAuth } from '@/hooks/useAuth';
+import { ArrowLeft } from 'lucide-react';
 import TaskTable from '@/components/cleaning/TaskTable';
 import TaskForm from '@/components/cleaning/TaskForm';
 
@@ -43,6 +45,7 @@ interface CleaningTask {
 
 export default function ManagerDashboardPage() {
   const { user } = useAuth();
+  const router = useRouter();
 
   const [tasks, setTasks] = useState<unknown[]>([]);
   const [loading, setLoading] = useState(true);
@@ -108,20 +111,30 @@ export default function ManagerDashboardPage() {
 
   return (
     <div className="container mx-auto py-8">
-      {/* Header */}
-      <div className="mb-8 flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
-        <div>
-          <h1 className="text-2xl font-bold md:text-3xl">{t_keys.title}</h1>
-          <p className="mt-2 text-sm text-gray-600 md:text-base">{t_keys.subtitle}</p>
-        </div>
-        <Button
-          onClick={() => setShowCreateForm(true)}
-          size="lg"
-          className="w-full gap-2 md:w-auto"
+      {/* Header with Back Button */}
+      <div className="mb-8 flex flex-col items-start justify-between gap-4">
+        <button
+          onClick={() => router.back()}
+          className="flex items-center gap-2 text-blue-600 hover:text-blue-700 font-semibold mb-4"
         >
-          <span>+</span>
-          {t_keys.create_button}
-        </Button>
+          <ArrowLeft className="h-5 w-5" />
+          Voltar
+        </button>
+
+        <div className="flex flex-col items-start justify-between gap-4 w-full md:flex-row md:items-center">
+          <div>
+            <h1 className="text-2xl font-bold md:text-3xl">{t_keys.title}</h1>
+            <p className="mt-2 text-sm text-gray-600 md:text-base">{t_keys.subtitle}</p>
+          </div>
+          <Button
+            onClick={() => setShowCreateForm(true)}
+            size="lg"
+            className="w-full gap-2 md:w-auto"
+          >
+            <span>+</span>
+            {t_keys.create_button}
+          </Button>
+        </div>
       </div>
 
 
