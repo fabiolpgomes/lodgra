@@ -1,12 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useTranslations } from 'next-intl';
-import { Button } from '@/components/common/ui/button';
 import { useAuth } from '@/hooks/useAuth';
-import TaskTable from '@/components/cleaning/TaskTable';
-import TaskForm from '@/components/cleaning/TaskForm';
-import TaskFilters from '@/components/cleaning/TaskFilters';
 
 interface FilterState {
   property_id?: string;
@@ -31,7 +26,6 @@ interface CleaningTask {
 
 export default function ManagerDashboardPage() {
   console.log('[DEBUG] ManagerDashboardPage rendering...');
-  const t = useTranslations('cleaning.manage');
   const { user } = useAuth();
   console.log('[DEBUG] Auth user:', user?.id);
 
@@ -110,12 +104,9 @@ export default function ManagerDashboardPage() {
 
   return (
     <div className="container mx-auto py-8">
-      {/* Header */}
-      <div className="mb-8 flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
-        <div>
-          <h1 className="text-2xl font-bold md:text-3xl">{t('title')}</h1>
-          <p className="mt-2 text-sm text-gray-600 md:text-base">{t('subtitle')}</p>
-        </div>
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold md:text-3xl">Gerenciar Limpezas</h1>
+        <p className="mt-2 text-sm text-gray-600">Crie, edite e acompanhe tarefas de limpeza</p>
       </div>
 
       {/* Status */}
@@ -128,9 +119,9 @@ export default function ManagerDashboardPage() {
       {/* Simplified Tasks Table */}
       <div className="rounded-lg border border-gray-200 bg-white p-6">
         {loading ? (
-          <p className="text-gray-500">{t('loading')}</p>
+          <p className="text-gray-500">Carregando tarefas...</p>
         ) : tasks.length === 0 ? (
-          <p className="text-gray-500">{t('no_tasks')}</p>
+          <p className="text-gray-500">Nenhuma tarefa encontrada</p>
         ) : (
           <ul className="space-y-2">
             {tasks.map((task) => {
