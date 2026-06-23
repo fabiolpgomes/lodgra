@@ -9,6 +9,7 @@ export interface Reservation {
   check_out: string
   status: 'confirmed' | 'pending' | 'cancelled'
   property_listings?: Array<{
+    property_id?: string
     properties?: Array<{
       id: string
       name: string
@@ -85,7 +86,13 @@ export function Next7DaysPipeline({
       const checkOutParts = r.check_out.split('T')[0].split('-')
       const checkOut = new Date(Date.UTC(parseInt(checkOutParts[0]), parseInt(checkOutParts[1]) - 1, parseInt(checkOutParts[2])))
 
-      const propId = r.property_listings?.[0]?.properties?.[0]?.id || ''
+      // DEBUG: Log actual structure to understand data format
+      if (!propResMap['DEBUG_LOGGED']) {
+        console.log('Sample reservation structure:', JSON.stringify(r, null, 2))
+        propResMap['DEBUG_LOGGED'] = { 0: [] }
+      }
+
+      const propId = r.property_listings?.[0]?.properties?.[0]?.id || r.property_listings?.[0]?.property_id || ''
 
       // Initialize property map if not exists (always initialize even if propId empty)
       if (!propResMap[propId]) {
