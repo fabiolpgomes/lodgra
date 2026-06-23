@@ -5,7 +5,6 @@ import { Button } from '@/components/common/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import TaskTable from '@/components/cleaning/TaskTable';
 import TaskForm from '@/components/cleaning/TaskForm';
-import TaskFilters from '@/components/cleaning/TaskFilters';
 
 // Local translations to avoid useTranslations hook issues
 const t_keys = {
@@ -125,8 +124,6 @@ export default function ManagerDashboardPage() {
         </Button>
       </div>
 
-      {/* Filters */}
-      <TaskFilters onFilterChange={handleFilterChange} />
 
       {/* Create Form Modal */}
       {showCreateForm && (
