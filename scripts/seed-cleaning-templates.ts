@@ -32,12 +32,23 @@ async function seedTemplates() {
       process.exit(1);
     }
 
-    const result = await response.json();
+    const result = (await response.json()) as {
+      success: boolean;
+      message?: string;
+      error?: string;
+      results?: Array<{
+        name: string;
+        status: 'created' | 'skipped';
+        reason?: string;
+        itemCount?: number;
+        templateId?: string;
+      }>;
+    };
 
     if (result.success) {
       console.log('✅ Seeding completed successfully!\n');
       console.log('Templates created:');
-      result.results.forEach((r: any) => {
+      result.results?.forEach((r) => {
         if (r.status === 'created') {
           console.log(
             `  ✅ ${r.name}`
