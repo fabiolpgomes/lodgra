@@ -13,9 +13,31 @@ interface CleaningTask {
 }
 
 import { useState, useEffect } from 'react';
-import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/common/ui/button';
+
+// Local translations
+const t_table = {
+  property: 'Propriedade',
+  date: 'Data',
+  cleaner: 'Responsável',
+  status: 'Status',
+  actions: 'Ações',
+  unassigned: 'Não atribuído',
+  view: 'Ver',
+  edit: 'Editar',
+  mark_done: 'Marcar como Concluída',
+  delete: 'Excluir',
+  assign_cleaner: 'Atribuir Responsável',
+  assign: 'Atribuir',
+  select_cleaner: 'Selecione responsável',
+  cancel: 'Cancelar',
+  delete_confirm: 'Tem certeza que deseja excluir esta tarefa?',
+  mark_done_confirm: 'Marcar esta tarefa como concluída?',
+  delete_error: 'Erro ao excluir tarefa. Tente novamente.',
+  update_error: 'Erro ao atualizar tarefa. Tente novamente.',
+  assign_error: 'Erro ao atribuir responsável. Tente novamente.'
+};
 
 interface CleanerOption {
   id: string;
@@ -47,7 +69,6 @@ export default function TaskTable({
   onUpdate,
   onDelete,
 }: TaskTableProps) {
-  const t = useTranslations('cleaning.manage.table');
   const router = useRouter();
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [cleaners, setCleaners] = useState<CleanerOption[]>([]);
@@ -70,7 +91,7 @@ export default function TaskTable({
   }, []);
 
   const handleDelete = async (taskId: string) => {
-    if (!confirm(t('delete_confirm'))) return;
+    if (!confirm(t_table.delete_confirm)) return;
 
     try {
       const response = await fetch(`/api/cleaning/tasks/${taskId}`, {
@@ -82,7 +103,7 @@ export default function TaskTable({
       onDelete(taskId);
     } catch (error) {
       console.error('Delete error:', error);
-      alert(t('delete_error'));
+      alert(t_table.delete_error);
     } finally {
       setDeletingId(null);
     }

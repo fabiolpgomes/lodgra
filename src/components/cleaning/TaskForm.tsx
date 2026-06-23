@@ -1,12 +1,28 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/common/ui/button';
 import { Input } from '@/components/common/ui/input';
+
+// Local translations
+const t_form = {
+  property: 'Propriedade',
+  select_property: 'Selecione uma propriedade',
+  date: 'Data Agendada',
+  time: 'Hora Agendada',
+  cleaner: 'Responsável',
+  select_cleaner: 'Selecione um responsável',
+  template: 'Modelo de Checklist',
+  select_template: 'Selecione um modelo',
+  notes: 'Anotações',
+  submit: 'Criar Tarefa',
+  cancel: 'Cancelar',
+  submitting: 'Salvando...',
+  submit_error: 'Erro ao salvar tarefa. Tente novamente.'
+};
 
 interface CleaningTaskInput {
   property_id: string;
@@ -67,7 +83,6 @@ export default function TaskForm({
   onSuccess,
   onCancel,
 }: TaskFormProps) {
-  const t = useTranslations('cleaning.manage.form');
   const [properties, setProperties] = useState<PropertyOption[]>([]);
   const [cleaners, setCleaners] = useState<
     Array<{ id: string; name: string }>
@@ -159,7 +174,7 @@ export default function TaskForm({
       onSuccess(savedTask);
     } catch (error) {
       console.error('Submit error:', error);
-      alert(t('submit_error'));
+      alert(t_form.submit_error);
     } finally {
       setSubmitting(false);
     }
