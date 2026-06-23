@@ -33,7 +33,7 @@ export function AuthLayout({ children, profile }: AuthLayoutProps) {
       {/* Desktop: content shifted right of sidebar */}
       <div className="md:ml-[260px] flex flex-col min-h-screen">
         <TopBar />
-        <main className="flex-1 pb-20 md:pb-0">
+        <main className="flex-1 pb-20 md:pb-0 pt-4 md:pt-0">
           {children}
         </main>
       </div>

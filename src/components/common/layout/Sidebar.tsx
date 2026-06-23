@@ -19,6 +19,8 @@ import {
   LogOut,
   Globe,
   ChevronDown,
+  Menu,
+  X,
 } from 'lucide-react'
 import { Logo } from '@/components/common/ui/Logo'
 import { useAuth } from '@/hooks/useAuth'
@@ -66,6 +68,7 @@ export function Sidebar({ serverProfile }: SidebarProps) {
   const [hasPremium, setHasPremium] = useState(false)
   const [reportsExpanded, setReportsExpanded] = useState(pathname.includes('/reports'))
   const [cleaningExpanded, setCleaningExpanded] = useState(pathname.includes('/cleaning'))
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const isAdmin = profile?.role === 'admin'
   const isGestor = profile?.role === 'gestor'
@@ -139,10 +142,34 @@ export function Sidebar({ serverProfile }: SidebarProps) {
     : profile?.email?.[0]?.toUpperCase() ?? 'U'
 
   return (
-    <aside
-      className="flex flex-col fixed top-0 left-0 h-screen z-40 bg-white border-r border-lodgra-blue/10"
-      style={{ width: '260px' }}
-    >
+    <>
+      {/* Mobile Hamburger Button */}
+      <button
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+        className="md:hidden fixed top-4 left-4 z-50 p-2 hover:bg-gray-100 rounded-lg"
+      >
+        {sidebarOpen ? (
+          <X className="h-6 w-6 text-lodgra-blue" />
+        ) : (
+          <Menu className="h-6 w-6 text-lodgra-blue" />
+        )}
+      </button>
+
+      {/* Sidebar Overlay (Mobile) */}
+      {sidebarOpen && (
+        <div
+          className="md:hidden fixed inset-0 bg-black/50 z-30"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside
+        className={`flex flex-col fixed top-0 left-0 h-screen z-40 bg-white border-r border-lodgra-blue/10 transition-transform duration-300 md:translate-x-0 ${
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+        }`}
+        style={{ width: '260px' }}
+      >
       <div className="px-6 py-10 bg-white border-b border-lodgra-blue/10 flex items-center justify-center">
         <Link href={prefix || '/'} className="flex items-center">
           <Logo size="lg" />
@@ -305,5 +332,6 @@ export function Sidebar({ serverProfile }: SidebarProps) {
         </div>
       </div>
     </aside>
+    </>
   )
 }
