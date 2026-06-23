@@ -19,6 +19,7 @@ export interface CleaningTask {
   photos?: string[]
   // Joined fields for display
   property_name?: string
+  property_address?: string
   guest_name?: string
   booking_id?: string
 }

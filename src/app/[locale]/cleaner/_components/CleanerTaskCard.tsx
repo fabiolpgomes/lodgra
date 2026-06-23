@@ -65,10 +65,9 @@ export default function CleanerTaskCard({ task, onStatusChange }: CleanerTaskCar
           <div className="flex-1">
             <div className="text-sm font-semibold text-gray-600">⏰ {scheduledTime}</div>
             <div className="text-base font-bold text-gray-900 mt-1">{task.property_name}</div>
-            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-            {(task as any).property_address && (
+            {task.property_address && (
               <div className="text-xs text-gray-500 mt-0.5">
-                📍 {(task as any).property_address}
+                📍 {task.property_address}
               </div>
             )}
             <div className="text-xs text-gray-600 mt-1">
