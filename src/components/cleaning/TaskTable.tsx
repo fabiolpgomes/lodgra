@@ -110,7 +110,7 @@ export default function TaskTable({
   };
 
   const handleMarkDone = async (task: CleaningTask) => {
-    if (!confirm(t('mark_done_confirm'))) return;
+    if (!confirm(t_table.mark_done_confirm)) return;
 
     try {
       const response = await fetch(`/api/cleaning/${task.id}`, {
@@ -128,13 +128,13 @@ export default function TaskTable({
       onUpdate(updated);
     } catch (error) {
       console.error('Update error:', error);
-      alert(t('update_error'));
+      alert(t_table.update_error);
     }
   };
 
   const handleAssignCleaner = async (task: CleaningTask) => {
     if (!selectedCleanerId) {
-      alert(t('select_cleaner'));
+      alert(t_table.select_cleaner);
       return;
     }
 
@@ -155,7 +155,7 @@ export default function TaskTable({
       setSelectedCleanerId('');
     } catch (error) {
       console.error('Assign error:', error);
-      alert(t('assign_error') || 'Error assigning cleaner');
+      alert(t_table.assign_error || 'Error assigning cleaner');
     }
   };
 
@@ -165,19 +165,19 @@ export default function TaskTable({
         <thead className="border-b border-gray-200 bg-gray-50">
           <tr>
             <th className="w-[200px] text-left px-4 py-2 font-semibold text-sm">
-              {t('property')}
+              {t_table.property}
             </th>
             <th className="w-[150px] text-left px-4 py-2 font-semibold text-sm">
-              {t('date')}
+              {t_table.date}
             </th>
             <th className="w-[150px] text-left px-4 py-2 font-semibold text-sm">
-              {t('cleaner')}
+              {t_table.cleaner}
             </th>
             <th className="w-[120px] text-left px-4 py-2 font-semibold text-sm">
-              {t('status')}
+              {t_table.status}
             </th>
             <th className="w-[200px] text-left px-4 py-2 font-semibold text-sm">
-              {t('actions')}
+              {t_table.actions}
             </th>
           </tr>
         </thead>
@@ -189,7 +189,7 @@ export default function TaskTable({
                 {new Date(task.scheduled_date).toLocaleDateString()}
               </td>
               <td className="px-4 py-3 text-sm">
-                {task.cleaner_id || t('unassigned')}
+                {task.cleaner_id || t_table.unassigned}
               </td>
               <td className="px-4 py-3 text-sm">
                 <span
@@ -210,7 +210,7 @@ export default function TaskTable({
                         router.push(`/cleaning/tasks/${task.id}`)
                       }
                     >
-                      {t('view')}
+                      {t_table.view}
                     </Button>
                     <Button
                       variant="outline"
@@ -219,7 +219,7 @@ export default function TaskTable({
                         router.push(`/cleaning/manage/${task.id}/edit`)
                       }
                     >
-                      {t('edit')}
+                      {t_table.edit}
                     </Button>
                     {task.status !== 'done' && (
                       <Button
@@ -227,7 +227,7 @@ export default function TaskTable({
                         size="sm"
                         onClick={() => handleMarkDone(task)}
                       >
-                        {t('mark_done')}
+                        {t_table.mark_done}
                       </Button>
                     )}
                     <Button
@@ -236,7 +236,7 @@ export default function TaskTable({
                       onClick={() => handleDelete(task.id)}
                       disabled={deletingId === task.id}
                     >
-                      {t('delete')}
+                      {t_table.delete}
                     </Button>
                   </div>
                   {assigningTaskId === task.id && (
@@ -246,7 +246,7 @@ export default function TaskTable({
                         onChange={(e) => setSelectedCleanerId(e.target.value)}
                         className="flex-1 rounded-md border border-gray-300 px-2 py-1 text-sm"
                       >
-                        <option value="">{t('select_cleaner')}</option>
+                        <option value="">{t_table.select_cleaner}</option>
                         {cleaners.map((cleaner) => (
                           <option key={cleaner.id} value={cleaner.id}>
                             {cleaner.full_name}
@@ -257,7 +257,7 @@ export default function TaskTable({
                         size="sm"
                         onClick={() => handleAssignCleaner(task)}
                       >
-                        {t('assign')}
+                        {t_table.assign}
                       </Button>
                       <Button
                         variant="outline"
@@ -267,7 +267,7 @@ export default function TaskTable({
                           setSelectedCleanerId('');
                         }}
                       >
-                        {t('cancel')}
+                        {t_table.cancel}
                       </Button>
                     </div>
                   )}
@@ -277,7 +277,7 @@ export default function TaskTable({
                       size="sm"
                       onClick={() => setAssigningTaskId(task.id)}
                     >
-                      {t('assign_cleaner')}
+                      {t_table.assign_cleaner}
                     </Button>
                   )}
                 </div>
