@@ -122,18 +122,20 @@ export default function TaskForm({
     const fetchData = async () => {
       try {
         const [propsRes, cleanersRes, templatesRes] = await Promise.all([
-          fetch('/api/properties'),
+          fetch('/api/manager/properties'),
           fetch('/api/users?type=cleaner'),
           fetch('/api/cleaning/templates'),
         ]);
 
-        if (propsRes.ok)
+        if (propsRes.ok) {
+          const propsData = await propsRes.json();
           setProperties(
-            (await propsRes.json()).map((p: PropertyOption) => ({
+            (Array.isArray(propsData) ? propsData : []).map((p: PropertyOption) => ({
               id: p.id,
               name: p.name,
             }))
           );
+        }
         if (cleanersRes.ok)
           setCleaners(
             (await cleanersRes.json()).map((u: CleanerOption) => ({

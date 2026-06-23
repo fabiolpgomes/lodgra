@@ -48,7 +48,7 @@ export default function CleanerDashboard() {
 
       const { data: todayTasksData, error: todayError } = await supabase
         .from('cleaning_tasks')
-        .select('*, properties(id, name)')
+        .select('*, properties(id, name, address)')
         .eq('cleaner_id', currentCleanerId)
         .eq('scheduled_date', todayStr)
         .order('scheduled_date', { ascending: true })
@@ -58,6 +58,7 @@ export default function CleanerDashboard() {
       const enrichedTodayTasks = (todayTasksData || []).map((task: any) => ({
         ...task,
         property_name: task.properties?.name || 'Imóvel Desconhecido',
+        property_address: task.properties?.address || '',
       }))
       setTasks(enrichedTodayTasks)
 
@@ -68,7 +69,7 @@ export default function CleanerDashboard() {
 
       const { data: nextWeekData, error: nextWeekError } = await supabase
         .from('cleaning_tasks')
-        .select('*, properties(id, name)')
+        .select('*, properties(id, name, address)')
         .eq('cleaner_id', currentCleanerId)
         .gte('scheduled_date', tomorrowStr)
         .lte('scheduled_date', sevenDaysStr)
@@ -79,6 +80,7 @@ export default function CleanerDashboard() {
       const enrichedNextWeekTasks = (nextWeekData || []).map((task: any) => ({
         ...task,
         property_name: task.properties?.name || 'Imóvel Desconhecido',
+        property_address: task.properties?.address || '',
       }))
       setNextWeekTasks(enrichedNextWeekTasks)
 

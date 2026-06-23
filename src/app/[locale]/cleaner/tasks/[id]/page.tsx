@@ -6,12 +6,19 @@ import { createClient } from '@/lib/supabase/client'
 import { ArrowLeft, Clock, MapPin, FileText, CheckCircle, AlertCircle, Upload, Image } from 'lucide-react'
 import { CleaningTask } from '@/types/cleaning'
 
+interface ChecklistItem {
+  id: string
+  item: string
+  is_checked: boolean
+}
+
 export default function CleanerTaskDetailPage() {
   const params = useParams()
   const router = useRouter()
   const taskId = params.id as string
 
   const [task, setTask] = useState<CleaningTask | null>(null)
+  const [checklist, setChecklist] = useState<ChecklistItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [workDescription, setWorkDescription] = useState('')
@@ -25,7 +32,7 @@ export default function CleanerTaskDetailPage() {
         setLoading(true)
         const { data, error: fetchError } = await supabase
           .from('cleaning_tasks')
-          .select('*, properties(id, name)')
+          .select('*, properties(id, name), cleaning_checklist_templates(items)')
           .eq('id', taskId)
           .single()
 
@@ -37,6 +44,19 @@ export default function CleanerTaskDetailPage() {
           property_name: data.properties?.name || 'Imóvel Desconhecido',
         }
         setTask(enrichedTask as CleaningTask)
+
+        // Fetch checklist items
+        if (data.checklist_template_id) {
+          const { data: checklistData, error: checklistError } = await supabase
+            .from('cleaning_checklist_responses')
+            .select('id, item, is_checked')
+            .eq('task_id', taskId)
+
+          if (!checklistError && checklistData) {
+            setChecklist(checklistData)
+          }
+        }
+
         setError(null)
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Erro ao carregar tarefa')
@@ -72,6 +92,25 @@ export default function CleanerTaskDetailPage() {
       })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao atualizar tarefa')
+    }
+  }
+
+  const handleChecklistToggle = async (itemId: string, currentState: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('cleaning_checklist_responses')
+        .update({ is_checked: !currentState, checked_at: !currentState ? new Date().toISOString() : null })
+        .eq('id', itemId)
+
+      if (error) throw error
+
+      setChecklist(
+        checklist.map(item =>
+          item.id === itemId ? { ...item, is_checked: !currentState } : item
+        )
+      )
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao atualizar checklist')
     }
   }
 
@@ -245,6 +284,51 @@ export default function CleanerTaskDetailPage() {
           </div>
         )}
       </div>
+
+      {/* Checklist Section */}
+      {checklist.length > 0 && (
+        <div className="mb-8 border-t pt-8">
+          <h2 className="text-lg font-bold text-gray-900 mb-4">Lista de Verificação</h2>
+
+          {/* Progress Bar */}
+          {(() => {
+            const total = checklist.length
+            const completed = checklist.filter(item => item.is_checked).length
+            const progress = total > 0 ? Math.round((completed / total) * 100) : 0
+            return (
+              <div className="mb-6">
+                <div className="flex justify-between items-center mb-2">
+                  <p className="text-sm text-gray-600">{completed} de {total} concluído</p>
+                  <p className="text-sm font-semibold text-gray-900">{progress}%</p>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className="bg-green-500 h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${progress}%` }}
+                  ></div>
+                </div>
+              </div>
+            )
+          })()}
+
+          {/* Checklist Items */}
+          <div className="space-y-2">
+            {checklist.map(item => (
+              <label key={item.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition">
+                <input
+                  type="checkbox"
+                  checked={item.is_checked}
+                  onChange={() => handleChecklistToggle(item.id, item.is_checked)}
+                  className="w-5 h-5 rounded border-gray-300 text-green-500 focus:ring-2 focus:ring-green-500 cursor-pointer"
+                />
+                <span className={`font-medium ${item.is_checked ? 'line-through text-gray-500' : 'text-gray-900'}`}>
+                  {item.item}
+                </span>
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Work Documentation Section */}
       {task.status === 'in_progress' && (
