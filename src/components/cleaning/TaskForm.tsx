@@ -124,7 +124,7 @@ export default function TaskForm({
       try {
         const [propsRes, cleanersRes, templatesRes] = await Promise.all([
           fetch('/api/manager/properties'),
-          fetch('/api/users?type=cleaner'),
+          fetch('/api/users/cleaners'),
           fetch('/api/cleaning/templates'),
         ]);
 

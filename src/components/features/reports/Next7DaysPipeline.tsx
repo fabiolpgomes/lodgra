@@ -164,14 +164,14 @@ export function Next7DaysPipeline({
 
       <div className="overflow-x-auto">
         <div className="min-w-max">
-          <div className="mb-4 grid grid-cols-[150px_repeat(7,1fr)] gap-2">
+          <div className="mb-4 grid grid-cols-[220px_repeat(7,minmax(100px,1fr))] gap-2">
             <div className="font-semibold text-gray-600">Propriedade</div>
             {days.map((day, i) => {
               const dayName = day.toUTCString().split(' ')[0]
               const dayNum = day.getUTCDate()
               const monthNum = day.getUTCMonth() + 1
               return (
-                <div key={i} className="text-center text-sm font-semibold text-gray-600">
+                <div key={i} className="text-center text-sm font-semibold text-gray-600 px-2">
                   <p>{dayName}</p>
                   <p className="text-xs">{String(dayNum).padStart(2, '0')}/{String(monthNum).padStart(2, '0')}</p>
                 </div>
@@ -180,8 +180,8 @@ export function Next7DaysPipeline({
           </div>
 
           {periodicProperties.map((prop) => (
-            <div key={prop.id} className="mb-3 grid grid-cols-[150px_repeat(7,1fr)] gap-2">
-              <div className="truncate text-sm font-medium text-gray-700">{prop.name}</div>
+            <div key={prop.id} className="mb-3 grid grid-cols-[220px_repeat(7,minmax(100px,1fr))] gap-2">
+              <div className="text-sm font-medium text-gray-700 px-2 line-clamp-2">{prop.name}</div>
 
               {days.map((_, dayIndex) => {
                 const dayReservations = propertyReservations[prop.id]?.[dayIndex] || []

@@ -80,7 +80,7 @@ export default function TaskTable({
   useEffect(() => {
     const fetchCleaners = async () => {
       try {
-        const response = await fetch('/api/users?type=cleaner');
+        const response = await fetch('/api/users/cleaners');
         if (response.ok) {
           const data = await response.json();
           setCleaners(data);
