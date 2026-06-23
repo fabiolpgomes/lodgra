@@ -185,13 +185,13 @@ export default function TaskForm({
       {/* Property */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          {t('property')}
+          {t_form.property}
         </label>
         <select
           {...register('property_id')}
           className="w-full rounded-md border border-gray-300 px-3 py-2"
         >
-          <option value="">{t('select_property')}</option>
+          <option value="">{t_form.select_property}</option>
           {properties.map((p) => (
             <option key={p.id} value={p.id}>
               {p.name}
@@ -208,7 +208,7 @@ export default function TaskForm({
       {/* Date */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          {t('date')}
+          {t_form.date}
         </label>
         <Input type="date" {...register('scheduled_date')} />
         {errors.scheduled_date && (
@@ -221,7 +221,7 @@ export default function TaskForm({
       {/* Time */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          {t('time')}
+          {t_form.time}
         </label>
         <Input type="time" {...register('scheduled_time')} />
       </div>
@@ -229,13 +229,13 @@ export default function TaskForm({
       {/* Cleaner */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          {t('cleaner')}
+          {t_form.cleaner}
         </label>
         <select
           {...register('cleaner_id')}
           className="w-full rounded-md border border-gray-300 px-3 py-2"
         >
-          <option value="">{t('select_cleaner')}</option>
+          <option value="">{t_form.select_cleaner}</option>
           {cleaners.map((c) => (
             <option key={c.id} value={c.id}>
               {c.name}
@@ -247,13 +247,13 @@ export default function TaskForm({
       {/* Template */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          {t('template')}
+          {t_form.template}
         </label>
         <select
           {...register('checklist_template_id')}
           className="w-full rounded-md border border-gray-300 px-3 py-2"
         >
-          <option value="">{t('select_template')}</option>
+          <option value="">{t_form.select_template}</option>
           {templates.map((t) => (
             <option key={t.id} value={t.id}>
               {t.name}
@@ -265,7 +265,7 @@ export default function TaskForm({
       {/* Notes */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          {t('notes')}
+          {t_form.notes}
         </label>
         <textarea
           {...register('notes')}
@@ -277,10 +277,10 @@ export default function TaskForm({
       {/* Buttons */}
       <div className="flex flex-col gap-2 sm:flex-row">
         <Button type="submit" disabled={submitting} size="lg" className="w-full sm:w-auto">
-          {submitting ? t('submitting') : t('submit')}
+          {submitting ? t_form.submitting : t_form.submit}
         </Button>
         <Button type="button" variant="outline" onClick={onCancel} size="lg" className="w-full sm:w-auto">
-          {t('cancel')}
+          {t_form.cancel}
         </Button>
       </div>
     </form>
