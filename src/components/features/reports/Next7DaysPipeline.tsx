@@ -96,7 +96,14 @@ export function Next7DaysPipeline({
       const checkOut = new Date(Date.UTC(parseInt(checkOutParts[0]), parseInt(checkOutParts[1]) - 1, parseInt(checkOutParts[2])))
 
       // Extract property_id from correct structure
-      const propId = r.property_id || r.property_listings?.id || r.property_listings?.[0]?.properties?.[0]?.id || ''
+      let propId = r.property_id || ''
+      if (!propId && r.property_listings) {
+        if (Array.isArray(r.property_listings)) {
+          propId = r.property_listings[0]?.property_id || r.property_listings[0]?.properties?.[0]?.id || ''
+        } else {
+          propId = r.property_listings.id || r.property_listings.property_id || r.property_listings.properties?.[0]?.id || ''
+        }
+      }
 
       // Initialize property map if not exists (always initialize even if propId empty)
       if (!propResMap[propId]) {
