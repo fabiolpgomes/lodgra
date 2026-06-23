@@ -24,7 +24,10 @@ export interface Reservation {
       name: string
     }>
   }>
-  guests?: {
+  guests?: Array<{
+    first_name?: string
+    last_name?: string
+  }> | {
     first_name?: string
     last_name?: string
   }
