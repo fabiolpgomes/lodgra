@@ -1,7 +1,25 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { Button } from '@/components/common/ui/button';
 import { useAuth } from '@/hooks/useAuth';
+import TaskTable from '@/components/cleaning/TaskTable';
+import TaskForm from '@/components/cleaning/TaskForm';
+import TaskFilters from '@/components/cleaning/TaskFilters';
+
+// Local translations to avoid useTranslations hook issues
+const t_keys = {
+  title: 'Gerenciar Tarefas de Limpeza',
+  subtitle: 'Crie, edite e acompanhe tarefas de limpeza para suas propriedades',
+  create_button: 'Nova Tarefa',
+  create_form_title: 'Criar Nova Tarefa de Limpeza',
+  loading: 'Carregando tarefas...',
+  no_tasks: 'Nenhuma tarefa de limpeza encontrada',
+  page: 'Página',
+  of: 'de',
+  previous: 'Anterior',
+  next: 'Próxima',
+};
 
 interface FilterState {
   property_id?: string;
@@ -25,9 +43,7 @@ interface CleaningTask {
 }
 
 export default function ManagerDashboardPage() {
-  console.log('[DEBUG] ManagerDashboardPage rendering...');
   const { user } = useAuth();
-  console.log('[DEBUG] Auth user:', user?.id);
 
   const [tasks, setTasks] = useState<unknown[]>([]);
   const [loading, setLoading] = useState(true);
@@ -42,7 +58,6 @@ export default function ManagerDashboardPage() {
     const fetchTasks = async () => {
       setLoading(true);
       try {
-        console.log('[DEBUG] Fetching cleaning tasks...');
         const params = new URLSearchParams();
         if (filters.property_id) params.append('propertyId', filters.property_id);
         if (filters.status) params.append('status', filters.status);
@@ -52,26 +67,16 @@ export default function ManagerDashboardPage() {
         params.append('page', filters.page.toString());
         params.append('limit', '20');
 
-        const url = `/api/cleaning/tasks?${params.toString()}`;
-        console.log('[DEBUG] Fetch URL:', url);
-        const response = await fetch(url);
-        console.log('[DEBUG] Response status:', response.status);
-
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error('[DEBUG] Response error:', errorText);
-          throw new Error(`Failed to fetch tasks: ${response.status}`);
-        }
+        const response = await fetch(`/api/cleaning/tasks?${params.toString()}`);
+        if (!response.ok) throw new Error('Failed to fetch tasks');
 
         const data = await response.json();
-        console.log('[DEBUG] Response data:', data);
         setTasks(data.tasks || []);
         const limit = 20;
         const total = data.total || 0;
         setTotalPages(Math.ceil(total / limit));
       } catch (error) {
         console.error('Error fetching tasks:', error);
-        throw error;
       } finally {
         setLoading(false);
       }
@@ -104,35 +109,87 @@ export default function ManagerDashboardPage() {
 
   return (
     <div className="container mx-auto py-8">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold md:text-3xl">Gerenciar Limpezas</h1>
-        <p className="mt-2 text-sm text-gray-600">Crie, edite e acompanhe tarefas de limpeza</p>
+      {/* Header */}
+      <div className="mb-8 flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
+        <div>
+          <h1 className="text-2xl font-bold md:text-3xl">{t_keys.title}</h1>
+          <p className="mt-2 text-sm text-gray-600 md:text-base">{t_keys.subtitle}</p>
+        </div>
+        <Button
+          onClick={() => setShowCreateForm(true)}
+          size="lg"
+          className="w-full gap-2 md:w-auto"
+        >
+          <span>+</span>
+          {t_keys.create_button}
+        </Button>
       </div>
 
-      {/* Status */}
-      <div className="mb-8 p-4 bg-blue-50 rounded-lg">
-        <p className="text-sm">Usuário: {user?.id || 'não autenticado'}</p>
-        <p className="text-sm">Tarefas carregadas: {tasks.length}</p>
-        <p className="text-sm">Carregando: {loading ? 'sim' : 'não'}</p>
-      </div>
+      {/* Filters */}
+      <TaskFilters onFilterChange={handleFilterChange} />
 
-      {/* Simplified Tasks Table */}
-      <div className="rounded-lg border border-gray-200 bg-white p-6">
+      {/* Create Form Modal */}
+      {showCreateForm && (
+        <div className="mb-8 rounded-lg border border-gray-200 bg-gray-50 p-6">
+          <h2 className="mb-4 text-xl font-semibold">{t_keys.create_form_title}</h2>
+          <TaskForm
+            onSuccess={handleCreateTask}
+            onCancel={() => setShowCreateForm(false)}
+          />
+        </div>
+      )}
+
+      {/* Tasks Table */}
+      <div className="rounded-lg border border-gray-200 bg-white">
         {loading ? (
-          <p className="text-gray-500">Carregando tarefas...</p>
+          <div className="flex items-center justify-center py-12">
+            <p className="text-gray-500">{t_keys.loading}</p>
+          </div>
         ) : tasks.length === 0 ? (
-          <p className="text-gray-500">Nenhuma tarefa encontrada</p>
+          <div className="flex items-center justify-center py-12">
+            <p className="text-gray-500">{t_keys.no_tasks}</p>
+          </div>
         ) : (
-          <ul className="space-y-2">
-            {tasks.map((task) => {
-              const taskData = task as Record<string, unknown>;
-              return (
-                <li key={taskData.id as string} className="text-sm border-b pb-2">
-                  {(taskData.property_name as string) || 'Imóvel'} - {taskData.scheduled_date as string} ({taskData.status as string})
-                </li>
-              );
-            })}
-          </ul>
+          <>
+            <TaskTable
+              tasks={tasks as CleaningTask[]}
+              onUpdate={handleTaskUpdate}
+              onDelete={handleTaskDelete}
+            />
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between border-t border-gray-200 px-6 py-4">
+                <div className="text-sm text-gray-600">
+                  {t_keys.page} {filters.page} {t_keys.of} {totalPages}
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      handleFilterChange({ page: Math.max(1, filters.page - 1) })
+                    }
+                    disabled={filters.page === 1}
+                  >
+                    {t_keys.previous}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      handleFilterChange({
+                        page: Math.min(totalPages, filters.page + 1),
+                      })
+                    }
+                    disabled={filters.page === totalPages}
+                  >
+                    {t_keys.next}
+                  </Button>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
