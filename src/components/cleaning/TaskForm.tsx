@@ -68,24 +68,22 @@ const taskSchema = z.object({
 }).refine(
   (data) => {
     const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const scheduledDate = new Date(data.scheduled_date);
-    const scheduledDateOnly = new Date(scheduledDate.getFullYear(), scheduledDate.getMonth(), scheduledDate.getDate());
+    const [year, month, day] = data.scheduled_date.split('-').map(Number);
 
-    if (scheduledDateOnly < today) return false;
+    const todayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+    const scheduledDateObj = new Date(year, month - 1, day, 0, 0, 0, 0);
 
-    if (scheduledDateOnly.getTime() === today.getTime() && data.scheduled_time) {
+    if (scheduledDateObj < todayDate) return false;
+
+    if (scheduledDateObj.getTime() === todayDate.getTime() && data.scheduled_time) {
       const [hours, minutes] = data.scheduled_time.split(':').map(Number);
-      const scheduledDateTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes);
+      const scheduledDateTime = new Date(year, month - 1, day, hours, minutes);
       return scheduledDateTime > now;
     }
 
-    return true;
+    return scheduledDateObj > todayDate;
   },
-  {
-    message: 'Data e hora devem ser no futuro',
-    path: ['scheduled_date'],
-  }
+  { message: 'Data e hora devem ser no futuro', path: ['scheduled_date'] }
 );
 
 type TaskFormData = z.infer<typeof taskSchema> & Omit<CleaningTaskInput, 'scheduled_date'> & { scheduled_date: string };
