@@ -1,21 +1,19 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { getServerSession } from '@/lib/auth/session';
+import { createAdminClient } from '@/lib/supabase/admin';
 
 export async function GET() {
   try {
-    const session = await getServerSession();
-    if (!session?.user?.id) {
-      return NextResponse.json([]);
-    }
-
     const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
 
-    // Get user's organization
-    const { data: profile } = await supabase
+    if (!user) return NextResponse.json([]);
+
+    const adminClient = createAdminClient();
+    const { data: profile } = await adminClient
       .from('user_profiles')
       .select('organization_id')
-      .eq('id', session.user.id)
+      .eq('id', user.id)
       .single();
 
     if (!profile?.organization_id) {
