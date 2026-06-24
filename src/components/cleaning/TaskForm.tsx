@@ -60,15 +60,33 @@ interface TemplateOption {
 
 const taskSchema = z.object({
   property_id: z.string().min(1, 'Property is required'),
-  scheduled_date: z.string().refine(
-    (date) => new Date(date) > new Date(),
-    'Date cannot be in the past'
-  ),
+  scheduled_date: z.string(),
   scheduled_time: z.string().optional(),
   cleaner_id: z.string().optional(),
   checklist_template_id: z.string().optional(),
   notes: z.string().optional(),
-});
+}).refine(
+  (data) => {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const scheduledDate = new Date(data.scheduled_date);
+    const scheduledDateOnly = new Date(scheduledDate.getFullYear(), scheduledDate.getMonth(), scheduledDate.getDate());
+
+    if (scheduledDateOnly < today) return false;
+
+    if (scheduledDateOnly.getTime() === today.getTime() && data.scheduled_time) {
+      const [hours, minutes] = data.scheduled_time.split(':').map(Number);
+      const scheduledDateTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes);
+      return scheduledDateTime > now;
+    }
+
+    return true;
+  },
+  {
+    message: 'Data e hora devem ser no futuro',
+    path: ['scheduled_date'],
+  }
+);
 
 type TaskFormData = z.infer<typeof taskSchema> & Omit<CleaningTaskInput, 'scheduled_date'> & { scheduled_date: string };
 
