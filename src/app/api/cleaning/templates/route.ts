@@ -22,8 +22,7 @@ export async function GET(request: NextRequest) {
     let query = supabase
       .from('cleaning_checklist_templates')
       .select('*')
-      .eq('organization_id', auth.organizationId)
-      .eq('is_active', true);
+      .eq('organization_id', auth.organizationId);
 
     if (propertyId) {
       query = query.or(`property_id.eq.${propertyId},is_global.eq.true`);
@@ -38,7 +37,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to fetch templates' }, { status: 500 });
     }
 
-    return NextResponse.json({ templates });
+    return NextResponse.json(templates || []);
   } catch (error) {
     console.error('GET /api/cleaning/templates error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
