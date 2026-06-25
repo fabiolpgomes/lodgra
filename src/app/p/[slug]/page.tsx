@@ -9,6 +9,7 @@ import { getSimilarProperties } from '@/lib/supabase/properties'
 import type { ReviewSource, ReviewScoreData, PropertyReview } from '@/types/database'
 import { locales } from '../../../../i18n.config'
 import { PropertyPageV2 } from '@/components/common/public/PropertyPageV2'
+import { normalizeToScale10, getScaleMaxForSource } from '@/lib/ratings/normalize'
 
 export const revalidate = 86400 // ISR: 24 hours (2592000 = 30 days on-demand via API)
 export const dynamicParams = true // Enable beyond static params from generateStaticParams
@@ -275,23 +276,34 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
   let reviewScore: ReviewScoreData | null = null
 
   if (reviews.length > 0) {
-    // Todos os ratings são normalizados para 1-10 scale quando salvos no BD
-    // (Google/Airbnb/TripAdvisor são convertidos de 1-5 → 1-10 antes de salvar)
-    // See: docs/REVIEWS_AND_RATINGS_SYSTEM.md for full documentation
-    const globalAvg = Math.round(
-      (reviews.reduce((s: number, r: { rating: number }) =>
-        s + Number(r.rating), 0) / reviews.length) * 10
-    ) / 10
+    // Normalize all ratings to 0-10 scale before calculating global average
+    // Different platforms use different scales (Airbnb: 0-5, Booking/Google: 0-10)
+    // We need to normalize before averaging to prevent incorrect calculations
+    const bySourceMap = new Map<string, { ratings: number[]; nativeMax: number }>()
+    const normalizedForGlobalAvg: number[] = []
 
-    const bySourceMap = new Map<string, number[]>()
     for (const r of reviews) {
-      if (!bySourceMap.has(r.source)) bySourceMap.set(r.source, [])
-      bySourceMap.get(r.source)!.push(Number(r.rating))
+      const nativeRating = Number(r.rating)
+      const nativeMax = getScaleMaxForSource(r.source)
+
+      if (!bySourceMap.has(r.source)) {
+        bySourceMap.set(r.source, { ratings: [], nativeMax })
+      }
+      bySourceMap.get(r.source)!.ratings.push(nativeRating)
+
+      // Normalize to 0-10 for global average calculation
+      const normalized = normalizeToScale10(r.source, nativeRating)
+      normalizedForGlobalAvg.push(normalized)
     }
 
-    const bySource = Array.from(bySourceMap.entries()).map(([source, ratings]) => {
+    // Calculate global average from normalized ratings
+    const globalAvg = Math.round(
+      (normalizedForGlobalAvg.reduce((s: number, v: number) => s + v, 0) / normalizedForGlobalAvg.length) * 10
+    ) / 10
+
+    // Build per-source stats with native scales
+    const bySource = Array.from(bySourceMap.entries()).map(([source, { ratings, nativeMax }]) => {
       const nativeAvg = Math.round((ratings.reduce((s: number, v: number) => s + v, 0) / ratings.length) * 10) / 10
-      const nativeMax = 10 // Todos estão em escala 1-10
       return { source: source as ReviewSource, avg: nativeAvg, nativeAvg, nativeMax, count: ratings.length }
     })
 

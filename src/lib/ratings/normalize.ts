@@ -7,9 +7,22 @@ export const PLATFORM_RANGES = {
   'VRBO': { min: 0, max: 5 },
   'Expedia': { min: 0, max: 5 },
   'Booking': { min: 0, max: 10 },
+  'Google': { min: 0, max: 10 },
 }
 
 export type Platform = keyof typeof PLATFORM_RANGES
+
+// Map lowercase source names from DB to Platform keys
+const SOURCE_TO_PLATFORM: Record<string, Platform> = {
+  'airbnb': 'Airbnb',
+  'booking': 'Booking',
+  'google': 'Google',
+  'tripadvisor': 'TripAdvisor',
+  'flatio': 'Flatio',
+  'vrbo': 'VRBO',
+  'expedia': 'Expedia',
+  'direct': 'Reserva Direta',
+}
 
 export function normalizeRating(platform: string, rating: number): number {
   const range = PLATFORM_RANGES[platform as Platform]
@@ -64,4 +77,21 @@ export function calculateAverageRating(ratings: Array<{ platform: string; rating
     starCount,
     starString,
   }
+}
+
+export function getScaleMaxForSource(source: string): number {
+  // Look up platform key from source name
+  const platformKey = SOURCE_TO_PLATFORM[source.toLowerCase()] || (source as Platform)
+  const range = PLATFORM_RANGES[platformKey]
+  return range ? range.max : 10
+}
+
+export function normalizeToScale10(platform: string, rating: number): number {
+  // Look up platform key from source name
+  const platformKey = SOURCE_TO_PLATFORM[platform.toLowerCase()] || (platform as Platform)
+  const range = PLATFORM_RANGES[platformKey]
+  if (!range) return rating
+
+  // Normalize platform-specific scale to 0-10
+  return (rating / range.max) * 10
 }
