@@ -109,15 +109,15 @@ describe('TaskTable', () => {
     );
 
     // Open dropdown
-    const assignButton = await screen.findByText('assign_cleaner');
+    const assignButton = await screen.findByText('Atribuir Responsável');
     fireEvent.click(assignButton);
 
     // Select cleaner
-    const select = await screen.findByDisplayValue('select_cleaner') as HTMLSelectElement;
+    const select = await screen.findByDisplayValue('Selecione um responsável') as HTMLSelectElement;
     fireEvent.change(select, { target: { value: 'cleaner-1' } });
 
     // Click assign
-    const confirmButton = screen.getByText('assign');
+    const confirmButton = screen.getByText(/Confirmar|Salvar/);
     fireEvent.click(confirmButton);
 
     await waitFor(() => {

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireRole } from '@/lib/auth/requireRole';
-import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
+
+const FIXED_ORG_ID = '00000000-0000-0000-0000-000000000001';
 
 interface ChecklistItem {
   label: string;
@@ -13,22 +14,14 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const auth = await requireRole(['admin', 'manager', 'gestor']);
-    if (!auth.authorized) return auth.response!;
-
-    const supabase = await createClient();
+    const admin = createAdminClient();
     const { id } = await params;
 
-    const { data: template, error } = await supabase
+    const { data: template, error } = await admin
       .from('cleaning_checklist_templates')
-      .select(
-        `
-        *,
-        items:cleaning_checklist_items(*)
-      `
-      )
+      .select('*, items:cleaning_checklist_items(*)')
       .eq('id', id)
-      .eq('organization_id', auth.organizationId)
+      .eq('organization_id', FIXED_ORG_ID)
       .single();
 
     if (error) {
@@ -47,16 +40,13 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const auth = await requireRole(['admin', 'manager', 'gestor']);
-    if (!auth.authorized) return auth.response!;
-
+    const admin = createAdminClient();
     const body = await request.json();
     const { name, description, is_active, items } = body;
-    const supabase = await createClient();
     const { id } = await params;
 
     // Update template
-    const { data: template, error: updateError } = await supabase
+    const { data: template, error: updateError } = await admin
       .from('cleaning_checklist_templates')
       .update({
         name,
@@ -65,7 +55,7 @@ export async function PUT(
         updated_at: new Date().toISOString(),
       })
       .eq('id', id)
-      .eq('organization_id', auth.organizationId)
+      .eq('organization_id', FIXED_ORG_ID)
       .select()
       .single();
 
@@ -76,7 +66,7 @@ export async function PUT(
     // Update items if provided
     if (items && Array.isArray(items)) {
       // Delete existing items
-      const { error: deleteError } = await supabase
+      const { error: deleteError } = await admin
         .from('cleaning_checklist_items')
         .delete()
         .eq('template_id', id);
@@ -96,7 +86,7 @@ export async function PUT(
           order_index: index,
         }));
 
-        const { error: insertError } = await supabase
+        const { error: insertError } = await admin
           .from('cleaning_checklist_items')
           .insert(itemsToInsert);
 
@@ -119,14 +109,11 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const auth = await requireRole(['admin', 'manager', 'gestor']);
-    if (!auth.authorized) return auth.response!;
-
-    const supabase = await createClient();
+    const admin = createAdminClient();
     const { id } = await params;
 
     // Check if template is in use
-    const { count: taskCount } = await supabase
+    const { count: taskCount } = await admin
       .from('cleaning_tasks')
       .select('*', { count: 'exact', head: true })
       .eq('checklist_template_id', id);
@@ -139,11 +126,11 @@ export async function DELETE(
     }
 
     // Soft delete: set is_active to false
-    const { error } = await supabase
+    const { error } = await admin
       .from('cleaning_checklist_templates')
       .update({ is_active: false })
       .eq('id', id)
-      .eq('organization_id', auth.organizationId);
+      .eq('organization_id', FIXED_ORG_ID);
 
     if (error) {
       return NextResponse.json({ error: 'Failed to delete template' }, { status: 500 });
