@@ -112,12 +112,13 @@ describe('TaskTable', () => {
     const assignButton = await screen.findByText('Atribuir Responsável');
     fireEvent.click(assignButton);
 
-    // Select cleaner
-    const select = await screen.findByDisplayValue('Selecione um responsável') as HTMLSelectElement;
-    fireEvent.change(select, { target: { value: 'cleaner-1' } });
+    // Select cleaner from dropdown
+    const selects = screen.getAllByRole('combobox');
+    const cleanerSelect = selects[0] as HTMLSelectElement;
+    fireEvent.change(cleanerSelect, { target: { value: 'cleaner-1' } });
 
-    // Click assign
-    const confirmButton = screen.getByText(/Confirmar|Salvar/);
+    // Click assign/confirm button
+    const confirmButton = await screen.findByText(/Atribuir|Confirmar/);
     fireEvent.click(confirmButton);
 
     await waitFor(() => {
