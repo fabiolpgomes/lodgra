@@ -60,10 +60,11 @@ export default function EditTemplatePage() {
     });
   };
 
-  const handleUpdateItem = (index: number, field: string, value: any) => {
+  const handleUpdateItem = (index: number, field: string, value: string | boolean) => {
     if (!template) return;
     const newItems = [...template.items];
-    newItems[index] = { ...newItems[index], [field]: value };
+    const updatedItem = { ...newItems[index], [field]: value };
+    newItems[index] = updatedItem;
     setTemplate({ ...template, items: newItems });
   };
 
