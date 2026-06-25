@@ -63,7 +63,7 @@ const taskSchema = z.object({
   scheduled_date: z.string(),
   scheduled_time: z.string().optional(),
   cleaner_id: z.string().optional(),
-  checklist_template_id: z.string().optional(),
+  checklist_template_id: z.string().min(1, 'Template is required'),
   notes: z.string().optional(),
 }).refine(
   (data) => {
