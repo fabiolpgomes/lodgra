@@ -63,10 +63,29 @@ export async function POST(request: NextRequest) {
     const { createAdminClient } = await import('@/lib/supabase/admin');
     const admin = createAdminClient();
     const body = await request.json();
-    const { property_id, scheduled_date, scheduled_time, cleaner_id, reservation_id, notes } = body;
+    const { property_id, scheduled_date, scheduled_time, cleaner_id, reservation_id, notes, checklist_template_id } = body;
 
     if (!property_id || !scheduled_date) {
       return NextResponse.json({ error: 'property_id and scheduled_date are required' }, { status: 400 });
+    }
+
+    // Bug #1: Validate date is not in the past
+    const scheduledDate = new Date(scheduled_date);
+    scheduledDate.setHours(0, 0, 0, 0);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (scheduledDate < today) {
+      return NextResponse.json({ error: 'Data não pode ser no passado' }, { status: 400 });
+    }
+
+    // Bug #2: Validate time is not in the past (for today's date)
+    if (scheduledDate.getTime() === today.getTime() && scheduled_time) {
+      const [hours, minutes] = scheduled_time.split(':').map(Number);
+      const scheduledDateTime = new Date(today.getFullYear(), today.getMonth(), today.getDate(), hours, minutes);
+      if (scheduledDateTime < new Date()) {
+        return NextResponse.json({ error: 'Horário não pode ser no passado' }, { status: 400 });
+      }
     }
 
     const FIXED_ORG_ID = '00000000-0000-0000-0000-000000000001';
@@ -79,6 +98,7 @@ export async function POST(request: NextRequest) {
         scheduled_time: scheduled_time || null,
         cleaner_id: cleaner_id || null,
         reservation_id: reservation_id || null,
+        checklist_template_id: checklist_template_id || null,
         notes: notes || null,
         status: 'pending',
       })

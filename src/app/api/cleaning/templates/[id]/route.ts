@@ -46,21 +46,23 @@ export async function PUT(
     const { id } = await params;
 
     // Update template
+    const updatePayload: Record<string, unknown> = {};
+    if (name !== undefined) updatePayload.name = name;
+    if (description !== undefined) updatePayload.description = description || null;
+    if (is_active !== undefined) updatePayload.is_active = is_active;
+    updatePayload.updated_at = new Date().toISOString();
+
     const { data: template, error: updateError } = await admin
       .from('cleaning_checklist_templates')
-      .update({
-        name,
-        description: description || null,
-        is_active,
-        updated_at: new Date().toISOString(),
-      })
+      .update(updatePayload)
       .eq('id', id)
       .eq('organization_id', FIXED_ORG_ID)
       .select()
       .single();
 
     if (updateError) {
-      return NextResponse.json({ error: 'Failed to update template' }, { status: 500 });
+      console.error('Template update error:', updateError);
+      return NextResponse.json({ error: updateError.message || 'Failed to update template' }, { status: 400 });
     }
 
     // Update items if provided
@@ -97,7 +99,15 @@ export async function PUT(
       }
     }
 
-    return NextResponse.json({ template });
+    // Fetch updated template with items
+    const { data: updatedTemplate } = await admin
+      .from('cleaning_checklist_templates')
+      .select('*, items:cleaning_checklist_items(*)')
+      .eq('id', id)
+      .eq('organization_id', FIXED_ORG_ID)
+      .single();
+
+    return NextResponse.json({ template: updatedTemplate || template });
   } catch (error) {
     console.error('PUT /api/cleaning/templates/[id] error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
