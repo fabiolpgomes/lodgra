@@ -50,7 +50,6 @@ export async function PUT(
     if (name !== undefined) updatePayload.name = name;
     if (description !== undefined) updatePayload.description = description || null;
     if (is_active !== undefined) updatePayload.is_active = is_active;
-    updatePayload.updated_at = new Date().toISOString();
 
     const { data: template, error: updateError } = await admin
       .from('cleaning_checklist_templates')

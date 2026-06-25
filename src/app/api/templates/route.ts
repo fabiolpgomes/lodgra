@@ -9,7 +9,7 @@ export async function GET() {
 
     const { data, error } = await admin
       .from('cleaning_checklist_templates')
-      .select('id, name')
+      .select('id, name, description, is_active, items:cleaning_checklist_items(*)')
       .eq('organization_id', FIXED_ORG_ID)
       .order('name');
 
