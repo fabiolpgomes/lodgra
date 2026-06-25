@@ -73,7 +73,7 @@ describe('TaskTable', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText('assign_cleaner')).toBeInTheDocument();
+      expect(screen.getByText('Atribuir Responsável')).toBeInTheDocument();
     });
   });
 
@@ -86,7 +86,7 @@ describe('TaskTable', () => {
       />
     );
 
-    const assignButton = await screen.findByText('assign_cleaner');
+    const assignButton = await screen.findByText('Atribuir Responsável');
     fireEvent.click(assignButton);
 
     await waitFor(() => {
