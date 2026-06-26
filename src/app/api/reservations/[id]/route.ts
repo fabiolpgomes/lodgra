@@ -80,20 +80,23 @@ export async function PUT(
     }
 
     // Atualizar reserva
+    const updateData: Record<string, unknown> = {
+      property_listing_id,
+      check_in,
+      check_out,
+      status,
+      number_of_guests,
+      total_amount: total_amount || null,
+      currency: currency || null,
+      updated_at: new Date().toISOString(),
+    }
+
+    if (adults !== undefined) updateData.adults = adults
+    if (children !== undefined) updateData.children = children
+
     const { data: updatedReservation, error: updateError } = await supabase
       .from('reservations')
-      .update({
-        property_listing_id,
-        check_in,
-        check_out,
-        status,
-        number_of_guests,
-        ...(adults !== undefined && { adults }),
-        ...(children !== undefined && { children }),
-        total_amount: total_amount || null,
-        currency: currency || null,
-        updated_at: new Date().toISOString(),
-      })
+      .update(updateData)
       .eq('id', id)
       .select()
       .single()
