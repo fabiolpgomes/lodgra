@@ -25,7 +25,10 @@ export async function PUT(
       check_out,
       status,
       number_of_guests,
+      adults,
+      children,
       total_amount,
+      currency,
       guest_first_name,
       guest_last_name,
       guest_email,
@@ -85,7 +88,10 @@ export async function PUT(
         check_out,
         status,
         number_of_guests,
+        adults: adults ?? undefined,
+        children: children ?? undefined,
         total_amount: total_amount || null,
+        currency: currency || null,
         updated_at: new Date().toISOString(),
       })
       .eq('id', id)

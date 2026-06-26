@@ -17,6 +17,8 @@ interface ReservationData {
   check_out: string
   status: string
   number_of_guests: number | null
+  adults: number | null
+  children: number | null
   total_amount: number | string | null
   currency: string | null
   booking_source?: string | null
@@ -47,6 +49,8 @@ export function EditReservationForm({ reservation, listings }: EditReservationFo
     check_out: reservation.check_out,
     status: reservation.status,
     number_of_guests: reservation.number_of_guests || 1,
+    adults: reservation.adults || '',
+    children: reservation.children || '',
     total_amount: reservation.total_amount || '',
     currency: reservation.currency || 'EUR',
     guest_first_name: reservation.guests?.first_name || '',
@@ -302,6 +306,51 @@ export function EditReservationForm({ reservation, listings }: EditReservationFo
               value={formData.number_of_guests}
               onChange={handleChange}
               min="1"
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="currency" className="mb-1">
+              Moeda
+            </Label>
+            <Input
+              type="text"
+              id="currency"
+              name="currency"
+              value={formData.currency}
+              onChange={handleChange}
+              placeholder="EUR"
+              maxLength={3}
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
+          <div>
+            <Label htmlFor="adults" className="mb-1">
+              Adultos
+            </Label>
+            <Input
+              type="number"
+              id="adults"
+              name="adults"
+              value={formData.adults}
+              onChange={handleChange}
+              min="0"
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="children" className="mb-1">
+              Crianças (até 12 anos)
+            </Label>
+            <Input
+              type="number"
+              id="children"
+              name="children"
+              value={formData.children}
+              onChange={handleChange}
+              min="0"
             />
           </div>
 
