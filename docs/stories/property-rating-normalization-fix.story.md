@@ -1,6 +1,6 @@
 # Property Rating Calculation Fix
 
-**Status:** InReview  
+**Status:** Done  
 **Epic:** Quality  
 **Type:** Bug Fix  
 **Priority:** Critical
