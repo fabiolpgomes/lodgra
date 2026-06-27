@@ -94,8 +94,6 @@ export async function PUT(
     if (adults !== undefined) updateData.adults = adults
     if (children !== undefined) updateData.children = children
 
-    console.log('[RESERVATION UPDATE] Data to update:', JSON.stringify(updateData))
-
     const { data: updatedReservation, error: updateError } = await supabase
       .from('reservations')
       .update(updateData)

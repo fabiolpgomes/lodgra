@@ -77,21 +77,18 @@ export function EditReservationForm({ reservation, listings }: EditReservationFo
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    console.log('[FORM SUBMIT] handleSubmit called', { check_in: formData.check_in, check_out: formData.check_out })
     e.preventDefault()
     setLoading(true)
     setError('')
 
     // Validações
     if (new Date(formData.check_in) >= new Date(formData.check_out)) {
-      console.log('[FORM SUBMIT] Date validation failed')
       setError('Check-out deve ser depois do check-in')
       setLoading(false)
       return
     }
 
     if (!formData.guest_first_name || !formData.guest_last_name || !formData.guest_email) {
-      console.log('[FORM SUBMIT] Guest info validation failed')
       setError('Nome e email do hóspede são obrigatórios')
       setLoading(false)
       return
