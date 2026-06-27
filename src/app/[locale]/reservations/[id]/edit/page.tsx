@@ -296,7 +296,7 @@ export default function EditReservationPage({
                   Selecione a Propriedade *
                 </Label>
                 <Select value={selectedProperty} onValueChange={setSelectedProperty}>
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger id="property_id" className="w-full">
                     <SelectValue placeholder="Escolha uma propriedade..." />
                   </SelectTrigger>
                   <SelectContent>
@@ -314,7 +314,7 @@ export default function EditReservationPage({
                     Anúncio / Plataforma *
                   </Label>
                   <Select value={selectedListing} onValueChange={setSelectedListing}>
-                    <SelectTrigger className="w-full">
+                    <SelectTrigger id="property_listing_id" className="w-full">
                       <SelectValue placeholder="Escolha o anúncio..." />
                     </SelectTrigger>
                     <SelectContent>
