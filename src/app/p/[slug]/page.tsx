@@ -36,7 +36,7 @@ export async function generateStaticParams() {
 
 interface PageProps {
   params: Promise<{ slug: string }>
-  searchParams: Promise<{ checkIn?: string; checkOut?: string; guests?: string; minNightsError?: string; datesUnavailable?: string }>
+  searchParams: Promise<{ checkIn?: string; checkOut?: string; checkin?: string; checkout?: string; guests?: string; minNightsError?: string; datesUnavailable?: string }>
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -93,7 +93,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function PublicPropertyPage({ params, searchParams }: PageProps) {
   const { slug } = await params
-  const { checkIn, checkOut, guests, minNightsError, datesUnavailable } = await searchParams
+  const sp = await searchParams
+  const checkIn  = sp.checkIn  ?? sp.checkin
+  const checkOut = sp.checkOut ?? sp.checkout
+  const { guests, minNightsError, datesUnavailable } = sp
   const supabase = await createClient()
   const adminClient = createAdminClient()
 
