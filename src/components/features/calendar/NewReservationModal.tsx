@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from '@/lib/i18n/routing'
+import { format, parse } from 'date-fns'
 import {
   Dialog,
   DialogContent,
@@ -19,6 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/common/ui/select'
+import { Alert, AlertDescription } from '@/components/common/ui/alert'
 
 interface Property {
   id: string
@@ -33,16 +35,68 @@ interface NewReservationModalProps {
   onClose: () => void
 }
 
-export function NewReservationModal({ open, checkIn, checkOut, properties, onClose }: NewReservationModalProps) {
+export function NewReservationModal({ open, checkIn: initialCheckIn, checkOut: initialCheckOut, properties, onClose }: NewReservationModalProps) {
   const router = useRouter()
   const [selectedPropertyId, setSelectedPropertyId] = useState('')
+  const [checkIn, setCheckIn] = useState(initialCheckIn)
+  const [checkOut, setCheckOut] = useState(initialCheckOut)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    setCheckIn(initialCheckIn)
+    setCheckOut(initialCheckOut)
+  }, [initialCheckIn, initialCheckOut])
+
+  function formatDateToDDMMYYYY(dateStr: string): string {
+    if (!dateStr) return ''
+    try {
+      const date = parse(dateStr, 'yyyy-MM-dd', new Date())
+      return format(date, 'dd.MM.yyyy')
+    } catch {
+      return dateStr
+    }
+  }
+
+  function parseDDMMYYYYToISO(dateStr: string): string {
+    if (!dateStr) return ''
+    try {
+      const date = parse(dateStr, 'dd.MM.yyyy', new Date())
+      return format(date, 'yyyy-MM-dd')
+    } catch {
+      return ''
+    }
+  }
 
   function handleCreate() {
+    setError(null)
+
+    // Validar datas
+    if (!checkIn || !checkOut) {
+      setError('Preencha as datas de check-in e check-out')
+      return
+    }
+
+    if (!selectedPropertyId) {
+      setError('Seleccione uma propriedade')
+      return
+    }
+
+    const checkInDate = new Date(checkIn)
+    const checkOutDate = new Date(checkOut)
+
+    if (checkInDate >= checkOutDate) {
+      setError('Check-out deve ser depois de check-in')
+      return
+    }
+
     const params = new URLSearchParams({ check_in: checkIn, check_out: checkOut })
     if (selectedPropertyId) params.set('property_id', selectedPropertyId)
     router.push(`/reservations/new?${params}`)
     onClose()
   }
+
+  const displayCheckIn = formatDateToDDMMYYYY(checkIn)
+  const displayCheckOut = formatDateToDDMMYYYY(checkOut)
 
   return (
     <Dialog open={open} onOpenChange={v => { if (!v) onClose() }}>
@@ -51,21 +105,43 @@ export function NewReservationModal({ open, checkIn, checkOut, properties, onClo
           <DialogTitle>Nova Reserva</DialogTitle>
         </DialogHeader>
 
+        {error && (
+          <Alert variant="destructive">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+
         <div className="space-y-4 py-2">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label className="text-xs text-gray-600 mb-1 block">Check-in</Label>
-              <Input value={checkIn} readOnly className="bg-gray-50" />
+              <Label className="text-xs text-gray-600 mb-1 block">Check-in (dd.mm.yyyy)</Label>
+              <Input
+                type="date"
+                value={checkIn}
+                onChange={(e) => setCheckIn(e.target.value)}
+                className="bg-white"
+              />
+              {checkIn && (
+                <p className="text-xs text-gray-500 mt-1">{displayCheckIn}</p>
+              )}
             </div>
             <div>
-              <Label className="text-xs text-gray-600 mb-1 block">Check-out</Label>
-              <Input value={checkOut} readOnly className="bg-gray-50" />
+              <Label className="text-xs text-gray-600 mb-1 block">Check-out (dd.mm.yyyy)</Label>
+              <Input
+                type="date"
+                value={checkOut}
+                onChange={(e) => setCheckOut(e.target.value)}
+                className="bg-white"
+              />
+              {checkOut && (
+                <p className="text-xs text-gray-500 mt-1">{displayCheckOut}</p>
+              )}
             </div>
           </div>
 
           {properties.length > 0 && (
             <div>
-              <Label className="text-xs text-gray-600 mb-1 block">Propriedade (opcional)</Label>
+              <Label className="text-xs text-gray-600 mb-1 block">Propriedade *</Label>
               <Select value={selectedPropertyId} onValueChange={setSelectedPropertyId}>
                 <SelectTrigger>
                   <SelectValue placeholder="Seleccionar propriedade…" />

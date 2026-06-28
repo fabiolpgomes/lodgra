@@ -31,6 +31,8 @@ export default function NewReservationPage() {
   const [propertyListings, setPropertyListings] = useState<{ id: string; property_id: string; external_listing_id?: string | null; platforms: { display_name: string } | null }[]>([])
   const [selectedProperty, setSelectedProperty] = useState(prePropertyId)
   const [selectedListing, setSelectedListing] = useState('')
+  const [calculatedPrice, setCalculatedPrice] = useState<number | null>(null)
+  const [priceCalculating, setPriceCalculating] = useState(false)
 
   useEffect(() => {
     async function loadProperties() {
@@ -96,6 +98,40 @@ export default function NewReservationPage() {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedProperty])
+  // Auto-calculate price based on dates and property
+  useEffect(() => {
+    async function calculatePrice() {
+      if (!preCheckIn || !preCheckOut || !selectedProperty) {
+        setCalculatedPrice(null)
+        return
+      }
+
+      setPriceCalculating(true)
+      try {
+        const response = await fetch('/api/reservations/calculate-price', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            property_id: selectedProperty,
+            check_in: preCheckIn,
+            check_out: preCheckOut,
+          }),
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          setCalculatedPrice(data.total_amount)
+        }
+      } catch (err) {
+        console.error('Erro ao calcular preço:', err)
+      } finally {
+        setPriceCalculating(false)
+      }
+    }
+
+    calculatePrice()
+  }, [preCheckIn, preCheckOut, selectedProperty])
+
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -600,16 +636,24 @@ export default function NewReservationPage() {
               <Label htmlFor="total_amount" className="mb-1">
                 Valor Total ({getCurrencySymbol((properties.find(p => p.id === selectedProperty)?.currency || 'EUR') as CurrencyCode)})
               </Label>
-              <Input
-                type="number"
-                id="total_amount"
-                name="total_amount"
-                step="0.01"
-                min="0"
-                placeholder="0.00"
-              />
+              <div className="flex gap-2">
+                <Input
+                  type="number"
+                  id="total_amount"
+                  name="total_amount"
+                  step="0.01"
+                  min="0"
+                  placeholder="0.00"
+                  defaultValue={calculatedPrice ? calculatedPrice.toString() : ""}
+                />
+                {priceCalculating && (
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <div className="animate-spin">⟳</div>
+                  </div>
+                )}
+              </div>
               <p className="text-xs text-gray-600 mt-1">
-                Opcional - pode ser preenchido depois
+                {calculatedPrice ? `Preço calculado: ${getCurrencySymbol((properties.find(p => p.id === selectedProperty)?.currency || 'EUR') as CurrencyCode)}${calculatedPrice.toFixed(2)}` : 'Seleccione datas e propriedade para auto-calcular'}
               </p>
             </div>
           </div>
