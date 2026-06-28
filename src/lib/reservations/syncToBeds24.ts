@@ -83,7 +83,7 @@ export async function syncReservationToBeds24(
         'Content-Type': 'application/json',
         'token': apiKey,
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify([payload]),
     })
 
     const data = await response.json()
