@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 
 interface BlockDatesModalProps {
@@ -10,6 +10,22 @@ interface BlockDatesModalProps {
   selectedPropertyId?: string
   onClose: () => void
   onSuccess: () => void
+}
+
+function formatDateToInput(dateStr: string): string {
+  // Converte yyyy-mm-dd para dd.mm.yyyy
+  const [year, month, day] = dateStr.split('-')
+  return `${day}.${month}.${year}`
+}
+
+function formatInputToDate(dateStr: string): string {
+  // Converte dd.mm.yyyy para yyyy-mm-dd
+  const parts = dateStr.split('.')
+  if (parts.length === 3) {
+    const [day, month, year] = parts
+    return `${year}-${month}-${day}`
+  }
+  return dateStr
 }
 
 export function BlockDatesModal({
@@ -23,12 +39,32 @@ export function BlockDatesModal({
   const [propertyId, setPropertyId] = useState(selectedPropertyId || '')
   const [notes, setNotes] = useState('')
   const [loading, setLoading] = useState(false)
+  const [formCheckIn, setFormCheckIn] = useState('')
+  const [formCheckOut, setFormCheckOut] = useState('')
+
+  useEffect(() => {
+    setFormCheckIn(formatDateToInput(checkIn))
+    setFormCheckOut(formatDateToInput(checkOut))
+  }, [checkIn, checkOut])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     if (!propertyId) {
       toast.error('Seleccione uma propriedade')
+      return
+    }
+
+    if (!formCheckIn || !formCheckOut) {
+      toast.error('Preencha as datas de check-in e check-out')
+      return
+    }
+
+    const apiCheckIn = formatInputToDate(formCheckIn)
+    const apiCheckOut = formatInputToDate(formCheckOut)
+
+    if (!apiCheckIn.match(/^\d{4}-\d{2}-\d{2}$/) || !apiCheckOut.match(/^\d{4}-\d{2}-\d{2}$/)) {
+      toast.error('Formato de data inválido. Use dd.mm.yyyy')
       return
     }
 
@@ -39,8 +75,8 @@ export function BlockDatesModal({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           property_id: propertyId,
-          start_date: checkIn,
-          end_date: checkOut,
+          start_date: apiCheckIn,
+          end_date: apiCheckOut,
           notes: notes || null,
         }),
       })
@@ -75,9 +111,12 @@ export function BlockDatesModal({
             </label>
             <input
               type="text"
-              readOnly
-              value={checkIn}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600"
+              placeholder="dd.mm.yyyy"
+              value={formCheckIn}
+              onChange={(e) => setFormCheckIn(e.target.value)}
+              maxLength={10}
+              disabled={loading}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent disabled:opacity-50"
             />
           </div>
 
@@ -88,9 +127,12 @@ export function BlockDatesModal({
             </label>
             <input
               type="text"
-              readOnly
-              value={checkOut}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600"
+              placeholder="dd.mm.yyyy"
+              value={formCheckOut}
+              onChange={(e) => setFormCheckOut(e.target.value)}
+              maxLength={10}
+              disabled={loading}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent disabled:opacity-50"
             />
           </div>
 
