@@ -636,7 +636,7 @@ export default function NewReservationPage() {
               <Label htmlFor="total_amount" className="mb-1">
                 Valor Total ({getCurrencySymbol((properties.find(p => p.id === selectedProperty)?.currency || 'EUR') as CurrencyCode)})
               </Label>
-              <div className="flex gap-2">
+              <div className="flex gap-2 items-center">
                 <Input
                   type="number"
                   id="total_amount"
@@ -645,16 +645,26 @@ export default function NewReservationPage() {
                   min="0"
                   placeholder="0.00"
                   defaultValue={calculatedPrice ? calculatedPrice.toString() : ""}
+                  className={calculatedPrice ? 'bg-green-50 border-green-300' : ''}
                 />
                 {priceCalculating && (
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <div className="flex items-center gap-1 text-sm text-blue-600 animate-pulse">
                     <div className="animate-spin">⟳</div>
+                    <span>Calculando...</span>
                   </div>
                 )}
               </div>
-              <p className="text-xs text-gray-600 mt-1">
-                {calculatedPrice ? `Preço calculado: ${getCurrencySymbol((properties.find(p => p.id === selectedProperty)?.currency || 'EUR') as CurrencyCode)}${calculatedPrice.toFixed(2)}` : 'Seleccione datas e propriedade para auto-calcular'}
-              </p>
+              {calculatedPrice ? (
+                <div className="bg-green-50 border border-green-200 rounded px-3 py-2 mt-2">
+                  <p className="text-sm font-semibold text-green-800">
+                    ✓ Preço calculado: {getCurrencySymbol((properties.find(p => p.id === selectedProperty)?.currency || 'EUR') as CurrencyCode)}{calculatedPrice.toFixed(2)}
+                  </p>
+                </div>
+              ) : (
+                <p className="text-xs text-gray-600 mt-1">
+                  Seleccione datas e propriedade para auto-calcular
+                </p>
+              )}
             </div>
           </div>
 

@@ -43,10 +43,20 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (propError || !property) {
-      return NextResponse.json(
-        { error: 'Propriedade não encontrada' },
-        { status: 404 }
-      )
+      console.warn(`[calculate-price] Propriedade não encontrada: ${property_id}`, propError)
+      // Retornar preço 0 com mensagem de aviso (não bloquear)
+      return NextResponse.json({
+        success: true,
+        price_per_night: 0,
+        total_amount: 0,
+        nights: differenceInDays(checkOutDate, checkInDate),
+        cleaning_fee: 0,
+        pet_fee: 0,
+        base_total: 0,
+        min_nights: 1,
+        has_pricing_rules: false,
+        warning: 'Propriedade não encontrada - preencha o valor manualmente'
+      })
     }
 
     // Buscar regras de preço aplicáveis ao período

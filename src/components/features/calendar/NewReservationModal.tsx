@@ -114,28 +114,36 @@ export function NewReservationModal({ open, checkIn: initialCheckIn, checkOut: i
         <div className="space-y-4 py-2">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label className="text-xs text-gray-600 mb-1 block">Check-in (dd.mm.yyyy)</Label>
-              <Input
-                type="date"
-                value={checkIn}
-                onChange={(e) => setCheckIn(e.target.value)}
-                className="bg-white"
-              />
-              {checkIn && (
-                <p className="text-xs text-gray-500 mt-1">{displayCheckIn}</p>
-              )}
+              <Label className="text-xs text-gray-600 mb-1 block">Check-in</Label>
+              <div className="flex flex-col gap-2">
+                <Input
+                  type="date"
+                  value={checkIn}
+                  onChange={(e) => setCheckIn(e.target.value)}
+                  className="bg-white"
+                />
+                {checkIn && (
+                  <p className="text-sm font-semibold text-blue-600 bg-blue-50 px-2 py-1 rounded text-center">
+                    {displayCheckIn}
+                  </p>
+                )}
+              </div>
             </div>
             <div>
-              <Label className="text-xs text-gray-600 mb-1 block">Check-out (dd.mm.yyyy)</Label>
-              <Input
-                type="date"
-                value={checkOut}
-                onChange={(e) => setCheckOut(e.target.value)}
-                className="bg-white"
-              />
-              {checkOut && (
-                <p className="text-xs text-gray-500 mt-1">{displayCheckOut}</p>
-              )}
+              <Label className="text-xs text-gray-600 mb-1 block">Check-out</Label>
+              <div className="flex flex-col gap-2">
+                <Input
+                  type="date"
+                  value={checkOut}
+                  onChange={(e) => setCheckOut(e.target.value)}
+                  className="bg-white"
+                />
+                {checkOut && (
+                  <p className="text-sm font-semibold text-blue-600 bg-blue-50 px-2 py-1 rounded text-center">
+                    {displayCheckOut}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
 
