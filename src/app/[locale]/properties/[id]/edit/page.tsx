@@ -510,6 +510,24 @@ export default function EditPropertyPage({
                   Preço padrão por noite quando nenhuma regra de preço se aplica
                 </p>
               </div>
+
+              {/* Pricing Rules Link */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h4 className="font-semibold text-blue-900 mb-2">Regras por Preço por Época</h4>
+                <p className="text-sm text-blue-800 mb-3">
+                  Gerencie preços diferentes para períodos específicos (ex: alta temporada, eventos, descontos).
+                </p>
+                <Link
+                  href={`/${locale}/properties/${propertyId}/pricing`}
+                  className="inline-flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 transition"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                  Gerir Regras de Preço
+                </Link>
+              </div>
+
               <div>
                 <Label htmlFor="min_nights" className="mb-1">
                   Estadia Mínima (noites) *
