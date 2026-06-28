@@ -35,6 +35,12 @@ Complete guides for development, deployment, and operations.
   - 6-month optimization roadmap
   - Performance metrics & monitoring
 
+- **[Calendar Management](guides/calendar.md)**
+  - Block dates for maintenance & cleaning
+  - Date format (dd.mm.yyyy)
+  - Synchronization with booking platforms
+  - Troubleshooting & FAQs
+
 - **[Reviews & Ratings System](../REVIEWS_AND_RATINGS_SYSTEM.md)**
   - Multi-platform review aggregation (Booking, Airbnb, Google, TripAdvisor)
   - Rating normalization to 1-10 scale
@@ -219,6 +225,6 @@ Documentation standards:
 
 ---
 
-**Last Updated:** 2026-06-21  
-**Total Guides:** 8 documented, 6 planned  
-**Next Review:** 2026-07-21
+**Last Updated:** 2026-06-28  
+**Total Guides:** 9 documented, 5 planned  
+**Next Review:** 2026-07-28

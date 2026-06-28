@@ -7,6 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### Block Dates Modal — Date Format Fix
+
+**Enhancement: Calendar Block Dates Modal UX**
+- **Issue:** Date inputs showed incorrect format (yyyy-mm-dd) and were disabled (readOnly)
+- **Solution:**
+  - Changed date display format from `yyyy-mm-dd` to `dd.mm.yyyy` (Portuguese locale)
+  - Enabled date input fields for user editing
+  - Added automatic format conversion (user input → API format)
+  - Added input validation with clear error messages
+- **Files Modified:**
+  - `src/components/features/calendar/BlockDatesModal.tsx` — Date format handling and input enablement
+  - `src/components/features/calendar/__tests__/BlockDatesModal.test.tsx` — Added 6 unit tests
+- **Changes:**
+  - Added `formatDateToInput()` function: converts `yyyy-mm-dd` → `dd.mm.yyyy` for display
+  - Added `formatInputToDate()` function: converts `dd.mm.yyyy` → `yyyy-mm-dd` for API
+  - Removed `readOnly` attributes from date inputs
+  - Added `maxLength={10}` and `placeholder="dd.mm.yyyy"` for better UX
+  - Added validation to prevent submission with invalid date format
+- **Testing:**
+  - ✅ 6 unit tests added and passing
+  - ✅ 1533 total tests passing (no regressions)
+  - ✅ Format conversion verified
+  - ✅ Input enablement validated
+- **Status:** ✅ COMPLETED — Block Dates modal now accepts user-friendly date format
+- **Commits:**
+  - `2e42aab` — fix: corrigir formato de datas no modal de bloqueio (dd.mm.yyyy) e habilitar edição
+
+---
+
 ## [1.7.1] - 2026-06-09
 
 ### Calendar Blocks API Fix — Block Dates Modal
