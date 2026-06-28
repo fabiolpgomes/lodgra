@@ -345,27 +345,39 @@ export default function NewReservationPage() {
         throw insertError
       }
 
-      // Sincronizar com plataformas (fire-and-forget, não bloqueia navegação)
+      // Sincronizar com plataformas (aguarda resposta antes de navegar)
       if (data?.id) {
-        fetch('/api/reservations/sync-to-platforms', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ reservation_id: data.id }),
-        }).catch(err => console.error('Erro ao sincronizar com plataformas:', err))
+        try {
+          await fetch('/api/reservations/sync-to-platforms', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ reservation_id: data.id }),
+          })
+        } catch (err) {
+          console.error('Erro ao sincronizar com plataformas:', err)
+        }
 
-        // Notificar proprietário (fire-and-forget, não bloqueia navegação)
-        fetch('/api/notifications/owner-reservation', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ reservation_id: data.id }),
-        }).catch(err => console.error('Erro ao notificar proprietário:', err))
+        // Notificar proprietário (aguarda resposta antes de navegar)
+        try {
+          await fetch('/api/notifications/owner-reservation', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ reservation_id: data.id }),
+          })
+        } catch (err) {
+          console.error('Erro ao notificar proprietário:', err)
+        }
 
-        // Enviar email de confirmação ao hóspede (fire-and-forget, não bloqueia navegação)
-        fetch('/api/email/send-confirmation', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ reservationId: data.id }),
-        }).catch(err => console.error('Erro ao enviar email de confirmação:', err))
+        // Enviar email de confirmação ao hóspede (aguarda resposta antes de navegar)
+        try {
+          await fetch('/api/email/send-confirmation', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ reservationId: data.id }),
+          })
+        } catch (err) {
+          console.error('Erro ao enviar email de confirmação:', err)
+        }
       }
 
       toast.success('Reserva criada com sucesso!')
