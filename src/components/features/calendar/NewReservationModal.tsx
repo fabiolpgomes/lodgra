@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from '@/lib/i18n/routing'
 import { format, parse } from 'date-fns'
 import {
@@ -41,11 +41,6 @@ export function NewReservationModal({ open, checkIn: initialCheckIn, checkOut: i
   const [checkIn, setCheckIn] = useState(initialCheckIn)
   const [checkOut, setCheckOut] = useState(initialCheckOut)
   const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    setCheckIn(initialCheckIn)
-    setCheckOut(initialCheckOut)
-  }, [initialCheckIn, initialCheckOut])
 
   function formatDateToDDMMYYYY(dateStr: string): string {
     if (!dateStr) return ''

@@ -68,7 +68,17 @@ export async function POST(request: NextRequest) {
       .gte('end_date', check_in)
       .order('created_at', { ascending: false })
 
-    const rules = (rulesRaw ?? []).map((r: any) => ({
+    interface PricingRuleRaw {
+      id: string
+      name: string
+      start_date: string
+      end_date: string
+      price_per_night: number | string
+      min_nights: number
+      created_at: string
+    }
+
+    const rules = (rulesRaw ?? []).map((r: PricingRuleRaw) => ({
       id: r.id,
       name: r.name,
       start_date: r.start_date,
