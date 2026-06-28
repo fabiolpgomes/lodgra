@@ -1,5 +1,9 @@
 import { SupabaseClient } from '@supabase/supabase-js'
 
+const BEDS24_PROPERTY_MAP: Record<string, string> = {
+  'd3297482-9654-4512-8d6e-e85d0461abb9': '337561',
+}
+
 export interface SyncToPlatformsResult {
   success: boolean
   synced_platforms: string[]
@@ -83,6 +87,30 @@ export async function syncReservationToOutboundPlatforms(
     if (!listings || listings.length === 0) {
       result.message = 'Propriedade sem anúncios cadastrados em plataformas'
       return result
+    }
+
+    // Beds24 — sincronização activa via API
+    const beds24PropId = BEDS24_PROPERTY_MAP[propertyId]
+    if (beds24PropId) {
+      const { syncReservationToBeds24 } = await import('./syncToBeds24')
+
+      // Buscar dados completos da reserva
+      const { data: fullReservation } = await supabase
+        .from('reservations')
+        .select('id, check_in, check_out, guest_name, guest_email, guest_phone, adults, children, total_amount, currency, notes, source')
+        .eq('id', reservationId)
+        .single()
+
+      if (fullReservation) {
+        const beds24Result = await syncReservationToBeds24(fullReservation, beds24PropId)
+        if (beds24Result.success) {
+          console.log(`[SyncToOutbound] Beds24 OK. bookId: ${beds24Result.beds24_booking_id}`)
+          result.synced_platforms.push('Beds24')
+        } else {
+          console.error(`[SyncToOutbound] Beds24 falhou: ${beds24Result.error}`)
+          result.errors.push(`Beds24: ${beds24Result.error}`)
+        }
+      }
     }
 
     // Para cada listing/plataforma, registrar que a sincronização foi enviada
