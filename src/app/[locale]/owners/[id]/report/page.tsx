@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { useParams } from '@/lib/i18n/routing'
+import { useParams, getLocalizedPath } from '@/lib/i18n/routing'
 import Link from 'next/link'
 import { ArrowLeft, FileText, Building2, Download, TrendingUp, Loader2, MessageCircle } from 'lucide-react'
 import { Button } from '@/components/common/ui/button'
@@ -82,8 +82,9 @@ function CurrencyBadge({ currency }: { currency: string }) {
 }
 
 export default function OwnerReportPage() {
-  const params = useParams<{ id: string }>()
+  const params = useParams<{ locale: string; id: string }>()
   const ownerId = params.id
+  const locale = params.locale
 
   const [period, setPeriod] = useState<Period>('month')
   const [customFrom, setCustomFrom] = useState('')
@@ -242,7 +243,7 @@ export default function OwnerReportPage() {
       {/* Toolbar — hidden on print */}
       <div className="no-print bg-white border-b border-gray-200 px-6 py-4">
         <div className="max-w-4xl mx-auto flex items-center justify-between gap-4 flex-wrap">
-          <Link href={`/owners/${ownerId}`} className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900">
+          <Link href={getLocalizedPath(`/owners/${ownerId}`, locale)} className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900">
             <ArrowLeft className="h-4 w-4" />
             Voltar ao Proprietário
           </Link>
