@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter, useLocale } from '@/lib/i18n/routing'
+import { useRouter, useLocale, getLocalizedPath } from '@/lib/i18n/routing'
 import Link from 'next/link'
 import { ArrowLeft, Save } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
@@ -21,7 +21,7 @@ export default function EditOwnerPage({
   params: Promise<{ id: string }>
 }) {
   const router = useRouter()
-  const locale = useLocale()
+  const locale = useLocale() || 'pt'
   const supabase = createClient()
   const [loading, setLoading] = useState(false)
   const [loadingData, setLoadingData] = useState(true)
@@ -181,7 +181,7 @@ export default function EditOwnerPage({
     <AuthLayout>
       <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Link
-          href={`/owners/${ownerId}`}
+          href={getLocalizedPath(`/owners/${ownerId}`, locale)}
           className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -506,7 +506,7 @@ export default function EditOwnerPage({
               {loading ? <>Salvando...</> : <><Save className="h-5 w-5" />Salvar Alterações</>}
             </Button>
             <Button asChild variant="outline">
-              <Link href={`/owners/${ownerId}`}>
+              <Link href={getLocalizedPath(`/owners/${ownerId}`, locale)}>
                 Cancelar
               </Link>
             </Button>

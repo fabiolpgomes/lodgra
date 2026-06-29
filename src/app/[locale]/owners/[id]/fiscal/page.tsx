@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { useParams } from '@/lib/i18n/routing'
+import { useParams, getLocalizedPath } from '@/lib/i18n/routing'
 import Link from 'next/link'
 import { ArrowLeft, FileText, Download, Scale, Building2, TrendingUp, Loader2 } from 'lucide-react'
 import { Button } from '@/components/common/ui/button'
@@ -30,8 +30,9 @@ const CURRENT_YEAR = new Date().getFullYear()
 const YEARS = Array.from({ length: 5 }, (_, i) => CURRENT_YEAR - i)
 
 export default function OwnerFiscalPage() {
-  const params = useParams<{ id: string }>()
+  const params = useParams<{ locale: string; id: string }>()
   const ownerId = params.id
+  const locale = params.locale
 
   const [year, setYear] = useState(CURRENT_YEAR)
   const [data, setData] = useState<FiscalData | null>(null)
@@ -116,7 +117,7 @@ export default function OwnerFiscalPage() {
       {/* Toolbar */}
       <div className="no-print bg-white border-b border-gray-200 px-6 py-4">
         <div className="max-w-4xl mx-auto flex items-center justify-between gap-4 flex-wrap">
-          <Link href={`/owners/${ownerId}`} className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900">
+          <Link href={getLocalizedPath(`/owners/${ownerId}`, locale)} className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900">
             <ArrowLeft className="h-4 w-4" />
             Voltar ao Proprietário
           </Link>
