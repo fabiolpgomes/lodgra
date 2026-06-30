@@ -25,6 +25,18 @@ export default function robots(): MetadataRoute.Robots {
         crawlDelay: 1,
       },
       {
+        userAgent: 'GPTBot',
+        allow: ['/', '/p/', '/booking'],
+      },
+      {
+        userAgent: 'PerplexityBot',
+        allow: ['/', '/p/', '/booking'],
+      },
+      {
+        userAgent: 'ClaudeBot',
+        allow: ['/', '/p/', '/booking'],
+      },
+      {
         userAgent: '*', // All other bots
         allow: ['/', '/p/'],
         disallow: [
