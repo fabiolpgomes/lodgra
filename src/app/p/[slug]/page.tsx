@@ -353,6 +353,7 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
     ...property,
     imageUrls: allPhotos,
     structuredAmenities,
+    telephone: orgPublicProfile?.contact_phone ?? undefined,
     reviewScore: reviewScore
       ? { globalAvg: reviewScore.globalAvg, totalCount: reviewScore.totalCount }
       : null,
