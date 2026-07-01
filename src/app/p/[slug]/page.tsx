@@ -41,7 +41,7 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   const { data: property, error } = await supabase
     .from('properties')
@@ -51,10 +51,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     .single()
 
   if (!property || error) {
-    // Log erro para diagnóstico
-    if (error) {
-      console.error(`[generateMetadata] Error fetching property ${slug}:`, error.message, error.code)
-    }
     return { title: 'Propriedade não encontrada | Algarve Home Stay', robots: { index: false } }
   }
 
