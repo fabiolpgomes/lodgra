@@ -51,6 +51,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     .single()
 
   if (!property || error) {
+    // Log erro para diagnóstico
+    if (error) {
+      console.error(`[generateMetadata] Error fetching property ${slug}:`, error.message, error.code)
+    }
     return { title: 'Propriedade não encontrada | Algarve Home Stay', robots: { index: false } }
   }
 
