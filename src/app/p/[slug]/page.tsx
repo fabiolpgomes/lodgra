@@ -11,7 +11,7 @@ import { locales } from '../../../../i18n.config'
 import { PropertyPageV2 } from '@/components/common/public/PropertyPageV2'
 import { normalizeToScale10, getScaleMaxForSource } from '@/lib/ratings/normalize'
 
-export const revalidate = 86400 // ISR: 24 hours (2592000 = 30 days on-demand via API)
+export const revalidate = 86400 // ISR: 24 hours (on-demand via API after 24h)
 export const dynamicParams = true // Enable beyond static params from generateStaticParams
 
 // Pre-render all public properties at build time
