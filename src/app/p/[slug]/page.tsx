@@ -43,15 +43,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { slug } = await params
   const supabase = await createClient()
 
-  const { data: property } = await supabase
+  const { data: property, error } = await supabase
     .from('properties')
     .select('name, description, photos, city, country, address, postal_code, latitude, longitude, base_price, currency, amenities, bedrooms, bathrooms, max_guests, property_type, rating, review_count')
     .eq('slug', slug)
     .eq('is_public', true)
     .single()
 
-  if (!property) {
-    return { title: 'Propriedade não encontrada' }
+  if (!property || error) {
+    return { title: 'Propriedade não encontrada | Algarve Home Stay', robots: { index: false } }
   }
 
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://lodgra.io'
