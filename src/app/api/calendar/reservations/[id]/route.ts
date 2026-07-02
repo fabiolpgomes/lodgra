@@ -4,6 +4,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { requireRole } from '@/lib/auth/requireRole'
 import { notifyPlatformSync } from '@/lib/ical/syncWebhook'
 import { enqueueEmail } from '@/lib/email/queue'
+import { cancelReservationInBeds24 } from '@/lib/reservations/syncToBeds24'
 
 export async function PATCH(
   request: NextRequest,
@@ -99,6 +100,13 @@ export async function DELETE(
       return NextResponse.json({ error: 'Reserva não encontrada' }, { status: 404 })
     }
 
+    // Fetch beds24_booking_id if it exists (for sync on cancel)
+    const { data: existingRes } = await supabase
+      .from('reservations')
+      .select('beds24_booking_id, source')
+      .eq('id', id)
+      .single()
+
     // Mark reservation as cancelled instead of deleting (preserves history)
     const { error: updateError } = await supabase
       .from('reservations')
@@ -116,6 +124,22 @@ export async function DELETE(
         { error: 'Erro ao cancelar reserva' },
         { status: 500 }
       )
+    }
+
+    // Sync cancellation to Beds24 if this reservation has a beds24_booking_id
+    if (existingRes?.beds24_booking_id) {
+      try {
+        const beds24Result = await cancelReservationInBeds24(existingRes.beds24_booking_id)
+        if (beds24Result.success) {
+          console.log(`[Reservations API] Beds24 cancellation synced: ${existingRes.beds24_booking_id}`)
+        } else {
+          console.warn(`[Reservations API] Beds24 cancellation failed: ${beds24Result.error}`)
+          // Don't fail the main cancellation, just log it
+        }
+      } catch (beds24Error) {
+        console.error('[Reservations API] Error syncing Beds24 cancellation:', beds24Error)
+        // Don't block the cancellation if Beds24 sync fails
+      }
     }
 
     // Log cancellation for audit trail
