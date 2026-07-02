@@ -76,14 +76,17 @@ export async function POST(req: NextRequest) {
     console.log(`Restoration complete: ${fixedCount} restored, ${conflictCount} conflicts`);
 
     // Log the fix for audit trail
-    await supabase.from('sync_logs').insert({
+    const { error: logError } = await supabase.from('sync_logs').insert({
       sync_type: 'manual_fix',
       direction: 'internal',
       status: conflictCount === 0 ? 'success' : 'partial',
       records_updated: fixedCount,
       records_failed: conflictCount,
       error_message: conflictCount > 0 ? `${conflictCount} reservations have overlapping bookings` : null,
-    }).catch(err => console.warn('Could not log to sync_logs:', err));
+    });
+    if (logError) {
+      console.warn('Could not log to sync_logs:', logError);
+    }
 
     return NextResponse.json({
       success: true,
