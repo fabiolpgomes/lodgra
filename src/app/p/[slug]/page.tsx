@@ -58,9 +58,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return { title: 'Propriedade não encontrada | Algarve Home Stay', robots: { index: false } }
   }
 
+  // TEMP: Skip is_public check - just render the title
   if (!property.is_public) {
-    console.warn(`[generateMetadata] Property not public: ${slug}`)
-    return { title: 'Propriedade não encontrada | Algarve Home Stay', robots: { index: false } }
+    console.warn(`[generateMetadata] Property not public: ${slug}, but rendering anyway`)
   }
 
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://lodgra.io'
@@ -131,10 +131,8 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
     notFound()
   }
 
-  if (!property.is_public) {
-    console.warn(`[PublicPropertyPage] Property not public: ${slug}`)
-    notFound()
-  }
+  // TEMP: Skip is_public check to test if query works at all
+  console.log(`[PublicPropertyPage] Found property: ${property.name}, is_public: ${property.is_public}`)
 
   const similarProperties = await getSimilarProperties(property.id, {
     city: property.city || '',
