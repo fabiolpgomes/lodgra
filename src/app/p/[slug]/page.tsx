@@ -45,21 +45,19 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const { data: property, error } = await supabase
     .from('properties')
-    .select('name, description, photos, city, country, address, postal_code, latitude, longitude, base_price, currency, amenities, bedrooms, bathrooms, max_guests, property_type, rating, review_count')
+    .select('name, description, photos, city, country, address, postal_code, latitude, longitude, base_price, currency, amenities, bedrooms, bathrooms, max_guests, property_type, rating, review_count, is_public')
     .eq('slug', slug)
-    .eq('is_public', true)
     .single()
 
-  if (error) {
-    console.error(`[generateMetadata] RLS/Query error for slug=${slug}:`, {
-      code: error.code,
-      message: error.message,
-      hint: error.hint,
-      details: error.details,
-    })
-  }
-
-  if (!property || error) {
+  if (!property || !property.is_public || error) {
+    if (error) {
+      console.error(`[generateMetadata] Query error for slug=${slug}:`, {
+        code: error.code,
+        message: error.message,
+        hint: error.hint,
+        details: error.details,
+      })
+    }
     return { title: 'Propriedade não encontrada | Algarve Home Stay', robots: { index: false } }
   }
 
