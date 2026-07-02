@@ -11,24 +11,9 @@ import { NextRequest, NextResponse } from 'next/server';
  * - Lodgra: confirmed/pending_payment/cancelled
  */
 
-interface ConflictRecord {
-  property: string
-  reservation1: { id: string; dates: string; source: string }
-  reservation2: { id: string; dates: string; source: string }
-}
-
-interface ReservationRecord {
-  id: string
-  check_in: string
-  check_out: string
-  property_listing_id: string
-  status: string
-  source: string
-}
-
 export async function POST(req: NextRequest) {
   try {
-    const { secret } = await req.json();
+    const { secret, action = 'sync' } = await req.json();
     if (secret !== process.env.CRON_SECRET) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -37,7 +22,7 @@ export async function POST(req: NextRequest) {
     const results = {
       booking: { synced: 0, errors: 0 },
       airbnb: { synced: 0, errors: 0 },
-      conflicts: [] as ConflictRecord[],
+      conflicts: [] as any[],
     };
 
     console.log('🔄 Starting full platform sync...');
@@ -87,9 +72,9 @@ export async function POST(req: NextRequest) {
       .eq('status', 'confirmed');
 
     // Group by property and date to find conflicts
-    const reservationsByProperty = new Map<string, ReservationRecord[]>();
+    const reservationsByProperty = new Map<string, any[]>();
 
-    (allReservations as ReservationRecord[] || []).forEach(res => {
+    (allReservations || []).forEach(res => {
       const key = res.property_listing_id;
       if (!reservationsByProperty.has(key)) {
         reservationsByProperty.set(key, []);

@@ -75,7 +75,7 @@ async function notifyBooking(payload: NotificationPayload): Promise<boolean> {
  * Currently relies on iCal polling; direct API not available
  * Returns false to trigger iCal revalidation fallback
  */
-async function notifyAirbnb(_payload: NotificationPayload): Promise<boolean> {
+async function notifyAirbnb(payload: NotificationPayload): Promise<boolean> {
   console.log('[PlatformNotifier] Airbnb: Using iCal revalidation (no direct API)')
   return false // Fallback to iCal
 }
@@ -84,7 +84,7 @@ async function notifyAirbnb(_payload: NotificationPayload): Promise<boolean> {
  * Send notification to Flatio
  * Currently relies on iCal polling; direct API not available
  */
-async function notifyFlatio(_payload: NotificationPayload): Promise<boolean> {
+async function notifyFlatio(payload: NotificationPayload): Promise<boolean> {
   console.log('[PlatformNotifier] Flatio: Using iCal revalidation (no direct API)')
   return false // Fallback to iCal
 }
@@ -93,7 +93,7 @@ async function notifyFlatio(_payload: NotificationPayload): Promise<boolean> {
  * Send notification to VRBO
  * Currently relies on iCal polling; direct API not available
  */
-async function notifyVRBO(_payload: NotificationPayload): Promise<boolean> {
+async function notifyVRBO(payload: NotificationPayload): Promise<boolean> {
   console.log('[PlatformNotifier] VRBO: Using iCal revalidation (no direct API)')
   return false // Fallback to iCal
 }

@@ -5,27 +5,6 @@ import { NextRequest, NextResponse } from 'next/server';
  * Diagnose: Check for real conflicts between cancelled and confirmed reservations
  */
 
-interface ReservationData {
-  id: string
-  check_in: string
-  check_out: string
-  property_listing_id: string
-  status: string
-}
-
-interface ConflictItem {
-  cancelled: {
-    id: string
-    from: string
-    to: string
-  }
-  overlappingConfirmed: Array<{
-    id: string
-    from: string
-    to: string
-  }>
-}
-
 export async function POST(req: NextRequest) {
   try {
     const { secret } = await req.json();
@@ -52,10 +31,10 @@ export async function POST(req: NextRequest) {
       .lte('check_out', '2026-08-31');
 
     // Check for overlaps
-    const conflicts: ConflictItem[] = [];
+    const conflicts: any[] = [];
 
-    for (const c of (cancelled as ReservationData[] | null) || []) {
-      const overlaps = ((confirmed as ReservationData[] | null) || []).filter(f =>
+    for (const c of cancelled || []) {
+      const overlaps = (confirmed || []).filter(f =>
         f.property_listing_id === c.property_listing_id &&
         c.check_in < f.check_out &&
         c.check_out > f.check_in
