@@ -53,14 +53,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     console.error(`[generateMetadata] Query error for slug=${slug}:`, error)
   }
 
-  if (!property) {
-    console.error(`[generateMetadata] Property not found: ${slug}`)
+  if (!property || !property.is_public) {
     return { title: 'Propriedade não encontrada | Algarve Home Stay', robots: { index: false } }
-  }
-
-  // TEMP: Skip is_public check - just render the title
-  if (!property.is_public) {
-    console.warn(`[generateMetadata] Property not public: ${slug}, but rendering anyway`)
   }
 
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://lodgra.io'
@@ -106,33 +100,18 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
   const checkIn  = sp.checkIn  ?? sp.checkin
   const checkOut = sp.checkOut ?? sp.checkout
   const { guests, minNightsError, datesUnavailable } = sp
+  const supabase = await createClient()
+  const adminClient = createAdminClient()
 
-  console.log(`[PublicPropertyPage] Starting for slug: ${slug}`)
-
-  const supabase = createAdminClient()
-  const adminClient = supabase
-
-  console.log(`[PublicPropertyPage] Supabase client created`)
-
-  const { data: property, error } = await supabase
+  const { data: property } = await supabase
     .from('properties')
-    .select('*')
+    .select('id, name, description, city, country, address, photos, amenities, max_guests, bedrooms, bathrooms, property_type, slug, base_price, currency, postal_code, is_active, created_at, updated_at, min_nights, cleaning_fee, cleaning_fee_type, pet_fee, pet_fee_type, checkin_from, checkin_until, checkout_until, latitude, longitude, organization_id, is_public')
     .eq('slug', slug)
     .single()
 
-  console.log(`[PublicPropertyPage] Query result: property=${!!property}, error=${!!error}`)
-
-  if (error) {
-    console.error(`[PublicPropertyPage] Error fetching property ${slug}:`, error)
-  }
-
-  if (!property) {
-    console.error(`[PublicPropertyPage] Property not found: ${slug}`)
+  if (!property || !property.is_public) {
     notFound()
   }
-
-  // TEMP: Skip is_public check to test if query works at all
-  console.log(`[PublicPropertyPage] Found property: ${property.name}, is_public: ${property.is_public}`)
 
   const similarProperties = await getSimilarProperties(property.id, {
     city: property.city || '',
