@@ -5,6 +5,7 @@ import { requireRole } from '@/lib/auth/requireRole'
 import { notifyPlatformSync } from '@/lib/ical/syncWebhook'
 import { enqueueEmail } from '@/lib/email/queue'
 import { cancelReservationInBeds24 } from '@/lib/reservations/syncToBeds24'
+import { notifyAllPlatforms } from '@/lib/integrations/platform-notifier'
 
 export async function PATCH(
   request: NextRequest,
@@ -171,6 +172,14 @@ export async function DELETE(
           reason: 'Cancelada pelo proprietário',
         },
       })
+    }
+
+    // Send real-time push notifications to platforms (reduces sync delay from ~24h to seconds)
+    try {
+      await notifyAllPlatforms(id, 'cancelled')
+    } catch (notifyError) {
+      console.warn('[Reservations API] Platform notification failed:', notifyError)
+      // Don't block cancellation if platform notification fails
     }
 
     // Notify owner via email
