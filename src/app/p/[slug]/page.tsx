@@ -41,31 +41,25 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params
-  const regularClient = await createClient()
-  const adminClient = createAdminClient()
+  const supabase = createAdminClient()
 
-  // Try regular client first
-  let { data: property, error } = await regularClient
+  const { data: property, error } = await supabase
     .from('properties')
     .select('name, description, photos, city, country, address, postal_code, latitude, longitude, base_price, currency, amenities, bedrooms, bathrooms, max_guests, property_type, rating, review_count, is_public')
     .eq('slug', slug)
     .single()
 
-  // If fails, try admin client
-  if (!property && error) {
-    const { data: adminData } = await adminClient
-      .from('properties')
-      .select('name, description, photos, city, country, address, postal_code, latitude, longitude, base_price, currency, amenities, bedrooms, bathrooms, max_guests, property_type, rating, review_count, is_public')
-      .eq('slug', slug)
-      .single()
-    property = adminData
+  if (error) {
+    console.error(`[generateMetadata] Query error for slug=${slug}:`, error)
   }
 
   if (!property) {
+    console.error(`[generateMetadata] Property not found: ${slug}`)
     return { title: 'Propriedade não encontrada | Algarve Home Stay', robots: { index: false } }
   }
 
   if (!property.is_public) {
+    console.warn(`[generateMetadata] Property not public: ${slug}`)
     return { title: 'Propriedade não encontrada | Algarve Home Stay', robots: { index: false } }
   }
 
@@ -113,31 +107,32 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
   const checkOut = sp.checkOut ?? sp.checkout
   const { guests, minNightsError, datesUnavailable } = sp
 
-  const supabase = await createClient()
-  const adminClient = createAdminClient()
+  console.log(`[PublicPropertyPage] Starting for slug: ${slug}`)
 
-  // Try regular client first
-  let { data: property, error } = await supabase
+  const supabase = createAdminClient()
+  const adminClient = supabase
+
+  console.log(`[PublicPropertyPage] Supabase client created`)
+
+  const { data: property, error } = await supabase
     .from('properties')
     .select('*')
     .eq('slug', slug)
     .single()
 
-  // If fails, fallback to admin client
-  if (!property && error) {
-    const { data: adminData } = await adminClient
-      .from('properties')
-      .select('*')
-      .eq('slug', slug)
-      .single()
-    property = adminData
+  console.log(`[PublicPropertyPage] Query result: property=${!!property}, error=${!!error}`)
+
+  if (error) {
+    console.error(`[PublicPropertyPage] Error fetching property ${slug}:`, error)
   }
 
   if (!property) {
+    console.error(`[PublicPropertyPage] Property not found: ${slug}`)
     notFound()
   }
 
   if (!property.is_public) {
+    console.warn(`[PublicPropertyPage] Property not public: ${slug}`)
     notFound()
   }
 
