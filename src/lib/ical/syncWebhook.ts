@@ -71,8 +71,7 @@ export async function notifyPlatformSync(payload: SyncWebhookPayload): Promise<v
             platformName,
             listing.external_id,
             payload.eventData.checkIn,
-            payload.eventData.checkOut,
-            payload.eventData.title
+            payload.eventData.checkOut
           )
 
           if (apiResult) {
