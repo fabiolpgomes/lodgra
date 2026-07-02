@@ -328,3 +328,334 @@ Pagamentos automáticos aos proprietários
 Split de pagamentos
 
 Se o Lodgra implementar apenas Conta Corrente do Proprietário + Repasses + Comissões automáticas, ele já ficará mais avançado financeiramente do que a maioria dos PMS pequenos utilizados por gestores de 5 a 100 imóveis em Portugal.
+
+
+Fico muito contente que tenha gostado. Conhecendo a visão que tem para o Lodgra, eu iria um passo além: não tratar isto como uma apresentação, mas como um módulo estratégico do sistema.
+
+O objetivo deixa de ser “mostrar números” e passa a ser dar aos sócios uma visão executiva do negócio em tempo real.
+
+Abaixo está uma documentação em Markdown que eu entregaria a uma equipa sénior (ou a um grupo de agentes de IA) para implementar este módulo.
+
+⸻
+
+# Executive Financial Dashboard
+## Lodgra PMS
+### Product Requirements Document (PRD)
+Version: 1.0
+Status: Roadmap
+Priority: CRITICAL
+Owner: Algarve Home Stay
+---
+# Objetivo
+Desenvolver um Dashboard Financeiro Executivo dentro do Lodgra que permita aos gestores, sócios e administradores visualizar em tempo real a performance financeira da empresa, das propriedades e dos proprietários.
+O Dashboard deverá substituir completamente apresentações em PowerPoint, Excel e controles manuais.
+O sistema deverá servir como principal ferramenta utilizada nas reuniões mensais de gestão.
+---
+# Conceito
+Não é um relatório.
+Não é uma planilha.
+Não é uma prestação de contas.
+É um painel executivo semelhante aos utilizados por empresas como:
+• Airbnb
+• Booking
+• Stripe
+• Hubspot
+• Salesforce
+• Monday
+• Tableau
+Visual limpo.
+Pouca informação.
+Muito impacto visual.
+Todos os indicadores importantes disponíveis em poucos segundos.
+---
+# Objetivos do Negócio
+Permitir responder rapidamente:
+Quanto faturamos este mês?
+Quanto faturamos este ano?
+Quanto pertence aos proprietários?
+Quanto pertence à Algarve Home Stay?
+Quanto ainda falta receber?
+Qual imóvel gera mais receita?
+Qual proprietário gera maior rentabilidade?
+Quanto já pagamos?
+Quanto ainda precisamos pagar?
+Como estamos comparados com o mês anterior?
+Estamos crescendo?
+---
+# Usuários
+Administrador
+Sócios
+Financeiro
+Gestor de Operações
+Gestor Comercial
+---
+# Estrutura Geral
+Dashboard Executivo
+↓
+Ano
+↓
+Mês
+↓
+Propriedade
+↓
+Reserva
+↓
+Prestação de Contas
+---
+# Layout
+Inspirado em:
+Apple
+Stripe
+Linear
+Notion
+McKinsey
+Sotheby's Realty
+Google Analytics
+---
+# Paleta
+Azul petróleo
+Cinza claro
+Branco
+Verde para receitas
+Vermelho para despesas
+Laranja para alertas
+---
+# Menu
+Dashboard
+Financeiro
+Reservas
+Proprietários
+Relatórios
+Prestação de Contas
+Pagamentos
+Configurações
+---
+# Dashboard Principal
+Cards superiores
+Receita Bruta
+Receita Líquida
+Comissão da Empresa
+Valor dos Proprietários
+Recebimentos Pendentes
+Pagamentos Pendentes
+Lucro Operacional
+Fluxo de Caixa
+---
+# KPIs
+Receita acumulada
+Receita do mês
+Receita anual
+Comissão acumulada
+Comissão do mês
+ADR
+RevPAR
+Ocupação
+Noites Vendidas
+Noites Disponíveis
+Ticket Médio
+Reserva Média
+Cancelamentos
+Valor em Caixa
+---
+# Gráficos
+Receita mês a mês
+Comissão mês a mês
+Receita por propriedade
+Receita por proprietário
+Receita por plataforma
+Fluxo de caixa
+Despesas
+Comparativo Ano Atual x Ano Anterior
+---
+# Receita
+Origem
+Airbnb
+Booking
+VRBO
+Flatio
+Reserva Direta
+Expedia
+Outros
+---
+# Despesas
+Limpeza
+Lavanderia
+Manutenção
+Reembolsos
+Compras
+Condomínio
+Água
+Energia
+Internet
+Outros
+---
+# Fluxo de Caixa
+Recebido
+Previsto
+Pago
+A pagar
+Saldo
+Saldo futuro
+---
+# Prestação de Contas
+Selecionar proprietário
+↓
+Selecionar período
+↓
+Gerar automaticamente
+↓
+Exportar PDF
+↓
+Enviar por email
+---
+# Comparativos
+Mês Atual
+vs
+Mês Anterior
+vs
+Mesmo mês do ano anterior
+vs
+Meta
+---
+# Ranking
+Top imóveis
+Top proprietários
+Top plataformas
+Maior ADR
+Maior ocupação
+Maior lucro
+Maior comissão
+---
+# Indicadores Operacionais
+Check-ins
+Check-outs
+Limpezas
+Cancelamentos
+Reservas
+Reservas Diretas
+Reservas OTA
+---
+# Alertas
+Pagamento atrasado
+Depósito não recebido
+Prestação não enviada
+Reserva sem pagamento
+Limpeza pendente
+Manutenção pendente
+---
+# Timeline
+Todo lançamento financeiro gera evento.
+Reserva criada
+↓
+Pagamento recebido
+↓
+Prestação criada
+↓
+Repasse realizado
+↓
+Financeiro encerrado
+---
+# Dashboard Anual
+Tabela dinâmica
+Janeiro
+Fevereiro
+Março
+...
+Dezembro
+Total
+Receita
+Comissão
+Despesas
+Lucro
+Fluxo
+---
+# Drill Down
+Dashboard
+↓
+Mês
+↓
+Propriedade
+↓
+Reserva
+↓
+Pagamento
+↓
+Histórico
+---
+# Atualização
+Tempo real
+Sempre que:
+Nova reserva
+Novo pagamento
+Nova despesa
+Novo repasse
+Nova comissão
+Nova limpeza
+---
+# Performance
+Nenhum cálculo pesado deverá ocorrer no frontend.
+Todos os indicadores deverão ser calculados pelo backend.
+Frontend apenas renderiza.
+---
+# API
+GET
+/dashboard/executive
+Retorno
+{
+  receitaBruta
+  receitaLiquida
+  receitaAno
+  receitaMes
+  comissaoAno
+  comissaoMes
+  fluxoCaixa
+  despesas
+  rankings
+  indicadores
+  charts
+}
+---
+# Componentes
+Executive Cards
+Revenue Chart
+Cash Flow Chart
+Property Ranking
+Owner Ranking
+Platform Ranking
+Monthly Table
+Annual Table
+KPI Cards
+Alerts
+Timeline
+---
+# Exportação
+PDF
+Excel
+CSV
+Imagem
+PowerPoint
+---
+# Responsividade
+Desktop
+Tablet
+Mobile
+TV
+Projetor
+---
+# Objetivo Final
+O sócio deve abrir o Lodgra e, em menos de 30 segundos, compreender completamente a situação financeira da empresa.
+Não deve existir necessidade de abrir Excel, consultar extratos bancários ou criar apresentações paralelas.
+Todo o processo de gestão financeira deve acontecer dentro do Lodgra.
+
+Minha sugestão de evolução
+
+Eu transformaria esse módulo em um dos grandes diferenciais do Lodgra. Em vez de ser apenas um PMS, ele passaria a ser um ERP para gestão de alojamento local, algo que poucos concorrentes oferecem.
+
+Os próximos módulos que se encaixam naturalmente nessa visão seriam:
+
+1. Executive Dashboard (o que acabámos de definir).
+2. Centro Financeiro (contas a receber, contas a pagar, fluxo de caixa, conciliação bancária e repasses).
+3. Business Intelligence (BI) com comparativos anuais, metas e previsões.
+4. Dashboard do Proprietário, onde cada proprietário vê apenas os indicadores do seu imóvel, sem acesso às informações globais da empresa.
+
+Essa arquitetura posiciona o Lodgra como uma plataforma de gestão completa, e não apenas um sistema para controlar reservas. Isso aumenta muito o valor percebido do produto e facilita a sua comercialização para empresas que gerem múltiplos imóveis.
