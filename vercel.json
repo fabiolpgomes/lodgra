@@ -1,6 +1,10 @@
 {
   "crons": [
     {
+      "path": "/api/cron/revalidate-ical",
+      "schedule": "*/30 * * * *"
+    },
+    {
       "path": "/api/cron/sync-ical",
       "schedule": "0 3 * * *"
     },
