@@ -104,8 +104,8 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
   const checkIn  = sp.checkIn  ?? sp.checkin
   const checkOut = sp.checkOut ?? sp.checkout
   const { guests, minNightsError, datesUnavailable } = sp
-  const supabase = await createClient()
-  const adminClient = createAdminClient()
+  const supabase = createAdminClient()
+  const adminClient = supabase
 
   const { data: property } = await supabase
     .from('properties')
