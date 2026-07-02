@@ -156,13 +156,71 @@ Diagnóstico: mostra
 
 ---
 
+## Mudanças Implementadas (2 Julho 2026)
+
+### ✅ Commit: 08ee7c3
+**fix: implementar sincronização de cancelamentos com Beds24 e rotas de diagnóstico**
+
+#### Arquivos Modificados:
+1. **`src/app/api/calendar/reservations/[id]/route.ts`** (DELETE handler)
+   - Adicionado: fetch de `beds24_booking_id` antes do cancelamento
+   - Adicionado: chamada a `cancelReservationInBeds24()` se ID existir
+   - Tratamento de erros: não bloqueia o DELETE, apenas loga
+
+2. **`src/app/api/admin/sync-status/route.ts`** (Nova)
+   - GET endpoint para diagnóstico
+   - Mostra: total de canceladas, com/sem beds24_id, status de logs
+   - Recomendações automáticas de ação
+
+3. **`src/app/api/admin/sync-cancellations/route.ts`** (Nova)
+   - POST endpoint para forçar sincronização
+   - Parâmetros: `days_back` (0-90), `limit` (default 100)
+   - Retorna: lista de sucesso/falha com detalhes
+
+4. **`src/app/api/admin/revalidate-cache/route.ts`** (Nova)
+   - POST endpoint para revalidar cache de calendário/reservas
+   - Útil para forçar refresh de ISR após mudanças
+
+5. **`docs/fixes/sync-investigation.md`** (Documentação)
+   - Análise completa do problema
+   - Procedimento de diagnóstico e correção
+
+#### Testes:
+- ✅ `src/app/api/admin/sync-cancellations/__tests__/route.test.ts` (placeholder)
+- ✅ Build passou (npm run build)
+- ✅ Testes passaram (npm test -- sync-cancellations)
+
 ## Próximas Ações
 
-1. **Agora**: Corrigir as 41 reservas manualmente (✅ DONE)
-2. **Agora**: Criar rotas de diagnóstico (✅ DONE)
-3. **PRÓXIMO**: Executar `/api/admin/sync-platforms` para validar
-4. **PRÓXIMO**: Se houver conflitos, fazer pull manual de Booking/Airbnb
-5. **DEPOIS**: Investigar por que webhooks não funcionaram
+### Fase 4: Validação (PRÓXIMO)
+1. **Executar diagnóstico**:
+   ```bash
+   curl http://localhost:3000/api/admin/sync-status?days_back=30
+   ```
+   Verificar: quantas reservas têm `beds24_booking_id` e estão pendentes
+
+2. **Sincronizar as 41 reservas**:
+   ```bash
+   curl -X POST http://localhost:3000/api/admin/sync-cancellations?days_back=7
+   ```
+   Resultado esperado: lista de sucesso/falha
+
+3. **Investigar falhas**:
+   - Se houver erros: verificar BEDS24_API_KEY no Vercel
+   - Se houver timeout: aumentar limit parameter
+   - Se houver 401: API key expirou
+
+### Fase 5: Notificação das Plataformas (DEPOIS)
+- [ ] Expandir `notifyPlatformSync()` para fazer push real (não apenas TODO)
+- [ ] Opção 1: Implementar webhook push para Booking/Airbnb
+- [ ] Opção 2: Forçar ISR revalidation de iCal export (mais rápido)
+- [ ] Monitorar tempo de sync em Booking/Airbnb dashboards
+
+### Fase 6: Prevenção (Futuro)
+- [ ] Cron job: sincronizar automaticamente cancelamentos pending
+- [ ] Alert: se `pending_sync_logs > 10`, notificar admin
+- [ ] Dashboard: visualizar status de sincronização em tempo real
+- [ ] Documentação: adicionar runbook para troubleshooting de sync
 
 ---
 
