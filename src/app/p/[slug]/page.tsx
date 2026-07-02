@@ -106,14 +106,21 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
   const checkIn  = sp.checkIn  ?? sp.checkin
   const checkOut = sp.checkOut ?? sp.checkout
   const { guests, minNightsError, datesUnavailable } = sp
+
+  console.log(`[PublicPropertyPage] Starting for slug: ${slug}`)
+
   const supabase = createAdminClient()
   const adminClient = supabase
+
+  console.log(`[PublicPropertyPage] Supabase client created`)
 
   const { data: property, error } = await supabase
     .from('properties')
     .select('*')
     .eq('slug', slug)
     .single()
+
+  console.log(`[PublicPropertyPage] Query result: property=${!!property}, error=${!!error}`)
 
   if (error) {
     console.error(`[PublicPropertyPage] Error fetching property ${slug}:`, error)
