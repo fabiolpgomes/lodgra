@@ -49,15 +49,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     .eq('slug', slug)
     .single()
 
-  if (!property || !property.is_public || error) {
-    if (error) {
-      console.error(`[generateMetadata] Query error for slug=${slug}:`, {
-        code: error.code,
-        message: error.message,
-        hint: error.hint,
-        details: error.details,
-      })
-    }
+  if (error) {
+    console.error(`[generateMetadata] Query error for slug=${slug}:`, error)
+  }
+
+  if (!property) {
+    console.error(`[generateMetadata] Property not found: ${slug}`)
+    return { title: 'Propriedade não encontrada | Algarve Home Stay', robots: { index: false } }
+  }
+
+  if (!property.is_public) {
+    console.warn(`[generateMetadata] Property not public: ${slug}`)
     return { title: 'Propriedade não encontrada | Algarve Home Stay', robots: { index: false } }
   }
 
@@ -109,20 +111,21 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
 
   const { data: property, error } = await supabase
     .from('properties')
-    .select('id, name, description, city, country, address, photos, amenities, max_guests, bedrooms, bathrooms, property_type, slug, base_price, currency, postal_code, is_active, created_at, updated_at, min_nights, cleaning_fee, cleaning_fee_type, pet_fee, pet_fee_type, checkin_from, checkin_until, checkout_until, latitude, longitude, organization_id, is_public')
+    .select('*')
     .eq('slug', slug)
     .single()
 
   if (error) {
-    console.error(`[PublicPropertyPage] Error fetching property ${slug}:`, {
-      code: error.code,
-      message: error.message,
-      hint: error.hint,
-      details: error.details,
-    })
+    console.error(`[PublicPropertyPage] Error fetching property ${slug}:`, error)
   }
 
-  if (!property || !property.is_public) {
+  if (!property) {
+    console.error(`[PublicPropertyPage] Property not found: ${slug}`)
+    notFound()
+  }
+
+  if (!property.is_public) {
+    console.warn(`[PublicPropertyPage] Property not public: ${slug}`)
     notFound()
   }
 
