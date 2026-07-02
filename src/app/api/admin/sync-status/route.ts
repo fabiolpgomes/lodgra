@@ -151,9 +151,24 @@ export async function GET(request: NextRequest) {
   }
 }
 
+interface StatsType {
+  total_cancelled: number
+  with_beds24_id: number
+  without_beds24_id: number
+  by_source: Record<string, number>
+  by_status: Record<string, number>
+}
+
+interface SyncStatusType {
+  total_logs: number
+  by_type: Record<string, number>
+  by_direction: Record<string, number>
+  by_status: Record<string, number>
+}
+
 function generateRecommendations(
-  stats: Record<string, any>,
-  syncStatus: Record<string, any>
+  stats: StatsType,
+  syncStatus: SyncStatusType
 ): string[] {
   const recommendations: string[] = []
 
