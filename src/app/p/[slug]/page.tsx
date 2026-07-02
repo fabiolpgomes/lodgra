@@ -107,11 +107,20 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
   const supabase = createAdminClient()
   const adminClient = supabase
 
-  const { data: property } = await supabase
+  const { data: property, error } = await supabase
     .from('properties')
     .select('id, name, description, city, country, address, photos, amenities, max_guests, bedrooms, bathrooms, property_type, slug, base_price, currency, postal_code, is_active, created_at, updated_at, min_nights, cleaning_fee, cleaning_fee_type, pet_fee, pet_fee_type, checkin_from, checkin_until, checkout_until, latitude, longitude, organization_id, is_public')
     .eq('slug', slug)
     .single()
+
+  if (error) {
+    console.error(`[PublicPropertyPage] Error fetching property ${slug}:`, {
+      code: error.code,
+      message: error.message,
+      hint: error.hint,
+      details: error.details,
+    })
+  }
 
   if (!property || !property.is_public) {
     notFound()
