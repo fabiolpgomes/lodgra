@@ -107,47 +107,12 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
   const checkOut = sp.checkOut ?? sp.checkout
   const { guests, minNightsError, datesUnavailable } = sp
 
-  // NUCLEAR: Return test data to confirm page can render
-  if (slug === 'test') {
-    const testProperty = {
-      id: 'test-id',
-      name: '✅ TEST PROPERTY',
-      description: 'If you see this, the component IS rendering!',
-      city: 'Test City',
-      country: 'Test Country',
-      address: 'Test Address',
-      photos: [],
-      amenities: [],
-      max_guests: 4,
-      bedrooms: 2,
-      bathrooms: 1,
-      property_type: 'apartment',
-      slug: 'test',
-      base_price: 100,
-      currency: 'EUR',
-      postal_code: '12345',
-      is_active: true,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      min_nights: 1,
-      cleaning_fee: 0,
-      cleaning_fee_type: 'fixed',
-      pet_fee: 0,
-      pet_fee_type: 'fixed',
-      checkin_from: '14:00',
-      checkin_until: '22:00',
-      checkout_until: '11:00',
-      latitude: 0,
-      longitude: 0,
-      organization_id: 'test-org',
-      is_public: true,
-    } as any
-
-    return <PropertyPageV2 property={testProperty} allPhotos={[]} currency="EUR" initialCheckIn={checkIn} initialCheckOut={checkOut} minNights={1} pricingRules={[]} structuredAmenities={[]} rooms={[]} bathrooms={[]} reviewScore={null} featuredReviews={[]} similarProperties={[]} publicProfile={null} />
-  }
+  console.log(`[PublicPropertyPage] Starting for slug: ${slug}`)
 
   const supabase = createAdminClient()
   const adminClient = supabase
+
+  console.log(`[PublicPropertyPage] Supabase client created`)
 
   const { data: property, error } = await supabase
     .from('properties')
@@ -155,13 +120,19 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
     .eq('slug', slug)
     .single()
 
+  console.log(`[PublicPropertyPage] Query result: property=${!!property}, error=${!!error}`)
+
   if (error) {
-    console.error(`[PublicPropertyPage] Error:`, error)
+    console.error(`[PublicPropertyPage] Error fetching property ${slug}:`, error)
   }
 
   if (!property) {
+    console.error(`[PublicPropertyPage] Property not found: ${slug}`)
     notFound()
   }
+
+  // TEMP: Skip is_public check to test if query works at all
+  console.log(`[PublicPropertyPage] Found property: ${property.name}, is_public: ${property.is_public}`)
 
   const similarProperties = await getSimilarProperties(property.id, {
     city: property.city || '',
