@@ -24,10 +24,10 @@ export async function generateStaticParams() {
       .select('slug')
       .eq('is_public', true)
 
-    return (properties || []).map((property) => ({
+    return (properties || []).map((property: { slug: string }) => ({
       slug: property.slug,
     }))
-  } catch (error) {
+  } catch (error: unknown) {
     // During build, DB may not be accessible - return empty array
     // Fallback to dynamicParams=true
     return []
@@ -70,7 +70,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     alternates: {
       canonical: canonicalUrl,
       languages: Object.fromEntries(
-        locales.map(locale => [locale, `${baseUrl}/${locale}/p/${slug}`])
+        locales.map((locale: string) => [locale, `${baseUrl}/${locale}/p/${slug}`])
       ),
     },
     openGraph: {
@@ -149,13 +149,13 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
   if (imagesWithVariants.length > 0) {
     // Try new system first and convert storage_path to public URLs
     allPhotos = imagesWithVariants
-      .map(img => {
+      .map((img: PropertyImage) => {
         // Get the best variant available: desktop > tablet > mobile > thumb
         const variantPriority = ['desktop', 'tablet', 'mobile', 'thumb']
         let storagePath = ''
-        
+
         for (const variant of variantPriority) {
-          const found = img.variants?.find(v => v.variant_type === variant)?.storage_path
+          const found = img.variants?.find((v: { variant_type: string }) => v.variant_type === variant)?.storage_path
           if (found) {
             storagePath = found
             break
