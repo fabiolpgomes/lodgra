@@ -42,62 +42,74 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params
-  console.log(`[generateMetadata] Starting for slug=${slug}`)
-  const supabase = createClient()
 
-  const { data: property, error } = await supabase
-    .from('properties')
-    .select('name, description, photos, city, country, address, postal_code, latitude, longitude, base_price, currency, amenities, bedrooms, bathrooms, max_guests, property_type, rating, review_count')
-    .eq('slug', slug)
-    .single()
+  try {
+    const supabase = createAdminClient()
 
-  console.log(`[generateMetadata] Query result - property:`, property?.name, `error:`, error)
+    // Use where instead of eq to avoid RLS filtering
+    const { data, error } = await supabase
+      .from('properties')
+      .select('name, description, city, country, is_public')
+      .match({ slug })
 
-  if (error) {
-    console.error(`[generateMetadata] Query error for slug=${slug}:`, error.message)
-    return { title: 'Propriedade não encontrada | Algarve Home Stay', robots: { index: false } }
-  }
+    if (error || !data || data.length === 0) {
+      console.error(`[generateMetadata] Query failed for ${slug}:`, error)
+      // Return minimal metadata for non-found properties
+      return {
+        title: 'Propriedade | Lodgra',
+        robots: { index: false },
+      }
+    }
 
-  if (!property) {
-    console.warn(`[generateMetadata] Property not found for slug=${slug}`)
-    return { title: 'Propriedade não encontrada | Algarve Home Stay', robots: { index: false } }
-  }
+    const property = data[0]
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://lodgra.io'
-  const title = `${property.name} — Reserva Directa | Lodgra`
-  console.log(`[generateMetadata] Returning title: ${title}`)
-  const description = property.description || `${property.name} em ${property.city}, ${property.country}. Reserve directamente sem comissões.`
-  const canonicalUrl = `${baseUrl}/p/${slug}`
-  const ogImageUrl = `${baseUrl}/p/${slug}/opengraph-image`
+    // Only return full metadata if property is public
+    if (!property.is_public) {
+      return {
+        title: 'Propriedade | Lodgra',
+        robots: { index: false },
+      }
+    }
 
-  return {
-    title,
-    description,
-    robots: { index: true, follow: true },
-    alternates: {
-      canonical: canonicalUrl,
-      languages: Object.fromEntries(
-        locales.map((locale: string) => [locale, `${baseUrl}/${locale}/p/${slug}`])
-      ),
-    },
-    openGraph: {
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://lodgra.io'
+    const title = `${property.name} — Reserva Directa | Lodgra`
+    const description = property.description || `${property.name} em ${property.city}, ${property.country}. Reserve directamente sem comissões.`
+    const canonicalUrl = `${baseUrl}/p/${slug}`
+    const ogImageUrl = `${baseUrl}/p/${slug}/opengraph-image`
+
+    return {
       title,
       description,
-      url: canonicalUrl,
-      siteName: 'Lodgra',
-      type: 'website',
-      locale: 'pt_PT',
-      alternateLocale: ['pt_BR', 'en_US'],
-      images: [{ url: ogImageUrl, width: 1200, height: 630, alt: property.name }],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title,
-      description,
-      images: [ogImageUrl],
-    },
-    // JSON-LD schema is injected via JSON.stringify in page component
-    // Validated via: unit tests + Schema.org validator
+      robots: { index: true, follow: true },
+      alternates: {
+        canonical: canonicalUrl,
+        languages: Object.fromEntries(
+          locales.map((locale: string) => [locale, `${baseUrl}/${locale}/p/${slug}`])
+        ),
+      },
+      openGraph: {
+        title,
+        description,
+        url: canonicalUrl,
+        siteName: 'Lodgra',
+        type: 'website',
+        locale: 'pt_PT',
+        alternateLocale: ['pt_BR', 'en_US'],
+        images: [{ url: ogImageUrl, width: 1200, height: 630, alt: property.name }],
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title,
+        description,
+        images: [ogImageUrl],
+      },
+    }
+  } catch (err) {
+    console.error(`[generateMetadata] Exception for ${slug}:`, err)
+    return {
+      title: 'Propriedade | Lodgra',
+      robots: { index: false },
+    }
   }
 }
 
