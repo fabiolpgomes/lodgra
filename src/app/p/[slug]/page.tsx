@@ -54,7 +54,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     console.error(`[generateMetadata] Query error for slug=${slug}:`, error)
   }
 
-  if (!property || !property.is_public) {
+  if (!property) {
+    return { title: 'Propriedade não encontrada | Algarve Home Stay', robots: { index: false } }
+  }
+
+  if (!property.is_public) {
     return { title: 'Propriedade não encontrada | Algarve Home Stay', robots: { index: false } }
   }
 
