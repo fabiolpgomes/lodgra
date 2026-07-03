@@ -43,6 +43,14 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params
 
+  // TEMPORARY TEST: hardcode title to verify this function is called
+  if (slug === 'ahs-studio-premium-bela-vista-piscina-e-coworking') {
+    return {
+      title: 'AHS STUDIO PREMIUM — TEST TITLE WORKS | Lodgra',
+      robots: { index: true },
+    }
+  }
+
   try {
     const supabase = createAdminClient()
 
