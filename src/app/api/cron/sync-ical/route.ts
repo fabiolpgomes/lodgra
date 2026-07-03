@@ -178,52 +178,12 @@ async function syncOneListing(
     }
   }
 
-  // Auto-cancelar reservas que desapareceram do iCal
-  if (receivedUids.size > 0) {
-    const { data: existingReservations } = await supabase
-      .from('reservations')
-      .select('id, external_id, check_in, check_out, guests:guest_id(first_name, last_name)')
-      .eq('property_listing_id', listing.id)
-      .in('booking_source', ['ical_import', 'ical_auto_sync'])
-      .eq('status', 'confirmed')
-      .not('external_id', 'is', null)
-
-    if (existingReservations) {
-      const today = new Date().toISOString().split('T')[0]
-      for (const res of existingReservations) {
-        // Skip past reservations — platforms remove them from iCal after checkout
-        if (res.check_out < today) continue
-        if (!receivedUids.has(res.external_id)) {
-          const { error: cancelError } = await supabase
-            .from('reservations')
-            .update({ status: 'cancelled', cancellation_reason: 'Removida da plataforma (iCal)', cancelled_at: new Date().toISOString(), updated_at: new Date().toISOString() })
-            .eq('id', res.id)
-
-          if (!cancelError) {
-            cancelled++
-            const propName = (listing.properties as unknown as ListingPropertyInfo)?.name
-            if (listing.property_id) {
-              const { data: propDetail } = await supabase.from('properties').select('owner_id').eq('id', listing.property_id).single()
-              if (propDetail?.owner_id) {
-                const { data: owner } = await supabase.from('owners').select('full_name, email').eq('id', propDetail.owner_id).single()
-                if (owner?.email) {
-                  const guest = (res as unknown as CronReservationGuestRow).guests
-                  const cancelledGuestName = guest ? `${guest.first_name || ''} ${guest.last_name || ''}`.trim() : 'Hóspede'
-                  const cancelledNights = Math.ceil((new Date(res.check_out).getTime() - new Date(res.check_in).getTime()) / (1000 * 60 * 60 * 24))
-                  enqueueEmail({
-                    type: 'owner_cancellation',
-                    ownerName: owner.full_name, ownerEmail: owner.email, guestName: cancelledGuestName,
-                    propertyName: propName || 'Propriedade', checkIn: res.check_in, checkOut: res.check_out,
-                    nights: cancelledNights, cancellationReason: 'Removida da plataforma (iCal)', source: 'ical_auto_sync',
-                  }).catch(err => console.error('[Cron] Erro ao enfileirar notificação de cancelamento:', err))
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
+  // ❌ REMOVED: Auto-cancel logic that incorrectly cancelled active reservations
+  // Issue: Absence from iCal doesn't mean removal from platform
+  // Possible causes: UID mismatch, parsing error, timeout, platform glitch
+  // Risk: Cancels active reservations = OVERBOOKING
+  // Solution: Manual review required for cancellations (webhook push already handles real cancellations)
+  console.log(`[Cron] Listing ${listing.id}: Auto-cancel logic disabled (safety measure)`)
 
   // Auto-remove blocks that disappeared from iCal
   const { data: existingBlocks } = await supabase
