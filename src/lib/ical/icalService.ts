@@ -43,33 +43,57 @@ export function isBlockedEvent(event: { summary?: string; description?: string; 
   const description = (event.description || '').toLowerCase().trim()
   const uid = (event.uid || '').toLowerCase()
 
-  // IMPORTANTE: Booking exporta reservas confirmadas como "CLOSED - Not available"
-  // Mas com UID @booking.com = é uma RESERVA, não bloqueio
-  // Se tiver UID de Booking, Airbnb, ou outras plataformas = é RESERVA, não bloquear
-  const isBokingReservation = uid.includes('@booking.com')
-  const isAirbnbReservation = uid.includes('@airbnb.com')
-  const isFlatioReservation = uid.includes('@flatio.com')
-  const isVrboReservation = uid.includes('vrbo')
-  const isGoogleReservation = uid.includes('google')
+  // IMPORTANTE: Plataformas exportam tanto RESERVAS quanto BLOQUEIOS
+  // Padrão identificado:
+  // - RESERVA: UID @booking.com/airbnb + descrição com nome/dados reais
+  // - BLOQUEIO: UID @booking.com/airbnb + summary genérico ("CLOSED - Not available") + sem dados reais
 
-  if (isBokingReservation || isAirbnbReservation || isFlatioReservation || isVrboReservation || isGoogleReservation) {
-    // É uma reserva de plataforma conhecida - não é bloqueio, mesmo que o summary seja "CLOSED - Not available"
-    return false
+  const isPlatformUID = uid.includes('@booking.com') ||
+                        uid.includes('@airbnb.com') ||
+                        uid.includes('@flatio.com') ||
+                        uid.includes('vrbo') ||
+                        uid.includes('google')
+
+  // Se é de plataforma conhecida, verificar se é reserva ou bloqueio
+  if (isPlatformUID) {
+    // BLOQUEIO: Summary genérico sem dados de hóspede
+    if (summary === 'closed - not available' ||
+        summary === 'not available' ||
+        summary === 'blocked' ||
+        summary === 'unavailable') {
+      // Se a descrição também não tem dados reais, é BLOQUEIO
+      if (!description || description.length < 5 || description === 'closed - not available') {
+        return true  // É bloqueio
+      }
+    }
+
+    // RESERVA: Se tem dados na descrição (nome, email, etc) ou summary específico
+    if (description.length >= 5 && !description.includes('closed') && !description.includes('blocked')) {
+      return false  // É reserva real
+    }
+
+    // Se summary tem nome de pessoa (não genérico) = RESERVA
+    // Padrão: tem letras, espaço, mais de 2 palavras = provavelmente nome
+    const wordCount = summary.split(' ').length
+    if (wordCount >= 2 && !/^closed|blocked|not available|unavailable/.test(summary)) {
+      return false  // É reserva (tem nome de hóspede)
+    }
+
+    // Summary genérico + sem dados na description = BLOQUEIO
+    return true
   }
 
   // Evento sem summary é provavelmente bloqueio
   if (!summary || summary === '') return true
 
   // Verificar se é apenas um número ou identificador genérico (sem nome de hóspede)
-  // Padrão: se summary é apenas números ou muito curto, provavelmente é bloqueio
   if (/^\d+$/.test(summary) || summary.length < 2) return true
 
-  // Verificar palavras-chave de bloqueio no summary (com prioridade alta)
+  // Verificar palavras-chave de bloqueio no summary
   for (const keyword of BLOCKED_KEYWORDS) {
     if (summary.includes(keyword)) {
       return true
     }
-    // Também verificar descrição
     if (description.includes(keyword)) {
       return true
     }
@@ -80,18 +104,17 @@ export function isBlockedEvent(event: { summary?: string; description?: string; 
     const transp = event.component?.getFirstPropertyValue('transp')
     if (transp === 'TRANSPARENT') return true
   } catch {
-    // ignorar se não conseguir ler
+    // ignorar
   }
 
-  // Verificar CLASS (confidencial ou privado = provavelmente bloqueio do proprietário)
+  // Verificar CLASS (confidencial ou privado)
   try {
     const eventClass = event.component?.getFirstPropertyValue('class')
     if (eventClass === 'CONFIDENTIAL' || eventClass === 'PRIVATE') {
-      // Se também não tiver descrição de hóspede, é bloqueio
       if (!description || description.length < 5) return true
     }
   } catch {
-    // ignorar se não conseguir ler
+    // ignorar
   }
 
   return false
