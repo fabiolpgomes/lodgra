@@ -63,16 +63,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return { title: 'Propriedade não encontrada | Algarve Home Stay', robots: { index: false } }
   }
 
-  console.log(`[generateMetadata] Property found - is_public=${property.is_public}`)
-  if (!property.is_public) {
-    console.warn(`[generateMetadata] Property not public for slug=${slug}`)
-    return { title: 'Propriedade não encontrada | Algarve Home Stay', robots: { index: false } }
-  }
-
-  console.log(`[generateMetadata] Returning title: ${property.name} — Reserva Directa | Lodgra`)
-
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://lodgra.io'
   const title = `${property.name} — Reserva Directa | Lodgra`
+  console.log(`[generateMetadata] Returning title: ${title}`)
   const description = property.description || `${property.name} em ${property.city}, ${property.country}. Reserve directamente sem comissões.`
   const canonicalUrl = `${baseUrl}/p/${slug}`
   const ogImageUrl = `${baseUrl}/p/${slug}/opengraph-image`
