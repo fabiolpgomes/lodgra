@@ -33,7 +33,8 @@ async function syncOneListing(
     properties: unknown
   }
 ): Promise<SyncResult> {
-  let created = 0, updated = 0, skipped = 0, cancelled = 0
+  let created = 0, updated = 0, skipped = 0
+  const cancelled = 0
 
   // Extract organization_id from listing (needed for both reservations and blocks)
   const cronOrgId = (listing.properties as unknown as { organization_id?: string })?.organization_id as string | undefined

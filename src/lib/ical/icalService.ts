@@ -18,6 +18,7 @@ const BLOCKED_KEYWORDS = [
   'indisponível',
   'indisponivel',
   'closed',
+  'fechada',
   'fechado',
   'maintenance',
   'manutenção',
@@ -27,6 +28,14 @@ const BLOCKED_KEYWORDS = [
   'owner block',
   'airbnb (not available)',
   'not available (airbnb)',
+  'booking.com (not available)',
+  'not available (booking)',
+  'reserva do proprietário',
+  'reserva do proprietario',
+  'bloqueio',
+  'bloqueado',
+  'indisponibilidade',
+  'indisponibilidades',
 ]
 
 export function isBlockedEvent(event: { summary?: string; description?: string; component?: { getFirstPropertyValue: (prop: string) => unknown } }): boolean {
@@ -36,9 +45,17 @@ export function isBlockedEvent(event: { summary?: string; description?: string; 
   // Evento sem summary é provavelmente bloqueio
   if (!summary || summary === '') return true
 
-  // Verificar palavras-chave de bloqueio no summary e descrição
+  // Verificar se é apenas um número ou identificador genérico (sem nome de hóspede)
+  // Padrão: se summary é apenas números ou muito curto, provavelmente é bloqueio
+  if (/^\d+$/.test(summary) || summary.length < 2) return true
+
+  // Verificar palavras-chave de bloqueio no summary (com prioridade alta)
   for (const keyword of BLOCKED_KEYWORDS) {
-    if (summary.includes(keyword) || description.includes(keyword)) {
+    if (summary.includes(keyword)) {
+      return true
+    }
+    // Também verificar descrição
+    if (description.includes(keyword)) {
       return true
     }
   }
@@ -47,6 +64,17 @@ export function isBlockedEvent(event: { summary?: string; description?: string; 
   try {
     const transp = event.component?.getFirstPropertyValue('transp')
     if (transp === 'TRANSPARENT') return true
+  } catch {
+    // ignorar se não conseguir ler
+  }
+
+  // Verificar CLASS (confidencial ou privado = provavelmente bloqueio do proprietário)
+  try {
+    const eventClass = event.component?.getFirstPropertyValue('class')
+    if (eventClass === 'CONFIDENTIAL' || eventClass === 'PRIVATE') {
+      // Se também não tiver descrição de hóspede, é bloqueio
+      if (!description || description.length < 5) return true
+    }
   } catch {
     // ignorar se não conseguir ler
   }

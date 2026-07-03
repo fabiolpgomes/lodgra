@@ -32,6 +32,7 @@ export async function GET(request: NextRequest) {
 
     if (error) throw error
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const byReason: Record<string, any[]> = {}
     data?.forEach(r => {
       const reason = r.cancellation_reason || '(sem motivo registrado)'
@@ -41,7 +42,8 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       propertyId,
-      propertyName: data?.[0]?.property_listings?.properties?.name,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      propertyName: (data?.[0]?.property_listings?.[0] as any)?.properties?.[0]?.name,
       totalCancelled: data?.length || 0,
       bySource: {
         booking: data?.filter(r => r.source === 'booking').length || 0,

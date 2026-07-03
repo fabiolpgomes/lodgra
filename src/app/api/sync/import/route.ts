@@ -32,16 +32,13 @@ async function syncListing(
   let created = 0
   let updated = 0
   let skipped = 0
-  let cancelled = 0
+  const cancelled = 0
   const errors: string[] = []
   console.log(`[Sync] Listing ${listingId}: ${events.length} evento(s) recebido(s) do iCal`)
 
   if (events.length === 0) {
     console.warn(`[Sync] Listing ${listingId}: iCal retornou 0 eventos — verifique a URL ou se o calendário tem reservas`)
   }
-
-  // Colecionar UIDs dos eventos recebidos para detetar remoções
-  const receivedUids = new Set(events.map(e => e.uid))
 
   // FILTRO de datas: usar UTC para consistência com datas UTC do icalService
   const now = new Date()

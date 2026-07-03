@@ -33,8 +33,20 @@ export async function GET(request: NextRequest) {
     if (error) throw error
 
     // Agrupar por motivo
-    const byReason: Record<string, any[]> = {}
-    data?.forEach(r => {
+    interface ReservationGroup {
+      id: string
+      check_in: string
+      check_out: string
+      source: string | null
+      status: string
+      cancelled_at: string | null
+      cancellation_reason: string | null
+      property_listing_id: string
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      property_listings: any
+    }
+    const byReason: Record<string, typeof data> = {}
+    data?.forEach((r: ReservationGroup) => {
       const reason = r.cancellation_reason || '(sem motivo registrado)'
       if (!byReason[reason]) byReason[reason] = []
       byReason[reason].push(r)
