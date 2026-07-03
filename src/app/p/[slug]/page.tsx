@@ -42,6 +42,7 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params
+  console.log(`[generateMetadata] Starting for slug=${slug}`)
   const supabase = createAdminClient()
 
   const { data: property, error } = await supabase
@@ -50,17 +51,25 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     .eq('slug', slug)
     .single()
 
+  console.log(`[generateMetadata] Query result - property:`, property?.name, `error:`, error)
+
   if (error) {
-    console.error(`[generateMetadata] Query error for slug=${slug}:`, error)
+    console.error(`[generateMetadata] Query error for slug=${slug}:`, error.message)
+    return { title: 'Propriedade não encontrada | Algarve Home Stay', robots: { index: false } }
   }
 
   if (!property) {
+    console.warn(`[generateMetadata] Property not found for slug=${slug}`)
     return { title: 'Propriedade não encontrada | Algarve Home Stay', robots: { index: false } }
   }
 
+  console.log(`[generateMetadata] Property found - is_public=${property.is_public}`)
   if (!property.is_public) {
+    console.warn(`[generateMetadata] Property not public for slug=${slug}`)
     return { title: 'Propriedade não encontrada | Algarve Home Stay', robots: { index: false } }
   }
+
+  console.log(`[generateMetadata] Returning title: ${property.name} — Reserva Directa | Lodgra`)
 
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://lodgra.io'
   const title = `${property.name} — Reserva Directa | Lodgra`
