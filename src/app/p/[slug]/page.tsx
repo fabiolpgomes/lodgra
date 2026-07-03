@@ -43,7 +43,7 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params
   console.log(`[generateMetadata] Starting for slug=${slug}`)
-  const supabase = createAdminClient()
+  const supabase = createClient()
 
   const { data: property, error } = await supabase
     .from('properties')
