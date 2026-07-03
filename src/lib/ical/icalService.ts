@@ -38,9 +38,24 @@ const BLOCKED_KEYWORDS = [
   'indisponibilidades',
 ]
 
-export function isBlockedEvent(event: { summary?: string; description?: string; component?: { getFirstPropertyValue: (prop: string) => unknown } }): boolean {
+export function isBlockedEvent(event: { summary?: string; description?: string; uid?: string; component?: { getFirstPropertyValue: (prop: string) => unknown } }): boolean {
   const summary = (event.summary || '').toLowerCase().trim()
   const description = (event.description || '').toLowerCase().trim()
+  const uid = (event.uid || '').toLowerCase()
+
+  // IMPORTANTE: Booking exporta reservas confirmadas como "CLOSED - Not available"
+  // Mas com UID @booking.com = é uma RESERVA, não bloqueio
+  // Se tiver UID de Booking, Airbnb, ou outras plataformas = é RESERVA, não bloquear
+  const isBokingReservation = uid.includes('@booking.com')
+  const isAirbnbReservation = uid.includes('@airbnb.com')
+  const isFlatioReservation = uid.includes('@flatio.com')
+  const isVrboReservation = uid.includes('vrbo')
+  const isGoogleReservation = uid.includes('google')
+
+  if (isBokingReservation || isAirbnbReservation || isFlatioReservation || isVrboReservation || isGoogleReservation) {
+    // É uma reserva de plataforma conhecida - não é bloqueio, mesmo que o summary seja "CLOSED - Not available"
+    return false
+  }
 
   // Evento sem summary é provavelmente bloqueio
   if (!summary || summary === '') return true
