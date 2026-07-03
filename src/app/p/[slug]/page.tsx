@@ -110,11 +110,9 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
     .eq('slug', slug)
     .single()
 
-  if (!property) {
+  if (!property || !property.is_public) {
     notFound()
   }
-
-  // TODO: Restore is_public check after verifying query works
 
   const similarProperties = await getSimilarProperties(property.id, {
     city: property.city || '',
