@@ -138,11 +138,12 @@ export async function importICalFromUrl(url: string): Promise<ICalEvent[]> {
       // Pular se não tiver datas
       if (!event.startDate || !event.endDate) continue
 
-      // Filtrar bloqueios/indisponibilidades:
-      // - feeds não-plataforma: sempre filtrar
-      // - feeds Airbnb: filtrar (Airbnb usa "Reserved" para reservas e "Not available" para bloqueios)
-      // - Booking.com / Flatio: NÃO filtrar por keyword (usam "CLOSED" para reservas reais)
-      if (isBlockedEvent(event) && (!isPlatformFeed || isAirbnbFeed)) {
+      // Filtrar bloqueios/indisponibilidades em TODAS as plataformas
+      // isBlockedEvent() agora detecta melhor eventos de bloqueio:
+      // - Palavras-chave específicas (Fechada, Bloqueado, etc)
+      // - Summary vazio ou muito curto
+      // - Propriedades CLASS (CONFIDENTIAL, PRIVATE)
+      if (isBlockedEvent(event)) {
         continue
       }
 
