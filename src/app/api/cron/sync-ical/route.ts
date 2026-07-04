@@ -63,11 +63,22 @@ async function syncOneListing(
     // Check if this event is a blocked/unavailable date (not a guest reservation)
     if (isBlockedEvent(event)) {
       // Create or update block instead of reservation
+      // Fallback: fetch organization from property if cronOrgId is missing
+      let blockOrgId = cronOrgId
+      if (!blockOrgId) {
+        const { data: prop } = await supabase
+          .from('properties')
+          .select('organization_id')
+          .eq('id', listing.property_id)
+          .single()
+        blockOrgId = prop?.organization_id
+      }
+
       const { error: blockError } = await supabase
         .from('calendar_blocks')
         .upsert({
           property_id: listing.property_id,
-          organization_id: cronOrgId,
+          organization_id: blockOrgId,
           start_date: checkIn,
           end_date: checkOut,
           notes: event.summary || 'Bloqueado pela plataforma',
