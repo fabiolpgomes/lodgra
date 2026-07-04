@@ -23,7 +23,10 @@
     "version:tokens:major": "node scripts/version-tokens.js --major",
     "storybook": "storybook dev -p 6006",
     "storybook:build": "storybook build -o storybook-static",
-    "tokens:build": "cd packages/design-tokens && npm run build"
+    "tokens:build": "cd packages/design-tokens && npm run build",
+    "list-orgs": "npx tsx scripts/list-orgs.ts",
+    "check-plan": "npx tsx scripts/check-plan.ts",
+    "update-plan": "npx tsx scripts/set-enterprise-plan.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",

@@ -12,9 +12,9 @@ export const dynamic = 'force-dynamic'
 export default async function PropertyPricingPage({
   params,
 }: {
-  params: Promise<{ id: string }>
+  params: Promise<{ locale: string; id: string }>
 }) {
-  const { id } = await params
+  const { id, locale } = await params
 
   const auth = await requireRole(['admin', 'gestor', 'viewer'])
   if (!auth) redirect('/login')
@@ -41,7 +41,7 @@ export default async function PropertyPricingPage({
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
           <Link
-            href={`/properties/${id}/edit`}
+            href={`/${locale}/properties/${id}/edit`}
             className="text-gray-500 hover:text-gray-700 transition-colors"
           >
             <ArrowLeft size={20} />
@@ -66,7 +66,7 @@ export default async function PropertyPricingPage({
           </p>
           <p className="text-xs text-gray-500 mt-1">
             Para alterar o preço base, aceda à{' '}
-            <Link href={`/properties/${id}/edit`} className="underline">
+            <Link href={`/${locale}/properties/${id}/edit`} className="underline">
               página de edição da propriedade
             </Link>
             .

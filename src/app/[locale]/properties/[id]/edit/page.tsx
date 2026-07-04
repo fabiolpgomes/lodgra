@@ -287,7 +287,7 @@ export default function EditPropertyPage({
     <AuthLayout>
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Link
-          href={propertyId ? `/properties/${propertyId}` : '/properties'}
+          href={propertyId ? `/${locale}/properties/${propertyId}` : `/${locale}/properties`}
           className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -812,7 +812,7 @@ export default function EditPropertyPage({
               {loading ? <>Salvando...</> : <><Save className="h-5 w-5" />Salvar Alterações</>}
             </Button>
             <Button asChild variant="outline">
-              <Link href={propertyId ? `/properties/${propertyId}` : '/properties'}>
+              <Link href={propertyId ? `/${locale}/properties/${propertyId}` : `/${locale}/properties`}>
                 Cancelar
               </Link>
             </Button>
