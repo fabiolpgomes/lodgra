@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter, useLocale } from '@/lib/i18n/routing'
 import Link from 'next/link'
 import { ArrowLeft, Save, Globe, Tag } from 'lucide-react'
@@ -55,6 +55,7 @@ export default function EditPropertyPage({
   const [checkoutUntil, setCheckoutUntil] = useState<string>('')
   const [latitude, setLatitude] = useState<string>('')
   const [longitude, setLongitude] = useState<string>('')
+  const amenitiesSaveRef = useRef<(() => Promise<void>) | undefined>(undefined)
 
   async function reloadGallery(id: string): Promise<void> {
     try {
@@ -223,6 +224,11 @@ export default function EditPropertyPage({
         .eq('id', propertyId)
 
       if (updateError) throw updateError
+
+      // Salvar comodidades também
+      if (amenitiesSaveRef.current) {
+        await amenitiesSaveRef.current()
+      }
 
       toast.success('Propriedade atualizada com sucesso!')
       await revalidatePropertyPage(finalSlug)
@@ -726,7 +732,7 @@ export default function EditPropertyPage({
               {propertyId && (
                 <div className="border-t pt-6">
                   <h4 className="text-sm font-medium text-gray-700 mb-4">Comodidades</h4>
-                  <AmenitiesSelector propertyId={propertyId} />
+                  <AmenitiesSelector propertyId={propertyId} onSaveRef={amenitiesSaveRef} />
                 </div>
               )}
               {propertyId && (

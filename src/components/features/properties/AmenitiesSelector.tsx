@@ -18,9 +18,10 @@ const CATEGORY_ORDER: AmenityCategory[] = ['destaque', 'geral', 'sala', 'quarto'
 
 interface AmenitiesSelectorProps {
   propertyId: string
+  onSaveRef?: React.MutableRefObject<(() => Promise<void>) | undefined>
 }
 
-export function AmenitiesSelector({ propertyId }: AmenitiesSelectorProps) {
+export function AmenitiesSelector({ propertyId, onSaveRef }: AmenitiesSelectorProps) {
   const [catalog, setCatalog] = useState<Amenity[]>([])
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [saving, setSaving] = useState(false)
@@ -93,6 +94,13 @@ export function AmenitiesSelector({ propertyId }: AmenitiesSelectorProps) {
       setSaving(false)
     }
   }
+
+  // Expor função save via ref para que a página pai possa chamar
+  useEffect(() => {
+    if (onSaveRef) {
+      onSaveRef.current = save
+    }
+  }, [onSaveRef, selected])
 
   if (loading) {
     return <p className="text-sm text-gray-600">A carregar comodidades…</p>
