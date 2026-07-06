@@ -153,6 +153,11 @@ export async function GET(request: NextRequest) {
             } else {
               listingCreated++
             }
+          } else {
+            console.error(
+              `[Cron Booking Reservations] Failed to process reservation ${r.id}: ${result.error}`
+            )
+            totalErrors++
           }
         }
 

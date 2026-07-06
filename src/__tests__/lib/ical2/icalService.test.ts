@@ -105,19 +105,17 @@ describe('importICalFromUrl()', () => {
     expect(events[0].uid).toBe('real-airbnb')
   })
 
-  it.skip('keeps CLOSED events from Booking.com feed (real reservations)', async () => {
-    // SKIPPED: This test assumes "CLOSED" summary should be kept as a reservation,
-    // but isBlockedEvent() correctly filters "CLOSED" as a block/unavailable event.
-    // The uid format 'booking-closed' doesn't match platform patterns (@booking.com),
-    // so it's treated as a generic blocked keyword. Real Booking reservations use proper
-    // platform UIDs and have descriptive summaries (guest names), not generic "CLOSED".
+  it('filters CLOSED events from Booking.com as unavailable blocks', async () => {
+    // Regression test: CLOSED summary events from Booking.com should be filtered
+    // as unavailable/blocked dates, not imported as guest reservations.
+    // This prevents double-blocking when a date is unavailable on Booking.
     const closedEvent = makeVEvent({ uid: 'booking-closed', summary: 'CLOSED' })
     mockFetchOk(makeICalString(closedEvent, '-//Booking.com//Booking.com//EN'))
 
     const events = await importICalFromUrl('https://booking.com/cal.ics')
 
-    expect(events).toHaveLength(1)
-    expect(events[0].summary).toBe('CLOSED')
+    // CLOSED event should be filtered out (treated as unavailable/block)
+    expect(events).toHaveLength(0)
   })
 
   it('skips events with empty summary in non-platform feeds', async () => {
