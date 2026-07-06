@@ -3,22 +3,38 @@ import { importICalFromUrl, isBlockedEvent } from '@/lib/ical/icalService'
 
 export const dynamic = 'force-dynamic'
 
+interface ICalEvent {
+  uid: string
+  summary?: string
+  description?: string
+  start: string
+  end: string
+  isBlocked: boolean
+  summaryLower?: string
+}
+
+interface SyncResult {
+  url: string
+  events: ICalEvent[]
+  error: string | null
+}
+
 export async function GET(request: NextRequest) {
   try {
     // URLs do Airbnb e Booking
     const airbnbUrl = 'https://www.airbnb.pt/calendar/ical/1657439151572974398.ics?t=4d33a5bd1e7c4600848bc1d3c261074c'
     const bookingUrl = 'https://ical.booking.com/v1/export?t=b4508dde-4e9e-4cec-a215-db5c053dfc7d'
 
-    const results = {
+    const results: Record<string, SyncResult> = {
       airbnb: {
         url: airbnbUrl,
-        events: [] as any[],
-        error: null as string | null,
+        events: [],
+        error: null,
       },
       booking: {
         url: bookingUrl,
-        events: [] as any[],
-        error: null as string | null,
+        events: [],
+        error: null,
       },
     }
 
