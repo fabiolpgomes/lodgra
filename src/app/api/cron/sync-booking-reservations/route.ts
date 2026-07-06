@@ -148,10 +148,10 @@ export async function GET(request: NextRequest) {
           )
 
           if (result.success) {
-            if (result.created) {
-              listingCreated++
-            } else {
+            if (result.isDuplicate) {
               listingUpdated++
+            } else {
+              listingCreated++
             }
           }
         }
