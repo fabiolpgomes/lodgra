@@ -52,7 +52,18 @@ async function syncOneListing(
     const checkIn = event.start.toISOString().split('T')[0]
     const checkOut = event.end.toISOString().split('T')[0]
 
-    if (event.end < today || event.start > twoYearsFromNow) { skipped++; continue }
+    // DEBUG: Log evento
+    if (isBlockedEvent(event)) {
+      console.log(`[Cron] Bloqueio detectado: "${event.summary}" (${checkIn} a ${checkOut})`)
+    }
+
+    if (event.end < today || event.start > twoYearsFromNow) {
+      if (isBlockedEvent(event)) {
+        console.log(`[Cron] Bloqueio fora do intervalo (antes ${today} ou depois ${twoYearsFromNow}): "${event.summary}"`)
+      }
+      skipped++;
+      continue
+    }
 
     const durationDays = Math.round((event.end.getTime() - event.start.getTime()) / (1000 * 60 * 60 * 24))
     if (durationDays > 180) {
