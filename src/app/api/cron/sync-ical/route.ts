@@ -74,17 +74,43 @@ async function syncOneListing(
         blockOrgId = prop?.organization_id
       }
 
-      const { error: blockError } = await supabase
-        .from('calendar_blocks')
-        .upsert({
-          property_id: listing.property_id,
-          organization_id: blockOrgId,
-          start_date: checkIn,
-          end_date: checkOut,
-          notes: event.summary || 'Bloqueado pela plataforma',
-          external_uid: event.uid,
-          block_type: 'platform_sync',
-        }, { onConflict: 'external_uid' })
+      // Verificar se bloqueio já existe (pelo external_uid)
+      let blockError = null
+      if (event.uid) {
+        const { data: existing } = await supabase
+          .from('calendar_blocks')
+          .select('id')
+          .eq('external_uid', event.uid)
+          .single()
+
+        if (existing) {
+          // Atualizar bloqueio existente
+          const { error: updateError } = await supabase
+            .from('calendar_blocks')
+            .update({
+              start_date: checkIn,
+              end_date: checkOut,
+              notes: event.summary || 'Bloqueado pela plataforma',
+              block_type: 'platform_sync',
+            })
+            .eq('external_uid', event.uid)
+          blockError = updateError
+        } else {
+          // Criar novo bloqueio
+          const { error: insertError } = await supabase
+            .from('calendar_blocks')
+            .insert({
+              property_id: listing.property_id,
+              organization_id: blockOrgId,
+              start_date: checkIn,
+              end_date: checkOut,
+              notes: event.summary || 'Bloqueado pela plataforma',
+              external_uid: event.uid,
+              block_type: 'platform_sync',
+            })
+          blockError = insertError
+        }
+      }
 
       if (!blockError) {
         console.log(`[Cron] Bloqueio criado/atualizado: ${event.uid}`)
