@@ -57,10 +57,18 @@ export function isBlockedEvent(event: { summary?: string; description?: string; 
   // Se é de plataforma conhecida, verificar se é reserva ou bloqueio
   if (isPlatformUID) {
     // BLOQUEIO: Summary genérico sem dados de hóspede
-    if (summary === 'closed - not available' ||
-        summary === 'not available' ||
-        summary === 'blocked' ||
-        summary === 'unavailable') {
+    // Padrões de bloqueio: "closed - not available", "not available", "blocked", "unavailable"
+    // Também: "airbnb (not available)", "booking (not available)"
+    const isGenericBlockSummary =
+      summary === 'closed - not available' ||
+      summary === 'not available' ||
+      summary === 'blocked' ||
+      summary === 'unavailable' ||
+      summary.includes('(not available)') ||
+      summary.includes('(unavailable)') ||
+      summary.includes('closed')
+
+    if (isGenericBlockSummary) {
       // Se a descrição também não tem dados reais, é BLOQUEIO
       if (!description || description.length < 5 || description === 'closed - not available') {
         return true  // É bloqueio
