@@ -52,9 +52,17 @@ async function syncOneListing(
     const checkIn = event.start.toISOString().split('T')[0]
     const checkOut = event.end.toISOString().split('T')[0]
 
-    // DEBUG: Log evento
+    // DEBUG: Log evento com contexto
+    console.log(`[Cron] Processando evento:`, {
+      summary: event.summary,
+      uid: event.uid,
+      checkIn,
+      checkOut,
+      isBlocked: isBlockedEvent(event),
+    })
+
     if (isBlockedEvent(event)) {
-      console.log(`[Cron] Bloqueio detectado: "${event.summary}" (${checkIn} a ${checkOut})`)
+      console.log(`[Cron] ✅ BLOQUEIO DETECTADO - vai criar calendar_blocks`)
     }
 
     if (event.end < today || event.start > twoYearsFromNow) {
