@@ -73,6 +73,15 @@ async function syncOneListing(
 
     // Check if this event is a blocked/unavailable date (not a guest reservation)
     if (isBlockedEvent(event)) {
+      console.log(`[Cron] Bloqueio detectado para listing ${listing.id}:`, {
+        summary: event.summary,
+        uid: event.uid,
+        checkIn,
+        checkOut,
+        propertyId: listing.property_id,
+        cronOrgId,
+      })
+
       // Create or update block instead of reservation
       // Fallback: fetch organization from property if cronOrgId is missing
       let blockOrgId = cronOrgId
@@ -83,18 +92,24 @@ async function syncOneListing(
           .eq('id', listing.property_id)
           .single()
         blockOrgId = prop?.organization_id
+        console.log(`[Cron] Fetched organization_id for property ${listing.property_id}: ${blockOrgId}`)
       }
 
       // Verificar se bloqueio já existe (pelo external_uid)
       let blockError = null
       if (event.uid) {
-        const { data: existing } = await supabase
+        const { data: existing, error: existingError } = await supabase
           .from('calendar_blocks')
           .select('id')
           .eq('external_uid', event.uid)
           .single()
 
+        if (existingError) {
+          console.log(`[Cron] Bloqueio ${event.uid} não existe (será criado novo)`)
+        }
+
         if (existing) {
+          console.log(`[Cron] Bloqueio ${event.uid} já existe, atualizando...`)
           // Atualizar bloqueio existente
           const { error: updateError } = await supabase
             .from('calendar_blocks')
@@ -106,7 +121,18 @@ async function syncOneListing(
             })
             .eq('external_uid', event.uid)
           blockError = updateError
+          if (blockError) {
+            console.error(`[Cron] Erro ao atualizar bloqueio ${event.uid}:`, blockError)
+          }
         } else {
+          console.log(`[Cron] Criando novo bloqueio com dados:`, {
+            property_id: listing.property_id,
+            organization_id: blockOrgId,
+            start_date: checkIn,
+            end_date: checkOut,
+            external_uid: event.uid,
+            block_type: 'platform_sync',
+          })
           // Criar novo bloqueio
           const { error: insertError } = await supabase
             .from('calendar_blocks')
@@ -120,13 +146,16 @@ async function syncOneListing(
               block_type: 'platform_sync',
             })
           blockError = insertError
+          if (blockError) {
+            console.error(`[Cron] Erro ao inserir bloqueio ${event.uid}:`, blockError)
+          }
         }
       }
 
       if (!blockError) {
-        console.log(`[Cron] Bloqueio criado/atualizado: ${event.uid}`)
+        console.log(`[Cron] ✅ Bloqueio criado/atualizado com sucesso: ${event.uid}`)
       } else {
-        console.error(`[Cron] Erro ao criar bloqueio: ${blockError}`)
+        console.error(`[Cron] ❌ Erro ao processar bloqueio ${event.uid}: ${blockError.message}`)
       }
       continue
     }
