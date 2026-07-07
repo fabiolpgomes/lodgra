@@ -73,6 +73,24 @@ export function isBlockedEvent(event: { summary?: string; description?: string; 
       if (!description || description.length < 5 || description === 'closed - not available') {
         return true  // É bloqueio
       }
+
+      // IMPORTANTE: Se summary é "Airbnb (Not available)" ou "Booking (Not available)"
+      // e description é genérica (não contém nome/email/dados reais), é BLOQUEIO
+      // Plataformas usam padrões simples: "Airbnb", "Booking", "Flatio" na descrição
+      const isGenericPlatformDescription =
+        description === 'airbnb' ||
+        description === 'booking' ||
+        description === 'flatio' ||
+        description === 'vrbo' ||
+        description.startsWith('airbnb ') ||
+        description.startsWith('booking ') ||
+        description.startsWith('flatio ') ||
+        description.startsWith('vrbo ') ||
+        /^(airbnb|booking|flatio|vrbo)[\s\W]*$/i.test(description)
+
+      if (isGenericPlatformDescription) {
+        return true  // É bloqueio da plataforma
+      }
     }
 
     // RESERVA: Se tem dados na descrição (nome, email, etc) ou summary específico
