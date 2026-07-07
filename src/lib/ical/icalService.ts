@@ -184,14 +184,10 @@ export async function importICalFromUrl(url: string): Promise<ICalEvent[]> {
       // Pular se não tiver datas
       if (!event.startDate || !event.endDate) continue
 
-      // Filtrar bloqueios/indisponibilidades em TODAS as plataformas
-      // isBlockedEvent() agora detecta melhor eventos de bloqueio:
-      // - Palavras-chave específicas (Fechada, Bloqueado, etc)
-      // - Summary vazio ou muito curto
-      // - Propriedades CLASS (CONFIDENTIAL, PRIVATE)
-      if (isBlockedEvent(event)) {
-        continue
-      }
+      // IMPORTANTE: NÃO filtrar bloqueios aqui!
+      // O cron job (sync-ical/route.ts) decide se é bloqueio ou reserva
+      // usando isBlockedEvent() e processa como calendar_blocks se necessário.
+      // Se filtrarmos aqui, bloqueios do Booking/Airbnb serão perdidos.
 
       // UID com fallback robusto (inclui índice para evitar colisões)
       const uid = event.uid || `event-${Date.now()}-${eventIndex++}-${Math.random().toString(36).substring(2, 8)}`
