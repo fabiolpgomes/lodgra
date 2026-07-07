@@ -684,7 +684,7 @@ export default function NewReservationPage() {
           <div className="flex gap-4">
             <Button
               type="submit"
-              disabled={loading || !selectedProperty || !selectedListing || propertyListings.length === 0}
+              disabled={loading}
               className="flex-1"
             >
               {loading ? (

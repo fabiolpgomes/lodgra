@@ -43,6 +43,11 @@ export function isBlockedEvent(event: { summary?: string; description?: string; 
   const description = (event.description || '').toLowerCase().trim()
   const uid = (event.uid || '').toLowerCase()
 
+  // DEBUG: Log para investigar eventos não detectados
+  if (summary.includes('not available')) {
+    console.log(`[DEBUG isBlockedEvent] summary="${summary}" | description="${description}" | uid="${uid.substring(0, 50)}..."`)
+  }
+
   // IMPORTANTE: Plataformas exportam tanto RESERVAS quanto BLOQUEIOS
   // Padrão identificado:
   // - RESERVA: UID @booking.com/airbnb + descrição com nome/dados reais
