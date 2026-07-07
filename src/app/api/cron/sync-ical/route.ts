@@ -53,12 +53,23 @@ async function syncOneListing(
     const checkOut = event.end.toISOString().split('T')[0]
 
     // DEBUG: Log evento com contexto
+    const isBlocked = isBlockedEvent(event)
+    if (event.summary?.includes('not available') || event.summary?.includes('Not available')) {
+      console.log(`[DEBUG] Evento "Not available":`, {
+        summary: event.summary,
+        description: event.description?.substring(0, 100),
+        uid: event.uid?.substring(0, 50),
+        isBlocked,
+        checkIn,
+        checkOut,
+      })
+    }
     console.log(`[Cron] Processando evento:`, {
       summary: event.summary,
       uid: event.uid,
       checkIn,
       checkOut,
-      isBlocked: isBlockedEvent(event),
+      isBlocked,
     })
 
     if (isBlockedEvent(event)) {
