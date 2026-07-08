@@ -83,48 +83,62 @@ describe('importICalFromUrl()', () => {
     )
   })
 
-  it('filters out "Not available" blocked events from non-platform feed', async () => {
+  it('imports ALL events without filtering (caller decides via isBlockedEvent)', async () => {
+    // NOTE: importICalFromUrl does NOT filter blocks/reservations.
+    // The cron job uses isBlockedEvent() to decide what to do with each event.
     const blocked = makeVEvent({ uid: 'blocked-1', summary: 'Not available' })
     const real = makeVEvent({ uid: 'real-1', summary: 'Reserved' })
     mockFetchOk(makeICalString([blocked, real].join('\r\n')))
 
     const events = await importICalFromUrl('https://example.com/cal.ics')
 
-    expect(events).toHaveLength(1)
-    expect(events[0].uid).toBe('real-1')
+    // BOTH events imported (filtering happens in sync-ical/route.ts via isBlockedEvent)
+    expect(events).toHaveLength(2)
+    expect(events[0].uid).toBe('blocked-1')
+    expect(events[1].uid).toBe('real-1')
   })
 
-  it('filters out "Airbnb (Not available)" from Airbnb feed', async () => {
+  it('imports Airbnb events without filtering', async () => {
     const blocked = makeVEvent({ uid: 'blocked-airbnb', summary: 'Airbnb (Not available)' })
     const real = makeVEvent({ uid: 'real-airbnb', summary: 'Reserved' })
     mockFetchOk(makeICalString([blocked, real].join('\r\n'), '-//Airbnb//Airbnb//EN'))
 
     const events = await importICalFromUrl('https://airbnb.com/cal.ics')
 
-    expect(events).toHaveLength(1)
-    expect(events[0].uid).toBe('real-airbnb')
+    // BOTH events imported (filtering happens in sync-ical via isBlockedEvent)
+    expect(events).toHaveLength(2)
+    expect(events.map(e => e.uid).sort()).toEqual(['blocked-airbnb', 'real-airbnb'])
   })
 
-  it('filters CLOSED events from Booking.com as unavailable blocks', async () => {
-    // Regression test: CLOSED summary events from Booking.com should be filtered
-    // as unavailable/blocked dates, not imported as guest reservations.
-    // This prevents double-blocking when a date is unavailable on Booking.
+  it('imports Booking.com CLOSED events without filtering', async () => {
+    // Booking.com sends both reservations and blocks with CLOSED summary.
+    // importICalFromUrl imports both; cron job uses isBlockedEvent() to differentiate.
     const closedEvent = makeVEvent({ uid: 'booking-closed', summary: 'CLOSED' })
     mockFetchOk(makeICalString(closedEvent, '-//Booking.com//Booking.com//EN'))
 
     const events = await importICalFromUrl('https://booking.com/cal.ics')
 
-    // CLOSED event should be filtered out (treated as unavailable/block)
-    expect(events).toHaveLength(0)
+    // Event imported (filtering happens in sync-ical via isBlockedEvent)
+    expect(events).toHaveLength(1)
+    expect(events[0].uid).toBe('booking-closed')
   })
 
-  it('skips events with empty summary in non-platform feeds', async () => {
-    const emptyEvent = makeVEvent({ uid: 'empty-1', summary: '' })
-    mockFetchOk(makeICalString(emptyEvent))
+  it('skips events with missing dates (no filtering of summary)', async () => {
+    // Only events without dates are skipped (can't process them)
+    const emptyDateEvent = [
+      'BEGIN:VEVENT',
+      'UID:empty-dates',
+      'SUMMARY:any-summary',
+      'END:VEVENT',
+    ].join('\r\n')
+    const validEvent = makeVEvent({ uid: 'valid', summary: 'anything' })
+    mockFetchOk(makeICalString([emptyDateEvent, validEvent].join('\r\n')))
 
     const events = await importICalFromUrl('https://example.com/cal.ics')
 
-    expect(events).toHaveLength(0)
+    // Only valid-dated event imported (missing-date event skipped)
+    expect(events).toHaveLength(1)
+    expect(events[0].uid).toBe('valid')
   })
 
   it('returns empty array when calendar has no events', async () => {

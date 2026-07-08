@@ -52,29 +52,41 @@ async function syncOneListing(
     const checkIn = event.start.toISOString().split('T')[0]
     const checkOut = event.end.toISOString().split('T')[0]
 
-    // DEBUG: Log evento com contexto
+    // ENHANCED LOGGING: Platform-specific detection
     const isBlocked = isBlockedEvent(event)
-    if (event.summary?.includes('not available') || event.summary?.includes('Not available')) {
-      console.log(`[DEBUG] Evento "Not available":`, {
-        summary: event.summary,
-        description: event.description?.substring(0, 100),
-        uid: event.uid?.substring(0, 50),
-        isBlocked,
-        checkIn,
-        checkOut,
-      })
+
+    // Log suspicious patterns (potential misclassification)
+    if (event.uid?.includes('@booking.com') && event.description?.includes('BOOKING ID')) {
+      // Booking.com RESERVATION with structured data
+      if (isBlocked) {
+        console.warn(`[⚠️ Cron] SUSPICIOUS: Booking.com with BOOKING ID detected as BLOCK!`, {
+          summary: event.summary,
+          uid: event.uid?.substring(0, 50),
+          description: event.description?.substring(0, 100),
+          isBlocked,
+        })
+      }
     }
-    console.log(`[Cron] Processando evento:`, {
-      summary: event.summary,
-      uid: event.uid,
+
+    if (event.uid?.includes('@airbnb.com') && event.summary === 'Reserved') {
+      // Airbnb RESERVATION
+      if (isBlocked) {
+        console.warn(`[⚠️ Cron] SUSPICIOUS: Airbnb "Reserved" detected as BLOCK!`, {
+          uid: event.uid?.substring(0, 50),
+          isBlocked,
+        })
+      }
+    }
+
+    // Standard logging
+    console.log(`[Cron] Event classification:`, {
+      summary: event.summary?.substring(0, 50),
+      uid: event.uid?.substring(0, 50),
       checkIn,
       checkOut,
-      isBlocked,
+      classification: isBlocked ? 'BLOCK' : 'RESERVATION',
+      durationDays: Math.round((event.end.getTime() - event.start.getTime()) / (1000 * 60 * 60 * 24)),
     })
-
-    if (isBlockedEvent(event)) {
-      console.log(`[Cron] ✅ BLOQUEIO DETECTADO - vai criar calendar_blocks`)
-    }
 
     if (event.end < today || event.start > twoYearsFromNow) {
       if (isBlockedEvent(event)) {

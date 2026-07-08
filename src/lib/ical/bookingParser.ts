@@ -71,3 +71,95 @@ export function detectSource(summary?: string, description?: string): 'booking' 
 
   return 'unknown'
 }
+
+/**
+ * CRITICAL: Determine if Booking.com event is a block or reservation
+ *
+ * Booking exports BOTH reservations and blocks with CLOSED summary!
+ * Differentiator: Description contains guest details for reservations
+ */
+export function isBookingBlocked(event: { summary?: string; description?: string; uid?: string }): boolean {
+  const summary = (event.summary || '').toLowerCase().trim()
+  const description = (event.description || '').toLowerCase().trim()
+
+  // If description has BOOKING ID field = DEFINITELY A RESERVATION
+  // Booking exports structured data for real bookings
+  if (/booking\s*id\s*[:\-]?/i.test(description)) {
+    return false  // Is reservation
+  }
+
+  // If description has guest details (PHONE, COUNTRY, GUESTS) = RESERVATION
+  if (/phone\s*[:\-]?|country\s*[:\-]?|guests?\s*[:\-]?/i.test(description)) {
+    return false  // Is reservation
+  }
+
+  // If description is EMPTY or GENERIC ("booking", "closed") = BLOCK
+  if (!description || description === 'booking' || description === 'closed - not available') {
+    return true  // Is block
+  }
+
+  // If description starts with platform name only = BLOCK
+  if (/^booking[\s\W]*$|^closed[\s\W]*$/i.test(description)) {
+    return true  // Is block
+  }
+
+  // If summary explicitly says "closed" without structured data = BLOCK
+  if (summary === 'closed - not available' && !description) {
+    return true  // Is block
+  }
+
+  return false  // Default: treat as reservation (has some description)
+}
+
+/**
+ * CRITICAL: Determine if Airbnb event is a block or reservation
+ *
+ * Airbnb is clearer but still needs careful parsing:
+ *   "Reserved" or "{Guest Name}" = Reservation
+ *   "Airbnb (Not available)" = Block
+ */
+export function isAirbnbBlocked(event: { summary?: string; description?: string; uid?: string }): boolean {
+  const summary = (event.summary || '').toLowerCase().trim()
+  const description = (event.description || '').toLowerCase().trim()
+
+  // Explicit "Reserved" = RESERVATION
+  if (summary === 'reserved') {
+    return false  // Is reservation
+  }
+
+  // Airbnb explicitly marks blocks
+  if (summary.includes('not available') || summary.includes('(not available)')) {
+    return true  // Is block
+  }
+
+  // If description is generic Airbnb only = BLOCK
+  if (!description || description === 'airbnb' || /^airbnb[\s\W]*$/i.test(description)) {
+    return true  // Is block
+  }
+
+  // Anything else with some data = RESERVATION
+  if (description && description !== 'airbnb') {
+    return false  // Is reservation
+  }
+
+  return false  // Default: not blocked (treat as reservation)
+}
+
+/**
+ * Flatio follows Booking.com pattern
+ */
+export function isFlatioBlocked(event: { summary?: string; description?: string; uid?: string }): boolean {
+  const description = (event.description || '').toLowerCase().trim()
+
+  // Similar to Booking: structured data = reservation
+  if (/booking\s*id\s*[:\-]?|guest|phone|country/i.test(description)) {
+    return false  // Is reservation
+  }
+
+  // Generic Flatio or empty = block
+  if (!description || description === 'flatio' || /^flatio[\s\W]*$/i.test(description)) {
+    return true  // Is block
+  }
+
+  return false
+}
