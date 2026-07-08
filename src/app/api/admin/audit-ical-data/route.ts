@@ -42,26 +42,35 @@ export async function GET(request: NextRequest) {
     const { data: suspiciousReservations } = await supabase.rpc('get_suspicious_ical_reservations')
 
     // Fallback query if RPC doesn't exist
-    let reservations: Array<{
+    type ReservationRow = {
       id: string
       external_id: string | null
       check_in: string
       check_out: string
-      guests: { first_name: string; last_name: string } | null
       booking_source: string
-    }> = []
+      guests: { first_name: string; last_name: string } | null
+    }
+
+    let reservations: ReservationRow[] = []
 
     if (suspiciousReservations) {
       reservations = suspiciousReservations
     } else {
-      const { data } = await supabase
+      const { data: rawData } = await supabase
         .from('reservations')
         .select('id, external_id, check_in, check_out, booking_source, guests(first_name, last_name)')
         .eq('booking_source', 'ical_auto_sync')
         .not('external_id', 'is', null)
         .limit(100)
 
-      reservations = data || []
+      reservations = (rawData || []).map((r: any) => ({
+        id: r.id,
+        external_id: r.external_id,
+        check_in: r.check_in,
+        check_out: r.check_out,
+        booking_source: r.booking_source,
+        guests: Array.isArray(r.guests) ? r.guests[0] : r.guests,
+      }))
     }
 
     // Filter for suspicious patterns
