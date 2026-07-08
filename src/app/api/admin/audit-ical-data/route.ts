@@ -63,7 +63,16 @@ export async function GET(request: NextRequest) {
         .not('external_id', 'is', null)
         .limit(100)
 
-      reservations = (rawData || []).map((r: any) => ({
+      const typedData = (rawData as unknown as Array<{
+        id: string
+        external_id: string | null
+        check_in: string
+        check_out: string
+        booking_source: string
+        guests: { first_name: string; last_name: string } | { first_name: string; last_name: string }[] | null
+      }>) || []
+
+      reservations = typedData.map(r => ({
         id: r.id,
         external_id: r.external_id,
         check_in: r.check_in,
