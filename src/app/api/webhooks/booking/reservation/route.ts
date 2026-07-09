@@ -1,178 +1,73 @@
 import { NextRequest, NextResponse } from 'next/server'
-import {
-  validateBookingWebhookSignature,
-  parseBookingWebhookPayload,
-  deriveReservationStatus,
-  type BookingWebhookPayload,
-} from '@/lib/integrations/booking/webhook-validator'
-import { checkBookingWebhookRateLimit } from '@/lib/integrations/booking/rate-limiter'
-import { syncBookingReservation } from '@/lib/integrations/booking/reservation-sync'
+import { webhookManager } from '@/lib/webhooks/webhook-manager'
+import { mapBookingEventToUpdate } from '@/lib/webhooks/event-mappers'
+
+export const dynamic = 'force-dynamic'
 
 /**
+ * Webhook endpoint para eventos de reserva do Booking.com
  * POST /api/webhooks/booking/reservation
- *
- * Booking.com webhook endpoint for real-time reservation notifications
- * - Validates HMAC-SHA256 signature
- * - Applies rate limiting (5 req/min per property_id)
- * - Returns 200 OK immediately (Booking.com requirement: < 5 seconds)
- * - Processes reservations asynchronously (via queue or immediate sync)
- *
- * Security:
- * - Extracts raw body BEFORE any JSON parsing
- * - Uses timing-safe comparison for signature validation
- * - Validates all required fields before processing
- * - Logs with request ID for traceability
  */
 export async function POST(request: NextRequest) {
-  const requestId = crypto.randomUUID()
-
   try {
-    // ──────────────────────────────────────────────────────────────
-    // 1. EXTRACT RAW BODY (before JSON parsing)
-    // ──────────────────────────────────────────────────────────────
-    let rawBody: string
-    try {
-      rawBody = await request.text()
-    } catch (error) {
-      console.error(`[Booking Webhook] ${requestId} Failed to read body:`, error)
-      return NextResponse.json(
-        { error: 'Failed to read request body' },
-        { status: 400 }
-      )
-    }
+    const payload = await request.text()
+    const signature = request.headers.get('x-booking-signature')
 
-    if (!rawBody) {
-      console.warn(`[Booking Webhook] ${requestId} Empty request body`)
-      return NextResponse.json({ error: 'Empty body' }, { status: 400 })
-    }
-
-    // ──────────────────────────────────────────────────────────────
-    // 2. VALIDATE HMAC SIGNATURE
-    // ──────────────────────────────────────────────────────────────
-    const signature = request.headers.get('X-Booking-Signature')
     if (!signature) {
-      console.warn(`[Booking Webhook] ${requestId} Missing X-Booking-Signature header`)
-      return NextResponse.json(
-        { error: 'Missing X-Booking-Signature header' },
-        { status: 400 }
-      )
+      console.warn('[Booking Webhook] Missing signature header')
+      return NextResponse.json({ error: 'Missing signature' }, { status: 403 })
     }
 
-    const secret = process.env.BOOKING_WEBHOOK_SECRET
-    if (!secret) {
-      console.error(`[Booking Webhook] ${requestId} BOOKING_WEBHOOK_SECRET not configured`)
-      return NextResponse.json(
-        { error: 'Webhook secret not configured' },
-        { status: 500 }
-      )
+    // Validar assinatura
+    if (!webhookManager.validateBookingSignature(payload, signature)) {
+      console.warn('[Booking Webhook] Invalid signature')
+      return NextResponse.json({ error: 'Invalid signature' }, { status: 403 })
     }
 
-    const signatureValid = validateBookingWebhookSignature(rawBody, signature, secret)
-    if (!signatureValid) {
-      console.warn(
-        `[Booking Webhook] ${requestId} Invalid signature - potential tampering or wrong secret`
-      )
-      return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
+    const event = JSON.parse(payload)
+    const eventId = event.id || `booking_${Date.now()}`
+
+    console.log(`[Booking Webhook] Received event: ${event.event_type} (${eventId})`)
+
+    // Log webhook event
+    await webhookManager.logWebhookEvent('booking', eventId, event, 'pending')
+
+    // Extrair booking_reference do payload
+    const bookingReference = event.reservation?.id
+    if (!bookingReference) {
+      console.warn('[Booking Webhook] No booking ID in payload')
+      await webhookManager.logWebhookEvent('booking', eventId, event, 'failed', 'No booking ID')
+      return NextResponse.json({ error: 'No booking ID' }, { status: 400 })
     }
 
-    // ──────────────────────────────────────────────────────────────
-    // 3. PARSE AND VALIDATE PAYLOAD
-    // ──────────────────────────────────────────────────────────────
-    let payload: BookingWebhookPayload
+    // Mapear evento para updates
+    const updates = mapBookingEventToUpdate(event)
+
     try {
-      const parsed = JSON.parse(rawBody)
-      payload = parseBookingWebhookPayload(parsed)
-    } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : String(error)
-      console.warn(`[Booking Webhook] ${requestId} Invalid payload: ${errorMsg}`)
-      // Return generic error to client, detailed error logged server-side
-      return NextResponse.json(
-        { error: 'Invalid payload' },
-        { status: 400 }
+      // Atualizar reserva
+      await webhookManager.updateReservationFromWebhook(bookingReference, updates, 'booking')
+
+      // Log sucesso
+      await webhookManager.logWebhookEvent('booking', eventId, event, 'processed')
+      console.log(`[Booking Webhook] ✅ Event processed: ${eventId}`)
+
+      return NextResponse.json({ success: true, eventId })
+    } catch (updateError) {
+      console.error(`[Booking Webhook] Error updating reservation:`, updateError)
+      await webhookManager.logWebhookEvent(
+        'booking',
+        eventId,
+        event,
+        'failed',
+        updateError instanceof Error ? updateError.message : String(updateError)
       )
+
+      // Se a reserva não existe, log mas 200 OK (webhook vai pensar que foi sucesso)
+      return NextResponse.json({ success: false, error: 'Reservation not found' }, { status: 404 })
     }
-
-    // ──────────────────────────────────────────────────────────────
-    // 3.5 VALIDATE WEBHOOK TIMESTAMP FRESHNESS (prevent replay attacks)
-    // ──────────────────────────────────────────────────────────────
-    try {
-      const webhookTime = new Date(payload.timestamp).getTime()
-      const now = Date.now()
-      const maxSkew = 15 * 60 * 1000 // 15 minutes
-      if (now - webhookTime > maxSkew) {
-        console.warn(
-          `[Booking Webhook] ${requestId} Stale timestamp: ${payload.timestamp} (age: ${Math.round((now - webhookTime) / 1000)}s)`
-        )
-        // Log but still process (Booking.com might have clock skew)
-        // In future, can reject if needed
-      }
-    } catch (error) {
-      console.warn(`[Booking Webhook] ${requestId} Failed to validate timestamp: ${error}`)
-      // Don't reject, timestamp validation is advisory
-    }
-
-    const propertyId = payload.data.reservation.property_id
-
-    // ──────────────────────────────────────────────────────────────
-    // 4. CHECK RATE LIMIT
-    // ──────────────────────────────────────────────────────────────
-    const rateLimitResult = await checkBookingWebhookRateLimit(propertyId)
-    if (!rateLimitResult.success) {
-      console.warn(
-        `[Booking Webhook] ${requestId} Rate limit exceeded for property: ${propertyId}`
-      )
-      // Return 429 with generic message
-      return NextResponse.json(
-        { error: 'Too many requests' },
-        {
-          status: 429,
-          headers: {
-            'Retry-After': String(rateLimitResult.retryAfter || 60),
-          },
-        }
-      )
-    }
-
-    // ──────────────────────────────────────────────────────────────
-    // 5. LOG WEBHOOK RECEIPT
-    // ──────────────────────────────────────────────────────────────
-    console.log(`[Booking Webhook] ${requestId} Received ${payload.event_type}`, {
-      event_id: payload.event_id,
-      property_id: propertyId,
-      reservation_id: payload.data.reservation.id,
-      status: deriveReservationStatus(payload.event_type),
-    })
-
-    // ──────────────────────────────────────────────────────────────
-    // 6. RETURN 200 IMMEDIATELY (Booking.com requirement)
-    // ──────────────────────────────────────────────────────────────
-    // Process asynchronously to avoid timeout. In production, use:
-    // - Background job queue (Bull, Inngest, etc.)
-    // - Firebase Cloud Tasks
-    // - AWS SQS
-    // For now, we'll process in the response handler
-    const responsePromise = NextResponse.json(
-      { success: true, request_id: requestId },
-      { status: 200 }
-    )
-
-    // ──────────────────────────────────────────────────────────────
-    // 7. PROCESS ASYNCHRONOUSLY (fire-and-forget)
-    // ──────────────────────────────────────────────────────────────
-    // Sync to database asynchronously (don't wait for response)
-    syncBookingReservation(payload, requestId).catch((error) => {
-      console.error(`[Booking Webhook] ${requestId} Sync failed:`, error)
-    })
-
-    console.log(`[Booking Webhook] ${requestId} Webhook processed successfully`)
-    return responsePromise
-  } catch (error) {
-    const errorMsg = error instanceof Error ? error.message : String(error)
-    console.error(`[Booking Webhook] Unexpected error:`, errorMsg, error)
-    // Return 200 to avoid Booking.com retry loop, but log the error
-    return NextResponse.json(
-      { success: false, error: 'Internal processing error' },
-      { status: 200 } // 200 to prevent Booking from retrying
-    )
+  } catch (error: unknown) {
+    console.error('[Booking Webhook] Erro:', error)
+    const errMsg = error instanceof Error ? error.message : 'Unknown error'
+    return NextResponse.json({ error: errMsg }, { status: 500 })
   }
 }
