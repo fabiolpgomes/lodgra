@@ -14,16 +14,7 @@ import { Alert, AlertDescription } from '@/components/common/ui/alert'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/common/ui/select'
 import { toast } from 'sonner'
 import { getCurrencySymbol, type CurrencyCode } from '@/lib/utils/currency'
-
-function getPlatformPrefix(platformName: string): string {
-  const normalized = platformName.toLowerCase()
-  if (normalized.includes('booking')) return 'booking'
-  if (normalized.includes('airbnb')) return 'airbnb'
-  if (normalized.includes('vrbo')) return 'vrbo'
-  if (normalized.includes('expedia')) return 'vrbo'
-  if (normalized.includes('flatio')) return 'flatio'
-  return 'platform'
-}
+import { getPlatformPrefix, buildExternalId } from '@/lib/utils/platform-mapping'
 
 export default function NewReservationPage() {
   const router = useRouter()
@@ -339,12 +330,10 @@ export default function NewReservationPage() {
       const propertyCurrency = (listing?.properties as { currency?: string } | null)?.currency || 'EUR'
 
       // Criar reserva
-      // Montar external_id a partir do número da reserva e plataforma
-      let externalId: string | null = null
       const reservationNumber = (formData.get('reservation_number') as string)?.trim()
+      let externalId: string | null = null
       if (reservationNumber && selectedPlatform) {
-        const prefix = getPlatformPrefix(selectedPlatform)
-        externalId = `${prefix}_${reservationNumber}`
+        externalId = buildExternalId(reservationNumber, selectedPlatform)
         console.log(`[Reservation] External ID gerado: ${externalId}`)
       }
 

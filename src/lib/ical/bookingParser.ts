@@ -73,6 +73,48 @@ export function detectSource(summary?: string, description?: string): 'booking' 
 }
 
 /**
+ * Construir external_id estável a partir de UID e dados de plataforma
+ * Formato: 'plataforma_numero' (ex: 'booking_6816972454', 'airbnb_12345')
+ * Usado para evitar duplicação na sincronização iCal
+ */
+export function buildStableExternalId(
+  uid: string | undefined,
+  description: string | undefined,
+  source: 'booking' | 'airbnb' | 'unknown'
+): string {
+  if (!uid) return 'unknown'
+
+  // Booking.com: extrair booking_id da description
+  if (source === 'booking') {
+    const bookingData = parseBookingDescription(description)
+    if (bookingData.bookingId) {
+      return `booking_${bookingData.bookingId}`
+    }
+  }
+
+  // Airbnb: UID é {numero}@airbnb.com
+  if (source === 'airbnb' && uid.includes('@airbnb.com')) {
+    const airbnbId = uid.replace('@airbnb.com', '')
+    return `airbnb_${airbnbId}`
+  }
+
+  // VRBO/Expedia: detectar pelo UID
+  if (uid.includes('vrbo')) {
+    const vrboId = uid.replace(/[@\.].*/, '').split(':').pop() || uid
+    return `vrbo_${vrboId}`
+  }
+
+  // Flatio: detectar pelo UID
+  if (uid.includes('flatio')) {
+    const flatioId = uid.replace(/[@\.].*/, '').split(':').pop() || uid
+    return `flatio_${flatioId}`
+  }
+
+  // Fallback: usar UID genérico
+  return uid
+}
+
+/**
  * CRITICAL: Determine if Booking.com event is a block or reservation
  *
  * Booking exports BOTH reservations and blocks with CLOSED summary!

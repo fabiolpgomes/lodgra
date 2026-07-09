@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { importICalFromUrl, isBlockedEvent } from '@/lib/ical/icalService'
 import { enqueueEmail } from '@/lib/email/queue'
-import { parseBookingDescription, detectSource } from '@/lib/ical/bookingParser'
+import { parseBookingDescription, detectSource, buildStableExternalId } from '@/lib/ical/bookingParser'
 
 interface ListingPropertyInfo {
   name: string
@@ -192,29 +192,11 @@ async function syncOneListing(
     }
 
     // ─── Construir external_id usando formato estável: plataforma_numero ───────
-    const bookingData = parseBookingDescription(event.description)
     const source = detectSource(event.summary, event.description)
-    let externalIdLookup = event.uid // fallback ao UID genérico
+    const externalIdLookup = buildStableExternalId(event.uid, event.description, source)
 
-    // Se conseguir extrair booking ID do Booking.com, usar formato estável
-    if (bookingData.bookingId) {
-      externalIdLookup = `booking_${bookingData.bookingId}`
-      console.log(`[Cron] Booking ID extraído: ${externalIdLookup}`)
-    } else if (source === 'airbnb' && event.uid?.includes('@airbnb.com')) {
-      // Airbnb: UID é {numero}@airbnb.com
-      const airbnbId = event.uid.replace('@airbnb.com', '')
-      externalIdLookup = `airbnb_${airbnbId}`
-      console.log(`[Cron] Airbnb ID extraído: ${externalIdLookup}`)
-    } else if (event.uid?.includes('vrbo')) {
-      // VRBO/Expedia: detectar pelo UID
-      const vrboId = event.uid.replace(/[@\.].*/, '').split(':').pop() || event.uid
-      externalIdLookup = `vrbo_${vrboId}`
-      console.log(`[Cron] VRBO ID extraído: ${externalIdLookup}`)
-    } else if (event.uid?.includes('flatio')) {
-      // Flatio: detectar pelo UID
-      const flatioId = event.uid.replace(/[@\.].*/, '').split(':').pop() || event.uid
-      externalIdLookup = `flatio_${flatioId}`
-      console.log(`[Cron] Flatio ID extraído: ${externalIdLookup}`)
+    if (externalIdLookup !== event.uid) {
+      console.log(`[Cron] External ID estável construído: ${externalIdLookup}`)
     }
 
     const { data: existingReservation } = await supabase
@@ -256,7 +238,8 @@ async function syncOneListing(
 
       const uniqueEmail = `imported-${Date.now()}-${Math.random().toString(36).substring(7)}@lodgra.local`
 
-      // bookingData e source já foram extraídos acima para construir externalIdLookup
+      // Extrair dados da booking (nome, telefone, país)
+      const bookingData = parseBookingDescription(event.description)
       let guestFirstName = bookingData.guestName?.split(' ')[0] || 'Hóspede'
       let guestLastName = bookingData.guestName?.split(' ').slice(1).join(' ') || 'Importado'
 
