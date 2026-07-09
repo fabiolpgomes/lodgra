@@ -15,6 +15,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner'
 import { getCurrencySymbol, type CurrencyCode } from '@/lib/utils/currency'
 
+function getPlatformPrefix(platformName: string): string {
+  const normalized = platformName.toLowerCase()
+  if (normalized.includes('booking')) return 'booking'
+  if (normalized.includes('airbnb')) return 'airbnb'
+  if (normalized.includes('vrbo')) return 'vrbo'
+  if (normalized.includes('expedia')) return 'vrbo'
+  if (normalized.includes('flatio')) return 'flatio'
+  return 'platform'
+}
+
 export default function NewReservationPage() {
   const router = useRouter()
   const locale = useLocale()
@@ -31,6 +41,7 @@ export default function NewReservationPage() {
   const [propertyListings, setPropertyListings] = useState<{ id: string; property_id: string; external_listing_id?: string | null; platforms: { display_name: string } | null }[]>([])
   const [selectedProperty, setSelectedProperty] = useState(prePropertyId)
   const [selectedListing, setSelectedListing] = useState('')
+  const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null)
   const [calculatedPrice, setCalculatedPrice] = useState<number | null>(null)
   const [priceCalculating, setPriceCalculating] = useState(false)
 
@@ -89,15 +100,30 @@ export default function NewReservationPage() {
 
         setPropertyListings(transformedData)
         setSelectedListing('')
+        setSelectedPlatform(null)
       }
 
       loadListings()
     } else {
       setPropertyListings([])
       setSelectedListing('')
+      setSelectedPlatform(null)
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedProperty])
+
+  // Detectar plataforma quando selectedListing muda
+  useEffect(() => {
+    if (selectedListing && propertyListings.length > 0) {
+      const listing = propertyListings.find(l => l.id === selectedListing)
+      if (listing) {
+        const platformName = (listing.platforms as { display_name?: string } | null)?.display_name || ''
+        setSelectedPlatform(platformName)
+      }
+    } else {
+      setSelectedPlatform(null)
+    }
+  }, [selectedListing, propertyListings])
   // Auto-calculate price based on dates and property
   useEffect(() => {
     async function calculatePrice() {
@@ -313,7 +339,15 @@ export default function NewReservationPage() {
       const propertyCurrency = (listing?.properties as { currency?: string } | null)?.currency || 'EUR'
 
       // Criar reserva
-      const externalId = (formData.get('external_id') as string)?.trim() || null
+      // Montar external_id a partir do número da reserva e plataforma
+      let externalId: string | null = null
+      const reservationNumber = (formData.get('reservation_number') as string)?.trim()
+      if (reservationNumber && selectedPlatform) {
+        const prefix = getPlatformPrefix(selectedPlatform)
+        externalId = `${prefix}_${reservationNumber}`
+        console.log(`[Reservation] External ID gerado: ${externalId}`)
+      }
+
       const { data, error: insertError } = await supabase
         .from('reservations')
         .insert({
@@ -642,26 +676,28 @@ export default function NewReservationPage() {
           </div>
 
           {/* Identificador Externo */}
-          <div className="mb-8">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Identificador Externo (Opcional)
-            </h3>
-            <div>
-              <Label htmlFor="external_id" className="mb-1">
-                ID da Plataforma
-              </Label>
-              <Input
-                type="text"
-                id="external_id"
-                name="external_id"
-                placeholder="Exemplo: booking_6816972454 ou airbnb_12345"
-              />
-              <p className="text-xs text-gray-600 mt-2">
-                Use este campo para associar a reserva a um ID da plataforma de origem (Booking.com, Airbnb, etc).
-                Isto previne duplicações automáticas na próxima sincronização. Formato: {'{plataforma}_{ID}'} (ex: booking_6816972454)
-              </p>
+          {selectedListing && selectedPlatform && (
+            <div className="mb-8">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Prevenção de Duplicação
+              </h3>
+              <div>
+                <Label htmlFor="reservation_number" className="mb-1">
+                  Número da Reserva <span className="text-xs text-gray-500">({selectedPlatform})</span>
+                </Label>
+                <Input
+                  type="text"
+                  id="reservation_number"
+                  name="reservation_number"
+                  placeholder={`Ex: 6816972454 (será salvo como ${getPlatformPrefix(selectedPlatform)}_______)`}
+                />
+                <p className="text-xs text-gray-600 mt-2">
+                  Preencha com o número da reserva da {selectedPlatform}. Isto previne duplicações automáticas na próxima sincronização iCal.
+                  Você pode encontrar este número na confirmação de reserva da plataforma.
+                </p>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Valor */}
           <div className="mb-8">
