@@ -313,6 +313,7 @@ export default function NewReservationPage() {
       const propertyCurrency = (listing?.properties as { currency?: string } | null)?.currency || 'EUR'
 
       // Criar reserva
+      const externalId = (formData.get('external_id') as string)?.trim() || null
       const { data, error: insertError } = await supabase
         .from('reservations')
         .insert({
@@ -328,6 +329,7 @@ export default function NewReservationPage() {
           currency: propertyCurrency,
           status: 'confirmed',
           booking_source: 'manual',
+          external_id: externalId,
           guest_name: (formData.get('guest_first_name') as string) + ' ' + (formData.get('guest_last_name') as string),
           guest_email: formData.get('guest_email') as string,
           guest_phone: (formData.get('guest_phone') as string) || null,
@@ -636,6 +638,28 @@ export default function NewReservationPage() {
                   placeholder="Observações internas sobre a reserva..."
                 />
               </div>
+            </div>
+          </div>
+
+          {/* Identificador Externo */}
+          <div className="mb-8">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              Identificador Externo (Opcional)
+            </h3>
+            <div>
+              <Label htmlFor="external_id" className="mb-1">
+                ID da Plataforma
+              </Label>
+              <Input
+                type="text"
+                id="external_id"
+                name="external_id"
+                placeholder="Exemplo: booking_6816972454 ou airbnb_12345"
+              />
+              <p className="text-xs text-gray-600 mt-2">
+                Use este campo para associar a reserva a um ID da plataforma de origem (Booking.com, Airbnb, etc).
+                Isto previne duplicações automáticas na próxima sincronização. Formato: {'{plataforma}_{ID}'} (ex: booking_6816972454)
+              </p>
             </div>
           </div>
 
