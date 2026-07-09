@@ -191,21 +191,54 @@ async function syncOneListing(
       continue
     }
 
+    // ─── Construir external_id usando formato estável: plataforma_numero ───────
+    const bookingData = parseBookingDescription(event.description)
+    const source = detectSource(event.summary, event.description)
+    let externalIdLookup = event.uid // fallback ao UID genérico
+
+    // Se conseguir extrair booking ID do Booking.com, usar formato estável
+    if (bookingData.bookingId) {
+      externalIdLookup = `booking_${bookingData.bookingId}`
+      console.log(`[Cron] Booking ID extraído: ${externalIdLookup}`)
+    } else if (source === 'airbnb' && event.uid?.includes('@airbnb.com')) {
+      // Airbnb: UID é {numero}@airbnb.com
+      const airbnbId = event.uid.replace('@airbnb.com', '')
+      externalIdLookup = `airbnb_${airbnbId}`
+      console.log(`[Cron] Airbnb ID extraído: ${externalIdLookup}`)
+    } else if (event.uid?.includes('vrbo')) {
+      // VRBO/Expedia: detectar pelo UID
+      const vrboId = event.uid.replace(/[@\.].*/, '').split(':').pop() || event.uid
+      externalIdLookup = `vrbo_${vrboId}`
+      console.log(`[Cron] VRBO ID extraído: ${externalIdLookup}`)
+    } else if (event.uid?.includes('flatio')) {
+      // Flatio: detectar pelo UID
+      const flatioId = event.uid.replace(/[@\.].*/, '').split(':').pop() || event.uid
+      externalIdLookup = `flatio_${flatioId}`
+      console.log(`[Cron] Flatio ID extraído: ${externalIdLookup}`)
+    }
+
     const { data: existingReservation } = await supabase
-      .from('reservations').select('id').eq('external_id', event.uid).single()
+      .from('reservations').select('id').eq('external_id', externalIdLookup).single()
 
     if (existingReservation) {
       const updatedBookingData = parseBookingDescription(event.description)
+      console.log(`[Cron] Atualizando reserva existente com external_id: ${externalIdLookup}`)
       const { error } = await supabase
         .from('reservations')
         .update({
           check_in: checkIn,
           check_out: checkOut,
           updated_at: new Date().toISOString(),
+          external_id: externalIdLookup, // Atualizar external_id também
           ...(updatedBookingData.numGuests ? { number_of_guests: updatedBookingData.numGuests } : {}),
         })
         .eq('id', existingReservation.id)
-      if (error) { skipped++ } else { updated++ }
+      if (error) {
+        console.error(`[Cron] Erro ao atualizar reserva ${externalIdLookup}:`, error)
+        skipped++
+      } else {
+        updated++
+      }
     } else {
       // Buscar siblings da mesma propriedade para overlap check
       const { data: siblingListings } = await supabase
@@ -223,10 +256,7 @@ async function syncOneListing(
 
       const uniqueEmail = `imported-${Date.now()}-${Math.random().toString(36).substring(7)}@lodgra.local`
 
-      // Parse Booking.com metadata from description
-      const bookingData = parseBookingDescription(event.description)
-      const source = detectSource(event.summary, event.description)
-
+      // bookingData e source já foram extraídos acima para construir externalIdLookup
       let guestFirstName = bookingData.guestName?.split(' ')[0] || 'Hóspede'
       let guestLastName = bookingData.guestName?.split(' ').slice(1).join(' ') || 'Importado'
 
@@ -251,12 +281,13 @@ async function syncOneListing(
 
       if (guestError || !guest) { skipped++; continue }
 
+      console.log(`[Cron] Criando nova reserva com external_id: ${externalIdLookup}`)
       const { error: resError } = await supabase
         .from('reservations')
         .insert({
           property_listing_id: listing.id, guest_id: guest.id,
           check_in: checkIn, check_out: checkOut,
-          status: 'confirmed', external_id: event.uid,
+          status: 'confirmed', external_id: externalIdLookup, // Usar formato estável
           booking_source: 'ical_auto_sync',
           source: source === 'booking' ? 'booking' : source === 'airbnb' ? 'airbnb' : 'ical_import',
           number_of_guests: bookingData.numGuests || 1,
