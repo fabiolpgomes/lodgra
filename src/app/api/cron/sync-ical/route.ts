@@ -2,7 +2,16 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { importICalFromUrl, isBlockedEvent } from '@/lib/ical/icalService'
 import { enqueueEmail } from '@/lib/email/queue'
-import { parseBookingDescription, detectSource, buildStableExternalId } from '@/lib/ical/bookingParser'
+import {
+  parseBookingDescription,
+  detectSource,
+  buildStableExternalId,
+  extractBookingGuestData,
+  extractAirbnbGuestData,
+  extractVrboGuestData,
+  extractFlatioGuestData,
+  getPlatformUrl,
+} from '@/lib/ical/bookingParser'
 
 interface ListingPropertyInfo {
   name: string
@@ -199,11 +208,35 @@ async function syncOneListing(
       console.log(`[Cron] External ID estável construído: ${externalIdLookup}`)
     }
 
+    // ─── Extrair dados estruturados ANTES de usar em UPDATE/INSERT ─────────────
+    // booking_reference e platform metadata
+    const bookingReference = externalIdLookup.includes('_')
+      ? externalIdLookup.substring(externalIdLookup.indexOf('_') + 1)
+      : externalIdLookup
+
+    // Guest data real baseado na plataforma (não genérico!)
+    let guestData = null
+    let platformUrl = ''
+    const bookingData = parseBookingDescription(event.description)
+
+    if (source === 'booking') {
+      guestData = extractBookingGuestData(event.description)
+      platformUrl = getPlatformUrl('booking', bookingReference)
+    } else if (source === 'airbnb') {
+      guestData = extractAirbnbGuestData(event.summary)
+      platformUrl = getPlatformUrl('airbnb', bookingReference)
+    } else if (externalIdLookup.includes('vrbo')) {
+      guestData = extractVrboGuestData(event.description)
+      platformUrl = getPlatformUrl('vrbo', bookingReference)
+    } else if (externalIdLookup.includes('flatio')) {
+      guestData = extractFlatioGuestData(event.description)
+      platformUrl = getPlatformUrl('flatio', bookingReference)
+    }
+
     const { data: existingReservation } = await supabase
       .from('reservations').select('id').eq('external_id', externalIdLookup).single()
 
     if (existingReservation) {
-      const updatedBookingData = parseBookingDescription(event.description)
       console.log(`[Cron] Atualizando reserva existente com external_id: ${externalIdLookup}`)
       const { error } = await supabase
         .from('reservations')
@@ -211,8 +244,16 @@ async function syncOneListing(
           check_in: checkIn,
           check_out: checkOut,
           updated_at: new Date().toISOString(),
-          external_id: externalIdLookup, // Atualizar external_id também
-          ...(updatedBookingData.numGuests ? { number_of_guests: updatedBookingData.numGuests } : {}),
+          external_id: externalIdLookup,
+
+          // Story 36.2: Atualizar platform metadata também
+          booking_reference: bookingReference,
+          booking_source: source === 'booking' ? 'booking' : source === 'airbnb' ? 'airbnb' : 'ical_import',
+          platform_sync_url: platformUrl || null,
+          platform_synced_at: new Date().toISOString(),
+
+          ...(bookingData.numGuests ? { number_of_guests: bookingData.numGuests } : {}),
+          ...(guestData?.guests ? { number_of_guests: guestData.guests } : {}),
         })
         .eq('id', existingReservation.id)
       if (error) {
@@ -236,19 +277,27 @@ async function syncOneListing(
 
       if (overlapping && overlapping.length > 0) { skipped++; continue }
 
-      const uniqueEmail = `imported-${Date.now()}-${Math.random().toString(36).substring(7)}@lodgra.local`
+      // Fallback: usar summary ou genérico
+      let guestFirstName = guestData?.firstName || 'Hóspede'
+      let guestLastName = guestData?.lastName || 'Importado'
 
-      // Extrair dados da booking (nome, telefone, país)
-      const bookingData = parseBookingDescription(event.description)
-      let guestFirstName = bookingData.guestName?.split(' ')[0] || 'Hóspede'
-      let guestLastName = bookingData.guestName?.split(' ').slice(1).join(' ') || 'Importado'
-
-      const summary = event.summary || ''
-      if (summary && !summary.toLowerCase().includes('not available') && !summary.toLowerCase().includes('closed')) {
-        const parts = summary.split(' ')
-        if (parts.length >= 2) { guestFirstName = parts[0]; guestLastName = parts.slice(1).join(' ') }
-        else if (parts.length === 1) { guestFirstName = parts[0]; guestLastName = '' }
+      // Se não temos nome real, tentar extrair do summary
+      if (guestFirstName === 'Hóspede' && guestLastName === 'Importado') {
+        const summary = event.summary || ''
+        if (summary && !summary.toLowerCase().includes('not available') && !summary.toLowerCase().includes('closed')) {
+          const parts = summary.split(' ')
+          if (parts.length >= 2) {
+            guestFirstName = parts[0]
+            guestLastName = parts.slice(1).join(' ')
+          } else if (parts.length === 1) {
+            guestFirstName = parts[0]
+            guestLastName = ''
+          }
+        }
       }
+
+      // Email: só gera fake se não temos email real
+      const uniqueEmail = guestData?.email || `imported-${Date.now()}-${Math.random().toString(36).substring(7)}@lodgra.local`
 
       const { data: guest, error: guestError } = await supabase
         .from('guests')
@@ -268,12 +317,21 @@ async function syncOneListing(
       const { error: resError } = await supabase
         .from('reservations')
         .insert({
-          property_listing_id: listing.id, guest_id: guest.id,
-          check_in: checkIn, check_out: checkOut,
-          status: 'confirmed', external_id: externalIdLookup, // Usar formato estável
-          booking_source: 'ical_auto_sync',
+          property_listing_id: listing.id,
+          guest_id: guest.id,
+          check_in: checkIn,
+          check_out: checkOut,
+          status: 'confirmed',
+          external_id: externalIdLookup,
+
+          // Story 36.2: Platform booking IDs estruturados
+          booking_reference: bookingReference,
+          booking_source: source === 'booking' ? 'booking' : source === 'airbnb' ? 'airbnb' : 'ical_import',
+          platform_sync_url: platformUrl || null,
+          platform_synced_at: new Date().toISOString(),
+
           source: source === 'booking' ? 'booking' : source === 'airbnb' ? 'airbnb' : 'ical_import',
-          number_of_guests: bookingData.numGuests || 1,
+          number_of_guests: guestData?.guests || bookingData.numGuests || 1,
           commission_calculated_at: new Date().toISOString(),
           ...(cronOrgId ? { organization_id: cronOrgId } : {})
         })

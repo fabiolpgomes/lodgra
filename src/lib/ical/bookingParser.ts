@@ -114,6 +114,139 @@ export function buildStableExternalId(
   return uid
 }
 
+// ─── Guest Data Extraction por Plataforma ─────────────────────────────
+
+interface GuestData {
+  firstName: string | null
+  lastName: string | null
+  email: string | null
+  phone: string | null
+  country: string | null
+  guests: number | null
+}
+
+/**
+ * Extrair dados reais do guest do iCal (não genérico)
+ * Booking.com envia tudo na description
+ */
+export function extractBookingGuestData(description?: string): GuestData {
+  if (!description) {
+    return { firstName: null, lastName: null, email: null, phone: null, country: null, guests: null }
+  }
+
+  const lines = description.split('\n')
+  const data: GuestData = {
+    firstName: null,
+    lastName: null,
+    email: null,
+    phone: null,
+    country: null,
+    guests: null,
+  }
+
+  for (const line of lines) {
+    if (line.includes('PHONE:')) {
+      data.phone = line.replace('PHONE:', '').trim()
+    } else if (line.includes('COUNTRY:')) {
+      data.country = line.replace('COUNTRY:', '').trim()
+    } else if (line.includes('GUESTS:')) {
+      data.guests = parseInt(line.replace('GUESTS:', '').trim()) || null
+    }
+  }
+
+  // Tentar extrair nome da primeira linha se disponível
+  const firstLine = lines[0]?.trim()
+  if (firstLine && !firstLine.includes(':') && firstLine.length > 0) {
+    const parts = firstLine.split(' ')
+    if (parts.length >= 2) {
+      data.firstName = parts[0]
+      data.lastName = parts.slice(1).join(' ')
+    } else if (parts.length === 1) {
+      data.firstName = parts[0]
+    }
+  }
+
+  return data
+}
+
+/**
+ * Extrair dados do guest do Airbnb (limitado em iCal)
+ * Airbnb não envia muitos dados em iCal
+ */
+export function extractAirbnbGuestData(summary?: string): GuestData {
+  const data: GuestData = {
+    firstName: null,
+    lastName: null,
+    email: null,
+    phone: null,
+    country: null,
+    guests: null,
+  }
+
+  if (!summary) return data
+
+  // Airbnb às vezes usa summary = "Guest Name - Reservation"
+  if (summary.includes(' - ')) {
+    const parts = summary.split(' - ')
+    const name = parts[0]?.trim()
+    if (name && !name.includes('Reserved') && !name.includes('available')) {
+      const nameParts = name.split(' ')
+      if (nameParts.length >= 2) {
+        data.firstName = nameParts[0]
+        data.lastName = nameParts.slice(1).join(' ')
+      }
+    }
+  }
+
+  return data
+}
+
+/**
+ * Extrair dados do guest do VRBO (similar a Booking)
+ */
+export function extractVrboGuestData(description?: string): GuestData {
+  if (!description) {
+    return { firstName: null, lastName: null, email: null, phone: null, country: null, guests: null }
+  }
+
+  // VRBO usa formato similar a Booking
+  return extractBookingGuestData(description)
+}
+
+/**
+ * Extrair dados do guest do Flatio (similar a Booking)
+ */
+export function extractFlatioGuestData(description?: string): GuestData {
+  if (!description) {
+    return { firstName: null, lastName: null, email: null, phone: null, country: null, guests: null }
+  }
+
+  // Flatio usa formato similar a Booking
+  return extractBookingGuestData(description)
+}
+
+/**
+ * Construir URL direto para a reserva na plataforma
+ */
+export function getPlatformUrl(platform: string, bookingId: string, year?: number): string {
+  const currentYear = year || new Date().getFullYear()
+
+  switch (platform.toLowerCase()) {
+    case 'booking':
+      return `https://www.booking.com/booking?buid=${bookingId}`
+    case 'airbnb':
+      return `https://www.airbnb.com/users/show/${bookingId}`
+    case 'vrbo':
+      return `https://www.vrbo.com/reservation/${bookingId}`
+    case 'expedia':
+      return `https://www.expedia.com/Hotels-Search?adults=1`
+    case 'flatio':
+      return `https://www.flatio.com/booking/${bookingId}`
+    default:
+      return ''
+  }
+}
+
 /**
  * CRITICAL: Determine if Booking.com event is a block or reservation
  *
