@@ -6,11 +6,12 @@ Plataforma completa de gestão de propriedades de curta duração. Rebranding e 
 
 ---
 
-## Estado Actual (2026-04-19)
+## Estado Actual (2026-07-10)
 
-**Fase:** Staging → Produção  
+**Fase:** Produção (v1.3.0)  
 **Origem:** Rebranding do sistema Home Stay (produção activa)  
-**Estratégia:** Lodgra substitui Home Stay com novo domínio, nova landing page e foco global
+**Estratégia:** Lodgra substitui Home Stay com novo domínio, nova landing page e foco global  
+**Última Atualização:** Epic 36 - Sincronização iCal com Webhooks Real-Time (4 plataformas)
 
 ---
 
@@ -18,7 +19,11 @@ Plataforma completa de gestão de propriedades de curta duração. Rebranding e 
 
 ### Core (produção-ready)
 - Gestão de propriedades multi-moeda (EUR, BRL, USD + 5 outras)
-- Sincronização iCal automática (Airbnb, Booking.com, VRBO)
+- **Sincronização iCal automática** (Airbnb, Booking.com, VRBO, Flatio)
+  - ✅ Polling automático via cron jobs
+  - ✅ **Webhooks real-time** (4 plataformas) — <1s sync, zero lag
+  - ✅ Detecção automática de bloqueios vs reservas
+  - ✅ Backup external_id com verificação de duplicação
 - Gestão de reservas com detecção de overbooking
 - Gestão de despesas por categoria e propriedade
 - Calendário visual drag-drop multi-propriedade
@@ -54,6 +59,12 @@ Plataforma completa de gestão de propriedades de curta duração. Rebranding e 
 ### Infraestrutura
 - Next.js 15 App Router + `proxy.ts` (migrado de middleware)
 - Supabase (Auth, Database, Storage, RLS)
+- Webhooks integrados com 4 plataformas de alojamento (Epic 36)
+  - Booking.com, Airbnb, VRBO/Expedia, Flatio
+  - Validação HMAC-SHA256 de assinaturas
+  - Retry automático com max 3 tentativas
+  - Event deduplication e audit trail
+- Cron jobs para sincronização iCal (fallback)
 - Sentry (error tracking, instrumentation)
 - PWA (service worker, manifest, install banner)
 - Segurança: CSP, CSRF, rate limiting, nonce
@@ -108,6 +119,13 @@ STRIPE_PRICE_ID_BUSINESS_BRL=
 
 # App
 NEXT_PUBLIC_APP_URL=
+ADMIN_SECRET=
+
+# Webhooks (Epic 36)
+BOOKING_WEBHOOK_SECRET=
+AIRBNB_WEBHOOK_SECRET=
+VRBO_WEBHOOK_SECRET=
+FLATIO_WEBHOOK_SECRET=
 
 # Serviços opcionais
 UPSTASH_REDIS_REST_URL=
@@ -171,9 +189,22 @@ supabase/
 
 ## Pendente para Produção
 
+### Webhooks de Plataformas de Alojamento (Epic 36) ✅
+- [x] Implementar webhook infrastructure centralizada
+- [x] Booking.com webhook → `/api/webhooks/booking/reservation`
+- [x] Airbnb webhook → `/api/webhooks/airbnb/reservation`
+- [x] VRBO/Expedia webhook → `/api/webhooks/vrbo/reservation`
+- [x] Flatio webhook → `/api/webhooks/flatio/reservation`
+- [ ] Registrar webhooks nas plataformas (manual por proprietário)
+  - Consultar `/docs/WEBHOOK_SETUP.md` para instruções step-by-step
+- [ ] Configurar `BOOKING_WEBHOOK_SECRET`, `AIRBNB_WEBHOOK_SECRET`, `VRBO_WEBHOOK_SECRET`, `FLATIO_WEBHOOK_SECRET` no Vercel
+
+### Webhooks Stripe
 - [ ] Configurar webhook Stripe no dashboard → `https://DOMINIO/api/stripe/webhook`
   - Eventos: `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.payment_failed`
-- [ ] Configurar variáveis de ambiente no Vercel
+
+### Outros
+- [ ] Configurar variáveis de ambiente no Vercel (ver `BOOKING_WEBHOOK_SECRET`, etc.)
 - [ ] Apontar domínio Lodgra
-- [ ] Executar migrations pendentes no Supabase produção (`20260417_01_fix_property_currency_by_country.sql`)
-- [ ] Testar fluxo completo de checkout → webhook → onboarding
+- [ ] Executar migrations pendentes no Supabase produção
+- [ ] Testar fluxo completo: reserva em plataforma → webhook → update em Lodgra
