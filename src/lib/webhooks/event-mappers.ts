@@ -54,6 +54,32 @@ interface AirbnbWebhookEvent {
   }
 }
 
+interface VrboWebhookEvent {
+  eventType: string
+  id?: string
+  reservation?: {
+    id?: string
+    checkInDate?: string
+    checkOutDate?: string
+    numberOfGuests?: number
+    guestName?: string
+    guestPhone?: string
+  }
+}
+
+interface FlatioWebhookEvent {
+  type: string
+  id?: string
+  booking?: {
+    id?: string
+    startDate?: string
+    endDate?: string
+    numberOfGuests?: number
+    guestName?: string
+    guestEmail?: string
+  }
+}
+
 /**
  * Map Booking.com event to reservation update
  * Eventos: reservation_confirmed, reservation_changed, reservation_cancelled, reservation_completed
@@ -138,15 +164,79 @@ export function mapAirbnbEventToUpdate(event: AirbnbWebhookEvent): ReservationUp
 }
 
 /**
- * Map VRBO event to reservation update (similar to Booking)
+ * Map VRBO event to reservation update
+ * Eventos: RESERVATION_CREATE, RESERVATION_CANCEL, RESERVATION_MODIFY
  */
-export function mapVrboEventToUpdate(event: BookingWebhookEvent): ReservationUpdate {
-  return mapBookingEventToUpdate(event) // VRBO uses similar format
+export function mapVrboEventToUpdate(event: VrboWebhookEvent): ReservationUpdate {
+  const { eventType, reservation } = event
+
+  const statusMap: Record<string, string> = {
+    RESERVATION_CREATE: 'confirmed',
+    RESERVATION_CANCEL: 'cancelled',
+    RESERVATION_MODIFY: 'confirmed',
+  }
+
+  const updates: ReservationUpdate = {
+    status: statusMap[eventType] || 'confirmed',
+    updated_at: new Date().toISOString(),
+    webhook_synced_at: new Date().toISOString(),
+  }
+
+  // VRBO data
+  if (reservation?.checkInDate) {
+    updates.check_in = reservation.checkInDate
+  }
+  if (reservation?.checkOutDate) {
+    updates.check_out = reservation.checkOutDate
+  }
+  if (reservation?.numberOfGuests) {
+    updates.number_of_guests = reservation.numberOfGuests
+  }
+  if (reservation?.guestName) {
+    updates.guest_name = reservation.guestName
+  }
+  if (reservation?.guestPhone) {
+    updates.guest_phone = reservation.guestPhone
+  }
+
+  return updates
 }
 
 /**
- * Map Flatio event to reservation update (similar to Booking)
+ * Map Flatio event to reservation update
+ * Eventos: booking.confirmed, booking.cancelled, booking.modified
  */
-export function mapFlatioEventToUpdate(event: BookingWebhookEvent): ReservationUpdate {
-  return mapBookingEventToUpdate(event) // Flatio uses similar format
+export function mapFlatioEventToUpdate(event: FlatioWebhookEvent): ReservationUpdate {
+  const { type, booking } = event
+
+  const statusMap: Record<string, string> = {
+    'booking.confirmed': 'confirmed',
+    'booking.cancelled': 'cancelled',
+    'booking.modified': 'confirmed',
+  }
+
+  const updates: ReservationUpdate = {
+    status: statusMap[type] || 'confirmed',
+    updated_at: new Date().toISOString(),
+    webhook_synced_at: new Date().toISOString(),
+  }
+
+  // Flatio data
+  if (booking?.startDate) {
+    updates.check_in = booking.startDate
+  }
+  if (booking?.endDate) {
+    updates.check_out = booking.endDate
+  }
+  if (booking?.numberOfGuests) {
+    updates.number_of_guests = booking.numberOfGuests
+  }
+  if (booking?.guestName) {
+    updates.guest_name = booking.guestName
+  }
+  if (booking?.guestEmail) {
+    updates.guest_email = booking.guestEmail
+  }
+
+  return updates
 }

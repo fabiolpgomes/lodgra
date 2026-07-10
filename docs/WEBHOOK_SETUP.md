@@ -15,6 +15,8 @@ Webhooks enable **real-time synchronization** of reservations:
 |----------|----------|
 | Booking.com | `https://www.lodgra.io/api/webhooks/booking/reservation` |
 | Airbnb | `https://www.lodgra.io/api/webhooks/airbnb/reservation` |
+| VRBO/Expedia | `https://www.lodgra.io/api/webhooks/vrbo/reservation` |
+| Flatio | `https://www.lodgra.io/api/webhooks/flatio/reservation` |
 
 ---
 
@@ -237,4 +239,133 @@ For webhook issues:
 2. Review Lodgra logs for errors
 3. Verify signature secret is correct
 4. Confirm webhook URL is HTTPS (not HTTP)
+
+
+---
+
+## VRBO/Expedia Webhook Setup
+
+### Step 1: Access Expedia Integration Settings
+
+1. Go to **Expedia Property Manager** → **Settings**
+2. Find **API & Integrations** section
+3. Enable **Webhook Events**
+
+### Step 2: Register Webhook URL
+
+1. Click **Add Webhook Endpoint**
+2. Paste the Lodgra endpoint:
+   ```
+   https://www.lodgra.io/api/webhooks/vrbo/reservation
+   ```
+3. Select events:
+   - ✅ Reservation Create
+   - ✅ Reservation Cancel
+   - ✅ Reservation Modify
+
+### Step 3: Configure Signature Secret
+
+1. Expedia provides a **Webhook Secret Key**
+2. Add to Lodgra environment variables:
+   ```env
+   VRBO_WEBHOOK_SECRET=your_secret_here
+   ```
+
+### Step 4: Test Webhook
+
+```bash
+curl -H "Authorization: Bearer YOUR_ADMIN_SECRET" \
+  https://www.lodgra.io/api/admin/webhook-status?platform=vrbo
+```
+
+---
+
+## Flatio Webhook Setup
+
+### Step 1: Access Flatio Integration Settings
+
+1. Go to **Flatio Dashboard** → **Settings** → **API**
+2. Find **Webhooks** section
+3. Enable **Webhook Integration**
+
+### Step 2: Register Webhook URL
+
+1. Click **Add Webhook**
+2. Paste the Lodgra endpoint:
+   ```
+   https://www.lodgra.io/api/webhooks/flatio/reservation
+   ```
+3. Select events:
+   - ✅ booking.confirmed
+   - ✅ booking.cancelled
+   - ✅ booking.modified
+
+### Step 3: Configure Signature Secret
+
+1. Flatio provides a **Webhook Signing Key**
+2. Add to Lodgra environment variables:
+   ```env
+   FLATIO_WEBHOOK_SECRET=your_signing_key_here
+   ```
+
+### Step 4: Test Webhook
+
+```bash
+curl -H "Authorization: Bearer YOUR_ADMIN_SECRET" \
+  https://www.lodgra.io/api/admin/webhook-status?platform=flatio
+```
+
+---
+
+## Checking All Platform Status
+
+To see the status of **all 4 platforms** at once:
+
+```bash
+curl -H "Authorization: Bearer YOUR_ADMIN_SECRET" \
+  https://www.lodgra.io/api/admin/webhook-status
+```
+
+Response includes:
+- Summary of all platforms
+- Per-platform stats (processed, pending, failed)
+- Last event received for each platform
+
+---
+
+## VRBO & Flatio Payload Examples
+
+### VRBO - Reservation Created
+
+```json
+{
+  "id": "evt_12345",
+  "eventType": "RESERVATION_CREATE",
+  "reservation": {
+    "id": "exp_res_987654",
+    "checkInDate": "2026-07-15",
+    "checkOutDate": "2026-07-18",
+    "numberOfGuests": 2,
+    "guestName": "John Doe",
+    "guestPhone": "+1-555-0123"
+  }
+}
+```
+
+### Flatio - Booking Cancelled
+
+```json
+{
+  "id": "evt_54321",
+  "type": "booking.cancelled",
+  "booking": {
+    "id": "flatio_booking_12345",
+    "startDate": "2026-07-15",
+    "endDate": "2026-07-18",
+    "numberOfGuests": 2,
+    "guestName": "Jane Smith",
+    "guestEmail": "jane@example.com"
+  }
+}
+```
 

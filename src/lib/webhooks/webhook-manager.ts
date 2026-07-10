@@ -36,6 +36,38 @@ export class WebhookManager {
   }
 
   /**
+   * Validar assinatura VRBO/Expedia
+   * VRBO usa X-VRBO-Signature header com HMAC-SHA256
+   */
+  validateVrboSignature(payload: string, signature: string): boolean {
+    const secret = process.env.VRBO_WEBHOOK_SECRET
+    if (!secret) return false
+
+    const expected = crypto
+      .createHmac('sha256', secret)
+      .update(payload)
+      .digest('hex')
+
+    return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected))
+  }
+
+  /**
+   * Validar assinatura Flatio
+   * Flatio usa X-Flatio-Signature header com HMAC-SHA256
+   */
+  validateFlatioSignature(payload: string, signature: string): boolean {
+    const secret = process.env.FLATIO_WEBHOOK_SECRET
+    if (!secret) return false
+
+    const expected = crypto
+      .createHmac('sha256', secret)
+      .update(payload)
+      .digest('hex')
+
+    return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected))
+  }
+
+  /**
    * Log webhook event para auditoria
    */
   async logWebhookEvent(
