@@ -97,7 +97,7 @@ export function OptimizationDashboard({ properties }: { properties: any[] }) {
   const getEffortLabel = (effort: string) => {
     switch (effort) {
       case 'quick':
-        return '⚡ Quick (< 1h)'
+        return '⚡ Quick (less than 1h)'
       case 'medium':
         return '⏱️ Medium (1-4h)'
       case 'high':

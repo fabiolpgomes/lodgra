@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { Card } from '@/components/common/ui/card'
 import { Button } from '@/components/common/ui/button'
-import { AlertCircle, TrendingUp, Eye, Click, BarChart3 } from 'lucide-react'
+import { AlertCircle, TrendingUp, Eye, MousePointerClick, BarChart3 } from 'lucide-react'
 
 interface PerformanceMetric {
   id: string
@@ -175,7 +175,7 @@ export function GooglePerformanceDashboard() {
                   </p>
                 </div>
                 <div className="p-3 bg-green-50 rounded-lg">
-                  <Click className="w-6 h-6 text-green-600" />
+                  <MousePointerClick className="w-6 h-6 text-green-600" />
                 </div>
               </div>
             </div>
