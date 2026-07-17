@@ -51,7 +51,7 @@ function DesignPageContent() {
               <Swatch key={shade} name={`[color:var(--be-blue)]`} hex={hex} />
             ))}
           </div>
-          <p className="mt-3 text-xs text-zinc-400 font-mono">brand-800 = #1E3A8A — Azul Confiança (primary)</p>
+          <p className="mt-3 text-xs text-zinc-400 font-mono">brand-500 = #10203E — Azul institucional (primary)</p>
         </Section>
 
         {/* Accent Scale */}
@@ -61,17 +61,18 @@ function DesignPageContent() {
               <Swatch key={shade} name={`accent-${shade}`} hex={hex} />
             ))}
           </div>
-          <p className="mt-3 text-xs text-zinc-400 font-mono">accent-500 = #D4AF37 — Ouro Próspero (CTAs, destaques)</p>
+          <p className="mt-3 text-xs text-zinc-400 font-mono">accent-500 = #C9A227 — Dourado premium (badges, métricas, destaques)</p>
         </Section>
 
         {/* Flat tokens */}
         <Section title="Tokens Planos (Tailwind)">
           <div className="grid grid-cols-3 md:grid-cols-5 gap-3">
-            <Swatch name="[color:var(--be-text)]" hex="#1E3A8A" />
-            <Swatch name="[color:var(--be-blue)]" hex="#D4AF37" />
+            <Swatch name="[color:var(--be-text)]" hex="#1B2430" />
+            <Swatch name="[color:var(--be-blue)]" hex="#10203E" />
             <Swatch name="[color:var(--be-success)]" hex="#059669" />
-            <Swatch name="lodgra-dark" hex="#374151" />
-            <Swatch name="[color:var(--be-text-muted)]" hex="#F3F4F6" className="border border-zinc-200" />
+            <Swatch name="[color:var(--lodgra-accent)]" hex="#C9A227" />
+            <Swatch name="[color:var(--be-surface)]" hex="#FBFAF6" className="border border-zinc-200" />
+            <Swatch name="[color:var(--be-text-muted)]" hex="#4D5566" />
           </div>
         </Section>
 
@@ -86,7 +87,7 @@ function DesignPageContent() {
         </Section>
 
         {/* CTA */}
-        <Section title="CTA — Verde Crescimento">
+        <Section title="CTA — Azul Institucional">
           <div className="flex gap-4">
             <button
               className="px-8 py-3 rounded-xl text-white font-bold text-sm"

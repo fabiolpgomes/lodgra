@@ -59,25 +59,25 @@
 .heading-primary {
   font-family: var(--font-heading);
   font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-black);
-  letter-spacing: var(--letter-spacing-widest);
-  text-transform: uppercase;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0;
+  text-transform: none;
 }
 
 .heading-secondary {
   font-family: var(--font-heading);
   font-size: var(--font-size-base);
-  font-weight: var(--font-weight-black);
-  letter-spacing: var(--letter-spacing-wider);
-  text-transform: uppercase;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0;
+  text-transform: none;
 }
 
 .heading-tertiary {
   font-family: var(--font-heading);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-bold);
-  letter-spacing: var(--letter-spacing-wide);
-  text-transform: uppercase;
+  letter-spacing: 0;
+  text-transform: none;
 }
 
 /* ========== COMPONENT-SPECIFIC DEFAULTS ========== */
@@ -88,7 +88,7 @@ button {
 }
 
 button:hover {
-  opacity: 0.9;
+  opacity: 1;
 }
 
 /* Links */
@@ -115,7 +115,7 @@ textarea:focus,
 select:focus {
   outline: none;
   border-color: var(--lodgra-primary);
-  box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+  box-shadow: 0 0 0 2px rgba(34, 34, 34, 0.1);
 }
 
 /* ========== ACCESSIBILITY ========== */

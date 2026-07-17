@@ -30,26 +30,26 @@ export const PublicFooter: React.FC = () => {
   ]
 
   return (
-    <footer className="bg-lodgra-blue text-white py-12 sm:py-16 mt-16">
+    <footer className="bg-white text-be-text border-t border-be-border py-12 sm:py-16 mt-16">
       <Container>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 mb-8">
           {/* Branding */}
           <div>
-            <h3 className="font-black text-lg mb-4">Lodgra</h3>
-            <p className="text-sm text-gray-300 leading-relaxed">
+            <h3 className="font-semibold text-lg mb-4">Lodgra</h3>
+            <p className="text-sm text-be-text-muted leading-relaxed">
               Gestão completa de imóveis por temporada. Sincronização automática, análise de lucros e controle de equipa.
             </p>
           </div>
 
           {/* Navigation */}
           <div>
-            <h4 className="font-semibold text-sm mb-4 uppercase tracking-wider">Navegação</h4>
+            <h4 className="font-semibold text-sm mb-4 tracking-normal">Navegação</h4>
             <ul className="space-y-2">
               {navigationLinks.map(link => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm text-gray-300 hover:text-be-blue transition-colors"
+                    className="text-sm text-be-text-muted hover:text-be-blue transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -60,7 +60,7 @@ export const PublicFooter: React.FC = () => {
 
           {/* Support */}
           <div>
-            <h4 className="font-semibold text-sm mb-4 uppercase tracking-wider">Suporte</h4>
+            <h4 className="font-semibold text-sm mb-4 tracking-normal">Suporte</h4>
             <ul className="space-y-2">
               {supportLinks.map(link => (
                 <li key={link.href}>
@@ -68,7 +68,7 @@ export const PublicFooter: React.FC = () => {
                     href={link.href}
                     target={link.href.startsWith('http') ? '_blank' : undefined}
                     rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                    className="text-sm text-gray-300 hover:text-be-blue transition-colors"
+                    className="text-sm text-be-text-muted hover:text-be-blue transition-colors"
                   >
                     {link.label}
                   </a>
@@ -79,7 +79,7 @@ export const PublicFooter: React.FC = () => {
 
           {/* Clientes */}
           <div>
-            <h4 className="font-semibold text-sm mb-4 uppercase tracking-wider">Clientes</h4>
+            <h4 className="font-semibold text-sm mb-4 tracking-normal">Clientes</h4>
             <ul className="space-y-2">
               {clientLinks.map(link => (
                 <li key={link.href}>
@@ -87,7 +87,7 @@ export const PublicFooter: React.FC = () => {
                     href={link.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-gray-300 hover:text-be-blue transition-colors"
+                    className="text-sm text-be-text-muted hover:text-be-blue transition-colors"
                   >
                     {link.label}
                   </a>
@@ -98,7 +98,7 @@ export const PublicFooter: React.FC = () => {
         </div>
 
         {/* Divider */}
-        <div className="border-t border-white/10 pt-8 text-center text-sm text-gray-400">
+        <div className="border-t border-be-border pt-8 text-center text-sm text-be-text-muted">
           <p>© {currentYear} Lodgra. Todos os direitos reservados.</p>
         </div>
       </Container>

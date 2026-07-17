@@ -77,7 +77,7 @@ export function Header({ serverProfile }: HeaderProps) {
   }, [])
 
   return (
-    <header className="sticky top-0 z-50 glass border-b border-black/[0.06]">
+    <header className="sticky top-0 z-50 glass border-b border-be-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex items-center justify-between">
           <Link href={prefix || '/'} className="flex items-center">
@@ -85,9 +85,9 @@ export function Header({ serverProfile }: HeaderProps) {
           </Link>
 
           {/* Desktop nav only */}
-          <nav className="hidden md:flex items-center gap-6">
+          <nav className="hidden md:flex items-center gap-2">
             {visibleNavLinks.map(link => (
-              <Link key={link.href} href={link.href} className="text-gray-600 hover:text-gray-900 text-sm">
+              <Link key={link.href} href={link.href} className="rounded-full px-4 py-2 text-sm font-medium text-be-text-muted hover:bg-be-surface hover:text-be-text">
                 {link.label}
               </Link>
             ))}
@@ -96,34 +96,34 @@ export function Header({ serverProfile }: HeaderProps) {
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setConfigOpen(v => !v)}
-                className="flex items-center gap-1 text-gray-600 hover:text-gray-900 text-sm"
+                className="flex items-center gap-1 rounded-full px-4 py-2 text-sm font-medium text-be-text-muted hover:bg-be-surface hover:text-be-text"
               >
                 Configuração
                 <ChevronDown className={`h-4 w-4 transition-transform ${configOpen ? 'rotate-180' : ''}`} />
               </button>
 
               {configOpen && (
-                <div className="absolute right-0 top-full mt-2 w-48 rounded-lg border border-gray-200 bg-white shadow-lg py-1 z-50">
+                <div className="absolute right-0 top-full mt-2 w-56 rounded-md border border-be-border bg-be-surface shadow-[0_0_0_1px_rgba(0,0,0,0.02),0_2px_6px_rgba(0,0,0,0.04),0_4px_8px_rgba(0,0,0,0.1)] py-2 z-50">
                   {CONFIG_LINKS.map(({ href, label, icon: Icon }) => (
                     <Link
                       key={href}
                       href={href}
                       onClick={() => setConfigOpen(false)}
-                      className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-be-text hover:bg-be-surface"
                     >
-                      <Icon className="h-4 w-4 text-gray-500" />
+                      <Icon className="h-4 w-4 text-be-text-muted" />
                       {label}
                     </Link>
                   ))}
                   {isAdmin && (
                     <>
-                      <div className="my-1 border-t border-gray-100" />
+                      <div className="my-1 border-t border-be-border" />
                       <Link
                         href={`${prefix}/admin/users`}
                         onClick={() => setConfigOpen(false)}
-                        className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                        className="flex items-center gap-2 px-4 py-2 text-sm text-be-text hover:bg-be-surface"
                       >
-                        <UserCog className="h-4 w-4 text-gray-500" />
+                        <UserCog className="h-4 w-4 text-be-text-muted" />
                         Usuários
                       </Link>
                     </>

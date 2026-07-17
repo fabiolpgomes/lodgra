@@ -33,7 +33,7 @@ const hankenGrotesk = Hanken_Grotesk({
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#1E3A8A",
+  themeColor: "#10203E",
 };
 
 // Index enabled for public pages — private pages can override via generateMetadata

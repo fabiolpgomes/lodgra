@@ -526,14 +526,14 @@ export default async function FinanceiroPage({ searchParams }: PageProps) {
           <div className="border border-be-blue/10 p-5 rounded-none shadow-none" style={{ backgroundColor: '#FFFFFF' }}>
             <div className="flex items-center justify-between mb-4">
               <div className="p-2.5 rounded-none">
-                <TrendingUp className="h-5 w-5" style={{ color: '#1E3A8A' }} />
+                <TrendingUp className="h-5 w-5" style={{ color: '#10203E' }} />
               </div>
-              <span className="text-[10px] font-black uppercase tracking-widest font-display" style={{ color: '#1E3A8A' }}>Receita</span>
+              <span className="text-[10px] font-black uppercase tracking-widest font-display" style={{ color: '#10203E' }}>Receita</span>
             </div>
-            <div style={{ color: '#1E3A8A' }}>
+            <div style={{ color: '#10203E' }}>
               <CurrencyStack totals={revenueByCurrency} size="md" showEmpty={true} />
             </div>
-            <p className="text-[10px] font-black uppercase tracking-wider mt-2" style={{ color: '#1E3A8A' }}>Receita bruta no período</p>
+            <p className="text-[10px] font-black uppercase tracking-wider mt-2" style={{ color: '#10203E' }}>Receita bruta no período</p>
           </div>
 
           <div className="bg-white border border-be-blue/10 p-5 rounded-none">

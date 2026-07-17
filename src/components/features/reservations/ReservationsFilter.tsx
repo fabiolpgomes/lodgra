@@ -224,7 +224,7 @@ export function ReservationsFilter({ reservations, canCreate, pagination, curren
             )}
           </div>
 
-          {/* Tablet+: tabela Behance */}
+          {/* Tablet+: tabela Airbnb */}
           <div className="hidden sm:block be-card overflow-x-auto">
             <table className="min-w-full">
               <thead>

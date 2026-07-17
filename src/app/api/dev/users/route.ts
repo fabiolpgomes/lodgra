@@ -20,7 +20,7 @@ export async function GET() {
       <body style="font-family: sans-serif; padding: 40px; background: #f4f7f6;">
         <h1>Lista de Usuários no Banco Local</h1>
         <table border="1" cellpadding="10" style="border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-          <tr style="background: #1E3A8A; color: white;">
+          <tr style="background: #10203E; color: white;">
             <th>Email</th>
             <th>Nome</th>
             <th>Cargo Atual</th>
@@ -34,7 +34,7 @@ export async function GET() {
               <td style="font-weight: bold; color: ${u.role === 'admin' ? 'green' : 'red'}">${u.role}</td>
               <td>${u.organization_id || '---'}</td>
               <td>
-                <a href="/api/dev/promote?email=${u.email}" style="background: #1E3A8A; color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 12px;">
+                <a href="/api/dev/promote?email=${u.email}" style="background: #10203E; color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 12px;">
                   Promover p/ ADM
                 </a>
               </td>

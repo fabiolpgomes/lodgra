@@ -4,22 +4,23 @@
  * CSS custom properties defined in globals.css — use these constants in
  * TypeScript code (animations, canvas, charts) where CSS vars are unavailable.
  *
- * Brand palette: Blue (#1E3A8A = brand-800), Gold (#D4AF37 = accent-500), Green (#059669)
+ * Brand palette: Lodgra Premium institutional blue (#10203E), gold (#C9A227),
+ * warm white (#FBFAF6), sand (#F7F5EF), and slate text.
  */
 
-// ─── Brand Scale — Lodgra Blue (#1E3A8A = brand-800) ─────────────────────────
+// ─── Brand Scale — Lodgra institutional blue ─────────────────────────────────
 export const BRAND = {
-  50:  '#EEF2FF',
-  100: '#E0E7FF',
-  200: '#C7D2FE',
-  300: '#A5B4FC',
-  400: '#818CF8',
-  500: '#4F63DE',
-  600: '#3A4FC5',
-  700: '#2D3DA8',
-  800: '#1E3A8A',  // Primary brand — Lodgra Blue (Azul Confiança)
-  900: '#162C6B',
-  950: '#0E1B47',
+  50:  '#F7F5EF',
+  100: '#EFE7D4',
+  200: '#D8CFB7',
+  300: '#D8BF6A',
+  400: '#C9A227',
+  500: '#10203E',
+  600: '#0c1830',
+  700: '#9f2f1f',
+  800: '#1B2430',
+  900: '#111111',
+  950: '#050505',
 
   // CSS var helpers
   css: {
@@ -31,13 +32,13 @@ export const BRAND = {
   },
 } as const
 
-// ─── Accent Scale — Lodgra Gold (#D4AF37 = accent-500) ───────────────────────
+// ─── Accent Scale — Lodgra gold highlights ───────────────────────────────────
 export const ACCENT = {
-  300: '#F0DC87',
-  400: '#E5CB5A',
-  500: '#D4AF37',  // CTA primary — Lodgra Gold (Ouro Próspero)
-  600: '#B89229',  // CTA hover
-  700: '#96751C',
+  300: '#D8BF6A',
+  400: '#C9A227',
+  500: '#C9A227',
+  600: '#B08B1F',
+  700: '#8F7018',
 
   // CSS var helpers
   css: {
@@ -46,41 +47,41 @@ export const ACCENT = {
   },
 } as const
 
-// ─── CTA — Lodgra Green (#059669) ─────────────────────────────────────────────
+// ─── CTA — Primary action ────────────────────────────────────────────────────
 export const CTA = {
-  default: '#059669',  // Verde Crescimento — primary action buttons
-  hover:   '#047857',
+  default: '#10203E',
+  hover:   '#0c1830',
 
   css: {
-    default: 'var(--lodgra-green, #059669)',
+    default: 'var(--lodgra-cta-bg, #10203E)',
   },
 } as const
 
-// ─── Neutral Warm Scale — Apple-inspired off-whites ───────────────────────────
+// ─── Neutral Scale — warm canvas, slate ink and hairlines ────────────────────
 export const NEUTRAL = {
-  50:  'oklch(0.985 0.002 75)',  // Page background
-  100: 'oklch(0.962 0.004 75)', // Card surfaces
-  200: 'oklch(0.918 0.004 75)', // Borders
-  300: 'oklch(0.850 0.004 75)', // Disabled
-  500: 'oklch(0.552 0.008 75)', // Text secondary
-  700: 'oklch(0.380 0.006 75)', // Text medium
-  900: 'oklch(0.138 0.004 75)', // Text primary (warm near-black)
+  50:  '#FBFAF6',
+  100: '#F7F5EF',
+  200: '#EFEADF',
+  300: '#E5DFD2',
+  500: '#4D5566',
+  700: '#4D5566',
+  900: '#1B2430',
 } as const
 
 // ─── Semantic Tokens ────────────────────────────────────────────────────────────
 export const SEMANTIC = {
-  success: '#059669',  // Lodgra Green
-  warning: '#D4AF37',  // Lodgra Gold
-  error:   '#DC2626',
-  info:    '#1E3A8A',  // Lodgra Blue
+  success: '#008a05',
+  warning: '#C9A227',
+  error:   '#9f2f1f',
+  info:    '#1B2430',
 } as const
 
 // ─── Typography ─────────────────────────────────────────────────────────────────
 export const TYPOGRAPHY = {
   fontFamily: {
-    heading: 'var(--font-poppins), Poppins, system-ui, sans-serif',
-    body:    'var(--font-inter), Inter, system-ui, sans-serif',
-    sans:    'var(--font-inter), Inter, system-ui, sans-serif',
+    heading: 'var(--font-inter), "Airbnb Cereal VF", Circular, system-ui, sans-serif',
+    body:    'var(--font-inter), "Airbnb Cereal VF", Circular, system-ui, sans-serif',
+    sans:    'var(--font-inter), "Airbnb Cereal VF", Circular, system-ui, sans-serif',
     mono:    '"Courier New", monospace',
   },
   fontSize: {

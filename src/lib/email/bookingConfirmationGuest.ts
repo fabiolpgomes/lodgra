@@ -112,7 +112,7 @@ export async function sendBookingConfirmationToGuest(data: BookingEmailData): Pr
       <!-- Info box -->
       <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:16px;margin-bottom:24px;">
         <p style="margin:0 0 6px;font-weight:600;color:#1d4ed8;font-size:14px;">Próximos passos</p>
-        <p style="margin:0;font-size:13px;color:#1e40af;line-height:1.6;">
+        <p style="margin:0;font-size:13px;color:#0c1830;line-height:1.6;">
           O gestor da propriedade irá contactá-lo em breve com as instruções de check-in.<br>
           Guarde este email como comprovativo da sua reserva.
         </p>

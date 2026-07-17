@@ -26,10 +26,10 @@ export const PublicNav: React.FC<PublicNavProps> = ({ variant = 'light', compact
   ]
   const visibleLanguages = languages.filter((lang) => lang.code === 'pt-BR')
 
-  const bgClass = variant === 'dark' ? 'bg-lodgra-blue' : 'bg-white'
-  const borderClass = variant === 'dark' ? 'border-[#ffffff]/10' : 'border-be-blue/10'
-  const textClass = variant === 'dark' ? 'text-white' : 'text-lodgra-blue'
-  const hoverClass = variant === 'dark' ? 'hover:text-be-blue' : 'hover:text-lodgra-blue'
+  const bgClass = variant === 'dark' ? 'bg-be-text' : 'bg-be-surface'
+  const borderClass = variant === 'dark' ? 'border-white/10' : 'border-be-border'
+  const textClass = variant === 'dark' ? 'text-white' : 'text-be-text'
+  const hoverClass = variant === 'dark' ? 'hover:bg-white/10' : 'hover:bg-be-surface'
 
   return (
     <nav className={`fixed top-0 w-full z-50 ${bgClass} border-b ${borderClass}`}>
@@ -41,12 +41,12 @@ export const PublicNav: React.FC<PublicNavProps> = ({ variant = 'light', compact
           </Link>
 
           {!compact && (
-            <div className={`hidden lg:flex items-center gap-8 text-[13px] font-black tracking-[1px] uppercase ${textClass}`}>
+            <div className={`hidden lg:flex items-center gap-2 text-[14px] font-medium tracking-normal ${textClass}`}>
               {navLinks.map(link => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`transition-colors ${hoverClass}`}
+                  className={`rounded-full px-4 py-2 transition-colors ${hoverClass}`}
                 >
                   {link.label}
                 </Link>
@@ -60,24 +60,24 @@ export const PublicNav: React.FC<PublicNavProps> = ({ variant = 'light', compact
           <div className="relative">
             <button
               onClick={() => setIsLangOpen(!isLangOpen)}
-              className={`flex items-center gap-2 text-[13px] font-black tracking-[1px] uppercase ${textClass} ${hoverClass} transition-colors py-2`}
+              className={`flex items-center gap-2 rounded-full px-4 py-2 text-[14px] font-medium tracking-normal ${textClass} ${hoverClass} transition-colors`}
             >
               🇧🇷 <span className="hidden sm:inline">Brasil</span>
               <ChevronDown className={`w-4 h-4 transition-transform ${isLangOpen ? 'rotate-180' : ''}`} />
             </button>
 
             {isLangOpen && (
-              <div className={`absolute top-full right-0 mt-4 ${bgClass} border ${borderClass} min-w-[170px] shadow-sm z-50`}>
+              <div className={`absolute top-full right-0 mt-4 ${bgClass} border ${borderClass} min-w-[170px] rounded-md shadow-[0_0_0_1px_rgba(0,0,0,0.02),0_2px_6px_rgba(0,0,0,0.04),0_4px_8px_rgba(0,0,0,0.1)] z-50 overflow-hidden`}>
                 {visibleLanguages.map((lang) => (
                   <Link
                     key={lang.code}
                     href={`/${lang.code}`}
-                    className={`flex items-center gap-3 px-4 py-3 text-[13px] transition-colors uppercase tracking-[1px] ${
+                    className={`flex items-center gap-3 px-4 py-3 text-[14px] transition-colors tracking-normal ${
                       lang.code === 'pt-BR'
-                        ? `bg-lodgra-blue ${variant === 'dark' ? 'text-white' : 'text-white'} font-black`
+                        ? 'bg-be-blue text-white font-medium'
                         : variant === 'dark'
                           ? 'text-white hover:bg-[#ffffff]/10'
-                          : 'text-[#262626] hover:bg-[#fafafa]'
+                          : 'text-be-text hover:bg-be-surface-secondary'
                     }`}
                   >
                     <span className="text-base">{lang.flag}</span>
@@ -90,14 +90,14 @@ export const PublicNav: React.FC<PublicNavProps> = ({ variant = 'light', compact
 
           <Link
             href="/login"
-            className={`text-[13px] font-black tracking-[1.5px] uppercase ${textClass} ${hoverClass} transition-colors`}
+            className={`rounded-full px-4 py-2 text-[14px] font-medium tracking-normal ${textClass} ${hoverClass} transition-colors`}
           >
             Entrar
           </Link>
 
           <Link
             href="/pricing"
-            className={`bg-be-blue text-lodgra-blue rounded-none uppercase font-black text-[14px] tracking-[1px] px-8 h-[48px] flex items-center justify-center hover:bg-[#e6ac00] transition-colors`}
+            className="bg-be-blue text-white rounded-full font-medium text-[14px] tracking-normal px-8 h-[48px] flex items-center justify-center hover:bg-be-blue-hover transition-colors"
           >
             Ver Planos
           </Link>

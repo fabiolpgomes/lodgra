@@ -27,7 +27,7 @@ function SuccessContent() {
         </div>
 
         {/* Título */}
-        <h1 className="text-2xl font-bold mb-2" style={{ color: '#1E3A8A', fontFamily: 'var(--font-poppins, Poppins, sans-serif)' }}>
+        <h1 className="text-2xl font-bold mb-2" style={{ color: '#10203E', fontFamily: 'var(--font-poppins, Poppins, sans-serif)' }}>
           Pagamento confirmado!
         </h1>
         <p className="text-base mb-2" style={{ color: '#374151' }}>
@@ -41,12 +41,12 @@ function SuccessContent() {
         <div className="rounded-xl p-6 mb-8 text-left" style={{ backgroundColor: '#EFF6FF', border: '1px solid #BFDBFE' }}>
           <div className="flex gap-4">
             <div className="flex-shrink-0 mt-0.5">
-              <svg className="w-6 h-6" fill="none" stroke="#1E3A8A" viewBox="0 0 24 24" strokeWidth={2}>
+              <svg className="w-6 h-6" fill="none" stroke="#10203E" viewBox="0 0 24 24" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
               </svg>
             </div>
             <div>
-              <p className="font-bold mb-1" style={{ color: '#1E3A8A' }}>Verifique o seu email agora</p>
+              <p className="font-bold mb-1" style={{ color: '#10203E' }}>Verifique o seu email agora</p>
               <p className="text-sm leading-relaxed" style={{ color: '#374151' }}>
                 Enviámos um convite para o email usado no pagamento.
                 Clique no botão <strong>&ldquo;Criar minha senha&rdquo;</strong> para ativar a sua conta.
@@ -88,7 +88,7 @@ function SuccessContent() {
         <div className="space-y-3">
           <p className="text-sm" style={{ color: '#6B7280' }}>
             Já criou a senha?{' '}
-            <Link href="/login" className="font-bold hover:underline" style={{ color: '#1E3A8A' }}>
+            <Link href="/login" className="font-bold hover:underline" style={{ color: '#10203E' }}>
               Entrar na Lodgra
             </Link>
           </p>

@@ -104,7 +104,7 @@ export default async function ReservationsPage({
           <div>
             <div className="flex items-center gap-3 mb-1">
               <div className="be-icon w-10 h-10 bg-[#EFF6FF]">
-                <Calendar className="h-5 w-5 text-[#1E3A8A]" />
+                <Calendar className="h-5 w-5 text-[#10203E]" />
               </div>
               <h2 className="text-2xl font-bold text-gray-900">Reservas</h2>
             </div>
@@ -138,7 +138,7 @@ export default async function ReservationsPage({
           <div className="be-card p-5">
             <div className="flex items-center justify-between mb-4">
               <div className="be-icon w-9 h-9 bg-[#EFF6FF]">
-                <Calendar className="h-5 w-5 text-[#1E3A8A]" />
+                <Calendar className="h-5 w-5 text-[#10203E]" />
               </div>
               <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">Total</span>
             </div>

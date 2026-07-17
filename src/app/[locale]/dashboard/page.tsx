@@ -1,5 +1,17 @@
 import Link from 'next/link'
-import { Calendar, TrendingUp, Percent, Users, Home, Euro, Clock, CheckCircle, Wallet } from 'lucide-react'
+import {
+  ArrowUpRight,
+  CalendarDays,
+  CheckCircle,
+  Clock,
+  DollarSign,
+  FileSpreadsheet,
+  Home,
+  Percent,
+  RefreshCw,
+  TrendingUp,
+  Wallet,
+} from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { requireRole } from '@/lib/auth/requireRole'
 import { LazyOccupancyChart as OccupancyChart, LazyStatusChart as StatusChart } from '@/components/common/lazy/LazyCharts'
@@ -331,231 +343,312 @@ export default async function DashboardPage({
         .limit(5)
     : { data: null }
 
+  const monthShort = now.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '').toUpperCase()
+  const monthLong = now.toLocaleDateString('pt-BR', { month: 'long' })
+  const monthLabel = monthLong.charAt(0).toUpperCase() + monthLong.slice(1)
+  const revenueEntries = Object.entries(monthRevenueByCurrency).sort(([a], [b]) => a.localeCompare(b))
+  const forecastEntries = Object.entries(forecastByCurrency).sort(([a], [b]) => a.localeCompare(b))
+  const financeCurrencies = Array.from(
+    new Set([
+      ...Object.keys(monthRevenueByCurrency),
+      ...Object.keys(monthExpensesByCurrency),
+    ])
+  ).sort((a, b) => a.localeCompare(b))
+
+  const currencyBadgeClass = (_currency: string) =>
+    'text-brand-text-dark bg-brand-bg border-neutral-200/60 dark:text-neutral-200 dark:bg-neutral-850 dark:border-neutral-700/60'
+
   return (
     <AuthLayout>
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        {/* Welcome */}
-        <div className="mb-6 sm:mb-8">
-          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-gray-900 mb-1">Dashboard</h2>
-          <p className="text-sm sm:text-base text-gray-600">
-            Visão geral do seu negócio de aluguel de temporada
-          </p>
-        </div>
-
-        {/* Linha 1 — Métricas de volume */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-5">
-          <div className="bg-white rounded-xl shadow-sm p-5 sm:p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-2.5 bg-gradient-to-br from-[color:var(--be-blue-pale)] to-brand-100 rounded-xl">
-                <Home className="h-5 w-5 text-[color:var(--be-blue)]" />
-              </div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">Total</span>
-            </div>
-            <p className="text-4xl font-bold tracking-tight text-gray-900">{totalProperties}</p>
-            <p className="text-sm text-gray-600 mt-1">Propriedades</p>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-sm p-5 sm:p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-2.5 bg-gradient-to-br from-green-50 to-green-100 rounded-xl">
-                <Calendar className="h-5 w-5 text-green-600" />
-              </div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">Total</span>
-            </div>
-            <p className="text-4xl font-bold tracking-tight text-gray-900">{totalReservations}</p>
-            <p className="text-sm text-gray-600 mt-1">Reservas</p>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-sm p-5 sm:p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-2.5 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl">
-                <Percent className="h-5 w-5 text-purple-600" />
-              </div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">
-                {now.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '').toUpperCase()}
+      <main className="mx-auto max-w-7xl space-y-7 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+        <div className="flex flex-col gap-4 border-b border-neutral-200/60 pb-5 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h1 className="flex flex-wrap items-center gap-2 text-xl font-bold tracking-tight text-brand-text-dark">
+              DASHBOARD
+              <span className="rounded-full bg-brand-blue/10 px-2.5 py-0.5 text-[10px] font-bold text-brand-blue">
+                Painel Geral
               </span>
-            </div>
-            <p className={`text-4xl font-bold tracking-tight ${currentMonthOccupancy >= 70 ? 'text-green-600' : currentMonthOccupancy >= 40 ? 'text-yellow-600' : 'text-gray-900'}`}>
-              {currentMonthOccupancy}%
+            </h1>
+            <p className="mt-1 text-xs font-semibold text-brand-text-medium">
+              Visão geral do seu negócio de aluguel de temporada com dados reais do banco
             </p>
-            <p className="text-sm text-gray-600 mt-1">Taxa de Ocupação</p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <Link
+              href={`/${locale}/reservations/new`}
+              className="flex items-center gap-1.5 rounded-full bg-brand-blue px-4 py-2 text-xs font-bold text-white shadow-sm transition-all hover:bg-brand-blue/90"
+            >
+              <CalendarDays className="h-3.5 w-3.5" />
+              Nova Reserva
+            </Link>
+            <Link
+              href={`/${locale}/sync`}
+              className="flex items-center gap-1.5 rounded-full border border-neutral-200 bg-brand-white px-4 py-2 text-xs font-semibold text-brand-text-dark transition-all hover:bg-brand-bg"
+            >
+              <RefreshCw className="h-3.5 w-3.5" />
+              Sincronizar
+            </Link>
+            <Link
+              href={`/${locale}/reports/financeiro`}
+              className="flex items-center gap-1.5 rounded-full border border-neutral-200 bg-brand-white px-4 py-2 text-xs font-semibold text-brand-text-dark transition-all hover:bg-brand-bg"
+            >
+              <FileSpreadsheet className="h-3.5 w-3.5" />
+              Exportar
+            </Link>
           </div>
         </div>
 
-        {/* Linha 2 — Financeiro do mês (cards mais largos) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
-          {/* Receita do Mês */}
-          <div className="bg-white rounded-xl shadow-sm p-5 sm:p-6">
-            <div className="flex items-center justify-between mb-5">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl">
-                  <Euro className="h-5 w-5 text-orange-600" />
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+          {[
+            {
+              label: 'Propriedades',
+              value: totalProperties,
+              type: 'TOTAL',
+              icon: Home,
+              iconClass: 'text-brand-blue',
+              badgeClass: 'border-brand-blue/10 bg-brand-bg',
+              description: 'Casas e apartamentos gerenciados',
+              href: `/${locale}/properties`,
+            },
+            {
+              label: 'Reservas',
+              value: totalReservations,
+              type: 'TOTAL',
+              icon: CalendarDays,
+              iconClass: 'text-brand-gold',
+              badgeClass: 'border-brand-gold/20 bg-brand-bg',
+              description: 'Estadias agendadas e concluídas',
+              href: `/${locale}/reservations`,
+            },
+            {
+              label: 'Taxa de Ocupação',
+              value: `${currentMonthOccupancy}%`,
+              type: monthShort,
+              icon: Percent,
+              iconClass: 'text-brand-blue',
+              badgeClass: 'border-brand-blue/10 bg-brand-bg',
+              description: 'Média de noites reservadas este mês',
+              href: `/${locale}/calendar`,
+            },
+          ].map((card) => {
+            const Icon = card.icon
+            return (
+              <Link
+                key={card.label}
+                href={card.href}
+                className="group relative flex flex-col rounded-2xl border border-neutral-200/60 bg-brand-white p-6 text-left shadow-2xs transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-gold/30 hover:shadow-md"
+              >
+                <div className="mb-4 flex w-full items-center justify-between">
+                  <div className={`flex h-10 w-10 items-center justify-center rounded-xl border transition-transform group-hover:scale-105 ${card.badgeClass}`}>
+                    <Icon className={`h-5 w-5 ${card.iconClass}`} />
+                  </div>
+                  <span className="text-[10px] font-bold tracking-wider text-brand-text-medium">
+                    {card.type}
+                  </span>
                 </div>
-                <div>
-                  <p className="text-sm font-semibold text-gray-700">Receita do Mês</p>
-                  <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">
-                    {now.toLocaleDateString('pt-BR', { month: 'long' }).charAt(0).toUpperCase() +
-                      now.toLocaleDateString('pt-BR', { month: 'long' }).slice(1)}
+                <div className="flex-1">
+                  <h3 className="text-3xl font-bold leading-none tracking-tight text-brand-text-dark transition-colors group-hover:text-brand-gold">
+                    {card.value}
+                  </h3>
+                  <p className="mt-2 text-xs font-semibold text-brand-text-medium">
+                    {card.label}
                   </p>
                 </div>
-              </div>
-            </div>
-            {Object.keys(monthRevenueByCurrency).length === 0 ? (
-              <p className="text-3xl font-bold text-gray-500">—</p>
-            ) : (
-              <div className="space-y-3">
-                {Object.entries(monthRevenueByCurrency).map(([cur, amount], idx, _arr) => {
-                  const badgeColor = cur === 'EUR' ? 'bg-[color:var(--be-blue-pale)] text-[color:var(--be-blue-hover)] ring-brand-200'
-                    : cur === 'BRL' ? 'bg-green-50 text-green-700 ring-green-200'
-                    : cur === 'USD' ? 'bg-yellow-50 text-yellow-700 ring-yellow-200'
-                    : 'bg-gray-100 text-gray-700 ring-gray-200'
-                  return (
-                    <div key={cur}>
-                      {idx > 0 && <div className="border-t border-dashed border-gray-100 mb-3" />}
-                      <div className="flex items-center justify-between gap-3">
-                        <span className={`inline-flex items-center justify-center min-w-[2.5rem] h-5 px-1.5 text-[10px] font-bold uppercase tracking-widest rounded ring-1 shrink-0 ${badgeColor}`}>
-                          {cur}
-                        </span>
-                        <span className="text-2xl font-bold tabular-nums text-gray-900 text-right">
-                          {formatCurrency(amount, cur as CurrencyCode)}
-                        </span>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            )}
-          </div>
+                <div className="mt-4 w-full border-t border-brand-bg pt-3">
+                  <p className="text-[10px] font-medium text-brand-text-medium">
+                    {card.description}
+                  </p>
+                </div>
+                <div className="absolute inset-x-0 bottom-0 h-1 rounded-b-2xl bg-gradient-to-r from-transparent via-brand-gold/0 to-transparent transition-all duration-500 group-hover:via-brand-gold" />
+              </Link>
+            )
+          })}
+        </div>
 
-          {/* Lucro Real */}
-          <div className="bg-white rounded-xl shadow-sm p-5 sm:p-6">
-            <div className="flex items-center justify-between mb-5">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 bg-gradient-to-br from-green-50 to-green-100 rounded-xl">
-                  <Wallet className="h-5 w-5 text-green-600" />
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <Link
+            href={`/${locale}/financial`}
+            className="group flex flex-col justify-between rounded-2xl border border-neutral-200/60 bg-brand-white p-6 text-left shadow-2xs transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-blue/35 hover:shadow-md"
+          >
+            <div>
+              <div className="mb-5 flex items-center gap-3.5">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full border border-neutral-200/60 bg-brand-bg text-brand-text-dark">
+                  <DollarSign className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-gray-700">Lucro Real</p>
-                  <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">
-                    {now.toLocaleDateString('pt-BR', { month: 'long' }).charAt(0).toUpperCase() +
-                      now.toLocaleDateString('pt-BR', { month: 'long' }).slice(1)}
-                  </p>
+                  <h3 className="text-sm font-bold text-brand-text-dark">Receita do Mês</h3>
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-brand-text-medium">{monthLabel}</p>
                 </div>
               </div>
+
+              {revenueEntries.length === 0 ? (
+                <p className="text-3xl font-bold text-brand-text-medium">-</p>
+              ) : (
+                <div className="space-y-4">
+                  {revenueEntries.map(([cur, amount], idx) => (
+                    <div
+                      key={cur}
+                      className={idx < revenueEntries.length - 1 ? 'flex items-center justify-between border-b border-dashed border-neutral-200/50 pb-3.5' : 'flex items-center justify-between'}
+                    >
+                      <span className={`rounded-md border px-2.5 py-0.5 font-mono text-[10px] font-bold tracking-wide ${currencyBadgeClass(cur)}`}>
+                        {cur}
+                      </span>
+                      <span className="text-right text-2xl font-bold tracking-tight text-brand-text-dark">
+                        {formatCurrency(amount, cur as CurrencyCode)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-            {Object.keys(monthRevenueByCurrency).length === 0 ? (
-              <p className="text-3xl font-bold text-gray-500">—</p>
-            ) : (
-              <div className="space-y-3">
-                {Object.entries(monthRevenueByCurrency).map(([cur, rev], idx) => {
-                  const exp = monthExpensesByCurrency[cur] || 0
-                  const profit = rev - exp
-                  const margin = rev > 0 ? Math.round((profit / rev) * 100) : 0
-                  const badgeColor = cur === 'EUR' ? 'bg-[color:var(--be-blue-pale)] text-[color:var(--be-blue-hover)] ring-brand-200'
-                    : cur === 'BRL' ? 'bg-green-50 text-green-700 ring-green-200'
-                    : cur === 'USD' ? 'bg-yellow-50 text-yellow-700 ring-yellow-200'
-                    : 'bg-gray-100 text-gray-700 ring-gray-200'
-                  return (
-                    <div key={cur}>
-                      {idx > 0 && <div className="border-t border-dashed border-gray-100 mb-3" />}
-                      <div className="flex items-center justify-between gap-3">
-                        <span className={`inline-flex items-center justify-center min-w-[2.5rem] h-5 px-1.5 text-[10px] font-bold uppercase tracking-widest rounded ring-1 shrink-0 ${badgeColor}`}>
-                          {cur}
-                        </span>
-                        <div className="flex items-center gap-2 min-w-0">
-                          <span className={`text-2xl font-bold tabular-nums ${profit >= 0 ? 'text-green-700' : 'text-red-600'}`}>
-                            {formatCurrency(profit, cur as CurrencyCode)}
+
+            <div className="mt-5 flex w-full items-center justify-between border-t border-brand-bg pt-3.5 text-[10px] font-semibold text-brand-text-medium">
+              <span>Faturamento bruto deste mês</span>
+              <span className="font-bold text-brand-blue transition-colors group-hover:text-brand-gold group-hover:underline">Ver faturas &rarr;</span>
+            </div>
+          </Link>
+
+          <Link
+            href={`/${locale}/financial`}
+            className="group flex flex-col justify-between rounded-2xl border border-neutral-200/60 bg-brand-white p-6 text-left shadow-2xs transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-blue/35 hover:shadow-md"
+          >
+            <div>
+              <div className="mb-5 flex items-center gap-3.5">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full border border-neutral-200/60 bg-brand-bg text-brand-text-dark">
+                  <Wallet className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-brand-text-dark">Lucro Real</h3>
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-brand-text-medium">{monthLabel}</p>
+                </div>
+              </div>
+
+              {financeCurrencies.length === 0 ? (
+                <p className="text-3xl font-bold text-brand-text-medium">-</p>
+              ) : (
+                <div className="space-y-4">
+                  {financeCurrencies.map((cur, idx) => {
+                    const revenue = monthRevenueByCurrency[cur] || 0
+                    const expenses = monthExpensesByCurrency[cur] || 0
+                    const profit = revenue - expenses
+                    const margin = revenue > 0 ? Math.round((profit / revenue) * 100) : 0
+                    return (
+                      <div
+                        key={cur}
+                        className={idx < financeCurrencies.length - 1 ? 'flex items-center justify-between border-b border-dashed border-neutral-200/50 pb-3.5' : 'flex items-center justify-between'}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className={`rounded-md border px-2.5 py-0.5 font-mono text-[10px] font-bold tracking-wide ${currencyBadgeClass(cur)}`}>
+                            {cur}
                           </span>
-                          <span className={`text-xs font-semibold px-1.5 py-0.5 rounded-full shrink-0 ${
-                            margin >= 50 ? 'bg-green-100 text-green-700'
-                            : margin >= 20 ? 'bg-yellow-100 text-yellow-700'
-                            : 'bg-red-100 text-red-600'
+                          <span className={`rounded px-1.5 py-0.5 text-[9px] font-bold ${
+                            margin >= 50 ? 'bg-emerald-500/10 text-emerald-600'
+                            : margin >= 20 ? 'bg-brand-gold/15 text-brand-gold'
+                            : 'bg-red-500/10 text-red-600'
                           }`}>
                             {margin}%
                           </span>
                         </div>
+                        <span className={`text-right text-2xl font-bold tracking-tight ${profit >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                          {formatCurrency(profit, cur as CurrencyCode)}
+                        </span>
                       </div>
-                    </div>
-                  )
-                })}
-              </div>
-            )}
-          </div>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+
+            <div className="mt-5 flex w-full items-center justify-between border-t border-brand-bg pt-3.5 text-[10px] font-semibold text-brand-text-medium">
+              <span>Receita líquida deduzindo custos</span>
+              <span className="font-bold text-brand-blue transition-colors group-hover:text-brand-gold group-hover:underline">Ver fluxo de caixa &rarr;</span>
+            </div>
+          </Link>
         </div>
 
-        {/* Previsão de Faturamento */}
-        <div className="bg-white rounded-xl shadow-sm p-5 sm:p-6 mb-6 sm:mb-8">
-          <div className="flex items-center justify-between mb-5">
-            <div className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-green-600" />
-              <div>
-                <h3 className="text-base font-semibold text-gray-900">Previsão de Faturamento</h3>
-                <p className="text-xs text-gray-500 mt-0.5">Reservas confirmadas a partir de hoje</p>
+        <Link
+          href={`/${locale}/reservations`}
+          className="group flex w-full flex-col justify-between gap-6 rounded-2xl border border-neutral-200/60 bg-brand-white p-6 text-left shadow-2xs transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-blue/35 hover:shadow-md md:flex-row md:items-center"
+        >
+          <div className="flex items-start gap-4">
+            <div className="mt-1 flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-brand-blue/10 bg-brand-blue/5 text-brand-blue">
+              <TrendingUp className="h-6 w-6 stroke-[2.5]" />
+            </div>
+            <div>
+              <div className="flex flex-wrap items-center gap-2">
+                <h3 className="text-sm font-bold uppercase tracking-wide text-brand-text-dark">
+                  Previsão de Faturamento
+                </h3>
+                <span className="rounded-full bg-brand-blue/10 px-2 py-0.5 text-[10px] font-bold text-brand-blue">
+                  {futureConfirmedCount} reserva{futureConfirmedCount !== 1 ? 's' : ''}
+                </span>
+              </div>
+              <p className="mt-1 text-xs text-brand-text-medium">
+                Reservas confirmadas a partir de hoje
+              </p>
+              <div className="mt-3 flex items-center gap-1 text-[10px] font-semibold text-brand-text-medium">
+                <CalendarDays className="h-3 w-3" />
+                Próximas receitas distribuídas por moeda
               </div>
             </div>
-            <span className="text-xs font-semibold bg-[color:var(--be-blue-pale)] text-[color:var(--be-blue-hover)] px-2.5 py-1 rounded-full">
-              {futureConfirmedCount} reserva{futureConfirmedCount !== 1 ? 's' : ''}
-            </span>
           </div>
 
-          {Object.keys(forecastByCurrency).length === 0 ? (
-            <p className="text-gray-500 text-sm">Nenhuma reserva futura com valor registado.</p>
+          {forecastEntries.length === 0 ? (
+            <p className="border-t border-neutral-100 pt-4 text-sm font-semibold text-brand-text-medium md:border-t-0 md:pt-0">
+              Nenhuma reserva futura com valor registado.
+            </p>
           ) : (
-            <div className="flex flex-wrap gap-6">
-              {Object.entries(forecastByCurrency)
-                .sort(([a], [b]) => a.localeCompare(b))
-                .map(([currency, amount]) => {
-                  const badgeColor = currency === 'EUR' ? 'bg-[color:var(--be-blue-pale)] text-[color:var(--be-blue-hover)] ring-brand-200'
-                    : currency === 'BRL' ? 'bg-green-50 text-green-700 ring-green-200'
-                    : currency === 'USD' ? 'bg-yellow-50 text-yellow-700 ring-yellow-200'
-                    : 'bg-gray-100 text-gray-700 ring-gray-200'
-                  return (
-                    <div key={currency} className="flex flex-col gap-1.5">
-                      <span className={`inline-flex items-center justify-center self-start min-w-[2.5rem] h-5 px-1.5 text-[10px] font-bold uppercase tracking-widest rounded ring-1 ${badgeColor}`}>
-                        {currency}
-                      </span>
-                      <span className="text-2xl font-bold text-gray-900 tabular-nums">
-                        {formatCurrency(amount, currency as CurrencyCode)}
-                      </span>
-                    </div>
-                  )
-                })}
+            <div className="flex shrink-0 flex-col gap-4 border-t border-neutral-100 pt-4 sm:flex-row sm:items-center sm:gap-6 md:border-t-0 md:pt-0">
+              {forecastEntries.map(([currency, amount], idx) => (
+                <div key={currency} className="px-1">
+                  <span className={`mb-1 block w-fit rounded-md border px-2 py-0.5 font-mono text-[9px] font-bold tracking-wide ${currencyBadgeClass(currency)}`}>
+                    {currency}
+                  </span>
+                  <p className="text-2xl font-bold leading-none tracking-tight text-brand-text-dark">
+                    {formatCurrency(amount, currency as CurrencyCode)}
+                  </p>
+                  {idx < forecastEntries.length - 1 && <span className="hidden" />}
+                </div>
+              ))}
+              <div className="hidden h-8 w-8 items-center justify-center rounded-full bg-brand-bg text-brand-text-medium transition-colors group-hover:bg-brand-blue group-hover:text-white md:flex">
+                <ArrowUpRight className="h-4 w-4" />
+              </div>
             </div>
           )}
-        </div>
+        </Link>
 
-        {/* Charts Row 1 */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
-          {/* Occupancy Chart */}
-          <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
-            <div className="flex items-center gap-2 mb-1">
-              <TrendingUp className="h-5 w-5 text-[color:var(--be-blue)]" />
-              <h3 className="text-base font-semibold text-gray-900">Taxa de Ocupação</h3>
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+          <div className="flex flex-col rounded-2xl border border-neutral-200/60 bg-brand-white p-6 shadow-2xs">
+            <div className="mb-6">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-brand-text-dark">Taxa de Ocupação</h3>
+              <p className="mt-1 text-[11px] font-semibold text-brand-text-medium">
+                Últimos 6 meses - {monthLabel}: {currentMonthOccupancy}%
+              </p>
             </div>
-            <p className="text-xs text-gray-500 mb-4 ml-7">Últimos 6 meses</p>
             <OccupancyChart data={occupancyData} />
           </div>
 
-          {/* Revenue Chart */}
-          <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
-            <div className="flex items-center gap-2 mb-1">
-              <Euro className="h-5 w-5 text-green-600" />
-              <h3 className="text-base font-semibold text-gray-900">Receita Mensal</h3>
+          <div className="flex flex-col rounded-2xl border border-neutral-200/60 bg-brand-white p-6 shadow-2xs">
+            <div className="mb-6 flex items-start justify-between gap-4">
+              <div>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-brand-text-dark">Receita Mensal</h3>
+                <p className="mt-1 text-[11px] font-semibold text-brand-text-medium">Faturamento consolidado por moeda</p>
+              </div>
             </div>
-            <p className="text-xs text-gray-500 mb-4 ml-7">Últimos 6 meses</p>
             <RevenueChartWrapper revenueDataByCurrency={revenueDataByCurrency} />
           </div>
         </div>
 
-        {/* Charts Row 2 */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
-          {/* Status Chart */}
-          <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
-            <div className="flex items-center gap-2 mb-1">
-              <CheckCircle className="h-5 w-5 text-[color:var(--be-blue)]" />
-              <h3 className="text-base font-semibold text-gray-900">Reservas por Status</h3>
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <div className="rounded-2xl border border-neutral-200/60 bg-brand-white p-6 shadow-2xs">
+            <div className="mb-6">
+              <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-brand-text-dark">
+                <CheckCircle className="h-4 w-4 text-brand-blue" />
+                Reservas por Status
+              </h3>
+              <p className="mt-1 text-[11px] font-semibold text-brand-text-medium">Distribuição atual</p>
             </div>
-            <p className="text-xs text-gray-500 mb-4 ml-7">Distribuição atual</p>
             <StatusChart
               confirmed={confirmedReservations}
               pending={pendingReservations}
@@ -563,13 +656,14 @@ export default async function DashboardPage({
             />
           </div>
 
-          {/* Upcoming Check-ins */}
-          <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
-            <div className="flex items-center gap-2 mb-1">
-              <Clock className="h-5 w-5 text-[color:var(--be-blue)]" />
-              <h3 className="text-base font-semibold text-gray-900">Próximas Chegadas</h3>
+          <div className="rounded-2xl border border-neutral-200/60 bg-brand-white p-6 shadow-2xs">
+            <div className="mb-6">
+              <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-brand-text-dark">
+                <Clock className="h-4 w-4 text-brand-blue" />
+                Próximas Chegadas
+              </h3>
+              <p className="mt-1 text-[11px] font-semibold text-brand-text-medium">Próximos 7 dias</p>
             </div>
-            <p className="text-xs text-gray-500 mb-4 ml-7">Próximos 7 dias</p>
 
             {upcomingCheckIns && upcomingCheckIns.length > 0 ? (
               <div className="space-y-3">
@@ -595,25 +689,25 @@ export default async function DashboardPage({
                     <Link
                       key={reservation.id}
                       href={`/${locale}/reservations/${reservation.id}`}
-                      className="flex items-center justify-between p-3 bg-gray-50 rounded-xl hover:bg-gray-100 hover:-translate-y-0.5 transition-all duration-150"
+                      className="flex items-center justify-between rounded-xl bg-brand-bg p-3 transition-all duration-150 hover:-translate-y-0.5 hover:bg-brand-blue/5"
                     >
                       <div className="min-w-0 flex-1">
-                        <p className="font-medium text-gray-900 truncate">{guestName}</p>
-                        <p className="text-sm text-gray-600 truncate">{propertyName}</p>
+                        <p className="truncate font-semibold text-brand-text-dark">{guestName}</p>
+                        <p className="truncate text-sm text-brand-text-medium">{propertyName}</p>
                         <div className="flex items-center gap-2 mt-0.5">
                           {platformName && (
-                            <span className="text-xs px-1.5 py-0.5 bg-[color:var(--be-blue-pale)] text-[color:var(--be-blue-hover)] rounded font-medium">
+                            <span className="rounded bg-brand-blue/10 px-1.5 py-0.5 text-xs font-medium text-brand-blue">
                               {platformName}
                             </span>
                           )}
-                          <span className="text-xs text-gray-500">{nights} noite{nights !== 1 ? 's' : ''}</span>
+                          <span className="text-xs text-brand-text-medium">{nights} noite{nights !== 1 ? 's' : ''}</span>
                         </div>
                       </div>
                       <div className="text-right ml-3 shrink-0">
-                        <p className="text-sm font-medium text-[color:var(--be-blue)]">
+                        <p className="text-sm font-semibold text-brand-blue">
                           {checkInDate.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}
                         </p>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-brand-text-medium">
                           até {checkOutDate.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}
                         </p>
                       </div>
@@ -622,56 +716,55 @@ export default async function DashboardPage({
                 })}
               </div>
             ) : (
-              <div className="text-center py-8 text-gray-600">
-                <Clock className="h-12 w-12 mx-auto mb-2 text-gray-500" />
-                <p>Nenhuma chegada prevista</p>
+              <div className="rounded-xl bg-brand-bg py-8 text-center text-brand-text-medium">
+                <Clock className="mx-auto mb-2 h-12 w-12 text-brand-text-medium" />
+                <p className="text-sm font-semibold">Nenhuma chegada prevista</p>
               </div>
             )}
           </div>
         </div>
 
-        {/* Quick Actions */}
-        <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
-          <h3 className="text-base font-semibold text-gray-900 mb-4">Ações Rápidas</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="rounded-2xl border border-neutral-200/60 bg-brand-white p-6 shadow-2xs">
+          <h3 className="mb-4 text-xs font-bold uppercase tracking-wider text-brand-text-dark">Ações Rápidas</h3>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <Link
               href={`/${locale}/properties/new`}
-              className="flex items-center gap-3 p-3 sm:p-4 min-h-[48px] border border-gray-100 rounded-xl bg-gradient-to-br from-white to-brand-50/50 hover:border-[color:var(--be-blue-light)] hover:from-[color:var(--be-blue-pale)] hover:to-brand-100/50 hover:-translate-y-0.5 hover:shadow-sm transition-all duration-150"
+              className="flex min-h-[48px] items-center gap-3 rounded-xl border border-neutral-200/60 bg-brand-bg p-3 transition-all duration-150 hover:-translate-y-0.5 hover:border-brand-blue/25 hover:bg-brand-blue/5 hover:shadow-sm sm:p-4"
             >
-              <div className="p-2.5 bg-[color:var(--be-blue-pale)] rounded-lg">
-                <Home className="h-5 w-5 text-[color:var(--be-blue)]" />
+              <div className="rounded-lg bg-brand-blue/10 p-2.5">
+                <Home className="h-5 w-5 text-brand-blue" />
               </div>
-              <span className="text-sm font-medium text-gray-800">Nova Propriedade</span>
+              <span className="text-sm font-semibold text-brand-text-dark">Nova Propriedade</span>
             </Link>
 
             <Link
               href={`/${locale}/reservations/new`}
-              className="flex items-center gap-3 p-3 sm:p-4 min-h-[48px] border border-gray-100 rounded-xl bg-gradient-to-br from-white to-green-50/50 hover:border-green-200 hover:from-green-50 hover:to-green-100/50 hover:-translate-y-0.5 hover:shadow-sm transition-all duration-150"
+              className="flex min-h-[48px] items-center gap-3 rounded-xl border border-neutral-200/60 bg-brand-bg p-3 transition-all duration-150 hover:-translate-y-0.5 hover:border-brand-gold/35 hover:bg-brand-gold/10 hover:shadow-sm sm:p-4"
             >
-              <div className="p-2.5 bg-green-100 rounded-lg">
-                <Calendar className="h-5 w-5 text-green-600" />
+              <div className="rounded-lg bg-brand-gold/15 p-2.5">
+                <CalendarDays className="h-5 w-5 text-brand-gold" />
               </div>
-              <span className="text-sm font-medium text-gray-800">Nova Reserva</span>
+              <span className="text-sm font-semibold text-brand-text-dark">Nova Reserva</span>
             </Link>
 
             <Link
               href={`/${locale}/calendar`}
-              className="flex items-center gap-3 p-3 sm:p-4 min-h-[48px] border border-gray-100 rounded-xl bg-gradient-to-br from-white to-purple-50/50 hover:border-purple-200 hover:from-purple-50 hover:to-purple-100/50 hover:-translate-y-0.5 hover:shadow-sm transition-all duration-150"
+              className="flex min-h-[48px] items-center gap-3 rounded-xl border border-neutral-200/60 bg-brand-bg p-3 transition-all duration-150 hover:-translate-y-0.5 hover:border-brand-blue/25 hover:bg-brand-blue/5 hover:shadow-sm sm:p-4"
             >
-              <div className="p-2.5 bg-purple-100 rounded-lg">
-                <Calendar className="h-5 w-5 text-purple-600" />
+              <div className="rounded-lg bg-brand-blue/10 p-2.5">
+                <CalendarDays className="h-5 w-5 text-brand-blue" />
               </div>
-              <span className="text-sm font-medium text-gray-800">Ver Calendário</span>
+              <span className="text-sm font-semibold text-brand-text-dark">Ver Calendário</span>
             </Link>
 
             <Link
               href={`/${locale}/reservations`}
-              className="flex items-center gap-3 p-3 sm:p-4 min-h-[48px] border border-gray-100 rounded-xl bg-gradient-to-br from-white to-orange-50/50 hover:border-orange-200 hover:from-orange-50 hover:to-orange-100/50 hover:-translate-y-0.5 hover:shadow-sm transition-all duration-150"
+              className="flex min-h-[48px] items-center gap-3 rounded-xl border border-neutral-200/60 bg-brand-bg p-3 transition-all duration-150 hover:-translate-y-0.5 hover:border-brand-gold/35 hover:bg-brand-gold/10 hover:shadow-sm sm:p-4"
             >
-              <div className="p-2.5 bg-orange-100 rounded-lg">
-                <Users className="h-5 w-5 text-orange-600" />
+              <div className="rounded-lg bg-brand-gold/15 p-2.5">
+                <FileSpreadsheet className="h-5 w-5 text-brand-gold" />
               </div>
-              <span className="text-sm font-medium text-gray-800">Ver Reservas</span>
+              <span className="text-sm font-semibold text-brand-text-dark">Ver Reservas</span>
             </Link>
           </div>
         </div>

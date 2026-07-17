@@ -146,12 +146,12 @@ export function Sidebar({ serverProfile }: SidebarProps) {
       {/* Mobile Hamburger Button */}
       <button
         onClick={() => setSidebarOpen(!sidebarOpen)}
-        className="md:hidden fixed top-4 left-4 z-50 p-2 hover:bg-gray-100 rounded-lg"
+        className="md:hidden fixed top-4 left-4 z-50 p-2 hover:bg-be-surface rounded-full"
       >
         {sidebarOpen ? (
-          <X className="h-6 w-6 text-lodgra-blue" />
+          <X className="h-6 w-6 text-be-text" />
         ) : (
-          <Menu className="h-6 w-6 text-lodgra-blue" />
+          <Menu className="h-6 w-6 text-be-text" />
         )}
       </button>
 
@@ -165,12 +165,12 @@ export function Sidebar({ serverProfile }: SidebarProps) {
 
       {/* Sidebar */}
       <aside
-        className={`flex flex-col fixed top-0 left-0 h-screen z-40 bg-white border-r border-be-blue/10 transition-transform duration-300 md:translate-x-0 ${
+        className={`flex flex-col fixed top-0 left-0 h-screen z-40 bg-be-surface border-r border-be-border transition-transform duration-300 md:translate-x-0 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         }`}
         style={{ width: '260px' }}
       >
-      <div className="px-6 py-10 bg-white border-b border-be-blue/10 flex items-center justify-center">
+      <div className="px-6 py-8 bg-be-surface border-b border-be-border flex items-center justify-center">
         <Link href={prefix || '/'} className="flex items-center">
           <Logo size="lg" />
         </Link>
@@ -185,10 +185,10 @@ export function Sidebar({ serverProfile }: SidebarProps) {
             <Link
               key={href}
               href={href}
-              className={`flex items-center gap-3 px-4 py-3 rounded-none text-[13px] font-black uppercase tracking-[1px] transition-all font-[family-name:var(--font-hanken-grotesk)] ${
+              className={`flex items-center gap-3 px-4 py-3 rounded-full text-[14px] font-medium tracking-normal transition-all ${
                 active
-                  ? 'bg-be-blue text-lodgra-blue'
-                  : 'text-lodgra-blue hover:text-lodgra-blue hover:bg-be-blue/10'
+                  ? 'bg-be-blue text-white'
+                  : 'text-be-text hover:text-be-text hover:bg-be-surface'
               }`}
             >
               <Icon className="h-4 w-4 shrink-0" />
@@ -201,10 +201,10 @@ export function Sidebar({ serverProfile }: SidebarProps) {
         <div>
           <button
             onClick={() => setCleaningExpanded(!cleaningExpanded)}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-none text-[13px] font-black uppercase tracking-[1px] transition-all font-[family-name:var(--font-hanken-grotesk)] ${
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-full text-[14px] font-medium tracking-normal transition-all ${
               cleaningExpanded || pathname.includes('/cleaning')
-                ? 'bg-be-blue text-lodgra-blue'
-                : 'text-lodgra-blue hover:text-lodgra-blue hover:bg-be-blue/10'
+                ? 'bg-be-blue text-white'
+                : 'text-be-text hover:text-be-text hover:bg-be-surface'
             }`}
           >
             <CheckSquare className="h-4 w-4 shrink-0" />
@@ -226,10 +226,10 @@ export function Sidebar({ serverProfile }: SidebarProps) {
                   <Link
                     key={path}
                     href={href}
-                    className={`flex items-center gap-3 px-4 py-2 rounded-none text-[12px] font-bold uppercase tracking-[0.5px] transition-all font-[family-name:var(--font-hanken-grotesk)] ${
+                    className={`flex items-center gap-3 px-4 py-2 rounded-full text-[13px] font-medium tracking-normal transition-all ${
                       active
-                        ? 'bg-be-blue/70 text-lodgra-blue'
-                        : 'text-lodgra-blue/70 hover:text-lodgra-blue hover:bg-be-blue/20'
+                        ? 'bg-be-blue text-white'
+                        : 'text-be-text-muted hover:text-be-text hover:bg-be-surface'
                     }`}
                   >
                     {submenuLabel}
@@ -244,10 +244,10 @@ export function Sidebar({ serverProfile }: SidebarProps) {
         <div>
           <button
             onClick={() => setReportsExpanded(!reportsExpanded)}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-none text-[13px] font-black uppercase tracking-[1px] transition-all font-[family-name:var(--font-hanken-grotesk)] ${
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-full text-[14px] font-medium tracking-normal transition-all ${
               reportsExpanded || pathname.includes('/reports')
-                ? 'bg-be-blue text-lodgra-blue'
-                : 'text-lodgra-blue hover:text-lodgra-blue hover:bg-be-blue/10'
+                ? 'bg-be-blue text-white'
+                : 'text-be-text hover:text-be-text hover:bg-be-surface'
             }`}
           >
             <BarChart3 className="h-4 w-4 shrink-0" />
@@ -269,10 +269,10 @@ export function Sidebar({ serverProfile }: SidebarProps) {
                   <Link
                     key={id}
                     href={href}
-                    className={`flex items-center gap-3 px-4 py-2 rounded-none text-[12px] font-bold uppercase tracking-[0.5px] transition-all font-[family-name:var(--font-hanken-grotesk)] ${
+                    className={`flex items-center gap-3 px-4 py-2 rounded-full text-[13px] font-medium tracking-normal transition-all ${
                       active
-                        ? 'bg-be-blue/70 text-lodgra-blue'
-                        : 'text-lodgra-blue/70 hover:text-lodgra-blue hover:bg-be-blue/20'
+                        ? 'bg-be-blue text-white'
+                        : 'text-be-text-muted hover:text-be-text hover:bg-be-surface'
                     }`}
                   >
                     {label}
@@ -285,7 +285,7 @@ export function Sidebar({ serverProfile }: SidebarProps) {
 
         {/* Config group */}
         <div className="pt-8">
-          <p className="px-4 mb-4 text-[10px] font-black uppercase tracking-[2px] text-lodgra-blue/40 font-[family-name:var(--font-hanken-grotesk)]">
+          <p className="px-4 mb-4 text-[12px] font-semibold tracking-normal text-be-text-muted">
             Configuração
           </p>
           {configLinks.map(({ href, label, icon: Icon }) => {
@@ -294,10 +294,10 @@ export function Sidebar({ serverProfile }: SidebarProps) {
               <Link
                 key={href}
                 href={href}
-                className={`flex items-center gap-3 px-4 py-3 rounded-none text-[13px] font-black uppercase tracking-[1px] transition-all font-[family-name:var(--font-hanken-grotesk)] ${
+                className={`flex items-center gap-3 px-4 py-3 rounded-full text-[14px] font-medium tracking-normal transition-all ${
                   active
-                    ? 'bg-be-blue text-lodgra-blue'
-                    : 'text-lodgra-blue hover:text-lodgra-blue hover:bg-be-blue/10'
+                    ? 'bg-be-blue text-white'
+                    : 'text-be-text hover:text-be-text hover:bg-be-surface'
                 }`}
               >
                 <Icon className="h-4 w-4 shrink-0" />
@@ -309,22 +309,22 @@ export function Sidebar({ serverProfile }: SidebarProps) {
       </nav>
 
       {/* Bottom: profile + signout */}
-      <div className="px-4 py-6 border-t border-be-blue/10 space-y-4 bg-white">
-        <div className="flex items-center gap-3 px-2 py-3 bg-white border border-be-blue/10 rounded-lg">
+      <div className="px-4 py-6 border-t border-be-border space-y-4 bg-be-surface">
+        <div className="flex items-center gap-3 px-2 py-3 bg-card border border-be-border rounded-md">
           <div
-            className="w-9 h-9 rounded-none flex items-center justify-center text-[14px] font-black text-lodgra-blue shrink-0 font-[family-name:var(--font-hanken-grotesk)] bg-be-blue"
+            className="w-9 h-9 rounded-full flex items-center justify-center text-[14px] font-semibold text-white shrink-0 bg-be-blue"
           >
             {initials}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-[12px] font-black text-lodgra-blue truncate uppercase tracking-[0.5px] font-[family-name:var(--font-hanken-grotesk)]">
+            <p className="text-[14px] font-semibold text-be-text truncate tracking-normal">
               {profile?.full_name || profile?.email || 'Usuário'}
             </p>
-            <p className="text-[10px] text-lodgra-blue/60 uppercase font-bold tracking-[1px] font-[family-name:var(--font-hanken-grotesk)]">{profile?.role || 'user'}</p>
+            <p className="text-[12px] text-be-text-muted font-normal tracking-normal">{profile?.role || 'user'}</p>
           </div>
           <button
             onClick={handleSignOut}
-            className="p-2 text-lodgra-blue/40 hover:text-be-blue hover:bg-be-blue/10 transition-all rounded"
+            className="p-2 text-be-text-muted hover:text-be-blue hover:bg-be-surface transition-all rounded-full"
             title="Sair"
           >
             <LogOut className="h-4 w-4" />

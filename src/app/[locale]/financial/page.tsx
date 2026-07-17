@@ -352,26 +352,26 @@ export default async function FinancialPage({
           <div className="be-card p-5 border border-be-blue/10 rounded-none shadow-none" style={{ backgroundColor: '#FFFFFF' }}>
             <div className="flex items-center justify-between mb-4">
               <div className="p-2.5 rounded-none">
-                <BarChart3 className="h-4 w-4" style={{ color: '#1E3A8A' }} />
+                <BarChart3 className="h-4 w-4" style={{ color: '#10203E' }} />
               </div>
-              <span className="text-[10px] font-black uppercase tracking-widest font-display" style={{ color: '#1E3A8A' }}>Lucro</span>
+              <span className="text-[10px] font-black uppercase tracking-widest font-display" style={{ color: '#10203E' }}>Lucro</span>
             </div>
             <div className="space-y-1.5">
               {Object.entries(profitByCurrency).map(([currency, data]) => (
                 <div key={currency} className="flex items-center gap-2">
                   <span className={`inline-flex items-center justify-center min-w-[2.5rem] h-5 px-1.5 text-[10px] font-black uppercase tracking-widest rounded-none ring-1 shrink-0 ${
-                    currency === 'EUR' ? 'bg-white text-[#1E3A8A] ring-[#1E3A8A]/20' :
-                    currency === 'BRL' ? 'bg-white text-[#1E3A8A] ring-[#1E3A8A]/20' :
-                    currency === 'USD' ? 'bg-white text-[#1E3A8A] ring-[#1E3A8A]/20' :
-                    'bg-white text-[#1E3A8A] ring-[#1E3A8A]/20'
+                    currency === 'EUR' ? 'bg-white text-[#10203E] ring-[#10203E]/20' :
+                    currency === 'BRL' ? 'bg-white text-[#10203E] ring-[#10203E]/20' :
+                    currency === 'USD' ? 'bg-white text-[#10203E] ring-[#10203E]/20' :
+                    'bg-white text-[#10203E] ring-[#10203E]/20'
                   }`}>{currency}</span>
-                  <span className={`text-2xl font-black tabular-nums font-display ${data.profit >= 0 ? '' : 'text-red-600'}`} style={{ color: data.profit >= 0 ? '#1E3A8A' : undefined }}>
+                  <span className={`text-2xl font-black tabular-nums font-display ${data.profit >= 0 ? '' : 'text-red-600'}`} style={{ color: data.profit >= 0 ? '#10203E' : undefined }}>
                     {formatCurrency(data.profit, currency as CurrencyCode)}
                   </span>
                 </div>
               ))}
             </div>
-            <p className="text-[10px] font-black uppercase tracking-wider mt-2" style={{ color: '#1E3A8A' }}>Receita menos despesas</p>
+            <p className="text-[10px] font-black uppercase tracking-wider mt-2" style={{ color: '#10203E' }}>Receita menos despesas</p>
           </div>
         </div>
       </main>

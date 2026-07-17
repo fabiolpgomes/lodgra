@@ -22,6 +22,12 @@ const sizeMap: Record<DSSize, VariantProps<typeof buttonVariants>['size']> = {
   lg: 'lg',
 }
 
+const legacySizeClass: Record<DSSize, string> = {
+  sm: 'px-3 h-8',
+  md: 'px-4 py-2',
+  lg: 'px-6 h-10',
+}
+
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: DSVariant
   size?: DSSize
@@ -36,7 +42,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       variant={variantMap[variant]}
       size={sizeMap[size]}
       disabled={disabled || isLoading}
-      className={cn(className)}
+      className={cn('focus-visible:ring-[3px]', legacySizeClass[size], className)}
       {...props}
     >
       {isLoading ? (

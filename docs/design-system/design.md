@@ -1,784 +1,561 @@
 ---
-name: Behance
+version: alpha
+name: Lodgra Premium
+description: A warm, premium corporate dashboard identity anchored on deep institutional blue (#10203E), luxurious gold accent (#C9A227), warm white cards (#FBFAF6), and a sand-toned page floor (#F7F5EF). The system keeps the generous marketplace spacing and rounded Airbnb-inspired ergonomics, but replaces the consumer marketplace color treatment with a professional hospitality palette: navy carries navigation, titles, primary CTAs, links, selected sidebar tabs, and chart gradients; gold marks metric badges, warnings, rating indicators, toggles, and active notifications. Typography uses high-contrast slate tones (#1B2430 / #4D5566) for a polished corporate editorial feel.
 colors:
-  primary: "#0057ff"
-  secondary: "#191919"
-  tertiary: "#003ecb"
-  neutral: "#909090"
-  surface: "#ffffff"
-  text: "#191919"
-  text-muted: "#707070"
-  border: "#e8e8e8"
-  error: "#d00d00"
-  success: "#028901"
-  blue-100: "#f5f8ff"
-  blue-200: "#e0eaff"
-  blue-300: "#bfd2ff"
-  blue-450: "#146aff"
-  blue-700: "#003ecb"
-  blue-800: "#002f9a"
-  blue-900: "#0f214d"
-  grey-50: "#f9f9f9"
-  grey-100: "#f0f0f0"
-  grey-200: "#ececec"
-  grey-300: "#e8e8e8"
-  grey-400: "#cdcdcd"
-  grey-600: "#707070"
-  grey-700: "#474747"
-  grey-800: "#303030"
-  green-300: "#02cb00"
-  green-700: "#046700"
-  red-700: "#aa0000"
-  orange-500: "#f97c00"
-  purple-500: "#b125c0"
-  slate-500: "#0a7494"
+  primary: '#10203E'
+  primary-active: '#0c1830'
+  primary-disabled: 'rgba(16,32,62,0.28)'
+  primary-error-text: '#9f2f1f'
+  primary-error-text-hover: '#7f2115'
+  luxe: '#C9A227'
+  plus: '#B08B1F'
+  ink: '#1B2430'
+  body: '#4D5566'
+  muted: 'rgba(16,32,62,0.62)'
+  muted-soft: '#7C8492'
+  hairline: '#E5DFD2'
+  hairline-soft: '#EFEADF'
+  border-strong: '#CFC4AA'
+  canvas: '#FBFAF6'
+  surface-soft: '#F7F5EF'
+  surface-card: '#FBFAF6'
+  surface-strong: '#EEE7D8'
+  on-primary: '#ffffff'
+  on-dark: '#ffffff'
+  legal-link: '#10203E'
+  star-rating: '#C9A227'
+  scrim: 'rgba(12,24,48,0.9)'
 typography:
-  display-hero:
-    fontFamily: "acumin-pro-wide, acumin-pro, adobe-clean, sans-serif"
-    fontSize: 4rem
+  display-xl:
+    fontFamily: '''Airbnb Cereal VF'', Circular, -apple-system, system-ui, Roboto, ''Helvetica Neue'', sans-serif'
+    fontSize: 28px
+    fontWeight: 700
+    lineHeight: 1.43
+    letterSpacing: 0
+  display-lg:
+    fontFamily: '''Airbnb Cereal VF'', Circular, sans-serif'
+    fontSize: 22px
+    fontWeight: 500
+    lineHeight: 1.18
+    letterSpacing: '-0.44px'
+  display-md:
+    fontFamily: '''Airbnb Cereal VF'', Circular, sans-serif'
+    fontSize: 21px
+    fontWeight: 700
+    lineHeight: 1.43
+    letterSpacing: 0
+  display-sm:
+    fontFamily: '''Airbnb Cereal VF'', Circular, sans-serif'
+    fontSize: 20px
+    fontWeight: 600
+    lineHeight: 1.2
+    letterSpacing: '-0.18px'
+  title-md:
+    fontFamily: '''Airbnb Cereal VF'', Circular, sans-serif'
+    fontSize: 16px
+    fontWeight: 600
+    lineHeight: 1.25
+    letterSpacing: 0
+  title-sm:
+    fontFamily: '''Airbnb Cereal VF'', Circular, sans-serif'
+    fontSize: 16px
+    fontWeight: 500
+    lineHeight: 1.25
+    letterSpacing: 0
+  rating-display:
+    fontFamily: '''Airbnb Cereal VF'', Circular, sans-serif'
+    fontSize: 64px
     fontWeight: 700
     lineHeight: 1.1
-    letterSpacing: -0.02em
-  display-large:
-    fontFamily: "acumin-pro, adobe-clean, sans-serif"
-    fontSize: 2.75rem
-    fontWeight: 700
-    lineHeight: 1.15
-    letterSpacing: -0.01em
-  section-heading:
-    fontFamily: "adobe-clean, helvetica, arial, sans-serif"
-    fontSize: 1.25rem
-    fontWeight: 700
-    lineHeight: 1.3
-    letterSpacing: 0em
-  subheading-large:
-    fontFamily: "adobe-clean, helvetica, arial, sans-serif"
-    fontSize: 1.125rem
-    fontWeight: 600
-    lineHeight: 1.35
-    letterSpacing: 0em
-  subheading:
-    fontFamily: "adobe-clean, helvetica, arial, sans-serif"
-    fontSize: 1rem
-    fontWeight: 700
-    lineHeight: 1.35
-    letterSpacing: 0em
-  body-large:
-    fontFamily: "adobe-clean, helvetica, arial, sans-serif"
-    fontSize: 0.9375rem
-    fontWeight: 400
-    lineHeight: 1.5
-    letterSpacing: 0em
-  body:
-    fontFamily: "adobe-clean, helvetica, arial, sans-serif"
-    fontSize: 0.875rem
-    fontWeight: 400
-    lineHeight: 1.43
-    letterSpacing: 0em
-  body-small:
-    fontFamily: "adobe-clean, helvetica, arial, sans-serif"
-    fontSize: 0.8125rem
-    fontWeight: 400
-    lineHeight: 1.3
-    letterSpacing: 0em
-  button:
-    fontFamily: "adobe-clean, helvetica, arial, sans-serif"
-    fontSize: 0.875rem
-    fontWeight: 600
-    lineHeight: 1
-    letterSpacing: 0em
-  button-small:
-    fontFamily: "adobe-clean, helvetica, arial, sans-serif"
-    fontSize: 0.75rem
-    fontWeight: 600
-    lineHeight: 1
-    letterSpacing: 0em
-  link:
-    fontFamily: "adobe-clean, helvetica, arial, sans-serif"
-    fontSize: 0.8125rem
-    fontWeight: 700
-    lineHeight: 1.3
-    letterSpacing: 0em
-  caption:
-    fontFamily: "adobe-clean, helvetica, arial, sans-serif"
-    fontSize: 0.75rem
-    fontWeight: 400
-    lineHeight: 1.4
-    letterSpacing: 0em
-  caption-small:
-    fontFamily: "adobe-clean, helvetica, arial, sans-serif"
-    fontSize: 0.6875rem
-    fontWeight: 700
-    lineHeight: 1.4
-    letterSpacing: 0em
-  micro:
-    fontFamily: "acumin-pro, adobe-clean, helvetica, arial, sans-serif"
-    fontSize: 0.625rem
-    fontWeight: 700
-    lineHeight: 1.4
-    letterSpacing: 0.08em
-  badge:
-    fontFamily: "adobe-clean, helvetica, arial, sans-serif"
-    fontSize: 0.5625rem
-    fontWeight: 700
-    lineHeight: 1.4
-    letterSpacing: 0.04em
-  h1:
-    fontFamily: "acumin-pro, adobe-clean, sans-serif"
-    fontSize: 2.75rem
-    fontWeight: 700
-    lineHeight: 1.15
-    letterSpacing: -0.01em
-  h2:
-    fontFamily: "adobe-clean, helvetica, arial, sans-serif"
-    fontSize: 1.25rem
-    fontWeight: 700
-    lineHeight: 1.3
-    letterSpacing: 0em
-  h3:
-    fontFamily: "adobe-clean, helvetica, arial, sans-serif"
-    fontSize: 1.125rem
-    fontWeight: 700
-    lineHeight: 1.35
-    letterSpacing: 0em
-  h4:
-    fontFamily: "adobe-clean, helvetica, arial, sans-serif"
-    fontSize: 1rem
-    fontWeight: 700
-    lineHeight: 1.35
-    letterSpacing: 0em
-  body-lg:
-    fontFamily: "adobe-clean, helvetica, arial, sans-serif"
-    fontSize: 0.9375rem
-    fontWeight: 400
-    lineHeight: 1.5
-    letterSpacing: 0em
+    letterSpacing: '-1px'
   body-md:
-    fontFamily: "adobe-clean, helvetica, arial, sans-serif"
-    fontSize: 0.875rem
-    fontWeight: 400
-    lineHeight: 1.43
-    letterSpacing: 0em
-  body-sm:
-    fontFamily: "adobe-clean, helvetica, arial, sans-serif"
-    fontSize: 0.8125rem
-    fontWeight: 400
-    lineHeight: 1.3
-    letterSpacing: 0em
-  label:
-    fontFamily: "adobe-clean, helvetica, arial, sans-serif"
-    fontSize: 0.875rem
-    fontWeight: 600
-    lineHeight: 1.3
-    letterSpacing: 0em
-  mono:
-    fontFamily: "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
-    fontSize: 0.8125rem
+    fontFamily: '''Airbnb Cereal VF'', Circular, sans-serif'
+    fontSize: 16px
     fontWeight: 400
     lineHeight: 1.5
-    letterSpacing: 0em
+    letterSpacing: 0
+  body-sm:
+    fontFamily: '''Airbnb Cereal VF'', Circular, sans-serif'
+    fontSize: 14px
+    fontWeight: 400
+    lineHeight: 1.43
+    letterSpacing: 0
+  caption:
+    fontFamily: '''Airbnb Cereal VF'', Circular, sans-serif'
+    fontSize: 14px
+    fontWeight: 500
+    lineHeight: 1.29
+    letterSpacing: 0
+  caption-sm:
+    fontFamily: '''Airbnb Cereal VF'', Circular, sans-serif'
+    fontSize: 13px
+    fontWeight: 400
+    lineHeight: 1.23
+    letterSpacing: 0
+  badge:
+    fontFamily: '''Airbnb Cereal VF'', Circular, sans-serif'
+    fontSize: 11px
+    fontWeight: 600
+    lineHeight: 1.18
+    letterSpacing: 0
+  micro-label:
+    fontFamily: '''Airbnb Cereal VF'', Circular, sans-serif'
+    fontSize: 12px
+    fontWeight: 700
+    lineHeight: 1.33
+    letterSpacing: 0
+  uppercase-tag:
+    fontFamily: '''Airbnb Cereal VF'', Circular, sans-serif'
+    fontSize: 8px
+    fontWeight: 700
+    lineHeight: 1.25
+    letterSpacing: 0.32px
+    textTransform: uppercase
+  button-md:
+    fontFamily: '''Airbnb Cereal VF'', Circular, sans-serif'
+    fontSize: 16px
+    fontWeight: 500
+    lineHeight: 1.25
+    letterSpacing: 0
+  button-sm:
+    fontFamily: '''Airbnb Cereal VF'', Circular, sans-serif'
+    fontSize: 14px
+    fontWeight: 500
+    lineHeight: 1.29
+    letterSpacing: 0
+  link:
+    fontFamily: '''Airbnb Cereal VF'', Circular, sans-serif'
+    fontSize: 14px
+    fontWeight: 400
+    lineHeight: 1.43
+    letterSpacing: 0
+  nav-link:
+    fontFamily: '''Airbnb Cereal VF'', Circular, sans-serif'
+    fontSize: 16px
+    fontWeight: 600
+    lineHeight: 1.25
+    letterSpacing: 0
 rounded:
   none: 0px
-  xs: 3px
-  sm: 4px
-  md: 6px
-  lg: 12px
-  xl: 30px
-  full: 9999px
-spacing:
-  2xs: 2px
   xs: 4px
   sm: 8px
-  md: 16px
+  md: 14px
+  lg: 20px
+  xl: 32px
+  full: 9999px
+spacing:
+  xxs: 2px
+  xs: 4px
+  sm: 8px
+  md: 12px
+  base: 16px
   lg: 24px
   xl: 32px
   xxl: 48px
-preview_tokens:
-  button_primary_bg: "#0057ff"
-  button_primary_text: "#ffffff"
-  button_primary_border: "#0057ff"
-  button_secondary_bg: "#ffffff"
-  button_secondary_text: "#191919"
-  button_secondary_border: "#e8e8e8"
-  button_tertiary_text: "#0057ff"
-  surface_bg: "#ffffff"
-  card_bg: "#f9f9f9"
-  text: "#191919"
-  text_muted: "#707070"
-  border: "#e8e8e8"
-  accent: "#0057ff"
-  button_radius: "9999px"
-  card_radius: "4px"
-  input_radius: "4px"
+  section: 64px
 components:
   button-primary:
-    bg: "#0057ff"
-    text: "#ffffff"
-    border: "transparent"
-    radius: "9999px"
-    padding: "12px 20px"
-    font: "14px adobe-clean weight 600"
-    hover_bg: "#003ecb"
-  button-primary-hover:
-    bg: "#003ecb"
-    text: "#ffffff"
-    border: "transparent"
-    radius: "9999px"
-    padding: "12px 20px"
-    font: "14px adobe-clean weight 600"
+    backgroundColor: '{colors.primary}'
+    textColor: '{colors.on-primary}'
+    typography: '{typography.button-md}'
+    rounded: '{rounded.sm}'
+    padding: 14px 24px
+    height: 48px
+  button-primary-active:
+    backgroundColor: '{colors.primary-active}'
+    textColor: '{colors.on-primary}'
+    rounded: '{rounded.sm}'
+  button-primary-disabled:
+    backgroundColor: '{colors.primary-disabled}'
+    textColor: '{colors.on-primary}'
+    rounded: '{rounded.sm}'
   button-secondary:
-    bg: "#ffffff"
-    text: "#191919"
-    border: "#e8e8e8"
-    radius: "9999px"
-    padding: "12px 20px"
-    font: "14px adobe-clean weight 600"
-    hover_bg: "#f0f0f0"
-  button-tertiary:
-    bg: "#f5f8ff"
-    text: "#0057ff"
-    border: "#e0eaff"
-    radius: "9999px"
-    padding: "12px 20px"
-    font: "14px adobe-clean weight 600"
-    hover_bg: "#e0eaff"
-  button-ghost:
-    bg: "transparent"
-    text: "#ffffff"
-    border: "transparent"
-    radius: "9999px"
-    padding: "12px 20px"
-    font: "14px adobe-clean weight 600"
-    hover_bg: "#191919"
-  button-contrast:
-    bg: "#191919"
-    text: "#ffffff"
-    border: "transparent"
-    radius: "9999px"
-    padding: "12px 20px"
-    font: "14px adobe-clean weight 600"
-    hover_bg: "#474747"
-  card:
-    bg: "#ffffff"
-    border: "#e8e8e8"
-    radius: "4px"
-    shadow: "0 0 4px rgba(25,25,25,0.1)"
-    padding: "16px"
-  card-project-cover:
-    bg: "#f0f0f0"
-    border: "transparent"
-    radius: "4px"
-    shadow: "0 1px 2px rgba(25,25,25,0.2)"
-    padding: "0px"
-  input-text:
-    bg: "#ffffff"
-    text: "#191919"
-    border: "#e8e8e8"
-    radius: "4px"
-    padding: "8px 12px"
-    focus_border: "#0057ff"
-  input-text-disabled:
-    bg: "#ececec"
-    text: "#909090"
-    border: "#909090"
-    radius: "4px"
-    padding: "8px 12px"
-  badge-default:
-    bg: "#f7f7f7"
-    text: "#191919"
-    border: "transparent"
-    radius: "3px"
-    padding: "2px 5px"
-    font: "9px adobe-clean weight 700"
-  badge-notification:
-    bg: "#0057ff"
-    text: "#ffffff"
-    border: "#ffffff"
-    radius: "3px"
-    padding: "2px 5px"
-    font: "10px adobe-clean weight 600"
-  badge-new:
-    bg: "#959595"
-    text: "#ffffff"
-    border: "transparent"
-    radius: "3px"
-    padding: "2px 5px"
-    font: "9px adobe-clean weight 700"
-  pill:
-    bg: "#ffffff"
-    text: "#191919"
-    border: "#e8e8e8"
-    radius: "9999px"
-    padding: "6px 12px"
-    font: "13px adobe-clean weight 400"
-  nav-header:
-    bg: "#ffffff"
-    text: "#191919"
-    border_bottom: "#e8e8e8"
-    height: "60px"
-    padding: "0 24px"
-  nav-link:
-    bg: "transparent"
-    text: "#191919"
-    border: "transparent"
-    radius: "9999px"
-    padding: "8px 16px"
-    font: "13px adobe-clean weight 700"
-    hover_bg: "#f0f0f0"
+    backgroundColor: '{colors.canvas}'
+    textColor: '{colors.ink}'
+    typography: '{typography.button-md}'
+    rounded: '{rounded.sm}'
+    padding: 13px 23px
+    height: 48px
+  button-tertiary-text:
+    backgroundColor: transparent
+    textColor: '{colors.ink}'
+    typography: '{typography.button-md}'
+  button-pill-rausch:
+    backgroundColor: '{colors.primary}'
+    textColor: '{colors.on-primary}'
+    typography: '{typography.button-sm}'
+    rounded: '{rounded.full}'
+    padding: 10px 20px
+  search-orb:
+    backgroundColor: '{colors.primary}'
+    textColor: '{colors.on-primary}'
+    rounded: '{rounded.full}'
+    height: 48px
+  icon-button-circle:
+    backgroundColor: '{colors.surface-strong}'
+    textColor: '{colors.ink}'
+    rounded: '{rounded.full}'
+    height: 32px
+  icon-button-outline:
+    backgroundColor: '{colors.canvas}'
+    textColor: '{colors.ink}'
+    rounded: '{rounded.full}'
+    height: 40px
+  top-nav:
+    backgroundColor: '{colors.canvas}'
+    textColor: '{colors.ink}'
+    typography: '{typography.nav-link}'
+    height: 80px
+  product-tab-active:
+    backgroundColor: transparent
+    textColor: '{colors.ink}'
+    typography: '{typography.nav-link}'
+    rounded: '{rounded.none}'
+  product-tab-inactive:
+    backgroundColor: transparent
+    textColor: '{colors.muted}'
+    typography: '{typography.nav-link}'
+  search-bar-pill:
+    backgroundColor: '{colors.canvas}'
+    textColor: '{colors.ink}'
+    typography: '{typography.body-sm}'
+    rounded: '{rounded.full}'
+    padding: 14px 24px
+    height: 64px
+  search-field-segment:
+    backgroundColor: transparent
+    textColor: '{colors.ink}'
+    typography: '{typography.caption}'
+    padding: 8px 24px
+  category-strip:
+    backgroundColor: '{colors.canvas}'
+    textColor: '{colors.muted}'
+    typography: '{typography.button-sm}'
+  category-tab-active:
+    backgroundColor: transparent
+    textColor: '{colors.ink}'
+    typography: '{typography.button-sm}'
+    rounded: '{rounded.none}'
+  property-card:
+    backgroundColor: '{colors.canvas}'
+    textColor: '{colors.ink}'
+    typography: '{typography.body-sm}'
+    rounded: '{rounded.md}'
+  property-card-photo:
+    rounded: '{rounded.md}'
+  experience-card:
+    backgroundColor: '{colors.canvas}'
+    textColor: '{colors.ink}'
+    typography: '{typography.title-md}'
+    rounded: '{rounded.md}'
+  city-link-block:
+    backgroundColor: transparent
+    textColor: '{colors.ink}'
+    typography: '{typography.title-sm}'
+  rating-display-card:
+    backgroundColor: transparent
+    textColor: '{colors.ink}'
+    typography: '{typography.rating-display}'
+  guest-favorite-badge:
+    backgroundColor: '{colors.canvas}'
+    textColor: '{colors.ink}'
+    typography: '{typography.badge}'
+    rounded: '{rounded.full}'
+    padding: 4px 10px
+  new-tag:
+    backgroundColor: '{colors.canvas}'
+    textColor: '{colors.ink}'
+    typography: '{typography.uppercase-tag}'
+    rounded: '{rounded.full}'
+    padding: 2px 6px
+  amenity-row:
+    backgroundColor: transparent
+    textColor: '{colors.ink}'
+    typography: '{typography.body-md}'
+    padding: 12px 0
+  reviews-card:
+    backgroundColor: transparent
+    textColor: '{colors.ink}'
+    typography: '{typography.body-sm}'
+  host-card:
+    backgroundColor: '{colors.canvas}'
+    textColor: '{colors.ink}'
+    typography: '{typography.body-sm}'
+    rounded: '{rounded.md}'
+    padding: 24px
+  reservation-card:
+    backgroundColor: '{colors.canvas}'
+    textColor: '{colors.ink}'
+    typography: '{typography.body-md}'
+    rounded: '{rounded.md}'
+    padding: 24px
+  date-picker-day:
+    backgroundColor: transparent
+    textColor: '{colors.ink}'
+    typography: '{typography.body-sm}'
+    rounded: '{rounded.full}'
+  date-picker-day-selected:
+    backgroundColor: '{colors.primary}'
+    textColor: '{colors.on-dark}'
+    rounded: '{rounded.full}'
+  text-input:
+    backgroundColor: '{colors.canvas}'
+    textColor: '{colors.ink}'
+    typography: '{typography.body-md}'
+    rounded: '{rounded.sm}'
+    padding: 14px 12px
+    height: 56px
+  footer-light:
+    backgroundColor: '{colors.canvas}'
+    textColor: '{colors.ink}'
+    typography: '{typography.body-sm}'
+    padding: 48px 80px
+  footer-link:
+    backgroundColor: transparent
+    textColor: '{colors.ink}'
+    typography: '{typography.body-sm}'
+  legal-band:
+    backgroundColor: '{colors.canvas}'
+    textColor: '{colors.muted}'
+    typography: '{typography.caption-sm}'
+source:
+  type: awesome-design-md
+  slug: airbnb
+  url: https://getdesign.md/airbnb/design-md
+preview_tokens:
+  button_primary_bg: '#10203E'
+  button_primary_text: '#ffffff'
+  button_primary_border: '#10203E'
+  button_secondary_bg: transparent
+  button_secondary_text: '#10203E'
+  button_secondary_border: '#E5DFD2'
+  button_tertiary_text: '#10203E'
+  surface_bg: '#F7F5EF'
+  card_bg: '#FBFAF6'
+  text: '#1B2430'
+  text_muted: '#4D5566'
+  border: '#E5DFD2'
+  accent: '#C9A227'
+  button_radius: 8px
+  card_radius: 12px
+  input_radius: 8px
 ---
 
-# Behance — Design System
+## Overview
 
-> **Source:** https://www.behance.net/ · Captured 2026-04-30
-> **Stack:** Adobe-owned platform · Self-hosted CSS (`networki-main.css`, `networki-modules.css`) · Typekit web fonts (Adobe Clean, Acumin Pro)
-> **Token namespace:** `--be-*` (Behance) layered on Adobe Spectrum primitives
+Lodgra Premium is a generous, hospitality-led corporate dashboard identity. The base page floor is **warm light sand** (`{colors.surface-soft}` — #F7F5EF), with interactive surfaces on **warm white canvas** (`{colors.canvas}` — #FBFAF6). Deep institutional blue (`{colors.primary}` — #10203E) carries primary CTAs, selected sidebar tabs, important links, titles, and chart emphasis. Luxurious gold (`{colors.luxe}` — #C9A227) is the accent layer for metric badges, warnings, rating indicators, secondary toggles, and active notification states.
 
----
+Type runs **Airbnb Cereal VF** (a custom variable font Airbnb licenses), with **Circular** as the historic in-house fallback and a system stack underneath. Cereal sits at modest weights — display headlines render at 22–28px in weight 500–600, not the heavy 700+ weights that financial or enterprise systems lean on. The hero h1 ("Inspiration for future getaways") on the homepage is just 28px / 700, which would feel small on a typical SaaS page; here it works because the layout leans on photography (city collage, property cards) for visual weight rather than typographic muscle.
 
-## 1. Visual Theme & Atmosphere
-
-Behance is the polished public face of Adobe's creative community. The visual language is **white-canvas-first**, deferring to user-uploaded creative work as the primary content. Tokens are consumer-grade — generous, optimistic, and disciplined — but carry the engineering rigor of an Adobe-internal system: every color is alias-tracked through a numeric scale (`grey-50` → `grey-900`, `blue-100` → `blue-900`), every spacing value lives on a 4px-based ladder, and semantic tokens (`--be-action-color`, `--be-text-primary`) sit one indirection above raw scales.
-
-The signature gesture is the **fully-rounded pill button** in Behance Blue (`#0057ff`). It appears on the homepage CTA, on follow buttons, on project moodboards. Buttons run `border-radius: 100px` — there are no square buttons in this system. Pair this with a near-black text color (`#191919`, four steps darker than `#000` would be perceptually warmer on white), Adobe Clean as the workhorse UI face, and Acumin Pro Wide for the "Be" wordmark and hero callouts. The result is a community surface that feels generous without being soft, technical without being cold.
-
-Surfaces are flat — Behance does not lean on layered shadows. Where elevation appears, it's a single `0 0 4px rgba(25,25,25,0.1)` whisper, used on overlays and hover-revealed tooltips. The visual hierarchy is communicated through **type weight** (700 for owned content, 600 for actions, 400 for body) and **whitespace contrast** between dense project grids and roomy hero zones.
-
-The most distinctive visual choice: **pill buttons + flat surfaces + Acumin Wide hero**. This combination is the "Behance signal" that distinguishes the platform from Adobe's other consumer surfaces (Express, Stock) and from creative competitors (Dribbble, ArtStation).
+The shape language is **soft**. Buttons are 8px radius (`{rounded.sm}`), property cards are ~14px (`{rounded.md}`), the search bar is fully pill-shaped (`{rounded.full}`), wishlist hearts and search orbs are circles (`{rounded.full}`), and category strip rounded corners run at 32px (`{rounded.xl}`). There is essentially no hard corner anywhere except the body grid itself — every interactive element is rounded.
 
 **Key Characteristics:**
-- Pill-shaped buttons (`border-radius: 100px` / 9999px) — no square CTAs
-- Behance Blue `#0057ff` carries every primary action; never substituted for hover/decorative blue
-- Adobe Clean (UI) + Acumin Pro Wide (hero) — Typekit-loaded, Adobe-canonical
-- Numeric color scales (50 → 900) — every grey, blue, red, green is a 9-step ladder
-- 4px-base spacing system (`--be-sp-1` = 4px, `--be-sp-2` = 8px, `--be-sp-4` = 16px)
-- Near-black `#191919` instead of pure `#000` for body text — warmer on white
-- Flat surfaces — shadows are a 1px hairline whisper, never layered
-- White (`#ffffff`) is the default surface; off-white `#f9f9f9` is for project tiles
-- Weight 600 for actions, weight 700 for owned-content titles, weight 400 for body
-- Adobe Spectrum heritage visible in token naming (`--be-action-color`, `--be-bg-inverted`)
+- Premium institutional palette: `{colors.primary}` (#10203E) provides authority and contrast, while `{colors.luxe}` (#C9A227) adds selective warmth for highlights and status emphasis.
+- Custom variable type: `Airbnb Cereal VF`. Display weights sit at 500–700, body at 400. Modest weight is intentional — the system trusts photography for visual heft.
+- Three-product top nav: Homes, Experiences, Services — each with a hand-illustrated 32px icon and "NEW" badges (`{component.new-tag}`) on the two newer products. Active tab uses an underline rule (`{component.product-tab-active}`).
+- Pill-shaped global search bar: warm white surface, fully rounded (`{rounded.full}`), divided by 1px warm hairlines into Where / When / Who segments, terminated by a circular institutional-blue search orb (`{component.search-orb}`).
+- Property cards are photo-first: aspect-ratio rectangles with `{rounded.md}` corner clipping, swipeable image carousel, "Guest favorite" floating badge top-left, heart icon top-right, then 4–5 lines of meta beneath.
+- Editorial dropdowns (footer, language picker) are clean text columns over the white canvas — no card surface, no shadow.
+- The design system caps elevation at one shadow tier (`box-shadow: rgba(0,0,0,0.02) 0 0 0 1px, rgba(0,0,0,0.04) 0 2px 6px, rgba(0,0,0,0.1) 0 4px 8px`) — used on hover-floated cards and search/account dropdowns.
+- 8px base spacing system, with major sections at `{spacing.section}` (64px) — generous but not airy enough to feel editorial-magazine; the marketplace density wants more cards per scroll.
 
----
+## Colors
 
-## 2. Color Palette & Roles
+### Brand & Accent
+- **Institutional Blue** (`{colors.primary}` — #10203E): The main Lodgra brand color. Used for primary CTA backgrounds, selected sidebar states, main links, chart gradients, important headings, and high-contrast navigation.
+- **Institutional Blue Active** (`{colors.primary-active}` — #0c1830): A deeper navy used for pressed states, overlays, and elevated contrast areas.
+- **Institutional Blue Disabled** (`{colors.primary-disabled}` — rgba(16,32,62,0.28)): A translucent navy tint for disabled CTAs and subdued brand fills.
+- **Luxurious Gold Accent** (`{colors.luxe}` — #C9A227): Used for key metric badges, warning highlights, secondary toggles, star rating indicators, active notifications, and refined premium details.
+- **Gold Active** (`{colors.plus}` — #B08B1F): A deeper gold for pressed accent states and small high-emphasis details.
 
-### Primary
-- **Behance Blue** (`#0057ff`): `--be-color-blue-500` / `--be-action-color` / `--be-brand-color` / `--be-accent-color`. The CTA fill, the focus ring, the Be wordmark. RGB 0,87,255.
-- **Behance Blue Hover** (`#003ecb`): `--be-color-blue-700` / `--be-action-color-hover`. Hover state for primary buttons and links.
-- **Behance Blue Active** (`#002f9a`): `--be-color-blue-800` / `--be-action-color-active`. Pressed-state action.
+### Surface
+- **Canvas** (`{colors.canvas}` — #FBFAF6): Warm white used for cards, sidebars, dropdowns, modal containers, form fields, and other interactive panels.
+- **Surface Soft** (`{colors.surface-soft}` — #F7F5EF): Warm light sand used as the global page background behind panels and dashboard sections.
+- **Surface Strong** (`{colors.surface-strong}` — #EEE7D8): Slightly stronger sand fill for icon-button surfaces, subtle hover fills, and grouped filter bands.
 
-### Brand & Dark
-- **Near-Black** (`#191919`): `--be-color-grey-900` / `--be-text-primary`. Body copy, owned titles, inverted button fill.
-- **Pure Black** (`#000000`): `--be-color-black` / `--be-bg-true-black`. Reserved for project lightboxes and image previews.
-- **Charcoal** (`#303030`): `--be-color-grey-800` / `--be-bg-inverted` / `--be-border-inverted`. Inverted nav and bottom-sheet surfaces.
-- **Slate** (`#474747`): `--be-color-grey-700` / `--be-text-secondary-contrast` / `--be-border-tertiary`.
+### Hairlines & Borders
+- **Hairline** (`{colors.hairline}` — #E5DFD2): The default 1px warm border tone — search dividers, table separators, card borders, and footer splitters.
+- **Hairline Soft** (`{colors.hairline-soft}` — #EFEADF): A lighter warm divider used on long-scrolling editorial body separators.
+- **Border Strong** (`{colors.border-strong}` — #CFC4AA): A heavier warm stroke used on focused inputs, disabled outline buttons, and selected filters.
 
-### Accent Colors
-- **Sky Blue** (`#bfd2ff`): `--be-color-blue-300`. Hover surface for tertiary buttons.
-- **Pale Blue** (`#e0eaff`): `--be-color-blue-200` / `--be-button-tertiary-border-color` / `--be-border-secondary`.
-- **Ice Blue** (`#f5f8ff`): `--be-color-blue-100` / `--be-button-tertiary-background-color` / `--be-bg-accent-secondary`.
-- **Aqua-Slate** (`#0a7494`): `--be-color-slate-500`. Secondary informational accent.
-- **Purple** (`#b125c0`): `--be-color-purple-500`. Pro-creator badge surfaces.
-- **Orange** (`#f97c00`): `--be-color-orange-500` / `--be-icon-warning`. Warning iconography.
+### Text
+- **Ink** (`{colors.ink}` — #1B2430): Dominant high-contrast slate text for display headings, primary nav labels, and key dashboard numbers.
+- **Body** (`{colors.body}` — #4D5566): Secondary slate for running copy, descriptions, table metadata, and card supporting text.
+- **Muted** (`{colors.muted}` — rgba(16,32,62,0.62)): Translucent navy for inactive labels, placeholders, helper copy, and secondary links.
+- **Muted Soft** (`{colors.muted-soft}` — #7C8492): Disabled link text and low-emphasis metadata.
+- **Star Rating** (`{colors.star-rating}` — #C9A227): Gold star and rating accent for premium hospitality cues.
+- **On Primary** (`{colors.on-primary}` — #ffffff): White text on institutional-blue CTAs.
 
-### Interactive
-- **Action Default** (`#0057ff`): `--be-action-color`.
-- **Action Hover** (`#003ecb`): `--be-action-color-hover`.
-- **Action Active** (`#002f9a`): `--be-action-color-active`.
-- **Confirmation** (`#028901`): `--be-confirmation-color` → `--be-color-green-400`.
-- **Confirmation Hover** (`#046700`): `--be-confirmation-color-hover` → `--be-color-green-700`.
-- **Reject / Warning** (`#d00d00`): `--be-warning-color` → `--be-color-red-500`.
-- **Reject Hover** (`#aa0000`): `--be-warning-color-hover` → `--be-color-red-700`.
+### Semantic
+- **Error** (`{colors.primary-error-text}` — #9f2f1f): Inline error text for form validation. Distinct from the institutional blue and gold palette.
+- **Error Hover** (`{colors.primary-error-text-hover}` — #7f2115): Darkens on link hover.
+- **Legal Link Blue** (`{colors.legal-link}` — #10203E): Inline links inside legal copy (Privacy, Terms), aligned with the primary institutional color.
 
-### Neutral Scale
-A nine-step grey ladder anchors the entire system:
-- `--be-color-grey-50` `#f9f9f9` — page off-white, project tile bg
-- `--be-color-grey-100` `#f0f0f0` — secondary button hover, image placeholder
-- `--be-color-grey-200` `#ececec` — tertiary surface, bg-tertiary
-- `--be-color-grey-300` `#e8e8e8` — default border, disabled fill
-- `--be-color-grey-400` `#cdcdcd` — hover border
-- `--be-color-grey-500` `#909090` — disabled text, icon-subtle
-- `--be-color-grey-600` `#707070` — body-secondary text
-- `--be-color-grey-700` `#474747` — strong text contrast
-- `--be-color-grey-800` `#303030` — inverted background
-- `--be-color-grey-900` `#191919` — primary text
+### Scrim
+- **Scrim** (`{colors.scrim}` — rgba(12,24,48,0.9)): Deep navy overlay for modals, media overlays, and dialog backdrops.
 
-### Surface & Borders
-- **Page Surface** (`#ffffff`): `--be-bg-primary`. Default background.
-- **Tile Surface** (`#f9f9f9`): `--be-bg-secondary`. Project cards, sidebars.
-- **Tertiary Surface** (`#ececec`): `--be-bg-tertiary`. Disabled checkbox, denser cards.
-- **Inverted Surface** (`#303030`): `--be-bg-inverted`. Top nav in dark mode, modal headers.
-- **Default Border** (`#e8e8e8`): `--be-border-primary`. The hairline.
-- **Hover Border** (`#cdcdcd`): `--be-border-primary-hover`. One step darker on hover.
-- **Accent Border** (`#0057ff`): `--be-border-accent`. Focus rings, selected state.
-- **Secondary Border** (`#e0eaff`): `--be-border-secondary`. Tertiary action outlines.
-- **Tertiary Border** (`#474747`): `--be-border-tertiary`. Avatar rings on dark.
-- **White Border** (`#ffffff`): `--be-border-white-color` / `--be-pro-row-avatar-border-color`. Avatar separators on light surfaces.
-
-### Shadow Colors
-Shadows in Behance are intentionally sparse. The two recurring formulas use grey-900 alpha (not pure black) so the elevation feels native to the warm-near-black system:
-- `0 1px 2px rgba(25,25,25,0.2)` — project tile lift
-- `0 0 4px rgba(25,25,25,0.1)` — nav bar ambient
-- `0 2px 8px rgba(25,25,25,0.3)` — pop-out pro cards
-
-### Color Philosophy
-Behance inherits Adobe Spectrum's discipline (numeric scales, alias indirection, RGB-triplet vars for compositing) but lightens the personality for a community surface. Greys are warmer than Spectrum's neutral palette — `#191919` instead of `#000`, `#707070` instead of `#737373` — so that user-uploaded artwork (the actual content) reads as the chromatic anchor, and the chrome reads as supportive. Behance Blue is the sole identity color: there is no secondary brand hue. Every other accent (purple, orange, slate) earns its place through semantic role (warning, pro-tier, info) — never decoration.
-
----
-
-## 3. Typography Rules
+## Typography
 
 ### Font Family
-- **Primary UI:** `adobe-clean` — Typekit-served (`https://use.typekit.net/.../00000000000000007735dac8/...`). Weights 400, 500, 700, 800 are loaded. This is Adobe's corporate UI face — the Behance counterpart to Helvetica/SF/Roboto in other ecosystems.
-- **Display / Wordmark:** `acumin-pro` (101% stretch) and `acumin-pro-wide` (115% stretch) — Typekit-served. Used for the "Behance" hero treatment, large editorial headers, and the marketing site's wordmark cuts.
-- **CJK companion:** `adobe-clean-han-japanese` — same Typekit family, weighted variants for Japanese rendering.
-- **Icons:** `BeIcons` — self-hosted at `a5.behance.net/.../fonts/BeIcons/` (eot/woff2/woff). Behance's proprietary icon font.
-- **No monospace face is declared by the system.** If code-block rendering is needed, use a system monospace fallback (`ui-monospace, Menlo, Consolas`).
-- **No OpenType feature flags** (`ss01`, `tnum`, etc.) are activated in Behance CSS — Adobe Clean ships with sensible defaults and Behance does not enable variant alternates at the surface level.
+The system runs **Airbnb Cereal VF** for everything — display, body, navigation, captions, microcopy. Fallbacks walk `Circular, -apple-system, system-ui, Roboto, "Helvetica Neue", sans-serif`. **Circular** is the historic in-house typeface still kept as the first non-variable fallback; system stacks back it up.
+
+There is no separate display family. The variable font carries the entire scale.
 
 ### Hierarchy
 
-| Role | Font | Size | Weight | Line Height | Letter Spacing | Features | Notes |
-|------|------|------|--------|-------------|----------------|----------|-------|
-| display-hero | acumin-pro-wide | 64px (`--be-font-size-8`) | 700 | 1.10 | -0.02em | none | Be wordmark, marketing hero |
-| display-large | acumin-pro | 44px (`--be-font-size-7`) | 700 | 1.15 | -0.01em | none | Section openers |
-| section-heading | adobe-clean | 20px (`--be-font-size-6`) | 700 | 1.30 | 0 | none | `--be-subhead-text-size` |
-| subheading-large | adobe-clean | 18px (`--be-font-size-5-5`) | 600 | 1.35 | 0 | none | `--be-subhead-small-text-size`, `--be-cta-text-size` |
-| subheading | adobe-clean | 16px (`--be-font-size-5`) | 700 | 1.35 | 0 | none | `--be-section-header-text-size`, project cover titles |
-| body-large | adobe-clean | 15px (`--be-font-size-4`) | 400 | 1.50 | 0 | none | `--be-paragraph-text-size` |
-| body | adobe-clean | 14px (`--be-font-size-3`) | 400 | 1.43 | 0 | none | `--be-secondary-paragraph-text-size`, default body |
-| body-small | adobe-clean | 13px (`--be-font-size-2-5`) | 400 | 1.30 | 0 | none | Tooltips, owners list, project cover meta |
-| button | adobe-clean | 14px (`--be-normal-button-text-size`) | 600 | 1.0 | 0 | none | `.BeButton-normal-zuv` |
-| button-small | adobe-clean | 12px (`--be-small-button-text-size`) | 600 | 1.0 | 0 | none | `.BeButton-small-w9y` |
-| link | adobe-clean | 13px | 700 | 1.30 | 0 | none | rf-tooltip__list-item-link, owner-link |
-| caption | adobe-clean | 12px (`--be-font-size-2`) | 400 | 1.40 | 0 | none | `--be-paragraph-caption`, `--be-small-description-text-size` |
-| caption-small | adobe-clean | 11px (`--be-font-size-40`) | 700 | 1.40 | 0 | none | rf-feature__num_of_projects, action counts |
-| micro | acumin-pro | 10px (`--be-font-size-1`) | 700 | 1.40 | 0.08em | uppercase | Eyebrow labels, sidebar headings, legal disclaimer |
-| badge | adobe-clean | 9px (`--be-font-size-20`) | 700 | 1.40 | 0.04em | uppercase | "NEW" tags, notification micro-pills |
+| Token | Size | Weight | Line Height | Letter Spacing | Use |
+|---|---|---|---|---|---|
+| `{typography.rating-display}` | 64px | 700 | 1.1 | -1px | Listing detail rating display ("4.81") |
+| `{typography.display-xl}` | 28px | 700 | 1.43 | 0 | Homepage h1 ("Inspiration for future getaways") |
+| `{typography.display-lg}` | 22px | 500 | 1.18 | -0.44px | Listing detail h1 ("Close to Fethiye Aliyah Bali Beach…") |
+| `{typography.display-md}` | 21px | 700 | 1.43 | 0 | Section heads inside listing detail ("What this place offers") |
+| `{typography.display-sm}` | 20px | 600 | 1.20 | -0.18px | Sub-section titles ("Things to know") |
+| `{typography.title-md}` | 16px | 600 | 1.25 | 0 | City link block titles ("Wilmington", "Athens") |
+| `{typography.title-sm}` | 16px | 500 | 1.25 | 0 | Footer column heads ("Support", "Hosting", "Airbnb") |
+| `{typography.body-md}` | 16px | 400 | 1.5 | 0 | Default running-text inside listing copy |
+| `{typography.body-sm}` | 14px | 400 | 1.43 | 0 | Card meta lines, dates, prices, distance text |
+| `{typography.caption}` | 14px | 500 | 1.29 | 0 | Search field segment labels ("Where", "When", "Who") |
+| `{typography.caption-sm}` | 13px | 400 | 1.23 | 0 | Footer legal line ("© 2026 Airbnb, Inc.") |
+| `{typography.badge}` | 11px | 600 | 1.18 | 0 | "Guest favorite" floating badge text |
+| `{typography.micro-label}` | 12px | 700 | 1.33 | 0 | Card amenity micro-labels ("Inline 6") |
+| `{typography.uppercase-tag}` | 8px | 700 | 1.25 | 0.32px (uppercase) | "NEW" badge on product nav tabs |
+| `{typography.button-md}` | 16px | 500 | 1.25 | 0 | Primary CTA button labels |
+| `{typography.button-sm}` | 14px | 500 | 1.29 | 0 | Pill button labels (category strip) |
+| `{typography.link}` | 14px | 400 | 1.43 | 0 | Inline body links |
+| `{typography.nav-link}` | 16px | 600 | 1.25 | 0 | Top product-nav labels (Homes, Experiences, Services) |
 
 ### Principles
-- **Adobe Clean is the default.** Every UI surface that isn't a hero or a wordmark renders in Adobe Clean — there is no per-feature font swap.
-- **Acumin Pro Wide is reserved for hero and wordmark only.** Do not use 115%-stretch Acumin for body or buttons; the wide cut is editorial signal.
-- **Weight 600 = action, 700 = owned-content title, 400 = neutral body.** Behance never uses weight 500 in UI: weight 500 is only loaded for `adobe-clean` to remain a CJK-compatible fallback.
-- **Tracking stays neutral at body sizes.** Letter-spacing is only opened up at `micro` (10px, 0.08em) and `badge` (9px, 0.04em) for legibility under all-caps treatment.
-- **No italics in chrome.** Behance reserves italic exclusively for user-authored copy in project descriptions.
-- **Two ladders coexist** (`--be-font-size-100` … `--be-font-size-400` from the legacy Adobe Spectrum scale, `--be-font-size-1` … `--be-font-size-8` from the Behance refresh). The numeric-1-to-8 ladder is canonical for new work.
+Display weights stay modest. The homepage h1 at 28px / 700 is deliberately small — it tucks under the search bar so photography and the city-link grid carry visual hierarchy. The listing-detail h1 at 22px / 500 is even quieter; the listing photo banner does the work above it.
 
----
+The single typographically loud moment in the entire system is the **rating display** (`{typography.rating-display}` — 64px / 700) on listing pages. That is the only place the system trusts type alone to carry hierarchy — rating numbers are a peak trust signal, so they get the loudest treatment.
 
-## 4. Components
+### Note on Font Substitutes
+If Airbnb Cereal VF and Circular are unavailable, **Inter** is the closest open-source substitute. Adjust display headlines down by ~2% in line-height to match Cereal's slightly tighter cap height; otherwise the proportions transfer cleanly.
+
+## Layout
+
+### Spacing System
+- **Base unit:** 4px (with 2px micro-step).
+- **Tokens:** `{spacing.xxs}` 2px · `{spacing.xs}` 4px · `{spacing.sm}` 8px · `{spacing.md}` 12px · `{spacing.base}` 16px · `{spacing.lg}` 24px · `{spacing.xl}` 32px · `{spacing.xxl}` 48px · `{spacing.section}` 64px.
+- **Section padding (vertical):** `{spacing.section}` (64px) for major page bands; tighter than typical SaaS marketing (80–96px) because marketplace pages need higher card density per scroll.
+- **Card internal padding:** `{spacing.lg}` (24px) for `{component.host-card}` and `{component.reservation-card}`; `{spacing.base}` (16px) for property-card meta block; `{spacing.sm}` (8px) for caption / date-row gutters.
+- **Gutters:** `{spacing.base}` (16px) between cards in the homepage city grid; `{spacing.lg}` (24px) inside footer column gutters; `{spacing.xs}` (4px) on dense category-strip dividers.
+
+### Grid & Container
+- **Max content width:** ~1280px centered on the homepage and editorial pages. Listing detail pages cap closer to 1080px to keep the photo banner and reservation rail readable.
+- **City link grid (homepage footer):** 6-column grid at desktop with each cell housing a city name in `{typography.title-md}` and a category sub-label in `{typography.body-sm}` muted.
+- **Listing detail:** 2-column with photo / amenity body on the left (~64% width) and a sticky reservation card (`{component.reservation-card}`) on the right (~32%).
+- **Footer:** 3-column link list (Support / Hosting / Airbnb) at desktop, collapsing to 1-column on mobile.
+
+### Whitespace Philosophy
+The system gives editorial bands 64px of vertical breathing room but compresses card grids — property and city-link cards sit just 16px apart. The contrast is intentional: the page reads as "open hero, dense marketplace below," reinforcing the marketplace nature without overwhelming the visitor at the fold.
+
+## Elevation
+
+The system has essentially **one shadow tier** plus the flat baseline.
+
+- **Flat (no shadow):** Body, hero, footer, all editorial bands — 95% of surfaces.
+- **Card hover float:** `box-shadow: rgba(0, 0, 0, 0.02) 0 0 0 1px, rgba(0, 0, 0, 0.04) 0 2px 6px 0, rgba(0, 0, 0, 0.1) 0 4px 8px 0` — applied to property cards on pointer hover, the search bar at rest, and the dropdown menus (account menu, language picker, date picker). This is the single shadow definition in the entire system.
+- **Modal scrim:** `{colors.scrim}` rendered around 90% opacity — the global navy modal backdrop. Used on date pickers, login dialogs, language picker, and media overlays.
+
+There are no progressive elevation tiers — the system either has the one shadow or none. Depth comes from photography, warm surface separation, and rounded-corner clipping rather than from layered shadows.
+
+## Components
 
 ### Buttons
 
-Behance buttons are **pill-shaped without exception** — `border-radius: 100px` is the most-common value across all button selectors. Three sizes coexist (`small` 28px, `normal` 32px, `large` 40px) and six variants (primary, secondary, tertiary, ghost, contrast, reject/confirmation). Padding is asymmetric — vertical compresses (`--be-sp-3` = 12px on normal) while horizontal expands (`--be-sp-5` = 20px on normal) to keep the pill shape readable.
+**`button-primary`** — Institutional blue fill, white text, 8px radius, 14×24px padding, 48px height, weight 500. The most common CTA across the system: "Reserve", "Continue", "Search", account-flow primaries.
 
-**Primary Blue** (`button-primary`)
-- Background: `#0057ff`
-- Text: `#ffffff`
-- Border: transparent
-- Padding: 12px 20px (`--be-normal-button-vertical / --be-normal-button-horizontal`)
-- Radius: 9999px (pill)
-- Height: 32px (`--be-normal-button-height`)
-- Font: 14px adobe-clean weight 600
-- Hover: `#003ecb` background
-- Active: `#002f9a` background
-- Use: Primary CTA ("Follow", "Get Inspired", "Sign In")
+**`button-primary-active`** — The press state. Background flips to `{colors.primary-active}`. No transform, no shadow change.
 
-**Secondary White** (`button-secondary`)
-- Background: `#ffffff`
-- Text: `#191919`
-- Border: `#e8e8e8` (1px solid)
-- Padding: 12px 20px
-- Radius: 9999px
-- Font: 14px adobe-clean weight 600
-- Hover: `#f0f0f0` background, `#f0f0f0` border
-- Use: Secondary action paired with primary blue
+**`button-primary-disabled`** — Translucent institutional-blue tint with white text. Cursor not-allowed.
 
-**Tertiary Pale Blue** (`button-tertiary`)
-- Background: `#f5f8ff`
-- Text: `#0057ff`
-- Border: `#e0eaff`
-- Padding: 12px 20px
-- Radius: 9999px
-- Font: 14px adobe-clean weight 600
-- Hover: `#e0eaff` background, `#bfd2ff` border
-- Use: Action with strong brand-tint without committing to full primary
+**`button-secondary`** — Warm white fill with ink text and a 1px warm outline. 8px radius. Used for "Save", "Cancel", and inverse CTAs over institutional-blue surfaces.
 
-**Ghost (Translucent)** (`button-ghost`)
-- Background: `rgba(0,0,0,0.65)`
-- Text: `#ffffff`
-- Border: transparent
-- Padding: 12px 20px
-- Radius: 9999px
-- Font: 14px adobe-clean weight 600
-- Hover: `rgba(0,0,0,0.80)` background
-- Use: Overlay buttons on top of project imagery
+**`button-tertiary-text`** — Plain ink text, no surface, no border. Underlined on hover. Used for "Show more" type links and modal close labels.
 
-**Contrast (Black)** (`button-contrast`)
-- Background: `#191919`
-- Text: `#ffffff`
-- Border: transparent
-- Padding: 12px 20px
-- Radius: 9999px
-- Font: 14px adobe-clean weight 600
-- Hover: `#474747` background
-- Use: High-attention secondary action ("Hire Me")
+**`button-pill-rausch`** — A pill-shaped institutional-blue CTA used on featured cells (e.g., "Become a host" sub-CTA) — 9999px radius, 10×20px padding, 14px label. The legacy token name is retained for compatibility.
 
-**Confirmation Green** (variant)
-- Background: `#028901` → hover `#046700` → active `#024400`
-- Text: `#ffffff`
-- Use: Approve / publish confirmations
+### Search Surface
 
-**Reject Red** (variant)
-- Background: `#d00d00` → hover `#aa0000` → active `#910000`
-- Text: `#ffffff`
-- Use: Destructive confirmations
+**`search-bar-pill`** — The signature global search bar. Warm white fill, 9999px radius, 64px height, 1px hairline 1px-shadow border. Internally divided by vertical hairline rules into `{component.search-field-segment}` cells (Where / When / Who). Each segment holds an uppercase caption label above a placeholder line in `{typography.caption}`.
 
-### Cards & Containers
+**`search-orb`** — The circular institutional-blue orb terminating the right edge of the search bar. 48×48px, fully rounded, white magnifying-glass icon centered. It is the strongest blue action moment on the page.
 
-**Project Card** (`card-project-cover`)
-- Background: `#f0f0f0` (`--be-bg-project-cover`) for placeholders, white for resolved cards
-- Border: transparent
-- Radius: 4px (`--be-border-radius-1`)
-- Shadow: `0 1px 2px rgba(25,25,25,0.2)` on hover-lift
-- Padding: 0 (cover image is edge-to-edge; metadata sits beneath)
-- Title: `body-small` 13px weight 700 color `#191919`
+### Top Navigation
 
-**Floating Card** (`card`)
-- Background: `#ffffff`
-- Border: `#e8e8e8` (1px)
-- Radius: 4px
-- Shadow: `0 0 4px rgba(25,25,25,0.1)` (ambient only)
-- Padding: 16px
+**`top-nav`** — Warm white surface, 80px height, 1px bottom hairline. The Lodgra wordmark sits flush left, primary product tabs sit in the center, and account utilities (host link, language globe, account menu) sit flush right.
 
-### Inputs & Forms
+**`product-tab-active`** — Ink label in `{typography.nav-link}`, 32px hand-illustrated icon, 2px ink underline rule beneath the icon-label pair.
 
-**Text Input** (`input-text`)
-- Background: `#ffffff`
-- Text: `#191919`
-- Border: `#e8e8e8` 1px (`--be-border-primary`)
-- Radius: 4px
-- Padding: 8px 12px
-- Height: 32px + 2px border (`--be-input-height` formula)
-- Focus: border becomes `#0057ff` (`--be-border-accent`), 2px outline offset
-- Disabled: bg `#ececec`, text `#909090` (`--be-disabled-text-color`), border `#909090` (`--be-border-input-disabled`)
+**`product-tab-inactive`** — Muted label, illustrated icon, no underline. Becomes active on click.
 
-**Search Input**
-- Same as text input but with autocomplete typeahead at `--be-search-text-size` (20px).
+**`new-tag`** — A tiny rounded-pill badge (`{rounded.full}`) anchored top-right of an icon, carrying the uppercase "NEW" label in `{typography.uppercase-tag}` (8px / 700 with 0.32px tracking, uppercase). Used on Experiences and Services to signal recency.
 
-### Badges / Tags / Pills
+### Listing Cards
 
-**Default Badge** (`badge-default`)
-- Background: `#f7f7f7`
-- Text: `#191919`
-- Radius: 3px (badge.most_common)
-- Padding: 2px 5px
-- Font: 9px adobe-clean weight 700, 0.04em letter-spacing, often UPPERCASE
+**`property-card`** — A photo-first card. 1:1 aspect-ratio image with `{rounded.md}` corner clipping, image carousel dots overlay, "Guest favorite" floating badge top-left (`{component.guest-favorite-badge}`), and a heart icon top-right (`{component.icon-button-circle}` in default outlined state, institutional-blue filled when saved). Beneath the image: 4–5 lines of meta — title (`{typography.title-md}`), distance / dates (`{typography.body-sm}` muted), and price ("$X night") right-aligned.
 
-**Notification Counter** (`badge-notification`)
-- Background: `#0057ff`
-- Text: `#ffffff`
-- Border: `#ffffff` 1px (separates from avatar/icon underneath)
-- Radius: 3px
-- Padding: 2px 5px
-- Font: 10px weight 600
-- Position: absolute top-right of avatar/icon
+**`property-card-photo`** — The photo plate itself, separated as a token because some surfaces (wishlist, search results) reuse just the photo without the meta block.
 
-**"NEW" Pill** (`badge-new`)
-- Background: `#959595`
-- Text: `#ffffff`
-- Radius: 3px
-- Padding: 2px 5px
-- Font: 9px weight 700 UPPERCASE
-- Use: Activity feed item highlights
+**`experience-card`** — A taller-aspect card (4:5) for experience listings. Same `{rounded.md}` clipping, floating "NEW" badge top-left, heart top-right, and a single-line title beneath.
 
-**Pill (filter / chip)** (`pill`)
-- Background: `#ffffff`
-- Text: `#191919`
-- Border: `#e8e8e8`
-- Radius: 9999px (full pill, distinguishes from rectangular badges)
-- Padding: 6px 12px
-- Font: 13px adobe-clean weight 400
+**`guest-favorite-badge`** — White rounded pill (`{rounded.full}`) at 11px / 600 weight. Sits over the photo with the system's only shadow tier applied for elevation.
 
-### Navigation
+### Listing Detail
 
-**Top Nav** (`nav-header`)
-- Background: `#ffffff` (default) / `#303030` (dark variant for project lightbox)
-- Height: 60px
-- Border-bottom: `#e8e8e8` 1px (`--be-border-primary`)
-- Padding: 0 24px
+**`rating-display-card`** — The signature listing-detail moment. A 64px / 700 rating number ("4.81") flanked left and right by tiny laurel-wreath SVG ornaments. Beneath the rating: "Guest favorite" tagline and a row of ink stat columns. The largest typographic weight in the whole system.
 
-**Nav Link** (`nav-link`)
-- Background: transparent → `#f0f0f0` on hover
-- Text: `#191919`
-- Radius: 9999px (pill hover state)
-- Padding: 8px 16px
-- Font: 13px adobe-clean weight 700
+**`amenity-row`** — A 1-column list of amenity icons + ink labels in `{typography.body-md}`. 12px row padding, no border between rows; section is closed by a 1px hairline divider above and below.
 
-### Decorative Elements
-- **Fade gradients** for image-edge mask: `linear-gradient(-90deg, rgba(255,255,255,0) 0%, white 70%)` — used to fade hero panels to white at the right/left edge.
-- **Pro creator gradient**: `linear-gradient(to right, var(--be-pro-button-start) 0%, var(--be-pro-button-middle) 25%, var(--be-pro-button-end) 50%)` — animated gold-tone sweep on Pro upgrade affordances.
-- **Avatar rings**: `box-shadow: 0 0 0 1px var(--be-border-tertiary), 0 0 0 3px var(--be-pro-row-avatar-border-color)` — double-ring on Pro rows, replacing the single hairline.
-- **Spinner**: 25s linear loop on `keyframes spin` — long duration so the spinner reads as ambient, not anxious.
+**`reviews-card`** — A 2-column grid of review excerpts. Each column holds an author row (avatar, name, date) above a 3-line excerpt with "Show more" tertiary link.
 
----
+**`host-card`** — A white card with `{rounded.md}` rounding and 24px padding holding a host avatar, name, "Superhost" badge, response-rate stat, and a "Contact host" `{component.button-secondary}`.
 
-## 5. Layout Principles
+**`reservation-card`** — The sticky right-rail card on listing detail pages. White surface, `{rounded.md}` rounding, 1px hairline border, 1px shadow tier elevation, 24px padding. Contains: nightly price (`{typography.display-md}` ink), date-range selector, guest-count stepper, "Reserve" primary CTA full-width, and a fee breakdown stack beneath in `{typography.body-sm}`.
 
-### Spacing System
-Behance runs on a **strict 4px-base ladder**. All component padding, margin, and gap values resolve to a `--be-sp-N` token where N is in quarter-rem increments.
+### Date Picker
 
-Base unit: **4px** (`--be-sp-1` = 0.25rem).
+**`date-picker-day`** — A 40×40px circular cell carrying the day number in `{typography.body-sm}`. Default state is transparent fill, ink text.
 
-Canonical scale: `1px (--be-sp-px)` · `2px` · `4px` · `5px` · `6px` · `8px` · `10px` · `12px` · `13px` · `14px` · `15px` · `16px` · `18px` · `20px` · `22px` · `24px` · `28px` · `30px` · `32px` · `36px` · `40px` · `44px` · `48px` · `56px` · `60px` · `64px` · `66px` · `80px` · `96px` · `112px` · `128px` · `144px` · `160px` · `176px` · `192px` · `208px` · `224px` · `240px` · `256px` · `288px` · `320px` · `384px`.
+**`date-picker-day-selected`** — Institutional-blue fill, white text, full circle (`{rounded.full}`). Range states between two selected days carry a `{colors.surface-soft}` lozenge background that connects them.
 
-### Grid & Container
-- **Max content width:** ~1280px (multi-column project grids), with single-content rails at ~837px and 922px.
-- **Project grid:** masonry-style at multiple of 4 columns (`@media(min-width: 1080px)` triggers 4-col, 1024px triggers 3-col, 603px triggers 1-col).
-- **Hero band:** full-bleed, max-content at 2968px (the `container.json` `value` field) — used for landing-page editorial headers.
-- **Standard nav and content rails**: padded 24px gutter.
+### Forms
 
-### Whitespace Philosophy
-Behance is a **content-anchored** surface — the whitespace strategy is to keep chrome (nav, sidebars, controls) tight and hand the breathing room to user artwork. Project tiles abut at 1px-2px gaps to reinforce the "wall of work" feel. Editorial pages reverse this: hero sections use 32-64px vertical rhythm, with paragraph leading at 1.5 line-height to let editorial copy breathe.
+**`text-input`** — Warm white surface, 1px hairline outline, `{rounded.sm}` 8px radius, 56px height, 14×12px padding. Stacked label above (in `{typography.caption}` muted), placeholder text in `{typography.body-md}` muted. On focus, the border thickens to 2px institutional blue and the border color flips to `{colors.primary}` — no glow, no ring.
 
-The whitespace contract: **always leave a 16px (`--be-sp-4`) minimum touchable zone** around interactive elements. Nav links sit 8px apart but each has 16px horizontal padding so hit targets meet 24px-min (`--be-minimum-interactive-size`).
+### Footer
 
-### Border Radius Scale
-- **0px** (sharp) — project tile imagery, full-bleed editorial blocks
-- **3px** (`--be-border-radius-3px-equivalent`) — badges, notification counters
-- **4px** (`--be-border-radius-1`) — cards, inputs, secondary surfaces
-- **5px** (`--be-border-radius-1-25`) — small chip variants
-- **6px** (`--be-border-radius-1-5`) — tabs (`tab.border-radius`)
-- **8px** (`--be-border-radius-2`) — modal corners, larger surfaces
-- **10-12px** (`--be-border-radius-2-5/3`) — pro feature cards
-- **20-30px** (`--be-border-radius-5/7-5`) — large pill containers
-- **100px** (resolved as 9999px) — buttons (canonical)
+**`footer-light`** — Warm white surface, 48×80px padding. Three columns of link blocks, separated by generous 24px gutters. Each column heads with a `{typography.title-sm}` ink label and stacks `{component.footer-link}` rows in `{typography.body-sm}` ink.
 
----
+**`legal-band`** — A bottom strip beneath the footer columns carrying the copyright line, language picker (globe icon + "English (US)" link), currency picker, and social icons (Facebook, X, Instagram). All text in muted `{colors.muted}` at `{typography.caption-sm}`.
 
-## 6. Depth & Elevation
-
-| Level | Treatment | Use |
-|-------|-----------|-----|
-| Flat (0) | `box-shadow: none` | Default for nav, sidebars, body content, project tiles at rest |
-| Ambient (1) | `0 0 4px rgba(25,25,25,0.1)` | Tooltip surfaces, dropdown panels, nav-floating header on scroll |
-| Standard (2) | `0 1px 2px rgba(25,25,25,0.2)` | Hover-lift on project tiles, raised cards |
-| Elevated (3) | `0 2px 4px rgba(0,0,0,0.16)` (top + bottom paired) | Sticky bottom toolbars, audio/video player chrome |
-| Deep (4) | `0 2px 8px rgba(25,25,25,0.3)` | Modal triggers, dropdown popovers on dark backgrounds |
-| Translucent | `rgba(var(--be-color-black-rgb), 0.65)` modal backdrop + `backdrop-filter: blur(5px)` | Image lightbox, full-screen modal overlay |
-| Ring (focus) | `outline: 1px solid var(--be-accessibility-outline-color); outline-offset: 2px` | Keyboard focus on every interactive element (resolves to `#0057ff` 1px ring) |
-
-### Shadow Philosophy
-Behance shadows use **`rgba(25,25,25, α)`** — the grey-900 RGB triplet, NOT pure black `rgba(0,0,0, α)`. This is intentional: the warmer shadow tone matches the warmer text color (`#191919`) and prevents the elevation from reading as harsh against off-white tile surfaces. The system is intentionally shallow — three or four detectable elevation levels exist — because Behance's content (artwork) is the visual centerpiece, and competing chrome elevation would steal attention. When deeper shadow is required (project lightbox, full-screen modal), the move is **backdrop blur + 65% black overlay** rather than stacking more shadow.
-
----
-
-## 7. Do's and Don'ts
-
-### Do
-- ✅ **Use `#0057ff` Behance Blue exclusively for primary actions** — it's the only brand color in the system; never substitute another blue or recolor for variation.
-- ✅ **Make every button a pill** — `border-radius: 100px` (or `9999px`). Behance has zero square buttons in the chrome.
-- ✅ **Render body text in `#191919`, never `#000`** — the warmer near-black is the Behance text contract.
-- ✅ **Use Adobe Clean weight 600 for buttons and interactive labels** — `.BeButton-normal-zuv` ships explicit `font-weight: 600`.
-- ✅ **Use Acumin Pro Wide (115% stretch) ONLY for the Be wordmark and editorial hero** — the wide cut is signature.
-- ✅ **Anchor surfaces to white (`#ffffff`) and step down to grey-50 (`#f9f9f9`) for tiles** — never start a card on grey-300.
-- ✅ **Use grey-900 RGB (`rgba(25,25,25,α)`) for shadow alpha**, never pure-black RGB.
-- ✅ **Apply uppercase + 0.04-0.08em letter-spacing on micro labels (10px and below)** — Behance's typographic seasoning for category eyebrows.
-
-### Don't
-- ❌ **Don't use `#000000` for body text** — Behance text is `#191919`. Pure black collides with the artwork rendering surface.
-- ❌ **Don't use weight 500 in UI** — Adobe Clean weight 500 is loaded as a CJK fallback only; UI targets weight 400, 600, or 700.
-- ❌ **Don't substitute another blue for `#0057ff`** — Material Blue, Tailwind Blue-500, system-blue all read as "wrong Behance" to a creative-pro user. The Behance Blue hover is `#003ecb` (specific darker tone), not just a generic darken.
-- ❌ **Don't use square or 4-6px-radius buttons** — every button in the system is `border-radius: 100px`. A 4px-radius button reads as "Adobe Spectrum chrome", not Behance.
-- ❌ **Don't add layered drop-shadows** — Behance is intentionally shallow. A `box-shadow` with three offsets reads as Material Design, not Behance.
-- ❌ **Don't use Acumin Pro Wide for body or buttons** — the 115% stretch is reserved for the Be wordmark and large hero callouts; using it inline reads as a font-weight bug.
-- ❌ **Don't gradient-fill primary CTAs** — Behance Blue is solid `#0057ff`. Gradient fills are reserved for the Pro upgrade affordance only.
-- ❌ **Don't use orange `#f97c00` decoratively** — orange is `--be-icon-warning`, the warning icon color. Decorative orange will read as a system warning to users.
-- ❌ **Don't use border-radius `8px` or higher on buttons** — pills always go full-round. Anything between 4px and 99px reads as half-committed.
-
----
-
-## 8. Responsive Behavior
-
-### Breakpoints
+## Responsive Behavior
 
 | Name | Width | Key Changes |
-|------|-------|-------------|
-| Mobile | ≤ 603px | Project grid collapses to 1 column; owners list font-size drops to 12px; nav becomes hamburger; hero typography downscales 50% |
-| Tablet | 604-1024px | Project grid 2-3 cols; rf-owners list font-size 12px; nav remains horizontal |
-| Desktop | 1025-1080px | Project grid 3 cols; rf-owners list font-size 13px; full nav |
-| Desktop Wide | 1080-1280px | Project grid 4 cols; SearchTypeahead result font-size 15-22px |
-| Wide | ≥ 1280px | Project grid 5+ cols; SearchTypeahead `result-font-size: 22px`; max-width caps at editorial ~1280px |
-| Ultra-wide hero | ≥ 1600px | Hero/landing cap at 2968px container; rest of page rails stay at 1280px |
-
-The system uses 79+ `max-width: 603px` declarations and 38+ `max-width: 1024px` — these two are the canonical mobile/tablet pivots.
+|---|---|---|
+| Mobile | < 744px | Top nav collapses to logo + hamburger; product tabs hide behind a sheet; search bar collapses to a single tappable pill; property cards stack 1-up; city grid 1-column; listing detail collapses reservation card to a sticky bottom bar. |
+| Tablet | 744–1128px | Top nav keeps product tabs but search bar narrows; property cards 2-up; city grid 2–3 column; reservation card stays sticky right-rail at narrower width. |
+| Desktop | 1128–1440px | Full top nav with three product tabs centered; search bar at full pill width with all 3 segments visible; property cards 4-up; city grid 6-column; listing detail 2-column with reservation rail. |
+| Wide | > 1440px | Content width caps at 1440px on listing/search pages and ~1280px on editorial; gutters absorb the rest. |
 
 ### Touch Targets
-- Minimum interactive size: **24px** (`--be-minimum-interactive-size` = `--be-sp-6` = 1.5rem).
-- Buttons hit ≥32px for normal, ≥40px for large — exceeds the 24px floor.
-- Avatar/icon buttons honor the 24px minimum even when the visual icon is 14-16px (`--be-icon-size` / `--be-icon-small-size`).
+- Primary CTAs at minimum 48×48px (above WCAG AAA).
+- Search orb is 48×48px circular — the most-tapped element on the page.
+- Heart save button is 32×32px circular — borderline for AAA but compensated by a generous 12px padding inside the photo card.
+- Date-picker day cells are 40×40px circular.
 
 ### Collapsing Strategy
-- Typography downscales: hero 64px → 48px → 36px on mobile; section heading 20px → 18px → 16px.
-- Project grid collapses 5 → 4 → 3 → 2 → 1 across breakpoints.
-- Nav becomes hamburger at ≤603px; sidebar (filter rail) becomes a bottom sheet on tablet+.
-- Owner-row metadata trades a 14px font on desktop for a 12px on tablet to keep single-line display.
-- SearchTypeahead grows: 15px result text on tablet → 22px on desktop wide (the search experience is a hero on desktop, utility on mobile).
+- Top product tabs collapse into a hamburger sheet below 744px.
+- Search bar's 3 segments collapse into a single-tap entry that opens a full-screen search overlay on mobile.
+- Property and city-link grids drop column counts cleanly at each breakpoint — never reflow rows; always reduce columns.
+- Reservation card on listing detail switches from sticky right-rail to a sticky bottom bar on mobile, carrying just the "Reserve" CTA + nightly price summary.
 
-### Image Behavior
-- Project covers preserve aspect-ratio with `object-fit: cover`; placeholders sit on `--be-bg-project-cover` (#f0f0f0).
-- Hero/showcase imagery fades to white via `linear-gradient(-90deg, rgba(255,255,255,0) 0%, white 70%)` to blend into editorial copy.
-- Avatars: 20px (`--be-avatar-size` = `--be-sp-5`) standard; pro creators get a 3px halo via double box-shadow.
+## Known Gaps
 
----
-
-## 9. Agent Prompt Guide
-
-### Quick Color Reference
-
-- Primary CTA: Behance Blue (`#0057ff`)
-- CTA Hover: Blue-700 (`#003ecb`)
-- CTA Active: Blue-800 (`#002f9a`)
-- Background: Pure White (`#ffffff`)
-- Tile / off-white: Grey-50 (`#f9f9f9`)
-- Heading text: Near-Black (`#191919`)
-- Body text: Near-Black (`#191919`)
-- Body-secondary text: Grey-600 (`#707070`)
-- Muted text / disabled: Grey-500 (`#909090`)
-- Border (default hairline): Grey-300 (`#e8e8e8`)
-- Border (hover): Grey-400 (`#cdcdcd`)
-- Link / inline action: Behance Blue (`#0057ff`)
-- Success: Green-400 (`#028901`)
-- Error / Reject: Red-500 (`#d00d00`)
-- Warning icon: Orange-500 (`#f97c00`)
-- Project tile placeholder: Grey-100 (`#f0f0f0`)
-- Inverted nav background: Grey-800 (`#303030`)
-- Modal backdrop: `rgba(0,0,0,0.65)` + 5px backdrop-blur
-
-### Example Component Prompts
-
-> "Create a Behance-style hero section on white (#ffffff). Headline at 64px Acumin Pro Wide weight 700, line-height 1.10, letter-spacing -0.02em, color #191919. Subhead at 18px Adobe Clean weight 600, line-height 1.35, color #707070. Primary CTA: pill button (border-radius 9999px), background #0057ff, text #ffffff, padding 12px 20px, font 14px Adobe Clean weight 600. Secondary CTA: pill button, background #ffffff, text #191919, border 1px #e8e8e8, same padding."
-
-> "Create a Behance project card. White background #ffffff, border 1px #e8e8e8, border-radius 4px. Cover image edge-to-edge at top with no rounding, aspect 4:3, placeholder fill #f0f0f0. Below cover: 16px padding, title in 13px Adobe Clean weight 700 color #191919 (1.35 line-height, max 2 lines with ellipsis), owner row with 20px avatar circled in 1px white shadow + 13px Adobe Clean weight 700 link to creator. On hover, lift via box-shadow 0 1px 2px rgba(25,25,25,0.2)."
-
-> "Create a Behance-style notification badge: 10px Adobe Clean weight 600, background #0057ff, text #ffffff, 1px white border (#ffffff), border-radius 3px, padding 2px 5px, positioned absolute top-right of an avatar with -10px top offset."
-
-> "Create the Behance top navigation. Background #ffffff, height 60px, 24px horizontal padding, border-bottom 1px #e8e8e8. Logo on left in Acumin Pro Wide #191919. Nav links at 13px Adobe Clean weight 700 color #191919, 8px 16px padding, transparent background, hover background #f0f0f0 with border-radius 9999px (the hover is the pill, not the link itself). Right side: search input pill (32px height, #ffffff bg, 1px #e8e8e8 border, 4px radius), then primary blue Sign-In pill button #0057ff."
-
-> "Create a Behance-style image lightbox modal. Backdrop: rgba(0,0,0,0.65) with backdrop-filter: blur(5px). Modal container: #ffffff, 4px border-radius, no border, no shadow (the backdrop carries elevation). Close button: ghost variant — rgba(0,0,0,0.65) background, white text, 9999px radius, 12px 20px padding. Image container fills modal at object-fit contain on a #000000 inner background."
-
-> "Create a Behance dark-mode bottom toolbar. Background #303030, white text #ffffff, 60px height, 24px horizontal padding. Action buttons: ghost variant — rgba(0,0,0,0.65) bg with white text, 9999px radius. Pro/highlight CTA: Behance Blue #0057ff pill."
-
-> "Create a Behance creator profile header. Avatar 80px circle on the left with 3px white halo (box-shadow: 0 0 0 1px #474747, 0 0 0 3px #ffffff). Name in 20px Adobe Clean weight 700 color #191919. Bio in 14px Adobe Clean weight 400 color #707070, line-height 1.43. Two buttons: 'Follow' as primary blue pill (#0057ff, white text), 'Hire Me' as contrast pill (#191919 bg, white text). 16px gap between buttons."
-
-### Iteration Guide
-
-1. **Default to pills.** If you're rendering a button and it's not a pill (`border-radius: 9999px` or `100px`), it's not Behance. The only square containers in Behance are project tiles and image surfaces.
-2. **Behance Blue is `#0057ff`, not `#0066ff`, not `#0080ff`.** The exact rgb(0, 87, 255) is the canonical brand. Never shift.
-3. **Body text is `#191919`, not `#000`.** This is the single most-overlooked detail when porting designs to Behance. The warm near-black makes the chrome read native.
-4. **Padding on a normal button is 12px vertical / 20px horizontal.** Use `--be-sp-3` and `--be-sp-5` if you have access to the token system; the asymmetry preserves pill geometry.
-5. **Adobe Clean weight 600 is the action weight.** Buttons, nav links (when bold), interactive labels — all 600. Reserve 700 for owned-content titles (project title, creator name) and 400 for body copy.
-6. **Shadow alpha uses `rgba(25,25,25, α)`, not `rgba(0,0,0, α)`.** This is the Behance grey-900 triplet, not pure black. The warmer shadow matches the warmer text and surface tones.
-7. **Use `--be-color-blue-100` (#f5f8ff) as a surface, not as text.** Tertiary action backgrounds, hover halos, accent fills — never as a typography color.
-8. **Hero uses Acumin Pro Wide; everything else is Adobe Clean.** If you're not rendering the Be wordmark, an editorial hero, or a marketing landing splash, use Adobe Clean.
-9. **Spacing values resolve to `--be-sp-N` where N is a quarter-rem integer.** When in doubt, round to 4 / 8 / 12 / 16 / 24 / 32 / 48 / 64. Avoid 5, 7, 9, 11, 13 except where the canonical token exists (`--be-sp-1-25` = 5px, `--be-sp-3-25` = 13px).
-10. **Project content always wins.** If you're tempted to add color, weight, or shadow to chrome, ask whether it would distract from a hypothetical 4-color masonry of user artwork. If yes, dial back.
+- **Hover state colors:** intentionally not documented per the global no-hover policy; property-card hover is represented by subtle elevation rather than a new color.
+- **Loading states / skeleton screens:** not visible on the extracted surfaces.
+- **Map view styling:** the search-results map should use neutral map tiles with custom institutional-blue markers and selective gold highlights; not captured here.
+- **Form input error states:** error text color (`{colors.primary-error-text}`) is documented, but the full input outline + helper-text combination on validation failure was not visible in the captured surfaces.
+- **Accent palette expansion:** Gold (`{colors.luxe}` / `{colors.plus}`) is documented as an accent pair, but additional tonal steps for charts and complex states are not captured here.

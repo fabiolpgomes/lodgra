@@ -6,25 +6,25 @@
 :root {
   /* ========== FONT FAMILIES ========== */
 
-  /* Primary heading font (Hanken Grotesk custom) */
-  --font-heading: var(--font-hanken-grotesk);
+  /* Airbnb-style single-family typography with system fallback */
+  --font-heading: var(--font-inter);
 
   /* Fallback system fonts for body text */
-  --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+  --font-body: var(--font-inter), 'Airbnb Cereal VF', Circular, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
 
   /* ========== FONT SIZES ========== */
 
-  --font-size-xs: 10px;   /* Extra small (labels, captions) */
-  --font-size-sm: 11px;   /* Small (search button, menu items) */
-  --font-size-base: 13px; /* Base (navigation items, headings) */
-  --font-size-md: 12px;   /* Medium (profile name, labels) */
-  --font-size-lg: 14px;   /* Large (sheet titles) */
+  --font-size-xs: 12px;
+  --font-size-sm: 13px;
+  --font-size-base: 14px;
+  --font-size-md: 16px;
+  --font-size-lg: 20px;
 
   /* ========== FONT WEIGHTS ========== */
 
   --font-weight-normal: 400;
-  --font-weight-bold: 700;
-  --font-weight-black: 900;
+  --font-weight-bold: 600;
+  --font-weight-black: 700;
 
   /* ========== LINE HEIGHT ========== */
 
@@ -34,10 +34,10 @@
   /* ========== LETTER SPACING ========== */
 
   --letter-spacing-normal: 0;
-  --letter-spacing-wide: 0.5px;   /* tracking-[0.5px] */
-  --letter-spacing-wider: 1px;    /* tracking-[1px] */
-  --letter-spacing-widest: 1.5px; /* tracking-[1.5px] */
-  --letter-spacing-ultra-wide: 2px; /* tracking-[2px] */
+  --letter-spacing-wide: 0;
+  --letter-spacing-wider: 0;
+  --letter-spacing-widest: 0;
+  --letter-spacing-ultra-wide: 0;
 }
 
 /* ========== UTILITY CLASSES ========== */

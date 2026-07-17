@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
 
   let orgName = 'Lodgra'
   let orgLogoUrl: string | null = null
-  let themeColor = '#1E3A8A'
+  let themeColor = '#10203E'
   let description = 'Reserve propriedades directamente'
 
   if (orgSlug) {

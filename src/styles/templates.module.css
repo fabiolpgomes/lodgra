@@ -76,7 +76,7 @@
 
 .templateStandard .propertyPrice {
   font-size: 0.875rem;
-  color: var(--color-primary, #1e40af);
+  color: var(--color-primary, #0c1830);
   font-weight: 600;
   padding: 0 1rem 1rem 1rem;
 }
@@ -108,7 +108,7 @@
   font-size: var(--hero-title-size);
   font-weight: 300;
   letter-spacing: 0.05em;
-  color: var(--color-primary, #1e40af);
+  color: var(--color-primary, #0c1830);
 }
 
 .templateLuxury .heroSubtitle {
@@ -146,7 +146,7 @@
 .templateLuxury .propertyCard:hover {
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
   transform: translateY(-4px);
-  border-color: var(--color-primary, #1e40af);
+  border-color: var(--color-primary, #0c1830);
 }
 
 .templateLuxury .propertyImage {
@@ -163,7 +163,7 @@
 
 .templateLuxury .propertyPrice {
   font-size: 1.25rem;
-  color: var(--color-primary, #1e40af);
+  color: var(--color-primary, #0c1830);
   font-weight: 300;
   padding: 0 1.5rem 1.5rem 1.5rem;
 }
@@ -223,7 +223,7 @@
 }
 
 .templateBudget .propertyCard:hover {
-  border-color: var(--color-primary, #1e40af);
+  border-color: var(--color-primary, #0c1830);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
 }
 
@@ -240,7 +240,7 @@
 
 .templateBudget .propertyPrice {
   font-size: 0.875rem;
-  color: var(--color-primary, #1e40af);
+  color: var(--color-primary, #0c1830);
   font-weight: 700;
   padding: 0 0.75rem 0.75rem 0.75rem;
 }

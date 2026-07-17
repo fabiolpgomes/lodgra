@@ -7,40 +7,40 @@
   /* ========== BRAND COLORS ========== */
 
   /* Primary Brand Color */
-  --lodgra-primary: #1E3A8A;
-  --lodgra-primary-rgb: 30, 58, 138;
+  --lodgra-primary: #10203E;
+  --lodgra-primary-rgb: 16, 32, 62;
 
   /* Accent Color */
-  --lodgra-accent: #ffc000;
-  --lodgra-accent-rgb: 255, 192, 0;
+  --lodgra-accent: #C9A227;
+  --lodgra-accent-rgb: 201, 162, 39;
 
   /* Neutral Colors */
-  --lodgra-white: #ffffff;
-  --lodgra-bg-light: #f8f8f8;
-  --lodgra-bg-dark: #f0f0f0;
+  --lodgra-white: #FBFAF6;
+  --lodgra-bg-light: #F7F5EF;
+  --lodgra-bg-dark: #EEE7D8;
 
   /* ========== SEMANTIC COLORS ========== */
 
   /* Border Colors */
-  --lodgra-border-primary: rgba(30, 58, 138, 0.1);
+  --lodgra-border-primary: #E5DFD2;
   --lodgra-border-light: rgba(0, 0, 0, 0.06);
 
   /* Text Colors */
-  --lodgra-text-primary: #1E3A8A;
-  --lodgra-text-secondary: rgba(30, 58, 138, 0.4);
-  --lodgra-text-tertiary: rgba(30, 58, 138, 0.3);
-  --lodgra-text-disabled: rgba(30, 58, 138, 0.6);
-  --lodgra-text-light: rgba(30, 58, 138, 0.2);
+  --lodgra-text-primary: #1B2430;
+  --lodgra-text-secondary: #4D5566;
+  --lodgra-text-tertiary: #7C8492;
+  --lodgra-text-disabled: #7C8492;
+  --lodgra-text-light: #E5DFD2;
 
   /* ========== UTILITY OPACITY VARIANTS ========== */
   /* For use with Tailwind: text-lodgra-primary/20 */
-  --lodgra-primary-20: rgba(30, 58, 138, 0.2);
-  --lodgra-primary-30: rgba(30, 58, 138, 0.3);
-  --lodgra-primary-40: rgba(30, 58, 138, 0.4);
-  --lodgra-primary-60: rgba(30, 58, 138, 0.6);
+  --lodgra-primary-20: rgba(16, 32, 62, 0.2);
+  --lodgra-primary-30: rgba(16, 32, 62, 0.3);
+  --lodgra-primary-40: rgba(16, 32, 62, 0.4);
+  --lodgra-primary-60: rgba(16, 32, 62, 0.6);
 
-  --lodgra-accent-10: rgba(255, 192, 0, 0.1);
-  --lodgra-accent-20: rgba(255, 192, 0, 0.2);
+  --lodgra-accent-10: rgba(201, 162, 39, 0.1);
+  --lodgra-accent-20: rgba(201, 162, 39, 0.2);
 }
 
 /* Optional: Dark mode variants (if needed) */

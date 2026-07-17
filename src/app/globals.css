@@ -5,8 +5,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-inter);
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -180,61 +180,61 @@ input[type="date"]::placeholder {
 :root {
   --radius: 0.75rem;
 
-  /* ─── BEHANCE DESIGN SYSTEM — PRIMARY PALETTE ───────────────────── */
+  /* ─── LODGRA PREMIUM DESIGN SYSTEM — PRIMARY PALETTE ───────────── */
 
-  /* Primary: Behance Blue (universal, light + dark) */
-  --be-blue: #0057ff;
-  --be-blue-hover: #003ecb;
-  --be-blue-active: #002f9a;
-  --be-blue-light: #bfd2ff;
-  --be-blue-pale: #e8f0ff;
+  /* Primary: institutional navy. Legacy --be-* names remain as app-wide aliases. */
+  --be-blue: #10203E;
+  --be-blue-hover: #0c1830;
+  --be-blue-active: #081226;
+  --be-blue-light: #D8CFB7;
+  --be-blue-pale: #F7F5EF;
 
   /* Text & Neutrals (light mode) */
-  --be-text: #191919;                /* Near-black */
-  --be-text-muted: #707070;          /* Medium grey */
-  --be-text-muted-light: #909090;    /* Light grey */
-  --be-grey-300: #e8e8e8;            /* Light borders */
-  --be-grey-600: #474747;            /* Dark grey */
-  --be-surface: #ffffff;             /* White bg */
-  --be-surface-secondary: #f7f7f7;   /* Light grey bg */
-  --be-border: #e8e8e8;              /* Light border */
-  --be-overlay: #f0f0f0;             /* Hover overlay */
+  --be-text: #1B2430;
+  --be-text-muted: #4D5566;
+  --be-text-muted-light: #7C8492;
+  --be-grey-300: #E5DFD2;
+  --be-grey-600: #4D5566;
+  --be-surface: #FBFAF6;
+  --be-surface-secondary: #F7F5EF;
+  --be-border: #E5DFD2;
+  --be-overlay: #F7F5EF;
 
   /* Semantic (light mode) */
-  --be-success: #22c55e;             /* green */
-  --be-warning: #eab308;             /* yellow */
-  --be-error: #ef4444;               /* red */
+  --be-success: #008a05;
+  --be-warning: #C9A227;
+  --be-error: #9f2f1f;
 
   /* ─── Lodgra Legacy Tokens (deprecated, kept for backwards compat) ─ */
-  --lodgra-brand-50:  oklch(0.97 0.01 263);
-  --lodgra-brand-100: oklch(0.93 0.03 263);
-  --lodgra-brand-200: oklch(0.86 0.06 263);
-  --lodgra-brand-300: oklch(0.75 0.09 263);
-  --lodgra-brand-400: oklch(0.63 0.12 263);
-  --lodgra-brand-500: oklch(0.40 0.15 263);
-  --lodgra-brand-600: oklch(0.33 0.14 263);
-  --lodgra-brand-700: oklch(0.28 0.12 263);
-  --lodgra-brand-800: oklch(0.22 0.10 263);
-  --lodgra-brand-900: oklch(0.16 0.08 263);
-  --lodgra-brand-950: oklch(0.10 0.05 263);
+  --lodgra-brand-50:  #F7F5EF;
+  --lodgra-brand-100: #EFE7D4;
+  --lodgra-brand-200: #D8CFB7;
+  --lodgra-brand-300: #D8BF6A;
+  --lodgra-brand-400: #C9A227;
+  --lodgra-brand-500: #10203E;
+  --lodgra-brand-600: #0c1830;
+  --lodgra-brand-700: #9f2f1f;
+  --lodgra-brand-800: #1B2430;
+  --lodgra-brand-900: #111111;
+  --lodgra-brand-950: #050505;
 
-  --lodgra-accent-300: oklch(0.88 0.14 62);
-  --lodgra-accent-400: oklch(0.75 0.17 60);
-  --lodgra-accent-500: oklch(0.69 0.16 60);
-  --lodgra-accent-600: oklch(0.60 0.14 58);
-  --lodgra-accent-700: oklch(0.50 0.12 56);
+  --lodgra-accent-300: #D8BF6A;
+  --lodgra-accent-400: #C9A227;
+  --lodgra-accent-500: #C9A227;
+  --lodgra-accent-600: #B08B1F;
+  --lodgra-accent-700: #8F7018;
 
-  --lodgra-neutral-50:  oklch(0.985 0.002 75);
-  --lodgra-neutral-100: oklch(0.962 0.004 75);
-  --lodgra-neutral-200: oklch(0.918 0.004 75);
-  --lodgra-neutral-300: oklch(0.850 0.004 75);
-  --lodgra-neutral-500: oklch(0.552 0.008 75);
-  --lodgra-neutral-700: oklch(0.380 0.006 75);
-  --lodgra-neutral-900: oklch(0.138 0.004 75);
+  --lodgra-neutral-50:  #FBFAF6;
+  --lodgra-neutral-100: #F7F5EF;
+  --lodgra-neutral-200: #EFEADF;
+  --lodgra-neutral-300: #E5DFD2;
+  --lodgra-neutral-500: #4D5566;
+  --lodgra-neutral-700: #4D5566;
+  --lodgra-neutral-900: #1B2430;
 
-  --lodgra-success:  oklch(0.527 0.154 145);
-  --lodgra-warning:  oklch(0.666 0.179 58);
-  --lodgra-error:    oklch(0.577 0.245 27.325);
+  --lodgra-success:  #008a05;
+  --lodgra-warning:  #C9A227;
+  --lodgra-error:    #9f2f1f;
 
   --lodgra-surface:         var(--lodgra-neutral-50);
   --lodgra-surface-card:    var(--lodgra-neutral-100);
@@ -246,99 +246,98 @@ input[type="date"]::placeholder {
   --lodgra-cta-text:        oklch(1 0 0);
 
   /* ─── Shadcn / Dashboard Tokens (updated to Lodgra brand) ────────── */
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.138 0.004 75);     /* warm near-black */
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.138 0.004 75);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.138 0.004 75);
-  --primary: oklch(0.40 0.15 263);         /* brand-500 Lodgra Blue #1E3A8A */
-  --primary-foreground: oklch(1 0 0);      /* white */
-  --secondary: oklch(0.962 0.004 75);      /* warm neutral-100 */
-  --secondary-foreground: oklch(0.21 0.006 285.885);
-  --muted: oklch(0.962 0.004 75);
-  --muted-foreground: oklch(0.552 0.008 75);
-  --accent: oklch(0.69 0.16 60);           /* Lodgra Gold #D4AF37 */
-  --accent-foreground: oklch(0.138 0.004 75);
-  --destructive: oklch(0.577 0.245 27.325); /* red-600 */
-  --border: oklch(0.918 0.004 75);         /* warm neutral-200 */
-  --input: oklch(0.918 0.004 75);
-  --ring: oklch(0.40 0.15 263);            /* brand-500 Lodgra Blue focus ring */
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.141 0.005 285.823);
-  --sidebar-primary: oklch(0.21 0.006 285.885);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.967 0.001 286.375);
-  --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
-  --sidebar-border: oklch(0.92 0.004 286.32);
-  --sidebar-ring: oklch(0.705 0.015 286.067);
+  --background: #F7F5EF;
+  --foreground: #1B2430;
+  --card: #FBFAF6;
+  --card-foreground: #1B2430;
+  --popover: #FBFAF6;
+  --popover-foreground: #1B2430;
+  --primary: #10203E;
+  --primary-foreground: #ffffff;
+  --secondary: #F7F5EF;
+  --secondary-foreground: #1B2430;
+  --muted: #F7F5EF;
+  --muted-foreground: #4D5566;
+  --accent: #C9A227;
+  --accent-foreground: #1B2430;
+  --destructive: #9f2f1f;
+  --border: #E5DFD2;
+  --input: #E5DFD2;
+  --ring: #1B2430;
+  --chart-1: #10203E;
+  --chart-2: #1B2430;
+  --chart-3: #C9A227;
+  --chart-4: #4D5566;
+  --chart-5: #9f2f1f;
+  --sidebar: #FBFAF6;
+  --sidebar-foreground: #1B2430;
+  --sidebar-primary: #10203E;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #F7F5EF;
+  --sidebar-accent-foreground: #1B2430;
+  --sidebar-border: #E5DFD2;
+  --sidebar-ring: #10203E;
 }
 
 html.dark,
 .dark {
-  /* ========== BEHANCE DARK MODE TOKENS ========== */
+  /* ========== LODGRA PREMIUM DARK TOKENS ========== */
 
-  /* Primary: Behance Blue stays consistent */
-  --be-blue: #0057ff;
-  --be-blue-hover: #4c9aff;
-  --be-blue-active: #2d7fe8;
-  --be-blue-light: #bfd2ff;
-  --be-blue-pale: #1a2a4a;
+  --be-blue: #10203E;
+  --be-blue-hover: #C9A227;
+  --be-blue-active: #0c1830;
+  --be-blue-light: #D8BF6A;
+  --be-blue-pale: #32131b;
 
   /* Text & Neutrals (dark mode) */
-  --be-text: #ffffff;                /* White */
-  --be-text-muted: #bfd2ff;          /* Light blue-grey */
-  --be-text-muted-light: #909090;    /* Medium grey */
-  --be-grey-300: #474747;            /* Dark grey */
-  --be-grey-600: #303030;            /* Charcoal */
-  --be-surface: #1a1a1a;             /* Near-black bg */
-  --be-surface-secondary: #303030;   /* Charcoal bg */
-  --be-border: #474747;              /* Dark border */
-  --be-overlay: #303030;             /* Dark overlay */
+  --be-text: #ffffff;
+  --be-text-muted: #E5DFD2;
+  --be-text-muted-light: #7C8492;
+  --be-grey-300: #4D5566;
+  --be-grey-600: #1B2430;
+  --be-surface: #111111;
+  --be-surface-secondary: #1B2430;
+  --be-border: #4D5566;
+  --be-overlay: #1B2430;
 
   /* Semantic (dark mode) */
-  --be-success: #4ade80;
-  --be-warning: #facc15;
-  --be-error: #f87171;
+  --be-success: #42d466;
+  --be-warning: #C9A227;
+  --be-error: #ff8a72;
 
   /* Shadcn compatibility */
-  --background: #1a1a1a;
+  --background: #111111;
   --foreground: #ffffff;
-  --card: #303030;
+  --card: #1B2430;
   --card-foreground: #ffffff;
-  --popover: #303030;
+  --popover: #1B2430;
   --popover-foreground: #ffffff;
-  --primary: #0057ff;
+  --primary: #10203E;
   --primary-foreground: #ffffff;
-  --secondary: #474747;
+  --secondary: #4D5566;
   --secondary-foreground: #ffffff;
-  --muted: #474747;
-  --muted-foreground: #bfd2ff;
-  --accent: #0057ff;
-  --accent-foreground: #ffffff;
-  --destructive: #f87171;
-  --border: #474747;
-  --input: #303030;
-  --input-border: #474747;
-  --ring: #0057ff;
-  --chart-1: #0057ff;
-  --chart-2: #bfd2ff;
-  --chart-3: #146aff;
-  --chart-4: #003ecb;
-  --chart-5: #002f9a;
-  --sidebar: #303030;
+  --muted: #4D5566;
+  --muted-foreground: #E5DFD2;
+  --accent: #C9A227;
+  --accent-foreground: #1B2430;
+  --destructive: #ff8a72;
+  --border: #4D5566;
+  --input: #1B2430;
+  --input-border: #4D5566;
+  --ring: #10203E;
+  --chart-1: #10203E;
+  --chart-2: #ffffff;
+  --chart-3: #C9A227;
+  --chart-4: #D8BF6A;
+  --chart-5: #0c1830;
+  --sidebar: #1B2430;
   --sidebar-foreground: #ffffff;
-  --sidebar-primary: #0057ff;
+  --sidebar-primary: #10203E;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #bfd2ff;
-  --sidebar-accent-foreground: #303030;
-  --sidebar-border: #474747;
-  --sidebar-ring: #0057ff;
+  --sidebar-accent: rgba(201, 162, 39, 0.16);
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #4D5566;
+  --sidebar-ring: #10203E;
 }
 
 @layer base {
@@ -347,6 +346,9 @@ html.dark,
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-inter), "Airbnb Cereal VF", Circular, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 16px;
+    letter-spacing: 0;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
@@ -359,28 +361,28 @@ html.dark,
 }
 
 @layer utilities {
-  /* ========== BEHANCE DESIGN SYSTEM (YOLO Integration) ========== */
+  /* ========== LODGRA PREMIUM / AIRBNB-INSPIRED GLOBAL ALIASES ========== */
 
   /* ─── CARDS ─── */
 
-  /* Project card (white bg, light border, shadow on hover) */
+  /* Project card (warm white bg, light border, shadow on hover) */
   .be-card {
-    background: #ffffff;
-    border: 1px solid #e8e8e8;
-    border-radius: 4px;
+    background: var(--be-surface);
+    border: 1px solid var(--be-border);
+    border-radius: 14px;
     padding: 1rem;
     transition: all 0.15s;
   }
 
   .be-card:hover {
-    box-shadow: 0 1px 2px rgba(25,25,25,0.2);
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.02), 0 2px 6px rgba(0,0,0,0.04), 0 4px 8px rgba(0,0,0,0.1);
   }
 
   /* Card with project cover image */
   .be-card-cover {
-    background: #f0f0f0;
+    background: var(--be-surface-secondary);
     border: transparent;
-    border-radius: 4px;
+    border-radius: 14px;
     overflow: hidden;
   }
 
@@ -390,35 +392,36 @@ html.dark,
     object-fit: cover;
   }
 
-  /* Floating card (white bg, border, subtle shadow) */
+  /* Floating card (warm white bg, border, subtle shadow) */
   .be-card-floating {
-    background: #ffffff;
-    border: 1px solid #e8e8e8;
-    border-radius: 4px;
+    background: var(--be-surface);
+    border: 1px solid var(--be-border);
+    border-radius: 14px;
     padding: 1rem;
-    box-shadow: 0 0 4px rgba(25,25,25,0.1);
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.02), 0 2px 6px rgba(0,0,0,0.04), 0 4px 8px rgba(0,0,0,0.1);
   }
 
   /* ─── BADGES & PILLS ─── */
 
   /* Default badge */
   .be-badge {
-    background: #f7f7f7;
-    color: #191919;
-    border-radius: 3px;
-    padding: 2px 5px;
-    font-size: 9px;
-    font-weight: 700;
+    background: var(--be-surface);
+    color: var(--be-text);
+    border: 1px solid var(--be-border);
+    border-radius: 9999px;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.04em;
   }
 
   /* Notification badge (dot counter) */
   .be-badge-notification {
-    background: #0057ff;
+    background: var(--be-blue);
     color: #ffffff;
-    border: 1px solid #ffffff;
-    border-radius: 3px;
+    border: 1px solid #FBFAF6;
+    border-radius: 9999px;
     padding: 2px 5px;
     font-size: 10px;
     font-weight: 600;
@@ -429,9 +432,9 @@ html.dark,
 
   /* Pill filter/chip */
   .be-pill {
-    background: #ffffff;
-    color: #191919;
-    border: 1px solid #e8e8e8;
+    background: var(--be-surface);
+    color: var(--be-text);
+    border: 1px solid var(--be-border);
     border-radius: 9999px;
     padding: 6px 12px;
     font-size: 13px;
@@ -441,45 +444,45 @@ html.dark,
   }
 
   .be-pill:hover {
-    background: #f9f9f9;
+    background: var(--be-surface-secondary);
   }
 
   /* ─── INPUTS ─── */
 
   .be-input {
-    background: #ffffff;
-    color: #191919;
-    border: 1px solid #e8e8e8;
-    border-radius: 4px;
-    padding: 8px 12px;
-    font-size: 14px;
-    font-family: adobe-clean, helvetica, arial, sans-serif;
+    background: var(--be-surface);
+    color: var(--be-text);
+    border: 1px solid var(--be-border);
+    border-radius: 8px;
+    padding: 14px 12px;
+    font-size: 16px;
+    font-family: var(--font-inter), "Airbnb Cereal VF", Circular, sans-serif;
     transition: all 0.15s;
   }
 
   .be-input:focus {
     outline: none;
-    border-color: #0057ff;
-    box-shadow: 0 0 0 2px rgba(0,87,255,0.2);
+    border-color: var(--be-text);
+    box-shadow: 0 0 0 2px rgba(16, 32, 62, 0.14);
   }
 
   .be-input:disabled {
-    background: #ececec;
-    color: #909090;
-    border-color: #909090;
+    background: #EEE7D8;
+    color: #7C8492;
+    border-color: #CFC4AA;
     cursor: not-allowed;
   }
 
   .be-input::placeholder {
-    color: #707070;
+    color: var(--be-text-muted);
   }
 
   /* ─── NAVIGATION ─── */
 
   .be-nav-header {
-    background: #ffffff;
-    border-bottom: 1px solid #e8e8e8;
-    height: 60px;
+    background: var(--be-surface);
+    border-bottom: 1px solid var(--be-border);
+    height: 80px;
     padding: 0 24px;
     display: flex;
     align-items: center;
@@ -487,9 +490,9 @@ html.dark,
   }
 
   .be-nav-link {
-    color: #191919;
-    font-size: 13px;
-    font-weight: 700;
+    color: var(--be-text);
+    font-size: 16px;
+    font-weight: 600;
     border-radius: 9999px;
     padding: 8px 16px;
     background: transparent;
@@ -499,109 +502,112 @@ html.dark,
   }
 
   .be-nav-link:hover {
-    background: #f0f0f0;
+    background: var(--be-surface-secondary);
   }
 
   .be-nav-link.active {
-    background: #f0f0f0;
+    background: var(--be-surface-secondary);
   }
 
   /* ─── TYPOGRAPHY ─── */
 
-  /* Display hero (Acumin Pro Wide) */
+  /* Display hero */
   .be-display-hero {
-    @apply text-5xl font-bold leading-tight;
-    font-family: acumin-pro-wide, acumin-pro, adobe-clean, sans-serif;
-    letter-spacing: -0.02em;
+    @apply text-3xl font-bold;
+    font-family: var(--font-inter), "Airbnb Cereal VF", Circular, sans-serif;
+    line-height: 1.43;
+    letter-spacing: 0;
   }
 
-  /* Display large (Acumin Pro) */
   .be-display-large {
-    @apply text-4xl font-bold leading-snug;
-    font-family: acumin-pro, adobe-clean, sans-serif;
-    letter-spacing: -0.01em;
+    @apply text-2xl font-medium;
+    font-family: var(--font-inter), "Airbnb Cereal VF", Circular, sans-serif;
+    line-height: 1.18;
+    letter-spacing: 0;
   }
 
   /* Section heading */
   .be-heading {
-    @apply text-xl font-bold leading-relaxed;
-    font-family: adobe-clean, helvetica, arial, sans-serif;
+    @apply text-xl font-semibold;
+    font-family: var(--font-inter), "Airbnb Cereal VF", Circular, sans-serif;
+    line-height: 1.25;
   }
 
   /* Subheading large */
   .be-subheading-lg {
-    @apply text-lg font-semibold leading-relaxed;
-    font-family: adobe-clean, helvetica, arial, sans-serif;
+    @apply text-base font-semibold;
+    font-family: var(--font-inter), "Airbnb Cereal VF", Circular, sans-serif;
   }
 
   /* Subheading */
   .be-subheading {
-    @apply text-base font-bold leading-relaxed;
-    font-family: adobe-clean, helvetica, arial, sans-serif;
+    @apply text-base font-medium;
+    font-family: var(--font-inter), "Airbnb Cereal VF", Circular, sans-serif;
   }
 
   /* Body large */
   .be-body-lg {
     @apply text-base font-normal leading-relaxed;
-    font-family: adobe-clean, helvetica, arial, sans-serif;
-    font-size: 15px;
+    font-family: var(--font-inter), "Airbnb Cereal VF", Circular, sans-serif;
+    font-size: 16px;
   }
 
   /* Body (default) */
   .be-body {
     @apply text-sm font-normal leading-relaxed;
-    font-family: adobe-clean, helvetica, arial, sans-serif;
+    font-family: var(--font-inter), "Airbnb Cereal VF", Circular, sans-serif;
     font-size: 14px;
   }
 
   /* Body small */
   .be-body-sm {
     @apply text-xs font-normal;
-    font-family: adobe-clean, helvetica, arial, sans-serif;
-    font-size: 13px;
+    font-family: var(--font-inter), "Airbnb Cereal VF", Circular, sans-serif;
+    font-size: 14px;
   }
 
   /* Caption */
   .be-caption {
     @apply text-xs font-normal leading-relaxed;
-    font-family: adobe-clean, helvetica, arial, sans-serif;
-    font-size: 12px;
+    font-family: var(--font-inter), "Airbnb Cereal VF", Circular, sans-serif;
+    font-size: 14px;
+    font-weight: 500;
   }
 
   /* Caption small */
   .be-caption-sm {
-    @apply text-xs font-bold leading-relaxed;
-    font-family: adobe-clean, helvetica, arial, sans-serif;
-    font-size: 11px;
+    @apply text-xs font-normal leading-relaxed;
+    font-family: var(--font-inter), "Airbnb Cereal VF", Circular, sans-serif;
+    font-size: 13px;
   }
 
   /* Micro (eyebrow, uppercase) */
   .be-micro {
     @apply text-xs font-bold uppercase leading-relaxed;
-    font-family: acumin-pro, adobe-clean, helvetica, arial, sans-serif;
-    font-size: 10px;
-    letter-spacing: 0.08em;
+    font-family: var(--font-inter), "Airbnb Cereal VF", Circular, sans-serif;
+    font-size: 12px;
+    letter-spacing: 0;
   }
 
   /* Link */
   .be-link {
-    color: #0057ff;
-    font-weight: 700;
+    color: var(--be-blue);
+    font-weight: 500;
     text-decoration: underline;
     transition: color 0.15s;
   }
 
   .be-link:hover {
-    color: #003ecb;
+    color: var(--be-blue-hover);
   }
 
   /* ─── EXISTING UTILITIES ─── */
 
-  /* ========== BEHANCE DARK MODE VARIANTS ========== */
+  /* ========== LODGRA PREMIUM DARK MODE VARIANTS ========== */
 
   .dark .be-card {
-    background: #303030;
-    border-color: #474747;
+    background: var(--card);
+    border-color: var(--border);
   }
 
   .dark .be-card:hover {
@@ -609,59 +615,59 @@ html.dark,
   }
 
   .dark .be-card-cover {
-    background: #1f2937;
+    background: var(--muted);
   }
 
   .dark .be-card-floating {
-    background: #303030;
-    border-color: #474747;
+    background: var(--card);
+    border-color: var(--border);
     box-shadow: 0 0 4px rgba(0,0,0,0.3);
   }
 
   .dark .be-badge {
-    background: #474747;
+    background: var(--muted);
     color: #ffffff;
   }
 
   .dark .be-badge-notification {
-    background: #0057ff;
-    border-color: #303030;
+    background: var(--be-blue);
+    border-color: var(--card);
   }
 
   .dark .be-pill {
-    background: #303030;
+    background: var(--card);
     color: #ffffff;
-    border-color: #474747;
+    border-color: var(--border);
   }
 
   .dark .be-pill:hover {
-    background: #474747;
+    background: var(--muted);
   }
 
   .dark .be-input {
-    background: #303030;
+    background: var(--card);
     color: #ffffff;
-    border-color: #474747;
+    border-color: var(--border);
   }
 
   .dark .be-input:focus {
-    border-color: #0057ff;
-    box-shadow: 0 0 0 2px rgba(0,87,255,0.3);
+    border-color: var(--be-blue);
+    box-shadow: 0 0 0 2px rgba(201, 162, 39, 0.24);
   }
 
   .dark .be-input:disabled {
-    background: #1f2937;
-    color: #909090;
-    border-color: #474747;
+    background: var(--muted);
+    color: #7C8492;
+    border-color: #4D5566;
   }
 
   .dark .be-input::placeholder {
-    color: #909090;
+    color: #7C8492;
   }
 
   .dark .be-nav-header {
-    background: #303030;
-    border-bottom-color: #474747;
+    background: var(--card);
+    border-bottom-color: var(--border);
   }
 
   .dark .be-nav-link {
@@ -670,15 +676,15 @@ html.dark,
 
   .dark .be-nav-link:hover,
   .dark .be-nav-link.active {
-    background: #474747;
+    background: var(--muted);
   }
 
   .dark .be-link {
-    color: #bfd2ff;
+    color: var(--be-blue-light);
   }
 
   .dark .be-link:hover {
-    color: #0057ff;
+    color: var(--be-blue);
   }
 
   .glass {
@@ -688,7 +694,7 @@ html.dark,
   }
 
   .dark .glass {
-    background-color: rgba(48, 48, 48, 0.85);
+    background-color: rgba(12, 24, 48, 0.86);
   }
   .card-hover {
     transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
@@ -696,23 +702,23 @@ html.dark,
   }
   .card-hover:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.09), 0 2px 8px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.02), 0 2px 6px rgba(0,0,0,0.04), 0 4px 8px rgba(0,0,0,0.1);
   }
 
-  /* Lodgra Behance Design System — be-card (legacy) */
+  /* Lodgra Premium Design System — be-card (legacy) */
   .be-card-legacy {
-    background: #ffffff;
-    border-radius: 0px;
-    border: 1px solid #e5e7eb;
+    background: var(--be-surface);
+    border-radius: 14px;
+    border: 1px solid var(--be-border);
     transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
   }
   .be-card-hover:hover {
-    border-color: rgba(30, 58, 138, 0.4);
+    border-color: rgba(16, 32, 62, 0.28);
     transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(30, 58, 138, 0.12);
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.02), 0 2px 6px rgba(0,0,0,0.04), 0 4px 8px rgba(0,0,0,0.1);
   }
   .be-icon {
-    border-radius: 0px;
+    border-radius: 9999px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -721,10 +727,11 @@ html.dark,
 }
 @layer base {
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-hanken-grotesk), sans-serif;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    font-family: var(--font-inter), "Airbnb Cereal VF", Circular, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--foreground);
   }
 
   /* ========== BEHANCE THEME INJECTION ========== */

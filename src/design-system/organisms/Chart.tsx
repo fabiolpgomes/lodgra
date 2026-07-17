@@ -60,7 +60,7 @@ export function BarChart({
                 y={y}
                 width={barWidth - barGap}
                 height={barHeight}
-                fill={item.color || '#1E3A8A'}
+                fill={item.color || '#10203E'}
                 className="hover:opacity-80 transition-opacity cursor-pointer"
               />
 
@@ -97,7 +97,7 @@ export function BarChart({
             <div key={idx} className="flex items-center gap-2">
               <div
                 className="w-3 h-3 rounded-sm"
-                style={{ backgroundColor: item.color || '#1E3A8A' }}
+                style={{ backgroundColor: item.color || '#10203E' }}
               />
               <span className="text-design-sm text-be-text">{item.label}</span>
             </div>
@@ -148,7 +148,7 @@ export function PieChart({ data, size = 'md' }: PieChartProps) {
         path: `M ${cx} ${cy} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2} Z`,
         label: item.label,
         value: item.value,
-        color: item.color || '#1E3A8A',
+        color: item.color || '#10203E',
         percentage: ((item.value / total) * 100).toFixed(1),
       })
 

@@ -145,7 +145,7 @@ function generateHtml(
       font-size: 14px;
       font-weight: 500;
     }
-    .toolbar button:hover { background: #1e40af; }
+    .toolbar button:hover { background: #0c1830; }
     .toolbar button.secondary { background: #6b7280; }
     .toolbar button.secondary:hover { background: #4b5563; }
     .content { margin-top: 70px; }

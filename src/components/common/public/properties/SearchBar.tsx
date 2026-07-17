@@ -193,7 +193,7 @@ export function SearchBar({ onSearch, isLoading = false, hideLocation = false }:
   }
 
   // Generic page (with location field)
-  const ctaBg = '#1E3A8A'
+  const ctaBg = '#10203E'
   const ctaBgHover = '#1e3374'
 
   return (

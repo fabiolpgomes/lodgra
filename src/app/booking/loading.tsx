@@ -1,6 +1,6 @@
 export default function BookingLoading() {
   return (
-    <div className="min-h-screen bg-[#f7f7f7] font-light text-[#3c3c3c]">
+    <div className="min-h-screen bg-[#F7F5EF] font-light text-[#3c3c3c]">
       <header className="bg-white border-b border-[#e6e6e6] px-6 h-[64px] flex items-center justify-center">
         <div className="w-full max-w-[1440px] mx-auto flex items-center justify-between">
           <div className="h-5 w-40 bg-[#f1f1f1]" />
@@ -18,7 +18,7 @@ export default function BookingLoading() {
 
       <section className="bg-white border-b border-[#e6e6e6] px-6 py-8">
         <div className="max-w-[1440px] mx-auto">
-          <div className="h-28 bg-[#f7f7f7] border border-[#e6e6e6]" />
+          <div className="h-28 bg-[#F7F5EF] border border-[#e6e6e6]" />
         </div>
       </section>
 
@@ -29,7 +29,7 @@ export default function BookingLoading() {
               <div className="aspect-[4/3] bg-[#f1f1f1] mb-6" />
               <div className="h-6 bg-[#f1f1f1] w-3/4 mb-4" />
               <div className="h-4 bg-[#f1f1f1] w-1/2 mb-8" />
-              <div className="h-12 bg-[#1E3A8A]/10" />
+              <div className="h-12 bg-[#10203E]/10" />
             </div>
           ))}
         </div>

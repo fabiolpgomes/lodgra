@@ -3,15 +3,15 @@
 import React from 'react'
 import { Button } from '@/components/common/ui/button'
 
-export function BehanceShowcase() {
+export function AirbnbShowcase() {
   return (
-    <div className="min-h-screen bg-white p-8">
+    <div className="min-h-screen bg-[#F7F5EF] p-8">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-12">
-          <h1 className="be-display-hero text-be-text mb-4">Behance Design System</h1>
+          <h1 className="be-display-hero text-be-text mb-4">Lodgra Premium Design System</h1>
           <p className="be-body-lg text-be-text-muted">
-            Lodgra&apos;s new design language inspired by Adobe Behance
+            Airbnb-inspired marketplace ergonomics with Lodgra&apos;s institutional blue and gold palette.
           </p>
         </div>
 
@@ -19,32 +19,32 @@ export function BehanceShowcase() {
         <section className="mb-12">
           <h2 className="be-heading text-be-text mb-6">Color Palette</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {/* Primary Blue */}
+            {/* Institutional Blue */}
             <div>
               <div className="w-full h-20 bg-be-blue rounded-sm mb-2"></div>
-              <p className="be-caption text-be-text">Behance Blue</p>
-              <p className="be-caption-sm text-be-text-muted">#0057ff</p>
+              <p className="be-caption text-be-text">Institutional Blue</p>
+              <p className="be-caption-sm text-be-text-muted">#10203E</p>
             </div>
 
-            {/* Near-Black */}
+            {/* Gold Accent */}
             <div>
-              <div className="w-full h-20 bg-be-text rounded-sm mb-2"></div>
-              <p className="be-caption text-be-text">Near-Black</p>
-              <p className="be-caption-sm text-be-text-muted">#191919</p>
+              <div className="w-full h-20 bg-[#C9A227] rounded-sm mb-2"></div>
+              <p className="be-caption text-be-text">Gold Accent</p>
+              <p className="be-caption-sm text-be-text-muted">#C9A227</p>
             </div>
 
-            {/* Off-White */}
+            {/* Warm White */}
             <div>
               <div className="w-full h-20 bg-be-surface border border-be-border rounded-sm mb-2"></div>
-              <p className="be-caption text-be-text">Off-White</p>
-              <p className="be-caption-sm text-be-text-muted">#f9f9f9</p>
+              <p className="be-caption text-be-text">Warm White</p>
+              <p className="be-caption-sm text-be-text-muted">#FBFAF6</p>
             </div>
 
-            {/* Border */}
+            {/* Sand Background */}
             <div>
-              <div className="w-full h-20 bg-be-border rounded-sm mb-2"></div>
-              <p className="be-caption text-be-text">Border</p>
-              <p className="be-caption-sm text-be-text-muted">#e8e8e8</p>
+              <div className="w-full h-20 bg-[#F7F5EF] border border-be-border rounded-sm mb-2"></div>
+              <p className="be-caption text-be-text">Sand Background</p>
+              <p className="be-caption-sm text-be-text-muted">#F7F5EF</p>
             </div>
           </div>
         </section>
@@ -54,35 +54,35 @@ export function BehanceShowcase() {
           <h2 className="be-heading text-be-text mb-6">Typography</h2>
           <div className="space-y-4">
             <div>
-              <p className="be-display-hero text-be-text">Display Hero (Acumin Pro Wide)</p>
-              <p className="be-body-sm text-be-text-muted">64px, weight 700, line-height 1.1</p>
+              <p className="be-display-hero text-be-text">Display Hero</p>
+              <p className="be-body-sm text-be-text-muted">28px, weight 700, line-height 1.43</p>
             </div>
             <div>
-              <p className="be-display-large text-be-text">Display Large (Acumin Pro)</p>
-              <p className="be-body-sm text-be-text-muted">44px, weight 700, line-height 1.15</p>
+              <p className="be-display-large text-be-text">Display Large</p>
+              <p className="be-body-sm text-be-text-muted">22px, weight 500, line-height 1.18</p>
             </div>
             <div>
-              <p className="be-heading text-be-text">Section Heading (Adobe Clean)</p>
-              <p className="be-body-sm text-be-text-muted">20px, weight 700, line-height 1.3</p>
+              <p className="be-heading text-be-text">Section Heading</p>
+              <p className="be-body-sm text-be-text-muted">20px, weight 600, line-height 1.25</p>
             </div>
             <div>
-              <p className="be-body text-be-text">Body text (Adobe Clean) — This is the default body typography for the Behance design system. It uses 14px Adobe Clean weight 400 with a line-height of 1.43 and near-black text color (#191919).</p>
+              <p className="be-body text-be-text">Body text — Airbnb-style product typography uses modest weights, generous line-height and slate ink (#1B2430).</p>
             </div>
             <div>
-              <p className="be-caption text-be-text-muted">Caption text (Adobe Clean)</p>
-              <p className="be-body-sm text-be-text-muted">12px, weight 400</p>
+              <p className="be-caption text-be-text-muted">Caption text</p>
+              <p className="be-body-sm text-be-text-muted">14px, weight 500</p>
             </div>
           </div>
         </section>
 
         {/* Buttons Section */}
         <section className="mb-12">
-          <h2 className="be-heading text-be-text mb-6">Button Variants (Pill-Shaped)</h2>
+          <h2 className="be-heading text-be-text mb-6">Button Variants</h2>
 
           <div className="space-y-8">
             {/* Primary Button */}
             <div>
-              <p className="be-subheading text-be-text mb-3">Primary Blue (be-primary)</p>
+              <p className="be-subheading text-be-text mb-3">Primary Institutional Blue (be-primary)</p>
               <div className="flex flex-wrap gap-3">
                 <Button variant="be-primary" size="be-sm">Small</Button>
                 <Button variant="be-primary" size="be-md">Medium</Button>
@@ -92,7 +92,7 @@ export function BehanceShowcase() {
 
             {/* Secondary Button */}
             <div>
-              <p className="be-subheading text-be-text mb-3">Secondary White (be-secondary)</p>
+              <p className="be-subheading text-be-text mb-3">Secondary Warm White (be-secondary)</p>
               <div className="flex flex-wrap gap-3">
                 <Button variant="be-secondary" size="be-sm">Small</Button>
                 <Button variant="be-secondary" size="be-md">Medium</Button>
@@ -102,7 +102,7 @@ export function BehanceShowcase() {
 
             {/* Tertiary Button */}
             <div>
-              <p className="be-subheading text-be-text mb-3">Tertiary Pale Blue (be-tertiary)</p>
+              <p className="be-subheading text-be-text mb-3">Tertiary Gold Tint (be-tertiary)</p>
               <div className="flex flex-wrap gap-3">
                 <Button variant="be-tertiary" size="be-sm">Small</Button>
                 <Button variant="be-tertiary" size="be-md">Medium</Button>
@@ -112,7 +112,7 @@ export function BehanceShowcase() {
 
             {/* Contrast Button */}
             <div>
-              <p className="be-subheading text-be-text mb-3">Contrast Black (be-contrast)</p>
+              <p className="be-subheading text-be-text mb-3">Contrast Slate (be-contrast)</p>
               <div className="flex flex-wrap gap-3">
                 <Button variant="be-contrast" size="be-sm">Small</Button>
                 <Button variant="be-contrast" size="be-md">Medium</Button>
@@ -143,7 +143,7 @@ export function BehanceShowcase() {
             <div className="be-card">
               <h3 className="be-subheading text-be-text mb-2">Card Title</h3>
               <p className="be-body text-be-text-muted">
-                This is a Behance-style card with white background, subtle border, and hover shadow.
+                This is an Airbnb-style card with warm white background, subtle border, soft radius, and a single hover shadow.
               </p>
             </div>
 
@@ -212,7 +212,7 @@ export function BehanceShowcase() {
         <section>
           <h2 className="be-heading text-be-text mb-6">Spacing Scale (4px-base)</h2>
           <p className="be-body text-be-text-muted mb-6">
-            Behance uses a strict 4px-base spacing ladder. All values resolve to multiples of 4px.
+            Lodgra uses an Airbnb-inspired 4px/8px spacing ladder with 64px section rhythm and dense marketplace grids.
           </p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
@@ -237,3 +237,5 @@ export function BehanceShowcase() {
     </div>
   )
 }
+
+export const BehanceShowcase = AirbnbShowcase

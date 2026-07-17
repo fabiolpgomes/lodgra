@@ -9,99 +9,112 @@ const config: any = {
   theme: {
     extend: {
       colors: {
-        // ========== BEHANCE DESIGN SYSTEM (YOLO Integration) ==========
-        // Primary brand colors
-        'be-blue': '#0057ff',           // Behance Blue — primary CTA
-        'be-blue-hover': '#003ecb',     // Behance Blue Hover (blue-700)
-        'be-blue-active': '#002f9a',    // Behance Blue Active (blue-800)
+        // ========== LODGRA PREMIUM DESIGN SYSTEM ==========
+        // Legacy be-* aliases resolve to Lodgra Premium tokens so existing pages inherit the redesign.
+        'be-blue': '#10203E',
+        'be-blue-hover': '#0c1830',
+        'be-blue-active': '#081226',
 
         // Text & Near-Black
-        'be-text': '#191919',           // Near-black body text (grey-900)
-        'be-text-muted': '#707070',     // Grey-600
-        'be-text-disabled': '#909090',  // Grey-500 (neutral)
+        'be-text': '#1B2430',
+        'be-text-muted': '#4D5566',
+        'be-text-disabled': '#7C8492',
 
         // Surfaces & Backgrounds
-        'be-white': '#ffffff',          // Default surface
-        'be-surface': '#f9f9f9',        // Off-white (grey-50, tiles)
-        'be-surface-secondary': '#f0f0f0', // Grey-100
-        'be-surface-tertiary': '#ececec',  // Grey-200
+        'be-white': '#FBFAF6',
+        'be-surface': '#F7F5EF',
+        'be-surface-secondary': '#EEE7D8',
+        'be-surface-tertiary': '#EFEADF',
 
         // Borders
-        'be-border': '#e8e8e8',         // Grey-300 (default border)
-        'be-border-hover': '#cdcdcd',   // Grey-400
-        'be-border-accent': '#0057ff',  // Behance Blue (focus rings)
+        'be-border': '#E5DFD2',
+        'be-border-hover': '#CFC4AA',
+        'be-border-accent': '#10203E',
 
         // States
-        'be-success': '#028901',        // Green-400
-        'be-error': '#d00d00',          // Red-500
-        'be-warning': '#f97c00',        // Orange-500
+        'be-success': '#008a05',
+        'be-error': '#9f2f1f',
+        'be-warning': '#C9A227',
 
         // Accents & Semantic
-        'be-blue-light': '#f5f8ff',     // Blue-100
-        'be-blue-pale': '#e0eaff',      // Blue-200
-        'be-blue-sky': '#bfd2ff',       // Blue-300
-        'be-slate': '#0a7494',          // Slate-500
-        'be-purple': '#b125c0',         // Purple-500
+        'be-blue-light': '#D8CFB7',
+        'be-blue-pale': '#F7F5EF',
+        'be-blue-sky': '#D8BF6A',
+        'be-slate': '#4D5566',
+        'be-purple': '#C9A227',
 
         // Grey scale
         'be-grey': {
-          50:  '#f9f9f9',
-          100: '#f0f0f0',
-          200: '#ececec',
-          300: '#e8e8e8',
-          400: '#cdcdcd',
-          500: '#909090',
-          600: '#707070',
-          700: '#474747',
-          800: '#303030',
-          900: '#191919',
+          50:  '#F7F5EF',
+          100: '#EEE7D8',
+          200: '#EFEADF',
+          300: '#E5DFD2',
+          400: '#c1c1c1',
+          500: '#7C8492',
+          600: '#4D5566',
+          700: '#4D5566',
+          800: '#1B2430',
+          900: '#111111',
         },
 
         // ========== DESIGN TOKENS (Phase 3) ==========
         // Token-based colors (CSS variables from tokens.css)
-        'lodgra-primary': 'var(--lodgra-primary)',      // #1E3A8A
-        'lodgra-accent': 'var(--lodgra-accent)',        // #ffc000
-        'lodgra-bg-light': 'var(--lodgra-bg-light)',    // #f8f8f8
+        'lodgra-primary': 'var(--lodgra-primary)',
+        'lodgra-accent': 'var(--lodgra-accent)',
+        'lodgra-bg-light': 'var(--lodgra-bg-light)',
 
         // ========== EXISTING BRAND COLORS ==========
         // LODGRA Brand Guidelines v1.0 - Official Palette
-        'lodgra-blue': '#1E3A8A',    // Azul Confiança
-        'lodgra-gold': '#D4AF37',    // Ouro Próspero
+        'lodgra-blue': '#10203E',
+        'lodgra-gold': '#C9A227',
         'lodgra-green': '#059669',   // Verde Crescimento
         'lodgra-gray': '#F3F4F6',    // Cinza Neutro
         'lodgra-dark': '#374151',    // Cinza Escuro
 
         // Semantic Colors (aligned with brand)
         'success': '#059669',
-        'warning': '#D4AF37',
+        'warning': '#C9A227',
         'error': '#DC2626',
-        'info': '#1E3A8A',
+        'info': '#1B2430',
 
-        // Brand scale — Lodgra Blue (#1E3A8A = brand-800)
-        'brand': {
-          50:  '#EEF2FF',
-          100: '#E0E7FF',
-          200: '#C7D2FE',
-          300: '#A5B4FC',
-          400: '#818CF8',
-          500: '#4F63DE',
-          600: '#3A4FC5',
-          700: '#2D3DA8',
-          800: '#1E3A8A',  // Lodgra Blue — primary brand
-          900: '#162C6B',
-          950: '#0E1B47',
+        // Reference dashboard aliases from lodgra-dashboard.zip
+        'brand-blue': '#10203E',
+        'brand-blue-trans': 'rgba(16, 32, 62, 0.62)',
+        'brand-blue-overlay': 'rgba(12, 24, 48, 0.9)',
+        'brand-gold': '#C9A227',
+        'brand-bg': '#F7F5EF',
+        'brand-white': '#FBFAF6',
+        'brand-text-dark': '#1B2430',
+        'brand-text-medium': '#4D5566',
+        neutral: {
+          850: '#1a1a1a',
         },
-        // Accent scale — Lodgra Gold (#D4AF37 = accent-500)
+
+        // Brand scale — Lodgra institutional blue
+        'brand': {
+          50:  '#F7F5EF',
+          100: '#EFE7D4',
+          200: '#D8CFB7',
+          300: '#D8BF6A',
+          400: '#C9A227',
+          500: '#10203E',
+          600: '#0c1830',
+          700: '#9f2f1f',
+          800: '#1B2430',
+          900: '#111111',
+          950: '#050505',
+        },
+        // Accent scale — Lodgra gold and premium highlights
         'accent': {
-          300: '#F0DC87',
-          400: '#E5CB5A',
-          500: '#D4AF37',  // Lodgra Gold — highlights, CTAs
-          600: '#B89229',
-          700: '#96751C',
+          300: '#D8BF6A',
+          400: '#C9A227',
+          500: '#C9A227',
+          600: '#B08B1F',
+          700: '#8F7018',
         },
 
         // Legacy hs-* aliases (public property components)
-        'hs-brand': { 400: '#3B82F6', 500: '#1E3A8A', 600: '#1e40af' },
+        'hs-brand': { 400: '#D8BF6A', 500: '#10203E', 600: '#0c1830' },
         'hs-neutral': { 50: '#F9FAFB', 100: '#F3F4F6', 200: '#E5E7EB', 300: '#D1D5DB', 400: '#9CA3AF', 500: '#6B7280', 600: '#4B5563', 700: '#374151', 800: '#1F2937', 900: '#111827' },
       },
       fontFamily: {
@@ -158,6 +171,8 @@ const config: any = {
         'full': '9999px',
       },
       boxShadow: {
+        '2xs': '0 1px 2px rgb(16 32 62 / 0.04)',
+        'xs': '0 1px 3px rgb(16 32 62 / 0.06)',
         'sm': '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
         'md': '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
         'lg': '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
