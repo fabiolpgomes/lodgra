@@ -593,4 +593,33 @@ input[type="date"]::placeholder {
     text-transform: uppercase;
     letter-spacing: 0.05em;
   }
+
+  /* ========== BEHANCE THEME INJECTION ========== */
+  /* Global color overrides for brand consistency */
+
+  /* Primary action color throughout app */
+  [data-slot="button"][data-variant="default"],
+  .bg-lodgra-blue:not([data-no-behance]) {
+    @apply bg-be-blue hover:bg-be-blue-hover;
+  }
+
+  /* Text primary */
+  body {
+    @apply text-be-text;
+  }
+
+  /* Borders */
+  .border-lodgra-blue\/10:not([data-no-behance]) {
+    @apply border-be-border;
+  }
+
+  /* Links */
+  a {
+    @apply text-be-blue hover:text-be-blue-hover;
+  }
+
+  /* Input focus ring */
+  input:focus-visible {
+    @apply ring-be-blue/30;
+  }
 }
