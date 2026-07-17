@@ -279,6 +279,7 @@ input[type="date"]::placeholder {
   --sidebar-ring: oklch(0.705 0.015 286.067);
 }
 
+html.dark,
 .dark {
   /* ========== BEHANCE DARK MODE TOKENS ========== */
 
