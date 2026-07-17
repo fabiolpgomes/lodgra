@@ -7,6 +7,7 @@ import { getUserAccess } from '@/lib/auth/getUserAccess'
 import { Button } from '@/components/common/ui/button'
 import { ExpensesFilter } from '@/components/features/expenses/ExpensesFilter'
 import { parsePage, getRange, PAGE_SIZE } from '@/lib/utils/pagination'
+import { PremiumPageHeader, PremiumPageShell } from '@/components/common/layout/PremiumPage'
 
 export default async function ExpensesPage({
   params,
@@ -64,18 +65,13 @@ export default async function ExpensesPage({
 
   return (
     <AuthLayout profile={profile}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-          <div>
-            <div className="flex items-center gap-3 mb-1">
-              <div className="p-2 bg-red-100 rounded-xl">
-                <Receipt className="h-6 w-6 text-red-600" />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900">Despesas</h2>
-            </div>
-            <p className="text-gray-600 text-sm ml-14">Gerencie todas as despesas das propriedades</p>
-          </div>
-          {canCreate && (
+      <PremiumPageShell>
+        <PremiumPageHeader
+          title="Despesas"
+          description="Gerencie todas as despesas das propriedades"
+          icon={Receipt}
+          badge={`${totalCount ?? 0} registros`}
+          actions={canCreate && (
             <div className="flex gap-2">
               <Button asChild variant="outline">
                 <Link href={`/${locale}/expenses/export`}>
@@ -91,8 +87,9 @@ export default async function ExpensesPage({
               </Button>
             </div>
           )}
-        </div>
+        />
 
+        <div className="border-b border-neutral-200/60" />
 
         {/* Filter + Search + List */}
         <ExpensesFilter
@@ -102,7 +99,7 @@ export default async function ExpensesPage({
           canEdit={canEdit}
           pagination={{ page, total: totalCount ?? 0, pageSize: PAGE_SIZE }}
         />
-      </div>
+      </PremiumPageShell>
     </AuthLayout>
   )
 }

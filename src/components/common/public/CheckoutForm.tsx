@@ -128,16 +128,16 @@ export function CheckoutForm({
             <div
               className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-medium ${
                 i + 1 === stepNumber
-                  ? 'bg-gray-900 text-white'
+                  ? 'bg-brand-blue text-white'
                   : i + 1 < stepNumber
                   ? 'bg-green-500 text-white'
-                  : 'bg-gray-100 text-gray-500'
+                  : 'bg-brand-white text-brand-text-medium border border-brand-gold/15'
               }`}
             >
               {i + 1 < stepNumber ? '✓' : i + 1}
             </div>
             <span
-              className={`text-sm ${i + 1 === stepNumber ? 'font-medium text-gray-900' : 'text-gray-500'}`}
+              className={`text-sm ${i + 1 === stepNumber ? 'font-medium text-brand-text-dark' : 'text-brand-text-medium'}`}
             >
               {label}
             </span>
@@ -162,13 +162,13 @@ export function CheckoutForm({
           />
           <button
             onClick={() => setStep('guest')}
-            className="w-full rounded-lg bg-gray-900 px-4 py-3 text-sm font-medium text-white hover:bg-gray-700 transition-colors"
+            className="w-full rounded-full bg-brand-blue px-4 py-3 text-sm font-medium text-white hover:bg-brand-gold transition-colors"
           >
             Continuar
           </button>
           <button
             onClick={() => router.push(`/p/${slug}`)}
-            className="w-full text-sm text-gray-600 hover:text-gray-700 flex items-center justify-center gap-1"
+            className="w-full text-sm text-brand-text-medium hover:text-brand-gold flex items-center justify-center gap-1"
           >
             <ArrowLeft className="h-3.5 w-3.5" /> Alterar datas
           </button>
@@ -190,7 +190,7 @@ export function CheckoutForm({
 
           <div className="space-y-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-brand-text-dark mb-1">
                 Nome completo *
               </label>
               <input
@@ -198,14 +198,14 @@ export function CheckoutForm({
                 value={guestData.name}
                 onChange={(e) => setGuestData((d) => ({ ...d, name: e.target.value }))}
                 placeholder="João Silva"
-                className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+                className="w-full rounded-xl border border-brand-gold/20 bg-brand-white px-3 py-2.5 text-sm text-brand-text-dark focus:outline-none focus:ring-2 focus:ring-brand-gold/30"
                 autoComplete="name"
               />
               {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-brand-text-dark mb-1">
                 Email *
               </label>
               <input
@@ -213,17 +213,17 @@ export function CheckoutForm({
                 value={guestData.email}
                 onChange={(e) => setGuestData((d) => ({ ...d, email: e.target.value }))}
                 placeholder="joao@exemplo.com"
-                className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+                className="w-full rounded-xl border border-brand-gold/20 bg-brand-white px-3 py-2.5 text-sm text-brand-text-dark focus:outline-none focus:ring-2 focus:ring-brand-gold/30"
                 autoComplete="email"
               />
               {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-brand-text-dark mb-1">
                 Telefone *
               </label>
-              <p className="text-xs text-gray-600 mb-2">
+              <p className="text-xs text-brand-text-medium mb-2">
                 Usaremos este número para enviar a confirmação do seu pagamento via SMS.
               </p>
               <input
@@ -231,20 +231,20 @@ export function CheckoutForm({
                 value={guestData.phone}
                 onChange={(e) => setGuestData((d) => ({ ...d, phone: e.target.value }))}
                 placeholder="+351 912 345 678"
-                className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+                className="w-full rounded-xl border border-brand-gold/20 bg-brand-white px-3 py-2.5 text-sm text-brand-text-dark focus:outline-none focus:ring-2 focus:ring-brand-gold/30"
                 autoComplete="tel"
               />
               {errors.phone && <p className="mt-1 text-xs text-red-500">{errors.phone}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-brand-text-dark mb-1">
                 País
               </label>
               <select
                 value={guestData.country}
                 onChange={(e) => setGuestData((d) => ({ ...d, country: e.target.value }))}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 bg-white"
+                className="w-full rounded-xl border border-brand-gold/20 bg-brand-white px-3 py-2.5 text-sm text-brand-text-dark focus:outline-none focus:ring-2 focus:ring-brand-gold/30"
               >
                 {COUNTRIES.map((c) => (
                   <option key={c.code} value={c.code}>
@@ -258,7 +258,7 @@ export function CheckoutForm({
           <div className="flex gap-3">
             <button
               onClick={() => setStep('summary')}
-              className="flex items-center gap-1 rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+              className="flex items-center gap-1 rounded-full border border-brand-gold/25 px-4 py-2.5 text-sm font-medium text-brand-blue hover:bg-brand-gold/10 transition-colors"
             >
               <ArrowLeft className="h-3.5 w-3.5" /> Voltar
             </button>
@@ -266,7 +266,7 @@ export function CheckoutForm({
               onClick={() => {
                 if (validateGuest()) setStep('payment')
               }}
-              className="flex-1 rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-gray-700 transition-colors"
+              className="flex-1 rounded-full bg-brand-blue px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-gold transition-colors"
             >
               Continuar
             </button>
@@ -287,8 +287,8 @@ export function CheckoutForm({
             compact
           />
 
-          <div className="rounded-lg border border-gray-200 p-4 space-y-2 text-sm text-gray-600">
-            <p className="font-medium text-gray-900">Resumo dos seus dados</p>
+          <div className="rounded-2xl border border-brand-gold/20 bg-brand-white p-4 space-y-2 text-sm text-brand-text-medium">
+            <p className="font-medium text-brand-text-dark">Resumo dos seus dados</p>
             <p>{guestData.name}</p>
             <p>{guestData.email}</p>
             <p>{guestData.phone}</p>
@@ -300,14 +300,14 @@ export function CheckoutForm({
             </div>
           )}
 
-          <p className="text-xs text-gray-600">
+          <p className="text-xs text-brand-text-medium">
             Ao clicar em Pagar, será redireccionado para a página segura de pagamento do Stripe.
           </p>
 
           <button
             onClick={handlePayment}
             disabled={submitting}
-            className="w-full flex items-center justify-center gap-2 rounded-lg bg-gray-900 px-4 py-3 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+            className="w-full flex items-center justify-center gap-2 rounded-full bg-brand-blue px-4 py-3 text-sm font-medium text-white hover:bg-brand-gold disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
           >
             {submitting ? (
               <>
@@ -322,7 +322,7 @@ export function CheckoutForm({
           <button
             onClick={() => setStep('guest')}
             disabled={submitting}
-            className="w-full text-sm text-gray-600 hover:text-gray-700 flex items-center justify-center gap-1"
+            className="w-full text-sm text-brand-text-medium hover:text-brand-gold flex items-center justify-center gap-1"
           >
             <ArrowLeft className="h-3.5 w-3.5" /> Corrigir dados
           </button>

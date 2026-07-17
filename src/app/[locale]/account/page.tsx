@@ -1,6 +1,7 @@
 import { requireRole } from '@/lib/auth/requireRole'
 import { redirect } from 'next/navigation'
 import { AuthLayout } from '@/components/common/layout/AuthLayout'
+import { PremiumCard, PremiumPageHeader, PremiumPageShell } from '@/components/common/layout/PremiumPage'
 import { ChangePasswordForm } from '@/components/auth/ChangePasswordForm'
 import { PlanManagement } from '@/components/billing/PlanManagement'
 import { KeyRound, User, CreditCard } from 'lucide-react'
@@ -45,62 +46,59 @@ export default async function AccountPage() {
 
   return (
     <AuthLayout>
-      <div className="max-w-lg mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex items-center gap-3 mb-8">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[color:var(--be-blue-pale)]">
-            <User className="h-5 w-5 text-[color:var(--be-blue)]" />
-          </div>
-          <div>
-            <h1 className="text-xl font-semibold text-gray-900">Minha Conta</h1>
-            <p className="text-sm text-gray-600">Gerencie as suas informações pessoais</p>
-          </div>
-        </div>
+      <PremiumPageShell maxWidth="max-w-lg">
+        <PremiumPageHeader
+          title="Minha Conta"
+          description="Gerencie as suas informações pessoais"
+          badge={roleLabel}
+          icon={User}
+        />
 
         {/* Profile Info */}
-        <div className="bg-white rounded-lg shadow p-6 mb-6">
-          <h2 className="text-sm font-semibold text-gray-900 mb-4">Informações do Perfil</h2>
+        <PremiumCard>
+          <h2 className="mb-4 text-sm font-semibold text-brand-text-dark transition-colors group-hover:text-brand-gold">Informações do Perfil</h2>
           <div className="space-y-3">
             <div>
-              <p className="text-xs text-gray-600">Nome</p>
-              <p className="text-sm font-medium text-gray-900">{profile?.full_name || '—'}</p>
+              <p className="text-xs text-brand-text-medium">Nome</p>
+              <p className="text-sm font-medium text-brand-text-dark">{profile?.full_name || '—'}</p>
             </div>
             <div>
-              <p className="text-xs text-gray-600">Email</p>
-              <p className="text-sm font-medium text-gray-900">{profile?.email}</p>
+              <p className="text-xs text-brand-text-medium">Email</p>
+              <p className="text-sm font-medium text-brand-text-dark">{profile?.email}</p>
             </div>
             <div>
-              <p className="text-xs text-gray-600">Função</p>
+              <p className="text-xs text-brand-text-medium">Função</p>
               <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                 role === 'admin' ? 'bg-red-100 text-red-800' :
-                role === 'gestor' ? 'bg-[color:var(--be-blue-pale)] text-brand-800' :
+                role === 'gestor' ? 'bg-brand-blue/10 text-brand-blue' :
                 'bg-gray-100 text-gray-800'
               }`}>
                 {roleLabel}
               </span>
             </div>
           </div>
-        </div>
+        </PremiumCard>
 
         {/* Plan Management — admin only */}
         {role === 'admin' && (
-          <div className="bg-white rounded-lg shadow p-6 mb-6">
+          <PremiumCard>
             <div className="flex items-center gap-2 mb-4">
-              <CreditCard className="h-4 w-4 text-gray-600" />
-              <h2 className="text-sm font-semibold text-gray-900">Plano e Subscrição</h2>
+              <CreditCard className="h-4 w-4 text-brand-gold" />
+              <h2 className="text-sm font-semibold text-brand-text-dark transition-colors group-hover:text-brand-gold">Plano e Subscrição</h2>
             </div>
             <PlanManagement currentPlan={orgPlan} subscriptionStatus={orgStatus} />
-          </div>
+          </PremiumCard>
         )}
 
         {/* Change Password */}
-        <div className="bg-white rounded-lg shadow p-6">
+        <PremiumCard>
           <div className="flex items-center gap-2 mb-4">
-            <KeyRound className="h-4 w-4 text-gray-600" />
-            <h2 className="text-sm font-semibold text-gray-900">Alterar Senha</h2>
+            <KeyRound className="h-4 w-4 text-brand-gold" />
+            <h2 className="text-sm font-semibold text-brand-text-dark transition-colors group-hover:text-brand-gold">Alterar Senha</h2>
           </div>
           <ChangePasswordForm />
-        </div>
-      </div>
+        </PremiumCard>
+      </PremiumPageShell>
     </AuthLayout>
   )
 }

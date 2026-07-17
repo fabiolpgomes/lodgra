@@ -15,6 +15,7 @@ import { normalizeChannelName } from '@/lib/utils/channels'
 import { AuthLayout } from '@/components/common/layout/AuthLayout'
 import { getUserPropertyIds } from '@/lib/auth/getUserProperties'
 import { LazyFinancialOverviewCharts } from '@/components/common/lazy/LazyCharts'
+import { PremiumMetricCard, PremiumPageHeader, PremiumPageShell } from '@/components/common/layout/PremiumPage'
 
 interface PageProps {
   searchParams: Promise<{
@@ -490,27 +491,18 @@ export default async function FinanceiroPage({ searchParams }: PageProps) {
 
   return (
     <AuthLayout>
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Page Header */}
-        <div className="mb-8 flex items-start justify-between">
-          <div>
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 bg-[color:var(--be-blue-pale)] rounded-xl">
-                <FileText className="h-6 w-6 text-[color:var(--be-blue)]" />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900">Relatórios Financeiros</h2>
-            </div>
-            <p className="text-gray-600 text-sm ml-14">
-              Análise detalhada de receitas, despesas e performance das propriedades
-            </p>
-          </div>
-          <FinancialPdfDownloadButton
+      <PremiumPageShell>
+        <PremiumPageHeader
+          title="Relatórios Financeiros"
+          description="Análise detalhada de receitas, despesas e performance das propriedades"
+          badge={activeTab}
+          icon={FileText}
+          actions={<FinancialPdfDownloadButton
             startDate={startDate}
             endDate={endDate}
             propertyId={propertyId}
-          />
-        </div>
+          />}
+        />
 
         {/* Filtros */}
         <ReportsFilters
@@ -522,112 +514,57 @@ export default async function FinanceiroPage({ searchParams }: PageProps) {
         />
 
         {/* Métricas Principais — Row 1: financials */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-4">
-          <div className="border border-be-blue/10 p-5 rounded-none shadow-none" style={{ backgroundColor: '#FFFFFF' }}>
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-2.5 rounded-none">
-                <TrendingUp className="h-5 w-5" style={{ color: '#10203E' }} />
-              </div>
-              <span className="text-[10px] font-black uppercase tracking-widest font-display" style={{ color: '#10203E' }}>Receita</span>
-            </div>
-            <div style={{ color: '#10203E' }}>
-              <CurrencyStack totals={revenueByCurrency} size="md" showEmpty={true} />
-            </div>
-            <p className="text-[10px] font-black uppercase tracking-wider mt-2" style={{ color: '#10203E' }}>Receita bruta no período</p>
-          </div>
-
-          <div className="bg-white border border-be-blue/10 p-5 rounded-none">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-2.5 bg-red-50 rounded-none">
-                <TrendingDown className="h-5 w-5 text-red-600" />
-              </div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-[color:var(--be-text)]/30 font-display">Despesas</span>
-            </div>
-            <div className="text-red-600">
-              <CurrencyStack totals={expensesByCurrency} size="md" showEmpty={true} />
-            </div>
-            <p className="text-[10px] font-black uppercase tracking-wider text-[color:var(--be-text)]/20 mt-2">Total despesas no período</p>
-          </div>
-
-          <div className="bg-white border border-be-blue/10 p-5 rounded-none">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-2.5 bg-[color:var(--be-text)]/5 rounded-none">
-                <BarChart3 className="h-5 w-5 text-[color:var(--be-text)]" />
-              </div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-[color:var(--be-text)]/30 font-display">Lucro</span>
-            </div>
-            <div className="space-y-1.5">
-              {Object.entries(netProfitByCurrency).length > 0 ? (
-                Object.entries(netProfitByCurrency).map(([currency, amount]) => (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+          <PremiumMetricCard
+            icon={TrendingUp}
+            label="Receita"
+            type="Receita"
+            description="Receita bruta no período"
+            value={<CurrencyStack totals={revenueByCurrency} size="md" showEmpty={true} />}
+          />
+          <PremiumMetricCard
+            icon={TrendingDown}
+            label="Despesas"
+            type="Despesas"
+            description="Total despesas no período"
+            tone="danger"
+            value={<CurrencyStack totals={expensesByCurrency} size="md" showEmpty={true} />}
+          />
+          <PremiumMetricCard
+            icon={BarChart3}
+            label="Lucro"
+            type="Lucro"
+            description="Lucro líquido no período"
+            value={Object.entries(netProfitByCurrency).length > 0 ? (
+              <div className="space-y-1.5">
+                {Object.entries(netProfitByCurrency).map(([currency, amount]) => (
                   <div key={currency} className="flex items-center gap-2">
-                    <span className={`inline-flex items-center justify-center min-w-[2.5rem] h-5 px-1.5 text-[10px] font-black uppercase tracking-widest rounded-none ring-1 shrink-0 ${
-                      currency === 'EUR' ? 'bg-[color:var(--be-text)]/5 text-[color:var(--be-text)] ring-[color:var(--be-text)]/20' :
-                      currency === 'BRL' ? 'bg-green-50 text-green-700 ring-green-200' :
-                      currency === 'USD' ? 'bg-yellow-50 text-yellow-700 ring-yellow-200' :
-                      'bg-purple-50 text-purple-700 ring-purple-200'
-                    }`}>{currency}</span>
-                    <span className={`text-xl font-black tabular-nums font-display ${amount >= 0 ? 'text-[color:var(--be-text)]' : 'text-red-600'}`}>
+                    <span className="inline-flex h-5 min-w-[2.5rem] shrink-0 items-center justify-center rounded-md border border-neutral-200/60 bg-brand-bg px-1.5 text-[10px] font-black uppercase tracking-widest text-brand-text-dark">
+                      {currency}
+                    </span>
+                    <span className={`text-xl font-black tabular-nums ${amount >= 0 ? 'text-brand-text-dark' : 'text-red-600'}`}>
                       {formatCurrency(amount, currency as CurrencyCode)}
                     </span>
                   </div>
-                ))
-              ) : (
-                <span className="text-xl font-black text-gray-500 font-display">—</span>
-              )}
-            </div>
-            <p className="text-[10px] font-black uppercase tracking-wider text-[color:var(--be-text)]/20 mt-2">Lucro líquido no período</p>
-          </div>
+                ))}
+              </div>
+            ) : '—'}
+          />
         </div>
 
         {/* Métricas Principais — Row 2: KPIs */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 mb-8">
-          <div className="bg-white border border-be-blue/10 p-5 rounded-none">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-2.5 bg-[color:var(--be-text)]/5 rounded-none">
-                <Calendar className="h-4 w-4 text-[color:var(--be-text)]" />
-              </div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-[color:var(--be-text)]/30 font-display">Reservas</span>
-            </div>
-            <p className="text-4xl font-black text-[color:var(--be-text)] font-display tracking-tighter">{totalReservations}</p>
-            <p className="text-[10px] font-black uppercase tracking-wider text-[color:var(--be-text)]/20 mt-1">Confirmadas</p>
-          </div>
-
-          <div className="bg-white border border-be-blue/10 p-5 rounded-none">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-2.5 bg-[color:var(--be-blue)]/5 rounded-none">
-                <BarChart2 className="h-4 w-4 text-[color:var(--be-blue)]" />
-              </div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-[color:var(--be-text)]/30 font-display">ADR</span>
-            </div>
-            <CurrencyStack totals={adrByCurrency} size="sm" showEmpty={true} />
-            <p className="text-[10px] font-black uppercase tracking-wider text-[color:var(--be-text)]/20 mt-2">Diária média</p>
-          </div>
-
-          <div className="bg-white border border-be-blue/10 p-5 rounded-none">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-2.5 bg-[color:var(--be-blue)]/5 rounded-none">
-                <DollarSign className="h-4 w-4 text-[color:var(--be-blue)]" />
-              </div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-[color:var(--be-text)]/30 font-display">RevPAR</span>
-            </div>
-            <div className="text-[color:var(--be-blue)]">
-              <CurrencyStack totals={revparByCurrency} size="sm" showEmpty={true} />
-            </div>
-            <p className="text-[10px] font-black uppercase tracking-wider text-[color:var(--be-text)]/20 mt-2">Receita/noite disp.</p>
-          </div>
-
-          <div className="bg-white border border-be-blue/10 p-5 rounded-none">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-2.5 bg-teal-50 rounded-none">
-                <Target className="h-4 w-4 text-teal-600" />
-              </div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-[color:var(--be-text)]/30 font-display">Ocupação</span>
-            </div>
-            <p className={`text-4xl font-black font-display tracking-tighter ${occupancyRate >= 70 ? 'text-green-600' : occupancyRate >= 40 ? 'text-yellow-600' : occupancyRate > 0 ? 'text-red-600' : 'text-gray-500'}`}>
-              {totalAvailableNights > 0 ? `${occupancyRate.toFixed(1)}%` : '—'}
-            </p>
-            <p className="text-[10px] font-black uppercase tracking-wider text-[color:var(--be-text)]/20 mt-1">Taxa de ocupação</p>
-          </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
+          <PremiumMetricCard icon={Calendar} label="Reservas" type="Reservas" value={totalReservations} description="Confirmadas" />
+          <PremiumMetricCard icon={BarChart2} label="ADR" type="ADR" value={<CurrencyStack totals={adrByCurrency} size="sm" showEmpty={true} />} description="Diária média" />
+          <PremiumMetricCard icon={DollarSign} label="RevPAR" type="RevPAR" value={<CurrencyStack totals={revparByCurrency} size="sm" showEmpty={true} />} description="Receita/noite disp." />
+          <PremiumMetricCard
+            icon={Target}
+            label="Ocupação"
+            type="Ocupação"
+            value={totalAvailableNights > 0 ? `${occupancyRate.toFixed(1)}%` : '—'}
+            description="Taxa de ocupação"
+            tone={occupancyRate >= 70 ? 'success' : occupancyRate >= 40 ? 'gold' : occupancyRate > 0 ? 'danger' : 'blue'}
+          />
         </div>
 
         {/* Conteúdo da Aba Ativa */}
@@ -685,7 +622,7 @@ export default async function FinanceiroPage({ searchParams }: PageProps) {
             endDate={endDate}
           />
         )}
-      </main>
+      </PremiumPageShell>
     </AuthLayout>
   )
 }

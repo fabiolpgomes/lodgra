@@ -157,20 +157,20 @@ export function BookingPageClient({ orgSlug, orgName, orgLogoUrl, publicProfile,
   const primaryContacts = contactLinks.slice(0, 2)
   const secondaryContacts = contactLinks.slice(2)
 
-  const btnBase = 'inline-flex min-h-[44px] items-center gap-2 border border-gray-300 bg-white px-4 text-[12px] font-bold uppercase tracking-[1.2px] text-brand-800 transition-colors hover:border-brand-800 hover:bg-brand-800 hover:text-white active:scale-95'
+  const btnBase = 'inline-flex min-h-[44px] items-center gap-2 rounded-full border border-brand-gold/25 bg-brand-white px-4 text-[12px] font-bold uppercase tracking-[1.2px] text-brand-blue shadow-sm transition-all hover:border-brand-gold/60 hover:bg-brand-gold/10 hover:text-brand-gold active:scale-95'
 
   return (
-    <div className="min-h-screen bg-gray-50 font-light text-gray-700">
+    <div className="min-h-screen bg-brand-bg font-light text-brand-text-medium">
 
       {/* ── Header ─────────────────────────────────────────── */}
-      <header className="bg-white border-b border-gray-200 px-4 sm:px-6 h-14 sm:h-[72px] flex items-center sticky top-0 z-40">
+      <header className="bg-brand-white/95 border-b border-brand-gold/15 px-4 sm:px-6 h-14 sm:h-[72px] flex items-center sticky top-0 z-40 backdrop-blur">
         <div className="w-full max-w-[1440px] mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 sm:gap-3 shrink-0 min-h-[44px]">
             <Logo size="sm" />
-            <span className="text-[16px] sm:text-[18px] font-bold tracking-tight text-gray-900">LODGRA</span>
+            <span className="text-[16px] sm:text-[18px] font-bold tracking-tight text-brand-blue">LODGRA</span>
           </Link>
           {orgName && (
-            <div className="ml-3 flex min-w-0 items-center gap-2 sm:gap-4 border-l border-gray-200 pl-3 sm:pl-5">
+            <div className="ml-3 flex min-w-0 items-center gap-2 sm:gap-4 border-l border-brand-gold/20 pl-3 sm:pl-5">
               {orgLogoUrl && (
                 <div className="flex h-10 w-14 sm:h-14 sm:w-20 shrink-0 items-center justify-center overflow-visible">
                   <Image
@@ -182,7 +182,7 @@ export function BookingPageClient({ orgSlug, orgName, orgLogoUrl, publicProfile,
                   />
                 </div>
               )}
-              <span className="truncate text-right text-[13px] sm:text-[18px] font-bold tracking-[0.4px] text-gray-900 max-w-[140px] sm:max-w-none">
+              <span className="truncate text-right text-[13px] sm:text-[18px] font-bold tracking-[0.4px] text-brand-text-dark max-w-[140px] sm:max-w-none">
                 {orgName}
               </span>
             </div>
@@ -191,7 +191,7 @@ export function BookingPageClient({ orgSlug, orgName, orgLogoUrl, publicProfile,
       </header>
 
       {/* Install App Button — centered */}
-      <div className="bg-white border-b border-gray-100 py-3">
+      <div className="bg-brand-white border-b border-brand-gold/10 py-3">
         <div className="max-w-7xl mx-auto px-4 md:px-6 flex justify-center">
           <InstallPromptButton orgName={orgName} />
         </div>
@@ -207,19 +207,19 @@ export function BookingPageClient({ orgSlug, orgName, orgLogoUrl, publicProfile,
             heroImageUrl={template.hero_image_url}
             templateType={template.template_type}
           />
-          <div className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4 sm:py-6">
+          <div className="bg-brand-white border-b border-brand-gold/15 px-4 sm:px-6 py-4 sm:py-6">
             <div className="max-w-[1440px] mx-auto">
               <SearchBar onSearch={handleSearch} isLoading={isLoading} />
             </div>
           </div>
         </>
       ) : (
-        <div className="bg-white border-b border-gray-200 px-4 sm:px-6 pt-6 sm:pt-12 pb-6 sm:pb-10">
+        <div className="bg-brand-white border-b border-brand-gold/15 px-4 sm:px-6 pt-6 sm:pt-12 pb-6 sm:pb-10">
           <div className="max-w-[1440px] mx-auto">
             <div className="mb-6 sm:mb-8">
-              <h1 className="text-2xl sm:text-[44px] font-bold text-gray-900 leading-[1.15] mb-2 sm:mb-3">{title}</h1>
-              <p className="text-sm sm:text-[16px] font-light text-gray-600 leading-[1.55]">{subtitle}</p>
-              <div className="w-10 h-1 bg-brand-600 mt-3 sm:mt-5" />
+              <h1 className="text-2xl sm:text-[44px] font-bold text-brand-text-dark leading-[1.15] mb-2 sm:mb-3">{title}</h1>
+              <p className="text-sm sm:text-[16px] font-light text-brand-text-medium leading-[1.55]">{subtitle}</p>
+              <div className="w-10 h-1 bg-brand-gold mt-3 sm:mt-5" />
             </div>
             <SearchBar onSearch={handleSearch} isLoading={isLoading} />
           </div>
@@ -228,11 +228,11 @@ export function BookingPageClient({ orgSlug, orgName, orgLogoUrl, publicProfile,
 
       {/* ── Contact bar — collapsed on mobile ─────────────── */}
       {hasPublicContact && publicProfile && contactLinks.length > 0 && (
-        <section className="border-b border-gray-200 bg-white px-4 sm:px-6 py-3 sm:py-4">
+        <section className="border-b border-brand-gold/15 bg-brand-white px-4 sm:px-6 py-3 sm:py-4">
           <div className="mx-auto max-w-[1440px]">
             {/* Mobile: compact row */}
             <div className="flex items-center gap-2 sm:hidden">
-              <p className="text-[11px] font-bold uppercase tracking-[1.2px] text-gray-500 shrink-0 mr-1">
+              <p className="text-[11px] font-bold uppercase tracking-[1.2px] text-brand-text-medium shrink-0 mr-1">
                 Contacto:
               </p>
               <div className="flex flex-1 items-center gap-2 overflow-hidden">
@@ -246,7 +246,7 @@ export function BookingPageClient({ orgSlug, orgName, orgLogoUrl, publicProfile,
               {secondaryContacts.length > 0 && (
                 <button
                   onClick={() => setContactExpanded(v => !v)}
-                  className="min-h-[44px] min-w-[44px] shrink-0 flex items-center justify-center border border-gray-300 bg-white text-gray-600 hover:border-brand-800 hover:text-brand-800 transition-colors"
+                  className="min-h-[44px] min-w-[44px] shrink-0 flex items-center justify-center rounded-full border border-brand-gold/25 bg-brand-white text-brand-blue hover:border-brand-gold/60 hover:text-brand-gold transition-colors"
                   aria-label="Ver mais contactos"
                 >
                   <ChevronDown className={`h-4 w-4 transition-transform ${contactExpanded ? 'rotate-180' : ''}`} />
@@ -269,11 +269,11 @@ export function BookingPageClient({ orgSlug, orgName, orgLogoUrl, publicProfile,
             {/* Desktop: full contact bar */}
             <div className="hidden sm:flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
               <div className="min-w-0">
-                <p className="text-[13px] font-bold uppercase tracking-[1.4px] text-gray-900">
+                <p className="text-[13px] font-bold uppercase tracking-[1.4px] text-brand-text-dark">
                   Fale diretamente com {orgName ?? 'a empresa'}
                 </p>
                 {(publicProfile.public_contact_message || locationText) && (
-                  <p className="mt-1 text-[14px] font-light leading-[1.5] text-gray-600">
+                  <p className="mt-1 text-[14px] font-light leading-[1.5] text-brand-text-medium">
                     {publicProfile.public_contact_message || locationText}
                     {publicProfile.public_contact_message && locationText ? ` · ${locationText}` : ''}
                   </p>
@@ -293,7 +293,7 @@ export function BookingPageClient({ orgSlug, orgName, orgLogoUrl, publicProfile,
       )}
 
       {error && (
-        <div className="bg-gray-900 border border-red-600 px-4 py-4 mx-4 mt-4 max-w-[1440px] xl:mx-auto rounded-none">
+        <div className="bg-brand-blue border border-red-600 px-4 py-4 mx-4 mt-4 max-w-[1440px] xl:mx-auto rounded-2xl">
           <p className="text-red-500 font-bold text-[14px] uppercase tracking-[0.5px] mb-1">Erro</p>
           <p className="text-white text-[14px] font-light">{error}</p>
         </div>
@@ -323,14 +323,14 @@ export function BookingPageClient({ orgSlug, orgName, orgLogoUrl, publicProfile,
       </div>
 
       {/* ── Install footer ─────────────────────────────────── */}
-      <footer className="border-t border-gray-200 bg-white px-4 sm:px-6 py-10 sm:py-12 mt-4">
+      <footer className="border-t border-brand-gold/15 bg-brand-white px-4 sm:px-6 py-10 sm:py-12 mt-4">
         <div className="max-w-[1440px] mx-auto">
           <div className="text-center mb-8">
-            <p className="text-[11px] font-bold uppercase tracking-[1.5px] text-gray-500 mb-2">Acesso rápido</p>
-            <h3 className="text-[20px] sm:text-[24px] font-bold text-gray-900">
+            <p className="text-[11px] font-bold uppercase tracking-[1.5px] text-brand-gold mb-2">Acesso rápido</p>
+            <h3 className="text-[20px] sm:text-[24px] font-bold text-brand-text-dark">
               Instala {orgName || 'esta página'} no teu dispositivo
             </h3>
-            <p className="text-[14px] text-gray-600 mt-2 max-w-md mx-auto">
+            <p className="text-[14px] text-brand-text-medium mt-2 max-w-md mx-auto">
               Acede directamente ao catálogo de propriedades sem abrir o browser.
             </p>
           </div>

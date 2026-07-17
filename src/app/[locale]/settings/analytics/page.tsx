@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { requireRole } from '@/lib/auth/requireRole';
 import { AuthLayout } from '@/components/common/layout/AuthLayout';
+import { PremiumCard, PremiumPageHeader, PremiumPageShell } from '@/components/common/layout/PremiumPage';
 import AnalyticsSettingsClient from '@/components/analytics/AnalyticsSettingsClient';
 import { BarChart3 } from 'lucide-react';
 
@@ -17,21 +18,18 @@ export default async function AnalyticsSettingsPage() {
 
   return (
     <AuthLayout>
-      <div className="max-w-4xl mx-auto py-8 px-4">
-        <div className="flex items-center gap-3 mb-8">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100">
-            <BarChart3 className="h-5 w-5 text-blue-600" />
-          </div>
-          <div>
-            <h1 className="text-xl font-semibold text-gray-900">Google Analytics</h1>
-            <p className="text-sm text-gray-600">Connect your Google Analytics account to track your property performance</p>
-          </div>
-        </div>
+      <PremiumPageShell maxWidth="max-w-4xl">
+        <PremiumPageHeader
+          title="Google Analytics"
+          description="Connect your Google Analytics account to track your property performance"
+          badge="Integração"
+          icon={BarChart3}
+        />
 
-        <div className="bg-white rounded-lg shadow">
+        <PremiumCard className="p-0">
           <AnalyticsSettingsClient />
-        </div>
-      </div>
+        </PremiumCard>
+      </PremiumPageShell>
     </AuthLayout>
   );
 }

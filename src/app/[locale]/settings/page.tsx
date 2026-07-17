@@ -13,6 +13,7 @@ import { AccountDeletionSection } from '@/components/features/settings/AccountDe
 import { createAdminClient } from '@/lib/supabase/admin'
 import { PaymentSettings } from '@/components/features/settings/PaymentSettings'
 import { PublicContactSettings } from '@/components/features/settings/PublicContactSettings'
+import { PremiumCard, PremiumPageHeader, PremiumPageShell } from '@/components/common/layout/PremiumPage'
 
 export const dynamic = 'force-dynamic'
 
@@ -67,40 +68,37 @@ export default async function SettingsPage(props: { params: Promise<{ locale: st
 
   return (
     <AuthLayout>
-      <div className="max-w-4xl mx-auto py-8 px-4">
-        <div className="flex items-center gap-3 mb-8">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100">
-            <Settings className="h-5 w-5 text-gray-600" />
-          </div>
-          <div>
-            <h1 className="text-xl font-semibold text-gray-900">Definições</h1>
-            <p className="text-sm text-gray-600">Gerencie utilizadores, sincronização iCal e exportações</p>
-          </div>
-        </div>
+      <PremiumPageShell maxWidth="max-w-4xl">
+        <PremiumPageHeader
+          title="Definições"
+          description="Gerencie utilizadores, sincronização iCal e exportações"
+          icon={Settings}
+          badge={isAdmin ? 'Admin' : 'Gestor'}
+        />
 
         {organization && (
           <section className="mb-8">
-            <div className="bg-white rounded-lg shadow p-6">
+            <PremiumCard>
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2 mb-2">
-                    <Building2 className="h-5 w-5 text-gray-600" />
-                    <h2 className="text-lg font-semibold text-gray-900">Empresa e reserva direta</h2>
+                    <Building2 className="h-5 w-5 text-brand-blue transition-colors group-hover:text-brand-gold" />
+                    <h2 className="text-lg font-semibold text-brand-text-dark transition-colors group-hover:text-brand-gold">Empresa e reserva direta</h2>
                   </div>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-brand-text-medium">
                     O nome da empresa define o endereço público usado na página de reserva direta.
                   </p>
-                  <div className="mt-4 rounded-md border border-gray-200 bg-gray-50 px-4 py-3">
-                    <p className="text-xs font-medium uppercase tracking-wide text-gray-600">Nome da empresa</p>
-                    <p className="mt-1 truncate text-sm font-semibold text-gray-900">{organization.name}</p>
+                  <div className="mt-4 rounded-xl border border-neutral-200/60 bg-brand-bg px-4 py-3">
+                    <p className="text-xs font-medium uppercase tracking-wide text-brand-text-medium">Nome da empresa</p>
+                    <p className="mt-1 truncate text-sm font-semibold text-brand-text-dark">{organization.name}</p>
                     {bookingUrl && (
                       <>
-                        <p className="mt-3 text-xs font-medium uppercase tracking-wide text-gray-600">Página pública</p>
+                        <p className="mt-3 text-xs font-medium uppercase tracking-wide text-brand-text-medium">Página pública</p>
                         <a
                           href={bookingUrl}
                           target="_blank"
                           rel="noreferrer"
-                          className="mt-1 inline-flex max-w-full items-center gap-1 truncate text-sm font-medium text-[color:var(--be-blue-hover)] hover:text-brand-800"
+                          className="mt-1 inline-flex max-w-full items-center gap-1 truncate text-sm font-medium text-brand-blue hover:text-brand-gold"
                         >
                           <span className="truncate">{bookingUrl}</span>
                           <ExternalLink className="h-3.5 w-3.5 shrink-0" />
@@ -113,7 +111,7 @@ export default async function SettingsPage(props: { params: Promise<{ locale: st
                   <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
                     <Link
                       href={`/${locale}/settings/organizations/${organization.id}/branding`}
-                      className="inline-flex items-center justify-center gap-2 rounded-md bg-[#1E40AF] px-4 py-2 text-sm font-semibold !text-white transition-colors hover:bg-[#16358f] hover:!text-white focus:outline-none focus:ring-2 focus:ring-[#1E40AF] focus:ring-offset-2"
+                      className="inline-flex items-center justify-center gap-2 rounded-full bg-brand-blue px-4 py-2 text-sm font-semibold !text-white transition-colors hover:bg-brand-gold hover:!text-white focus:outline-none focus:ring-2 focus:ring-brand-gold focus:ring-offset-2"
                     >
                       <Palette className="h-4 w-4 !text-white" />
                       Logo e marca
@@ -123,15 +121,15 @@ export default async function SettingsPage(props: { params: Promise<{ locale: st
               </div>
 
               {isAdmin && (
-                <div className="mt-6 border-t border-gray-100 pt-6">
-                  <h3 className="text-base font-semibold text-gray-900">Contato público para hóspedes</h3>
-                  <p className="mt-1 mb-5 text-sm text-gray-600">
+                <div className="mt-6 border-t border-brand-bg pt-6">
+                  <h3 className="text-base font-semibold text-brand-text-dark">Contato público para hóspedes</h3>
+                  <p className="mt-1 mb-5 text-sm text-brand-text-medium">
                     Estes dados aparecem na página pública de reserva direta para o hóspede falar com a empresa.
                   </p>
                   <PublicContactSettings organizationId={organization.id} initialProfile={publicProfile} />
                 </div>
               )}
-            </div>
+            </PremiumCard>
           </section>
         )}
 
@@ -153,16 +151,16 @@ export default async function SettingsPage(props: { params: Promise<{ locale: st
         {/* User Management - Admin Only */}
         {isAdmin && (
           <section className="mb-8">
-            <div className="bg-white rounded-lg shadow p-6">
+            <PremiumCard>
               <div className="flex items-center gap-2 mb-4">
-                <Users className="h-5 w-5 text-gray-600" />
-                <h2 className="text-lg font-semibold text-gray-900">Gestão de Usuários</h2>
+                <Users className="h-5 w-5 text-brand-blue transition-colors group-hover:text-brand-gold" />
+                <h2 className="text-lg font-semibold text-brand-text-dark transition-colors group-hover:text-brand-gold">Gestão de Usuários</h2>
               </div>
-              <p className="text-sm text-gray-600 mb-4">
+              <p className="text-sm text-brand-text-medium mb-4">
                 Gerencie os utilizadores da sua organização e defina as suas funções de acesso.
               </p>
               <SettingsUserManagement users={users || []} />
-            </div>
+            </PremiumCard>
           </section>
         )}
         
@@ -177,9 +175,9 @@ export default async function SettingsPage(props: { params: Promise<{ locale: st
         <section className="mb-8">
           <div className="flex items-center gap-2 mb-4">
             <Upload className="h-5 w-5 text-gray-600" />
-            <h2 className="text-lg font-semibold text-gray-900">Importar Reservas</h2>
+            <h2 className="text-lg font-semibold text-brand-text-dark">Importar Reservas</h2>
           </div>
-          <p className="text-sm text-gray-600 mb-4">
+          <p className="text-sm text-brand-text-medium mb-4">
             Cole o URL iCal da sua plataforma (Booking.com, Airbnb, Flatio, etc.) para importar automaticamente as reservas.
           </p>
           {properties && listings && <ICalSyncSettings listings={listings} propertyId={properties[0]?.id || ''} />}
@@ -189,9 +187,9 @@ export default async function SettingsPage(props: { params: Promise<{ locale: st
         <section>
           <div className="flex items-center gap-2 mb-4">
             <Download className="h-5 w-5 text-gray-600" />
-            <h2 className="text-lg font-semibold text-gray-900">Exportar Reservas</h2>
+            <h2 className="text-lg font-semibold text-brand-text-dark">Exportar Reservas</h2>
           </div>
-          <p className="text-sm text-gray-600 mb-4">
+          <p className="text-sm text-brand-text-medium mb-4">
             Use estes URLs para sincronizar as suas reservas com outras plataformas. Cada propriedade tem o seu próprio URL seguro com token de autenticação.
           </p>
           <ICalExportSection properties={properties || []} appUrl={appUrl} />
@@ -199,32 +197,32 @@ export default async function SettingsPage(props: { params: Promise<{ locale: st
 
         {/* Google Analytics Configuration */}
         <section className="mb-8">
-          <div className="bg-white rounded-lg shadow p-6">
+          <PremiumCard>
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-2">
-                  <BarChart3 className="h-5 w-5 text-blue-600" />
-                  <h2 className="text-lg font-semibold text-gray-900">Google Analytics</h2>
+                  <BarChart3 className="h-5 w-5 text-brand-blue transition-colors group-hover:text-brand-gold" />
+                  <h2 className="text-lg font-semibold text-brand-text-dark transition-colors group-hover:text-brand-gold">Google Analytics</h2>
                 </div>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-brand-text-medium">
                   Configure seu Google Analytics para rastrear o desempenho das suas propriedades.
                 </p>
               </div>
               <Link
                 href={`/${locale}/settings/analytics`}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+                className="inline-flex items-center gap-2 rounded-full bg-brand-blue px-4 py-2 text-white font-medium transition-colors hover:bg-brand-gold"
               >
                 Configurar <ExternalLink className="h-4 w-4" />
               </Link>
             </div>
-          </div>
+          </PremiumCard>
         </section>
 
         {/* Account Deletion — RGPD/LGPD */}
         <section className="mt-12 pt-8 border-t border-red-100">
           <AccountDeletionSection />
         </section>
-      </div>
+      </PremiumPageShell>
     </AuthLayout>
   )
 }

@@ -9,22 +9,22 @@ export const metadata: Metadata = {
 
 export default function PropertyNotFound() {
   return (
-    <div className="min-h-screen bg-white flex flex-col items-center justify-center px-4">
-      <header className="absolute top-0 left-0 right-0 border-b border-gray-100 px-4 py-3">
+    <div className="min-h-screen bg-brand-bg flex flex-col items-center justify-center px-4">
+      <header className="absolute top-0 left-0 right-0 border-b border-brand-gold/15 bg-brand-white px-4 py-3">
         <div className="max-w-5xl mx-auto">
-          <span className="font-semibold text-gray-900 text-lg">lodgra.pt</span>
+          <span className="font-semibold text-brand-blue text-lg">lodgra.pt</span>
         </div>
       </header>
 
-      <div className="text-center max-w-md">
-        <h1 className="text-6xl font-bold text-gray-500 mb-4">404</h1>
-        <h2 className="text-xl font-semibold text-gray-900 mb-2">Propriedade não encontrada</h2>
-        <p className="text-gray-600 mb-6">
+      <div className="max-w-md rounded-2xl border border-brand-gold/15 bg-brand-white p-8 text-center shadow-sm">
+        <h1 className="text-6xl font-bold text-brand-gold mb-4">404</h1>
+        <h2 className="text-xl font-semibold text-brand-text-dark mb-2">Propriedade não encontrada</h2>
+        <p className="text-brand-text-medium mb-6">
           Esta propriedade não existe ou não está disponível publicamente.
         </p>
         <Link
           href="/"
-          className="inline-flex items-center justify-center rounded-lg bg-gray-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-gray-700 transition-colors"
+          className="inline-flex items-center justify-center rounded-full bg-brand-blue px-5 py-2.5 text-sm font-medium text-white hover:bg-brand-gold transition-colors"
         >
           Ir para o início
         </Link>

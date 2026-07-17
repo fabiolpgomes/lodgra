@@ -198,17 +198,17 @@ export function BookingWidgetDesktop({
   }
 
   return (
-    <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-lg">
+    <div className="bg-brand-white border border-brand-gold/20 rounded-2xl p-6 shadow-[0_18px_42px_rgba(16,32,62,0.10)] transition-all hover:border-brand-gold/45 hover:shadow-[0_18px_42px_rgba(201,162,39,0.14)]">
       {/* Price */}
       <div className="mb-5">
-        <p className="text-sm text-gray-500 mb-0.5">
+        <p className="text-sm text-brand-text-medium mb-0.5">
           {nights > 0 && isReady && hasVaryingPrices ? 'Preço médio' : 'Preço base'}
         </p>
         <div className="flex items-baseline gap-1.5">
-          <span className="text-[36px] font-black text-gray-900 leading-none">
+          <span className="text-[36px] font-black text-brand-blue leading-none">
             {symbol}{nights > 0 && isReady ? avgPerNight : basePrice}
           </span>
-          <span className="text-[16px] font-medium text-gray-500">/noite</span>
+          <span className="text-[16px] font-medium text-brand-text-medium">/noite</span>
         </div>
         {effectiveMinNights > 1 && (
           <p className="mt-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-full px-3 py-1 inline-block">
@@ -218,27 +218,27 @@ export function BookingWidgetDesktop({
       </div>
 
       {/* Dates — grouped Holidu-style */}
-      <div className="mb-3 border border-gray-300 rounded-xl overflow-hidden">
-        <p className="px-4 pt-3 pb-1 text-[12px] font-bold text-gray-700 bg-gray-50 border-b border-gray-200">
+      <div className="mb-3 border border-brand-gold/20 rounded-xl overflow-hidden">
+        <p className="px-4 pt-3 pb-1 text-[12px] font-bold text-brand-text-dark bg-brand-bg border-b border-brand-gold/15">
           Seleccione as datas para ver o preço exacto
         </p>
         <div className="grid grid-cols-2">
-          <div className="px-4 py-3 border-r border-gray-200">
-            <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wide mb-1">Check-in</label>
+          <div className="px-4 py-3 border-r border-brand-gold/15">
+            <label className="block text-[11px] font-bold text-brand-text-medium uppercase tracking-wide mb-1">Check-in</label>
             <input
               type="date" value={checkIn} min={today}
               onChange={e => handleCheckInChange(e.target.value)}
-              className="w-full text-sm text-gray-900 bg-transparent focus:outline-none"
+              className="w-full text-sm text-brand-text-dark bg-transparent focus:outline-none"
             />
             {checkInError && <p className="mt-1 text-[11px] text-red-600">{checkInError}</p>}
           </div>
           <div className="px-4 py-3">
-            <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wide mb-1">Check-out</label>
+            <label className="block text-[11px] font-bold text-brand-text-medium uppercase tracking-wide mb-1">Check-out</label>
             <input
               type="date" value={checkOut} min={minCheckOut || today}
               onChange={e => handleCheckOutChange(e.target.value)}
               disabled={!checkIn}
-              className="w-full text-sm text-gray-900 bg-transparent focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed"
+              className="w-full text-sm text-brand-text-dark bg-transparent focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed"
             />
             {checkOutError && <p className="mt-1 text-[11px] text-red-600">{checkOutError}</p>}
           </div>
@@ -246,12 +246,12 @@ export function BookingWidgetDesktop({
       </div>
 
       {/* Guests */}
-      <div className="mb-5 border border-gray-300 rounded-xl px-4 py-3">
-        <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wide mb-1">Hóspedes</label>
+      <div className="mb-5 border border-brand-gold/20 rounded-xl px-4 py-3">
+        <label className="block text-[11px] font-bold text-brand-text-medium uppercase tracking-wide mb-1">Hóspedes</label>
         <select
           value={guests}
           onChange={e => setGuests(parseInt(e.target.value))}
-          className="w-full text-sm text-gray-900 bg-transparent focus:outline-none appearance-none cursor-pointer"
+          className="w-full text-sm text-brand-text-dark bg-transparent focus:outline-none appearance-none cursor-pointer"
         >
           {Array.from({ length: Math.max(1, maxGuests) }, (_, i) => (
             <option key={i + 1} value={i + 1}>{i + 1} {i === 0 ? 'hóspede' : 'hóspedes'}</option>
@@ -261,7 +261,7 @@ export function BookingWidgetDesktop({
 
       {/* Price summary */}
       {nights > 0 && (
-        <div className="mb-4 p-3 bg-gray-50 rounded-xl text-sm space-y-1.5">
+        <div className="mb-4 p-3 bg-brand-bg rounded-xl text-sm space-y-1.5">
           {isPriceFetching ? (
             <div className="flex justify-between text-gray-400 animate-pulse">
               <span>{nights} noite{nights !== 1 ? 's' : ''}</span>
@@ -269,7 +269,7 @@ export function BookingWidgetDesktop({
             </div>
           ) : (
             <>
-              <div className="flex justify-between text-gray-700">
+              <div className="flex justify-between text-brand-text-medium">
                 {hasVaryingPrices
                   ? <span>{nights} noite{nights !== 1 ? 's' : ''} · por época</span>
                   : <span>{symbol}{avgPerNight} × {nights} noite{nights !== 1 ? 's' : ''}</span>
@@ -277,12 +277,12 @@ export function BookingWidgetDesktop({
                 <span>{symbol}{Math.round(accommodationTotal)}</span>
               </div>
               {isReady && priceState.fees?.map((fee, i) => (
-                <div key={i} className="flex justify-between text-gray-700">
+                <div key={i} className="flex justify-between text-brand-text-medium">
                   <span>{fee.label}</span>
                   <span>{symbol}{Math.round(fee.amount)}</span>
                 </div>
               ))}
-              <div className="flex justify-between font-bold text-gray-900 pt-1.5 border-t border-gray-200">
+              <div className="flex justify-between font-bold text-brand-text-dark pt-1.5 border-t border-brand-gold/15">
                 <span>Total</span>
                 <span>{symbol}{Math.round(displayTotal)}</span>
               </div>
@@ -295,21 +295,21 @@ export function BookingWidgetDesktop({
       {checkoutHref && !checkInError && !checkOutError ? (
         <Link
           href={checkoutHref}
-          className="block w-full bg-be-blue hover:bg-be-blue-hover active:scale-[0.98] text-white font-bold py-4 px-4 rounded-full text-center text-[15px] uppercase tracking-wide transition-all mb-4"
+          className="block w-full bg-brand-blue hover:bg-brand-gold active:scale-[0.98] text-white font-bold py-4 px-4 rounded-full text-center text-[15px] uppercase tracking-wide transition-all mb-4"
         >
           Reservar agora
         </Link>
       ) : (
         <button
           disabled
-          className="block w-full bg-be-blue text-white font-bold py-4 px-4 rounded-full text-center text-[15px] uppercase tracking-wide cursor-not-allowed opacity-60 mb-4"
+          className="block w-full bg-brand-blue text-white font-bold py-4 px-4 rounded-full text-center text-[15px] uppercase tracking-wide cursor-not-allowed opacity-60 mb-4"
         >
           {checkInError || checkOutError ? 'Datas indisponíveis' : 'Seleccione as datas'}
         </button>
       )}
 
       {/* Trust */}
-      <div className="space-y-1.5 text-[13px] text-gray-600">
+      <div className="space-y-1.5 text-[13px] text-brand-text-medium">
         <p className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span>Sem comissões</p>
         <p className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span>Pagamento seguro</p>
         <p className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span>Confirmação instantânea</p>

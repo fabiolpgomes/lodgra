@@ -11,14 +11,15 @@ import type { UserProfile } from '@/lib/auth/getUserAccess'
 interface AuthLayoutProps {
   children: React.ReactNode
   profile?: UserProfile // Server-provided profile (SSR) avoids race condition
+  hideTopBar?: boolean
 }
 
-export function AuthLayout({ children, profile }: AuthLayoutProps) {
+export function AuthLayout({ children, profile, hideTopBar = false }: AuthLayoutProps) {
   const locale = useLocale()
   const prefix = locale ? `/${locale}` : ''
 
   return (
-    <div className="min-h-screen bg-[#f8f8f8]">
+    <div className="min-h-screen bg-brand-bg">
       {/* Mobile Top Header */}
       <header className="md:hidden sticky top-0 z-40 bg-white border-b border-black/[0.06] px-4 h-16 flex items-center justify-between">
         <Link href={prefix || '/'} className="flex items-center">
@@ -32,7 +33,7 @@ export function AuthLayout({ children, profile }: AuthLayoutProps) {
 
       {/* Desktop: content shifted right of sidebar */}
       <div className="md:ml-[260px] flex flex-col min-h-screen">
-        <TopBar />
+        {!hideTopBar && <TopBar />}
         <main className="flex-1 pb-20 md:pb-0 pt-4 md:pt-0">
           {children}
         </main>

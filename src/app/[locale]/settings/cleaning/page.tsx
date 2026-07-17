@@ -4,7 +4,10 @@
 
 import { redirect } from 'next/navigation';
 import { requireRole } from '@/lib/auth/requireRole';
+import { AuthLayout } from '@/components/common/layout/AuthLayout';
+import { PremiumPageHeader, PremiumPageShell } from '@/components/common/layout/PremiumPage';
 import CleaningManagerDashboard from '@/components/cleaning/CleaningManagerDashboard';
+import { Sparkles } from 'lucide-react';
 
 export const metadata = {
   title: 'Cleaning Dashboard',
@@ -18,10 +21,16 @@ export default async function CleaningPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4">
+    <AuthLayout>
+      <PremiumPageShell>
+        <PremiumPageHeader
+          title="Limpeza"
+          description="Gerencie tarefas de limpeza e acompanhe conclusões"
+          badge="Operação"
+          icon={Sparkles}
+        />
         <CleaningManagerDashboard />
-      </div>
-    </div>
+      </PremiumPageShell>
+    </AuthLayout>
   );
 }

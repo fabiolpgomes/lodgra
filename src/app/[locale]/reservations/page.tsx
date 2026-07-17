@@ -9,6 +9,7 @@ import { getUserAccess } from '@/lib/auth/getUserAccess'
 import { Button } from '@/components/common/ui/button'
 import { ReservationUI } from '@/components/features/reservations/types/reservation-ui'
 import { parsePage, getRange, PAGE_SIZE } from '@/lib/utils/pagination'
+import { PremiumMetricCard, PremiumPageHeader, PremiumPageShell } from '@/components/common/layout/PremiumPage'
 
 export default async function ReservationsPage({
   params,
@@ -96,22 +97,13 @@ export default async function ReservationsPage({
 
   return (
     <AuthLayout profile={profile}>
-
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Page Header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-          <div>
-            <div className="flex items-center gap-3 mb-1">
-              <div className="be-icon w-10 h-10 bg-[#EFF6FF]">
-                <Calendar className="h-5 w-5 text-[#10203E]" />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900">Reservas</h2>
-            </div>
-            <p className="text-gray-600 text-sm ml-[52px]">
-              Gerencie todas as suas reservas
-            </p>
-          </div>
+      <PremiumPageShell>
+        <PremiumPageHeader
+          title="Reservas"
+          description="Gerencie todas as suas reservas"
+          badge={monthParam}
+          icon={Calendar}
+          actions={(
           <div className="flex items-center gap-3 shrink-0">
             <Button variant="outline" asChild>
               <Link href={`/${locale}/reservations/export`}>
@@ -131,53 +123,17 @@ export default async function ReservationsPage({
               </>
             )}
           </div>
-        </div>
+          )}
+        />
+
+        <div className="border-b border-neutral-200/60" />
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-          <div className="be-card p-5">
-            <div className="flex items-center justify-between mb-4">
-              <div className="be-icon w-9 h-9 bg-[#EFF6FF]">
-                <Calendar className="h-5 w-5 text-[#10203E]" />
-              </div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">Total</span>
-            </div>
-            <p className="text-4xl font-bold text-gray-900">{stats.total}</p>
-            <p className="text-sm text-gray-600 mt-1">Reservas</p>
-          </div>
-
-          <div className="be-card p-5">
-            <div className="flex items-center justify-between mb-4">
-              <div className="be-icon w-9 h-9 bg-[#ECFDF5]">
-                <CheckCircle className="h-5 w-5 text-[#059669]" />
-              </div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">Status</span>
-            </div>
-            <p className="text-4xl font-bold text-[#059669]">{stats.confirmed}</p>
-            <p className="text-sm text-gray-600 mt-1">Confirmadas</p>
-          </div>
-
-          <div className="be-card p-5">
-            <div className="flex items-center justify-between mb-4">
-              <div className="be-icon w-9 h-9 bg-[#FFFBEB]">
-                <Clock className="h-5 w-5 text-be-blue" />
-              </div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">Status</span>
-            </div>
-            <p className="text-4xl font-bold text-be-blue">{stats.pending}</p>
-            <p className="text-sm text-gray-600 mt-1">Pendentes</p>
-          </div>
-
-          <div className="be-card p-5">
-            <div className="flex items-center justify-between mb-4">
-              <div className="be-icon w-9 h-9 bg-[#FEF2F2]">
-                <XCircle className="h-5 w-5 text-red-600" />
-              </div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">Status</span>
-            </div>
-            <p className="text-4xl font-bold text-red-600">{stats.cancelled}</p>
-            <p className="text-sm text-gray-600 mt-1">Canceladas</p>
-          </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <PremiumMetricCard icon={Calendar} label="Reservas" value={stats.total} type="Total" description="Reservas no período" />
+          <PremiumMetricCard icon={CheckCircle} label="Confirmadas" value={stats.confirmed} type="Status" description="Reservas confirmadas" tone="success" />
+          <PremiumMetricCard icon={Clock} label="Pendentes" value={stats.pending} type="Status" description="Aguardando confirmação" tone="gold" />
+          <PremiumMetricCard icon={XCircle} label="Canceladas" value={stats.cancelled} type="Status" description="Reservas canceladas" tone="danger" />
         </div>
 
         {/* Filter + Search + List */}
@@ -187,7 +143,7 @@ export default async function ReservationsPage({
           pagination={{ page, total: stats.total, pageSize: PAGE_SIZE }}
           currentMonth={monthParam}
         />
-      </main>
+      </PremiumPageShell>
     </AuthLayout>
   )
 }

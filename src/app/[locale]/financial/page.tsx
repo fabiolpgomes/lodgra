@@ -7,6 +7,7 @@ import { calcManagementFee, calcOwnerNet } from '@/lib/financial/calculations'
 import { CurrencyStack } from '@/components/common/ui/CurrencyStack'
 import { MonthNavigator } from '@/components/common/ui/MonthNavigator'
 import { calculateRevenueForReservation } from '@/lib/financial/revenue-calculator'
+import { PremiumCard, PremiumPageHeader, PremiumPageShell } from '@/components/common/layout/PremiumPage'
 
 export default async function FinancialPage({
   searchParams,
@@ -164,27 +165,19 @@ export default async function FinancialPage({
 
   return (
     <AuthLayout>
+      <PremiumPageShell>
+        <PremiumPageHeader
+          title="Análise Financeira"
+          description="Receitas, despesas e lucro do mês selecionado"
+          badge={monthParam}
+          icon={DollarSign}
+          actions={<MonthNavigator currentMonth={monthParam} />}
+        />
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Page Header */}
-        <div className="mb-8 flex items-start justify-between">
-          <div>
-            <div className="flex items-center gap-3 mb-2">
-              <div className="be-icon w-10 h-10 bg-[#ECFDF5]">
-                <DollarSign className="h-5 w-5 text-[#059669]" />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900">Análise Financeira</h2>
-            </div>
-            <p className="text-[10px] font-black uppercase tracking-wider text-[color:var(--be-text)]/20 ml-14">
-              Receitas, despesas e lucro do mês seleccionado
-            </p>
-          </div>
-          <MonthNavigator currentMonth={monthParam} />
-        </div>
+        <div className="border-b border-neutral-200/60" />
 
         {/* Cards de Lucro por Moeda */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {Object.entries(profitByCurrency)
             .sort(([currencyA], [currencyB]) => currencyA.localeCompare(currencyB))
             .map(([currency, data]) => (
@@ -198,47 +191,47 @@ export default async function FinancialPage({
         </div>
 
         {/* Análise por Propriedade */}
-        <div className="be-card overflow-hidden rounded-none border border-be-blue/10">
-          <div className="px-5 py-4 border-b border-be-blue/10 flex items-center gap-2">
-            <BarChart3 className="h-4 w-4 text-[color:var(--be-text)]" />
-            <h3 className="text-xs font-black text-[color:var(--be-text)] uppercase tracking-widest font-display">Análise por Propriedade</h3>
+        <PremiumCard className="overflow-hidden p-0">
+          <div className="px-5 py-4 border-b border-brand-bg flex items-center gap-2">
+            <BarChart3 className="h-4 w-4 text-brand-blue transition-colors group-hover:text-brand-gold" />
+            <h3 className="text-xs font-black text-brand-text-dark uppercase tracking-widest transition-colors group-hover:text-brand-gold">Análise por Propriedade</h3>
           </div>
 
           <div className="w-full">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-gray-200">
-                  <th className="px-3 py-3 text-left text-[10px] font-semibold text-gray-500 uppercase tracking-wider max-w-[240px]">
+                <tr className="border-b border-brand-bg">
+                  <th className="px-3 py-3 text-left text-[10px] font-semibold text-brand-text-medium uppercase tracking-wider max-w-[240px]">
                     Propriedade
                   </th>
-                  <th className="px-2 py-3 text-right text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
+                  <th className="px-2 py-3 text-right text-[10px] font-semibold text-brand-text-medium uppercase tracking-wider">
                     Receita
                   </th>
-                  <th className="px-2 py-3 text-right text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
+                  <th className="px-2 py-3 text-right text-[10px] font-semibold text-brand-text-medium uppercase tracking-wider">
                     Comissão
                   </th>
-                  <th className="px-2 py-3 text-right text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
+                  <th className="px-2 py-3 text-right text-[10px] font-semibold text-brand-text-medium uppercase tracking-wider">
                     Líquido
                   </th>
-                  <th className="px-2 py-3 text-right text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
+                  <th className="px-2 py-3 text-right text-[10px] font-semibold text-brand-text-medium uppercase tracking-wider">
                     Despesas
                   </th>
-                  <th className="px-2 py-3 text-right text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
+                  <th className="px-2 py-3 text-right text-[10px] font-semibold text-brand-text-medium uppercase tracking-wider">
                     Lucro
                   </th>
-                  <th className="px-2 py-3 text-right text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
+                  <th className="px-2 py-3 text-right text-[10px] font-semibold text-brand-text-medium uppercase tracking-wider">
                     Margem
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-brand-bg">
                 {activePropertyAnalysis.map((property) => {
                   const truncatedName = property.name.length > 40
                     ? property.name.substring(0, 40) + '...'
                     : property.name
 
                   return (
-                    <tr key={property.id} className="hover:bg-gray-50/60">
+                    <tr key={property.id} className="hover:bg-brand-bg/70">
                       <td className="px-3 py-3 max-w-[240px]">
                         <div className="flex items-start gap-2">
                           {property.currency && (() => {
@@ -254,11 +247,11 @@ export default async function FinancialPage({
                             )
                           })()}
                           <div className="min-w-0">
-                            <div className="text-xs font-medium text-gray-900 truncate" title={property.name}>
+                            <div className="text-xs font-medium text-brand-text-dark truncate" title={property.name}>
                               {truncatedName}
                             </div>
                             {property.owner_name && (
-                              <div className="text-xs text-gray-600 mt-0.5 truncate">{property.owner_name}</div>
+                              <div className="text-xs text-brand-text-medium mt-0.5 truncate">{property.owner_name}</div>
                             )}
                             {property.management_percentage > 0 && (
                               <span className="text-[9px] bg-[color:var(--be-blue-pale)] text-[color:var(--be-blue-hover)] px-1 py-0.5 rounded-full font-medium inline-block mt-1">
@@ -271,7 +264,7 @@ export default async function FinancialPage({
                       <td className="px-2 py-3 whitespace-nowrap text-right">
                         <div className="flex items-center justify-end gap-0.5">
                           <TrendingUp className="h-3 w-3 text-green-600" />
-                          <span className="text-xs font-medium text-gray-900">
+                          <span className="text-xs font-medium text-brand-text-dark">
                             {formatCurrency(property.revenue, property.currency as CurrencyCode)}
                           </span>
                         </div>
@@ -291,7 +284,7 @@ export default async function FinancialPage({
                       <td className="px-2 py-3 whitespace-nowrap text-right">
                         <div className="flex items-center justify-end gap-0.5">
                           <TrendingDown className="h-3 w-3 text-red-600" />
-                          <span className="text-xs font-medium text-gray-900">
+                          <span className="text-xs font-medium text-brand-text-dark">
                             {formatCurrency(property.expenses, property.currency as CurrencyCode)}
                           </span>
                         </div>
@@ -305,7 +298,7 @@ export default async function FinancialPage({
                       </td>
                       <td className="px-2 py-3 whitespace-nowrap text-right">
                         <div className="flex items-center justify-end gap-0.5">
-                          <Percent className="h-3 w-3 text-gray-500" />
+                          <Percent className="h-3 w-3 text-brand-text-medium" />
                           <span className={`text-xs font-bold ${
                             property.profitMargin >= 0 ? 'text-green-600' : 'text-red-600'
                           }`}>
@@ -319,42 +312,42 @@ export default async function FinancialPage({
               </tbody>
             </table>
           </div>
-        </div>
+        </PremiumCard>
 
         {/* Resumo Geral */}
-        <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="be-card p-5 border border-be-blue/10 rounded-none shadow-none">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <PremiumCard>
             <div className="flex items-center justify-between mb-4">
-              <div className="p-2.5 bg-[color:var(--be-text)]/5 rounded-none">
-                <TrendingUp className="h-4 w-4 text-[color:var(--be-text)]" />
+              <div className="p-2.5 bg-brand-bg rounded-xl transition-colors group-hover:bg-brand-gold/10">
+                <TrendingUp className="h-4 w-4 text-brand-blue transition-colors group-hover:text-brand-gold" />
               </div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-[color:var(--be-text)]/30 font-display">Receitas</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-brand-text-medium transition-colors group-hover:text-brand-gold">Receitas</span>
             </div>
-            <div className="text-[color:var(--be-text)]">
+            <div className="text-brand-text-dark">
               <CurrencyStack totals={revenueByCurrency} size="lg" showEmpty={true} />
             </div>
-            <p className="text-[10px] font-black uppercase tracking-wider text-[color:var(--be-text)]/20 mt-2">Total receitas confirmadas</p>
-          </div>
+            <p className="text-[10px] font-black uppercase tracking-wider text-brand-text-medium mt-2">Total receitas confirmadas</p>
+          </PremiumCard>
 
-          <div className="be-card p-5 border border-be-blue/10 rounded-none shadow-none">
+          <PremiumCard>
             <div className="flex items-center justify-between mb-4">
-              <div className="p-2.5 bg-red-50 rounded-none">
+              <div className="p-2.5 bg-red-50 rounded-xl">
                 <TrendingDown className="h-4 w-4 text-red-600" />
               </div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-[color:var(--be-text)]/30 font-display">Despesas</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-brand-text-medium transition-colors group-hover:text-brand-gold">Despesas</span>
             </div>
             <div className="text-red-600">
               <CurrencyStack totals={expensesByCurrency} size="lg" showEmpty={true} />
             </div>
-            <p className="text-[10px] font-black uppercase tracking-wider text-[color:var(--be-text)]/20 mt-2">Total despesas registradas</p>
-          </div>
+            <p className="text-[10px] font-black uppercase tracking-wider text-brand-text-medium mt-2">Total despesas registradas</p>
+          </PremiumCard>
 
-          <div className="be-card p-5 border border-be-blue/10 rounded-none shadow-none" style={{ backgroundColor: '#FFFFFF' }}>
+          <PremiumCard>
             <div className="flex items-center justify-between mb-4">
-              <div className="p-2.5 rounded-none">
-                <BarChart3 className="h-4 w-4" style={{ color: '#10203E' }} />
+              <div className="p-2.5 rounded-xl bg-brand-bg transition-colors group-hover:bg-brand-gold/10">
+                <BarChart3 className="h-4 w-4 text-brand-blue transition-colors group-hover:text-brand-gold" />
               </div>
-              <span className="text-[10px] font-black uppercase tracking-widest font-display" style={{ color: '#10203E' }}>Lucro</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-brand-text-medium transition-colors group-hover:text-brand-gold">Lucro</span>
             </div>
             <div className="space-y-1.5">
               {Object.entries(profitByCurrency).map(([currency, data]) => (
@@ -371,10 +364,10 @@ export default async function FinancialPage({
                 </div>
               ))}
             </div>
-            <p className="text-[10px] font-black uppercase tracking-wider mt-2" style={{ color: '#10203E' }}>Receita menos despesas</p>
-          </div>
+            <p className="text-[10px] font-black uppercase tracking-wider mt-2 text-brand-text-medium">Receita menos despesas</p>
+          </PremiumCard>
         </div>
-      </main>
+      </PremiumPageShell>
     </AuthLayout>
   )
 }

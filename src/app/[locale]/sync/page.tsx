@@ -2,6 +2,7 @@ import { RefreshCw } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { SyncPanel } from '@/components/features/sync/SyncPanel'
 import { AuthLayout } from '@/components/common/layout/AuthLayout'
+import { PremiumPageHeader, PremiumPageShell } from '@/components/common/layout/PremiumPage'
 import { getUserPropertyIds } from '@/lib/auth/getUserProperties'
 
 export default async function SyncPage() {
@@ -42,26 +43,19 @@ export default async function SyncPage() {
 
   return (
     <AuthLayout>
+      <PremiumPageShell>
+        <PremiumPageHeader
+          title="Sincronização iCal"
+          description="Importe e exporte calendários de reservas com plataformas externas"
+          badge={`${(listings || []).length} anúncios`}
+          icon={RefreshCw}
+        />
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Page Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <RefreshCw className="h-8 w-8 text-[color:var(--be-blue)]" />
-            <h2 className="text-3xl font-bold text-gray-900">Sincronização iCal</h2>
-          </div>
-          <p className="text-gray-600">
-            Importe e exporte calendários de reservas com plataformas externas
-          </p>
-        </div>
-
-        {/* Sync Panel */}
         <SyncPanel 
           properties={properties || []}
           listings={(listings || []) as unknown as Parameters<typeof SyncPanel>[0]['listings']}
         />
-      </main>
+      </PremiumPageShell>
     </AuthLayout>
   )
 }

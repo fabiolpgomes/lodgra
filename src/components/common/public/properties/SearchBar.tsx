@@ -40,7 +40,7 @@ function validateSearchParams(params: SearchParams): ValidationErrors {
 }
 
 const inputClass = (hasError: boolean) =>
-  `w-full px-4 py-[13px] min-h-[44px] text-[16px] font-light border focus:outline-none focus:ring-2 focus:ring-brand-800 focus:border-transparent transition-colors rounded-none appearance-none bg-white ${hasError ? 'border-red-500' : 'border-gray-300 text-gray-900'}`
+  `w-full px-4 py-[13px] min-h-[44px] text-[16px] font-light border focus:outline-none focus:ring-2 focus:ring-brand-gold/30 focus:border-brand-gold transition-colors rounded-xl appearance-none bg-brand-white ${hasError ? 'border-red-500' : 'border-brand-gold/20 text-brand-text-dark'}`
 
 export function SearchBar({ onSearch, isLoading = false, hideLocation = false }: SearchBarProps) {
   const [location, setLocation] = useState('')
@@ -107,39 +107,39 @@ export function SearchBar({ onSearch, isLoading = false, hideLocation = false }:
   // Desktop with location: 4 fields stacked + btn below
   // Mobile: always 1-col stacked + btn below
 
-  const fieldLabel = 'block text-[11px] font-bold text-gray-600 uppercase tracking-[0.6px] mb-1.5'
-  const btnClass = 'flex items-center justify-center gap-2 h-14 bg-brand-800 hover:bg-brand-900 active:bg-brand-950 text-white font-bold text-[14px] uppercase tracking-[1.5px] transition-colors disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-brand-800 focus:ring-offset-2 rounded-none'
+  const fieldLabel = 'block text-[11px] font-bold text-brand-text-medium uppercase tracking-[0.6px] mb-1.5'
+  const btnClass = 'flex items-center justify-center gap-2 h-14 rounded-full bg-brand-blue hover:bg-brand-gold active:bg-brand-blue text-white font-bold text-[14px] uppercase tracking-[1.5px] transition-colors disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-brand-gold/30 focus:ring-offset-2'
 
   if (hideLocation) {
     // Compact inline strip for org-specific pages
     return (
       <form onSubmit={handleSubmit} noValidate>
         {/* Desktop: fields + button in one row */}
-        <div className="hidden sm:grid sm:grid-cols-[1fr_1fr_1fr_auto] gap-0 border border-gray-300 rounded-none overflow-hidden">
-          <div className="px-4 pt-3 pb-2 border-r border-gray-200">
+        <div className="hidden sm:grid sm:grid-cols-[1fr_1fr_1fr_auto] gap-0 overflow-hidden rounded-2xl border border-brand-gold/20 bg-brand-white shadow-sm">
+          <div className="px-4 pt-3 pb-2 border-r border-brand-gold/15">
             <label htmlFor="checkin-d" className={fieldLabel}>Check-in</label>
             <input id="checkin-d" type="date" value={checkIn} min={today}
               onChange={handleCheckInChange} disabled={isLoading}
-              className="w-full text-[15px] text-gray-900 bg-transparent focus:outline-none disabled:opacity-50 pb-2"
+              className="w-full text-[15px] text-brand-text-dark bg-transparent focus:outline-none disabled:opacity-50 pb-2"
               aria-invalid={!!errors.checkIn}
             />
             {errors.checkIn && <p className="text-[11px] text-red-600 font-medium pb-1">{errors.checkIn}</p>}
           </div>
-          <div className="px-4 pt-3 pb-2 border-r border-gray-200">
+          <div className="px-4 pt-3 pb-2 border-r border-brand-gold/15">
             <label htmlFor="checkout-d" className={fieldLabel}>Check-out</label>
             <input id="checkout-d" type="date" value={checkOut} min={minCheckOutDate}
               onChange={handleCheckOutChange} disabled={isLoading}
-              className="w-full text-[15px] text-gray-900 bg-transparent focus:outline-none disabled:opacity-50 pb-2"
+              className="w-full text-[15px] text-brand-text-dark bg-transparent focus:outline-none disabled:opacity-50 pb-2"
               aria-invalid={!!errors.checkOut}
             />
             {errors.checkOut && <p className="text-[11px] text-red-600 font-medium pb-1">{errors.checkOut}</p>}
           </div>
-          <div className="px-4 pt-3 pb-2 border-r border-gray-200">
+          <div className="px-4 pt-3 pb-2 border-r border-brand-gold/15">
             <label htmlFor="guests-d" className={fieldLabel}>Hóspedes</label>
             <select id="guests-d" value={guests}
               onChange={e => setGuests(parseInt(e.target.value))}
               disabled={isLoading}
-              className="w-full text-[15px] text-gray-900 bg-transparent focus:outline-none disabled:opacity-50 pb-2 appearance-none"
+              className="w-full text-[15px] text-brand-text-dark bg-transparent focus:outline-none disabled:opacity-50 pb-2 appearance-none"
             >
               {Array.from({ length: 10 }).map((_, i) => (
                 <option key={i + 1} value={i + 1}>{i + 1} {i + 1 === 1 ? 'hóspede' : 'hóspedes'}</option>
@@ -194,46 +194,46 @@ export function SearchBar({ onSearch, isLoading = false, hideLocation = false }:
 
   // Generic page (with location field)
   const ctaBg = '#10203E'
-  const ctaBgHover = '#1e3374'
+  const ctaBgHover = '#C9A227'
 
   return (
     <form onSubmit={handleSubmit} className="w-full" noValidate>
       {/* Desktop: integrated inline strip [location | check-in | check-out | guests | btn] */}
-      <div className="hidden sm:grid sm:grid-cols-[1.5fr_1fr_1fr_1fr_auto] gap-0 border border-gray-300 rounded-none overflow-hidden">
-        <div className="px-4 pt-3 pb-2 border-r border-gray-200">
+      <div className="hidden sm:grid sm:grid-cols-[1.5fr_1fr_1fr_1fr_auto] gap-0 overflow-hidden rounded-2xl border border-brand-gold/20 bg-brand-white shadow-sm">
+        <div className="px-4 pt-3 pb-2 border-r border-brand-gold/15">
           <label htmlFor="location-d" className={fieldLabel}>Para onde?</label>
           <input id="location-d" type="text" placeholder="Cidade, região..."
             value={location}
             onChange={e => { setLocation(e.target.value); if (submitted && e.target.value.trim()) setErrors(p => { const n = {...p}; delete n.location; return n }) }}
             disabled={isLoading}
-            className="w-full text-[15px] text-gray-900 bg-transparent focus:outline-none disabled:opacity-50 pb-2 placeholder-gray-400"
+            className="w-full text-[15px] text-brand-text-dark bg-transparent focus:outline-none disabled:opacity-50 pb-2 placeholder-gray-400"
           />
           {errors.location && <p className="text-[11px] text-red-600 font-medium pb-1">{errors.location}</p>}
         </div>
-        <div className="px-4 pt-3 pb-2 border-r border-gray-200">
+        <div className="px-4 pt-3 pb-2 border-r border-brand-gold/15">
           <label htmlFor="checkin-d" className={fieldLabel}>Check-in</label>
           <input id="checkin-d" type="date" value={checkIn} min={today}
             onChange={handleCheckInChange} disabled={isLoading}
-            className="w-full text-[15px] text-gray-900 bg-transparent focus:outline-none disabled:opacity-50 pb-2"
+            className="w-full text-[15px] text-brand-text-dark bg-transparent focus:outline-none disabled:opacity-50 pb-2"
             aria-invalid={!!errors.checkIn}
           />
           {errors.checkIn && <p className="text-[11px] text-red-600 font-medium pb-1">{errors.checkIn}</p>}
         </div>
-        <div className="px-4 pt-3 pb-2 border-r border-gray-200">
+        <div className="px-4 pt-3 pb-2 border-r border-brand-gold/15">
           <label htmlFor="checkout-d" className={fieldLabel}>Check-out</label>
           <input id="checkout-d" type="date" value={checkOut} min={minCheckOutDate}
             onChange={handleCheckOutChange} disabled={isLoading}
-            className="w-full text-[15px] text-gray-900 bg-transparent focus:outline-none disabled:opacity-50 pb-2"
+            className="w-full text-[15px] text-brand-text-dark bg-transparent focus:outline-none disabled:opacity-50 pb-2"
             aria-invalid={!!errors.checkOut}
           />
           {errors.checkOut && <p className="text-[11px] text-red-600 font-medium pb-1">{errors.checkOut}</p>}
         </div>
-        <div className="px-4 pt-3 pb-2 border-r border-gray-200">
+        <div className="px-4 pt-3 pb-2 border-r border-brand-gold/15">
           <label htmlFor="guests-d" className={fieldLabel}>Hóspedes</label>
           <select id="guests-d" value={guests}
             onChange={e => setGuests(parseInt(e.target.value))}
             disabled={isLoading}
-            className="w-full text-[15px] text-gray-900 bg-transparent focus:outline-none disabled:opacity-50 pb-2 appearance-none"
+            className="w-full text-[15px] text-brand-text-dark bg-transparent focus:outline-none disabled:opacity-50 pb-2 appearance-none"
           >
             {Array.from({ length: 10 }).map((_, i) => (
               <option key={i + 1} value={i + 1}>{i + 1} {i + 1 === 1 ? 'hóspede' : 'hóspedes'}</option>

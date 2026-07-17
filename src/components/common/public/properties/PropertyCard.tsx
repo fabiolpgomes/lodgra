@@ -61,10 +61,10 @@ export function PropertyCard({
   return (
     // Entire card is clickable via absolute overlay; inner CTA has z-10
     <div
-      className="relative group bg-white rounded-lg border border-gray-200
-        hover:shadow-xl hover:border-brand-200 hover:-translate-y-0.5
+      className="relative group bg-brand-white rounded-2xl border border-neutral-200/70
+        hover:shadow-[0_18px_42px_rgba(201,162,39,0.14)] hover:border-brand-gold/45 hover:-translate-y-0.5
         active:scale-[0.99] active:shadow-md
-        transition-all duration-200 overflow-hidden flex flex-col md:flex-row"
+        transition-all duration-300 overflow-hidden flex flex-col md:flex-row"
       data-testid={`property-card-${id}`}
     >
       {/* Clickable overlay — covers the whole card */}
@@ -82,7 +82,7 @@ export function PropertyCard({
           <div className="flex h-full items-center justify-center text-5xl text-gray-200">🏠</div>
         )}
         {isFeatured && (
-          <div className="absolute top-3 left-3 bg-gray-900 text-white px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-[1.2px] z-10">
+          <div className="absolute top-3 left-3 bg-brand-blue text-white px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-[1.2px] z-10">
             Destaque
           </div>
         )}
@@ -103,36 +103,36 @@ export function PropertyCard({
 
         {/* Header: title + price */}
         <div className="flex items-start justify-between gap-4">
-          <h2 className="font-bold text-[16px] md:text-[18px] text-gray-900 line-clamp-2 leading-[1.35] flex-1">
+          <h2 className="font-bold text-[16px] md:text-[18px] text-brand-text-dark line-clamp-2 leading-[1.35] flex-1 transition-colors group-hover:text-brand-gold">
             {name}
           </h2>
           <div className="hidden md:block text-right shrink-0">
-            <p className="text-[11px] text-gray-500 uppercase tracking-[0.5px]">desde</p>
-            <p className="text-[24px] font-bold text-gray-900 leading-none">{currencySymbol}{price}</p>
-            <p className="text-[11px] text-gray-500 mt-0.5">/ noite</p>
+            <p className="text-[11px] text-brand-text-medium uppercase tracking-[0.5px]">desde</p>
+            <p className="text-[24px] font-bold text-brand-blue leading-none transition-colors group-hover:text-brand-gold">{currencySymbol}{price}</p>
+            <p className="text-[11px] text-brand-text-medium mt-0.5">/ noite</p>
           </div>
         </div>
 
         {/* Location */}
-        <p className="mt-1.5 text-[13px] text-gray-600 flex items-center gap-1">
-          <MapPin className="h-3.5 w-3.5 shrink-0 text-gray-400" />
+        <p className="mt-1.5 text-[13px] text-brand-text-medium flex items-center gap-1">
+          <MapPin className="h-3.5 w-3.5 shrink-0 text-brand-gold" />
           {city}, {country}
         </p>
 
         {/* Specs */}
-        <div className="mt-2.5 flex items-center gap-1.5 text-[13px] text-gray-600 flex-wrap">
-          <span className="flex items-center gap-1"><Users className="h-3.5 w-3.5 text-gray-400" />Dorme {maxGuests}</span>
+        <div className="mt-2.5 flex items-center gap-1.5 text-[13px] text-brand-text-medium flex-wrap">
+          <span className="flex items-center gap-1"><Users className="h-3.5 w-3.5 text-brand-gold" />Dorme {maxGuests}</span>
           <span className="text-gray-300">·</span>
-          <span className="flex items-center gap-1"><BedDouble className="h-3.5 w-3.5 text-gray-400" />{bedrooms} {bedrooms === 1 ? 'quarto' : 'quartos'}</span>
+          <span className="flex items-center gap-1"><BedDouble className="h-3.5 w-3.5 text-brand-gold" />{bedrooms} {bedrooms === 1 ? 'quarto' : 'quartos'}</span>
           <span className="text-gray-300">·</span>
-          <span className="flex items-center gap-1"><Bath className="h-3.5 w-3.5 text-gray-400" />{bathrooms} {bathrooms === 1 ? 'casa de banho' : 'casas de banho'}</span>
+          <span className="flex items-center gap-1"><Bath className="h-3.5 w-3.5 text-brand-gold" />{bathrooms} {bathrooms === 1 ? 'casa de banho' : 'casas de banho'}</span>
         </div>
 
         {/* Amenities chips — desktop only */}
         {topAmenities.length > 0 && (
           <div className="hidden md:flex flex-wrap gap-1.5 mt-3">
             {topAmenities.map(a => (
-              <span key={a} className="text-[12px] bg-gray-50 border border-gray-200 text-gray-600 px-2.5 py-1 rounded-full">
+              <span key={a} className="text-[12px] bg-brand-bg border border-brand-gold/15 text-brand-text-medium px-2.5 py-1 rounded-full">
                 {a}
               </span>
             ))}
@@ -156,15 +156,15 @@ export function PropertyCard({
         {/* Footer: rating (mobile) + price (mobile) + CTA */}
         <div className="mt-auto pt-4 flex items-end justify-between gap-3">
           <div className="md:hidden">
-            <p className="text-[11px] text-gray-500">desde</p>
-            <p className="text-[20px] font-bold text-gray-900 leading-tight">{currencySymbol}{price}</p>
-            <p className="text-[11px] text-gray-500">/ noite</p>
+            <p className="text-[11px] text-brand-text-medium">desde</p>
+            <p className="text-[20px] font-bold text-brand-blue leading-tight">{currencySymbol}{price}</p>
+            <p className="text-[11px] text-brand-text-medium">/ noite</p>
           </div>
 
           {/* CTA — relative z-10 so it's above the overlay (items 4+5) */}
           <Link
             href={href}
-            className="relative z-10 shrink-0 flex items-center gap-2 bg-brand-800 hover:bg-brand-900 active:scale-95 text-white text-[13px] font-bold uppercase tracking-[1.2px] transition-all px-6 min-h-[44px] rounded"
+            className="relative z-10 shrink-0 flex items-center gap-2 rounded-full bg-brand-blue hover:bg-brand-gold active:scale-95 text-white text-[13px] font-bold uppercase tracking-[1.2px] transition-all px-6 min-h-[44px] shadow-sm"
           >
             <span className="hidden md:inline">Ver detalhes</span>
             <span className="md:hidden">Reservar</span>

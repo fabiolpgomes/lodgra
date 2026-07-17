@@ -3,14 +3,18 @@ import {
   ArrowUpRight,
   CalendarDays,
   CheckCircle,
+  ChevronDown,
   Clock,
   DollarSign,
   FileSpreadsheet,
+  Menu,
   Home,
   Percent,
   RefreshCw,
+  Search,
   TrendingUp,
   Wallet,
+  Bell,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { requireRole } from '@/lib/auth/requireRole'
@@ -18,6 +22,8 @@ import { LazyOccupancyChart as OccupancyChart, LazyStatusChart as StatusChart } 
 import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
 import { RevenueChartWrapper } from '@/components/features/dashboard/RevenueChartWrapper'
 import { AuthLayout } from '@/components/common/layout/AuthLayout'
+import { LocaleSelector } from '@/components/common/header/LocaleSelector'
+import { ThemeToggle } from '@/components/common/header/ThemeToggle'
 import { redirect } from 'next/navigation'
 import { calculateRevenueForReservation } from '@/lib/financial/revenue-calculator'
 
@@ -43,7 +49,7 @@ export default async function DashboardPage({
   // Fetch properties for this organization
   const { data: properties } = await supabase
     .from('properties')
-    .select('id, currency')
+    .select('id, name, currency')
     .eq('organization_id', organizationId)
     .eq('is_active', true)
 
@@ -357,11 +363,68 @@ export default async function DashboardPage({
 
   const currencyBadgeClass = (_currency: string) =>
     'text-brand-text-dark bg-brand-bg border-neutral-200/60 dark:text-neutral-200 dark:bg-neutral-850 dark:border-neutral-700/60'
+  const propertyFilterLabel = totalProperties === 1
+    ? (properties?.[0]?.name || '1 propriedade')
+    : `Todas as propriedades (${totalProperties})`
 
   return (
-    <AuthLayout>
-      <main className="mx-auto max-w-7xl space-y-7 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-        <div className="flex flex-col gap-4 border-b border-neutral-200/60 pb-5 md:flex-row md:items-center md:justify-between">
+    <AuthLayout hideTopBar>
+      <div className="sticky top-0 z-30 hidden h-20 items-center justify-between border-b border-neutral-200/60 bg-brand-white px-4 shadow-xs md:flex lg:px-8">
+        <div className="flex min-w-0 items-center gap-4">
+          <button
+            className="flex h-10 w-10 items-center justify-center rounded-xl text-brand-text-medium transition-colors hover:bg-brand-bg hover:text-brand-text-dark"
+            aria-label="Abrir menu"
+          >
+            <Menu className="h-5 w-5" />
+          </button>
+
+          <div className="min-w-[280px]">
+            <p className="mb-1 text-[9px] font-bold uppercase tracking-wider text-brand-text-medium">
+              Filtro de Propriedade
+            </p>
+            <Link
+              href={`/${locale}/properties`}
+              className="flex h-11 items-center justify-between gap-3 rounded-xl border border-neutral-200/60 bg-brand-bg px-4 text-sm font-semibold text-brand-text-dark shadow-2xs transition-all hover:bg-brand-bg/80"
+            >
+              <span className="truncate">{propertyFilterLabel}</span>
+              <ChevronDown className="h-4 w-4 shrink-0 text-brand-text-medium" />
+            </Link>
+          </div>
+        </div>
+
+        <div className="mx-6 flex h-12 w-full max-w-md items-center rounded-full border border-neutral-200/60 bg-brand-white px-2 py-1.5 shadow-xs transition-all hover:shadow-md">
+          <button className="min-w-0 flex-1 border-r border-neutral-200/60 px-4 text-left">
+            <p className="text-[9px] font-bold uppercase leading-none tracking-wider text-brand-text-dark">
+              Pesquisar
+            </p>
+            <span className="mt-0.5 block truncate text-xs font-medium text-brand-text-medium/60">
+              Qualquer propriedade
+            </span>
+          </button>
+          <Link
+            href={`/${locale}/reservations/new`}
+            className="ml-1 flex shrink-0 items-center gap-1.5 rounded-full bg-brand-blue px-4 py-2.5 text-[11px] font-bold text-white shadow-sm transition-all hover:bg-brand-blue/90"
+          >
+            <Search className="h-3.5 w-3.5 stroke-[3]" />
+            NOVA RESERVA
+          </Link>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <ThemeToggle />
+          <LocaleSelector />
+          <button
+            className="relative flex h-11 w-11 items-center justify-center rounded-full border border-neutral-200/60 bg-brand-bg text-brand-text-dark shadow-2xs transition-all hover:bg-brand-bg/85"
+            aria-label="Notificações"
+          >
+            <Bell className="h-4.5 w-4.5" />
+            <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-brand-gold ring-2 ring-brand-white" />
+          </button>
+        </div>
+      </div>
+
+      <main className="mx-auto max-w-7xl space-y-7 px-4 py-8 sm:px-6 lg:px-8">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             <h1 className="flex flex-wrap items-center gap-2 text-xl font-bold tracking-tight text-brand-text-dark">
               DASHBOARD
@@ -370,7 +433,7 @@ export default async function DashboardPage({
               </span>
             </h1>
             <p className="mt-1 text-xs font-semibold text-brand-text-medium">
-              Visão geral do seu negócio de aluguel de temporada com dados reais do banco
+              Visão geral do seu negócio de aluguel de temporada
             </p>
           </div>
 
@@ -436,14 +499,14 @@ export default async function DashboardPage({
             return (
               <Link
                 key={card.label}
-                href={card.href}
-                className="group relative flex flex-col rounded-2xl border border-neutral-200/60 bg-brand-white p-6 text-left shadow-2xs transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-gold/30 hover:shadow-md"
+              href={card.href}
+                className="group relative flex flex-col rounded-2xl border border-neutral-200/60 bg-brand-white p-6 text-left shadow-2xs transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-gold/45 hover:shadow-[0_18px_42px_rgba(201,162,39,0.14)]"
               >
                 <div className="mb-4 flex w-full items-center justify-between">
-                  <div className={`flex h-10 w-10 items-center justify-center rounded-xl border transition-transform group-hover:scale-105 ${card.badgeClass}`}>
-                    <Icon className={`h-5 w-5 ${card.iconClass}`} />
+                  <div className={`flex h-10 w-10 items-center justify-center rounded-xl border transition-all group-hover:scale-105 group-hover:border-brand-gold/40 group-hover:bg-brand-gold/10 ${card.badgeClass}`}>
+                    <Icon className={`h-5 w-5 transition-colors group-hover:text-brand-gold ${card.iconClass}`} />
                   </div>
-                  <span className="text-[10px] font-bold tracking-wider text-brand-text-medium">
+                  <span className="text-[10px] font-bold tracking-wider text-brand-text-medium transition-colors group-hover:text-brand-gold">
                     {card.type}
                   </span>
                 </div>
@@ -469,16 +532,16 @@ export default async function DashboardPage({
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <Link
             href={`/${locale}/financial`}
-            className="group flex flex-col justify-between rounded-2xl border border-neutral-200/60 bg-brand-white p-6 text-left shadow-2xs transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-blue/35 hover:shadow-md"
+            className="group flex flex-col justify-between rounded-2xl border border-neutral-200/60 bg-brand-white p-6 text-left shadow-2xs transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-gold/45 hover:shadow-[0_18px_42px_rgba(201,162,39,0.14)]"
           >
             <div>
               <div className="mb-5 flex items-center gap-3.5">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full border border-neutral-200/60 bg-brand-bg text-brand-text-dark">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full border border-neutral-200/60 bg-brand-bg text-brand-text-dark transition-all group-hover:border-brand-gold/40 group-hover:bg-brand-gold/10 group-hover:text-brand-gold">
                   <DollarSign className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-brand-text-dark">Receita do Mês</h3>
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-brand-text-medium">{monthLabel}</p>
+                  <h3 className="text-sm font-bold text-brand-text-dark transition-colors group-hover:text-brand-gold">Receita do Mês</h3>
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-brand-text-medium transition-colors group-hover:text-brand-gold">{monthLabel}</p>
                 </div>
               </div>
 
@@ -511,16 +574,16 @@ export default async function DashboardPage({
 
           <Link
             href={`/${locale}/financial`}
-            className="group flex flex-col justify-between rounded-2xl border border-neutral-200/60 bg-brand-white p-6 text-left shadow-2xs transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-blue/35 hover:shadow-md"
+            className="group flex flex-col justify-between rounded-2xl border border-neutral-200/60 bg-brand-white p-6 text-left shadow-2xs transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-gold/45 hover:shadow-[0_18px_42px_rgba(201,162,39,0.14)]"
           >
             <div>
               <div className="mb-5 flex items-center gap-3.5">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full border border-neutral-200/60 bg-brand-bg text-brand-text-dark">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full border border-neutral-200/60 bg-brand-bg text-brand-text-dark transition-all group-hover:border-brand-gold/40 group-hover:bg-brand-gold/10 group-hover:text-brand-gold">
                   <Wallet className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-brand-text-dark">Lucro Real</h3>
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-brand-text-medium">{monthLabel}</p>
+                  <h3 className="text-sm font-bold text-brand-text-dark transition-colors group-hover:text-brand-gold">Lucro Real</h3>
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-brand-text-medium transition-colors group-hover:text-brand-gold">{monthLabel}</p>
                 </div>
               </div>
 
@@ -569,15 +632,15 @@ export default async function DashboardPage({
 
         <Link
           href={`/${locale}/reservations`}
-          className="group flex w-full flex-col justify-between gap-6 rounded-2xl border border-neutral-200/60 bg-brand-white p-6 text-left shadow-2xs transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-blue/35 hover:shadow-md md:flex-row md:items-center"
+          className="group flex w-full flex-col justify-between gap-6 rounded-2xl border border-neutral-200/60 bg-brand-white p-6 text-left shadow-2xs transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-gold/45 hover:shadow-[0_18px_42px_rgba(201,162,39,0.14)] md:flex-row md:items-center"
         >
           <div className="flex items-start gap-4">
-            <div className="mt-1 flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-brand-blue/10 bg-brand-blue/5 text-brand-blue">
+            <div className="mt-1 flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-brand-blue/10 bg-brand-blue/5 text-brand-blue transition-all group-hover:border-brand-gold/40 group-hover:bg-brand-gold/10 group-hover:text-brand-gold">
               <TrendingUp className="h-6 w-6 stroke-[2.5]" />
             </div>
             <div>
               <div className="flex flex-wrap items-center gap-2">
-                <h3 className="text-sm font-bold uppercase tracking-wide text-brand-text-dark">
+                <h3 className="text-sm font-bold uppercase tracking-wide text-brand-text-dark transition-colors group-hover:text-brand-gold">
                   Previsão de Faturamento
                 </h3>
                 <span className="rounded-full bg-brand-blue/10 px-2 py-0.5 text-[10px] font-bold text-brand-blue">
@@ -611,7 +674,7 @@ export default async function DashboardPage({
                   {idx < forecastEntries.length - 1 && <span className="hidden" />}
                 </div>
               ))}
-              <div className="hidden h-8 w-8 items-center justify-center rounded-full bg-brand-bg text-brand-text-medium transition-colors group-hover:bg-brand-blue group-hover:text-white md:flex">
+              <div className="hidden h-8 w-8 items-center justify-center rounded-full bg-brand-bg text-brand-text-medium transition-colors group-hover:bg-brand-gold group-hover:text-white md:flex">
                 <ArrowUpRight className="h-4 w-4" />
               </div>
             </div>
@@ -619,9 +682,9 @@ export default async function DashboardPage({
         </Link>
 
         <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-          <div className="flex flex-col rounded-2xl border border-neutral-200/60 bg-brand-white p-6 shadow-2xs">
+          <div className="group flex flex-col rounded-2xl border border-neutral-200/60 bg-brand-white p-6 shadow-2xs transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-gold/45 hover:shadow-[0_18px_42px_rgba(201,162,39,0.14)]">
             <div className="mb-6">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-brand-text-dark">Taxa de Ocupação</h3>
+              <h3 className="text-xs font-bold uppercase tracking-wider text-brand-text-dark transition-colors group-hover:text-brand-gold">Taxa de Ocupação</h3>
               <p className="mt-1 text-[11px] font-semibold text-brand-text-medium">
                 Últimos 6 meses - {monthLabel}: {currentMonthOccupancy}%
               </p>
@@ -629,10 +692,10 @@ export default async function DashboardPage({
             <OccupancyChart data={occupancyData} />
           </div>
 
-          <div className="flex flex-col rounded-2xl border border-neutral-200/60 bg-brand-white p-6 shadow-2xs">
+          <div className="group flex flex-col rounded-2xl border border-neutral-200/60 bg-brand-white p-6 shadow-2xs transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-gold/45 hover:shadow-[0_18px_42px_rgba(201,162,39,0.14)]">
             <div className="mb-6 flex items-start justify-between gap-4">
               <div>
-                <h3 className="text-xs font-bold uppercase tracking-wider text-brand-text-dark">Receita Mensal</h3>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-brand-text-dark transition-colors group-hover:text-brand-gold">Receita Mensal</h3>
                 <p className="mt-1 text-[11px] font-semibold text-brand-text-medium">Faturamento consolidado por moeda</p>
               </div>
             </div>
@@ -641,10 +704,10 @@ export default async function DashboardPage({
         </div>
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <div className="rounded-2xl border border-neutral-200/60 bg-brand-white p-6 shadow-2xs">
+          <div className="group rounded-2xl border border-neutral-200/60 bg-brand-white p-6 shadow-2xs transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-gold/45 hover:shadow-[0_18px_42px_rgba(201,162,39,0.14)]">
             <div className="mb-6">
-              <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-brand-text-dark">
-                <CheckCircle className="h-4 w-4 text-brand-blue" />
+              <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-brand-text-dark transition-colors group-hover:text-brand-gold">
+                <CheckCircle className="h-4 w-4 text-brand-blue transition-colors group-hover:text-brand-gold" />
                 Reservas por Status
               </h3>
               <p className="mt-1 text-[11px] font-semibold text-brand-text-medium">Distribuição atual</p>
@@ -656,10 +719,10 @@ export default async function DashboardPage({
             />
           </div>
 
-          <div className="rounded-2xl border border-neutral-200/60 bg-brand-white p-6 shadow-2xs">
+          <div className="group rounded-2xl border border-neutral-200/60 bg-brand-white p-6 shadow-2xs transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-gold/45 hover:shadow-[0_18px_42px_rgba(201,162,39,0.14)]">
             <div className="mb-6">
-              <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-brand-text-dark">
-                <Clock className="h-4 w-4 text-brand-blue" />
+              <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-brand-text-dark transition-colors group-hover:text-brand-gold">
+                <Clock className="h-4 w-4 text-brand-blue transition-colors group-hover:text-brand-gold" />
                 Próximas Chegadas
               </h3>
               <p className="mt-1 text-[11px] font-semibold text-brand-text-medium">Próximos 7 dias</p>
@@ -724,8 +787,8 @@ export default async function DashboardPage({
           </div>
         </div>
 
-        <div className="rounded-2xl border border-neutral-200/60 bg-brand-white p-6 shadow-2xs">
-          <h3 className="mb-4 text-xs font-bold uppercase tracking-wider text-brand-text-dark">Ações Rápidas</h3>
+        <div className="group rounded-2xl border border-neutral-200/60 bg-brand-white p-6 shadow-2xs transition-all duration-300 hover:border-brand-gold/45 hover:shadow-[0_18px_42px_rgba(201,162,39,0.14)]">
+          <h3 className="mb-4 text-xs font-bold uppercase tracking-wider text-brand-text-dark transition-colors group-hover:text-brand-gold">Ações Rápidas</h3>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <Link
               href={`/${locale}/properties/new`}

@@ -193,15 +193,15 @@ export function BookingWidgetMobile({
   return (
     <>
       {/* Fixed bottom bar */}
-      <div className="fixed bottom-0 left-0 right-0 lg:hidden bg-white border-t border-gray-200 shadow-lg z-40">
+      <div className="fixed bottom-0 left-0 right-0 lg:hidden bg-brand-white border-t border-brand-gold/20 shadow-lg z-40">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
           <div>
-            <p className="text-xs text-gray-600">
+            <p className="text-xs text-brand-text-medium">
               {nights > 0 && isReady ? (hasVaryingPrices ? 'Preço médio' : 'Por noite') : 'Preço base'}
             </p>
-            <p className="text-xl font-black text-gray-900">
+            <p className="text-xl font-black text-brand-blue">
               {symbol}{nights > 0 && isReady ? avgPerNight : basePrice}
-              <span className="text-sm font-medium text-gray-600"> /noite</span>
+              <span className="text-sm font-medium text-brand-text-medium"> /noite</span>
             </p>
             {nights > 0 && (
               <p className="text-xs text-lodgra-green font-semibold">
@@ -216,7 +216,7 @@ export function BookingWidgetMobile({
           {checkoutHref && !checkInError && !checkOutError ? (
             <Link
               href={checkoutHref}
-              className="flex-1 bg-be-blue hover:bg-be-blue-hover active:scale-[0.98] font-bold py-3 px-4 rounded-full text-center transition-all"
+              className="flex-1 bg-brand-blue hover:bg-brand-gold active:scale-[0.98] font-bold py-3 px-4 rounded-full text-center transition-all"
               style={{ color: '#ffffff' }}
             >
               Reservar
@@ -224,7 +224,7 @@ export function BookingWidgetMobile({
           ) : (
             <button
               onClick={() => setShowPanel(true)}
-              className="flex-1 bg-be-blue hover:bg-be-blue-hover font-bold py-3 px-4 rounded-full text-center transition-all"
+              className="flex-1 bg-brand-blue hover:bg-brand-gold font-bold py-3 px-4 rounded-full text-center transition-all"
               style={{ color: '#ffffff' }}
             >
               Selecionar datas
@@ -240,10 +240,10 @@ export function BookingWidgetMobile({
             className="fixed inset-0 bg-black/50 z-50 lg:hidden"
             onClick={() => setShowPanel(false)}
           />
-          <div className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-white rounded-t-2xl p-5 space-y-4 max-h-[90vh] overflow-y-auto">
+          <div className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-brand-white rounded-t-2xl p-5 space-y-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-2">
-              <h2 className="font-bold text-lg text-gray-900">Selecionar datas</h2>
-              <button onClick={() => setShowPanel(false)} className="text-gray-500 text-xl">✕</button>
+              <h2 className="font-bold text-lg text-brand-text-dark">Selecionar datas</h2>
+              <button onClick={() => setShowPanel(false)} className="text-brand-text-medium text-xl">✕</button>
             </div>
             {effectiveMinNights > 1 && (
               <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1">
@@ -253,36 +253,36 @@ export function BookingWidgetMobile({
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Check-in</label>
+                <label className="block text-sm font-semibold text-brand-text-dark mb-1">Check-in</label>
                 <input
                   type="date"
                   value={checkIn}
                   min={today}
                   onChange={e => handleCheckInChange(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-lodgra-green"
+                  className="w-full px-3 py-2 border border-brand-gold/20 rounded-xl text-sm text-brand-text-dark focus:outline-none focus:ring-2 focus:ring-brand-gold/30"
                 />
                 {checkInError && <p className="mt-1 text-xs text-red-600">{checkInError}</p>}
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Check-out</label>
+                <label className="block text-sm font-semibold text-brand-text-dark mb-1">Check-out</label>
                 <input
                   type="date"
                   value={checkOut}
                   min={minCheckOut || today}
                   onChange={e => handleCheckOutChange(e.target.value)}
                   disabled={!checkIn}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-lodgra-green disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full px-3 py-2 border border-brand-gold/20 rounded-xl text-sm text-brand-text-dark focus:outline-none focus:ring-2 focus:ring-brand-gold/30 disabled:opacity-50 disabled:cursor-not-allowed"
                 />
                 {checkOutError && <p className="mt-1 text-xs text-red-600">{checkOutError}</p>}
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">Hóspedes</label>
+              <label className="block text-sm font-semibold text-brand-text-dark mb-1">Hóspedes</label>
               <select
                 value={guests}
                 onChange={e => setGuests(parseInt(e.target.value))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-lodgra-green"
+                className="w-full px-3 py-2 border border-brand-gold/20 rounded-xl text-sm text-brand-text-dark focus:outline-none focus:ring-2 focus:ring-brand-gold/30"
               >
                 {Array.from({ length: Math.max(1, maxGuests) }, (_, i) => (
                   <option key={i + 1} value={i + 1}>{i + 1} {i === 0 ? 'hóspede' : 'hóspedes'}</option>
@@ -291,7 +291,7 @@ export function BookingWidgetMobile({
             </div>
 
             {nights > 0 && (
-              <div className="p-3 bg-gray-50 rounded-lg text-sm space-y-1">
+              <div className="p-3 bg-brand-bg rounded-xl text-sm space-y-1">
                 {isPriceFetching ? (
                   <>
                     <div className="flex justify-between text-gray-400 animate-pulse">
@@ -305,7 +305,7 @@ export function BookingWidgetMobile({
                   </>
                 ) : (
                   <>
-                    <div className="flex justify-between text-gray-700">
+                    <div className="flex justify-between text-brand-text-medium">
                       {hasVaryingPrices ? (
                         <span>{nights} noite{nights !== 1 ? 's' : ''} · preço por época</span>
                       ) : (
@@ -314,15 +314,15 @@ export function BookingWidgetMobile({
                       <span>{symbol}{Math.round(accommodationTotal)}</span>
                     </div>
                     {hasVaryingPrices && (
-                      <p className="text-xs text-gray-500">Inclui regras de preço por época</p>
+                      <p className="text-xs text-brand-text-medium">Inclui regras de preço por época</p>
                     )}
                     {isReady && priceState.fees?.map((fee, i) => (
-                      <div key={i} className="flex justify-between text-gray-700">
+                      <div key={i} className="flex justify-between text-brand-text-medium">
                         <span>{fee.label}</span>
                         <span>{symbol}{Math.round(fee.amount)}</span>
                       </div>
                     ))}
-                    <div className="flex justify-between font-bold text-gray-900 pt-1 border-t border-gray-200">
+                    <div className="flex justify-between font-bold text-brand-text-dark pt-1 border-t border-brand-gold/15">
                       <span>Total</span>
                       <span>{symbol}{Math.round(displayTotal)}</span>
                     </div>
@@ -334,7 +334,7 @@ export function BookingWidgetMobile({
             {checkoutHref && !checkInError && !checkOutError ? (
               <Link
                 href={checkoutHref}
-                className="block w-full bg-be-blue hover:bg-be-blue-hover font-bold py-3 px-4 rounded-full text-center transition-all"
+                className="block w-full bg-brand-blue hover:bg-brand-gold font-bold py-3 px-4 rounded-full text-center transition-all"
                 style={{ color: '#ffffff' }}
                 onClick={() => setShowPanel(false)}
               >
@@ -343,7 +343,7 @@ export function BookingWidgetMobile({
             ) : (
               <button
                 disabled
-                className="w-full bg-be-blue opacity-80 font-bold py-3 px-4 rounded-full cursor-not-allowed"
+                className="w-full bg-brand-blue opacity-80 font-bold py-3 px-4 rounded-full cursor-not-allowed"
                 style={{ color: '#ffffff' }}
               >
                 {checkInError || checkOutError ? 'Datas indisponíveis' : 'Selecione check-in e check-out'}

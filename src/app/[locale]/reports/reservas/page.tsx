@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { ReservationsFilters } from '@/components/features/reports/ReservationsFilters'
 import { ReservationsDashboard } from '@/components/features/reports/ReservationsDashboard'
 import { AuthLayout } from '@/components/common/layout/AuthLayout'
+import { PremiumPageHeader, PremiumPageShell } from '@/components/common/layout/PremiumPage'
 import { getUserPropertyIds } from '@/lib/auth/getUserProperties'
 
 interface PageProps {
@@ -125,22 +126,14 @@ export default async function ReservasPage({ searchParams }: PageProps) {
 
   return (
     <AuthLayout>
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Page Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-blue-100 rounded-xl">
-              <Calendar className="h-6 w-6 text-blue-600" />
-            </div>
-            <h2 className="text-2xl font-bold text-gray-900">Dashboard de Reservas</h2>
-          </div>
-          <p className="text-gray-600 text-sm ml-14">
-            Visualize todas as suas reservas passadas e futuras
-          </p>
-        </div>
+      <PremiumPageShell>
+        <PremiumPageHeader
+          title="Dashboard de Reservas"
+          description="Visualize todas as suas reservas passadas e futuras"
+          badge={propertyId ? 'Filtrado' : 'Todas'}
+          icon={Calendar}
+        />
 
-        {/* Filtros */}
         <ReservationsFilters
           properties={properties || []}
           startDate={startDate}
@@ -157,7 +150,7 @@ export default async function ReservasPage({ searchParams }: PageProps) {
           _endDate={endDate}
           propertyId={propertyId}
         />
-      </main>
+      </PremiumPageShell>
     </AuthLayout>
   )
 }

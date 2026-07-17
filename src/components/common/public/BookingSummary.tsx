@@ -41,58 +41,58 @@ export function BookingSummary({
 
   if (compact) {
     return (
-      <div className="rounded-lg bg-gray-50 p-4 space-y-1 text-sm">
-        <p className="font-medium text-gray-900">{propertyName}</p>
-        <p className="text-gray-600">
+      <div className="rounded-2xl border border-brand-gold/15 bg-brand-white p-4 space-y-1 text-sm shadow-sm">
+        <p className="font-medium text-brand-text-dark">{propertyName}</p>
+        <p className="text-brand-text-medium">
           {format(checkinDate, 'dd/MM/yyyy')} → {format(checkoutDate, 'dd/MM/yyyy')} · {nights} noite{nights !== 1 ? 's' : ''}
         </p>
-        <p className="font-semibold text-gray-900">{sym}{total.toFixed(2)}</p>
+        <p className="font-semibold text-brand-blue">{sym}{total.toFixed(2)}</p>
       </div>
     )
   }
 
   return (
-    <div className="rounded-xl border border-gray-200 p-5 space-y-4">
+    <div className="rounded-2xl border border-brand-gold/15 bg-brand-white p-5 space-y-4 shadow-sm transition-all hover:border-brand-gold/45 hover:shadow-[0_18px_42px_rgba(201,162,39,0.14)]">
       <div>
-        <h3 className="font-semibold text-gray-900 text-base">{propertyName}</h3>
+        <h3 className="font-semibold text-brand-text-dark text-base">{propertyName}</h3>
         {city && (
-          <p className="flex items-center gap-1 text-sm text-gray-600 mt-0.5">
-            <MapPin className="h-3.5 w-3.5" />
+          <p className="flex items-center gap-1 text-sm text-brand-text-medium mt-0.5">
+            <MapPin className="h-3.5 w-3.5 text-brand-gold" />
             {city}
           </p>
         )}
       </div>
 
       <div className="space-y-2 text-sm">
-        <div className="flex items-start gap-2 text-gray-700">
-          <Calendar className="h-4 w-4 mt-0.5 text-gray-500 shrink-0" />
+        <div className="flex items-start gap-2 text-brand-text-medium">
+          <Calendar className="h-4 w-4 mt-0.5 text-brand-gold shrink-0" />
           <div>
             <p>{fmtDate(checkinDate)}</p>
-            <p className="text-gray-500 text-xs">→ {fmtDate(checkoutDate)}</p>
+            <p className="text-brand-text-medium text-xs">→ {fmtDate(checkoutDate)}</p>
           </div>
         </div>
-        <div className="flex items-center gap-2 text-gray-700">
-          <Users className="h-4 w-4 text-gray-500 shrink-0" />
+        <div className="flex items-center gap-2 text-brand-text-medium">
+          <Users className="h-4 w-4 text-brand-gold shrink-0" />
           <span>{guests} hóspede{guests !== 1 ? 's' : ''}</span>
         </div>
       </div>
 
-      <div className="border-t border-gray-100 pt-3 space-y-1 text-sm">
-        <div className="flex justify-between text-gray-600">
+      <div className="border-t border-brand-gold/15 pt-3 space-y-1 text-sm">
+        <div className="flex justify-between text-brand-text-medium">
           <span>{sym}{(nights > 0 ? ((accommodationTotal ?? total) / nights).toFixed(2) : '0.00')} × {nights} noite{nights !== 1 ? 's' : ''}</span>
           <span>{sym}{(accommodationTotal ?? total).toFixed(2)}</span>
         </div>
         {fees?.map((fee, i) => (
-          <div key={i} className="flex justify-between text-gray-600">
+          <div key={i} className="flex justify-between text-brand-text-medium">
             <span>{fee.label}</span>
             <span>{sym}{fee.amount.toFixed(2)}</span>
           </div>
         ))}
-        <div className="flex justify-between font-semibold text-gray-900 text-base pt-1">
+        <div className="flex justify-between font-semibold text-brand-text-dark text-base pt-1">
           <span>Total</span>
-          <span>{sym}{total.toFixed(2)}</span>
+          <span className="text-brand-blue">{sym}{total.toFixed(2)}</span>
         </div>
-        <p className="text-xs text-gray-500">Impostos incluídos</p>
+        <p className="text-xs text-brand-text-medium">Impostos incluídos</p>
       </div>
     </div>
   )

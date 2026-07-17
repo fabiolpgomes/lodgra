@@ -110,18 +110,18 @@ export default async function CheckoutPage({ params, searchParams }: PageProps) 
   const totalPrice = priceData.total + feesTotal
 
   return (
-    <div className="min-h-screen bg-white">
-      <header className="border-b border-gray-100 px-4 py-3">
+    <div className="min-h-screen bg-brand-bg">
+      <header className="border-b border-brand-gold/15 bg-brand-white px-4 py-3">
         <div className="max-w-lg mx-auto flex items-center justify-between">
           <a href={`/p/${slug}`} aria-label="Lodgra">
             <Logo size="sm" />
           </a>
-          <span className="text-sm text-gray-600">Reserva Segura</span>
+          <span className="rounded-full border border-brand-gold/25 bg-brand-gold/10 px-3 py-1 text-xs font-bold uppercase tracking-[1.2px] text-brand-blue">Reserva Segura</span>
         </div>
       </header>
 
       <main className="max-w-lg mx-auto px-4 sm:px-6 py-8">
-        <h1 className="text-xl font-bold text-gray-900 mb-6">Finalizar Reserva</h1>
+        <h1 className="text-xl font-bold text-brand-text-dark mb-6">Finalizar Reserva</h1>
 
         <CheckoutForm
           slug={slug}
@@ -137,7 +137,7 @@ export default async function CheckoutPage({ params, searchParams }: PageProps) 
         />
       </main>
 
-      <footer className="mt-16 border-t border-gray-100 px-4 py-4 text-center text-xs text-gray-500">
+      <footer className="mt-16 border-t border-brand-gold/15 bg-brand-white px-4 py-4 text-center text-xs text-brand-text-medium">
         Pagamento processado com segurança por Stripe · lodgra.io
       </footer>
     </div>

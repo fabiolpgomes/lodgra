@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useLocale } from 'next-intl'
 import Link from 'next/link'
+import { CreditCard, FileText } from 'lucide-react'
+import { PremiumCard, PremiumPageHeader, PremiumPageShell } from '@/components/common/layout/PremiumPage'
 
 interface Subscription {
   subscription_id: string | null
@@ -101,20 +103,20 @@ export default function BillingPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <p>Carregando dados de faturamento...</p>
+      <div className="flex min-h-screen items-center justify-center bg-brand-bg">
+        <p className="text-sm font-semibold text-brand-text-medium">Carregando dados de faturamento...</p>
       </div>
     )
   }
 
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex min-h-screen items-center justify-center bg-brand-bg">
         <div className="text-center">
-          <p className="text-red-600 mb-4">Erro ao carregar dados: {error}</p>
+          <p className="mb-4 text-sm font-semibold text-red-600">Erro ao carregar dados: {error}</p>
           <button
             onClick={() => router.refresh()}
-            className="px-4 py-2 bg-[color:var(--be-blue)] text-white rounded hover:bg-brand-700"
+            className="rounded-full bg-brand-blue px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-blue/90"
           >
             Tentar Novamente
           </button>
@@ -124,40 +126,45 @@ export default function BillingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Faturamento</h1>
+    <div className="min-h-screen bg-brand-bg">
+      <PremiumPageShell maxWidth="max-w-4xl" className="py-12">
+        <PremiumPageHeader
+          title="Faturamento"
+          description="Acompanhe sua subscrição, renovações e faturas"
+          badge={subscription?.status ? getStatusLabel(subscription.status) : 'Conta'}
+          icon={CreditCard}
+        />
 
         {/* Subscription Status */}
-        <div className="bg-white rounded-lg shadow p-6 mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Sua Subscrição</h2>
+        <PremiumCard>
+          <h2 className="mb-4 text-xl font-semibold text-brand-text-dark transition-colors group-hover:text-brand-gold">Sua Subscrição</h2>
 
           {subscription && subscription.subscription_id ? (
             <div>
               <div className="grid grid-cols-2 gap-4 mb-6">
                 <div>
-                  <p className="text-sm text-gray-600">Plano Atual</p>
-                  <p className="text-lg font-semibold">
+                  <p className="text-sm text-brand-text-medium">Plano Atual</p>
+                  <p className="text-lg font-semibold text-brand-text-dark">
                     {planNames[subscription.plan ?? ''] || subscription.plan || 'N/A'}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Status</p>
+                  <p className="text-sm text-brand-text-medium">Status</p>
                   <p className={`text-lg font-semibold ${getStatusColor(subscription.status)}`}>
                     {getStatusLabel(subscription.status)}
                   </p>
                 </div>
                 {subscription.trial_days_remaining !== null && subscription.trial_days_remaining > 0 && (
                   <div>
-                    <p className="text-sm text-gray-600">Dias de Teste Restantes</p>
-                    <p className="text-lg font-semibold text-[color:var(--be-blue)]">
+                    <p className="text-sm text-brand-text-medium">Dias de Teste Restantes</p>
+                    <p className="text-lg font-semibold text-brand-blue">
                       {subscription.trial_days_remaining} dias
                     </p>
                   </div>
                 )}
                 <div>
-                  <p className="text-sm text-gray-600">Próxima Renovação</p>
-                  <p className="text-lg font-semibold">
+                  <p className="text-sm text-brand-text-medium">Próxima Renovação</p>
+                  <p className="text-lg font-semibold text-brand-text-dark">
                     {new Date(subscription.current_period_end).toLocaleDateString('pt-PT')}
                   </p>
                 </div>
@@ -165,31 +172,34 @@ export default function BillingPage() {
 
               <Link
                 href={`/${locale}/billing/subscription`}
-                className="inline-block px-4 py-2 bg-[color:var(--be-blue)] text-white rounded hover:bg-brand-700"
+                className="inline-flex rounded-full bg-brand-blue px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-blue/90"
               >
                 Alterar Plano
               </Link>
             </div>
           ) : (
             <div className="text-center py-8">
-              <p className="text-gray-600 mb-4">Você não tem uma subscrição ativa</p>
+              <p className="text-brand-text-medium mb-4">Você não tem uma subscrição ativa</p>
               <Link
                 href={`/${locale}/billing/subscription`}
-                className="inline-block px-4 py-2 bg-[color:var(--be-blue)] text-white rounded hover:bg-brand-700"
+                className="inline-flex rounded-full bg-brand-blue px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-blue/90"
               >
                 Escolher Plano
               </Link>
             </div>
           )}
-        </div>
+        </PremiumCard>
 
         {/* Invoices */}
-        <div className="bg-white rounded-lg shadow p-6">
+        <PremiumCard>
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold text-gray-900">Faturas Recentes</h2>
+            <div className="flex items-center gap-2">
+              <FileText className="h-4 w-4 text-brand-gold" />
+              <h2 className="text-xl font-semibold text-brand-text-dark transition-colors group-hover:text-brand-gold">Faturas Recentes</h2>
+            </div>
             <Link
               href={`/${locale}/billing/invoices`}
-              className="text-[color:var(--be-blue)] hover:text-[color:var(--be-blue-hover)] text-sm"
+              className="text-sm font-semibold text-brand-blue transition hover:text-brand-gold"
             >
               Ver Todas →
             </Link>
@@ -198,35 +208,35 @@ export default function BillingPage() {
           {invoices.length > 0 ? (
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+                <thead className="bg-brand-bg">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-brand-text-medium uppercase">
                       Data
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-brand-text-medium uppercase">
                       Número
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-brand-text-medium uppercase">
                       Valor
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-brand-text-medium uppercase">
                       Status
                     </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-600 uppercase">
+                    <th className="px-6 py-3 text-right text-xs font-medium text-brand-text-medium uppercase">
                       Ação
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="divide-y divide-gray-200 bg-brand-white">
                   {invoices.slice(0, 5).map((invoice) => (
                     <tr key={invoice.id}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-brand-text-dark">
                         {new Date(invoice.created).toLocaleDateString('pt-PT')}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-brand-text-dark">
                         {invoice.number}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-brand-text-dark">
                         {(invoice.amount_paid / 100).toFixed(2)} {invoice.currency.toUpperCase()}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
@@ -239,12 +249,12 @@ export default function BillingPage() {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
-                        {invoice.pdf_url && (
+                          {invoice.pdf_url && (
                           <a
                             href={invoice.pdf_url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-[color:var(--be-blue)] hover:text-[color:var(--be-blue-hover)]"
+                            className="font-semibold text-brand-blue transition hover:text-brand-gold"
                           >
                             PDF
                           </a>
@@ -256,10 +266,10 @@ export default function BillingPage() {
               </table>
             </div>
           ) : (
-            <p className="text-gray-600 text-center py-8">Nenhuma fatura ainda</p>
+            <p className="text-brand-text-medium text-center py-8">Nenhuma fatura ainda</p>
           )}
-        </div>
-      </div>
+        </PremiumCard>
+      </PremiumPageShell>
     </div>
   )
 }

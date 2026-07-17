@@ -7,6 +7,7 @@ import { OwnersFilter } from '@/components/features/owners/OwnersFilter'
 import { getUserRole } from '@/lib/auth/getUserRole'
 import { Button } from '@/components/common/ui/button'
 import { parsePage, getRange, PAGE_SIZE } from '@/lib/utils/pagination'
+import { PremiumPageHeader, PremiumPageShell } from '@/components/common/layout/PremiumPage'
 
 export default async function OwnersPage({
   params,
@@ -42,16 +43,13 @@ export default async function OwnersPage({
 
   return (
     <AuthLayout>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-          <div>
-            <div className="flex items-center gap-3 mb-2">
-              <Users className="h-8 w-8 text-[color:var(--be-blue)]" />
-              <h2 className="text-3xl font-bold text-gray-900">Proprietários</h2>
-            </div>
-            <p className="text-gray-600">Gerencie os proprietários dos imóveis</p>
-          </div>
-          {canEdit && (
+      <PremiumPageShell>
+        <PremiumPageHeader
+          title="Proprietários"
+          description="Gerencie os proprietários dos imóveis"
+          icon={Users}
+          badge={`${totalCount ?? 0} registros`}
+          actions={canEdit && (
             <Button asChild variant="action">
               <Link href={`/${locale}/owners/new`} className="flex items-center gap-2">
                 <Plus className="h-5 w-5" />
@@ -59,7 +57,9 @@ export default async function OwnersPage({
               </Link>
             </Button>
           )}
-        </div>
+        />
+
+        <div className="border-b border-neutral-200/60" />
 
         {/* Filter + Search + List */}
         <OwnersFilter
@@ -70,7 +70,7 @@ export default async function OwnersPage({
           canDelete={canDelete}
           pagination={{ page, total: totalCount ?? 0, pageSize: PAGE_SIZE }}
         />
-      </div>
+      </PremiumPageShell>
     </AuthLayout>
   )
 }

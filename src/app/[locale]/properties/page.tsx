@@ -9,6 +9,7 @@ import { Button } from '@/components/common/ui/button'
 import { getPlanLimits } from '@/lib/billing/plans'
 import { PublicUrlBadge } from '@/components/features/properties/PublicUrlBadge'
 import { PublicPagesUsageBar } from '@/components/features/properties/PublicPagesUsageBar'
+import { PremiumCard, PremiumPageHeader, PremiumPageShell } from '@/components/common/layout/PremiumPage'
 
 export default async function PropertiesPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params
@@ -60,17 +61,13 @@ export default async function PropertiesPage({ params }: { params: Promise<{ loc
 
   return (
     <AuthLayout profile={profile}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-
-        {/* Page Header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-          <div>
-            <h2 className="text-3xl font-bold text-be-text">Propriedades</h2>
-            <p className="text-be-text-muted mt-1">
-              Gerencie suas propriedades e anúncios
-            </p>
-          </div>
-          {canCreate && (
+      <PremiumPageShell>
+        <PremiumPageHeader
+          title="Propriedades"
+          description="Gerencie suas propriedades e anúncios"
+          badge={planName}
+          icon={Building2}
+          actions={canCreate && (
             <Button asChild variant="action">
               <Link href={`/${locale}/properties/new`} className="flex items-center gap-2">
                 <Plus className="h-5 w-5" />
@@ -78,7 +75,9 @@ export default async function PropertiesPage({ params }: { params: Promise<{ loc
               </Link>
             </Button>
           )}
-        </div>
+        />
+
+        <div className="border-b border-neutral-200/60" />
 
         {/* Public Pages Usage Bar */}
         {properties && properties.length > 0 && (
@@ -91,25 +90,25 @@ export default async function PropertiesPage({ params }: { params: Promise<{ loc
 
         {/* Properties List */}
         {!properties || properties.length === 0 ? (
-          <div className="bg-white rounded-lg shadow p-12 text-center">
-            <Home className="h-16 w-16 text-gray-500 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-be-text mb-2">
+          <PremiumCard className="p-12 text-center">
+            <Home className="h-16 w-16 text-brand-text-medium mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-brand-text-dark mb-2">
               Nenhuma propriedade cadastrada
             </h3>
-            <p className="text-be-text-muted mb-6">
+            <p className="text-brand-text-medium mb-6">
               {canCreate
                 ? 'Comece adicionando sua primeira propriedade para começar a gerenciar seus alojamentos.'
                 : 'Nenhuma propriedade atribuída à sua conta.'}
             </p>
-            {canCreate && (
-              <Button asChild variant="action">
-                <Link href={`/${locale}/properties/new`} className="inline-flex items-center gap-2">
-                  <Plus className="h-5 w-5" />
-                  Adicionar Primeira Propriedade
-                </Link>
-              </Button>
-            )}
-          </div>
+          {canCreate && (
+            <Button asChild variant="action">
+              <Link href={`/${locale}/properties/new`} className="inline-flex items-center gap-2">
+                <Plus className="h-5 w-5" />
+                Adicionar Primeira Propriedade
+              </Link>
+            </Button>
+          )}
+          </PremiumCard>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {properties.map((property) => (
@@ -122,8 +121,7 @@ export default async function PropertiesPage({ params }: { params: Promise<{ loc
             ))}
           </div>
         )}
-
-      </div>
+      </PremiumPageShell>
     </AuthLayout>
   )
 }
@@ -147,11 +145,11 @@ function PropertyCard({ property, canEdit, locale }: {
 }) {
   return (
     <Link href={`/${locale}/properties/${property.id}`}>
-      <div className={`be-card be-card-hover p-5 cursor-pointer ${!property.is_active ? 'opacity-60' : ''}`}>
+      <div className={`be-card be-card-hover group p-5 cursor-pointer ${!property.is_active ? 'opacity-60' : ''}`}>
 
         {/* Type + Status */}
         <div className="flex items-center justify-between mb-4">
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600 tracking-wide">
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-brand-bg text-brand-text-medium tracking-wide transition-colors group-hover:text-brand-gold">
             {property.property_type || 'apartamento'}
           </span>
           <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-xs font-semibold ${
@@ -165,12 +163,12 @@ function PropertyCard({ property, canEdit, locale }: {
         </div>
 
         {/* Name */}
-        <h3 className="text-sm font-semibold text-gray-900 leading-snug mb-3">
+        <h3 className="text-sm font-semibold text-brand-text-dark leading-snug mb-3 transition-colors group-hover:text-brand-gold">
           {property.name}
         </h3>
 
         {/* Location */}
-        <div className="flex items-center gap-1.5 text-gray-600 mb-3">
+        <div className="flex items-center gap-1.5 text-brand-text-medium mb-3">
           <MapPin className="h-3.5 w-3.5 shrink-0" />
           <span className="text-xs">
             {property.city}{property.country ? `, ${property.country}` : ''}
@@ -178,7 +176,7 @@ function PropertyCard({ property, canEdit, locale }: {
         </div>
 
         {/* Capacity row */}
-        <div className="flex items-center gap-4 text-xs text-gray-600 mb-4">
+        <div className="flex items-center gap-4 text-xs text-brand-text-medium mb-4">
           <div className="flex items-center gap-1">
             <Building2 className="h-3.5 w-3.5" />
             <span>{property.bedrooms || 0} quartos</span>
@@ -199,7 +197,7 @@ function PropertyCard({ property, canEdit, locale }: {
         </div>
 
         {/* Public page badge + toggle */}
-        <div className="border-t border-gray-100 pt-3">
+        <div className="border-t border-brand-bg pt-3">
           <PublicUrlBadge
             propertyId={property.id}
             slug={property.slug ?? null}

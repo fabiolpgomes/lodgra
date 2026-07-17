@@ -92,26 +92,23 @@ export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, 
   const phoneHref = publicProfile?.contact_phone
     ? `tel:${publicProfile.contact_phone.replace(/[^\d+]/g, '')}`
     : null
-  const locationText = publicProfile
-    ? [publicProfile.address_line, publicProfile.city, publicProfile.country].filter(Boolean).join(', ')
-    : ''
   const hasContact = !!(publicProfile?.whatsapp_number || publicProfile?.contact_email ||
     publicProfile?.contact_phone || publicProfile?.website_url || publicProfile?.instagram_url)
-  const contactBtnClass = 'inline-flex min-h-[44px] items-center gap-2 border border-gray-300 bg-white px-4 text-[12px] font-bold uppercase tracking-[1.2px] text-brand-800 transition-colors hover:border-brand-800 hover:bg-brand-800 hover:text-white'
+  const contactBtnClass = 'inline-flex min-h-[44px] items-center gap-2 rounded-full border border-brand-gold/25 bg-brand-white px-4 text-[12px] font-bold uppercase tracking-[1.2px] text-brand-blue shadow-sm transition-all hover:border-brand-gold/60 hover:bg-brand-gold/10 hover:text-brand-gold'
 
   return (
     <>
       {/* Top Header — matching booking page style */}
-      <header className="sticky top-0 z-20 border-b border-gray-200 bg-white">
+      <header className="sticky top-0 z-20 border-b border-brand-gold/15 bg-brand-white/95 backdrop-blur">
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-3 flex items-center justify-between">
           <Logo size="md" />
-          <span className="text-[14px] font-semibold text-gray-900">{orgName || 'Lodgra'}</span>
+          <span className="text-[14px] font-semibold text-brand-text-dark">{orgName || 'Lodgra'}</span>
         </div>
       </header>
 
       {/* Install App Button — centered */}
       {orgName && (
-        <div className="bg-white border-b border-gray-100 py-4">
+        <div className="bg-brand-white border-b border-brand-gold/10 py-4">
           <div className="max-w-7xl mx-auto px-4 md:px-6 flex justify-center">
             <InstallPromptButton orgName={orgName} />
           </div>
@@ -120,15 +117,15 @@ export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, 
 
       {/* Contact Bar — "Fale Directamente" section */}
       {hasContact && publicProfile && (
-        <div className="bg-gray-50 border-b border-gray-200 py-6">
+        <div className="bg-brand-bg border-b border-brand-gold/15 py-6">
           <div className="max-w-7xl mx-auto px-4 md:px-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div className="min-w-0 sm:text-left text-center">
-                <p className="text-[14px] font-bold uppercase tracking-[1.2px] text-gray-900">
+                <p className="text-[14px] font-bold uppercase tracking-[1.2px] text-brand-text-dark">
                   Fale directamente com {orgName ?? 'a empresa'}
                 </p>
                 {publicProfile.public_contact_message && (
-                  <p className="mt-1 text-[13px] font-light leading-[1.5] text-gray-600">
+                  <p className="mt-1 text-[13px] font-light leading-[1.5] text-brand-text-medium">
                     {publicProfile.public_contact_message}
                   </p>
                 )}
@@ -166,9 +163,9 @@ export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, 
       )}
 
       {/* Back button (item 6) */}
-      <div className="bg-white border-b border-gray-100 px-4 md:px-6 py-2">
+      <div className="bg-brand-white border-b border-brand-gold/10 px-4 md:px-6 py-2">
         <div className="max-w-7xl mx-auto">
-          <Link href="/booking" className="inline-flex items-center gap-2 text-[13px] text-brand-800 hover:text-brand-600 font-medium transition-colors min-h-[44px]">
+          <Link href="/booking" className="inline-flex items-center gap-2 text-[13px] text-brand-blue hover:text-brand-gold font-medium transition-colors min-h-[44px]">
             <ArrowLeft className="h-4 w-4" />
             Voltar às propriedades
           </Link>
@@ -181,7 +178,7 @@ export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, 
         country={property.country || ''}
       />
 
-      <main className="bg-white">
+      <main className="bg-brand-white">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
           {/* Error banners */}
           {datesUnavailable && (
@@ -210,41 +207,41 @@ export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, 
 
               {/* Property identity */}
               <div className="flex flex-col items-start gap-2 pb-2">
-                <h1 className="text-2xl font-bold text-gray-900 leading-tight">{property.name}</h1>
+                <h1 className="text-2xl font-bold text-brand-text-dark leading-tight">{property.name}</h1>
               </div>
 
               {/* Quick Stats */}
-              <div className="flex flex-wrap gap-6 pb-6 border-b border-gray-200">
+              <div className="flex flex-wrap gap-6 pb-6 border-b border-brand-gold/15">
                 {property.max_guests && (
                   <div className="flex items-center gap-2.5">
-                    <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-be-blue-50">
-                      <Users className="h-5 w-5 text-be-text-700" />
+                    <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-brand-gold/20 bg-brand-gold/10">
+                      <Users className="h-5 w-5 text-brand-blue" />
                     </span>
                     <div>
-                      <p className="text-xs text-gray-500">Hóspedes</p>
-                      <p className="font-semibold text-gray-900">{property.max_guests}</p>
+                      <p className="text-xs text-brand-text-medium">Hóspedes</p>
+                      <p className="font-semibold text-brand-text-dark">{property.max_guests}</p>
                     </div>
                   </div>
                 )}
                 {property.bedrooms && (
                   <div className="flex items-center gap-2.5">
-                    <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-be-blue-50">
-                      <BedDouble className="h-5 w-5 text-be-text-700" />
+                    <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-brand-gold/20 bg-brand-gold/10">
+                      <BedDouble className="h-5 w-5 text-brand-blue" />
                     </span>
                     <div>
-                      <p className="text-xs text-gray-500">Quartos</p>
-                      <p className="font-semibold text-gray-900">{property.bedrooms}</p>
+                      <p className="text-xs text-brand-text-medium">Quartos</p>
+                      <p className="font-semibold text-brand-text-dark">{property.bedrooms}</p>
                     </div>
                   </div>
                 )}
                 {property.bathrooms && (
                   <div className="flex items-center gap-2.5">
-                    <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-be-blue-50">
-                      <Bath className="h-5 w-5 text-be-text-700" />
+                    <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-brand-gold/20 bg-brand-gold/10">
+                      <Bath className="h-5 w-5 text-brand-blue" />
                     </span>
                     <div>
-                      <p className="text-xs text-gray-500">Casas de banho</p>
-                      <p className="font-semibold text-gray-900">{property.bathrooms}</p>
+                      <p className="text-xs text-brand-text-medium">Casas de banho</p>
+                      <p className="font-semibold text-brand-text-dark">{property.bathrooms}</p>
                     </div>
                   </div>
                 )}
@@ -313,12 +310,12 @@ export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, 
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-gray-200 py-6 px-4 md:px-6 mt-4">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-500">
+      <footer className="border-t border-brand-gold/15 bg-brand-white py-6 px-4 md:px-6 mt-4">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-brand-text-medium">
           <p>© {new Date().getFullYear()} Lodgra · Reservas directas sem comissões</p>
           <div className="flex gap-4">
-            <Link href="/privacy" className="hover:text-neutral-700 transition-colors">Política de Privacidade</Link>
-            <Link href="/terms" className="hover:text-neutral-700 transition-colors">Termos</Link>
+            <Link href="/privacy" className="hover:text-brand-gold transition-colors">Política de Privacidade</Link>
+            <Link href="/terms" className="hover:text-brand-gold transition-colors">Termos</Link>
           </div>
         </div>
       </footer>

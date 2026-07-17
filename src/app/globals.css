@@ -369,13 +369,15 @@ html.dark,
   .be-card {
     background: var(--be-surface);
     border: 1px solid var(--be-border);
-    border-radius: 14px;
+    border-radius: 1rem;
     padding: 1rem;
-    transition: all 0.15s;
+    transition: border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease, color 0.3s ease;
+    box-shadow: 0 1px 2px rgba(16, 32, 62, 0.04);
   }
 
   .be-card:hover {
-    box-shadow: 0 0 0 1px rgba(0,0,0,0.02), 0 2px 6px rgba(0,0,0,0.04), 0 4px 8px rgba(0,0,0,0.1);
+    border-color: rgba(201, 162, 39, 0.45);
+    box-shadow: 0 18px 42px rgba(201, 162, 39, 0.14);
   }
 
   /* Card with project cover image */
@@ -713,9 +715,9 @@ html.dark,
     transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
   }
   .be-card-hover:hover {
-    border-color: rgba(16, 32, 62, 0.28);
+    border-color: rgba(201, 162, 39, 0.45);
     transform: translateY(-2px);
-    box-shadow: 0 0 0 1px rgba(0,0,0,0.02), 0 2px 6px rgba(0,0,0,0.04), 0 4px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 18px 42px rgba(201, 162, 39, 0.14);
   }
   .be-icon {
     border-radius: 9999px;

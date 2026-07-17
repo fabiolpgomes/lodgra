@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { requireRole } from '@/lib/auth/requireRole'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { AuthLayout } from '@/components/common/layout/AuthLayout'
+import { PremiumCard, PremiumPageHeader, PremiumPageShell } from '@/components/common/layout/PremiumPage'
 import { ChannelsClient } from './ChannelsClient'
 import { Settings2 } from 'lucide-react'
 
@@ -58,52 +59,45 @@ export default async function ChannelsSettingsPage() {
 
   return (
     <AuthLayout>
-      <div className="max-w-3xl mx-auto py-8 px-4">
-        <div className="flex items-center gap-3 mb-8">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[color:var(--be-blue-pale)]">
-            <Settings2 className="h-5 w-5 text-[color:var(--be-blue)]" />
-          </div>
-          <div>
-            <h1 className="text-xl font-semibold text-gray-900">
-              Canais API
-            </h1>
-            <p className="text-sm text-gray-600">
-              Ligue o Booking.com via API para importar reservas com dados completos
-            </p>
-          </div>
-        </div>
+      <PremiumPageShell maxWidth="max-w-3xl">
+        <PremiumPageHeader
+          title="Canais API"
+          description="Ligue o Booking.com via API para importar reservas com dados completos"
+          badge="Booking.com"
+          icon={Settings2}
+        />
 
         {/* Booking.com section */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+        <PremiumCard>
           <div className="flex items-center gap-3 mb-1">
-            <span className="text-lg font-semibold text-gray-900">Booking.com</span>
-            <span className="text-xs font-medium text-[color:var(--be-blue-hover)] bg-[color:var(--be-blue-pale)] border border-[color:var(--be-blue-light)] rounded-full px-2.5 py-0.5">
+            <span className="text-lg font-semibold text-brand-text-dark transition-colors group-hover:text-brand-gold">Booking.com</span>
+            <span className="rounded-full border border-brand-gold/25 bg-brand-gold/10 px-2.5 py-0.5 text-xs font-medium text-brand-blue">
               API Oficial
             </span>
           </div>
-          <p className="text-sm text-gray-600 mb-5">
+          <p className="mb-5 text-sm text-brand-text-medium">
             Introduza as credenciais por propriedade para receber reservas em tempo real com nome do hóspede,
             contacto e valor. Requer aprovação no{' '}
-            <span className="font-medium text-gray-700">Booking.com Connectivity Program</span>.
+            <span className="font-medium text-brand-text-dark">Booking.com Connectivity Program</span>.
           </p>
 
           <ChannelsClient
             listings={enrichedListings}
             existingConfigs={existingConfigs}
           />
-        </div>
+        </PremiumCard>
 
         {/* Info box */}
-        <div className="rounded-lg bg-amber-50 border border-amber-200 p-4 text-sm text-amber-800">
+        <div className="rounded-2xl border border-brand-gold/25 bg-brand-gold/10 p-4 text-sm text-brand-blue">
           <p className="font-medium mb-1">Sobre a integração API</p>
-          <ul className="list-disc list-inside space-y-1 text-amber-700">
+          <ul className="list-disc list-inside space-y-1 text-brand-text-medium">
             <li>As credenciais são armazenadas de forma segura e nunca expostas ao cliente</li>
             <li>A sincronização inicial importa os últimos 90 dias de reservas</li>
             <li>O iCal continua activo para propriedades sem API configurada</li>
             <li>Novas reservas chegam automaticamente via webhook em tempo real</li>
           </ul>
         </div>
-      </div>
+      </PremiumPageShell>
     </AuthLayout>
   )
 }

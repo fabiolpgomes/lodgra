@@ -2,6 +2,8 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { LazyCalendar } from '@/components/common/lazy/LazyCalendar'
 import { AuthLayout } from '@/components/common/layout/AuthLayout'
+import { PremiumCard, PremiumPageHeader, PremiumPageShell } from '@/components/common/layout/PremiumPage'
+import { CalendarDays } from 'lucide-react'
 
 export default async function CalendarPage({
   params,
@@ -18,11 +20,17 @@ export default async function CalendarPage({
 
   return (
     <AuthLayout>
-      <div className="pb-20 md:pb-0">
-        <div className="max-w-7xl mx-auto px-2 sm:px-4 py-4 sm:py-6">
+      <PremiumPageShell>
+        <PremiumPageHeader
+          title="Calendário"
+          description="Visualize reservas, bloqueios e disponibilidade das propriedades"
+          icon={CalendarDays}
+        />
+        <div className="border-b border-neutral-200/60" />
+        <PremiumCard className="p-2 sm:p-4">
           <LazyCalendar />
-        </div>
-      </div>
+        </PremiumCard>
+      </PremiumPageShell>
     </AuthLayout>
   )
 }
