@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { Card } from '@/components/common/ui/card'
 import { Button } from '@/components/common/ui/button'
-import { TrendingUp, Lightbulb, Zap, Award, AlertCircle } from 'lucide-react'
+import { Lightbulb, Zap, Award, AlertCircle } from 'lucide-react'
 
 interface RankingFactor {
   name: string
@@ -38,7 +38,7 @@ interface OptimizationData {
   quickWins: Recommendation[]
 }
 
-export function OptimizationDashboard({ properties }: { properties: any[] }) {
+export function OptimizationDashboard({ properties }: { properties: Array<{ id: string }> }) {
   const [optimization, setOptimization] = useState<Map<string, OptimizationData>>(new Map())
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)

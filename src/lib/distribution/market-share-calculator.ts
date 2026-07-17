@@ -17,6 +17,20 @@ interface RevenueAttribution {
   profitability: 'high' | 'medium' | 'low'
 }
 
+interface PlatformMetricsData {
+  totals?: {
+    impressions?: number
+    clicks?: number
+    conversions?: number
+    revenue?: number
+  }
+  [platform: string]: {
+    impressions?: number
+    clicks?: number
+    conversions?: number
+  } | undefined
+}
+
 interface MarketShareAnalysis {
   period: string
   totalImpressions: number
@@ -30,7 +44,7 @@ interface MarketShareAnalysis {
 }
 
 export class MarketShareCalculator {
-  calculateMarketShare(platformMetrics: Record<string, any>): MarketShareAnalysis {
+  calculateMarketShare(platformMetrics: PlatformMetricsData): MarketShareAnalysis {
     try {
       // Extract platform data
       const platforms = ['google', 'airbnb', 'booking', 'vrbo', 'flatio']

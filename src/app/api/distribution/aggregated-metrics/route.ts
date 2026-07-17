@@ -66,7 +66,7 @@ export async function GET(request: NextRequest) {
     const recommendations = marketShare.recommendations
 
     // Add platform-specific tips
-    const platformTips: Record<string, any> = {}
+    const platformTips: Record<string, { tips: string[] }> = {}
     for (const platform of ['google', 'airbnb', 'booking', 'vrbo', 'flatio']) {
       const platformData = channelPerformance.find((p) => p.platform === platform)
       if (platformData) {

@@ -38,7 +38,7 @@ interface PropertyDiagnostics {
   highIssues: number
 }
 
-export function TroubleshootingDashboard({ properties }: { properties: any[] }) {
+export function TroubleshootingDashboard({ properties }: { properties: Array<{ id: string }> }) {
   const [diagnostics, setDiagnostics] = useState<Map<string, PropertyDiagnostics>>(new Map())
   const [loading, setLoading] = useState(true)
   const [validating, setValidating] = useState<Set<string>>(new Set())

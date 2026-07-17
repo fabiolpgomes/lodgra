@@ -10,6 +10,13 @@ interface ChannelTip {
   action: string
 }
 
+interface ChannelMetrics {
+  conversions?: number
+  impressions?: number
+  clicks?: number
+  [key: string]: number | undefined
+}
+
 interface PlatformInsights {
   platform: string
   status: 'active' | 'underperforming' | 'idle'
@@ -19,7 +26,7 @@ interface PlatformInsights {
 }
 
 export class ChannelInsights {
-  generateInsights(platform: string, metrics: Record<string, any>): PlatformInsights {
+  generateInsights(platform: string, metrics: ChannelMetrics): PlatformInsights {
     try {
       const status = this.determineStatus(metrics)
       const tips = this.generateTips(platform, metrics)
@@ -48,7 +55,7 @@ export class ChannelInsights {
     }
   }
 
-  private determineStatus(metrics: Record<string, any>): 'active' | 'underperforming' | 'idle' {
+  private determineStatus(metrics: ChannelMetrics): 'active' | 'underperforming' | 'idle' {
     const conversions = metrics.conversions || 0
     const impressions = metrics.impressions || 0
 
@@ -57,7 +64,7 @@ export class ChannelInsights {
     return 'active'
   }
 
-  private generateTips(platform: string, metrics: Record<string, any>): ChannelTip[] {
+  private generateTips(platform: string, metrics: ChannelMetrics): ChannelTip[] {
     const tips: ChannelTip[] = []
 
     switch (platform) {
@@ -210,7 +217,7 @@ export class ChannelInsights {
   private generateNextActions(
     platform: string,
     status: string,
-    metrics: Record<string, any>
+    metrics: ChannelMetrics
   ): string[] {
     const actions: string[] = []
 
@@ -240,7 +247,7 @@ export class ChannelInsights {
     return actions
   }
 
-  private generateBenchmarkComparison(platform: string, metrics: Record<string, any>): string {
+  private generateBenchmarkComparison(platform: string, metrics: ChannelMetrics): string {
     const ctr = metrics.impressions > 0 ? (metrics.clicks / metrics.impressions) * 100 : 0
     const conversionRate = metrics.clicks > 0 ? (metrics.conversions / metrics.clicks) * 100 : 0
 
