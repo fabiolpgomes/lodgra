@@ -168,7 +168,7 @@ export default async function ExpenseDetailsPage({
                 <div>
                   <Link
                     href={`/${locale}/properties/${property.id}`}
-                    className="text-xl font-semibold text-brand-600 hover:text-brand-700"
+                    className="text-xl font-semibold text-[color:var(--be-blue)] hover:text-[color:var(--be-blue-hover)]"
                   >
                     {property.name}
                   </Link>

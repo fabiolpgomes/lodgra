@@ -115,8 +115,8 @@ export default async function ReservationDetailsPage({
         <div className="bg-white rounded-lg shadow p-6 mb-6">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div className="flex items-center gap-4">
-              <div className="flex-shrink-0 w-12 h-12 bg-brand-100 rounded-full flex items-center justify-center">
-                <Calendar className="h-6 w-6 text-brand-600" />
+              <div className="flex-shrink-0 w-12 h-12 bg-[color:var(--be-blue-pale)] rounded-full flex items-center justify-center">
+                <Calendar className="h-6 w-6 text-[color:var(--be-blue)]" />
               </div>
               <div>
                 <h2 className="text-2xl font-bold text-gray-900">
@@ -171,7 +171,7 @@ export default async function ReservationDetailsPage({
                 Período da Reserva
               </h3>
               <div className="grid grid-cols-3 gap-4">
-                <div className="text-center p-4 bg-brand-50 rounded-lg">
+                <div className="text-center p-4 bg-[color:var(--be-blue-pale)] rounded-lg">
                   <p className="text-sm text-gray-600 mb-1">Check-in</p>
                   <p className="text-xl font-bold text-gray-900">
                     {checkIn.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}
@@ -213,7 +213,7 @@ export default async function ReservationDetailsPage({
                     <div>
                       <Link
                         href={`${prefix}/properties/${property.id}`}
-                        className="text-xl font-semibold text-brand-600 hover:text-brand-700"
+                        className="text-xl font-semibold text-[color:var(--be-blue)] hover:text-[color:var(--be-blue-hover)]"
                       >
                         {property.name}
                       </Link>
@@ -225,7 +225,7 @@ export default async function ReservationDetailsPage({
                         {property.city}, {property.country}
                       </p>
                     </div>
-                    <span className="px-3 py-1 bg-brand-100 text-brand-800 text-sm font-medium rounded-full capitalize">
+                    <span className="px-3 py-1 bg-[color:var(--be-blue-pale)] text-brand-800 text-sm font-medium rounded-full capitalize">
                       {property.property_type}
                     </span>
                   </div>
@@ -287,7 +287,7 @@ export default async function ReservationDetailsPage({
                     {guest.email && (
                       <div className="flex items-center gap-2 text-gray-700">
                         <Mail className="h-4 w-4 text-gray-500" />
-                        <a href={`mailto:${guest.email}`} className="hover:text-brand-600">
+                        <a href={`mailto:${guest.email}`} className="hover:text-[color:var(--be-blue)]">
                           {guest.email}
                         </a>
                       </div>
@@ -295,7 +295,7 @@ export default async function ReservationDetailsPage({
                     {guest.phone && (
                       <div className="flex items-center gap-2 text-gray-700">
                         <Phone className="h-4 w-4 text-gray-500" />
-                        <a href={`tel:${guest.phone}`} className="hover:text-brand-600">
+                        <a href={`tel:${guest.phone}`} className="hover:text-[color:var(--be-blue)]">
                           {guest.phone}
                         </a>
                       </div>
@@ -350,7 +350,7 @@ export default async function ReservationDetailsPage({
               {/* PIX: apenas para propriedades BRL */}
               {displayCurrency === 'BRL' && (
                 <div className="mt-8 pt-6 border-t border-gray-100 no-print">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-lodgra-blue mb-4">Localização Brasil</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-[color:var(--be-text)] mb-4">Localização Brasil</p>
                   <GeneratePixButton
                     reservationId={id}
                     initialPaymentLink={reservation.asaas_payment_link}
@@ -368,7 +368,7 @@ export default async function ReservationDetailsPage({
               <div className="space-y-3 text-sm">
                 <div>
                   <p className="text-gray-600 mb-1">Plataforma</p>
-                  <span className="px-2 py-1 bg-brand-100 text-brand-700 rounded text-xs font-medium">
+                  <span className="px-2 py-1 bg-[color:var(--be-blue-pale)] text-[color:var(--be-blue-hover)] rounded text-xs font-medium">
                     {platformName || reservation.source || 'Manual'}
                   </span>
                 </div>
@@ -396,7 +396,7 @@ export default async function ReservationDetailsPage({
             </div>
 
             {/* Ações Rápidas */}
-            <div className="bg-brand-50 rounded-lg p-4 border border-brand-200 no-print">
+            <div className="bg-[color:var(--be-blue-pale)] rounded-lg p-4 border border-[color:var(--be-blue-light)] no-print">
               <h4 className="font-semibold text-gray-900 mb-2">Ações Rápidas</h4>
               <div className="space-y-2 text-sm">
                 <SendConfirmationButton
@@ -405,7 +405,7 @@ export default async function ReservationDetailsPage({
                 />
                 <Link
                   href={`${prefix}/calendar`}
-                  className="w-full flex items-center gap-2 px-3 py-2 text-brand-700 hover:bg-brand-100 rounded transition-colors"
+                  className="w-full flex items-center gap-2 px-3 py-2 text-[color:var(--be-blue-hover)] hover:bg-[color:var(--be-blue-pale)] rounded transition-colors"
                 >
                   <Calendar className="h-4 w-4" />
                   Ver no calendário

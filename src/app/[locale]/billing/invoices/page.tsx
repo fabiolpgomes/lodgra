@@ -90,7 +90,7 @@ export default function InvoicesPage() {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <p className="text-red-600 mb-4">Erro ao carregar faturas: {error}</p>
-          <Link href={`/${locale}/billing`} className="text-brand-600 hover:text-brand-700">
+          <Link href={`/${locale}/billing`} className="text-[color:var(--be-blue)] hover:text-[color:var(--be-blue-hover)]">
             Voltar ao Faturamento
           </Link>
         </div>
@@ -102,7 +102,7 @@ export default function InvoicesPage() {
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
-          <Link href={`/${locale}/billing`} className="text-brand-600 hover:text-brand-700 mb-4 inline-block">
+          <Link href={`/${locale}/billing`} className="text-[color:var(--be-blue)] hover:text-[color:var(--be-blue-hover)] mb-4 inline-block">
             ← Voltar ao Faturamento
           </Link>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Todas as Faturas</h1>
@@ -115,7 +115,7 @@ export default function InvoicesPage() {
             onClick={() => setFilter('all')}
             className={`px-4 py-2 font-medium border-b-2 transition-colors ${
               filter === 'all'
-                ? 'border-brand-600 text-brand-600'
+                ? 'border-[color:var(--be-blue)] text-[color:var(--be-blue)]'
                 : 'border-transparent text-gray-600 hover:text-gray-900'
             }`}
           >
@@ -125,7 +125,7 @@ export default function InvoicesPage() {
             onClick={() => setFilter('paid')}
             className={`px-4 py-2 font-medium border-b-2 transition-colors ${
               filter === 'paid'
-                ? 'border-brand-600 text-brand-600'
+                ? 'border-[color:var(--be-blue)] text-[color:var(--be-blue)]'
                 : 'border-transparent text-gray-600 hover:text-gray-900'
             }`}
           >
@@ -135,7 +135,7 @@ export default function InvoicesPage() {
             onClick={() => setFilter('pending')}
             className={`px-4 py-2 font-medium border-b-2 transition-colors ${
               filter === 'pending'
-                ? 'border-brand-600 text-brand-600'
+                ? 'border-[color:var(--be-blue)] text-[color:var(--be-blue)]'
                 : 'border-transparent text-gray-600 hover:text-gray-900'
             }`}
           >
@@ -198,14 +198,14 @@ export default function InvoicesPage() {
                             href={invoice.pdf_url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-brand-600 hover:text-brand-700 font-medium"
+                            className="text-[color:var(--be-blue)] hover:text-[color:var(--be-blue-hover)] font-medium"
                           >
                             PDF
                           </a>
                         )}
                         <Link
                           href={`/${locale}/billing/invoices/${invoice.id}`}
-                          className="text-brand-600 hover:text-brand-700 font-medium"
+                          className="text-[color:var(--be-blue)] hover:text-[color:var(--be-blue-hover)] font-medium"
                         >
                           Ver
                         </Link>
@@ -219,7 +219,7 @@ export default function InvoicesPage() {
         ) : (
           <div className="bg-white rounded-lg shadow p-12 text-center">
             <p className="text-gray-600 mb-4">Nenhuma fatura encontrada</p>
-            <Link href={`/${locale}/billing`} className="text-brand-600 hover:text-brand-700">
+            <Link href={`/${locale}/billing`} className="text-[color:var(--be-blue)] hover:text-[color:var(--be-blue-hover)]">
               Voltar ao Faturamento
             </Link>
           </div>

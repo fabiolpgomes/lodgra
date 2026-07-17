@@ -197,7 +197,7 @@ export default function CleanerTaskDetailPage() {
       <div className="min-h-screen bg-white p-4">
         <button
           onClick={() => router.back()}
-          className="flex items-center gap-2 text-lodgra-blue mb-4 hover:underline"
+          className="flex items-center gap-2 text-[color:var(--be-text)] mb-4 hover:underline"
         >
           <ArrowLeft className="h-5 w-5" />
           Voltar
@@ -239,7 +239,7 @@ export default function CleanerTaskDetailPage() {
       <div className="mb-6">
         <button
           onClick={() => router.back()}
-          className="flex items-center gap-2 text-lodgra-blue mb-4 hover:underline font-semibold"
+          className="flex items-center gap-2 text-[color:var(--be-text)] mb-4 hover:underline font-semibold"
         >
           <ArrowLeft className="h-5 w-5" />
           Voltar
@@ -257,7 +257,7 @@ export default function CleanerTaskDetailPage() {
       <div className="space-y-4 mb-8">
         {/* Date & Time */}
         <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-lg">
-          <Clock className="h-5 w-5 text-lodgra-blue mt-1" />
+          <Clock className="h-5 w-5 text-[color:var(--be-text)] mt-1" />
           <div>
             <p className="text-sm text-gray-600">Data e Hora Agendada</p>
             <p className="text-lg font-semibold text-gray-900">{scheduledTime} · {scheduledDate}</p>
@@ -266,7 +266,7 @@ export default function CleanerTaskDetailPage() {
 
         {/* Property */}
         <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-lg">
-          <MapPin className="h-5 w-5 text-lodgra-blue mt-1" />
+          <MapPin className="h-5 w-5 text-[color:var(--be-text)] mt-1" />
           <div>
             <p className="text-sm text-gray-600">Propriedade</p>
             <p className="text-lg font-semibold text-gray-900">{task.property_name}</p>
@@ -276,7 +276,7 @@ export default function CleanerTaskDetailPage() {
         {/* Notes */}
         {task.notes && (
           <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-lg">
-            <FileText className="h-5 w-5 text-lodgra-blue mt-1" />
+            <FileText className="h-5 w-5 text-[color:var(--be-text)] mt-1" />
             <div>
               <p className="text-sm text-gray-600">Observações</p>
               <p className="text-gray-900">{task.notes}</p>
@@ -345,7 +345,7 @@ export default function CleanerTaskDetailPage() {
               onChange={(e) => setWorkDescription(e.target.value)}
               placeholder="Descreva o trabalho realizado..."
               rows={3}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-lodgra-blue focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[color:var(--be-text)] focus:border-transparent"
             />
           </div>
 
@@ -387,7 +387,7 @@ export default function CleanerTaskDetailPage() {
               <button
                 onClick={handleUploadPhotos}
                 disabled={uploading}
-                className="w-full mt-4 px-4 py-2 bg-lodgra-blue text-white rounded-lg font-semibold hover:bg-lodgra-blue/90 transition disabled:opacity-50 flex items-center justify-center gap-2"
+                className="w-full mt-4 px-4 py-2 bg-[color:var(--be-text)] text-white rounded-lg font-semibold hover:bg-[color:var(--be-text)]/90 transition disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 <Upload className="h-4 w-4" />
                 {uploading ? 'Enviando...' : 'Enviar Documentação'}
@@ -402,7 +402,7 @@ export default function CleanerTaskDetailPage() {
         {task.status === 'pending' && (
           <button
             onClick={() => handleStatusChange('in_progress')}
-            className="w-full px-4 py-3 bg-lodgra-blue text-white rounded-lg font-semibold hover:bg-lodgra-blue/90 transition flex items-center justify-center gap-2"
+            className="w-full px-4 py-3 bg-[color:var(--be-text)] text-white rounded-lg font-semibold hover:bg-[color:var(--be-text)]/90 transition flex items-center justify-center gap-2"
           >
             <CheckCircle className="h-5 w-5" />
             Iniciar Limpeza

@@ -155,7 +155,7 @@ export default function OnboardingPage() {
   if (isAuthenticated === null) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-600" />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[color:var(--be-blue)]" />
       </div>
     )
   }
@@ -180,13 +180,13 @@ export default function OnboardingPage() {
                       <div
                         className={`w-7 h-7 rounded-full flex items-center justify-center text-sm font-semibold transition-colors ${
                           i === 0
-                            ? 'bg-brand-100 text-brand-600 border-2 border-brand-600'
+                            ? 'bg-[color:var(--be-blue-pale)] text-[color:var(--be-blue)] border-2 border-[color:var(--be-blue)]'
                             : 'bg-gray-100 text-gray-500'
                         }`}
                       >
                         {i + 1}
                       </div>
-                      <span className={`text-sm font-medium hidden sm:block ${i === 0 ? 'text-brand-600' : 'text-gray-500'}`}>
+                      <span className={`text-sm font-medium hidden sm:block ${i === 0 ? 'text-[color:var(--be-blue)]' : 'text-gray-500'}`}>
                         {label}
                       </span>
                     </div>
@@ -220,7 +220,7 @@ export default function OnboardingPage() {
     }
 
     return (
-      <div className="min-h-screen bg-gradient-to-br from-brand-50 to-indigo-100 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-[color:var(--be-blue-pale)] to-[color:var(--be-blue-light)] flex items-center justify-center p-4">
         <div className="w-full max-w-lg">
           <div className="text-center mb-8">
             <div className="flex items-center justify-center mb-4">
@@ -241,7 +241,7 @@ export default function OnboardingPage() {
             <div className="space-y-3">
               {STEPS.map((label, index) => (
                 <div key={label} className="flex items-center gap-3 rounded-lg border border-gray-100 bg-gray-50 px-4 py-3">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-100 text-sm font-bold text-brand-700">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[color:var(--be-blue-pale)] text-sm font-bold text-[color:var(--be-blue-hover)]">
                     {index + 1}
                   </div>
                   <div>
@@ -292,9 +292,9 @@ export default function OnboardingPage() {
                   <div
                     className={`w-7 h-7 rounded-full flex items-center justify-center text-sm font-semibold transition-colors ${
                       i < step
-                        ? 'bg-brand-600 text-white'
+                        ? 'bg-[color:var(--be-blue)] text-white'
                         : i === step
-                        ? 'bg-brand-100 text-brand-600 border-2 border-brand-600'
+                        ? 'bg-[color:var(--be-blue-pale)] text-[color:var(--be-blue)] border-2 border-[color:var(--be-blue)]'
                         : 'bg-gray-100 text-gray-500'
                     }`}
                   >
@@ -302,14 +302,14 @@ export default function OnboardingPage() {
                   </div>
                   <span
                     className={`text-sm font-medium hidden sm:block ${
-                      i === step ? 'text-brand-600' : i < step ? 'text-gray-700' : 'text-gray-500'
+                      i === step ? 'text-[color:var(--be-blue)]' : i < step ? 'text-gray-700' : 'text-gray-500'
                     }`}
                   >
                     {label}
                   </span>
                 </div>
                 {i < STEPS.length - 1 && (
-                  <div className={`h-px flex-1 ${i < step ? 'bg-brand-600' : 'bg-gray-200'}`} style={{ minWidth: 24 }} />
+                  <div className={`h-px flex-1 ${i < step ? 'bg-[color:var(--be-blue)]' : 'bg-gray-200'}`} style={{ minWidth: 24 }} />
                 )}
               </div>
             ))}

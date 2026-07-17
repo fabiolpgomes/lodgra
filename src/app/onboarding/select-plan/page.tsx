@@ -102,7 +102,7 @@ export default function SelectPlanPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-brand-50 to-white py-20">
+    <main className="min-h-screen bg-gradient-to-b from-[color:var(--be-blue-pale)] to-white py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-16">
@@ -122,7 +122,7 @@ export default function SelectPlanPage() {
               onClick={() => setSelectedPlan(plan.id)}
               className={`rounded-lg border-2 p-8 cursor-pointer transition-all ${
                 selectedPlan === plan.id
-                  ? 'border-brand-900 bg-brand-50 ring-2 ring-brand-900'
+                  ? 'border-brand-900 bg-[color:var(--be-blue-pale)] ring-2 ring-brand-900'
                   : 'border-gray-200 bg-white hover:border-brand-500'
               } ${plan.id === 'expansao' ? 'md:scale-105 md:shadow-xl' : ''}`}
             >

@@ -136,7 +136,7 @@ export default function EditExpensePage({
         <div className="flex items-center justify-center min-h-64">
           <div className="text-center">
             <p className="text-red-600 mb-4">{error}</p>
-            <Link href={`/${locale}/expenses`} className="text-brand-600 hover:underline">
+            <Link href={`/${locale}/expenses`} className="text-[color:var(--be-blue)] hover:underline">
               Voltar para Despesas
             </Link>
           </div>

@@ -310,10 +310,10 @@ export default function ResetPasswordConfirmPage() {
           </form>
 
           {/* Info Box */}
-          <div className="mt-6 rounded-lg bg-brand-50 border border-brand-200 p-4">
+          <div className="mt-6 rounded-lg bg-[color:var(--be-blue-pale)] border border-[color:var(--be-blue-light)] p-4">
             <div className="flex gap-3">
-              <AlertCircle className="h-5 w-5 text-brand-600 flex-shrink-0 mt-0.5" />
-              <p className="text-xs text-brand-700">
+              <AlertCircle className="h-5 w-5 text-[color:var(--be-blue)] flex-shrink-0 mt-0.5" />
+              <p className="text-xs text-[color:var(--be-blue-hover)]">
                 Esta password será utilizada para fazer login. Guarde num local seguro.
               </p>
             </div>

@@ -163,7 +163,7 @@ export default function NewUserPage() {
             Voltar para Usuários
           </Link>
           <div className="flex items-center gap-3">
-            <UserPlus className="h-8 w-8 text-brand-600" />
+            <UserPlus className="h-8 w-8 text-[color:var(--be-blue)]" />
             <h2 className="text-3xl font-bold text-gray-900">Novo Usuário</h2>
           </div>
         </div>
@@ -260,7 +260,7 @@ export default function NewUserPage() {
 
           {/* Password Info - Only for non-cleaner roles */}
           {!(role === 'guest' && guestType === 'cleaner') && (
-            <div className="p-3 bg-brand-50 border border-brand-200 rounded-lg text-sm text-brand-700">
+            <div className="p-3 bg-[color:var(--be-blue-pale)] border border-[color:var(--be-blue-light)] rounded-lg text-sm text-[color:var(--be-blue-hover)]">
               <p className="font-medium mb-1">Senha Provisória:</p>
               <p className="text-xs">Uma senha provisória será gerada automaticamente e enviada por email ao utilizador. Na primeira vez que fizer login, será obrigado a alterá-la.</p>
             </div>
@@ -283,7 +283,7 @@ export default function NewUserPage() {
                   id="accessAllProperties"
                   checked={accessAllProperties}
                   onChange={(e) => setAccessAllProperties(e.target.checked)}
-                  className="h-4 w-4 text-brand-600 border-gray-300 rounded focus:ring-brand-500"
+                  className="h-4 w-4 text-[color:var(--be-blue)] border-gray-300 rounded focus:ring-brand-500"
                 />
                 <label htmlFor="accessAllProperties" className="text-sm font-medium text-gray-700">
                   Acesso a todas as propriedades
@@ -303,7 +303,7 @@ export default function NewUserPage() {
                             type="checkbox"
                             checked={selectedProperties.includes(property.id)}
                             onChange={() => toggleProperty(property.id)}
-                            className="h-4 w-4 text-brand-600 border-gray-300 rounded focus:ring-brand-500"
+                            className="h-4 w-4 text-[color:var(--be-blue)] border-gray-300 rounded focus:ring-brand-500"
                           />
                           <span className="text-sm text-gray-700">{property.name}</span>
                         </label>
@@ -330,7 +330,7 @@ export default function NewUserPage() {
                         type="checkbox"
                         checked={selectedProperties.includes(property.id)}
                         onChange={() => toggleProperty(property.id)}
-                        className="h-4 w-4 text-brand-600 border-gray-300 rounded focus:ring-brand-500"
+                        className="h-4 w-4 text-[color:var(--be-blue)] border-gray-300 rounded focus:ring-brand-500"
                       />
                       <span className="text-sm text-gray-700">{property.name}</span>
                     </label>
@@ -388,7 +388,7 @@ export default function NewUserPage() {
                   </code>
                   <button
                     onClick={copyToClipboard}
-                    className="px-3 py-2 bg-brand-50 text-brand-600 hover:bg-brand-100 border border-brand-200 rounded transition-colors"
+                    className="px-3 py-2 bg-[color:var(--be-blue-pale)] text-[color:var(--be-blue)] hover:bg-[color:var(--be-blue-pale)] border border-[color:var(--be-blue-light)] rounded transition-colors"
                   >
                     {copied ? (
                       <Check className="h-4 w-4" />

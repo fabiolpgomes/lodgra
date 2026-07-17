@@ -135,9 +135,9 @@ export default function SetPasswordPage() {
 
   if (validating) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-brand-50 to-indigo-100 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-[color:var(--be-blue-pale)] to-[color:var(--be-blue-light)] flex items-center justify-center p-4">
         <div className="bg-white rounded-xl shadow-xl p-8 max-w-md w-full text-center">
-          <div className="animate-spin h-12 w-12 border-4 border-brand-200 border-t-blue-600 rounded-full mx-auto mb-4"></div>
+          <div className="animate-spin h-12 w-12 border-4 border-[color:var(--be-blue-light)] border-t-blue-600 rounded-full mx-auto mb-4"></div>
           <p className="text-gray-600">Validando link...</p>
         </div>
       </div>
@@ -146,7 +146,7 @@ export default function SetPasswordPage() {
 
   if (!tokenValid) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-brand-50 to-indigo-100 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-[color:var(--be-blue-pale)] to-[color:var(--be-blue-light)] flex items-center justify-center p-4">
         <div className="bg-white rounded-xl shadow-xl p-8 max-w-md w-full">
           <div className="flex items-center justify-center w-12 h-12 rounded-full bg-red-100 mx-auto mb-4">
             <AlertCircle className="h-6 w-6 text-red-600" />
@@ -167,12 +167,12 @@ export default function SetPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-brand-50 to-indigo-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-[color:var(--be-blue-pale)] to-[color:var(--be-blue-light)] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo e Título */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-4">
-            <Lock className="h-12 w-12 text-brand-600" />
+            <Lock className="h-12 w-12 text-[color:var(--be-blue)]" />
             <h1 className="text-3xl font-bold text-gray-900">Lodgra</h1>
           </div>
           <p className="text-gray-600">Crie sua senha</p>
@@ -250,7 +250,7 @@ export default function SetPasswordPage() {
 
               <p className="text-center text-sm text-gray-600 mt-6">
                 Já tem uma conta?{' '}
-                <Link href="/login" className="text-brand-600 hover:text-brand-700 font-medium">
+                <Link href="/login" className="text-[color:var(--be-blue)] hover:text-[color:var(--be-blue-hover)] font-medium">
                   Faça login
                 </Link>
               </p>

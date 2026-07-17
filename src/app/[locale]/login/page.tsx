@@ -73,7 +73,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-brand-50 to-indigo-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-[color:var(--be-blue-pale)] to-[color:var(--be-blue-light)] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo e Título */}
         <div className="text-center mb-8">
@@ -134,7 +134,7 @@ export default function LoginPage() {
 
             {/* Esqueci minha senha */}
             <div className="text-right">
-              <Link href="/auth/reset-password" className="text-sm text-brand-600 hover:text-brand-700 font-medium">
+              <Link href="/auth/reset-password" className="text-sm text-[color:var(--be-blue)] hover:text-[color:var(--be-blue-hover)] font-medium">
                 Esqueci minha senha
               </Link>
             </div>
@@ -155,7 +155,7 @@ export default function LoginPage() {
           <div className="mt-6 text-center text-sm text-gray-600">
             <p>
               Não tem uma conta?{' '}
-              <Link href={locale ? `/${locale}/register` : '/register'} className="text-brand-600 hover:text-brand-700 font-medium">
+              <Link href={locale ? `/${locale}/register` : '/register'} className="text-[color:var(--be-blue)] hover:text-[color:var(--be-blue-hover)] font-medium">
                 {tCommon('ok')}
               </Link>
             </p>

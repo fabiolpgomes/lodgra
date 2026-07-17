@@ -163,7 +163,7 @@ export default async function OwnerDetailsPage({
                 {linkedUser && (
                   <div>
                     <p className="text-sm text-gray-600 mb-1">Usuário Vinculado</p>
-                    <p className="font-medium text-brand-600">
+                    <p className="font-medium text-[color:var(--be-blue)]">
                       {linkedUser.full_name || linkedUser.email}
                     </p>
                   </div>

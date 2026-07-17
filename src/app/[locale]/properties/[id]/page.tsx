@@ -342,17 +342,17 @@ export default async function PropertyDetailsPage({
               </h3>
               <div className="grid grid-cols-3 gap-6">
                 <div className="text-center p-4 bg-gray-50 rounded-lg">
-                  <Bed className="h-8 w-8 text-brand-600 mx-auto mb-2" />
+                  <Bed className="h-8 w-8 text-[color:var(--be-blue)] mx-auto mb-2" />
                   <p className="text-2xl font-bold text-gray-900">{property.bedrooms || 0}</p>
                   <p className="text-sm text-gray-600">Quartos</p>
                 </div>
                 <div className="text-center p-4 bg-gray-50 rounded-lg">
-                  <Bath className="h-8 w-8 text-brand-600 mx-auto mb-2" />
+                  <Bath className="h-8 w-8 text-[color:var(--be-blue)] mx-auto mb-2" />
                   <p className="text-2xl font-bold text-gray-900">{property.bathrooms || 0}</p>
                   <p className="text-sm text-gray-600">Casas de Banho</p>
                 </div>
                 <div className="text-center p-4 bg-gray-50 rounded-lg">
-                  <Users className="h-8 w-8 text-brand-600 mx-auto mb-2" />
+                  <Users className="h-8 w-8 text-[color:var(--be-blue)] mx-auto mb-2" />
                   <p className="text-2xl font-bold text-gray-900">{property.max_guests || 0}</p>
                   <p className="text-sm text-gray-600">Hóspedes</p>
                 </div>
@@ -367,7 +367,7 @@ export default async function PropertyDetailsPage({
                   {amenities.map(a => (
                     <span
                       key={a.id}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-brand-50 text-brand-800 text-sm rounded-full"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[color:var(--be-blue-pale)] text-brand-800 text-sm rounded-full"
                     >
                       <AmenityIcon name={a.icon} className="h-3.5 w-3.5 shrink-0" />
                       <span className="text-xs">{a.name}</span>
@@ -509,7 +509,7 @@ export default async function PropertyDetailsPage({
                 <div className="space-y-2">
                   <Link
                     href={`/${locale}/owners/${owner.id}`}
-                    className="text-brand-600 hover:underline font-medium"
+                    className="text-[color:var(--be-blue)] hover:underline font-medium"
                   >
                     {owner.full_name}
                   </Link>
@@ -531,9 +531,9 @@ export default async function PropertyDetailsPage({
                 Estatísticas
               </h3>
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-3 bg-brand-50 rounded-lg">
+                <div className="flex items-center justify-between p-3 bg-[color:var(--be-blue-pale)] rounded-lg">
                   <span className="text-sm text-gray-600">Reservas Totais</span>
-                  <span className="text-xl font-bold text-brand-600">{totalReservations}</span>
+                  <span className="text-xl font-bold text-[color:var(--be-blue)]">{totalReservations}</span>
                 </div>
                 <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
                   <span className="text-sm text-gray-600">Taxa de Ocupação</span>

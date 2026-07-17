@@ -176,7 +176,7 @@ export default async function FinancialPage({
               </div>
               <h2 className="text-2xl font-bold text-gray-900">Análise Financeira</h2>
             </div>
-            <p className="text-[10px] font-black uppercase tracking-wider text-lodgra-navy/20 ml-14">
+            <p className="text-[10px] font-black uppercase tracking-wider text-[color:var(--be-text)]/20 ml-14">
               Receitas, despesas e lucro do mês seleccionado
             </p>
           </div>
@@ -200,8 +200,8 @@ export default async function FinancialPage({
         {/* Análise por Propriedade */}
         <div className="be-card overflow-hidden rounded-none border border-be-blue/10">
           <div className="px-5 py-4 border-b border-be-blue/10 flex items-center gap-2">
-            <BarChart3 className="h-4 w-4 text-lodgra-blue" />
-            <h3 className="text-xs font-black text-lodgra-blue uppercase tracking-widest font-display">Análise por Propriedade</h3>
+            <BarChart3 className="h-4 w-4 text-[color:var(--be-text)]" />
+            <h3 className="text-xs font-black text-[color:var(--be-text)] uppercase tracking-widest font-display">Análise por Propriedade</h3>
           </div>
 
           <div className="w-full">
@@ -242,7 +242,7 @@ export default async function FinancialPage({
                       <td className="px-3 py-3 max-w-[240px]">
                         <div className="flex items-start gap-2">
                           {property.currency && (() => {
-                            const badgeColor = property.currency === 'EUR' ? 'bg-brand-50 text-brand-700 ring-brand-200'
+                            const badgeColor = property.currency === 'EUR' ? 'bg-[color:var(--be-blue-pale)] text-[color:var(--be-blue-hover)] ring-brand-200'
                               : property.currency === 'BRL' ? 'bg-green-50 text-green-700 ring-green-200'
                               : property.currency === 'USD' ? 'bg-yellow-50 text-yellow-700 ring-yellow-200'
                               : property.currency === 'GBP' ? 'bg-purple-50 text-purple-700 ring-purple-200'
@@ -261,7 +261,7 @@ export default async function FinancialPage({
                               <div className="text-xs text-gray-600 mt-0.5 truncate">{property.owner_name}</div>
                             )}
                             {property.management_percentage > 0 && (
-                              <span className="text-[9px] bg-brand-50 text-brand-700 px-1 py-0.5 rounded-full font-medium inline-block mt-1">
+                              <span className="text-[9px] bg-[color:var(--be-blue-pale)] text-[color:var(--be-blue-hover)] px-1 py-0.5 rounded-full font-medium inline-block mt-1">
                                 {property.management_percentage}% gestão
                               </span>
                             )}
@@ -325,15 +325,15 @@ export default async function FinancialPage({
         <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="be-card p-5 border border-be-blue/10 rounded-none shadow-none">
             <div className="flex items-center justify-between mb-4">
-              <div className="p-2.5 bg-lodgra-blue/5 rounded-none">
-                <TrendingUp className="h-4 w-4 text-lodgra-blue" />
+              <div className="p-2.5 bg-[color:var(--be-text)]/5 rounded-none">
+                <TrendingUp className="h-4 w-4 text-[color:var(--be-text)]" />
               </div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-lodgra-navy/30 font-display">Receitas</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-[color:var(--be-text)]/30 font-display">Receitas</span>
             </div>
-            <div className="text-lodgra-blue">
+            <div className="text-[color:var(--be-text)]">
               <CurrencyStack totals={revenueByCurrency} size="lg" showEmpty={true} />
             </div>
-            <p className="text-[10px] font-black uppercase tracking-wider text-lodgra-navy/20 mt-2">Total receitas confirmadas</p>
+            <p className="text-[10px] font-black uppercase tracking-wider text-[color:var(--be-text)]/20 mt-2">Total receitas confirmadas</p>
           </div>
 
           <div className="be-card p-5 border border-be-blue/10 rounded-none shadow-none">
@@ -341,12 +341,12 @@ export default async function FinancialPage({
               <div className="p-2.5 bg-red-50 rounded-none">
                 <TrendingDown className="h-4 w-4 text-red-600" />
               </div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-lodgra-navy/30 font-display">Despesas</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-[color:var(--be-text)]/30 font-display">Despesas</span>
             </div>
             <div className="text-red-600">
               <CurrencyStack totals={expensesByCurrency} size="lg" showEmpty={true} />
             </div>
-            <p className="text-[10px] font-black uppercase tracking-wider text-lodgra-navy/20 mt-2">Total despesas registradas</p>
+            <p className="text-[10px] font-black uppercase tracking-wider text-[color:var(--be-text)]/20 mt-2">Total despesas registradas</p>
           </div>
 
           <div className="be-card p-5 border border-be-blue/10 rounded-none shadow-none" style={{ backgroundColor: '#FFFFFF' }}>

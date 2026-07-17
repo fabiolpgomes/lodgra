@@ -106,7 +106,7 @@ export default function ReportsPage() {
                 onClick={() => setActiveTab(tab.id)}
                 className={`py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap transition-colors ${
                   activeTab === tab.id
-                    ? 'border-brand-500 text-brand-600'
+                    ? 'border-brand-500 text-[color:var(--be-blue)]'
                     : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
                 }`}
               >

@@ -69,12 +69,12 @@ export default async function UsersPage({
         <div className="flex items-center justify-between mb-8">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <Users className="h-8 w-8 text-brand-600" />
+              <Users className="h-8 w-8 text-[color:var(--be-blue)]" />
               <h2 className="text-3xl font-bold text-gray-900">Usuários</h2>
             </div>
             <p className="text-gray-600">Gerencie os utilizadores e suas permissões</p>
           </div>
-          <Button asChild className="bg-brand-600 text-white hover:bg-brand-700">
+          <Button asChild className="bg-[color:var(--be-blue)] text-white hover:bg-brand-700">
             <Link href={`/${locale}/admin/users/new`} className="flex items-center gap-2">
               <Plus className="h-5 w-5" />
               Novo Usuário
@@ -122,7 +122,7 @@ export default async function UsersPage({
                               profile.role === 'admin'
                                 ? 'bg-red-100 text-red-800 hover:bg-red-100'
                                 : profile.role === 'gestor'
-                                ? 'bg-brand-100 text-brand-800 hover:bg-brand-100'
+                                ? 'bg-[color:var(--be-blue-pale)] text-brand-800 hover:bg-[color:var(--be-blue-pale)]'
                                 : profile.role === 'viewer'
                                 ? 'bg-gray-100 text-gray-800 hover:bg-gray-100'
                                 : profile.role === 'guest'
@@ -163,7 +163,7 @@ export default async function UsersPage({
                             asChild
                             variant="ghost"
                             size="sm"
-                            className="p-1.5 text-gray-500 hover:text-brand-600 hover:bg-brand-50"
+                            className="p-1.5 text-gray-500 hover:text-[color:var(--be-blue)] hover:bg-[color:var(--be-blue-pale)]"
                             title="Editar"
                           >
                             <Link href={`/${locale}/admin/users/${profile.id}/edit`}>

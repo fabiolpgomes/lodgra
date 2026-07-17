@@ -60,8 +60,8 @@ export default async function ChannelsSettingsPage() {
     <AuthLayout>
       <div className="max-w-3xl mx-auto py-8 px-4">
         <div className="flex items-center gap-3 mb-8">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-50">
-            <Settings2 className="h-5 w-5 text-brand-600" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[color:var(--be-blue-pale)]">
+            <Settings2 className="h-5 w-5 text-[color:var(--be-blue)]" />
           </div>
           <div>
             <h1 className="text-xl font-semibold text-gray-900">
@@ -77,7 +77,7 @@ export default async function ChannelsSettingsPage() {
         <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
           <div className="flex items-center gap-3 mb-1">
             <span className="text-lg font-semibold text-gray-900">Booking.com</span>
-            <span className="text-xs font-medium text-brand-700 bg-brand-50 border border-brand-200 rounded-full px-2.5 py-0.5">
+            <span className="text-xs font-medium text-[color:var(--be-blue-hover)] bg-[color:var(--be-blue-pale)] border border-[color:var(--be-blue-light)] rounded-full px-2.5 py-0.5">
               API Oficial
             </span>
           </div>

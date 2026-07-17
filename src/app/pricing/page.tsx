@@ -92,9 +92,9 @@ export default function PricingPage() {
       </section>
 
       {/* How It Works */}
-      <section className="py-16 bg-brand-50">
+      <section className="py-16 bg-[color:var(--be-blue-pale)]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white rounded-lg p-8 border border-brand-200">
+          <div className="bg-white rounded-lg p-8 border border-[color:var(--be-blue-light)]">
             <h2 className="text-2xl font-bold mb-6">Como Funciona</h2>
             <p className="text-gray-600 mb-8">
               Escolha um plano com propriedades incluídas. Precisar de mais? Adicione propriedades extras por R$ 49/mês cada.
@@ -125,7 +125,7 @@ export default function PricingPage() {
                 </p>
               </div>
             </div>
-            <div className="border-t border-brand-200 mt-8 pt-8">
+            <div className="border-t border-[color:var(--be-blue-light)] mt-8 pt-8">
               <p className="text-center text-gray-600 font-semibold mb-4">Exemplos de Custo Mensal</p>
               <div className="grid md:grid-cols-3 gap-4 text-sm">
                 <div className="bg-gray-50 p-4 rounded">
@@ -157,7 +157,7 @@ export default function PricingPage() {
               <div
                 key={plan.name}
                 className={`rounded-lg shadow-lg overflow-hidden transition transform hover:scale-105 ${
-                  plan.highlight ? 'ring-2 ring-brand-900 md:scale-105 bg-brand-50' : 'bg-white'
+                  plan.highlight ? 'ring-2 ring-brand-900 md:scale-105 bg-[color:var(--be-blue-pale)]' : 'bg-white'
                 }`}
               >
                 <div className="p-8">

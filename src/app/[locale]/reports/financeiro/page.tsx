@@ -496,8 +496,8 @@ export default async function FinanceiroPage({ searchParams }: PageProps) {
         <div className="mb-8 flex items-start justify-between">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 bg-brand-100 rounded-xl">
-                <FileText className="h-6 w-6 text-brand-600" />
+              <div className="p-2 bg-[color:var(--be-blue-pale)] rounded-xl">
+                <FileText className="h-6 w-6 text-[color:var(--be-blue)]" />
               </div>
               <h2 className="text-2xl font-bold text-gray-900">Relatórios Financeiros</h2>
             </div>
@@ -541,32 +541,32 @@ export default async function FinanceiroPage({ searchParams }: PageProps) {
               <div className="p-2.5 bg-red-50 rounded-none">
                 <TrendingDown className="h-5 w-5 text-red-600" />
               </div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-lodgra-navy/30 font-display">Despesas</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-[color:var(--be-text)]/30 font-display">Despesas</span>
             </div>
             <div className="text-red-600">
               <CurrencyStack totals={expensesByCurrency} size="md" showEmpty={true} />
             </div>
-            <p className="text-[10px] font-black uppercase tracking-wider text-lodgra-navy/20 mt-2">Total despesas no período</p>
+            <p className="text-[10px] font-black uppercase tracking-wider text-[color:var(--be-text)]/20 mt-2">Total despesas no período</p>
           </div>
 
           <div className="bg-white border border-be-blue/10 p-5 rounded-none">
             <div className="flex items-center justify-between mb-4">
-              <div className="p-2.5 bg-lodgra-blue/5 rounded-none">
-                <BarChart3 className="h-5 w-5 text-lodgra-blue" />
+              <div className="p-2.5 bg-[color:var(--be-text)]/5 rounded-none">
+                <BarChart3 className="h-5 w-5 text-[color:var(--be-text)]" />
               </div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-lodgra-navy/30 font-display">Lucro</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-[color:var(--be-text)]/30 font-display">Lucro</span>
             </div>
             <div className="space-y-1.5">
               {Object.entries(netProfitByCurrency).length > 0 ? (
                 Object.entries(netProfitByCurrency).map(([currency, amount]) => (
                   <div key={currency} className="flex items-center gap-2">
                     <span className={`inline-flex items-center justify-center min-w-[2.5rem] h-5 px-1.5 text-[10px] font-black uppercase tracking-widest rounded-none ring-1 shrink-0 ${
-                      currency === 'EUR' ? 'bg-lodgra-blue/5 text-lodgra-blue ring-lodgra-blue/20' :
+                      currency === 'EUR' ? 'bg-[color:var(--be-text)]/5 text-[color:var(--be-text)] ring-[color:var(--be-text)]/20' :
                       currency === 'BRL' ? 'bg-green-50 text-green-700 ring-green-200' :
                       currency === 'USD' ? 'bg-yellow-50 text-yellow-700 ring-yellow-200' :
                       'bg-purple-50 text-purple-700 ring-purple-200'
                     }`}>{currency}</span>
-                    <span className={`text-xl font-black tabular-nums font-display ${amount >= 0 ? 'text-lodgra-blue' : 'text-red-600'}`}>
+                    <span className={`text-xl font-black tabular-nums font-display ${amount >= 0 ? 'text-[color:var(--be-text)]' : 'text-red-600'}`}>
                       {formatCurrency(amount, currency as CurrencyCode)}
                     </span>
                   </div>
@@ -575,7 +575,7 @@ export default async function FinanceiroPage({ searchParams }: PageProps) {
                 <span className="text-xl font-black text-gray-500 font-display">—</span>
               )}
             </div>
-            <p className="text-[10px] font-black uppercase tracking-wider text-lodgra-navy/20 mt-2">Lucro líquido no período</p>
+            <p className="text-[10px] font-black uppercase tracking-wider text-[color:var(--be-text)]/20 mt-2">Lucro líquido no período</p>
           </div>
         </div>
 
@@ -583,37 +583,37 @@ export default async function FinanceiroPage({ searchParams }: PageProps) {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 mb-8">
           <div className="bg-white border border-be-blue/10 p-5 rounded-none">
             <div className="flex items-center justify-between mb-4">
-              <div className="p-2.5 bg-lodgra-blue/5 rounded-none">
-                <Calendar className="h-4 w-4 text-lodgra-blue" />
+              <div className="p-2.5 bg-[color:var(--be-text)]/5 rounded-none">
+                <Calendar className="h-4 w-4 text-[color:var(--be-text)]" />
               </div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-lodgra-navy/30 font-display">Reservas</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-[color:var(--be-text)]/30 font-display">Reservas</span>
             </div>
-            <p className="text-4xl font-black text-lodgra-blue font-display tracking-tighter">{totalReservations}</p>
-            <p className="text-[10px] font-black uppercase tracking-wider text-lodgra-navy/20 mt-1">Confirmadas</p>
+            <p className="text-4xl font-black text-[color:var(--be-text)] font-display tracking-tighter">{totalReservations}</p>
+            <p className="text-[10px] font-black uppercase tracking-wider text-[color:var(--be-text)]/20 mt-1">Confirmadas</p>
           </div>
 
           <div className="bg-white border border-be-blue/10 p-5 rounded-none">
             <div className="flex items-center justify-between mb-4">
-              <div className="p-2.5 bg-lodgra-gold/5 rounded-none">
-                <BarChart2 className="h-4 w-4 text-lodgra-gold" />
+              <div className="p-2.5 bg-[color:var(--be-blue)]/5 rounded-none">
+                <BarChart2 className="h-4 w-4 text-[color:var(--be-blue)]" />
               </div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-lodgra-navy/30 font-display">ADR</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-[color:var(--be-text)]/30 font-display">ADR</span>
             </div>
             <CurrencyStack totals={adrByCurrency} size="sm" showEmpty={true} />
-            <p className="text-[10px] font-black uppercase tracking-wider text-lodgra-navy/20 mt-2">Diária média</p>
+            <p className="text-[10px] font-black uppercase tracking-wider text-[color:var(--be-text)]/20 mt-2">Diária média</p>
           </div>
 
           <div className="bg-white border border-be-blue/10 p-5 rounded-none">
             <div className="flex items-center justify-between mb-4">
-              <div className="p-2.5 bg-lodgra-gold/5 rounded-none">
-                <DollarSign className="h-4 w-4 text-lodgra-gold" />
+              <div className="p-2.5 bg-[color:var(--be-blue)]/5 rounded-none">
+                <DollarSign className="h-4 w-4 text-[color:var(--be-blue)]" />
               </div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-lodgra-navy/30 font-display">RevPAR</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-[color:var(--be-text)]/30 font-display">RevPAR</span>
             </div>
-            <div className="text-lodgra-gold">
+            <div className="text-[color:var(--be-blue)]">
               <CurrencyStack totals={revparByCurrency} size="sm" showEmpty={true} />
             </div>
-            <p className="text-[10px] font-black uppercase tracking-wider text-lodgra-navy/20 mt-2">Receita/noite disp.</p>
+            <p className="text-[10px] font-black uppercase tracking-wider text-[color:var(--be-text)]/20 mt-2">Receita/noite disp.</p>
           </div>
 
           <div className="bg-white border border-be-blue/10 p-5 rounded-none">
@@ -621,12 +621,12 @@ export default async function FinanceiroPage({ searchParams }: PageProps) {
               <div className="p-2.5 bg-teal-50 rounded-none">
                 <Target className="h-4 w-4 text-teal-600" />
               </div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-lodgra-navy/30 font-display">Ocupação</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-[color:var(--be-text)]/30 font-display">Ocupação</span>
             </div>
             <p className={`text-4xl font-black font-display tracking-tighter ${occupancyRate >= 70 ? 'text-green-600' : occupancyRate >= 40 ? 'text-yellow-600' : occupancyRate > 0 ? 'text-red-600' : 'text-gray-500'}`}>
               {totalAvailableNights > 0 ? `${occupancyRate.toFixed(1)}%` : '—'}
             </p>
-            <p className="text-[10px] font-black uppercase tracking-wider text-lodgra-navy/20 mt-1">Taxa de ocupação</p>
+            <p className="text-[10px] font-black uppercase tracking-wider text-[color:var(--be-text)]/20 mt-1">Taxa de ocupação</p>
           </div>
         </div>
 

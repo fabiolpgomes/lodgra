@@ -37,7 +37,7 @@ function DesignPageContent() {
       <header className="max-w-5xl mx-auto mb-16">
         <div className="flex items-center gap-4 mb-3">
           <Logo size="lg" />
-          <h1 className="text-3xl font-bold text-lodgra-blue font-lodgra-heading">Design System</h1>
+          <h1 className="text-3xl font-bold text-[color:var(--be-text)] font-lodgra-heading">Design System</h1>
         </div>
         <p className="text-zinc-500 text-sm">Paleta de cores, tipografia e componentes — Lodgra v1.0</p>
       </header>
@@ -48,7 +48,7 @@ function DesignPageContent() {
         <Section title="Brand Scale — Lodgra Blue">
           <div className="grid grid-cols-5 md:grid-cols-11 gap-3">
             {(Object.entries(BRAND).filter(([k]) => !isNaN(Number(k))) as [string, string][]).map(([shade, hex]) => (
-              <Swatch key={shade} name={`brand-${shade}`} hex={hex} />
+              <Swatch key={shade} name={`[color:var(--be-blue)]`} hex={hex} />
             ))}
           </div>
           <p className="mt-3 text-xs text-zinc-400 font-mono">brand-800 = #1E3A8A — Azul Confiança (primary)</p>
@@ -67,11 +67,11 @@ function DesignPageContent() {
         {/* Flat tokens */}
         <Section title="Tokens Planos (Tailwind)">
           <div className="grid grid-cols-3 md:grid-cols-5 gap-3">
-            <Swatch name="lodgra-blue" hex="#1E3A8A" />
-            <Swatch name="lodgra-gold" hex="#D4AF37" />
-            <Swatch name="lodgra-green" hex="#059669" />
+            <Swatch name="[color:var(--be-text)]" hex="#1E3A8A" />
+            <Swatch name="[color:var(--be-blue)]" hex="#D4AF37" />
+            <Swatch name="[color:var(--be-success)]" hex="#059669" />
             <Swatch name="lodgra-dark" hex="#374151" />
-            <Swatch name="lodgra-gray" hex="#F3F4F6" className="border border-zinc-200" />
+            <Swatch name="[color:var(--be-text-muted)]" hex="#F3F4F6" className="border border-zinc-200" />
           </div>
         </Section>
 
@@ -109,7 +109,7 @@ function DesignPageContent() {
           <div className="space-y-4">
             <div>
               <p className="text-xs text-zinc-400 mb-1 font-mono">font-lodgra-heading (Poppins) — headings</p>
-              <p className="text-4xl font-bold text-lodgra-blue font-lodgra-heading">Gestão profissional</p>
+              <p className="text-4xl font-bold text-[color:var(--be-text)] font-lodgra-heading">Gestão profissional</p>
             </div>
             <div>
               <p className="text-xs text-zinc-400 mb-1 font-mono">font-lodgra-body (Inter) — body</p>
@@ -143,7 +143,7 @@ function DesignPageContent() {
               <Logo size="sm" variant="default" />
               <span className="text-xs text-zinc-400">default / sm</span>
             </div>
-            <div className="p-4 bg-lodgra-blue rounded-xl flex flex-col gap-2 items-center">
+            <div className="p-4 bg-[color:var(--be-text)] rounded-xl flex flex-col gap-2 items-center">
               <Logo size="md" variant="white" />
               <span className="text-xs text-white/60">white / md</span>
             </div>

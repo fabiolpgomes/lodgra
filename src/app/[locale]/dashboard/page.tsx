@@ -346,8 +346,8 @@ export default async function DashboardPage({
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-5">
           <div className="bg-white rounded-xl shadow-sm p-5 sm:p-6">
             <div className="flex items-center justify-between mb-4">
-              <div className="p-2.5 bg-gradient-to-br from-brand-50 to-brand-100 rounded-xl">
-                <Home className="h-5 w-5 text-brand-600" />
+              <div className="p-2.5 bg-gradient-to-br from-[color:var(--be-blue-pale)] to-brand-100 rounded-xl">
+                <Home className="h-5 w-5 text-[color:var(--be-blue)]" />
               </div>
               <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">Total</span>
             </div>
@@ -405,7 +405,7 @@ export default async function DashboardPage({
             ) : (
               <div className="space-y-3">
                 {Object.entries(monthRevenueByCurrency).map(([cur, amount], idx, _arr) => {
-                  const badgeColor = cur === 'EUR' ? 'bg-brand-50 text-brand-700 ring-brand-200'
+                  const badgeColor = cur === 'EUR' ? 'bg-[color:var(--be-blue-pale)] text-[color:var(--be-blue-hover)] ring-brand-200'
                     : cur === 'BRL' ? 'bg-green-50 text-green-700 ring-green-200'
                     : cur === 'USD' ? 'bg-yellow-50 text-yellow-700 ring-yellow-200'
                     : 'bg-gray-100 text-gray-700 ring-gray-200'
@@ -451,7 +451,7 @@ export default async function DashboardPage({
                   const exp = monthExpensesByCurrency[cur] || 0
                   const profit = rev - exp
                   const margin = rev > 0 ? Math.round((profit / rev) * 100) : 0
-                  const badgeColor = cur === 'EUR' ? 'bg-brand-50 text-brand-700 ring-brand-200'
+                  const badgeColor = cur === 'EUR' ? 'bg-[color:var(--be-blue-pale)] text-[color:var(--be-blue-hover)] ring-brand-200'
                     : cur === 'BRL' ? 'bg-green-50 text-green-700 ring-green-200'
                     : cur === 'USD' ? 'bg-yellow-50 text-yellow-700 ring-yellow-200'
                     : 'bg-gray-100 text-gray-700 ring-gray-200'
@@ -493,7 +493,7 @@ export default async function DashboardPage({
                 <p className="text-xs text-gray-500 mt-0.5">Reservas confirmadas a partir de hoje</p>
               </div>
             </div>
-            <span className="text-xs font-semibold bg-brand-50 text-brand-700 px-2.5 py-1 rounded-full">
+            <span className="text-xs font-semibold bg-[color:var(--be-blue-pale)] text-[color:var(--be-blue-hover)] px-2.5 py-1 rounded-full">
               {futureConfirmedCount} reserva{futureConfirmedCount !== 1 ? 's' : ''}
             </span>
           </div>
@@ -505,7 +505,7 @@ export default async function DashboardPage({
               {Object.entries(forecastByCurrency)
                 .sort(([a], [b]) => a.localeCompare(b))
                 .map(([currency, amount]) => {
-                  const badgeColor = currency === 'EUR' ? 'bg-brand-50 text-brand-700 ring-brand-200'
+                  const badgeColor = currency === 'EUR' ? 'bg-[color:var(--be-blue-pale)] text-[color:var(--be-blue-hover)] ring-brand-200'
                     : currency === 'BRL' ? 'bg-green-50 text-green-700 ring-green-200'
                     : currency === 'USD' ? 'bg-yellow-50 text-yellow-700 ring-yellow-200'
                     : 'bg-gray-100 text-gray-700 ring-gray-200'
@@ -529,7 +529,7 @@ export default async function DashboardPage({
           {/* Occupancy Chart */}
           <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
             <div className="flex items-center gap-2 mb-1">
-              <TrendingUp className="h-5 w-5 text-brand-600" />
+              <TrendingUp className="h-5 w-5 text-[color:var(--be-blue)]" />
               <h3 className="text-base font-semibold text-gray-900">Taxa de Ocupação</h3>
             </div>
             <p className="text-xs text-gray-500 mb-4 ml-7">Últimos 6 meses</p>
@@ -552,7 +552,7 @@ export default async function DashboardPage({
           {/* Status Chart */}
           <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
             <div className="flex items-center gap-2 mb-1">
-              <CheckCircle className="h-5 w-5 text-brand-600" />
+              <CheckCircle className="h-5 w-5 text-[color:var(--be-blue)]" />
               <h3 className="text-base font-semibold text-gray-900">Reservas por Status</h3>
             </div>
             <p className="text-xs text-gray-500 mb-4 ml-7">Distribuição atual</p>
@@ -566,7 +566,7 @@ export default async function DashboardPage({
           {/* Upcoming Check-ins */}
           <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
             <div className="flex items-center gap-2 mb-1">
-              <Clock className="h-5 w-5 text-brand-600" />
+              <Clock className="h-5 w-5 text-[color:var(--be-blue)]" />
               <h3 className="text-base font-semibold text-gray-900">Próximas Chegadas</h3>
             </div>
             <p className="text-xs text-gray-500 mb-4 ml-7">Próximos 7 dias</p>
@@ -602,7 +602,7 @@ export default async function DashboardPage({
                         <p className="text-sm text-gray-600 truncate">{propertyName}</p>
                         <div className="flex items-center gap-2 mt-0.5">
                           {platformName && (
-                            <span className="text-xs px-1.5 py-0.5 bg-brand-100 text-brand-700 rounded font-medium">
+                            <span className="text-xs px-1.5 py-0.5 bg-[color:var(--be-blue-pale)] text-[color:var(--be-blue-hover)] rounded font-medium">
                               {platformName}
                             </span>
                           )}
@@ -610,7 +610,7 @@ export default async function DashboardPage({
                         </div>
                       </div>
                       <div className="text-right ml-3 shrink-0">
-                        <p className="text-sm font-medium text-brand-600">
+                        <p className="text-sm font-medium text-[color:var(--be-blue)]">
                           {checkInDate.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}
                         </p>
                         <p className="text-xs text-gray-500">
@@ -636,10 +636,10 @@ export default async function DashboardPage({
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <Link
               href={`/${locale}/properties/new`}
-              className="flex items-center gap-3 p-3 sm:p-4 min-h-[48px] border border-gray-100 rounded-xl bg-gradient-to-br from-white to-brand-50/50 hover:border-brand-200 hover:from-brand-50 hover:to-brand-100/50 hover:-translate-y-0.5 hover:shadow-sm transition-all duration-150"
+              className="flex items-center gap-3 p-3 sm:p-4 min-h-[48px] border border-gray-100 rounded-xl bg-gradient-to-br from-white to-brand-50/50 hover:border-[color:var(--be-blue-light)] hover:from-[color:var(--be-blue-pale)] hover:to-brand-100/50 hover:-translate-y-0.5 hover:shadow-sm transition-all duration-150"
             >
-              <div className="p-2.5 bg-brand-100 rounded-lg">
-                <Home className="h-5 w-5 text-brand-600" />
+              <div className="p-2.5 bg-[color:var(--be-blue-pale)] rounded-lg">
+                <Home className="h-5 w-5 text-[color:var(--be-blue)]" />
               </div>
               <span className="text-sm font-medium text-gray-800">Nova Propriedade</span>
             </Link>

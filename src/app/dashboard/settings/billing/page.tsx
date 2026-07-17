@@ -110,7 +110,7 @@ export default function BillingPage() {
 
       {/* Support */}
       <div className="border-t border-gray-200 pt-8">
-        <div className="rounded-lg bg-brand-50 p-6">
+        <div className="rounded-lg bg-[color:var(--be-blue-pale)] p-6">
           <h3 className="font-semibold text-brand-900">Precisa de ajuda?</h3>
           <p className="mt-2 text-sm text-brand-800">
             Entre em contato com nosso time de suporte: <a href="mailto:support@lodgra.io" className="underline">support@lodgra.io</a>

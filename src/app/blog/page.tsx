@@ -81,7 +81,7 @@ export default function BlogPage() {
             <div className="md:flex">
               <div className="md:w-1/3 bg-gradient-to-r from-brand-900 to-brand-800" />
               <div className="p-8 md:w-2/3">
-                <span className="inline-block px-3 py-1 bg-brand-100 text-brand-900 rounded-full text-sm font-semibold mb-4">
+                <span className="inline-block px-3 py-1 bg-[color:var(--be-blue-pale)] text-brand-900 rounded-full text-sm font-semibold mb-4">
                   {blogPosts[0].category}
                 </span>
                 <h2 className="text-3xl font-bold mb-4">{blogPosts[0].title}</h2>
@@ -117,7 +117,7 @@ export default function BlogPage() {
               >
                 <div className="bg-gradient-to-r from-gray-300 to-gray-400 h-48" />
                 <div className="p-6">
-                  <span className="inline-block px-3 py-1 bg-brand-100 text-brand-900 rounded-full text-xs font-semibold mb-3">
+                  <span className="inline-block px-3 py-1 bg-[color:var(--be-blue-pale)] text-brand-900 rounded-full text-xs font-semibold mb-3">
                     {post.category}
                   </span>
                   <h3 className="text-xl font-bold mb-3 line-clamp-2">{post.title}</h3>

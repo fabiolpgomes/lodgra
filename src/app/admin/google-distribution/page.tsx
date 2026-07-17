@@ -214,11 +214,11 @@ export default function GoogleDistributionDashboard() {
       )}
 
       {/* Refresh Action Button - Always Visible */}
-      <div className="mb-8 p-4 bg-brand-50 border border-brand-200 rounded-lg">
+      <div className="mb-8 p-4 bg-[color:var(--be-blue-pale)] border border-[color:var(--be-blue-light)] rounded-lg">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="font-semibold text-brand-900">Refresh Feed Status</h3>
-            <p className="text-sm text-brand-700 mt-1">
+            <p className="text-sm text-[color:var(--be-blue-hover)] mt-1">
               Manually trigger a feed refresh to check for updated property statuses on Google
             </p>
           </div>
@@ -234,11 +234,11 @@ export default function GoogleDistributionDashboard() {
       </div>
 
       {/* Google Merchant Center Sync Button */}
-      <div className="mb-8 p-4 bg-brand-50 border border-brand-200 rounded-lg">
+      <div className="mb-8 p-4 bg-[color:var(--be-blue-pale)] border border-[color:var(--be-blue-light)] rounded-lg">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="font-semibold text-brand-900">Sync Google Merchant Center Status</h3>
-            <p className="text-sm text-brand-700 mt-1">
+            <p className="text-sm text-[color:var(--be-blue-hover)] mt-1">
               Manually trigger a sync to fetch real-time property indexing status from Google Merchant Center
             </p>
           </div>
@@ -261,7 +261,7 @@ export default function GoogleDistributionDashboard() {
             value={metrics.totalIndexed}
             color="bg-green-50 border-green-200"
           />
-          <MetricCard label="Pending" value={metrics.pendingCount} color="bg-brand-50 border-brand-200" />
+          <MetricCard label="Pending" value={metrics.pendingCount} color="bg-[color:var(--be-blue-pale)] border-[color:var(--be-blue-light)]" />
           <MetricCard
             label="Rejected"
             value={metrics.rejectedCount}
@@ -298,7 +298,7 @@ export default function GoogleDistributionDashboard() {
                     <button
                       type="button"
                       onClick={() => setSelectedProperty(prop)}
-                      className="text-brand-600 hover:text-brand-800 text-sm font-medium"
+                      className="text-[color:var(--be-blue)] hover:text-brand-800 text-sm font-medium"
                     >
                       View Details
                     </button>
@@ -337,7 +337,7 @@ export default function GoogleDistributionDashboard() {
                           ? 'bg-green-100 text-green-800'
                           : log.status === 'failed'
                             ? 'bg-red-100 text-red-800'
-                            : 'bg-brand-100 text-brand-800'
+                            : 'bg-[color:var(--be-blue-pale)] text-brand-800'
                       }`}
                     >
                       {log.status}
@@ -416,7 +416,7 @@ export default function GoogleDistributionDashboard() {
                           ? 'bg-green-100 text-green-800'
                           : log.status === 'failed'
                             ? 'bg-red-100 text-red-800'
-                            : 'bg-brand-100 text-brand-800'
+                            : 'bg-[color:var(--be-blue-pale)] text-brand-800'
                       }`}
                     >
                       {log.status}
@@ -457,7 +457,7 @@ function MetricCard({ label, value, color }: { label: string; value: number; col
 function StatusBadge({ status }: { status: string }) {
   const colors: Record<string, string> = {
     indexed: 'bg-green-100 text-green-800',
-    pending: 'bg-brand-100 text-brand-800',
+    pending: 'bg-[color:var(--be-blue-pale)] text-brand-800',
     error: 'bg-red-100 text-red-800',
     rejected: 'bg-yellow-100 text-yellow-800',
   }
@@ -553,7 +553,7 @@ function PropertyDetailsModal({
               href={publicUrl}
               target="_blank"
               rel="noreferrer"
-              className="rounded bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700"
+              className="rounded bg-[color:var(--be-blue)] px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700"
             >
               Open public page
             </a>
