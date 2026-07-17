@@ -228,9 +228,9 @@ export function CleaningChecklistCard({ checklist, members = [], onUpdate, onDel
           </div>
 
           {checklist.notes && (
-            <div className="mt-6 p-4 bg-lodgra-gold/10 border border-lodgra-gold/20 rounded-2xl">
-              <p className="text-[10px] font-black uppercase tracking-widest text-lodgra-gold mb-1">Observações do Gestor</p>
-              <p className="text-sm text-lodgra-gold font-bold">{checklist.notes}</p>
+            <div className="mt-6 p-4 bg-[color:var(--be-blue)]/10 border border-lodgra-gold/20 rounded-2xl">
+              <p className="text-[10px] font-black uppercase tracking-widest text-[color:var(--be-blue)] mb-1">Observações do Gestor</p>
+              <p className="text-sm text-[color:var(--be-blue)] font-bold">{checklist.notes}</p>
             </div>
           )}
         </div>

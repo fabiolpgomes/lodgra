@@ -70,7 +70,7 @@ export const SocialProof: React.FC<SocialProofProps> = ({
                 key={i}
                 className="relative p-8 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-be-border/50 bg-gray-50 dark:bg-gray-900 transition-all hover:shadow-lg"
               >
-                <Quote className="h-6 w-6 text-lodgra-gold mb-4 opacity-50" />
+                <Quote className="h-6 w-6 text-[color:var(--be-blue)] mb-4 opacity-50" />
                 <p className="text-gray-700 dark:text-gray-300 mb-6 italic leading-relaxed">
                   &quot;{t.quote}&quot;
                 </p>

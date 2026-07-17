@@ -180,43 +180,62 @@ input[type="date"]::placeholder {
 :root {
   --radius: 0.75rem;
 
-  /* ─── Lodgra Brand Tokens ───────────────────────────────────────── */
+  /* ─── BEHANCE DESIGN SYSTEM — PRIMARY PALETTE ───────────────────── */
 
-  /* Brand scale — Lodgra Blue (#1E3A8A primary brand identity) */
+  /* Primary: Behance Blue (universal, light + dark) */
+  --be-blue: #0057ff;
+  --be-blue-hover: #003ecb;
+  --be-blue-active: #002f9a;
+  --be-blue-light: #bfd2ff;
+  --be-blue-pale: #e8f0ff;
+
+  /* Text & Neutrals (light mode) */
+  --be-text: #191919;                /* Near-black */
+  --be-text-muted: #707070;          /* Medium grey */
+  --be-text-muted-light: #909090;    /* Light grey */
+  --be-grey-300: #e8e8e8;            /* Light borders */
+  --be-grey-600: #474747;            /* Dark grey */
+  --be-surface: #ffffff;             /* White bg */
+  --be-surface-secondary: #f7f7f7;   /* Light grey bg */
+  --be-border: #e8e8e8;              /* Light border */
+  --be-overlay: #f0f0f0;             /* Hover overlay */
+
+  /* Semantic (light mode) */
+  --be-success: #22c55e;             /* green */
+  --be-warning: #eab308;             /* yellow */
+  --be-error: #ef4444;               /* red */
+
+  /* ─── Lodgra Legacy Tokens (deprecated, kept for backwards compat) ─ */
   --lodgra-brand-50:  oklch(0.97 0.01 263);
   --lodgra-brand-100: oklch(0.93 0.03 263);
   --lodgra-brand-200: oklch(0.86 0.06 263);
   --lodgra-brand-300: oklch(0.75 0.09 263);
   --lodgra-brand-400: oklch(0.63 0.12 263);
-  --lodgra-brand-500: oklch(0.40 0.15 263);   /* Primary brand - Lodgra Blue #1E3A8A */
-  --lodgra-brand-600: oklch(0.33 0.14 263);   /* Hover / darker */
-  --lodgra-brand-700: oklch(0.28 0.12 263);   /* Dark text on light bg */
+  --lodgra-brand-500: oklch(0.40 0.15 263);
+  --lodgra-brand-600: oklch(0.33 0.14 263);
+  --lodgra-brand-700: oklch(0.28 0.12 263);
   --lodgra-brand-800: oklch(0.22 0.10 263);
   --lodgra-brand-900: oklch(0.16 0.08 263);
   --lodgra-brand-950: oklch(0.10 0.05 263);
 
-  /* Accent scale — Lodgra Gold (#D4AF37 CTAs, highlights) */
-  --lodgra-accent-300: oklch(0.88 0.14 62);   /* Light gold */
+  --lodgra-accent-300: oklch(0.88 0.14 62);
   --lodgra-accent-400: oklch(0.75 0.17 60);
-  --lodgra-accent-500: oklch(0.69 0.16 60);   /* CTA primary - Lodgra Gold #D4AF37 */
-  --lodgra-accent-600: oklch(0.60 0.14 58);   /* CTA hover */
-  --lodgra-accent-700: oklch(0.50 0.12 56);   /* Dark gold */
+  --lodgra-accent-500: oklch(0.69 0.16 60);
+  --lodgra-accent-600: oklch(0.60 0.14 58);
+  --lodgra-accent-700: oklch(0.50 0.12 56);
 
-  /* Neutral warm scale — Apple-inspired off-whites */
-  --lodgra-neutral-50:  oklch(0.985 0.002 75);  /* Page background */
-  --lodgra-neutral-100: oklch(0.962 0.004 75);  /* Card surfaces */
-  --lodgra-neutral-200: oklch(0.918 0.004 75);  /* Borders */
-  --lodgra-neutral-300: oklch(0.850 0.004 75);  /* Disabled */
-  --lodgra-neutral-500: oklch(0.552 0.008 75);  /* Text secondary */
-  --lodgra-neutral-700: oklch(0.380 0.006 75);  /* Text medium */
-  --lodgra-neutral-900: oklch(0.138 0.004 75);  /* Text primary (warm near-black) */
+  --lodgra-neutral-50:  oklch(0.985 0.002 75);
+  --lodgra-neutral-100: oklch(0.962 0.004 75);
+  --lodgra-neutral-200: oklch(0.918 0.004 75);
+  --lodgra-neutral-300: oklch(0.850 0.004 75);
+  --lodgra-neutral-500: oklch(0.552 0.008 75);
+  --lodgra-neutral-700: oklch(0.380 0.006 75);
+  --lodgra-neutral-900: oklch(0.138 0.004 75);
 
-  /* Semantic aliases */
-  --lodgra-success:  oklch(0.527 0.154 145);    /* green-600 */
-  --lodgra-warning:  oklch(0.666 0.179 58);     /* amber-500 */
-  --lodgra-error:    oklch(0.577 0.245 27.325); /* red-600 */
+  --lodgra-success:  oklch(0.527 0.154 145);
+  --lodgra-warning:  oklch(0.666 0.179 58);
+  --lodgra-error:    oklch(0.577 0.245 27.325);
 
-  /* Public page specific */
   --lodgra-surface:         var(--lodgra-neutral-50);
   --lodgra-surface-card:    var(--lodgra-neutral-100);
   --lodgra-border-subtle:   var(--lodgra-neutral-200);
@@ -262,51 +281,55 @@ input[type="date"]::placeholder {
 
 .dark {
   /* ========== BEHANCE DARK MODE TOKENS ========== */
-  /* Background: Near-black #191919 → inverted to #303030 (charcoal) */
+
+  /* Primary: Behance Blue stays consistent */
+  --be-blue: #0057ff;
+  --be-blue-hover: #4c9aff;
+  --be-blue-active: #2d7fe8;
+  --be-blue-light: #bfd2ff;
+  --be-blue-pale: #1a2a4a;
+
+  /* Text & Neutrals (dark mode) */
+  --be-text: #ffffff;                /* White */
+  --be-text-muted: #bfd2ff;          /* Light blue-grey */
+  --be-text-muted-light: #909090;    /* Medium grey */
+  --be-grey-300: #474747;            /* Dark grey */
+  --be-grey-600: #303030;            /* Charcoal */
+  --be-surface: #1a1a1a;             /* Near-black bg */
+  --be-surface-secondary: #303030;   /* Charcoal bg */
+  --be-border: #474747;              /* Dark border */
+  --be-overlay: #303030;             /* Dark overlay */
+
+  /* Semantic (dark mode) */
+  --be-success: #4ade80;
+  --be-warning: #facc15;
+  --be-error: #f87171;
+
+  /* Shadcn compatibility */
   --background: #1a1a1a;
   --foreground: #ffffff;
-
-  /* Cards: grey-800 (#303030) with light borders */
   --card: #303030;
   --card-foreground: #ffffff;
   --popover: #303030;
   --popover-foreground: #ffffff;
-
-  /* Primary: Behance Blue stays #0057ff (universal accent) */
   --primary: #0057ff;
   --primary-foreground: #ffffff;
-
-  /* Secondary: grey-700 (#474747) for secondary surfaces */
   --secondary: #474747;
   --secondary-foreground: #ffffff;
-
-  /* Muted: grey-600 (#707070) for muted text */
   --muted: #474747;
   --muted-foreground: #bfd2ff;
-
-  /* Accent: Light blue (#bfd2ff) for accent elements */
   --accent: #0057ff;
   --accent-foreground: #ffffff;
-
-  /* Destructive: red-700 (#aa0000) for dark mode */
-  --destructive: #d00d00;
-
-  /* Borders: grey-700 (#474747) for dark mode borders */
+  --destructive: #f87171;
   --border: #474747;
   --input: #303030;
   --input-border: #474747;
-
-  /* Focus ring: Behance Blue */
   --ring: #0057ff;
-
-  /* Chart colors (Behance palette) */
   --chart-1: #0057ff;
   --chart-2: #bfd2ff;
   --chart-3: #146aff;
   --chart-4: #003ecb;
   --chart-5: #002f9a;
-
-  /* Sidebar (dark inverted nav) */
   --sidebar: #303030;
   --sidebar-foreground: #ffffff;
   --sidebar-primary: #0057ff;

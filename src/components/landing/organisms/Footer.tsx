@@ -42,7 +42,7 @@ export const Footer: React.FC<FooterProps> = ({
               <li key={`product-${link.href}-${i}`}>
                 <a
                   href={link.href}
-                  className="text-gray-400 hover:text-lodgra-gold transition-colors text-xs font-inter"
+                  className="text-gray-400 hover:text-[color:var(--be-blue)] transition-colors text-xs font-inter"
                 >
                   {link.label}
                 </a>
@@ -59,7 +59,7 @@ export const Footer: React.FC<FooterProps> = ({
               <li key={`company-${link.href}-${i}`}>
                 <a
                   href={link.href}
-                  className="text-gray-400 hover:text-lodgra-gold transition-colors text-xs font-inter"
+                  className="text-gray-400 hover:text-[color:var(--be-blue)] transition-colors text-xs font-inter"
                 >
                   {link.label}
                 </a>
@@ -76,7 +76,7 @@ export const Footer: React.FC<FooterProps> = ({
               <li key={`support-${link.href}-${i}`}>
                 <a
                   href={link.href}
-                  className="text-gray-400 hover:text-lodgra-gold transition-colors text-xs font-inter"
+                  className="text-gray-400 hover:text-[color:var(--be-blue)] transition-colors text-xs font-inter"
                 >
                   {link.label}
                 </a>
@@ -93,7 +93,7 @@ export const Footer: React.FC<FooterProps> = ({
               <li key={`legal-${link.href}-${i}`}>
                 <a
                   href={link.href}
-                  className="text-gray-400 hover:text-lodgra-gold transition-colors text-xs font-inter"
+                  className="text-gray-400 hover:text-[color:var(--be-blue)] transition-colors text-xs font-inter"
                 >
                   {link.label}
                 </a>

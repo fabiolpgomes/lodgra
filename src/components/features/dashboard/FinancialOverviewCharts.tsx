@@ -93,7 +93,7 @@ export function FinancialOverviewCharts({ monthlyStats, propertyStats, totalsByC
         </div>
 
         <div className="bg-white p-6 border border-be-blue/10 relative group rounded-none">
-          <p className="text-lodgra-navy/50 text-[11px] font-black uppercase tracking-wider mb-2 font-display">Sua Comissão (EBITDA)</p>
+          <p className="text-[color:var(--be-text)]/50 text-[11px] font-black uppercase tracking-wider mb-2 font-display">Sua Comissão (EBITDA)</p>
           <div className="space-y-1">
             {Object.entries(totalsByCurrency).map(([currency, data]) => (
               <div key={currency}>
@@ -102,7 +102,7 @@ export function FinancialOverviewCharts({ monthlyStats, propertyStats, totalsByC
                 </h2>
                 {data.revenue > 0 && (
                   <div className="flex items-center gap-2 text-lodgra-blue font-black text-[10px] uppercase tracking-widest mt-1">
-                    <div className="w-6 h-1 bg-lodgra-gold rounded-none" />
+                    <div className="w-6 h-1 bg-[color:var(--be-blue)] rounded-none" />
                     MARGEM {((data.mgmt / data.revenue) * 100).toFixed(0)}%
                   </div>
                 )}
@@ -112,15 +112,15 @@ export function FinancialOverviewCharts({ monthlyStats, propertyStats, totalsByC
         </div>
 
         <div className="bg-white p-6 border border-be-blue/10 relative group rounded-none">
-          <p className="text-lodgra-navy/50 text-[11px] font-black uppercase tracking-wider mb-2 font-display">Repasse Proprietários</p>
+          <p className="text-[color:var(--be-text)]/50 text-[11px] font-black uppercase tracking-wider mb-2 font-display">Repasse Proprietários</p>
           <div className="space-y-1">
             {Object.entries(totalsByCurrency).map(([currency, data]) => (
-              <h2 key={currency} className="text-2xl font-black text-lodgra-gold font-display">
+              <h2 key={currency} className="text-2xl font-black text-[color:var(--be-blue)] font-display">
                 {formatCurrency(data.owner, currency as CurrencyCode)}
               </h2>
             ))}
           </div>
-          <p className="text-[10px] text-lodgra-navy/40 font-black uppercase tracking-wider mt-2">Líquido a ser repassado este mês</p>
+          <p className="text-[10px] text-[color:var(--be-text)]/40 font-black uppercase tracking-wider mt-2">Líquido a ser repassado este mês</p>
         </div>
 
         <div className="bg-lodgra-neutral-50 p-6 border border-be-blue/10 relative group rounded-none">
@@ -144,16 +144,16 @@ export function FinancialOverviewCharts({ monthlyStats, propertyStats, totalsByC
           <div className="flex items-center justify-between mb-10">
             <div>
               <h4 className="text-sm font-black text-lodgra-blue uppercase tracking-widest font-display">Fluxo de Caixa Mensal</h4>
-              <p className="text-[10px] text-lodgra-navy/40 font-black uppercase tracking-[2px] pt-1">Receita vs Lucro Operacional</p>
+              <p className="text-[10px] text-[color:var(--be-text)]/40 font-black uppercase tracking-[2px] pt-1">Receita vs Lucro Operacional</p>
             </div>
             <div className="flex gap-6">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-none bg-lodgra-blue" />
-                <span className="text-[10px] font-black text-lodgra-navy/30 uppercase tracking-widest">RECEITA</span>
+                <span className="text-[10px] font-black text-[color:var(--be-text)]/30 uppercase tracking-widest">RECEITA</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-none bg-lodgra-gold" />
-                <span className="text-[10px] font-black text-lodgra-navy/30 uppercase tracking-widest">LUCRO</span>
+                <div className="w-2 h-2 rounded-none bg-[color:var(--be-blue)]" />
+                <span className="text-[10px] font-black text-[color:var(--be-text)]/30 uppercase tracking-widest">LUCRO</span>
               </div>
             </div>
           </div>

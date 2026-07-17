@@ -20,7 +20,7 @@ export function ProfitCard({ revenue, expenses, currency }: ProfitCardProps) {
         <div className="p-3 bg-lodgra-blue/5 rounded-none">
           <DollarSign className="h-6 w-6 text-lodgra-blue" />
         </div>
-        <span className="text-[10px] font-black uppercase tracking-widest text-lodgra-navy/30 font-display">Lucro</span>
+        <span className="text-[10px] font-black uppercase tracking-widest text-[color:var(--be-text)]/30 font-display">Lucro</span>
       </div>
       
       <div className="space-y-3">
@@ -29,7 +29,7 @@ export function ProfitCard({ revenue, expenses, currency }: ProfitCardProps) {
           <h3 className={`text-3xl font-black font-display ${isProfit ? 'text-lodgra-blue' : 'text-red-600'}`}>
             {formatCurrency(profit, currency as CurrencyCode)}
           </h3>
-          <p className="text-[10px] font-black uppercase tracking-wider text-lodgra-navy/30 mt-1">Lucro Líquido</p>
+          <p className="text-[10px] font-black uppercase tracking-wider text-[color:var(--be-text)]/30 mt-1">Lucro Líquido</p>
         </div>
 
         {/* Detalhamento */}

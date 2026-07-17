@@ -31,7 +31,7 @@ export const Navbar: React.FC = () => {
               <a
                 key={link.href}
                 href={link.href}
-                className="text-sm font-inter text-gray-600 dark:text-gray-300 hover:text-lodgra-blue dark:hover:text-lodgra-gold transition-colors"
+                className="text-sm font-inter text-gray-600 dark:text-gray-300 hover:text-lodgra-blue dark:hover:text-[color:var(--be-blue)] transition-colors"
               >
                 {link.label}
               </a>
@@ -44,7 +44,7 @@ export const Navbar: React.FC = () => {
 
             <Link
               href="/login"
-              className="px-4 py-2 text-sm font-inter font-medium text-lodgra-blue dark:text-lodgra-gold border border-be-blue/30 dark:border-lodgra-gold/30 rounded-lg hover:bg-lodgra-blue hover:text-white dark:hover:bg-lodgra-gold dark:hover:text-gray-900 transition-colors"
+              className="px-4 py-2 text-sm font-inter font-medium text-lodgra-blue dark:text-[color:var(--be-blue)] border border-be-blue/30 dark:border-lodgra-gold/30 rounded-lg hover:bg-lodgra-blue hover:text-white dark:hover:bg-[color:var(--be-blue)] dark:hover:text-gray-900 transition-colors"
             >
               Entrar
             </Link>
@@ -82,7 +82,7 @@ export const Navbar: React.FC = () => {
                   key={link.href}
                   href={link.href}
                   onClick={() => setMenuOpen(false)}
-                  className="text-sm font-inter text-gray-600 dark:text-gray-300 hover:text-lodgra-blue dark:hover:text-lodgra-gold transition-colors py-1"
+                  className="text-sm font-inter text-gray-600 dark:text-gray-300 hover:text-lodgra-blue dark:hover:text-[color:var(--be-blue)] transition-colors py-1"
                 >
                   {link.label}
                 </a>

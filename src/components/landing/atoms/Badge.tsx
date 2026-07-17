@@ -10,7 +10,7 @@ export const Badge = React.forwardRef<HTMLSpanElement, BadgeProps>(
     const variants = {
       primary: 'bg-lodgra-light text-be-text',
       success: 'bg-lodgra-light text-be-text',
-      warning: 'bg-yellow-100 text-lodgra-gold',
+      warning: 'bg-yellow-100 text-[color:var(--be-blue)]',
     }
 
     return (

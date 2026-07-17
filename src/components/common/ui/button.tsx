@@ -10,11 +10,11 @@ const buttonVariants = cva(
     variants: {
       variant: {
         // ========== Behance Design System Variants ==========
-        "be-primary": "bg-be-blue text-white hover:bg-be-blue-hover active:bg-be-blue-active shadow-none rounded-full font-adobe-clean font-600",
-        "be-secondary": "bg-white text-be-text border border-be-border hover:bg-be-surface shadow-none rounded-full font-adobe-clean font-600",
-        "be-tertiary": "bg-be-blue-light text-be-blue border border-be-blue-pale hover:bg-be-blue-pale shadow-none rounded-full font-adobe-clean font-600",
-        "be-ghost": "bg-black/65 text-white hover:bg-black/80 shadow-none rounded-full font-adobe-clean font-600",
-        "be-contrast": "bg-be-text text-white hover:bg-be-grey-700 shadow-none rounded-full font-adobe-clean font-600",
+        "be-primary": "shadow-none rounded-full font-600 transition-all",
+        "be-secondary": "shadow-none rounded-full font-600 transition-all",
+        "be-tertiary": "shadow-none rounded-full font-600 transition-all",
+        "be-ghost": "shadow-none rounded-full font-600 transition-all",
+        "be-contrast": "shadow-none rounded-full font-600 transition-all",
 
         // ========== Existing Variants ==========
         default: "bg-primary text-white hover:bg-primary/90 shadow-none",
@@ -56,6 +56,7 @@ function Button({
   variant = "default",
   size = "default",
   asChild = false,
+  style = {},
   ...props
 }: React.ComponentProps<"button"> &
   VariantProps<typeof buttonVariants> & {
@@ -63,12 +64,61 @@ function Button({
   }) {
   const Comp = asChild ? Slot.Root : "button"
 
+  const getBehanceStyle = (v: string) => {
+    const baseStyle: React.CSSProperties = {
+      backgroundColor: 'var(--be-surface)',
+      color: 'var(--be-text)',
+      borderColor: 'var(--be-border)',
+    }
+
+    switch (v) {
+      case 'be-primary':
+        return {
+          backgroundColor: 'var(--be-blue)',
+          color: 'white',
+          ...baseStyle,
+        }
+      case 'be-secondary':
+        return {
+          backgroundColor: 'var(--be-surface)',
+          color: 'var(--be-text)',
+          border: '1px solid var(--be-border)',
+          ...baseStyle,
+        }
+      case 'be-tertiary':
+        return {
+          backgroundColor: 'var(--be-blue-light)',
+          color: 'var(--be-blue)',
+          border: '1px solid var(--be-blue-pale)',
+          ...baseStyle,
+        }
+      case 'be-ghost':
+        return {
+          backgroundColor: 'rgba(0, 0, 0, 0.65)',
+          color: 'white',
+          ...baseStyle,
+        }
+      case 'be-contrast':
+        return {
+          backgroundColor: 'var(--be-text)',
+          color: 'white',
+          ...baseStyle,
+        }
+      default:
+        return baseStyle
+    }
+  }
+
+  const isBehance = variant?.toString().startsWith('be-')
+  const finalStyle = isBehance ? { ...getBehanceStyle(variant), ...style } : style
+
   return (
     <Comp
       data-slot="button"
       data-variant={variant}
       data-size={size}
       className={cn(buttonVariants({ variant, size, className }))}
+      style={finalStyle}
       {...props}
     />
   )

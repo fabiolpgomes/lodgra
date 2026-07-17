@@ -473,9 +473,9 @@ const PRICING_L10N: Record<Market, {
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 function CompareCellValue({ val }: { val: string }) {
-  if (val.startsWith('✓')) return <span className="text-lodgra-success font-semibold">{val}</span>
-  if (val.startsWith('✗')) return <span className="text-lodgra-error text-sm">{val}</span>
-  return <span className="text-lodgra-warning text-sm">{val}</span>
+  if (val.startsWith('✓')) return <span className="font-semibold" style={{ color: 'var(--be-success)' }}>{val}</span>
+  if (val.startsWith('✗')) return <span className="text-sm" style={{ color: 'var(--be-error)' }}>{val}</span>
+  return <span className="text-sm" style={{ color: 'var(--be-warning)' }}>{val}</span>
 }
 
 // ─── Component ─────────────────────────────────────────────────────────────────
@@ -551,7 +551,7 @@ export function LandingPage() {
                   key={m}
                   onClick={() => setMarket(m)}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-none text-[11px] font-black uppercase tracking-wider transition-all ${
-                    market === m ? 'bg-white text-lodgra-navy shadow-sm' : 'text-be-text-muted-500 hover:text-be-text-muted-700'
+                    market === m ? 'bg-white text-[color:var(--be-text)] shadow-sm' : 'text-be-text-muted-500 hover:text-be-text-muted-700'
                   }`}
                 >
                   <span>{CONTENT[m].flag}</span>
@@ -559,7 +559,7 @@ export function LandingPage() {
                 </button>
               ))}
             </div>
-            <Link href="/login" className="text-[11px] font-black uppercase tracking-widest text-lodgra-navy hover:text-lodgra-blue transition-colors">
+            <Link href="/login" className="text-[11px] font-black uppercase tracking-widest text-[color:var(--be-text)] hover:text-lodgra-blue transition-colors">
               {c.nav}
             </Link>
             <Button asChild variant="be-primary" size="be-sm" className="rounded-full h-auto px-6 font-black uppercase tracking-widest text-[11px]">
@@ -571,11 +571,11 @@ export function LandingPage() {
 
       {/* ── PWA Banner (Safari Mobile) ────────────────────────────────────────── */}
       {showPwaBanner && (
-        <div className="fixed bottom-0 left-0 right-0 z-[60] bg-lodgra-navy border-t border-lodgra-gold/30 shadow-2xl animate-in slide-in-from-bottom-2">
+        <div className="fixed bottom-0 left-0 right-0 z-[60] bg-[color:var(--be-text)] border-t border-lodgra-gold/30 shadow-2xl animate-in slide-in-from-bottom-2">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div className="flex items-start sm:items-center justify-between gap-4">
               <div className="flex-1">
-                <h3 className="text-sm font-black text-lodgra-gold uppercase tracking-wider mb-0.5 font-display">
+                <h3 className="text-sm font-black text-[color:var(--be-blue)] uppercase tracking-wider mb-0.5 font-display">
                   {c.pwaBannerTitle}
                 </h3>
                 <p className="text-xs text-white/60 font-medium">
@@ -613,11 +613,11 @@ export function LandingPage() {
 
       {/* ── Hero ─────────────────────────────────────────────────────────────── */}
       <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-32 text-center">
-        <div className="inline-flex items-center gap-2 bg-lodgra-gold text-lodgra-navy text-[11px] font-black uppercase tracking-[2px] px-6 py-2 rounded-none mb-10 shadow-sm">
+        <div className="inline-flex items-center gap-2 bg-[color:var(--be-blue)] text-[color:var(--be-text)] text-[11px] font-black uppercase tracking-[2px] px-6 py-2 rounded-none mb-10 shadow-sm">
           <Shield className="h-4 w-4" />
           {c.heroBadge}
         </div>
-        <h1 className="text-5xl sm:text-7xl font-black text-lodgra-navy mb-8 leading-[1.1] max-w-5xl mx-auto font-display uppercase tracking-tighter">
+        <h1 className="text-5xl sm:text-7xl font-black text-[color:var(--be-text)] mb-8 leading-[1.1] max-w-5xl mx-auto font-display uppercase tracking-tighter">
           {c.headline}
         </h1>
         <p className="text-xl text-be-text-muted-500 max-w-3xl mx-auto mb-12 font-medium">
@@ -639,7 +639,7 @@ export function LandingPage() {
         <p className="text-[10px] font-bold uppercase tracking-widest text-be-text-muted-400">{c.ctaSub}</p>
 
         {/* Trust row */}
-        <div className="flex flex-wrap items-center justify-center gap-8 mt-16 text-[11px] font-black uppercase tracking-widest text-lodgra-navy/40">
+        <div className="flex flex-wrap items-center justify-center gap-8 mt-16 text-[11px] font-black uppercase tracking-widest text-[color:var(--be-text)]/40">
           <span className="flex items-center gap-2"><Check className="h-4 w-4 text-lodgra-success" /> {c.trustSync}</span>
           <span className="flex items-center gap-2"><Check className="h-4 w-4 text-lodgra-success" /> {c.trustCurrencies}</span>
           <span className="flex items-center gap-2"><Check className="h-4 w-4 text-lodgra-success" /> {c.trustOverbookings}</span>
@@ -650,16 +650,16 @@ export function LandingPage() {
       {/* ── Pain ─────────────────────────────────────────────────────────────── */}
       <section className="bg-lodgra-neutral-100 py-32 border-y border-lodgra-navy/5">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-black text-lodgra-navy text-center mb-16 font-display uppercase tracking-wider">
+          <h2 className="text-3xl font-black text-[color:var(--be-text)] text-center mb-16 font-display uppercase tracking-wider">
             {c.painTitle}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {c.pains.map(pain => (
               <div key={pain.title} className="bg-white border border-lodgra-navy/10 rounded-none p-8 shadow-none hover:border-lodgra-gold/50 transition-all group">
                 <div className="flex items-start gap-4">
-                  <span className="text-lodgra-gold text-2xl font-black mt-[-2px] shrink-0">!</span>
+                  <span className="text-[color:var(--be-blue)] text-2xl font-black mt-[-2px] shrink-0">!</span>
                   <div>
-                    <h3 className="font-black text-lodgra-navy mb-3 uppercase tracking-wider text-sm font-display">{pain.title}</h3>
+                    <h3 className="font-black text-[color:var(--be-text)] mb-3 uppercase tracking-wider text-sm font-display">{pain.title}</h3>
                     <p className="text-xs text-be-text-muted-500 leading-relaxed font-medium">{pain.desc}</p>
                   </div>
                 </div>
@@ -670,7 +670,7 @@ export function LandingPage() {
       </section>
 
       {/* ── Solution intro ───────────────────────────────────────────────────── */}
-      <section className="bg-lodgra-navy py-32">
+      <section className="bg-[color:var(--be-text)] py-32">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-4xl sm:text-5xl font-black text-white mb-6 font-display uppercase tracking-wider">
             {c.solutionTitle}
@@ -683,16 +683,16 @@ export function LandingPage() {
       <section id="features" className="py-32 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-20">
-            <h2 className="text-4xl font-black text-lodgra-navy mb-4 font-display uppercase tracking-wider">{c.sectionFeaturesTitle}</h2>
+            <h2 className="text-4xl font-black text-[color:var(--be-text)] mb-4 font-display uppercase tracking-wider">{c.sectionFeaturesTitle}</h2>
             <p className="text-be-text-muted-500 text-xl max-w-2xl mx-auto font-medium">{c.sectionFeaturesDesc}</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-0 border-t border-l border-lodgra-navy/10">
             {c.featureCards.map(({ icon: Icon, title, desc }) => (
               <div key={title} className="bg-white p-10 border-r border-b border-lodgra-navy/10 hover:bg-lodgra-neutral-50 transition-all group">
-                <div className="w-12 h-12 bg-lodgra-navy flex items-center justify-center mb-6 group-hover:bg-lodgra-gold transition-colors">
-                  <Icon className="h-6 w-6 text-white group-hover:text-lodgra-navy" />
+                <div className="w-12 h-12 bg-[color:var(--be-text)] flex items-center justify-center mb-6 group-hover:bg-[color:var(--be-blue)] transition-colors">
+                  <Icon className="h-6 w-6 text-white group-hover:text-[color:var(--be-text)]" />
                 </div>
-                <h3 className="font-black text-lodgra-navy mb-3 text-xs uppercase tracking-widest font-display">{title}</h3>
+                <h3 className="font-black text-[color:var(--be-text)] mb-3 text-xs uppercase tracking-widest font-display">{title}</h3>
                 <p className="text-[11px] text-be-text-muted-500 leading-relaxed font-semibold uppercase">{desc}</p>
               </div>
             ))}
@@ -805,8 +805,8 @@ export function LandingPage() {
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
                   className="w-full flex items-center justify-between px-8 py-6 text-left hover:bg-lodgra-neutral-50 transition-colors"
                 >
-                  <span className="font-black text-lodgra-navy uppercase tracking-wider text-sm font-display">{faq.q}</span>
-                  <ChevronDown className={`h-5 w-5 text-lodgra-navy/40 transition-transform ${openFaq === i ? 'rotate-180' : ''}`} />
+                  <span className="font-black text-[color:var(--be-text)] uppercase tracking-wider text-sm font-display">{faq.q}</span>
+                  <ChevronDown className={`h-5 w-5 text-[color:var(--be-text)]/40 transition-transform ${openFaq === i ? 'rotate-180' : ''}`} />
                 </button>
                 {openFaq === i && (
                   <div className="px-8 pb-6 text-sm text-be-text-muted-500 font-medium leading-relaxed border-t border-lodgra-navy/5 pt-4">
@@ -820,11 +820,11 @@ export function LandingPage() {
       </section>
 
       {/* ── PWA Install ────────────────────────────────────────────────────── */}
-      <section id="pwa-install" className="bg-lodgra-navy py-32 border-y border-white/5">
+      <section id="pwa-install" className="bg-[color:var(--be-text)] py-32 border-y border-white/5">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-20">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-lodgra-gold rounded-none mb-6">
-              <Smartphone className="h-8 w-8 text-lodgra-navy" />
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-[color:var(--be-blue)] rounded-none mb-6">
+              <Smartphone className="h-8 w-8 text-[color:var(--be-text)]" />
             </div>
             <h2 className="text-4xl font-black text-white mb-4 font-display uppercase tracking-wider">{c.pwaTitle}</h2>
             <p className="text-white/60 text-xl max-w-xl mx-auto font-medium">{c.pwaDesc}</p>
@@ -833,12 +833,12 @@ export function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-0 border border-white/10">
             {c.pwaSteps.map((step, i) => (
               <div key={i} className="bg-white/5 p-10 text-center border-r border-white/10 last:border-r-0 hover:bg-white/10 transition-colors">
-                <div className="inline-flex items-center justify-center w-12 h-12 bg-lodgra-gold rounded-none mb-6">
-                  {step.icon === 'globe' && <Globe className="h-6 w-6 text-lodgra-navy" />}
-                  {step.icon === 'share' && <Share className="h-6 w-6 text-lodgra-navy" />}
-                  {step.icon === 'plus' && <PlusSquare className="h-6 w-6 text-lodgra-navy" />}
+                <div className="inline-flex items-center justify-center w-12 h-12 bg-[color:var(--be-blue)] rounded-none mb-6">
+                  {step.icon === 'globe' && <Globe className="h-6 w-6 text-[color:var(--be-text)]" />}
+                  {step.icon === 'share' && <Share className="h-6 w-6 text-[color:var(--be-text)]" />}
+                  {step.icon === 'plus' && <PlusSquare className="h-6 w-6 text-[color:var(--be-text)]" />}
                 </div>
-                <div className="text-[10px] font-black text-lodgra-gold mb-2 uppercase tracking-[2px]">
+                <div className="text-[10px] font-black text-[color:var(--be-blue)] mb-2 uppercase tracking-[2px]">
                   Passo {i + 1}
                 </div>
                 <h3 className="font-black text-white mb-3 text-xs uppercase tracking-widest font-display">{step.title}</h3>
@@ -847,7 +847,7 @@ export function LandingPage() {
             ))}
           </div>
 
-          <p className="text-center text-[10px] font-black uppercase tracking-[2px] text-lodgra-gold mt-12">
+          <p className="text-center text-[10px] font-black uppercase tracking-[2px] text-[color:var(--be-blue)] mt-12">
             {c.pwaTip}
           </p>
         </div>
@@ -857,14 +857,14 @@ export function LandingPage() {
       <section id="pricing" className="py-32 bg-lodgra-neutral-50">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-20">
-            <h2 className="text-4xl font-black text-lodgra-navy mb-4 font-display uppercase tracking-wider">{c.sectionPricingTitle}</h2>
+            <h2 className="text-4xl font-black text-[color:var(--be-text)] mb-4 font-display uppercase tracking-wider">{c.sectionPricingTitle}</h2>
             <p className="text-be-text-muted-500 text-xl font-medium">{c.sectionPricingDesc}</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {PRICING_L10N[market].plans.map((plan, i) => (
               <div key={i} className={`bg-white border ${i === 1 ? 'border-lodgra-gold' : 'border-lodgra-navy/10'} p-10 flex flex-col relative`}>
                 {i === 1 && (
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-lodgra-gold text-lodgra-navy text-[9px] font-black uppercase tracking-[2px] px-4 py-1.5 whitespace-nowrap">
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[color:var(--be-blue)] text-[color:var(--be-text)] text-[9px] font-black uppercase tracking-[2px] px-4 py-1.5 whitespace-nowrap">
                     {PRICING_L10N[market].popularBadge}
                   </div>
                 )}
@@ -874,19 +874,19 @@ export function LandingPage() {
                 <div className="mb-8">
                   {plan.price !== null ? (
                     <div className="flex items-baseline gap-1">
-                      <span className="text-4xl font-black text-lodgra-navy font-display">{PRICING_L10N[market].symbol}{plan.price}</span>
+                      <span className="text-4xl font-black text-[color:var(--be-text)] font-display">{PRICING_L10N[market].symbol}{plan.price}</span>
                       <span className="text-[10px] font-black text-be-text-muted-400 uppercase tracking-widest">{PRICING_L10N[market].period}</span>
                     </div>
                   ) : (
-                    <span className="text-2xl font-black text-lodgra-navy font-display uppercase tracking-wider">Sob consulta</span>
+                    <span className="text-2xl font-black text-[color:var(--be-text)] font-display uppercase tracking-wider">Sob consulta</span>
                   )}
                   {plan.feeLabel && (
-                    <p className="text-[10px] font-black text-lodgra-gold uppercase tracking-widest mt-2">{plan.feeLabel}</p>
+                    <p className="text-[10px] font-black text-[color:var(--be-blue)] uppercase tracking-widest mt-2">{plan.feeLabel}</p>
                   )}
                 </div>
                 <ul className="space-y-4 mb-10 flex-1">
                   {plan.features.map(f => (
-                    <li key={f} className="flex items-start gap-3 text-[11px] font-bold uppercase tracking-wider text-lodgra-navy/60">
+                    <li key={f} className="flex items-start gap-3 text-[11px] font-bold uppercase tracking-wider text-[color:var(--be-text)]/60">
                       <Check className="h-4 w-4 text-lodgra-success shrink-0" />
                       <span>{f}</span>
                     </li>
@@ -894,14 +894,14 @@ export function LandingPage() {
                 </ul>
                 <Button
                   onClick={() => plan.price !== null ? handlePlanCheckout(PLAN_DISPLAY[i].id) : null}
-                  className={`w-full h-12 rounded-none font-black uppercase tracking-widest text-[11px] ${i === 1 ? 'bg-lodgra-blue text-white' : 'bg-transparent border border-lodgra-navy/10 text-lodgra-navy hover:bg-lodgra-neutral-50'}`}
+                  className={`w-full h-12 rounded-none font-black uppercase tracking-widest text-[11px] ${i === 1 ? 'bg-lodgra-blue text-white' : 'bg-transparent border border-lodgra-navy/10 text-[color:var(--be-text)] hover:bg-lodgra-neutral-50'}`}
                 >
                   {plan.price !== null ? c.cta : PRICING_L10N[market].ctaEnterprise}
                 </Button>
               </div>
             ))}
           </div>
-          <div className="flex items-center justify-center gap-2 mt-12 text-[10px] font-black uppercase tracking-widest text-lodgra-navy/40">
+          <div className="flex items-center justify-center gap-2 mt-12 text-[10px] font-black uppercase tracking-widest text-[color:var(--be-text)]/40">
             <Shield className="h-4 w-4 text-lodgra-success" />
             {c.guarantee}
           </div>
@@ -909,7 +909,7 @@ export function LandingPage() {
       </section>
 
       {/* ── Final CTA ────────────────────────────────────────────────────────── */}
-      <section className="bg-lodgra-navy py-32 text-center relative border-t border-lodgra-gold/20">
+      <section className="bg-[color:var(--be-text)] py-32 text-center relative border-t border-lodgra-gold/20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-4xl sm:text-5xl font-black text-white mb-6 font-display uppercase tracking-wider">
             {c.finalTitle}
@@ -924,14 +924,14 @@ export function LandingPage() {
       </section>
 
       {/* ── Footer ───────────────────────────────────────────────────────────── */}
-      <footer className="bg-lodgra-navy py-20 border-t border-white/5">
+      <footer className="bg-[color:var(--be-text)] py-20 border-t border-white/5">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-10">
             <Logo variant="white" size="md" />
             <div className="flex flex-wrap items-center justify-center gap-8 text-[11px] font-black uppercase tracking-[2px] text-white/30">
-              <Link href="/privacy" className="hover:text-lodgra-gold transition-colors">{c.footerPrivacy}</Link>
-              <Link href="/terms" className="hover:text-lodgra-gold transition-colors">{c.footerTerms}</Link>
-              <Link href="/login" className="hover:text-lodgra-gold transition-colors">{c.footerLinks}</Link>
+              <Link href="/privacy" className="hover:text-[color:var(--be-blue)] transition-colors">{c.footerPrivacy}</Link>
+              <Link href="/terms" className="hover:text-[color:var(--be-blue)] transition-colors">{c.footerTerms}</Link>
+              <Link href="/login" className="hover:text-[color:var(--be-blue)] transition-colors">{c.footerLinks}</Link>
               <span className="md:ml-4 opacity-50">© {new Date().getFullYear()} LODGRA. {c.footerRights}</span>
             </div>
           </div>
