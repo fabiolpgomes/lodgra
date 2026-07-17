@@ -594,30 +594,31 @@ input[type="date"]::placeholder {
 
   /* ========== BEHANCE THEME INJECTION ========== */
   /* Global color overrides for brand consistency */
+  /* DISABLED: @apply with custom color classes not compatible with Tailwind v4 */
 
   /* Primary action color throughout app */
-  [data-slot="button"][data-variant="default"],
+  /* [data-slot="button"][data-variant="default"],
   .bg-lodgra-blue:not([data-no-behance]) {
     @apply bg-be-blue hover:bg-be-blue-hover;
-  }
+  } */
 
   /* Text primary */
-  body {
+  /* body {
     @apply text-be-text;
-  }
+  } */
 
   /* Borders */
-  .border-lodgra-blue\/10:not([data-no-behance]) {
+  /* .border-lodgra-blue\/10:not([data-no-behance]) {
     @apply border-be-border;
-  }
+  } */
 
   /* Links */
-  a {
+  /* a {
     @apply text-be-blue hover:text-be-blue-hover;
-  }
+  } */
 
   /* Input focus ring */
-  input:focus-visible {
+  /* input:focus-visible {
     @apply ring-be-blue/30;
-  }
+  } */
 }
