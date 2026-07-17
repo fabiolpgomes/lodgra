@@ -314,6 +314,244 @@ input[type="date"]::placeholder {
 }
 
 @layer utilities {
+  /* ========== BEHANCE DESIGN SYSTEM (YOLO Integration) ========== */
+
+  /* ─── CARDS ─── */
+
+  /* Project card (white bg, light border, shadow on hover) */
+  .be-card {
+    background: #ffffff;
+    border: 1px solid #e8e8e8;
+    border-radius: 4px;
+    padding: 1rem;
+    transition: all 0.15s;
+  }
+
+  .be-card:hover {
+    box-shadow: 0 1px 2px rgba(25,25,25,0.2);
+  }
+
+  /* Card with project cover image */
+  .be-card-cover {
+    background: #f0f0f0;
+    border: transparent;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .be-card-cover img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+  }
+
+  /* Floating card (white bg, border, subtle shadow) */
+  .be-card-floating {
+    background: #ffffff;
+    border: 1px solid #e8e8e8;
+    border-radius: 4px;
+    padding: 1rem;
+    box-shadow: 0 0 4px rgba(25,25,25,0.1);
+  }
+
+  /* ─── BADGES & PILLS ─── */
+
+  /* Default badge */
+  .be-badge {
+    background: #f7f7f7;
+    color: #191919;
+    border-radius: 3px;
+    padding: 2px 5px;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  /* Notification badge (dot counter) */
+  .be-badge-notification {
+    background: #0057ff;
+    color: #ffffff;
+    border: 1px solid #ffffff;
+    border-radius: 3px;
+    padding: 2px 5px;
+    font-size: 10px;
+    font-weight: 600;
+    position: absolute;
+    top: -8px;
+    right: -8px;
+  }
+
+  /* Pill filter/chip */
+  .be-pill {
+    background: #ffffff;
+    color: #191919;
+    border: 1px solid #e8e8e8;
+    border-radius: 9999px;
+    padding: 6px 12px;
+    font-size: 13px;
+    font-weight: 400;
+    transition: all 0.15s;
+    cursor: pointer;
+  }
+
+  .be-pill:hover {
+    background: #f9f9f9;
+  }
+
+  /* ─── INPUTS ─── */
+
+  .be-input {
+    background: #ffffff;
+    color: #191919;
+    border: 1px solid #e8e8e8;
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-size: 14px;
+    font-family: adobe-clean, helvetica, arial, sans-serif;
+    transition: all 0.15s;
+  }
+
+  .be-input:focus {
+    outline: none;
+    border-color: #0057ff;
+    box-shadow: 0 0 0 2px rgba(0,87,255,0.2);
+  }
+
+  .be-input:disabled {
+    background: #ececec;
+    color: #909090;
+    border-color: #909090;
+    cursor: not-allowed;
+  }
+
+  .be-input::placeholder {
+    color: #707070;
+  }
+
+  /* ─── NAVIGATION ─── */
+
+  .be-nav-header {
+    background: #ffffff;
+    border-bottom: 1px solid #e8e8e8;
+    height: 60px;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .be-nav-link {
+    color: #191919;
+    font-size: 13px;
+    font-weight: 700;
+    border-radius: 9999px;
+    padding: 8px 16px;
+    background: transparent;
+    border: none;
+    transition: all 0.15s;
+    cursor: pointer;
+  }
+
+  .be-nav-link:hover {
+    background: #f0f0f0;
+  }
+
+  .be-nav-link.active {
+    background: #f0f0f0;
+  }
+
+  /* ─── TYPOGRAPHY ─── */
+
+  /* Display hero (Acumin Pro Wide) */
+  .be-display-hero {
+    @apply text-5xl font-bold leading-tight;
+    font-family: acumin-pro-wide, acumin-pro, adobe-clean, sans-serif;
+    letter-spacing: -0.02em;
+  }
+
+  /* Display large (Acumin Pro) */
+  .be-display-large {
+    @apply text-4xl font-bold leading-snug;
+    font-family: acumin-pro, adobe-clean, sans-serif;
+    letter-spacing: -0.01em;
+  }
+
+  /* Section heading */
+  .be-heading {
+    @apply text-xl font-bold leading-relaxed;
+    font-family: adobe-clean, helvetica, arial, sans-serif;
+  }
+
+  /* Subheading large */
+  .be-subheading-lg {
+    @apply text-lg font-semibold leading-relaxed;
+    font-family: adobe-clean, helvetica, arial, sans-serif;
+  }
+
+  /* Subheading */
+  .be-subheading {
+    @apply text-base font-bold leading-relaxed;
+    font-family: adobe-clean, helvetica, arial, sans-serif;
+  }
+
+  /* Body large */
+  .be-body-lg {
+    @apply text-base font-normal leading-relaxed;
+    font-family: adobe-clean, helvetica, arial, sans-serif;
+    font-size: 15px;
+  }
+
+  /* Body (default) */
+  .be-body {
+    @apply text-sm font-normal leading-relaxed;
+    font-family: adobe-clean, helvetica, arial, sans-serif;
+    font-size: 14px;
+  }
+
+  /* Body small */
+  .be-body-sm {
+    @apply text-xs font-normal;
+    font-family: adobe-clean, helvetica, arial, sans-serif;
+    font-size: 13px;
+  }
+
+  /* Caption */
+  .be-caption {
+    @apply text-xs font-normal leading-relaxed;
+    font-family: adobe-clean, helvetica, arial, sans-serif;
+    font-size: 12px;
+  }
+
+  /* Caption small */
+  .be-caption-sm {
+    @apply text-xs font-bold leading-relaxed;
+    font-family: adobe-clean, helvetica, arial, sans-serif;
+    font-size: 11px;
+  }
+
+  /* Micro (eyebrow, uppercase) */
+  .be-micro {
+    @apply text-xs font-bold uppercase leading-relaxed;
+    font-family: acumin-pro, adobe-clean, helvetica, arial, sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+  }
+
+  /* Link */
+  .be-link {
+    color: #0057ff;
+    font-weight: 700;
+    text-decoration: underline;
+    transition: color 0.15s;
+  }
+
+  .be-link:hover {
+    color: #003ecb;
+  }
+
+  /* ─── EXISTING UTILITIES ─── */
+
   .glass {
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
@@ -328,8 +566,8 @@ input[type="date"]::placeholder {
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.09), 0 2px 8px rgba(0, 0, 0, 0.05);
   }
 
-  /* Lodgra Behance Design System — be-card */
-  .be-card {
+  /* Lodgra Behance Design System — be-card (legacy) */
+  .be-card-legacy {
     background: #ffffff;
     border-radius: 0px;
     border: 1px solid #e5e7eb;

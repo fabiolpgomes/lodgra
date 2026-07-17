@@ -9,6 +9,14 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
+        // ========== Behance Design System Variants ==========
+        "be-primary": "bg-be-blue text-white hover:bg-be-blue-hover active:bg-be-blue-active shadow-none rounded-full font-adobe-clean font-600",
+        "be-secondary": "bg-white text-be-text border border-be-border hover:bg-be-surface shadow-none rounded-full font-adobe-clean font-600",
+        "be-tertiary": "bg-be-blue-light text-be-blue border border-be-blue-pale hover:bg-be-blue-pale shadow-none rounded-full font-adobe-clean font-600",
+        "be-ghost": "bg-black/65 text-white hover:bg-black/80 shadow-none rounded-full font-adobe-clean font-600",
+        "be-contrast": "bg-be-text text-white hover:bg-be-grey-700 shadow-none rounded-full font-adobe-clean font-600",
+
+        // ========== Existing Variants ==========
         default: "bg-primary text-white hover:bg-primary/90 shadow-none",
         action: "bg-lodgra-accent text-lodgra-blue font-semibold hover:bg-lodgra-accent/90 shadow-none",
         destructive:
@@ -26,6 +34,10 @@ const buttonVariants = cva(
         xs: "h-6 gap-1 rounded-md px-2 text-xs has-[>svg]:px-1.5 [&_svg:not([class*='size-'])]:size-3",
         sm: "h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5",
         lg: "h-10 rounded-md px-6 has-[>svg]:px-4",
+        // ========== Behance pill sizes ==========
+        "be-sm": "h-7 px-4 py-1.5 text-xs",
+        "be-md": "h-8 px-5 py-2 text-sm",
+        "be-lg": "h-10 px-6 py-2.5 text-base",
         icon: "size-9",
         "icon-xs": "size-6 rounded-md [&_svg:not([class*='size-'])]:size-3",
         "icon-sm": "size-8",

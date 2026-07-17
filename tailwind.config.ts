@@ -9,6 +9,54 @@ const config: any = {
   theme: {
     extend: {
       colors: {
+        // ========== BEHANCE DESIGN SYSTEM (YOLO Integration) ==========
+        // Primary brand colors
+        'be-blue': '#0057ff',           // Behance Blue — primary CTA
+        'be-blue-hover': '#003ecb',     // Behance Blue Hover (blue-700)
+        'be-blue-active': '#002f9a',    // Behance Blue Active (blue-800)
+
+        // Text & Near-Black
+        'be-text': '#191919',           // Near-black body text (grey-900)
+        'be-text-muted': '#707070',     // Grey-600
+        'be-text-disabled': '#909090',  // Grey-500 (neutral)
+
+        // Surfaces & Backgrounds
+        'be-white': '#ffffff',          // Default surface
+        'be-surface': '#f9f9f9',        // Off-white (grey-50, tiles)
+        'be-surface-secondary': '#f0f0f0', // Grey-100
+        'be-surface-tertiary': '#ececec',  // Grey-200
+
+        // Borders
+        'be-border': '#e8e8e8',         // Grey-300 (default border)
+        'be-border-hover': '#cdcdcd',   // Grey-400
+        'be-border-accent': '#0057ff',  // Behance Blue (focus rings)
+
+        // States
+        'be-success': '#028901',        // Green-400
+        'be-error': '#d00d00',          // Red-500
+        'be-warning': '#f97c00',        // Orange-500
+
+        // Accents & Semantic
+        'be-blue-light': '#f5f8ff',     // Blue-100
+        'be-blue-pale': '#e0eaff',      // Blue-200
+        'be-blue-sky': '#bfd2ff',       // Blue-300
+        'be-slate': '#0a7494',          // Slate-500
+        'be-purple': '#b125c0',         // Purple-500
+
+        // Grey scale
+        'be-grey': {
+          50:  '#f9f9f9',
+          100: '#f0f0f0',
+          200: '#ececec',
+          300: '#e8e8e8',
+          400: '#cdcdcd',
+          500: '#909090',
+          600: '#707070',
+          700: '#474747',
+          800: '#303030',
+          900: '#191919',
+        },
+
         // ========== DESIGN TOKENS (Phase 3) ==========
         // Token-based colors (CSS variables from tokens.css)
         'lodgra-primary': 'var(--lodgra-primary)',      // #1E3A8A
@@ -57,6 +105,11 @@ const config: any = {
         'hs-neutral': { 50: '#F9FAFB', 100: '#F3F4F6', 200: '#E5E7EB', 300: '#D1D5DB', 400: '#9CA3AF', 500: '#6B7280', 600: '#4B5563', 700: '#374151', 800: '#1F2937', 900: '#111827' },
       },
       fontFamily: {
+        // ========== BEHANCE DESIGN SYSTEM ==========
+        'adobe-clean': ['adobe-clean', 'helvetica', 'arial', 'sans-serif'],
+        'acumin-pro': ['acumin-pro', 'adobe-clean', 'sans-serif'],
+        'acumin-wide': ['acumin-pro-wide', 'acumin-pro', 'adobe-clean', 'sans-serif'],
+
         // Design tokens
         'heading': 'var(--font-heading)',
         'body': 'var(--font-body)',
