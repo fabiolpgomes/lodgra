@@ -362,7 +362,7 @@ export default async function DashboardPage({
   ).sort((a, b) => a.localeCompare(b))
 
   const currencyBadgeClass = (_currency: string) =>
-    'text-brand-text-dark bg-brand-bg border-neutral-200/60 dark:text-neutral-200 dark:bg-neutral-850 dark:border-neutral-700/60'
+    'border-brand-blue/20 bg-brand-bg text-brand-blue shadow-[inset_0_0_0_1px_rgba(16,32,62,0.04)]'
   const propertyFilterLabel = totalProperties === 1
     ? (properties?.[0]?.name || '1 propriedade')
     : `Todas as propriedades (${totalProperties})`
