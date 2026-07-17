@@ -216,7 +216,7 @@ export function BookingWidgetMobile({
           {checkoutHref && !checkInError && !checkOutError ? (
             <Link
               href={checkoutHref}
-              className="flex-1 bg-lodgra-blue hover:brightness-110 active:scale-[0.98] font-bold py-3 px-4 rounded-lg text-center transition-all"
+              className="flex-1 bg-be-blue hover:bg-be-blue-hover active:scale-[0.98] font-bold py-3 px-4 rounded-full text-center transition-all"
               style={{ color: '#ffffff' }}
             >
               Reservar
@@ -224,7 +224,7 @@ export function BookingWidgetMobile({
           ) : (
             <button
               onClick={() => setShowPanel(true)}
-              className="flex-1 bg-lodgra-blue hover:brightness-110 font-bold py-3 px-4 rounded-lg text-center transition-all"
+              className="flex-1 bg-be-blue hover:bg-be-blue-hover font-bold py-3 px-4 rounded-full text-center transition-all"
               style={{ color: '#ffffff' }}
             >
               Selecionar datas
@@ -334,7 +334,7 @@ export function BookingWidgetMobile({
             {checkoutHref && !checkInError && !checkOutError ? (
               <Link
                 href={checkoutHref}
-                className="block w-full bg-lodgra-blue hover:brightness-110 font-bold py-3 px-4 rounded-lg text-center transition-all"
+                className="block w-full bg-be-blue hover:bg-be-blue-hover font-bold py-3 px-4 rounded-full text-center transition-all"
                 style={{ color: '#ffffff' }}
                 onClick={() => setShowPanel(false)}
               >
@@ -343,7 +343,7 @@ export function BookingWidgetMobile({
             ) : (
               <button
                 disabled
-                className="w-full bg-lodgra-blue opacity-80 font-bold py-3 px-4 rounded-lg cursor-not-allowed"
+                className="w-full bg-be-blue opacity-80 font-bold py-3 px-4 rounded-full cursor-not-allowed"
                 style={{ color: '#ffffff' }}
               >
                 {checkInError || checkOutError ? 'Datas indisponíveis' : 'Selecione check-in e check-out'}
