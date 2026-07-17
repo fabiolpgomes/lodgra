@@ -47,6 +47,7 @@ const CLEANING_SUBMENU = [
 const REPORTS_MODULES = [
   { id: 'financeiro', label: 'Financeiro', icon: TrendingUp },
   { id: 'reservas', label: 'Reservas', icon: Calendar },
+  { id: 'empresa', label: 'Empresa', icon: BarChart3, href: '/dashboard/empresa' },
 ]
 
 const CONFIG_PATHS = [
@@ -66,7 +67,7 @@ export function Sidebar({ serverProfile }: SidebarProps) {
   const locale = useLocale()
   const router = useRouter()
   const [hasPremium, setHasPremium] = useState(false)
-  const [reportsExpanded, setReportsExpanded] = useState(pathname.includes('/reports'))
+  const [reportsExpanded, setReportsExpanded] = useState(pathname.includes('/reports') || pathname.includes('/dashboard/empresa'))
   const [cleaningExpanded, setCleaningExpanded] = useState(pathname.includes('/cleaning'))
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
@@ -262,8 +263,8 @@ export function Sidebar({ serverProfile }: SidebarProps) {
           {/* Reports submenu items */}
           {reportsExpanded && (
             <div className="ml-4 mt-1 space-y-1">
-              {REPORTS_MODULES.map(({ id, label }) => {
-                const href = `${prefix}/reports/${id}`
+              {REPORTS_MODULES.map(({ id, label, href: moduleHref }) => {
+                const href = moduleHref ? `${prefix}${moduleHref}` : `${prefix}/reports/${id}`
                 const active = pathname === href
                 return (
                   <Link
