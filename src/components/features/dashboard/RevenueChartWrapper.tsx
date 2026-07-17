@@ -3,13 +3,6 @@
 import { useState } from 'react'
 import { LazyRevenueChart as RevenueChart } from '@/components/common/lazy/LazyCharts'
 
-const ACTIVE_COLORS: Record<string, string> = {
-  EUR: 'bg-brand-600',
-  BRL: 'bg-green-600',
-  USD: 'bg-yellow-600',
-  GBP: 'bg-purple-600',
-}
-
 interface RevenueChartWrapperProps {
   revenueDataByCurrency: Record<string, { month: string; revenue: number }[]>
 }
@@ -22,20 +15,22 @@ export function RevenueChartWrapper({ revenueDataByCurrency }: RevenueChartWrapp
   return (
     <>
       {currencies.length > 1 && (
-        <div className="flex gap-1 mb-2 ml-7">
+        <div className="mb-4 flex justify-end">
+          <div className="flex rounded-xl border border-neutral-200/70 bg-brand-bg p-1 shadow-2xs">
           {currencies.map(cur => (
             <button
               key={cur}
               onClick={() => setSelected(cur)}
-              className={`text-[11px] font-bold px-2 py-0.5 rounded-full transition-colors ${
+              className={`min-w-14 rounded-lg px-4 py-2 text-xs font-bold transition-colors ${
                 selected === cur
-                  ? `${ACTIVE_COLORS[cur] || 'bg-brand-600'} text-white`
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  ? 'bg-brand-white text-brand-gold shadow-2xs'
+                  : 'text-brand-blue hover:bg-brand-white/70'
               }`}
             >
               {cur}
             </button>
           ))}
+          </div>
         </div>
       )}
       <RevenueChart data={data} currency={selected} />

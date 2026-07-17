@@ -766,3 +766,25 @@ html.dark,
     @apply ring-be-blue/30;
   } */
 }
+
+/* Dashboard-specific dark readability guard.
+   Keeps institutional blue for surfaces/actions while making text readable. */
+.dark .dashboard-readable :where(.text-brand-blue, .text-brand-text-dark, .text-brand-text-medium) {
+  color: #ffffff;
+}
+
+.dark .dashboard-readable .text-brand-text-medium\/60 {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.dark .dashboard-readable :where(.border-brand-bg, .border-neutral-200, .border-neutral-200\/50, .border-neutral-200\/60) {
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.dark .dashboard-readable :where(.bg-brand-bg, .bg-brand-blue\/5, .bg-brand-blue\/10) {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.dark .dashboard-readable :where(.group:hover .group-hover\:text-brand-gold, .text-brand-gold) {
+  color: #C9A227;
+}

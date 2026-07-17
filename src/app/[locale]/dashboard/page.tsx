@@ -369,6 +369,7 @@ export default async function DashboardPage({
 
   return (
     <AuthLayout hideTopBar>
+      <div className="dashboard-readable">
       <div className="sticky top-0 z-30 hidden h-20 items-center justify-between border-b border-neutral-200/60 bg-brand-white px-4 shadow-xs md:flex lg:px-8">
         <div className="flex min-w-0 items-center gap-4">
           <button
@@ -832,6 +833,7 @@ export default async function DashboardPage({
           </div>
         </div>
       </main>
+      </div>
     </AuthLayout>
   )
 }
