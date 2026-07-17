@@ -11,7 +11,7 @@ export function BehanceShowcase() {
         <div className="mb-12">
           <h1 className="be-display-hero text-be-text mb-4">Behance Design System</h1>
           <p className="be-body-lg text-be-text-muted">
-            Lodgra's new design language inspired by Adobe Behance
+            Lodgra&apos;s new design language inspired by Adobe Behance
           </p>
         </div>
 

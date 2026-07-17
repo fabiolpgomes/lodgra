@@ -562,7 +562,7 @@ export function LandingPage() {
             <Link href="/login" className="text-[11px] font-black uppercase tracking-widest text-lodgra-navy hover:text-lodgra-blue transition-colors">
               {c.nav}
             </Link>
-            <Button asChild size="sm" className="bg-lodgra-blue hover:bg-lodgra-navy text-white border-0 rounded-none h-11 px-6 font-black uppercase tracking-widest text-[11px]">
+            <Button asChild variant="be-primary" size="be-sm" className="rounded-full h-auto px-6 font-black uppercase tracking-widest text-[11px]">
               <Link href="/register">{c.cta}</Link>
             </Button>
           </div>
@@ -632,7 +632,7 @@ export function LandingPage() {
             required
             className="flex-1 border-0 rounded-none h-14 px-6 text-base focus-visible:ring-0"
           />
-          <Button type="submit" className="whitespace-nowrap bg-lodgra-blue hover:bg-lodgra-navy text-white border-0 rounded-none h-14 px-10 font-black uppercase tracking-widest text-xs">
+          <Button type="submit" variant="be-primary" size="be-lg" className="whitespace-nowrap rounded-full h-auto py-3 px-10 font-black uppercase tracking-widest text-xs">
             <>{c.cta} <ArrowRight className="h-4 w-4 ml-2" /></>
           </Button>
         </form>
@@ -917,7 +917,7 @@ export function LandingPage() {
           <p className="text-xl text-white/60 mb-12 font-medium">
             {c.finalDesc}
           </p>
-          <Button asChild size="lg" className="bg-lodgra-gold text-lodgra-navy hover:brightness-110 border-0 h-16 px-12 text-xs font-black uppercase tracking-[3px] rounded-none">
+          <Button asChild variant="be-primary" size="be-lg" className="rounded-full h-auto px-12 text-xs font-black uppercase tracking-[3px]">
             <Link href="/register">{c.cta}</Link>
           </Button>
         </div>

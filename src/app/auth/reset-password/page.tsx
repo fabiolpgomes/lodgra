@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { Mail, ArrowLeft, CheckCircle } from 'lucide-react'
+import { Button } from '@/components/common/ui/button'
 import { Input } from '@/components/common/ui/input'
 import { Label } from '@/components/common/ui/label'
 import { Alert, AlertDescription } from '@/components/common/ui/alert'
@@ -144,13 +145,15 @@ export default function ResetPasswordPage() {
             </div>
 
             {/* Button */}
-            <button
+            <Button
               type="submit"
+              variant="be-primary"
+              size="be-lg"
               disabled={loading}
-              className="w-full py-2.5 px-4 bg-brand-600 text-white font-medium rounded-lg hover:bg-brand-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+              className="w-full rounded-full"
             >
               {loading ? 'Enviando...' : 'Enviar Link de Reset'}
-            </button>
+            </Button>
           </form>
 
           {/* Back Link */}

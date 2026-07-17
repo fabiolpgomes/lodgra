@@ -243,7 +243,7 @@ export default function SetPasswordPage() {
                 </div>
 
                 {/* Botão */}
-                <Button type="submit" disabled={loading} className="w-full">
+                <Button type="submit" variant="be-primary" size="be-lg" disabled={loading} className="w-full rounded-full">
                   {loading ? 'Criando senha...' : 'Criar Senha'}
                 </Button>
               </form>

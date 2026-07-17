@@ -137,8 +137,10 @@ export default function LoginPage() {
             {/* Submit Button */}
             <Button
               type="submit"
+              variant="be-primary"
+              size="be-lg"
               disabled={loading}
-              className="w-full"
+              className="w-full rounded-full"
             >
               {loading ? 'Logging in...' : 'Login'}
             </Button>

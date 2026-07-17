@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { Lock, Eye, EyeOff, AlertCircle } from 'lucide-react'
+import { Button } from '@/components/common/ui/button'
 import { Logo } from '@/components/common/ui/Logo'
 import { Input } from '@/components/common/ui/input'
 import { Label } from '@/components/common/ui/label'
@@ -297,13 +298,15 @@ export default function ResetPasswordConfirmPage() {
             </div>
 
             {/* Button */}
-            <button
+            <Button
               type="submit"
+              variant="be-primary"
+              size="be-lg"
               disabled={!isValid || loading}
-              className="w-full py-2.5 px-4 bg-brand-600 text-white font-medium rounded-lg hover:bg-brand-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+              className="w-full rounded-full"
             >
               {loading ? 'Processando...' : from === 'invite' ? 'Criar senha e entrar' : 'Alterar Password'}
-            </button>
+            </Button>
           </form>
 
           {/* Info Box */}

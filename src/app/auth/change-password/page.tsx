@@ -161,8 +161,10 @@ export default function ChangePasswordPage() {
 
           <Button
             type="submit"
+            variant="be-primary"
+            size="be-lg"
             disabled={loading}
-            className="w-full"
+            className="w-full rounded-full"
           >
             {loading ? 'Alterando...' : 'Alterar Senha'}
           </Button>
