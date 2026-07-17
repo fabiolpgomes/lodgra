@@ -1,6 +1,5 @@
 import { redirect } from 'next/navigation'
-import { getAuth } from '@clerk/nextjs/server'
-import { headers } from 'next/headers'
+import { auth } from '@clerk/nextjs/server'
 import { createClient } from '@supabase/supabase-js'
 import { MultiPlatformDashboard } from '@/components/features/admin/MultiPlatformDashboard'
 
@@ -10,8 +9,7 @@ export const metadata = {
 }
 
 export default async function DistributionPage() {
-  const headersList = await headers()
-  const { userId } = await getAuth({ headers: headersList })
+  const { userId } = await auth()
 
   if (!userId) {
     redirect('/login')

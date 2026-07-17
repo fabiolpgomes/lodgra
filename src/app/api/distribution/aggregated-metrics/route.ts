@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
 
     // Calculate market share (using latest data)
     const latestData = aggregated[aggregated.length - 1] || {}
-    const marketShare = marketShareCalculator.calculateMarketShare(latestData)
+    const marketShare = marketShareCalculator.calculateMarketShare(latestData as any)
 
     // Generate channel-specific insights
     const insights = marketShare.insights
