@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 import { getAuth } from '@clerk/nextjs/server'
 import { propertyValidator } from '@/lib/google/property-validator'
-import { autoFixer } from '@/lib/google/auto-fixer'
+import { autoFixer, type FixResult } from '@/lib/google/auto-fixer'
 
 interface ValidationRequest {
   propertyId: string
@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
     const suggestions = autoFixer.getAutoFixSuggestions(propertyId, validation.issues)
 
     // Apply auto-fixes if requested
-    let appliedFixes: Array<{ fieldName: string; message: string }> = []
+    let appliedFixes: FixResult[] = []
     if (autoFix && validation.issues.length > 0) {
       appliedFixes = await autoFixer.autoFixProperty(propertyId, property)
 

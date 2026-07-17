@@ -77,6 +77,7 @@ export class RecommendationEngine {
       return {
         propertyId,
         recommendations: [],
+        quickWins: [],
         totalPotentialImpact: 0,
         timestamp: new Date().toISOString(),
       }

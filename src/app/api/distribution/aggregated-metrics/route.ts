@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getAuth } from '@clerk/nextjs/server'
 import { platformAggregator } from '@/lib/distribution/platform-aggregator'
 import { marketShareCalculator } from '@/lib/distribution/market-share-calculator'
-import { channelInsights } from '@/lib/distribution/channel-insights'
+import { channelInsights, type PlatformInsights } from '@/lib/distribution/channel-insights'
 import { createClient } from '@supabase/supabase-js'
 
 export async function GET(request: NextRequest) {
@@ -59,6 +59,7 @@ export async function GET(request: NextRequest) {
 
     // Calculate market share (using latest data)
     const latestData = aggregated[aggregated.length - 1] || {}
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const marketShare = marketShareCalculator.calculateMarketShare(latestData as any)
 
     // Generate channel-specific insights
@@ -66,11 +67,12 @@ export async function GET(request: NextRequest) {
     const recommendations = marketShare.recommendations
 
     // Add platform-specific tips
-    const platformTips: Record<string, { tips: string[] }> = {}
+    const platformTips: Record<string, PlatformInsights> = {}
     for (const platform of ['google', 'airbnb', 'booking', 'vrbo', 'flatio']) {
       const platformData = channelPerformance.find((p) => p.platform === platform)
       if (platformData) {
-        platformTips[platform] = channelInsights.generateInsights(platform, platformData)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        platformTips[platform] = channelInsights.generateInsights(platform, platformData as any)
       }
     }
 

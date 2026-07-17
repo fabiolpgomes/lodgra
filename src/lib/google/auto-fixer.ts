@@ -11,7 +11,7 @@ interface AutoFixSuggestion {
   fixCode?: string
 }
 
-interface FixResult {
+export interface FixResult {
   applied: boolean
   fieldName: string
   oldValue?: unknown

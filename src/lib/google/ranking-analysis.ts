@@ -1,6 +1,6 @@
 import * as Sentry from '@sentry/nextjs'
 
-interface RankingFactor {
+export interface RankingFactor {
   name: 'photos' | 'reviews' | 'price' | 'availability' | 'description'
   score: number // 1-5 scale
   weight: number // importance multiplier

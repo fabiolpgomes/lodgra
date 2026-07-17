@@ -44,7 +44,7 @@ const platformIcons = {
   flatio: '🔑',
 }
 
-export function MultiPlatformDashboard({ properties }: { properties: Array<{ id: string }> }) {
+export function MultiPlatformDashboard({ properties }: { properties: Array<{ id: string; name?: string }> }) {
   const [data, setData] = useState<AggregationData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)

@@ -17,7 +17,7 @@ interface ChannelMetrics {
   [key: string]: number | undefined
 }
 
-interface PlatformInsights {
+export interface PlatformInsights {
   platform: string
   status: 'active' | 'underperforming' | 'idle'
   tips: ChannelTip[]
@@ -228,11 +228,11 @@ export class ChannelInsights {
     }
 
     if (status === 'underperforming') {
-      const ctr = metrics.clicks / Math.max(1, metrics.impressions)
+      const ctr = (metrics.clicks || 0) / Math.max(1, metrics.impressions || 0)
       if (ctr < 0.01) {
         actions.push('Update photos (low CTR indicates visibility issue)')
       }
-      if (metrics.conversions === 0 && metrics.clicks > 0) {
+      if ((metrics.conversions || 0) === 0 && (metrics.clicks || 0) > 0) {
         actions.push('Improve listing description (high clicks, no bookings)')
       }
       actions.push(`Review ${platform} reviews and address feedback`)
@@ -248,8 +248,11 @@ export class ChannelInsights {
   }
 
   private generateBenchmarkComparison(platform: string, metrics: ChannelMetrics): string {
-    const ctr = metrics.impressions > 0 ? (metrics.clicks / metrics.impressions) * 100 : 0
-    const conversionRate = metrics.clicks > 0 ? (metrics.conversions / metrics.clicks) * 100 : 0
+    const impressions = metrics.impressions || 0
+    const clicks = metrics.clicks || 0
+    const conversions = metrics.conversions || 0
+    const ctr = impressions > 0 ? (clicks / impressions) * 100 : 0
+    const conversionRate = clicks > 0 ? (conversions / clicks) * 100 : 0
 
     // Industry benchmarks (simplified)
     const benchmarks: Record<string, { ctr: number; conversion: number }> = {

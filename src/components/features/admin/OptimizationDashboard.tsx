@@ -38,7 +38,7 @@ interface OptimizationData {
   quickWins: Recommendation[]
 }
 
-export function OptimizationDashboard({ properties }: { properties: Array<{ id: string }> }) {
+export function OptimizationDashboard({ properties }: { properties: Array<{ id: string; name?: string }> }) {
   const [optimization, setOptimization] = useState<Map<string, OptimizationData>>(new Map())
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
