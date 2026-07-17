@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { Bell, Search } from 'lucide-react'
 import { LocaleSelector } from '@/components/common/header/LocaleSelector'
+import { ThemeToggle } from '@/components/common/header/ThemeToggle'
 import { useGlobalSearch } from '@/hooks/useGlobalSearch'
 
 const SearchModal = dynamic(() => import('@/components/common/search/SearchModal').then(mod => mod.SearchModal), { ssr: false })
@@ -56,6 +57,8 @@ export function TopBar() {
             <Search className="h-4 w-4 text-lodgra-blue/40" />
             <span className="text-[11px] font-bold text-lodgra-blue/30 uppercase tracking-[1px] font-[family-name:var(--font-hanken-grotesk)]">Pesquisar...</span>
           </button>
+
+          <ThemeToggle />
 
           <LocaleSelector />
 
