@@ -91,13 +91,13 @@ export function PropertyAmenitiesV2({ amenities = [], structuredAmenities }: Pro
 
     return (
       <section aria-label="Comodidades">
-        <h2 className="text-xl font-semibold text-lodgra-neutral-900 mb-4">Comodidades</h2>
+        <h2 className="text-xl font-semibold text-be-text mb-4">Comodidades</h2>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {preview.map(a => (
-            <div key={a.id} className="flex items-center gap-2.5 text-sm text-lodgra-neutral-700">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-lodgra-brand-50 shrink-0">
-                <DynamicIcon name={a.icon} className="h-4 w-4 text-lodgra-brand-500" />
+            <div key={a.id} className="flex items-center gap-2.5 text-sm text-be-text-muted-700">
+              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-be-blue-50 shrink-0">
+                <DynamicIcon name={a.icon} className="h-4 w-4 text-be-text-500" />
               </span>
               {a.name}
             </div>
@@ -107,7 +107,7 @@ export function PropertyAmenitiesV2({ amenities = [], structuredAmenities }: Pro
         {structuredAmenities.length > PREVIEW_COUNT && (
           <button
             onClick={() => setShowAll(true)}
-            className="mt-4 text-sm font-semibold text-lodgra-brand-600 hover:text-lodgra-brand-500 underline underline-offset-2"
+            className="mt-4 text-sm font-semibold text-be-text-600 hover:text-be-text-500 underline underline-offset-2"
           >
             Ver todas as {structuredAmenities.length} comodidades
           </button>
@@ -118,20 +118,20 @@ export function PropertyAmenitiesV2({ amenities = [], structuredAmenities }: Pro
             <div className="fixed inset-0 z-40 bg-black/40" onClick={() => setShowAll(false)} />
             <div className="fixed inset-x-4 top-1/2 -translate-y-1/2 z-50 bg-white rounded-2xl p-6 max-h-[80vh] overflow-y-auto sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 sm:w-full sm:max-w-lg">
               <div className="flex items-center justify-between mb-5">
-                <h3 className="text-lg font-semibold text-lodgra-neutral-900">Todas as comodidades</h3>
+                <h3 className="text-lg font-semibold text-be-text">Todas as comodidades</h3>
                 <button onClick={() => setShowAll(false)} className="p-1 rounded-full hover:bg-gray-100 text-gray-600" aria-label="Fechar">
                   <X className="h-5 w-5" />
                 </button>
               </div>
               {Object.entries(categorised).map(([cat, items]) => (
                 <div key={cat} className="mb-5">
-                  <h4 className="text-xs font-semibold uppercase tracking-wider text-lodgra-neutral-500 mb-3">
+                  <h4 className="text-xs font-semibold uppercase tracking-wider text-be-text-muted-500 mb-3">
                     {CATEGORY_LABELS[cat] ?? cat}
                   </h4>
                   <div className="grid grid-cols-2 gap-2.5">
                     {items.map(a => (
-                      <div key={a.id} className="flex items-center gap-2 text-sm text-lodgra-neutral-700">
-                        <DynamicIcon name={a.icon} className="h-4 w-4 text-lodgra-brand-500 shrink-0" />
+                      <div key={a.id} className="flex items-center gap-2 text-sm text-be-text-muted-700">
+                        <DynamicIcon name={a.icon} className="h-4 w-4 text-be-text-500 shrink-0" />
                         {a.name}
                       </div>
                     ))}
@@ -161,13 +161,13 @@ export function PropertyAmenitiesV2({ amenities = [], structuredAmenities }: Pro
 
   return (
     <section aria-label="Comodidades">
-      <h2 className="text-xl font-semibold text-lodgra-neutral-900 mb-4">Comodidades</h2>
+      <h2 className="text-xl font-semibold text-be-text mb-4">Comodidades</h2>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         {preview.map(({ key, icon: Icon, label }) => (
-          <div key={key} className="flex items-center gap-2.5 text-sm text-lodgra-neutral-700">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-lodgra-brand-50 shrink-0">
-              <Icon className="h-4 w-4 text-lodgra-brand-500" />
+          <div key={key} className="flex items-center gap-2.5 text-sm text-be-text-muted-700">
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-be-blue-50 shrink-0">
+              <Icon className="h-4 w-4 text-be-text-500" />
             </span>
             {label}
           </div>
@@ -177,7 +177,7 @@ export function PropertyAmenitiesV2({ amenities = [], structuredAmenities }: Pro
       {mapped.length > PREVIEW_COUNT && (
         <button
           onClick={() => setShowAll(true)}
-          className="mt-4 text-sm font-semibold text-lodgra-brand-600 hover:text-lodgra-brand-500 underline underline-offset-2"
+          className="mt-4 text-sm font-semibold text-be-text-600 hover:text-be-text-500 underline underline-offset-2"
         >
           Ver todas as {mapped.length} comodidades
         </button>
@@ -188,7 +188,7 @@ export function PropertyAmenitiesV2({ amenities = [], structuredAmenities }: Pro
           <div className="fixed inset-0 z-40 bg-black/40" onClick={() => setShowAll(false)} />
           <div className="fixed inset-x-4 top-1/2 -translate-y-1/2 z-50 bg-white rounded-2xl p-6 max-h-[80vh] overflow-y-auto sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 sm:w-full sm:max-w-lg">
             <div className="flex items-center justify-between mb-5">
-              <h3 className="text-lg font-semibold text-lodgra-neutral-900">Todas as comodidades</h3>
+              <h3 className="text-lg font-semibold text-be-text">Todas as comodidades</h3>
               <button onClick={() => setShowAll(false)} className="p-1 rounded-full hover:bg-gray-100 text-gray-600" aria-label="Fechar">
                 <X className="h-5 w-5" />
               </button>
@@ -198,11 +198,11 @@ export function PropertyAmenitiesV2({ amenities = [], structuredAmenities }: Pro
               if (!group.length) return null
               return (
                 <div key={cat} className="mb-5">
-                  <h4 className="text-xs font-semibold uppercase tracking-wider text-lodgra-neutral-500 mb-3">{cat}</h4>
+                  <h4 className="text-xs font-semibold uppercase tracking-wider text-be-text-muted-500 mb-3">{cat}</h4>
                   <div className="grid grid-cols-2 gap-2.5">
                     {group.map(({ key, icon: Icon, label }) => (
-                      <div key={key} className="flex items-center gap-2 text-sm text-lodgra-neutral-700">
-                        <Icon className="h-4 w-4 text-lodgra-brand-500 shrink-0" />
+                      <div key={key} className="flex items-center gap-2 text-sm text-be-text-muted-700">
+                        <Icon className="h-4 w-4 text-be-text-500 shrink-0" />
                         {label}
                       </div>
                     ))}

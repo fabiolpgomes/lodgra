@@ -32,7 +32,7 @@ export function Sidebar({
   return (
     <aside
       className={cn(
-        'fixed left-0 top-0 h-screen bg-white border-r border-lodgra-primary/10',
+        'fixed left-0 top-0 h-screen bg-white border-r border-be-border/10',
         'transition-all duration-300 z-sidebar',
         'overflow-y-auto flex flex-col',
         collapsed ? 'w-16' : 'w-64'
@@ -40,10 +40,10 @@ export function Sidebar({
     >
       {/* Brand */}
       {brand && (
-        <div className="flex items-center gap-3 px-4 py-4 border-b border-lodgra-primary/10 flex-shrink-0">
+        <div className="flex items-center gap-3 px-4 py-4 border-b border-be-border/10 flex-shrink-0">
           {brand.icon && <div className="flex-shrink-0">{brand.icon}</div>}
           {!collapsed && (
-            <span className="font-heading font-black text-lodgra-primary uppercase text-design-sm">
+            <span className="font-heading font-black text-be-text uppercase text-design-sm">
               {brand.label}
             </span>
           )}
@@ -62,8 +62,8 @@ export function Sidebar({
                 'flex items-center gap-3 px-3 py-2 rounded-sm transition-colors',
                 'text-design-sm font-medium',
                 item.active
-                  ? 'bg-lodgra-primary text-white font-bold'
-                  : 'text-lodgra-primary hover:bg-lodgra-primary/5'
+                  ? 'bg-be-blue text-white font-bold'
+                  : 'text-be-text hover:bg-be-blue/5'
               )}
               title={collapsed ? item.label : undefined}
             >
@@ -85,7 +85,7 @@ export function Sidebar({
 
       {/* Footer */}
       {footer && (
-        <div className="px-2 py-4 border-t border-lodgra-primary/10 flex-shrink-0">
+        <div className="px-2 py-4 border-t border-be-border/10 flex-shrink-0">
           {footer}
         </div>
       )}

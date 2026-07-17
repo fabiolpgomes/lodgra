@@ -65,8 +65,8 @@ export default async function PropertiesPage({ params }: { params: Promise<{ loc
         {/* Page Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
           <div>
-            <h2 className="text-3xl font-bold text-lodgra-neutral-900">Propriedades</h2>
-            <p className="text-lodgra-neutral-600 mt-1">
+            <h2 className="text-3xl font-bold text-be-text">Propriedades</h2>
+            <p className="text-be-text-muted mt-1">
               Gerencie suas propriedades e anúncios
             </p>
           </div>
@@ -93,10 +93,10 @@ export default async function PropertiesPage({ params }: { params: Promise<{ loc
         {!properties || properties.length === 0 ? (
           <div className="bg-white rounded-lg shadow p-12 text-center">
             <Home className="h-16 w-16 text-gray-500 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-lodgra-neutral-900 mb-2">
+            <h3 className="text-xl font-semibold text-be-text mb-2">
               Nenhuma propriedade cadastrada
             </h3>
-            <p className="text-lodgra-neutral-600 mb-6">
+            <p className="text-be-text-muted mb-6">
               {canCreate
                 ? 'Comece adicionando sua primeira propriedade para começar a gerenciar seus alojamentos.'
                 : 'Nenhuma propriedade atribuída à sua conta.'}

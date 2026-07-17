@@ -198,8 +198,8 @@ export default async function FinancialPage({
         </div>
 
         {/* Análise por Propriedade */}
-        <div className="be-card overflow-hidden rounded-none border border-lodgra-blue/10">
-          <div className="px-5 py-4 border-b border-lodgra-blue/10 flex items-center gap-2">
+        <div className="be-card overflow-hidden rounded-none border border-be-blue/10">
+          <div className="px-5 py-4 border-b border-be-blue/10 flex items-center gap-2">
             <BarChart3 className="h-4 w-4 text-lodgra-blue" />
             <h3 className="text-xs font-black text-lodgra-blue uppercase tracking-widest font-display">Análise por Propriedade</h3>
           </div>
@@ -323,7 +323,7 @@ export default async function FinancialPage({
 
         {/* Resumo Geral */}
         <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="be-card p-5 border border-lodgra-blue/10 rounded-none shadow-none">
+          <div className="be-card p-5 border border-be-blue/10 rounded-none shadow-none">
             <div className="flex items-center justify-between mb-4">
               <div className="p-2.5 bg-lodgra-blue/5 rounded-none">
                 <TrendingUp className="h-4 w-4 text-lodgra-blue" />
@@ -336,7 +336,7 @@ export default async function FinancialPage({
             <p className="text-[10px] font-black uppercase tracking-wider text-lodgra-navy/20 mt-2">Total receitas confirmadas</p>
           </div>
 
-          <div className="be-card p-5 border border-lodgra-blue/10 rounded-none shadow-none">
+          <div className="be-card p-5 border border-be-blue/10 rounded-none shadow-none">
             <div className="flex items-center justify-between mb-4">
               <div className="p-2.5 bg-red-50 rounded-none">
                 <TrendingDown className="h-4 w-4 text-red-600" />
@@ -349,7 +349,7 @@ export default async function FinancialPage({
             <p className="text-[10px] font-black uppercase tracking-wider text-lodgra-navy/20 mt-2">Total despesas registradas</p>
           </div>
 
-          <div className="be-card p-5 border border-lodgra-blue/10 rounded-none shadow-none" style={{ backgroundColor: '#FFFFFF' }}>
+          <div className="be-card p-5 border border-be-blue/10 rounded-none shadow-none" style={{ backgroundColor: '#FFFFFF' }}>
             <div className="flex items-center justify-between mb-4">
               <div className="p-2.5 rounded-none">
                 <BarChart3 className="h-4 w-4" style={{ color: '#1E3A8A' }} />

@@ -98,7 +98,7 @@ export function CleaningChecklistCard({ checklist, members = [], onUpdate, onDel
 
   const THEMES = {
     pending: 'border-amber-100 bg-amber-50/30',
-    in_progress: 'border-lodgra-blue bg-brand-50/20 shadow-lg shadow-brand-500/10',
+    in_progress: 'border-be-blue bg-brand-50/20 shadow-lg shadow-brand-500/10',
     completed: 'border-emerald-100 bg-emerald-50/20 opacity-80'
   }
 

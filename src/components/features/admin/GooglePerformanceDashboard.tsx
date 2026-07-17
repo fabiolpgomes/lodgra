@@ -95,10 +95,10 @@ export function GooglePerformanceDashboard() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-lodgra-neutral-900">
+          <h1 className="text-2xl font-bold text-be-text">
             Google Vacation Rentals Performance
           </h1>
-          <p className="text-sm text-lodgra-neutral-500 mt-1">
+          <p className="text-sm text-be-text-muted-500 mt-1">
             Track impressions, clicks, and conversion metrics from Google
           </p>
         </div>
@@ -146,11 +146,11 @@ export function GooglePerformanceDashboard() {
             <div className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-lodgra-neutral-600">Impressions</p>
-                  <p className="text-2xl font-bold text-lodgra-neutral-900 mt-1">
+                  <p className="text-sm font-medium text-be-text-muted">Impressions</p>
+                  <p className="text-2xl font-bold text-be-text mt-1">
                     {summary.totalImpressions.toLocaleString()}
                   </p>
-                  <p className="text-xs text-lodgra-neutral-500 mt-1">
+                  <p className="text-xs text-be-text-muted-500 mt-1">
                     Peak: {summary.peakImpressions.toLocaleString()} per day
                   </p>
                 </div>
@@ -166,11 +166,11 @@ export function GooglePerformanceDashboard() {
             <div className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-lodgra-neutral-600">Clicks</p>
-                  <p className="text-2xl font-bold text-lodgra-neutral-900 mt-1">
+                  <p className="text-sm font-medium text-be-text-muted">Clicks</p>
+                  <p className="text-2xl font-bold text-be-text mt-1">
                     {summary.totalClicks.toLocaleString()}
                   </p>
-                  <p className="text-xs text-lodgra-neutral-500 mt-1">
+                  <p className="text-xs text-be-text-muted-500 mt-1">
                     Peak: {summary.peakClicks.toLocaleString()} per day
                   </p>
                 </div>
@@ -186,13 +186,13 @@ export function GooglePerformanceDashboard() {
             <div className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-lodgra-neutral-600">
+                  <p className="text-sm font-medium text-be-text-muted">
                     Avg. Click-Through Rate
                   </p>
-                  <p className="text-2xl font-bold text-lodgra-neutral-900 mt-1">
+                  <p className="text-2xl font-bold text-be-text mt-1">
                     {summary.avgCtr.toFixed(2)}%
                   </p>
-                  <p className="text-xs text-lodgra-neutral-500 mt-1">Goal: 2-5%</p>
+                  <p className="text-xs text-be-text-muted-500 mt-1">Goal: 2-5%</p>
                 </div>
                 <div className="p-3 bg-purple-50 rounded-lg">
                   <TrendingUp className="w-6 h-6 text-purple-600" />
@@ -206,11 +206,11 @@ export function GooglePerformanceDashboard() {
             <div className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-lodgra-neutral-600">Conversions</p>
-                  <p className="text-2xl font-bold text-lodgra-neutral-900 mt-1">
+                  <p className="text-sm font-medium text-be-text-muted">Conversions</p>
+                  <p className="text-2xl font-bold text-be-text mt-1">
                     {summary.totalConversions.toLocaleString()}
                   </p>
-                  <p className="text-xs text-lodgra-neutral-500 mt-1">
+                  <p className="text-xs text-be-text-muted-500 mt-1">
                     Conv. Rate: {summary.avgConversionRate.toFixed(2)}%
                   </p>
                 </div>
@@ -226,16 +226,16 @@ export function GooglePerformanceDashboard() {
       {/* Data Table */}
       <Card>
         <div className="p-4 border-b border-lodgra-neutral-200">
-          <h2 className="text-lg font-semibold text-lodgra-neutral-900">Daily Metrics</h2>
+          <h2 className="text-lg font-semibold text-be-text">Daily Metrics</h2>
         </div>
 
         {loading ? (
           <div className="p-8 text-center">
-            <div className="text-lodgra-neutral-500">Loading metrics...</div>
+            <div className="text-be-text-muted-500">Loading metrics...</div>
           </div>
         ) : metrics.length === 0 ? (
           <div className="p-8 text-center">
-            <p className="text-lodgra-neutral-500">
+            <p className="text-be-text-muted-500">
               No metrics available yet. Google updates metrics approximately 24 hours after
               occurrence.
             </p>
@@ -245,19 +245,19 @@ export function GooglePerformanceDashboard() {
             <table className="w-full">
               <thead className="bg-lodgra-neutral-50 border-b border-lodgra-neutral-200">
                 <tr>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-lodgra-neutral-700">
+                  <th className="px-4 py-3 text-left text-sm font-medium text-be-text-muted-700">
                     Date
                   </th>
-                  <th className="px-4 py-3 text-right text-sm font-medium text-lodgra-neutral-700">
+                  <th className="px-4 py-3 text-right text-sm font-medium text-be-text-muted-700">
                     Impressions
                   </th>
-                  <th className="px-4 py-3 text-right text-sm font-medium text-lodgra-neutral-700">
+                  <th className="px-4 py-3 text-right text-sm font-medium text-be-text-muted-700">
                     Clicks
                   </th>
-                  <th className="px-4 py-3 text-right text-sm font-medium text-lodgra-neutral-700">
+                  <th className="px-4 py-3 text-right text-sm font-medium text-be-text-muted-700">
                     CTR
                   </th>
-                  <th className="px-4 py-3 text-right text-sm font-medium text-lodgra-neutral-700">
+                  <th className="px-4 py-3 text-right text-sm font-medium text-be-text-muted-700">
                     Conversions
                   </th>
                 </tr>
@@ -272,16 +272,16 @@ export function GooglePerformanceDashboard() {
                         : 'bg-lodgra-neutral-50'
                     }
                   >
-                    <td className="px-4 py-3 text-sm text-lodgra-neutral-900">
+                    <td className="px-4 py-3 text-sm text-be-text">
                       {new Date(metric.date).toLocaleDateString('pt-BR')}
                     </td>
-                    <td className="px-4 py-3 text-right text-sm text-lodgra-neutral-900">
+                    <td className="px-4 py-3 text-right text-sm text-be-text">
                       {metric.impressions.toLocaleString()}
                     </td>
-                    <td className="px-4 py-3 text-right text-sm text-lodgra-neutral-900">
+                    <td className="px-4 py-3 text-right text-sm text-be-text">
                       {metric.clicks.toLocaleString()}
                     </td>
-                    <td className="px-4 py-3 text-right text-sm text-lodgra-neutral-900">
+                    <td className="px-4 py-3 text-right text-sm text-be-text">
                       {metric.ctr ? metric.ctr.toFixed(2) : '-'}%
                     </td>
                     <td className="px-4 py-3 text-right text-sm font-medium text-green-600">

@@ -32,7 +32,7 @@ export const Hero: React.FC<HeroProps> = ({
         </div>
 
         {/* Headline - Clean and premium */}
-        <h1 className="font-poppins font-bold text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-lodgra-neutral dark:text-white mb-4 sm:mb-6 leading-tight tracking-tight">
+        <h1 className="font-poppins font-bold text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-be-text-muted dark:text-white mb-4 sm:mb-6 leading-tight tracking-tight">
           {headline}
         </h1>
 
@@ -68,7 +68,7 @@ export const Hero: React.FC<HeroProps> = ({
 
         {/* Illustration - Minimal premium */}
         <div className="mt-16 w-full">
-          <div className="relative overflow-hidden rounded-2xl bg-lodgra-gray dark:bg-gray-800 aspect-video shadow-lg border border-lodgra-blue/10 dark:border-gray-700">
+          <div className="relative overflow-hidden rounded-2xl bg-lodgra-gray dark:bg-gray-800 aspect-video shadow-lg border border-be-blue/10 dark:border-gray-700">
             {/* Content */}
             <div className="h-full flex items-center justify-center">
               <div className="text-center">

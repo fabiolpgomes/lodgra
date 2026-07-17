@@ -14,11 +14,11 @@ export const FeatureCard: React.FC<FeatureCardProps> = ({
 }) => (
   <Card className="text-center hover:shadow-lg transition-shadow duration-300">
     <div className="flex justify-center mb-6">
-      <div className="p-4 bg-lodgra-primary/5 rounded-full">
+      <div className="p-4 bg-be-blue/5 rounded-full">
         {icon}
       </div>
     </div>
-    <h3 className="text-xl font-poppins font-bold text-lodgra-primary mb-3">
+    <h3 className="text-xl font-poppins font-bold text-be-text mb-3">
       {title}
     </h3>
     <p className="text-gray-600 dark:text-gray-400 font-inter text-sm leading-relaxed">{description}</p>

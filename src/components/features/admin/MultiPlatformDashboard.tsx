@@ -91,7 +91,7 @@ export function MultiPlatformDashboard({ properties }: { properties: any[] }) {
       <div className="space-y-4">
         <h1 className="text-2xl font-bold">Multi-Platform Distribution Dashboard</h1>
         <div className="text-center py-8">
-          <div className="text-lodgra-neutral-500">Loading platform metrics...</div>
+          <div className="text-be-text-muted-500">Loading platform metrics...</div>
         </div>
       </div>
     )
@@ -102,10 +102,10 @@ export function MultiPlatformDashboard({ properties }: { properties: any[] }) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-lodgra-neutral-900">
+          <h1 className="text-2xl font-bold text-be-text">
             Multi-Platform Distribution
           </h1>
-          <p className="text-sm text-lodgra-neutral-500 mt-1">
+          <p className="text-sm text-be-text-muted-500 mt-1">
             Compare performance across Google, Airbnb, Booking, VRBO, and Flatio
           </p>
         </div>
@@ -154,8 +154,8 @@ export function MultiPlatformDashboard({ properties }: { properties: any[] }) {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Card>
               <div className="p-4">
-                <p className="text-sm text-lodgra-neutral-600">Total Impressions</p>
-                <p className="text-2xl font-bold text-lodgra-neutral-900 mt-1">
+                <p className="text-sm text-be-text-muted">Total Impressions</p>
+                <p className="text-2xl font-bold text-be-text mt-1">
                   {data.totalImpressions.toLocaleString()}
                 </p>
               </div>
@@ -163,8 +163,8 @@ export function MultiPlatformDashboard({ properties }: { properties: any[] }) {
 
             <Card>
               <div className="p-4">
-                <p className="text-sm text-lodgra-neutral-600">Total Clicks</p>
-                <p className="text-2xl font-bold text-lodgra-neutral-900 mt-1">
+                <p className="text-sm text-be-text-muted">Total Clicks</p>
+                <p className="text-2xl font-bold text-be-text mt-1">
                   {data.totalClicks.toLocaleString()}
                 </p>
               </div>
@@ -172,7 +172,7 @@ export function MultiPlatformDashboard({ properties }: { properties: any[] }) {
 
             <Card>
               <div className="p-4">
-                <p className="text-sm text-lodgra-neutral-600">Total Bookings</p>
+                <p className="text-sm text-be-text-muted">Total Bookings</p>
                 <p className="text-2xl font-bold text-green-600 mt-1">
                   {data.totalBookings.toLocaleString()}
                 </p>
@@ -181,8 +181,8 @@ export function MultiPlatformDashboard({ properties }: { properties: any[] }) {
 
             <Card>
               <div className="p-4">
-                <p className="text-sm text-lodgra-neutral-600">Total Revenue</p>
-                <p className="text-2xl font-bold text-lodgra-neutral-900 mt-1">
+                <p className="text-sm text-be-text-muted">Total Revenue</p>
+                <p className="text-2xl font-bold text-be-text mt-1">
                   ${data.totalRevenue.toLocaleString()}
                 </p>
               </div>
@@ -195,7 +195,7 @@ export function MultiPlatformDashboard({ properties }: { properties: any[] }) {
               <Card key={platform.platform} className={`${platformColors[platform.platform as keyof typeof platformColors]}`}>
                 <div className="p-4">
                   <div className="flex items-center justify-between mb-3">
-                    <h3 className="font-semibold text-lodgra-neutral-900 capitalize">
+                    <h3 className="font-semibold text-be-text capitalize">
                       {platformIcons[platform.platform as keyof typeof platformIcons]} {platform.platform}
                     </h3>
                     {platform.trend === 'up' ? (
@@ -207,29 +207,29 @@ export function MultiPlatformDashboard({ properties }: { properties: any[] }) {
 
                   <div className="space-y-2 text-sm">
                     <div>
-                      <p className="text-xs text-lodgra-neutral-600">Impressions</p>
-                      <p className="font-semibold text-lodgra-neutral-900">
+                      <p className="text-xs text-be-text-muted">Impressions</p>
+                      <p className="font-semibold text-be-text">
                         {platform.impressions.toLocaleString()}
                       </p>
                     </div>
 
                     <div>
-                      <p className="text-xs text-lodgra-neutral-600">Clicks</p>
-                      <p className="font-semibold text-lodgra-neutral-900">
+                      <p className="text-xs text-be-text-muted">Clicks</p>
+                      <p className="font-semibold text-be-text">
                         {platform.clicks.toLocaleString()}
                       </p>
                     </div>
 
                     <div>
-                      <p className="text-xs text-lodgra-neutral-600">CTR</p>
-                      <p className="font-semibold text-lodgra-neutral-900">
+                      <p className="text-xs text-be-text-muted">CTR</p>
+                      <p className="font-semibold text-be-text">
                         {platform.ctr.toFixed(2)}%
                       </p>
                     </div>
 
                     <div className="pt-2 border-t border-current border-opacity-20">
-                      <p className="text-xs text-lodgra-neutral-600">Bookings</p>
-                      <p className="font-bold text-lodgra-neutral-900">
+                      <p className="text-xs text-be-text-muted">Bookings</p>
+                      <p className="font-bold text-be-text">
                         {platform.conversions}
                       </p>
                     </div>
@@ -248,7 +248,7 @@ export function MultiPlatformDashboard({ properties }: { properties: any[] }) {
           {/* Market Share */}
           <Card>
             <div className="p-4 border-b border-lodgra-neutral-200">
-              <h2 className="text-lg font-semibold text-lodgra-neutral-900 flex items-center gap-2">
+              <h2 className="text-lg font-semibold text-be-text flex items-center gap-2">
                 <PieChart className="w-5 h-5" />
                 Market Share Analysis
               </h2>
@@ -264,7 +264,7 @@ export function MultiPlatformDashboard({ properties }: { properties: any[] }) {
                         <div className="text-2xl font-bold text-be-blue">
                           {share.toFixed(1)}%
                         </div>
-                        <p className="text-sm text-lodgra-neutral-600 capitalize mt-1">
+                        <p className="text-sm text-be-text-muted capitalize mt-1">
                           {platform.platform}
                         </p>
                         <div className="w-full bg-lodgra-neutral-200 rounded-full h-2 mt-2 overflow-hidden">
@@ -285,14 +285,14 @@ export function MultiPlatformDashboard({ properties }: { properties: any[] }) {
           {data.insights.length > 0 && (
             <Card>
               <div className="p-4 border-b border-lodgra-neutral-200">
-                <h2 className="text-lg font-semibold text-lodgra-neutral-900">Key Insights</h2>
+                <h2 className="text-lg font-semibold text-be-text">Key Insights</h2>
               </div>
 
               <div className="p-4 space-y-2">
                 {data.insights.map((insight, idx) => (
                   <div key={idx} className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg">
                     <span className="text-lg mt-1">💡</span>
-                    <p className="text-sm text-lodgra-neutral-800">{insight}</p>
+                    <p className="text-sm text-be-text-muted-800">{insight}</p>
                   </div>
                 ))}
               </div>
@@ -303,7 +303,7 @@ export function MultiPlatformDashboard({ properties }: { properties: any[] }) {
           {data.recommendations.length > 0 && (
             <Card>
               <div className="p-4 border-b border-lodgra-neutral-200">
-                <h2 className="text-lg font-semibold text-lodgra-neutral-900 flex items-center gap-2">
+                <h2 className="text-lg font-semibold text-be-text flex items-center gap-2">
                   <BarChart3 className="w-5 h-5" />
                   Recommendations
                 </h2>
@@ -313,7 +313,7 @@ export function MultiPlatformDashboard({ properties }: { properties: any[] }) {
                 {data.recommendations.map((rec, idx) => (
                   <div key={idx} className="flex items-start gap-3 p-3 bg-green-50 rounded-lg">
                     <span className="text-lg mt-1">✨</span>
-                    <p className="text-sm text-lodgra-neutral-800">{rec}</p>
+                    <p className="text-sm text-be-text-muted-800">{rec}</p>
                   </div>
                 ))}
               </div>

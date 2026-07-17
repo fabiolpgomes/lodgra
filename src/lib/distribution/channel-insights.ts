@@ -76,7 +76,7 @@ export class ChannelInsights {
             platform: 'google',
             category: 'pricing',
             title: 'Enable Price Dexterity',
-            description: 'Adjust prices dynamically based on demand using Google's tools',
+            description: 'Adjust prices dynamically based on demand using Google\'s tools',
             estimatedImpact: 'Revenue +10-15%',
             priority: 'medium',
             action: 'Enable in Google Merchant Center > Price settings',

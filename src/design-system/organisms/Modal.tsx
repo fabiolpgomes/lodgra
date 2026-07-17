@@ -72,16 +72,16 @@ export function Modal({
         >
           {/* Header */}
           {(title || closeButton) && (
-            <div className="flex items-center justify-between px-6 py-4 border-b border-lodgra-primary/10">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-be-border/10">
               {title && (
-                <h2 id="modal-title" className="text-design-base font-heading font-black text-lodgra-primary">
+                <h2 id="modal-title" className="text-design-base font-heading font-black text-be-text">
                   {title}
                 </h2>
               )}
               {closeButton && (
                 <button
                   onClick={onClose}
-                  className="ml-auto p-1 rounded-sm hover:bg-lodgra-primary/5 transition-colors"
+                  className="ml-auto p-1 rounded-sm hover:bg-be-blue/5 transition-colors"
                   aria-label="Close modal"
                 >
                   <X size={20} />
@@ -95,7 +95,7 @@ export function Modal({
 
           {/* Footer */}
           {footer && (
-            <div className="px-6 py-4 border-t border-lodgra-primary/10 flex gap-3">
+            <div className="px-6 py-4 border-t border-be-border/10 flex gap-3">
               {footer}
             </div>
           )}

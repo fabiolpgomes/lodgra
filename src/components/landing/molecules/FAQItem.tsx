@@ -19,16 +19,16 @@ export const FAQItem: React.FC<FAQItemProps> = ({ question, answer, index = 0 })
   }
 
   return (
-    <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-6 mb-4 bg-white dark:bg-gray-900 hover:border-lodgra-primary/30 dark:hover:border-lodgra-primary/50 transition-colors duration-300">
+    <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-6 mb-4 bg-white dark:bg-gray-900 hover:border-be-border/30 dark:hover:border-be-border/50 transition-colors duration-300">
       <button
         onClick={handleToggle}
-        className="flex items-center justify-between w-full text-left hover:text-lodgra-primary transition-colors duration-300"
+        className="flex items-center justify-between w-full text-left hover:text-be-text transition-colors duration-300"
         aria-expanded={isOpen}
         aria-label={`${isOpen ? 'Hide' : 'Show'} answer: ${question}`}
       >
-        <span className="font-poppins font-semibold text-lg text-lodgra-primary">{question}</span>
+        <span className="font-poppins font-semibold text-lg text-be-text">{question}</span>
         <svg
-          className={`w-6 h-6 text-lodgra-primary transition-transform duration-300 flex-shrink-0 ml-4 ${
+          className={`w-6 h-6 text-be-text transition-transform duration-300 flex-shrink-0 ml-4 ${
             isOpen ? 'rotate-180' : ''
           }`}
           fill="none"

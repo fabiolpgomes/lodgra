@@ -18,7 +18,7 @@ const buttonVariants = cva(
 
         // ========== Existing Variants ==========
         default: "bg-primary text-white hover:bg-primary/90 shadow-none",
-        action: "bg-lodgra-accent text-lodgra-blue font-semibold hover:bg-lodgra-accent/90 shadow-none",
+        action: "bg-be-blue text-lodgra-blue font-semibold hover:bg-be-blue/90 shadow-none",
         destructive:
           "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60 shadow-none",
         outline:

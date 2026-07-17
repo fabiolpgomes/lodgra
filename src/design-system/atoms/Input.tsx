@@ -9,13 +9,13 @@ const inputVariants = cva(
     'block w-full',
     'px-3 py-2',
     'text-design-base',
-    'border border-lodgra-primary/10',
+    'border border-be-border/10',
     'rounded-sm',
     'bg-white',
-    'placeholder:text-lodgra-primary/30',
-    'text-lodgra-primary',
+    'placeholder:text-be-text/30',
+    'text-be-text',
     'transition-colors',
-    'focus:outline-none focus:ring-2 focus:ring-lodgra-primary/20 focus:border-lodgra-primary',
+    'focus:outline-none focus:ring-2 focus:ring-lodgra-primary/20 focus:border-be-border',
     'disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-lodgra-bg-light',
   ],
   {
@@ -68,7 +68,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {label && (
           <label
             htmlFor={inputId}
-            className="text-design-sm font-heading font-black text-lodgra-primary uppercase tracking-wider"
+            className="text-design-sm font-heading font-black text-be-text uppercase tracking-wider"
           >
             {label}
           </label>
@@ -83,7 +83,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           <p className="text-design-xs text-red-600 font-bold">{errorMessage}</p>
         )}
         {helperText && !errorMessage && (
-          <p className="text-design-xs text-lodgra-primary/40">{helperText}</p>
+          <p className="text-design-xs text-be-text/40">{helperText}</p>
         )}
       </div>
     )

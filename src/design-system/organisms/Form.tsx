@@ -148,7 +148,7 @@ export function Form({
           if (field.type === 'textarea') {
             return (
               <div key={field.name} className="flex flex-col gap-1">
-                <label className="text-design-sm font-heading font-black text-lodgra-primary uppercase tracking-wider">
+                <label className="text-design-sm font-heading font-black text-be-text uppercase tracking-wider">
                   {field.label}
                   {field.required && <span className="text-red-500">*</span>}
                 </label>
@@ -157,13 +157,13 @@ export function Form({
                   value={formData[field.name]}
                   onChange={(e) => handleChange(field.name, e.target.value)}
                   placeholder={field.placeholder}
-                  className="block w-full px-3 py-2 border border-lodgra-primary/10 rounded-sm focus:outline-none focus:ring-2 focus:ring-lodgra-primary/20"
+                  className="block w-full px-3 py-2 border border-be-border/10 rounded-sm focus:outline-none focus:ring-2 focus:ring-lodgra-primary/20"
                 />
                 {errors[field.name] && (
                   <p className="text-design-xs text-red-600 font-bold">{errors[field.name]}</p>
                 )}
                 {field.helperText && !errors[field.name] && (
-                  <p className="text-design-xs text-lodgra-primary/40">{field.helperText}</p>
+                  <p className="text-design-xs text-be-text/40">{field.helperText}</p>
                 )}
               </div>
             )
@@ -172,7 +172,7 @@ export function Form({
           if (field.type === 'select') {
             return (
               <div key={field.name} className="flex flex-col gap-1">
-                <label className="text-design-sm font-heading font-black text-lodgra-primary uppercase tracking-wider">
+                <label className="text-design-sm font-heading font-black text-be-text uppercase tracking-wider">
                   {field.label}
                   {field.required && <span className="text-red-500">*</span>}
                 </label>
@@ -180,7 +180,7 @@ export function Form({
                   name={field.name}
                   value={formData[field.name]}
                   onChange={(e) => handleChange(field.name, e.target.value)}
-                  className="block w-full px-3 py-2 border border-lodgra-primary/10 rounded-sm focus:outline-none focus:ring-2 focus:ring-lodgra-primary/20"
+                  className="block w-full px-3 py-2 border border-be-border/10 rounded-sm focus:outline-none focus:ring-2 focus:ring-lodgra-primary/20"
                 >
                   <option value="">{field.placeholder || 'Select an option'}</option>
                   {field.options?.map((option) => (

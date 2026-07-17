@@ -30,7 +30,7 @@ export function Header({
   onMobileMenuToggle,
 }: HeaderProps) {
   return (
-    <header className="sticky top-0 z-sidebar bg-white border-b border-lodgra-primary/10 shadow-sm">
+    <header className="sticky top-0 z-sidebar bg-white border-b border-be-border/10 shadow-sm">
       <div className="px-4 py-3 max-w-7xl mx-auto">
         {/* Desktop Layout */}
         <div className="flex items-center justify-between gap-4">
@@ -47,7 +47,7 @@ export function Header({
               <a
                 key={item.href}
                 href={item.href}
-                className="text-design-sm text-lodgra-primary hover:font-bold transition-all"
+                className="text-design-sm text-be-text hover:font-bold transition-all"
               >
                 {item.label}
               </a>
@@ -71,7 +71,7 @@ export function Header({
           <div className="flex items-center gap-3">
             {userMenu}
             <button
-              className="md:hidden p-2 rounded-sm hover:bg-lodgra-primary/5"
+              className="md:hidden p-2 rounded-sm hover:bg-be-blue/5"
               onClick={onMobileMenuToggle}
               aria-label="Toggle menu"
             >
@@ -82,12 +82,12 @@ export function Header({
 
         {/* Mobile Navigation */}
         {mobileMenuOpen && (
-          <nav className="md:hidden mt-4 pb-4 space-y-2 border-t border-lodgra-primary/10 pt-4">
+          <nav className="md:hidden mt-4 pb-4 space-y-2 border-t border-be-border/10 pt-4">
             {navigation.map((item) => (
               <a
                 key={item.href}
                 href={item.href}
-                className="block px-3 py-2 text-design-sm text-lodgra-primary hover:bg-lodgra-primary/5 rounded-sm"
+                className="block px-3 py-2 text-design-sm text-be-text hover:bg-be-blue/5 rounded-sm"
               >
                 {item.label}
               </a>

@@ -20,7 +20,7 @@ export function PropertyLocation({ city, country, address }: PropertyLocationPro
 
   return (
     <section aria-label="Localização" className="w-full">
-      <h2 className="text-xl font-semibold text-lodgra-neutral-900 mb-3">Localização</h2>
+      <h2 className="text-xl font-semibold text-be-text mb-3">Localização</h2>
 
       {/* Iframe hidden from bots via aria-hidden — Googlebot follows iframe src causing redirect
           warnings in GSC; the visible link below provides the crawlable reference */}
@@ -39,15 +39,15 @@ export function PropertyLocation({ city, country, address }: PropertyLocationPro
       </div>
 
       {/* Location text — link to Google Maps gives Googlebot a crawlable anchor */}
-      <div className="flex items-start gap-1.5 text-sm text-lodgra-neutral-500">
-        <MapPin className="h-4 w-4 text-lodgra-brand-400 shrink-0 mt-0.5" />
+      <div className="flex items-start gap-1.5 text-sm text-be-text-muted-500">
+        <MapPin className="h-4 w-4 text-be-text-400 shrink-0 mt-0.5" />
         <div className="flex flex-col gap-1">
-          {address && <p className="font-medium text-lodgra-neutral-700">{address}</p>}
+          {address && <p className="font-medium text-be-text-muted-700">{address}</p>}
           <a
             href={mapsLink}
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-lodgra-brand-500 transition-colors"
+            className="hover:text-be-text-500 transition-colors"
           >
             {locationLabel}
           </a>

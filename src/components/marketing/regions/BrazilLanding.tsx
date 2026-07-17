@@ -46,9 +46,9 @@ export const BrazilLanding: React.FC = () => {
   const visibleLanguages = languages.filter((lang) => lang.code === 'pt-BR')
 
   return (
-    <div className="min-h-screen bg-[#ffffff] text-[#181818] font-[family-name:var(--font-hanken-grotesk)] selection:bg-lodgra-accent/20">
+    <div className="min-h-screen bg-[#ffffff] text-[#181818] font-[family-name:var(--font-hanken-grotesk)] selection:bg-be-blue/20">
       {/* Navbar - top-nav */}
-      <nav className="fixed top-0 w-full z-50 bg-[#ffffff] border-b border-lodgra-blue/10">
+      <nav className="fixed top-0 w-full z-50 bg-[#ffffff] border-b border-be-blue/10">
         <div className="max-w-[1440px] mx-auto px-6 h-[72px] flex items-center justify-between">
           <div className="flex items-center gap-8">
             <div className="flex items-center gap-3">
@@ -56,9 +56,9 @@ export const BrazilLanding: React.FC = () => {
             </div>
 
             <div className="hidden lg:flex items-center gap-8 text-[13px] font-black tracking-[1px] text-lodgra-blue uppercase">
-              <a href="#features" className="hover:text-lodgra-accent transition-colors">Funcionalidades</a>
-              <a href="#comparison" className="hover:text-lodgra-accent transition-colors">Diferenciais</a>
-              <a href="#pricing" className="hover:text-lodgra-accent transition-colors">Planos</a>
+              <a href="#features" className="hover:text-be-blue transition-colors">Funcionalidades</a>
+              <a href="#comparison" className="hover:text-be-blue transition-colors">Diferenciais</a>
+              <a href="#pricing" className="hover:text-be-blue transition-colors">Planos</a>
             </div>
           </div>
 
@@ -66,7 +66,7 @@ export const BrazilLanding: React.FC = () => {
             <div className="relative">
               <button
                 onClick={() => setIsLangOpen(!isLangOpen)}
-                className="flex items-center gap-2 text-[13px] font-black tracking-[1px] text-lodgra-blue uppercase hover:text-lodgra-accent transition-colors py-2"
+                className="flex items-center gap-2 text-[13px] font-black tracking-[1px] text-lodgra-blue uppercase hover:text-be-blue transition-colors py-2"
               >
                 {currentLang.flag} <span className="hidden sm:inline">{currentLang.label}</span>
                 <LucideChevronDown className={`w-4 h-4 transition-transform ${isLangOpen ? 'rotate-180' : ''}`} />
@@ -92,10 +92,10 @@ export const BrazilLanding: React.FC = () => {
               )}
             </div>
 
-            <Link href="/pt-BR/login" className="text-[13px] font-black tracking-[1.5px] uppercase text-lodgra-blue hover:text-lodgra-accent transition-colors">
+            <Link href="/pt-BR/login" className="text-[13px] font-black tracking-[1.5px] uppercase text-lodgra-blue hover:text-be-blue transition-colors">
               Entrar
             </Link>
-            <a href="#pricing" className="bg-lodgra-accent text-lodgra-blue rounded-none uppercase font-black text-[14px] tracking-[1px] px-8 h-[48px] flex items-center justify-center hover:bg-[#e6ac00] transition-colors">
+            <a href="#pricing" className="bg-be-blue text-lodgra-blue rounded-none uppercase font-black text-[14px] tracking-[1px] px-8 h-[48px] flex items-center justify-center hover:bg-[#e6ac00] transition-colors">
               Ver Planos
             </a>
           </div>
@@ -114,7 +114,7 @@ export const BrazilLanding: React.FC = () => {
             </p>
 
             <div className="flex flex-col sm:flex-row items-center gap-4">
-              <a href="#pricing" className="w-full sm:w-auto bg-lodgra-accent hover:bg-[#e6ac00] text-lodgra-blue rounded-none uppercase font-black text-[14px] tracking-[1.5px] px-10 h-[56px] flex items-center justify-center transition-all">
+              <a href="#pricing" className="w-full sm:w-auto bg-be-blue hover:bg-[#e6ac00] text-lodgra-blue rounded-none uppercase font-black text-[14px] tracking-[1.5px] px-10 h-[56px] flex items-center justify-center transition-all">
                 Iniciar Operação
               </a>
               <a href="#features" className="w-full sm:w-auto bg-transparent border border-[#ffffff]/20 text-[#ffffff] hover:bg-[#ffffff] hover:text-lodgra-blue rounded-none uppercase font-black text-[14px] tracking-[1.5px] px-10 h-[56px] flex items-center justify-center transition-all">
@@ -135,7 +135,7 @@ export const BrazilLanding: React.FC = () => {
                 </div>
                 <div className="h-[160px] flex items-end gap-3">
                   {[40, 60, 45, 80, 65, 90, 75].map((h, i) => (
-                    <div key={i} className="flex-1 bg-lodgra-accent hover:bg-[#e6ac00] transition-all rounded-none" style={{ height: `${h}%` }}></div>
+                    <div key={i} className="flex-1 bg-be-blue hover:bg-[#e6ac00] transition-all rounded-none" style={{ height: `${h}%` }}></div>
                   ))}
                 </div>
              </div>
@@ -164,7 +164,7 @@ export const BrazilLanding: React.FC = () => {
               <p className="text-[17px] font-light text-[#181818] mb-8 leading-[1.6]">
                 Elimine a dependência de intermediários. O Lodgra integra um motor de reserva direta de grau industrial que processa dados financeiros e operacionais com precisão cirúrgica.
               </p>
-              <div className="w-[64px] h-[4px] bg-lodgra-accent mb-8"></div>
+              <div className="w-[64px] h-[4px] bg-be-blue mb-8"></div>
               
               <ul className="space-y-4">
                 {[
@@ -174,13 +174,13 @@ export const BrazilLanding: React.FC = () => {
                   "Cálculo de repasse via algoritmo proprietário",
                 ].map((item, i) => (
                   <li key={i} className="flex items-start gap-4 text-[15px] font-black text-lodgra-blue uppercase tracking-[0.5px]">
-                    <div className="mt-1.5 w-[10px] h-[10px] bg-lodgra-accent rounded-none flex-shrink-0" />
+                    <div className="mt-1.5 w-[10px] h-[10px] bg-be-blue rounded-none flex-shrink-0" />
                     {item}
                   </li>
                 ))}
               </ul>
               
-              <a href="#comparison" className="inline-flex items-center gap-2 mt-12 text-[13px] font-black uppercase tracking-[1.5px] text-lodgra-blue hover:text-lodgra-accent transition-colors border-b-2 border-lodgra-accent pb-1">
+              <a href="#comparison" className="inline-flex items-center gap-2 mt-12 text-[13px] font-black uppercase tracking-[1.5px] text-lodgra-blue hover:text-be-blue transition-colors border-b-2 border-lodgra-accent pb-1">
                 ESPECIFICAÇÕES TÉCNICAS <LucideChevronRight className="w-4 h-4" />
               </a>
             </div>
@@ -215,7 +215,7 @@ export const BrazilLanding: React.FC = () => {
           <div className="mb-16">
             <h2 className="text-[32px] md:text-[48px] font-black mb-4 text-lodgra-blue leading-[1.1] uppercase tracking-[-0.5px]">DIFERENCIAIS TÉCNICOS.</h2>
             <p className="text-[17px] font-light text-[#181818] leading-[1.6]">Ferramentas de engenharia para gestores que operam com rigor profissional.</p>
-            <div className="w-[64px] h-[4px] bg-lodgra-accent mt-8"></div>
+            <div className="w-[64px] h-[4px] bg-be-blue mt-8"></div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -251,8 +251,8 @@ export const BrazilLanding: React.FC = () => {
                 desc: 'Dinheiro da reserva separado: parte do proprietário, gestor e taxa de limpeza. Zero bitributação.'
               }
             ].map((feature, i) => (
-              <div key={i} className="bg-[#ffffff] p-8 rounded-none border border-lodgra-blue/10 hover:border-lodgra-accent transition-all group">
-                 {React.cloneElement(feature.icon as React.ReactElement<React.SVGProps<SVGSVGElement>, 'svg'>, { className: 'w-10 h-10 text-lodgra-blue mb-6 stroke-[2] group-hover:text-lodgra-accent transition-colors' })}
+              <div key={i} className="bg-[#ffffff] p-8 rounded-none border border-be-blue/10 hover:border-lodgra-accent transition-all group">
+                 {React.cloneElement(feature.icon as React.ReactElement<React.SVGProps<SVGSVGElement>, 'svg'>, { className: 'w-10 h-10 text-lodgra-blue mb-6 stroke-[2] group-hover:text-be-blue transition-colors' })}
                  <h3 className="text-[18px] font-black mb-4 text-lodgra-blue leading-[1.4] uppercase tracking-[0.5px]">{feature.title}</h3>
                  <p className="text-[14px] font-light text-[#181818]/80 leading-[1.6]">{feature.desc}</p>
               </div>
@@ -267,7 +267,7 @@ export const BrazilLanding: React.FC = () => {
           <div className="mb-16">
             <h2 className="text-[32px] md:text-[48px] font-black mb-4 text-lodgra-blue leading-[1.1] uppercase tracking-[-0.5px]">PLANOS DE INVESTIMENTO.</h2>
             <p className="text-[17px] font-light text-[#181818] leading-[1.6]">Infraestrutura escalável com precificação transparente.</p>
-            <div className="w-[64px] h-[4px] bg-lodgra-accent mt-8"></div>
+            <div className="w-[64px] h-[4px] bg-be-blue mt-8"></div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -294,9 +294,9 @@ export const BrazilLanding: React.FC = () => {
                 featured: false
               }
             ].map((tier) => (
-              <div key={tier.name} className={`bg-[#ffffff] p-10 rounded-none border transition-all ${tier.featured ? 'border-lodgra-blue shadow-xl' : 'border-lodgra-blue/10'}`}>
+              <div key={tier.name} className={`bg-[#ffffff] p-10 rounded-none border transition-all ${tier.featured ? 'border-be-blue shadow-xl' : 'border-be-blue/10'}`}>
                 {tier.featured && (
-                  <div className="mb-6 text-[11px] font-black uppercase tracking-[2px] text-lodgra-accent bg-lodgra-blue inline-block px-3 py-1">
+                  <div className="mb-6 text-[11px] font-black uppercase tracking-[2px] text-be-blue bg-lodgra-blue inline-block px-3 py-1">
                     MAIS POPULAR
                   </div>
                 )}
@@ -326,8 +326,8 @@ export const BrazilLanding: React.FC = () => {
                     disabled={checkoutLoading !== null}
                     className={`w-full rounded-none uppercase font-black text-[14px] tracking-[1.5px] px-8 h-[56px] flex items-center justify-center transition-all ${
                       tier.featured
-                        ? 'bg-lodgra-blue hover:bg-[#152a66] text-lodgra-accent'
-                        : 'bg-transparent border-2 border-lodgra-blue text-lodgra-blue hover:bg-lodgra-blue hover:text-[#ffffff]'
+                        ? 'bg-lodgra-blue hover:bg-[#152a66] text-be-blue'
+                        : 'bg-transparent border-2 border-be-blue text-lodgra-blue hover:bg-lodgra-blue hover:text-[#ffffff]'
                     } disabled:opacity-70`}
                   >
                     {checkoutLoading === 'premium'
@@ -340,8 +340,8 @@ export const BrazilLanding: React.FC = () => {
                     disabled={checkoutLoading !== null}
                     className={`w-full rounded-none uppercase font-black text-[14px] tracking-[1.5px] px-8 h-[56px] flex items-center justify-center transition-all ${
                       tier.featured
-                        ? 'bg-lodgra-blue hover:bg-[#152a66] text-lodgra-accent'
-                        : 'bg-transparent border-2 border-lodgra-blue text-lodgra-blue hover:bg-lodgra-blue hover:text-[#ffffff]'
+                        ? 'bg-lodgra-blue hover:bg-[#152a66] text-be-blue'
+                        : 'bg-transparent border-2 border-be-blue text-lodgra-blue hover:bg-lodgra-blue hover:text-[#ffffff]'
                     } disabled:opacity-70`}
                   >
                     {checkoutLoading === (tier.name === 'Essencial' ? 'essencial' : 'expansao')
@@ -369,7 +369,7 @@ export const BrazilLanding: React.FC = () => {
           <div className="mb-16">
             <h2 className="text-[32px] md:text-[48px] font-black mb-4 text-lodgra-blue leading-[1.1] uppercase tracking-[-0.5px]">RELATOS DE PERFORMANCE.</h2>
             <p className="text-[17px] font-light text-[#181818] leading-[1.6]">Gestores que operam no limite da eficiência.</p>
-            <div className="w-[64px] h-[4px] bg-lodgra-accent mt-8"></div>
+            <div className="w-[64px] h-[4px] bg-be-blue mt-8"></div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
              {[
@@ -392,8 +392,8 @@ export const BrazilLanding: React.FC = () => {
                  role: "Host Profissional, RJ"
                }
              ].map((testimonial, i) => (
-               <div key={i} className="bg-[#ffffff] p-10 rounded-none border border-lodgra-blue/10 flex flex-col hover:border-lodgra-accent transition-all">
-                  <div className="text-[12px] text-lodgra-accent mb-6">{'★★★★★'}</div>
+               <div key={i} className="bg-[#ffffff] p-10 rounded-none border border-be-blue/10 flex flex-col hover:border-lodgra-accent transition-all">
+                  <div className="text-[12px] text-be-blue mb-6">{'★★★★★'}</div>
                   <p className="text-[#181818] text-[16px] font-light leading-[1.6] mb-8 italic">&ldquo;{testimonial.quote}&rdquo;</p>
                   <div className="flex items-center gap-4 mt-auto">
                      <div className="w-[48px] h-[48px] bg-lodgra-blue text-[#ffffff] rounded-none flex items-center justify-center font-black text-[16px]">
@@ -420,7 +420,7 @@ export const BrazilLanding: React.FC = () => {
             Implemente a infraestrutura LODGRA hoje. 7 dias de garantia total de performance.
           </p>
           <div className="flex justify-center">
-            <a href="#pricing" className="bg-lodgra-accent text-lodgra-blue hover:bg-[#e6ac00] rounded-none uppercase font-black text-[16px] tracking-[2px] px-12 h-[64px] flex items-center justify-center transition-all shadow-lg">
+            <a href="#pricing" className="bg-be-blue text-lodgra-blue hover:bg-[#e6ac00] rounded-none uppercase font-black text-[16px] tracking-[2px] px-12 h-[64px] flex items-center justify-center transition-all shadow-lg">
               ATIVAR AGORA
             </a>
           </div>
@@ -442,20 +442,20 @@ export const BrazilLanding: React.FC = () => {
             <div className="grid grid-cols-2 md:grid-cols-3 gap-12 text-[13px] font-black uppercase tracking-[1px]">
                <div className="flex flex-col gap-4">
                   <span className="text-lodgra-blue/30 text-[11px]">Sistema</span>
-                  <a href="#" className="text-lodgra-blue hover:text-lodgra-accent transition-colors">Dossier</a>
-                  <a href="#" className="text-lodgra-blue hover:text-lodgra-accent transition-colors">Performance</a>
-                  <a href="#" className="text-lodgra-blue hover:text-lodgra-accent transition-colors">Rede</a>
+                  <a href="#" className="text-lodgra-blue hover:text-be-blue transition-colors">Dossier</a>
+                  <a href="#" className="text-lodgra-blue hover:text-be-blue transition-colors">Performance</a>
+                  <a href="#" className="text-lodgra-blue hover:text-be-blue transition-colors">Rede</a>
                </div>
                <div className="flex flex-col gap-4">
                   <span className="text-lodgra-blue/30 text-[11px]">Empresa</span>
-                  <a href="#" className="text-lodgra-blue hover:text-lodgra-accent transition-colors">Engenharia</a>
-                  <a href="#" className="text-lodgra-blue hover:text-lodgra-accent transition-colors">Base</a>
-                  <a href="#" className="text-lodgra-blue hover:text-lodgra-accent transition-colors">Log</a>
+                  <a href="#" className="text-lodgra-blue hover:text-be-blue transition-colors">Engenharia</a>
+                  <a href="#" className="text-lodgra-blue hover:text-be-blue transition-colors">Base</a>
+                  <a href="#" className="text-lodgra-blue hover:text-be-blue transition-colors">Log</a>
                </div>
                <div className="flex flex-col gap-4">
                   <span className="text-lodgra-blue/30 text-[11px]">Legal</span>
-                  <Link href="/terms" className="text-lodgra-blue hover:text-lodgra-accent transition-colors">Protocolo</Link>
-                  <Link href="/privacy" className="text-lodgra-blue hover:text-lodgra-accent transition-colors">Privacidade</Link>
+                  <Link href="/terms" className="text-lodgra-blue hover:text-be-blue transition-colors">Protocolo</Link>
+                  <Link href="/privacy" className="text-lodgra-blue hover:text-be-blue transition-colors">Privacidade</Link>
                </div>
             </div>
           </div>

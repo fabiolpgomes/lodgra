@@ -47,23 +47,23 @@ export function Table<T extends Record<string, unknown>>({
   }
 
   return (
-    <div className="w-full overflow-x-auto rounded-sm border border-lodgra-primary/10">
+    <div className="w-full overflow-x-auto rounded-sm border border-be-border/10">
       <table className="w-full">
         {/* Header */}
         <thead>
-          <tr className={cn('bg-lodgra-bg-light border-b border-lodgra-primary/10')}>
+          <tr className={cn('bg-lodgra-bg-light border-b border-be-border/10')}>
             {columns.map((column) => (
               <th
                 key={String(column.key)}
                 className={cn(
-                  'px-4 py-3 text-left text-design-sm font-heading font-black text-lodgra-primary uppercase tracking-wider',
+                  'px-4 py-3 text-left text-design-sm font-heading font-black text-be-text uppercase tracking-wider',
                   column.width && `w-${column.width}`
                 )}
               >
                 {column.sortable ? (
                   <button
                     onClick={() => handleSort(column.key)}
-                    className="flex items-center gap-2 hover:text-lodgra-accent transition-colors"
+                    className="flex items-center gap-2 hover:text-be-blue transition-colors"
                   >
                     {column.label}
                     {getSortIcon(column.key)}
@@ -82,7 +82,7 @@ export function Table<T extends Record<string, unknown>>({
             <tr>
               <td colSpan={columns.length} className="px-4 py-8 text-center">
                 <div className="inline-block">
-                  <div className="animate-spin rounded-full h-8 w-8 border-2 border-lodgra-primary border-t-transparent"></div>
+                  <div className="animate-spin rounded-full h-8 w-8 border-2 border-be-border border-t-transparent"></div>
                 </div>
               </td>
             </tr>
@@ -90,7 +90,7 @@ export function Table<T extends Record<string, unknown>>({
             <tr>
               <td
                 colSpan={columns.length}
-                className="px-4 py-8 text-center text-design-sm text-lodgra-primary/60"
+                className="px-4 py-8 text-center text-design-sm text-be-text/60"
               >
                 {emptyState}
               </td>
@@ -100,13 +100,13 @@ export function Table<T extends Record<string, unknown>>({
               <tr
                 key={idx}
                 className={cn(
-                  'border-b border-lodgra-primary/10 transition-colors',
+                  'border-b border-be-border/10 transition-colors',
                   striped && idx % 2 === 0 && 'bg-lodgra-bg-light',
-                  hoverable && 'hover:bg-lodgra-primary/5'
+                  hoverable && 'hover:bg-be-blue/5'
                 )}
               >
                 {columns.map((column) => (
-                  <td key={String(column.key)} className="px-4 py-3 text-design-sm text-lodgra-primary">
+                  <td key={String(column.key)} className="px-4 py-3 text-design-sm text-be-text">
                     {column.render ? column.render(row[column.key], row) : String(row[column.key])}
                   </td>
                 ))}

@@ -92,7 +92,7 @@ export function FinancialOverviewCharts({ monthlyStats, propertyStats, totalsByC
           </div>
         </div>
 
-        <div className="bg-white p-6 border border-lodgra-blue/10 relative group rounded-none">
+        <div className="bg-white p-6 border border-be-blue/10 relative group rounded-none">
           <p className="text-lodgra-navy/50 text-[11px] font-black uppercase tracking-wider mb-2 font-display">Sua Comissão (EBITDA)</p>
           <div className="space-y-1">
             {Object.entries(totalsByCurrency).map(([currency, data]) => (
@@ -111,7 +111,7 @@ export function FinancialOverviewCharts({ monthlyStats, propertyStats, totalsByC
           </div>
         </div>
 
-        <div className="bg-white p-6 border border-lodgra-blue/10 relative group rounded-none">
+        <div className="bg-white p-6 border border-be-blue/10 relative group rounded-none">
           <p className="text-lodgra-navy/50 text-[11px] font-black uppercase tracking-wider mb-2 font-display">Repasse Proprietários</p>
           <div className="space-y-1">
             {Object.entries(totalsByCurrency).map(([currency, data]) => (
@@ -123,7 +123,7 @@ export function FinancialOverviewCharts({ monthlyStats, propertyStats, totalsByC
           <p className="text-[10px] text-lodgra-navy/40 font-black uppercase tracking-wider mt-2">Líquido a ser repassado este mês</p>
         </div>
 
-        <div className="bg-lodgra-neutral-50 p-6 border border-lodgra-blue/10 relative group rounded-none">
+        <div className="bg-lodgra-neutral-50 p-6 border border-be-blue/10 relative group rounded-none">
           <p className="text-lodgra-blue/40 text-[11px] font-black uppercase tracking-wider mb-2 font-display">Taxa de Ocupação</p>
           <h2 className="text-4xl font-black text-lodgra-blue mb-2 font-display">
             {avgOccupancy.toFixed(0)}%
@@ -140,7 +140,7 @@ export function FinancialOverviewCharts({ monthlyStats, propertyStats, totalsByC
       {/* Main Visual Panels */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Chart - Revenue vs Expenses */}
-        <div className="lg:col-span-2 bg-white border border-lodgra-blue/10 p-8 rounded-none">
+        <div className="lg:col-span-2 bg-white border border-be-blue/10 p-8 rounded-none">
           <div className="flex items-center justify-between mb-10">
             <div>
               <h4 className="text-sm font-black text-lodgra-blue uppercase tracking-widest font-display">Fluxo de Caixa Mensal</h4>
@@ -211,7 +211,7 @@ export function FinancialOverviewCharts({ monthlyStats, propertyStats, totalsByC
         </div>
 
         {/* Distribution - Revenue By Property */}
-        <div className="bg-white border border-lodgra-blue/10 p-8 rounded-none">
+        <div className="bg-white border border-be-blue/10 p-8 rounded-none">
           <h4 className="text-sm font-black text-lodgra-blue uppercase tracking-widest font-display mb-8">Participação por Unidade</h4>
           <div className="h-[260px] w-full">
             <ResponsiveContainer width="100%" height="100%">

@@ -44,7 +44,7 @@ export const Navbar: React.FC = () => {
 
             <Link
               href="/login"
-              className="px-4 py-2 text-sm font-inter font-medium text-lodgra-blue dark:text-lodgra-gold border border-lodgra-blue/30 dark:border-lodgra-gold/30 rounded-lg hover:bg-lodgra-blue hover:text-white dark:hover:bg-lodgra-gold dark:hover:text-gray-900 transition-colors"
+              className="px-4 py-2 text-sm font-inter font-medium text-lodgra-blue dark:text-lodgra-gold border border-be-blue/30 dark:border-lodgra-gold/30 rounded-lg hover:bg-lodgra-blue hover:text-white dark:hover:bg-lodgra-gold dark:hover:text-gray-900 transition-colors"
             >
               Entrar
             </Link>

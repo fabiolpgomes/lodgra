@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils'
 const labelVariants = cva(
   [
     'block',
-    'font-heading font-black text-lodgra-primary',
+    'font-heading font-black text-be-text',
     'uppercase tracking-wider',
     'transition-colors',
   ],

@@ -64,7 +64,7 @@ export function SearchModal({
           aria-label="Buscar propriedades, reservas, despesas e proprietários"
         >
           {/* Search Input */}
-          <div className="px-6 py-4 border-b border-lodgra-blue/10 bg-white">
+          <div className="px-6 py-4 border-b border-be-blue/10 bg-white">
             <div className="flex items-center gap-3">
               <Search className="h-5 w-5 text-lodgra-blue/40 flex-shrink-0" />
               <input
@@ -136,11 +136,11 @@ export function SearchModal({
                           key={`${result.type}-${result.id}`}
                           href={result.href}
                           onClick={onClose}
-                          className="flex items-start gap-3 px-6 py-3 hover:bg-lodgra-accent/5 transition-colors group"
+                          className="flex items-start gap-3 px-6 py-3 hover:bg-be-blue/5 transition-colors group"
                         >
                           <span className="text-xl flex-shrink-0">{result.icon}</span>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-lodgra-blue group-hover:text-lodgra-accent transition-colors truncate">
+                            <p className="text-sm font-medium text-lodgra-blue group-hover:text-be-blue transition-colors truncate">
                               {result.title}
                             </p>
                             {result.subtitle && (
@@ -159,8 +159,8 @@ export function SearchModal({
           </div>
 
           {/* Footer */}
-          <div className="px-6 py-3 border-t border-lodgra-blue/10 bg-lodgra-blue/5 text-xs text-lodgra-blue/60">
-            <p>Dica: Pressione <kbd className="px-1.5 py-0.5 bg-white border border-lodgra-blue/10 rounded text-lodgra-blue font-mono text-[11px]">ESC</kbd> para fechar</p>
+          <div className="px-6 py-3 border-t border-be-blue/10 bg-lodgra-blue/5 text-xs text-lodgra-blue/60">
+            <p>Dica: Pressione <kbd className="px-1.5 py-0.5 bg-white border border-be-blue/10 rounded text-lodgra-blue font-mono text-[11px]">ESC</kbd> para fechar</p>
           </div>
         </div>
       </div>

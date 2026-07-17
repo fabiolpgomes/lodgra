@@ -17,7 +17,7 @@ const SOURCE_COLORS: Record<ReviewSource, string> = {
   airbnb: 'bg-rose-50 text-rose-600',
   google: 'bg-amber-50 text-amber-700',
   tripadvisor: 'bg-green-50 text-green-700',
-  direct: 'bg-lodgra-brand-50 text-lodgra-brand-700',
+  direct: 'bg-be-blue-50 text-be-text-700',
   other: 'bg-gray-100 text-gray-600',
 }
 
@@ -47,7 +47,7 @@ export function PropertyReviewScore({ reviewScore }: PropertyReviewScoreProps) {
       <div className="flex items-center gap-5 mb-6">
         <div className="flex flex-col gap-2">
           <div className="flex items-end gap-1.5 leading-none">
-            <span className="text-6xl font-extrabold text-lodgra-brand-700 leading-none">
+            <span className="text-6xl font-extrabold text-be-text-700 leading-none">
               {reviewScore.globalAvg.toFixed(1)}
             </span>
             <span className="text-xl text-gray-400 mb-1">/10</span>

@@ -8,8 +8,8 @@ interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
 export const Badge = React.forwardRef<HTMLSpanElement, BadgeProps>(
   ({ children, variant = 'primary', className = '', ...props }, ref) => {
     const variants = {
-      primary: 'bg-lodgra-light text-lodgra-primary',
-      success: 'bg-lodgra-light text-lodgra-primary',
+      primary: 'bg-lodgra-light text-be-text',
+      success: 'bg-lodgra-light text-be-text',
       warning: 'bg-yellow-100 text-lodgra-gold',
     }
 

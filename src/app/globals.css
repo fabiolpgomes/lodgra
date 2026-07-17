@@ -261,37 +261,60 @@ input[type="date"]::placeholder {
 }
 
 .dark {
-  --background: oklch(0.141 0.005 285.823);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.21 0.006 285.885);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.21 0.006 285.885);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.92 0.004 286.32);
-  --primary-foreground: oklch(0.21 0.006 285.885);
-  --secondary: oklch(0.274 0.006 286.033);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.274 0.006 286.033);
-  --muted-foreground: oklch(0.705 0.015 286.067);
-  --accent: oklch(0.274 0.006 286.033);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.552 0.016 285.938);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.21 0.006 285.885);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.274 0.006 286.033);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.552 0.016 285.938);
+  /* ========== BEHANCE DARK MODE TOKENS ========== */
+  /* Background: Near-black #191919 → inverted to #303030 (charcoal) */
+  --background: #1a1a1a;
+  --foreground: #ffffff;
+
+  /* Cards: grey-800 (#303030) with light borders */
+  --card: #303030;
+  --card-foreground: #ffffff;
+  --popover: #303030;
+  --popover-foreground: #ffffff;
+
+  /* Primary: Behance Blue stays #0057ff (universal accent) */
+  --primary: #0057ff;
+  --primary-foreground: #ffffff;
+
+  /* Secondary: grey-700 (#474747) for secondary surfaces */
+  --secondary: #474747;
+  --secondary-foreground: #ffffff;
+
+  /* Muted: grey-600 (#707070) for muted text */
+  --muted: #474747;
+  --muted-foreground: #bfd2ff;
+
+  /* Accent: Light blue (#bfd2ff) for accent elements */
+  --accent: #0057ff;
+  --accent-foreground: #ffffff;
+
+  /* Destructive: red-700 (#aa0000) for dark mode */
+  --destructive: #d00d00;
+
+  /* Borders: grey-700 (#474747) for dark mode borders */
+  --border: #474747;
+  --input: #303030;
+  --input-border: #474747;
+
+  /* Focus ring: Behance Blue */
+  --ring: #0057ff;
+
+  /* Chart colors (Behance palette) */
+  --chart-1: #0057ff;
+  --chart-2: #bfd2ff;
+  --chart-3: #146aff;
+  --chart-4: #003ecb;
+  --chart-5: #002f9a;
+
+  /* Sidebar (dark inverted nav) */
+  --sidebar: #303030;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #0057ff;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #bfd2ff;
+  --sidebar-accent-foreground: #303030;
+  --sidebar-border: #474747;
+  --sidebar-ring: #0057ff;
 }
 
 @layer base {
@@ -550,10 +573,98 @@ input[type="date"]::placeholder {
 
   /* ─── EXISTING UTILITIES ─── */
 
+  /* ========== BEHANCE DARK MODE VARIANTS ========== */
+
+  .dark .be-card {
+    background: #303030;
+    border-color: #474747;
+  }
+
+  .dark .be-card:hover {
+    box-shadow: 0 1px 2px rgba(0,0,0,0.4);
+  }
+
+  .dark .be-card-cover {
+    background: #1f2937;
+  }
+
+  .dark .be-card-floating {
+    background: #303030;
+    border-color: #474747;
+    box-shadow: 0 0 4px rgba(0,0,0,0.3);
+  }
+
+  .dark .be-badge {
+    background: #474747;
+    color: #ffffff;
+  }
+
+  .dark .be-badge-notification {
+    background: #0057ff;
+    border-color: #303030;
+  }
+
+  .dark .be-pill {
+    background: #303030;
+    color: #ffffff;
+    border-color: #474747;
+  }
+
+  .dark .be-pill:hover {
+    background: #474747;
+  }
+
+  .dark .be-input {
+    background: #303030;
+    color: #ffffff;
+    border-color: #474747;
+  }
+
+  .dark .be-input:focus {
+    border-color: #0057ff;
+    box-shadow: 0 0 0 2px rgba(0,87,255,0.3);
+  }
+
+  .dark .be-input:disabled {
+    background: #1f2937;
+    color: #909090;
+    border-color: #474747;
+  }
+
+  .dark .be-input::placeholder {
+    color: #909090;
+  }
+
+  .dark .be-nav-header {
+    background: #303030;
+    border-bottom-color: #474747;
+  }
+
+  .dark .be-nav-link {
+    color: #ffffff;
+  }
+
+  .dark .be-nav-link:hover,
+  .dark .be-nav-link.active {
+    background: #474747;
+  }
+
+  .dark .be-link {
+    color: #bfd2ff;
+  }
+
+  .dark .be-link:hover {
+    color: #0057ff;
+  }
+
   .glass {
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
     background-color: rgba(255, 255, 255, 0.85);
+  }
+
+  .dark .glass {
+    background-color: rgba(48, 48, 48, 0.85);
   }
   .card-hover {
     transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),

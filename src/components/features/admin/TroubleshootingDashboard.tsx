@@ -132,7 +132,7 @@ export function TroubleshootingDashboard({ properties }: { properties: any[] }) 
       <div className="space-y-4">
         <h1 className="text-2xl font-bold">Google Troubleshooting & Diagnostics</h1>
         <div className="text-center py-8">
-          <div className="text-lodgra-neutral-500">Validating properties...</div>
+          <div className="text-be-text-muted-500">Validating properties...</div>
         </div>
       </div>
     )
@@ -143,10 +143,10 @@ export function TroubleshootingDashboard({ properties }: { properties: any[] }) 
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-lodgra-neutral-900">
+          <h1 className="text-2xl font-bold text-be-text">
             Google Troubleshooting & Diagnostics
           </h1>
-          <p className="text-sm text-lodgra-neutral-500 mt-1">
+          <p className="text-sm text-be-text-muted-500 mt-1">
             Identify why properties aren&apos;t indexed and get auto-fix suggestions
           </p>
         </div>
@@ -177,14 +177,14 @@ export function TroubleshootingDashboard({ properties }: { properties: any[] }) 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <div className="p-4">
-            <p className="text-sm text-lodgra-neutral-600">Properties Checked</p>
-            <p className="text-2xl font-bold text-lodgra-neutral-900 mt-1">{properties.length}</p>
+            <p className="text-sm text-be-text-muted">Properties Checked</p>
+            <p className="text-2xl font-bold text-be-text mt-1">{properties.length}</p>
           </div>
         </Card>
 
         <Card>
           <div className="p-4">
-            <p className="text-sm text-lodgra-neutral-600">Indexed</p>
+            <p className="text-sm text-be-text-muted">Indexed</p>
             <p className="text-2xl font-bold text-green-600 mt-1">
               {Array.from(diagnostics.values()).filter((d) => d.validation.indexationStatus === 'indexed').length}
             </p>
@@ -193,7 +193,7 @@ export function TroubleshootingDashboard({ properties }: { properties: any[] }) 
 
         <Card>
           <div className="p-4">
-            <p className="text-sm text-lodgra-neutral-600">Critical Issues</p>
+            <p className="text-sm text-be-text-muted">Critical Issues</p>
             <p className="text-2xl font-bold text-red-600 mt-1">
               {Array.from(diagnostics.values()).reduce((sum, d) => sum + d.criticalIssues, 0)}
             </p>
@@ -202,7 +202,7 @@ export function TroubleshootingDashboard({ properties }: { properties: any[] }) 
 
         <Card>
           <div className="p-4">
-            <p className="text-sm text-lodgra-neutral-600">Needs Attention</p>
+            <p className="text-sm text-be-text-muted">Needs Attention</p>
             <p className="text-2xl font-bold text-orange-600 mt-1">
               {Array.from(diagnostics.values()).filter((d) => d.validation.indexationStatus !== 'indexed').length}
             </p>
@@ -213,7 +213,7 @@ export function TroubleshootingDashboard({ properties }: { properties: any[] }) 
       {/* Properties List */}
       <Card>
         <div className="p-4 border-b border-lodgra-neutral-200">
-          <h2 className="text-lg font-semibold text-lodgra-neutral-900">Properties Diagnostics</h2>
+          <h2 className="text-lg font-semibold text-be-text">Properties Diagnostics</h2>
         </div>
 
         <div className="space-y-4 p-4">
@@ -233,8 +233,8 @@ export function TroubleshootingDashboard({ properties }: { properties: any[] }) 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="flex-1">
-                      <h3 className="font-medium text-lodgra-neutral-900">{property.name}</h3>
-                      <p className="text-sm text-lodgra-neutral-500">ID: {property.id}</p>
+                      <h3 className="font-medium text-be-text">{property.name}</h3>
+                      <p className="text-sm text-be-text-muted-500">ID: {property.id}</p>
                     </div>
                   </div>
 
@@ -270,7 +270,7 @@ export function TroubleshootingDashboard({ properties }: { properties: any[] }) 
                 {/* Issues Display */}
                 {validation.issues.length > 0 && (
                   <div className="space-y-2">
-                    <div className="text-sm font-medium text-lodgra-neutral-700">
+                    <div className="text-sm font-medium text-be-text-muted-700">
                       Issues: {criticalIssues} Critical, {highIssues} High
                     </div>
 
@@ -291,7 +291,7 @@ export function TroubleshootingDashboard({ properties }: { properties: any[] }) 
                       ))}
 
                       {validation.issues.length > 5 && (
-                        <p className="text-xs text-lodgra-neutral-600 mt-2">
+                        <p className="text-xs text-be-text-muted mt-2">
                           +{validation.issues.length - 5} more issues...
                         </p>
                       )}
@@ -302,7 +302,7 @@ export function TroubleshootingDashboard({ properties }: { properties: any[] }) 
                 {/* Auto-Fix Suggestions */}
                 {suggestions.length > 0 && (
                   <div className="mt-3 pt-3 border-t border-lodgra-neutral-200">
-                    <div className="text-sm font-medium text-lodgra-neutral-700 flex items-center gap-2 mb-2">
+                    <div className="text-sm font-medium text-be-text-muted-700 flex items-center gap-2 mb-2">
                       <Zap className="w-4 h-4" />
                       Auto-Fix Suggestions
                     </div>
@@ -329,7 +329,7 @@ export function TroubleshootingDashboard({ properties }: { properties: any[] }) 
                 )}
 
                 {/* Timestamps */}
-                <div className="text-xs text-lodgra-neutral-500 pt-2">
+                <div className="text-xs text-be-text-muted-500 pt-2">
                   Last validated: {new Date(validation.lastValidated).toLocaleString('pt-BR')}
                 </div>
               </div>

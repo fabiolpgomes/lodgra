@@ -79,14 +79,14 @@ export function Dropdown({
             'absolute top-full mt-2 z-dropdown',
             widthClasses[size],
             alignClasses[align],
-            'bg-white border border-lodgra-primary/10 rounded-sm shadow-lg'
+            'bg-white border border-be-border/10 rounded-sm shadow-lg'
           )}
           role="menu"
         >
           {items.map((item, idx) => (
             <React.Fragment key={idx}>
               {item.divider ? (
-                <div className="h-px bg-lodgra-primary/10" />
+                <div className="h-px bg-be-blue/10" />
               ) : (
                 <button
                   onClick={() => handleSelect(item.value)}
@@ -95,7 +95,7 @@ export function Dropdown({
                     'w-full px-4 py-3 text-left text-design-sm flex items-center gap-3 transition-colors',
                     item.disabled
                       ? 'opacity-50 cursor-not-allowed'
-                      : 'hover:bg-lodgra-primary/5 text-lodgra-primary'
+                      : 'hover:bg-be-blue/5 text-be-text'
                   )}
                   role="menuitem"
                 >

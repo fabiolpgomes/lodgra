@@ -34,7 +34,7 @@ const SearchBox = React.forwardRef<HTMLInputElement, SearchBoxProps>(
             placeholder={inputProps.placeholder || 'Pesquisar...'}
             className="pl-10"
           />
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-lodgra-primary/40">
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-be-text/40">
             {icon}
           </div>
         </div>

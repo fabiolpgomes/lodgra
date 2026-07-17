@@ -23,16 +23,16 @@ export function PublicPagesUsageBar({ used, limit, plan }: PublicPagesUsageBarPr
     }`}>
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2.5 text-sm font-semibold">
-          <div className={`p-2 rounded-lg ${atLimit ? 'bg-lodgra-accent-100' : 'bg-lodgra-brand-100'}`}>
-            <Globe className={`h-4 w-4 ${atLimit ? 'text-lodgra-accent-600' : 'text-lodgra-brand-600'}`} />
+          <div className={`p-2 rounded-lg ${atLimit ? 'bg-be-blue-100' : 'bg-be-blue-100'}`}>
+            <Globe className={`h-4 w-4 ${atLimit ? 'text-be-blue-600' : 'text-be-text-600'}`} />
           </div>
-          <span className="text-lodgra-neutral-900">Páginas Públicas</span>
-          {used > 0 && <TrendingUp className="h-4 w-4 text-lodgra-brand-500 ml-auto" />}
+          <span className="text-be-text">Páginas Públicas</span>
+          {used > 0 && <TrendingUp className="h-4 w-4 text-be-text-500 ml-auto" />}
         </div>
         <span className={`text-sm font-medium px-3 py-1 rounded-full ${
           atLimit
-            ? 'bg-lodgra-accent-200 text-lodgra-accent-700'
-            : 'bg-lodgra-brand-100 text-lodgra-brand-700'
+            ? 'bg-be-blue-200 text-be-blue-700'
+            : 'bg-be-blue-100 text-be-text-700'
         }`}>
           {isUnlimited
             ? `${used} / ∞`
@@ -53,14 +53,14 @@ export function PublicPagesUsageBar({ used, limit, plan }: PublicPagesUsageBarPr
       {atLimit && (
         <div className="mt-4 flex items-center justify-between gap-3 p-3 bg-white/60 rounded-lg border border-lodgra-accent-200">
           <div className="flex-1">
-            <p className="text-sm text-lodgra-accent-800 font-medium">
+            <p className="text-sm text-be-blue-800 font-medium">
               Limite atingido
             </p>
-            <p className="text-xs text-lodgra-accent-600">
+            <p className="text-xs text-be-blue-600">
               Faça upgrade do plano para adicionar mais páginas públicas.
             </p>
           </div>
-          <Button asChild size="sm" className="shrink-0 bg-lodgra-accent-600 hover:bg-lodgra-accent-700 text-white border-0">
+          <Button asChild size="sm" className="shrink-0 bg-be-blue-600 hover:bg-be-blue-700 text-white border-0">
             <Link href="/#pricing" className="gap-1">
               Upgrade <ArrowRight className="h-3 w-3" />
             </Link>
@@ -69,7 +69,7 @@ export function PublicPagesUsageBar({ used, limit, plan }: PublicPagesUsageBarPr
       )}
 
       {isUnlimited && (
-        <div className="mt-2 text-xs text-lodgra-brand-600 font-medium flex items-center gap-1">
+        <div className="mt-2 text-xs text-be-text-600 font-medium flex items-center gap-1">
           <TrendingUp className="h-3 w-3" />
           Páginas públicas ilimitadas com o plano {plan}
         </div>

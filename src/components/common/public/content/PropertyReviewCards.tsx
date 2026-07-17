@@ -17,7 +17,7 @@ const SOURCE_COLORS: Record<ReviewSource, string> = {
   airbnb: 'text-rose-600',
   google: 'text-amber-700',
   tripadvisor: 'text-green-700',
-  direct: 'text-lodgra-brand-700',
+  direct: 'text-be-text-700',
   other: 'text-gray-600',
 }
 
@@ -64,7 +64,7 @@ function ReviewCard({ review }: ReviewCardProps) {
             <button
               type="button"
               onClick={() => setExpanded(prev => !prev)}
-              className="mt-1 text-xs text-lodgra-brand-700 hover:underline font-medium"
+              className="mt-1 text-xs text-be-text-700 hover:underline font-medium"
             >
               {expanded ? 'Ver menos' : 'Ver mais'}
             </button>

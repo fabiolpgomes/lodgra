@@ -29,7 +29,7 @@ export function BarChart({
   const barGap = barWidth * 0.1
 
   return (
-    <div className="w-full bg-white rounded-sm border border-lodgra-primary/10 p-6">
+    <div className="w-full bg-white rounded-sm border border-be-border/10 p-6">
       <svg
         width="100%"
         height={chartHeight}
@@ -38,7 +38,7 @@ export function BarChart({
       >
         {/* Grid */}
         {showGrid && (
-          <g stroke="currentColor" strokeOpacity="0.1" className="text-lodgra-primary">
+          <g stroke="currentColor" strokeOpacity="0.1" className="text-be-text">
             {[0, 25, 50, 75, 100].map((percent) => {
               const y = chartHeight - padding - (chartHeight - padding * 2) * (percent / 100)
               return <line key={`grid-${percent}`} x1={padding} y1={y} x2={chartWidth - padding} y2={y} />
@@ -99,7 +99,7 @@ export function BarChart({
                 className="w-3 h-3 rounded-sm"
                 style={{ backgroundColor: item.color || '#1E3A8A' }}
               />
-              <span className="text-design-sm text-lodgra-primary">{item.label}</span>
+              <span className="text-design-sm text-be-text">{item.label}</span>
             </div>
           ))}
         </div>
@@ -158,7 +158,7 @@ export function PieChart({ data, size = 'md' }: PieChartProps) {
   ).slices
 
   return (
-    <div className="w-full bg-white rounded-sm border border-lodgra-primary/10 p-6">
+    <div className="w-full bg-white rounded-sm border border-be-border/10 p-6">
       <svg width="100%" height={diameter} viewBox={`0 0 ${diameter} ${diameter}`} className="mx-auto">
         {slices.map((slice, idx) => (
           <path
@@ -177,7 +177,7 @@ export function PieChart({ data, size = 'md' }: PieChartProps) {
         {slices.map((slice, idx) => (
           <div key={idx} className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: slice.color }} />
-            <span className="text-design-sm text-lodgra-primary">
+            <span className="text-design-sm text-be-text">
               {slice.label} ({slice.percentage}%)
             </span>
           </div>

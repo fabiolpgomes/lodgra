@@ -27,9 +27,9 @@ export const PublicNav: React.FC<PublicNavProps> = ({ variant = 'light', compact
   const visibleLanguages = languages.filter((lang) => lang.code === 'pt-BR')
 
   const bgClass = variant === 'dark' ? 'bg-lodgra-blue' : 'bg-white'
-  const borderClass = variant === 'dark' ? 'border-[#ffffff]/10' : 'border-lodgra-blue/10'
+  const borderClass = variant === 'dark' ? 'border-[#ffffff]/10' : 'border-be-blue/10'
   const textClass = variant === 'dark' ? 'text-white' : 'text-lodgra-blue'
-  const hoverClass = variant === 'dark' ? 'hover:text-lodgra-accent' : 'hover:text-lodgra-blue'
+  const hoverClass = variant === 'dark' ? 'hover:text-be-blue' : 'hover:text-lodgra-blue'
 
   return (
     <nav className={`fixed top-0 w-full z-50 ${bgClass} border-b ${borderClass}`}>
@@ -97,7 +97,7 @@ export const PublicNav: React.FC<PublicNavProps> = ({ variant = 'light', compact
 
           <Link
             href="/pricing"
-            className={`bg-lodgra-accent text-lodgra-blue rounded-none uppercase font-black text-[14px] tracking-[1px] px-8 h-[48px] flex items-center justify-center hover:bg-[#e6ac00] transition-colors`}
+            className={`bg-be-blue text-lodgra-blue rounded-none uppercase font-black text-[14px] tracking-[1px] px-8 h-[48px] flex items-center justify-center hover:bg-[#e6ac00] transition-colors`}
           >
             Ver Planos
           </Link>

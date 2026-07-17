@@ -21,7 +21,7 @@ describe('Design System Components', () => {
       expect(screen.getByRole('button')).toHaveClass('bg-primary')
 
       rerender(<Button variant="secondary">Secondary</Button>)
-      expect(screen.getByRole('button')).toHaveClass('bg-lodgra-accent')
+      expect(screen.getByRole('button')).toHaveClass('bg-be-blue')
     })
 
     it('Button should render all sizes', () => {
@@ -104,7 +104,7 @@ describe('Design System Components', () => {
 
     it('Card should render all variants', () => {
       const { rerender, container } = render(<Card variant="default">Content</Card>)
-      expect(container.firstChild).toHaveClass('border-lodgra-primary/10')
+      expect(container.firstChild).toHaveClass('border-be-border/10')
 
       rerender(<Card variant="elevated">Content</Card>)
       expect(container.firstChild).toHaveClass('shadow-md')

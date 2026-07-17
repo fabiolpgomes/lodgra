@@ -157,18 +157,18 @@ export function OnboardingWizard({ locale }: OnboardingWizardProps) {
               <div key={i} className="flex items-center">
                 <div className="flex flex-col items-center">
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
-                    done ? 'bg-lodgra-primary text-white' :
-                    active ? 'bg-lodgra-primary/10 border-2 border-lodgra-primary text-lodgra-primary' :
+                    done ? 'bg-be-blue text-white' :
+                    active ? 'bg-be-blue/10 border-2 border-be-border text-be-text' :
                     'bg-gray-100 dark:bg-gray-800 text-gray-500'
                   }`}>
                     {done ? <Check className="h-5 w-5" /> : <Icon className="h-5 w-5" />}
                   </div>
-                  <span className={`text-xs mt-1 font-medium ${active ? 'text-lodgra-primary' : 'text-gray-500'}`}>
+                  <span className={`text-xs mt-1 font-medium ${active ? 'text-be-text' : 'text-gray-500'}`}>
                     {s.label}
                   </span>
                 </div>
                 {i < STEPS.length - 1 && (
-                  <div className={`h-0.5 w-16 sm:w-24 mx-2 mb-5 transition-colors ${i < step ? 'bg-lodgra-primary' : 'bg-gray-200 dark:bg-gray-700'}`} />
+                  <div className={`h-0.5 w-16 sm:w-24 mx-2 mb-5 transition-colors ${i < step ? 'bg-be-blue' : 'bg-gray-200 dark:bg-gray-700'}`} />
                 )}
               </div>
             )
@@ -199,7 +199,7 @@ export function OnboardingWizard({ locale }: OnboardingWizardProps) {
                       onClick={() => setStep1(s => ({ ...s, profileType: opt.value }))}
                       className={`w-full text-left px-4 py-3 rounded-xl border-2 transition-all ${
                         step1.profileType === opt.value
-                          ? 'border-lodgra-primary bg-lodgra-primary/5 text-lodgra-primary font-medium'
+                          ? 'border-be-border bg-be-blue/5 text-be-text font-medium'
                           : 'border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-300'
                       }`}
                     >
@@ -220,7 +220,7 @@ export function OnboardingWizard({ locale }: OnboardingWizardProps) {
                       onClick={() => setStep1(s => ({ ...s, propertyCount: n }))}
                       className={`py-3 rounded-xl border-2 font-semibold text-lg transition-all ${
                         step1.propertyCount === n
-                          ? 'border-lodgra-primary bg-lodgra-primary/5 text-lodgra-primary'
+                          ? 'border-be-border bg-be-blue/5 text-be-text'
                           : 'border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-300'
                       }`}
                     >
@@ -392,9 +392,9 @@ export function OnboardingWizard({ locale }: OnboardingWizardProps) {
               </p>
 
               {bookingSlug && (
-                <div className="bg-lodgra-blue/5 border border-lodgra-blue/20 rounded-xl p-4 mb-4 text-left">
+                <div className="bg-lodgra-blue/5 border border-be-blue/20 rounded-xl p-4 mb-4 text-left">
                   <p className="text-sm font-semibold text-lodgra-blue mb-1">🔗 A sua URL de reservas directas:</p>
-                  <p className="text-sm font-mono bg-white dark:bg-gray-900 border border-lodgra-blue/20 rounded-lg px-3 py-2 text-lodgra-blue break-all">
+                  <p className="text-sm font-mono bg-white dark:bg-gray-900 border border-be-blue/20 rounded-lg px-3 py-2 text-lodgra-blue break-all">
                     {bookingSlug}.lodgra.io/booking
                   </p>
                   <p className="text-xs text-gray-600 mt-2">

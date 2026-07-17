@@ -217,8 +217,8 @@ export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, 
               <div className="flex flex-wrap gap-6 pb-6 border-b border-gray-200">
                 {property.max_guests && (
                   <div className="flex items-center gap-2.5">
-                    <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-lodgra-brand-50">
-                      <Users className="h-5 w-5 text-lodgra-brand-700" />
+                    <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-be-blue-50">
+                      <Users className="h-5 w-5 text-be-text-700" />
                     </span>
                     <div>
                       <p className="text-xs text-gray-500">Hóspedes</p>
@@ -228,8 +228,8 @@ export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, 
                 )}
                 {property.bedrooms && (
                   <div className="flex items-center gap-2.5">
-                    <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-lodgra-brand-50">
-                      <BedDouble className="h-5 w-5 text-lodgra-brand-700" />
+                    <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-be-blue-50">
+                      <BedDouble className="h-5 w-5 text-be-text-700" />
                     </span>
                     <div>
                       <p className="text-xs text-gray-500">Quartos</p>
@@ -239,8 +239,8 @@ export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, 
                 )}
                 {property.bathrooms && (
                   <div className="flex items-center gap-2.5">
-                    <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-lodgra-brand-50">
-                      <Bath className="h-5 w-5 text-lodgra-brand-700" />
+                    <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-be-blue-50">
+                      <Bath className="h-5 w-5 text-be-text-700" />
                     </span>
                     <div>
                       <p className="text-xs text-gray-500">Casas de banho</p>

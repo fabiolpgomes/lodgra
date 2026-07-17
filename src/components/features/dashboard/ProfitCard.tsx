@@ -15,7 +15,7 @@ export function ProfitCard({ revenue, expenses, currency }: ProfitCardProps) {
   const isProfit = profit >= 0
 
   return (
-    <div className="bg-white border border-lodgra-blue/10 p-4 sm:p-6 rounded-none">
+    <div className="bg-white border border-be-blue/10 p-4 sm:p-6 rounded-none">
       <div className="flex items-center justify-between mb-4">
         <div className="p-3 bg-lodgra-blue/5 rounded-none">
           <DollarSign className="h-6 w-6 text-lodgra-blue" />

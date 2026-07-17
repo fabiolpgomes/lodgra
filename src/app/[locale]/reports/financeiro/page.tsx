@@ -523,7 +523,7 @@ export default async function FinanceiroPage({ searchParams }: PageProps) {
 
         {/* Métricas Principais — Row 1: financials */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-4">
-          <div className="border border-lodgra-blue/10 p-5 rounded-none shadow-none" style={{ backgroundColor: '#FFFFFF' }}>
+          <div className="border border-be-blue/10 p-5 rounded-none shadow-none" style={{ backgroundColor: '#FFFFFF' }}>
             <div className="flex items-center justify-between mb-4">
               <div className="p-2.5 rounded-none">
                 <TrendingUp className="h-5 w-5" style={{ color: '#1E3A8A' }} />
@@ -536,7 +536,7 @@ export default async function FinanceiroPage({ searchParams }: PageProps) {
             <p className="text-[10px] font-black uppercase tracking-wider mt-2" style={{ color: '#1E3A8A' }}>Receita bruta no período</p>
           </div>
 
-          <div className="bg-white border border-lodgra-blue/10 p-5 rounded-none">
+          <div className="bg-white border border-be-blue/10 p-5 rounded-none">
             <div className="flex items-center justify-between mb-4">
               <div className="p-2.5 bg-red-50 rounded-none">
                 <TrendingDown className="h-5 w-5 text-red-600" />
@@ -549,7 +549,7 @@ export default async function FinanceiroPage({ searchParams }: PageProps) {
             <p className="text-[10px] font-black uppercase tracking-wider text-lodgra-navy/20 mt-2">Total despesas no período</p>
           </div>
 
-          <div className="bg-white border border-lodgra-blue/10 p-5 rounded-none">
+          <div className="bg-white border border-be-blue/10 p-5 rounded-none">
             <div className="flex items-center justify-between mb-4">
               <div className="p-2.5 bg-lodgra-blue/5 rounded-none">
                 <BarChart3 className="h-5 w-5 text-lodgra-blue" />
@@ -581,7 +581,7 @@ export default async function FinanceiroPage({ searchParams }: PageProps) {
 
         {/* Métricas Principais — Row 2: KPIs */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 mb-8">
-          <div className="bg-white border border-lodgra-blue/10 p-5 rounded-none">
+          <div className="bg-white border border-be-blue/10 p-5 rounded-none">
             <div className="flex items-center justify-between mb-4">
               <div className="p-2.5 bg-lodgra-blue/5 rounded-none">
                 <Calendar className="h-4 w-4 text-lodgra-blue" />
@@ -592,7 +592,7 @@ export default async function FinanceiroPage({ searchParams }: PageProps) {
             <p className="text-[10px] font-black uppercase tracking-wider text-lodgra-navy/20 mt-1">Confirmadas</p>
           </div>
 
-          <div className="bg-white border border-lodgra-blue/10 p-5 rounded-none">
+          <div className="bg-white border border-be-blue/10 p-5 rounded-none">
             <div className="flex items-center justify-between mb-4">
               <div className="p-2.5 bg-lodgra-gold/5 rounded-none">
                 <BarChart2 className="h-4 w-4 text-lodgra-gold" />
@@ -603,7 +603,7 @@ export default async function FinanceiroPage({ searchParams }: PageProps) {
             <p className="text-[10px] font-black uppercase tracking-wider text-lodgra-navy/20 mt-2">Diária média</p>
           </div>
 
-          <div className="bg-white border border-lodgra-blue/10 p-5 rounded-none">
+          <div className="bg-white border border-be-blue/10 p-5 rounded-none">
             <div className="flex items-center justify-between mb-4">
               <div className="p-2.5 bg-lodgra-gold/5 rounded-none">
                 <DollarSign className="h-4 w-4 text-lodgra-gold" />
@@ -616,7 +616,7 @@ export default async function FinanceiroPage({ searchParams }: PageProps) {
             <p className="text-[10px] font-black uppercase tracking-wider text-lodgra-navy/20 mt-2">Receita/noite disp.</p>
           </div>
 
-          <div className="bg-white border border-lodgra-blue/10 p-5 rounded-none">
+          <div className="bg-white border border-be-blue/10 p-5 rounded-none">
             <div className="flex items-center justify-between mb-4">
               <div className="p-2.5 bg-teal-50 rounded-none">
                 <Target className="h-4 w-4 text-teal-600" />

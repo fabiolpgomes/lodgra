@@ -30,7 +30,7 @@ export const SocialProof: React.FC<SocialProofProps> = ({
         <div className="mb-16 grid grid-cols-2 md:grid-cols-3 gap-8 text-center">
           {stats.map((stat, i) => (
             <div key={i}>
-              <div className={`text-4xl sm:text-5xl font-bold mb-2 ${stat.color ?? 'text-lodgra-primary'}`}>
+              <div className={`text-4xl sm:text-5xl font-bold mb-2 ${stat.color ?? 'text-be-text'}`}>
                 {stat.value}
               </div>
               <p className="text-gray-600 dark:text-gray-400">{stat.label}</p>
@@ -49,7 +49,7 @@ export const SocialProof: React.FC<SocialProofProps> = ({
             {propertyLogos.map((logo, i) => (
               <div
                 key={i}
-                className="flex items-center justify-center p-6 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-lodgra-primary dark:hover:border-lodgra-primary hover:shadow-md transition-all bg-gray-50 dark:bg-gray-900"
+                className="flex items-center justify-center p-6 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-be-border dark:hover:border-be-border hover:shadow-md transition-all bg-gray-50 dark:bg-gray-900"
               >
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300 text-center">{logo}</span>
               </div>
@@ -68,7 +68,7 @@ export const SocialProof: React.FC<SocialProofProps> = ({
             {testimonials.map((t, i) => (
               <div
                 key={i}
-                className="relative p-8 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-lodgra-primary/50 bg-gray-50 dark:bg-gray-900 transition-all hover:shadow-lg"
+                className="relative p-8 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-be-border/50 bg-gray-50 dark:bg-gray-900 transition-all hover:shadow-lg"
               >
                 <Quote className="h-6 w-6 text-lodgra-gold mb-4 opacity-50" />
                 <p className="text-gray-700 dark:text-gray-300 mb-6 italic leading-relaxed">
@@ -77,7 +77,7 @@ export const SocialProof: React.FC<SocialProofProps> = ({
                 <div>
                   <div className="font-semibold text-gray-900 dark:text-white">{t.author}</div>
                   <div className="text-sm text-gray-600 dark:text-gray-400">{t.role}</div>
-                  <div className="text-xs text-lodgra-primary font-medium mt-2">{t.properties}</div>
+                  <div className="text-xs text-be-text font-medium mt-2">{t.properties}</div>
                 </div>
               </div>
             ))}

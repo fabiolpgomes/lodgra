@@ -160,11 +160,11 @@ export default async function ReservationsPage({
           <div className="be-card p-5">
             <div className="flex items-center justify-between mb-4">
               <div className="be-icon w-9 h-9 bg-[#FFFBEB]">
-                <Clock className="h-5 w-5 text-lodgra-accent" />
+                <Clock className="h-5 w-5 text-be-blue" />
               </div>
               <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">Status</span>
             </div>
-            <p className="text-4xl font-bold text-lodgra-accent">{stats.pending}</p>
+            <p className="text-4xl font-bold text-be-blue">{stats.pending}</p>
             <p className="text-sm text-gray-600 mt-1">Pendentes</p>
           </div>
 

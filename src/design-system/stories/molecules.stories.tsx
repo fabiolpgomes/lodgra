@@ -141,7 +141,7 @@ export const CardComplex: StoryObj<typeof _CardMeta> = {
     children: (
       <div className="space-y-2">
         <p className="text-design-sm">⭐ 4.9 (128 reviews)</p>
-        <p className="text-design-xs text-lodgra-primary/60">Professional cleaning service with guaranteed satisfaction</p>
+        <p className="text-design-xs text-be-text/60">Professional cleaning service with guaranteed satisfaction</p>
       </div>
     ),
   },

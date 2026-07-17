@@ -165,12 +165,12 @@ export function Sidebar({ serverProfile }: SidebarProps) {
 
       {/* Sidebar */}
       <aside
-        className={`flex flex-col fixed top-0 left-0 h-screen z-40 bg-white border-r border-lodgra-blue/10 transition-transform duration-300 md:translate-x-0 ${
+        className={`flex flex-col fixed top-0 left-0 h-screen z-40 bg-white border-r border-be-blue/10 transition-transform duration-300 md:translate-x-0 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         }`}
         style={{ width: '260px' }}
       >
-      <div className="px-6 py-10 bg-white border-b border-lodgra-blue/10 flex items-center justify-center">
+      <div className="px-6 py-10 bg-white border-b border-be-blue/10 flex items-center justify-center">
         <Link href={prefix || '/'} className="flex items-center">
           <Logo size="lg" />
         </Link>
@@ -187,8 +187,8 @@ export function Sidebar({ serverProfile }: SidebarProps) {
               href={href}
               className={`flex items-center gap-3 px-4 py-3 rounded-none text-[13px] font-black uppercase tracking-[1px] transition-all font-[family-name:var(--font-hanken-grotesk)] ${
                 active
-                  ? 'bg-lodgra-accent text-lodgra-blue'
-                  : 'text-lodgra-blue hover:text-lodgra-blue hover:bg-lodgra-accent/10'
+                  ? 'bg-be-blue text-lodgra-blue'
+                  : 'text-lodgra-blue hover:text-lodgra-blue hover:bg-be-blue/10'
               }`}
             >
               <Icon className="h-4 w-4 shrink-0" />
@@ -203,8 +203,8 @@ export function Sidebar({ serverProfile }: SidebarProps) {
             onClick={() => setCleaningExpanded(!cleaningExpanded)}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-none text-[13px] font-black uppercase tracking-[1px] transition-all font-[family-name:var(--font-hanken-grotesk)] ${
               cleaningExpanded || pathname.includes('/cleaning')
-                ? 'bg-lodgra-accent text-lodgra-blue'
-                : 'text-lodgra-blue hover:text-lodgra-blue hover:bg-lodgra-accent/10'
+                ? 'bg-be-blue text-lodgra-blue'
+                : 'text-lodgra-blue hover:text-lodgra-blue hover:bg-be-blue/10'
             }`}
           >
             <CheckSquare className="h-4 w-4 shrink-0" />
@@ -228,8 +228,8 @@ export function Sidebar({ serverProfile }: SidebarProps) {
                     href={href}
                     className={`flex items-center gap-3 px-4 py-2 rounded-none text-[12px] font-bold uppercase tracking-[0.5px] transition-all font-[family-name:var(--font-hanken-grotesk)] ${
                       active
-                        ? 'bg-lodgra-accent/70 text-lodgra-blue'
-                        : 'text-lodgra-blue/70 hover:text-lodgra-blue hover:bg-lodgra-accent/20'
+                        ? 'bg-be-blue/70 text-lodgra-blue'
+                        : 'text-lodgra-blue/70 hover:text-lodgra-blue hover:bg-be-blue/20'
                     }`}
                   >
                     {submenuLabel}
@@ -246,8 +246,8 @@ export function Sidebar({ serverProfile }: SidebarProps) {
             onClick={() => setReportsExpanded(!reportsExpanded)}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-none text-[13px] font-black uppercase tracking-[1px] transition-all font-[family-name:var(--font-hanken-grotesk)] ${
               reportsExpanded || pathname.includes('/reports')
-                ? 'bg-lodgra-accent text-lodgra-blue'
-                : 'text-lodgra-blue hover:text-lodgra-blue hover:bg-lodgra-accent/10'
+                ? 'bg-be-blue text-lodgra-blue'
+                : 'text-lodgra-blue hover:text-lodgra-blue hover:bg-be-blue/10'
             }`}
           >
             <BarChart3 className="h-4 w-4 shrink-0" />
@@ -271,8 +271,8 @@ export function Sidebar({ serverProfile }: SidebarProps) {
                     href={href}
                     className={`flex items-center gap-3 px-4 py-2 rounded-none text-[12px] font-bold uppercase tracking-[0.5px] transition-all font-[family-name:var(--font-hanken-grotesk)] ${
                       active
-                        ? 'bg-lodgra-accent/70 text-lodgra-blue'
-                        : 'text-lodgra-blue/70 hover:text-lodgra-blue hover:bg-lodgra-accent/20'
+                        ? 'bg-be-blue/70 text-lodgra-blue'
+                        : 'text-lodgra-blue/70 hover:text-lodgra-blue hover:bg-be-blue/20'
                     }`}
                   >
                     {label}
@@ -296,8 +296,8 @@ export function Sidebar({ serverProfile }: SidebarProps) {
                 href={href}
                 className={`flex items-center gap-3 px-4 py-3 rounded-none text-[13px] font-black uppercase tracking-[1px] transition-all font-[family-name:var(--font-hanken-grotesk)] ${
                   active
-                    ? 'bg-lodgra-accent text-lodgra-blue'
-                    : 'text-lodgra-blue hover:text-lodgra-blue hover:bg-lodgra-accent/10'
+                    ? 'bg-be-blue text-lodgra-blue'
+                    : 'text-lodgra-blue hover:text-lodgra-blue hover:bg-be-blue/10'
                 }`}
               >
                 <Icon className="h-4 w-4 shrink-0" />
@@ -309,10 +309,10 @@ export function Sidebar({ serverProfile }: SidebarProps) {
       </nav>
 
       {/* Bottom: profile + signout */}
-      <div className="px-4 py-6 border-t border-lodgra-blue/10 space-y-4 bg-white">
-        <div className="flex items-center gap-3 px-2 py-3 bg-white border border-lodgra-blue/10 rounded-lg">
+      <div className="px-4 py-6 border-t border-be-blue/10 space-y-4 bg-white">
+        <div className="flex items-center gap-3 px-2 py-3 bg-white border border-be-blue/10 rounded-lg">
           <div
-            className="w-9 h-9 rounded-none flex items-center justify-center text-[14px] font-black text-lodgra-blue shrink-0 font-[family-name:var(--font-hanken-grotesk)] bg-lodgra-accent"
+            className="w-9 h-9 rounded-none flex items-center justify-center text-[14px] font-black text-lodgra-blue shrink-0 font-[family-name:var(--font-hanken-grotesk)] bg-be-blue"
           >
             {initials}
           </div>
@@ -324,7 +324,7 @@ export function Sidebar({ serverProfile }: SidebarProps) {
           </div>
           <button
             onClick={handleSignOut}
-            className="p-2 text-lodgra-blue/40 hover:text-lodgra-accent hover:bg-lodgra-accent/10 transition-all rounded"
+            className="p-2 text-lodgra-blue/40 hover:text-be-blue hover:bg-be-blue/10 transition-all rounded"
             title="Sair"
           >
             <LogOut className="h-4 w-4" />

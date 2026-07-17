@@ -32,7 +32,7 @@ export const Pricing: React.FC<PricingProps> = ({
     <section className="bg-white dark:bg-gray-950 py-20 md:py-32">
       <Container>
         <div className="text-center mb-16">
-          <h2 className="font-poppins font-bold text-4xl md:text-5xl lg:text-6xl text-lodgra-primary mb-4 leading-tight tracking-tight">
+          <h2 className="font-poppins font-bold text-4xl md:text-5xl lg:text-6xl text-be-text mb-4 leading-tight tracking-tight">
             {title}
           </h2>
         </div>

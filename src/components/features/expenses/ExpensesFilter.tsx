@@ -353,7 +353,7 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
                           {canEdit && (
                             <Link
                               href={`${prefix}/expenses/${expense.id}/edit`}
-                              className="p-1.5 text-lodgra-blue rounded-lg bg-lodgra-accent hover:bg-lodgra-accent/80 transition-colors"
+                              className="p-1.5 text-lodgra-blue rounded-lg bg-be-blue hover:bg-be-blue/80 transition-colors"
                               title="Editar"
                             >
                               <Edit className="h-4 w-4" />

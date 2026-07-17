@@ -49,7 +49,7 @@ export const PublicFooter: React.FC = () => {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm text-gray-300 hover:text-lodgra-accent transition-colors"
+                    className="text-sm text-gray-300 hover:text-be-blue transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -68,7 +68,7 @@ export const PublicFooter: React.FC = () => {
                     href={link.href}
                     target={link.href.startsWith('http') ? '_blank' : undefined}
                     rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                    className="text-sm text-gray-300 hover:text-lodgra-accent transition-colors"
+                    className="text-sm text-gray-300 hover:text-be-blue transition-colors"
                   >
                     {link.label}
                   </a>
@@ -87,7 +87,7 @@ export const PublicFooter: React.FC = () => {
                     href={link.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-gray-300 hover:text-lodgra-accent transition-colors"
+                    className="text-sm text-gray-300 hover:text-be-blue transition-colors"
                   >
                     {link.label}
                   </a>

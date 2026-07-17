@@ -551,7 +551,7 @@ export function LandingPage() {
                   key={m}
                   onClick={() => setMarket(m)}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-none text-[11px] font-black uppercase tracking-wider transition-all ${
-                    market === m ? 'bg-white text-lodgra-navy shadow-sm' : 'text-lodgra-neutral-500 hover:text-lodgra-neutral-700'
+                    market === m ? 'bg-white text-lodgra-navy shadow-sm' : 'text-be-text-muted-500 hover:text-be-text-muted-700'
                   }`}
                 >
                   <span>{CONTENT[m].flag}</span>
@@ -591,7 +591,7 @@ export function LandingPage() {
                     }
                     setShowPwaBanner(false)
                   }}
-                  className="px-3 sm:px-4 py-1.5 sm:py-2 bg-white text-lodgra-primary text-xs sm:text-sm font-medium rounded-lg hover:bg-lodgra-brand-50 transition-colors whitespace-nowrap"
+                  className="px-3 sm:px-4 py-1.5 sm:py-2 bg-white text-be-text text-xs sm:text-sm font-medium rounded-lg hover:bg-be-blue-50 transition-colors whitespace-nowrap"
                 >
                   {c.pwaBannerAction}
                 </button>
@@ -600,7 +600,7 @@ export function LandingPage() {
                     setShowPwaBanner(false)
                     sessionStorage.setItem('pwa-banner-dismissed', 'true')
                   }}
-                  className="p-1.5 text-white hover:bg-lodgra-brand-600 rounded-lg transition-colors"
+                  className="p-1.5 text-white hover:bg-be-blue-600 rounded-lg transition-colors"
                   aria-label="Close banner"
                 >
                   <X className="w-4 h-4" />
@@ -620,7 +620,7 @@ export function LandingPage() {
         <h1 className="text-5xl sm:text-7xl font-black text-lodgra-navy mb-8 leading-[1.1] max-w-5xl mx-auto font-display uppercase tracking-tighter">
           {c.headline}
         </h1>
-        <p className="text-xl text-lodgra-neutral-500 max-w-3xl mx-auto mb-12 font-medium">
+        <p className="text-xl text-be-text-muted-500 max-w-3xl mx-auto mb-12 font-medium">
           {c.subheadline}
         </p>
         <form onSubmit={handleCheckout} className="flex flex-col sm:flex-row gap-0 max-w-lg mx-auto mb-4 border border-lodgra-navy/10 p-1 bg-white">
@@ -636,7 +636,7 @@ export function LandingPage() {
             <>{c.cta} <ArrowRight className="h-4 w-4 ml-2" /></>
           </Button>
         </form>
-        <p className="text-[10px] font-bold uppercase tracking-widest text-lodgra-neutral-400">{c.ctaSub}</p>
+        <p className="text-[10px] font-bold uppercase tracking-widest text-be-text-muted-400">{c.ctaSub}</p>
 
         {/* Trust row */}
         <div className="flex flex-wrap items-center justify-center gap-8 mt-16 text-[11px] font-black uppercase tracking-widest text-lodgra-navy/40">
@@ -660,7 +660,7 @@ export function LandingPage() {
                   <span className="text-lodgra-gold text-2xl font-black mt-[-2px] shrink-0">!</span>
                   <div>
                     <h3 className="font-black text-lodgra-navy mb-3 uppercase tracking-wider text-sm font-display">{pain.title}</h3>
-                    <p className="text-xs text-lodgra-neutral-500 leading-relaxed font-medium">{pain.desc}</p>
+                    <p className="text-xs text-be-text-muted-500 leading-relaxed font-medium">{pain.desc}</p>
                   </div>
                 </div>
               </div>
@@ -684,7 +684,7 @@ export function LandingPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-20">
             <h2 className="text-4xl font-black text-lodgra-navy mb-4 font-display uppercase tracking-wider">{c.sectionFeaturesTitle}</h2>
-            <p className="text-lodgra-neutral-500 text-xl max-w-2xl mx-auto font-medium">{c.sectionFeaturesDesc}</p>
+            <p className="text-be-text-muted-500 text-xl max-w-2xl mx-auto font-medium">{c.sectionFeaturesDesc}</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-0 border-t border-l border-lodgra-navy/10">
             {c.featureCards.map(({ icon: Icon, title, desc }) => (
@@ -693,7 +693,7 @@ export function LandingPage() {
                   <Icon className="h-6 w-6 text-white group-hover:text-lodgra-navy" />
                 </div>
                 <h3 className="font-black text-lodgra-navy mb-3 text-xs uppercase tracking-widest font-display">{title}</h3>
-                <p className="text-[11px] text-lodgra-neutral-500 leading-relaxed font-semibold uppercase">{desc}</p>
+                <p className="text-[11px] text-be-text-muted-500 leading-relaxed font-semibold uppercase">{desc}</p>
               </div>
             ))}
           </div>
@@ -703,7 +703,7 @@ export function LandingPage() {
       {/* ── How it works ─────────────────────────────────────────────────────── */}
       <section className="py-24 bg-gradient-to-b from-lodgra-neutral-50/50 to-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-extrabold text-lodgra-neutral-900 text-center mb-14">{c.stepsTitle}</h2>
+          <h2 className="text-3xl font-extrabold text-be-text text-center mb-14">{c.stepsTitle}</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
             {/* Connector line (desktop) */}
             <div className="hidden md:block absolute top-8 left-1/3 right-1/3 h-1 bg-gradient-to-r from-lodgra-brand-200 via-lodgra-brand-400 to-lodgra-brand-200 z-0 rounded-full" />
@@ -712,8 +712,8 @@ export function LandingPage() {
                 <div className="w-16 h-16 bg-gradient-to-br from-lodgra-brand-500 to-lodgra-brand-600 text-white rounded-none flex items-center justify-center text-2xl font-extrabold mx-auto mb-5 shadow-lg">
                   {step.num}
                 </div>
-                <h3 className="font-bold text-lodgra-neutral-900 text-lg mb-2">{step.title}</h3>
-                <p className="text-sm text-lodgra-neutral-500 leading-relaxed">{step.desc}</p>
+                <h3 className="font-bold text-be-text text-lg mb-2">{step.title}</h3>
+                <p className="text-sm text-be-text-muted-500 leading-relaxed">{step.desc}</p>
               </div>
             ))}
           </div>
@@ -727,7 +727,7 @@ export function LandingPage() {
             {c.stats.map(stat => (
               <div key={stat.label} className="backdrop-blur-sm">
                 <div className="text-4xl font-extrabold text-white mb-2">{stat.value}</div>
-                <div className="text-xs sm:text-sm text-lodgra-brand-100 font-medium">{stat.label}</div>
+                <div className="text-xs sm:text-sm text-be-text-100 font-medium">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -737,15 +737,15 @@ export function LandingPage() {
       {/* ── Segments ─────────────────────────────────────────────────────────── */}
       <section className="py-24 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-extrabold text-lodgra-neutral-900 text-center mb-12">{c.segmentsTitle}</h2>
+          <h2 className="text-3xl font-extrabold text-be-text text-center mb-12">{c.segmentsTitle}</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {c.segments.map(({ icon: Icon, title, desc }) => (
               <div key={title} className="border border-lodgra-border-subtle rounded-none p-8 hover:border-lodgra-brand-400 hover:shadow-xl hover:shadow-lodgra-brand-500/10 transition-all duration-300 group">
                 <div className="p-4 bg-gradient-to-br from-lodgra-brand-100 to-lodgra-brand-50 rounded-none inline-flex mb-5 group-hover:scale-110 transition-transform duration-300">
-                  <Icon className="h-7 w-7 text-lodgra-primary" />
+                  <Icon className="h-7 w-7 text-be-text" />
                 </div>
-                <h3 className="font-bold text-lodgra-neutral-900 text-lg mb-3">{title}</h3>
-                <p className="text-lodgra-neutral-500 leading-relaxed">{desc}</p>
+                <h3 className="font-bold text-be-text text-lg mb-3">{title}</h3>
+                <p className="text-be-text-muted-500 leading-relaxed">{desc}</p>
               </div>
             ))}
           </div>
@@ -755,7 +755,7 @@ export function LandingPage() {
       {/* ── Compare ──────────────────────────────────────────────────────────── */}
       <section className="bg-gradient-to-b from-lodgra-neutral-100 to-white py-24">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-extrabold text-lodgra-neutral-900 text-center mb-12">{c.compareTitle}</h2>
+          <h2 className="text-3xl font-extrabold text-be-text text-center mb-12">{c.compareTitle}</h2>
           <div className="overflow-x-auto rounded-none shadow-lg border border-lodgra-border-subtle">
             <table className="w-full bg-white text-sm">
               <thead>
@@ -764,7 +764,7 @@ export function LandingPage() {
                     <th
                       key={h}
                       className={`px-5 py-4 text-left font-semibold ${
-                        i === 1 ? 'bg-gradient-to-r from-lodgra-brand-500 to-lodgra-brand-600 text-white' : i === 0 ? 'text-lodgra-neutral-700 bg-lodgra-brand-50' : 'text-white'
+                        i === 1 ? 'bg-gradient-to-r from-lodgra-brand-500 to-lodgra-brand-600 text-white' : i === 0 ? 'text-be-text-muted-700 bg-be-blue-50' : 'text-white'
                       }`}
                     >
                       {h}
@@ -774,13 +774,13 @@ export function LandingPage() {
               </thead>
               <tbody>
                 {c.compareRows.map((row, ri) => (
-                  <tr key={ri} className="border-b border-lodgra-border-subtle last:border-0 hover:bg-lodgra-brand-50/30 transition-colors">
+                  <tr key={ri} className="border-b border-lodgra-border-subtle last:border-0 hover:bg-be-blue-50/30 transition-colors">
                     {row.map((cell, ci) => (
                       <td
                         key={ci}
                         className={`px-5 py-3.5 ${
-                          ci === 0 ? 'text-lodgra-neutral-700 font-medium' :
-                          ci === 1 ? 'bg-lodgra-brand-50/50 font-semibold text-lodgra-primary' : 'text-lodgra-neutral-500'
+                          ci === 0 ? 'text-be-text-muted-700 font-medium' :
+                          ci === 1 ? 'bg-be-blue-50/50 font-semibold text-be-text' : 'text-be-text-muted-500'
                         }`}
                       >
                         {ci === 0 ? cell : <CompareCellValue val={cell} />}
@@ -797,7 +797,7 @@ export function LandingPage() {
       {/* ── FAQ ──────────────────────────────────────────────────────────────── */}
       <section className="py-24">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-extrabold text-lodgra-neutral-900 text-center mb-12">{c.faqTitle}</h2>
+          <h2 className="text-3xl font-extrabold text-be-text text-center mb-12">{c.faqTitle}</h2>
           <div className="space-y-1">
             {c.faqs.map((faq, i) => (
               <div key={i} className="border border-lodgra-navy/10 rounded-none bg-white">
@@ -809,7 +809,7 @@ export function LandingPage() {
                   <ChevronDown className={`h-5 w-5 text-lodgra-navy/40 transition-transform ${openFaq === i ? 'rotate-180' : ''}`} />
                 </button>
                 {openFaq === i && (
-                  <div className="px-8 pb-6 text-sm text-lodgra-neutral-500 font-medium leading-relaxed border-t border-lodgra-navy/5 pt-4">
+                  <div className="px-8 pb-6 text-sm text-be-text-muted-500 font-medium leading-relaxed border-t border-lodgra-navy/5 pt-4">
                     {faq.a}
                   </div>
                 )}
@@ -858,7 +858,7 @@ export function LandingPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-20">
             <h2 className="text-4xl font-black text-lodgra-navy mb-4 font-display uppercase tracking-wider">{c.sectionPricingTitle}</h2>
-            <p className="text-lodgra-neutral-500 text-xl font-medium">{c.sectionPricingDesc}</p>
+            <p className="text-be-text-muted-500 text-xl font-medium">{c.sectionPricingDesc}</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {PRICING_L10N[market].plans.map((plan, i) => (
@@ -868,14 +868,14 @@ export function LandingPage() {
                     {PRICING_L10N[market].popularBadge}
                   </div>
                 )}
-                <h3 className="text-[10px] font-black text-lodgra-neutral-400 uppercase tracking-[3px] mb-6 font-display">
+                <h3 className="text-[10px] font-black text-be-text-muted-400 uppercase tracking-[3px] mb-6 font-display">
                   {PLAN_DISPLAY[i]?.name || 'ENTERPRISE'}
                 </h3>
                 <div className="mb-8">
                   {plan.price !== null ? (
                     <div className="flex items-baseline gap-1">
                       <span className="text-4xl font-black text-lodgra-navy font-display">{PRICING_L10N[market].symbol}{plan.price}</span>
-                      <span className="text-[10px] font-black text-lodgra-neutral-400 uppercase tracking-widest">{PRICING_L10N[market].period}</span>
+                      <span className="text-[10px] font-black text-be-text-muted-400 uppercase tracking-widest">{PRICING_L10N[market].period}</span>
                     </div>
                   ) : (
                     <span className="text-2xl font-black text-lodgra-navy font-display uppercase tracking-wider">Sob consulta</span>
