@@ -109,8 +109,8 @@ function Button({
     }
   }
 
-  const isBehance = variant?.toString().startsWith('be-')
-  const finalStyle = isBehance ? { ...getBehanceStyle(variant), ...style } : style
+  const isBehance = variant && typeof variant === 'string' && variant.startsWith('be-')
+  const finalStyle = isBehance && variant ? { ...getBehanceStyle(variant), ...style } : style
 
   return (
     <Comp
