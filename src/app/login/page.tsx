@@ -68,14 +68,14 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-brand-50 to-indigo-100 flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'linear-gradient(135deg, var(--be-blue-pale) 0%, var(--be-blue-light) 100%)' }}>
       <div className="w-full max-w-md">
         {/* Logo and Title */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-4">
             <Logo size="lg" />
           </div>
-          <p className="text-gray-600">Global property management platform</p>
+          <p className="text-gray-600" style={{ color: 'var(--be-text-muted)' }}>Global property management platform</p>
         </div>
 
         {/* Login Card */}
@@ -129,7 +129,7 @@ export default function LoginPage() {
 
             {/* Forgot Password */}
             <div className="text-right">
-              <Link href="/auth/reset-password" className="text-sm text-brand-600 hover:text-brand-700 font-medium">
+              <Link href="/auth/reset-password" className="text-sm text-[color:var(--be-blue)] hover:text-[color:var(--be-blue-hover)] font-medium">
                 Forgot password?
               </Link>
             </div>
@@ -152,7 +152,7 @@ export default function LoginPage() {
           <div className="mt-6 text-center text-sm text-gray-600">
             <p>
               Don&apos;t have an account?{' '}
-              <Link href="/register" className="text-brand-600 hover:text-brand-700 font-medium">
+              <Link href="/register" className="text-[color:var(--be-blue)] hover:text-[color:var(--be-blue-hover)] font-medium">
                 Sign up
               </Link>
             </p>
@@ -165,7 +165,7 @@ export default function LoginPage() {
             href="https://github.com/fabiolpgomes/lodgra/blob/main/docs/COLLABORATOR_ACCESS.md"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm text-brand-600 hover:text-brand-700 font-medium transition-colors"
+            className="text-sm text-[color:var(--be-blue)] hover:text-[color:var(--be-blue-hover)] font-medium transition-colors"
           >
             Need help? → Collaborator Guide
           </a>
