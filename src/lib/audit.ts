@@ -1,7 +1,7 @@
 import { createAdminClient } from './supabase/admin'
 
 export type AuditAction = 'create' | 'update' | 'delete'
-export type AuditResource = 'user' | 'reservation' | 'expense' | 'owner' | 'property' | 'notification' | 'cron'
+export type AuditResource = 'user' | 'reservation' | 'expense' | 'company_expense' | 'owner' | 'property' | 'notification' | 'cron'
 
 interface AuditEntry {
   userId: string

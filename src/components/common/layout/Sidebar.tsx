@@ -48,6 +48,7 @@ const REPORTS_MODULES = [
   { id: 'financeiro', label: 'Financeiro', icon: TrendingUp },
   { id: 'reservas', label: 'Reservas', icon: Calendar },
   { id: 'empresa', label: 'Empresa', icon: BarChart3, href: '/dashboard/empresa' },
+  { id: 'empresa-custos', label: 'Custos Empresa', icon: Receipt, href: '/dashboard/empresa/custos' },
 ]
 
 const CONFIG_PATHS = [

@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import {
   ArrowUpRight,
+  AlertTriangle,
   BarChart3,
   Building2,
   CalendarDays,
@@ -18,6 +19,12 @@ import { requireRole } from '@/lib/auth/requireRole'
 import { createClient } from '@/lib/supabase/server'
 import { calcManagementFee } from '@/lib/financial/calculations'
 import { calculateRevenueForReservation } from '@/lib/financial/revenue-calculator'
+import {
+  formatMoneyMapText,
+  subtractMoney,
+  sumCompanyExpensesForYear,
+  type CompanyExpenseRow,
+} from '@/lib/financial/company-expenses'
 import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
 import { normalizeChannelName } from '@/lib/utils/channels'
 
@@ -104,18 +111,6 @@ function formatMoneyMap(values: MoneyMap) {
       ))}
     </div>
   )
-}
-
-function formatMoneyMapText(values: MoneyMap) {
-  const entries = Object.entries(values)
-    .filter(([, amount]) => Math.abs(amount) > 0.005)
-    .sort(([a], [b]) => a.localeCompare(b))
-
-  if (entries.length === 0) return '-'
-
-  return entries
-    .map(([currency, amount]) => formatCurrency(amount, currency as CurrencyCode))
-    .join(' / ')
 }
 
 function getListing(reservation: ReservationRow) {
@@ -279,9 +274,23 @@ export default async function CompanyDashboardPage({
     ])
     : [{ data: [] }, { data: [] }, { data: [] }]
 
+  const companyExpensesResult = await supabase
+    .from('company_expenses')
+    .select('id, description, amount, currency, category, expense_date, recurrence_type, recurrence_end_date, status, notes')
+    .eq('organization_id', auth.organizationId)
+    .neq('status', 'cancelled')
+    .lte('expense_date', end)
+    .or(`recurrence_end_date.is.null,recurrence_end_date.gte.${start}`)
+
+  const companyExpensesSetupPending = Boolean(companyExpensesResult.error)
+  if (companyExpensesResult.error) {
+    console.error('Erro ao buscar custos da empresa:', companyExpensesResult.error)
+  }
+
   const reservations = (reservationsResult.data || []) as ReservationRow[]
   const expenses = (expensesResult.data || []) as ExpenseRow[]
   const futureReservations = (futureReservationsResult.data || []) as ReservationRow[]
+  const companyExpenses = (companyExpensesResult.data || []) as CompanyExpenseRow[]
 
   const monthly = MONTHS.map((label, index) => ({
     label,
@@ -425,7 +434,9 @@ export default async function CompanyDashboardPage({
 
   const totalRevenue = sumMoney(monthly.map((item) => item.revenue))
   const totalCommission = sumMoney(monthly.map((item) => item.commission))
-  const totalExpenses = sumMoney(monthly.map((item) => item.expenses))
+  const totalPropertyExpenses = sumMoney(monthly.map((item) => item.expenses))
+  const totalCompanyExpenses = sumCompanyExpensesForYear(companyExpenses, safeYear).total
+  const totalCompanyResult = subtractMoney(totalCommission, totalCompanyExpenses)
   const totalOwnerNet = sumMoney(monthly.map((item) => item.ownerNet))
   const totalReservations = reservations.length
   const totalNights = reservations.reduce((sum, reservation) => sum + getNights(reservation.check_in, reservation.check_out), 0)
@@ -464,6 +475,12 @@ export default async function CompanyDashboardPage({
                 {safeYear + 1}
               </Link>
               <Link
+                href={`/${locale}/dashboard/empresa/custos?year=${safeYear}`}
+                className="rounded-full border border-neutral-200 bg-brand-white px-4 py-2 text-xs font-bold text-brand-text-dark transition-all hover:border-brand-gold/45 hover:bg-brand-bg hover:text-brand-gold"
+              >
+                Custos empresa
+              </Link>
+              <Link
                 href={`/${locale}/reports/financeiro?start_date=${start}&end_date=${end}`}
                 className="inline-flex items-center gap-2 rounded-full bg-brand-blue px-4 py-2 text-xs font-bold text-white shadow-sm transition-all hover:bg-brand-blue/90"
               >
@@ -473,6 +490,24 @@ export default async function CompanyDashboardPage({
             </>
           )}
         />
+
+        {companyExpensesSetupPending && (
+          <PremiumCard as="section" className="border-brand-gold/35 bg-brand-gold/10">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-brand-gold/30 bg-brand-white text-brand-gold">
+                <AlertTriangle className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-sm font-black text-brand-text-dark">
+                  Estrutura de custos da empresa pendente no Supabase.
+                </p>
+                <p className="mt-1 text-xs font-semibold text-brand-text-medium">
+                  A tabela `company_expenses` ainda precisa receber a migration para que custos operacionais da Lodgra sejam cadastrados e abatidos do resultado dos sócios.
+                </p>
+              </div>
+            </div>
+          </PremiumCard>
+        )}
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
           <PremiumMetricCard
@@ -492,10 +527,10 @@ export default async function CompanyDashboardPage({
             tone="gold"
           />
           <PremiumMetricCard
-            label="Despesas proprietários"
-            value={formatMoneyMap(totalExpenses)}
+            label="Custos operacionais Lodgra"
+            value={companyExpensesSetupPending ? 'Pendente' : formatMoneyMap(totalCompanyExpenses)}
             type="CUSTOS"
-            description="Custos lançados nas propriedades"
+            description={companyExpensesSetupPending ? 'Migration company_expenses não aplicada' : `${companyExpenses.length} lançamentos da empresa`}
             icon={TrendingUp}
             tone="danger"
           />
@@ -560,9 +595,9 @@ export default async function CompanyDashboardPage({
                   <span className="company-return-card__label text-xs font-black uppercase tracking-widest text-brand-gold">Resultado empresa</span>
                   <ArrowUpRight className="h-5 w-5 text-brand-gold" />
                 </div>
-                <div className="company-return-card__value mt-4 text-3xl font-black tracking-tight text-brand-blue">{formatMoneyMap(totalCommission)}</div>
+                <div className="company-return-card__value mt-4 text-3xl font-black tracking-tight text-brand-blue">{formatMoneyMap(totalCompanyResult)}</div>
                 <p className="company-return-card__description mt-3 text-xs font-semibold text-brand-text-medium">
-                  Valor antes de despesas internas da Lodgra, que ainda não aparecem nos lançamentos de propriedades.
+                  Comissão Lodgra deduzindo custos operacionais da empresa. Despesas de propriedade seguem no repasse dos proprietários.
                 </p>
               </div>
               <div className="space-y-3">
@@ -592,7 +627,7 @@ export default async function CompanyDashboardPage({
               </h2>
             </div>
             <span className="text-[10px] font-bold uppercase tracking-wider text-brand-text-medium">
-              {activePropertyStats.length} propriedades com movimento
+              {activePropertyStats.length} propriedades com movimento · {formatMoneyMapText(totalPropertyExpenses)} em despesas de propriedades
             </span>
           </div>
           <div className="overflow-x-auto">
