@@ -522,13 +522,13 @@ export default async function CompanyDashboardPage({
               </p>
             </div>
             <div className="space-y-5">
-              <div className="rounded-2xl border border-brand-blue/10 bg-brand-blue p-5 text-white">
+              <div className="rounded-2xl border border-brand-gold/25 bg-brand-bg p-5 text-brand-text-dark shadow-2xs dark:border-brand-gold/35 dark:bg-white/5 dark:text-white">
                 <div className="flex items-center justify-between gap-3">
-                  <span className="text-xs font-black uppercase tracking-widest text-white/70">Resultado empresa</span>
+                  <span className="text-xs font-black uppercase tracking-widest text-brand-gold">Resultado empresa</span>
                   <ArrowUpRight className="h-5 w-5 text-brand-gold" />
                 </div>
-                <div className="mt-4 text-3xl font-black tracking-tight">{formatMoneyMap(totalCommission)}</div>
-                <p className="mt-3 text-xs font-semibold text-white/70">
+                <div className="mt-4 text-3xl font-black tracking-tight text-brand-blue dark:text-white">{formatMoneyMap(totalCommission)}</div>
+                <p className="mt-3 text-xs font-semibold text-brand-text-medium dark:text-white/75">
                   Valor antes de despesas internas da Lodgra, que ainda não aparecem nos lançamentos de propriedades.
                 </p>
               </div>
