@@ -210,7 +210,7 @@ export function Sidebar({ serverProfile }: SidebarProps) {
               cleaningActive
                 ? 'bg-be-blue text-white'
                 : cleaningExpanded
-                  ? 'bg-brand-bg text-brand-blue'
+                  ? 'bg-brand-bg text-brand-blue dark:bg-white/10 dark:text-white'
                   : 'text-be-text hover:text-be-text hover:bg-be-surface'
             }`}
           >
@@ -236,7 +236,7 @@ export function Sidebar({ serverProfile }: SidebarProps) {
                     className={`flex items-center gap-3 px-4 py-2 rounded-full text-[13px] font-medium tracking-normal transition-all ${
                       active
                         ? 'bg-be-blue text-white'
-                        : 'text-be-text-muted hover:text-be-text hover:bg-be-surface'
+                        : 'text-be-text-muted hover:text-be-text hover:bg-be-surface dark:text-white/75 dark:hover:text-white dark:hover:bg-white/10'
                     }`}
                   >
                     {submenuLabel}
@@ -253,7 +253,7 @@ export function Sidebar({ serverProfile }: SidebarProps) {
             onClick={() => setReportsExpanded(!reportsExpanded)}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-full text-[14px] font-medium tracking-normal transition-all ${
               reportsExpanded || reportsActive
-                ? 'bg-brand-bg text-brand-blue'
+                ? 'bg-brand-bg text-brand-blue dark:bg-white/10 dark:text-white'
                 : 'text-be-text hover:text-be-text hover:bg-be-surface'
             }`}
           >
@@ -279,7 +279,7 @@ export function Sidebar({ serverProfile }: SidebarProps) {
                     className={`flex items-center gap-3 px-4 py-2 rounded-full text-[13px] font-medium tracking-normal transition-all ${
                       active
                         ? 'bg-be-blue text-white'
-                        : 'text-be-text-muted hover:text-be-text hover:bg-be-surface'
+                        : 'text-be-text-muted hover:text-be-text hover:bg-be-surface dark:text-white/75 dark:hover:text-white dark:hover:bg-white/10'
                     }`}
                   >
                     {label}

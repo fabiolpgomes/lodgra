@@ -4,7 +4,6 @@ import Link from 'next/link'
 import { ArrowLeft, Building2, Plus, Receipt, RotateCcw, Save, Trash2 } from 'lucide-react'
 import { AuthLayout } from '@/components/common/layout/AuthLayout'
 import { PremiumCard, PremiumMetricCard, PremiumPageHeader, PremiumPageShell } from '@/components/common/layout/PremiumPage'
-import { Button } from '@/components/common/ui/button'
 import { createClient } from '@/lib/supabase/server'
 import { requireRole } from '@/lib/auth/requireRole'
 import { writeAuditLog } from '@/lib/audit'
@@ -287,7 +286,7 @@ export default async function CompanyCostsPage({
                 <button
                   type="submit"
                   form="company-expense-form"
-                  className="inline-flex items-center justify-center gap-2 rounded-full bg-brand-blue px-4 py-2 text-xs font-bold text-white shadow-sm transition-all hover:bg-brand-blue/90"
+                  className="inline-flex items-center justify-center gap-2 rounded-full border border-brand-blue bg-brand-blue px-4 py-2 text-xs font-bold text-white shadow-sm transition-all hover:bg-brand-blue/90 disabled:border-brand-blue/60 disabled:bg-brand-blue/60 disabled:text-white disabled:opacity-100"
                   disabled={setupPending}
                 >
                   <Save className="h-3.5 w-3.5" />
@@ -444,10 +443,14 @@ export default async function CompanyCostsPage({
                   <RotateCcw className="h-4 w-4" />
                   Cancelar
                 </button>
-                <Button type="submit" variant="action" className="flex-1 justify-center rounded-full" disabled={setupPending}>
+                <button
+                  type="submit"
+                  className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border border-brand-blue bg-brand-blue px-4 py-3 text-sm font-bold text-white shadow-sm transition-all hover:bg-brand-blue/90 disabled:border-brand-blue/60 disabled:bg-brand-blue/60 disabled:text-white disabled:opacity-100"
+                  disabled={setupPending}
+                >
                   <Save className="h-4 w-4" />
                   Salvar custo
-                </Button>
+                </button>
               </div>
             </form>
           </PremiumCard>
