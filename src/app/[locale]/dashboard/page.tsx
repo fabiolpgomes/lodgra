@@ -77,7 +77,7 @@ export default async function DashboardPage({
           created_at,
           guest_name,
           property_listing_id,
-          property_listings(
+          property_listings!inner(
             id,
             property_id,
             properties(id, name, currency)
@@ -339,7 +339,7 @@ export default async function DashboardPage({
           total_amount,
           currency,
           property_listing_id,
-          property_listings(
+          property_listings!inner(
             property_id,
             properties(id, name),
             platforms(display_name)
