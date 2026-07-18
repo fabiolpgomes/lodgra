@@ -8,6 +8,7 @@ import { AuthLayout } from '@/components/common/layout/AuthLayout'
 import { getUserAccess } from '@/lib/auth/getUserAccess'
 import { Button } from '@/components/common/ui/button'
 import { getPlanLimits } from '@/lib/billing/plans'
+import { getCurrencySymbol } from '@/lib/currency/symbols'
 import { PublicUrlBadge } from '@/components/features/properties/PublicUrlBadge'
 import { PublicPagesUsageBar } from '@/components/features/properties/PublicPagesUsageBar'
 import { PremiumCard, PremiumPageHeader, PremiumPageShell } from '@/components/common/layout/PremiumPage'
@@ -188,6 +189,7 @@ function PropertyCard({ property, imageUrl, canEdit, locale }: {
     country: string | null
     bedrooms: number | null
     max_guests: number | null
+    base_price?: number | string | null
     currency?: string | null
   }
   imageUrl: string | null
@@ -197,6 +199,14 @@ function PropertyCard({ property, imageUrl, canEdit, locale }: {
   const propertyHref = canEdit
     ? `/${locale}/properties/${property.id}/edit`
     : `/${locale}/properties/${property.id}`
+  const basePrice = property.base_price ? Number(property.base_price) : 0
+  const currency = property.currency || 'EUR'
+  const formattedBasePrice = basePrice > 0
+    ? `${getCurrencySymbol(currency)} ${basePrice.toLocaleString(locale, {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    })}`
+    : null
 
   return (
     <Link href={propertyHref}>
@@ -267,6 +277,26 @@ function PropertyCard({ property, imageUrl, canEdit, locale }: {
                 {property.currency}
               </span>
             )}
+          </div>
+
+          <div className="mb-4 flex items-end justify-between gap-3 rounded-xl border border-brand-bg bg-brand-white px-3 py-2 shadow-sm transition-colors group-hover:border-brand-gold/45">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-brand-text-medium">
+                Diária mínima
+              </p>
+              {formattedBasePrice ? (
+                <p className="mt-0.5 text-lg font-bold leading-none text-brand-blue transition-colors group-hover:text-brand-gold">
+                  {formattedBasePrice}
+                </p>
+              ) : (
+                <p className="mt-0.5 text-sm font-semibold text-brand-text-medium">
+                  Não informado
+                </p>
+              )}
+            </div>
+            <span className="pb-0.5 text-[11px] font-semibold text-brand-text-medium">
+              / noite
+            </span>
           </div>
 
           {/* Public page badge + toggle */}
