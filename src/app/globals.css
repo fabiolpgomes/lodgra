@@ -791,31 +791,93 @@ html.dark,
 
 /* Sidebar and company cost controls need deterministic contrast across
    light/dark toggles and browser extension color injection. */
-.lodgra-sidebar[data-theme="light"] .sidebar-submenu-trigger-expanded {
-  background-color: #F7F5EF !important;
-  color: #10203E !important;
+.dark .lodgra-sidebar nav :where(a, button, p, span, svg),
+.lodgra-sidebar[data-theme="dark"] nav :where(a, button, p, span, svg) {
+  color: rgba(255, 255, 255, 0.88) !important;
+  stroke: currentColor !important;
 }
 
-.lodgra-sidebar[data-theme="light"] .sidebar-submenu-trigger-active,
+.dark .lodgra-sidebar nav :where(a:hover, button:hover, a:hover span, button:hover span, a:hover svg, button:hover svg),
+.lodgra-sidebar[data-theme="dark"] nav :where(a:hover, button:hover, a:hover span, button:hover span, a:hover svg, button:hover svg) {
+  color: #ffffff !important;
+}
+
+.dark .lodgra-sidebar nav :where(.sidebar-nav-link-active, .sidebar-submenu-link-active, .sidebar-submenu-trigger-active, .sidebar-submenu-trigger-expanded),
+.lodgra-sidebar[data-theme="dark"] nav :where(.sidebar-nav-link-active, .sidebar-submenu-link-active, .sidebar-submenu-trigger-active, .sidebar-submenu-trigger-expanded) {
+  color: #ffffff !important;
+}
+
+.lodgra-sidebar[data-theme="light"] .sidebar-nav-link-active,
 .lodgra-sidebar[data-theme="light"] .sidebar-submenu-link-active {
   background-color: #10203E !important;
   color: #ffffff !important;
 }
 
+.lodgra-sidebar[data-theme="light"] .sidebar-nav-link-muted,
+.lodgra-sidebar[data-theme="light"] .sidebar-submenu-trigger-muted,
+.lodgra-sidebar[data-theme="light"] .sidebar-submenu-link {
+  color: #10203E !important;
+}
+
+.lodgra-sidebar[data-theme="light"] .sidebar-nav-link-muted:hover,
+.lodgra-sidebar[data-theme="light"] .sidebar-submenu-trigger-muted:hover,
+.lodgra-sidebar[data-theme="light"] .sidebar-submenu-link:hover {
+  background-color: #F7F5EF !important;
+  color: #10203E !important;
+}
+
+.lodgra-sidebar[data-theme="light"] .sidebar-submenu-trigger-expanded {
+  background-color: #F7F5EF !important;
+  color: #10203E !important;
+}
+
+.lodgra-sidebar[data-theme="light"] .sidebar-submenu-trigger-active {
+  background-color: #10203E !important;
+  color: #ffffff !important;
+}
+
+.dark .lodgra-sidebar .sidebar-nav-link-muted,
+.dark .lodgra-sidebar .sidebar-submenu-trigger-muted,
+.dark .lodgra-sidebar .sidebar-submenu-link,
+.lodgra-sidebar[data-theme="dark"] .sidebar-nav-link-muted,
+.lodgra-sidebar[data-theme="dark"] .sidebar-submenu-trigger-muted,
+.lodgra-sidebar[data-theme="dark"] .sidebar-submenu-link {
+  color: rgba(255, 255, 255, 0.82) !important;
+}
+
+.dark .lodgra-sidebar .sidebar-nav-link-muted:hover,
+.dark .lodgra-sidebar .sidebar-submenu-trigger-muted:hover,
+.dark .lodgra-sidebar .sidebar-submenu-link:hover,
+.lodgra-sidebar[data-theme="dark"] .sidebar-nav-link-muted:hover,
+.lodgra-sidebar[data-theme="dark"] .sidebar-submenu-trigger-muted:hover,
+.lodgra-sidebar[data-theme="dark"] .sidebar-submenu-link:hover {
+  background-color: rgba(255, 255, 255, 0.12) !important;
+  color: #ffffff !important;
+}
+
+.dark .lodgra-sidebar .sidebar-nav-link-active,
+.dark .lodgra-sidebar .sidebar-submenu-link-active,
+.lodgra-sidebar[data-theme="dark"] .sidebar-nav-link-active,
+.lodgra-sidebar[data-theme="dark"] .sidebar-submenu-link-active {
+  background-color: rgba(255, 255, 255, 0.14) !important;
+  color: #ffffff !important;
+}
+
+.dark .lodgra-sidebar .sidebar-submenu-trigger,
 .lodgra-sidebar[data-theme="dark"] .sidebar-submenu-trigger {
   color: #ffffff !important;
 }
 
+.dark .lodgra-sidebar .sidebar-submenu-trigger-expanded,
+.dark .lodgra-sidebar .sidebar-submenu-trigger-active,
 .lodgra-sidebar[data-theme="dark"] .sidebar-submenu-trigger-expanded,
 .lodgra-sidebar[data-theme="dark"] .sidebar-submenu-trigger-active {
   background-color: rgba(255, 255, 255, 0.12) !important;
   color: #ffffff !important;
 }
 
-.lodgra-sidebar[data-theme="dark"] .sidebar-submenu-link {
-  color: rgba(255, 255, 255, 0.82) !important;
-}
-
+.dark .lodgra-sidebar .sidebar-submenu-link:hover,
+.dark .lodgra-sidebar .sidebar-submenu-link-active,
 .lodgra-sidebar[data-theme="dark"] .sidebar-submenu-link:hover,
 .lodgra-sidebar[data-theme="dark"] .sidebar-submenu-link-active {
   background-color: rgba(255, 255, 255, 0.12) !important;

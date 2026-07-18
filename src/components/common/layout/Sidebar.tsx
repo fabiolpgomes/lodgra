@@ -200,10 +200,10 @@ export function Sidebar({ serverProfile }: SidebarProps) {
             <Link
               key={href}
               href={href}
-              className={`flex items-center gap-3 px-4 py-3 rounded-full text-[14px] font-medium tracking-normal transition-all ${
+              className={`sidebar-nav-link flex items-center gap-3 px-4 py-3 rounded-full text-[14px] font-medium tracking-normal transition-all ${
                 active
-                  ? 'bg-be-blue text-white'
-                  : 'text-be-text hover:text-be-text hover:bg-be-surface'
+                  ? 'sidebar-nav-link-active bg-be-blue text-white'
+                  : 'sidebar-nav-link-muted text-be-text hover:text-be-text hover:bg-be-surface'
               }`}
             >
               <Icon className="h-4 w-4 shrink-0" />
@@ -221,7 +221,7 @@ export function Sidebar({ serverProfile }: SidebarProps) {
                 ? 'sidebar-submenu-trigger-active bg-be-blue text-white'
                 : cleaningExpanded
                   ? expandedSubmenuClass
-                  : 'text-be-text hover:text-be-text hover:bg-be-surface'
+                  : 'sidebar-submenu-trigger-muted text-be-text hover:text-be-text hover:bg-be-surface'
             }`}
           >
             <CheckSquare className="h-4 w-4 shrink-0" />
@@ -264,7 +264,7 @@ export function Sidebar({ serverProfile }: SidebarProps) {
             className={`sidebar-submenu-trigger w-full flex items-center gap-3 px-4 py-3 rounded-full text-[14px] font-medium tracking-normal transition-all ${
               reportsExpanded || reportsActive
                 ? expandedSubmenuClass
-                : 'text-be-text hover:text-be-text hover:bg-be-surface'
+                : 'sidebar-submenu-trigger-muted text-be-text hover:text-be-text hover:bg-be-surface'
             }`}
           >
             <BarChart3 className="h-4 w-4 shrink-0" />
@@ -311,10 +311,10 @@ export function Sidebar({ serverProfile }: SidebarProps) {
               <Link
                 key={href}
                 href={href}
-                className={`flex items-center gap-3 px-4 py-3 rounded-full text-[14px] font-medium tracking-normal transition-all ${
+                className={`sidebar-nav-link flex items-center gap-3 px-4 py-3 rounded-full text-[14px] font-medium tracking-normal transition-all ${
                   active
-                    ? 'bg-be-blue text-white'
-                    : 'text-be-text hover:text-be-text hover:bg-be-surface'
+                    ? 'sidebar-nav-link-active bg-be-blue text-white'
+                    : 'sidebar-nav-link-muted text-be-text hover:text-be-text hover:bg-be-surface'
                 }`}
               >
                 <Icon className="h-4 w-4 shrink-0" />
