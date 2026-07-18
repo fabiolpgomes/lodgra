@@ -1,7 +1,7 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Building2, Plus, Receipt, Trash2 } from 'lucide-react'
+import { ArrowLeft, Building2, Plus, Receipt, RotateCcw, Save, Trash2 } from 'lucide-react'
 import { AuthLayout } from '@/components/common/layout/AuthLayout'
 import { PremiumCard, PremiumMetricCard, PremiumPageHeader, PremiumPageShell } from '@/components/common/layout/PremiumPage'
 import { Button } from '@/components/common/ui/button'
@@ -266,16 +266,37 @@ export default async function CompanyCostsPage({
 
         <div className="grid grid-cols-1 gap-6 xl:grid-cols-[0.85fr_1.15fr]">
           <PremiumCard as="section">
-            <div className="mb-5">
-              <h2 className="text-sm font-black uppercase tracking-widest text-brand-text-dark transition-colors group-hover:text-brand-gold">
-                Novo custo operacional
-              </h2>
-              <p className="mt-1 text-xs font-semibold text-brand-text-medium">
-                Use para sistemas, contabilidade, salários, marketing e outros custos da empresa.
-              </p>
+            <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <h2 className="text-sm font-black uppercase tracking-widest text-brand-text-dark transition-colors group-hover:text-brand-gold">
+                  Novo custo operacional
+                </h2>
+                <p className="mt-1 text-xs font-semibold text-brand-text-medium">
+                  Use para sistemas, contabilidade, salários, marketing e outros custos da empresa.
+                </p>
+              </div>
+              <div className="flex shrink-0 gap-2">
+                <button
+                  type="reset"
+                  form="company-expense-form"
+                  className="inline-flex items-center justify-center gap-2 rounded-full border border-neutral-200 bg-brand-white px-4 py-2 text-xs font-bold text-brand-text-dark transition-all hover:border-brand-gold/45 hover:bg-brand-bg hover:text-brand-gold"
+                >
+                  <RotateCcw className="h-3.5 w-3.5" />
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  form="company-expense-form"
+                  className="inline-flex items-center justify-center gap-2 rounded-full bg-brand-blue px-4 py-2 text-xs font-bold text-white shadow-sm transition-all hover:bg-brand-blue/90"
+                  disabled={setupPending}
+                >
+                  <Save className="h-3.5 w-3.5" />
+                  Salvar
+                </button>
+              </div>
             </div>
 
-            <form action={createCompanyExpenseAction} className="space-y-4">
+            <form id="company-expense-form" action={createCompanyExpenseAction} className="space-y-4">
               <input type="hidden" name="locale" value={locale} />
               <input type="hidden" name="year" value={safeYear} />
 
@@ -415,10 +436,19 @@ export default async function CompanyCostsPage({
                 />
               </div>
 
-              <Button type="submit" variant="action" className="w-full justify-center">
-                <Plus className="h-4 w-4" />
-                Adicionar custo da empresa
-              </Button>
+              <div className="sticky bottom-4 z-10 flex flex-col gap-2 rounded-2xl border border-brand-bg bg-brand-white/95 p-3 shadow-lg backdrop-blur sm:flex-row">
+                <button
+                  type="reset"
+                  className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border border-neutral-200 bg-brand-white px-4 py-3 text-sm font-bold text-brand-text-dark transition-all hover:border-brand-gold/45 hover:bg-brand-bg hover:text-brand-gold"
+                >
+                  <RotateCcw className="h-4 w-4" />
+                  Cancelar
+                </button>
+                <Button type="submit" variant="action" className="flex-1 justify-center rounded-full" disabled={setupPending}>
+                  <Save className="h-4 w-4" />
+                  Salvar custo
+                </Button>
+              </div>
             </form>
           </PremiumCard>
 
@@ -482,10 +512,11 @@ export default async function CompanyCostsPage({
                         <input type="hidden" name="id" value={expense.id} />
                         <button
                           type="submit"
-                          className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-red-500/20 text-red-600 transition-all hover:border-red-500/40 hover:bg-red-500/10"
+                          className="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-red-500/20 px-4 text-xs font-bold text-red-600 transition-all hover:border-red-500/40 hover:bg-red-500/10"
                           aria-label={`Excluir ${expense.description}`}
                         >
                           <Trash2 className="h-4 w-4" />
+                          Excluir
                         </button>
                       </form>
                     </div>
