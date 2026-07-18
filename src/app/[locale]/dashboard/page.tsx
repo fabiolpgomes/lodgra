@@ -3,7 +3,6 @@ import {
   ArrowUpRight,
   CalendarDays,
   CheckCircle,
-  ChevronDown,
   Clock,
   DollarSign,
   FileSpreadsheet,
@@ -21,6 +20,7 @@ import { requireRole } from '@/lib/auth/requireRole'
 import { LazyOccupancyChart as OccupancyChart, LazyStatusChart as StatusChart } from '@/components/common/lazy/LazyCharts'
 import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
 import { RevenueChartWrapper } from '@/components/features/dashboard/RevenueChartWrapper'
+import { PropertyFilterDropdown } from '@/components/features/dashboard/PropertyFilterDropdown'
 import { AuthLayout } from '@/components/common/layout/AuthLayout'
 import { LocaleSelector } from '@/components/common/header/LocaleSelector'
 import { ThemeToggle } from '@/components/common/header/ThemeToggle'
@@ -392,44 +392,13 @@ export default async function DashboardPage({
             <p className="mb-1 text-[9px] font-bold uppercase tracking-wider text-brand-text-medium">
               Filtro de Propriedade
             </p>
-            <details className="group/filter relative z-[90]">
-              <summary className="flex h-11 cursor-pointer list-none items-center justify-between gap-3 rounded-xl border border-neutral-200/60 bg-brand-bg px-4 text-sm font-semibold text-brand-text-dark shadow-2xs transition-all hover:border-brand-gold/40 hover:bg-brand-white [&::-webkit-details-marker]:hidden">
-                <span className="truncate">{propertyFilterLabel}</span>
-                <ChevronDown className="h-4 w-4 shrink-0 text-brand-text-medium transition-transform group-open/filter:rotate-180" />
-              </summary>
-              <div className="absolute left-0 top-[calc(100%+10px)] z-[120] w-[min(420px,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-neutral-200/80 bg-[#FBFAF6] p-2 shadow-[0_24px_64px_rgba(16,32,62,0.24)] ring-1 ring-white/80">
-                <Link
-                  href={`/${locale}/dashboard`}
-                  className={`flex min-h-11 items-center justify-between rounded-xl px-3 text-sm font-semibold transition-colors ${
-                    selectedPropertyId
-                      ? 'text-brand-text-dark hover:bg-brand-bg hover:text-brand-gold'
-                      : 'bg-brand-blue text-white'
-                  }`}
-                >
-                  <span>Todas as propriedades</span>
-                  <span className="text-xs opacity-80">{totalOrganizationProperties}</span>
-                </Link>
-                <div className="my-2 border-t border-neutral-200/60" />
-                <div className="max-h-[360px] space-y-1 overflow-y-auto pr-1">
-                  {(allProperties || []).map((property) => (
-                    <Link
-                      key={property.id}
-                      href={`/${locale}/dashboard?propertyId=${property.id}`}
-                      className={`grid min-h-12 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold leading-tight transition-colors ${
-                        selectedPropertyId === property.id
-                          ? 'bg-brand-blue text-white'
-                          : 'bg-[#FBFAF6] text-brand-text-dark hover:bg-brand-bg hover:text-brand-gold'
-                      }`}
-                    >
-                      <span className="truncate">{property.name}</span>
-                      <span className="shrink-0 rounded-md border border-brand-blue/10 bg-brand-bg px-2 py-0.5 font-mono text-[10px] font-bold text-brand-blue">
-                        {property.currency || org?.currency || 'EUR'}
-                      </span>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            </details>
+            <PropertyFilterDropdown
+              label={propertyFilterLabel}
+              properties={allProperties || []}
+              selectedPropertyId={selectedPropertyId}
+              totalProperties={totalOrganizationProperties}
+              fallbackCurrency={org?.currency || 'EUR'}
+            />
           </div>
         </div>
 
