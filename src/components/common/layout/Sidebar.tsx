@@ -206,7 +206,7 @@ export function Sidebar({ serverProfile }: SidebarProps) {
         <div>
           <button
             onClick={() => setCleaningExpanded(!cleaningExpanded)}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-full text-[14px] font-medium tracking-normal transition-all ${
+            className={`sidebar-submenu-trigger w-full flex items-center gap-3 px-4 py-3 rounded-full text-[14px] font-medium tracking-normal transition-all ${
               cleaningActive
                 ? 'bg-be-blue text-white'
                 : cleaningExpanded
@@ -233,9 +233,9 @@ export function Sidebar({ serverProfile }: SidebarProps) {
                   <Link
                     key={path}
                     href={href}
-                    className={`flex items-center gap-3 px-4 py-2 rounded-full text-[13px] font-medium tracking-normal transition-all ${
+                    className={`sidebar-submenu-link flex items-center gap-3 px-4 py-2 rounded-full text-[13px] font-medium tracking-normal transition-all ${
                       active
-                        ? 'bg-be-blue text-white'
+                        ? 'sidebar-submenu-link-active bg-be-blue text-white'
                         : 'text-be-text-muted hover:text-be-text hover:bg-be-surface dark:text-white/75 dark:hover:text-white dark:hover:bg-white/10'
                     }`}
                   >
@@ -251,7 +251,7 @@ export function Sidebar({ serverProfile }: SidebarProps) {
         <div>
           <button
             onClick={() => setReportsExpanded(!reportsExpanded)}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-full text-[14px] font-medium tracking-normal transition-all ${
+            className={`sidebar-submenu-trigger w-full flex items-center gap-3 px-4 py-3 rounded-full text-[14px] font-medium tracking-normal transition-all ${
               reportsExpanded || reportsActive
                 ? 'bg-brand-bg text-brand-blue dark:bg-white/10 dark:text-white'
                 : 'text-be-text hover:text-be-text hover:bg-be-surface'
@@ -276,9 +276,9 @@ export function Sidebar({ serverProfile }: SidebarProps) {
                   <Link
                     key={id}
                     href={href}
-                    className={`flex items-center gap-3 px-4 py-2 rounded-full text-[13px] font-medium tracking-normal transition-all ${
+                    className={`sidebar-submenu-link flex items-center gap-3 px-4 py-2 rounded-full text-[13px] font-medium tracking-normal transition-all ${
                       active
-                        ? 'bg-be-blue text-white'
+                        ? 'sidebar-submenu-link-active bg-be-blue text-white'
                         : 'text-be-text-muted hover:text-be-text hover:bg-be-surface dark:text-white/75 dark:hover:text-white dark:hover:bg-white/10'
                     }`}
                   >

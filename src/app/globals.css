@@ -789,6 +789,42 @@ html.dark,
   color: #C9A227;
 }
 
+/* Sidebar and company cost controls need deterministic contrast across
+   light/dark toggles and browser extension color injection. */
+.dark .sidebar-submenu-trigger {
+  color: #ffffff !important;
+}
+
+.dark .sidebar-submenu-link {
+  color: rgba(255, 255, 255, 0.82) !important;
+}
+
+.dark .sidebar-submenu-link:hover,
+.dark .sidebar-submenu-link-active {
+  background-color: rgba(255, 255, 255, 0.12) !important;
+  color: #ffffff !important;
+}
+
+.company-cost-save-button {
+  background-color: #10203E !important;
+  border-color: #10203E !important;
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+.company-cost-save-button:hover {
+  background-color: #0c1830 !important;
+  border-color: #0c1830 !important;
+  color: #ffffff !important;
+}
+
+.company-cost-save-button:disabled {
+  background-color: rgba(16, 32, 62, 0.68) !important;
+  border-color: rgba(16, 32, 62, 0.68) !important;
+  color: #ffffff !important;
+  cursor: not-allowed;
+}
+
 /* Company dashboard return card.
    The page can be rendered while the global dark selector is active, so this
    card keeps its own Lodgra light palette instead of inheriting white text. */

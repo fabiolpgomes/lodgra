@@ -286,7 +286,7 @@ export default async function CompanyCostsPage({
                 <button
                   type="submit"
                   form="company-expense-form"
-                  className="inline-flex items-center justify-center gap-2 rounded-full border border-brand-blue bg-brand-blue px-4 py-2 text-xs font-bold text-white shadow-sm transition-all hover:bg-brand-blue/90 disabled:border-brand-blue/60 disabled:bg-brand-blue/60 disabled:text-white disabled:opacity-100"
+                  className="company-cost-save-button inline-flex items-center justify-center gap-2 rounded-full border border-brand-blue bg-brand-blue px-4 py-2 text-xs font-bold text-white shadow-sm transition-all hover:bg-brand-blue/90 disabled:border-brand-blue/60 disabled:bg-brand-blue/60 disabled:text-white disabled:opacity-100"
                   disabled={setupPending}
                 >
                   <Save className="h-3.5 w-3.5" />
@@ -445,7 +445,7 @@ export default async function CompanyCostsPage({
                 </button>
                 <button
                   type="submit"
-                  className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border border-brand-blue bg-brand-blue px-4 py-3 text-sm font-bold text-white shadow-sm transition-all hover:bg-brand-blue/90 disabled:border-brand-blue/60 disabled:bg-brand-blue/60 disabled:text-white disabled:opacity-100"
+                  className="company-cost-save-button inline-flex flex-1 items-center justify-center gap-2 rounded-full border border-brand-blue bg-brand-blue px-4 py-3 text-sm font-bold text-white shadow-sm transition-all hover:bg-brand-blue/90 disabled:border-brand-blue/60 disabled:bg-brand-blue/60 disabled:text-white disabled:opacity-100"
                   disabled={setupPending}
                 >
                   <Save className="h-4 w-4" />
