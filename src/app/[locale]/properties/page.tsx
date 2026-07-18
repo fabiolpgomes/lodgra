@@ -143,8 +143,12 @@ function PropertyCard({ property, canEdit, locale }: {
   canEdit: boolean
   locale: string
 }) {
+  const propertyHref = canEdit
+    ? `/${locale}/properties/${property.id}/edit`
+    : `/${locale}/properties/${property.id}`
+
   return (
-    <Link href={`/${locale}/properties/${property.id}`}>
+    <Link href={propertyHref}>
       <div className={`be-card be-card-hover group p-5 cursor-pointer ${!property.is_active ? 'opacity-60' : ''}`}>
 
         {/* Type + Status */}

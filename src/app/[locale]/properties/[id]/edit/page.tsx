@@ -232,7 +232,7 @@ export default function EditPropertyPage({
 
       toast.success('Propriedade atualizada com sucesso!')
       await revalidatePropertyPage(finalSlug)
-      router.push(`/properties/${propertyId}`)
+      router.push(`/${locale}/properties/${propertyId}`)
       router.refresh()
     } catch (err: unknown) {
       console.error('Erro ao atualizar propriedade:', err)

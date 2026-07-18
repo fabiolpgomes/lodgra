@@ -23,16 +23,18 @@ export async function generateMetadata(
   const { id } = await params
   const supabase = await createClient()
 
-  // Fetch property (RLS: must be public)
+  // Fetch by id for metadata. Access control is handled by the page query/RLS.
   const { data: property } = await supabase
     .from('properties')
     .select('*')
     .eq('id', id)
-    .eq('is_public', true)
     .single()
 
   if (!property) {
-    notFound()
+    return {
+      title: 'Propriedade',
+      description: 'Detalhes da propriedade Lodgra',
+    }
   }
 
   // Fetch property images
