@@ -788,3 +788,26 @@ html.dark,
 .dark .dashboard-readable :where(.group:hover .group-hover\:text-brand-gold, .text-brand-gold) {
   color: #C9A227;
 }
+
+/* Company dashboard return card.
+   The page can be rendered while the global dark selector is active, so this
+   card keeps its own Lodgra light palette instead of inheriting white text. */
+.company-return-card {
+  background-color: #F7F5EF !important;
+  border-color: rgba(201, 162, 39, 0.35) !important;
+  color: #1B2430 !important;
+}
+
+.company-return-card__label,
+.company-return-card .text-brand-gold {
+  color: #C9A227 !important;
+}
+
+.company-return-card__value,
+.company-return-card__value * {
+  color: #10203E !important;
+}
+
+.company-return-card__description {
+  color: #4D5566 !important;
+}

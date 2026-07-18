@@ -38,11 +38,14 @@ type ReservationRow = {
   total_amount?: number | string | null
   currency?: string | null
   source?: string | null
+  booking_source?: string | null
   property_listings?: {
     property_id?: string | null
+    platforms?: { display_name?: string | null; name?: string | null } | { display_name?: string | null; name?: string | null }[] | null
     properties?: { id?: string; name?: string; currency?: string | null } | { id?: string; name?: string; currency?: string | null }[] | null
   } | Array<{
     property_id?: string | null
+    platforms?: { display_name?: string | null; name?: string | null } | { display_name?: string | null; name?: string | null }[] | null
     properties?: { id?: string; name?: string; currency?: string | null } | { id?: string; name?: string; currency?: string | null }[] | null
   }> | null
 }
@@ -103,9 +106,26 @@ function formatMoneyMap(values: MoneyMap) {
   )
 }
 
+function formatMoneyMapText(values: MoneyMap) {
+  const entries = Object.entries(values)
+    .filter(([, amount]) => Math.abs(amount) > 0.005)
+    .sort(([a], [b]) => a.localeCompare(b))
+
+  if (entries.length === 0) return '-'
+
+  return entries
+    .map(([currency, amount]) => formatCurrency(amount, currency as CurrencyCode))
+    .join(' / ')
+}
+
 function getListing(reservation: ReservationRow) {
   const listing = reservation.property_listings
   return Array.isArray(listing) ? listing[0] : listing
+}
+
+function getPlatformFromListing(reservation: ReservationRow) {
+  const platform = getListing(reservation)?.platforms
+  return Array.isArray(platform) ? platform[0] : platform
 }
 
 function getPropertyFromListing(reservation: ReservationRow) {
@@ -136,6 +156,15 @@ function getNights(checkIn: string, checkOut: string) {
 
 function moneyValue(values: MoneyMap) {
   return Object.values(values).reduce((sum, value) => sum + value, 0)
+}
+
+function getReservationPlatformName(reservation: ReservationRow) {
+  const platform = getPlatformFromListing(reservation)
+  const platformName = platform?.display_name || platform?.name
+  if (platformName) return normalizeChannelName(platformName)
+
+  const source = reservation.source || reservation.booking_source || 'manual'
+  return normalizeChannelName(source)
 }
 
 function BarRow({ label, value, max, meta }: { label: string; value: number; max: number; meta?: string }) {
@@ -209,8 +238,10 @@ export default async function CompanyDashboardPage({
           total_amount,
           currency,
           source,
+          booking_source,
           property_listings!inner(
             property_id,
+            platforms(display_name, name),
             properties!inner(id, name, currency)
           )
         `)
@@ -234,8 +265,10 @@ export default async function CompanyDashboardPage({
           total_amount,
           currency,
           source,
+          booking_source,
           property_listings!inner(
             property_id,
+            platforms(display_name, name),
             properties!inner(id, name, currency)
           )
         `)
@@ -295,7 +328,7 @@ export default async function CompanyDashboardPage({
     const propertyCurrency = getPropertyFromListing(reservation)?.currency || property.currency || reservation.currency || 'EUR'
     const totalAmount = Number(reservation.total_amount || 0)
     const nights = getNights(reservation.check_in, reservation.check_out)
-    const source = normalizeChannelName(reservation.source || 'manual')
+    const source = getReservationPlatformName(reservation)
 
     stat.reservations += 1
     stat.nights += nights
@@ -506,7 +539,7 @@ export default async function CompanyDashboardPage({
                   label={item.label}
                   value={moneyValue(item.revenue)}
                   max={maxMonthlyRevenue}
-                  meta={`${formatMoneyMap(item.revenue)} · ${item.reservations} reservas`}
+                  meta={`${formatMoneyMapText(item.revenue)} · ${item.reservations} reservas`}
                 />
               ))}
             </div>
@@ -522,13 +555,13 @@ export default async function CompanyDashboardPage({
               </p>
             </div>
             <div className="space-y-5">
-              <div className="rounded-2xl border border-brand-gold/25 bg-brand-bg p-5 text-brand-text-dark shadow-2xs dark:border-brand-gold/35 dark:bg-white/5 dark:text-white">
+              <div className="company-return-card rounded-2xl border border-brand-gold/25 bg-brand-bg p-5 text-brand-text-dark shadow-2xs">
                 <div className="flex items-center justify-between gap-3">
-                  <span className="text-xs font-black uppercase tracking-widest text-brand-gold">Resultado empresa</span>
+                  <span className="company-return-card__label text-xs font-black uppercase tracking-widest text-brand-gold">Resultado empresa</span>
                   <ArrowUpRight className="h-5 w-5 text-brand-gold" />
                 </div>
-                <div className="mt-4 text-3xl font-black tracking-tight text-brand-blue dark:text-white">{formatMoneyMap(totalCommission)}</div>
-                <p className="mt-3 text-xs font-semibold text-brand-text-medium dark:text-white/75">
+                <div className="company-return-card__value mt-4 text-3xl font-black tracking-tight text-brand-blue">{formatMoneyMap(totalCommission)}</div>
+                <p className="company-return-card__description mt-3 text-xs font-semibold text-brand-text-medium">
                   Valor antes de despesas internas da Lodgra, que ainda não aparecem nos lançamentos de propriedades.
                 </p>
               </div>

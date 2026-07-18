@@ -132,6 +132,9 @@ export function Sidebar({ serverProfile }: SidebarProps) {
     return pathname === href || (href !== '/' && pathname.startsWith(href))
   }
 
+  const cleaningActive = pathname.includes('/cleaning')
+  const reportsActive = pathname.includes('/reports') || pathname.includes('/dashboard/empresa')
+
   async function handleSignOut() {
     const supabase = createClient()
     await supabase.auth.signOut()
@@ -203,9 +206,11 @@ export function Sidebar({ serverProfile }: SidebarProps) {
           <button
             onClick={() => setCleaningExpanded(!cleaningExpanded)}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-full text-[14px] font-medium tracking-normal transition-all ${
-              cleaningExpanded || pathname.includes('/cleaning')
+              cleaningActive
                 ? 'bg-be-blue text-white'
-                : 'text-be-text hover:text-be-text hover:bg-be-surface'
+                : cleaningExpanded
+                  ? 'bg-brand-bg text-brand-blue'
+                  : 'text-be-text hover:text-be-text hover:bg-be-surface'
             }`}
           >
             <CheckSquare className="h-4 w-4 shrink-0" />
@@ -246,8 +251,8 @@ export function Sidebar({ serverProfile }: SidebarProps) {
           <button
             onClick={() => setReportsExpanded(!reportsExpanded)}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-full text-[14px] font-medium tracking-normal transition-all ${
-              reportsExpanded || pathname.includes('/reports')
-                ? 'bg-be-blue text-white'
+              reportsExpanded || reportsActive
+                ? 'bg-brand-bg text-brand-blue'
                 : 'text-be-text hover:text-be-text hover:bg-be-surface'
             }`}
           >
