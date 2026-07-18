@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useTheme } from 'next-themes'
 import {
   Home,
   Calendar,
@@ -67,6 +68,7 @@ export function Sidebar({ serverProfile }: SidebarProps) {
   const pathname = usePathname()
   const locale = useLocale()
   const router = useRouter()
+  const { resolvedTheme, theme } = useTheme()
   const [hasPremium, setHasPremium] = useState(false)
   const [reportsExpanded, setReportsExpanded] = useState(pathname.includes('/reports') || pathname.includes('/dashboard/empresa'))
   const [cleaningExpanded, setCleaningExpanded] = useState(pathname.includes('/cleaning'))
@@ -75,6 +77,13 @@ export function Sidebar({ serverProfile }: SidebarProps) {
   const isAdmin = profile?.role === 'admin'
   const isGestor = profile?.role === 'gestor'
   const prefix = locale ? `/${locale}` : ''
+  const isDarkMode = (resolvedTheme || theme) === 'dark'
+  const expandedSubmenuClass = isDarkMode
+    ? 'sidebar-submenu-trigger-expanded bg-white/10 text-white'
+    : 'sidebar-submenu-trigger-expanded bg-brand-bg text-brand-blue'
+  const mutedSubmenuLinkClass = isDarkMode
+    ? 'text-white/75 hover:text-white hover:bg-white/10'
+    : 'text-be-text-muted hover:text-be-text hover:bg-be-surface'
 
   useEffect(() => {
     const checkPremiumTier = async () => {
@@ -170,7 +179,8 @@ export function Sidebar({ serverProfile }: SidebarProps) {
 
       {/* Sidebar */}
       <aside
-        className={`flex flex-col fixed top-0 left-0 h-screen z-40 bg-be-surface border-r border-be-border transition-transform duration-300 md:translate-x-0 ${
+        data-theme={isDarkMode ? 'dark' : 'light'}
+        className={`lodgra-sidebar flex flex-col fixed top-0 left-0 h-screen z-40 bg-be-surface border-r border-be-border transition-transform duration-300 md:translate-x-0 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         }`}
         style={{ width: '260px' }}
@@ -208,9 +218,9 @@ export function Sidebar({ serverProfile }: SidebarProps) {
             onClick={() => setCleaningExpanded(!cleaningExpanded)}
             className={`sidebar-submenu-trigger w-full flex items-center gap-3 px-4 py-3 rounded-full text-[14px] font-medium tracking-normal transition-all ${
               cleaningActive
-                ? 'bg-be-blue text-white'
+                ? 'sidebar-submenu-trigger-active bg-be-blue text-white'
                 : cleaningExpanded
-                  ? 'bg-brand-bg text-brand-blue dark:bg-white/10 dark:text-white'
+                  ? expandedSubmenuClass
                   : 'text-be-text hover:text-be-text hover:bg-be-surface'
             }`}
           >
@@ -236,7 +246,7 @@ export function Sidebar({ serverProfile }: SidebarProps) {
                     className={`sidebar-submenu-link flex items-center gap-3 px-4 py-2 rounded-full text-[13px] font-medium tracking-normal transition-all ${
                       active
                         ? 'sidebar-submenu-link-active bg-be-blue text-white'
-                        : 'text-be-text-muted hover:text-be-text hover:bg-be-surface dark:text-white/75 dark:hover:text-white dark:hover:bg-white/10'
+                        : mutedSubmenuLinkClass
                     }`}
                   >
                     {submenuLabel}
@@ -253,7 +263,7 @@ export function Sidebar({ serverProfile }: SidebarProps) {
             onClick={() => setReportsExpanded(!reportsExpanded)}
             className={`sidebar-submenu-trigger w-full flex items-center gap-3 px-4 py-3 rounded-full text-[14px] font-medium tracking-normal transition-all ${
               reportsExpanded || reportsActive
-                ? 'bg-brand-bg text-brand-blue dark:bg-white/10 dark:text-white'
+                ? expandedSubmenuClass
                 : 'text-be-text hover:text-be-text hover:bg-be-surface'
             }`}
           >
@@ -279,7 +289,7 @@ export function Sidebar({ serverProfile }: SidebarProps) {
                     className={`sidebar-submenu-link flex items-center gap-3 px-4 py-2 rounded-full text-[13px] font-medium tracking-normal transition-all ${
                       active
                         ? 'sidebar-submenu-link-active bg-be-blue text-white'
-                        : 'text-be-text-muted hover:text-be-text hover:bg-be-surface dark:text-white/75 dark:hover:text-white dark:hover:bg-white/10'
+                        : mutedSubmenuLinkClass
                     }`}
                   >
                     {label}

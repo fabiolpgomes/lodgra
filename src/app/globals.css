@@ -791,16 +791,33 @@ html.dark,
 
 /* Sidebar and company cost controls need deterministic contrast across
    light/dark toggles and browser extension color injection. */
-.dark .sidebar-submenu-trigger {
+.lodgra-sidebar[data-theme="light"] .sidebar-submenu-trigger-expanded {
+  background-color: #F7F5EF !important;
+  color: #10203E !important;
+}
+
+.lodgra-sidebar[data-theme="light"] .sidebar-submenu-trigger-active,
+.lodgra-sidebar[data-theme="light"] .sidebar-submenu-link-active {
+  background-color: #10203E !important;
   color: #ffffff !important;
 }
 
-.dark .sidebar-submenu-link {
+.lodgra-sidebar[data-theme="dark"] .sidebar-submenu-trigger {
+  color: #ffffff !important;
+}
+
+.lodgra-sidebar[data-theme="dark"] .sidebar-submenu-trigger-expanded,
+.lodgra-sidebar[data-theme="dark"] .sidebar-submenu-trigger-active {
+  background-color: rgba(255, 255, 255, 0.12) !important;
+  color: #ffffff !important;
+}
+
+.lodgra-sidebar[data-theme="dark"] .sidebar-submenu-link {
   color: rgba(255, 255, 255, 0.82) !important;
 }
 
-.dark .sidebar-submenu-link:hover,
-.dark .sidebar-submenu-link-active {
+.lodgra-sidebar[data-theme="dark"] .sidebar-submenu-link:hover,
+.lodgra-sidebar[data-theme="dark"] .sidebar-submenu-link-active {
   background-color: rgba(255, 255, 255, 0.12) !important;
   color: #ffffff !important;
 }
