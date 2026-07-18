@@ -29,10 +29,13 @@ import { calculateRevenueForReservation } from '@/lib/financial/revenue-calculat
 
 export default async function DashboardPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>
+  searchParams?: Promise<{ propertyId?: string }>
 }) {
   const { locale } = await params
+  const { propertyId: requestedPropertyId } = (await searchParams) || {}
 
   const auth = await requireRole(['admin', 'gestor'])
   if (!auth.authorized) {
@@ -47,12 +50,17 @@ export default async function DashboardPage({
   const supabase = await createClient()
 
   // Fetch properties for this organization
-  const { data: properties } = await supabase
+  const { data: allProperties } = await supabase
     .from('properties')
     .select('id, name, currency')
     .eq('organization_id', organizationId)
     .eq('is_active', true)
 
+  const selectedProperty = (allProperties || []).find(property => property.id === requestedPropertyId)
+  const selectedPropertyId = selectedProperty?.id
+  const properties = selectedPropertyId
+    ? (allProperties || []).filter(property => property.id === selectedPropertyId)
+    : (allProperties || [])
   const propertyIds = properties?.map(p => p.id) || []
 
   // Fetch reservations via property_listings junction table
@@ -101,6 +109,7 @@ export default async function DashboardPage({
 
   const reservationList = reservations || []
   const totalProperties = properties?.length || 0
+  const totalOrganizationProperties = allProperties?.length || 0
   const totalReservations = reservationList.length
 
   const confirmedReservations = reservationList.filter(r => r.status === 'confirmed').length
@@ -363,9 +372,9 @@ export default async function DashboardPage({
 
   const currencyBadgeClass = (_currency: string) =>
     'border-brand-blue/20 bg-brand-bg text-brand-blue shadow-[inset_0_0_0_1px_rgba(16,32,62,0.04)]'
-  const propertyFilterLabel = totalProperties === 1
-    ? (properties?.[0]?.name || '1 propriedade')
-    : `Todas as propriedades (${totalProperties})`
+  const propertyFilterLabel = selectedProperty
+    ? selectedProperty.name
+    : `Todas as propriedades (${totalOrganizationProperties})`
 
   return (
     <AuthLayout hideTopBar>
@@ -383,13 +392,44 @@ export default async function DashboardPage({
             <p className="mb-1 text-[9px] font-bold uppercase tracking-wider text-brand-text-medium">
               Filtro de Propriedade
             </p>
-            <Link
-              href={`/${locale}/properties`}
-              className="flex h-11 items-center justify-between gap-3 rounded-xl border border-neutral-200/60 bg-brand-bg px-4 text-sm font-semibold text-brand-text-dark shadow-2xs transition-all hover:bg-brand-bg/80"
-            >
-              <span className="truncate">{propertyFilterLabel}</span>
-              <ChevronDown className="h-4 w-4 shrink-0 text-brand-text-medium" />
-            </Link>
+            <details className="group/filter relative">
+              <summary className="flex h-11 cursor-pointer list-none items-center justify-between gap-3 rounded-xl border border-neutral-200/60 bg-brand-bg px-4 text-sm font-semibold text-brand-text-dark shadow-2xs transition-all hover:border-brand-gold/40 hover:bg-brand-white [&::-webkit-details-marker]:hidden">
+                <span className="truncate">{propertyFilterLabel}</span>
+                <ChevronDown className="h-4 w-4 shrink-0 text-brand-text-medium transition-transform group-open/filter:rotate-180" />
+              </summary>
+              <div className="absolute left-0 top-[calc(100%+8px)] z-50 w-full min-w-[320px] overflow-hidden rounded-2xl border border-neutral-200/70 bg-brand-white p-2 shadow-[0_18px_48px_rgba(16,32,62,0.14)]">
+                <Link
+                  href={`/${locale}/dashboard`}
+                  className={`flex min-h-11 items-center justify-between rounded-xl px-3 text-sm font-semibold transition-colors ${
+                    selectedPropertyId
+                      ? 'text-brand-text-dark hover:bg-brand-bg hover:text-brand-gold'
+                      : 'bg-brand-blue text-white'
+                  }`}
+                >
+                  <span>Todas as propriedades</span>
+                  <span className="text-xs opacity-80">{totalOrganizationProperties}</span>
+                </Link>
+                <div className="my-2 border-t border-neutral-200/60" />
+                <div className="max-h-72 overflow-y-auto">
+                  {(allProperties || []).map((property) => (
+                    <Link
+                      key={property.id}
+                      href={`/${locale}/dashboard?propertyId=${property.id}`}
+                      className={`flex min-h-11 items-center justify-between gap-3 rounded-xl px-3 text-sm font-semibold transition-colors ${
+                        selectedPropertyId === property.id
+                          ? 'bg-brand-blue text-white'
+                          : 'text-brand-text-dark hover:bg-brand-bg hover:text-brand-gold'
+                      }`}
+                    >
+                      <span className="truncate">{property.name}</span>
+                      <span className="shrink-0 rounded-md border border-brand-blue/10 bg-brand-bg px-2 py-0.5 font-mono text-[10px] font-bold text-brand-blue">
+                        {property.currency || org?.currency || 'EUR'}
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </details>
           </div>
         </div>
 
@@ -512,7 +552,7 @@ export default async function DashboardPage({
                   </span>
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-3xl font-bold leading-none tracking-tight text-brand-text-dark transition-colors group-hover:text-brand-gold">
+                  <h3 className="dashboard-metric-value text-3xl font-bold leading-none tracking-tight text-brand-text-dark transition-colors group-hover:text-brand-gold">
                     {card.value}
                   </h3>
                   <p className="mt-2 text-xs font-semibold text-brand-text-medium">

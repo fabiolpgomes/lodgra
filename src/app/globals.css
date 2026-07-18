@@ -789,6 +789,10 @@ html.dark,
   color: #C9A227;
 }
 
+.dashboard-readable .group:hover .dashboard-metric-value {
+  color: #C9A227 !important;
+}
+
 /* Sidebar and company cost controls need deterministic contrast across
    light/dark toggles and browser extension color injection. */
 .dark .lodgra-sidebar nav :where(a, button, p, span, svg),
