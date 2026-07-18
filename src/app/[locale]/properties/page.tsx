@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Building2, MapPin, Users, Plus, Home } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
@@ -38,6 +39,54 @@ export default async function PropertiesPage({ params }: { params: Promise<{ loc
 
   if (error) {
     console.error('Erro ao buscar propriedades:', error)
+  }
+
+  const propertyIdsForImages = properties?.map((property) => property.id) ?? []
+  const propertyImageMap = new Map<string, string>()
+
+  if (propertyIdsForImages.length > 0) {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
+    const { data: propertyImages } = await supabase
+      .from('property_images')
+      .select('id, property_id, storage_path, display_order, is_primary')
+      .in('property_id', propertyIdsForImages)
+      .order('is_primary', { ascending: false })
+      .order('display_order', { ascending: true })
+
+    const firstImages = new Map<string, { id: string; storage_path: string }>()
+    for (const image of propertyImages ?? []) {
+      if (!firstImages.has(image.property_id)) {
+        firstImages.set(image.property_id, {
+          id: image.id,
+          storage_path: image.storage_path,
+        })
+      }
+    }
+
+    const imageIds = Array.from(firstImages.values()).map((image) => image.id)
+    const { data: variants } = imageIds.length > 0
+      ? await supabase
+        .from('image_variants')
+        .select('property_image_id, storage_path, variant_type')
+        .in('property_image_id', imageIds)
+      : { data: [] }
+
+    const priority = ['desktop', 'tablet', 'mobile', 'thumb', 'original']
+    for (const [propertyId, image] of firstImages) {
+      const imageVariants = variants?.filter((variant) => variant.property_image_id === image.id) ?? []
+      let storagePath = ''
+      for (const variantType of priority) {
+        const found = imageVariants.find((variant) => variant.variant_type === variantType)?.storage_path
+        if (found) {
+          storagePath = found
+          break
+        }
+      }
+      if (!storagePath) storagePath = image.storage_path
+      if (storagePath && supabaseUrl) {
+        propertyImageMap.set(propertyId, `${supabaseUrl}/storage/v1/object/public/property-images/${storagePath}`)
+      }
+    }
   }
 
   // Get org plan for usage bar
@@ -115,6 +164,7 @@ export default async function PropertiesPage({ params }: { params: Promise<{ loc
               <PropertyCard
                 key={property.id}
                 property={property}
+                imageUrl={propertyImageMap.get(property.id) ?? null}
                 canEdit={canEdit}
                 locale={locale}
               />
@@ -126,7 +176,7 @@ export default async function PropertiesPage({ params }: { params: Promise<{ loc
   )
 }
 
-function PropertyCard({ property, canEdit, locale }: {
+function PropertyCard({ property, imageUrl, canEdit, locale }: {
   property: {
     id: string
     name: string
@@ -140,6 +190,7 @@ function PropertyCard({ property, canEdit, locale }: {
     max_guests: number | null
     currency?: string | null
   }
+  imageUrl: string | null
   canEdit: boolean
   locale: string
 }) {
@@ -149,65 +200,84 @@ function PropertyCard({ property, canEdit, locale }: {
 
   return (
     <Link href={propertyHref}>
-      <div className={`be-card be-card-hover group p-5 cursor-pointer ${!property.is_active ? 'opacity-60' : ''}`}>
-
-        {/* Type + Status */}
-        <div className="flex items-center justify-between mb-4">
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-brand-bg text-brand-text-medium tracking-wide transition-colors group-hover:text-brand-gold">
-            {property.property_type || 'apartamento'}
-          </span>
-          <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-xs font-semibold ${
-            property.is_active
-              ? 'bg-[#ECFDF5] text-[#059669]'
-              : 'bg-gray-100 text-gray-600'
-          }`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${property.is_active ? 'bg-[#059669]' : 'bg-gray-400'}`} />
-            {property.is_active ? 'Ativo' : 'Inativo'}
-          </span>
-        </div>
-
-        {/* Name */}
-        <h3 className="text-sm font-semibold text-brand-text-dark leading-snug mb-3 transition-colors group-hover:text-brand-gold">
-          {property.name}
-        </h3>
-
-        {/* Location */}
-        <div className="flex items-center gap-1.5 text-brand-text-medium mb-3">
-          <MapPin className="h-3.5 w-3.5 shrink-0" />
-          <span className="text-xs">
-            {property.city}{property.country ? `, ${property.country}` : ''}
-          </span>
-        </div>
-
-        {/* Capacity row */}
-        <div className="flex items-center gap-4 text-xs text-brand-text-medium mb-4">
-          <div className="flex items-center gap-1">
-            <Building2 className="h-3.5 w-3.5" />
-            <span>{property.bedrooms || 0} quartos</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Users className="h-3.5 w-3.5" />
-            <span>{property.max_guests || 0} hóspedes</span>
-          </div>
-          {property.currency && (
-            <span className="ml-auto inline-flex items-center justify-center h-4 px-1.5 text-[10px] font-bold uppercase tracking-wider rounded"
-              style={{
-                background: property.currency === 'EUR' ? '#EFF6FF' : property.currency === 'BRL' ? '#ECFDF5' : '#FEF9C3',
-                color: property.currency === 'EUR' ? '#10203E' : property.currency === 'BRL' ? '#059669' : '#92400e',
-              }}>
-              {property.currency}
-            </span>
+      <div className={`be-card be-card-hover group cursor-pointer overflow-hidden p-0 ${!property.is_active ? 'opacity-60' : ''}`}>
+        <div className="relative aspect-[4/3] w-full overflow-hidden bg-brand-bg">
+          {imageUrl ? (
+            <Image
+              src={imageUrl}
+              alt={`Foto de ${property.name}`}
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              className="object-cover transition-transform duration-300 group-hover:scale-105"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center bg-brand-bg text-brand-text-medium">
+              <Home className="h-12 w-12 opacity-50" />
+            </div>
           )}
+
+          <div className="absolute left-3 top-3">
+            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-brand-white/90 text-brand-blue shadow-sm backdrop-blur transition-colors group-hover:text-brand-gold">
+              {property.property_type || 'apartamento'}
+            </span>
+          </div>
+
+          <div className="absolute right-3 top-3">
+            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-sm backdrop-blur ${
+              property.is_active
+                ? 'bg-[#ECFDF5]/95 text-[#059669]'
+                : 'bg-brand-white/90 text-brand-text-medium'
+            }`}>
+              <span className={`w-1.5 h-1.5 rounded-full ${property.is_active ? 'bg-[#059669]' : 'bg-brand-text-medium'}`} />
+              {property.is_active ? 'Ativo' : 'Inativo'}
+            </span>
+          </div>
         </div>
 
-        {/* Public page badge + toggle */}
-        <div className="border-t border-brand-bg pt-3">
-          <PublicUrlBadge
-            propertyId={property.id}
-            slug={property.slug ?? null}
-            isPublic={property.is_public ?? false}
-            canEdit={canEdit}
-          />
+        <div className="p-5">
+          {/* Name */}
+          <h3 className="text-sm font-semibold text-brand-text-dark leading-snug mb-3 transition-colors group-hover:text-brand-gold">
+            {property.name}
+          </h3>
+
+          {/* Location */}
+          <div className="flex items-center gap-1.5 text-brand-text-medium mb-3">
+            <MapPin className="h-3.5 w-3.5 shrink-0" />
+            <span className="text-xs">
+              {property.city}{property.country ? `, ${property.country}` : ''}
+            </span>
+          </div>
+
+          {/* Capacity row */}
+          <div className="flex items-center gap-4 text-xs text-brand-text-medium mb-4">
+            <div className="flex items-center gap-1">
+              <Building2 className="h-3.5 w-3.5" />
+              <span>{property.bedrooms || 0} quartos</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <Users className="h-3.5 w-3.5" />
+              <span>{property.max_guests || 0} hóspedes</span>
+            </div>
+            {property.currency && (
+              <span className="ml-auto inline-flex items-center justify-center h-4 px-1.5 text-[10px] font-bold uppercase tracking-wider rounded"
+                style={{
+                  background: property.currency === 'EUR' ? '#EFF6FF' : property.currency === 'BRL' ? '#ECFDF5' : '#FEF9C3',
+                  color: property.currency === 'EUR' ? '#10203E' : property.currency === 'BRL' ? '#059669' : '#92400e',
+                }}>
+                {property.currency}
+              </span>
+            )}
+          </div>
+
+          {/* Public page badge + toggle */}
+          <div className="border-t border-brand-bg pt-3">
+            <PublicUrlBadge
+              propertyId={property.id}
+              slug={property.slug ?? null}
+              isPublic={property.is_public ?? false}
+              canEdit={canEdit}
+            />
+          </div>
         </div>
       </div>
     </Link>
