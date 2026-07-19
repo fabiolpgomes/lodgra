@@ -16,7 +16,7 @@ src/
   __tests__/           testes transversais
 supabase/
   migrations/          migrations PostgreSQL versionadas
-  rollback_scripts/    rollback explícito quando aplicável
+  rollback/            rollback explícito quando aplicável
 e2e/                   testes Playwright, fixtures e page objects
 docs/
   stories/             unidade de planejamento e evidência
