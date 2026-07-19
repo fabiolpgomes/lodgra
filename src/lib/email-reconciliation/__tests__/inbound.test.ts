@@ -21,6 +21,17 @@ describe('email reconciliation inbound routing', () => {
     ).toBe(orgId)
   })
 
+  it('accepts a legacy PostgreSQL UUID-shaped organization identifier', () => {
+    const legacyOrgId = '00000000-0000-0000-0000-000000000001'
+
+    expect(
+      organizationIdFromRecipient(
+        [`reservas+${legacyOrgId}@inbound.lodgra.io`],
+        ['inbound.lodgra.io']
+      )
+    ).toBe(legacyOrgId)
+  })
+
   it.each([
     ['automated@airbnb.com', 'airbnb'],
     ['Booking <noreply@booking.com>', 'booking'],
