@@ -9,6 +9,9 @@ const baseURL = process.env.TEST_BASE_URL || 'http://localhost:3000'
 
 export default defineConfig({
   testDir: './e2e',
+  // Legacy Jest/Puppeteer specification; it uses placeholder routes and is not
+  // executable by Playwright. Keep visible to typecheck:all until it is migrated.
+  testIgnore: ['**/payment-flows.test.ts'],
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,

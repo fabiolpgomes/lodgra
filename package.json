@@ -80,7 +80,7 @@
   "devDependencies": {
     "@jest/globals": "^29.7.0",
     "@next/bundle-analyzer": "^16.2.3",
-    "@playwright/test": "^1.58.2",
+    "@playwright/test": "1.60.0",
     "@storybook/nextjs": "^10.4.0",
     "@storybook/react": "^10.4.0",
     "@tailwindcss/postcss": "^4",
