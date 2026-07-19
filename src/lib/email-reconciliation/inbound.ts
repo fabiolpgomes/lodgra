@@ -1,6 +1,9 @@
 export type InboundPlatform = 'airbnb' | 'booking' | 'vrbo'
 
-const RECIPIENT_PATTERN = /^reservas\+([0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})@([^\s@]+)$/i
+// PostgreSQL's uuid type accepts legacy UUID-shaped identifiers that do not
+// encode an RFC version/variant. Tenant existence is verified by the webhook
+// before any email is persisted.
+const RECIPIENT_PATTERN = /^reservas\+([0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12})@([^\s@]+)$/i
 
 export function organizationIdFromRecipient(
   recipients: string[],
