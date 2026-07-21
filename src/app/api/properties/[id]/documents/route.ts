@@ -31,7 +31,7 @@ async function verifyPropertyAccess(
 
 export async function GET(
   _request: NextRequest,
-  > }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const auth = await requireRole(['admin', 'gestor', 'viewer'])
@@ -60,7 +60,7 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  > }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const auth = await requireRole(['admin', 'gestor'])

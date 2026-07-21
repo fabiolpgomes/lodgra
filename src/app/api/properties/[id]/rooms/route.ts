@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 
 export async function GET(
   _req: NextRequest,
-  > }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const auth = await requireRole(['admin', 'gestor', 'viewer'])
   if (!auth.authorized) return auth.response!
@@ -24,7 +24,7 @@ export async function GET(
 
 export async function PUT(
   req: NextRequest,
-  > }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const auth = await requireRole(['admin', 'gestor'])
   if (!auth.authorized) return auth.response!

@@ -24,9 +24,8 @@ async function validatePropertyOwnership(propertyId: string, userId: string): Pr
 // PUT /api/properties/:id/discounts/:discountId
 export async function PUT(
   req: NextRequest,
-  context: { params: Promise<{ id: string; discountId: string }> }
+  { params }: { params: { id: string; discountId: string } }
 ): Promise<NextResponse<ApiResponse>> {
-  const { params } = context;
   try {
     const {
       data: { user },
@@ -89,9 +88,8 @@ export async function PUT(
 // DELETE /api/properties/:id/discounts/:discountId
 export async function DELETE(
   req: NextRequest,
-  context: { params: Promise<{ id: string; discountId: string }> }
+  { params }: { params: { id: string; discountId: string } }
 ): Promise<NextResponse<ApiResponse>> {
-  const { params } = context;
   try {
     const {
       data: { user },

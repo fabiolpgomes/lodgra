@@ -7,7 +7,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function DELETE(
   request: NextRequest,
-  > }
+  { params }: { params: Promise<{ id: string; imageId: string }> }
 ) {
   const { id: propertyId, imageId } = await params;
   try {

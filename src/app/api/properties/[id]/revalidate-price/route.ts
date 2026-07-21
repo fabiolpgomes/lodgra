@@ -16,7 +16,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
  */
 export async function POST(
   request: NextRequest,
-  > }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params
@@ -98,7 +98,7 @@ export async function POST(
  */
 export async function GET(
   _request: NextRequest,
-  > }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params
 

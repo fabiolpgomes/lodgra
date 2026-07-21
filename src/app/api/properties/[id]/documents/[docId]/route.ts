@@ -20,7 +20,7 @@ async function verifyPropertyAccess(
 // GET — returns a signed download URL (60 min)
 export async function GET(
   _request: NextRequest,
-  > }
+  { params }: { params: Promise<{ id: string; docId: string }> }
 ) {
   try {
     const auth = await requireRole(['admin', 'gestor', 'viewer'])
@@ -62,7 +62,7 @@ export async function GET(
 // DELETE — remove document record + storage file
 export async function DELETE(
   _request: NextRequest,
-  > }
+  { params }: { params: Promise<{ id: string; docId: string }> }
 ) {
   try {
     const auth = await requireRole(['admin', 'gestor'])

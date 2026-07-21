@@ -4,7 +4,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 
 export async function GET(
   request: Request,
-  > }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const auth = await requireRole(['admin', 'gestor'])
@@ -35,7 +35,7 @@ export async function GET(
 
 export async function POST(
   request: Request,
-  > }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const auth = await requireRole(['admin', 'gestor'])
