@@ -39,6 +39,17 @@ export function SettingsTabs({ propertyId, isOpen, onClose }: SettingsTabsProps)
 
   if (!isOpen) return null;
 
+  const handlePricesSaved = async () => {
+    try {
+      const res = await fetchPrices();
+      if (res.data) {
+        setBasePrice(res.data.base_price || 0);
+      }
+    } catch {
+      // Error handled
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end sm:items-center sm:justify-center z-50">
       <div className="bg-white w-full sm:w-full sm:max-w-md rounded-t-lg sm:rounded-lg shadow-lg max-h-[90vh] overflow-y-auto">
@@ -90,7 +101,7 @@ export function SettingsTabs({ propertyId, isOpen, onClose }: SettingsTabsProps)
         {/* Tab Content */}
         <div>
           {activeTab === 'precos' && (
-            <TabPrecos propertyId={propertyId} onSaved={() => loadBasePrice()} />
+            <TabPrecos propertyId={propertyId} onSaved={handlePricesSaved} />
           )}
           {activeTab === 'descontos' && (
             <TabDescontos propertyId={propertyId} basePrice={basePrice} />
