@@ -24,7 +24,7 @@ async function validatePropertyOwnership(propertyId: string, userId: string): Pr
 // GET /api/properties/:id/availability
 export async function GET(
   req: NextRequest,
-  context: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ): Promise<NextResponse<ApiResponse>> {
   const { params } = context;
   try {
