@@ -9,10 +9,11 @@ import { PriceIndicator } from './PriceIndicator';
 
 interface CalendarGridProps {
   days: CalendarDay[];
-  onDateClick: (date: Date) => void;
+  onDateClick: (date: Date, event?: React.MouseEvent) => void;
   selectedDate?: Date | null;
   rangeStart?: Date | null;
   rangeEnd?: Date | null;
+  isSelectingRange?: boolean;
 }
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -23,6 +24,7 @@ export function CalendarGrid({
   selectedDate,
   rangeStart,
   rangeEnd,
+  isSelectingRange = false,
 }: CalendarGridProps) {
   const isInRange = (day: CalendarDay): boolean => {
     if (!rangeStart || !rangeEnd) return false;
@@ -82,7 +84,7 @@ export function CalendarGrid({
         {days.map((day, idx) => (
           <button
             key={`${day.date.toISOString()}-${idx}`}
-            onClick={() => day.isCurrentMonth && onDateClick(day.date)}
+            onClick={(e) => day.isCurrentMonth && onDateClick(day.date, e)}
             disabled={!day.isCurrentMonth || day.priceType === 'disabled'}
             className={`
               aspect-square p-1 rounded border-2 text-sm font-medium

@@ -1,13 +1,15 @@
 /**
- * Story 36.3: Calendar Month Component
- * Main calendar container with month navigation and date selection
+ * Story 36.3 & 36.5: Calendar Month Component
+ * Main calendar container with month navigation and bulk operations
  */
 
 import React, { useState, useCallback, useMemo } from 'react';
 import { CalendarDay, DailyPrice } from '@/types/calendar.types';
 import { CalendarGrid } from './CalendarGrid';
 import { DateDetailModal } from './DateDetailModal';
+import { BulkOperationModal } from './BulkOperationModal';
 import { useCalendarMonth } from './hooks/useCalendarMonth';
+import { useBulkPricingOperation, BulkOperationConfig } from '@/hooks/useBulkPricingOperation';
 
 interface CalendarMonthProps {
   propertyId: string;
@@ -28,9 +30,35 @@ export function CalendarMonth({
   const [rangeEnd, setRangeEnd] = useState<Date | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [modalLoading, setModalLoading] = useState(false);
+  const [isSelectingRange, setIsSelectingRange] = useState(false);
+  const [showBulkModal, setShowBulkModal] = useState(false);
+  const [bulkConfig, setBulkConfig] = useState<BulkOperationConfig | null>(null);
+  const [prices, setPrices] = useState<Map<string, DailyPrice>>(new Map());
 
-  const { prices, loading, error, setPrice, deletePrice, refetchPrices } =
+  const { prices: fetchedPrices, loading, error, setPrice, deletePrice, refetchPrices } =
     useCalendarMonth(propertyId, currentMonth);
+
+  const {
+    applyBulkPrice,
+    applyBulkDiscount,
+    copyPriceToRange,
+    bulkDeleteOverrides,
+    undo,
+    canUndo,
+    canRedo,
+    isLoading: bulkLoading,
+    getAffectedDates,
+  } = useBulkPricingOperation(propertyId, (updatedPrices) => {
+    setPrices(updatedPrices);
+    if (onPriceUpdate) {
+      onPriceUpdate();
+    }
+  });
+
+  // Sync fetched prices with state
+  useMemo(() => {
+    setPrices(fetchedPrices);
+  }, [fetchedPrices]);
 
   // Get calendar days for current month
   const calendarDays = useMemo(() => {
@@ -98,7 +126,7 @@ export function CalendarMonth({
     }
 
     return days;
-  }, [currentMonth, prices, basePrice, weekendPrice]);
+  }, [currentMonth, prices, basePrice, weekendPrice, rangeStart, rangeEnd]);
 
   const handlePrevMonth = () => {
     setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1));
@@ -108,17 +136,38 @@ export function CalendarMonth({
     setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1));
   };
 
-  const handleDateClick = (date: Date) => {
+  const handleDateClick = (date: Date, event?: React.MouseEvent) => {
+    // Check for shift key to select range
+    if (event && event.shiftKey && rangeStart) {
+      // Shift+click to complete range
+      const start = rangeStart <= date ? rangeStart : date;
+      const end = rangeStart <= date ? date : rangeStart;
+      setRangeStart(start);
+      setRangeEnd(end);
+      setIsSelectingRange(false);
+      return;
+    }
+
+    if (event && event.ctrlKey) {
+      // Ctrl+click to start range selection
+      setRangeStart(date);
+      setRangeEnd(null);
+      setIsSelectingRange(true);
+      return;
+    }
+
     if (rangeStart && !rangeEnd) {
       // Second click: set range end
       if (date >= rangeStart) {
         setRangeEnd(date);
+        setIsSelectingRange(false);
       }
     } else {
       // First click or reset: set selection
       setSelectedDate(date);
       setRangeStart(null);
       setRangeEnd(null);
+      setIsSelectingRange(false);
       setShowDetailModal(true);
     }
   };
@@ -158,6 +207,93 @@ export function CalendarMonth({
       throw err;
     } finally {
       setModalLoading(false);
+    }
+  };
+
+  const handleBulkPrice = () => {
+    if (!rangeStart || !rangeEnd) return;
+
+    const config: BulkOperationConfig = {
+      operationType: 'price',
+      startDate: rangeStart,
+      endDate: rangeEnd,
+      price: basePrice,
+      propertyId,
+      currentPrices: prices,
+    };
+
+    setBulkConfig(config);
+    setShowBulkModal(true);
+  };
+
+  const handleBulkDiscount = (discountPercent: number) => {
+    if (!rangeStart || !rangeEnd) return;
+
+    const config: BulkOperationConfig = {
+      operationType: 'discount',
+      startDate: rangeStart,
+      endDate: rangeEnd,
+      discountPercent,
+      propertyId,
+      currentPrices: prices,
+    };
+
+    setBulkConfig(config);
+    setShowBulkModal(true);
+  };
+
+  const handleBulkDelete = () => {
+    if (!rangeStart || !rangeEnd) return;
+
+    const config: BulkOperationConfig = {
+      operationType: 'delete',
+      startDate: rangeStart,
+      endDate: rangeEnd,
+      propertyId,
+      currentPrices: prices,
+    };
+
+    setBulkConfig(config);
+    setShowBulkModal(true);
+  };
+
+  const handleConfirmBulkOperation = async () => {
+    if (!bulkConfig) return;
+
+    try {
+      switch (bulkConfig.operationType) {
+        case 'price':
+          await applyBulkPrice(bulkConfig);
+          break;
+        case 'discount':
+          await applyBulkDiscount(bulkConfig);
+          break;
+        case 'delete':
+          await bulkDeleteOverrides(bulkConfig);
+          break;
+      }
+
+      setShowBulkModal(false);
+      setBulkConfig(null);
+      setRangeStart(null);
+      setRangeEnd(null);
+
+      if (onPriceUpdate) {
+        onPriceUpdate();
+      }
+    } catch (err) {
+      console.error('Error applying bulk operation:', err);
+    }
+  };
+
+  const handleUndo = async () => {
+    try {
+      await undo();
+      if (onPriceUpdate) {
+        onPriceUpdate();
+      }
+    } catch (err) {
+      console.error('Error undoing operation:', err);
     }
   };
 
@@ -207,6 +343,81 @@ export function CalendarMonth({
             {error.message}
           </div>
         )}
+
+        {/* Range Selection UI */}
+        {rangeStart && (
+          <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-gray-700">
+                <p className="font-medium">
+                  {rangeStart.toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric',
+                  })}
+                  {rangeEnd
+                    ? ` → ${rangeEnd.toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                      })}`
+                    : ' (click to end)'}
+                </p>
+                {rangeEnd && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    {getAffectedDates(rangeStart, rangeEnd).length} dates selected
+                  </p>
+                )}
+              </div>
+
+              {rangeEnd && (
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleBulkPrice()}
+                    className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+                  >
+                    Set Price
+                  </button>
+                  <button
+                    onClick={() => handleBulkDiscount(10)}
+                    className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+                  >
+                    10% Off
+                  </button>
+                  <button
+                    onClick={() => handleBulkDelete()}
+                    className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700"
+                  >
+                    Delete
+                  </button>
+                  <button
+                    onClick={() => {
+                      setRangeStart(null);
+                      setRangeEnd(null);
+                      setIsSelectingRange(false);
+                    }}
+                    className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Undo/Redo Buttons */}
+        {(canUndo || canRedo) && (
+          <div className="mt-4 flex gap-2">
+            <button
+              onClick={handleUndo}
+              disabled={!canUndo || bulkLoading}
+              className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50"
+            >
+              ↶ Undo
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Calendar Grid */}
@@ -218,6 +429,7 @@ export function CalendarMonth({
             selectedDate={selectedDate}
             rangeStart={rangeStart}
             rangeEnd={rangeEnd}
+            isSelectingRange={isSelectingRange}
           />
         </div>
       )}
@@ -237,6 +449,19 @@ export function CalendarMonth({
         onSave={handleSavePrice}
         onDelete={handleDeletePrice}
         loading={modalLoading}
+      />
+
+      {/* Bulk Operation Modal */}
+      <BulkOperationModal
+        isOpen={showBulkModal}
+        config={bulkConfig}
+        currentPrices={prices}
+        onConfirm={handleConfirmBulkOperation}
+        onCancel={() => {
+          setShowBulkModal(false);
+          setBulkConfig(null);
+        }}
+        loading={bulkLoading}
       />
     </div>
   );
