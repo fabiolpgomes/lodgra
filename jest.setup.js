@@ -4,10 +4,10 @@
  */
 
 // Import Testing Library matchers
-import '@testing-library/jest-dom'
+require('@testing-library/jest-dom')
 
 // Add TextEncoder/TextDecoder polyfill for postal-mime (Resend library)
-import { TextEncoder, TextDecoder } from 'util'
+const { TextEncoder, TextDecoder } = require('util')
 if (typeof global.TextEncoder === 'undefined') {
   global.TextEncoder = TextEncoder
 }
@@ -67,10 +67,9 @@ if (typeof global.fetch === 'undefined') {
 }
 
 // Load environment variables from .env.local.test first, then .env.local
-import('dotenv').then((dotenv) => {
-  dotenv.config({ path: '.env.local.test' })
-  dotenv.config({ path: '.env.local' })
-})
+const dotenv = require('dotenv')
+dotenv.config({ path: '.env.local.test' })
+dotenv.config({ path: '.env.local' })
 
 // Mock environment variables if not set
 if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
@@ -111,19 +110,36 @@ afterAll(() => {
   console.error = originalError
 })
 
-// Mock NextResponse.json() for tests
-jest.mock('next/server', () => {
-  const actual = jest.requireActual('next/server')
-  return {
-    ...actual,
-    NextResponse: {
-      ...actual.NextResponse,
-      json: jest.fn((data, init) => ({
-        status: init?.status || 200,
-        json: () => Promise.resolve(data),
-        text: () => Promise.resolve(JSON.stringify(data)),
-        headers: new Map(),
-      })),
-    },
-  }
-})
+// Mock NextResponse.json() for tests (if next/server is available)
+try {
+  jest.mock('next/server', () => {
+    try {
+      const actual = jest.requireActual('next/server')
+      return {
+        ...actual,
+        NextResponse: {
+          ...actual.NextResponse,
+          json: jest.fn((data, init) => ({
+            status: init?.status || 200,
+            json: () => Promise.resolve(data),
+            text: () => Promise.resolve(JSON.stringify(data)),
+            headers: new Map(),
+          })),
+        },
+      }
+    } catch {
+      return {
+        NextResponse: {
+          json: jest.fn((data, init) => ({
+            status: init?.status || 200,
+            json: () => Promise.resolve(data),
+            text: () => Promise.resolve(JSON.stringify(data)),
+            headers: new Map(),
+          })),
+        },
+      }
+    }
+  })
+} catch {
+  // next/server might not be available in test environment
+}

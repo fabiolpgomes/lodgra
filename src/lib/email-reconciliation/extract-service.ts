@@ -5,35 +5,54 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 })
 
-const EXTRACTION_PROMPT = `Extract reservation details from the following email. Return ONLY valid JSON matching this structure:
+const EXTRACTION_PROMPT = `Extract reservation details from email. Return ONLY valid JSON.
+
+JSON format:
 {
   "guest_name": "guest full name",
   "check_in": "YYYY-MM-DD",
   "check_out": "YYYY-MM-DD",
-  "number_of_guests": number,
-  "total_value": number,
-  "currency": "EUR|USD|GBP|etc",
-  "reservation_code": "booking reference code",
-  "property_name": "property name if mentioned"
+  "number_of_guests": number (optional),
+  "total_value": number (optional),
+  "currency": "EUR|USD|GBP|etc" (optional),
+  "reservation_code": "booking reference code" (optional),
+  "property_name": "property name" (optional)
 }
 
-Rules:
-- Date format MUST be YYYY-MM-DD (extract and convert if needed)
-- guest_name, check_in, check_out are REQUIRED
-- Return ONLY the JSON object, no markdown or extra text
-- If a field is missing, omit it (except required ones)
+EXAMPLES (few-shot):
 
-Email content:
+Example 1:
+Email: "Reserva confirmada - João Silva chega em 15 de agosto e sai em 20 de agosto. Property: Casa do Mar"
+Output: {"guest_name":"João Silva","check_in":"2026-08-15","check_out":"2026-08-20","property_name":"Casa do Mar"}
+
+Example 2:
+Email: "Booking.com - Nova reserva! Ana Santos, 1-7 julho 2026, €450 EUR"
+Output: {"guest_name":"Ana Santos","check_in":"2026-07-01","check_out":"2026-07-07","total_value":450,"currency":"EUR"}
+
+Example 3:
+Email: "Lembrete: Nuno Soares chega quinta-feira (25 jul), sai terça (30 jul). Ref: BK12345"
+Output: {"guest_name":"Nuno Soares","check_in":"2026-07-25","check_out":"2026-07-30","reservation_code":"BK12345"}
+
+RULES:
+- Dates in Portuguese: "25 de julho" → "2026-07-25" (infer current/next year)
+- If check-out missing but check-in present: try to infer from email context
+- Return ONLY the JSON object, NO markdown, NO extra text
+- Required: guest_name, check_in, check_out
+- For fields not found: omit them (don't include null)
+
+Email to extract:
 ---
 {{EMAIL_CONTENT}}
----`
+---
 
-export async function extractEmailData(rawContent: string): Promise<ExtractionResult> {
+Return only JSON:`
+
+export async function extractEmailData(rawContent: string, model: string = 'gpt-4o-mini'): Promise<ExtractionResult> {
   try {
     const prompt = EXTRACTION_PROMPT.replace('{{EMAIL_CONTENT}}', rawContent)
 
     const message = await openai.messages.create({
-      model: 'gpt-5-nano',
+      model,
       max_tokens: 500,
       messages: [
         {

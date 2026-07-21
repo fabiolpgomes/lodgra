@@ -69,6 +69,29 @@ export interface PropertyDiscount {
   updated_at: string;
 }
 
+// Story 36.6: Seasonal Pricing Rules
+export interface SeasonalPricingRule {
+  id: string;
+  property_id: string;
+  name: string;
+  date_start: string; // YYYY-MM-DD
+  date_end: string; // YYYY-MM-DD
+  price_per_night: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+// Story 36.6: Pricing Constraints
+export interface PricingConstraints {
+  min_nightly_price?: number | null;
+  max_nightly_price?: number | null;
+}
+
+export interface PropertyPricingConstraints extends PricingConstraints {
+  property_id: string;
+}
+
 export interface PropertyAvailability {
   id: string;
   property_id: string;
@@ -120,6 +143,28 @@ export interface AvailabilityPayload {
 export interface DailyPricePayload {
   date: string; // YYYY-MM-DD
   price: number;
+}
+
+// Story 36.6: Seasonal Rule and Constraint Payloads
+export interface SeasonalRulePayload {
+  name: string;
+  date_start: string; // YYYY-MM-DD
+  date_end: string; // YYYY-MM-DD
+  price_per_night: number;
+  is_active?: boolean;
+}
+
+export interface UpdateSeasonalRulePayload {
+  name?: string;
+  date_start?: string;
+  date_end?: string;
+  price_per_night?: number;
+  is_active?: boolean;
+}
+
+export interface PricingConstraintsPayload {
+  min_nightly_price?: number | null;
+  max_nightly_price?: number | null;
 }
 
 // API Response Wrapper

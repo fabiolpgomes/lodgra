@@ -1,11 +1,19 @@
 /**
  * PricingCalculator - Discount Logic Engine for Story 36.4
  * Calculates booking prices with support for weekend multipliers, duration discounts, and daily overrides
+ * Extended for Story 36.6 with pricing constraints and seasonal rule support
  */
 
-import type { PricingConfig, PricingResult, BreakdownItem, DailyPrice } from '../../types/pricing.types'
+import type {
+  PricingConfig,
+  PricingResult,
+  BreakdownItem,
+  DailyPrice,
+  SeasonalPricingRule,
+  PricingConstraints,
+} from '../../types/pricing.types'
 
-export { PricingConfig, PricingResult, BreakdownItem, DailyPrice }
+export { PricingConfig, PricingResult, BreakdownItem, DailyPrice, SeasonalPricingRule, PricingConstraints }
 
 /**
  * PricingCalculator - Static utility class for booking price calculation
@@ -242,5 +250,122 @@ export class PricingCalculator {
     return breakdown
       .filter((item) => item.component === 'override')
       .reduce((sum, item) => sum + item.value, 0);
+  }
+
+  /**
+   * Story 36.6: Applies pricing constraints (min/max) to a calculated price
+   * Returns the original price if within bounds, or the constrained price with warning
+   */
+  static applyPricingConstraints(
+    price: number,
+    constraints: PricingConstraints
+  ): { price: number; constrained: boolean; warning?: string } {
+    let constrainedPrice = price;
+    let constrained = false;
+    let warning: string | undefined;
+
+    if (constraints.min_nightly_price && price < constraints.min_nightly_price) {
+      constrainedPrice = constraints.min_nightly_price;
+      constrained = true;
+      warning = `Price below minimum (€${constraints.min_nightly_price.toFixed(2)})`;
+    }
+
+    if (constraints.max_nightly_price && price > constraints.max_nightly_price) {
+      constrainedPrice = constraints.max_nightly_price;
+      constrained = true;
+      warning = `Price exceeds maximum (€${constraints.max_nightly_price.toFixed(2)})`;
+    }
+
+    return { price: constrainedPrice, constrained, warning };
+  }
+
+  /**
+   * Story 36.6: Checks if a date falls within any seasonal rule
+   */
+  static isDateInSeasonalRule(date: string, rules: SeasonalPricingRule[]): boolean {
+    return rules.some(
+      (rule) =>
+        rule.is_active &&
+        date >= rule.date_start &&
+        date <= rule.date_end
+    );
+  }
+
+  /**
+   * Story 36.6: Gets the applicable seasonal rate for a date
+   * Returns the price from the first matching active rule (respects rule order)
+   */
+  static getSeasonalRate(
+    date: string,
+    rules: SeasonalPricingRule[]
+  ): number | null {
+    const rule = rules.find(
+      (r) =>
+        r.is_active &&
+        date >= r.date_start &&
+        date <= r.date_end
+    );
+
+    return rule ? rule.price_per_night : null;
+  }
+
+  /**
+   * Story 36.6: Validates price range (min <= max, both positive)
+   */
+  static validatePriceRange(
+    minPrice?: number | null,
+    maxPrice?: number | null
+  ): { valid: boolean; error?: string } {
+    if (minPrice !== undefined && minPrice !== null && minPrice < 0) {
+      return { valid: false, error: 'Minimum price cannot be negative' };
+    }
+
+    if (maxPrice !== undefined && maxPrice !== null && maxPrice < 0) {
+      return { valid: false, error: 'Maximum price cannot be negative' };
+    }
+
+    if (
+      minPrice !== undefined &&
+      minPrice !== null &&
+      maxPrice !== undefined &&
+      maxPrice !== null &&
+      minPrice > maxPrice
+    ) {
+      return {
+        valid: false,
+        error: 'Minimum price cannot exceed maximum price',
+      };
+    }
+
+    return { valid: true };
+  }
+
+  /**
+   * Story 36.6: Detects overlapping seasonal rules
+   */
+  static detectOverlappingRules(
+    rules: SeasonalPricingRule[]
+  ): Array<{ rule1: SeasonalPricingRule; rule2: SeasonalPricingRule }> {
+    const overlaps: Array<{
+      rule1: SeasonalPricingRule;
+      rule2: SeasonalPricingRule;
+    }> = [];
+
+    for (let i = 0; i < rules.length; i++) {
+      for (let j = i + 1; j < rules.length; j++) {
+        const rule1 = rules[i];
+        const rule2 = rules[j];
+
+        // Check if rules overlap
+        if (
+          rule1.date_start <= rule2.date_end &&
+          rule1.date_end >= rule2.date_start
+        ) {
+          overlaps.push({ rule1, rule2 });
+        }
+      }
+    }
+
+    return overlaps;
   }
 }
