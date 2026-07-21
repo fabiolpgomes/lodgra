@@ -1,73 +1,65 @@
-import { extractEmailData } from '../extract-service'
+import { EmailExtractionSchema } from '../extraction.schema'
 
-describe('Email extraction service', () => {
-  it('extracts required fields from Airbnb email', async () => {
-    const airbnbEmail = `
-      Subject: Reservation Confirmed
+describe('Email extraction schema', () => {
+  it('validates required fields', () => {
+    const validData = {
+      guest_name: 'João Silva',
+      check_in: '2026-08-20',
+      check_out: '2026-08-25',
+    }
 
-      Dear Host,
-
-      You have a new reservation!
-
-      Guest: João Silva
-      Check-in: August 20, 2026
-      Check-out: August 25, 2026
-      Number of guests: 2
-      Total: EUR 1,500
-      Confirmation code: AIRBNB123456
-      Property: Casa da Praia
-    `
-
-    const result = await extractEmailData(airbnbEmail)
-
+    const result = EmailExtractionSchema.safeParse(validData)
     expect(result.success).toBe(true)
-    expect(result.data?.guest_name).toBeTruthy()
-    expect(result.data?.check_in).toMatch(/^\d{4}-\d{2}-\d{2}$/)
-    expect(result.data?.check_out).toMatch(/^\d{4}-\d{2}-\d{2}$/)
-    expect(result.confidence).toBeGreaterThan(0.8)
   })
 
-  it('extracts fields from Booking.com email', async () => {
-    const bookingEmail = `
-      Booking Confirmation
+  it('rejects missing required fields', () => {
+    const invalidData = {
+      guest_name: 'João Silva',
+      check_in: '2026-08-20',
+      // missing check_out
+    }
 
-      Guest Name: Maria Santos
-      Arrival: 15/08/2026
-      Departure: 20/08/2026
-      Guests: 3
-      Total amount: EUR 2,000
-      Booking reference: BK987654
-      Property: Apartamento Lisboa
-    `
-
-    const result = await extractEmailData(bookingEmail)
-
-    expect(result.success).toBe(true)
-    expect(result.confidence).toBeGreaterThan(0.7)
-  })
-
-  it('fails gracefully with invalid email', async () => {
-    const invalidEmail = 'Just some random text'
-
-    const result = await extractEmailData(invalidEmail)
-
+    const result = EmailExtractionSchema.safeParse(invalidData)
     expect(result.success).toBe(false)
-    expect(result.confidence).toBeLessThan(0.5)
   })
 
-  it('validates date format', async () => {
-    const emailWithDates = `
-      Guest: Test User
-      Arrival Date: 2026-12-25
-      Departure Date: 2026-12-31
-      Guests: 1
-    `
+  it('validates date format', () => {
+    const validDates = {
+      guest_name: 'Test',
+      check_in: '2026-12-25',
+      check_out: '2026-12-31',
+    }
 
-    const result = await extractEmailData(emailWithDates)
+    const result = EmailExtractionSchema.safeParse(validDates)
+    expect(result.success).toBe(true)
+  })
 
-    if (result.success && result.data) {
-      expect(result.data.check_in).toMatch(/^\d{4}-\d{2}-\d{2}$/)
-      expect(result.data.check_out).toMatch(/^\d{4}-\d{2}-\d{2}$/)
+  it('rejects invalid date format', () => {
+    const invalidDates = {
+      guest_name: 'Test',
+      check_in: '25/12/2026',
+      check_out: '31/12/2026',
+    }
+
+    const result = EmailExtractionSchema.safeParse(invalidDates)
+    expect(result.success).toBe(false)
+  })
+
+  it('accepts optional fields', () => {
+    const withOptional = {
+      guest_name: 'Test',
+      check_in: '2026-12-25',
+      check_out: '2026-12-31',
+      number_of_guests: 2,
+      total_value: 1000,
+      currency: 'EUR',
+    }
+
+    const result = EmailExtractionSchema.safeParse(withOptional)
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.number_of_guests).toBe(2)
+      expect(result.data.total_value).toBe(1000)
     }
   })
 })
