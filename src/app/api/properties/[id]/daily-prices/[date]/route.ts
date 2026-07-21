@@ -24,8 +24,9 @@ async function validatePropertyOwnership(propertyId: string, userId: string): Pr
 // DELETE /api/properties/:id/daily-prices/:date
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string; date: string } }
+  { params }: { params: Promise<{ id: string; date: string }> }
 ): Promise<NextResponse<ApiResponse>> {
+  const { id, date } = await params;
   try {
     const {
       data: { user },
@@ -38,7 +39,7 @@ export async function DELETE(
       );
     }
 
-    const isOwner = await validatePropertyOwnership(params.id, user.id);
+    const isOwner = await validatePropertyOwnership(id, user.id);
     if (!isOwner) {
       return NextResponse.json(
         { success: false, error: 'Forbidden' },
@@ -47,7 +48,7 @@ export async function DELETE(
     }
 
     // Validate date format
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(params.date)) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
       return NextResponse.json(
         { success: false, error: 'Invalid date format (YYYY-MM-DD)' },
         { status: 400 }
@@ -57,8 +58,8 @@ export async function DELETE(
     const { error } = await supabase
       .from('property_daily_prices')
       .delete()
-      .eq('property_id', params.id)
-      .eq('date', params.date);
+      .eq('property_id', id)
+      .eq('date', date);
 
     if (error) throw error;
 

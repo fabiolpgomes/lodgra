@@ -26,6 +26,7 @@ export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse<ApiResponse>> {
+  const { id } = await params;
   try {
     const {
       data: { user },
@@ -38,7 +39,7 @@ export async function GET(
       );
     }
 
-    const isOwner = await validatePropertyOwnership(params.id, user.id);
+    const isOwner = await validatePropertyOwnership(id, user.id);
     if (!isOwner) {
       return NextResponse.json(
         { success: false, error: 'Forbidden' },
@@ -49,7 +50,7 @@ export async function GET(
     const { data, error } = await supabase
       .from('property_discounts')
       .select('*')
-      .eq('property_id', params.id);
+      .eq('property_id', id);
 
     if (error) throw error;
 
@@ -71,6 +72,7 @@ export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse<ApiResponse>> {
+  const { id } = await params;
   try {
     const {
       data: { user },
@@ -83,7 +85,7 @@ export async function POST(
       );
     }
 
-    const isOwner = await validatePropertyOwnership(params.id, user.id);
+    const isOwner = await validatePropertyOwnership(id, user.id);
     if (!isOwner) {
       return NextResponse.json(
         { success: false, error: 'Forbidden' },
@@ -112,7 +114,7 @@ export async function POST(
     const { data, error } = await supabase
       .from('property_discounts')
       .insert({
-        property_id: params.id,
+        property_id: id,
         discount_type: body.discount_type,
         percentage: body.percentage,
         min_nights: body.min_nights,

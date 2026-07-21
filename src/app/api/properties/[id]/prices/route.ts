@@ -26,6 +26,7 @@ export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse<ApiResponse>> {
+  const { id } = await params;
   try {
     const {
       data: { user },
@@ -38,7 +39,7 @@ export async function GET(
       );
     }
 
-    const isOwner = await validatePropertyOwnership(params.id, user.id);
+    const isOwner = await validatePropertyOwnership(id, user.id);
     if (!isOwner) {
       return NextResponse.json(
         { success: false, error: 'Forbidden' },
@@ -49,7 +50,7 @@ export async function GET(
     const { data, error } = await supabase
       .from('property_prices')
       .select('*')
-      .eq('property_id', params.id)
+      .eq('property_id', id)
       .single();
 
     if (error && error.code !== 'PGRST116') {
@@ -74,6 +75,7 @@ export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse<ApiResponse>> {
+  const { id } = await params;
   try {
     const {
       data: { user },
@@ -86,7 +88,7 @@ export async function POST(
       );
     }
 
-    const isOwner = await validatePropertyOwnership(params.id, user.id);
+    const isOwner = await validatePropertyOwnership(id, user.id);
     if (!isOwner) {
       return NextResponse.json(
         { success: false, error: 'Forbidden' },
@@ -116,7 +118,7 @@ export async function POST(
       .from('property_prices')
       .upsert(
         {
-          property_id: params.id,
+          property_id: id,
           base_price: body.base_price,
           weekend_price: body.weekend_price,
           updated_at: new Date().toISOString(),

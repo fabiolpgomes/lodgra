@@ -24,9 +24,9 @@ async function validatePropertyOwnership(propertyId: string, userId: string): Pr
 // GET /api/properties/:id/availability
 export async function GET(
   req: NextRequest,
-  context: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ): Promise<NextResponse<ApiResponse>> {
-  const { params } = context;
+  const { id } = await context.params;
   try {
     const {
       data: { user },
@@ -39,7 +39,7 @@ export async function GET(
       );
     }
 
-    const isOwner = await validatePropertyOwnership(params.id, user.id);
+    const isOwner = await validatePropertyOwnership(id, user.id);
     if (!isOwner) {
       return NextResponse.json(
         { success: false, error: 'Forbidden' },
@@ -50,7 +50,7 @@ export async function GET(
     const { data, error } = await supabase
       .from('property_availability')
       .select('*')
-      .eq('property_id', params.id)
+      .eq('property_id', id)
       .single();
 
     if (error && error.code !== 'PGRST116') {
@@ -81,6 +81,7 @@ export async function PUT(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse<ApiResponse>> {
+  const { id } = await params;
   try {
     const {
       data: { user },
@@ -93,7 +94,7 @@ export async function PUT(
       );
     }
 
-    const isOwner = await validatePropertyOwnership(params.id, user.id);
+    const isOwner = await validatePropertyOwnership(id, user.id);
     if (!isOwner) {
       return NextResponse.json(
         { success: false, error: 'Forbidden' },
@@ -129,7 +130,7 @@ export async function PUT(
       .from('property_availability')
       .upsert(
         {
-          property_id: params.id,
+          property_id: id,
           ...body,
           updated_at: new Date().toISOString(),
         },

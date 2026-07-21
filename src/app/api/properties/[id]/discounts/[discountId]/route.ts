@@ -24,8 +24,9 @@ async function validatePropertyOwnership(propertyId: string, userId: string): Pr
 // PUT /api/properties/:id/discounts/:discountId
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string; discountId: string } }
+  { params }: { params: Promise<{ id: string; discountId: string }> }
 ): Promise<NextResponse<ApiResponse>> {
+  const { id, discountId } = await params;
   try {
     const {
       data: { user },
@@ -38,7 +39,7 @@ export async function PUT(
       );
     }
 
-    const isOwner = await validatePropertyOwnership(params.id, user.id);
+    const isOwner = await validatePropertyOwnership(id, user.id);
     if (!isOwner) {
       return NextResponse.json(
         { success: false, error: 'Forbidden' },
@@ -62,8 +63,8 @@ export async function PUT(
         ...body,
         updated_at: new Date().toISOString(),
       })
-      .eq('id', params.discountId)
-      .eq('property_id', params.id)
+      .eq('id', discountId)
+      .eq('property_id', id)
       .select()
       .single();
 
@@ -88,8 +89,9 @@ export async function PUT(
 // DELETE /api/properties/:id/discounts/:discountId
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string; discountId: string } }
+  { params }: { params: Promise<{ id: string; discountId: string }> }
 ): Promise<NextResponse<ApiResponse>> {
+  const { id, discountId } = await params;
   try {
     const {
       data: { user },
@@ -102,7 +104,7 @@ export async function DELETE(
       );
     }
 
-    const isOwner = await validatePropertyOwnership(params.id, user.id);
+    const isOwner = await validatePropertyOwnership(id, user.id);
     if (!isOwner) {
       return NextResponse.json(
         { success: false, error: 'Forbidden' },
@@ -113,8 +115,8 @@ export async function DELETE(
     const { error } = await supabase
       .from('property_discounts')
       .delete()
-      .eq('id', params.discountId)
-      .eq('property_id', params.id);
+      .eq('id', discountId)
+      .eq('property_id', id);
 
     if (error) throw error;
 
