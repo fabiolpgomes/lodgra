@@ -3,12 +3,12 @@
  * GET/POST /api/properties/:id/prices
  */
 
-import { createAdminClient } from '@/lib/supabase/admin';
-
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 import { ApiResponse, PricesPayload, PropertyPrices } from '@/types/pricing.types';
 
-const supabase = createAdminClient();
+const supabase = createRouteHandlerClient({ cookies });
 
 async function validatePropertyOwnership(propertyId: string, userId: string): Promise<boolean> {
   const { data } = await supabase

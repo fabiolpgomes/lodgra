@@ -3,12 +3,12 @@
  * PUT/DELETE /api/properties/:id/discounts/:discountId
  */
 
-import { createAdminClient } from '@/lib/supabase/admin';
-
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 import { ApiResponse, UpdateDiscountPayload } from '@/types/pricing.types';
 
-const supabase = createAdminClient();
+const supabase = createRouteHandlerClient({ cookies });
 
 async function validatePropertyOwnership(propertyId: string, userId: string): Promise<boolean> {
   const { data } = await supabase
