@@ -3,12 +3,12 @@
  * GET/PUT /api/properties/:id/availability
  */
 
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 import { ApiResponse, AvailabilityPayload, PropertyAvailability } from '@/types/pricing.types';
 
-const supabase = createRouteHandlerClient({ cookies });
+const supabase = createAdminClient();
 
 async function validatePropertyOwnership(propertyId: string, userId: string): Promise<boolean> {
   const { data } = await supabase
@@ -24,8 +24,9 @@ async function validatePropertyOwnership(propertyId: string, userId: string): Pr
 // GET /api/properties/:id/availability
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ): Promise<NextResponse<ApiResponse>> {
+  const { params } = context;
   try {
     const {
       data: { user },
@@ -78,7 +79,7 @@ export async function GET(
 // PUT /api/properties/:id/availability
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: any
 ): Promise<NextResponse<ApiResponse>> {
   try {
     const {

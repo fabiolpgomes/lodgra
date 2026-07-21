@@ -3,12 +3,12 @@
  * GET/POST /api/properties/:id/daily-prices
  */
 
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 import { ApiResponse, DailyPricePayload, PropertyDailyPrice } from '@/types/pricing.types';
 
-const supabase = createRouteHandlerClient({ cookies });
+const supabase = createAdminClient();
 
 async function validatePropertyOwnership(propertyId: string, userId: string): Promise<boolean> {
   const { data } = await supabase
@@ -24,7 +24,7 @@ async function validatePropertyOwnership(propertyId: string, userId: string): Pr
 // GET /api/properties/:id/daily-prices?month=2026-07
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: any
 ): Promise<NextResponse<ApiResponse>> {
   try {
     const {
@@ -85,7 +85,7 @@ export async function GET(
 // POST /api/properties/:id/daily-prices
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: any
 ): Promise<NextResponse<ApiResponse>> {
   try {
     const {
