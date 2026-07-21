@@ -4,7 +4,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  > }
 ) {
   const auth = await requireRole(['admin', 'gestor', 'owner'])
   if (!auth.authorized) return auth.response!

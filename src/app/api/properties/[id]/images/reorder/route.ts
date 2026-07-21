@@ -11,7 +11,7 @@ interface ReorderPayload {
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  > }
 ) {
   const { id: propertyId } = await params;
   try {

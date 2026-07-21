@@ -24,8 +24,9 @@ async function validatePropertyOwnership(propertyId: string, userId: string): Pr
 // DELETE /api/properties/:id/daily-prices/:date
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string; date: string } }
+  context: { params: Promise<{ id: string; date: string }> }
 ): Promise<NextResponse<ApiResponse>> {
+  const { params } = context;
   try {
     const {
       data: { user },
