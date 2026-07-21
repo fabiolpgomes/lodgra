@@ -34,14 +34,21 @@ describe('email reconciliation inbound routing', () => {
 
   it.each([
     ['automated@airbnb.com', 'airbnb'],
+    ['express@airbnb.com', 'airbnb'],
+    ['noreply@airbnb.com', 'airbnb'],
+    ['reservations@airbnb.com', 'airbnb'],
     ['Booking <noreply@booking.com>', 'booking'],
+    ['reservations@booking.com', 'booking'],
+    ['customer.service@booking.com', 'booking'],
     ['notifications@messages.vrbo.com', 'vrbo'],
-  ])('recognizes allowlisted sender %s', (sender, platform) => {
+    ['noreply@vrbo.com', 'vrbo'],
+  ])('recognizes sender %s as %s', (sender, platform) => {
     expect(platformFromSender(sender)).toBe(platform)
   })
 
   it('rejects lookalike and unknown sender domains', () => {
     expect(platformFromSender('automated@airbnb.com.evil.test')).toBeNull()
+    expect(platformFromSender('noreply@booking.com.evil.test')).toBeNull()
     expect(platformFromSender('spam@example.com')).toBeNull()
   })
 })

@@ -23,8 +23,14 @@ export function platformFromSender(sender: string): InboundPlatform | null {
   const address = (sender.match(/<([^>]+)>/)?.[1] ?? sender).trim().toLowerCase()
   const domain = address.split('@')[1]
 
-  if (address === 'automated@airbnb.com' || address === 'express@airbnb.com') return 'airbnb'
-  if (address === 'noreply@booking.com' || address === 'customer.service@booking.com') return 'booking'
+  // Airbnb senders: noreply, automated, express, reservations, customer-service
+  if (domain === 'airbnb.com' || domain?.endsWith('.airbnb.com')) return 'airbnb'
+
+  // Booking senders: noreply, customer-service, reservations, info
+  if (domain === 'booking.com' || domain?.endsWith('.booking.com')) return 'booking'
+
+  // Vrbo senders
   if (domain === 'vrbo.com' || domain?.endsWith('.vrbo.com')) return 'vrbo'
+
   return null
 }
