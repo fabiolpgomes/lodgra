@@ -24,7 +24,7 @@ async function validatePropertyOwnership(propertyId: string, userId: string): Pr
 // GET /api/properties/:id/daily-prices?month=2026-07
 export async function GET(
   req: NextRequest,
-  { params }: any
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse<ApiResponse>> {
   try {
     const {
@@ -85,7 +85,7 @@ export async function GET(
 // POST /api/properties/:id/daily-prices
 export async function POST(
   req: NextRequest,
-  { params }: any
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse<ApiResponse>> {
   try {
     const {

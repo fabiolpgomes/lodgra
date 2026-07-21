@@ -79,7 +79,7 @@ export async function GET(
 // PUT /api/properties/:id/availability
 export async function PUT(
   req: NextRequest,
-  { params }: any
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse<ApiResponse>> {
   try {
     const {
