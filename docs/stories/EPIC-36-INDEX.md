@@ -67,28 +67,37 @@ Sprint 4 (Week 4):      QA + Refinement (Phase 1)
 Sprint 5 (Week 5):      36.6 (Responsive Foundation) + 36.7/36.8 (Mobile/Web)
                         36.12 (Booking Integration)
 
-Sprint 5 (Week 5):      36.6 (Responsive Foundation) + 36.7/36.8 (Mobile/Web)
-Sprint 6 (Week 6):      36.9 (Calendar) + 36.10/36.11/36.12 (Panels + Nav)
-Sprint 7 (Week 7):      QA + Refinement (Epic B)
+Sprint 6 (Week 6):      36.13 (Detailed Calendar) + 36.14/36.15/36.16 (Panels + Nav)
+Sprint 7 (Week 7):      QA + Refinement (Phase 2)
+Sprint 8 (Week 8):      Final QA + Integration testing
 
-Total: 7 weeks, 61 points
+Total: 8 weeks, 70 points
 ```
 
 ---
 
 ## Story Status Tracking
 
-**Ready for Assignment:** All 12 stories ✅
+**Ready for Assignment:** All 16 stories ✅
 
 ```
+Phase 1 (Schema + Pricing):
 [ ] 36.1 — Assigned to @dev
 [ ] 36.2 — Assigned to @dev
 [ ] 36.3 — Assigned to @dev
 [ ] 36.4 — Assigned to @dev
 [ ] 36.5 — Assigned to @dev
+
+Phase 2 (Calendar UI):
 [ ] 36.6 — Assigned to @dev
 [ ] 36.7 — Assigned to @dev
 [ ] 36.8 — Assigned to @dev
+[ ] 36.13 — Assigned to @dev
+[ ] 36.14 — Assigned to @dev
+[ ] 36.15 — Assigned to @dev
+[ ] 36.16 — Assigned to @dev
+
+Phase 3 (Analytics & Automation):
 [ ] 36.9 — Assigned to @dev
 [ ] 36.10 — Assigned to @dev
 [ ] 36.11 — Assigned to @dev
@@ -103,16 +112,22 @@ Total: 7 weeks, 61 points
 ```
 36.1 (Schema)
   ├─ 36.2 (Manager UI)
-  │   └─ 36.10 (Config Panel)
+  │   └─ 36.14 (Config Panel)
   ├─ 36.3 (Calendar Manager)
-  │   └─ 36.9 (Detailed Calendar)
+  │   └─ 36.13 (Detailed Calendar)
   ├─ 36.4 (Discount Logic)
-  │   └─ 36.5 (Booking UI)
-  │       └─ 36.6 (Responsive Layout) ← BLOCKS Epic B
-  └─ 36.6 → 36.7/36.8/36.9/36.11/36.12
+  │   ├─ 36.5 (Booking UI)
+  │   │   └─ 36.6 (Responsive Layout) ← BLOCKS Phase 2
+  │   └─ 36.9 (Revenue Forecasting)
+  │       ├─ 36.10 (Competitor Monitoring)
+  │       └─ 36.11 (Dynamic Pricing)
+  │           └─ 36.12 (Booking Integration)
+  └─ 36.6 → 36.7/36.8/36.13/36.14/36.15/36.16
 ```
 
-**Blocking Dependency:** Epic A (36.1-36.5) must complete before Epic B (36.6-36.12) can start.
+**Blocking Dependencies:**
+- Phase 1 (36.1-36.5) must complete before Phase 2 (36.6-36.8, 36.13-36.16) starts
+- Phase 1 (36.1-36.5) enables Phase 3 (36.9-36.12) to start in parallel with Phase 2
 
 ---
 
