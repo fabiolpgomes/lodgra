@@ -1,3 +1,3 @@
-import { proxy } from '@/proxy'
+import { proxy } from './src/proxy'
 
 export const middleware = proxy
