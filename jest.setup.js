@@ -24,9 +24,9 @@ if (typeof global.Request === 'undefined') {
       const headerInit = init.headers || {}
       const headerMap = new Map(
         typeof headerInit === 'object'
-          ? Object.entries(headerInit)
+          ? Object.entries(headerInit).map(([k, v]) => [k.toLowerCase(), v])
           : Array.isArray(headerInit)
-          ? headerInit
+          ? headerInit.map(([k, v]) => [k.toLowerCase(), v])
           : []
       )
       this.headers = {

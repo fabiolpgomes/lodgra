@@ -8,9 +8,8 @@ import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 import { ApiResponse, AvailabilityPayload, PropertyAvailability } from '@/types/pricing.types';
 
-const supabase = await createAdminClient();
-
 async function validatePropertyOwnership(propertyId: string, userId: string): Promise<boolean> {
+  const supabase = await createAdminClient();
   const { data } = await supabase
     .from('properties')
     .select('id')
@@ -27,6 +26,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse<ApiResponse>> {
   const { id } = await params;
+  const supabase = createAdminClient();
   try {
     const {
       data: { user },
@@ -82,6 +82,7 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse<ApiResponse>> {
   const { id } = await params;
+  const supabase = createAdminClient();
   try {
     const {
       data: { user },

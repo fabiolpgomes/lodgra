@@ -280,13 +280,13 @@ export async function scrapeCompetitorPrices(
             }
           }
 
-          result.success_count++;
+          result.successCount++;
         } else {
-          result.failure_count++;
+          result.failureCount++;
           result.errors.push(`Failed to extract price for ${competitor.competitorName}`);
         }
       } catch (error) {
-        result.failure_count++;
+        result.failureCount++;
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         result.errors.push(`Error processing ${competitor.competitorName}: ${errorMessage}`);
         console.error(`[CompetitorScraper] Error:`, error);
@@ -294,7 +294,7 @@ export async function scrapeCompetitorPrices(
     }
 
     console.log(
-      `[CompetitorScraper] Completed: ${result.success_count} succeeded, ${result.failure_count} failed`
+      `[CompetitorScraper] Completed: ${result.successCount} succeeded, ${result.failureCount} failed`
     );
     return result;
   } catch (error) {

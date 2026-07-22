@@ -8,6 +8,13 @@ import { AlertGenerator } from '@/jobs/alertGenerator';
 describe('Cron Endpoint - Security & Functionality', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    // Ensure CRON_SECRET is set consistently for all tests
+    process.env.CRON_SECRET = 'test-secret';
+  });
+
+  afterEach(() => {
+    // Clean up env var after each test
+    delete process.env.CRON_SECRET;
   });
 
   describe('Authentication', () => {
@@ -36,12 +43,10 @@ describe('Cron Endpoint - Security & Functionality', () => {
     });
 
     it('should accept requests with valid API key', async () => {
-      process.env.CRON_SECRET = 'valid-secret-key';
-
       const request = new Request('http://localhost:3000/api/cron?job=scrape', {
         method: 'GET',
         headers: {
-          Authorization: 'Bearer valid-secret-key',
+          Authorization: 'Bearer test-secret',
         },
       });
 
@@ -60,8 +65,6 @@ describe('Cron Endpoint - Security & Functionality', () => {
 
   describe('Job Triggering', () => {
     it('should trigger price scraper with job=scrape parameter', async () => {
-      process.env.CRON_SECRET = 'test-secret';
-
       (CompetitorPriceScraper.run as jest.Mock).mockResolvedValue({
         successCount: 10,
         failureCount: 0,
@@ -84,8 +87,6 @@ describe('Cron Endpoint - Security & Functionality', () => {
     });
 
     it('should trigger alert generator with job=alerts parameter', async () => {
-      process.env.CRON_SECRET = 'test-secret';
-
       (AlertGenerator.run as jest.Mock).mockResolvedValue({
         alertsCreated: 5,
         emailsQueued: 3,
@@ -107,8 +108,6 @@ describe('Cron Endpoint - Security & Functionality', () => {
     });
 
     it('should handle cleanup job', async () => {
-      process.env.CRON_SECRET = 'test-secret';
-
       const request = new Request('http://localhost:3000/api/cron?job=cleanup', {
         method: 'GET',
         headers: {
@@ -124,8 +123,6 @@ describe('Cron Endpoint - Security & Functionality', () => {
 
   describe('Job Response Format', () => {
     it('should return structured job result', async () => {
-      process.env.CRON_SECRET = 'test-secret';
-
       (CompetitorPriceScraper.run as jest.Mock).mockResolvedValue({
         successCount: 10,
         failureCount: 2,
@@ -150,8 +147,6 @@ describe('Cron Endpoint - Security & Functionality', () => {
     });
 
     it('should include job status in response', async () => {
-      process.env.CRON_SECRET = 'test-secret';
-
       (CompetitorPriceScraper.run as jest.Mock).mockResolvedValue({
         successCount: 10,
         failureCount: 0,
@@ -176,8 +171,6 @@ describe('Cron Endpoint - Security & Functionality', () => {
 
   describe('Error Handling', () => {
     it('should return error when job fails', async () => {
-      process.env.CRON_SECRET = 'test-secret';
-
       (CompetitorPriceScraper.run as jest.Mock).mockRejectedValue(
         new Error('Database connection failed')
       );
@@ -195,8 +188,6 @@ describe('Cron Endpoint - Security & Functionality', () => {
     });
 
     it('should return 400 for invalid job parameter', async () => {
-      process.env.CRON_SECRET = 'test-secret';
-
       const request = new Request('http://localhost:3000/api/cron?job=invalid_job', {
         method: 'GET',
         headers: {
@@ -210,8 +201,6 @@ describe('Cron Endpoint - Security & Functionality', () => {
     });
 
     it('should log errors for monitoring', async () => {
-      process.env.CRON_SECRET = 'test-secret';
-
       const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
 
       (CompetitorPriceScraper.run as jest.Mock).mockRejectedValue(
@@ -237,8 +226,6 @@ describe('Cron Endpoint - Security & Functionality', () => {
 
   describe('Rate Limiting', () => {
     it('should handle concurrent requests', async () => {
-      process.env.CRON_SECRET = 'test-secret';
-
       (CompetitorPriceScraper.run as jest.Mock).mockResolvedValue({
         successCount: 10,
         failureCount: 0,
@@ -261,14 +248,13 @@ describe('Cron Endpoint - Security & Functionality', () => {
       const responses = await Promise.all(requests.map((req) => GET(req as any)));
 
       expect(responses).toHaveLength(3);
-      expect(responses.every((r) => r.status === 200 || r.status === 429)).toBe(true);
+      // All concurrent requests should succeed (status 200)
+      expect(responses.every((r) => r.status === 200)).toBe(true);
     });
   });
 
   describe('Monitoring & Logging', () => {
     it('should log job execution with timestamp', async () => {
-      process.env.CRON_SECRET = 'test-secret';
-
       const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
 
       (CompetitorPriceScraper.run as jest.Mock).mockResolvedValue({
