@@ -1,5 +1,6 @@
 import OpenAI from 'openai'
 import { EmailExtractionSchema, ExtractionResult } from './extraction.schema'
+import { validateExtraction } from './validate-extraction'
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -91,13 +92,25 @@ export async function extractEmailData(rawContent: string, model: string = 'gpt-
     // Calculate confidence based on required fields presence
     const requiredFields = ['guest_name', 'check_in', 'check_out']
     const presentFields = requiredFields.filter((field) => validation.data[field as keyof typeof validation.data])
-    const confidence = presentFields.length / requiredFields.length
+    const initialConfidence = presentFields.length / requiredFields.length
+
+    // AC4: Phase 3 Deterministic Validation
+    const deterministic = validateExtraction(
+      {
+        success: true,
+        data: validation.data,
+        confidence: initialConfidence,
+        raw_response: responseText,
+      },
+      undefined // propertyHistoricalAdr optional for Phase 3
+    )
 
     return {
-      success: true,
-      data: validation.data,
-      confidence,
+      success: deterministic.valid,
+      data: deterministic.valid ? validation.data : undefined,
+      confidence: deterministic.confidence,
       raw_response: responseText,
+      error: !deterministic.valid ? `Validation failed: ${deterministic.issues.map(i => i.message).join('; ')}` : undefined,
     }
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
