@@ -249,3 +249,44 @@ export interface RevertPricePayload {
   recordId: string;
   reason?: string;
 }
+
+// Story 36.8: AI-Driven Price Recommendations
+export interface MarketAnalysis {
+  median_price: number;
+  market_trend: 'up' | 'down' | 'stable';
+  competitor_avg: number;
+  sample_size: number;
+}
+
+export interface RevenueProjection {
+  current_monthly: number;
+  projected_monthly: number;
+  difference: number;
+  percentage_change: number;
+}
+
+export interface PriceRecommendation {
+  id: string;
+  property_id: string;
+  recommended_price: number;
+  confidence: number; // 0.00-1.00
+  reason: string;
+  market_analysis: MarketAnalysis;
+  revenue_projection: RevenueProjection;
+  accepted: boolean;
+  accepted_at?: string;
+  rejected_at?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PriceRecommendationPayload {
+  recommendationId: string;
+  applyImmediately?: boolean;
+}
+
+export interface ConfidenceBadge {
+  level: 'high' | 'medium' | 'low';
+  score: number;
+  label: string;
+}
