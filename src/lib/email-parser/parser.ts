@@ -12,7 +12,14 @@ export interface ParsedReservation {
   num_guests: number | null
 }
 
-const client = new Anthropic()
+let client: Anthropic | null = null
+
+function getClient(): Anthropic {
+  if (!client) {
+    client = new Anthropic()
+  }
+  return client
+}
 
 export async function parseReservationEmail(emailBody: string): Promise<ParsedReservation | null> {
   if (!emailBody || emailBody.trim().length < 20) return null
@@ -58,7 +65,7 @@ Email:
 ${emailBody.slice(0, 8000)}`
 
   try {
-    const message = await client.messages.create({
+    const message = await getClient().messages.create({
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 512,
       messages: [{ role: 'user', content: prompt }],

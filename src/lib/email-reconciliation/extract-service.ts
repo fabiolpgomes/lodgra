@@ -2,9 +2,16 @@ import OpenAI from 'openai'
 import { EmailExtractionSchema, ExtractionResult } from './extraction.schema'
 import { validateExtraction } from './validate-extraction'
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
+let openaiClient: OpenAI | null = null
+
+function getOpenAI(): OpenAI {
+  if (!openaiClient) {
+    openaiClient = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    })
+  }
+  return openaiClient
+}
 
 const EXTRACTION_PROMPT = `Extract reservation details from email. Return ONLY valid JSON.
 
@@ -52,7 +59,7 @@ export async function extractEmailData(rawContent: string, model: string = 'gpt-
   try {
     const prompt = EXTRACTION_PROMPT.replace('{{EMAIL_CONTENT}}', rawContent)
 
-    const message = await openai.chat.completions.create({
+    const message = await getOpenAI().chat.completions.create({
       model,
       max_tokens: 500,
       messages: [
