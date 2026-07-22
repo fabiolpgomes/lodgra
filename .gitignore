@@ -90,3 +90,5 @@ FireShot*
 .aiox-core/local/
 .aiox/install-log.txt
 .env*
+scripts/credentials.json
+gmail-exporter/
