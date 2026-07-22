@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const supabase = createAdminClient();
+    const supabase = await createAdminClient();
     const { searchParams } = new URL(request.url);
     const propertyId = searchParams.get('property_id');
     const orgId = auth.organizationId;
@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const supabase = createAdminClient();
+    const supabase = await createAdminClient();
     const orgId = auth.organizationId;
 
     // Create template

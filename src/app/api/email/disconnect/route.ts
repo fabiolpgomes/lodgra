@@ -9,7 +9,7 @@ export async function DELETE() {
   const auth = await requireRole(['admin', 'gestor'])
   if (!auth.authorized) return auth.response!
 
-  const supabase = createAdminClient()
+  const supabase = await createAdminClient()
 
   // Obter token para revogar no Google
   const { data: connection } = await supabase

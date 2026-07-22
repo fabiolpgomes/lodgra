@@ -17,7 +17,7 @@ export async function POST(
     const { userId, organizationId } = auth;
 
     // 2. Verify user has access to this property
-    const supabase = createAdminClient();
+    const supabase = await createAdminClient();
     const { data: property, error: propError } = await supabase
       .from("properties")
       .select("id, organization_id")

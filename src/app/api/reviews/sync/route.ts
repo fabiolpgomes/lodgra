@@ -29,7 +29,7 @@ export async function POST(_request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const supabase = createAdminClient()
+    const supabase = await createAdminClient()
 
     // Get all active properties with OTA integrations
     const { data: properties, error: fetchError } = await supabase

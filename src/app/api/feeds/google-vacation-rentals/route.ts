@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
 
     if (subdomain) {
       // Fetch organization by slug
-      const supabase = createAdminClient()
+      const supabase = await createAdminClient()
       const { data: organization, error: orgError } = await supabase
         .from('organizations')
         .select('id')
@@ -126,7 +126,7 @@ export async function HEAD(request: NextRequest) {
     let organizationId: string | undefined
 
     if (subdomain) {
-      const supabase = createAdminClient()
+      const supabase = await createAdminClient()
       const { data: organization, error: orgError } = await supabase
         .from('organizations')
         .select('id')

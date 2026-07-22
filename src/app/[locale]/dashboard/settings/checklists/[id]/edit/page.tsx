@@ -14,7 +14,7 @@ export default async function EditChecklistPage({
   if (!auth.authorized) redirect('/auth/login');
 
   // TODO: Fetch template from API
-  const template: { id: string; name: string } | null = null;
+  const template: { id: string; name: string; description?: string; property_id?: string; items: any[] } | null = null;
 
   if (!template) {
     return (

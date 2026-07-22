@@ -6,7 +6,7 @@ export const maxDuration = 300
 
 export async function POST(request: Request) {
   try {
-    const supabase = createAdminClient()
+    const supabase = await createAdminClient()
 
     // Get all pending raw_emails
     const { data: pendingEmails, error: fetchError } = await supabase

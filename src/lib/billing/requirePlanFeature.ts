@@ -5,7 +5,7 @@ import { NextResponse } from 'next/server'
 
 export async function requirePlanFeature(
   feature: 'ownerReports' | 'fiscalCompliance'
-): Promise<{ authorized: false; response: NextResponse } | { authorized: true }> {
+): Promise<{ authorized: false; response: NextResponse } | { authorized: true; response?: never }> {
   const auth = await requireRole(['admin', 'gestor'])
   if (!auth.authorized) return { authorized: false, response: auth.response! }
 

@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const supabase = createAdminClient()
+    const supabase = await createAdminClient()
 
     const { data: existingGuest, error } = await supabase
       .from('guests')

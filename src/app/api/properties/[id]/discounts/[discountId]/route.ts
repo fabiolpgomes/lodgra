@@ -8,7 +8,7 @@ import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 import { ApiResponse, UpdateDiscountPayload } from '@/types/pricing.types';
 
-const supabase = createAdminClient();
+const supabase = await createAdminClient();
 
 async function validatePropertyOwnership(propertyId: string, userId: string): Promise<boolean> {
   const { data } = await supabase

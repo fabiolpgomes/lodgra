@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const supabase = createAdminClient()
+    const supabase = await createAdminClient()
 
     // Fetch reservation details
     const { data: reservation, error: resError } = await supabase

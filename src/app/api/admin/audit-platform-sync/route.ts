@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const supabase = createAdminClient()
+    const supabase = await createAdminClient()
 
     console.log('[Audit] Iniciando auditoria de platform sync metadata...')
 

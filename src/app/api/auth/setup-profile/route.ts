@@ -5,7 +5,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 // POST /api/auth/setup-profile — criar organização e perfil para novo usuário
 // Chamado após signup e após confirmação de email
 export async function POST(_request: NextRequest) {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   // Verificar autenticação
   const {

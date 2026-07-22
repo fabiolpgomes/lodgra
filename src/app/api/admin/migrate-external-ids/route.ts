@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const supabase = createAdminClient()
+    const supabase = await createAdminClient()
 
     console.log('[Migration] Iniciando atualização de external_ids...')
 

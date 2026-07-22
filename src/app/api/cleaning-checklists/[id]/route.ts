@@ -26,7 +26,7 @@ export async function GET(
   }
 
   try {
-    const supabase = createAdminClient();
+    const supabase = await createAdminClient();
     const orgId = auth.organizationId;
 
     const { data: template, error: templateError } = await supabase
@@ -90,7 +90,7 @@ export async function PUT(
       );
     }
 
-    const supabase = createAdminClient();
+    const supabase = await createAdminClient();
     const orgId = auth.organizationId;
 
     // Update template
@@ -160,7 +160,7 @@ export async function DELETE(
   }
 
   try {
-    const supabase = createAdminClient();
+    const supabase = await createAdminClient();
     const orgId = auth.organizationId;
 
     // Items are auto-deleted via ON DELETE CASCADE

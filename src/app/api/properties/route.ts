@@ -133,7 +133,7 @@ export async function GET(request: Request): Promise<Response> {
       )
     }
 
-    const supabase = createAdminClient()
+    const supabase = await createAdminClient()
     const limit = Math.min(query.limit || DEFAULT_LIMIT, MAX_LIMIT)
     const page = Math.max(query.page || 1, 1)
     const offset = (page - 1) * limit

@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
 
   if (orgSlug) {
     try {
-      const supabase = createAdminClient()
+      const supabase = await createAdminClient()
       const { data: org } = await supabase
         .from('organizations')
         .select('id, name')

@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const supabase = createAdminClient()
+    const supabase = await createAdminClient()
 
     // Query: Encontrar reservas canceladas
     const { data, error } = await supabase

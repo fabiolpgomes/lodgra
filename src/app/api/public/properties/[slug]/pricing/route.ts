@@ -48,7 +48,7 @@ export async function GET(
   const petFee = petFeeStr ? parseFloat(petFeeStr) : 0
   const nights = differenceInDays(checkOut, checkIn)
 
-  const supabase = createAdminClient()
+  const supabase = await createAdminClient()
 
   const { data: property } = await supabase
     .from('properties')

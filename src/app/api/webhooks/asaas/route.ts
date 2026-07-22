@@ -17,7 +17,7 @@ export async function POST(request: Request) {
     }
 
     const reservationId = payment.externalReference
-    const supabase = createAdminClient()
+    const supabase = await createAdminClient()
 
     // Look up the organization via the reservation to validate the token
     const { data: reservation, error: resError } = await supabase

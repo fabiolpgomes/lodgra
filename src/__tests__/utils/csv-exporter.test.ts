@@ -65,13 +65,14 @@ describe('CSV Exporter', () => {
 
       const csv = convertToCsv(withSpecialChars);
 
-      expect(csv).toContain('with "quotes"');
+      // CSV escaping doubles the quotes: "quotes" becomes ""quotes""
+      expect(csv).toContain('with ""quotes""');
     });
 
     it('should return header only for empty history', () => {
       const csv = convertToCsv([]);
 
-      const lines = csv.split('\n');
+      const lines = csv.split('\n').filter(line => line.trim());
       expect(lines.length).toBe(1);
       expect(lines[0]).toContain('Date Applied');
     });
@@ -144,7 +145,7 @@ describe('CSV Exporter', () => {
     });
 
     it('should extract price from currency format', () => {
-      const csv = 'Date Applied,€ 150.00,user-1,Test,Active';
+      const csv = 'Date Applied,Price,Changed By,Reason,Status\n2024-01-10,€ 150.00,user-1,Test,Active';
       const parsed = parseCSV(csv);
 
       expect(parsed[0].price).toBe(150);

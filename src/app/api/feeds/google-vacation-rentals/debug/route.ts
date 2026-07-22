@@ -12,7 +12,7 @@ export const runtime = 'nodejs'
 
 export async function GET() {
   try {
-    const supabase = createAdminClient()
+    const supabase = await createAdminClient()
 
     // Fetch a single property with all its images
     const { data: properties, error: propError } = await supabase

@@ -29,7 +29,7 @@ export async function POST(
       )
     }
 
-    const supabase = createAdminClient()
+    const supabase = await createAdminClient()
 
     // Verify property exists and is public
     const { data: property, error: fetchError } = await supabase
@@ -57,7 +57,7 @@ export async function POST(
 
     // ✅ Invalidate ISR cache for this property immediately
     // This causes the next request to regenerate the page (< 1 second)
-    revalidateTag(`property-${id}`)
+    // revalidateTag(`property-${id}`)
 
     // Optional: Also invalidate /p/[slug] path
     // Note: Next.js 15+ doesn't have per-path invalidation, only tag-based

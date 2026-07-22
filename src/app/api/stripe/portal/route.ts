@@ -9,7 +9,7 @@ export async function POST() {
   const auth = await requireRole(['admin'])
   if (!auth.authorized) return NextResponse.json({ error: 'Não autorizado' }, { status: 403 })
 
-  const supabase = createAdminClient()
+  const supabase = await createAdminClient()
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2026-02-25.clover' })
 
   const { data: org } = await supabase

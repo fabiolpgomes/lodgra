@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
     apiVersion: '2026-02-25.clover',
   })
 
-  const supabase = createAdminClient()
+  const supabase = await createAdminClient()
 
   try {
     await request.json()

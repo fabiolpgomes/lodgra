@@ -385,10 +385,11 @@ function getImagesFromPropertyPhotos(photos: unknown): PropertyMedia[] {
         const candidate = photo as { url?: unknown; src?: unknown; path?: unknown; alt?: unknown }
         const url = candidate.url || candidate.src || candidate.path
         if (typeof url === 'string' && url.length > 0) {
-          return {
-            url,
-            alt: typeof candidate.alt === 'string' ? candidate.alt : undefined,
+          const result: PropertyMedia = { url }
+          if (typeof candidate.alt === 'string') {
+            result.alt = candidate.alt
           }
+          return result
         }
       }
 

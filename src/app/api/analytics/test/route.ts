@@ -20,7 +20,7 @@ export async function GET(_req: NextRequest) {
     }
 
     // Test 2: Check Supabase connection
-    const supabase = createAdminClient();
+    const supabase = await createAdminClient();
     console.log('[Analytics Test] Supabase client created');
 
     // Test 3: Query the table directly

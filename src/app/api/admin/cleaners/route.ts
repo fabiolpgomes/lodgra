@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createAdminClient()
+    const supabase = await createAdminClient()
 
     const { full_name, email, phone_number, organization_id, role, guest_type, send_welcome_message } =
       await request.json();

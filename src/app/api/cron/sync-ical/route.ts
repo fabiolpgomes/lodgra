@@ -404,7 +404,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const supabase = createAdminClient()
+    const supabase = await createAdminClient()
 
     const { data: listings, error } = await supabase
       .from('property_listings')

@@ -22,7 +22,7 @@ export async function PATCH(
       return NextResponse.json({ error: 'Invalid sync_enabled' }, { status: 400 })
     }
 
-    const supabase = createAdminClient()
+    const supabase = await createAdminClient()
 
     // Verify listing belongs to user's organization
     const { data: listing } = await supabase

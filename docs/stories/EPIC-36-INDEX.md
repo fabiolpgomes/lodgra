@@ -102,6 +102,10 @@ Phase 3 (Analytics & Automation):
 [ ] 36.10 — Assigned to @dev
 [ ] 36.11 — Assigned to @dev
 [ ] 36.12 — Assigned to @dev
+
+Phase 3b (UI + Jobs for Phase 3) ✨ NEW:
+[ ] 36.9b — Assigned to @dev
+[ ] 36.10b — Assigned to @dev
 ```
 
 ---
@@ -185,15 +189,27 @@ Phase 3 (Analytics & Automation):
 
 ---
 
+## Phase 3b: Revenue Analytics & Competitor Monitoring - UI + Jobs (12 points, 2 weeks, Sprint 3 continuation)
+
+| # | Story | Points | Status | Dependencies |
+|---|-------|--------|--------|--------------|
+| **36.9b** | [Revenue Forecasting UI & Export](36.9b-revenue-forecasting-ui-export.md) | 3 | Draft | 36.9 (backend) |
+| **36.10b** | [Competitor Monitoring UI, Jobs & Alerts](36.10b-competitor-monitoring-ui-jobs-alerts.md) | 6 | Draft | 36.10 (backend) |
+
+**Phase 3b Subtotal:** 9 points (added to Phase 3 total = 18 points)
+
+---
+
 ## Next Actions
 
-1. ✅ **River (@sm):** Create 16 stories (DONE)
+1. ✅ **River (@sm):** Create all stories + sub-stories (DONE)
    - Phase 1 & 2 stories: Created 2026-07-21
    - Phase 3 stories (36.9-36.12): Created 2026-07-22
-2. **@po (Pax):** Validate Phase 3 stories (36.9-36.12)
-3. **@dev (Dex):** Assign to @dev for sprint planning
-4. **Sprint Planning:** Schedule for 2026-07-28
-5. **Start:** Story 36.1 (Schema + Backend)
+   - Phase 3b sub-stories (36.9b, 36.10b): Created 2026-07-22 ✨ NEW
+2. **@po (Pax):** Validate Phase 3 + Phase 3b stories (36.9-36.12, 36.9b, 36.10b)
+3. **@dev (Dex):** Pick up stories for sprint 3 continuation
+4. **Sprint Planning:** Update timeline for Phase 3b addition
+5. **Start:** Story 36.9b (Revenue Forecasting UI) after 36.9 backend complete
 
 ---
 

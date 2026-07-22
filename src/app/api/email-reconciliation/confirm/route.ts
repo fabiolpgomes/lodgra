@@ -5,7 +5,7 @@ import { ConfirmationAction } from '@/lib/email-reconciliation/ui-types'
 export async function POST(request: NextRequest) {
   try {
     const action: ConfirmationAction = await request.json()
-    const supabase = createAdminClient()
+    const supabase = await createAdminClient()
     const organizationId = request.headers.get('x-organization-id')
 
     if (!organizationId) {

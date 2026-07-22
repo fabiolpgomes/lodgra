@@ -8,7 +8,7 @@ import { convertToCsvExtended } from '@/lib/pricing/csv-exporter';
 import { NextRequest, NextResponse } from 'next/server';
 import { PriceHistory } from '@/types/pricing.types';
 
-const supabase = createAdminClient();
+const supabase = await createAdminClient();
 
 async function validatePropertyOwnership(propertyId: string, userId: string): Promise<boolean> {
   const { data } = await supabase

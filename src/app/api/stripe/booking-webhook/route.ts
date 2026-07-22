@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: `Webhook error: ${msg}` }, { status: 400 })
   }
 
-  const supabase = createAdminClient()
+  const supabase = await createAdminClient()
 
   try {
     switch (event.type) {

@@ -67,7 +67,7 @@ export async function GET(request: NextRequest) {
     const encryptedRefresh = encryptToken((tokens.refresh_token as string) || '')
 
     // Guardar em Supabase (upsert — substitui ligação existente)
-    const supabase = createAdminClient()
+    const supabase = await createAdminClient()
     const { error: dbError } = await supabase
       .from('email_connections')
       .upsert({

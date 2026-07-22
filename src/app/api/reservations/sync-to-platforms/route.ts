@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Usar admin client para garantir acesso (fire-and-forget background task)
-    const supabase = createAdminClient()
+    const supabase = await createAdminClient()
 
     // Buscar a reserva para obter property_id
     const { data: reservation, error: reservationError } = await supabase

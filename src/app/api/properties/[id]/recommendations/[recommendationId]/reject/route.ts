@@ -7,7 +7,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { NextRequest, NextResponse } from 'next/server';
 import type { ApiResponse } from '@/types/pricing.types';
 
-const supabase = createAdminClient();
+const supabase = await createAdminClient();
 
 async function validatePropertyOwnership(propertyId: string, userId: string): Promise<boolean> {
   const { data } = await supabase

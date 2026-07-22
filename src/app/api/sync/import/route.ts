@@ -256,7 +256,7 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json()
     // Usar admin client para bypass de RLS nas operações de escrita
-    const supabase = createAdminClient()
+    const supabase = await createAdminClient()
 
     // Modo novo: sync por propriedade(s)
     if (body.property_ids && Array.isArray(body.property_ids) && body.property_ids.length > 0) {

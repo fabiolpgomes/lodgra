@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/client'
+import { createClient } from '@/lib/supabase/server'
 
 interface Property {
   id: string
@@ -51,7 +51,7 @@ export async function fetchPropertiesForTemplate(
   featuredPropertyIds?: string[] | null,
   showAllProperties: boolean = true,
 ): Promise<Property[]> {
-  const client = createClient()
+  const client = await createClient()
 
   // Fetch all properties for the organization
   const { data: allProperties, error } = await client
@@ -92,7 +92,7 @@ export async function validateFeaturedPropertyIds(
     return { isValid: true }
   }
 
-  const client = createClient()
+  const client = await createClient()
 
   // Query organization's property IDs
   const { data: orgProperties, error } = await client

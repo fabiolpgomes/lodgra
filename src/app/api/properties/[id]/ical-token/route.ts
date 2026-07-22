@@ -11,7 +11,7 @@ export async function GET(
     if (!auth.authorized) return auth.response!
 
     const { id: propertyId } = await params
-    const supabase = createAdminClient()
+    const supabase = await createAdminClient()
 
     // Verify user has access to this property
     const { data: property, error } = await supabase
@@ -42,7 +42,7 @@ export async function POST(
     if (!auth.authorized) return auth.response!
 
     const { id: propertyId } = await params
-    const supabase = createAdminClient()
+    const supabase = await createAdminClient()
 
     // Verify user has access to this property
     const { data: property } = await supabase

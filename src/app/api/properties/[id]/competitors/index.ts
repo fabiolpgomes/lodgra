@@ -16,7 +16,7 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const propertyId = params.id;
 
     // Verify property ownership
@@ -119,7 +119,7 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const propertyId = params.id;
     const body = await request.json();
 
@@ -202,7 +202,7 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const propertyId = params.id;
     const { competitorId } = await request.json();
 

@@ -46,7 +46,7 @@ export async function POST(request: Request) {
   const organizationId = organizationIdFromRecipient(email.to, acceptedDomains)
   if (!organizationId) return NextResponse.json({ error: 'Invalid recipient' }, { status: 422 })
 
-  const supabase = createAdminClient()
+  const supabase = await createAdminClient()
   const { data: organization } = await supabase
     .from('organizations')
     .select('id')

@@ -100,8 +100,8 @@ export const NotificationSchema = z.object({
 
 // ─── Validation helper ────────────────────────────────────────────────────────
 
-type ValidationSuccess<T> = { ok: true; data: T }
-type ValidationError = { ok: false; response: NextResponse }
+type ValidationSuccess<T> = { ok: true; data: T; response?: never }
+type ValidationError = { ok: false; response: NextResponse; data?: never }
 
 export function validate<T>(
   schema: z.ZodType<T>,
@@ -115,7 +115,7 @@ export function validate<T>(
         { error: 'Dados inválidos', details: result.error.flatten() },
         { status: 400 }
       ),
-    }
+    } as ValidationError
   }
-  return { ok: true, data: result.data }
+  return { ok: true, data: result.data } as ValidationSuccess<T>
 }

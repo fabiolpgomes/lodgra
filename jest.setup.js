@@ -66,6 +66,15 @@ if (typeof global.fetch === 'undefined') {
   global.fetch = jest.fn()
 }
 
+// Add URL.createObjectURL and URL.revokeObjectURL for blob testing
+if (typeof global.URL === 'undefined' || typeof global.URL.createObjectURL === 'undefined') {
+  global.URL = global.URL || {}
+  global.URL.createObjectURL = jest.fn((blob) => {
+    return 'blob:mock-url-' + Math.random().toString(36).substr(2, 9)
+  })
+  global.URL.revokeObjectURL = jest.fn()
+}
+
 // Load environment variables from .env.local.test first, then .env.local
 const dotenv = require('dotenv')
 dotenv.config({ path: '.env.local.test' })

@@ -26,7 +26,7 @@ export async function GET(request: Request) {
     // Prioritize: forwarded host > request host > env > default
     const host = forwardedHost || requestHost || process.env.NEXT_PUBLIC_APP_URL?.replace(/^https?:\/\//, '') || 'lodgra.io'
     const baseUrl = `${protocol}://${host}`
-    const supabase = createAdminClient()
+    const supabase = await createAdminClient()
 
     // Fetch all public properties with updated_at for lastmod
     const { data: properties, error } = await supabase

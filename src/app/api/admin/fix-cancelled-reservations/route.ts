@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const supabase = createAdminClient();
+    const supabase = await createAdminClient();
 
     // Fetch cancelled reservations in July and August
     const { data: cancelledReservations, error: fetchError } = await supabase

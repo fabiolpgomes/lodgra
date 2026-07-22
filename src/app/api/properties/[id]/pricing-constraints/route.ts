@@ -8,7 +8,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { ApiResponse, PricingConstraintsPayload, PropertyPricingConstraints } from '@/types/pricing.types';
 import { PricingCalculator } from '@/lib/pricing/pricing-calculator';
 
-const supabase = createAdminClient();
+const supabase = await createAdminClient();
 
 async function validatePropertyOwnership(propertyId: string, userId: string): Promise<boolean> {
   const { data } = await supabase

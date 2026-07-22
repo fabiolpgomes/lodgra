@@ -5,15 +5,27 @@ import { getCachedProfile, setCachedProfile } from '@/lib/cache/profileCache'
 export type Role = 'admin' | 'manager' | 'gestor' | 'owner' | 'viewer' | 'guest'
 export type GuestType = 'staff' | 'owner' | 'cleaner'
 
-interface AuthResult {
-  authorized: boolean
+type AuthResultSuccess = {
+  authorized: true
+  userId: string
+  role: Role
+  accessAllProperties: boolean
+  organizationId?: string
+  guestType?: GuestType
+  response?: never
+}
+
+type AuthResultFailure = {
+  authorized: false
   userId?: string
   role?: Role
   accessAllProperties?: boolean
   organizationId?: string
   guestType?: GuestType
-  response?: NextResponse
+  response: NextResponse
 }
+
+type AuthResult = AuthResultSuccess | AuthResultFailure
 
 /**
  * Verifica autenticação e role do utilizador server-side.

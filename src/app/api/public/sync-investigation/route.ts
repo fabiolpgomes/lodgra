@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const supabase = createAdminClient()
+    const supabase = await createAdminClient()
 
     const { data, error } = await supabase
       .from('reservations')

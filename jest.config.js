@@ -30,6 +30,7 @@ const config = {
     '^sharp$': '<rootDir>/src/__mocks__/sharp.ts',
     '^@/components/booking/TemplateHero$': '<rootDir>/src/__mocks__/components/booking/TemplateHero.tsx',
   },
+  modulePaths: ['<rootDir>/src'],
   transform: {
     '^.+\\.tsx?$': ['ts-jest', {
       tsconfig: {

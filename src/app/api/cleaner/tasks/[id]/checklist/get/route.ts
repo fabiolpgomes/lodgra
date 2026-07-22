@@ -14,7 +14,7 @@ export async function GET(
   try {
     const { id: taskId } = await params;
 
-    const supabase = createAdminClient();
+    const supabase = await createAdminClient();
 
     // Fetch all responses for this task
     const { data: responses, error } = await supabase
