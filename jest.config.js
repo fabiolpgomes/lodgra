@@ -17,6 +17,7 @@ const config = {
     '^next/navigation$': '<rootDir>/src/__mocks__/next/navigation.ts',
     '^next/headers$': '<rootDir>/src/__mocks__/next/headers.ts',
     '^next/image$': '<rootDir>/src/__mocks__/next/image.ts',
+    '^next/script$': '<rootDir>/src/__mocks__/next/script.ts',
     '^next/og$': '<rootDir>/src/__mocks__/next/og.ts',
     '^next/cache$': '<rootDir>/src/__mocks__/next/cache.ts',
 
@@ -25,6 +26,8 @@ const config = {
     '^@upstash/qstash$': '<rootDir>/src/__mocks__/@upstash/qstash.ts',
     '^remark-gfm$': '<rootDir>/src/__mocks__/remark-gfm.ts',
     '^react-markdown$': '<rootDir>/src/__mocks__/react-markdown.ts',
+    '^react-gtag$': '<rootDir>/src/__mocks__/react-gtag.ts',
+    '^sharp$': '<rootDir>/src/__mocks__/sharp.ts',
     '^@/components/booking/TemplateHero$': '<rootDir>/src/__mocks__/components/booking/TemplateHero.tsx',
   },
   transform: {

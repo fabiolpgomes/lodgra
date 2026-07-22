@@ -4,9 +4,7 @@
     "incremental": false,
     "skipLibCheck": true,
     "noImplicitAny": false,
-    "strict": false,
-    "suppressImplicitAnyIndexErrors": true,
-    "suppressImplicitAnyPropertyErrors": true
+    "strict": false
   },
   "include": [
     "next-env.d.ts",
