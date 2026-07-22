@@ -1,4 +1,3 @@
-import { headers } from 'next/headers'
 import { BookOpen, Zap, BarChart3, Settings, Shield, HelpCircle } from 'lucide-react'
 import { Button } from '@/components/common/ui/button'
 import Link from 'next/link'
@@ -70,9 +69,8 @@ const docCategories = [
   },
 ]
 
-export default async function DocsPage() {
+export default function DocsPage() {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://lodgra.io'
-  const nonce = (await headers()).get('x-nonce') ?? undefined
   const breadcrumbJsonLd = generateBreadcrumbJsonLd([
     { position: 1, name: 'Home', item: baseUrl },
     { position: 2, name: 'Documentação', item: `${baseUrl}/docs` },
@@ -82,7 +80,6 @@ export default async function DocsPage() {
     <>
       <script
         type="application/ld+json"
-        nonce={nonce}
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
       <PublicNav />

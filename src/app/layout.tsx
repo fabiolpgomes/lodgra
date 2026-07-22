@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Poppins, Inter, Hanken_Grotesk } from "next/font/google";
-import { randomUUID } from "crypto";
 import "./globals.css";
 import "@/styles/tokens.css";
 import { ThemeProvider } from "next-themes";
@@ -87,8 +86,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const nonce = Buffer.from(randomUUID()).toString('base64');
-
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <head>
@@ -100,13 +97,11 @@ export default async function RootLayout({
         <link rel="dns-prefetch" href="https://pxmcsdqfcwutywrzuoal.supabase.co" />
         <script
           type="application/ld+json"
-          nonce={nonce}
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
           suppressHydrationWarning
         />
         <script
           type="application/ld+json"
-          nonce={nonce}
           dangerouslySetInnerHTML={{ __html: JSON.stringify(generateWebsiteJsonLd()) }}
           suppressHydrationWarning
         />
@@ -119,7 +114,7 @@ export default async function RootLayout({
           {children}
           <Toaster richColors position="top-right" />
           <CookieBanner />
-          <GoogleAnalytics gaId={null} nonce={nonce} />
+          <GoogleAnalytics gaId={null} />
           <ServiceWorkerRegister />
         </ThemeProvider>
       </body>
