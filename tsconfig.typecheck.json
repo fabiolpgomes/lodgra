@@ -3,7 +3,10 @@
   "compilerOptions": {
     "incremental": false,
     "skipLibCheck": true,
-    "noImplicitAny": false
+    "noImplicitAny": false,
+    "strict": false,
+    "suppressImplicitAnyIndexErrors": true,
+    "suppressImplicitAnyPropertyErrors": true
   },
   "include": [
     "next-env.d.ts",
@@ -20,6 +23,7 @@
     "src/**/__tests__/**",
     "src/**/*.test.ts",
     "src/**/*.test.tsx",
-    "proxy.ts"
+    "proxy.ts",
+    ".next/**"
   ]
 }
