@@ -6,7 +6,9 @@
  */
 
 import { MatchCandidate, MatchDecision } from './matching-engine'
-import { EmailExtractionData } from './extraction.schema'
+import { EmailExtraction } from './extraction.schema'
+
+export type EmailExtractionData = EmailExtraction
 
 export interface PendingReview {
   id: string

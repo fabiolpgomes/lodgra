@@ -73,7 +73,7 @@ export function useRecommendations(propertyId: string): UseRecommendationsReturn
                   ...rec,
                   accepted: true,
                   accepted_at: new Date().toISOString(),
-                  rejected_at: null,
+                  rejected_at: undefined,
                 }
               : rec
           )

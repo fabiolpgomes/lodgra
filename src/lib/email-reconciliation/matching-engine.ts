@@ -1,4 +1,6 @@
-import { EmailExtractionData } from './extraction.schema'
+import { EmailExtraction } from './extraction.schema'
+
+export type EmailExtractionData = EmailExtraction
 
 export interface CalendarEvent {
   id: string
@@ -127,13 +129,13 @@ export function matchEmailToCalendarEvents(
  */
 export function matchCalendarEventToEmails(
   calendarEvent: CalendarEvent & { id: string },
-  emailExtractions: (EmailExtractionData & { id: string; organization_id: string; source_platform: string })[]
+  emailExtractions: (EmailExtractionData & { id: string; organization_id: string; source_platform: string; match_status?: string })[]
 ): MatchCandidate[] {
   // Filter candidates
   const candidates = emailExtractions.filter(
     (email) =>
       email.organization_id === calendarEvent.organization_id &&
-      email.match_status === 'pending'
+      (email.match_status === 'pending' || !email.match_status)
   )
 
   // Score each candidate

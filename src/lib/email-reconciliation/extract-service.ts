@@ -52,7 +52,7 @@ export async function extractEmailData(rawContent: string, model: string = 'gpt-
   try {
     const prompt = EXTRACTION_PROMPT.replace('{{EMAIL_CONTENT}}', rawContent)
 
-    const message = await openai.messages.create({
+    const message = await openai.chat.completions.create({
       model,
       max_tokens: 500,
       messages: [
@@ -63,7 +63,7 @@ export async function extractEmailData(rawContent: string, model: string = 'gpt-
       ],
     })
 
-    const responseText = message.content[0].type === 'text' ? message.content[0].text : ''
+    const responseText = message.choices[0].message.content || ''
 
     // Parse JSON from response
     const jsonMatch = responseText.match(/\{[\s\S]*\}/)

@@ -72,8 +72,12 @@ export class RecommendationEngine {
     // 2. Detect weekly patterns
     const weeklyPatterns = this.detectWeeklyPatterns(validHistory);
 
-    // 3. Calculate trend
-    const trend = this.calculateTrend(validHistory);
+    // 3. Calculate trend (as percentage)
+    const trendPercent = this.calculateTrend(validHistory);
+
+    // Convert numeric trend to trend category
+    const trendCategory: 'increasing' | 'decreasing' | 'stable' =
+      trendPercent > 10 ? 'increasing' : trendPercent < -10 ? 'decreasing' : 'stable';
 
     // 4. Calculate confidence score
     const dataQualityScore = this.calculateDataQuality(validHistory);
@@ -82,7 +86,7 @@ export class RecommendationEngine {
 
     // 5. Calculate base recommendation
     const stats = this.calculatePriceStatistics(validHistory);
-    const optimalPrice = stats.avgPrice * (1 + trend / 100);
+    const optimalPrice = stats.avgPrice * (1 + trendPercent / 100);
     const baseRecommendation = (optimalPrice + marketBenchmark.median_price) / 2;
 
     // 6. Apply market benchmark adjustment
@@ -105,7 +109,7 @@ export class RecommendationEngine {
       seasonalPatterns,
       marketBenchmark,
       recommendedPrice,
-      trend
+      trendPercent
     );
 
     return {
@@ -117,7 +121,7 @@ export class RecommendationEngine {
       patterns: {
         seasonal: seasonalPatterns,
         weekly: weeklyPatterns,
-        trend,
+        trend: trendCategory,
       },
     };
   }
@@ -383,11 +387,10 @@ export class RecommendationEngine {
 
     // Market benchmark reason
     const marketDiff =
-      Math.round(
+      (Math.round(
         ((recommendedPrice - marketBenchmark.median_price) / marketBenchmark.median_price) *
           100
-      ) * 100
-    ) / 100;
+      ) * 100) / 100;
     if (marketDiff > 5) {
       reasons.push(`Above market median (${marketBenchmark.median_price}€) by ${marketDiff}%`);
     } else if (marketDiff < -5) {
