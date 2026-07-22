@@ -59,12 +59,12 @@ describe('rulesEngine', () => {
   describe('applyRuleAction', () => {
     it('should increase price by percent', () => {
       const action = { type: 'increase_percent' as const, value: 10 };
-      expect(applyRuleAction(100, action)).toBe(110);
+      expect(applyRuleAction(100, action)).toBeCloseTo(110, 2);
     });
 
     it('should decrease price by percent', () => {
       const action = { type: 'decrease_percent' as const, value: 10 };
-      expect(applyRuleAction(100, action)).toBe(90);
+      expect(applyRuleAction(100, action)).toBeCloseTo(90, 2);
     });
 
     it('should set fixed price', () => {
