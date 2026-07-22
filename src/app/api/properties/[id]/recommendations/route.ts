@@ -10,9 +10,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import type { ApiResponse, PriceRecommendation } from '@/types/pricing.types';
 import type { PriceHistory } from '@/types/pricing.types';
 
-const supabase = await createAdminClient();
 
 async function validatePropertyOwnership(propertyId: string, userId: string): Promise<boolean> {
+  const supabase = await createAdminClient();
   const { data } = await supabase
     .from('properties')
     .select('id')
@@ -24,6 +24,7 @@ async function validatePropertyOwnership(propertyId: string, userId: string): Pr
 }
 
 async function getPropertyDetails(propertyId: string) {
+  const supabase = await createAdminClient();
   const { data, error } = await supabase
     .from('properties')
     .select(
@@ -46,6 +47,7 @@ async function getPropertyDetails(propertyId: string) {
 }
 
 async function getCurrentPrice(propertyId: string): Promise<number> {
+  const supabase = await createAdminClient();
   const { data } = await supabase
     .from('property_prices')
     .select('base_price')
@@ -56,6 +58,7 @@ async function getCurrentPrice(propertyId: string): Promise<number> {
 }
 
 async function getPriceHistory(propertyId: string): Promise<PriceHistory[]> {
+  const supabase = await createAdminClient();
   const { data, error } = await supabase
     .from('price_history')
     .select('*')
@@ -76,6 +79,7 @@ export async function GET(
   const { id } = await params;
 
   try {
+    const supabase = await createAdminClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();

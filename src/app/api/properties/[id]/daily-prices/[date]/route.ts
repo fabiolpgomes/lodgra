@@ -8,9 +8,8 @@ import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 import { ApiResponse } from '@/types/pricing.types';
 
-const supabase = await createAdminClient();
-
 async function validatePropertyOwnership(propertyId: string, userId: string): Promise<boolean> {
+  const supabase = await createAdminClient();
   const { data } = await supabase
     .from('properties')
     .select('id')
@@ -28,6 +27,7 @@ export async function DELETE(
 ): Promise<NextResponse<ApiResponse>> {
   const { id, date } = await params;
   try {
+    const supabase = await createAdminClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();

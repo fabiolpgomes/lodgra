@@ -2,7 +2,14 @@ import crypto from 'crypto'
 import { createAdminClient } from '@/lib/supabase/admin'
 
 export class WebhookManager {
-  private supabase = createAdminClient()
+  private supabase: ReturnType<typeof createAdminClient> | null = null
+
+  private getSupabase(): ReturnType<typeof createAdminClient> {
+    if (!this.supabase) {
+      this.supabase = createAdminClient()
+    }
+    return this.supabase
+  }
 
   /**
    * Validar assinatura HMAC-SHA256 do webhook

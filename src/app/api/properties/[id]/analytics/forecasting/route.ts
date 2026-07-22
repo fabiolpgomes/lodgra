@@ -19,11 +19,11 @@ interface Booking {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = await createClient();
-    const propertyId = params.id;
+    const propertyId = (await params).id;
 
     // Verify property ownership
     const { data: property, error: propertyError } = await supabase

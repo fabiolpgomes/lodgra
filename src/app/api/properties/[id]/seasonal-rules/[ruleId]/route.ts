@@ -7,9 +7,9 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { NextRequest, NextResponse } from 'next/server';
 import { ApiResponse, UpdateSeasonalRulePayload } from '@/types/pricing.types';
 
-const supabase = await createAdminClient();
 
 async function validatePropertyOwnership(propertyId: string, userId: string): Promise<boolean> {
+  const supabase = await createAdminClient();
   const { data } = await supabase
     .from('properties')
     .select('id')
@@ -25,6 +25,7 @@ async function validateRuleOwnership(
   ruleId: string,
   userId: string
 ): Promise<boolean> {
+  const supabase = await createAdminClient();
   const { data } = await supabase
     .from('seasonal_pricing_rules')
     .select('id')
@@ -48,6 +49,7 @@ export async function PATCH(
 ): Promise<NextResponse<ApiResponse>> {
   const { id, ruleId } = await params;
   try {
+    const supabase = await createAdminClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -150,6 +152,7 @@ export async function DELETE(
 ): Promise<NextResponse<ApiResponse>> {
   const { id, ruleId } = await params;
   try {
+    const supabase = await createAdminClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();

@@ -43,10 +43,17 @@ interface ChannelPerformance {
 }
 
 export class PlatformAggregator {
-  private supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-    process.env.SUPABASE_SERVICE_ROLE_KEY || ''
-  )
+  private supabase: ReturnType<typeof createClient> | null = null
+
+  private getSupabase(): ReturnType<typeof createClient> {
+    if (!this.supabase) {
+      this.supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+        process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+      )
+    }
+    return this.supabase!
+  }
 
   async aggregateMetrics(
     organizationId: string,
@@ -191,7 +198,7 @@ export class PlatformAggregator {
     startDate: string,
     endDate: string
   ): Promise<PlatformMetrics[]> {
-    const { data } = await this.supabase
+    const { data } = await this.getSupabase()
       .from('google_performance_metrics')
       .select('*')
       .eq('property_id', propertyId)
@@ -200,7 +207,7 @@ export class PlatformAggregator {
       .order('date')
 
     return (
-      data?.map((m) => ({
+      (data as any)?.map((m: any) => ({
         platform: 'google' as const,
         propertyId,
         date: m.date,

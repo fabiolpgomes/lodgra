@@ -8,9 +8,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { ApiResponse, SeasonalRulePayload, SeasonalPricingRule } from '@/types/pricing.types';
 import { PricingCalculator } from '@/lib/pricing/pricing-calculator';
 
-const supabase = await createAdminClient();
 
 async function validatePropertyOwnership(propertyId: string, userId: string): Promise<boolean> {
+  const supabase = await createAdminClient();
   const { data } = await supabase
     .from('properties')
     .select('id')
@@ -32,7 +32,7 @@ export async function GET(
 ): Promise<NextResponse<ApiResponse>> {
   const { id } = await params;
   try {
-    const {
+    const supabase = await createAdminClient();const {
       data: { user },
     } = await supabase.auth.getUser();
 
@@ -79,7 +79,7 @@ export async function POST(
 ): Promise<NextResponse<ApiResponse>> {
   const { id } = await params;
   try {
-    const {
+    const supabase = await createAdminClient();const {
       data: { user },
     } = await supabase.auth.getUser();
 

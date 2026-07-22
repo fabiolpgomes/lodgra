@@ -13,9 +13,9 @@ import {
   PriceHistoryResponse,
 } from '@/types/pricing.types';
 
-const supabase = await createAdminClient();
 
 async function validatePropertyOwnership(propertyId: string, userId: string): Promise<boolean> {
+  const supabase = await createAdminClient();
   const { data } = await supabase
     .from('properties')
     .select('id')
@@ -34,7 +34,7 @@ export async function GET(
   const { id } = await params;
 
   try {
-    const {
+    const supabase = await createAdminClient();const {
       data: { user },
     } = await supabase.auth.getUser();
 
@@ -107,7 +107,7 @@ export async function POST(
   const { id } = await params;
 
   try {
-    const {
+    const supabase = await createAdminClient();const {
       data: { user },
     } = await supabase.auth.getUser();
 

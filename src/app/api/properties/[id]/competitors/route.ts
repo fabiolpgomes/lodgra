@@ -13,11 +13,11 @@ import { CompetitorMonitoringAPIResponse } from '@/types/competitor';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = await createClient();
-    const propertyId = params.id;
+    const propertyId = (await params).id;
 
     // Verify property ownership
     const { data: property, error: propertyError } = await supabase
@@ -116,11 +116,11 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = await createClient();
-    const propertyId = params.id;
+    const propertyId = (await params).id;
     const body = await request.json();
 
     const { competitorUrl, monitoringFrequency = 'daily', priceAlertThreshold = 10 } = body;
@@ -199,11 +199,11 @@ export async function POST(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = await createClient();
-    const propertyId = params.id;
+    const propertyId = (await params).id;
     const { competitorId } = await request.json();
 
     // Verify ownership by checking property

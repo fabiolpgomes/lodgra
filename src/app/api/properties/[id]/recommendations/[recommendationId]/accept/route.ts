@@ -7,13 +7,13 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { NextRequest, NextResponse } from 'next/server';
 import type { ApiResponse } from '@/types/pricing.types';
 
-const supabase = await createAdminClient();
 
 interface AcceptPayload {
   applyImmediately?: boolean;
 }
 
 async function validatePropertyOwnership(propertyId: string, userId: string): Promise<boolean> {
+  const supabase = await createAdminClient();
   const { data } = await supabase
     .from('properties')
     .select('id')
@@ -28,6 +28,7 @@ async function getRecommendation(
   propertyId: string,
   recommendationId: string
 ): Promise<{ id: string; recommended_price: number }> {
+  const supabase = await createAdminClient();
   const { data, error } = await supabase
     .from('pricing_recommendations')
     .select('id, recommended_price')
@@ -47,6 +48,7 @@ export async function POST(
   const { id, recommendationId } = await params;
 
   try {
+    const supabase = await createAdminClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();
