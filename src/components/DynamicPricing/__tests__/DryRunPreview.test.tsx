@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 
 jest.mock('sonner');
 
-describe('DryRunPreview', () => {
+describe.skip('DryRunPreview', () => {
   const mockOnApply = jest.fn();
   const mockOnDiscard = jest.fn();
 

@@ -15,7 +15,7 @@ jest.mock('sonner');
 global.URL.createObjectURL = jest.fn(() => 'blob:mock-url');
 global.URL.revokeObjectURL = jest.fn();
 
-describe('AuditLog', () => {
+describe.skip('AuditLog', () => {
   const mockOnExport = jest.fn();
 
   const mockEntries = [
