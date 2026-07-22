@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Poppins, Inter, Hanken_Grotesk } from "next/font/google";
-import { headers } from "next/headers";
+import { randomUUID } from "crypto";
 import "./globals.css";
 import "@/styles/tokens.css";
 import { ThemeProvider } from "next-themes";
@@ -87,7 +87,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const nonce = (await headers()).get('x-nonce') ?? '';
+  const nonce = Buffer.from(randomUUID()).toString('base64');
 
   return (
     <html lang="pt-BR" suppressHydrationWarning>
