@@ -37,6 +37,12 @@ export function DetailedCalendar({
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [loadingReservations, setLoadingReservations] = useState(false);
 
+  const validateDate = (dateStr: unknown): Date | null => {
+    if (!dateStr) return null;
+    const date = new Date(dateStr as string);
+    return isNaN(date.getTime()) ? null : date;
+  };
+
   // Fetch reservations
   useEffect(() => {
     const fetchReservations = async () => {
@@ -48,7 +54,24 @@ export function DetailedCalendar({
         );
         if (res.ok) {
           const data = await res.json();
-          setReservations(Array.isArray(data) ? data : data.data || []);
+          const reservationList = Array.isArray(data) ? data : data.data || [];
+
+          // Validate dates before setting state
+          const validReservations = reservationList.filter((res: any) => {
+            const checkIn = validateDate(res.checkIn);
+            const checkOut = validateDate(res.checkOut);
+            if (!checkIn || !checkOut) {
+              console.error(`Invalid date format in reservation ${res.id}: checkIn=${res.checkIn}, checkOut=${res.checkOut}`);
+              return false;
+            }
+            return true;
+          }).map((res: any) => ({
+            ...res,
+            checkIn: validateDate(res.checkIn),
+            checkOut: validateDate(res.checkOut),
+          }));
+
+          setReservations(validReservations);
         }
       } catch (err) {
         console.error('Failed to fetch reservations:', err);

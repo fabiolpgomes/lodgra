@@ -20,7 +20,7 @@ interface ReservationOverlayProps {
   getReservationsForDate: (date: Date) => Reservation[];
 }
 
-export function ReservationOverlay({
+export const ReservationOverlay = React.memo(function ReservationOverlay({
   days,
   reservations,
   getReservationsForDate,
@@ -141,4 +141,4 @@ export function ReservationOverlay({
       )}
     </div>
   );
-}
+});
