@@ -1,16 +1,16 @@
-# EPIC 36: Dynamic Pricing + Calendar Redesign — Stories Index
+# EPIC 36: Dynamic Pricing + Calendar Redesign + Analytics — Stories Index
 
-**Status:** All 12 stories created ✅  
-**Total Points:** 61  
-**Timeline:** 6-7 weeks  
+**Status:** 16 stories created ✅  
+**Total Points:** 70  
+**Timeline:** 8-9 weeks  
 **Created by:** River (@sm)  
-**Date:** 2026-07-21  
+**Last Updated:** 2026-07-22  
 
 ---
 
-## Stories by Epic
+## Stories by Phase
 
-### EPIC A: Dynamic Pricing + Desconto por Duração (31 points, 3-4 weeks)
+### PHASE 1: Dynamic Pricing + Desconto por Duração (31 points, 3-4 weeks)
 
 | # | Story | Points | Status | Dependencies |
 |---|-------|--------|--------|--------------|
@@ -20,23 +20,36 @@
 | **36.4** | [Discount Calculation Logic](36.4-discount-calculation-logic.md) | 8 | Draft | 36.1 |
 | **36.5** | [Booking UI — Show Discount Breakdown](36.5-booking-ui-discount.md) | 5 | Draft | 36.4 |
 
-**Sub-Epic A Subtotal:** 31 points
+**Phase 1 Subtotal:** 31 points
 
 ---
 
-### EPIC B: Calendar Redesign (30 points, 2-3 weeks, after Epic A)
+### PHASE 2: Calendar Redesign (30 points, 2-3 weeks, after Phase 1)
 
 | # | Story | Points | Status | Dependencies |
 |---|-------|--------|--------|--------------|
-| **36.6** | [Responsive Layout Foundation](36.6-responsive-layout-foundation.md) | 5 | Draft | A5 (Epic A complete) |
+| **36.6** | [Responsive Layout Foundation](36.6-responsive-layout-foundation.md) | 5 | Draft | Phase 1 complete |
 | **36.7** | [Card List (Mobile)](36.7-card-list-mobile.md) | 5 | Draft | 36.6 |
 | **36.8** | [Sidebar Properties (Web)](36.8-sidebar-properties-web.md) | 3 | Draft | 36.6 |
-| **36.9** | [Detailed Calendar (Both)](36.9-detailed-calendar-both.md) | 8 | Draft | 36.3, 36.6 |
-| **36.10** | [Config Panel (Web)](36.10-config-panel-web.md) | 3 | Draft | 36.2, 36.6, 36.8 |
-| **36.11** | [Hamburger Menu (Web)](36.11-hamburger-menu-web.md) | 3 | Draft | 36.6 |
-| **36.12** | [Bottom Navigation (Mobile)](36.12-bottom-navigation-mobile.md) | 3 | Draft | 36.6 |
+| **36.13** | [Detailed Calendar (Both)](36.9-detailed-calendar-both.md) | 8 | Draft | 36.3, 36.6 |
+| **36.14** | [Config Panel (Web)](36.10-config-panel-web.md) | 3 | Draft | 36.2, 36.6, 36.8 |
+| **36.15** | [Hamburger Menu (Web)](36.11-hamburger-menu-web.md) | 3 | Draft | 36.6 |
+| **36.16** | [Bottom Navigation (Mobile)](36.12-bottom-navigation-mobile.md) | 3 | Draft | 36.6 |
 
-**Sub-Epic B Subtotal:** 30 points
+**Phase 2 Subtotal:** 30 points
+
+---
+
+### PHASE 3: Revenue Analytics & Pricing Automation (9 points, 2 weeks, after Phase 1)
+
+| # | Story | Points | Status | Dependencies |
+|---|-------|--------|--------|--------------|
+| **36.9** | [Revenue Forecasting](36.9-revenue-forecasting.md) | 3 | Draft | 36.1, 36.4 |
+| **36.10** | [Competitor Price Monitoring](36.10-competitor-price-monitoring.md) | 2 | Draft | 36.1, 36.9 |
+| **36.11** | [Dynamic Pricing Automation](36.11-dynamic-pricing-automation.md) | 2 | Draft | 36.1, 36.4, 36.5 |
+| **36.12** | [Booking System Integration](36.12-booking-system-integration.md) | 2 | Draft | 36.1, 36.4, 36.5, 36.11 |
+
+**Phase 3 Subtotal:** 9 points
 
 ---
 
@@ -46,7 +59,13 @@
 Sprint 1 (Week 1):      36.1 (Schema + Backend)
 Sprint 2 (Week 2):      36.2 (Manager UI) + 36.4 (Discount Logic)
 Sprint 3 (Week 3):      36.3 (Calendar Manager) + 36.5 (Booking UI)
-Sprint 4 (Week 4):      QA + Refinement (Epic A)
+                        36.9 (Revenue Forecasting) [parallel with Phase 1]
+Sprint 4 (Week 4):      QA + Refinement (Phase 1)
+                        36.10 (Competitor Monitoring)
+                        36.11 (Dynamic Pricing)
+
+Sprint 5 (Week 5):      36.6 (Responsive Foundation) + 36.7/36.8 (Mobile/Web)
+                        36.12 (Booking Integration)
 
 Sprint 5 (Week 5):      36.6 (Responsive Foundation) + 36.7/36.8 (Mobile/Web)
 Sprint 6 (Week 6):      36.9 (Calendar) + 36.10/36.11/36.12 (Panels + Nav)

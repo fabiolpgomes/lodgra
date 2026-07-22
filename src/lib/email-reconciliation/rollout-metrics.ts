@@ -193,7 +193,7 @@ export async function generateRolloutReport(
   return {
     metrics,
     duplicates,
-    property_associations,
+    property_associations: propertyAssociations,
     all_checks_pass:
       metrics.target_met && !duplicates.has_duplicates && !propertyAssociations.has_wrong_associations,
   }
