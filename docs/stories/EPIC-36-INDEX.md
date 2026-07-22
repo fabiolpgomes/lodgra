@@ -135,19 +135,20 @@ Phase 3 (Analytics & Automation):
 
 | Phase | Gate | Stories |
 |-------|------|---------|
-| **Dev Phase** | CodeRabbit (light mode) | All 12 stories |
-| **QA Phase** | CodeRabbit (full mode) + Functional tests | All 12 stories |
-| **Epic A** | Integration tests with Story A5 | 36.1-36.5 |
-| **Epic B** | End-to-end mobile/web testing | 36.6-36.12 |
+| **Dev Phase** | CodeRabbit (light mode) | All 16 stories |
+| **QA Phase** | CodeRabbit (full mode) + Functional tests | All 16 stories |
+| **Phase 1** | Integration tests (pricing system) | 36.1-36.5 |
+| **Phase 2** | End-to-end mobile/web testing (calendar) | 36.6-36.8, 36.13-36.16 |
+| **Phase 3** | Analytics & integration testing | 36.9-36.12 |
 
 ---
 
 ## Handoff Checklist
 
-- [x] All 12 stories created ✅
+- [x] All 16 stories created ✅
 - [x] Acceptance criteria defined ✅
 - [x] Dependencies mapped ✅
-- [x] Points estimated (61 total) ✅
+- [x] Points estimated (70 total) ✅
 - [x] Quality gates specified ✅
 - [ ] Assigned to @dev (next step)
 - [ ] Sprint scheduled (2026-07-28 start)
@@ -160,34 +161,43 @@ Phase 3 (Analytics & Automation):
 - PRD: [/docs/prd/DYNAMIC-PRICING-CALENDAR-REDESIGN-PRD.md](../prd/DYNAMIC-PRICING-CALENDAR-REDESIGN-PRD.md)
 - Epic: [/docs/epics/EPIC-DYNAMIC-PRICING-CALENDAR-REDESIGN.md](../epics/EPIC-DYNAMIC-PRICING-CALENDAR-REDESIGN.md)
 
-**Story Files (A1-A5):**
+**Phase 1 Stories (Schema + Pricing):**
 - [36.1 — Schema + Backend](36.1-schema-backend-foundation.md)
 - [36.2 — Manager UI](36.2-manager-ui-3tabs.md)
 - [36.3 — Calendar Manager](36.3-calendar-manager-daily-prices.md)
 - [36.4 — Discount Logic](36.4-discount-calculation-logic.md)
 - [36.5 — Booking UI](36.5-booking-ui-discount.md)
 
-**Story Files (B1-B7):**
+**Phase 2 Stories (Calendar UI):**
 - [36.6 — Responsive Layout](36.6-responsive-layout-foundation.md)
 - [36.7 — Card List](36.7-card-list-mobile.md)
 - [36.8 — Sidebar](36.8-sidebar-properties-web.md)
-- [36.9 — Detailed Calendar](36.9-detailed-calendar-both.md)
-- [36.10 — Config Panel](36.10-config-panel-web.md)
-- [36.11 — Hamburger Menu](36.11-hamburger-menu-web.md)
-- [36.12 — Bottom Nav](36.12-bottom-navigation-mobile.md)
+- [36.13 — Detailed Calendar](36.9-detailed-calendar-both.md)
+- [36.14 — Config Panel](36.10-config-panel-web.md)
+- [36.15 — Hamburger Menu](36.11-hamburger-menu-web.md)
+- [36.16 — Bottom Nav](36.12-bottom-navigation-mobile.md)
+
+**Phase 3 Stories (Analytics & Automation) ✨ NEW:**
+- [36.9 — Revenue Forecasting](36.9-revenue-forecasting.md)
+- [36.10 — Competitor Price Monitoring](36.10-competitor-price-monitoring.md)
+- [36.11 — Dynamic Pricing Automation](36.11-dynamic-pricing-automation.md)
+- [36.12 — Booking System Integration](36.12-booking-system-integration.md)
 
 ---
 
 ## Next Actions
 
-1. ✅ **River (@sm):** Create 11 stories (DONE)
-2. **@dev (Dex):** Assign to @dev for sprint planning
-3. **Sprint Planning:** Schedule for 2026-07-28
-4. **Start:** Story 36.1 (Schema + Backend)
+1. ✅ **River (@sm):** Create 16 stories (DONE)
+   - Phase 1 & 2 stories: Created 2026-07-21
+   - Phase 3 stories (36.9-36.12): Created 2026-07-22
+2. **@po (Pax):** Validate Phase 3 stories (36.9-36.12)
+3. **@dev (Dex):** Assign to @dev for sprint planning
+4. **Sprint Planning:** Schedule for 2026-07-28
+5. **Start:** Story 36.1 (Schema + Backend)
 
 ---
 
 **Created by:** River (@sm)  
-**Validated by:** @po (Pax)  
-**Ready for Development:** Yes ✅
+**Last Updated:** 2026-07-22 (Phase 3 stories added)  
+**Status:** Ready for @po Validation ✅
 
