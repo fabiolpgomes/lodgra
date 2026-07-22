@@ -10,7 +10,9 @@ export function applySecurityHeaders(response: NextResponse, nonce?: string): Ne
     'camera=(), microphone=(), geolocation=(), payment=(self "https://js.stripe.com")'
   )
 
-  // CSP with nonce for inline scripts (Google Analytics, JSON-LD)
+  // CSP with strict-dynamic + nonce for maximum security
+  // 'strict-dynamic' allows nonce-bearing scripts to load dynamic scripts
+  // ALL inline scripts MUST have nonce for this to work
   const scriptNonce = nonce ? `'nonce-${nonce}'` : ''
   const isDev = process.env.NODE_ENV === 'development'
   // 'wasm-unsafe-eval' allows WebAssembly compilation (@react-pdf/renderer uses WASM for fonts)
@@ -20,7 +22,7 @@ export function applySecurityHeaders(response: NextResponse, nonce?: string): Ne
     'Content-Security-Policy',
     [
       "default-src 'self'",
-      `script-src 'self' 'unsafe-inline' ${scriptNonce} ${evalDirective} https://www.googletagmanager.com https://js.stripe.com https://*.sentry.io https://cdnjs.cloudflare.com`.trim(),
+      `script-src 'self' ${scriptNonce} 'strict-dynamic' ${evalDirective} https://www.googletagmanager.com https://js.stripe.com https://*.sentry.io https://cdnjs.cloudflare.com`.trim(),
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob: https:",
       "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com https://region1.google-analytics.com https://js.stripe.com https://api.stripe.com https://*.sentry.io https://*.ingest.sentry.io https://cdnjs.cloudflare.com",
