@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { headers } from "next/headers";
 import { Poppins, Inter, Hanken_Grotesk } from "next/font/google";
 import "./globals.css";
 import "@/styles/tokens.css";
@@ -86,6 +87,9 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const headersList = await headers();
+  const nonce = headersList.get('x-nonce') ?? undefined;
+
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <head>
@@ -114,7 +118,7 @@ export default async function RootLayout({
           {children}
           <Toaster richColors position="top-right" />
           <CookieBanner />
-          <GoogleAnalytics gaId={null} />
+          <GoogleAnalytics gaId={null} nonce={nonce} />
           <ServiceWorkerRegister />
         </ThemeProvider>
       </body>
