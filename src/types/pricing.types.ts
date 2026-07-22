@@ -184,3 +184,68 @@ export interface ValidationResult {
   valid: boolean;
   errors?: ValidationError[];
 }
+
+// Story 36.7: Price History & Analytics
+export interface PriceHistory {
+  id: string;
+  property_id: string;
+  price: number;
+  date_applied: string; // YYYY-MM-DD
+  changed_by: string; // User ID
+  change_reason?: string;
+  is_revert: boolean;
+  previous_price_record_id?: string;
+  is_deleted: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PriceAnalytics {
+  id: string;
+  property_id: string;
+  period_start: string; // YYYY-MM-DD
+  period_end: string; // YYYY-MM-DD
+  min_price?: number;
+  max_price?: number;
+  avg_price?: number;
+  change_count: number;
+  revenue_impact?: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PriceStatistics {
+  minPrice: number;
+  maxPrice: number;
+  avgPrice: number;
+  changeCount: number;
+  stdDeviation?: number;
+}
+
+export interface RevenueImpactAnalysis {
+  priceChange: number;
+  estimatedBookings: number;
+  estimatedImpact: number;
+  percentageChange: number;
+}
+
+export interface HistoryFiltersPayload {
+  startDate?: string; // YYYY-MM-DD
+  endDate?: string; // YYYY-MM-DD
+  search?: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface PriceHistoryResponse {
+  data: PriceHistory[];
+  total: number;
+  page: number;
+  limit: number;
+  hasMore: boolean;
+}
+
+export interface RevertPricePayload {
+  recordId: string;
+  reason?: string;
+}
