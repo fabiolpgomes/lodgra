@@ -9,6 +9,7 @@ import {
   Menu,
   Home,
   Percent,
+  PieChart,
   RefreshCw,
   Search,
   TrendingUp,
@@ -16,6 +17,7 @@ import {
   Wallet,
   Bell,
   Award,
+  AlertTriangle,
   XCircle,
   Gauge,
 } from 'lucide-react'
@@ -46,6 +48,8 @@ import {
   aggregateManagementFeeByCurrency,
   type MonthlyPropertyMetricRow,
 } from '@/lib/dashboard/metrics'
+// Story 39.3 — Receita por Canal (% receita/reservas e comissão real por booking_source)
+import { buildChannelRevenue, CHANNEL_CONCENTRATION_THRESHOLD, type ChannelReservationInput } from '@/lib/dashboard/channelRevenue'
 
 export default async function DashboardPage({
   params,
@@ -96,11 +100,14 @@ export default async function DashboardPage({
           currency,
           created_at,
           guest_name,
+          booking_source,
+          commission_amount,
           property_listing_id,
           property_listings!inner(
             id,
             property_id,
-            properties(id, name, currency)
+            properties(id, name, currency),
+            platforms(display_name)
           )
         `)
         .in('property_listings.property_id', propertyIds)
@@ -125,6 +132,16 @@ export default async function DashboardPage({
     const propId = (lObj as { property_id?: string } | null)?.property_id
     const propCur = propId ? propertyCurrencyMap[propId] : undefined
     return propCur || r.currency || org?.currency || 'EUR'
+  }
+
+  // Story 39.3 — nome amigável de plataforma via property_listings.platform_id → platforms,
+  // usado como fallback preferencial para o rótulo do canal (ver channelRevenue.ts).
+  function getReservationPlatformName(r: { property_listings?: unknown }): string | null {
+    const listing = r.property_listings
+    const lObj = Array.isArray(listing) ? listing[0] : listing
+    const platforms = (lObj as { platforms?: unknown } | null)?.platforms
+    const platform = Array.isArray(platforms) ? platforms[0] : platforms
+    return (platform as { display_name?: string | null } | null)?.display_name || null
   }
 
   const reservationList = reservations || []
@@ -237,6 +254,31 @@ export default async function DashboardPage({
   const currentMonthOccupancy = totalAvailableDaysCurrentMonth > 0
     ? Math.min(100, Math.round((currentMonthDaysBooked / totalAvailableDaysCurrentMonth) * 100))
     : 0
+
+  // Story 39.3 — Receita por Canal: usa a mesma população de "reservas do mês
+  // corrente" (confirmadas, com estadia sobreposta ao mês) já usada pela
+  // ocupação acima. Diferente do card "Receita do Mês", que distribui
+  // reservas multi-mês proporcionalmente — aqui somamos o total_amount bruto
+  // por canal, conforme a Description da story ("SUM(total_amount) por
+  // booking_source / SUM(total_amount) total"). Decisão documentada nos Dev
+  // Notes da Story 39.3.
+  const channelReservationsByCurrency = currentMonthReservations.reduce((acc, r) => {
+    const cur = getReservationCurrency(r)
+    const row: ChannelReservationInput = {
+      bookingSource: r.booking_source,
+      totalAmount: r.total_amount != null ? Number(r.total_amount) : null,
+      commissionAmount: r.commission_amount != null ? Number(r.commission_amount) : null,
+      platformDisplayName: getReservationPlatformName(r),
+    }
+    if (!acc[cur]) acc[cur] = []
+    acc[cur].push(row)
+    return acc
+  }, {} as Record<string, ChannelReservationInput[]>)
+
+  const channelRevenueEntries = Object.entries(channelReservationsByCurrency)
+    .map(([cur, rows]) => [cur, buildChannelRevenue(rows)] as const)
+    .filter(([, result]) => result.totalReservations > 0 || result.excludedCount > 0)
+    .sort(([a], [b]) => a.localeCompare(b))
 
   // Calculate occupancy for last 6 months
   const occupancyData = []
@@ -1046,6 +1088,76 @@ export default async function DashboardPage({
             <RevenueChartWrapper revenueDataByCurrency={revenueDataByCurrency} />
           </div>
         </div>
+
+        {/* Story 39.3 — Card Receita por Canal (% de receita/reservas e comissão real por booking_source, abaixo de Receita Mensal) */}
+        {channelRevenueEntries.length > 0 && (
+          <div className="group rounded-2xl border border-neutral-200/60 bg-brand-white p-6 shadow-2xs transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-gold/45 hover:shadow-[0_18px_42px_rgba(201,162,39,0.14)]">
+            <div className="mb-6">
+              <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-brand-text-dark transition-colors group-hover:text-brand-gold">
+                <PieChart className="h-4 w-4 text-brand-blue transition-colors group-hover:text-brand-gold" />
+                Receita por Canal
+              </h3>
+              <p className="mt-1 text-[11px] font-semibold text-brand-text-medium">
+                % de receita e reservas por canal de distribuição — {monthLabel}
+              </p>
+            </div>
+
+            <div className="space-y-6">
+              {channelRevenueEntries.map(([cur, result]) => (
+                <div key={cur} className="border-t border-brand-bg pt-5 first:border-t-0 first:pt-0">
+                  <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                    <span className={`rounded-md border px-2.5 py-0.5 font-mono text-[10px] font-bold tracking-wide ${currencyBadgeClass(cur)}`}>
+                      {cur}
+                    </span>
+                    {result.concentrationAlert && (
+                      <span className="flex items-center gap-1.5 rounded-full bg-brand-gold/15 px-2.5 py-1 text-[10px] font-bold text-brand-gold">
+                        <AlertTriangle className="h-3 w-3" />
+                        Concentração por Canal: {result.concentrationAlert.label} representa {Math.round(result.concentrationAlert.revenuePercent)}% da receita
+                      </span>
+                    )}
+                  </div>
+
+                  {result.channels.length === 0 ? (
+                    <p className="text-xs font-medium text-brand-text-medium">Nenhuma reserva com canal identificado neste mês.</p>
+                  ) : (
+                    <ul className="space-y-2.5">
+                      {result.channels.map((channel) => (
+                        <li key={channel.channel} className="rounded-xl bg-brand-bg px-3.5 py-3">
+                          <div className="flex items-center justify-between gap-3">
+                            <span className="truncate text-sm font-semibold text-brand-text-dark">{channel.label}</span>
+                            <span className="shrink-0 text-sm font-bold text-brand-text-dark">
+                              {formatCurrency(channel.revenueAmount, cur as CurrencyCode)}
+                            </span>
+                          </div>
+                          <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-neutral-200/50">
+                            <div
+                              className={`h-full rounded-full ${
+                                channel.revenuePercent > CHANNEL_CONCENTRATION_THRESHOLD ? 'bg-brand-gold' : 'bg-brand-blue'
+                              }`}
+                              style={{ width: `${Math.min(100, Math.max(0, Math.round(channel.revenuePercent)))}%` }}
+                            />
+                          </div>
+                          <div className="mt-1.5 flex flex-wrap items-center justify-between gap-x-3 gap-y-0.5 text-[10px] font-semibold text-brand-text-medium">
+                            <span>
+                              {Math.round(channel.revenuePercent)}% da receita &middot; {channel.reservationCount} reserva{channel.reservationCount !== 1 ? 's' : ''} ({Math.round(channel.reservationPercent)}%)
+                            </span>
+                            <span>Comissão: {formatCurrency(channel.commissionAmount, cur as CurrencyCode)}</span>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                  {result.excludedCount > 0 && (
+                    <p className="mt-3 text-[10px] font-semibold text-brand-text-medium">
+                      {result.excludedCount} reserva{result.excludedCount !== 1 ? 's' : ''} sem canal identificado ou valor registado (excluída{result.excludedCount !== 1 ? 's' : ''} deste cálculo)
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Story 39.4 — Card Ranking de Propriedades (top 3 / bottom 3 por RevPAR do mês corrente) */}
         {selectedPropertyId ? (
