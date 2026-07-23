@@ -1,36 +1,78 @@
-import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
-import { LazyCalendar } from '@/components/common/lazy/LazyCalendar'
-import { AuthLayout } from '@/components/common/layout/AuthLayout'
-import { PremiumCard, PremiumPageHeader, PremiumPageShell } from '@/components/common/layout/PremiumPage'
-import { CalendarDays } from 'lucide-react'
+'use client'
 
-export default async function CalendarPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>
-}) {
-  await params
-  const supabase = await createClient()
+import { useState } from 'react'
+import { DesktopCalendarLayout } from '@/components/calendar/DesktopCalendarLayout'
 
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) {
-    redirect('/')
-  }
+// Mock data - replace with actual API calls
+const mockProperties = [
+  {
+    id: 'prop-1',
+    name: 'AHS Studio Premium Bela Vista',
+    type: 'Studio',
+    location: 'Bela Vista',
+    imageUrl: '/properties/studio-bela-vista.jpg',
+    availabilityDots: [
+      true, true, true, true, true, true, false,
+      true, true, true, false, true, true, true,
+      false, true, true, true, true, true, true,
+    ],
+    calendarDays: [
+      {
+        date: new Date(2026, 6, 1),
+        price: 149,
+        isWeekend: false,
+        isToday: false,
+      },
+      {
+        date: new Date(2026, 6, 2),
+        price: 149,
+        isWeekend: true,
+        isToday: false,
+      },
+      {
+        date: new Date(2026, 6, 3),
+        price: 157,
+        isWeekend: true,
+        isToday: false,
+      },
+      {
+        date: new Date(2026, 7, 21),
+        price: 149,
+        isWeekend: false,
+        isToday: true,
+      },
+      {
+        date: new Date(2026, 7, 22),
+        price: 149,
+        isWeekend: true,
+        isBooked: true,
+        guestName: 'Mark Tosan',
+        isToday: false,
+      },
+    ],
+  },
+  {
+    id: 'prop-2',
+    name: 'AHS - Casa do Moinho Refúgio na Natureza',
+    type: 'T2',
+    location: 'Loulé',
+    imageUrl: '/properties/casa-moinho.jpg',
+    availabilityDots: [
+      false, true, true, true, true, true, true,
+      true, true, true, true, true, false, true,
+      true, true, true, false, true, true, true,
+    ],
+    calendarDays: [],
+  },
+]
 
+export default function CalendarPage() {
   return (
-    <AuthLayout>
-      <PremiumPageShell>
-        <PremiumPageHeader
-          title="Calendário"
-          description="Visualize reservas, bloqueios e disponibilidade das propriedades"
-          icon={CalendarDays}
-        />
-        <div className="border-b border-neutral-200/60" />
-        <PremiumCard className="p-2 sm:p-4">
-          <LazyCalendar />
-        </PremiumCard>
-      </PremiumPageShell>
-    </AuthLayout>
+    <div className="h-screen w-screen bg-white">
+      <DesktopCalendarLayout
+        properties={mockProperties}
+        initialPropertyId="prop-1"
+      />
+    </div>
   )
 }
