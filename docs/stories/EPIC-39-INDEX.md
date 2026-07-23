@@ -1,6 +1,6 @@
 # EPIC 39: Evolução do Dashboard — Analytics do Gestor — Stories Index
 
-**Status:** 7/7 stories detalhadas. 1 Done, 6 Ready para implementação.
+**Status:** 3/7 Done (39.1, 39.4, 39.5). 39.2 e 39.3 em implementação (worktrees paralelos). 39.6, 39.7 aguardando.
 **Total Points (estimado):** 36
 **Epic doc:** [epic-39-dashboard-analytics-evolution.md](epic-39-dashboard-analytics-evolution.md)
 **Spec-fonte:** `docs/specs/lodgra-dashboard-spec-consolidada.md`
@@ -13,12 +13,12 @@
 | # | Story | Grupo | Pontos | Status | Depende de |
 |---|-------|-------|--------|--------|------------|
 | **39.1** | [Fundação de Dados (schema + monthly_property_metrics)](39.1-schema-foundation-metrics.md) | Pré-requisito bloqueante | 5 | **Done** (QA PASS, aplicada em produção) | — |
-| **39.2** | [Badges MoM/YoY + Card ADR/RevPAR + Ajuste Lucro Real](39.2-adr-revpar-badges-lucro-real.md) | A (agente único) | 8 | Ready (PO GO 10/10) | 39.1 |
-| **39.3** | [Card Receita por Canal](39.3-receita-por-canal.md) | B | 5 | Ready (PO GO 10/10) | 39.1 |
-| **39.4** | [Card Ranking de Propriedades](39.4-ranking-propriedades.md) | C | 5 | Ready (PO GO 10/10) | 39.1 |
-| **39.5** | [Indicador de Status de Sincronização](39.5-indicador-status-sincronizacao.md) | D | 3 | Ready (PO GO 10/10) | — |
-| **39.6** | [Card "Hoje" + Painel de Alertas + Sino](39.6-card-hoje-alertas-sino.md) | E | 8 | Ready (PO GO 9/10) | 39.1, soft: 39.5, 39.3 |
-| **39.7** | [Card Despesas do Mês](39.7-despesas-do-mes.md) | F | 3 | Ready (PO GO 10/10) | 39.1, ordem sugerida: depois de 39.2 |
+| **39.2** | [Badges MoM/YoY + Card ADR/RevPAR + Ajuste Lucro Real](39.2-adr-revpar-badges-lucro-real.md) | A (agente único) | 8 | **Em implementação** (worktree, YOLO) | 39.1 |
+| **39.3** | [Card Receita por Canal](39.3-receita-por-canal.md) | B | 5 | **Em implementação** (worktree relançado, YOLO) | 39.1 |
+| **39.4** | [Card Ranking de Propriedades](39.4-ranking-propriedades.md) | C | 5 | **Done** (QA PASS) | 39.1 |
+| **39.5** | [Indicador de Status de Sincronização](39.5-indicador-status-sincronizacao.md) | D | 3 | **Done** (QA PASS) | — |
+| **39.6** | [Card "Hoje" + Painel de Alertas + Sino](39.6-card-hoje-alertas-sino.md) | E | 8 | Ready (PO GO 9/10) — aguardando | 39.1, soft: 39.5 (Done), 39.3 |
+| **39.7** | [Card Despesas do Mês](39.7-despesas-do-mes.md) | F | 3 | Ready (PO GO 10/10) — aguardando | 39.1, ordem sugerida: depois de 39.2 |
 
 **Total:** 37 pontos (39.5 revisado de 2 para 3 durante o detalhamento — ver nota abaixo).
 
