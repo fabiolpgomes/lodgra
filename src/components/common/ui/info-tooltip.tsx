@@ -41,7 +41,11 @@ export function InfoTooltip({ description, label = "Mais informações", classNa
             type="button"
             aria-label={label}
             className={cn(
-              "inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-brand-text-medium/60 outline-none transition-colors hover:text-brand-gold focus-visible:text-brand-gold",
+              // Área de toque de 24px mesmo com o ícone visual pequeno (14px) — 48px
+              // (padrão do design.md para CTAs primários) inflaria demais o cabeçalho
+              // dos cards, que já tem vários elementos lado a lado; 24px é um meio-termo
+              // sem risco de sobrepor os vizinhos no flex (evita margin negativo).
+              "inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-brand-text-medium/60 outline-none transition-colors hover:text-brand-gold focus-visible:text-brand-gold",
               className
             )}
             onMouseEnter={() => setOpen(true)}
@@ -56,7 +60,7 @@ export function InfoTooltip({ description, label = "Mais informações", classNa
               setOpen((v) => !v)
             }}
           >
-            <Info className="h-full w-full" strokeWidth={2} />
+            <Info className="h-3.5 w-3.5" strokeWidth={2} />
           </button>
         </TooltipPrimitive.Trigger>
         <TooltipPrimitive.Portal>
