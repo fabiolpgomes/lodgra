@@ -10,6 +10,7 @@ import {
   Home,
   Percent,
   PieChart,
+  Receipt,
   RefreshCw,
   Search,
   TrendingUp,
@@ -560,6 +561,34 @@ export default async function DashboardPage({
     }
   })
 
+  // ─── Story 39.7: Card "Despesas do Mês" (despesas por propriedade, tabela `expenses`) ───
+  // NÃO confundir com `company_expenses` (despesas da empresa, usadas no Lucro Real
+  // acima) — são conceitos diferentes, não somar/misturar. Filtrada pelo mês corrente
+  // e pelo filtro de propriedade ativo (`propertyIds`), espelhando "Receita do Mês".
+  const { data: monthExpensesRows, error: monthExpensesError } = propertyIds.length > 0
+    ? await supabase
+        .from('expenses')
+        .select('amount, currency, property_id, expense_date')
+        .eq('organization_id', organizationId)
+        .in('property_id', propertyIds)
+        .gte('expense_date', currentMonthStart.toISOString().slice(0, 10))
+        .lte('expense_date', currentMonthEnd.toISOString().slice(0, 10))
+    : { data: null, error: null }
+
+  if (monthExpensesError) {
+    console.error('[dashboard] Erro ao buscar expenses (despesas por propriedade) para o card Despesas do Mês:', monthExpensesError)
+  }
+
+  const monthPropertyExpensesByCurrency = (monthExpensesRows || []).reduce((acc, expense) => {
+    const propCur = expense.property_id ? propertyCurrencyMap[expense.property_id] : undefined
+    const currency = propCur || expense.currency || orgCurrency
+    const amount = Number(expense.amount) || 0
+    acc[currency] = (acc[currency] || 0) + amount
+    return acc
+  }, {} as Record<string, number>)
+
+  const propertyExpensesEntries = Object.entries(monthPropertyExpensesByCurrency).sort(([a], [b]) => a.localeCompare(b))
+
   // Story 39.4 — Ranking de Propriedades: buscar monthly_property_metrics do mês
   // corrente para todas as propriedades da organização (não filtrado por
   // propertyIds — quando há filtro de 1 propriedade específica, o ranking não
@@ -904,7 +933,7 @@ export default async function DashboardPage({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           <Link
             href={`/${locale}/financial`}
             className="group flex flex-col justify-between rounded-2xl border border-neutral-200/60 bg-brand-white p-6 text-left shadow-2xs transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-gold/45 hover:shadow-[0_18px_42px_rgba(201,162,39,0.14)]"
@@ -1012,6 +1041,53 @@ export default async function DashboardPage({
             <div className="mt-5 flex w-full items-center justify-between border-t border-brand-bg pt-3.5 text-[10px] font-semibold text-brand-text-medium">
               <span>Comissão de gestão menos despesas da empresa</span>
               <span className="font-bold text-brand-blue transition-colors group-hover:text-brand-gold group-hover:underline">Ver fluxo de caixa &rarr;</span>
+            </div>
+          </Link>
+
+          {/* Story 39.7 — Card "Despesas do Mês": despesas por propriedade (tabela `expenses`),
+              distinto de `company_expenses` (despesas da empresa, usadas acima em "Lucro Real").
+              Espelha visualmente o card "Receita do Mês". */}
+          <Link
+            href={`/${locale}/expenses`}
+            className="group flex flex-col justify-between rounded-2xl border border-neutral-200/60 bg-brand-white p-6 text-left shadow-2xs transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-gold/45 hover:shadow-[0_18px_42px_rgba(201,162,39,0.14)]"
+          >
+            <div>
+              <div className="mb-5 flex items-center gap-3.5">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full border border-neutral-200/60 bg-brand-bg text-brand-text-dark transition-all group-hover:border-brand-gold/40 group-hover:bg-brand-gold/10 group-hover:text-brand-gold">
+                  <Receipt className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-brand-text-dark transition-colors group-hover:text-brand-gold">Despesas do Mês</h3>
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-brand-text-medium transition-colors group-hover:text-brand-gold">{monthLabel}</p>
+                </div>
+              </div>
+
+              {propertyExpensesEntries.length === 0 ? (
+                <p className="text-3xl font-bold text-brand-text-medium">-</p>
+              ) : (
+                <div className="space-y-4">
+                  {propertyExpensesEntries.map(([cur, amount], idx) => (
+                    <div
+                      key={cur}
+                      className={idx < propertyExpensesEntries.length - 1 ? 'flex items-center justify-between border-b border-dashed border-neutral-200/50 pb-3.5' : 'flex items-center justify-between'}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className={`rounded-md border px-2.5 py-0.5 font-mono text-[10px] font-bold tracking-wide ${currencyBadgeClass(cur)}`}>
+                          {cur}
+                        </span>
+                      </div>
+                      <span className="text-right text-2xl font-bold tracking-tight text-brand-text-dark">
+                        {formatCurrency(amount, cur as CurrencyCode)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="mt-5 flex w-full items-center justify-between border-t border-brand-bg pt-3.5 text-[10px] font-semibold text-brand-text-medium">
+              <span>Despesas por propriedade lançadas este mês</span>
+              <span className="font-bold text-brand-blue transition-colors group-hover:text-brand-gold group-hover:underline">Ver despesas &rarr;</span>
             </div>
           </Link>
         </div>
