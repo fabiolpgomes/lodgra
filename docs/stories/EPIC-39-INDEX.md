@@ -1,6 +1,6 @@
 # EPIC 39: Evolução do Dashboard — Analytics do Gestor — Stories Index
 
-**Status:** 7/7 Done. Epic completa. 1 ressalva aberta (39.6, prazo de pagamento pendente).
+**Status:** 7/7 Done. Epic completa, sem ressalvas abertas.
 **Total Points (estimado):** 36
 **Epic doc:** [epic-39-dashboard-analytics-evolution.md](epic-39-dashboard-analytics-evolution.md)
 **Spec-fonte:** `docs/specs/lodgra-dashboard-spec-consolidada.md`
@@ -17,7 +17,7 @@
 | **39.3** | [Card Receita por Canal](39.3-receita-por-canal.md) | B | 5 | **Done** (QA PASS) | 39.1 |
 | **39.4** | [Card Ranking de Propriedades](39.4-ranking-propriedades.md) | C | 5 | **Done** (QA PASS) | 39.1 |
 | **39.5** | [Indicador de Status de Sincronização](39.5-indicador-status-sincronizacao.md) | D | 3 | **Done** (QA PASS) | — |
-| **39.6** | [Card "Hoje" + Painel de Alertas + Sino](39.6-card-hoje-alertas-sino.md) | E | 8 | **Done** (QA CONCERNS — ver ressalva) | 39.1, soft: 39.5, 39.3 |
+| **39.6** | [Card "Hoje" + Painel de Alertas + Sino](39.6-card-hoje-alertas-sino.md) | E | 8 | **Done** (QA PASS) | 39.1, soft: 39.5, 39.3 |
 | **39.7** | [Card Despesas do Mês](39.7-despesas-do-mes.md) | F | 3 | **Done** (QA PASS) | 39.1, depois de 39.2 |
 
 **Total:** 37 pontos (39.5 revisado de 2 para 3 durante o detalhamento — ver nota abaixo).

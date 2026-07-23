@@ -22,16 +22,10 @@ import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
 
 /**
  * Prazo (em horas) desde a criação da reserva para "pagamento pendente"
- * disparar o sino.
- *
- * TODO: confirmar prazo exato com Fabio — a story 39.6 deixou este valor
- * como pergunta em aberto (ver "Notes for Developer" #1a e PO Validation).
- * 48h foi escolhido como placeholder razoável (Stripe checkout expira em
- * ~30min, então 48h já é um sinal de reserva provavelmente abandonada), mas
- * NÃO deve ir para produção sem confirmação explícita. Ver Dev Notes da
- * Story 39.6 para o registro completo desta decisão.
+ * disparar o sino. Confirmado por Fabio em 2026-07-23 (a story 39.6 tinha
+ * deixado este valor como placeholder de 48h — trocado para 24h).
  */
-export const PENDING_PAYMENT_ALERT_HOURS = 48
+export const PENDING_PAYMENT_ALERT_HOURS = 24
 
 /** Limiar de ocupação baixa (%) nos próximos `LOW_OCCUPANCY_WINDOW_DAYS` dias. Definido na spec-fonte (não é ponto em aberto). */
 export const LOW_OCCUPANCY_ALERT_THRESHOLD = 30

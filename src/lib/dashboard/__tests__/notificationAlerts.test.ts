@@ -123,8 +123,8 @@ describe('buildSyncFailureAlert', () => {
 // ─── 3. Pending payment ───────────────────────────────────────────────────
 
 describe('PENDING_PAYMENT_ALERT_HOURS', () => {
-  it('é 48h (placeholder documentado — TODO confirmar com Fabio)', () => {
-    expect(PENDING_PAYMENT_ALERT_HOURS).toBe(48)
+  it('é 24h (confirmado por Fabio em 2026-07-23)', () => {
+    expect(PENDING_PAYMENT_ALERT_HOURS).toBe(24)
   })
 })
 
@@ -142,24 +142,24 @@ describe('buildPendingPaymentAlerts', () => {
 
   const now = new Date('2026-07-23T12:00:00Z')
 
-  it('não gera alerta para reserva criada há menos de 48h', () => {
+  it('não gera alerta para reserva criada há menos de 24h', () => {
     const createdAt = new Date(now.getTime() - 10 * 60 * 60 * 1000).toISOString() // 10h atrás
     const alerts = buildPendingPaymentAlerts([makeReservation({ reservationId: 'r1', createdAt })], now)
     expect(alerts).toHaveLength(0)
   })
 
-  it('gera alerta para reserva criada há exatamente 48h (limite inclusivo)', () => {
-    const createdAt = new Date(now.getTime() - 48 * 60 * 60 * 1000).toISOString()
+  it('gera alerta para reserva criada há exatamente 24h (limite inclusivo)', () => {
+    const createdAt = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString()
     const alerts = buildPendingPaymentAlerts([makeReservation({ reservationId: 'r1', createdAt })], now)
     expect(alerts).toHaveLength(1)
   })
 
-  it('gera alerta para reserva criada há mais de 48h', () => {
+  it('gera alerta para reserva criada há mais de 24h', () => {
     const createdAt = new Date(now.getTime() - 72 * 60 * 60 * 1000).toISOString() // 72h atrás
     const alerts = buildPendingPaymentAlerts([makeReservation({ reservationId: 'r1', createdAt })], now)
     expect(alerts).toHaveLength(1)
     expect(alerts[0].type).toBe('pending_payment')
-    expect(alerts[0].message).toContain('48h')
+    expect(alerts[0].message).toContain('24h')
     expect(alerts[0].message).toContain('Casa Azul')
   })
 
