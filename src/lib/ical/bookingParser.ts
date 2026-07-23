@@ -9,6 +9,16 @@ export interface BookingDescription {
   country?: string
   numGuests?: number
   guestName?: string
+  /**
+   * Desconto aplicado à reserva, se o texto do DESCRIPTION do Booking.com
+   * indicar um. Campo adicionado para o type-check aceitar o consumo em
+   * sync-ical/route.ts — `parseBookingDescription` abaixo ainda não extrai
+   * esse valor do texto (nenhum padrão de desconto foi identificado no
+   * formato do DESCRIPTION do Booking.com ainda), então este campo fica
+   * sempre `undefined` por ora, e os consumidores devem tratar isso com
+   * fallback (`?? 0`), nunca assumir que será preenchido.
+   */
+  discountAmount?: number
 }
 
 /**
