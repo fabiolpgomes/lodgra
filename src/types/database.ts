@@ -163,8 +163,9 @@ export type SyncLog = {
   id: string
   property_listing_id: string
   sync_type: string
-  direction: 'inbound' | 'outbound'
-  status: 'success' | 'error' | 'partial'
+  // Story 39.5: valores em uso pelo fluxo inbound (ical) além dos legados 'error' | 'partial' | 'pending' (outbound)
+  direction: 'inbound' | 'outbound' | 'app_to_platform'
+  status: 'success' | 'failed' | 'error' | 'partial' | 'pending'
   error_message: string | null
   records_processed: number | null
   records_created: number | null
@@ -289,6 +290,7 @@ export type Database = {
       }
       sync_logs: {
         Row: SyncLog
+        Insert: Omit<SyncLog, 'id'> & { id?: string }
       }
       financial_transactions: {
         Row: FinancialTransaction

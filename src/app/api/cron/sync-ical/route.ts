@@ -402,6 +402,18 @@ async function syncOneListing(
 
   await supabase.from('property_listings').update({ last_synced_at: new Date().toISOString() }).eq('id', listing.id)
 
+  // Story 39.5: registrar sucesso em sync_logs para alimentar o indicador de status no dashboard
+  const { error: syncLogError } = await supabase.from('sync_logs').insert({
+    property_listing_id: listing.id,
+    sync_type: 'ical',
+    direction: 'inbound',
+    status: 'success',
+    synced_at: new Date().toISOString(),
+  })
+  if (syncLogError) {
+    console.warn(`[Cron] Erro ao registrar sync_log de sucesso para listing ${listing.id}:`, syncLogError.message)
+  }
+
   return { created, updated, skipped, cancelled }
 }
 
@@ -453,6 +465,20 @@ export async function GET(request: NextRequest) {
           } catch (err) {
             console.error(`[Cron] Falha no listing ${listing.id}:`, err)
             errors++
+
+            // Story 39.5: registrar falha em sync_logs para alimentar o indicador de status no dashboard
+            const errorMessage = err instanceof Error ? err.message : String(err)
+            const { error: syncLogError } = await supabase.from('sync_logs').insert({
+              property_listing_id: listing.id,
+              sync_type: 'ical',
+              direction: 'inbound',
+              status: 'failed',
+              error_message: errorMessage,
+              synced_at: new Date().toISOString(),
+            })
+            if (syncLogError) {
+              console.warn(`[Cron] Erro ao registrar sync_log de falha para listing ${listing.id}:`, syncLogError.message)
+            }
           }
         }
         return { created, updated, skipped, cancelled, errors }
