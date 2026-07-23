@@ -49,14 +49,18 @@ export function EmailConnection({ initialEmail, initialLastSync }: EmailConnecti
     setSyncResult(null)
     setError(null)
     try {
-      const res = await fetch('/api/email/sync', {
+      const res = await fetch('/api/admin/trigger-email-parser', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ daysBack }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Erro ao sincronizar')
-      setSyncResult(data)
+      setSyncResult({
+        processed: data.processed || 0,
+        created: data.created || 0,
+        skipped: data.skipped || 0,
+        errors: data.errors || 0,
+      })
       setLastSync(new Date().toISOString())
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro inesperado')
