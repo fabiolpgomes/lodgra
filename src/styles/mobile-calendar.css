@@ -746,7 +746,7 @@
 
 .sidebar-right {
   display: none;
-  width: 300px;
+  width: 420px;
   background: #f9f9f9;
   border-left: 1px solid #ecf0f1;
   overflow-y: auto;
@@ -887,6 +887,90 @@
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/* SETTINGS MODAL (Mobile Overlay) */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+.settings-modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 200;
+  animation: fadeIn 0.2s ease;
+}
+
+.settings-modal-overlay.open {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.settings-modal-content {
+  width: 100%;
+  max-height: 90vh;
+  background: #ffffff;
+  border-radius: 16px 16px 0 0;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.3s ease;
+  z-index: 201;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.settings-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  border-bottom: 1px solid #ecf0f1;
+  min-height: 60px;
+}
+
+.settings-modal-header h2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+  color: #2c3e50;
+}
+
+.settings-modal-close {
+  width: 44px;
+  height: 44px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #2c3e50;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.settings-modal-close:active {
+  background: #f5f5f5;
+}
+
+/* Modal visible only on mobile/tablet */
+@media (min-width: 1024px) {
+  .settings-modal-overlay {
+    display: none !important;
+  }
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 /* RESPONSIVE - TABLET & DESKTOP */
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
@@ -985,7 +1069,7 @@
   /* Desktop layout: Full desktop mode (1024px+) */
   .desktop-calendar-layout {
     display: grid;
-    grid-template-columns: 280px 1fr 300px;
+    grid-template-columns: 280px 1fr 420px;
     grid-template-rows: 1fr;
   }
 
