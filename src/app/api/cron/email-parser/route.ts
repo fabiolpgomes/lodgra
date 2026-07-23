@@ -209,6 +209,9 @@ async function createDraftReservation(
     .insert({
       property_listing_id: listing.id,
       guest_id: guest?.id || null,
+      guest_name: guestName,
+      first_name: firstName,
+      last_name: lastName,
       check_in: parsed.checkin_date,
       check_out: parsed.checkout_date,
       total_amount: parsed.amount,
@@ -218,6 +221,7 @@ async function createDraftReservation(
       source: parsed.platform || 'email_parse',
       notes: parsed.confirmation_code ? `Código: ${parsed.confirmation_code}` : null,
       service_fee_amount: serviceFeeAmount,
+      discount_amount: parsed.discount_amount || 0,
       commission_calculated_at: new Date().toISOString(),
       organization_id: organizationId,
     })

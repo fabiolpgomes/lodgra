@@ -95,6 +95,7 @@ export function PremiumMetricCard({
   description,
   icon: Icon,
   tone = 'blue',
+  compact = false,
 }: {
   label: string
   value: ReactNode
@@ -102,6 +103,8 @@ export function PremiumMetricCard({
   description?: string
   icon: IconComponent
   tone?: 'blue' | 'gold' | 'success' | 'danger'
+  /** Versão mais enxuta (ícone/valor menores, menos respiro, sem descrição) — para telas com muitos cards lado a lado. */
+  compact?: boolean
 }) {
   const toneClasses = {
     blue: 'border-brand-blue/10 bg-brand-bg text-brand-blue',
@@ -111,13 +114,14 @@ export function PremiumMetricCard({
   }
 
   return (
-    <PremiumCard className="relative flex flex-col">
-      <div className="mb-4 flex w-full items-center justify-between">
+    <PremiumCard className={joinClasses('relative flex flex-col', compact && 'p-4')}>
+      <div className={joinClasses('flex w-full items-center justify-between', compact ? 'mb-2' : 'mb-4')}>
         <div className={joinClasses(
-          'flex h-10 w-10 items-center justify-center rounded-xl border transition-all group-hover:scale-105 group-hover:border-brand-gold/40 group-hover:bg-brand-gold/10 group-hover:text-brand-gold',
+          'flex items-center justify-center rounded-xl border transition-all group-hover:scale-105 group-hover:border-brand-gold/40 group-hover:bg-brand-gold/10 group-hover:text-brand-gold',
+          compact ? 'h-8 w-8' : 'h-10 w-10',
           toneClasses[tone]
         )}>
-          <Icon className="h-5 w-5" />
+          <Icon className={compact ? 'h-4 w-4' : 'h-5 w-5'} />
         </div>
         {type && (
           <span className="text-[10px] font-bold uppercase tracking-wider text-brand-text-medium transition-colors group-hover:text-brand-gold">
@@ -126,12 +130,15 @@ export function PremiumMetricCard({
         )}
       </div>
       <div className="flex-1">
-        <div className="text-3xl font-bold leading-none tracking-tight text-brand-text-dark transition-colors group-hover:text-brand-gold">
+        <div className={joinClasses(
+          'font-bold leading-none tracking-tight text-brand-text-dark transition-colors group-hover:text-brand-gold',
+          compact ? 'text-xl' : 'text-3xl'
+        )}>
           {value}
         </div>
-        <p className="mt-2 text-xs font-semibold text-brand-text-medium">{label}</p>
+        <p className={joinClasses('font-semibold text-brand-text-medium', compact ? 'mt-1 text-[11px]' : 'mt-2 text-xs')}>{label}</p>
       </div>
-      {description && (
+      {description && !compact && (
         <div className="mt-4 w-full border-t border-brand-bg pt-3">
           <p className="text-[10px] font-medium text-brand-text-medium">{description}</p>
         </div>

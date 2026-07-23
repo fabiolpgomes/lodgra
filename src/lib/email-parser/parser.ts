@@ -10,6 +10,7 @@ export interface ParsedReservation {
   property_name: string | null
   confirmation_code: string | null
   num_guests: number | null
+  discount_amount: number | null
 }
 
 let client: Anthropic | null = null
@@ -42,7 +43,8 @@ Campos a extrair (extrai o que conseguires):
   "platform": "airbnb" | "booking" | "flatio" | "unknown",
   "property_name": "descrição do imóvel" | null,
   "confirmation_code": "código" | null,
-  "num_guests": número | null
+  "num_guests": número | null,
+  "discount_amount": número de desconto | null
 }
 
 Retorna APENAS o JSON válido, sem markdown, sem comentários, sem texto adicional.
@@ -58,7 +60,8 @@ Campos a extrair:
   "platform": "airbnb" | "booking" | "flatio" | "airbnb" | "unknown",
   "property_name": "nome ou descrição do imóvel" | null,
   "confirmation_code": "código de confirmação" | null,
-  "num_guests": número total de hóspedes (adultos + crianças + bebés) | null
+  "num_guests": número total de hóspedes (adultos + crianças + bebés) | null,
+  "discount_amount": número de desconto aplicado (se existir) | null
 }
 
 Email:

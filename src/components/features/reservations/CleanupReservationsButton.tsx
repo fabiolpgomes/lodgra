@@ -86,9 +86,9 @@ export function CleanupReservationsButton() {
 
   return (
     <>
-      <Button variant="outline" onClick={openModal}>
-        <Trash2 className="h-5 w-5" />
-        Limpar Reservas
+      <Button variant="outline" size="sm" onClick={openModal} aria-label="Limpar Reservas">
+        <Trash2 className="h-4 w-4" />
+        <span className="hidden sm:inline">Limpar</span>
       </Button>
 
       <Dialog open={showModal} onOpenChange={setShowModal}>

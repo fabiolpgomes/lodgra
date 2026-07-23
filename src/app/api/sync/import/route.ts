@@ -195,7 +195,11 @@ async function syncListing(
           booking_source: 'ical_import',
           source: source === 'booking' ? 'booking' : source === 'airbnb' ? 'airbnb' : 'ical_import',
           number_of_guests: bookingData.numGuests || 1,
+          guest_name: `${guestFirstName} ${guestLastName}`.trim(),
+          first_name: guestFirstName,
+          last_name: guestLastName,
           service_fee_amount: serviceFeeAmount,
+          discount_amount: 0,
           commission_calculated_at: new Date().toISOString(),
           ...(organizationId ? { organization_id: organizationId } : {}),
         })

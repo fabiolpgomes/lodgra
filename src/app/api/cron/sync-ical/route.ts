@@ -329,6 +329,9 @@ async function syncOneListing(
         .insert({
           property_listing_id: listing.id,
           guest_id: guest.id,
+          guest_name: `${guestFirstName} ${guestLastName}`.trim(),
+          first_name: guestFirstName,
+          last_name: guestLastName,
           check_in: checkIn,
           check_out: checkOut,
           status: 'confirmed',
@@ -343,6 +346,7 @@ async function syncOneListing(
           source: source === 'booking' ? 'booking' : source === 'airbnb' ? 'airbnb' : 'ical_import',
           number_of_guests: guestData?.guests || bookingData.numGuests || 1,
           service_fee_amount: serviceFeeAmount,
+          discount_amount: bookingData.discountAmount || 0,
           commission_calculated_at: new Date().toISOString(),
           ...(cronOrgId ? { organization_id: cronOrgId } : {})
         })

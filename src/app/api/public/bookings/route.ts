@@ -284,9 +284,12 @@ export async function POST(request: NextRequest) {
       status: 'pending_payment',
       booking_source: 'direct',
       guest_name: (guest_name as string).trim(),
+      first_name: firstName,
+      last_name: lastName,
       guest_email: (guest_email as string).toLowerCase().trim(),
       guest_phone: (guest_phone as string) || null,
       num_guests: guests,
+      discount_amount: 0,
       organization_id: property.organization_id,
       commission_calculated_at: new Date().toISOString(),
     })

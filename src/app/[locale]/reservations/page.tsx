@@ -104,20 +104,20 @@ export default async function ReservationsPage({
           badge={monthParam}
           icon={Calendar}
           actions={(
-          <div className="flex items-center gap-3 shrink-0">
-            <Button variant="outline" asChild>
-              <Link href={`/${locale}/reservations/export`}>
+          <div className="flex items-center gap-2 shrink-0">
+            <Button variant="outline" size="sm" asChild>
+              <Link href={`/${locale}/reservations/export`} aria-label="Exportar">
                 <Download className="h-4 w-4" />
-                Exportar PDF
+                <span className="hidden sm:inline">Exportar</span>
               </Link>
             </Button>
             {canCreate && (
               <>
                 <CleanupReservationsButton />
-                <Button asChild variant="action">
-                  <Link href={`/${locale}/reservations/new`}>
+                <Button asChild variant="action" size="sm">
+                  <Link href={`/${locale}/reservations/new`} aria-label="Nova Reserva">
                     <Plus className="h-4 w-4" />
-                    Nova Reserva
+                    <span className="hidden sm:inline">Nova Reserva</span>
                   </Link>
                 </Button>
               </>
@@ -129,11 +129,11 @@ export default async function ReservationsPage({
         <div className="border-b border-neutral-200/60" />
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <PremiumMetricCard icon={Calendar} label="Reservas" value={stats.total} type="Total" description="Reservas no período" />
-          <PremiumMetricCard icon={CheckCircle} label="Confirmadas" value={stats.confirmed} type="Status" description="Reservas confirmadas" tone="success" />
-          <PremiumMetricCard icon={Clock} label="Pendentes" value={stats.pending} type="Status" description="Aguardando confirmação" tone="gold" />
-          <PremiumMetricCard icon={XCircle} label="Canceladas" value={stats.cancelled} type="Status" description="Reservas canceladas" tone="danger" />
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <PremiumMetricCard compact icon={Calendar} label="Reservas" value={stats.total} type="Total" description="Reservas no período" />
+          <PremiumMetricCard compact icon={CheckCircle} label="Confirmadas" value={stats.confirmed} type="Status" description="Reservas confirmadas" tone="success" />
+          <PremiumMetricCard compact icon={Clock} label="Pendentes" value={stats.pending} type="Status" description="Aguardando confirmação" tone="gold" />
+          <PremiumMetricCard compact icon={XCircle} label="Canceladas" value={stats.cancelled} type="Status" description="Reservas canceladas" tone="danger" />
         </div>
 
         {/* Filter + Search + List */}
