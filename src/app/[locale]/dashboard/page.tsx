@@ -27,7 +27,7 @@ import {
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { requireRole } from '@/lib/auth/requireRole'
-import { LazyOccupancyChart as OccupancyChart, LazyStatusChart as StatusChart } from '@/components/common/lazy/LazyCharts'
+import { LazyOccupancyChart as OccupancyChart } from '@/components/common/lazy/LazyCharts'
 import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
 import { RevenueChartWrapper } from '@/components/features/dashboard/RevenueChartWrapper'
 import { PropertyFilterDropdown } from '@/components/features/dashboard/PropertyFilterDropdown'
@@ -167,9 +167,6 @@ export default async function DashboardPage({
   const totalOrganizationProperties = allProperties?.length || 0
   const totalReservations = reservationList.length
 
-  const confirmedReservations = reservationList.filter(r => r.status === 'confirmed').length
-  const pendingReservations = reservationList.filter(r => r.status === 'pending').length
-  const cancelledReservations = reservationList.filter(r => r.status === 'cancelled').length
 
   // Calculate revenue forecast (pending/predicted revenue not yet received in current month)
   const now = new Date()
@@ -672,6 +669,60 @@ export default async function DashboardPage({
         .order('check_in', { ascending: true })
         .limit(5)
     : { data: null }
+
+  // "Próximas Saídas" — mesma janela/padrão de "Próximas Chegadas", mas por check_out.
+  // Todo check-out requer limpeza (contexto do Fabio) — junta com cleaning_tasks pelo
+  // reservation_id para mostrar se já há limpeza agendada/concluída/com problema, ou se
+  // ainda não foi agendada (o gap de visibilidade que motivou este card).
+  const { data: upcomingCheckOuts } = propertyIds.length > 0
+    ? await supabase
+        .from('reservations')
+        .select(`
+          id,
+          check_in,
+          check_out,
+          status,
+          guest_name,
+          property_listing_id,
+          property_listings!inner(
+            property_id,
+            properties(id, name),
+            platforms(display_name)
+          ),
+          guests(
+            first_name,
+            last_name,
+            email
+          )
+        `)
+        .eq('status', 'confirmed')
+        .gte('check_out', today.toISOString().split('T')[0])
+        .lte('check_out', nextWeek.toISOString().split('T')[0])
+        .in('property_listings.property_id', propertyIds)
+        .order('check_out', { ascending: true })
+        .limit(5)
+    : { data: null }
+
+  const checkoutReservationIds = (upcomingCheckOuts || []).map((r) => r.id)
+  const { data: checkoutCleaningRows } = checkoutReservationIds.length > 0
+    ? await supabase
+        .from('cleaning_tasks')
+        .select('reservation_id, status')
+        .in('reservation_id', checkoutReservationIds)
+    : { data: null }
+
+  const cleaningStatusByReservationId = new Map(
+    (checkoutCleaningRows || [])
+      .filter((c) => c.reservation_id)
+      .map((c) => [c.reservation_id as string, c.status as string])
+  )
+
+  const CLEANING_STATUS_LABEL: Record<string, { label: string; className: string }> = {
+    done: { label: 'Limpeza concluída', className: 'bg-emerald-500/10 text-emerald-600' },
+    in_progress: { label: 'Limpeza em andamento', className: 'bg-brand-blue/10 text-brand-blue' },
+    pending: { label: 'Limpeza agendada', className: 'bg-brand-gold/15 text-brand-gold' },
+    issue: { label: 'Problema reportado', className: 'bg-red-500/10 text-red-600' },
+  }
 
   // Story 39.5: indicador de status de sincronização (última entrada de sync_logs da organização)
   const { data: syncLogRows } = propertyIds.length > 0
@@ -1746,25 +1797,6 @@ export default async function DashboardPage({
           <div className="group rounded-2xl border border-neutral-200/60 bg-brand-white p-6 shadow-2xs transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-gold/45 hover:shadow-[0_18px_42px_rgba(201,162,39,0.14)]">
             <div className="mb-6">
               <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-brand-text-dark transition-colors group-hover:text-brand-gold">
-                <CheckCircle className="h-4 w-4 text-brand-blue transition-colors group-hover:text-brand-gold" />
-                Reservas por Status
-                <InfoTooltip
-                  label="O que é Reservas por Status"
-                  description="Distribuição das reservas do período entre confirmadas, pendentes e canceladas."
-                />
-              </h3>
-              <p className="mt-1 text-[11px] font-semibold text-brand-text-medium">Distribuição atual</p>
-            </div>
-            <StatusChart
-              confirmed={confirmedReservations}
-              pending={pendingReservations}
-              cancelled={cancelledReservations}
-            />
-          </div>
-
-          <div className="group rounded-2xl border border-neutral-200/60 bg-brand-white p-6 shadow-2xs transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-gold/45 hover:shadow-[0_18px_42px_rgba(201,162,39,0.14)]">
-            <div className="mb-6">
-              <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-brand-text-dark transition-colors group-hover:text-brand-gold">
                 <Clock className="h-4 w-4 text-brand-blue transition-colors group-hover:text-brand-gold" />
                 Próximas Chegadas
                 <InfoTooltip
@@ -1829,6 +1861,71 @@ export default async function DashboardPage({
               <div className="rounded-xl bg-brand-bg py-8 text-center text-brand-text-medium">
                 <Clock className="mx-auto mb-2 h-12 w-12 text-brand-text-medium" />
                 <p className="text-sm font-semibold">Nenhuma chegada prevista</p>
+              </div>
+            )}
+          </div>
+
+          <div className="group rounded-2xl border border-neutral-200/60 bg-brand-white p-6 shadow-2xs transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-gold/45 hover:shadow-[0_18px_42px_rgba(201,162,39,0.14)]">
+            <div className="mb-6">
+              <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-brand-text-dark transition-colors group-hover:text-brand-gold">
+                <LogOut className="h-4 w-4 text-brand-blue transition-colors group-hover:text-brand-gold" />
+                Próximas Saídas
+                <InfoTooltip
+                  label="O que é Próximas Saídas"
+                  description="Reservas com check-out nos próximos 7 dias e o status da limpeza correspondente — para saber quais propriedades já estão prontas para o próximo hóspede."
+                />
+              </h3>
+              <p className="mt-1 text-[11px] font-semibold text-brand-text-medium">Próximos 7 dias</p>
+            </div>
+
+            {upcomingCheckOuts && upcomingCheckOuts.length > 0 ? (
+              <div className="space-y-3">
+                {upcomingCheckOuts.map((reservation) => {
+                  const checkOutDate = new Date(reservation.check_out)
+
+                  const rawListing = reservation.property_listings
+                  const listing = Array.isArray(rawListing) ? rawListing[0] : rawListing
+                  const rawProperty = listing?.properties
+                  const property = Array.isArray(rawProperty) ? rawProperty[0] : rawProperty
+                  const propertyName = property?.name || 'Propriedade'
+
+                  const rawGuest = reservation.guests
+                  const guest = Array.isArray(rawGuest) ? rawGuest[0] : rawGuest
+                  const guestName = guest
+                    ? `${guest.first_name || ''} ${guest.last_name || ''}`.trim()
+                    : reservation.guest_name || 'Hóspede Importado'
+
+                  const cleaningStatus = cleaningStatusByReservationId.get(reservation.id)
+                  const cleaningBadge = cleaningStatus
+                    ? CLEANING_STATUS_LABEL[cleaningStatus]
+                    : { label: 'Sem limpeza agendada', className: 'bg-brand-text-medium/10 text-brand-text-medium' }
+
+                  return (
+                    <Link
+                      key={reservation.id}
+                      href={`/${locale}/reservations/${reservation.id}`}
+                      className="flex items-center justify-between rounded-xl bg-brand-bg p-3 transition-all duration-150 hover:-translate-y-0.5 hover:bg-brand-blue/5"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate font-semibold text-brand-text-dark">{guestName}</p>
+                        <p className="truncate text-sm text-brand-text-medium">{propertyName}</p>
+                        <span className={`mt-0.5 inline-block rounded px-1.5 py-0.5 text-[10px] font-bold ${cleaningBadge.className}`}>
+                          {cleaningBadge.label}
+                        </span>
+                      </div>
+                      <div className="text-right ml-3 shrink-0">
+                        <p className="text-sm font-semibold text-brand-blue">
+                          {checkOutDate.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}
+                        </p>
+                      </div>
+                    </Link>
+                  )
+                })}
+              </div>
+            ) : (
+              <div className="rounded-xl bg-brand-bg py-8 text-center text-brand-text-medium">
+                <LogOut className="mx-auto mb-2 h-12 w-12 text-brand-text-medium" />
+                <p className="text-sm font-semibold">Nenhuma saída prevista</p>
               </div>
             )}
           </div>
