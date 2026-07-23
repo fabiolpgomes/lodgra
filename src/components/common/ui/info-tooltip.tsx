@@ -67,11 +67,16 @@ export function InfoTooltip({ description, label = "Mais informações", classNa
           <TooltipPrimitive.Content
             sideOffset={6}
             collisionPadding={12}
-            className="z-50 max-w-64 rounded-lg bg-brand-text-dark px-3 py-2 text-[11px] font-medium leading-snug text-brand-white shadow-lg data-[state=delayed-open]:animate-in data-[state=delayed-open]:fade-in-0 data-[state=delayed-open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0"
+            // `style` inline como garantia — não depende só da classe utilitária
+            // `bg-brand-text-dark`/`text-brand-white` resolver corretamente (evita
+            // qualquer risco de fundo transparente deixando o texto ilegível sobre
+            // o conteúdo do card por trás, reportado em produção no mobile).
+            style={{ backgroundColor: '#1B2430', color: '#FFFFFF' }}
+            className="z-[100] max-w-64 rounded-lg px-3 py-2 text-[11px] font-medium leading-snug shadow-lg data-[state=instant-open]:animate-in data-[state=delayed-open]:animate-in data-[state=instant-open]:fade-in-0 data-[state=delayed-open]:fade-in-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0"
             onPointerDownOutside={() => setOpen(false)}
           >
             {description}
-            <TooltipPrimitive.Arrow className="fill-brand-text-dark" />
+            <TooltipPrimitive.Arrow style={{ fill: '#1B2430' }} />
           </TooltipPrimitive.Content>
         </TooltipPrimitive.Portal>
       </TooltipPrimitive.Root>

@@ -27,7 +27,7 @@ import { toast } from 'sonner'
 import { Button } from '@/components/common/ui/button'
 
 const PRIMARY_PATHS = [
-  { path: '/', label: 'Início', icon: Home },
+  { path: '/dashboard', label: 'Dashboard', icon: Home },
   { path: '/reservations', label: 'Reservas', icon: Calendar },
   { path: '/properties', label: 'Imóveis', icon: Building2 },
   { path: '/calendar', label: 'Calendário', icon: CalendarDays },
@@ -38,6 +38,8 @@ const MORE_PATHS = [
   { path: '/financial', label: 'Financeiro', icon: TrendingUp },
   { path: '/reports', label: 'Relatórios', icon: BarChart3 },
   { path: '/cleaning', label: 'Limpezas', icon: CheckSquare },
+  { path: '/cleaning/manage', label: 'Gerenciar Limpezas', icon: CheckSquare },
+  { path: '/cleaning/templates', label: 'Modelos de Checklist', icon: CheckSquare },
 ]
 
 const CONFIG_PATHS = [
@@ -71,13 +73,13 @@ export function BottomNav() {
 
   const prefix = locale ? `/${locale}` : ''
 
-  // Filter primary nav: gestor cannot see Dashboard (Início)
+  // Filter primary nav: gestor cannot see Dashboard
   const visiblePrimaryPaths = isGestor
-    ? PRIMARY_PATHS.filter(p => p.path !== '/')
+    ? PRIMARY_PATHS.filter(p => p.path !== '/dashboard')
     : PRIMARY_PATHS
 
   const PRIMARY_NAV = visiblePrimaryPaths.map(({ path, label, icon }) => ({
-    href: path === '/' ? (prefix || '/') : `${prefix}${path}`,
+    href: `${prefix}${path}`,
     label,
     icon,
   }))

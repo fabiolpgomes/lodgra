@@ -20,8 +20,6 @@ import {
   LogOut,
   Globe,
   ChevronDown,
-  Menu,
-  X,
 } from 'lucide-react'
 import { Logo } from '@/components/common/ui/Logo'
 import { useAuth } from '@/hooks/useAuth'
@@ -72,7 +70,6 @@ export function Sidebar({ serverProfile }: SidebarProps) {
   const [hasPremium, setHasPremium] = useState(false)
   const [reportsExpanded, setReportsExpanded] = useState(pathname.includes('/reports') || pathname.includes('/dashboard/empresa'))
   const [cleaningExpanded, setCleaningExpanded] = useState(pathname.includes('/cleaning'))
-  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const isAdmin = profile?.role === 'admin'
   const isGestor = profile?.role === 'gestor'
@@ -157,32 +154,13 @@ export function Sidebar({ serverProfile }: SidebarProps) {
 
   return (
     <>
-      {/* Mobile Hamburger Button */}
-      <button
-        onClick={() => setSidebarOpen(!sidebarOpen)}
-        className="md:hidden fixed top-4 left-4 z-50 p-2 hover:bg-be-surface rounded-full"
-      >
-        {sidebarOpen ? (
-          <X className="h-6 w-6 text-be-text" />
-        ) : (
-          <Menu className="h-6 w-6 text-be-text" />
-        )}
-      </button>
-
-      {/* Sidebar Overlay (Mobile) */}
-      {sidebarOpen && (
-        <div
-          className="md:hidden fixed inset-0 bg-black/50 z-30"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-
-      {/* Sidebar */}
+      {/* Sidebar — desktop only. No mobile hamburger toggle here: BottomNav.tsx
+          já cobre navegação mobile (tab bar + sheet "Mais"); ter os dois sistemas
+          juntos causava o hambúrguer sobrepondo o logo do header mobile e duas
+          listas de menu concorrentes na tela. */}
       <aside
         data-theme={isDarkMode ? 'dark' : 'light'}
-        className={`lodgra-sidebar flex flex-col fixed top-0 left-0 h-screen z-40 bg-be-surface border-r border-be-border transition-transform duration-300 md:translate-x-0 ${
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
-        }`}
+        className="lodgra-sidebar hidden md:flex flex-col fixed top-0 left-0 h-screen z-40 bg-be-surface border-r border-be-border"
         style={{ width: '260px' }}
       >
       <div className="px-6 py-8 bg-be-surface border-b border-be-border flex items-center justify-center">
