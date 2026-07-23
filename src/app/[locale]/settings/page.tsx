@@ -14,6 +14,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { PaymentSettings } from '@/components/features/settings/PaymentSettings'
 import { PublicContactSettings } from '@/components/features/settings/PublicContactSettings'
 import { PremiumCard, PremiumPageHeader, PremiumPageShell } from '@/components/common/layout/PremiumPage'
+import { EmailConnection } from '@/components/features/settings/EmailConnection'
 
 export const dynamic = 'force-dynamic'
 
@@ -65,6 +66,13 @@ export default async function SettingsPage(props: { params: Promise<{ locale: st
     : { data: null }
 
   const bookingUrl = organization?.slug ? `https://${organization.slug}.lodgra.io/booking` : null
+
+  // Fetch email connection
+  const { data: emailConnection } = await supabase
+    .from('email_connections')
+    .select('email, last_sync_at')
+    .eq('organization_id', auth.organizationId)
+    .maybeSingle()
 
   return (
     <AuthLayout>
@@ -132,6 +140,14 @@ export default async function SettingsPage(props: { params: Promise<{ locale: st
             </PremiumCard>
           </section>
         )}
+
+        {/* Email Connection - Gmail */}
+        <section className="mb-8">
+          <EmailConnection
+            initialEmail={emailConnection?.email || null}
+            initialLastSync={emailConnection?.last_sync_at || null}
+          />
+        </section>
 
         {/* Change Password - All Users */}
         <section className="mb-8">
