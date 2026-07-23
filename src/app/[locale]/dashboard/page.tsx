@@ -32,6 +32,7 @@ import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
 import { RevenueChartWrapper } from '@/components/features/dashboard/RevenueChartWrapper'
 import { PropertyFilterDropdown } from '@/components/features/dashboard/PropertyFilterDropdown'
 import { MetricVarianceBadge } from '@/components/features/dashboard/MetricVarianceBadge'
+import { InfoTooltip } from '@/components/common/ui/info-tooltip'
 import { AuthLayout } from '@/components/common/layout/AuthLayout'
 import { LocaleSelector } from '@/components/common/header/LocaleSelector'
 import { ThemeToggle } from '@/components/common/header/ThemeToggle'
@@ -1057,6 +1058,7 @@ export default async function DashboardPage({
               description: 'Casas e apartamentos gerenciados',
               href: `/${locale}/properties`,
               variance: { mom: propertiesVarianceMoM, yoy: propertiesVarianceYoY },
+              infoDescription: 'Total de imóveis ativos na sua conta. A variação compara com o número de imóveis que você tinha no fim do mês anterior/mesmo mês do ano passado.',
             },
             {
               label: 'Reservas',
@@ -1068,6 +1070,7 @@ export default async function DashboardPage({
               description: 'Estadias agendadas e concluídas',
               href: `/${locale}/reservations`,
               variance: { mom: reservationsVarianceMoM, yoy: reservationsVarianceYoY },
+              infoDescription: 'Total de reservas no período. A variação compara com o número de reservas do mês anterior/mesmo mês do ano passado.',
             },
             {
               label: 'Taxa de Ocupação',
@@ -1082,6 +1085,7 @@ export default async function DashboardPage({
                 mom: calculateVariationPercent(currentMonthOccupancy, currentFilteredRows.length > 0, occupancyPreviousView, previousFilteredRows.length > 0),
                 yoy: calculateVariationPercent(currentMonthOccupancy, currentFilteredRows.length > 0, occupancyYoyView, yoyFilteredRows.length > 0),
               },
+              infoDescription: 'Percentual de noites reservadas em relação às noites disponíveis no mês, somando todas as propriedades.',
             },
           ].map((card) => {
             const Icon = card.icon
@@ -1095,9 +1099,12 @@ export default async function DashboardPage({
                   <div className={`flex h-10 w-10 items-center justify-center rounded-xl border transition-all group-hover:scale-105 group-hover:border-brand-gold/40 group-hover:bg-brand-gold/10 ${card.badgeClass}`}>
                     <Icon className={`h-5 w-5 transition-colors group-hover:text-brand-gold ${card.iconClass}`} />
                   </div>
-                  <span className="text-[10px] font-bold tracking-wider text-brand-text-medium transition-colors group-hover:text-brand-gold">
-                    {card.type}
-                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[10px] font-bold tracking-wider text-brand-text-medium transition-colors group-hover:text-brand-gold">
+                      {card.type}
+                    </span>
+                    <InfoTooltip description={card.infoDescription} label={`O que é ${card.label}`} />
+                  </div>
                 </div>
                 <div className="flex-1">
                   <h3 className="dashboard-metric-value text-3xl font-bold leading-none tracking-tight text-brand-text-dark transition-colors group-hover:text-brand-gold">
@@ -1131,7 +1138,13 @@ export default async function DashboardPage({
                 <Gauge className="h-5 w-5" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-brand-text-dark transition-colors group-hover:text-brand-gold">ADR / RevPAR</h3>
+                <div className="flex items-center gap-1.5">
+                  <h3 className="text-sm font-bold text-brand-text-dark transition-colors group-hover:text-brand-gold">ADR / RevPAR</h3>
+                  <InfoTooltip
+                    label="O que é ADR/RevPAR"
+                    description="ADR (Average Daily Rate): receita média por noite vendida. RevPAR (Revenue per Available Room): receita média por noite disponível — já considera a ocupação. RevPAR = ADR × Ocupação."
+                  />
+                </div>
                 <p className="text-[10px] font-bold uppercase tracking-wider text-brand-text-medium transition-colors group-hover:text-brand-gold">{monthLabel}</p>
               </div>
             </div>
@@ -1191,7 +1204,13 @@ export default async function DashboardPage({
                   <DollarSign className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-brand-text-dark transition-colors group-hover:text-brand-gold">Receita do Mês</h3>
+                  <div className="flex items-center gap-1.5">
+                    <h3 className="text-sm font-bold text-brand-text-dark transition-colors group-hover:text-brand-gold">Receita do Mês</h3>
+                    <InfoTooltip
+                      label="O que é Receita do Mês"
+                      description="Receita bruta de todas as reservas do mês corrente, sem descontar comissão, taxas ou despesas."
+                    />
+                  </div>
                   <p className="text-[10px] font-bold uppercase tracking-wider text-brand-text-medium transition-colors group-hover:text-brand-gold">{monthLabel}</p>
                 </div>
               </div>
@@ -1237,7 +1256,13 @@ export default async function DashboardPage({
                   <Wallet className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-brand-text-dark transition-colors group-hover:text-brand-gold">Lucro Real</h3>
+                  <div className="flex items-center gap-1.5">
+                    <h3 className="text-sm font-bold text-brand-text-dark transition-colors group-hover:text-brand-gold">Lucro Real</h3>
+                    <InfoTooltip
+                      label="O que é Lucro Real"
+                      description="Comissão de gestão (calculada sobre a receita bruta de cada propriedade) menos as despesas operacionais da Algarve Home Stay no mês. A margem é sobre a comissão, não sobre a receita bruta das reservas — a maior parte dela pertence aos proprietários dos imóveis."
+                    />
+                  </div>
                   <p className="text-[10px] font-bold uppercase tracking-wider text-brand-text-medium transition-colors group-hover:text-brand-gold">{monthLabel}</p>
                 </div>
               </div>
@@ -1304,7 +1329,13 @@ export default async function DashboardPage({
                   <Receipt className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-brand-text-dark transition-colors group-hover:text-brand-gold">Despesas do Mês</h3>
+                  <div className="flex items-center gap-1.5">
+                    <h3 className="text-sm font-bold text-brand-text-dark transition-colors group-hover:text-brand-gold">Despesas do Mês</h3>
+                    <InfoTooltip
+                      label="O que é Despesas do Mês"
+                      description="Despesas lançadas por propriedade (limpeza, manutenção, etc.) no mês corrente. Diferente das despesas da empresa usadas no cálculo do Lucro Real."
+                    />
+                  </div>
                   <p className="text-[10px] font-bold uppercase tracking-wider text-brand-text-medium transition-colors group-hover:text-brand-gold">{monthLabel}</p>
                 </div>
               </div>
@@ -1355,6 +1386,10 @@ export default async function DashboardPage({
                 <span className="rounded-full bg-brand-blue/10 px-2 py-0.5 text-[10px] font-bold text-brand-blue">
                   {futureConfirmedCount} reserva{futureConfirmedCount !== 1 ? 's' : ''}
                 </span>
+                <InfoTooltip
+                  label="O que é Previsão de Faturamento"
+                  description="Soma da receita de reservas já confirmadas com check-in a partir de hoje — o que já está garantido de entrar."
+                />
               </div>
               <p className="mt-1 text-xs text-brand-text-medium">
                 Reservas confirmadas a partir de hoje
@@ -1393,7 +1428,13 @@ export default async function DashboardPage({
         <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
           <div className="group flex flex-col rounded-2xl border border-neutral-200/60 bg-brand-white p-6 shadow-2xs transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-gold/45 hover:shadow-[0_18px_42px_rgba(201,162,39,0.14)]">
             <div className="mb-6">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-brand-text-dark transition-colors group-hover:text-brand-gold">Taxa de Ocupação</h3>
+              <div className="flex items-center gap-1.5">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-brand-text-dark transition-colors group-hover:text-brand-gold">Taxa de Ocupação</h3>
+                <InfoTooltip
+                  label="O que é Taxa de Ocupação"
+                  description="Evolução da taxa de ocupação nos últimos 6 meses."
+                />
+              </div>
               <p className="mt-1 text-[11px] font-semibold text-brand-text-medium">
                 Últimos 6 meses - {monthLabel}: {currentMonthOccupancy}%
               </p>
@@ -1404,7 +1445,13 @@ export default async function DashboardPage({
           <div className="group flex flex-col rounded-2xl border border-neutral-200/60 bg-brand-white p-6 shadow-2xs transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-gold/45 hover:shadow-[0_18px_42px_rgba(201,162,39,0.14)]">
             <div className="mb-6 flex items-start justify-between gap-4">
               <div>
-                <h3 className="text-xs font-bold uppercase tracking-wider text-brand-text-dark transition-colors group-hover:text-brand-gold">Receita Mensal</h3>
+                <div className="flex items-center gap-1.5">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-brand-text-dark transition-colors group-hover:text-brand-gold">Receita Mensal</h3>
+                  <InfoTooltip
+                    label="O que é Receita Mensal"
+                    description="Evolução da receita bruta mês a mês, por moeda."
+                  />
+                </div>
                 <p className="mt-1 text-[11px] font-semibold text-brand-text-medium">Faturamento consolidado por moeda</p>
               </div>
             </div>
@@ -1419,6 +1466,10 @@ export default async function DashboardPage({
               <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-brand-text-dark transition-colors group-hover:text-brand-gold">
                 <PieChart className="h-4 w-4 text-brand-blue transition-colors group-hover:text-brand-gold" />
                 Receita por Canal
+                <InfoTooltip
+                  label="O que é Receita por Canal"
+                  description="Receita, número de reservas e comissão por canal de venda (Airbnb, Booking.com, direto, etc.). Alerta quando um único canal passa de 60% da receita do mês — sinal de dependência excessiva de uma plataforma."
+                />
               </h3>
               <p className="mt-1 text-[11px] font-semibold text-brand-text-medium">
                 % de receita e reservas por canal de distribuição — {monthLabel}
@@ -1499,6 +1550,10 @@ export default async function DashboardPage({
               <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-brand-text-dark transition-colors group-hover:text-brand-gold">
                 <Award className="h-4 w-4 text-brand-blue transition-colors group-hover:text-brand-gold" />
                 Ranking de Propriedades
+                <InfoTooltip
+                  label="O que é Ranking de Propriedades"
+                  description="As 3 propriedades com melhor e as 3 com pior RevPAR no mês corrente, para identificar onde vale revisar preço ou ocupação."
+                />
               </h3>
               <p className="mt-1 text-[11px] font-semibold text-brand-text-medium">
                 Melhor e pior RevPAR — {monthLabel}
@@ -1593,6 +1648,10 @@ export default async function DashboardPage({
             <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-brand-text-dark transition-colors group-hover:text-brand-gold">
               <CalendarDays className="h-4 w-4 text-brand-blue transition-colors group-hover:text-brand-gold" />
               Hoje
+              <InfoTooltip
+                label="O que é o card Hoje"
+                description="Check-ins, check-outs e limpezas agendadas para hoje."
+              />
             </h3>
             <p className="mt-1 text-[11px] font-semibold text-brand-text-medium">
               {now.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' })}
@@ -1689,6 +1748,10 @@ export default async function DashboardPage({
               <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-brand-text-dark transition-colors group-hover:text-brand-gold">
                 <CheckCircle className="h-4 w-4 text-brand-blue transition-colors group-hover:text-brand-gold" />
                 Reservas por Status
+                <InfoTooltip
+                  label="O que é Reservas por Status"
+                  description="Distribuição das reservas do período entre confirmadas, pendentes e canceladas."
+                />
               </h3>
               <p className="mt-1 text-[11px] font-semibold text-brand-text-medium">Distribuição atual</p>
             </div>
@@ -1704,6 +1767,10 @@ export default async function DashboardPage({
               <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-brand-text-dark transition-colors group-hover:text-brand-gold">
                 <Clock className="h-4 w-4 text-brand-blue transition-colors group-hover:text-brand-gold" />
                 Próximas Chegadas
+                <InfoTooltip
+                  label="O que é Próximas Chegadas"
+                  description="Reservas com check-in nos próximos 7 dias."
+                />
               </h3>
               <p className="mt-1 text-[11px] font-semibold text-brand-text-medium">Próximos 7 dias</p>
             </div>
@@ -1821,6 +1888,10 @@ export default async function DashboardPage({
               <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-brand-text-dark transition-colors group-hover:text-brand-gold">
                 <ShieldAlert className="h-4 w-4 text-brand-blue transition-colors group-hover:text-brand-gold" />
                 Painel de Alertas
+                <InfoTooltip
+                  label="O que é o Painel de Alertas"
+                  description="Avisa quando a receita do mês está concentrada demais numa única propriedade (mais de 40%) — sinal de risco caso essa propriedade tenha algum problema."
+                />
               </h3>
               <p className="mt-1 text-[11px] font-semibold text-brand-text-medium">
                 Riscos de concentração de receita — {monthLabel}
