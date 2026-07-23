@@ -3,6 +3,7 @@ import {
   calculateRevPAR,
   calculateVariationPercent,
   monthKeyFromDate,
+  countPropertiesByMonthEnd,
   filterRowsByMonth,
   filterRowsByProperties,
   aggregateMonthlyMetricsByCurrency,
@@ -89,6 +90,40 @@ describe('monthKeyFromDate', () => {
 
   it('preenche mês com zero à esquerda', () => {
     expect(monthKeyFromDate(new Date(2026, 0, 1))).toBe('2026-01-01')
+  })
+})
+
+describe('countPropertiesByMonthEnd', () => {
+  const properties = [
+    { created_at: '2025-01-10T00:00:00Z' }, // existia bem antes
+    { created_at: '2026-06-15T00:00:00Z' }, // criada no meio de junho/2026
+    { created_at: '2026-07-05T00:00:00Z' }, // criada no início de julho/2026
+    { created_at: '2026-08-01T00:00:00Z' }, // criada em agosto/2026 (futuro em relação aos meses testados)
+  ]
+
+  it('conta só propriedades criadas até o fim do mês', () => {
+    expect(countPropertiesByMonthEnd(properties, '2026-06-01')).toBe(2) // as 2 primeiras
+    expect(countPropertiesByMonthEnd(properties, '2026-07-01')).toBe(3) // + a criada em julho
+  })
+
+  it('não conta propriedades criadas em meses futuros', () => {
+    expect(countPropertiesByMonthEnd(properties, '2026-05-01')).toBe(1)
+  })
+
+  it('ignora propriedades sem created_at', () => {
+    expect(countPropertiesByMonthEnd([{ created_at: null }, ...properties], '2026-07-01')).toBe(3)
+  })
+
+  it('retorna 0 para lista vazia', () => {
+    expect(countPropertiesByMonthEnd([], '2026-07-01')).toBe(0)
+  })
+
+  it('inclui propriedade criada exatamente no último dia do mês', () => {
+    expect(countPropertiesByMonthEnd([{ created_at: '2026-07-31T23:00:00' }], '2026-07-01')).toBe(1)
+  })
+
+  it('retorna 0 para monthKey inválido', () => {
+    expect(countPropertiesByMonthEnd(properties, 'invalid')).toBe(0)
   })
 })
 

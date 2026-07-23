@@ -41,6 +41,7 @@ import {
   calculateRevPAR,
   calculateVariationPercent,
   monthKeyFromDate,
+  countPropertiesByMonthEnd,
   filterRowsByMonth,
   filterRowsByProperties,
   aggregateMonthlyMetricsByCurrency,
@@ -76,7 +77,7 @@ export default async function DashboardPage({
   // Fetch properties for this organization
   const { data: allProperties } = await supabase
     .from('properties')
-    .select('id, name, currency, management_percentage')
+    .select('id, name, currency, management_percentage, created_at')
     .eq('organization_id', organizationId)
     .eq('is_active', true)
 
@@ -398,13 +399,23 @@ export default async function DashboardPage({
   const previousFilteredTotal = aggregateMonthlyMetricsTotal(previousFilteredRows)
   const yoyFilteredTotal = aggregateMonthlyMetricsTotal(yoyFilteredRows)
 
+  // Badge "Propriedades": tamanho real do portfólio até o fim de cada mês
+  // (created_at), não "propriedades com reserva no mês" — ver
+  // countPropertiesByMonthEnd em src/lib/dashboard/metrics.ts para o porquê
+  // dessa mudança (confirmado com Fabio em 2026-07-23). Usa `properties`
+  // (já recortado pelo filtro de propriedade do topo), mesma base do número
+  // principal do card (`totalProperties`).
+  const propertiesCountCurrent = countPropertiesByMonthEnd(properties || [], currentMonthKeyView)
+  const propertiesCountPrevious = countPropertiesByMonthEnd(properties || [], previousMonthKeyView)
+  const propertiesCountYoy = countPropertiesByMonthEnd(properties || [], yoyMonthKeyView)
+
   const propertiesVarianceMoM = calculateVariationPercent(
-    currentFilteredTotal.propertyCount, currentFilteredRows.length > 0,
-    previousFilteredTotal.propertyCount, previousFilteredRows.length > 0
+    propertiesCountCurrent, true,
+    propertiesCountPrevious, true
   )
   const propertiesVarianceYoY = calculateVariationPercent(
-    currentFilteredTotal.propertyCount, currentFilteredRows.length > 0,
-    yoyFilteredTotal.propertyCount, yoyFilteredRows.length > 0
+    propertiesCountCurrent, true,
+    propertiesCountYoy, true
   )
   const reservationsVarianceMoM = calculateVariationPercent(
     currentFilteredTotal.bookingCount, currentFilteredRows.length > 0,

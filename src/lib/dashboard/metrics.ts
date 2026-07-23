@@ -85,6 +85,42 @@ export function calculateVariationPercent(
   return Number.isFinite(pct) ? Math.round(pct) : null
 }
 
+/**
+ * Conta quantas propriedades já existiam até o fim do mês de `monthKey` (formato
+ * 'YYYY-MM-01', ver `monthKeyFromDate`), a partir de `created_at`.
+ *
+ * Substitui a aproximação anterior (contar propriedades com pelo menos 1 reserva
+ * no mês, via `monthly_property_metrics`) — aquela media "atividade", não
+ * "tamanho do portfólio", e por isso o badge de variação do card "Propriedades"
+ * podia sugerir que o número de imóveis geridos tinha mudado quando na verdade só
+ * a ocupação daquele mês tinha mudado.
+ *
+ * Limitação conhecida e aceita: só considera propriedades atualmente ativas
+ * (`is_active = true`, filtro já aplicado por quem chama, ver page.tsx) — se uma
+ * propriedade foi desativada, não há timestamp de quando isso ocorreu no schema
+ * atual, então ela não é contada nem para os meses em que esteve ativa. Isso é
+ * consistente com o número principal do card ("Propriedades"), que também só
+ * conta propriedades ativas agora — não introduz uma nova divergência.
+ */
+export function countPropertiesByMonthEnd(
+  properties: Array<{ created_at?: string | null }>,
+  monthKey: string
+): number {
+  const [yearStr, monthStr] = monthKey.split('-')
+  const year = Number(yearStr)
+  const month = Number(monthStr)
+  if (!Number.isFinite(year) || !Number.isFinite(month)) return 0
+
+  // Último instante do mês de `monthKey` (dia 0 do mês seguinte = último dia do mês corrente, 23:59:59.999).
+  const monthEnd = new Date(year, month, 0, 23, 59, 59, 999)
+
+  return properties.filter((p) => {
+    if (!p.created_at) return false
+    const createdAt = new Date(p.created_at)
+    return !Number.isNaN(createdAt.getTime()) && createdAt.getTime() <= monthEnd.getTime()
+  }).length
+}
+
 /** `Date` → chave de mês no mesmo formato de `metric_month` (primeiro dia do mês, 'YYYY-MM-DD'). */
 export function monthKeyFromDate(date: Date): string {
   const year = date.getFullYear()
