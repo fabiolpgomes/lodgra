@@ -14,6 +14,7 @@ import {
   TrendingUp,
   Wallet,
   Bell,
+  XCircle,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { requireRole } from '@/lib/auth/requireRole'
@@ -358,6 +359,32 @@ export default async function DashboardPage({
         .limit(5)
     : { data: null }
 
+  // Story 39.5: indicador de status de sincronização (última entrada de sync_logs da organização)
+  const { data: syncLogRows } = propertyIds.length > 0
+    ? await supabase
+        .from('sync_logs')
+        .select(`
+          status,
+          error_message,
+          synced_at,
+          property_listings!inner(property_id)
+        `)
+        .in('property_listings.property_id', propertyIds)
+        .order('synced_at', { ascending: false })
+        .limit(1)
+    : { data: null }
+
+  const lastSyncLog = syncLogRows?.[0] as
+    | { status: string; error_message: string | null; synced_at: string }
+    | undefined
+
+  function formatSyncTimestamp(iso: string): string {
+    const d = new Date(iso)
+    const datePart = d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
+    const timePart = d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+    return `${datePart} ${timePart}`
+  }
+
   const monthShort = now.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '').toUpperCase()
   const monthLong = now.toLocaleDateString('pt-BR', { month: 'long' })
   const monthLabel = monthLong.charAt(0).toUpperCase() + monthLong.slice(1)
@@ -455,13 +482,31 @@ export default async function DashboardPage({
               <CalendarDays className="h-3.5 w-3.5" />
               Nova Reserva
             </Link>
-            <Link
-              href={`/${locale}/sync`}
-              className="flex items-center gap-1.5 rounded-full border border-neutral-200 bg-brand-white px-4 py-2 text-xs font-semibold text-brand-text-dark transition-all hover:bg-brand-bg"
-            >
-              <RefreshCw className="h-3.5 w-3.5" />
-              Sincronizar
-            </Link>
+            <div className="flex flex-col items-center gap-1">
+              <Link
+                href={`/${locale}/sync`}
+                className="flex items-center gap-1.5 rounded-full border border-neutral-200 bg-brand-white px-4 py-2 text-xs font-semibold text-brand-text-dark transition-all hover:bg-brand-bg"
+              >
+                <RefreshCw className="h-3.5 w-3.5" />
+                Sincronizar
+              </Link>
+              {lastSyncLog && (
+                <p
+                  className={`flex items-center gap-1 whitespace-nowrap text-[10px] font-semibold ${
+                    lastSyncLog.status === 'success' ? 'text-emerald-600' : 'text-red-600'
+                  }`}
+                >
+                  {lastSyncLog.status === 'success' ? (
+                    <CheckCircle className="h-3 w-3" />
+                  ) : (
+                    <XCircle className="h-3 w-3" />
+                  )}
+                  {lastSyncLog.status === 'success'
+                    ? `Sincronizado às ${formatSyncTimestamp(lastSyncLog.synced_at)}`
+                    : `Falha na sincronização às ${formatSyncTimestamp(lastSyncLog.synced_at)}`}
+                </p>
+              )}
+            </div>
             <Link
               href={`/${locale}/reports/financeiro`}
               className="flex items-center gap-1.5 rounded-full border border-neutral-200 bg-brand-white px-4 py-2 text-xs font-semibold text-brand-text-dark transition-all hover:bg-brand-bg"

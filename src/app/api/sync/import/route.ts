@@ -246,6 +246,18 @@ async function syncListing(
     .update({ last_synced_at: new Date().toISOString() })
     .eq('id', listingId)
 
+  // Story 39.5: registrar sucesso em sync_logs para alimentar o indicador de status no dashboard
+  const { error: syncLogError } = await supabase.from('sync_logs').insert({
+    property_listing_id: listingId,
+    sync_type: 'ical',
+    direction: 'inbound',
+    status: 'success',
+    synced_at: new Date().toISOString(),
+  })
+  if (syncLogError) {
+    console.warn(`[Sync] Erro ao registrar sync_log de sucesso para listing ${listingId}:`, syncLogError.message)
+  }
+
   return { created, updated, skipped, cancelled, errors }
 }
 
@@ -322,9 +334,23 @@ export async function POST(request: NextRequest) {
               propResult.cancelled += r.cancelled
               propResult.errors.push(...r.errors)
             } catch (err: unknown) {
-              const msg = `Listing ${listing.id}: ${err instanceof Error ? err.message : String(err)}`
+              const errorMessage = err instanceof Error ? err.message : String(err)
+              const msg = `Listing ${listing.id}: ${errorMessage}`
               console.error(`[Sync] ${msg}`)
               propResult.errors.push(msg)
+
+              // Story 39.5: registrar falha em sync_logs para alimentar o indicador de status no dashboard
+              const { error: syncLogError } = await supabase.from('sync_logs').insert({
+                property_listing_id: listing.id,
+                sync_type: 'ical',
+                direction: 'inbound',
+                status: 'failed',
+                error_message: errorMessage,
+                synced_at: new Date().toISOString(),
+              })
+              if (syncLogError) {
+                console.warn(`[Sync] Erro ao registrar sync_log de falha para listing ${listing.id}:`, syncLogError.message)
+              }
             }
           }
           return propResult
@@ -377,7 +403,29 @@ export async function POST(request: NextRequest) {
       .single()
     const legacyOrgId = propData?.organization_id as string | undefined
 
-    const result = await syncListing(adminSupabase, listing_id, url, legacyOrgId)
+    let result
+    try {
+      result = await syncListing(adminSupabase, listing_id, url, legacyOrgId)
+    } catch (err: unknown) {
+      // Story 39.5: registrar falha em sync_logs para alimentar o indicador de status no dashboard
+      const errorMessage = err instanceof Error ? err.message : String(err)
+      console.error(`[Sync] Falha no listing ${listing_id}:`, err)
+      const { error: syncLogError } = await adminSupabase.from('sync_logs').insert({
+        property_listing_id: listing_id,
+        sync_type: 'ical',
+        direction: 'inbound',
+        status: 'failed',
+        error_message: errorMessage,
+        synced_at: new Date().toISOString(),
+      })
+      if (syncLogError) {
+        console.warn(`[Sync] Erro ao registrar sync_log de falha para listing ${listing_id}:`, syncLogError.message)
+      }
+      return NextResponse.json(
+        { error: 'Erro ao importar calendário: ' + errorMessage },
+        { status: 500 }
+      )
+    }
 
     return NextResponse.json({
       success: true,
