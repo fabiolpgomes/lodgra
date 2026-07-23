@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { DesktopCalendarLayout } from '@/components/calendar/DesktopCalendarLayout'
+import '@/styles/mobile-calendar.css'
 
 // Mock data - replace with actual API calls
 const mockProperties = [
@@ -10,7 +11,7 @@ const mockProperties = [
     name: 'AHS Studio Premium Bela Vista',
     type: 'Studio',
     location: 'Bela Vista',
-    imageUrl: '/properties/studio-bela-vista.jpg',
+    imageUrl: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="160" height="160"%3E%3Crect fill="%23e0e0e0" width="160" height="160"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" dy=".3em" fill="%23999" font-size="14"%3EStudio%3C/text%3E%3C/svg%3E',
     availabilityDots: [
       true, true, true, true, true, true, false,
       true, true, true, false, true, true, true,
@@ -56,7 +57,7 @@ const mockProperties = [
     name: 'AHS - Casa do Moinho Refúgio na Natureza',
     type: 'T2',
     location: 'Loulé',
-    imageUrl: '/properties/casa-moinho.jpg',
+    imageUrl: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="160" height="160"%3E%3Crect fill="%23d0d0d0" width="160" height="160"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" dy=".3em" fill="%23999" font-size="14"%3ECasa%3C/text%3E%3C/svg%3E',
     availabilityDots: [
       false, true, true, true, true, true, true,
       true, true, true, true, true, false, true,
