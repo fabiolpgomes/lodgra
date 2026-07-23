@@ -15,11 +15,14 @@ import {
   TrendingUp,
   TrendingDown,
   Wallet,
-  Bell,
   Award,
   AlertTriangle,
   XCircle,
   Gauge,
+  LogIn,
+  LogOut,
+  Sparkles,
+  ShieldAlert,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { requireRole } from '@/lib/auth/requireRole'
@@ -31,6 +34,7 @@ import { MetricVarianceBadge } from '@/components/features/dashboard/MetricVaria
 import { AuthLayout } from '@/components/common/layout/AuthLayout'
 import { LocaleSelector } from '@/components/common/header/LocaleSelector'
 import { ThemeToggle } from '@/components/common/header/ThemeToggle'
+import { NotificationBell, type NotificationBellAlert } from '@/components/common/header/NotificationBell'
 import { redirect } from 'next/navigation'
 import { calculateRevenueForReservation } from '@/lib/financial/revenue-calculator'
 // Story 39.4 — Ranking de Propriedades (ADR/RevPAR por propriedade)
@@ -51,6 +55,17 @@ import {
 } from '@/lib/dashboard/metrics'
 // Story 39.3 — Receita por Canal (% receita/reservas e comissão real por booking_source)
 import { buildChannelRevenue, CHANNEL_CONCENTRATION_THRESHOLD, type ChannelReservationInput } from '@/lib/dashboard/channelRevenue'
+// Story 39.6 — Painel de Alertas: concentração por propriedade (independente do threshold de canal acima)
+import { buildPropertyConcentrationAlert, PROPERTY_CONCENTRATION_THRESHOLD } from '@/lib/dashboard/propertyConcentration'
+// Story 39.6 — Sino de Notificações: 4 gatilhos, global da organização (nunca filtrado por propriedade)
+import {
+  buildPlaceholderGuestAlerts,
+  buildSyncFailureAlert,
+  buildPendingPaymentAlerts,
+  calculateProspectiveOccupancy,
+  buildLowOccupancyAlerts,
+  LOW_OCCUPANCY_WINDOW_DAYS,
+} from '@/lib/dashboard/notificationAlerts'
 
 export default async function DashboardPage({
   params,
@@ -654,6 +669,232 @@ export default async function DashboardPage({
     return `${datePart} ${timePart}`
   }
 
+  // ─── Story 39.6 — Card "Hoje": check-ins, check-outs e limpezas do dia corrente ───
+  // Check-ins/check-outs reaproveitam `reservationList` (já buscado acima, sem filtro de
+  // data) — evita nova query. "Mensagens" foi avaliado e omitido: não há fonte de dado real
+  // para isso no schema atual (Description da Story 39.6, item A — não inventar).
+  function getReservationPropertyName(r: { property_listings?: unknown }): string {
+    const listing = r.property_listings
+    const lObj = Array.isArray(listing) ? listing[0] : listing
+    const rawProperty = (lObj as { properties?: unknown } | null)?.properties
+    const property = Array.isArray(rawProperty) ? rawProperty[0] : rawProperty
+    return (property as { name?: string } | null)?.name || 'Propriedade'
+  }
+
+  const todayCheckIns = reservationList.filter(r => r.status === 'confirmed' && r.check_in === todayStr)
+  const todayCheckOuts = reservationList.filter(r => r.status === 'confirmed' && r.check_out === todayStr)
+
+  const { data: todayCleaningRows } = propertyIds.length > 0
+    ? await supabase
+        .from('cleaning_tasks')
+        .select(`
+          id,
+          status,
+          scheduled_time,
+          reservation_id,
+          property_id,
+          properties(name)
+        `)
+        .eq('organization_id', organizationId)
+        .in('property_id', propertyIds)
+        .eq('scheduled_date', todayStr)
+        .order('scheduled_time', { ascending: true })
+    : { data: null }
+
+  // `cleaning_tasks.reservation_id` é nullable (ON DELETE SET NULL) — limpezas avulsas sem
+  // reserva associada ainda aparecem aqui, só sem link de reserva (Technical Notes da Story 39.6).
+  const todayCleanings = (todayCleaningRows || []).map(c => {
+    const rawProperty = c.properties
+    const property = Array.isArray(rawProperty) ? rawProperty[0] : rawProperty
+    return {
+      id: c.id,
+      status: c.status,
+      scheduledTime: c.scheduled_time as string | null,
+      reservationId: c.reservation_id as string | null,
+      propertyName: (property as { name?: string } | null)?.name || 'Propriedade',
+    }
+  })
+
+  // ─── Story 39.6 — Painel de Alertas: Concentração por Propriedade (>40% da receita do mês) ───
+  // Usa `currentFilteredRows` (já filtrado pelo filtro de propriedade do topo, Story 39.2).
+  // Quando 1 única propriedade está selecionada, concentração não faz sentido (mesmo
+  // tratamento do Ranking de Propriedades, Story 39.4) — ver render mais abaixo.
+  const propertyConcentrationAlert = !selectedPropertyId
+    ? buildPropertyConcentrationAlert(
+        currentFilteredRows.map(row => ({
+          propertyId: row.property_id,
+          propertyName: row.property_name,
+          grossRevenue: Number(row.gross_revenue || 0),
+        }))
+      )
+    : null
+
+  // ─── Story 39.6 — Sino de Notificações: dados globais da organização ───
+  // AC: o sino NÃO é recortado pelo filtro de propriedade do topo — usa `allPropertyIds`
+  // (todas as propriedades ativas da organização), nunca `propertyIds` (filtrado).
+  const allPropertyIds = (allProperties || []).map(p => p.id)
+
+  // Gatilho 1: hóspede com nome placeholder (`guests.first_name === 'Hóspede'`, valor real
+  // do código — ver `notificationAlerts.ts`). Escopo: reservas não canceladas cujo período
+  // ainda não terminou (evita crescer sem limite sobre todo o histórico).
+  const { data: placeholderGuestRows } = allPropertyIds.length > 0
+    ? await supabase
+        .from('reservations')
+        .select(`
+          id,
+          check_in,
+          status,
+          property_listings!inner(
+            property_id,
+            properties(name)
+          ),
+          guests(first_name)
+        `)
+        .neq('status', 'cancelled')
+        .gte('check_out', todayStr)
+        .in('property_listings.property_id', allPropertyIds)
+        .limit(200)
+    : { data: null }
+
+  const placeholderGuestAlerts = buildPlaceholderGuestAlerts(
+    (placeholderGuestRows || []).map(r => {
+      const listing = Array.isArray(r.property_listings) ? r.property_listings[0] : r.property_listings
+      const rawProperty = (listing as { properties?: unknown } | null)?.properties
+      const property = Array.isArray(rawProperty) ? rawProperty[0] : rawProperty
+      const rawGuest = r.guests
+      const guest = Array.isArray(rawGuest) ? rawGuest[0] : rawGuest
+      return {
+        reservationId: r.id,
+        guestFirstName: (guest as { first_name?: string | null } | null)?.first_name,
+        propertyName: (property as { name?: string } | null)?.name,
+        checkIn: r.check_in,
+      }
+    })
+  )
+
+  // Gatilho 2: falha de sync — reaproveita a mesma leitura de `sync_logs` da Story 39.5, mas
+  // org-wide: o indicador visual abaixo do botão "Sincronizar" (acima) é recortado por
+  // `propertyIds` filtrado; o sino precisa da versão global (AC da Story 39.6).
+  const { data: orgSyncLogRows } = allPropertyIds.length > 0
+    ? await supabase
+        .from('sync_logs')
+        .select(`
+          status,
+          error_message,
+          synced_at,
+          property_listings!inner(property_id)
+        `)
+        .in('property_listings.property_id', allPropertyIds)
+        .order('synced_at', { ascending: false })
+        .limit(1)
+    : { data: null }
+
+  const orgLastSyncLog = orgSyncLogRows?.[0] as
+    | { status: string; error_message: string | null; synced_at: string }
+    | undefined
+
+  const syncFailureAlert = buildSyncFailureAlert(
+    orgLastSyncLog
+      ? {
+          status: orgLastSyncLog.status,
+          errorMessage: orgLastSyncLog.error_message,
+          syncedAtFormatted: formatSyncTimestamp(orgLastSyncLog.synced_at),
+        }
+      : null
+  )
+
+  // Gatilho 3: pagamento pendente (`status = 'pending_payment'`). Prazo (`PENDING_PAYMENT_ALERT_HOURS`)
+  // é um placeholder documentado em `notificationAlerts.ts` — pendente de confirmação com Fabio
+  // (ver Dev Notes da Story 39.6, não é um número definitivo).
+  const { data: pendingPaymentRows } = allPropertyIds.length > 0
+    ? await supabase
+        .from('reservations')
+        .select(`
+          id,
+          created_at,
+          total_amount,
+          currency,
+          property_listings!inner(
+            property_id,
+            properties(name)
+          )
+        `)
+        .eq('status', 'pending_payment')
+        .in('property_listings.property_id', allPropertyIds)
+        .limit(200)
+    : { data: null }
+
+  const pendingPaymentAlerts = buildPendingPaymentAlerts(
+    (pendingPaymentRows || []).map(r => {
+      const listing = Array.isArray(r.property_listings) ? r.property_listings[0] : r.property_listings
+      const rawProperty = (listing as { properties?: unknown } | null)?.properties
+      const property = Array.isArray(rawProperty) ? rawProperty[0] : rawProperty
+      return {
+        reservationId: r.id,
+        propertyName: (property as { name?: string } | null)?.name,
+        createdAt: r.created_at,
+        totalAmount: r.total_amount != null ? Number(r.total_amount) : null,
+        currency: r.currency,
+      }
+    }),
+    now
+  )
+
+  // Gatilho 4: ocupação baixa por propriedade (<30% nos próximos 30 dias) — query prospectiva
+  // nova sobre `reservations`, diferente de `monthly_property_metrics` (histórica). Ver
+  // Technical Notes da Story 39.6.
+  const occupancyWindowEnd = new Date(today)
+  occupancyWindowEnd.setDate(occupancyWindowEnd.getDate() + LOW_OCCUPANCY_WINDOW_DAYS)
+
+  const { data: prospectiveReservationRows } = allPropertyIds.length > 0
+    ? await supabase
+        .from('reservations')
+        .select(`
+          check_in,
+          check_out,
+          status,
+          property_listings!inner(property_id)
+        `)
+        .eq('status', 'confirmed')
+        .lt('check_in', occupancyWindowEnd.toISOString().split('T')[0])
+        .gt('check_out', today.toISOString().split('T')[0])
+        .in('property_listings.property_id', allPropertyIds)
+        .limit(1000)
+    : { data: null }
+
+  const prospectiveOccupancyForecast = calculateProspectiveOccupancy(
+    (prospectiveReservationRows || [])
+      .map(r => {
+        const listing = Array.isArray(r.property_listings) ? r.property_listings[0] : r.property_listings
+        return {
+          propertyId: (listing as { property_id?: string } | null)?.property_id || '',
+          checkIn: r.check_in,
+          checkOut: r.check_out,
+        }
+      })
+      .filter(r => r.propertyId),
+    (allProperties || []).map(p => ({ id: p.id, name: p.name })),
+    today,
+    LOW_OCCUPANCY_WINDOW_DAYS
+  )
+
+  const lowOccupancyAlerts = buildLowOccupancyAlerts(prospectiveOccupancyForecast)
+
+  // Monta a lista final do sino, com hrefs já resolvidos (locale) — ordem: hóspede
+  // placeholder, falha de sync, pagamento pendente, ocupação baixa.
+  const bellAlerts: NotificationBellAlert[] = [
+    ...placeholderGuestAlerts.map(a => ({
+      ...a,
+      href: a.reservationId ? `/${locale}/reservations/${a.reservationId}` : undefined,
+    })),
+    ...(syncFailureAlert ? [{ ...syncFailureAlert, href: `/${locale}/sync` }] : []),
+    ...pendingPaymentAlerts.map(a => ({
+      ...a,
+      href: a.reservationId ? `/${locale}/reservations/${a.reservationId}` : undefined,
+    })),
+    ...lowOccupancyAlerts,
+  ]
+
   const monthShort = now.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '').toUpperCase()
   const monthLong = now.toLocaleDateString('pt-BR', { month: 'long' })
   const monthLabel = monthLong.charAt(0).toUpperCase() + monthLong.slice(1)
@@ -713,13 +954,8 @@ export default async function DashboardPage({
         <div className="flex items-center gap-3">
           <ThemeToggle />
           <LocaleSelector />
-          <button
-            className="relative flex h-11 w-11 items-center justify-center rounded-full border border-neutral-200/60 bg-brand-bg text-brand-text-dark shadow-2xs transition-all hover:bg-brand-bg/85"
-            aria-label="Notificações"
-          >
-            <Bell className="h-4.5 w-4.5" />
-            <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-brand-gold ring-2 ring-brand-white" />
-          </button>
+          {/* Story 39.6: sino funcional (era decorativo) — pendências globais da organização */}
+          <NotificationBell alerts={bellAlerts} />
         </div>
       </div>
 
@@ -1273,6 +1509,104 @@ export default async function DashboardPage({
           </div>
         ) : null}
 
+        {/* Story 39.6 — Card "Hoje": check-ins, check-outs e limpezas do dia corrente. Posicionado
+            antes de "Próximas Chegadas" (AC da Story 39.6). Sem item de "mensagens" — sem fonte de
+            dado real no schema atual (ver Description da story, não inventado). */}
+        <div className="group rounded-2xl border border-neutral-200/60 bg-brand-white p-6 shadow-2xs transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-gold/45 hover:shadow-[0_18px_42px_rgba(201,162,39,0.14)]">
+          <div className="mb-6">
+            <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-brand-text-dark transition-colors group-hover:text-brand-gold">
+              <CalendarDays className="h-4 w-4 text-brand-blue transition-colors group-hover:text-brand-gold" />
+              Hoje
+            </h3>
+            <p className="mt-1 text-[11px] font-semibold text-brand-text-medium">
+              {now.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' })}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
+            <div>
+              <div className="mb-3 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-emerald-600">
+                <LogIn className="h-3.5 w-3.5" />
+                Check-ins ({todayCheckIns.length})
+              </div>
+              {todayCheckIns.length === 0 ? (
+                <p className="text-xs font-medium text-brand-text-medium">Nenhum check-in hoje.</p>
+              ) : (
+                <ul className="space-y-2">
+                  {todayCheckIns.map(r => (
+                    <li key={r.id}>
+                      <Link
+                        href={`/${locale}/reservations/${r.id}`}
+                        className="block truncate rounded-xl bg-brand-bg px-3 py-2 text-xs font-semibold text-brand-text-dark transition-colors hover:bg-emerald-500/10 hover:text-emerald-700"
+                      >
+                        {r.guest_name || 'Hóspede'} &middot; {getReservationPropertyName(r)}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            <div>
+              <div className="mb-3 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-brand-blue">
+                <LogOut className="h-3.5 w-3.5" />
+                Check-outs ({todayCheckOuts.length})
+              </div>
+              {todayCheckOuts.length === 0 ? (
+                <p className="text-xs font-medium text-brand-text-medium">Nenhum check-out hoje.</p>
+              ) : (
+                <ul className="space-y-2">
+                  {todayCheckOuts.map(r => (
+                    <li key={r.id}>
+                      <Link
+                        href={`/${locale}/reservations/${r.id}`}
+                        className="block truncate rounded-xl bg-brand-bg px-3 py-2 text-xs font-semibold text-brand-text-dark transition-colors hover:bg-brand-blue/10 hover:text-brand-blue"
+                      >
+                        {r.guest_name || 'Hóspede'} &middot; {getReservationPropertyName(r)}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            <div>
+              <div className="mb-3 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-brand-gold">
+                <Sparkles className="h-3.5 w-3.5" />
+                Limpezas ({todayCleanings.length})
+              </div>
+              {todayCleanings.length === 0 ? (
+                <p className="text-xs font-medium text-brand-text-medium">Nenhuma limpeza agendada hoje.</p>
+              ) : (
+                <ul className="space-y-2">
+                  {todayCleanings.map(c => {
+                    const content = (
+                      <div className="flex items-center justify-between gap-2 rounded-xl bg-brand-bg px-3 py-2 text-xs font-semibold text-brand-text-dark transition-colors hover:bg-brand-gold/10 hover:text-brand-gold">
+                        <span className="truncate">
+                          {c.propertyName}
+                          {c.scheduledTime ? ` · ${c.scheduledTime.slice(0, 5)}` : ''}
+                        </span>
+                        <span className="shrink-0 rounded px-1.5 py-0.5 text-[9px] font-bold uppercase text-brand-text-medium">
+                          {c.status}
+                        </span>
+                      </div>
+                    )
+                    return (
+                      <li key={c.id}>
+                        {c.reservationId ? (
+                          <Link href={`/${locale}/reservations/${c.reservationId}`}>{content}</Link>
+                        ) : (
+                          content
+                        )}
+                      </li>
+                    )
+                  })}
+                </ul>
+              )}
+            </div>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <div className="group rounded-2xl border border-neutral-200/60 bg-brand-white p-6 shadow-2xs transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-gold/45 hover:shadow-[0_18px_42px_rgba(201,162,39,0.14)]">
             <div className="mb-6">
@@ -1400,6 +1734,62 @@ export default async function DashboardPage({
               <span className="text-sm font-semibold text-brand-text-dark">Ver Reservas</span>
             </Link>
           </div>
+        </div>
+
+        {/* Story 39.6 — Painel de Alertas: concentração por propriedade (>40%, nova) e por canal
+            (reaproveitada da Story 39.3, `channelRevenue.ts`). Os 4 gatilhos do sino (hóspede
+            placeholder, falha de sync, pagamento pendente, ocupação baixa) NÃO aparecem aqui —
+            regra explícita da spec-fonte, ficam exclusivos do sino (AC da Story 39.6). */}
+        <div className="group rounded-2xl border border-neutral-200/60 bg-brand-white p-6 shadow-2xs transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-gold/45 hover:shadow-[0_18px_42px_rgba(201,162,39,0.14)]">
+            <div className="mb-6">
+              <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-brand-text-dark transition-colors group-hover:text-brand-gold">
+                <ShieldAlert className="h-4 w-4 text-brand-blue transition-colors group-hover:text-brand-gold" />
+                Painel de Alertas
+              </h3>
+              <p className="mt-1 text-[11px] font-semibold text-brand-text-medium">
+                Riscos de concentração de receita — {monthLabel}
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              {selectedPropertyId ? (
+                <p className="text-xs font-medium text-brand-text-medium">
+                  Concentração por propriedade compara várias propriedades — selecione &ldquo;Todas as propriedades&rdquo; no filtro do topo para visualizá-la.
+                </p>
+              ) : propertyConcentrationAlert ? (
+                <div className="flex items-start gap-3 rounded-xl bg-red-500/5 px-4 py-3">
+                  <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-red-600" />
+                  <p className="text-xs font-semibold text-brand-text-dark">
+                    Concentração por Propriedade: <span className="text-red-600">{propertyConcentrationAlert.propertyName}</span> representa{' '}
+                    {Math.round(propertyConcentrationAlert.revenuePercent)}% da receita bruta do mês (limiar: {PROPERTY_CONCENTRATION_THRESHOLD}%).
+                  </p>
+                </div>
+              ) : (
+                <p className="text-xs font-medium text-brand-text-medium">
+                  Nenhuma propriedade concentra mais de {PROPERTY_CONCENTRATION_THRESHOLD}% da receita bruta do mês.
+                </p>
+              )}
+
+              {channelRevenueEntries
+                .filter(([, result]) => result.concentrationAlert)
+                .map(([cur, result]) => (
+                  <div key={cur} className="flex items-start gap-3 rounded-xl bg-brand-gold/10 px-4 py-3">
+                    <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-brand-gold" />
+                    <p className="text-xs font-semibold text-brand-text-dark">
+                      Concentração por Canal ({cur}): <span className="text-brand-gold">{result.concentrationAlert!.label}</span> representa{' '}
+                      {Math.round(result.concentrationAlert!.revenuePercent)}% da receita (limiar: {CHANNEL_CONCENTRATION_THRESHOLD}%).
+                    </p>
+                  </div>
+                ))}
+
+              {!propertyConcentrationAlert &&
+                !selectedPropertyId &&
+                channelRevenueEntries.every(([, result]) => !result.concentrationAlert) && (
+                  <p className="text-xs font-medium text-brand-text-medium">
+                    Nenhum canal concentra mais de {CHANNEL_CONCENTRATION_THRESHOLD}% da receita do mês.
+                  </p>
+                )}
+            </div>
         </div>
       </main>
       </div>
