@@ -178,4 +178,26 @@ describe('buildChannelRevenue', () => {
     const result = buildChannelRevenue(reservations)
     expect(result.channels[0].label).toBe('Booking.com PT')
   })
+
+  it('funde bookingSource diferentes que resolvem para o mesmo rótulo (regressão — bug reportado em produção 2026-07-23: "Airbnb" aparecia 2x)', () => {
+    // Reproduz o cenário real: sync-ical grava booking_source='airbnb' quando
+    // detecta a plataforma, mas cai para 'ical_import' quando não detecta —
+    // mesmo sendo, de fato, uma reserva do Airbnb (confirmado via
+    // platforms.display_name). Agrupar pelo valor bruto duplicava a linha
+    // "Airbnb" no card; agrupar pelo rótulo resolvido funde numa linha só.
+    const reservations = [
+      makeReservation({ bookingSource: 'airbnb', totalAmount: 300, commissionAmount: 45, platformDisplayName: null }),
+      makeReservation({ bookingSource: 'ical_import', totalAmount: 200, commissionAmount: 30, platformDisplayName: 'Airbnb' }),
+      makeReservation({ bookingSource: 'booking', totalAmount: 100, commissionAmount: 10, platformDisplayName: null }),
+    ]
+
+    const result = buildChannelRevenue(reservations)
+
+    const airbnbRows = result.channels.filter(c => c.label === 'Airbnb')
+    expect(airbnbRows).toHaveLength(1)
+    expect(airbnbRows[0].revenueAmount).toBe(500)
+    expect(airbnbRows[0].reservationCount).toBe(2)
+    expect(airbnbRows[0].commissionAmount).toBe(75)
+    expect(result.channels).toHaveLength(2) // Airbnb (fundido) + Booking.com
+  })
 })

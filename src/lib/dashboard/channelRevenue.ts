@@ -109,31 +109,38 @@ export function buildChannelRevenue(
   )
   const excludedCount = reservations.length - valid.length
 
-  type Accumulator = { revenue: number; count: number; commission: number; label: string }
-  const byChannel = new Map<string, Accumulator>()
+  // Agrupar pelo RÓTULO resolvido (`label`), não pelo `bookingSource` bruto.
+  // Motivo: o mesmo canal real pode gravar `booking_source` inconsistente entre
+  // reservas (ex.: sync-ical grava 'airbnb' quando detecta a plataforma, mas cai
+  // para 'ical_import' quando não detecta — mesmo sendo, de fato, uma reserva do
+  // Airbnb confirmada via `platforms.display_name`). Agrupar pelo valor bruto
+  // duplicava "Airbnb" em duas linhas no card; agrupar pelo rótulo funde essas
+  // reservas numa linha só, que é o que a UI mostra de qualquer forma. Reportado
+  // por Fabio em produção (2026-07-23).
+  type Accumulator = { revenue: number; count: number; commission: number; representativeChannel: string }
+  const byLabel = new Map<string, Accumulator>()
 
   for (const r of valid) {
-    const channel = r.bookingSource
-    const label = getChannelLabel(channel, r.platformDisplayName)
+    const label = getChannelLabel(r.bookingSource, r.platformDisplayName)
     const amount = Number(r.totalAmount) || 0
     const commission = r.commissionAmount != null ? Number(r.commissionAmount) || 0 : 0
 
-    const existing = byChannel.get(channel)
+    const existing = byLabel.get(label)
     if (existing) {
       existing.revenue += amount
       existing.count += 1
       existing.commission += commission
     } else {
-      byChannel.set(channel, { revenue: amount, count: 1, commission, label })
+      byLabel.set(label, { revenue: amount, count: 1, commission, representativeChannel: r.bookingSource })
     }
   }
 
   const totalRevenue = valid.reduce((sum, r) => sum + (Number(r.totalAmount) || 0), 0)
   const totalReservations = valid.length
 
-  const channels: ChannelBreakdown[] = Array.from(byChannel.entries()).map(([channel, acc]) => ({
-    channel,
-    label: acc.label,
+  const channels: ChannelBreakdown[] = Array.from(byLabel.entries()).map(([label, acc]) => ({
+    channel: acc.representativeChannel,
+    label,
     revenueAmount: acc.revenue,
     revenuePercent: totalRevenue > 0 ? (acc.revenue / totalRevenue) * 100 : 0,
     reservationCount: acc.count,

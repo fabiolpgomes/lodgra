@@ -1547,7 +1547,7 @@ export default async function DashboardPage({
                   ) : (
                     <ul className="space-y-2.5">
                       {result.channels.map((channel) => (
-                        <li key={channel.channel} className="rounded-xl bg-brand-bg px-3.5 py-3">
+                        <li key={channel.label} className="rounded-xl bg-brand-bg px-3.5 py-3">
                           <div className="flex items-center justify-between gap-3">
                             <span className="truncate text-sm font-semibold text-brand-text-dark">{channel.label}</span>
                             <span className="shrink-0 text-sm font-bold text-brand-text-dark">
