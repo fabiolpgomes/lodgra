@@ -14,6 +14,7 @@ import {
   TrendingUp,
   Wallet,
   Bell,
+  Gauge,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { requireRole } from '@/lib/auth/requireRole'
@@ -21,11 +22,25 @@ import { LazyOccupancyChart as OccupancyChart, LazyStatusChart as StatusChart } 
 import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
 import { RevenueChartWrapper } from '@/components/features/dashboard/RevenueChartWrapper'
 import { PropertyFilterDropdown } from '@/components/features/dashboard/PropertyFilterDropdown'
+import { MetricVarianceBadge } from '@/components/features/dashboard/MetricVarianceBadge'
 import { AuthLayout } from '@/components/common/layout/AuthLayout'
 import { LocaleSelector } from '@/components/common/header/LocaleSelector'
 import { ThemeToggle } from '@/components/common/header/ThemeToggle'
 import { redirect } from 'next/navigation'
 import { calculateRevenueForReservation } from '@/lib/financial/revenue-calculator'
+import { sumCompanyExpensesForYear, type CompanyExpenseRow } from '@/lib/financial/company-expenses'
+import {
+  calculateADR,
+  calculateRevPAR,
+  calculateVariationPercent,
+  monthKeyFromDate,
+  filterRowsByMonth,
+  filterRowsByProperties,
+  aggregateMonthlyMetricsByCurrency,
+  aggregateMonthlyMetricsTotal,
+  aggregateManagementFeeByCurrency,
+  type MonthlyPropertyMetricRow,
+} from '@/lib/dashboard/metrics'
 
 export default async function DashboardPage({
   params,
@@ -52,7 +67,7 @@ export default async function DashboardPage({
   // Fetch properties for this organization
   const { data: allProperties } = await supabase
     .from('properties')
-    .select('id, name, currency')
+    .select('id, name, currency, management_percentage')
     .eq('organization_id', organizationId)
     .eq('is_active', true)
 
@@ -305,21 +320,198 @@ export default async function DashboardPage({
     })
   }
 
-  // Fetch current month expenses
-  const { data: currentMonthExpenses } = propertyIds.length > 0
-    ? await supabase
-        .from('expenses')
-        .select('amount, currency')
-        .in('property_id', propertyIds)
-        .gte('date', `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`)
-        .lte('date', currentMonthEnd.toISOString().slice(0, 10))
-    : { data: null }
+  // ─── Story 39.2: Badges MoM/YoY + ADR/RevPAR + Lucro Real (via monthly_property_metrics) ───
+  // Fonte: materialized view `monthly_property_metrics` (Story 39.1, Done). Ver
+  // docs/stories/39.2-adr-revpar-badges-lucro-real.md para o detalhamento das fórmulas.
+  const orgCurrency = org?.currency || 'EUR'
+  const previousMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+  const yoyMonthDate = new Date(now.getFullYear() - 1, now.getMonth(), 1)
+  const currentMonthKeyView = monthKeyFromDate(now)
+  const previousMonthKeyView = monthKeyFromDate(previousMonthDate)
+  const yoyMonthKeyView = monthKeyFromDate(yoyMonthDate)
 
-  const monthExpensesByCurrency = (currentMonthExpenses || []).reduce((acc, e) => {
-    const cur = (e.currency || org?.currency || 'EUR') as string
-    acc[cur] = (acc[cur] || 0) + Number(e.amount || 0)
+  // Query única org-wide (organization_id apenas) — o filtro de propriedade do topo
+  // é aplicado em memória depois, porque o Lucro Real precisa da versão SEM filtro
+  // (comissão de gestão e despesas da empresa não são filtráveis por propriedade).
+  const { data: monthlyMetricsRows } = await supabase
+    .from('monthly_property_metrics')
+    .select('property_id, property_name, metric_month, gross_revenue, nights_sold, available_nights, booking_count, cancelled_count, incomplete_data_count')
+    .eq('organization_id', organizationId)
+    .in('metric_month', [currentMonthKeyView, previousMonthKeyView, yoyMonthKeyView])
+
+  const allMetricRows = (monthlyMetricsRows || []) as MonthlyPropertyMetricRow[]
+
+  // Recortado pelo filtro de propriedade ativo (afeta KPIs/ADR-RevPAR/Receita do Mês)
+  const filteredMetricRows = filterRowsByProperties(allMetricRows, propertyIds)
+  const currentFilteredRows = filterRowsByMonth(filteredMetricRows, currentMonthKeyView)
+  const previousFilteredRows = filterRowsByMonth(filteredMetricRows, previousMonthKeyView)
+  const yoyFilteredRows = filterRowsByMonth(filteredMetricRows, yoyMonthKeyView)
+
+  const currentFilteredTotal = aggregateMonthlyMetricsTotal(currentFilteredRows)
+  const previousFilteredTotal = aggregateMonthlyMetricsTotal(previousFilteredRows)
+  const yoyFilteredTotal = aggregateMonthlyMetricsTotal(yoyFilteredRows)
+
+  const propertiesVarianceMoM = calculateVariationPercent(
+    currentFilteredTotal.propertyCount, currentFilteredRows.length > 0,
+    previousFilteredTotal.propertyCount, previousFilteredRows.length > 0
+  )
+  const propertiesVarianceYoY = calculateVariationPercent(
+    currentFilteredTotal.propertyCount, currentFilteredRows.length > 0,
+    yoyFilteredTotal.propertyCount, yoyFilteredRows.length > 0
+  )
+  const reservationsVarianceMoM = calculateVariationPercent(
+    currentFilteredTotal.bookingCount, currentFilteredRows.length > 0,
+    previousFilteredTotal.bookingCount, previousFilteredRows.length > 0
+  )
+  const reservationsVarianceYoY = calculateVariationPercent(
+    currentFilteredTotal.bookingCount, currentFilteredRows.length > 0,
+    yoyFilteredTotal.bookingCount, yoyFilteredRows.length > 0
+  )
+
+  // Ocupação (view) só para as badges — o valor principal do card "Taxa de Ocupação"
+  // continua vindo de `currentMonthOccupancy` (calculado abaixo, a partir das reservas),
+  // sem alterar o método já usado hoje na página.
+  const occupancyFromTotal = (agg: typeof currentFilteredTotal) =>
+    agg.availableNights > 0 ? (agg.nightsSold / agg.availableNights) * 100 : 0
+  const occupancyPreviousView = occupancyFromTotal(previousFilteredTotal)
+  const occupancyYoyView = occupancyFromTotal(yoyFilteredTotal)
+
+  // Receita do Mês — badges por moeda (o valor principal do card segue usando
+  // `monthRevenueByCurrency`, com distribuição proporcional já calculada acima).
+  const currentByCurrency = aggregateMonthlyMetricsByCurrency(currentFilteredRows, propertyCurrencyMap, orgCurrency)
+  const previousByCurrency = aggregateMonthlyMetricsByCurrency(previousFilteredRows, propertyCurrencyMap, orgCurrency)
+  const yoyByCurrency = aggregateMonthlyMetricsByCurrency(yoyFilteredRows, propertyCurrencyMap, orgCurrency)
+
+  function revenueVarianceForCurrency(cur: string, compareByCurrency: Record<string, ReturnType<typeof aggregateMonthlyMetricsByCurrency>[string]>) {
+    const currentAgg = currentByCurrency[cur]
+    const compareAgg = compareByCurrency[cur]
+    return calculateVariationPercent(
+      currentAgg?.grossRevenue || 0, Boolean(currentAgg),
+      compareAgg?.grossRevenue || 0, Boolean(compareAgg)
+    )
+  }
+
+  // ADR/RevPAR combinado, por moeda
+  const adrCurrencyKeys = Array.from(new Set([
+    ...Object.keys(currentByCurrency),
+    ...Object.keys(previousByCurrency),
+    ...Object.keys(yoyByCurrency),
+  ])).sort((a, b) => a.localeCompare(b))
+
+  const adrRevParEntries = adrCurrencyKeys.map((cur) => {
+    const curAgg = currentByCurrency[cur]
+    const prevAgg = previousByCurrency[cur]
+    const yoyAgg = yoyByCurrency[cur]
+
+    const adrCurrent = curAgg ? calculateADR(curAgg.grossRevenue, curAgg.nightsSold) : 0
+    const adrPrevious = prevAgg ? calculateADR(prevAgg.grossRevenue, prevAgg.nightsSold) : 0
+    const adrYoy = yoyAgg ? calculateADR(yoyAgg.grossRevenue, yoyAgg.nightsSold) : 0
+
+    // Valor principal exibido: reaproveita `currentMonthOccupancy` (já calculado na página),
+    // conforme decisão da story. Para as badges MoM/YoY usamos ocupação vinda da própria
+    // view em todos os períodos, para uma comparação internamente consistente.
+    const revparCurrentDisplay = calculateRevPAR(adrCurrent, currentMonthOccupancy)
+    const occCurrentView = curAgg && curAgg.availableNights > 0 ? (curAgg.nightsSold / curAgg.availableNights) * 100 : 0
+    const occPreviousViewCur = prevAgg && prevAgg.availableNights > 0 ? (prevAgg.nightsSold / prevAgg.availableNights) * 100 : 0
+    const occYoyViewCur = yoyAgg && yoyAgg.availableNights > 0 ? (yoyAgg.nightsSold / yoyAgg.availableNights) * 100 : 0
+    const revparCurrentView = calculateRevPAR(adrCurrent, occCurrentView)
+    const revparPreviousView = calculateRevPAR(adrPrevious, occPreviousViewCur)
+    const revparYoyView = calculateRevPAR(adrYoy, occYoyViewCur)
+
+    return {
+      currency: cur,
+      adrCurrent,
+      revparCurrent: revparCurrentDisplay,
+      adrVarianceMoM: calculateVariationPercent(adrCurrent, Boolean(curAgg), adrPrevious, Boolean(prevAgg)),
+      adrVarianceYoY: calculateVariationPercent(adrCurrent, Boolean(curAgg), adrYoy, Boolean(yoyAgg)),
+      revparVarianceMoM: calculateVariationPercent(revparCurrentView, Boolean(curAgg), revparPreviousView, Boolean(prevAgg)),
+      revparVarianceYoY: calculateVariationPercent(revparCurrentView, Boolean(curAgg), revparYoyView, Boolean(yoyAgg)),
+    }
+  })
+
+  // ─── Lucro Real (nível 4 do modelo de receita) — sempre org-wide, nunca filtrado ───
+  // por propriedade: comissão de gestão e despesas da empresa não são recortáveis por
+  // imóvel individual (AC da Story 39.2).
+  const allPropertyMeta = (allProperties || []).reduce((acc, p) => {
+    acc[p.id] = {
+      currency: p.currency || orgCurrency,
+      managementPercentage: Number((p as { management_percentage?: number | null }).management_percentage || 0),
+    }
     return acc
-  }, {} as Record<string, number>)
+  }, {} as Record<string, { currency: string; managementPercentage: number }>)
+
+  const orgCurrentRows = filterRowsByMonth(allMetricRows, currentMonthKeyView)
+  const orgPreviousRows = filterRowsByMonth(allMetricRows, previousMonthKeyView)
+  const orgYoyRows = filterRowsByMonth(allMetricRows, yoyMonthKeyView)
+
+  const commissionCurrent = aggregateManagementFeeByCurrency(orgCurrentRows, allPropertyMeta, orgCurrency)
+  const commissionPrevious = aggregateManagementFeeByCurrency(orgPreviousRows, allPropertyMeta, orgCurrency)
+  const commissionYoy = aggregateManagementFeeByCurrency(orgYoyRows, allPropertyMeta, orgCurrency)
+
+  // Despesas da empresa (`company_expenses`, org-wide) — mesmo padrão de query/agregação
+  // de `src/app/[locale]/dashboard/empresa/page.tsx` (reaproveitado, não reinventado).
+  const currentYear = now.getFullYear()
+  const previousMonthYear = previousMonthDate.getFullYear()
+  const yoyYear = currentYear - 1
+  const earliestYearNeeded = Math.min(currentYear, previousMonthYear, yoyYear)
+
+  const { data: companyExpensesRows, error: companyExpensesError } = await supabase
+    .from('company_expenses')
+    .select('id, description, amount, currency, category, expense_date, recurrence_type, recurrence_end_date, status, notes')
+    .eq('organization_id', organizationId)
+    .neq('status', 'cancelled')
+    .lte('expense_date', currentMonthEnd.toISOString().slice(0, 10))
+    .or(`recurrence_end_date.is.null,recurrence_end_date.gte.${earliestYearNeeded}-01-01`)
+
+  if (companyExpensesError) {
+    console.error('[dashboard] Erro ao buscar company_expenses para Lucro Real:', companyExpensesError)
+  }
+
+  const companyExpensesList = (companyExpensesRows || []) as CompanyExpenseRow[]
+
+  const expensesByCurrentYear = sumCompanyExpensesForYear(companyExpensesList, currentYear)
+  const expensesByPreviousYear = previousMonthYear === currentYear
+    ? expensesByCurrentYear
+    : sumCompanyExpensesForYear(companyExpensesList, previousMonthYear)
+  const expensesByYoyYear = sumCompanyExpensesForYear(companyExpensesList, yoyYear)
+
+  const companyExpensesCurrentMonth = expensesByCurrentYear.monthly[now.getMonth()]
+  const companyExpensesPreviousMonth = expensesByPreviousYear.monthly[previousMonthDate.getMonth()]
+  const companyExpensesYoyMonth = expensesByYoyYear.monthly[now.getMonth()]
+
+  const profitCurrencies = Array.from(new Set([
+    ...Object.keys(commissionCurrent),
+    ...Object.keys(companyExpensesCurrentMonth),
+  ])).sort((a, b) => a.localeCompare(b))
+
+  const profitEntries = profitCurrencies.map((cur) => {
+    const commission = commissionCurrent[cur]?.commission || 0
+    const expenses = companyExpensesCurrentMonth[cur] || 0
+    const profit = commission - expenses
+    const margin = commission > 0 ? Math.round((profit / commission) * 100) : 0
+    // "sem despesas lançadas este mês": nenhuma linha de company_expenses paga/recorrente
+    // ativa nessa moeda no mês corrente — nunca comunicar isso como 100% de margem positiva.
+    const hasCompanyExpensesThisMonth = Boolean(companyExpensesCurrentMonth[cur])
+
+    const commissionPrev = commissionPrevious[cur]?.commission || 0
+    const expensesPrev = companyExpensesPreviousMonth[cur] || 0
+    const profitPrev = commissionPrev - expensesPrev
+
+    const commissionYoyVal = commissionYoy[cur]?.commission || 0
+    const expensesYoyVal = companyExpensesYoyMonth[cur] || 0
+    const profitYoyVal = commissionYoyVal - expensesYoyVal
+
+    return {
+      currency: cur,
+      commission,
+      expenses,
+      profit,
+      margin,
+      hasCompanyExpensesThisMonth,
+      varianceMoM: calculateVariationPercent(profit, orgCurrentRows.length > 0, profitPrev, orgPreviousRows.length > 0),
+      varianceYoY: calculateVariationPercent(profit, orgCurrentRows.length > 0, profitYoyVal, orgYoyRows.length > 0),
+    }
+  })
 
   // Fetch upcoming check-ins
   const today = new Date()
@@ -363,12 +555,6 @@ export default async function DashboardPage({
   const monthLabel = monthLong.charAt(0).toUpperCase() + monthLong.slice(1)
   const revenueEntries = Object.entries(monthRevenueByCurrency).sort(([a], [b]) => a.localeCompare(b))
   const forecastEntries = Object.entries(forecastByCurrency).sort(([a], [b]) => a.localeCompare(b))
-  const financeCurrencies = Array.from(
-    new Set([
-      ...Object.keys(monthRevenueByCurrency),
-      ...Object.keys(monthExpensesByCurrency),
-    ])
-  ).sort((a, b) => a.localeCompare(b))
 
   const currencyBadgeClass = (_currency: string) =>
     'border-brand-blue/20 bg-brand-bg text-brand-blue shadow-[inset_0_0_0_1px_rgba(16,32,62,0.04)]'
@@ -483,6 +669,7 @@ export default async function DashboardPage({
               badgeClass: 'border-brand-blue/10 bg-brand-bg',
               description: 'Casas e apartamentos gerenciados',
               href: `/${locale}/properties`,
+              variance: { mom: propertiesVarianceMoM, yoy: propertiesVarianceYoY },
             },
             {
               label: 'Reservas',
@@ -493,6 +680,7 @@ export default async function DashboardPage({
               badgeClass: 'border-brand-gold/20 bg-brand-bg',
               description: 'Estadias agendadas e concluídas',
               href: `/${locale}/reservations`,
+              variance: { mom: reservationsVarianceMoM, yoy: reservationsVarianceYoY },
             },
             {
               label: 'Taxa de Ocupação',
@@ -503,6 +691,10 @@ export default async function DashboardPage({
               badgeClass: 'border-brand-blue/10 bg-brand-bg',
               description: 'Média de noites reservadas este mês',
               href: `/${locale}/calendar`,
+              variance: {
+                mom: calculateVariationPercent(currentMonthOccupancy, currentFilteredRows.length > 0, occupancyPreviousView, previousFilteredRows.length > 0),
+                yoy: calculateVariationPercent(currentMonthOccupancy, currentFilteredRows.length > 0, occupancyYoyView, yoyFilteredRows.length > 0),
+              },
             },
           ].map((card) => {
             const Icon = card.icon
@@ -527,6 +719,10 @@ export default async function DashboardPage({
                   <p className="mt-2 text-xs font-semibold text-brand-text-medium">
                     {card.label}
                   </p>
+                  <div className="mt-2 flex items-center gap-1.5">
+                    <MetricVarianceBadge value={card.variance.mom} label="MoM" />
+                    <MetricVarianceBadge value={card.variance.yoy} label="YoY" />
+                  </div>
                 </div>
                 <div className="mt-4 w-full border-t border-brand-bg pt-3">
                   <p className="text-[10px] font-medium text-brand-text-medium">
@@ -537,6 +733,64 @@ export default async function DashboardPage({
               </Link>
             )
           })}
+        </div>
+
+        {/* Story 39.2: card ADR/RevPAR combinado — posicionado logo abaixo da Taxa de
+            Ocupação (linha própria, para não alterar o grid de 3 colunas acima). */}
+        <div className="grid grid-cols-1 gap-6">
+          <div className="group rounded-2xl border border-neutral-200/60 bg-brand-white p-6 shadow-2xs transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-gold/45 hover:shadow-[0_18px_42px_rgba(201,162,39,0.14)]">
+            <div className="mb-5 flex items-center gap-3.5">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full border border-neutral-200/60 bg-brand-bg text-brand-text-dark transition-all group-hover:border-brand-gold/40 group-hover:bg-brand-gold/10 group-hover:text-brand-gold">
+                <Gauge className="h-5 w-5" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-brand-text-dark transition-colors group-hover:text-brand-gold">ADR / RevPAR</h3>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-brand-text-medium transition-colors group-hover:text-brand-gold">{monthLabel}</p>
+              </div>
+            </div>
+
+            {adrRevParEntries.length === 0 ? (
+              <p className="text-3xl font-bold text-brand-text-medium">-</p>
+            ) : (
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                {adrRevParEntries.map((entry) => (
+                  <div key={entry.currency} className="rounded-xl bg-brand-bg p-4">
+                    <span className={`rounded-md border px-2.5 py-0.5 font-mono text-[10px] font-bold tracking-wide ${currencyBadgeClass(entry.currency)}`}>
+                      {entry.currency}
+                    </span>
+                    <div className="mt-3 flex items-end justify-between gap-2">
+                      <div>
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-brand-text-medium">ADR</p>
+                        <p className="text-2xl font-bold leading-none tracking-tight text-brand-text-dark">
+                          {formatCurrency(entry.adrCurrent, entry.currency as CurrencyCode)}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <MetricVarianceBadge value={entry.adrVarianceMoM} label="MoM" />
+                        <MetricVarianceBadge value={entry.adrVarianceYoY} label="YoY" />
+                      </div>
+                    </div>
+                    <div className="mt-3 flex items-end justify-between gap-2 border-t border-dashed border-neutral-200/60 pt-3">
+                      <div>
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-brand-text-medium">RevPAR</p>
+                        <p className="text-base font-bold leading-none tracking-tight text-brand-text-medium">
+                          {formatCurrency(entry.revparCurrent, entry.currency as CurrencyCode)}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <MetricVarianceBadge value={entry.revparVarianceMoM} label="MoM" />
+                        <MetricVarianceBadge value={entry.revparVarianceYoY} label="YoY" />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="mt-5 flex w-full items-center justify-between border-t border-brand-bg pt-3.5 text-[10px] font-semibold text-brand-text-medium">
+              <span>ADR = Receita Bruta / Noites Vendidas · RevPAR = ADR × Ocupação</span>
+            </div>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -564,9 +818,13 @@ export default async function DashboardPage({
                       key={cur}
                       className={idx < revenueEntries.length - 1 ? 'flex items-center justify-between border-b border-dashed border-neutral-200/50 pb-3.5' : 'flex items-center justify-between'}
                     >
-                      <span className={`rounded-md border px-2.5 py-0.5 font-mono text-[10px] font-bold tracking-wide ${currencyBadgeClass(cur)}`}>
-                        {cur}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className={`rounded-md border px-2.5 py-0.5 font-mono text-[10px] font-bold tracking-wide ${currencyBadgeClass(cur)}`}>
+                          {cur}
+                        </span>
+                        <MetricVarianceBadge value={revenueVarianceForCurrency(cur, previousByCurrency)} label="MoM" />
+                        <MetricVarianceBadge value={revenueVarianceForCurrency(cur, yoyByCurrency)} label="YoY" />
+                      </div>
                       <span className="text-right text-2xl font-bold tracking-tight text-brand-text-dark">
                         {formatCurrency(amount, cur as CurrencyCode)}
                       </span>
@@ -597,44 +855,51 @@ export default async function DashboardPage({
                 </div>
               </div>
 
-              {financeCurrencies.length === 0 ? (
+              {profitEntries.length === 0 ? (
                 <p className="text-3xl font-bold text-brand-text-medium">-</p>
               ) : (
                 <div className="space-y-4">
-                  {financeCurrencies.map((cur, idx) => {
-                    const revenue = monthRevenueByCurrency[cur] || 0
-                    const expenses = monthExpensesByCurrency[cur] || 0
-                    const profit = revenue - expenses
-                    const margin = revenue > 0 ? Math.round((profit / revenue) * 100) : 0
-                    return (
-                      <div
-                        key={cur}
-                        className={idx < financeCurrencies.length - 1 ? 'flex items-center justify-between border-b border-dashed border-neutral-200/50 pb-3.5' : 'flex items-center justify-between'}
-                      >
-                        <div className="flex items-center gap-2">
-                          <span className={`rounded-md border px-2.5 py-0.5 font-mono text-[10px] font-bold tracking-wide ${currencyBadgeClass(cur)}`}>
-                            {cur}
-                          </span>
+                  {profitEntries.map((entry, idx) => (
+                    <div
+                      key={entry.currency}
+                      className={idx < profitEntries.length - 1 ? 'flex items-center justify-between border-b border-dashed border-neutral-200/50 pb-3.5' : 'flex items-center justify-between'}
+                    >
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className={`rounded-md border px-2.5 py-0.5 font-mono text-[10px] font-bold tracking-wide ${currencyBadgeClass(entry.currency)}`}>
+                          {entry.currency}
+                        </span>
+                        {/* Story 39.2: nunca comunicar 100% de margem como resultado positivo
+                            quando o dado real é ausência de despesa lançada no mês. */}
+                        {entry.hasCompanyExpensesThisMonth ? (
                           <span className={`rounded px-1.5 py-0.5 text-[9px] font-bold ${
-                            margin >= 50 ? 'bg-emerald-500/10 text-emerald-600'
-                            : margin >= 20 ? 'bg-brand-gold/15 text-brand-gold'
+                            entry.margin >= 50 ? 'bg-emerald-500/10 text-emerald-600'
+                            : entry.margin >= 20 ? 'bg-brand-gold/15 text-brand-gold'
                             : 'bg-red-500/10 text-red-600'
                           }`}>
-                            {margin}%
+                            {entry.margin}%
                           </span>
-                        </div>
-                        <span className={`text-right text-2xl font-bold tracking-tight ${profit >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-                          {formatCurrency(profit, cur as CurrencyCode)}
-                        </span>
+                        ) : (
+                          <span
+                            className="rounded px-1.5 py-0.5 text-[9px] font-bold bg-neutral-200/50 text-brand-text-medium"
+                            title="Nenhuma despesa da empresa lançada para este mês ainda"
+                          >
+                            sem despesas lançadas
+                          </span>
+                        )}
+                        <MetricVarianceBadge value={entry.varianceMoM} label="MoM" />
+                        <MetricVarianceBadge value={entry.varianceYoY} label="YoY" />
                       </div>
-                    )
-                  })}
+                      <span className={`text-right text-2xl font-bold tracking-tight ${entry.profit >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                        {formatCurrency(entry.profit, entry.currency as CurrencyCode)}
+                      </span>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
 
             <div className="mt-5 flex w-full items-center justify-between border-t border-brand-bg pt-3.5 text-[10px] font-semibold text-brand-text-medium">
-              <span>Receita líquida deduzindo custos</span>
+              <span>Comissão de gestão menos despesas da empresa</span>
               <span className="font-bold text-brand-blue transition-colors group-hover:text-brand-gold group-hover:underline">Ver fluxo de caixa &rarr;</span>
             </div>
           </Link>
