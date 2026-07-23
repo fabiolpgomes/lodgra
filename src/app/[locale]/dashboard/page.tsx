@@ -12,8 +12,10 @@ import {
   RefreshCw,
   Search,
   TrendingUp,
+  TrendingDown,
   Wallet,
   Bell,
+  Award,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { requireRole } from '@/lib/auth/requireRole'
@@ -26,6 +28,8 @@ import { LocaleSelector } from '@/components/common/header/LocaleSelector'
 import { ThemeToggle } from '@/components/common/header/ThemeToggle'
 import { redirect } from 'next/navigation'
 import { calculateRevenueForReservation } from '@/lib/financial/revenue-calculator'
+// Story 39.4 — Ranking de Propriedades (ADR/RevPAR por propriedade)
+import { buildPropertyRanking } from '@/lib/dashboard/propertyRanking'
 
 export default async function DashboardPage({
   params,
@@ -320,6 +324,26 @@ export default async function DashboardPage({
     acc[cur] = (acc[cur] || 0) + Number(e.amount || 0)
     return acc
   }, {} as Record<string, number>)
+
+  // Story 39.4 — Ranking de Propriedades: buscar monthly_property_metrics do mês
+  // corrente para todas as propriedades da organização (não filtrado por
+  // propertyIds — quando há filtro de 1 propriedade específica, o ranking não
+  // faz sentido e o card mostra uma mensagem em vez de quebrar, ver render).
+  const currentMetricMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`
+  const { data: monthlyPropertyMetricsRows } = !selectedPropertyId && totalOrganizationProperties > 0
+    ? await supabase
+        .from('monthly_property_metrics')
+        .select('property_id, property_name, gross_revenue, nights_sold, available_nights, booking_count')
+        .eq('organization_id', organizationId)
+        .eq('metric_month', currentMetricMonth)
+    : { data: null }
+
+  const propertyRanking = !selectedPropertyId
+    ? buildPropertyRanking(
+        monthlyPropertyMetricsRows || [],
+        (allProperties || []).map(p => ({ id: p.id, name: p.name }))
+      )
+    : null
 
   // Fetch upcoming check-ins
   const today = new Date()
@@ -712,6 +736,109 @@ export default async function DashboardPage({
             <RevenueChartWrapper revenueDataByCurrency={revenueDataByCurrency} />
           </div>
         </div>
+
+        {/* Story 39.4 — Card Ranking de Propriedades (top 3 / bottom 3 por RevPAR do mês corrente) */}
+        {selectedPropertyId ? (
+          <div className="rounded-2xl border border-neutral-200/60 bg-brand-white p-6 shadow-2xs">
+            <div className="mb-2 flex items-center gap-2">
+              <Award className="h-4 w-4 text-brand-blue" />
+              <h3 className="text-xs font-bold uppercase tracking-wider text-brand-text-dark">Ranking de Propriedades</h3>
+            </div>
+            <p className="text-xs font-medium text-brand-text-medium">
+              O ranking compara várias propriedades por RevPAR — selecione &ldquo;Todas as propriedades&rdquo; no filtro do topo para visualizá-lo.
+            </p>
+          </div>
+        ) : propertyRanking && (propertyRanking.top.length > 0 || propertyRanking.bottom.length > 0 || propertyRanking.withoutBookings.length > 0) ? (
+          <div className="group rounded-2xl border border-neutral-200/60 bg-brand-white p-6 shadow-2xs transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-gold/45 hover:shadow-[0_18px_42px_rgba(201,162,39,0.14)]">
+            <div className="mb-6">
+              <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-brand-text-dark transition-colors group-hover:text-brand-gold">
+                <Award className="h-4 w-4 text-brand-blue transition-colors group-hover:text-brand-gold" />
+                Ranking de Propriedades
+              </h3>
+              <p className="mt-1 text-[11px] font-semibold text-brand-text-medium">
+                Melhor e pior RevPAR — {monthLabel}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+              <div>
+                <div className="mb-3 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-emerald-600">
+                  <TrendingUp className="h-3.5 w-3.5" />
+                  Melhor desempenho
+                </div>
+                {propertyRanking.top.length === 0 ? (
+                  <p className="text-xs font-medium text-brand-text-medium">Sem dados suficientes.</p>
+                ) : (
+                  <ul className="space-y-2.5">
+                    {propertyRanking.top.map((property, idx) => (
+                      <li
+                        key={property.propertyId}
+                        className="flex items-center justify-between gap-3 rounded-xl bg-brand-bg px-3 py-2.5"
+                      >
+                        <div className="flex min-w-0 items-center gap-2.5">
+                          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-500/10 text-[10px] font-bold text-emerald-600">
+                            {idx + 1}
+                          </span>
+                          <span className="truncate text-sm font-semibold text-brand-text-dark">
+                            {property.propertyName}
+                          </span>
+                        </div>
+                        <span className="shrink-0 text-sm font-bold text-emerald-600">
+                          {formatCurrency(
+                            property.revpar,
+                            (propertyCurrencyMap[property.propertyId] || org?.currency || 'EUR') as CurrencyCode
+                          )}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+
+              <div>
+                <div className="mb-3 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-red-600">
+                  <TrendingDown className="h-3.5 w-3.5" />
+                  Pior desempenho
+                </div>
+                {propertyRanking.bottom.length === 0 ? (
+                  <p className="text-xs font-medium text-brand-text-medium">Sem dados suficientes.</p>
+                ) : (
+                  <ul className="space-y-2.5">
+                    {propertyRanking.bottom.map((property, idx) => (
+                      <li
+                        key={property.propertyId}
+                        className="flex items-center justify-between gap-3 rounded-xl bg-brand-bg px-3 py-2.5"
+                      >
+                        <div className="flex min-w-0 items-center gap-2.5">
+                          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-red-500/10 text-[10px] font-bold text-red-600">
+                            {idx + 1}
+                          </span>
+                          <span className="truncate text-sm font-semibold text-brand-text-dark">
+                            {property.propertyName}
+                          </span>
+                        </div>
+                        <span className="shrink-0 text-sm font-bold text-red-600">
+                          {formatCurrency(
+                            property.revpar,
+                            (propertyCurrencyMap[property.propertyId] || org?.currency || 'EUR') as CurrencyCode
+                          )}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
+
+            {propertyRanking.withoutBookings.length > 0 && (
+              <p className="mt-5 border-t border-brand-bg pt-3.5 text-[10px] font-semibold text-brand-text-medium">
+                {propertyRanking.withoutBookings.length} propriedade{propertyRanking.withoutBookings.length !== 1 ? 's' : ''} sem reservas este mês
+                {': '}
+                {propertyRanking.withoutBookings.map(p => p.propertyName).join(', ')}
+              </p>
+            )}
+          </div>
+        ) : null}
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <div className="group rounded-2xl border border-neutral-200/60 bg-brand-white p-6 shadow-2xs transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-gold/45 hover:shadow-[0_18px_42px_rgba(201,162,39,0.14)]">
