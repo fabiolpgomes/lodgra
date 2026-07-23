@@ -4,6 +4,7 @@ import { importICalFromUrl } from '@/lib/ical/icalService'
 import { requireRole } from '@/lib/auth/requireRole'
 import { enqueueEmail } from '@/lib/email/queue'
 import { parseBookingDescription, detectSource } from '@/lib/ical/bookingParser'
+import { calculateServiceFeeAmount, nightsBetween } from '@/lib/reservations/serviceFee'
 
 type AdminClient = ReturnType<typeof createAdminClient>
 
@@ -96,7 +97,7 @@ async function syncListing(
       // (pode ser a mesma reserva importada de outra plataforma)
       const { data: propertyListing } = await supabase
         .from('property_listings')
-        .select('property_id')
+        .select('property_id, properties(cleaning_fee, cleaning_fee_type, pet_fee, pet_fee_type)')
         .eq('id', listingId)
         .single()
 
@@ -174,6 +175,14 @@ async function syncListing(
         continue
       }
 
+      // Story 39.1 — snapshot de service_fee_amount a partir da propriedade (não recalculado depois)
+      const importedPropertyFees = propertyListing?.properties as unknown as
+        | { cleaning_fee: number | null; cleaning_fee_type: string | null; pet_fee: number | null; pet_fee_type: string | null }
+        | null
+        | undefined
+      const importedNights = nightsBetween(checkIn, checkOut)
+      const serviceFeeAmount = calculateServiceFeeAmount(importedPropertyFees, importedNights)
+
       const { error: reservationError } = await supabase
         .from('reservations')
         .insert({
@@ -186,6 +195,7 @@ async function syncListing(
           booking_source: 'ical_import',
           source: source === 'booking' ? 'booking' : source === 'airbnb' ? 'airbnb' : 'ical_import',
           number_of_guests: bookingData.numGuests || 1,
+          service_fee_amount: serviceFeeAmount,
           commission_calculated_at: new Date().toISOString(),
           ...(organizationId ? { organization_id: organizationId } : {}),
         })

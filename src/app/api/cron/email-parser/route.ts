@@ -4,6 +4,7 @@ import { getValidAccessToken, fetchUnreadEmails, ConnectionRow } from '@/lib/ema
 import { detectPlatform, ALL_KNOWN_SENDERS } from '@/lib/email-parser/platforms'
 import { parseReservationEmail } from '@/lib/email-parser/parser'
 import { sendOwnerReservationNotification } from '@/lib/email/resend'
+import { calculateServiceFeeAmount, nightsBetween } from '@/lib/reservations/serviceFee'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 300 // 5 minutos
@@ -170,7 +171,7 @@ async function createDraftReservation(
   // Encontrar primeiro property_listing da org (fallback se não identificar propriedade)
   const { data: listing } = await supabase
     .from('property_listings')
-    .select('id, name, properties!inner(organization_id)')
+    .select('id, name, properties!inner(organization_id, cleaning_fee, cleaning_fee_type, pet_fee, pet_fee_type)')
     .eq('properties.organization_id', organizationId)
     .limit(1)
     .single()
@@ -195,6 +196,14 @@ async function createDraftReservation(
     .select('id')
     .single()
 
+  // Story 39.1 — snapshot de service_fee_amount a partir da propriedade (não recalculado depois)
+  const emailParserPropertyFees = listing.properties as unknown as
+    | { cleaning_fee: number | null; cleaning_fee_type: string | null; pet_fee: number | null; pet_fee_type: string | null }
+    | null
+    | undefined
+  const emailParserNights = nightsBetween(parsed.checkin_date, parsed.checkout_date)
+  const serviceFeeAmount = calculateServiceFeeAmount(emailParserPropertyFees, emailParserNights)
+
   const { data: reservation, error } = await supabase
     .from('reservations')
     .insert({
@@ -208,6 +217,7 @@ async function createDraftReservation(
       status: 'draft',
       source: parsed.platform || 'email_parse',
       notes: parsed.confirmation_code ? `Código: ${parsed.confirmation_code}` : null,
+      service_fee_amount: serviceFeeAmount,
       commission_calculated_at: new Date().toISOString(),
       organization_id: organizationId,
     })

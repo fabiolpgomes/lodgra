@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner'
 import { getCurrencySymbol, type CurrencyCode } from '@/lib/utils/currency'
 import { getPlatformPrefix, buildExternalId } from '@/lib/utils/platform-mapping'
+import { calculateServiceFeeAmount, nightsBetween } from '@/lib/reservations/serviceFee'
 
 export default function NewReservationPage() {
   const router = useRouter()
@@ -28,7 +29,7 @@ export default function NewReservationPage() {
   const supabase = createClient()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [properties, setProperties] = useState<{ id: string; name: string; currency: string; city?: string | null; min_nights: number }[]>([])
+  const [properties, setProperties] = useState<{ id: string; name: string; currency: string; city?: string | null; min_nights: number; cleaning_fee?: number | null; cleaning_fee_type?: string | null; pet_fee?: number | null; pet_fee_type?: string | null }[]>([])
   const [propertyListings, setPropertyListings] = useState<{ id: string; property_id: string; external_listing_id?: string | null; platforms: { display_name: string } | null }[]>([])
   const [selectedProperty, setSelectedProperty] = useState(prePropertyId)
   const [selectedListing, setSelectedListing] = useState('')
@@ -337,19 +338,25 @@ export default function NewReservationPage() {
         console.log(`[Reservation] External ID gerado: ${externalId}`)
       }
 
+      // Story 39.1 — snapshot de service_fee_amount a partir da propriedade selecionada
+      const selectedPropertyData = properties.find(p => p.id === selectedProperty)
+      const nights = nightsBetween(checkInStr, checkOutStr)
+      const serviceFeeAmount = calculateServiceFeeAmount(selectedPropertyData, nights)
+
       const { data, error: insertError } = await supabase
         .from('reservations')
         .insert({
           property_listing_id: listingId,
           guest_id: guestId,
-          check_in: formData.get('check_in') as string,
-          check_out: formData.get('check_out') as string,
+          check_in: checkInStr,
+          check_out: checkOutStr,
           number_of_guests: parseInt(formData.get('number_of_guests') as string) || 1,
           adults: parseInt(formData.get('adults') as string) || 1,
           children: parseInt(formData.get('children') as string) || 0,
           notes: (formData.get('notes') as string) || null,
           total_amount: parseFloat(formData.get('total_amount') as string) || null,
           currency: propertyCurrency,
+          service_fee_amount: serviceFeeAmount,
           status: 'confirmed',
           booking_source: 'manual',
           external_id: externalId,

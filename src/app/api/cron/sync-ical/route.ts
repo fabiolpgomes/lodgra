@@ -12,10 +12,15 @@ import {
   extractFlatioGuestData,
   getPlatformUrl,
 } from '@/lib/ical/bookingParser'
+import { calculateServiceFeeAmount, nightsBetween } from '@/lib/reservations/serviceFee'
 
 interface ListingPropertyInfo {
   name: string
   organization_id: string | null
+  cleaning_fee?: number | null
+  cleaning_fee_type?: string | null
+  pet_fee?: number | null
+  pet_fee_type?: string | null
 }
 
 interface CronReservationGuestRow {
@@ -314,6 +319,11 @@ async function syncOneListing(
       if (guestError || !guest) { skipped++; continue }
 
       console.log(`[Cron] Criando nova reserva com external_id: ${externalIdLookup}`)
+      // Story 39.1 — snapshot de service_fee_amount a partir da propriedade (não recalculado depois)
+      const cronPropertyFees = listing.properties as unknown as ListingPropertyInfo | null
+      const cronNights = nightsBetween(checkIn, checkOut)
+      const serviceFeeAmount = calculateServiceFeeAmount(cronPropertyFees, cronNights)
+
       const { error: resError } = await supabase
         .from('reservations')
         .insert({
@@ -332,6 +342,7 @@ async function syncOneListing(
 
           source: source === 'booking' ? 'booking' : source === 'airbnb' ? 'airbnb' : 'ical_import',
           number_of_guests: guestData?.guests || bookingData.numGuests || 1,
+          service_fee_amount: serviceFeeAmount,
           commission_calculated_at: new Date().toISOString(),
           ...(cronOrgId ? { organization_id: cronOrgId } : {})
         })
@@ -408,7 +419,7 @@ export async function GET(request: NextRequest) {
 
     const { data: listings, error } = await supabase
       .from('property_listings')
-      .select(`id, ical_url, sync_enabled, property_id, properties!inner(name, organization_id)`)
+      .select(`id, ical_url, sync_enabled, property_id, properties!inner(name, organization_id, cleaning_fee, cleaning_fee_type, pet_fee, pet_fee_type)`)
       .eq('is_active', true).eq('sync_enabled', true).not('ical_url', 'is', null)
 
     if (error) {

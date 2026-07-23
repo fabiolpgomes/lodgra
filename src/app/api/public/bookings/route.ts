@@ -5,6 +5,7 @@ import { checkRateLimit } from '@/lib/rateLimit'
 import { differenceInDays, parseISO, isValid, isBefore, startOfDay } from 'date-fns'
 import { getPriceForRangePublic } from '@/lib/pricing/getPriceForRange'
 import { formatMinimumStayError, detectLocale } from '@/lib/i18n/messages'
+import { calculateServiceFeeAmount } from '@/lib/reservations/serviceFee'
 
 // POST /api/public/bookings — create direct booking + Stripe Checkout Session
 // Public — no auth required
@@ -241,6 +242,8 @@ export async function POST(request: NextRequest) {
     ? (property.pet_fee_type === 'per_night' ? petFee * nights : petFee)
     : 0
   const totalAmount = pricing.total + cleaningFeeTotal + petFeeTotal
+  // Story 39.1 — snapshot de service_fee_amount no momento da criação (não recalcular depois)
+  const serviceFeeAmount = calculateServiceFeeAmount(property, nights)
   console.log('[Bookings API] Price calculated:', pricing.total, '+ fees:', cleaningFeeTotal + petFeeTotal, '= total:', totalAmount)
 
   if (totalAmount <= 0) {
@@ -277,6 +280,7 @@ export async function POST(request: NextRequest) {
       number_of_guests: guests,
       total_amount: totalAmount,
       currency: property.currency ?? 'EUR',
+      service_fee_amount: serviceFeeAmount,
       status: 'pending_payment',
       booking_source: 'direct',
       guest_name: (guest_name as string).trim(),

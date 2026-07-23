@@ -7,6 +7,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { calculateCommission } from '@/lib/commission/service'
 import type { PlanType } from '@/lib/commission/types'
 import { reportBookingFee, reportRevenueFee } from '@/lib/billing/stripe-usage'
+import { calculateServiceFeeAmount, nightsBetween } from '@/lib/reservations/serviceFee'
 
 export interface BookingReservationPayload {
   external_id: string        // Booking.com reservation ID
@@ -117,6 +118,21 @@ export async function processBookingReservation(
     ((org?.plan ?? 'starter') as PlanType)
   )
 
+  // ── 3b. Story 39.1 — snapshot de service_fee_amount a partir da propriedade ──
+  // (não recalculado depois, se o valor-base da propriedade mudar)
+  const { data: listingForFees } = await adminClient
+    .from('property_listings')
+    .select('properties(cleaning_fee, cleaning_fee_type, pet_fee, pet_fee_type)')
+    .eq('id', propertyListingId)
+    .maybeSingle()
+
+  const propertyFees = listingForFees?.properties as unknown as
+    | { cleaning_fee: number | null; cleaning_fee_type: string | null; pet_fee: number | null; pet_fee_type: string | null }
+    | null
+    | undefined
+  const nights = nightsBetween(payload.check_in, payload.check_out)
+  const serviceFeeAmount = calculateServiceFeeAmount(propertyFees, nights)
+
   // ── 4. Upsert reservation ─────────────────────────────────────
   const status = deriveStatus(payload.status)
 
@@ -137,6 +153,7 @@ export async function processBookingReservation(
         commission_amount: commission.commissionAmount,
         commission_rate: commission.commissionRate,
         commission_calculated_at: new Date().toISOString(),
+        service_fee_amount: serviceFeeAmount,
         status,
         booking_source: 'booking_api',
         source: 'booking_api',
