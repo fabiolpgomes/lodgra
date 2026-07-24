@@ -38,6 +38,23 @@ const defaultProperty: Property = {
 
 const defaultReservations: Reservation[] = []
 
+// Color palette for different guests (Airbnb-style)
+const GUEST_COLORS = [
+  '#1a7a85', // Teal (primary)
+  '#2B8C99', // Teal lighter
+  '#367F8E', // Teal medium
+  '#1F6B7A', // Teal darker
+  '#2D95A8', // Teal bright
+]
+
+// Generate consistent color for guest based on name hash
+const getGuestColor = (guestName: string, reservationId: string): string => {
+  const hash = (guestName + reservationId).split('').reduce((acc, char) => {
+    return acc + char.charCodeAt(0)
+  }, 0)
+  return GUEST_COLORS[hash % GUEST_COLORS.length]
+}
+
 // Helper function to generate calendar days grid
 function generateDaysGrid(year: number, month: number) {
   const firstDay = new Date(year, month, 1)
@@ -291,12 +308,12 @@ export default function PropertyCalendarPage() {
                       flexDirection: 'column',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      background: isReserved ? '#10203E' : day ? '#ffffff' : '#f7f5ef',
-                      border: isReserved ? '2px solid #10203E' : '1px solid #efeadf',
+                      background: day ? '#ffffff' : '#f7f5ef',
+                      border: '1px solid #efeadf',
                       borderRadius: '8px',
                       fontSize: day ? '12px' : '11px',
                       fontWeight: '600',
-                      color: isReserved ? '#ffffff' : '#1b2430',
+                      color: '#1b2430',
                       cursor: day ? 'pointer' : 'default',
                       padding: '4px',
                       textAlign: 'center',
@@ -305,7 +322,7 @@ export default function PropertyCalendarPage() {
                     {day && (
                       <>
                         <div style={{ fontSize: '13px', fontWeight: '700' }}>{day}</div>
-                        {!isReserved && dayPrice && (
+                        {dayPrice && (
                           <div style={{ fontSize: '10px', color: '#4d5566', marginTop: '2px' }}>
                             R${dayPrice}
                           </div>
@@ -318,29 +335,67 @@ export default function PropertyCalendarPage() {
             </div>
           </div>
 
-          {/* Reservations summary */}
+          {/* Reservations summary - Airbnb style */}
           <div>
             <h3 style={{ margin: '0 0 12px 0', fontSize: '14px', fontWeight: '700', color: '#1b2430' }}>
               Reservas ({reservations.length})
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {reservations.map(res => (
-                <div
-                  key={res.id}
-                  style={{
-                    padding: '12px',
-                    background: '#10203E',
-                    border: 'none',
-                    borderRadius: '8px',
-                    color: '#ffffff',
-                  }}
-                >
-                  <div style={{ fontSize: '13px', fontWeight: '700' }}>{res.guestName}</div>
-                  <div style={{ fontSize: '11px', opacity: 0.95, marginTop: '2px' }}>
-                    {new Date(res.startDate).toLocaleDateString('pt-BR')} - {new Date(res.endDate).toLocaleDateString('pt-BR')}
+              {reservations.map(res => {
+                const guestColor = getGuestColor(res.guestName, res.id)
+                const startDate = new Date(res.startDate)
+                const endDate = new Date(res.endDate)
+                const today = new Date()
+                today.setHours(0, 0, 0, 0)
+
+                let status = 'Confirmado'
+                if (today >= startDate && today < endDate) {
+                  status = 'Hospedando'
+                }
+
+                return (
+                  <div
+                    key={res.id}
+                    style={{
+                      padding: '10px 14px',
+                      background: guestColor,
+                      border: 'none',
+                      borderRadius: '20px',
+                      color: '#ffffff',
+                      fontSize: '12px',
+                      fontWeight: '600',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      transition: 'all 0.2s ease',
+                      cursor: 'pointer',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)'
+                      e.currentTarget.style.transform = 'translateY(-2px)'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.boxShadow = 'none'
+                      e.currentTarget.style.transform = 'translateY(0)'
+                    }}
+                  >
+                    {/* Guest name */}
+                    <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', flex: 1, minWidth: 0 }}>
+                      {res.guestName}
+                    </div>
+
+                    {/* Date range */}
+                    <div style={{ whiteSpace: 'nowrap', fontSize: '11px', opacity: 0.9 }}>
+                      {startDate.toLocaleDateString('pt-BR', { month: 'short', day: 'numeric' })} - {endDate.toLocaleDateString('pt-BR', { month: 'short', day: 'numeric' })}
+                    </div>
+
+                    {/* Status */}
+                    <div style={{ whiteSpace: 'nowrap', fontSize: '10px', opacity: 0.85 }}>
+                      {status}
+                    </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           </div>
         </div>
