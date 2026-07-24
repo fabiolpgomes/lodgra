@@ -873,38 +873,26 @@ export function CalendarKanbanView({
           ref={overlayRef}
           style={{
             position: 'absolute',
-            top: '110px', // Header (60px) + nav controls (50px)
-            left: '250px', // Width of properties column
-            right: 0,
-            bottom: 0,
-            pointerEvents: 'none', // Let clicks through to grid
+            top: '110px',
+            left: '250px',
+            width: 'calc(100% - 250px)',
+            height: 'calc(100% - 110px)',
+            pointerEvents: 'none',
             zIndex: 20,
-            overflow: 'hidden',
-            transform: 'translate(0, 0)',
-            transition: 'none',
+            overflow: 'visible',
           }}
         >
           {calculateReservationBars().map(bar => (
-            <div
+            <ReservationBar
               key={bar.id}
-              style={{
-                position: 'absolute',
-                left: `${bar.dayStartIndex * 86}px`,
-                top: `${bar.rowIndex * 91}px`,
-                pointerEvents: 'auto', // Enable interaction on bars
-                cursor: 'pointer',
-              }}
-            >
-              <ReservationBar
-                reservation={bar.reservation}
-                dayStartIndex={bar.dayStartIndex}
-                totalDays={bar.totalDays}
-                rowIndex={0} // Already positioned by parent
-                cellWidth={85}
-                cellGap={1}
-                cellHeight={90}
-              />
-            </div>
+              reservation={bar.reservation}
+              dayStartIndex={bar.dayStartIndex}
+              totalDays={bar.totalDays}
+              rowIndex={bar.rowIndex}
+              cellWidth={85}
+              cellGap={1}
+              cellHeight={90}
+            />
           ))}
         </div>
       </div>
