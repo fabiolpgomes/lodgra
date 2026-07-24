@@ -231,12 +231,13 @@
   font-size: 12px;
   font-weight: 600;
   color: #4d5566;
-  padding: 12px;
+  padding: 16px 12px;
   border-bottom: 1px solid #efeadf;
   background: #fbfaf6;
-  height: 60px;
+  height: 80px;
   display: flex;
   align-items: center;
+  justify-content: center;
   position: sticky;
   top: 0;
   box-sizing: border-box;

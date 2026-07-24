@@ -16,6 +16,7 @@ interface Reservation {
   id: string
   propertyId: string
   guestName: string
+  guestCount?: number
   startDate: Date
   endDate: Date
   price: number
@@ -70,14 +71,19 @@ export function CalendarKanbanView({
     return date
   })
 
-  // Check if a date is within a reservation for a property
-  const isDateInReservation = (propertyId: string, date: Date): boolean => {
-    return reservations.some(res => {
+  // Get reservation for a date and property
+  const getReservationForDate = (propertyId: string, date: Date) => {
+    return reservations.find(res => {
       if (res.propertyId !== propertyId) return false
       const start = new Date(res.startDate)
       const end = new Date(res.endDate)
       return date >= start && date < end
     })
+  }
+
+  // Check if a date is within a reservation for a property
+  const isDateInReservation = (propertyId: string, date: Date): boolean => {
+    return !!getReservationForDate(propertyId, date)
   }
 
   // Current week start
@@ -445,7 +451,12 @@ export function CalendarKanbanView({
             ) : (
               // Properties list
               <>
-                <div className="property-label-header">Propriedades</div>
+                <div className="property-label-header">
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    <div style={{ fontSize: '12px', fontWeight: '600', color: '#1b2430' }}>Propriedades</div>
+                    <div style={{ fontSize: '13px', fontWeight: '700', color: '#4d5566' }}>{propertiesToShow.length} Propriedades</div>
+                  </div>
+                </div>
                 {propertiesToShow.map(property => (
                   <div
                     key={property.id}
@@ -512,7 +523,8 @@ export function CalendarKanbanView({
                   {allDays.map((date, idx) => {
                     const key = `${property.id}-${idx}`
                     const isSelected = selectedDays.has(key)
-                    const isBooked = isDateInReservation(property.id, date)
+                    const reservation = getReservationForDate(property.id, date)
+                    const isBooked = !!reservation
                     return (
                       <div
                         key={idx}
@@ -520,14 +532,41 @@ export function CalendarKanbanView({
                         onClick={(e) => !isBooked && handleCellClick(property.id, idx, e)}
                         style={{
                           cursor: isBooked ? 'not-allowed' : 'pointer',
-                          background: isBooked ? '#cfc4aa' : isSelected ? '#e8f0fe' : '#ffffff',
+                          background: isBooked ? '#498a8e' : isSelected ? '#e8f0fe' : '#ffffff',
                           borderLeft: isSelected ? '3px solid #1b2430' : 'none',
-                          opacity: isBooked ? 0.6 : 1,
+                          opacity: isBooked ? 1 : 1,
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '4px',
+                          padding: '8px',
                         }}
                       >
-                        <div className="cell-price" style={{ color: isBooked ? '#ffffff' : '#4d5566' }}>
-                          {isBooked ? '✓' : getPrice(property.id, idx)}
-                        </div>
+                        {isBooked && reservation ? (
+                          <>
+                            <div style={{
+                              fontSize: '11px',
+                              fontWeight: '700',
+                              color: '#ffffff',
+                              whiteSpace: 'nowrap',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              maxWidth: '100%',
+                            }}>
+                              {reservation.guestName}
+                            </div>
+                            <div style={{
+                              fontSize: '10px',
+                              color: '#ffffff',
+                              opacity: 0.9,
+                            }}>
+                              {reservation.guestCount || 1} hóspede{(reservation.guestCount || 1) !== 1 ? 's' : ''}
+                            </div>
+                          </>
+                        ) : (
+                          <div className="cell-price">{getPrice(property.id, idx)}</div>
+                        )}
                       </div>
                     )
                   })}
