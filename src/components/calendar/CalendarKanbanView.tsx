@@ -137,12 +137,24 @@ export function CalendarKanbanView({
             day => day.toDateString() === startDate.toDateString()
           )
 
-          if (dayStartIndex === -1) return
+          if (dayStartIndex === -1) {
+            console.log('Reservation outside visible range:', reservation.guestName, startDate)
+            return
+          }
 
           const endDate = new Date(reservation.endDate)
           const totalDays = Math.ceil(
             (endDate.getTime() - startDate.getTime()) / (24 * 60 * 60 * 1000)
           )
+
+          console.log('Calculated bar:', {
+            guest: reservation.guestName,
+            startIndex: dayStartIndex,
+            totalDays,
+            rowIndex,
+            leftOffset: dayStartIndex * 86,
+            topOffset: rowIndex * 91 + 15,
+          })
 
           bars.push({
             id: `${reservation.id}-${property.id}`,
@@ -154,6 +166,7 @@ export function CalendarKanbanView({
         })
     })
 
+    console.log('Total bars calculated:', bars.length)
     return bars
   }
 
