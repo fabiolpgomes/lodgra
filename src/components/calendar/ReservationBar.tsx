@@ -70,7 +70,7 @@ export function ReservationBar({
         paddingLeft: '12px',
         paddingRight: '12px',
         gap: '12px',
-        zIndex: 10,
+        zIndex: 20,
         boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
         pointerEvents: 'auto',
         cursor: 'pointer',
