@@ -21,6 +21,23 @@ interface ReservationBarProps {
   cellHeight?: number
 }
 
+// Color palette for different guests (Airbnb-style)
+const GUEST_COLORS = [
+  '#1a7a85', // Teal (primary)
+  '#2B8C99', // Teal lighter
+  '#367F8E', // Teal medium
+  '#1F6B7A', // Teal darker
+  '#2D95A8', // Teal bright
+]
+
+// Generate consistent color for guest based on name hash
+const getGuestColor = (guestName: string, reservationId: string): string => {
+  const hash = (guestName + reservationId).split('').reduce((acc, char) => {
+    return acc + char.charCodeAt(0)
+  }, 0)
+  return GUEST_COLORS[hash % GUEST_COLORS.length]
+}
+
 export function ReservationBar({
   reservation,
   dayStartIndex,
@@ -33,7 +50,7 @@ export function ReservationBar({
   // Calculate exact positioning
   const blockWidth = totalDays * cellWidth + (totalDays - 1) * cellGap
   const leftOffset = dayStartIndex * (cellWidth + cellGap)
-  const topOffset = rowIndex * (cellHeight + 1) + 15
+  const topOffset = rowIndex * (cellHeight + 1) + 18
 
   // Determine status
   const getStatus = () => {
@@ -43,17 +60,20 @@ export function ReservationBar({
     today.setHours(0, 0, 0, 0)
 
     if (today >= start && today < end) {
-      return 'Atualmente a Hospedar'
+      return 'Hospedando'
     } else if (start > today) {
       return 'Confirmado'
     }
     return 'Confirmado'
   }
 
-  // Format price
+  // Format price - total reservation price
   const formatPrice = (price: number) => {
     return `R$ ${price.toFixed(2)}`
   }
+
+  const guestColor = getGuestColor(reservation.guestName, reservation.id)
+  const status = getStatus()
 
   return (
     <div
@@ -62,31 +82,33 @@ export function ReservationBar({
         left: `${leftOffset}px`,
         top: `${topOffset}px`,
         width: `${blockWidth}px`,
-        height: '30px',
-        background: '#1a7a85',
-        borderRadius: '6px',
+        height: '24px',
+        background: guestColor,
+        borderRadius: '20px',
         display: 'flex',
         alignItems: 'center',
-        paddingLeft: '12px',
-        paddingRight: '12px',
-        gap: '12px',
+        paddingLeft: '14px',
+        paddingRight: '14px',
+        gap: '8px',
         zIndex: 20,
-        boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+        boxShadow: '0 2px 6px rgba(0,0,0,0.12)',
         pointerEvents: 'auto',
         cursor: 'pointer',
-        transition: 'all 0.2s',
-        fontSize: '12px',
+        transition: 'all 0.2s ease',
+        fontSize: '11px',
         color: '#ffffff',
         fontWeight: '600',
+        overflow: 'hidden',
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.25)'
-        e.currentTarget.style.background = '#156670'
+        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)'
+        e.currentTarget.style.transform = 'translateY(-2px)'
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)'
-        e.currentTarget.style.background = '#1a7a85'
+        e.currentTarget.style.boxShadow = '0 2px 6px rgba(0,0,0,0.12)'
+        e.currentTarget.style.transform = 'translateY(0)'
       }}
+      title={`${reservation.guestName} • ${formatPrice(reservation.price)} • ${status}`}
     >
       {/* Guest Name */}
       <div
@@ -95,26 +117,24 @@ export function ReservationBar({
           overflow: 'hidden',
           textOverflow: 'ellipsis',
           flexShrink: 0,
-          maxWidth: '140px',
+          minWidth: '0',
+          maxWidth: blockWidth > 200 ? '120px' : '80px',
         }}
       >
         {reservation.guestName}
       </div>
 
-      {/* Guest Count */}
-      <div style={{ whiteSpace: 'nowrap', flexShrink: 0 }}>
-        {reservation.guestCount || 1} hosp.
-      </div>
-
-      {/* Price */}
+      {/* Price - always show */}
       <div style={{ whiteSpace: 'nowrap', flexShrink: 0, fontWeight: '700' }}>
         {formatPrice(reservation.price || 0)}
       </div>
 
-      {/* Status */}
-      <div style={{ whiteSpace: 'nowrap', flexShrink: 0, marginLeft: 'auto' }}>
-        {getStatus()}
-      </div>
+      {/* Status - only if enough space */}
+      {blockWidth > 200 && (
+        <div style={{ whiteSpace: 'nowrap', flexShrink: 0, marginLeft: 'auto', fontSize: '10px' }}>
+          {status}
+        </div>
+      )}
     </div>
   )
 }
