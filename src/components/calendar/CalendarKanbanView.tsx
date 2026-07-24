@@ -100,6 +100,23 @@ export function CalendarKanbanView({
     return date.toDateString() === prevDay.toDateString()
   }
 
+  // Get reservation status
+  const getReservationStatus = (reservation: Reservation, date: Date) => {
+    const start = new Date(reservation.startDate)
+    const end = new Date(reservation.endDate)
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+
+    if (date >= today && date < end) {
+      return 'Atualmente a Hospedar'
+    } else if (start > today) {
+      return 'Confirmado'
+    } else if (date >= end) {
+      return 'Concluído'
+    }
+    return 'Confirmado'
+  }
+
   // Check if a date is within a reservation for a property
   const isDateInReservation = (propertyId: string, date: Date): boolean => {
     return !!getReservationForDate(propertyId, date)
@@ -635,28 +652,37 @@ export function CalendarKanbanView({
                         {isBooked && reservation ? (
                           <>
                             <div style={{
-                              fontSize: '10px',
+                              fontSize: '9px',
                               fontWeight: '700',
                               color: '#ffffff',
                               whiteSpace: 'nowrap',
                               overflow: 'hidden',
                               textOverflow: 'ellipsis',
-                              maxWidth: '88px',
-                              minWidth: '88px',
-                              width: '88px',
-                              lineHeight: '1.1',
-                              height: 'auto',
+                              maxWidth: '80px',
+                              minWidth: '80px',
+                              width: '80px',
+                              lineHeight: '1',
                             }}>
                               {reservation.guestName}
                             </div>
                             <div style={{
-                              fontSize: '9px',
+                              fontSize: '8px',
                               color: '#ffffff',
-                              opacity: 0.85,
+                              opacity: 0.9,
                               lineHeight: '1',
-                              minHeight: '10px',
+                              minHeight: '8px',
                             }}>
                               {reservation.guestCount || 1} hosp.
+                            </div>
+                            <div style={{
+                              fontSize: '7px',
+                              color: '#a0aec0',
+                              opacity: 0.8,
+                              lineHeight: '1',
+                              minHeight: '7px',
+                              fontWeight: '500',
+                            }}>
+                              {getReservationStatus(reservation, date)}
                             </div>
                           </>
                         ) : (
