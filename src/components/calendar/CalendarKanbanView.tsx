@@ -531,15 +531,16 @@ export function CalendarKanbanView({
                         onClick={(e) => !isBooked && handleCellClick(property.id, idx, e)}
                         style={{
                           cursor: isBooked ? 'not-allowed' : 'pointer',
-                          background: isBooked ? '#498a8e' : isSelected ? '#e8f0fe' : '#ffffff',
+                          background: isBooked ? '#10203E' : isSelected ? '#e8f0fe' : '#ffffff',
                           borderLeft: isSelected ? '3px solid #1b2430' : 'none',
-                          opacity: isBooked ? 1 : 1,
+                          opacity: 1,
                           display: 'flex',
                           flexDirection: 'column',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          gap: '4px',
+                          gap: '3px',
                           padding: '8px',
+                          textAlign: 'center',
                         }}
                       >
                         {isBooked && reservation ? (
@@ -551,14 +552,16 @@ export function CalendarKanbanView({
                               whiteSpace: 'nowrap',
                               overflow: 'hidden',
                               textOverflow: 'ellipsis',
-                              maxWidth: '100%',
+                              maxWidth: '95%',
+                              lineHeight: 1.2,
                             }}>
                               {reservation.guestName}
                             </div>
                             <div style={{
                               fontSize: '10px',
                               color: '#ffffff',
-                              opacity: 0.9,
+                              opacity: 0.95,
+                              lineHeight: 1.1,
                             }}>
                               {reservation.guestCount || 1} hóspede{(reservation.guestCount || 1) !== 1 ? 's' : ''}
                             </div>
