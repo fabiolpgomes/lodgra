@@ -27,31 +27,16 @@ interface Property {
   imageUrl?: string
 }
 
-// Mock data
-const mockProperty: Property = {
-  id: 'prop-1',
-  name: 'AHS Studio Premium Bela Vista',
-  type: 'Studio',
-  location: 'Bela Vista',
-  imageUrl: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="160" height="160"%3E%3Crect fill="%23e0e0e0" width="160" height="160"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" dy=".3em" fill="%23999" font-size="14"%3EStudio%3C/text%3E%3C/svg%3E',
+// Default property data
+const defaultProperty: Property = {
+  id: '',
+  name: 'Carregando...',
+  type: 'Property',
+  location: '',
+  imageUrl: '',
 }
 
-const mockReservations: Reservation[] = [
-  {
-    id: 'res-1',
-    guestName: 'Juliana',
-    startDate: new Date(2026, 6, 1),
-    endDate: new Date(2026, 6, 5),
-    price: 103,
-  },
-  {
-    id: 'res-2',
-    guestName: 'Cleme',
-    startDate: new Date(2026, 6, 8),
-    endDate: new Date(2026, 6, 12),
-    price: 103,
-  },
-]
+const defaultReservations: Reservation[] = []
 
 // Helper function to generate calendar days grid
 function generateDaysGrid(year: number, month: number) {
@@ -147,6 +132,55 @@ export default function PropertyCalendarPage() {
   const [currentDate, setCurrentDate] = useState(new Date(2026, 6, 1))
   const [viewMode, setViewMode] = useState<'month' | 'year'>('month')
   const [isMobile, setIsMobile] = useState(false)
+  const [property, setProperty] = useState<Property>(defaultProperty)
+  const [reservations, setReservations] = useState<Reservation[]>(defaultReservations)
+
+  // Fetch property and reservations on mount
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [propsRes, reservRes] = await Promise.all([
+          fetch(`/api/properties/${params.propertyId}`),
+          fetch('/api/calendar/reservations'),
+        ])
+
+        if (propsRes.ok) {
+          const propsData = await propsRes.json()
+          const prop = propsData.data || propsData
+          setProperty({
+            id: prop.id,
+            name: prop.name,
+            type: prop.bedrooms ? `${prop.bedrooms} dorms` : 'Property',
+            location: prop.city || prop.country || '',
+            imageUrl: prop.image,
+          })
+        }
+
+        if (reservRes.ok) {
+          const data = await reservRes.json()
+          const events = Array.isArray(data) ? data : (data.data || [])
+          const mapped = events
+            .filter((evt: any) => evt.extendedProps?.property_id === params.propertyId)
+            .map((evt: any) => ({
+              id: evt.id,
+              propertyId: evt.extendedProps?.property_id || '',
+              guestName: evt.extendedProps?.guest_name || 'Hóspede',
+              guestCount: evt.extendedProps?.number_of_guests || 1,
+              startDate: new Date(evt.start),
+              endDate: new Date(evt.end),
+              price: 0,
+              status: evt.extendedProps?.status || 'confirmed',
+            }))
+          setReservations(mapped)
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error)
+        setProperty(defaultProperty)
+        setReservations(defaultReservations)
+      }
+    }
+    fetchData()
+  }, [params.propertyId])
 
   // Detect mobile on mount
   useEffect(() => {
@@ -189,7 +223,7 @@ export default function PropertyCalendarPage() {
           </button>
           <div style={{ flex: 1, minWidth: 0 }}>
             <h1 style={{ margin: 0, fontSize: '16px', fontWeight: '700', color: '#1b2430', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {mockProperty.name.substring(0, 30)}
+              {property.name.substring(0, 30)}
             </h1>
           </div>
           <button
@@ -240,7 +274,7 @@ export default function PropertyCalendarPage() {
             {/* Calendar grid with prices */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '6px' }}>
               {daysGrid.map((day, idx) => {
-                const isReserved = mockReservations.some(
+                const isReserved = reservations.some(
                   res =>
                     day &&
                     new Date(res.startDate) <= new Date(year, monthIndex, day) &&
@@ -287,10 +321,10 @@ export default function PropertyCalendarPage() {
           {/* Reservations summary */}
           <div>
             <h3 style={{ margin: '0 0 12px 0', fontSize: '14px', fontWeight: '700', color: '#1b2430' }}>
-              Reservas ({mockReservations.length})
+              Reservas ({reservations.length})
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {mockReservations.map(res => (
+              {reservations.map(res => (
                 <div
                   key={res.id}
                   style={{
@@ -521,7 +555,7 @@ export default function PropertyCalendarPage() {
               {viewMode === 'year' ? year : (monthDisplay.charAt(0).toUpperCase() + monthDisplay.slice(1))}
             </h2>
             <p style={{ margin: 0, fontSize: '14px', color: '#4d5566' }}>
-              {mockProperty.name}
+              {property.name}
             </p>
           </div>
 
