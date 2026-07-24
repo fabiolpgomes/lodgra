@@ -184,8 +184,8 @@
 .calendar-grid-mobile {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 2px;
-  padding: 8px;
+  gap: 0;
+  padding: 4px;
   flex: 1;
   overflow-y: auto;
   background: #fbfaf6;
@@ -325,10 +325,10 @@
   flex: 1;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  padding: 12px;
+  padding: 8px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
@@ -339,13 +339,13 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px;
+  padding: 12px;
   background: #fbfaf6;
-  border: 1px solid #ecf0f1;
-  border-radius: 12px;
+  border: 1px solid #efeadf;
+  border-radius: 10px;
   cursor: pointer;
   transition: all 0.2s ease;
-  min-height: 64px;
+  min-height: 56px;
 }
 
 .price-card:active {
@@ -355,12 +355,12 @@
 .price-card-content {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
   flex: 1;
 }
 
 .price-title {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 500;
   margin: 0;
   color: #1b2430;
@@ -369,17 +369,17 @@
 .price-value {
   display: flex;
   align-items: baseline;
-  gap: 4px;
+  gap: 2px;
 }
 
 .currency {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 500;
   color: #4d5566;
 }
 
 .amount {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 600;
   color: #1b2430;
 }
@@ -444,13 +444,13 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px;
+  padding: 12px;
   background: #fbfaf6;
-  border: 1px solid #ecf0f1;
-  border-radius: 12px;
+  border: 1px solid #efeadf;
+  border-radius: 10px;
   cursor: pointer;
   transition: all 0.2s ease;
-  min-height: 80px;
+  min-height: 68px;
   width: 100%;
   text-align: left;
 }
@@ -465,14 +465,14 @@
 }
 
 .discount-title {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
-  margin: 0 0 4px 0;
+  margin: 0 0 2px 0;
   color: #1b2430;
 }
 
 .discount-condition {
-  font-size: 13px;
+  font-size: 12px;
   margin: 0;
   color: #4d5566;
 }
@@ -485,10 +485,10 @@
 }
 
 .percent {
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 600;
-  color: #27ae60;
-  min-width: 50px;
+  color: #c9a227;
+  min-width: 45px;
   text-align: right;
 }
 
@@ -506,13 +506,13 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px;
+  padding: 12px;
   background: #fbfaf6;
-  border: 1px solid #ecf0f1;
-  border-radius: 12px;
+  border: 1px solid #efeadf;
+  border-radius: 10px;
   cursor: pointer;
   transition: all 0.2s ease;
-  min-height: 64px;
+  min-height: 56px;
   width: 100%;
   text-align: left;
 }
@@ -527,7 +527,7 @@
 }
 
 .availability-title {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 500;
   margin: 0;
   color: #1b2430;
@@ -541,10 +541,10 @@
 }
 
 .value {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
   color: #1b2430;
-  min-width: 80px;
+  min-width: 70px;
   text-align: right;
 }
 
