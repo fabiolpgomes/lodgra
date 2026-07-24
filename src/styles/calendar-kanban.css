@@ -267,7 +267,9 @@
   border-right: 1px solid #efeadf;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
 }
 
 .property-label-header {

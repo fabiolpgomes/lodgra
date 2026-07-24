@@ -47,6 +47,7 @@ export function CalendarKanbanView({
 
   const daysHeaderRef = useRef<HTMLDivElement>(null)
   const cellsGridRef = useRef<HTMLDivElement>(null)
+  const propertiesColumnRef = useRef<HTMLDivElement>(null)
   const scrollIntervalRef = useRef<NodeJS.Timeout | null>(null)
 
   const [weekIndex, setWeekIndex] = useState(4) // Start at week 4 (late July)
@@ -156,6 +157,41 @@ export function CalendarKanbanView({
     return () => {
       if (syncTimeout) clearTimeout(syncTimeout)
       headerEl.removeEventListener('scroll', handleHeaderScroll)
+      cellsEl.removeEventListener('scroll', handleCellsScroll)
+    }
+  }, [])
+
+  // Sync vertical scroll between properties column and cells grid
+  useEffect(() => {
+    const propsEl = propertiesColumnRef.current
+    const cellsEl = cellsGridRef.current
+
+    if (!propsEl || !cellsEl) return
+
+    let syncTimeout: NodeJS.Timeout | null = null
+
+    const handlePropsScroll = () => {
+      if (syncTimeout) clearTimeout(syncTimeout)
+      cellsEl.scrollTop = propsEl.scrollTop
+      syncTimeout = setTimeout(() => {
+        cellsEl.scrollTop = propsEl.scrollTop
+      }, 50)
+    }
+
+    const handleCellsScroll = () => {
+      if (syncTimeout) clearTimeout(syncTimeout)
+      propsEl.scrollTop = cellsEl.scrollTop
+      syncTimeout = setTimeout(() => {
+        propsEl.scrollTop = cellsEl.scrollTop
+      }, 50)
+    }
+
+    propsEl.addEventListener('scroll', handlePropsScroll, { passive: true })
+    cellsEl.addEventListener('scroll', handleCellsScroll, { passive: true })
+
+    return () => {
+      if (syncTimeout) clearTimeout(syncTimeout)
+      propsEl.removeEventListener('scroll', handlePropsScroll)
       cellsEl.removeEventListener('scroll', handleCellsScroll)
     }
   }, [])
@@ -400,7 +436,7 @@ export function CalendarKanbanView({
       <div className="kanban-container">
         <div className="kanban-wrapper">
           {/* Left column: property names or config panel */}
-          <div className="kanban-properties-column">
+          <div className="kanban-properties-column" ref={propertiesColumnRef}>
             {selectedProperty ? (
               // Configuration panel
               <div style={{ display: 'flex', flexDirection: 'column', height: '100%', padding: '16px' }}>
@@ -579,24 +615,28 @@ export function CalendarKanbanView({
                         {isBooked && reservation ? (
                           <>
                             <div style={{
-                              fontSize: '11px',
+                              fontSize: '10px',
                               fontWeight: '700',
                               color: '#ffffff',
                               whiteSpace: 'nowrap',
                               overflow: 'hidden',
                               textOverflow: 'ellipsis',
-                              maxWidth: '95%',
-                              lineHeight: 1.2,
+                              maxWidth: '88px',
+                              minWidth: '88px',
+                              width: '88px',
+                              lineHeight: '1.1',
+                              height: 'auto',
                             }}>
                               {reservation.guestName}
                             </div>
                             <div style={{
-                              fontSize: '10px',
+                              fontSize: '9px',
                               color: '#ffffff',
-                              opacity: 0.95,
-                              lineHeight: 1.1,
+                              opacity: 0.85,
+                              lineHeight: '1',
+                              minHeight: '10px',
                             }}>
-                              {reservation.guestCount || 1} hóspede{(reservation.guestCount || 1) !== 1 ? 's' : ''}
+                              {reservation.guestCount || 1} hosp.
                             </div>
                           </>
                         ) : (
