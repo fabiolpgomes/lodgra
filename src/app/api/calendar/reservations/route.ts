@@ -53,8 +53,8 @@ export async function GET(request: NextRequest) {
       `)
       .in('status', ['confirmed', 'pending'])
       .neq('status', 'cancelled')
-      .gte('check_out', from ?? defaultFrom)
-      .lte('check_in', to ?? defaultTo)
+      .gte('check_in', from ?? defaultFrom)
+      .lte('check_out', to ?? defaultTo)
 
     if (propertyId) {
       query = query.eq('property_listings.property_id', propertyId)
