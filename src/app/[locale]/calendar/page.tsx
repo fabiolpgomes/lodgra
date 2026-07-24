@@ -61,7 +61,8 @@ export default function CalendarPage() {
             guestCount: evt.extendedProps?.number_of_guests || 1,
             startDate: new Date(evt.start),
             endDate: new Date(evt.end),
-            price: 0, // Not provided in this API
+            price: evt.extendedProps?.total_amount || 0,
+            currency: evt.extendedProps?.currency || 'EUR',
             status: evt.extendedProps?.status || 'confirmed',
           }))
           setReservations(mappedReserv)

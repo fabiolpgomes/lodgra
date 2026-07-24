@@ -21,6 +21,7 @@ interface Reservation {
   startDate: Date
   endDate: Date
   price: number
+  currency?: string
   status: 'pending' | 'confirmed' | 'hosting' | 'completed'
 }
 

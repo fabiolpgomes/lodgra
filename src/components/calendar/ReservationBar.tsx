@@ -8,6 +8,7 @@ interface Reservation {
   startDate: Date
   endDate: Date
   price: number
+  currency?: string
   status: 'pending' | 'confirmed' | 'hosting' | 'completed'
 }
 
@@ -71,9 +72,28 @@ export function ReservationBar({
     return 'Confirmado'
   }
 
-  // Format price - total reservation price
-  const formatPrice = (price: number) => {
-    return `R$ ${price.toFixed(2)}`
+  // Format price with currency symbol
+  const getCurrencySymbol = (currency: string): string => {
+    const symbols: Record<string, string> = {
+      'EUR': '€',
+      'BRL': 'R$',
+      'USD': '$',
+      'GBP': '£',
+      'CHF': 'CHF',
+      'SEK': 'kr',
+      'NOK': 'kr',
+      'DKK': 'kr',
+    }
+    return symbols[currency] || currency
+  }
+
+  const formatPrice = (price: number, currency: string = 'EUR') => {
+    const symbol = getCurrencySymbol(currency)
+    return `${symbol} ${price.toFixed(2)}`
+  }
+
+  const formatGuestCount = (count: number): string => {
+    return count === 1 ? '1 hosp.' : `${count} hosp.`
   }
 
   const guestColor = getGuestColor(reservation.guestName, reservation.id)
@@ -112,9 +132,9 @@ export function ReservationBar({
         e.currentTarget.style.boxShadow = '0 2px 6px rgba(0,0,0,0.12)'
         e.currentTarget.style.transform = 'translateY(0)'
       }}
-      title={`${reservation.guestName} • ${formatPrice(reservation.price)} • ${status}`}
+      title={`${reservation.guestName} • ${formatGuestCount(reservation.guestCount || 1)} • ${formatPrice(reservation.price, reservation.currency)} • ${status}`}
     >
-      {/* Guest Name */}
+      {/* Guest Name + Count */}
       <div
         style={{
           whiteSpace: 'nowrap',
@@ -122,19 +142,26 @@ export function ReservationBar({
           textOverflow: 'ellipsis',
           flexShrink: 0,
           minWidth: '0',
-          maxWidth: blockWidth > 200 ? '120px' : '80px',
+          maxWidth: blockWidth > 200 ? '100px' : '70px',
         }}
       >
         {reservation.guestName}
       </div>
 
+      {/* Guest Count - show if space available */}
+      {blockWidth > 150 && (
+        <div style={{ whiteSpace: 'nowrap', flexShrink: 0, fontSize: '10px', opacity: 0.9 }}>
+          {formatGuestCount(reservation.guestCount || 1)}
+        </div>
+      )}
+
       {/* Price - always show */}
       <div style={{ whiteSpace: 'nowrap', flexShrink: 0, fontWeight: '700' }}>
-        {formatPrice(reservation.price || 0)}
+        {formatPrice(reservation.price || 0, reservation.currency)}
       </div>
 
       {/* Status - only if enough space */}
-      {blockWidth > 200 && (
+      {blockWidth > 220 && (
         <div style={{ whiteSpace: 'nowrap', flexShrink: 0, marginLeft: 'auto', fontSize: '10px' }}>
           {status}
         </div>

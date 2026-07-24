@@ -42,6 +42,8 @@ export async function GET(request: NextRequest) {
         status,
         number_of_guests,
         guest_name,
+        total_amount,
+        currency,
         property_listing_id,
         guests ( first_name, last_name ),
         property_listings!inner (
@@ -109,6 +111,8 @@ export async function GET(request: NextRequest) {
             property_id: propId,
             status: r.status,
             number_of_guests: r.number_of_guests,
+            total_amount: r.total_amount,
+            currency: r.currency || 'EUR',
             opacity,
           },
         }
