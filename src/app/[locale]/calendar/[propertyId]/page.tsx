@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import '@/styles/calendar-kanban.css'
 
@@ -146,6 +146,15 @@ export default function PropertyCalendarPage() {
 
   const [currentDate, setCurrentDate] = useState(new Date(2026, 6, 1))
   const [viewMode, setViewMode] = useState<'month' | 'year'>('month')
+  const [isMobile, setIsMobile] = useState(false)
+
+  // Detect mobile on mount
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 1024)
+    handleResize()
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   const year = currentDate.getFullYear()
   const monthIndex = currentDate.getMonth()
@@ -164,6 +173,121 @@ export default function PropertyCalendarPage() {
   const [availabilityPeriod, setAvailabilityPeriod] = useState(6) // 6, 12, 18 meses
   const [noticeDay, setNoticeDay] = useState(1)
   const [cancellationPolicy, setCancellationPolicy] = useState('flexible')
+
+  // Mobile simple calendar view
+  if (isMobile) {
+    return (
+      <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', background: '#fbfaf6' }}>
+        {/* Mobile Header */}
+        <div style={{ padding: '16px', background: '#ffffff', borderBottom: '1px solid #efeadf' }}>
+          <button
+            onClick={() => router.push(`/${locale}/calendar`)}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '8px 16px',
+              background: '#ffffff',
+              border: '1px solid #efeadf',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: '600',
+              color: '#1b2430',
+              marginBottom: '16px',
+            }}
+          >
+            ← Voltar
+          </button>
+          <h1 style={{ margin: '0 0 8px 0', fontSize: '20px', fontWeight: '700', color: '#1b2430' }}>
+            {mockProperty.name}
+          </h1>
+          <p style={{ margin: 0, fontSize: '13px', color: '#4d5566' }}>
+            {mockProperty.type} • {mockProperty.location}
+          </p>
+        </div>
+
+        {/* Mobile Calendar */}
+        <div style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
+          <div style={{ marginBottom: '24px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <button onClick={() => setCurrentDate(new Date(year, monthIndex - 1, 1))} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '20px' }}>←</button>
+              <h2 style={{ margin: 0, fontSize: '18px', fontWeight: '700', color: '#1b2430', textTransform: 'capitalize' }}>
+                {monthDisplay} {year}
+              </h2>
+              <button onClick={() => setCurrentDate(new Date(year, monthIndex + 1, 1))} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '20px' }}>→</button>
+            </div>
+
+            {/* Days of week */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '4px', marginBottom: '8px' }}>
+              {DAYS_SHORT.map(day => (
+                <div key={day} style={{ textAlign: 'center', fontSize: '12px', fontWeight: '600', color: '#4d5566' }}>
+                  {day}
+                </div>
+              ))}
+            </div>
+
+            {/* Calendar grid */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '4px' }}>
+              {daysGrid.map((day, idx) => {
+                const isReserved = mockReservations.some(
+                  res =>
+                    day &&
+                    new Date(res.startDate) <= new Date(year, monthIndex, day) &&
+                    new Date(res.endDate) > new Date(year, monthIndex, day)
+                )
+                return (
+                  <div
+                    key={idx}
+                    style={{
+                      aspectRatio: '1',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      background: isReserved ? '#10203E' : day ? '#ffffff' : '#f7f5ef',
+                      border: '1px solid #efeadf',
+                      borderRadius: '6px',
+                      fontSize: '13px',
+                      fontWeight: '600',
+                      color: isReserved ? '#ffffff' : '#1b2430',
+                      cursor: day ? 'pointer' : 'default',
+                    }}
+                  >
+                    {day}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* Reservations list */}
+          <div>
+            <h3 style={{ margin: '0 0 12px 0', fontSize: '14px', fontWeight: '700', color: '#1b2430' }}>
+              Reservas ({mockReservations.length})
+            </h3>
+            {mockReservations.map(res => (
+              <div
+                key={res.id}
+                style={{
+                  padding: '12px',
+                  background: '#10203E',
+                  border: 'none',
+                  borderRadius: '8px',
+                  marginBottom: '8px',
+                  color: '#ffffff',
+                }}
+              >
+                <div style={{ fontSize: '13px', fontWeight: '700' }}>{res.guestName}</div>
+                <div style={{ fontSize: '12px', opacity: 0.9, marginTop: '4px' }}>
+                  {new Date(res.startDate).toLocaleDateString('pt-BR')} - {new Date(res.endDate).toLocaleDateString('pt-BR')}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div style={{ display: 'flex', height: '100vh', background: '#fbfaf6' }}>
