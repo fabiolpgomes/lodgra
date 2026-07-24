@@ -208,12 +208,11 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 2px;
+  padding: 3px;
   background: #fbfaf6;
   border-radius: 6px;
   cursor: pointer;
-  aspect-ratio: 1;
-  min-height: 44px;
+  height: 62px;
   border: 1px solid #e5dfd2;
   transition: all 0.2s ease;
   position: relative;
@@ -1005,7 +1004,7 @@
   }
 
   .day-cell {
-    min-height: 48px;
+    height: 56px;
   }
 
   .tabs-nav {
@@ -1104,7 +1103,7 @@
   }
 
   .day-cell {
-    min-height: 52px;
+    height: 58px;
     padding: 2px;
   }
 
