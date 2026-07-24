@@ -288,7 +288,7 @@ export function CalendarKanbanView({
 
   return (
     <div className="calendar-kanban-view">
-      {/* Header with month dropdown */}
+      {/* Header with month dropdown and navigation */}
       <div className="kanban-header">
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
           <button
@@ -337,6 +337,62 @@ export function CalendarKanbanView({
               })}
             </select>
           </div>
+        </div>
+
+        {/* Navigation arrows and month display */}
+        <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+          <button
+            className="week-nav-button"
+            onMouseDown={() => startContinuousScroll('prev')}
+            onTouchStart={() => startContinuousScroll('prev')}
+            disabled={weekIndex === 0}
+            style={{
+              width: '40px',
+              height: '40px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: '#ffffff',
+              border: '1px solid #efeadf',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              color: '#1b2430',
+              transition: 'all 0.2s',
+            }}
+          >
+            <ChevronLeft size={20} />
+          </button>
+          <div style={{
+            fontSize: '16px',
+            fontWeight: '600',
+            color: '#1b2430',
+            textTransform: 'capitalize',
+            minWidth: '100px',
+            textAlign: 'center',
+          }}>
+            {monthDisplay}
+          </div>
+          <button
+            className="week-nav-button"
+            onMouseDown={() => startContinuousScroll('next')}
+            onTouchStart={() => startContinuousScroll('next')}
+            disabled={weekIndex >= 12}
+            style={{
+              width: '40px',
+              height: '40px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: '#ffffff',
+              border: '1px solid #efeadf',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              color: '#1b2430',
+              transition: 'all 0.2s',
+            }}
+          >
+            <ChevronRight size={20} />
+          </button>
         </div>
       </div>
 
@@ -480,29 +536,6 @@ export function CalendarKanbanView({
 
           {/* Scrollable calendar grid */}
           <div className="kanban-scroll-area">
-            {/* Navigation buttons above day headers */}
-            <div className="kanban-nav-controls">
-              <button
-                className="week-nav-button"
-                onMouseDown={() => startContinuousScroll('prev')}
-                onTouchStart={() => startContinuousScroll('prev')}
-                disabled={weekIndex === 0}
-              >
-                <ChevronLeft size={18} />
-              </button>
-              <div className="month-display">
-                {monthDisplay}
-              </div>
-              <button
-                className="week-nav-button"
-                onMouseDown={() => startContinuousScroll('next')}
-                onTouchStart={() => startContinuousScroll('next')}
-                disabled={weekIndex >= 12}
-              >
-                <ChevronRight size={18} />
-              </button>
-            </div>
-
             {/* Day headers with scroll */}
             <div className="kanban-days-header" ref={daysHeaderRef}>
               {allDays.map((date, idx) => (
