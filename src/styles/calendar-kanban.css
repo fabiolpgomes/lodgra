@@ -303,6 +303,40 @@
   background: #ffffff;
 }
 
+.kanban-days-nav {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: #fbfaf6;
+  padding: 8px;
+  border-bottom: 1px solid #efeadf;
+  flex-shrink: 0;
+}
+
+.week-nav-button {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  border: 1px solid #efeadf;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #1b2430;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.week-nav-button:hover {
+  background: #f7f5ef;
+  border-color: #cfc4aa;
+}
+
+.week-nav-button:active {
+  background: #efeadf;
+}
+
 .kanban-days-header {
   display: flex;
   gap: 1px;
@@ -311,6 +345,7 @@
   border-bottom: 1px solid #efeadf;
   min-height: 60px;
   flex-shrink: 0;
+  flex: 1;
 }
 
 .day-header-cell {

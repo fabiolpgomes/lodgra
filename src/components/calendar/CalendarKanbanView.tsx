@@ -111,16 +111,32 @@ export function CalendarKanbanView({
 
           {/* Scrollable calendar grid */}
           <div className="kanban-scroll-area">
-            {/* Day headers (vertical) */}
-            <div className="kanban-days-header">
-              {days.map((date, idx) => (
-                <div key={idx} className="day-header-cell">
-                  <div className="day-abbr">
-                    {['D', 'S', 'T', 'Q', 'Q', 'S', 'S'][date.getDay()]}
+            {/* Navigation buttons + Day headers */}
+            <div className="kanban-days-nav">
+              <button
+                className="week-nav-button"
+                onClick={() => setCurrentDate(new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate() - 7))}
+              >
+                <ChevronLeft size={18} />
+              </button>
+
+              <div className="kanban-days-header">
+                {days.map((date, idx) => (
+                  <div key={idx} className="day-header-cell">
+                    <div className="day-abbr">
+                      {['D', 'S', 'T', 'Q', 'Q', 'S', 'S'][date.getDay()]}
+                    </div>
+                    <div className="day-number">{date.getDate()}</div>
                   </div>
-                  <div className="day-number">{date.getDate()}</div>
-                </div>
-              ))}
+                ))}
+              </div>
+
+              <button
+                className="week-nav-button"
+                onClick={() => setCurrentDate(new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate() + 7))}
+              >
+                <ChevronRight size={18} />
+              </button>
             </div>
 
             {/* Calendar cells grid */}
