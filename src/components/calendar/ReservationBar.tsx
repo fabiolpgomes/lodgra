@@ -52,7 +52,9 @@ export function ReservationBar({
   const adjustedDays = Math.max(1, totalDays - 1)
   const blockWidth = adjustedDays * cellWidth + (adjustedDays - 1) * cellGap
   const leftOffset = dayStartIndex * (cellWidth + cellGap)
-  const topOffset = rowIndex * (cellHeight + 1) + 20 // Slightly lower to create gap between rows
+  const barHeight = 24
+  const verticalCenter = (cellHeight - barHeight) / 2 // Center bar vertically in cell
+  const topOffset = rowIndex * (cellHeight + 1) + verticalCenter
 
   // Determine status
   const getStatus = () => {
