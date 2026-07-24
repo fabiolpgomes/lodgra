@@ -37,12 +37,28 @@ export default function CalendarPage() {
 
         if (propsRes.ok) {
           const propsData = await propsRes.json()
-          setProperties(propsData.data?.properties || propsData.properties || [])
+          const props = propsData.data?.properties || propsData.properties || []
+          // Map API response to component interface
+          const mappedProps = props.map((p: any) => ({
+            id: p.id,
+            name: p.name,
+            type: p.bedrooms ? `${p.bedrooms} dorms` : 'Property',
+            location: p.city || p.country || '',
+            imageUrl: p.image, // Map 'image' to 'imageUrl'
+          }))
+          setProperties(mappedProps)
         }
 
         if (reservRes.ok) {
           const reservData = await reservRes.json()
-          setReservations(reservData.data?.reservations || reservData.reservations || [])
+          const reserv = reservData.data?.reservations || reservData.reservations || []
+          // Map reservation dates to Date objects
+          const mappedReserv = reserv.map((r: any) => ({
+            ...r,
+            startDate: new Date(r.startDate),
+            endDate: new Date(r.endDate),
+          }))
+          setReservations(mappedReserv)
         }
       } catch (error) {
         console.error('Error fetching calendar data:', error)

@@ -62,13 +62,23 @@ export function CalendarKanbanView({
   const [propertyMinNights, setPropertyMinNights] = useState<Record<string, number>>({}) // Min nights per property
   const [configTab, setConfigTab] = useState<'preco' | 'desconto' | 'disponibilidade' | 'cancelamentos'>('preco')
 
-  // Generate 180 days of data (6 months for smooth scrolling)
+  // Generate 90 days for better UX (3 months for scrolling)
   const baseDate = new Date(2026, 5, 1) // June 1, 2026
-  const allDays = Array.from({ length: 180 }, (_, i) => {
+  const allDays = Array.from({ length: 90 }, (_, i) => {
     const date = new Date(baseDate)
     date.setDate(date.getDate() + i)
     return date
   })
+
+  // Check if a date is within a reservation for a property
+  const isDateInReservation = (propertyId: string, date: Date): boolean => {
+    return reservations.some(res => {
+      if (res.propertyId !== propertyId) return false
+      const start = new Date(res.startDate)
+      const end = new Date(res.endDate)
+      return date >= start && date < end
+    })
+  }
 
   // Current week start
   const currentWeekStart = new Date(baseDate)
@@ -79,7 +89,7 @@ export function CalendarKanbanView({
   // Sync scroll position when week index changes
   useEffect(() => {
     if (daysHeaderRef.current && cellsGridRef.current) {
-      const scrollPos = weekIndex * (7 * 81) // 81px = 80px cell + 1px gap
+      const scrollPos = weekIndex * (7 * 101) // 101px = 100px cell + 1px gap
 
       // Use multiple frames to ensure perfect sync
       const syncScroll = () => {
@@ -502,18 +512,22 @@ export function CalendarKanbanView({
                   {allDays.map((date, idx) => {
                     const key = `${property.id}-${idx}`
                     const isSelected = selectedDays.has(key)
+                    const isBooked = isDateInReservation(property.id, date)
                     return (
                       <div
                         key={idx}
                         className="kanban-cell"
-                        onClick={(e) => handleCellClick(property.id, idx, e)}
+                        onClick={(e) => !isBooked && handleCellClick(property.id, idx, e)}
                         style={{
-                          cursor: 'pointer',
-                          background: isSelected ? '#e8f0fe' : '#ffffff',
+                          cursor: isBooked ? 'not-allowed' : 'pointer',
+                          background: isBooked ? '#cfc4aa' : isSelected ? '#e8f0fe' : '#ffffff',
                           borderLeft: isSelected ? '3px solid #1b2430' : 'none',
+                          opacity: isBooked ? 0.6 : 1,
                         }}
                       >
-                        <div className="cell-price">{getPrice(property.id, idx)}</div>
+                        <div className="cell-price" style={{ color: isBooked ? '#ffffff' : '#4d5566' }}>
+                          {isBooked ? '✓' : getPrice(property.id, idx)}
+                        </div>
                       </div>
                     )
                   })}
