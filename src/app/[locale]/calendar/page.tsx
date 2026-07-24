@@ -1,5 +1,6 @@
 'use client'
 
+import { useRouter, useParams } from 'next/navigation'
 import { useState } from 'react'
 import { CalendarListView } from '@/components/calendar/CalendarListView'
 import { CalendarKanbanView } from '@/components/calendar/CalendarKanbanView'
@@ -69,6 +70,10 @@ const mockProperties = [
 ]
 
 export default function CalendarPage() {
+  const router = useRouter()
+  const params = useParams()
+  const locale = (params.locale as string) || 'pt-BR'
+
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | undefined>()
   const [isDesktop, setIsDesktop] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -89,16 +94,21 @@ export default function CalendarPage() {
     }
   }, [])
 
+  const handlePropertyClick = (propertyId: string) => {
+    router.push(`/${locale}/calendar/${propertyId}`)
+  }
+
   return isDesktop ? (
     <CalendarKanbanView
       properties={mockProperties}
       reservations={[]}
       selectedPropertyId={selectedPropertyId}
+      onPropertyClick={handlePropertyClick}
     />
   ) : (
     <CalendarListView
       properties={mockProperties}
-      onPropertySelect={setSelectedPropertyId}
+      onPropertySelect={handlePropertyClick}
     />
   )
 }
