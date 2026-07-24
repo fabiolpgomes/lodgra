@@ -701,10 +701,9 @@ export function CalendarKanbanView({
                         onClick={(e) => !isBooked && handleCellClick(property.id, idx, e)}
                         style={{
                           cursor: isBooked ? 'not-allowed' : 'pointer',
-                          background: isBooked ? '#10203E' : isSelected ? '#e8f0fe' : '#ffffff',
-                          borderLeft: isReservationStart(property.id, date) ? '2px solid #ffffff' : isSelected ? '3px solid #1b2430' : 'none',
-                          borderRight: isReservationEnd(property.id, date) ? '2px solid #ffffff' : 'none',
-                          borderRadius: isReservationStart(property.id, date) ? '6px 0 0 6px' : isReservationEnd(property.id, date) ? '0 6px 6px 0' : '0',
+                          background: isSelected ? '#e8f0fe' : '#ffffff',
+                          borderLeft: isSelected ? '3px solid #1b2430' : 'none',
+                          borderRadius: '0',
                           opacity: 1,
                           display: 'flex',
                           flexDirection: 'column',
@@ -715,7 +714,7 @@ export function CalendarKanbanView({
                           textAlign: 'center',
                         }}
                       >
-                        <div className="cell-price" style={{ color: isBooked ? '#ffffff' : '#4d5566' }}>
+                        <div className="cell-price" style={{ color: '#4d5566' }}>
                           {getPrice(property.id, idx)}
                         </div>
                       </div>
