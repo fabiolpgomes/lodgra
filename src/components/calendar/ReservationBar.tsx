@@ -21,13 +21,13 @@ interface ReservationBarProps {
   cellHeight?: number
 }
 
-// Color palette for different guests (Airbnb-style)
+// Color palette for different guests - Using primary blue from design.md with variations
 const GUEST_COLORS = [
-  '#1a7a85', // Teal (primary)
-  '#2B8C99', // Teal lighter
-  '#367F8E', // Teal medium
-  '#1F6B7A', // Teal darker
-  '#2D95A8', // Teal bright
+  '#10203E', // Primary institutional blue
+  '#0c1830', // Primary active (darker)
+  '#152543', // Slightly lighter
+  '#1a2d4d', // Medium
+  '#0f1c2e', // Darker variant
 ]
 
 // Generate consistent color for guest based on name hash
@@ -48,9 +48,11 @@ export function ReservationBar({
   cellHeight = 90,
 }: ReservationBarProps) {
   // Calculate exact positioning
-  const blockWidth = totalDays * cellWidth + (totalDays - 1) * cellGap
+  // Reduce totalDays by 1 since checkout day is exclusive (start of next reservation)
+  const adjustedDays = Math.max(1, totalDays - 1)
+  const blockWidth = adjustedDays * cellWidth + (adjustedDays - 1) * cellGap
   const leftOffset = dayStartIndex * (cellWidth + cellGap)
-  const topOffset = rowIndex * (cellHeight + 1) + 18
+  const topOffset = rowIndex * (cellHeight + 1) + 20 // Slightly lower to create gap between rows
 
   // Determine status
   const getStatus = () => {
