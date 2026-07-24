@@ -49,7 +49,10 @@ export function CalendarKanbanView({
   const daysHeaderRef = useRef<HTMLDivElement>(null)
   const cellsGridRef = useRef<HTMLDivElement>(null)
   const propertiesColumnRef = useRef<HTMLDivElement>(null)
+  const overlayRef = useRef<HTMLDivElement>(null)
   const scrollIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  const [scrollLeft, setScrollLeft] = useState(0)
+  const [scrollTop, setScrollTop] = useState(0)
 
   const [weekIndex, setWeekIndex] = useState(4) // Start at week 4 (late July)
   const [prices, setPrices] = useState<Record<string, number>>({}) // Store custom prices
@@ -253,6 +256,7 @@ export function CalendarKanbanView({
   useEffect(() => {
     const propsEl = propertiesColumnRef.current
     const cellsEl = cellsGridRef.current
+    const overlayEl = overlayRef.current
 
     if (!propsEl || !cellsEl) return
 
@@ -269,6 +273,14 @@ export function CalendarKanbanView({
     const handleCellsScroll = () => {
       if (syncTimeout) clearTimeout(syncTimeout)
       propsEl.scrollTop = cellsEl.scrollTop
+      setScrollTop(cellsEl.scrollTop)
+      setScrollLeft(cellsEl.scrollLeft)
+
+      // Sync overlay position
+      if (overlayEl) {
+        overlayEl.style.transform = `translate(-${cellsEl.scrollLeft}px, -${cellsEl.scrollTop}px)`
+      }
+
       syncTimeout = setTimeout(() => {
         propsEl.scrollTop = cellsEl.scrollTop
       }, 50)
@@ -660,33 +672,8 @@ export function CalendarKanbanView({
 
           {/* Scrollable calendar grid */}
           <div className="kanban-scroll-area">
-            {/* Reservation overlay bars */}
-            <div
-              style={{
-                position: 'absolute',
-                top: '60px',
-                left: 0,
-                right: 0,
-                bottom: 0,
-                pointerEvents: 'auto',
-                zIndex: 20,
-              }}
-            >
-              {calculateReservationBars().map(bar => (
-                <ReservationBar
-                  key={bar.id}
-                  reservation={bar.reservation}
-                  dayStartIndex={bar.dayStartIndex}
-                  totalDays={bar.totalDays}
-                  rowIndex={bar.rowIndex}
-                  cellWidth={85}
-                  cellGap={1}
-                  cellHeight={90}
-                />
-              ))}
-            </div>
 
-            {/* Day headers with scroll */}
+            {/* Day headers with scroll - REMOVED OVERLAY FROM HERE */}
             <div className="kanban-days-header" ref={daysHeaderRef}>
               {allDays.map((date, idx) => (
                 <div key={idx} className="day-header-cell">
@@ -879,6 +866,46 @@ export function CalendarKanbanView({
               />
             )}
           </div>
+        </div>
+
+        {/* Reservation overlay bars - synced with scroll */}
+        <div
+          ref={overlayRef}
+          style={{
+            position: 'absolute',
+            top: '110px', // Header (60px) + nav controls (50px)
+            left: '250px', // Width of properties column
+            right: 0,
+            bottom: 0,
+            pointerEvents: 'none', // Let clicks through to grid
+            zIndex: 20,
+            overflow: 'hidden',
+            transform: 'translate(0, 0)',
+            transition: 'none',
+          }}
+        >
+          {calculateReservationBars().map(bar => (
+            <div
+              key={bar.id}
+              style={{
+                position: 'absolute',
+                left: `${bar.dayStartIndex * 86}px`,
+                top: `${bar.rowIndex * 91}px`,
+                pointerEvents: 'auto', // Enable interaction on bars
+                cursor: 'pointer',
+              }}
+            >
+              <ReservationBar
+                reservation={bar.reservation}
+                dayStartIndex={bar.dayStartIndex}
+                totalDays={bar.totalDays}
+                rowIndex={0} // Already positioned by parent
+                cellWidth={85}
+                cellGap={1}
+                cellHeight={90}
+              />
+            </div>
+          ))}
         </div>
       </div>
     </div>
