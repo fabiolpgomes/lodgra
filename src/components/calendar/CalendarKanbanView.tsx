@@ -865,7 +865,8 @@ export function CalendarKanbanView({
             height: 'calc(100% - 110px)',
             pointerEvents: 'none',
             zIndex: 20,
-            overflow: 'visible',
+            overflow: 'hidden',
+            clipPath: 'inset(0 0 0 0)',
           }}
         >
           {calculateReservationBars().map(bar => (

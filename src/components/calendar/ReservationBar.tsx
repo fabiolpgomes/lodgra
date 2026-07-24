@@ -51,7 +51,7 @@ export function ReservationBar({
   // Reduce totalDays by 1 since checkout day is exclusive (start of next reservation)
   const adjustedDays = Math.max(1, totalDays - 1)
   const blockWidth = adjustedDays * cellWidth + (adjustedDays - 1) * cellGap
-  const leftOffset = dayStartIndex * (cellWidth + cellGap)
+  const leftOffset = Math.max(0, dayStartIndex * (cellWidth + cellGap))
   const barHeight = 24
   const verticalCenter = (cellHeight - barHeight) / 2 // Center bar vertically in cell
   const topOffset = rowIndex * (cellHeight + 1) + verticalCenter
