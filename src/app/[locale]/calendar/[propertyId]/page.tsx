@@ -257,8 +257,8 @@ export default function PropertyCalendarPage() {
                       flexDirection: 'column',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      background: isReserved ? '#e85d75' : day ? '#ffffff' : '#f7f5ef',
-                      border: isReserved ? '2px solid #e85d75' : '1px solid #efeadf',
+                      background: isReserved ? '#10203E' : day ? '#ffffff' : '#f7f5ef',
+                      border: isReserved ? '2px solid #10203E' : '1px solid #efeadf',
                       borderRadius: '8px',
                       fontSize: day ? '12px' : '11px',
                       fontWeight: '600',
@@ -295,7 +295,7 @@ export default function PropertyCalendarPage() {
                   key={res.id}
                   style={{
                     padding: '12px',
-                    background: '#e85d75',
+                    background: '#10203E',
                     border: 'none',
                     borderRadius: '8px',
                     color: '#ffffff',
