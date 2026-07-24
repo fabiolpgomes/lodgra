@@ -138,6 +138,11 @@ export function CalendarKanbanView({
     return 'Confirmado'
   }
 
+  // Filter properties to show based on selectedPropertyId
+  const propertiesToShow = selectedPropertyId
+    ? properties.filter(p => p.id === selectedPropertyId)
+    : properties
+
   // Calculate reservation bars (for rendering as overlay blocks)
   const calculateReservationBars = () => {
     const bars: Array<{
@@ -446,10 +451,6 @@ export function CalendarKanbanView({
     )
     setWeekIndex(Math.max(0, Math.min(12, weeksFromBase)))
   }
-
-  const propertiesToShow = selectedPropertyId
-    ? properties.filter(p => p.id === selectedPropertyId)
-    : properties
 
   return (
     <div className="calendar-kanban-view">
