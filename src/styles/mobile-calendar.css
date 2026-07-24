@@ -184,12 +184,12 @@
 .calendar-grid-mobile {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 0;
+  gap: 2px;
   padding: 4px;
   flex: 1;
   overflow-y: auto;
   background: #fbfaf6;
-  auto-rows: 1fr;
+  auto-rows: minmax(0, 1fr);
 }
 
 .day-header {
@@ -208,11 +208,12 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 4px 2px;
+  padding: 2px;
   background: #fbfaf6;
   border-radius: 6px;
   cursor: pointer;
-  min-height: 50px;
+  aspect-ratio: 1;
+  min-height: 44px;
   border: 1px solid #e5dfd2;
   transition: all 0.2s ease;
   position: relative;
@@ -999,12 +1000,12 @@
   }
 
   .calendar-grid-mobile {
-    padding: 12px;
-    gap: 3px;
+    padding: 8px;
+    gap: 2px;
   }
 
   .day-cell {
-    min-height: 55px;
+    min-height: 48px;
   }
 
   .tabs-nav {
@@ -1103,8 +1104,8 @@
   }
 
   .day-cell {
-    min-height: 56px;
-    padding: 3px 2px;
+    min-height: 52px;
+    padding: 2px;
   }
 
   .day-number {
