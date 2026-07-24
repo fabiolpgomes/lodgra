@@ -70,22 +70,35 @@ const mockProperties = [
 
 export default function CalendarPage() {
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | undefined>()
-  const [isDesktop, setIsDesktop] = useState(typeof window !== 'undefined' && window.innerWidth >= 1024)
+  const [isDesktop, setIsDesktop] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth >= 1024
+    }
+    return true // default to desktop on SSR
+  })
 
-  return (
-    <>
-      {isDesktop ? (
-        <CalendarKanbanView
-          properties={mockProperties}
-          reservations={[]}
-          selectedPropertyId={selectedPropertyId}
-        />
-      ) : (
-        <CalendarListView
-          properties={mockProperties}
-          onPropertySelect={setSelectedPropertyId}
-        />
-      )}
-    </>
+  // Update on mount to catch client-side width
+  useState(() => {
+    if (typeof window !== 'undefined') {
+      const handleResize = () => {
+        setIsDesktop(window.innerWidth >= 1024)
+      }
+      window.addEventListener('resize', handleResize)
+      setIsDesktop(window.innerWidth >= 1024)
+      return () => window.removeEventListener('resize', handleResize)
+    }
+  }, [])
+
+  return isDesktop ? (
+    <CalendarKanbanView
+      properties={mockProperties}
+      reservations={[]}
+      selectedPropertyId={selectedPropertyId}
+    />
+  ) : (
+    <CalendarListView
+      properties={mockProperties}
+      onPropertySelect={setSelectedPropertyId}
+    />
   )
 }
