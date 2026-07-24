@@ -45,8 +45,12 @@ export function DetailedCalendarMobile({
   })
 
   // Generate calendar grid (7 columns, up to 5 rows)
+  // Week starts on Monday (1) instead of Sunday (0)
   const firstDay = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1)
-  const startingDayOfWeek = firstDay.getDay()
+  let startingDayOfWeek = firstDay.getDay()
+  // Convert Sunday (0) to 6, keep 1-6 as 0-5
+  startingDayOfWeek = startingDayOfWeek === 0 ? 6 : startingDayOfWeek - 1
+
   const daysInMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0).getDate()
 
   const calendarDays: (CalendarDay | null)[] = [
@@ -100,9 +104,9 @@ export function DetailedCalendarMobile({
 
       {/* Calendar Grid */}
       <div className="calendar-grid-mobile">
-        {/* Day headers */}
-        {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'].map(day => (
-          <div key={day} className="day-header">
+        {/* Day headers - Week starts on Monday */}
+        {['S', 'T', 'Q', 'Q', 'S', 'S', 'D'].map((day, idx) => (
+          <div key={idx} className="day-header">
             {day}
           </div>
         ))}
