@@ -23,10 +23,10 @@ export async function GET(request: NextRequest) {
     const to = searchParams.get('to')
     const propertyId = searchParams.get('property_id')
 
-    // Default: current month
+    // Default: 3 months back to 3 months forward
     const now = new Date()
-    const defaultFrom = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10)
-    const defaultTo = new Date(now.getFullYear(), now.getMonth() + 2, 0).toISOString().slice(0, 10)
+    const defaultFrom = new Date(now.getFullYear(), now.getMonth() - 3, 1).toISOString().slice(0, 10)
+    const defaultTo = new Date(now.getFullYear(), now.getMonth() + 3, 0).toISOString().slice(0, 10)
 
     const supabase = await createClient()
 
@@ -52,7 +52,6 @@ export async function GET(request: NextRequest) {
         )
       `)
       .in('status', ['confirmed', 'pending'])
-      .neq('status', 'cancelled')
       .gte('check_in', from ?? defaultFrom)
       .lte('check_out', to ?? defaultTo)
 
