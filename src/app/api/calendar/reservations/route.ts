@@ -25,13 +25,20 @@ export async function GET(request: NextRequest) {
 
     // Default: 3 months back to 3 months forward
     const now = new Date()
-    const defaultFrom = new Date(now.getFullYear(), now.getMonth() - 3, 1).toISOString().slice(0, 10)
-    const defaultTo = new Date(now.getFullYear(), now.getMonth() + 3, 0).toISOString().slice(0, 10)
+    const fromDate = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate())
+    const toDate = new Date(now.getFullYear(), now.getMonth() + 3, now.getDate())
+    const defaultFrom = fromDate.toISOString().slice(0, 10)
+    const defaultTo = toDate.toISOString().slice(0, 10)
 
     const supabase = await createClient()
 
     // Resolve which property listings the user can see
     const allowedPropertyIds = await getUserPropertyIds(supabase)
+
+    // Use proper date range overlap logic:
+    // A reservation overlaps [from, to] if: check_in < to AND check_out > from
+    const rangeFrom = from ?? defaultFrom
+    const rangeTo = to ?? defaultTo
 
     let query = supabase
       .from('reservations')
@@ -52,8 +59,8 @@ export async function GET(request: NextRequest) {
         )
       `)
       .in('status', ['confirmed', 'pending'])
-      .gte('check_in', from ?? defaultFrom)
-      .lte('check_out', to ?? defaultTo)
+      .lt('check_in', rangeTo)
+      .gt('check_out', rangeFrom)
 
     if (propertyId) {
       query = query.eq('property_listings.property_id', propertyId)

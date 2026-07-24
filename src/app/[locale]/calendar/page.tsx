@@ -66,6 +66,25 @@ export default function CalendarPage() {
             status: evt.extendedProps?.status || 'confirmed',
           }))
           setReservations(mappedReserv)
+
+          // Debug logging
+          if (process.env.NODE_ENV === 'development') {
+            console.debug('[CalendarPage] API Response:', {
+              raw_events: events.length,
+              mapped_reservations: mappedReserv.length,
+              sample: mappedReserv[0] ? {
+                id: mappedReserv[0].id,
+                guest: mappedReserv[0].guestName,
+                startDate: mappedReserv[0].startDate.toISOString().slice(0, 10),
+                endDate: mappedReserv[0].endDate.toISOString().slice(0, 10),
+              } : null,
+            })
+          }
+        } else {
+          console.error('[CalendarPage] Reservations fetch failed:', {
+            status: reservRes.status,
+            statusText: reservRes.statusText,
+          })
         }
       } catch (error) {
         console.error('Error fetching calendar data:', error)

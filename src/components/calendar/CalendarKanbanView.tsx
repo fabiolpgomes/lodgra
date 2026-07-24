@@ -70,12 +70,28 @@ export function CalendarKanbanView({
   const [configTab, setConfigTab] = useState<'preco' | 'desconto' | 'disponibilidade' | 'cancelamentos'>('preco')
 
   // Generate 90 days for better UX (3 months for scrolling)
-  const baseDate = new Date(2026, 5, 1) // June 1, 2026
-  const allDays = Array.from({ length: 90 }, (_, i) => {
+  // IMPORTANT: Match the API's date range (defaultFrom: 3 months back, defaultTo: 3 months forward)
+  const now = new Date()
+  const baseDate = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate())
+  const allDays = Array.from({ length: 180 }, (_, i) => {
     const date = new Date(baseDate)
     date.setDate(date.getDate() + i)
     return date
   })
+
+  // Debug: Log date range for troubleshooting
+  if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+    console.debug('[CalendarKanban] Date range:', {
+      start: allDays[0]?.toISOString().slice(0, 10),
+      end: allDays[allDays.length - 1]?.toISOString().slice(0, 10),
+      total_days: allDays.length,
+      reservations_count: reservations.length,
+      visible_reservations: reservations.filter(r => {
+        const start = new Date(r.startDate)
+        return allDays.some(d => d.toDateString() === start.toDateString())
+      }).length,
+    })
+  }
 
   // Get reservation for a date and property
   const getReservationForDate = (propertyId: string, date: Date) => {
@@ -141,7 +157,20 @@ export function CalendarKanbanView({
             day => day.toDateString() === startDate.toDateString()
           )
 
-          if (dayStartIndex === -1) return
+          if (dayStartIndex === -1) {
+            // Debug: Log why reservation was skipped
+            if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+              console.debug('[CalendarKanban] Skipped reservation:', {
+                id: reservation.id,
+                guest: reservation.guestName,
+                startDate: startDate.toISOString().slice(0, 10),
+                allDaysStart: allDays[0]?.toISOString().slice(0, 10),
+                allDaysEnd: allDays[allDays.length - 1]?.toISOString().slice(0, 10),
+                reason: 'Start date not found in allDays array',
+              })
+            }
+            return
+          }
 
           const endDate = new Date(reservation.endDate)
           const totalDays = Math.ceil(
@@ -157,6 +186,18 @@ export function CalendarKanbanView({
           })
         })
     })
+
+    if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+      console.debug('[CalendarKanban] Calculated bars:', {
+        total_bars: bars.length,
+        properties: propertiesToShow.length,
+        reservations: reservations.length,
+        bars_by_property: propertiesToShow.reduce((acc, prop) => {
+          acc[prop.name] = bars.filter(b => b.reservation.propertyId === prop.id).length
+          return acc
+        }, {} as Record<string, number>),
+      })
+    }
 
     return bars
   }
