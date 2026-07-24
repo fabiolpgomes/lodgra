@@ -163,72 +163,82 @@ export default function PropertyCalendarPage() {
 
   // Config state
   const [editingConfig, setEditingConfig] = useState<'preco' | 'desconto' | 'disponibilidade' | 'cancelamentos' | null>(null)
+  const [configTab, setConfigTab] = useState<'precos' | 'descontos' | 'disponibilidade'>('precos')
   const [smartPriceEnabled, setSmartPriceEnabled] = useState(false)
   const [priceMin, setPriceMin] = useState(80)
   const [priceMax, setPriceMax] = useState(190)
-  const [discountSemanal, setDiscountSemanal] = useState(10) // 7+ dias
-  const [discountMensal, setDiscountMensal] = useState(20) // 28+ dias
+  const [discountSemanal, setDiscountSemanal] = useState(10)
+  const [discountMensal, setDiscountMensal] = useState(20)
   const [minStay, setMinStay] = useState(3)
   const [maxStay, setMaxStay] = useState(90)
-  const [availabilityPeriod, setAvailabilityPeriod] = useState(6) // 6, 12, 18 meses
+  const [availabilityPeriod, setAvailabilityPeriod] = useState(6)
   const [noticeDay, setNoticeDay] = useState(1)
   const [cancellationPolicy, setCancellationPolicy] = useState('flexible')
 
-  // Mobile simple calendar view
+  // Mobile calendar view with prices
   if (isMobile) {
     return (
       <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', background: '#fbfaf6' }}>
-        {/* Mobile Header */}
-        <div style={{ padding: '16px', background: '#ffffff', borderBottom: '1px solid #efeadf' }}>
+        {/* Mobile Header - Airbnb style */}
+        <div style={{ padding: '12px 16px', background: '#ffffff', borderBottom: '1px solid #efeadf', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
           <button
             onClick={() => router.push(`/${locale}/calendar`)}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '8px 16px',
-              background: '#ffffff',
-              border: '1px solid #efeadf',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              fontSize: '14px',
-              fontWeight: '600',
-              color: '#1b2430',
-              marginBottom: '16px',
-            }}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '24px', color: '#1b2430', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           >
-            ← Voltar
+            ←
           </button>
-          <h1 style={{ margin: '0 0 8px 0', fontSize: '20px', fontWeight: '700', color: '#1b2430' }}>
-            {mockProperty.name}
-          </h1>
-          <p style={{ margin: 0, fontSize: '13px', color: '#4d5566' }}>
-            {mockProperty.type} • {mockProperty.location}
-          </p>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <h1 style={{ margin: 0, fontSize: '16px', fontWeight: '700', color: '#1b2430', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {mockProperty.name.substring(0, 30)}
+            </h1>
+          </div>
+          <button
+            onClick={() => {}}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '20px', color: '#1b2430', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          >
+            📅
+          </button>
+          <button
+            onClick={() => setEditingConfig('preco')}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '20px', color: '#1b2430', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          >
+            ⚙️
+          </button>
         </div>
 
-        {/* Mobile Calendar */}
+        {/* Mobile Calendar with prices */}
         <div style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
           <div style={{ marginBottom: '24px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <button onClick={() => setCurrentDate(new Date(year, monthIndex - 1, 1))} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '20px' }}>←</button>
-              <h2 style={{ margin: 0, fontSize: '18px', fontWeight: '700', color: '#1b2430', textTransform: 'capitalize' }}>
+            {/* Month/Year navigation */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', gap: '8px' }}>
+              <button
+                onClick={() => setCurrentDate(new Date(year, monthIndex - 1, 1))}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '20px', color: '#1b2430', padding: '8px' }}
+              >
+                ←
+              </button>
+              <h2 style={{ margin: 0, fontSize: '16px', fontWeight: '700', color: '#1b2430', textTransform: 'capitalize', flex: 1, textAlign: 'center' }}>
                 {monthDisplay} {year}
               </h2>
-              <button onClick={() => setCurrentDate(new Date(year, monthIndex + 1, 1))} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '20px' }}>→</button>
+              <button
+                onClick={() => setCurrentDate(new Date(year, monthIndex + 1, 1))}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '20px', color: '#1b2430', padding: '8px' }}
+              >
+                →
+              </button>
             </div>
 
             {/* Days of week */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '4px', marginBottom: '8px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '6px', marginBottom: '8px' }}>
               {DAYS_SHORT.map(day => (
-                <div key={day} style={{ textAlign: 'center', fontSize: '12px', fontWeight: '600', color: '#4d5566' }}>
+                <div key={day} style={{ textAlign: 'center', fontSize: '11px', fontWeight: '700', color: '#4d5566', textTransform: 'uppercase' }}>
                   {day}
                 </div>
               ))}
             </div>
 
-            {/* Calendar grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '4px' }}>
+            {/* Calendar grid with prices */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '6px' }}>
               {daysGrid.map((day, idx) => {
                 const isReserved = mockReservations.some(
                   res =>
@@ -236,55 +246,224 @@ export default function PropertyCalendarPage() {
                     new Date(res.startDate) <= new Date(year, monthIndex, day) &&
                     new Date(res.endDate) > new Date(year, monthIndex, day)
                 )
+                const dayPrice = day ? (day % 2 === 0 ? 149 : 157) : null
+
                 return (
                   <div
                     key={idx}
                     style={{
                       aspectRatio: '1',
                       display: 'flex',
+                      flexDirection: 'column',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      background: isReserved ? '#10203E' : day ? '#ffffff' : '#f7f5ef',
-                      border: '1px solid #efeadf',
-                      borderRadius: '6px',
-                      fontSize: '13px',
+                      background: isReserved ? '#e85d75' : day ? '#ffffff' : '#f7f5ef',
+                      border: isReserved ? '2px solid #e85d75' : '1px solid #efeadf',
+                      borderRadius: '8px',
+                      fontSize: day ? '12px' : '11px',
                       fontWeight: '600',
                       color: isReserved ? '#ffffff' : '#1b2430',
                       cursor: day ? 'pointer' : 'default',
+                      padding: '4px',
+                      textAlign: 'center',
                     }}
                   >
-                    {day}
+                    {day && (
+                      <>
+                        <div style={{ fontSize: '13px', fontWeight: '700' }}>{day}</div>
+                        {!isReserved && dayPrice && (
+                          <div style={{ fontSize: '10px', color: '#4d5566', marginTop: '2px' }}>
+                            R${dayPrice}
+                          </div>
+                        )}
+                      </>
+                    )}
                   </div>
                 )
               })}
             </div>
           </div>
 
-          {/* Reservations list */}
+          {/* Reservations summary */}
           <div>
             <h3 style={{ margin: '0 0 12px 0', fontSize: '14px', fontWeight: '700', color: '#1b2430' }}>
               Reservas ({mockReservations.length})
             </h3>
-            {mockReservations.map(res => (
-              <div
-                key={res.id}
-                style={{
-                  padding: '12px',
-                  background: '#10203E',
-                  border: 'none',
-                  borderRadius: '8px',
-                  marginBottom: '8px',
-                  color: '#ffffff',
-                }}
-              >
-                <div style={{ fontSize: '13px', fontWeight: '700' }}>{res.guestName}</div>
-                <div style={{ fontSize: '12px', opacity: 0.9, marginTop: '4px' }}>
-                  {new Date(res.startDate).toLocaleDateString('pt-BR')} - {new Date(res.endDate).toLocaleDateString('pt-BR')}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {mockReservations.map(res => (
+                <div
+                  key={res.id}
+                  style={{
+                    padding: '12px',
+                    background: '#e85d75',
+                    border: 'none',
+                    borderRadius: '8px',
+                    color: '#ffffff',
+                  }}
+                >
+                  <div style={{ fontSize: '13px', fontWeight: '700' }}>{res.guestName}</div>
+                  <div style={{ fontSize: '11px', opacity: 0.95, marginTop: '2px' }}>
+                    {new Date(res.startDate).toLocaleDateString('pt-BR')} - {new Date(res.endDate).toLocaleDateString('pt-BR')}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
+
+        {/* Mobile Config Modal - with tabs */}
+        {editingConfig === 'preco' && (
+          <div
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(0,0,0,0.4)',
+              display: 'flex',
+              flexDirection: 'column',
+              zIndex: 1000,
+            }}
+            onClick={() => setEditingConfig(null)}
+          >
+            <div
+              style={{
+                marginTop: 'auto',
+                background: '#ffffff',
+                borderRadius: '24px 24px 0 0',
+                padding: '20px',
+                maxHeight: '85vh',
+                overflowY: 'auto',
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Close button */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <button
+                  onClick={() => setEditingConfig(null)}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '24px', color: '#1b2430' }}
+                >
+                  ✕
+                </button>
+                <h2 style={{ margin: 0, fontSize: '18px', fontWeight: '700', color: '#1b2430' }}>Configurações</h2>
+                <div style={{ width: '24px' }} />
+              </div>
+
+              {/* Tabs */}
+              <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', borderBottom: '1px solid #efeadf', paddingBottom: '12px' }}>
+                {['precos', 'descontos', 'disponibilidade'].map(tab => (
+                  <button
+                    key={tab}
+                    onClick={() => setConfigTab(tab as any)}
+                    style={{
+                      flex: 1,
+                      padding: '12px 16px',
+                      background: 'none',
+                      border: 'none',
+                      borderBottom: configTab === tab ? '3px solid #1b2430' : 'none',
+                      cursor: 'pointer',
+                      fontSize: '13px',
+                      fontWeight: '600',
+                      color: configTab === tab ? '#1b2430' : '#4d5566',
+                      textTransform: 'capitalize',
+                      transition: 'all 0.2s',
+                    }}
+                  >
+                    {tab}
+                  </button>
+                ))}
+              </div>
+
+              {/* Tab content */}
+              <div>
+                {/* Preços Tab */}
+                {configTab === 'precos' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    <div style={{ padding: '12px', background: '#fbfaf6', borderRadius: '12px' }}>
+                      <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', marginBottom: '8px', color: '#1b2430' }}>
+                        Preço básico
+                      </label>
+                      <div style={{ fontSize: '20px', fontWeight: '700', color: '#1b2430' }}>R$ {priceMin}</div>
+                    </div>
+
+                    <div style={{ padding: '12px', background: '#fbfaf6', borderRadius: '12px' }}>
+                      <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', marginBottom: '8px', color: '#1b2430' }}>
+                        Preço de fim de semana
+                      </label>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div style={{ fontSize: '20px', fontWeight: '700', color: '#1b2430' }}>R$ {priceMax}</div>
+                        <button style={{ background: 'none', border: 'none', color: '#1b2430', cursor: 'pointer', fontWeight: '600', fontSize: '13px', textDecoration: 'underline' }}>
+                          Remover
+                        </button>
+                      </div>
+                    </div>
+
+                    <div style={{ padding: '12px', background: '#fbfaf6', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div>
+                        <div style={{ fontSize: '13px', fontWeight: '600', color: '#1b2430', marginBottom: '4px' }}>Preço Inteligente</div>
+                        <div style={{ fontSize: '11px', color: '#4d5566' }}>Ajusta automaticamente</div>
+                      </div>
+                      <input
+                        type="checkbox"
+                        checked={smartPriceEnabled}
+                        onChange={(e) => setSmartPriceEnabled(e.target.checked)}
+                        style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Descontos Tab */}
+                {configTab === 'descontos' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    <div style={{ padding: '12px', background: '#fbfaf6', borderRadius: '12px' }}>
+                      <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', marginBottom: '8px', color: '#1b2430' }}>
+                        Por semana
+                      </label>
+                      <div style={{ fontSize: '18px', fontWeight: '700', color: '#1b2430', marginBottom: '4px' }}>{discountSemanal}%</div>
+                      <div style={{ fontSize: '11px', color: '#4d5566' }}>A média semanal é de R$ 1.059</div>
+                    </div>
+
+                    <div style={{ padding: '12px', background: '#fbfaf6', borderRadius: '12px' }}>
+                      <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', marginBottom: '8px', color: '#1b2430' }}>
+                        Por mês
+                      </label>
+                      <div style={{ fontSize: '18px', fontWeight: '700', color: '#1b2430', marginBottom: '4px' }}>{discountMensal}%</div>
+                      <div style={{ fontSize: '11px', color: '#4d5566' }}>A média mensal é de R$ 4.307</div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Disponibilidade Tab */}
+                {configTab === 'disponibilidade' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    <div style={{ padding: '12px', background: '#fbfaf6', borderRadius: '12px' }}>
+                      <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', marginBottom: '8px', color: '#1b2430' }}>
+                        Número mínimo de noites
+                      </label>
+                      <div style={{ fontSize: '18px', fontWeight: '700', color: '#1b2430' }}>{minStay}</div>
+                    </div>
+
+                    <div style={{ padding: '12px', background: '#fbfaf6', borderRadius: '12px' }}>
+                      <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', marginBottom: '8px', color: '#1b2430' }}>
+                        Número máximo de noites
+                      </label>
+                      <div style={{ fontSize: '18px', fontWeight: '700', color: '#1b2430' }}>{maxStay}</div>
+                    </div>
+
+                    <div style={{ padding: '12px', background: '#fbfaf6', borderRadius: '12px' }}>
+                      <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', marginBottom: '8px', color: '#1b2430' }}>
+                        Tempo de antecedência
+                      </label>
+                      <div style={{ fontSize: '14px', color: '#1b2430' }}>Mesmo dia</div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Footer padding */}
+              <div style={{ height: '16px' }} />
+            </div>
+          </div>
+        )}
       </div>
     )
   }
