@@ -861,11 +861,11 @@ export function CalendarKanbanView({
             position: 'absolute',
             top: '110px',
             left: '250px',
-            right: 0,
-            bottom: 0,
+            width: 'calc(100% - 250px)',
+            height: 'calc(100% - 110px)',
             pointerEvents: 'none',
             zIndex: 20,
-            overflow: 'hidden',
+            overflow: 'visible',
           }}
         >
           {calculateReservationBars().map(bar => (
