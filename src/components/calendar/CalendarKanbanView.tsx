@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useMemo } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ReservationBar } from './ReservationBar'
 
 interface Property {
   id: string
@@ -115,6 +116,45 @@ export function CalendarKanbanView({
       return 'Concluído'
     }
     return 'Confirmado'
+  }
+
+  // Calculate reservation bars (for rendering as overlay blocks)
+  const calculateReservationBars = () => {
+    const bars: Array<{
+      id: string
+      reservation: Reservation
+      dayStartIndex: number
+      totalDays: number
+      rowIndex: number
+    }> = []
+
+    propertiesToShow.forEach((property, rowIndex) => {
+      reservations
+        .filter(res => res.propertyId === property.id)
+        .forEach(reservation => {
+          const startDate = new Date(reservation.startDate)
+          const dayStartIndex = allDays.findIndex(
+            day => day.toDateString() === startDate.toDateString()
+          )
+
+          if (dayStartIndex === -1) return
+
+          const endDate = new Date(reservation.endDate)
+          const totalDays = Math.ceil(
+            (endDate.getTime() - startDate.getTime()) / (24 * 60 * 60 * 1000)
+          )
+
+          bars.push({
+            id: `${reservation.id}-${property.id}`,
+            reservation,
+            dayStartIndex,
+            totalDays,
+            rowIndex,
+          })
+        })
+    })
+
+    return bars
   }
 
   // Check if a date is within a reservation for a property
@@ -607,6 +647,32 @@ export function CalendarKanbanView({
 
           {/* Scrollable calendar grid */}
           <div className="kanban-scroll-area">
+            {/* Reservation overlay bars */}
+            <div
+              style={{
+                position: 'absolute',
+                top: '60px',
+                left: 0,
+                right: 0,
+                bottom: 0,
+                pointerEvents: 'none',
+                zIndex: 5,
+              }}
+            >
+              {calculateReservationBars().map(bar => (
+                <ReservationBar
+                  key={bar.id}
+                  reservation={bar.reservation}
+                  dayStartIndex={bar.dayStartIndex}
+                  totalDays={bar.totalDays}
+                  rowIndex={bar.rowIndex}
+                  cellWidth={85}
+                  cellGap={1}
+                  cellHeight={90}
+                />
+              ))}
+            </div>
+
             {/* Day headers with scroll */}
             <div className="kanban-days-header" ref={daysHeaderRef}>
               {allDays.map((date, idx) => (
@@ -649,45 +715,9 @@ export function CalendarKanbanView({
                           textAlign: 'center',
                         }}
                       >
-                        {isBooked && reservation ? (
-                          <>
-                            <div style={{
-                              fontSize: '9px',
-                              fontWeight: '700',
-                              color: '#ffffff',
-                              whiteSpace: 'nowrap',
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              maxWidth: '80px',
-                              minWidth: '80px',
-                              width: '80px',
-                              lineHeight: '1',
-                            }}>
-                              {reservation.guestName}
-                            </div>
-                            <div style={{
-                              fontSize: '8px',
-                              color: '#ffffff',
-                              opacity: 0.9,
-                              lineHeight: '1',
-                              minHeight: '8px',
-                            }}>
-                              {reservation.guestCount || 1} hosp.
-                            </div>
-                            <div style={{
-                              fontSize: '7px',
-                              color: '#a0aec0',
-                              opacity: 0.8,
-                              lineHeight: '1',
-                              minHeight: '7px',
-                              fontWeight: '500',
-                            }}>
-                              {getReservationStatus(reservation, date)}
-                            </div>
-                          </>
-                        ) : (
-                          <div className="cell-price">{getPrice(property.id, idx)}</div>
-                        )}
+                        <div className="cell-price" style={{ color: isBooked ? '#ffffff' : '#4d5566' }}>
+                          {getPrice(property.id, idx)}
+                        </div>
                       </div>
                     )
                   })}
