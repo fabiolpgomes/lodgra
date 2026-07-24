@@ -452,9 +452,8 @@ export function CalendarKanbanView({
               // Properties list
               <>
                 <div className="property-label-header">
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                    <div style={{ fontSize: '12px', fontWeight: '600', color: '#1b2430' }}>Propriedades</div>
-                    <div style={{ fontSize: '13px', fontWeight: '700', color: '#4d5566' }}>{propertiesToShow.length} Propriedades</div>
+                  <div style={{ fontSize: '14px', fontWeight: '700', color: '#1b2430', textAlign: 'center' }}>
+                    {propertiesToShow.length} Propriedades
                   </div>
                 </div>
                 {propertiesToShow.map(property => (

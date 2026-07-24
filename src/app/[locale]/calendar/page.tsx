@@ -51,12 +51,18 @@ export default function CalendarPage() {
 
         if (reservRes.ok) {
           const reservData = await reservRes.json()
-          const reserv = reservData.data?.reservations || reservData.reservations || []
-          // Map reservation dates to Date objects
-          const mappedReserv = reserv.map((r: any) => ({
-            ...r,
-            startDate: new Date(r.startDate),
-            endDate: new Date(r.endDate),
+          // API returns array of events directly or nested in .data
+          const events = Array.isArray(reservData) ? reservData : (reservData.data || [])
+          // Map FullCalendar events to our Reservation format
+          const mappedReserv = events.map((evt: any) => ({
+            id: evt.id,
+            propertyId: evt.extendedProps?.property_id || '',
+            guestName: evt.extendedProps?.guest_name || 'Hóspede',
+            guestCount: evt.extendedProps?.number_of_guests || 1,
+            startDate: new Date(evt.start),
+            endDate: new Date(evt.end),
+            price: 0, // Not provided in this API
+            status: evt.extendedProps?.status || 'confirmed',
           }))
           setReservations(mappedReserv)
         }
