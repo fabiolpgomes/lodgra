@@ -33,7 +33,7 @@ export function ReservationBar({
   // Calculate exact positioning
   const blockWidth = totalDays * cellWidth + (totalDays - 1) * cellGap
   const leftOffset = dayStartIndex * (cellWidth + cellGap)
-  const topOffset = rowIndex * (cellHeight + 1)
+  const topOffset = rowIndex * (cellHeight + 1) + 15
 
   // Determine status
   const getStatus = () => {
@@ -50,6 +50,11 @@ export function ReservationBar({
     return 'Confirmado'
   }
 
+  // Format price
+  const formatPrice = (price: number) => {
+    return `R$ ${price.toFixed(2)}`
+  }
+
   return (
     <div
       style={{
@@ -57,69 +62,58 @@ export function ReservationBar({
         left: `${leftOffset}px`,
         top: `${topOffset}px`,
         width: `${blockWidth}px`,
-        height: `${cellHeight}px`,
-        background: '#10203E',
-        borderRadius: '8px',
+        height: '30px',
+        background: '#1a7a85',
+        borderRadius: '6px',
         display: 'flex',
         alignItems: 'center',
         paddingLeft: '12px',
         paddingRight: '12px',
-        gap: '8px',
+        gap: '12px',
         zIndex: 10,
         boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
         pointerEvents: 'auto',
         cursor: 'pointer',
         transition: 'all 0.2s',
+        fontSize: '12px',
+        color: '#ffffff',
+        fontWeight: '600',
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.25)'
+        e.currentTarget.style.background = '#156670'
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)'
+        e.currentTarget.style.background = '#1a7a85'
       }}
     >
       {/* Guest Name */}
       <div
         style={{
-          fontSize: '13px',
-          fontWeight: '700',
-          color: '#ffffff',
           whiteSpace: 'nowrap',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
           flexShrink: 0,
-          maxWidth: '120px',
+          maxWidth: '140px',
         }}
       >
         {reservation.guestName}
       </div>
 
-      {/* Divider */}
-      <div
-        style={{
-          width: '1px',
-          height: '20px',
-          background: 'rgba(255,255,255,0.3)',
-          flexShrink: 0,
-        }}
-      />
+      {/* Guest Count */}
+      <div style={{ whiteSpace: 'nowrap', flexShrink: 0 }}>
+        {reservation.guestCount || 1} hosp.
+      </div>
 
-      {/* Guest Count + Status */}
-      <div
-        style={{
-          display: 'flex',
-          gap: '6px',
-          alignItems: 'center',
-          fontSize: '11px',
-          color: '#a0aec0',
-          flexShrink: 1,
-          minWidth: 0,
-          whiteSpace: 'nowrap',
-        }}
-      >
-        <span>{reservation.guestCount || 1} hosp.</span>
-        <span>•</span>
-        <span>{getStatus()}</span>
+      {/* Price */}
+      <div style={{ whiteSpace: 'nowrap', flexShrink: 0, fontWeight: '700' }}>
+        {formatPrice(reservation.price || 0)}
+      </div>
+
+      {/* Status */}
+      <div style={{ whiteSpace: 'nowrap', flexShrink: 0, marginLeft: 'auto' }}>
+        {getStatus()}
       </div>
     </div>
   )
