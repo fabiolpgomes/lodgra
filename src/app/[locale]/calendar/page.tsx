@@ -1,8 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { DesktopCalendarLayout } from '@/components/calendar/DesktopCalendarLayout'
-import '@/styles/mobile-calendar.css'
+import { CalendarListView } from '@/components/calendar/CalendarListView'
+import { CalendarKanbanView } from '@/components/calendar/CalendarKanbanView'
+import '@/styles/calendar-kanban.css'
 
 // Mock data - replace with actual API calls
 const mockProperties = [
@@ -68,12 +69,23 @@ const mockProperties = [
 ]
 
 export default function CalendarPage() {
+  const [selectedPropertyId, setSelectedPropertyId] = useState<string | undefined>()
+  const [isDesktop, setIsDesktop] = useState(typeof window !== 'undefined' && window.innerWidth >= 1024)
+
   return (
-    <div className="h-screen w-screen bg-white">
-      <DesktopCalendarLayout
-        properties={mockProperties}
-        initialPropertyId="prop-1"
-      />
-    </div>
+    <>
+      {isDesktop ? (
+        <CalendarKanbanView
+          properties={mockProperties}
+          reservations={[]}
+          selectedPropertyId={selectedPropertyId}
+        />
+      ) : (
+        <CalendarListView
+          properties={mockProperties}
+          onPropertySelect={setSelectedPropertyId}
+        />
+      )}
+    </>
   )
 }
