@@ -82,6 +82,24 @@ export function CalendarKanbanView({
     })
   }
 
+  // Check if this is the first day of a reservation (for multi-day span styling)
+  const isReservationStart = (propertyId: string, date: Date) => {
+    const res = getReservationForDate(propertyId, date)
+    if (!res) return false
+    const start = new Date(res.startDate)
+    return date.toDateString() === start.toDateString()
+  }
+
+  // Check if this is the last day of a reservation (for multi-day span styling)
+  const isReservationEnd = (propertyId: string, date: Date) => {
+    const res = getReservationForDate(propertyId, date)
+    if (!res) return false
+    const end = new Date(res.endDate)
+    const prevDay = new Date(end)
+    prevDay.setDate(prevDay.getDate() - 1)
+    return date.toDateString() === prevDay.toDateString()
+  }
+
   // Check if a date is within a reservation for a property
   const isDateInReservation = (propertyId: string, date: Date): boolean => {
     return !!getReservationForDate(propertyId, date)
@@ -601,14 +619,16 @@ export function CalendarKanbanView({
                         style={{
                           cursor: isBooked ? 'not-allowed' : 'pointer',
                           background: isBooked ? '#10203E' : isSelected ? '#e8f0fe' : '#ffffff',
-                          borderLeft: isSelected ? '3px solid #1b2430' : 'none',
+                          borderLeft: isReservationStart(property.id, date) ? '2px solid #ffffff' : isSelected ? '3px solid #1b2430' : 'none',
+                          borderRight: isReservationEnd(property.id, date) ? '2px solid #ffffff' : 'none',
+                          borderRadius: isReservationStart(property.id, date) ? '6px 0 0 6px' : isReservationEnd(property.id, date) ? '0 6px 6px 0' : '0',
                           opacity: 1,
                           display: 'flex',
                           flexDirection: 'column',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          gap: '3px',
-                          padding: '8px',
+                          gap: '2px',
+                          padding: '6px',
                           textAlign: 'center',
                         }}
                       >

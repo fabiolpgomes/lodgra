@@ -421,9 +421,10 @@
   justify-content: center;
   background: #fbfaf6;
   gap: 4px;
-  flex: 0 0 100px;
+  flex: 0 0 85px;
   padding: 12px;
   box-sizing: border-box;
+  min-height: 60px;
 }
 
 .day-abbr {
@@ -469,14 +470,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 12px;
+  padding: 8px;
   background: #ffffff;
-  flex: 0 0 100px;
+  flex: 0 0 85px;
   box-sizing: border-box;
   cursor: pointer;
   transition: background 0.2s;
   border-right: 1px solid #efeadf;
   min-height: 90px;
+  height: 90px;
 }
 
 .kanban-cell:hover {
