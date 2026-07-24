@@ -37,12 +37,12 @@ export default function CalendarPage() {
 
         if (propsRes.ok) {
           const propsData = await propsRes.json()
-          setProperties(propsData.properties || propsData || [])
+          setProperties(propsData.data?.properties || propsData.properties || [])
         }
 
         if (reservRes.ok) {
           const reservData = await reservRes.json()
-          setReservations(reservData.reservations || reservData || [])
+          setReservations(reservData.data?.reservations || reservData.reservations || [])
         }
       } catch (error) {
         console.error('Error fetching calendar data:', error)
