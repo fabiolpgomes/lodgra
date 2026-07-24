@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter, useParams } from 'next/navigation'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { CalendarListView } from '@/components/calendar/CalendarListView'
 import { CalendarKanbanView } from '@/components/calendar/CalendarKanbanView'
 import '@/styles/calendar-kanban.css'
@@ -83,7 +83,7 @@ export default function CalendarPage() {
   })
 
   // Update on mount to catch client-side width
-  useState(() => {
+  useEffect(() => {
     if (typeof window !== 'undefined') {
       const handleResize = () => {
         setIsDesktop(window.innerWidth >= 1024)

@@ -462,7 +462,7 @@ export default function PropertyCalendarPage() {
                   display: 'grid',
                   gridTemplateColumns: 'repeat(7, 1fr)',
                   gap: '16px',
-                  autoRows: '120px',
+                  gridAutoRows: '120px',
                 }}
               >
                 {daysGrid.map((day, idx) => (
