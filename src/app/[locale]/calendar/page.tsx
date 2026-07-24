@@ -124,6 +124,7 @@ export default function CalendarPage() {
   ) : (
     <CalendarListView
       properties={properties}
+      reservations={reservations}
       onPropertySelect={handlePropertyClick}
     />
   )
