@@ -35,13 +35,6 @@ export function ReservationBar({
   const leftOffset = dayStartIndex * (cellWidth + cellGap)
   const topOffset = rowIndex * (cellHeight + 1) + 15
 
-  console.log('ReservationBar rendering:', {
-    guest: reservation.guestName,
-    width: blockWidth,
-    left: leftOffset,
-    top: topOffset,
-  })
-
   // Determine status
   const getStatus = () => {
     const start = new Date(reservation.startDate)
