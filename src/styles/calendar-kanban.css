@@ -258,7 +258,8 @@
 .kanban-wrapper {
   display: flex;
   height: 100%;
-  overflow: hidden;
+  overflow: visible;
+  position: relative;
 }
 
 .kanban-properties-column {

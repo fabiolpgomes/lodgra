@@ -54,17 +54,25 @@ export default function CalendarPage() {
           // API returns array of events directly or nested in .data
           const events = Array.isArray(reservData) ? reservData : (reservData.data || [])
           // Map FullCalendar events to our Reservation format
-          const mappedReserv = events.map((evt: any) => ({
-            id: evt.id,
-            propertyId: evt.extendedProps?.property_id || '',
-            guestName: evt.extendedProps?.guest_name || 'Hóspede',
-            guestCount: evt.extendedProps?.number_of_guests || 1,
-            startDate: new Date(evt.start),
-            endDate: new Date(evt.end),
-            price: evt.extendedProps?.total_amount || 0,
-            currency: evt.extendedProps?.currency || 'EUR',
-            status: evt.extendedProps?.status || 'confirmed',
-          }))
+          const mappedReserv = events.map((evt: any) => {
+            // Parse dates as UTC to avoid timezone mismatch
+            const startStr = evt.start.split('T')[0] // "2026-05-08"
+            const endStr = evt.end.split('T')[0] // "2026-05-09"
+            const [startYear, startMonth, startDay] = startStr.split('-').map(Number)
+            const [endYear, endMonth, endDay] = endStr.split('-').map(Number)
+
+            return {
+              id: evt.id,
+              propertyId: evt.extendedProps?.property_id || '',
+              guestName: evt.extendedProps?.guest_name || 'Hóspede',
+              guestCount: evt.extendedProps?.number_of_guests || 1,
+              startDate: new Date(startYear, startMonth - 1, startDay),
+              endDate: new Date(endYear, endMonth - 1, endDay),
+              price: evt.extendedProps?.total_amount || 0,
+              currency: evt.extendedProps?.currency || 'EUR',
+              status: evt.extendedProps?.status || 'confirmed',
+            }
+          })
           setReservations(mappedReserv)
 
           // Debug logging
