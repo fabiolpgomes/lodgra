@@ -68,43 +68,25 @@ export function CalendarKanbanView({
   // Calculate today's index in allDays array
   let todayIndex = -1
   const todayStr = now.toDateString()
-  console.log('[DEBUG] now:', now, 'todayStr:', todayStr)
-  console.log('[DEBUG] baseDate:', baseDate, 'baseDate.toDateString():', baseDate.toDateString())
-  console.log('[DEBUG] allDays[0]:', allDays[0]?.toDateString(), 'allDays[91]:', allDays[91]?.toDateString())
 
   for (let i = 0; i < allDays.length; i++) {
     if (allDays[i].toDateString() === todayStr) {
       todayIndex = i
-      console.log('[DEBUG] Found todayIndex:', todayIndex, 'at date:', allDays[i].toDateString())
       break
     }
   }
 
-  if (todayIndex === -1) {
-    console.log('[DEBUG] todayIndex NOT found! Using fallback 13')
-  }
-
   const initialWeekIndex = todayIndex >= 0 ? Math.floor(todayIndex / 7) : 13
-  console.log('[DEBUG] initialWeekIndex:', initialWeekIndex, 'scrollPos would be:', initialWeekIndex * 707)
-  const [weekIndex, setWeekIndex] = useState(() => {
-    console.log('[DEBUG] useState initializer function, returning:', initialWeekIndex)
-    return initialWeekIndex
-  })
+  const [weekIndex, setWeekIndex] = useState(initialWeekIndex)
 
   // Scroll to today when week index changes (useLayoutEffect runs before paint)
   useLayoutEffect(() => {
     const scrollPos = weekIndex * 601 // 7 days * 85px + 6 gaps * 1px = 601px
-    console.log('[useLayoutEffect] weekIndex:', weekIndex, 'scrollPos:', scrollPos)
-    console.log('[useLayoutEffect] daysHeaderRef.current:', daysHeaderRef.current)
-    console.log('[useLayoutEffect] cellsGridRef.current:', cellsGridRef.current)
-
     if (daysHeaderRef.current) {
       daysHeaderRef.current.scrollLeft = scrollPos
-      console.log('[useLayoutEffect] Set daysHeaderRef.scrollLeft to:', daysHeaderRef.current.scrollLeft)
     }
     if (cellsGridRef.current) {
       cellsGridRef.current.scrollLeft = scrollPos
-      console.log('[useLayoutEffect] Set cellsGridRef.scrollLeft to:', cellsGridRef.current.scrollLeft)
     }
   }, [weekIndex])
   const [prices, setPrices] = useState<Record<string, number>>({}) // Store custom prices
@@ -172,9 +154,7 @@ export function CalendarKanbanView({
     : properties
 
   // Calculate reservation bars (for rendering as overlay blocks)
-  const calculateReservationBars = () => {
-    console.log('[calculateReservationBars] START - propertiesToShow:', propertiesToShow.length, 'total reservations:', reservations.length)
-
+  const allReservationBars = useMemo(() => {
     const bars: Array<{
       id: string
       reservation: Reservation
@@ -184,21 +164,15 @@ export function CalendarKanbanView({
     }> = []
 
     propertiesToShow.forEach((property, rowIndex) => {
-      const propReservations = reservations.filter(res => res.propertyId === property.id)
-      console.log('[calculateReservationBars] Property:', property.name, 'reservations:', propReservations.length)
-
-      propReservations.forEach(reservation => {
+      reservations
+        .filter(res => res.propertyId === property.id)
+        .forEach(reservation => {
           const startDate = new Date(reservation.startDate)
           const dayStartIndex = allDays.findIndex(
             day => day.toDateString() === startDate.toDateString()
           )
 
           if (dayStartIndex === -1) {
-            console.log('[calculateReservationBars] Reservation NOT found in allDays:', {
-              reservationId: reservation.id,
-              startDate: startDate.toDateString(),
-              allDaysRange: `${allDays[0]?.toDateString()} to ${allDays[allDays.length-1]?.toDateString()}`
-            })
             return
           }
 
@@ -206,15 +180,6 @@ export function CalendarKanbanView({
           const totalDays = Math.ceil(
             (endDate.getTime() - startDate.getTime()) / (24 * 60 * 60 * 1000)
           )
-
-          console.log('[calculateReservationBars] Bar found:', {
-            guestName: reservation.guestName,
-            startDate: startDate.toDateString(),
-            dayStartIndex,
-            weekIndex: Math.floor(dayStartIndex / 7),
-            totalDays,
-            property: property.name
-          })
 
           bars.push({
             id: `${reservation.id}-${property.id}`,
@@ -226,9 +191,8 @@ export function CalendarKanbanView({
         })
     })
 
-
     return bars
-  }
+  }, [propertiesToShow, reservations, allDays])
 
   // Check if a date is within a reservation for a property
   const isDateInReservation = (propertyId: string, date: Date): boolean => {
@@ -244,15 +208,12 @@ export function CalendarKanbanView({
   // Sync scroll position when week index changes
   useEffect(() => {
     const syncScroll = () => {
-      const scrollPos = weekIndex * 601 // 7 days * 85px + 6 gaps * 1px = 595 + 6 = 601px
-      console.log('[useEffect syncScroll] weekIndex:', weekIndex, 'scrollPos:', scrollPos)
+      const scrollPos = weekIndex * 601 // 7 days * 85px + 6 gaps * 1px = 601px
       if (daysHeaderRef.current) {
         daysHeaderRef.current.scrollLeft = scrollPos
-        console.log('[useEffect] Set daysHeaderRef.scrollLeft to:', daysHeaderRef.current.scrollLeft)
       }
       if (cellsGridRef.current) {
         cellsGridRef.current.scrollLeft = scrollPos
-        console.log('[useEffect] Set cellsGridRef.scrollLeft to:', cellsGridRef.current.scrollLeft)
       }
     }
 
@@ -906,7 +867,7 @@ export function CalendarKanbanView({
             overflow: 'visible',
           }}
         >
-          {calculateReservationBars()
+          {allReservationBars
             .filter(bar => {
               // Only render bars that are in the current week or adjacent weeks (to avoid rendering off-screen bars)
               const barWeekIndex = Math.floor(bar.dayStartIndex / 7)
