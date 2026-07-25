@@ -55,7 +55,7 @@ export function CalendarKanbanView({
   const [scrollLeft, setScrollLeft] = useState(0)
   const [scrollTop, setScrollTop] = useState(0)
 
-  // Generate 90 days for better UX (3 months for scrolling)
+  // Generate 180 days for better UX (3 months for scrolling)
   // IMPORTANT: Match the API's date range (defaultFrom: 3 months back, defaultTo: 3 months forward)
   const now = new Date()
   const baseDate = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate())
@@ -65,55 +65,23 @@ export function CalendarKanbanView({
     return date
   })
 
-  // Find today's index in allDays and calculate initial week
-  const getTodayWeekIndex = () => {
-    // Create today's date using the same method as allDays to avoid timezone issues
+  // Calculate initial week index to show today
+  const initialWeekIndex = (() => {
+    // Create today's date in local timezone without time component
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
 
-    // Debug: Log the dates being compared
-    if (typeof window !== 'undefined') {
-      console.log('[getTodayWeekIndex] Starting search...', {
-        now: now.toDateString(),
-        today: today.toDateString(),
-        today_time: today.getTime(),
-        allDays_count: allDays.length,
-        allDays_first_details: {
-          date: allDays[0],
-          dateString: allDays[0]?.toDateString(),
-          time: allDays[0]?.getTime(),
-          constructed: new Date(allDays[0]?.getFullYear(), allDays[0]?.getMonth(), allDays[0]?.getDate())?.getTime(),
-        }
-      })
-    }
-
-    // Find which day index matches today
-    const todayIndex = allDays.findIndex((day, idx) => {
-      const d = new Date(day.getFullYear(), day.getMonth(), day.getDate())
-      const match = d.getTime() === today.getTime()
-      if (idx < 5 || idx > 88) {
-        console.log(`  [Index ${idx}]`, {
-          dayStr: day.toDateString(),
-          dStr: d.toDateString(),
-          d_time: d.getTime(),
-          match,
-        })
+    // Find today in allDays array
+    for (let i = 0; i < allDays.length; i++) {
+      const dayInArray = new Date(allDays[i].getFullYear(), allDays[i].getMonth(), allDays[i].getDate())
+      if (dayInArray.getTime() === today.getTime()) {
+        return Math.floor(i / 7) // Return week index
       }
-      return match
-    })
-
-    const weekIdx = todayIndex === -1 ? 0 : Math.floor(todayIndex / 7)
-
-    if (typeof window !== 'undefined') {
-      console.log('[getTodayWeekIndex] RESULT:', {
-        todayIndex,
-        weekIndex: weekIdx,
-      })
     }
 
-    return weekIdx
-  }
+    return 13 // Default to week 13 (approximately 3 months forward)
+  })()
 
-  const [weekIndex, setWeekIndex] = useState(getTodayWeekIndex()) // Start at today
+  const [weekIndex, setWeekIndex] = useState(initialWeekIndex) // Start at today's week
   const [prices, setPrices] = useState<Record<string, number>>({}) // Store custom prices
   const [availability, setAvailability] = useState<Record<string, 'available' | 'blocked'>>({})
   const [minNights, setMinNights] = useState<Record<string, number>>({})
