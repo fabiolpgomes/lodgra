@@ -79,19 +79,6 @@ export function CalendarKanbanView({
     return date
   })
 
-  // Debug: Log date range for troubleshooting
-  if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-    console.debug('[CalendarKanban] Date range:', {
-      start: allDays[0]?.toISOString().slice(0, 10),
-      end: allDays[allDays.length - 1]?.toISOString().slice(0, 10),
-      total_days: allDays.length,
-      reservations_count: reservations.length,
-      visible_reservations: reservations.filter(r => {
-        const start = new Date(r.startDate)
-        return allDays.some(d => d.toDateString() === start.toDateString())
-      }).length,
-    })
-  }
 
   // Get reservation for a date and property
   const getReservationForDate = (propertyId: string, date: Date) => {
@@ -163,22 +150,6 @@ export function CalendarKanbanView({
           )
 
           if (dayStartIndex === -1) {
-            // Debug: Log why reservation was skipped
-            if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-              const startStr = startDate.toDateString()
-              const matchingDay = allDays.find(d => d.toDateString() === startStr)
-              const skipInfo = {
-                id: reservation.id,
-                guest: reservation.guestName,
-                startDate: startDate.toISOString().slice(0, 10),
-                startDateString: startStr,
-                allDaysStart: allDays[0]?.toDateString(),
-                allDaysEnd: allDays[allDays.length - 1]?.toDateString(),
-                matchingDay: !!matchingDay,
-                sampleDays: allDays.slice(0, 3).map(d => d.toDateString()),
-              }
-              console.warn('[CalendarKanban] Skipped:', JSON.stringify(skipInfo))
-            }
             return
           }
 
@@ -197,18 +168,6 @@ export function CalendarKanbanView({
         })
     })
 
-    if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-      const barsInfo = {
-        total_bars: bars.length,
-        properties: propertiesToShow.length,
-        reservations: reservations.length,
-        bars_by_property: propertiesToShow.reduce((acc, prop) => {
-          acc[prop.name] = bars.filter(b => b.reservation.propertyId === prop.id).length
-          return acc
-        }, {} as Record<string, number>),
-      }
-      console.warn('[CalendarKanban] Calculated bars:', JSON.stringify(barsInfo))
-    }
 
     return bars
   }
@@ -917,24 +876,18 @@ export function CalendarKanbanView({
             overflow: 'visible',
           }}
         >
-          {(() => {
-            const bars = calculateReservationBars()
-            if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development' && bars.length > 0) {
-              console.warn(`[ReservationBar] Rendering ${bars.length} bars`)
-            }
-            return bars.map(bar => (
-              <ReservationBar
-                key={bar.id}
-                reservation={bar.reservation}
-                dayStartIndex={bar.dayStartIndex}
-                totalDays={bar.totalDays}
-                rowIndex={bar.rowIndex}
-                cellWidth={85}
-                cellGap={1}
-                cellHeight={90}
-              />
-            ))
-          })()}
+          {calculateReservationBars().map(bar => (
+            <ReservationBar
+              key={bar.id}
+              reservation={bar.reservation}
+              dayStartIndex={bar.dayStartIndex}
+              totalDays={bar.totalDays}
+              rowIndex={bar.rowIndex}
+              cellWidth={85}
+              cellGap={1}
+              cellHeight={90}
+            />
+          ))}
         </div>
       </div>
     </div>
