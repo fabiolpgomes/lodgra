@@ -890,15 +890,15 @@ export function CalendarKanbanView({
           ))}
         </div>
 
-        {/* Fixed mask at properties boundary to hide bars that overflow leftward */}
+        {/* Fixed mask covering entire properties column to hide any bar overflow */}
         <div
           style={{
             position: 'absolute',
             top: '110px',
-            left: '250px',
-            width: '50px',
+            left: '0',
+            width: '250px',
             height: 'calc(100% - 110px)',
-            background: 'linear-gradient(to right, #fbfaf6 0%, #fbfaf6 80%, transparent 100%)',
+            background: '#fbfaf6',
             zIndex: 21,
             pointerEvents: 'none',
           }}
