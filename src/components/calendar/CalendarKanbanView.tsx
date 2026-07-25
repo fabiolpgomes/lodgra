@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect, useMemo } from 'react'
+import { useState, useRef, useEffect, useLayoutEffect, useMemo } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { ReservationBar } from './ReservationBar'
@@ -76,25 +76,11 @@ export function CalendarKanbanView({
   const initialWeekIndex = todayIndex >= 0 ? Math.floor(todayIndex / 7) : 13
   const [weekIndex, setWeekIndex] = useState(initialWeekIndex)
 
-  // Scroll to today when component mounts
-  useEffect(() => {
-    const doScroll = () => {
-      const scrollPos = weekIndex * 707 // 7 days * 101px per day
-      console.log('[Calendar] Setting scroll to:', { weekIndex, scrollPos, todayIndex })
-      if (daysHeaderRef.current) {
-        daysHeaderRef.current.scrollLeft = scrollPos
-        console.log('[Calendar] Header scroll set to:', daysHeaderRef.current.scrollLeft)
-      }
-      if (cellsGridRef.current) {
-        cellsGridRef.current.scrollLeft = scrollPos
-        console.log('[Calendar] Cells scroll set to:', cellsGridRef.current.scrollLeft)
-      }
-    }
-
-    // Wait for DOM to be fully ready
-    requestAnimationFrame(() => {
-      setTimeout(doScroll, 100)
-    })
+  // Scroll to today when week index changes (useLayoutEffect runs before paint)
+  useLayoutEffect(() => {
+    const scrollPos = weekIndex * 707
+    if (daysHeaderRef.current) daysHeaderRef.current.scrollLeft = scrollPos
+    if (cellsGridRef.current) cellsGridRef.current.scrollLeft = scrollPos
   }, [weekIndex])
   const [prices, setPrices] = useState<Record<string, number>>({}) // Store custom prices
   const [availability, setAvailability] = useState<Record<string, 'available' | 'blocked'>>({})
