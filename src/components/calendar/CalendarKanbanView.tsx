@@ -906,13 +906,20 @@ export function CalendarKanbanView({
             overflow: 'visible',
           }}
         >
-          {calculateReservationBars().map(bar => (
+          {calculateReservationBars()
+            .filter(bar => {
+              // Only render bars that are in the current week or adjacent weeks (to avoid rendering off-screen bars)
+              const barWeekIndex = Math.floor(bar.dayStartIndex / 7)
+              return barWeekIndex >= weekIndex - 1 && barWeekIndex <= weekIndex + 1
+            })
+            .map(bar => (
             <ReservationBar
               key={bar.id}
               reservation={bar.reservation}
               dayStartIndex={bar.dayStartIndex}
               totalDays={bar.totalDays}
               rowIndex={bar.rowIndex}
+              weekIndex={Math.floor(bar.dayStartIndex / 7)}
               cellWidth={85}
               cellGap={1}
               cellHeight={90}
