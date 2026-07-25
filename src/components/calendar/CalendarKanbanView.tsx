@@ -65,23 +65,24 @@ export function CalendarKanbanView({
     return date
   })
 
-  // Calculate initial week index to show today
-  const initialWeekIndex = (() => {
-    // Create today's date in local timezone without time component
+  const [weekIndex, setWeekIndex] = useState(0) // Start at 0, will be synced by useEffect
+
+  // Sync to today's week when component mounts
+  useEffect(() => {
+    // Calculate today's week index
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
 
-    // Find today in allDays array
     for (let i = 0; i < allDays.length; i++) {
       const dayInArray = new Date(allDays[i].getFullYear(), allDays[i].getMonth(), allDays[i].getDate())
       if (dayInArray.getTime() === today.getTime()) {
-        return Math.floor(i / 7) // Return week index
+        setWeekIndex(Math.floor(i / 7))
+        return
       }
     }
 
-    return 13 // Default to week 13 (approximately 3 months forward)
-  })()
-
-  const [weekIndex, setWeekIndex] = useState(initialWeekIndex) // Start at today's week
+    // Fallback: go to approximately today
+    setWeekIndex(13)
+  }, [])
   const [prices, setPrices] = useState<Record<string, number>>({}) // Store custom prices
   const [availability, setAvailability] = useState<Record<string, 'available' | 'blocked'>>({})
   const [minNights, setMinNights] = useState<Record<string, number>>({})
