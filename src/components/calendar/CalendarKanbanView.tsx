@@ -55,7 +55,23 @@ export function CalendarKanbanView({
   const [scrollLeft, setScrollLeft] = useState(0)
   const [scrollTop, setScrollTop] = useState(0)
 
-  const [weekIndex, setWeekIndex] = useState(4) // Start at week 4 (late July)
+  // Generate 90 days for better UX (3 months for scrolling)
+  // IMPORTANT: Match the API's date range (defaultFrom: 3 months back, defaultTo: 3 months forward)
+  const now = new Date()
+  const baseDate = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate())
+  const allDays = Array.from({ length: 180 }, (_, i) => {
+    const date = new Date(baseDate)
+    date.setDate(date.getDate() + i)
+    return date
+  })
+
+  // Calculate initial week index to show today
+  const getTodayWeekIndex = () => {
+    const todayIndex = Math.floor((now.getTime() - baseDate.getTime()) / (1000 * 60 * 60 * 24))
+    return Math.floor(todayIndex / 7)
+  }
+
+  const [weekIndex, setWeekIndex] = useState(getTodayWeekIndex()) // Start at today
   const [prices, setPrices] = useState<Record<string, number>>({}) // Store custom prices
   const [availability, setAvailability] = useState<Record<string, 'available' | 'blocked'>>({})
   const [minNights, setMinNights] = useState<Record<string, number>>({})
@@ -68,16 +84,6 @@ export function CalendarKanbanView({
   const [selectedProperty, setSelectedProperty] = useState<string | null>(null) // Selected property for config panel
   const [propertyMinNights, setPropertyMinNights] = useState<Record<string, number>>({}) // Min nights per property
   const [configTab, setConfigTab] = useState<'preco' | 'desconto' | 'disponibilidade' | 'cancelamentos'>('preco')
-
-  // Generate 90 days for better UX (3 months for scrolling)
-  // IMPORTANT: Match the API's date range (defaultFrom: 3 months back, defaultTo: 3 months forward)
-  const now = new Date()
-  const baseDate = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate())
-  const allDays = Array.from({ length: 180 }, (_, i) => {
-    const date = new Date(baseDate)
-    date.setDate(date.getDate() + i)
-    return date
-  })
 
 
   // Get reservation for a date and property
