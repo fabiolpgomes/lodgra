@@ -191,6 +191,11 @@ export function CalendarKanbanView({
           )
 
           if (dayStartIndex === -1) {
+            console.log('[calculateReservationBars] Reservation NOT found in allDays:', {
+              reservationId: reservation.id,
+              startDate: startDate.toDateString(),
+              allDaysRange: `${allDays[0]?.toDateString()} to ${allDays[allDays.length-1]?.toDateString()}`
+            })
             return
           }
 
@@ -198,6 +203,15 @@ export function CalendarKanbanView({
           const totalDays = Math.ceil(
             (endDate.getTime() - startDate.getTime()) / (24 * 60 * 60 * 1000)
           )
+
+          console.log('[calculateReservationBars] Bar found:', {
+            guestName: reservation.guestName,
+            startDate: startDate.toDateString(),
+            dayStartIndex,
+            weekIndex: Math.floor(dayStartIndex / 7),
+            totalDays,
+            property: property.name
+          })
 
           bars.push({
             id: `${reservation.id}-${property.id}`,
