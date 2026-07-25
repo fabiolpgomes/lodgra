@@ -78,10 +78,24 @@ export function CalendarKanbanView({
 
   // Scroll to today when component mounts
   useEffect(() => {
-    const scrollPos = weekIndex * 707 // 7 days * 101px per day
-    if (daysHeaderRef.current) daysHeaderRef.current.scrollLeft = scrollPos
-    if (cellsGridRef.current) cellsGridRef.current.scrollLeft = scrollPos
-  }, [])
+    const doScroll = () => {
+      const scrollPos = weekIndex * 707 // 7 days * 101px per day
+      console.log('[Calendar] Setting scroll to:', { weekIndex, scrollPos, todayIndex })
+      if (daysHeaderRef.current) {
+        daysHeaderRef.current.scrollLeft = scrollPos
+        console.log('[Calendar] Header scroll set to:', daysHeaderRef.current.scrollLeft)
+      }
+      if (cellsGridRef.current) {
+        cellsGridRef.current.scrollLeft = scrollPos
+        console.log('[Calendar] Cells scroll set to:', cellsGridRef.current.scrollLeft)
+      }
+    }
+
+    // Wait for DOM to be fully ready
+    requestAnimationFrame(() => {
+      setTimeout(doScroll, 100)
+    })
+  }, [weekIndex])
   const [prices, setPrices] = useState<Record<string, number>>({}) // Store custom prices
   const [availability, setAvailability] = useState<Record<string, 'available' | 'blocked'>>({})
   const [minNights, setMinNights] = useState<Record<string, number>>({})
