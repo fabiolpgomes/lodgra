@@ -65,18 +65,20 @@ export function CalendarKanbanView({
     return date
   })
 
-  // Calculate initial week index to show today
+  // Find today's index in allDays and calculate initial week
   const getTodayWeekIndex = () => {
     const today = new Date()
-    today.setHours(0, 0, 0, 0) // Normalize time to midnight
+    today.setHours(0, 0, 0, 0)
 
-    const base = new Date(baseDate)
-    base.setHours(0, 0, 0, 0) // Normalize time to midnight
+    // Find which day index matches today
+    const todayIndex = allDays.findIndex(day => {
+      const d = new Date(day)
+      d.setHours(0, 0, 0, 0)
+      return d.getTime() === today.getTime()
+    })
 
-    const diffTime = today.getTime() - base.getTime()
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-
-    return Math.max(0, Math.floor(diffDays / 7))
+    if (todayIndex === -1) return 0 // Fallback if today not found
+    return Math.floor(todayIndex / 7)
   }
 
   const [weekIndex, setWeekIndex] = useState(getTodayWeekIndex()) // Start at today
@@ -652,14 +654,25 @@ export function CalendarKanbanView({
 
             {/* Day headers with scroll - REMOVED OVERLAY FROM HERE */}
             <div className="kanban-days-header" ref={daysHeaderRef}>
-              {allDays.map((date, idx) => (
-                <div key={idx} className="day-header-cell">
-                  <div className="day-abbr">
-                    {['D', 'S', 'T', 'Q', 'Q', 'S', 'S'][date.getDay()]}
+              {allDays.map((date, idx) => {
+                const isToday = date.toDateString() === now.toDateString()
+                return (
+                  <div key={idx} className="day-header-cell" style={{
+                    background: isToday ? '#e8f0ff' : 'transparent',
+                    borderRadius: isToday ? '8px' : '0',
+                  }}>
+                    <div className="day-abbr">
+                      {['D', 'S', 'T', 'Q', 'Q', 'S', 'S'][date.getDay()]}
+                    </div>
+                    <div className="day-number" style={{
+                      fontWeight: isToday ? '700' : '600',
+                      color: isToday ? '#10203E' : '#1b2430',
+                    }}>
+                      {date.getDate()}
+                    </div>
                   </div>
-                  <div className="day-number">{date.getDate()}</div>
-                </div>
-              ))}
+                )
+              })}
             </div>
 
             {/* Calendar cells grid with scroll */}
@@ -669,6 +682,7 @@ export function CalendarKanbanView({
                   {allDays.map((date, idx) => {
                     const key = `${property.id}-${idx}`
                     const isSelected = selectedDays.has(key)
+                    const isToday = date.toDateString() === now.toDateString()
                     const reservation = getReservationForDate(property.id, date)
                     const isBooked = !!reservation
                     return (
@@ -678,8 +692,8 @@ export function CalendarKanbanView({
                         onClick={(e) => !isBooked && handleCellClick(property.id, idx, e)}
                         style={{
                           cursor: isBooked ? 'not-allowed' : 'pointer',
-                          background: isSelected ? '#e8f0fe' : '#ffffff',
-                          borderLeft: isSelected ? '3px solid #1b2430' : 'none',
+                          background: isSelected ? '#e8f0fe' : (isToday ? '#f0f4ff' : '#ffffff'),
+                          borderLeft: isSelected ? '3px solid #1b2430' : (isToday ? '2px solid #5b7dd9' : 'none'),
                           borderRadius: '0',
                           opacity: 1,
                           display: 'flex',
