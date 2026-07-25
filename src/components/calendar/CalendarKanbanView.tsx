@@ -173,6 +173,8 @@ export function CalendarKanbanView({
 
   // Calculate reservation bars (for rendering as overlay blocks)
   const calculateReservationBars = () => {
+    console.log('[calculateReservationBars] START - propertiesToShow:', propertiesToShow.length, 'total reservations:', reservations.length)
+
     const bars: Array<{
       id: string
       reservation: Reservation
@@ -182,9 +184,10 @@ export function CalendarKanbanView({
     }> = []
 
     propertiesToShow.forEach((property, rowIndex) => {
-      reservations
-        .filter(res => res.propertyId === property.id)
-        .forEach(reservation => {
+      const propReservations = reservations.filter(res => res.propertyId === property.id)
+      console.log('[calculateReservationBars] Property:', property.name, 'reservations:', propReservations.length)
+
+      propReservations.forEach(reservation => {
           const startDate = new Date(reservation.startDate)
           const dayStartIndex = allDays.findIndex(
             day => day.toDateString() === startDate.toDateString()
