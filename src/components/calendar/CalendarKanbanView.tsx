@@ -868,12 +868,13 @@ export function CalendarKanbanView({
           style={{
             position: 'absolute',
             top: '110px',
-            left: '250px',
-            width: 'calc(100% - 250px)',
+            left: '0px',
+            width: '100%',
             height: 'calc(100% - 110px)',
             pointerEvents: 'none',
             zIndex: 20,
             overflow: 'visible',
+            clipPath: 'inset(0 0 0 250px)',
           }}
         >
           {calculateReservationBars().map(bar => (
