@@ -154,7 +154,7 @@ export function CalendarKanbanView({
     : properties
 
   // Calculate reservation bars (for rendering as overlay blocks)
-  const allReservationBars = useMemo(() => {
+  const calculateReservationBars = () => {
     const bars: Array<{
       id: string
       reservation: Reservation
@@ -192,7 +192,7 @@ export function CalendarKanbanView({
     })
 
     return bars
-  }, [propertiesToShow, reservations, allDays])
+  }
 
   // Check if a date is within a reservation for a property
   const isDateInReservation = (propertyId: string, date: Date): boolean => {
@@ -867,7 +867,7 @@ export function CalendarKanbanView({
             overflow: 'visible',
           }}
         >
-          {allReservationBars
+          {calculateReservationBars()
             .filter(bar => {
               // Only render bars that are in the current week or adjacent weeks (to avoid rendering off-screen bars)
               const barWeekIndex = Math.floor(bar.dayStartIndex / 7)
