@@ -201,30 +201,24 @@ export function CalendarKanbanView({
 
   // Sync scroll position when week index changes
   useEffect(() => {
-    if (daysHeaderRef.current && cellsGridRef.current) {
-      const scrollPos = weekIndex * (7 * 101) // 101px = 100px cell + 1px gap
-
-      // Use multiple frames to ensure perfect sync
-      const syncScroll = () => {
-        if (daysHeaderRef.current && cellsGridRef.current) {
-          daysHeaderRef.current.scrollLeft = scrollPos
-          cellsGridRef.current.scrollLeft = scrollPos
-        }
+    const syncScroll = () => {
+      if (daysHeaderRef.current && cellsGridRef.current) {
+        const scrollPos = weekIndex * (7 * 101) // 101px = 100px cell + 1px gap
+        console.log('[Scroll Sync]', { weekIndex, scrollPos })
+        daysHeaderRef.current.scrollLeft = scrollPos
+        cellsGridRef.current.scrollLeft = scrollPos
+      } else {
+        console.log('[Scroll Sync] Refs not ready', { daysHeaderRef: !!daysHeaderRef.current, cellsGridRef: !!cellsGridRef.current })
       }
+    }
 
-      // Sync immediately
-      syncScroll()
+    // Sync with small delay to ensure DOM is ready
+    const timer1 = setTimeout(syncScroll, 50)
+    const timer2 = setTimeout(syncScroll, 200)
 
-      // Sync after animation frame
-      const frameId = requestAnimationFrame(syncScroll)
-
-      // Sync again after render
-      const timer = setTimeout(syncScroll, 0)
-
-      return () => {
-        cancelAnimationFrame(frameId)
-        clearTimeout(timer)
-      }
+    return () => {
+      clearTimeout(timer1)
+      clearTimeout(timer2)
     }
   }, [weekIndex])
 
