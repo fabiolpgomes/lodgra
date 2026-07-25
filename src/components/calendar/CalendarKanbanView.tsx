@@ -65,23 +65,22 @@ export function CalendarKanbanView({
     return date
   })
 
-  const [weekIndex, setWeekIndex] = useState(0) // Start at 0, will be synced by useEffect
-
-  // Sync to today's week when component mounts
-  useEffect(() => {
-    // Calculate today's week index
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-
-    for (let i = 0; i < allDays.length; i++) {
-      const dayInArray = new Date(allDays[i].getFullYear(), allDays[i].getMonth(), allDays[i].getDate())
-      if (dayInArray.getTime() === today.getTime()) {
-        setWeekIndex(Math.floor(i / 7))
-        return
-      }
+  // Calculate today's index in allDays array
+  let todayIndex = -1
+  for (let i = 0; i < allDays.length; i++) {
+    if (allDays[i].toDateString() === now.toDateString()) {
+      todayIndex = i
+      break
     }
+  }
+  const initialWeekIndex = todayIndex >= 0 ? Math.floor(todayIndex / 7) : 13
+  const [weekIndex, setWeekIndex] = useState(initialWeekIndex)
 
-    // Fallback: go to approximately today
-    setWeekIndex(13)
+  // Scroll to today when component mounts
+  useEffect(() => {
+    const scrollPos = weekIndex * 707 // 7 days * 101px per day
+    if (daysHeaderRef.current) daysHeaderRef.current.scrollLeft = scrollPos
+    if (cellsGridRef.current) cellsGridRef.current.scrollLeft = scrollPos
   }, [])
   const [prices, setPrices] = useState<Record<string, number>>({}) // Store custom prices
   const [availability, setAvailability] = useState<Record<string, 'available' | 'blocked'>>({})
