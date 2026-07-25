@@ -70,24 +70,43 @@ export function CalendarKanbanView({
     // Create today's date using the same method as allDays to avoid timezone issues
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
 
+    // Debug: Log the dates being compared
+    if (typeof window !== 'undefined') {
+      console.log('[getTodayWeekIndex] Starting search...', {
+        now: now.toDateString(),
+        today: today.toDateString(),
+        today_time: today.getTime(),
+        allDays_count: allDays.length,
+        allDays_first_details: {
+          date: allDays[0],
+          dateString: allDays[0]?.toDateString(),
+          time: allDays[0]?.getTime(),
+          constructed: new Date(allDays[0]?.getFullYear(), allDays[0]?.getMonth(), allDays[0]?.getDate())?.getTime(),
+        }
+      })
+    }
+
     // Find which day index matches today
-    const todayIndex = allDays.findIndex(day => {
+    const todayIndex = allDays.findIndex((day, idx) => {
       const d = new Date(day.getFullYear(), day.getMonth(), day.getDate())
-      return d.getTime() === today.getTime()
+      const match = d.getTime() === today.getTime()
+      if (idx < 5 || idx > 88) {
+        console.log(`  [Index ${idx}]`, {
+          dayStr: day.toDateString(),
+          dStr: d.toDateString(),
+          d_time: d.getTime(),
+          match,
+        })
+      }
+      return match
     })
 
     const weekIdx = todayIndex === -1 ? 0 : Math.floor(todayIndex / 7)
 
-    // Debug log
     if (typeof window !== 'undefined') {
-      console.log('[Calendar Debug]', {
-        now: now.toDateString(),
-        today: today.toDateString(),
+      console.log('[getTodayWeekIndex] RESULT:', {
         todayIndex,
         weekIndex: weekIdx,
-        firstDay: allDays[0]?.toDateString(),
-        lastDay: allDays[allDays.length - 1]?.toDateString(),
-        dayAtTodayIndex: allDays[todayIndex]?.toDateString(),
       })
     }
 
