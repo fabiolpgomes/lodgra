@@ -91,8 +91,18 @@ export function CalendarKanbanView({
   // Scroll to today when week index changes (useLayoutEffect runs before paint)
   useLayoutEffect(() => {
     const scrollPos = weekIndex * 707
-    if (daysHeaderRef.current) daysHeaderRef.current.scrollLeft = scrollPos
-    if (cellsGridRef.current) cellsGridRef.current.scrollLeft = scrollPos
+    console.log('[useLayoutEffect] weekIndex:', weekIndex, 'scrollPos:', scrollPos)
+    console.log('[useLayoutEffect] daysHeaderRef.current:', daysHeaderRef.current)
+    console.log('[useLayoutEffect] cellsGridRef.current:', cellsGridRef.current)
+
+    if (daysHeaderRef.current) {
+      daysHeaderRef.current.scrollLeft = scrollPos
+      console.log('[useLayoutEffect] Set daysHeaderRef.scrollLeft to:', daysHeaderRef.current.scrollLeft)
+    }
+    if (cellsGridRef.current) {
+      cellsGridRef.current.scrollLeft = scrollPos
+      console.log('[useLayoutEffect] Set cellsGridRef.scrollLeft to:', cellsGridRef.current.scrollLeft)
+    }
   }, [weekIndex])
   const [prices, setPrices] = useState<Record<string, number>>({}) // Store custom prices
   const [availability, setAvailability] = useState<Record<string, 'available' | 'blocked'>>({})
