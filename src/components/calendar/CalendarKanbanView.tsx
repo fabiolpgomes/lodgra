@@ -67,13 +67,25 @@ export function CalendarKanbanView({
 
   // Calculate today's index in allDays array
   let todayIndex = -1
+  const todayStr = now.toDateString()
+  console.log('[DEBUG] now:', now, 'todayStr:', todayStr)
+  console.log('[DEBUG] baseDate:', baseDate, 'baseDate.toDateString():', baseDate.toDateString())
+  console.log('[DEBUG] allDays[0]:', allDays[0]?.toDateString(), 'allDays[91]:', allDays[91]?.toDateString())
+
   for (let i = 0; i < allDays.length; i++) {
-    if (allDays[i].toDateString() === now.toDateString()) {
+    if (allDays[i].toDateString() === todayStr) {
       todayIndex = i
+      console.log('[DEBUG] Found todayIndex:', todayIndex, 'at date:', allDays[i].toDateString())
       break
     }
   }
+
+  if (todayIndex === -1) {
+    console.log('[DEBUG] todayIndex NOT found! Using fallback 13')
+  }
+
   const initialWeekIndex = todayIndex >= 0 ? Math.floor(todayIndex / 7) : 13
+  console.log('[DEBUG] initialWeekIndex:', initialWeekIndex, 'scrollPos would be:', initialWeekIndex * 707)
   const [weekIndex, setWeekIndex] = useState(initialWeekIndex)
 
   // Scroll to today when week index changes (useLayoutEffect runs before paint)
