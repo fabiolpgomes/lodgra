@@ -380,7 +380,7 @@ export function CalendarKanbanView({
     const weeksFromBase = Math.floor(
       (selectedDate.getTime() - baseDate.getTime()) / (7 * 24 * 60 * 60 * 1000)
     )
-    setWeekIndex(Math.max(0, Math.min(12, weeksFromBase)))
+    setWeekIndex(Math.max(0, weeksFromBase))
   }
 
   return (
