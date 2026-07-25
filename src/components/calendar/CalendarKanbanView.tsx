@@ -67,8 +67,16 @@ export function CalendarKanbanView({
 
   // Calculate initial week index to show today
   const getTodayWeekIndex = () => {
-    const todayIndex = Math.floor((now.getTime() - baseDate.getTime()) / (1000 * 60 * 60 * 24))
-    return Math.floor(todayIndex / 7)
+    const today = new Date()
+    today.setHours(0, 0, 0, 0) // Normalize time to midnight
+
+    const base = new Date(baseDate)
+    base.setHours(0, 0, 0, 0) // Normalize time to midnight
+
+    const diffTime = today.getTime() - base.getTime()
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+
+    return Math.max(0, Math.floor(diffDays / 7))
   }
 
   const [weekIndex, setWeekIndex] = useState(getTodayWeekIndex()) // Start at today
@@ -301,27 +309,12 @@ export function CalendarKanbanView({
     }
   }, [])
 
-  const startContinuousScroll = (direction: 'prev' | 'next') => {
-    // Clear any existing interval
-    if (scrollIntervalRef.current) {
-      clearInterval(scrollIntervalRef.current)
-    }
-
-    // Start continuous scroll
-    scrollIntervalRef.current = setInterval(() => {
-      setWeekIndex(current => {
-        if (direction === 'prev' && current > 0) return current - 1
-        if (direction === 'next' && current < 25) return current + 1 // 25 weeks ~= 6 months
-        return current
-      })
-    }, 150) // Update every 150ms for smooth continuous scroll
-  }
-
-  const stopContinuousScroll = () => {
-    if (scrollIntervalRef.current) {
-      clearInterval(scrollIntervalRef.current)
-      scrollIntervalRef.current = null
-    }
+  const handleWeekNavigation = (direction: 'prev' | 'next') => {
+    setWeekIndex(current => {
+      if (direction === 'prev' && current > 0) return current - 1
+      if (direction === 'next' && current < 25) return current + 1
+      return current
+    })
   }
 
   const handleCellClick = (propertyId: string, dayIndex: number, event: React.MouseEvent) => {
@@ -395,21 +388,6 @@ export function CalendarKanbanView({
   }
 
   // Cleanup on unmount and stop on document mouseup
-  useEffect(() => {
-    const handleMouseUp = () => stopContinuousScroll()
-    const handleTouchEnd = () => stopContinuousScroll()
-
-    document.addEventListener('mouseup', handleMouseUp)
-    document.addEventListener('touchend', handleTouchEnd)
-
-    return () => {
-      document.removeEventListener('mouseup', handleMouseUp)
-      document.removeEventListener('touchend', handleTouchEnd)
-      if (scrollIntervalRef.current) {
-        clearInterval(scrollIntervalRef.current)
-      }
-    }
-  }, [])
 
 
   const handleMonthChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -480,8 +458,7 @@ export function CalendarKanbanView({
         <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
           <button
             className="week-nav-button"
-            onMouseDown={() => startContinuousScroll('prev')}
-            onTouchStart={() => startContinuousScroll('prev')}
+            onClick={() => handleWeekNavigation('prev')}
             disabled={weekIndex === 0}
             style={{
               width: '40px',
@@ -511,9 +488,8 @@ export function CalendarKanbanView({
           </div>
           <button
             className="week-nav-button"
-            onMouseDown={() => startContinuousScroll('next')}
-            onTouchStart={() => startContinuousScroll('next')}
-            disabled={weekIndex >= 12}
+            onClick={() => handleWeekNavigation('next')}
+            disabled={weekIndex >= 25}
             style={{
               width: '40px',
               height: '40px',
