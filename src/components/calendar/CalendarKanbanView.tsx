@@ -876,19 +876,6 @@ export function CalendarKanbanView({
             overflow: 'visible',
           }}
         >
-          {/* Mask inside overlay to hide bars that overflow leftward */}
-          <div
-            style={{
-              position: 'absolute',
-              top: '0',
-              left: '-250px',
-              width: '250px',
-              height: '100%',
-              background: '#fbfaf6',
-              zIndex: 1,
-              pointerEvents: 'none',
-            }}
-          />
           {calculateReservationBars().map(bar => (
             <ReservationBar
               key={bar.id}
@@ -902,6 +889,20 @@ export function CalendarKanbanView({
             />
           ))}
         </div>
+
+        {/* Fixed mask at properties boundary to hide bars that overflow leftward */}
+        <div
+          style={{
+            position: 'absolute',
+            top: '110px',
+            left: '250px',
+            width: '50px',
+            height: 'calc(100% - 110px)',
+            background: 'linear-gradient(to right, #fbfaf6 0%, #fbfaf6 80%, transparent 100%)',
+            zIndex: 21,
+            pointerEvents: 'none',
+          }}
+        />
       </div>
     </div>
   )
