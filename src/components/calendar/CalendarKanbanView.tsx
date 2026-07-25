@@ -86,11 +86,14 @@ export function CalendarKanbanView({
 
   const initialWeekIndex = todayIndex >= 0 ? Math.floor(todayIndex / 7) : 13
   console.log('[DEBUG] initialWeekIndex:', initialWeekIndex, 'scrollPos would be:', initialWeekIndex * 707)
-  const [weekIndex, setWeekIndex] = useState(initialWeekIndex)
+  const [weekIndex, setWeekIndex] = useState(() => {
+    console.log('[DEBUG] useState initializer function, returning:', initialWeekIndex)
+    return initialWeekIndex
+  })
 
   // Scroll to today when week index changes (useLayoutEffect runs before paint)
   useLayoutEffect(() => {
-    const scrollPos = weekIndex * 707
+    const scrollPos = weekIndex * 601 // 7 days * 85px + 6 gaps * 1px = 601px
     console.log('[useLayoutEffect] weekIndex:', weekIndex, 'scrollPos:', scrollPos)
     console.log('[useLayoutEffect] daysHeaderRef.current:', daysHeaderRef.current)
     console.log('[useLayoutEffect] cellsGridRef.current:', cellsGridRef.current)
@@ -224,9 +227,16 @@ export function CalendarKanbanView({
   // Sync scroll position when week index changes
   useEffect(() => {
     const syncScroll = () => {
-      const scrollPos = weekIndex * (7 * 101) // 101px = 100px cell + 1px gap
-      if (daysHeaderRef.current) daysHeaderRef.current.scrollLeft = scrollPos
-      if (cellsGridRef.current) cellsGridRef.current.scrollLeft = scrollPos
+      const scrollPos = weekIndex * 601 // 7 days * 85px + 6 gaps * 1px = 595 + 6 = 601px
+      console.log('[useEffect syncScroll] weekIndex:', weekIndex, 'scrollPos:', scrollPos)
+      if (daysHeaderRef.current) {
+        daysHeaderRef.current.scrollLeft = scrollPos
+        console.log('[useEffect] Set daysHeaderRef.scrollLeft to:', daysHeaderRef.current.scrollLeft)
+      }
+      if (cellsGridRef.current) {
+        cellsGridRef.current.scrollLeft = scrollPos
+        console.log('[useEffect] Set cellsGridRef.scrollLeft to:', cellsGridRef.current.scrollLeft)
+      }
     }
 
     // Try multiple times with delays to ensure DOM is ready
