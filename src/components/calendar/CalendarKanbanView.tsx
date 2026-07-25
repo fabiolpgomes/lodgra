@@ -868,13 +868,12 @@ export function CalendarKanbanView({
           style={{
             position: 'absolute',
             top: '110px',
-            left: '0px',
-            width: '100%',
+            left: '250px',
+            width: 'calc(100% - 250px)',
             height: 'calc(100% - 110px)',
             pointerEvents: 'none',
             zIndex: 20,
             overflow: 'visible',
-            clipPath: 'inset(0 0 0 250px)',
           }}
         >
           {calculateReservationBars().map(bar => (
@@ -890,6 +889,20 @@ export function CalendarKanbanView({
             />
           ))}
         </div>
+
+        {/* Mask to hide bars that overflow into properties column */}
+        <div
+          style={{
+            position: 'absolute',
+            top: '0',
+            left: '0',
+            width: '250px',
+            height: '100%',
+            background: '#fbfaf6',
+            zIndex: 21,
+            pointerEvents: 'none',
+          }}
+        />
       </div>
     </div>
   )
