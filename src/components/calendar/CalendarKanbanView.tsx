@@ -76,8 +76,22 @@ export function CalendarKanbanView({
       return d.getTime() === today.getTime()
     })
 
-    if (todayIndex === -1) return 0 // Fallback if today not found
-    return Math.floor(todayIndex / 7)
+    const weekIdx = todayIndex === -1 ? 0 : Math.floor(todayIndex / 7)
+
+    // Debug log
+    if (typeof window !== 'undefined') {
+      console.log('[Calendar Debug]', {
+        now: now.toDateString(),
+        today: today.toDateString(),
+        todayIndex,
+        weekIndex: weekIdx,
+        firstDay: allDays[0]?.toDateString(),
+        lastDay: allDays[allDays.length - 1]?.toDateString(),
+        dayAtTodayIndex: allDays[todayIndex]?.toDateString(),
+      })
+    }
+
+    return weekIdx
   }
 
   const [weekIndex, setWeekIndex] = useState(getTodayWeekIndex()) // Start at today
