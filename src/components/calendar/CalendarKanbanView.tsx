@@ -868,8 +868,8 @@ export function CalendarKanbanView({
           style={{
             position: 'absolute',
             top: '110px',
-            left: '250px',
-            width: 'calc(100% - 250px)',
+            left: '0',
+            width: '100%',
             height: 'calc(100% - 110px)',
             pointerEvents: 'none',
             zIndex: 20,
@@ -889,20 +889,6 @@ export function CalendarKanbanView({
             />
           ))}
         </div>
-
-        {/* Fixed mask covering entire properties column to hide any bar overflow */}
-        <div
-          style={{
-            position: 'absolute',
-            top: '110px',
-            left: '0',
-            width: '250px',
-            height: 'calc(100% - 110px)',
-            background: '#fbfaf6',
-            zIndex: 21,
-            pointerEvents: 'none',
-          }}
-        />
       </div>
     </div>
   )
