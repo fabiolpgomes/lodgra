@@ -79,6 +79,16 @@ export function CalendarKanbanView({
   const initialWeekIndex = todayIndex >= 0 ? Math.floor(todayIndex / 7) : 13
   const [weekIndex, setWeekIndex] = useState(initialWeekIndex)
 
+  // Force scroll on initial render (use key to ensure refs are ready)
+  useEffect(() => {
+    const timer = requestAnimationFrame(() => {
+      const scrollPos = weekIndex * 601
+      if (daysHeaderRef.current) daysHeaderRef.current.scrollLeft = scrollPos
+      if (cellsGridRef.current) cellsGridRef.current.scrollLeft = scrollPos
+    })
+    return () => cancelAnimationFrame(timer)
+  }, [])
+
   // Scroll to today when week index changes (useLayoutEffect runs before paint)
   useLayoutEffect(() => {
     const scrollPos = weekIndex * 601 // 7 days * 85px + 6 gaps * 1px = 601px
