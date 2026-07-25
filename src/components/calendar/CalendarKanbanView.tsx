@@ -67,7 +67,7 @@ export function CalendarKanbanView({
 
   // Find today's index in allDays and calculate initial week
   const getTodayWeekIndex = () => {
-    const today = new Date()
+    const today = new Date(now)
     today.setHours(0, 0, 0, 0)
 
     // Find which day index matches today
