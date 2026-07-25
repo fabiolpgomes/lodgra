@@ -201,24 +201,10 @@ export function CalendarKanbanView({
 
   // Sync scroll position when week index changes
   useEffect(() => {
-    const syncScroll = () => {
-      if (daysHeaderRef.current && cellsGridRef.current) {
-        const scrollPos = weekIndex * (7 * 101) // 101px = 100px cell + 1px gap
-        console.log('[Scroll Sync]', { weekIndex, scrollPos })
-        daysHeaderRef.current.scrollLeft = scrollPos
-        cellsGridRef.current.scrollLeft = scrollPos
-      } else {
-        console.log('[Scroll Sync] Refs not ready', { daysHeaderRef: !!daysHeaderRef.current, cellsGridRef: !!cellsGridRef.current })
-      }
-    }
-
-    // Sync with small delay to ensure DOM is ready
-    const timer1 = setTimeout(syncScroll, 50)
-    const timer2 = setTimeout(syncScroll, 200)
-
-    return () => {
-      clearTimeout(timer1)
-      clearTimeout(timer2)
+    if (daysHeaderRef.current && cellsGridRef.current) {
+      const scrollPos = weekIndex * (7 * 101) // 101px = 100px cell + 1px gap
+      daysHeaderRef.current.scrollLeft = scrollPos
+      cellsGridRef.current.scrollLeft = scrollPos
     }
   }, [weekIndex])
 
