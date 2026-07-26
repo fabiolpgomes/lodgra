@@ -183,9 +183,12 @@ export function CalendarKanbanView({
       reservations
         .filter(res => res.propertyId === property.id)
         .forEach((reservation, resIdx) => {
-          // Parse dates ensuring we handle both ISO strings and Date objects
-          const startDate = new Date(reservation.startDate)
-          startDate.setUTCHours(0, 0, 0, 0) // Normalize to midnight UTC
+          // Reconstruct as UTC using UTC components to avoid timezone offset issues
+          const startDate = new Date(Date.UTC(
+            reservation.startDate.getUTCFullYear(),
+            reservation.startDate.getUTCMonth(),
+            reservation.startDate.getUTCDate()
+          ))
 
           // Debug first 3 reservations
           if (resIdx === 0) {
@@ -215,8 +218,11 @@ export function CalendarKanbanView({
             return
           }
 
-          const endDate = new Date(reservation.endDate)
-          endDate.setUTCHours(0, 0, 0, 0) // Normalize to midnight UTC
+          const endDate = new Date(Date.UTC(
+            reservation.endDate.getUTCFullYear(),
+            reservation.endDate.getUTCMonth(),
+            reservation.endDate.getUTCDate()
+          ))
           const totalDays = Math.ceil(
             (endDate.getTime() - startDate.getTime()) / (24 * 60 * 60 * 1000)
           )
