@@ -14,9 +14,12 @@ const DAYS_SHORT = ['S', 'T', 'Q', 'Q', 'S', 'S', 'D']
 interface Reservation {
   id: string
   guestName: string
+  guestCount: number
   startDate: Date
   endDate: Date
   price: number
+  currency: string
+  status: string
 }
 
 interface Property {
