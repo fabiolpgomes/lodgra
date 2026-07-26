@@ -306,45 +306,70 @@ export default function PropertyCalendarPage() {
               ))}
             </div>
 
-            {/* Calendar grid with prices */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '6px' }}>
+            {/* Calendar grid with reservations */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '6px', minHeight: '300px' }}>
               {daysGrid.map((day, idx) => {
-                const isReserved = reservations.some(
-                  res =>
-                    day &&
-                    new Date(res.startDate) <= new Date(year, monthIndex, day) &&
-                    new Date(res.endDate) > new Date(year, monthIndex, day)
-                )
+                // Get reservations for this day
+                const dayReservations = day ? filteredReservations.filter(res => {
+                  const dateToCheck = new Date(Date.UTC(year, monthIndex, day))
+                  const startDate = new Date(Date.UTC(res.startDate.getUTCFullYear(), res.startDate.getUTCMonth(), res.startDate.getUTCDate()))
+                  const endDate = new Date(Date.UTC(res.endDate.getUTCFullYear(), res.endDate.getUTCMonth(), res.endDate.getUTCDate()))
+                  return dateToCheck >= startDate && dateToCheck < endDate
+                }) : []
+
                 const dayPrice = day ? (day % 2 === 0 ? 149 : 157) : null
 
                 return (
                   <div
                     key={idx}
                     style={{
-                      aspectRatio: '1',
+                      minHeight: '140px',
                       display: 'flex',
                       flexDirection: 'column',
-                      alignItems: 'center',
-                      justifyContent: 'center',
                       background: day ? '#ffffff' : '#f7f5ef',
                       border: '1px solid #efeadf',
                       borderRadius: '8px',
-                      fontSize: day ? '12px' : '11px',
-                      fontWeight: '600',
-                      color: '#1b2430',
+                      padding: '8px',
                       cursor: day ? 'pointer' : 'default',
-                      padding: '4px',
-                      textAlign: 'center',
                     }}
                   >
                     {day && (
                       <>
-                        <div style={{ fontSize: '13px', fontWeight: '700' }}>{day}</div>
+                        <div style={{ fontSize: '13px', fontWeight: '700', color: '#1b2430', marginBottom: '4px' }}>
+                          {day}
+                        </div>
                         {dayPrice && (
-                          <div style={{ fontSize: '10px', color: '#4d5566', marginTop: '2px' }}>
+                          <div style={{ fontSize: '10px', color: '#4d5566', marginBottom: '8px' }}>
                             R${dayPrice}
                           </div>
                         )}
+
+                        {/* Reservations in this day */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1, overflow: 'hidden' }}>
+                          {dayReservations.map(res => {
+                            const guestColor = getGuestColor(res.guestName, res.id)
+                            return (
+                              <div
+                                key={res.id}
+                                style={{
+                                  padding: '4px 6px',
+                                  background: guestColor,
+                                  borderRadius: '4px',
+                                  color: '#ffffff',
+                                  fontSize: '9px',
+                                  fontWeight: '600',
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                  whiteSpace: 'nowrap',
+                                  lineHeight: '1.2',
+                                }}
+                                title={res.guestName}
+                              >
+                                {res.guestName.split(' ')[0]}
+                              </div>
+                            )
+                          })}
+                        </div>
                       </>
                     )}
                   </div>
@@ -872,42 +897,82 @@ export default function PropertyCalendarPage() {
                   display: 'grid',
                   gridTemplateColumns: 'repeat(7, 1fr)',
                   gap: '16px',
-                  gridAutoRows: '120px',
+                  gridAutoRows: '180px',
                 }}
               >
-                {daysGrid.map((day, idx) => (
-                  <div
-                    key={idx}
-                    style={{
-                      border: '1px solid #efeadf',
-                      borderRadius: '12px',
-                      padding: '16px',
-                      background: day ? '#ffffff' : '#fbfaf6',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      justifyContent: 'space-between',
-                      cursor: day ? 'pointer' : 'default',
-                      transition: 'all 0.2s',
-                    }}
-                    onMouseEnter={(e) => {
-                      if (day) e.currentTarget.style.background = '#f7f5ef'
-                    }}
-                    onMouseLeave={(e) => {
-                      if (day) e.currentTarget.style.background = '#ffffff'
-                    }}
-                  >
-                    {day && (
-                      <>
-                        <div style={{ fontSize: '20px', fontWeight: '700', color: '#1b2430' }}>
-                          {day}
-                        </div>
-                        <div style={{ fontSize: '14px', fontWeight: '600', color: '#1b2430' }}>
-                          € 145
-                        </div>
-                      </>
-                    )}
-                  </div>
-                ))}
+                {daysGrid.map((day, idx) => {
+                  // Get reservations for this day
+                  const dayReservations = day ? filteredReservations.filter(res => {
+                    const dateToCheck = new Date(Date.UTC(year, monthIndex, day))
+                    const startDate = new Date(Date.UTC(res.startDate.getUTCFullYear(), res.startDate.getUTCMonth(), res.startDate.getUTCDate()))
+                    const endDate = new Date(Date.UTC(res.endDate.getUTCFullYear(), res.endDate.getUTCMonth(), res.endDate.getUTCDate()))
+                    return dateToCheck >= startDate && dateToCheck < endDate
+                  }) : []
+
+                  return (
+                    <div
+                      key={idx}
+                      style={{
+                        border: '1px solid #efeadf',
+                        borderRadius: '12px',
+                        padding: '16px',
+                        background: day ? '#ffffff' : '#fbfaf6',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        cursor: day ? 'pointer' : 'default',
+                        transition: 'all 0.2s',
+                      }}
+                      onMouseEnter={(e) => {
+                        if (day) e.currentTarget.style.background = '#f7f5ef'
+                      }}
+                      onMouseLeave={(e) => {
+                        if (day) e.currentTarget.style.background = '#ffffff'
+                      }}
+                    >
+                      {day && (
+                        <>
+                          <div style={{ fontSize: '20px', fontWeight: '700', color: '#1b2430', marginBottom: '8px' }}>
+                            {day}
+                          </div>
+                          <div style={{ fontSize: '14px', fontWeight: '600', color: '#1b2430', marginBottom: '12px' }}>
+                            € 145
+                          </div>
+
+                          {/* Reservations in this day */}
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', flex: 1, overflow: 'hidden' }}>
+                            {dayReservations.slice(0, 3).map(res => {
+                              const guestColor = getGuestColor(res.guestName, res.id)
+                              return (
+                                <div
+                                  key={res.id}
+                                  style={{
+                                    padding: '6px 10px',
+                                    background: guestColor,
+                                    borderRadius: '6px',
+                                    color: '#ffffff',
+                                    fontSize: '11px',
+                                    fontWeight: '600',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    whiteSpace: 'nowrap',
+                                  }}
+                                  title={res.guestName}
+                                >
+                                  {res.guestName}
+                                </div>
+                              )
+                            })}
+                            {dayReservations.length > 3 && (
+                              <div style={{ fontSize: '10px', color: '#4d5566', fontStyle: 'italic' }}>
+                                +{dayReservations.length - 3} mais
+                              </div>
+                            )}
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  )
+                })}
               </div>
             </div>
           ) : (
