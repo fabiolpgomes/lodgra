@@ -9,6 +9,54 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Property Calendar — Detailed Reservation View
+
+**New Feature: Property-Specific Reservation Calendar**
+- **Overview:** Dedicated calendar view for individual properties showing detailed reservation information within day cells
+- **Architecture:** Cell-based design (inspired by Airbnb) instead of floating event bars
+- **Date Handling:**
+  - UTC-based date math for timezone safety (eliminates -3 day offset bugs)
+  - Proper timezone normalization across DB → API → Frontend flow
+  - Date filtering: displays only current/future reservations (endDate >= today)
+- **Display Information:**
+  - Guest name (full name on desktop, first name only on mobile)
+  - Number of guests (hospedagem count)
+  - Reservation price with currency symbol
+  - Reservation status badge (Confirmado, Hospedado, Pendente, Concluído)
+- **Responsive Design:**
+  - Desktop: Full information display, property name in header
+  - Mobile: Optimized layout (<1024px) with truncated text and adjusted spacing
+  - Proper handling of long property names with ellipsis
+- **Files Modified:**
+  - `src/app/[locale]/calendar/[propertyId]/page.tsx` — Property-specific calendar page
+  - `src/utils/weekUtils.ts` — UTC-safe week calculation utilities
+  - `src/app/api/calendar/reservations/route.ts` — API endpoint with UTC date handling
+- **Design System:** Implemented design.md color palette throughout
+  - Primary: #10203E (dark navy)
+  - Luxe: #C9A227 (gold accent)
+  - Body: #4D5566 (gray text)
+  - Hairline: #E5DFD2 (borders)
+  - Canvas/Surface: light backgrounds
+- **Status Badges:**
+  - Confirmed: Blue badge
+  - Hosting: Green badge
+  - Pending: Amber badge
+  - Completed: Gray badge
+- **Navigation:**
+  - Desktop: "← Voltar" button to return to dashboard
+  - Mobile: "← Retornar" with property name display
+- **Testing:**
+  - ✅ Tested on desktop and mobile viewports
+  - ✅ Verified UTC date calculations
+  - ✅ Confirmed proper reservation filtering
+  - ✅ Validated design system color compliance
+- **Status:** ✅ COMPLETED — Property calendar fully functional with proper timezone handling
+- **Commits:**
+  - `5ab0c3ef` — debug: add detailed logging for reservation date mapping
+  - `f351f641` — fix: use setUTCHours() instead of setHours() for UTC date normalization
+  - `5898417f` — fix: use UTC-based date math for calendar reservation end dates - ROOT CAUSE FIX
+  - `628b5bab` — fix: use setUTCDate() instead of setDate() in getWeekDays - fix timezone bug in week day calculation
+
 ### Block Dates Modal — Date Format Fix
 
 **Enhancement: Calendar Block Dates Modal UX**

@@ -6,12 +6,12 @@ Plataforma completa de gestão de propriedades de curta duração. Rebranding e 
 
 ---
 
-## Estado Actual (2026-07-10)
+## Estado Actual (2026-07-27)
 
 **Fase:** Produção (v1.3.0)  
 **Origem:** Rebranding do sistema Home Stay (produção activa)  
 **Estratégia:** Lodgra substitui Home Stay com novo domínio, nova landing page e foco global  
-**Última Atualização:** Epic 36 - Sincronização iCal com Webhooks Real-Time (4 plataformas)
+**Última Atualização:** Property Calendar - Detailed Reservation View com UTC date handling
 
 ---
 
@@ -26,7 +26,11 @@ Plataforma completa de gestão de propriedades de curta duração. Rebranding e 
   - ✅ Backup external_id com verificação de duplicação
 - Gestão de reservas com detecção de overbooking
 - Gestão de despesas por categoria e propriedade
-- Calendário visual drag-drop multi-propriedade
+- **Calendário visual**
+  - ✅ Kanban view multi-propriedade (desktop & mobile)
+  - ✅ Property-specific calendar com detalhe de reservas (nome hóspede, ocupação, preço, status)
+  - ✅ Drag-drop para reservas
+  - ✅ UTC-safe date handling (sem timezone bugs)
 - Dashboard financeiro com gráficos (receita, ocupação, lucro)
 - Relatórios exportáveis (PDF, Excel)
 - Gestão de equipe com permissões por propriedade (Admin/Gestor/Viewer)
