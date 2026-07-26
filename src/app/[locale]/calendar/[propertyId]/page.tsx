@@ -222,6 +222,14 @@ export default function PropertyCalendarPage() {
   const monthDisplay = MONTHS[monthIndex]
   const daysGrid = generateDaysGrid(year, monthIndex)
 
+  // Filter reservations: show only those with checkout >= today
+  const today = new Date()
+  today.setUTCHours(0, 0, 0, 0)
+  const filteredReservations = reservations.filter(res => {
+    const endDate = new Date(Date.UTC(res.endDate.getUTCFullYear(), res.endDate.getUTCMonth(), res.endDate.getUTCDate()))
+    return endDate >= today
+  })
+
   // Config state
   const [editingConfig, setEditingConfig] = useState<'preco' | 'desconto' | 'disponibilidade' | 'cancelamentos' | null>(null)
   const [configTab, setConfigTab] = useState<'precos' | 'descontos' | 'disponibilidade'>('precos')
@@ -348,18 +356,18 @@ export default function PropertyCalendarPage() {
           {/* Reservations summary - Airbnb style */}
           <div>
             <h3 style={{ margin: '0 0 12px 0', fontSize: '14px', fontWeight: '700', color: '#1b2430' }}>
-              Reservas ({reservations.length})
+              Reservas ({filteredReservations.length})
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {reservations.map(res => {
+              {filteredReservations.map(res => {
                 const guestColor = getGuestColor(res.guestName, res.id)
-                const startDate = new Date(res.startDate)
-                const endDate = new Date(res.endDate)
-                const today = new Date()
-                today.setHours(0, 0, 0, 0)
+                const startDate = new Date(Date.UTC(res.startDate.getUTCFullYear(), res.startDate.getUTCMonth(), res.startDate.getUTCDate()))
+                const endDate = new Date(Date.UTC(res.endDate.getUTCFullYear(), res.endDate.getUTCMonth(), res.endDate.getUTCDate()))
+                const todayUTC = new Date()
+                todayUTC.setUTCHours(0, 0, 0, 0)
 
                 let status = 'Confirmado'
-                if (today >= startDate && today < endDate) {
+                if (todayUTC >= startDate && todayUTC < endDate) {
                   status = 'Hospedando'
                 }
 
