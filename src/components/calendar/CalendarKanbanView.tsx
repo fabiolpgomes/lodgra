@@ -63,8 +63,28 @@ export function CalendarKanbanView({
 
   const [currentWeek, setCurrentWeek] = useState(todayWeekNumber)
 
+  // Calculate correct year for the week (handles year boundaries)
+  // Weeks 1-4 at end of previous year → current year
+  // Weeks 49+ at beginning of next year → next year
+  const getYearForWeek = (year: number, week: number): number => {
+    if (week >= 49) {
+      // Check if this is actually next year's week 1
+      const jan1 = new Date(year + 1, 0, 1)
+      const jan1Week = getISOWeekNumber(jan1)
+      if (jan1Week <= 4) return year + 1
+    } else if (week <= 4) {
+      // Check if this is actually previous year's week 52/53
+      const dec31 = new Date(year - 1, 11, 31)
+      const dec31Week = getISOWeekNumber(dec31)
+      if (dec31Week >= 49) return year - 1
+    }
+    return year
+  }
+
+  const weekYear = getYearForWeek(currentYear, currentWeek)
+
   // Generate days for current week only (7 days)
-  const weekStartDate = getISOWeekStartDate(currentYear, currentWeek)
+  const weekStartDate = getISOWeekStartDate(weekYear, currentWeek)
   const allDays = getWeekDays(weekStartDate)
 
   // No scroll position needed - ISO 8601 generates exact 7 days per week
@@ -282,7 +302,9 @@ export function CalendarKanbanView({
   const handleWeekNavigation = (direction: 'prev' | 'next') => {
     setCurrentWeek(current => {
       if (direction === 'prev' && current > 1) return current - 1
+      if (direction === 'prev' && current === 1) return 53 // Go to week 53 of previous year (will be adjusted by getYearForWeek)
       if (direction === 'next' && current < 53) return current + 1
+      if (direction === 'next' && current === 53) return 1 // Go to week 1 of next year (will be adjusted by getYearForWeek)
       return current
     })
   }
@@ -428,7 +450,6 @@ export function CalendarKanbanView({
           <button
             className="week-nav-button"
             onClick={() => handleWeekNavigation('prev')}
-            disabled={currentWeek === 1}
             style={{
               width: '40px',
               height: '40px',
@@ -458,7 +479,6 @@ export function CalendarKanbanView({
           <button
             className="week-nav-button"
             onClick={() => handleWeekNavigation('next')}
-            disabled={currentWeek >= 53}
             style={{
               width: '40px',
               height: '40px',
