@@ -102,15 +102,6 @@ export async function GET(request: NextRequest) {
         const [year, month, day] = r.check_out.split('-').map(Number)
         const end = new Date(Date.UTC(year, month - 1, day + 1)).toISOString().slice(0, 10)
 
-        // DEBUG: Log Vania Borges for timezone investigation
-        if (guestName.toLowerCase().includes('vania')) {
-          console.log('[API] Vania Borges check dates:', {
-            check_in_raw: r.check_in,
-            check_out_raw: r.check_out,
-            end_calculated: end,
-          })
-        }
-
         return {
           id: r.id,
           title: `${guestName} — ${propName}`,
@@ -129,6 +120,11 @@ export async function GET(request: NextRequest) {
             total_amount: r.total_amount,
             currency: r.currency || 'EUR',
             opacity,
+            // DEBUG: Include raw DB dates for Vania investigation
+            ...(guestName.toLowerCase().includes('vania') && {
+              _debug_check_in_raw: r.check_in,
+              _debug_check_out_raw: r.check_out,
+            }),
           },
         }
       })
