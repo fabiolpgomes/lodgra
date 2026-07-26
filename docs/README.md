@@ -36,9 +36,12 @@ Complete guides for development, deployment, and operations.
   - Performance metrics & monitoring
 
 - **[Calendar Management](guides/calendar.md)**
+  - **Multi-property dashboard** (Kanban view with 2-week grid)
+  - **Property-specific calendar** (detailed reservation view with guest info)
   - Block dates for maintenance & cleaning
   - Date format (dd.mm.yyyy)
   - Synchronization with booking platforms
+  - Timezone-safe date handling (UTC-based)
   - Troubleshooting & FAQs
 
 - **[Reviews & Ratings System](../REVIEWS_AND_RATINGS_SYSTEM.md)**
@@ -225,6 +228,11 @@ Documentation standards:
 
 ---
 
-**Last Updated:** 2026-06-28  
+**Last Updated:** 2026-07-27  
 **Total Guides:** 9 documented, 5 planned  
-**Next Review:** 2026-07-28
+**Next Review:** 2026-08-27
+
+### Recent Updates (2026-07-27)
+- ✅ Updated Calendar Management guide with Property Calendar features
+- ✅ Added UTC-based date handling documentation
+- ✅ Updated main README with calendar feature overview

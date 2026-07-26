@@ -6,7 +6,72 @@ Complete guide for managing property calendars, blocking dates, and reservation 
 
 ## Overview
 
-The Lodgra calendar system provides property managers with comprehensive tools to manage availability, block dates for maintenance/cleaning, and synchronize with external booking platforms (Airbnb, Booking.com).
+The Lodgra calendar system provides property managers with comprehensive tools to:
+- View multi-property calendars with reservations overview
+- Access detailed property-specific calendars with guest information
+- Block dates for maintenance/cleaning
+- Synchronize with external booking platforms (Airbnb, Booking.com)
+
+---
+
+## Property Calendar View
+
+### Overview
+
+The Property Calendar provides a detailed view of a single property's reservations with comprehensive guest and booking information displayed directly in the calendar cells.
+
+### Accessing Property Calendar
+
+1. Navigate to your dashboard: `https://lodgra.io/pt-BR/calendar`
+2. Click on any property name or row to view its detailed calendar
+3. URL: `https://lodgra.io/pt-BR/calendar/[propertyId]`
+
+### Calendar Features
+
+#### Desktop View
+- **Full property name** displayed in header
+- **Complete reservation information** in each cell:
+  - Guest full name
+  - Number of guests (occupancy)
+  - Reservation price with currency symbol
+  - Status badge (Confirmado, Hospedado, Pendente, Concluído)
+- **Month and week number** navigation
+- **Color-coded status badges:**
+  - Confirmado: Blue background
+  - Hospedado: Green background
+  - Pendente: Amber background
+  - Concluído: Gray background
+
+#### Mobile View
+- **Optimized layout** for devices < 1024px width
+- **Compact property name** (truncated with ellipsis if long)
+- **"← Retornar" button** to return to dashboard
+- **Guest first name only** (space-efficient display)
+- **Touch-friendly cell sizing**
+
+### Date Filtering
+
+The property calendar automatically displays:
+- ✅ **Current & future reservations** (checkout date ≥ today)
+- ❌ **Past reservations** (hidden to reduce clutter)
+
+This ensures you see only relevant, actionable reservations.
+
+### Navigation
+
+#### Desktop
+- **← Voltar** button (top-left) → Returns to dashboard
+- **Month display** with week number (center)
+- **← → arrows** to browse previous/next weeks
+
+#### Mobile
+- **← Retornar** button with property name (top bar)
+- **Compact week/month display**
+- **← → arrows** for week navigation
+
+### Timezone Information
+
+The property calendar uses UTC-based date calculations to ensure consistency across all timezones. This eliminates timezone-related offset bugs and ensures reservations display on the correct dates regardless of your local time zone.
 
 ---
 
@@ -203,6 +268,17 @@ Input:  01.01.2027  →  Internal conversion  →  2027-01-01
 
 ---
 
-**Last Updated:** 2026-06-28  
+**Last Updated:** 2026-07-27  
 **Status:** ✅ Production Ready  
 **Support:** contact support@lodgra.io
+
+---
+
+## Recent Updates (2026-07-27)
+
+### Property Calendar Implementation
+- ✅ **New:** Property-specific calendar view with detailed reservation information
+- ✅ **Enhanced:** UTC-based date calculations (eliminates timezone offset bugs)
+- ✅ **Improved:** Responsive design for mobile and desktop layouts
+- ✅ **Added:** Status badges with color-coded visualization
+- ✅ **Fixed:** Date filtering to show only current/future reservations
