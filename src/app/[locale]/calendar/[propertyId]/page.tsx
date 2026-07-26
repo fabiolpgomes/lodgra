@@ -648,16 +648,12 @@ export default function PropertyCalendarPage() {
             gap: '16px',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-            <div>
-              <h2 style={{ margin: '0 0 8px 0', fontSize: '28px', fontWeight: '700', color: '#1b2430' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <h2 style={{ margin: 0, fontSize: '28px', fontWeight: '700', color: '#1b2430' }}>
                 {viewMode === 'year' ? year : (monthDisplay.charAt(0).toUpperCase() + monthDisplay.slice(1))}
               </h2>
-              <p style={{ margin: 0, fontSize: '14px', color: '#4d5566', maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                {property.name}
-              </p>
-            </div>
-            <button
+              <button
               onClick={() => router.push(`/${locale}/calendar`)}
               style={{
                 display: 'flex',
@@ -685,6 +681,10 @@ export default function PropertyCalendarPage() {
             >
               ← Voltar
             </button>
+            </div>
+            <p style={{ margin: 0, fontSize: '14px', color: '#4d5566', maxWidth: '500px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {property.name}
+            </p>
           </div>
 
           {/* Month Selector, Navigation Buttons, and View Toggle */}
