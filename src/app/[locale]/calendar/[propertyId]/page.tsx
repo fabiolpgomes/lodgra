@@ -33,7 +33,7 @@ interface Property {
 // Default property data
 const defaultProperty: Property = {
   id: '',
-  name: 'Carregando...',
+  name: '',
   type: 'Property',
   location: '',
   imageUrl: '',
@@ -326,13 +326,13 @@ export default function PropertyCalendarPage() {
                   <div
                     key={idx}
                     style={{
-                      minHeight: '140px',
+                      minHeight: day ? '100px' : 'auto',
                       display: 'flex',
                       flexDirection: 'column',
                       background: day ? '#ffffff' : '#f7f5ef',
-                      border: '1px solid #efeadf',
+                      border: day ? '1px solid #efeadf' : 'none',
                       borderRadius: '8px',
-                      padding: '8px',
+                      padding: day ? '8px' : '0',
                       cursor: day ? 'pointer' : 'default',
                     }}
                   >
@@ -612,39 +612,7 @@ export default function PropertyCalendarPage() {
   }
 
   return (
-    <div style={{ display: 'flex', height: '100vh', background: '#fbfaf6' }}>
-      {/* Left Sidebar - Navigation */}
-      <div
-        style={{
-          width: '120px',
-          borderRight: '1px solid #efeadf',
-          overflowY: 'auto',
-          padding: '12px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '8px',
-        }}
-      >
-        <button
-          onClick={() => router.push(`/${locale}/calendar`)}
-          style={{
-            display: 'block',
-            textAlign: 'center',
-            padding: '8px',
-            borderRadius: '8px',
-            background: '#eee',
-            fontSize: '12px',
-            border: 'none',
-            textDecoration: 'none',
-            color: '#1b2430',
-            fontWeight: '600',
-            cursor: 'pointer',
-          }}
-        >
-          ← Voltar
-        </button>
-      </div>
-
+    <div style={{ display: 'flex', height: '100vh', background: '#fbfaf6', flexDirection: 'column' }}>
       {/* Main Content */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         {/* Header com Controls */}
@@ -660,12 +628,41 @@ export default function PropertyCalendarPage() {
           }}
         >
           <div>
-            <h2 style={{ margin: '0 0 8px 0', fontSize: '28px', fontWeight: '700', color: '#1b2430' }}>
+            <h2 style={{ margin: '0 0 12px 0', fontSize: '28px', fontWeight: '700', color: '#1b2430' }}>
               {viewMode === 'year' ? year : (monthDisplay.charAt(0).toUpperCase() + monthDisplay.slice(1))}
             </h2>
-            <p style={{ margin: 0, fontSize: '14px', color: '#4d5566' }}>
-              {property.name}
-            </p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <button
+                onClick={() => router.push(`/${locale}/calendar`)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '6px 12px',
+                  borderRadius: '6px',
+                  background: '#ffffff',
+                  border: '1px solid #efeadf',
+                  fontSize: '13px',
+                  fontWeight: '600',
+                  color: '#1b2430',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#f7f5ef'
+                  e.currentTarget.style.borderColor = '#cfc4aa'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = '#ffffff'
+                  e.currentTarget.style.borderColor = '#efeadf'
+                }}
+              >
+                ← Voltar
+              </button>
+              <p style={{ margin: 0, fontSize: '14px', color: '#4d5566' }}>
+                {property.name}
+              </p>
+            </div>
           </div>
 
           {/* Month Selector, Navigation Buttons, and View Toggle */}
@@ -917,7 +914,7 @@ export default function PropertyCalendarPage() {
                     <div
                       key={idx}
                       style={{
-                        minHeight: day ? '180px' : 'auto',
+                        minHeight: day ? '120px' : 'auto',
                         border: day ? '1px solid #efeadf' : 'none',
                         borderRadius: '12px',
                         padding: day ? '16px' : '0',
