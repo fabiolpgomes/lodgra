@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useLayoutEffect, useMemo } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { getISOWeekNumber, getISOWeekStartDate, getWeekDays } from '@/utils/weekUtils'
 import { ReservationBar } from './ReservationBar'
 
 interface Property {
@@ -55,58 +56,27 @@ export function CalendarKanbanView({
   const [scrollLeft, setScrollLeft] = useState(0)
   const [scrollTop, setScrollTop] = useState(0)
 
-  // Generate 180 days for better UX (3 months for scrolling)
-  // IMPORTANT: Match the API's date range (defaultFrom: 3 months back, defaultTo: 3 months forward)
+  // ISO 8601 week numbering - only generate days as needed per week
   const now = new Date()
-  const baseDate = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate())
-  const allDays = Array.from({ length: 180 }, (_, i) => {
-    const date = new Date(baseDate)
-    date.setDate(date.getDate() + i)
-    return date
-  })
+  const todayWeekNumber = getISOWeekNumber(now)
+  const currentYear = now.getFullYear()
 
-  // Calculate today's index in allDays array
-  let todayIndex = -1
-  const todayStr = now.toDateString()
+  const [currentWeek, setCurrentWeek] = useState(todayWeekNumber)
 
-  for (let i = 0; i < allDays.length; i++) {
-    if (allDays[i].toDateString() === todayStr) {
-      todayIndex = i
-      break
-    }
-  }
+  // Generate days for current week only (7 days)
+  const weekStartDate = getISOWeekStartDate(currentYear, currentWeek)
+  const allDays = getWeekDays(weekStartDate)
 
-  const initialWeekIndex = todayIndex >= 0 ? Math.floor(todayIndex / 7) : 13
-  const [weekIndex, setWeekIndex] = useState(initialWeekIndex)
-
-  // Force scroll on initial render (use key to ensure refs are ready)
-  useEffect(() => {
-    const timer = requestAnimationFrame(() => {
-      const scrollPos = weekIndex * 601
-      if (daysHeaderRef.current) daysHeaderRef.current.scrollLeft = scrollPos
-      if (cellsGridRef.current) cellsGridRef.current.scrollLeft = scrollPos
-    })
-    return () => cancelAnimationFrame(timer)
-  }, [])
-
-  // Scroll to today when week index changes (useLayoutEffect runs before paint)
-  useLayoutEffect(() => {
-    const scrollPos = weekIndex * 601 // 7 days * 85px + 6 gaps * 1px = 601px
-    if (daysHeaderRef.current) {
-      daysHeaderRef.current.scrollLeft = scrollPos
-    }
-    if (cellsGridRef.current) {
-      cellsGridRef.current.scrollLeft = scrollPos
-    }
-  }, [weekIndex])
-  const [prices, setPrices] = useState<Record<string, number>>({}) // Store custom prices
+  // No scroll position needed - ISO 8601 generates exact 7 days per week
+  // Days array changes automatically when currentWeek changes
+  const [prices, setPrices] = useState<Record<string, number>>({}) // Store custom prices by date string
   const [availability, setAvailability] = useState<Record<string, 'available' | 'blocked'>>({})
   const [minNights, setMinNights] = useState<Record<string, number>>({})
-  const [editingCell, setEditingCell] = useState<{ propertyId: string; dayIndex: number } | null>(null)
+  const [editingCell, setEditingCell] = useState<{ propertyId: string; date: Date } | null>(null)
   const [editPrice, setEditPrice] = useState('')
   const [editAvailability, setEditAvailability] = useState<'available' | 'blocked'>('available')
   const [editMinNights, setEditMinNights] = useState('')
-  const [selectedDays, setSelectedDays] = useState<Set<string>>(new Set()) // Store selected days
+  const [selectedDays, setSelectedDays] = useState<Set<string>>(new Set()) // Store selected days by date string
   const [lastSelectedDay, setLastSelectedDay] = useState<string | null>(null) // For shift+click range
   const [selectedProperty, setSelectedProperty] = useState<string | null>(null) // Selected property for config panel
   const [propertyMinNights, setPropertyMinNights] = useState<Record<string, number>>({}) // Min nights per property
@@ -168,7 +138,7 @@ export function CalendarKanbanView({
     const bars: Array<{
       id: string
       reservation: Reservation
-      dayStartIndex: number
+      dayInWeekIndex: number
       totalDays: number
       rowIndex: number
     }> = []
@@ -178,11 +148,14 @@ export function CalendarKanbanView({
         .filter(res => res.propertyId === property.id)
         .forEach(reservation => {
           const startDate = new Date(reservation.startDate)
-          const dayStartIndex = allDays.findIndex(
+
+          // Find which day of the week this reservation starts (0=Monday, 6=Sunday)
+          const dayInWeekIndex = allDays.findIndex(
             day => day.toDateString() === startDate.toDateString()
           )
 
-          if (dayStartIndex === -1) {
+          // Only show bars that start in this week
+          if (dayInWeekIndex === -1) {
             return
           }
 
@@ -194,7 +167,7 @@ export function CalendarKanbanView({
           bars.push({
             id: `${reservation.id}-${property.id}`,
             reservation,
-            dayStartIndex,
+            dayInWeekIndex,
             totalDays,
             rowIndex,
           })
@@ -209,29 +182,19 @@ export function CalendarKanbanView({
     return !!getReservationForDate(propertyId, date)
   }
 
-  // Current week start
-  const currentWeekStart = new Date(baseDate)
-  currentWeekStart.setDate(currentWeekStart.getDate() + weekIndex * 7)
-  const monthDisplay = MONTHS[currentWeekStart.getMonth()]
-  const year = currentWeekStart.getFullYear()
+  // Current week display (ISO 8601)
+  const monthDisplay = MONTHS[weekStartDate.getMonth()]
+  const year = weekStartDate.getFullYear()
 
-  // Sync scroll position when week index changes
+  // Reset scroll to start when week changes
   useEffect(() => {
-    const syncScroll = () => {
-      const scrollPos = weekIndex * 601 // 7 days * 85px + 6 gaps * 1px = 601px
-      if (daysHeaderRef.current) {
-        daysHeaderRef.current.scrollLeft = scrollPos
-      }
-      if (cellsGridRef.current) {
-        cellsGridRef.current.scrollLeft = scrollPos
-      }
+    if (daysHeaderRef.current) {
+      daysHeaderRef.current.scrollLeft = 0
     }
-
-    // Try multiple times with delays to ensure DOM is ready
-    syncScroll()
-    setTimeout(syncScroll, 100)
-    setTimeout(syncScroll, 300)
-  }, [weekIndex])
+    if (cellsGridRef.current) {
+      cellsGridRef.current.scrollLeft = 0
+    }
+  }, [currentWeek])
 
   // Sync horizontal scroll between headers and cells
   useEffect(() => {
@@ -317,29 +280,32 @@ export function CalendarKanbanView({
   }, [])
 
   const handleWeekNavigation = (direction: 'prev' | 'next') => {
-    setWeekIndex(current => {
-      if (direction === 'prev' && current > 0) return current - 1
-      if (direction === 'next' && current < 25) return current + 1
+    setCurrentWeek(current => {
+      if (direction === 'prev' && current > 1) return current - 1
+      if (direction === 'next' && current < 53) return current + 1
       return current
     })
   }
 
-  const handleCellClick = (propertyId: string, dayIndex: number, event: React.MouseEvent) => {
-    const key = `${propertyId}-${dayIndex}`
+  const handleCellClick = (propertyId: string, date: Date, event: React.MouseEvent) => {
+    const dateStr = date.toDateString()
+    const key = `${propertyId}-${dateStr}`
 
     if (event.shiftKey && lastSelectedDay) {
       // Shift+click: select range
-      const [lastProp, lastDay] = lastSelectedDay.split('-')
-      const lastDayIdx = parseInt(lastDay)
+      const [lastProp, ...lastDateParts] = lastSelectedDay.split('-')
+      const lastDateStr = lastDateParts.join('-')
+      const lastDate = new Date(lastDateStr)
       const newSelected = new Set(selectedDays)
-
-      const start = Math.min(dayIndex, lastDayIdx)
-      const end = Math.max(dayIndex, lastDayIdx)
 
       // Only select days from same property
       if (lastProp === propertyId) {
-        for (let i = start; i <= end; i++) {
-          newSelected.add(`${propertyId}-${i}`)
+        const start = Math.min(date.getTime(), lastDate.getTime())
+        const end = Math.max(date.getTime(), lastDate.getTime())
+
+        for (let time = start; time <= end; time += 24 * 60 * 60 * 1000) {
+          const d = new Date(time)
+          newSelected.add(`${propertyId}-${d.toDateString()}`)
         }
       }
       setSelectedDays(newSelected)
@@ -361,8 +327,9 @@ export function CalendarKanbanView({
 
     // Open modal with first selected day
     const firstSelected = [...(event.shiftKey || event.ctrlKey || event.metaKey ? selectedDays : new Set([key]))][0]
-    const [prop, day] = firstSelected.split('-')
-    setEditingCell({ propertyId: prop, dayIndex: parseInt(day) })
+    const [prop, ...dateParts] = firstSelected.split('-')
+    const selectedDate = new Date(dateParts.join('-'))
+    setEditingCell({ propertyId: prop, date: selectedDate })
     setEditPrice(prices[firstSelected]?.toString() || '145')
     setEditAvailability(availability[firstSelected] || 'available')
     setEditMinNights(minNights[firstSelected]?.toString() || '1')
@@ -389,8 +356,7 @@ export function CalendarKanbanView({
     setSelectedDays(new Set())
   }
 
-  const getPrice = (propertyId: string, dayIndex: number) => {
-    const key = `${propertyId}-${dayIndex}`
+  const getPrice = (propertyId: string, key: string) => {
     return prices[key] ? `€${prices[key].toFixed(2)}` : '€145'
   }
 
@@ -400,12 +366,8 @@ export function CalendarKanbanView({
   const handleMonthChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const [month, yearStr] = e.target.value.split('-')
     const selectedDate = new Date(parseInt(yearStr), parseInt(month), 15)
-
-    // Calculate weeks from base date
-    const weeksFromBase = Math.floor(
-      (selectedDate.getTime() - baseDate.getTime()) / (7 * 24 * 60 * 60 * 1000)
-    )
-    setWeekIndex(Math.max(0, weeksFromBase))
+    const selectedWeek = getISOWeekNumber(selectedDate)
+    setCurrentWeek(selectedWeek)
   }
 
   return (
@@ -443,7 +405,7 @@ export function CalendarKanbanView({
 
           <div className="month-selector">
             <select
-              value={`${currentWeekStart.getMonth()}-${currentWeekStart.getFullYear()}`}
+              value={`${weekStartDate.getMonth()}-${weekStartDate.getFullYear()}`}
               onChange={handleMonthChange}
               className="month-dropdown"
             >
@@ -466,7 +428,7 @@ export function CalendarKanbanView({
           <button
             className="week-nav-button"
             onClick={() => handleWeekNavigation('prev')}
-            disabled={weekIndex === 0}
+            disabled={currentWeek === 1}
             style={{
               width: '40px',
               height: '40px',
@@ -496,7 +458,7 @@ export function CalendarKanbanView({
           <button
             className="week-nav-button"
             onClick={() => handleWeekNavigation('next')}
-            disabled={weekIndex >= 25}
+            disabled={currentWeek >= 53}
             style={{
               width: '40px',
               height: '40px',
@@ -685,16 +647,17 @@ export function CalendarKanbanView({
               {propertiesToShow.map(property => (
                 <div key={property.id} className="kanban-row">
                   {allDays.map((date, idx) => {
-                    const key = `${property.id}-${idx}`
+                    const dateStr = date.toDateString()
+                    const key = `${property.id}-${dateStr}`
                     const isSelected = selectedDays.has(key)
-                    const isToday = date.toDateString() === now.toDateString()
+                    const isToday = dateStr === now.toDateString()
                     const reservation = getReservationForDate(property.id, date)
                     const isBooked = !!reservation
                     return (
                       <div
                         key={idx}
                         className="kanban-cell"
-                        onClick={(e) => !isBooked && handleCellClick(property.id, idx, e)}
+                        onClick={(e) => !isBooked && handleCellClick(property.id, date, e)}
                         style={{
                           cursor: isBooked ? 'not-allowed' : 'pointer',
                           background: isSelected ? '#e8f0fe' : (isToday ? '#f0f4ff' : '#ffffff'),
@@ -711,7 +674,7 @@ export function CalendarKanbanView({
                         }}
                       >
                         <div className="cell-price" style={{ color: '#4d5566' }}>
-                          {getPrice(property.id, idx)}
+                          {getPrice(property.id, key)}
                         </div>
                       </div>
                     )
@@ -877,20 +840,14 @@ export function CalendarKanbanView({
             overflow: 'visible',
           }}
         >
-          {calculateReservationBars()
-            .filter(bar => {
-              // Only render bars that are in the current week or adjacent weeks (to avoid rendering off-screen bars)
-              const barWeekIndex = Math.floor(bar.dayStartIndex / 7)
-              return barWeekIndex >= weekIndex - 1 && barWeekIndex <= weekIndex + 1
-            })
-            .map(bar => (
+          {calculateReservationBars().map(bar => (
             <ReservationBar
               key={bar.id}
               reservation={bar.reservation}
-              dayStartIndex={bar.dayStartIndex}
+              dayStartIndex={bar.dayInWeekIndex}
               totalDays={bar.totalDays}
               rowIndex={bar.rowIndex}
-              weekIndex={Math.floor(bar.dayStartIndex / 7)}
+              weekIndex={0}
               cellWidth={85}
               cellGap={1}
               cellHeight={90}
