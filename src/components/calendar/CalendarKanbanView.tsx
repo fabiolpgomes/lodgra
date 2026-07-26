@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import Image from 'next/image'
@@ -91,6 +91,14 @@ export function CalendarKanbanView({
 
   const [currentWeek, setCurrentWeek] = useState(todayWeekNumber)
   const [isNavigating, setIsNavigating] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 1024)
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   const handleDashboardClick = () => {
     setIsNavigating(true)
@@ -187,37 +195,47 @@ export function CalendarKanbanView({
     return labels[status] || status
   }
 
+  // Responsive sizing
+  const propertyColWidth = isMobile ? 'w-24' : 'w-56'
+  const dayColMinWidth = isMobile ? 'min-w-[90px]' : 'min-w-[140px]'
+  const headerPadding = isMobile ? 'p-2' : 'p-6'
+  const cellPadding = isMobile ? 'p-1' : 'p-2'
+  const fontSize = isMobile ? 'text-xs' : 'text-sm'
+  const titleFontSize = isMobile ? 'text-sm' : 'text-lg'
+  const dayHeaderFontSize = isMobile ? 'text-xs' : 'text-sm'
+  const minHeightCell = isMobile ? 'min-h-[80px]' : 'min-h-[120px]'
+
   return (
     <div className="min-h-screen" style={{ backgroundColor: COLORS.surface }}>
       {/* Header */}
-      <div className="border-b p-6" style={{ borderColor: COLORS.hairline, backgroundColor: COLORS.canvas }}>
-        <div className="flex items-center justify-between mb-6">
+      <div className={`border-b ${headerPadding}`} style={{ borderColor: COLORS.hairline, backgroundColor: COLORS.canvas }}>
+        <div className="flex items-center justify-between mb-4">
           <button
             onClick={handleDashboardClick}
             disabled={isNavigating}
-            className="flex items-center gap-2 font-semibold cursor-pointer hover:opacity-70 disabled:opacity-50"
+            className="flex items-center gap-2 font-semibold cursor-pointer hover:opacity-70 disabled:opacity-50 text-xs md:text-base"
             style={{ color: COLORS.primary }}
           >
-            {isNavigating ? '⏳ Carregando...' : '← Dashboard'}
+            {isNavigating ? '⏳' : '←'} {!isMobile && 'Dashboard'}
           </button>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 md:gap-4">
             <button onClick={handlePrevWeek} className="p-2 rounded" style={{ backgroundColor: COLORS.surface }}>
-              <ChevronLeft size={20} style={{ color: COLORS.primary }} />
+              <ChevronLeft size={isMobile ? 16 : 20} style={{ color: COLORS.primary }} />
             </button>
-            <div className="text-center min-w-[200px]">
-              <div className="text-sm" style={{ color: COLORS.body }}>
-                {monthDisplay} de {year}
+            <div className="text-center min-w-[120px]">
+              <div className={`${fontSize}`} style={{ color: COLORS.body }}>
+                {monthDisplay}
               </div>
-              <div className="text-xl font-semibold" style={{ color: COLORS.primary }}>
-                Semana {currentWeek}
+              <div className={`font-semibold ${titleFontSize}`} style={{ color: COLORS.primary }}>
+                Sem {currentWeek}
               </div>
             </div>
             <button onClick={handleNextWeek} className="p-2 rounded" style={{ backgroundColor: COLORS.surface }}>
-              <ChevronRight size={20} style={{ color: COLORS.primary }} />
+              <ChevronRight size={isMobile ? 16 : 20} style={{ color: COLORS.primary }} />
             </button>
           </div>
-          <div className="text-sm" style={{ color: COLORS.body }}>
-            {propertiesWithReservations.length} Propriedades
+          <div className={`${fontSize}`} style={{ color: COLORS.body }}>
+            {isMobile ? `${propertiesWithReservations.length}P` : `${propertiesWithReservations.length} Propriedades`}
           </div>
         </div>
       </div>
@@ -227,8 +245,8 @@ export function CalendarKanbanView({
         <div className="inline-block min-w-full">
           {/* Days Header */}
           <div className="flex" style={{ backgroundColor: COLORS.canvas, borderBottom: `1px solid ${COLORS.hairline}` }}>
-            <div className="w-56 flex-shrink-0 border-r p-4 font-semibold text-sm" style={{ borderColor: COLORS.hairline, color: COLORS.primary }}>
-              Propriedade
+            <div className={`${propertyColWidth} flex-shrink-0 border-r p-2 md:p-4 font-semibold ${dayHeaderFontSize}`} style={{ borderColor: COLORS.hairline, color: COLORS.primary }}>
+              {isMobile ? 'Prop' : 'Propriedade'}
             </div>
             <div className="flex flex-1">
               {allDays.map((day, idx) => {
@@ -242,17 +260,17 @@ export function CalendarKanbanView({
                 return (
                   <div
                     key={idx}
-                    className={`flex-1 min-w-[140px] p-3 text-center border-r`}
+                    className={`flex-1 ${dayColMinWidth} p-2 text-center border-r`}
                     style={{
                       borderColor: COLORS.hairline,
                       backgroundColor: isToday ? 'rgba(16,32,62,0.08)' : COLORS.canvas,
                     }}
                   >
-                    <div className="text-xs font-semibold" style={{ color: COLORS.body }}>
+                    <div className={`font-semibold ${dayHeaderFontSize}`} style={{ color: COLORS.body }}>
                       {dayName}
                     </div>
                     <div
-                      className="text-lg font-bold"
+                      className={`font-bold ${titleFontSize}`}
                       style={{ color: isToday ? COLORS.primary : COLORS.ink }}
                     >
                       {dayNum}
@@ -268,14 +286,14 @@ export function CalendarKanbanView({
             <div key={property.id} className="flex" style={{ borderBottom: `1px solid ${COLORS.hairline}` }}>
               {/* Property name with image */}
               <div
-                className="w-56 flex-shrink-0 border-r p-4"
+                className={`${propertyColWidth} flex-shrink-0 border-r p-2 md:p-4`}
                 style={{ borderColor: COLORS.hairline, backgroundColor: COLORS.canvas }}
               >
                 <div
                   className="cursor-pointer hover:opacity-80"
                   onClick={() => onPropertyClick?.(property.id)}
                 >
-                  {property.imageUrl && (
+                  {property.imageUrl && !isMobile && (
                     <div className="mb-3 rounded overflow-hidden h-16 bg-gray-200">
                       <Image
                         src={property.imageUrl}
@@ -286,12 +304,25 @@ export function CalendarKanbanView({
                       />
                     </div>
                   )}
-                  <div className="font-semibold text-sm line-clamp-2" style={{ color: COLORS.primary }}>
-                    {property.name}
+                  {property.imageUrl && isMobile && (
+                    <div className="mb-2 rounded overflow-hidden h-10 bg-gray-200">
+                      <Image
+                        src={property.imageUrl}
+                        alt={property.name}
+                        width={96}
+                        height={40}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+                  <div className={`font-semibold line-clamp-2 ${fontSize}`} style={{ color: COLORS.primary }}>
+                    {isMobile ? property.name.split('|')[0] : property.name}
                   </div>
-                  <div className="text-xs" style={{ color: COLORS.body }}>
-                    {property.type}
-                  </div>
+                  {!isMobile && (
+                    <div className="text-xs" style={{ color: COLORS.body }}>
+                      {property.type}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -307,13 +338,13 @@ export function CalendarKanbanView({
                   return (
                     <div
                       key={`${property.id}-${idx}`}
-                      className={`flex-1 min-w-[140px] p-2 border-r`}
+                      className={`flex-1 ${dayColMinWidth} ${cellPadding} border-r ${minHeightCell}`}
                       style={{
                         borderColor: COLORS.hairline,
                         backgroundColor: isToday ? 'rgba(16,32,62,0.04)' : COLORS.surface,
                       }}
                     >
-                      <div className="space-y-2 min-h-[120px]">
+                      <div className="space-y-1 md:space-y-2">
                         {dayReservations.map((res) => {
                           const colors = STATUS_COLORS[res.status] || STATUS_COLORS.confirmed
                           const statusLabel = getStatusLabel(res.status)
@@ -322,20 +353,24 @@ export function CalendarKanbanView({
                           return (
                             <div
                               key={res.id}
-                              className={`${colors.bg} ${colors.border} border rounded p-2 text-xs`}
+                              className={`${colors.bg} ${colors.border} border rounded p-1 md:p-2 text-xs`}
                             >
                               <div className={`font-semibold line-clamp-1 ${colors.text}`}>
-                                {res.guestName}
+                                {isMobile ? res.guestName.split(' ')[0] : res.guestName}
                               </div>
-                              <div className={`text-xs ${colors.text} opacity-75`}>
-                                {res.guestCount} {res.guestCount === 1 ? 'hóspede' : 'hóspedes'}
-                              </div>
-                              <div className={`font-bold ${colors.text}`}>
-                                {currencySymbol} {res.price.toFixed(2)}
-                              </div>
-                              <div className={`text-xs font-semibold ${colors.text}`}>
-                                {statusLabel}
-                              </div>
+                              {!isMobile && (
+                                <>
+                                  <div className={`text-xs ${colors.text} opacity-75`}>
+                                    {res.guestCount} {res.guestCount === 1 ? 'hosp.' : 'hosp.'}
+                                  </div>
+                                  <div className={`font-bold ${colors.text}`}>
+                                    {currencySymbol} {res.price.toFixed(0)}
+                                  </div>
+                                  <div className={`text-xs font-semibold ${colors.text}`}>
+                                    {statusLabel}
+                                  </div>
+                                </>
+                              )}
                             </div>
                           )
                         })}
