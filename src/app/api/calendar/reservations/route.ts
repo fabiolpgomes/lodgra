@@ -23,10 +23,10 @@ export async function GET(request: NextRequest) {
     const to = searchParams.get('to')
     const propertyId = searchParams.get('property_id')
 
-    // Default: 3 months back to 3 months forward
+    // Default: 3 months back to 3 months forward (UTC-based date math)
     const now = new Date()
-    const fromDate = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate())
-    const toDate = new Date(now.getFullYear(), now.getMonth() + 3, now.getDate())
+    const fromDate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 3, now.getUTCDate()))
+    const toDate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 3, now.getUTCDate()))
     const defaultFrom = fromDate.toISOString().slice(0, 10)
     const defaultTo = toDate.toISOString().slice(0, 10)
 
