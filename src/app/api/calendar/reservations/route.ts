@@ -98,9 +98,9 @@ export async function GET(request: NextRequest) {
         const opacity = r.status === 'pending' ? 0.65 : 1
 
         // FullCalendar: end date is exclusive, so add 1 day to make the checkout date visible in calendar
-        const endDate = new Date(r.check_out)
-        endDate.setDate(endDate.getDate() + 1)
-        const end = endDate.toISOString().slice(0, 10)
+        // Parse check_out as UTC date, add 1 day, return ISO string without timezone assumptions
+        const [year, month, day] = r.check_out.split('-').map(Number)
+        const end = new Date(Date.UTC(year, month - 1, day + 1)).toISOString().slice(0, 10)
 
         return {
           id: r.id,
