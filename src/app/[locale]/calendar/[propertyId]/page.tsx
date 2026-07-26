@@ -170,7 +170,7 @@ export default function PropertyCalendarPage() {
           const propertyNameFromReservations = propertyReservations[0]?.extendedProps?.property_name
 
           setProperty({
-            id: params.propertyId,
+            id: typeof params.propertyId === 'string' ? params.propertyId : (params.propertyId?.[0] || ''),
             name: propertyNameFromReservations || '',
             type: 'Property',
             location: '',
