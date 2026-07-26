@@ -174,19 +174,24 @@ export function CalendarKanbanView({
       reservations
         .filter(res => res.propertyId === property.id)
         .forEach(reservation => {
+          // Parse dates ensuring we handle both ISO strings and Date objects
           const startDate = new Date(reservation.startDate)
+          startDate.setHours(0, 0, 0, 0) // Normalize to midnight UTC
 
-          // Find which day of the week this reservation starts (0=Monday, 6=Sunday)
-          const dayInWeekIndex = allDays.findIndex(
-            day => day.toDateString() === startDate.toDateString()
-          )
+          // Find which day this reservation starts in the current 2-week view
+          const dayInWeekIndex = allDays.findIndex(day => {
+            const dayNormalized = new Date(day)
+            dayNormalized.setHours(0, 0, 0, 0)
+            return dayNormalized.getTime() === startDate.getTime()
+          })
 
-          // Only show bars that start in this week
+          // Only show bars that start in this 2-week view
           if (dayInWeekIndex === -1) {
             return
           }
 
           const endDate = new Date(reservation.endDate)
+          endDate.setHours(0, 0, 0, 0) // Normalize to midnight UTC
           const totalDays = Math.ceil(
             (endDate.getTime() - startDate.getTime()) / (24 * 60 * 60 * 1000)
           )
