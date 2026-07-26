@@ -83,12 +83,19 @@ export function CalendarKanbanView({
 
   const weekYear = getYearForWeek(currentYear, currentWeek)
 
-  // Generate days for current week only (7 days)
+  // Generate days for 2 weeks (14 days) for better desktop view
   const weekStartDate = getISOWeekStartDate(weekYear, currentWeek)
-  const allDays = getWeekDays(weekStartDate)
+  const weekDays1 = getWeekDays(weekStartDate)
 
-  // No scroll position needed - ISO 8601 generates exact 7 days per week
-  // Days array changes automatically when currentWeek changes
+  // Get next week's days (handle year boundaries)
+  const nextWeek = currentWeek === 53 ? 1 : currentWeek + 1
+  const nextWeekYear = currentWeek === 53 ? weekYear + 1 : weekYear
+  const week2StartDate = getISOWeekStartDate(nextWeekYear, nextWeek)
+  const weekDays2 = getWeekDays(week2StartDate)
+
+  const allDays = [...weekDays1, ...weekDays2] // 14 days total
+
+  // Navigation updates week number, display updates to 14 days automatically
   const [prices, setPrices] = useState<Record<string, number>>({}) // Store custom prices by date string
   const [availability, setAvailability] = useState<Record<string, 'available' | 'blocked'>>({})
   const [minNights, setMinNights] = useState<Record<string, number>>({})
