@@ -22,7 +22,7 @@ export function getWeekDays(date: Date): Date[] {
   const days: Date[] = []
   for (let i = 0; i < 7; i++) {
     const d = new Date(weekStart)
-    d.setDate(d.getDate() + i)
+    d.setUTCDate(d.getUTCDate() + i)
     days.push(d)
   }
   return days
