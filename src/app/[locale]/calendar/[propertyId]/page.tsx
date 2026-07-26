@@ -255,7 +255,28 @@ export default function PropertyCalendarPage() {
         <div style={{ padding: '12px 16px', background: '#ffffff', borderBottom: '1px solid #efeadf', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
           <button
             onClick={() => router.push(`/${locale}/calendar`)}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '24px', color: '#1b2430', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: '24px',
+              color: '#1b2430',
+              width: '40px',
+              height: '40px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '8px',
+              transition: 'all 0.2s',
+            }}
+            title="Retornar"
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = '#f0f0f0'
+              e.currentTarget.style.borderRadius = '8px'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'none'
+            }}
           >
             ←
           </button>
@@ -612,7 +633,7 @@ export default function PropertyCalendarPage() {
   }
 
   return (
-    <div style={{ display: 'flex', height: '100vh', background: '#fbfaf6', flexDirection: 'column' }}>
+    <div style={{ display: 'flex', height: '100vh', background: '#fbfaf6' }}>
       {/* Main Content */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         {/* Header com Controls */}
