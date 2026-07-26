@@ -69,12 +69,12 @@ export function CalendarKanbanView({
   const getYearForWeek = (year: number, week: number): number => {
     if (week >= 49) {
       // Check if this is actually next year's week 1
-      const jan1 = new Date(year + 1, 0, 1)
+      const jan1 = new Date(Date.UTC(year + 1, 0, 1))
       const jan1Week = getISOWeekNumber(jan1)
       if (jan1Week <= 4) return year + 1
     } else if (week <= 4) {
       // Check if this is actually previous year's week 52/53
-      const dec31 = new Date(year - 1, 11, 31)
+      const dec31 = new Date(Date.UTC(year - 1, 11, 31))
       const dec31Week = getISOWeekNumber(dec31)
       if (dec31Week >= 49) return year - 1
     }
@@ -424,7 +424,7 @@ export function CalendarKanbanView({
 
   const handleMonthChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const [month, yearStr] = e.target.value.split('-')
-    const selectedDate = new Date(parseInt(yearStr), parseInt(month), 15)
+    const selectedDate = new Date(Date.UTC(parseInt(yearStr), parseInt(month), 15))
     const selectedWeek = getISOWeekNumber(selectedDate)
     setCurrentWeek(selectedWeek)
   }
@@ -469,9 +469,9 @@ export function CalendarKanbanView({
               className="month-dropdown"
             >
               {Array.from({ length: 36 }, (_, i) => {
-                const date = new Date(2026, i, 1)
-                const m = date.getMonth()
-                const y = date.getFullYear()
+                const date = new Date(Date.UTC(2026, i, 1))
+                const m = date.getUTCMonth()
+                const y = date.getUTCFullYear()
                 return (
                   <option key={i} value={`${m}-${y}`}>
                     {MONTHS[m]} de {y}
