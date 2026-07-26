@@ -104,6 +104,16 @@ export function CalendarKanbanView({
 
   const allDays = [...weekDays1, ...weekDays2] // 14 days total
 
+  // DEBUG: Log allDays for timezone debugging
+  if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+    console.log('[CalendarKanban] allDays (first 7):', allDays.slice(0, 7).map(d => ({
+      date: d.toISOString().split('T')[0],
+      getUTCDate: d.getUTCDate(),
+      getDate: d.getDate(),
+      getTime: d.getTime(),
+    })))
+  }
+
   // Navigation updates week number, display updates to 14 days automatically
   const [prices, setPrices] = useState<Record<string, number>>({}) // Store custom prices by date string
   const [availability, setAvailability] = useState<Record<string, 'available' | 'blocked'>>({})
@@ -190,19 +200,26 @@ export function CalendarKanbanView({
             reservation.startDate.getUTCDate()
           ))
 
-          // Debug first 3 reservations
-          if (resIdx === 0) {
-            console.debug('[CalendarKanban] Reservation debug:', {
+          // DEBUG: Detailed logging for EVERY reservation
+          if (process.env.NODE_ENV === 'development') {
+            console.debug('[CalendarKanban] Reservation detailed:', {
               guest: reservation.guestName,
-              rawStart: reservation.startDate,
-              startDateAfterNew: new Date(reservation.startDate),
-              startDateAfterNormalize: startDate,
+              inputDate: reservation.startDate,
+              inputDate_ISO: reservation.startDate.toISOString(),
+              inputDate_getUTC: {
+                year: reservation.startDate.getUTCFullYear(),
+                month: reservation.startDate.getUTCMonth(),
+                date: reservation.startDate.getUTCDate(),
+              },
+              constructedStartDate: startDate.toISOString(),
               startDate_getTime: startDate.getTime(),
-              allDays_sample: [
-                allDays[0]?.toISOString(),
-                allDays[1]?.toISOString(),
-                allDays[2]?.toISOString(),
-              ]
+              // Compare with each allDay
+              comparison: allDays.slice(0, 5).map((day, idx) => ({
+                idx,
+                date: day.toISOString().split('T')[0],
+                getTime: day.getTime(),
+                matches: day.getTime() === startDate.getTime(),
+              })),
             })
           }
 
@@ -213,8 +230,26 @@ export function CalendarKanbanView({
             return dayNormalized.getTime() === startDate.getTime()
           })
 
+          // DEBUG: Log found index
+          if (process.env.NODE_ENV === 'development' && reservation.guestName.toLowerCase().includes('vania')) {
+            console.debug('[CalendarKanban] VANIA FOUND:', {
+              guest: reservation.guestName,
+              inputDate: reservation.startDate.toISOString(),
+              foundIndex: dayInWeekIndex,
+              allDays_0: allDays[0]?.toISOString(),
+              allDays_1: allDays[1]?.toISOString(),
+              allDays_4: allDays[4]?.toISOString(),
+            })
+          }
+
           // Only show bars that start in this 2-week view
           if (dayInWeekIndex === -1) {
+            if (process.env.NODE_ENV === 'development') {
+              console.warn('[CalendarKanban] Reservation not found in allDays:', {
+                guest: reservation.guestName,
+                startDate_ISO: startDate.toISOString(),
+              })
+            }
             return
           }
 
