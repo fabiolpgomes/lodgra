@@ -88,7 +88,7 @@ export function CalendarKanbanView({
   const weekStartDate = getISOWeekStartDate(weekYear, currentWeek)
   const weekDays1 = getWeekDays(weekStartDate).map(day => {
     const normalized = new Date(day)
-    normalized.setHours(0, 0, 0, 0)
+    normalized.setUTCHours(0, 0, 0, 0)
     return normalized
   })
 
@@ -98,7 +98,7 @@ export function CalendarKanbanView({
   const week2StartDate = getISOWeekStartDate(nextWeekYear, nextWeek)
   const weekDays2 = getWeekDays(week2StartDate).map(day => {
     const normalized = new Date(day)
-    normalized.setHours(0, 0, 0, 0)
+    normalized.setUTCHours(0, 0, 0, 0)
     return normalized
   })
 
@@ -185,7 +185,7 @@ export function CalendarKanbanView({
         .forEach((reservation, resIdx) => {
           // Parse dates ensuring we handle both ISO strings and Date objects
           const startDate = new Date(reservation.startDate)
-          startDate.setHours(0, 0, 0, 0) // Normalize to midnight UTC
+          startDate.setUTCHours(0, 0, 0, 0) // Normalize to midnight UTC
 
           // Debug first 3 reservations
           if (resIdx === 0) {
@@ -206,7 +206,7 @@ export function CalendarKanbanView({
           // Find which day this reservation starts in the current 2-week view
           const dayInWeekIndex = allDays.findIndex(day => {
             const dayNormalized = new Date(day)
-            dayNormalized.setHours(0, 0, 0, 0)
+            dayNormalized.setUTCHours(0, 0, 0, 0)
             return dayNormalized.getTime() === startDate.getTime()
           })
 
@@ -216,7 +216,7 @@ export function CalendarKanbanView({
           }
 
           const endDate = new Date(reservation.endDate)
-          endDate.setHours(0, 0, 0, 0) // Normalize to midnight UTC
+          endDate.setUTCHours(0, 0, 0, 0) // Normalize to midnight UTC
           const totalDays = Math.ceil(
             (endDate.getTime() - startDate.getTime()) / (24 * 60 * 60 * 1000)
           )
