@@ -155,32 +155,29 @@ export default function PropertyCalendarPage() {
   const [property, setProperty] = useState<Property>(defaultProperty)
   const [reservations, setReservations] = useState<Reservation[]>(defaultReservations)
 
-  // Fetch property and reservations on mount
+  // Fetch reservations on mount
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [propsRes, reservRes] = await Promise.all([
-          fetch(`/api/properties/${params.propertyId}`),
-          fetch('/api/calendar/reservations'),
-        ])
-
-        if (propsRes.ok) {
-          const propsData = await propsRes.json()
-          const prop = propsData.data || propsData
-          setProperty({
-            id: prop.id,
-            name: prop.name,
-            type: prop.bedrooms ? `${prop.bedrooms} dorms` : 'Property',
-            location: prop.city || prop.country || '',
-            imageUrl: prop.image,
-          })
-        }
+        const reservRes = await fetch('/api/calendar/reservations')
 
         if (reservRes.ok) {
           const data = await reservRes.json()
           const events = Array.isArray(data) ? data : (data.data || [])
-          const mapped = events
-            .filter((evt: any) => evt.extendedProps?.property_id === params.propertyId)
+          const propertyReservations = events.filter((evt: any) => evt.extendedProps?.property_id === params.propertyId)
+
+          // Extract property name from first reservation if available
+          const propertyNameFromReservations = propertyReservations[0]?.extendedProps?.property_name
+
+          setProperty({
+            id: params.propertyId,
+            name: propertyNameFromReservations || '',
+            type: 'Property',
+            location: '',
+            imageUrl: '',
+          })
+
+          const mapped = propertyReservations
             .map((evt: any) => {
               // Parse dates as UTC (same as CalendarKanbanView)
               const startStr = evt.start.split('T')[0] // "2026-07-23"
