@@ -148,10 +148,10 @@ export function CalendarKanbanView({
     return 'Confirmado'
   }
 
-  // Filter properties to show based on selectedPropertyId
+  // Filter properties to show based on selectedPropertyId, sorted by location (country) ascending
   const propertiesToShow = selectedPropertyId
     ? properties.filter(p => p.id === selectedPropertyId)
-    : properties
+    : properties.sort((a, b) => (a.location || '').localeCompare(b.location || '', 'pt-BR'))
 
   // Calculate reservation bars (for rendering as overlay blocks)
   const calculateReservationBars = () => {
