@@ -84,14 +84,23 @@ export function CalendarKanbanView({
   const weekYear = getYearForWeek(currentYear, currentWeek)
 
   // Generate days for 2 weeks (14 days) for better desktop view
+  // Normalize all days to midnight UTC to ensure consistent date comparison
   const weekStartDate = getISOWeekStartDate(weekYear, currentWeek)
-  const weekDays1 = getWeekDays(weekStartDate)
+  const weekDays1 = getWeekDays(weekStartDate).map(day => {
+    const normalized = new Date(day)
+    normalized.setHours(0, 0, 0, 0)
+    return normalized
+  })
 
   // Get next week's days (handle year boundaries)
   const nextWeek = currentWeek === 53 ? 1 : currentWeek + 1
   const nextWeekYear = currentWeek === 53 ? weekYear + 1 : weekYear
   const week2StartDate = getISOWeekStartDate(nextWeekYear, nextWeek)
-  const weekDays2 = getWeekDays(week2StartDate)
+  const weekDays2 = getWeekDays(week2StartDate).map(day => {
+    const normalized = new Date(day)
+    normalized.setHours(0, 0, 0, 0)
+    return normalized
+  })
 
   const allDays = [...weekDays1, ...weekDays2] // 14 days total
 
