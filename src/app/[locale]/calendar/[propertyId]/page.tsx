@@ -178,16 +178,26 @@ export default function PropertyCalendarPage() {
           const events = Array.isArray(data) ? data : (data.data || [])
           const mapped = events
             .filter((evt: any) => evt.extendedProps?.property_id === params.propertyId)
-            .map((evt: any) => ({
-              id: evt.id,
-              propertyId: evt.extendedProps?.property_id || '',
-              guestName: evt.extendedProps?.guest_name || 'Hóspede',
-              guestCount: evt.extendedProps?.number_of_guests || 1,
-              startDate: new Date(evt.start),
-              endDate: new Date(evt.end),
-              price: 0,
-              status: evt.extendedProps?.status || 'confirmed',
-            }))
+            .map((evt: any) => {
+              // Parse dates as UTC (same as CalendarKanbanView)
+              const startStr = evt.start.split('T')[0] // "2026-07-23"
+              const endStr = evt.end.split('T')[0] // "2026-07-28"
+              const [startYear, startMonth, startDay] = startStr.split('-').map(Number)
+              const [endYear, endMonth, endDay] = endStr.split('-').map(Number)
+
+              return {
+                id: evt.id,
+                propertyId: evt.extendedProps?.property_id || '',
+                guestName: evt.extendedProps?.guest_name || 'Hóspede',
+                guestCount: evt.extendedProps?.number_of_guests || 1,
+                startDate: new Date(Date.UTC(startYear, startMonth - 1, startDay)),
+                endDate: new Date(Date.UTC(endYear, endMonth - 1, endDay)),
+                price: evt.extendedProps?.total_amount || 0,
+                currency: evt.extendedProps?.currency || 'EUR',
+                status: evt.extendedProps?.status || 'confirmed',
+              }
+            })
+            .sort((a, b) => a.startDate.getTime() - b.startDate.getTime())
           setReservations(mapped)
         }
       } catch (error) {
