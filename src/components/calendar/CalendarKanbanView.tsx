@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import Image from 'next/image'
 import { getISOWeekNumber, getISOWeekStartDate, getWeekDays } from '@/utils/weekUtils'
 
 interface Property {
@@ -38,6 +39,18 @@ const MONTHS = [
 ]
 
 const DAYS_PT = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S']
+
+// Design.md colors
+const COLORS = {
+  primary: '#10203E',
+  primaryActive: '#0c1830',
+  luxe: '#C9A227',
+  ink: '#1B2430',
+  body: '#4D5566',
+  hairline: '#E5DFD2',
+  canvas: '#FBFAF6',
+  surface: '#F7F5EF',
+}
 
 const STATUS_COLORS: Record<string, { bg: string; text: string; border: string }> = {
   confirmed: {
@@ -77,6 +90,12 @@ export function CalendarKanbanView({
   const currentYear = now.getFullYear()
 
   const [currentWeek, setCurrentWeek] = useState(todayWeekNumber)
+  const [isNavigating, setIsNavigating] = useState(false)
+
+  const handleDashboardClick = () => {
+    setIsNavigating(true)
+    router.push(`/${locale}/dashboard`)
+  }
 
   // Calculate year for week
   const getYearForWeek = (year: number, week: number): number => {
@@ -133,7 +152,11 @@ export function CalendarKanbanView({
     })
   }
 
-  const propertiesWithReservations = properties.slice(0, 7)
+  // Sort properties by location (country) and limit to 7
+  const propertiesWithReservations = [...properties]
+    .sort((a, b) => (a.location || '').localeCompare(b.location || ''))
+    .slice(0, 7)
+
   const monthDisplay = MONTHS[weekStartDate.getMonth()]
   const year = weekStartDate.getFullYear()
 
@@ -165,29 +188,37 @@ export function CalendarKanbanView({
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen" style={{ backgroundColor: COLORS.surface }}>
       {/* Header */}
-      <div className="border-b border-gray-200 p-6">
+      <div className="border-b p-6" style={{ borderColor: COLORS.hairline, backgroundColor: COLORS.canvas }}>
         <div className="flex items-center justify-between mb-6">
           <button
-            onClick={() => router.push(`/${locale}/dashboard`)}
-            className="text-gray-600 hover:text-gray-900 flex items-center gap-2"
+            onClick={handleDashboardClick}
+            disabled={isNavigating}
+            className="flex items-center gap-2 font-semibold cursor-pointer hover:opacity-70 disabled:opacity-50"
+            style={{ color: COLORS.primary }}
           >
-            ← Dashboard
+            {isNavigating ? '⏳ Carregando...' : '← Dashboard'}
           </button>
           <div className="flex items-center gap-4">
-            <button onClick={handlePrevWeek} className="p-2 hover:bg-gray-100 rounded">
-              <ChevronLeft size={20} />
+            <button onClick={handlePrevWeek} className="p-2 rounded" style={{ backgroundColor: COLORS.surface }}>
+              <ChevronLeft size={20} style={{ color: COLORS.primary }} />
             </button>
             <div className="text-center min-w-[200px]">
-              <div className="text-sm text-gray-600">{monthDisplay} de {year}</div>
-              <div className="text-xl font-semibold">Semana {currentWeek}</div>
+              <div className="text-sm" style={{ color: COLORS.body }}>
+                {monthDisplay} de {year}
+              </div>
+              <div className="text-xl font-semibold" style={{ color: COLORS.primary }}>
+                Semana {currentWeek}
+              </div>
             </div>
-            <button onClick={handleNextWeek} className="p-2 hover:bg-gray-100 rounded">
-              <ChevronRight size={20} />
+            <button onClick={handleNextWeek} className="p-2 rounded" style={{ backgroundColor: COLORS.surface }}>
+              <ChevronRight size={20} style={{ color: COLORS.primary }} />
             </button>
           </div>
-          <div className="text-sm text-gray-600">{propertiesWithReservations.length} Propriedades</div>
+          <div className="text-sm" style={{ color: COLORS.body }}>
+            {propertiesWithReservations.length} Propriedades
+          </div>
         </div>
       </div>
 
@@ -195,8 +226,8 @@ export function CalendarKanbanView({
       <div className="overflow-x-auto">
         <div className="inline-block min-w-full">
           {/* Days Header */}
-          <div className="flex bg-gray-50 border-b border-gray-200">
-            <div className="w-48 flex-shrink-0 border-r border-gray-200 p-4 font-semibold text-sm">
+          <div className="flex" style={{ backgroundColor: COLORS.canvas, borderBottom: `1px solid ${COLORS.hairline}` }}>
+            <div className="w-56 flex-shrink-0 border-r p-4 font-semibold text-sm" style={{ borderColor: COLORS.hairline, color: COLORS.primary }}>
               Propriedade
             </div>
             <div className="flex flex-1">
@@ -211,12 +242,19 @@ export function CalendarKanbanView({
                 return (
                   <div
                     key={idx}
-                    className={`flex-1 min-w-[140px] p-3 text-center border-r border-gray-200 ${
-                      isToday ? 'bg-blue-50' : 'bg-gray-50'
-                    }`}
+                    className={`flex-1 min-w-[140px] p-3 text-center border-r`}
+                    style={{
+                      borderColor: COLORS.hairline,
+                      backgroundColor: isToday ? 'rgba(16,32,62,0.08)' : COLORS.canvas,
+                    }}
                   >
-                    <div className="text-xs font-semibold text-gray-600">{dayName}</div>
-                    <div className={`text-lg font-bold ${isToday ? 'text-blue-600' : 'text-gray-900'}`}>
+                    <div className="text-xs font-semibold" style={{ color: COLORS.body }}>
+                      {dayName}
+                    </div>
+                    <div
+                      className="text-lg font-bold"
+                      style={{ color: isToday ? COLORS.primary : COLORS.ink }}
+                    >
                       {dayNum}
                     </div>
                   </div>
@@ -227,15 +265,33 @@ export function CalendarKanbanView({
 
           {/* Rows for each property */}
           {propertiesWithReservations.map((property) => (
-            <div key={property.id} className="flex border-b border-gray-200">
-              {/* Property name */}
-              <div className="w-48 flex-shrink-0 border-r border-gray-200 p-4 bg-gray-50">
+            <div key={property.id} className="flex" style={{ borderBottom: `1px solid ${COLORS.hairline}` }}>
+              {/* Property name with image */}
+              <div
+                className="w-56 flex-shrink-0 border-r p-4"
+                style={{ borderColor: COLORS.hairline, backgroundColor: COLORS.canvas }}
+              >
                 <div
-                  className="cursor-pointer hover:text-blue-600"
+                  className="cursor-pointer hover:opacity-80"
                   onClick={() => onPropertyClick?.(property.id)}
                 >
-                  <div className="font-semibold text-sm line-clamp-2">{property.name}</div>
-                  <div className="text-xs text-gray-600">{property.type}</div>
+                  {property.imageUrl && (
+                    <div className="mb-3 rounded overflow-hidden h-16 bg-gray-200">
+                      <Image
+                        src={property.imageUrl}
+                        alt={property.name}
+                        width={224}
+                        height={64}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+                  <div className="font-semibold text-sm line-clamp-2" style={{ color: COLORS.primary }}>
+                    {property.name}
+                  </div>
+                  <div className="text-xs" style={{ color: COLORS.body }}>
+                    {property.type}
+                  </div>
                 </div>
               </div>
 
@@ -251,9 +307,11 @@ export function CalendarKanbanView({
                   return (
                     <div
                       key={`${property.id}-${idx}`}
-                      className={`flex-1 min-w-[140px] p-2 border-r border-gray-200 ${
-                        isToday ? 'bg-blue-50' : ''
-                      }`}
+                      className={`flex-1 min-w-[140px] p-2 border-r`}
+                      style={{
+                        borderColor: COLORS.hairline,
+                        backgroundColor: isToday ? 'rgba(16,32,62,0.04)' : COLORS.surface,
+                      }}
                     >
                       <div className="space-y-2 min-h-[120px]">
                         {dayReservations.map((res) => {
