@@ -259,15 +259,14 @@ export default function PropertyCalendarPage() {
               background: 'none',
               border: 'none',
               cursor: 'pointer',
-              fontSize: '24px',
               color: '#1b2430',
-              width: '40px',
-              height: '40px',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center',
-              padding: '8px',
+              gap: '8px',
+              padding: '8px 12px',
               transition: 'all 0.2s',
+              fontSize: '14px',
+              fontWeight: '600',
             }}
             title="Retornar"
             onMouseEnter={(e) => {
@@ -278,7 +277,8 @@ export default function PropertyCalendarPage() {
               e.currentTarget.style.background = 'none'
             }}
           >
-            ←
+            <span style={{ fontSize: '20px' }}>←</span>
+            Retornar
           </button>
           <div style={{ flex: 1, minWidth: 0 }}>
             <h1 style={{ margin: 0, fontSize: '16px', fontWeight: '700', color: '#1b2430', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -648,42 +648,43 @@ export default function PropertyCalendarPage() {
             gap: '16px',
           }}
         >
-          <div>
-            <h2 style={{ margin: '0 0 12px 0', fontSize: '28px', fontWeight: '700', color: '#1b2430' }}>
-              {viewMode === 'year' ? year : (monthDisplay.charAt(0).toUpperCase() + monthDisplay.slice(1))}
-            </h2>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <button
-                onClick={() => router.push(`/${locale}/calendar`)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  padding: '6px 12px',
-                  borderRadius: '6px',
-                  background: '#ffffff',
-                  border: '1px solid #efeadf',
-                  fontSize: '13px',
-                  fontWeight: '600',
-                  color: '#1b2430',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = '#f7f5ef'
-                  e.currentTarget.style.borderColor = '#cfc4aa'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = '#ffffff'
-                  e.currentTarget.style.borderColor = '#efeadf'
-                }}
-              >
-                ← Voltar
-              </button>
-              <p style={{ margin: 0, fontSize: '14px', color: '#4d5566' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+            <div>
+              <h2 style={{ margin: '0 0 8px 0', fontSize: '28px', fontWeight: '700', color: '#1b2430' }}>
+                {viewMode === 'year' ? year : (monthDisplay.charAt(0).toUpperCase() + monthDisplay.slice(1))}
+              </h2>
+              <p style={{ margin: 0, fontSize: '14px', color: '#4d5566', maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {property.name}
               </p>
             </div>
+            <button
+              onClick={() => router.push(`/${locale}/calendar`)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '6px 12px',
+                borderRadius: '6px',
+                background: '#ffffff',
+                border: '1px solid #efeadf',
+                fontSize: '13px',
+                fontWeight: '600',
+                color: '#1b2430',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                height: 'fit-content',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#f7f5ef'
+                e.currentTarget.style.borderColor = '#cfc4aa'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#ffffff'
+                e.currentTarget.style.borderColor = '#efeadf'
+              }}
+            >
+              ← Voltar
+            </button>
           </div>
 
           {/* Month Selector, Navigation Buttons, and View Toggle */}
