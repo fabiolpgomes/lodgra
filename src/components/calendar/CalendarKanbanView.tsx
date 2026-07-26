@@ -104,16 +104,6 @@ export function CalendarKanbanView({
 
   const allDays = [...weekDays1, ...weekDays2] // 14 days total
 
-  // DEBUG: Log allDays for timezone debugging
-  if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-    console.log('[CalendarKanban] allDays (first 7):', allDays.slice(0, 7).map(d => ({
-      date: d.toISOString().split('T')[0],
-      getUTCDate: d.getUTCDate(),
-      getDate: d.getDate(),
-      getTime: d.getTime(),
-    })))
-  }
-
   // Navigation updates week number, display updates to 14 days automatically
   const [prices, setPrices] = useState<Record<string, number>>({}) // Store custom prices by date string
   const [availability, setAvailability] = useState<Record<string, 'available' | 'blocked'>>({})
