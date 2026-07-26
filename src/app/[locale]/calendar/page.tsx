@@ -53,6 +53,15 @@ export default function CalendarPage() {
           const reservData = await reservRes.json()
           // API returns array of events directly or nested in .data
           const events = Array.isArray(reservData) ? reservData : (reservData.data || [])
+
+          // Debug: Log raw API response
+          console.debug('[CalendarPage] RAW API Events:', events.slice(0, 3).map((e: any) => ({
+            id: e.id,
+            start: e.start,
+            end: e.end,
+            guest: e.extendedProps?.guest_name,
+          })))
+
           // Map FullCalendar events to our Reservation format
           const mappedReserv = events.map((evt: any) => {
             // Parse dates as UTC to avoid timezone mismatch
@@ -75,16 +84,15 @@ export default function CalendarPage() {
           })
           setReservations(mappedReserv)
 
-          // Debug logging
+          // Debug logging - detailed
           if (process.env.NODE_ENV === 'development') {
-            console.debug('[CalendarPage] API Response:', {
-              raw_events: events.length,
-              mapped_reservations: mappedReserv.length,
+            console.debug('[CalendarPage] Mapped Reservations (sample):', {
               sample: mappedReserv[0] ? {
                 id: mappedReserv[0].id,
                 guest: mappedReserv[0].guestName,
-                startDate: mappedReserv[0].startDate.toISOString().slice(0, 10),
-                endDate: mappedReserv[0].endDate.toISOString().slice(0, 10),
+                startDate: mappedReserv[0].startDate.toISOString(),
+                startDate_getTime: mappedReserv[0].startDate.getTime(),
+                utcString: mappedReserv[0].startDate.toUTCString(),
               } : null,
             })
           }

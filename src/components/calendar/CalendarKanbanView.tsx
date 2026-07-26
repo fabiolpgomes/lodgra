@@ -182,10 +182,26 @@ export function CalendarKanbanView({
     propertiesToShow.forEach((property, rowIndex) => {
       reservations
         .filter(res => res.propertyId === property.id)
-        .forEach(reservation => {
+        .forEach((reservation, resIdx) => {
           // Parse dates ensuring we handle both ISO strings and Date objects
           const startDate = new Date(reservation.startDate)
           startDate.setHours(0, 0, 0, 0) // Normalize to midnight UTC
+
+          // Debug first 3 reservations
+          if (resIdx === 0) {
+            console.debug('[CalendarKanban] Reservation debug:', {
+              guest: reservation.guestName,
+              rawStart: reservation.startDate,
+              startDateAfterNew: new Date(reservation.startDate),
+              startDateAfterNormalize: startDate,
+              startDate_getTime: startDate.getTime(),
+              allDays_sample: [
+                allDays[0]?.toISOString(),
+                allDays[1]?.toISOString(),
+                allDays[2]?.toISOString(),
+              ]
+            })
+          }
 
           // Find which day this reservation starts in the current 2-week view
           const dayInWeekIndex = allDays.findIndex(day => {
