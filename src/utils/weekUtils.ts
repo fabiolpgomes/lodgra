@@ -19,9 +19,20 @@ export function getWeekDays(date: Date): Date[] {
   const weekNum = getISOWeekNumber(date)
   const year = date.getFullYear()
   const weekStart = getISOWeekStartDate(year, weekNum)
+
+  // ISO week starts on Monday (day 1), but calendar needs Sunday start (day 0)
+  // Backtrack to previous Sunday
+  const dayOfWeek = weekStart.getUTCDay() // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+  const daysToSubtract = dayOfWeek === 0 ? 0 : dayOfWeek // If Monday (1), subtract 1 day
+
+  const sundayStart = new Date(weekStart)
+  if (daysToSubtract > 0) {
+    sundayStart.setUTCDate(sundayStart.getUTCDate() - daysToSubtract)
+  }
+
   const days: Date[] = []
   for (let i = 0; i < 7; i++) {
-    const d = new Date(weekStart)
+    const d = new Date(sundayStart)
     d.setUTCDate(d.getUTCDate() + i)
     days.push(d)
   }
