@@ -33,7 +33,6 @@ export function SettingsSidebar() {
   const [discounts, setDiscounts] = useState<PropertyDiscount[]>([])
   const [cancellationPolicies, setCancellationPolicies] = useState<PropertyCancellationPolicy[]>([])
   const [loading, setLoading] = useState(true)
-  const [smartPricingEnabled, setSmartPricingEnabled] = useState(false)
 
   // Load pricing and discount data on mount
   useEffect(() => {
@@ -72,41 +71,6 @@ export function SettingsSidebar() {
     loadData()
   }, [propertyId])
 
-  const handleSavePricing = async (data: { base_price?: number; min_price?: number; max_price?: number }) => {
-    if (!propertyId || !pricing) return
-
-    try {
-      const payload = {
-        base_price: data.base_price || pricing.base_price,
-        weekend_price: pricing.weekend_price,
-        min_price: data.min_price || null,
-        max_price: data.max_price || null,
-      }
-
-      const response = await fetch(`/api/properties/${propertyId}/pricing`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      })
-
-      const result = await response.json()
-
-      if (result.success) {
-        setPricing(result.data)
-      } else {
-        toast.error(result.error || 'Erro ao guardar')
-        throw new Error(result.error)
-      }
-    } catch (error) {
-      console.error('Error saving pricing:', error)
-      toast.error('Erro ao guardar preço')
-      throw error
-    }
-  }
-
-  const handleToggleSmartPricing = (enabled: boolean) => {
-    setSmartPricingEnabled(enabled)
-  }
 
   const handleSaveCancellationPolicy = async (policyId: string, updates: Partial<PropertyCancellationPolicy>) => {
     if (!propertyId) return
@@ -179,16 +143,13 @@ export function SettingsSidebar() {
         {activeTab === 'prices' && (
           <>
             <PriceCard
-              title="Preços"
-              value={smartPricingEnabled ? `${pricing.base_price} € - 190 €` : `${pricing.base_price} €`}
-              action="edit"
-              onSave={handleSavePricing}
-              editableValue={pricing.base_price}
-              minPrice={pricing.base_price}
-              maxPrice={190}
-              isActive={smartPricingEnabled}
-              onToggleSmartPricing={handleToggleSmartPricing}
+              title="Preço Base"
+              value={pricing.base_price}
+              subtitle="por noite"
             />
+            <p className="settings-info">
+              💡 Clique nos dias do calendário para definir o preço para um período específico.
+            </p>
           </>
         )}
 
