@@ -55,7 +55,7 @@ export async function POST(
       )
     }
 
-    console.log('✅ Upsert successful, affected rows:', data?.length ?? 0)
+    console.log('✅ Upsert successful')
     return NextResponse.json({
       success: true,
       data: {
