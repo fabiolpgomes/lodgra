@@ -157,6 +157,18 @@ export default function PropertyCalendarPage() {
   const [selectedDates, setSelectedDates] = useState<Date[]>([])
   const [showPriceEditor, setShowPriceEditor] = useState(false)
   const [editingPrice, setEditingPrice] = useState<number | ''>('')
+  const [editingConfig, setEditingConfig] = useState<'preco' | 'desconto' | 'disponibilidade' | 'cancelamentos' | null>(null)
+  const [configTab, setConfigTab] = useState<'precos' | 'descontos' | 'disponibilidade'>('precos')
+  const [smartPriceEnabled, setSmartPriceEnabled] = useState(false)
+  const [priceMin, setPriceMin] = useState(80)
+  const [priceMax, setPriceMax] = useState(190)
+  const [discountSemanal, setDiscountSemanal] = useState(10)
+  const [discountMensal, setDiscountMensal] = useState(20)
+  const [minStay, setMinStay] = useState(3)
+  const [maxStay, setMaxStay] = useState(90)
+  const [availabilityPeriod, setAvailabilityPeriod] = useState(6)
+  const [noticeDay, setNoticeDay] = useState(1)
+  const [cancellationPolicy, setCancellationPolicy] = useState('flexible')
 
   // Fetch reservations on mount
   useEffect(() => {
@@ -280,20 +292,6 @@ export default function PropertyCalendarPage() {
     const endDate = new Date(Date.UTC(res.endDate.getUTCFullYear(), res.endDate.getUTCMonth(), res.endDate.getUTCDate()))
     return endDate >= today
   })
-
-  // Config state
-  const [editingConfig, setEditingConfig] = useState<'preco' | 'desconto' | 'disponibilidade' | 'cancelamentos' | null>(null)
-  const [configTab, setConfigTab] = useState<'precos' | 'descontos' | 'disponibilidade'>('precos')
-  const [smartPriceEnabled, setSmartPriceEnabled] = useState(false)
-  const [priceMin, setPriceMin] = useState(80)
-  const [priceMax, setPriceMax] = useState(190)
-  const [discountSemanal, setDiscountSemanal] = useState(10)
-  const [discountMensal, setDiscountMensal] = useState(20)
-  const [minStay, setMinStay] = useState(3)
-  const [maxStay, setMaxStay] = useState(90)
-  const [availabilityPeriod, setAvailabilityPeriod] = useState(6)
-  const [noticeDay, setNoticeDay] = useState(1)
-  const [cancellationPolicy, setCancellationPolicy] = useState('flexible')
 
   // Mobile calendar view with prices
   if (isMobile) {
