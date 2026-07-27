@@ -40,15 +40,22 @@ export async function POST(
     }))
 
     // Upsert prices for all dates
-    const { error } = await supabase
+    console.log('📊 Attempting to upsert', updates.length, 'records')
+    const { data, error } = await supabase
       .from('daily_prices')
       .upsert(updates, { onConflict: 'property_id,date' })
 
     if (error) {
-      console.error('Error updating daily prices:', error)
-      throw error
+      console.error('❌ Supabase error:', error)
+      console.error('Error code:', error.code)
+      console.error('Error message:', error.message)
+      return NextResponse.json(
+        { success: false, error: `Database error: ${error.message}` },
+        { status: 500 }
+      )
     }
 
+    console.log('✅ Upsert successful, affected rows:', data?.length || 0)
     return NextResponse.json({
       success: true,
       data: {
@@ -57,9 +64,10 @@ export async function POST(
       },
     })
   } catch (error) {
-    console.error('Error in bulk price update:', error)
+    console.error('❌ Error in bulk price update:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     return NextResponse.json(
-      { success: false, error: 'Failed to update prices' },
+      { success: false, error: `Server error: ${errorMessage}` },
       { status: 500 }
     )
   }
