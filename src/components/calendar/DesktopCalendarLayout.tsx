@@ -46,13 +46,15 @@ export function DesktopCalendarLayout({
 
   const handleDayClick = (date: Date) => {
     // Toggle date selection for period
-    const dateStr = date.toISOString().split('T')[0]
-    const isSelected = selectedDates.some(d => d.toISOString().split('T')[0] === dateStr)
+    const dateTime = date.getTime()
+    const isSelected = selectedDates.some(d => d.getTime() === dateTime)
+
+    console.log(`Day clicked: ${date.toDateString()}, Selected: ${isSelected}, Total: ${selectedDates.length}`)
 
     if (isSelected) {
-      setSelectedDates(selectedDates.filter(d => d.toISOString().split('T')[0] !== dateStr))
+      setSelectedDates(selectedDates.filter(d => d.getTime() !== dateTime))
     } else {
-      setSelectedDates([...selectedDates, date])
+      setSelectedDates([...selectedDates, new Date(date)])
     }
   }
 
@@ -127,6 +129,7 @@ export function DesktopCalendarLayout({
             <DetailedCalendarMobile
               propertyName={selectedProperty.name}
               days={selectedProperty.calendarDays}
+              selectedDates={selectedDates}
               onDayClick={handleDayClick}
               onSettingsClick={() => setShowSettings(true)}
             />

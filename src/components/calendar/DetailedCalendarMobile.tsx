@@ -16,6 +16,7 @@ interface DetailedCalendarMobileProps {
   propertyName: string
   initialMonth?: Date
   days: CalendarDay[]
+  selectedDates?: Date[]
   onDayClick?: (date: Date) => void
   onBackClick?: () => void
   onSettingsClick?: () => void
@@ -25,6 +26,7 @@ export function DetailedCalendarMobile({
   propertyName,
   initialMonth = new Date(),
   days,
+  selectedDates = [],
   onDayClick,
   onBackClick,
   onSettingsClick,
@@ -112,16 +114,19 @@ export function DetailedCalendarMobile({
         ))}
 
         {/* Calendar days */}
-        {calendarDays.map((day, idx) => (
-          <div
-            key={idx}
-            className={`day-cell ${
-              !day ? 'empty' : `
-              ${day.isToday ? 'today' : ''}
-              ${day.isBooked ? 'booked' : ''}
-              ${day.isWeekend ? 'weekend' : ''}
-            `.trim()}`}
-            onClick={() => day && onDayClick?.(day.date)}
+        {calendarDays.map((day, idx) => {
+          const isSelected = day && selectedDates.some(d => d.getTime() === day.date.getTime())
+          return (
+            <div
+              key={idx}
+              className={`day-cell ${
+                !day ? 'empty' : `
+                ${day.isToday ? 'today' : ''}
+                ${day.isBooked ? 'booked' : ''}
+                ${day.isWeekend ? 'weekend' : ''}
+                ${isSelected ? 'selected' : ''}
+              `.trim()}`}
+              onClick={() => day && onDayClick?.(day.date)}
           >
             {day && (
               <>
@@ -135,8 +140,9 @@ export function DetailedCalendarMobile({
                 )}
               </>
             )}
-          </div>
-        ))}
+            </div>
+          )
+        })}
       </div>
     </div>
   )
