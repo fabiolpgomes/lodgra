@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 
-type TabName = 'prices' | 'discounts' | 'availability'
+type TabName = 'prices' | 'discounts' | 'availability' | 'cancellations'
 
 interface SettingsTabsProps {
   onTabChange: (tab: TabName) => void
@@ -16,6 +16,7 @@ export function SettingsTabs({ onTabChange, children }: SettingsTabsProps) {
     { name: 'prices' as TabName, label: 'Preços' },
     { name: 'discounts' as TabName, label: 'Descontos' },
     { name: 'availability' as TabName, label: 'Disponibilidade' },
+    { name: 'cancellations' as TabName, label: 'Cancelamentos' },
   ]
 
   const handleTabChange = (tab: TabName) => {

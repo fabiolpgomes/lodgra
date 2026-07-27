@@ -6,10 +6,12 @@ import { SettingsTabs } from './SettingsTabs'
 import { PriceCard } from './PriceCard'
 import { DiscountCard } from './DiscountCard'
 import { AvailabilityCard } from './AvailabilityCard'
+import { CancellationCard } from './CancellationCard'
 import { toast } from 'sonner'
 import { PropertyDiscount } from '@/types/pricing.types'
+import { PropertyCancellationPolicy } from '@/types/cancellation.types'
 
-type TabName = 'prices' | 'discounts' | 'availability'
+type TabName = 'prices' | 'discounts' | 'availability' | 'cancellations'
 
 interface PricingData {
   base_price: number
@@ -29,6 +31,7 @@ export function SettingsSidebar() {
   const [activeTab, setActiveTab] = useState<TabName>('prices')
   const [pricing, setPricing] = useState<PricingData | null>(null)
   const [discounts, setDiscounts] = useState<PropertyDiscount[]>([])
+  const [cancellationPolicies, setCancellationPolicies] = useState<PropertyCancellationPolicy[]>([])
   const [loading, setLoading] = useState(true)
   const [smartPricingEnabled, setSmartPricingEnabled] = useState(false)
 
@@ -38,13 +41,15 @@ export function SettingsSidebar() {
 
     const loadData = async () => {
       try {
-        const [pricingRes, discountsRes] = await Promise.all([
+        const [pricingRes, discountsRes, policiesRes] = await Promise.all([
           fetch(`/api/properties/${propertyId}/pricing`),
           fetch(`/api/properties/${propertyId}/discounts`),
+          fetch(`/api/properties/${propertyId}/cancellation-policies`),
         ])
 
         const pricingResult = await pricingRes.json()
         const discountsResult = await discountsRes.json()
+        const policiesResult = await policiesRes.json()
 
         if (pricingResult.success) {
           setPricing(pricingResult.data)
@@ -52,6 +57,10 @@ export function SettingsSidebar() {
 
         if (discountsResult.success && discountsResult.data) {
           setDiscounts(discountsResult.data)
+        }
+
+        if (policiesResult.success && policiesResult.data) {
+          setCancellationPolicies(policiesResult.data)
         }
       } catch (error) {
         console.error('Error loading data:', error)
@@ -121,6 +130,34 @@ export function SettingsSidebar() {
 
   const handleToggleSmartPricing = () => {
     setSmartPricingEnabled(!smartPricingEnabled)
+  }
+
+  const handleSaveCancellationPolicy = async (policyId: string, updates: Partial<PropertyCancellationPolicy>) => {
+    if (!propertyId) return
+
+    try {
+      const response = await fetch(`/api/properties/${propertyId}/cancellation-policies/${policyId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates),
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        setCancellationPolicies(
+          cancellationPolicies.map((p) =>
+            p.id === policyId ? { ...p, ...updates } : p
+          )
+        )
+      } else {
+        toast.error(result.error || 'Erro ao guardar')
+      }
+    } catch (error) {
+      console.error('Error saving cancellation policy:', error)
+      toast.error('Erro ao guardar política de cancelamento')
+      throw error
+    }
   }
 
   const handleSaveDiscount = async (discountId: string, percentage: number) => {
@@ -256,6 +293,50 @@ export function SettingsSidebar() {
               value="Nenhum"
               onEdit={() => {}}
             />
+          </>
+        )}
+
+        {activeTab === 'cancellations' && (
+          <>
+            {cancellationPolicies.map((policy) => {
+              let title = ''
+              let description = ''
+
+              if (policy.policy_type === 'flexible') {
+                title = 'Flexível'
+                description = policy.is_long_stay
+                  ? 'Reembolso total até 1 dia antes (long-stay)'
+                  : 'Reembolso total até 1 dia antes'
+              } else if (policy.policy_type === 'moderate') {
+                title = 'Moderada'
+                description = policy.is_long_stay
+                  ? 'Reembolso total até 5 dias antes (long-stay)'
+                  : 'Reembolso total até 5 dias antes'
+              } else if (policy.policy_type === 'limited') {
+                title = 'Limitada'
+                description = policy.is_long_stay
+                  ? 'Reembolso total até 14 dias antes (long-stay)'
+                  : 'Reembolso total até 14 dias antes'
+              } else if (policy.policy_type === 'firm') {
+                title = 'Firme'
+                description = policy.is_long_stay
+                  ? 'Reembolso total até 30 dias antes (long-stay)'
+                  : 'Reembolso total até 30 dias antes'
+              } else if (policy.policy_type === 'rigid') {
+                title = 'Rígida'
+                description = 'Não-reembolsável (long-stay)'
+              }
+
+              return (
+                <CancellationCard
+                  key={policy.id}
+                  title={title}
+                  description={description}
+                  policy={policy}
+                  onSave={handleSaveCancellationPolicy}
+                />
+              )
+            })}
           </>
         )}
       </SettingsTabs>
