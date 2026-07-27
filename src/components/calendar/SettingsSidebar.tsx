@@ -72,64 +72,40 @@ export function SettingsSidebar() {
     loadData()
   }, [propertyId])
 
-  const handleSaveBasePrice = async (value: number) => {
+  const handleSavePricing = async (data: { base_price?: number; min_price?: number; max_price?: number }) => {
     if (!propertyId || !pricing) return
 
     try {
+      const payload = {
+        base_price: data.base_price || pricing.base_price,
+        weekend_price: pricing.weekend_price,
+        min_price: data.min_price || null,
+        max_price: data.max_price || null,
+      }
+
       const response = await fetch(`/api/properties/${propertyId}/pricing`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          base_price: value,
-          weekend_price: pricing.weekend_price,
-        }),
+        body: JSON.stringify(payload),
       })
 
       const result = await response.json()
 
       if (result.success) {
         setPricing(result.data)
-        toast.success('Preço base atualizado')
       } else {
         toast.error(result.error || 'Erro ao guardar')
+        throw new Error(result.error)
       }
     } catch (error) {
-      console.error('Error saving base price:', error)
+      console.error('Error saving pricing:', error)
       toast.error('Erro ao guardar preço')
       throw error
     }
   }
 
-  const handleSaveWeekendPrice = async (value: number) => {
-    if (!propertyId || !pricing) return
-
-    try {
-      const response = await fetch(`/api/properties/${propertyId}/pricing`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          base_price: pricing.base_price,
-          weekend_price: value,
-        }),
-      })
-
-      const result = await response.json()
-
-      if (result.success) {
-        setPricing(result.data)
-        toast.success('Preço de fim de semana atualizado')
-      } else {
-        toast.error(result.error || 'Erro ao guardar')
-      }
-    } catch (error) {
-      console.error('Error saving weekend price:', error)
-      toast.error('Erro ao guardar preço')
-      throw error
-    }
-  }
-
-  const handleToggleSmartPricing = () => {
-    setSmartPricingEnabled(!smartPricingEnabled)
+  const handleToggleSmartPricing = (enabled: boolean) => {
+    setSmartPricingEnabled(enabled)
   }
 
   const handleSaveCancellationPolicy = async (policyId: string, updates: Partial<PropertyCancellationPolicy>) => {
@@ -203,27 +179,15 @@ export function SettingsSidebar() {
         {activeTab === 'prices' && (
           <>
             <PriceCard
-              title="Preço básico"
-              value={pricing.base_price}
+              title="Preços"
+              value={smartPricingEnabled ? `${pricing.base_price} € - 190 €` : `${pricing.base_price} €`}
               action="edit"
-              onSave={handleSaveBasePrice}
+              onSave={handleSavePricing}
               editableValue={pricing.base_price}
-            />
-            {pricing.weekend_price && (
-              <PriceCard
-                title="Preço de fim de semana"
-                value={pricing.weekend_price}
-                action="edit"
-                onSave={handleSaveWeekendPrice}
-                editableValue={pricing.weekend_price}
-              />
-            )}
-            <PriceCard
-              title="Preço Inteligente"
-              value={smartPricingEnabled ? 'Ativado' : 'Desativado'}
-              action="toggle"
-              onAction={handleToggleSmartPricing}
+              minPrice={pricing.base_price}
+              maxPrice={190}
               isActive={smartPricingEnabled}
+              onToggleSmartPricing={handleToggleSmartPricing}
             />
           </>
         )}
