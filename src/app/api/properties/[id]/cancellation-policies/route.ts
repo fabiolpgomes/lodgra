@@ -8,8 +8,8 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { PropertyCancellationPolicy, CreateCancellationPolicyPayload, DEFAULT_POLICIES } from '@/types/cancellation.types'
 import { NextRequest, NextResponse } from 'next/server'
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
-  const { id: propertyId } = params
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id: propertyId } = await params
 
   try {
     const supabase = createAdminClient()
@@ -44,8 +44,8 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
-  const { id: propertyId } = params
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id: propertyId } = await params
 
   try {
     const supabase = createAdminClient()

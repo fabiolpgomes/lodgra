@@ -8,6 +8,7 @@ import { calculateCommission } from '@/lib/commission/service'
 import type { PlanType } from '@/lib/commission/types'
 import { reportBookingFee, reportRevenueFee } from '@/lib/billing/stripe-usage'
 import { calculateServiceFeeAmount, nightsBetween } from '@/lib/reservations/serviceFee'
+import type { CancellationPolicySnapshot, StayDuration } from '@/types/cancellation.types'
 
 export interface BookingReservationPayload {
   external_id: string        // Booking.com reservation ID
@@ -133,6 +134,49 @@ export async function processBookingReservation(
   const nights = nightsBetween(payload.check_in, payload.check_out)
   const serviceFeeAmount = calculateServiceFeeAmount(propertyFees, nights)
 
+  // ── 3c. Story 37.4 — Auto-select and snapshot cancellation policy ──
+  // Determine stay duration and fetch default policy for property
+  const stayDuration: StayDuration = nights >= 28 ? 'long' : 'short'
+
+  const { data: propertyListingData } = await adminClient
+    .from('property_listings')
+    .select('properties(property_id)')
+    .eq('id', propertyListingId)
+    .maybeSingle()
+
+  const propertyIdForPolicy = (propertyListingData?.properties as unknown as { property_id: string } | null)?.property_id
+
+  let cancellationPolicyId: string | null = null
+  let cancellationPolicySnapshot: CancellationPolicySnapshot | null = null
+
+  if (propertyIdForPolicy) {
+    // Fetch the property's cancellation policy (preferred: 'moderate' for most properties)
+    // Falls back to first active policy if moderate not found
+    const { data: policies } = await adminClient
+      .from('property_cancellation_policies')
+      .select('*')
+      .eq('property_id', propertyIdForPolicy)
+      .eq('is_long_stay', stayDuration === 'long')
+      .eq('is_active', true)
+      .order('policy_type')  // 'flexible' < 'moderate' < ... (alphabetical)
+
+    // Select 'moderate' if available, otherwise first active policy
+    const selectedPolicy = policies?.find(p => p.policy_type === 'moderate') || policies?.[0]
+
+    if (selectedPolicy) {
+      cancellationPolicyId = selectedPolicy.id
+      cancellationPolicySnapshot = {
+        policy_type: selectedPolicy.policy_type,
+        is_long_stay: selectedPolicy.is_long_stay,
+        full_refund_days: selectedPolicy.full_refund_days,
+        partial_refund_days: selectedPolicy.partial_refund_days || null,
+        partial_refund_percent: selectedPolicy.partial_refund_percent || null,
+        non_refundable_discount_percent: selectedPolicy.non_refundable_discount_percent,
+        captured_at: new Date().toISOString(),
+      }
+    }
+  }
+
   // ── 4. Upsert reservation ─────────────────────────────────────
   const status = deriveStatus(payload.status)
 
@@ -161,6 +205,9 @@ export async function processBookingReservation(
         booking_source: 'booking_api',
         source: 'booking_api',
         channel_id: channelId,
+        // Story 37.4: Auto-linked cancellation policy and snapshot
+        cancellation_policy_id: cancellationPolicyId,
+        cancellation_policy_snapshot: cancellationPolicySnapshot,
         raw_data: payload.raw_data,
         organization_id: orgId,
         ...(status === 'cancelled' ? { cancelled_at: new Date().toISOString() } : {}),

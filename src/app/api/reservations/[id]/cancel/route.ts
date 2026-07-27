@@ -1,6 +1,8 @@
 /**
  * Story 37.4: Reservation Cancellation Endpoint
  * POST: Cancel reservation, calculate refund, process via Stripe
+ * - Auto-links cancellation policy on reservation creation
+ * - Implements exponential backoff retry for transient Stripe failures
  */
 
 import { createAdminClient } from '@/lib/supabase/admin'
@@ -8,8 +10,50 @@ import { calculateRefund } from '@/lib/cancellation/refund-calculator'
 import { CancellationPolicySnapshot } from '@/types/cancellation.types'
 import { NextRequest, NextResponse } from 'next/server'
 
-export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
-  const { id: reservationId } = params
+/**
+ * Helper: Retry with exponential backoff
+ * Attempts: 1s, 2s, 4s delays (max 3 total)
+ */
+async function retryWithBackoff<T>(
+  fn: () => Promise<T>,
+  maxAttempts: number = 3,
+  baseDelayMs: number = 1000
+): Promise<T> {
+  let lastError: Error | null = null
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      return await fn()
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error(String(error))
+
+      // Check if error is retryable (transient Stripe failures)
+      const isRetryable =
+        error instanceof Error &&
+        (error.message.includes('timeout') ||
+         error.message.includes('connection') ||
+         error.message.includes('429') ||  // Rate limit
+         error.message.includes('503'))    // Service unavailable
+
+      if (attempt < maxAttempts && isRetryable) {
+        const delayMs = baseDelayMs * Math.pow(2, attempt - 1)
+        console.log(`Stripe refund retry ${attempt}/${maxAttempts}: waiting ${delayMs}ms before retry`)
+        await new Promise(resolve => setTimeout(resolve, delayMs))
+      } else if (attempt < maxAttempts && isRetryable) {
+        // Continue to next attempt
+        continue
+      } else {
+        // Non-retryable error or last attempt
+        break
+      }
+    }
+  }
+
+  throw lastError || new Error('Unknown error in retry loop')
+}
+
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id: reservationId } = await params
 
   try {
     const supabase = createAdminClient()
@@ -71,30 +115,35 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       )
     }
 
-    // Process Stripe refund (if applicable)
+    // Process Stripe refund (if applicable) with exponential backoff retry
     let stripeRefundId: string | null = null
 
     if (refundResult.refund_amount > 0 && reservation.stripe_payment_intent_id) {
       try {
-        const refundResponse = await fetch('/api/billing/refunds', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            reservation_id: reservationId,
-            amount: refundResult.refund_amount,
-            reason: body.reason || 'Guest cancellation',
-          }),
-        })
+        stripeRefundId = await retryWithBackoff(async () => {
+          const refundResponse = await fetch('/api/billing/refunds', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              reservation_id: reservationId,
+              amount: refundResult.refund_amount,
+              reason: body.reason || 'Guest cancellation',
+            }),
+          })
 
-        const refundData = await refundResponse.json()
-        stripeRefundId = refundData.stripe_refund_id || null
+          const refundData = await refundResponse.json()
 
-        if (!refundResponse.ok && refundData.error) {
-          throw new Error(`Stripe refund failed: ${refundData.error}`)
-        }
+          if (!refundResponse.ok && refundData.error) {
+            throw new Error(`Stripe refund failed: ${refundData.error}`)
+          }
+
+          return refundData.stripe_refund_id || null
+        }, 3, 1000)
+
+        console.log(`Stripe refund processed successfully: ${stripeRefundId}`)
       } catch (error) {
-        console.error('Stripe refund error:', error)
-        // Log but continue - refund can be retried
+        console.error('Stripe refund failed after all retries:', error)
+        // Log but continue - refund can be retried manually
       }
     }
 

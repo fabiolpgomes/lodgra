@@ -10,9 +10,9 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string; policyId: string } }
+  { params }: { params: Promise<{ id: string; policyId: string }> }
 ) {
-  const { id: propertyId, policyId } = params
+  const { id: propertyId, policyId } = await params
 
   try {
     const supabase = createAdminClient()
@@ -72,9 +72,9 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string; policyId: string } }
+  { params }: { params: Promise<{ id: string; policyId: string }> }
 ) {
-  const { id: propertyId, policyId } = params
+  const { id: propertyId, policyId } = await params
 
   try {
     const supabase = createAdminClient()
