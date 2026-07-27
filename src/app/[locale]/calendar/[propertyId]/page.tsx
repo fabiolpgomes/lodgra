@@ -287,6 +287,10 @@ export default function PropertyCalendarPage() {
   const monthDisplay = MONTHS[monthIndex]
   const daysGrid = generateDaysGrid(year, monthIndex)
 
+  // Calculate today for determining past/future reservations
+  const today = new Date()
+  today.setUTCHours(0, 0, 0, 0)
+
   // Show all reservations (including past ones) - gives full calendar history
   const filteredReservations = reservations
 
@@ -425,17 +429,23 @@ export default function PropertyCalendarPage() {
                               return symbols[curr] || curr
                             }
 
+                            // Check if reservation is in the past
+                            const resEndDate = new Date(Date.UTC(res.endDate.getUTCFullYear(), res.endDate.getUTCMonth(), res.endDate.getUTCDate()))
+                            const isPast = resEndDate < today
+                            const bgColor = isPast ? '#c0c0c0' : guestColor // Cinzento para passadas
+
                             return (
                               <div
                                 key={res.id}
                                 style={{
                                   padding: '6px 8px',
-                                  background: guestColor,
+                                  background: bgColor,
                                   borderRadius: '4px',
                                   color: '#ffffff',
                                   fontSize: '8px',
                                   fontWeight: '600',
                                   lineHeight: '1.2',
+                                  opacity: isPast ? 0.6 : 1,
                                 }}
                                 title={res.guestName}
                               >
