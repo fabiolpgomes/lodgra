@@ -74,7 +74,7 @@ export function DesktopCalendarLayout({
 
     try {
       // Update pricing for all selected dates
-      await fetch(`/api/properties/${selectedProperty.id}/pricing/bulk-update`, {
+      const response = await fetch(`/api/properties/${selectedProperty.id}/pricing/bulk-update`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -83,11 +83,17 @@ export function DesktopCalendarLayout({
         }),
       })
 
+      const result = await response.json()
+
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to update prices')
+      }
+
       // Reset
       setSelectedDates([])
       setEditingPrice('')
       setShowPriceEditor(false)
-      alert('Preço(s) atualizado(s) com sucesso!')
+      alert(`✅ ${result.data.updated_dates} dia(s) atualizado(s) com sucesso!`)
     } catch (error) {
       console.error('Error saving prices:', error)
       alert('Erro ao guardar preço')
