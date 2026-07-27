@@ -287,13 +287,8 @@ export default function PropertyCalendarPage() {
   const monthDisplay = MONTHS[monthIndex]
   const daysGrid = generateDaysGrid(year, monthIndex)
 
-  // Filter reservations: show only those with checkout >= today
-  const today = new Date()
-  today.setUTCHours(0, 0, 0, 0)
-  const filteredReservations = reservations.filter(res => {
-    const endDate = new Date(Date.UTC(res.endDate.getUTCFullYear(), res.endDate.getUTCMonth(), res.endDate.getUTCDate()))
-    return endDate >= today
-  })
+  // Show all reservations (including past ones) - gives full calendar history
+  const filteredReservations = reservations
 
   // Mobile calendar view with prices
   if (isMobile) {
