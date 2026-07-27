@@ -232,6 +232,10 @@ export default function PropertyCalendarPage() {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
+  // Calculate year and month first (needed by handleDayClick)
+  const year = currentDate.getFullYear()
+  const monthIndex = currentDate.getMonth()
+
   // Handle day click for price editing
   const handleDayClick = (day: number) => {
     const date = new Date(Date.UTC(year, monthIndex, day))
@@ -280,8 +284,6 @@ export default function PropertyCalendarPage() {
     }
   }
 
-  const year = currentDate.getFullYear()
-  const monthIndex = currentDate.getMonth()
   const monthDisplay = MONTHS[monthIndex]
   const daysGrid = generateDaysGrid(year, monthIndex)
 

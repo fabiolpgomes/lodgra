@@ -34,6 +34,12 @@ export function SettingsSidebar() {
   const [cancellationPolicies, setCancellationPolicies] = useState<PropertyCancellationPolicy[]>([])
   const [loading, setLoading] = useState(true)
 
+  // Price editor modal state
+  const [showPriceEditor, setShowPriceEditor] = useState(false)
+  const [selectedDates, setSelectedDates] = useState<Date[]>([])
+  const [editingPrice, setEditingPrice] = useState<number | ''>('')
+  const [editorMonth, setEditorMonth] = useState(new Date())
+
   // Load pricing and discount data on mount
   useEffect(() => {
     if (!propertyId) return
