@@ -2,39 +2,27 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, Tag, TrendingUp, Users } from 'lucide-react'
+import { ArrowLeft, TrendingUp, Users } from 'lucide-react'
 import { AuthLayout } from '@/components/common/layout/AuthLayout'
-import { PricingRulesManager } from '@/components/features/pricing/PricingRulesManager'
 import { ForecastingDashboard } from '@/components/RevenueForecasting/ForecastingDashboard'
 import { CompetitorDashboard } from '@/components/CompetitorMonitoring/CompetitorDashboard'
-import { getCurrencySymbol, type CurrencyCode } from '@/lib/utils/currency'
 
-type TabType = 'pricing' | 'forecasting' | 'competitor'
+type TabType = 'forecasting' | 'competitor'
 
 interface PricingPageContentProps {
   property: {
     id: string
     name: string
-    base_price: number | null
     organization_id: string
     currency: string
   }
-  rules: Array<{
-    id: string
-    name: string
-    start_date: string
-    end_date: string
-    price_per_night: number
-    min_nights: number
-  }>
   locale: string
 }
 
-export function PricingPageContent({ property, rules, locale }: PricingPageContentProps) {
-  const [activeTab, setActiveTab] = useState<TabType>('pricing')
+export function PricingPageContent({ property, locale }: PricingPageContentProps) {
+  const [activeTab, setActiveTab] = useState<TabType>('forecasting')
 
   const tabs = [
-    { id: 'pricing' as const, label: 'Regras de Preço', icon: Tag },
     { id: 'forecasting' as const, label: 'Previsões de Receita', icon: TrendingUp },
     { id: 'competitor' as const, label: 'Monitoramento Concorrente', icon: Users },
   ]
@@ -52,28 +40,20 @@ export function PricingPageContent({ property, rules, locale }: PricingPageConte
           </Link>
           <div>
             <h1 className="text-2xl font-semibold text-gray-900 flex items-center gap-2">
-              <Tag size={20} />
-              Gestão de Preços
+              <TrendingUp size={20} />
+              Análise de Preços
             </h1>
             <p className="text-sm text-gray-600">{property.name}</p>
           </div>
         </div>
 
-        {/* Base price info */}
-        <div className="bg-gray-50 border rounded-lg p-4 mb-6">
-          <p className="text-sm text-gray-600">
-            <span className="font-medium">Preço base: </span>
-            {property.base_price
-              ? `${parseFloat(String(property.base_price)).toFixed(2)} ${getCurrencySymbol((property.currency || 'EUR') as CurrencyCode)}/noite`
-              : 'Não definido'}
-            {' '}— utilizado quando nenhuma regra se aplica.
-          </p>
-          <p className="text-xs text-gray-500 mt-1">
-            Para alterar o preço base, aceda à{' '}
-            <Link href={`/${locale}/properties/${property.id}/edit`} className="underline">
-              página de edição da propriedade
-            </Link>
-            .
+        {/* Info: Pricing moved to Calendar */}
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+          <p className="text-sm text-blue-900">
+            <span className="font-medium">ℹ️ Gestão de Preços:</span> Os preços são agora definidos direto no calendário.
+            Aceda à <Link href={`/${locale}/calendar/${property.id}`} className="underline font-medium">
+              página do calendário
+            </Link> para gerenciar preços por dia.
           </p>
         </div>
 
@@ -102,17 +82,6 @@ export function PricingPageContent({ property, rules, locale }: PricingPageConte
 
           {/* Tab Content */}
           <div className="p-6">
-            {activeTab === 'pricing' && (
-              <div className="space-y-4">
-                <PricingRulesManager
-                  propertyId={property.id}
-                  organizationId={property.organization_id}
-                  initialRules={rules ?? []}
-                  currency={property.currency || 'EUR'}
-                />
-              </div>
-            )}
-
             {activeTab === 'forecasting' && (
               <div>
                 <ForecastingDashboard

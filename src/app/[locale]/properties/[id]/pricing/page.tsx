@@ -19,17 +19,11 @@ export default async function PropertyPricingPage({
 
   const { data: property } = await supabase
     .from('properties')
-    .select('id, name, base_price, organization_id, currency')
+    .select('id, name, organization_id, currency')
     .eq('id', id)
     .single()
 
   if (!property) notFound()
 
-  const { data: rules } = await supabase
-    .from('pricing_rules')
-    .select('id, name, start_date, end_date, price_per_night, min_nights')
-    .eq('property_id', id)
-    .order('start_date', { ascending: true })
-
-  return <PricingPageContent property={property} rules={rules ?? []} locale={locale} />
+  return <PricingPageContent property={property} locale={locale} />
 }

@@ -14,7 +14,6 @@ export type Property = {
   max_guests: number | null
   property_type: string | null
   slug: string
-  base_price: number | null
   currency: string
   description: string | null
   amenities: string[]
