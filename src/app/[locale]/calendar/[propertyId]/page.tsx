@@ -288,8 +288,8 @@ export default function PropertyCalendarPage() {
   const daysGrid = generateDaysGrid(year, monthIndex)
 
   // Calculate today for determining past/future reservations
-  const today = new Date()
-  today.setUTCHours(0, 0, 0, 0)
+  const todayDate = new Date()
+  const today = new Date(Date.UTC(todayDate.getUTCFullYear(), todayDate.getUTCMonth(), todayDate.getUTCDate()))
 
   // Show all reservations (including past ones) - gives full calendar history
   const filteredReservations = reservations
