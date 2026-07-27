@@ -1887,6 +1887,154 @@ export default function PropertyCalendarPage() {
             </div>
           </div>
         )}
+
+        {/* Selected dates footer bar */}
+        {selectedDates.length > 0 && !editingConfig && (
+          <div style={{
+            position: 'fixed',
+            bottom: 20,
+            left: 20,
+            right: 20,
+            background: '#ffffff',
+            padding: '12px 20px',
+            borderRadius: '8px',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+            display: 'flex',
+            gap: '12px',
+            alignItems: 'center',
+            zIndex: 100,
+          }}>
+            <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>
+              {selectedDates.length} dia(s) selecionado(s)
+            </span>
+            <button
+              onClick={() => setShowPriceEditor(true)}
+              style={{
+                padding: '8px 16px',
+                background: '#1f2937',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontWeight: '500',
+                fontSize: '14px',
+                transition: 'background 0.2s',
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.background = '#111827'}
+              onMouseLeave={(e) => e.currentTarget.style.background = '#1f2937'}
+            >
+              Editar Preço
+            </button>
+          </div>
+        )}
+
+        {/* Price editor modal */}
+        {showPriceEditor && (
+          <div
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'rgba(0, 0, 0, 0.5)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 1000,
+            }}
+            onClick={() => setShowPriceEditor(false)}
+          >
+            <div
+              style={{
+                background: '#ffffff',
+                padding: '24px',
+                borderRadius: '8px',
+                maxWidth: '400px',
+                width: '90%',
+                boxShadow: '0 10px 40px rgba(0, 0, 0, 0.2)',
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: '600', color: '#1f2937' }}>
+                Editar Preço Base
+              </h3>
+              <p style={{ margin: '0 0 16px 0', fontSize: '14px', color: '#6b7280' }}>
+                {selectedDates.length} dia(s) selecionado(s)
+              </p>
+
+              <input
+                type="number"
+                min="1"
+                step="0.01"
+                value={editingPrice}
+                onChange={(e) => setEditingPrice(e.target.value ? parseFloat(e.target.value) : '')}
+                placeholder="Preço Base (€)"
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '6px',
+                  fontSize: '16px',
+                  marginBottom: '20px',
+                  fontFamily: 'inherit',
+                  boxSizing: 'border-box',
+                }}
+                autoFocus
+              />
+
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <button
+                  onClick={() => setShowPriceEditor(false)}
+                  style={{
+                    flex: 1,
+                    padding: '10px 16px',
+                    background: '#f3f4f6',
+                    color: '#374151',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontWeight: '500',
+                    fontSize: '14px',
+                    transition: 'background 0.2s',
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = '#e5e7eb'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = '#f3f4f6'}
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleSavePrice}
+                  disabled={editingPrice === ''}
+                  style={{
+                    flex: 1,
+                    padding: '10px 16px',
+                    background: editingPrice === '' ? '#d1d5db' : '#1f2937',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: editingPrice === '' ? 'not-allowed' : 'pointer',
+                    fontWeight: '500',
+                    fontSize: '14px',
+                    transition: 'background 0.2s',
+                  }}
+                  onMouseEnter={(e) => {
+                    if (editingPrice !== '') {
+                      e.currentTarget.style.background = '#111827'
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (editingPrice !== '') {
+                      e.currentTarget.style.background = '#1f2937'
+                    }
+                  }}
+                >
+                  Guardar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
