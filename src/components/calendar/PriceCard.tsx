@@ -123,7 +123,13 @@ export function PriceCard({
 
   return (
     <>
-      <div className="price-card" role="presentation">
+      <div
+        className={`price-card ${action === 'edit' ? 'clickable' : ''}`}
+        role={action === 'edit' ? 'button' : 'presentation'}
+        onClick={action === 'edit' ? handleClick : undefined}
+        tabIndex={action === 'edit' ? 0 : undefined}
+        onKeyDown={action === 'edit' ? (e) => e.key === 'Enter' && handleClick(e as any) : undefined}
+      >
         <div className="price-card-content">
           <h4 className="price-title">{title}</h4>
           <div className="price-value">
@@ -149,13 +155,7 @@ export function PriceCard({
         )}
 
         {action === 'edit' && (
-          <button
-            className="action-button edit"
-            onClick={handleClick}
-            aria-label={`Edit ${title}`}
-          >
-            ✎
-          </button>
+          <span className="action-indicator">→</span>
         )}
 
         {action === 'remove' && (
@@ -283,6 +283,32 @@ export function PriceCard({
       )}
 
       <style jsx>{`
+        .price-card {
+          cursor: default;
+          transition: background-color 0.2s;
+        }
+
+        .price-card.clickable {
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+
+        .price-card.clickable:hover {
+          background-color: #f3f4f6;
+          border-radius: 8px;
+        }
+
+        .action-indicator {
+          font-size: 20px;
+          color: #9ca3af;
+          font-weight: 300;
+          transition: color 0.2s;
+        }
+
+        .price-card.clickable:hover .action-indicator {
+          color: #6b7280;
+        }
+
         .modal {
           display: none;
           position: fixed;
