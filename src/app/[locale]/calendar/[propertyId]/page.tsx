@@ -264,16 +264,22 @@ export default function PropertyCalendarPage() {
     }
 
     try {
+      console.log('💾 Saving prices for', selectedDates.length, 'days with price:', price)
+      const dates = selectedDates.map(d => d.toISOString().split('T')[0])
+      console.log('📅 Dates:', dates)
+
       const response = await fetch(`/api/properties/${property.id}/pricing/bulk-update`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          dates: selectedDates.map(d => d.toISOString().split('T')[0]),
+          dates,
           base_price: price,
         }),
       })
 
+      console.log('📡 Response status:', response.status)
       const result = await response.json()
+      console.log('📦 Response:', result)
 
       if (!result.success) {
         throw new Error(result.error || 'Failed to update prices')
@@ -284,8 +290,8 @@ export default function PropertyCalendarPage() {
       setShowPriceEditor(false)
       alert(`✅ ${result.data.updated_dates} dia(s) atualizado(s) com sucesso!`)
     } catch (error) {
-      console.error('Error saving prices:', error)
-      alert('Erro ao guardar preço')
+      console.error('❌ Error saving prices:', error)
+      alert('Erro ao guardar preço: ' + (error instanceof Error ? error.message : 'Desconhecido'))
     }
   }
 
@@ -508,6 +514,24 @@ export default function PropertyCalendarPage() {
                 onMouseLeave={(e) => e.currentTarget.style.background = '#1f2937'}
               >
                 Editar Preço
+              </button>
+              <button
+                onClick={() => setSelectedDates([])}
+                style={{
+                  padding: '8px 16px',
+                  background: '#f3f4f6',
+                  color: '#374151',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontWeight: '500',
+                  fontSize: '14px',
+                  transition: 'background 0.2s',
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = '#e5e7eb'}
+                onMouseLeave={(e) => e.currentTarget.style.background = '#f3f4f6'}
+              >
+                Limpar Seleção
               </button>
             </div>
           )}
