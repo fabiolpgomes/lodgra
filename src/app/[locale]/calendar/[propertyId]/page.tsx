@@ -238,15 +238,20 @@ export default function PropertyCalendarPage() {
 
   // Handle day click for price editing
   const handleDayClick = (day: number) => {
+    console.log('🎯 Day clicked:', day, 'Month:', monthIndex, 'Year:', year)
     const date = new Date(Date.UTC(year, monthIndex, day))
     const dateTime = date.getTime()
     const isSelected = selectedDates.some(d => d.getTime() === dateTime)
+
+    console.log('Selected before:', selectedDates.length, 'Is currently selected:', isSelected)
 
     if (isSelected) {
       setSelectedDates(selectedDates.filter(d => d.getTime() !== dateTime))
     } else {
       setSelectedDates([...selectedDates, new Date(date)])
     }
+
+    console.log('Selected after:', selectedDates.length)
   }
 
   const handleSavePrice = async () => {
