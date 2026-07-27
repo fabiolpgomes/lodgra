@@ -1398,46 +1398,67 @@ export default function PropertyCalendarPage() {
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', marginBottom: '8px', color: '#1b2430' }}>
-                    Preço Mínimo (€)
-                  </label>
-                  <input
-                    type="number"
-                    value={priceMin}
-                    onChange={(e) => setPriceMin(parseInt(e.target.value))}
-                    disabled={smartPriceEnabled}
-                    style={{
-                      width: '100%',
-                      padding: '10px 12px',
-                      border: '1px solid #efeadf',
-                      borderRadius: '8px',
-                      fontSize: '14px',
-                      boxSizing: 'border-box',
-                      opacity: smartPriceEnabled ? 0.6 : 1,
-                    }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', marginBottom: '8px', color: '#1b2430' }}>
-                    Preço Máximo (€)
-                  </label>
-                  <input
-                    type="number"
-                    value={priceMax}
-                    onChange={(e) => setPriceMax(parseInt(e.target.value))}
-                    disabled={smartPriceEnabled}
-                    style={{
-                      width: '100%',
-                      padding: '10px 12px',
-                      border: '1px solid #efeadf',
-                      borderRadius: '8px',
-                      fontSize: '14px',
-                      boxSizing: 'border-box',
-                      opacity: smartPriceEnabled ? 0.6 : 1,
-                    }}
-                  />
-                </div>
+                {!smartPriceEnabled ? (
+                  // Show only Preço Base when smart price is OFF
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', marginBottom: '8px', color: '#1b2430' }}>
+                      Preço Base (€)
+                    </label>
+                    <input
+                      type="number"
+                      value={priceMin}
+                      onChange={(e) => setPriceMin(parseInt(e.target.value))}
+                      style={{
+                        width: '100%',
+                        padding: '10px 12px',
+                        border: '1px solid #efeadf',
+                        borderRadius: '8px',
+                        fontSize: '14px',
+                        boxSizing: 'border-box',
+                      }}
+                    />
+                  </div>
+                ) : (
+                  // Show Preço Mínimo and Máximo when smart price is ON
+                  <>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', marginBottom: '8px', color: '#1b2430' }}>
+                        Preço Mínimo (€)
+                      </label>
+                      <input
+                        type="number"
+                        value={priceMin}
+                        onChange={(e) => setPriceMin(parseInt(e.target.value))}
+                        style={{
+                          width: '100%',
+                          padding: '10px 12px',
+                          border: '1px solid #efeadf',
+                          borderRadius: '8px',
+                          fontSize: '14px',
+                          boxSizing: 'border-box',
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', marginBottom: '8px', color: '#1b2430' }}>
+                        Preço Máximo (€)
+                      </label>
+                      <input
+                        type="number"
+                        value={priceMax}
+                        onChange={(e) => setPriceMax(parseInt(e.target.value))}
+                        style={{
+                          width: '100%',
+                          padding: '10px 12px',
+                          border: '1px solid #efeadf',
+                          borderRadius: '8px',
+                          fontSize: '14px',
+                          boxSizing: 'border-box',
+                        }}
+                      />
+                    </div>
+                  </>
+                )}
 
                 {smartPriceEnabled && (
                   <div
