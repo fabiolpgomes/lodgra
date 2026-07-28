@@ -349,6 +349,16 @@ export function CalendarPageClient() {
     }
   }, [handleSwipeLeft, handleSwipeRight])
 
+  // Make FullCalendar title clickable to open month picker
+  useEffect(() => {
+    const titleElement = document.querySelector('.fc-wrapper .fc-toolbar-title')
+    if (titleElement) {
+      const handleTitleClick = () => setShowMonthPicker(true)
+      titleElement.addEventListener('click', handleTitleClick)
+      return () => titleElement.removeEventListener('click', handleTitleClick)
+    }
+  }, [])
+
   return (
     <div className="space-y-4 px-2 sm:px-3 md:px-4" ref={calendarWrapperRef}>
       {/* Header + filter */}
@@ -463,6 +473,11 @@ export function CalendarPageClient() {
             font-size: 0.875rem;
             font-weight: 600;
             color: #111827;
+            cursor: pointer;
+            user-select: none;
+          }
+          .fc-wrapper .fc-toolbar-title:hover {
+            opacity: 0.7;
           }
           @media (min-width: 640px) {
             .fc-wrapper .fc-toolbar-title {
