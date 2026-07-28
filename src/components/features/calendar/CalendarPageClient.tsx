@@ -455,7 +455,21 @@ export function CalendarPageClient() {
           }
           /* Hide any select/dropdown in toolbar */
           .fc-wrapper .fc-toolbar select,
-          .fc-wrapper select {
+          .fc-wrapper select,
+          select {
+            display: none !important;
+          }
+          /* Hide all buttons in center section */
+          .fc-wrapper .fc-toolbar .fc-toolbar-chunk {
+            display: none !important;
+          }
+          /* Ensure center is completely empty */
+          .fc-wrapper .fc-toolbar > div:nth-child(2) {
+            display: none !important;
+          }
+          /* Hide any potential dropdown triggers */
+          .fc-wrapper button[aria-label*="month"],
+          .fc-wrapper button[aria-label*="Mês"] {
             display: none !important;
           }
 
