@@ -111,22 +111,22 @@ export function MonthYearPicker({ currentDate, onSelect, onCancel }: MonthYearPi
               onClick={() => handleSelect(index)}
               style={{
                 padding: '10px 8px',
-                background: index === selectedMonth && selectedYear === currentDate.getFullYear() ? '#2196f3' : '#f7f5ef',
-                border: index === selectedMonth && selectedYear === currentDate.getFullYear() ? '2px solid #1b2430' : '1px solid #efeadf',
+                background: index === selectedMonth ? '#2196f3' : '#f7f5ef',
+                border: index === selectedMonth ? '2px solid #1b2430' : '1px solid #efeadf',
                 borderRadius: '6px',
                 fontSize: '12px',
                 fontWeight: '600',
-                color: index === selectedMonth && selectedYear === currentDate.getFullYear() ? '#ffffff' : '#1b2430',
+                color: index === selectedMonth ? '#ffffff' : '#1b2430',
                 cursor: 'pointer',
                 transition: 'all 0.2s',
               }}
               onMouseEnter={(e) => {
-                if (index !== selectedMonth || selectedYear !== currentDate.getFullYear()) {
+                if (index !== selectedMonth) {
                   (e.target as HTMLButtonElement).style.background = '#efefef'
                 }
               }}
               onMouseLeave={(e) => {
-                if (index !== selectedMonth || selectedYear !== currentDate.getFullYear()) {
+                if (index !== selectedMonth) {
                   (e.target as HTMLButtonElement).style.background = '#f7f5ef'
                 }
               }}
