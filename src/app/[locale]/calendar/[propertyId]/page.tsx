@@ -1238,15 +1238,18 @@ export default function PropertyCalendarPage() {
                   style={{
                     padding: '8px 12px',
                     borderRadius: '8px',
-                    border: '1px solid #efeadf',
-                    background: '#ffffff',
+                    border: 'none',
+                    background: '#10203E',
                     fontSize: '13px',
                     fontWeight: '600',
-                    color: '#1b2430',
+                    color: '#ffffff',
                     cursor: 'pointer',
                     minWidth: '160px',
                     textTransform: 'capitalize',
+                    transition: 'background 0.2s',
                   }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = '#0c1830'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = '#10203E'}
                 >
                   {MONTHS[currentDate.getMonth()].charAt(0).toUpperCase() + MONTHS[currentDate.getMonth()].slice(1)}
                 </button>

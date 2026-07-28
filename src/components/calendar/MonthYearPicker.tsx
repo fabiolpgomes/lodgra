@@ -174,7 +174,7 @@ export function MonthYearPicker({ currentDate, onSelect, onCancel }: MonthYearPi
             style={{
               flex: 1,
               padding: '8px 12px',
-              background: '#2196f3',
+              background: '#10203E',
               border: 'none',
               borderRadius: '4px',
               cursor: 'pointer',
@@ -184,10 +184,10 @@ export function MonthYearPicker({ currentDate, onSelect, onCancel }: MonthYearPi
               transition: 'all 0.15s',
             }}
             onMouseEnter={(e) => {
-              (e.target as HTMLButtonElement).style.background = '#1976d2'
+              (e.target as HTMLButtonElement).style.background = '#0c1830'
             }}
             onMouseLeave={(e) => {
-              (e.target as HTMLButtonElement).style.background = '#2196f3'
+              (e.target as HTMLButtonElement).style.background = '#10203E'
             }}
           >
             Confirmar
