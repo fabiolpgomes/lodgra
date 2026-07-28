@@ -79,7 +79,19 @@ function generateDaysGrid(year: number, month: number) {
 }
 
 // Mini calendar component for year view
-function MiniCalendar({ year, month }: { year: number; month: number }) {
+function MiniCalendar({
+  year,
+  month,
+  selectedDates,
+  dailyPrices,
+  onDayClick,
+}: {
+  year: number
+  month: number
+  selectedDates: Date[]
+  dailyPrices: Record<string, number>
+  onDayClick: (day: number) => void
+}) {
   const daysGrid = generateDaysGrid(year, month)
   const monthName = MONTHS[month]
 
@@ -121,24 +133,41 @@ function MiniCalendar({ year, month }: { year: number; month: number }) {
         ))}
 
         {/* Days */}
-        {daysGrid.map((day, idx) => (
-          <div
-            key={idx}
-            style={{
-              aspectRatio: '1',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              background: day ? '#fbfaf6' : 'transparent',
-              fontSize: '12px',
-              fontWeight: day ? '600' : '400',
-              color: '#1b2430',
-              borderRadius: '4px',
-            }}
-          >
-            {day}
-          </div>
-        ))}
+        {daysGrid.map((day, idx) => {
+          const dateStr = day ? `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}` : null
+          const dayPrice = dateStr && dailyPrices[dateStr] ? dailyPrices[dateStr] : null
+          const isSelected = day && selectedDates.some(d => d.getUTCDate() === day && d.getUTCMonth() === month && d.getUTCFullYear() === year)
+
+          return (
+            <div
+              key={idx}
+              onClick={() => day && onDayClick(day)}
+              style={{
+                aspectRatio: '1',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: isSelected ? '#e3f2fd' : (day ? '#fbfaf6' : 'transparent'),
+                border: isSelected ? '2px solid #2196f3' : (day ? '1px solid #efeadf' : 'none'),
+                fontSize: '12px',
+                fontWeight: day ? '600' : '400',
+                color: '#1b2430',
+                borderRadius: '4px',
+                cursor: day ? 'pointer' : 'default',
+                transition: 'all 0.2s',
+                padding: '2px',
+              }}
+            >
+              {day && (
+                <>
+                  <div>{day}</div>
+                  {dayPrice && <div style={{ fontSize: '9px', color: '#4d5566' }}>R${dayPrice}</div>}
+                </>
+              )}
+            </div>
+          )
+        })}
       </div>
     </div>
   )
@@ -171,6 +200,7 @@ export default function PropertyCalendarPage() {
   const [noticeDay, setNoticeDay] = useState(1)
   const [cancellationPolicy, setCancellationPolicy] = useState('flexible')
   const [dailyPrices, setDailyPrices] = useState<Record<string, number>>({})
+  const [fillBasicPrice, setFillBasicPrice] = useState<number | ''>('')
 
   // Load daily prices from API
   const loadDailyPrices = async () => {
@@ -189,6 +219,60 @@ export default function PropertyCalendarPage() {
       }
     } catch (error) {
       console.warn('Failed to load daily prices:', error)
+    }
+  }
+
+  // Fill empty days with a basic price
+  const handleFillEmptyDays = async () => {
+    if (!property.id || !fillBasicPrice || fillBasicPrice < 1) {
+      alert('Preço inválido')
+      return
+    }
+
+    try {
+      const price = typeof fillBasicPrice === 'number' ? fillBasicPrice : parseFloat(fillBasicPrice)
+
+      // Generate all dates for the next 6 months and find which ones are empty
+      const today = new Date()
+      const endDate = new Date(today.getTime() + 6 * 30 * 24 * 60 * 60 * 1000)
+      const datesToFill: string[] = []
+
+      for (let d = new Date(today); d <= endDate; d.setDate(d.getDate() + 1)) {
+        const dateStr = d.toISOString().split('T')[0]
+        if (!dailyPrices[dateStr]) {
+          datesToFill.push(dateStr)
+        }
+      }
+
+      if (datesToFill.length === 0) {
+        alert('Todos os dias já têm preço definido')
+        return
+      }
+
+      console.log(`📊 Preenchendo ${datesToFill.length} dias vazios com preço R$${price}`)
+
+      const response = await fetch(`/api/properties/${property.id}/pricing/bulk-update`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          dates: datesToFill,
+          base_price: price,
+        }),
+      })
+
+      const result = await response.json()
+
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to fill prices')
+      }
+
+      await loadDailyPrices()
+      setFillBasicPrice('')
+      alert(`✅ ${datesToFill.length} dias preenchidos com sucesso!`)
+      setEditingConfig(null)
+    } catch (error) {
+      console.error('❌ Error filling prices:', error)
+      alert('Erro ao preencher preços: ' + (error instanceof Error ? error.message : 'Desconhecido'))
     }
   }
 
@@ -1290,7 +1374,16 @@ export default function PropertyCalendarPage() {
                 {[0, 1, 2].map(offset => {
                   const m = (monthIndex + offset) % 12
                   const y = offset === 0 && m > monthIndex ? year - 1 : year
-                  return <MiniCalendar key={`${y}-${m}`} year={y} month={m} />
+                  return (
+                    <MiniCalendar
+                      key={`${y}-${m}`}
+                      year={y}
+                      month={m}
+                      selectedDates={selectedDates}
+                      dailyPrices={dailyPrices}
+                      onDayClick={handleDayClick}
+                    />
+                  )
                 })}
               </div>
             </div>
