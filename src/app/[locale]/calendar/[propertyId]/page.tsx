@@ -304,15 +304,15 @@ export default function PropertyCalendarPage() {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
-  // Global mouseup handler for drag selection
+  // Global pointerup handler for drag selection (works with both mouse and touch)
   useEffect(() => {
-    const handleGlobalMouseUp = () => {
+    const handleGlobalPointerUp = () => {
       if (isDragging) {
         handleDayMouseUp()
       }
     }
-    window.addEventListener('mouseup', handleGlobalMouseUp)
-    return () => window.removeEventListener('mouseup', handleGlobalMouseUp)
+    window.addEventListener('pointerup', handleGlobalPointerUp)
+    return () => window.removeEventListener('pointerup', handleGlobalPointerUp)
   }, [isDragging, dragStart, dragEnd])
 
   // Calculate year and month first (needed by handleDayClick)
@@ -536,16 +536,16 @@ export default function PropertyCalendarPage() {
                 return (
                   <div
                     key={idx}
-                    onMouseDown={() => day && handleDayMouseDown(day, year, monthIndex)}
-                    onMouseEnter={() => day && handleDayMouseEnter(day, year, monthIndex)}
-                    onMouseUp={() => {
+                    onPointerDown={() => day && handleDayMouseDown(day, year, monthIndex)}
+                    onPointerMove={() => day && handleDayMouseEnter(day, year, monthIndex)}
+                    onPointerUp={() => {
                       handleDayMouseUp()
                       // If drag didn't happen (dragStart === dragEnd), open modal
                       if (day && !isDragging && dragStart && dragEnd && dragStart.getTime() === dragEnd.getTime()) {
                         handleDayClick(day, year, monthIndex)
                       }
                     }}
-                    onMouseLeave={() => {}}
+                    onPointerLeave={() => {}}
                     style={{
                       minHeight: day ? '100px' : 'auto',
                       display: 'flex',
