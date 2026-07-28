@@ -1310,25 +1310,44 @@ export default function PropertyCalendarPage() {
                   const dateStr = day ? `${year}-${String(monthIndex + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}` : null
                   const dayPrice = dateStr && dailyPrices[dateStr] ? dailyPrices[dateStr] : null
 
+                  const isSelected = day && selectedDates.some(d => d.getUTCDate() === day && d.getUTCMonth() === monthIndex && d.getUTCFullYear() === year)
+
+                  const isDragHovered = isDragging && dragStart && dragEnd && day ? (() => {
+                    const d = new Date(Date.UTC(year, monthIndex, day))
+                    const range = getDateRange(dragStart, dragEnd)
+                    return range.some(rd => rd.getTime() === d.getTime())
+                  })() : false
+
                   return (
                     <div
                       key={idx}
-                      style={{
-                        minHeight: day ? '120px' : 'auto',
-                        border: day ? '1px solid #efeadf' : 'none',
-                        borderRadius: '12px',
-                        padding: day ? '16px' : '0',
-                        background: day ? '#ffffff' : 'transparent',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        cursor: day ? 'pointer' : 'default',
-                        transition: 'all 0.2s',
-                      }}
+                      onMouseDown={() => day && handleDayMouseDown(day, year, monthIndex)}
                       onMouseEnter={(e) => {
-                        if (day) e.currentTarget.style.background = '#f7f5ef'
+                        if (day) {
+                          e.currentTarget.style.background = isSelected || isDragHovered ? '#e3f2fd' : '#f7f5ef'
+                          handleDayMouseEnter(day, year, monthIndex)
+                        }
+                      }}
+                      onMouseUp={() => {
+                        handleDayMouseUp()
+                        // If drag didn't happen (dragStart === dragEnd), open modal
+                        if (day && !isDragging && dragStart && dragEnd && dragStart.getTime() === dragEnd.getTime()) {
+                          handleDayClick(day, year, monthIndex)
+                        }
                       }}
                       onMouseLeave={(e) => {
-                        if (day) e.currentTarget.style.background = '#ffffff'
+                        if (day) e.currentTarget.style.background = isSelected || isDragHovered ? '#e3f2fd' : '#ffffff'
+                      }}
+                      style={{
+                        minHeight: day ? '120px' : 'auto',
+                        border: isSelected || isDragHovered ? '2px solid #2196f3' : (day ? '1px solid #efeadf' : 'none'),
+                        borderRadius: '12px',
+                        padding: day ? '16px' : '0',
+                        background: isSelected || isDragHovered ? '#e3f2fd' : (day ? '#ffffff' : 'transparent'),
+                        display: 'flex',
+                        flexDirection: 'column',
+                        cursor: day ? 'grab' : 'default',
+                        transition: 'all 0.2s',
                       }}
                     >
                       {day && (
