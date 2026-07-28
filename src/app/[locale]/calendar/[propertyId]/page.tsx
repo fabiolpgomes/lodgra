@@ -200,6 +200,20 @@ export default function PropertyCalendarPage() {
   const [noticeDay, setNoticeDay] = useState(1)
   const [cancellationPolicy, setCancellationPolicy] = useState('flexible')
   const [dailyPrices, setDailyPrices] = useState<Record<string, number>>({})
+  const [isDragging, setIsDragging] = useState(false)
+  const [dragStart, setDragStart] = useState<Date | null>(null)
+  const [dragEnd, setDragEnd] = useState<Date | null>(null)
+
+  // Get all dates between start and end (inclusive)
+  const getDateRange = (start: Date, end: Date): Date[] => {
+    const dates: Date[] = []
+    const s = new Date(Math.min(start.getTime(), end.getTime()))
+    const e = new Date(Math.max(start.getTime(), end.getTime()))
+    for (let d = new Date(s); d <= e; d.setDate(d.getDate() + 1)) {
+      dates.push(new Date(d))
+    }
+    return dates
+  }
 
   // Load daily prices from API
   const loadDailyPrices = async () => {
@@ -285,26 +299,53 @@ export default function PropertyCalendarPage() {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
+  // Global mouseup handler for drag selection
+  useEffect(() => {
+    const handleGlobalMouseUp = () => {
+      if (isDragging) {
+        handleDayMouseUp()
+      }
+    }
+    window.addEventListener('mouseup', handleGlobalMouseUp)
+    return () => window.removeEventListener('mouseup', handleGlobalMouseUp)
+  }, [isDragging, dragStart, dragEnd])
+
   // Calculate year and month first (needed by handleDayClick)
   const year = currentDate.getFullYear()
   const monthIndex = currentDate.getMonth()
 
-  // Handle day click for price editing
-  const handleDayClick = (day: number, clickYear: number, clickMonth: number) => {
-    console.log('🎯 Day clicked:', day, 'Month:', clickMonth, 'Year:', clickYear)
+  // Handle day drag selection
+  const handleDayMouseDown = (day: number, clickYear: number, clickMonth: number) => {
     const date = new Date(Date.UTC(clickYear, clickMonth, day))
-    const dateTime = date.getTime()
-    const isSelected = selectedDates.some(d => d.getTime() === dateTime)
+    setIsDragging(true)
+    setDragStart(date)
+    setDragEnd(date)
+  }
 
-    console.log('Selected before:', selectedDates.length, 'Is currently selected:', isSelected)
+  const handleDayMouseEnter = (day: number, clickYear: number, clickMonth: number) => {
+    if (!isDragging || !dragStart) return
+    const date = new Date(Date.UTC(clickYear, clickMonth, day))
+    setDragEnd(date)
+  }
 
-    if (isSelected) {
-      setSelectedDates(selectedDates.filter(d => d.getTime() !== dateTime))
-    } else {
-      setSelectedDates([...selectedDates, new Date(date)])
+  const handleDayMouseUp = () => {
+    if (!isDragging || !dragStart || !dragEnd) {
+      setIsDragging(false)
+      return
     }
 
-    console.log('Selected after:', selectedDates.length)
+    const dateRange = getDateRange(dragStart, dragEnd)
+    setSelectedDates(dateRange)
+    console.log(`📅 Selected ${dateRange.length} days (drag from ${dragStart.toISOString().split('T')[0]} to ${dragEnd.toISOString().split('T')[0]})`)
+
+    setIsDragging(false)
+    setDragStart(null)
+    setDragEnd(null)
+  }
+
+  // Handle day click for price editing (legacy - now uses drag)
+  const handleDayClick = (day: number, clickYear: number, clickMonth: number) => {
+    if (isDragging) return // Don't trigger click during drag
   }
 
   const handleSavePrice = async () => {
@@ -475,20 +516,30 @@ export default function PropertyCalendarPage() {
 
                 const isSelected = day && selectedDates.some(d => d.getUTCDate() === day && d.getUTCMonth() === monthIndex && d.getUTCFullYear() === year)
 
+                const isDragHovered = isDragging && dragStart && dragEnd && day ? (() => {
+                  const d = new Date(Date.UTC(year, monthIndex, day))
+                  const range = getDateRange(dragStart, dragEnd)
+                  return range.some(rd => rd.getTime() === d.getTime())
+                })() : false
+
                 return (
                   <div
                     key={idx}
-                    onClick={() => day && handleDayClick(day, year, monthIndex)}
+                    onMouseDown={() => day && handleDayMouseDown(day, year, monthIndex)}
+                    onMouseEnter={() => day && handleDayMouseEnter(day, year, monthIndex)}
+                    onMouseUp={handleDayMouseUp}
+                    onMouseLeave={() => {}}
                     style={{
                       minHeight: day ? '100px' : 'auto',
                       display: 'flex',
                       flexDirection: 'column',
-                      background: isSelected ? '#e3f2fd' : (day ? '#ffffff' : '#f7f5ef'),
-                      border: isSelected ? '2px solid #2196f3' : (day ? '1px solid #efeadf' : 'none'),
+                      background: isSelected || isDragHovered ? '#e3f2fd' : (day ? '#ffffff' : '#f7f5ef'),
+                      border: isSelected || isDragHovered ? '2px solid #2196f3' : (day ? '1px solid #efeadf' : 'none'),
                       borderRadius: '8px',
                       padding: day ? '8px' : '0',
-                      cursor: day ? 'pointer' : 'default',
+                      cursor: day ? 'grab' : 'default',
                       transition: 'all 0.2s',
+                      userSelect: 'none',
                     }}
                   >
                     {day && (
