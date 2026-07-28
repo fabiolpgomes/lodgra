@@ -200,7 +200,6 @@ export default function PropertyCalendarPage() {
   const [noticeDay, setNoticeDay] = useState(1)
   const [cancellationPolicy, setCancellationPolicy] = useState('flexible')
   const [dailyPrices, setDailyPrices] = useState<Record<string, number>>({})
-  const [fillBasicPrice, setFillBasicPrice] = useState<number | ''>('')
 
   // Load daily prices from API
   const loadDailyPrices = async () => {
@@ -223,59 +222,6 @@ export default function PropertyCalendarPage() {
   }
 
   // Fill empty days with a basic price
-  const handleFillEmptyDays = async () => {
-    if (!property.id || !fillBasicPrice || fillBasicPrice < 1) {
-      alert('Preço inválido')
-      return
-    }
-
-    try {
-      const price = typeof fillBasicPrice === 'number' ? fillBasicPrice : parseFloat(fillBasicPrice)
-
-      // Generate all dates for the next 6 months and find which ones are empty
-      const today = new Date()
-      const endDate = new Date(today.getTime() + 6 * 30 * 24 * 60 * 60 * 1000)
-      const datesToFill: string[] = []
-
-      for (let d = new Date(today); d <= endDate; d.setDate(d.getDate() + 1)) {
-        const dateStr = d.toISOString().split('T')[0]
-        if (!dailyPrices[dateStr]) {
-          datesToFill.push(dateStr)
-        }
-      }
-
-      if (datesToFill.length === 0) {
-        alert('Todos os dias já têm preço definido')
-        return
-      }
-
-      console.log(`📊 Preenchendo ${datesToFill.length} dias vazios com preço R$${price}`)
-
-      const response = await fetch(`/api/properties/${property.id}/pricing/bulk-update`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          dates: datesToFill,
-          base_price: price,
-        }),
-      })
-
-      const result = await response.json()
-
-      if (!result.success) {
-        throw new Error(result.error || 'Failed to fill prices')
-      }
-
-      await loadDailyPrices()
-      setFillBasicPrice('')
-      alert(`✅ ${datesToFill.length} dias preenchidos com sucesso!`)
-      setEditingConfig(null)
-    } catch (error) {
-      console.error('❌ Error filling prices:', error)
-      alert('Erro ao preencher preços: ' + (error instanceof Error ? error.message : 'Desconhecido'))
-    }
-  }
-
   // Fetch reservations and prices on mount
   useEffect(() => {
     const fetchData = async () => {
@@ -362,7 +308,7 @@ export default function PropertyCalendarPage() {
   }
 
   const handleSavePrice = async () => {
-    if (!property.id || selectedDates.length === 0 || editingPrice === '') return
+    if (!property.id || editingPrice === '') return
 
     const price = parseFloat(String(editingPrice))
     if (isNaN(price) || price < 1) {
@@ -371,9 +317,23 @@ export default function PropertyCalendarPage() {
     }
 
     try {
-      console.log('💾 Saving prices for', selectedDates.length, 'days with price:', price)
-      const dates = selectedDates.map(d => d.toISOString().split('T')[0])
-      console.log('📅 Dates:', dates)
+      let dates: string[]
+
+      // If no dates selected, apply to all days for next 6 months
+      if (selectedDates.length === 0) {
+        console.log('💾 Saving base price for all days (6 months) with price:', price)
+        const today = new Date()
+        const endDate = new Date(today.getTime() + 6 * 30 * 24 * 60 * 60 * 1000)
+        dates = []
+        for (let d = new Date(today); d <= endDate; d.setDate(d.getDate() + 1)) {
+          dates.push(d.toISOString().split('T')[0])
+        }
+      } else {
+        console.log('💾 Saving prices for', selectedDates.length, 'selected days with price:', price)
+        dates = selectedDates.map(d => d.toISOString().split('T')[0])
+      }
+
+      console.log('📅 Dates:', dates.length > 5 ? `${dates.length} dates` : dates)
 
       const response = await fetch(`/api/properties/${property.id}/pricing/bulk-update`, {
         method: 'POST',
@@ -1625,47 +1585,9 @@ export default function PropertyCalendarPage() {
                   </div>
                 )}
 
-                {/* Preço Básico - Preencher dias vazios */}
-                <div style={{ padding: '16px', background: '#fbfaf6', borderRadius: '12px' }}>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', marginBottom: '8px', color: '#1b2430' }}>
-                    Preencher Dias Sem Preço (€)
-                  </label>
-                  <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
-                    <input
-                      type="number"
-                      placeholder="Ex: 85"
-                      value={fillBasicPrice}
-                      onChange={(e) => setFillBasicPrice(e.target.value ? parseFloat(e.target.value) : '')}
-                      min="1"
-                      style={{
-                        flex: 1,
-                        padding: '10px 12px',
-                        border: '1px solid #efeadf',
-                        borderRadius: '8px',
-                        fontSize: '14px',
-                        boxSizing: 'border-box',
-                      }}
-                    />
-                    <button
-                      onClick={handleFillEmptyDays}
-                      disabled={!fillBasicPrice || fillBasicPrice < 1}
-                      style={{
-                        padding: '10px 16px',
-                        background: fillBasicPrice && fillBasicPrice >= 1 ? '#2196f3' : '#ccc',
-                        border: 'none',
-                        borderRadius: '8px',
-                        cursor: fillBasicPrice && fillBasicPrice >= 1 ? 'pointer' : 'not-allowed',
-                        fontSize: '12px',
-                        fontWeight: '600',
-                        color: '#ffffff',
-                        whiteSpace: 'nowrap',
-                      }}
-                    >
-                      Preencher
-                    </button>
-                  </div>
-                  <p style={{ margin: '8px 0 0 0', fontSize: '12px', color: '#4d5566' }}>
-                    Preenche automaticamente todos os dias que ainda não têm preço definido
+                <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
+                  <p style={{ margin: '0', fontSize: '12px', color: '#4d5566', flex: 1, alignSelf: 'center' }}>
+                    Aplica este preço a todos os dias. Clique em um dia para editar preço específico.
                   </p>
                 </div>
 
