@@ -349,21 +349,6 @@ export function CalendarPageClient() {
     }
   }, [handleSwipeLeft, handleSwipeRight])
 
-  // Make FullCalendar title clickable to open month picker
-  useEffect(() => {
-    const handleTitleClick = (e: Event) => {
-      e.stopPropagation()
-      e.preventDefault()
-      setShowMonthPicker(true)
-    }
-
-    // Use capture phase to intercept before FullCalendar
-    const titleElement = document.querySelector('.fc-wrapper .fc-toolbar-title')
-    if (titleElement) {
-      titleElement.addEventListener('click', handleTitleClick, true)
-      return () => titleElement.removeEventListener('click', handleTitleClick, true)
-    }
-  }, [setShowMonthPicker])
 
   return (
     <div className="space-y-4 px-2 sm:px-3 md:px-4" ref={calendarWrapperRef}>
@@ -429,7 +414,7 @@ export function CalendarPageClient() {
           firstDay={1}
           headerToolbar={{
             left: 'prev,next today',
-            center: 'title',
+            center: '',
             right: dayMaxEvents === 1 ? '' : 'dayGridMonth,dayGridWeek',
           }}
           buttonText={{
@@ -474,23 +459,6 @@ export function CalendarPageClient() {
           .fc-wrapper .fc-daygrid-event {
             margin-bottom: 1px;
             min-height: 20px;
-          }
-          .fc-wrapper .fc-toolbar-title {
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: #111827;
-            cursor: pointer;
-            user-select: none;
-          }
-          .fc-wrapper .fc-toolbar-title:hover {
-            opacity: 0.7;
-          }
-          /* Disable FullCalendar native month dropdown */
-          .fc-daygrid-view .fc-toolbar-title {
-            pointer-events: auto;
-          }
-          .fc .fc-button-group .fc-button {
-            pointer-events: auto;
           }
           @media (min-width: 640px) {
             .fc-wrapper .fc-toolbar-title {
