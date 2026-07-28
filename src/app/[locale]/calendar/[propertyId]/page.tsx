@@ -248,7 +248,26 @@ export default function PropertyCalendarPage() {
     const fetchData = async () => {
       try {
         await loadDailyPrices()
-        const reservRes = await fetch('/api/calendar/reservations')
+
+        // Calculate date range for the current month
+        const year = currentDate.getFullYear()
+        const month = currentDate.getMonth()
+
+        // First day of the month
+        const fromDate = new Date(Date.UTC(year, month, 1))
+        const from = fromDate.toISOString().split('T')[0] // "2026-07-01"
+
+        // Last day of the month
+        const toDate = new Date(Date.UTC(year, month + 1, 0))
+        const to = toDate.toISOString().split('T')[0] // "2026-07-31"
+
+        // Build query string with date parameters
+        const params = new URLSearchParams()
+        params.set('from', from)
+        params.set('to', to)
+
+        console.log(`[fetchData] Fetching reservations for ${month + 1}/${year}: from=${from} to=${to}`)
+        const reservRes = await fetch(`/api/calendar/reservations?${params}`)
 
         if (reservRes.ok) {
           const data = await reservRes.json()
@@ -296,7 +315,7 @@ export default function PropertyCalendarPage() {
       }
     }
     fetchData()
-  }, [params.propertyId])
+  }, [params.propertyId, currentDate])
 
   // Detect mobile on mount
   useEffect(() => {
