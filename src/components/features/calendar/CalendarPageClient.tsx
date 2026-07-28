@@ -12,6 +12,7 @@ import { BlockDatesModal } from './BlockDatesModal'
 import { SelectActionModal } from './SelectActionModal'
 import { createClient } from '@/lib/supabase/client'
 import { addDays } from 'date-fns'
+import { MonthYearPicker } from '@/components/calendar/MonthYearPicker'
 
 interface Property {
   id: string
@@ -97,6 +98,7 @@ export function CalendarPageClient() {
   const [loading, setLoading] = useState(false)
   const [dayMaxEvents, setDayMaxEvents] = useState(3)
   const [swipeActive, setSwipeActive] = useState(false)
+  const [showMonthPicker, setShowMonthPicker] = useState(false)
 
   // Calculate responsive dayMaxEvents based on screen width
   useEffect(() => {
@@ -223,6 +225,21 @@ export function CalendarPageClient() {
     setTimeout(() => setSwipeActive(false), 300)
   }, [])
 
+  const handleMonthYearSelect = useCallback((selectedDate: Date) => {
+    const year = selectedDate.getFullYear()
+    const month = selectedDate.getMonth()
+
+    // Calculate first day of month and first day of next month
+    const from = new Date(Date.UTC(year, month, 1))
+    const to = new Date(Date.UTC(year, month + 1, 1))
+
+    const fromStr = from.toISOString().split('T')[0]
+    const toStr = to.toISOString().split('T')[0]
+
+    setDateRange({ from: fromStr, to: toStr })
+    setShowMonthPicker(false)
+  }, [])
+
   const handleEventClick = useCallback(async ({ event }: EventClickArg) => {
     if (!isEditable) return
 
@@ -325,7 +342,17 @@ export function CalendarPageClient() {
       {/* Header + filter */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">Calendário</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">Calendário</h1>
+            {dateRange && (
+              <button
+                onClick={() => setShowMonthPicker(true)}
+                className="text-xs sm:text-sm px-2 sm:px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded cursor-pointer transition-colors"
+              >
+                {new Date(`${dateRange.from}T00:00:00`).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}
+              </button>
+            )}
+          </div>
           {!isEditable && (
             <p className="text-[11px] sm:text-xs text-gray-600 mt-0.5">Modo leitura — sem permissão para modificar reservas</p>
           )}
@@ -626,6 +653,15 @@ export function CalendarPageClient() {
               fetchEvents(dateRange.from, dateRange.to, selectedPropertyId)
             }
           }}
+        />
+      )}
+
+      {/* Month/Year Picker Modal */}
+      {showMonthPicker && dateRange && (
+        <MonthYearPicker
+          currentDate={new Date(`${dateRange.from}T00:00:00`)}
+          onSelect={handleMonthYearSelect}
+          onCancel={() => setShowMonthPicker(false)}
         />
       )}
     </div>

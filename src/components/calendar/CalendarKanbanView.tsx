@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import Image from 'next/image'
 import { getISOWeekNumber, getISOWeekStartDate, getWeekDays } from '@/utils/weekUtils'
+import { MonthYearPicker } from './MonthYearPicker'
 
 interface Property {
   id: string
@@ -92,6 +93,7 @@ export function CalendarKanbanView({
   const [currentWeek, setCurrentWeek] = useState(todayWeekNumber)
   const [isNavigating, setIsNavigating] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
+  const [showMonthPicker, setShowMonthPicker] = useState(false)
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 1024)
@@ -176,6 +178,12 @@ export function CalendarKanbanView({
     setCurrentWeek(prev => (prev === 53 ? 1 : prev + 1))
   }
 
+  const handleMonthYearSelect = (selectedDate: Date) => {
+    const selectedWeek = getISOWeekNumber(selectedDate)
+    setCurrentWeek(selectedWeek)
+    setShowMonthPicker(false)
+  }
+
   const getCurrencySymbol = (currency: string): string => {
     const symbols: Record<string, string> = {
       'EUR': '€',
@@ -223,9 +231,15 @@ export function CalendarKanbanView({
               <ChevronLeft size={isMobile ? 16 : 20} style={{ color: COLORS.primary }} />
             </button>
             <div className="text-center min-w-[120px]">
-              <div className={`${fontSize}`} style={{ color: COLORS.body }}>
-                {monthDisplay}
-              </div>
+              <button
+                onClick={() => setShowMonthPicker(true)}
+                className="hover:opacity-70 transition-opacity cursor-pointer"
+                style={{ background: 'none', border: 'none', padding: 0 }}
+              >
+                <div className={`${fontSize}`} style={{ color: COLORS.body }}>
+                  {monthDisplay}
+                </div>
+              </button>
               <div className={`font-semibold ${titleFontSize}`} style={{ color: COLORS.primary }}>
                 Sem {currentWeek}
               </div>
@@ -383,6 +397,15 @@ export function CalendarKanbanView({
           ))}
         </div>
       </div>
+
+      {/* Month/Year Picker Modal */}
+      {showMonthPicker && (
+        <MonthYearPicker
+          currentDate={weekStartDate}
+          onSelect={handleMonthYearSelect}
+          onCancel={() => setShowMonthPicker(false)}
+        />
+      )}
     </div>
   )
 }
