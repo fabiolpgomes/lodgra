@@ -280,7 +280,7 @@ export default function PropertyCalendarPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        loadDailyPrices()
+        await loadDailyPrices()
         const reservRes = await fetch('/api/calendar/reservations')
 
         if (reservRes.ok) {
