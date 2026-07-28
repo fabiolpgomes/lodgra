@@ -560,16 +560,7 @@ export default function PropertyCalendarPage() {
                 return (
                   <div
                     key={idx}
-                    onPointerDown={() => day && handleDayMouseDown(day, year, monthIndex)}
-                    onPointerMove={() => day && handleDayMouseEnter(day, year, monthIndex)}
-                    onPointerUp={() => {
-                      handleDayMouseUp()
-                      // If drag didn't happen (dragStart === dragEnd), toggle selection on mobile
-                      if (day && !isDragging && dragStart && dragEnd && dragStart.getTime() === dragEnd.getTime()) {
-                        handleToggleDaySelection(day, year, monthIndex)
-                      }
-                    }}
-                    onPointerLeave={() => {}}
+                    onPointerUp={() => day && handleToggleDaySelection(day, year, monthIndex)}
                     style={{
                       minHeight: day ? '100px' : 'auto',
                       display: 'flex',
