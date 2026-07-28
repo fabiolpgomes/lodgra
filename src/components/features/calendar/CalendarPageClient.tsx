@@ -91,7 +91,19 @@ export function CalendarPageClient() {
   const [events, setEvents] = useState<CalendarEvent[]>([])
   const [properties, setProperties] = useState<Property[]>([])
   const [selectedPropertyId, setSelectedPropertyId] = useState('')
-  const [dateRange, setDateRange] = useState<{ from: string; to: string } | null>(null)
+
+  // Initialize dateRange with current month
+  const initializeDateRange = () => {
+    const now = new Date()
+    const from = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1))
+    const to = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1))
+    return {
+      from: from.toISOString().split('T')[0],
+      to: to.toISOString().split('T')[0],
+    }
+  }
+
+  const [dateRange, setDateRange] = useState<{ from: string; to: string }>(() => initializeDateRange())
   const [newResModal, setNewResModal] = useState<{ checkIn: string; checkOut: string } | null>(null)
   const [blockModal, setBlockModal] = useState<{ checkIn: string; checkOut: string } | null>(null)
   const [selectActionModal, setSelectActionModal] = useState<{ checkIn: string; checkOut: string; existingEvents?: ExistingEvent[] } | null>(null)
@@ -344,14 +356,12 @@ export function CalendarPageClient() {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">Calendário</h1>
-            {dateRange && (
-              <button
-                onClick={() => setShowMonthPicker(true)}
-                className="text-xs sm:text-sm px-2 sm:px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded cursor-pointer transition-colors"
-              >
-                {new Date(`${dateRange.from}T00:00:00`).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}
-              </button>
-            )}
+            <button
+              onClick={() => setShowMonthPicker(true)}
+              className="text-xs sm:text-sm px-2 sm:px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded cursor-pointer transition-colors"
+            >
+              {new Date(`${dateRange.from}T00:00:00`).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}
+            </button>
           </div>
           {!isEditable && (
             <p className="text-[11px] sm:text-xs text-gray-600 mt-0.5">Modo leitura — sem permissão para modificar reservas</p>
