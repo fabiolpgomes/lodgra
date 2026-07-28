@@ -118,8 +118,8 @@ export function MonthYearPicker({ currentDate, onSelect, onCancel }: MonthYearPi
               onClick={() => handleSelect(index)}
               style={{
                 padding: '8px 6px',
-                background: index === selectedMonth ? '#2196f3' : '#f5f5f5',
-                border: index === selectedMonth ? '2px solid #1b2430' : '1px solid #d0d0d0',
+                background: index === selectedMonth ? '#10203E' : '#f5f5f5',
+                border: index === selectedMonth ? '2px solid #10203E' : '1px solid #d0d0d0',
                 borderRadius: '4px',
                 fontSize: '11px',
                 fontWeight: '600',
