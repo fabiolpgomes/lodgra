@@ -1223,8 +1223,13 @@ export default function PropertyCalendarPage() {
                   ←
                 </button>
 
-                <button
-                  onClick={() => {}}
+                <select
+                  value={currentDate.getMonth()}
+                  onChange={(e) => {
+                    const newDate = new Date(currentDate)
+                    newDate.setMonth(parseInt(e.target.value))
+                    setCurrentDate(newDate)
+                  }}
                   style={{
                     padding: '8px 12px',
                     borderRadius: '8px',
@@ -1235,11 +1240,14 @@ export default function PropertyCalendarPage() {
                     color: '#1b2430',
                     cursor: 'pointer',
                     minWidth: '160px',
-                    textTransform: 'capitalize',
                   }}
                 >
-                  {MONTHS[currentDate.getMonth()].charAt(0).toUpperCase() + MONTHS[currentDate.getMonth()].slice(1)}
-                </button>
+                  {MONTHS.map((month, idx) => (
+                    <option key={idx} value={idx}>
+                      {month.charAt(0).toUpperCase() + month.slice(1)}
+                    </option>
+                  ))}
+                </select>
 
                 <button
                   onClick={() => {
