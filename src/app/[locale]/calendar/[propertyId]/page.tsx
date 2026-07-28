@@ -262,23 +262,23 @@ export default function PropertyCalendarPage() {
         const to = toDate.toISOString().split('T')[0] // "2026-07-31"
 
         // Build query string with date parameters
-        const params = new URLSearchParams()
-        params.set('from', from)
-        params.set('to', to)
+        const queryParams = new URLSearchParams()
+        queryParams.set('from', from)
+        queryParams.set('to', to)
 
         console.log(`[fetchData] Fetching reservations for ${month + 1}/${year}: from=${from} to=${to}`)
-        const reservRes = await fetch(`/api/calendar/reservations?${params}`)
+        const reservRes = await fetch(`/api/calendar/reservations?${queryParams}`)
 
         if (reservRes.ok) {
           const data = await reservRes.json()
           const events = Array.isArray(data) ? data : (data.data || [])
-          const propertyReservations = events.filter((evt: any) => evt.extendedProps?.property_id === params.propertyId)
+          const propertyReservations = events.filter((evt: any) => evt.extendedProps?.property_id === propertyId)
 
           // Extract property name from first reservation if available
           const propertyNameFromReservations = propertyReservations[0]?.extendedProps?.property_name
 
           setProperty({
-            id: typeof params.propertyId === 'string' ? params.propertyId : (params.propertyId?.[0] || ''),
+            id: propertyId,
             name: propertyNameFromReservations || '',
             type: 'Property',
             location: '',
