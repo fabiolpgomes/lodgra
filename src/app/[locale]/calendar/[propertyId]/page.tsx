@@ -191,6 +191,8 @@ export default function PropertyCalendarPage() {
   const [configTab, setConfigTab] = useState<'precos' | 'descontos' | 'disponibilidade'>('precos')
   const [smartPriceEnabled, setSmartPriceEnabled] = useState(false)
   const [priceMin, setPriceMin] = useState(80)
+  const [previousPriceMin, setPreviousPriceMin] = useState(80)
+  const [overwriteCustomized, setOverwriteCustomized] = useState(false)
   const [priceMax, setPriceMax] = useState(190)
   const [discountSemanal, setDiscountSemanal] = useState(10)
   const [discountMensal, setDiscountMensal] = useState(20)
@@ -444,6 +446,7 @@ export default function PropertyCalendarPage() {
 
   const handleSaveBasePriceConfig = async () => {
     console.log('🎯 [1] START: handleSaveBasePriceConfig called')
+    console.log(`📋 Mode: ${overwriteCustomized ? 'FORCE (overwrite all)' : 'SMART (preserve customized)'}`)
 
     if (!property.id || priceMin <= 0) {
       alert('Preço base deve ser > 0')
@@ -464,22 +467,36 @@ export default function PropertyCalendarPage() {
 
       console.log(`📅 Generated ${allDates.length} dates for next 6 months`)
 
-      // Filter only days without a price (whitespace/empty days)
-      const daysWithoutPrice = allDates.filter(dateStr => !dailyPrices[dateStr])
-      console.log(`🔍 Found ${daysWithoutPrice.length} days without price to fill`)
+      let datesToUpdate: string[] = []
 
-      if (daysWithoutPrice.length === 0) {
-        alert('ℹ️ Todos os dias já têm preço definido')
+      if (overwriteCustomized) {
+        // FORCE MODE: Update all dates (including customized)
+        datesToUpdate = allDates
+        console.log(`🔄 [FORCE MODE] Atualizando todos os ${datesToUpdate.length} dias (incluindo customizados)`)
+      } else {
+        // SMART MODE: Only update empty days OR days with previous price
+        datesToUpdate = allDates.filter(dateStr => {
+          const currentPrice = dailyPrices[dateStr]
+          // Include if: no price OR has previous price
+          return !currentPrice || currentPrice === previousPriceMin
+        })
+        console.log(`🔍 [SMART MODE] Atualizando ${datesToUpdate.length} dias (preservando customizados)`)
+        console.log(`   - Dias sem preço: ${allDates.filter(d => !dailyPrices[d]).length}`)
+        console.log(`   - Dias com preço anterior (${previousPriceMin}): ${allDates.filter(d => dailyPrices[d] === previousPriceMin).length}`)
+      }
+
+      if (datesToUpdate.length === 0) {
+        alert('ℹ️ Nenhum dia para atualizar. Todos os dias têm preços customizados diferentes.')
         setEditingConfig(null)
         return
       }
 
-      // Call API to update prices for empty days only
+      // Call API to update prices
       const response = await fetch(`/api/properties/${property.id}/pricing/bulk-update`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          dates: daysWithoutPrice,
+          dates: datesToUpdate,
           base_price: priceMin,
         }),
       })
@@ -506,7 +523,8 @@ export default function PropertyCalendarPage() {
       setEditingConfig(null)
 
       // Show success message
-      const successMsg = `✅ ${result.data.updated_dates} dia(s) preenchido(s) com novo preço base (R$${priceMin})`
+      const modeLabel = overwriteCustomized ? 'forçado' : 'inteligente'
+      const successMsg = `✅ ${result.data.updated_dates} dia(s) atualizado(s) com sucesso!\n(Modo ${modeLabel}: R$${priceMin})`
       console.log('[5] SUCCESS:', successMsg)
       alert(successMsg)
     } catch (error) {
@@ -1595,7 +1613,14 @@ export default function PropertyCalendarPage() {
                 cursor: 'pointer',
                 transition: 'all 0.2s',
               }}
-              onClick={() => setEditingConfig(item.id)}
+              onClick={() => {
+                if (item.id === 'preco') {
+                  // Capture previous priceMin when opening the modal
+                  setPreviousPriceMin(priceMin)
+                  setOverwriteCustomized(false) // Reset checkbox when opening modal
+                }
+                setEditingConfig(item.id)
+              }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.background = '#f7f5ef'
                 e.currentTarget.style.borderColor = '#cfc4aa'
@@ -1695,24 +1720,50 @@ export default function PropertyCalendarPage() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 {!smartPriceEnabled ? (
                   // Show only Preço Base when smart price is OFF
-                  <div>
-                    <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', marginBottom: '8px', color: '#1b2430' }}>
-                      Preço Base (€)
-                    </label>
-                    <input
-                      type="number"
-                      value={priceMin}
-                      onChange={(e) => setPriceMin(parseInt(e.target.value))}
-                      style={{
-                        width: '100%',
-                        padding: '10px 12px',
-                        border: '1px solid #efeadf',
-                        borderRadius: '8px',
-                        fontSize: '14px',
-                        boxSizing: 'border-box',
-                      }}
-                    />
-                  </div>
+                  <>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', marginBottom: '8px', color: '#1b2430' }}>
+                        Preço Base (€)
+                      </label>
+                      <input
+                        type="number"
+                        value={priceMin}
+                        onChange={(e) => setPriceMin(parseInt(e.target.value))}
+                        style={{
+                          width: '100%',
+                          padding: '10px 12px',
+                          border: '1px solid #efeadf',
+                          borderRadius: '8px',
+                          fontSize: '14px',
+                          boxSizing: 'border-box',
+                        }}
+                      />
+                    </div>
+
+                    {/* Overwrite Customized Checkbox */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', background: '#fbfaf6', borderRadius: '8px' }}>
+                      <input
+                        type="checkbox"
+                        checked={overwriteCustomized}
+                        onChange={(e) => setOverwriteCustomized(e.target.checked)}
+                        id="overwrite-checkbox"
+                        style={{
+                          width: '18px',
+                          height: '18px',
+                          cursor: 'pointer',
+                          flexShrink: 0,
+                        }}
+                      />
+                      <label htmlFor="overwrite-checkbox" style={{ fontSize: '13px', color: '#1b2430', margin: 0, cursor: 'pointer' }}>
+                        Sobrescrever preços customizados?
+                      </label>
+                    </div>
+                    <p style={{ fontSize: '12px', color: '#4d5566', margin: '8px 0 0 0' }}>
+                      {overwriteCustomized
+                        ? '✓ Todos os dias serão atualizados (incluindo preços customizados)'
+                        : 'Se desmarcado: apenas dias vazios e com preço anterior serão atualizados'}
+                    </p>
+                  </>
                 ) : (
                   // Show Preço Mínimo and Máximo when smart price is ON
                   <>
