@@ -90,7 +90,7 @@ function MiniCalendar({
   month: number
   selectedDates: Date[]
   dailyPrices: Record<string, number>
-  onDayClick: (day: number) => void
+  onDayClick: (day: number, year: number, month: number) => void
 }) {
   const daysGrid = generateDaysGrid(year, month)
   const monthName = MONTHS[month]
@@ -141,7 +141,7 @@ function MiniCalendar({
           return (
             <div
               key={idx}
-              onClick={() => day && onDayClick(day)}
+              onClick={() => day && onDayClick(day, year, month)}
               style={{
                 aspectRatio: '1',
                 display: 'flex',
@@ -344,9 +344,9 @@ export default function PropertyCalendarPage() {
   const monthIndex = currentDate.getMonth()
 
   // Handle day click for price editing
-  const handleDayClick = (day: number) => {
-    console.log('🎯 Day clicked:', day, 'Month:', monthIndex, 'Year:', year)
-    const date = new Date(Date.UTC(year, monthIndex, day))
+  const handleDayClick = (day: number, clickYear: number, clickMonth: number) => {
+    console.log('🎯 Day clicked:', day, 'Month:', clickMonth, 'Year:', clickYear)
+    const date = new Date(Date.UTC(clickYear, clickMonth, day))
     const dateTime = date.getTime()
     const isSelected = selectedDates.some(d => d.getTime() === dateTime)
 
@@ -518,7 +518,7 @@ export default function PropertyCalendarPage() {
                 return (
                   <div
                     key={idx}
-                    onClick={() => day && handleDayClick(day)}
+                    onClick={() => day && handleDayClick(day, year, monthIndex)}
                     style={{
                       minHeight: day ? '100px' : 'auto',
                       display: 'flex',
