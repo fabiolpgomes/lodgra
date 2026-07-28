@@ -352,11 +352,35 @@ export default function PropertyCalendarPage() {
   const handleDayClick = (day: number, clickYear: number, clickMonth: number) => {
     if (isDragging) return // Don't trigger click during drag
 
-    // Single click - open modal to edit price for this day
+    // Desktop: Single click - open modal to edit price for this day
     const date = new Date(Date.UTC(clickYear, clickMonth, day))
     setSelectedDates([date])
     setShowPriceEditor(true)
     setEditingPrice('')
+  }
+
+  // Mobile: Toggle day selection (accumulate multiple days)
+  const handleToggleDaySelection = (day: number, clickYear: number, clickMonth: number) => {
+    if (isDragging) return // Don't trigger click during drag
+
+    const date = new Date(Date.UTC(clickYear, clickMonth, day))
+    const isAlreadySelected = selectedDates.some(d =>
+      d.getUTCDate() === day &&
+      d.getUTCMonth() === clickMonth &&
+      d.getUTCFullYear() === clickYear
+    )
+
+    if (isAlreadySelected) {
+      // Remove from selection
+      setSelectedDates(selectedDates.filter(d =>
+        !(d.getUTCDate() === day && d.getUTCMonth() === clickMonth && d.getUTCFullYear() === clickYear)
+      ))
+    } else {
+      // Add to selection
+      setSelectedDates([...selectedDates, date])
+    }
+
+    // NÃO abre modal aqui - modal só abre quando clica em "Editar Preço"
   }
 
   const handleSavePrice = async () => {
@@ -540,9 +564,9 @@ export default function PropertyCalendarPage() {
                     onPointerMove={() => day && handleDayMouseEnter(day, year, monthIndex)}
                     onPointerUp={() => {
                       handleDayMouseUp()
-                      // If drag didn't happen (dragStart === dragEnd), open modal
+                      // If drag didn't happen (dragStart === dragEnd), toggle selection on mobile
                       if (day && !isDragging && dragStart && dragEnd && dragStart.getTime() === dragEnd.getTime()) {
-                        handleDayClick(day, year, monthIndex)
+                        handleToggleDaySelection(day, year, monthIndex)
                       }
                     }}
                     onPointerLeave={() => {}}
@@ -1330,9 +1354,9 @@ export default function PropertyCalendarPage() {
                       }}
                       onMouseUp={() => {
                         handleDayMouseUp()
-                        // If drag didn't happen (dragStart === dragEnd), open modal
+                        // If drag didn't happen (dragStart === dragEnd), toggle selection
                         if (day && !isDragging && dragStart && dragEnd && dragStart.getTime() === dragEnd.getTime()) {
-                          handleDayClick(day, year, monthIndex)
+                          handleToggleDaySelection(day, year, monthIndex)
                         }
                       }}
                       onMouseLeave={(e) => {
@@ -1438,7 +1462,7 @@ export default function PropertyCalendarPage() {
                       month={m}
                       selectedDates={selectedDates}
                       dailyPrices={dailyPrices}
-                      onDayClick={handleDayClick}
+                      onDayClick={handleToggleDaySelection}
                     />
                   )
                 })}
