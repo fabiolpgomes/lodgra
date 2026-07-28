@@ -449,6 +449,16 @@ export function CalendarPageClient() {
         />
 
         <style>{`
+          /* Hide FullCalendar toolbar title and any selects it might render */
+          .fc-wrapper .fc-toolbar-title {
+            display: none !important;
+          }
+          /* Hide any select/dropdown in toolbar */
+          .fc-wrapper .fc-toolbar select,
+          .fc-wrapper select {
+            display: none !important;
+          }
+
           .fc-wrapper .fc-event {
             cursor: pointer;
             border-radius: 4px;
