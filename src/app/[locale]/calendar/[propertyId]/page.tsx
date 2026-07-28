@@ -220,18 +220,23 @@ export default function PropertyCalendarPage() {
     if (!propertyId) return
     try {
       const res = await fetch(`/api/properties/${propertyId}/daily-prices`)
+      console.log('[loadDailyPrices] API response status:', res.status)
       if (res.ok) {
         const data = await res.json()
+        console.log('[loadDailyPrices] API data received:', data)
         const priceMap: Record<string, number> = {}
         if (Array.isArray(data)) {
           data.forEach((p: { date: string; base_price: number }) => {
             priceMap[p.date] = p.base_price
           })
         }
+        console.log('[loadDailyPrices] Price map built:', priceMap)
         setDailyPrices(priceMap)
+      } else {
+        console.warn('[loadDailyPrices] API returned status:', res.status)
       }
     } catch (error) {
-      console.warn('Failed to load daily prices:', error)
+      console.error('[loadDailyPrices] Error:', error)
     }
   }
 
@@ -1301,6 +1306,10 @@ export default function PropertyCalendarPage() {
                     return dateToCheck >= startDate && dateToCheck < endDate
                   }) : []
 
+                  // Calculate daily price
+                  const dateStr = day ? `${year}-${String(monthIndex + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}` : null
+                  const dayPrice = dateStr && dailyPrices[dateStr] ? dailyPrices[dateStr] : null
+
                   return (
                     <div
                       key={idx}
@@ -1327,6 +1336,12 @@ export default function PropertyCalendarPage() {
                           <div style={{ fontSize: '20px', fontWeight: '700', color: '#1b2430', marginBottom: '12px' }}>
                             {day}
                           </div>
+
+                          {dayPrice && (
+                            <div style={{ fontSize: '12px', color: '#4d5566', marginBottom: '8px', fontWeight: '500' }}>
+                              R${dayPrice}
+                            </div>
+                          )}
 
                           {/* Reservations in this day */}
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1, overflow: 'hidden' }}>
