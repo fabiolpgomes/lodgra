@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import '@/styles/calendar-kanban.css'
 
+import { MonthYearPicker } from '@/components/calendar/MonthYearPicker'
 const MONTHS = [
   'janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
   'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'
@@ -180,6 +181,15 @@ export default function PropertyCalendarPage() {
   const propertyId = (params.propertyId as string) || ''
 
   const [currentDate, setCurrentDate] = useState(new Date(2026, 6, 1))
+  const [showMonthPicker, setShowMonthPicker] = useState(false)
+
+  const handleMonthYearSelect = (selectedDate: Date) => {
+    const newDate = new Date(currentDate)
+    newDate.setFullYear(selectedDate.getFullYear())
+    newDate.setMonth(selectedDate.getMonth())
+    setCurrentDate(newDate)
+    setShowMonthPicker(false)
+  }
   const [viewMode, setViewMode] = useState<'month' | 'year'>('month')
   const [isMobile, setIsMobile] = useState(false)
   const [property, setProperty] = useState<Property>(defaultProperty)
@@ -1224,7 +1234,7 @@ export default function PropertyCalendarPage() {
                 </button>
 
                 <button
-                  onClick={() => {}}
+                  onClick={() => setShowMonthPicker(true)}
                   style={{
                     padding: '8px 12px',
                     borderRadius: '8px',
@@ -2420,6 +2430,14 @@ export default function PropertyCalendarPage() {
           </div>
         )}
       </div>
+    
+      {showMonthPicker && (
+        <MonthYearPicker
+          currentDate={currentDate}
+          onSelect={handleMonthYearSelect}
+          onCancel={() => setShowMonthPicker(false)}
+        />
+      )}
     </div>
   )
 }
