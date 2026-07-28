@@ -41,6 +41,7 @@ export function MonthYearPicker({ currentDate, onSelect, onCancel }: MonthYearPi
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 1000,
+        padding: '20px',
       }}
       onClick={onCancel}
     >
@@ -48,86 +49,93 @@ export function MonthYearPicker({ currentDate, onSelect, onCancel }: MonthYearPi
         style={{
           background: '#ffffff',
           borderRadius: '12px',
-          padding: '24px',
-          maxWidth: '350px',
-          width: '90%',
+          padding: '16px',
+          maxWidth: '320px',
+          width: '100%',
           boxShadow: '0 10px 40px rgba(0, 0, 0, 0.2)',
+          maxHeight: '85vh',
+          overflowY: 'auto',
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        <h3 style={{ margin: '0 0 20px 0', fontSize: '18px', fontWeight: '700', color: '#1b2430' }}>
-          Seletor de Mês/Ano
+        <h3 style={{ margin: '0 0 14px 0', fontSize: '16px', fontWeight: '700', color: '#1b2430' }}>
+          Escolha Mês e Ano
         </h3>
 
-        {/* Ano seletor */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginBottom: '20px' }}>
+        {/* Ano seletor - mais compacto */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', marginBottom: '14px', padding: '0 4px' }}>
           <button
             onClick={() => handleYearChange(-1)}
             disabled={selectedYear <= minYear}
             style={{
-              background: selectedYear <= minYear ? '#ccc' : '#ffffff',
-              border: '1px solid #efeadf',
-              borderRadius: '6px',
-              width: '32px',
-              height: '32px',
+              background: selectedYear <= minYear ? '#e0e0e0' : '#f0f0f0',
+              border: '1px solid #d0d0d0',
+              borderRadius: '4px',
+              width: '28px',
+              height: '28px',
               cursor: selectedYear <= minYear ? 'not-allowed' : 'pointer',
-              fontSize: '16px',
-              fontWeight: '700',
+              fontSize: '14px',
+              fontWeight: '600',
+              color: '#333',
+              padding: 0,
             }}
           >
             ←
           </button>
-          <span style={{ fontSize: '18px', fontWeight: '700', minWidth: '60px', textAlign: 'center', color: '#1b2430' }}>
+          <span style={{ fontSize: '16px', fontWeight: '700', minWidth: '50px', textAlign: 'center', color: '#1b2430' }}>
             {selectedYear}
           </span>
           <button
             onClick={() => handleYearChange(1)}
             disabled={selectedYear >= maxYear}
             style={{
-              background: selectedYear >= maxYear ? '#ccc' : '#ffffff',
-              border: '1px solid #efeadf',
-              borderRadius: '6px',
-              width: '32px',
-              height: '32px',
+              background: selectedYear >= maxYear ? '#e0e0e0' : '#f0f0f0',
+              border: '1px solid #d0d0d0',
+              borderRadius: '4px',
+              width: '28px',
+              height: '28px',
               cursor: selectedYear >= maxYear ? 'not-allowed' : 'pointer',
-              fontSize: '16px',
-              fontWeight: '700',
+              fontSize: '14px',
+              fontWeight: '600',
+              color: '#333',
+              padding: 0,
             }}
           >
             →
           </button>
         </div>
 
-        {/* Grid de meses 4x3 */}
+        {/* Grid de meses 3x4 */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(4, 1fr)',
-          gap: '8px',
-          marginBottom: '20px',
+          gridTemplateColumns: 'repeat(3, 1fr)',
+          gap: '6px',
+          marginBottom: '14px',
         }}>
           {MONTHS.map((month, index) => (
             <button
               key={index}
               onClick={() => handleSelect(index)}
               style={{
-                padding: '10px 8px',
-                background: index === selectedMonth ? '#2196f3' : '#f7f5ef',
-                border: index === selectedMonth ? '2px solid #1b2430' : '1px solid #efeadf',
-                borderRadius: '6px',
-                fontSize: '12px',
+                padding: '8px 6px',
+                background: index === selectedMonth ? '#2196f3' : '#f5f5f5',
+                border: index === selectedMonth ? '2px solid #1b2430' : '1px solid #d0d0d0',
+                borderRadius: '4px',
+                fontSize: '11px',
                 fontWeight: '600',
-                color: index === selectedMonth ? '#ffffff' : '#1b2430',
+                color: index === selectedMonth ? '#ffffff' : '#333',
                 cursor: 'pointer',
-                transition: 'all 0.2s',
+                transition: 'all 0.15s',
+                lineHeight: '1.2',
               }}
               onMouseEnter={(e) => {
                 if (index !== selectedMonth) {
-                  (e.target as HTMLButtonElement).style.background = '#efefef'
+                  (e.target as HTMLButtonElement).style.background = '#e8e8e8'
                 }
               }}
               onMouseLeave={(e) => {
                 if (index !== selectedMonth) {
-                  (e.target as HTMLButtonElement).style.background = '#f7f5ef'
+                  (e.target as HTMLButtonElement).style.background = '#f5f5f5'
                 }
               }}
             >
@@ -137,26 +145,26 @@ export function MonthYearPicker({ currentDate, onSelect, onCancel }: MonthYearPi
         </div>
 
         {/* Botões */}
-        <div style={{ display: 'flex', gap: '12px' }}>
+        <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
           <button
             onClick={onCancel}
             style={{
               flex: 1,
-              padding: '10px 16px',
-              background: '#f7f5ef',
-              border: '1px solid #efeadf',
-              borderRadius: '6px',
+              padding: '8px 12px',
+              background: '#f0f0f0',
+              border: '1px solid #d0d0d0',
+              borderRadius: '4px',
               cursor: 'pointer',
-              fontSize: '14px',
+              fontSize: '13px',
               fontWeight: '600',
-              color: '#1b2430',
-              transition: 'all 0.2s',
+              color: '#333',
+              transition: 'all 0.15s',
             }}
             onMouseEnter={(e) => {
-              (e.target as HTMLButtonElement).style.background = '#efefef'
+              (e.target as HTMLButtonElement).style.background = '#e0e0e0'
             }}
             onMouseLeave={(e) => {
-              (e.target as HTMLButtonElement).style.background = '#f7f5ef'
+              (e.target as HTMLButtonElement).style.background = '#f0f0f0'
             }}
           >
             Cancelar
@@ -165,21 +173,21 @@ export function MonthYearPicker({ currentDate, onSelect, onCancel }: MonthYearPi
             onClick={() => handleSelect(selectedMonth)}
             style={{
               flex: 1,
-              padding: '10px 16px',
-              background: '#1b2430',
+              padding: '8px 12px',
+              background: '#2196f3',
               border: 'none',
-              borderRadius: '6px',
+              borderRadius: '4px',
               cursor: 'pointer',
-              fontSize: '14px',
+              fontSize: '13px',
               fontWeight: '600',
               color: '#ffffff',
-              transition: 'all 0.2s',
+              transition: 'all 0.15s',
             }}
             onMouseEnter={(e) => {
-              (e.target as HTMLButtonElement).style.background = '#0c1830'
+              (e.target as HTMLButtonElement).style.background = '#1976d2'
             }}
             onMouseLeave={(e) => {
-              (e.target as HTMLButtonElement).style.background = '#1b2430'
+              (e.target as HTMLButtonElement).style.background = '#2196f3'
             }}
           >
             Confirmar
