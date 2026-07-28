@@ -351,13 +351,19 @@ export function CalendarPageClient() {
 
   // Make FullCalendar title clickable to open month picker
   useEffect(() => {
+    const handleTitleClick = (e: Event) => {
+      e.stopPropagation()
+      e.preventDefault()
+      setShowMonthPicker(true)
+    }
+
+    // Use capture phase to intercept before FullCalendar
     const titleElement = document.querySelector('.fc-wrapper .fc-toolbar-title')
     if (titleElement) {
-      const handleTitleClick = () => setShowMonthPicker(true)
-      titleElement.addEventListener('click', handleTitleClick)
-      return () => titleElement.removeEventListener('click', handleTitleClick)
+      titleElement.addEventListener('click', handleTitleClick, true)
+      return () => titleElement.removeEventListener('click', handleTitleClick, true)
     }
-  }, [])
+  }, [setShowMonthPicker])
 
   return (
     <div className="space-y-4 px-2 sm:px-3 md:px-4" ref={calendarWrapperRef}>
@@ -478,6 +484,13 @@ export function CalendarPageClient() {
           }
           .fc-wrapper .fc-toolbar-title:hover {
             opacity: 0.7;
+          }
+          /* Disable FullCalendar native month dropdown */
+          .fc-daygrid-view .fc-toolbar-title {
+            pointer-events: auto;
+          }
+          .fc .fc-button-group .fc-button {
+            pointer-events: auto;
           }
           @media (min-width: 640px) {
             .fc-wrapper .fc-toolbar-title {
