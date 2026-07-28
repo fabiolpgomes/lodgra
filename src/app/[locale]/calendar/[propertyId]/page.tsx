@@ -148,6 +148,7 @@ export default function PropertyCalendarPage() {
   const router = useRouter()
   const params = useParams()
   const locale = (params.locale as string) || 'pt-BR'
+  const propertyId = (params.propertyId as string) || ''
 
   const [currentDate, setCurrentDate] = useState(new Date(2026, 6, 1))
   const [viewMode, setViewMode] = useState<'month' | 'year'>('month')
@@ -169,11 +170,33 @@ export default function PropertyCalendarPage() {
   const [availabilityPeriod, setAvailabilityPeriod] = useState(6)
   const [noticeDay, setNoticeDay] = useState(1)
   const [cancellationPolicy, setCancellationPolicy] = useState('flexible')
+  const [dailyPrices, setDailyPrices] = useState<Record<string, number>>({})
 
-  // Fetch reservations on mount
+  // Load daily prices from API
+  const loadDailyPrices = async () => {
+    if (!propertyId) return
+    try {
+      const res = await fetch(`/api/properties/${propertyId}/daily-prices`)
+      if (res.ok) {
+        const data = await res.json()
+        const priceMap: Record<string, number> = {}
+        if (Array.isArray(data)) {
+          data.forEach((p: { date: string; base_price: number }) => {
+            priceMap[p.date] = p.base_price
+          })
+        }
+        setDailyPrices(priceMap)
+      }
+    } catch (error) {
+      console.warn('Failed to load daily prices:', error)
+    }
+  }
+
+  // Fetch reservations and prices on mount
   useEffect(() => {
     const fetchData = async () => {
       try {
+        loadDailyPrices()
         const reservRes = await fetch('/api/calendar/reservations')
 
         if (reservRes.ok) {
@@ -288,6 +311,10 @@ export default function PropertyCalendarPage() {
       setSelectedDates([])
       setEditingPrice('')
       setShowPriceEditor(false)
+
+      // Reload daily prices to update the calendar display
+      await loadDailyPrices()
+
       alert(`✅ ${result.data.updated_dates} dia(s) atualizado(s) com sucesso!`)
     } catch (error) {
       console.error('❌ Error saving prices:', error)
@@ -399,7 +426,8 @@ export default function PropertyCalendarPage() {
                   return dateToCheck >= startDate && dateToCheck < endDate
                 }) : []
 
-                const dayPrice = day ? (day % 2 === 0 ? 149 : 157) : null
+                const dateStr = day ? `${year}-${String(monthIndex + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}` : null
+                const dayPrice = dateStr && dailyPrices[dateStr] ? dailyPrices[dateStr] : null
 
                 const isSelected = day && selectedDates.some(d => d.getUTCDate() === day && d.getUTCMonth() === monthIndex && d.getUTCFullYear() === year)
 
