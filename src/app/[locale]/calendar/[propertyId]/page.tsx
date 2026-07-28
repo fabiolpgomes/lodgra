@@ -343,9 +343,15 @@ export default function PropertyCalendarPage() {
     setDragEnd(null)
   }
 
-  // Handle day click for price editing (legacy - now uses drag)
+  // Handle day click for price editing - open modal if not dragging
   const handleDayClick = (day: number, clickYear: number, clickMonth: number) => {
     if (isDragging) return // Don't trigger click during drag
+
+    // Single click - open modal to edit price for this day
+    const date = new Date(Date.UTC(clickYear, clickMonth, day))
+    setSelectedDates([date])
+    setShowPriceEditor(true)
+    setEditingPrice('')
   }
 
   const handleSavePrice = async () => {
@@ -527,7 +533,13 @@ export default function PropertyCalendarPage() {
                     key={idx}
                     onMouseDown={() => day && handleDayMouseDown(day, year, monthIndex)}
                     onMouseEnter={() => day && handleDayMouseEnter(day, year, monthIndex)}
-                    onMouseUp={handleDayMouseUp}
+                    onMouseUp={() => {
+                      handleDayMouseUp()
+                      // If drag didn't happen (dragStart === dragEnd), open modal
+                      if (day && !isDragging && dragStart && dragEnd && dragStart.getTime() === dragEnd.getTime()) {
+                        handleDayClick(day, year, monthIndex)
+                      }
+                    }}
                     onMouseLeave={() => {}}
                     style={{
                       minHeight: day ? '100px' : 'auto',
