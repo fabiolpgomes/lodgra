@@ -412,11 +412,7 @@ export function CalendarPageClient() {
           initialView="dayGridMonth"
           locale="pt-br"
           firstDay={1}
-          headerToolbar={{
-            left: 'prev,next today',
-            center: '',
-            right: dayMaxEvents === 1 ? '' : 'dayGridMonth,dayGridWeek',
-          }}
+          headerToolbar={false}
           buttonText={{
             today: 'Hoje',
             month: 'Mês',
