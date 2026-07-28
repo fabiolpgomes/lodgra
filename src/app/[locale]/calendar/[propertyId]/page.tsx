@@ -442,6 +442,79 @@ export default function PropertyCalendarPage() {
     }
   }
 
+  const handleSaveBasePriceConfig = async () => {
+    console.log('🎯 [1] START: handleSaveBasePriceConfig called')
+
+    if (!property.id || priceMin <= 0) {
+      alert('Preço base deve ser > 0')
+      return
+    }
+
+    try {
+      console.log('💾 [1] Saving base price config:', priceMin)
+
+      // Generate all dates for the next 6 months
+      const today = new Date()
+      const endDate = new Date(today.getTime() + 6 * 30 * 24 * 60 * 60 * 1000)
+      const allDates: string[] = []
+
+      for (let d = new Date(today); d <= endDate; d.setDate(d.getDate() + 1)) {
+        allDates.push(d.toISOString().split('T')[0])
+      }
+
+      console.log(`📅 Generated ${allDates.length} dates for next 6 months`)
+
+      // Filter only days without a price (whitespace/empty days)
+      const daysWithoutPrice = allDates.filter(dateStr => !dailyPrices[dateStr])
+      console.log(`🔍 Found ${daysWithoutPrice.length} days without price to fill`)
+
+      if (daysWithoutPrice.length === 0) {
+        alert('ℹ️ Todos os dias já têm preço definido')
+        setEditingConfig(null)
+        return
+      }
+
+      // Call API to update prices for empty days only
+      const response = await fetch(`/api/properties/${property.id}/pricing/bulk-update`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          dates: daysWithoutPrice,
+          base_price: priceMin,
+        }),
+      })
+
+      console.log('📡 [2] AFTER API: Response status:', response.status)
+      const result = await response.json()
+      console.log('📦 [2] AFTER API: Response data:', result)
+
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to update prices')
+      }
+
+      // Reload daily prices to update the calendar display
+      console.log('🔄 [3] Calling loadDailyPrices...')
+      await loadDailyPrices()
+      console.log('✅ [3] AFTER loadDailyPrices: Prices reloaded, dailyPrices state updated')
+
+      // Force visual re-render by updating the date
+      console.log('🔄 [4] Forcing calendar re-render with setCurrentDate...')
+      setCurrentDate(new Date(currentDate))
+
+      // Close modal AFTER all updates
+      console.log('🔄 [4] Closing modal with setEditingConfig(null)...')
+      setEditingConfig(null)
+
+      // Show success message
+      const successMsg = `✅ ${result.data.updated_dates} dia(s) preenchido(s) com novo preço base (R$${priceMin})`
+      console.log('[5] SUCCESS:', successMsg)
+      alert(successMsg)
+    } catch (error) {
+      console.error('❌ ERROR saving base price config:', error)
+      alert('Erro ao guardar preço base: ' + (error instanceof Error ? error.message : 'Desconhecido'))
+    }
+  }
+
   const monthDisplay = MONTHS[monthIndex]
   const daysGrid = generateDaysGrid(year, monthIndex)
 
@@ -1721,7 +1794,7 @@ export default function PropertyCalendarPage() {
                     Cancelar
                   </button>
                   <button
-                    onClick={() => setEditingConfig(null)}
+                    onClick={handleSaveBasePriceConfig}
                     style={{
                       flex: 1,
                       padding: '10px 16px',
