@@ -1625,6 +1625,50 @@ export default function PropertyCalendarPage() {
                   </div>
                 )}
 
+                {/* Preço Básico - Preencher dias vazios */}
+                <div style={{ padding: '16px', background: '#fbfaf6', borderRadius: '12px' }}>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', marginBottom: '8px', color: '#1b2430' }}>
+                    Preencher Dias Sem Preço (€)
+                  </label>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
+                    <input
+                      type="number"
+                      placeholder="Ex: 85"
+                      value={fillBasicPrice}
+                      onChange={(e) => setFillBasicPrice(e.target.value ? parseFloat(e.target.value) : '')}
+                      min="1"
+                      style={{
+                        flex: 1,
+                        padding: '10px 12px',
+                        border: '1px solid #efeadf',
+                        borderRadius: '8px',
+                        fontSize: '14px',
+                        boxSizing: 'border-box',
+                      }}
+                    />
+                    <button
+                      onClick={handleFillEmptyDays}
+                      disabled={!fillBasicPrice || fillBasicPrice < 1}
+                      style={{
+                        padding: '10px 16px',
+                        background: fillBasicPrice && fillBasicPrice >= 1 ? '#2196f3' : '#ccc',
+                        border: 'none',
+                        borderRadius: '8px',
+                        cursor: fillBasicPrice && fillBasicPrice >= 1 ? 'pointer' : 'not-allowed',
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        color: '#ffffff',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      Preencher
+                    </button>
+                  </div>
+                  <p style={{ margin: '8px 0 0 0', fontSize: '12px', color: '#4d5566' }}>
+                    Preenche automaticamente todos os dias que ainda não têm preço definido
+                  </p>
+                </div>
+
                 <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
                   <button
                     onClick={() => setEditingConfig(null)}
