@@ -13,7 +13,7 @@ describe('PricingConstraints Component', () => {
   };
 
   it('should render input fields', () => {
-    const mockUpdate = vi.fn();
+    const mockUpdate = jest.fn();
     render(
       <PricingConstraints
         constraints={mockConstraints}
@@ -26,7 +26,7 @@ describe('PricingConstraints Component', () => {
   });
 
   it('should handle null constraints', () => {
-    const mockUpdate = vi.fn();
+    const mockUpdate = jest.fn();
     render(
       <PricingConstraints
         constraints={null}
@@ -39,7 +39,7 @@ describe('PricingConstraints Component', () => {
   });
 
   it('should validate min > max', async () => {
-    const mockUpdate = vi.fn();
+    const mockUpdate = jest.fn();
     render(
       <PricingConstraints
         constraints={mockConstraints}
@@ -64,7 +64,7 @@ describe('PricingConstraints Component', () => {
   });
 
   it('should reject negative prices', async () => {
-    const mockUpdate = vi.fn();
+    const mockUpdate = jest.fn();
     render(
       <PricingConstraints
         constraints={mockConstraints}
@@ -86,7 +86,7 @@ describe('PricingConstraints Component', () => {
   });
 
   it('should call onUpdate with correct values', async () => {
-    const mockUpdate = vi.fn().mockResolvedValue(undefined);
+    const mockUpdate = jest.fn().mockResolvedValue(undefined);
     render(
       <PricingConstraints
         constraints={mockConstraints}
@@ -109,7 +109,7 @@ describe('PricingConstraints Component', () => {
   });
 
   it('should allow empty values (no min/max)', async () => {
-    const mockUpdate = vi.fn().mockResolvedValue(undefined);
+    const mockUpdate = jest.fn().mockResolvedValue(undefined);
     render(
       <PricingConstraints
         constraints={mockConstraints}
@@ -132,7 +132,7 @@ describe('PricingConstraints Component', () => {
   });
 
   it('should show success message after update', async () => {
-    const mockUpdate = vi.fn().mockResolvedValue(undefined);
+    const mockUpdate = jest.fn().mockResolvedValue(undefined);
     render(
       <PricingConstraints
         constraints={mockConstraints}
@@ -149,7 +149,7 @@ describe('PricingConstraints Component', () => {
   });
 
   it('should reset to original values', () => {
-    const mockUpdate = vi.fn();
+    const mockUpdate = jest.fn();
     render(
       <PricingConstraints
         constraints={mockConstraints}
@@ -174,7 +174,7 @@ describe('PricingConstraints Component', () => {
   });
 
   it('should disable inputs while loading', () => {
-    const mockUpdate = vi.fn();
+    const mockUpdate = jest.fn();
     render(
       <PricingConstraints
         constraints={mockConstraints}

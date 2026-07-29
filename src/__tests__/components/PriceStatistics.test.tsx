@@ -35,8 +35,9 @@ describe('PriceStatisticsComponent', () => {
   it('should show loading state', () => {
     render(<PriceStatisticsComponent stats={null} loading={true} />);
 
-    const loaders = screen.getAllByRole('img', { hidden: true });
-    expect(loaders.length).toBeGreaterThan(0);
+    // Look for loading pulse elements
+    const pulses = document.querySelectorAll('.animate-pulse');
+    expect(pulses.length).toBeGreaterThan(0);
   });
 
   it('should show no data state', () => {
@@ -93,8 +94,9 @@ describe('PriceStatisticsComponent', () => {
       <PriceStatisticsComponent stats={mockStats} />
     );
 
-    expect(container.textContent).toContain('text-green-600'); // Min
-    expect(container.textContent).toContain('text-red-600'); // Max
-    expect(container.textContent).toContain('text-blue-600'); // Avg
+    // Check that class names are applied to elements (in HTML, not text content)
+    expect(container.innerHTML).toContain('text-green-600'); // Min
+    expect(container.innerHTML).toContain('text-red-600'); // Max
+    expect(container.innerHTML).toContain('text-blue-600'); // Avg
   });
 });
