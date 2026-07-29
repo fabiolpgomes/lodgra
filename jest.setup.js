@@ -15,6 +15,42 @@ if (typeof global.TextDecoder === 'undefined') {
   global.TextDecoder = TextDecoder
 }
 
+// Add ReadableStream polyfill for Web Streams API
+if (typeof global.ReadableStream === 'undefined') {
+  const { Readable } = require('stream')
+  global.ReadableStream = class ReadableStream {
+    constructor(strategy) {
+      this.strategy = strategy
+      this.started = false
+    }
+    [Symbol.asyncIterator]() {
+      if (!this.started) {
+        this.started = true
+        const controller = {
+          enqueue: (chunk) => {
+            this._chunk = chunk
+          },
+          close: () => {
+            this._closed = true
+          },
+        }
+        this.strategy.start(controller)
+      }
+      return {
+        next: async () => {
+          if (this._closed) return { done: true }
+          if (this._chunk) {
+            const chunk = this._chunk
+            this._chunk = null
+            return { value: chunk, done: false }
+          }
+          return { done: true }
+        },
+      }
+    }
+  }
+}
+
 // Add Request/Response polyfill for Next.js API route testing
 if (typeof global.Request === 'undefined') {
   global.Request = class Request {

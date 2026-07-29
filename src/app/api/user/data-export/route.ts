@@ -8,7 +8,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
  *
  * Rate limit: 1 export per 24h per user (checked via audit_logs)
  */
-export async function POST() {
+export async function POST(_request: Request) {
   try {
     // Authenticate user
     const supabase = await createClient()
