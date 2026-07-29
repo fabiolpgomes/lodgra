@@ -12,6 +12,8 @@ import { AuthLayout } from '@/components/common/layout/AuthLayout'
 import { getUserRole } from '@/lib/auth/getUserRole'
 import { Button } from '@/components/common/ui/button'
 import { GeneratePixButton } from '@/components/features/reservations/GeneratePixButton'
+import { GuestCancellationCard } from '@/components/calendar/GuestCancellationCard'
+import { RefundCalculator } from '@/lib/refunds/refund-calculator'
 
 export default async function ReservationDetailsPage({
   params
@@ -76,6 +78,31 @@ export default async function ReservationDetailsPage({
   const checkIn = new Date(reservation.check_in)
   const checkOut = new Date(reservation.check_out)
   const nights = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24))
+
+  // Buscar política de cancelamento da propriedade para Story 40.3
+  const { data: cancellationPolicy } = await supabase
+    .from('property_cancellation_policies')
+    .select('*')
+    .eq('property_id', property?.id)
+    .single()
+
+  // Calcular refund estimado
+  let estimatedRefund = 0
+  if (cancellationPolicy) {
+    const daysUntilCheckin = Math.ceil(
+      (checkIn.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
+    )
+    const result = RefundCalculator.calculate({
+      policy_type: cancellationPolicy.policy_type,
+      stay_duration: nights >= 28 ? 'long' : 'short',
+      days_until_checkin: daysUntilCheckin,
+      during_stay: false,
+      cancellation_reason: 'voluntary',
+      total_amount: reservation.total_amount,
+      nights_total: nights,
+    })
+    estimatedRefund = result.refund_amount
+  }
 
   // Configuração de status
   const statusConfig = {
@@ -394,6 +421,21 @@ export default async function ReservationDetailsPage({
                 </div>
               </div>
             </div>
+
+            {/* Story 40.3: Guest Cancellation Card */}
+            {cancellationPolicy && (
+              <GuestCancellationCard
+                reservation={{
+                  id: reservation.id,
+                  guest_name: guest?.first_name + ' ' + guest?.last_name || 'Guest',
+                  check_in: reservation.check_in,
+                  check_out: reservation.check_out,
+                  total_amount: reservation.total_amount,
+                }}
+                policy={cancellationPolicy}
+                estimatedRefund={estimatedRefund}
+              />
+            )}
 
             {/* Ações Rápidas */}
             <div className="bg-[color:var(--be-blue-pale)] rounded-lg p-4 border border-[color:var(--be-blue-light)] no-print">
