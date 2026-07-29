@@ -7,6 +7,7 @@
  * - Reservations from Booking.com → our system (already in webhook)
  */
 
+import { randomUUID } from 'crypto'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createBookingComClient } from './client'
 
@@ -236,7 +237,7 @@ export async function syncPropertyToBooking(
   startDate: string,
   endDate: string
 ): Promise<SyncResult> {
-  const requestId = crypto.randomUUID()
+  const requestId = randomUUID()
   const logPrefix = `[Booking Sync ${requestId}]`
 
   console.info(`${logPrefix} Starting full sync for property: ${propertyId}`)
