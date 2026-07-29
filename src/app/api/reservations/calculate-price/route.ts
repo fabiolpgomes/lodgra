@@ -1,125 +1,121 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createAdminClient } from '@/lib/supabase/admin'
-import { parseISO, differenceInDays, format, addDays, eachDayOfInterval } from 'date-fns'
+import { DiscountCalculator } from '@/lib/pricing/discount-calculator'
+
+interface CalculatePriceRequest {
+  base_price: number
+  loyalty_discount_percent?: number
+  check_in: string // ISO date string
+  check_out: string // ISO date string
+  nights_total: number
+  seasonal_modifier_percent?: number
+  minimum_price_floor?: number
+}
 
 /**
- * Story 37.2: Calculate reservation price using daily_prices table
  * POST /api/reservations/calculate-price
+ *
+ * Calculates final price with all applicable discounts.
+ * Accepts check-in/check-out dates and calculates days until check-in.
+ *
+ * @param request - Next.js request object with pricing parameters
+ * @returns JSON with detailed price breakdown and all applied discounts
  */
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    const { property_id, check_in, check_out } = body
+    const body: CalculatePriceRequest = await request.json()
 
-    if (!property_id || !check_in || !check_out) {
+    // Validate required fields
+    if (body.base_price === undefined) {
       return NextResponse.json(
-        { error: 'property_id, check_in e check_out são obrigatórios' },
+        { error: 'base_price is required' },
         { status: 400 }
       )
     }
 
-    const checkInDate = parseISO(check_in as string)
-    const checkOutDate = parseISO(check_out as string)
-
-    if (isNaN(checkInDate.getTime()) || isNaN(checkOutDate.getTime())) {
+    if (!body.check_in || !body.check_out) {
       return NextResponse.json(
-        { error: 'Datas inválidas' },
+        { error: 'check_in and check_out dates are required' },
         { status: 400 }
       )
     }
 
-    const nights = differenceInDays(checkOutDate, checkInDate)
-    if (nights < 1) {
+    if (body.nights_total === undefined) {
       return NextResponse.json(
-        { error: 'Check-out deve ser depois do check-in' },
+        { error: 'nights_total is required' },
         { status: 400 }
       )
     }
 
-    const supabase = createAdminClient()
-
-    // Fetch property with fees
-    const { data: property, error: propError } = await supabase
-      .from('properties')
-      .select('id, min_nights, cleaning_fee, cleaning_fee_type, pet_fee, pet_fee_type')
-      .eq('id', property_id)
-      .single()
-
-    if (propError || !property) {
-      console.warn(`[calculate-price] Property not found: ${property_id}`, propError)
-      return NextResponse.json({
-        success: true,
-        price_per_night: 0,
-        total_amount: 0,
-        nights,
-        cleaning_fee: 0,
-        pet_fee: 0,
-        base_total: 0,
-        min_nights: 1,
-        warning: 'Property not found - please enter value manually'
-      })
+    // Parse dates
+    let checkInDate: Date
+    try {
+      checkInDate = new Date(body.check_in)
+      if (isNaN(checkInDate.getTime())) {
+        throw new Error('Invalid date format')
+      }
+    } catch {
+      return NextResponse.json(
+        { error: 'Invalid check_in date format (use ISO 8601)' },
+        { status: 400 }
+      )
     }
 
-    // Fetch daily prices for the date range
-    const checkInStr = format(checkInDate, 'yyyy-MM-dd')
-    const checkOutStr = format(checkOutDate, 'yyyy-MM-dd')
+    // Calculate days until check-in
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    checkInDate.setHours(0, 0, 0, 0)
 
-    const { data: dailyPricesData } = await supabase
-      .from('daily_prices')
-      .select('date, base_price')
-      .eq('property_id', property_id)
-      .gte('date', checkInStr)
-      .lt('date', checkOutStr)
+    const daysUntilCheckin = Math.ceil(
+      (checkInDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+    )
 
-    // Map prices by date for easy lookup
-    const pricesByDate = new Map<string, number>()
-    if (dailyPricesData) {
-      dailyPricesData.forEach((p: { date: string; base_price: number }) => {
-        pricesByDate.set(p.date, parseFloat(String(p.base_price)))
-      })
+    if (daysUntilCheckin < 0) {
+      return NextResponse.json(
+        { error: 'check_in date cannot be in the past' },
+        { status: 400 }
+      )
     }
 
-    // Calculate total price by iterating each night
-    let totalPrice = 0
-    const daysInStay = eachDayOfInterval({
-      start: checkInDate,
-      end: addDays(checkOutDate, -1),
+    // Calculate discount
+    const result = DiscountCalculator.calculate({
+      base_price: body.base_price,
+      loyalty_discount_percent: body.loyalty_discount_percent ?? 0,
+      stay_duration_nights: body.nights_total,
+      days_until_checkin: daysUntilCheckin,
+      seasonal_modifier_percent: body.seasonal_modifier_percent,
+      minimum_price_floor: body.minimum_price_floor,
     })
 
-    for (const day of daysInStay) {
-      const dateStr = format(day, 'yyyy-MM-dd')
-      const dayPrice = pricesByDate.get(dateStr) ?? 0
-      totalPrice += dayPrice
+    // Validate result
+    if (!DiscountCalculator.validatePrice(result.base_price, result.final_price)) {
+      console.error('Invalid price calculation result:', result)
+      return NextResponse.json(
+        { error: 'Invalid price calculation' },
+        { status: 500 }
+      )
     }
-
-    // Add fees
-    const cleaningFee = property.cleaning_fee ?? 0
-    const petFee = property.pet_fee ?? 0
-    const cleaningFeeTotal = cleaningFee > 0
-      ? (property.cleaning_fee_type === 'per_night' ? cleaningFee * nights : cleaningFee)
-      : 0
-    const petFeeTotal = petFee > 0
-      ? (property.pet_fee_type === 'per_night' ? petFee * nights : petFee)
-      : 0
-
-    const finalTotal = totalPrice + cleaningFeeTotal + petFeeTotal
-    const propertyMinNights = property.min_nights ? parseInt(String(property.min_nights)) : 1
 
     return NextResponse.json({
-      success: true,
-      price_per_night: totalPrice / nights || 0, // Average price per night
-      total_amount: finalTotal,
-      nights,
-      cleaning_fee: cleaningFeeTotal,
-      pet_fee: petFeeTotal,
-      base_total: totalPrice,
-      min_nights: propertyMinNights,
+      base_price: result.base_price,
+      loyalty_discount_percent: result.loyalty_discount_percent,
+      loyalty_discount_amount: result.loyalty_discount_amount,
+      last_minute_discount: result.last_minute_discount,
+      extended_stay_discount: result.extended_stay_discount,
+      early_bird_discount: result.early_bird_discount,
+      seasonal_adjustment: result.seasonal_adjustment,
+      total_discounts_amount: result.total_discounts_amount,
+      minimum_price_floor: result.minimum_price_floor,
+      final_price: result.final_price,
+      discount_breakdown: result.discount_breakdown,
+      applied_rules: result.applied_rules,
+      days_until_checkin: daysUntilCheckin,
+      calculation_date: new Date().toISOString(),
     })
   } catch (error: unknown) {
-    console.error('[calculate-price] Error:', error)
-    const msg = error instanceof Error ? error.message : 'Error calculating price'
+    const message = error instanceof Error ? error.message : 'Erro desconhecido'
+    console.error('Erro em /api/reservations/calculate-price:', message)
     return NextResponse.json(
-      { error: msg },
+      { error: message },
       { status: 500 }
     )
   }
