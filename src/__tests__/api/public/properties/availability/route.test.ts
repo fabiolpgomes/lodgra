@@ -7,12 +7,15 @@ import { NextRequest } from 'next/server'
 import { createTestRequest } from '@/__tests__/utils/test-request'
 import { GET } from '@/app/api/public/properties/[slug]/availability/route'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { checkRateLimit } from '@/lib/rateLimit'
 
 jest.mock('@/lib/supabase/server')
+jest.mock('@/lib/supabase/admin')
 jest.mock('@/lib/rateLimit')
 
 const mockCreateClient = createClient as jest.MockedFunction<typeof createClient>
+const mockCreateAdminClient = createAdminClient as jest.MockedFunction<typeof createAdminClient>
 const mockCheckRateLimit = checkRateLimit as jest.MockedFunction<typeof checkRateLimit>
 
 const BASE_URL = 'http://localhost:3000'
@@ -59,17 +62,13 @@ function buildMockSupabase(options: {
       }
     }
     if (table === 'reservations') {
-      return {
-        select: jest.fn().mockReturnValue({
-          in: jest.fn().mockReturnValue({
-            neq: jest.fn().mockReturnValue({
-              lte: jest.fn().mockReturnValue({
-                gte: jest.fn().mockResolvedValue({ data: reservations, error: null }),
-              }),
-            }),
-          }),
-        }),
-      }
+      const chainable = {} as any
+      chainable.select = jest.fn().mockReturnValue(chainable)
+      chainable.in = jest.fn().mockReturnValue(chainable)
+      chainable.neq = jest.fn().mockReturnValue(chainable)
+      chainable.lte = jest.fn().mockReturnValue(chainable)
+      chainable.gte = jest.fn().mockResolvedValue({ data: reservations, error: null })
+      return chainable
     }
     return {}
   })
@@ -88,6 +87,7 @@ describe('GET /api/public/properties/[slug]/availability', () => {
     mockCheckRateLimit.mockReturnValue(false)
     const supabase = buildMockSupabase()
     mockCreateClient.mockResolvedValue(supabase)
+    mockCreateAdminClient.mockReturnValue(supabase)
     const req = makeRequest('villa-algarve', { year: '2027', month: '7' })
     const res = await GET(req, { params: Promise.resolve({ slug: 'villa-algarve' }) })
     expect(res.status).toBe(429)
@@ -96,6 +96,7 @@ describe('GET /api/public/properties/[slug]/availability', () => {
   it('returns 400 for invalid month parameter', async () => {
     const supabase = buildMockSupabase()
     mockCreateClient.mockResolvedValue(supabase)
+    mockCreateAdminClient.mockReturnValue(supabase)
     const req = makeRequest('villa-algarve', { year: '2027', month: '13' })
     const res = await GET(req, { params: Promise.resolve({ slug: 'villa-algarve' }) })
     expect(res.status).toBe(400)
@@ -104,6 +105,7 @@ describe('GET /api/public/properties/[slug]/availability', () => {
   it('returns 404 when property is not found or not public', async () => {
     const supabase = buildMockSupabase({ property: null })
     mockCreateClient.mockResolvedValue(supabase)
+    mockCreateAdminClient.mockReturnValue(supabase)
     const req = makeRequest('unknown-slug', { year: '2027', month: '7' })
     const res = await GET(req, { params: Promise.resolve({ slug: 'unknown-slug' }) })
     expect(res.status).toBe(404)
@@ -114,6 +116,7 @@ describe('GET /api/public/properties/[slug]/availability', () => {
       reservations: [{ check_in: '2027-07-10', check_out: '2027-07-12' }],
     })
     mockCreateClient.mockResolvedValue(supabase)
+    mockCreateAdminClient.mockReturnValue(supabase)
     const req = makeRequest('villa-algarve', { year: '2027', month: '7' })
     const res = await GET(req, { params: Promise.resolve({ slug: 'villa-algarve' }) })
     expect(res.status).toBe(200)
@@ -127,6 +130,7 @@ describe('GET /api/public/properties/[slug]/availability', () => {
   it('includes base_price and min_nights in response', async () => {
     const supabase = buildMockSupabase()
     mockCreateClient.mockResolvedValue(supabase)
+    mockCreateAdminClient.mockReturnValue(supabase)
     const req = makeRequest('villa-algarve', { year: '2027', month: '7' })
     const res = await GET(req, { params: Promise.resolve({ slug: 'villa-algarve' }) })
     expect(res.status).toBe(200)
@@ -150,6 +154,7 @@ describe('GET /api/public/properties/[slug]/availability', () => {
   it('uses current year and month when query params are omitted', async () => {
     const supabase = buildMockSupabase()
     mockCreateClient.mockResolvedValue(supabase)
+    mockCreateAdminClient.mockReturnValue(supabase)
     const req = makeRequest('villa-algarve') // no year/month
     const res = await GET(req, { params: Promise.resolve({ slug: 'villa-algarve' }) })
     expect(res.status).toBe(200)
