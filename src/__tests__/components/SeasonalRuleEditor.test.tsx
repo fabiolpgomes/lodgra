@@ -19,11 +19,11 @@ describe('SeasonalRuleEditor Component', () => {
   };
 
   it('should not render when closed', () => {
-    const mockSave = vi.fn();
+    const mockSave = jest.fn();
     const { container } = render(
       <SeasonalRuleEditor
         isOpen={false}
-        onClose={vi.fn()}
+        onClose={jest.fn()}
         onSave={mockSave}
       />
     );
@@ -32,11 +32,11 @@ describe('SeasonalRuleEditor Component', () => {
   });
 
   it('should render modal when open (create mode)', () => {
-    const mockSave = vi.fn();
+    const mockSave = jest.fn();
     render(
       <SeasonalRuleEditor
         isOpen={true}
-        onClose={vi.fn()}
+        onClose={jest.fn()}
         onSave={mockSave}
       />
     );
@@ -45,12 +45,12 @@ describe('SeasonalRuleEditor Component', () => {
   });
 
   it('should render modal when open (edit mode)', () => {
-    const mockSave = vi.fn();
+    const mockSave = jest.fn();
     render(
       <SeasonalRuleEditor
         rule={mockRule}
         isOpen={true}
-        onClose={vi.fn()}
+        onClose={jest.fn()}
         onSave={mockSave}
       />
     );
@@ -59,12 +59,12 @@ describe('SeasonalRuleEditor Component', () => {
   });
 
   it('should populate fields from existing rule', () => {
-    const mockSave = vi.fn();
+    const mockSave = jest.fn();
     render(
       <SeasonalRuleEditor
         rule={mockRule}
         isOpen={true}
-        onClose={vi.fn()}
+        onClose={jest.fn()}
         onSave={mockSave}
       />
     );
@@ -76,11 +76,11 @@ describe('SeasonalRuleEditor Component', () => {
   });
 
   it('should validate required fields', async () => {
-    const mockSave = vi.fn();
+    const mockSave = jest.fn();
     render(
       <SeasonalRuleEditor
         isOpen={true}
-        onClose={vi.fn()}
+        onClose={jest.fn()}
         onSave={mockSave}
       />
     );
@@ -94,11 +94,11 @@ describe('SeasonalRuleEditor Component', () => {
   });
 
   it('should validate date range', async () => {
-    const mockSave = vi.fn();
+    const mockSave = jest.fn();
     render(
       <SeasonalRuleEditor
         isOpen={true}
-        onClose={vi.fn()}
+        onClose={jest.fn()}
         onSave={mockSave}
       />
     );
@@ -122,11 +122,11 @@ describe('SeasonalRuleEditor Component', () => {
   });
 
   it('should validate positive price', async () => {
-    const mockSave = vi.fn();
+    const mockSave = jest.fn();
     render(
       <SeasonalRuleEditor
         isOpen={true}
-        onClose={vi.fn()}
+        onClose={jest.fn()}
         onSave={mockSave}
       />
     );
@@ -148,8 +148,8 @@ describe('SeasonalRuleEditor Component', () => {
   });
 
   it('should call onSave with correct values', async () => {
-    const mockSave = vi.fn().mockResolvedValue(undefined);
-    const mockClose = vi.fn();
+    const mockSave = jest.fn().mockResolvedValue(undefined);
+    const mockClose = jest.fn();
 
     render(
       <SeasonalRuleEditor
@@ -184,8 +184,8 @@ describe('SeasonalRuleEditor Component', () => {
   });
 
   it('should close modal on cancel', () => {
-    const mockSave = vi.fn();
-    const mockClose = vi.fn();
+    const mockSave = jest.fn();
+    const mockClose = jest.fn();
 
     render(
       <SeasonalRuleEditor
@@ -202,12 +202,12 @@ describe('SeasonalRuleEditor Component', () => {
   });
 
   it('should handle active toggle', () => {
-    const mockSave = vi.fn();
+    const mockSave = jest.fn();
     render(
       <SeasonalRuleEditor
         rule={mockRule}
         isOpen={true}
-        onClose={vi.fn()}
+        onClose={jest.fn()}
         onSave={mockSave}
       />
     );
@@ -220,8 +220,8 @@ describe('SeasonalRuleEditor Component', () => {
   });
 
   it('should close on backdrop click', () => {
-    const mockSave = vi.fn();
-    const mockClose = vi.fn();
+    const mockSave = jest.fn();
+    const mockClose = jest.fn();
 
     render(
       <SeasonalRuleEditor
