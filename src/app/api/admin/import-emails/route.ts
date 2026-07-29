@@ -3,11 +3,17 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import fs from 'fs'
 import path from 'path'
 
-// Proteger com chave simples (configure em .env.local)
-const IMPORT_SECRET = process.env.IMPORT_SECRET || 'dev-secret-key'
-
 export async function POST(request: NextRequest) {
   try {
+    // Proteger com chave simples (configure em .env.local)
+    const IMPORT_SECRET = process.env.IMPORT_SECRET
+    if (!IMPORT_SECRET) {
+      return NextResponse.json(
+        { error: 'IMPORT_SECRET environment variable is not configured' },
+        { status: 500 }
+      )
+    }
+
     // Validar chave
     const authHeader = request.headers.get('Authorization')
     if (authHeader !== `Bearer ${IMPORT_SECRET}`) {

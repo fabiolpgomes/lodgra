@@ -1,9 +1,13 @@
 import { jwtVerify } from 'jose';
 import { NextRequest, NextResponse } from 'next/server';
 
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET_KEY || 'dev-secret-key-change-in-production'
-);
+const getJwtSecret = () => {
+  const secret = process.env.JWT_SECRET_KEY;
+  if (!secret) {
+    throw new Error('JWT_SECRET_KEY environment variable is required');
+  }
+  return new TextEncoder().encode(secret);
+};
 
 interface CleanerSessionPayload {
   sub: string;
@@ -28,6 +32,7 @@ export async function verifyCleanerSession(
       };
     }
 
+    const JWT_SECRET = getJwtSecret();
     const verified = await jwtVerify(sessionToken, JWT_SECRET);
     const payload = verified.payload as unknown as CleanerSessionPayload;
 

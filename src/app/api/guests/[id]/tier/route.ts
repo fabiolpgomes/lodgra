@@ -3,12 +3,6 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { TierCalculator } from '@/lib/loyalty/tier-system'
 import { LoyaltyCalculator } from '@/lib/loyalty/loyalty-calculator'
 
-interface RouteParams {
-  params: {
-    id: string
-  }
-}
-
 /**
  * GET /api/guests/[id]/tier
  *
@@ -20,9 +14,12 @@ interface RouteParams {
  * @param params - Route parameters containing guest ID
  * @returns JSON with guest_id, current_tier, loyalty_score, base_discount, next_tier info
  */
-export async function GET(request: NextRequest, { params }: RouteParams) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    const guestId = params.id
+    const { id: guestId } = await params
 
     // Validate guest ID
     if (!guestId || guestId.trim() === '') {

@@ -2,12 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { LoyaltyCalculator } from '@/lib/loyalty/loyalty-calculator'
 
-interface RouteParams {
-  params: {
-    id: string
-  }
-}
-
 /**
  * GET /api/guests/[id]/loyalty-score
  *
@@ -18,9 +12,12 @@ interface RouteParams {
  * @param params - Route parameters containing guest ID
  * @returns JSON with guest_id, loyalty_score, breakdown, and last_updated
  */
-export async function GET(request: NextRequest, { params }: RouteParams) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    const guestId = params.id
+    const { id: guestId } = await params
 
     // Validate guest ID
     if (!guestId || guestId.trim() === '') {
