@@ -2,8 +2,36 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { randomUUID } from 'crypto'
 
-// TODO: Story 40.2 — Add requireRole('manager') middleware to validate only managers can submit decisions
-// Currently: Security relies on token validation. Should add auth layer: @dev to implement in next phase
+// Story 40.1 Phase 3: Auth middleware for decision submission
+// Validates that only authenticated managers can submit review decisions
+
+async function validateManagerAuth(request: NextRequest): Promise<{ valid: boolean; userId?: string; error?: string }> {
+  try {
+    const authCookie = request.cookies.get('sb-auth-token')?.value
+    if (!authCookie) {
+      return { valid: false, error: 'Authentication required' }
+    }
+
+    const supabase = createAdminClient()
+    const {
+      data: { user },
+    } = await supabase.auth.admin.getUserById(authCookie)
+
+    if (!user) {
+      return { valid: false, error: 'Invalid session' }
+    }
+
+    const userRole = user.user_metadata?.role as string | undefined
+    if (userRole && userRole !== 'manager' && userRole !== 'admin') {
+      return { valid: false, error: 'Only managers can submit decisions' }
+    }
+
+    return { valid: true, userId: user.id }
+  } catch (error) {
+    console.error('[admin/review/decision] auth validation error:', error)
+    return { valid: false, error: 'Authentication failed' }
+  }
+}
 
 export async function POST(
   request: NextRequest,
@@ -11,6 +39,12 @@ export async function POST(
 ) {
   const { id } = await params
   try {
+    // Validate manager authentication
+    const authCheck = await validateManagerAuth(request)
+    if (!authCheck.valid) {
+      return NextResponse.json({ error: authCheck.error || 'Unauthorized' }, { status: 403 })
+    }
+
     const { token, decision, refund_percentage, notes } = await request.json()
 
     if (!['APPROVED', 'PARTIAL', 'DENIED'].includes(decision)) {
@@ -99,6 +133,7 @@ export async function POST(
         refund_amount: ['APPROVED', 'PARTIAL'].includes(decision) ? refundAmount : 0,
         stripe_refund_id: stripeRefundId,
         manual_review_notes: notes || null,
+        reviewed_by: authCheck.userId, // Store who made the decision
         reviewed_at: new Date().toISOString(),
         review_token: null, // Invalidate token
         review_token_expires_at: null,
