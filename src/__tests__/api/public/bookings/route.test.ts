@@ -146,27 +146,23 @@ function buildMockSupabase(overrides: {
       }
     }
     if (table === 'reservations') {
-      return {
-        insert: jest.fn().mockReturnValue({
-          select: jest.fn().mockReturnValue({
-            single: jest.fn().mockResolvedValue({ data: reservation, error: null }),
-          }),
-        }),
-        update: jest.fn().mockReturnValue({
-          eq: jest.fn().mockResolvedValue({ error: null }),
-        }),
+      const chainable = {} as any
+      chainable.select = jest.fn().mockReturnValue(chainable)
+      chainable.in = jest.fn().mockReturnValue(chainable)
+      chainable.eq = jest.fn().mockReturnValue(chainable)
+      chainable.gte = jest.fn().mockReturnValue(chainable)
+      chainable.lt = jest.fn().mockReturnValue(chainable)
+      chainable.gt = jest.fn().mockReturnValue(chainable)
+      chainable.limit = jest.fn().mockResolvedValue({ data: conflicts, error: null })
+      chainable.insert = jest.fn().mockReturnValue({
         select: jest.fn().mockReturnValue({
-          in: jest.fn().mockReturnValue({
-            neq: jest.fn().mockReturnValue({
-              lt: jest.fn().mockReturnValue({
-                gt: jest.fn().mockReturnValue({
-                  limit: jest.fn().mockResolvedValue({ data: conflicts, error: null }),
-                }),
-              }),
-            }),
-          }),
+          single: jest.fn().mockResolvedValue({ data: reservation, error: null }),
         }),
-      }
+      })
+      chainable.update = jest.fn().mockReturnValue({
+        eq: jest.fn().mockResolvedValue({ error: null }),
+      })
+      return chainable
     }
     if (table === 'organizations') {
       return {
