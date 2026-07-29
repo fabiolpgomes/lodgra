@@ -9,6 +9,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { calculateRefund } from '@/lib/cancellation/refund-calculator'
 import { CancellationPolicySnapshot } from '@/types/cancellation.types'
 import { NextRequest, NextResponse } from 'next/server'
+import { randomUUID } from 'crypto'
 
 /**
  * Helper: Retry with exponential backoff
@@ -62,7 +63,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     // Fetch reservation with policy snapshot
     const { data: reservation } = await supabase
       .from('reservations')
-      .select('*, property_id, guest_id, total_amount, check_in, check_out, status, cancellation_policy_snapshot')
+      .select('*, properties(name), cancellation_policy_snapshot')
       .eq('id', reservationId)
       .single()
 
@@ -74,6 +75,63 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       return NextResponse.json(
         { success: false, error: 'Reservation already cancelled' },
         { status: 409 }
+      )
+    }
+
+    // Handle serious_issue cancellations — Story 40.1
+    if (body.cancellation_reason === 'serious_issue') {
+      const token = randomUUID()
+      const expiresAt = new Date()
+      expiresAt.setDate(expiresAt.getDate() + 7)
+
+      // Store token + expiry in reservation
+      const { error: updateError } = await supabase
+        .from('reservations')
+        .update({
+          status: 'PENDING_MANUAL_REVIEW',
+          review_token: token,
+          review_token_expires_at: expiresAt.toISOString(),
+          cancellation_reason: 'serious_issue',
+          cancellation_description: body.description || '',
+          cancellation_evidence_url: body.evidence_url || '',
+        })
+        .eq('id', reservationId)
+
+      if (updateError) throw updateError
+
+      // Send email to manager with review link
+      try {
+        await fetch('/api/email/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            to: 'ahspropriedades@gmail.com',
+            templateId: 'serious-issue-review',
+            data: {
+              guest_name: reservation.guest_name,
+              property_name: reservation.properties?.name || 'Unknown',
+              reservation_id: reservationId,
+              check_in: reservation.check_in,
+              check_out: reservation.check_out,
+              total_amount: reservation.total_amount,
+              description: body.description || '',
+              evidence_url: body.evidence_url || '',
+              review_link: `https://lodgra.io/admin/review/${reservationId}?token=${token}`,
+            },
+          }),
+        })
+      } catch (error) {
+        console.error('Failed to send serious_issue email:', error)
+        // Log but don't fail
+      }
+
+      return NextResponse.json(
+        {
+          success: true,
+          status: 'PENDING_MANUAL_REVIEW',
+          message: 'Seu caso foi reportado para revisão. Você receberá uma resposta em breve.',
+        },
+        { status: 202 }
       )
     }
 
