@@ -304,15 +304,17 @@ describe('PricingCalculator', () => {
       // Breakdown:
       // 2026-07-10 (Fri): override 150
       // 2026-07-11 (Sat): 100 × 1.2 = 120
-      // 2026-07-12-14 (Sun-Wed): 4 × 100 = 400
-      // 2026-07-15 (Thu): 100
-      // 2026-07-16 (Fri): 100 × 1.2 = 120
-      // 2026-07-17 (Sat): 100 × 1.2 = 120
-      // Total before discount: 150 + 120 + 400 + 100 + 120 + 120 = 1010
-      // Discount: (1010 - 150) × 0.05 = 43 on 7 non-override nights
-      // Final: 1010 - 43 = 967
+      // 2026-07-12 (Sun): 100
+      // 2026-07-13 (Mon): 100
+      // 2026-07-14 (Tue): 100
+      // 2026-07-15 (Wed): 100
+      // 2026-07-16 (Thu): 100
+      // 2026-07-17 (Fri): 100 × 1.2 = 120
+      // Total before discount: 150 + 120 + 100 + 100 + 100 + 100 + 100 + 120 = 890
+      // Discount: (890 - 150) × 0.05 = 37 on 7 non-override nights
+      // Final: 890 - 37 = 853
 
-      expect(result.total).toBe(967)
+      expect(result.total).toBe(853)
       expect(result.error).toBeUndefined()
     })
 

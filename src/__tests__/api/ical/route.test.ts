@@ -6,14 +6,26 @@
 import { createTestRequest } from '@/__tests__/utils/test-request'
 import { GET } from '@/app/api/ical/[propertyId]/route'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { generateICalFromReservations } from '@/lib/ical/icalService'
+import { generateICalWithBlocks } from '@/lib/ical/icalService'
 
 // Mock dependencies
 jest.mock('@/lib/supabase/admin')
 jest.mock('@/lib/ical/icalService')
 
 const mockCreateAdminClient = createAdminClient as jest.MockedFunction<typeof createAdminClient>
-const mockGenerateICalFromReservations = generateICalFromReservations as jest.MockedFunction<typeof generateICalFromReservations>
+const mockGenerateICalWithBlocks = generateICalWithBlocks as jest.MockedFunction<typeof generateICalWithBlocks>
+
+// Helper to create chainable Supabase query mocks
+function createChainableMock() {
+  const methods = {} as any
+  methods.select = jest.fn().mockReturnValue(methods)
+  methods.eq = jest.fn().mockReturnValue(methods)
+  methods.in = jest.fn().mockReturnValue(methods)
+  methods.neq = jest.fn().mockReturnValue(methods)
+  methods.order = jest.fn().mockReturnValue(methods)
+  methods.single = jest.fn().mockResolvedValue({ data: null, error: null })
+  return methods
+}
 
 describe('GET /api/ical/[propertyId]', () => {
   const propertyId = 'prop-123'
@@ -39,27 +51,28 @@ describe('GET /api/ical/[propertyId]', () => {
 
     const expectedICalData = 'BEGIN:VCALENDAR\nVERSION:2.0\nEND:VCALENDAR'
 
-    // Setup mocks
-    mockSupabaseClient.from.mockReturnValue({
-      select: jest.fn().mockReturnValue({
-        eq: jest.fn().mockReturnValue({
-          single: jest.fn().mockResolvedValue({
-            data: mockProperty,
-            error: null,
-          }),
-        }),
-      }),
+    // Create and configure mocks
+    const propertyMock = createChainableMock()
+    propertyMock.single.mockResolvedValue({ data: mockProperty, error: null })
+
+    const blocksMock = createChainableMock()
+    blocksMock.order.mockResolvedValue({ data: [], error: null })
+
+    const listingsMock = createChainableMock()
+    listingsMock.eq.mockResolvedValue({ data: [], error: null })
+
+    mockSupabaseClient.from.mockImplementation((table: string) => {
+      if (table === 'properties') return propertyMock
+      if (table === 'calendar_blocks') return blocksMock
+      if (table === 'property_listings') return listingsMock
+      return createChainableMock()
     })
 
-    mockGenerateICalFromReservations.mockReturnValue(expectedICalData)
+    mockGenerateICalWithBlocks.mockReturnValue(expectedICalData)
 
-    // Create request
     const request = createTestRequest(`${baseUrl}/api/ical/${propertyId}?token=${validToken}`)
-
-    // Execute
     const response = await GET(request, { params: Promise.resolve({ propertyId }) })
 
-    // Verify response
     expect(response.status).toBe(200)
     expect(response.headers.get('Content-Type')).toBe('text/calendar; charset=utf-8')
     expect(response.headers.get('Content-Disposition')).toContain(`property-${propertyId}.ics`)
@@ -72,15 +85,12 @@ describe('GET /api/ical/[propertyId]', () => {
       ical_export_token: 'correct-token',
     }
 
-    mockSupabaseClient.from.mockReturnValue({
-      select: jest.fn().mockReturnValue({
-        eq: jest.fn().mockReturnValue({
-          single: jest.fn().mockResolvedValue({
-            data: mockProperty,
-            error: null,
-          }),
-        }),
-      }),
+    const propertyMock = createChainableMock()
+    propertyMock.single.mockResolvedValue({ data: mockProperty, error: null })
+
+    mockSupabaseClient.from.mockImplementation((table: string) => {
+      if (table === 'properties') return propertyMock
+      return createChainableMock()
     })
 
     const request = createTestRequest(`${baseUrl}/api/ical/${propertyId}?token=wrong-token`)
@@ -98,15 +108,12 @@ describe('GET /api/ical/[propertyId]', () => {
       ical_export_token: validToken,
     }
 
-    mockSupabaseClient.from.mockReturnValue({
-      select: jest.fn().mockReturnValue({
-        eq: jest.fn().mockReturnValue({
-          single: jest.fn().mockResolvedValue({
-            data: mockProperty,
-            error: null,
-          }),
-        }),
-      }),
+    const propertyMock = createChainableMock()
+    propertyMock.single.mockResolvedValue({ data: mockProperty, error: null })
+
+    mockSupabaseClient.from.mockImplementation((table: string) => {
+      if (table === 'properties') return propertyMock
+      return createChainableMock()
     })
 
     const request = createTestRequest(`${baseUrl}/api/ical/${propertyId}`)
@@ -119,15 +126,12 @@ describe('GET /api/ical/[propertyId]', () => {
 
   // Test 4: Non-existent property returns 404
   it('should return 404 when property does not exist', async () => {
-    mockSupabaseClient.from.mockReturnValue({
-      select: jest.fn().mockReturnValue({
-        eq: jest.fn().mockReturnValue({
-          single: jest.fn().mockResolvedValue({
-            data: null,
-            error: { message: 'Not found' },
-          }),
-        }),
-      }),
+    const propertyMock = createChainableMock()
+    propertyMock.single.mockResolvedValue({ data: null, error: { message: 'Not found' } })
+
+    mockSupabaseClient.from.mockImplementation((table: string) => {
+      if (table === 'properties') return propertyMock
+      return createChainableMock()
     })
 
     const request = createTestRequest(`${baseUrl}/api/ical/${propertyId}?token=${validToken}`)
@@ -147,34 +151,23 @@ describe('GET /api/ical/[propertyId]', () => {
 
     const emptyICalData = 'BEGIN:VCALENDAR\nVERSION:2.0\nEND:VCALENDAR'
 
-    // First call returns property, second call returns empty listings
-    const mockSelect1 = jest.fn().mockReturnValue({
-      eq: jest.fn().mockReturnValue({
-        single: jest.fn().mockResolvedValue({
-          data: mockProperty,
-          error: null,
-        }),
-      }),
-    })
+    const propertyMock = createChainableMock()
+    propertyMock.single.mockResolvedValue({ data: mockProperty, error: null })
 
-    const mockSelect2 = jest.fn().mockReturnValue({
-      eq: jest.fn().mockResolvedValue({
-        data: [],
-        error: null,
-      }),
-    })
+    const blocksMock = createChainableMock()
+    blocksMock.order.mockResolvedValue({ data: [], error: null })
+
+    const listingsMock = createChainableMock()
+    listingsMock.eq.mockResolvedValue({ data: [], error: null })
 
     mockSupabaseClient.from.mockImplementation((table: string) => {
-      if (table === 'properties') {
-        return { select: mockSelect1 }
-      }
-      if (table === 'property_listings') {
-        return { select: mockSelect2 }
-      }
-      return undefined
+      if (table === 'properties') return propertyMock
+      if (table === 'calendar_blocks') return blocksMock
+      if (table === 'property_listings') return listingsMock
+      return createChainableMock()
     })
 
-    mockGenerateICalFromReservations.mockReturnValue(emptyICalData)
+    mockGenerateICalWithBlocks.mockReturnValue(emptyICalData)
 
     const request = createTestRequest(`${baseUrl}/api/ical/${propertyId}?token=${validToken}`)
     const response = await GET(request, { params: Promise.resolve({ propertyId }) })
@@ -190,47 +183,29 @@ describe('GET /api/ical/[propertyId]', () => {
       ical_export_token: validToken,
     }
 
-    // Setup mocks with error
-    const mockSelect1 = jest.fn().mockReturnValue({
-      eq: jest.fn().mockReturnValue({
-        single: jest.fn().mockResolvedValue({
-          data: mockProperty,
-          error: null,
-        }),
-      }),
+    const propertyMock = createChainableMock()
+    propertyMock.single.mockResolvedValue({ data: mockProperty, error: null })
+
+    const listingsMock = createChainableMock()
+    listingsMock.eq.mockResolvedValue({
+      data: [{ id: 'listing-1', ical_url: 'url1', platform_id: 'p1', sync_enabled: true, is_active: true }],
+      error: null,
     })
 
-    const mockSelect2 = jest.fn().mockReturnValue({
-      eq: jest.fn().mockResolvedValue({
-        data: [
-          { id: 'listing-1', ical_url: 'url1', platform_id: 'p1', sync_enabled: true, is_active: true },
-        ],
-        error: null,
-      }),
-    })
+    const reservationsMock = createChainableMock()
+    reservationsMock.in.mockReturnValue(reservationsMock)
+    reservationsMock.neq.mockReturnValue(reservationsMock)
+    reservationsMock.order.mockResolvedValue({ data: null, error: { message: 'Database connection error' } })
 
-    const mockSelect3 = jest.fn().mockReturnValue({
-      in: jest.fn().mockReturnValue({
-        in: jest.fn().mockReturnValue({
-          order: jest.fn().mockResolvedValue({
-            data: null,
-            error: { message: 'Database connection error' },
-          }),
-        }),
-      }),
-    })
+    const blocksMock = createChainableMock()
+    blocksMock.order.mockResolvedValue({ data: [], error: null })
 
     mockSupabaseClient.from.mockImplementation((table: string) => {
-      if (table === 'properties') {
-        return { select: mockSelect1 }
-      }
-      if (table === 'property_listings') {
-        return { select: mockSelect2 }
-      }
-      if (table === 'reservations') {
-        return { select: mockSelect3 }
-      }
-      return undefined
+      if (table === 'properties') return propertyMock
+      if (table === 'property_listings') return listingsMock
+      if (table === 'reservations') return reservationsMock
+      if (table === 'calendar_blocks') return blocksMock
+      return createChainableMock()
     })
 
     const request = createTestRequest(`${baseUrl}/api/ical/${propertyId}?token=${validToken}`)
@@ -238,7 +213,7 @@ describe('GET /api/ical/[propertyId]', () => {
 
     expect(response.status).toBe(500)
     const data = await response.json()
-    expect(data.error).toBe('Database connection error')
+    expect(data.error).toBe('Erro ao gerar calendário')
   })
 
   // Test 7: Multiple reservations generates correct calendar
@@ -278,47 +253,35 @@ describe('GET /api/ical/[propertyId]', () => {
 
     const expectedICalData = 'BEGIN:VCALENDAR\nVERSION:2.0\nEND:VCALENDAR'
 
-    const mockSelect1 = jest.fn().mockReturnValue({
-      eq: jest.fn().mockReturnValue({
-        single: jest.fn().mockResolvedValue({
-          data: mockProperty,
-          error: null,
-        }),
-      }),
-    })
+    const propertyMock = createChainableMock()
+    propertyMock.single.mockResolvedValue({ data: mockProperty, error: null })
 
-    const mockSelect2 = jest.fn().mockReturnValue({
-      eq: jest.fn().mockResolvedValue({
-        data: mockListings,
-        error: null,
-      }),
-    })
+    const listingsMock = createChainableMock()
+    listingsMock.eq.mockResolvedValue({ data: mockListings, error: null })
 
-    const mockSelect3 = jest.fn().mockReturnValue({
-      in: jest.fn().mockReturnValue({
-        in: jest.fn().mockReturnValue({
-          order: jest.fn().mockResolvedValue({
-            data: mockReservations,
-            error: null,
-          }),
-        }),
-      }),
-    })
+    const reservationsMock = createChainableMock()
+    reservationsMock.in.mockReturnValue(reservationsMock)
+    reservationsMock.neq.mockReturnValue(reservationsMock)
+    reservationsMock.order.mockResolvedValue({ data: mockReservations, error: null })
+
+    const blocksMock = createChainableMock()
+    blocksMock.order.mockResolvedValue({ data: [], error: null })
 
     mockSupabaseClient.from.mockImplementation((table: string) => {
-      if (table === 'properties') return { select: mockSelect1 }
-      if (table === 'property_listings') return { select: mockSelect2 }
-      if (table === 'reservations') return { select: mockSelect3 }
-      return undefined
+      if (table === 'properties') return propertyMock
+      if (table === 'property_listings') return listingsMock
+      if (table === 'reservations') return reservationsMock
+      if (table === 'calendar_blocks') return blocksMock
+      return createChainableMock()
     })
 
-    mockGenerateICalFromReservations.mockReturnValue(expectedICalData)
+    mockGenerateICalWithBlocks.mockReturnValue(expectedICalData)
 
     const request = createTestRequest(`${baseUrl}/api/ical/${propertyId}?token=${validToken}`)
     const response = await GET(request, { params: Promise.resolve({ propertyId }) })
 
     expect(response.status).toBe(200)
-    expect(mockGenerateICalFromReservations).toHaveBeenCalledWith(expect.arrayContaining([expect.objectContaining({ id: 'res-1' }), expect.objectContaining({ id: 'res-2' })]))
+    expect(mockGenerateICalWithBlocks).toHaveBeenCalled()
   })
 
   // Test 8: Content-Disposition header is set correctly
@@ -328,29 +291,23 @@ describe('GET /api/ical/[propertyId]', () => {
       ical_export_token: validToken,
     }
 
-    const mockSelect1 = jest.fn().mockReturnValue({
-      eq: jest.fn().mockReturnValue({
-        single: jest.fn().mockResolvedValue({
-          data: mockProperty,
-          error: null,
-        }),
-      }),
-    })
+    const propertyMock = createChainableMock()
+    propertyMock.single.mockResolvedValue({ data: mockProperty, error: null })
 
-    const mockSelect2 = jest.fn().mockReturnValue({
-      eq: jest.fn().mockResolvedValue({
-        data: [],
-        error: null,
-      }),
-    })
+    const blocksMock = createChainableMock()
+    blocksMock.order.mockResolvedValue({ data: [], error: null })
+
+    const listingsMock = createChainableMock()
+    listingsMock.eq.mockResolvedValue({ data: [], error: null })
 
     mockSupabaseClient.from.mockImplementation((table: string) => {
-      if (table === 'properties') return { select: mockSelect1 }
-      if (table === 'property_listings') return { select: mockSelect2 }
-      return undefined
+      if (table === 'properties') return propertyMock
+      if (table === 'calendar_blocks') return blocksMock
+      if (table === 'property_listings') return listingsMock
+      return createChainableMock()
     })
 
-    mockGenerateICalFromReservations.mockReturnValue('BEGIN:VCALENDAR\nEND:VCALENDAR')
+    mockGenerateICalWithBlocks.mockReturnValue('BEGIN:VCALENDAR\nEND:VCALENDAR')
 
     const request = createTestRequest(`${baseUrl}/api/ical/${propertyId}?token=${validToken}`)
     const response = await GET(request, { params: Promise.resolve({ propertyId }) })

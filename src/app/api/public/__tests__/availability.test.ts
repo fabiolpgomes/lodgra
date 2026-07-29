@@ -74,6 +74,15 @@ jest.mock('@/lib/supabase/admin', () => ({
       eq: jest.fn(function () {
         return this
       }),
+      in: jest.fn(function () {
+        return this
+      }),
+      lte: jest.fn(function () {
+        return this
+      }),
+      gte: jest.fn(function () {
+        return this
+      }),
       order: jest.fn(function () {
         return this
       }),

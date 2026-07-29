@@ -18,5 +18,19 @@ export function createTestRequest(
     body: options.body,
   }) as any
 
+  // Add nextUrl property for Next.js 15 route handlers
+  const urlObj = new URL(url)
+  req.nextUrl = {
+    clone: () => new URL(url),
+    searchParams: urlObj.searchParams,
+    pathname: urlObj.pathname,
+    href: url,
+    protocol: urlObj.protocol,
+    host: urlObj.host,
+    hostname: urlObj.hostname,
+    port: urlObj.port,
+    origin: urlObj.origin,
+  } as any
+
   return req
 }
