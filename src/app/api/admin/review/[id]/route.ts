@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 
+// TODO: Story 40.2 — Add requireRole('manager') middleware to validate only managers can view reviews
+// Currently: Security relies on token validation + Supabase RLS policies. Should add auth layer.
+
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const token = request.nextUrl.searchParams.get('token')

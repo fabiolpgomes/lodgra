@@ -67,12 +67,24 @@ export default function ReviewPage() {
   }
 
   if (error) {
+    const errorMessages: { [key: string]: string } = {
+      'Token inválido ou expirado': 'Este link de revisão expirou ou é inválido. Solicite um novo caso ao sistema.',
+      'Erro ao buscar reserva': 'Não conseguimos encontrar os dados desta reserva. Verifique se o link está correto.',
+      'default': error,
+    }
+
+    const displayMessage = errorMessages[error] || errorMessages['default']
+
     return (
       <div className="min-h-screen bg-gray-50 p-4">
         <div className="max-w-md mx-auto bg-white rounded-lg shadow-sm p-6">
           <div className="bg-red-50 border border-red-200 rounded p-4">
-            <h2 className="text-lg font-semibold text-red-800 mb-2">Erro</h2>
-            <p className="text-red-700">{error}</p>
+            <h2 className="text-lg font-semibold text-red-800 mb-2">Erro ao Carregar Revisão</h2>
+            <p className="text-red-700 mb-4">{displayMessage}</p>
+            <details className="text-sm text-red-600 mt-3">
+              <summary className="cursor-pointer font-medium">Detalhes técnicos</summary>
+              <p className="mt-2 font-mono text-xs">{error}</p>
+            </details>
           </div>
         </div>
       </div>

@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { randomUUID } from 'crypto'
 
+// TODO: Story 40.2 — Add requireRole('manager') middleware to validate only managers can submit decisions
+// Currently: Security relies on token validation. Should add auth layer: @dev to implement in next phase
+
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const { token, decision, refund_percentage, notes } = await request.json()
