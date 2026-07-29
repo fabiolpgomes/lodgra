@@ -93,10 +93,11 @@ export function PricingConstraints({
       <div className="grid grid-cols-2 gap-4">
         {/* Minimum Price */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          <label htmlFor="min-price" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
             Minimum Nightly Price (EUR)
           </label>
           <input
+            id="min-price"
             type="number"
             min="0"
             step="0.01"
@@ -116,10 +117,11 @@ export function PricingConstraints({
 
         {/* Maximum Price */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          <label htmlFor="max-price" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
             Maximum Nightly Price (EUR)
           </label>
           <input
+            id="max-price"
             type="number"
             min="0"
             step="0.01"

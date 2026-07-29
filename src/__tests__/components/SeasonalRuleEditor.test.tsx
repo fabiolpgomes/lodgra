@@ -103,9 +103,9 @@ describe('SeasonalRuleEditor Component', () => {
       />
     );
 
-    const nameInput = screen.getByPlaceholderText(/Rule name/);
-    const startDateInput = screen.getAllByDisplayValue(/(2026-|No value)/)[0];
-    const endDateInput = screen.getAllByDisplayValue(/(2026-|No value)/)[1];
+    const nameInput = screen.getByPlaceholderText(/Summer Peak/);
+    const startDateInput = screen.getByLabelText(/Start Date/);
+    const endDateInput = screen.getByLabelText(/End Date/);
     const priceInput = screen.getByPlaceholderText(/0.00/);
 
     fireEvent.change(nameInput, { target: { value: 'Test Rule' } });
@@ -131,19 +131,19 @@ describe('SeasonalRuleEditor Component', () => {
       />
     );
 
-    const nameInput = screen.getByPlaceholderText(/Rule name/);
-    const startDateInput = screen.getAllByRole('textbox').find(el => el.getAttribute('type') === 'date');
+    const nameInput = screen.getByPlaceholderText(/Summer Peak/);
+    const startDateInput = screen.getByLabelText(/Start Date/);
     const priceInput = screen.getByPlaceholderText(/0.00/);
 
     fireEvent.change(nameInput, { target: { value: 'Test Rule' } });
-    fireEvent.change(startDateInput!, { target: { value: '2026-06-01' } });
+    fireEvent.change(startDateInput, { target: { value: '2026-06-01' } });
     fireEvent.change(priceInput, { target: { value: '-50' } });
 
     const saveButton = screen.getByText(/Save/);
     fireEvent.click(saveButton);
 
     await waitFor(() => {
-      expect(screen.getByText(/positive number/)).toBeInTheDocument();
+      expect(screen.getByText(/must be a positive number/)).toBeInTheDocument();
     });
   });
 
@@ -159,13 +159,14 @@ describe('SeasonalRuleEditor Component', () => {
       />
     );
 
-    const nameInput = screen.getByPlaceholderText(/Rule name/);
-    const dateInputs = screen.getAllByRole('textbox').filter(el => el.getAttribute('type') === 'date');
+    const nameInput = screen.getByPlaceholderText(/Summer Peak/);
+    const startDateInput = screen.getByLabelText(/Start Date/);
+    const endDateInput = screen.getByLabelText(/End Date/);
     const priceInput = screen.getByPlaceholderText(/0.00/);
 
     fireEvent.change(nameInput, { target: { value: 'Winter Discount' } });
-    fireEvent.change(dateInputs[0], { target: { value: '2026-12-01' } });
-    fireEvent.change(dateInputs[1], { target: { value: '2027-02-28' } });
+    fireEvent.change(startDateInput, { target: { value: '2026-12-01' } });
+    fireEvent.change(endDateInput, { target: { value: '2027-02-28' } });
     fireEvent.change(priceInput, { target: { value: '80' } });
 
     const saveButton = screen.getByText(/Save/);
@@ -231,7 +232,8 @@ describe('SeasonalRuleEditor Component', () => {
       />
     );
 
-    const backdrop = screen.getByRole('dialog', { hidden: true })?.previousElementSibling;
+    // Find the backdrop div (the dark overlay)
+    const backdrop = document.querySelector('[aria-hidden="true"]');
     if (backdrop) {
       fireEvent.click(backdrop);
       expect(mockClose).toHaveBeenCalled();
