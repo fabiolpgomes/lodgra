@@ -5,7 +5,11 @@ import { randomUUID } from 'crypto'
 // TODO: Story 40.2 — Add requireRole('manager') middleware to validate only managers can submit decisions
 // Currently: Security relies on token validation. Should add auth layer: @dev to implement in next phase
 
-export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params
   try {
     const { token, decision, refund_percentage, notes } = await request.json()
 
@@ -19,7 +23,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     const { data: reservation } = await supabase
       .from('reservations')
       .select('*, properties(name)')
-      .eq('id', params.id)
+      .eq('id', id)
       .eq('review_token', token)
       .single()
 
@@ -64,7 +68,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              reservation_id: params.id,
+              reservation_id: id,
               amount: refundAmount,
               reason: 'serious_issue_resolved',
             }),
@@ -99,7 +103,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
         review_token: null, // Invalidate token
         review_token_expires_at: null,
       })
-      .eq('id', params.id)
+      .eq('id', id)
 
     if (updateError) throw updateError
 
@@ -133,7 +137,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
           to: 'ahspropriedades@gmail.com',
           templateId: 'serious-issue-confirmation',
           data: {
-            reservation_id: params.id,
+            reservation_id: id,
             guest_name: reservation.guest_name,
             property_name: reservation.properties?.name || 'Unknown',
             decision,
@@ -148,7 +152,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
     return NextResponse.json({
       success: true,
-      reservation_id: params.id,
+      reservation_id: id,
       status: finalStatus,
       refund_amount: refundAmount,
       refund_id: stripeRefundId,

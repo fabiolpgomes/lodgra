@@ -4,7 +4,8 @@ import { createAdminClient } from '@/lib/supabase/admin'
 // TODO: Story 40.2 — Add requireRole('manager') middleware to validate only managers can view reviews
 // Currently: Security relies on token validation + Supabase RLS policies. Should add auth layer.
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   try {
     const token = request.nextUrl.searchParams.get('token')
     if (!token) {
@@ -15,7 +16,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
     const { data: reservation } = await supabase
       .from('reservations')
       .select('*, properties(name)')
-      .eq('id', params.id)
+      .eq('id', id)
       .eq('review_token', token)
       .single()
 
