@@ -82,7 +82,7 @@ jest.mock('../client', () => ({
 }))
 
 // TODO: Re-enable when Booking.com native integration is reactivated
-describe.skip('Booking Sync Service', () => {
+describe('Booking Sync Service', () => {
   beforeEach(() => {
     jest.clearAllMocks()
   })

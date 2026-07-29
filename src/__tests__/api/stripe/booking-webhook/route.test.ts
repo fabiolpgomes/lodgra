@@ -101,11 +101,11 @@ beforeEach(() => {
   mockSendManager.mockResolvedValue(undefined)
 })
 
-describe.skip('POST /api/stripe/booking-webhook', () => {
+describe('POST /api/stripe/booking-webhook', () => {
   // TODO: These tests need NextResponse mocking to work properly in Jest environment
   // Issue: NextResponse.json() doesn't work in test environment
   // Fix: Either refactor to use mocked responses or setup proper Next.js test environment
-  it.skip('returns 400 when stripe-signature header is missing', async () => {
+  it('returns 400 when stripe-signature header is missing', async () => {
     const req = createTestRequest(`${BASE_URL}/api/stripe/booking-webhook`, {
       method: 'POST',
       headers: {},

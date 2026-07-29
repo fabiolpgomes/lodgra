@@ -4,7 +4,7 @@
 
 import { PricingCalculator } from '../pricing-calculator'
 
-describe.skip('PricingCalculator', () => {
+describe('PricingCalculator', () => {
   describe('calculateBookingPrice', () => {
     /**
      * Test 1: Simple base price calculation

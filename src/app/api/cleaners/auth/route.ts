@@ -3,9 +3,13 @@ import { SignJWT } from 'jose';
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET_KEY || 'dev-secret-key-change-in-production'
-);
+const getJwtSecret = () => {
+  const secret = process.env.JWT_SECRET_KEY;
+  if (!secret) {
+    throw new Error('JWT_SECRET_KEY environment variable is required');
+  }
+  return new TextEncoder().encode(secret);
+};
 
 export async function POST(request: NextRequest) {
   try {
@@ -75,6 +79,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create JWT session token (8h expiry)
+    const JWT_SECRET = getJwtSecret();
     const sessionToken = await new SignJWT({
       sub: cleaner.id,
       org: cleaner.organization_id,

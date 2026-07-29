@@ -124,10 +124,11 @@ export function SeasonalRuleEditor({
           <div className="space-y-4 p-4">
             {/* Name */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label htmlFor="rule-name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Rule Name
               </label>
               <input
+                id="rule-name"
                 type="text"
                 value={name}
                 onChange={(e) => {
@@ -143,10 +144,11 @@ export function SeasonalRuleEditor({
             {/* Date Range */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                <label htmlFor="rule-start-date" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Start Date
                 </label>
                 <input
+                  id="rule-start-date"
                   type="date"
                   value={dateStart}
                   onChange={(e) => {
@@ -158,10 +160,11 @@ export function SeasonalRuleEditor({
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                <label htmlFor="rule-end-date" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   End Date
                 </label>
                 <input
+                  id="rule-end-date"
                   type="date"
                   value={dateEnd}
                   onChange={(e) => {
@@ -176,10 +179,11 @@ export function SeasonalRuleEditor({
 
             {/* Price */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label htmlFor="rule-price" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Price per Night (EUR)
               </label>
               <input
+                id="rule-price"
                 type="number"
                 min="0"
                 step="0.01"
