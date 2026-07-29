@@ -85,7 +85,7 @@ jest.mock('@/lib/commission/service', () => ({
 }))
 
 // TODO: Re-enable when Booking.com native integration is reactivated
-describe.skip('Booking.com Webhook - Simplified Integration Tests', () => {
+describe('Booking.com Webhook - Simplified Integration Tests', () => {
   const validPayload: BookingWebhookPayload = {
     event_id: 'evt_test_001',
     timestamp: new Date().toISOString(),

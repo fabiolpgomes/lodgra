@@ -196,7 +196,7 @@ beforeEach(() => {
 })
 
 // TODO: Re-enable when public booking API mocks are fixed
-describe.skip('POST /api/public/bookings', () => {
+describe('POST /api/public/bookings', () => {
   it('returns 429 when rate limited', async () => {
     mockCheckRateLimit.mockReturnValue(false)
     const req = makeRequest(validBody)

@@ -19,7 +19,7 @@ import type { BookingWebhookPayload } from '../webhook-validator'
 import crypto from 'crypto'
 
 // TODO: Re-enable when Booking.com native integration is reactivated
-describe.skip('Booking.com Webhook - Integration Tests', () => {
+describe('Booking.com Webhook - Integration Tests', () => {
   const adminClient = createAdminClient()
   const _WEBHOOK_SECRET = process.env.BOOKING_WEBHOOK_SECRET || 'test-secret-key'
 

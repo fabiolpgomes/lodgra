@@ -98,7 +98,7 @@ jest.mock('@/lib/rateLimit', () => ({
 }))
 
 // TODO: Re-enable when public booking API mocks are fixed
-describe.skip('Availability API', () => {
+describe('Availability API', () => {
   beforeEach(() => {
     jest.clearAllMocks()
   })

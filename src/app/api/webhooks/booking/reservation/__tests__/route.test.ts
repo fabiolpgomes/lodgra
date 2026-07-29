@@ -31,7 +31,7 @@ jest.mock('@/lib/rateLimit', () => ({
 }))
 
 // TODO: Re-enable when Booking.com native integration is reactivated
-describe.skip('POST /api/webhooks/booking/reservation', () => {
+describe('POST /api/webhooks/booking/reservation', () => {
   const SECRET = 'test-webhook-secret'
 
   const validPayload = {

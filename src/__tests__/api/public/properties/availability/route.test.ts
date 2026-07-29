@@ -83,7 +83,7 @@ beforeEach(() => {
 })
 
 // TODO: Re-enable when public booking API mocks are fixed
-describe.skip('GET /api/public/properties/[slug]/availability', () => {
+describe('GET /api/public/properties/[slug]/availability', () => {
   it('returns 429 when rate limited', async () => {
     mockCheckRateLimit.mockReturnValue(false)
     const supabase = buildMockSupabase()

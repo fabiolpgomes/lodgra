@@ -7,7 +7,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BulkOperationModal } from '@/components/PricingCalendar/BulkOperationModal';
 import { BulkOperationConfig } from '@/hooks/useBulkPricingOperation';
 
-describe.skip('BulkOperationModal', () => {
+describe('BulkOperationModal', () => {
   const mockOnConfirm = jest.fn();
   const mockOnCancel = jest.fn();
 
@@ -38,7 +38,8 @@ describe.skip('BulkOperationModal', () => {
       />
     );
 
-    expect(container.firstChild).toBeEmptyDOMNode();
+    // When not open, component should render nothing or just empty wrapper
+    expect(container.innerHTML).toBe('');
   });
 
   it('renders confirmation dialog when isOpen is true', () => {
@@ -66,8 +67,8 @@ describe.skip('BulkOperationModal', () => {
       />
     );
 
-    expect(screen.getByText(/Jul 01/i)).toBeInTheDocument();
-    expect(screen.getByText(/Jul 05/i)).toBeInTheDocument();
+    // The dates are rendered together as "Jul 1 → Jul 5"
+    expect(screen.getByText(/Jul 1.*Jul 5/i)).toBeInTheDocument();
   });
 
   it('displays affected date count', () => {
@@ -81,7 +82,8 @@ describe.skip('BulkOperationModal', () => {
       />
     );
 
-    expect(screen.getByText(/5 dates/i)).toBeInTheDocument();
+    expect(screen.getByText(/Affected Dates/i)).toBeInTheDocument();
+    expect(screen.getByText('5 dates')).toBeInTheDocument();
   });
 
   it('displays price for price operation', () => {
@@ -95,7 +97,10 @@ describe.skip('BulkOperationModal', () => {
       />
     );
 
-    expect(screen.getByText('$150.00')).toBeInTheDocument();
+    // Check for "New Price" section
+    expect(screen.getByText(/New Price/i)).toBeInTheDocument();
+    // Price might appear multiple times (in preview and main section)
+    expect(screen.getAllByText('$150.00').length).toBeGreaterThan(0);
   });
 
   it('displays discount for discount operation', () => {
