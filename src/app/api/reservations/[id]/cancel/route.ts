@@ -6,7 +6,7 @@
  */
 
 import { createAdminClient } from '@/lib/supabase/admin'
-import { calculateRefund } from '@/lib/cancellation/refund-calculator'
+import { RefundCalculator } from '@/lib/refunds/refund-calculator'
 import { CancellationPolicySnapshot } from '@/types/cancellation.types'
 import { NextRequest, NextResponse } from 'next/server'
 import { randomUUID } from 'crypto'
@@ -156,13 +156,16 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     const nightCount = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24))
     const stayDuration = nightCount >= 28 ? 'long' : 'short'
 
-    // Calculate refund using policy
-    const refundResult = calculateRefund({
+    // Calculate refund using RefundCalculator
+    const refundResult = RefundCalculator.calculate({
       policy_type: policySnapshot.policy_type,
       stay_duration: stayDuration,
       days_until_checkin: daysUntilCheckIn,
       during_stay: duringStay,
-      total_reservation_amount: reservation.total_amount,
+      cancellation_reason: 'voluntary', // Story 40.1 uses serious_issue path
+      total_amount: reservation.total_amount,
+      nights_total: nightCount,
+      nights_remaining: duringStay ? Math.max(0, nightCount - Math.floor((new Date().getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24))) : undefined,
     })
 
     // Validate refund amount

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { RefundCalculator } from '@/lib/refunds/refund-calculator'
 import { randomUUID } from 'crypto'
 
 // Story 40.1 Phase 3: Auth middleware for decision submission
