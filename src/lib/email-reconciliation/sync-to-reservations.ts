@@ -22,13 +22,20 @@ export async function syncExtractedDataToReservation(extractionId: string): Prom
     }
 
     // 2. Find matching reservation
-    const { data: reservations, error: reservationError } = await supabase
+    // First try by reservation_code if available (most accurate)
+    let query = supabase
       .from('reservations')
       .select('id, organization_id')
       .eq('organization_id', extraction.organization_id)
-      .gte('check_in', extraction.check_in)
-      .lte('check_out', extraction.check_out)
-      .limit(1)
+
+    if (extraction.reservation_code) {
+      query = query.eq('external_booking_id', extraction.reservation_code)
+    } else {
+      // Fallback: match by dates (less accurate, may pick wrong reservation if overlapping)
+      query = query.gte('check_in', extraction.check_in).lte('check_out', extraction.check_out)
+    }
+
+    const { data: reservations, error: reservationError } = await query.limit(1)
 
     if (reservationError) {
       console.error(`Sync: Error finding reservation`, { error: reservationError })

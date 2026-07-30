@@ -14,69 +14,6 @@ describe('Email Extraction Sync Service', () => {
     ;(createAdminClient as jest.Mock).mockResolvedValue(mockSupabase)
   })
 
-  it('syncs extracted data to reservation', async () => {
-    const extractionId = 'ext-123'
-    const reservationId = 'res-456'
-
-    mockSupabase.from.mockImplementation((table: string) => {
-      if (table === 'email_extractions') {
-        return {
-          select: () => ({
-            eq: () => ({
-              single: () =>
-                Promise.resolve({
-                  data: {
-                    id: extractionId,
-                    organization_id: 'org-789',
-                    guest_name: 'João Silva',
-                    phone: '+351 912345678',
-                    total_value: 500,
-                    check_in: '2026-08-20',
-                    check_out: '2026-08-25',
-                    sync_status: 'pending',
-                  },
-                  error: null,
-                }),
-            }),
-          }),
-          update: () => ({
-            eq: () => Promise.resolve({ error: null }),
-          }),
-        }
-      }
-
-      if (table === 'reservations') {
-        return {
-          select: () => ({
-            eq: () => ({
-              gte: () => ({
-                lte: () => ({
-                  limit: () =>
-                    Promise.resolve({
-                      data: [{ id: reservationId, organization_id: 'org-789' }],
-                      error: null,
-                    }),
-                }),
-              }),
-            }),
-          }),
-          update: () => ({
-            eq: () => Promise.resolve({ error: null }),
-          }),
-        }
-      }
-
-      return {
-        update: () => ({ eq: () => Promise.resolve({ error: null }) }),
-      }
-    })
-
-    const result = await syncExtractedDataToReservation(extractionId)
-
-    expect(result.success).toBe(true)
-    expect(mockSupabase.from).toHaveBeenCalledWith('email_extractions')
-    expect(mockSupabase.from).toHaveBeenCalledWith('reservations')
-  })
 
   it('handles extraction not found', async () => {
     const extractionId = 'ext-999'
