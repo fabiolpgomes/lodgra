@@ -42,42 +42,35 @@ function buildMockSupabase(options: {
     reservations = [],
   } = options
 
-  const mockFrom = jest.fn().mockImplementation((table: string) => {
+  const mockFrom = jest.fn((table: string) => {
     if (table === 'properties') {
       return {
-        select: jest.fn().mockReturnValue({
-          eq: jest.fn().mockReturnValue({
-            eq: jest.fn().mockReturnValue({
-              single: jest.fn().mockResolvedValue({ data: property, error: null }),
-            }),
-          }),
-        }),
+        select: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        single: jest.fn().mockResolvedValue({ data: property, error: null }),
       }
     }
     if (table === 'property_listings') {
       return {
-        select: jest.fn().mockReturnValue({
-          eq: jest.fn().mockResolvedValue({ data: listings, error: null }),
-        }),
+        select: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockResolvedValue({ data: listings, error: null }),
       }
     }
     if (table === 'reservations') {
-      const query = {
-        select: jest.fn().mockReturnValue(query),
-        in: jest.fn().mockReturnValue(query),
-        lte: jest.fn().mockReturnValue(query),
+      return {
+        select: jest.fn().mockReturnThis(),
+        in: jest.fn().mockReturnThis(),
+        lte: jest.fn().mockReturnThis(),
         gte: jest.fn().mockResolvedValue({ data: reservations, error: null }),
       }
-      return query
     }
     if (table === 'pricing_rules') {
-      const query = {
-        select: jest.fn().mockReturnValue(query),
-        eq: jest.fn().mockReturnValue(query),
-        lte: jest.fn().mockReturnValue(query),
+      return {
+        select: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        lte: jest.fn().mockReturnThis(),
         gte: jest.fn().mockResolvedValue({ data: [], error: null }),
       }
-      return query
     }
     return {}
   })
