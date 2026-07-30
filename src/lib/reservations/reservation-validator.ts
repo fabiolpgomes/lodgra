@@ -285,28 +285,11 @@ export class ReservationValidator {
     nights: number
   ): Promise<MinimumNightsResult> {
     try {
-      const supabase = await this.getClient()
-
-      // Fetch minimum nights from property_availability table
-      const { data: availability, error } = await supabase
-        .from('property_availability')
-        .select('min_nights, max_nights')
-        .eq('property_id', propertyId)
-        .single()
-
-      if (error) {
-        // If property_availability doesn't exist, default to 1 night minimum
-        return {
-          success: true,
-          passed: nights >= 1,
-          minimumNights: 1,
-          selectedNights: nights,
-          error: nights < 1 ? `This property requires minimum 1 night.` : undefined,
-        }
-      }
-
-      const minimumNights = availability?.min_nights || 1
-      const maximumNights = availability?.max_nights || 365
+      // Legacy: property_availability was removed in favor of calendar-based management
+      // Default to 1 night minimum for all properties (no restrictions)
+      // Availability is now managed via the calendar interface
+      const minimumNights = 1
+      const maximumNights = 365
 
       return {
         success: true,
@@ -315,7 +298,7 @@ export class ReservationValidator {
         selectedNights: nights,
         error:
           nights < minimumNights
-            ? `This property requires minimum ${minimumNights} nights. You selected ${nights} nights.`
+            ? `This property requires minimum ${minimumNights} night. You selected ${nights} nights.`
             : nights > maximumNights
             ? `This property allows maximum ${maximumNights} nights. You selected ${nights} nights.`
             : undefined,
