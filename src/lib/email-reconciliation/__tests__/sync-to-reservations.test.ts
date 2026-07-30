@@ -1,122 +1,233 @@
 import { syncExtractedDataToReservation } from '../sync-to-reservations'
 import { createAdminClient } from '@/lib/supabase/admin'
 
-jest.mock('@/lib/supabase/admin')
+jest.mock('@/lib/supabase/admin', () => ({
+  createAdminClient: jest.fn(),
+}))
 
-describe('Email Extraction Sync Service (Reservation Matching)', () => {
-  it('handles extraction not found gracefully', async () => {
-    const mockSupabase = {
-      from: jest.fn((table: string) => {
-        if (table === 'email_extractions') {
-          return {
-            select: () => ({
-              eq: () => ({
-                single: () =>
-                  Promise.resolve({
-                    data: null,
-                    error: { message: 'Not found' },
-                  }),
-              }),
-            }),
-          }
-        }
+function buildReservationQuery(candidates: any[]) {
+  return {
+    select: () => ({
+      eq: () => ({
+        eq: () => ({
+          eq: () => Promise.resolve({ data: candidates, error: null }),
+        }),
       }),
-    }
+    }),
+  }
+}
 
+describe('syncExtractedDataToReservation', () => {
+  let mockSupabase: any
+
+  beforeEach(() => {
+    jest.clearAllMocks()
+    mockSupabase = { from: jest.fn() }
     ;(createAdminClient as jest.Mock).mockResolvedValue(mockSupabase)
+  })
 
-    const result = await syncExtractedDataToReservation('ext-nonexistent')
+  function mockExtraction(overrides: Record<string, unknown> = {}) {
+    return {
+      id: 'ext-1',
+      organization_id: 'org-1',
+      sync_status: 'pending',
+      guest_name: 'Ana Santos',
+      phone: '+351911111111',
+      total_value: 500,
+      check_in: '2026-08-01',
+      check_out: '2026-08-10',
+      property_name: null,
+      ...overrides,
+    }
+  }
+
+  it('syncs directly when only one reservation matches the exact dates', async () => {
+    const extraction = mockExtraction()
+    const updateMock = jest.fn().mockReturnValue({ eq: jest.fn().mockResolvedValue({ error: null }) })
+
+    mockSupabase.from.mockImplementation((table: string) => {
+      if (table === 'email_extractions') {
+        return {
+          select: () => ({ eq: () => ({ single: () => Promise.resolve({ data: extraction, error: null }) }) }),
+          update: jest.fn().mockReturnValue({ eq: jest.fn().mockResolvedValue({ error: null }) }),
+        }
+      }
+      if (table === 'reservations') {
+        return {
+          ...buildReservationQuery([{ id: 'res-1', property_listing_id: 'pl-1', property_listings: null }]),
+          update: updateMock,
+        }
+      }
+      throw new Error(`Unexpected table: ${table}`)
+    })
+
+    const result = await syncExtractedDataToReservation('ext-1')
+
+    expect(result.success).toBe(true)
+    expect(updateMock).toHaveBeenCalled()
+    const eqCall = updateMock.mock.results[0].value.eq as jest.Mock
+    expect(eqCall).toHaveBeenCalledWith('id', 'res-1')
+  })
+
+  it('disambiguates via property_name when two reservations share the exact same dates', async () => {
+    const extraction = mockExtraction({ property_name: 'Villa Azul' })
+    const updateMock = jest.fn().mockReturnValue({ eq: jest.fn().mockResolvedValue({ error: null }) })
+
+    const candidates = [
+      { id: 'res-WRONG', property_listing_id: 'pl-1', property_listings: [{ property_id: 'p-1', properties: [{ name: 'Apartamento Centro' }] }] },
+      { id: 'res-CORRECT', property_listing_id: 'pl-2', property_listings: [{ property_id: 'p-2', properties: [{ name: 'Villa Azul' }] }] },
+    ]
+
+    mockSupabase.from.mockImplementation((table: string) => {
+      if (table === 'email_extractions') {
+        return {
+          select: () => ({ eq: () => ({ single: () => Promise.resolve({ data: extraction, error: null }) }) }),
+          update: jest.fn().mockReturnValue({ eq: jest.fn().mockResolvedValue({ error: null }) }),
+        }
+      }
+      if (table === 'reservations') {
+        return { ...buildReservationQuery(candidates), update: updateMock }
+      }
+      throw new Error(`Unexpected table: ${table}`)
+    })
+
+    const result = await syncExtractedDataToReservation('ext-1')
+
+    expect(result.success).toBe(true)
+    const eqCall = updateMock.mock.results[0].value.eq as jest.Mock
+    expect(eqCall).toHaveBeenCalledWith('id', 'res-CORRECT')
+  })
+
+  it('flags needs_review instead of guessing when dates collide and there is no property_name', async () => {
+    const extraction = mockExtraction({ property_name: null })
+    const extractionUpdateMock = jest.fn().mockReturnValue({ eq: jest.fn().mockResolvedValue({ error: null }) })
+    const reservationUpdateMock = jest.fn()
+
+    const candidates = [
+      { id: 'res-A', property_listing_id: 'pl-1', property_listings: [{ property_id: 'p-1', properties: [{ name: 'Apartamento Centro' }] }] },
+      { id: 'res-B', property_listing_id: 'pl-2', property_listings: [{ property_id: 'p-2', properties: [{ name: 'Villa Azul' }] }] },
+    ]
+
+    mockSupabase.from.mockImplementation((table: string) => {
+      if (table === 'email_extractions') {
+        return {
+          select: () => ({ eq: () => ({ single: () => Promise.resolve({ data: extraction, error: null }) }) }),
+          update: extractionUpdateMock,
+        }
+      }
+      if (table === 'reservations') {
+        return { ...buildReservationQuery(candidates), update: reservationUpdateMock }
+      }
+      throw new Error(`Unexpected table: ${table}`)
+    })
+
+    const result = await syncExtractedDataToReservation('ext-1')
+
+    expect(result.success).toBe(true)
+    expect(reservationUpdateMock).not.toHaveBeenCalled()
+    expect(extractionUpdateMock).toHaveBeenCalledWith({ match_status: 'needs_review' })
+  })
+
+  it('flags needs_review instead of guessing when property_name does not clearly match any candidate', async () => {
+    const extraction = mockExtraction({ property_name: 'Totalmente Diferente' })
+    const extractionUpdateMock = jest.fn().mockReturnValue({ eq: jest.fn().mockResolvedValue({ error: null }) })
+    const reservationUpdateMock = jest.fn()
+
+    const candidates = [
+      { id: 'res-A', property_listing_id: 'pl-1', property_listings: [{ property_id: 'p-1', properties: [{ name: 'Apartamento Centro' }] }] },
+      { id: 'res-B', property_listing_id: 'pl-2', property_listings: [{ property_id: 'p-2', properties: [{ name: 'Villa Azul' }] }] },
+    ]
+
+    mockSupabase.from.mockImplementation((table: string) => {
+      if (table === 'email_extractions') {
+        return {
+          select: () => ({ eq: () => ({ single: () => Promise.resolve({ data: extraction, error: null }) }) }),
+          update: extractionUpdateMock,
+        }
+      }
+      if (table === 'reservations') {
+        return { ...buildReservationQuery(candidates), update: reservationUpdateMock }
+      }
+      throw new Error(`Unexpected table: ${table}`)
+    })
+
+    const result = await syncExtractedDataToReservation('ext-1')
+
+    expect(result.success).toBe(true)
+    expect(reservationUpdateMock).not.toHaveBeenCalled()
+    expect(extractionUpdateMock).toHaveBeenCalledWith({ match_status: 'needs_review' })
+  })
+
+  it('handles extraction not found', async () => {
+    mockSupabase.from.mockImplementation((table: string) => {
+      if (table === 'email_extractions') {
+        return { select: () => ({ eq: () => ({ single: () => Promise.resolve({ data: null, error: { message: 'Not found' } }) }) }) }
+      }
+      throw new Error(`Unexpected table: ${table}`)
+    })
+
+    const result = await syncExtractedDataToReservation('ext-999')
 
     expect(result.success).toBe(false)
     expect(result.error).toContain('not found')
   })
 
-  it('skips sync if already synced (idempotent)', async () => {
-    const mockSupabase = {
-      from: jest.fn((table: string) => {
-        if (table === 'email_extractions') {
-          return {
-            select: () => ({
-              eq: () => ({
-                single: () =>
-                  Promise.resolve({
-                    data: {
-                      id: 'ext-synced',
-                      sync_status: 'synced',
-                    },
-                    error: null,
-                  }),
-              }),
-            }),
-          }
-        }
-      }),
-    }
-
-    ;(createAdminClient as jest.Mock).mockResolvedValue(mockSupabase)
+  it('skips if already synced (idempotent)', async () => {
+    mockSupabase.from.mockImplementation((table: string) => {
+      if (table === 'email_extractions') {
+        return { select: () => ({ eq: () => ({ single: () => Promise.resolve({ data: { id: 'ext-synced', sync_status: 'synced' }, error: null }) }) }) }
+      }
+      throw new Error(`Unexpected table: ${table}`)
+    })
 
     const result = await syncExtractedDataToReservation('ext-synced')
 
-    // Should return success without attempting to sync
     expect(result.success).toBe(true)
   })
 
-  it('handles no matching reservations gracefully', async () => {
-    const mockSupabase = {
-      from: jest.fn((table: string) => {
-        if (table === 'email_extractions') {
-          return {
-            select: () => ({
-              eq: () => ({
-                single: () =>
-                  Promise.resolve({
-                    data: {
-                      id: 'ext-no-match',
-                      organization_id: 'org-789',
-                      check_in: '2026-08-20',
-                      check_out: '2026-08-25',
-                      sync_status: 'pending',
-                    },
-                    error: null,
-                  }),
-              }),
-            }),
-          }
-        }
+  it('does not fail when no reservation exists yet for those dates', async () => {
+    const extraction = mockExtraction()
 
-        if (table === 'reservations') {
-          return {
-            select: () => ({
-              eq: () => ({
-                gte: () => ({
-                  lte: () =>
-                    Promise.resolve({
-                      data: [],
-                      error: null,
-                    }),
-                }),
-              }),
-            }),
-          }
-        }
-      }),
-    }
+    mockSupabase.from.mockImplementation((table: string) => {
+      if (table === 'email_extractions') {
+        return { select: () => ({ eq: () => ({ single: () => Promise.resolve({ data: extraction, error: null }) }) }) }
+      }
+      if (table === 'reservations') {
+        return buildReservationQuery([])
+      }
+      throw new Error(`Unexpected table: ${table}`)
+    })
 
-    ;(createAdminClient as jest.Mock).mockResolvedValue(mockSupabase)
+    const result = await syncExtractedDataToReservation('ext-1')
 
-    const result = await syncExtractedDataToReservation('ext-no-match')
-
-    // Should not fail, just skip sync
     expect(result.success).toBe(true)
   })
 
-  it('uses intelligent scoring to pick best match (reservation_code priority)', () => {
-    // This is a unit test of the scoring logic (would need to export scoreReservationMatch)
-    // For now, this documents the expected behavior:
-    // 1. reservation_code exact match = 50 points (highest priority)
-    // 2. exact dates = 30 points
-    // 3. dates within ±1 day = 15 points
-    // Score of 0 means no sync (prevents wrong reservation updates)
-    expect(true).toBe(true) // Placeholder
+  it('splits guest name correctly', async () => {
+    const extraction = mockExtraction({ guest_name: 'João Manuel Silva' })
+    const updateMock = jest.fn().mockReturnValue({ eq: jest.fn().mockResolvedValue({ error: null }) })
+
+    mockSupabase.from.mockImplementation((table: string) => {
+      if (table === 'email_extractions') {
+        return {
+          select: () => ({ eq: () => ({ single: () => Promise.resolve({ data: extraction, error: null }) }) }),
+          update: jest.fn().mockReturnValue({ eq: jest.fn().mockResolvedValue({ error: null }) }),
+        }
+      }
+      if (table === 'reservations') {
+        return { ...buildReservationQuery([{ id: 'res-999', property_listing_id: 'pl-1', property_listings: null }]), update: updateMock }
+      }
+      throw new Error(`Unexpected table: ${table}`)
+    })
+
+    await syncExtractedDataToReservation('ext-1')
+
+    expect(updateMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        first_name: 'João',
+        last_name: 'Manuel Silva',
+        guest_phone: '+351911111111',
+      })
+    )
   })
 })

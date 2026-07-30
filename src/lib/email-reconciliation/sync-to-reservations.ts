@@ -1,52 +1,24 @@
 import { createAdminClient } from '@/lib/supabase/admin'
+import { calculateFuzzySimilarity } from './matching-engine'
 
-interface ReservationScore {
+// Below this, we don't trust a property-name match enough to auto-sync.
+const PROPERTY_MATCH_THRESHOLD = 0.6
+// Minimum gap between the best and second-best candidate to call it
+// unambiguous. Two similarly-scored candidates means we shouldn't guess.
+const MIN_WINNER_MARGIN = 0.15
+
+interface ReservationCandidate {
   id: string
-  score: number
-  details: {
-    reservation_code_match?: boolean
-    dates_exact?: boolean
-    dates_within_tolerance?: number
-  }
+  property_listing_id: string | null
+  property_listings: Array<{ property_id: string; properties: Array<{ name: string }> | null }> | null
 }
 
-function scoreReservationMatch(
-  extraction: any,
-  reservation: any
-): number {
-  let score = 0
-
-  // Rule 1: external_booking_id match (50 points) — most reliable
-  if (extraction.reservation_code && reservation.external_booking_id) {
-    if (extraction.reservation_code.toLowerCase() === reservation.external_booking_id.toLowerCase()) {
-      score += 50
-      return score // Skip other checks if code matches perfectly
-    }
-  }
-
-  // Rule 2: exact date match (30 points)
-  const resCheckIn = new Date(reservation.check_in).toISOString().split('T')[0]
-  const resCheckOut = new Date(reservation.check_out).toISOString().split('T')[0]
-  const extCheckIn = new Date(extraction.check_in).toISOString().split('T')[0]
-  const extCheckOut = new Date(extraction.check_out).toISOString().split('T')[0]
-
-  if (resCheckIn === extCheckIn && resCheckOut === extCheckOut) {
-    score += 30
-  } else {
-    // Rule 3: dates within ±1 day (15 points)
-    const checkInDiff = Math.abs(
-      (new Date(reservation.check_in).getTime() - new Date(extraction.check_in).getTime()) / (1000 * 60 * 60 * 24)
-    )
-    const checkOutDiff = Math.abs(
-      (new Date(reservation.check_out).getTime() - new Date(extraction.check_out).getTime()) / (1000 * 60 * 60 * 24)
-    )
-
-    if (checkInDiff <= 1 && checkOutDiff <= 1) {
-      score += 15
-    }
-  }
-
-  return score
+function getPropertyName(candidate: ReservationCandidate): string {
+  const propListing = candidate.property_listings?.[0]
+  if (!propListing) return ''
+  const properties = propListing.properties
+  if (!Array.isArray(properties) || properties.length === 0) return ''
+  return properties[0].name || ''
 }
 
 export async function syncExtractedDataToReservation(extractionId: string): Promise<{ success: boolean; error?: string }> {
@@ -70,44 +42,79 @@ export async function syncExtractedDataToReservation(extractionId: string): Prom
       return { success: true }
     }
 
-    // 2. Find matching reservations using intelligent scoring
-    const { data: candidates, error: queryError } = await supabase
+    // 2. Find candidate reservations by EXACT dates, org-scoped.
+    // Note: reservations don't carry the human-readable "BK123ABC"-style
+    // confirmation code anywhere (they're created by the sync-ical cron from
+    // the iCal feed, which only has a numeric platform id — see
+    // buildStableExternalId in cron/sync-ical/route.ts). So reservation_code
+    // from the email can't be matched against anything in the DB today.
+    // A single property_listing can't have two overlapping reservations
+    // (sync-ical already enforces that at creation time), so exact-date +
+    // property is the reliable key across an org with multiple properties.
+    const { data: candidates, error: reservationError } = await supabase
       .from('reservations')
-      .select('id, organization_id, external_booking_id, check_in, check_out')
+      .select('id, property_listing_id, property_listings(property_id, properties(name))')
       .eq('organization_id', extraction.organization_id)
-      .gte('check_in', new Date(extraction.check_in).toISOString().split('T')[0])
-      .lte('check_out', new Date(extraction.check_out).toISOString().split('T')[0])
+      .eq('check_in', extraction.check_in)
+      .eq('check_out', extraction.check_out)
 
-    if (queryError) {
-      console.error(`Sync: Error finding reservations`, { error: queryError })
-      return { success: false, error: queryError.message }
+    if (reservationError) {
+      console.error(`Sync: Error finding reservation`, { error: reservationError })
+      return { success: false, error: reservationError.message }
     }
 
     if (!candidates || candidates.length === 0) {
       console.warn(`Sync: No matching reservation found`, { extractionId, checkIn: extraction.check_in, checkOut: extraction.check_out })
-      // Don't fail - reservation might not be created yet
+      // Don't fail - reservation might not be created yet (email can arrive
+      // before the next sync-ical run picks up the booking).
       return { success: true }
     }
 
-    // Score all candidates and pick the best match
-    const scored: ReservationScore[] = candidates.map((candidate) => ({
-      id: candidate.id,
-      score: scoreReservationMatch(extraction, candidate),
-      details: {},
-    }))
+    let reservationId: string
 
-    scored.sort((a, b) => b.score - a.score)
-    const bestMatch = scored[0]
+    if (candidates.length === 1) {
+      reservationId = candidates[0].id
+    } else {
+      // 2b. Multiple reservations share these exact dates - different
+      // properties. Disambiguate using the property name extracted from the
+      // email (fuzzy match), never guess blindly.
+      if (!extraction.property_name) {
+        console.warn(`Sync: Ambiguous date match and no property_name to disambiguate`, {
+          extractionId,
+          checkIn: extraction.check_in,
+          checkOut: extraction.check_out,
+          candidateCount: candidates.length,
+        })
+        await supabase.from('email_extractions').update({ match_status: 'needs_review' }).eq('id', extractionId)
+        return { success: true }
+      }
 
-    if (bestMatch.score === 0) {
-      console.warn(`Sync: No high-confidence match found`, { extractionId, candidates: scored })
-      return { success: true } // Don't fail, but don't sync either
+      const scored = candidates
+        .map((c) => ({
+          id: c.id,
+          similarity: calculateFuzzySimilarity(extraction.property_name as string, getPropertyName(c)),
+        }))
+        .sort((a, b) => b.similarity - a.similarity)
+
+      const best = scored[0]
+      const secondBest = scored[1]
+      const marginOk = !secondBest || best.similarity - secondBest.similarity >= MIN_WINNER_MARGIN
+
+      if (best.similarity >= PROPERTY_MATCH_THRESHOLD && marginOk) {
+        reservationId = best.id
+      } else {
+        console.warn(`Sync: Ambiguous property match - refusing to guess`, {
+          extractionId,
+          propertyName: extraction.property_name,
+          scored,
+        })
+        await supabase.from('email_extractions').update({ match_status: 'needs_review' }).eq('id', extractionId)
+        return { success: true }
+      }
     }
 
-    const reservationId = bestMatch.id
-
     // 3. Prepare update data
-    const updateData: any = {
+    const updateData: Record<string, unknown> = {
       email_extraction_id: extractionId,
     }
 

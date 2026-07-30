@@ -272,7 +272,7 @@ export function decideMatch(candidates: MatchCandidate[]): MatchDecision {
  * Utility: Fuzzy string similarity (0-1)
  * Simple implementation: Levenshtein distance normalized
  */
-function calculateFuzzySimilarity(str1: string, str2: string): number {
+export function calculateFuzzySimilarity(str1: string, str2: string): number {
   if (!str1 || !str2) return 0
 
   const s1 = str1.toLowerCase().trim()
