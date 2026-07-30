@@ -82,13 +82,18 @@ export class ReservationValidator {
         }
       }
 
-      // Fetch daily prices for the period
+      // Convert dates to ISO 8601 format (YYYY-MM-DD) for database comparison
+      const checkInISO = checkInDate.toISOString().split('T')[0]
+      const checkOutISO = checkOutDate.toISOString().split('T')[0]
+
+      // Fetch daily prices from daily_prices table
+      // Note: checkout day is not charged (guest leaves that day)
       const { data: prices, error } = await supabase
-        .from('calendar_pricing')
-        .select('date, price_per_night, currency')
+        .from('daily_prices')
+        .select('date, base_price')
         .eq('property_id', propertyId)
-        .gte('date', checkIn)
-        .lt('date', checkOut)
+        .gte('date', checkInISO)
+        .lt('date', checkOutISO)
         .order('date', { ascending: true })
 
       if (error) {
@@ -111,9 +116,10 @@ export class ReservationValidator {
         }
       }
 
-      const pricePerNight = prices.map((p) => p.price_per_night)
+      const pricePerNight = prices.map((p) => p.base_price)
       const subtotal = pricePerNight.reduce((sum, price) => sum + price, 0)
-      const currency = prices[0]?.currency || 'EUR'
+      // Default currency is EUR; can be extended to per-property currency if needed
+      const currency = 'EUR'
 
       return {
         success: true,
