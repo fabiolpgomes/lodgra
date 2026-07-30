@@ -24,18 +24,19 @@ JSON format:
   "total_value": number (optional),
   "currency": "EUR|USD|GBP|etc" (optional),
   "reservation_code": "booking reference code" (optional),
-  "property_name": "property name" (optional)
+  "property_name": "property name" (optional),
+  "phone": "guest phone number" (optional)
 }
 
 EXAMPLES (few-shot):
 
 Example 1:
-Email: "Reserva confirmada - João Silva chega em 15 de agosto e sai em 20 de agosto. Property: Casa do Mar"
-Output: {"guest_name":"João Silva","check_in":"2026-08-15","check_out":"2026-08-20","property_name":"Casa do Mar"}
+Email: "Reserva confirmada - João Silva chega em 15 de agosto e sai em 20 de agosto. Property: Casa do Mar. Telefone: +351 912345678"
+Output: {"guest_name":"João Silva","check_in":"2026-08-15","check_out":"2026-08-20","property_name":"Casa do Mar","phone":"+351 912345678"}
 
 Example 2:
-Email: "Booking.com - Nova reserva! Ana Santos, 1-7 julho 2026, €450 EUR"
-Output: {"guest_name":"Ana Santos","check_in":"2026-07-01","check_out":"2026-07-07","total_value":450,"currency":"EUR"}
+Email: "Booking.com - Nova reserva! Ana Santos, 1-7 julho 2026, €450 EUR. Contact: +1 2025551234"
+Output: {"guest_name":"Ana Santos","check_in":"2026-07-01","check_out":"2026-07-07","total_value":450,"currency":"EUR","phone":"+1 2025551234"}
 
 Example 3:
 Email: "Lembrete: Nuno Soares chega quinta-feira (25 jul), sai terça (30 jul). Ref: BK12345"
@@ -44,6 +45,7 @@ Output: {"guest_name":"Nuno Soares","check_in":"2026-07-25","check_out":"2026-07
 RULES:
 - Dates in Portuguese: "25 de julho" → "2026-07-25" (infer current/next year)
 - If check-out missing but check-in present: try to infer from email context
+- Extract phone numbers (any format: +351 912345678, (201) 555-1234, etc)
 - Return ONLY the JSON object, NO markdown, NO extra text
 - Required: guest_name, check_in, check_out
 - For fields not found: omit them (don't include null)
