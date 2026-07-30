@@ -1,13 +1,8 @@
 'use client'
 
-import { useState } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, TrendingUp, Users } from 'lucide-react'
+import { ArrowLeft, TrendingUp } from 'lucide-react'
 import { AuthLayout } from '@/components/common/layout/AuthLayout'
-import { ForecastingDashboard } from '@/components/RevenueForecasting/ForecastingDashboard'
-import { CompetitorDashboard } from '@/components/CompetitorMonitoring/CompetitorDashboard'
-
-type TabType = 'forecasting' | 'competitor'
 
 interface PricingPageContentProps {
   property: {
@@ -20,13 +15,6 @@ interface PricingPageContentProps {
 }
 
 export function PricingPageContent({ property, locale }: PricingPageContentProps) {
-  const [activeTab, setActiveTab] = useState<TabType>('forecasting')
-
-  const tabs = [
-    { id: 'forecasting' as const, label: 'Previsões de Receita', icon: TrendingUp },
-    { id: 'competitor' as const, label: 'Monitoramento Concorrente', icon: Users },
-  ]
-
   return (
     <AuthLayout>
       <div className="max-w-6xl mx-auto px-4 py-8">
@@ -57,49 +45,12 @@ export function PricingPageContent({ property, locale }: PricingPageContentProps
           </p>
         </div>
 
-        {/* Tabs Navigation */}
-        <div className="bg-white border rounded-t-lg">
-          <div className="flex border-b bg-gray-50 overflow-x-auto">
-            {tabs.map(tab => {
-              const Icon = tab.icon
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 px-4 py-4 font-medium text-sm transition-colors whitespace-nowrap ${
-                    activeTab === tab.id
-                      ? 'text-blue-600 border-b-2 border-blue-600 bg-white'
-                      : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                >
-                  <Icon size={18} />
-                  <span className="hidden sm:inline">{tab.label}</span>
-                  <span className="sm:hidden">{tab.label.split(' ')[0]}</span>
-                </button>
-              )
-            })}
-          </div>
-
-          {/* Tab Content */}
-          <div className="p-6">
-            {activeTab === 'forecasting' && (
-              <div>
-                <ForecastingDashboard
-                  propertyId={property.id}
-                  propertyName={property.name}
-                />
-              </div>
-            )}
-
-            {activeTab === 'competitor' && (
-              <div>
-                <CompetitorDashboard
-                  propertyId={property.id}
-                  propertyName={property.name}
-                />
-              </div>
-            )}
-          </div>
+        {/* Notice: Analysis Features Disabled */}
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+          <p className="text-sm text-yellow-900">
+            <span className="font-medium">⚠️ Análise de Preços:</span> As funcionalidades de "Previsões de Receita" e "Monitoramento Concorrente" estão temporariamente desativadas.
+            Estas requerem dados históricos e configuração de concorrentes. Volte mais tarde para utilizá-las.
+          </p>
         </div>
       </div>
     </AuthLayout>

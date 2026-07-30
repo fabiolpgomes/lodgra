@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter, useLocale } from '@/lib/i18n/routing'
 import Link from 'next/link'
-import { ArrowLeft, Save, Globe, Tag } from 'lucide-react'
+import { ArrowLeft, Save, Globe } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { AuthLayout } from '@/components/common/layout/AuthLayout'
 import { Button } from '@/components/common/ui/button'
@@ -42,7 +42,6 @@ export default function EditPropertyPage({
   const [isPublic, setIsPublic] = useState(false)
   const [description, setDescription] = useState('')
   const [basePrice, setBasePrice] = useState<string>('')
-  const [minNights, setMinNights] = useState<string>('1')
   const [isActive, setIsActive] = useState(true)
   const [galleryImages, setGalleryImages] = useState<PropertyImage[]>([])
   const [uploadError, setUploadError] = useState<string | null>(null)
@@ -138,7 +137,6 @@ export default function EditPropertyPage({
       setIsActive(propResult.data.is_active ?? true)
       setDescription(propResult.data.description || '')
       setBasePrice((propResult.data.base_price as number | null)?.toString() || '')
-      setMinNights((propResult.data.min_nights as number | null)?.toString() || '1')
       setCleaningFee((propResult.data.cleaning_fee as number | null)?.toString() || '')
       setCleaningFeeType((propResult.data.cleaning_fee_type as string | null) || 'per_stay')
       setPetFee((propResult.data.pet_fee as number | null)?.toString() || '')
@@ -205,7 +203,6 @@ export default function EditPropertyPage({
           max_guests: parseInt(formData.get('max_guests') as string) || 0,
           management_percentage: parseFloat(formData.get('management_percentage') as string) || 0,
           base_price: basePrice ? parseFloat(basePrice) : null,
-          min_nights: minNights ? Math.max(1, parseInt(minNights)) : 1,
           slug: finalSlug,
           is_public: isPublic,
           is_active: isActive,
@@ -497,7 +494,7 @@ export default function EditPropertyPage({
           </div>
 
           <div className="mb-8">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Preços e Estadia</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Preço Base (Fallback)</h3>
             <div className="space-y-4">
               <div>
                 <Label htmlFor="base_price" className="mb-1">
@@ -513,43 +510,25 @@ export default function EditPropertyPage({
                   placeholder="Ex: 100.00"
                 />
                 <p className="text-xs text-gray-600 mt-1">
-                  Preço padrão por noite quando nenhuma regra de preço se aplica
+                  Preço padrão por noite quando não há preço configurado no calendário. Gerencie preços diários no calendário para melhor controlo.
                 </p>
               </div>
 
               {/* Pricing Rules Link */}
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <h4 className="font-semibold text-blue-900 mb-2">Regras por Preço por Época</h4>
+                <h4 className="font-semibold text-blue-900 mb-2">Gerir Preços no Calendário</h4>
                 <p className="text-sm text-blue-800 mb-3">
-                  Gerencie preços diferentes para períodos específicos (ex: alta temporada, eventos, descontos).
+                  Configure preços por dia, descontos por duração e períodos de indisponibilidade no calendário.
                 </p>
                 <Link
-                  href={`/${locale}/properties/${propertyId}/pricing`}
+                  href={`/${locale}/calendar/${propertyId}`}
                   className="inline-flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 transition"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
-                  Gerir Regras de Preço
+                  Ir para Calendário
                 </Link>
-              </div>
-
-              <div>
-                <Label htmlFor="min_nights" className="mb-1">
-                  Estadia Mínima (noites) *
-                </Label>
-                <Input
-                  type="number"
-                  id="min_nights"
-                  min="1"
-                  step="1"
-                  value={minNights}
-                  onChange={(e) => setMinNights(e.target.value)}
-                  placeholder="Ex: 3"
-                />
-                <p className="text-xs text-gray-600 mt-1">
-                  Mínimo de noites requeridas quando nenhuma regra de preço se aplica. As regras de preço podem sobrepor este valor.
-                </p>
               </div>
             </div>
           </div>
@@ -792,18 +771,6 @@ export default function EditPropertyPage({
                       />
                     </div>
                   )}
-                </div>
-              )}
-
-              {propertyId && (
-                <div className="pt-2">
-                  <Link
-                    href={`/${locale}/properties/${propertyId}/pricing`}
-                    className="inline-flex items-center gap-2 text-sm text-[color:var(--be-blue)] hover:text-brand-800 transition-colors"
-                  >
-                    <Tag size={14} />
-                    Gerir regras de preço por época →
-                  </Link>
                 </div>
               )}
             </div>
