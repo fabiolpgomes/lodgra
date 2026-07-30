@@ -9,6 +9,7 @@ export const EmailExtractionSchema = z.object({
   currency: z.string().length(3).optional(),
   reservation_code: z.string().optional(),
   property_name: z.string().optional(),
+  phone: z.string().optional(),
 })
 
 export type EmailExtraction = z.infer<typeof EmailExtractionSchema>
