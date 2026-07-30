@@ -1005,8 +1005,107 @@ Budget: €80-120K (consulting + hiring)
 
 ---
 
+## 📅 UPCOMING SPRINTS (Q3 2026)
+
+### Epic 41: Calendar & Reservations Validation (CURRENT)
+**Duration:** July 22 - July 30, 2026  
+**Status:** IN PROGRESS  
+
+#### Story 41.1: Calendar Pricing & Availability Validation
+**Duration:** In Progress  
+**Priority:** High  
+**Scope:**
+- Calendar cell-based pricing display
+- Monthly/yearly price configuration
+- Bulk price fill modal
+- Discount management
+- Availability blocking
+- Cancelation policies
+- Direct reservation support
+
+**Current Status:** Phase 2 in progress  
+**Acceptance Criteria:**
+- ✅ UI components complete
+- ⏳ E2E tests (21/2763 passing)
+- ⏳ Price/Discount/Availability/Cancelation logic validated
+
+**Blocker:** Story 42.1 (Sync Dashboard) awaiting completion before implementation
+
+---
+
+### Epic 42: Email Sync Dashboard Frontend (SCHEDULED)
+**Status:** SCHEDULED (Blocked by Story 41.1)  
+**Start Date:** After Story 41.1 completion  
+**Estimated Duration:** 2 weeks (40-50 hours)
+
+#### Story 42.1: Email Sync Dashboard Frontend — Search-First UI
+**Priority:** High  
+**Scope:**
+
+---
+
+### Epic 43: Direct Booking Reservations (PLANNED)
+**Status:** PLANNED  
+**Start Date:** After Story 42.1 completion  
+**Estimated Duration:** 2-3 weeks (20-30 hours)
+
+#### Story 43.1: Direct Booking Reservation Validator
+**Priority:** High  
+**Status:** Draft (awaiting @po validation)  
+**Scope:**
+- Validate price from calendar pricing (check-in/checkout period)
+- Check discount eligibility (7-27 days min, 28+ days extended)
+- Verify minimum nights requirement per property
+- Show applicable cancellation policy
+- API endpoint + React form + validation logic
+- 8-12 hours, 3 story points
+
+**Success Criteria:**
+- All validations working (price, discount, min nights, policy)
+- API endpoint tested with various date ranges
+- Frontend form displays validation results
+- Error handling for edge cases
+- Unit + integration tests passing
+
+**Blocks:** Story 43.2 (Direct Booking Creation)
+- Search-first architecture (autocomplete, debounce 300ms)
+- Property detail modal (metrics, chart, cases, actions)
+- Virtualized property grid (50+ properties)
+- Role-based access (admin/assistant/owner)
+- Mobile responsive (drawer-style modal)
+- Accessibility (WCAG AA)
+- E2E tests + performance validation
+
+**Phase 1 (Lean):**
+- 3 new backend APIs (search, detail, cases)
+- 7 React components (SearchBar, PropertyCard, Modal, etc)
+- Integration + state management (React Query)
+- Testing + polish
+
+**Phase 2 (Future):**
+- Resolution templates (automated fixes)
+- WebSocket real-time updates
+- Notification service
+
+**Design Reference:** `/docs/specs/SYNC-DASHBOARD-FRONTEND-SPEC.md` (UX Design Expert: Uma)
+
+**Dependencies:**
+- ✅ Story 41.1 must be DONE
+- ✅ Email sync APIs already exist
+- ✅ Design spec complete
+
+**Success Metrics:**
+- Search response < 1s (3 results)
+- Modal open < 500ms
+- 50 properties load without UI lag
+- Mobile fully responsive
+- WCAG AA accessibility pass
+- Critical E2E flows pass
+
+---
+
 **Document Status:** ACTIVE GUIDE  
-**Next Review:** June 30, 2026 (End of Phase 1)  
+**Next Review:** July 31, 2026 (After Story 41.1 completion)  
 **Approval:** PENDING STAKEHOLDER SIGN-OFF
 
 ---
