@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { extractEmailData } from '@/lib/email-reconciliation/extract-service'
+import { syncExtractedDataToReservation } from '@/lib/email-reconciliation/sync-to-reservations'
 
 export const maxDuration = 300
 
@@ -40,22 +41,27 @@ export async function POST(request: Request) {
               : null
 
         // Insert into email_extractions
-        const { error: insertError } = await supabase.from('email_extractions').insert({
-          organization_id: rawEmail.organization_id,
-          raw_email_id: rawEmail.id,
-          source_platform: platform,
-          guest_name: extraction.data?.guest_name || null,
-          check_in: extraction.data?.check_in || null,
-          check_out: extraction.data?.check_out || null,
-          number_of_guests: extraction.data?.number_of_guests || null,
-          total_value: extraction.data?.total_value || null,
-          currency: extraction.data?.currency || null,
-          reservation_code: extraction.data?.reservation_code || null,
-          property_name: extraction.data?.property_name || null,
-          confidence: extraction.confidence,
-          match_status: extraction.success ? 'pending' : 'needs_review',
-          extraction_notes: extraction.error || null,
-        })
+        const { data: insertedExtraction, error: insertError } = await supabase
+          .from('email_extractions')
+          .insert({
+            organization_id: rawEmail.organization_id,
+            raw_email_id: rawEmail.id,
+            source_platform: platform,
+            guest_name: extraction.data?.guest_name || null,
+            check_in: extraction.data?.check_in || null,
+            check_out: extraction.data?.check_out || null,
+            number_of_guests: extraction.data?.number_of_guests || null,
+            total_value: extraction.data?.total_value || null,
+            currency: extraction.data?.currency || null,
+            reservation_code: extraction.data?.reservation_code || null,
+            property_name: extraction.data?.property_name || null,
+            phone: extraction.data?.phone || null,
+            confidence: extraction.confidence,
+            match_status: extraction.success ? 'pending' : 'needs_review',
+            extraction_notes: extraction.error || null,
+          })
+          .select()
+          .single()
 
         if (insertError) {
           results.push({
@@ -64,6 +70,13 @@ export async function POST(request: Request) {
             error: insertError.message,
           })
           continue
+        }
+
+        // Sync extracted data to reservation if extraction successful
+        if (extraction.success && insertedExtraction?.id) {
+          await syncExtractedDataToReservation(insertedExtraction.id).catch((error) => {
+            console.error('Sync to reservation failed', { extractionId: insertedExtraction.id, error })
+          })
         }
 
         // Update raw_email status
