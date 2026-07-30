@@ -12,7 +12,7 @@ describe('Booking Webhook', () => {
       const signature = crypto
         .createHmac('sha256', secret)
         .update(payload)
-        .digest('hex')
+        .digest('base64')
 
       const isValid = webhookManager.validateBookingSignature(payload, signature)
       expect(isValid).toBe(true)
