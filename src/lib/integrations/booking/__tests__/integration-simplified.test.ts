@@ -16,7 +16,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 
 // Mock the admin client to avoid real database writes
 const createMockQueryBuilder = (table: string) => {
-  return {
+  const chain: any = {
     select: jest.fn(function () {
       return this
     }),
@@ -63,20 +63,40 @@ const createMockQueryBuilder = (table: string) => {
     maybeSingle: jest.fn(async function () {
       return { data: null, error: null }
     }),
-    upsert: jest.fn(async function (data: unknown) {
-      // Mock successful upsert
-      return {
-        data: { ...data, id: 'generated_id_' + Date.now() },
-        error: null,
+    upsert: jest.fn(function (data: unknown, options?: unknown) {
+      // Return chainable for .select().single()
+      const upsertChain: any = {
+        select: jest.fn(function (cols: string) {
+          const selectChain: any = {
+            single: jest.fn(async function () {
+              return {
+                data: { id: 'reservation_' + Date.now() },
+                error: null,
+              }
+            }),
+          }
+          return selectChain
+        }),
       }
+      return upsertChain
     }),
-    insert: jest.fn(function () {
-      return this
+    insert: jest.fn(function (data?: unknown) {
+      // Return chainable with same methods
+      const insertChain: any = {
+        select: jest.fn(async function () {
+          return {
+            data: data,
+            error: null,
+          }
+        }),
+      }
+      return insertChain
     }),
     delete: jest.fn(function () {
       return this
     }),
   }
+  return chain
 }
 
 jest.mock('@/lib/supabase/admin', () => ({
@@ -144,9 +164,8 @@ describe('Booking.com Webhook - Simplified Integration Tests', () => {
 
       // Verify that organization lookup was attempted
       const adminClient = createAdminClient()
-      const fromCall = adminClient.from('organizations')
 
-      expect(fromCall).toHaveBeenCalled()
+      expect(adminClient.from).toHaveBeenCalledWith('organizations')
     })
 
     it('should return error if property listing not found', async () => {
