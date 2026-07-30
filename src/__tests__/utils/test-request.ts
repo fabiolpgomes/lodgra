@@ -12,6 +12,8 @@ export function createTestRequest(
   } = {}
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): any {
+  const bodyStr = typeof options.body === 'string' ? options.body : String(options.body || '')
+
   const req = new Request(url, {
     method: options.method || 'GET',
     headers: options.headers || {},
@@ -31,6 +33,10 @@ export function createTestRequest(
     port: urlObj.port,
     origin: urlObj.origin,
   } as any
+
+  // Mock text() method for webhook tests
+  req.text = jest.fn(async () => bodyStr)
+  req.json = jest.fn(async () => JSON.parse(bodyStr))
 
   return req
 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { webhookManager } from '@/lib/webhooks/webhook-manager'
 import { mapBookingEventToUpdate } from '@/lib/webhooks/event-mappers'
+import { randomUUID } from 'crypto'
 
 export const dynamic = 'force-dynamic'
 
@@ -10,22 +11,46 @@ export const dynamic = 'force-dynamic'
  */
 export async function POST(request: NextRequest) {
   try {
+    // Check if webhook secret is configured
+    if (!process.env.BOOKING_WEBHOOK_SECRET) {
+      console.error('[Booking Webhook] BOOKING_WEBHOOK_SECRET not configured')
+      return NextResponse.json({ error: 'Webhook not configured' }, { status: 500 })
+    }
+
     const payload = await request.text()
     const signature = request.headers.get('x-booking-signature')
 
     if (!signature) {
       console.warn('[Booking Webhook] Missing signature header')
-      return NextResponse.json({ error: 'Missing signature' }, { status: 403 })
+      return NextResponse.json({ error: 'Missing X-Booking-Signature' }, { status: 400 })
+    }
+
+    if (!payload) {
+      console.warn('[Booking Webhook] Empty body')
+      return NextResponse.json({ error: 'Empty body' }, { status: 400 })
     }
 
     // Validar assinatura
     if (!webhookManager.validateBookingSignature(payload, signature)) {
       console.warn('[Booking Webhook] Invalid signature')
-      return NextResponse.json({ error: 'Invalid signature' }, { status: 403 })
+      return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
     }
 
-    const event = JSON.parse(payload)
-    const eventId = event.id || `booking_${Date.now()}`
+    let event
+    try {
+      event = JSON.parse(payload)
+    } catch {
+      console.warn('[Booking Webhook] Invalid JSON')
+      return NextResponse.json({ error: 'Invalid payload' }, { status: 400 })
+    }
+
+    // Validar campos obrigatórios
+    if (!event.event_id) {
+      console.warn('[Booking Webhook] Missing event_id')
+      return NextResponse.json({ error: 'Invalid payload' }, { status: 400 })
+    }
+
+    const eventId = event.event_id || `booking_${Date.now()}`
 
     console.log(`[Booking Webhook] Received event: ${event.event_type} (${eventId})`)
 
@@ -33,7 +58,7 @@ export async function POST(request: NextRequest) {
     await webhookManager.logWebhookEvent('booking', eventId, event, 'pending')
 
     // Extrair booking_reference do payload
-    const bookingReference = event.reservation?.id
+    const bookingReference = event.data?.reservation?.id || event.reservation?.id
     if (!bookingReference) {
       console.warn('[Booking Webhook] No booking ID in payload')
       await webhookManager.logWebhookEvent('booking', eventId, event, 'failed', 'No booking ID')
@@ -48,10 +73,11 @@ export async function POST(request: NextRequest) {
       await webhookManager.updateReservationFromWebhook(bookingReference, updates, 'booking')
 
       // Log sucesso
+      const requestId = randomUUID()
       await webhookManager.logWebhookEvent('booking', eventId, event, 'processed')
       console.log(`[Booking Webhook] ✅ Event processed: ${eventId}`)
 
-      return NextResponse.json({ success: true, eventId })
+      return NextResponse.json({ success: true, request_id: requestId })
     } catch (updateError) {
       console.error(`[Booking Webhook] Error updating reservation:`, updateError)
       await webhookManager.logWebhookEvent(

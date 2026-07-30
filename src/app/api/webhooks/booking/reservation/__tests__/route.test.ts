@@ -13,7 +13,6 @@
  */
 
 import { NextRequest } from 'next/server'
-import { createTestRequest } from '@/__tests__/utils/test-request'
 import crypto from 'crypto'
 import { POST } from '../route'
 
@@ -28,6 +27,33 @@ jest.mock('@/lib/rateLimit', () => ({
     (POST as unknown as { __callCount?: number }).__callCount = callCount + 1
     return callCount < 5
   }),
+}))
+
+// Mock webhookManager
+jest.mock('@/lib/webhooks/webhook-manager', () => {
+  return {
+    webhookManager: {
+      validateBookingSignature: jest.fn((payload: string, signature: string) => {
+        const secret = process.env.BOOKING_WEBHOOK_SECRET
+        if (!secret) return false
+        const expected = crypto
+          .createHmac('sha256', secret)
+          .update(payload)
+          .digest('base64')
+        return signature === expected
+      }),
+      logWebhookEvent: jest.fn(async () => {}),
+      updateReservationFromWebhook: jest.fn(async () => {}),
+    },
+  }
+})
+
+// Mock event mappers
+jest.mock('@/lib/webhooks/event-mappers', () => ({
+  mapBookingEventToUpdate: jest.fn((event: any) => ({
+    status: event.data?.reservation?.status || 'CONFIRMED',
+    updated_at: new Date().toISOString(),
+  })),
 }))
 
 // TODO: Re-enable when Booking.com native integration is reactivated
@@ -70,7 +96,7 @@ describe('POST /api/webhooks/booking/reservation', () => {
     body: string,
     signature?: string,
     additionalHeaders?: Record<string, string>
-  ): NextRequest {
+  ): any {
     const headers = new Headers({
       'Content-Type': 'application/json',
       ...additionalHeaders,
@@ -80,19 +106,19 @@ describe('POST /api/webhooks/booking/reservation', () => {
       headers.set('X-Booking-Signature', signature)
     }
 
-    // Create a readable stream from body
-    const stream = new ReadableStream({
-      start(controller) {
-        controller.enqueue(new TextEncoder().encode(body))
-        controller.close()
-      },
-    })
-
-    return new NextRequest('http://localhost/api/webhooks/booking/reservation', {
-      method: 'POST',
+    // Return a mock object that looks like NextRequest
+    return {
+      text: async () => body,
+      json: async () => JSON.parse(body),
       headers,
-      body: stream,
-    })
+      method: 'POST',
+      url: 'http://localhost/api/webhooks/booking/reservation',
+      nextUrl: {
+        clone: () => new URL('http://localhost/api/webhooks/booking/reservation'),
+        searchParams: new URL('http://localhost/api/webhooks/booking/reservation').searchParams,
+        pathname: '/api/webhooks/booking/reservation',
+      },
+    }
   }
 
   // ──────────────────────────────────────────────────────────────

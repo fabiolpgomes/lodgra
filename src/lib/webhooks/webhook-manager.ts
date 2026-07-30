@@ -21,9 +21,9 @@ export class WebhookManager {
     const expected = crypto
       .createHmac('sha256', secret)
       .update(payload)
-      .digest('hex')
+      .digest('base64')
 
-    return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected))
+    return signature === expected
   }
 
   /**
