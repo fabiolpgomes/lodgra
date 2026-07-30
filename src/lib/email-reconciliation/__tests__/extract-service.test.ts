@@ -62,4 +62,56 @@ describe('Email extraction schema', () => {
       expect(result.data.total_value).toBe(1000)
     }
   })
+
+  describe('Phone field (new)', () => {
+    it('accepts phone as optional field', () => {
+      const withPhone = {
+        guest_name: 'João Silva',
+        check_in: '2026-08-20',
+        check_out: '2026-08-25',
+        phone: '+351 912345678',
+      }
+
+      const result = EmailExtractionSchema.safeParse(withPhone)
+      expect(result.success).toBe(true)
+      if (result.success) {
+        expect(result.data.phone).toBe('+351 912345678')
+      }
+    })
+
+    it('accepts phone with different formats', () => {
+      const formats = [
+        '+351 912345678',
+        '+1 2025551234',
+        '912345678',
+        '+351912345678',
+        '(201) 555-1234',
+      ]
+
+      formats.forEach((phone) => {
+        const data = {
+          guest_name: 'Test',
+          check_in: '2026-08-20',
+          check_out: '2026-08-25',
+          phone,
+        }
+        const result = EmailExtractionSchema.safeParse(data)
+        expect(result.success).toBe(true)
+      })
+    })
+
+    it('allows missing phone (optional)', () => {
+      const noPhone = {
+        guest_name: 'Test',
+        check_in: '2026-08-20',
+        check_out: '2026-08-25',
+      }
+
+      const result = EmailExtractionSchema.safeParse(noPhone)
+      expect(result.success).toBe(true)
+      if (result.success) {
+        expect(result.data.phone).toBeUndefined()
+      }
+    })
+  })
 })
