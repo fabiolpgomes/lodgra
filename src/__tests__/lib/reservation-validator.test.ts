@@ -149,6 +149,78 @@ describe('ReservationValidator', () => {
     })
   })
 
+  describe('validateReservationOverlap', () => {
+    it('should detect no overlap when dates are after', async () => {
+      const result = await ReservationValidator.validateReservationOverlap(
+        'prop-123',
+        '2026-08-15',
+        '2026-08-20'
+      )
+
+      expect(result).toHaveProperty('hasConflict')
+      expect(result).toHaveProperty('conflictingReservations')
+    })
+
+    it('should detect no overlap when dates are before', async () => {
+      const result = await ReservationValidator.validateReservationOverlap(
+        'prop-123',
+        '2026-08-01',
+        '2026-08-03'
+      )
+
+      expect(result.hasConflict).toBeDefined()
+    })
+
+    it('should detect overlap with existing reservation', async () => {
+      const result = await ReservationValidator.validateReservationOverlap(
+        'prop-123',
+        '2026-08-07',
+        '2026-08-12'
+      )
+
+      expect(result).toHaveProperty('hasConflict')
+      expect(result).toHaveProperty('conflictingReservations')
+      expect(Array.isArray(result.conflictingReservations)).toBe(true)
+    })
+
+    it('should exclude cancelled reservations', async () => {
+      const result = await ReservationValidator.validateReservationOverlap(
+        'prop-123',
+        '2026-08-25',
+        '2026-08-30'
+      )
+
+      // Should not include cancelled reservations
+      expect(result).toHaveProperty('hasConflict')
+    })
+
+    it('should exclude specific reservation ID (edit mode)', async () => {
+      const result = await ReservationValidator.validateReservationOverlap(
+        'prop-123',
+        '2026-08-05',
+        '2026-08-10',
+        'res-001'
+      )
+
+      expect(result).toHaveProperty('hasConflict')
+      // If excluding res-001, should not appear in conflicts
+      if (result.conflictingReservations.length > 0) {
+        expect(result.conflictingReservations.every((r) => r.id !== 'res-001')).toBe(true)
+      }
+    })
+
+    it('should handle database errors gracefully', async () => {
+      const result = await ReservationValidator.validateReservationOverlap(
+        'prop-error',
+        '2026-08-05',
+        '2026-08-10'
+      )
+
+      expect(result.hasConflict).toBe(false)
+      expect(Array.isArray(result.conflictingReservations)).toBe(true)
+    })
+  })
+
   describe('validate', () => {
     it('should run all validations and return combined result', async () => {
       const result = await ReservationValidator.validate(

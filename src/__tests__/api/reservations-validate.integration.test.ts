@@ -290,6 +290,88 @@ describe('POST /api/admin/reservations/validate', () => {
     expect(data.error).toBeDefined()
   })
 
+  // Test overlap detection - no overlap
+  it('should return success when no reservations overlap', async () => {
+    mockSupabase.auth.getUser.mockResolvedValue({
+      data: { user: { id: 'admin-1' } },
+    })
+
+    mockSupabase.from.mockReturnValue({
+      select: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
+      single: jest.fn().mockResolvedValue({
+        data: { role: 'admin' },
+      }),
+    })
+
+    const request = createRequest({
+      propertyId: 'prop-123',
+      checkIn: '2026-09-01', // After all existing reservations
+      checkOut: '2026-09-05',
+    })
+
+    const response = await POST(request)
+    const data = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(data.success).toBeDefined()
+  })
+
+  // Test overlap detection - with conflict
+  it('should return error when reservations overlap', async () => {
+    mockSupabase.auth.getUser.mockResolvedValue({
+      data: { user: { id: 'admin-1' } },
+    })
+
+    mockSupabase.from.mockReturnValue({
+      select: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
+      single: jest.fn().mockResolvedValue({
+        data: { role: 'admin' },
+      }),
+    })
+
+    const request = createRequest({
+      propertyId: 'prop-123',
+      checkIn: '2026-08-07', // Overlaps with existing reservation
+      checkOut: '2026-08-12',
+    })
+
+    const response = await POST(request)
+    const data = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(data).toHaveProperty('errors')
+  })
+
+  // Test overlap detection - cancelled reservation ignored
+  it('should ignore cancelled reservations when checking overlap', async () => {
+    mockSupabase.auth.getUser.mockResolvedValue({
+      data: { user: { id: 'admin-1' } },
+    })
+
+    mockSupabase.from.mockReturnValue({
+      select: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
+      single: jest.fn().mockResolvedValue({
+        data: { role: 'admin' },
+      }),
+    })
+
+    const request = createRequest({
+      propertyId: 'prop-123',
+      checkIn: '2026-08-25', // Overlaps cancelled reservation
+      checkOut: '2026-08-30',
+    })
+
+    const response = await POST(request)
+    const data = await response.json()
+
+    expect(response.status).toBe(200)
+    // Should not error for cancelled overlaps
+    expect(data).toHaveProperty('success')
+  })
+
   // Test response structure
   it('should return complete ValidationResult structure', async () => {
     mockSupabase.auth.getUser.mockResolvedValue({

@@ -36,6 +36,12 @@ export interface CancellationPolicyResult {
   error?: string
 }
 
+export interface OverlapResult {
+  hasConflict: boolean
+  conflictingReservations: Array<{ id: string; checkIn: string; checkOut: string }>
+  error?: string
+}
+
 export interface ValidationResult {
   success: boolean
   propertyId: string
@@ -328,6 +334,62 @@ export class ReservationValidator {
     }
   }
 
+  static async validateReservationOverlap(
+    propertyId: string,
+    checkIn: string,
+    checkOut: string,
+    excludeReservationId?: string
+  ): Promise<OverlapResult> {
+    try {
+      const supabase = await this.getClient()
+
+      // Query: Find all active reservations with overlapping dates
+      // Overlap logic: existing.check_in < new.checkOut AND existing.check_out > new.checkIn
+      const { data: reservations, error } = await supabase
+        .from('reservations')
+        .select('id, check_in, check_out')
+        .eq('property_id', propertyId)
+        .neq('status', 'cancelled')
+        .lt('check_in', checkOut)
+        .gt('check_out', checkIn)
+
+      if (error) {
+        return {
+          hasConflict: false,
+          conflictingReservations: [],
+          error: `Database error: ${error.message}`,
+        }
+      }
+
+      if (!reservations || reservations.length === 0) {
+        return {
+          hasConflict: false,
+          conflictingReservations: [],
+        }
+      }
+
+      // Filter out excluded reservation (for edit scenarios)
+      const conflicts = excludeReservationId
+        ? reservations.filter((r) => r.id !== excludeReservationId)
+        : reservations
+
+      return {
+        hasConflict: conflicts.length > 0,
+        conflictingReservations: conflicts.map((r) => ({
+          id: r.id,
+          checkIn: r.check_in,
+          checkOut: r.check_out,
+        })),
+      }
+    } catch (error) {
+      return {
+        hasConflict: false,
+        conflictingReservations: [],
+        error: `Validation error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      }
+    }
+  }
+
   static async validate(
     propertyId: string,
     checkIn: string,
@@ -348,11 +410,12 @@ export class ReservationValidator {
     }
 
     // Run all validations in parallel
-    const [priceResult, minimumNightsResult, cancellationPolicyResult] =
+    const [priceResult, minimumNightsResult, cancellationPolicyResult, overlapResult] =
       await Promise.all([
         this.validatePrice(propertyId, checkIn, checkOut),
         this.validateMinimumNights(propertyId, nights),
         this.validateCancellationPolicy(propertyId, checkIn),
+        this.validateReservationOverlap(propertyId, checkIn, checkOut),
       ])
 
     // Calculate discount after price is known
@@ -366,6 +429,11 @@ export class ReservationValidator {
     if (!priceResult.success && priceResult.error) errors.push(priceResult.error)
     if (!minimumNightsResult.passed && minimumNightsResult.error)
       errors.push(minimumNightsResult.error)
+    if (overlapResult.hasConflict) {
+      const conflictIds = overlapResult.conflictingReservations.map((r) => r.id).join(', ')
+      errors.push(`Overlapping reservations found: ${conflictIds}`)
+    }
+    if (overlapResult.error) warnings.push(overlapResult.error)
     if (!cancellationPolicyResult.success && cancellationPolicyResult.error)
       warnings.push(cancellationPolicyResult.error)
 
