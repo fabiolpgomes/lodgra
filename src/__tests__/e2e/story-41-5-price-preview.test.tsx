@@ -97,9 +97,14 @@ describe('PriceBreakdownTooltip - Story 41.5', () => {
       final_price: 130,
     }
 
-    ;(global.fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      json: async () => allDiscountsResponse,
+    ;(global.fetch as jest.Mock).mockImplementation((url: string) => {
+      if (url.includes('/calculate-price')) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => allDiscountsResponse,
+        })
+      }
+      return Promise.resolve({ ok: true, json: async () => ({}) })
     })
 
     render(
@@ -160,8 +165,8 @@ describe('PriceBreakdownTooltip - Story 41.5', () => {
     expect(screen.getByText(/€200.00/)).toBeInTheDocument()
   })
 
-  it('should show loading state while fetching', () => {
-    ;(global.fetch as jest.Mock).mockImplementationOnce(
+  it('should show loading state while fetching', async () => {
+    ;(global.fetch as jest.Mock).mockImplementation(
       () => new Promise(() => {}) // Never resolves
     )
 
@@ -174,14 +179,18 @@ describe('PriceBreakdownTooltip - Story 41.5', () => {
       />
     )
 
-    expect(screen.getByText(/Calculating price/i)).toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.getByText(/Calculating price/i)).toBeInTheDocument()
+    }, { timeout: 500 })
   })
 
   it('should show error on API failure', async () => {
-    ;(global.fetch as jest.Mock).mockResolvedValueOnce({
-      ok: false,
-      status: 500,
-    })
+    ;(global.fetch as jest.Mock).mockImplementation(() =>
+      Promise.resolve({
+        ok: false,
+        status: 500,
+      })
+    )
 
     render(
       <PriceBreakdownTooltip
