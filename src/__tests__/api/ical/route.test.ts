@@ -23,7 +23,10 @@ function createChainableMock() {
   methods.in = jest.fn().mockReturnValue(methods)
   methods.neq = jest.fn().mockReturnValue(methods)
   methods.order = jest.fn().mockReturnValue(methods)
+  methods.limit = jest.fn().mockReturnValue(methods)
   methods.single = jest.fn().mockResolvedValue({ data: null, error: null })
+  // Make awaitable to return data directly
+  methods.then = jest.fn(async (onFulfilled) => onFulfilled({ data: [], error: null }))
   return methods
 }
 
@@ -39,7 +42,7 @@ describe('GET /api/ical/[propertyId]', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
-    mockCreateAdminClient.mockReturnValue(mockSupabaseClient as never)
+    mockCreateAdminClient.mockResolvedValue(mockSupabaseClient as never)
   })
 
   // Test 1: Successful iCal export with valid token
@@ -51,23 +54,30 @@ describe('GET /api/ical/[propertyId]', () => {
 
     const expectedICalData = 'BEGIN:VCALENDAR\nVERSION:2.0\nEND:VCALENDAR'
 
-    // Create and configure mocks
-    const propertyMock = createChainableMock()
-    propertyMock.single.mockResolvedValue({ data: mockProperty, error: null })
+    // Create a universal mock for all queries
+    const universalMock = createChainableMock()
 
-    const blocksMock = createChainableMock()
-    blocksMock.order.mockResolvedValue({ data: [], error: null })
-
-    const listingsMock = createChainableMock()
-    listingsMock.eq.mockResolvedValue({ data: [], error: null })
-
-    mockSupabaseClient.from.mockImplementation((table: string) => {
-      if (table === 'properties') return propertyMock
-      if (table === 'calendar_blocks') return blocksMock
-      if (table === 'property_listings') return listingsMock
-      return createChainableMock()
+    // Override single to return property data first time, then null
+    let singleCallCount = 0
+    universalMock.single.mockImplementation(async function () {
+      singleCallCount++
+      if (singleCallCount === 1) {
+        return { data: mockProperty, error: null }
+      }
+      return { data: null, error: null }
     })
 
+    // Override eq to ensure data is returned correctly
+    universalMock.eq.mockImplementation(function () {
+      return this
+    })
+
+    // Make order chainable too
+    universalMock.order.mockImplementation(async function () {
+      return { data: [], error: null }
+    })
+
+    mockSupabaseClient.from.mockImplementation(() => universalMock)
     mockGenerateICalWithBlocks.mockReturnValue(expectedICalData)
 
     const request = createTestRequest(`${baseUrl}/api/ical/${propertyId}?token=${validToken}`)
