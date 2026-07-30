@@ -109,10 +109,12 @@ export class ReservationValidator {
       // Convert dates to ISO 8601 format (YYYY-MM-DD) for database comparison
       const checkInISO = checkInDate.toISOString().split('T')[0]
       const checkOutISO = checkOutDate.toISOString().split('T')[0]
+      const nights = Math.ceil(
+        (checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24)
+      )
 
-      // Fetch daily prices from property_daily_prices table
-      // Note: checkout day is not charged (guest leaves that day)
-      const { data: prices, error } = await supabase
+      // Try to fetch daily prices from property_daily_prices table (overrides)
+      const { data: dailyPrices, error: dailyError } = await supabase
         .from('property_daily_prices')
         .select('date, price')
         .eq('property_id', propertyId)
@@ -120,36 +122,56 @@ export class ReservationValidator {
         .lt('date', checkOutISO)
         .order('date', { ascending: true })
 
-      if (error) {
+      // If daily prices found, use them
+      if (dailyPrices && dailyPrices.length > 0) {
+        const pricePerNight = dailyPrices.map((p) => p.price)
+        const subtotal = pricePerNight.reduce((sum, price) => sum + price, 0)
+
+        return {
+          success: true,
+          pricePerNight,
+          subtotal,
+          currency: 'EUR',
+          breakdown: dailyPrices.map((p) => ({ date: p.date, price: p.price })),
+        }
+      }
+
+      // Fallback: Use base price from property_prices table
+      const { data: basePrice, error: basePriceError } = await supabase
+        .from('property_prices')
+        .select('base_price, weekend_price')
+        .eq('property_id', propertyId)
+        .single()
+
+      if (basePriceError || !basePrice) {
         return {
           success: false,
           pricePerNight: [],
           subtotal: 0,
           currency: 'EUR',
-          error: `Database error: ${error.message}`,
+          error: 'No pricing configured for this property',
         }
       }
 
-      if (!prices || prices.length === 0) {
-        return {
-          success: false,
-          pricePerNight: [],
-          subtotal: 0,
-          currency: 'EUR',
-          error: 'No pricing configured for these dates',
-        }
+      // Calculate prices for each night (weekday vs weekend)
+      const pricePerNight: number[] = []
+      for (let i = 0; i < nights; i++) {
+        const date = new Date(checkInDate)
+        date.setDate(date.getDate() + i)
+        const dayOfWeek = date.getDay()
+        // Friday (5) and Saturday (6) are weekends
+        const isWeekend = dayOfWeek === 5 || dayOfWeek === 6
+        const price = isWeekend && basePrice.weekend_price ? basePrice.weekend_price : basePrice.base_price
+        pricePerNight.push(price)
       }
 
-      const pricePerNight = prices.map((p) => p.price)
       const subtotal = pricePerNight.reduce((sum, price) => sum + price, 0)
-      // Default currency is EUR; can be extended to per-property currency if needed
-      const currency = 'EUR'
 
       return {
         success: true,
         pricePerNight,
         subtotal,
-        currency,
+        currency: 'EUR',
       }
     } catch (error) {
       return {
