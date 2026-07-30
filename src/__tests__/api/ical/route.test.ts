@@ -17,16 +17,22 @@ const mockGenerateICalWithBlocks = generateICalWithBlocks as jest.MockedFunction
 
 // Helper to create chainable Supabase query mocks
 function createChainableMock() {
-  const methods = {} as any
-  methods.select = jest.fn().mockReturnValue(methods)
-  methods.eq = jest.fn().mockReturnValue(methods)
-  methods.in = jest.fn().mockReturnValue(methods)
-  methods.neq = jest.fn().mockReturnValue(methods)
-  methods.order = jest.fn().mockReturnValue(methods)
-  methods.limit = jest.fn().mockReturnValue(methods)
-  methods.single = jest.fn().mockResolvedValue({ data: null, error: null })
-  // Make awaitable to return data directly
-  methods.then = jest.fn(async (onFulfilled) => onFulfilled({ data: [], error: null }))
+  const methods: any = {
+    select: jest.fn().mockReturnThis(),
+    eq: jest.fn().mockReturnThis(),
+    in: jest.fn().mockReturnThis(),
+    neq: jest.fn().mockReturnThis(),
+    order: jest.fn().mockReturnThis(),
+    limit: jest.fn().mockReturnThis(),
+    single: jest.fn().mockResolvedValue({ data: null, error: null }),
+    maybeSingle: jest.fn().mockResolvedValue({ data: null, error: null }),
+    upsert: jest.fn().mockResolvedValue({ data: {}, error: null }),
+    insert: jest.fn().mockReturnThis(),
+    delete: jest.fn().mockReturnThis(),
+    // Make the query itself awaitable
+    then: jest.fn(async (onFulfilled) => onFulfilled({ data: [], error: null })),
+    catch: jest.fn().mockReturnThis(),
+  }
   return methods
 }
 
@@ -42,7 +48,7 @@ describe('GET /api/ical/[propertyId]', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
-    mockCreateAdminClient.mockResolvedValue(mockSupabaseClient as never)
+    mockCreateAdminClient.mockReturnValue(mockSupabaseClient as never)
   })
 
   // Test 1: Successful iCal export with valid token
