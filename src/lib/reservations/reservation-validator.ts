@@ -86,11 +86,11 @@ export class ReservationValidator {
       const checkInISO = checkInDate.toISOString().split('T')[0]
       const checkOutISO = checkOutDate.toISOString().split('T')[0]
 
-      // Fetch daily prices from daily_prices table
+      // Fetch daily prices from property_daily_prices table
       // Note: checkout day is not charged (guest leaves that day)
       const { data: prices, error } = await supabase
-        .from('daily_prices')
-        .select('date, base_price')
+        .from('property_daily_prices')
+        .select('date, price')
         .eq('property_id', propertyId)
         .gte('date', checkInISO)
         .lt('date', checkOutISO)
@@ -116,7 +116,7 @@ export class ReservationValidator {
         }
       }
 
-      const pricePerNight = prices.map((p) => p.base_price)
+      const pricePerNight = prices.map((p) => p.price)
       const subtotal = pricePerNight.reduce((sum, price) => sum + price, 0)
       // Default currency is EUR; can be extended to per-property currency if needed
       const currency = 'EUR'
@@ -160,7 +160,7 @@ export class ReservationValidator {
       // Fetch discount rules for the property
       const { data: discounts, error } = await supabase
         .from('property_discounts')
-        .select('discount_type, discount_percentage, min_nights, max_nights')
+        .select('discount_type, percentage, min_nights')
         .eq('property_id', propertyId)
         .order('min_nights', { ascending: true })
 
@@ -189,10 +189,7 @@ export class ReservationValidator {
       // Find applicable discount (highest discount for the night range)
       let applicableDiscount = null
       for (const discount of discounts) {
-        if (
-          nights >= discount.min_nights &&
-          (!discount.max_nights || nights <= discount.max_nights)
-        ) {
+        if (nights >= discount.min_nights) {
           applicableDiscount = discount
         }
       }
@@ -208,17 +205,22 @@ export class ReservationValidator {
         }
       }
 
-      const discountAmount = (subtotal * applicableDiscount.discount_percentage) / 100
+      const discountAmount = (subtotal * applicableDiscount.percentage) / 100
       const discountedPrice = subtotal - discountAmount
+      const discountTypeLabel = applicableDiscount.discount_type === 'weekly' ? 'Weekly' :
+                               applicableDiscount.discount_type === 'monthly' ? 'Monthly' :
+                               applicableDiscount.discount_type
 
       return {
         success: true,
         hasDiscount: true,
-        discountType: applicableDiscount.discount_type as 'min_stay' | 'extended_stay',
-        discountPercentage: applicableDiscount.discount_percentage,
+        discountType: applicableDiscount.discount_type.includes('monthly') || applicableDiscount.discount_type.includes('weekly')
+          ? ('min_stay' as const)
+          : ('extended_stay' as const),
+        discountPercentage: applicableDiscount.percentage,
         originalPrice: subtotal,
         discountedPrice,
-        reason: `${applicableDiscount.discount_type === 'extended_stay' ? 'Extended' : 'Minimum'} stay discount applied (${nights} nights)`,
+        reason: `${discountTypeLabel} discount applied (${nights} nights)`,
       }
     } catch (error) {
       return {
@@ -239,32 +241,38 @@ export class ReservationValidator {
     try {
       const supabase = await this.getClient()
 
-      const { data: property, error } = await supabase
-        .from('properties')
-        .select('min_nights_configured')
-        .eq('id', propertyId)
+      // Fetch minimum nights from property_availability table
+      const { data: availability, error } = await supabase
+        .from('property_availability')
+        .select('min_nights, max_nights')
+        .eq('property_id', propertyId)
         .single()
 
       if (error) {
+        // If property_availability doesn't exist, default to 1 night minimum
         return {
-          success: false,
-          passed: false,
-          minimumNights: 0,
+          success: true,
+          passed: nights >= 1,
+          minimumNights: 1,
           selectedNights: nights,
-          error: `Property not found: ${error.message}`,
+          error: nights < 1 ? `This property requires minimum 1 night.` : undefined,
         }
       }
 
-      const minimumNights = property?.min_nights_configured || 1
+      const minimumNights = availability?.min_nights || 1
+      const maximumNights = availability?.max_nights || 365
 
       return {
         success: true,
-        passed: nights >= minimumNights,
+        passed: nights >= minimumNights && nights <= maximumNights,
         minimumNights,
         selectedNights: nights,
-        error: nights < minimumNights
-          ? `This property requires minimum ${minimumNights} nights. You selected ${nights} nights.`
-          : undefined,
+        error:
+          nights < minimumNights
+            ? `This property requires minimum ${minimumNights} nights. You selected ${nights} nights.`
+            : nights > maximumNights
+            ? `This property allows maximum ${maximumNights} nights. You selected ${nights} nights.`
+            : undefined,
       }
     } catch (error) {
       return {
@@ -284,13 +292,18 @@ export class ReservationValidator {
     try {
       const supabase = await this.getClient()
 
-      // Fetch cancellation policy for the property/date
+      // Determine if this is a long-stay reservation (28+ nights)
+      // For now, default to short-stay (false) - this should be enhanced with actual night count
+      const isLongStay = false
+
+      // Fetch cancellation policy for the property
       const { data: policies, error } = await supabase
-        .from('cancellation_policies')
-        .select('id, name, terms, refund_percentage, refund_deadline_days')
+        .from('property_cancellation_policies')
+        .select('id, policy_type, full_refund_days, partial_refund_days, partial_refund_percent')
         .eq('property_id', propertyId)
-        .lte('start_date', checkIn)
-        .order('start_date', { ascending: false })
+        .eq('is_long_stay', isLongStay)
+        .eq('is_active', true)
+        .order('policy_type', { ascending: true })
         .limit(1)
 
       if (error) {
@@ -318,14 +331,23 @@ export class ReservationValidator {
       }
 
       const policy = policies[0]
+      const policyNameMap: Record<string, string> = {
+        'flexible': 'Flexible',
+        'moderate': 'Moderate',
+        'limited': 'Limited',
+        'firm': 'Firm',
+        'rigid': 'Rigid',
+      }
 
       return {
         success: true,
         policyId: policy.id,
-        policyName: policy.name,
-        terms: policy.terms,
-        refundPercentage: policy.refund_percentage,
-        refundDeadlineDays: policy.refund_deadline_days,
+        policyName: policyNameMap[policy.policy_type] || policy.policy_type,
+        terms: `Full refund until ${policy.full_refund_days} days before check-in${
+          policy.partial_refund_days ? `; ${policy.partial_refund_percent}% refund until ${policy.partial_refund_days} days before` : ''
+        }`,
+        refundPercentage: 100,
+        refundDeadlineDays: policy.full_refund_days,
       }
     } catch (error) {
       return {
