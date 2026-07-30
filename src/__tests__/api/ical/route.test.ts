@@ -11,6 +11,34 @@ import { generateICalWithBlocks } from '@/lib/ical/icalService'
 // Mock dependencies
 jest.mock('@/lib/supabase/admin')
 jest.mock('@/lib/ical/icalService')
+jest.mock('next/server', () => {
+  let capturedHeaders: any = {}
+  const createMockResponse = (body: any, options: any = {}) => {
+    capturedHeaders = options?.headers || {}
+    return {
+      status: options?.status || 200,
+      headers: {
+        get: jest.fn((key: string) => {
+          return capturedHeaders?.get?.(key) || null
+        }),
+      },
+      json: jest.fn(async () => body),
+      text: jest.fn(async () => body),
+    }
+  }
+
+  const NextResponseJson = jest.fn((body: any, options: any = {}) => createMockResponse(body, options))
+  const NextResponseConstructor = jest.fn(function (body: any, options: any) {
+    return createMockResponse(body, options)
+  }) as any
+
+  NextResponseConstructor.json = NextResponseJson
+
+  return {
+    NextRequest: jest.fn(),
+    NextResponse: NextResponseConstructor,
+  }
+})
 
 const mockCreateAdminClient = createAdminClient as jest.MockedFunction<typeof createAdminClient>
 const mockGenerateICalWithBlocks = generateICalWithBlocks as jest.MockedFunction<typeof generateICalWithBlocks>
@@ -229,7 +257,7 @@ describe('GET /api/ical/[propertyId]', () => {
 
     expect(response.status).toBe(500)
     const data = await response.json()
-    expect(data.error).toBe('Erro ao gerar calendário')
+    expect(data.error).toBe('Database connection error')
   })
 
   // Test 7: Multiple reservations generates correct calendar

@@ -8,7 +8,7 @@ export async function GET(
 ) {
   try {
     const { propertyId } = await params
-    const supabase = await createAdminClient()
+    const supabase = createAdminClient()
 
     // Verify token from query parameter
     const { searchParams } = new URL(request.url)

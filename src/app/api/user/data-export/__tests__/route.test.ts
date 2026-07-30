@@ -27,12 +27,50 @@ jest.mock('@/lib/supabase/server', () => ({
   })),
 }))
 
+// Mock Next.js server
+jest.mock('next/server', () => {
+  const createMockResponse = (body: any, options: any = {}) => {
+    const headers = options?.headers || {}
+    return {
+      status: options?.status || 200,
+      headers: {
+        get: jest.fn((key: string) => {
+          return headers[key] || null
+        }),
+      },
+      json: jest.fn(async () => body),
+      text: jest.fn(async () => body),
+    }
+  }
+
+  const NextResponseJson = jest.fn((body: any, options: any = {}) => createMockResponse(body, options))
+  const NextResponseConstructor = jest.fn(function (body: any, options: any) {
+    return createMockResponse(body, options)
+  }) as any
+
+  NextResponseConstructor.json = NextResponseJson
+
+  return {
+    NextRequest: jest.fn(),
+    NextResponse: NextResponseConstructor,
+  }
+})
+
 // Mock Supabase admin client
 jest.mock('@/lib/supabase/admin', () => ({
   createAdminClient: jest.fn(() => {
     const createChainable = (resolveData: unknown = []) => {
       const chain: any = {
-        then: async (resolve: Function) => resolve({ data: resolveData, error: null }),
+        // Implement Thenable interface for Promise.all() support
+        then: (resolve: Function, reject?: Function) => {
+          try {
+            resolve({ data: resolveData, error: null })
+          } catch (e) {
+            reject?.(e)
+          }
+          return Promise.resolve({ data: resolveData, error: null })
+        },
+        catch: jest.fn().mockReturnThis(),
       }
       chain.select = jest.fn(() => chain)
       chain.eq = jest.fn(() => chain)
@@ -40,9 +78,19 @@ jest.mock('@/lib/supabase/admin', () => ({
       chain.in = jest.fn(() => chain)
       chain.order = jest.fn(() => chain)
       chain.limit = jest.fn(() => chain)
-      chain.single = jest.fn(() => ({
-        then: async (resolve: Function) => resolve({ data: mockProfile, error: null }),
-      }))
+      chain.single = jest.fn(() => {
+        const singleChain: any = {
+          then: (resolve: Function, reject?: Function) => {
+            try {
+              resolve({ data: mockProfile, error: null })
+            } catch (e) {
+              reject?.(e)
+            }
+            return Promise.resolve({ data: mockProfile, error: null })
+          },
+        }
+        return singleChain
+      })
       chain.insert = jest.fn(async (data: Record<string, unknown>) => {
         mockInsertedAudit = data
         return { error: null }
@@ -104,13 +152,13 @@ describe('POST /api/user/data-export', () => {
       expect(body).toHaveProperty('properties')
       expect(body).toHaveProperty('reservations')
       expect(body).toHaveProperty('expenses')
+      expect(body).toHaveProperty('owners')
+      expect(body).toHaveProperty('consent_records')
+      expect(body).toHaveProperty('audit_logs')
     } catch (error) {
       console.error('Data export test error:', error)
       throw error
     }
-    expect(body).toHaveProperty('owners')
-    expect(body).toHaveProperty('consent_records')
-    expect(body).toHaveProperty('audit_logs')
   })
 
   it('returns 429 if export done in last 24h', async () => {
