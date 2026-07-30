@@ -287,33 +287,38 @@ export class ReservationValidator {
     try {
       const supabase = await this.getClient()
 
-      // Fetch minimum nights from properties table (source of truth)
-      const { data: property, error } = await supabase
-        .from('properties')
-        .select('min_nights')
-        .eq('id', propertyId)
+      // Fetch minimum nights from property_availability table
+      const { data: availability, error } = await supabase
+        .from('property_availability')
+        .select('min_nights, max_nights')
+        .eq('property_id', propertyId)
         .single()
 
       if (error) {
+        // If property_availability doesn't exist, default to 1 night minimum
         return {
-          success: false,
-          passed: false,
-          minimumNights: 0,
+          success: true,
+          passed: nights >= 1,
+          minimumNights: 1,
           selectedNights: nights,
-          error: `Property not found: ${error.message}`,
+          error: nights < 1 ? `This property requires minimum 1 night.` : undefined,
         }
       }
 
-      const minimumNights = property?.min_nights || 1
+      const minimumNights = availability?.min_nights || 1
+      const maximumNights = availability?.max_nights || 365
 
       return {
         success: true,
-        passed: nights >= minimumNights,
+        passed: nights >= minimumNights && nights <= maximumNights,
         minimumNights,
         selectedNights: nights,
-        error: nights < minimumNights
-          ? `This property requires minimum ${minimumNights} nights. You selected ${nights} nights.`
-          : undefined,
+        error:
+          nights < minimumNights
+            ? `This property requires minimum ${minimumNights} nights. You selected ${nights} nights.`
+            : nights > maximumNights
+            ? `This property allows maximum ${maximumNights} nights. You selected ${nights} nights.`
+            : undefined,
       }
     } catch (error) {
       return {
