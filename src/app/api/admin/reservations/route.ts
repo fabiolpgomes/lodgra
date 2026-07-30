@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { ReservationValidator } from '@/lib/reservations/reservation-validator'
 import { sendReservationConfirmationEmailWithRetry } from '@/lib/email/sendgrid'
+import { sendReservationSMSWithRetry } from '@/lib/sms/twilio'
 
 export async function POST(request: NextRequest) {
   try {
@@ -176,6 +177,22 @@ export async function POST(request: NextRequest) {
     }).catch((error) => {
       console.error('[Email Send] Error sending confirmation email:', error)
     })
+
+    // Send SMS notification asynchronously if phone is available
+    if (body.guestPhone) {
+      sendReservationSMSWithRetry(body.guestPhone, {
+        guestName,
+        guestPhone: body.guestPhone,
+        propertyName: property?.name || 'Propriedade',
+        checkInDate: checkInFormatted,
+        checkOutDate: checkOutFormatted,
+        finalPrice: `€${parseFloat(String(finalPrice)).toFixed(2)}`,
+        reservationId: reservation.id,
+        supportPhone: process.env.SUPPORT_PHONE || '+55 (11) 3000-0000',
+      }).catch((error) => {
+        console.error('[SMS Send] Error sending confirmation SMS:', error)
+      })
+    }
 
     return NextResponse.json(
       {
