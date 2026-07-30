@@ -31,14 +31,18 @@ jest.mock('@/lib/supabase/server', () => ({
 jest.mock('@/lib/supabase/admin', () => ({
   createAdminClient: jest.fn(() => {
     const createChainable = (resolveData: unknown = []) => {
-      const chain: Record<string, jest.Mock> = {}
+      const chain: any = {
+        then: async (resolve: Function) => resolve({ data: resolveData, error: null }),
+      }
       chain.select = jest.fn(() => chain)
       chain.eq = jest.fn(() => chain)
       chain.gte = jest.fn(() => chain)
       chain.in = jest.fn(() => chain)
       chain.order = jest.fn(() => chain)
-      chain.limit = jest.fn(() => Promise.resolve({ data: resolveData, error: null }))
-      chain.single = jest.fn(() => Promise.resolve({ data: mockProfile, error: null }))
+      chain.limit = jest.fn(() => chain)
+      chain.single = jest.fn(() => ({
+        then: async (resolve: Function) => resolve({ data: mockProfile, error: null }),
+      }))
       chain.insert = jest.fn(async (data: Record<string, unknown>) => {
         mockInsertedAudit = data
         return { error: null }
@@ -49,10 +53,7 @@ jest.mock('@/lib/supabase/admin', () => ({
     return {
       from: jest.fn((table: string) => {
         if (table === 'user_profiles') return createChainable(mockProfile)
-        if (table === 'audit_logs') {
-          const chain = createChainable(mockAuditLogs)
-          return chain
-        }
+        if (table === 'audit_logs') return createChainable(mockAuditLogs)
         return createChainable([])
       }),
     }
@@ -85,23 +86,28 @@ describe('POST /api/user/data-export', () => {
     }
     mockAuditLogs = [] // No recent exports
 
-    const response = await POST()
-    expect(response.status).toBe(200)
+    try {
+      const response = await POST()
+      expect(response.status).toBe(200)
 
-    const contentType = response.headers.get('Content-Type')
-    expect(contentType).toBe('application/json')
+      const contentType = response.headers.get('Content-Type')
+      expect(contentType).toBe('application/json')
 
-    const disposition = response.headers.get('Content-Disposition')
-    expect(disposition).toContain('attachment')
-    expect(disposition).toContain('lodgra-data-export')
+      const disposition = response.headers.get('Content-Disposition')
+      expect(disposition).toContain('attachment')
+      expect(disposition).toContain('lodgra-data-export')
 
-    const body = JSON.parse(await response.text())
-    expect(body.export_date).toBeDefined()
-    expect(body.export_version).toBe('1.0')
-    expect(body.user.email).toBe('test@example.com')
-    expect(body).toHaveProperty('properties')
-    expect(body).toHaveProperty('reservations')
-    expect(body).toHaveProperty('expenses')
+      const body = JSON.parse(await response.text())
+      expect(body.export_date).toBeDefined()
+      expect(body.export_version).toBe('1.0')
+      expect(body.user.email).toBe('test@example.com')
+      expect(body).toHaveProperty('properties')
+      expect(body).toHaveProperty('reservations')
+      expect(body).toHaveProperty('expenses')
+    } catch (error) {
+      console.error('Data export test error:', error)
+      throw error
+    }
     expect(body).toHaveProperty('owners')
     expect(body).toHaveProperty('consent_records')
     expect(body).toHaveProperty('audit_logs')
