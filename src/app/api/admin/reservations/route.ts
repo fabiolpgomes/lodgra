@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { ReservationValidator } from '@/lib/reservations/reservation-validator'
+import { sendReservationConfirmationEmailWithRetry } from '@/lib/email/sendgrid'
 
 export async function POST(request: NextRequest) {
   try {
@@ -109,6 +110,72 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       )
     }
+
+    // Fetch property data for email
+    const { data: property } = await supabase
+      .from('properties')
+      .select('name, address, cancellation_policy_id')
+      .eq('id', propertyId)
+      .single()
+
+    // Fetch cancellation policy
+    let cancellationPolicyName = 'Padrão'
+    let refundPercentage = 0
+    let refundDeadlineDays = 0
+
+    if (property?.cancellation_policy_id) {
+      const { data: policy } = await supabase
+        .from('cancellation_policies')
+        .select('name, refund_percentage, refund_deadline_days')
+        .eq('id', property.cancellation_policy_id)
+        .single()
+
+      if (policy) {
+        cancellationPolicyName = policy.name
+        refundPercentage = policy.refund_percentage
+        refundDeadlineDays = policy.refund_deadline_days
+      }
+    }
+
+    // Calculate dates for email
+    const checkInObj = new Date(checkIn)
+    const checkOutObj = new Date(checkOut)
+    const nightsCount = Math.ceil(
+      (checkOutObj.getTime() - checkInObj.getTime()) / (1000 * 60 * 60 * 24)
+    )
+
+    // Format dates
+    const checkInFormatted = checkInObj.toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    })
+    const checkOutFormatted = checkOutObj.toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    })
+
+    // Send confirmation email asynchronously (don't block response)
+    sendReservationConfirmationEmailWithRetry(guestEmail, {
+      guestName,
+      propertyName: property?.name || 'Propriedade',
+      propertyAddress: property?.address || '',
+      checkInDate: checkInFormatted,
+      checkOutDate: checkOutFormatted,
+      nights: nightsCount,
+      guestCount: guestCount || 1,
+      pricePerNight: `€${(parseFloat(String(finalPrice)) / nightsCount).toFixed(2)}`,
+      finalPrice: `€${parseFloat(String(finalPrice)).toFixed(2)}`,
+      cancellationPolicyName,
+      refundPercentage,
+      refundDeadlineDays,
+      supportEmail: process.env.SUPPORT_EMAIL || 'support@lodgra.io',
+      supportPhone: process.env.SUPPORT_PHONE || '+55 (11) 3000-0000',
+      notes: notes || undefined,
+    }).catch((error) => {
+      console.error('[Email Send] Error sending confirmation email:', error)
+    })
 
     return NextResponse.json(
       {

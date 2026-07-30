@@ -47,6 +47,12 @@ describe('POST /api/admin/reservations', () => {
         })
         .mockResolvedValueOnce({
           data: { id: 'res-001', guest_name: 'João Silva' },
+        })
+        .mockResolvedValueOnce({
+          data: { id: 'prop-123', name: 'Property Name', address: 'Address', cancellation_policy_id: 'pol-1' },
+        })
+        .mockResolvedValueOnce({
+          data: { name: 'Flexible', refund_percentage: 100, refund_deadline_days: 7 },
         }),
       insert: jest.fn().mockReturnThis(),
     })

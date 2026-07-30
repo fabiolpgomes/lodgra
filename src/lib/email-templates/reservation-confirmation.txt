@@ -1,0 +1,52 @@
+CONFIRMAÇÃO DE RESERVA - LODGRA
+
+Olá {guestName},
+
+Sua reserva foi criada com sucesso! Confira os detalhes abaixo:
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DETALHES DA PROPRIEDADE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Propriedade: {propertyName}
+Endereço: {propertyAddress}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DATAS DA RESERVA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Check-in: {checkInDate}
+Check-out: {checkOutDate}
+Noites: {nights}
+Hóspedes: {guestCount}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+RESUMO DE PREÇOS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Preço por noite: {pricePerNight}
+{discountSectionText}
+──────────────────────────────────────────
+TOTAL: {finalPrice}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+POLÍTICA DE CANCELAMENTO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Política: {cancellationPolicyName}
+
+Você pode cancelar esta reserva e receber {refundPercentage}% do valor até {refundDeadlineDays} dias antes do check-in.
+
+{notesText}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PRECISA DE AJUDA?
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Email: {supportEmail}
+Telefone: {supportPhone}
+
+Obrigado por escolher Lodgra!
+
+---
+Esta é uma confirmação automática. Por favor não responda a este email.
