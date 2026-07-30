@@ -1,5 +1,54 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 
+interface ReservationScore {
+  id: string
+  score: number
+  details: {
+    reservation_code_match?: boolean
+    dates_exact?: boolean
+    dates_within_tolerance?: number
+  }
+}
+
+function scoreReservationMatch(
+  extraction: any,
+  reservation: any
+): number {
+  let score = 0
+
+  // Rule 1: external_booking_id match (50 points) — most reliable
+  if (extraction.reservation_code && reservation.external_booking_id) {
+    if (extraction.reservation_code.toLowerCase() === reservation.external_booking_id.toLowerCase()) {
+      score += 50
+      return score // Skip other checks if code matches perfectly
+    }
+  }
+
+  // Rule 2: exact date match (30 points)
+  const resCheckIn = new Date(reservation.check_in).toISOString().split('T')[0]
+  const resCheckOut = new Date(reservation.check_out).toISOString().split('T')[0]
+  const extCheckIn = new Date(extraction.check_in).toISOString().split('T')[0]
+  const extCheckOut = new Date(extraction.check_out).toISOString().split('T')[0]
+
+  if (resCheckIn === extCheckIn && resCheckOut === extCheckOut) {
+    score += 30
+  } else {
+    // Rule 3: dates within ±1 day (15 points)
+    const checkInDiff = Math.abs(
+      (new Date(reservation.check_in).getTime() - new Date(extraction.check_in).getTime()) / (1000 * 60 * 60 * 24)
+    )
+    const checkOutDiff = Math.abs(
+      (new Date(reservation.check_out).getTime() - new Date(extraction.check_out).getTime()) / (1000 * 60 * 60 * 24)
+    )
+
+    if (checkInDiff <= 1 && checkOutDiff <= 1) {
+      score += 15
+    }
+  }
+
+  return score
+}
+
 export async function syncExtractedDataToReservation(extractionId: string): Promise<{ success: boolean; error?: string }> {
   try {
     const supabase = await createAdminClient()
@@ -21,34 +70,41 @@ export async function syncExtractedDataToReservation(extractionId: string): Prom
       return { success: true }
     }
 
-    // 2. Find matching reservation
-    // First try by reservation_code if available (most accurate)
-    let query = supabase
+    // 2. Find matching reservations using intelligent scoring
+    const { data: candidates, error: queryError } = await supabase
       .from('reservations')
-      .select('id, organization_id')
+      .select('id, organization_id, external_booking_id, check_in, check_out')
       .eq('organization_id', extraction.organization_id)
+      .gte('check_in', new Date(extraction.check_in).toISOString().split('T')[0])
+      .lte('check_out', new Date(extraction.check_out).toISOString().split('T')[0])
 
-    if (extraction.reservation_code) {
-      query = query.eq('external_booking_id', extraction.reservation_code)
-    } else {
-      // Fallback: match by dates (less accurate, may pick wrong reservation if overlapping)
-      query = query.gte('check_in', extraction.check_in).lte('check_out', extraction.check_out)
+    if (queryError) {
+      console.error(`Sync: Error finding reservations`, { error: queryError })
+      return { success: false, error: queryError.message }
     }
 
-    const { data: reservations, error: reservationError } = await query.limit(1)
-
-    if (reservationError) {
-      console.error(`Sync: Error finding reservation`, { error: reservationError })
-      return { success: false, error: reservationError.message }
-    }
-
-    if (!reservations || reservations.length === 0) {
+    if (!candidates || candidates.length === 0) {
       console.warn(`Sync: No matching reservation found`, { extractionId, checkIn: extraction.check_in, checkOut: extraction.check_out })
       // Don't fail - reservation might not be created yet
       return { success: true }
     }
 
-    const reservationId = reservations[0].id
+    // Score all candidates and pick the best match
+    const scored: ReservationScore[] = candidates.map((candidate) => ({
+      id: candidate.id,
+      score: scoreReservationMatch(extraction, candidate),
+      details: {},
+    }))
+
+    scored.sort((a, b) => b.score - a.score)
+    const bestMatch = scored[0]
+
+    if (bestMatch.score === 0) {
+      console.warn(`Sync: No high-confidence match found`, { extractionId, candidates: scored })
+      return { success: true } // Don't fail, but don't sync either
+    }
+
+    const reservationId = bestMatch.id
 
     // 3. Prepare update data
     const updateData: any = {
