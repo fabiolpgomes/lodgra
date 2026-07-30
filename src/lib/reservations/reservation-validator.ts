@@ -5,6 +5,7 @@ export interface PriceResult {
   pricePerNight: number[]
   subtotal: number
   currency: string
+  breakdown?: Array<{ date: string; price: number }>
   error?: string
 }
 
@@ -42,6 +43,17 @@ export interface OverlapResult {
   error?: string
 }
 
+export interface FeesResult {
+  success: boolean
+  cleaningFee: number
+  cleaningFeeType: 'per_stay' | 'per_night' | null
+  petFee: number
+  petFeeType: 'per_stay' | 'per_night' | null
+  totalFees: number
+  breakdown: Array<{ name: string; amount: number; type: string }>
+  error?: string
+}
+
 export interface ValidationResult {
   success: boolean
   propertyId: string
@@ -52,6 +64,18 @@ export interface ValidationResult {
   discount: DiscountResult
   minimumNights: MinimumNightsResult
   cancellationPolicy: CancellationPolicyResult
+  fees: FeesResult
+  breakdown: {
+    basePrice: number
+    discountAmount: number
+    discountPercentage: number
+    cleaningFee: number
+    petFee: number
+    subtotal: number
+    totalFees: number
+    finalPrice: number
+    currency: string
+  }
   finalPrice: number
   errors: string[]
   warnings: string[]
@@ -418,6 +442,88 @@ export class ReservationValidator {
     }
   }
 
+  static async validateFees(
+    propertyId: string,
+    nights: number
+  ): Promise<FeesResult> {
+    try {
+      const supabase = await this.getClient()
+
+      // Fetch fees from properties table
+      const { data: property, error } = await supabase
+        .from('properties')
+        .select('cleaning_fee, cleaning_fee_type, pet_fee, pet_fee_type')
+        .eq('id', propertyId)
+        .single()
+
+      if (error) {
+        return {
+          success: true,
+          cleaningFee: 0,
+          cleaningFeeType: null,
+          petFee: 0,
+          petFeeType: null,
+          totalFees: 0,
+          breakdown: [],
+        }
+      }
+
+      const breakdown: Array<{ name: string; amount: number; type: string }> = []
+      let totalFees = 0
+
+      // Calculate cleaning fee
+      let cleaningFee = 0
+      if (property?.cleaning_fee && property.cleaning_fee > 0) {
+        cleaningFee =
+          property.cleaning_fee_type === 'per_night'
+            ? property.cleaning_fee * nights
+            : property.cleaning_fee
+        breakdown.push({
+          name: 'Limpeza',
+          amount: cleaningFee,
+          type: property.cleaning_fee_type || 'per_stay',
+        })
+        totalFees += cleaningFee
+      }
+
+      // Calculate pet fee
+      let petFee = 0
+      if (property?.pet_fee && property.pet_fee > 0) {
+        petFee =
+          property.pet_fee_type === 'per_night'
+            ? property.pet_fee * nights
+            : property.pet_fee
+        breakdown.push({
+          name: 'Animal de Estimação',
+          amount: petFee,
+          type: property.pet_fee_type || 'per_stay',
+        })
+        totalFees += petFee
+      }
+
+      return {
+        success: true,
+        cleaningFee: property?.cleaning_fee || 0,
+        cleaningFeeType: (property?.cleaning_fee_type as 'per_stay' | 'per_night' | null) || null,
+        petFee: property?.pet_fee || 0,
+        petFeeType: (property?.pet_fee_type as 'per_stay' | 'per_night' | null) || null,
+        totalFees,
+        breakdown,
+      }
+    } catch (error) {
+      return {
+        success: false,
+        cleaningFee: 0,
+        cleaningFeeType: null,
+        petFee: 0,
+        petFeeType: null,
+        totalFees: 0,
+        breakdown: [],
+        error: `Validation error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      }
+    }
+  }
+
   static async validate(
     propertyId: string,
     checkIn: string,
@@ -438,12 +544,13 @@ export class ReservationValidator {
     }
 
     // Run all validations in parallel
-    const [priceResult, minimumNightsResult, cancellationPolicyResult, overlapResult] =
+    const [priceResult, minimumNightsResult, cancellationPolicyResult, overlapResult, feesResult] =
       await Promise.all([
         this.validatePrice(propertyId, checkIn, checkOut),
         this.validateMinimumNights(propertyId, nights),
         this.validateCancellationPolicy(propertyId, checkIn),
         this.validateReservationOverlap(propertyId, checkIn, checkOut),
+        this.validateFees(propertyId, nights),
       ])
 
     // Calculate discount after price is known
@@ -452,6 +559,14 @@ export class ReservationValidator {
       priceResult.subtotal,
       nights
     )
+
+    // Calculate final breakdown
+    const basePrice = priceResult.subtotal
+    const discountAmount = basePrice - discountResult.discountedPrice
+    const priceAfterDiscount = discountResult.discountedPrice
+    const totalFees = feesResult.totalFees
+    const subtotalWithFees = priceAfterDiscount + totalFees
+    const finalPrice = subtotalWithFees
 
     // Collect errors
     if (!priceResult.success && priceResult.error) errors.push(priceResult.error)
@@ -465,7 +580,8 @@ export class ReservationValidator {
     if (!cancellationPolicyResult.success && cancellationPolicyResult.error)
       warnings.push(cancellationPolicyResult.error)
 
-    const finalPrice = discountResult.discountedPrice
+    // Collect additional errors
+    if (!feesResult.success && feesResult.error) warnings.push(feesResult.error)
 
     return {
       success: errors.length === 0,
@@ -477,6 +593,18 @@ export class ReservationValidator {
       discount: discountResult,
       minimumNights: minimumNightsResult,
       cancellationPolicy: cancellationPolicyResult,
+      fees: feesResult,
+      breakdown: {
+        basePrice,
+        discountAmount,
+        discountPercentage: discountResult.discountPercentage,
+        cleaningFee: feesResult.cleaningFee > 0 ? feesResult.totalFees : 0,
+        petFee: feesResult.petFee > 0 ? feesResult.petFee : 0,
+        subtotal: priceAfterDiscount,
+        totalFees,
+        finalPrice,
+        currency: priceResult.currency,
+      },
       finalPrice,
       errors,
       warnings,
