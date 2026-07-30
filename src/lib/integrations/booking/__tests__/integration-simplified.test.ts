@@ -15,68 +15,77 @@ import type { BookingWebhookPayload } from '../webhook-validator'
 import { createAdminClient } from '@/lib/supabase/admin'
 
 // Mock the admin client to avoid real database writes
-jest.mock('@/lib/supabase/admin', () => ({
-  createAdminClient: jest.fn(() => ({
-    from: jest.fn((table: string) => ({
-      select: jest.fn(function () {
-        return this
-      }),
-      eq: jest.fn(function () {
-        return this
-      }),
-      order: jest.fn(function () {
-        return this
-      }),
-      limit: jest.fn(function () {
-        return this
-      }),
-      single: jest.fn(async function () {
-        // Return appropriate mock data based on table
-        if (table === 'property_listings') {
-          return {
-            data: {
-              id: 'listing_123',
-              property_id: 'prop_123',
-              properties: {
-                id: 'prop_123',
-                organization_id: 'org_123',
-              },
-            },
-            error: null,
-          }
-        }
-        if (table === 'reservations') {
-          // First call returns null (no duplicate), subsequent calls return the created one
-          return { data: null, error: null }
-        }
-        if (table === 'organizations') {
-          return {
-            data: { id: 'org_123', plan: 'starter' },
-            error: null,
-          }
-        }
-        return { data: null, error: null }
-      }),
-      maybeSingle: jest.fn(async function () {
-        return { data: null, error: null }
-      }),
-      upsert: jest.fn(async function (data: unknown) {
-        // Mock successful upsert
+const createMockQueryBuilder = (table: string) => {
+  return {
+    select: jest.fn(function () {
+      return this
+    }),
+    eq: jest.fn(function () {
+      return this
+    }),
+    order: jest.fn(function () {
+      return this
+    }),
+    limit: jest.fn(function () {
+      return this
+    }),
+    single: jest.fn(async function () {
+      // Return appropriate mock data based on table
+      if (table === 'channel_listings') {
         return {
-          data: { ...data, id: 'generated_id_' + Date.now() },
+          data: {
+            id: 'channel_listing_123',
+            channel_id: 'ch_123',
+            organization_id: 'org_123',
+            property_listing_id: 'listing_123',
+            channels: {
+              name: 'booking',
+            },
+          },
           error: null,
         }
-      }),
-      insert: jest.fn(function () {
-        return this
-      }),
-      delete: jest.fn(function () {
-        return this
-      }),
-    })),
+      }
+      if (table === 'reservations') {
+        // First call returns null (no duplicate), subsequent calls return the created one
+        return { data: null, error: null }
+      }
+      if (table === 'guests') {
+        return { data: { id: 'guest_123' }, error: null }
+      }
+      if (table === 'organizations') {
+        return {
+          data: { id: 'org_123', plan: 'starter' },
+          error: null,
+        }
+      }
+      return { data: null, error: null }
+    }),
+    maybeSingle: jest.fn(async function () {
+      return { data: null, error: null }
+    }),
+    upsert: jest.fn(async function (data: unknown) {
+      // Mock successful upsert
+      return {
+        data: { ...data, id: 'generated_id_' + Date.now() },
+        error: null,
+      }
+    }),
+    insert: jest.fn(function () {
+      return this
+    }),
+    delete: jest.fn(function () {
+      return this
+    }),
+  }
+}
+
+jest.mock('@/lib/supabase/admin', () => ({
+  createAdminClient: jest.fn(() => ({
+    from: jest.fn((table: string) => createMockQueryBuilder(table)),
   })),
 }))
 
+// Mock commission service
 jest.mock('@/lib/commission/service', () => ({
   calculateCommission: jest.fn(() => ({
     commissionAmount: 75.0,
