@@ -1,111 +1,70 @@
 /**
- * Simplified Integration Tests for Booking.com Webhook
+ * Unit Tests for Booking.com Webhook Sync Logic
  *
- * These tests validate the LOGIC of the sync function without requiring
- * real database writes. They test:
- * 1. Full webhook flow (mocked database)
- * 2. Duplicate detection (idempotency)
- * 3. Organization isolation (RLS enforcement)
- *
- * In a real scenario, these would be run against a dedicated test database.
+ * Tests the business logic of syncBookingReservation without complex Supabase mocks.
+ * Uses simple data-driven mocks to validate: flow, duplicate detection, org isolation.
  */
 
 import { syncBookingReservation } from '../reservation-sync'
 import type { BookingWebhookPayload } from '../webhook-validator'
 import { createAdminClient } from '@/lib/supabase/admin'
 
-// Mock the admin client to avoid real database writes
-const createMockQueryBuilder = (table: string) => {
-  const chain: any = {
-    select: jest.fn(function () {
-      return this
+// Simple mock setup: track all queries, return appropriate data
+let mockQueryLog: Array<{ table: string; method: string; args: any[] }> = []
+let mockData: Record<string, any> = {}
+
+const createSimpleMock = (table: string) => {
+  return {
+    select: jest.fn(() => createSimpleMock(table)),
+    eq: jest.fn(() => createSimpleMock(table)),
+    neq: jest.fn(() => createSimpleMock(table)),
+    in: jest.fn(() => createSimpleMock(table)),
+    gte: jest.fn(() => createSimpleMock(table)),
+    order: jest.fn(() => createSimpleMock(table)),
+    limit: jest.fn(() => createSimpleMock(table)),
+
+    single: jest.fn(async () => {
+      const data = mockData[table]
+      return { data, error: data ? null : { message: 'Not found' } }
     }),
-    eq: jest.fn(function () {
-      return this
+
+    maybeSingle: jest.fn(async () => {
+      const data = mockData[table]
+      return { data, error: null }
     }),
-    order: jest.fn(function () {
-      return this
-    }),
-    limit: jest.fn(function () {
-      return this
-    }),
-    single: jest.fn(async function () {
-      // Return appropriate mock data based on table
-      if (table === 'channel_listings') {
-        return {
-          data: {
-            id: 'channel_listing_123',
-            channel_id: 'ch_123',
-            organization_id: 'org_123',
-            property_listing_id: 'listing_123',
-            channels: {
-              name: 'booking',
-            },
-          },
-          error: null,
-        }
-      }
-      if (table === 'reservations') {
-        // First call returns null (no duplicate), subsequent calls return the created one
-        return { data: null, error: null }
-      }
-      if (table === 'guests') {
-        return { data: { id: 'guest_123' }, error: null }
-      }
-      if (table === 'organizations') {
-        return {
-          data: { id: 'org_123', plan: 'starter' },
-          error: null,
-        }
-      }
-      return { data: null, error: null }
-    }),
-    maybeSingle: jest.fn(async function () {
-      return { data: null, error: null }
-    }),
-    upsert: jest.fn(function (data: unknown, options?: unknown) {
-      // Return chainable for .select().single()
-      const upsertChain: any = {
-        select: jest.fn(function (cols: string) {
-          const selectChain: any = {
-            single: jest.fn(async function () {
-              return {
-                data: { id: 'reservation_' + Date.now() },
-                error: null,
-              }
-            }),
-          }
-          return selectChain
-        }),
-      }
-      return upsertChain
-    }),
-    insert: jest.fn(function (data?: unknown) {
-      // Return chainable with same methods
-      const insertChain: any = {
-        select: jest.fn(async function () {
-          return {
-            data: data,
+
+    upsert: jest.fn(function (data: any) {
+      mockData[table] = { ...data, id: 'generated_' + Date.now() }
+      return {
+        select: jest.fn(() => ({
+          single: jest.fn(async () => ({
+            data: mockData[table],
             error: null,
-          }
-        }),
+          })),
+        })),
       }
-      return insertChain
     }),
-    delete: jest.fn(function () {
-      return this
+
+    insert: jest.fn(function (data: any) {
+      mockData[table] = { ...data, id: 'generated_' + Date.now() }
+      return {
+        select: jest.fn(async () => ({
+          data: mockData[table],
+          error: null,
+        })),
+      }
     }),
   }
-  return chain
+}
+
+const mockAdminClient = {
+  from: jest.fn((table: string) => createSimpleMock(table)),
 }
 
 jest.mock('@/lib/supabase/admin', () => ({
-  createAdminClient: jest.fn(() => ({
-    from: jest.fn((table: string) => createMockQueryBuilder(table)),
-  })),
+  createAdminClient: jest.fn(() => mockAdminClient),
 }))
 
-// Mock commission service
 jest.mock('@/lib/commission/service', () => ({
   calculateCommission: jest.fn(() => ({
     commissionAmount: 75.0,
@@ -113,7 +72,6 @@ jest.mock('@/lib/commission/service', () => ({
   })),
 }))
 
-// TODO: Re-enable when Booking.com native integration is reactivated
 describe('Booking.com Webhook - Simplified Integration Tests', () => {
   const validPayload: BookingWebhookPayload = {
     event_id: 'evt_test_001',
@@ -142,7 +100,31 @@ describe('Booking.com Webhook - Simplified Integration Tests', () => {
   }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    mockAdminClient.from.mockClear()
+    // Setup default mock data for all tables
+    mockData = {
+      channel_listings: {
+        id: 'channel_listing_123',
+        channel_id: 'ch_123',
+        organization_id: 'org_123',
+        property_listing_id: 'listing_123',
+        external_id: 'booking_prop_123',
+        channels: { name: 'booking' },
+      },
+      organizations: {
+        id: 'org_123',
+        plan: 'starter',
+      },
+      guests: {
+        id: 'guest_123',
+        first_name: 'João',
+        last_name: 'Silva',
+      },
+      property_listings: {
+        id: 'listing_123',
+        property_id: 'prop_123',
+      },
+    }
   })
 
   // ──────────────────────────────────────────────────────────────
@@ -208,61 +190,16 @@ describe('Booking.com Webhook - Simplified Integration Tests', () => {
     })
 
     it('should propagate organization_id to reservation for RLS isolation', async () => {
-
-      let upsertedReservationData: unknown = null
-
-      createAdminClient.mockReturnValue({
-        from: jest.fn((table: string) => ({
-          select: jest.fn(function () {
-            return this
-          }),
-          eq: jest.fn(function () {
-            return this
-          }),
-          order: jest.fn(function () {
-            return this
-          }),
-          limit: jest.fn(function () {
-            return this
-          }),
-          single: jest.fn(async function () {
-            if (table === 'property_listings') {
-              return {
-                data: {
-                  id: 'listing_123',
-                  property_id: 'prop_123',
-                  properties: { id: 'prop_123', organization_id: 'org_test_456' },
-                },
-                error: null,
-              }
-            }
-            if (table === 'reservations') {
-              return { data: null, error: null }
-            }
-            if (table === 'organizations') {
-              return { data: { id: 'org_test_456', plan: 'starter' }, error: null }
-            }
-            return { data: null, error: null }
-          }),
-          maybeSingle: jest.fn(async function () {
-            return { data: null, error: null }
-          }),
-          upsert: jest.fn(async function (data: unknown) {
-            if (table === 'reservations') {
-              upsertedReservationData = data
-            }
-            return { data: { ...data, id: 'res_' + Date.now() }, error: null }
-          }),
-          insert: jest.fn(function () {
-            return this
-          }),
-        })),
-      })
+      mockData.organizations = { id: 'org_test_456', plan: 'starter' }
+      mockData.channel_listings = {
+        ...mockData.channel_listings,
+        organization_id: 'org_test_456',
+      }
 
       const result = await syncBookingReservation(validPayload, 'req_123')
 
       expect(result.success).toBe(true)
-      expect(upsertedReservationData?.organization_id).toBe('org_test_456') // ✅ RLS isolation
+      expect(mockData.reservations?.organization_id).toBe('org_test_456') // ✅ RLS isolation
     })
   })
 
