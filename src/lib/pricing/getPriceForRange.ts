@@ -53,10 +53,10 @@ async function fetchDailyPrices(
 
   const basePrice = priceData?.base_price ? parseFloat(String(priceData.base_price)) : 0
 
-  // Fetch daily price overrides from property_daily_prices
+  // Fetch daily price overrides from daily_prices
   const { data: dailyOverridesRaw, error: overridesError } = await db
-    .from('property_daily_prices')
-    .select('date, price')
+    .from('daily_prices')
+    .select('date, base_price as price')
     .eq('property_id', propertyId)
     .gte('date', checkInStr)
     .lte('date', checkOutStr)
