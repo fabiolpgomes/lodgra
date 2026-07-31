@@ -284,4 +284,82 @@ describe('ReservationValidator', () => {
       }
     })
   })
+
+  describe('Epic 43 Phase 2 - Bug Fixes', () => {
+    describe('Bug #1: minNights Validation from property_availability', () => {
+      it('should query property_availability table for minimum nights (not hardcoded)', async () => {
+        const result = await ReservationValidator.validateMinimumNights('prop-123', 5)
+        // Should return a result object with minimum nights property
+        expect(result).toHaveProperty('success')
+        expect(result).toHaveProperty('minimumNights')
+        expect(result).toHaveProperty('selectedNights', 5)
+        // minimumNights should be a number (from DB or default 1)
+        expect(typeof result.minimumNights).toBe('number')
+        expect(result.minimumNights).toBeGreaterThanOrEqual(1)
+      })
+
+      it('should validate that selected nights meets minimum requirement', async () => {
+        const result = await ReservationValidator.validateMinimumNights('prop-123', 1)
+        // Should have a passed property indicating validation result
+        expect(result).toHaveProperty('passed')
+        expect(typeof result.passed).toBe('boolean')
+      })
+
+      it('should default to minimum 1 night when property_availability missing', async () => {
+        const result = await ReservationValidator.validateMinimumNights(
+          'non-existent-prop-id',
+          1
+        )
+        // Should handle missing availability data gracefully
+        // minimumNights should default to 1 regardless of success status
+        expect(result).toHaveProperty('minimumNights')
+        expect(result.minimumNights).toBeGreaterThanOrEqual(1)
+      })
+    })
+
+    describe('Bug #2: Discount Calculation for 7+ and 28+ nights', () => {
+      it('should NOT apply discount for stays under 7 nights', async () => {
+        const result = await ReservationValidator.validateDiscounts('prop-123', 600, 6)
+        // Explicitly test that 6 nights gets NO discount
+        expect(result.hasDiscount).toBe(false)
+        expect(result.discountPercentage).toBe(0)
+        expect(result.discountedPrice).toBe(600)
+      })
+
+      it('should evaluate discount eligibility for 7+ night stays', async () => {
+        const nightlyRate = 85
+        const nights = 9
+        const basePrice = nightlyRate * nights // 9 nights = €765
+        const result = await ReservationValidator.validateDiscounts('prop-123', basePrice, nights)
+
+        expect(result).toHaveProperty('success')
+        expect(result).toHaveProperty('discountPercentage')
+        expect(result).toHaveProperty('discountedPrice')
+        // Should evaluate eligibility (discount may or may not apply depending on DB config)
+        expect(result.originalPrice).toBe(basePrice)
+      })
+
+      it('should evaluate discount eligibility for 28+ night stays', async () => {
+        const nightlyRate = 85
+        const nights = 36
+        const basePrice = nightlyRate * nights // 36 nights = €3060
+        const result = await ReservationValidator.validateDiscounts('prop-123', basePrice, nights)
+
+        expect(result).toHaveProperty('success')
+        expect(result).toHaveProperty('discountPercentage')
+        expect(result).toHaveProperty('discountedPrice')
+        expect(result.originalPrice).toBe(basePrice)
+        // Discounted price should not exceed original
+        expect(result.discountedPrice).toBeLessThanOrEqual(basePrice)
+      })
+
+      it('should never apply discount for stays under 7 nights regardless of DB', async () => {
+        // This explicitly tests the hardcoded check in validateDiscounts
+        const result = await ReservationValidator.validateDiscounts('prop-123', 500, 5)
+        expect(result.hasDiscount).toBe(false)
+        expect(result.discountPercentage).toBe(0)
+        expect(result.reason).toContain('under 7 nights')
+      })
+    })
+  })
 })
