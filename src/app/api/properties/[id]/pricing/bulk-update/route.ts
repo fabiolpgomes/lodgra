@@ -40,7 +40,8 @@ export async function POST(
     }))
 
     // Upsert prices for all dates
-    console.log('📊 Attempting to upsert', updates.length, 'records')
+    console.log('📊 Attempting to upsert', updates.length, 'records to daily_prices table')
+    console.log('📊 Sample record:', updates[0])
     const { data, error } = await supabase
       .from('daily_prices')
       .upsert(updates, { onConflict: 'property_id,date' })

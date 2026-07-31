@@ -61,8 +61,11 @@ async function fetchDailyPrices(
     .gte('date', checkInStr)
     .lte('date', checkOutStr)
 
+  console.log(`[getPriceForRange] Query params:`, { propertyId, checkInStr, checkOutStr })
+  console.log(`[getPriceForRange] Daily prices raw results:`, dailyOverridesRaw)
+
   if (overridesError) {
-    console.warn(`[getPriceForRange] Warning fetching daily prices: ${overridesError.message}`)
+    console.error(`[getPriceForRange] ERROR fetching daily prices: ${overridesError.message}`)
   }
 
   // Map daily prices (base or override)
