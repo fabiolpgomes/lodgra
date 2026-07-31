@@ -634,7 +634,7 @@ export async function GET(request: NextRequest) {
           `script-src 'self' 'nonce-${nonce}' https://www.googletagmanager.com https://js.stripe.com https://*.sentry.io https://cdnjs.cloudflare.com`,
           "style-src 'self' 'unsafe-inline'",
           "img-src 'self' data: blob: https:",
-          "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com https://region1.google-analytics.com https://js.stripe.com https://api.stripe.com https://*.sentry.io https://*.ingest.sentry.io https://cdnjs.cloudflare.com",
+          "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com https://region1.google-analytics.com https://stats.g.doubleclick.net https://*.analytics.google.com https://js.stripe.com https://api.stripe.com https://*.sentry.io https://*.ingest.sentry.io https://cdnjs.cloudflare.com",
           "font-src 'self' data:",
           "worker-src 'self' blob:",
           "frame-src https://js.stripe.com https://hooks.stripe.com https://www.google.com",
