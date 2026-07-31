@@ -50,17 +50,49 @@ https://algarve-home-stay.lodgra.io/p/t2-armacao-de-pera-praia-dos-pescadores?ch
 - [ ] Missing: max_nights validation (90 noites limit)
 - [ ] Missing: cancellation policy display for period
 
-### Fix Required
-1. **Update BookingWidgetDesktop.tsx**
-   - Call API endpoint that returns daily_prices breakdown
-   - Apply weekly discount (7-27 nights = 10%)
-   - Apply monthly discount (28+ nights = 20%)
-   - Validate max_nights (≤90)
-   
-2. **Update getPriceForRange.ts**
-   - Return daily_prices array (not just total)
-   - Include discount calculation per day
-   - Return cancellation policy for period
+### Fix Required — CORRECT CALCULATION ORDER
+
+**Step 1: Calculate Base Price (with daily prices)**
+```
+Sum of daily prices for selected dates
+Exemplo: R$85 + R$140 + R$85 = R$310
+```
+
+**Step 2: Apply Discounts** (if applicable)
+```
+Semanal (7-27 noites): -10%
+Mensal (28+ noites): -20%
+Exemplo: R$310 × 0.9 = R$279 (com 10% desconto)
+```
+
+**Step 3: Add Fees** (AFTER discount) ⚠️ CRITICAL
+```
+✅ Taxa de Limpeza (cleaning_fee) - por estadia
+✅ Taxa de Animais (pet_fee) - por estadia ou por noite
+✅ Outras taxas configuradas
+Exemplo: R$279 + R$90 (cleaning) = R$369 TOTAL
+```
+
+**1. Update BookingWidgetDesktop.tsx**
+   - [ ] Call getPriceForRange() with daily_prices breakdown
+   - [ ] Apply weekly discount (7-27 nights = 10%)
+   - [ ] Apply monthly discount (28+ nights = 20%)
+   - [ ] ⚠️ ADD FEES AFTER DISCOUNT (not before!)
+   - [ ] Validate max_nights (≤90)
+   - [ ] Display breakdown:
+     ```
+     Acomodação: R$279
+     Taxa de limpeza: R$90
+     Total: R$369
+     ```
+
+**2. Update getPriceForRange.ts**
+   - [ ] Return daily_prices array (for breakdown display)
+   - [ ] Calculate discount percentage based on nights
+   - [ ] Apply discount to subtotal
+   - [ ] Return fees separately (NOT included in total)
+   - [ ] BookingWidget adds fees AFTER calling this function
+   - [ ] Return cancellation policy for period
 
 ---
 
@@ -133,12 +165,35 @@ https://algarve-home-stay.lodgra.io/p/t2-armacao-de-pera-praia-dos-pescadores?ch
 4. [ ] Manual test booking flow end-to-end
 
 ### QA CHECKLIST
-- [ ] Base price displays as €85/noite (not €130)
-- [ ] 2-night booking shows €170 total (not €260)
-- [ ] 7-night booking applies 10% discount
-- [ ] 28-night booking applies 20% discount
-- [ ] Click "Reservar" completes booking (no redirect)
-- [ ] Error message displays if booking fails
+
+**Pricing Calculation (Correct Order)**
+- [ ] Base price: R$85/noite (from property_prices)
+- [ ] Daily prices vary correctly (some days R$140, others R$85)
+- [ ] 2-night booking: R$85 + R$140 = R$225 (before discount/fees)
+- [ ] 7-night booking applies 10% discount ✅
+- [ ] 28-night booking applies 20% discount ✅
+- [ ] Fees added AFTER discount (not before!)
+  - [ ] Cleaning fee (R$90) added correctly
+  - [ ] Pet fee added if applicable
+  - [ ] Total = Accommodation (with discount) + Fees
+
+**Validation**
+- [ ] Min nights (3) enforced - can't book fewer nights
+- [ ] Max nights (90) enforced - can't book more than 90 nights
+- [ ] Reserved dates blocked - can't select blocked dates
+
+**Display & User Experience**
+- [ ] Breakdown shows daily prices
+- [ ] Breakdown shows discount applied (% and amount)
+- [ ] Breakdown shows each fee separately
+- [ ] Final total = Accommodation with discount + Fees
+- [ ] Cancellation policy displays for selected period
+
+**Booking Flow**
+- [ ] Click "Reservar" button submits data correctly
+- [ ] No redirect to landing page on submit
+- [ ] Error messages display if validation fails
+- [ ] Success message or confirmation page appears
 
 ---
 
