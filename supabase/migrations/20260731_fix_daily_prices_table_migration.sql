@@ -1,22 +1,25 @@
--- Fix: Migrate pricing data from orphaned property_daily_prices to active daily_prices table
--- Root cause: July 31 migration inserted into old table name
+-- Fix: Insert pricing data directly into daily_prices table
+-- Root cause: July 31 migration tried to insert into property_daily_prices which was deleted on July 21
 
--- Migrate all pricing data to correct table
-INSERT INTO daily_prices (property_id, date, base_price, created_at, updated_at)
-SELECT property_id, date, price AS base_price, created_at, updated_at
-FROM property_daily_prices
-WHERE NOT EXISTS (
-  SELECT 1 FROM daily_prices dp
-  WHERE dp.property_id = property_daily_prices.property_id
-  AND dp.date = property_daily_prices.date
+-- Populate daily prices for T2 Armação de Pera property
+-- Base price: 90€ (as configured in admin UI)
+WITH property_ids AS (
+  SELECT id
+  FROM properties
+  WHERE slug = 't2-armacao-de-pera-praia-dos-pescadores'
+  LIMIT 1
 )
+INSERT INTO daily_prices (property_id, date, base_price, created_at, updated_at)
+SELECT
+  pi.id,
+  DATE '2026-09-01' + (i || ' days')::interval,
+  90.00,
+  NOW(),
+  NOW()
+FROM property_ids pi
+CROSS JOIN GENERATE_SERIES(0, 89) AS i(i)
 ON CONFLICT (property_id, date) DO NOTHING;
 
--- Verify migration
-SELECT
-  COUNT(*) as total_migrated,
-  COUNT(DISTINCT property_id) as properties_affected,
-  MIN(date) as earliest_date,
-  MAX(date) as latest_date
-FROM daily_prices
-WHERE date >= '2026-09-01' AND date < '2026-10-31';
+-- Verify insertion
+SELECT COUNT(*) as inserted_records FROM daily_prices
+WHERE date >= '2026-09-01' AND date < '2026-12-31';
