@@ -325,7 +325,7 @@ export class ReservationValidator {
       return {
         success: false,
         passed: false,
-        minimumNights: 0,
+        minimumNights: 1, // Default to 1 even on error
         selectedNights: nights,
         error: `Validation error: ${error instanceof Error ? error.message : 'Unknown error'}`,
       }

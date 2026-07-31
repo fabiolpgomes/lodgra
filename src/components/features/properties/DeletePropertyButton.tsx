@@ -55,7 +55,7 @@ export function DeletePropertyButton({ propertyId, propertyName }: {
   return (
     <>
       <Button
-        variant="destructive"
+        variant="be-secondary"
         onClick={() => setShowConfirm(true)}
         className="flex items-center gap-2"
       >

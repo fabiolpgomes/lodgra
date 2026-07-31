@@ -196,9 +196,7 @@ function PropertyCard({ property, imageUrl, canEdit, locale }: {
   canEdit: boolean
   locale: string
 }) {
-  const propertyHref = canEdit
-    ? `/${locale}/properties/${property.id}/edit`
-    : `/${locale}/properties/${property.id}`
+  const propertyHref = `/${locale}/properties/${property.id}`
   const basePrice = property.base_price ? Number(property.base_price) : 0
   const currency = property.currency || 'EUR'
   const formattedBasePrice = basePrice > 0

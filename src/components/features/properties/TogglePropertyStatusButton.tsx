@@ -64,14 +64,13 @@ export function TogglePropertyStatusButton({
     }
   }
 
-  const buttonVariant = isActive ? 'destructive' : 'outline'
   const buttonLabel = isActive ? 'Desativar' : 'Ativar'
   const Icon = isActive ? Power : CheckCircle
 
   return (
     <>
       <Button
-        variant={buttonVariant}
+        variant="be-secondary"
         onClick={() => setShowConfirm(true)}
         className="flex items-center gap-2"
       >

@@ -258,7 +258,7 @@ export default async function PropertyDetailsPage({
 
           <div className="flex gap-3">
             {canEdit && (
-              <Button asChild variant="action">
+              <Button asChild variant="be-secondary">
                 <Link href={`/${locale}/properties/${id}/edit`} className="flex items-center gap-2">
                   <Edit className="h-4 w-4" />
                   Editar
