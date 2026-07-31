@@ -979,13 +979,30 @@ html.dark,
   cursor: not-allowed;
 }
 
-/* Calendar Date Selection Fix */
+/* Calendar Date Selection Fix - Design System Compliance */
 .bg-brand-50 {
-  background-color: #E5DFD2 !important;  /* hairline - more visible than F7F5EF */
+  background-color: #E5DFD2 !important;  /* hairline - visible range dates */
   color: #1B2430 !important;
 }
 
 .bg-brand-100 {
-  background-color: #CFC4AA !important;  /* border-strong - darker for visibility */
+  background-color: #D8CFB7 !important;  /* lighter than brand-100 original but still visible */
   color: #1B2430 !important;
+}
+
+.bg-brand-800 {
+  background-color: #10203E !important;  /* primary blue per design.md */
+  color: #ffffff !important;
+}
+
+.text-brand-800 {
+  color: #1B2430 !important;
+}
+
+.text-brand-900 {
+  color: #1B2430 !important;
+}
+
+.border-brand-600 {
+  border-color: #0c1830 !important;  /* primary-active per design.md */
 }
