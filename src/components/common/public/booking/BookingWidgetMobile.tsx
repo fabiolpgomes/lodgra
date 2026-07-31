@@ -377,8 +377,7 @@ export function BookingWidgetMobile({
             {checkoutHref && !checkInError && !checkOutError ? (
               <Link
                 href={checkoutHref}
-                className="block w-full bg-brand-blue hover:bg-brand-blue/90 active:bg-brand-blue/80 font-medium text-base py-3.5 px-6 rounded-sm text-center transition-all h-12 flex items-center justify-center"
-                style={{ color: '#ffffff' }}
+                className="booking-widget-btn-active block w-full text-center transition-all"
                 onClick={() => setShowPanel(false)}
               >
                 Reservar agora
@@ -386,8 +385,7 @@ export function BookingWidgetMobile({
             ) : (
               <button
                 disabled
-                className="w-full bg-brand-blue/40 font-medium text-base py-3.5 px-6 rounded-sm text-center cursor-not-allowed h-12 flex items-center justify-center"
-                style={{ color: '#ffffff' }}
+                className="booking-widget-btn-disabled w-full text-center"
               >
                 {checkInError || checkOutError ? 'Datas indisponíveis' : 'Selecione check-in e check-out'}
               </button>

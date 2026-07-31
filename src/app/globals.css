@@ -951,7 +951,30 @@ html.dark,
   overflow: hidden;
 }
 
-/* Booking Widget Button Fix */
+/* Booking Widget Button - Design System Compliance */
+.booking-widget-btn-active {
+  background-color: #10203E !important;
+  color: #ffffff !important;
+  font-weight: 500;
+  font-size: 16px;
+  padding: 14px 24px;
+  border-radius: 8px;
+  height: 48px;
+  border: none;
+}
+
+.booking-widget-btn-active:hover {
+  background-color: #0c1830 !important;
+}
+
 .booking-widget-btn-disabled {
-  background-color: #4a7ba7 !important;
+  background-color: rgba(16, 32, 62, 0.28) !important;
+  color: #ffffff !important;
+  font-weight: 500;
+  font-size: 16px;
+  padding: 14px 24px;
+  border-radius: 8px;
+  height: 48px;
+  border: none;
+  cursor: not-allowed;
 }
