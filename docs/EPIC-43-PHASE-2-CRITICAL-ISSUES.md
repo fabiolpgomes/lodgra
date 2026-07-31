@@ -11,6 +11,10 @@
 - Property page shows base price of **€130/noite** instead of **€85/noite**
 - Test case: 2-night booking (01/10 - 03/10) shows total €260 instead of €170
 - Affects: Desktop BookingWidget calculation
+- **ROOT CAUSE IDENTIFIED:** BookingWidget ignores daily prices from database and uses wrong calculation
+  - Database HAS correct data (prices vary by day: R$85, R$140, R$85...)
+  - BookingWidget is NOT reading daily_prices table
+  - Using only basePrice and applying wrong multiplier
 
 ### Test URL
 ```
@@ -32,12 +36,31 @@ https://algarve-home-stay.lodgra.io/p/t2-armacao-de-pera-praia-dos-pescadores?ch
 3. Component logic: BookingWidget multiplying price twice
 4. ISR cache: Stale cache serving wrong values
 
-### Investigation Steps
-- [ ] Check property_prices table: `SELECT * FROM property_prices WHERE property_id = '...'`
-- [ ] Check cleaningFee logic in BookingWidgetDesktop.tsx (line ~200-250)
-- [ ] Verify API response: GET `/api/properties/[id]/pricing?checkIn=2026-10-01&checkOut=2026-10-03`
-- [ ] Check if €130 = €85 + €45 (cleaning fee split?)
-- [ ] Verify ISR cache by hard-refreshing Vercel deployment
+### Investigation Steps — COMPLETED ✅
+
+**Finding:** Database has correct daily prices configured!
+- Screenshot shows calendar with varying prices: R$85, R$140, R$85...
+- Descontos card correctly shows: Semanal 10%, Mensal 20%
+- Disponibilidade card correctly shows: 3-90 noites
+
+**ROOT CAUSE:** BookingWidget NOT using daily_prices
+- [ ] BookingWidgetDesktop.tsx reads only `basePrice` prop
+- [ ] Missing: call to getPriceForRange() with daily prices
+- [ ] Missing: discount calculation (10% semanal, 20% mensal)
+- [ ] Missing: max_nights validation (90 noites limit)
+- [ ] Missing: cancellation policy display for period
+
+### Fix Required
+1. **Update BookingWidgetDesktop.tsx**
+   - Call API endpoint that returns daily_prices breakdown
+   - Apply weekly discount (7-27 nights = 10%)
+   - Apply monthly discount (28+ nights = 20%)
+   - Validate max_nights (≤90)
+   
+2. **Update getPriceForRange.ts**
+   - Return daily_prices array (not just total)
+   - Include discount calculation per day
+   - Return cancellation policy for period
 
 ---
 
