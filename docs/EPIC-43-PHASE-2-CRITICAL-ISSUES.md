@@ -65,25 +65,38 @@ Mensal (28+ noites): -20%
 Exemplo: R$310 × 0.9 = R$279 (com 10% desconto)
 ```
 
-**Step 3: Add Fees** (AFTER discount) ⚠️ CRITICAL
+**Step 3: Add Fees** (AFTER discount) ⚠️ CRITICAL — **PER STAY ONLY**
 ```
-✅ Taxa de Limpeza (cleaning_fee) - por estadia
-✅ Taxa de Animais (pet_fee) - por estadia ou por noite
-✅ Outras taxas configuradas
-Exemplo: R$279 + R$90 (cleaning) = R$369 TOTAL
+✅ Taxa de Limpeza (cleaning_fee) - PER STAY (não multiplica por noites!)
+   R$90 (1 stay) - não R$90 × 7 noites
+   
+✅ Taxa de Animais (pet_fee) - PER STAY (configurável: stay ou night)
+   R$50 (1 stay) ou R$10 × 7 noites (se por noite)
+   
+✅ Outras taxas - configuradas como per stay ou per night
+
+Exemplo 7 noites:
+   Acomodação com desconto: R$585
+   + Taxa de Limpeza (1 stay): R$90 ← NOT R$90×7
+   + Taxa de Animais (1 stay): R$50 ← NOT R$50×7
+   = TOTAL: R$725
 ```
 
 **1. Update BookingWidgetDesktop.tsx**
    - [ ] Call getPriceForRange() with daily_prices breakdown
    - [ ] Apply weekly discount (7-27 nights = 10%)
    - [ ] Apply monthly discount (28+ nights = 20%)
-   - [ ] ⚠️ ADD FEES AFTER DISCOUNT (not before!)
+   - [ ] ⚠️ ADD FEES AFTER DISCOUNT — **PER STAY ONLY!**
    - [ ] Validate max_nights (≤90)
-   - [ ] Display breakdown:
+   - [ ] Display breakdown (fees NOT multiplied by nights):
      ```
-     Acomodação: R$279
-     Taxa de limpeza: R$90
-     Total: R$369
+     Acomodação (7 noites): R$585
+     Desconto Semanal (-10%): -R$65
+     Subtotal com desconto: R$585
+     + Taxa de limpeza (1 stay): R$90  ← PER STAY, not ×7
+     + Taxa de animais (1 stay): R$0
+     ────────────────────────────
+     Total: R$675
      ```
 
 **2. Update getPriceForRange.ts**
