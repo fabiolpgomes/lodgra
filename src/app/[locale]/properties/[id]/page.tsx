@@ -8,6 +8,7 @@ import { DeletePropertyButton } from '@/components/features/properties/DeletePro
 import { TogglePropertyStatusButton } from '@/components/features/properties/TogglePropertyStatusButton'
 import { PropertyListingsManager } from '@/components/features/listings/PropertyListingsManager'
 import { QuickActionButtons } from '@/components/features/properties/QuickActionButtons'
+import { StatisticsCard } from '@/components/features/properties/StatisticsCard'
 import { ICalExportCard } from '@/components/features/properties/ICalExportCard'
 import { PropertyDocuments } from '@/components/features/properties/PropertyDocuments'
 import { ReviewsManager } from '@/components/features/properties/ReviewsManager'
@@ -528,33 +529,29 @@ export default async function PropertyDetailsPage({
             </div>
 
             {/* Card de Estatísticas */}
-            <div className="bg-white rounded-lg shadow p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Estatísticas
-              </h3>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-3 bg-[color:var(--be-blue-pale)] rounded-lg">
-                  <span className="text-sm text-gray-600">Reservas Totais</span>
-                  <span className="text-xl font-bold text-[color:var(--be-blue)]">{totalReservations}</span>
-                </div>
-                <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-                  <span className="text-sm text-gray-600">Taxa de Ocupação</span>
-                  <span className="text-xl font-bold text-green-600">{occupancyRate}%</span>
-                </div>
-                <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
-                  <span className="text-sm text-gray-600">Receita Total</span>
-                  <span className="text-xl font-bold text-purple-600">
-                    {currencySymbol}{totalRevenue.toLocaleString('pt-PT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between p-3 bg-red-50 rounded-lg">
-                  <span className="text-sm text-gray-600">Despesas Total</span>
-                  <span className="text-xl font-bold text-red-600">
-                    {currencySymbol}{totalExpenses.toLocaleString('pt-PT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  </span>
-                </div>
-              </div>
-            </div>
+            <StatisticsCard
+              title="Estatísticas"
+              items={[
+                {
+                  label: 'Reservas Totais',
+                  value: totalReservations,
+                  variant: 'highlight',
+                },
+                {
+                  label: 'Taxa de Ocupação',
+                  value: `${occupancyRate}%`,
+                },
+                {
+                  label: 'Receita Total',
+                  value: `${currencySymbol}${totalRevenue.toLocaleString('pt-PT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+                  variant: 'highlight',
+                },
+                {
+                  label: 'Despesas Total',
+                  value: `${currencySymbol}${totalExpenses.toLocaleString('pt-PT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+                },
+              ]}
+            />
 
             {/* Card de Ações Rápidas */}
             <div className="bg-white rounded-lg shadow p-6">

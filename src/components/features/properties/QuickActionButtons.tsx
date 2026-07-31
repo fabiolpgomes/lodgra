@@ -39,21 +39,21 @@ export function QuickActionButtons({ propertyId }: { propertyId: string }) {
       <button
         onClick={handleNewReservation}
         disabled={isLoading !== null}
-        className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 transition-colors text-sm font-medium"
+        className="w-full px-4 py-3 bg-brand-blue text-white rounded-sm hover:bg-brand-blue/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm font-medium"
       >
         {isLoading === 'reservation' ? 'Carregando...' : 'Nova Reserva'}
       </button>
       <button
         onClick={handleViewCalendar}
         disabled={isLoading !== null}
-        className="w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:bg-gray-400 transition-colors text-sm font-medium"
+        className="w-full px-4 py-3 bg-brand-surface-soft text-brand-text-dark rounded-sm border border-brand-border hover:bg-brand-surface-strong disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm font-medium"
       >
         {isLoading === 'calendar' ? 'Carregando...' : 'Ver Calendário'}
       </button>
       <button
         onClick={handleSyncListings}
         disabled={isLoading !== null}
-        className="w-full px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:bg-gray-400 transition-colors text-sm font-medium"
+        className="w-full px-4 py-3 bg-brand-blue/10 text-brand-blue rounded-sm border border-brand-blue/20 hover:bg-brand-blue/15 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm font-medium"
       >
         {isLoading === 'sync' ? 'Sincronizando...' : 'Sincronizar Plataformas'}
       </button>
