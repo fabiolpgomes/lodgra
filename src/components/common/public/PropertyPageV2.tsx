@@ -276,7 +276,7 @@ export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, 
               <div className="sticky top-24">
                 <BookingWidgetDesktop
                   propertyName={property.name}
-                  basePrice={0}
+                  basePrice={property.base_price ?? 0}
                   currency={currency}
                   slug={property.slug}
                   initialCheckIn={sharedCheckIn}
@@ -323,7 +323,7 @@ export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, 
       {/* Mobile Booking Widget - Fixed Bottom */}
       <BookingWidgetMobile
         propertyName={property.name}
-        basePrice={0}
+        basePrice={property.base_price ?? 0}
         currency={currency}
         slug={property.slug}
         initialCheckIn={sharedCheckIn}
