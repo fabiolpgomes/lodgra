@@ -77,15 +77,15 @@ const config: any = {
         'error': '#DC2626',
         'info': '#1B2430',
 
-        // Reference dashboard aliases from lodgra-dashboard.zip
-        'brand-blue': '#10203E',
+        // Reference dashboard aliases from lodgra-dashboard.zip (using HSL for opacity support)
+        'brand-blue': 'hsl(213 73% 19%)',      // #10203E
         'brand-blue-trans': 'rgba(16, 32, 62, 0.62)',
         'brand-blue-overlay': 'rgba(12, 24, 48, 0.9)',
-        'brand-gold': '#C9A227',
-        'brand-bg': '#F7F5EF',
-        'brand-white': '#FBFAF6',
-        'brand-text-dark': '#1B2430',
-        'brand-text-medium': '#4D5566',
+        'brand-gold': 'hsl(43 64% 62%)',       // #C9A227
+        'brand-bg': 'hsl(36 62% 97%)',         // #F7F5EF
+        'brand-white': 'hsl(35 76% 98%)',      // #FBFAF6
+        'brand-text-dark': 'hsl(210 30% 18%)', // #1B2430
+        'brand-text-medium': 'hsl(212 17% 44%)',// #4D5566
         neutral: {
           850: '#1a1a1a',
         },
