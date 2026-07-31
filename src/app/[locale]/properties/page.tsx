@@ -156,13 +156,44 @@ export default async function PropertiesPage({
 
         <div className="border-b border-neutral-200/60" />
 
-        {/* Public Pages Usage Bar */}
+        {/* Usage Metrics */}
         {properties && properties.length > 0 && (
-          <PublicPagesUsageBar
-            used={publicCount}
-            limit={limits.maxProperties}
-            plan={planName}
-          />
+          <div className="space-y-4">
+            {/* Public Pages Usage Bar */}
+            <PublicPagesUsageBar
+              used={publicCount}
+              limit={limits.maxProperties}
+              plan={planName}
+            />
+
+            {/* Total Properties Usage */}
+            {limits.maxProperties && (
+              <div className="p-4 bg-brand-surface rounded-lg border border-brand-border-soft">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Building2 className="h-4 w-4 text-brand-text-medium" />
+                    <span className="text-sm font-medium text-brand-text-dark">Total de Propriedades</span>
+                  </div>
+                  <span className="text-sm font-semibold text-brand-blue">
+                    {properties.length} / {limits.maxProperties}
+                  </span>
+                </div>
+                <div className="mt-3 w-full bg-brand-border-soft rounded-full h-2 overflow-hidden">
+                  <div
+                    className="bg-gradient-to-r from-brand-blue to-brand-gold h-full transition-all duration-300"
+                    style={{ width: `${Math.min((properties.length / limits.maxProperties) * 100, 100)}%` }}
+                  />
+                </div>
+                {properties.length > limits.maxProperties && (
+                  <p className="mt-2 text-xs text-brand-text-medium">
+                    ⚠️ Você tem {properties.length - limits.maxProperties} propriedade{properties.length - limits.maxProperties === 1 ? '' : 's'} acima do limite do plano.
+                    <br />
+                    Entre em contato para adicionar extras ou fazer upgrade.
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
         )}
 
         {/* Filter Bar */}
