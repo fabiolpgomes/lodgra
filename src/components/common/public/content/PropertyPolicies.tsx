@@ -1,5 +1,13 @@
-import { Clock, Sparkles, PawPrint } from 'lucide-react'
+import { Clock, Sparkles, PawPrint, Shield } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils/currency'
+
+interface CancellationPolicy {
+  id?: string
+  policy_type: string
+  full_refund_days: number
+  partial_refund_days?: number | null
+  partial_refund_percent?: number | null
+}
 
 interface PropertyPoliciesProps {
   cleaningFee?: number | null
@@ -10,10 +18,22 @@ interface PropertyPoliciesProps {
   checkinUntil?: string | null
   checkoutUntil?: string | null
   currency: string
+  cancellationPolicy?: CancellationPolicy | null
 }
 
 function feeLabel(type: string | null | undefined) {
   return type === 'per_night' ? 'por noite' : 'por estadia'
+}
+
+function getPolicyLabel(policyType: string): { name: string; icon: string } {
+  const map: Record<string, { name: string; icon: string }> = {
+    flexible: { name: 'Flexível', icon: '🔄' },
+    moderate: { name: 'Moderada', icon: '⚖️' },
+    limited: { name: 'Limitada', icon: '⏰' },
+    firm: { name: 'Firme', icon: '🔒' },
+    rigid: { name: 'Rígida', icon: '❌' },
+  }
+  return map[policyType] || { name: policyType, icon: '📋' }
 }
 
 export function PropertyPolicies({
@@ -25,11 +45,13 @@ export function PropertyPolicies({
   checkinUntil,
   checkoutUntil,
   currency,
+  cancellationPolicy,
 }: PropertyPoliciesProps) {
   const hasSchedules = checkinFrom || checkinUntil || checkoutUntil
   const hasFees = (cleaningFee && cleaningFee > 0) || (petFee && petFee > 0)
+  const hasPolicy = cancellationPolicy && cancellationPolicy.policy_type
 
-  if (!hasSchedules && !hasFees) return null
+  if (!hasSchedules && !hasFees && !hasPolicy) return null
 
   return (
     <section className="py-6 border-t border-lodgra-border-subtle">
@@ -97,6 +119,41 @@ export function PropertyPolicies({
                   </dd>
                 </div>
               )}
+            </dl>
+          </div>
+        )}
+
+        {/* Cancellation Policy */}
+        {hasPolicy && (
+          <div className="rounded-xl border border-lodgra-border-subtle bg-lodgra-neutral-50 p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Shield className="h-4 w-4 text-be-text-600" />
+              <span className="text-sm font-semibold text-be-text">Política de Cancelamento</span>
+            </div>
+            <dl className="space-y-1.5 text-sm">
+              <div className="flex justify-between">
+                <dt className="text-be-text-muted">Tipo</dt>
+                <dd className="font-medium text-be-text">
+                  {getPolicyLabel(cancellationPolicy.policy_type).name}
+                </dd>
+              </div>
+              <div className="flex justify-between">
+                <dt className="text-be-text-muted">Reembolso integral</dt>
+                <dd className="font-medium text-be-text">
+                  até {cancellationPolicy.full_refund_days} dias antes do check-in
+                </dd>
+              </div>
+              {cancellationPolicy.partial_refund_days && cancellationPolicy.partial_refund_percent ? (
+                <div className="flex justify-between">
+                  <dt className="text-be-text-muted">Reembolso parcial</dt>
+                  <dd className="font-medium text-be-text">
+                    {cancellationPolicy.partial_refund_percent}% até {cancellationPolicy.partial_refund_days} dias antes
+                  </dd>
+                </div>
+              ) : null}
+              <p className="text-xs text-be-text-muted-500 mt-2 pt-2 border-t border-lodgra-border-subtle">
+                Cancelamentos fora destes prazos resultam em perda do valor pago.
+              </p>
             </dl>
           </div>
         )}

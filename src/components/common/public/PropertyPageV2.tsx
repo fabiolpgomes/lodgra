@@ -31,6 +31,14 @@ interface PricingRule {
   min_nights: number
 }
 
+interface CancellationPolicy {
+  id?: string
+  policy_type: string
+  full_refund_days: number
+  partial_refund_days?: number | null
+  partial_refund_percent?: number | null
+}
+
 interface PropertyPageV2Props {
   property: Property
   allPhotos: string[]
@@ -68,9 +76,10 @@ interface PropertyPageV2Props {
     city: string | null
     country: string | null
   } | null
+  cancellationPolicy?: CancellationPolicy | null
 }
 
-export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, initialCheckOut, initialGuests, minNights = 1, pricingRules = [], structuredAmenities, rooms, bathrooms, minNightsError, datesUnavailable, cleaningFee, cleaningFeeType, petFee, petFeeType, checkinFrom, checkinUntil, checkoutUntil, blockedRanges = [], reviewScore, featuredReviews, similarProperties = [], orgName, publicProfile }: PropertyPageV2Props) {
+export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, initialCheckOut, initialGuests, minNights = 1, pricingRules = [], structuredAmenities, rooms, bathrooms, minNightsError, datesUnavailable, cleaningFee, cleaningFeeType, petFee, petFeeType, checkinFrom, checkinUntil, checkoutUntil, blockedRanges = [], reviewScore, featuredReviews, similarProperties = [], orgName, publicProfile, cancellationPolicy }: PropertyPageV2Props) {
   const [showLightbox, setShowLightbox] = useState(false)
   const [lightboxIndex, setLightboxIndex] = useState(0)
   // Shared date state — synced between AvailabilityCalendar ↔ BookingWidgetDesktop
@@ -253,7 +262,7 @@ export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, 
               ) : null}
               <PropertyRooms rooms={rooms ?? []} />
               <PropertyBathrooms bathrooms={bathrooms ?? []} />
-              <PropertyPolicies cleaningFee={cleaningFee} cleaningFeeType={cleaningFeeType} petFee={petFee} petFeeType={petFeeType} checkinFrom={checkinFrom} checkinUntil={checkinUntil} checkoutUntil={checkoutUntil} currency={currency} />
+              <PropertyPolicies cleaningFee={cleaningFee} cleaningFeeType={cleaningFeeType} petFee={petFee} petFeeType={petFeeType} checkinFrom={checkinFrom} checkinUntil={checkinUntil} checkoutUntil={checkoutUntil} currency={currency} cancellationPolicy={cancellationPolicy} />
 
               {/* Availability Calendar — item 7 */}
               <AvailabilityCalendar

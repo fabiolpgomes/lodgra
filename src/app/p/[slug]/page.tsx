@@ -353,6 +353,24 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
 
   const featuredReviews = (featuredReviewsRaw ?? []) as PropertyReview[]
 
+  // Load cancellation policy for property
+  // Determine if stay is long-stay (28+ nights) based on search params
+  let isLongStay = false
+  if (checkIn && checkOut) {
+    const checkInDate = new Date(checkIn)
+    const checkOutDate = new Date(checkOut)
+    const nights = Math.ceil((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24))
+    isLongStay = nights >= 28
+  }
+
+  const { data: cancellationPolicyData } = await adminClient
+    .from('property_cancellation_policies')
+    .select('id, policy_type, full_refund_days, partial_refund_days, partial_refund_percent')
+    .eq('property_id', property.id)
+    .eq('is_long_stay', isLongStay)
+    .eq('is_active', true)
+    .maybeSingle()
+
   // Load org public profile for contact bar
   let orgPublicProfile: { contact_email: string | null; contact_phone: string | null; whatsapp_number: string | null; website_url: string | null; instagram_url: string | null; public_contact_message: string | null; address_line: string | null; city: string | null; country: string | null } | null = null
   let orgName: string | null = null
@@ -432,6 +450,7 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
         similarProperties={similarProperties}
         orgName={orgName}
         publicProfile={orgPublicProfile}
+        cancellationPolicy={cancellationPolicyData}
       />
     </>
   )
