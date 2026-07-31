@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     // Buscar todas as extrações no período
     const { data: extractions, error } = await supabase
       .from('email_extractions')
-      .select('created_at, sync_status, match_status')
+      .select('created_at, match_status')
       .gte('created_at', startDate.toISOString())
 
     if (error) throw error
@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
 
       const day = dailyMap.get(date)!
       day.total++
-      if (ext.sync_status === 'synced') day.synced++
+      if (ext.match_status === 'auto_matched') day.synced++
       if (ext.match_status === 'needs_review') day.needsReview++
     })
 
