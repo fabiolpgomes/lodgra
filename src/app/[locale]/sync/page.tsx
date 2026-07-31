@@ -72,15 +72,23 @@ export default function EmailSyncStatusPage() {
   async function triggerManualSync() {
     setSyncing(true)
     try {
-      const response = await fetch('/api/admin/email-sync-daily', {
+      const response = await fetch('/api/admin/trigger-email-parser', {
         method: 'POST',
       })
-      if (response.ok) {
-        setTimeout(() => {
-          fetchMetrics()
-          setSyncing(false)
-        }, 1000)
+
+      if (!response.ok) {
+        console.error('Erro na sincronização:', response.statusText)
+        setSyncing(false)
+        return
       }
+
+      const data = await response.json()
+      console.log('Sincronização disparada:', data)
+
+      setTimeout(() => {
+        fetchMetrics()
+        setSyncing(false)
+      }, 2000)
     } catch (error) {
       console.error('Erro ao disparar sincronização:', error)
       setSyncing(false)
