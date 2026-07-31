@@ -11,6 +11,7 @@ import { getPlanLimits } from '@/lib/billing/plans'
 import { getCurrencySymbol } from '@/lib/currency/symbols'
 import { PublicUrlBadge } from '@/components/features/properties/PublicUrlBadge'
 import { PublicPagesUsageBar } from '@/components/features/properties/PublicPagesUsageBar'
+import { PropertiesListContainer, type Property } from '@/components/features/properties/PropertiesListContainer'
 import { PremiumCard, PremiumPageHeader, PremiumPageShell } from '@/components/common/layout/PremiumPage'
 
 export default async function PropertiesPage({ params }: { params: Promise<{ locale: string }> }) {
@@ -138,7 +139,7 @@ export default async function PropertiesPage({ params }: { params: Promise<{ loc
           />
         )}
 
-        {/* Properties List */}
+        {/* Properties List with Filters */}
         {!properties || properties.length === 0 ? (
           <PremiumCard className="p-12 text-center">
             <Home className="h-16 w-16 text-brand-text-medium mx-auto mb-4" />
@@ -160,17 +161,12 @@ export default async function PropertiesPage({ params }: { params: Promise<{ loc
           )}
           </PremiumCard>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {properties.map((property) => (
-              <PropertyCard
-                key={property.id}
-                property={property}
-                imageUrl={propertyImageMap.get(property.id) ?? null}
-                canEdit={canEdit}
-                locale={locale}
-              />
-            ))}
-          </div>
+          <PropertiesListContainer
+            properties={properties as Property[]}
+            imageMap={propertyImageMap}
+            locale={locale}
+            PropertyCard={(props) => <PropertyCard {...props} canEdit={canEdit} />}
+          />
         )}
       </PremiumPageShell>
     </AuthLayout>
@@ -208,7 +204,11 @@ function PropertyCard({ property, imageUrl, canEdit, locale }: {
 
   return (
     <Link href={propertyHref}>
-      <div className={`be-card be-card-hover group cursor-pointer overflow-hidden p-0 ${!property.is_active ? 'opacity-60' : ''}`}>
+      <div className={`be-card be-card-hover group cursor-pointer overflow-hidden p-0 border-2 transition-all ${
+        property.is_active
+          ? 'border-brand-blue/20 shadow-md'
+          : 'border-brand-border opacity-60 hover:opacity-80'
+      }`}>
         <div className="relative aspect-[4/3] w-full overflow-hidden bg-brand-bg">
           {imageUrl ? (
             <Image
@@ -231,12 +231,12 @@ function PropertyCard({ property, imageUrl, canEdit, locale }: {
           </div>
 
           <div className="absolute right-3 top-3">
-            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-sm backdrop-blur ${
+            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-sm backdrop-blur font-semibold ${
               property.is_active
-                ? 'bg-[#ECFDF5]/95 text-[#059669]'
-                : 'bg-brand-white/90 text-brand-text-medium'
+                ? 'bg-brand-blue/90 text-white'
+                : 'bg-brand-surface-soft/80 text-brand-text-medium'
             }`}>
-              <span className={`w-1.5 h-1.5 rounded-full ${property.is_active ? 'bg-[#059669]' : 'bg-brand-text-medium'}`} />
+              <span className={`w-2 h-2 rounded-full ${property.is_active ? 'bg-white animate-pulse' : 'bg-brand-text-medium'}`} />
               {property.is_active ? 'Ativo' : 'Inativo'}
             </span>
           </div>
