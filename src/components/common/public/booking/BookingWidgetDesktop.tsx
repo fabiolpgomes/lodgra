@@ -159,42 +159,70 @@ export function BookingWidgetDesktop({
   }, [slug, checkIn, checkOut, guests, nights])
 
   const handleCheckInChange = (val: string) => {
-    setCheckIn(val)
-    onCheckInChange?.(val)
-    if (val && isDateBlocked(val, blockedRanges)) {
+    // Handle both YYYY-MM-DD (HTML5 date input) and DD/MM/YYYY (user input)
+    let normalizedVal = val
+    if (val && val.includes('/')) {
+      // Convert DD/MM/YYYY to YYYY-MM-DD
+      const [day, month, year] = val.split('/')
+      if (day && month && year) {
+        normalizedVal = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
+      }
+    }
+
+    setCheckIn(normalizedVal)
+    onCheckInChange?.(normalizedVal)
+    if (normalizedVal && isDateBlocked(normalizedVal, blockedRanges)) {
       setCheckInError('Data indisponível')
     } else {
       setCheckInError('')
     }
-    if (checkOut && val) {
-      const newMin = addDays(parseISO(val), Math.max(1, effectiveMinNights))
-      if (isBefore(parseISO(checkOut), newMin)) {
-        setCheckOut('')
-        onCheckOutChange?.('')
-        setCheckOutError('')
+    if (checkOut && normalizedVal) {
+      try {
+        const newMin = addDays(parseISO(normalizedVal), Math.max(1, effectiveMinNights))
+        if (isBefore(parseISO(checkOut), newMin)) {
+          setCheckOut('')
+          onCheckOutChange?.('')
+          setCheckOutError('')
+        }
+      } catch {
+        setCheckInError('Data inválida')
       }
     }
   }
 
   const handleCheckOutChange = (val: string) => {
-    setCheckOut(val)
-    onCheckOutChange?.(val)
-    if (val && checkIn) {
-      const n = differenceInDays(parseISO(val), parseISO(checkIn))
-      const MAX_NIGHTS = 90 // Default max nights
+    // Handle both YYYY-MM-DD (HTML5 date input) and DD/MM/YYYY (user input)
+    let normalizedVal = val
+    if (val && val.includes('/')) {
+      // Convert DD/MM/YYYY to YYYY-MM-DD
+      const [day, month, year] = val.split('/')
+      if (day && month && year) {
+        normalizedVal = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
+      }
+    }
 
-      if (n < effectiveMinNights) {
-        setCheckOutError(
-          effectiveMinNights === 1
-            ? 'Check-out deve ser no mínimo 1 dia após check-in'
-            : `Esta propriedade exige estadia mínima de ${effectiveMinNights} noites`
-        )
-      } else if (n > MAX_NIGHTS) {
-        setCheckOutError(`Estadia máxima permitida: ${MAX_NIGHTS} noites`)
-      } else if (isRangeOverlapping(checkIn, val, blockedRanges)) {
-        setCheckOutError('Período contém datas reservadas')
-      } else {
-        setCheckOutError('')
+    setCheckOut(normalizedVal)
+    onCheckOutChange?.(normalizedVal)
+    if (normalizedVal && checkIn) {
+      try {
+        const n = differenceInDays(parseISO(normalizedVal), parseISO(checkIn))
+        const MAX_NIGHTS = 90 // Default max nights
+
+        if (n < effectiveMinNights) {
+          setCheckOutError(
+            effectiveMinNights === 1
+              ? 'Check-out deve ser no mínimo 1 dia após check-in'
+              : `Esta propriedade exige estadia mínima de ${effectiveMinNights} noites`
+          )
+        } else if (n > MAX_NIGHTS) {
+          setCheckOutError(`Estadia máxima permitida: ${MAX_NIGHTS} noites`)
+        } else if (isRangeOverlapping(checkIn, normalizedVal, blockedRanges)) {
+          setCheckOutError('Período contém datas reservadas')
+        } else {
+          setCheckOutError('')
+        }
+      } catch {
+        setCheckOutError('Data inválida')
       }
     } else {
       setCheckOutError('')
@@ -295,18 +323,18 @@ export function BookingWidgetDesktop({
         </div>
       )}
 
-      {/* CTA */}
+      {/* CTA — button-primary per design.md */}
       {checkoutHref && !checkInError && !checkOutError ? (
         <Link
           href={checkoutHref}
-          className="block w-full bg-brand-blue hover:bg-brand-gold active:scale-[0.98] text-white font-bold py-4 px-4 rounded-full text-center text-[15px] uppercase tracking-wide transition-all mb-4"
+          className="block w-full bg-brand-blue hover:bg-brand-blue/90 active:bg-brand-blue/80 text-white font-medium text-base py-3.5 px-6 rounded-sm text-center h-12 flex items-center justify-center transition-all mb-4"
         >
           Reservar agora
         </Link>
       ) : (
         <button
           disabled
-          className="block w-full bg-brand-blue text-white font-bold py-4 px-4 rounded-full text-center text-[15px] uppercase tracking-wide cursor-not-allowed opacity-60 mb-4"
+          className="block w-full bg-brand-blue/40 text-white font-medium text-base py-3.5 px-6 rounded-sm text-center h-12 flex items-center justify-center cursor-not-allowed mb-4"
         >
           {checkInError || checkOutError ? 'Datas indisponíveis' : 'Seleccione as datas'}
         </button>

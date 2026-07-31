@@ -155,35 +155,63 @@ export function BookingWidgetMobile({
   }, [slug, checkIn, checkOut, guests, nights])
 
   const handleCheckInChange = (val: string) => {
-    setCheckIn(val)
-    if (val && isDateBlocked(val, blockedRanges)) {
+    // Handle both YYYY-MM-DD (HTML5 date input) and DD/MM/YYYY (user input)
+    let normalizedVal = val
+    if (val && val.includes('/')) {
+      // Convert DD/MM/YYYY to YYYY-MM-DD
+      const [day, month, year] = val.split('/')
+      if (day && month && year) {
+        normalizedVal = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
+      }
+    }
+
+    setCheckIn(normalizedVal)
+    if (normalizedVal && isDateBlocked(normalizedVal, blockedRanges)) {
       setCheckInError('Data indisponível')
     } else {
       setCheckInError('')
     }
-    if (checkOut && val) {
-      const newMin = addDays(parseISO(val), Math.max(1, effectiveMinNights))
-      if (isBefore(parseISO(checkOut), newMin)) {
-        setCheckOut('')
-        setCheckOutError('')
+    if (checkOut && normalizedVal) {
+      try {
+        const newMin = addDays(parseISO(normalizedVal), Math.max(1, effectiveMinNights))
+        if (isBefore(parseISO(checkOut), newMin)) {
+          setCheckOut('')
+          setCheckOutError('')
+        }
+      } catch {
+        setCheckInError('Data inválida')
       }
     }
   }
 
   const handleCheckOutChange = (val: string) => {
-    setCheckOut(val)
-    if (val && checkIn) {
-      const n = differenceInDays(parseISO(val), parseISO(checkIn))
-      if (n < effectiveMinNights) {
-        setCheckOutError(
-          effectiveMinNights === 1
-            ? 'Check-out deve ser mínimo 1 dia após check-in'
-            : `Estadia mínima: ${effectiveMinNights} noites`
-        )
-      } else if (isRangeOverlapping(checkIn, val, blockedRanges)) {
-        setCheckOutError('Período contém datas reservadas')
-      } else {
-        setCheckOutError('')
+    // Handle both YYYY-MM-DD (HTML5 date input) and DD/MM/YYYY (user input)
+    let normalizedVal = val
+    if (val && val.includes('/')) {
+      // Convert DD/MM/YYYY to YYYY-MM-DD
+      const [day, month, year] = val.split('/')
+      if (day && month && year) {
+        normalizedVal = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
+      }
+    }
+
+    setCheckOut(normalizedVal)
+    if (normalizedVal && checkIn) {
+      try {
+        const n = differenceInDays(parseISO(normalizedVal), parseISO(checkIn))
+        if (n < effectiveMinNights) {
+          setCheckOutError(
+            effectiveMinNights === 1
+              ? 'Check-out deve ser mínimo 1 dia após check-in'
+              : `Estadia mínima: ${effectiveMinNights} noites`
+          )
+        } else if (isRangeOverlapping(checkIn, normalizedVal, blockedRanges)) {
+          setCheckOutError('Período contém datas reservadas')
+        } else {
+          setCheckOutError('')
+        }
+      } catch {
+        setCheckOutError('Data inválida')
       }
     } else {
       setCheckOutError('')
@@ -216,7 +244,7 @@ export function BookingWidgetMobile({
           {checkoutHref && !checkInError && !checkOutError ? (
             <Link
               href={checkoutHref}
-              className="flex-1 bg-brand-blue hover:bg-brand-gold active:scale-[0.98] font-bold py-3 px-4 rounded-full text-center transition-all"
+              className="flex-1 bg-brand-blue hover:bg-brand-blue/90 active:bg-brand-blue/80 font-medium text-base py-3 px-4 rounded-sm text-center transition-all h-10 flex items-center justify-center"
               style={{ color: '#ffffff' }}
             >
               Reservar
@@ -224,7 +252,7 @@ export function BookingWidgetMobile({
           ) : (
             <button
               onClick={() => setShowPanel(true)}
-              className="flex-1 bg-brand-blue hover:bg-brand-gold font-bold py-3 px-4 rounded-full text-center transition-all"
+              className="flex-1 bg-brand-blue hover:bg-brand-blue/90 font-medium text-base py-3 px-4 rounded-sm text-center transition-all h-10 flex items-center justify-center"
               style={{ color: '#ffffff' }}
             >
               Selecionar datas
@@ -334,7 +362,7 @@ export function BookingWidgetMobile({
             {checkoutHref && !checkInError && !checkOutError ? (
               <Link
                 href={checkoutHref}
-                className="block w-full bg-brand-blue hover:bg-brand-gold font-bold py-3 px-4 rounded-full text-center transition-all"
+                className="block w-full bg-brand-blue hover:bg-brand-blue/90 active:bg-brand-blue/80 font-medium text-base py-3.5 px-6 rounded-sm text-center transition-all h-12 flex items-center justify-center"
                 style={{ color: '#ffffff' }}
                 onClick={() => setShowPanel(false)}
               >
@@ -343,7 +371,7 @@ export function BookingWidgetMobile({
             ) : (
               <button
                 disabled
-                className="w-full bg-brand-blue opacity-80 font-bold py-3 px-4 rounded-full cursor-not-allowed"
+                className="w-full bg-brand-blue/40 font-medium text-base py-3.5 px-6 rounded-sm text-center cursor-not-allowed h-12 flex items-center justify-center"
                 style={{ color: '#ffffff' }}
               >
                 {checkInError || checkOutError ? 'Datas indisponíveis' : 'Selecione check-in e check-out'}
