@@ -349,8 +349,7 @@ export function BookingWidgetDesktop({
       ) : (
         <button
           disabled
-          style={{ backgroundColor: '#4a7ba7' }}
-          className="block w-full text-white font-medium text-base py-3.5 px-6 rounded-sm text-center h-12 flex items-center justify-center cursor-not-allowed mb-4"
+          className="booking-widget-btn-disabled block w-full text-white font-medium text-base py-3.5 px-6 rounded-sm text-center h-12 flex items-center justify-center cursor-not-allowed mb-4"
         >
           {checkInError || checkOutError ? 'Datas indisponíveis' : 'Seleccione as datas'}
         </button>

@@ -950,3 +950,8 @@ html.dark,
 .modal-open {
   overflow: hidden;
 }
+
+/* Booking Widget Button Fix */
+.booking-widget-btn-disabled {
+  background-color: #4a7ba7 !important;
+}
