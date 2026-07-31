@@ -22,7 +22,7 @@ export async function GET(
     // Get all pricing_rules for this property
     const { data: rules, error: rulesError } = await supabase
       .from('pricing_rules')
-      .select('start_date, end_date, base_price')
+      .select('start_date, end_date, price_per_night')
       .eq('property_id', propertyId)
       .order('start_date', { ascending: true })
 
@@ -46,7 +46,7 @@ export async function GET(
         for (const day of daysInRange) {
           dailyPrices.push({
             date: format(day, 'yyyy-MM-dd'),
-            base_price: rule.base_price
+            base_price: rule.price_per_night
           })
         }
       }

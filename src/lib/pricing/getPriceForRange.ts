@@ -47,7 +47,7 @@ async function fetchDailyPrices(
   // Fetch pricing rules (source of truth for daily prices)
   const { data: pricingRulesRaw, error: rulesError } = await db
     .from('pricing_rules')
-    .select('start_date, end_date, base_price')
+    .select('start_date, end_date, price_per_night')
     .eq('property_id', propertyId)
     .gte('end_date', checkInStr)
     .lte('start_date', checkOutStr)
@@ -71,7 +71,7 @@ async function fetchDailyPrices(
 
       for (const day of daysInRule) {
         const dateStr = format(day, 'yyyy-MM-dd')
-        const price = parseFloat(String(rule.base_price))
+        const price = parseFloat(String(rule.price_per_night))
         dailyPrices.set(dateStr, price)
         console.log(`[getPriceForRange] Pricing rule: ${dateStr} = ${price}`)
       }
