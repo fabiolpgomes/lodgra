@@ -31,6 +31,12 @@ interface DailyMetrics {
   needsReview: number
 }
 
+interface Toast {
+  id: string
+  type: 'success' | 'error' | 'info'
+  message: string
+}
+
 export default function EmailSyncStatusPage() {
   const [metrics, setMetrics] = useState<SyncMetrics | null>(null)
   const [needsReviewCases, setNeedsReviewCases] = useState<NeedsReviewCase[]>([])
@@ -38,6 +44,7 @@ export default function EmailSyncStatusPage() {
   const [loading, setLoading] = useState(true)
   const [selectedDays, setSelectedDays] = useState(7)
   const [syncing, setSyncing] = useState(false)
+  const [toast, setToast] = useState<Toast | null>(null)
 
   useEffect(() => {
     fetchMetrics()
@@ -69,27 +76,42 @@ export default function EmailSyncStatusPage() {
     }
   }
 
+  function showToast(message: string, type: 'success' | 'error' | 'info' = 'info') {
+    const id = Math.random().toString(36)
+    setToast({ id, message, type })
+    setTimeout(() => setToast(null), 4000)
+  }
+
   async function triggerManualSync() {
     setSyncing(true)
+    showToast('🔄 Disparando sincronização de iCal...', 'info')
+
     try {
       const response = await fetch('/api/admin/trigger-email-parser', {
         method: 'POST',
       })
 
       if (!response.ok) {
-        console.error('Erro na sincronização:', response.statusText)
+        const errorData = await response.json()
+        const errorMsg = errorData?.error || response.statusText
+        showToast(`❌ Erro: ${errorMsg}`, 'error')
+        console.error('Erro na sincronização:', errorMsg)
         setSyncing(false)
         return
       }
 
       const data = await response.json()
       console.log('Sincronização disparada:', data)
+      showToast('✅ Sincronização iniciada! Aguardando processamento...', 'success')
 
       setTimeout(() => {
         fetchMetrics()
         setSyncing(false)
-      }, 2000)
+        showToast('✅ Métricas recarregadas!', 'success')
+      }, 3000)
     } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : String(error)
+      showToast(`❌ Erro ao sincronizar: ${errorMsg}`, 'error')
       console.error('Erro ao disparar sincronização:', error)
       setSyncing(false)
     }
@@ -465,6 +487,40 @@ export default function EmailSyncStatusPage() {
             </li>
           </ul>
         </div>
+
+        {/* Toast Notification */}
+        {toast && (
+          <div
+            style={{
+              position: 'fixed',
+              bottom: '24px',
+              right: '24px',
+              padding: '16px',
+              borderRadius: '8px',
+              maxWidth: '400px',
+              backgroundColor: toast.type === 'error' ? '#FEE2E2' : toast.type === 'success' ? '#ECFDF5' : '#EFF6FF',
+              border: `1px solid ${toast.type === 'error' ? '#FECACA' : toast.type === 'success' ? '#D1FAE5' : '#BFDBFE'}`,
+              color: toast.type === 'error' ? '#991B1B' : toast.type === 'success' ? '#065F46' : '#1E40AF',
+              boxShadow: 'rgba(0,0,0,0.1) 0 4px 12px',
+              zIndex: 50,
+              animation: 'slideInUp 0.3s ease-out',
+            }}
+          >
+            <style>{`
+              @keyframes slideInUp {
+                from {
+                  opacity: 0;
+                  transform: translateY(20px);
+                }
+                to {
+                  opacity: 1;
+                  transform: translateY(0);
+                }
+              }
+            `}</style>
+            <p style={{ margin: 0, fontSize: '14px', fontWeight: 500, lineHeight: '1.5' }}>{toast.message}</p>
+          </div>
+        )}
       </div>
     </div>
   )
