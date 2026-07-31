@@ -1,9 +1,10 @@
 /**
- * Story 37.2: Get daily prices for a property from pricing_rules
+ * Story 37.2: Get daily prices for a property
  * GET /api/properties/:id/daily-prices
  *
- * Returns pricing by date based on pricing_rules periods.
- * No fallback - pricing_rules is source of truth.
+ * Returns pricing by date using this hierarchy:
+ * 1. daily_prices (daily overrides set via admin calendar)
+ * 2. pricing_rules (period-based pricing fallback)
  */
 
 import { createAdminClient } from '@/lib/supabase/admin'
@@ -18,8 +19,9 @@ export async function GET(
 
   try {
     const supabase = createAdminClient()
+    const pricesMap = new Map<string, number>()
 
-    // Get all pricing_rules for this property
+    // Step 1: Get all pricing_rules for this property (base layer)
     const { data: rules, error: rulesError } = await supabase
       .from('pricing_rules')
       .select('start_date, end_date, price_per_night')
@@ -27,30 +29,42 @@ export async function GET(
       .order('start_date', { ascending: true })
 
     if (rulesError) {
-      console.error('[daily-prices] Supabase error:', rulesError)
-      return NextResponse.json(
-        { error: `Database error: ${rulesError.message}` },
-        { status: 500 }
-      )
+      console.error('[daily-prices] Error fetching pricing_rules:', rulesError)
     }
 
-    // Build daily prices map from pricing rules
-    const dailyPrices: Array<{ date: string; base_price: number }> = []
-
+    // Build base prices from pricing_rules
     if (rules && rules.length > 0) {
       for (const rule of rules) {
         const startDate = new Date(rule.start_date)
         const endDate = new Date(rule.end_date)
-
         const daysInRange = eachDayOfInterval({ start: startDate, end: endDate })
+
         for (const day of daysInRange) {
-          dailyPrices.push({
-            date: format(day, 'yyyy-MM-dd'),
-            base_price: rule.price_per_night
-          })
+          const dateStr = format(day, 'yyyy-MM-dd')
+          pricesMap.set(dateStr, rule.price_per_night)
         }
       }
     }
+
+    // Step 2: Get daily_prices overrides (overlay on top of pricing_rules)
+    const { data: dailyPricesRaw, error: dailyError } = await supabase
+      .from('daily_prices')
+      .select('date, base_price')
+      .eq('property_id', propertyId)
+
+    if (!dailyError && dailyPricesRaw) {
+      // Override with daily prices
+      for (const daily of dailyPricesRaw) {
+        const dateStr = format(new Date(daily.date), 'yyyy-MM-dd')
+        pricesMap.set(dateStr, daily.base_price)
+      }
+    }
+
+    // Convert map to array format
+    const dailyPrices = Array.from(pricesMap.entries()).map(([date, base_price]) => ({
+      date,
+      base_price,
+    }))
 
     return NextResponse.json(dailyPrices)
   } catch (error) {

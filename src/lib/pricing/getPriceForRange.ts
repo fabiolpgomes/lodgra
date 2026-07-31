@@ -44,7 +44,9 @@ async function fetchDailyPrices(
     throw new Error(`Maximum ${propertyMaxNights} nights allowed`)
   }
 
-  // Fetch pricing rules (source of truth for daily prices)
+  const dailyPrices = new Map<string, number>()
+
+  // Step 1: Load pricing_rules as base layer
   const { data: pricingRulesRaw, error: rulesError } = await db
     .from('pricing_rules')
     .select('start_date, end_date, price_per_night')
@@ -57,12 +59,9 @@ async function fetchDailyPrices(
 
   if (rulesError) {
     console.error(`[getPriceForRange] ERROR fetching pricing rules: ${rulesError.message}`)
-    throw new Error(`Failed to fetch pricing: ${rulesError.message}`)
   }
 
-  // Build daily prices from pricing rules (NO FALLBACK)
-  const dailyPrices = new Map<string, number>()
-
+  // Build base layer from pricing rules
   if (pricingRulesRaw && pricingRulesRaw.length > 0) {
     for (const rule of pricingRulesRaw) {
       const ruleStartDate = new Date(rule.start_date)
@@ -73,8 +72,25 @@ async function fetchDailyPrices(
         const dateStr = format(day, 'yyyy-MM-dd')
         const price = parseFloat(String(rule.price_per_night))
         dailyPrices.set(dateStr, price)
-        console.log(`[getPriceForRange] Pricing rule: ${dateStr} = ${price}`)
+        console.log(`[getPriceForRange] Pricing rule base: ${dateStr} = ${price}`)
       }
+    }
+  }
+
+  // Step 2: Load daily_prices overrides (layer on top)
+  const { data: dailyPricesRaw, error: dailyError } = await db
+    .from('daily_prices')
+    .select('date, base_price')
+    .eq('property_id', propertyId)
+    .gte('date', checkInStr)
+    .lt('date', checkOutStr)
+
+  if (!dailyError && dailyPricesRaw) {
+    for (const daily of dailyPricesRaw) {
+      const dateStr = format(new Date(daily.date), 'yyyy-MM-dd')
+      const price = parseFloat(String(daily.base_price))
+      dailyPrices.set(dateStr, price)
+      console.log(`[getPriceForRange] Daily override: ${dateStr} = ${price}`)
     }
   }
 
@@ -83,11 +99,11 @@ async function fetchDailyPrices(
   for (const day of daysInRange) {
     const dateStr = format(day, 'yyyy-MM-dd')
     if (!dailyPrices.has(dateStr)) {
-      throw new Error(`No pricing configured for date ${dateStr}`)
+      throw new Error(`No pricing configured for date ${dateStr} (configure pricing_rules or daily_prices)`)
     }
   }
 
-  // Apply discounts from property_discounts based on nights
+  // Apply discounts based on night count
   let appliedDiscount = 0
   if (nights >= 28) {
     appliedDiscount = 20 // 20% for 28+ nights
@@ -105,7 +121,7 @@ async function fetchDailyPrices(
 
   console.log(`[getPriceForRange] Calculation: ${nights} nights, min=${propertyMinNights}, max=${propertyMaxNights}`)
   console.log(`[getPriceForRange] Pricing rules count: ${pricingRulesRaw?.length || 0}`)
-  console.log(`[getPriceForRange] Daily prices:`, Array.from(dailyPrices.entries()))
+  console.log(`[getPriceForRange] Daily prices after all layers:`, Array.from(dailyPrices.entries()))
 
   return { dailyPrices, propertyMinNights, maxNights: propertyMaxNights }
 }
