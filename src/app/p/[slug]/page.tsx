@@ -124,13 +124,22 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
 
   const { data: property } = await supabase
     .from('properties')
-    .select('id, name, description, city, country, address, photos, amenities, max_guests, bedrooms, bathrooms, property_type, slug, base_price, currency, postal_code, is_active, created_at, updated_at, min_nights, cleaning_fee, cleaning_fee_type, pet_fee, pet_fee_type, checkin_from, checkin_until, checkout_until, latitude, longitude, organization_id, is_public')
+    .select('id, name, description, city, country, address, photos, amenities, max_guests, bedrooms, bathrooms, property_type, slug, base_price, currency, postal_code, is_active, created_at, updated_at, cleaning_fee, cleaning_fee_type, pet_fee, pet_fee_type, checkin_from, checkin_until, checkout_until, latitude, longitude, organization_id, is_public')
     .eq('slug', slug)
     .single()
 
   if (!property || !property.is_public) {
     notFound()
   }
+
+  // Load min_nights from property_availability (new schema)
+  const { data: availabilityData } = await supabase
+    .from('property_availability')
+    .select('min_nights')
+    .eq('property_id', property.id)
+    .single()
+
+  const minNights = availabilityData?.min_nights ?? 1
 
   const similarProperties = await getSimilarProperties(property.id, {
     city: property.city || '',
@@ -403,7 +412,7 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
         initialCheckIn={checkIn}
         initialCheckOut={checkOut}
         initialGuests={guests ? parseInt(guests) : undefined}
-        minNights={property.min_nights ?? 1}
+        minNights={minNights}
         pricingRules={pricingRules}
         structuredAmenities={structuredAmenities}
         rooms={propertyRooms}
