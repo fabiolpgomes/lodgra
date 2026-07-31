@@ -13,11 +13,21 @@ export async function GET(request: NextRequest) {
   // Verificar se é chamada interna (com CRON_SECRET) ou de um trigger manual
   const authHeader = request.headers.get('authorization')
   const cronSecret = process.env.CRON_SECRET
+  const anthropicKey = process.env.ANTHROPIC_API_KEY
 
   // Se CRON_SECRET está configurado, verificar authorization header
   // Caso contrário, permitir (para triggers manuais da dashboard)
   if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  // Verificar se ANTHROPIC_API_KEY está configurado
+  if (!anthropicKey) {
+    console.error('[email-parser] ANTHROPIC_API_KEY não configurado')
+    return NextResponse.json(
+      { error: 'ANTHROPIC_API_KEY não configurado em variáveis de ambiente', processed: 0, created: 0, skipped: 0, errors: 1 },
+      { status: 500 }
+    )
   }
 
   const supabase = await createAdminClient()
