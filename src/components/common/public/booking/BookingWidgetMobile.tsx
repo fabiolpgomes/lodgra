@@ -234,165 +234,129 @@ export function BookingWidgetMobile({
   }
 
   return (
-    <>
-      {/* Fixed bottom bar */}
-      <div className="fixed bottom-0 left-0 right-0 lg:hidden bg-brand-white border-t border-brand-gold/20 shadow-lg z-40">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
-          <div>
-            <p className="text-xs text-brand-text-medium">
-              {nights > 0 && isReady ? (hasVaryingPrices ? 'Preço médio' : 'Por noite') : 'Preço base'}
-            </p>
-            <p className="text-xl font-black text-brand-blue">
+    <div className="lg:hidden block mb-20">
+      {/* Mobile Widget - Sticky card positioned before footer */}
+      <div className="bg-brand-white border border-brand-gold/20 rounded-2xl p-5 mx-4 my-6 shadow-[0_18px_42px_rgba(16,32,62,0.10)]">
+        {/* Price Header */}
+        <div className="mb-4">
+          <p className="text-sm text-brand-text-medium">
+            {nights > 0 && isReady ? (hasVaryingPrices ? 'Preço médio' : 'Preço por noite') : 'Preço base'}
+          </p>
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-[32px] font-black text-brand-blue">
               {symbol}{nights > 0 && isReady ? avgPerNight : basePrice}
-              <span className="text-sm font-medium text-brand-text-medium"> /noite</span>
-            </p>
-            {nights > 0 && (
-              <p className="text-xs text-lodgra-green font-semibold">
-                {isPriceFetching
-                  ? 'A calcular…'
-                  : `${nights} noite${nights !== 1 ? 's' : ''} · ${symbol}${Math.round(displayTotal)}`
-                }
-              </p>
-            )}
+            </span>
+            <span className="text-[14px] font-medium text-brand-text-medium">/noite</span>
           </div>
-
-          {checkoutHref && !checkInError && !checkOutError ? (
-            <Link
-              href={checkoutHref}
-              className="flex-1 bg-brand-blue hover:bg-brand-blue/90 active:bg-brand-blue/80 font-medium text-base py-3 px-4 rounded-sm text-center transition-all h-10 flex items-center justify-center"
-              style={{ color: '#ffffff' }}
-            >
-              Reservar
-            </Link>
-          ) : (
-            <button
-              onClick={() => setShowPanel(true)}
-              className="flex-1 bg-brand-blue hover:bg-brand-blue/90 font-medium text-base py-3 px-4 rounded-sm text-center transition-all h-10 flex items-center justify-center"
-              style={{ color: '#ffffff' }}
-            >
-              Selecionar datas
-            </button>
+          {effectiveMinNights > 1 && (
+            <p className="mt-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-full px-3 py-1 inline-block">
+              Mínimo {effectiveMinNights} noites
+            </p>
           )}
         </div>
-      </div>
 
-      {/* Date selection panel */}
-      {showPanel && (
-        <>
-          <div
-            className="fixed inset-0 bg-black/50 z-50 lg:hidden"
-            onClick={() => setShowPanel(false)}
-          />
-          <div className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-brand-white rounded-t-2xl p-5 space-y-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-2">
-              <h2 className="font-bold text-lg text-brand-text-dark">Selecionar datas</h2>
-              <button onClick={() => setShowPanel(false)} className="text-brand-text-medium text-xl">✕</button>
+        {/* Dates Section */}
+        <div className="mb-4 border border-brand-gold/20 rounded-xl overflow-hidden">
+          <p className="px-4 pt-3 pb-1 text-[12px] font-bold text-brand-text-dark bg-brand-bg border-b border-brand-gold/15">
+            Seleccione as datas para ver o preço exacto
+          </p>
+          <div className="grid grid-cols-2">
+            <div className="px-4 py-3 border-r border-brand-gold/15">
+              <label className="block text-[11px] font-bold text-brand-text-medium uppercase tracking-wide mb-1">Check-in</label>
+              <input
+                type="date"
+                value={checkIn}
+                min={today}
+                onChange={e => handleCheckInChange(e.target.value)}
+                className="w-full text-sm text-brand-text-dark bg-transparent focus:outline-none"
+              />
+              {checkInError && <p className="mt-1 text-[11px] text-red-600">{checkInError}</p>}
             </div>
-            {effectiveMinNights > 1 && (
-              <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1">
-                Estadia mínima: {effectiveMinNights} noites
-              </p>
-            )}
-
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-sm font-semibold text-brand-text-dark mb-1">Check-in</label>
-                <input
-                  type="date"
-                  value={checkIn}
-                  min={today}
-                  onChange={e => handleCheckInChange(e.target.value)}
-                  className="w-full px-3 py-2 border border-brand-gold/20 rounded-xl text-sm text-brand-text-dark focus:outline-none focus:ring-2 focus:ring-brand-gold/30"
-                />
-                {checkInError && <p className="mt-1 text-xs text-red-600">{checkInError}</p>}
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-brand-text-dark mb-1">Check-out</label>
-                <input
-                  type="date"
-                  value={checkOut}
-                  min={minCheckOut || today}
-                  onChange={e => handleCheckOutChange(e.target.value)}
-                  disabled={!checkIn}
-                  className="w-full px-3 py-2 border border-brand-gold/20 rounded-xl text-sm text-brand-text-dark focus:outline-none focus:ring-2 focus:ring-brand-gold/30 disabled:opacity-50 disabled:cursor-not-allowed"
-                />
-                {checkOutError && <p className="mt-1 text-xs text-red-600">{checkOutError}</p>}
-              </div>
+            <div className="px-4 py-3">
+              <label className="block text-[11px] font-bold text-brand-text-medium uppercase tracking-wide mb-1">Check-out</label>
+              <input
+                type="date"
+                value={checkOut}
+                min={minCheckOut || today}
+                onChange={e => handleCheckOutChange(e.target.value)}
+                disabled={!checkIn}
+                className="w-full text-sm text-brand-text-dark bg-transparent focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed"
+              />
+              {checkOutError && <p className="mt-1 text-[11px] text-red-600">{checkOutError}</p>}
             </div>
+          </div>
+        </div>
 
-            <div>
-              <label className="block text-sm font-semibold text-brand-text-dark mb-1">Hóspedes</label>
-              <select
-                value={guests}
-                onChange={e => setGuests(parseInt(e.target.value))}
-                className="w-full px-3 py-2 border border-brand-gold/20 rounded-xl text-sm text-brand-text-dark focus:outline-none focus:ring-2 focus:ring-brand-gold/30"
-              >
-                {Array.from({ length: Math.max(1, maxGuests) }, (_, i) => (
-                  <option key={i + 1} value={i + 1}>{i + 1} {i === 0 ? 'hóspede' : 'hóspedes'}</option>
-                ))}
-              </select>
-            </div>
+        {/* Guests */}
+        <div className="mb-4 border border-brand-gold/20 rounded-xl px-4 py-3">
+          <label className="block text-[11px] font-bold text-brand-text-medium uppercase tracking-wide mb-1">Hóspedes</label>
+          <select
+            value={guests}
+            onChange={e => setGuests(parseInt(e.target.value))}
+            className="w-full text-sm text-brand-text-dark bg-transparent focus:outline-none appearance-none cursor-pointer"
+          >
+            {Array.from({ length: Math.max(1, maxGuests) }, (_, i) => (
+              <option key={i + 1} value={i + 1}>{i + 1} {i === 0 ? 'hóspede' : 'hóspedes'}</option>
+            ))}
+          </select>
+        </div>
 
-            {nights > 0 && (
-              <div className="p-3 bg-brand-bg rounded-xl text-sm space-y-1">
-                {isPriceFetching ? (
-                  <>
-                    <div className="flex justify-between text-gray-400 animate-pulse">
-                      <span>{nights} noite{nights !== 1 ? 's' : ''}</span>
-                      <span className="bg-gray-200 rounded w-16">&nbsp;</span>
-                    </div>
-                    <div className="flex justify-between font-bold text-gray-300 pt-1 border-t border-gray-200 animate-pulse">
-                      <span>Total</span>
-                      <span className="bg-gray-200 rounded w-20">&nbsp;</span>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="flex justify-between text-brand-text-medium">
-                      {hasVaryingPrices ? (
-                        <span>{nights} noite{nights !== 1 ? 's' : ''} · preço por época</span>
-                      ) : (
-                        <span>{symbol}{avgPerNight} × {nights} noite{nights !== 1 ? 's' : ''}</span>
-                      )}
-                      <span>{symbol}{Math.round(accommodationTotal)}</span>
-                    </div>
-                    {hasVaryingPrices && (
-                      <p className="text-xs text-brand-text-medium">Inclui regras de preço por época</p>
-                    )}
-                    {isReady && priceState.fees?.map((fee, i) => (
-                      <div key={i} className="flex justify-between text-brand-text-medium">
-                        <span>{fee.label}</span>
-                        <span>{symbol}{Math.round(fee.amount)}</span>
-                      </div>
-                    ))}
-                    <div className="flex justify-between font-bold text-brand-text-dark pt-1 border-t border-brand-gold/15">
-                      <span>Total</span>
-                      <span>{symbol}{Math.round(displayTotal)}</span>
-                    </div>
-                  </>
-                )}
+        {/* Price summary */}
+        {nights > 0 && (
+          <div className="mb-4 p-3 bg-brand-bg rounded-xl text-sm space-y-1.5">
+            {isPriceFetching ? (
+              <div className="flex justify-between text-gray-400 animate-pulse">
+                <span>{nights} noite{nights !== 1 ? 's' : ''}</span>
+                <span className="bg-gray-200 rounded w-16">&nbsp;</span>
               </div>
-            )}
-
-            {checkoutHref && !checkInError && !checkOutError ? (
-              <Link
-                href={checkoutHref}
-                className="booking-widget-btn-active block w-full text-center transition-all"
-                onClick={() => setShowPanel(false)}
-              >
-                Reservar agora
-              </Link>
             ) : (
-              <button
-                disabled
-                className="booking-widget-btn-disabled w-full text-center"
-              >
-                {checkInError || checkOutError ? 'Datas indisponíveis' : 'Selecione check-in e check-out'}
-              </button>
+              <>
+                <div className="flex justify-between text-brand-text-medium">
+                  {hasVaryingPrices
+                    ? <span>{nights} noite{nights !== 1 ? 's' : ''} · por época</span>
+                    : <span>{symbol}{avgPerNight} × {nights} noite{nights !== 1 ? 's' : ''}</span>
+                  }
+                  <span>{symbol}{Math.round(accommodationTotal)}</span>
+                </div>
+                {isReady && priceState.fees?.map((fee, i) => (
+                  <div key={i} className="flex justify-between text-brand-text-medium">
+                    <span>{fee.label}</span>
+                    <span>{symbol}{Math.round(fee.amount)}</span>
+                  </div>
+                ))}
+                <div className="flex justify-between font-bold text-brand-text-dark pt-1.5 border-t border-brand-gold/15">
+                  <span>Total</span>
+                  <span>{symbol}{Math.round(displayTotal)}</span>
+                </div>
+              </>
             )}
           </div>
-        </>
-      )}
-    </>
+        )}
+
+        {/* CTA Button */}
+        {checkoutHref && !checkInError && !checkOutError ? (
+          <Link
+            href={checkoutHref}
+            className="booking-widget-btn-active block w-full text-center transition-all mb-3"
+          >
+            Reservar agora
+          </Link>
+        ) : (
+          <button
+            disabled
+            className="booking-widget-btn-disabled block w-full text-center mb-3"
+          >
+            {checkInError || checkOutError ? 'Datas indisponíveis' : 'Seleccione as datas'}
+          </button>
+        )}
+
+        {/* Trust badges */}
+        <div className="space-y-1.5 text-[13px] text-brand-text-medium">
+          <p className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span>Sem comissões</p>
+          <p className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span>Pagamento seguro</p>
+          <p className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span>Confirmação instantânea</p>
+        </div>
+      </div>
+    </div>
   )
 }
