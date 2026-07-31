@@ -10,6 +10,7 @@ export interface PriceForRange {
   total: number
   breakdown: PriceBreakdownItem[]
   minNights: number
+  maxNights?: number
 }
 
 
@@ -18,21 +19,30 @@ async function fetchDailyPrices(
   propertyId: string,
   checkIn: Date,
   checkOut: Date
-): Promise<{ dailyPrices: Map<string, number>; propertyMinNights: number }> {
+): Promise<{ dailyPrices: Map<string, number>; propertyMinNights: number; maxNights?: number }> {
   const checkInStr = format(checkIn, 'yyyy-MM-dd')
   const checkOutStr = format(checkOut, 'yyyy-MM-dd')
   const nights = differenceInDays(checkOut, checkIn)
 
   const db = supabase as any
 
-  // Fetch property min_nights from property_availability (NOT properties.min_nights which was deleted)
+  // Fetch property min/max nights from property_availability
   const { data: availability } = await db
     .from('property_availability')
-    .select('min_nights')
+    .select('min_nights, max_nights')
     .eq('property_id', propertyId)
     .maybeSingle()
 
   const propertyMinNights = availability?.min_nights ? parseInt(String(availability.min_nights)) : 1
+  const propertyMaxNights = availability?.max_nights ? parseInt(String(availability.max_nights)) : 90
+
+  // Validate nights are within range
+  if (nights < propertyMinNights) {
+    throw new Error(`Minimum ${propertyMinNights} nights required`)
+  }
+  if (nights > propertyMaxNights) {
+    throw new Error(`Maximum ${propertyMaxNights} nights allowed`)
+  }
 
   // Fetch base price from property_prices
   const { data: priceData } = await db
@@ -44,19 +54,25 @@ async function fetchDailyPrices(
   const basePrice = priceData?.base_price ? parseFloat(String(priceData.base_price)) : 0
 
   // Fetch daily price overrides from property_daily_prices
-  const { data: dailyOverridesRaw } = await db
+  const { data: dailyOverridesRaw, error: overridesError } = await db
     .from('property_daily_prices')
     .select('date, price')
     .eq('property_id', propertyId)
     .gte('date', checkInStr)
     .lte('date', checkOutStr)
 
+  if (overridesError) {
+    console.warn(`[getPriceForRange] Warning fetching daily prices: ${overridesError.message}`)
+  }
+
   // Map daily prices (base or override)
   const dailyPrices = new Map<string, number>()
   const overridesMap = new Map<string, number>()
-  if (dailyOverridesRaw) {
+  if (dailyOverridesRaw && dailyOverridesRaw.length > 0) {
     dailyOverridesRaw.forEach((p: { date: string; price: number }) => {
-      overridesMap.set(p.date, parseFloat(String(p.price)))
+      const priceValue = parseFloat(String(p.price))
+      overridesMap.set(p.date, priceValue)
+      console.log(`[getPriceForRange] Daily override: ${p.date} = ${priceValue}`)
     })
   }
 
@@ -84,7 +100,11 @@ async function fetchDailyPrices(
     }
   }
 
-  return { dailyPrices, propertyMinNights }
+  console.log(`[getPriceForRange] Calculation: ${nights} nights, min=${propertyMinNights}, max=${propertyMaxNights}`)
+  console.log(`[getPriceForRange] Base price: ${basePrice}, overrides count: ${overridesMap.size}`)
+  console.log(`[getPriceForRange] Daily prices:`, Array.from(dailyPrices.entries()))
+
+  return { dailyPrices, propertyMinNights, maxNights: propertyMaxNights }
 }
 
 /**
@@ -97,7 +117,7 @@ async function getPriceForRangeInternal(
   checkIn: Date,
   checkOut: Date
 ): Promise<PriceForRange> {
-  const { dailyPrices, propertyMinNights } = await fetchDailyPrices(supabase, propertyId, checkIn, checkOut)
+  const { dailyPrices, propertyMinNights, maxNights = 90 } = await fetchDailyPrices(supabase, propertyId, checkIn, checkOut)
 
   const nights = eachDayOfInterval({ start: checkIn, end: addDays(checkOut, -1) })
 
@@ -111,7 +131,7 @@ async function getPriceForRangeInternal(
     total += price
   }
 
-  return { total, breakdown, minNights: propertyMinNights }
+  return { total, breakdown, minNights: propertyMinNights, maxNights }
 }
 
 /**
