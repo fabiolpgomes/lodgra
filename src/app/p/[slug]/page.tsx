@@ -133,11 +133,11 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
   }
 
   // Load min_nights from property_availability (new schema)
-  const { data: availabilityData } = await supabase
+  const { data: availabilityData, error: availabilityError } = await supabase
     .from('property_availability')
     .select('min_nights')
     .eq('property_id', property.id)
-    .single()
+    .maybeSingle()
 
   const minNights = availabilityData?.min_nights ?? 1
 
