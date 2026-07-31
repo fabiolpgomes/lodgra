@@ -181,12 +181,16 @@ export function BookingWidgetDesktop({
     onCheckOutChange?.(val)
     if (val && checkIn) {
       const n = differenceInDays(parseISO(val), parseISO(checkIn))
+      const MAX_NIGHTS = 90 // Default max nights
+
       if (n < effectiveMinNights) {
         setCheckOutError(
           effectiveMinNights === 1
             ? 'Check-out deve ser no mínimo 1 dia após check-in'
             : `Esta propriedade exige estadia mínima de ${effectiveMinNights} noites`
         )
+      } else if (n > MAX_NIGHTS) {
+        setCheckOutError(`Estadia máxima permitida: ${MAX_NIGHTS} noites`)
       } else if (isRangeOverlapping(checkIn, val, blockedRanges)) {
         setCheckOutError('Período contém datas reservadas')
       } else {
