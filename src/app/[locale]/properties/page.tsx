@@ -10,7 +10,6 @@ import { Button } from '@/components/common/ui/button'
 import { getPlanLimits } from '@/lib/billing/plans'
 import { getCurrencySymbol } from '@/lib/currency/symbols'
 import { PublicUrlBadge } from '@/components/features/properties/PublicUrlBadge'
-import { PublicPagesUsageBar } from '@/components/features/properties/PublicPagesUsageBar'
 import { PropertyFilterBar } from '@/components/features/properties/PropertyFilterBar'
 import { PremiumCard, PremiumPageHeader, PremiumPageShell } from '@/components/common/layout/PremiumPage'
 
@@ -112,7 +111,6 @@ export default async function PropertiesPage({
   }
 
   const limits = getPlanLimits(subscriptionPlan)
-  const publicCount = properties?.filter(p => p.is_public).length ?? 0
   const planName = subscriptionPlan
     ? subscriptionPlan.charAt(0).toUpperCase() + subscriptionPlan.slice(1)
     : 'Starter'
@@ -156,42 +154,30 @@ export default async function PropertiesPage({
 
         <div className="border-b border-neutral-200/60" />
 
-        {/* Usage Metrics */}
-        {properties && properties.length > 0 && (
-          <div className="space-y-4">
-            {/* Public Pages Usage Bar */}
-            <PublicPagesUsageBar
-              used={publicCount}
-              limit={limits.maxProperties}
-              plan={planName}
-            />
-
-            {/* Total Properties Usage */}
-            {limits.maxProperties && (
-              <div className="p-4 bg-brand-surface rounded-lg border border-brand-border-soft">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Building2 className="h-4 w-4 text-brand-text-medium" />
-                    <span className="text-sm font-medium text-brand-text-dark">Total de Propriedades</span>
-                  </div>
-                  <span className="text-sm font-semibold text-brand-blue">
-                    {properties.length} / {limits.maxProperties}
-                  </span>
-                </div>
-                <div className="mt-3 w-full bg-brand-border-soft rounded-full h-2 overflow-hidden">
-                  <div
-                    className="bg-gradient-to-r from-brand-blue to-brand-gold h-full transition-all duration-300"
-                    style={{ width: `${Math.min((properties.length / limits.maxProperties) * 100, 100)}%` }}
-                  />
-                </div>
-                {properties.length > limits.maxProperties && (
-                  <p className="mt-2 text-xs text-brand-text-medium">
-                    ⚠️ Você tem {properties.length - limits.maxProperties} propriedade{properties.length - limits.maxProperties === 1 ? '' : 's'} acima do limite do plano.
-                    <br />
-                    Entre em contato para adicionar extras ou fazer upgrade.
-                  </p>
-                )}
+        {/* Total Properties Usage */}
+        {properties && properties.length > 0 && limits.maxProperties && (
+          <div className="p-4 bg-brand-surface rounded-lg border border-brand-border-soft">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Building2 className="h-4 w-4 text-brand-text-medium" />
+                <span className="text-sm font-medium text-brand-text-dark">Total de Propriedades</span>
               </div>
+              <span className="text-sm font-semibold text-brand-blue">
+                {properties.length} / {limits.maxProperties}
+              </span>
+            </div>
+            <div className="mt-3 w-full bg-brand-border-soft rounded-full h-2 overflow-hidden">
+              <div
+                className="bg-gradient-to-r from-brand-blue to-brand-gold h-full transition-all duration-300"
+                style={{ width: `${Math.min((properties.length / limits.maxProperties) * 100, 100)}%` }}
+              />
+            </div>
+            {properties.length > limits.maxProperties && (
+              <p className="mt-2 text-xs text-brand-text-medium">
+                ⚠️ Você tem {properties.length - limits.maxProperties} propriedade{properties.length - limits.maxProperties === 1 ? '' : 's'} acima do limite do plano.
+                <br />
+                Entre em contato para adicionar extras ou fazer upgrade.
+              </p>
             )}
           </div>
         )}
