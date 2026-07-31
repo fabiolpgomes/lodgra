@@ -29,10 +29,10 @@
 **Feature:** Price breakdown tooltip in reservation flow
 
 #### Setup Tests
-- [ ] **Load Property Page** - No errors on load
-  - [ ] Property details visible
-  - [ ] Reservation card renders
-  - [ ] Price visible in booking card
+- [ ] **Load Property Page** - No errors on load = OK
+  - [ x] Property details visible
+  - [x ] Reservation card renders
+  - [ x] Price visible in booking card
 
 #### Tooltip Behavior
 - [ ] **Toggle Button Visible** - "Show price breakdown" button exists
