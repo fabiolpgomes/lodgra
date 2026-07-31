@@ -221,16 +221,17 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
   const futureDate = new Date(nowDate.getFullYear() + 1, nowDate.getMonth(), nowDate.getDate()).toISOString().split('T')[0]
   const { data: pricingRulesRaw } = await adminClient
     .from('pricing_rules')
-    .select('start_date, end_date, min_nights')
+    .select('start_date, end_date, min_nights, price_per_night')
     .eq('property_id', property.id)
     .gte('end_date', today)
     .lte('start_date', futureDate)
     .order('start_date', { ascending: true })
 
-  const pricingRules = (pricingRulesRaw ?? []).map((r: { start_date: string; end_date: string; min_nights: number }) => ({
+  const pricingRules = (pricingRulesRaw ?? []).map((r: { start_date: string; end_date: string; min_nights: number; price_per_night: number }) => ({
     start_date: r.start_date,
     end_date: r.end_date,
     min_nights: r.min_nights,
+    price_per_night: r.price_per_night,
   }))
 
   // Load listing IDs for this property (reservations link via property_listing_id, not property_id)
