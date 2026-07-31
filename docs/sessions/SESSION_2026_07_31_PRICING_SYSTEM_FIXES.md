@@ -189,11 +189,37 @@ CREATE TABLE IF NOT EXISTS public.daily_prices (
 #### Lógica de Cálculo de Reserva
 ```
 Preço diário × Número de dias = Subtotal
-- Desconto Semanal (se noites >= 7)
-- Desconto Mensal (se noites >= 28)
-- Desconto Cliente Fidelidade (se hóspede recorrente)
-+ Taxas (limpeza, pet, etc.)
-= TOTAL
+
+Aplicar APENAS UM desconto de volume (não são acumulativos):
+  Se noites >= 28 dias:
+    - Aplicar Desconto Mensal (Ex: 20%)
+  Senão se noites >= 7 dias:
+    - Aplicar Desconto Semanal (Ex: 10%)
+  Senão:
+    - Sem desconto de volume
+
+Depois aplicar (se aplicável):
+  - Desconto Cliente Fidelidade (se hóspede recorrente)
+    ↳ Aplicado SOBRE o valor já descontado (cascata)
+
+Finalmente:
+  + Taxas (limpeza, pet, etc.)
+  = TOTAL
+
+Exemplo:
+  2 noites × €139 = €278
+  Sem desconto de volume (< 7 noites)
+  Sem fidelidade
+  + €0 taxas
+  = €278
+
+Exemplo 2:
+  10 noites × €139 = €1.390
+  - Desconto Semanal 10% = -€139
+  = €1.251
+  - Fidelidade 5% sobre €1.251 = -€62,55
+  + €0 taxas
+  = €1.188,45
 ```
 
 #### 10 Subtasks Menores
