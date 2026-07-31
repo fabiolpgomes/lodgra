@@ -19,6 +19,8 @@ export type Property = {
   amenities: string[]
   photos: string[] | null
   is_active: boolean
+  // Pricing
+  base_price?: number | null
   // Taxas adicionais (opcional — nem todas as queries seleccionam estes campos)
   cleaning_fee?: number | null
   cleaning_fee_type?: FeeType | null
