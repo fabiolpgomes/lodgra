@@ -90,7 +90,10 @@ function MonthGrid({ baseDate, today, checkIn, checkOut, hoverDate, blockedRange
           let cellClass = 'relative h-9 flex items-center justify-center text-[13px] select-none cursor-default transition-colors '
 
           if (isPast || isBlocked) {
-            cellClass += 'text-gray-300 cursor-not-allowed '
+            // Reserved/Past dates: gray background with striped pattern
+            cellClass += isBlocked
+              ? 'bg-slate-200 text-slate-500 cursor-not-allowed font-medium shadow-sm border border-slate-300 '
+              : 'text-gray-300 cursor-not-allowed '
           } else if (isCI || isCO) {
             cellClass += 'bg-brand-800 text-white rounded-full font-bold cursor-pointer z-10 shadow-md border-2 border-brand-600 '
 
@@ -120,6 +123,7 @@ function MonthGrid({ baseDate, today, checkIn, checkOut, hoverDate, blockedRange
               onClick={() => !isPast && !isBlocked && onDateClick(day)}
               onMouseEnter={() => !isPast && !isBlocked && onDateHover(d)}
               onMouseLeave={() => onDateHover(null)}
+              title={isBlocked ? 'Reservado' : isPast ? 'Data passada' : undefined}
               aria-label={`${format(day, 'd MMMM yyyy', { locale: ptBR })}${isBlocked ? ' — reservado' : isPast ? ' — passado' : ''}`}
               role="button"
               tabIndex={isPast || isBlocked ? -1 : 0}
