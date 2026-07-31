@@ -15,12 +15,6 @@ const PLAN_LABELS: Record<Plan, string> = {
   premium:      'Premium',
   enterprise:   'Enterprise',
   development:  'Development (Lab)',
-  // Legacy aliases
-  starter:      'Essencial',
-  growth:       'Expansão',
-  professional: 'Expansão',
-  business:     'Premium',
-  pro:          'Premium',
 }
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {

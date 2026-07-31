@@ -8,10 +8,10 @@ export type FeatureName =
   | 'forecast_bi'
 
 export const FEATURE_MATRIX: Record<FeatureName, (keyof typeof PLAN_LIMITS)[]> = {
-  cleaner_portal:   ['expansao', 'premium', 'growth', 'professional', 'business', 'pro'],
-  advanced_reports: ['expansao', 'premium', 'growth', 'professional', 'business', 'pro'],
-  api_access:       ['premium', 'professional', 'business', 'pro', 'enterprise'],
-  forecast_bi:      ['premium', 'professional', 'business', 'pro', 'enterprise'],
+  cleaner_portal:   ['expansao', 'premium', 'enterprise'],
+  advanced_reports: ['expansao', 'premium', 'enterprise'],
+  api_access:       ['premium', 'enterprise'],
+  forecast_bi:      ['premium', 'enterprise'],
 }
 
 /**

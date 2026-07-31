@@ -3,7 +3,7 @@
  * Defines types for commission calculations and tracking
  */
 
-export type PlanType = 'starter' | 'professional' | 'business'
+export type PlanType = 'essencial' | 'expansao' | 'premium' | 'enterprise'
 
 export type CommissionConfig = {
   plan: PlanType
@@ -18,25 +18,31 @@ export type CommissionResult = {
 }
 
 export const COMMISSION_RATES: Record<PlanType, number> = {
-  starter: 0.2, // 20%
-  professional: 0.15, // 15%
-  business: 0.1, // 10%
+  essencial: 0.2, // 20%
+  expansao: 0.15, // 15%
+  premium: 0.1, // 10%
+  enterprise: 0.05, // 5%
 }
 
 export const PLAN_INFO = {
-  starter: {
-    monthlyPrice: 19,
+  essencial: {
+    monthlyPrice: 59,
     commissionRate: 0.2,
+    maxProperties: 1,
+  },
+  expansao: {
+    monthlyPrice: 149,
+    commissionRate: 0.15,
     maxProperties: 3,
   },
-  professional: {
-    monthlyPrice: 49,
-    commissionRate: 0.15,
+  premium: {
+    monthlyPrice: 397,
+    commissionRate: 0.1,
     maxProperties: 10,
   },
-  business: {
-    monthlyPrice: 99,
-    commissionRate: 0.1,
+  enterprise: {
+    monthlyPrice: 0,
+    commissionRate: 0.05,
     maxProperties: -1, // unlimited
   },
 } as const

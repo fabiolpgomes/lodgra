@@ -15,7 +15,7 @@ import {
   type FeedLogEntry,
 } from '@/lib/google-distribution-dashboard'
 
-const PREMIUM_PLAN_VALUES = new Set(['premium', 'professional', 'business', 'pro'])
+const PREMIUM_PLAN_VALUES = new Set(['premium', 'enterprise'])
 
 export default function GoogleDistributionDashboard() {
   const router = useRouter()

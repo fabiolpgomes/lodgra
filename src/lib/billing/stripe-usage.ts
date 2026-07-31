@@ -15,9 +15,8 @@ export function getMeteredPriceId(plan: string, currency: 'eur' | 'brl' | 'usd' 
 }
 
 // Landing page plan aliases → Stripe plan names
-const PLAN_ALIASES: Record<string, string> = {
-  starter: 'essencial',
-}
+// (no aliases needed - all plan names are standardized)
+const PLAN_ALIASES: Record<string, string> = {}
 
 // Returns the per-unit licensed price ID for a given plan + currency.
 export function getPerUnitPriceId(plan: string, currency: 'eur' | 'brl' | 'usd' = 'eur'): string | null {
@@ -58,7 +57,7 @@ export async function reportBookingFee(orgId: string): Promise<void> {
   if (!eventName) return
 
   const billing = await getOrgBillingInfo(orgId)
-  if (!billing || (billing.plan !== 'expansao' && billing.plan !== 'growth')) return
+  if (!billing || billing.plan !== 'expansao') return
   if (!billing.stripeCustomerId) return
 
   try {
@@ -83,7 +82,7 @@ export async function reportRevenueFee(orgId: string, revenueAmount: number): Pr
   if (!eventName) return
 
   const billing = await getOrgBillingInfo(orgId)
-  if (!billing || (billing.plan !== 'premium' && billing.plan !== 'pro')) return
+  if (!billing || billing.plan !== 'premium') return
   if (!billing.stripeCustomerId) return
   if (revenueAmount <= 0) return
 

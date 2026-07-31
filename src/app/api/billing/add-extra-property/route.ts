@@ -49,7 +49,7 @@ export async function POST(_request: NextRequest) {
       return NextResponse.json({ error: 'No Stripe customer found' }, { status: 400 })
     }
 
-    const extraPropertyPlans = ['essencial', 'expansao', 'premium', 'starter', 'growth', 'professional', 'business', 'pro']
+    const extraPropertyPlans = ['essencial', 'expansao', 'premium', 'enterprise']
     if (!extraPropertyPlans.includes(org.subscription_plan)) {
       return NextResponse.json(
         { error: 'Extra properties are not available for this plan' },

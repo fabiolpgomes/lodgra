@@ -32,7 +32,7 @@ export async function GET(req: Request) {
     const { data: orgs, error: orgsError } = await supabase
       .from('organizations')
       .select('id')
-      .in('subscription_plan', ['premium', 'professional', 'business', 'pro'])
+      .in('subscription_plan', ['premium', 'enterprise'])
 
     if (orgsError) {
       const errorMsg = `Failed to fetch organizations: ${orgsError.message}`

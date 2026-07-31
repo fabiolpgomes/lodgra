@@ -116,7 +116,7 @@ export async function processBookingReservation(
 
   const commission = calculateCommission(
     payload.total_amount,
-    ((org?.plan ?? 'starter') as PlanType)
+    ((org?.plan ?? 'essencial') as PlanType)
   )
 
   // ── 3b. Story 39.1 — snapshot de service_fee_amount a partir da propriedade ──

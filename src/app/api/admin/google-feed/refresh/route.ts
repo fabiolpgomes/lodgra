@@ -2,7 +2,7 @@ import * as Sentry from '@sentry/nextjs'
 import { createClient } from '@/lib/supabase/server'
 import { generateGoogleVacationRentalsFeed, validateFeedStructure } from '@/lib/feeds/google-feed-generator'
 
-const PREMIUM_PLAN_VALUES = new Set(['premium', 'professional', 'business', 'pro'])
+const PREMIUM_PLAN_VALUES = new Set(['premium', 'enterprise'])
 
 export async function POST(request: Request) {
   try {
