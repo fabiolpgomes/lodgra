@@ -1,5 +1,7 @@
 import { Metadata } from 'next'
 
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: 'Loyalty Dashboard - Lodgra',
   description: 'Guest loyalty analytics and metrics dashboard',
