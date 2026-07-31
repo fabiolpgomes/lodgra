@@ -131,20 +131,20 @@ export default function EmailSyncStatusPage() {
           <MetricCard
             title="Sincronizadas"
             value={metrics?.synced || 0}
-            subtitle={`${metrics?.syncRate.toFixed(1) || 0}% de sucesso`}
+            subtitle={`${(metrics?.syncRate ?? 0).toFixed(1)}% de sucesso`}
             icon="✅"
             highlight="green"
           />
           <MetricCard
             title="Revisão Necessária"
             value={metrics?.needsReview || 0}
-            subtitle={`${metrics?.needsReviewRate.toFixed(1) || 0}% do total`}
+            subtitle={`${(metrics?.needsReviewRate ?? 0).toFixed(1)}% do total`}
             icon="⚠️"
             highlight={metrics?.needsReviewRate! > 10 ? 'red' : 'yellow'}
           />
           <MetricCard
             title="Taxa de Sincronização"
-            value={`${metrics?.syncRate.toFixed(1) || 0}%`}
+            value={`${(metrics?.syncRate ?? 0).toFixed(1)}%`}
             subtitle="Extrações com sucesso"
             icon="📈"
           />
