@@ -1,19 +1,55 @@
 'use client'
 
 import { useRouter, useSearchParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import { Filter, X } from 'lucide-react'
 
 export interface PropertyFilterBarProps {
   availableCurrencies: string[]
 }
 
+const STORAGE_KEY = 'properties-filter-preferences'
+
+interface FilterPreferences {
+  isActive: string | null
+  currency: string | null
+}
+
 export function PropertyFilterBar({ availableCurrencies }: PropertyFilterBarProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const [mounted, setMounted] = useState(false)
 
   const isActive = searchParams.get('isActive')
   const selectedCurrency = searchParams.get('currency')
   const hasFilters = isActive !== null || selectedCurrency
+
+  // Load saved preferences from localStorage on mount
+  useEffect(() => {
+    if (!mounted) {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY)
+        if (saved) {
+          const preferences = JSON.parse(saved) as FilterPreferences
+          const params = new URLSearchParams()
+
+          if (preferences.isActive) {
+            params.set('isActive', preferences.isActive)
+          }
+          if (preferences.currency) {
+            params.set('currency', preferences.currency)
+          }
+
+          if (params.toString()) {
+            router.push(`?${params.toString()}`)
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load filter preferences:', error)
+      }
+      setMounted(true)
+    }
+  }, [mounted, router])
 
   const handleActiveChange = (value: string | null) => {
     const params = new URLSearchParams(searchParams)
@@ -22,6 +58,14 @@ export function PropertyFilterBar({ availableCurrencies }: PropertyFilterBarProp
     } else {
       params.delete('isActive')
     }
+
+    // Save to localStorage
+    const preferences: FilterPreferences = {
+      isActive: value,
+      currency: selectedCurrency,
+    }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(preferences))
+
     router.push(`?${params.toString()}`)
   }
 
@@ -32,10 +76,20 @@ export function PropertyFilterBar({ availableCurrencies }: PropertyFilterBarProp
     } else {
       params.delete('currency')
     }
+
+    // Save to localStorage
+    const preferences: FilterPreferences = {
+      isActive,
+      currency: value || null,
+    }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(preferences))
+
     router.push(`?${params.toString()}`)
   }
 
   const handleReset = () => {
+    // Clear localStorage
+    localStorage.removeItem(STORAGE_KEY)
     router.push('')
   }
 
