@@ -349,7 +349,7 @@ export function BookingWidgetDesktop({
       ) : (
         <button
           disabled
-          className="booking-widget-btn-disabled block w-full text-white font-medium text-base py-3.5 px-6 rounded-sm text-center h-12 flex items-center justify-center cursor-not-allowed mb-4"
+          className="block w-full bg-blue-600 text-white font-medium text-base py-3.5 px-6 rounded-sm text-center h-12 flex items-center justify-center cursor-not-allowed mb-4"
         >
           {checkInError || checkOutError ? 'Datas indisponíveis' : 'Seleccione as datas'}
         </button>
