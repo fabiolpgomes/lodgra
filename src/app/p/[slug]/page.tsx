@@ -407,6 +407,10 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
         nonce={nonce}
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      {/* DEBUG: Remove after testing */}
+      <div style={{ position: 'fixed', top: 0, left: 0, background: 'red', color: 'white', padding: '10px', zIndex: 9999, fontSize: '12px' }}>
+        DEBUG: base_price={property.base_price}, currency={property.currency}
+      </div>
       <PropertyPageV2
         property={property}
         allPhotos={allPhotos}
