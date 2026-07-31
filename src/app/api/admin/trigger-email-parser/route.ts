@@ -1,15 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { requireRole } from '@/lib/auth/requireRole'
+import { createClient } from '@/lib/supabase/server'
 
 /**
  * Trigger Email Parser cron job manually
- * Requires admin/gestor role
+ * Requires only authentication (any authenticated user)
  * Calls the actual cron endpoint with CRON_SECRET
  */
 export async function POST(request: NextRequest) {
   try {
-    const auth = await requireRole(['admin', 'gestor', 'manager', 'owner'])
-    if (!auth.authorized) return auth.response!
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Não autenticado' },
+        { status: 401 }
+      )
+    }
 
     const cronSecret = process.env.CRON_SECRET
     if (!cronSecret) {
