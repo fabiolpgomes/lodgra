@@ -44,47 +44,47 @@ async function fetchDailyPrices(
     throw new Error(`Maximum ${propertyMaxNights} nights allowed`)
   }
 
-  // Fetch base price from property_prices
-  const { data: priceData } = await db
-    .from('property_prices')
-    .select('base_price')
+  // Fetch pricing rules (source of truth for daily prices)
+  const { data: pricingRulesRaw, error: rulesError } = await db
+    .from('pricing_rules')
+    .select('start_date, end_date, base_price')
     .eq('property_id', propertyId)
-    .single()
-
-  const basePrice = priceData?.base_price ? parseFloat(String(priceData.base_price)) : 0
-
-  // Fetch daily price overrides from daily_prices
-  const { data: dailyOverridesRaw, error: overridesError } = await db
-    .from('daily_prices')
-    .select('date, base_price:price')
-    .eq('property_id', propertyId)
-    .gte('date', checkInStr)
-    .lte('date', checkOutStr)
+    .gte('end_date', checkInStr)
+    .lte('start_date', checkOutStr)
 
   console.log(`[getPriceForRange] Query params:`, { propertyId, checkInStr, checkOutStr })
-  console.log(`[getPriceForRange] Daily prices raw results:`, dailyOverridesRaw)
+  console.log(`[getPriceForRange] Pricing rules raw results:`, pricingRulesRaw)
 
-  if (overridesError) {
-    console.error(`[getPriceForRange] ERROR fetching daily prices: ${overridesError.message}`)
+  if (rulesError) {
+    console.error(`[getPriceForRange] ERROR fetching pricing rules: ${rulesError.message}`)
+    throw new Error(`Failed to fetch pricing: ${rulesError.message}`)
   }
 
-  // Map daily prices (base or override)
+  // Build daily prices from pricing rules (NO FALLBACK)
   const dailyPrices = new Map<string, number>()
-  const overridesMap = new Map<string, number>()
-  if (dailyOverridesRaw && dailyOverridesRaw.length > 0) {
-    dailyOverridesRaw.forEach((p: { date: string; price: number }) => {
-      const priceValue = parseFloat(String(p.price))
-      overridesMap.set(p.date, priceValue)
-      console.log(`[getPriceForRange] Daily override: ${p.date} = ${priceValue}`)
-    })
+
+  if (pricingRulesRaw && pricingRulesRaw.length > 0) {
+    for (const rule of pricingRulesRaw) {
+      const ruleStartDate = new Date(rule.start_date)
+      const ruleEndDate = new Date(rule.end_date)
+      const daysInRule = eachDayOfInterval({ start: ruleStartDate, end: ruleEndDate })
+
+      for (const day of daysInRule) {
+        const dateStr = format(day, 'yyyy-MM-dd')
+        const price = parseFloat(String(rule.base_price))
+        dailyPrices.set(dateStr, price)
+        console.log(`[getPriceForRange] Pricing rule: ${dateStr} = ${price}`)
+      }
+    }
   }
 
-  // Build price map with overrides
+  // Verify all dates in range have pricing
   const daysInRange = eachDayOfInterval({ start: checkIn, end: addDays(checkOut, -1) })
   for (const day of daysInRange) {
     const dateStr = format(day, 'yyyy-MM-dd')
-    const price = overridesMap.get(dateStr) ?? basePrice
-    dailyPrices.set(dateStr, price)
+    if (!dailyPrices.has(dateStr)) {
+      throw new Error(`No pricing configured for date ${dateStr}`)
+    }
   }
 
   // Apply discounts from property_discounts based on nights
@@ -104,7 +104,7 @@ async function fetchDailyPrices(
   }
 
   console.log(`[getPriceForRange] Calculation: ${nights} nights, min=${propertyMinNights}, max=${propertyMaxNights}`)
-  console.log(`[getPriceForRange] Base price: ${basePrice}, overrides count: ${overridesMap.size}`)
+  console.log(`[getPriceForRange] Pricing rules count: ${pricingRulesRaw?.length || 0}`)
   console.log(`[getPriceForRange] Daily prices:`, Array.from(dailyPrices.entries()))
 
   return { dailyPrices, propertyMinNights, maxNights: propertyMaxNights }
