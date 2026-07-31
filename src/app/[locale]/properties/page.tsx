@@ -11,10 +11,18 @@ import { getPlanLimits } from '@/lib/billing/plans'
 import { getCurrencySymbol } from '@/lib/currency/symbols'
 import { PublicUrlBadge } from '@/components/features/properties/PublicUrlBadge'
 import { PublicPagesUsageBar } from '@/components/features/properties/PublicPagesUsageBar'
+import { PropertyFilterBar } from '@/components/features/properties/PropertyFilterBar'
 import { PremiumCard, PremiumPageHeader, PremiumPageShell } from '@/components/common/layout/PremiumPage'
 
-export default async function PropertiesPage({ params }: { params: Promise<{ locale: string }> }) {
+export default async function PropertiesPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ locale: string }>
+  searchParams?: Promise<{ isActive?: string; currency?: string }>
+}) {
   const { locale } = await params
+  const { isActive: isActiveParam, currency: currencyParam } = (await searchParams) || {}
   const supabase = await createClient()
   const access = await getUserAccess(supabase)
 
@@ -109,6 +117,25 @@ export default async function PropertiesPage({ params }: { params: Promise<{ loc
     ? subscriptionPlan.charAt(0).toUpperCase() + subscriptionPlan.slice(1)
     : 'Starter'
 
+  // Get available currencies
+  const availableCurrencies = Array.from(
+    new Set(properties?.map(p => p.currency).filter(Boolean) as string[])
+  ).sort()
+
+  // Apply filters
+  const filteredProperties = properties?.filter((property) => {
+    if (isActiveParam !== undefined) {
+      const isActiveValue = isActiveParam === 'true'
+      if (property.is_active !== isActiveValue) return false
+    }
+
+    if (currencyParam) {
+      if (property.currency !== currencyParam) return false
+    }
+
+    return true
+  }) ?? []
+
   return (
     <AuthLayout profile={profile}>
       <PremiumPageShell>
@@ -138,6 +165,11 @@ export default async function PropertiesPage({ params }: { params: Promise<{ loc
           />
         )}
 
+        {/* Filter Bar */}
+        {properties && properties.length > 0 && (
+          <PropertyFilterBar availableCurrencies={availableCurrencies} />
+        )}
+
         {/* Properties List */}
         {!properties || properties.length === 0 ? (
           <PremiumCard className="p-12 text-center">
@@ -159,9 +191,19 @@ export default async function PropertiesPage({ params }: { params: Promise<{ loc
             </Button>
           )}
           </PremiumCard>
+        ) : filteredProperties.length === 0 ? (
+          <PremiumCard className="p-12 text-center">
+            <Home className="h-16 w-16 text-brand-text-medium mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-brand-text-dark mb-2">
+              Nenhuma propriedade encontrada
+            </h3>
+            <p className="text-brand-text-medium">
+              Nenhuma propriedade corresponde aos filtros selecionados.
+            </p>
+          </PremiumCard>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {properties.map((property) => (
+            {filteredProperties.map((property) => (
               <PropertyCard
                 key={property.id}
                 property={property}
