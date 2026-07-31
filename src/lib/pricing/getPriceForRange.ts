@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import { addDays, eachDayOfInterval, format } from 'date-fns'
+import { addDays, eachDayOfInterval, format, differenceInDays } from 'date-fns'
 
 export interface PriceBreakdownItem {
   date: string
@@ -21,43 +21,67 @@ async function fetchDailyPrices(
 ): Promise<{ dailyPrices: Map<string, number>; propertyMinNights: number }> {
   const checkInStr = format(checkIn, 'yyyy-MM-dd')
   const checkOutStr = format(checkOut, 'yyyy-MM-dd')
+  const nights = differenceInDays(checkOut, checkIn)
 
-  const db = supabase as {
-    from: (t: string) => {
-      select: (s: string) => {
-        eq: (col: string, val: string) => {
-          single: () => Promise<{ data: { min_nights?: number } | null }>
-          gte: (col: string, val: string) => {
-            lte: (col: string, val: string) => Promise<{ data: Array<{ date: string; base_price: number }> | null }>
-          }
-        }
-      }
-    }
-  }
+  const db = supabase as any
 
-  // Fetch property min_nights
-  const { data: property } = await db
-    .from('properties')
+  // Fetch property min_nights from property_availability (NOT properties.min_nights which was deleted)
+  const { data: availability } = await db
+    .from('property_availability')
     .select('min_nights')
-    .eq('id', propertyId)
+    .eq('property_id', propertyId)
+    .maybeSingle()
+
+  const propertyMinNights = availability?.min_nights ? parseInt(String(availability.min_nights)) : 1
+
+  // Fetch base price from property_prices
+  const { data: priceData } = await db
+    .from('property_prices')
+    .select('base_price')
+    .eq('property_id', propertyId)
     .single()
 
-  const propertyMinNights = property?.min_nights ? parseInt(String(property.min_nights)) : 1
+  const basePrice = priceData?.base_price ? parseFloat(String(priceData.base_price)) : 0
 
-  // Fetch daily prices for the date range
-  const { data: pricesRaw } = await db
-    .from('daily_prices')
-    .select('date, base_price')
+  // Fetch daily price overrides from property_daily_prices
+  const { data: dailyOverridesRaw } = await db
+    .from('property_daily_prices')
+    .select('date, price')
     .eq('property_id', propertyId)
     .gte('date', checkInStr)
     .lte('date', checkOutStr)
 
-  // Map to easy lookup
+  // Map daily prices (base or override)
   const dailyPrices = new Map<string, number>()
-  if (pricesRaw) {
-    pricesRaw.forEach((p: { date: string; base_price: number }) => {
-      dailyPrices.set(p.date, parseFloat(String(p.base_price)))
+  const overridesMap = new Map<string, number>()
+  if (dailyOverridesRaw) {
+    dailyOverridesRaw.forEach((p: { date: string; price: number }) => {
+      overridesMap.set(p.date, parseFloat(String(p.price)))
     })
+  }
+
+  // Build price map with overrides
+  const daysInRange = eachDayOfInterval({ start: checkIn, end: addDays(checkOut, -1) })
+  for (const day of daysInRange) {
+    const dateStr = format(day, 'yyyy-MM-dd')
+    const price = overridesMap.get(dateStr) ?? basePrice
+    dailyPrices.set(dateStr, price)
+  }
+
+  // Apply discounts from property_discounts based on nights
+  let appliedDiscount = 0
+  if (nights >= 28) {
+    appliedDiscount = 20 // 20% for 28+ nights
+  } else if (nights >= 7) {
+    appliedDiscount = 10 // 10% for 7+ nights
+  }
+
+  // Apply discount to all daily prices if applicable
+  if (appliedDiscount > 0) {
+    for (const [date, price] of dailyPrices.entries()) {
+      const discountedPrice = price * (1 - appliedDiscount / 100)
+      dailyPrices.set(date, discountedPrice)
+    }
   }
 
   return { dailyPrices, propertyMinNights }
