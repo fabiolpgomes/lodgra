@@ -19,17 +19,17 @@ export async function POST(request: NextRequest) {
     }
 
     const cronSecret = process.env.CRON_SECRET
-    if (!cronSecret) {
-      return NextResponse.json(
-        { error: 'CRON_SECRET não configurado' },
-        { status: 500 }
-      )
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+
+    // Construir headers - só adicionar Authorization se CRON_SECRET existe
+    const headers: Record<string, string> = {}
+    if (cronSecret) {
+      headers['Authorization'] = `Bearer ${cronSecret}`
     }
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
     const res = await fetch(`${appUrl}/api/cron/email-parser`, {
       method: 'GET',
-      headers: { 'Authorization': `Bearer ${cronSecret}` },
+      headers,
     })
 
     const data = await res.json()
