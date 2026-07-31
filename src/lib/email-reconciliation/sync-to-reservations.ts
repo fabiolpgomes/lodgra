@@ -37,8 +37,8 @@ export async function syncExtractedDataToReservation(extractionId: string): Prom
       return { success: false, error: 'Extraction not found' }
     }
 
-    // Skip if already synced
-    if (extraction.sync_status === 'synced') {
+    // Skip if already matched
+    if (extraction.match_status === 'auto_matched') {
       return { success: true }
     }
 
@@ -146,12 +146,11 @@ export async function syncExtractedDataToReservation(extractionId: string): Prom
       return { success: false, error: updateError.message }
     }
 
-    // 5. Mark extraction as synced
+    // 5. Mark extraction as matched
     await supabase
       .from('email_extractions')
       .update({
-        sync_status: 'synced',
-        synced_at: new Date().toISOString(),
+        match_status: 'auto_matched',
       })
       .eq('id', extractionId)
 

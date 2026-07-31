@@ -50,15 +50,12 @@ export async function POST(request: Request) {
             guest_name: extraction.data?.guest_name || null,
             check_in: extraction.data?.check_in || null,
             check_out: extraction.data?.check_out || null,
-            number_of_guests: extraction.data?.number_of_guests || null,
             total_value: extraction.data?.total_value || null,
             currency: extraction.data?.currency || null,
             reservation_code: extraction.data?.reservation_code || null,
-            property_name: extraction.data?.property_name || null,
             phone: extraction.data?.phone || null,
             confidence: extraction.confidence,
-            match_status: extraction.success ? 'pending' : 'needs_review',
-            extraction_notes: extraction.error || null,
+            match_status: extraction.success ? 'auto_matched' : 'needs_review',
           })
           .select()
           .single()

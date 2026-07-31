@@ -15,13 +15,13 @@ export async function GET(request: NextRequest) {
     // Buscar métricas
     const { data: extractions, error } = await supabase
       .from('email_extractions')
-      .select('sync_status, match_status')
+      .select('match_status')
       .gte('created_at', startDate.toISOString())
 
     if (error) throw error
 
     const total = extractions.length
-    const synced = extractions.filter(e => e.sync_status === 'synced').length
+    const synced = extractions.filter(e => e.match_status === 'auto_matched').length
     const needsReview = extractions.filter(e => e.match_status === 'needs_review').length
 
     const syncRate = total > 0 ? (synced / total) * 100 : 0

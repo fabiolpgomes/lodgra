@@ -30,7 +30,7 @@ describe('syncExtractedDataToReservation', () => {
     return {
       id: 'ext-1',
       organization_id: 'org-1',
-      sync_status: 'pending',
+      match_status: 'pending',
       guest_name: 'Ana Santos',
       phone: '+351911111111',
       total_value: 500,
@@ -175,7 +175,7 @@ describe('syncExtractedDataToReservation', () => {
   it('skips if already synced (idempotent)', async () => {
     mockSupabase.from.mockImplementation((table: string) => {
       if (table === 'email_extractions') {
-        return { select: () => ({ eq: () => ({ single: () => Promise.resolve({ data: { id: 'ext-synced', sync_status: 'synced' }, error: null }) }) }) }
+        return { select: () => ({ eq: () => ({ single: () => Promise.resolve({ data: { id: 'ext-synced', match_status: 'auto_matched' }, error: null }) }) }) }
       }
       throw new Error(`Unexpected table: ${table}`)
     })
