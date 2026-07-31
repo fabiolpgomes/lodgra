@@ -978,3 +978,14 @@ html.dark,
   border: none;
   cursor: not-allowed;
 }
+
+/* Calendar Date Selection Fix */
+.bg-brand-50 {
+  background-color: #E5DFD2 !important;  /* hairline - more visible than F7F5EF */
+  color: #1B2430 !important;
+}
+
+.bg-brand-100 {
+  background-color: #CFC4AA !important;  /* border-strong - darker for visibility */
+  color: #1B2430 !important;
+}
