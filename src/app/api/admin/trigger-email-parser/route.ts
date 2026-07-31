@@ -8,7 +8,7 @@ import { requireRole } from '@/lib/auth/requireRole'
  */
 export async function POST(request: NextRequest) {
   try {
-    const auth = await requireRole(['admin', 'gestor'])
+    const auth = await requireRole(['admin', 'gestor', 'manager', 'owner'])
     if (!auth.authorized) return auth.response!
 
     const cronSecret = process.env.CRON_SECRET

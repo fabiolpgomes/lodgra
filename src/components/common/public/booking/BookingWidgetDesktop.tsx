@@ -169,8 +169,17 @@ export function BookingWidgetDesktop({
 
     const normalizedCheckIn = normalizeCheckoutDate(checkIn)
     const normalizedCheckOut = normalizeCheckoutDate(checkOut)
+    const href = `/p/${slug}/checkout?checkin=${normalizedCheckIn}&checkout=${normalizedCheckOut}&guests=${guests}`
 
-    return `/p/${slug}/checkout?checkin=${normalizedCheckIn}&checkout=${normalizedCheckOut}&guests=${guests}`
+    console.log('Generated checkout href:', {
+      checkIn,
+      checkOut,
+      normalizedCheckIn,
+      normalizedCheckOut,
+      href,
+    })
+
+    return href
   }, [slug, checkIn, checkOut, guests, nights])
 
   const handleCheckInChange = (val: string) => {

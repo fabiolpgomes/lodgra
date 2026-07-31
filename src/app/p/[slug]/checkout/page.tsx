@@ -23,12 +23,25 @@ export default async function CheckoutPage({ params, searchParams }: PageProps) 
 
   // Validate query params — redirect back if invalid
   if (!checkin || !checkout) {
+    console.error('Missing dates:', { checkin, checkout })
     redirect(`/p/${slug}`)
   }
+
+  console.log('Checkout dates received:', { checkin, checkout, slug })
 
   const checkinDate = parseISO(checkin)
   const checkoutDate = parseISO(checkout)
   const today = startOfDay(new Date())
+
+  console.log('Parsed dates:', {
+    checkinDate: checkinDate.toISOString(),
+    checkoutDate: checkoutDate.toISOString(),
+    today: today.toISOString(),
+    isValidCheckin: isValid(checkinDate),
+    isValidCheckout: isValid(checkoutDate),
+    isBefore: isBefore(checkinDate, today),
+    daysDifference: differenceInDays(checkoutDate, checkinDate),
+  })
 
   if (
     !isValid(checkinDate) ||
@@ -36,6 +49,7 @@ export default async function CheckoutPage({ params, searchParams }: PageProps) 
     isBefore(checkinDate, today) ||
     differenceInDays(checkoutDate, checkinDate) < 1
   ) {
+    console.error('Date validation failed - redirecting back to property page')
     redirect(`/p/${slug}`)
   }
 
