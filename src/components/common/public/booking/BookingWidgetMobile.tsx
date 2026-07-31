@@ -151,7 +151,22 @@ export function BookingWidgetMobile({
 
   const checkoutHref = useMemo(() => {
     if (!checkIn || !checkOut || nights < 1) return null
-    return `/p/${slug}/checkout?checkin=${checkIn}&checkout=${checkOut}&guests=${guests}`
+
+    // Ensure dates are in YYYY-MM-DD format for API
+    const normalizeCheckoutDate = (date: string) => {
+      if (date.includes('/')) {
+        const [day, month, year] = date.split('/')
+        if (day && month && year) {
+          return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
+        }
+      }
+      return date // Already in correct format or invalid - pass as-is
+    }
+
+    const normalizedCheckIn = normalizeCheckoutDate(checkIn)
+    const normalizedCheckOut = normalizeCheckoutDate(checkOut)
+
+    return `/p/${slug}/checkout?checkin=${normalizedCheckIn}&checkout=${normalizedCheckOut}&guests=${guests}`
   }, [slug, checkIn, checkOut, guests, nights])
 
   const handleCheckInChange = (val: string) => {
