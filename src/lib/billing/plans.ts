@@ -1,4 +1,4 @@
-export type Plan = 'essencial' | 'expansao' | 'premium' | 'enterprise' | 'starter' | 'professional' | 'business' | 'growth' | 'pro'
+export type Plan = 'essencial' | 'expansao' | 'premium' | 'enterprise' | 'starter' | 'professional' | 'business' | 'growth' | 'pro' | 'development'
 
 export interface PlanLimits {
   maxProperties: number | null // null = unlimited
@@ -15,6 +15,8 @@ export const PLAN_LIMITS: Record<Plan, PlanLimits> = {
   expansao:     { maxProperties: 3,  maxAllowed: null, extraPropertyPrice: 49, maxUsers: 5, ownerReports: true,  fiscalCompliance: true  },
   premium:      { maxProperties: 10, maxAllowed: null, extraPropertyPrice: 49, maxUsers: 10, ownerReports: true,  fiscalCompliance: true  },
   enterprise:   { maxProperties: null, maxAllowed: null, extraPropertyPrice: 0, maxUsers: null, ownerReports: true,  fiscalCompliance: true  },
+  // Development/Testing labs
+  development:  { maxProperties: 99, maxAllowed: null, extraPropertyPrice: 0, maxUsers: null, ownerReports: true,  fiscalCompliance: true  },
   // Legacy aliases (backward compatibility — map to modern plans)
   starter:      { maxProperties: 1,  maxAllowed: null, extraPropertyPrice: 49, maxUsers: 1, ownerReports: false, fiscalCompliance: false },
   growth:       { maxProperties: 3,  maxAllowed: null, extraPropertyPrice: 49, maxUsers: 5, ownerReports: true,  fiscalCompliance: true  },
@@ -57,6 +59,8 @@ export function getPriceIdForPlan(plan: Plan, currency: 'eur' | 'brl' | 'usd'): 
     expansao:     { eur: process.env.STRIPE_PRICE_ID_EXPANSAO_EUR,     brl: process.env.STRIPE_PRICE_ID_EXPANSAO_BRL,     usd: process.env.STRIPE_PRICE_ID_EXPANSAO_USD },
     premium:      { eur: process.env.STRIPE_PRICE_ID_PREMIUM_EUR,      brl: process.env.STRIPE_PRICE_ID_PREMIUM_BRL,      usd: process.env.STRIPE_PRICE_ID_PREMIUM_USD },
     enterprise:   { eur: undefined,                                      brl: undefined,                                     usd: undefined },
+    // Development/Testing labs (no Stripe pricing)
+    development:  { eur: undefined,                                      brl: undefined,                                     usd: undefined },
     // Legacy aliases (backward compatibility)
     starter:      { eur: process.env.STRIPE_PRICE_ID_STARTER_EUR,      brl: process.env.STRIPE_PRICE_ID_ESSENCIAL_BRL,    usd: process.env.STRIPE_PRICE_ID_STARTER_USD },
     growth:       { eur: process.env.STRIPE_PRICE_ID_GROWTH_EUR,       brl: process.env.STRIPE_PRICE_ID_EXPANSAO_BRL,     usd: process.env.STRIPE_PRICE_ID_GROWTH_USD },
@@ -99,5 +103,10 @@ export const PLAN_DISPLAY: PlanDisplay[] = [
     id: 'enterprise', name: 'Enterprise', highlighted: false, enterprise: true,
     price: 0, description: 'Para grandes operações com requisitos customizados', properties: 'Volume personalizado',
     features: ['Tudo do Premium', 'Onboarding dedicado', 'SLA garantido', 'Contrato customizado'],
+  },
+  {
+    id: 'development', name: 'Development', highlighted: false, enterprise: false,
+    price: 0, description: 'Laboratório de testes para desenvolvimento', properties: '99 unidades (ambiente de teste)',
+    features: ['Completo', 'Sem limites para testes', 'Ambiente isolado', 'Documentação completa'],
   },
 ]
