@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo, useEffect } from 'react'
-import { Search, Filter, Calendar, Plus, ArrowRight } from 'lucide-react'
+import { Filter, Calendar, Plus, ArrowRight } from 'lucide-react'
 import { MonthNavigator } from '@/components/common/ui/MonthNavigator'
 import Link from 'next/link'
 import { Input } from '@/components/common/ui/input'
@@ -132,12 +132,11 @@ export function ReservationsFilter({ reservations, canCreate, pagination, curren
           {/* Row 1: Search and Property Filter */}
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
-              <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
               <Input
                 placeholder="Procurar hóspede..."
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                className="rounded pl-11"
+                className="rounded"
               />
             </div>
             <Select value={propertyFilter} onValueChange={setPropertyFilter}>
@@ -229,14 +228,14 @@ export function ReservationsFilter({ reservations, canCreate, pagination, curren
             <table className="min-w-full">
               <thead>
                 <tr className="border-b border-gray-200">
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Propriedade</th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Hóspede</th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Check-in</th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Check-out</th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Valor</th>
-                  <th className="px-4 py-2 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">País</th>
-                  <th className="px-4 py-2 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Ações</th>
+                  <th className="px-2.5 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider max-w-sm">Propriedade</th>
+                  <th className="px-2.5 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider max-w-sm">Hóspede</th>
+                  <th className="px-2.5 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider w-20">Check-in</th>
+                  <th className="px-2.5 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider w-20">Check-out</th>
+                  <th className="px-2.5 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider w-28">Status</th>
+                  <th className="px-2.5 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider w-24">Valor</th>
+                  <th className="px-2.5 py-2 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider w-20">País</th>
+                  <th className="px-2.5 py-2 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider w-16">Ações</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">

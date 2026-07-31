@@ -62,7 +62,7 @@ export function ReservationRow({ reservation }: ReservationRowProps) {
       className="hover:bg-gray-50 cursor-pointer transition-colors"
       onClick={handleClick}
     >
-      <td className="px-4 py-3">
+      <td className="px-2.5 py-2.5 max-w-sm">
         <div className="flex items-start gap-2">
           <div className="shrink-0 mt-0.5">
             <Building2 className="h-4 w-4 text-gray-500" />
@@ -71,10 +71,10 @@ export function ReservationRow({ reservation }: ReservationRowProps) {
             <div className="text-xs font-medium text-gray-900 line-clamp-1">
               {truncateName(property?.name)}
             </div>
-            <div className="text-xs text-gray-600">
+            <div className="text-xs text-gray-600 line-clamp-1">
               {property?.city}
               {platformName && (
-                <span className="ml-1 px-1 py-0.5 text-[10px] font-medium bg-brand-100 text-brand-700 rounded">
+                <span className="ml-1 px-1 py-0.5 text-[10px] font-medium bg-brand-100 text-brand-700 rounded inline-block">
                   {platformName}
                 </span>
               )}
@@ -83,7 +83,7 @@ export function ReservationRow({ reservation }: ReservationRowProps) {
         </div>
       </td>
 
-      <td className="px-4 py-3">
+      <td className="px-2.5 py-2.5 max-w-sm">
         <div className="flex items-center gap-2">
           <Users className="h-4 w-4 text-gray-500 shrink-0" />
           <div className="min-w-0">
@@ -95,34 +95,34 @@ export function ReservationRow({ reservation }: ReservationRowProps) {
         </div>
       </td>
 
-      <td className="px-4 py-3 whitespace-nowrap text-xs text-gray-900">
-        {new Date(reservation.check_in).toLocaleDateString('pt-BR')}
+      <td className="px-2.5 py-2.5 whitespace-nowrap text-xs text-gray-900 w-20">
+        {new Date(reservation.check_in).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
       </td>
 
-      <td className="px-4 py-3 whitespace-nowrap text-xs text-gray-900">
-        {new Date(reservation.check_out).toLocaleDateString('pt-BR')}
+      <td className="px-2.5 py-2.5 whitespace-nowrap text-xs text-gray-900 w-20">
+        {new Date(reservation.check_out).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
       </td>
 
-      <td className="px-4 py-3 whitespace-nowrap">
+      <td className="px-2.5 py-2.5 whitespace-nowrap w-28">
         <Badge className={`${status.className} text-xs`}>
           {status.label}
         </Badge>
       </td>
 
-      <td className="px-4 py-3 whitespace-nowrap text-xs text-gray-900">
+      <td className="px-2.5 py-2.5 whitespace-nowrap text-xs text-gray-900 w-24">
         {formatCurrency(reservation.total_amount, ((property as { currency?: string } | null)?.currency || reservation.currency || 'EUR') as CurrencyCode)}
       </td>
 
-      <td className="px-4 py-3 whitespace-nowrap text-right">
-        <div className="flex items-center justify-end gap-1.5">
-          <span className="text-lg">{countryFlag}</span>
-          <span className="text-xs font-medium text-lodgra-blue hover:text-[color:var(--be-blue)] transition-colors cursor-pointer">
+      <td className="px-2.5 py-2.5 whitespace-nowrap text-right w-20">
+        <div className="flex items-center justify-end gap-1">
+          <span className="text-base">{countryFlag}</span>
+          <span className="text-xs font-medium text-lodgra-blue hover:text-[color:var(--be-blue)] transition-colors cursor-pointer truncate">
             {property?.country || '-'}
           </span>
         </div>
       </td>
 
-      <td className="px-4 py-3 whitespace-nowrap text-right">
+      <td className="px-2.5 py-2.5 whitespace-nowrap text-right w-16">
         <span className="text-xs font-medium text-brand-600 hover:text-brand-900">
           Ver →
         </span>
