@@ -132,6 +132,8 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
     notFound()
   }
 
+  console.log('DEBUG: property loaded:', { id: property.id, base_price: property.base_price, slug: property.slug })
+
   // Load min_nights from property_availability (new schema)
   const { data: availabilityData, error: availabilityError } = await supabase
     .from('property_availability')
