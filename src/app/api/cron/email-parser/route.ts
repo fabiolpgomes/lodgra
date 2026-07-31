@@ -10,10 +10,13 @@ export const dynamic = 'force-dynamic'
 export const maxDuration = 300 // 5 minutos
 
 export async function GET(request: NextRequest) {
+  // Verificar se é chamada interna (com CRON_SECRET) ou de um trigger manual
   const authHeader = request.headers.get('authorization')
   const cronSecret = process.env.CRON_SECRET
 
-  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
+  // Se CRON_SECRET está configurado, verificar authorization header
+  // Caso contrário, permitir (para triggers manuais da dashboard)
+  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
