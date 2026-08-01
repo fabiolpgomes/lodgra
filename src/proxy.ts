@@ -82,8 +82,19 @@ export async function proxy(request: NextRequest) {
 
   const isPublic = isPublicPath(pathname)
 
+  // DEBUG: Log calendar access
+  if (pathname.includes('/calendar/')) {
+    console.log('[MIDDLEWARE DEBUG] Calendar access:', {
+      pathname,
+      isPublic,
+      hasUser: !!user,
+      userId: user?.id,
+    })
+  }
+
   // Redirect to login if not authenticated on private routes
   if (!user && !isPublic) {
+    console.log('[MIDDLEWARE] Redirecting to login:', pathname)
     return redirectToLogin(request, pathname)
   }
 
