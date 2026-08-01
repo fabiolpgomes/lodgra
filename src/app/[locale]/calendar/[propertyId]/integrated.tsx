@@ -20,7 +20,7 @@ import { useParams } from 'next/navigation'
  */
 export default function IntegratedCalendarPage() {
   const params = useParams()
-  const propertyId = params.id as string
+  const propertyId = params.propertyId as string
 
   if (!propertyId) {
     return (
