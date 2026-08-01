@@ -113,25 +113,32 @@ export async function checkSubscriptionAndRole(
     return NextResponse.redirect(new URL('/subscribe', request.url))
   }
 
+  // Extract locale from pathname for redirects
+  const localeMatch = pathname.match(/^\/([a-z]{2}(?:-[A-Z]{2})?)/)
+  const locale = localeMatch ? localeMatch[1] : 'pt'
+
   // Role-based access control
   if (userRole === 'gestor') {
     // Normalize pathname: remove locale prefix for comparison
     const normalizedPath = pathname.replace(/^\/[a-z]{2}(-[A-Z]{2})?(?=\/|$)/, '')
     const blockedPaths = ['/dashboard', '/dashboard/reports', '/financial', '/reports', '/admin']
     if (blockedPaths.some(p => normalizedPath === p || normalizedPath.startsWith(p + '/'))) {
-      return NextResponse.redirect(new URL('/calendar', request.url))
+      return NextResponse.redirect(new URL(`/${locale}/calendar`, request.url))
     }
   }
 
   if (userRole === 'guest') {
+    // Normalize pathname for comparison
+    const normalizedPath = pathname.replace(/^\/[a-z]{2}(-[A-Z]{2})?(?=\/|$)/, '')
+
     if (guestType === 'staff') {
-      if (!pathname.startsWith('/calendar')) {
-        return NextResponse.redirect(new URL('/calendar', request.url))
+      if (!normalizedPath.startsWith('/calendar')) {
+        return NextResponse.redirect(new URL(`/${locale}/calendar`, request.url))
       }
     } else if (guestType === 'owner') {
       const allowedPaths = ['/reports', '/reservations', '/calendar', '/account']
-      if (!allowedPaths.some(p => pathname.startsWith(p))) {
-        return NextResponse.redirect(new URL('/reports', request.url))
+      if (!allowedPaths.some(p => normalizedPath.startsWith(p))) {
+        return NextResponse.redirect(new URL(`/${locale}/reports`, request.url))
       }
     }
   }
