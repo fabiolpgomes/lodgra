@@ -1,6 +1,9 @@
 /**
- * Block Dates API - Mark dates as unavailable for booking
+ * Block Dates API - Mark date range as unavailable for booking
  * POST /api/properties/[id]/calendar/block-dates
+ *
+ * Schema: calendar_blocks uses start_date/end_date (date ranges from iCal sync)
+ * This endpoint creates a single block record covering the entire range
  */
 
 import { createAdminClient } from '@/lib/supabase/admin'
@@ -25,35 +28,56 @@ export async function POST(
 
     const supabase = createAdminClient()
 
-    // Generate dates between start and end
-    const datesArray: string[] = []
-    const current = new Date(startDate)
+    // Parse dates and validate
+    const start = new Date(startDate)
     const end = new Date(endDate)
 
-    while (current <= end) {
-      datesArray.push(current.toISOString().split('T')[0])
-      current.setDate(current.getDate() + 1)
+    if (start > end) {
+      return NextResponse.json(
+        { success: false, error: 'startDate must be before or equal to endDate' },
+        { status: 400 }
+      )
     }
 
-    console.log('📊 Blocking dates:', {
+    // Format as ISO dates (YYYY-MM-DD)
+    const startDateStr = start.toISOString().split('T')[0]
+    const endDateStr = end.toISOString().split('T')[0]
+    const nightsBlocked = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1
+
+    console.log('📊 Blocking date range:', {
       propertyId,
-      dateCount: datesArray.length,
+      startDate: startDateStr,
+      endDate: endDateStr,
+      nights: nightsBlocked,
       reason,
-      firstDate: datesArray[0],
-      lastDate: datesArray[datesArray.length - 1],
     })
 
-    // Insert block records
+    // Get property's organization_id to satisfy RLS policy
+    const { data: propertyData, error: propError } = await supabase
+      .from('properties')
+      .select('organization_id')
+      .eq('id', propertyId)
+      .single()
+
+    if (propError || !propertyData?.organization_id) {
+      console.error('❌ Property lookup error:', propError)
+      return NextResponse.json(
+        { success: false, error: 'Property not found or has no organization' },
+        { status: 404 }
+      )
+    }
+
+    // Insert block record using start_date/end_date (schema supports date ranges)
     const { data, error } = await supabase
       .from('calendar_blocks')
-      .insert(
-        datesArray.map(date => ({
-          property_id: propertyId,
-          date,
-          reason,
-          blocked_at: new Date().toISOString(),
-        }))
-      )
+      .insert({
+        property_id: propertyId,
+        organization_id: propertyData.organization_id,
+        start_date: startDateStr,
+        end_date: endDateStr,
+        notes: reason,
+        block_type: 'manual',
+      })
       .select()
 
     if (error) {
@@ -64,12 +88,14 @@ export async function POST(
       )
     }
 
-    console.log('✅ Dates blocked successfully:', { blockedCount: datesArray.length })
+    console.log('✅ Date range blocked successfully:', { blocked: data?.[0]?.id, nights: nightsBlocked })
 
     return NextResponse.json({
       success: true,
       data: {
-        blocked_dates: datesArray.length,
+        blocked_nights: nightsBlocked,
+        start_date: startDateStr,
+        end_date: endDateStr,
         reason,
       },
     })
