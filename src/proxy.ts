@@ -69,9 +69,16 @@ export async function proxy(request: NextRequest) {
     }
   )
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  let user = null
+  try {
+    const {
+      data: { user: authUser },
+    } = await supabase.auth.getUser()
+    user = authUser
+  } catch (error) {
+    console.error('Error getting user in middleware:', error)
+    // Don't redirect on error - let the page handle it
+  }
 
   const isPublic = isPublicPath(pathname)
 
