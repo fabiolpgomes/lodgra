@@ -67,21 +67,38 @@ export async function POST(
     }))
 
     // Upsert prices for all dates
-    console.log('📊 Attempting to upsert', updates.length, 'records to daily_prices table')
-    console.log('📊 Sample record:', updates[0])
+    console.log('📊 Bulk Update Request:', {
+      propertyId,
+      dateCount: datesArray.length,
+      priceValue,
+      firstDate: datesArray[0],
+      lastDate: datesArray[datesArray.length - 1],
+    })
+
     const { data, error } = await supabase
       .from('daily_prices')
-      .upsert(updates, { onConflict: 'property_id,date' })
+      .upsert(datesArray.map(date => ({
+        property_id: propertyId,
+        date,
+        base_price: priceValue,
+        updated_at: new Date().toISOString(),
+      })), { onConflict: 'property_id,date' })
+      .select()
 
     if (error) {
-      console.error('❌ Supabase error:', error)
-      console.error('Error code:', error.code)
-      console.error('Error message:', error.message)
+      console.error('❌ Upsert failed:', {
+        code: error.code,
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+      })
       return NextResponse.json(
         { success: false, error: `Database error: ${error.message}` },
         { status: 500 }
       )
     }
+
+    console.log('✅ Upsert successful:', { upserted: data?.length || 0 })
 
     console.log('✅ Upsert successful')
     return NextResponse.json({
