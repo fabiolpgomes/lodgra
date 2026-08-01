@@ -28,7 +28,8 @@ export async function GET(
 ): Promise<NextResponse<ApiResponse>> {
   const { id } = await params;
   try {
-    const supabase = await createAdminClient();const {
+    const supabase = await createAdminClient();
+    const {
       data: { user },
     } = await supabase.auth.getUser();
 
@@ -74,7 +75,8 @@ export async function POST(
 ): Promise<NextResponse<ApiResponse>> {
   const { id } = await params;
   try {
-    const supabase = await createAdminClient();const {
+    const supabase = await createAdminClient();
+    const {
       data: { user },
     } = await supabase.auth.getUser();
 

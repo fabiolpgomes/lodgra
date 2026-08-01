@@ -12,7 +12,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const { id: propertyId } = await params
 
   try {
-    const supabase = createAdminClient()
+    const supabase = await createAdminClient()
 
     // Verify ownership
     const { data: property } = await supabase
