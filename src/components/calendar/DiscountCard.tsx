@@ -56,12 +56,12 @@ export function DiscountCard({ propertyId, onUpdate }: DiscountCardProps) {
         // Map API response to component state
         const weeklyDiscount = data.data.find((d: any) => d.discount_type === 'weekly')
         const monthlyDiscount = data.data.find((d: any) => d.discount_type === 'monthly')
-        const loyaltyDiscount = data.data.find((d: any) => d.discount_type === 'loyalty')
+        const excellentGuestDiscount = data.data.find((d: any) => d.discount_type === 'excellent_guest')
 
         setDiscounts({
           weeklyPercent: weeklyDiscount?.percentage || 0,
           monthlyPercent: monthlyDiscount?.percentage || 0,
-          loyaltyPercent: loyaltyDiscount?.percentage || 0,
+          loyaltyPercent: excellentGuestDiscount?.percentage || 0,
         })
       }
     } catch (error) {
