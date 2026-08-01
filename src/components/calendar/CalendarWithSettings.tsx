@@ -140,9 +140,7 @@ export function CalendarWithSettings({
 
       {/* Settings Sidebar - Mobile Bottom Sheet, Desktop Right */}
       <div className="border-t md:border-t-0 md:border-l bg-white md:overflow-auto">
-        {/* TEMPORARILY DISABLED FOR DEBUGGING */}
-        {/* <SettingsSidebar key={propertyId} /> */}
-        <div className="p-4 text-center text-gray-500">Settings disabled for testing</div>
+        <SettingsSidebar key={propertyId} />
       </div>
 
       {/* Day Click Modal */}
