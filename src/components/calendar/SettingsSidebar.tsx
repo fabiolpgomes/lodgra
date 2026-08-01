@@ -43,37 +43,22 @@ export function SettingsSidebar() {
 
   // Load pricing and discount data on mount
   useEffect(() => {
-    if (!propertyId) {
-      console.warn('[SettingsSidebar] propertyId is undefined!')
-      setLoading(false)
-      return
-    }
+    if (!propertyId) return
 
     const loadData = async () => {
       try {
-        console.log('[SettingsSidebar] Loading data for propertyId:', propertyId)
-
         const [pricingRes, discountsRes, policiesRes] = await Promise.all([
           fetch(`/api/properties/${propertyId}/pricing`),
           fetch(`/api/properties/${propertyId}/discounts`),
           fetch(`/api/properties/${propertyId}/cancellation-policies`),
         ])
 
-        console.log('[SettingsSidebar] Pricing status:', pricingRes.status)
-        console.log('[SettingsSidebar] Discounts status:', discountsRes.status)
-        console.log('[SettingsSidebar] Policies status:', policiesRes.status)
-
         const pricingResult = await pricingRes.json()
         const discountsResult = await discountsRes.json()
         const policiesResult = await policiesRes.json()
 
-        console.log('[SettingsSidebar] Pricing result:', pricingResult)
-
         if (pricingResult.success) {
           setPricing(pricingResult.data)
-        } else {
-          console.error('[SettingsSidebar] Pricing fetch failed:', pricingResult.error)
-          setPricing(null) // Explicitly set to null to show error state
         }
 
         if (discountsResult.success && discountsResult.data) {
@@ -84,8 +69,7 @@ export function SettingsSidebar() {
           setCancellationPolicies(policiesResult.data)
         }
       } catch (error) {
-        console.error('[SettingsSidebar] Error loading data:', error)
-        setPricing(null)
+        console.error('Error loading data:', error)
       } finally {
         setLoading(false)
       }
