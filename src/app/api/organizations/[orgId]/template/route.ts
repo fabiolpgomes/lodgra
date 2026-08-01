@@ -17,7 +17,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   // For GET: Allow unauthenticated access (used by public booking pages)
   // Organization data is public anyway
 
-  const adminClient = createAdminClient()
+  const adminClient = await createAdminClient()
   const { data: template, error } = await adminClient.from('organization_templates').select('*').eq('organization_id', orgId).single()
 
   if (error && error.code !== 'PGRST116') return NextResponse.json({ error: 'Database error' }, { status: 500 })
@@ -43,7 +43,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   if (booking_description && booking_description.length > 500) return NextResponse.json({ error: 'Description max 500 chars' }, { status: 400 })
   if (template_type && !['standard', 'luxury', 'budget'].includes(template_type)) return NextResponse.json({ error: 'Invalid template type' }, { status: 400 })
 
-  const adminClient = createAdminClient()
+  const adminClient = await createAdminClient()
   const { data: existingTemplate } = await adminClient.from('organization_templates').select('id').eq('organization_id', orgId).single()
 
   interface TemplateUpdate {
