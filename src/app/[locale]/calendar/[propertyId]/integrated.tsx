@@ -1,7 +1,7 @@
 'use client'
 
 import { CalendarWithSettings } from '@/components/calendar/CalendarWithSettings'
-import { CalendarKanbanView } from '@/components/calendar/CalendarKanbanView'
+import { SimpleCalendarAdapter } from '@/components/calendar/SimpleCalendarAdapter'
 import { useParams } from 'next/navigation'
 
 /**
@@ -9,7 +9,7 @@ import { useParams } from 'next/navigation'
  * Uses CalendarWithSettings wrapper for full Epic 43 implementation
  *
  * This is the production version combining:
- * - Calendar Kanban View
+ * - Simple Calendar (day-click interface)
  * - 5 Settings Cards (Preços, Descontos, Disponibilidade, Cancelamentos, Taxas)
  * - Day Click Modal (Price/Block interaction)
  * - Mobile-first responsive layout
@@ -41,7 +41,7 @@ export default function IntegratedCalendarPage() {
     <div className="w-full h-screen bg-white">
       <CalendarWithSettings
         propertyId={propertyId}
-        calendarComponent={CalendarKanbanView}
+        calendarComponent={SimpleCalendarAdapter}
       />
     </div>
   )

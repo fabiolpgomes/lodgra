@@ -18,11 +18,11 @@ interface AvailabilitySettings {
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id: propertyId } = await params
     const supabase = await createClient()
-    const propertyId = params.id
 
     // Verify ownership
     const { data: property, error: propError } = await supabase
@@ -113,11 +113,11 @@ export async function GET(
  */
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id: propertyId } = await params
     const supabase = await createClient()
-    const propertyId = params.id
     const body: Partial<AvailabilitySettings> = await request.json()
 
     // Verify ownership
