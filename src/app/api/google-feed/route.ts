@@ -11,7 +11,7 @@ function buildFeeEntry(amount: number | null | undefined, type: string | null | 
 }
 
 export async function GET() {
-  const adminClient = createAdminClient()
+  const adminClient = await createAdminClient()
 
   // Fetch all public properties with Epic 18.5 fields
   const { data: properties, error } = await adminClient

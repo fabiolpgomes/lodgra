@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     }
 
     const userId = user.id
-    const adminClient = createAdminClient()
+    const adminClient = await createAdminClient()
 
     // Check for existing pending request
     const { data: existing } = await adminClient
@@ -111,7 +111,7 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const adminClient = createAdminClient()
+    const adminClient = await createAdminClient()
     const { data: request } = await adminClient
       .from('deletion_requests')
       .select('id, requested_at, scheduled_at, status, cancelled_at')

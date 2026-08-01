@@ -44,7 +44,7 @@ export async function GET(
       return NextResponse.json({ error: 'Documento não encontrado' }, { status: 404 })
     }
 
-    const adminClient = createAdminClient()
+    const adminClient = await createAdminClient()
     const { data: signed, error: signError } = await adminClient.storage
       .from('property-documents')
       .createSignedUrl(doc.file_path, 3600)
@@ -86,7 +86,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Documento não encontrado' }, { status: 404 })
     }
 
-    const adminClient = createAdminClient()
+    const adminClient = await createAdminClient()
     await adminClient.storage.from('property-documents').remove([doc.file_path])
 
     const { error: deleteError } = await supabase

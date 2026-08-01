@@ -329,7 +329,7 @@ export async function GET(request: Request): Promise<Response> {
       category: string
     }
 
-    const adminClient = createAdminClient()
+    const adminClient = await createAdminClient()
     const amenitiesMap = new Map<string, AmenityItem[]>()
 
     if (propertyIds.length > 0) {
@@ -504,7 +504,7 @@ export async function POST(request: Request): Promise<Response> {
       return Response.json({ error: 'Número de hóspedes inválido' }, { status: 400 })
     }
 
-    const adminClient = createAdminClient()
+    const adminClient = await createAdminClient()
 
     const { data: org } = await adminClient
       .from('organizations')

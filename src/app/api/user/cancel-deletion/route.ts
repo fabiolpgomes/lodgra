@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
     }
 
     const userId = user.id
-    const adminClient = createAdminClient()
+    const adminClient = await createAdminClient()
 
     // Find pending request
     const { data: pending } = await adminClient

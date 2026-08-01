@@ -66,7 +66,7 @@ export async function GET(
 
   // Fetch active reservations overlapping this month via property_listings
   // Use admin client to bypass RLS (property_listings has RLS that blocks public access)
-  const adminClient = createAdminClient()
+  const adminClient = await createAdminClient()
   const { data: listings } = await adminClient
     .from('property_listings')
     .select('id')

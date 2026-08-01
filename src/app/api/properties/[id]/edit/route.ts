@@ -10,7 +10,7 @@ export async function GET(
   if (!auth.authorized) return auth.response!
 
   const { id } = await params
-  const adminClient = createAdminClient()
+  const adminClient = await createAdminClient()
 
   // Verify property belongs to user's organization
   const { data: property, error } = await adminClient

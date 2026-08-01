@@ -11,7 +11,7 @@ interface ChecklistItem {
 export async function GET(request: NextRequest) {
   try {
     const { createAdminClient } = await import('@/lib/supabase/admin');
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
 
     const { data: templates, error } = await admin
       .from('cleaning_checklist_templates')

@@ -100,7 +100,7 @@ export async function POST(
     const storagePath = `${expenseId}/${fileId}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`
 
     const buffer = Buffer.from(await file.arrayBuffer())
-    const adminClient = createAdminClient()
+    const adminClient = await createAdminClient()
 
     const { error: uploadError } = await adminClient.storage
       .from('expense-documents')

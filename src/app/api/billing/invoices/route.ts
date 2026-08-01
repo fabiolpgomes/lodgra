@@ -12,7 +12,7 @@ export async function GET(_request: NextRequest) {
       return NextResponse.json({ error: 'No organization found' }, { status: 404 })
     }
 
-    const adminClient = createAdminClient()
+    const adminClient = await createAdminClient()
     const { data: org } = await adminClient
       .from('organizations')
       .select('stripe_br_customer_id')

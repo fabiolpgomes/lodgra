@@ -32,7 +32,7 @@ export async function POST(_request: NextRequest) {
     })
   }
 
-  const adminClient = createAdminClient()
+  const adminClient = await createAdminClient()
 
   // Gerar slug único para a organização
   const baseSlug = (user.email || 'user').split('@')[0].toLowerCase().slice(0, 20)

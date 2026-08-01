@@ -24,7 +24,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Update user profile with preferred locale
-    const adminClient = createAdminClient()
+    const adminClient = await createAdminClient()
     const { data, error } = await adminClient
       .from('user_profiles')
       .update({ preferred_locale: preferred_locale || null })
@@ -52,7 +52,7 @@ export async function GET(_request: NextRequest) {
     }
 
     // Fetch user preferences
-    const adminClient = createAdminClient()
+    const adminClient = await createAdminClient()
     const { data, error } = await adminClient
       .from('user_profiles')
       .select('preferred_locale')

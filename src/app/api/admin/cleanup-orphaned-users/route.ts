@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  const adminClient = createAdminClient()
+  const adminClient = await createAdminClient()
 
   try {
     // Get all users from auth.users (using Admin API)

@@ -38,7 +38,7 @@ const TEMPLATES = [
 
 export async function POST() {
   try {
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
     const results = [];
 
     for (const template of TEMPLATES) {

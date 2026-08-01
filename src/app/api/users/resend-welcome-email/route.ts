@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Missing userId' }, { status: 400 })
   }
 
-  const adminClient = createAdminClient()
+  const adminClient = await createAdminClient()
 
   // Get user profile
   const { data: profile, error: profileError } = await adminClient

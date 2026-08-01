@@ -82,7 +82,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Organização não encontrada' }, { status: 400 })
   }
 
-  const adminClient = createAdminClient()
+  const adminClient = await createAdminClient()
 
   // Verificar limite de utilizadores por plano
   const { count: userCount } = await adminClient
@@ -226,7 +226,7 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid role' }, { status: 400 })
   }
 
-  const adminClient = createAdminClient()
+  const adminClient = await createAdminClient()
 
   // Verificar se utilizador alvo é admin — não permitir alterar role
   const { data: targetProfile } = await adminClient
@@ -278,7 +278,7 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ error: 'Missing userId' }, { status: 400 })
   }
 
-  const adminClient = createAdminClient()
+  const adminClient = await createAdminClient()
 
   // Verificar se utilizador alvo é admin — não permitir eliminar
   const { data: targetProfile } = await adminClient

@@ -184,7 +184,7 @@ export async function DELETE(
 
     // Notify owner via email
     try {
-      const adminSupabase = createAdminClient()
+      const adminSupabase = await createAdminClient()
       const nights = Math.ceil(
         (new Date(reservation.check_out).getTime() - new Date(reservation.check_in).getTime()) /
         (1000 * 60 * 60 * 24)

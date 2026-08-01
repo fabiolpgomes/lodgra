@@ -21,7 +21,7 @@ function toSlug(name: string): string {
 }
 
 async function getUserOrganization(userId: string) {
-  const adminClient = createAdminClient()
+  const adminClient = await createAdminClient()
 
   const { data: profile } = await adminClient
     .from('user_profiles')
@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
   if (sessionId) {
     try {
       const { organization, organizationCode } = await getOrganizationFromCheckoutSession(sessionId)
-      const adminClient = createAdminClient()
+      const adminClient = await createAdminClient()
       const { data: existingProperty } = await adminClient
         .from('properties')
         .select('id')
@@ -107,7 +107,7 @@ export async function POST(request: NextRequest) {
   if (sessionId) {
     try {
       const { organization, organizationCode } = await updateCheckoutOrganizationName(sessionId, orgName.trim())
-      const adminClient = createAdminClient()
+      const adminClient = await createAdminClient()
       const { data: existingProperty } = await adminClient
         .from('properties')
         .select('id')
@@ -131,7 +131,7 @@ export async function POST(request: NextRequest) {
 
   if (!user) return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
 
-  const adminClient = createAdminClient()
+  const adminClient = await createAdminClient()
 
   const { data: profile } = await adminClient
     .from('user_profiles')

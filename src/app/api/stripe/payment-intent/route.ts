@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const adminClient = createAdminClient()
+    const adminClient = await createAdminClient()
 
     const { data: booking } = await adminClient
       .from('bookings')

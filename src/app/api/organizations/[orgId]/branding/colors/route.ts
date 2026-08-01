@@ -54,7 +54,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     }
   }
 
-  const adminClient = createAdminClient()
+  const adminClient = await createAdminClient()
   const { data: existingBranding, error: fetchError } = await adminClient.from('organization_branding').select('id').eq('organization_id', orgId).single()
 
   if (fetchError && fetchError.code !== 'PGRST116') return NextResponse.json({ error: 'Database error' }, { status: 500 })

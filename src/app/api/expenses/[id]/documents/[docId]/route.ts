@@ -43,7 +43,7 @@ export async function GET(
       return NextResponse.json({ error: 'Documento não encontrado' }, { status: 404 })
     }
 
-    const adminClient = createAdminClient()
+    const adminClient = await createAdminClient()
     const { data: signed, error: signError } = await adminClient.storage
       .from('expense-documents')
       .createSignedUrl(doc.file_path, 3600)
@@ -86,7 +86,7 @@ export async function DELETE(
     }
 
     // Delete storage file first
-    const adminClient = createAdminClient()
+    const adminClient = await createAdminClient()
     await adminClient.storage.from('expense-documents').remove([doc.file_path])
 
     // Delete DB record (ON DELETE CASCADE handles orphan cleanup if storage fails)

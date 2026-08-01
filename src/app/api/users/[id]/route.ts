@@ -20,7 +20,7 @@ export async function PUT(
 
   const { full_name, role, guest_type, access_all_properties, property_ids, password } = validation.data
 
-  const adminClient = createAdminClient()
+  const adminClient = await createAdminClient()
 
   // Verificar se utilizador alvo é admin — não permitir editar
   const { data: targetProfile } = await adminClient
@@ -119,7 +119,7 @@ export async function DELETE(
 
   const { id } = await params
 
-  const adminClient = createAdminClient()
+  const adminClient = await createAdminClient()
 
   // Verificar se utilizador alvo é admin — não permitir eliminar
   const { data: targetProfile } = await adminClient

@@ -36,7 +36,7 @@ export async function POST(_request: NextRequest) {
       )
     }
 
-    const adminClient = createAdminClient()
+    const adminClient = await createAdminClient()
 
     // Get org subscription info
     const { data: org } = await adminClient
@@ -128,7 +128,7 @@ export async function DELETE(_request: NextRequest) {
       return NextResponse.json({ error: 'No organization found' }, { status: 404 })
     }
 
-    const adminClient = createAdminClient()
+    const adminClient = await createAdminClient()
 
     // Get org subscription info
     const { data: org } = await adminClient

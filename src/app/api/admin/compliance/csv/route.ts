@@ -34,7 +34,7 @@ export async function GET() {
   }
 
   try {
-    const adminClient = createAdminClient()
+    const adminClient = await createAdminClient()
 
     // Fetch consent records and deletion requests — org-scoped (AC8)
     const [consentResult, deletionResult] = await Promise.all([

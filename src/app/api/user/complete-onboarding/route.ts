@@ -34,7 +34,7 @@ export async function POST(_request: NextRequest) {
   }
 
   // Promover para admin (usando admin client para bypass RLS)
-  const adminClient = createAdminClient()
+  const adminClient = await createAdminClient()
   const { error } = await adminClient
     .from('user_profiles')
     .update({ role: 'admin', updated_at: new Date().toISOString() })

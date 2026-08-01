@@ -8,7 +8,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params
-  const adminClient = createAdminClient()
+  const adminClient = await createAdminClient()
 
   const { data, error } = await adminClient
     .from('property_amenities')
@@ -35,7 +35,7 @@ export async function PUT(
   const amenityIds: string[] = body
 
   const supabase = await createClient()
-  const adminClient = createAdminClient()
+  const adminClient = await createAdminClient()
 
   // Verify property belongs to user's organization
   const { data: property, error: propError } = await supabase

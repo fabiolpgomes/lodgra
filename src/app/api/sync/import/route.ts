@@ -407,7 +407,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const adminSupabase = createAdminClient()
+    const adminSupabase = await createAdminClient()
 
     // Buscar org_id via propriedade
     const { data: propData } = await adminSupabase

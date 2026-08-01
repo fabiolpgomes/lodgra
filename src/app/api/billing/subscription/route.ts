@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid plan' }, { status: 400 })
     }
 
-    const adminClient = createAdminClient()
+    const adminClient = await createAdminClient()
     const { data: org } = await adminClient
       .from('organizations')
       .select('stripe_br_customer_id')
@@ -97,7 +97,7 @@ export async function GET(_request: NextRequest) {
       return NextResponse.json({ error: 'No organization found' }, { status: 404 })
     }
 
-    const adminClient = createAdminClient()
+    const adminClient = await createAdminClient()
     const { data: org } = await adminClient
       .from('organizations')
       .select('stripe_br_customer_id, subscription_plan, subscription_status, trial_ends_at')
@@ -173,7 +173,7 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid plan' }, { status: 400 })
     }
 
-    const adminClient = createAdminClient()
+    const adminClient = await createAdminClient()
     const { data: org } = await adminClient
       .from('organizations')
       .select('stripe_br_customer_id, subscription_plan')
@@ -258,7 +258,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     const { mode: _mode } = await request.json()
-    const adminClient = createAdminClient()
+    const adminClient = await createAdminClient()
     const { data: org } = await adminClient
       .from('organizations')
       .select('stripe_br_customer_id')

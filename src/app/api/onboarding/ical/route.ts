@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Organização não encontrada' }, { status: 400 })
     }
 
-    const adminClient = createAdminClient()
+    const adminClient = await createAdminClient()
     const { data: property } = await adminClient
       .from('properties')
       .select('id')

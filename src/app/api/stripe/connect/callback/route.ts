@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing account_id' }, { status: 400 })
     }
 
-    const adminClient = createAdminClient()
+    const adminClient = await createAdminClient()
 
     const account = await stripePT.accounts.retrieve(account_id)
 

@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
 
   const guests = typeof num_guests === 'number' ? num_guests : parseInt(String(num_guests)) || 1
 
-  const adminClient = createAdminClient()
+  const adminClient = await createAdminClient()
 
   // ── Fetch property ──────────────────────────────────────────────────────────
 

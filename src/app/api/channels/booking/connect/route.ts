@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  const adminClient = createAdminClient()
+  const adminClient = await createAdminClient()
 
   // ── Fetch channel ID for 'booking' ────────────────────────────
   const { data: channel, error: channelError } = await adminClient

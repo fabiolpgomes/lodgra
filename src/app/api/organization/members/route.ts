@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'property_ids deve ser um array não vazio' }, { status: 400 })
   }
 
-  const adminClient = createAdminClient()
+  const adminClient = await createAdminClient()
 
   // Verify the user belongs to this organization
   const { data: userProfile } = await adminClient
@@ -98,7 +98,7 @@ export async function GET(_request: NextRequest) {
     return NextResponse.json({ error: 'Organização não encontrada' }, { status: 404 })
   }
 
-  const adminClient = createAdminClient()
+  const adminClient = await createAdminClient()
 
   // Get all members with their property assignments
   const { data: members, error } = await adminClient

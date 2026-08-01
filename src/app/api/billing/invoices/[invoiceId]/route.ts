@@ -17,7 +17,7 @@ export async function GET(
 
     const { invoiceId } = await params
 
-    const adminClient = createAdminClient()
+    const adminClient = await createAdminClient()
     const { data: org } = await adminClient
       .from('organizations')
       .select('stripe_br_customer_id')

@@ -28,7 +28,7 @@ export async function PATCH(
       )
     }
 
-    const adminClient = createAdminClient()
+    const adminClient = await createAdminClient()
 
     // Verify property belongs to the organization
     const { data: property, error: fetchError } = await adminClient

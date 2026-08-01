@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const adminClient = createAdminClient()
+    const adminClient = await createAdminClient()
 
     // Find pending requests past their scheduled date (with a limit to prevent timeouts on large batches)
     const BATCH_LIMIT = 50

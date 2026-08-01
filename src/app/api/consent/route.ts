@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
     const user_agent = request.headers.get('user-agent') || null
 
     // Insert using admin client to bypass RLS for anonymous users
-    const adminClient = createAdminClient()
+    const adminClient = await createAdminClient()
     const { error } = await adminClient
       .from('consent_records')
       .insert({
@@ -98,7 +98,7 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const adminClient = createAdminClient()
+    const adminClient = await createAdminClient()
 
     // Get the latest consent record for each type
     const { data: records, error } = await adminClient

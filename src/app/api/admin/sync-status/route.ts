@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
     const daysBack = parseInt(searchParams.get('days_back') || '30', 10)
     const propertyId = searchParams.get('property_id')
 
-    const adminClient = createAdminClient()
+    const adminClient = await createAdminClient()
     const cutoffDate = new Date()
     cutoffDate.setDate(cutoffDate.getDate() - daysBack)
 

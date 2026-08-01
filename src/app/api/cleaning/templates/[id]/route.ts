@@ -14,7 +14,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
     const { id } = await params;
 
     const { data: template, error } = await admin
@@ -40,7 +40,7 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
     const body = await request.json();
     const { name, description, is_active, items } = body;
     const { id } = await params;
@@ -118,7 +118,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
     const { id } = await params;
 
     // Check if template is in use

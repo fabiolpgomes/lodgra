@@ -19,7 +19,7 @@ export async function POST(_request: Request) {
     }
 
     const userId = user.id
-    const adminClient = createAdminClient()
+    const adminClient = await createAdminClient()
 
     // Rate limit: check for export in last 24h
     const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()

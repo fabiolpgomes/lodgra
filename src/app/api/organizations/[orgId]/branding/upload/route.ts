@@ -25,7 +25,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   if (!logoFile && !faviconFile) return NextResponse.json({ error: 'At least one file required' }, { status: 400 })
 
   const results: { logoUrl?: string; faviconUrl?: string } = {}
-  const adminClient = createAdminClient()
+  const adminClient = await createAdminClient()
 
   if (logoFile) {
     if (!isAllowedFile(logoFile, ALLOWED_LOGO_TYPES, ALLOWED_LOGO_EXTENSIONS)) return NextResponse.json({ error: 'Logo must be PNG or JPEG' }, { status: 400 })

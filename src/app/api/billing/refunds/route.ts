@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid refund reason' }, { status: 400 })
     }
 
-    const adminClient = createAdminClient()
+    const adminClient = await createAdminClient()
 
     const { data: booking } = await adminClient
       .from('bookings')

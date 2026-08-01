@@ -10,7 +10,7 @@ import { createClient } from '@/lib/supabase/server';
 export async function GET(request: NextRequest) {
   try {
     const { createAdminClient } = await import('@/lib/supabase/admin');
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
     const { searchParams } = new URL(request.url);
 
     const status = searchParams.get('status');
@@ -61,7 +61,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const { createAdminClient } = await import('@/lib/supabase/admin');
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
     const body = await request.json();
     const { property_id, scheduled_date, scheduled_time, cleaner_id, reservation_id, notes, checklist_template_id } = body;
 
@@ -144,7 +144,7 @@ export async function POST(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   try {
     const { createAdminClient } = await import('@/lib/supabase/admin');
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
     const body = await request.json();
     const { id, item_id, status, notes, is_checked, scheduled_date, cleaner_id } = body;
 

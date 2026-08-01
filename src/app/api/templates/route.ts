@@ -5,7 +5,7 @@ const FIXED_ORG_ID = '00000000-0000-0000-0000-000000000001';
 
 export async function GET() {
   try {
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
 
     const { data, error } = await admin
       .from('cleaning_checklist_templates')

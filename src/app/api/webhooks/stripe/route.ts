@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
   }
 
-  const adminClient = createAdminClient()
+  const adminClient = await createAdminClient()
 
   try {
     switch (event.type) {

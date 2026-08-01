@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'property_listing_id is required' }, { status: 400 })
   }
 
-  const adminClient = createAdminClient()
+  const adminClient = await createAdminClient()
 
   // ── Fetch channel_listing for this property ───────────────────
   const { data: channelListing, error: clError } = await adminClient

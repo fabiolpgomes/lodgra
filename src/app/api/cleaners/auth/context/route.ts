@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const adminClient = createAdminClient();
+    const adminClient = await createAdminClient();
 
     // Hash token to match stored token_hash
     const { hashToken } = await import('@/lib/cleaner-tokens');

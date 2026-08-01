@@ -34,7 +34,7 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: 'Nenhum campo para actualizar' }, { status: 400 })
   }
 
-  const adminClient = createAdminClient()
+  const adminClient = await createAdminClient()
   const { error } = await adminClient
     .from('organizations')
     .update(updateData)

@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const adminClient = createAdminClient()
+    const adminClient = await createAdminClient()
 
     // Find cancelled reservations with beds24_booking_id that need syncing
     const cutoffDate = new Date()

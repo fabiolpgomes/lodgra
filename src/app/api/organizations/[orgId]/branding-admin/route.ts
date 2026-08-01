@@ -11,7 +11,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
   if (auth.organizationId !== orgId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const adminClient = createAdminClient()
+  const adminClient = await createAdminClient()
 
   try {
     const { data: branding, error } = await adminClient.from('organization_branding').select('*').eq('organization_id', orgId).single()

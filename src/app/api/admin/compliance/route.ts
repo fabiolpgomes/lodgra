@@ -18,7 +18,7 @@ export async function GET() {
   }
 
   try {
-    const adminClient = createAdminClient()
+    const adminClient = await createAdminClient()
 
     // Fetch all data in parallel — scoped to admin's organization (AC8)
     const [

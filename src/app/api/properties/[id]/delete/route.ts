@@ -19,7 +19,7 @@ export async function DELETE(
   }
 
   try {
-    const adminClient = createAdminClient()
+    const adminClient = await createAdminClient()
 
     // Verify property belongs to the organization
     const { data: property, error: fetchError } = await adminClient

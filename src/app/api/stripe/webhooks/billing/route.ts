@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
     }
 
     const event = JSON.parse(body)
-    const adminClient = createAdminClient()
+    const adminClient = await createAdminClient()
 
     console.log(`[webhooks/billing] Processing event: ${event.type} (${event.id})`)
 

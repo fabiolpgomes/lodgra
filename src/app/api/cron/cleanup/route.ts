@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
 
     // Cancel expired pending_payment reservations (>30 min without payment)
     const thirtyMinAgo = new Date(Date.now() - 30 * 60 * 1000).toISOString()
-    const adminClient = createAdminClient()
+    const adminClient = await createAdminClient()
 
     const { data: expiredPendingPayment, error: expiredError } = await adminClient
       .from('reservations')

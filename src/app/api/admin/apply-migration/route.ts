@@ -6,7 +6,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
  * Only works with admin client (bypasses auth)
  */
 export async function POST(_request: NextRequest) {
-  const adminClient = createAdminClient()
+  const adminClient = await createAdminClient()
 
   try {
     console.log('[Migration] Applying reservation conflict fix...')

@@ -69,7 +69,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const adminClient = createAdminClient()
+  const adminClient = await createAdminClient()
   const { data, error } = await adminClient
     .from('organization_public_profile')
     .select('*')
@@ -114,7 +114,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     return NextResponse.json({ error: 'URL inválida' }, { status: 400 })
   }
 
-  const adminClient = createAdminClient()
+  const adminClient = await createAdminClient()
   const { data: existingProfile, error: fetchError } = await adminClient
     .from('organization_public_profile')
     .select('organization_id')

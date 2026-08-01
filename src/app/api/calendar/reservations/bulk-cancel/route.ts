@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
     }
 
     const supabase = await createClient()
-    const adminSupabase = createAdminClient()
+    const adminSupabase = await createAdminClient()
 
     // Fetch all reservations to be cancelled
     const { data: reservations, error: fetchError } = await supabase

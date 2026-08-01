@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
     const auth = await requireRole(['admin', 'gestor'])
     if (!auth.authorized) return auth.response!
 
-    const adminClient = createAdminClient()
+    const adminClient = await createAdminClient()
 
     // Buscar todos os guests (cleaners)
     const { data: guests, error } = await adminClient

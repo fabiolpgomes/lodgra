@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic'
 // GET /api/calendar/blocks/test (diagnóstico de bloqueios)
 export async function GET(request: NextRequest) {
   try {
-    const adminSupa = createAdminClient()
+    const adminSupa = await createAdminClient()
     const userSupa = await createClient()
 
     // Get current user
