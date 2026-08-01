@@ -100,12 +100,11 @@ export async function POST(
 
     console.log('✅ Upsert successful:', { upserted: data?.length || 0 })
 
-    console.log('✅ Upsert successful')
     return NextResponse.json({
       success: true,
       data: {
-        updated_dates: dates.length,
-        base_price,
+        updated_dates: datesArray.length,
+        price: priceValue,
       },
     })
   } catch (error) {
