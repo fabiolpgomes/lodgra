@@ -1,23 +1,30 @@
 'use client'
 
+import React from 'react'
+
 /**
  * Simple Calendar Adapter for CalendarWithSettings
  * Implements minimal calendar interface for day-click selection
- * Used when full-featured calendars have extra required props
+ * Supports:
+ * - Single day click
+ * - Shift+Click for date range selection
  */
 
 interface SimpleCalendarAdapterProps {
   onDayClick: (day: number, year: number, month: number) => void
+  onRangeSelect?: (startDay: number, endDay: number, month: number, year: number) => void
   selectedDates: string[] // ISO date strings
 }
 
 export function SimpleCalendarAdapter({
   onDayClick,
+  onRangeSelect,
   selectedDates,
 }: SimpleCalendarAdapterProps) {
   const today = new Date()
   const currentMonth = today.getMonth()
   const currentYear = today.getFullYear()
+  const [rangeStart, setRangeStart] = React.useState<number | null>(null)
 
   // Generate calendar days for current month
   const getDaysInMonth = (year: number, month: number) => {
@@ -59,7 +66,7 @@ export function SimpleCalendarAdapter({
             {monthNames[currentMonth]} {currentYear}
           </h2>
           <p className="text-sm text-gray-600 mt-1">
-            Clique em um dia para selecionar ou alterar preço
+            Clique em um dia para selecionar preço, ou Shift+Click para selecionar período
           </p>
         </div>
 
@@ -82,7 +89,24 @@ export function SimpleCalendarAdapter({
             {days.map((day, index) => (
               <div
                 key={index}
-                onClick={() => day && onDayClick(day, currentYear, currentMonth)}
+                onClick={(e) => {
+                  if (!day) return
+
+                  if (e.shiftKey && rangeStart !== null) {
+                    // Shift+Click: select range
+                    const start = Math.min(rangeStart, day)
+                    const end = Math.max(rangeStart, day)
+                    onRangeSelect?.(start, end, currentMonth, currentYear)
+                    setRangeStart(null)
+                  } else if (e.shiftKey) {
+                    // First Shift+Click: set start
+                    setRangeStart(day)
+                  } else {
+                    // Regular click: select single day
+                    onDayClick(day, currentYear, currentMonth)
+                    setRangeStart(null)
+                  }
+                }}
                 className={`
                   aspect-square flex items-center justify-center rounded text-sm font-medium
                   transition-all duration-200
@@ -91,11 +115,14 @@ export function SimpleCalendarAdapter({
                       ? 'bg-gray-50'
                       : isDateSelected(day)
                         ? 'bg-blue-600 text-white cursor-pointer hover:bg-blue-700'
-                        : day < today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear()
+                        : rangeStart === day
+                          ? 'bg-blue-400 text-white cursor-pointer border-2 border-blue-700'
+                          : day < today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear()
                           ? 'text-gray-400 cursor-default'
                           : 'bg-gray-50 text-gray-900 cursor-pointer hover:bg-blue-100'
                   }
                 `}
+                title={rangeStart !== null ? `Shift+Click aqui para selecionar do dia ${rangeStart} até este dia` : undefined}
               >
                 {day}
               </div>

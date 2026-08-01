@@ -9,6 +9,7 @@ interface CalendarWithSettingsProps {
   propertyId: string
   calendarComponent: React.ComponentType<{
     onDayClick: (day: number, year: number, month: number) => void
+    onRangeSelect?: (startDay: number, endDay: number, month: number, year: number) => void
     selectedDates: string[]
   }>
 }
@@ -51,6 +52,27 @@ export function CalendarWithSettings({
           selection.openPriceModal(clickedDate)
         }, 100)
       }
+    },
+    [selection, getSelectedDateStrings]
+  )
+
+  // Handle range selection from calendar
+  const handleRangeSelect = useCallback(
+    (startDay: number, endDay: number, month: number, year: number) => {
+      const startDate = new Date(year, month, startDay)
+      const endDate = new Date(year, month, endDay)
+
+      // Select date range
+      selection.selectDateRange(startDate, endDate)
+      setSelectedDateStr(getSelectedDateStrings())
+
+      // Auto-open modal for date range
+      setTimeout(() => {
+        selection.openPriceModal({
+          start: startDate,
+          end: endDate,
+        })
+      }, 100)
     },
     [selection, getSelectedDateStrings]
   )
@@ -134,6 +156,7 @@ export function CalendarWithSettings({
       <div className="flex-1 overflow-auto">
         <CalendarComponent
           onDayClick={handleDayClick}
+          onRangeSelect={handleRangeSelect}
           selectedDates={getSelectedDateStrings()}
         />
       </div>
