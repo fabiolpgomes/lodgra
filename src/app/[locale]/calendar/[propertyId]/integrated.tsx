@@ -38,11 +38,12 @@ export default function IntegratedCalendarPage() {
   }
 
   return (
-    <div className="w-full h-screen bg-white">
-      <CalendarWithSettings
-        propertyId={propertyId}
-        calendarComponent={SimpleCalendarAdapter}
-      />
+    <div className="w-full h-screen bg-white flex items-center justify-center">
+      <div className="text-center">
+        <h1 className="text-4xl font-bold text-green-600 mb-4">✅ Calendário Funcionando!</h1>
+        <p className="text-xl text-gray-600">Property ID: {propertyId}</p>
+        <p className="text-sm text-gray-400 mt-4">DEBUG: Página carregou sem logout</p>
+      </div>
     </div>
   )
 }
