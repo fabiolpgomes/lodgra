@@ -13,7 +13,7 @@ export async function POST(
   const { id: propertyId } = await params
 
   try {
-    const supabase = createAdminClient()
+    const supabase = await createAdminClient()
     const body = await request.json()
     const { dates, base_price } = body
 

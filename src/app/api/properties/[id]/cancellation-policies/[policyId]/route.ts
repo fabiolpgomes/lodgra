@@ -15,7 +15,7 @@ export async function PUT(
   const { id: propertyId, policyId } = await params
 
   try {
-    const supabase = createAdminClient()
+    const supabase = await createAdminClient()
     const body: UpdateCancellationPolicyPayload = await request.json()
 
     // Verify ownership
@@ -77,7 +77,7 @@ export async function DELETE(
   const { id: propertyId, policyId } = await params
 
   try {
-    const supabase = createAdminClient()
+    const supabase = await createAdminClient()
 
     // Verify ownership
     const { data: property } = await supabase
@@ -140,7 +140,7 @@ async function getAuthUserId(request: NextRequest): Promise<string | null> {
   if (!authHeader) return null
 
   const token = authHeader.replace('Bearer ', '')
-  const supabase = createAdminClient()
+  const supabase = await createAdminClient()
   const { data } = await supabase.auth.getUser(token)
   return data.user?.id || null
 }

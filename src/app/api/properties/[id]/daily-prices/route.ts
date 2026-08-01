@@ -18,7 +18,7 @@ export async function GET(
   const { id: propertyId } = await params
 
   try {
-    const supabase = createAdminClient()
+    const supabase = await createAdminClient()
     const pricesMap = new Map<string, number>()
 
     // Step 1: Get all pricing_rules for this property (base layer)

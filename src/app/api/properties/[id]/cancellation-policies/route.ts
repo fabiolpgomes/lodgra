@@ -48,7 +48,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   const { id: propertyId } = await params
 
   try {
-    const supabase = createAdminClient()
+    const supabase = await createAdminClient()
     const body = await request.json()
 
     // Verify ownership
@@ -130,7 +130,7 @@ async function getAuthUserId(request: NextRequest): Promise<string | null> {
   if (!authHeader) return null
 
   const token = authHeader.replace('Bearer ', '')
-  const supabase = createAdminClient()
+  const supabase = await createAdminClient()
   const { data } = await supabase.auth.getUser(token)
   return data.user?.id || null
 }

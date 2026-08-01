@@ -13,7 +13,7 @@ async function validateManagerAuth(request: NextRequest): Promise<{ valid: boole
       return { valid: false, error: 'Authentication required' }
     }
 
-    const supabase = createAdminClient()
+    const supabase = await createAdminClient()
     const {
       data: { user },
     } = await supabase.auth.admin.getUserById(authCookie)
@@ -52,7 +52,7 @@ export async function POST(
       return NextResponse.json({ error: 'Invalid decision' }, { status: 400 })
     }
 
-    const supabase = createAdminClient()
+    const supabase = await createAdminClient()
 
     // 1. Validate token & fetch reservation
     const { data: reservation } = await supabase

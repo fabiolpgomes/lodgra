@@ -22,7 +22,7 @@ export async function GET(
 
   const checkIn = parseISO(checkinStr)
   const checkOut = parseISO(checkoutStr)
-  const supabase = createAdminClient()
+  const supabase = await createAdminClient()
 
   // Get property
   const { data: property } = await supabase

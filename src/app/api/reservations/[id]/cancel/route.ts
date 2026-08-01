@@ -57,7 +57,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   const { id: reservationId } = await params
 
   try {
-    const supabase = createAdminClient()
+    const supabase = await createAdminClient()
     const body = await request.json()
 
     // Fetch reservation with policy snapshot

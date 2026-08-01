@@ -13,7 +13,7 @@ async function validateManagerSession(request: NextRequest): Promise<{ valid: bo
       return { valid: true } // Layered security: token + RLS prevents access
     }
 
-    const supabase = createAdminClient()
+    const supabase = await createAdminClient()
     const {
       data: { user },
     } = await supabase.auth.admin.getUserById(authCookie)
@@ -50,7 +50,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       return NextResponse.json({ error: sessionCheck.error || 'Unauthorized' }, { status: 403 })
     }
 
-    const supabase = createAdminClient()
+    const supabase = await createAdminClient()
     const { data: reservation } = await supabase
       .from('reservations')
       .select('*, properties(name)')
