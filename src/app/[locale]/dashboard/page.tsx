@@ -1131,6 +1131,7 @@ export default async function DashboardPage({
               iconClass: 'text-brand-blue',
               badgeClass: 'border-brand-blue/10 bg-brand-bg',
               description: 'Média de noites reservadas este mês',
+              href: `/${locale}/calendar`,
               variance: {
                 mom: calculateVariationPercent(currentMonthOccupancy, currentFilteredRows.length > 0, occupancyPreviousView, previousFilteredRows.length > 0),
                 yoy: calculateVariationPercent(currentMonthOccupancy, currentFilteredRows.length > 0, occupancyYoyView, yoyFilteredRows.length > 0),
@@ -1951,6 +1952,16 @@ export default async function DashboardPage({
                 <CalendarDays className="h-5 w-5 text-brand-gold" />
               </div>
               <span className="text-sm font-semibold text-brand-text-dark">Nova Reserva</span>
+            </Link>
+
+            <Link
+              href={`/${locale}/calendar`}
+              className="flex min-h-[48px] items-center gap-3 rounded-xl border border-neutral-200/60 bg-brand-bg p-3 transition-all duration-150 hover:-translate-y-0.5 hover:border-brand-blue/25 hover:bg-brand-blue/5 hover:shadow-sm sm:p-4"
+            >
+              <div className="rounded-lg bg-brand-blue/10 p-2.5">
+                <CalendarDays className="h-5 w-5 text-brand-blue" />
+              </div>
+              <span className="text-sm font-semibold text-brand-text-dark">Ver Calendário</span>
             </Link>
 
             <Link
