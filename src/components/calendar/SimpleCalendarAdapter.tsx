@@ -4,10 +4,9 @@ import React from 'react'
 
 /**
  * Simple Calendar Adapter for CalendarWithSettings
- * Implements minimal calendar interface for day-click selection
- * Supports:
- * - Single day click
- * - Shift+Click for date range selection
+ * Implements drag-to-select range for day selection
+ * Desktop: click + drag mouse
+ * Mobile: touch + swipe finger
  */
 
 interface SimpleCalendarAdapterProps {
@@ -25,6 +24,8 @@ export function SimpleCalendarAdapter({
   const currentMonth = today.getMonth()
   const currentYear = today.getFullYear()
   const [rangeStart, setRangeStart] = React.useState<number | null>(null)
+  const [rangeEnd, setRangeEnd] = React.useState<number | null>(null)
+  const [isDragging, setIsDragging] = React.useState(false)
 
   // Generate calendar days for current month
   const getDaysInMonth = (year: number, month: number) => {
@@ -52,13 +53,43 @@ export function SimpleCalendarAdapter({
     return selectedDates.includes(dateStr)
   }
 
+  const isInDragRange = (day: number | null) => {
+    if (!day || rangeStart === null || rangeEnd === null) return false
+    const min = Math.min(rangeStart, rangeEnd)
+    const max = Math.max(rangeStart, rangeEnd)
+    return day >= min && day <= max
+  }
+
+  const handleDayMouseDown = (day: number | null) => {
+    if (!day) return
+    setRangeStart(day)
+    setRangeEnd(day)
+    setIsDragging(true)
+  }
+
+  const handleDayMouseEnter = (day: number | null) => {
+    if (!isDragging || !day || rangeStart === null) return
+    setRangeEnd(day)
+  }
+
+  const handleMouseUp = () => {
+    if (isDragging && rangeStart !== null && rangeEnd !== null) {
+      const start = Math.min(rangeStart, rangeEnd)
+      const end = Math.max(rangeStart, rangeEnd)
+      onRangeSelect?.(start, end, currentMonth, currentYear)
+      setRangeStart(null)
+      setRangeEnd(null)
+    }
+    setIsDragging(false)
+  }
+
   const monthNames = [
     'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
     'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
   ]
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-4">
+    <div className="w-full max-w-4xl mx-auto p-4" onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}>
       <div className="bg-white rounded-lg shadow">
         {/* Header */}
         <div className="p-4 border-b border-gray-200">
@@ -67,8 +98,8 @@ export function SimpleCalendarAdapter({
           </h2>
           <p className="text-sm text-gray-600 mt-1">
             {rangeStart === null
-              ? 'Clique um dia para iniciar seleção'
-              : `Clique outro dia para completar range (${rangeStart} até...)`}
+              ? 'Clique e arraste o mouse (ou dedo) pelos dias desejados'
+              : `Selecionado: ${Math.min(rangeStart, rangeEnd || rangeStart)} até ${Math.max(rangeStart, rangeEnd || rangeStart)}`}
           </p>
         </div>
 
@@ -87,61 +118,41 @@ export function SimpleCalendarAdapter({
           </div>
 
           {/* Calendar days */}
-          <div className="grid grid-cols-7 gap-1">
-            {days.map((day, index) => {
-              const isInRange = rangeStart !== null && day !== null &&
-                ((rangeStart <= day && day <= selectedDates.length) ||
-                 (day <= rangeStart && rangeStart <= selectedDates.length))
-
-              return (
-                <div
-                  key={index}
-                  onClick={() => {
-                    if (!day) return
-
-                    if (rangeStart === null) {
-                      // First click: set range start
-                      setRangeStart(day)
-                    } else if (rangeStart === day) {
-                      // Click same day again: deselect
-                      setRangeStart(null)
-                    } else {
-                      // Second click: complete range and open modal
-                      const start = Math.min(rangeStart, day)
-                      const end = Math.max(rangeStart, day)
-                      onRangeSelect?.(start, end, currentMonth, currentYear)
-                      setRangeStart(null)
-                    }
-                  }}
-                  className={`
-                    aspect-square flex items-center justify-center rounded text-sm font-medium
-                    transition-all duration-200 cursor-pointer
-                    ${
-                      day === null
-                        ? 'bg-gray-50 cursor-default'
-                        : rangeStart === day
-                          ? 'bg-blue-600 text-white ring-4 ring-blue-400'
-                          : rangeStart !== null && day > rangeStart && day < rangeStart + 20
-                            ? 'bg-blue-200 text-blue-900'
-                            : isDateSelected(day)
-                            ? 'bg-blue-600 text-white hover:bg-blue-700'
-                            : day < today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear()
-                            ? 'text-gray-400 cursor-default'
-                            : 'bg-gray-50 text-gray-900 hover:bg-blue-100'
-                    }
-                  `}
-                  title={
-                    rangeStart === null
-                      ? 'Clique para iniciar seleção'
-                      : rangeStart === day
-                      ? 'Clique novamente para cancelar'
-                      : 'Clique para completar range'
+          <div className="grid grid-cols-7 gap-1 select-none">
+            {days.map((day, index) => (
+              <div
+                key={index}
+                onMouseDown={() => handleDayMouseDown(day)}
+                onMouseEnter={() => handleDayMouseEnter(day)}
+                onTouchStart={() => handleDayMouseDown(day)}
+                onTouchMove={(e) => {
+                  const touch = e.touches[0]
+                  const element = document.elementFromPoint(touch.clientX, touch.clientY) as HTMLElement
+                  if (element?.dataset.day) {
+                    handleDayMouseEnter(parseInt(element.dataset.day))
                   }
-                >
-                  {day}
-                </div>
-              )
-            })}
+                }}
+                onTouchEnd={handleMouseUp}
+                data-day={day}
+                className={`
+                  aspect-square flex items-center justify-center rounded text-sm font-medium
+                  transition-colors duration-75 select-none user-select-none
+                  ${
+                    day === null
+                      ? 'bg-gray-50 cursor-default'
+                      : isInDragRange(day)
+                      ? 'bg-blue-500 text-white cursor-grab active:cursor-grabbing'
+                      : isDateSelected(day)
+                      ? 'bg-blue-600 text-white hover:bg-blue-700'
+                      : day < today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear()
+                      ? 'text-gray-400 cursor-default'
+                      : 'bg-gray-50 text-gray-900 hover:bg-blue-100 cursor-grab active:cursor-grabbing'
+                  }
+                `}
+              >
+                {day}
+              </div>
+            ))}
           </div>
         </div>
 
