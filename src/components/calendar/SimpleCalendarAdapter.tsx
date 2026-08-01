@@ -66,7 +66,9 @@ export function SimpleCalendarAdapter({
             {monthNames[currentMonth]} {currentYear}
           </h2>
           <p className="text-sm text-gray-600 mt-1">
-            Clique em um dia para selecionar preço, ou Shift+Click para selecionar período
+            {rangeStart === null
+              ? 'Clique um dia para iniciar seleção'
+              : `Clique outro dia para completar range (${rangeStart} até...)`}
           </p>
         </div>
 
@@ -86,47 +88,60 @@ export function SimpleCalendarAdapter({
 
           {/* Calendar days */}
           <div className="grid grid-cols-7 gap-1">
-            {days.map((day, index) => (
-              <div
-                key={index}
-                onClick={(e) => {
-                  if (!day) return
+            {days.map((day, index) => {
+              const isInRange = rangeStart !== null && day !== null &&
+                ((rangeStart <= day && day <= selectedDates.length) ||
+                 (day <= rangeStart && rangeStart <= selectedDates.length))
 
-                  if (e.shiftKey && rangeStart !== null) {
-                    // Shift+Click: select range
-                    const start = Math.min(rangeStart, day)
-                    const end = Math.max(rangeStart, day)
-                    onRangeSelect?.(start, end, currentMonth, currentYear)
-                    setRangeStart(null)
-                  } else if (e.shiftKey) {
-                    // First Shift+Click: set start
-                    setRangeStart(day)
-                  } else {
-                    // Regular click: select single day
-                    onDayClick(day, currentYear, currentMonth)
-                    setRangeStart(null)
-                  }
-                }}
-                className={`
-                  aspect-square flex items-center justify-center rounded text-sm font-medium
-                  transition-all duration-200
-                  ${
-                    day === null
-                      ? 'bg-gray-50'
-                      : isDateSelected(day)
-                        ? 'bg-blue-600 text-white cursor-pointer hover:bg-blue-700'
+              return (
+                <div
+                  key={index}
+                  onClick={() => {
+                    if (!day) return
+
+                    if (rangeStart === null) {
+                      // First click: set range start
+                      setRangeStart(day)
+                    } else if (rangeStart === day) {
+                      // Click same day again: deselect
+                      setRangeStart(null)
+                    } else {
+                      // Second click: complete range and open modal
+                      const start = Math.min(rangeStart, day)
+                      const end = Math.max(rangeStart, day)
+                      onRangeSelect?.(start, end, currentMonth, currentYear)
+                      setRangeStart(null)
+                    }
+                  }}
+                  className={`
+                    aspect-square flex items-center justify-center rounded text-sm font-medium
+                    transition-all duration-200 cursor-pointer
+                    ${
+                      day === null
+                        ? 'bg-gray-50 cursor-default'
                         : rangeStart === day
-                          ? 'bg-blue-400 text-white cursor-pointer border-2 border-blue-700'
-                          : day < today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear()
-                          ? 'text-gray-400 cursor-default'
-                          : 'bg-gray-50 text-gray-900 cursor-pointer hover:bg-blue-100'
+                          ? 'bg-blue-600 text-white ring-4 ring-blue-400'
+                          : rangeStart !== null && day > rangeStart && day < rangeStart + 20
+                            ? 'bg-blue-200 text-blue-900'
+                            : isDateSelected(day)
+                            ? 'bg-blue-600 text-white hover:bg-blue-700'
+                            : day < today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear()
+                            ? 'text-gray-400 cursor-default'
+                            : 'bg-gray-50 text-gray-900 hover:bg-blue-100'
+                    }
+                  `}
+                  title={
+                    rangeStart === null
+                      ? 'Clique para iniciar seleção'
+                      : rangeStart === day
+                      ? 'Clique novamente para cancelar'
+                      : 'Clique para completar range'
                   }
-                `}
-                title={rangeStart !== null ? `Shift+Click aqui para selecionar do dia ${rangeStart} até este dia` : undefined}
-              >
-                {day}
-              </div>
-            ))}
+                >
+                  {day}
+                </div>
+              )
+            })}
           </div>
         </div>
 
