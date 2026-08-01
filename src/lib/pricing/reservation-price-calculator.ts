@@ -28,7 +28,7 @@ export interface PricingRuleMatch {
 }
 
 export interface DiscountDetail {
-  type: 'weekly' | 'monthly' | 'loyalty' | 'none'
+  type: 'weekly' | 'monthly' | 'none'
   percent: number
   amount: number
   appliedAt: string // 'volume' | 'loyalty' | 'na'
@@ -358,7 +358,7 @@ export class ReservationPriceCalculator {
   ): DiscountDetail {
     if (isLoyaltyGuest && loyaltyPercent > 0) {
       return {
-        type: 'loyalty',
+        type: 'none',
         percent: loyaltyPercent,
         amount: this.round((priceAfterVolume * loyaltyPercent) / 100),
         appliedAt: 'loyalty',

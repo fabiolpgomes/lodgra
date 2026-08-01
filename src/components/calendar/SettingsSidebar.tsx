@@ -7,11 +7,12 @@ import { PriceCard } from './PriceCard'
 import { DiscountCard } from './DiscountCard'
 import { AvailabilityCard } from './AvailabilityCard'
 import { CancellationCard } from './CancellationCard'
+import { TaxesCard } from './TaxesCard'
 import { toast } from 'sonner'
 import { PropertyDiscount } from '@/types/pricing.types'
 import { PropertyCancellationPolicy } from '@/types/cancellation.types'
 
-type TabName = 'prices' | 'discounts' | 'availability' | 'cancellations'
+type TabName = 'prices' | 'discounts' | 'availability' | 'cancellations' | 'taxes'
 
 interface PricingData {
   base_price: number
@@ -144,131 +145,44 @@ export function SettingsSidebar() {
   }
 
   return (
-    <div className="settings-sidebar">
+    <div className="settings-sidebar space-y-4 md:space-y-6 p-4 md:p-6">
       <SettingsTabs onTabChange={setActiveTab}>
-        {activeTab === 'prices' && (
-          <>
-            <PriceCard
-              title="Preço Base"
-              value={pricing.base_price}
-              subtitle="por noite"
-            />
-            <p className="settings-info">
-              💡 Clique nos dias do calendário para definir o preço para um período específico.
-            </p>
-          </>
+        {activeTab === 'prices' && propertyId && (
+          <div className="space-y-4 md:space-y-6">
+            <PriceCard propertyId={propertyId} basePrice={pricing?.base_price || null} />
+          </div>
         )}
 
-        {activeTab === 'discounts' && (
-          <>
-            {discounts.map((discount) => {
-              let title = ''
-              let condition = ''
-              let averageValue = 0
-
-              if (discount.discount_type === 'weekly') {
-                title = 'Por semana'
-                condition = '7 ou mais noites'
-                averageValue = AVERAGES.weekly
-              } else if (discount.discount_type === 'monthly') {
-                title = 'Por mês'
-                condition = '28 ou mais noites'
-                averageValue = AVERAGES.monthly
-              } else if (discount.discount_type === 'excellent_guest') {
-                title = 'Hóspedes com avaliações excelentes'
-                condition = 'Nota 4.8+'
-                averageValue = 0
-              }
-
-              return (
-                <DiscountCard
-                  key={discount.id}
-                  title={title}
-                  condition={condition}
-                  discountPercent={discount.percentage}
-                  averageValue={averageValue}
-                  discountId={discount.id}
-                  onSave={(percentage) =>
-                    handleSaveDiscount(discount.id, percentage)
-                  }
-                />
-              )
-            })}
-          </>
+        {activeTab === 'discounts' && propertyId && (
+          <div className="space-y-4 md:space-y-6">
+            <DiscountCard propertyId={propertyId} />
+          </div>
         )}
 
-        {activeTab === 'availability' && (
-          <>
-            <AvailabilityCard
-              title="Número mínimo de noites"
-              value={1}
-              onEdit={() => {}}
-            />
-            <AvailabilityCard
-              title="Número máximo de noites"
-              value={365}
-              onEdit={() => {}}
-            />
-            <AvailabilityCard
-              title="Tempo de antecedência"
-              value="Mesmo dia"
-              onEdit={() => {}}
-            />
-            <AvailabilityCard
-              title="Aviso prévio"
-              value="00:00"
-              onEdit={() => {}}
-            />
-            <AvailabilityCard
-              title="Tempo de preparação"
-              value="Nenhum"
-              onEdit={() => {}}
-            />
-          </>
+        {activeTab === 'availability' && propertyId && (
+          <div className="space-y-4 md:space-y-6">
+            <AvailabilityCard propertyId={propertyId} />
+          </div>
         )}
 
-        {activeTab === 'cancellations' && (
-          <>
-            {cancellationPolicies.map((policy) => {
-              let title = ''
-              let description = ''
+        {activeTab === 'cancellations' && propertyId && (
+          <div className="space-y-4 md:space-y-6">
+            {cancellationPolicies.map((policy) => (
+              <CancellationCard
+                key={policy.id}
+                title={policy.policy_type}
+                description={`${policy.is_long_stay ? 'Long-stay' : 'Short-stay'}`}
+                policy={policy}
+                onSave={handleSaveCancellationPolicy}
+              />
+            ))}
+          </div>
+        )}
 
-              if (policy.policy_type === 'flexible') {
-                title = 'Flexível'
-                description = policy.is_long_stay
-                  ? 'Reembolso total até 1 dia antes (long-stay)'
-                  : 'Reembolso total até 1 dia antes'
-              } else if (policy.policy_type === 'moderate') {
-                title = 'Moderada'
-                description = policy.is_long_stay
-                  ? 'Reembolso total até 5 dias antes (long-stay)'
-                  : 'Reembolso total até 5 dias antes'
-              } else if (policy.policy_type === 'limited') {
-                title = 'Limitada'
-                description = policy.is_long_stay
-                  ? 'Reembolso total até 14 dias antes (long-stay)'
-                  : 'Reembolso total até 14 dias antes'
-              } else if (policy.policy_type === 'firm') {
-                title = 'Firme'
-                description = policy.is_long_stay
-                  ? 'Reembolso total até 30 dias antes (long-stay)'
-                  : 'Reembolso total até 30 dias antes'
-              } else if (policy.policy_type === 'rigid') {
-                title = 'Rígida'
-                description = 'Não-reembolsável (long-stay)'
-              }
-
-              return (
-                <CancellationCard
-                  key={policy.id}
-                  title={title}
-                  description={description}
-                  policy={policy}
-                  onSave={handleSaveCancellationPolicy}
-                />
-              )
-            })}
-          </>
+        {activeTab === 'taxes' && propertyId && (
+          <div className="space-y-4 md:space-y-6">
+            <TaxesCard propertyId={propertyId} />
+          </div>
         )}
       </SettingsTabs>
     </div>

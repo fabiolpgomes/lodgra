@@ -1,6 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { Card } from '@/components/common/ui/card'
+import { Button } from '@/components/common/ui/button'
+import { Input } from '@/components/common/ui/input'
+import { Label } from '@/components/common/ui/label'
 import {
   Dialog,
   DialogContent,
@@ -9,136 +13,321 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/common/ui/dialog'
-import { Button } from '@/components/common/ui/button'
-import { Input } from '@/components/common/ui/input'
-import { Label } from '@/components/common/ui/label'
 import { toast } from 'sonner'
+import { AlertCircle, Info } from 'lucide-react'
 
-interface DiscountCardProps {
-  title: string
-  condition: string
-  discountPercent: number
-  onEdit?: () => void
-  onSave?: (percentage: number) => void
-  averageValue?: number
-  discountId?: string
+interface PropertyDiscounts {
+  weeklyPercent: number
+  monthlyPercent: number
+  loyaltyPercent: number
 }
 
-export function DiscountCard({
-  title,
-  condition,
-  discountPercent,
-  onEdit,
-  onSave,
-  averageValue,
-  discountId,
-}: DiscountCardProps) {
-  const [showModal, setShowModal] = useState(false)
-  const [inputValue, setInputValue] = useState(discountPercent.toString())
-  const [loading, setLoading] = useState(false)
+interface DiscountCardProps {
+  propertyId: string
+  onUpdate?: () => void
+}
 
-  const handleClick = () => {
-    if (onSave) {
-      setInputValue(discountPercent.toString())
-      setShowModal(true)
-    } else if (onEdit) {
-      onEdit()
-    }
-  }
+const AVERAGES = {
+  weekly: 894,
+  monthly: 1724,
+}
 
-  const handleSave = async () => {
-    const numValue = parseFloat(inputValue)
-    if (isNaN(numValue) || numValue < 0 || numValue > 100) {
-      toast.error('Percentagem deve estar entre 0-100%')
-      return
-    }
+export function DiscountCard({ propertyId, onUpdate }: DiscountCardProps) {
+  const [discounts, setDiscounts] = useState<PropertyDiscounts>({
+    weeklyPercent: 0,
+    monthlyPercent: 0,
+    loyaltyPercent: 0,
+  })
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [showDialog, setShowDialog] = useState(false)
 
-    setLoading(true)
+  useEffect(() => {
+    loadDiscounts()
+  }, [propertyId])
+
+  const loadDiscounts = async () => {
     try {
-      await onSave?.(numValue)
-      toast.success('Desconto atualizado')
-      setShowModal(false)
+      setLoading(true)
+      const response = await fetch(`/api/properties/${propertyId}/discounts`)
+      const data = await response.json()
+
+      if (data.success && data.data?.length > 0) {
+        // Map API response to component state
+        const weeklyDiscount = data.data.find((d: any) => d.discount_type === 'weekly')
+        const monthlyDiscount = data.data.find((d: any) => d.discount_type === 'monthly')
+        const loyaltyDiscount = data.data.find((d: any) => d.discount_type === 'loyalty')
+
+        setDiscounts({
+          weeklyPercent: weeklyDiscount?.percentage || 0,
+          monthlyPercent: monthlyDiscount?.percentage || 0,
+          loyaltyPercent: loyaltyDiscount?.percentage || 0,
+        })
+      }
     } catch (error) {
-      console.error('Error saving discount:', error)
-      toast.error('Erro ao guardar desconto')
+      console.error('Error loading discounts:', error)
+      toast.error('Erro ao carregar descontos')
     } finally {
       setLoading(false)
     }
   }
 
+  const handleSaveDiscounts = async () => {
+    try {
+      // Validate inputs
+      if (discounts.weeklyPercent < 0 || discounts.weeklyPercent > 100) {
+        toast.error('Desconto semanal deve estar entre 0-100%')
+        return
+      }
+      if (discounts.monthlyPercent < 0 || discounts.monthlyPercent > 100) {
+        toast.error('Desconto mensal deve estar entre 0-100%')
+        return
+      }
+      if (discounts.loyaltyPercent < 0 || discounts.loyaltyPercent > 100) {
+        toast.error('Desconto fidelidade deve estar entre 0-100%')
+        return
+      }
+
+      setSaving(true)
+
+      const response = await fetch(`/api/properties/${propertyId}/discounts`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          weeklyPercent: discounts.weeklyPercent,
+          monthlyPercent: discounts.monthlyPercent,
+          loyaltyPercent: discounts.loyaltyPercent,
+        }),
+      })
+
+      if (response.ok) {
+        toast.success('Descontos atualizado')
+        setShowDialog(false)
+        onUpdate?.()
+      } else {
+        toast.error('Erro ao salvar descontos')
+      }
+    } catch (error) {
+      console.error('Error saving discounts:', error)
+      toast.error('Erro ao atualizar descontos')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <Card className="p-4 md:p-6">
+        <h3 className="text-lg font-semibold mb-4">Descontos</h3>
+        <div className="animate-pulse space-y-4">
+          <div className="h-20 bg-gray-200 rounded"></div>
+          <div className="h-20 bg-gray-200 rounded"></div>
+        </div>
+      </Card>
+    )
+  }
+
   return (
     <>
-      <button
-        className="discount-card"
-        onClick={handleClick}
-        aria-label={`Edit ${title} discount`}
-      >
-        <div className="discount-card-content">
-          <h4 className="discount-title">{title}</h4>
-          <p className="discount-condition">{condition}</p>
-          {averageValue && (
-            <p className="discount-average">A média é de €{averageValue}</p>
-          )}
+      <Card className="p-4 md:p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-lg font-semibold">Descontos</h3>
+          <Button
+            onClick={() => setShowDialog(true)}
+            variant="outline"
+            size="sm"
+            className="h-10"
+          >
+            Editar
+          </Button>
         </div>
 
-        <div className="discount-value">
-          <span className="percent">{discountPercent}%</span>
+        {/* Warning: Exclusive Discounts */}
+        <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg flex gap-3">
+          <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+          <div className="text-sm text-yellow-800">
+            <p className="font-medium mb-1">⚠️ Descontos Exclusivos</p>
+            <p>
+              Apenas um desconto de volume é aplicado por reserva:
+              <br />• 28+ noites → Mensal (exclui Semanal)
+              <br />• 7-27 noites → Semanal
+            </p>
+          </div>
         </div>
 
-        <div className="edit-indicator">›</div>
-      </button>
-
-      {onSave && (
-        <Dialog open={showModal} onOpenChange={setShowModal}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Editar {title}</DialogTitle>
-              <DialogDescription>
-                Digite o percentual de desconto (0-100%)
-              </DialogDescription>
-            </DialogHeader>
-
-            <div className="space-y-4">
+        {/* Discount Summary Cards */}
+        <div className="space-y-3">
+          {/* Weekly */}
+          <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <div className="flex items-start justify-between mb-2">
               <div>
-                <Label htmlFor="discount-input">Percentagem</Label>
-                <div className="flex items-center gap-2 mt-2">
-                  <Input
-                    id="discount-input"
-                    type="number"
-                    min="0"
-                    max="100"
-                    step="1"
-                    value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
-                    placeholder="Ex: 5"
-                    className="flex-1"
-                  />
-                  <span className="text-sm font-medium">%</span>
-                </div>
+                <p className="font-medium text-sm text-blue-900">Desconto Semanal</p>
+                <p className="text-xs text-blue-700 mt-1">Para estadias de 7-27 noites</p>
               </div>
-              {averageValue && (
-                <div className="text-sm text-gray-600">
-                  Economia estimada: €
-                  {(averageValue * (parseFloat(inputValue) / 100)).toFixed(0)}
-                </div>
-              )}
+              <p className="text-2xl font-bold text-blue-600">{discounts.weeklyPercent}%</p>
+            </div>
+            <p className="text-xs text-blue-700">
+              Média semanal: €{AVERAGES.weekly} → Economia: €
+              {(AVERAGES.weekly * (discounts.weeklyPercent / 100)).toFixed(0)}
+            </p>
+          </div>
+
+          {/* Monthly */}
+          <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+            <div className="flex items-start justify-between mb-2">
+              <div>
+                <p className="font-medium text-sm text-green-900">Desconto Mensal</p>
+                <p className="text-xs text-green-700 mt-1">Para estadias de 28+ noites</p>
+              </div>
+              <p className="text-2xl font-bold text-green-600">{discounts.monthlyPercent}%</p>
+            </div>
+            <p className="text-xs text-green-700">
+              Média mensal: €{AVERAGES.monthly} → Economia: €
+              {(AVERAGES.monthly * (discounts.monthlyPercent / 100)).toFixed(0)}
+            </p>
+          </div>
+
+          {/* Loyalty */}
+          <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
+            <div className="flex items-start justify-between mb-2">
+              <div>
+                <p className="font-medium text-sm text-purple-900">Desconto Fidelidade</p>
+                <p className="text-xs text-purple-700 mt-1">
+                  Aplicado em cascata (após desconto de volume)
+                </p>
+              </div>
+              <p className="text-2xl font-bold text-purple-600">{discounts.loyaltyPercent}%</p>
+            </div>
+            <p className="text-xs text-purple-700">
+              Bônus para hóspedes recorrentes
+            </p>
+          </div>
+        </div>
+
+        {/* Info */}
+        <div className="mt-6 p-3 bg-gray-50 rounded-lg flex gap-2">
+          <Info className="w-5 h-5 text-gray-600 flex-shrink-0 mt-0.5" />
+          <p className="text-xs text-gray-600">
+            Os descontos são aplicados em cascata: volume primeiro, depois fidelidade
+          </p>
+        </div>
+      </Card>
+
+      {/* Edit Dialog */}
+      <Dialog open={showDialog} onOpenChange={setShowDialog}>
+        <DialogContent className="max-w-lg w-full mx-auto">
+          <DialogHeader>
+            <DialogTitle>Configurar Descontos</DialogTitle>
+            <DialogDescription>
+              Defina as percentagens de desconto para diferentes tipos de estadia
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-6">
+            {/* Weekly Discount */}
+            <div className="space-y-2 p-4 bg-blue-50 rounded-lg">
+              <Label htmlFor="weekly" className="text-sm font-semibold">
+                Desconto Semanal (7-27 noites)
+              </Label>
+              <div className="flex gap-2">
+                <Input
+                  id="weekly"
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={discounts.weeklyPercent}
+                  onChange={(e) =>
+                    setDiscounts({
+                      ...discounts,
+                      weeklyPercent: parseInt(e.target.value) || 0,
+                    })
+                  }
+                  className="h-12 text-base flex-1"
+                  placeholder="0"
+                />
+                <span className="flex items-center text-lg font-semibold text-blue-600">%</span>
+              </div>
+              <p className="text-xs text-blue-700">
+                Economia: €{(AVERAGES.weekly * (discounts.weeklyPercent / 100)).toFixed(0)}
+              </p>
             </div>
 
-            <DialogFooter>
-              <Button
-                variant="outline"
-                onClick={() => setShowModal(false)}
-                disabled={loading}
-              >
-                Cancelar
-              </Button>
-              <Button onClick={handleSave} disabled={loading}>
-                {loading ? 'Guardando...' : 'Guardar'}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      )}
+            {/* Monthly Discount */}
+            <div className="space-y-2 p-4 bg-green-50 rounded-lg">
+              <Label htmlFor="monthly" className="text-sm font-semibold">
+                Desconto Mensal (28+ noites)
+              </Label>
+              <div className="flex gap-2">
+                <Input
+                  id="monthly"
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={discounts.monthlyPercent}
+                  onChange={(e) =>
+                    setDiscounts({
+                      ...discounts,
+                      monthlyPercent: parseInt(e.target.value) || 0,
+                    })
+                  }
+                  className="h-12 text-base flex-1"
+                  placeholder="0"
+                />
+                <span className="flex items-center text-lg font-semibold text-green-600">%</span>
+              </div>
+              <p className="text-xs text-green-700">
+                Economia: €{(AVERAGES.monthly * (discounts.monthlyPercent / 100)).toFixed(0)}
+              </p>
+            </div>
+
+            {/* Loyalty Discount */}
+            <div className="space-y-2 p-4 bg-purple-50 rounded-lg">
+              <Label htmlFor="loyalty" className="text-sm font-semibold">
+                Desconto Fidelidade (Cascata)
+              </Label>
+              <div className="flex gap-2">
+                <Input
+                  id="loyalty"
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={discounts.loyaltyPercent}
+                  onChange={(e) =>
+                    setDiscounts({
+                      ...discounts,
+                      loyaltyPercent: parseInt(e.target.value) || 0,
+                    })
+                  }
+                  className="h-12 text-base flex-1"
+                  placeholder="0"
+                />
+                <span className="flex items-center text-lg font-semibold text-purple-600">%</span>
+              </div>
+              <p className="text-xs text-purple-700">
+                Aplicado APÓS desconto de volume (para hóspedes recorrentes)
+              </p>
+            </div>
+          </div>
+
+          <DialogFooter className="flex gap-2 sm:gap-3">
+            <Button
+              onClick={() => setShowDialog(false)}
+              variant="outline"
+              className="flex-1 h-12"
+              disabled={saving}
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleSaveDiscounts}
+              disabled={saving}
+              className="flex-1 h-12 text-base font-semibold"
+            >
+              {saving ? 'Salvando...' : 'Salvar Descontos'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   )
 }
