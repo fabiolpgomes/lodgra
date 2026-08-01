@@ -27,7 +27,7 @@ const AVERAGES = {
 
 export function SettingsSidebar() {
   const params = useParams()
-  const propertyId = params?.propertyId as string | undefined
+  const propertyId = params?.id as string | undefined
 
   const [activeTab, setActiveTab] = useState<TabName>('prices')
   const [pricing, setPricing] = useState<PricingData | null>(null)
