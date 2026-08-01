@@ -15,27 +15,54 @@ export async function POST(
   try {
     const supabase = await createAdminClient()
     const body = await request.json()
-    const { dates, base_price } = body
+    const { startDate, endDate, price, dates, base_price } = body
 
-    if (!dates || !Array.isArray(dates) || dates.length === 0) {
+    // Support both formats: (startDate/endDate/price) or (dates/base_price)
+    let datesArray: string[] = []
+    let priceValue: number
+
+    if (startDate && endDate && price !== undefined) {
+      // Format from CalendarWithSettings
+      priceValue = price
+      const start = new Date(startDate)
+      const end = new Date(endDate)
+
+      // Generate all dates between startDate and endDate
+      const current = new Date(start)
+      while (current <= end) {
+        datesArray.push(current.toISOString().split('T')[0])
+        current.setDate(current.getDate() + 1)
+      }
+    } else if (dates && base_price !== undefined) {
+      // Legacy format
+      datesArray = dates
+      priceValue = base_price
+    } else {
+      return NextResponse.json(
+        { success: false, error: 'Invalid request format' },
+        { status: 400 }
+      )
+    }
+
+    if (!datesArray || datesArray.length === 0) {
       return NextResponse.json(
         { success: false, error: 'Invalid dates' },
         { status: 400 }
       )
     }
 
-    if (typeof base_price !== 'number' || base_price < 1) {
+    if (typeof priceValue !== 'number' || priceValue < 1) {
       return NextResponse.json(
-        { success: false, error: 'Invalid base_price' },
+        { success: false, error: 'Invalid price' },
         { status: 400 }
       )
     }
 
     // Update pricing for each date
-    const updates = dates.map(date => ({
+    const updates = datesArray.map(date => ({
       property_id: propertyId,
       date,
-      base_price,
+      base_price: priceValue,
       updated_at: new Date().toISOString(),
     }))
 
