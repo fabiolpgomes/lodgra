@@ -119,15 +119,29 @@ export async function checkSubscriptionAndRole(
 
   // If accessing /calendar without propertyId, fetch first property and redirect
   if (pathname === `/${locale}/calendar` || pathname === '/calendar') {
-    const { data: properties } = await supabase
+    console.log('[MIDDLEWARE DEBUG] Calendar redirect logic:', {
+      pathname,
+      locale,
+      orgId,
+    })
+
+    const { data: properties, error } = await supabase
       .from('properties')
       .select('id')
       .eq('organization_id', orgId)
       .limit(1)
       .single()
 
+    console.log('[MIDDLEWARE DEBUG] Calendar property fetch:', {
+      propertyId: properties?.id,
+      error,
+      hasProperty: !!properties?.id,
+    })
+
     if (properties?.id) {
-      return NextResponse.redirect(new URL(`/${locale}/calendar/${properties.id}`, request.url))
+      const redirectUrl = `/${locale}/calendar/${properties.id}`
+      console.log('[MIDDLEWARE DEBUG] Redirecting to calendar:', redirectUrl)
+      return NextResponse.redirect(new URL(redirectUrl, request.url))
     }
   }
 
