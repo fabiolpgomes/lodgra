@@ -48,8 +48,8 @@ export default function IntegratedCalendarPage() {
       try {
         setIsLoading(true)
         const [propsRes, reservRes] = await Promise.all([
-          fetch('/api/properties?status=active'),
-          fetch('/api/calendar/reservations'),
+          fetch('/api/properties?status=active', { credentials: 'include' }),
+          fetch('/api/calendar/reservations', { credentials: 'include' }),
         ])
 
         if (propsRes.ok) {
