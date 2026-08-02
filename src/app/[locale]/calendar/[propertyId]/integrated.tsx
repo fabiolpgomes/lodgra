@@ -38,6 +38,11 @@ export default function IntegratedCalendarPage() {
   const [reservations, setReservations] = useState<Reservation[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
+  // Debug: Log when this page loads (property-specific view)
+  useEffect(() => {
+    console.log('[PropertyCalendarPage] PROPERTY VIEW LOADED', { propertyId, locale })
+  }, [propertyId, locale])
+
   useEffect(() => {
     const fetchData = async () => {
       try {
