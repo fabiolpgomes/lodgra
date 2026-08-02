@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import { MonthYearPicker } from './MonthYearPicker'
 
 /**
  * Simple Calendar Adapter for CalendarWithSettings
@@ -21,8 +22,9 @@ export function SimpleCalendarAdapter({
   selectedDates,
 }: SimpleCalendarAdapterProps) {
   const today = new Date()
-  const currentMonth = today.getMonth()
-  const currentYear = today.getFullYear()
+  const [currentMonth, setCurrentMonth] = React.useState(today.getMonth())
+  const [currentYear, setCurrentYear] = React.useState(today.getFullYear())
+  const [showMonthPicker, setShowMonthPicker] = React.useState(false)
   const [rangeStart, setRangeStart] = React.useState<number | null>(null)
   const [rangeEnd, setRangeEnd] = React.useState<number | null>(null)
   const [isDragging, setIsDragging] = React.useState(false)
@@ -83,6 +85,14 @@ export function SimpleCalendarAdapter({
     setIsDragging(false)
   }
 
+  const handleMonthYearSelect = (date: Date) => {
+    setCurrentMonth(date.getMonth())
+    setCurrentYear(date.getFullYear())
+    setShowMonthPicker(false)
+    setRangeStart(null)
+    setRangeEnd(null)
+  }
+
   const monthNames = [
     'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
     'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
@@ -93,8 +103,13 @@ export function SimpleCalendarAdapter({
       <div className="rounded-lg shadow" style={{ backgroundColor: '#FBFAF6' }}>
         {/* Header */}
         <div className="p-4 border-b" style={{ borderColor: '#E5DFD2' }}>
-          <h2 className="text-xl font-bold" style={{ color: '#1B2430' }}>
-            {monthNames[currentMonth]} {currentYear}
+          <h2
+            className="text-xl font-bold cursor-pointer hover:opacity-70 transition-opacity"
+            style={{ color: '#1B2430' }}
+            onClick={() => setShowMonthPicker(true)}
+            title="Clique para escolher mês e ano"
+          >
+            {monthNames[currentMonth]} {currentYear} 📅
           </h2>
           <p className="text-sm mt-1" style={{ color: '#4D5566' }}>
             {rangeStart === null
@@ -181,6 +196,15 @@ export function SimpleCalendarAdapter({
           </p>
         </div>
       </div>
+
+      {/* Month/Year Picker Modal */}
+      {showMonthPicker && (
+        <MonthYearPicker
+          currentDate={new Date(currentYear, currentMonth, 1)}
+          onSelect={handleMonthYearSelect}
+          onCancel={() => setShowMonthPicker(false)}
+        />
+      )}
     </div>
   )
 }
