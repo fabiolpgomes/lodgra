@@ -14,6 +14,41 @@ export async function POST(
 
   try {
     const supabase = createAdminClient()
+
+    // Get current user
+    const { data: { user }, error: userError } = await supabase.auth.getUser(
+      request.headers.get('authorization')?.replace('Bearer ', '') || ''
+    )
+
+    if (userError || !user) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
+    // Verify ownership
+    const { data: property, error: propertyError } = await supabase
+      .from('properties')
+      .select('id, owner_id')
+      .eq('id', propertyId)
+      .single()
+
+    if (propertyError || !property) {
+      return NextResponse.json(
+        { success: false, error: 'Property not found' },
+        { status: 404 }
+      )
+    }
+
+    // Verify user owns property
+    if (property.owner_id !== user.id) {
+      return NextResponse.json(
+        { success: false, error: 'Forbidden' },
+        { status: 403 }
+      )
+    }
+
     const body = await request.json()
     const { startDate, endDate, price, dates, base_price } = body
 
