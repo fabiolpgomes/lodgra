@@ -12,11 +12,13 @@ import { AlertCircle } from 'lucide-react'
 interface PriceCardProps {
   propertyId: string
   basePrice: number | null
+  weekendPrice?: number | null
   onUpdate?: () => void
 }
 
-export function PriceCard({ propertyId, basePrice: initialPrice, onUpdate }: PriceCardProps) {
+export function PriceCard({ propertyId, basePrice: initialPrice, weekendPrice: initialWeekendPrice, onUpdate }: PriceCardProps) {
   const [basePrice, setBasePrice] = useState(initialPrice?.toString() || '')
+  const [weekendPrice, setWeekendPrice] = useState(initialWeekendPrice?.toString() || '')
   const [smartPricingEnabled, setSmartPricingEnabled] = useState(false)
   const [minPrice, setMinPrice] = useState('')
   const [maxPrice, setMaxPrice] = useState('')
@@ -26,7 +28,10 @@ export function PriceCard({ propertyId, basePrice: initialPrice, onUpdate }: Pri
     if (initialPrice) {
       setBasePrice(initialPrice.toString())
     }
-  }, [initialPrice])
+    if (initialWeekendPrice) {
+      setWeekendPrice(initialWeekendPrice.toString())
+    }
+  }, [initialPrice, initialWeekendPrice])
 
   const handleFillCalendar = async () => {
     try {
@@ -103,6 +108,43 @@ export function PriceCard({ propertyId, basePrice: initialPrice, onUpdate }: Pri
     }
   }
 
+  const handleSaveWeekendPrice = async () => {
+    try {
+      const price = weekendPrice ? parseFloat(weekendPrice) : null
+
+      if (price !== null && (isNaN(price) || price < 0)) {
+        toast.error('Preço fim de semana deve ser válido')
+        return
+      }
+
+      if (price !== null && basePrice && price < parseFloat(basePrice)) {
+        toast.error('Preço fim de semana deve ser >= preço base')
+        return
+      }
+
+      setSaving(true)
+
+      const response = await fetch(`/api/properties/${propertyId}/pricing`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ weekend_price: price }),
+        credentials: 'include',
+      })
+
+      if (response.ok) {
+        toast.success('Preço fim de semana atualizado')
+        onUpdate?.()
+      } else {
+        toast.error('Erro ao salvar preço fim de semana')
+      }
+    } catch (error) {
+      console.error('Error saving weekend price:', error)
+      toast.error('Erro ao atualizar preço fim de semana')
+    } finally {
+      setSaving(false)
+    }
+  }
+
   return (
     <div className="space-y-6">
       {/* Base Price Section */}
@@ -138,6 +180,42 @@ export function PriceCard({ propertyId, basePrice: initialPrice, onUpdate }: Pri
         </div>
         <p className="text-xs text-[#4D5566] mt-2">
           Usado como fallback quando não há preço customizado
+        </p>
+      </div>
+
+      {/* Weekend Price Section */}
+      <div className="pb-6 border-b border-[#E5DFD2]">
+        <Label htmlFor="weekendPrice" className="text-sm font-semibold text-[#1B2430] mb-3 block">
+          Preço Fim de Semana (Sab-Dom)
+        </Label>
+        <div className="flex gap-3">
+          <div className="flex-1">
+            <div className="relative">
+              <span className="absolute left-3 top-3 text-lg font-semibold text-[#4D5566]">
+                €
+              </span>
+              <Input
+                id="weekendPrice"
+                type="number"
+                value={weekendPrice}
+                onChange={(e) => setWeekendPrice(e.target.value)}
+                placeholder="0.00"
+                min="0"
+                step="0.01"
+                className="h-12 pl-8 text-base font-semibold border-[#E5DFD2] bg-[#FBFAF6] text-[#1B2430]"
+              />
+            </div>
+          </div>
+          <Button
+            onClick={handleSaveWeekendPrice}
+            disabled={saving}
+            className="h-12 px-6 font-semibold bg-[#10203E] hover:bg-[#0c1830] text-white"
+          >
+            {saving ? 'Salvando...' : 'Salvar'}
+          </Button>
+        </div>
+        <p className="text-xs text-[#4D5566] mt-2">
+          Deixe em branco para usar o preço base
         </p>
       </div>
 

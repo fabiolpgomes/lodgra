@@ -149,7 +149,7 @@ export function SettingsSidebar() {
       <SettingsTabs onTabChange={setActiveTab}>
         {activeTab === 'prices' && propertyId && (
           <div className="space-y-4 md:space-y-6">
-            <PriceCard propertyId={propertyId} basePrice={pricing?.base_price || null} />
+            <PriceCard propertyId={propertyId} basePrice={pricing?.base_price || null} weekendPrice={pricing?.weekend_price} />
           </div>
         )}
 

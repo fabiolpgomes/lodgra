@@ -23,13 +23,25 @@ interface PricingData {
  * Fetch pricing configuration from property_prices table
  */
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id: propertyId } = await params
 
   try {
     const supabase = await createAdminClient()
+
+    // Get current user
+    const { data: { user }, error: userError } = await supabase.auth.getUser(
+      req.headers.get('authorization')?.replace('Bearer ', '') || ''
+    )
+
+    if (userError || !user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
 
     // Verify ownership
     const { data: property, error: propertyError } = await supabase
@@ -42,6 +54,14 @@ export async function GET(
       return NextResponse.json(
         { error: 'Property not found' },
         { status: 404 }
+      )
+    }
+
+    // Verify user owns property
+    if (property.owner_id !== user.id) {
+      return NextResponse.json(
+        { error: 'Forbidden' },
+        { status: 403 }
       )
     }
 
@@ -95,6 +115,20 @@ export async function PUT(
   const { id: propertyId } = await params
 
   try {
+    const supabase = await createAdminClient()
+
+    // Get current user
+    const { data: { user }, error: userError } = await supabase.auth.getUser(
+      req.headers.get('authorization')?.replace('Bearer ', '') || ''
+    )
+
+    if (userError || !user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
     const body: PricingData = await req.json()
 
     // Normalize input (accept both camelCase and snake_case)
@@ -102,14 +136,14 @@ export async function PUT(
     const weekendPrice = body.weekend_price || body.weekendPrice
 
     // Validation
-    if (!basePrice || basePrice < 1) {
+    if (basePrice && basePrice < 1) {
       return NextResponse.json(
         { error: 'base_price must be >= 1' },
         { status: 400 }
       )
     }
 
-    if (weekendPrice !== null && weekendPrice !== undefined) {
+    if (weekendPrice !== null && weekendPrice !== undefined && basePrice) {
       if (weekendPrice < basePrice) {
         return NextResponse.json(
           { error: 'weekend_price must be >= base_price' },
@@ -117,8 +151,6 @@ export async function PUT(
         )
       }
     }
-
-    const supabase = await createAdminClient()
 
     // Verify ownership
     const { data: property, error: propertyError } = await supabase
@@ -131,6 +163,14 @@ export async function PUT(
       return NextResponse.json(
         { error: 'Property not found' },
         { status: 404 }
+      )
+    }
+
+    // Verify user owns property
+    if (property.owner_id !== user.id) {
+      return NextResponse.json(
+        { error: 'Forbidden' },
+        { status: 403 }
       )
     }
 
