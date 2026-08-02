@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { SettingsSidebar } from './SettingsSidebar'
 import { CalendarDayClickModal } from './CalendarDayClickModal'
 import { useCalendarSelection } from '@/hooks/useCalendarSelection'
@@ -32,6 +32,8 @@ export function CalendarWithSettings({
 }: CalendarWithSettingsProps) {
   const selection = useCalendarSelection(propertyId)
   const [selectedDateStr, setSelectedDateStr] = useState<string[]>([])
+  const [currentMonth, setCurrentMonth] = useState(new Date().getMonth())
+  const [currentYear, setCurrentYear] = useState(new Date().getFullYear())
 
   // Convert selection to date strings for calendar highlighting
   const getSelectedDateStrings = useCallback(() => {
@@ -151,12 +153,42 @@ export function CalendarWithSettings({
     }
   }, [propertyId, selection])
 
-  // Handle month change - reload pricing data
+  // Fetch daily prices when month changes
+  useEffect(() => {
+    const fetchPricesForMonth = async () => {
+      try {
+        const response = await fetch(
+          `/api/properties/${propertyId}/daily-prices`,
+          { credentials: 'include' }
+        )
+        const prices = await response.json()
+
+        // Filter prices for current month/year
+        const monthPrices = prices.filter((p: { date: string; base_price: number }) => {
+          const [year, month] = p.date.split('-').map(Number)
+          return year === currentYear && month === currentMonth + 1
+        })
+
+        // Convert to ISO date strings
+        const dateStrings = monthPrices.map((p: { date: string }) => p.date)
+        setSelectedDateStr(dateStrings)
+      } catch (error) {
+        console.error('Error fetching prices:', error)
+        setSelectedDateStr([])
+      }
+    }
+
+    fetchPricesForMonth()
+  }, [propertyId, currentMonth, currentYear])
+
+  // Handle month change - update state
   const handleMonthChange = useCallback(
     (month: number, year: number) => {
-      // When month changes, clear selection to prepare for new month's data
+      // Update month/year state to trigger price fetch
+      setCurrentMonth(month)
+      setCurrentYear(year)
+      // Clear manual selection when month changes
       selection.clearSelection()
-      setSelectedDateStr([])
     },
     [selection]
   )
