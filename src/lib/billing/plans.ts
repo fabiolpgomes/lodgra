@@ -19,12 +19,22 @@ export const PLAN_LIMITS: Record<Plan, PlanLimits> = {
   development:  { maxProperties: 99, maxAllowed: null, extraPropertyPrice: 0, maxUsers: null, ownerReports: true,  fiscalCompliance: true  },
 }
 
+const LEGACY_PLAN_MAP: Record<string, Plan> = {
+  'starter': 'essencial',
+  'growth': 'expansao',
+  'professional': 'premium',
+  'business': 'premium',
+  'pro': 'premium',
+}
+
 export function getPlanLimits(plan: string | null): PlanLimits {
-  return PLAN_LIMITS[(plan as Plan) ?? 'essencial'] ?? PLAN_LIMITS.essencial
+  const normalizedPlan = plan && LEGACY_PLAN_MAP[plan] ? LEGACY_PLAN_MAP[plan] : (plan as Plan)
+  return PLAN_LIMITS[normalizedPlan ?? 'essencial'] ?? PLAN_LIMITS.essencial
 }
 
 export function getPlanFromPriceId(priceId: string): Plan {
   const map: Record<string, Plan> = {
+    // Current plan names
     [process.env.STRIPE_PRICE_ID_ESSENCIAL_EUR    ?? '']: 'essencial',
     [process.env.STRIPE_PRICE_ID_EXPANSAO_EUR     ?? '']: 'expansao',
     [process.env.STRIPE_PRICE_ID_PREMIUM_EUR      ?? '']: 'premium',
@@ -34,6 +44,13 @@ export function getPlanFromPriceId(priceId: string): Plan {
     [process.env.STRIPE_PRICE_ID_ESSENCIAL_USD   ?? '']: 'essencial',
     [process.env.STRIPE_PRICE_ID_EXPANSAO_USD    ?? '']: 'expansao',
     [process.env.STRIPE_PRICE_ID_PREMIUM_USD     ?? '']: 'premium',
+    // Legacy plan names (map to current equivalents)
+    [process.env.STRIPE_PRICE_ID_PRO_BRL          ?? '']: 'premium',
+    [process.env.STRIPE_PRICE_ID_PRO_EUR          ?? '']: 'premium',
+    [process.env.STRIPE_PRICE_ID_PRO_USD          ?? '']: 'premium',
+    [process.env.STRIPE_PRICE_ID_GROWTH_BRL       ?? '']: 'expansao',
+    [process.env.STRIPE_PRICE_ID_GROWTH_EUR       ?? '']: 'expansao',
+    [process.env.STRIPE_PRICE_ID_GROWTH_USD       ?? '']: 'expansao',
   }
   return map[priceId] ?? 'essencial'
 }

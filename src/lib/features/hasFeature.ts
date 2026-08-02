@@ -36,8 +36,19 @@ export async function hasFeature(
 }
 
 /**
+ * Map legacy plan names to current plan names
+ */
+const LEGACY_PLAN_MAP: Record<string, string> = {
+  'growth': 'expansao',
+  'professional': 'premium',
+  'business': 'premium',
+  'pro': 'premium',
+}
+
+/**
  * Get the subscription plan for an organization
  * Defaults to 'essencial' if no subscription found
+ * Normalizes legacy plan names to current names
  * @param orgId Organization ID
  * @returns Plan name (essencial, expansao, premium, etc)
  */
@@ -61,7 +72,9 @@ async function getSubscriptionPlan(orgId: string): Promise<string> {
     return 'essencial'
   }
 
-  return data?.plan ?? 'essencial'
+  const plan = data?.plan ?? 'essencial'
+  // Normalize legacy plan names to current plan names
+  return LEGACY_PLAN_MAP[plan] ?? plan
 }
 
 /**

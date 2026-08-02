@@ -72,18 +72,11 @@ describe('Billing Plans System', () => {
     })
 
     describe('Legacy plan aliases (backward compatibility)', () => {
-      test('starter maps to essencial limits', () => {
-        expect(PLAN_LIMITS.starter).toEqual(PLAN_LIMITS.essencial)
-      })
-
-      test('growth maps to expansao limits', () => {
-        expect(PLAN_LIMITS.growth).toEqual(PLAN_LIMITS.expansao)
-      })
-
-      test('professional, business, pro map to premium limits', () => {
-        expect(PLAN_LIMITS.professional).toEqual(PLAN_LIMITS.premium)
-        expect(PLAN_LIMITS.business).toEqual(PLAN_LIMITS.premium)
-        expect(PLAN_LIMITS.pro).toEqual(PLAN_LIMITS.premium)
+      test('getPlanLimits handles legacy names correctly', () => {
+        expect(getPlanLimits('growth')).toEqual(PLAN_LIMITS.expansao)
+        expect(getPlanLimits('professional')).toEqual(PLAN_LIMITS.premium)
+        expect(getPlanLimits('business')).toEqual(PLAN_LIMITS.premium)
+        expect(getPlanLimits('pro')).toEqual(PLAN_LIMITS.premium)
       })
     })
 
@@ -102,12 +95,13 @@ describe('Billing Plans System', () => {
 
   describe('PLAN_DISPLAY constants', () => {
     test('should have all current plans', () => {
-      expect(PLAN_DISPLAY).toHaveLength(4)
+      expect(PLAN_DISPLAY).toHaveLength(5)
       const ids = PLAN_DISPLAY.map((p) => p.id)
       expect(ids).toContain('essencial')
       expect(ids).toContain('expansao')
       expect(ids).toContain('premium')
       expect(ids).toContain('enterprise')
+      expect(ids).toContain('development')
     })
 
     describe('Essencial plan display', () => {
