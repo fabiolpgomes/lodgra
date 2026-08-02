@@ -1,6 +1,6 @@
 'use client'
 
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { CalendarKanbanView } from '@/components/calendar/CalendarKanbanView'
 import { useEffect, useState } from 'react'
 
@@ -30,6 +30,7 @@ interface Property {
  */
 export default function IntegratedCalendarPage() {
   const params = useParams()
+  const router = useRouter()
   const propertyId = params.propertyId as string
   const locale = (params.locale as string) || 'pt-BR'
 
@@ -122,7 +123,7 @@ export default function IntegratedCalendarPage() {
       reservations={reservations}
       selectedPropertyId={propertyId}
       onPropertyClick={(id) => {
-        window.location.href = `/${locale}/calendar/${id}`
+        router.push(`/${locale}/calendar/${id}`)
       }}
     />
   )
