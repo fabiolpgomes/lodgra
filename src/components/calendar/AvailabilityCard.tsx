@@ -147,10 +147,10 @@ export function AvailabilityCard({ propertyId, onUpdate }: AvailabilityCardProps
   if (loading) {
     return (
       <Card className="p-4 md:p-6">
-        <h3 className="text-lg font-semibold mb-4">Disponibilidade</h3>
+        <h3 className="text-lg font-semibold mb-4 text-[#1B2430]">Disponibilidade</h3>
         <div className="animate-pulse space-y-4">
-          <div className="h-10 bg-gray-200 rounded"></div>
-          <div className="h-10 bg-gray-200 rounded"></div>
+          <div className="h-10 bg-[#E5DFD2] rounded"></div>
+          <div className="h-10 bg-[#E5DFD2] rounded"></div>
         </div>
       </Card>
     )
@@ -158,13 +158,13 @@ export function AvailabilityCard({ propertyId, onUpdate }: AvailabilityCardProps
 
   return (
     <Card className="p-4 md:p-6">
-      <h3 className="text-lg font-semibold mb-6">Disponibilidade</h3>
+      <h3 className="text-lg font-semibold mb-6 text-[#1B2430]">Disponibilidade</h3>
 
       {/* Min/Max Nights */}
       <div className="space-y-4 mb-6">
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <Label htmlFor="minNights" className="text-sm mb-2">
+            <Label htmlFor="minNights" className="text-sm mb-2 text-[#1B2430]">
               Mínimo de Noites
             </Label>
             <Input
@@ -179,7 +179,7 @@ export function AvailabilityCard({ propertyId, onUpdate }: AvailabilityCardProps
             />
           </div>
           <div>
-            <Label htmlFor="maxNights" className="text-sm mb-2">
+            <Label htmlFor="maxNights" className="text-sm mb-2 text-[#1B2430]">
               Máximo de Noites
             </Label>
             <Input
@@ -198,7 +198,7 @@ export function AvailabilityCard({ propertyId, onUpdate }: AvailabilityCardProps
 
       {/* Advance Notice */}
       <div className="mb-6">
-        <Label htmlFor="notice" className="text-sm mb-2 block">
+        <Label htmlFor="notice" className="text-sm mb-2 block text-[#1B2430]">
           Aviso Prévio Requerido
         </Label>
         <Select value={advanceNoticeDays} onValueChange={setAdvanceNoticeDays}>
@@ -216,7 +216,7 @@ export function AvailabilityCard({ propertyId, onUpdate }: AvailabilityCardProps
       </div>
 
       {/* Last Minute Bookings Flag */}
-      <div className="flex items-center gap-3 mb-6 p-3 bg-blue-50 rounded-lg">
+      <div className="flex items-center gap-3 mb-6 p-3 bg-[#F7F5EF] rounded-lg">
         <Switch
           id="allowLastMinute"
           checked={allowLastMinute}
@@ -225,10 +225,10 @@ export function AvailabilityCard({ propertyId, onUpdate }: AvailabilityCardProps
         />
         <Label
           htmlFor="allowLastMinute"
-          className="text-sm font-medium cursor-pointer flex-1 mb-0"
+          className="text-sm font-medium cursor-pointer flex-1 mb-0 text-[#1B2430]"
         >
           Permitir Reservas com &lt;1 Dia
-          <span className="block text-xs text-gray-600 font-normal mt-1">
+          <span className="block text-xs text-[#4D5566] font-normal mt-1">
             Requer aprovação manual
           </span>
         </Label>
@@ -236,7 +236,7 @@ export function AvailabilityCard({ propertyId, onUpdate }: AvailabilityCardProps
 
       {/* Availability Window */}
       <div className="mb-6">
-        <Label htmlFor="window" className="text-sm mb-2 block">
+        <Label htmlFor="window" className="text-sm mb-2 block text-[#1B2430]">
           Período de Disponibilidade
         </Label>
         <Select value={windowMonths} onValueChange={setWindowMonths}>
@@ -254,7 +254,7 @@ export function AvailabilityCard({ propertyId, onUpdate }: AvailabilityCardProps
       </div>
 
       {/* Beyond Window Flag */}
-      <div className="flex items-center gap-3 mb-6 p-3 bg-amber-50 rounded-lg">
+      <div className="flex items-center gap-3 mb-6 p-3 bg-[#F7F5EF] rounded-lg">
         <Switch
           id="allowBeyond"
           checked={allowBeyondWindow}
@@ -263,10 +263,10 @@ export function AvailabilityCard({ propertyId, onUpdate }: AvailabilityCardProps
         />
         <Label
           htmlFor="allowBeyond"
-          className="text-sm font-medium cursor-pointer flex-1 mb-0"
+          className="text-sm font-medium cursor-pointer flex-1 mb-0 text-[#1B2430]"
         >
           Permitir Reservas Além do Período
-          <span className="block text-xs text-gray-600 font-normal mt-1">
+          <span className="block text-xs text-[#4D5566] font-normal mt-1">
             Fica como pendente
           </span>
         </Label>

@@ -118,9 +118,9 @@ export function TaxesCard({ propertyId, onUpdate }: TaxesCardProps) {
   if (loading) {
     return (
       <Card className="p-4 md:p-6">
-        <h3 className="text-lg font-semibold mb-4">Taxas</h3>
+        <h3 className="text-lg font-semibold mb-4 text-[#1B2430]">Taxas</h3>
         <div className="animate-pulse space-y-3">
-          <div className="h-16 bg-gray-200 rounded"></div>
+          <div className="h-16 bg-[#E5DFD2] rounded"></div>
         </div>
       </Card>
     )
@@ -130,7 +130,7 @@ export function TaxesCard({ propertyId, onUpdate }: TaxesCardProps) {
     <>
       <Card className="p-4 md:p-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold">Taxas</h3>
+          <h3 className="text-lg font-semibold text-[#1B2430]">Taxas</h3>
           <Button
             onClick={handleOpenDialog}
             variant="outline"
@@ -143,7 +143,7 @@ export function TaxesCard({ propertyId, onUpdate }: TaxesCardProps) {
         </div>
 
         {fees.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
+          <div className="text-center py-8 text-[#4D5566]">
             <p className="text-sm mb-3">Nenhuma taxa cadastrada</p>
             <Button
               onClick={handleOpenDialog}
@@ -159,11 +159,11 @@ export function TaxesCard({ propertyId, onUpdate }: TaxesCardProps) {
             {fees.map((fee, index) => (
               <div
                 key={index}
-                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                className="flex items-center justify-between p-3 bg-[#F7F5EF] rounded-lg"
               >
                 <div className="flex-1">
-                  <p className="font-medium text-sm">{fee.name}</p>
-                  <p className="text-xs text-gray-600 mt-1">€{fee.amount.toFixed(2)}</p>
+                  <p className="font-medium text-sm text-[#1B2430]">{fee.name}</p>
+                  <p className="text-xs text-[#4D5566] mt-1">€{fee.amount.toFixed(2)}</p>
                 </div>
               </div>
             ))}
@@ -175,19 +175,19 @@ export function TaxesCard({ propertyId, onUpdate }: TaxesCardProps) {
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
         <DialogContent className="max-w-lg w-full mx-auto">
           <DialogHeader>
-            <DialogTitle>Gerenciar Taxas</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-[#1B2430]">Gerenciar Taxas</DialogTitle>
+            <DialogDescription className="text-[#4D5566]">
               Adicione ou remova taxas que serão aplicadas às reservas
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 max-h-96 overflow-y-auto">
             {formFees.map((fee, index) => (
-              <div key={index} className="space-y-2 p-3 bg-gray-50 rounded-lg">
+              <div key={index} className="space-y-2 p-3 bg-[#F7F5EF] rounded-lg">
                 <div className="flex items-start gap-2">
                   <div className="flex-1 space-y-2">
                     <div>
-                      <Label className="text-xs mb-1 block">Nome da Taxa</Label>
+                      <Label className="text-xs mb-1 block text-[#1B2430]">Nome da Taxa</Label>
                       <Input
                         value={fee.name}
                         onChange={(e) => handleFeeChange(index, 'name', e.target.value)}
@@ -196,7 +196,7 @@ export function TaxesCard({ propertyId, onUpdate }: TaxesCardProps) {
                       />
                     </div>
                     <div>
-                      <Label className="text-xs mb-1 block">Valor (€)</Label>
+                      <Label className="text-xs mb-1 block text-[#1B2430]">Valor (€)</Label>
                       <Input
                         type="number"
                         value={fee.amount}
@@ -214,7 +214,7 @@ export function TaxesCard({ propertyId, onUpdate }: TaxesCardProps) {
                     size="sm"
                     className="mt-6 h-10 w-10 p-0"
                   >
-                    <X className="w-4 h-4 text-red-500" />
+                    <X className="w-4 h-4 text-[#1B2430]" />
                   </Button>
                 </div>
               </div>
@@ -234,13 +234,13 @@ export function TaxesCard({ propertyId, onUpdate }: TaxesCardProps) {
             <Button
               onClick={() => setShowDialog(false)}
               variant="outline"
-              className="flex-1 h-12"
+              className="flex-1 h-12 text-[#1B2430] border-[#E5DFD2]"
             >
               Cancelar
             </Button>
             <Button
               onClick={handleSave}
-              className="flex-1 h-12 text-base font-semibold"
+              className="flex-1 h-12 text-base font-semibold bg-[#10203E] hover:bg-[#0D1A2E]"
             >
               Salvar Taxas
             </Button>
