@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Card } from '@/components/common/ui/card'
 import { Button } from '@/components/common/ui/button'
 import { Input } from '@/components/common/ui/input'
 import { Label } from '@/components/common/ui/label'
@@ -53,7 +52,6 @@ export function DiscountCard({ propertyId, onUpdate }: DiscountCardProps) {
       const data = await response.json()
 
       if (data.success && data.data?.length > 0) {
-        // Map API response to component state
         const weeklyDiscount = data.data.find((d: any) => d.discount_type === 'weekly')
         const monthlyDiscount = data.data.find((d: any) => d.discount_type === 'monthly')
         const excellentGuestDiscount = data.data.find((d: any) => d.discount_type === 'excellent_guest')
@@ -74,7 +72,6 @@ export function DiscountCard({ propertyId, onUpdate }: DiscountCardProps) {
 
   const handleSaveDiscounts = async () => {
     try {
-      // Validate inputs
       if (discounts.weeklyPercent < 0 || discounts.weeklyPercent > 100) {
         toast.error('Desconto semanal deve estar entre 0-100%')
         return
@@ -117,36 +114,36 @@ export function DiscountCard({ propertyId, onUpdate }: DiscountCardProps) {
 
   if (loading) {
     return (
-      <Card className="p-4 md:p-6">
-        <h3 className="text-lg font-semibold mb-4">Descontos</h3>
+      <div className="p-4 md:p-6 bg-[#FBFAF6] rounded-lg border border-[#E5DFD2]">
+        <h3 className="text-lg font-semibold text-[#1B2430] mb-4">Descontos</h3>
         <div className="animate-pulse space-y-4">
-          <div className="h-20 bg-gray-200 rounded"></div>
-          <div className="h-20 bg-gray-200 rounded"></div>
+          <div className="h-20 bg-[#F7F5EF] rounded"></div>
+          <div className="h-20 bg-[#F7F5EF] rounded"></div>
         </div>
-      </Card>
+      </div>
     )
   }
 
   return (
     <>
-      <Card className="p-4 md:p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-lg font-semibold">Descontos</h3>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold text-[#1B2430]">Descontos</h3>
           <Button
             onClick={() => setShowDialog(true)}
             variant="outline"
             size="sm"
-            className="h-10"
+            className="h-10 border-[#E5DFD2] text-[#1B2430] hover:bg-[#F7F5EF]"
           >
             Editar
           </Button>
         </div>
 
         {/* Warning: Exclusive Discounts */}
-        <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg flex gap-3">
-          <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
-          <div className="text-sm text-yellow-800">
-            <p className="font-medium mb-1">⚠️ Descontos Exclusivos</p>
+        <div className="p-4 bg-[#FBFAF6] border border-[#E5DFD2] rounded-lg flex gap-3">
+          <AlertCircle className="w-5 h-5 text-[#C9A227] flex-shrink-0 mt-0.5" />
+          <div className="text-sm text-[#4D5566]">
+            <p className="font-semibold text-[#1B2430] mb-1">⚠️ Descontos Exclusivos</p>
             <p>
               Apenas um desconto de volume é aplicado por reserva:
               <br />• 28+ noites → Mensal (exclui Semanal)
@@ -158,75 +155,75 @@ export function DiscountCard({ propertyId, onUpdate }: DiscountCardProps) {
         {/* Discount Summary Cards */}
         <div className="space-y-3">
           {/* Weekly */}
-          <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+          <div className="p-4 bg-[#FBFAF6] rounded-lg border border-[#E5DFD2]">
             <div className="flex items-start justify-between mb-2">
               <div>
-                <p className="font-medium text-sm text-blue-900">Desconto Semanal</p>
-                <p className="text-xs text-blue-700 mt-1">Para estadias de 7-27 noites</p>
+                <p className="font-semibold text-sm text-[#1B2430]">Desconto Semanal</p>
+                <p className="text-xs text-[#4D5566] mt-1">Para estadias de 7-27 noites</p>
               </div>
-              <p className="text-2xl font-bold text-blue-600">{discounts.weeklyPercent}%</p>
+              <p className="text-2xl font-bold text-[#C9A227]">{discounts.weeklyPercent}%</p>
             </div>
-            <p className="text-xs text-blue-700">
+            <p className="text-xs text-[#4D5566]">
               Média semanal: €{AVERAGES.weekly} → Economia: €
               {(AVERAGES.weekly * (discounts.weeklyPercent / 100)).toFixed(0)}
             </p>
           </div>
 
           {/* Monthly */}
-          <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+          <div className="p-4 bg-[#FBFAF6] rounded-lg border border-[#E5DFD2]">
             <div className="flex items-start justify-between mb-2">
               <div>
-                <p className="font-medium text-sm text-green-900">Desconto Mensal</p>
-                <p className="text-xs text-green-700 mt-1">Para estadias de 28+ noites</p>
+                <p className="font-semibold text-sm text-[#1B2430]">Desconto Mensal</p>
+                <p className="text-xs text-[#4D5566] mt-1">Para estadias de 28+ noites</p>
               </div>
-              <p className="text-2xl font-bold text-green-600">{discounts.monthlyPercent}%</p>
+              <p className="text-2xl font-bold text-[#C9A227]">{discounts.monthlyPercent}%</p>
             </div>
-            <p className="text-xs text-green-700">
+            <p className="text-xs text-[#4D5566]">
               Média mensal: €{AVERAGES.monthly} → Economia: €
               {(AVERAGES.monthly * (discounts.monthlyPercent / 100)).toFixed(0)}
             </p>
           </div>
 
           {/* Loyalty */}
-          <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
+          <div className="p-4 bg-[#FBFAF6] rounded-lg border border-[#E5DFD2]">
             <div className="flex items-start justify-between mb-2">
               <div>
-                <p className="font-medium text-sm text-purple-900">Desconto Fidelidade</p>
-                <p className="text-xs text-purple-700 mt-1">
+                <p className="font-semibold text-sm text-[#1B2430]">Desconto Fidelidade</p>
+                <p className="text-xs text-[#4D5566] mt-1">
                   Aplicado em cascata (após desconto de volume)
                 </p>
               </div>
-              <p className="text-2xl font-bold text-purple-600">{discounts.loyaltyPercent}%</p>
+              <p className="text-2xl font-bold text-[#C9A227]">{discounts.loyaltyPercent}%</p>
             </div>
-            <p className="text-xs text-purple-700">
+            <p className="text-xs text-[#4D5566]">
               Bônus para hóspedes recorrentes
             </p>
           </div>
         </div>
 
         {/* Info */}
-        <div className="mt-6 p-3 bg-gray-50 rounded-lg flex gap-2">
-          <Info className="w-5 h-5 text-gray-600 flex-shrink-0 mt-0.5" />
-          <p className="text-xs text-gray-600">
+        <div className="p-3 bg-[#F7F5EF] rounded-lg flex gap-2 border border-[#E5DFD2]">
+          <Info className="w-5 h-5 text-[#1B2430] flex-shrink-0 mt-0.5" />
+          <p className="text-xs text-[#4D5566]">
             Os descontos são aplicados em cascata: volume primeiro, depois fidelidade
           </p>
         </div>
-      </Card>
+      </div>
 
       {/* Edit Dialog */}
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
-        <DialogContent className="max-w-lg w-full mx-auto">
+        <DialogContent className="max-w-lg w-full mx-auto bg-[#FBFAF6] border-[#E5DFD2]">
           <DialogHeader>
-            <DialogTitle>Configurar Descontos</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-[#1B2430]">Configurar Descontos</DialogTitle>
+            <DialogDescription className="text-[#4D5566]">
               Defina as percentagens de desconto para diferentes tipos de estadia
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-6">
             {/* Weekly Discount */}
-            <div className="space-y-2 p-4 bg-blue-50 rounded-lg">
-              <Label htmlFor="weekly" className="text-sm font-semibold">
+            <div className="space-y-2 p-4 bg-[#F7F5EF] rounded-lg border border-[#E5DFD2]">
+              <Label htmlFor="weekly" className="text-sm font-semibold text-[#1B2430]">
                 Desconto Semanal (7-27 noites)
               </Label>
               <div className="flex gap-2">
@@ -242,19 +239,19 @@ export function DiscountCard({ propertyId, onUpdate }: DiscountCardProps) {
                       weeklyPercent: parseInt(e.target.value) || 0,
                     })
                   }
-                  className="h-12 text-base flex-1"
+                  className="h-12 text-base flex-1 border-[#E5DFD2] bg-[#FBFAF6] text-[#1B2430]"
                   placeholder="0"
                 />
-                <span className="flex items-center text-lg font-semibold text-blue-600">%</span>
+                <span className="flex items-center text-lg font-semibold text-[#C9A227]">%</span>
               </div>
-              <p className="text-xs text-blue-700">
+              <p className="text-xs text-[#4D5566]">
                 Economia: €{(AVERAGES.weekly * (discounts.weeklyPercent / 100)).toFixed(0)}
               </p>
             </div>
 
             {/* Monthly Discount */}
-            <div className="space-y-2 p-4 bg-green-50 rounded-lg">
-              <Label htmlFor="monthly" className="text-sm font-semibold">
+            <div className="space-y-2 p-4 bg-[#F7F5EF] rounded-lg border border-[#E5DFD2]">
+              <Label htmlFor="monthly" className="text-sm font-semibold text-[#1B2430]">
                 Desconto Mensal (28+ noites)
               </Label>
               <div className="flex gap-2">
@@ -270,19 +267,19 @@ export function DiscountCard({ propertyId, onUpdate }: DiscountCardProps) {
                       monthlyPercent: parseInt(e.target.value) || 0,
                     })
                   }
-                  className="h-12 text-base flex-1"
+                  className="h-12 text-base flex-1 border-[#E5DFD2] bg-[#FBFAF6] text-[#1B2430]"
                   placeholder="0"
                 />
-                <span className="flex items-center text-lg font-semibold text-green-600">%</span>
+                <span className="flex items-center text-lg font-semibold text-[#C9A227]">%</span>
               </div>
-              <p className="text-xs text-green-700">
+              <p className="text-xs text-[#4D5566]">
                 Economia: €{(AVERAGES.monthly * (discounts.monthlyPercent / 100)).toFixed(0)}
               </p>
             </div>
 
             {/* Loyalty Discount */}
-            <div className="space-y-2 p-4 bg-purple-50 rounded-lg">
-              <Label htmlFor="loyalty" className="text-sm font-semibold">
+            <div className="space-y-2 p-4 bg-[#F7F5EF] rounded-lg border border-[#E5DFD2]">
+              <Label htmlFor="loyalty" className="text-sm font-semibold text-[#1B2430]">
                 Desconto Fidelidade (Cascata)
               </Label>
               <div className="flex gap-2">
@@ -298,12 +295,12 @@ export function DiscountCard({ propertyId, onUpdate }: DiscountCardProps) {
                       loyaltyPercent: parseInt(e.target.value) || 0,
                     })
                   }
-                  className="h-12 text-base flex-1"
+                  className="h-12 text-base flex-1 border-[#E5DFD2] bg-[#FBFAF6] text-[#1B2430]"
                   placeholder="0"
                 />
-                <span className="flex items-center text-lg font-semibold text-purple-600">%</span>
+                <span className="flex items-center text-lg font-semibold text-[#C9A227]">%</span>
               </div>
-              <p className="text-xs text-purple-700">
+              <p className="text-xs text-[#4D5566]">
                 Aplicado APÓS desconto de volume (para hóspedes recorrentes)
               </p>
             </div>
@@ -313,7 +310,7 @@ export function DiscountCard({ propertyId, onUpdate }: DiscountCardProps) {
             <Button
               onClick={() => setShowDialog(false)}
               variant="outline"
-              className="flex-1 h-12"
+              className="flex-1 h-12 border-[#E5DFD2] text-[#1B2430] hover:bg-[#F7F5EF]"
               disabled={saving}
             >
               Cancelar
@@ -321,7 +318,7 @@ export function DiscountCard({ propertyId, onUpdate }: DiscountCardProps) {
             <Button
               onClick={handleSaveDiscounts}
               disabled={saving}
-              className="flex-1 h-12 text-base font-semibold"
+              className="flex-1 h-12 text-base font-semibold bg-[#10203E] hover:bg-[#0c1830] text-white"
             >
               {saving ? 'Salvando...' : 'Salvar Descontos'}
             </Button>
