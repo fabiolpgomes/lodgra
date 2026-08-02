@@ -1,6 +1,8 @@
 'use client'
 
 import { useState, useCallback, useEffect } from 'react'
+import { useRouter, useParams } from 'next/navigation'
+import { ArrowLeft } from 'lucide-react'
 import { SettingsSidebar } from './SettingsSidebar'
 import { CalendarDayClickModal } from './CalendarDayClickModal'
 import { useCalendarSelection } from '@/hooks/useCalendarSelection'
@@ -12,6 +14,7 @@ interface CalendarWithSettingsProps {
     onRangeSelect?: (startDay: number, endDay: number, month: number, year: number) => void
     selectedDates: string[]
     onMonthChange?: (month: number, year: number) => void
+    reservations?: Reservation[]
   }>
 }
 
@@ -26,12 +29,27 @@ interface CalendarWithSettingsProps {
  * - Mobile: Calendário em tela cheia, settings em abas
  * - Tablet/Desktop: 2 colunas (calendário + settings)
  */
+interface Reservation {
+  id: string
+  guestName: string
+  guestCount?: number
+  startDate: Date
+  endDate: Date
+  price: number
+  status: 'pending' | 'confirmed' | 'hosting' | 'completed'
+}
+
 export function CalendarWithSettings({
   propertyId,
   calendarComponent: CalendarComponent,
 }: CalendarWithSettingsProps) {
+  const router = useRouter()
+  const params = useParams()
+  const locale = (params.locale as string) || 'pt-BR'
+
   const selection = useCalendarSelection(propertyId)
   const [selectedDateStr, setSelectedDateStr] = useState<string[]>([])
+  const [reservations, setReservations] = useState<Reservation[]>([])
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth())
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear())
 
@@ -153,15 +171,16 @@ export function CalendarWithSettings({
     }
   }, [propertyId, selection])
 
-  // Fetch daily prices when month changes
+  // Fetch daily prices and reservations when month changes
   useEffect(() => {
-    const fetchPricesForMonth = async () => {
+    const fetchDataForMonth = async () => {
       try {
-        const response = await fetch(
+        // Fetch prices
+        const pricesResponse = await fetch(
           `/api/properties/${propertyId}/daily-prices`,
           { credentials: 'include' }
         )
-        const prices = await response.json()
+        const prices = await pricesResponse.json()
 
         // Filter prices for current month/year
         const monthPrices = prices.filter((p: { date: string; base_price: number }) => {
@@ -172,13 +191,53 @@ export function CalendarWithSettings({
         // Convert to ISO date strings
         const dateStrings = monthPrices.map((p: { date: string }) => p.date)
         setSelectedDateStr(dateStrings)
+
+        // Fetch reservations
+        const reservationsResponse = await fetch(
+          `/api/properties/${propertyId}/reservations`,
+          { credentials: 'include' }
+        )
+        const reservationsData = await reservationsResponse.json()
+
+        // Filter reservations for current month
+        const monthReservations = (reservationsData.data || []).filter(
+          (res: any) => {
+            const resStartMonth = new Date(res.start_date).getMonth()
+            const resStartYear = new Date(res.start_date).getFullYear()
+            const resEndMonth = new Date(res.end_date).getMonth()
+            const resEndYear = new Date(res.end_date).getFullYear()
+
+            // Show reservation if it overlaps with current month
+            return (
+              (resStartYear === currentYear && resStartMonth === currentMonth) ||
+              (resEndYear === currentYear && resEndMonth === currentMonth) ||
+              (resStartYear < currentYear ||
+                (resStartYear === currentYear && resStartMonth < currentMonth)) &&
+                (resEndYear > currentYear ||
+                  (resEndYear === currentYear && resEndMonth > currentMonth))
+            )
+          }
+        )
+
+        setReservations(
+          monthReservations.map((res: any) => ({
+            id: res.id,
+            guestName: res.guest_name,
+            guestCount: res.guest_count,
+            startDate: new Date(res.start_date),
+            endDate: new Date(res.end_date),
+            price: res.price_per_night,
+            status: res.status,
+          }))
+        )
       } catch (error) {
-        console.error('Error fetching prices:', error)
+        console.error('Error fetching data:', error)
         setSelectedDateStr([])
+        setReservations([])
       }
     }
 
-    fetchPricesForMonth()
+    fetchDataForMonth()
   }, [propertyId, currentMonth, currentYear])
 
   // Handle month change - update state
@@ -195,6 +254,21 @@ export function CalendarWithSettings({
 
   return (
     <div className="w-full h-screen flex flex-col md:grid md:grid-cols-[1fr_400px] lg:grid-cols-[1fr_450px] gap-0">
+      {/* Header with back button */}
+      <div
+        className="flex items-center gap-3 p-4 border-b"
+        style={{ borderColor: '#E5DFD2', backgroundColor: '#FBFAF6' }}
+      >
+        <button
+          onClick={() => router.push(`/${locale}/calendar`)}
+          className="flex items-center gap-2 px-3 py-2 rounded hover:opacity-70 transition-opacity"
+          style={{ backgroundColor: '#F7F5EF', color: '#1B2430' }}
+        >
+          <ArrowLeft size={20} />
+          <span className="text-sm font-semibold">Calendário Hub</span>
+        </button>
+      </div>
+
       {/* Calendar - Mobile Full Width, Desktop Left */}
       <div className="flex-1 overflow-auto">
         <CalendarComponent
@@ -202,6 +276,7 @@ export function CalendarWithSettings({
           onRangeSelect={handleRangeSelect}
           selectedDates={getSelectedDateStrings()}
           onMonthChange={handleMonthChange}
+          reservations={reservations}
         />
       </div>
 

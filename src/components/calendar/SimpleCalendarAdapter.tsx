@@ -10,11 +10,22 @@ import { MonthYearPicker } from './MonthYearPicker'
  * Mobile: touch + swipe finger
  */
 
+interface Reservation {
+  id: string
+  guestName: string
+  guestCount?: number
+  startDate: Date
+  endDate: Date
+  price: number
+  status: 'pending' | 'confirmed' | 'hosting' | 'completed'
+}
+
 interface SimpleCalendarAdapterProps {
   onDayClick: (day: number, year: number, month: number) => void
   onRangeSelect?: (startDay: number, endDay: number, month: number, year: number) => void
   selectedDates: string[] // ISO date strings
   onMonthChange?: (month: number, year: number) => void
+  reservations?: Reservation[]
 }
 
 export function SimpleCalendarAdapter({
@@ -22,6 +33,7 @@ export function SimpleCalendarAdapter({
   onRangeSelect,
   selectedDates,
   onMonthChange,
+  reservations = [],
 }: SimpleCalendarAdapterProps) {
   const today = new Date()
   const [currentMonth, setCurrentMonth] = React.useState(today.getMonth())
@@ -207,6 +219,52 @@ export function SimpleCalendarAdapter({
           </p>
         </div>
       </div>
+
+      {/* Reservations List */}
+      {reservations.length > 0 && (
+        <div className="max-w-4xl mx-auto p-4 mt-4">
+          <h3 className="font-bold mb-4" style={{ color: '#1B2430' }}>
+            Reservas em {monthNames[currentMonth]} {currentYear}
+          </h3>
+          <div className="space-y-2">
+            {reservations.map((res) => {
+              const statusColors: Record<string, { bg: string; text: string }> = {
+                confirmed: { bg: '#E3F2FD', text: '#1976D2' },
+                hosting: { bg: '#E8F5E9', text: '#388E3C' },
+                pending: { bg: '#FFF3E0', text: '#F57C00' },
+                completed: { bg: '#F5F5F5', text: '#616161' },
+              }
+              const colors = statusColors[res.status] || statusColors.confirmed
+              const statusLabel = {
+                confirmed: 'Confirmado',
+                hosting: 'Hospedado',
+                pending: 'Pendente',
+                completed: 'Concluído',
+              }[res.status]
+
+              return (
+                <div
+                  key={res.id}
+                  className="p-3 rounded border"
+                  style={{
+                    backgroundColor: colors.bg,
+                    borderColor: colors.text,
+                    color: colors.text,
+                  }}
+                >
+                  <div className="font-semibold">{res.guestName}</div>
+                  <div className="text-sm">
+                    {res.guestCount} {res.guestCount === 1 ? 'hóspede' : 'hóspedes'} • €{res.price.toFixed(2)}
+                  </div>
+                  <div className="text-xs">
+                    {res.startDate.toLocaleDateString('pt-BR')} até {res.endDate.toLocaleDateString('pt-BR')} • {statusLabel}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Month/Year Picker Modal */}
       {showMonthPicker && (
