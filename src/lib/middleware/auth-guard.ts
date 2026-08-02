@@ -117,19 +117,9 @@ export async function checkSubscriptionAndRole(
   const localeMatch = pathname.match(/^\/([a-z]{2}(?:-[A-Z]{2})?)/)
   const locale = localeMatch ? localeMatch[1] : 'pt'
 
-  // If accessing /calendar without propertyId, fetch first property and redirect
-  if (pathname === `/${locale}/calendar` || pathname === '/calendar') {
-    const { data: properties } = await supabase
-      .from('properties')
-      .select('id')
-      .eq('organization_id', orgId)
-      .limit(1)
-      .single()
-
-    if (properties?.id) {
-      return NextResponse.redirect(new URL(`/${locale}/calendar/${properties.id}`, request.url))
-    }
-  }
+  // REMOVED: Auto-redirect to first property
+  // The /calendar route now shows a hub view with all properties
+  // Users can click individual properties to see property-specific calendars
 
   // Role-based access control
   if (userRole === 'gestor') {
