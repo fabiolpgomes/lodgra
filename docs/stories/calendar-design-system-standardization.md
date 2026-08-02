@@ -24,16 +24,16 @@ O calendário foi restaurado da versão anterior (commit 1d4aab99), mas usa core
 - [x] CalendarKanbanView - grid de propriedades, reservas
 
 ### Property Calendar (`/calendar/[propertyId]`)
-- [ ] CalendarWithSettings - wrapper principal
-- [ ] SimpleCalendarAdapter - grid de calendário
-- [ ] SettingsSidebar - 5 cards laterais
-- [ ] SettingsTabs - abas de navegação
-- [ ] PriceCard - Preços
-- [ ] DiscountCard - Descontos
-- [ ] AvailabilityCard - Disponibilidade
-- [ ] CancellationCard - Cancelamentos
-- [ ] TaxesCard - Taxas
-- [ ] CalendarDayClickModal - modal de seleção de preço
+- [ ] CalendarWithSettings - wrapper principal (🔄 in progress)
+- [ ] SimpleCalendarAdapter - grid de calendário (🔄 in progress)
+- [x] SettingsSidebar - 5 cards laterais
+- [x] SettingsTabs - abas de navegação (f5ccbdbc)
+- [x] PriceCard - Preços (8a035141)
+- [x] DiscountCard - Descontos (4a2aa480)
+- [x] AvailabilityCard - Disponibilidade (fc692928)
+- [x] CancellationCard - Cancelamentos (fc692928)
+- [x] TaxesCard - Taxas (fc692928)
+- [ ] CalendarDayClickModal - modal de seleção de preço (🔄 in progress)
 
 ## Design System Tokens a Aplicar
 

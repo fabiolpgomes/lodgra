@@ -90,13 +90,13 @@ export function SimpleCalendarAdapter({
 
   return (
     <div className="w-full max-w-4xl mx-auto p-4" onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}>
-      <div className="bg-white rounded-lg shadow">
+      <div className="rounded-lg shadow" style={{ backgroundColor: '#FBFAF6' }}>
         {/* Header */}
-        <div className="p-4 border-b border-gray-200">
-          <h2 className="text-xl font-bold text-gray-900">
+        <div className="p-4 border-b" style={{ borderColor: '#E5DFD2' }}>
+          <h2 className="text-xl font-bold" style={{ color: '#1B2430' }}>
             {monthNames[currentMonth]} {currentYear}
           </h2>
-          <p className="text-sm text-gray-600 mt-1">
+          <p className="text-sm mt-1" style={{ color: '#4D5566' }}>
             {rangeStart === null
               ? 'Clique e arraste o mouse (ou dedo) pelos dias desejados'
               : `Selecionado: ${Math.min(rangeStart, rangeEnd || rangeStart)} até ${Math.max(rangeStart, rangeEnd || rangeStart)}`}
@@ -110,7 +110,8 @@ export function SimpleCalendarAdapter({
             {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'].map((day) => (
               <div
                 key={day}
-                className="text-center font-semibold text-gray-600 text-sm py-2"
+                className="text-center font-semibold text-sm py-2"
+                style={{ color: '#4D5566' }}
               >
                 {day}
               </div>
@@ -137,18 +138,33 @@ export function SimpleCalendarAdapter({
                 className={`
                   aspect-square flex items-center justify-center rounded text-sm font-medium
                   transition-colors duration-75 select-none user-select-none
-                  ${
-                    day === null
-                      ? 'bg-gray-50 cursor-default'
-                      : isInDragRange(day)
-                      ? 'bg-blue-500 text-white cursor-grab active:cursor-grabbing'
-                      : isDateSelected(day)
-                      ? 'bg-blue-600 text-white hover:bg-blue-700'
-                      : day < today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear()
-                      ? 'text-gray-400 cursor-default'
-                      : 'bg-gray-50 text-gray-900 hover:bg-blue-100 cursor-grab active:cursor-grabbing'
-                  }
                 `}
+                style={{
+                  backgroundColor:
+                    day === null
+                      ? '#FBFAF6'
+                      : isInDragRange(day)
+                      ? '#10203E'
+                      : isDateSelected(day)
+                      ? '#10203E'
+                      : day < today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear()
+                      ? 'transparent'
+                      : '#FBFAF6',
+                  color:
+                    day === null
+                      ? 'inherit'
+                      : isInDragRange(day) || isDateSelected(day)
+                      ? 'white'
+                      : day < today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear()
+                      ? '#C9A227'
+                      : '#1B2430',
+                  cursor:
+                    day === null
+                      ? 'default'
+                      : isInDragRange(day) || (!isDateSelected(day) && !(day < today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear()))
+                      ? 'grab'
+                      : 'default',
+                }}
               >
                 {day}
               </div>
@@ -157,7 +173,7 @@ export function SimpleCalendarAdapter({
         </div>
 
         {/* Info */}
-        <div className="p-4 border-t border-gray-200 bg-gray-50 text-sm text-gray-600">
+        <div className="p-4 border-t text-sm" style={{ borderColor: '#E5DFD2', backgroundColor: '#FBFAF6', color: '#4D5566' }}>
           <p>
             {selectedDates.length > 0
               ? `${selectedDates.length} data(s) selecionada(s)`

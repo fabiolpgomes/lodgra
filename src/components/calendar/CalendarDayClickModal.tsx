@@ -137,8 +137,8 @@ export function CalendarDayClickModal({
               </Button>
             </div>
 
-            <div className="text-xs text-gray-600 p-3 bg-gray-50 rounded-lg">
-              <p className="font-medium mb-1">Dicas:</p>
+            <div className="text-xs p-3 rounded-lg" style={{ backgroundColor: '#F7F5EF', color: '#4D5566' }}>
+              <p className="font-medium mb-1" style={{ color: '#1B2430' }}>Dicas:</p>
               <ul className="space-y-1 list-disc list-inside">
                 <li>Clique para definir preço do {isSingleDay ? 'dia' : 'período'}</li>
                 <li>Bloqueie datas para não aceitar reservas</li>
@@ -165,7 +165,7 @@ export function CalendarDayClickModal({
                   Preço por Noite
                 </Label>
                 <div className="relative">
-                  <span className="absolute left-3 top-3 text-lg font-semibold text-gray-600">
+                  <span className="absolute left-3 top-3 text-lg font-semibold" style={{ color: '#4D5566' }}>
                     €
                   </span>
                   <Input
@@ -183,9 +183,9 @@ export function CalendarDayClickModal({
               </div>
 
               {!isSingleDay && nights > 1 && (
-                <div className="p-3 bg-blue-50 rounded-lg">
-                  <p className="text-sm font-medium text-blue-900">Cálculo</p>
-                  <p className="text-xs text-blue-700 mt-1">
+                <div className="p-3 rounded-lg" style={{ backgroundColor: '#F7F5EF' }}>
+                  <p className="text-sm font-medium" style={{ color: '#1B2430' }}>Cálculo</p>
+                  <p className="text-xs mt-1" style={{ color: '#4D5566' }}>
                     €{price || '0'} × {nights} noites = €
                     {price ? (parseFloat(price) * nights).toFixed(2) : '0.00'}
                   </p>
@@ -226,19 +226,19 @@ export function CalendarDayClickModal({
             </DialogHeader>
 
             <div className="space-y-4 py-4">
-              <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <p className="text-sm font-medium text-yellow-900 mb-2">
+              <div className="p-4 rounded-lg border" style={{ backgroundColor: '#F7F5EF', borderColor: '#E5DFD2' }}>
+                <p className="text-sm font-medium mb-2" style={{ color: '#1B2430' }}>
                   ⚠️ Datas Bloqueadas
                 </p>
-                <p className="text-xs text-yellow-800">
+                <p className="text-xs" style={{ color: '#4D5566' }}>
                   {isSingleDay
                     ? 'Este dia não aceitará novas reservas'
                     : `Este período (${nights} noite${nights !== 1 ? 's' : ''}) não aceitará novas reservas`}
                 </p>
               </div>
 
-              <div className="p-3 bg-gray-50 rounded-lg">
-                <p className="text-xs text-gray-600">
+              <div className="p-3 rounded-lg" style={{ backgroundColor: '#F7F5EF' }}>
+                <p className="text-xs" style={{ color: '#4D5566' }}>
                   Você pode desbloquear essas datas a qualquer momento clicando
                   novamente.
                 </p>
@@ -257,7 +257,10 @@ export function CalendarDayClickModal({
               <Button
                 onClick={handleBlockDates}
                 disabled={saving}
-                className="flex-1 h-12 text-base font-semibold bg-red-600 hover:bg-red-700"
+                className="flex-1 h-12 text-base font-semibold text-white"
+                style={{ backgroundColor: '#10203E' }}
+                onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.9')}
+                onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
               >
                 {saving ? 'Bloqueando...' : 'Bloquear Datas'}
               </Button>
