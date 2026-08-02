@@ -6,7 +6,7 @@
  */
 
 import { createAdminClient } from '@/lib/supabase/admin'
-import { RefundCalculator } from '@/lib/refunds/refund-calculator'
+import { calculateRefund, calculateDaysUntilCheckIn, isDuringStay, determineStayDuration } from '@/lib/cancellation/refund-calculator'
 import { CancellationPolicySnapshot } from '@/types/cancellation.types'
 import { NextRequest, NextResponse } from 'next/server'
 import { randomUUID } from 'crypto'
@@ -156,20 +156,21 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     const nightCount = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24))
     const stayDuration = nightCount >= 28 ? 'long' : 'short'
 
-    // Calculate refund using RefundCalculator
-    const refundResult = RefundCalculator.calculate({
-      policy_type: policySnapshot.policy_type,
-      stay_duration: stayDuration,
+    // Calculate refund using Story 37.4 calculator (Airbnb model)
+    const refundCalculation = calculateRefund({
+      policy_type: policySnapshot.policy_type as any,
+      stay_duration: stayDuration as 'short' | 'long',
       days_until_checkin: daysUntilCheckIn,
       during_stay: duringStay,
-      cancellation_reason: 'voluntary', // Story 40.1 uses serious_issue path
-      total_amount: reservation.total_amount,
-      nights_total: nightCount,
-      nights_remaining: duringStay ? Math.max(0, nightCount - Math.floor((new Date().getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24))) : undefined,
+      total_reservation_amount: reservation.total_amount,
     })
 
+    // Calculate refund amount
+    const refundPercentage = refundCalculation.refund_percentage
+    const refundAmount = Math.round((reservation.total_amount * refundPercentage) / 100)
+
     // Validate refund amount
-    if (refundResult.refund_amount > reservation.total_amount) {
+    if (refundAmount > reservation.total_amount) {
       return NextResponse.json(
         { success: false, error: 'Calculated refund exceeds original amount' },
         { status: 422 }
@@ -179,7 +180,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     // Process Stripe refund (if applicable) with exponential backoff retry
     let stripeRefundId: string | null = null
 
-    if (refundResult.refund_amount > 0 && reservation.stripe_payment_intent_id) {
+    if (refundAmount > 0 && reservation.stripe_payment_intent_id) {
       try {
         stripeRefundId = await retryWithBackoff(async () => {
           const refundResponse = await fetch('/api/billing/refunds', {
@@ -187,7 +188,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               reservation_id: reservationId,
-              amount: refundResult.refund_amount,
+              amount: refundAmount,
               reason: body.reason || 'Guest cancellation',
             }),
           })
@@ -213,7 +214,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       .from('reservations')
       .update({
         status: 'cancelled',
-        refund_amount: refundResult.refund_amount,
+        refund_amount: refundAmount,
         stripe_refund_id: stripeRefundId,
         refund_processed_at: new Date().toISOString(),
       })
@@ -234,9 +235,9 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
           data: {
             guest_name: reservation.guest_name,
             property_name: reservation.property_name,
-            refund_amount: refundResult.refund_amount,
-            refund_percentage: refundResult.refund_percentage,
-            reason: refundResult.reason,
+            refund_amount: refundAmount,
+            refund_percentage: refundPercentage,
+            reason: refundCalculation.reason,
           },
         }),
       })
@@ -250,8 +251,8 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       reservation_id: reservationId,
       status: 'cancelled',
       refund_info: {
-        refund_amount: refundResult.refund_amount,
-        refund_percentage: refundResult.refund_percentage,
+        refund_amount: refundAmount,
+        refund_percentage: refundPercentage,
         stripe_refund_id: stripeRefundId,
         processed_at: updated.refund_processed_at,
       },
