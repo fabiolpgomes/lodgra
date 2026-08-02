@@ -37,7 +37,6 @@ export function PriceCard({ propertyId, basePrice: initialPrice, onUpdate }: Pri
 
       setSaving(true)
 
-      // This endpoint would fill all empty days in the current month
       const response = await fetch(
         `/api/properties/${propertyId}/pricing/bulk-update`,
         {
@@ -95,18 +94,16 @@ export function PriceCard({ propertyId, basePrice: initialPrice, onUpdate }: Pri
   }
 
   return (
-    <Card className="p-4 md:p-6">
-      <h3 className="text-lg font-semibold mb-6">Preços</h3>
-
+    <div className="space-y-6">
       {/* Base Price Section */}
-      <div className="mb-6 pb-6 border-b border-gray-200">
-        <Label htmlFor="basePrice" className="text-sm mb-3 block">
+      <div className="pb-6 border-b border-[#E5DFD2]">
+        <Label htmlFor="basePrice" className="text-sm font-semibold text-[#1B2430] mb-3 block">
           Preço Base por Noite
         </Label>
-        <div className="flex gap-2">
+        <div className="flex gap-3">
           <div className="flex-1">
             <div className="relative">
-              <span className="absolute left-3 top-3 text-lg font-semibold text-gray-600">
+              <span className="absolute left-3 top-3 text-lg font-semibold text-[#4D5566]">
                 €
               </span>
               <Input
@@ -117,54 +114,53 @@ export function PriceCard({ propertyId, basePrice: initialPrice, onUpdate }: Pri
                 placeholder="0.00"
                 min="0"
                 step="0.01"
-                className="h-12 pl-8 text-base font-semibold"
+                className="h-12 pl-8 text-base font-semibold border-[#E5DFD2] bg-[#FBFAF6] text-[#1B2430]"
               />
             </div>
           </div>
           <Button
             onClick={handleSaveBasePrice}
             disabled={saving}
-            className="h-12 px-4 font-semibold"
+            className="h-12 px-6 font-semibold bg-[#10203E] hover:bg-[#0c1830] text-white"
           >
             {saving ? 'Salvando...' : 'Salvar'}
           </Button>
         </div>
-        <p className="text-xs text-gray-500 mt-2">
+        <p className="text-xs text-[#4D5566] mt-2">
           Usado como fallback quando não há preço customizado
         </p>
       </div>
 
       {/* Fill Calendar Button */}
-      <div className="mb-6 pb-6 border-b border-gray-200">
+      <div className="pb-6 border-b border-[#E5DFD2]">
         <Button
           onClick={handleFillCalendar}
           disabled={saving || !basePrice}
-          variant="outline"
-          className="w-full h-12 text-base font-semibold"
+          className="w-full h-12 text-base font-semibold border-[#E5DFD2] border bg-white text-[#1B2430] hover:bg-[#F7F5EF]"
         >
           📅 Preencher Calendário com Preço Base
         </Button>
-        <p className="text-xs text-gray-500 mt-2">
+        <p className="text-xs text-[#4D5566] mt-2">
           Preenche todos os dias vazios do mês com o preço base
         </p>
       </div>
 
       {/* Period/Day Customization Hint */}
-      <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-        <p className="text-sm font-medium text-blue-900 mb-2">💡 Preços Customizados</p>
-        <p className="text-xs text-blue-800">
+      <div className="p-4 bg-[#FBFAF6] rounded-lg border border-[#E5DFD2]">
+        <p className="text-sm font-semibold text-[#1B2430] mb-2">💡 Preços Customizados</p>
+        <p className="text-xs text-[#4D5566]">
           Clique em um dia ou selecione um período no calendário para definir preços específicos
         </p>
       </div>
 
-      {/* Smart Pricing Section (TODO) */}
-      <div className="mb-6 pb-6 border-b border-gray-200">
-        <div className="flex items-center justify-between p-4 bg-amber-50 rounded-lg border border-amber-200">
+      {/* Smart Pricing Section */}
+      <div className="pb-6 border-b border-[#E5DFD2]">
+        <div className="flex items-center justify-between p-4 bg-[#FBFAF6] rounded-lg border border-[#E5DFD2]">
           <div className="flex-1">
-            <Label className="text-sm font-semibold mb-1 block">
+            <Label className="text-sm font-semibold text-[#1B2430] mb-1 block">
               Preços Inteligentes
             </Label>
-            <p className="text-xs text-gray-600">
+            <p className="text-xs text-[#4D5566]">
               Ajuste automático baseado em demanda (em desenvolvimento)
             </p>
           </div>
@@ -179,13 +175,13 @@ export function PriceCard({ propertyId, basePrice: initialPrice, onUpdate }: Pri
 
       {/* Smart Pricing Fields (disabled) */}
       {smartPricingEnabled && (
-        <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
+        <div className="space-y-4 p-4 bg-[#F7F5EF] rounded-lg">
           <div>
-            <Label htmlFor="minPrice" className="text-sm mb-2 block">
+            <Label htmlFor="minPrice" className="text-sm font-semibold text-[#1B2430] mb-2 block">
               Preço Mínimo por Noite
             </Label>
             <div className="relative">
-              <span className="absolute left-3 top-3 text-lg font-semibold text-gray-400">
+              <span className="absolute left-3 top-3 text-lg font-semibold text-[#4D5566]">
                 €
               </span>
               <Input
@@ -195,16 +191,16 @@ export function PriceCard({ propertyId, basePrice: initialPrice, onUpdate }: Pri
                 onChange={(e) => setMinPrice(e.target.value)}
                 placeholder="0.00"
                 disabled={true}
-                className="h-12 pl-8 text-base opacity-50"
+                className="h-12 pl-8 text-base opacity-50 border-[#E5DFD2] bg-[#FBFAF6]"
               />
             </div>
           </div>
           <div>
-            <Label htmlFor="maxPrice" className="text-sm mb-2 block">
+            <Label htmlFor="maxPrice" className="text-sm font-semibold text-[#1B2430] mb-2 block">
               Preço Máximo por Noite
             </Label>
             <div className="relative">
-              <span className="absolute left-3 top-3 text-lg font-semibold text-gray-400">
+              <span className="absolute left-3 top-3 text-lg font-semibold text-[#4D5566]">
                 €
               </span>
               <Input
@@ -214,7 +210,7 @@ export function PriceCard({ propertyId, basePrice: initialPrice, onUpdate }: Pri
                 onChange={(e) => setMaxPrice(e.target.value)}
                 placeholder="0.00"
                 disabled={true}
-                className="h-12 pl-8 text-base opacity-50"
+                className="h-12 pl-8 text-base opacity-50 border-[#E5DFD2] bg-[#FBFAF6]"
               />
             </div>
           </div>
@@ -222,15 +218,13 @@ export function PriceCard({ propertyId, basePrice: initialPrice, onUpdate }: Pri
       )}
 
       {/* Info Section */}
-      <div className="mt-6 p-3 bg-gray-50 rounded-lg flex gap-3">
-        <AlertCircle className="w-5 h-5 text-gray-600 flex-shrink-0 mt-0.5" />
-        <div className="text-xs text-gray-600">
-          <p className="font-medium mb-1">Hierarquia de Preços:</p>
-          <p>
-            Preços diários → Períodos configurados → Preço base
-          </p>
+      <div className="mt-6 p-3 bg-[#F7F5EF] rounded-lg flex gap-3 border border-[#E5DFD2]">
+        <AlertCircle className="w-5 h-5 text-[#1B2430] flex-shrink-0 mt-0.5" />
+        <div className="text-xs text-[#4D5566]">
+          <p className="font-semibold text-[#1B2430] mb-1">Hierarquia de Preços:</p>
+          <p>Preços diários → Períodos configurados → Preço base</p>
         </div>
       </div>
-    </Card>
+    </div>
   )
 }
