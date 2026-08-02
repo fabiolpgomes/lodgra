@@ -14,12 +14,14 @@ interface SimpleCalendarAdapterProps {
   onDayClick: (day: number, year: number, month: number) => void
   onRangeSelect?: (startDay: number, endDay: number, month: number, year: number) => void
   selectedDates: string[] // ISO date strings
+  onMonthChange?: (month: number, year: number) => void
 }
 
 export function SimpleCalendarAdapter({
   onDayClick,
   onRangeSelect,
   selectedDates,
+  onMonthChange,
 }: SimpleCalendarAdapterProps) {
   const today = new Date()
   const [currentMonth, setCurrentMonth] = React.useState(today.getMonth())
@@ -92,6 +94,15 @@ export function SimpleCalendarAdapter({
     setRangeStart(null)
     setRangeEnd(null)
   }
+
+  // Notify parent when month/year changes
+  React.useEffect(() => {
+    // Reset selection on month change
+    setRangeStart(null)
+    setRangeEnd(null)
+    // Notify parent to reload data for new month
+    onMonthChange?.(currentMonth, currentYear)
+  }, [currentMonth, currentYear, onMonthChange])
 
   const monthNames = [
     'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',

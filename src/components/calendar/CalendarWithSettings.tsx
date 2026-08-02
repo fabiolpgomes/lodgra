@@ -11,6 +11,7 @@ interface CalendarWithSettingsProps {
     onDayClick: (day: number, year: number, month: number) => void
     onRangeSelect?: (startDay: number, endDay: number, month: number, year: number) => void
     selectedDates: string[]
+    onMonthChange?: (month: number, year: number) => void
   }>
 }
 
@@ -150,6 +151,16 @@ export function CalendarWithSettings({
     }
   }, [propertyId, selection])
 
+  // Handle month change - reload pricing data
+  const handleMonthChange = useCallback(
+    (month: number, year: number) => {
+      // When month changes, clear selection to prepare for new month's data
+      selection.clearSelection()
+      setSelectedDateStr([])
+    },
+    [selection]
+  )
+
   return (
     <div className="w-full h-screen flex flex-col md:grid md:grid-cols-[1fr_400px] lg:grid-cols-[1fr_450px] gap-0">
       {/* Calendar - Mobile Full Width, Desktop Left */}
@@ -158,6 +169,7 @@ export function CalendarWithSettings({
           onDayClick={handleDayClick}
           onRangeSelect={handleRangeSelect}
           selectedDates={getSelectedDateStrings()}
+          onMonthChange={handleMonthChange}
         />
       </div>
 
