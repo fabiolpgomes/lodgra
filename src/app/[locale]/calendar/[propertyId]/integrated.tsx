@@ -94,7 +94,7 @@ export default function IntegratedCalendarPage() {
     }
 
     fetchData()
-  }, [])
+  }, [propertyId])
 
   if (isLoading) {
     return (
