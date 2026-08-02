@@ -37,15 +37,24 @@ export function PriceCard({ propertyId, basePrice: initialPrice, onUpdate }: Pri
 
       setSaving(true)
 
+      // Get current date and end of month for bulk update
+      const today = new Date()
+      const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0)
+
+      const startDate = today.toISOString().split('T')[0]
+      const endDate = endOfMonth.toISOString().split('T')[0]
+
       const response = await fetch(
         `/api/properties/${propertyId}/pricing/bulk-update`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
+            startDate,
+            endDate,
             price: parseFloat(basePrice),
-            mode: 'fill-empty-month',
           }),
+          credentials: 'include',
         }
       )
 
@@ -53,7 +62,8 @@ export function PriceCard({ propertyId, basePrice: initialPrice, onUpdate }: Pri
         toast.success('Calendário preenchido com sucesso')
         onUpdate?.()
       } else {
-        toast.error('Erro ao preencher calendário')
+        const error = await response.json()
+        toast.error(error?.error || 'Erro ao preencher calendário')
       }
     } catch (error) {
       console.error('Error filling calendar:', error)
