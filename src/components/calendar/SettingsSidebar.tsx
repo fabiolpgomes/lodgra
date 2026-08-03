@@ -57,10 +57,15 @@ export function SettingsSidebar({ propertyId: propPropertyId }: SettingsSidebarP
     const loadData = async () => {
       try {
         const [pricingRes, discountsRes, policiesRes] = await Promise.all([
-          fetch(`/api/properties/${propertyId}/pricing`),
-          fetch(`/api/properties/${propertyId}/discounts`),
-          fetch(`/api/properties/${propertyId}/cancellation-policies`),
+          fetch(`/api/properties/${propertyId}/pricing`, { credentials: 'include' }),
+          fetch(`/api/properties/${propertyId}/discounts`, { credentials: 'include' }),
+          fetch(`/api/properties/${propertyId}/cancellation-policies`, { credentials: 'include' }),
         ])
+
+        // Check if responses are OK before parsing
+        if (!pricingRes.ok) throw new Error(`Pricing API failed: ${pricingRes.status}`)
+        if (!discountsRes.ok) throw new Error(`Discounts API failed: ${discountsRes.status}`)
+        if (!policiesRes.ok) throw new Error(`Policies API failed: ${policiesRes.status}`)
 
         const pricingResult = await pricingRes.json()
         const discountsResult = await discountsRes.json()
