@@ -41,6 +41,12 @@ export async function POST(
 
     // Verify user owns property
     if (property.owner_id !== user.id) {
+      console.error('[bulk-update /pricing] Ownership check failed:', {
+        propertyOwnerId: property.owner_id,
+        userId: user.id,
+        match: property.owner_id === user.id,
+        propertyId
+      })
       return NextResponse.json(
         { success: false, error: 'Forbidden' },
         { status: 403 }
