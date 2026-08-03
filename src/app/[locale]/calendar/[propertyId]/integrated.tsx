@@ -1,5 +1,6 @@
 'use client'
 
+import React, { Suspense, useState, useEffect } from 'react'
 import { CalendarWithSettings } from '@/components/calendar/CalendarWithSettings'
 import { SimpleCalendarAdapter } from '@/components/calendar/SimpleCalendarAdapter'
 import { useParams } from 'next/navigation'
@@ -14,9 +15,29 @@ import { useParams } from 'next/navigation'
  * - Day Click Modal (Price/Block interaction)
  * - Mobile-first responsive layout
  */
+
+// Fallback component for debugging
+function CalendarFallback() {
+  return (
+    <div className="w-full h-screen flex items-center justify-center bg-gray-50">
+      <div className="text-center">
+        <p className="text-red-600 font-bold mb-4">⚠️ Error loading calendar component</p>
+        <p className="text-gray-600 text-sm">Check browser console for details</p>
+      </div>
+    </div>
+  )
+}
+
 export default function IntegratedCalendarPage() {
   const params = useParams()
   const propertyId = params.propertyId as string
+  const [hasError, setHasError] = useState(false)
+  const [componentKey, setComponentKey] = useState(0)
+
+  useEffect(() => {
+    // Force component reload after mount
+    setComponentKey(prev => prev + 1)
+  }, [propertyId])
 
   if (!propertyId) {
     return (
@@ -33,10 +54,34 @@ export default function IntegratedCalendarPage() {
     )
   }
 
+  if (hasError) {
+    return <CalendarFallback />
+  }
+
   return (
-    <CalendarWithSettings
-      propertyId={propertyId}
-      calendarComponent={SimpleCalendarAdapter}
-    />
+    <Suspense fallback={<CalendarFallback />}>
+      <ErrorBoundary onError={() => setHasError(true)}>
+        <CalendarWithSettings
+          key={componentKey}
+          propertyId={propertyId}
+          calendarComponent={SimpleCalendarAdapter}
+        />
+      </ErrorBoundary>
+    </Suspense>
   )
+}
+
+// Simple Error Boundary
+class ErrorBoundary extends React.Component<{
+  children: React.ReactNode
+  onError: () => void
+}> {
+  componentDidCatch(error: Error) {
+    console.error('CalendarWithSettings error:', error)
+    this.props.onError()
+  }
+
+  render() {
+    return this.props.children
+  }
 }
