@@ -1,205 +1,119 @@
 /**
- * Loyalty Score Calculator
- *
- * Calculates loyalty points based on booking history following these rules:
- * - Base: +5 pts per completed stay
- * - Bonus: +10 pts per stay with zero cancellation
- * - Referrals: +15 pts per successful referral
- * - Cap: Maximum 100 pts
+ * Loyalty Discount Calculator (Story 37.5)
+ * Identifies recurring guests and calculates loyalty discount eligibility
  */
 
-/**
- * Represents a booking in the guest's history
- */
-export interface Booking {
-  id: string
-  guest_id: string
-  status: 'confirmed' | 'cancelled' | 'completed'
-  check_in: string | Date
-  check_out: string | Date
-  cancelled_at?: string | Date | null
-  total_amount: number
-  created_at: string | Date
+export interface LoyaltyStatus {
+  is_loyal: boolean
+  average_rating: number | null
+  reservation_count: number
+  eligibility_reason?: string
+}
+
+export interface LoyaltyCalcInput {
+  average_rating: number | null
+  reservation_count: number
+  has_previous_reservations: boolean
+  loyalty_discount_enabled: boolean
+  loyalty_discount_percentage: number
+}
+
+export interface LoyaltyCalcResult {
+  is_eligible: boolean
+  discount_percentage: number
+  discount_amount_eur?: number
+  reason: string
 }
 
 /**
- * Input for loyalty score calculation
+ * Determine if guest qualifies for loyalty discount
  */
-export interface LoyaltyCalculationInput {
-  bookings: Booking[]
-  referral_count?: number
-}
+export function calculateLoyaltyDiscount(input: LoyaltyCalcInput): LoyaltyCalcResult {
+  const {
+    average_rating,
+    reservation_count,
+    has_previous_reservations,
+    loyalty_discount_enabled,
+    loyalty_discount_percentage,
+  } = input
 
-/**
- * Output from loyalty score calculation
- */
-export interface LoyaltyCalculationResult {
-  loyalty_score: number
-  breakdown: {
-    completed_stays: number
-    completed_stays_points: number
-    zero_cancellation_bonus: number
-    referral_points: number
-  }
-  reasoning: string
-}
-
-/**
- * LoyaltyCalculator - Static class for calculating guest loyalty scores
- *
- * @example
- * const result = LoyaltyCalculator.calculate({
- *   bookings: guestBookings,
- *   referral_count: 2
- * })
- */
-export class LoyaltyCalculator {
-  private static readonly BASE_POINTS_PER_STAY = 5
-  private static readonly ZERO_CANCELLATION_BONUS = 10
-  private static readonly REFERRAL_POINTS = 15
-  private static readonly MAX_LOYALTY_SCORE = 100
-
-  /**
-   * Calculate loyalty score for a guest based on booking history
-   *
-   * @param input - Guest's booking history and referral count
-   * @returns Loyalty score and detailed breakdown
-   * @throws Error if input validation fails
-   */
-  static calculate(input: LoyaltyCalculationInput): LoyaltyCalculationResult {
-    // Validate input
-    if (!this.validateInput(input)) {
-      throw new Error('Invalid input: bookings must be an array')
-    }
-
-    const bookings = input.bookings || []
-    const referralCount = input.referral_count || 0
-
-    // Count completed stays
-    const completedStays = bookings.filter(
-      (b) => b.status === 'completed'
-    ).length
-
-    // Calculate base points from completed stays
-    const completedStaysPoints = completedStays * this.BASE_POINTS_PER_STAY
-
-    // Count stays with zero cancellation (completed without cancellation)
-    const zeroCancellationStays = bookings.filter(
-      (b) => b.status === 'completed' && (!b.cancelled_at || b.cancelled_at === null)
-    ).length
-
-    // Calculate zero cancellation bonus
-    const zeroCancellationBonus = zeroCancellationStays * this.ZERO_CANCELLATION_BONUS
-
-    // Calculate referral points
-    const referralPoints = referralCount * this.REFERRAL_POINTS
-
-    // Calculate total and apply cap
-    let totalScore =
-      completedStaysPoints + zeroCancellationBonus + referralPoints
-
-    // Apply maximum cap
-    if (totalScore > this.MAX_LOYALTY_SCORE) {
-      totalScore = this.MAX_LOYALTY_SCORE
-    }
-
-    // Build reasoning string
-    const reasoning = this.buildReasoning(
-      completedStays,
-      completedStaysPoints,
-      zeroCancellationBonus,
-      referralCount,
-      referralPoints,
-      totalScore
-    )
-
+  if (!loyalty_discount_enabled) {
     return {
-      loyalty_score: totalScore,
-      breakdown: {
-        completed_stays: completedStays,
-        completed_stays_points: completedStaysPoints,
-        zero_cancellation_bonus: zeroCancellationBonus,
-        referral_points: referralPoints,
-      },
-      reasoning,
+      is_eligible: false,
+      discount_percentage: 0,
+      reason: 'Loyalty discount disabled for this property',
     }
   }
 
-  /**
-   * Validate loyalty score is within acceptable range
-   *
-   * @param score - The loyalty score to validate
-   * @returns true if score is valid (0-100), false otherwise
-   */
-  static validateScore(score: number): boolean {
-    if (typeof score !== 'number') return false
-    if (score < 0) return false
-    if (score > this.MAX_LOYALTY_SCORE) return false
-    if (!Number.isInteger(score)) return false
-    return true
+  if (!has_previous_reservations) {
+    return {
+      is_eligible: false,
+      discount_percentage: 0,
+      reason: 'First-time guest, loyalty discount not applicable',
+    }
   }
 
-  /**
-   * Validate input data
-   *
-   * @param input - Input to validate
-   * @returns true if valid, false otherwise
-   */
-  private static validateInput(input: LoyaltyCalculationInput): boolean {
-    if (!input) return false
-    if (!Array.isArray(input.bookings)) return false
-    return true
+  if (average_rating !== null && average_rating < 4.8) {
+    return {
+      is_eligible: false,
+      discount_percentage: 0,
+      reason: `Guest rating ${average_rating.toFixed(2)} below 4.8 threshold`,
+    }
   }
 
-  /**
-   * Build human-readable reasoning string
-   *
-   * @param completedStays - Number of completed stays
-   * @param completedStaysPoints - Points from completed stays
-   * @param zeroCancellationBonus - Bonus points from no cancellations
-   * @param referralCount - Number of successful referrals
-   * @param referralPoints - Points from referrals
-   * @param totalScore - Final loyalty score
-   * @returns Human-readable reasoning string
-   */
-  private static buildReasoning(
-    completedStays: number,
-    completedStaysPoints: number,
-    zeroCancellationBonus: number,
-    referralCount: number,
-    referralPoints: number,
-    totalScore: number
-  ): string {
-    const parts: string[] = []
-
-    if (completedStays > 0) {
-      parts.push(
-        `${completedStays} estada${completedStays !== 1 ? 's' : ''} concluída${completedStays !== 1 ? 's' : ''} (${completedStaysPoints} pts)`
-      )
+  if (average_rating !== null && reservation_count < 3) {
+    return {
+      is_eligible: false,
+      discount_percentage: 0,
+      reason: `Insufficient reviews: ${reservation_count} < 3 minimum`,
     }
-
-    if (zeroCancellationBonus > 0) {
-      const cancellationFreeStays = zeroCancellationBonus / this.ZERO_CANCELLATION_BONUS
-      parts.push(
-        `${cancellationFreeStays} estada${cancellationFreeStays !== 1 ? 's' : ''} sem cancelamento (${zeroCancellationBonus} pts bonus)`
-      )
-    }
-
-    if (referralCount > 0) {
-      parts.push(
-        `${referralCount} referência${referralCount !== 1 ? 's' : ''} bem-sucedida${referralCount !== 1 ? 's' : ''} (${referralPoints} pts)`
-      )
-    }
-
-    if (parts.length === 0) {
-      return `Sem histórico de reservas. Pontuação: 0`
-    }
-
-    const reasoningText = parts.join(', ')
-    if (totalScore >= this.MAX_LOYALTY_SCORE) {
-      return `${reasoningText}. Limite máximo alcançado: ${totalScore} pts`
-    }
-
-    return `${reasoningText}. Pontuação total: ${totalScore} pts`
   }
+
+  return {
+    is_eligible: true,
+    discount_percentage: loyalty_discount_percentage,
+    reason: `Loyal guest! ${reservation_count} previous stays, ${average_rating ? `${average_rating.toFixed(2)} rating` : 'unreviewed'}`,
+  }
+}
+
+/**
+ * Apply loyalty discount to a base price
+ * Loyalty discount is ADDITIONAL to duration discounts (multiplicative)
+ */
+export function applyLoyaltyDiscount(
+  priceAfterDurationDiscount: number,
+  loyaltyDiscountPercentage: number
+): { final_price: number; loyalty_amount: number } {
+  if (loyaltyDiscountPercentage <= 0) {
+    return { final_price: priceAfterDurationDiscount, loyalty_amount: 0 }
+  }
+
+  const loyaltyAmount = Math.round(
+    (priceAfterDurationDiscount * loyaltyDiscountPercentage) / 100
+  )
+  const finalPrice = Math.round(priceAfterDurationDiscount - loyaltyAmount)
+
+  return {
+    final_price: finalPrice,
+    loyalty_amount: loyaltyAmount,
+  }
+}
+
+/**
+ * Format loyalty discount for display
+ */
+export function formatLoyaltyMessage(
+  isEligible: boolean,
+  discountPercentage: number,
+  discountAmount?: number
+): string {
+  if (!isEligible) {
+    return ''
+  }
+
+  if (discountAmount !== undefined) {
+    return `🎁 Desconto Fidelidade: -€${(discountAmount / 100).toFixed(2)} (${discountPercentage}%)`
+  }
+
+  return `🎁 Desconto Fidelidade: ${discountPercentage}%`
 }
