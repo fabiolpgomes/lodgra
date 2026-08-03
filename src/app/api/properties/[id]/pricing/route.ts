@@ -126,16 +126,6 @@ export async function PUT(
       )
     }
 
-    // Validate session consistency to prevent drift
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session?.user) {
-      console.error('[PUT /pricing] Session validation failed')
-      return NextResponse.json(
-        { error: 'Session invalid' },
-        { status: 401 }
-      )
-    }
-
     const body: PricingData = await req.json()
 
     // Normalize input (accept both camelCase and snake_case)
@@ -182,8 +172,15 @@ export async function PUT(
     }
 
     // Verify user owns property
+    console.log('[PUT /pricing] Checking ownership:', {
+      propertyOwnerId: property.owner_id,
+      userId: user.id,
+      propertyId,
+      match: property.owner_id === user.id
+    })
+
     if (property.owner_id !== user.id) {
-      console.error('[PUT /pricing] Ownership check failed:', {
+      console.error('[PUT /pricing] Ownership check FAILED:', {
         propertyOwnerId: property.owner_id,
         userId: user.id,
         match: property.owner_id === user.id
