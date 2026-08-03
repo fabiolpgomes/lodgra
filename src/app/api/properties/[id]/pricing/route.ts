@@ -41,10 +41,10 @@ export async function GET(
       )
     }
 
-    // Verify ownership
+    // Verify ownership via owners table JOIN
     const { data: property, error: propertyError } = await supabase
       .from('properties')
-      .select('id, owner_id')
+      .select('id, owner_id, owners(id, user_id)')
       .eq('id', propertyId)
       .single()
 
@@ -55,8 +55,9 @@ export async function GET(
       )
     }
 
-    // Verify user owns property
-    if (property.owner_id !== user.id) {
+    // Verify user owns property by checking owners.user_id
+    const owners = Array.isArray(property.owners) ? property.owners[0] : property.owners
+    if (owners?.user_id !== user.id) {
       return NextResponse.json(
         { error: 'Forbidden' },
         { status: 403 }
@@ -156,10 +157,10 @@ export async function PUT(
       }
     }
 
-    // Verify ownership
+    // Verify ownership via owners table JOIN
     const { data: property, error: propertyError } = await supabase
       .from('properties')
-      .select('id, owner_id')
+      .select('id, owner_id, owners(id, user_id)')
       .eq('id', propertyId)
       .single()
 
@@ -171,19 +172,22 @@ export async function PUT(
       )
     }
 
-    // Verify user owns property
+    // Verify user owns property by checking owners.user_id
+    const owners = Array.isArray(property.owners) ? property.owners[0] : property.owners
+    const ownerUserId = owners?.user_id
     console.log('[PUT /pricing] Checking ownership:', {
-      propertyOwnerId: property.owner_id,
-      userId: user.id,
       propertyId,
-      match: property.owner_id === user.id
+      ownerId: property.owner_id,
+      ownerUserId,
+      userId: user.id,
+      match: ownerUserId === user.id
     })
 
-    if (property.owner_id !== user.id) {
+    if (ownerUserId !== user.id) {
       console.error('[PUT /pricing] Ownership check FAILED:', {
-        propertyOwnerId: property.owner_id,
+        ownerUserId,
         userId: user.id,
-        match: property.owner_id === user.id
+        match: ownerUserId === user.id
       })
       return NextResponse.json(
         { error: 'Forbidden' },
