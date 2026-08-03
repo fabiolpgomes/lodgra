@@ -13,15 +13,21 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
   try {
     const supabase = await createClient()
+    const userId = await getAuthUserId(request)
 
-    // Verify ownership
+    if (!userId) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Verify ownership via owners table JOIN
     const { data: property } = await supabase
       .from('properties')
-      .select('owner_id')
+      .select('id, owner_id, owners(id, user_id)')
       .eq('id', propertyId)
       .single()
 
-    if (!property || property.owner_id !== (await getAuthUserId(request))) {
+    const owners = Array.isArray(property?.owners) ? property?.owners[0] : property?.owners
+    if (!property || owners?.user_id !== userId) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 403 })
     }
 
@@ -50,15 +56,21 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   try {
     const supabase = await createClient()
     const body = await request.json()
+    const userId = await getAuthUserId(request)
 
-    // Verify ownership
+    if (!userId) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Verify ownership via owners table JOIN
     const { data: property } = await supabase
       .from('properties')
-      .select('owner_id')
+      .select('id, owner_id, owners(id, user_id)')
       .eq('id', propertyId)
       .single()
 
-    if (!property || property.owner_id !== (await getAuthUserId(request))) {
+    const owners = Array.isArray(property?.owners) ? property?.owners[0] : property?.owners
+    if (!property || owners?.user_id !== userId) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 403 })
     }
 
