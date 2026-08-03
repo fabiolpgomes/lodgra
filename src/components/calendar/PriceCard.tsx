@@ -89,9 +89,10 @@ export function PriceCard({ propertyId, basePrice: initialPrice, weekendPrice: i
       setSaving(true)
 
       const response = await fetch(`/api/properties/${propertyId}/pricing`, {
-        method: 'POST',
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ basePrice: price }),
+        body: JSON.stringify({ base_price: price }),
+        credentials: 'include',
       })
 
       if (response.ok) {
@@ -155,7 +156,7 @@ export function PriceCard({ propertyId, basePrice: initialPrice, weekendPrice: i
         <div className="flex gap-3">
           <div className="flex-1">
             <div className="relative">
-              <span className="absolute left-3 top-3 text-lg font-semibold text-[#4D5566]">
+              <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-sm font-semibold text-[#4D5566] pointer-events-none">
                 €
               </span>
               <Input
@@ -166,7 +167,7 @@ export function PriceCard({ propertyId, basePrice: initialPrice, weekendPrice: i
                 placeholder="0.00"
                 min="0"
                 step="0.01"
-                className="h-12 pl-8 text-base font-semibold border-[#E5DFD2] bg-[#FBFAF6] text-[#1B2430]"
+                className="h-12 pl-10 pr-4 text-base font-semibold border-[#E5DFD2] bg-[#FBFAF6] text-[#1B2430]"
               />
             </div>
           </div>
@@ -191,7 +192,7 @@ export function PriceCard({ propertyId, basePrice: initialPrice, weekendPrice: i
         <div className="flex gap-3">
           <div className="flex-1">
             <div className="relative">
-              <span className="absolute left-3 top-3 text-lg font-semibold text-[#4D5566]">
+              <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-sm font-semibold text-[#4D5566] pointer-events-none">
                 €
               </span>
               <Input
@@ -202,7 +203,7 @@ export function PriceCard({ propertyId, basePrice: initialPrice, weekendPrice: i
                 placeholder="0.00"
                 min="0"
                 step="0.01"
-                className="h-12 pl-8 text-base font-semibold border-[#E5DFD2] bg-[#FBFAF6] text-[#1B2430]"
+                className="h-12 pl-10 pr-4 text-base font-semibold border-[#E5DFD2] bg-[#FBFAF6] text-[#1B2430]"
               />
             </div>
           </div>
