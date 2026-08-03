@@ -48,11 +48,6 @@ export function CalendarWithSettings({
   const locale = (params.locale as string) || 'pt-BR'
 
   const selection = useCalendarSelection(propertyId)
-
-  // Debug: Log component render
-  React.useEffect(() => {
-    console.log('CalendarWithSettings rendered with propertyId:', propertyId)
-  }, [propertyId])
   const [selectedDateStr, setSelectedDateStr] = useState<string[]>([])
   const [reservations, setReservations] = useState<Reservation[]>([])
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth())

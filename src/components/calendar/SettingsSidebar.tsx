@@ -33,9 +33,13 @@ export function SettingsSidebar({ propertyId: propPropertyId }: SettingsSidebarP
   const params = useParams()
   const propertyId = propPropertyId || (params?.propertyId as string | undefined)
 
-  // Debug: Log if component rendered
+  // Debug: Log if component rendered (only once per mount)
   if (typeof window !== 'undefined') {
-    console.log('SettingsSidebar rendered with propertyId:', propertyId)
+    if (propertyId && propertyId.includes('-')) {
+      console.log('[SettingsSidebar] propertyId:', propertyId, 'type:', typeof propertyId)
+    } else if (!propertyId) {
+      console.error('[SettingsSidebar] propertyId is null/undefined!')
+    }
   }
 
   const [activeTab, setActiveTab] = useState<TabName>('prices')
@@ -152,11 +156,11 @@ export function SettingsSidebar({ propertyId: propPropertyId }: SettingsSidebarP
   }
 
   if (loading) {
-    return <div className="settings-sidebar">Carregando...</div>
-  }
-
-  if (!pricing) {
-    return <div className="settings-sidebar">Erro ao carregar preços</div>
+    return (
+      <div className="settings-sidebar space-y-4 md:space-y-6 p-4 md:p-6">
+        <div className="text-center text-gray-500">Carregando configurações...</div>
+      </div>
+    )
   }
 
   return (

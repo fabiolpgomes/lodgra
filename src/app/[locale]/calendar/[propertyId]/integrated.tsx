@@ -1,6 +1,6 @@
 'use client'
 
-import React, { Suspense, useState, useEffect } from 'react'
+import React, { Suspense, useState } from 'react'
 import { CalendarWithSettings } from '@/components/calendar/CalendarWithSettings'
 import { SimpleCalendarAdapter } from '@/components/calendar/SimpleCalendarAdapter'
 import { useParams } from 'next/navigation'
@@ -32,12 +32,6 @@ export default function IntegratedCalendarPage() {
   const params = useParams()
   const propertyId = params.propertyId as string
   const [hasError, setHasError] = useState(false)
-  const [componentKey, setComponentKey] = useState(0)
-
-  useEffect(() => {
-    // Force component reload after mount
-    setComponentKey(prev => prev + 1)
-  }, [propertyId])
 
   if (!propertyId) {
     return (
@@ -62,7 +56,6 @@ export default function IntegratedCalendarPage() {
     <Suspense fallback={<CalendarFallback />}>
       <ErrorBoundary onError={() => setHasError(true)}>
         <CalendarWithSettings
-          key={componentKey}
           propertyId={propertyId}
           calendarComponent={SimpleCalendarAdapter}
         />
