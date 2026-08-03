@@ -3,7 +3,7 @@
  * POST /api/properties/:id/pricing/bulk-update
  */
 
-import { createAdminClient } from '@/lib/supabase/admin'
+import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(
@@ -13,12 +13,10 @@ export async function POST(
   const { id: propertyId } = await params
 
   try {
-    const supabase = createAdminClient()
+    const supabase = await createClient()
 
-    // Get current user
-    const { data: { user }, error: userError } = await supabase.auth.getUser(
-      request.headers.get('authorization')?.replace('Bearer ', '') || ''
-    )
+    // Get current user from session
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
 
     if (userError || !user) {
       return NextResponse.json(

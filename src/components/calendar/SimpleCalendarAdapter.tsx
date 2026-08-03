@@ -169,6 +169,10 @@ export function SimpleCalendarAdapter({
             {days.map((day, index) => (
               <div
                 key={index}
+                onClick={() => {
+                  if (!day) return
+                  onDayClick?.(day, currentYear, currentMonth)
+                }}
                 onMouseDown={() => handleDayMouseDown(day)}
                 onMouseEnter={() => handleDayMouseEnter(day)}
                 onTouchStart={() => handleDayMouseDown(day)}
