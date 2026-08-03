@@ -258,8 +258,8 @@ export function CalendarWithSettings({
   )
 
   return (
-    <div className="w-full h-screen flex flex-col md:grid md:grid-cols-[1fr_400px] lg:grid-cols-[1fr_450px] gap-0">
-      {/* Header with back button */}
+    <div className="w-full h-screen flex flex-col">
+      {/* Header with back button - always full width */}
       <div
         className="flex items-center gap-3 p-4 border-b"
         style={{ borderColor: '#E5DFD2', backgroundColor: '#FBFAF6' }}
@@ -274,20 +274,23 @@ export function CalendarWithSettings({
         </button>
       </div>
 
-      {/* Calendar - Mobile Full Width, Desktop Left */}
-      <div className="flex-1 overflow-auto">
-        <CalendarComponent
-          onDayClick={handleDayClick}
-          onRangeSelect={handleRangeSelect}
-          selectedDates={getSelectedDateStrings()}
-          onMonthChange={handleMonthChange}
-          reservations={reservations}
-        />
-      </div>
+      {/* Grid container for calendar and sidebar */}
+      <div className="flex-1 flex flex-col md:grid md:grid-cols-[1fr_400px] lg:grid-cols-[1fr_450px] gap-0">
+        {/* Calendar - Mobile Full Width, Desktop Left */}
+        <div className="flex-1 overflow-auto">
+          <CalendarComponent
+            onDayClick={handleDayClick}
+            onRangeSelect={handleRangeSelect}
+            selectedDates={getSelectedDateStrings()}
+            onMonthChange={handleMonthChange}
+            reservations={reservations}
+          />
+        </div>
 
-      {/* Settings Sidebar - Mobile Bottom Sheet, Desktop Right */}
-      <div className="md:overflow-auto" style={{ borderTop: '1px solid #E5DFD2', borderLeft: '1px solid #E5DFD2', backgroundColor: '#FBFAF6' }}>
-        <SettingsSidebar key={propertyId} propertyId={propertyId} />
+        {/* Settings Sidebar - Mobile Bottom Sheet, Desktop Right */}
+        <div className="md:overflow-auto" style={{ borderTop: '1px solid #E5DFD2', borderLeft: '1px solid #E5DFD2', backgroundColor: '#FBFAF6' }}>
+          <SettingsSidebar key={propertyId} propertyId={propertyId} />
+        </div>
       </div>
 
       {/* Day Click Modal */}
