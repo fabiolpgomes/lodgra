@@ -33,6 +33,11 @@ export function SettingsSidebar({ propertyId: propPropertyId }: SettingsSidebarP
   const params = useParams()
   const propertyId = propPropertyId || (params?.propertyId as string | undefined)
 
+  // Debug: Log if component rendered
+  if (typeof window !== 'undefined') {
+    console.log('SettingsSidebar rendered with propertyId:', propertyId)
+  }
+
   const [activeTab, setActiveTab] = useState<TabName>('prices')
   const [pricing, setPricing] = useState<PricingData | null>(null)
   const [discounts, setDiscounts] = useState<PropertyDiscount[]>([])
