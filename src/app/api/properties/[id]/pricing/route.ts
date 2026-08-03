@@ -119,6 +119,7 @@ export async function PUT(
     const { data: { user }, error: userError } = await supabase.auth.getUser()
 
     if (userError || !user) {
+      console.error('[PUT /pricing] Auth error:', userError)
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -132,6 +133,13 @@ export async function PUT(
     const weekendPrice = body.weekend_price || body.weekendPrice
 
     // Validation
+    if (!basePrice) {
+      return NextResponse.json(
+        { error: 'base_price is required' },
+        { status: 400 }
+      )
+    }
+
     if (basePrice && basePrice < 1) {
       return NextResponse.json(
         { error: 'base_price must be >= 1' },
@@ -156,6 +164,7 @@ export async function PUT(
       .single()
 
     if (propertyError || !property) {
+      console.error('[PUT /pricing] Property lookup error:', propertyError)
       return NextResponse.json(
         { error: 'Property not found' },
         { status: 404 }
@@ -164,6 +173,11 @@ export async function PUT(
 
     // Verify user owns property
     if (property.owner_id !== user.id) {
+      console.error('[PUT /pricing] Ownership check failed:', {
+        propertyOwnerId: property.owner_id,
+        userId: user.id,
+        match: property.owner_id === user.id
+      })
       return NextResponse.json(
         { error: 'Forbidden' },
         { status: 403 }
