@@ -126,6 +126,16 @@ export async function PUT(
       )
     }
 
+    // Validate session consistency to prevent drift
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session?.user) {
+      console.error('[PUT /pricing] Session validation failed')
+      return NextResponse.json(
+        { error: 'Session invalid' },
+        { status: 401 }
+      )
+    }
+
     const body: PricingData = await req.json()
 
     // Normalize input (accept both camelCase and snake_case)

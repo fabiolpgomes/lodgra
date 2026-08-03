@@ -169,11 +169,6 @@ export function SimpleCalendarAdapter({
             {days.map((day, index) => (
               <div
                 key={index}
-                onClick={() => {
-                  if (!day) return
-                  console.log('[SimpleCalendar] Day clicked:', { day, currentYear, currentMonth })
-                  onDayClick?.(day, currentYear, currentMonth)
-                }}
                 onMouseDown={() => handleDayMouseDown(day)}
                 onMouseEnter={() => handleDayMouseEnter(day)}
                 onTouchStart={() => handleDayMouseDown(day)}
