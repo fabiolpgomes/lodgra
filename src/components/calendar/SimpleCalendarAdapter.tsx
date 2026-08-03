@@ -171,6 +171,7 @@ export function SimpleCalendarAdapter({
                 key={index}
                 onClick={() => {
                   if (!day) return
+                  console.log('[SimpleCalendar] Day clicked:', { day, currentYear, currentMonth })
                   onDayClick?.(day, currentYear, currentMonth)
                 }}
                 onMouseDown={() => handleDayMouseDown(day)}
