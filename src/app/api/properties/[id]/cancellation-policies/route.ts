@@ -4,7 +4,7 @@
  * POST: Create or seed default policies
  */
 
-import { createAdminClient } from '@/lib/supabase/admin'
+import { createClient } from '@/lib/supabase/server'
 import { PropertyCancellationPolicy, CreateCancellationPolicyPayload, DEFAULT_POLICIES } from '@/types/cancellation.types'
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -12,7 +12,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const { id: propertyId } = await params
 
   try {
-    const supabase = await createAdminClient()
+    const supabase = await createClient()
 
     // Verify ownership
     const { data: property } = await supabase
@@ -48,7 +48,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   const { id: propertyId } = await params
 
   try {
-    const supabase = await createAdminClient()
+    const supabase = await createClient()
     const body = await request.json()
 
     // Verify ownership

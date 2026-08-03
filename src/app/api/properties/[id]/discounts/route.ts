@@ -3,14 +3,14 @@
  * GET/POST /api/properties/:id/discounts
  */
 
-import { createAdminClient } from '@/lib/supabase/admin';
+import { createClient } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 import { ApiResponse, CreateDiscountPayload, PropertyDiscount } from '@/types/pricing.types';
 
 
 async function validatePropertyOwnership(propertyId: string, userId: string): Promise<boolean> {
-  const supabase = await createAdminClient();
+  const supabase = await createClient();
   const { data } = await supabase
     .from('properties')
     .select('id')
@@ -28,7 +28,7 @@ export async function GET(
 ): Promise<NextResponse<ApiResponse>> {
   const { id } = await params;
   try {
-    const supabase = await createAdminClient();
+    const supabase = await createClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -75,7 +75,7 @@ export async function POST(
 ): Promise<NextResponse<ApiResponse>> {
   const { id } = await params;
   try {
-    const supabase = await createAdminClient();
+    const supabase = await createClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();

@@ -5,7 +5,7 @@
  * Story 37.1: Card Preços (Funcional)
  */
 
-import { createAdminClient } from '@/lib/supabase/admin'
+import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 
 interface PricingData {
@@ -29,12 +29,10 @@ export async function GET(
   const { id: propertyId } = await params
 
   try {
-    const supabase = await createAdminClient()
+    const supabase = await createClient()
 
-    // Get current user
-    const { data: { user }, error: userError } = await supabase.auth.getUser(
-      req.headers.get('authorization')?.replace('Bearer ', '') || ''
-    )
+    // Get current user from session cookie
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
 
     if (userError || !user) {
       return NextResponse.json(
@@ -115,12 +113,10 @@ export async function PUT(
   const { id: propertyId } = await params
 
   try {
-    const supabase = await createAdminClient()
+    const supabase = await createClient()
 
-    // Get current user
-    const { data: { user }, error: userError } = await supabase.auth.getUser(
-      req.headers.get('authorization')?.replace('Bearer ', '') || ''
-    )
+    // Get current user from session cookie
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
 
     if (userError || !user) {
       return NextResponse.json(
