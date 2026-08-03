@@ -4,7 +4,7 @@
  * DELETE: Remove policy
  */
 
-import { createAdminClient } from '@/lib/supabase/admin'
+import { createClient } from '@/lib/supabase/server'
 import { UpdateCancellationPolicyPayload } from '@/types/cancellation.types'
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -15,7 +15,7 @@ export async function PUT(
   const { id: propertyId, policyId } = await params
 
   try {
-    const supabase = await createAdminClient()
+    const supabase = await createClient()
     const body: UpdateCancellationPolicyPayload = await request.json()
 
     // Verify ownership
@@ -77,7 +77,7 @@ export async function DELETE(
   const { id: propertyId, policyId } = await params
 
   try {
-    const supabase = await createAdminClient()
+    const supabase = await createClient()
 
     // Verify ownership
     const { data: property } = await supabase
@@ -136,11 +136,7 @@ export async function DELETE(
 }
 
 async function getAuthUserId(request: NextRequest): Promise<string | null> {
-  const authHeader = request.headers.get('authorization')
-  if (!authHeader) return null
-
-  const token = authHeader.replace('Bearer ', '')
-  const supabase = await createAdminClient()
-  const { data } = await supabase.auth.getUser(token)
-  return data.user?.id || null
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  return user?.id || null
 }

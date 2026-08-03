@@ -126,11 +126,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 }
 
 async function getAuthUserId(request: NextRequest): Promise<string | null> {
-  const authHeader = request.headers.get('authorization')
-  if (!authHeader) return null
-
-  const token = authHeader.replace('Bearer ', '')
-  const supabase = await createAdminClient()
-  const { data } = await supabase.auth.getUser(token)
-  return data.user?.id || null
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  return user?.id || null
 }

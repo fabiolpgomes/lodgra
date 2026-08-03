@@ -51,14 +51,46 @@ export function SettingsSidebar({ propertyId: propPropertyId }: SettingsSidebarP
   const [editorMonth, setEditorMonth] = useState(new Date())
 
   // Load pricing and discount data on mount
-  // DISABLED: Caused infinite loop with 401/403/404 errors
-  // TODO: Fix authentication issues before re-enabling
   useEffect(() => {
-    setLoading(false)
-    // Temporarily disabled to stop infinite fetch loop
-    // if (!propertyId) return
-    // const loadData = async () => { ... }
-    // loadData()
+    if (!propertyId) return
+
+    const loadData = async () => {
+      try {
+        // Fetch pricing data
+        const pricingRes = await fetch(`/api/properties/${propertyId}/pricing`, {
+          credentials: 'include'
+        })
+        if (pricingRes.ok) {
+          const pricingData = await pricingRes.json()
+          setPricing(pricingData.data)
+        }
+
+        // Fetch discounts
+        const discountsRes = await fetch(`/api/properties/${propertyId}/discounts`, {
+          credentials: 'include'
+        })
+        if (discountsRes.ok) {
+          const discountsData = await discountsRes.json()
+          setDiscounts(discountsData.data || [])
+        }
+
+        // Fetch cancellation policies
+        const policiesRes = await fetch(`/api/properties/${propertyId}/cancellation-policies`, {
+          credentials: 'include'
+        })
+        if (policiesRes.ok) {
+          const policiesData = await policiesRes.json()
+          setCancellationPolicies(policiesData.data || [])
+        }
+
+        setLoading(false)
+      } catch (error) {
+        console.error('Error loading settings data:', error)
+        setLoading(false)
+      }
+    }
+
+    loadData()
   }, [propertyId])
 
 
