@@ -161,7 +161,23 @@ export class PricingCalculator {
         }
       }
 
-      // 5. RETURN RESULT
+      // 5. APPLY LOYALTY DISCOUNT (Story 37.5) — ADDITIONAL to duration discounts
+      const loyaltyDiscountPercentage = (config as any).loyaltyDiscountPercentage ?? 0;
+      const isLoyalGuest = (config as any).isLoyalGuest ?? false;
+
+      if (isLoyalGuest && loyaltyDiscountPercentage > 0) {
+        const loyaltyAmount = total * (loyaltyDiscountPercentage / 100);
+        breakdown.push({
+          component: 'discount_loyalty' as any,
+          nightCount: nights,
+          ratePerNight: 0,
+          value: -loyaltyAmount,
+          reason: `🎁 Loyalty discount ${(loyaltyDiscountPercentage).toFixed(0)}% for returning guest`,
+        });
+        total -= loyaltyAmount;
+      }
+
+      // 6. RETURN RESULT
       const avgNightly = nights > 0 ? Math.round((total / nights) * 100) / 100 : 0;
 
       return {
