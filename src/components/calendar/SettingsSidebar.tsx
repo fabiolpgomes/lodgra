@@ -51,45 +51,14 @@ export function SettingsSidebar({ propertyId: propPropertyId }: SettingsSidebarP
   const [editorMonth, setEditorMonth] = useState(new Date())
 
   // Load pricing and discount data on mount
+  // DISABLED: Caused infinite loop with 401/403/404 errors
+  // TODO: Fix authentication issues before re-enabling
   useEffect(() => {
-    if (!propertyId) return
-
-    const loadData = async () => {
-      try {
-        const [pricingRes, discountsRes, policiesRes] = await Promise.all([
-          fetch(`/api/properties/${propertyId}/pricing`, { credentials: 'include' }),
-          fetch(`/api/properties/${propertyId}/discounts`, { credentials: 'include' }),
-          fetch(`/api/properties/${propertyId}/cancellation-policies`, { credentials: 'include' }),
-        ])
-
-        // Check if responses are OK before parsing
-        if (!pricingRes.ok) throw new Error(`Pricing API failed: ${pricingRes.status}`)
-        if (!discountsRes.ok) throw new Error(`Discounts API failed: ${discountsRes.status}`)
-        if (!policiesRes.ok) throw new Error(`Policies API failed: ${policiesRes.status}`)
-
-        const pricingResult = await pricingRes.json()
-        const discountsResult = await discountsRes.json()
-        const policiesResult = await policiesRes.json()
-
-        if (pricingResult.success) {
-          setPricing(pricingResult.data)
-        }
-
-        if (discountsResult.success && discountsResult.data) {
-          setDiscounts(discountsResult.data)
-        }
-
-        if (policiesResult.success && policiesResult.data) {
-          setCancellationPolicies(policiesResult.data)
-        }
-      } catch (error) {
-        console.error('Error loading data:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    loadData()
+    setLoading(false)
+    // Temporarily disabled to stop infinite fetch loop
+    // if (!propertyId) return
+    // const loadData = async () => { ... }
+    // loadData()
   }, [propertyId])
 
 
