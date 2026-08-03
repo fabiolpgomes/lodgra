@@ -282,7 +282,7 @@ export function CalendarWithSettings({
 
       {/* Settings Sidebar - Mobile Bottom Sheet, Desktop Right */}
       <div className="md:overflow-auto" style={{ borderTop: '1px solid #E5DFD2', borderLeft: '1px solid #E5DFD2', backgroundColor: '#FBFAF6' }}>
-        <SettingsSidebar key={propertyId} />
+        <SettingsSidebar key={propertyId} propertyId={propertyId} />
       </div>
 
       {/* Day Click Modal */}

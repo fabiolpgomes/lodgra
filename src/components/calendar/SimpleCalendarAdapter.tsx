@@ -92,7 +92,15 @@ export function SimpleCalendarAdapter({
     if (isDragging && rangeStart !== null && rangeEnd !== null) {
       const start = Math.min(rangeStart, rangeEnd)
       const end = Math.max(rangeStart, rangeEnd)
-      onRangeSelect?.(start, end, currentMonth, currentYear)
+
+      // If single day click (no drag), call onDayClick
+      if (start === end) {
+        onDayClick?.(start, currentYear, currentMonth)
+      } else {
+        // If range selection, call onRangeSelect
+        onRangeSelect?.(start, end, currentMonth, currentYear)
+      }
+
       setRangeStart(null)
       setRangeEnd(null)
     }

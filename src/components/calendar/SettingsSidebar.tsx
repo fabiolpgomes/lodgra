@@ -25,9 +25,13 @@ const AVERAGES = {
   monthly: 1724,
 }
 
-export function SettingsSidebar() {
+interface SettingsSidebarProps {
+  propertyId?: string
+}
+
+export function SettingsSidebar({ propertyId: propPropertyId }: SettingsSidebarProps = {}) {
   const params = useParams()
-  const propertyId = params?.propertyId as string | undefined
+  const propertyId = propPropertyId || (params?.propertyId as string | undefined)
 
   const [activeTab, setActiveTab] = useState<TabName>('prices')
   const [pricing, setPricing] = useState<PricingData | null>(null)
