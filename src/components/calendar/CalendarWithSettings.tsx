@@ -56,25 +56,16 @@ export function CalendarWithSettings({
   // Convert selection to date strings for calendar highlighting
   const getSelectedDateStrings = useCallback(() => {
     return selection.state.selectedDates.map((d) => d.toISOString().split('T')[0])
-  }, [selection.state.selectedDates])
+  }, [])
 
   // Handle day click from calendar
   const handleDayClick = useCallback(
     (day: number, year: number, month: number) => {
       const clickedDate = new Date(year, month, day)
-
-      // Toggle single day
       selection.toggleDay(clickedDate)
-      setSelectedDateStr(getSelectedDateStrings())
-
-      // Auto-open modal for single day
-      if (selection.state.mode === 'idle') {
-        setTimeout(() => {
-          selection.openPriceModal(clickedDate)
-        }, 100)
-      }
+      selection.openPriceModal(clickedDate)
     },
-    [selection, getSelectedDateStrings]
+    []
   )
 
   // Handle range selection from calendar
@@ -82,20 +73,13 @@ export function CalendarWithSettings({
     (startDay: number, endDay: number, month: number, year: number) => {
       const startDate = new Date(year, month, startDay)
       const endDate = new Date(year, month, endDay)
-
-      // Select date range
       selection.selectDateRange(startDate, endDate)
-      setSelectedDateStr(getSelectedDateStrings())
-
-      // Auto-open modal for date range
-      setTimeout(() => {
-        selection.openPriceModal({
-          start: startDate,
-          end: endDate,
-        })
-      }, 100)
+      selection.openPriceModal({
+        start: startDate,
+        end: endDate,
+      })
     },
-    [selection, getSelectedDateStrings]
+    []
   )
 
   // Handle save price from modal
@@ -120,6 +104,7 @@ export function CalendarWithSettings({
               endDate: endDate.toISOString().split('T')[0],
               price,
             }),
+            credentials: 'include',
           }
         )
 
@@ -134,7 +119,7 @@ export function CalendarWithSettings({
         throw error
       }
     },
-    [propertyId, selection]
+    [propertyId]
   )
 
   // Handle block dates from modal
@@ -156,6 +141,7 @@ export function CalendarWithSettings({
             endDate: endDate.toISOString().split('T')[0],
             reason: 'blocked-by-owner',
           }),
+          credentials: 'include',
         }
       )
 
@@ -169,7 +155,7 @@ export function CalendarWithSettings({
       console.error('Error blocking dates:', error)
       throw error
     }
-  }, [propertyId, selection])
+  }, [propertyId])
 
   // Fetch daily prices and reservations when month changes
   useEffect(() => {
