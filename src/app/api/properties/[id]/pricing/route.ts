@@ -204,12 +204,23 @@ export async function PUT(
 
     // Handle error - PGRST116 means no rows found (expected for new properties)
     if (existingError && existingError.code !== 'PGRST116') {
-      console.error('Error checking existing pricing:', existingError)
+      console.error('[PUT /pricing] Error checking existing pricing:', {
+        code: existingError.code,
+        message: existingError.message,
+        details: existingError,
+        propertyId
+      })
       return NextResponse.json(
-        { error: 'Failed to check existing pricing' },
+        { error: 'Failed to check existing pricing', details: existingError.message },
         { status: 500 }
       )
     }
+
+    console.log('[PUT /pricing] Pricing check:', {
+      existing: !!existing,
+      existingError: existingError?.code,
+      propertyId
+    })
 
     let result
 
