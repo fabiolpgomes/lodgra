@@ -196,11 +196,20 @@ export async function PUT(
     }
 
     // Check if pricing record exists
-    const { data: existing } = await supabase
+    const { data: existing, error: existingError } = await supabase
       .from('property_prices')
       .select('id')
       .eq('property_id', propertyId)
       .single()
+
+    // Handle error - PGRST116 means no rows found (expected for new properties)
+    if (existingError && existingError.code !== 'PGRST116') {
+      console.error('Error checking existing pricing:', existingError)
+      return NextResponse.json(
+        { error: 'Failed to check existing pricing' },
+        { status: 500 }
+      )
+    }
 
     let result
 
