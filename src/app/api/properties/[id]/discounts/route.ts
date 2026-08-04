@@ -13,12 +13,13 @@ async function validatePropertyOwnership(propertyId: string, userId: string): Pr
   const supabase = await createClient();
   const { data } = await supabase
     .from('properties')
-    .select('id')
+    .select('id, owners(id, user_id)')
     .eq('id', propertyId)
-    .eq('owner_id', userId)
     .single();
 
-  return !!data;
+  if (!data) return false;
+  const owners = Array.isArray(data.owners) ? data.owners[0] : data.owners;
+  return owners?.user_id === userId;
 }
 
 // GET /api/properties/:id/discounts
