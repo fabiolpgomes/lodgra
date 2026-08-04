@@ -25,10 +25,10 @@ export async function POST(
       )
     }
 
-    // Verify ownership
+    // Verify ownership via owners table JOIN
     const { data: property, error: propertyError } = await supabase
       .from('properties')
-      .select('id, owner_id')
+      .select('id, owner_id, owners(id, user_id)')
       .eq('id', propertyId)
       .single()
 
@@ -39,12 +39,13 @@ export async function POST(
       )
     }
 
-    // Verify user owns property
-    if (property.owner_id !== user.id) {
+    // Verify user owns property by checking owners.user_id
+    const owners = Array.isArray(property.owners) ? property.owners[0] : property.owners
+    if (owners?.user_id !== user.id) {
       console.error('[bulk-update /pricing] Ownership check failed:', {
-        propertyOwnerId: property.owner_id,
+        ownerUserId: owners?.user_id,
         userId: user.id,
-        match: property.owner_id === user.id,
+        match: owners?.user_id === user.id,
         propertyId
       })
       return NextResponse.json(
