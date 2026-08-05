@@ -85,8 +85,13 @@ export function SimpleCalendarAdapter({
 
   const getReservationForDay = (day: number) => {
     return reservations.find(res => {
-      const d = new Date(currentYear, currentMonth, day)
-      return d >= res.startDate && d <= res.endDate
+      // Compare dates at midnight UTC to handle timezone issues
+      const d = new Date(Date.UTC(currentYear, currentMonth, day))
+      const startDate = new Date(res.startDate)
+      startDate.setHours(0, 0, 0, 0)
+      const endDate = new Date(res.endDate)
+      endDate.setHours(23, 59, 59, 999)
+      return d >= startDate && d <= endDate
     })
   }
 
@@ -252,14 +257,20 @@ export function SimpleCalendarAdapter({
                 }}
               >
                 {day && (
-                  <div className="flex flex-col items-center justify-center w-full h-full gap-1 px-1">
-                    <div className="text-sm font-semibold">{day}</div>
+                  <div className="flex flex-col items-center justify-center w-full h-full gap-0.5 px-0.5 py-1">
+                    <div className="text-sm font-bold">{day}</div>
                     {getReservationForDay(day) ? (
-                      <div className="text-xs font-bold" title="Reservado">
-                        📅
+                      <div className="flex flex-col items-center gap-0.5 w-full">
+                        <div className="text-xs font-bold opacity-90">🛏️</div>
+                        <div className="text-xs font-semibold truncate max-w-full" style={{ color: '#10203E' }}>
+                          {getReservationForDay(day)?.guestName?.substring(0, 8)}
+                        </div>
+                        <div className="text-xs font-bold" style={{ color: '#10203E' }}>
+                          €{getReservationForDay(day)?.price?.toFixed(0)}
+                        </div>
                       </div>
                     ) : getDayPrice(day) ? (
-                      <div className="text-xs font-semibold whitespace-nowrap bg-opacity-20 px-1 py-0.5 rounded" style={{ backgroundColor: '#10203E', color: 'inherit' }}>
+                      <div className="text-xs font-bold whitespace-nowrap" style={{ color: '#10203E' }}>
                         €{getDayPrice(day)?.toFixed(0)}
                       </div>
                     ) : null}
