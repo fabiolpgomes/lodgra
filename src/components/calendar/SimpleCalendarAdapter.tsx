@@ -29,7 +29,7 @@ interface SimpleCalendarAdapterProps {
   dailyPrices?: Record<string, number> // ISO date -> price
 }
 
-export function SimpleCalendarAdapter({
+function SimpleCalendarAdapterComponent({
   onDayClick,
   onRangeSelect,
   selectedDates,
@@ -100,17 +100,40 @@ export function SimpleCalendarAdapter({
     setRangeStart(day)
     setRangeEnd(day)
     setIsDragging(true)
+    // Visual feedback: add scale effect
+    const element = document.querySelector(`[data-day="${day}"]`) as HTMLElement
+    if (element) {
+      element.style.transform = 'scale(0.95)'
+    }
   }
 
   const handleDayMouseEnter = (day: number | null) => {
     if (!isDragging || !day || rangeStart === null) return
     setRangeEnd(day)
+    // Highlight all cells in range with enhanced visual feedback
+    const min = Math.min(rangeStart, day)
+    const max = Math.max(rangeStart, day)
+    for (let i = min; i <= max; i++) {
+      const el = document.querySelector(`[data-day="${i}"]`) as HTMLElement
+      if (el && (i === min || i === max)) {
+        el.style.opacity = '0.8'
+      }
+    }
   }
 
   const handleMouseUp = () => {
     if (isDragging && rangeStart !== null && rangeEnd !== null) {
       const start = Math.min(rangeStart, rangeEnd)
       const end = Math.max(rangeStart, rangeEnd)
+
+      // Visual feedback: highlight selected range with success animation
+      for (let i = start; i <= end; i++) {
+        const el = document.querySelector(`[data-day="${i}"]`) as HTMLElement
+        if (el) {
+          el.style.transform = 'scale(1)'
+          el.style.opacity = '1'
+        }
+      }
 
       // If single day click (no drag), call onDayClick
       if (start === end) {
@@ -149,6 +172,15 @@ export function SimpleCalendarAdapter({
       if (isDragging && rangeStart !== null && rangeEnd !== null) {
         const start = Math.min(rangeStart, rangeEnd)
         const end = Math.max(rangeStart, rangeEnd)
+
+        // Reset visual styles
+        for (let i = start; i <= end; i++) {
+          const el = document.querySelector(`[data-day="${i}"]`) as HTMLElement
+          if (el) {
+            el.style.transform = 'scale(1)'
+            el.style.opacity = '1'
+          }
+        }
 
         if (start === end) {
           onDayClick?.(start, currentYear, currentMonth)
@@ -348,3 +380,5 @@ export function SimpleCalendarAdapter({
     </div>
   )
 }
+
+export const SimpleCalendarAdapter = React.memo(SimpleCalendarAdapterComponent)

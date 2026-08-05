@@ -26,6 +26,8 @@ interface CalendarDayClickModalProps {
   onClose: () => void
   onSavePrice?: (price: number) => Promise<void>
   onBlockDates?: () => Promise<void>
+  onOpenDiscounts?: () => void
+  onOpenCancellationPolicy?: () => void
 }
 
 export function CalendarDayClickModal({
@@ -35,10 +37,12 @@ export function CalendarDayClickModal({
   onClose,
   onSavePrice,
   onBlockDates,
+  onOpenDiscounts,
+  onOpenCancellationPolicy,
 }: CalendarDayClickModalProps) {
   const [price, setPrice] = useState('')
   const [saving, setSaving] = useState(false)
-  const [action, setAction] = useState<'price' | 'block' | null>(null)
+  const [action, setAction] = useState<'price' | 'block' | 'discounts' | 'policy' | null>(null)
 
   if (!dates) return null
 
@@ -134,6 +138,28 @@ export function CalendarDayClickModal({
               >
                 <span className="text-2xl">🔒</span>
                 <span className="text-xs font-semibold">Bloquear Datas</span>
+              </Button>
+              <Button
+                onClick={() => {
+                  onOpenDiscounts?.()
+                  onClose()
+                }}
+                variant="outline"
+                className="h-20 flex flex-col items-center justify-center gap-1"
+              >
+                <span className="text-2xl">🏷️</span>
+                <span className="text-xs font-semibold">Descontos</span>
+              </Button>
+              <Button
+                onClick={() => {
+                  onOpenCancellationPolicy?.()
+                  onClose()
+                }}
+                variant="outline"
+                className="h-20 flex flex-col items-center justify-center gap-1"
+              >
+                <span className="text-2xl">📋</span>
+                <span className="text-xs font-semibold">Cancelamento</span>
               </Button>
             </div>
 

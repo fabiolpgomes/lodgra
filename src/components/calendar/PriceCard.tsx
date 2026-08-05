@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Card } from '@/components/common/ui/card'
 import { Button } from '@/components/common/ui/button'
 import { Input } from '@/components/common/ui/input'
@@ -16,7 +16,7 @@ interface PriceCardProps {
   onUpdate?: () => void
 }
 
-export function PriceCard({ propertyId, basePrice: initialPrice, weekendPrice: initialWeekendPrice, onUpdate }: PriceCardProps) {
+function PriceCardComponent({ propertyId, basePrice: initialPrice, weekendPrice: initialWeekendPrice, onUpdate }: PriceCardProps) {
   const [basePrice, setBasePrice] = useState(initialPrice?.toString() || '')
   const [weekendPrice, setWeekendPrice] = useState(initialWeekendPrice?.toString() || '')
   const [smartPricingEnabled, setSmartPricingEnabled] = useState(false)
@@ -338,3 +338,13 @@ export function PriceCard({ propertyId, basePrice: initialPrice, weekendPrice: i
     </div>
   )
 }
+
+export const PriceCard = React.memo(PriceCardComponent, (prev, next) => {
+  // Only re-render if props actually changed
+  return (
+    prev.propertyId === next.propertyId &&
+    prev.basePrice === next.basePrice &&
+    prev.weekendPrice === next.weekendPrice &&
+    prev.onUpdate === next.onUpdate
+  )
+})
