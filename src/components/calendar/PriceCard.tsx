@@ -156,7 +156,7 @@ export function PriceCard({ propertyId, basePrice: initialPrice, weekendPrice: i
         <div className="flex gap-3">
           <div className="flex-1">
             <div className="relative">
-              <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-sm font-semibold text-[#4D5566] pointer-events-none">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-base font-semibold text-[#4D5566] pointer-events-none">
                 €
               </span>
               <Input
@@ -167,7 +167,7 @@ export function PriceCard({ propertyId, basePrice: initialPrice, weekendPrice: i
                 placeholder="0.00"
                 min="0"
                 step="0.01"
-                className="h-12 pl-10 pr-4 text-base font-semibold border-[#E5DFD2] bg-[#FBFAF6] text-[#1B2430]"
+                className="h-12 pl-12 pr-4 text-base font-semibold border-[#E5DFD2] bg-[#FBFAF6] text-[#1B2430]"
               />
             </div>
           </div>
@@ -192,7 +192,7 @@ export function PriceCard({ propertyId, basePrice: initialPrice, weekendPrice: i
         <div className="flex gap-3">
           <div className="flex-1">
             <div className="relative">
-              <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-sm font-semibold text-[#4D5566] pointer-events-none">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-base font-semibold text-[#4D5566] pointer-events-none">
                 €
               </span>
               <Input
@@ -203,7 +203,7 @@ export function PriceCard({ propertyId, basePrice: initialPrice, weekendPrice: i
                 placeholder="0.00"
                 min="0"
                 step="0.01"
-                className="h-12 pl-10 pr-4 text-base font-semibold border-[#E5DFD2] bg-[#FBFAF6] text-[#1B2430]"
+                className="h-12 pl-12 pr-4 text-base font-semibold border-[#E5DFD2] bg-[#FBFAF6] text-[#1B2430]"
               />
             </div>
           </div>
