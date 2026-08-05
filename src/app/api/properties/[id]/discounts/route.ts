@@ -54,6 +54,15 @@ export async function GET(
       .select('*')
       .eq('property_id', id);
 
+    // Handle missing table gracefully (table was dropped in schema rollback)
+    if (error && (error.code === '42P01' || error.message?.includes('does not exist'))) {
+      console.warn('Discounts table does not exist - returning empty array');
+      return NextResponse.json({
+        success: true,
+        data: [],
+      });
+    }
+
     if (error) throw error;
 
     return NextResponse.json({
@@ -125,6 +134,15 @@ export async function POST(
       })
       .select()
       .single();
+
+    // Handle missing table gracefully (table was dropped in schema rollback)
+    if (error && (error.code === '42P01' || error.message?.includes('does not exist'))) {
+      console.warn('Discounts table does not exist - feature disabled');
+      return NextResponse.json(
+        { success: false, error: 'Discounts feature is not available' },
+        { status: 501 }
+      );
+    }
 
     if (error) throw error;
 
