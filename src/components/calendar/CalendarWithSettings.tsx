@@ -188,43 +188,47 @@ export function CalendarWithSettings({
         setDailyPrices(priceMap)
 
         // Fetch reservations
-        const reservationsResponse = await fetch(
-          `/api/properties/${propertyId}/reservations`,
-          { credentials: 'include' }
-        )
-        const reservationsData = await reservationsResponse.json()
+        try {
+          const reservationsResponse = await fetch(
+            `/api/properties/${propertyId}/reservations`,
+            { credentials: 'include' }
+          )
+          const reservationsData = await reservationsResponse.json()
 
-        // Filter reservations for current month
-        const monthReservations = (reservationsData.data || []).filter(
-          (res: any) => {
-            const resStartMonth = new Date(res.start_date).getMonth()
-            const resStartYear = new Date(res.start_date).getFullYear()
-            const resEndMonth = new Date(res.end_date).getMonth()
-            const resEndYear = new Date(res.end_date).getFullYear()
+          console.log('[DEBUG] Reservations fetched:', reservationsData)
 
-            // Show reservation if it overlaps with current month
-            return (
-              (resStartYear === currentYear && resStartMonth === currentMonth) ||
-              (resEndYear === currentYear && resEndMonth === currentMonth) ||
-              (resStartYear < currentYear ||
-                (resStartYear === currentYear && resStartMonth < currentMonth)) &&
-                (resEndYear > currentYear ||
-                  (resEndYear === currentYear && resEndMonth > currentMonth))
-            )
-          }
-        )
+          // Filter reservations for current month (including overlapping)
+          const monthReservations = (reservationsData.data || []).filter(
+            (res: any) => {
+              if (!res.start_date || !res.end_date) return false
 
-        setReservations(
-          monthReservations.map((res: any) => ({
-            id: res.id,
-            guestName: res.guest_name,
-            guestCount: res.guest_count,
-            startDate: new Date(res.start_date),
-            endDate: new Date(res.end_date),
-            price: res.price_per_night,
-            status: res.status,
-          }))
-        )
+              const resStart = new Date(res.start_date)
+              const resEnd = new Date(res.end_date)
+              const monthStart = new Date(currentYear, currentMonth, 1)
+              const monthEnd = new Date(currentYear, currentMonth + 1, 0)
+
+              // Show if reservation overlaps with current month
+              return resStart <= monthEnd && resEnd >= monthStart
+            }
+          )
+
+          console.log('[DEBUG] Filtered reservations:', monthReservations)
+
+          setReservations(
+            monthReservations.map((res: any) => ({
+              id: res.id,
+              guestName: res.guest_name || 'Guest',
+              guestCount: res.guest_count || 1,
+              startDate: new Date(res.start_date),
+              endDate: new Date(res.end_date),
+              price: res.price_per_night || 0,
+              status: res.status || 'pending',
+            }))
+          )
+        } catch (error) {
+          console.error('[ERROR] Failed to fetch reservations:', error)
+          setReservations([])
+        }
       } catch (error) {
         console.error('Error fetching data:', error)
         setSelectedDateStr([])

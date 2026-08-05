@@ -36,18 +36,26 @@ export function PriceCard({ propertyId, basePrice: initialPrice, weekendPrice: i
   const handleFillCalendar = async () => {
     try {
       if (!basePrice || parseFloat(basePrice) <= 0) {
-        toast.error('Preço base inválido')
+        toast.error('Preço base deve ser maior que 0')
         return
       }
 
       setSaving(true)
 
-      // Get current date and end of month for bulk update
+      // Get first and last day of current month
       const today = new Date()
-      const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0)
+      const firstDay = new Date(today.getFullYear(), today.getMonth(), 1)
+      const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0)
 
-      const startDate = today.toISOString().split('T')[0]
-      const endDate = endOfMonth.toISOString().split('T')[0]
+      const startDate = firstDay.toISOString().split('T')[0]
+      const endDate = lastDay.toISOString().split('T')[0]
+
+      console.log('[DEBUG] Filling calendar:', {
+        propertyId,
+        startDate,
+        endDate,
+        price: parseFloat(basePrice),
+      })
 
       const response = await fetch(
         `/api/properties/${propertyId}/pricing/bulk-update`,
@@ -64,10 +72,11 @@ export function PriceCard({ propertyId, basePrice: initialPrice, weekendPrice: i
       )
 
       if (response.ok) {
-        toast.success('Calendário preenchido com sucesso')
+        toast.success(`Calendário preenchido: ${startDate} até ${endDate}`)
         onUpdate?.()
       } else {
         const error = await response.json()
+        console.error('[ERROR] Fill calendar error:', error)
         toast.error(error?.error || 'Erro ao preencher calendário')
       }
     } catch (error) {

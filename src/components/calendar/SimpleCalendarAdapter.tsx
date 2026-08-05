@@ -174,7 +174,7 @@ export function SimpleCalendarAdapter({
   ]
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-4" onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}>
+    <div className="w-full max-w-4xl mx-auto p-4" onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp} onTouchEnd={handleMouseUp} style={{ userSelect: 'none' }}>
       <div className="rounded-lg shadow" style={{ backgroundColor: '#FBFAF6' }}>
         {/* Header */}
         <div className="p-4 border-b" style={{ borderColor: '#E5DFD2' }}>
