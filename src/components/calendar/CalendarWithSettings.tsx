@@ -245,20 +245,20 @@ export function CalendarWithSettings({
         className="flex items-center gap-3 p-4 border-b"
         style={{ borderColor: '#E5DFD2', backgroundColor: '#FBFAF6' }}
       >
-        <button
-          onClick={() => router.push(`/${locale}/calendar`)}
+        <a
+          href={`/${locale}/calendar`}
           className="flex items-center gap-2 px-3 py-2 rounded hover:opacity-70 transition-opacity"
-          style={{ backgroundColor: '#F7F5EF', color: '#1B2430' }}
+          style={{ backgroundColor: '#F7F5EF', color: '#1B2430', textDecoration: 'none' }}
         >
           <ArrowLeft size={20} />
           <span className="text-sm font-semibold">Calendário Hub</span>
-        </button>
+        </a>
       </div>
 
       {/* Grid container for calendar and sidebar */}
       <div className="flex-1 flex flex-col md:grid md:grid-cols-[1fr_400px] lg:grid-cols-[1fr_450px] gap-0">
         {/* Calendar - Mobile Full Width, Desktop Left */}
-        <div className="flex-1 overflow-auto">
+        <div className="flex-1 overflow-auto flex flex-col">
           <CalendarComponent
             onDayClick={handleDayClick}
             onRangeSelect={handleRangeSelect}
@@ -266,6 +266,37 @@ export function CalendarWithSettings({
             onMonthChange={handleMonthChange}
             reservations={reservations}
           />
+
+          {/* Reservations Display - Kanban Style */}
+          {reservations.length > 0 && (
+            <div className="p-4 border-t" style={{ borderColor: '#E5DFD2', backgroundColor: '#FBFAF6' }}>
+              <h3 className="font-bold mb-3" style={{ color: '#1B2430' }}>
+                Reservas do Mês
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 overflow-x-auto pb-2">
+                {reservations.map((res) => (
+                  <div
+                    key={res.id}
+                    className="p-3 rounded border min-w-[200px]"
+                    style={{
+                      backgroundColor: res.status === 'confirmed' ? '#E3F2FD' : '#FFF3E0',
+                      borderColor: res.status === 'confirmed' ? '#1976D2' : '#F57C00',
+                      color: res.status === 'confirmed' ? '#1976D2' : '#F57C00',
+                    }}
+                  >
+                    <div className="font-semibold text-sm">{res.guestName}</div>
+                    <div className="text-xs mt-1">
+                      {res.guestCount} {res.guestCount === 1 ? 'hóspede' : 'hóspedes'}
+                    </div>
+                    <div className="text-sm font-bold mt-1">€{res.price.toFixed(2)}</div>
+                    <div className="text-xs mt-1 opacity-75">
+                      {res.status === 'confirmed' ? 'Confirmado' : 'Pendente'}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Settings Sidebar - Mobile Bottom Sheet, Desktop Right */}
