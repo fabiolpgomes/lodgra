@@ -340,11 +340,8 @@ function PriceCardComponent({ propertyId, basePrice: initialPrice, weekendPrice:
 }
 
 export const PriceCard = React.memo(PriceCardComponent, (prev, next) => {
-  // Only re-render if props actually changed
-  return (
-    prev.propertyId === next.propertyId &&
+  // Shallow comparison: re-render if any prop changed
+  return prev.propertyId === next.propertyId &&
     prev.basePrice === next.basePrice &&
-    prev.weekendPrice === next.weekendPrice &&
-    prev.onUpdate === next.onUpdate
-  )
+    prev.weekendPrice === next.weekendPrice
 })

@@ -7,6 +7,8 @@ import { QueryClientProvider, QueryClient } from '@tanstack/react-query'
 import { SettingsSidebar } from './SettingsSidebar'
 import { CalendarDayClickModal } from './CalendarDayClickModal'
 import { ReservationsList } from './ReservationsList'
+import { DiscountSelectionModal } from './DiscountSelectionModal'
+import { CancellationPolicyModal } from './CancellationPolicyModal'
 import { useCalendarSelection } from '@/hooks/useCalendarSelection'
 import {
   useDailyPrices,
@@ -58,6 +60,8 @@ function CalendarWithSettingsContent({
   const selection = useCalendarSelection(propertyId)
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth())
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear())
+  const [showDiscountModal, setShowDiscountModal] = useState(false)
+  const [showCancellationModal, setShowCancellationModal] = useState(false)
 
   // React Query hooks
   const pricesQuery = useDailyPrices(propertyId, currentYear, currentMonth)
@@ -99,7 +103,7 @@ function CalendarWithSettingsContent({
       selection.toggleDay(clickedDate)
       selection.openPriceModal(clickedDate)
     },
-    []
+    [selection]
   )
 
   // Handle range selection from calendar
@@ -113,7 +117,7 @@ function CalendarWithSettingsContent({
         end: endDate,
       })
     },
-    []
+    [selection]
   )
 
   // Refetch with React Query invalidation
@@ -132,14 +136,6 @@ function CalendarWithSettingsContent({
           selection.state.selectedDates[
             selection.state.selectedDates.length - 1
           ]
-
-        // Optimistic update: update UI immediately
-        const priceMap: Record<string, number> = { ...dailyPrices }
-        selection.state.selectedDates.forEach((date) => {
-          const dateStr = date.toISOString().split('T')[0]
-          priceMap[dateStr] = price
-        })
-        setDailyPrices(priceMap)
 
         const response = await fetch(
           `/api/properties/${propertyId}/pricing/bulk-update`,
@@ -201,11 +197,14 @@ function CalendarWithSettingsContent({
       }
 
       selection.clearSelection()
+
+      // Refetch data in background to confirm
+      await refetchData()
     } catch (error) {
       console.error('Error blocking dates:', error)
       throw error
     }
-  }, [propertyId])
+  }, [propertyId, refetchData])
 
 
   // Handle month change - update state
@@ -219,6 +218,16 @@ function CalendarWithSettingsContent({
     },
     [selection]
   )
+
+  // Handle opening discount modal
+  const handleOpenDiscounts = useCallback(() => {
+    setShowDiscountModal(true)
+  }, [])
+
+  // Handle opening cancellation policy modal
+  const handleOpenCancellationPolicy = useCallback(() => {
+    setShowCancellationModal(true)
+  }, [])
 
   return (
     <div className="w-full h-screen flex flex-col">
@@ -273,6 +282,32 @@ function CalendarWithSettingsContent({
         onClose={selection.closeModal}
         onSavePrice={handleSavePrice}
         onBlockDates={handleBlockDates}
+        onOpenDiscounts={handleOpenDiscounts}
+        onOpenCancellationPolicy={handleOpenCancellationPolicy}
+      />
+
+      {/* Discount Selection Modal */}
+      <DiscountSelectionModal
+        isOpen={showDiscountModal}
+        selectedDates={selection.state.selectedDates}
+        propertyId={propertyId}
+        discounts={[]}
+        onClose={() => setShowDiscountModal(false)}
+        onApply={async () => {
+          await refetchData()
+        }}
+      />
+
+      {/* Cancellation Policy Modal */}
+      <CancellationPolicyModal
+        isOpen={showCancellationModal}
+        selectedDates={selection.state.selectedDates}
+        propertyId={propertyId}
+        policies={[]}
+        onClose={() => setShowCancellationModal(false)}
+        onApply={async () => {
+          await refetchData()
+        }}
       />
 
       {/* Mobile-specific styles */}
