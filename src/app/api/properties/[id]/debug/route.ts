@@ -51,6 +51,9 @@ export async function GET(
       details: reservationsError?.details
     })
 
+    const owners = property ? (Array.isArray(property.owners) ? property.owners[0] : property.owners) : null
+    const ownerUserId = owners && typeof owners === 'object' && 'user_id' in owners ? (owners as any).user_id : null
+
     const response = {
       success: true,
       auth: {
@@ -77,9 +80,9 @@ export async function GET(
         } : null
       },
       ownership: property ? {
-        ownerUserId: Array.isArray(property.owners) ? property.owners[0]?.user_id : property.owners?.user_id,
+        ownerUserId,
         userId: user.id,
-        matches: Array.isArray(property.owners) ? property.owners[0]?.user_id === user.id : property.owners?.user_id === user.id
+        matches: ownerUserId === user.id
       } : null
     }
 
