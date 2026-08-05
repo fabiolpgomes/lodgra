@@ -26,6 +26,7 @@ interface SimpleCalendarAdapterProps {
   selectedDates: string[] // ISO date strings
   onMonthChange?: (month: number, year: number) => void
   reservations?: Reservation[]
+  dailyPrices?: Record<string, number> // ISO date -> price
 }
 
 export function SimpleCalendarAdapter({
@@ -34,6 +35,7 @@ export function SimpleCalendarAdapter({
   selectedDates,
   onMonthChange,
   reservations = [],
+  dailyPrices = {},
 }: SimpleCalendarAdapterProps) {
   const today = new Date()
   const [currentMonth, setCurrentMonth] = React.useState(today.getMonth())
@@ -74,6 +76,18 @@ export function SimpleCalendarAdapter({
     const min = Math.min(rangeStart, rangeEnd)
     const max = Math.max(rangeStart, rangeEnd)
     return day >= min && day <= max
+  }
+
+  const getDayPrice = (day: number) => {
+    const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+    return dailyPrices[dateStr]
+  }
+
+  const getReservationForDay = (day: number) => {
+    return reservations.find(res => {
+      const d = new Date(currentYear, currentMonth, day)
+      return d >= res.startDate && d <= res.endDate
+    })
   }
 
   const handleDayMouseDown = (day: number | null) => {
@@ -217,7 +231,20 @@ export function SimpleCalendarAdapter({
                       : 'default',
                 }}
               >
-                {day}
+                {day && (
+                  <div className="flex flex-col items-center justify-center w-full h-full gap-0.5">
+                    <div className="text-sm font-medium">{day}</div>
+                    {getReservationForDay(day) ? (
+                      <div className="text-xs font-semibold" title="Reservado">
+                        📅
+                      </div>
+                    ) : getDayPrice(day) ? (
+                      <div className="text-xs font-semibold opacity-75">
+                        €{getDayPrice(day)?.toFixed(0)}
+                      </div>
+                    ) : null}
+                  </div>
+                )}
               </div>
             ))}
           </div>
