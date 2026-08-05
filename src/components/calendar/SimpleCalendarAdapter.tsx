@@ -138,6 +138,31 @@ export function SimpleCalendarAdapter({
     onMonthChange?.(currentMonth, currentYear)
   }, [currentMonth, currentYear, onMonthChange])
 
+  // Add global mouseup listener to ensure drag-to-select works correctly
+  React.useEffect(() => {
+    const handleGlobalMouseUp = () => {
+      if (isDragging && rangeStart !== null && rangeEnd !== null) {
+        const start = Math.min(rangeStart, rangeEnd)
+        const end = Math.max(rangeStart, rangeEnd)
+
+        if (start === end) {
+          onDayClick?.(start, currentYear, currentMonth)
+        } else {
+          onRangeSelect?.(start, end, currentMonth, currentYear)
+        }
+
+        setRangeStart(null)
+        setRangeEnd(null)
+      }
+      setIsDragging(false)
+    }
+
+    document.addEventListener('mouseup', handleGlobalMouseUp)
+    return () => {
+      document.removeEventListener('mouseup', handleGlobalMouseUp)
+    }
+  }, [isDragging, rangeStart, rangeEnd, currentYear, currentMonth, onDayClick, onRangeSelect])
+
   const monthNames = [
     'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
     'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
@@ -232,14 +257,14 @@ export function SimpleCalendarAdapter({
                 }}
               >
                 {day && (
-                  <div className="flex flex-col items-center justify-center w-full h-full gap-0.5">
-                    <div className="text-sm font-medium">{day}</div>
+                  <div className="flex flex-col items-center justify-center w-full h-full gap-1 px-1">
+                    <div className="text-sm font-semibold">{day}</div>
                     {getReservationForDay(day) ? (
-                      <div className="text-xs font-semibold" title="Reservado">
+                      <div className="text-xs font-bold" title="Reservado">
                         📅
                       </div>
                     ) : getDayPrice(day) ? (
-                      <div className="text-xs font-semibold opacity-75">
+                      <div className="text-xs font-semibold whitespace-nowrap bg-opacity-20 px-1 py-0.5 rounded" style={{ backgroundColor: '#10203E', color: 'inherit' }}>
                         €{getDayPrice(day)?.toFixed(0)}
                       </div>
                     ) : null}

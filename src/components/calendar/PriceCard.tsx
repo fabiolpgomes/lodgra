@@ -167,7 +167,7 @@ export function PriceCard({ propertyId, basePrice: initialPrice, weekendPrice: i
                 placeholder="0.00"
                 min="0"
                 step="0.01"
-                className="h-12 pl-12 pr-4 text-base font-semibold border-[#E5DFD2] bg-[#FBFAF6] text-[#1B2430]"
+                className="h-12 pl-10 pr-4 text-base font-semibold border-[#E5DFD2] bg-[#FBFAF6] text-[#1B2430]" style={{ paddingLeft: '3rem' }}
               />
             </div>
           </div>
@@ -203,7 +203,7 @@ export function PriceCard({ propertyId, basePrice: initialPrice, weekendPrice: i
                 placeholder="0.00"
                 min="0"
                 step="0.01"
-                className="h-12 pl-12 pr-4 text-base font-semibold border-[#E5DFD2] bg-[#FBFAF6] text-[#1B2430]"
+                className="h-12 pl-10 pr-4 text-base font-semibold border-[#E5DFD2] bg-[#FBFAF6] text-[#1B2430]" style={{ paddingLeft: '3rem' }}
               />
             </div>
           </div>

@@ -15,6 +15,7 @@ interface CalendarWithSettingsProps {
     selectedDates: string[]
     onMonthChange?: (month: number, year: number) => void
     reservations?: Reservation[]
+    dailyPrices?: Record<string, number>
   }>
 }
 
@@ -52,6 +53,7 @@ export function CalendarWithSettings({
   const [reservations, setReservations] = useState<Reservation[]>([])
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth())
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear())
+  const [dailyPrices, setDailyPrices] = useState<Record<string, number>>({})
 
   // Convert selection to date strings for calendar highlighting
   const getSelectedDateStrings = useCallback(() => {
@@ -168,15 +170,22 @@ export function CalendarWithSettings({
         )
         const prices = await pricesResponse.json()
 
-        // Filter prices for current month/year
+        // Filter prices for current month/year and create price map
         const monthPrices = prices.filter((p: { date: string; base_price: number }) => {
           const [year, month] = p.date.split('-').map(Number)
           return year === currentYear && month === currentMonth + 1
         })
 
-        // Convert to ISO date strings
+        // Convert to ISO date strings for highlighting
         const dateStrings = monthPrices.map((p: { date: string }) => p.date)
         setSelectedDateStr(dateStrings)
+
+        // Create price map for display
+        const priceMap: Record<string, number> = {}
+        monthPrices.forEach((p: { date: string; base_price: number }) => {
+          priceMap[p.date] = p.base_price
+        })
+        setDailyPrices(priceMap)
 
         // Fetch reservations
         const reservationsResponse = await fetch(
@@ -265,6 +274,7 @@ export function CalendarWithSettings({
             selectedDates={getSelectedDateStrings()}
             onMonthChange={handleMonthChange}
             reservations={reservations}
+            dailyPrices={dailyPrices}
           />
 
           {/* Reservations Display - Kanban Style */}
