@@ -84,6 +84,68 @@ export function CalendarWithSettings({
     []
   )
 
+  // Refetch all data
+  const refetchData = useCallback(async () => {
+    try {
+      // Refetch prices
+      const pricesResponse = await fetch(
+        `/api/properties/${propertyId}/daily-prices`,
+        { credentials: 'include' }
+      )
+      const prices = await pricesResponse.json()
+
+      const monthPrices = prices.filter((p: { date: string; base_price: number }) => {
+        const [year, month] = p.date.split('-').map(Number)
+        return year === currentYear && month === currentMonth + 1
+      })
+
+      const dateStrings = monthPrices.map((p: { date: string }) => p.date)
+      setSelectedDateStr(dateStrings)
+
+      const priceMap: Record<string, number> = {}
+      monthPrices.forEach((p: { date: string; base_price: number }) => {
+        priceMap[p.date] = p.base_price
+      })
+      setDailyPrices(priceMap)
+
+      // Refetch reservations
+      try {
+        const reservationsResponse = await fetch(
+          `/api/properties/${propertyId}/reservations`,
+          { credentials: 'include' }
+        )
+        const reservationsData = await reservationsResponse.json()
+
+        const monthReservations = (reservationsData.data || []).filter(
+          (res: any) => {
+            if (!res.start_date || !res.end_date) return false
+            const resStart = new Date(res.start_date)
+            const resEnd = new Date(res.end_date)
+            const monthStart = new Date(currentYear, currentMonth, 1)
+            const monthEnd = new Date(currentYear, currentMonth + 1, 0)
+            return resStart <= monthEnd && resEnd >= monthStart
+          }
+        )
+
+        setReservations(
+          monthReservations.map((res: any) => ({
+            id: res.id,
+            guestName: res.guest_name || 'Guest',
+            guestCount: res.guest_count || 1,
+            startDate: new Date(res.start_date),
+            endDate: new Date(res.end_date),
+            price: res.price_per_night || 0,
+            status: res.status || 'pending',
+          }))
+        )
+      } catch (err) {
+        console.error('[ERROR] Failed to refetch reservations:', err)
+      }
+    } catch (error) {
+      console.error('Error refetching data:', error)
+    }
+  }, [propertyId, currentYear, currentMonth])
+
   // Handle save price from modal
   const handleSavePrice = useCallback(
     async (price: number) => {
@@ -116,12 +178,15 @@ export function CalendarWithSettings({
 
         selection.clearSelection()
         setSelectedDateStr([])
+
+        // Refetch data to update UI
+        await refetchData()
       } catch (error) {
         console.error('Error saving price:', error)
         throw error
       }
     },
-    [propertyId]
+    [propertyId, refetchData]
   )
 
   // Handle block dates from modal
@@ -315,7 +380,7 @@ export function CalendarWithSettings({
 
         {/* Settings Sidebar - Mobile Bottom Sheet, Desktop Right */}
         <div className="md:overflow-auto" style={{ borderTop: '1px solid #E5DFD2', borderLeft: '1px solid #E5DFD2', backgroundColor: '#FBFAF6' }}>
-          <SettingsSidebar key={propertyId} propertyId={propertyId} />
+          <SettingsSidebar key={propertyId} propertyId={propertyId} onUpdate={refetchData} />
         </div>
       </div>
 

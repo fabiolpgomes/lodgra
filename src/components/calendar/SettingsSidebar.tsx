@@ -27,9 +27,10 @@ const AVERAGES = {
 
 interface SettingsSidebarProps {
   propertyId?: string
+  onUpdate?: () => Promise<void>
 }
 
-export function SettingsSidebar({ propertyId: propPropertyId }: SettingsSidebarProps = {}) {
+export function SettingsSidebar({ propertyId: propPropertyId, onUpdate }: SettingsSidebarProps = {}) {
   const params = useParams()
   const propertyId = propPropertyId || (params?.propertyId as string | undefined)
 
@@ -160,7 +161,7 @@ export function SettingsSidebar({ propertyId: propPropertyId }: SettingsSidebarP
       <SettingsTabs onTabChange={setActiveTab}>
         {activeTab === 'prices' && propertyId && (
           <div className="space-y-4 md:space-y-6">
-            <PriceCard propertyId={propertyId} basePrice={pricing?.base_price || null} weekendPrice={pricing?.weekend_price} />
+            <PriceCard propertyId={propertyId} basePrice={pricing?.base_price || null} weekendPrice={pricing?.weekend_price} onUpdate={onUpdate} />
           </div>
         )}
 
