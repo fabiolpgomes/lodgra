@@ -39,12 +39,26 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       .order('policy_type, is_long_stay')
 
     // Handle missing table gracefully
-    if (error && (error.code === '42P01' || error.message?.includes('does not exist'))) {
-      console.warn('Cancellation policies table does not exist - returning empty array');
-      return NextResponse.json({ success: true, data: [] });
-    }
+    if (error) {
+      console.warn('[Cancellation-Policies] Error:', {
+        code: error.code,
+        message: error.message,
+        details: (error as any).details,
+      });
 
-    if (error) throw error
+      // Check if table doesn't exist (multiple ways it can be reported)
+      if (
+        error.code === '42P01' ||
+        error.message?.includes('does not exist') ||
+        error.message?.includes('property_cancellation_policies') ||
+        (error as any).details?.includes('relation')
+      ) {
+        console.warn('Cancellation policies table does not exist - returning empty array');
+        return NextResponse.json({ success: true, data: [] });
+      }
+
+      throw error;
+    }
 
     return NextResponse.json({ success: true, data: policies || [] })
   } catch (error) {

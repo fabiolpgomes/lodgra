@@ -55,22 +55,36 @@ export async function GET(
       .eq('property_id', id);
 
     // Handle missing table gracefully (table was dropped in schema rollback)
-    if (error && (error.code === '42P01' || error.message?.includes('does not exist'))) {
-      console.warn('Discounts table does not exist - returning empty array');
-      return NextResponse.json({
-        success: true,
-        data: [],
+    if (error) {
+      console.warn('[Discounts] Error:', {
+        code: error.code,
+        message: error.message,
+        details: (error as any).details,
       });
-    }
 
-    if (error) throw error;
+      // Check if table doesn't exist (multiple ways it can be reported)
+      if (
+        error.code === '42P01' ||
+        error.message?.includes('does not exist') ||
+        error.message?.includes('property_discounts') ||
+        (error as any).details?.includes('relation')
+      ) {
+        console.warn('Discounts table does not exist - returning empty array');
+        return NextResponse.json({
+          success: true,
+          data: [],
+        });
+      }
+
+      throw error;
+    }
 
     return NextResponse.json({
       success: true,
       data: data || [],
     });
   } catch (err) {
-    console.error('Error fetching discounts:', err);
+    console.error('[Discounts] Exception:', err);
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }
