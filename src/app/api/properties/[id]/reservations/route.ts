@@ -76,12 +76,18 @@ export async function GET(
       )
     }
 
-    // Fetch reservations
+    // Fetch reservations via property_listings (correct column name)
     console.log('[GET /reservations] Fetching reservations...')
     const { data: reservations, error: reservationsError } = await supabase
       .from('reservations')
       .select('*')
-      .eq('property_id', propertyId)
+      .in('property_listing_id',
+        (await supabase
+          .from('property_listings')
+          .select('id')
+          .eq('property_id', propertyId))
+        .data?.map(p => p.id) || []
+      )
       .order('start_date', { ascending: true })
 
     console.log('[GET /reservations] Reservations result:', {
