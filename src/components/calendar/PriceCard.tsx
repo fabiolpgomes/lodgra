@@ -105,14 +105,16 @@ export function PriceCard({ propertyId, basePrice: initialPrice, weekendPrice: i
       })
 
       if (response.ok) {
-        toast.success('Preço base atualizado')
+        toast.success('Preço base atualizado ✓')
         onUpdate?.()
       } else {
-        toast.error('Erro ao salvar preço')
+        const error = await response.json()
+        console.error('API error:', error)
+        toast.error(error?.error || `Erro ao salvar (${response.status})`)
       }
     } catch (error) {
       console.error('Error saving price:', error)
-      toast.error('Erro ao atualizar preço')
+      toast.error('Conexão falhou - tente novamente')
     } finally {
       setSaving(false)
     }
@@ -150,15 +152,16 @@ export function PriceCard({ propertyId, basePrice: initialPrice, weekendPrice: i
       })
 
       if (response.ok) {
-        toast.success('Preço fim de semana atualizado')
+        toast.success('Preço fim de semana atualizado ✓')
         onUpdate?.()
       } else {
         const error = await response.json()
-        toast.error(error?.error || 'Erro ao salvar preço fim de semana')
+        console.error('API error:', error)
+        toast.error(error?.error || `Erro ao salvar (${response.status})`)
       }
     } catch (error) {
       console.error('Error saving weekend price:', error)
-      toast.error('Erro ao atualizar preço fim de semana')
+      toast.error('Conexão falhou - tente novamente')
     } finally {
       setSaving(false)
     }

@@ -158,6 +158,14 @@ export function CalendarWithSettings({
             selection.state.selectedDates.length - 1
           ]
 
+        // Optimistic update: update UI immediately
+        const priceMap: Record<string, number> = { ...dailyPrices }
+        selection.state.selectedDates.forEach((date) => {
+          const dateStr = date.toISOString().split('T')[0]
+          priceMap[dateStr] = price
+        })
+        setDailyPrices(priceMap)
+
         const response = await fetch(
           `/api/properties/${propertyId}/pricing/bulk-update`,
           {
@@ -179,14 +187,16 @@ export function CalendarWithSettings({
         selection.clearSelection()
         setSelectedDateStr([])
 
-        // Refetch data to update UI
+        // Refetch data in background to confirm
         await refetchData()
       } catch (error) {
         console.error('Error saving price:', error)
+        // Revert optimistic update on error
+        await refetchData()
         throw error
       }
     },
-    [propertyId, refetchData]
+    [propertyId, refetchData, dailyPrices]
   )
 
   // Handle block dates from modal
@@ -252,15 +262,21 @@ export function CalendarWithSettings({
         })
         setDailyPrices(priceMap)
 
-        // Fetch reservations
+        // Fetch reservations with fallback
         try {
           const reservationsResponse = await fetch(
             `/api/properties/${propertyId}/reservations`,
             { credentials: 'include' }
           )
-          const reservationsData = await reservationsResponse.json()
 
-          console.log('[DEBUG] Reservations fetched:', reservationsData)
+          // Handle non-OK responses gracefully (503, 500, etc)
+          if (!reservationsResponse.ok) {
+            console.warn(`[WARN] Reservations API returned ${reservationsResponse.status}, showing empty state`)
+            setReservations([])
+            return
+          }
+
+          const reservationsData = await reservationsResponse.json()
 
           // Filter reservations for current month (including overlapping)
           const monthReservations = (reservationsData.data || []).filter(
@@ -272,12 +288,9 @@ export function CalendarWithSettings({
               const monthStart = new Date(currentYear, currentMonth, 1)
               const monthEnd = new Date(currentYear, currentMonth + 1, 0)
 
-              // Show if reservation overlaps with current month
               return resStart <= monthEnd && resEnd >= monthStart
             }
           )
-
-          console.log('[DEBUG] Filtered reservations:', monthReservations)
 
           setReservations(
             monthReservations.map((res: any) => ({
