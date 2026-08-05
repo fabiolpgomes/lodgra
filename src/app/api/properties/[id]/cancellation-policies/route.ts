@@ -38,6 +38,12 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       .eq('property_id', propertyId)
       .order('policy_type, is_long_stay')
 
+    // Handle missing table gracefully
+    if (error && (error.code === '42P01' || error.message?.includes('does not exist'))) {
+      console.warn('Cancellation policies table does not exist - returning empty array');
+      return NextResponse.json({ success: true, data: [] });
+    }
+
     if (error) throw error
 
     return NextResponse.json({ success: true, data: policies || [] })
@@ -123,6 +129,14 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
           { success: false, error: 'Policy already exists for this type and duration' },
           { status: 409 }
         )
+      }
+      // Handle missing table gracefully
+      if (error.code === '42P01' || error.message?.includes('does not exist')) {
+        console.warn('Cancellation policies table does not exist - feature disabled');
+        return NextResponse.json(
+          { success: false, error: 'Cancellation policies feature is not available' },
+          { status: 501 }
+        );
       }
       throw error
     }

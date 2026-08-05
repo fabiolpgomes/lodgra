@@ -52,7 +52,12 @@ export async function GET(
       .select('date, base_price')
       .eq('property_id', propertyId)
 
-    if (!dailyError && dailyPricesRaw) {
+    if (dailyError) {
+      // Handle missing table gracefully (continue with just pricing_rules)
+      if (!(dailyError.code === '42P01' || dailyError.message?.includes('does not exist'))) {
+        console.error('[daily-prices] Error fetching daily_prices:', dailyError)
+      }
+    } else if (dailyPricesRaw) {
       // Override with daily prices
       for (const daily of dailyPricesRaw) {
         const dateStr = format(new Date(daily.date), 'yyyy-MM-dd')
