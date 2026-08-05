@@ -99,8 +99,7 @@ export async function GET(
         message: reservationsError.message,
         code: reservationsError.code,
         details: reservationsError.details,
-        hint: reservationsError.hint,
-        status: reservationsError.status
+        hint: reservationsError.hint
       }))
       return NextResponse.json(
         {
