@@ -367,4 +367,6 @@ function SimpleCalendarAdapterComponent({
   )
 }
 
-export const SimpleCalendarAdapter = React.memo(SimpleCalendarAdapterComponent)
+export const SimpleCalendarAdapter = React.memo(
+  SimpleCalendarAdapterComponent
+) as React.FC<SimpleCalendarAdapterProps>
