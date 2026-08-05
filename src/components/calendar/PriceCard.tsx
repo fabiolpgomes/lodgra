@@ -123,12 +123,20 @@ export function PriceCard({ propertyId, basePrice: initialPrice, weekendPrice: i
         return
       }
 
+      if (!basePrice || parseFloat(basePrice) <= 0) {
+        toast.error('Preço base é obrigatório')
+        return
+      }
+
       setSaving(true)
 
       const response = await fetch(`/api/properties/${propertyId}/pricing`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ weekend_price: price }),
+        body: JSON.stringify({
+          base_price: parseFloat(basePrice),
+          weekend_price: price
+        }),
         credentials: 'include',
       })
 
@@ -136,7 +144,8 @@ export function PriceCard({ propertyId, basePrice: initialPrice, weekendPrice: i
         toast.success('Preço fim de semana atualizado')
         onUpdate?.()
       } else {
-        toast.error('Erro ao salvar preço fim de semana')
+        const error = await response.json()
+        toast.error(error?.error || 'Erro ao salvar preço fim de semana')
       }
     } catch (error) {
       console.error('Error saving weekend price:', error)
