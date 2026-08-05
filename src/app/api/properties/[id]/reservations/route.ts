@@ -88,7 +88,7 @@ export async function GET(
           .eq('property_id', propertyId))
         .data?.map(p => p.id) || []
       )
-      .order('start_date', { ascending: true })
+      .order('check_in', { ascending: true })
 
     console.log('[GET /reservations] Reservations result:', {
       count: reservations?.length,
