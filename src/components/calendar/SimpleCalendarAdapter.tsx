@@ -27,6 +27,8 @@ interface SimpleCalendarAdapterProps {
   onMonthChange?: (month: number, year: number) => void
   reservations?: Reservation[]
   dailyPrices?: Record<string, number> // ISO date -> price
+  weekendPrice?: number | null // Global weekend price fallback
+  basePrice?: number | null // Global base price fallback
 }
 
 function SimpleCalendarAdapterComponent({
@@ -36,6 +38,8 @@ function SimpleCalendarAdapterComponent({
   onMonthChange,
   reservations = [],
   dailyPrices = {},
+  weekendPrice,
+  basePrice,
 }: SimpleCalendarAdapterProps) {
   const today = new Date()
   const [currentMonth, setCurrentMonth] = React.useState(today.getMonth())
@@ -80,7 +84,23 @@ function SimpleCalendarAdapterComponent({
 
   const getDayPrice = (day: number) => {
     const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
-    return dailyPrices[dateStr]
+
+    // Check if there's a custom price for this day
+    if (dailyPrices[dateStr]) {
+      return dailyPrices[dateStr]
+    }
+
+    // Check if it's a weekend (Saturday = 6, Sunday = 0)
+    const date = new Date(currentYear, currentMonth, day)
+    const dayOfWeek = date.getDay()
+    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6
+
+    // Return weekend price if available, otherwise base price
+    if (isWeekend && weekendPrice) {
+      return weekendPrice
+    }
+
+    return basePrice || undefined
   }
 
   const getReservationForDay = (day: number) => {
@@ -292,13 +312,24 @@ function SimpleCalendarAdapterComponent({
                   <div className="flex flex-col items-center justify-center w-full h-full gap-0.5 px-0.5 py-1">
                     <div className="text-sm font-bold">{day}</div>
                     {getReservationForDay(day) ? (
-                      <div className="flex flex-col items-center gap-0.5 w-full">
-                        <div className="text-xs font-bold opacity-90">🛏️</div>
+                      <div className="flex flex-col items-center justify-center gap-0.5 w-full h-full px-0.5">
+                        <div className="text-xs font-bold">🛏️</div>
                         <div className="text-xs font-semibold truncate max-w-full" style={{ color: '#10203E' }}>
-                          {getReservationForDay(day)?.guestName?.substring(0, 8)}
+                          {getReservationForDay(day)?.guestName?.substring(0, 10)}
+                        </div>
+                        <div className="text-xs opacity-75" style={{ color: '#4D5566' }}>
+                          {getReservationForDay(day)?.guestCount} hósp.
                         </div>
                         <div className="text-xs font-bold" style={{ color: '#10203E' }}>
                           €{getReservationForDay(day)?.price?.toFixed(0)}
+                        </div>
+                        <div className="text-xs font-semibold" style={{
+                          color: getReservationForDay(day)?.status === 'confirmed' ? '#1976D2' : '#F57C00'
+                        }}>
+                          {getReservationForDay(day)?.status === 'confirmed' ? 'Confirmado' :
+                           getReservationForDay(day)?.status === 'hosting' ? 'Hospedado' :
+                           getReservationForDay(day)?.status === 'completed' ? 'Concluído' :
+                           'Pendente'}
                         </div>
                       </div>
                     ) : getDayPrice(day) ? (
@@ -323,51 +354,6 @@ function SimpleCalendarAdapterComponent({
         </div>
       </div>
 
-      {/* Reservations List */}
-      {reservations.length > 0 && (
-        <div className="max-w-4xl mx-auto p-4 mt-4">
-          <h3 className="font-bold mb-4" style={{ color: '#1B2430' }}>
-            Reservas em {monthNames[currentMonth]} {currentYear}
-          </h3>
-          <div className="space-y-2">
-            {reservations.map((res) => {
-              const statusColors: Record<string, { bg: string; text: string }> = {
-                confirmed: { bg: '#E3F2FD', text: '#1976D2' },
-                hosting: { bg: '#E8F5E9', text: '#388E3C' },
-                pending: { bg: '#FFF3E0', text: '#F57C00' },
-                completed: { bg: '#F5F5F5', text: '#616161' },
-              }
-              const colors = statusColors[res.status] || statusColors.confirmed
-              const statusLabel = {
-                confirmed: 'Confirmado',
-                hosting: 'Hospedado',
-                pending: 'Pendente',
-                completed: 'Concluído',
-              }[res.status]
-
-              return (
-                <div
-                  key={res.id}
-                  className="p-3 rounded border"
-                  style={{
-                    backgroundColor: colors.bg,
-                    borderColor: colors.text,
-                    color: colors.text,
-                  }}
-                >
-                  <div className="font-semibold">{res.guestName}</div>
-                  <div className="text-sm">
-                    {res.guestCount} {res.guestCount === 1 ? 'hóspede' : 'hóspedes'} • €{res.price.toFixed(2)}
-                  </div>
-                  <div className="text-xs">
-                    {res.startDate.toLocaleDateString('pt-BR')} até {res.endDate.toLocaleDateString('pt-BR')} • {statusLabel}
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      )}
 
       {/* Month/Year Picker Modal */}
       {showMonthPicker && (

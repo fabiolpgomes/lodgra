@@ -6,13 +6,13 @@ import { ArrowLeft } from 'lucide-react'
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query'
 import { SettingsSidebar } from './SettingsSidebar'
 import { CalendarDayClickModal } from './CalendarDayClickModal'
-import { ReservationsList } from './ReservationsList'
 import { DiscountSelectionModal } from './DiscountSelectionModal'
 import { CancellationPolicyModal } from './CancellationPolicyModal'
 import { useCalendarSelection } from '@/hooks/useCalendarSelection'
 import {
   useDailyPrices,
   useReservations,
+  usePropertyPricing,
   useInvalidateCalendarQueries,
 } from '@/hooks/useCalendarQueries'
 
@@ -66,6 +66,7 @@ function CalendarWithSettingsContent({
   // React Query hooks
   const pricesQuery = useDailyPrices(propertyId, currentYear, currentMonth)
   const reservationsQuery = useReservations(propertyId, currentYear, currentMonth)
+  const pricingQuery = usePropertyPricing(propertyId)
   const invalidateQueries = useInvalidateCalendarQueries()
 
   // Memoized computed values
@@ -257,15 +258,10 @@ function CalendarWithSettingsContent({
             onMonthChange={handleMonthChange}
             reservations={reservations}
             dailyPrices={dailyPrices}
+            weekendPrice={pricingQuery.data?.weekend_price}
+            basePrice={pricingQuery.data?.base_price}
           />
 
-          {/* Reservations Display with Pagination */}
-          <ReservationsList
-            reservations={reservations}
-            monthName={['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-              'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'][currentMonth]}
-            year={currentYear}
-          />
         </div>
 
         {/* Settings Sidebar - Mobile Bottom Sheet, Desktop Right */}
