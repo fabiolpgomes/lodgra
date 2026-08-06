@@ -258,8 +258,6 @@ function CalendarWithSettingsContent({
             onMonthChange={handleMonthChange}
             reservations={reservations}
             dailyPrices={dailyPrices}
-            weekendPrice={pricingQuery.data?.weekend_price}
-            basePrice={pricingQuery.data?.base_price}
           />
 
         </div>

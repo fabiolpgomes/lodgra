@@ -27,8 +27,6 @@ interface SimpleCalendarAdapterProps {
   onMonthChange?: (month: number, year: number) => void
   reservations?: Reservation[]
   dailyPrices?: Record<string, number> // ISO date -> price
-  weekendPrice?: number | null // Global weekend price fallback
-  basePrice?: number | null // Global base price fallback
 }
 
 function SimpleCalendarAdapterComponent({
@@ -38,8 +36,6 @@ function SimpleCalendarAdapterComponent({
   onMonthChange,
   reservations = [],
   dailyPrices = {},
-  weekendPrice,
-  basePrice,
 }: SimpleCalendarAdapterProps) {
   const today = new Date()
   const [currentMonth, setCurrentMonth] = React.useState(today.getMonth())
@@ -84,23 +80,7 @@ function SimpleCalendarAdapterComponent({
 
   const getDayPrice = (day: number) => {
     const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
-
-    // Check if there's a custom price for this day
-    if (dailyPrices[dateStr]) {
-      return dailyPrices[dateStr]
-    }
-
-    // Check if it's a weekend (Saturday = 6, Sunday = 0)
-    const date = new Date(currentYear, currentMonth, day)
-    const dayOfWeek = date.getDay()
-    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6
-
-    // Return weekend price if available, otherwise base price
-    if (isWeekend && weekendPrice) {
-      return weekendPrice
-    }
-
-    return basePrice || undefined
+    return dailyPrices[dateStr]
   }
 
   const getReservationForDay = (day: number) => {
