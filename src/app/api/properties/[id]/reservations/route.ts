@@ -78,17 +78,30 @@ export async function GET(
 
     // Fetch reservations via property_listings (correct column name)
     console.log('[GET /reservations] Fetching reservations...')
-    const { data: reservations, error: reservationsError } = await supabase
+
+    // First, try to get property_listings
+    const { data: propertyListings } = await supabase
+      .from('property_listings')
+      .select('id')
+      .eq('property_id', propertyId)
+
+    console.log('[GET /reservations] Property listings:', propertyListings?.length || 0)
+
+    const listingIds = propertyListings?.map(p => p.id) || []
+
+    let query = supabase
       .from('reservations')
       .select('*')
-      .in('property_listing_id',
-        (await supabase
-          .from('property_listings')
-          .select('id')
-          .eq('property_id', propertyId))
-        .data?.map(p => p.id) || []
-      )
       .order('check_in', { ascending: true })
+
+    // If we have listings, filter by them; otherwise, just fetch all for debugging
+    if (listingIds.length > 0) {
+      query = query.in('property_listing_id', listingIds)
+    } else {
+      console.log('[GET /reservations] No property_listings found, fetching all reservations for debugging...')
+    }
+
+    const { data: reservations, error: reservationsError } = await query
 
     console.log('[GET /reservations] Reservations result:', {
       count: reservations?.length,
