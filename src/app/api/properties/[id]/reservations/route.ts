@@ -92,6 +92,11 @@ export async function GET(
 
     console.log('[GET /reservations] Reservations result:', {
       count: reservations?.length,
+      propertyListings: (await supabase
+        .from('property_listings')
+        .select('id')
+        .eq('property_id', propertyId))
+      .data?.length,
       error: {
         message: reservationsError?.message,
         code: reservationsError?.code,
@@ -99,6 +104,12 @@ export async function GET(
         hint: reservationsError?.hint
       }
     })
+
+    if (reservations && reservations.length > 0) {
+      console.log('[GET /reservations] Sample reservations (first 3):',
+        JSON.stringify(reservations.slice(0, 3), null, 2)
+      )
+    }
 
     if (reservationsError) {
       console.error('[GET /reservations] Reservations fetch error (FULL):', JSON.stringify({
