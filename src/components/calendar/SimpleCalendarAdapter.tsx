@@ -351,4 +351,4 @@ function SimpleCalendarAdapterComponent({
   )
 }
 
-export const SimpleCalendarAdapter = SimpleCalendarAdapterComponent
+export const SimpleCalendarAdapter = React.memo(SimpleCalendarAdapterComponent)
