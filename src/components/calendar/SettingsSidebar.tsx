@@ -48,47 +48,52 @@ export function SettingsSidebar({ propertyId: propPropertyId, onUpdate }: Settin
   const [editorMonth, setEditorMonth] = useState(new Date())
 
   // Load pricing and discount data on mount
-  useEffect(() => {
+  const loadData = async () => {
     if (!propertyId) return
+    setLoading(true)
 
-    const loadData = async () => {
-      try {
-        // Fetch pricing data
-        const pricingRes = await fetch(`/api/properties/${propertyId}/pricing`, {
-          credentials: 'include'
-        })
-        if (pricingRes.ok) {
-          const pricingData = await pricingRes.json()
-          setPricing(pricingData.data)
-        }
-
-        // Fetch discounts
-        const discountsRes = await fetch(`/api/properties/${propertyId}/discounts`, {
-          credentials: 'include'
-        })
-        if (discountsRes.ok) {
-          const discountsData = await discountsRes.json()
-          setDiscounts(discountsData.data || [])
-        }
-
-        // Fetch cancellation policies
-        const policiesRes = await fetch(`/api/properties/${propertyId}/cancellation-policies`, {
-          credentials: 'include'
-        })
-        if (policiesRes.ok) {
-          const policiesData = await policiesRes.json()
-          setCancellationPolicies(policiesData.data || [])
-        }
-
-        setLoading(false)
-      } catch (error) {
-        console.error('Error loading settings data:', error)
-        setLoading(false)
+    try {
+      // Fetch pricing data
+      const pricingRes = await fetch(`/api/properties/${propertyId}/pricing`, {
+        credentials: 'include'
+      })
+      if (pricingRes.ok) {
+        const pricingData = await pricingRes.json()
+        setPricing(pricingData.data)
       }
-    }
 
+      // Fetch discounts
+      const discountsRes = await fetch(`/api/properties/${propertyId}/discounts`, {
+        credentials: 'include'
+      })
+      if (discountsRes.ok) {
+        const discountsData = await discountsRes.json()
+        setDiscounts(discountsData.data || [])
+      }
+
+      // Fetch cancellation policies
+      const policiesRes = await fetch(`/api/properties/${propertyId}/cancellation-policies`, {
+        credentials: 'include'
+      })
+      if (policiesRes.ok) {
+        const policiesData = await policiesRes.json()
+        setCancellationPolicies(policiesData.data || [])
+      }
+
+      setLoading(false)
+    } catch (error) {
+      console.error('Error loading settings data:', error)
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
     loadData()
   }, [propertyId])
+
+  const refetchSettings = async () => {
+    await loadData()
+  }
 
 
   const handleSaveCancellationPolicy = async (policyId: string, updates: Partial<PropertyCancellationPolicy>) => {
@@ -161,7 +166,16 @@ export function SettingsSidebar({ propertyId: propPropertyId, onUpdate }: Settin
       <SettingsTabs onTabChange={setActiveTab}>
         {activeTab === 'prices' && propertyId && (
           <div className="space-y-4 md:space-y-6">
-            <PriceCard propertyId={propertyId} basePrice={pricing?.base_price || null} weekendPrice={pricing?.weekend_price} onUpdate={onUpdate} />
+            <PriceCard
+              propertyId={propertyId}
+              basePrice={pricing?.base_price || null}
+              weekendPrice={pricing?.weekend_price}
+              onUpdate={async () => {
+                await onUpdate?.()
+                // Refetch sidebar data after a short delay to ensure API update is complete
+                setTimeout(() => refetchSettings(), 500)
+              }}
+            />
           </div>
         )}
 
