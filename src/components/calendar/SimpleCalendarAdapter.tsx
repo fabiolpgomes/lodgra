@@ -38,6 +38,15 @@ function SimpleCalendarAdapterComponent({
   dailyPrices = {},
 }: SimpleCalendarAdapterProps) {
   const today = new Date()
+
+  // Debug logging
+  React.useEffect(() => {
+    console.log('[SimpleCalendarAdapter] reservations:', {
+      count: reservations.length,
+      data: reservations.slice(0, 3),
+      fullData: JSON.stringify(reservations)
+    })
+  }, [reservations])
   const [currentMonth, setCurrentMonth] = React.useState(today.getMonth())
   const [currentYear, setCurrentYear] = React.useState(today.getFullYear())
   const [showMonthPicker, setShowMonthPicker] = React.useState(false)
@@ -84,7 +93,7 @@ function SimpleCalendarAdapterComponent({
   }
 
   const getReservationForDay = (day: number) => {
-    return reservations.find(res => {
+    const found = reservations.find(res => {
       // Compare dates at local midnight
       const d = new Date(currentYear, currentMonth, day)
       d.setHours(0, 0, 0, 0)
@@ -95,8 +104,20 @@ function SimpleCalendarAdapterComponent({
       const endDate = new Date(res.endDate)
       endDate.setHours(23, 59, 59, 999)
 
-      return d >= startDate && d <= endDate
+      const match = d >= startDate && d <= endDate
+      if (match) {
+        console.log(`[SimpleCalendarAdapter] Found reservation for day ${day}:`, {
+          day,
+          d: d.toISOString(),
+          startDate: startDate.toISOString(),
+          endDate: endDate.toISOString(),
+          guestName: res.guestName
+        })
+      }
+      return match
     })
+
+    return found
   }
 
   const handleDayMouseDown = (day: number | null) => {
