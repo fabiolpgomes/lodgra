@@ -85,12 +85,16 @@ function SimpleCalendarAdapterComponent({
 
   const getReservationForDay = (day: number) => {
     return reservations.find(res => {
-      // Compare dates at midnight UTC to handle timezone issues
-      const d = new Date(Date.UTC(currentYear, currentMonth, day))
+      // Compare dates at local midnight
+      const d = new Date(currentYear, currentMonth, day)
+      d.setHours(0, 0, 0, 0)
+
       const startDate = new Date(res.startDate)
       startDate.setHours(0, 0, 0, 0)
+
       const endDate = new Date(res.endDate)
       endDate.setHours(23, 59, 59, 999)
+
       return d >= startDate && d <= endDate
     })
   }
