@@ -89,19 +89,20 @@ export async function GET(
 
     const listingIds = propertyListings?.map(p => p.id) || []
 
-    let query = supabase
-      .from('reservations')
-      .select('*')
-      .order('check_in', { ascending: true })
-
-    // If we have listings, filter by them; otherwise, just fetch all for debugging
-    if (listingIds.length > 0) {
-      query = query.in('property_listing_id', listingIds)
-    } else {
-      console.log('[GET /reservations] No property_listings found, fetching all reservations for debugging...')
+    // If no property_listings, return empty array (no reservations possible)
+    if (listingIds.length === 0) {
+      console.log('[GET /reservations] No property_listings found, returning empty reservations')
+      return NextResponse.json({
+        success: true,
+        data: [],
+      })
     }
 
-    const { data: reservations, error: reservationsError } = await query
+    const { data: reservations, error: reservationsError } = await supabase
+      .from('reservations')
+      .select('*')
+      .in('property_listing_id', listingIds)
+      .order('check_in', { ascending: true })
 
     console.log('[GET /reservations] Reservations result:', {
       count: reservations?.length,
