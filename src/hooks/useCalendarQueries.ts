@@ -50,22 +50,17 @@ export function useReservations(propertyId: string, year: number, month: number)
     queryKey: ['reservations', propertyId, year, month],
     queryFn: async () => {
       try {
-        const url = `/api/properties/${propertyId}/reservations`
-        console.log(`[useReservations] Fetching from: ${url}`)
-
-        const response = await fetch(url, { credentials: 'include' })
-
-        console.log(`[useReservations] Response status: ${response.status}`)
+        const response = await fetch(
+          `/api/properties/${propertyId}/reservations`,
+          { credentials: 'include' }
+        )
 
         if (!response.ok) {
-          const text = await response.text()
-          console.error(`[ERROR] Reservations API returned ${response.status}:`, text)
+          console.warn(`[WARN] Reservations API returned ${response.status}`)
           return { data: [] }
         }
 
-        const data = await response.json() as ReservationsResponse
-        console.log(`[useReservations] SUCCESS - Got ${data.data?.length || 0} reservations`)
-        return data
+        return (await response.json()) as ReservationsResponse
       } catch (error) {
         console.error(`[ERROR] useReservations exception:`, error)
         return { data: [] }
