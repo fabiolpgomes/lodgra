@@ -103,22 +103,39 @@ function CalendarWithSettingsContent({
 
   const reservations = useMemo(() => {
     if (!reservationsQuery.data?.data) return []
-    return reservationsQuery.data.data.map((res: any) => {
-      // Handle both old and new field names from API
-      const startStr = res.start_date || res.start
-      const endStr = res.end_date || res.end
-      const guestName = res.guest_name || res.guest || 'Guest'
 
-      return {
+    const transformed = reservationsQuery.data.data.map((res: any) => {
+      // Handle both old and new field names from API
+      const startStr = res.start_date || res.start || res.check_in
+      const endStr = res.end_date || res.end || res.check_out
+      const guestName = res.guest_name || res.guest || res.first_name || 'Guest'
+
+      const result = {
         id: res.id,
         guestName: guestName,
-        guestCount: res.guest_count || 1,
+        guestCount: res.guest_count || res.number_of_guests || 1,
         startDate: parseISODate(startStr),
         endDate: parseISODate(endStr),
-        price: res.price_per_night || 0,
+        price: res.price_per_night || res.total_amount || 0,
         status: res.status || 'pending',
       }
+
+      // Debug log first reservation only
+      if (reservationsQuery.data.data.indexOf(res) === 0) {
+        console.log('[CalendarWithSettings] First reservation transformed:', {
+          raw: res,
+          transformed: result,
+          guestNameFallback: guestName,
+          startCheck: { raw: startStr, parsed: result.startDate.toDateString() },
+          endCheck: { raw: endStr, parsed: result.endDate.toDateString() }
+        })
+      }
+
+      return result
     })
+
+    console.log(`[CalendarWithSettings] Transformed ${transformed.length} reservations`)
+    return transformed
   }, [reservationsQuery.data])
 
   // Handle day click from calendar
