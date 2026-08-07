@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
         `
         id,
         guest_name,
-        property_name,
+        property_identifier_raw,
         check_in,
         check_out,
         created_at,
@@ -36,11 +36,11 @@ export async function GET(request: NextRequest) {
     const formattedCases = cases.map(case_ => ({
       id: case_.id,
       guestName: case_.guest_name,
-      propertyName: case_.property_name,
+      propertyName: case_.property_identifier_raw,
       checkIn: case_.check_in,
       checkOut: case_.check_out,
       createdAt: case_.created_at,
-      reason: !case_.property_name
+      reason: !case_.property_identifier_raw
         ? 'Propriedade não identificada no email'
         : 'Múltiplas reservas na mesma data',
     }))
