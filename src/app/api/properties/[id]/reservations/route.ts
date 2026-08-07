@@ -120,6 +120,24 @@ export async function GET(
       }
     })
 
+    // Check if there are MORE reservations NOT in our listing IDs
+    const { data: allReservations } = await supabase
+      .from('reservations')
+      .select('id, property_listing_id, guest_name, check_in, check_out')
+      .limit(100)
+
+    const allReservationsByListing = allReservations?.reduce((acc: any, res: any) => {
+      if (!acc[res.property_listing_id]) acc[res.property_listing_id] = 0
+      acc[res.property_listing_id]++
+      return acc
+    }, {}) || {}
+
+    console.log('[GET /reservations] DEBUG - All reservations by listing_id:', allReservationsByListing)
+    console.log('[GET /reservations] DEBUG - Expected listing IDs:', listingIds)
+    console.log('[GET /reservations] DEBUG - Are listing IDs in allReservationsByListing?',
+      listingIds.map(id => ({ id, hasReservations: id in allReservationsByListing }))
+    )
+
     if (reservations && reservations.length > 0) {
       console.log('[GET /reservations] Sample reservations (first 3):',
         JSON.stringify(reservations.slice(0, 3), null, 2)
