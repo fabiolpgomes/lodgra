@@ -41,11 +41,14 @@ function SimpleCalendarAdapterComponent({
 
   // Debug logging
   React.useEffect(() => {
-    console.log('[SimpleCalendarAdapter] reservations:', {
-      count: reservations.length,
-      data: reservations.slice(0, 3),
-      fullData: JSON.stringify(reservations)
-    })
+    if (reservations.length > 0) {
+      console.log('[SimpleCalendarAdapter] reservations COUNT:', reservations.length)
+      console.log('[SimpleCalendarAdapter] First reservation structure:', {
+        ...reservations[0],
+        startDate: reservations[0].startDate?.toString(),
+        endDate: reservations[0].endDate?.toString()
+      })
+    }
   }, [reservations])
   const [currentMonth, setCurrentMonth] = React.useState(today.getMonth())
   const [currentYear, setCurrentYear] = React.useState(today.getFullYear())
@@ -93,6 +96,16 @@ function SimpleCalendarAdapterComponent({
   }
 
   const getReservationForDay = (day: number) => {
+    // Log only once per month to avoid spam
+    if (day === 1 && reservations.length > 0) {
+      console.log(`[getReservationForDay] Checking day 1 - Calendar month/year: ${currentMonth}/${currentYear}`)
+      console.log(`[getReservationForDay] Sample reservation date comparison:`, {
+        calendarDate: new Date(currentYear, currentMonth, 1).toLocaleDateString(),
+        firstResStart: new Date(reservations[0].startDate).toLocaleDateString(),
+        firstResEnd: new Date(reservations[0].endDate).toLocaleDateString()
+      })
+    }
+
     const found = reservations.find(res => {
       // Compare dates at local midnight
       const d = new Date(currentYear, currentMonth, day)
@@ -106,13 +119,7 @@ function SimpleCalendarAdapterComponent({
 
       const match = d >= startDate && d <= endDate
       if (match) {
-        console.log(`[SimpleCalendarAdapter] Found reservation for day ${day}:`, {
-          day,
-          d: d.toISOString(),
-          startDate: startDate.toISOString(),
-          endDate: endDate.toISOString(),
-          guestName: res.guestName
-        })
+        console.log(`[getReservationForDay] ✓ Match for day ${day}: ${res.guestName}`)
       }
       return match
     })
