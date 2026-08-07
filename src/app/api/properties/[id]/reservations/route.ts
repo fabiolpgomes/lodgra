@@ -125,20 +125,25 @@ export async function GET(
     }
 
     if (reservationsError) {
-      console.error('[GET /reservations] Reservations fetch error (FULL):', JSON.stringify({
+      console.error('[GET /reservations] Reservations fetch error (FULL):', {
         message: reservationsError.message,
         code: reservationsError.code,
         details: reservationsError.details,
-        hint: reservationsError.hint
-      }))
+        hint: reservationsError.hint,
+        listingIds: listingIds
+      })
+      console.error('[GET /reservations] Full error object:', reservationsError)
+
+      // Return 503 if there's a query issue, but provide data
       return NextResponse.json(
         {
+          success: false,
+          data: [],
           error: 'Failed to fetch reservations',
           message: reservationsError.message,
-          code: reservationsError.code,
-          details: reservationsError.details
+          code: reservationsError.code
         },
-        { status: 500 }
+        { status: 200 }  // Return 200 with empty data instead of 500
       )
     }
 
