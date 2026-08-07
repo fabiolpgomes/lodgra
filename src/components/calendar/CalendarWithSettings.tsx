@@ -86,15 +86,22 @@ function CalendarWithSettingsContent({
 
   const reservations = useMemo(() => {
     if (!reservationsQuery.data?.data) return []
-    return reservationsQuery.data.data.map((res: any) => ({
-      id: res.id,
-      guestName: res.guest_name || 'Guest',
-      guestCount: res.guest_count || 1,
-      startDate: new Date(res.start_date),
-      endDate: new Date(res.end_date),
-      price: res.price_per_night || 0,
-      status: res.status || 'pending',
-    }))
+    return reservationsQuery.data.data.map((res: any) => {
+      // Handle both old and new field names from API
+      const startStr = res.start_date || res.start
+      const endStr = res.end_date || res.end
+      const guestName = res.guest_name || res.guest || 'Guest'
+
+      return {
+        id: res.id,
+        guestName: guestName,
+        guestCount: res.guest_count || 1,
+        startDate: new Date(startStr),
+        endDate: new Date(endStr),
+        price: res.price_per_night || 0,
+        status: res.status || 'pending',
+      }
+    })
   }, [reservationsQuery.data])
 
   // Handle day click from calendar
