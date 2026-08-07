@@ -84,6 +84,23 @@ function CalendarWithSettingsContent({
     return priceMap
   }, [pricesQuery.data])
 
+  // Helper to parse ISO date strings correctly
+  const parseISODate = (dateStr: string | Date): Date => {
+    if (dateStr instanceof Date) return dateStr
+    if (!dateStr) return new Date()
+
+    // Handle ISO format (YYYY-MM-DD)
+    const match = String(dateStr).match(/^(\d{4})-(\d{2})-(\d{2})/)
+    if (match) {
+      const [, year, month, day] = match
+      // Use local timezone to avoid UTC conversion issues
+      return new Date(parseInt(year), parseInt(month) - 1, parseInt(day))
+    }
+
+    // Fallback to native parsing
+    return new Date(dateStr)
+  }
+
   const reservations = useMemo(() => {
     if (!reservationsQuery.data?.data) return []
     return reservationsQuery.data.data.map((res: any) => {
@@ -96,8 +113,8 @@ function CalendarWithSettingsContent({
         id: res.id,
         guestName: guestName,
         guestCount: res.guest_count || 1,
-        startDate: new Date(startStr),
-        endDate: new Date(endStr),
+        startDate: parseISODate(startStr),
+        endDate: parseISODate(endStr),
         price: res.price_per_night || 0,
         status: res.status || 'pending',
       }
