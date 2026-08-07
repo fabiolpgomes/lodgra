@@ -85,7 +85,7 @@ function SimpleCalendarAdapterComponent({
   }
 
   const getReservationForDay = (day: number) => {
-    const found = reservations.find(res => {
+    return reservations.find(res => {
       const d = new Date(currentYear, currentMonth, day)
       d.setHours(0, 0, 0, 0)
 
@@ -95,23 +95,8 @@ function SimpleCalendarAdapterComponent({
       const endDate = new Date(res.endDate)
       endDate.setHours(23, 59, 59, 999)
 
-      const isMatch = d >= startDate && d <= endDate
-
-      // Debug first reservation and first matching day only
-      if (reservations.length > 0 && day === 2 && res === reservations[0]) {
-        console.log('[DEBUG] Day 2 check:', {
-          day,
-          calendarDate: d.toDateString(),
-          resStart: startDate.toDateString(),
-          resEnd: endDate.toDateString(),
-          isMatch
-        })
-      }
-
-      return isMatch
+      return d >= startDate && d <= endDate
     })
-
-    return found
   }
 
   const handleDayMouseDown = (day: number | null) => {
