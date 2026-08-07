@@ -92,6 +92,8 @@ export function SettingsSidebar({ propertyId: propPropertyId, onUpdate }: Settin
   }, [propertyId])
 
   const refetchSettings = async () => {
+    // Add delay to ensure API has processed the update
+    await new Promise(resolve => setTimeout(resolve, 300))
     await loadData()
   }
 

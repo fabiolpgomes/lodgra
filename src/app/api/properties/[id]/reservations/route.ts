@@ -80,14 +80,19 @@ export async function GET(
     console.log('[GET /reservations] Fetching reservations...')
 
     // First, try to get property_listings
-    const { data: propertyListings } = await supabase
+    const { data: propertyListings, error: listingError } = await supabase
       .from('property_listings')
       .select('id')
       .eq('property_id', propertyId)
 
-    console.log('[GET /reservations] Property listings:', propertyListings?.length || 0)
+    console.log('[GET /reservations] Property listings query:', {
+      count: propertyListings?.length || 0,
+      error: listingError?.message,
+      listings: JSON.stringify(propertyListings || [])
+    })
 
     const listingIds = propertyListings?.map(p => p.id) || []
+    console.log('[GET /reservations] Listing IDs to query:', listingIds)
 
     // If no property_listings, return empty array (no reservations possible)
     if (listingIds.length === 0) {
@@ -104,13 +109,9 @@ export async function GET(
       .in('property_listing_id', listingIds)
       .order('check_in', { ascending: true })
 
-    console.log('[GET /reservations] Reservations result:', {
+    console.log('[GET /reservations] Reservations query:', {
       count: reservations?.length,
-      propertyListings: (await supabase
-        .from('property_listings')
-        .select('id')
-        .eq('property_id', propertyId))
-      .data?.length,
+      listingIdsUsed: listingIds,
       error: {
         message: reservationsError?.message,
         code: reservationsError?.code,
