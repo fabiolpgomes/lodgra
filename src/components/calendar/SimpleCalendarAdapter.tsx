@@ -103,6 +103,7 @@ function SimpleCalendarAdapterComponent({
 
   const handleDayMouseDown = (day: number | null) => {
     if (!day) return
+    console.log('[SimpleCalendarAdapter] Drag START:', day)
     setRangeStart(day)
     setRangeEnd(day)
     setIsDragging(true)
@@ -115,6 +116,7 @@ function SimpleCalendarAdapterComponent({
 
   const handleDayMouseEnter = (day: number | null) => {
     if (!isDragging || !day || rangeStart === null) return
+    console.log('[SimpleCalendarAdapter] Drag MOVE:', day, 'isDragging:', isDragging)
     setRangeEnd(day)
     // Highlight all cells in range with enhanced visual feedback
     const min = Math.min(rangeStart, day)
@@ -128,6 +130,7 @@ function SimpleCalendarAdapterComponent({
   }
 
   const handleMouseUp = () => {
+    console.log('[SimpleCalendarAdapter] Drag END:', { isDragging, rangeStart, rangeEnd })
     if (isDragging && rangeStart !== null && rangeEnd !== null) {
       const start = Math.min(rangeStart, rangeEnd)
       const end = Math.max(rangeStart, rangeEnd)
