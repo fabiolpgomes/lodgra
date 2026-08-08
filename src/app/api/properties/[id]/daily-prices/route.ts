@@ -21,14 +21,14 @@ export async function GET(
     const supabase = await createAdminClient()
     const pricesMap = new Map<string, number>()
 
-    // Fetch weekend_price from properties table
-    const { data: property } = await supabase
-      .from('properties')
+    // Fetch weekend_price from property_prices table (where it's actually stored)
+    const { data: pricing } = await supabase
+      .from('property_prices')
       .select('weekend_price')
-      .eq('id', propertyId)
+      .eq('property_id', propertyId)
       .single()
 
-    const weekendPrice = property?.weekend_price || null
+    const weekendPrice = pricing?.weekend_price || null
 
     // Step 1: Get all pricing_rules for this property (base layer)
     const { data: rules, error: rulesError } = await supabase

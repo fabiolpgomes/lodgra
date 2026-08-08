@@ -87,21 +87,41 @@ export default function EmailSyncStatusPage() {
     showToast('🔄 Disparando sincronização de iCal...', 'info')
 
     try {
+      console.log('🔄 Iniciando sincronização...')
       const response = await fetch('/api/admin/trigger-email-parser', {
         method: 'POST',
         credentials: 'include',
       })
 
+      console.log('Resposta recebida:', { status: response.status, ok: response.ok })
+
       if (!response.ok) {
-        const errorData = await response.json()
-        const errorMsg = errorData?.error || response.statusText
-        showToast(`❌ Erro: ${errorMsg}`, 'error')
-        console.error('Erro na sincronização:', errorMsg)
+        const text = await response.text()
+        console.error('Erro response:', text)
+        try {
+          const errorData = JSON.parse(text)
+          const errorMsg = errorData?.error || response.statusText
+          showToast(`❌ Erro: ${errorMsg}`, 'error')
+        } catch {
+          showToast(`❌ Erro ${response.status}: ${response.statusText}`, 'error')
+        }
         setSyncing(false)
         return
       }
 
-      const data = await response.json()
+      const text = await response.text()
+      console.log('Response text:', text)
+
+      let data
+      try {
+        data = JSON.parse(text)
+      } catch (e) {
+        console.error('Falha ao parsear JSON:', e)
+        showToast('⚠️ Resposta inválida do servidor', 'error')
+        setSyncing(false)
+        return
+      }
+
       console.log('Sincronização disparada:', data)
       showToast('✅ Sincronização iniciada! Aguardando processamento...', 'success')
 
@@ -112,8 +132,8 @@ export default function EmailSyncStatusPage() {
       }, 3000)
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error)
-      showToast(`❌ Erro ao sincronizar: ${errorMsg}`, 'error')
       console.error('Erro ao disparar sincronização:', error)
+      showToast(`❌ Erro ao sincronizar: ${errorMsg}`, 'error')
       setSyncing(false)
     }
   }
