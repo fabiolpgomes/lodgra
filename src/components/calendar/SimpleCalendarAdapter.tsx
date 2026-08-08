@@ -299,14 +299,7 @@ function SimpleCalendarAdapterComponent({
                       <div className="flex flex-col items-center justify-center gap-0.5 w-full h-full px-0.5">
                         <div className="text-xs font-bold">🛏️</div>
                         <div className="text-xs font-semibold truncate max-w-full" style={{ color: '#10203E' }}>
-                          {(() => {
-                            const res = getReservationForDay(day)
-                            const displayName = res?.guestName?.substring(0, 10) || 'Guest'
-                            if (day === 1 && currentMonth === 7) {
-                              console.log('[SimpleCalendarAdapter] Day 1 Aug reservation:', { res, displayName })
-                            }
-                            return displayName
-                          })()}
+                          {getReservationForDay(day)?.guestName?.substring(0, 10) || 'Guest'}
                         </div>
                         <div className="text-xs opacity-75" style={{ color: '#4D5566' }}>
                           {getReservationForDay(day)?.guestCount} hósp.
