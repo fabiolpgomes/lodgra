@@ -23,6 +23,7 @@ interface Reservation {
 interface SimpleCalendarAdapterProps {
   onDayClick: (day: number, year: number, month: number) => void
   onRangeSelect?: (startDay: number, endDay: number, month: number, year: number) => void
+  onReservationClick?: (reservation: Reservation) => void // NEW: clicked on existing reservation
   selectedDates: string[] // ISO date strings
   onMonthChange?: (month: number, year: number) => void
   reservations?: Reservation[]
@@ -32,6 +33,7 @@ interface SimpleCalendarAdapterProps {
 function SimpleCalendarAdapterComponent({
   onDayClick,
   onRangeSelect,
+  onReservationClick,
   selectedDates,
   onMonthChange,
   reservations = [],
@@ -296,7 +298,15 @@ function SimpleCalendarAdapterComponent({
                   <div className="flex flex-col items-center justify-center w-full h-full gap-0.5 px-0.5 py-1">
                     <div className="text-sm font-bold">{day}</div>
                     {getReservationForDay(day) ? (
-                      <div className="flex flex-col items-center justify-center gap-0.5 w-full h-full px-0.5">
+                      <div
+                        className="flex flex-col items-center justify-center gap-0.5 w-full h-full px-0.5 cursor-pointer hover:opacity-75 transition-opacity"
+                        onClick={() => {
+                          const res = getReservationForDay(day)
+                          if (res) onReservationClick?.(res)
+                        }}
+                        role="button"
+                        tabIndex={0}
+                      >
                         <div className="text-xs font-bold">🛏️</div>
                         <div className="text-xs font-semibold truncate max-w-full" style={{ color: '#10203E' }}>
                           {getReservationForDay(day)?.guestName?.substring(0, 10) || 'Guest'}

@@ -21,6 +21,15 @@ export async function GET(
     const supabase = await createAdminClient()
     const pricesMap = new Map<string, number>()
 
+    // Fetch weekend_price from properties table
+    const { data: property } = await supabase
+      .from('properties')
+      .select('weekend_price')
+      .eq('id', propertyId)
+      .single()
+
+    const weekendPrice = property?.weekend_price || null
+
     // Step 1: Get all pricing_rules for this property (base layer)
     const { data: rules, error: rulesError } = await supabase
       .from('pricing_rules')
@@ -65,11 +74,22 @@ export async function GET(
       }
     }
 
-    // Convert map to array format
-    const dailyPrices = Array.from(pricesMap.entries()).map(([date, base_price]) => ({
-      date,
-      base_price,
-    }))
+    // Convert map to array format, applying weekend pricing if configured
+    const dailyPrices = Array.from(pricesMap.entries()).map(([date, base_price]) => {
+      const dateObj = new Date(date)
+      const dayOfWeek = dateObj.getDay() // 0 = Sunday, 6 = Saturday
+      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6
+
+      // Use weekend_price if available and it's a weekend day
+      const finalPrice = isWeekend && weekendPrice ? weekendPrice : base_price
+
+      return {
+        date,
+        base_price,
+        weekend_price: weekendPrice,
+        final_price: finalPrice,
+      }
+    })
 
     return NextResponse.json(dailyPrices)
   } catch (error) {

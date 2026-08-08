@@ -5,6 +5,8 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 interface DailyPrice {
   date: string
   base_price: number
+  weekend_price?: number | null
+  final_price: number
 }
 
 interface Reservation {

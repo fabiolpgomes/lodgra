@@ -6,6 +6,7 @@ import { ArrowLeft } from 'lucide-react'
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query'
 import { SettingsSidebar } from './SettingsSidebar'
 import { CalendarDayClickModal } from './CalendarDayClickModal'
+import { ReservationDetailsModal } from './ReservationDetailsModal'
 import { DiscountSelectionModal } from './DiscountSelectionModal'
 import { CancellationPolicyModal } from './CancellationPolicyModal'
 import { useCalendarSelection } from '@/hooks/useCalendarSelection'
@@ -21,6 +22,7 @@ interface CalendarWithSettingsProps {
   calendarComponent: React.ComponentType<{
     onDayClick: (day: number, year: number, month: number) => void
     onRangeSelect?: (startDay: number, endDay: number, month: number, year: number) => void
+    onReservationClick?: (reservation: Reservation) => void
     selectedDates: string[]
     onMonthChange?: (month: number, year: number) => void
     reservations?: Reservation[]
@@ -62,6 +64,7 @@ function CalendarWithSettingsContent({
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear())
   const [showDiscountModal, setShowDiscountModal] = useState(false)
   const [showCancellationModal, setShowCancellationModal] = useState(false)
+  const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null)
 
   // React Query hooks
   const pricesQuery = useDailyPrices(propertyId, currentYear, currentMonth)
@@ -78,7 +81,8 @@ function CalendarWithSettingsContent({
     const priceMap: Record<string, number> = {}
     if (pricesQuery.data) {
       pricesQuery.data.forEach((p) => {
-        priceMap[p.date] = p.base_price
+        // Use final_price which includes weekend pricing logic
+        priceMap[p.date] = p.final_price || p.base_price
       })
     }
     return priceMap
@@ -280,6 +284,11 @@ function CalendarWithSettingsContent({
     setShowCancellationModal(true)
   }, [])
 
+  // Handle reservation click - show details modal
+  const handleReservationClick = useCallback((reservation: Reservation) => {
+    setSelectedReservation(reservation)
+  }, [])
+
   return (
     <div className="w-full h-screen flex flex-col">
       {/* Header with back button - always full width */}
@@ -304,6 +313,7 @@ function CalendarWithSettingsContent({
           <CalendarComponent
             onDayClick={handleDayClick}
             onRangeSelect={handleRangeSelect}
+            onReservationClick={handleReservationClick}
             selectedDates={selectedDateStr}
             onMonthChange={handleMonthChange}
             reservations={reservations}
@@ -317,6 +327,13 @@ function CalendarWithSettingsContent({
           <SettingsSidebar key={propertyId} propertyId={propertyId} onUpdate={refetchData} />
         </div>
       </div>
+
+      {/* Reservation Details Modal */}
+      <ReservationDetailsModal
+        isOpen={!!selectedReservation}
+        reservation={selectedReservation}
+        onClose={() => setSelectedReservation(null)}
+      />
 
       {/* Day Click Modal */}
       <CalendarDayClickModal
