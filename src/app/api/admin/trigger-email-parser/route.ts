@@ -9,11 +9,14 @@ import { createClient } from '@/lib/supabase/server'
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+
+    console.log('[trigger-email-parser] Auth attempt:', { user: user?.email, authError })
 
     if (!user) {
+      console.error('[trigger-email-parser] No user found, returning 401')
       return NextResponse.json(
-        { error: 'Não autenticado' },
+        { error: 'Não autenticado', details: 'Sessão inválida ou expirada' },
         { status: 401 }
       )
     }
