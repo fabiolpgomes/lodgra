@@ -374,4 +374,5 @@ function SimpleCalendarAdapterComponent({
   )
 }
 
-export const SimpleCalendarAdapter = React.memo(SimpleCalendarAdapterComponent)
+// Removed React.memo - was causing closure issues with props
+export const SimpleCalendarAdapter = SimpleCalendarAdapterComponent
