@@ -31,6 +31,14 @@ interface DailyMetrics {
   needsReview: number
 }
 
+interface SyncResult {
+  processed: number
+  created: number
+  skipped: number
+  errors: number
+  duration?: number
+}
+
 interface Toast {
   id: string
   type: 'success' | 'error' | 'info'
@@ -44,6 +52,8 @@ export default function EmailSyncStatusPage() {
   const [loading, setLoading] = useState(true)
   const [selectedDays, setSelectedDays] = useState(7)
   const [syncing, setSyncing] = useState(false)
+  const [syncProgress, setSyncProgress] = useState('')
+  const [syncResult, setSyncResult] = useState<SyncResult | null>(null)
   const [toast, setToast] = useState<Toast | null>(null)
 
   useEffect(() => {
@@ -84,10 +94,17 @@ export default function EmailSyncStatusPage() {
 
   async function triggerManualSync() {
     setSyncing(true)
-    showToast('🔄 Disparando sincronização de iCal...', 'info')
+    setSyncResult(null)
+    setSyncProgress('🔄 Conectando com servidor...')
+    showToast('🔄 Iniciando sincronização de emails...', 'info')
+
+    const startTime = Date.now()
 
     try {
       console.log('🔄 Iniciando sincronização...')
+
+      setSyncProgress('📧 Buscando emails não sincronizados...')
+
       const response = await fetch('/api/admin/trigger-email-parser', {
         method: 'POST',
         credentials: 'include',
@@ -101,11 +118,12 @@ export default function EmailSyncStatusPage() {
         try {
           const errorData = JSON.parse(text)
           const errorMsg = errorData?.error || response.statusText
-          showToast(`❌ Erro: ${errorMsg}`, 'error')
+          showToast(`❌ Erro na sincronização: ${errorMsg}`, 'error')
         } catch {
           showToast(`❌ Erro ${response.status}: ${response.statusText}`, 'error')
         }
         setSyncing(false)
+        setSyncProgress('')
         return
       }
 
@@ -119,25 +137,57 @@ export default function EmailSyncStatusPage() {
         console.error('Falha ao parsear JSON:', e)
         showToast('⚠️ Resposta inválida do servidor', 'error')
         setSyncing(false)
+        setSyncProgress('')
         return
       }
 
       console.log('Sincronização disparada:', data)
-      showToast('✅ Sincronização iniciada! Aguardando processamento...', 'success')
+
+      setSyncProgress('⏳ Processando emails...')
+
+      const duration = Date.now() - startTime
+
+      setSyncResult({
+        processed: data.processed || 0,
+        created: data.created || 0,
+        skipped: data.skipped || 0,
+        errors: data.errors || 0,
+        duration,
+      })
+
+      setSyncProgress('')
+
+      if (data.errors > 0) {
+        showToast(
+          `⚠️ Sincronização concluída: ${data.created} criada(s), ${data.skipped} ignorada(s), ${data.errors} erro(s)`,
+          'error'
+        )
+      } else if (data.created > 0) {
+        showToast(
+          `✅ Sucesso! ${data.created} reserva(s) importada(s)`,
+          'success'
+        )
+      } else {
+        showToast(
+          `ℹ️ Nenhuma nova reserva encontrada`,
+          'info'
+        )
+      }
 
       setTimeout(() => {
         fetchMetrics()
-        setSyncing(false)
-        showToast('✅ Métricas recarregadas!', 'success')
-      }, 3000)
+      }, 2000)
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error)
       console.error('Erro ao disparar sincronização:', error)
-      showToast(`❌ Erro ao sincronizar: ${errorMsg}`, 'error')
+      showToast(`❌ Erro: ${errorMsg}`, 'error')
+      setSyncProgress('')
+    } finally {
       setSyncing(false)
     }
   }
 
+  
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen" style={{ backgroundColor: '#F7F5EF' }}>

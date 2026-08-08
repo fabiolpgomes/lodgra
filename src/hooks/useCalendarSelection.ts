@@ -71,6 +71,13 @@ export function useCalendarSelection(propertyId?: string) {
       current.setDate(current.getDate() + 1)
     }
 
+    console.log('[useCalendarSelection] selectDateRange called:', {
+      start: start.toDateString(),
+      end: end.toDateString(),
+      datesCount: dates.length,
+      dates: dates.map(d => d.toISOString().split('T')[0]),
+    })
+
     setState((prev) => ({
       ...prev,
       mode: 'period',
