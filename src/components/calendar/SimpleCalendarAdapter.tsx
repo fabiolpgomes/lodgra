@@ -103,6 +103,7 @@ function SimpleCalendarAdapterComponent({
 
   const handleDayMouseDown = (day: number | null) => {
     if (!day) return
+    console.log('[SimpleCalendarAdapter] handleDayMouseDown:', day)
     setRangeStart(day)
     setRangeEnd(day)
     setIsDragging(true)
@@ -128,9 +129,24 @@ function SimpleCalendarAdapterComponent({
   }
 
   const handleMouseUp = () => {
+    console.log('[SimpleCalendarAdapter] handleMouseUp:', {
+      isDragging,
+      rangeStart,
+      rangeEnd,
+      hasOnRangeSelect: !!onRangeSelect,
+    })
+
     if (isDragging && rangeStart !== null && rangeEnd !== null) {
       const start = Math.min(rangeStart, rangeEnd)
       const end = Math.max(rangeStart, rangeEnd)
+
+      console.log('[SimpleCalendarAdapter] Calling callback:', {
+        start,
+        end,
+        currentMonth,
+        currentYear,
+        isSingleDay: start === end,
+      })
 
       // Visual feedback: highlight selected range with success animation
       for (let i = start; i <= end; i++) {
