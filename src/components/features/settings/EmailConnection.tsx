@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/common/ui/button'
-import { Mail, CheckCircle, XCircle, Loader2, RefreshCw, AlertCircle, Clock } from 'lucide-react'
+import { Mail, CheckCircle, XCircle, Loader2, RefreshCw, AlertCircle, Clock, Calendar } from 'lucide-react'
 
 interface EmailConnectionProps {
   initialEmail?: string | null
@@ -166,58 +166,66 @@ export function EmailConnection({ initialEmail, initialLastSync }: EmailConnecti
               Sincronização concluída: {syncResult.created} criada{syncResult.created !== 1 ? 's' : ''}, {syncResult.skipped} ignorada{syncResult.skipped !== 1 ? 's' : ''}, {syncResult.errors} erro{syncResult.errors !== 1 ? 's' : ''}
             </div>
           )}
-          <div className="flex items-center gap-2 flex-wrap">
-            <select
-              value={daysBack}
-              onChange={e => setDaysBack(Number(e.target.value))}
-              disabled={syncing}
-              className="h-8 rounded-md border border-gray-200 bg-white px-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-500"
-            >
-              <option value={30}>Últimos 30 dias</option>
-              <option value={60}>Últimos 60 dias</option>
-              <option value={90}>Últimos 90 dias</option>
-            </select>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleSync}
-              disabled={syncing || loading || tokenStatus?.status === 'expired'}
-            >
-              {syncing ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <RefreshCw className="h-4 w-4 mr-2" />}
-              Sincronizar agora
-            </Button>
-            {tokenStatus?.status === 'expired' ? (
+          <div className="space-y-3">
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex-1 flex flex-col">
+                <label className="text-xs font-medium text-gray-600 mb-1.5">Período de sincronização</label>
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                  <select
+                    value={daysBack}
+                    onChange={e => setDaysBack(Number(e.target.value))}
+                    disabled={syncing}
+                    className="flex-1 h-10 rounded-md border border-gray-300 bg-white px-3 text-sm text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <option value={30}>Últimos 30 dias</option>
+                    <option value={60}>Últimos 60 dias</option>
+                    <option value={90}>Últimos 90 dias</option>
+                  </select>
+                </div>
+              </div>
               <Button
-                onClick={handleReconnect}
-                className="bg-red-600 hover:bg-red-700 text-white"
+                className="h-10 self-end"
+                onClick={handleSync}
+                disabled={syncing || loading || tokenStatus?.status === 'expired'}
               >
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Reconectar Gmail
+                {syncing ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <RefreshCw className="h-4 w-4 mr-2" />}
+                Sincronizar agora
               </Button>
-            ) : (
-              <>
+            </div>
+
+            <div className="flex gap-2 flex-wrap">
+              {tokenStatus?.status === 'expired' ? (
                 <Button
-                  variant="outline"
-                  size="sm"
                   onClick={handleReconnect}
-                  disabled={loading || syncing}
-                  title="Reconectar Gmail se o auto-refresh falhar"
+                  className="bg-red-600 hover:bg-red-700 text-white"
                 >
                   <RefreshCw className="h-4 w-4 mr-2" />
-                  Reconectar
+                  Reconectar Gmail
                 </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleDisconnect}
-                  disabled={loading || syncing}
-                  className="text-red-600 border-red-200 hover:bg-red-50"
-                >
-                  {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                  Desconectar
-                </Button>
-              </>
-            )}
+              ) : (
+                <>
+                  <Button
+                    variant="outline"
+                    onClick={handleReconnect}
+                    disabled={loading || syncing}
+                    title="Reconectar Gmail se o auto-refresh falhar"
+                  >
+                    <RefreshCw className="h-4 w-4 mr-2" />
+                    Reconectar
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={handleDisconnect}
+                    disabled={loading || syncing}
+                    className="text-red-600 border-red-200 hover:bg-red-50"
+                  >
+                    {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                    Desconectar
+                  </Button>
+                </>
+              )}
+            </div>
           </div>
         </div>
       ) : (
