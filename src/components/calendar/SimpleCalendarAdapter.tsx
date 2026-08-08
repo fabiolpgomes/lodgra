@@ -103,7 +103,6 @@ function SimpleCalendarAdapterComponent({
 
   const handleDayMouseDown = (day: number | null) => {
     if (!day) return
-    console.log('[SimpleCalendarAdapter] Drag START:', day)
     setRangeStart(day)
     setRangeEnd(day)
     setIsDragging(true)
@@ -116,7 +115,6 @@ function SimpleCalendarAdapterComponent({
 
   const handleDayMouseEnter = (day: number | null) => {
     if (!isDragging || !day || rangeStart === null) return
-    console.log('[SimpleCalendarAdapter] Drag MOVE:', day, 'isDragging:', isDragging)
     setRangeEnd(day)
     // Highlight all cells in range with enhanced visual feedback
     const min = Math.min(rangeStart, day)
@@ -130,7 +128,6 @@ function SimpleCalendarAdapterComponent({
   }
 
   const handleMouseUp = () => {
-    console.log('[SimpleCalendarAdapter] Drag END:', { isDragging, rangeStart, rangeEnd })
     if (isDragging && rangeStart !== null && rangeEnd !== null) {
       const start = Math.min(rangeStart, rangeEnd)
       const end = Math.max(rangeStart, rangeEnd)
@@ -166,12 +163,9 @@ function SimpleCalendarAdapterComponent({
     setRangeEnd(null)
   }
 
-  // Notify parent when month/year changes
+  // Notify parent when month/year changes (but don't reset drag state)
   React.useEffect(() => {
-    // Reset selection on month change
-    setRangeStart(null)
-    setRangeEnd(null)
-    // Notify parent to reload data for new month
+    // Only notify parent - don't reset drag state here as it breaks ongoing drags
     onMonthChange?.(currentMonth, currentYear)
   }, [currentMonth, currentYear, onMonthChange])
 
@@ -364,6 +358,4 @@ function SimpleCalendarAdapterComponent({
   )
 }
 
-// Temporarily disabled React.memo to debug drag-to-select issues
-export const SimpleCalendarAdapter = SimpleCalendarAdapterComponent
-// export const SimpleCalendarAdapter = React.memo(SimpleCalendarAdapterComponent)
+export const SimpleCalendarAdapter = React.memo(SimpleCalendarAdapterComponent)
