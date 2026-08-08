@@ -37,6 +37,13 @@ interface SyncResult {
   skipped: number
   errors: number
   duration?: number
+  errorDetails?: Array<{
+    property: string
+    email: string
+    guest: string
+    type: string
+    message: string
+  }>
 }
 
 interface Toast {
@@ -54,6 +61,7 @@ export default function EmailSyncStatusPage() {
   const [syncing, setSyncing] = useState(false)
   const [syncProgress, setSyncProgress] = useState('')
   const [syncResult, setSyncResult] = useState<SyncResult | null>(null)
+  const [expandErrors, setExpandErrors] = useState(false)
   const [toast, setToast] = useState<Toast | null>(null)
 
   useEffect(() => {
@@ -237,6 +245,44 @@ export default function EmailSyncStatusPage() {
     </div>
   )
 
+
+  // Seção detalhada de erros
+  const errorDetailsSection = syncResult?.errorDetails && syncResult.errorDetails.length > 0 && (
+    <div className="mt-4 pt-4 border-t border-gray-300">
+      <button
+        onClick={() => setExpandErrors(!expandErrors)}
+        className="text-sm font-medium text-gray-700 hover:text-gray-900 flex items-center gap-1"
+      >
+        {expandErrors ? '▼' : '▶'} Detalhes dos erros ({syncResult.errorDetails.length})
+      </button>
+      {expandErrors && (
+        <div className="mt-3 space-y-2">
+          {syncResult.errorDetails.map((err, idx) => (
+            <div key={idx} className="p-3 bg-red-100 border border-red-300 rounded text-sm">
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <p className="font-semibold text-red-900">Propriedade</p>
+                  <p className="text-red-800">{err.property}</p>
+                </div>
+                <div>
+                  <p className="font-semibold text-red-900">Hóspede</p>
+                  <p className="text-red-800">{err.guest}</p>
+                </div>
+                <div className="col-span-2">
+                  <p className="font-semibold text-red-900">Email</p>
+                  <p className="text-red-800 break-all text-xs">{err.email}</p>
+                </div>
+                <div className="col-span-2">
+                  <p className="font-semibold text-red-900">Erro</p>
+                  <p className="text-red-800">{err.message}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  ) + errorDetailsSection
   // Componente de progresso
   const syncProgressComponent = syncProgress && (
     <div className="mb-8 p-4 rounded-lg flex items-center gap-3" style={{ backgroundColor: '#DBEAFE', border: '1px solid #93C5FD' }}>

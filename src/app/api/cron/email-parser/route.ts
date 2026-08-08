@@ -40,7 +40,13 @@ export async function GET(request: NextRequest) {
   }
 
   const supabase = await createAdminClient()
-  const results = { processed: 0, created: 0, skipped: 0, errors: 0 }
+  const results = { processed: 0, created: 0, skipped: 0, errors: 0, errorDetails: [] as Array<{
+    property: string
+    email: string
+    guest: string
+    type: string
+    message: string
+  }> }
 
   try {
     // Buscar todas as orgs com ligação Gmail activa
@@ -58,6 +64,13 @@ export async function GET(request: NextRequest) {
       } catch (err) {
         console.error(`[email-parser] Erro na org ${conn.organization_id}:`, err)
         results.errors++
+        results.errorDetails.push({
+          property: 'Sistema',
+          email: conn.email,
+          guest: 'N/A',
+          type: 'auth_error',
+          message: err instanceof Error ? err.message : 'Erro desconhecido na organização'
+        })
       }
     }
 
@@ -78,12 +91,19 @@ async function processOrg(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   supabase: any,
   conn: ConnectionRow,
-  results: { processed: number; created: number; skipped: number; errors: number },
+  results: { processed: number; created: number; skipped: number; errors: number; errorDetails: Array<any> },
 ) {
   const accessToken = await getValidAccessToken(conn)
   if (!accessToken) {
     console.warn(`[email-parser] Token inválido para org ${conn.organization_id}`)
     results.errors++
+    results.errorDetails.push({
+      property: 'Sistema',
+      email: conn.email,
+      guest: 'N/A',
+      type: 'token_invalid',
+      message: 'Token do Gmail expirou ou é inválido'
+    })
     return
   }
 
@@ -123,6 +143,7 @@ async function processOrg(
     const parsed = await parseReservationEmail(email.body)
 
     if (!parsed || !parsed.checkin_date || !parsed.guest_name) {
+      const errorMsg = 'Campos obrigatórios em falta (guest_name ou checkin_date)'
       await supabase.from('email_parse_log').insert({
         organization_id: conn.organization_id,
         message_id: email.id,
@@ -130,15 +151,44 @@ async function processOrg(
         platform,
         status: 'error',
         parsed_data: parsed,
-        error_message: 'Campos obrigatórios em falta (guest_name ou checkin_date)',
+        error_message: errorMsg,
       })
       results.errors++
+      results.errorDetails.push({
+        property: parsed?.property_name || 'Desconhecida',
+        email: email.from,
+        guest: parsed?.guest_name || 'Não extraído',
+        type: 'parse_error',
+        message: errorMsg
+      })
       continue
     }
 
     // Criar reserva draft
     const draftResult = await createDraftReservation(supabase, conn.organization_id, parsed)
     const reservationId = draftResult?.id || null
+
+    if (!draftResult) {
+      const errorMsg = 'Falha ao criar reserva (propriedade não encontrada ou erro na BD)'
+      await supabase.from('email_parse_log').insert({
+        organization_id: conn.organization_id,
+        message_id: email.id,
+        received_at: email.receivedAt.toISOString(),
+        platform,
+        status: 'error',
+        parsed_data: parsed,
+        error_message: errorMsg,
+      })
+      results.errors++
+      results.errorDetails.push({
+        property: parsed?.property_name || 'Não identificada',
+        email: email.from,
+        guest: parsed?.guest_name || 'N/A',
+        type: 'reservation_error',
+        message: errorMsg
+      })
+      continue
+    }
 
     await supabase.from('email_parse_log').insert({
       organization_id: conn.organization_id,
