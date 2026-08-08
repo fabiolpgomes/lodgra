@@ -364,4 +364,6 @@ function SimpleCalendarAdapterComponent({
   )
 }
 
-export const SimpleCalendarAdapter = React.memo(SimpleCalendarAdapterComponent)
+// Temporarily disabled React.memo to debug drag-to-select issues
+export const SimpleCalendarAdapter = SimpleCalendarAdapterComponent
+// export const SimpleCalendarAdapter = React.memo(SimpleCalendarAdapterComponent)
