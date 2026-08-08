@@ -122,6 +122,12 @@ export async function POST(request: NextRequest) {
           errors: 0
         }
 
+        // Clear error tracking on successful sync
+        await adminSupabase.from('property_listings').update({
+          last_sync_error: null,
+          sync_error_count: 0
+        }).eq('id', listing.id)
+
         results.push(result)
         totalCreated += created
         totalUpdated += updated
@@ -132,6 +138,20 @@ export async function POST(request: NextRequest) {
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido'
         console.error(`[trigger-ical-sync] Erro ao sincronizar ${listing.id}:`, err)
+
+        // Update listing with error tracking
+        const { data: currentListing } = await adminSupabase
+          .from('property_listings')
+          .select('sync_error_count')
+          .eq('id', listing.id)
+          .single()
+
+        const newErrorCount = (currentListing?.sync_error_count || 0) + 1
+
+        await adminSupabase.from('property_listings').update({
+          last_sync_error: errorMessage,
+          sync_error_count: newErrorCount
+        }).eq('id', listing.id)
 
         const propertyName = (listing.properties as any)?.name || listing.name || 'Desconhecida'
         const platform = listing.platform || 'Desconhecida'
