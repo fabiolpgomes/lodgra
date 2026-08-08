@@ -196,6 +196,55 @@ export default function EmailSyncStatusPage() {
     )
   }
 
+
+  // Componente de resultado da sincronização
+  const syncResultComponent = syncResult && (
+    <div className="mb-8 p-6 rounded-lg" style={{ backgroundColor: syncResult.errors > 0 ? '#FEE2E2' : '#ECFDF5', border: `1px solid ${syncResult.errors > 0 ? '#FECACA' : '#A7F3D0'}` }}>
+      <div className="flex justify-between items-start mb-4">
+        <div>
+          <h3 className="text-xl font-bold" style={{ color: syncResult.errors > 0 ? '#991B1B' : '#065F46' }}>
+            {syncResult.errors > 0 ? '⚠️ Sincronização com erros' : '✅ Sincronização concluída'}
+          </h3>
+          <p style={{ color: syncResult.errors > 0 ? '#7F1D1D' : '#047857', fontSize: '14px', marginTop: '4px' }}>
+            Processados em {syncResult.duration}ms
+          </p>
+        </div>
+        <button
+          onClick={() => setSyncResult(null)}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '20px' }}
+        >
+          ✕
+        </button>
+      </div>
+      <div className="grid grid-cols-4 gap-4">
+        <div className="p-3 rounded" style={{ backgroundColor: syncResult.errors > 0 ? '#FCA5A5' : '#A7F3D0' }}>
+          <p style={{ fontSize: '12px', opacity: 0.8 }}>Processados</p>
+          <p style={{ fontSize: '24px', fontWeight: 'bold', marginTop: '4px' }}>{syncResult.processed}</p>
+        </div>
+        <div className="p-3 rounded" style={{ backgroundColor: '#BFDBFE' }}>
+          <p style={{ fontSize: '12px', opacity: 0.8 }}>Criadas</p>
+          <p style={{ fontSize: '24px', fontWeight: 'bold', marginTop: '4px' }}>{syncResult.created}</p>
+        </div>
+        <div className="p-3 rounded" style={{ backgroundColor: '#FED7AA' }}>
+          <p style={{ fontSize: '12px', opacity: 0.8 }}>Ignoradas</p>
+          <p style={{ fontSize: '24px', fontWeight: 'bold', marginTop: '4px' }}>{syncResult.skipped}</p>
+        </div>
+        <div className="p-3 rounded" style={{ backgroundColor: '#FECACA' }}>
+          <p style={{ fontSize: '12px', opacity: 0.8 }}>Erros</p>
+          <p style={{ fontSize: '24px', fontWeight: 'bold', marginTop: '4px' }}>{syncResult.errors}</p>
+        </div>
+      </div>
+    </div>
+  )
+
+  // Componente de progresso
+  const syncProgressComponent = syncProgress && (
+    <div className="mb-8 p-4 rounded-lg flex items-center gap-3" style={{ backgroundColor: '#DBEAFE', border: '1px solid #93C5FD' }}>
+      <div className="animate-spin" style={{ width: '20px', height: '20px', border: '3px solid #3B82F6', borderTop: '3px solid transparent', borderRadius: '50%' }}></div>
+      <span style={{ color: '#1E40AF', fontWeight: '500' }}>{syncProgress}</span>
+    </div>
+  )
+
   const statusColor = {
     healthy: 'border-l-4 border-l-[#059669]',
     warning: 'border-l-4 border-l-[#C9A227]',
@@ -260,6 +309,8 @@ export default function EmailSyncStatusPage() {
               ← Dashboard
             </a>
           </div>
+        {syncProgressComponent}
+        {syncResultComponent}
         </div>
 
         {/* Period Selector */}
