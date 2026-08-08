@@ -108,8 +108,8 @@ function CalendarWithSettingsContent({
       // Handle both old and new field names from API
       const startStr = res.start_date || res.start || res.check_in
       const endStr = res.end_date || res.end || res.check_out
-      // Priority: guests.name → guest_name → guest → first_name → 'Guest'
-      const guestName = res.guests?.name || res.guest_name || res.guest || res.first_name || 'Guest'
+      // Priority: guest.name (from enriched data) → guest_name → guest → first_name → 'Guest'
+      const guestName = res.guest?.name || res.guest_name || res.guest || res.first_name || 'Guest'
 
       const result = {
         id: res.id,
