@@ -166,7 +166,19 @@ function CalendarWithSettingsContent({
     (startDay: number, endDay: number, month: number, year: number) => {
       const startDate = new Date(year, month, startDay)
       const endDate = new Date(year, month, endDay)
+      console.log('[CalendarWithSettings] handleRangeSelect called:', {
+        startDay,
+        endDay,
+        startDate: startDate.toDateString(),
+        endDate: endDate.toDateString(),
+      })
+      console.log('[CalendarWithSettings] Before selectDateRange, selection.state:', {
+        selectedDatesCount: selection.state.selectedDates.length,
+      })
       selection.selectDateRange(startDate, endDate)
+      console.log('[CalendarWithSettings] After selectDateRange, selection.state:', {
+        selectedDatesCount: selection.state.selectedDates.length,
+      })
       selection.openPriceModal({
         start: startDate,
         end: endDate,
