@@ -74,7 +74,12 @@ function CalendarWithSettingsContent({
 
   // Memoized computed values
   const selectedDateStr = useMemo(() => {
-    return selection.state.selectedDates.map((d) => d.toISOString().split('T')[0])
+    const result = selection.state.selectedDates.map((d) => d.toISOString().split('T')[0])
+    console.log('[CalendarWithSettings] selectedDateStr computed:', {
+      count: result.length,
+      dates: result.slice(0, 3),
+    })
+    return result
   }, [selection.state.selectedDates])
 
   const dailyPrices = useMemo(() => {
