@@ -166,14 +166,6 @@ function CalendarWithSettingsContent({
     (startDay: number, endDay: number, month: number, year: number) => {
       const startDate = new Date(year, month, startDay)
       const endDate = new Date(year, month, endDay)
-      console.log('[CalendarWithSettings] Range selected:', {
-        startDay,
-        endDay,
-        month,
-        year,
-        startDate: startDate.toDateString(),
-        endDate: endDate.toDateString(),
-      })
       selection.selectDateRange(startDate, endDate)
       selection.openPriceModal({
         start: startDate,
