@@ -113,15 +113,26 @@ export async function GET(
     let guestMap: any = {}
     if (reservations && reservations.length > 0) {
       const guestIds = [...new Set(reservations.map(r => r.guest_id).filter(Boolean))]
+      console.log('[GET /reservations] Guest IDs to fetch:', guestIds)
+
       if (guestIds.length > 0) {
-        const { data: guests } = await supabase
+        const { data: guests, error: guestsError } = await supabase
           .from('guests')
           .select('id, name, email, phone')
           .in('id', guestIds)
 
+        console.log('[GET /reservations] Guests query result:', {
+          count: guests?.length,
+          error: guestsError?.message,
+          sample: guests?.slice(0, 2)
+        })
+
         if (guests) {
           guestMap = Object.fromEntries(guests.map(g => [g.id, g]))
+          console.log('[GET /reservations] Guest map created:', Object.keys(guestMap).length, 'entries')
         }
+      } else {
+        console.log('[GET /reservations] No guest_ids found in reservations - guest_id field may be null')
       }
     }
 
