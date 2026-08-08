@@ -103,9 +103,13 @@ export async function GET(
       })
     }
 
+    // Fetch reservations with guest details via join
     const { data: reservations, error: reservationsError } = await supabase
       .from('reservations')
-      .select('*')
+      .select(`
+        *,
+        guests(first_name, last_name, email, phone)
+      `)
       .in('property_listing_id', listingIds)
       .order('check_in', { ascending: true })
 

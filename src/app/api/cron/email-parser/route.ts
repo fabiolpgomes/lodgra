@@ -15,19 +15,20 @@ export async function GET(request: NextRequest) {
   const cronSecret = process.env.CRON_SECRET
   const anthropicKey = process.env.ANTHROPIC_API_KEY
 
-  console.log('[email-parser] Auth check:', {
-    hasCronSecret: !!cronSecret,
-    cronSecretLength: cronSecret?.length,
-    hasAuthHeader: !!authHeader,
-    authHeaderMatch: authHeader === `Bearer ${cronSecret}`,
-  })
+  // Apenas requer CRON_SECRET se for uma chamada direta (não de um trigger manual)
+  // Triggers manuais já verificam a sessão do utilizador no endpoint trigger-email-parser
+  const isDirectCronCall = authHeader?.startsWith('Bearer ')
 
-  // Se CRON_SECRET está configurado, verificar authorization header
-  // Caso contrário, permitir (para triggers manuais da dashboard)
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+  if (isDirectCronCall && cronSecret && authHeader !== `Bearer ${cronSecret}`) {
     console.error('[email-parser] Unauthorized - CRON_SECRET mismatch')
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
+
+  console.log('[email-parser] Auth check:', {
+    isDirectCronCall,
+    hasCronSecret: !!cronSecret,
+    hasAuthHeader: !!authHeader,
+  })
 
   // Verificar se ANTHROPIC_API_KEY está configurado
   if (!anthropicKey) {
