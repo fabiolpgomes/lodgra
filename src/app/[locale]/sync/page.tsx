@@ -32,9 +32,11 @@ interface DailyMetrics {
 }
 
 interface SyncResult {
-  processed: number
+  processed?: number
   created: number
-  skipped: number
+  updated?: number
+  cancelled?: number
+  blocked?: number
   errors: number
   duration?: number
   errorDetails?: Array<{
@@ -44,6 +46,26 @@ interface SyncResult {
     type: string
     message: string
   }>
+  properties?: Array<{
+    propertyId: string
+    propertyName: string
+    platform: string
+    icalUrl: string
+    created: number
+    updated: number
+    cancelled: number
+    blocked: number
+    errors: number
+    errorMessage?: string
+  }>
+  summary?: {
+    totalProperties: number
+    created: number
+    updated: number
+    cancelled: number
+    blocked: number
+    errors: number
+  }
 }
 
 interface Toast {
@@ -104,31 +126,27 @@ export default function EmailSyncStatusPage() {
     setSyncing(true)
     setSyncResult(null)
     setSyncProgress('🔄 Conectando com servidor...')
-    showToast('🔄 Iniciando sincronização de emails...', 'info')
+    showToast('🔄 Iniciando sincronização de propriedades...', 'info')
 
     const startTime = Date.now()
 
     try {
-      console.log('🔄 Iniciando sincronização...')
+      console.log('🔄 Sincronizando iCal de propriedades...')
 
-      setSyncProgress('📧 Buscando emails não sincronizados...')
+      setSyncProgress('📥 Buscando reservas das plataformas (Airbnb, Booking, Flatio...)...')
 
-      const response = await fetch('/api/admin/trigger-email-parser', {
+      const response = await fetch('/api/admin/trigger-ical-sync', {
         method: 'POST',
         credentials: 'include',
       })
 
-      console.log('Resposta recebida:', { status: response.status, ok: response.ok })
-
       if (!response.ok) {
         const text = await response.text()
-        console.error('Erro response:', text)
         try {
           const errorData = JSON.parse(text)
-          const errorMsg = errorData?.error || response.statusText
-          showToast(`❌ Erro na sincronização: ${errorMsg}`, 'error')
+          showToast(`❌ Erro: ${errorData.error}`, 'error')
         } catch {
-          showToast(`❌ Erro ${response.status}: ${response.statusText}`, 'error')
+          showToast(`❌ Erro ${response.status}`, 'error')
         }
         setSyncing(false)
         setSyncProgress('')
@@ -136,48 +154,47 @@ export default function EmailSyncStatusPage() {
       }
 
       const text = await response.text()
-      console.log('Response text:', text)
-
       let data
+
       try {
         data = JSON.parse(text)
       } catch (e) {
-        console.error('Falha ao parsear JSON:', e)
         showToast('⚠️ Resposta inválida do servidor', 'error')
         setSyncing(false)
         setSyncProgress('')
         return
       }
 
-      console.log('Sincronização disparada:', data)
-
-      setSyncProgress('⏳ Processando emails...')
+      setSyncProgress('⏳ Sincronizando propriedades...')
 
       const duration = Date.now() - startTime
 
       setSyncResult({
-        processed: data.processed || 0,
-        created: data.created || 0,
-        skipped: data.skipped || 0,
-        errors: data.errors || 0,
+        created: data.summary?.created || 0,
+        updated: data.summary?.updated || 0,
+        cancelled: data.summary?.cancelled || 0,
+        blocked: data.summary?.blocked || 0,
+        errors: data.summary?.errors || 0,
         duration,
+        properties: data.properties || []
       })
 
       setSyncProgress('')
 
-      if (data.errors > 0) {
+      const summary = data.summary
+      if (summary.errors > 0) {
         showToast(
-          `⚠️ Sincronização concluída: ${data.created} criada(s), ${data.skipped} ignorada(s), ${data.errors} erro(s)`,
+          `⚠️ Concluído com ${summary.errors} erro(s): ${summary.created} criadas, ${summary.updated} atualizadas, ${summary.blocked} bloqueios`,
           'error'
         )
-      } else if (data.created > 0) {
+      } else if (summary.created > 0 || summary.updated > 0) {
         showToast(
-          `✅ Sucesso! ${data.created} reserva(s) importada(s)`,
+          `✅ Sucesso! ${summary.created} nova(s), ${summary.updated} atualizada(s), ${summary.blocked} bloqueio(s)`,
           'success'
         )
       } else {
         showToast(
-          `ℹ️ Nenhuma nova reserva encontrada`,
+          `ℹ️ Nenhuma alteração detectada`,
           'info'
         )
       }
@@ -187,7 +204,7 @@ export default function EmailSyncStatusPage() {
       }, 2000)
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error)
-      console.error('Erro ao disparar sincronização:', error)
+      console.error('Erro ao sincronizar:', error)
       showToast(`❌ Erro: ${errorMsg}`, 'error')
       setSyncProgress('')
     } finally {
@@ -225,23 +242,66 @@ export default function EmailSyncStatusPage() {
         </button>
       </div>
       <div className="grid grid-cols-4 gap-4">
-        <div className="p-3 rounded" style={{ backgroundColor: syncResult.errors > 0 ? '#FCA5A5' : '#A7F3D0' }}>
-          <p style={{ fontSize: '12px', opacity: 0.8 }}>Processados</p>
-          <p style={{ fontSize: '24px', fontWeight: 'bold', marginTop: '4px' }}>{syncResult.processed}</p>
-        </div>
         <div className="p-3 rounded" style={{ backgroundColor: '#BFDBFE' }}>
-          <p style={{ fontSize: '12px', opacity: 0.8 }}>Criadas</p>
+          <p style={{ fontSize: '12px', opacity: 0.8 }}>✨ Novas</p>
           <p style={{ fontSize: '24px', fontWeight: 'bold', marginTop: '4px' }}>{syncResult.created}</p>
         </div>
-        <div className="p-3 rounded" style={{ backgroundColor: '#FED7AA' }}>
-          <p style={{ fontSize: '12px', opacity: 0.8 }}>Ignoradas</p>
-          <p style={{ fontSize: '24px', fontWeight: 'bold', marginTop: '4px' }}>{syncResult.skipped}</p>
+        <div className="p-3 rounded" style={{ backgroundColor: '#DDD6FE' }}>
+          <p style={{ fontSize: '12px', opacity: 0.8 }}>🔄 Atualizadas</p>
+          <p style={{ fontSize: '24px', fontWeight: 'bold', marginTop: '4px' }}>{syncResult.updated || 0}</p>
+        </div>
+        <div className="p-3 rounded" style={{ backgroundColor: '#C7D2FE' }}>
+          <p style={{ fontSize: '12px', opacity: 0.8 }}>🔒 Bloqueios</p>
+          <p style={{ fontSize: '24px', fontWeight: 'bold', marginTop: '4px' }}>{syncResult.blocked || 0}</p>
         </div>
         <div className="p-3 rounded" style={{ backgroundColor: '#FECACA' }}>
-          <p style={{ fontSize: '12px', opacity: 0.8 }}>Erros</p>
+          <p style={{ fontSize: '12px', opacity: 0.8 }}>❌ Erros</p>
           <p style={{ fontSize: '24px', fontWeight: 'bold', marginTop: '4px' }}>{syncResult.errors}</p>
         </div>
       </div>
+
+      {syncResult.properties && syncResult.properties.length > 0 && (
+        <div className="mt-6 pt-6 border-t border-gray-300">
+          <h4 className="font-semibold text-gray-900 mb-4">📋 Resultado por Propriedade:</h4>
+          <div className="space-y-3">
+            {syncResult.properties.map((prop, idx) => (
+              <div key={idx} className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <div className="flex justify-between items-start mb-2">
+                  <div>
+                    <p className="font-bold text-gray-900">{prop.propertyName}</p>
+                    <p className="text-xs text-gray-600">🌐 {prop.platform}</p>
+                  </div>
+                  {prop.errors > 0 && (
+                    <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">❌ Erro</span>
+                  )}
+                </div>
+                {prop.errors === 0 ? (
+                  <div className="grid grid-cols-4 gap-2 mt-3">
+                    <div>
+                      <p className="text-xs text-gray-600">Novas</p>
+                      <p className="text-lg font-bold text-blue-600">{prop.created}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-600">Atualizadas</p>
+                      <p className="text-lg font-bold text-indigo-600">{prop.updated}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-600">Bloqueios</p>
+                      <p className="text-lg font-bold text-gray-600">{prop.blocked}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-600">Canceladas</p>
+                      <p className="text-lg font-bold text-orange-600">{prop.cancelled}</p>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-sm text-red-600 mt-2">⚠️ {prop.errorMessage}</p>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 
