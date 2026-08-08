@@ -74,12 +74,7 @@ function CalendarWithSettingsContent({
 
   // Memoized computed values
   const selectedDateStr = useMemo(() => {
-    const result = selection.state.selectedDates.map((d) => d.toISOString().split('T')[0])
-    console.log('[CalendarWithSettings] selectedDateStr computed:', {
-      count: result.length,
-      dates: result.slice(0, 3),
-    })
-    return result
+    return selection.state.selectedDates.map((d) => d.toISOString().split('T')[0])
   }, [selection.state.selectedDates])
 
   const dailyPrices = useMemo(() => {
@@ -171,19 +166,7 @@ function CalendarWithSettingsContent({
     (startDay: number, endDay: number, month: number, year: number) => {
       const startDate = new Date(year, month, startDay)
       const endDate = new Date(year, month, endDay)
-      console.log('[CalendarWithSettings] handleRangeSelect called:', {
-        startDay,
-        endDay,
-        startDate: startDate.toDateString(),
-        endDate: endDate.toDateString(),
-      })
-      console.log('[CalendarWithSettings] Before selectDateRange, selection.state:', {
-        selectedDatesCount: selection.state.selectedDates.length,
-      })
       selection.selectDateRange(startDate, endDate)
-      console.log('[CalendarWithSettings] After selectDateRange, selection.state:', {
-        selectedDatesCount: selection.state.selectedDates.length,
-      })
       selection.openPriceModal({
         start: startDate,
         end: endDate,
