@@ -404,7 +404,12 @@ async function syncOneListing(
     }
   }
 
-  await supabase.from('property_listings').update({ last_synced_at: new Date().toISOString() }).eq('id', listing.id)
+  // Update listing with success status and clear error tracking
+  await supabase.from('property_listings').update({
+    last_synced_at: new Date().toISOString(),
+    last_sync_error: null,
+    sync_error_count: 0
+  }).eq('id', listing.id)
 
   // Story 39.5: registrar sucesso em sync_logs para alimentar o indicador de status no dashboard
   const { error: syncLogError } = await supabase.from('sync_logs').insert({
@@ -470,8 +475,24 @@ export async function GET(request: NextRequest) {
             console.error(`[Cron] Falha no listing ${listing.id}:`, err)
             errors++
 
-            // Story 39.5: registrar falha em sync_logs para alimentar o indicador de status no dashboard
             const errorMessage = err instanceof Error ? err.message : String(err)
+
+            // Increment error counter and update last_sync_error on property_listings
+            const { data: currentListing } = await supabase
+              .from('property_listings')
+              .select('sync_error_count')
+              .eq('id', listing.id)
+              .single()
+
+            const newErrorCount = (currentListing?.sync_error_count || 0) + 1
+
+            await supabase.from('property_listings').update({
+              last_sync_error: errorMessage,
+              sync_error_count: newErrorCount,
+              last_synced_at: new Date().toISOString()
+            }).eq('id', listing.id)
+
+            // Story 39.5: registrar falha em sync_logs para alimentar o indicador de status no dashboard
             const { error: syncLogError } = await supabase.from('sync_logs').insert({
               property_listing_id: listing.id,
               sync_type: 'ical',
