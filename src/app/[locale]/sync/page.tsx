@@ -306,9 +306,9 @@ export default function EmailSyncStatusPage() {
                 )}
               </div>
             ))}
+          </div>
               </>
             )}
-          </div>
         </div>
       )}
     </div>
