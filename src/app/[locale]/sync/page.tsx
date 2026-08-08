@@ -260,9 +260,16 @@ export default function EmailSyncStatusPage() {
         </div>
       </div>
 
-      {syncResult.properties && syncResult.properties.length > 0 && (
+      {syncResult.properties && (
         <div className="mt-6 pt-6 border-t border-gray-300">
-          <h4 className="font-semibold text-gray-900 mb-4">📋 Resultado por Propriedade:</h4>
+          {syncResult.properties.length === 0 ? (
+            <div className="text-center py-6 text-gray-600">
+              <p className="text-sm">ℹ️ Nenhuma propriedade com iCal configurado</p>
+              <p className="text-xs mt-1 text-gray-500">Configure URLs iCal nas propriedades para ativar sincronização</p>
+            </div>
+          ) : (
+            <>
+              <h4 className="font-semibold text-gray-900 mb-4">📋 Resultado por Propriedade:</h4>
           <div className="space-y-3">
             {syncResult.properties.map((prop, idx) => (
               <div key={idx} className="p-4 bg-gray-50 rounded-lg border border-gray-200">
@@ -299,6 +306,8 @@ export default function EmailSyncStatusPage() {
                 )}
               </div>
             ))}
+              </>
+            )}
           </div>
         </div>
       )}
