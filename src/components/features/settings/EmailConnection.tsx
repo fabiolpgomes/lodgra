@@ -57,6 +57,11 @@ export function EmailConnection({ initialEmail, initialLastSync }: EmailConnecti
     window.location.href = '/api/email/connect'
   }
 
+  function handleReconnect() {
+    setError(null)
+    window.location.href = '/api/email/connect'
+  }
+
   async function handleDisconnect() {
     setLoading(true)
     setError(null)
@@ -162,49 +167,56 @@ export function EmailConnection({ initialEmail, initialLastSync }: EmailConnecti
             </div>
           )}
           <div className="flex items-center gap-2 flex-wrap">
-            {tokenStatus?.status !== 'expired' && (
-              <>
-                <select
-                  value={daysBack}
-                  onChange={e => setDaysBack(Number(e.target.value))}
-                  disabled={syncing}
-                  className="h-8 rounded-md border border-gray-200 bg-white px-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-500"
-                >
-                  <option value={30}>Últimos 30 dias</option>
-                  <option value={60}>Últimos 60 dias</option>
-                  <option value={90}>Últimos 90 dias</option>
-                </select>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleSync}
-                  disabled={syncing || loading}
-                >
-                  {syncing ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <RefreshCw className="h-4 w-4 mr-2" />}
-                  Sincronizar agora
-                </Button>
-              </>
-            )}
+            <select
+              value={daysBack}
+              onChange={e => setDaysBack(Number(e.target.value))}
+              disabled={syncing}
+              className="h-8 rounded-md border border-gray-200 bg-white px-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-500"
+            >
+              <option value={30}>Últimos 30 dias</option>
+              <option value={60}>Últimos 60 dias</option>
+              <option value={90}>Últimos 90 dias</option>
+            </select>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleSync}
+              disabled={syncing || loading || tokenStatus?.status === 'expired'}
+            >
+              {syncing ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <RefreshCw className="h-4 w-4 mr-2" />}
+              Sincronizar agora
+            </Button>
             {tokenStatus?.status === 'expired' ? (
               <Button
-                onClick={handleConnect}
-                disabled={loading}
+                onClick={handleReconnect}
                 className="bg-red-600 hover:bg-red-700 text-white"
               >
                 <RefreshCw className="h-4 w-4 mr-2" />
                 Reconectar Gmail
               </Button>
             ) : (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleDisconnect}
-                disabled={loading || syncing}
-                className="text-red-600 border-red-200 hover:bg-red-50"
-              >
-                {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                Desconectar
-              </Button>
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleReconnect}
+                  disabled={loading || syncing}
+                  title="Reconectar Gmail se o auto-refresh falhar"
+                >
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Reconectar
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleDisconnect}
+                  disabled={loading || syncing}
+                  className="text-red-600 border-red-200 hover:bg-red-50"
+                >
+                  {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                  Desconectar
+                </Button>
+              </>
             )}
           </div>
         </div>
