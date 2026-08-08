@@ -109,39 +109,6 @@ export async function GET(
       .in('property_listing_id', listingIds)
       .order('check_in', { ascending: true })
 
-    // Fetch guest names separately if needed
-    let guestMap: any = {}
-    if (reservations && reservations.length > 0) {
-      const guestIds = [...new Set(reservations.map(r => r.guest_id).filter(Boolean))]
-      console.log('[GET /reservations] Guest IDs to fetch:', guestIds)
-
-      if (guestIds.length > 0) {
-        const { data: guests, error: guestsError } = await supabase
-          .from('guests')
-          .select('id, name, email, phone')
-          .in('id', guestIds)
-
-        console.log('[GET /reservations] Guests query result:', {
-          count: guests?.length,
-          error: guestsError?.message,
-          sample: guests?.slice(0, 2)
-        })
-
-        if (guests) {
-          guestMap = Object.fromEntries(guests.map(g => [g.id, g]))
-          console.log('[GET /reservations] Guest map created:', Object.keys(guestMap).length, 'entries')
-        }
-      } else {
-        console.log('[GET /reservations] No guest_ids found in reservations - guest_id field may be null')
-      }
-    }
-
-    // Enrich reservations with guest data
-    const enrichedReservations = reservations?.map(res => ({
-      ...res,
-      guest: guestMap[res.guest_id] || null
-    })) || []
-
     console.log('[GET /reservations] Reservations query:', {
       count: reservations?.length,
       listingIdsUsed: listingIds,
@@ -200,10 +167,10 @@ export async function GET(
       )
     }
 
-    console.log('[GET /reservations] SUCCESS - returning', enrichedReservations.length, 'reservations with guest data')
+    console.log('[GET /reservations] SUCCESS')
     return NextResponse.json({
       success: true,
-      data: enrichedReservations,
+      data: reservations || [],
     })
   } catch (error) {
     console.error('[GET /reservations] EXCEPTION:', error)
