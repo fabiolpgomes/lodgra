@@ -36,6 +36,12 @@ export async function POST(request: NextRequest) {
       headers['Authorization'] = `Bearer ${cronSecret}`
     }
 
+    console.log('[trigger-email-parser] Fetch headers:', {
+      headerCount: Object.keys(headers).length,
+      hasAuth: 'Authorization' in headers,
+      authHeaderLength: headers['Authorization']?.length,
+    })
+
     const res = await fetch(`${appUrl}/api/cron/email-parser`, {
       method: 'GET',
       headers,
