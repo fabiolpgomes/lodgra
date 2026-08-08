@@ -89,6 +89,7 @@ export default function EmailSyncStatusPage() {
     try {
       const response = await fetch('/api/admin/trigger-email-parser', {
         method: 'POST',
+        credentials: 'include',
       })
 
       if (!response.ok) {
