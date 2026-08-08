@@ -10,6 +10,8 @@ interface Listing {
   sync_enabled: boolean
   is_active: boolean
   last_synced_at: string | null
+  last_sync_error?: string | null
+  sync_error_count?: number
 }
 
 interface ICalSyncSettingsProps {
@@ -107,6 +109,16 @@ export function ICalSyncSettings({ listings, propertyId }: ICalSyncSettingsProps
               {listing.is_active ? 'Ativo' : 'Inativo'}
             </span>
           </div>
+
+          {listing.last_sync_error && (
+            <div className="mt-3 p-2 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-xs font-medium text-red-700">⚠️ Erro na última sincronização</p>
+              <p className="text-xs text-red-600 mt-1">{listing.last_sync_error}</p>
+              {listing.sync_error_count && listing.sync_error_count > 1 && (
+                <p className="text-xs text-red-600 mt-1">({listing.sync_error_count} tentativas falhadas)</p>
+              )}
+            </div>
+          )}
 
           {editingId === listing.id ? (
             <div className="space-y-3 pt-3 border-t border-gray-200">
