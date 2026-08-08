@@ -105,7 +105,10 @@ export async function GET(
 
     const { data: reservations, error: reservationsError } = await supabase
       .from('reservations')
-      .select('*')
+      .select(`
+        *,
+        guests(name, email, phone)
+      `)
       .in('property_listing_id', listingIds)
       .order('check_in', { ascending: true })
 
