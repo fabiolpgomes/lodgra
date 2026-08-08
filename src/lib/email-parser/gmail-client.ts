@@ -23,22 +23,38 @@ interface ConnectionRow {
 }
 
 async function refreshAccessToken(refreshToken: string): Promise<{ access_token: string; expires_in: number } | null> {
-  if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) return null
+  if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
+    console.error('[gmail-client] Refresh falhou: GOOGLE_CLIENT_ID ou GOOGLE_CLIENT_SECRET não configurados')
+    return null
+  }
 
-  const res = await fetch('https://oauth2.googleapis.com/token', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      client_id: GOOGLE_CLIENT_ID,
-      client_secret: GOOGLE_CLIENT_SECRET,
-      refresh_token: refreshToken,
-      grant_type: 'refresh_token',
-    }),
-  })
+  try {
+    const res = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        client_id: GOOGLE_CLIENT_ID,
+        client_secret: GOOGLE_CLIENT_SECRET,
+        refresh_token: refreshToken,
+        grant_type: 'refresh_token',
+      }),
+    })
 
-  const data = await res.json()
-  if (!res.ok || !data.access_token) return null
-  return data as { access_token: string; expires_in: number }
+    const data = await res.json()
+    if (!res.ok) {
+      console.error('[gmail-client] Refresh falhou com status', res.status, ':', data)
+      return null
+    }
+    if (!data.access_token) {
+      console.error('[gmail-client] Refresh retornou sem access_token:', data)
+      return null
+    }
+    console.log('[gmail-client] Token renovado com sucesso, expira em', data.expires_in, 'segundos')
+    return data as { access_token: string; expires_in: number }
+  } catch (err) {
+    console.error('[gmail-client] Erro ao chamar Google OAuth:', err)
+    return null
+  }
 }
 
 export async function getValidAccessToken(connection: ConnectionRow): Promise<string | null> {
