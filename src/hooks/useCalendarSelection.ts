@@ -63,6 +63,11 @@ export function useCalendarSelection(propertyId?: string) {
 
   // Select date range (start -> end)
   const selectDateRange = useCallback((start: Date, end: Date) => {
+    console.log('[useCalendarSelection.selectDateRange] START:', {
+      start: start.toDateString(),
+      end: end.toDateString(),
+    })
+
     const dates: Date[] = []
     // Use getTime() to avoid timezone issues when comparing dates
     const current = new Date(start.getTime())
@@ -72,12 +77,22 @@ export function useCalendarSelection(propertyId?: string) {
       current.setDate(current.getDate() + 1)
     }
 
-    setState((prev) => ({
-      ...prev,
-      mode: 'period',
-      selectedDates: dates,
-      dateRange: { start, end },
-    }))
+    console.log('[useCalendarSelection.selectDateRange] Generated dates:', {
+      count: dates.length,
+      dates: dates.map(d => d.toISOString().split('T')[0]),
+    })
+
+    setState((prev) => {
+      console.log('[useCalendarSelection.selectDateRange] setState called with:', {
+        datesCount: dates.length,
+      })
+      return {
+        ...prev,
+        mode: 'period',
+        selectedDates: dates,
+        dateRange: { start, end },
+      }
+    })
   }, [])
 
   // Clear selection
