@@ -130,7 +130,7 @@ export function useCalendarSelection(propertyId?: string) {
           dates: dates as DateRange,
         })
       }
-      setState((prev) => ({ ...prev, selectedCard: 'prices' }))
+      dispatch({ type: 'SET_SELECTED_CARD', card: 'prices' })
       setIsModalOpen(true)
     },
     []
