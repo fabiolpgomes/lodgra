@@ -24,6 +24,12 @@ export async function POST(request: NextRequest) {
     const cronSecret = process.env.CRON_SECRET
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
+    console.log('[trigger-email-parser] Calling email-parser:', {
+      url: `${appUrl}/api/cron/email-parser`,
+      hasCronSecret: !!cronSecret,
+      cronSecretLength: cronSecret?.length
+    })
+
     // Construir headers - só adicionar Authorization se CRON_SECRET existe
     const headers: Record<string, string> = {}
     if (cronSecret) {
@@ -35,9 +41,15 @@ export async function POST(request: NextRequest) {
       headers,
     })
 
+    console.log('[trigger-email-parser] Email-parser response:', {
+      status: res.status,
+      statusText: res.statusText
+    })
+
     const data = await res.json()
 
     if (!res.ok) {
+      console.error('[trigger-email-parser] Error response from email-parser:', data)
       return NextResponse.json(data, { status: res.status })
     }
 
