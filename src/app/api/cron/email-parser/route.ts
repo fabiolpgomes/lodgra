@@ -15,9 +15,17 @@ export async function GET(request: NextRequest) {
   const cronSecret = process.env.CRON_SECRET
   const anthropicKey = process.env.ANTHROPIC_API_KEY
 
+  console.log('[email-parser] Auth check:', {
+    hasCronSecret: !!cronSecret,
+    cronSecretLength: cronSecret?.length,
+    hasAuthHeader: !!authHeader,
+    authHeaderMatch: authHeader === `Bearer ${cronSecret}`,
+  })
+
   // Se CRON_SECRET está configurado, verificar authorization header
   // Caso contrário, permitir (para triggers manuais da dashboard)
   if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+    console.error('[email-parser] Unauthorized - CRON_SECRET mismatch')
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
