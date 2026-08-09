@@ -15,7 +15,13 @@ import {
   useReservations,
   usePropertyPricing,
   useInvalidateCalendarQueries,
+  useBlockedDates,
 } from '@/hooks/useCalendarQueries'
+
+interface BlockedDate {
+  start_date: string
+  end_date: string
+}
 
 interface CalendarWithSettingsProps {
   propertyId: string
@@ -27,6 +33,7 @@ interface CalendarWithSettingsProps {
     onMonthChange?: (month: number, year: number) => void
     reservations?: Reservation[]
     dailyPrices?: Record<string, number>
+    blockedDates?: BlockedDate[]
   }>
 }
 
@@ -70,6 +77,7 @@ function CalendarWithSettingsContent({
   const pricesQuery = useDailyPrices(propertyId, currentYear, currentMonth)
   const reservationsQuery = useReservations(propertyId, currentYear, currentMonth)
   const pricingQuery = usePropertyPricing(propertyId)
+  const blockedDatesQuery = useBlockedDates(propertyId, currentYear, currentMonth)
   const invalidateQueries = useInvalidateCalendarQueries()
 
   // Memoized computed values
@@ -150,6 +158,12 @@ function CalendarWithSettingsContent({
     console.log(`[CalendarWithSettings] Transformed ${transformed.length} reservations`)
     return transformed
   }, [reservationsQuery.data])
+
+  const blockedDates = useMemo(() => {
+    if (!blockedDatesQuery.data?.data) return []
+    console.log(`[CalendarWithSettings] Loaded ${blockedDatesQuery.data.data.length} blocked date ranges`)
+    return blockedDatesQuery.data.data
+  }, [blockedDatesQuery.data])
 
   // Handle day click from calendar
   const handleDayClick = useCallback(
@@ -321,6 +335,7 @@ function CalendarWithSettingsContent({
             onMonthChange={handleMonthChange}
             reservations={reservations}
             dailyPrices={dailyPrices}
+            blockedDates={blockedDates}
           />
 
         </div>

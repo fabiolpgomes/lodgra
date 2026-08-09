@@ -20,6 +20,11 @@ interface Reservation {
   status: 'pending' | 'confirmed' | 'hosting' | 'completed'
 }
 
+interface BlockedDate {
+  start_date: string
+  end_date: string
+}
+
 interface SimpleCalendarAdapterProps {
   onDayClick: (day: number, year: number, month: number) => void
   onRangeSelect?: (startDay: number, endDay: number, month: number, year: number) => void
@@ -28,6 +33,7 @@ interface SimpleCalendarAdapterProps {
   onMonthChange?: (month: number, year: number) => void
   reservations?: Reservation[]
   dailyPrices?: Record<string, number> // ISO date -> price
+  blockedDates?: BlockedDate[] // Blocked date ranges
 }
 
 function SimpleCalendarAdapterComponent({
@@ -38,6 +44,7 @@ function SimpleCalendarAdapterComponent({
   onMonthChange,
   reservations = [],
   dailyPrices = {},
+  blockedDates = [],
 }: SimpleCalendarAdapterProps) {
   const today = new Date()
 
@@ -98,6 +105,16 @@ function SimpleCalendarAdapterComponent({
       endDate.setHours(23, 59, 59, 999)
 
       return d >= startDate && d <= endDate
+    })
+  }
+
+  const isDateBlocked = (day: number) => {
+    if (blockedDates.length === 0) return false
+
+    const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+
+    return blockedDates.some(block => {
+      return dateStr >= block.start_date && dateStr <= block.end_date
     })
   }
 
@@ -294,7 +311,14 @@ function SimpleCalendarAdapterComponent({
                 {day && (
                   <div className="flex flex-col items-center justify-center w-full h-full gap-0.5 px-0.5 py-1">
                     <div className="text-sm font-bold">{day}</div>
-                    {getReservationForDay(day) ? (
+                    {isDateBlocked(day) ? (
+                      <div className="flex flex-col items-center justify-center gap-0.5 w-full h-full px-0.5">
+                        <div className="text-lg font-bold">🔒</div>
+                        <div className="text-xs font-semibold" style={{ color: '#10203E' }}>
+                          Bloqueado
+                        </div>
+                      </div>
+                    ) : getReservationForDay(day) ? (
                       <div
                         className="flex flex-col items-center justify-center gap-0.5 w-full h-full px-0.5 cursor-pointer hover:opacity-75 transition-opacity"
                         onClick={() => {

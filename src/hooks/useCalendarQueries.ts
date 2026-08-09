@@ -28,6 +28,20 @@ interface PricingData {
   weekend_price?: number | null
 }
 
+interface BlockedDate {
+  id: string
+  start_date: string
+  end_date: string
+  notes: string | null
+  block_type: string
+  created_at: string
+}
+
+interface BlockedDatesResponse {
+  success: boolean
+  data: BlockedDate[]
+}
+
 const STALE_TIME = 1000 * 60 * 5 // 5 minutes
 const CACHE_TIME = 1000 * 60 * 10 // 10 minutes
 
@@ -89,6 +103,32 @@ export function usePropertyPricing(propertyId: string) {
   })
 }
 
+export function useBlockedDates(propertyId: string, year: number, month: number) {
+  return useQuery({
+    queryKey: ['blockedDates', propertyId, year, month],
+    queryFn: async () => {
+      try {
+        const response = await fetch(
+          `/api/properties/${propertyId}/calendar/blocked-dates?year=${year}&month=${month}`,
+          { credentials: 'include' }
+        )
+
+        if (!response.ok) {
+          console.warn(`[WARN] Blocked dates API returned ${response.status}`)
+          return { success: true, data: [] }
+        }
+
+        return (await response.json()) as BlockedDatesResponse
+      } catch (error) {
+        console.error(`[ERROR] useBlockedDates exception:`, error)
+        return { success: true, data: [] }
+      }
+    },
+    staleTime: STALE_TIME,
+    gcTime: CACHE_TIME,
+  })
+}
+
 export function useInvalidateCalendarQueries() {
   const queryClient = useQueryClient()
   return (propertyId: string, year: number, month: number) => {
@@ -97,6 +137,9 @@ export function useInvalidateCalendarQueries() {
     })
     queryClient.invalidateQueries({
       queryKey: ['reservations', propertyId, year, month],
+    })
+    queryClient.invalidateQueries({
+      queryKey: ['blockedDates', propertyId, year, month],
     })
   }
 }
