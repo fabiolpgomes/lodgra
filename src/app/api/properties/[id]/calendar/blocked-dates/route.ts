@@ -37,7 +37,9 @@ export async function GET(
     const startDateStr = monthStart.toISOString().split('T')[0]
     const endDateStr = monthEnd.toISOString().split('T')[0]
 
-    // Fetch all blocks that overlap with this month
+    console.log(`📅 [blocked-dates GET] Fetching for property=${propertyId}, month=${year}-${String(month).padStart(2, '0')}`)
+
+    // Fetch all blocks that overlap with this month using admin client (no RLS)
     const { data: blocks, error } = await supabase
       .from('calendar_blocks')
       .select('id, start_date, end_date, notes, block_type, created_at')
@@ -47,14 +49,22 @@ export async function GET(
       .order('start_date', { ascending: true })
 
     if (error) {
-      console.error('❌ Fetch blocked dates error:', error)
+      console.error('❌ Fetch blocked dates error:', {
+        code: error.code,
+        message: error.message,
+        details: error.details,
+        propertyId,
+      })
       return NextResponse.json(
         { success: false, error: `Database error: ${error.message}` },
         { status: 500 }
       )
     }
 
-    console.log(`✅ Fetched ${blocks?.length || 0} blocked date ranges for ${year}-${month}`)
+    console.log(`✅ Fetched ${blocks?.length || 0} blocked date ranges for ${year}-${String(month).padStart(2, '0')}`, {
+      dateRange: `${startDateStr} to ${endDateStr}`,
+      blocks: blocks?.map(b => ({ id: b.id, dates: `${b.start_date} to ${b.end_date}` }))
+    })
 
     return NextResponse.json({
       success: true,

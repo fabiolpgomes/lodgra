@@ -199,8 +199,8 @@ export function CalendarDayClickModal({
                 <Label htmlFor="price" className="text-sm mb-2 block">
                   Preço por Noite
                 </Label>
-                <div className="relative">
-                  <span className="absolute left-3 top-3 text-lg font-semibold" style={{ color: '#4D5566' }}>
+                <div className="relative flex items-center">
+                  <span className="absolute left-4 text-lg font-semibold pointer-events-none" style={{ color: '#4D5566' }}>
                     €
                   </span>
                   <Input
@@ -211,7 +211,7 @@ export function CalendarDayClickModal({
                     placeholder="0.00"
                     min="0"
                     step="0.01"
-                    className="h-12 pl-8 text-base font-semibold"
+                    className="h-12 pl-12 text-base font-semibold"
                     autoFocus
                   />
                 </div>
