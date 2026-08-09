@@ -111,6 +111,8 @@ export function useCalendarSelection(propertyId?: string) {
 
   // Clear selection
   const clearSelection = useCallback(() => {
+    console.log('[useCalendarSelection] clearSelection() called - closing modal')
+    console.trace('Stack trace for clearSelection')
     dispatch({ type: 'CLEAR_SELECTION' })
     setIsModalOpen(false)
     setModalData(null)
@@ -199,6 +201,8 @@ export function useCalendarSelection(propertyId?: string) {
     openAvailabilityModal,
     openCancellationModal,
     closeModal: () => {
+      console.log('[useCalendarSelection] closeModal() called')
+      console.trace('Stack trace for closeModal')
       setIsModalOpen(false)
       setModalData(null)
     },
