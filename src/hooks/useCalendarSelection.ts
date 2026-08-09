@@ -142,7 +142,7 @@ export function useCalendarSelection(propertyId?: string) {
       card: 'discounts',
       dates: dateRange,
     })
-    setState((prev) => ({ ...prev, selectedCard: 'discounts' }))
+    dispatch({ type: 'SET_SELECTED_CARD', card: 'discounts' })
     setIsModalOpen(true)
   }, [])
 
@@ -152,7 +152,7 @@ export function useCalendarSelection(propertyId?: string) {
       card: 'availability',
       dates: dateRange,
     })
-    setState((prev) => ({ ...prev, selectedCard: 'availability' }))
+    dispatch({ type: 'SET_SELECTED_CARD', card: 'availability' })
     setIsModalOpen(true)
   }, [])
 
@@ -162,7 +162,7 @@ export function useCalendarSelection(propertyId?: string) {
       card: 'cancellations',
       dates: dateRange,
     })
-    setState((prev) => ({ ...prev, selectedCard: 'cancellations' }))
+    dispatch({ type: 'SET_SELECTED_CARD', card: 'cancellations' })
     setIsModalOpen(true)
   }, [])
 
