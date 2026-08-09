@@ -39,15 +39,16 @@ export async function GET(request: NextRequest) {
     // Only process emails that:
     // - Have property_id detected
     // - Have parsed_data (parser succeeded)
-    // - Are not yet enriched (matched_reservation_id is NULL or status is 'parsed')
-    // - Status is not 'error'
+    // - Have reservation_id (reservation was created)
+    // - Are not yet enriched (status != 'enriched')
     const { data: emails, error: emailsError } = await supabase
       .from('email_parse_log')
-      .select('id, platform, property_id, parsed_data, created_at')
-      .or('matched_reservation_id.is.null,status.eq.parsed')
+      .select('id, platform, property_id, parsed_data, reservation_id, created_at')
       .not('property_id', 'is', null)
       .not('parsed_data', 'is', null)
-      .not('status', 'eq', 'error')
+      .not('reservation_id', 'is', null)
+      .not('status', 'eq', 'enriched')
+      .neq('status', 'error')
       .order('created_at', { ascending: true })
       .limit(100)
 
@@ -87,37 +88,22 @@ export async function GET(request: NextRequest) {
           continue
         }
 
-        // Extract confirmation code as matching key
-        const confirmationCode = parsed.confirmation_code
-        if (!confirmationCode) {
-          console.log(`[enrich-reservations] No confirmation code in email ${email.id}`)
-          results.skipped++
-          await supabase
-            .from('email_parse_log')
-            .update({ status: 'skipped', error_message: 'No confirmation code extracted' })
-            .eq('id', email.id)
-          continue
-        }
-
-        // ═══ PHASE 2: Find matching reservation ══════════════════════════════════════════
-        // Match by: property_id + confirmation_code (external_id)
+        // ═══ PHASE 2: Get matching reservation ═══════════════════════════════════════════
+        // reservation_id is already set by email-parser, so just fetch it
         const { data: reservation, error: resError } = await supabase
           .from('reservations')
-          .select('id, first_name, last_name, number_of_guests, guest_id')
-          .eq('property_id', email.property_id)
-          .eq('external_id', confirmationCode)
+          .select('id, first_name, last_name, number_of_guests')
+          .eq('id', email.reservation_id)
           .single()
 
         if (resError || !reservation) {
-          console.log(
-            `[enrich-reservations] No matching reservation found: property=${email.property_id}, code=${confirmationCode}`
-          )
+          console.log(`[enrich-reservations] Reservation not found for email ${email.id} (res_id: ${email.reservation_id})`)
           results.skipped++
           await supabase
             .from('email_parse_log')
             .update({
-              status: 'skipped',
-              error_message: 'Matching reservation not found'
+              status: 'error',
+              error_message: `Reservation ${email.reservation_id} not found in DB`
             })
             .eq('id', email.id)
           continue
