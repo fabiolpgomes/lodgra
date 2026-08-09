@@ -273,34 +273,46 @@ export default function SyncStatusPage() {
                       </span>
                     </td>
                     <td className="px-4 py-3 text-xs">
-                      <div className="flex items-start gap-1.5">
-                        {log.status === 'success' ? (
-                          <span className="inline-flex items-center gap-1.5 font-semibold text-emerald-600">
-                            <span className="h-2 w-2 rounded-full bg-emerald-600" />
-                            Sucesso
-                          </span>
-                        ) : (
-                          <>
-                            <span className="inline-flex items-center gap-1.5 font-semibold text-red-600">
-                              <span className="h-2 w-2 rounded-full bg-red-600" />
-                              Erro
+                      <div className="flex flex-col gap-1.5">
+                        <div className="flex items-start gap-1.5">
+                          {log.status === 'success' ? (
+                            <span className="inline-flex items-center gap-1.5 font-semibold text-emerald-600">
+                              <span className="h-2 w-2 rounded-full bg-emerald-600" />
+                              Sucesso
                             </span>
-                            {log.error_message && (
-                              <span
-                                className="cursor-help text-red-500 hover:text-red-600"
-                                title={log.error_message}
-                              >
-                                ⓘ
+                          ) : (
+                            <>
+                              <span className="inline-flex items-center gap-1.5 font-semibold text-red-600">
+                                <span className="h-2 w-2 rounded-full bg-red-600" />
+                                Erro
                               </span>
-                            )}
-                          </>
+                              {log.error_message && (
+                                <span
+                                  className="cursor-help text-red-500 hover:text-red-600"
+                                  title={log.error_message}
+                                >
+                                  ⓘ
+                                </span>
+                              )}
+                            </>
+                          )}
+                        </div>
+
+                        {/* Status message */}
+                        {log.status === 'success' && (
+                          <p className="text-[10px] text-emerald-600 font-medium">
+                            {log.records_created === 0 && log.records_updated === 0
+                              ? '✓ Sem novidades'
+                              : `✓ ${log.records_created || 0} nova(s), ${log.records_updated || 0} atualizada(s)`}
+                          </p>
+                        )}
+
+                        {log.error_message && (
+                          <p className="text-[10px] text-red-500 opacity-0 group-hover:opacity-100 transition-opacity max-w-sm">
+                            {log.error_message}
+                          </p>
                         )}
                       </div>
-                      {log.error_message && (
-                        <p className="mt-1 max-w-sm text-xs text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">
-                          {log.error_message}
-                        </p>
-                      )}
                     </td>
                     <td className="px-4 py-3 text-right text-xs text-brand-text-medium">
                       {log.records_created || 0}
