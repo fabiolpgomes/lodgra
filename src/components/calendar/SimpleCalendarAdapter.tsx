@@ -169,39 +169,8 @@ function SimpleCalendarAdapterComponent({
     onMonthChange?.(currentMonth, currentYear)
   }, [currentMonth, currentYear, onMonthChange])
 
-  // Add global mouseup listener to ensure drag-to-select works correctly
-  React.useEffect(() => {
-    const handleGlobalMouseUp = () => {
-      if (isDragging && rangeStart !== null && rangeEnd !== null) {
-        const start = Math.min(rangeStart, rangeEnd)
-        const end = Math.max(rangeStart, rangeEnd)
-
-        // Reset visual styles
-        for (let i = start; i <= end; i++) {
-          const el = document.querySelector(`[data-day="${i}"]`) as HTMLElement
-          if (el) {
-            el.style.transform = 'scale(1)'
-            el.style.opacity = '1'
-          }
-        }
-
-        if (start === end) {
-          onDayClick?.(start, currentYear, currentMonth)
-        } else {
-          onRangeSelect?.(start, end, currentMonth, currentYear)
-        }
-
-        setRangeStart(null)
-        setRangeEnd(null)
-      }
-      setIsDragging(false)
-    }
-
-    document.addEventListener('mouseup', handleGlobalMouseUp)
-    return () => {
-      document.removeEventListener('mouseup', handleGlobalMouseUp)
-    }
-  }, [isDragging, rangeStart, rangeEnd, currentYear, currentMonth, onDayClick, onRangeSelect])
+  // NOTE: Global mouseup listener removed — was causing race conditions with local handler
+  // Local onMouseUp (line 212) handles mouseup correctly without stale closures
 
   const monthNames = [
     'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
