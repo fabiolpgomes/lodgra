@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { formatDistance } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
-import { RefreshCw, CheckCircle2, AlertCircle, Clock, Calendar, Mail, ArrowLeft } from 'lucide-react'
+import { CheckCircle2, AlertCircle, Clock, Calendar, Mail, ArrowLeft } from 'lucide-react'
+import { PremiumPageShell, PremiumPageHeader, PremiumCard, PremiumMetricCard } from '@/components/common/layout/PremiumPage'
 
 interface SyncLog {
   id: string
@@ -99,261 +100,306 @@ export default function SyncStatusPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
-          <div className="animate-pulse space-y-6">
-            <div className="h-8 bg-gray-200 rounded w-1/3"></div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-              <div className="h-40 bg-gray-200 rounded"></div>
-              <div className="h-40 bg-gray-200 rounded"></div>
-            </div>
+      <PremiumPageShell>
+        <div className="animate-pulse space-y-6">
+          <div className="h-8 w-1/3 rounded-lg bg-neutral-200/40"></div>
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="h-48 rounded-2xl bg-neutral-200/40"></div>
+            <div className="h-48 rounded-2xl bg-neutral-200/40"></div>
           </div>
         </div>
-      </div>
+      </PremiumPageShell>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
-        {/* Back Button */}
-        <button
-          onClick={() => router.back()}
-          className="flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-6 sm:mb-8 font-medium text-sm sm:text-base transition-colors"
-          aria-label="Voltar"
-        >
-          <ArrowLeft className="w-5 h-5" />
-          Voltar
-        </button>
+    <PremiumPageShell>
+      {/* Back Button */}
+      <button
+        onClick={() => router.back()}
+        className="mb-4 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-brand-blue transition-colors hover:text-brand-blue/80"
+        aria-label="Voltar"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        Voltar
+      </button>
 
-        {/* Header */}
-        <div className="mb-8 sm:mb-12">
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-2 sm:mb-3">
-            Sincronização de Dados
-          </h1>
-          <p className="text-sm sm:text-base text-gray-600">
-            Acompanhe o status em tempo real dos jobs de sincronização automática
+      {/* Header */}
+      <PremiumPageHeader
+        title="Sincronização"
+        description="Acompanhe o status em tempo real dos jobs automáticos"
+        icon={Calendar}
+        badge={`Próxima: ${nextRunIn}`}
+      />
+
+      {/* Next Run Card */}
+      <PremiumCard className="border-brand-blue/20 bg-gradient-to-br from-brand-blue/5 to-transparent">
+        <div className="flex items-center gap-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-brand-blue/20 bg-brand-blue/10 text-brand-blue">
+            <Clock className="h-6 w-6" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-bold uppercase tracking-wider text-brand-text-medium">
+              Próxima Sincronização
+            </p>
+            <p className="mt-1 text-2xl font-bold text-brand-blue">em {nextRunIn}</p>
+          </div>
+        </div>
+      </PremiumCard>
+
+      {/* Job Stats Grid */}
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        {/* Job 1: sync-ical */}
+        <JobCard
+          icon={Calendar}
+          jobName="Job 1: iCal"
+          description="Sincroniza reservas do iCal"
+          stats={job1Stats}
+          color="blue"
+        />
+
+        {/* Job 2: enrich-reservations */}
+        <JobCard
+          icon={Mail}
+          jobName="Job 2: Email"
+          description="Enriquece reservas com dados"
+          stats={job2Stats}
+          color="success"
+        />
+      </div>
+
+      {/* Recent Activity */}
+      <PremiumCard as="section">
+        <div className="mb-6">
+          <h2 className="text-lg font-bold uppercase tracking-tight text-brand-text-dark">
+            Atividade Recente
+          </h2>
+          <p className="mt-1 text-xs font-semibold text-brand-text-medium">
+            Últimas 10 execuções
           </p>
         </div>
 
-        {/* Next Run Card */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 sm:p-6 mb-6 sm:mb-8 flex items-center gap-4 sm:gap-6">
-          <div className="flex-shrink-0">
-            <Clock className="w-8 h-8 sm:w-10 sm:h-10 text-blue-600" />
-          </div>
-          <div className="flex-1">
-            <p className="text-xs sm:text-sm font-medium text-blue-900">Próxima Sincronização</p>
-            <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-blue-600">em {nextRunIn}</p>
-          </div>
-        </div>
-
-        {/* Job Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-8 sm:mb-12">
-          {/* Job 1: sync-ical */}
-          <JobCard
-            icon={<Calendar className="w-6 h-6 sm:w-8 sm:h-8" />}
-            jobName="Job 1: Sincronizar iCal"
-            description="Sincroniza reservas do iCal das plataformas"
-            stats={job1Stats}
-            color="blue"
-          />
-
-          {/* Job 2: enrich-reservations */}
-          <JobCard
-            icon={<Mail className="w-6 h-6 sm:w-8 sm:h-8" />}
-            jobName="Job 2: Enriquecer Reservas"
-            description="Enriquece reservas com dados de emails"
-            stats={job2Stats}
-            color="green"
-          />
-        </div>
-
-        {/* Recent Activity */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-          <div className="p-4 sm:p-6 border-b border-gray-200">
-            <h2 className="text-lg sm:text-xl font-bold text-gray-900">Atividade Recente</h2>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-gray-50">
-                <tr className="border-b border-gray-200">
-                  <th className="px-4 sm:px-6 py-3 text-left font-semibold text-gray-900">Job</th>
-                  <th className="px-4 sm:px-6 py-3 text-left font-semibold text-gray-900">Propriedade</th>
-                  <th className="px-4 sm:px-6 py-3 text-left font-semibold text-gray-900">Status</th>
-                  <th className="px-4 sm:px-6 py-3 text-right font-semibold text-gray-900">Criadas</th>
-                  <th className="px-4 sm:px-6 py-3 text-right font-semibold text-gray-900">Atualizadas</th>
-                  <th className="px-4 sm:px-6 py-3 text-right font-semibold text-gray-900">Erros</th>
-                  <th className="px-4 sm:px-6 py-3 text-left font-semibold text-gray-900">Quando</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {recentLogs.length > 0 ? (
-                  recentLogs.map(log => (
-                    <tr key={log.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-4 sm:px-6 py-3 text-sm font-medium text-gray-900">
-                        {log.sync_type === 'ical' ? '📅 iCal' : '📧 Email'}
-                      </td>
-                      <td className="px-4 sm:px-6 py-3 text-sm text-gray-600">
-                        <span className="inline-block max-w-xs truncate" title={log.property_name || '-'}>
-                          {log.property_name ? log.property_name.substring(0, 30) : '-'}
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-neutral-200/60">
+                <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-brand-text-medium">
+                  Job
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-brand-text-medium">
+                  Propriedade
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-brand-text-medium">
+                  Status
+                </th>
+                <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-brand-text-medium">
+                  Criadas
+                </th>
+                <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-brand-text-medium">
+                  Atualizadas
+                </th>
+                <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-brand-text-medium">
+                  Erros
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-brand-text-medium">
+                  Quando
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-neutral-200/40">
+              {recentLogs.length > 0 ? (
+                recentLogs.map(log => (
+                  <tr
+                    key={log.id}
+                    className="transition-colors hover:bg-brand-bg"
+                  >
+                    <td className="px-4 py-3 text-xs font-semibold text-brand-text-dark">
+                      {log.sync_type === 'ical' ? '📅 iCal' : '📧 Email'}
+                    </td>
+                    <td className="px-4 py-3 text-xs text-brand-text-medium">
+                      <span
+                        className="inline-block max-w-xs truncate"
+                        title={log.property_name || '-'}
+                      >
+                        {log.property_name ? log.property_name.substring(0, 30) : '-'}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-xs">
+                      {log.status === 'success' ? (
+                        <span className="inline-flex items-center gap-1.5 font-semibold text-emerald-600">
+                          <span className="h-2 w-2 rounded-full bg-emerald-600" />
+                          Sucesso
                         </span>
-                      </td>
-                      <td className="px-4 sm:px-6 py-3 text-sm">
-                        {log.status === 'success' ? (
-                          <span className="inline-flex items-center gap-2 text-green-700 font-medium">
-                            <span className="w-2 h-2 rounded-full bg-green-600"></span>
-                            Sucesso
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-2 text-red-700 font-medium">
-                            <span className="w-2 h-2 rounded-full bg-red-600"></span>
-                            Erro
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-4 sm:px-6 py-3 text-sm text-right text-gray-600">
-                        {log.records_created || 0}
-                      </td>
-                      <td className="px-4 sm:px-6 py-3 text-sm text-right text-gray-600">
-                        {log.records_updated || 0}
-                      </td>
-                      <td className="px-4 sm:px-6 py-3 text-sm text-right">
-                        <span className={log.records_failed && log.records_failed > 0 ? 'text-red-600 font-medium' : 'text-gray-600'}>
-                          {log.records_failed || 0}
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 font-semibold text-red-600">
+                          <span className="h-2 w-2 rounded-full bg-red-600" />
+                          Erro
                         </span>
-                      </td>
-                      <td className="px-4 sm:px-6 py-3 text-sm text-gray-600 whitespace-nowrap">
-                        {formatDistance(new Date(log.synced_at), new Date(), {
-                          locale: ptBR,
-                          addSuffix: true,
-                        })}
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={7} className="px-4 sm:px-6 py-8 text-center text-gray-500">
-                      Sem registros de sincronização
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-right text-xs text-brand-text-medium">
+                      {log.records_created || 0}
+                    </td>
+                    <td className="px-4 py-3 text-right text-xs text-brand-text-medium">
+                      {log.records_updated || 0}
+                    </td>
+                    <td className="px-4 py-3 text-right text-xs font-semibold">
+                      <span
+                        className={
+                          log.records_failed && log.records_failed > 0
+                            ? 'text-red-600'
+                            : 'text-brand-text-medium'
+                        }
+                      >
+                        {log.records_failed || 0}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap text-xs text-brand-text-medium">
+                      {formatDistance(new Date(log.synced_at), new Date(), {
+                        locale: ptBR,
+                        addSuffix: true,
+                      })}
                     </td>
                   </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+                ))
+              ) : (
+                <tr>
+                  <td
+                    colSpan={7}
+                    className="px-4 py-8 text-center text-xs text-brand-text-medium"
+                  >
+                    Sem registros de sincronização
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
+      </PremiumCard>
 
-        {/* System Info */}
-        <div className="mt-8 sm:mt-12 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-          <div className="bg-white rounded-lg p-4 sm:p-6 border border-gray-200">
-            <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-blue-600" />
-              Job 1: Sincronizar iCal
+      {/* System Info */}
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <PremiumCard>
+          <div className="mb-4 flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-brand-blue/10 bg-brand-blue/5 text-brand-blue">
+              <Calendar className="h-5 w-5" />
+            </div>
+            <h3 className="font-bold uppercase tracking-tight text-brand-text-dark">
+              Job 1: iCal
             </h3>
-            <p className="text-sm text-gray-600">
-              A cada 15 minutos, sincroniza reservas dos feeds iCal do Airbnb e Booking.com, criando
-              automaticamente novas reservas no Lodgra com informações básicas.
-            </p>
           </div>
-          <div className="bg-white rounded-lg p-4 sm:p-6 border border-gray-200">
-            <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-              <Mail className="w-5 h-5 text-green-600" />
-              Job 2: Enriquecer Reservas
+          <p className="text-xs font-medium leading-relaxed text-brand-text-medium">
+            A cada 15 minutos, sincroniza reservas dos feeds iCal do Airbnb e Booking.com, criando automaticamente novas
+            reservas com informações básicas.
+          </p>
+        </PremiumCard>
+        <PremiumCard>
+          <div className="mb-4 flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-emerald-500/15 bg-emerald-500/10 text-emerald-600">
+              <Mail className="h-5 w-5" />
+            </div>
+            <h3 className="font-bold uppercase tracking-tight text-brand-text-dark">
+              Job 2: Email
             </h3>
-            <p className="text-sm text-gray-600">
-              A cada 15 minutos, processa emails de confirmação e enriquece reservas existentes com
-              dados completos (nome do hóspede, número de hóspedes, valor).
-            </p>
           </div>
-        </div>
+          <p className="text-xs font-medium leading-relaxed text-brand-text-medium">
+            A cada 15 minutos, processa emails de confirmação e enriquece reservas existentes com dados completos (nome,
+            hóspedes, valor).
+          </p>
+        </PremiumCard>
       </div>
-    </div>
+    </PremiumPageShell>
   )
 }
 
 interface JobCardProps {
-  icon: React.ReactNode
+  icon: React.ComponentType<{ className?: string }>
   jobName: string
   description: string
   stats: JobStats | null
-  color: 'blue' | 'green'
+  color: 'blue' | 'success'
 }
 
-function JobCard({ icon, jobName, description, stats, color }: JobCardProps) {
+function JobCard({ icon: Icon, jobName, description, stats, color }: JobCardProps) {
   const colorClasses = {
     blue: {
-      bg: 'bg-blue-50',
-      border: 'border-blue-200',
-      icon: 'text-blue-600',
-      badge: 'bg-blue-100 text-blue-800',
-      pill: 'bg-blue-50 text-blue-700',
+      bg: 'border-brand-blue/20 bg-brand-blue/5',
+      icon: 'border-brand-blue/10 bg-brand-blue/5 text-brand-blue',
+      badge: 'bg-brand-blue/10 text-brand-blue',
     },
-    green: {
-      bg: 'bg-green-50',
-      border: 'border-green-200',
-      icon: 'text-green-600',
-      badge: 'bg-green-100 text-green-800',
-      pill: 'bg-green-50 text-green-700',
+    success: {
+      bg: 'border-emerald-500/15 bg-emerald-500/5',
+      icon: 'border-emerald-500/15 bg-emerald-500/10 text-emerald-600',
+      badge: 'bg-emerald-500/10 text-emerald-600',
     },
   }
 
   const c = colorClasses[color]
 
   return (
-    <div className={`${c.bg} border ${c.border} rounded-lg p-4 sm:p-6`}>
-      <div className="flex items-start gap-3 mb-4">
-        <div className={`${c.icon} flex-shrink-0 mt-1`}>{icon}</div>
-        <div className="flex-1">
-          <h3 className="text-base sm:text-lg font-bold text-gray-900">{jobName}</h3>
-          <p className="text-xs sm:text-sm text-gray-600 mt-1">{description}</p>
+    <PremiumCard className={c.bg}>
+      <div className="mb-6 flex items-start gap-4">
+        <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border ${c.icon}`}>
+          <Icon className="h-5 w-5" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <h3 className="text-sm font-bold uppercase tracking-tight text-brand-text-dark">{jobName}</h3>
+          <p className="mt-1 text-xs text-brand-text-medium">{description}</p>
         </div>
       </div>
 
       {stats ? (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {/* Success Rate */}
-          <div className="flex items-center justify-between bg-white rounded p-3 sm:p-4">
-            <span className="text-xs sm:text-sm font-medium text-gray-700">Taxa de Sucesso</span>
-            <span className={`text-lg sm:text-2xl font-bold ${c.icon}`}>{stats.successRate}%</span>
+          <div className="flex items-center justify-between rounded-xl border border-neutral-200/60 bg-brand-white px-4 py-3">
+            <span className="text-xs font-semibold text-brand-text-medium">Taxa de Sucesso</span>
+            <span className={`text-lg font-bold ${color === 'blue' ? 'text-brand-blue' : 'text-emerald-600'}`}>
+              {stats.successRate}%
+            </span>
           </div>
 
           {/* Metrics Grid */}
-          <div className="grid grid-cols-3 gap-2 sm:gap-3">
-            <div className="bg-white rounded p-3 text-center">
-              <p className="text-xs text-gray-600 mb-1">Criadas</p>
-              <p className="text-lg sm:text-xl font-bold text-gray-900">{stats.totalCreated}</p>
+          <div className="grid grid-cols-3 gap-2">
+            <div className="rounded-lg border border-neutral-200/60 bg-brand-white p-3 text-center">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-brand-text-medium">Criadas</p>
+              <p className="mt-2 text-lg font-bold text-brand-text-dark">{stats.totalCreated}</p>
             </div>
-            <div className="bg-white rounded p-3 text-center">
-              <p className="text-xs text-gray-600 mb-1">Atualizadas</p>
-              <p className="text-lg sm:text-xl font-bold text-gray-900">{stats.totalUpdated}</p>
+            <div className="rounded-lg border border-neutral-200/60 bg-brand-white p-3 text-center">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-brand-text-medium">Atualizadas</p>
+              <p className="mt-2 text-lg font-bold text-brand-text-dark">{stats.totalUpdated}</p>
             </div>
-            <div className="bg-white rounded p-3 text-center">
-              <p className="text-xs text-gray-600 mb-1">Erros</p>
-              <p className="text-lg sm:text-xl font-bold text-red-600">{stats.totalFailed}</p>
+            <div className="rounded-lg border border-neutral-200/60 bg-brand-white p-3 text-center">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-brand-text-medium">Erros</p>
+              <p className="mt-2 text-lg font-bold text-red-600">{stats.totalFailed}</p>
             </div>
           </div>
 
           {/* Status */}
           {stats.lastRun ? (
-            <div className={`flex items-center gap-2 text-sm font-medium ${c.pill} rounded p-3`}>
+            <div className={`flex items-center gap-2 rounded-lg ${c.badge} px-4 py-3 text-xs font-semibold`}>
               {stats.lastRun.status === 'success' ? (
                 <>
-                  <CheckCircle2 className="w-4 h-4" />
+                  <CheckCircle2 className="h-4 w-4" />
                   Última execução: Sucesso
                 </>
               ) : (
                 <>
-                  <AlertCircle className="w-4 h-4" />
+                  <AlertCircle className="h-4 w-4" />
                   Última execução: Erro
                 </>
               )}
             </div>
           ) : (
-            <p className="text-sm text-gray-600 bg-white rounded p-3">Aguardando primeira execução...</p>
+            <p className="rounded-lg border border-neutral-200/60 bg-brand-white px-4 py-3 text-xs text-brand-text-medium">
+              Aguardando primeira execução...
+            </p>
           )}
         </div>
       ) : (
-        <div className="text-sm text-gray-600 bg-white rounded p-3">Carregando dados...</div>
+        <div className="rounded-lg border border-neutral-200/60 bg-brand-white px-4 py-3 text-xs text-brand-text-medium">
+          Carregando dados...
+        </div>
       )}
-    </div>
+    </PremiumCard>
   )
 }
