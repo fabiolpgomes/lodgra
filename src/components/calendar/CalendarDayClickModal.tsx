@@ -47,10 +47,20 @@ export function CalendarDayClickModal({
   // Guard by isOpen only, not dates — allows Dialog to control visibility
   if (!isOpen) return null
 
-  // If dates not ready, show loading state
+  // If dates not ready, show loading state inside Dialog
+  if (!dates) {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent>
+          <div className="text-center py-8">Carregando...</div>
+        </DialogContent>
+      </Dialog>
+    )
+  }
+
   const isSingleDay = dates instanceof Date
   const dateRange = isSingleDay
-    ? { start: dates, end: dates }
+    ? { start: dates as Date, end: dates as Date }
     : (dates as DateRange)
 
   const formatDate = (date: Date) => {
