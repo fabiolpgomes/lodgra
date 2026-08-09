@@ -272,10 +272,9 @@ function CalendarWithSettingsContent({
       // Update month/year state to trigger price fetch
       setCurrentMonth(month)
       setCurrentYear(year)
-      // Clear manual selection when month changes
-      selection.clearSelection()
+      // NOTE: Don't clear selection here - it was closing modal immediately after drag-select
     },
-    [selection]
+    []
   )
 
   // Handle opening discount modal
