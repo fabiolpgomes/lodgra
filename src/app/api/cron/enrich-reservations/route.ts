@@ -37,17 +37,17 @@ export async function GET(request: NextRequest) {
 
     // ═══ PHASE 1: Fetch parsed emails with property_id ═══════════════════════════════════
     // Only process emails that:
-    // - Have property_id detected (Phase 1 success)
-    // - Have parsed_email data (parser didn't fail)
-    // - Haven't been enriched yet (matched_reservation_id is NULL)
+    // - Have property_id detected
+    // - Have parsed_data (parser succeeded)
+    // - Are not yet enriched (matched_reservation_id is NULL or status is 'parsed')
     // - Status is not 'error'
     const { data: emails, error: emailsError } = await supabase
       .from('email_parse_log')
-      .select('id, email_from, property_id, parsed_email, created_at')
-      .eq('matched_reservation_id', null)
-      .eq('status', 'pending')
+      .select('id, platform, property_id, parsed_data, created_at')
+      .or('matched_reservation_id.is.null,status.eq.parsed')
       .not('property_id', 'is', null)
-      .not('parsed_email', 'is', null)
+      .not('parsed_data', 'is', null)
+      .not('status', 'eq', 'error')
       .order('created_at', { ascending: true })
       .limit(100)
 
@@ -66,7 +66,7 @@ export async function GET(request: NextRequest) {
     // ═══ PHASE 2 & 3: Match and Enrich ════════════════════════════════════════════════════
     for (const email of emails) {
       try {
-        const parsed = email.parsed_email as {
+        const parsed = email.parsed_data as {
           guest_name?: string | null
           checkin_date?: string | null
           checkout_date?: string | null
@@ -162,7 +162,7 @@ export async function GET(request: NextRequest) {
           console.error(`[enrich-reservations] Error updating reservation ${reservation.id}:`, updateError)
           results.errors++
           results.errorDetails.push({
-            email: email.email_from,
+            email: email.platform || 'unknown',
             guest_name: parsed.guest_name || null,
             type: 'update_error',
             message: updateError.message
@@ -194,8 +194,8 @@ export async function GET(request: NextRequest) {
         console.error(`[enrich-reservations] Error processing email ${email.id}:`, err)
         results.errors++
         results.errorDetails.push({
-          email: email.email_from,
-          guest_name: email.parsed_email?.guest_name || null,
+          email: email.platform || 'unknown',
+          guest_name: email.parsed_data?.guest_name || null,
           type: 'processing_error',
           message: err instanceof Error ? err.message : 'Unknown error'
         })
