@@ -69,7 +69,7 @@ ${emailBody.slice(0, 8000)}`
 
   try {
     const message = await getClient().messages.create({
-      model: 'claude-haiku-4-5-20251001',
+      model: 'claude-opus-4-1-20250805',
       max_tokens: 512,
       messages: [{ role: 'user', content: prompt }],
     })
