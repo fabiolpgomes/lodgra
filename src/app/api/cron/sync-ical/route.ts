@@ -430,9 +430,17 @@ async function syncOneListing(
 
 export async function GET(request: NextRequest) {
   try {
-    const authHeader = request.headers.get('authorization')
     const cronSecret = process.env.CRON_SECRET
-    if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
+    const authHeader = request.headers.get('authorization')
+    const querySecret = request.nextUrl.searchParams.get('secret')
+
+    // Accept either Bearer token OR query parameter (for pg_cron compatibility)
+    const isAuthorized = cronSecret && (
+      authHeader === `Bearer ${cronSecret}` ||
+      querySecret === cronSecret
+    )
+
+    if (!isAuthorized) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 

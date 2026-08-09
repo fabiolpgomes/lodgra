@@ -18,12 +18,17 @@ interface EnrichmentResult {
 
 export async function GET(request: NextRequest) {
   try {
-    const authHeader = request.headers.get('authorization')
     const cronSecret = process.env.CRON_SECRET
+    const authHeader = request.headers.get('authorization')
+    const querySecret = request.nextUrl.searchParams.get('secret')
 
-    // Opcional: Bearer token para segurança
-    const isDirectCronCall = authHeader?.startsWith('Bearer ')
-    if (isDirectCronCall && cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+    // Accept either Bearer token OR query parameter (for pg_cron compatibility)
+    const isAuthorized = cronSecret && (
+      authHeader === `Bearer ${cronSecret}` ||
+      querySecret === cronSecret
+    )
+
+    if (!isAuthorized) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
