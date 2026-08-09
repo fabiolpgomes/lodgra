@@ -259,7 +259,7 @@ export default function SyncStatusPage() {
                 recentLogs.map(log => (
                   <tr
                     key={log.id}
-                    className="transition-colors hover:bg-brand-bg"
+                    className="group transition-colors hover:bg-brand-bg"
                   >
                     <td className="px-4 py-3 text-xs font-semibold text-brand-text-dark">
                       {log.sync_type === 'ical' ? '📅 iCal' : '📧 Email'}
@@ -273,16 +273,33 @@ export default function SyncStatusPage() {
                       </span>
                     </td>
                     <td className="px-4 py-3 text-xs">
-                      {log.status === 'success' ? (
-                        <span className="inline-flex items-center gap-1.5 font-semibold text-emerald-600">
-                          <span className="h-2 w-2 rounded-full bg-emerald-600" />
-                          Sucesso
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1.5 font-semibold text-red-600">
-                          <span className="h-2 w-2 rounded-full bg-red-600" />
-                          Erro
-                        </span>
+                      <div className="flex items-start gap-1.5">
+                        {log.status === 'success' ? (
+                          <span className="inline-flex items-center gap-1.5 font-semibold text-emerald-600">
+                            <span className="h-2 w-2 rounded-full bg-emerald-600" />
+                            Sucesso
+                          </span>
+                        ) : (
+                          <>
+                            <span className="inline-flex items-center gap-1.5 font-semibold text-red-600">
+                              <span className="h-2 w-2 rounded-full bg-red-600" />
+                              Erro
+                            </span>
+                            {log.error_message && (
+                              <span
+                                className="cursor-help text-red-500 hover:text-red-600"
+                                title={log.error_message}
+                              >
+                                ⓘ
+                              </span>
+                            )}
+                          </>
+                        )}
+                      </div>
+                      {log.error_message && (
+                        <p className="mt-1 max-w-sm text-xs text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                          {log.error_message}
+                        </p>
                       )}
                     </td>
                     <td className="px-4 py-3 text-right text-xs text-brand-text-medium">
@@ -298,6 +315,7 @@ export default function SyncStatusPage() {
                             ? 'text-red-600'
                             : 'text-brand-text-medium'
                         }
+                        title={log.records_failed && log.records_failed > 0 ? `${log.records_failed} registros falharam` : undefined}
                       >
                         {log.records_failed || 0}
                       </span>
