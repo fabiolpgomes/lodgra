@@ -161,15 +161,14 @@ function CalendarWithSettingsContent({
     [selection]
   )
 
-  // Handle range selection from calendar
+  // Handle range selection from calendar - NO SELECTION STATE
   const handleRangeSelect = useCallback(
     (startDay: number, endDay: number, month: number, year: number) => {
       const startDate = new Date(year, month, startDay)
       const endDate = new Date(year, month, endDay)
 
-      // Populate selection state with all dates in range
-      selection.selectDateRange(startDate, endDate)
-      // Then open modal for price editing
+      // Skip selection state entirely - just open the modal for price editing
+      // The modal will use the dates directly without relying on selection.state
       selection.openPriceModal({
         start: startDate,
         end: endDate,
