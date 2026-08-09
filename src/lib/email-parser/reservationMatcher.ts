@@ -18,8 +18,14 @@ interface MatchScore {
 /**
  * Calculate string similarity (Levenshtein-like, simplified)
  * Returns score between 0 and 100
+ * Note: If one name is missing, return 50 (neutral) to allow matching by date alone
  */
 function calculateNameSimilarity(name1: string, name2: string): number {
+  // If email has name but reservation doesn't: neutral score (50)
+  if (name1 && !name2) return 50
+  // If neither has name: neutral score (50)
+  if (!name1 && !name2) return 50
+  // If only email missing name but reservation has it: no match (0)
   if (!name1 || !name2) return 0
 
   const s1 = name1.toLowerCase().trim()
