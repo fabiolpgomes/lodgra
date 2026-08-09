@@ -119,24 +119,18 @@ export function useCalendarSelection(propertyId?: string) {
   // Open modal for price editing
   const openPriceModal = useCallback(
     (dates: Date | DateRange) => {
-      console.log('[useCalendarSelection] openPriceModal called with:', dates instanceof Date ? 'Date' : 'DateRange', dates)
-
       if (dates instanceof Date) {
-        console.log('[useCalendarSelection] Setting modalData with single date')
         setModalData({
           card: 'prices',
           date: dates,
         })
       } else {
-        console.log('[useCalendarSelection] Setting modalData with date range:', dates)
         setModalData({
           card: 'prices',
           dates: dates as DateRange,
         })
       }
-      console.log('[useCalendarSelection] Dispatching SET_SELECTED_CARD')
       dispatch({ type: 'SET_SELECTED_CARD', card: 'prices' })
-      console.log('[useCalendarSelection] Setting isModalOpen to true')
       setIsModalOpen(true)
     },
     []

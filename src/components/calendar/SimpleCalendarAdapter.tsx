@@ -141,15 +141,11 @@ function SimpleCalendarAdapterComponent({
         }
       }
 
-      // Debug logging
-      console.log('[SimpleCalendarAdapter] handleMouseUp:', { start, end, currentMonth, currentYear, hasCb: !!onRangeSelect })
-
       // If single day click (no drag), call onDayClick
       if (start === end) {
         onDayClick?.(start, currentYear, currentMonth)
       } else {
         // If range selection, call onRangeSelect
-        console.log('[SimpleCalendarAdapter] Calling onRangeSelect...')
         onRangeSelect?.(start, end, currentMonth, currentYear)
       }
 
