@@ -448,8 +448,11 @@ export async function GET(request: NextRequest) {
 
     const { data: listings, error } = await supabase
       .from('property_listings')
-      .select(`id, ical_url, sync_enabled, property_id, properties!inner(name, organization_id, cleaning_fee, cleaning_fee_type, pet_fee, pet_fee_type)`)
-      .eq('is_active', true).eq('sync_enabled', true).not('ical_url', 'is', null)
+      .select(`id, ical_url, sync_enabled, property_id, properties!inner(name, organization_id, cleaning_fee, cleaning_fee_type, pet_fee, pet_fee_type, is_active)`)
+      .eq('is_active', true)
+      .eq('sync_enabled', true)
+      .eq('properties.is_active', true)
+      .not('ical_url', 'is', null)
 
     if (error) {
       console.error('[Cron] Erro ao buscar anúncios:', error)
