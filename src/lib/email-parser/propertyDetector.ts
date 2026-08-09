@@ -68,17 +68,19 @@ export async function detectPropertyFromEmailDomain(
     const supabase = await createAdminClient()
 
     // Query property_listings with this platform_id and organization
-    const { data: listings, error } = await supabase
+    const { data: allListings, error } = await supabase
       .from('property_listings')
       .select('id, property_id, platform_id, ical_url')
       .eq('platform_id', platformId)
       .eq('sync_enabled', true)
-      .neq('ical_url', null)
 
     if (error) {
       console.error(`[propertyDetector] Error querying listings:`, error)
       return null
     }
+
+    // Filter for listings with valid ical_url (in-memory filtering)
+    const listings = allListings?.filter(l => l.ical_url && l.ical_url.trim() !== '') || []
 
     if (!listings || listings.length === 0) {
       console.log(`[propertyDetector] No property_listings found for platform: ${platformName}`)
