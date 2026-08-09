@@ -164,11 +164,16 @@ function CalendarWithSettingsContent({
   // Handle range selection from calendar
   const handleRangeSelect = useCallback(
     (startDay: number, endDay: number, month: number, year: number) => {
+      console.log('[CalendarWithSettings] handleRangeSelect called:', { startDay, endDay, month, year })
+
       const startDate = new Date(year, month, startDay)
       const endDate = new Date(year, month, endDay)
 
+      console.log('[CalendarWithSettings] Calling selectDateRange...', { startDate, endDate })
       // Populate selection state with all dates in range
       selection.selectDateRange(startDate, endDate)
+
+      console.log('[CalendarWithSettings] Calling openPriceModal...', { startDate, endDate })
       // Then open modal for price editing
       selection.openPriceModal({
         start: startDate,
