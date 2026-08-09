@@ -201,11 +201,14 @@ export async function GET(request: NextRequest) {
         })
 
         // Mark as error in log
-        await supabase
-          .from('email_parse_log')
-          .update({ status: 'error', error_message: err instanceof Error ? err.message : 'Unknown error' })
-          .eq('id', email.id)
-          .catch(err => console.error('Failed to update error status:', err))
+        try {
+          await supabase
+            .from('email_parse_log')
+            .update({ status: 'error', error_message: err instanceof Error ? err.message : 'Unknown error' })
+            .eq('id', email.id)
+        } catch (logErr) {
+          console.error('Failed to update error status:', logErr)
+        }
       }
     }
 
