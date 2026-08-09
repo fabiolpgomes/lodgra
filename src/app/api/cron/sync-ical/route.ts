@@ -451,7 +451,6 @@ export async function GET(request: NextRequest) {
       .select(`id, ical_url, sync_enabled, property_id, properties!inner(name, organization_id, cleaning_fee, cleaning_fee_type, pet_fee, pet_fee_type, is_active)`)
       .eq('is_active', true)
       .eq('sync_enabled', true)
-      .eq('properties.is_active', true)
       .not('ical_url', 'is', null)
 
     if (error) {
@@ -459,16 +458,24 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    if (!listings || listings.length === 0) {
+    // Filter out listings from inactive properties
+    const activeListings = (listings || []).filter((listing: any) => {
+      const props = listing.properties
+      return props?.is_active === true
+    })
+
+    if (!activeListings || activeListings.length === 0) {
       return NextResponse.json({ message: 'Nenhum anúncio com sincronização ativa', synced: 0 })
     }
+
+    console.log(`[Cron] Fetched ${listings?.length} listings, syncing ${activeListings.length} from active properties`)
 
     // ── Agrupar por property_id ──────────────────────────────────────────────
     // Listings da mesma propriedade ficam serial (overlap-check seria corrompido
     // por race condition se corressem em paralelo). Propriedades diferentes são
     // independentes → processamento paralelo com Promise.allSettled.
-    const listingsByProperty = new Map<string, typeof listings>()
-    for (const listing of listings) {
+    const listingsByProperty = new Map<string, typeof activeListings>()
+    for (const listing of activeListings) {
       const g = listingsByProperty.get(listing.property_id) ?? []
       g.push(listing)
       listingsByProperty.set(listing.property_id, g)
