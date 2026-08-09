@@ -73,7 +73,7 @@ export async function detectPropertyFromEmailDomain(
       .select('id, property_id, platform_id, ical_url')
       .eq('platform_id', platformId)
       .eq('sync_enabled', true)
-      .filter('ical_url', 'is not', null)
+      .neq('ical_url', null)
 
     if (error) {
       console.error(`[propertyDetector] Error querying listings:`, error)
