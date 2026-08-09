@@ -66,7 +66,14 @@ export default function SyncStatusPage() {
   async function fetchSyncData() {
     try {
       const response = await fetch('/api/admin/sync-logs?limit=50')
-      if (!response.ok) throw new Error('Failed to fetch sync logs')
+      if (!response.ok) {
+        console.error('API error:', response.status)
+        setJob1Stats(calculateStats([]))
+        setJob2Stats(calculateStats([]))
+        setRecentLogs([])
+        setLoading(false)
+        return
+      }
 
       const logs: SyncLog[] = await response.json()
       const job1Logs = logs.filter(l => l.sync_type === 'ical')
@@ -78,6 +85,9 @@ export default function SyncStatusPage() {
       setLoading(false)
     } catch (error) {
       console.error('Error fetching sync data:', error)
+      setJob1Stats(calculateStats([]))
+      setJob2Stats(calculateStats([]))
+      setRecentLogs([])
       setLoading(false)
     }
   }
