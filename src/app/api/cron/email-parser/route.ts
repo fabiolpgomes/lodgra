@@ -5,6 +5,9 @@ import { detectPlatform, ALL_KNOWN_SENDERS } from '@/lib/email-parser/platforms'
 import { parseReservationEmail } from '@/lib/email-parser/parser'
 import { sendOwnerReservationNotification } from '@/lib/email/resend'
 import { calculateServiceFeeAmount, nightsBetween } from '@/lib/reservations/serviceFee'
+import { detectPropertyFromEmailDomain, getDefaultPropertyIfSingleOwner, extractDatesFromEmailBody } from '@/lib/email-parser/propertyDetector'
+import { findMatchingICalReservation, enrichReservationWithEmail } from '@/lib/email-parser/reservationMatcher'
+import { isCancellationEmail, markReservationCancelled, findReservationToCancelByConfirmation } from '@/lib/email-parser/cancellationDetector'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 300 // 5 minutos
@@ -164,17 +167,139 @@ async function processOrg(
       continue
     }
 
-    // Criar reserva draft
-    const draftResult = await createDraftReservation(supabase, conn.organization_id, parsed)
-    const reservationId = draftResult?.id || null
+    // Task 4: Auto-detect property from email domain
+    let propertyId = await detectPropertyFromEmailDomain(email.from, conn.organization_id)
+    if (!propertyId) {
+      propertyId = await getDefaultPropertyIfSingleOwner(conn.organization_id)
+    }
 
-    if (!draftResult) {
-      const errorMsg = 'Falha ao criar reserva (propriedade não encontrada ou erro na BD)'
+    if (!propertyId) {
+      const errorMsg = 'Propriedade não identificada do domain de email'
+      console.warn(`[email-parser] ${errorMsg} - from: ${email.from}`)
       await supabase.from('email_parse_log').insert({
         organization_id: conn.organization_id,
         message_id: email.id,
         received_at: email.receivedAt.toISOString(),
         platform,
+        status: 'error',
+        parsed_data: parsed,
+        error_message: errorMsg,
+      })
+      results.errors++
+      results.errorDetails.push({
+        property: parsed?.property_name || 'Desconhecida',
+        email: email.from,
+        guest: parsed?.guest_name || 'N/A',
+        type: 'property_detection_error',
+        message: errorMsg
+      })
+      continue
+    }
+
+    // Task 4: Detect if cancellation email
+    const isCancellation = isCancellationEmail(email.subject, email.body)
+
+    if (isCancellation && parsed.confirmation_code) {
+      // Handle cancellation: find and mark reservation as cancelled
+      const resIdToCancel = await findReservationToCancelByConfirmation(propertyId, parsed.confirmation_code)
+
+      if (resIdToCancel) {
+        const cancelled = await markReservationCancelled(
+          resIdToCancel,
+          `Cancelled via email from ${platform}`
+        )
+
+        if (cancelled) {
+          await supabase.from('email_parse_log').insert({
+            organization_id: conn.organization_id,
+            message_id: email.id,
+            received_at: email.receivedAt.toISOString(),
+            platform,
+            property_id: propertyId,
+            status: 'parsed',
+            parsed_data: parsed,
+            matched_reservation_id: resIdToCancel,
+            is_cancellation: true,
+          })
+          results.created++
+          continue
+        }
+      }
+
+      // Cancellation detected but reservation not found — log as error
+      await supabase.from('email_parse_log').insert({
+        organization_id: conn.organization_id,
+        message_id: email.id,
+        received_at: email.receivedAt.toISOString(),
+        platform,
+        property_id: propertyId,
+        status: 'error',
+        parsed_data: parsed,
+        is_cancellation: true,
+        error_message: `Cancellation email but no matching reservation found (confirmation: ${parsed.confirmation_code})`,
+      })
+      results.errors++
+      results.errorDetails.push({
+        property: parsed?.property_name || 'Desconhecida',
+        email: email.from,
+        guest: parsed?.guest_name || 'N/A',
+        type: 'cancellation_not_found',
+        message: `Cancellation detected but reservation not found`
+      })
+      continue
+    }
+
+    // Task 4: Try to match and enrich existing iCal reservation
+    const emailDates = extractDatesFromEmailBody(email.body)
+    const matchedReservationId = await findMatchingICalReservation(
+      propertyId,
+      emailDates.check_in || parsed.checkin_date,
+      emailDates.check_out || parsed.checkout_date,
+      parsed.guest_name
+    )
+
+    if (matchedReservationId) {
+      // Enrich existing iCal reservation with email data
+      const enriched = await enrichReservationWithEmail(
+        matchedReservationId,
+        {
+          first_name: parsed.guest_name?.split(' ')[0],
+          last_name: parsed.guest_name?.split(' ').slice(1).join(' '),
+          guest_name: parsed.guest_name,
+          confirmation_id: parsed.confirmation_code,
+          platform,
+          amount: parsed.amount,
+        }
+      )
+
+      if (enriched) {
+        await supabase.from('email_parse_log').insert({
+          organization_id: conn.organization_id,
+          message_id: email.id,
+          received_at: email.receivedAt.toISOString(),
+          platform,
+          property_id: propertyId,
+          status: 'parsed',
+          parsed_data: parsed,
+          matched_reservation_id: matchedReservationId,
+        })
+        results.created++
+        continue
+      }
+    }
+
+    // No iCal match: create new draft reservation as before
+    const draftResult = await createDraftReservation(supabase, conn.organization_id, parsed, propertyId)
+    const reservationId = draftResult?.id || null
+
+    if (!draftResult) {
+      const errorMsg = 'Falha ao criar reserva (erro na BD ou propriedade não encontrada)'
+      await supabase.from('email_parse_log').insert({
+        organization_id: conn.organization_id,
+        message_id: email.id,
+        received_at: email.receivedAt.toISOString(),
+        platform,
+        property_id: propertyId,
         status: 'error',
         parsed_data: parsed,
         error_message: errorMsg,
@@ -195,6 +320,7 @@ async function processOrg(
       message_id: email.id,
       received_at: email.receivedAt.toISOString(),
       platform,
+      property_id: propertyId,
       status: 'parsed',
       parsed_data: parsed,
       reservation_id: reservationId,
@@ -237,19 +363,24 @@ async function createDraftReservation(
   supabase: any,
   organizationId: string,
   parsed: Awaited<ReturnType<typeof parseReservationEmail>>,
+  propertyId?: string,
 ): Promise<{ id: string; propertyName: string } | null> {
   if (!parsed) return null
 
-  // Encontrar primeiro property_listing da org (fallback se não identificar propriedade)
-  const { data: listing } = await supabase
+  // Encontrar property_listing para a propriedade detectada (ou primeira da org)
+  let query = supabase
     .from('property_listings')
-    .select('id, name, properties!inner(organization_id, cleaning_fee, cleaning_fee_type, pet_fee, pet_fee_type)')
+    .select('id, name, properties!inner(id, organization_id, cleaning_fee, cleaning_fee_type, pet_fee, pet_fee_type)')
     .eq('properties.organization_id', organizationId)
-    .limit(1)
-    .single()
+
+  if (propertyId) {
+    query = query.eq('property_id', propertyId)
+  }
+
+  const { data: listing } = await query.limit(1).single()
 
   if (!listing) {
-    console.warn(`[email-parser] Sem property_listing para org ${organizationId}`)
+    console.warn(`[email-parser] Sem property_listing para org ${organizationId}${propertyId ? ` e property ${propertyId}` : ''}`)
     return null
   }
 
