@@ -21,13 +21,31 @@ export async function GET(request: NextRequest) {
 
     if (error) {
       console.error('[sync-logs] Supabase error:', error)
-      return NextResponse.json([], { status: 200 })
+      return NextResponse.json(
+        {
+          error: true,
+          message: `Erro ao buscar logs: ${error.message}`,
+          data: [],
+        },
+        { status: 200 }
+      )
     }
 
     console.log('[sync-logs] Returned', (logs || []).length, 'logs')
-    return NextResponse.json(logs || [])
+    return NextResponse.json({
+      error: false,
+      data: logs || [],
+    })
   } catch (error) {
-    console.error('[sync-logs] Fatal error:', error instanceof Error ? error.message : String(error))
-    return NextResponse.json([], { status: 200 })
+    const errorMsg = error instanceof Error ? error.message : String(error)
+    console.error('[sync-logs] Fatal error:', errorMsg)
+    return NextResponse.json(
+      {
+        error: true,
+        message: `Erro fatal: ${errorMsg}`,
+        data: [],
+      },
+      { status: 200 }
+    )
   }
 }

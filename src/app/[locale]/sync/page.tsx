@@ -22,6 +22,12 @@ interface SyncLog {
   property_name?: string
 }
 
+interface ApiResponse {
+  error: boolean
+  message?: string
+  data: SyncLog[]
+}
+
 interface JobStats {
   totalRuns: number
   successfulRuns: number
@@ -40,6 +46,7 @@ export default function SyncStatusPage() {
   const [recentLogs, setRecentLogs] = useState<SyncLog[]>([])
   const [loading, setLoading] = useState(true)
   const [nextRunIn, setNextRunIn] = useState<string>('')
+  const [apiError, setApiError] = useState<string | null>(null)
 
   useEffect(() => {
     fetchSyncData()
@@ -67,7 +74,9 @@ export default function SyncStatusPage() {
     try {
       const response = await fetch('/api/admin/sync-logs?limit=50')
       if (!response.ok) {
-        console.error('API error:', response.status)
+        const errorMsg = `Erro HTTP ${response.status} ao buscar logs`
+        console.error(errorMsg)
+        setApiError(errorMsg)
         setJob1Stats(calculateStats([]))
         setJob2Stats(calculateStats([]))
         setRecentLogs([])
@@ -75,16 +84,30 @@ export default function SyncStatusPage() {
         return
       }
 
-      const logs: SyncLog[] = await response.json()
-      const job1Logs = logs.filter(l => l.sync_type === 'ical')
-      const job2Logs = logs.filter(l => l.sync_type === 'email')
+      const result: ApiResponse = await response.json()
 
-      setJob1Stats(calculateStats(job1Logs))
-      setJob2Stats(calculateStats(job2Logs))
-      setRecentLogs(logs.slice(0, 10))
+      if (result.error) {
+        console.error('API error:', result.message)
+        setApiError(result.message || 'Erro desconhecido ao buscar logs')
+        setJob1Stats(calculateStats([]))
+        setJob2Stats(calculateStats([]))
+        setRecentLogs([])
+      } else {
+        setApiError(null)
+        const logs = result.data
+        const job1Logs = logs.filter(l => l.sync_type === 'ical')
+        const job2Logs = logs.filter(l => l.sync_type === 'email')
+
+        setJob1Stats(calculateStats(job1Logs))
+        setJob2Stats(calculateStats(job2Logs))
+        setRecentLogs(logs.slice(0, 10))
+      }
+
       setLoading(false)
     } catch (error) {
-      console.error('Error fetching sync data:', error)
+      const errorMsg = error instanceof Error ? error.message : String(error)
+      console.error('Error fetching sync data:', errorMsg)
+      setApiError(`Erro ao conectar com a API: ${errorMsg}`)
       setJob1Stats(calculateStats([]))
       setJob2Stats(calculateStats([]))
       setRecentLogs([])
@@ -133,6 +156,21 @@ export default function SyncStatusPage() {
         <ArrowLeft className="h-4 w-4" />
         Voltar
       </button>
+
+      {/* Error Alert */}
+      {apiError && (
+        <PremiumCard className="border-red-500/20 bg-gradient-to-br from-red-500/5 to-transparent">
+          <div className="flex items-start gap-4">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-red-500/20 bg-red-500/10 text-red-600">
+              <AlertCircle className="h-6 w-6" />
+            </div>
+            <div className="flex-1">
+              <p className="font-bold text-red-700">Erro ao carregar dados</p>
+              <p className="mt-1 text-sm text-red-600">{apiError}</p>
+            </div>
+          </div>
+        </PremiumCard>
+      )}
 
       {/* Header */}
       <PremiumPageHeader
