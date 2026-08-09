@@ -269,7 +269,7 @@ function SimpleCalendarAdapterComponent({
                     day === null
                       ? '#FBFAF6'
                       : isInDragRange(day)
-                      ? '#2563EB'
+                      ? '#10203E'
                       : isDateSelected(day)
                       ? '#10203E'
                       : day < today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear()
@@ -289,7 +289,6 @@ function SimpleCalendarAdapterComponent({
                       : isInDragRange(day) || (!isDateSelected(day) && !(day < today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear()))
                       ? 'grab'
                       : 'default',
-                  transition: 'background-color 0.15s ease',
                 }}
               >
                 {day && (
