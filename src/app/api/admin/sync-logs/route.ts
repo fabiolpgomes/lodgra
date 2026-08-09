@@ -8,10 +8,13 @@ export async function GET(request: NextRequest) {
     const limit = request.nextUrl.searchParams.get('limit') || '50'
     const supabase = await createAdminClient()
 
-    // Fetch recent sync logs
+    // Fetch recent sync logs with property name
     const { data: logs, error } = await supabase
       .from('sync_logs')
-      .select('*')
+      .select(`
+        *,
+        property_listings(name)
+      `)
       .order('synced_at', { ascending: false })
       .limit(parseInt(limit))
 
@@ -20,7 +23,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    return NextResponse.json(logs || [])
+    // Flatten property_listings data for easier use
+    const enrichedLogs = (logs || []).map((log: any) => ({
+      ...log,
+      property_name: log.property_listings?.name || null,
+      property_listings: undefined, // Remove nested object
+    }))
+
+    return NextResponse.json(enrichedLogs)
   } catch (error) {
     console.error('[sync-logs] Fatal error:', error)
     return NextResponse.json(
