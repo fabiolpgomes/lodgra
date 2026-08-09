@@ -16,17 +16,23 @@ function extractEmailDomain(email: string): string {
 }
 
 /**
- * Map email domain to platform
- * Supports: Airbnb, Booking.com, Flatio, and custom domains
+ * Map email domain to platform ID (UUID)
+ * Supports: Airbnb, Booking.com, Vrbo, and custom domains
  */
+const PLATFORM_ID_MAP: Record<string, string> = {
+  'airbnb': '2c25436a-86b4-4290-b86c-1118b5eae6ea',
+  'booking': '43286b7d-88fd-40a1-9cd7-ebf9343cb87c',
+  'vrbo': '937650c6-34fe-4e80-9361-b123fc3220d3',
+}
+
 function detectPlatformFromDomain(domain: string): string | null {
   if (!domain) return null
 
   const domain_lower = domain.toLowerCase()
 
-  if (domain_lower.includes('airbnb')) return 'Airbnb'
-  if (domain_lower.includes('booking')) return 'Booking'
-  if (domain_lower.includes('flatio')) return 'Flatio'
+  if (domain_lower.includes('airbnb')) return 'airbnb'
+  if (domain_lower.includes('booking')) return 'booking'
+  if (domain_lower.includes('vrbo')) return 'vrbo'
 
   return null
 }
@@ -44,22 +50,28 @@ export async function detectPropertyFromEmailDomain(
 ): Promise<string | null> {
   try {
     const domain = extractEmailDomain(email_from)
-    const platform = detectPlatformFromDomain(domain)
+    const platformName = detectPlatformFromDomain(domain)
 
-    if (!platform) {
+    if (!platformName) {
       console.log(`[propertyDetector] Unknown email domain: ${domain}`)
       return null
     }
 
-    console.log(`[propertyDetector] Detected platform: ${platform} from domain: ${domain}`)
+    const platformId = PLATFORM_ID_MAP[platformName]
+    if (!platformId) {
+      console.log(`[propertyDetector] Platform name not in map: ${platformName}`)
+      return null
+    }
+
+    console.log(`[propertyDetector] Detected platform: ${platformName} (${platformId}) from domain: ${domain}`)
 
     const supabase = await createAdminClient()
 
-    // Query property_listings with this platform and organization
+    // Query property_listings with this platform_id and organization
     const { data: listings, error } = await supabase
       .from('property_listings')
-      .select('id, property_id, platform, ical_url')
-      .eq('platform', platform)
+      .select('id, property_id, platform_id, ical_url')
+      .eq('platform_id', platformId)
       .eq('sync_enabled', true)
       .not('ical_url', 'is', null)
 
@@ -69,7 +81,7 @@ export async function detectPropertyFromEmailDomain(
     }
 
     if (!listings || listings.length === 0) {
-      console.log(`[propertyDetector] No property_listings found for platform: ${platform}`)
+      console.log(`[propertyDetector] No property_listings found for platform: ${platformName}`)
       return null
     }
 
@@ -96,7 +108,7 @@ export async function detectPropertyFromEmailDomain(
     // This is acceptable for single-property users, but risks misclassification for multi-property users
     const property_id = listings[0].property_id
     console.warn(
-      `[propertyDetector] ⚠️ Multiple properties for platform ${platform} (${listings.length}), using first: property_id=${property_id}`
+      `[propertyDetector] ⚠️ Multiple properties for platform ${platformName} (${listings.length}), using first: property_id=${property_id}`
     )
     return property_id
   } catch (err) {
