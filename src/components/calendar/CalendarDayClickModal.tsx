@@ -124,8 +124,8 @@ export function CalendarDayClickModal({
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-lg w-full mx-auto">
+    <Dialog open={isOpen}>
+      <DialogContent className="max-w-lg w-full mx-auto" onPointerDownOutside={onClose}>
         {/* Action Selection View */}
         {action === null && (
           <>
