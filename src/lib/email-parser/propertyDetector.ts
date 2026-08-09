@@ -65,25 +65,43 @@ export async function detectPropertyFromEmailDomain(
 
     console.log(`[propertyDetector] Detected platform: ${platformName} (${platformId}) from domain: ${domain}`)
 
+    console.log(`[propertyDetector] DEBUG: About to create Supabase admin client`)
     const supabase = await createAdminClient()
+    console.log(`[propertyDetector] DEBUG: Admin client created successfully`)
 
     // Query property_listings with this platform_id and organization
+    console.log(`[propertyDetector] DEBUG: Querying property_listings with platformId=${platformId}`)
     const { data: allListings, error } = await supabase
       .from('property_listings')
       .select('id, property_id, platform_id, ical_url')
       .eq('platform_id', platformId)
       .eq('sync_enabled', true)
 
+    console.log(`[propertyDetector] DEBUG: Query result - error=${error ? 'YES' : 'NO'}, listings_count=${allListings?.length || 0}`)
     if (error) {
-      console.error(`[propertyDetector] Error querying listings:`, error)
+      console.error(`[propertyDetector] ERROR querying listings:`, JSON.stringify(error))
       return null
     }
 
+    if (!allListings) {
+      console.log(`[propertyDetector] DEBUG: allListings is null or undefined`)
+      return null
+    }
+
+    console.log(`[propertyDetector] DEBUG: Got ${allListings.length} raw listings, checking ical_url validity`)
     // Filter for listings with valid ical_url (in-memory filtering)
-    const listings = allListings?.filter(l => l.ical_url && l.ical_url.trim() !== '') || []
+    const listings = allListings.filter(l => {
+      const hasUrl = l.ical_url && l.ical_url.trim() !== ''
+      if (!hasUrl) {
+        console.log(`[propertyDetector] DEBUG: Filtering out listing ${l.id} - ical_url invalid`)
+      }
+      return hasUrl
+    })
+
+    console.log(`[propertyDetector] DEBUG: After filtering: ${listings.length} listings with valid ical_url`)
 
     if (!listings || listings.length === 0) {
-      console.log(`[propertyDetector] No property_listings found for platform: ${platformName}`)
+      console.log(`[propertyDetector] No property_listings found for platform: ${platformName} (or all filtered out by ical_url)`)
       return null
     }
 
