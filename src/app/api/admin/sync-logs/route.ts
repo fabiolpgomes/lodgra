@@ -31,10 +31,59 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    console.log('[sync-logs] Returned', (logs || []).length, 'logs')
+    // Enrich with property names
+    let enrichedLogs = (logs || []).map((log: any) => ({
+      ...log,
+      property_name: null,
+    }))
+
+    // Get unique property_listing_ids
+    const propertyListingIds = [...new Set(
+      enrichedLogs
+        .map((log: any) => log.property_listing_id)
+        .filter((id: string | null) => id !== null)
+    )]
+
+    console.log('[sync-logs] Found', propertyListingIds.length, 'unique property listings')
+
+    // Fetch property listings with their property names
+    if (propertyListingIds.length > 0) {
+      const { data: listings, error: listingsError } = await supabase
+        .from('property_listings')
+        .select(`
+          id,
+          properties!inner(name)
+        `)
+        .in('id', propertyListingIds)
+
+      if (!listingsError && listings) {
+        console.log('[sync-logs] Fetched', listings.length, 'property listings')
+
+        const listingNameMap = new Map()
+        listings.forEach((listing: any) => {
+          const propName = Array.isArray(listing.properties)
+            ? listing.properties[0]?.name
+            : listing.properties?.name
+
+          if (propName) {
+            listingNameMap.set(listing.id, propName)
+            console.log(`[sync-logs] Mapped ${listing.id} -> ${propName}`)
+          }
+        })
+
+        enrichedLogs = enrichedLogs.map((log: any) => ({
+          ...log,
+          property_name: listingNameMap.get(log.property_listing_id) || null,
+        }))
+      } else if (listingsError) {
+        console.error('[sync-logs] Error fetching property listings:', listingsError)
+      }
+    }
+
+    console.log('[sync-logs] Returned', enrichedLogs.length, 'logs with property names')
     return NextResponse.json({
       error: false,
-      data: logs || [],
+      data: enrichedLogs,
     })
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : String(error)
