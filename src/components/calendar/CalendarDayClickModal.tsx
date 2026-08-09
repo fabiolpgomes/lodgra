@@ -44,11 +44,17 @@ export function CalendarDayClickModal({
   const [saving, setSaving] = useState(false)
   const [action, setAction] = useState<'price' | 'block' | 'discounts' | 'policy' | null>(null)
 
+  console.log('[CalendarDayClickModal] render:', { isOpen, dates: !!dates, datesValue: dates })
+
   // Guard by isOpen only, not dates — allows Dialog to control visibility
-  if (!isOpen) return null
+  if (!isOpen) {
+    console.log('[CalendarDayClickModal] Returning null - isOpen is false')
+    return null
+  }
 
   // If dates not ready, show loading state inside Dialog
   if (!dates) {
+    console.log('[CalendarDayClickModal] Showing loading state - dates is null/undefined')
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent>
@@ -57,6 +63,8 @@ export function CalendarDayClickModal({
       </Dialog>
     )
   }
+
+  console.log('[CalendarDayClickModal] Rendering modal with dates')
 
   const isSingleDay = dates instanceof Date
   const dateRange = isSingleDay
