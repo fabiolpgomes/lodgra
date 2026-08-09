@@ -243,7 +243,7 @@ function CalendarWithSettingsContent({
   )
 
   // Handle block dates from modal
-  const handleBlockDates = useCallback(async () => {
+  const handleBlockDates = useCallback(async (reason?: string) => {
     if (selection.state.selectedDates.length === 0) return
 
     try {
@@ -259,7 +259,7 @@ function CalendarWithSettingsContent({
           body: JSON.stringify({
             startDate: startDate.toISOString().split('T')[0],
             endDate: endDate.toISOString().split('T')[0],
-            reason: 'blocked-by-owner',
+            reason: reason || 'blocked-by-owner',
           }),
           credentials: 'include',
         }

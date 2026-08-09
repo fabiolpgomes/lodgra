@@ -25,7 +25,7 @@ interface CalendarDayClickModalProps {
   propertyId: string
   onClose: () => void
   onSavePrice?: (price: number) => Promise<void>
-  onBlockDates?: () => Promise<void>
+  onBlockDates?: (reason?: string) => Promise<void>
   onOpenDiscounts?: () => void
   onOpenCancellationPolicy?: () => void
 }
@@ -41,6 +41,7 @@ export function CalendarDayClickModal({
   onOpenCancellationPolicy,
 }: CalendarDayClickModalProps) {
   const [price, setPrice] = useState('')
+  const [blockReason, setBlockReason] = useState('')
   const [saving, setSaving] = useState(false)
   const [action, setAction] = useState<'price' | 'block' | 'discounts' | 'policy' | null>(null)
 
@@ -100,8 +101,10 @@ export function CalendarDayClickModal({
   const handleBlockDates = async () => {
     try {
       setSaving(true)
-      await onBlockDates?.()
-      toast.success('Datas bloqueadas')
+      await onBlockDates?.(blockReason || undefined)
+      toast.success('Datas bloqueadas' + (blockReason ? `: ${blockReason}` : ''))
+      setPrice('')
+      setBlockReason('')
       setAction(null)
       onClose()
     } catch (error) {
@@ -270,6 +273,20 @@ export function CalendarDayClickModal({
                     ? 'Este dia não aceitará novas reservas'
                     : `Este período (${nights} noite${nights !== 1 ? 's' : ''}) não aceitará novas reservas`}
                 </p>
+              </div>
+
+              <div>
+                <Label htmlFor="block-reason" className="text-sm mb-2 block">
+                  Motivo do Bloqueio (Opcional)
+                </Label>
+                <Input
+                  id="block-reason"
+                  type="text"
+                  value={blockReason}
+                  onChange={(e) => setBlockReason(e.target.value)}
+                  placeholder="Ex: Manutenção, Limpeza, Férias..."
+                  className="h-10 text-sm"
+                />
               </div>
 
               <div className="p-3 rounded-lg" style={{ backgroundColor: '#F7F5EF' }}>
