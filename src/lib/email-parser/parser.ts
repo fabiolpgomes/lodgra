@@ -26,46 +26,30 @@ export async function parseReservationEmail(emailBody: string): Promise<ParsedRe
   if (!emailBody || emailBody.trim().length < 20) return null
 
   const currentYear = new Date().getFullYear()
-  const prompt = `Extrai do seguinte email de confirmação de reserva os dados em JSON válido.
-IMPORTANTE - Estratégia de extração:
-1. Extrai TODOS os dados que conseguires encontrar, mesmo que incompletos
-2. Converte datas em português para YYYY-MM-DD (ex: "10 de set." = "${currentYear}-09-10")
-3. Se um campo realmente não existir, retorna null
-4. NÃO retorna null para TUDO só porque alguns campos faltam
+  const prompt = `Extraia os dados de confirmação de reserva COMO JSON puro, sem markdown.
 
-Campos a extrair (extrai o que conseguires):
+Regras:
+- Datas em português → YYYY-MM-DD (ex: "10 de set" → "${currentYear}-09-10")
+- Use null para campos não encontrados
+- Retorne APENAS JSON válido, uma única linha é OK
+- Não coloque aspas extras ou comentários
+
+Mapeie para este JSON:
 {
-  "guest_name": "nome do hóspede" | null,
-  "checkin_date": "YYYY-MM-DD" | null,
-  "checkout_date": "YYYY-MM-DD" | null,
-  "amount": número | null,
-  "currency": "EUR" | "BRL" | "USD" | "GBP" | null,
-  "platform": "airbnb" | "booking" | "flatio" | "unknown",
-  "property_name": "descrição do imóvel" | null,
-  "confirmation_code": "código" | null,
-  "num_guests": número | null,
-  "discount_amount": número de desconto | null
+  "guest_name": string or null,
+  "checkin_date": "YYYY-MM-DD" or null,
+  "checkout_date": "YYYY-MM-DD" or null,
+  "amount": number or null,
+  "currency": "EUR"|"BRL"|"USD"|"GBP"|null,
+  "platform": "airbnb"|"booking"|"flatio"|"unknown",
+  "property_name": string or null,
+  "confirmation_code": string or null,
+  "num_guests": number or null,
+  "discount_amount": number or null
 }
 
-Retorna APENAS o JSON válido, sem markdown, sem comentários, sem texto adicional.
-IMPORTANTE: Mesmo que só encontres 1-2 campos, retorna-os! Não retornes todos null.
-
-Campos a extrair:
-{
-  "guest_name": "nome completo do hóspede" | null,
-  "checkin_date": "YYYY-MM-DD (data de entrada)" | null,
-  "checkout_date": "YYYY-MM-DD (data de saída)" | null,
-  "amount": número do valor da reserva | null,
-  "currency": "EUR" | "BRL" | "GBP" | "USD" | null,
-  "platform": "airbnb" | "booking" | "flatio" | "airbnb" | "unknown",
-  "property_name": "nome ou descrição do imóvel" | null,
-  "confirmation_code": "código de confirmação" | null,
-  "num_guests": número total de hóspedes (adultos + crianças + bebés) | null,
-  "discount_amount": número de desconto aplicado (se existir) | null
-}
-
-Email:
-${emailBody.slice(0, 8000)}`
+Email (primeiras 6000 caracteres):
+${emailBody.slice(0, 6000)}`
 
   try {
     const message = await getClient().messages.create({
