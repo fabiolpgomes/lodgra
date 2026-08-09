@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
         .from('property_listings')
         .select(`
           id,
-          properties!inner(name)
+          properties(name)
         `)
         .in('id', propertyListingIds)
 
