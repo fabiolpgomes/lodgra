@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ success: true, message: 'No emails to process', ...results })
     }
 
-    console.log(`[enrich-reservations] Processing ${emails.length} emails...`)
+    console.log(`[enrich-reservations] ✅ Processing ${emails.length} emails... [v3-fixed-schema]`)
 
     // ═══ PHASE 2 & 3: Match and Enrich ════════════════════════════════════════════════════
     for (const email of emails) {
