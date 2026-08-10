@@ -351,6 +351,7 @@ function CalendarWithSettingsContent({
   // Handle unblock dates from modal
   const handleUnblockDates = useCallback(async (blockId: string) => {
     try {
+      console.log(`[DEBUG Unblock] Deleting block ${blockId}`)
       const response = await fetch(
         `/api/properties/${propertyId}/calendar/blocked-dates/${blockId}`,
         {
@@ -363,15 +364,18 @@ function CalendarWithSettingsContent({
         throw new Error('Failed to unblock dates')
       }
 
+      console.log(`[DEBUG Unblock] Block deleted successfully, refetching data for year=${currentYear}, month=${currentMonth}`)
+
       selection.clearSelection()
 
       // Refetch data in background to confirm
       await refetchData()
+      console.log(`[DEBUG Unblock] Refetch complete`)
     } catch (error) {
       console.error('Error unblocking dates:', error)
       throw error
     }
-  }, [propertyId, refetchData, selection])
+  }, [propertyId, refetchData, selection, currentYear, currentMonth])
 
 
   // Handle month change - update state
