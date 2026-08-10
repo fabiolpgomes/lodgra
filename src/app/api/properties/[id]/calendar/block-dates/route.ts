@@ -26,7 +26,7 @@ export async function POST(
       )
     }
 
-    const supabase = createAdminClient()
+    const supabase = await createAdminClient()
 
     // Parse dates - frontend already sends YYYY-MM-DD format in local date
     // Do NOT use new Date() which interprets as UTC
