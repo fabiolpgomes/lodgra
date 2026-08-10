@@ -250,16 +250,24 @@ function CalendarWithSettingsContent({
           return `${year}-${month}-${day}`
         }
 
+        const formattedStart = formatLocalDate(startDate)
+        const formattedEnd = formatLocalDate(endDate)
+        console.log('[DEBUG SavePrice] User selected:', startDate.toDateString(), 'to', endDate.toDateString())
+        console.log('[DEBUG SavePrice] Formatted dates:', formattedStart, 'to', formattedEnd)
+
+        const payload = {
+          startDate: formattedStart,
+          endDate: formattedEnd,
+          price,
+        }
+        console.log('[DEBUG SavePrice] Sending payload:', payload)
+
         const response = await fetch(
           `/api/properties/${propertyId}/pricing/bulk-update`,
           {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              startDate: formatLocalDate(startDate),
-              endDate: formatLocalDate(endDate),
-              price,
-            }),
+            body: JSON.stringify(payload),
             credentials: 'include',
           }
         )
@@ -299,16 +307,24 @@ function CalendarWithSettingsContent({
         return `${year}-${month}-${day}`
       }
 
+      const formattedStart = formatLocalDate(startDate)
+      const formattedEnd = formatLocalDate(endDate)
+      console.log('[DEBUG BlockDates] User selected:', startDate.toDateString(), 'to', endDate.toDateString())
+      console.log('[DEBUG BlockDates] Formatted dates:', formattedStart, 'to', formattedEnd)
+
+      const payload = {
+        startDate: formattedStart,
+        endDate: formattedEnd,
+        reason: reason || 'blocked-by-owner',
+      }
+      console.log('[DEBUG BlockDates] Sending payload:', payload)
+
       const response = await fetch(
         `/api/properties/${propertyId}/calendar/block-dates`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            startDate: formatLocalDate(startDate),
-            endDate: formatLocalDate(endDate),
-            reason: reason || 'blocked-by-owner',
-          }),
+          body: JSON.stringify(payload),
           credentials: 'include',
         }
       )
