@@ -108,17 +108,21 @@ export function useBlockedDates(propertyId: string, year: number, month: number)
     queryKey: ['blockedDates', propertyId, year, month],
     queryFn: async () => {
       try {
-        const response = await fetch(
-          `/api/properties/${propertyId}/calendar/blocked-dates?year=${year}&month=${month}`,
-          { credentials: 'include' }
-        )
+        const url = `/api/properties/${propertyId}/calendar/blocked-dates?year=${year}&month=${month}`
+        console.log(`[DEBUG BlockedDates] Fetching from ${url}`)
+
+        const response = await fetch(url, { credentials: 'include' })
 
         if (!response.ok) {
           console.warn(`[WARN] Blocked dates API returned ${response.status}`)
+          const errorText = await response.text()
+          console.warn(`[WARN] Error response:`, errorText)
           return { success: true, data: [] }
         }
 
-        return (await response.json()) as BlockedDatesResponse
+        const result = (await response.json()) as BlockedDatesResponse
+        console.log(`[DEBUG BlockedDates] Response:`, result)
+        return result
       } catch (error) {
         console.error(`[ERROR] useBlockedDates exception:`, error)
         return { success: true, data: [] }
