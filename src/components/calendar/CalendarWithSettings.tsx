@@ -242,14 +242,22 @@ function CalendarWithSettingsContent({
             selection.state.selectedDates.length - 1
           ]
 
+        // Format dates as local YYYY-MM-DD (not ISO to avoid timezone conversion)
+        const formatLocalDate = (date: Date) => {
+          const year = date.getFullYear()
+          const month = String(date.getMonth() + 1).padStart(2, '0')
+          const day = String(date.getDate()).padStart(2, '0')
+          return `${year}-${month}-${day}`
+        }
+
         const response = await fetch(
           `/api/properties/${propertyId}/pricing/bulk-update`,
           {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              startDate: startDate.toISOString().split('T')[0],
-              endDate: endDate.toISOString().split('T')[0],
+              startDate: formatLocalDate(startDate),
+              endDate: formatLocalDate(endDate),
               price,
             }),
             credentials: 'include',
@@ -283,14 +291,22 @@ function CalendarWithSettingsContent({
       const endDate =
         selection.state.selectedDates[selection.state.selectedDates.length - 1]
 
+      // Format dates as local YYYY-MM-DD (not ISO to avoid timezone conversion)
+      const formatLocalDate = (date: Date) => {
+        const year = date.getFullYear()
+        const month = String(date.getMonth() + 1).padStart(2, '0')
+        const day = String(date.getDate()).padStart(2, '0')
+        return `${year}-${month}-${day}`
+      }
+
       const response = await fetch(
         `/api/properties/${propertyId}/calendar/block-dates`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            startDate: startDate.toISOString().split('T')[0],
-            endDate: endDate.toISOString().split('T')[0],
+            startDate: formatLocalDate(startDate),
+            endDate: formatLocalDate(endDate),
             reason: reason || 'blocked-by-owner',
           }),
           credentials: 'include',
