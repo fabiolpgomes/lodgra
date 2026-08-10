@@ -74,7 +74,12 @@ export async function GET(
 
     console.log(`✅ Fetched ${blocks?.length || 0} blocked date ranges for ${year}-${String(month).padStart(2, '0')}`, {
       dateRange: `${startDateStr} to ${endDateStr}`,
-      blocks: blocks?.map(b => ({ id: b.id, dates: `${b.start_date} to ${b.end_date}` }))
+      blocks: blocks?.map(b => ({
+        id: b.id,
+        dates: `${b.start_date} to ${b.end_date}`,
+        notes: b.notes,
+        type: b.block_type
+      }))
     })
 
     return NextResponse.json({
