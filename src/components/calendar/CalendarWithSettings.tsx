@@ -83,7 +83,12 @@ function CalendarWithSettingsContent({
 
   // Memoized computed values
   const selectedDateStr = useMemo(() => {
-    return selection.state.selectedDates.map((d) => d.toISOString().split('T')[0])
+    return selection.state.selectedDates.map((d) => {
+      const year = d.getFullYear()
+      const month = String(d.getMonth() + 1).padStart(2, '0')
+      const day = String(d.getDate()).padStart(2, '0')
+      return `${year}-${month}-${day}`
+    })
   }, [selection.state.selectedDates])
 
   const dailyPrices = useMemo(() => {
