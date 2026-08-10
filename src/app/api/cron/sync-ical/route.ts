@@ -433,6 +433,7 @@ export async function GET(request: NextRequest) {
     const cronSecret = process.env.CRON_SECRET
     const authHeader = request.headers.get('authorization')
     const querySecret = request.nextUrl.searchParams.get('secret')
+    const isManual = request.nextUrl.searchParams.get('manual') === 'true'
 
     // Accept either Bearer token OR query parameter (for pg_cron compatibility)
     const isAuthorized = cronSecret && (
@@ -442,6 +443,11 @@ export async function GET(request: NextRequest) {
 
     if (!isAuthorized) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Log manual sync requests
+    if (isManual) {
+      console.log('[Cron] 🚀 MANUAL SYNC TRIGGERED by user')
     }
 
     const supabase = await createAdminClient()
@@ -544,8 +550,9 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({
+    const response = {
       success: true,
+      mode: isManual ? 'manual' : 'cron',
       synced: listings.length,
       created: totalCreated,
       updated: totalUpdated,
@@ -553,7 +560,21 @@ export async function GET(request: NextRequest) {
       cancelled: totalCancelled,
       errors: totalErrors,
       timestamp: new Date().toISOString(),
-    })
+      ...(isManual && {
+        message: '✅ Sincronização manual completada',
+        details: {
+          totalListings: listings.length,
+          activeListings: activeListings.length,
+          summary: `${totalCreated} criadas, ${totalUpdated} atualizadas, ${totalSkipped} ignoradas, ${totalErrors} erros`
+        }
+      })
+    }
+
+    if (isManual) {
+      console.log('[Cron] ✅ Manual sync completed:', response)
+    }
+
+    return NextResponse.json(response)
 
   } catch (error: unknown) {
     console.error('[Cron] Erro no cron job:', error)

@@ -28,9 +28,17 @@ export async function POST(
 
     const supabase = createAdminClient()
 
-    // Parse dates and validate
-    const start = new Date(startDate)
-    const end = new Date(endDate)
+    // Parse dates - frontend already sends YYYY-MM-DD format in local date
+    // Do NOT use new Date() which interprets as UTC
+    const validateDateFormat = (dateStr: string) => {
+      const match = String(dateStr).match(/^(\d{4})-(\d{2})-(\d{2})/)
+      if (!match) throw new Error(`Invalid date format: ${dateStr}`)
+      const [, year, month, day] = match
+      return new Date(parseInt(year), parseInt(month) - 1, parseInt(day))
+    }
+
+    const start = validateDateFormat(startDate)
+    const end = validateDateFormat(endDate)
 
     if (start > end) {
       return NextResponse.json(
@@ -39,12 +47,13 @@ export async function POST(
       )
     }
 
-    // Format as ISO dates (YYYY-MM-DD)
-    const startDateStr = start.toISOString().split('T')[0]
-    const endDateStr = end.toISOString().split('T')[0]
+    // Format dates without timezone conversion - use received format directly
+    const startDateStr = startDate  // Already YYYY-MM-DD from frontend
+    const endDateStr = endDate      // Already YYYY-MM-DD from frontend
     const nightsBlocked = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1
 
-    console.log('📊 Blocking date range:', {
+    console.log('[DEBUG API BlockDates] Input:', { startDate, endDate })
+    console.log('[DEBUG API BlockDates] Saving to DB:', {
       propertyId,
       startDate: startDateStr,
       endDate: endDateStr,
