@@ -34,10 +34,18 @@ export async function GET(
     const monthStart = new Date(year, month - 1, 1)
     const monthEnd = new Date(year, month, 0)
 
-    const startDateStr = monthStart.toISOString().split('T')[0]
-    const endDateStr = monthEnd.toISOString().split('T')[0]
+    // Format dates without timezone conversion (use local date format)
+    const formatLocalDate = (date: Date) => {
+      const y = date.getFullYear()
+      const m = String(date.getMonth() + 1).padStart(2, '0')
+      const d = String(date.getDate()).padStart(2, '0')
+      return `${y}-${m}-${d}`
+    }
 
-    console.log(`📅 [blocked-dates GET] Fetching for property=${propertyId}, month=${year}-${String(month).padStart(2, '0')}`)
+    const startDateStr = formatLocalDate(monthStart)
+    const endDateStr = formatLocalDate(monthEnd)
+
+    console.log(`📅 [blocked-dates GET] Fetching for property=${propertyId}, month=${year}-${String(month).padStart(2, '0')}, queryRange=${startDateStr} to ${endDateStr}`)
 
     // Fetch all blocks that overlap with this month using admin client (no RLS)
     const { data: blocks, error } = await supabase
