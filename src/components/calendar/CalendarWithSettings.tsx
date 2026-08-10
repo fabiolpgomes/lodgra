@@ -72,6 +72,7 @@ function CalendarWithSettingsContent({
   const [showDiscountModal, setShowDiscountModal] = useState(false)
   const [showCancellationModal, setShowCancellationModal] = useState(false)
   const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null)
+  const [clickedBlockId, setClickedBlockId] = useState<string | null>(null)
 
   // React Query hooks
   const pricesQuery = useDailyPrices(propertyId, currentYear, currentMonth)
@@ -165,14 +166,45 @@ function CalendarWithSettingsContent({
     return blockedDatesQuery.data.data
   }, [blockedDatesQuery.data])
 
+  // Helper to find if clicked dates overlap with blocked dates
+  const findBlockedDateOverlap = useCallback((day: number): { id: string; reason: string } | null => {
+    if (blockedDates.length === 0) return null
+
+    const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+
+    const overlap = blockedDatesQuery.data?.data?.find((block: any) => {
+      return dateStr >= block.start_date && dateStr <= block.end_date
+    })
+
+    if (overlap) {
+      return {
+        id: overlap.id,
+        reason: overlap.notes || 'Bloqueado',
+      }
+    }
+
+    return null
+  }, [blockedDates, blockedDatesQuery.data, currentYear, currentMonth])
+
   // Handle day click from calendar
   const handleDayClick = useCallback(
     (day: number, year: number, month: number) => {
       const clickedDate = new Date(year, month, day)
+
+      // Check if this day is blocked
+      const blockOverlap = findBlockedDateOverlap(day)
+      if (blockOverlap) {
+        setClickedBlockId(blockOverlap.id)
+        // Still open modal but with blocked date info
+        selection.selectDateRange(clickedDate, clickedDate)
+        selection.openPriceModal(clickedDate)
+        return
+      }
+
       selection.toggleDay(clickedDate)
       selection.openPriceModal(clickedDate)
     },
-    [selection]
+    [selection, findBlockedDateOverlap]
   )
 
   // Handle range selection from calendar
@@ -279,6 +311,31 @@ function CalendarWithSettingsContent({
     }
   }, [propertyId, refetchData])
 
+  // Handle unblock dates from modal
+  const handleUnblockDates = useCallback(async (blockId: string) => {
+    try {
+      const response = await fetch(
+        `/api/properties/${propertyId}/calendar/blocked-dates/${blockId}`,
+        {
+          method: 'DELETE',
+          credentials: 'include',
+        }
+      )
+
+      if (!response.ok) {
+        throw new Error('Failed to unblock dates')
+      }
+
+      selection.clearSelection()
+
+      // Refetch data in background to confirm
+      await refetchData()
+    } catch (error) {
+      console.error('Error unblocking dates:', error)
+      throw error
+    }
+  }, [propertyId, refetchData, selection])
+
 
   // Handle month change - update state
   const handleMonthChange = useCallback(
@@ -358,9 +415,14 @@ function CalendarWithSettingsContent({
         isOpen={selection.isModalOpen}
         dates={selection.modalData?.dates || selection.modalData?.date || null}
         propertyId={propertyId}
-        onClose={selection.closeModal}
+        onClose={() => {
+          selection.closeModal()
+          setClickedBlockId(null)
+        }}
         onSavePrice={handleSavePrice}
         onBlockDates={handleBlockDates}
+        onUnblockDates={clickedBlockId ? () => handleUnblockDates(clickedBlockId) : undefined}
+        blockedDateInfo={clickedBlockId ? findBlockedDateOverlap(selection.state.selectedDates[0]?.getDate() || 1) : null}
         onOpenDiscounts={handleOpenDiscounts}
         onOpenCancellationPolicy={handleOpenCancellationPolicy}
       />

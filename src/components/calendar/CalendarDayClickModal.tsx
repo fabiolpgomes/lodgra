@@ -26,6 +26,8 @@ interface CalendarDayClickModalProps {
   onClose: () => void
   onSavePrice?: (price: number) => Promise<void>
   onBlockDates?: (reason?: string) => Promise<void>
+  onUnblockDates?: () => Promise<void>
+  blockedDateInfo?: { id: string; reason: string } | null
   onOpenDiscounts?: () => void
   onOpenCancellationPolicy?: () => void
 }
@@ -37,13 +39,15 @@ export function CalendarDayClickModal({
   onClose,
   onSavePrice,
   onBlockDates,
+  onUnblockDates,
+  blockedDateInfo,
   onOpenDiscounts,
   onOpenCancellationPolicy,
 }: CalendarDayClickModalProps) {
   const [price, setPrice] = useState('')
   const [blockReason, setBlockReason] = useState('')
   const [saving, setSaving] = useState(false)
-  const [action, setAction] = useState<'price' | 'block' | 'discounts' | 'policy' | null>(null)
+  const [action, setAction] = useState<'price' | 'block' | 'discounts' | 'policy' | 'unblock' | null>(null)
 
   // If dates not ready, show loading state inside Dialog
   if (!dates) {
@@ -115,6 +119,21 @@ export function CalendarDayClickModal({
     }
   }
 
+  const handleUnblockDates = async () => {
+    try {
+      setSaving(true)
+      await onUnblockDates?.()
+      toast.success('Datas desbloqueadas')
+      setAction(null)
+      onClose()
+    } catch (error) {
+      console.error('Error unblocking dates:', error)
+      toast.error('Erro ao desbloquear datas')
+    } finally {
+      setSaving(false)
+    }
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-lg w-full mx-auto">
@@ -122,7 +141,9 @@ export function CalendarDayClickModal({
         {action === null && (
           <>
             <DialogHeader>
-              <DialogTitle>Alterar Preço ou Bloquear Datas</DialogTitle>
+              <DialogTitle>
+                {blockedDateInfo ? 'Desbloquear Datas' : 'Alterar Preço ou Bloquear Datas'}
+              </DialogTitle>
               <DialogDescription>
                 {isSingleDay ? (
                   <span>{formatDate(dates)}</span>
@@ -134,46 +155,84 @@ export function CalendarDayClickModal({
               </DialogDescription>
             </DialogHeader>
 
-            <div className="grid grid-cols-2 gap-3 py-4">
-              <Button
-                onClick={() => setAction('price')}
-                variant="outline"
-                className="h-20 flex flex-col items-center justify-center gap-1"
-              >
-                <span className="text-2xl">💰</span>
-                <span className="text-xs font-semibold">Definir Preço</span>
-              </Button>
-              <Button
-                onClick={() => setAction('block')}
-                variant="outline"
-                className="h-20 flex flex-col items-center justify-center gap-1"
-              >
-                <span className="text-2xl">🔒</span>
-                <span className="text-xs font-semibold">Bloquear Datas</span>
-              </Button>
-              <Button
-                onClick={() => {
-                  onOpenDiscounts?.()
-                  onClose()
-                }}
-                variant="outline"
-                className="h-20 flex flex-col items-center justify-center gap-1"
-              >
-                <span className="text-2xl">🏷️</span>
-                <span className="text-xs font-semibold">Descontos</span>
-              </Button>
-              <Button
-                onClick={() => {
-                  onOpenCancellationPolicy?.()
-                  onClose()
-                }}
-                variant="outline"
-                className="h-20 flex flex-col items-center justify-center gap-1"
-              >
-                <span className="text-2xl">📋</span>
-                <span className="text-xs font-semibold">Cancelamento</span>
-              </Button>
-            </div>
+            {blockedDateInfo ? (
+              <>
+                <div className="space-y-4 py-4">
+                  <div className="p-4 rounded-lg border" style={{ backgroundColor: '#FFF3CD', borderColor: '#FFE69C' }}>
+                    <p className="text-sm font-medium mb-2" style={{ color: '#1B2430' }}>
+                      🔒 Data Bloqueada
+                    </p>
+                    <p className="text-xs" style={{ color: '#4D5566' }}>
+                      Motivo: <strong>{blockedDateInfo.reason}</strong>
+                    </p>
+                  </div>
+                </div>
+
+                <DialogFooter className="flex gap-2 sm:gap-3">
+                  <Button
+                    onClick={onClose}
+                    variant="outline"
+                    className="flex-1 h-12"
+                    disabled={saving}
+                  >
+                    Cancelar
+                  </Button>
+                  <Button
+                    onClick={handleUnblockDates}
+                    disabled={saving || !onUnblockDates}
+                    className="flex-1 h-12 text-base font-semibold text-white"
+                    style={{ backgroundColor: '#10203E' }}
+                    onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.9')}
+                    onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
+                  >
+                    {saving ? 'Desbloqueando...' : 'Desbloquear Datas'}
+                  </Button>
+                </DialogFooter>
+              </>
+            ) : (
+              <>
+                <div className="grid grid-cols-2 gap-3 py-4">
+                  <Button
+                    onClick={() => setAction('price')}
+                    variant="outline"
+                    className="h-20 flex flex-col items-center justify-center gap-1"
+                  >
+                    <span className="text-2xl">💰</span>
+                    <span className="text-xs font-semibold">Definir Preço</span>
+                  </Button>
+                  <Button
+                    onClick={() => setAction('block')}
+                    variant="outline"
+                    className="h-20 flex flex-col items-center justify-center gap-1"
+                  >
+                    <span className="text-2xl">🔒</span>
+                    <span className="text-xs font-semibold">Bloquear Datas</span>
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      onOpenDiscounts?.()
+                      onClose()
+                    }}
+                    variant="outline"
+                    className="h-20 flex flex-col items-center justify-center gap-1"
+                  >
+                    <span className="text-2xl">🏷️</span>
+                    <span className="text-xs font-semibold">Descontos</span>
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      onOpenCancellationPolicy?.()
+                      onClose()
+                    }}
+                    variant="outline"
+                    className="h-20 flex flex-col items-center justify-center gap-1"
+                  >
+                    <span className="text-2xl">📋</span>
+                    <span className="text-xs font-semibold">Cancelamento</span>
+                  </Button>
+                </div>
+              </>
+            )}
 
             <div className="text-xs p-3 rounded-lg" style={{ backgroundColor: '#F7F5EF', color: '#4D5566' }}>
               <p className="font-medium mb-1" style={{ color: '#1B2430' }}>Dicas:</p>
