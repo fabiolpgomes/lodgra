@@ -1,18 +1,11 @@
 # EPIC: Multi-OTA Real-Time Sync Platform
 
 **Epic ID:** MULTI-OTA-SYNC  
-**Status:** PHASE 1 COMPLETE ✅ (Aug 10) → PHASE 2 IN PROGRESS  
+**Status:** PLANNING  
 **Created:** 2026-08-10  
 **Target Launch:** 2026-10-05 (10 weeks)  
 **PM Lead:** Morgan (@pm)  
 **Severity:** CRITICAL (Revenue-blocking)
-
-**Phase 1 Status:**  
-✅ Database schema (9 tables, 12 RLS policies, 10 indices)  
-✅ Architect review (Aria approved 6 architectural changes)  
-✅ Production deployed to Supabase  
-✅ Integration tests passing (audit triggers verified)  
-📚 Full documentation in `/docs/epics/MULTI-OTA-SYNC/PHASE1-*.md`
 
 ---
 
