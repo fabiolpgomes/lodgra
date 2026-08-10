@@ -18,10 +18,13 @@ export async function GET(
     // Get query parameters for month filtering
     const url = new URL(request.url)
     const year = parseInt(url.searchParams.get('year') || new Date().getFullYear().toString())
-    const month = parseInt(url.searchParams.get('month') || (new Date().getMonth() + 1).toString())
+    const monthParam = parseInt(url.searchParams.get('month') || new Date().getMonth().toString())
+
+    // Month comes as 0-indexed from frontend (0=jan, 11=dec)
+    const month = monthParam
 
     // Validate inputs
-    if (isNaN(year) || isNaN(month) || month < 1 || month > 12) {
+    if (isNaN(year) || isNaN(month) || month < 0 || month > 11) {
       return NextResponse.json(
         { success: false, error: 'Invalid year or month parameters' },
         { status: 400 }
@@ -30,9 +33,9 @@ export async function GET(
 
     const supabase = await createAdminClient()
 
-    // Calculate start and end dates for the month
-    const monthStart = new Date(year, month - 1, 1)
-    const monthEnd = new Date(year, month, 0)
+    // Calculate start and end dates for the month (month is 0-indexed)
+    const monthStart = new Date(year, month, 1)
+    const monthEnd = new Date(year, month + 1, 0)
 
     // Format dates without timezone conversion (use local date format)
     const formatLocalDate = (date: Date) => {
