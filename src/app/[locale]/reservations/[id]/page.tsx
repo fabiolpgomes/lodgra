@@ -62,6 +62,13 @@ export default async function ReservationDetailPage({
     redirect(`/${locale}/reservations`)
   }
 
+  // Transform data to match ReservationUI interface
+  const transformedReservation: ReservationUI = {
+    ...reservation,
+    status: (reservation.reservation_status as any) || 'pending',
+    guests: [],
+  }
+
   // Status configuration
   const statusConfig = {
     pending: { label: 'Pendente', className: 'bg-orange-100 text-orange-800' },
@@ -242,7 +249,7 @@ export default async function ReservationDetailPage({
             </div>
 
             {/* Actions */}
-            <EditReservationClient reservation={reservation} locale={resolvedLocale} />
+            <EditReservationClient reservation={transformedReservation} locale={resolvedLocale} />
           </div>
         </div>
       </div>
