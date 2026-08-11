@@ -247,79 +247,6 @@ export default function NewReservationPage() {
 
       const organizationId = profile.organization_id
 
-      // Criar ou buscar hóspede
-      const guestEmail = formData.get('guest_email') as string
-      const guestFirstName = formData.get('guest_first_name') as string
-      const guestLastName = formData.get('guest_last_name') as string
-
-      let guestId = null
-
-      // Criar ou buscar hóspede
-      if (guestEmail) {
-        // Verificar se hóspede já existe via API endpoint (bypasses RLS)
-        const checkResponse = await fetch('/api/guests/check', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email: guestEmail,
-            organization_id: organizationId,
-          }),
-        })
-
-        if (!checkResponse.ok) {
-          const checkError = await checkResponse.json()
-          throw new Error(`Erro ao verificar guest: ${checkError.error}`)
-        }
-
-        const checkData = await checkResponse.json()
-
-        if (checkData.exists && checkData.guest) {
-          guestId = checkData.guest.id
-          // Update existing guest with new data (name and phone may have changed)
-          const { error: updateError } = await supabase
-            .from('guests')
-            .update({
-              first_name: guestFirstName,
-              last_name: guestLastName,
-              phone: formData.get('guest_phone') as string || null,
-            })
-            .eq('id', guestId)
-          if (updateError) throw updateError
-        } else {
-          // Criar novo hóspede com organization_id
-          const { data: newGuest, error: guestError } = await supabase
-            .from('guests')
-            .insert({
-              first_name: guestFirstName,
-              last_name: guestLastName,
-              email: guestEmail,
-              phone: formData.get('guest_phone') as string || null,
-              organization_id: organizationId,
-            })
-            .select()
-            .single()
-
-          if (guestError) throw guestError
-          guestId = newGuest.id
-        }
-      } else {
-        // Cliente de primeira vez sem email - criar guest sem email
-        const { data: newGuest, error: guestError } = await supabase
-          .from('guests')
-          .insert({
-            first_name: guestFirstName,
-            last_name: guestLastName,
-            email: null,
-            phone: formData.get('guest_phone') as string || null,
-            organization_id: organizationId,
-          })
-          .select()
-          .single()
-
-        if (guestError) throw guestError
-        guestId = newGuest.id
-      }
-
       // Buscar moeda da propriedade
       const listingId = selectedListing
       const { data: listing } = await supabase
@@ -347,27 +274,17 @@ export default function NewReservationPage() {
         .from('reservations')
         .insert({
           property_listing_id: listingId,
-          guest_id: guestId,
           check_in: checkInStr,
           check_out: checkOutStr,
-          number_of_guests: parseInt(formData.get('number_of_guests') as string) || 1,
-          adults: parseInt(formData.get('adults') as string) || 1,
-          children: parseInt(formData.get('children') as string) || 0,
-          notes: (formData.get('notes') as string) || null,
           total_amount: parseFloat(formData.get('total_amount') as string) || null,
           currency: propertyCurrency,
-          service_fee_amount: serviceFeeAmount,
           status: 'confirmed',
-          booking_source: 'manual',
           external_id: externalId,
           guest_name: (formData.get('guest_first_name') as string) + ' ' + (formData.get('guest_last_name') as string),
           guest_email: formData.get('guest_email') as string,
           guest_phone: (formData.get('guest_phone') as string) || null,
-          num_guests: parseInt(formData.get('number_of_guests') as string) || 1,
-          organization_id: organizationId,
-          commission_amount: null,
-          commission_rate: null,
-          commission_calculated_at: new Date().toISOString(),
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
         })
         .select()
         .single()
