@@ -278,6 +278,8 @@ export default function NewReservationPage() {
       const reservationData: Record<string, any> = {
         organization_id: organizationId,
         property_id: propertyId,
+        channel_connection_id: 'manual', // Manual booking (no platform connection)
+        external_reservation_id: externalId || `manual-${Date.now()}`, // Use provided ID or generate one
         check_in: checkInStr,
         check_out: checkOutStr,
         number_of_guests: parseInt(formData.get('number_of_guests') as string) || 1,
@@ -289,11 +291,6 @@ export default function NewReservationPage() {
         guest_name: (formData.get('guest_first_name') as string) + ' ' + (formData.get('guest_last_name') as string),
         guest_email: formData.get('guest_email') as string,
         guest_phone: (formData.get('guest_phone') as string) || null,
-      }
-
-      // Only add external_reservation_id if it exists
-      if (externalId) {
-        reservationData.external_reservation_id = externalId
       }
 
       const { data, error: insertError } = await supabase
