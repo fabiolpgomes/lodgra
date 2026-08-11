@@ -95,16 +95,25 @@ export function Sidebar({ serverProfile }: SidebarProps) {
           .eq('id', profile.id)
           .single()
 
-        if (!userProfile?.organization_id) return
+        if (!userProfile?.organization_id) {
+          setHasPremium(false)
+          return
+        }
 
-        const { data: organization } = await supabase
-          .from('organizations')
-          .select('plan, subscription_plan')
-          .eq('id', userProfile.organization_id)
-          .single()
+        // Safely query organizations table with error handling
+        try {
+          const { data: organization } = await supabase
+            .from('organizations')
+            .select('plan, subscription_plan')
+            .eq('id', userProfile.organization_id)
+            .single()
 
-        const plan = organization?.subscription_plan || organization?.plan
-        setHasPremium(plan === 'premium')
+          const plan = organization?.subscription_plan || organization?.plan
+          setHasPremium(plan === 'premium')
+        } catch (_orgError) {
+          // Organizations table doesn't exist or not accessible - default to false
+          setHasPremium(false)
+        }
       } catch (error) {
         console.error('Error checking premium tier:', error)
         setHasPremium(false)
