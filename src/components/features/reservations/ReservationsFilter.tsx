@@ -42,9 +42,7 @@ const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
 }
 
 function getReservationData(r: ReservationUI) {
-  const rawGuest = r.guests
-  const guest = Array.isArray(rawGuest) ? rawGuest[0] : rawGuest
-  const guestName = `${guest?.first_name || ''} ${guest?.last_name || ''}`.trim() || 'Hóspede'
+  const guestName = r.guest_name?.trim() || 'Hóspede'
   const rawListing = r.property_listings
   const listing = Array.isArray(rawListing) ? rawListing[0] : rawListing
   const rawProperty = listing?.properties
