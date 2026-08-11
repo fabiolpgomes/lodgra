@@ -84,12 +84,12 @@ export async function checkPropertyAvailability(
         id,
         check_in,
         check_out,
-        status,
+        reservation_status,
         source,
         guest_name
       `)
       .in('property_listing_id', listingIds)
-      .in('status', ['confirmed', 'pending'])
+      .in('reservation_status', ['confirmed', 'pending'])
       .lt('check_in', checkOut) // check_in < checkOut
       .gt('check_out', checkIn) // check_out > checkIn
       .is('deleted_at', null)
@@ -109,7 +109,7 @@ export async function checkPropertyAvailability(
       id: r.id,
       check_in: r.check_in,
       check_out: r.check_out,
-      status: r.status,
+      status: (r as any).reservation_status || 'pending',
       source: r.source || 'manual',
       guest_name: (r as any).guest_name || undefined,
     }))
