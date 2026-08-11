@@ -275,10 +275,19 @@ export default function NewReservationPage() {
       const nights = nightsBetween(checkInStr, checkOutStr)
       const serviceFeeAmount = calculateServiceFeeAmount(selectedPropertyData, nights)
 
+      // Generate UUID v4 for manual channel connection
+      const generateUUID = () => {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+          const r = Math.random() * 16 | 0
+          const v = c === 'x' ? r : (r & 0x3 | 0x8)
+          return v.toString(16)
+        })
+      }
+
       const reservationData: Record<string, any> = {
         organization_id: organizationId,
         property_id: propertyId,
-        channel_connection_id: 'manual', // Manual booking (no platform connection)
+        channel_connection_id: generateUUID(), // Generate UUID for manual bookings
         external_reservation_id: externalId || `manual-${Date.now()}`, // Use provided ID or generate one
         check_in: checkInStr,
         check_out: checkOutStr,
