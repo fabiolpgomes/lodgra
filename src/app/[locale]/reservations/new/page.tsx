@@ -276,6 +276,7 @@ export default function NewReservationPage() {
       const serviceFeeAmount = calculateServiceFeeAmount(selectedPropertyData, nights)
 
       const reservationData: Record<string, any> = {
+        organization_id: organizationId,
         property_id: propertyId,
         check_in: checkInStr,
         check_out: checkOutStr,
