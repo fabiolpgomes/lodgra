@@ -270,25 +270,29 @@ export default function NewReservationPage() {
       const nights = nightsBetween(checkInStr, checkOutStr)
       const serviceFeeAmount = calculateServiceFeeAmount(selectedPropertyData, nights)
 
+      const reservationData: Record<string, any> = {
+        property_listing_id: listingId,
+        check_in: checkInStr,
+        check_out: checkOutStr,
+        number_of_guests: parseInt(formData.get('number_of_guests') as string) || 1,
+        adults: parseInt(formData.get('adults') as string) || 1,
+        children: parseInt(formData.get('children') as string) || 0,
+        total_amount: parseFloat(formData.get('total_amount') as string) || null,
+        currency: propertyCurrency,
+        status: 'confirmed',
+        guest_name: (formData.get('guest_first_name') as string) + ' ' + (formData.get('guest_last_name') as string),
+        guest_email: formData.get('guest_email') as string,
+        guest_phone: (formData.get('guest_phone') as string) || null,
+      }
+
+      // Only add external_id if it exists
+      if (externalId) {
+        reservationData.external_reservation_id = externalId
+      }
+
       const { data, error: insertError } = await supabase
         .from('reservations')
-        .insert({
-          property_listing_id: listingId,
-          check_in: checkInStr,
-          check_out: checkOutStr,
-          number_of_guests: parseInt(formData.get('number_of_guests') as string) || 1,
-          adults: parseInt(formData.get('adults') as string) || 1,
-          children: parseInt(formData.get('children') as string) || 0,
-          total_amount: parseFloat(formData.get('total_amount') as string) || null,
-          currency: propertyCurrency,
-          status: 'confirmed',
-          external_id: externalId,
-          guest_name: (formData.get('guest_first_name') as string) + ' ' + (formData.get('guest_last_name') as string),
-          guest_email: formData.get('guest_email') as string,
-          guest_phone: (formData.get('guest_phone') as string) || null,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        })
+        .insert(reservationData)
         .select()
         .single()
 
