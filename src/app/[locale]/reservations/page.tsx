@@ -43,8 +43,31 @@ export default async function ReservationsPage({
   let dataQuery = supabase
     .from('reservations')
     .select(`
-      *,
+      id,
+      organization_id,
+      channel_connection_id,
+      external_reservation_id,
+      property_id,
+      unit_id,
+      check_in,
+      check_out,
+      number_of_nights,
+      guest_name,
+      first_name,
+      last_name,
+      guest_email,
+      guest_phone,
+      number_of_guests,
+      total_price,
+      currency,
+      commission_amount,
       reservation_status as status,
+      completeness_status,
+      completeness_percentage,
+      created_at,
+      updated_at,
+      cancelled_at,
+      deleted_at,
       property_listings!inner(
         id,
         properties!inner(
