@@ -8,6 +8,7 @@ import { Button } from '@/components/common/ui/button'
 import { Badge } from '@/components/common/ui/badge'
 import { formatCurrency } from '@/lib/utils/currency'
 import { EditReservationClient } from '@/components/features/reservations/EditReservationClient'
+import { ReservationUI } from '@/components/features/reservations/types/reservation-ui'
 
 export default async function ReservationDetailPage({
   params,
