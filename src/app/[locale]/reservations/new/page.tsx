@@ -247,7 +247,7 @@ export default function NewReservationPage() {
 
       const organizationId = profile.organization_id
 
-      // Buscar moeda da propriedade
+      // Buscar property_id a partir do listing
       const listingId = selectedListing
       const { data: listing } = await supabase
         .from('property_listings')
@@ -255,6 +255,11 @@ export default function NewReservationPage() {
         .eq('id', listingId)
         .single()
 
+      if (!listing?.property_id) {
+        throw new Error('Propriedade não encontrada para este anúncio')
+      }
+
+      const propertyId = listing.property_id
       const propertyCurrency = (listing?.properties as { currency?: string } | null)?.currency || 'EUR'
 
       // Criar reserva
@@ -271,21 +276,21 @@ export default function NewReservationPage() {
       const serviceFeeAmount = calculateServiceFeeAmount(selectedPropertyData, nights)
 
       const reservationData: Record<string, any> = {
-        property_listing_id: listingId,
+        property_id: propertyId,
         check_in: checkInStr,
         check_out: checkOutStr,
         number_of_guests: parseInt(formData.get('number_of_guests') as string) || 1,
         adults: parseInt(formData.get('adults') as string) || 1,
         children: parseInt(formData.get('children') as string) || 0,
-        total_amount: parseFloat(formData.get('total_amount') as string) || null,
+        total_price: parseFloat(formData.get('total_amount') as string) || null,
         currency: propertyCurrency,
-        status: 'confirmed',
+        reservation_status: 'confirmed',
         guest_name: (formData.get('guest_first_name') as string) + ' ' + (formData.get('guest_last_name') as string),
         guest_email: formData.get('guest_email') as string,
         guest_phone: (formData.get('guest_phone') as string) || null,
       }
 
-      // Only add external_id if it exists
+      // Only add external_reservation_id if it exists
       if (externalId) {
         reservationData.external_reservation_id = externalId
       }
