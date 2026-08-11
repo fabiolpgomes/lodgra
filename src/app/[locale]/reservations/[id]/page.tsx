@@ -75,7 +75,9 @@ export default async function ReservationDetailPage({
   const listing = Array.isArray(rawListing) ? rawListing[0] : rawListing
   const rawProperty = listing?.properties
   const property = Array.isArray(rawProperty) ? rawProperty[0] : rawProperty
-  const platformName = listing?.platforms?.display_name
+  const rawPlatforms = listing?.platforms
+  const platforms = Array.isArray(rawPlatforms) ? rawPlatforms[0] : rawPlatforms
+  const platformName = platforms?.display_name
 
   const checkInDate = new Date(reservation.check_in)
   const checkOutDate = new Date(reservation.check_out)
