@@ -110,7 +110,7 @@ export function ReservationRow({ reservation }: ReservationRowProps) {
       </td>
 
       <td className="px-2.5 py-2.5 whitespace-nowrap text-xs text-gray-900 w-24">
-        {formatCurrency(reservation.total_amount, ((property as { currency?: string } | null)?.currency || reservation.currency || 'EUR') as CurrencyCode)}
+        {formatCurrency(reservation.total_price || reservation.total_amount || 0, ((property as { currency?: string } | null)?.currency || reservation.currency || 'EUR') as CurrencyCode)}
       </td>
 
       <td className="px-2.5 py-2.5 whitespace-nowrap text-right w-20">

@@ -3,7 +3,8 @@ export interface ReservationUI {
   check_in: string
   check_out: string
   status: 'pending' | 'confirmed' | 'cancelled' | 'completed'
-  total_amount: number
+  total_amount?: number
+  total_price?: number
   currency: string
   guest_name?: string
   adults?: number | null
