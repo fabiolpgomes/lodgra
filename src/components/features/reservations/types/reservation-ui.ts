@@ -5,6 +5,7 @@ export interface ReservationUI {
   status: 'pending' | 'confirmed' | 'cancelled' | 'completed'
   total_amount: number
   currency: string
+  guest_name?: string
   adults?: number | null
   children?: number | null
   notes?: string | null
