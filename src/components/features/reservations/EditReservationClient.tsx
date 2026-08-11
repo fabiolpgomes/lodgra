@@ -6,7 +6,6 @@ import { ReservationUI } from './types/reservation-ui'
 import { EditReservationForm } from './EditReservationForm'
 import { Button } from '@/components/common/ui/button'
 import { Trash2, Edit } from 'lucide-react'
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle } from '@/components/common/ui/alert-dialog'
 
 interface EditReservationClientProps {
   reservation: ReservationUI
@@ -119,29 +118,33 @@ export function EditReservationClient({ reservation, locale }: EditReservationCl
 
       {/* Delete Confirmation Dialog */}
       {showDeleteDialog && (
-        <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Cancelar Reserva?</AlertDialogTitle>
-              <AlertDialogDescription>
-                Esta ação é reversível. A reserva será marcada como cancelada mas os dados serão preservados para auditoria.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <div className="bg-yellow-50 border border-yellow-200 rounded p-3 text-sm text-yellow-800">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-sm w-full p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-2">Cancelar Reserva?</h2>
+            <p className="text-sm text-gray-600 mb-4">
+              Esta ação é reversível. A reserva será marcada como cancelada mas os dados serão preservados para auditoria.
+            </p>
+            <div className="bg-yellow-50 border border-yellow-200 rounded p-3 text-sm text-yellow-800 mb-6">
               ⚠️ Certifique-se de notificar o hóspede antes de cancelar.
             </div>
             <div className="flex gap-3 justify-end">
-              <AlertDialogCancel disabled={loading}>Manter</AlertDialogCancel>
-              <AlertDialogAction
+              <Button
+                variant="outline"
+                onClick={() => setShowDeleteDialog(false)}
+                disabled={loading}
+              >
+                Manter
+              </Button>
+              <Button
                 onClick={handleDelete}
                 disabled={loading}
                 className="bg-red-600 hover:bg-red-700 text-white"
               >
                 {loading ? 'Cancelando...' : 'Cancelar Reserva'}
-              </AlertDialogAction>
+              </Button>
             </div>
-          </AlertDialogContent>
-        </AlertDialog>
+          </div>
+        </div>
       )}
     </>
   )
