@@ -76,7 +76,7 @@ export default async function ReservationsPage({
   let cCanc = supabase.from('reservations').select('id, property_listings!inner(property_id)', { count: 'exact', head: true }).eq('reservation_status', 'cancelled').lte('check_in', monthEnd).gte('check_out', monthStart)
 
   if (propertyIds) {
-    dataQuery = dataQuery.in('property_listings.properties.id', propertyIds)
+    dataQuery = dataQuery.in('property_listings.property_id', propertyIds)
     cConf = cConf.in('property_listings.property_id', propertyIds)
     cPend = cPend.in('property_listings.property_id', propertyIds)
     cCanc = cCanc.in('property_listings.property_id', propertyIds)
