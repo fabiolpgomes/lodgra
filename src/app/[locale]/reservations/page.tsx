@@ -80,12 +80,6 @@ export default async function ReservationsPage({
         platforms(
           display_name
         )
-      ),
-      guests(
-        id,
-        first_name,
-        last_name,
-        email
       )
     `, { count: 'exact' })
     .lte('check_in', monthEnd)
