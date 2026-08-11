@@ -7,6 +7,8 @@ export interface ReservationUI {
   total_price?: number
   currency: string
   guest_name?: string
+  guest_email?: string
+  guest_phone?: string
   adults?: number | null
   children?: number | null
   notes?: string | null
