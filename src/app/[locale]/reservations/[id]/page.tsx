@@ -63,11 +63,29 @@ export default async function ReservationDetailPage({
     redirect(`/${locale}/reservations`)
   }
 
+  // Extract nested data
+  const rawListing = reservation.property_listings
+  const listing = Array.isArray(rawListing) ? rawListing[0] : rawListing
+  const rawProperty = listing?.properties
+  const property = Array.isArray(rawProperty) ? rawProperty[0] : rawProperty
+  const rawPlatforms = listing?.platforms
+  const platforms = Array.isArray(rawPlatforms) ? rawPlatforms[0] : rawPlatforms
+
   // Transform data to match ReservationUI interface
   const transformedReservation: ReservationUI = {
-    ...reservation,
+    id: reservation.id,
+    check_in: reservation.check_in,
+    check_out: reservation.check_out,
     status: (reservation.reservation_status as any) || 'pending',
+    total_price: reservation.total_price,
+    currency: reservation.currency,
+    guest_name: reservation.guest_name,
     guests: [],
+    property_listings: listing ? {
+      id: listing.id,
+      properties: property || { id: '', name: '' },
+      platforms: platforms || null,
+    } : undefined as any,
   }
 
   // Status configuration
@@ -79,14 +97,6 @@ export default async function ReservationDetailPage({
   }
 
   const status = statusConfig[reservation.reservation_status as keyof typeof statusConfig] || statusConfig.pending
-
-  // Extract property data
-  const rawListing = reservation.property_listings
-  const listing = Array.isArray(rawListing) ? rawListing[0] : rawListing
-  const rawProperty = listing?.properties
-  const property = Array.isArray(rawProperty) ? rawProperty[0] : rawProperty
-  const rawPlatforms = listing?.platforms
-  const platforms = Array.isArray(rawPlatforms) ? rawPlatforms[0] : rawPlatforms
   const platformName = platforms?.display_name
 
   const checkInDate = new Date(reservation.check_in)
