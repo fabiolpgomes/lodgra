@@ -1,181 +1,120 @@
-import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { requireRole } from '@/lib/auth/requireRole'
-import { getUserPropertyIds } from '@/lib/auth/getUserProperties'
-import { validate, UpdateReservationSchema, PatchReservationSchema } from '@/lib/schemas/api'
-import { writeAuditLog } from '@/lib/audit'
+import { NextRequest, NextResponse } from 'next/server'
 
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const auth = await requireRole(['admin', 'gestor'])
-    if (!auth.authorized) return auth.response!
-
     const { id } = await params
-    const body = await request.json()
-
-    const validation = validate(UpdateReservationSchema, body)
-    if (!validation.ok) return validation.response
-
-    const {
-      property_listing_id,
-      check_in,
-      check_out,
-      status,
-      number_of_guests,
-      adults,
-      children,
-      total_amount,
-      currency,
-      guest_first_name,
-      guest_last_name,
-      guest_email,
-      guest_phone,
-    } = validation.data
-
     const supabase = await createClient()
 
-    // Buscar reserva atual com property_id para controlo de acesso
-    const { data: currentReservation, error: fetchError } = await supabase
+    // Get current user
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    if (userError || !user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
+    // Parse request body
+    const body = await request.json()
+    const {
+      guest_name,
+      guest_email,
+      guest_phone,
+      status,
+      total_price,
+    } = body
+
+    // Validate required fields
+    if (!guest_name) {
+      return NextResponse.json(
+        { error: 'Nome do hóspede é obrigatório' },
+        { status: 400 }
+      )
+    }
+
+    // Get original reservation (for audit comparison)
+    const { data: originalReservation } = await supabase
       .from('reservations')
-      .select('*, guests(*), property_listings!inner(property_id)')
+      .select('guest_name, guest_email, guest_phone, reservation_status, total_price')
       .eq('id', id)
       .single()
 
-    if (fetchError || !currentReservation) {
-      return NextResponse.json(
-        { error: 'Reserva não encontrada' },
-        { status: 404 }
-      )
-    }
-
-    // Verificar acesso à propriedade (managers com escopo restrito)
-    const propertyId = (currentReservation.property_listings as unknown as { property_id: string } | null)?.property_id
-    const allowedPropertyIds = await getUserPropertyIds(supabase)
-    if (allowedPropertyIds !== null && propertyId && !allowedPropertyIds.includes(propertyId)) {
-      return NextResponse.json(
-        { error: 'Acesso negado a esta propriedade' },
-        { status: 403 }
-      )
-    }
-
-    // Atualizar dados do hóspede
-    const { error: guestError } = await supabase
-      .from('guests')
-      .update({
-        first_name: guest_first_name,
-        last_name: guest_last_name,
-        email: guest_email,
-        phone: guest_phone || null,
-      })
-      .eq('id', currentReservation.guest_id)
-
-    if (guestError) {
-      return NextResponse.json(
-        { error: 'Erro ao atualizar hóspede: ' + guestError.message },
-        { status: 500 }
-      )
-    }
-
-    // Atualizar reserva
-    const updateData: Record<string, unknown> = {
-      property_listing_id,
-      check_in,
-      check_out,
-      status,
-      number_of_guests,
-      total_amount: total_amount || null,
-      currency: currency || null,
-      updated_at: new Date().toISOString(),
-    }
-
-    if (adults !== undefined) updateData.adults = adults
-    if (children !== undefined) updateData.children = children
-
-    const { data: updatedReservation, error: updateError } = await supabase
+    // Update reservation
+    const { data, error } = await supabase
       .from('reservations')
-      .update(updateData)
+      .update({
+        guest_name,
+        guest_email: guest_email || null,
+        guest_phone: guest_phone || null,
+        reservation_status: status || 'pending',
+        total_price: total_price || 0,
+      })
       .eq('id', id)
       .select()
       .single()
 
-    if (updateError) {
+    if (error) {
+      console.error('Update error:', error)
       return NextResponse.json(
-        { error: 'Erro ao atualizar reserva: ' + updateError.message },
+        { error: 'Falha ao atualizar reserva' },
         { status: 500 }
       )
     }
 
-    await writeAuditLog({
-      userId: auth.userId!,
-      action: 'update',
-      resourceType: 'reservation',
-      resourceId: id,
-      details: { status, check_in, check_out, property_listing_id },
-    })
+    // Log audit trail
+    const changedFields: Record<string, any> = {}
+    if (originalReservation?.guest_name !== guest_name) {
+      changedFields.guest_name = {
+        from: originalReservation?.guest_name,
+        to: guest_name,
+      }
+    }
+    if (originalReservation?.guest_email !== guest_email) {
+      changedFields.guest_email = {
+        from: originalReservation?.guest_email,
+        to: guest_email,
+      }
+    }
+    if (originalReservation?.guest_phone !== guest_phone) {
+      changedFields.guest_phone = {
+        from: originalReservation?.guest_phone,
+        to: guest_phone,
+      }
+    }
+    if (originalReservation?.reservation_status !== status) {
+      changedFields.reservation_status = {
+        from: originalReservation?.reservation_status,
+        to: status,
+      }
+    }
+    if (originalReservation?.total_price !== total_price) {
+      changedFields.total_price = {
+        from: originalReservation?.total_price,
+        to: total_price,
+      }
+    }
 
-    return NextResponse.json({
-      success: true,
-      reservation: updatedReservation
-    })
-
-  } catch (error: unknown) {
-    console.error('Erro na API de atualização:', error)
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Erro ao atualizar reserva' },
-      { status: 500 }
-    )
-  }
-}
-
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const auth = await requireRole(['admin', 'gestor'])
-    if (!auth.authorized) return auth.response!
-
-    const { id } = await params
-    const body = await request.json()
-
-    const validation = validate(PatchReservationSchema, body)
-    if (!validation.ok) return validation.response
-
-    const { internal_notes } = validation.data
-    const supabase = await createClient()
-
-    const { error: updateError } = await supabase
-      .from('reservations')
-      .update({
-        internal_notes,
-        updated_at: new Date().toISOString(),
+    // Create audit log entry
+    await supabase
+      .from('reservation_audit_log')
+      .insert({
+        id: crypto.randomUUID(),
+        reservation_id: id,
+        action: 'updated',
+        changed_fields: changedFields,
+        changed_by: user.id,
+        changed_at: new Date().toISOString(),
       })
-      .eq('id', id)
 
-    if (updateError) {
-      return NextResponse.json(
-        { error: 'Erro ao atualizar nota: ' + updateError.message },
-        { status: 500 }
-      )
-    }
-
-    await writeAuditLog({
-      userId: auth.userId!,
-      action: 'update',
-      resourceType: 'reservation',
-      resourceId: id,
-      details: { field: 'internal_notes' },
-    })
-
-    return NextResponse.json({ success: true })
-
-  } catch (error: unknown) {
-    console.error('Erro na API PATCH:', error)
+    return NextResponse.json(data)
+  } catch (error) {
+    console.error('API error:', error)
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Erro ao atualizar nota' },
+      { error: 'Erro interno do servidor' },
       { status: 500 }
     )
   }
@@ -186,71 +125,57 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const auth = await requireRole(['admin', 'gestor'])
-    if (!auth.authorized) return auth.response!
-
     const { id } = await params
     const supabase = await createClient()
 
-    // Buscar reserva com property_id para controlo de acesso
-    const { data: reservation, error: fetchError } = await supabase
+    // Get current user
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    if (userError || !user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
+    // Parse request body for soft delete reason
+    const body = await request.json()
+    const { reason } = body
+
+    // Soft delete (set deleted_at)
+    const { data, error } = await supabase
       .from('reservations')
-      .select('*, guests(id, email), property_listings!inner(property_id)')
+      .update({
+        deleted_at: new Date().toISOString(),
+      })
       .eq('id', id)
+      .select()
       .single()
 
-    if (fetchError || !reservation) {
+    if (error) {
+      console.error('Delete error:', error)
       return NextResponse.json(
-        { error: 'Reserva não encontrada' },
-        { status: 404 }
-      )
-    }
-
-    // Verificar acesso à propriedade (managers com escopo restrito)
-    const propertyId = (reservation.property_listings as unknown as { property_id: string } | null)?.property_id
-    const allowedPropertyIds = await getUserPropertyIds(supabase)
-    if (allowedPropertyIds !== null && propertyId && !allowedPropertyIds.includes(propertyId)) {
-      return NextResponse.json(
-        { error: 'Acesso negado a esta propriedade' },
-        { status: 403 }
-      )
-    }
-
-    // Eliminar a reserva
-    const { error: deleteError } = await supabase
-      .from('reservations')
-      .delete()
-      .eq('id', id)
-
-    if (deleteError) {
-      return NextResponse.json(
-        { error: 'Erro ao eliminar reserva: ' + deleteError.message },
+        { error: 'Falha ao deletar reserva' },
         { status: 500 }
       )
     }
 
-    // Se o hóspede é "importado" (email @lodgra.local), eliminar também
-    const guestEmail = (reservation.guests as { id: string; email: string } | null)?.email || ''
-    if (guestEmail.endsWith('@lodgra.local')) {
-      await supabase
-        .from('guests')
-        .delete()
-        .eq('id', reservation.guest_id)
-    }
-
-    await writeAuditLog({
-      userId: auth.userId!,
-      action: 'delete',
-      resourceType: 'reservation',
-      resourceId: id,
-    })
+    // Create audit log entry
+    await supabase
+      .from('reservation_audit_log')
+      .insert({
+        id: crypto.randomUUID(),
+        reservation_id: id,
+        action: 'deleted',
+        changed_fields: { reason },
+        changed_by: user.id,
+        changed_at: new Date().toISOString(),
+      })
 
     return NextResponse.json({ success: true })
-
-  } catch (error: unknown) {
-    console.error('Erro ao eliminar reserva:', error)
+  } catch (error) {
+    console.error('API error:', error)
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Erro ao eliminar reserva' },
+      { error: 'Erro interno do servidor' },
       { status: 500 }
     )
   }

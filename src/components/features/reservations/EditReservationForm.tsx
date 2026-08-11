@@ -1,408 +1,196 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from '@/lib/i18n/routing'
-import { Save, Loader2 } from 'lucide-react'
-import { toast } from 'sonner'
-import { getCurrencySymbol, type CurrencyCode } from '@/lib/utils/currency'
+import { ReservationUI } from './types/reservation-ui'
 import { Button } from '@/components/common/ui/button'
 import { Input } from '@/components/common/ui/input'
-import { Label } from '@/components/common/ui/label'
-import { Alert, AlertDescription } from '@/components/common/ui/alert'
-
-interface ReservationData {
-  id: string
-  property_listing_id: string
-  check_in: string
-  check_out: string
-  status: string
-  number_of_guests: number | null
-  adults: number | null
-  children: number | null
-  total_amount: number | string | null
-  currency: string | null
-  booking_source?: string | null
-  external_id?: string | null
-  guests?: { first_name: string; last_name: string; email: string; phone?: string } | null
-}
-
-interface ListingOption {
-  id: string
-  properties: { name: string }
-  platforms?: { display_name: string } | null
-}
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/common/ui/select'
+import { X, Save } from 'lucide-react'
 
 interface EditReservationFormProps {
-  reservation: ReservationData
-  listings: ListingOption[]
+  reservation: ReservationUI
+  onClose: () => void
+  onSave: (data: Partial<ReservationUI>) => Promise<void>
 }
 
-export function EditReservationForm({ reservation, listings }: EditReservationFormProps) {
-  const router = useRouter()
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-
-  // Form state
+export function EditReservationForm({ reservation, onClose, onSave }: EditReservationFormProps) {
   const [formData, setFormData] = useState({
-    property_listing_id: reservation.property_listing_id,
-    check_in: reservation.check_in,
-    check_out: reservation.check_out,
-    status: reservation.status,
-    number_of_guests: reservation.number_of_guests || 1,
-    adults: reservation.adults || 1,
-    children: reservation.children ?? 0,
-    total_amount: reservation.total_amount || '',
-    currency: reservation.currency || 'EUR',
-    guest_first_name: reservation.guests?.first_name || '',
-    guest_last_name: reservation.guests?.last_name || '',
-    guest_email: reservation.guests?.email || '',
-    guest_phone: reservation.guests?.phone || '',
+    guest_name: reservation.guest_name || '',
+    guest_email: reservation.guest_email || '',
+    guest_phone: reservation.guest_phone || '',
+    reservation_status: reservation.status || 'confirmed',
+    total_price: reservation.total_price?.toString() || '0',
   })
-  const [sendConfirmation, setSendConfirmation] = useState(false)
 
-  // Calcular noites
-  const calculateNights = () => {
-    if (!formData.check_in || !formData.check_out) return 0
-    const checkIn = new Date(formData.check_in)
-    const checkOut = new Date(formData.check_out)
-    return Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24))
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const handleChange = (field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value,
+    }))
+    setError(null)
   }
 
-  const nights = calculateNights()
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target
-    setFormData(prev => ({ ...prev, [name]: value }))
-    setError('')
+  const validateForm = (): boolean => {
+    if (!formData.guest_name.trim()) {
+      setError('Nome do hóspede é obrigatório')
+      return false
+    }
+    if (formData.guest_email && !formData.guest_email.includes('@')) {
+      setError('Email inválido')
+      return false
+    }
+    if (isNaN(parseFloat(formData.total_price)) || parseFloat(formData.total_price) < 0) {
+      setError('Valor deve ser um número positivo')
+      return false
+    }
+    return true
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (!validateForm()) return
+
     setLoading(true)
-    setError('')
-
-    // Validações
-    if (new Date(formData.check_in) >= new Date(formData.check_out)) {
-      setError('Check-out deve ser depois do check-in')
-      setLoading(false)
-      return
-    }
-
-    if (!formData.guest_first_name || !formData.guest_last_name || !formData.guest_email) {
-      setError('Nome e email do hóspede são obrigatórios')
-      setLoading(false)
-      return
-    }
-
     try {
-      const response = await fetch(`/api/reservations/${reservation.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+      await onSave({
+        guest_name: formData.guest_name,
+        guest_email: formData.guest_email,
+        guest_phone: formData.guest_phone,
+        status: formData.reservation_status as any,
+        total_price: parseFloat(formData.total_price),
       })
-
-      const data = await response.json()
-
-      if (response.ok) {
-        // Enviar email de confirmação se solicitado (fire-and-forget)
-        if (sendConfirmation && formData.guest_email) {
-          fetch('/api/email/send-confirmation', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ reservationId: reservation.id }),
-          }).catch(err => console.error('Erro ao enviar email de confirmação:', err))
-        }
-
-        toast.success('Reserva atualizada com sucesso!')
-        router.push(`/reservations/${reservation.id}`)
-        router.refresh()
-      } else {
-        const msg = data.error || 'Erro ao atualizar reserva'
-        setError(msg)
-        toast.error(msg || 'Erro ao atualizar reserva')
-      }
-    } catch {
-      setError('Erro ao conectar com o servidor')
-      toast.error('Erro ao atualizar reserva')
+      onClose()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao salvar')
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      {error && (
-        <Alert variant="destructive">
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
-
-      {/* Anúncio */}
-      <div>
-        <Label htmlFor="property_listing_id" className="mb-1">
-          Propriedade / Anúncio *
-        </Label>
-        <select
-          id="property_listing_id"
-          name="property_listing_id"
-          value={formData.property_listing_id}
-          onChange={handleChange}
-          required
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-        >
-          <option value="">Selecione...</option>
-          {listings.map((listing) => (
-            <option key={listing.id} value={listing.id}>
-              {listing.properties.name} - {listing.platforms?.display_name || 'Manual'}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {/* Datas */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <Label htmlFor="check_in" className="mb-1">
-            Check-in *
-          </Label>
-          <Input
-            type="date"
-            id="check_in"
-            name="check_in"
-            value={formData.check_in}
-            onChange={handleChange}
-            required
-          />
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg max-w-2xl w-full max-h-96 overflow-y-auto">
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <h2 className="text-lg font-semibold text-gray-900">Editar Reserva</h2>
+          <button
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-700"
+            disabled={loading}
+          >
+            <X className="h-5 w-5" />
+          </button>
         </div>
 
-        <div>
-          <Label htmlFor="check_out" className="mb-1">
-            Check-out *
-          </Label>
-          <Input
-            type="date"
-            id="check_out"
-            name="check_out"
-            value={formData.check_out}
-            onChange={handleChange}
-            required
-          />
-        </div>
-      </div>
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          {error && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded text-sm text-red-800">
+              {error}
+            </div>
+          )}
 
-      {nights > 0 && (
-        <p className="text-sm text-gray-600">
-          Total: <strong>{nights} noite(s)</strong>
-        </p>
-      )}
-
-      {/* Dados do Hóspede */}
-      <div className="border-t pt-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Dados do Hóspede</h3>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Guest Name */}
           <div>
-            <Label htmlFor="guest_first_name" className="mb-1">
-              Nome *
-            </Label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Nome do Hóspede *
+            </label>
             <Input
               type="text"
-              id="guest_first_name"
-              name="guest_first_name"
-              value={formData.guest_first_name}
-              onChange={handleChange}
-              required
+              value={formData.guest_name}
+              onChange={e => handleChange('guest_name', e.target.value)}
+              placeholder="Digite o nome do hóspede"
+              disabled={loading}
             />
           </div>
 
+          {/* Email */}
           <div>
-            <Label htmlFor="guest_last_name" className="mb-1">
-              Sobrenome *
-            </Label>
-            <Input
-              type="text"
-              id="guest_last_name"
-              name="guest_last_name"
-              value={formData.guest_last_name}
-              onChange={handleChange}
-              required
-            />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4 mt-4">
-          <div>
-            <Label htmlFor="guest_email" className="mb-1">
-              Email *
-            </Label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Email
+            </label>
             <Input
               type="email"
-              id="guest_email"
-              name="guest_email"
               value={formData.guest_email}
-              onChange={handleChange}
-              required
+              onChange={e => handleChange('guest_email', e.target.value)}
+              placeholder="email@example.com"
+              disabled={loading}
             />
           </div>
 
+          {/* Phone */}
           <div>
-            <Label htmlFor="guest_phone" className="mb-1">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               Telefone
-            </Label>
+            </label>
             <Input
               type="tel"
-              id="guest_phone"
-              name="guest_phone"
               value={formData.guest_phone}
-              onChange={handleChange}
+              onChange={e => handleChange('guest_phone', e.target.value)}
+              placeholder="+351 912 345 678"
+              disabled={loading}
             />
           </div>
-        </div>
 
-        <div className="mt-4">
-          <label className="flex items-center gap-2 text-sm text-gray-700">
-            <input
-              type="checkbox"
-              checked={sendConfirmation}
-              onChange={(e) => setSendConfirmation(e.target.checked)}
-              className="rounded border-gray-300"
-            />
-            Enviar email de confirmação ao hóspede
-          </label>
-        </div>
-      </div>
-
-      {/* Detalhes da Reserva */}
-      <div className="border-t pt-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Detalhes da Reserva</h3>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {/* Status */}
           <div>
-            <Label htmlFor="status" className="mb-1">
-              Status *
-            </Label>
-            <select
-              id="status"
-              name="status"
-              value={formData.status}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-            >
-              <option value="pending">Pendente</option>
-              <option value="confirmed">Confirmada</option>
-              <option value="cancelled">Cancelada</option>
-            </select>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Status
+            </label>
+            <Select value={formData.reservation_status} onValueChange={val => handleChange('reservation_status', val)}>
+              <SelectTrigger disabled={loading}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="pending">Pendente</SelectItem>
+                <SelectItem value="confirmed">Confirmada</SelectItem>
+                <SelectItem value="cancelled">Cancelada</SelectItem>
+                <SelectItem value="completed">Concluída</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
+          {/* Total Price */}
           <div>
-            <Label htmlFor="number_of_guests" className="mb-1">
-              Nº de Hóspedes
-            </Label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Valor Total (EUR)
+            </label>
             <Input
               type="number"
-              id="number_of_guests"
-              name="number_of_guests"
-              value={formData.number_of_guests}
-              onChange={handleChange}
-              min="1"
-            />
-          </div>
-
-          <div>
-            <Label htmlFor="currency" className="mb-1">
-              Moeda
-            </Label>
-            <Input
-              type="text"
-              id="currency"
-              name="currency"
-              value={formData.currency}
-              onChange={handleChange}
-              placeholder="EUR"
-              maxLength={3}
-            />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
-          <div>
-            <Label htmlFor="adults" className="mb-1">
-              Adultos
-            </Label>
-            <Input
-              type="number"
-              id="adults"
-              name="adults"
-              value={formData.adults}
-              onChange={handleChange}
-              min="0"
-            />
-          </div>
-
-          <div>
-            <Label htmlFor="children" className="mb-1">
-              Crianças (até 12 anos)
-            </Label>
-            <Input
-              type="number"
-              id="children"
-              name="children"
-              value={formData.children}
-              onChange={handleChange}
-              min="0"
-            />
-          </div>
-
-          <div>
-            <Label htmlFor="total_amount" className="mb-1">
-              Valor Total ({getCurrencySymbol((formData.currency || 'EUR') as CurrencyCode)})
-            </Label>
-            <Input
-              type="number"
-              id="total_amount"
-              name="total_amount"
-              value={formData.total_amount}
-              onChange={handleChange}
               step="0.01"
               min="0"
+              value={formData.total_price}
+              onChange={e => handleChange('total_price', e.target.value)}
               placeholder="0.00"
+              disabled={loading}
             />
           </div>
-        </div>
-      </div>
 
-      {/* Informações da Importação */}
-      {reservation.booking_source && (
-        <div className="bg-brand-50 border border-brand-200 rounded-lg p-4">
-          <p className="text-sm text-brand-800">
-            <strong>Origem:</strong> {reservation.booking_source}
-            {reservation.external_id && (
-              <> | <strong>ID Externo:</strong> {reservation.external_id.substring(0, 20)}...</>
-            )}
-          </p>
-        </div>
-      )}
-
-      {/* Botões */}
-      <div className="flex items-center justify-end gap-4 border-t pt-6">
-        <Button type="button" variant="outline" onClick={() => router.back()}>
-          Cancelar
-        </Button>
-        <Button type="submit" disabled={loading}>
-          {loading ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin" />
-              Salvando...
-            </>
-          ) : (
-            <>
-              <Save className="h-4 w-4" />
-              Salvar Alterações
-            </>
-          )}
-        </Button>
+          {/* Actions */}
+          <div className="flex gap-3 justify-end pt-4 border-t border-gray-200">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              disabled={loading}
+            >
+              Cancelar
+            </Button>
+            <Button
+              type="submit"
+              disabled={loading}
+              className="bg-green-600 hover:bg-green-700 text-white"
+            >
+              <Save className="h-4 w-4 mr-2" />
+              {loading ? 'Salvando...' : 'Salvar Mudanças'}
+            </Button>
+          </div>
+        </form>
       </div>
-    </form>
+    </div>
   )
 }

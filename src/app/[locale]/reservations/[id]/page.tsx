@@ -7,6 +7,7 @@ import { AuthLayout } from '@/components/common/layout/AuthLayout'
 import { Button } from '@/components/common/ui/button'
 import { Badge } from '@/components/common/ui/badge'
 import { formatCurrency } from '@/lib/utils/currency'
+import { EditReservationClient } from '@/components/features/reservations/EditReservationClient'
 
 export default async function ReservationDetailPage({
   params,
@@ -14,6 +15,7 @@ export default async function ReservationDetailPage({
   params: Promise<{ locale: string; id: string }>
 }) {
   const { locale, id } = await params
+  const resolvedLocale = locale
   const supabase = await createClient()
   const access = await getUserAccess(supabase)
 
@@ -240,20 +242,7 @@ export default async function ReservationDetailPage({
             </div>
 
             {/* Actions */}
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Ações</h2>
-              <div className="space-y-2">
-                <Button className="w-full" variant="outline" disabled>
-                  Editar Reserva
-                </Button>
-                <Button className="w-full" variant="outline" disabled>
-                  Cancelar Reserva
-                </Button>
-                <Button className="w-full" variant="outline" disabled>
-                  Enviar Mensagem
-                </Button>
-              </div>
-            </div>
+            <EditReservationClient reservation={reservation} locale={resolvedLocale} />
           </div>
         </div>
       </div>
