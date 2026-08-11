@@ -88,7 +88,11 @@ export default async function ReservationsPage({
     console.error('Erro ao buscar reservas:', dataResult.error)
   }
 
-  const reservations = dataResult.data
+  // Transform reservation_status to status for UI compatibility
+  const reservations = (dataResult.data || []).map((r: any) => ({
+    ...r,
+    status: r.reservation_status || r.status,
+  }))
   const stats = {
     total: dataResult.count ?? 0,
     confirmed: confResult.count ?? 0,
