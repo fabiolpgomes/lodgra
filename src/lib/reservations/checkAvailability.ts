@@ -85,9 +85,10 @@ export async function checkPropertyAvailability(
         check_in,
         check_out,
         reservation_status,
-        guest_name
+        guest_name,
+        property_listings!inner(id)
       `)
-      .in('property_listing_id', listingIds)
+      .in('property_listings.id', listingIds)
       .in('reservation_status', ['confirmed', 'pending'])
       .lt('check_in', checkOut) // check_in < checkOut
       .gt('check_out', checkIn) // check_out > checkIn
