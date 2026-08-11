@@ -61,7 +61,7 @@ export default async function ReservationsPage({
       total_price,
       currency,
       commission_amount,
-      reservation_status as status,
+      reservation_status,
       completeness_status,
       completeness_percentage,
       created_at,
@@ -104,13 +104,6 @@ export default async function ReservationsPage({
   if (dataResult.error) {
     console.error('Erro ao buscar reservas:', dataResult.error)
   }
-
-  console.log('DEBUG - dataResult:', {
-    dataCount: dataResult.data?.length,
-    dataError: dataResult.error,
-    totalCount: dataResult.count,
-    confCount: confResult.count,
-  })
 
   // Transform reservation_status to status for UI compatibility
   const reservations = (dataResult.data || []).map((r: any) => ({

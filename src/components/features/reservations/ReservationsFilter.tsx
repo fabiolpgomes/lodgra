@@ -55,7 +55,10 @@ export function ReservationsFilter({ reservations, canCreate, pagination, curren
   const locale = useLocale() || 'pt-BR'
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
-  const [propertyFilter, setPropertyFilter] = useState<string>(() => localStorage.getItem(getStorageKey('property')) || 'all')
+  const [propertyFilter, setPropertyFilter] = useState<string>(() => {
+    if (typeof window === 'undefined') return 'all'
+    return localStorage.getItem(getStorageKey('property')) || 'all'
+  })
 
   // Save property filter to localStorage whenever it changes
   useEffect(() => {
