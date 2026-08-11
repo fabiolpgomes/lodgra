@@ -275,19 +275,23 @@ export default function NewReservationPage() {
       const nights = nightsBetween(checkInStr, checkOutStr)
       const serviceFeeAmount = calculateServiceFeeAmount(selectedPropertyData, nights)
 
-      // Generate UUID v4 for manual channel connection
-      const generateUUID = () => {
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-          const r = Math.random() * 16 | 0
-          const v = c === 'x' ? r : (r & 0x3 | 0x8)
-          return v.toString(16)
-        })
+      // Get first active channel connection for this organization (for manual bookings)
+      const { data: channelConn } = await supabase
+        .from('channel_connections')
+        .select('id')
+        .eq('organization_id', organizationId)
+        .eq('status', 'active')
+        .limit(1)
+        .single()
+
+      if (!channelConn?.id) {
+        throw new Error('Nenhum canal de conexão ativo encontrado. Configure pelo menos um canal (Booking.com, Airbnb, etc)')
       }
 
       const reservationData: Record<string, any> = {
         organization_id: organizationId,
         property_id: propertyId,
-        channel_connection_id: generateUUID(), // Generate UUID for manual bookings
+        channel_connection_id: channelConn.id, // Use first active channel connection
         external_reservation_id: externalId || `manual-${Date.now()}`, // Use provided ID or generate one
         check_in: checkInStr,
         check_out: checkOutStr,
