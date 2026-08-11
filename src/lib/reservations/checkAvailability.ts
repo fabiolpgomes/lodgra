@@ -86,15 +86,13 @@ export async function checkPropertyAvailability(
         check_out,
         status,
         source,
-        guests(
-          first_name,
-          last_name
-        )
+        guest_name
       `)
       .in('property_listing_id', listingIds)
       .in('status', ['confirmed', 'pending'])
       .lt('check_in', checkOut) // check_in < checkOut
       .gt('check_out', checkIn) // check_out > checkIn
+      .is('deleted_at', null)
 
     if (conflictsError) {
       console.error(`[CheckAvailability] Erro ao buscar conflitos: ${conflictsError.message}`)
@@ -113,9 +111,7 @@ export async function checkPropertyAvailability(
       check_out: r.check_out,
       status: r.status,
       source: r.source || 'manual',
-      guest_name: r.guests
-        ? `${(r.guests as { first_name?: string; last_name?: string }).first_name || ''} ${(r.guests as { first_name?: string; last_name?: string }).last_name || ''}`.trim()
-        : undefined,
+      guest_name: (r as any).guest_name || undefined,
     }))
 
     return {
