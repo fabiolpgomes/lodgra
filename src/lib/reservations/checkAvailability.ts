@@ -74,7 +74,7 @@ export async function checkPropertyAvailability(
       }
     }
 
-    const listingIds = listings.map(l => l.id)
+    const listingPropertyIds = listings.map(l => l.property_id)
 
     // Buscar reservas que sobrepõem com as datas
     // Usar operadores estritos: check_in < checkOut AND check_out > checkIn
@@ -85,10 +85,9 @@ export async function checkPropertyAvailability(
         check_in,
         check_out,
         reservation_status,
-        guest_name,
-        property_listings!inner(id)
+        guest_name
       `)
-      .in('property_listings.id', listingIds)
+      .in('property_id', listingPropertyIds)
       .in('reservation_status', ['confirmed', 'pending'])
       .lt('check_in', checkOut) // check_in < checkOut
       .gt('check_out', checkIn) // check_out > checkIn
