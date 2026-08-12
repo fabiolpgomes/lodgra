@@ -23,14 +23,19 @@ const COUNTRY_FLAGS: Record<string, string> = {
 export function ReservationRow({ reservation }: ReservationRowProps) {
   const router = useRouter()
 
-  // Supabase retorna objeto (inner join) ou array dependendo da relação
-  const rawListing = reservation.property_listings
-  const listing = Array.isArray(rawListing) ? rawListing[0] : rawListing
-  const rawProperty = listing?.properties
+  // Get property from direct relationship or nested listing
+  const rawProperty = reservation.properties || (reservation.property_listings as any)?.[0]?.properties
   const property = Array.isArray(rawProperty) ? rawProperty[0] : rawProperty
+  const listing = Array.isArray(reservation.property_listings) ? reservation.property_listings[0] : reservation.property_listings
   const platformName = listing?.platforms?.display_name
-  const rawGuest = reservation.guests
-  const guest = Array.isArray(rawGuest) ? rawGuest[0] : rawGuest
+
+  // Parse guest_name into first_name and last_name
+  const guestNameParts = reservation.guest_name?.trim().split(/\s+/) || []
+  const guest = guestNameParts.length > 0 ? {
+    first_name: guestNameParts[0],
+    last_name: guestNameParts.slice(1).join(' '),
+    email: reservation.guest_email
+  } : null
 
   const truncateName = (name: string | undefined, maxChars: number = 40): string => {
     if (!name) return 'Propriedade não encontrada'
