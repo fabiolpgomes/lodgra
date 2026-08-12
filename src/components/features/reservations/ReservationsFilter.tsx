@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo, useEffect } from 'react'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { Filter, Calendar, Plus, ArrowRight } from 'lucide-react'
 import { MonthNavigator } from '@/components/common/ui/MonthNavigator'
 import Link from 'next/link'
@@ -20,6 +21,8 @@ interface ReservationsFilterProps {
   canCreate: boolean
   pagination?: { page: number; total: number; pageSize: number }
   currentMonth?: string
+  properties: { id: string; name: string }[]
+  selectedPropertyId: string
 }
 
 type StatusFilter = 'all' | 'confirmed' | 'pending' | 'cancelled'
@@ -44,48 +47,70 @@ const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
 
 function getReservationData(r: ReservationUI) {
   const guestName = r.guest_name?.trim() || 'Hóspede'
-  const rawListing = r.property_listings
-  const listing = Array.isArray(rawListing) ? rawListing[0] : rawListing
-  const rawProperty = listing?.properties
-  const property = Array.isArray(rawProperty) ? rawProperty[0] : rawProperty
-  const propertyName = property?.name || '-'
+
+  const propertyName = r.properties?.name || r.property_listings?.properties?.name || '-'
+
   return { guestName, propertyName }
 }
 
-export function ReservationsFilter({ reservations, canCreate, pagination, currentMonth }: ReservationsFilterProps) {
+export function ReservationsFilter({
+  reservations,
+  canCreate,
+  pagination,
+  currentMonth,
+  properties,
+  selectedPropertyId,
+}: ReservationsFilterProps) {
   const locale = useLocale() || 'pt-BR'
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
-  const [propertyFilter, setPropertyFilter] = useState<string>(() => {
-    if (typeof window === 'undefined') return 'all'
-    return localStorage.getItem(getStorageKey('property')) || 'all'
-  })
+  const paginationBasePath = useMemo(() => {
+    const params = new URLSearchParams(
+      Array.from(searchParams.entries()).filter(([key]) => key !== 'page')
+    )
+    const query = params.toString()
+    return query ? `${pathname}?${query}` : pathname
+  }, [pathname, searchParams])
 
-  // Save property filter to localStorage whenever it changes
+  // Restore a valid persisted filter when the URL has no explicit selection.
   useEffect(() => {
-    localStorage.setItem(getStorageKey('property'), propertyFilter)
-  }, [propertyFilter])
+    if (selectedPropertyId !== 'all' || searchParams.has('property_id')) return
 
-  // Extract unique properties from reservations
-  const uniqueProperties = useMemo(() => {
-    const props = new Set<string>()
-    reservations.forEach(r => {
-      const { propertyName } = getReservationData(r)
-      if (propertyName && propertyName !== '-') props.add(propertyName)
-    })
-    return Array.from(props).sort()
-  }, [reservations])
+    const storedPropertyId = localStorage.getItem(getStorageKey('property'))
+    if (!storedPropertyId || !properties.some(property => property.id === storedPropertyId)) {
+      localStorage.removeItem(getStorageKey('property'))
+      return
+    }
+
+    const params = new URLSearchParams(searchParams.toString())
+    params.set('property_id', storedPropertyId)
+    params.delete('page')
+    router.replace(`${pathname}?${params.toString()}`)
+  }, [pathname, properties, router, searchParams, selectedPropertyId])
+
+  function handlePropertyChange(propertyId: string) {
+    const params = new URLSearchParams(searchParams.toString())
+    params.delete('page')
+
+    if (propertyId === 'all') {
+      params.delete('property_id')
+      localStorage.removeItem(getStorageKey('property'))
+    } else {
+      params.set('property_id', propertyId)
+      localStorage.setItem(getStorageKey('property'), propertyId)
+    }
+
+    const query = params.toString()
+    router.push(query ? `${pathname}?${query}` : pathname)
+  }
 
   const filtered = useMemo(() => {
     return reservations.filter(r => {
       // Status filter
       if (statusFilter !== 'all' && r.status !== statusFilter) return false
-
-      // Property filter
-      if (propertyFilter !== 'all') {
-        const { propertyName } = getReservationData(r)
-        if (propertyName !== propertyFilter) return false
-      }
 
       // Search filter
       if (search.trim()) {
@@ -95,7 +120,7 @@ export function ReservationsFilter({ reservations, canCreate, pagination, curren
       }
       return true
     })
-  }, [reservations, search, statusFilter, propertyFilter])
+  }, [reservations, search, statusFilter])
 
   const emptyState = (
     <PremiumCard className="p-12 text-center">
@@ -141,14 +166,14 @@ export function ReservationsFilter({ reservations, canCreate, pagination, curren
                 className="rounded"
               />
             </div>
-            <Select value={propertyFilter} onValueChange={setPropertyFilter}>
+            <Select value={selectedPropertyId} onValueChange={handlePropertyChange}>
               <SelectTrigger className="w-full sm:w-52 rounded">
                 <SelectValue placeholder="Propriedade" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todas as propriedades</SelectItem>
-                {uniqueProperties.map(prop => (
-                  <SelectItem key={prop} value={prop}>{prop}</SelectItem>
+                {properties.map(property => (
+                  <SelectItem key={property.id} value={property.id}>{property.name}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -205,11 +230,7 @@ export function ReservationsFilter({ reservations, canCreate, pagination, curren
                     {r.total_amount ? (
                       <span className="text-sm font-semibold text-brand-text-dark">
                         {(() => {
-                          const rawL = r.property_listings
-                          const listing = Array.isArray(rawL) ? rawL[0] : rawL
-                          const rawP = listing?.properties
-                          const prop = Array.isArray(rawP) ? rawP[0] : rawP
-                          const cur = (prop?.currency || r.currency || 'EUR') as CurrencyCode
+                          const cur = (r.properties?.currency || r.property_listings?.properties?.currency || r.currency || 'EUR') as CurrencyCode
                           return formatCurrency(Number(r.total_amount), cur)
                         })()}
                       </span>
@@ -251,7 +272,12 @@ export function ReservationsFilter({ reservations, canCreate, pagination, curren
                 Mostrando {filtered.length} de {reservations.length} reservas nesta página
               </div>
             )}
-            {pagination && <PaginationNav {...pagination} />}
+            {pagination && (
+              <PaginationNav
+                {...pagination}
+                basePath={paginationBasePath}
+              />
+            )}
           </PremiumCard>
         </>
       )}

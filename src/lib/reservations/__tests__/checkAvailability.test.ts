@@ -11,7 +11,8 @@ describe('checkPropertyAvailability', () => {
       eq: jest.fn().mockReturnThis(),
       in: jest.fn().mockReturnThis(),
       lt: jest.fn().mockReturnThis(),
-      gt: jest.fn().mockResolvedValue(conflictsData),
+      gt: jest.fn().mockReturnThis(),
+      is: jest.fn().mockResolvedValue(conflictsData),
     })
 
     // Chain for listings queries - supports multiple .eq() calls
@@ -45,7 +46,7 @@ describe('checkPropertyAvailability', () => {
 
   it('should return available=true when no conflicts', async () => {
     const mockSupabase = createMockSupabase(
-      { data: [{ id: 'listing-1' }], error: null },
+      { data: [{ id: 'listing-1', property_id: 'property-1' }], error: null },
       { data: [], error: null }
     )
 
@@ -62,19 +63,15 @@ describe('checkPropertyAvailability', () => {
 
   it('should return available=false when conflicts exist', async () => {
     const mockSupabase = createMockSupabase(
-      { data: [{ id: 'listing-1' }], error: null },
+      { data: [{ id: 'listing-1', property_id: 'property-1' }], error: null },
       {
         data: [
           {
             id: 'res-1',
             check_in: '2026-05-05',
             check_out: '2026-05-08',
-            status: 'confirmed',
-            source: 'booking',
-            guests: {
-              first_name: 'John',
-              last_name: 'Doe',
-            },
+            reservation_status: 'confirmed',
+            guest_name: 'John Doe',
           },
         ],
         error: null,
@@ -95,7 +92,7 @@ describe('checkPropertyAvailability', () => {
 
   it('should validate date format', async () => {
     const mockSupabase = createMockSupabase(
-      { data: [{ id: 'listing-1' }], error: null },
+      { data: [{ id: 'listing-1', property_id: 'property-1' }], error: null },
       { data: [], error: null }
     )
 
@@ -112,7 +109,7 @@ describe('checkPropertyAvailability', () => {
 
   it('should exclude reservation when provided', async () => {
     const mockSupabase = createMockSupabase(
-      { data: [{ id: 'listing-1' }], error: null },
+      { data: [{ id: 'listing-1', property_id: 'property-1' }], error: null },
       {
         data: [
           {

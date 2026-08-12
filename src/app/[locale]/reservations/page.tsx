@@ -16,7 +16,7 @@ export default async function ReservationsPage({
   searchParams,
 }: {
   params: Promise<{ locale: string }>
-  searchParams: Promise<{ page?: string; month?: string }>
+  searchParams: Promise<{ page?: string; month?: string; property_id?: string }>
 }) {
   const { locale } = await params
   const queryParams = await searchParams
@@ -24,6 +24,7 @@ export default async function ReservationsPage({
   const { from, to } = getRange(page)
 
   const monthParam = queryParams.month || new Date().toISOString().slice(0, 7)
+  const requestedPropertyId = queryParams.property_id || 'all'
   const [mYear, mMonth] = monthParam.split('-').map(Number)
   const monthStart = `${monthParam}-01`
   const monthEnd = `${monthParam}-${String(new Date(mYear, mMonth, 0).getDate()).padStart(2, '0')}`
@@ -39,7 +40,25 @@ export default async function ReservationsPage({
   const userRole = profile.role
   const canCreate = userRole === 'admin' || userRole === 'gestor'
 
-  // Queries em paralelo (simples + rápido)
+  let propertyOptionsQuery = supabase
+    .from('reservations')
+    .select('property_id')
+    .lte('check_in', monthEnd)
+    .gte('check_out', monthStart)
+
+  if (propertyIds) {
+    propertyOptionsQuery = propertyOptionsQuery.in('property_id', propertyIds)
+  }
+
+  const propertyOptionsResult = await propertyOptionsQuery
+  const optionPropertyIds = Array.from(new Set(
+    (propertyOptionsResult.data || []).map((r: { property_id: string | null }) => r.property_id).filter((id): id is string => Boolean(id))
+  ))
+  const selectedPropertyId = requestedPropertyId === 'all' || optionPropertyIds.includes(requestedPropertyId)
+    ? requestedPropertyId
+    : 'all'
+
+  // Reservation data and counters run in parallel after validating the filter.
   let dataQuery = supabase
     .from('reservations')
     .select('*', { count: 'exact' })
@@ -51,7 +70,6 @@ export default async function ReservationsPage({
   let cConf = supabase.from('reservations').select('id', { count: 'exact', head: true }).eq('reservation_status', 'confirmed').lte('check_in', monthEnd).gte('check_out', monthStart)
   let cPend = supabase.from('reservations').select('id', { count: 'exact', head: true }).eq('reservation_status', 'pending').lte('check_in', monthEnd).gte('check_out', monthStart)
   let cCanc = supabase.from('reservations').select('id', { count: 'exact', head: true }).eq('reservation_status', 'cancelled').lte('check_in', monthEnd).gte('check_out', monthStart)
-
   if (propertyIds) {
     dataQuery = dataQuery.in('property_id', propertyIds)
     cConf = cConf.in('property_id', propertyIds)
@@ -59,7 +77,19 @@ export default async function ReservationsPage({
     cCanc = cCanc.in('property_id', propertyIds)
   }
 
-  const [dataResult, confResult, pendResult, cancResult] = await Promise.all([dataQuery, cConf, cPend, cCanc])
+  if (selectedPropertyId !== 'all') {
+    dataQuery = dataQuery.eq('property_id', selectedPropertyId)
+    cConf = cConf.eq('property_id', selectedPropertyId)
+    cPend = cPend.eq('property_id', selectedPropertyId)
+    cCanc = cCanc.eq('property_id', selectedPropertyId)
+  }
+
+  const [dataResult, confResult, pendResult, cancResult] = await Promise.all([
+    dataQuery,
+    cConf,
+    cPend,
+    cCanc,
+  ])
 
   if (dataResult.error) {
     console.error('Erro ao buscar reservas:', dataResult.error)
@@ -67,24 +97,37 @@ export default async function ReservationsPage({
 
   // Buscar properties e listings em paralelo
   const reservationData = dataResult.data || []
-  const propertyIdsSet = new Set(reservationData.map((r: any) => r.property_id).filter(Boolean))
-  const propertyIdsArray = Array.from(propertyIdsSet)
+  const reservationPropertyIds = reservationData.map((r: { property_id?: string }) => r.property_id).filter((id): id is string => Boolean(id))
+  const propertyIdsArray = Array.from(new Set([...optionPropertyIds, ...reservationPropertyIds]))
 
   const [propertiesResult, listingsResult] = await Promise.all([
-    propertyIdsArray.length > 0 ? supabase.from('properties').select('*').in('id', propertyIdsArray) : Promise.resolve({ data: [] }),
-    propertyIdsArray.length > 0 ? supabase.from('property_listings').select('*').in('property_id', propertyIdsArray) : Promise.resolve({ data: [] }),
+    propertyIdsArray.length > 0 ? supabase.from('properties').select('*').in('id', propertyIdsArray) : Promise.resolve({ data: [], error: null }),
+    propertyIdsArray.length > 0 ? supabase.from('property_listings').select('*').in('property_id', propertyIdsArray) : Promise.resolve({ data: [], error: null }),
   ])
+
+  if (propertiesResult.error) {
+    console.error('Properties query failed:', propertiesResult.error)
+  }
 
   const propertiesMap = new Map((propertiesResult.data || []).map((p: any) => [p.id, p]))
   const listingsMap = new Map((listingsResult.data || []).map((l: any) => [l.property_id, l]))
+  const propertyOptions = optionPropertyIds
+    .map(id => propertiesMap.get(id))
+    .filter((property): property is { id: string; name: string } => Boolean(property?.id && property?.name))
+    .sort((a, b) => a.name.localeCompare(b.name, locale))
 
   // Transform reservation_status to status for UI compatibility + attach related data
-  const reservations = reservationData.map((r: any) => ({
-    ...r,
-    status: r.reservation_status || r.status,
-    properties: propertiesMap.get(r.property_id),
-    property_listings: listingsMap.get(r.property_id),
-  }))
+  const reservations = reservationData.map((r: any) => {
+    const property = propertiesMap.get(r.property_id)
+    const listing = listingsMap.get(r.property_id)
+
+    return {
+      ...r,
+      status: r.reservation_status || r.status,
+      properties: property || null,
+      property_listings: listing || null,
+    }
+  })
   const stats = {
     total: dataResult.count ?? 0,
     confirmed: confResult.count ?? 0,
@@ -139,6 +182,8 @@ export default async function ReservationsPage({
           canCreate={canCreate}
           pagination={{ page, total: stats.total, pageSize: PAGE_SIZE }}
           currentMonth={monthParam}
+          properties={propertyOptions}
+          selectedPropertyId={selectedPropertyId}
         />
       </PremiumPageShell>
     </AuthLayout>

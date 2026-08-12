@@ -71,7 +71,7 @@ describe('GET /api/cron/sync-ical', () => {
       ical_url: 'https://example.com/cal.ics',
       sync_enabled: true,
       property_id: 'prop-1',
-      properties: { name: 'Casa Azul', organization_id: 'org-1' },
+      properties: { name: 'Casa Azul', organization_id: 'org-1', is_active: true },
     }
 
     const insertedSyncLogs: Array<Record<string, unknown>> = []
@@ -127,7 +127,7 @@ describe('GET /api/cron/sync-ical', () => {
       ical_url: 'https://example.com/broken.ics',
       sync_enabled: true,
       property_id: 'prop-2',
-      properties: { name: 'Casa Verde', organization_id: 'org-1' },
+      properties: { name: 'Casa Verde', organization_id: 'org-1', is_active: true },
     }
 
     const insertedSyncLogs: Array<Record<string, unknown>> = []

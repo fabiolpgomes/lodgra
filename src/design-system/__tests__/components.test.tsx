@@ -21,7 +21,7 @@ describe('Design System Components', () => {
       expect(screen.getByRole('button')).toHaveClass('bg-primary')
 
       rerender(<Button variant="secondary">Secondary</Button>)
-      expect(screen.getByRole('button')).toHaveClass('bg-be-blue')
+      expect(screen.getByRole('button')).toHaveClass('bg-brand-blue')
     })
 
     it('Button should render all sizes', () => {

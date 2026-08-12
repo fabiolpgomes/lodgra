@@ -6,6 +6,12 @@ const withBundleAnalyzer = require('@next/bundle-analyzer');
 // [locale] routes are not compiling with the plugin enabled
 
 const nextConfig = {
+  // Production builds type-check application code only. Test and E2E code is
+  // validated by Jest/its own tooling and must not widen the deploy contract.
+  typescript: {
+    tsconfigPath: './tsconfig.build.json',
+  },
+
   // Remove X-Powered-By header (minor security + bandwidth gain)
   poweredByHeader: false,
 

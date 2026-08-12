@@ -34,6 +34,7 @@ try {
         'middleware.ts',
         'next.config.js',
         'tsconfig.json',
+        'tsconfig.build.json',
       ],
     }
 
