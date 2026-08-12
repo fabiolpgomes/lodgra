@@ -1,6 +1,7 @@
 'use client'
 
 import { useRouter } from '@/lib/i18n/routing'
+import { useLocale } from '@/lib/i18n/routing'
 import { Building2, Users } from 'lucide-react'
 import { formatCurrency, CurrencyCode } from '@/lib/utils/currency'
 import { ReservationUI } from './types/reservation-ui'
@@ -22,6 +23,7 @@ const COUNTRY_FLAGS: Record<string, string> = {
 
 export function ReservationRow({ reservation }: ReservationRowProps) {
   const router = useRouter()
+  const locale = useLocale()
 
   // Get property from direct relationship or nested listing
   const rawProperty = reservation.properties || (reservation.property_listings as any)?.[0]?.properties
@@ -50,36 +52,37 @@ export function ReservationRow({ reservation }: ReservationRowProps) {
   const countryFlag = property?.country ? COUNTRY_FLAGS[property.country] || '🌍' : ''
 
   const statusConfig = {
-    pending: { label: 'Pendente', className: 'bg-orange-100 text-orange-800 hover:bg-orange-100' },
-    confirmed: { label: 'Confirmada', className: 'bg-green-100 text-green-800 hover:bg-green-100' },
-    cancelled: { label: 'Cancelada', className: 'bg-red-100 text-red-800 hover:bg-red-100' },
-    completed: { label: 'Concluída', className: 'bg-gray-100 text-gray-800 hover:bg-gray-100' },
+    pending: { label: 'Pendente', className: 'bg-brand-gold/10 text-brand-gold hover:bg-brand-gold/10' },
+    confirmed: { label: 'Confirmada', className: 'bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/10' },
+    cancelled: { label: 'Cancelada', className: 'bg-red-500/10 text-red-600 hover:bg-red-500/10' },
+    completed: { label: 'Concluída', className: 'bg-brand-bg text-brand-text-medium hover:bg-brand-bg' },
   }
 
   const status = statusConfig[reservation.status] || statusConfig.pending
 
   const handleClick = () => {
-    router.push(`/reservations/${reservation.id}`)
+    const prefix = locale ? `/${locale}` : ''
+    router.push(`${prefix}/reservations/${reservation.id}`)
   }
 
   return (
     <tr
-      className="hover:bg-gray-50 cursor-pointer transition-colors"
+      className="hover:bg-brand-bg/50 cursor-pointer transition-colors"
       onClick={handleClick}
     >
       <td className="px-2.5 py-2.5 max-w-sm">
         <div className="flex items-start gap-2">
           <div className="shrink-0 mt-0.5">
-            <Building2 className="h-4 w-4 text-gray-500" />
+            <Building2 className="h-4 w-4 text-brand-text-medium" />
           </div>
           <div className="min-w-0 flex-1">
-            <div className="text-xs font-medium text-gray-900 line-clamp-1">
+            <div className="text-xs font-medium text-brand-text-dark line-clamp-1">
               {truncateName(property?.name)}
             </div>
-            <div className="text-xs text-gray-600 line-clamp-1">
+            <div className="text-xs text-brand-text-medium line-clamp-1">
               {property?.city}
               {platformName && (
-                <span className="ml-1 px-1 py-0.5 text-[10px] font-medium bg-brand-100 text-brand-700 rounded inline-block">
+                <span className="ml-1 px-1 py-0.5 text-[10px] font-medium bg-brand-blue/10 text-brand-blue rounded inline-block">
                   {platformName}
                 </span>
               )}
@@ -90,21 +93,21 @@ export function ReservationRow({ reservation }: ReservationRowProps) {
 
       <td className="px-2.5 py-2.5 max-w-sm">
         <div className="flex items-center gap-2">
-          <Users className="h-4 w-4 text-gray-500 shrink-0" />
+          <Users className="h-4 w-4 text-brand-text-medium shrink-0" />
           <div className="min-w-0">
-            <div className="text-xs font-medium text-gray-900 truncate">
+            <div className="text-xs font-medium text-brand-text-dark truncate">
               {guest ? `${guest.first_name} ${guest.last_name}` : 'Hóspede não cadastrado'}
             </div>
-            <div className="text-xs text-gray-600 truncate" title={guest?.email}>{truncateEmail(guest?.email)}</div>
+            <div className="text-xs text-brand-text-medium truncate" title={guest?.email}>{truncateEmail(guest?.email)}</div>
           </div>
         </div>
       </td>
 
-      <td className="px-2.5 py-2.5 whitespace-nowrap text-xs text-gray-900 w-20">
+      <td className="px-2.5 py-2.5 whitespace-nowrap text-xs text-brand-text-dark w-20">
         {new Date(reservation.check_in).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
       </td>
 
-      <td className="px-2.5 py-2.5 whitespace-nowrap text-xs text-gray-900 w-20">
+      <td className="px-2.5 py-2.5 whitespace-nowrap text-xs text-brand-text-dark w-20">
         {new Date(reservation.check_out).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
       </td>
 
@@ -114,21 +117,21 @@ export function ReservationRow({ reservation }: ReservationRowProps) {
         </Badge>
       </td>
 
-      <td className="px-2.5 py-2.5 whitespace-nowrap text-xs text-gray-900 w-24">
+      <td className="px-2.5 py-2.5 whitespace-nowrap text-xs text-brand-text-dark w-24">
         {formatCurrency(reservation.total_price || reservation.total_amount || 0, ((property as { currency?: string } | null)?.currency || reservation.currency || 'EUR') as CurrencyCode)}
       </td>
 
       <td className="px-2.5 py-2.5 whitespace-nowrap text-right w-20">
         <div className="flex items-center justify-end gap-1">
           <span className="text-base">{countryFlag}</span>
-          <span className="text-xs font-medium text-lodgra-blue hover:text-[color:var(--be-blue)] transition-colors cursor-pointer truncate">
+          <span className="text-xs font-medium text-brand-blue hover:text-brand-blue transition-colors cursor-pointer truncate">
             {property?.country || '-'}
           </span>
         </div>
       </td>
 
       <td className="px-2.5 py-2.5 whitespace-nowrap text-right w-16">
-        <span className="text-xs font-medium text-brand-600 hover:text-brand-900">
+        <span className="text-xs font-medium text-brand-blue hover:text-brand-blue transition-colors">
           Ver →
         </span>
       </td>

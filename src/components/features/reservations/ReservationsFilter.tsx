@@ -13,6 +13,7 @@ import { ReservationUI } from './types/reservation-ui'
 import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
 import { PaginationNav } from '@/components/common/ui/PaginationNav'
 import { getLocalizedPath, useLocale } from '@/lib/i18n/routing'
+import { PremiumCard } from '@/components/common/layout/PremiumPage'
 
 interface ReservationsFilterProps {
   reservations: ReservationUI[]
@@ -35,10 +36,10 @@ function getStorageKey(key: string): string {
 }
 
 const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
-  pending: { label: 'Pendente', className: 'bg-orange-100 text-orange-800' },
-  confirmed: { label: 'Confirmada', className: 'bg-green-100 text-green-800' },
-  cancelled: { label: 'Cancelada', className: 'bg-red-100 text-red-800' },
-  completed: { label: 'Concluída', className: 'bg-gray-100 text-gray-800' },
+  pending: { label: 'Pendente', className: 'bg-brand-gold/10 text-brand-gold' },
+  confirmed: { label: 'Confirmada', className: 'bg-emerald-500/10 text-emerald-600' },
+  cancelled: { label: 'Cancelada', className: 'bg-red-500/10 text-red-600' },
+  completed: { label: 'Concluída', className: 'bg-brand-bg text-brand-text-medium' },
 }
 
 function getReservationData(r: ReservationUI) {
@@ -97,12 +98,12 @@ export function ReservationsFilter({ reservations, canCreate, pagination, curren
   }, [reservations, search, statusFilter, propertyFilter])
 
   const emptyState = (
-    <div className="bg-white rounded-lg shadow p-12 text-center">
-      <Calendar className="h-16 w-16 text-gray-500 mx-auto mb-4" />
-      <h3 className="text-xl font-semibold text-gray-900 mb-2">
+    <PremiumCard className="p-12 text-center">
+      <Calendar className="h-16 w-16 text-brand-gold mx-auto mb-4" />
+      <h3 className="text-xl font-bold text-brand-text-dark mb-2">
         {reservations.length === 0 ? 'Nenhuma reserva cadastrada' : 'Nenhum resultado encontrado'}
       </h3>
-      <p className="text-gray-600 mb-6">
+      <p className="text-brand-text-medium text-sm mb-6">
         {reservations.length === 0
           ? 'Comece criando sua primeira reserva manual ou aguarde sincronização das plataformas.'
           : 'Tente ajustar os filtros ou o termo de pesquisa.'}
@@ -115,7 +116,7 @@ export function ReservationsFilter({ reservations, canCreate, pagination, curren
           </Link>
         </Button>
       )}
-    </div>
+    </PremiumCard>
   )
 
   return (
@@ -128,7 +129,7 @@ export function ReservationsFilter({ reservations, canCreate, pagination, curren
       )}
 
       {/* Search + Filters */}
-      <div className="be-card p-4 mb-8 relative z-0">
+      <PremiumCard className="p-4 mb-8 relative z-0">
         <div className="flex flex-col gap-4">
           {/* Row 1: Search and Property Filter */}
           <div className="flex flex-col sm:flex-row gap-3">
@@ -155,15 +156,15 @@ export function ReservationsFilter({ reservations, canCreate, pagination, curren
 
           {/* Row 2: Status Filters — pill tabs */}
           <div className="flex items-center gap-2 flex-wrap">
-            <Filter className="h-4 w-4 text-gray-500 shrink-0" />
+            <Filter className="h-4 w-4 text-brand-text-medium shrink-0" />
             {STATUS_FILTERS.map(f => (
               <button
                 key={f.value}
                 onClick={() => setStatusFilter(f.value)}
                 className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors ${
                   statusFilter === f.value
-                    ? 'bg-lodgra-blue text-white'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    ? 'bg-brand-blue text-white'
+                    : 'bg-brand-bg text-brand-text-medium hover:bg-brand-bg/80'
                 }`}
               >
                 {f.label}
@@ -171,7 +172,7 @@ export function ReservationsFilter({ reservations, canCreate, pagination, curren
             ))}
           </div>
         </div>
-      </div>
+      </PremiumCard>
 
       {filtered.length === 0 ? emptyState : (
         <>
@@ -186,23 +187,23 @@ export function ReservationsFilter({ reservations, canCreate, pagination, curren
                 <Link
                   key={r.id}
                   href={getLocalizedPath(`/reservations/${r.id}`, locale)}
-                  className="block bg-white rounded-xl shadow p-4 active:bg-gray-50"
+                  className="block border border-brand-border rounded-lg bg-brand-white p-4 transition-all hover:border-brand-gold/40 hover:shadow-[0_18px_42px_rgba(201,162,39,0.14)]"
                 >
                   <div className="flex items-start justify-between mb-2">
                     <Badge className={`${status.className} hover:${status.className} text-xs`}>
                       {status.label}
                     </Badge>
-                    <ArrowRight className="h-4 w-4 text-gray-500 shrink-0 mt-0.5" />
+                    <ArrowRight className="h-4 w-4 text-brand-text-medium shrink-0 mt-0.5" />
                   </div>
-                  <p className="font-semibold text-gray-900 text-sm">{guestName}</p>
-                  <p className="text-gray-600 text-xs mt-0.5">{propertyName}</p>
-                  <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
-                    <div className="flex items-center gap-4 text-xs text-gray-600">
+                  <p className="font-semibold text-brand-text-dark text-sm">{guestName}</p>
+                  <p className="text-brand-text-medium text-xs mt-0.5">{propertyName}</p>
+                  <div className="flex items-center justify-between mt-3 pt-3 border-t border-brand-border/50">
+                    <div className="flex items-center gap-4 text-xs text-brand-text-medium">
                       <span><span className="text-gray-500">In </span>{checkIn}</span>
                       <span><span className="text-gray-500">Out </span>{checkOut}</span>
                     </div>
                     {r.total_amount ? (
-                      <span className="text-sm font-semibold text-gray-900">
+                      <span className="text-sm font-semibold text-brand-text-dark">
                         {(() => {
                           const rawL = r.property_listings
                           const listing = Array.isArray(rawL) ? rawL[0] : rawL
@@ -218,40 +219,40 @@ export function ReservationsFilter({ reservations, canCreate, pagination, curren
               )
             })}
             {filtered.length < reservations.length && (
-              <p className="text-center text-sm text-gray-600 py-2">
+              <p className="text-center text-sm text-brand-text-medium py-2">
                 Mostrando {filtered.length} de {reservations.length} reservas
               </p>
             )}
           </div>
 
           {/* Tablet+: tabela Airbnb */}
-          <div className="hidden sm:block be-card overflow-x-auto">
+          <PremiumCard className="hidden sm:block overflow-x-auto">
             <table className="min-w-full">
-              <thead className="relative z-10 bg-white">
-                <tr className="border-b border-gray-200">
-                  <th className="px-2.5 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider max-w-sm">Propriedade</th>
-                  <th className="px-2.5 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider max-w-sm">Hóspede</th>
-                  <th className="px-2.5 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider w-20">Check-in</th>
-                  <th className="px-2.5 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider w-20">Check-out</th>
-                  <th className="px-2.5 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider w-28">Status</th>
-                  <th className="px-2.5 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider w-24">Valor</th>
-                  <th className="px-2.5 py-2 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider w-20">País</th>
-                  <th className="px-2.5 py-2 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider w-16">Ações</th>
+              <thead className="relative z-10 bg-brand-white">
+                <tr className="border-b border-brand-border">
+                  <th className="px-2.5 py-2 text-left text-xs font-semibold text-brand-text-medium uppercase tracking-wider max-w-sm">Propriedade</th>
+                  <th className="px-2.5 py-2 text-left text-xs font-semibold text-brand-text-medium uppercase tracking-wider max-w-sm">Hóspede</th>
+                  <th className="px-2.5 py-2 text-left text-xs font-semibold text-brand-text-medium uppercase tracking-wider w-20">Check-in</th>
+                  <th className="px-2.5 py-2 text-left text-xs font-semibold text-brand-text-medium uppercase tracking-wider w-20">Check-out</th>
+                  <th className="px-2.5 py-2 text-left text-xs font-semibold text-brand-text-medium uppercase tracking-wider w-28">Status</th>
+                  <th className="px-2.5 py-2 text-left text-xs font-semibold text-brand-text-medium uppercase tracking-wider w-24">Valor</th>
+                  <th className="px-2.5 py-2 text-right text-xs font-semibold text-brand-text-medium uppercase tracking-wider w-20">País</th>
+                  <th className="px-2.5 py-2 text-right text-xs font-semibold text-brand-text-medium uppercase tracking-wider w-16">Ações</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-brand-border/50">
                 {filtered.map(r => (
                   <ReservationRow key={r.id} reservation={r} />
                 ))}
               </tbody>
             </table>
             {filtered.length < reservations.length && (
-              <div className="px-5 py-3 text-xs text-gray-500 border-t border-gray-100">
+              <div className="px-5 py-3 text-xs text-brand-text-medium border-t border-brand-border/50">
                 Mostrando {filtered.length} de {reservations.length} reservas nesta página
               </div>
             )}
             {pagination && <PaginationNav {...pagination} />}
-          </div>
+          </PremiumCard>
         </>
       )}
     </>
