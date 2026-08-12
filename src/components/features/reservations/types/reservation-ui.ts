@@ -12,48 +12,32 @@ export interface ReservationUI {
   adults?: number | null
   children?: number | null
   notes?: string | null
+  property_id?: string
+  reservation_status?: string
 
-  property_listings: {
+  properties?: {
     id: string
-    properties: {
-      id: string
-      name: string
-      city?: string
-      country?: string
-      currency?: string
-    } | {
-      id: string
-      name: string
-      city?: string
-      country?: string
-      currency?: string
-    }[]
-    platforms?: { display_name: string } | null
-  } | {
-    id: string
-    properties: {
-      id: string
-      name: string
-      city?: string
-      country?: string
-      currency?: string
-    } | {
-      id: string
-      name: string
-      city?: string
-      country?: string
-      currency?: string
-    }[]
-    platforms?: { display_name: string } | null
-  }[]
+    name: string
+    city?: string
+    country?: string
+    currency?: string
+  } | null
 
-  guests: {
+  property_listings?: {
+    id: string
+    properties?: {
+      id: string
+      name: string
+      city?: string
+      country?: string
+      currency?: string
+    }
+    platforms?: { display_name: string } | null
+  } | null
+
+  guests?: {
     first_name: string
     last_name: string
     email?: string
-  } | {
-    first_name: string
-    last_name: string
-    email?: string
-  }[]
+  } | null
 }
