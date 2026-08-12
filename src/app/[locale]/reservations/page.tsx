@@ -39,52 +39,18 @@ export default async function ReservationsPage({
   const userRole = profile.role
   const canCreate = userRole === 'admin' || userRole === 'gestor'
 
-  // Buscar reservas paginadas + contagens de stats em paralelo
+  // Queries em paralelo (simples + rápido)
   let dataQuery = supabase
     .from('reservations')
-    .select(`
-      id,
-      organization_id,
-      channel_connection_id,
-      external_reservation_id,
-      property_id,
-      unit_id,
-      check_in,
-      check_out,
-      number_of_nights,
-      guest_name,
-      first_name,
-      last_name,
-      guest_email,
-      guest_phone,
-      number_of_guests,
-      total_price,
-      currency,
-      commission_amount,
-      reservation_status,
-      completeness_status,
-      completeness_percentage,
-      created_at,
-      updated_at,
-      cancelled_at,
-      deleted_at,
-      properties:property_id(
-        id,
-        name,
-        city,
-        country,
-        currency
-      )
-    `, { count: 'exact' })
+    .select('*', { count: 'exact' })
     .lte('check_in', monthEnd)
     .gte('check_out', monthStart)
     .order('check_in', { ascending: true })
     .range(from, to)
 
-  // Queries de contagem HEAD (sem transferir dados) para stats
-  let cConf = supabase.from('reservations').select('id, property_id', { count: 'exact', head: true }).eq('reservation_status', 'confirmed').lte('check_in', monthEnd).gte('check_out', monthStart)
-  let cPend = supabase.from('reservations').select('id, property_id', { count: 'exact', head: true }).eq('reservation_status', 'pending').lte('check_in', monthEnd).gte('check_out', monthStart)
-  let cCanc = supabase.from('reservations').select('id, property_id', { count: 'exact', head: true }).eq('reservation_status', 'cancelled').lte('check_in', monthEnd).gte('check_out', monthStart)
+  let cConf = supabase.from('reservations').select('id', { count: 'exact', head: true }).eq('reservation_status', 'confirmed').lte('check_in', monthEnd).gte('check_out', monthStart)
+  let cPend = supabase.from('reservations').select('id', { count: 'exact', head: true }).eq('reservation_status', 'pending').lte('check_in', monthEnd).gte('check_out', monthStart)
+  let cCanc = supabase.from('reservations').select('id', { count: 'exact', head: true }).eq('reservation_status', 'cancelled').lte('check_in', monthEnd).gte('check_out', monthStart)
 
   if (propertyIds) {
     dataQuery = dataQuery.in('property_id', propertyIds)
@@ -99,10 +65,25 @@ export default async function ReservationsPage({
     console.error('Erro ao buscar reservas:', dataResult.error)
   }
 
-  // Transform reservation_status to status for UI compatibility
-  const reservations = (dataResult.data || []).map((r: any) => ({
+  // Buscar properties e listings em paralelo
+  const reservationData = dataResult.data || []
+  const propertyIdsSet = new Set(reservationData.map((r: any) => r.property_id).filter(Boolean))
+  const propertyIdsArray = Array.from(propertyIdsSet)
+
+  const [propertiesResult, listingsResult] = await Promise.all([
+    propertyIdsArray.length > 0 ? supabase.from('properties').select('*').in('id', propertyIdsArray) : Promise.resolve({ data: [] }),
+    propertyIdsArray.length > 0 ? supabase.from('property_listings').select('*').in('property_id', propertyIdsArray) : Promise.resolve({ data: [] }),
+  ])
+
+  const propertiesMap = new Map((propertiesResult.data || []).map((p: any) => [p.id, p]))
+  const listingsMap = new Map((listingsResult.data || []).map((l: any) => [l.property_id, l]))
+
+  // Transform reservation_status to status for UI compatibility + attach related data
+  const reservations = reservationData.map((r: any) => ({
     ...r,
     status: r.reservation_status || r.status,
+    properties: propertiesMap.get(r.property_id),
+    property_listings: listingsMap.get(r.property_id),
   }))
   const stats = {
     total: dataResult.count ?? 0,
