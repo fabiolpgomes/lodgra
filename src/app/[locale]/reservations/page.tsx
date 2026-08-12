@@ -111,7 +111,7 @@ export default async function ReservationsPage({
             {canCreate && (
               <>
                 <CleanupReservationsButton />
-                <Button asChild variant="action" size="sm">
+                <Button asChild variant="premium-primary" size="sm">
                   <Link href={`/${locale}/reservations/new`} aria-label="Nova Reserva">
                     <Plus className="h-4 w-4" />
                     <span className="hidden sm:inline">Nova Reserva</span>

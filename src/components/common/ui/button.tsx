@@ -9,7 +9,11 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        // ========== Lodgra Premium / Airbnb-inspired Variants ==========
+        // ========== Lodgra Premium Design System (design.md compliant) ==========
+        "premium-primary": "bg-brand-blue text-white font-medium hover:bg-brand-blue/90 shadow-none rounded-sm",
+        "premium-secondary": "bg-brand-white text-brand-text-dark font-medium hover:bg-brand-bg shadow-none border border-brand-border rounded-sm",
+
+        // ========== Legacy Lodgra Premium / Airbnb-inspired Variants ==========
         "be-primary": "shadow-none rounded-sm font-medium transition-all",
         "be-secondary": "shadow-none rounded-sm font-medium transition-all",
         "be-tertiary": "shadow-none rounded-full font-medium transition-all",
@@ -18,7 +22,7 @@ const buttonVariants = cva(
 
         // ========== Existing Variants ==========
         default: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-none",
-        action: "bg-be-blue text-white font-medium hover:bg-be-blue-hover shadow-none",
+        action: "bg-brand-blue text-white font-medium hover:bg-brand-blue/90 shadow-none",
         destructive:
           "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60 shadow-none",
         outline:
@@ -72,6 +76,17 @@ function Button({
     }
 
     switch (v) {
+      case 'premium-primary':
+        return {
+          backgroundColor: 'hsl(213 73% 19%)',
+          color: 'white',
+        }
+      case 'premium-secondary':
+        return {
+          backgroundColor: 'hsl(35 76% 98%)',
+          color: 'hsl(210 30% 18%)',
+          border: '1px solid hsl(30 45% 82%)',
+        }
       case 'be-primary':
         return {
           ...baseStyle,

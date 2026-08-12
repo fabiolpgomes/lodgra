@@ -24,39 +24,10 @@ export default async function ReservationDetailPage({
     redirect('/login')
   }
 
-  // Fetch reservation with all related data
+  // Fetch reservation (simple query)
   const { data: reservation, error } = await supabase
     .from('reservations')
-    .select(`
-      id,
-      property_id,
-      guest_name,
-      first_name,
-      last_name,
-      guest_email,
-      guest_phone,
-      check_in,
-      check_out,
-      number_of_nights,
-      number_of_guests,
-      total_price,
-      currency,
-      reservation_status,
-      created_at,
-      property_listings!inner(
-        id,
-        properties!inner(
-          id,
-          name,
-          city,
-          country,
-          currency
-        ),
-        platforms(
-          display_name
-        )
-      )
-    `)
+    .select('*')
     .eq('id', id)
     .single()
 
@@ -64,11 +35,14 @@ export default async function ReservationDetailPage({
     redirect(`/${locale}/reservations`)
   }
 
-  // Extract nested data
-  const rawListing = reservation.property_listings
-  const listing = Array.isArray(rawListing) ? rawListing[0] : rawListing
-  const rawProperty = listing?.properties
-  const property = Array.isArray(rawProperty) ? rawProperty[0] : rawProperty
+  // Fetch related property and listings in parallel
+  const [propertiesResult, listingsResult] = await Promise.all([
+    supabase.from('properties').select('*').eq('id', reservation.property_id),
+    supabase.from('property_listings').select('*').eq('property_id', reservation.property_id),
+  ])
+
+  const property = propertiesResult.data?.[0]
+  const listing = listingsResult.data?.[0]
   const rawPlatforms = listing?.platforms
   const platforms = Array.isArray(rawPlatforms) ? rawPlatforms[0] : rawPlatforms
 

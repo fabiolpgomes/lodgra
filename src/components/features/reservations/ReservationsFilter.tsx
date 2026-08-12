@@ -109,7 +109,7 @@ export function ReservationsFilter({ reservations, canCreate, pagination, curren
           : 'Tente ajustar os filtros ou o termo de pesquisa.'}
       </p>
       {reservations.length === 0 && canCreate && (
-        <Button asChild>
+        <Button asChild variant="premium-primary">
           <Link href={getLocalizedPath('/reservations/new', locale)}>
             <Plus className="h-5 w-5" />
             Criar Primeira Reserva
