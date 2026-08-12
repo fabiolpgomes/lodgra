@@ -14,6 +14,8 @@ export interface ReservationUI {
   notes?: string | null
   property_id?: string
   reservation_status?: string
+  external_reservation_id?: string
+  channel_connection_id?: string
   created_at?: string
   updated_at?: string
 

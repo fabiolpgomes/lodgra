@@ -36,9 +36,13 @@ const buttonVariants = cva(
       size: {
         default: "h-9 px-4 py-2 h-12 px-6 py-3 has-[>svg]:px-4",
         xs: "h-7 gap-1 rounded-sm px-2 text-xs has-[>svg]:px-1.5 [&_svg:not([class*='size-'])]:size-3",
-        sm: "h-8 px-3 h-9 rounded-sm gap-1.5 px-4 has-[>svg]:px-3",
+        sm: "h-10 px-4 py-2 rounded-sm gap-1.5 has-[>svg]:px-2",
         lg: "h-12 rounded-sm px-7 has-[>svg]:px-5",
-        // ========== Lodgra Premium sizes ==========
+        // ========== Lodgra Premium sizes (design.md compliant) ==========
+        "premium-sm": "h-10 px-4 py-2 text-sm gap-1.5 has-[>svg]:px-2",
+        "premium-md": "h-12 px-6 py-3 text-base",
+        "premium-lg": "h-12 px-7 py-3 text-base",
+        // ========== Legacy Lodgra Premium sizes ==========
         "be-sm": "h-9 px-4 py-2 text-sm",
         "be-md": "h-12 px-6 py-3 text-base",
         "be-lg": "h-12 px-7 py-3 text-base",
@@ -78,7 +82,7 @@ function Button({
     switch (v) {
       case 'premium-primary':
         return {
-          backgroundColor: 'hsl(213 73% 19%)',
+          backgroundColor: '#10203E',
           color: 'white',
         }
       case 'premium-secondary':

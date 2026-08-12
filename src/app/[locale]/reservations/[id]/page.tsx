@@ -35,14 +35,16 @@ export default async function ReservationDetailPage({
     redirect(`/${locale}/reservations`)
   }
 
-  // Fetch related property and listings in parallel
-  const [propertiesResult, listingsResult] = await Promise.all([
+  // Fetch related property, listings, and channel info in parallel
+  const [propertiesResult, listingsResult, channelResult] = await Promise.all([
     supabase.from('properties').select('*').eq('id', reservation.property_id),
     supabase.from('property_listings').select('*').eq('property_id', reservation.property_id),
+    reservation.channel_connection_id ? supabase.from('channel_connections').select('channel, account_name').eq('id', reservation.channel_connection_id) : Promise.resolve({ data: null }),
   ])
 
   const property = propertiesResult.data?.[0]
   const listing = listingsResult.data?.[0]
+  const channel = Array.isArray(channelResult.data) ? channelResult.data[0] : channelResult.data
   const rawPlatforms = listing?.platforms
   const platforms = Array.isArray(rawPlatforms) ? rawPlatforms[0] : rawPlatforms
 
@@ -205,6 +207,28 @@ export default async function ReservationDetailPage({
                 <div>
                   <p className="text-sm text-gray-600">Número de Noites</p>
                   <p className="text-base font-medium text-gray-900">{reservation.number_of_nights || '-'}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Reservation Info Card */}
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Informações da Reserva</h2>
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm text-gray-600">Número da Reserva</p>
+                  <p className="text-base font-mono text-gray-900 bg-gray-50 p-2 rounded">{reservation.external_reservation_id || '-'}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Plataforma</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="px-2 py-1 text-sm font-medium bg-blue-100 text-blue-800 rounded">
+                      {channel?.channel ? channel.channel.toUpperCase() : 'MANUAL'}
+                    </span>
+                    {channel?.account_name && (
+                      <span className="text-sm text-gray-600">({channel.account_name})</span>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
