@@ -68,9 +68,9 @@ export default async function ReservationsPage({
       updated_at,
       cancelled_at,
       deleted_at,
-      property_listings!inner(
+      property_listings(
         id,
-        properties!inner(
+        properties(
           id,
           name,
           city,
@@ -88,15 +88,15 @@ export default async function ReservationsPage({
     .range(from, to)
 
   // Queries de contagem HEAD (sem transferir dados) para stats
-  let cConf = supabase.from('reservations').select('id, property_listings!inner(property_id)', { count: 'exact', head: true }).eq('reservation_status', 'confirmed').lte('check_in', monthEnd).gte('check_out', monthStart)
-  let cPend = supabase.from('reservations').select('id, property_listings!inner(property_id)', { count: 'exact', head: true }).eq('reservation_status', 'pending').lte('check_in', monthEnd).gte('check_out', monthStart)
-  let cCanc = supabase.from('reservations').select('id, property_listings!inner(property_id)', { count: 'exact', head: true }).eq('reservation_status', 'cancelled').lte('check_in', monthEnd).gte('check_out', monthStart)
+  let cConf = supabase.from('reservations').select('id, property_id', { count: 'exact', head: true }).eq('reservation_status', 'confirmed').lte('check_in', monthEnd).gte('check_out', monthStart)
+  let cPend = supabase.from('reservations').select('id, property_id', { count: 'exact', head: true }).eq('reservation_status', 'pending').lte('check_in', monthEnd).gte('check_out', monthStart)
+  let cCanc = supabase.from('reservations').select('id, property_id', { count: 'exact', head: true }).eq('reservation_status', 'cancelled').lte('check_in', monthEnd).gte('check_out', monthStart)
 
   if (propertyIds) {
-    dataQuery = dataQuery.in('property_listings.property_id', propertyIds)
-    cConf = cConf.in('property_listings.property_id', propertyIds)
-    cPend = cPend.in('property_listings.property_id', propertyIds)
-    cCanc = cCanc.in('property_listings.property_id', propertyIds)
+    dataQuery = dataQuery.in('property_id', propertyIds)
+    cConf = cConf.in('property_id', propertyIds)
+    cPend = cPend.in('property_id', propertyIds)
+    cCanc = cCanc.in('property_id', propertyIds)
   }
 
   const [dataResult, confResult, pendResult, cancResult] = await Promise.all([dataQuery, cConf, cPend, cCanc])
