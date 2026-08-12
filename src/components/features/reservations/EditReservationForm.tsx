@@ -20,6 +20,7 @@ export function EditReservationForm({ reservation, onClose, onSave }: EditReserv
     guest_phone: reservation.guest_phone || '',
     reservation_status: reservation.status || 'confirmed',
     total_price: reservation.total_price?.toString() || '0',
+    notes: reservation.notes || '',
   })
 
   const [loading, setLoading] = useState(false)
@@ -62,6 +63,7 @@ export function EditReservationForm({ reservation, onClose, onSave }: EditReserv
         guest_phone: formData.guest_phone,
         status: formData.reservation_status as any,
         total_price: parseFloat(formData.total_price),
+        notes: formData.notes || null,
       })
       onClose()
     } catch (err) {
@@ -168,6 +170,23 @@ export function EditReservationForm({ reservation, onClose, onSave }: EditReserv
               placeholder="0.00"
               disabled={loading}
             />
+          </div>
+
+          {/* Notes */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Notas
+            </label>
+            <textarea
+              value={formData.notes}
+              onChange={e => handleChange('notes', e.target.value.slice(0, 200))}
+              placeholder="Adicione informações adicionais sobre a reserva (máx 200 caracteres)"
+              maxLength={200}
+              rows={3}
+              disabled={loading}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 text-sm"
+            />
+            <p className="text-xs text-gray-500 mt-1">{formData.notes.length}/200 caracteres</p>
           </div>
 
           {/* Actions */}

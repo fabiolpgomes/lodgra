@@ -109,12 +109,12 @@ export function ReservationsFilter({ reservations, canCreate, pagination, curren
           : 'Tente ajustar os filtros ou o termo de pesquisa.'}
       </p>
       {reservations.length === 0 && canCreate && (
-        <Button asChild variant="premium-primary">
-          <Link href={getLocalizedPath('/reservations/new', locale)}>
+        <Link href={getLocalizedPath('/reservations/new', locale)}>
+          <Button variant="premium-primary">
             <Plus className="h-5 w-5" />
             Criar Primeira Reserva
-          </Link>
-        </Button>
+          </Button>
+        </Link>
       )}
     </PremiumCard>
   )
