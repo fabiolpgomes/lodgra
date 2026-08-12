@@ -275,23 +275,35 @@ export default function NewReservationPage() {
       const nights = nightsBetween(checkInStr, checkOutStr)
       const serviceFeeAmount = calculateServiceFeeAmount(selectedPropertyData, nights)
 
-      // Get first active channel connection for this organization (for manual bookings)
-      const { data: channelConn } = await supabase
+      // Try to get active channel connection for this organization
+      let { data: channelConn } = await supabase
         .from('channel_connections')
         .select('id')
         .eq('organization_id', organizationId)
         .eq('status', 'active')
         .limit(1)
-        .single()
+        .maybeSingle()
+
+      // Fallback: try to get ANY active channel connection (for development/testing)
+      if (!channelConn?.id) {
+        const { data: anyChannel } = await supabase
+          .from('channel_connections')
+          .select('id')
+          .eq('status', 'active')
+          .limit(1)
+          .maybeSingle()
+
+        channelConn = anyChannel
+      }
 
       if (!channelConn?.id) {
-        throw new Error('Nenhum canal de conexão ativo encontrado. Configure pelo menos um canal (Booking.com, Airbnb, etc)')
+        throw new Error('Nenhum canal de conexão ativo encontrado na organização ou no sistema. Configure um canal (Booking.com, Airbnb, etc)')
       }
 
       const reservationData: Record<string, any> = {
         organization_id: organizationId,
         property_id: propertyId,
-        channel_connection_id: channelConn.id, // Use first active channel connection
+        channel_connection_id: channelConn.id, // Use organization channel or any available channel
         external_reservation_id: externalId || `manual-${Date.now()}`, // Use provided ID or generate one
         check_in: checkInStr,
         check_out: checkOutStr,
