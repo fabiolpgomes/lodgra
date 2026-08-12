@@ -57,7 +57,7 @@ export async function checkPropertyAvailability(
     // Buscar todos os listings da propriedade
     const { data: listings, error: listingsError } = await supabase
       .from('property_listings')
-      .select('id')
+      .select('id, property_id')
       .eq('property_id', propertyId)
       .eq('is_active', true)
 
