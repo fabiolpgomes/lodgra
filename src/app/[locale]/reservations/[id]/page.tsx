@@ -80,12 +80,15 @@ export default async function ReservationDetailPage({
     total_price: reservation.total_price,
     currency: reservation.currency,
     guest_name: reservation.guest_name,
-    guests: [],
+    guest_email: reservation.guest_email,
+    guest_phone: reservation.guest_phone,
+    property_id: reservation.property_id,
+    properties: property,
     property_listings: listing ? {
       id: listing.id,
-      properties: property || { id: '', name: '' },
+      properties: property,
       platforms: platforms || null,
-    } : undefined as any,
+    } : undefined,
   }
 
   // Status configuration
