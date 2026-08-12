@@ -29,6 +29,7 @@ export default async function ReservationDetailPage({
     .from('reservations')
     .select(`
       id,
+      property_id,
       guest_name,
       first_name,
       last_name,
