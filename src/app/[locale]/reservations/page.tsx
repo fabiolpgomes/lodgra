@@ -68,18 +68,12 @@ export default async function ReservationsPage({
       updated_at,
       cancelled_at,
       deleted_at,
-      property_listings(
+      properties:property_id(
         id,
-        properties(
-          id,
-          name,
-          city,
-          country,
-          currency
-        ),
-        platforms(
-          display_name
-        )
+        name,
+        city,
+        country,
+        currency
       )
     `, { count: 'exact' })
     .lte('check_in', monthEnd)
