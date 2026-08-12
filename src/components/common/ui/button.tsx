@@ -128,7 +128,7 @@ function Button({
     }
   }
 
-  const isLegacyDesignAlias = variant && typeof variant === 'string' && variant.startsWith('be-')
+  const isLegacyDesignAlias = variant && typeof variant === 'string' && (variant.startsWith('be-') || variant.startsWith('premium-'))
   const finalStyle = isLegacyDesignAlias && variant ? { ...getLodgraPremiumStyle(variant), ...style } : style
 
   return (
