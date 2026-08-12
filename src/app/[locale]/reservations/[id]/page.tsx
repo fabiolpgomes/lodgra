@@ -208,6 +208,15 @@ export default async function ReservationDetailPage({
                 </div>
               </div>
             </div>
+
+            {/* Notes Card */}
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Notas</h2>
+              <p className="text-sm text-gray-900 bg-gray-50 p-3 rounded border border-gray-200 min-h-20">
+                {reservation.notes || <span className="text-gray-500 italic">Sem notas</span>}
+              </p>
+              <p className="text-xs text-gray-500 mt-2">{(reservation.notes || '').length}/200 caracteres</p>
+            </div>
           </div>
 
           {/* Sidebar */}
