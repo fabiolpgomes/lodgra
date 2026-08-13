@@ -121,16 +121,21 @@ export async function PUT(
       }
     }
 
-    // Create audit log entry
-    await supabase
-      .from('audit_logs')
-      .insert({
-        user_id: user.id,
-        action: 'reservation_updated',
-        resource_type: 'reservation',
-        resource_id: id,
-        details: { changed_fields: changedFields },
-      })
+    // Create audit log entry (non-blocking)
+    ;(async () => {
+      const { error: auditError } = await supabase
+        .from('audit_logs')
+        .insert({
+          user_id: user.id,
+          action: 'reservation_updated',
+          resource_type: 'reservation',
+          resource_id: id,
+          details: { changed_fields: changedFields },
+        })
+      if (auditError) {
+        console.error('Audit log error (non-blocking):', auditError)
+      }
+    })()
 
     return NextResponse.json(data)
   } catch (error) {
