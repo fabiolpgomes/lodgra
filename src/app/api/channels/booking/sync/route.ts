@@ -3,6 +3,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { requireRole } from '@/lib/auth/requireRole'
 import { fetchBookingReservations } from '@/lib/channels/booking-api-client'
 import { processBookingReservation } from '@/lib/channels/booking-reservation-processor'
+import { normalizeBookingMoney } from '@/lib/channels/booking-money'
 
 export async function POST(request: NextRequest) {
   if (process.env.BOOKING_CHANNEL_ENABLED !== 'true') {
@@ -92,6 +93,7 @@ export async function POST(request: NextRequest) {
   let errorCount = 0
 
   for (const r of reservations) {
+    const money = normalizeBookingMoney(r.total_price.amount, r.total_price.currency)
     const result = await processBookingReservation(
       adminClient,
       orgId,
@@ -107,8 +109,8 @@ export async function POST(request: NextRequest) {
         check_out: r.check_out,
         number_of_guests: r.number_of_guests,
         status: r.status,
-        total_amount: r.total_price.amount,
-        currency: r.total_price.currency,
+        total_amount: money.amount,
+        currency: money.currency,
         raw_data: r as unknown as Record<string, unknown>,
       }
     )

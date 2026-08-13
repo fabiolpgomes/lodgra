@@ -59,6 +59,7 @@ import {
 } from '@/lib/dashboard/metrics'
 // Story 39.3 — Receita por Canal (% receita/reservas e comissão real por booking_source)
 import { buildChannelRevenue, CHANNEL_CONCENTRATION_THRESHOLD, type ChannelReservationInput } from '@/lib/dashboard/channelRevenue'
+import { resolveReservationCurrency } from '@/lib/dashboard/reservationCurrency'
 // Story 39.6 — Painel de Alertas: concentração por propriedade (independente do threshold de canal acima)
 import { buildPropertyConcentrationAlert, PROPERTY_CONCENTRATION_THRESHOLD } from '@/lib/dashboard/propertyConcentration'
 // Story 39.6 — Sino de Notificações: 4 gatilhos, global da organização (nunca filtrado por propriedade)
@@ -178,8 +179,11 @@ export default async function DashboardPage({
     const listing = r.property_listings
     const lObj = Array.isArray(listing) ? listing[0] : listing
     const propId = (lObj as { property_id?: string } | null)?.property_id
-    const propCur = propId ? propertyCurrencyMap[propId] : undefined
-    return propCur || r.currency || org?.currency || 'EUR'
+    return resolveReservationCurrency(
+      { currency: r.currency, propertyId: propId },
+      propertyCurrencyMap,
+      org?.currency
+    )
   }
 
   // Story 39.3 — nome amigável de plataforma via property_listings.platform_id → platforms,

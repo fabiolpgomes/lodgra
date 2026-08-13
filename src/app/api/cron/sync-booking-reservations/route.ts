@@ -11,6 +11,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { fetchBookingReservations } from '@/lib/channels/booking-api-client'
 import { processBookingReservation } from '@/lib/channels/booking-reservation-processor'
+import { normalizeBookingMoney } from '@/lib/channels/booking-money'
 
 export const dynamic = 'force-dynamic'
 
@@ -126,6 +127,7 @@ export async function GET(request: NextRequest) {
         let listingUpdated = 0
 
         for (const r of reservations) {
+          const money = normalizeBookingMoney(r.total_price.amount, r.total_price.currency)
           const result = await processBookingReservation(
             supabase,
             orgId,
@@ -141,8 +143,8 @@ export async function GET(request: NextRequest) {
               check_out: r.check_out,
               number_of_guests: r.number_of_guests,
               status: r.status,
-              total_amount: r.total_price.amount,
-              currency: r.total_price.currency,
+              total_amount: money.amount,
+              currency: money.currency,
               raw_data: r as unknown as Record<string, unknown>,
             }
           )
