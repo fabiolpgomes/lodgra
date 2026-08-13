@@ -197,3 +197,85 @@ export async function DELETE(
     )
   }
 }
+
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const url = new URL(request.url)
+  const action = url.searchParams.get('action')
+
+  if (action === 'delete-permanent') {
+    const { id } = await params
+    const supabase = await createClient()
+
+    try {
+      const access = await getUserAccess(supabase)
+      if (!access) {
+        return NextResponse.json(
+          { error: 'Unauthorized' },
+          { status: 401 }
+        )
+      }
+
+      // Verify reservation exists and is cancelled
+      const { data: reservation, error: fetchError } = await supabase
+        .from('reservations')
+        .select('id, reservation_status')
+        .eq('id', id)
+        .single()
+
+      if (fetchError || !reservation) {
+        return NextResponse.json(
+          { error: 'Reserva não encontrada' },
+          { status: 404 }
+        )
+      }
+
+      // Only allow deletion of cancelled reservations
+      if (reservation.reservation_status !== 'cancelled') {
+        return NextResponse.json(
+          { error: 'Apenas reservas canceladas podem ser excluídas permanentemente' },
+          { status: 400 }
+        )
+      }
+
+      const { data: deleted, error: deleteError } = await supabase.rpc(
+        'permanently_delete_cancelled_reservation',
+        { p_reservation_id: id },
+      )
+
+      if (deleteError) {
+        console.error('Delete error:', deleteError)
+        return NextResponse.json(
+          { error: `Falha ao excluir reserva: ${deleteError.message}` },
+          { status: 500 }
+        )
+      }
+
+      if (!deleted) {
+        return NextResponse.json(
+          { error: 'A reserva mudou de estado; atualize a página e tente novamente' },
+          { status: 409 }
+        )
+      }
+
+      return NextResponse.json({
+        success: true,
+        reservation_id: id,
+        status: 'permanently_deleted',
+      })
+    } catch (error) {
+      console.error('API error:', error)
+      return NextResponse.json(
+        { error: 'Erro interno do servidor' },
+        { status: 500 }
+      )
+    }
+  }
+
+  return NextResponse.json(
+    { error: 'Ação não reconhecida' },
+    { status: 400 }
+  )
+}

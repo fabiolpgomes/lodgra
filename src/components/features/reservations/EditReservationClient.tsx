@@ -16,6 +16,7 @@ export function EditReservationClient({ reservation, locale }: EditReservationCl
   const router = useRouter()
   const [showEditForm, setShowEditForm] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [showPermanentDeleteDialog, setShowPermanentDeleteDialog] = useState(false)
   const [loading, setLoading] = useState(false)
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
 
@@ -72,6 +73,32 @@ export function EditReservationClient({ reservation, locale }: EditReservationCl
     }
   }
 
+  const handlePermanentDelete = async () => {
+    try {
+      setLoading(true)
+      const response = await fetch(`/api/reservations/${reservation.id}?action=delete-permanent`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      })
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ error: response.statusText }))
+        throw new Error(error.error || `Falha ao excluir (${response.status})`)
+      }
+
+      setToast({ message: 'Reserva excluída permanentemente!', type: 'success' })
+      setShowPermanentDeleteDialog(false)
+      setTimeout(() => router.push(`/${locale}/reservations`), 1000)
+    } catch (error) {
+      setToast({
+        message: error instanceof Error ? error.message : 'Erro ao excluir',
+        type: 'error',
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <>
       <div className="bg-white rounded-lg border border-gray-200 p-6">
@@ -95,6 +122,17 @@ export function EditReservationClient({ reservation, locale }: EditReservationCl
             <Trash2 className="h-4 w-4 mr-2" />
             Cancelar Reserva
           </Button>
+          {reservation.status === 'cancelled' && (
+            <Button
+              className="w-full text-red-700 hover:text-red-800 hover:bg-red-100 border-red-300"
+              variant="outline"
+              onClick={() => setShowPermanentDeleteDialog(true)}
+              disabled={loading}
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Excluir Permanentemente
+            </Button>
+          )}
         </div>
       </div>
 
@@ -143,6 +181,37 @@ export function EditReservationClient({ reservation, locale }: EditReservationCl
                 className="bg-red-600 hover:bg-red-700 text-white"
               >
                 {loading ? 'Cancelando...' : 'Cancelar Reserva'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Permanent Delete Confirmation Dialog */}
+      {showPermanentDeleteDialog && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-sm w-full p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-2">⚠️ Excluir Permanentemente?</h2>
+            <p className="text-sm text-gray-600 mb-4">
+              Esta ação é <strong>IRREVERSÍVEL</strong>. A reserva será removida completamente do banco de dados. Os dados não poderão ser recuperados.
+            </p>
+            <div className="bg-red-50 border border-red-200 rounded p-3 text-sm text-red-800 mb-6">
+              🚨 Apenas reservas canceladas podem ser excluídas. Esta operação é auditada para conformidade.
+            </div>
+            <div className="flex gap-3 justify-end">
+              <Button
+                variant="outline"
+                onClick={() => setShowPermanentDeleteDialog(false)}
+                disabled={loading}
+              >
+                Cancelar
+              </Button>
+              <Button
+                onClick={handlePermanentDelete}
+                disabled={loading}
+                className="bg-red-700 hover:bg-red-800 text-white"
+              >
+                {loading ? 'Excluindo...' : 'Excluir Permanentemente'}
               </Button>
             </div>
           </div>
