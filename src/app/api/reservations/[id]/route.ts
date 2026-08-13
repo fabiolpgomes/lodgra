@@ -68,9 +68,15 @@ export async function PUT(
       notes: notes || null,
     }
 
-    // Only update status if provided
-    if (status) {
-      updateData.reservation_status = status
+    // Only update status if provided and valid
+    const validStatuses = ['pending', 'confirmed', 'cancelled', 'completed']
+    if (status && validStatuses.includes(status.toLowerCase())) {
+      updateData.reservation_status = status.toLowerCase()
+    } else if (status) {
+      return NextResponse.json(
+        { error: `Status inválido. Valores permitidos: ${validStatuses.join(', ')}` },
+        { status: 400 }
+      )
     }
 
     const { data, error } = await supabase
