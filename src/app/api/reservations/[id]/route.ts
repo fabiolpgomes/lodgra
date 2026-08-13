@@ -59,17 +59,23 @@ export async function PUT(
       )
     }
 
-    // Update reservation
+    // Update reservation (only update fields that are provided)
+    const updateData: Record<string, any> = {
+      guest_name,
+      guest_email: guest_email || null,
+      guest_phone: guest_phone || null,
+      total_price: total_price ?? 0,
+      notes: notes || null,
+    }
+
+    // Only update status if provided
+    if (status) {
+      updateData.reservation_status = status
+    }
+
     const { data, error } = await supabase
       .from('reservations')
-      .update({
-        guest_name,
-        guest_email: guest_email || null,
-        guest_phone: guest_phone || null,
-        reservation_status: status || 'pending',
-        total_price: total_price || 0,
-        notes: notes || null,
-      })
+      .update(updateData)
       .eq('id', id)
       .select()
       .single()
@@ -102,7 +108,7 @@ export async function PUT(
         to: guest_phone,
       }
     }
-    if (originalReservation?.reservation_status !== status) {
+    if (status && originalReservation?.reservation_status !== status) {
       changedFields.reservation_status = {
         from: originalReservation?.reservation_status,
         to: status,
