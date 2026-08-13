@@ -114,10 +114,10 @@ export async function cancelReservation(
 
   const { error: auditError } = await supabase.from('audit_logs').insert({
     user_id: access.profile.id,
-    action: 'reservation_cancelled',
+    action: 'update',
     resource_type: 'reservation',
     resource_id: reservationId,
-    details: { reason },
+    details: { event: 'reservation_cancelled', reason },
   })
 
   if (auditError) {

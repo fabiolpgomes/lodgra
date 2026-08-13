@@ -63,9 +63,9 @@ describe('cancelReservation', () => {
       updated_at: expect.any(String),
     }))
     expect(auditInsert).toHaveBeenCalledWith(expect.objectContaining({
-      action: 'reservation_cancelled',
+      action: 'update',
       resource_id: 'reservation-1',
-      details: { reason: 'Solicitado pelo hóspede' },
+      details: { event: 'reservation_cancelled', reason: 'Solicitado pelo hóspede' },
     }))
   })
 

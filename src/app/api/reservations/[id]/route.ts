@@ -132,10 +132,10 @@ export async function PUT(
       .from('audit_logs')
       .insert({
         user_id: user.id,
-        action: 'reservation_updated',
+        action: 'update',
         resource_type: 'reservation',
         resource_id: id,
-        details: { changed_fields: changedFields },
+        details: { event: 'reservation_updated', changed_fields: changedFields },
       })
     if (auditError) {
       console.error('Reservation update audit failed:', auditError)
