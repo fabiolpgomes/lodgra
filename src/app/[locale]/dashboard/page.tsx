@@ -26,6 +26,7 @@ import {
   ShieldAlert,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { requireRole } from '@/lib/auth/requireRole'
 import { LazyOccupancyChart as OccupancyChart } from '@/components/common/lazy/LazyCharts'
 import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
@@ -91,6 +92,7 @@ export default async function DashboardPage({
   }
 
   const supabase = await createClient()
+  const adminSupabase = createAdminClient()
 
   // Fetch properties for this organization
   const { data: allProperties } = await supabase
@@ -112,7 +114,7 @@ export default async function DashboardPage({
   // so the presentation/calculation layer remains stable while legacy columns
   // (`status`, `total_amount`, `property_listing_id`) are no longer queried.
   const { data: canonicalReservations, error: reservationsError } = organizationPropertyIds.length > 0
-    ? await supabase
+    ? await adminSupabase
         .from('reservations')
         .select(`
           id,
@@ -127,7 +129,10 @@ export default async function DashboardPage({
           commission_amount,
           channel_connections(channel)
         `)
-        .eq('organization_id', organizationId)
+        // Transitional Multi-OTA data still contains historical rows with the
+        // legacy organization_id and the new RLS therefore hides them from the
+        // session client. This server-only query bypasses RLS only after auth;
+        // authorized property IDs preserve tenant isolation and history.
         .in('property_id', organizationPropertyIds)
     : { data: null, error: null }
 
