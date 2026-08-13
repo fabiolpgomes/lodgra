@@ -10,43 +10,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireRole } from '@/lib/auth/requireRole'
 import { createClient } from '@/lib/supabase/server'
-import { getUserPropertyIds } from '@/lib/auth/getUserProperties'
-
-type PropertyListing = {
-  properties?: {
-    id?: string
-    name?: string
-    city?: string
-    currency?: string
-  }
-}
+import {
+  escapeReportHtml,
+  loadReservationReportData,
+  type ReservationReportRow,
+} from '@/lib/reports/reservationReportData'
 
 type Channel = {
   name?: string
 }
 
-type Guest = {
-  first_name?: string
-  last_name?: string
-  email?: string
-}
-
-interface Reservation {
-  id: string
-  check_in: string
-  check_out: string
-  status: string
-  total_amount: number | null
-  currency: string
-  number_of_guests: number
-  adults: number | null
-  children: number | null
-  internal_notes: string | null
-  source: string | null
-  channels: Channel | null
-  property_listings: PropertyListing
-  guests: Guest | null
-}
+type Reservation = ReservationReportRow & { channels: Channel | null }
 
 function formatCurrency(amount: number, currency: string): string {
   return new Intl.NumberFormat('pt-BR', {
@@ -57,11 +31,12 @@ function formatCurrency(amount: number, currency: string): string {
 
 // property.currency takes priority: Airbnb imports reservations with currency='EUR' even for BRL properties
 function getResCurrency(r: Reservation): string {
+  if (r.currency) return r.currency
   const listing = r.property_listings
   const lObj = Array.isArray(listing) ? listing[0] : listing
   const prop = (lObj as { properties?: { currency?: string } } | null)?.properties
   const propObj = Array.isArray(prop) ? prop[0] : prop
-  return propObj?.currency || r.currency || 'EUR'
+  return propObj?.currency || 'EUR'
 }
 
 function calculateProportionalAmount(r: Reservation, startDate: string, endDate: string): number {
@@ -273,8 +248,8 @@ function generateHtml(
                     const checkOut = new Date(r.check_out)
                     const nights = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24))
                     const guest = r.guests
-                    const guestName = guest ? guest.first_name + ' ' + guest.last_name : 'N/A'
-                    const notesRaw = r.internal_notes || ''
+                    const guestName = escapeReportHtml(guest ? `${guest.first_name} ${guest.last_name}`.trim() : 'N/A')
+                    const notesRaw = escapeReportHtml(r.internal_notes || '')
                     const proportionalAmount = calculateProportionalAmount(r, startDate, endDate)
                     const channelName = r.channels?.name || 'Direto'
                     return `<tr>
@@ -365,7 +340,6 @@ export async function GET(request: NextRequest) {
     const startDate = searchParams.get('startDate')
     const endDate = searchParams.get('endDate')
     const propertyId = searchParams.get('propertyId') || ''
-    const roleParam = searchParams.get('role') || auth.role || 'viewer'
     const showValuesParam = searchParams.get('showValues')
     const showValues = showValuesParam === null ? true : showValuesParam === 'true'
 
@@ -377,65 +351,19 @@ export async function GET(request: NextRequest) {
     }
 
     const supabase = await createClient()
-    const userPropertyIds = await getUserPropertyIds(supabase)
-
-    // Build query
-    let reservationsQuery = supabase
-      .from('reservations')
-      .select(`
-        id,
-        check_in,
-        check_out,
-        status,
-        total_amount,
-        currency,
-        number_of_guests,
-        adults,
-        children,
-        internal_notes,
-        source,
-        property_listings!inner(
-          properties!inner(
-            id,
-            name,
-            city,
-            currency
-          ),
-          platforms(
-            display_name
-          )
-        ),
-        guests(
-          first_name,
-          last_name,
-          email
-        )
-      `)
-      .eq('status', 'confirmed')
-      .lte('check_in', endDate)
-      .gte('check_out', startDate)
-      .order('check_in', { ascending: true })
-
-    // Filter by property
-    if (propertyId) {
-      reservationsQuery = reservationsQuery.eq('property_listings.property_id', propertyId)
+    if (!auth.organizationId) {
+      return NextResponse.json({ error: 'Organização não encontrada' }, { status: 403 })
     }
-    if (userPropertyIds) {
-      reservationsQuery = reservationsQuery.in('property_listings.property_id', userPropertyIds)
-    }
-
-    const { data: reservations, error } = await reservationsQuery
-
-    if (error) {
-      console.error('Error fetching reservations:', JSON.stringify(error, null, 2))
-      return NextResponse.json({
-        error: 'Erro ao buscar reservas',
-        details: error?.message || 'Unknown error'
-      }, { status: 500 })
-    }
+    const reservations = await loadReservationReportData({
+      sessionClient: supabase,
+      organizationId: auth.organizationId,
+      startDate,
+      endDate,
+      propertyId,
+    })
 
     // Enrich reservations with platform display names
-    const enrichedReservations = (reservations || []).map((r: any) => {
+    const enrichedReservations = reservations.map((r) => {
       // Prefer platform display_name from property_listings.platforms, fallback to source field
       const platformName = (r.property_listings?.platforms as { display_name?: string } | null)?.display_name
       const channelName = platformName || getChannelName(r.source)
@@ -480,6 +408,9 @@ export async function GET(request: NextRequest) {
     })
     return response
   } catch (error) {
+    if (error instanceof Error && error.message === 'PROPERTY_ACCESS_DENIED') {
+      return NextResponse.json({ error: 'Acesso negado à propriedade' }, { status: 403 })
+    }
     console.error('Error generating PDF:', error)
     return NextResponse.json(
       { error: 'Erro ao gerar relatório' },

@@ -16,7 +16,6 @@ interface Property {
 
 interface ReservationsPdfGeneratorProps {
   properties: Property[]
-  userRole: string
 }
 
 interface ShareModalState {
@@ -28,7 +27,7 @@ interface ShareModalState {
 
 
 
-export function ReservationsPdfGenerator({ properties, userRole }: ReservationsPdfGeneratorProps) {
+export function ReservationsPdfGenerator({ properties }: ReservationsPdfGeneratorProps) {
   const [startDate, setStartDate] = useState<string>(
     new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0]
   )
@@ -66,7 +65,6 @@ export function ReservationsPdfGenerator({ properties, userRole }: ReservationsP
         startDate,
         endDate,
         propertyId: selectedPropertyId === 'all' ? '' : selectedPropertyId,
-        role: userRole,
         showValues: String(showValues),
       })
 
@@ -119,7 +117,6 @@ export function ReservationsPdfGenerator({ properties, userRole }: ReservationsP
         startDate: params.startDate,
         endDate: params.endDate,
         propertyId: params.propertyId,
-        role: userRole,
         showValues: String(params.showValues),
       })
 

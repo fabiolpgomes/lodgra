@@ -44,10 +44,7 @@ export default async function ReservationsExportPage() {
         </div>
 
         {/* Generator Component */}
-        <ReservationsPdfGenerator
-          properties={properties || []}
-          userRole={auth.role || 'viewer'}
-        />
+        <ReservationsPdfGenerator properties={properties || []} />
 
         {/* Info Section */}
         <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -1,24 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireRole } from '@/lib/auth/requireRole'
 import { createClient } from '@/lib/supabase/server'
-import { getUserPropertyIds } from '@/lib/auth/getUserProperties'
-
-/* eslint-disable @typescript-eslint/no-explicit-any */
-interface Reservation extends Record<string, any> {
-  id: string
-  check_in: string
-  check_out: string
-  status: string
-  total_amount: number | null
-  currency: string
-  number_of_guests: number
-  adults: number | null
-  children: number | null
-  notes: string | null
-  property_listings: Record<string, any>
-  guests: Record<string, any> | null
-}
-/* eslint-enable @typescript-eslint/no-explicit-any */
+import { loadReservationReportData } from '@/lib/reports/reservationReportData'
 
 export async function GET(request: NextRequest) {
   try {
@@ -29,7 +12,6 @@ export async function GET(request: NextRequest) {
     const startDate = searchParams.get('startDate')
     const endDate = searchParams.get('endDate')
     const propertyId = searchParams.get('propertyId') || ''
-    const roleParam = searchParams.get('role') || auth.role || 'viewer'
 
     if (!startDate || !endDate) {
       return NextResponse.json(
@@ -39,65 +21,29 @@ export async function GET(request: NextRequest) {
     }
 
     const supabase = await createClient()
-    const userPropertyIds = await getUserPropertyIds(supabase)
-    const isAdmin = roleParam === 'admin'
-
-    // Build query
-    let reservationsQuery = supabase
-      .from('reservations')
-      .select(`
-        id,
-        check_in,
-        check_out,
-        status,
-        total_amount,
-        currency,
-        number_of_guests,
-        adults,
-        children,
-        notes,
-        property_listings!inner(
-          properties!inner(
-            id,
-            name,
-            city
-          )
-        ),
-        guests(
-          first_name,
-          last_name,
-          email
-        )
-      `)
-      .eq('status', 'confirmed')
-      .lte('check_in', endDate)
-      .gte('check_out', startDate)
-      .order('check_in', { ascending: true })
-
-    // Filter by property
-    if (propertyId) {
-      reservationsQuery = reservationsQuery.eq('property_listings.property_id', propertyId)
+    if (!auth.organizationId) {
+      return NextResponse.json({ error: 'Organização não encontrada' }, { status: 403 })
     }
-    if (userPropertyIds) {
-      reservationsQuery = reservationsQuery.in('property_listings.property_id', userPropertyIds)
-    }
-
-    const { data: reservations, error } = await reservationsQuery
-
-    if (error) {
-      console.error('Error fetching reservations:', error)
-      return NextResponse.json({ error: 'Erro ao buscar reservas' }, { status: 500 })
-    }
-
-    // Return JSON data - client will generate PDF
-    return NextResponse.json({
-      reservations: reservations as Reservation[],
+    const reservations = await loadReservationReportData({
+      sessionClient: supabase,
+      organizationId: auth.organizationId,
       startDate,
       endDate,
       propertyId,
-      isAdmin,
+    })
+
+    // Return JSON data - client will generate PDF
+    return NextResponse.json({
+      reservations,
+      startDate,
+      endDate,
+      propertyId,
+      isAdmin: auth.role === 'admin',
     })
   } catch (error) {
+    if (error instanceof Error && error.message === 'PROPERTY_ACCESS_DENIED') {
+      return NextResponse.json({ error: 'Acesso negado à propriedade' }, { status: 403 })
+    }
     console.error('Error generating PDF:', error)
     return NextResponse.json(
       { error: 'Erro ao gerar relatório' },
@@ -105,4 +51,3 @@ export async function GET(request: NextRequest) {
     )
   }
 }
-
