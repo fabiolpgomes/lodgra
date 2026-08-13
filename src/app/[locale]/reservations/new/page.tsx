@@ -158,9 +158,9 @@ export default function NewReservationPage() {
 
     const formData = new FormData(e.currentTarget)
 
-    // Validação: propriedade e anúncio obrigatórios
-    if (!selectedProperty || !selectedListing) {
-      setError('Seleccione a propriedade e o anúncio')
+    // Validação: propriedade obrigatória (anúncio é opcional para reservas manuais)
+    if (!selectedProperty) {
+      setError('Seleccione a propriedade')
       setLoading(false)
       return
     }
@@ -247,20 +247,24 @@ export default function NewReservationPage() {
 
       const organizationId = profile.organization_id
 
-      // Buscar property_id a partir do listing
-      const listingId = selectedListing
-      const { data: listing } = await supabase
-        .from('property_listings')
-        .select('property_id, properties!inner(currency)')
-        .eq('id', listingId)
-        .single()
+      // Buscar dados da propriedade
+      let propertyId = selectedProperty
+      let propertyCurrency = 'EUR'
 
-      if (!listing?.property_id) {
-        throw new Error('Propriedade não encontrada para este anúncio')
+      if (selectedProperty) {
+        const { data: prop } = await supabase
+          .from('properties')
+          .select('id, currency')
+          .eq('id', selectedProperty)
+          .single()
+
+        if (!prop) {
+          throw new Error('Propriedade não encontrada')
+        }
+
+        propertyId = prop.id
+        propertyCurrency = prop.currency || 'EUR'
       }
-
-      const propertyId = listing.property_id
-      const propertyCurrency = (listing?.properties as { currency?: string } | null)?.currency || 'EUR'
 
       // Criar reserva
       const reservationNumber = (formData.get('reservation_number') as string)?.trim()
