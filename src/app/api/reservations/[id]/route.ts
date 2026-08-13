@@ -121,21 +121,19 @@ export async function PUT(
       }
     }
 
-    // Create audit log entry (non-blocking)
-    ;(async () => {
-      const { error: auditError } = await supabase
-        .from('audit_logs')
-        .insert({
-          user_id: user.id,
-          action: 'reservation_updated',
-          resource_type: 'reservation',
-          resource_id: id,
-          details: { changed_fields: changedFields },
-        })
-      if (auditError) {
-        console.error('Audit log error (non-blocking):', auditError)
-      }
-    })()
+    // Audit failures are observable but do not roll back the successful edit.
+    const { error: auditError } = await supabase
+      .from('audit_logs')
+      .insert({
+        user_id: user.id,
+        action: 'reservation_updated',
+        resource_type: 'reservation',
+        resource_id: id,
+        details: { changed_fields: changedFields },
+      })
+    if (auditError) {
+      console.error('Reservation update audit failed:', auditError)
+    }
 
     return NextResponse.json(data)
   } catch (error) {

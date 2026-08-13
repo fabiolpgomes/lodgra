@@ -22,9 +22,7 @@ export function EditReservationClient({ reservation, locale }: EditReservationCl
   const handleSave = async (data: Partial<ReservationUI>) => {
     try {
       setLoading(true)
-      console.log('Updating reservation:', { id: reservation.id, data })
       const url = `/api/reservations/${reservation.id}`
-      console.log('Request URL:', url)
       const response = await fetch(url, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -32,9 +30,7 @@ export function EditReservationClient({ reservation, locale }: EditReservationCl
       })
 
       if (!response.ok) {
-        console.error('Response status:', response.status)
         const error = await response.json().catch(() => ({ error: response.statusText }))
-        console.error('Error response:', error)
         throw new Error(error.error || `Falha ao salvar (${response.status})`)
       }
 
