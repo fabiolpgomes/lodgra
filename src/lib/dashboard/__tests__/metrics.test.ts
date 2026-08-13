@@ -9,8 +9,103 @@ import {
   aggregateMonthlyMetricsByCurrency,
   aggregateMonthlyMetricsTotal,
   aggregateManagementFeeByCurrency,
+  buildMonthlyMetricsFromReservations,
+  formatDateInTimeZone,
   type MonthlyPropertyMetricRow,
 } from '../metrics'
+
+describe('buildMonthlyMetricsFromReservations', () => {
+  it('agrega o schema canônico por propriedade e mês', () => {
+    const rows = buildMonthlyMetricsFromReservations([
+      { property_id: 'p1', check_in: '2026-08-01', check_out: '2026-08-05', reservation_status: 'confirmed', total_price: 400, booking_source: 'airbnb' },
+      { property_id: 'p1', check_in: '2026-08-10', check_out: '2026-08-12', reservation_status: 'confirmed', total_price: '250', booking_source: 'booking' },
+    ], [{ id: 'p1', name: 'Casa Azul' }], ['2026-08-01'])
+
+    expect(rows).toEqual([expect.objectContaining({
+      property_id: 'p1',
+      property_name: 'Casa Azul',
+      gross_revenue: 650,
+      nights_sold: 6,
+      available_nights: 31,
+      booking_count: 2,
+    })])
+  })
+
+  it('separa canceladas e dados incompletos sem tratá-los como receita zero', () => {
+    const rows = buildMonthlyMetricsFromReservations([
+      { property_id: 'p1', check_in: '2026-08-01', check_out: '2026-08-05', reservation_status: 'cancelled', total_price: 400, booking_source: 'airbnb' },
+      { property_id: 'p1', check_in: '2026-08-10', check_out: '2026-08-12', reservation_status: 'confirmed', total_price: null, booking_source: 'booking' },
+    ], [{ id: 'p1', name: 'Casa Azul' }], ['2026-08-01'])
+
+    expect(rows[0]).toEqual(expect.objectContaining({
+      gross_revenue: 0,
+      booking_count: 0,
+      cancelled_count: 1,
+      incomplete_data_count: 1,
+    }))
+  })
+
+  it('mantém linha zerada para propriedade sem reservas no mês solicitado', () => {
+    const rows = buildMonthlyMetricsFromReservations([
+      { property_id: null, check_in: '2026-08-01', check_out: '2026-08-05', reservation_status: 'confirmed', total_price: 400, booking_source: 'airbnb' },
+      { property_id: 'p1', check_in: '2026-07-01', check_out: '2026-07-05', reservation_status: 'confirmed', total_price: 400, booking_source: 'airbnb' },
+    ], [{ id: 'p1' }], ['2026-08-01'])
+
+    expect(rows).toEqual([expect.objectContaining({
+      property_id: 'p1',
+      metric_month: '2026-08-01',
+      gross_revenue: 0,
+      nights_sold: 0,
+      available_nights: 31,
+      booking_count: 0,
+    })])
+  })
+
+  it('distribui noites e receita proporcionalmente entre meses sobrepostos', () => {
+    const rows = buildMonthlyMetricsFromReservations([
+      { property_id: 'p1', check_in: '2026-07-30', check_out: '2026-08-03', reservation_status: 'confirmed', total_price: 400, booking_source: 'airbnb' },
+    ], [{ id: 'p1', name: 'Casa Azul' }], ['2026-07-01', '2026-08-01'])
+
+    expect(rows).toEqual([
+      expect.objectContaining({ metric_month: '2026-07-01', gross_revenue: 200, nights_sold: 2, booking_count: 1 }),
+      expect.objectContaining({ metric_month: '2026-08-01', gross_revenue: 200, nights_sold: 2, booking_count: 1 }),
+    ])
+  })
+
+  it('não duplica métricas quando o mesmo mês é solicitado mais de uma vez', () => {
+    const rows = buildMonthlyMetricsFromReservations([
+      { property_id: 'p1', check_in: '2026-08-01', check_out: '2026-08-05', reservation_status: 'confirmed', total_price: 400, booking_source: 'airbnb' },
+    ], [{ id: 'p1' }], ['2026-08-01', '2026-08-15', '2026-08-01'])
+
+    expect(rows).toEqual([expect.objectContaining({
+      gross_revenue: 400,
+      nights_sold: 4,
+      booking_count: 1,
+    })])
+  })
+
+  it('isola datas, preços e status inválidos antes da agregação', () => {
+    const rows = buildMonthlyMetricsFromReservations([
+      { property_id: 'p1', check_in: 'data-invalida', check_out: '2026-08-05', reservation_status: 'confirmed', total_price: 400, booking_source: 'airbnb' },
+      { property_id: 'p1', check_in: '2026-08-10', check_out: '2026-08-12', reservation_status: 'confirmed', total_price: 'não-numérico', booking_source: 'booking' },
+      { property_id: 'p1', check_in: '2026-08-15', check_out: '2026-08-17', reservation_status: null, total_price: 200, booking_source: 'airbnb' },
+    ], [{ id: 'p1' }], ['2026-08-01'])
+
+    expect(rows).toEqual([expect.objectContaining({
+      gross_revenue: 0,
+      nights_sold: 0,
+      booking_count: 0,
+      incomplete_data_count: 1,
+    })])
+  })
+})
+
+describe('formatDateInTimeZone', () => {
+  it('usa o dia civil da operação em vez do timezone do servidor', () => {
+    expect(formatDateInTimeZone(new Date('2026-01-01T00:30:00+01:00'), 'Europe/Lisbon'))
+      .toBe('2025-12-31')
+  })
+})
 
 describe('calculateADR', () => {
   it('divide receita bruta por noites vendidas', () => {

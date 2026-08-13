@@ -53,7 +53,8 @@ import {
   aggregateMonthlyMetricsByCurrency,
   aggregateMonthlyMetricsTotal,
   aggregateManagementFeeByCurrency,
-  type MonthlyPropertyMetricRow,
+  buildMonthlyMetricsFromReservations,
+  formatDateInTimeZone,
 } from '@/lib/dashboard/metrics'
 // Story 39.3 — Receita por Canal (% receita/reservas e comissão real por booking_source)
 import { buildChannelRevenue, CHANNEL_CONCENTRATION_THRESHOLD, type ChannelReservationInput } from '@/lib/dashboard/channelRevenue'
@@ -104,37 +105,61 @@ export default async function DashboardPage({
     ? (allProperties || []).filter(property => property.id === selectedPropertyId)
     : (allProperties || [])
   const propertyIds = properties?.map(p => p.id) || []
+  const organizationPropertyIds = (allProperties || []).map(property => property.id)
+  const allPropertiesById = new Map((allProperties || []).map(property => [property.id, property]))
 
-  // Fetch reservations via property_listings junction table
-  const { data: reservations } = propertyIds.length > 0
+  // Reservations use the canonical Multi-OTA contract. Keep the adapter below
+  // so the presentation/calculation layer remains stable while legacy columns
+  // (`status`, `total_amount`, `property_listing_id`) are no longer queried.
+  const { data: canonicalReservations, error: reservationsError } = organizationPropertyIds.length > 0
     ? await supabase
         .from('reservations')
         .select(`
           id,
-          status,
+          property_id,
+          reservation_status,
           check_in,
           check_out,
-          total_amount,
+          total_price,
           currency,
           created_at,
           guest_name,
-          booking_source,
           commission_amount,
-          property_listing_id,
-          property_listings!inner(
-            id,
-            property_id,
-            properties(id, name, currency),
-            platforms(display_name)
-          )
+          channel_connections(channel)
         `)
-        .in('property_listings.property_id', propertyIds)
-    : { data: null }
+        .eq('organization_id', organizationId)
+        .in('property_id', organizationPropertyIds)
+    : { data: null, error: null }
 
-  // Get organization currency
+  if (reservationsError) {
+    console.error('[dashboard] Erro ao buscar reservas canônicas:', reservationsError)
+  }
+
+  const organizationReservations = (canonicalReservations || []).map(reservation => {
+    const property = reservation.property_id ? allPropertiesById.get(reservation.property_id) : null
+    const rawConnection = reservation.channel_connections
+    const connection = Array.isArray(rawConnection) ? rawConnection[0] : rawConnection
+    const bookingSource = connection?.channel || null
+    return {
+      ...reservation,
+      booking_source: bookingSource,
+      status: reservation.reservation_status,
+      total_amount: reservation.total_price,
+      property_listings: {
+        property_id: reservation.property_id,
+        properties: property || null,
+        platforms: bookingSource ? { display_name: bookingSource } : null,
+      },
+    }
+  })
+  const reservations = organizationReservations.filter(reservation =>
+    reservation.property_id && propertyIds.includes(reservation.property_id)
+  )
+
+  // Get organization currency and business timezone.
   const { data: org } = await supabase
     .from('organizations')
-    .select('currency')
+    .select('currency, timezone')
     .eq('id', organizationId)
     .single()
 
@@ -170,7 +195,8 @@ export default async function DashboardPage({
 
   // Calculate revenue forecast (pending/predicted revenue not yet received in current month)
   const now = new Date()
-  const todayStr = now.toISOString().split('T')[0]
+  const businessTimeZone = org?.timezone || 'Europe/Lisbon'
+  const todayStr = formatDateInTimeZone(now, businessTimeZone)
   const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
 
   const forecastByCurrency = reservationList
@@ -382,9 +408,9 @@ export default async function DashboardPage({
     })
   }
 
-  // ─── Story 39.2: Badges MoM/YoY + ADR/RevPAR + Lucro Real (via monthly_property_metrics) ───
-  // Fonte: materialized view `monthly_property_metrics` (Story 39.1, Done). Ver
-  // docs/stories/39.2-adr-revpar-badges-lucro-real.md para o detalhamento das fórmulas.
+  // ─── Story 39.2: Badges MoM/YoY + ADR/RevPAR + Lucro Real ───
+  // Metrics are derived from the canonical reservations contract because the
+  // optional materialized view is not present in every deployed environment.
   const orgCurrency = org?.currency || 'EUR'
   const previousMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1)
   const yoyMonthDate = new Date(now.getFullYear() - 1, now.getMonth(), 1)
@@ -392,16 +418,11 @@ export default async function DashboardPage({
   const previousMonthKeyView = monthKeyFromDate(previousMonthDate)
   const yoyMonthKeyView = monthKeyFromDate(yoyMonthDate)
 
-  // Query única org-wide (organization_id apenas) — o filtro de propriedade do topo
-  // é aplicado em memória depois, porque o Lucro Real precisa da versão SEM filtro
-  // (comissão de gestão e despesas da empresa não são filtráveis por propriedade).
-  const { data: monthlyMetricsRows } = await supabase
-    .from('monthly_property_metrics')
-    .select('property_id, property_name, metric_month, gross_revenue, nights_sold, available_nights, booking_count, cancelled_count, incomplete_data_count')
-    .eq('organization_id', organizationId)
-    .in('metric_month', [currentMonthKeyView, previousMonthKeyView, yoyMonthKeyView])
-
-  const allMetricRows = (monthlyMetricsRows || []) as MonthlyPropertyMetricRow[]
+  const allMetricRows = buildMonthlyMetricsFromReservations(
+    organizationReservations,
+    allProperties || [],
+    [currentMonthKeyView, previousMonthKeyView, yoyMonthKeyView]
+  )
 
   // Recortado pelo filtro de propriedade ativo (afeta KPIs/ADR-RevPAR/Receita do Mês)
   const filteredMetricRows = filterRowsByProperties(allMetricRows, propertyIds)
@@ -613,18 +634,18 @@ export default async function DashboardPage({
 
   const propertyExpensesEntries = Object.entries(monthPropertyExpensesByCurrency).sort(([a], [b]) => a.localeCompare(b))
 
-  // Story 39.4 — Ranking de Propriedades: buscar monthly_property_metrics do mês
-  // corrente para todas as propriedades da organização (não filtrado por
-  // propertyIds — quando há filtro de 1 propriedade específica, o ranking não
-  // faz sentido e o card mostra uma mensagem em vez de quebrar, ver render).
+  // Story 39.4 — Ranking de Propriedades from the canonical in-memory metrics.
   const currentMetricMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`
-  const { data: monthlyPropertyMetricsRows } = !selectedPropertyId && totalOrganizationProperties > 0
-    ? await supabase
-        .from('monthly_property_metrics')
-        .select('property_id, property_name, gross_revenue, nights_sold, available_nights, booking_count')
-        .eq('organization_id', organizationId)
-        .eq('metric_month', currentMetricMonth)
-    : { data: null }
+  const monthlyPropertyMetricsRows = !selectedPropertyId && totalOrganizationProperties > 0
+    ? filterRowsByMonth(allMetricRows, currentMetricMonth).map(row => ({
+        property_id: row.property_id,
+        property_name: row.property_name || null,
+        gross_revenue: Number(row.gross_revenue || 0),
+        nights_sold: Number(row.nights_sold || 0),
+        available_nights: Number(row.available_nights || 0),
+        booking_count: Number(row.booking_count || 0),
+      }))
+    : []
 
   const propertyRanking = !selectedPropertyId
     ? buildPropertyRanking(
@@ -634,74 +655,26 @@ export default async function DashboardPage({
     : null
 
   // Fetch upcoming check-ins
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const nextWeek = new Date(today)
-  nextWeek.setDate(nextWeek.getDate() + 7)
+  const nextWeek = new Date(now.getTime() + (7 * 86_400_000))
+  const nextWeekStr = formatDateInTimeZone(nextWeek, businessTimeZone)
 
-  const { data: upcomingCheckIns } = propertyIds.length > 0
-    ? await supabase
-        .from('reservations')
-        .select(`
-          id,
-          check_in,
-          check_out,
-          status,
-          guest_name,
-          total_amount,
-          currency,
-          property_listing_id,
-          property_listings!inner(
-            property_id,
-            properties(id, name),
-            platforms(display_name)
-          ),
-          guests(
-            first_name,
-            last_name,
-            email
-          )
-        `)
-        .eq('status', 'confirmed')
-        .gte('check_in', today.toISOString().split('T')[0])
-        .lte('check_in', nextWeek.toISOString().split('T')[0])
-        .in('property_listings.property_id', propertyIds)
-        .order('check_in', { ascending: true })
-        .limit(5)
-    : { data: null }
+  const upcomingCheckIns = reservationList
+    .filter(reservation => reservation.status === 'confirmed'
+      && reservation.check_in >= todayStr
+      && reservation.check_in <= nextWeekStr)
+    .sort((a, b) => a.check_in.localeCompare(b.check_in))
+    .slice(0, 5)
 
   // "Próximas Saídas" — mesma janela/padrão de "Próximas Chegadas", mas por check_out.
   // Todo check-out requer limpeza (contexto do Fabio) — junta com cleaning_tasks pelo
   // reservation_id para mostrar se já há limpeza agendada/concluída/com problema, ou se
   // ainda não foi agendada (o gap de visibilidade que motivou este card).
-  const { data: upcomingCheckOuts } = propertyIds.length > 0
-    ? await supabase
-        .from('reservations')
-        .select(`
-          id,
-          check_in,
-          check_out,
-          status,
-          guest_name,
-          property_listing_id,
-          property_listings!inner(
-            property_id,
-            properties(id, name),
-            platforms(display_name)
-          ),
-          guests(
-            first_name,
-            last_name,
-            email
-          )
-        `)
-        .eq('status', 'confirmed')
-        .gte('check_out', today.toISOString().split('T')[0])
-        .lte('check_out', nextWeek.toISOString().split('T')[0])
-        .in('property_listings.property_id', propertyIds)
-        .order('check_out', { ascending: true })
-        .limit(5)
-    : { data: null }
+  const upcomingCheckOuts = reservationList
+    .filter(reservation => reservation.status === 'confirmed'
+      && reservation.check_out >= todayStr
+      && reservation.check_out <= nextWeekStr)
+    .sort((a, b) => a.check_out.localeCompare(b.check_out))
+    .slice(0, 5)
 
   const checkoutReservationIds = (upcomingCheckOuts || []).map((r) => r.id)
   const { data: checkoutCleaningRows } = checkoutReservationIds.length > 0
@@ -818,39 +791,18 @@ export default async function DashboardPage({
   // Gatilho 1: hóspede com nome placeholder (`guests.first_name === 'Hóspede'`, valor real
   // do código — ver `notificationAlerts.ts`). Escopo: reservas não canceladas cujo período
   // ainda não terminou (evita crescer sem limite sobre todo o histórico).
-  const { data: placeholderGuestRows } = allPropertyIds.length > 0
-    ? await supabase
-        .from('reservations')
-        .select(`
-          id,
-          check_in,
-          status,
-          property_listings!inner(
-            property_id,
-            properties(name)
-          ),
-          guests(first_name)
-        `)
-        .neq('status', 'cancelled')
-        .gte('check_out', todayStr)
-        .in('property_listings.property_id', allPropertyIds)
-        .limit(200)
-    : { data: null }
-
   const placeholderGuestAlerts = buildPlaceholderGuestAlerts(
-    (placeholderGuestRows || []).map(r => {
-      const listing = Array.isArray(r.property_listings) ? r.property_listings[0] : r.property_listings
-      const rawProperty = (listing as { properties?: unknown } | null)?.properties
-      const property = Array.isArray(rawProperty) ? rawProperty[0] : rawProperty
-      const rawGuest = r.guests
-      const guest = Array.isArray(rawGuest) ? rawGuest[0] : rawGuest
+    organizationReservations
+      .filter(r => r.status !== 'cancelled' && r.check_out >= todayStr)
+      .slice(0, 200)
+      .map(r => {
       return {
         reservationId: r.id,
-        guestFirstName: (guest as { first_name?: string | null } | null)?.first_name,
-        propertyName: (property as { name?: string } | null)?.name,
+        guestFirstName: r.guest_name?.split(/\s+/)[0] || null,
+        propertyName: getReservationPropertyName(r),
         checkIn: r.check_in,
       }
-    })
+      })
   )
 
   // Gatilho 2: falha de sync — reaproveita a mesma leitura de `sync_logs` da Story 39.5, mas
@@ -887,32 +839,11 @@ export default async function DashboardPage({
   // Gatilho 3: pagamento pendente (`status = 'pending_payment'`). Prazo (`PENDING_PAYMENT_ALERT_HOURS`)
   // é um placeholder documentado em `notificationAlerts.ts` — pendente de confirmação com Fabio
   // (ver Dev Notes da Story 39.6, não é um número definitivo).
-  const { data: pendingPaymentRows } = allPropertyIds.length > 0
-    ? await supabase
-        .from('reservations')
-        .select(`
-          id,
-          created_at,
-          total_amount,
-          currency,
-          property_listings!inner(
-            property_id,
-            properties(name)
-          )
-        `)
-        .eq('status', 'pending_payment')
-        .in('property_listings.property_id', allPropertyIds)
-        .limit(200)
-    : { data: null }
-
   const pendingPaymentAlerts = buildPendingPaymentAlerts(
-    (pendingPaymentRows || []).map(r => {
-      const listing = Array.isArray(r.property_listings) ? r.property_listings[0] : r.property_listings
-      const rawProperty = (listing as { properties?: unknown } | null)?.properties
-      const property = Array.isArray(rawProperty) ? rawProperty[0] : rawProperty
+    organizationReservations.filter(r => r.status === 'pending').slice(0, 200).map(r => {
       return {
         reservationId: r.id,
-        propertyName: (property as { name?: string } | null)?.name,
+        propertyName: getReservationPropertyName(r),
         createdAt: r.created_at,
         totalAmount: r.total_amount != null ? Number(r.total_amount) : null,
         currency: r.currency,
@@ -924,38 +855,24 @@ export default async function DashboardPage({
   // Gatilho 4: ocupação baixa por propriedade (<30% nos próximos 30 dias) — query prospectiva
   // nova sobre `reservations`, diferente de `monthly_property_metrics` (histórica). Ver
   // Technical Notes da Story 39.6.
-  const occupancyWindowEnd = new Date(today)
+  const occupancyWindowEnd = new Date(now)
   occupancyWindowEnd.setDate(occupancyWindowEnd.getDate() + LOW_OCCUPANCY_WINDOW_DAYS)
-
-  const { data: prospectiveReservationRows } = allPropertyIds.length > 0
-    ? await supabase
-        .from('reservations')
-        .select(`
-          check_in,
-          check_out,
-          status,
-          property_listings!inner(property_id)
-        `)
-        .eq('status', 'confirmed')
-        .lt('check_in', occupancyWindowEnd.toISOString().split('T')[0])
-        .gt('check_out', today.toISOString().split('T')[0])
-        .in('property_listings.property_id', allPropertyIds)
-        .limit(1000)
-    : { data: null }
+  const occupancyWindowEndStr = formatDateInTimeZone(occupancyWindowEnd, businessTimeZone)
 
   const prospectiveOccupancyForecast = calculateProspectiveOccupancy(
-    (prospectiveReservationRows || [])
-      .map(r => {
-        const listing = Array.isArray(r.property_listings) ? r.property_listings[0] : r.property_listings
-        return {
-          propertyId: (listing as { property_id?: string } | null)?.property_id || '',
+    organizationReservations
+      .filter(r => r.status === 'confirmed'
+        && r.check_in < occupancyWindowEndStr
+        && r.check_out > todayStr)
+      .slice(0, 1000)
+      .map(r => ({
+          propertyId: r.property_id || '',
           checkIn: r.check_in,
           checkOut: r.check_out,
-        }
-      })
+        }))
       .filter(r => r.propertyId),
     (allProperties || []).map(p => ({ id: p.id, name: p.name })),
-    today,
+    now,
     LOW_OCCUPANCY_WINDOW_DAYS
   )
 
@@ -1821,11 +1738,7 @@ export default async function DashboardPage({
                   const propertyName = property?.name || 'Propriedade'
                   const platformName = (listing?.platforms as { display_name?: string } | null)?.display_name
 
-                  const rawGuest = reservation.guests
-                  const guest = Array.isArray(rawGuest) ? rawGuest[0] : rawGuest
-                  const guestName = guest
-                    ? `${guest.first_name || ''} ${guest.last_name || ''}`.trim()
-                    : reservation.guest_name || 'Hóspede Importado'
+                  const guestName = reservation.guest_name || 'Hóspede Importado'
 
                   return (
                     <Link
@@ -1889,11 +1802,7 @@ export default async function DashboardPage({
                   const property = Array.isArray(rawProperty) ? rawProperty[0] : rawProperty
                   const propertyName = property?.name || 'Propriedade'
 
-                  const rawGuest = reservation.guests
-                  const guest = Array.isArray(rawGuest) ? rawGuest[0] : rawGuest
-                  const guestName = guest
-                    ? `${guest.first_name || ''} ${guest.last_name || ''}`.trim()
-                    : reservation.guest_name || 'Hóspede Importado'
+                  const guestName = reservation.guest_name || 'Hóspede Importado'
 
                   const cleaningStatus = cleaningStatusByReservationId.get(reservation.id)
                   const cleaningBadge = cleaningStatus

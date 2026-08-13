@@ -24,6 +24,98 @@ export type MonthlyPropertyMetricRow = {
   incomplete_data_count?: number | string | null
 }
 
+export type DashboardReservationMetricInput = {
+  property_id: string | null
+  check_in: string
+  check_out: string
+  reservation_status: string | null
+  total_price: number | string | null
+  booking_source?: string | null
+}
+
+export function formatDateInTimeZone(date: Date, timeZone: string): string {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(date)
+  const value = (type: Intl.DateTimeFormatPartTypes) => parts.find(part => part.type === type)?.value || ''
+  return `${value('year')}-${value('month')}-${value('day')}`
+}
+
+/**
+ * Builds the dashboard's historical metric rows from the canonical reservation
+ * schema. This is the runtime fallback/source used when the optional
+ * `monthly_property_metrics` materialized view is not deployed.
+ */
+export function buildMonthlyMetricsFromReservations(
+  reservations: DashboardReservationMetricInput[],
+  properties: Array<{ id: string; name?: string | null; created_at?: string | null }>,
+  monthKeys: string[]
+): MonthlyPropertyMetricRow[] {
+  const normalizedMonthKeys = Array.from(new Set(monthKeys.map(key => `${key.slice(0, 7)}-01`)))
+  const rows = new Map<string, MonthlyPropertyMetricRow>()
+
+  for (const property of properties) {
+    for (const metricMonth of normalizedMonthKeys) {
+      const [year, monthNumber] = metricMonth.split('-').map(Number)
+      const monthEnd = new Date(Date.UTC(year, monthNumber, 1))
+      if (property.created_at && new Date(property.created_at) >= monthEnd) continue
+      rows.set(`${property.id}:${metricMonth}`, {
+        property_id: property.id,
+        property_name: property.name || null,
+        metric_month: metricMonth,
+        gross_revenue: 0,
+        nights_sold: 0,
+        available_nights: new Date(Date.UTC(year, monthNumber, 0)).getUTCDate(),
+        booking_count: 0,
+        cancelled_count: 0,
+        incomplete_data_count: 0,
+      })
+    }
+  }
+
+  for (const reservation of reservations) {
+    if (!reservation.property_id || !reservation.check_in) continue
+    const checkIn = new Date(`${reservation.check_in}T00:00:00Z`)
+    const checkOut = new Date(`${reservation.check_out}T00:00:00Z`)
+    if (Number.isNaN(checkIn.getTime()) || Number.isNaN(checkOut.getTime()) || checkOut <= checkIn) continue
+    if (reservation.reservation_status !== 'confirmed' && reservation.reservation_status !== 'cancelled') continue
+
+    const parsedTotalPrice = reservation.total_price == null ? null : Number(reservation.total_price)
+    const hasValidTotalPrice = parsedTotalPrice != null && Number.isFinite(parsedTotalPrice)
+    const totalNights = Math.max(0, Math.round((checkOut.getTime() - checkIn.getTime()) / 86_400_000))
+
+    for (const metricMonth of normalizedMonthKeys) {
+      const row = rows.get(`${reservation.property_id}:${metricMonth}`)
+      if (!row) continue
+      const [year, monthNumber] = metricMonth.split('-').map(Number)
+      const monthStart = new Date(Date.UTC(year, monthNumber - 1, 1))
+      const monthEnd = new Date(Date.UTC(year, monthNumber, 1))
+      const overlapStart = checkIn > monthStart ? checkIn : monthStart
+      const overlapEnd = checkOut < monthEnd ? checkOut : monthEnd
+      const overlapNights = Math.max(0, Math.round((overlapEnd.getTime() - overlapStart.getTime()) / 86_400_000))
+      if (overlapNights === 0) continue
+
+      if (reservation.reservation_status === 'cancelled') {
+        if (reservation.check_in.slice(0, 7) === metricMonth.slice(0, 7)) {
+          row.cancelled_count = Number(row.cancelled_count || 0) + 1
+        }
+      } else if (!hasValidTotalPrice || !reservation.booking_source) {
+        row.incomplete_data_count = Number(row.incomplete_data_count || 0) + 1
+      } else if (reservation.reservation_status === 'confirmed') {
+        row.gross_revenue = Number(row.gross_revenue || 0)
+          + (totalNights > 0 ? parsedTotalPrice * (overlapNights / totalNights) : 0)
+        row.nights_sold = Number(row.nights_sold || 0) + overlapNights
+        row.booking_count = Number(row.booking_count || 0) + 1
+      }
+    }
+  }
+
+  return Array.from(rows.values())
+}
+
 export type PeriodCurrencyMetrics = {
   grossRevenue: number
   nightsSold: number
