@@ -1,267 +1,45 @@
-/**
- * Story 37.4: Reservation Cancellation Endpoint
- * POST: Cancel reservation, calculate refund, process via Stripe
- * - Auto-links cancellation policy on reservation creation
- * - Implements exponential backoff retry for transient Stripe failures
- */
-
-import { createAdminClient } from '@/lib/supabase/admin'
-import { calculateRefund, calculateDaysUntilCheckIn, isDuringStay, determineStayDuration } from '@/lib/cancellation/refund-calculator'
-import { CancellationPolicySnapshot } from '@/types/cancellation.types'
 import { NextRequest, NextResponse } from 'next/server'
-import { randomUUID } from 'crypto'
+import { z } from 'zod'
+import { getUserAccess } from '@/lib/auth/getUserAccess'
+import { cancelReservation } from '@/lib/reservations/cancelReservation'
+import { createClient } from '@/lib/supabase/server'
 
-/**
- * Helper: Retry with exponential backoff
- * Attempts: 1s, 2s, 4s delays (max 3 total)
- */
-async function retryWithBackoff<T>(
-  fn: () => Promise<T>,
-  maxAttempts: number = 3,
-  baseDelayMs: number = 1000
-): Promise<T> {
-  let lastError: Error | null = null
+const cancellationSchema = z.object({
+  reason: z.string().trim().max(500).optional().nullable(),
+  cancellation_reason: z.string().trim().max(500).optional().nullable(),
+})
 
-  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    try {
-      return await fn()
-    } catch (error) {
-      lastError = error instanceof Error ? error : new Error(String(error))
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const supabase = await createClient()
+  const access = await getUserAccess(supabase)
 
-      // Check if error is retryable (transient Stripe failures)
-      const isRetryable =
-        error instanceof Error &&
-        (error.message.includes('timeout') ||
-         error.message.includes('connection') ||
-         error.message.includes('429') ||  // Rate limit
-         error.message.includes('503'))    // Service unavailable
-
-      if (attempt < maxAttempts && isRetryable) {
-        const delayMs = baseDelayMs * Math.pow(2, attempt - 1)
-        console.log(`Stripe refund retry ${attempt}/${maxAttempts}: waiting ${delayMs}ms before retry`)
-        await new Promise(resolve => setTimeout(resolve, delayMs))
-      } else if (attempt < maxAttempts && isRetryable) {
-        // Continue to next attempt
-        continue
-      } else {
-        // Non-retryable error or last attempt
-        break
-      }
-    }
+  if (!access) {
+    return NextResponse.json({ success: false, error: 'Não autorizado' }, { status: 401 })
   }
 
-  throw lastError || new Error('Unknown error in retry loop')
-}
-
-export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { id: reservationId } = await params
-
-  try {
-    const supabase = await createAdminClient()
-    const body = await request.json()
-
-    // Fetch reservation with policy snapshot
-    const { data: reservation } = await supabase
-      .from('reservations')
-      .select('*, properties(name), cancellation_policy_snapshot')
-      .eq('id', reservationId)
-      .single()
-
-    if (!reservation) {
-      return NextResponse.json({ success: false, error: 'Reservation not found' }, { status: 404 })
-    }
-
-    if (reservation.status === 'cancelled') {
-      return NextResponse.json(
-        { success: false, error: 'Reservation already cancelled' },
-        { status: 409 }
-      )
-    }
-
-    // Handle serious_issue cancellations — Story 40.1
-    if (body.cancellation_reason === 'serious_issue') {
-      const token = randomUUID()
-      const expiresAt = new Date()
-      expiresAt.setDate(expiresAt.getDate() + 7)
-
-      // Store token + expiry in reservation
-      const { error: updateError } = await supabase
-        .from('reservations')
-        .update({
-          status: 'PENDING_MANUAL_REVIEW',
-          review_token: token,
-          review_token_expires_at: expiresAt.toISOString(),
-          cancellation_reason: 'serious_issue',
-          cancellation_description: body.description || '',
-          cancellation_evidence_url: body.evidence_url || '',
-        })
-        .eq('id', reservationId)
-
-      if (updateError) throw updateError
-
-      // Send email to manager with review link
-      try {
-        await fetch('/api/email/send', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            to: 'ahspropriedades@gmail.com',
-            templateId: 'serious-issue-review',
-            data: {
-              guest_name: reservation.guest_name,
-              property_name: reservation.properties?.name || 'Unknown',
-              reservation_id: reservationId,
-              check_in: reservation.check_in,
-              check_out: reservation.check_out,
-              total_amount: reservation.total_amount,
-              description: body.description || '',
-              evidence_url: body.evidence_url || '',
-              review_link: `https://lodgra.io/admin/review/${reservationId}?token=${token}`,
-            },
-          }),
-        })
-      } catch (error) {
-        console.error('Failed to send serious_issue email:', error)
-        // Log but don't fail
-      }
-
-      return NextResponse.json(
-        {
-          success: true,
-          status: 'PENDING_MANUAL_REVIEW',
-          message: 'Seu caso foi reportado para revisão. Você receberá uma resposta em breve.',
-        },
-        { status: 202 }
-      )
-    }
-
-    // Get policy snapshot (should be captured at booking)
-    const policySnapshot: CancellationPolicySnapshot | null = reservation.cancellation_policy_snapshot
-
-    if (!policySnapshot) {
-      return NextResponse.json(
-        { success: false, error: 'No cancellation policy found for this reservation' },
-        { status: 422 }
-      )
-    }
-
-    // Calculate days until check-in
-    const checkIn = new Date(reservation.check_in)
-    const today = new Date()
-    const daysUntilCheckIn = Math.ceil((checkIn.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
-    const duringStay = today >= checkIn
-
-    // Determine stay duration
-    const checkOut = new Date(reservation.check_out)
-    const nightCount = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24))
-    const stayDuration = nightCount >= 28 ? 'long' : 'short'
-
-    // Calculate refund using Story 37.4 calculator (Airbnb model)
-    const refundCalculation = calculateRefund({
-      policy_type: policySnapshot.policy_type as any,
-      stay_duration: stayDuration as 'short' | 'long',
-      days_until_checkin: daysUntilCheckIn,
-      during_stay: duringStay,
-      total_reservation_amount: reservation.total_amount,
-    })
-
-    // Calculate refund amount
-    const refundPercentage = refundCalculation.refund_percentage
-    const refundAmount = Math.round((reservation.total_amount * refundPercentage) / 100)
-
-    // Validate refund amount
-    if (refundAmount > reservation.total_amount) {
-      return NextResponse.json(
-        { success: false, error: 'Calculated refund exceeds original amount' },
-        { status: 422 }
-      )
-    }
-
-    // Process Stripe refund (if applicable) with exponential backoff retry
-    let stripeRefundId: string | null = null
-
-    if (refundAmount > 0 && reservation.stripe_payment_intent_id) {
-      try {
-        stripeRefundId = await retryWithBackoff(async () => {
-          const refundResponse = await fetch('/api/billing/refunds', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              reservation_id: reservationId,
-              amount: refundAmount,
-              reason: body.reason || 'Guest cancellation',
-            }),
-          })
-
-          const refundData = await refundResponse.json()
-
-          if (!refundResponse.ok && refundData.error) {
-            throw new Error(`Stripe refund failed: ${refundData.error}`)
-          }
-
-          return refundData.stripe_refund_id || null
-        }, 3, 1000)
-
-        console.log(`Stripe refund processed successfully: ${stripeRefundId}`)
-      } catch (error) {
-        console.error('Stripe refund failed after all retries:', error)
-        // Log but continue - refund can be retried manually
-      }
-    }
-
-    // Update reservation status
-    const { data: updated, error } = await supabase
-      .from('reservations')
-      .update({
-        status: 'cancelled',
-        refund_amount: refundAmount,
-        stripe_refund_id: stripeRefundId,
-        refund_processed_at: new Date().toISOString(),
-      })
-      .eq('id', reservationId)
-      .select()
-      .single()
-
-    if (error) throw error
-
-    // Send cancellation email to guest
-    try {
-      await fetch('/api/email/send', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          to: reservation.guest_email,
-          templateId: 'refund-processed',
-          data: {
-            guest_name: reservation.guest_name,
-            property_name: reservation.property_name,
-            refund_amount: refundAmount,
-            refund_percentage: refundPercentage,
-            reason: refundCalculation.reason,
-          },
-        }),
-      })
-    } catch (error) {
-      console.error('Email send error:', error)
-      // Log but don't fail the cancellation
-    }
-
-    return NextResponse.json({
-      success: true,
-      reservation_id: reservationId,
-      status: 'cancelled',
-      refund_info: {
-        refund_amount: refundAmount,
-        refund_percentage: refundPercentage,
-        stripe_refund_id: stripeRefundId,
-        processed_at: updated.refund_processed_at,
-      },
-    })
-  } catch (error) {
-    console.error('Error cancelling reservation:', error)
+  const parsedBody = cancellationSchema.safeParse(await request.json().catch(() => ({})))
+  if (!parsedBody.success) {
     return NextResponse.json(
-      { success: false, error: 'Failed to cancel reservation' },
-      { status: 500 }
+      { success: false, error: 'Motivo do cancelamento inválido' },
+      { status: 400 },
     )
   }
+
+  const { id } = await params
+  const reason = parsedBody.data.cancellation_reason ?? parsedBody.data.reason ?? null
+  const result = await cancelReservation(supabase, access, id, reason)
+
+  if (result.ok === false) {
+    return NextResponse.json({ success: false, error: result.error }, { status: result.status })
+  }
+
+  return NextResponse.json({
+    success: true,
+    reservation_id: result.reservationId,
+    status: 'cancelled',
+    already_cancelled: result.alreadyCancelled,
+  })
 }

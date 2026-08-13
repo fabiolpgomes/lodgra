@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { XCircle, AlertTriangle } from 'lucide-react'
-import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/common/ui/button'
 import { Alert, AlertDescription } from '@/components/common/ui/alert'
 import { Label } from '@/components/common/ui/label'
@@ -36,19 +35,16 @@ export function CancelReservationButton({
     setError(null)
 
     try {
-      const supabase = createClient()
+      const response = await fetch(`/api/reservations/${reservationId}/cancel`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cancellation_reason: cancellationReason || null }),
+      })
 
-      const { error: updateError } = await supabase
-        .from('reservations')
-        .update({
-          status: 'cancelled',
-          cancellation_reason: cancellationReason || null,
-          cancelled_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', reservationId)
-
-      if (updateError) throw updateError
+      if (!response.ok) {
+        const payload = await response.json().catch(() => null)
+        throw new Error(payload?.error || 'Erro ao cancelar reserva')
+      }
 
       // Notificar proprietário (fire-and-forget)
       fetch('/api/notifications/owner-reservation', {

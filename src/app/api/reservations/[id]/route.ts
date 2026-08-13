@@ -1,5 +1,12 @@
 import { createClient } from '@/lib/supabase/server'
+import { getUserAccess } from '@/lib/auth/getUserAccess'
+import { cancelReservation } from '@/lib/reservations/cancelReservation'
 import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
+
+const deleteReservationSchema = z.object({
+  reason: z.string().trim().max(500).optional().nullable(),
+})
 
 export async function PUT(
   request: NextRequest,
@@ -26,6 +33,7 @@ export async function PUT(
       guest_phone,
       status,
       total_price,
+      notes,
     } = body
 
     // Validate required fields
@@ -37,11 +45,19 @@ export async function PUT(
     }
 
     // Get original reservation (for audit comparison)
-    const { data: originalReservation } = await supabase
+    const { data: originalReservation, error: fetchError } = await supabase
       .from('reservations')
-      .select('guest_name, guest_email, guest_phone, reservation_status, total_price')
+      .select('guest_name, guest_email, guest_phone, reservation_status, total_price, notes')
       .eq('id', id)
       .single()
+
+    if (fetchError || !originalReservation) {
+      console.error('Fetch error:', fetchError)
+      return NextResponse.json(
+        { error: 'Reserva não encontrada' },
+        { status: 404 }
+      )
+    }
 
     // Update reservation
     const { data, error } = await supabase
@@ -52,6 +68,7 @@ export async function PUT(
         guest_phone: guest_phone || null,
         reservation_status: status || 'pending',
         total_price: total_price || 0,
+        notes: notes || null,
       })
       .eq('id', id)
       .select()
@@ -60,7 +77,7 @@ export async function PUT(
     if (error) {
       console.error('Update error:', error)
       return NextResponse.json(
-        { error: 'Falha ao atualizar reserva' },
+        { error: `Falha ao atualizar reserva: ${error.message}` },
         { status: 500 }
       )
     }
@@ -97,17 +114,22 @@ export async function PUT(
         to: total_price,
       }
     }
+    if (originalReservation?.notes !== notes) {
+      changedFields.notes = {
+        from: originalReservation?.notes,
+        to: notes,
+      }
+    }
 
     // Create audit log entry
     await supabase
-      .from('reservation_audit_log')
+      .from('audit_logs')
       .insert({
-        id: crypto.randomUUID(),
-        reservation_id: id,
-        action: 'updated',
-        changed_fields: changedFields,
-        changed_by: user.id,
-        changed_at: new Date().toISOString(),
+        user_id: user.id,
+        action: 'reservation_updated',
+        resource_type: 'reservation',
+        resource_id: id,
+        details: { changed_fields: changedFields },
       })
 
     return NextResponse.json(data)
@@ -128,50 +150,36 @@ export async function DELETE(
     const { id } = await params
     const supabase = await createClient()
 
-    // Get current user
-    const { data: { user }, error: userError } = await supabase.auth.getUser()
-    if (userError || !user) {
+    const access = await getUserAccess(supabase)
+    if (!access) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
       )
     }
 
-    // Parse request body for soft delete reason
-    const body = await request.json()
-    const { reason } = body
-
-    // Soft delete (set deleted_at)
-    const { data, error } = await supabase
-      .from('reservations')
-      .update({
-        deleted_at: new Date().toISOString(),
-      })
-      .eq('id', id)
-      .select()
-      .single()
-
-    if (error) {
-      console.error('Delete error:', error)
-      return NextResponse.json(
-        { error: 'Falha ao deletar reserva' },
-        { status: 500 }
-      )
+    const parsedBody = deleteReservationSchema.safeParse(await request.json().catch(() => ({})))
+    if (!parsedBody.success) {
+      return NextResponse.json({ error: 'Motivo do cancelamento inválido' }, { status: 400 })
     }
 
-    // Create audit log entry
-    await supabase
-      .from('reservation_audit_log')
-      .insert({
-        id: crypto.randomUUID(),
-        reservation_id: id,
-        action: 'deleted',
-        changed_fields: { reason },
-        changed_by: user.id,
-        changed_at: new Date().toISOString(),
-      })
+    const result = await cancelReservation(
+      supabase,
+      access,
+      id,
+      parsedBody.data.reason ?? null,
+    )
 
-    return NextResponse.json({ success: true })
+    if (result.ok === false) {
+      return NextResponse.json({ error: result.error }, { status: result.status })
+    }
+
+    return NextResponse.json({
+      success: true,
+      reservation_id: result.reservationId,
+      status: 'cancelled',
+      already_cancelled: result.alreadyCancelled,
+    })
   } catch (error) {
     console.error('API error:', error)
     return NextResponse.json(

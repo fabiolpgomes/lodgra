@@ -48,21 +48,22 @@ export function EditReservationClient({ reservation, locale }: EditReservationCl
   const handleDelete = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`/api/reservations/${reservation.id}`, {
-        method: 'DELETE',
+      const response = await fetch(`/api/reservations/${reservation.id}/cancel`, {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reason: 'Deletado pelo usuário' }),
+        body: JSON.stringify({ reason: 'Cancelada pelo usuário' }),
       })
 
       if (!response.ok) {
-        throw new Error('Falha ao deletar')
+        const payload = await response.json().catch(() => null)
+        throw new Error(payload?.error || 'Falha ao cancelar')
       }
 
       setToast({ message: 'Reserva cancelada com sucesso!', type: 'success' })
       setTimeout(() => router.push(`/${locale}/reservations`), 1000)
     } catch (error) {
       setToast({
-        message: error instanceof Error ? error.message : 'Erro ao deletar',
+        message: error instanceof Error ? error.message : 'Erro ao cancelar',
         type: 'error',
       })
     } finally {
