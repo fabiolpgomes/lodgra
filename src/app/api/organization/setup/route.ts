@@ -131,9 +131,7 @@ export async function POST(request: NextRequest) {
 
   if (!user) return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
 
-  const adminClient = await createAdminClient()
-
-  const { data: profile } = await adminClient
+  const { data: profile } = await supabase
     .from('user_profiles')
     .select('id, organization_id')
     .eq('id', user.id)
@@ -142,83 +140,37 @@ export async function POST(request: NextRequest) {
   const baseSlug = toSlug(orgName.trim())
   const existingOrgId = profile?.organization_id ?? null
 
-  // Ensure slug is unique — append suffix if needed
-  let slug = baseSlug
-  let attempt = 0
-  while (attempt < 10) {
-    let query = adminClient
-      .from('organizations')
-      .select('id')
-      .eq('slug', slug)
-
-    if (existingOrgId) {
-      query = query.neq('id', existingOrgId)
-    }
-
-    const { data: existing } = await query.maybeSingle()
-    if (!existing) break
-    attempt++
-    slug = `${baseSlug}-${attempt}`
-  }
-
   if (!existingOrgId) {
-    const { data: newOrg, error: orgError } = await adminClient
-      .from('organizations')
-      .insert({
-        name: orgName.trim(),
-        slug,
-        subscription_status: 'trialing',
-        plan: 'essencial',
-        subscription_plan: 'essencial',
-      })
-      .select('id')
-      .single()
+    const { data, error } = await supabase.rpc('ensure_my_organization', {
+      p_name: orgName.trim(),
+      p_slug: baseSlug,
+    })
+    const organization = data?.[0]
 
-    if (orgError || !newOrg) {
-      console.error('[organization/setup] Create org error:', orgError)
+    if (error || !organization) {
+      console.error('[organization/setup] Provision org error:', error)
       return NextResponse.json({ error: 'Erro ao criar organização' }, { status: 500 })
     }
 
-    const profilePayload = {
-      id: user.id,
-      email: user.email,
-      full_name: user.user_metadata?.full_name || '',
-      role: 'viewer',
-      access_all_properties: false,
-      organization_id: newOrg.id,
-    }
-
-    const { error: profileError } = profile
-      ? await adminClient
-        .from('user_profiles')
-        .update({
-          organization_id: newOrg.id,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', user.id)
-      : await adminClient
-        .from('user_profiles')
-        .insert(profilePayload)
-
-    if (profileError) {
-      console.error('[organization/setup] Link profile error:', profileError)
-      await adminClient.from('organizations').delete().eq('id', newOrg.id)
-      return NextResponse.json({ error: 'Erro ao vincular organização' }, { status: 500 })
-    }
-
-    return NextResponse.json({ success: true, slug, existingPropertyId: null })
+    return NextResponse.json({
+      success: true,
+      slug: organization.organization_slug,
+      existingPropertyId: null,
+    })
   }
 
-  const { error } = await adminClient
-    .from('organizations')
-    .update({ name: orgName.trim(), slug, updated_at: new Date().toISOString() })
-    .eq('id', existingOrgId)
+  const { data, error } = await supabase.rpc('update_my_organization', {
+    p_name: orgName.trim(),
+    p_slug: baseSlug,
+  })
+  const organization = data?.[0]
 
-  if (error) {
+  if (error || !organization) {
     console.error('[organization/setup] Error:', error)
     return NextResponse.json({ error: 'Erro ao guardar' }, { status: 500 })
   }
 
+  const adminClient = await createAdminClient()
   const { data: existingProperty } = await adminClient
     .from('properties')
     .select('id')
@@ -228,5 +180,9 @@ export async function POST(request: NextRequest) {
     .limit(1)
     .maybeSingle()
 
-  return NextResponse.json({ success: true, slug, existingPropertyId: existingProperty?.id ?? null })
+  return NextResponse.json({
+    success: true,
+    slug: organization.organization_slug,
+    existingPropertyId: existingProperty?.id ?? null,
+  })
 }

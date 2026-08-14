@@ -2,8 +2,6 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { stripeBR } from '@/lib/stripe/client-br'
 import { NextResponse } from 'next/server'
-import { UserRole } from '@/lib/auth/role-types'
-import { createUserProfile } from '@/lib/auth/create-user-profile'
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
@@ -82,68 +80,58 @@ export async function GET(request: Request) {
       if (user) {
         const { data: profile } = await supabase
           .from('user_profiles')
-          .select('id')
+          .select('id, organization_id')
           .eq('id', user.id)
-          .single()
+          .maybeSingle()
 
-        if (!profile) {
+        if (!profile?.organization_id) {
           try {
             const baseSlug    = (user.email || 'user').split('@')[0].toLowerCase().slice(0, 20)
             const uniqueSuffix = user.id.slice(0, 8)
             const orgSlug     = `${baseSlug}-${uniqueSuffix}`
 
-            const adminClient = createAdminClient()
+            const { data: provisioned, error: provisionError } = await supabase.rpc(
+              'ensure_my_organization',
+              {
+                p_name: user.user_metadata?.full_name || user.email || 'Nova organização',
+                p_slug: orgSlug,
+              }
+            )
+            const organization = provisioned?.[0]
 
-            const { data: newOrg } = await adminClient
+            if (provisionError || !organization) {
+              console.error('[auth/callback] Failed to provision organization:', provisionError)
+              return NextResponse.redirect(`${origin}/login?error=profile_creation_failed`)
+            }
+
+            const { data: billingOrganization } = await supabase
               .from('organizations')
-              .insert({
-                name: user.user_metadata?.full_name || user.email || 'New Organization',
-                slug: orgSlug,
-                subscription_status: 'trial',
-                plan: 'essencial',
-              })
-              .select('id')
-              .single()
+              .select('stripe_br_customer_id')
+              .eq('id', organization.organization_id)
+              .maybeSingle()
 
-            if (newOrg) {
-              if (!user.email) {
-                console.error(`[auth/callback] User ${user.id} has no email, cannot create profile for org ${newOrg.id}`)
-                return NextResponse.redirect(`${origin}/login?error=no_email`)
-              }
-
-              const isOAuthUser =
-                user.app_metadata?.providers?.includes('google') ||
-                user.identities?.some((id: { provider: string }) => id.provider === 'google')
-
+            if (!billingOrganization?.stripe_br_customer_id && user.email) {
               try {
-                await createUserProfile({
-                  userId: user.id,
-                  email: user.email,
-                  fullName: user.user_metadata?.full_name || '',
-                  role: UserRole.ADMIN,
-                  accessAllProperties: true,
-                  organizationId: newOrg.id,
-                  passwordResetRequired: !isOAuthUser,
-                  passwordChangedAt: isOAuthUser ? new Date().toISOString() : null,
-                })
-              } catch (profileErr) {
-                console.error(`[auth/callback] Failed to create profile for org ${newOrg.id}:`, profileErr)
-                return NextResponse.redirect(`${origin}/login?error=profile_creation_failed`)
-              }
-
-              try {
-                const customer = await stripeBR.customers.create({
-                  email: user.email || undefined,
-                  name: user.user_metadata?.full_name || user.email || undefined,
-                  metadata: {
-                    organization_id: newOrg.id,
+                const customer = await stripeBR.customers.create(
+                  {
+                    email: user.email,
+                    name: user.user_metadata?.full_name || user.email || undefined,
+                    metadata: {
+                      organization_id: organization.organization_id,
+                    },
                   },
-                })
+                  { idempotencyKey: `lodgra-org-${organization.organization_id}` }
+                )
 
-                await adminClient
+                const adminClient = await createAdminClient()
+                const { error: linkError } = await adminClient
                   .from('organizations')
                   .update({ stripe_br_customer_id: customer.id })
-                  .eq('id', newOrg.id)
+                  .eq('id', organization.organization_id)
+
+                if (linkError) {
+                  console.error('[auth/callback] Failed to link Stripe customer:', linkError)
+                }
 
                 console.log('[auth/callback] Stripe customer created:', customer.id)
               } catch (stripeErr) {

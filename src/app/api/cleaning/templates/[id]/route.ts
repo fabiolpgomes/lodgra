@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
-
-const FIXED_ORG_ID = '00000000-0000-0000-0000-000000000001';
+import { requireRole } from '@/lib/auth/requireRole';
 
 interface ChecklistItem {
   label: string;
@@ -14,6 +13,12 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = await requireRole(['admin', 'manager', 'gestor', 'viewer']);
+    if (!auth.authorized) return auth.response!;
+    if (!auth.organizationId) {
+      return NextResponse.json({ error: 'Organização não configurada' }, { status: 409 });
+    }
+
     const admin = await createAdminClient();
     const { id } = await params;
 
@@ -21,7 +26,7 @@ export async function GET(
       .from('cleaning_checklist_templates')
       .select('*, items:cleaning_checklist_items(*)')
       .eq('id', id)
-      .eq('organization_id', FIXED_ORG_ID)
+      .eq('organization_id', auth.organizationId)
       .single();
 
     if (error) {
@@ -40,6 +45,12 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = await requireRole(['admin', 'manager', 'gestor']);
+    if (!auth.authorized) return auth.response!;
+    if (!auth.organizationId) {
+      return NextResponse.json({ error: 'Organização não configurada' }, { status: 409 });
+    }
+
     const admin = await createAdminClient();
     const body = await request.json();
     const { name, description, is_active, items } = body;
@@ -55,7 +66,7 @@ export async function PUT(
       .from('cleaning_checklist_templates')
       .update(updatePayload)
       .eq('id', id)
-      .eq('organization_id', FIXED_ORG_ID)
+      .eq('organization_id', auth.organizationId)
       .select()
       .single();
 
@@ -103,7 +114,7 @@ export async function PUT(
       .from('cleaning_checklist_templates')
       .select('*, items:cleaning_checklist_items(*)')
       .eq('id', id)
-      .eq('organization_id', FIXED_ORG_ID)
+      .eq('organization_id', auth.organizationId)
       .single();
 
     return NextResponse.json({ template: updatedTemplate || template });
@@ -118,6 +129,12 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = await requireRole(['admin', 'manager', 'gestor']);
+    if (!auth.authorized) return auth.response!;
+    if (!auth.organizationId) {
+      return NextResponse.json({ error: 'Organização não configurada' }, { status: 409 });
+    }
+
     const admin = await createAdminClient();
     const { id } = await params;
 
@@ -125,7 +142,8 @@ export async function DELETE(
     const { count: taskCount } = await admin
       .from('cleaning_tasks')
       .select('*', { count: 'exact', head: true })
-      .eq('checklist_template_id', id);
+      .eq('checklist_template_id', id)
+      .eq('organization_id', auth.organizationId);
 
     if (taskCount && taskCount > 0) {
       return NextResponse.json(
@@ -139,7 +157,7 @@ export async function DELETE(
       .from('cleaning_checklist_templates')
       .update({ is_active: false })
       .eq('id', id)
-      .eq('organization_id', FIXED_ORG_ID);
+      .eq('organization_id', auth.organizationId);
 
     if (error) {
       return NextResponse.json({ error: 'Failed to delete template' }, { status: 500 });

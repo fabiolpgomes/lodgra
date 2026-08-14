@@ -1,8 +1,13 @@
 # Arquitetura Multi-Tenant — Lodgra
 
 **Data:** 2026-05-22  
-**Status:** Análise Completa + Recomendação  
+**Status:** Parcialmente desatualizado — hardening em revisão
 **Autor:** Aria (Architect)
+
+> **Aviso de 2026-08-14:** a afirmação histórica de que o backend multi-tenant
+> estava completo não corresponde ao schema de produção auditado. Consulte
+> `MULTI-TENANT-LAUNCH-HARDENING-2026-08-14.md` antes de usar este documento
+> como evidência de prontidão para lançamento.
 
 ---
 
@@ -19,9 +24,11 @@
 
 ## 🏗️ Estado Atual
 
-### ✅ Infraestrutura Multi-Tenant Implementada
+### Estado histórico documentado em 2026-05-22
 
-A arquitetura multi-tenant do Lodgra **ESTÁ COMPLETA** no backend. O sistema suporta simultaneamente:
+Esta seção descreve o estado que era considerado completo em 2026-05-22. Ela
+não constitui evidência atual de prontidão; os gates vigentes estão em
+`multi-tenant-launch-gates.yaml`. Naquele momento, o sistema suportava:
 
 #### 1. **Tenant Identification (Middleware)**
 

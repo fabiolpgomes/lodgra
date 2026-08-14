@@ -10,13 +10,19 @@ interface ChecklistItem {
 
 export async function GET(request: NextRequest) {
   try {
+    const auth = await requireRole(['admin', 'manager', 'gestor', 'viewer']);
+    if (!auth.authorized) return auth.response!;
+    if (!auth.organizationId) {
+      return NextResponse.json({ error: 'Organização não configurada' }, { status: 409 });
+    }
+
     const { createAdminClient } = await import('@/lib/supabase/admin');
     const admin = await createAdminClient();
 
     const { data: templates, error } = await admin
       .from('cleaning_checklist_templates')
       .select('*')
-      .eq('organization_id', '00000000-0000-0000-0000-000000000001')
+      .eq('organization_id', auth.organizationId)
       .order('name');
 
     if (error) {

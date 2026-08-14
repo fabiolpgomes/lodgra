@@ -9,6 +9,12 @@ import { createClient } from '@/lib/supabase/server';
 
 export async function GET(request: NextRequest) {
   try {
+    const auth = await requireRole(['admin', 'manager', 'gestor', 'viewer']);
+    if (!auth.authorized) return auth.response!;
+    if (!auth.organizationId) {
+      return NextResponse.json({ error: 'Organização não configurada' }, { status: 409 });
+    }
+
     const { createAdminClient } = await import('@/lib/supabase/admin');
     const admin = await createAdminClient();
     const { searchParams } = new URL(request.url);
@@ -22,7 +28,7 @@ export async function GET(request: NextRequest) {
     let query = admin
       .from('cleaning_tasks')
       .select('*, properties(id, name), users(id, full_name)', { count: 'exact' })
-      .eq('organization_id', '00000000-0000-0000-0000-000000000001');
+      .eq('organization_id', auth.organizationId);
 
     if (status) query = query.eq('status', status);
     if (propertyId) query = query.eq('property_id', propertyId);
@@ -60,6 +66,12 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const auth = await requireRole(['admin', 'manager', 'gestor']);
+    if (!auth.authorized) return auth.response!;
+    if (!auth.organizationId) {
+      return NextResponse.json({ error: 'Organização não configurada' }, { status: 409 });
+    }
+
     const { createAdminClient } = await import('@/lib/supabase/admin');
     const admin = await createAdminClient();
     const body = await request.json();
@@ -88,11 +100,10 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const FIXED_ORG_ID = '00000000-0000-0000-0000-000000000001';
     const { data: task, error: taskError } = await admin
       .from('cleaning_tasks')
       .insert({
-        organization_id: FIXED_ORG_ID,
+        organization_id: auth.organizationId,
         property_id,
         scheduled_date,
         scheduled_time: scheduled_time || null,
@@ -121,7 +132,7 @@ export async function POST(request: NextRequest) {
 
         await admin.from('cleaner_access_tokens').insert({
           cleaner_id,
-          organization_id: FIXED_ORG_ID,
+          organization_id: auth.organizationId,
           token_hash: tokenHash,
           expires_at: expiresAt.toISOString(),
           ip_address: '0.0.0.0',
@@ -143,6 +154,12 @@ export async function POST(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   try {
+    const auth = await requireRole(['admin', 'manager', 'gestor']);
+    if (!auth.authorized) return auth.response!;
+    if (!auth.organizationId) {
+      return NextResponse.json({ error: 'Organização não configurada' }, { status: 409 });
+    }
+
     const { createAdminClient } = await import('@/lib/supabase/admin');
     const admin = await createAdminClient();
     const body = await request.json();
@@ -150,6 +167,25 @@ export async function PATCH(request: NextRequest) {
 
     // Update checklist item
     if (item_id !== undefined && is_checked !== undefined) {
+      const { data: response } = await admin
+        .from('cleaning_checklist_responses')
+        .select('task_id')
+        .eq('id', item_id)
+        .maybeSingle();
+
+      const { data: scopedTask } = response?.task_id
+        ? await admin
+          .from('cleaning_tasks')
+          .select('id')
+          .eq('id', response.task_id)
+          .eq('organization_id', auth.organizationId)
+          .maybeSingle()
+        : { data: null };
+
+      if (!scopedTask) {
+        return NextResponse.json({ error: 'Checklist item not found' }, { status: 404 });
+      }
+
       const { error } = await admin
         .from('cleaning_checklist_responses')
         .update({ is_checked, checked_at: is_checked ? new Date().toISOString() : null })
@@ -177,12 +213,11 @@ export async function PATCH(request: NextRequest) {
     if (cleaner_id !== undefined) updateData.cleaner_id = cleaner_id;
     if (status === 'completed') updateData.completed_at = new Date().toISOString();
 
-    const FIXED_ORG_ID = '00000000-0000-0000-0000-000000000001';
     const { data: task, error } = await admin
       .from('cleaning_tasks')
       .update(updateData)
       .eq('id', id)
-      .eq('organization_id', FIXED_ORG_ID)
+      .eq('organization_id', auth.organizationId)
       .select()
       .single();
 

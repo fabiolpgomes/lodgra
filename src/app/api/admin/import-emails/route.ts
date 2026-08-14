@@ -7,9 +7,10 @@ export async function POST(request: NextRequest) {
   try {
     // Proteger com chave simples (configure em .env.local)
     const IMPORT_SECRET = process.env.IMPORT_SECRET
-    if (!IMPORT_SECRET) {
+    const orgId = process.env.IMPORT_ORGANIZATION_ID
+    if (!IMPORT_SECRET || !orgId) {
       return NextResponse.json(
-        { error: 'IMPORT_SECRET environment variable is not configured' },
+        { error: 'Email import credentials are not configured' },
         { status: 500 }
       )
     }
@@ -21,7 +22,15 @@ export async function POST(request: NextRequest) {
     }
 
     const supabase = await createAdminClient()
-    const orgId = '00000000-0000-0000-0000-000000000001'
+    const { data: organization } = await supabase
+      .from('organizations')
+      .select('id')
+      .eq('id', orgId)
+      .maybeSingle()
+
+    if (!organization) {
+      return NextResponse.json({ error: 'Configured import organization not found' }, { status: 500 })
+    }
 
     // Ler arquivo JSON local
     const filePath = path.join(process.cwd(), 'gmail-exporter', 'emails.json')

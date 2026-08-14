@@ -1,0 +1,60 @@
+version: 1
+status: approved_in_progress
+launch_blocked_until_all_critical_pass: true
+
+gates:
+  schema_contract:
+    critical: true
+    pass_when:
+      - production_schema_matches_committed_migrations
+      - every_private_business_table_has_organization_id_not_null
+      - every_tenant_child_has_composite_tenant_foreign_key
+
+  rls_isolation:
+    critical: true
+    pass_when:
+      - every_exposed_private_table_has_rls_and_tenant_policy
+      - zero_cross_tenant_crud_successes_in_test_matrix
+      - zero_anonymous_execute_grants_on_internal_security_definer_functions
+
+  onboarding:
+    critical: true
+    pass_when:
+      - organization_and_first_admin_creation_is_atomic
+      - runtime_default_tenant_assignment_count_is_zero
+      - onboarding_rollback_test_passes
+
+  privileged_paths:
+    critical: true
+    pass_when:
+      - every_service_role_consumer_is_classified
+      - every_mutating_privileged_path_asserts_tenant_context
+      - production_debug_and_migration_routes_are_disabled
+
+  integrations:
+    critical: true
+    pass_when:
+      - stripe_webhooks_resolve_tenant_from_stored_customer_mapping
+      - ota_and_email_connections_are_tenant_bound
+      - cron_and_webhook_idempotency_is_tenant_scoped
+
+  quality:
+    critical: true
+    pass_when:
+      - lint_passes
+      - typecheck_passes
+      - full_test_suite_passes
+      - production_build_passes
+      - sync_ide_passes
+      - sync_ide_check_passes
+      - sync_skills_codex_passes
+      - validate_structure_passes
+      - validate_agents_passes
+      - supabase_security_advisors_have_no_launch_blocking_findings
+
+  operations:
+    critical: true
+    pass_when:
+      - backup_restore_drill_passes
+      - rollback_runbook_is_verified
+      - tenant_scoped_audit_and_alerting_are_enabled

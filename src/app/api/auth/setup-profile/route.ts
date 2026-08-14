@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/client'
-import { createAdminClient } from '@/lib/supabase/admin'
+import { createClient } from '@/lib/supabase/server'
 
 // POST /api/auth/setup-profile — criar organização e perfil para novo usuário
 // Chamado após signup e após confirmação de email
@@ -23,7 +22,7 @@ export async function POST(_request: NextRequest) {
     .eq('id', user.id)
     .single()
 
-  if (existingProfile) {
+  if (existingProfile?.organization_id) {
     // Já tem perfil, retornar sucesso (já foi inicializado)
     return NextResponse.json({
       success: true,
@@ -32,52 +31,29 @@ export async function POST(_request: NextRequest) {
     })
   }
 
-  const adminClient = await createAdminClient()
-
-  // Gerar slug único para a organização
-  const baseSlug = (user.email || 'user').split('@')[0].toLowerCase().slice(0, 20)
+  // Legacy repair path. New signups are provisioned atomically by the database
+  // trigger; this authenticated RPC only repairs accounts created before it.
+  const baseSlug = (user.email || 'user')
+    .split('@')[0]
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9-]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 20) || 'user'
   const uniqueSuffix = user.id.slice(0, 8)
   const orgSlug = `${baseSlug}-${uniqueSuffix}`
 
-  // 1. Criar nova organização
-  const { data: newOrg, error: orgError } = await adminClient
-    .from('organizations')
-    .insert({
-      name: user.user_metadata?.full_name || user.email || 'New Organization',
-      slug: orgSlug,
-      subscription_status: 'trial',
-      plan: 'essencial',
-      subscription_plan: 'essencial',
-    })
-    .select('id')
-    .single()
+  const { data, error } = await supabase.rpc('ensure_my_organization', {
+    p_name: user.user_metadata?.full_name || user.email || 'Nova organização',
+    p_slug: orgSlug,
+  })
 
-  if (orgError || !newOrg) {
-    console.error('Erro ao criar organização:', orgError)
+  const organization = data?.[0]
+  if (error || !organization) {
+    console.error('Erro ao provisionar organização:', error)
     return NextResponse.json(
-      { error: 'Erro ao criar organização' },
-      { status: 500 }
-    )
-  }
-
-  // 2. Criar perfil do usuário com organization_id
-  const { error: profileError } = await adminClient
-    .from('user_profiles')
-    .insert({
-      id: user.id,
-      email: user.email,
-      full_name: user.user_metadata?.full_name || '',
-      role: 'viewer', // Será promovido a admin após onboarding
-      access_all_properties: false,
-      organization_id: newOrg.id,
-    })
-
-  if (profileError) {
-    console.error('Erro ao criar perfil:', profileError)
-    // Tentar deletar a organização criada (limpeza)
-    await adminClient.from('organizations').delete().eq('id', newOrg.id)
-    return NextResponse.json(
-      { error: 'Erro ao criar perfil' },
+      { error: 'Erro ao provisionar organização' },
       { status: 500 }
     )
   }
@@ -85,6 +61,6 @@ export async function POST(_request: NextRequest) {
   return NextResponse.json({
     success: true,
     message: 'Perfil criado com sucesso',
-    organization_id: newOrg.id,
+    organization_id: organization.organization_id,
   })
 }

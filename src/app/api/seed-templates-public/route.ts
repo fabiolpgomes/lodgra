@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
-
-const FIXED_ORG_ID = '00000000-0000-0000-0000-000000000001';
+import { requireRole } from '@/lib/auth/requireRole';
 
 const TEMPLATES = [
   {
@@ -38,6 +37,12 @@ const TEMPLATES = [
 
 export async function POST() {
   try {
+    const auth = await requireRole(['admin', 'manager', 'gestor']);
+    if (!auth.authorized) return auth.response!;
+    if (!auth.organizationId) {
+      return NextResponse.json({ error: 'Organização não configurada' }, { status: 409 });
+    }
+
     const admin = await createAdminClient();
     const results = [];
 
@@ -45,7 +50,7 @@ export async function POST() {
       const { data: existing } = await admin
         .from('cleaning_checklist_templates')
         .select('id')
-        .eq('organization_id', FIXED_ORG_ID)
+        .eq('organization_id', auth.organizationId)
         .eq('name', template.name)
         .single();
 
@@ -57,7 +62,7 @@ export async function POST() {
       const { data: createdTemplate, error: templateError } = await admin
         .from('cleaning_checklist_templates')
         .insert({
-          organization_id: FIXED_ORG_ID,
+          organization_id: auth.organizationId,
           name: template.name,
           description: template.description,
           is_active: true,
