@@ -34,7 +34,8 @@ export function PropertyRail({ activePropertyId, locale }: PropertyRailProps) {
         // Some test and offline environments intentionally provide no response.
         if (!response?.ok) return
         const payload = await response.json()
-        if (mounted) setProperties(payload.data || payload.properties || [])
+        const propertyList = payload.data?.properties || payload.properties || payload.data || []
+        if (mounted) setProperties(Array.isArray(propertyList) ? propertyList : [])
       } catch (error) {
         console.error('[PropertyRail] Unable to load properties:', error)
       }

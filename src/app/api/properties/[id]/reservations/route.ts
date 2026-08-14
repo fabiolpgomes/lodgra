@@ -1,183 +1,68 @@
-/**
- * API Endpoint: Property Reservations
- * GET /api/properties/[id]/reservations — Fetch reservations for a property
- * Story 37.1: Calendar with pricing
- */
-
-import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
+import { createAdminClient } from '@/lib/supabase/admin'
+import { createClient } from '@/lib/supabase/server'
+import { requireRole } from '@/lib/auth/requireRole'
+import { getUserPropertyIds } from '@/lib/auth/getUserProperties'
 
 export async function GET(
-  req: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id: propertyId } = await params
-
   try {
-    const supabase = await createClient()
-    console.log('[GET /reservations] START - propertyId:', propertyId)
-
-    // Get current user from session cookie
-    const { data: { user }, error: userError } = await supabase.auth.getUser()
-    console.log('[GET /reservations] Auth check:', { userId: user?.id, userError: userError?.message })
-
-    if (userError || !user) {
-      console.log('[GET /reservations] Auth failed')
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+    const { id: propertyId } = await params
+    const auth = await requireRole(['admin', 'manager', 'gestor', 'owner', 'viewer'])
+    if (!auth.authorized) return auth.response
+    if (!auth.organizationId) {
+      return NextResponse.json({ error: 'Organização não encontrada' }, { status: 403 })
     }
 
-    // Verify ownership via owners table JOIN
-    console.log('[GET /reservations] Fetching property with owners...')
-    const { data: property, error: propertyError } = await supabase
+    const sessionClient = await createClient()
+    const allowedPropertyIds = await getUserPropertyIds(sessionClient)
+    if (allowedPropertyIds !== null && !allowedPropertyIds.includes(propertyId)) {
+      return NextResponse.json({ error: 'Permissão insuficiente' }, { status: 403 })
+    }
+
+    const adminClient = createAdminClient()
+    const { data: property, error: propertyError } = await adminClient
       .from('properties')
-      .select('id, owner_id, owners(id, user_id)')
-      .eq('id', propertyId)
-      .single()
-
-    console.log('[GET /reservations] Property result (RAW):', {
-      property: JSON.stringify(property),
-      propertyError: {
-        message: propertyError?.message,
-        code: propertyError?.code,
-        details: propertyError?.details
-      }
-    })
-    console.log('[GET /reservations] Property result (PARSED):', {
-      found: !!property,
-      owner_id: property?.owner_id,
-      owners: property?.owners,
-      ownersType: typeof property?.owners
-    })
-
-    if (propertyError || !property) {
-      console.log('[GET /reservations] Property not found or error')
-      return NextResponse.json(
-        { error: 'Property not found' },
-        { status: 404 }
-      )
-    }
-
-    // Verify user owns property by checking owners.user_id
-    const owners = Array.isArray(property.owners) ? property.owners[0] : property.owners
-    console.log('[GET /reservations] Ownership check:', {
-      ownerUserId: owners?.user_id,
-      userId: user.id,
-      match: owners?.user_id === user.id
-    })
-
-    if (owners?.user_id !== user.id) {
-      console.log('[GET /reservations] Ownership check FAILED')
-      return NextResponse.json(
-        { error: 'Forbidden' },
-        { status: 403 }
-      )
-    }
-
-    // Fetch reservations via property_listings (correct column name)
-    console.log('[GET /reservations] Fetching reservations...')
-
-    // First, try to get property_listings
-    const { data: propertyListings, error: listingError } = await supabase
-      .from('property_listings')
       .select('id')
-      .eq('property_id', propertyId)
+      .eq('id', propertyId)
+      .eq('organization_id', auth.organizationId)
+      .maybeSingle()
 
-    console.log('[GET /reservations] Property listings query:', {
-      count: propertyListings?.length || 0,
-      error: listingError?.message,
-      listings: JSON.stringify(propertyListings || [])
-    })
+    if (propertyError) return NextResponse.json({ error: propertyError.message }, { status: 500 })
+    if (!property) return NextResponse.json({ error: 'Property not found' }, { status: 404 })
 
-    const listingIds = propertyListings?.map(p => p.id) || []
-    console.log('[GET /reservations] Listing IDs to query:', listingIds)
-
-    // If no property_listings, return empty array (no reservations possible)
-    if (listingIds.length === 0) {
-      console.log('[GET /reservations] No property_listings found, returning empty reservations')
-      return NextResponse.json({
-        success: true,
-        data: [],
-      })
-    }
-
-    // Fetch reservations with guest details via join
-    const { data: reservations, error: reservationsError } = await supabase
+    const { data: reservations, error } = await adminClient
       .from('reservations')
-      .select(`
-        *,
-        guests(first_name, last_name, email, phone)
-      `)
-      .in('property_listing_id', listingIds)
+      .select('id, check_in, check_out, reservation_status, number_of_guests, guest_name, first_name, last_name, total_price, currency')
+      .eq('organization_id', auth.organizationId)
+      .eq('property_id', propertyId)
+      .is('deleted_at', null)
+      .in('reservation_status', ['confirmed', 'pending'])
       .order('check_in', { ascending: true })
 
-    console.log('[GET /reservations] Reservations query:', {
-      count: reservations?.length,
-      listingIdsUsed: listingIds,
-      error: {
-        message: reservationsError?.message,
-        code: reservationsError?.code,
-        details: reservationsError?.details,
-        hint: reservationsError?.hint
-      }
-    })
+    if (error) return NextResponse.json({ success: false, data: [], error: error.message }, { status: 500 })
 
-    // Check if there are MORE reservations NOT in our listing IDs
-    const { data: allReservations } = await supabase
-      .from('reservations')
-      .select('id, property_listing_id, guest_name, check_in, check_out')
-      .limit(100)
-
-    const allReservationsByListing = allReservations?.reduce((acc: any, res: any) => {
-      if (!acc[res.property_listing_id]) acc[res.property_listing_id] = 0
-      acc[res.property_listing_id]++
-      return acc
-    }, {}) || {}
-
-    console.log('[GET /reservations] DEBUG - All reservations by listing_id:', allReservationsByListing)
-    console.log('[GET /reservations] DEBUG - Expected listing IDs:', listingIds)
-    console.log('[GET /reservations] DEBUG - Are listing IDs in allReservationsByListing?',
-      listingIds.map(id => ({ id, hasReservations: id in allReservationsByListing }))
-    )
-
-    if (reservations && reservations.length > 0) {
-      console.log('[GET /reservations] Sample reservations (first 3):',
-        JSON.stringify(reservations.slice(0, 3), null, 2)
-      )
-    }
-
-    if (reservationsError) {
-      console.error('[GET /reservations] Reservations fetch error (FULL):', {
-        message: reservationsError.message,
-        code: reservationsError.code,
-        details: reservationsError.details,
-        hint: reservationsError.hint,
-        listingIds: listingIds
-      })
-      console.error('[GET /reservations] Full error object:', reservationsError)
-
-      // Return 503 if there's a query issue, but provide data
-      return NextResponse.json(
-        {
-          success: false,
-          data: [],
-          error: 'Failed to fetch reservations',
-          message: reservationsError.message,
-          code: reservationsError.code
-        },
-        { status: 200 }  // Return 200 with empty data instead of 500
-      )
-    }
-
-    console.log('[GET /reservations] SUCCESS')
     return NextResponse.json({
       success: true,
-      data: reservations || [],
+      data: (reservations ?? []).map((reservation) => {
+        const guestName = reservation.guest_name || [reservation.first_name, reservation.last_name].filter(Boolean).join(' ') || 'Hóspede'
+        const nights = Math.max(1, Math.round((new Date(reservation.check_out).getTime() - new Date(reservation.check_in).getTime()) / 86_400_000))
+        return {
+          id: reservation.id,
+          guest_name: guestName,
+          guest_count: reservation.number_of_guests,
+          start_date: reservation.check_in,
+          end_date: reservation.check_out,
+          total_amount: reservation.total_price,
+          price_per_night: Number(reservation.total_price || 0) / nights,
+          currency: reservation.currency || 'EUR',
+          status: reservation.reservation_status || 'pending',
+        }
+      }),
     })
   } catch (error) {
-    console.error('[GET /reservations] EXCEPTION:', error)
     return NextResponse.json(
       { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }

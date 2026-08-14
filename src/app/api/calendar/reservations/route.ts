@@ -1,137 +1,94 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { requireRole } from '@/lib/auth/requireRole'
 import { getUserPropertyIds } from '@/lib/auth/getUserProperties'
+import { createClient } from '@/lib/supabase/server'
 
-/** Deterministic colour from property ID (HSL) */
 function propertyColor(propertyId: string): string {
   let hash = 0
-  for (let i = 0; i < propertyId.length; i++) {
-    hash = (hash * 31 + propertyId.charCodeAt(i)) >>> 0
+  for (let index = 0; index < propertyId.length; index++) {
+    hash = (hash * 31 + propertyId.charCodeAt(index)) >>> 0
   }
-  const hue = hash % 360
-  return `hsl(${hue}, 60%, 45%)`
+  return `hsl(${hash % 360}, 60%, 45%)`
 }
 
 export async function GET(request: NextRequest) {
   try {
-    const auth = await requireRole(['admin', 'gestor', 'viewer'])
-    if (!auth.authorized) return auth.response!
+    const auth = await requireRole(['admin', 'manager', 'gestor', 'owner', 'viewer'])
+    if (!auth.authorized) return auth.response
+    if (!auth.organizationId) {
+      return NextResponse.json({ error: 'Organização não encontrada' }, { status: 403 })
+    }
 
-    const { searchParams } = new URL(request.url)
-    const from = searchParams.get('from')
-    const to = searchParams.get('to')
+    const sessionClient = await createClient()
+    const allowedPropertyIds = await getUserPropertyIds(sessionClient)
+    if (allowedPropertyIds?.length === 0) return NextResponse.json([])
+
+    const { searchParams } = request.nextUrl
     const propertyId = searchParams.get('property_id')
+    if (propertyId && allowedPropertyIds !== null && !allowedPropertyIds.includes(propertyId)) {
+      return NextResponse.json({ error: 'Permissão insuficiente' }, { status: 403 })
+    }
 
-    // Default: 3 months back to 3 months forward (UTC-based date math)
     const now = new Date()
-    const fromDate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 3, now.getUTCDate()))
-    const toDate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 3, now.getUTCDate()))
-    const defaultFrom = fromDate.toISOString().slice(0, 10)
-    const defaultTo = toDate.toISOString().slice(0, 10)
+    const defaultFrom = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 3, now.getUTCDate())).toISOString().slice(0, 10)
+    const defaultTo = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 3, now.getUTCDate())).toISOString().slice(0, 10)
+    const rangeFrom = searchParams.get('from') ?? defaultFrom
+    const rangeTo = searchParams.get('to') ?? defaultTo
+    const adminClient = createAdminClient()
 
-    const supabase = await createClient()
-
-    // Resolve which property listings the user can see
-    const allowedPropertyIds = await getUserPropertyIds(supabase)
-
-    // Use proper date range overlap logic:
-    // A reservation overlaps [from, to] if: check_in < to AND check_out > from
-    const rangeFrom = from ?? defaultFrom
-    const rangeTo = to ?? defaultTo
-
-    let query = supabase
+    let query = adminClient
       .from('reservations')
-      .select(`
-        id,
-        check_in,
-        check_out,
-        status,
-        number_of_guests,
-        guest_name,
-        total_amount,
-        currency,
-        property_listing_id,
-        guests ( first_name, last_name ),
-        property_listings!inner (
-          property_id,
-          properties ( id, name )
-        )
-      `)
-      .in('status', ['confirmed', 'pending'])
+      .select('id, property_id, check_in, check_out, reservation_status, number_of_guests, guest_name, first_name, last_name, total_price, currency')
+      .eq('organization_id', auth.organizationId)
+      .is('deleted_at', null)
+      .in('reservation_status', ['confirmed', 'pending'])
       .lt('check_in', rangeTo)
       .gt('check_out', rangeFrom)
 
-    if (propertyId) {
-      query = query.eq('property_listings.property_id', propertyId)
-    }
+    if (propertyId) query = query.eq('property_id', propertyId)
+    else if (allowedPropertyIds !== null) query = query.in('property_id', allowedPropertyIds)
 
     const { data: reservations, error } = await query
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 })
-    }
+    const propertyIds = [...new Set((reservations ?? []).map((reservation) => reservation.property_id).filter(Boolean))]
+    const { data: properties, error: propertiesError } = propertyIds.length > 0
+      ? await adminClient.from('properties').select('id, name').in('id', propertyIds)
+      : { data: [], error: null }
+    if (propertiesError) return NextResponse.json({ error: propertiesError.message }, { status: 500 })
 
-    type Guest = { first_name: string | null; last_name: string | null } | null
-    type PropertyListing = {
-      property_id: string
-      properties: { id: string; name: string } | null
-    } | null
+    const propertyNames = new Map((properties ?? []).map((property) => [property.id, property.name]))
+    const events = (reservations ?? []).map((reservation) => {
+      const guestName = reservation.guest_name || [reservation.first_name, reservation.last_name].filter(Boolean).join(' ') || 'Hóspede'
+      const status = reservation.reservation_status || 'pending'
+      const color = status === 'pending' ? '#d97706' : propertyColor(reservation.property_id)
 
-    const events = (reservations ?? [])
-      .filter(r => {
-        const pl = r.property_listings as unknown as PropertyListing
-        if (!pl) return false
-        if (allowedPropertyIds !== null && !allowedPropertyIds.includes(pl.property_id)) return false
-        return true
-      })
-      .map(r => {
-        const pl = r.property_listings as unknown as PropertyListing
-        const guest = r.guests as unknown as Guest
-        const property = pl?.properties
-        const guestName = [guest?.first_name, guest?.last_name].filter(Boolean).join(' ') || (r.guest_name as string) || 'Hóspede'
-        const propName = property?.name || '—'
-        const propId = pl?.property_id ?? ''
-
-        // Pending reservations use a muted amber — confirmed use property colour
-        const color = r.status === 'pending' ? '#d97706' : propertyColor(propId)
-        const opacity = r.status === 'pending' ? 0.65 : 1
-
-        // FullCalendar: end date is exclusive, so add 1 day to make the checkout date visible in calendar
-        // Parse check_out as UTC date, add 1 day, return ISO string without timezone assumptions
-        const [year, month, day] = r.check_out.split('-').map(Number)
-        const end = new Date(Date.UTC(year, month - 1, day + 1)).toISOString().slice(0, 10)
-
-        return {
-          id: r.id,
-          title: `${guestName} — ${propName}`,
-          start: r.check_in,
-          end,
-          color,
-          textColor: '#ffffff',
-          borderColor: r.status === 'pending' ? '#92400e' : color,
-          extendedProps: {
-            type: 'reservation',
-            guest_name: guestName,
-            property_name: propName,
-            property_id: propId,
-            status: r.status,
-            number_of_guests: r.number_of_guests,
-            total_amount: r.total_amount,
-            currency: r.currency || 'EUR',
-            opacity,
-            // DEBUG: Include raw DB dates for Vania investigation
-            ...(guestName.toLowerCase().includes('vania') && {
-              _debug_check_in_raw: r.check_in,
-              _debug_check_out_raw: r.check_out,
-            }),
-          },
-        }
-      })
+      return {
+        id: reservation.id,
+        title: `${guestName} — ${propertyNames.get(reservation.property_id) || '—'}`,
+        start: reservation.check_in,
+        end: reservation.check_out,
+        color,
+        textColor: '#ffffff',
+        borderColor: status === 'pending' ? '#92400e' : color,
+        extendedProps: {
+          type: 'reservation',
+          guest_name: guestName,
+          property_name: propertyNames.get(reservation.property_id) || '—',
+          property_id: reservation.property_id,
+          status,
+          number_of_guests: reservation.number_of_guests,
+          total_amount: reservation.total_price,
+          currency: reservation.currency || 'EUR',
+          opacity: status === 'pending' ? 0.65 : 1,
+        },
+      }
+    })
 
     return NextResponse.json(events)
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err)
-    return NextResponse.json({ error: msg }, { status: 500 })
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }
