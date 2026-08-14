@@ -9,6 +9,7 @@ const PUBLIC_PATHS = [
   '/robots.txt', '/privacy', '/terms', '/politica-de-privacidade', '/p/',
   '/properties', '/api/properties', '/api/public/', '/monitoring',
   '/landing', '/landing-vp', '/booking',
+  '/cleaner', // Portal próprio: usa cleaner_session e não depende de subscrição SaaS
   '/checkout',   // Stripe success/cancel pages — always public
   '/forgot-password', '/reset-password', '/onboarding',
   '/features', '/pricing', '/docs', '/blog',  // Public marketing pages
@@ -35,9 +36,13 @@ export async function checkPasswordReset(
 ): Promise<NextResponse | null> {
   const { data: profile } = await supabase
     .from('user_profiles')
-    .select('password_reset_required')
+    .select('password_reset_required, guest_type')
     .eq('id', userId)
     .single()
+
+  // Cleaners authenticate through a short-lived access link in the dedicated
+  // portal. A stale Supabase session must not force them into the SaaS password flow.
+  if (profile?.guest_type === 'cleaner') return null
 
   if (profile?.password_reset_required) {
     return NextResponse.redirect(new URL('/auth/change-password', request.url))
@@ -82,6 +87,13 @@ export async function checkSubscriptionAndRole(
   }
 
   if (!orgId) return null
+
+  // Cleaner accounts are internal collaborators, not SaaS subscribers. A normal
+  // Supabase session can exist after account provisioning, but access to the cleaner
+  // portal still requires its dedicated token/session flow.
+  if (userRole === 'guest' && guestType === 'cleaner') {
+    return NextResponse.redirect(new URL('/cleaner/request-link', request.url))
+  }
 
   // Check onboarding (has at least one property)
   const { count: propertyCount } = await supabase
