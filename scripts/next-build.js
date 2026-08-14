@@ -1,26 +1,24 @@
 #!/usr/bin/env node
 'use strict'
 
-// Build with Turbopack locally, or Webpack on Vercel, then generate middleware.js.nft.json
+// Build with Turbopack (Next.js 16 default) then generate middleware.js.nft.json
 //
 // Problem: Turbopack compiles middleware as edge chunks and does NOT generate
 // middleware.js.nft.json, which Vercel CLI 51+ requires during build finalization.
 // Webpack would generate this file, but it causes OOM on large projects.
 //
-// Solution: Use Turbopack locally (fast, low memory), but fall back to Webpack on
-// Vercel where the platform Turbopack version can lag behind Next.js. Generate
-// .nft.json manually only when the selected bundler does not create it.
+// Solution: Use Turbopack (fast, low memory) + create .nft.json manually after build.
+// This gives us the best of both worlds: fast builds + Vercel compatibility.
 
 const fs = require('fs')
 const path = require('path')
 const { execSync } = require('child_process')
 
-// Vercel's builder may use an older CLI/Turbopack than the app's Next.js release.
+// Run Next.js build with Turbopack
 const nextBin = require.resolve('next/dist/bin/next')
-const useWebpack = process.env.VERCEL === '1'
-const buildCmd = `"${process.execPath}" "${nextBin}" build${useWebpack ? ' --webpack' : ''}`
+const buildCmd = `"${process.execPath}" "${nextBin}" build`
 
-console.log(`Running Next.js build with ${useWebpack ? 'Webpack' : 'Turbopack'}...`)
+console.log('Running Next.js build with Turbopack...')
 execSync(buildCmd, { stdio: 'inherit' })
 
 // After build completes, generate middleware.js.nft.json for Vercel compatibility

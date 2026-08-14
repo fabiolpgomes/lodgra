@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Poppins, Inter, Hanken_Grotesk } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import "@/styles/tokens.css";
 import { ThemeProvider } from "next-themes";
@@ -9,25 +9,31 @@ import { GoogleAnalytics } from "@/components/features/analytics/GoogleAnalytics
 import { ServiceWorkerRegister } from "@/components/common/pwa/ServiceWorkerRegister";
 import { generateWebsiteJsonLd } from "@/lib/seo/jsonld";
 
-const poppins = Poppins({
+const poppins = localFont({
+  src: "./fonts/poppins-bold-latin.woff2",
   variable: "--font-poppins",
-  subsets: ["latin"],
-  weight: ["700"],
+  weight: "700",
+  style: "normal",
   display: "swap",
+  fallback: ["Arial", "sans-serif"],
 });
 
-const inter = Inter({
+const inter = localFont({
+  src: "./fonts/inter-latin.woff2",
   variable: "--font-inter",
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: "100 900",
+  style: "normal",
   display: "swap",
+  fallback: ["Arial", "sans-serif"],
 });
 
-const hankenGrotesk = Hanken_Grotesk({
+const hankenGrotesk = localFont({
+  src: "./fonts/hanken-grotesk-latin.woff2",
   variable: "--font-hanken-grotesk",
-  subsets: ["latin"],
-  weight: ["300", "400", "700", "800", "900"],
+  weight: "300 900",
+  style: "normal",
   display: "swap",
+  fallback: ["Arial", "sans-serif"],
 });
 
 export const viewport: Viewport = {
@@ -89,7 +95,7 @@ export default async function RootLayout({
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <head>
-        {/* next/font self-hosta Geist — não precisa de preconnect para Google Fonts */}
+        {/* next/font/local serve fontes versionadas sem dependências externas */}
         {/* Preconnect para Stripe (checkout na landing) — reduz latência em 50-200ms */}
         <link rel="preconnect" href="https://js.stripe.com" />
         <link rel="dns-prefetch" href="https://api.stripe.com" />
