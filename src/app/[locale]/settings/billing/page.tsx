@@ -16,18 +16,33 @@ export default async function BillingPage() {
   const supabase = createAdminClient()
 
   // Fetch organization subscription data
-  const { data: organization } = await supabase
-    .from('organizations')
-    .select('id, name, subscription_plan, subscription_status')
-    .eq('id', auth.organizationId)
-    .single()
+  let organization
+
+  if (auth.organizationId) {
+    // User has organization_id in profile - fetch that organization
+    const { data } = await supabase
+      .from('organizations')
+      .select('id, name, subscription_plan, subscription_status')
+      .eq('id', auth.organizationId)
+      .single()
+    organization = data
+  } else {
+    // Admin without organization_id - fetch first organization (fallback)
+    const { data } = await supabase
+      .from('organizations')
+      .select('id, name, subscription_plan, subscription_status')
+      .limit(1)
+      .maybeSingle()
+    organization = data
+  }
 
   if (!organization) {
     return (
       <AuthLayout>
         <PremiumPageShell maxWidth="max-w-4xl">
           <div className="text-center py-12">
-            <p className="text-brand-text-medium">Organização não encontrada</p>
+            <p className="text-brand-text-medium">Nenhuma organização configurada</p>
+            <p className="text-sm text-gray-500 mt-2">Entre em contacto com o suporte para configurar sua organização</p>
           </div>
         </PremiumPageShell>
       </AuthLayout>
