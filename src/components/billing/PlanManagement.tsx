@@ -68,8 +68,8 @@ export function PlanManagement({ currentPlan, subscriptionStatus }: PlanManageme
     }
   }
 
-  const planOrder: Plan[] = ['essencial', 'expansao', 'premium']
-  const currentIndex = planOrder.indexOf(currentPlan)
+  // Find current plan index in PLAN_DISPLAY (not planOrder)
+  const currentDisplayIndex = PLAN_DISPLAY.findIndex(p => p.id === currentPlan)
 
   return (
     <div className="space-y-4">
@@ -96,8 +96,8 @@ export function PlanManagement({ currentPlan, subscriptionStatus }: PlanManageme
         {PLAN_DISPLAY.map((plan, idx) => {
           const planKey = plan.id as Plan
           const isCurrent = planKey === currentPlan
-          const isUpgrade = idx > currentIndex
-          const isDowngrade = idx < currentIndex
+          const isUpgrade = idx > currentDisplayIndex
+          const isDowngrade = idx < currentDisplayIndex
           const isLoading = upgrading === planKey
 
           return (
