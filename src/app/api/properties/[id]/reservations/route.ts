@@ -48,7 +48,12 @@ export async function GET(
       success: true,
       data: (reservations ?? []).map((reservation) => {
         const guestName = reservation.guest_name || [reservation.first_name, reservation.last_name].filter(Boolean).join(' ') || 'Hóspede'
-        const nights = Math.max(1, Math.round((new Date(reservation.check_out).getTime() - new Date(reservation.check_in).getTime()) / 86_400_000))
+        const checkInMs = new Date(reservation.check_in).getTime()
+        const checkOutMs = new Date(reservation.check_out).getTime()
+        const spanNights = Number.isFinite(checkInMs) && Number.isFinite(checkOutMs)
+          ? Math.round((checkOutMs - checkInMs) / 86_400_000)
+          : 1
+        const nights = Math.max(1, spanNights)
         return {
           id: reservation.id,
           guest_name: guestName,
