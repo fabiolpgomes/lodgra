@@ -38,7 +38,7 @@ export const PLAN_INFO = {
   premium: {
     monthlyPrice: 397,
     commissionRate: 0.1,
-    maxProperties: 10,
+    maxProperties: -1, // unlimited
   },
   enterprise: {
     monthlyPrice: 0,

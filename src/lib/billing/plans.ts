@@ -13,7 +13,7 @@ export const PLAN_LIMITS: Record<Plan, PlanLimits> = {
   // Brasil strategy (2026) — pricing with property limits & extras
   essencial:    { maxProperties: 1,  maxAllowed: null, extraPropertyPrice: 49, maxUsers: 1, ownerReports: false, fiscalCompliance: false },
   expansao:     { maxProperties: 3,  maxAllowed: null, extraPropertyPrice: 49, maxUsers: 5, ownerReports: true,  fiscalCompliance: true  },
-  premium:      { maxProperties: 10, maxAllowed: null, extraPropertyPrice: 49, maxUsers: 10, ownerReports: true,  fiscalCompliance: true  },
+  premium:      { maxProperties: null, maxAllowed: null, extraPropertyPrice: 0, maxUsers: 10, ownerReports: true,  fiscalCompliance: true  },
   enterprise:   { maxProperties: null, maxAllowed: null, extraPropertyPrice: 0, maxUsers: null, ownerReports: true,  fiscalCompliance: true  },
   // Development/Testing labs
   development:  { maxProperties: 99, maxAllowed: null, extraPropertyPrice: 0, maxUsers: null, ownerReports: true,  fiscalCompliance: true  },
@@ -91,8 +91,8 @@ export const PLAN_DISPLAY: PlanDisplay[] = [
   },
   {
     id: 'premium', name: 'Premium', highlighted: false, enterprise: false,
-    price: 397, description: 'Automatize operação e receita. Inteligência para grandes portfólios.', properties: '10 unidades incluídas (+R$49 por unidade extra)',
-    features: ['Tudo do Expansão', 'API Completa', 'Forecast & BI Avançado', 'Gerente Dedicado', 'Unidades extras sob demanda'],
+    price: 397, description: 'Automatize operação e receita. Inteligência para grandes portfólios.', properties: 'Propriedades ilimitadas',
+    features: ['Tudo do Expansão', 'API Completa', 'Forecast & BI Avançado', 'Gerente Dedicado', 'Propriedades ilimitadas'],
   },
   {
     id: 'enterprise', name: 'Enterprise', highlighted: false, enterprise: true,

@@ -30,11 +30,11 @@ describe('Billing Plans System', () => {
         expect(limits.extraPropertyPrice).toBe(49)
       })
 
-      test('Premium: 10 included, unlimited with extras', () => {
+      test('Premium: unlimited properties included', () => {
         const limits = PLAN_LIMITS.premium
-        expect(limits.maxProperties).toBe(10)
+        expect(limits.maxProperties).toBeNull()
         expect(limits.maxAllowed).toBeNull()
-        expect(limits.extraPropertyPrice).toBe(49)
+        expect(limits.extraPropertyPrice).toBe(0)
       })
 
       test('Enterprise: unlimited included, unlimited with extras', () => {
@@ -81,13 +81,13 @@ describe('Billing Plans System', () => {
     })
 
     describe('Extra property pricing consistency', () => {
-      test('all non-enterprise plans charge R$49 per extra property', () => {
+      test('essencial and expansao charge R$49 per extra property', () => {
         expect(PLAN_LIMITS.essencial.extraPropertyPrice).toBe(49)
         expect(PLAN_LIMITS.expansao.extraPropertyPrice).toBe(49)
-        expect(PLAN_LIMITS.premium.extraPropertyPrice).toBe(49)
       })
 
-      test('enterprise includes unlimited extras (0 cost)', () => {
+      test('premium and enterprise include unlimited properties (0 cost)', () => {
+        expect(PLAN_LIMITS.premium.extraPropertyPrice).toBe(0)
         expect(PLAN_LIMITS.enterprise.extraPropertyPrice).toBe(0)
       })
     })
@@ -148,14 +148,14 @@ describe('Billing Plans System', () => {
         expect(plan.price).toBe(397)
       })
 
-      test('should mention 10 included properties + extras', () => {
-        expect(plan.properties).toContain('10')
-        expect(plan.properties).toContain('+R$49')
+      test('should mention unlimited properties', () => {
+        expect(plan.properties).toContain('ilimitadas')
       })
 
       test('should list premium features', () => {
         expect(plan.features.some((f) => f.includes('API'))).toBe(true)
         expect(plan.features.some((f) => f.includes('BI'))).toBe(true)
+        expect(plan.features.some((f) => f.includes('ilimitadas'))).toBe(true)
       })
     })
 
