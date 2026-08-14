@@ -45,6 +45,8 @@ let fetchQueue: FetchQueue;
 describe('AnalyticsSettingsClient', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    jest.spyOn(window, 'alert').mockImplementation(() => undefined);
+    jest.spyOn(window, 'confirm').mockReturnValue(true);
     fetchQueue = new FetchQueue();
 
     // Set default handler for initial config fetch
@@ -135,7 +137,9 @@ describe('AnalyticsSettingsClient', () => {
 
       const { container } = render(<AnalyticsSettingsClient />);
 
-      // Just verify the component renders without error
+      await waitFor(() => {
+        expect(screen.getByText('Connected ✓')).toBeInTheDocument();
+      });
       expect(container).toBeTruthy();
       expect(mockFetch).toBeDefined();
     });
@@ -185,7 +189,9 @@ describe('AnalyticsSettingsClient', () => {
 
       const { container } = render(<AnalyticsSettingsClient />);
 
-      // Just verify the component renders without error
+      await waitFor(() => {
+        expect(screen.getByText('Connected ✓')).toBeInTheDocument();
+      });
       expect(container).toBeTruthy();
       expect(mockFetch).toBeDefined();
     });
@@ -232,7 +238,7 @@ describe('AnalyticsSettingsClient', () => {
       fireEvent.click(testButton);
 
       await waitFor(() => {
-        expect(mockFetch).toHaveBeenCalled();
+        expect(window.alert).toHaveBeenCalledWith(expect.stringContaining('test-123'));
       });
     });
 
@@ -257,7 +263,7 @@ describe('AnalyticsSettingsClient', () => {
 
       // Verify fetch was called for disconnect
       await waitFor(() => {
-        expect(mockFetch).toHaveBeenCalled();
+        expect(screen.getByPlaceholderText('G-XXXXXXXXXX')).toBeInTheDocument();
       });
     });
 
@@ -283,7 +289,7 @@ describe('AnalyticsSettingsClient', () => {
 
       // Verify fetch was called
       await waitFor(() => {
-        expect(mockFetch).toHaveBeenCalled();
+        expect(screen.getByText('GA settings cleared.')).toBeInTheDocument();
       });
     });
   });
