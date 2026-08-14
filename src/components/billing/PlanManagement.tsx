@@ -117,13 +117,13 @@ export function PlanManagement({ currentPlan, subscriptionStatus }: PlanManageme
                 <p className="text-xs text-gray-500">{plan.properties}</p>
               </div>
 
-              <div className="flex items-center gap-3 ml-4">
-                <p className="text-sm font-bold text-gray-900">€{plan.price}<span className="text-xs font-normal text-gray-500">/mês</span></p>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-end gap-3 ml-4 flex-shrink-0">
+                <p className="text-sm font-bold text-gray-900 whitespace-nowrap">€{plan.price}<span className="text-xs font-normal text-gray-500">/mês</span></p>
                 {!isCurrent && (
                   <button
                     onClick={() => handleUpgrade(planKey)}
                     disabled={!!upgrading || !!success}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
                       isUpgrade
                         ? 'bg-brand-600 hover:bg-brand-700 text-white'
                         : 'bg-gray-100 hover:bg-neutral-200 text-gray-700'
