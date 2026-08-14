@@ -13,6 +13,7 @@ import { Button } from '@/components/common/ui/button'
 import { Input } from '@/components/common/ui/input'
 import { Label } from '@/components/common/ui/label'
 import { toast } from 'sonner'
+import { CalendarDays, Euro } from 'lucide-react'
 
 interface DateRange {
   start: Date
@@ -80,16 +81,30 @@ export function CalendarDayClickModal({
         (1000 * 60 * 60 * 24)
     ) || 1
 
+  const parsedPrice = Number(price.replace(',', '.'))
+  const isPriceValid = Number.isFinite(parsedPrice) && parsedPrice > 0
+  const totalPrice = isPriceValid ? parsedPrice * nights : 0
+  const currencyFormatter = new Intl.NumberFormat('pt-PT', {
+    style: 'currency',
+    currency: 'EUR',
+  })
+
+  const handleClose = () => {
+    setPrice('')
+    setBlockReason('')
+    setAction(null)
+    onClose()
+  }
+
   const handleSavePrice = async () => {
     try {
-      const priceVal = parseFloat(price)
-      if (isNaN(priceVal) || priceVal <= 0) {
+      if (!isPriceValid) {
         toast.error('Preço deve ser maior que 0')
         return
       }
 
       setSaving(true)
-      await onSavePrice?.(priceVal)
+      await onSavePrice?.(parsedPrice)
       toast.success('Preço salvo')
       setPrice('')
       setAction(null)
@@ -135,8 +150,10 @@ export function CalendarDayClickModal({
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-lg w-full mx-auto">
+    <Dialog open={isOpen} onOpenChange={(open) => { if (!open) handleClose() }}>
+      <DialogContent className={action === 'price'
+        ? 'w-[calc(100%_-_2rem)] max-w-lg overflow-hidden rounded-3xl border-[#E5E7EB] p-0 shadow-2xl'
+        : 'mx-auto w-full max-w-lg'}>
         {/* Action Selection View */}
         {action === null && (
           <>
@@ -246,68 +263,85 @@ export function CalendarDayClickModal({
 
         {/* Price Setting View */}
         {action === 'price' && (
-          <>
-            <DialogHeader>
-              <DialogTitle>Definir Preço</DialogTitle>
-              <DialogDescription>
-                {isSingleDay
-                  ? `${formatDate(dates)}`
-                  : `${formatDate(dateRange.start)} → ${formatDate(dateRange.end)}`}
-              </DialogDescription>
-            </DialogHeader>
+          <form onSubmit={(event) => { event.preventDefault(); void handleSavePrice() }}>
+            <div className="border-b border-[#E5E7EB] px-6 pb-5 pt-6 sm:px-8">
+              <DialogHeader className="gap-2 text-left">
+                <DialogTitle className="text-2xl font-semibold tracking-tight text-[#1B2430]">
+                  Definir preço por noite
+                </DialogTitle>
+                <DialogDescription className="flex flex-wrap items-center gap-2 text-sm text-[#5E6878]">
+                  <CalendarDays className="h-4 w-4 shrink-0" aria-hidden="true" />
+                  <span>
+                    {isSingleDay
+                      ? formatDate(dates)
+                      : `${formatDate(dateRange.start)} → ${formatDate(dateRange.end)}`}
+                  </span>
+                  {!isSingleDay && (
+                    <span className="rounded-full bg-[#EEF2F7] px-2 py-0.5 text-xs font-semibold text-[#10203E]">
+                      {nights} {nights === 1 ? 'noite' : 'noites'}
+                    </span>
+                  )}
+                </DialogDescription>
+              </DialogHeader>
+            </div>
 
-            <div className="space-y-4 py-4">
-              <div>
-                <Label htmlFor="price" className="text-sm mb-2 block">
-                  Preço por Noite
+            <div className="space-y-5 px-6 py-6 sm:px-8">
+              <div className="space-y-2">
+                <Label htmlFor="price" className="block text-sm font-semibold text-[#1B2430]">
+                  Preço por noite
                 </Label>
-                <div className="relative flex items-center">
-                  <span className="absolute left-4 text-lg font-semibold pointer-events-none" style={{ color: '#4D5566' }}>
-                    €
+                <div className="flex h-14 items-center overflow-hidden rounded-xl border border-[#B8C0CC] bg-white shadow-sm transition focus-within:border-[#10203E] focus-within:ring-2 focus-within:ring-[#10203E]/15">
+                  <span className="flex h-full w-14 shrink-0 items-center justify-center border-r border-[#E5E7EB] bg-[#F7F8FA] text-[#4D5566]" aria-hidden="true">
+                    <Euro className="h-5 w-5" />
                   </span>
                   <Input
                     id="price"
-                    type="number"
+                    type="text"
+                    inputMode="decimal"
                     value={price}
-                    onChange={(e) => setPrice(e.target.value)}
-                    placeholder="0.00"
-                    min="0"
-                    step="0.01"
-                    className="h-12 pl-12 text-base font-semibold"
+                    onChange={(event) => setPrice(event.target.value.replace(/[^0-9.,]/g, ''))}
+                    placeholder="0,00"
+                    aria-describedby={isSingleDay ? 'price-help' : 'price-help price-summary'}
+                    className="h-full flex-1 rounded-none border-0 bg-transparent px-4 text-xl font-semibold text-[#1B2430] shadow-none focus-visible:ring-0"
+                    autoComplete="off"
                     autoFocus
                   />
                 </div>
+                <p id="price-help" className="text-xs text-[#697386]">
+                  Este valor será aplicado a cada noite selecionada.
+                </p>
               </div>
 
-              {!isSingleDay && nights > 1 && (
-                <div className="p-3 rounded-lg" style={{ backgroundColor: '#F7F5EF' }}>
-                  <p className="text-sm font-medium" style={{ color: '#1B2430' }}>Cálculo</p>
-                  <p className="text-xs mt-1" style={{ color: '#4D5566' }}>
-                    €{price || '0'} × {nights} noites = €
-                    {price ? (parseFloat(price) * nights).toFixed(2) : '0.00'}
-                  </p>
+              {!isSingleDay && (
+                <div id="price-summary" className="rounded-xl border border-[#E5E7EB] bg-[#F7F8FA] p-4" aria-live="polite">
+                  <div className="flex items-center justify-between gap-4 text-sm text-[#5E6878]">
+                    <span>{currencyFormatter.format(isPriceValid ? parsedPrice : 0)} × {nights} noites</span>
+                    <span className="text-base font-semibold text-[#1B2430]">{currencyFormatter.format(totalPrice)}</span>
+                  </div>
+                  <p className="mt-1 text-xs text-[#697386]">Estimativa total do período</p>
                 </div>
               )}
             </div>
 
-            <DialogFooter className="flex gap-2 sm:gap-3">
+            <DialogFooter className="grid grid-cols-2 gap-3 border-t border-[#E5E7EB] bg-white px-6 py-5 sm:px-8">
               <Button
                 onClick={() => setAction(null)}
                 variant="outline"
-                className="flex-1 h-12"
+                type="button"
+                className="h-12 rounded-xl border-[#CDD3DB] text-base font-semibold"
                 disabled={saving}
               >
                 Voltar
               </Button>
               <Button
-                onClick={handleSavePrice}
-                disabled={saving || !price}
-                className="flex-1 h-12 text-base font-semibold"
+                type="submit"
+                disabled={saving || !isPriceValid}
+                className="h-12 rounded-xl bg-[#10203E] text-base font-semibold text-white hover:bg-[#1B3155] disabled:bg-[#D8DDE5]"
               >
                 {saving ? 'Salvando...' : 'Salvar Preço'}
               </Button>
             </DialogFooter>
-          </>
+          </form>
         )}
 
         {/* Block Dates View */}
