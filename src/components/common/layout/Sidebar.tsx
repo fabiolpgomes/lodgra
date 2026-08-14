@@ -20,6 +20,7 @@ import {
   LogOut,
   Globe,
   ChevronDown,
+  CreditCard,
 } from 'lucide-react'
 import { Logo } from '@/components/common/ui/Logo'
 import { useAuth } from '@/hooks/useAuth'
@@ -53,6 +54,7 @@ const REPORTS_MODULES = [
 
 const CONFIG_PATHS = [
   { path: '/owners', label: 'Proprietários', icon: Users },
+  { path: '/settings/billing', label: 'Planos & Faturamento', icon: CreditCard },
   { path: '/sync', label: 'Sincronização', icon: RefreshCw },
   { path: '/settings', label: 'Definições', icon: Settings },
 ]
