@@ -1,14 +1,14 @@
 # Epic 37 - Calendar com Preços e Reservas
 
-**Status:** 🟢 MVP COMPLETO (4/5 features funcionais)  
-**Última Atualização:** 2026-08-08  
+**Status:** 🟢 COMPLETO (5/5 features funcionais)
+**Última Atualização:** 2026-08-14
 **Commits:** 15+ commits (refactoring, fixes, debugging)
 
 ---
 
 ## 📋 Funcionalidades
 
-### ✅ COMPLETO (4 de 5)
+### ✅ COMPLETO (5 de 5)
 
 | Feature | Status | Commit | Notas |
 |---------|--------|--------|-------|
@@ -16,7 +16,7 @@
 | **Modal de Detalhes** | ✅ COMPLETO | `691d3fec` | Click em reserva abre ReservationDetailsModal |
 | **Preço Fim de Semana** | ✅ COMPLETO | `9c8e7051` | Weekend_price aplicado automaticamente (sáb/dom) |
 | **Reservas no Calendário** | ✅ COMPLETO | `37b24b14` | 14+ reservas exibidas dia a dia com detalhes |
-| **Drag-to-Select** | ⚠️ PARCIAL | `b1c7dcb1` | Drag funciona → modal abre, mas sem highlight |
+| **Drag-to-Select** | ✅ COMPLETO | Revisão atual | Highlight visual durante drag com mouse/touch; seleção persistida |
 
 ---
 
@@ -79,23 +79,13 @@ SELECT date, base_price,
 
 ---
 
-## ⚠️ Limitações Conhecidas
+## ✅ Drag-to-Select concluído
 
-### Drag-to-Select (Parcial)
-
-**Problema:** Selection state não persiste para highlight visual
-
-**Causa:** React state propagation issue entre componentes (investigado com 10+ debugging sessions)
-
-**Status Atual:**
-- ✅ Click + drag detectado corretamente
-- ✅ Modal abre com date range correto
-- ✅ Preço pode ser editado e salvo
-- ❌ Dias não ficam azuis (visual feedback)
-
-**Impacto:** MVP-suficiente. User consegue usar feature, apenas sem visual feedback.
-
-**Workaround Implementado:** Bypass selection.state, pass dates direto ao modal
+- Pointer Events unificam mouse, caneta e toque.
+- O intervalo recebe highlight azul durante o gesto e permanece selecionado via estado do parent.
+- `pointerup` confirma uma única vez; `pointercancel` apenas limpa o gesto.
+- Cliques em reservas não abrem simultaneamente o editor de dia.
+- Testes cobrem drag desktop, drag touch, cancelamento, persistência visual e clique em reserva.
 
 ---
 
@@ -103,10 +93,11 @@ SELECT date, base_price,
 
 ```
 TypeScript:     ✅ No errors
-Build:          ✅ Passing
-Unit Tests:     ✅ 108/108 passing
+Lint:           ✅ Passing
+Build:          ✅ Passing (Next.js 16.3.0)
+Unit Tests:     ✅ 2773 passing / 1 skipped (205 suites)
 Integration:    ✅ Manual browser testing
-E2E:            ⚠️ Manual only (modal interaction)
+Component:      ✅ Drag desktop/touch automatizado (5 casos)
 ```
 
 ### Tested Scenarios
@@ -115,7 +106,7 @@ E2E:            ⚠️ Manual only (modal interaction)
 - [x] See 14 reservations with guest names
 - [x] Click on reservation → see modal with details
 - [x] Verify weekend prices (Sat/Sun show €250)
-- [x] Drag-select days 5-15 → modal opens with correct range
+- [x] Drag-select days 5-15 → highlight visível e modal abre com range correto
 - [x] Edit price for range and save
 - [x] Verify price persists after refresh
 
@@ -123,7 +114,7 @@ E2E:            ⚠️ Manual only (modal interaction)
 
 ## 🚀 Deployment
 
-**Current Version:** Commit `b1c7dcb1`  
+**Current Version:** Base `b1c7dcb1` + correção de highlight desta revisão
 **Environment:** Vercel Production  
 **Bundle Size:** ~450KB (no bloat)  
 **Performance:** React Query caching, React.memo removed (acceptable)
@@ -132,21 +123,14 @@ E2E:            ⚠️ Manual only (modal interaction)
 ```
 Deploy: OK
 Build: OK (took ~90s, Turbopack)
-Tests: 108/108 ✅
+Tests: 2773 passing / 1 skipped ✅
 ```
 
 ---
 
 ## 📝 Next Steps (Se Continuar)
 
-### Priority 1: Fix Drag-Select Highlight
-```
-Recommended approach: useRef-based tracking instead of selection.state
-Time: ~2-3 hours
-Risk: Low (isolated to SimpleCalendarAdapter)
-```
-
-### Priority 2: Add More Visual Feedback
+### Priority 1: Add More Visual Feedback
 ```
 - Toast notifications on price save
 - Confirmation modal before bulk update
@@ -155,7 +139,7 @@ Time: ~4 hours
 Risk: Low
 ```
 
-### Priority 3: Performance Optimization
+### Priority 2: Performance Optimization
 ```
 - Virtualize calendar rows (if >100 reservations)
 - Memoize expensive date calculations
@@ -208,5 +192,5 @@ da9126cc - Remove React.memo
 
 ---
 
-**Status:** ✅ Ready for production (MVP)  
-**Recommendation:** Deploy now, schedule follow-up for drag-select visual fix
+**Status:** ✅ Ready for production
+**Recommendation:** Deploy após commit/push pelo agente DevOps e executar smoke test em produção

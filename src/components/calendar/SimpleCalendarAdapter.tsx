@@ -53,7 +53,8 @@ function SimpleCalendarAdapterComponent({
   const [showMonthPicker, setShowMonthPicker] = React.useState(false)
   const [rangeStart, setRangeStart] = React.useState<number | null>(null)
   const [rangeEnd, setRangeEnd] = React.useState<number | null>(null)
-  const [isDragging, setIsDragging] = React.useState(false)
+  const dragRangeRef = React.useRef<{ start: number; end: number } | null>(null)
+  const activePointerIdRef = React.useRef<number | null>(null)
 
   // Generate calendar days for current month
   const getDaysInMonth = (year: number, month: number) => {
@@ -118,64 +119,54 @@ function SimpleCalendarAdapterComponent({
     })
   }
 
-  const handleDayMouseDown = (day: number | null) => {
+  const handleDayPointerDown = (day: number | null, pointerId: number) => {
     if (!day) return
+
+    activePointerIdRef.current = pointerId
+    dragRangeRef.current = { start: day, end: day }
     setRangeStart(day)
     setRangeEnd(day)
-    setIsDragging(true)
-    // Visual feedback: add scale effect
-    const element = document.querySelector(`[data-day="${day}"]`) as HTMLElement
-    if (element) {
-      element.style.transform = 'scale(0.95)'
-    }
   }
 
-  const handleDayMouseEnter = (day: number | null) => {
-    if (!isDragging || !day || rangeStart === null) return
+  const handleDayPointerEnter = (day: number | null) => {
+    if (!dragRangeRef.current || !day) return
+
+    dragRangeRef.current.end = day
     setRangeEnd(day)
-    // Highlight all cells in range with enhanced visual feedback
-    const min = Math.min(rangeStart, day)
-    const max = Math.max(rangeStart, day)
-    for (let i = min; i <= max; i++) {
-      const el = document.querySelector(`[data-day="${i}"]`) as HTMLElement
-      if (el && (i === min || i === max)) {
-        el.style.opacity = '0.8'
-      }
-    }
   }
 
-  const handleMouseUp = () => {
-    if (isDragging && rangeStart !== null && rangeEnd !== null) {
-      const start = Math.min(rangeStart, rangeEnd)
-      const end = Math.max(rangeStart, rangeEnd)
+  const finishRangeSelection = React.useCallback(() => {
+    const dragRange = dragRangeRef.current
+    if (!dragRange) return
 
-      // Visual feedback: highlight selected range with success animation
-      for (let i = start; i <= end; i++) {
-        const el = document.querySelector(`[data-day="${i}"]`) as HTMLElement
-        if (el) {
-          el.style.transform = 'scale(1)'
-          el.style.opacity = '1'
-        }
-      }
+    activePointerIdRef.current = null
+    dragRangeRef.current = null
+    const start = Math.min(dragRange.start, dragRange.end)
+    const end = Math.max(dragRange.start, dragRange.end)
 
-      // If single day click (no drag), call onDayClick
-      if (start === end) {
-        onDayClick?.(start, currentYear, currentMonth)
-      } else {
-        // If range selection, call onRangeSelect
-        onRangeSelect?.(start, end, currentMonth, currentYear)
-      }
-
-      setRangeStart(null)
-      setRangeEnd(null)
+    if (start === end) {
+      onDayClick(start, currentYear, currentMonth)
+    } else {
+      onRangeSelect?.(start, end, currentMonth, currentYear)
     }
-    setIsDragging(false)
-  }
+
+    setRangeStart(null)
+    setRangeEnd(null)
+  }, [currentMonth, currentYear, onDayClick, onRangeSelect])
+
+  const cancelRangeSelection = React.useCallback(() => {
+    activePointerIdRef.current = null
+    dragRangeRef.current = null
+    setRangeStart(null)
+    setRangeEnd(null)
+  }, [])
 
   const handleMonthYearSelect = (date: Date) => {
     setCurrentMonth(date.getMonth())
     setCurrentYear(date.getFullYear())
     setShowMonthPicker(false)
+    activePointerIdRef.current = null
+    dragRangeRef.current = null
     setRangeStart(null)
     setRangeEnd(null)
   }
@@ -186,39 +177,36 @@ function SimpleCalendarAdapterComponent({
     onMonthChange?.(currentMonth, currentYear)
   }, [currentMonth, currentYear, onMonthChange])
 
-  // Add global mouseup listener to ensure drag-to-select works correctly
+  // Finish a drag even when the pointer is released outside the calendar.
   React.useEffect(() => {
-    const handleGlobalMouseUp = () => {
-      if (isDragging && rangeStart !== null && rangeEnd !== null) {
-        const start = Math.min(rangeStart, rangeEnd)
-        const end = Math.max(rangeStart, rangeEnd)
-
-        // Reset visual styles
-        for (let i = start; i <= end; i++) {
-          const el = document.querySelector(`[data-day="${i}"]`) as HTMLElement
-          if (el) {
-            el.style.transform = 'scale(1)'
-            el.style.opacity = '1'
-          }
-        }
-
-        if (start === end) {
-          onDayClick?.(start, currentYear, currentMonth)
-        } else {
-          onRangeSelect?.(start, end, currentMonth, currentYear)
-        }
-
-        setRangeStart(null)
-        setRangeEnd(null)
+    const handlePointerMove = (event: PointerEvent) => {
+      if (
+        !dragRangeRef.current ||
+        activePointerIdRef.current !== event.pointerId
+      ) {
+        return
       }
-      setIsDragging(false)
+
+      const target = document
+        .elementFromPoint(event.clientX, event.clientY)
+        ?.closest<HTMLElement>('[data-day]')
+      const day = Number(target?.dataset.day)
+
+      if (Number.isInteger(day) && day > 0) {
+        dragRangeRef.current.end = day
+        setRangeEnd(day)
+      }
     }
 
-    document.addEventListener('mouseup', handleGlobalMouseUp)
+    document.addEventListener('pointermove', handlePointerMove)
+    document.addEventListener('pointerup', finishRangeSelection)
+    document.addEventListener('pointercancel', cancelRangeSelection)
     return () => {
-      document.removeEventListener('mouseup', handleGlobalMouseUp)
+      document.removeEventListener('pointermove', handlePointerMove)
+      document.removeEventListener('pointerup', finishRangeSelection)
+      document.removeEventListener('pointercancel', cancelRangeSelection)
     }
-  }, [isDragging, rangeStart, rangeEnd, currentYear, currentMonth, onDayClick, onRangeSelect])
+  }, [cancelRangeSelection, finishRangeSelection])
 
   const monthNames = [
     'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
@@ -226,7 +214,7 @@ function SimpleCalendarAdapterComponent({
   ]
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-4" onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp} onTouchEnd={handleMouseUp} style={{ userSelect: 'none' }}>
+    <div className="w-full max-w-4xl mx-auto p-4" style={{ userSelect: 'none', touchAction: 'none' }}>
       <div className="rounded-lg shadow" style={{ backgroundColor: '#FBFAF6' }}>
         {/* Header */}
         <div className="p-4 border-b" style={{ borderColor: '#E5DFD2' }}>
@@ -265,17 +253,8 @@ function SimpleCalendarAdapterComponent({
             {days.map((day, index) => (
               <div
                 key={index}
-                onMouseDown={() => handleDayMouseDown(day)}
-                onMouseEnter={() => handleDayMouseEnter(day)}
-                onTouchStart={() => handleDayMouseDown(day)}
-                onTouchMove={(e) => {
-                  const touch = e.touches[0]
-                  const element = document.elementFromPoint(touch.clientX, touch.clientY) as HTMLElement
-                  if (element?.dataset.day) {
-                    handleDayMouseEnter(parseInt(element.dataset.day))
-                  }
-                }}
-                onTouchEnd={handleMouseUp}
+                onPointerDown={(event) => handleDayPointerDown(day, event.pointerId)}
+                onPointerEnter={() => handleDayPointerEnter(day)}
                 data-day={day}
                 className={`
                   aspect-square flex items-center justify-center rounded text-sm font-medium
@@ -321,6 +300,7 @@ function SimpleCalendarAdapterComponent({
                     ) : getReservationForDay(day) ? (
                       <div
                         className="flex flex-col items-center justify-center gap-0.5 w-full h-full px-0.5 cursor-pointer hover:opacity-75 transition-opacity"
+                        onPointerDown={(event) => event.stopPropagation()}
                         onClick={() => {
                           const res = getReservationForDay(day)
                           if (res) onReservationClick?.(res)
