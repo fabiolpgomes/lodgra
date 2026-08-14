@@ -38,6 +38,15 @@ export function escapeReportHtml(value: string): string {
     .replace(/'/g, '&#39;')
 }
 
+export function truncateReportText(value: string, maxLength: number): string {
+  if (!Number.isSafeInteger(maxLength) || maxLength < 1) {
+    throw new RangeError('maxLength must be a positive integer')
+  }
+  if (value.length <= maxLength) return value
+  if (maxLength === 1) return '…'
+  return `${value.slice(0, maxLength - 1).trimEnd()}…`
+}
+
 export function reservationOverlapsReport(
   checkIn: string,
   checkOut: string,

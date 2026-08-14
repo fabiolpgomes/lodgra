@@ -3,6 +3,7 @@ import {
   fetchAllReportPages,
   mapCanonicalReservationToReport,
   reservationOverlapsReport,
+  truncateReportText,
 } from '../reservationReportData'
 
 describe('fetchAllReportPages', () => {
@@ -24,6 +25,22 @@ describe('escapeReportHtml', () => {
   it('neutraliza markup sem escapar entidades HTML já válidas novamente', () => {
     expect(escapeReportHtml('Ana &amp; João <script>"x" & y</script>'))
       .toBe('Ana &amp; João &lt;script&gt;&quot;x&quot; &amp; y&lt;/script&gt;')
+  })
+})
+
+describe('truncateReportText', () => {
+  it('encurta texto longo com reticências sem exceder o limite', () => {
+    expect(truncateReportText('AHS - Casa do Moinho Refúgio na Natureza', 24))
+      .toBe('AHS - Casa do Moinho Re…')
+  })
+
+  it('preserva texto que já cabe no limite', () => {
+    expect(truncateReportText('Casa Azul', 24)).toBe('Casa Azul')
+  })
+
+  it('rejeita limite inválido', () => {
+    expect(() => truncateReportText('Casa Azul', 0))
+      .toThrow('maxLength must be a positive integer')
   })
 })
 

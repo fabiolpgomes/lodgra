@@ -13,6 +13,7 @@ import { createClient } from '@/lib/supabase/server'
 import {
   escapeReportHtml,
   loadReservationReportData,
+  truncateReportText,
   type ReservationReportRow,
 } from '@/lib/reports/reservationReportData'
 
@@ -128,6 +129,7 @@ function generateHtml(
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"><\/script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
+    @page { size: A4 portrait; margin: 10mm; }
     body { font-family: Arial, sans-serif; background: #f5f5f5; padding: 20px; }
     .toolbar {
       position: fixed;
@@ -155,29 +157,30 @@ function generateHtml(
     .toolbar button.secondary { background: #6b7280; }
     .toolbar button.secondary:hover { background: #4b5563; }
     .content { margin-top: 70px; }
-    .container { max-width: 900px; margin: 0 auto; background: white; padding: 30px; }
+    .container { width: 190mm; max-width: 100%; margin: 0 auto; background: white; }
     h1 { color: #1f2937; border-bottom: 2px solid #3b82f6; padding-bottom: 10px; }
     .info { margin: 20px 0; font-size: 13px; }
     .summary { background: #f0f0f0; padding: 15px; margin: 20px 0; border-radius: 5px; }
     .summary-item { margin: 8px 0; }
-    h2 { background: #3b82f6; color: white; padding: 10px; margin: 20px 0 10px 0; font-size: 16px; }
+    h2 { background: #3b82f6; color: white; padding: 8px; margin: 16px 0 8px 0; font-size: 13px; }
     table { width: 100%; border-collapse: collapse; margin: 15px 0; table-layout: fixed; }
-    th, td { border: 1px solid #ddd; padding: 6px 8px; text-align: left; font-size: 11px; overflow: hidden; }
+    th, td { border: 1px solid #ddd; padding: 4px 3px; text-align: left; font-size: 8px; line-height: 1.2; overflow: hidden; }
     th { background: #f0f0f0; font-weight: bold; }
     tr:nth-child(even) { background: #f9f9f9; }
     .currency { text-align: right; font-weight: bold; color: #059669; }
-    .col-channel { width: 11%; }
+    .col-channel { width: 10%; }
     .col-date { width: 9%; }
     .col-guest { width: 15%; }
-    .col-num { width: 6%; text-align: center; }
-    .col-notes { width: 18%; word-break: break-word; }
-    .col-value { width: 11%; }
+    .col-num { width: 5%; text-align: center; }
+    .col-notes { width: 26%; word-break: break-word; }
+    .col-value { width: 16%; }
+    .col-date, .col-value { white-space: nowrap; }
     .footer { margin-top: 30px; padding-top: 15px; border-top: 1px solid #ddd; font-size: 11px; text-align: center; color: #666; }
     @media print {
       .toolbar { display: none !important; }
       body { background: white; padding: 0; }
       .content { margin-top: 0; }
-      .container { box-shadow: none; }
+      .container { width: auto; max-width: none; box-shadow: none; }
     }
   </style>
 </head>
@@ -212,6 +215,7 @@ function generateHtml(
         .map(([, propReservations]: [string, Reservation[]]) => {
           const propData = propReservations[0]?.property_listings.properties
           const propCurrency = propData?.currency || 'EUR'
+          const propertyName = truncateReportText(propData?.name || 'Propriedade', 52)
 
           // Calculate property totals
           const propertyTotalNights = propReservations.reduce((total, r) => {
@@ -226,7 +230,7 @@ function generateHtml(
           }, 0)
 
           return `
-            <h2>${propData?.name || 'Propriedade'} - ${propData?.city || ''}</h2>
+            <h2>${escapeReportHtml(propertyName)}${propData?.city ? ` - ${escapeReportHtml(propData.city)}` : ''}</h2>
             <table>
               <thead>
                 <tr>
@@ -300,7 +304,7 @@ function generateHtml(
               filename: '${fileName}',
               image: { type: 'jpeg', quality: 0.98 },
               html2canvas: { scale: 2, useCORS: true },
-              jsPDF: { orientation: 'landscape', unit: 'mm', format: 'a4' }
+              jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
             }).from(element).save();
           }
         });
