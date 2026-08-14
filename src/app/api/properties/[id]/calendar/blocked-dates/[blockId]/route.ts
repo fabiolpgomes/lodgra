@@ -7,6 +7,20 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
+
+const dateRangeSchema = z.object({
+  startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+}).refine(({ startDate, endDate }) => startDate <= endDate, {
+  message: 'startDate must be before or equal to endDate',
+})
+
+function shiftDate(date: string, days: number) {
+  const [year, month, day] = date.split('-').map(Number)
+  const shifted = new Date(Date.UTC(year, month - 1, day + days))
+  return shifted.toISOString().slice(0, 10)
+}
 
 export async function DELETE(
   request: NextRequest,
@@ -42,7 +56,7 @@ export async function DELETE(
     // Verify block exists and belongs to this property and user's organization
     const { data: block, error: blockError } = await supabase
       .from('calendar_blocks')
-      .select('id, property_id, organization_id, start_date, end_date, notes')
+      .select('id, property_id, organization_id, start_date, end_date, notes, block_type')
       .eq('id', blockId)
       .eq('property_id', propertyId)
       .single()
@@ -62,29 +76,106 @@ export async function DELETE(
       )
     }
 
-    // Delete the block
-    const { error: deleteError } = await supabase
-      .from('calendar_blocks')
-      .delete()
-      .eq('id', blockId)
+    let requestedRange: z.infer<typeof dateRangeSchema> | null = null
+    const requestUrl = new URL(request.url)
+    const queryStartDate = requestUrl.searchParams.get('startDate')
+    const queryEndDate = requestUrl.searchParams.get('endDate')
 
-    if (deleteError) {
-      console.error('❌ Delete block error:', {
+    if (queryStartDate || queryEndDate) {
+      const parsed = dateRangeSchema.safeParse({
+        startDate: queryStartDate,
+        endDate: queryEndDate,
+      })
+      if (!parsed.success) {
+        return NextResponse.json(
+          { success: false, error: 'Invalid startDate or endDate' },
+          { status: 400 }
+        )
+      }
+      requestedRange = parsed.data
+    }
+
+    const selectedStart = requestedRange?.startDate ?? block.start_date
+    const selectedEnd = requestedRange?.endDate ?? block.end_date
+
+    if (selectedEnd < block.start_date || selectedStart > block.end_date) {
+      return NextResponse.json(
+        { success: false, error: 'Selected dates do not overlap this block' },
+        { status: 400 }
+      )
+    }
+
+    const unlocksBlockStart = selectedStart <= block.start_date
+    const unlocksBlockEnd = selectedEnd >= block.end_date
+    let action: 'deleted' | 'trimmed-start' | 'trimmed-end' | 'split'
+    let mutationError: { message?: string } | null = null
+
+    if (unlocksBlockStart && unlocksBlockEnd) {
+      action = 'deleted'
+      const { error } = await supabase.from('calendar_blocks').delete().eq('id', blockId)
+      mutationError = error
+    } else if (unlocksBlockStart) {
+      action = 'trimmed-start'
+      const { error } = await supabase
+        .from('calendar_blocks')
+        .update({ start_date: shiftDate(selectedEnd, 1) })
+        .eq('id', blockId)
+      mutationError = error
+    } else if (unlocksBlockEnd) {
+      action = 'trimmed-end'
+      const { error } = await supabase
+        .from('calendar_blocks')
+        .update({ end_date: shiftDate(selectedStart, -1) })
+        .eq('id', blockId)
+      mutationError = error
+    } else {
+      action = 'split'
+      const rightStart = shiftDate(selectedEnd, 1)
+      const { data: rightBlock, error: insertError } = await supabase
+        .from('calendar_blocks')
+        .insert({
+          property_id: block.property_id,
+          organization_id: block.organization_id,
+          start_date: rightStart,
+          end_date: block.end_date,
+          notes: block.notes,
+          block_type: block.block_type,
+        })
+        .select('id')
+        .single()
+
+      if (insertError) {
+        mutationError = insertError
+      } else {
+        const { error: updateError } = await supabase
+          .from('calendar_blocks')
+          .update({ end_date: shiftDate(selectedStart, -1) })
+          .eq('id', blockId)
+        mutationError = updateError
+
+        if (updateError && rightBlock?.id) {
+          await supabase.from('calendar_blocks').delete().eq('id', rightBlock.id)
+        }
+      }
+    }
+
+    if (mutationError) {
+      console.error('❌ Unblock dates error:', {
         blockId,
         propertyId,
-        error: deleteError,
+        error: mutationError,
       })
       return NextResponse.json(
-        { success: false, error: 'Failed to delete block' },
+        { success: false, error: 'Failed to unblock selected dates' },
         { status: 500 }
       )
     }
 
-    console.log('✅ Block deleted successfully:', {
+    console.log('✅ Dates unblocked successfully:', {
       blockId,
       propertyId,
-      dates: `${block.start_date} to ${block.end_date}`,
-      notes: block.notes,
+      selectedDates: `${selectedStart} to ${selectedEnd}`,
+      action,
     })
 
     return NextResponse.json({
@@ -94,6 +185,9 @@ export async function DELETE(
         start_date: block.start_date,
         end_date: block.end_date,
         notes: block.notes,
+        action,
+        unlocked_start_date: selectedStart,
+        unlocked_end_date: selectedEnd,
       },
     })
   } catch (error) {

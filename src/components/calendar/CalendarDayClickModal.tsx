@@ -27,7 +27,7 @@ interface CalendarDayClickModalProps {
   onSavePrice?: (price: number) => Promise<void>
   onBlockDates?: (reason?: string) => Promise<void>
   onUnblockDates?: () => Promise<void>
-  blockedDateInfo?: { id: string; reason: string } | null
+  blockedDateInfo?: { reason: string; count: number } | null
   onOpenDiscounts?: () => void
   onOpenCancellationPolicy?: () => void
 }
@@ -160,10 +160,10 @@ export function CalendarDayClickModal({
                 <div className="space-y-4 py-4">
                   <div className="p-4 rounded-lg border" style={{ backgroundColor: '#FFF3CD', borderColor: '#FFE69C' }}>
                     <p className="text-sm font-medium mb-2" style={{ color: '#1B2430' }}>
-                      🔒 Data Bloqueada
+                      🔒 {blockedDateInfo.count > 1 ? `${blockedDateInfo.count} períodos bloqueados` : 'Data bloqueada'}
                     </p>
                     <p className="text-xs" style={{ color: '#4D5566' }}>
-                      Motivo: <strong>{blockedDateInfo.reason}</strong>
+                      {blockedDateInfo.count > 1 ? 'Apenas as datas selecionadas serão desbloqueadas.' : <>Motivo: <strong>{blockedDateInfo.reason}</strong></>}
                     </p>
                   </div>
                 </div>

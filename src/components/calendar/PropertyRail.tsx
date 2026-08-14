@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Building2, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Building2, Check, ChevronLeft, ChevronRight } from 'lucide-react'
 
 interface PropertyRailItem {
   id: string
@@ -57,21 +57,33 @@ export function PropertyRail({ activePropertyId, locale }: PropertyRailProps) {
           const active = property.id === activePropertyId
 
           return (
-            <a
-              key={property.id}
-              href={`/${locale}/calendar/${property.id}`}
-              aria-label={`Abrir calendário de ${property.name}`}
-              aria-current={active ? 'page' : undefined}
-              title={property.name}
-              className={`mx-auto flex items-center justify-center overflow-hidden rounded-xl border-2 bg-[#F7F7F7] transition hover:scale-[1.03] ${collapsed ? 'h-10 w-10' : 'h-14 w-14'} ${active ? 'border-[#222222] shadow-sm' : 'border-transparent'}`}
-            >
-              {image ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={image} alt="" className="h-full w-full object-cover" />
-              ) : (
-                <Building2 className="h-5 w-5 text-[#717171]" />
+            <div key={property.id} className="relative flex justify-center">
+              {active && (
+                <span
+                  aria-hidden="true"
+                  className="absolute -right-1 top-1/2 h-8 w-1 -translate-y-1/2 rounded-full bg-[#10203E]"
+                />
               )}
-            </a>
+              <a
+                href={`/${locale}/calendar/${property.id}`}
+                aria-label={`${active ? 'Propriedade selecionada' : 'Abrir calendário'}: ${property.name}`}
+                aria-current={active ? 'page' : undefined}
+                title={property.name}
+                className={`relative mx-auto flex items-center justify-center overflow-hidden rounded-xl border-2 bg-[#F7F7F7] transition duration-150 hover:scale-[1.04] ${collapsed ? 'h-10 w-10' : 'h-14 w-14'} ${active ? 'scale-[1.04] border-white shadow-lg ring-3 ring-[#10203E] ring-offset-2' : 'border-transparent opacity-75 hover:opacity-100'}`}
+              >
+                {image ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={image} alt="" className="h-full w-full object-cover" />
+                ) : (
+                  <Building2 className="h-5 w-5 text-[#717171]" />
+                )}
+                {active && (
+                  <span className="absolute bottom-0.5 right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#10203E] text-white shadow" aria-hidden="true">
+                    <Check size={11} strokeWidth={3} />
+                  </span>
+                )}
+              </a>
+            </div>
           )
         })}
       </div>

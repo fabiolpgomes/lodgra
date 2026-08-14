@@ -20,8 +20,10 @@ import {
 } from '@/hooks/useCalendarQueries'
 
 interface BlockedDate {
+  id: string
   start_date: string
   end_date: string
+  notes?: string | null
 }
 
 interface CalendarWithSettingsProps {
@@ -72,7 +74,7 @@ function CalendarWithSettingsContent({
   const [showDiscountModal, setShowDiscountModal] = useState(false)
   const [showCancellationModal, setShowCancellationModal] = useState(false)
   const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null)
-  const [clickedBlockId, setClickedBlockId] = useState<string | null>(null)
+  const [selectedBlocks, setSelectedBlocks] = useState<BlockedDate[]>([])
 
   // React Query hooks
   const pricesQuery = useDailyPrices(propertyId, currentYear, currentMonth)
@@ -171,25 +173,18 @@ function CalendarWithSettingsContent({
     return blockedDatesQuery.data.data
   }, [blockedDatesQuery.data])
 
-  // Helper to find if clicked dates overlap with blocked dates
-  const findBlockedDateOverlap = useCallback((day: number): { id: string; reason: string } | null => {
-    if (blockedDates.length === 0) return null
+  const formatLocalDate = useCallback((date: Date) => {
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+  }, [])
 
-    const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
-
-    const overlap = blockedDatesQuery.data?.data?.find((block: any) => {
-      return dateStr >= block.start_date && dateStr <= block.end_date
-    })
-
-    if (overlap) {
-      return {
-        id: overlap.id,
-        reason: overlap.notes || 'Bloqueado',
-      }
-    }
-
-    return null
-  }, [blockedDates, blockedDatesQuery.data, currentYear, currentMonth])
+  const findBlockedDateOverlaps = useCallback((startDate: Date, endDate: Date) => {
+    const start = formatLocalDate(startDate)
+    const end = formatLocalDate(endDate)
+    return blockedDates.filter((block) => block.start_date <= end && block.end_date >= start)
+  }, [blockedDates, formatLocalDate])
 
   // Handle day click from calendar
   const handleDayClick = useCallback(
@@ -197,19 +192,20 @@ function CalendarWithSettingsContent({
       const clickedDate = new Date(year, month, day)
 
       // Check if this day is blocked
-      const blockOverlap = findBlockedDateOverlap(day)
-      if (blockOverlap) {
-        setClickedBlockId(blockOverlap.id)
+      const blockOverlaps = findBlockedDateOverlaps(clickedDate, clickedDate)
+      if (blockOverlaps.length > 0) {
+        setSelectedBlocks(blockOverlaps)
         // Still open modal but with blocked date info
         selection.selectDateRange(clickedDate, clickedDate)
         selection.openPriceModal(clickedDate)
         return
       }
 
+      setSelectedBlocks([])
       selection.toggleDay(clickedDate)
       selection.openPriceModal(clickedDate)
     },
-    [selection, findBlockedDateOverlap]
+    [selection, findBlockedDateOverlaps]
   )
 
   // Handle range selection from calendar
@@ -220,6 +216,7 @@ function CalendarWithSettingsContent({
 
       // Populate selection state with all dates in range
       selection.selectDateRange(startDate, endDate)
+      setSelectedBlocks(findBlockedDateOverlaps(startDate, endDate))
 
       // Then open modal for price editing
       selection.openPriceModal({
@@ -227,7 +224,7 @@ function CalendarWithSettingsContent({
         end: endDate,
       })
     },
-    [selection]
+    [selection, findBlockedDateOverlaps]
   )
 
   // Refetch with React Query invalidation
@@ -349,33 +346,32 @@ function CalendarWithSettingsContent({
   }, [propertyId, refetchData, selection])
 
   // Handle unblock dates from modal
-  const handleUnblockDates = useCallback(async (blockId: string) => {
+  const handleUnblockDates = useCallback(async () => {
+    if (selection.state.selectedDates.length === 0 || selectedBlocks.length === 0) return
+
     try {
-      console.log(`[DEBUG Unblock] Deleting block ${blockId}`)
-      const response = await fetch(
-        `/api/properties/${propertyId}/calendar/blocked-dates/${blockId}`,
+      const startDate = formatLocalDate(selection.state.selectedDates[0])
+      const endDate = formatLocalDate(selection.state.selectedDates.at(-1)!)
+      const responses = await Promise.all(selectedBlocks.map((block) => fetch(
+        `/api/properties/${propertyId}/calendar/blocked-dates/${block.id}?startDate=${startDate}&endDate=${endDate}`,
         {
           method: 'DELETE',
           credentials: 'include',
         }
-      )
+      )))
 
-      if (!response.ok) {
-        throw new Error('Failed to unblock dates')
-      }
-
-      console.log(`[DEBUG Unblock] Block deleted successfully, refetching data for year=${currentYear}, month=${currentMonth}`)
+      if (responses.some((response) => !response.ok)) throw new Error('Failed to unblock selected dates')
 
       selection.clearSelection()
+      setSelectedBlocks([])
 
       // Refetch data in background to confirm
       await refetchData()
-      console.log(`[DEBUG Unblock] Refetch complete`)
     } catch (error) {
       console.error('Error unblocking dates:', error)
       throw error
     }
-  }, [propertyId, refetchData, selection, currentYear, currentMonth])
+  }, [formatLocalDate, propertyId, refetchData, selectedBlocks, selection])
 
 
   // Handle month change - update state
@@ -465,12 +461,15 @@ function CalendarWithSettingsContent({
         propertyId={propertyId}
         onClose={() => {
           selection.closeModal()
-          setClickedBlockId(null)
+          setSelectedBlocks([])
         }}
         onSavePrice={handleSavePrice}
         onBlockDates={handleBlockDates}
-        onUnblockDates={clickedBlockId ? () => handleUnblockDates(clickedBlockId) : undefined}
-        blockedDateInfo={clickedBlockId ? findBlockedDateOverlap(selection.state.selectedDates[0]?.getDate() || 1) : null}
+        onUnblockDates={selectedBlocks.length > 0 ? handleUnblockDates : undefined}
+        blockedDateInfo={selectedBlocks.length > 0 ? {
+          reason: selectedBlocks[0].notes || 'Bloqueado',
+          count: selectedBlocks.length,
+        } : null}
         onOpenDiscounts={handleOpenDiscounts}
         onOpenCancellationPolicy={handleOpenCancellationPolicy}
       />

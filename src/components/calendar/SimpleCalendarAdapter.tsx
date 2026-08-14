@@ -293,7 +293,7 @@ function SimpleCalendarAdapterComponent({
                     {isDateBlocked(day) ? (
                       <div className="flex flex-col items-center justify-center gap-0.5 w-full h-full px-0.5">
                         <div className="text-lg font-bold">🔒</div>
-                        <div className="text-xs font-semibold" style={{ color: '#10203E' }}>
+                        <div className="text-xs font-semibold" style={{ color: isInDragRange(day) || isDateSelected(day) ? 'white' : '#10203E' }}>
                           Bloqueado
                         </div>
                       </div>

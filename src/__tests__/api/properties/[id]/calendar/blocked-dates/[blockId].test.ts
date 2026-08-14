@@ -90,6 +90,55 @@ describe('DELETE /api/properties/[id]/calendar/blocked-dates/[blockId]', () => {
       expect(data.success).toBe(true)
       expect(data.data.id).toBe(blockId)
       expect(data.data.start_date).toBe('2026-08-10')
+      expect(data.data.action).toBe('deleted')
+    })
+
+    it('keeps the unselected dates when unlocking part of the beginning', async () => {
+      mockSupabase.auth.getUser.mockResolvedValue({
+        data: { user: { id: 'user-123' } },
+        error: null,
+      })
+
+      const profileQuery = {
+        select: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        single: jest.fn().mockResolvedValue({ data: { organization_id: 'org-456' }, error: null }),
+      }
+      const blockQuery = {
+        select: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        single: jest.fn().mockResolvedValue({
+          data: {
+            id: 'block-789',
+            property_id: 'prop-101',
+            organization_id: 'org-456',
+            start_date: '2026-08-24',
+            end_date: '2026-08-29',
+            notes: 'Maintenance',
+            block_type: 'manual',
+          },
+          error: null,
+        }),
+      }
+      const updateQuery = {
+        update: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockResolvedValue({ data: null, error: null }),
+      }
+      mockSupabase.from
+        .mockReturnValueOnce(profileQuery)
+        .mockReturnValueOnce(blockQuery)
+        .mockReturnValueOnce(updateQuery)
+
+      const request = new NextRequest('http://localhost/api/properties/prop-101/calendar/blocked-dates/block-789?startDate=2026-08-24&endDate=2026-08-26', {
+        method: 'DELETE',
+      })
+      const response = await DELETE(request, {
+        params: Promise.resolve({ id: 'prop-101', blockId: 'block-789' }),
+      })
+
+      expect(response.status).toBe(200)
+      expect(updateQuery.update).toHaveBeenCalledWith({ start_date: '2026-08-27' })
+      expect((await response.json()).data.action).toBe('trimmed-start')
     })
   })
 
@@ -290,7 +339,7 @@ describe('DELETE /api/properties/[id]/calendar/blocked-dates/[blockId]', () => {
 
       expect(response.status).toBe(500)
       const data = await response.json()
-      expect(data.error).toContain('Failed to delete block')
+      expect(data.error).toContain('Failed to unblock selected dates')
     })
 
     it('returns 500 on uncaught exception', async () => {
