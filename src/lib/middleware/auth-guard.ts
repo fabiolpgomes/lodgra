@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { SupabaseClient } from '@supabase/supabase-js'
 import { getCachedProfile, setCachedProfile } from '@/lib/cache/profileCache'
 import { getCachedSubscriptionStatus, setCachedSubscriptionStatus } from '@/lib/cache/subscriptionCache'
+import { isRestrictedGestor } from '@/lib/auth/permissions'
 
 const PUBLIC_PATHS = [
   '/login', '/register', '/subscribe', '/api/stripe/', '/api/debug/',
@@ -59,6 +60,7 @@ export async function checkSubscriptionAndRole(
   let orgId: string | null = (await getCachedProfile(userId))?.organization_id ?? null
   let userRole: string | null = null
   let guestType: string | null = null
+  let accessAllProperties = false
 
   if (!orgId) {
     const { data: profile } = await supabase
@@ -71,6 +73,7 @@ export async function checkSubscriptionAndRole(
       orgId = profile.organization_id
       userRole = profile.role
       guestType = profile.guest_type
+      accessAllProperties = profile.access_all_properties === true
       await setCachedProfile(userId, {
         role: profile.role,
         access_all_properties: profile.access_all_properties,
@@ -83,6 +86,7 @@ export async function checkSubscriptionAndRole(
     if (cached) {
       userRole = cached.role
       guestType = cached.guest_type ?? null
+      accessAllProperties = cached.access_all_properties === true
     }
   }
 
@@ -134,7 +138,7 @@ export async function checkSubscriptionAndRole(
   // Users can click individual properties to see property-specific calendars
 
   // Role-based access control
-  if (userRole === 'gestor') {
+  if (isRestrictedGestor({ role: userRole, access_all_properties: accessAllProperties })) {
     // Normalize pathname: remove locale prefix for comparison
     const normalizedPath = pathname.replace(/^\/[a-z]{2}(-[A-Z]{2})?(?=\/|$)/, '')
     const blockedPaths = ['/dashboard', '/dashboard/reports', '/financial', '/reports', '/admin']

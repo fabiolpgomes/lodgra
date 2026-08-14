@@ -8,6 +8,7 @@ import { UserMenu } from '@/components/auth/UserMenu'
 import { LocaleSelector } from '@/components/common/header/LocaleSelector'
 import { ThemeToggle } from '@/components/common/header/ThemeToggle'
 import { useAuth } from '@/hooks/useAuth'
+import { isRestrictedGestor } from '@/lib/auth/permissions'
 import { useLocale } from '@/lib/i18n/routing'
 import type { UserProfile } from '@/lib/auth/getUserAccess'
 
@@ -38,7 +39,7 @@ export function Header({ serverProfile }: HeaderProps) {
   const locale = useLocale()
 
   const isAdmin = profile?.role === 'admin'
-  const isGestor = profile?.role === 'gestor'
+  const isLimitedGestor = isRestrictedGestor(profile)
 
   // Build locale-prefixed links
   const prefix = locale ? `/${locale}` : ''
@@ -54,7 +55,7 @@ export function Header({ serverProfile }: HeaderProps) {
 
   // Filter nav links based on role
   const visibleNavLinks = NAV_LINKS.filter(link => {
-    if (isGestor) {
+    if (isLimitedGestor) {
       // Gestor cannot see dashboard, financial pages, or reports
       const blocked = ['/', '/reports', '/financial']
       const normalizedHref = link.href.replace(/^\/[a-z]{2}(-[A-Z]{2})?(?=\/|$)/, '') || '/'

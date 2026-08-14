@@ -23,6 +23,7 @@ import {
 } from 'lucide-react'
 import { Logo } from '@/components/common/ui/Logo'
 import { useAuth } from '@/hooks/useAuth'
+import { isRestrictedGestor } from '@/lib/auth/permissions'
 import { useLocale } from '@/lib/i18n/routing'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
@@ -72,7 +73,7 @@ export function Sidebar({ serverProfile }: SidebarProps) {
   const [cleaningExpanded, setCleaningExpanded] = useState(pathname.includes('/cleaning'))
 
   const isAdmin = profile?.role === 'admin'
-  const isGestor = profile?.role === 'gestor'
+  const isLimitedGestor = isRestrictedGestor(profile)
   const prefix = locale ? `/${locale}` : ''
   const isDarkMode = (resolvedTheme || theme) === 'dark'
   const expandedSubmenuClass = isDarkMode
@@ -125,7 +126,7 @@ export function Sidebar({ serverProfile }: SidebarProps) {
 
   const primaryLinks = PRIMARY_PATHS
     .filter(({ path }) => {
-      if (isGestor && (path === '/' || path === '/financial' || path === '/reports')) return false
+      if (isLimitedGestor && (path === '/' || path === '/financial' || path === '/reports')) return false
       return true
     })
     .map(({ path, label, icon }) => ({
@@ -245,7 +246,7 @@ export function Sidebar({ serverProfile }: SidebarProps) {
         </div>
 
         {/* Reports submenu */}
-        <div>
+        {!isLimitedGestor && <div>
           <button
             onClick={() => setReportsExpanded(!reportsExpanded)}
             className={`sidebar-submenu-trigger w-full flex items-center gap-3 px-4 py-3 rounded-full text-[14px] font-medium tracking-normal transition-all ${
@@ -285,7 +286,7 @@ export function Sidebar({ serverProfile }: SidebarProps) {
               })}
             </div>
           )}
-        </div>
+        </div>}
 
         {/* Config group */}
         <div className="pt-8">

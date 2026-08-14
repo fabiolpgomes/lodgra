@@ -20,6 +20,7 @@ import {
   LogOut,
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
+import { isRestrictedGestor } from '@/lib/auth/permissions'
 import { useLocale } from '@/lib/i18n/routing'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/common/ui/sheet'
 import { createClient } from '@/lib/supabase/client'
@@ -54,7 +55,7 @@ export function BottomNav() {
   const { profile } = useAuth()
   const locale = useLocale()
   const isAdmin = profile?.role === 'admin'
-  const isGestor = profile?.role === 'gestor'
+  const isLimitedGestor = isRestrictedGestor(profile)
   const [moreOpen, setMoreOpen] = useState(false)
 
   async function handleLogout() {
@@ -74,7 +75,7 @@ export function BottomNav() {
   const prefix = locale ? `/${locale}` : ''
 
   // Filter primary nav: gestor cannot see Dashboard
-  const visiblePrimaryPaths = isGestor
+  const visiblePrimaryPaths = isLimitedGestor
     ? PRIMARY_PATHS.filter(p => p.path !== '/dashboard')
     : PRIMARY_PATHS
 
@@ -96,7 +97,7 @@ export function BottomNav() {
 
   // Filter more nav: gestor cannot see financial pages or reports
   const visibleMoreNav = MORE_NAV.filter(link => {
-    if (isGestor && (link.href.endsWith('/reports') || link.href.endsWith('/financial'))) {
+    if (isLimitedGestor && (link.href.endsWith('/reports') || link.href.endsWith('/financial'))) {
       return false
     }
     return true

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { type User } from '@supabase/supabase-js'
 import { createClient } from '@/lib/supabase/client'
+import { hasFullOperationalAccess } from '@/lib/auth/permissions'
 
 export type UserRole = 'admin' | 'gestor' | 'viewer'
 
@@ -87,8 +88,8 @@ export function usePermissions() {
     create: () => profile?.role === 'admin' || profile?.role === 'gestor',
     edit: () => profile?.role === 'admin' || profile?.role === 'gestor',
 
-    // Apenas Admin: deletar e gerenciar usuários
-    delete: () => profile?.role === 'admin',
+    // Gestor sénior pode excluir dados operacionais; gestão de usuários é exclusiva do Admin
+    delete: () => hasFullOperationalAccess(profile),
     manageUsers: () => profile?.role === 'admin',
   }
 
