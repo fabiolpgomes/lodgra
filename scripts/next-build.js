@@ -41,7 +41,7 @@ try {
     fs.writeFileSync(middlewareNftPath, JSON.stringify(nftContent, null, 2))
     console.log('✓ Generated middleware.js.nft.json for Vercel compatibility')
   } else {
-    console.log('✓ middleware.js.nft.json already exists (webpack output)')
+    console.log('✓ middleware.js.nft.json already exists in the build output')
   }
 } catch (err) {
   console.error('Warning: Could not generate middleware.js.nft.json:', err.message)
