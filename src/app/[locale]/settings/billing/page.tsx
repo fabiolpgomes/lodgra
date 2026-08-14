@@ -15,19 +15,31 @@ export default async function BillingPage() {
 
   const supabase = createAdminClient()
 
+  // Fetch user's organization from user_profiles (guaranteed non-null)
+  let userOrgId = auth.organizationId
+
+  if (!userOrgId) {
+    // Fallback: query user_profiles directly to get organization_id
+    const { data: profile } = await supabase
+      .from('user_profiles')
+      .select('organization_id')
+      .eq('id', auth.userId)
+      .single()
+    userOrgId = profile?.organization_id
+  }
+
   // Fetch organization subscription data
   let organization
 
-  if (auth.organizationId) {
-    // User has organization_id in profile - fetch that organization
+  if (userOrgId) {
     const { data } = await supabase
       .from('organizations')
       .select('id, name, subscription_plan, subscription_status')
-      .eq('id', auth.organizationId)
+      .eq('id', userOrgId)
       .single()
     organization = data
   } else {
-    // Admin without organization_id - fetch first organization (fallback)
+    // Last resort: fetch first organization
     const { data } = await supabase
       .from('organizations')
       .select('id, name, subscription_plan, subscription_status')
