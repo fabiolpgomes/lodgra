@@ -508,12 +508,12 @@ export async function POST(request: Request): Promise<Response> {
 
     const { data: org } = await adminClient
       .from('organizations')
-      .select('plan, subscription_plan, premium_extra_properties_count')
+      .select('subscription_plan, premium_extra_properties_count')
       .eq('id', organizationId)
       .single()
 
     if (org) {
-      const plan = org.subscription_plan || org.plan || 'essencial'
+      const plan = org.subscription_plan || 'essencial'
       const limits = getPlanLimits(plan)
       const includedLimit = limits.maxProperties
       const extraCount = Number(org.premium_extra_properties_count ?? 0)
