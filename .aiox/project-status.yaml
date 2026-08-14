@@ -1,19 +1,15 @@
 status:
   branch: main
   modifiedFiles:
-    - public/sw.js
-    - src/__tests__/feeds/google-feed.test.ts
-    - src/__tests__/lib/billing/plans.test.ts
-    - src/__tests__/pricing/subscription-flow.test.ts
-    - src/app/[locale]/admin/users/page.tsx
-  modifiedFilesTotalCount: 73
+    - .aiox/project-status.yaml
+  modifiedFilesTotalCount: 1
   recentCommits:
-    - 'fix: align booking page client props'
-    - 'fix: update Algarve booking social preview'
+    - 'fix: prevent concurrent Next.js dev and build'
+    - 'feat(calendar): deliver Airbnb-style property calendar'
   currentEpic: 20 — Checkout Directo (Housekeeping)
   currentStory: 20.3.story
-  lastUpdate: '2026-05-28T17:08:06.152Z'
+  lastUpdate: '2026-08-14T15:22:44.617Z'
   isGitRepo: true
-timestamp: 1779988086158
+timestamp: 1786720964625
 ttl: 60
-gitFingerprint: 1779451257894.7883:1779967429501.7512
+gitFingerprint: 1785569665275.2065:1786720943351.363

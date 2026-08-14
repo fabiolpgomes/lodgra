@@ -65,69 +65,72 @@ export default async function UsersPage({
 
   return (
     <AuthLayout>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex items-center justify-between mb-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0 mb-8">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <Users className="h-8 w-8 text-[color:var(--be-blue)]" />
-              <h2 className="text-3xl font-bold text-gray-900">Usuários</h2>
+              <Users className="h-8 w-8 text-blue-600" />
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Utilizadores</h1>
             </div>
-            <p className="text-gray-600">Gerencie os utilizadores e suas permissões</p>
+            <p className="text-sm sm:text-base text-gray-600">Gerencie os utilizadores e suas permissões</p>
           </div>
-          <Button asChild className="bg-[color:var(--be-blue)] text-white hover:bg-brand-700">
-            <Link href={`/${locale}/admin/users/new`} className="flex items-center gap-2">
+          <Button asChild className="h-12 sm:h-11 px-4 bg-blue-600 text-white font-semibold hover:bg-blue-700 active:bg-blue-800 rounded-lg transition-colors">
+            <Link href={`/${locale}/admin/users/new`} className="flex items-center justify-center gap-2 w-full sm:w-auto">
               <Plus className="h-5 w-5" />
-              Novo Usuário
+              <span>Novo Utilizador</span>
             </Link>
           </Button>
         </div>
 
         {!profiles || profiles.length === 0 ? (
-          <div className="bg-white rounded-lg shadow p-12 text-center">
-            <Users className="h-16 w-16 text-gray-500 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">Nenhum utilizador encontrado</h3>
+          <div className="bg-white rounded-lg border border-gray-200 p-8 sm:p-12 text-center">
+            <Users className="h-12 w-12 sm:h-16 sm:w-16 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">Nenhum utilizador encontrado</h3>
+            <p className="text-sm sm:text-base text-gray-600">Comece adicionando o primeiro utilizador</p>
           </div>
         ) : (
-          <div className="bg-white rounded-lg shadow overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+          <div className="bg-white rounded-lg border border-gray-200 overflow-x-auto">
+            <table className="w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Nome</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Email</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Role</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Propriedades</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">Ações</th>
+                  <th className="px-4 sm:px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nome</th>
+                  <th className="px-4 sm:px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Email</th>
+                  <th className="px-4 sm:px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Função</th>
+                  <th className="px-4 sm:px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Propriedades</th>
+                  <th className="px-4 sm:px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Ações</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="divide-y divide-gray-200">
                 {profiles.map((profile: UserProfile) => {
                   const assignedProperties = (userProperties
                     ?.filter(up => up.user_id === profile.id)
                     .flatMap(up => up.properties as PropertyRef[]) || []) as PropertyRef[]
 
                   return (
-                    <tr key={profile.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
+                    <tr key={profile.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-4 sm:px-6 py-4">
                         <div className="text-sm font-medium text-gray-900">
                           {profile.full_name || '-'}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                        {profile.email}
+                      <td className="px-4 sm:px-6 py-4">
+                        <div className="text-sm text-gray-600 break-all">
+                          {profile.email}
+                        </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-4 sm:px-6 py-4">
                         <div className="flex items-center gap-2">
                           <Badge
                             className={
                               profile.role === 'admin'
-                                ? 'bg-red-100 text-red-800 hover:bg-red-100'
+                                ? 'bg-red-100 text-red-800'
                                 : profile.role === 'gestor'
-                                ? 'bg-[color:var(--be-blue-pale)] text-brand-800 hover:bg-[color:var(--be-blue-pale)]'
+                                ? 'bg-blue-100 text-blue-800'
                                 : profile.role === 'viewer'
-                                ? 'bg-gray-100 text-gray-800 hover:bg-gray-100'
+                                ? 'bg-gray-100 text-gray-800'
                                 : profile.role === 'guest'
-                                ? 'bg-green-100 text-green-800 hover:bg-green-100'
-                                : 'bg-gray-100 text-gray-800 hover:bg-gray-100'
+                                ? 'bg-green-100 text-green-800'
+                                : 'bg-gray-100 text-gray-800'
                             }
                           >
                             {roleLabels[profile.role] || profile.role}
@@ -139,34 +142,34 @@ export default async function UsersPage({
                           )}
                         </div>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-4 sm:px-6 py-4">
                         {profile.access_all_properties ? (
-                          <Badge className="bg-green-100 text-green-800 hover:bg-green-100 inline-flex items-center gap-1">
+                          <Badge className="bg-green-100 text-green-800 inline-flex items-center gap-1">
                             <Shield className="h-3 w-3" />
                             Todas
                           </Badge>
                         ) : assignedProperties.length > 0 ? (
                           <div className="flex flex-wrap gap-1">
                             {assignedProperties.map((prop: PropertyRef) => (
-                              <Badge key={prop.id} variant="secondary">
+                              <Badge key={prop.id} variant="secondary" className="text-xs">
                                 {prop.name}
                               </Badge>
                             ))}
                           </div>
                         ) : (
-                          <span className="text-xs text-gray-500">Nenhuma</span>
+                          <span className="text-xs text-gray-500">—</span>
                         )}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right">
-                        <div className="flex items-center justify-end gap-2">
+                      <td className="px-4 sm:px-6 py-4">
+                        <div className="flex items-center justify-end gap-1 sm:gap-2">
                           <Button
                             asChild
                             variant="ghost"
                             size="sm"
-                            className="p-1.5 text-gray-500 hover:text-[color:var(--be-blue)] hover:bg-[color:var(--be-blue-pale)]"
-                            title="Editar"
+                            className="h-10 w-10 min-h-[44px] min-w-[44px] p-0 text-gray-600 hover:text-blue-600 hover:bg-blue-50"
+                            title="Editar utilizador"
                           >
-                            <Link href={`/${locale}/admin/users/${profile.id}/edit`}>
+                            <Link href={`/${locale}/admin/users/${profile.id}/edit`} className="flex items-center justify-center">
                               <Edit className="h-4 w-4" />
                             </Link>
                           </Button>
