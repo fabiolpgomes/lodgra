@@ -8,30 +8,18 @@ import { calculateServiceFeeAmount, nightsBetween } from '@/lib/reservations/ser
 import { detectPropertyFromEmailDomain, getDefaultPropertyIfSingleOwner, extractDatesFromEmailBody } from '@/lib/email-parser/propertyDetector'
 import { findMatchingICalReservation, enrichReservationWithEmail } from '@/lib/email-parser/reservationMatcher'
 import { isCancellationEmail, markReservationCancelled, findReservationToCancelByConfirmation } from '@/lib/email-parser/cancellationDetector'
+import { isAuthorizedCronRequest } from '@/lib/cron/auth'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 300 // 5 minutos
 
 export async function GET(request: NextRequest) {
-  // Verificar se é chamada interna (com CRON_SECRET) ou de um trigger manual
-  const authHeader = request.headers.get('authorization')
-  const cronSecret = process.env.CRON_SECRET
   const anthropicKey = process.env.ANTHROPIC_API_KEY
 
-  // Apenas requer CRON_SECRET se for uma chamada direta (não de um trigger manual)
-  // Triggers manuais já verificam a sessão do utilizador no endpoint trigger-email-parser
-  const isDirectCronCall = authHeader?.startsWith('Bearer ')
-
-  if (isDirectCronCall && cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-    console.error('[email-parser] Unauthorized - CRON_SECRET mismatch')
+  if (!isAuthorizedCronRequest(request)) {
+    console.error('[email-parser] Unauthorized cron request')
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
-
-  console.log('[email-parser] Auth check:', {
-    isDirectCronCall,
-    hasCronSecret: !!cronSecret,
-    hasAuthHeader: !!authHeader,
-  })
 
   // Verificar se ANTHROPIC_API_KEY está configurado
   if (!anthropicKey) {

@@ -42,6 +42,8 @@ function makeQuery(result: unknown) {
     eq: jest.fn(() => query),
     in: jest.fn(() => query),
     not: jest.fn(() => query),
+    lt: jest.fn(() => query),
+    gt: jest.fn(() => query),
     order: jest.fn(() => query),
     limit: jest.fn(() => query),
     update: jest.fn(() => query),
@@ -110,6 +112,110 @@ describe('POST /api/sync/import', () => {
       status: 'success',
     })
     expect(insertedSyncLogs[0].synced_at).toEqual(expect.any(String))
+  })
+
+  it('cria reserva usando a relação composta property/organization sem embed ambíguo', async () => {
+    const listing = {
+      id: 'listing-create',
+      ical_url: 'https://example.com/create.ics',
+      property_id: 'prop-create',
+      properties: { id: 'prop-create', name: 'Casa Nova', organization_id: 'org-create' },
+    }
+    const propertySelections: string[] = []
+    const insertedReservations: Array<Record<string, unknown>> = []
+    let propertySelectCall = 0
+    let reservationSelectCall = 0
+
+    const mockSupabase = {
+      from: jest.fn((table: string) => {
+        if (table === 'property_listings') {
+          return {
+            select: jest.fn((selection: string) => {
+              propertySelections.push(selection)
+              propertySelectCall++
+
+              if (propertySelectCall === 1) return makeQuery({ data: [listing], error: null })
+              if (propertySelectCall === 2) {
+                return makeQuery({
+                  data: {
+                    property_id: listing.property_id,
+                    properties: {
+                      cleaning_fee: 0,
+                      cleaning_fee_type: 'fixed',
+                      pet_fee: 0,
+                      pet_fee_type: 'fixed',
+                    },
+                  },
+                  error: null,
+                })
+              }
+              if (propertySelectCall === 3) return makeQuery({ data: [{ id: listing.id }], error: null })
+
+              return makeQuery({
+                data: { properties: { name: 'Casa Nova', owner_id: null } },
+                error: null,
+              })
+            }),
+            update: jest.fn(() => makeQuery({ data: null, error: null })),
+          }
+        }
+
+        if (table === 'reservations') {
+          return {
+            select: jest.fn(() => {
+              reservationSelectCall++
+              return makeQuery(
+                reservationSelectCall === 1
+                  ? { data: null, error: null }
+                  : { data: [], error: null }
+              )
+            }),
+            insert: jest.fn((payload: Record<string, unknown>) => {
+              insertedReservations.push(payload)
+              return Promise.resolve({ data: null, error: null })
+            }),
+          }
+        }
+
+        if (table === 'guests') {
+          return {
+            insert: jest.fn(() => makeQuery({ data: { id: 'guest-create' }, error: null })),
+          }
+        }
+
+        if (table === 'sync_logs') {
+          return { insert: jest.fn(() => Promise.resolve({ data: null, error: null })) }
+        }
+
+        return { select: jest.fn(() => makeQuery({ data: [], error: null })) }
+      }),
+    }
+
+    ;(createAdminClient as jest.Mock).mockReturnValue(mockSupabase)
+    ;(importICalFromUrl as jest.Mock).mockResolvedValue([{
+      uid: 'ical-create-uid',
+      summary: 'Maria Silva',
+      description: '',
+      start: new Date('2026-09-10T00:00:00.000Z'),
+      end: new Date('2026-09-12T00:00:00.000Z'),
+    }])
+
+    const response = await POST(createTestRequest('http://localhost/api/sync/import', {
+      method: 'POST',
+      body: JSON.stringify({ property_ids: [listing.property_id] }),
+    }))
+
+    expect(response.status).toBe(200)
+    expect(propertySelections).toContain(
+      'property_id, properties:properties!property_listings_property_org_fk(cleaning_fee, cleaning_fee_type, pet_fee, pet_fee_type)'
+    )
+    expect(insertedReservations).toHaveLength(1)
+    expect(insertedReservations[0]).toMatchObject({
+      property_listing_id: listing.id,
+      organization_id: 'org-create',
+      external_id: 'ical-create-uid',
+      guest_id: 'guest-create',
+    })
   })
 
   it('registra sync_logs com status "failed" e error_message preenchido (modo property_ids) quando o listing falha', async () => {

@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
         sync_enabled,
         platform,
         property_id,
-        properties!inner(id, name, organization_id)
+        properties:properties!property_listings_property_org_fk(id, name, organization_id)
       `)
       .eq('sync_enabled', true)
       .not('ical_url', 'is', null)

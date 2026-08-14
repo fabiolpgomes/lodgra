@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { isAuthorizedCronRequest } from '@/lib/cron/auth'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 300 // 5 minutos
@@ -18,17 +19,7 @@ interface EnrichmentResult {
 
 export async function GET(request: NextRequest) {
   try {
-    const cronSecret = process.env.CRON_SECRET
-    const authHeader = request.headers.get('authorization')
-    const querySecret = request.nextUrl.searchParams.get('secret')
-
-    // Accept either Bearer token OR query parameter (for pg_cron compatibility)
-    const isAuthorized = cronSecret && (
-      authHeader === `Bearer ${cronSecret}` ||
-      querySecret === cronSecret
-    )
-
-    if (!isAuthorized) {
+    if (!isAuthorizedCronRequest(request)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 

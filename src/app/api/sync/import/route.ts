@@ -97,7 +97,7 @@ async function syncListing(
       // (pode ser a mesma reserva importada de outra plataforma)
       const { data: propertyListing } = await supabase
         .from('property_listings')
-        .select('property_id, properties(cleaning_fee, cleaning_fee_type, pet_fee, pet_fee_type)')
+        .select('property_id, properties:properties!property_listings_property_org_fk(cleaning_fee, cleaning_fee_type, pet_fee, pet_fee_type)')
         .eq('id', listingId)
         .single()
 
@@ -217,7 +217,7 @@ async function syncListing(
         const nights = Math.ceil((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24))
         const { data: propData } = await supabase
           .from('property_listings')
-          .select('properties!inner(name, owner_id)')
+          .select('properties:properties!property_listings_property_org_fk(name, owner_id)')
           .eq('id', listingId)
           .single()
 
@@ -293,7 +293,7 @@ export async function POST(request: NextRequest) {
           id,
           ical_url,
           property_id,
-          properties!inner(
+          properties:properties!property_listings_property_org_fk(
             id,
             name,
             organization_id

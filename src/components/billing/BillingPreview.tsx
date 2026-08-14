@@ -45,8 +45,9 @@ export function BillingPreview({ orgId, onAddExtraProperty, onManagePlan }: Bill
   }
 
   // Calculate extra properties
-  const maxIncluded = planLimits.maxProperties || 0
-  const extraCount = Math.max(0, propertyCount - maxIncluded)
+  const isUnlimited = planLimits.maxProperties === null
+  const maxIncluded = planLimits.maxProperties ?? 0
+  const extraCount = isUnlimited ? 0 : Math.max(0, propertyCount - maxIncluded)
   const extraPrice = planLimits.extraPropertyPrice || 0
 
   // Calculate totals
@@ -68,12 +69,12 @@ export function BillingPreview({ orgId, onAddExtraProperty, onManagePlan }: Bill
 
         <div className="flex justify-between">
           <span className="text-gray-600">Propriedades incluídas:</span>
-          <span className="font-semibold text-gray-900">{maxIncluded}</span>
+          <span className="font-semibold text-gray-900">{isUnlimited ? 'Ilimitadas' : maxIncluded}</span>
         </div>
 
         <div className="flex justify-between">
           <span className="text-gray-600">Propriedades atual:</span>
-          <span className={`font-semibold ${propertyCount > maxIncluded ? 'text-orange-600' : 'text-gray-900'}`}>
+          <span className={`font-semibold ${!isUnlimited && propertyCount > maxIncluded ? 'text-orange-600' : 'text-gray-900'}`}>
             {propertyCount}
           </span>
         </div>
@@ -106,7 +107,7 @@ export function BillingPreview({ orgId, onAddExtraProperty, onManagePlan }: Bill
 
       {/* Action Buttons */}
       <div className="mt-6 flex gap-3">
-        {extraCount < 10 && maxIncluded < 10 && (
+        {!isUnlimited && extraCount < 10 && maxIncluded < 10 && (
           <button
             onClick={onAddExtraProperty}
             className="flex-1 rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-600"
@@ -135,7 +136,7 @@ export function BillingPreview({ orgId, onAddExtraProperty, onManagePlan }: Bill
       {extraCount > 2 && (plan === 'essencial' || plan === 'expansao') && (
         <div className="mt-4 rounded-lg bg-green-50 p-3 border border-green-200">
           <p className="text-xs text-green-800">
-            🚀 <strong>Dica:</strong> Plano Premium inclui 10 propriedades + API. Poderia ser mais econômico!
+            🚀 <strong>Dica:</strong> Plano Premium inclui propriedades ilimitadas + API. Poderia ser mais econômico!
           </p>
         </div>
       )}

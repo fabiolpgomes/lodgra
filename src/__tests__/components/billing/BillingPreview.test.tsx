@@ -161,11 +161,11 @@ describe('BillingPreview Component', () => {
     test('should show upgrade suggestion to Premium', () => {
       render(<BillingPreview orgId="org-123" />)
 
-      expect(screen.queryByText(/plano premium inclui 10/i)).toBeInTheDocument()
+      expect(screen.getByText(/plano premium inclui propriedades ilimitadas/i)).toBeInTheDocument()
     })
   })
 
-  describe('Premium plan (10 included, unlimited extras)', () => {
+  describe('Premium plan (unlimited properties)', () => {
     beforeEach(() => {
       ;(useBillingPreview as jest.Mock).mockReturnValue({
         subscription: { plan: 'premium', status: 'active' },
@@ -186,10 +186,11 @@ describe('BillingPreview Component', () => {
       render(<BillingPreview orgId="org-123" />)
 
       expect(screen.queryByText(/propriedades extras/i)).not.toBeInTheDocument()
+      expect(screen.getByText(/ilimitadas/i)).toBeInTheDocument()
     })
   })
 
-  describe('Premium plan with extras', () => {
+  describe('Premium plan above the former 10-property threshold', () => {
     beforeEach(() => {
       ;(useBillingPreview as jest.Mock).mockReturnValue({
         subscription: { plan: 'premium', status: 'active' },
@@ -199,18 +200,16 @@ describe('BillingPreview Component', () => {
       })
     })
 
-    test('should calculate extras for Premium', () => {
+    test('should not charge extras for Premium', () => {
       render(<BillingPreview orgId="org-123" />)
 
-      // 15 total, 10 included = 5 extras
-      expect(screen.getByText(/5 × R\$49/)).toBeInTheDocument()
+      expect(screen.queryByText(/propriedades extras/i)).not.toBeInTheDocument()
     })
 
-    test('should show correct total with many extras', () => {
+    test('should keep the fixed Premium total', () => {
       render(<BillingPreview orgId="org-123" />)
 
-      // Base: R$397 + extras: 5 × R$49 = R$642
-      expect(screen.getByText(/R\$642/)).toBeInTheDocument()
+      expect(screen.getByText(/R\$397/)).toBeInTheDocument()
     })
   })
 

@@ -179,4 +179,50 @@ describe('GET /api/cron/sync-ical', () => {
     const response = await GET(request)
     expect(response.status).toBe(401)
   })
+
+  it('delimita a procura de reserva existente pelo listing e organização', async () => {
+    const listing = {
+      id: 'listing-tenant-safe',
+      ical_url: 'https://example.com/tenant-safe.ics',
+      sync_enabled: true,
+      property_id: 'prop-tenant-safe',
+      properties: { name: 'Casa Segura', organization_id: 'org-tenant-safe', is_active: true },
+    }
+    const reservationQuery = makeQuery({ data: { id: 'existing-reservation' }, error: null })
+
+    const mockSupabase = {
+      from: jest.fn((table: string) => {
+        if (table === 'property_listings') {
+          return {
+            select: jest.fn(() => makeQuery({ data: [listing], error: null })),
+            update: jest.fn(() => makeQuery({ data: null, error: null })),
+          }
+        }
+        if (table === 'reservations') return reservationQuery
+        if (table === 'calendar_blocks') {
+          return { select: jest.fn(() => makeQuery({ data: [], error: null })) }
+        }
+        if (table === 'sync_logs') {
+          return { insert: jest.fn(() => Promise.resolve({ data: null, error: null })) }
+        }
+        return { select: jest.fn(() => makeQuery({ data: [], error: null })) }
+      }),
+    }
+
+    ;(createAdminClient as jest.Mock).mockReturnValue(mockSupabase)
+    ;(importICalFromUrl as jest.Mock).mockResolvedValue([{
+      uid: 'shared-platform-uid',
+      summary: 'Reserved',
+      description: '',
+      start: new Date('2026-09-10T00:00:00.000Z'),
+      end: new Date('2026-09-12T00:00:00.000Z'),
+    }])
+
+    const response = await GET(buildRequest())
+
+    expect(response.status).toBe(200)
+    expect(reservationQuery.eq).toHaveBeenCalledWith('external_id', expect.any(String))
+    expect(reservationQuery.eq).toHaveBeenCalledWith('property_listing_id', listing.id)
+    expect(reservationQuery.eq).toHaveBeenCalledWith('organization_id', 'org-tenant-safe')
+  })
 })

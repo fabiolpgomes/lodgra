@@ -13,6 +13,7 @@ import {
   getPlatformUrl,
 } from '@/lib/ical/bookingParser'
 import { calculateServiceFeeAmount, nightsBetween } from '@/lib/reservations/serviceFee'
+import { isAuthorizedCronRequest } from '@/lib/cron/auth'
 
 interface ListingPropertyInfo {
   name: string
@@ -52,6 +53,9 @@ async function syncOneListing(
 
   // Extract organization_id from listing (needed for both reservations and blocks)
   const cronOrgId = (listing.properties as unknown as { organization_id?: string })?.organization_id as string | undefined
+  if (!cronOrgId) {
+    throw new Error(`Listing ${listing.id} has no organization_id`)
+  }
 
   console.log(`[Cron] Sincronizando anúncio ${listing.id}...`)
   const events = await importICalFromUrl(listing.ical_url)
@@ -127,18 +131,8 @@ async function syncOneListing(
         cronOrgId,
       })
 
-      // Create or update block instead of reservation
-      // Fallback: fetch organization from property if cronOrgId is missing
-      let blockOrgId = cronOrgId
-      if (!blockOrgId) {
-        const { data: prop } = await supabase
-          .from('properties')
-          .select('organization_id')
-          .eq('id', listing.property_id)
-          .single()
-        blockOrgId = prop?.organization_id
-        console.log(`[Cron] Fetched organization_id for property ${listing.property_id}: ${blockOrgId}`)
-      }
+      // Create or update a tenant-scoped block instead of a reservation.
+      const blockOrgId = cronOrgId
 
       // Verificar se bloqueio já existe (pelo external_uid)
       let blockError = null
@@ -147,6 +141,8 @@ async function syncOneListing(
           .from('calendar_blocks')
           .select('id')
           .eq('external_uid', event.uid)
+          .eq('property_id', listing.property_id)
+          .eq('organization_id', blockOrgId)
           .single()
 
         if (existingError) {
@@ -164,7 +160,7 @@ async function syncOneListing(
               notes: event.summary || 'Bloqueado pela plataforma',
               block_type: 'platform_sync',
             })
-            .eq('external_uid', event.uid)
+            .eq('id', existing.id)
           blockError = updateError
           if (blockError) {
             console.error(`[Cron] Erro ao atualizar bloqueio ${event.uid}:`, blockError)
@@ -239,7 +235,12 @@ async function syncOneListing(
     }
 
     const { data: existingReservation } = await supabase
-      .from('reservations').select('id').eq('external_id', externalIdLookup).single()
+      .from('reservations')
+      .select('id')
+      .eq('external_id', externalIdLookup)
+      .eq('property_listing_id', listing.id)
+      .eq('organization_id', cronOrgId)
+      .single()
 
     if (existingReservation) {
       console.log(`[Cron] Atualizando reserva existente com external_id: ${externalIdLookup}`)
@@ -430,18 +431,9 @@ async function syncOneListing(
 
 export async function GET(request: NextRequest) {
   try {
-    const cronSecret = process.env.CRON_SECRET
-    const authHeader = request.headers.get('authorization')
-    const querySecret = request.nextUrl.searchParams.get('secret')
     const isManual = request.nextUrl.searchParams.get('manual') === 'true'
 
-    // Accept either Bearer token OR query parameter (for pg_cron compatibility)
-    const isAuthorized = cronSecret && (
-      authHeader === `Bearer ${cronSecret}` ||
-      querySecret === cronSecret
-    )
-
-    if (!isAuthorized) {
+    if (!isAuthorizedCronRequest(request)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -454,7 +446,7 @@ export async function GET(request: NextRequest) {
 
     const { data: listings, error } = await supabase
       .from('property_listings')
-      .select(`id, ical_url, sync_enabled, property_id, properties!inner(name, organization_id, cleaning_fee, cleaning_fee_type, pet_fee, pet_fee_type, is_active)`)
+      .select(`id, ical_url, sync_enabled, property_id, properties:properties!property_listings_property_org_fk(name, organization_id, cleaning_fee, cleaning_fee_type, pet_fee, pet_fee_type, is_active)`)
       .eq('is_active', true)
       .eq('sync_enabled', true)
       .not('ical_url', 'is', null)
