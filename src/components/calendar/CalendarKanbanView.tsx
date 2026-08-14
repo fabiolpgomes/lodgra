@@ -158,11 +158,12 @@ export function CalendarKanbanView({
 
   // Filter and sort properties
   // If selectedPropertyId is provided, show only that property
-  // Otherwise show all properties (up to 7)
+  // Otherwise show all properties
   const propertiesWithReservations = [...properties]
     .filter(p => selectedPropertyId ? p.id === selectedPropertyId : true)
     .sort((a, b) => (a.location || '').localeCompare(b.location || ''))
-    .slice(0, selectedPropertyId ? 1 : 7)
+    // The hub must show every property. The viewport already scrolls vertically,
+    // so truncating here made valid properties silently disappear.
 
   const monthDisplay = MONTHS[weekStartDate.getMonth()]
   const year = weekStartDate.getFullYear()

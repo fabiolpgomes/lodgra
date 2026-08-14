@@ -14,9 +14,11 @@ interface PriceCardProps {
   basePrice: number | null
   weekendPrice?: number | null
   onUpdate?: () => void
+  calendarMonth?: number
+  calendarYear?: number
 }
 
-function PriceCardComponent({ propertyId, basePrice: initialPrice, weekendPrice: initialWeekendPrice, onUpdate }: PriceCardProps) {
+function PriceCardComponent({ propertyId, basePrice: initialPrice, weekendPrice: initialWeekendPrice, onUpdate, calendarMonth, calendarYear }: PriceCardProps) {
   const [basePrice, setBasePrice] = useState(initialPrice?.toString() || '')
   const [weekendPrice, setWeekendPrice] = useState(initialWeekendPrice?.toString() || '')
   const [smartPricingEnabled, setSmartPricingEnabled] = useState(false)
@@ -44,11 +46,19 @@ function PriceCardComponent({ propertyId, basePrice: initialPrice, weekendPrice:
 
       // Get first and last day of current month
       const today = new Date()
-      const firstDay = new Date(today.getFullYear(), today.getMonth(), 1)
-      const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0)
+      const year = calendarYear ?? today.getFullYear()
+      const month = calendarMonth ?? today.getMonth()
+      const firstDay = new Date(year, month, 1)
+      const lastDay = new Date(year, month + 1, 0)
 
-      const startDate = firstDay.toISOString().split('T')[0]
-      const endDate = lastDay.toISOString().split('T')[0]
+      const formatLocalDate = (date: Date) => {
+        const localYear = date.getFullYear()
+        const localMonth = String(date.getMonth() + 1).padStart(2, '0')
+        const localDay = String(date.getDate()).padStart(2, '0')
+        return `${localYear}-${localMonth}-${localDay}`
+      }
+      const startDate = formatLocalDate(firstDay)
+      const endDate = formatLocalDate(lastDay)
 
       console.log('[DEBUG] Filling calendar:', {
         propertyId,
@@ -343,5 +353,7 @@ export const PriceCard = React.memo(PriceCardComponent, (prev, next) => {
   // Shallow comparison: re-render if any prop changed
   return prev.propertyId === next.propertyId &&
     prev.basePrice === next.basePrice &&
-    prev.weekendPrice === next.weekendPrice
+    prev.weekendPrice === next.weekendPrice &&
+    prev.calendarMonth === next.calendarMonth &&
+    prev.calendarYear === next.calendarYear
 })

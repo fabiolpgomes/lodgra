@@ -50,7 +50,7 @@ export function useDailyPrices(propertyId: string, year: number, month: number) 
     queryKey: ['dailyPrices', propertyId, year, month],
     queryFn: async () => {
       const response = await fetch(
-        `/api/properties/${propertyId}/daily-prices`,
+        `/api/properties/${propertyId}/daily-prices?year=${year}&month=${month}`,
         { credentials: 'include' }
       )
       if (!response.ok) throw new Error('Failed to fetch prices')

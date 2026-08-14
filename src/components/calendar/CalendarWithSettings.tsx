@@ -1,10 +1,11 @@
 'use client'
 
 import React, { useState, useCallback, useMemo } from 'react'
-import { useRouter, useParams } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query'
 import { SettingsSidebar } from './SettingsSidebar'
+import { PropertyRail } from './PropertyRail'
 import { CalendarDayClickModal } from './CalendarDayClickModal'
 import { ReservationDetailsModal } from './ReservationDetailsModal'
 import { DiscountSelectionModal } from './DiscountSelectionModal'
@@ -62,7 +63,6 @@ function CalendarWithSettingsContent({
   propertyId,
   calendarComponent: CalendarComponent,
 }: CalendarWithSettingsProps) {
-  const router = useRouter()
   const params = useParams()
   const locale = (params.locale as string) || 'pt-BR'
 
@@ -292,7 +292,7 @@ function CalendarWithSettingsContent({
         throw error
       }
     },
-    [propertyId, refetchData, dailyPrices]
+    [propertyId, refetchData, selection]
   )
 
   // Handle block dates from modal
@@ -346,7 +346,7 @@ function CalendarWithSettingsContent({
       console.error('Error blocking dates:', error)
       throw error
     }
-  }, [propertyId, refetchData])
+  }, [propertyId, refetchData, selection])
 
   // Handle unblock dates from modal
   const handleUnblockDates = useCallback(async (blockId: string) => {
@@ -422,9 +422,10 @@ function CalendarWithSettingsContent({
       </div>
 
       {/* Grid container for calendar and sidebar */}
-      <div className="flex-1 flex flex-col md:grid md:grid-cols-[1fr_400px] lg:grid-cols-[1fr_450px] gap-0">
+      <div className="flex min-h-0 flex-1 flex-col md:grid md:grid-cols-[minmax(0,1fr)_380px] lg:flex lg:flex-row gap-0">
+        <PropertyRail activePropertyId={propertyId} locale={locale} />
         {/* Calendar - Mobile Full Width, Desktop Left */}
-        <div className="flex-1 overflow-auto flex flex-col">
+        <main className="min-w-0 flex-1 overflow-auto flex flex-col bg-white">
           <CalendarComponent
             onDayClick={handleDayClick}
             onRangeSelect={handleRangeSelect}
@@ -436,12 +437,18 @@ function CalendarWithSettingsContent({
             blockedDates={blockedDates}
           />
 
-        </div>
+        </main>
 
         {/* Settings Sidebar - Mobile Bottom Sheet, Desktop Right */}
-        <div className="md:overflow-auto" style={{ borderTop: '1px solid #E5DFD2', borderLeft: '1px solid #E5DFD2', backgroundColor: '#FBFAF6' }}>
-          <SettingsSidebar key={propertyId} propertyId={propertyId} onUpdate={refetchData} />
-        </div>
+        <aside className="md:w-[380px] md:overflow-auto lg:w-[390px] lg:flex-none" style={{ borderTop: '1px solid #E5DFD2', borderLeft: '1px solid #E5DFD2', backgroundColor: '#FFFFFF' }}>
+          <SettingsSidebar
+            key={propertyId}
+            propertyId={propertyId}
+            calendarMonth={currentMonth}
+            calendarYear={currentYear}
+            onUpdate={refetchData}
+          />
+        </aside>
       </div>
 
       {/* Reservation Details Modal */}
