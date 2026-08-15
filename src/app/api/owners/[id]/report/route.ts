@@ -64,40 +64,14 @@ export async function GET(
 
     const propertyIds = properties.map(p => p.id)
 
-    // Buscar anúncios das propriedades
-    const { data: listings } = await supabase
-      .from('property_listings')
-      .select('id, property_id')
-      .in('property_id', propertyIds)
-
-    const listingIds = listings?.map(l => l.id) ?? []
-    const listingToProperty: Record<string, string> = {}
-    listings?.forEach(l => { listingToProperty[l.id] = l.property_id })
-
     // Buscar reservas confirmadas no período
     const reservationsQuery = supabase
       .from('reservations')
-      .select('total_amount, property_listing_id')
+      .select('total_amount, property_id')
       .eq('status', 'confirmed')
       .gte('check_in', from)
       .lte('check_in', to)
-
-    if (listingIds.length > 0) {
-      reservationsQuery.in('property_listing_id', listingIds)
-    } else {
-      // Sem anúncios = sem reservas
-      return NextResponse.json({
-        owner,
-        properties: properties.map(p => ({
-          ...p,
-          revenue: 0,
-          managementFee: 0,
-          expenses: 0,
-          ownerNet: 0,
-        })),
-        summary: { revenue: 0, managementFee: 0, expenses: 0, ownerNet: 0 },
-      })
-    }
+      .in('property_id', propertyIds)
 
     const { data: reservations } = await reservationsQuery
 
@@ -114,10 +88,7 @@ export async function GET(
     const expensesByProperty: Record<string, number> = {}
 
     reservations?.forEach(r => {
-      const propId = listingToProperty[r.property_listing_id]
-      if (propId) {
-        revenueByProperty[propId] = (revenueByProperty[propId] ?? 0) + Number(r.total_amount ?? 0)
-      }
+      revenueByProperty[r.property_id] = (revenueByProperty[r.property_id] ?? 0) + Number(r.total_amount ?? 0)
     })
 
     expenses?.forEach(e => {

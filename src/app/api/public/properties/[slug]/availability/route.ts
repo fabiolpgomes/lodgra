@@ -64,38 +64,24 @@ export async function GET(
   const rangeStart = format(monthStart, 'yyyy-MM-dd')
   const rangeEnd = format(monthEnd, 'yyyy-MM-dd')
 
-  // Fetch active reservations overlapping this month via property_listings
-  // Use admin client to bypass RLS (property_listings has RLS that blocks public access)
+  // Use the canonical property relationship so legacy and multi-channel reservations block dates.
   const adminClient = await createAdminClient()
-  const { data: listings } = await adminClient
-    .from('property_listings')
-    .select('id')
-    .eq('property_id', property.id)
-
-  const listingIds = (listings ?? []).map((l) => l.id)
-
   const blockedDates = new Set<string>()
-  let reservations: Array<{ check_in: string; check_out: string; status: string }> = []
+  const { data: reservationsData } = await adminClient
+    .from('reservations')
+    .select('check_in, check_out, status')
+    .eq('property_id', property.id)
+    .in('status', ['confirmed', 'pending_payment'])
+    .lte('check_in', rangeEnd)
+    .gte('check_out', rangeStart)
 
-  if (listingIds.length > 0) {
-    const { data: reservationsData } = await adminClient
-      .from('reservations')
-      .select('check_in, check_out, status')
-      .in('property_listing_id', listingIds)
-      .in('status', ['confirmed', 'pending_payment'])
-      .lte('check_in', rangeEnd)
-      .gte('check_out', rangeStart)
-
-    reservations = reservationsData ?? []
-
-    for (const r of reservations) {
-      const start = parseISO(r.check_in)
-      const end = parseISO(r.check_out)
-      // Blocked: check_in inclusive, check_out exclusive (checkout day is free)
-      const days = eachDayOfInterval({ start, end: new Date(end.getTime() - 86400000) })
-      for (const d of days) {
-        blockedDates.add(format(d, 'yyyy-MM-dd'))
-      }
+  const reservations = reservationsData ?? []
+  for (const r of reservations) {
+    const start = parseISO(r.check_in)
+    const end = parseISO(r.check_out)
+    const days = eachDayOfInterval({ start, end: new Date(end.getTime() - 86400000) })
+    for (const d of days) {
+      blockedDates.add(format(d, 'yyyy-MM-dd'))
     }
   }
 

@@ -28,10 +28,10 @@ export async function PATCH(
 
     const supabase = await createClient()
 
-    // Fetch reservation to get property_listing_id
+    // The property is the canonical reservation scope; a channel listing is optional.
     const { data: reservation, error: fetchError } = await supabase
       .from('reservations')
-      .select('id, property_listing_id')
+      .select('id, property_id')
       .eq('id', id)
       .single()
 
@@ -39,11 +39,11 @@ export async function PATCH(
       return NextResponse.json({ error: 'Reserva não encontrada' }, { status: 404 })
     }
 
-    // Check for overlapping confirmed OR pending reservations on the same listing
+    // Check for overlapping confirmed OR pending reservations on the same property.
     const { data: overlapping, error: overlapError } = await supabase
       .from('reservations')
       .select('id, status')
-      .eq('property_listing_id', reservation.property_listing_id)
+      .eq('property_id', reservation.property_id)
       .in('status', ['confirmed', 'pending'])
       .neq('id', id)
       .lt('check_in', check_out)
@@ -93,7 +93,7 @@ export async function DELETE(
     // Verify reservation exists and get required data
     const { data: reservation, error: fetchError } = await supabase
       .from('reservations')
-      .select('id, check_in, check_out, property_listing_id, guests(first_name, last_name), property_listings(property_id)')
+      .select('id, property_id, check_in, check_out, property_listing_id, guests(first_name, last_name)')
       .eq('id', id)
       .single()
 
@@ -154,8 +154,7 @@ export async function DELETE(
       `Período=${reservation.check_in} até ${reservation.check_out}`
     )
 
-    // Get property ID for webhook notification
-    const propertyId = (reservation.property_listings as { property_id?: string } | null)?.property_id
+    const propertyId = reservation.property_id
 
     // Notify platforms about the cancellation for faster sync
     if (propertyId) {

@@ -28,10 +28,11 @@ export async function GET(request: NextRequest) {
         status,
         cancelled_at,
         cancellation_reason,
+        property_id,
         property_listing_id,
-        property_listings!inner(property_id, properties!inner(name))
+        properties:properties!reservations_property_org_fk(name)
       `)
-      .eq('property_listings.property_id', propertyId)
+      .eq('property_id', propertyId)
       .eq('status', 'cancelled')
       .gte('cancelled_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())
       .order('cancelled_at', { ascending: false })
@@ -56,7 +57,7 @@ export async function GET(request: NextRequest) {
       status: 'success',
       propertyId,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      propertyName: (data?.[0]?.property_listings?.[0] as any)?.properties?.[0]?.name,
+      propertyName: (data?.[0]?.properties as any)?.name,
       summary: {
         totalCancelled: data?.length || 0,
         bySource,

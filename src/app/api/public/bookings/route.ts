@@ -109,42 +109,33 @@ export async function POST(request: NextRequest) {
 
   // ── Double-booking check ────────────────────────────────────────────────────
 
-  const { data: listings } = await adminClient
-    .from('property_listings')
+  // Stripe sessions expire in 30 min — pending_payment older than 35 min are stale
+  const stripeSessionExpiry = new Date(Date.now() - 35 * 60 * 1000).toISOString()
+
+  const { data: confirmedConflicts } = await adminClient
+    .from('reservations')
     .select('id')
     .eq('property_id', property.id)
+    .eq('status', 'confirmed')
+    .lt('check_in', checkout as string)
+    .gt('check_out', checkin as string)
+    .limit(1)
 
-  const listingIds = (listings ?? []).map((l: { id: string }) => l.id)
+  const { data: pendingConflicts } = await adminClient
+    .from('reservations')
+    .select('id')
+    .eq('property_id', property.id)
+    .eq('status', 'pending_payment')
+    .gte('created_at', stripeSessionExpiry) // only block if created within last 35 min
+    .lt('check_in', checkout as string)
+    .gt('check_out', checkin as string)
+    .limit(1)
 
-  if (listingIds.length > 0) {
-    // Stripe sessions expire in 30 min — pending_payment older than 35 min are stale
-    const stripeSessionExpiry = new Date(Date.now() - 35 * 60 * 1000).toISOString()
-
-    const { data: confirmedConflicts } = await adminClient
-      .from('reservations')
-      .select('id')
-      .in('property_listing_id', listingIds)
-      .eq('status', 'confirmed')
-      .lt('check_in', checkout as string)
-      .gt('check_out', checkin as string)
-      .limit(1)
-
-    const { data: pendingConflicts } = await adminClient
-      .from('reservations')
-      .select('id')
-      .in('property_listing_id', listingIds)
-      .eq('status', 'pending_payment')
-      .gte('created_at', stripeSessionExpiry) // only block if created within last 35 min
-      .lt('check_in', checkout as string)
-      .gt('check_out', checkin as string)
-      .limit(1)
-
-    if ((confirmedConflicts ?? []).length > 0 || (pendingConflicts ?? []).length > 0) {
-      return NextResponse.json(
-        { error: 'As datas seleccionadas já não estão disponíveis.' },
-        { status: 409 }
-      )
-    }
+  if ((confirmedConflicts ?? []).length > 0 || (pendingConflicts ?? []).length > 0) {
+    return NextResponse.json(
+      { error: 'As datas seleccionadas já não estão disponíveis.' },
+      { status: 409 }
+    )
   }
 
   // ── Find or create "direct" platform listing ────────────────────────────────
@@ -273,6 +264,7 @@ export async function POST(request: NextRequest) {
   const { data: reservation, error: reservationError } = await adminClient
     .from('reservations')
     .insert({
+      property_id: property.id,
       property_listing_id: directListingId,
       guest_id: guestRecord?.id ?? null,
       check_in: checkin as string,

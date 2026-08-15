@@ -64,12 +64,12 @@ export async function POST(_request: Request) {
             .eq('organization_id', organizationId)
         : Promise.resolve({ data: [] }),
 
-      // Reservations (via property_listings for org)
+      // Reservations (canonical organization relationship)
       organizationId
         ? adminClient
             .from('reservations')
-            .select('*, property_listings!inner(property_id, properties!inner(organization_id))')
-            .eq('property_listings.properties.organization_id', organizationId)
+            .select('*, properties:properties!reservations_property_org_fk(organization_id)')
+            .eq('organization_id', organizationId)
         : Promise.resolve({ data: [] }),
 
       // Expenses (org-scoped via properties)

@@ -22,10 +22,10 @@ export async function GET(request: NextRequest) {
         status,
         cancelled_at,
         cancellation_reason,
-        property_listing_id,
-        property_listings!inner(property_id)
+        property_id,
+        property_listing_id
       `)
-      .eq('property_listings.property_id', propertyId)
+      .eq('property_id', propertyId)
       .eq('status', 'cancelled')
       .gte('cancelled_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
       .order('cancelled_at', { ascending: false })
@@ -41,24 +41,24 @@ export async function GET(request: NextRequest) {
       status: string
       cancelled_at: string | null
       cancellation_reason: string | null
-      property_listing_id: string
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      property_listings: any
+      property_listing_id: string | null
+      property_id: string
     }
-    const byReason: Record<string, typeof data> = {}
-    data?.forEach((r: ReservationGroup) => {
+    const reservations = (data ?? []) as ReservationGroup[]
+    const byReason: Record<string, ReservationGroup[]> = {}
+    reservations.forEach((r) => {
       const reason = r.cancellation_reason || '(sem motivo registrado)'
       if (!byReason[reason]) byReason[reason] = []
       byReason[reason].push(r)
     })
 
     const stats = {
-      total: data?.length || 0,
-      byBooking: data?.filter(r => r.source === 'booking').length || 0,
-      byAirbnb: data?.filter(r => r.source === 'airbnb').length || 0,
-      byOther: data?.filter(r => !['booking', 'airbnb'].includes(r.source || '')).length || 0,
+      total: reservations.length,
+      byBooking: reservations.filter(r => r.source === 'booking').length,
+      byAirbnb: reservations.filter(r => r.source === 'airbnb').length,
+      byOther: reservations.filter(r => !['booking', 'airbnb'].includes(r.source || '')).length,
       byReason,
-      detail: data || []
+      detail: reservations
     }
 
     return NextResponse.json({

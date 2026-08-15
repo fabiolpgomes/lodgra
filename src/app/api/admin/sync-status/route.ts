@@ -39,6 +39,7 @@ export async function GET(request: NextRequest) {
         cancelled_at,
         check_in,
         check_out,
+        property_id,
         property_listing_id,
         property_listings(
           id,
@@ -51,7 +52,7 @@ export async function GET(request: NextRequest) {
       .order('cancelled_at', { ascending: false })
 
     if (propertyId) {
-      cancelledQuery = cancelledQuery.eq('property_listings.property_id', propertyId)
+      cancelledQuery = cancelledQuery.eq('property_id', propertyId)
     }
 
     const { data: cancelled, error: cancelledError } = await cancelledQuery

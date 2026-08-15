@@ -140,11 +140,11 @@ export async function processBookingReservation(
 
   const { data: propertyListingData } = await adminClient
     .from('property_listings')
-    .select('properties(property_id)')
+    .select('property_id')
     .eq('id', propertyListingId)
     .maybeSingle()
 
-  const propertyIdForPolicy = (propertyListingData?.properties as unknown as { property_id: string } | null)?.property_id
+  const propertyIdForPolicy = propertyListingData?.property_id
 
   let cancellationPolicyId: string | null = null
   let cancellationPolicySnapshot: CancellationPolicySnapshot | null = null
@@ -185,6 +185,7 @@ export async function processBookingReservation(
     .upsert(
       {
         external_id: payload.external_id,
+        property_id: propertyIdForPolicy,
         property_listing_id: propertyListingId,
         guest_id: guest.id,
         check_in: payload.check_in,

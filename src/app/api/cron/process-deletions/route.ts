@@ -106,19 +106,10 @@ async function processUserDeletion(adminClient: any, userId: string, requestId: 
     if (properties && properties.length > 0) {
       const propertyIds = properties.map((p: { id: string }) => p.id)
 
-      const { data: listings } = await adminClient
-        .from('property_listings')
-        .select('id')
+      await adminClient
+        .from('reservations')
+        .update({ guest_name: anonymizedName })
         .in('property_id', propertyIds)
-
-      if (listings && listings.length > 0) {
-        const listingIds = listings.map((l: { id: string }) => l.id)
-
-        await adminClient
-          .from('reservations')
-          .update({ guest_name: anonymizedName })
-          .in('property_listing_id', listingIds)
-      }
     }
 
     // 3. Anonymize owners (email/phone) and guests

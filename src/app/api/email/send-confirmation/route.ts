@@ -30,14 +30,7 @@ export async function POST(request: NextRequest) {
         total_amount,
         currency,
         property_listing_id,
-        property_listings!inner(
-          properties!inner(
-            name,
-            city,
-            slug,
-            organization_id
-          )
-        )
+        properties:properties!reservations_property_org_fk(name, city, slug, organization_id)
       `)
       .eq('id', reservationId)
       .single()
@@ -50,7 +43,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const property = ((reservation.property_listings as unknown) as { properties?: unknown })?.properties as { name: string; slug: string | null; city: string | null } | undefined
+    const property = reservation.properties as unknown as { name: string; slug: string | null; city: string | null } | undefined
     if (!property) {
       console.error('[email] Propriedade não encontrada para reserva:', reservationId)
       return NextResponse.json(

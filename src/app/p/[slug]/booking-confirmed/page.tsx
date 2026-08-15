@@ -40,15 +40,13 @@ export default async function BookingConfirmedPage({ params, searchParams }: Pag
         total_amount,
         currency,
         num_guests,
-        property_listings!inner(
-          properties!inner(slug)
-        )
+        properties:properties!reservations_property_org_fk(slug)
       `)
       .eq('stripe_checkout_session_id', session_id)
       .single()
 
     // Validate that the session belongs to this property slug
-    const propertySlug = (data?.property_listings as unknown as { properties: { slug: string } })?.properties?.slug
+    const propertySlug = (data?.properties as unknown as { slug: string } | null)?.slug
     if (data && propertySlug !== slug) {
       // Security: don't expose other properties' reservations
       return (

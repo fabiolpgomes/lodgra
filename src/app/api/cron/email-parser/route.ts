@@ -398,6 +398,7 @@ async function createDraftReservation(
   const { data: reservation, error } = await supabase
     .from('reservations')
     .insert({
+      property_id: propertyId || listing.properties?.id,
       property_listing_id: listing.id,
       guest_id: guest?.id || null,
       guest_name: guestName,

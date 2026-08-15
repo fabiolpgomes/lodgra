@@ -17,12 +17,12 @@ export async function GET(request: NextRequest) {
     let query = supabase
       .from('reservations')
       .select(
-        'id, status, cancelled_at, cancellation_reason, check_in, check_out, property_listing_id, guests(first_name, last_name), property_listings(property_id, properties(name))'
+        'id, property_id, status, cancelled_at, cancellation_reason, check_in, check_out, property_listing_id, guests(first_name, last_name), properties:properties!reservations_property_org_fk(name)'
       )
       .eq('status', 'cancelled')
 
     if (propertyId) {
-      query = query.eq('property_listings.property_id', propertyId)
+      query = query.eq('property_id', propertyId)
     }
 
     if (fromDate) {
@@ -87,9 +87,10 @@ export async function GET(request: NextRequest) {
           const guest = c.guests as { first_name?: string; last_name?: string } | null
           return guest ? `${guest.first_name || ''} ${guest.last_name || ''}`.trim() : 'Desconhecido'
         })(),
-        property: (
-          c.property_listings as { properties?: { name?: string } | null } | null
-        )?.properties?.name || 'Propriedade',
+        property: (() => {
+          const property = Array.isArray(c.properties) ? c.properties[0] : c.properties
+          return property?.name || 'Propriedade'
+        })(),
         period: `${c.check_in} até ${c.check_out}`,
         cancelledAt: c.cancelled_at,
         reason: c.cancellation_reason,

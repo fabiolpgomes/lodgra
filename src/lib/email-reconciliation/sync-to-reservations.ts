@@ -9,14 +9,13 @@ const MIN_WINNER_MARGIN = 0.15
 
 interface ReservationCandidate {
   id: string
+  property_id: string
   property_listing_id: string | null
-  property_listings: Array<{ property_id: string; properties: Array<{ name: string }> | null }> | null
+  properties: Array<{ name: string }> | null
 }
 
 function getPropertyName(candidate: ReservationCandidate): string {
-  const propListing = candidate.property_listings?.[0]
-  if (!propListing) return ''
-  const properties = propListing.properties
+  const properties = candidate.properties
   if (!Array.isArray(properties) || properties.length === 0) return ''
   return properties[0].name || ''
 }
@@ -48,12 +47,12 @@ export async function syncExtractedDataToReservation(extractionId: string): Prom
     // the iCal feed, which only has a numeric platform id — see
     // buildStableExternalId in cron/sync-ical/route.ts). So reservation_code
     // from the email can't be matched against anything in the DB today.
-    // A single property_listing can't have two overlapping reservations
+    // A single property can't have two overlapping reservations
     // (sync-ical already enforces that at creation time), so exact-date +
     // property is the reliable key across an org with multiple properties.
     const { data: candidates, error: reservationError } = await supabase
       .from('reservations')
-      .select('id, property_listing_id, property_listings(property_id, properties(name))')
+      .select('id, property_id, property_listing_id, properties:properties!reservations_property_org_fk(name)')
       .eq('organization_id', extraction.organization_id)
       .eq('check_in', extraction.check_in)
       .eq('check_out', extraction.check_out)

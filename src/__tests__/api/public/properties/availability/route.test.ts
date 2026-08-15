@@ -33,12 +33,10 @@ const mockProperty = {
 
 function buildMockSupabase(options: {
   property?: unknown
-  listings?: unknown[]
   reservations?: { check_in: string; check_out: string }[]
 } = {}) {
   const {
     property = mockProperty,
-    listings = [{ id: 'listing-001' }],
     reservations = [],
   } = options
 
@@ -50,15 +48,10 @@ function buildMockSupabase(options: {
         single: jest.fn().mockResolvedValue({ data: property, error: null }),
       }
     }
-    if (table === 'property_listings') {
-      return {
-        select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockResolvedValue({ data: listings, error: null }),
-      }
-    }
     if (table === 'reservations') {
       return {
         select: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
         in: jest.fn().mockReturnThis(),
         lte: jest.fn().mockReturnThis(),
         gte: jest.fn().mockResolvedValue({ data: reservations, error: null }),

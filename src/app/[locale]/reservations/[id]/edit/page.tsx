@@ -44,10 +44,10 @@ export default function EditReservationPage({
         .from('reservations')
         .select(`
           *,
-          property_listings!inner(
+          property_listings(
             id,
             property_id,
-            properties!inner(
+            properties(
               id,
               name
             )
@@ -70,8 +70,9 @@ export default function EditReservationPage({
       }
 
       setReservation(reservationData)
-      setSelectedProperty(reservationData.property_listings.property_id)
-      setSelectedListing(reservationData.property_listing_id)
+      const reservationPropertyId = reservationData.property_id || reservationData.property_listings?.property_id
+      setSelectedProperty(reservationPropertyId || '')
+      setSelectedListing(reservationData.property_listing_id || '')
 
       const { data: propertiesData } = await supabase
         .from('properties')
@@ -83,14 +84,14 @@ export default function EditReservationPage({
 
       // Inicializar moeda a partir da reserva ou da propriedade
       const initialCurrency = (reservationData.currency as string) ||
-        (propertiesData?.find((p: { id: string; currency: string }) => p.id === reservationData.property_listings.property_id)?.currency) ||
+        (propertiesData?.find((p: { id: string; currency: string }) => p.id === reservationPropertyId)?.currency) ||
         'EUR'
       setSelectedCurrency(initialCurrency)
 
       const { data: listingsData } = await supabase
         .from('property_listings')
         .select('*')
-        .eq('property_id', reservationData.property_listings.property_id)
+        .eq('property_id', reservationPropertyId)
         .eq('is_active', true)
 
       setPropertyListings(listingsData || [])
@@ -182,6 +183,7 @@ export default function EditReservationPage({
       const { error: updateError } = await supabase
         .from('reservations')
         .update({
+          property_id: selectedProperty,
           property_listing_id: selectedListing,
           check_in: checkInStr,
           check_out: checkOutStr,

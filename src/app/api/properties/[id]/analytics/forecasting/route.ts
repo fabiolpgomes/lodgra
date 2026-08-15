@@ -46,7 +46,7 @@ export async function GET(
     const { data: reservations, error: reservationError } = await supabase
       .from('reservations')
       .select('check_in, check_out, total_amount, status')
-      .eq('property_listing_id', propertyId)
+      .eq('property_id', propertyId)
       .gte('check_in', ninetyDaysAgo.toISOString().split('T')[0])
       .eq('status', 'confirmed');
 

@@ -23,10 +23,11 @@ export async function POST(request: NextRequest) {
       .from('reservations')
       .select(`
         id,
+        property_id,
         property_listing_id,
         check_in,
         check_out,
-        property_listings!inner(
+        property_listings(
           property_id
         )
       `)
@@ -41,7 +42,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const propertyId = (reservation.property_listings as unknown as { property_id: string } | null)?.property_id
+    const propertyId = reservation.property_id
+      || (reservation.property_listings as unknown as { property_id: string } | null)?.property_id
 
     if (!propertyId) {
       return NextResponse.json(

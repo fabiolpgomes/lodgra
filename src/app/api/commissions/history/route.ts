@@ -43,9 +43,8 @@ export async function GET(request: NextRequest) {
         commission_amount,
         commission_calculated_at,
         guest_name,
-        property_listings!inner (
-          properties ( id, name )
-        )
+        property_id,
+        properties:properties!reservations_property_org_fk(id, name)
       `
       )
       .eq('organization_id', organizationId)
@@ -69,13 +68,13 @@ export async function GET(request: NextRequest) {
       commission_amount: number
       commission_calculated_at: string
       guest_name: string
-      property_listings: { properties: { id: string; name: string }[] }[]
+      properties: { id: string; name: string } | { id: string; name: string }[] | null
     }
 
     const data = (commissions as CommissionRow[]).map((row) => ({
       id: row.id,
-      propertyId: row.property_listings?.[0]?.properties?.[0]?.id,
-      propertyName: row.property_listings?.[0]?.properties?.[0]?.name || 'Unknown',
+      propertyId: Array.isArray(row.properties) ? row.properties[0]?.id : row.properties?.id,
+      propertyName: (Array.isArray(row.properties) ? row.properties[0]?.name : row.properties?.name) || 'Unknown',
       guestName: row.guest_name,
       checkIn: row.check_in,
       checkOut: row.check_out,

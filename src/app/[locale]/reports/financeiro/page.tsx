@@ -75,16 +75,8 @@ export default async function FinanceiroPage({ searchParams }: PageProps) {
       source,
       number_of_guests,
       created_at,
-      property_listings!inner(
-        id,
-        property_id,
-        properties!inner(
-          id,
-          name,
-          city,
-          currency
-        )
-      ),
+      property_id,
+      properties:properties!reservations_property_org_fk(id, name, city, currency),
       guests(
         first_name,
         last_name
@@ -97,10 +89,10 @@ export default async function FinanceiroPage({ searchParams }: PageProps) {
 
   // Filtro por propriedade nas reservas
   if (propertyId) {
-    reservationsQuery = reservationsQuery.eq('property_listings.property_id', propertyId)
+    reservationsQuery = reservationsQuery.eq('property_id', propertyId)
   }
   if (userPropertyIds) {
-    reservationsQuery = reservationsQuery.in('property_listings.property_id', userPropertyIds)
+    reservationsQuery = reservationsQuery.in('property_id', userPropertyIds)
   }
 
   // Query de reservas futuras (a partir de hoje, independente dos filtros de data)
@@ -116,14 +108,8 @@ export default async function FinanceiroPage({ searchParams }: PageProps) {
       currency,
       source,
       status,
-      property_listings!inner(
-        property_id,
-        properties!inner(
-          id,
-          name,
-          currency
-        )
-      ),
+      property_id,
+      properties:properties!reservations_property_org_fk(id, name, currency),
       guests(
         first_name,
         last_name
@@ -134,10 +120,10 @@ export default async function FinanceiroPage({ searchParams }: PageProps) {
     .order('check_in', { ascending: true })
 
   if (propertyId) {
-    futureReservationsQuery = futureReservationsQuery.eq('property_listings.property_id', propertyId)
+    futureReservationsQuery = futureReservationsQuery.eq('property_id', propertyId)
   }
   if (userPropertyIds) {
-    futureReservationsQuery = futureReservationsQuery.in('property_listings.property_id', userPropertyIds)
+    futureReservationsQuery = futureReservationsQuery.in('property_id', userPropertyIds)
   }
 
   // Query de despesas
@@ -175,10 +161,8 @@ export default async function FinanceiroPage({ searchParams }: PageProps) {
   const futureReservations = futureReservationsResult.data || []
 
   // Helper: use property.currency as primary source (Airbnb imports store 'EUR' in reservation.currency)
-  function getResCurrency(r: { currency?: string | null; property_listings?: unknown }): CurrencyCode {
-    const listing = r.property_listings
-    const lObj = Array.isArray(listing) ? listing[0] : listing
-    const prop = (lObj as { properties?: { currency?: string } } | null)?.properties
+  function getResCurrency(r: { currency?: string | null; properties?: unknown }): CurrencyCode {
+    const prop = r.properties
     const propObj = Array.isArray(prop) ? prop[0] : prop
     return ((propObj?.currency || r.currency || 'EUR') as CurrencyCode)
   }
@@ -294,9 +278,9 @@ export default async function FinanceiroPage({ searchParams }: PageProps) {
 
   // Agrupar por propriedade
   const revenueByProperty = reservations?.reduce((acc: Record<string, { id: string; name: string; currency: string; revenue: number; reservations: number; nights: number; availableNights: number }>, r) => {
-    const listing = r.property_listings as unknown as { properties: { id: string; name: string } } | null
-    const propertyId = listing?.properties?.id
-    const propertyName = listing?.properties?.name
+    const propertyData = r.properties as unknown as { id: string; name: string } | null
+    const propertyId = r.property_id
+    const propertyName = propertyData?.name
     if (!propertyId) return acc
 
     if (!acc[propertyId]) {

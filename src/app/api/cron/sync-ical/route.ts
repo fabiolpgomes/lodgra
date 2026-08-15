@@ -270,15 +270,9 @@ async function syncOneListing(
         updated++; progress.updated++
       }
     } else {
-      // Buscar siblings da mesma propriedade para overlap check
-      const { data: siblingListings } = await supabase
-        .from('property_listings').select('id').eq('property_id', listing.property_id)
-      const siblingIds = siblingListings?.map(l => l.id) || [listing.id]
-      if (siblingIds.length === 0) siblingIds.push(listing.id)
-
       const { data: overlapping } = await supabase
         .from('reservations').select('id')
-        .in('property_listing_id', siblingIds)
+        .eq('property_id', listing.property_id)
         .not('status', 'eq', 'cancelled')
         .lt('check_in', checkOut).gt('check_out', checkIn)
 
@@ -331,6 +325,7 @@ async function syncOneListing(
       const { error: resError } = await supabase
         .from('reservations')
         .insert({
+          property_id: listing.property_id,
           property_listing_id: listing.id,
           guest_id: guest.id,
           guest_name: `${guestFirstName} ${guestLastName}`.trim(),

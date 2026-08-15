@@ -46,14 +46,12 @@ type ReservationRow = {
   currency?: string | null
   source?: string | null
   booking_source?: string | null
+  property_id?: string | null
+  properties?: { id?: string; name?: string; currency?: string | null } | { id?: string; name?: string; currency?: string | null }[] | null
   property_listings?: {
-    property_id?: string | null
     platforms?: { display_name?: string | null; name?: string | null } | { display_name?: string | null; name?: string | null }[] | null
-    properties?: { id?: string; name?: string; currency?: string | null } | { id?: string; name?: string; currency?: string | null }[] | null
   } | Array<{
-    property_id?: string | null
     platforms?: { display_name?: string | null; name?: string | null } | { display_name?: string | null; name?: string | null }[] | null
-    properties?: { id?: string; name?: string; currency?: string | null } | { id?: string; name?: string; currency?: string | null }[] | null
   }> | null
 }
 
@@ -124,7 +122,7 @@ function getPlatformFromListing(reservation: ReservationRow) {
 }
 
 function getPropertyFromListing(reservation: ReservationRow) {
-  const property = getListing(reservation)?.properties
+  const property = reservation.properties
   return Array.isArray(property) ? property[0] : property
 }
 
@@ -234,16 +232,14 @@ export default async function CompanyDashboardPage({
           currency,
           source,
           booking_source,
-          property_listings!inner(
-            property_id,
-            platforms(display_name, name),
-            properties!inner(id, name, currency)
-          )
+          property_id,
+          properties:properties!reservations_property_org_fk(id, name, currency),
+          property_listings(platforms(display_name, name))
         `)
         .eq('status', 'confirmed')
         .lte('check_in', end)
         .gte('check_out', start)
-        .in('property_listings.property_id', propertyIds),
+        .in('property_id', propertyIds),
       supabase
         .from('expenses')
         .select('amount, currency, property_id, category, description, expense_date, properties(currency)')
@@ -261,15 +257,13 @@ export default async function CompanyDashboardPage({
           currency,
           source,
           booking_source,
-          property_listings!inner(
-            property_id,
-            platforms(display_name, name),
-            properties!inner(id, name, currency)
-          )
+          property_id,
+          properties:properties!reservations_property_org_fk(id, name, currency),
+          property_listings(platforms(display_name, name))
         `)
         .eq('status', 'confirmed')
         .gte('check_out', new Date().toISOString().split('T')[0])
-        .in('property_listings.property_id', propertyIds)
+        .in('property_id', propertyIds)
         .order('check_in', { ascending: true }),
     ])
     : [{ data: [] }, { data: [] }, { data: [] }]
@@ -326,8 +320,7 @@ export default async function CompanyDashboardPage({
   const ownerStats = new Map<string, { ownerName: string; revenue: MoneyMap; commission: MoneyMap; expenses: MoneyMap; ownerNet: MoneyMap; properties: Set<string> }>()
 
   reservations.forEach((reservation) => {
-    const listing = getListing(reservation)
-    const propertyId = listing?.property_id
+    const propertyId = reservation.property_id
     if (!propertyId) return
 
     const stat = statsByProperty.get(propertyId)

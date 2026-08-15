@@ -12,7 +12,7 @@ interface ReservationRow {
   number_of_guests: number | null
   total_amount: number | null
   currency: string | null
-  property_listings: { properties: { name: string }[] }[]
+  properties: { name: string } | { name: string }[] | null
   guests: { first_name: string; last_name: string; email: string | null } | null
 }
 
@@ -44,11 +44,7 @@ export async function GET(request: NextRequest) {
         number_of_guests,
         total_amount,
         currency,
-        property_listings!inner(
-          properties!inner(
-            name
-          )
-        ),
+        properties:properties!reservations_property_org_fk(name),
         guests(
           first_name,
           last_name,
@@ -67,11 +63,7 @@ export async function GET(request: NextRequest) {
         check_out,
         status,
         number_of_guests,
-        property_listings!inner(
-          properties!inner(
-            name
-          )
-        ),
+        properties:properties!reservations_property_org_fk(name),
         guests(
           first_name,
           last_name,
@@ -90,7 +82,7 @@ export async function GET(request: NextRequest) {
       return {
         guestName: r.guests ? `${r.guests.first_name} ${r.guests.last_name}` : 'Sem nome',
         guestEmail: r.guests?.email ?? undefined,
-        propertyName: r.property_listings[0]?.properties[0]?.name ?? '',
+        propertyName: (Array.isArray(r.properties) ? r.properties[0]?.name : r.properties?.name) ?? '',
         checkIn: r.check_in,
         checkOut: r.check_out,
         nights,
@@ -108,7 +100,7 @@ export async function GET(request: NextRequest) {
       return {
         guestName: r.guests ? `${r.guests.first_name} ${r.guests.last_name}` : 'Sem nome',
         guestEmail: r.guests?.email ?? undefined,
-        propertyName: r.property_listings[0]?.properties[0]?.name ?? '',
+        propertyName: (Array.isArray(r.properties) ? r.properties[0]?.name : r.properties?.name) ?? '',
         checkIn: r.check_in,
         checkOut: r.check_out,
         nights,

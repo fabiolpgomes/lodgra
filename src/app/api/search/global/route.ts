@@ -62,17 +62,16 @@ export async function GET(request: NextRequest) {
     // Search reservations by guest name (more user-friendly than ID)
     const { data: reservations } = await supabase
       .from('reservations')
-      .select('id, property_listings(properties(name)), guests(first_name, last_name), check_in')
+      .select('id, properties:properties!reservations_property_org_fk(name), guests(first_name, last_name), check_in')
       .or(`guests.first_name.ilike.%${escapedQ}%,guests.last_name.ilike.%${escapedQ}%`)
       .limit(5)
 
     if (reservations) {
       results.push(
         ...reservations
-          .filter(r => r.property_listings && r.guests)
+          .filter(r => r.properties && r.guests)
           .map(r => {
-            const listing = Array.isArray(r.property_listings) ? r.property_listings[0] : r.property_listings
-            const property = listing?.properties ? (Array.isArray(listing.properties) ? listing.properties[0] : listing.properties) : null
+            const property = Array.isArray(r.properties) ? r.properties[0] : r.properties
             const guest = Array.isArray(r.guests) ? r.guests[0] : r.guests
 
             return {

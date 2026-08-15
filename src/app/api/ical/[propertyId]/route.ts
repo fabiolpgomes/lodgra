@@ -30,12 +30,6 @@ export async function GET(
       return NextResponse.json({ error: 'Invalid or missing token' }, { status: 401 })
     }
 
-    // Buscar listings da propriedade
-    const { data: listings } = await supabase
-      .from('property_listings')
-      .select('id, ical_url, platform_id, sync_enabled, is_active, platforms(name, display_name)')
-      .eq('property_id', propertyId)
-
     // Fetch calendar blocks for this property (always include, even if no listings)
     const { data: blocks } = await supabase
       .from('calendar_blocks')
@@ -43,18 +37,7 @@ export async function GET(
       .eq('property_id', propertyId)
       .order('start_date', { ascending: true })
 
-    if (!listings || listings.length === 0) {
-      const icalData = generateICalWithBlocks([], (blocks || []) as unknown as Parameters<typeof generateICalWithBlocks>[1])
-      const headers = new Headers({
-        'Content-Type': 'text/calendar; charset=utf-8',
-        'Content-Disposition': `attachment; filename="property-${propertyId}.ics"`,
-      })
-      return new NextResponse(icalData, { status: 200, headers })
-    }
-
-    const listingIds = listings.map(l => l.id)
-
-    // Buscar reservas confirmadas/pendentes dos listings desta propriedade (exclui canceladas)
+    // Export every reservation for the property, regardless of its source channel.
     const { data: reservations, error } = await supabase
       .from('reservations')
       .select(`
@@ -64,19 +47,13 @@ export async function GET(
         status,
         number_of_guests,
         property_listing_id,
-        property_listings(
-          property_id,
-          properties:properties!property_listings_property_org_fk(
-            id,
-            name
-          )
-        ),
+        properties:properties!reservations_property_org_fk(id, name),
         guests(
           first_name,
           last_name
         )
       `)
-      .in('property_listing_id', listingIds)
+      .eq('property_id', propertyId)
       .in('status', ['confirmed', 'pending'])
       .neq('status', 'cancelled')
       .order('check_in', { ascending: true })

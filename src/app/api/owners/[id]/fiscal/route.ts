@@ -71,26 +71,14 @@ export async function GET(
 
     const propertyIds = properties.map(p => p.id)
 
-    // Fetch listings for revenue aggregation
-    const { data: listings } = await supabase
-      .from('property_listings')
-      .select('id, property_id')
-      .in('property_id', propertyIds)
-
-    const listingIds = listings?.map(l => l.id) ?? []
-    const listingToProperty: Record<string, string> = {}
-    listings?.forEach(l => { listingToProperty[l.id] = l.property_id })
-
     // Fetch confirmed reservations for the year
-    const { data: reservations } = listingIds.length > 0
-      ? await supabase
-          .from('reservations')
-          .select('total_amount, property_listing_id')
-          .eq('status', 'confirmed')
-          .gte('check_in', from)
-          .lte('check_in', to)
-          .in('property_listing_id', listingIds)
-      : { data: [] }
+    const { data: reservations } = await supabase
+      .from('reservations')
+      .select('total_amount, property_id')
+      .eq('status', 'confirmed')
+      .gte('check_in', from)
+      .lte('check_in', to)
+      .in('property_id', propertyIds)
 
     // Fetch deductible expenses for the year
     const { data: expenses } = await supabase
@@ -106,10 +94,7 @@ export async function GET(
     const deductibleByProperty: Record<string, number> = {}
 
     reservations?.forEach(r => {
-      const propId = listingToProperty[r.property_listing_id]
-      if (propId) {
-        revenueByProperty[propId] = (revenueByProperty[propId] ?? 0) + Number(r.total_amount ?? 0)
-      }
+      revenueByProperty[r.property_id] = (revenueByProperty[r.property_id] ?? 0) + Number(r.total_amount ?? 0)
     })
 
     expenses?.forEach(e => {

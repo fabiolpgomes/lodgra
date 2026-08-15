@@ -76,26 +76,17 @@ export default async function CheckoutPage({ params, searchParams }: PageProps) 
 
   // Availability check: redirect back if dates are already taken
   const adminClient = createAdminClient()
-  const { data: listingsForCheck } = await adminClient
-    .from('property_listings')
+  const { data: conflicts } = await adminClient
+    .from('reservations')
     .select('id')
     .eq('property_id', property.id)
+    .in('status', ['confirmed', 'pending_payment'])
+    .lt('check_in', checkout)
+    .gt('check_out', checkin)
+    .limit(1)
 
-  const listingIdsForCheck = (listingsForCheck ?? []).map((l: { id: string }) => l.id)
-
-  if (listingIdsForCheck.length > 0) {
-    const { data: conflicts } = await adminClient
-      .from('reservations')
-      .select('id')
-      .in('property_listing_id', listingIdsForCheck)
-      .in('status', ['confirmed', 'pending_payment'])
-      .lt('check_in', checkout)
-      .gt('check_out', checkin)
-      .limit(1)
-
-    if ((conflicts ?? []).length > 0) {
-      redirect(`/p/${slug}?datesUnavailable=1`)
-    }
+  if ((conflicts ?? []).length > 0) {
+    redirect(`/p/${slug}?datesUnavailable=1`)
   }
 
   // Calculate price with pricing rules first (admin client bypasses RLS on public page)

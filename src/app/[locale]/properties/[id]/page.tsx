@@ -118,24 +118,15 @@ export default async function PropertyDetailsPage({
     notFound()
   }
 
-  // Buscar listings desta propriedade
-  const { data: listings } = await supabase
-    .from('property_listings')
-    .select('id')
+  // property_id é o vínculo canônico. Reservas antigas podem não ter um
+  // property_listing_id, e uma propriedade pode possuir vários anúncios/canais.
+  const { data: reservationsData } = await supabase
+    .from('reservations')
+    .select('id, check_in, check_out, total_amount, currency, status')
     .eq('property_id', id)
+    .neq('status', 'cancelled')
 
-  const listingIds = (listings || []).map((l) => l.id)
-
-  // Buscar reservas (via property_listings)
-  let reservations: { id: string; check_in: string; check_out: string; total_amount: string | null; currency: string | null; status: string }[] = []
-  if (listingIds.length > 0) {
-    const { data } = await supabase
-      .from('reservations')
-      .select('id, check_in, check_out, total_amount, currency, status')
-      .in('property_listing_id', listingIds)
-      .neq('status', 'cancelled')
-    reservations = data || []
-  }
+  const reservations: { id: string; check_in: string; check_out: string; total_amount: string | null; currency: string | null; status: string }[] = reservationsData || []
 
   // Calcular estatísticas
   const totalReservations = reservations.length

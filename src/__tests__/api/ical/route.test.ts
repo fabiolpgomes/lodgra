@@ -327,8 +327,9 @@ describe('GET /api/ical/[propertyId]', () => {
     expect(response.status).toBe(200)
     expect(mockGenerateICalWithBlocks).toHaveBeenCalled()
     expect(reservationsMock.select).toHaveBeenCalledWith(
-      expect.stringContaining('properties:properties!property_listings_property_org_fk')
+      expect.stringContaining('properties:properties!reservations_property_org_fk')
     )
+    expect(reservationsMock.eq).toHaveBeenCalledWith('property_id', propertyId)
   })
 
   // Test 8: Content-Disposition header is set correctly

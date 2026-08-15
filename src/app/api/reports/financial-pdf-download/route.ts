@@ -3,16 +3,6 @@ import { requireRole } from '@/lib/auth/requireRole'
 import { createClient } from '@/lib/supabase/server'
 import { getUserPropertyIds } from '@/lib/auth/getUserProperties'
 
-interface PropertyListings {
-  property_id?: string
-  properties: {
-    id: string
-    name: string
-    city: string
-    currency?: string
-  }
-}
-
 interface Reservation {
   id: string
   check_in: string
@@ -22,7 +12,8 @@ interface Reservation {
   net_amount: number | null
   currency: string
   source: string | null
-  property_listings: PropertyListings
+  property_id: string
+  properties: { id: string; name: string; city: string; currency?: string }
   guests: { first_name: string; last_name: string } | null
 }
 
@@ -406,7 +397,7 @@ export async function GET(request: NextRequest) {
       .from('reservations')
       .select(
         `id, check_in, check_out, total_amount, platform_fee, net_amount, currency, source,
-         status, property_listings!inner(property_id, properties!inner(id, name, city, currency)),
+         status, property_id, properties:properties!reservations_property_org_fk(id, name, city, currency),
          guests(first_name, last_name)`
       )
       .eq('status', 'confirmed')
@@ -414,10 +405,10 @@ export async function GET(request: NextRequest) {
       .gte('check_out', startDate)
 
     if (propertyId) {
-      reservationsQuery = reservationsQuery.eq('property_listings.properties.id', propertyId)
+      reservationsQuery = reservationsQuery.eq('property_id', propertyId)
     }
     if (userPropertyIds) {
-      reservationsQuery = reservationsQuery.in('property_listings.properties.id', userPropertyIds)
+      reservationsQuery = reservationsQuery.in('property_id', userPropertyIds)
     }
 
     // Expenses query
@@ -467,9 +458,7 @@ export async function GET(request: NextRequest) {
 
     // Helper: property.currency tem prioridade sobre r.currency (Airbnb guarda 'EUR' para propriedades BRL)
     function getResCur(r: Reservation): string {
-      const listing = r.property_listings
-      const lObj = Array.isArray(listing) ? listing[0] : listing
-      const prop = (lObj as { properties?: { currency?: string } } | null)?.properties
+      const prop = r.properties
       const propObj = Array.isArray(prop) ? prop[0] : prop
       return propObj?.currency || r.currency || 'EUR'
     }
@@ -509,8 +498,7 @@ export async function GET(request: NextRequest) {
     >()
 
     reservationsList.forEach(r => {
-      const listing = r.property_listings as unknown as { properties: { id: string; name: string; city: string } } | null
-      const propId = listing?.properties?.id
+      const propId = r.property_id
       if (!propId) return
 
       if (!propertyStatsMap.has(propId)) {

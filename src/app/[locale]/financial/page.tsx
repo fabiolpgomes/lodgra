@@ -31,10 +31,8 @@ export default async function FinancialPage({
       currency,
       check_in,
       check_out,
-      property_listings!inner(
-        property_id,
-        properties!inner(id, currency)
-      )
+      property_id,
+      properties:properties!reservations_property_org_fk(id, currency)
     `)
     .eq('status', 'confirmed')
 
@@ -53,10 +51,8 @@ export default async function FinancialPage({
 
   // Helper: property.currency tem prioridade sobre reservation.currency
   // (Airbnb imports gravam 'EUR' mesmo para propriedades BRL)
-  function getResCurrency(r: { currency?: string | null; property_listings?: unknown }): CurrencyCode {
-    const listing = r.property_listings
-    const lObj = Array.isArray(listing) ? listing[0] : listing
-    const prop = (lObj as { properties?: { currency?: string } | { currency?: string }[] } | null)?.properties
+  function getResCurrency(r: { currency?: string | null; properties?: unknown }): CurrencyCode {
+    const prop = r.properties as { currency?: string } | { currency?: string }[] | null
     const propObj = Array.isArray(prop) ? prop[0] : prop
     return ((propObj?.currency || r.currency || 'EUR') as CurrencyCode)
   }
@@ -118,9 +114,7 @@ export default async function FinancialPage({
   const propertyAnalysis = properties?.map(property => {
     const propertyRevenue = (reservations || [])
       .filter(r => {
-        const listing = r.property_listings
-        const lObj = Array.isArray(listing) ? listing[0] : listing
-        return (lObj as { property_id?: string } | null)?.property_id === property.id
+        return r.property_id === property.id
       })
       .reduce((sum, r) => {
         const revenueBreakdown = calculateRevenueForReservation({

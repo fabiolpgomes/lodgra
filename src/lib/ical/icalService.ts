@@ -224,7 +224,7 @@ export async function importICalFromUrl(url: string): Promise<ICalEvent[]> {
   }
 }
 
-export function generateICalFromReservations(reservations: { id: string; check_in: string; check_out: string; status: string; number_of_guests?: number | null; guests?: { first_name: string; last_name: string } | null; property_listings?: { properties?: { name?: string } | null } | null }[]): string {
+export function generateICalFromReservations(reservations: { id: string; check_in: string; check_out: string; status: string; number_of_guests?: number | null; guests?: { first_name: string; last_name: string } | null; properties?: { name?: string } | null; property_listings?: { properties?: { name?: string } | null } | null }[]): string {
   const comp = new ICAL.Component(['vcalendar', [], []])
 
   comp.updatePropertyWithValue('prodid', '-//Lodgra//Reservations//EN')
@@ -245,7 +245,7 @@ export function generateICalFromReservations(reservations: { id: string; check_i
       ? `${reservation.guests.first_name} ${reservation.guests.last_name}`
       : 'Hóspede'
 
-    const propertyName = reservation.property_listings?.properties?.name || 'Propriedade'
+    const propertyName = reservation.properties?.name || reservation.property_listings?.properties?.name || 'Propriedade'
 
     const vevent = new ICAL.Component('vevent')
     const event = new ICAL.Event(vevent)
@@ -281,7 +281,7 @@ export function generateICalFromReservations(reservations: { id: string; check_i
  * recognize them as "Not available" and not as guest reservations
  */
 export function generateICalWithBlocks(
-  reservations: { id: string; check_in: string; check_out: string; status: string; number_of_guests?: number | null; guests?: { first_name: string; last_name: string } | null; property_listings?: { properties?: { name?: string } | null } | null }[],
+  reservations: { id: string; check_in: string; check_out: string; status: string; number_of_guests?: number | null; guests?: { first_name: string; last_name: string } | null; properties?: { name?: string } | null; property_listings?: { properties?: { name?: string } | null } | null }[],
   blocks: { id: string; start_date: string; end_date: string; notes?: string | null }[]
 ): string {
   const comp = new ICAL.Component(['vcalendar', [], []])
@@ -304,7 +304,7 @@ export function generateICalWithBlocks(
       ? `${reservation.guests.first_name} ${reservation.guests.last_name}`
       : 'Hóspede'
 
-    const propertyName = reservation.property_listings?.properties?.name || 'Propriedade'
+    const propertyName = reservation.properties?.name || reservation.property_listings?.properties?.name || 'Propriedade'
 
     const vevent = new ICAL.Component('vevent')
     const event = new ICAL.Event(vevent)

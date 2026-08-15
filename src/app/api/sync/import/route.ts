@@ -102,24 +102,13 @@ async function syncListing(
         .single()
 
       if (propertyListing) {
-        // Buscar listings da mesma propriedade
-        const { data: siblingListings } = await supabase
-          .from('property_listings')
-          .select('id')
-          .eq('property_id', propertyListing.property_id)
-
-        const siblingIds = siblingListings?.map((l: { id: string }) => l.id) || []
-
-        // Garantir que o listing atual está na lista (fallback se query retornar vazio)
-        if (siblingIds.length === 0) siblingIds.push(listingId)
-
         // Verificar sobreposição REAL com reservas existentes na mesma propriedade
         // Usar < e > (estrito) para que check-out == check-in NÃO seja sobreposição
         // (saída de um hóspede e entrada de outro no mesmo dia é válido)
         const { data: overlapping } = await supabase
           .from('reservations')
           .select('id, external_id, property_listing_id')
-          .in('property_listing_id', siblingIds)
+          .eq('property_id', propertyListing.property_id)
           .not('status', 'eq', 'cancelled')
           .lt('check_in', checkOut)
           .gt('check_out', checkIn)
@@ -186,6 +175,7 @@ async function syncListing(
       const { error: reservationError } = await supabase
         .from('reservations')
         .insert({
+          property_id: propertyListing.property_id,
           property_listing_id: listingId,
           guest_id: guest.id,
           check_in: checkIn,

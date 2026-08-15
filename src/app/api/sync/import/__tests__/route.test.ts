@@ -211,6 +211,7 @@ describe('POST /api/sync/import', () => {
     )
     expect(insertedReservations).toHaveLength(1)
     expect(insertedReservations[0]).toMatchObject({
+      property_id: listing.property_id,
       property_listing_id: listing.id,
       organization_id: 'org-create',
       external_id: 'ical-create-uid',

@@ -12,12 +12,7 @@ export async function POST(request: Request) {
       .from('reservations')
       .select(`
         *,
-        guests(id, first_name, last_name, email),
-        property_listings!inner(
-          properties!inner(
-            organizations!inner(id, asaas_api_key, asaas_environment)
-          )
-        )
+        guests(id, first_name, last_name, email)
       `)
       .eq('id', reservationId)
       .single()
@@ -26,7 +21,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Reserva não encontrada' }, { status: 404 })
     }
 
-    const org = (reservation.property_listings as { properties: { organizations: { asaas_api_key: string; asaas_environment: string } } }).properties.organizations
+    const { data: org } = await supabase
+      .from('organizations')
+      .select('id, asaas_api_key, asaas_environment')
+      .eq('id', reservation.organization_id)
+      .single()
+    if (!org) {
+      return NextResponse.json({ error: 'Organização da reserva não encontrada.' }, { status: 404 })
+    }
     const apiKey = org.asaas_api_key
     const isProduction = org.asaas_environment === 'production'
 
