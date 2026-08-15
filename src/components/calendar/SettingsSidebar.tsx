@@ -11,12 +11,14 @@ import { TaxesCard } from './TaxesCard'
 import { toast } from 'sonner'
 import { PropertyDiscount } from '@/types/pricing.types'
 import { PropertyCancellationPolicy } from '@/types/cancellation.types'
+import { CURRENCIES, getCurrencySymbol, type CurrencyCode } from '@/lib/utils/currency'
 
 type SectionName = 'prices' | 'discounts' | 'availability' | 'cancellations' | 'taxes'
 
 interface PricingData {
   base_price: number
   weekend_price: number | null
+  currency: string
 }
 
 interface SettingsSidebarProps {
@@ -86,12 +88,17 @@ export function SettingsSidebar({ propertyId: propPropertyId, calendarMonth, cal
   const monthlyDiscount = discounts.find((discount) => discount.discount_type === 'monthly')
   const shortStayPolicy = cancellationPolicies.find((policy) => !policy.is_long_stay)
   const longStayPolicy = cancellationPolicies.find((policy) => policy.is_long_stay)
+  const normalizedCurrency = pricing?.currency?.toUpperCase() || 'EUR'
+  const currencyCode: CurrencyCode = normalizedCurrency in CURRENCIES
+    ? normalizedCurrency as CurrencyCode
+    : 'EUR'
+  const currencySymbol = getCurrencySymbol(currencyCode)
 
   const summaries: Array<{ id: SectionName; title: string; lines: string[] }> = [
     {
       id: 'prices',
       title: 'Preços',
-      lines: [pricing?.base_price ? `€ ${pricing.base_price}${pricing.weekend_price ? ` – € ${pricing.weekend_price}` : ''} por noite` : 'Definir preço base'],
+      lines: [pricing?.base_price ? `${currencySymbol} ${pricing.base_price}${pricing.weekend_price ? ` – ${currencySymbol} ${pricing.weekend_price}` : ''} por noite` : 'Definir preço base'],
     },
     {
       id: 'discounts',
@@ -154,6 +161,7 @@ export function SettingsSidebar({ propertyId: propPropertyId, calendarMonth, cal
           propertyId={propertyId}
           basePrice={pricing?.base_price || null}
           weekendPrice={pricing?.weekend_price}
+          currency={currencyCode}
           calendarMonth={calendarMonth}
           calendarYear={calendarYear}
           onUpdate={() => { void onUpdate?.(); void loadData() }}

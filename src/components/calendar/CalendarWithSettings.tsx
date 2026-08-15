@@ -37,6 +37,7 @@ interface CalendarWithSettingsProps {
     reservations?: Reservation[]
     dailyPrices?: Record<string, number>
     blockedDates?: BlockedDate[]
+    propertyCurrency?: string
   }>
 }
 
@@ -433,6 +434,7 @@ function CalendarWithSettingsContent({
             reservations={reservations}
             dailyPrices={dailyPrices}
             blockedDates={blockedDates}
+            propertyCurrency={pricingQuery.data?.currency || 'EUR'}
           />
 
         </main>

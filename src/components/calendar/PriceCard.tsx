@@ -8,23 +8,26 @@ import { Label } from '@/components/common/ui/label'
 import { Switch } from '@/components/common/ui/switch'
 import { toast } from 'sonner'
 import { AlertCircle } from 'lucide-react'
+import { getCurrencySymbol, type CurrencyCode } from '@/lib/utils/currency'
 
 interface PriceCardProps {
   propertyId: string
   basePrice: number | null
   weekendPrice?: number | null
+  currency?: CurrencyCode
   onUpdate?: () => void
   calendarMonth?: number
   calendarYear?: number
 }
 
-function PriceCardComponent({ propertyId, basePrice: initialPrice, weekendPrice: initialWeekendPrice, onUpdate, calendarMonth, calendarYear }: PriceCardProps) {
+function PriceCardComponent({ propertyId, basePrice: initialPrice, weekendPrice: initialWeekendPrice, currency = 'EUR', onUpdate, calendarMonth, calendarYear }: PriceCardProps) {
   const [basePrice, setBasePrice] = useState(initialPrice?.toString() || '')
   const [weekendPrice, setWeekendPrice] = useState(initialWeekendPrice?.toString() || '')
   const [smartPricingEnabled, setSmartPricingEnabled] = useState(false)
   const [minPrice, setMinPrice] = useState('')
   const [maxPrice, setMaxPrice] = useState('')
   const [saving, setSaving] = useState(false)
+  const currencySymbol = getCurrencySymbol(currency)
 
   useEffect(() => {
     if (initialPrice) {
@@ -188,7 +191,7 @@ function PriceCardComponent({ propertyId, basePrice: initialPrice, weekendPrice:
           <div className="flex-1">
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-base font-semibold text-[#4D5566] pointer-events-none">
-                €
+                {currencySymbol}
               </span>
               <Input
                 id="basePrice"
@@ -224,7 +227,7 @@ function PriceCardComponent({ propertyId, basePrice: initialPrice, weekendPrice:
           <div className="flex-1">
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-base font-semibold text-[#4D5566] pointer-events-none">
-                €
+                {currencySymbol}
               </span>
               <Input
                 id="weekendPrice"
@@ -302,7 +305,7 @@ function PriceCardComponent({ propertyId, basePrice: initialPrice, weekendPrice:
             </Label>
             <div className="relative">
               <span className="absolute left-3 top-3 text-lg font-semibold text-[#4D5566]">
-                €
+                {currencySymbol}
               </span>
               <Input
                 id="minPrice"
@@ -321,7 +324,7 @@ function PriceCardComponent({ propertyId, basePrice: initialPrice, weekendPrice:
             </Label>
             <div className="relative">
               <span className="absolute left-3 top-3 text-lg font-semibold text-[#4D5566]">
-                €
+                {currencySymbol}
               </span>
               <Input
                 id="maxPrice"
@@ -354,6 +357,7 @@ export const PriceCard = React.memo(PriceCardComponent, (prev, next) => {
   return prev.propertyId === next.propertyId &&
     prev.basePrice === next.basePrice &&
     prev.weekendPrice === next.weekendPrice &&
+    prev.currency === next.currency &&
     prev.calendarMonth === next.calendarMonth &&
     prev.calendarYear === next.calendarYear
 })

@@ -35,6 +35,7 @@ interface SimpleCalendarAdapterProps {
   reservations?: Reservation[]
   dailyPrices?: Record<string, number> // ISO date -> price
   blockedDates?: BlockedDate[] // Blocked date ranges
+  propertyCurrency?: string
 }
 
 function SimpleCalendarAdapterComponent({
@@ -46,6 +47,7 @@ function SimpleCalendarAdapterComponent({
   reservations = [],
   dailyPrices = {},
   blockedDates = [],
+  propertyCurrency = 'EUR',
 }: SimpleCalendarAdapterProps) {
   const today = new Date()
 
@@ -95,16 +97,16 @@ function SimpleCalendarAdapterComponent({
     return dailyPrices[dateStr]
   }
 
-  const formatReservationPrice = (reservation: Reservation) => {
+  const formatPrice = (price: number) => {
     const symbols: Record<string, string> = {
       EUR: '€',
       BRL: 'R$',
       USD: '$',
       GBP: '£',
     }
-    const currency = (reservation.currency || 'EUR').toUpperCase()
+    const currency = propertyCurrency.toUpperCase()
     const symbol = symbols[currency] || currency
-    return `${symbol}${reservation.price.toFixed(0)}`
+    return `${symbol}${price.toFixed(0)}`
   }
 
   const getReservationForDay = (day: number) => {
@@ -329,7 +331,7 @@ function SimpleCalendarAdapterComponent({
                           {getReservationForDay(day)?.guestCount} hósp.
                         </div>
                         <div className="text-xs font-bold" style={{ color: '#10203E' }}>
-                          {formatReservationPrice(getReservationForDay(day)!)}
+                          {formatPrice(getReservationForDay(day)!.price)}
                         </div>
                         <div className="text-xs font-semibold" style={{
                           color: getReservationForDay(day)?.status === 'confirmed' ? '#1976D2' : '#F57C00'
@@ -342,7 +344,7 @@ function SimpleCalendarAdapterComponent({
                       </div>
                     ) : getDayPrice(day) ? (
                       <div className="text-xs font-bold whitespace-nowrap" style={{ color: '#10203E' }}>
-                        €{getDayPrice(day)?.toFixed(0)}
+                        {formatPrice(getDayPrice(day)!)}
                       </div>
                     ) : null}
                   </div>

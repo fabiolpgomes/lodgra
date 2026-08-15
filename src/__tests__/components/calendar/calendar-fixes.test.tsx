@@ -77,10 +77,10 @@ describe('CalendarWithSettings - Fix #1: SettingsSidebar propertyId', () => {
 })
 
 describe('SimpleCalendarAdapter - Fix #2: Click/Drag Selection', () => {
-  it('displays a reservation using its own BRL currency', () => {
+  it('displays reservations and daily prices using the property currency', () => {
     const today = new Date()
     const startDate = new Date(today.getFullYear(), today.getMonth(), 1)
-    const endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0)
+    const endDate = new Date(today.getFullYear(), today.getMonth(), 4)
 
     render(
       <SimpleCalendarAdapter
@@ -93,14 +93,20 @@ describe('SimpleCalendarAdapter - Fix #2: Click/Drag Selection', () => {
           startDate,
           endDate,
           price: 187,
-          currency: 'BRL',
+          currency: 'EUR',
           status: 'confirmed',
         }]}
+        propertyCurrency="BRL"
+        dailyPrices={{
+          [`${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-15`]: 170,
+        }}
       />
     )
 
     expect(screen.getAllByText('R$187').length).toBeGreaterThan(0)
     expect(screen.queryByText('€187')).not.toBeInTheDocument()
+    expect(screen.getByText('R$170')).toBeInTheDocument()
+    expect(screen.queryByText('€170')).not.toBeInTheDocument()
   })
 
   it('should render calendar with proper day elements', () => {
