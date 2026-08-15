@@ -117,6 +117,10 @@ describe('GET /api/cron/sync-ical', () => {
       sync_type: 'ical',
       direction: 'inbound',
       status: 'success',
+      records_processed: 0,
+      records_created: 0,
+      records_updated: 0,
+      records_failed: 0,
     })
     expect(insertedSyncLogs[0].synced_at).toEqual(expect.any(String))
   })
@@ -168,6 +172,10 @@ describe('GET /api/cron/sync-ical', () => {
       direction: 'inbound',
       status: 'failed',
       error_message: 'Timeout ao buscar iCal',
+      records_processed: 0,
+      records_created: 0,
+      records_updated: 0,
+      records_failed: 1,
     })
   })
 

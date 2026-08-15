@@ -46,7 +46,8 @@ async function syncOneListing(
     property_id: string
     sync_enabled: boolean
     properties: unknown
-  }
+  },
+  progress: SyncResult
 ): Promise<SyncResult> {
   let created = 0, updated = 0, skipped = 0
   const cancelled = 0
@@ -110,14 +111,14 @@ async function syncOneListing(
       if (isBlockedEvent(event)) {
         console.log(`[Cron] Bloqueio fora do intervalo (antes ${today} ou depois ${twoYearsFromNow}): "${event.summary}"`)
       }
-      skipped++;
+      skipped++; progress.skipped++
       continue
     }
 
     const durationDays = Math.round((event.end.getTime() - event.start.getTime()) / (1000 * 60 * 60 * 24))
     if (durationDays > 180) {
       console.log(`[Cron] Evento sazonal (${durationDays}d) ignorado: "${event.summary}"`)
-      skipped++; continue
+      skipped++; progress.skipped++; continue
     }
 
     // Check if this event is a blocked/unavailable date (not a guest reservation)
@@ -264,9 +265,9 @@ async function syncOneListing(
         .eq('id', existingReservation.id)
       if (error) {
         console.error(`[Cron] Erro ao atualizar reserva ${externalIdLookup}:`, error)
-        skipped++
+        skipped++; progress.skipped++
       } else {
-        updated++
+        updated++; progress.updated++
       }
     } else {
       // Buscar siblings da mesma propriedade para overlap check
@@ -281,7 +282,7 @@ async function syncOneListing(
         .not('status', 'eq', 'cancelled')
         .lt('check_in', checkOut).gt('check_out', checkIn)
 
-      if (overlapping && overlapping.length > 0) { skipped++; continue }
+      if (overlapping && overlapping.length > 0) { skipped++; progress.skipped++; continue }
 
       // Fallback: usar summary ou genérico
       let guestFirstName = guestData?.firstName || 'Hóspede'
@@ -357,7 +358,7 @@ async function syncOneListing(
       if (resError) {
         throw new Error(`Falha ao persistir reserva ${externalIdLookup}: ${resError.message}`)
       } else {
-        created++
+        created++; progress.created++
         // Notificar proprietário via queue
         const nights = Math.ceil((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24))
         const propName = (listing.properties as unknown as { name: string } | null)?.name
@@ -422,6 +423,10 @@ async function syncOneListing(
     sync_type: 'ical',
     direction: 'inbound',
     status: 'success',
+    records_processed: created + updated + skipped,
+    records_created: created,
+    records_updated: updated,
+    records_failed: 0,
     synced_at: new Date().toISOString(),
   })
   if (syncLogError) {
@@ -487,13 +492,16 @@ export async function GET(request: NextRequest) {
       Array.from(listingsByProperty.values()).map(async (propListings) => {
         let created = 0, updated = 0, skipped = 0, cancelled = 0, errors = 0
         for (const listing of propListings) {
+          const progress: SyncResult = { created: 0, updated: 0, skipped: 0, cancelled: 0 }
           try {
-            const r = await syncOneListing(supabase, listing)
+            const r = await syncOneListing(supabase, listing, progress)
             created += r.created; updated += r.updated
             skipped += r.skipped; cancelled += r.cancelled
           } catch (err) {
             console.error(`[Cron] Falha no listing ${listing.id}:`, err)
             errors++
+            created += progress.created; updated += progress.updated
+            skipped += progress.skipped; cancelled += progress.cancelled
 
             const errorMessage = err instanceof Error ? err.message : String(err)
 
@@ -519,6 +527,10 @@ export async function GET(request: NextRequest) {
               direction: 'inbound',
               status: 'failed',
               error_message: errorMessage,
+              records_processed: progress.created + progress.updated + progress.skipped,
+              records_created: progress.created,
+              records_updated: progress.updated,
+              records_failed: 1,
               synced_at: new Date().toISOString(),
             })
             if (syncLogError) {
