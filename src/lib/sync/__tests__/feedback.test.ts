@@ -4,9 +4,9 @@ describe('getSyncFeedback', () => {
   it('não apresenta zero como certeza quando os contadores antigos são desconhecidos', () => {
     const feedback = getSyncFeedback({ status: 'success', platformName: 'Booking.com' })
 
-    expect(feedback.title).toBe('Feed consultado com sucesso')
+    expect(feedback.title).toBe('Calendário verificado')
     expect(feedback.severity).toBe('info')
-    expect(feedback.detail).toContain('Não há confirmação')
+    expect(feedback.detail).toContain('detalhes')
   })
 
   it('explica quando o feed respondeu sem trazer alterações', () => {
@@ -18,7 +18,7 @@ describe('getSyncFeedback', () => {
       platformName: 'Airbnb',
     })
 
-    expect(feedback.title).toBe('Feed atualizado, sem novidades')
+    expect(feedback.title).toBe('Tudo certo, sem novas reservas')
     expect(feedback.detail).toContain('Airbnb')
     expect(feedback.action).toBeNull()
   })
@@ -31,7 +31,7 @@ describe('getSyncFeedback', () => {
       recordsFailed: null,
     })
 
-    expect(feedback.title).toBe('Feed consultado com sucesso')
+    expect(feedback.title).toBe('Calendário verificado')
     expect(feedback.severity).toBe('info')
   })
 
@@ -42,9 +42,9 @@ describe('getSyncFeedback', () => {
       platformName: 'Booking.com',
     })
 
-    expect(feedback.title).toBe('URL iCal recusada pela plataforma')
+    expect(feedback.title).toBe('O link do calendário não funciona mais')
     expect(feedback.detail).toContain('Booking.com')
-    expect(feedback.action).toContain('Exporte um novo URL iCal')
+    expect(feedback.action).toContain('Copie um novo link')
   })
 
   it('orienta aguardar e só substituir o URL quando um timeout persistir', () => {
@@ -55,6 +55,6 @@ describe('getSyncFeedback', () => {
     })
 
     expect(feedback.severity).toBe('warning')
-    expect(feedback.action).toContain('próximo ciclo')
+    expect(feedback.action).toContain('próxima atualização')
   })
 })

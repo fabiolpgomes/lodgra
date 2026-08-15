@@ -40,14 +40,10 @@ interface ApiResponse {
 }
 
 interface JobStats {
-  totalRuns: number
-  successfulRuns: number
-  failedRuns: number
   latestCreated: number | null
   latestUpdated: number | null
   latestFailed: number | null
   latestCycle: SyncLog[]
-  successRate: number
 }
 
 export default function SyncStatusPage() {
@@ -86,7 +82,7 @@ export default function SyncStatusPage() {
     try {
       const response = await fetch('/api/admin/sync-logs?limit=50')
       if (!response.ok) {
-        const errorMsg = `Erro HTTP ${response.status} ao buscar logs`
+        const errorMsg = 'Não conseguimos mostrar as atualizações agora. Tente novamente em alguns minutos.'
         console.error(errorMsg)
         setApiError(errorMsg)
         setJob1Stats(calculateStats([]))
@@ -100,7 +96,7 @@ export default function SyncStatusPage() {
 
       if (result.error) {
         console.error('API error:', result.message)
-        setApiError(result.message || 'Erro desconhecido ao buscar logs')
+        setApiError('Não conseguimos mostrar as atualizações agora. Tente novamente em alguns minutos.')
         setJob1Stats(calculateStats([]))
         setJob2Stats(calculateStats([]))
         setRecentLogs([])
@@ -119,7 +115,7 @@ export default function SyncStatusPage() {
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error)
       console.error('Error fetching sync data:', errorMsg)
-      setApiError(`Erro ao conectar com a API: ${errorMsg}`)
+      setApiError('Não conseguimos mostrar as atualizações agora. Confira sua internet e tente novamente.')
       setJob1Stats(calculateStats([]))
       setJob2Stats(calculateStats([]))
       setRecentLogs([])
@@ -128,20 +124,14 @@ export default function SyncStatusPage() {
   }
 
   function calculateStats(logs: SyncLog[]): JobStats {
-    const successful = logs.filter(l => l.status === 'success')
-    const failed = logs.filter(l => l.status === 'failed')
     const latestTimestamp = logs[0] ? new Date(logs[0].synced_at).getTime() : 0
     const latestCycle = logs.filter(log => latestTimestamp - new Date(log.synced_at).getTime() <= 2 * 60 * 1000)
 
     return {
-      totalRuns: logs.length,
-      successfulRuns: successful.length,
-      failedRuns: failed.length,
       latestCreated: sumKnown(latestCycle, 'records_created'),
       latestUpdated: sumKnown(latestCycle, 'records_updated'),
       latestFailed: sumKnown(latestCycle, 'records_failed'),
       latestCycle,
-      successRate: logs.length > 0 ? Math.round((successful.length / logs.length) * 100) : 0,
     }
 
     function sumKnown(items: SyncLog[], field: 'records_created' | 'records_updated' | 'records_failed') {
@@ -186,7 +176,7 @@ export default function SyncStatusPage() {
               <AlertCircle className="h-6 w-6" />
             </div>
             <div className="flex-1">
-              <p className="font-bold text-red-700">Erro ao carregar dados</p>
+              <p className="font-bold text-red-700">Não foi possível atualizar esta página</p>
               <p className="mt-1 text-sm text-red-600">{apiError}</p>
             </div>
           </div>
@@ -195,10 +185,10 @@ export default function SyncStatusPage() {
 
       {/* Header */}
       <PremiumPageHeader
-        title="Sincronização"
-        description="Acompanhe o status em tempo real dos jobs automáticos"
+        title="Atualização das reservas"
+        description="Veja se os calendários das suas propriedades estão funcionando"
         icon={Calendar}
-        badge={`Próxima: ${nextRunIn}`}
+        badge={`Nova verificação em ${nextRunIn}`}
       />
 
       {/* Next Run Card */}
@@ -209,7 +199,7 @@ export default function SyncStatusPage() {
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-xs font-bold uppercase tracking-wider text-brand-text-medium">
-              Próxima Sincronização
+              Próxima verificação automática
             </p>
             <p className="mt-1 text-2xl font-bold text-brand-blue">em {nextRunIn}</p>
           </div>
@@ -218,20 +208,18 @@ export default function SyncStatusPage() {
 
       {/* Job Stats Grid */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        {/* Job 1: sync-ical */}
         <JobCard
           icon={Calendar}
-          jobName="Job 1: iCal"
-          description="Sincroniza reservas do iCal"
+          jobName="Calendários"
+          description="Reservas do Airbnb e Booking.com"
           stats={job1Stats}
           color="blue"
         />
 
-        {/* Job 2: enrich-reservations */}
         <JobCard
           icon={Mail}
-          jobName="Job 2: Email"
-          description="Enriquece reservas com dados"
+          jobName="Dados dos hóspedes"
+          description="Informações recebidas por email"
           stats={job2Stats}
           color="success"
         />
@@ -248,12 +236,12 @@ export default function SyncStatusPage() {
             <div className="min-w-0 flex-1">
               <h2 className="font-bold text-brand-text-dark">
                 {latestICalAlerts.length > 0
-                  ? `${latestICalAlerts.length} calendário(s) requer(em) atenção`
-                  : 'Todos os calendários responderam no último ciclo'}
+                  ? `${latestICalAlerts.length} calendário(s) precisa(m) de ajuda`
+                  : 'Tudo certo com seus calendários'}
               </h2>
               {latestICalAlerts.length === 0 ? (
                 <p className="mt-1 text-sm text-brand-text-medium">
-                  {job1Stats.latestCycle.length} feed(s) verificado(s). Nenhuma ação é necessária.
+                  Verificamos {job1Stats.latestCycle.length} calendário(s). Você não precisa fazer nada.
                 </p>
               ) : (
                 <div className="mt-3 space-y-3">
@@ -264,10 +252,10 @@ export default function SyncStatusPage() {
                       </p>
                       <p className="mt-1 text-sm font-semibold text-red-700">{log.feedback.title}</p>
                       <p className="mt-1 text-xs leading-relaxed text-brand-text-medium">{log.feedback.detail}</p>
-                      {log.feedback.action && <p className="mt-2 text-xs font-semibold text-amber-800">O que fazer: {log.feedback.action}</p>}
+                      {log.feedback.action && <p className="mt-3 rounded-lg bg-amber-100 p-3 text-sm font-semibold text-amber-900">O que fazer agora: {log.feedback.action}</p>}
                       {log.property_id && (
                         <Link href={`/${params.locale}/properties/${log.property_id}`} className="mt-3 inline-flex text-xs font-bold text-brand-blue hover:underline">
-                          Abrir propriedade e corrigir anúncio
+                          Abrir esta propriedade
                         </Link>
                       )}
                     </div>
@@ -283,10 +271,10 @@ export default function SyncStatusPage() {
       <PremiumCard as="section">
         <div className="mb-6">
           <h2 className="text-lg font-bold uppercase tracking-tight text-brand-text-dark">
-            Atividade Recente
+            O que aconteceu recentemente
           </h2>
           <p className="mt-1 text-xs font-semibold text-brand-text-medium">
-            Últimas 10 execuções
+            As 10 verificações mais recentes
           </p>
         </div>
 
@@ -295,22 +283,22 @@ export default function SyncStatusPage() {
             <thead>
               <tr className="border-b border-neutral-200/60">
                 <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-brand-text-medium">
-                  Job
+                  Origem
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-brand-text-medium">
                   Propriedade
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-brand-text-medium">
-                  Status
+                  Resultado
                 </th>
                 <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-brand-text-medium">
-                  Criadas
+                  Novas
                 </th>
                 <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-brand-text-medium">
-                  Atualizadas
+                  Alteradas
                 </th>
                 <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-brand-text-medium">
-                  Erros
+                  Problemas
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-brand-text-medium">
                   Quando
@@ -325,7 +313,7 @@ export default function SyncStatusPage() {
                     className="group transition-colors hover:bg-brand-bg"
                   >
                     <td className="px-4 py-3 text-xs font-semibold text-brand-text-dark">
-                      {log.sync_type === 'ical' ? '📅 iCal' : '📧 Email'}
+                      {log.sync_type === 'ical' ? '📅 Calendário' : '📧 Email'}
                     </td>
                     <td className="px-4 py-3 text-xs text-brand-text-medium">
                       <span className="block max-w-xs truncate font-semibold text-brand-text-dark" title={log.property_name || 'Não identificada'}>
@@ -342,20 +330,10 @@ export default function SyncStatusPage() {
                               {log.feedback.title}
                             </span>
                           ) : (
-                            <>
-                              <span className="inline-flex items-center gap-1.5 font-semibold text-red-600">
-                                <span className="h-2 w-2 rounded-full bg-red-600" />
-                                {log.feedback.title}
-                              </span>
-                              {log.error_message && (
-                                <span
-                                  className="cursor-help text-red-500 hover:text-red-600"
-                                  title={log.error_message}
-                                >
-                                  ⓘ
-                                </span>
-                              )}
-                            </>
+                            <span className="inline-flex items-center gap-1.5 font-semibold text-red-600">
+                              <span className="h-2 w-2 rounded-full bg-red-600" />
+                              {log.feedback.title}
+                            </span>
                           )}
                         </div>
 
@@ -396,7 +374,7 @@ export default function SyncStatusPage() {
                     colSpan={7}
                     className="px-4 py-8 text-center text-xs text-brand-text-medium"
                   >
-                    Sem registros de sincronização
+                    Ainda não há verificações para mostrar
                   </td>
                 </tr>
               )}
@@ -405,37 +383,6 @@ export default function SyncStatusPage() {
         </div>
       </PremiumCard>
 
-      {/* System Info */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        <PremiumCard>
-          <div className="mb-4 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-brand-blue/10 bg-brand-blue/5 text-brand-blue">
-              <Calendar className="h-5 w-5" />
-            </div>
-            <h3 className="font-bold uppercase tracking-tight text-brand-text-dark">
-              Job 1: iCal
-            </h3>
-          </div>
-          <p className="text-xs font-medium leading-relaxed text-brand-text-medium">
-            A cada 15 minutos, sincroniza reservas dos feeds iCal do Airbnb e Booking.com, criando automaticamente novas
-            reservas com informações básicas.
-          </p>
-        </PremiumCard>
-        <PremiumCard>
-          <div className="mb-4 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-emerald-500/15 bg-emerald-500/10 text-emerald-600">
-              <Mail className="h-5 w-5" />
-            </div>
-            <h3 className="font-bold uppercase tracking-tight text-brand-text-dark">
-              Job 2: Email
-            </h3>
-          </div>
-          <p className="text-xs font-medium leading-relaxed text-brand-text-medium">
-            A cada 15 minutos, processa emails de confirmação e enriquece reservas existentes com dados completos (nome,
-            hóspedes, valor).
-          </p>
-        </PremiumCard>
-      </div>
     </PremiumPageShell>
   )
 }
@@ -478,26 +425,18 @@ function JobCard({ icon: Icon, jobName, description, stats, color }: JobCardProp
 
       {stats ? (
         <div className="space-y-3">
-          {/* Success Rate */}
-          <div className="flex items-center justify-between rounded-xl border border-neutral-200/60 bg-brand-white px-4 py-3">
-            <span className="text-xs font-semibold text-brand-text-medium">Saúde das últimas {stats.totalRuns} verificações</span>
-            <span className={`text-lg font-bold ${color === 'blue' ? 'text-brand-blue' : 'text-emerald-600'}`}>
-              {stats.successRate}%
-            </span>
-          </div>
-
-          {/* Metrics Grid */}
+          {/* Simple result */}
           <div className="grid grid-cols-3 gap-2">
             <div className="rounded-lg border border-neutral-200/60 bg-brand-white p-3 text-center">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-brand-text-medium">Criadas no ciclo</p>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-brand-text-medium">Reservas novas</p>
               <p className="mt-2 text-lg font-bold text-brand-text-dark">{formatCounter(stats.latestCreated)}</p>
             </div>
             <div className="rounded-lg border border-neutral-200/60 bg-brand-white p-3 text-center">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-brand-text-medium">Atualizadas no ciclo</p>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-brand-text-medium">Reservas alteradas</p>
               <p className="mt-2 text-lg font-bold text-brand-text-dark">{formatCounter(stats.latestUpdated)}</p>
             </div>
             <div className="rounded-lg border border-neutral-200/60 bg-brand-white p-3 text-center">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-brand-text-medium">Falhas no ciclo</p>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-brand-text-medium">Precisam de ajuda</p>
               <p className="mt-2 text-lg font-bold text-red-600">{formatCounter(stats.latestFailed)}</p>
             </div>
           </div>
@@ -508,18 +447,18 @@ function JobCard({ icon: Icon, jobName, description, stats, color }: JobCardProp
               {stats.latestCycle.every(log => !['warning', 'error'].includes(log.feedback.severity)) ? (
                 <>
                   <CheckCircle2 className="h-4 w-4" />
-                  Último ciclo: {stats.latestCycle.length} de {stats.latestCycle.length} feed(s) concluído(s)
+                  Tudo certo na última verificação
                 </>
               ) : (
                 <>
                   <AlertCircle className="h-4 w-4" />
-                  Último ciclo: {stats.latestCycle.filter(log => ['warning', 'error'].includes(log.feedback.severity)).length} de {stats.latestCycle.length} feed(s) requer(em) atenção
+                  Há algo que precisa da sua atenção
                 </>
               )}
             </div>
           ) : (
             <p className="rounded-lg border border-neutral-200/60 bg-brand-white px-4 py-3 text-xs text-brand-text-medium">
-              Aguardando primeira execução...
+              Ainda não há uma verificação para mostrar.
             </p>
           )}
         </div>

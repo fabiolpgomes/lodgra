@@ -32,8 +32,8 @@ export function getSyncFeedback({
   if (status === 'success') {
     if (!countersKnown) {
       return {
-        title: 'Feed consultado com sucesso',
-        detail: 'Esta execução é anterior ao registro detalhado de contadores. Não há confirmação de quantos registros foram processados.',
+        title: 'Calendário verificado',
+        detail: 'A verificação terminou normalmente. Os detalhes desta verificação antiga não estão disponíveis.',
         action: null,
         severity: 'info',
       }
@@ -43,8 +43,8 @@ export function getSyncFeedback({
     const updated = recordsUpdated || 0
     if (created === 0 && updated === 0) {
       return {
-        title: 'Feed atualizado, sem novidades',
-        detail: `O calendário da ${platform} respondeu corretamente, mas não trouxe reservas novas ou alteradas.`,
+        title: 'Tudo certo, sem novas reservas',
+        detail: `O calendário da ${platform} está funcionando. Não havia nada novo para adicionar.`,
         action: null,
         severity: 'success',
       }
@@ -52,8 +52,8 @@ export function getSyncFeedback({
 
     return {
       title: 'Reservas sincronizadas',
-      detail: `${created} nova(s), ${updated} atualizada(s)${recordsFailed ? ` e ${recordsFailed} com erro` : ''}.`,
-      action: recordsFailed ? 'Abra o anúncio e revise os registros que falharam.' : null,
+      detail: `${created} reserva(s) nova(s) e ${updated} reserva(s) atualizada(s)${recordsFailed ? `. ${recordsFailed} não puderam ser atualizadas` : ''}.`,
+      action: recordsFailed ? 'Abra a propriedade e confira os calendários conectados.' : null,
       severity: recordsFailed ? 'warning' : 'success',
     }
   }
@@ -61,35 +61,35 @@ export function getSyncFeedback({
   const normalizedError = (errorMessage || '').toLowerCase()
   if (normalizedError.includes('400 bad request')) {
     return {
-      title: 'URL iCal recusada pela plataforma',
-      detail: `A ${platform} respondeu com erro 400. Normalmente o link expirou, foi copiado incompleto ou deixou de ser válido.`,
-      action: `Exporte um novo URL iCal na ${platform} e substitua o URL de importação no anúncio desta propriedade.`,
+      title: 'O link do calendário não funciona mais',
+      detail: `O Lodgra não conseguiu abrir o calendário da ${platform}. O link pode estar antigo ou incompleto.`,
+      action: `Copie um novo link de calendário na ${platform} e cole-o nesta propriedade.`,
       severity: 'error',
     }
   }
 
   if (normalizedError.includes('401') || normalizedError.includes('403')) {
     return {
-      title: 'Acesso ao calendário negado',
-      detail: `A ${platform} recusou a credencial presente no URL iCal.`,
-      action: `Gere um novo URL iCal na ${platform} e atualize o anúncio no Lodgra.`,
+      title: 'O calendário não permitiu o acesso',
+      detail: `O link da ${platform} não permite mais que o Lodgra veja as reservas.`,
+      action: `Copie um novo link de calendário na ${platform} e cole-o nesta propriedade.`,
       severity: 'error',
     }
   }
 
   if (normalizedError.includes('timeout') || normalizedError.includes('timed out')) {
     return {
-      title: 'A plataforma demorou para responder',
-      detail: `O Lodgra não recebeu resposta da ${platform} dentro do tempo esperado.`,
-      action: 'Aguarde o próximo ciclo. Se repetir por mais de uma hora, gere um novo URL iCal.',
+      title: 'O calendário demorou para responder',
+      detail: `A ${platform} demorou mais que o normal. Isso costuma ser temporário.`,
+      action: 'Espere a próxima atualização. Se continuar assim por uma hora, troque o link do calendário.',
       severity: 'warning',
     }
   }
 
   return {
-    title: 'Sincronização não concluída',
-    detail: errorMessage || 'A execução terminou sem uma resposta válida.',
-    action: 'Abra o anúncio, confirme o URL iCal e execute uma sincronização manual. Se persistir, substitua o URL.',
+    title: 'Não foi possível atualizar este calendário',
+    detail: 'O Lodgra tentou buscar as reservas, mas não conseguiu terminar.',
+    action: 'Abra a propriedade e confira se o link do calendário está correto. Se precisar, copie um link novo.',
     severity: 'error',
   }
 }
