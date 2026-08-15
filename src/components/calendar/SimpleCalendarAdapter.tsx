@@ -17,6 +17,7 @@ interface Reservation {
   startDate: Date
   endDate: Date
   price: number
+  currency: string
   status: 'pending' | 'confirmed' | 'hosting' | 'completed'
 }
 
@@ -92,6 +93,18 @@ function SimpleCalendarAdapterComponent({
   const getDayPrice = (day: number) => {
     const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
     return dailyPrices[dateStr]
+  }
+
+  const formatReservationPrice = (reservation: Reservation) => {
+    const symbols: Record<string, string> = {
+      EUR: '€',
+      BRL: 'R$',
+      USD: '$',
+      GBP: '£',
+    }
+    const currency = reservation.currency.toUpperCase()
+    const symbol = symbols[currency] || currency
+    return `${symbol}${reservation.price.toFixed(0)}`
   }
 
   const getReservationForDay = (day: number) => {
@@ -316,7 +329,7 @@ function SimpleCalendarAdapterComponent({
                           {getReservationForDay(day)?.guestCount} hósp.
                         </div>
                         <div className="text-xs font-bold" style={{ color: '#10203E' }}>
-                          €{getReservationForDay(day)?.price?.toFixed(0)}
+                          {formatReservationPrice(getReservationForDay(day)!)}
                         </div>
                         <div className="text-xs font-semibold" style={{
                           color: getReservationForDay(day)?.status === 'confirmed' ? '#1976D2' : '#F57C00'

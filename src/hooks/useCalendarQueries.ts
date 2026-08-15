@@ -16,6 +16,7 @@ interface Reservation {
   start_date: string
   end_date: string
   price_per_night: number
+  currency: string
   status: 'pending' | 'confirmed' | 'hosting' | 'completed'
 }
 

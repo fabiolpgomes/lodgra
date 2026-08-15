@@ -58,6 +58,7 @@ interface Reservation {
   startDate: Date
   endDate: Date
   price: number
+  currency: string
   status: 'pending' | 'confirmed' | 'hosting' | 'completed'
 }
 
@@ -146,6 +147,7 @@ function CalendarWithSettingsContent({
         startDate: parseISODate(startStr),
         endDate: parseISODate(endStr),
         price: res.price_per_night || res.total_amount || 0,
+        currency: res.currency || 'EUR',
         status: res.status || 'pending',
       }
 

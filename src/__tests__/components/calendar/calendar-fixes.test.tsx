@@ -77,6 +77,32 @@ describe('CalendarWithSettings - Fix #1: SettingsSidebar propertyId', () => {
 })
 
 describe('SimpleCalendarAdapter - Fix #2: Click/Drag Selection', () => {
+  it('displays a reservation using its own BRL currency', () => {
+    const today = new Date()
+    const startDate = new Date(today.getFullYear(), today.getMonth(), 1)
+    const endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0)
+
+    render(
+      <SimpleCalendarAdapter
+        onDayClick={jest.fn()}
+        selectedDates={[]}
+        reservations={[{
+          id: 'brl-reservation',
+          guestName: 'Hóspede BRL',
+          guestCount: 2,
+          startDate,
+          endDate,
+          price: 187,
+          currency: 'BRL',
+          status: 'confirmed',
+        }]}
+      />
+    )
+
+    expect(screen.getAllByText('R$187').length).toBeGreaterThan(0)
+    expect(screen.queryByText('€187')).not.toBeInTheDocument()
+  })
+
   it('should render calendar with proper day elements', () => {
     const { container } = render(
       <SimpleCalendarAdapter
