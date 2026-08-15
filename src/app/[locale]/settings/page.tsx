@@ -35,7 +35,7 @@ export default async function SettingsPage(props: { params: Promise<{ locale: st
 
   const { data: listings } = await supabase
     .from('property_listings')
-    .select('id, name, ical_url, sync_enabled, is_active, property_id, last_synced_at')
+    .select('id, name, ical_url, sync_enabled, is_active, property_id, last_synced_at, last_sync_error, sync_error_count, platforms(display_name, name)')
     .in('property_id', properties?.map(p => p.id) || [])
     .order('name', { ascending: true })
 
@@ -196,7 +196,9 @@ export default async function SettingsPage(props: { params: Promise<{ locale: st
           <p className="text-sm text-brand-text-medium mb-4">
             Cole o URL iCal da sua plataforma (Booking.com, Airbnb, Flatio, etc.) para importar automaticamente as reservas.
           </p>
-          {properties && listings && <ICalSyncSettings listings={listings} propertyId={properties[0]?.id || ''} />}
+          {properties && listings && (
+            <ICalSyncSettings listings={listings} properties={properties} locale={locale} />
+          )}
         </section>
 
         {/* Export iCal URLs */}

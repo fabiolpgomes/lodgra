@@ -317,7 +317,9 @@ async function syncOneListing(
         })
         .select().single()
 
-      if (guestError || !guest) { skipped++; continue }
+      if (guestError || !guest) {
+        throw new Error(`Falha ao criar hóspede para ${externalIdLookup}: ${guestError?.message || 'unknown'}`)
+      }
 
       console.log(`[Cron] Criando nova reserva com external_id: ${externalIdLookup}`)
       // Story 39.1 — snapshot de service_fee_amount a partir da propriedade (não recalculado depois)
@@ -352,7 +354,9 @@ async function syncOneListing(
           ...(cronOrgId ? { organization_id: cronOrgId } : {})
         })
 
-      if (resError) { skipped++ } else {
+      if (resError) {
+        throw new Error(`Falha ao persistir reserva ${externalIdLookup}: ${resError.message}`)
+      } else {
         created++
         // Notificar proprietário via queue
         const nights = Math.ceil((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24))

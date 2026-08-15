@@ -1,6 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useMemo, useState } from 'react'
 import { RefreshCw, Loader } from 'lucide-react'
 
 interface Listing {
@@ -12,17 +14,40 @@ interface Listing {
   last_synced_at: string | null
   last_sync_error?: string | null
   sync_error_count?: number
+  property_id: string
+  platforms?: PlatformInfo | PlatformInfo[] | null
+}
+
+interface PlatformInfo {
+  display_name?: string | null
+  name?: string | null
+}
+
+function getPlatformName(listing: Listing): string {
+  const platform = Array.isArray(listing.platforms) ? listing.platforms[0] : listing.platforms
+  return platform?.display_name || platform?.name || listing.name || 'Canal externo'
 }
 
 interface ICalSyncSettingsProps {
   listings: Listing[]
-  propertyId: string
+  properties: Array<{ id: string; name: string }>
+  locale: string
 }
 
-export function ICalSyncSettings({ listings, propertyId }: ICalSyncSettingsProps) {
+export function ICalSyncSettings({ listings, properties, locale }: ICalSyncSettingsProps) {
+  const router = useRouter()
   const [editingId, setEditingId] = useState<string | null>(null)
   const [syncingId, setSyncingId] = useState<string | null>(null)
   const [formData, setFormData] = useState<Record<string, { url: string; enabled: boolean }>>({})
+  const listingsByProperty = useMemo(() => {
+    const grouped = new Map<string, Listing[]>()
+    for (const listing of listings) {
+      const propertyListings = grouped.get(listing.property_id) || []
+      propertyListings.push(listing)
+      grouped.set(listing.property_id, propertyListings)
+    }
+    return grouped
+  }, [listings])
 
   const handleEditStart = (listing: Listing) => {
     setEditingId(listing.id)
@@ -53,19 +78,20 @@ export function ICalSyncSettings({ listings, propertyId }: ICalSyncSettingsProps
       }
 
       setEditingId(null)
-      // Refresh would require parent component update
+      router.refresh()
     } catch (error) {
       alert(`Erro ao guardar: ${error instanceof Error ? error.message : 'unknown'}`)
     }
   }
 
-  const handleSync = async (listingId: string) => {
+  const handleSync = async (listing: Listing) => {
+    const listingId = listing.id
     setSyncingId(listingId)
     try {
       const response = await fetch('/api/sync/import', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ property_ids: [propertyId] })
+        body: JSON.stringify({ property_ids: [listing.property_id] })
       })
 
       if (!response.ok) {
@@ -75,7 +101,7 @@ export function ICalSyncSettings({ listings, propertyId }: ICalSyncSettingsProps
       }
 
       alert('Sincronização concluída')
-      // Refresh would require parent component update
+      router.refresh()
     } catch (error) {
       alert(`Erro: ${error instanceof Error ? error.message : 'unknown'}`)
     } finally {
@@ -83,21 +109,37 @@ export function ICalSyncSettings({ listings, propertyId }: ICalSyncSettingsProps
     }
   }
 
-  if (listings.length === 0) {
+  if (properties.length === 0) {
     return (
       <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 text-sm text-gray-600">
-        Nenhum anúncio configurado para esta propriedade
+        Nenhuma propriedade cadastrada
       </div>
     )
   }
 
   return (
     <div className="space-y-3">
-      {listings.map(listing => (
-        <div key={listing.id} className="rounded-lg border border-gray-200 p-4">
+      {properties.map(property => {
+        const propertyListings = listingsByProperty.get(property.id) || []
+        return (
+        <section key={property.id} className="rounded-xl border border-gray-200 bg-white p-4">
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <h3 className="font-semibold text-gray-900">{property.name}</h3>
+            <Link href={`/${locale}/properties/${property.id}`} className="text-xs font-medium text-brand-600 hover:text-brand-700">
+              Gerenciar anúncios
+            </Link>
+          </div>
+          {propertyListings.length === 0 ? (
+            <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+              Nenhum canal associado. Crie um anúncio para Booking.com e/ou Airbnb antes de importar o iCal.
+            </div>
+          ) : propertyListings.map(listing => (
+        <div key={listing.id} className="mt-3 rounded-lg border border-gray-200 p-4">
           <div className="flex items-start justify-between mb-3">
             <div>
-              <h3 className="font-medium text-gray-900">{listing.name}</h3>
+              <h4 className="font-medium text-gray-900">
+                {getPlatformName(listing)}
+              </h4>
               {listing.last_synced_at && (
                 <p className="text-xs text-gray-600 mt-1">
                   Última sincronização: {new Date(listing.last_synced_at).toLocaleDateString('pt-PT')} às{' '}
@@ -173,7 +215,7 @@ export function ICalSyncSettings({ listings, propertyId }: ICalSyncSettingsProps
                 Editar
               </button>
               <button
-                onClick={() => handleSync(listing.id)}
+                onClick={() => handleSync(listing)}
                 disabled={syncingId === listing.id}
                 className="px-3 py-1.5 text-sm font-medium bg-green-100 text-green-700 rounded-lg hover:bg-green-200 disabled:opacity-50 flex items-center gap-1"
               >
@@ -192,7 +234,9 @@ export function ICalSyncSettings({ listings, propertyId }: ICalSyncSettingsProps
             </div>
           )}
         </div>
-      ))}
+          ))}
+        </section>
+      )})}
     </div>
   )
 }
