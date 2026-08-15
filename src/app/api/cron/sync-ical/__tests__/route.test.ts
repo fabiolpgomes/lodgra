@@ -9,7 +9,7 @@
 import { GET } from '@/app/api/cron/sync-ical/route'
 import { createTestRequest } from '@/__tests__/utils/test-request'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { importICalFromUrl } from '@/lib/ical/icalService'
+import { importICalFromUrl, isBlockedEvent } from '@/lib/ical/icalService'
 
 jest.mock('@/lib/supabase/admin', () => ({
   createAdminClient: jest.fn(),
@@ -52,6 +52,7 @@ describe('GET /api/cron/sync-ical', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
+    ;(isBlockedEvent as jest.Mock).mockReturnValue(false)
     process.env.CRON_SECRET = CRON_SECRET
   })
 
@@ -176,6 +177,71 @@ describe('GET /api/cron/sync-ical', () => {
       records_created: 0,
       records_updated: 0,
       records_failed: 1,
+    })
+  })
+
+  it('conta bloqueios de calendário persistidos como registros processados', async () => {
+    const listing = {
+      id: 'listing-block',
+      ical_url: 'https://example.com/blocked.ics',
+      sync_enabled: true,
+      property_id: 'prop-block',
+      properties: { name: 'Casa Bloqueada', organization_id: 'org-1', is_active: true },
+    }
+    const insertedSyncLogs: Array<Record<string, unknown>> = []
+    let calendarBlockSelectCount = 0
+
+    const mockSupabase = {
+      from: jest.fn((table: string) => {
+        if (table === 'property_listings') {
+          return {
+            select: jest.fn(() => makeQuery({ data: [listing], error: null })),
+            update: jest.fn(() => makeQuery({ data: null, error: null })),
+          }
+        }
+        if (table === 'calendar_blocks') {
+          return {
+            select: jest.fn(() => {
+              calendarBlockSelectCount++
+              return makeQuery(calendarBlockSelectCount === 1
+                ? { data: { id: 'block-1' }, error: null }
+                : { data: [], error: null })
+            }),
+            update: jest.fn(() => makeQuery({ data: null, error: null })),
+          }
+        }
+        if (table === 'sync_logs') {
+          return {
+            insert: jest.fn((payload: Record<string, unknown>) => {
+              insertedSyncLogs.push(payload)
+              return Promise.resolve({ data: null, error: null })
+            }),
+          }
+        }
+        return { select: jest.fn(() => makeQuery({ data: [], error: null })) }
+      }),
+    }
+
+    ;(createAdminClient as jest.Mock).mockReturnValue(mockSupabase)
+    ;(isBlockedEvent as jest.Mock).mockReturnValue(true)
+    ;(importICalFromUrl as jest.Mock).mockResolvedValue([{
+      uid: 'blocked-uid',
+      summary: 'Not available',
+      description: '',
+      start: new Date('2026-09-10T00:00:00.000Z'),
+      end: new Date('2026-09-12T00:00:00.000Z'),
+    }])
+
+    const response = await GET(buildRequest())
+
+    expect(response.status).toBe(200)
+    expect(insertedSyncLogs).toHaveLength(1)
+    expect(insertedSyncLogs[0]).toMatchObject({
+      status: 'success',
+      records_processed: 1,
+      records_created: 0,
+      records_updated: 0,
+      records_failed: 0,
     })
   })
 

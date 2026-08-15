@@ -36,7 +36,7 @@ export const dynamic = 'force-dynamic'
 
 // ─── Per-listing sync logic ───────────────────────────────────────────────────
 
-type SyncResult = { created: number; updated: number; skipped: number; cancelled: number }
+type SyncResult = { created: number; updated: number; skipped: number; cancelled: number; processed: number }
 
 async function syncOneListing(
   supabase: ReturnType<typeof createAdminClient>,
@@ -49,7 +49,7 @@ async function syncOneListing(
   },
   progress: SyncResult
 ): Promise<SyncResult> {
-  let created = 0, updated = 0, skipped = 0
+  let created = 0, updated = 0, skipped = 0, processed = 0
   const cancelled = 0
 
   // Extract organization_id from listing (needed for both reservations and blocks)
@@ -111,14 +111,14 @@ async function syncOneListing(
       if (isBlockedEvent(event)) {
         console.log(`[Cron] Bloqueio fora do intervalo (antes ${today} ou depois ${twoYearsFromNow}): "${event.summary}"`)
       }
-      skipped++; progress.skipped++
+      skipped++; processed++; progress.skipped++; progress.processed++
       continue
     }
 
     const durationDays = Math.round((event.end.getTime() - event.start.getTime()) / (1000 * 60 * 60 * 24))
     if (durationDays > 180) {
       console.log(`[Cron] Evento sazonal (${durationDays}d) ignorado: "${event.summary}"`)
-      skipped++; progress.skipped++; continue
+      skipped++; processed++; progress.skipped++; progress.processed++; continue
     }
 
     // Check if this event is a blocked/unavailable date (not a guest reservation)
@@ -196,8 +196,9 @@ async function syncOneListing(
 
       if (!blockError) {
         console.log(`[Cron] ✅ Bloqueio criado/atualizado com sucesso: ${event.uid}`)
+        processed++; progress.processed++
       } else {
-        console.error(`[Cron] ❌ Erro ao processar bloqueio ${event.uid}: ${blockError.message}`)
+        throw new Error(`Falha ao persistir bloqueio ${event.uid}: ${blockError.message}`)
       }
       continue
     }
@@ -265,9 +266,9 @@ async function syncOneListing(
         .eq('id', existingReservation.id)
       if (error) {
         console.error(`[Cron] Erro ao atualizar reserva ${externalIdLookup}:`, error)
-        skipped++; progress.skipped++
+        skipped++; processed++; progress.skipped++; progress.processed++
       } else {
-        updated++; progress.updated++
+        updated++; processed++; progress.updated++; progress.processed++
       }
     } else {
       const { data: overlapping } = await supabase
@@ -276,7 +277,9 @@ async function syncOneListing(
         .not('status', 'eq', 'cancelled')
         .lt('check_in', checkOut).gt('check_out', checkIn)
 
-      if (overlapping && overlapping.length > 0) { skipped++; progress.skipped++; continue }
+      if (overlapping && overlapping.length > 0) {
+        skipped++; processed++; progress.skipped++; progress.processed++; continue
+      }
 
       // Fallback: usar summary ou genérico
       let guestFirstName = guestData?.firstName || 'Hóspede'
@@ -353,7 +356,7 @@ async function syncOneListing(
       if (resError) {
         throw new Error(`Falha ao persistir reserva ${externalIdLookup}: ${resError.message}`)
       } else {
-        created++; progress.created++
+        created++; processed++; progress.created++; progress.processed++
         // Notificar proprietário via queue
         const nights = Math.ceil((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24))
         const propName = (listing.properties as unknown as { name: string } | null)?.name
@@ -418,7 +421,7 @@ async function syncOneListing(
     sync_type: 'ical',
     direction: 'inbound',
     status: 'success',
-    records_processed: created + updated + skipped,
+    records_processed: processed,
     records_created: created,
     records_updated: updated,
     records_failed: 0,
@@ -428,7 +431,7 @@ async function syncOneListing(
     console.warn(`[Cron] Erro ao registrar sync_log de sucesso para listing ${listing.id}:`, syncLogError.message)
   }
 
-  return { created, updated, skipped, cancelled }
+  return { created, updated, skipped, cancelled, processed }
 }
 
 // ─── Route Handler ────────────────────────────────────────────────────────────
@@ -487,7 +490,7 @@ export async function GET(request: NextRequest) {
       Array.from(listingsByProperty.values()).map(async (propListings) => {
         let created = 0, updated = 0, skipped = 0, cancelled = 0, errors = 0
         for (const listing of propListings) {
-          const progress: SyncResult = { created: 0, updated: 0, skipped: 0, cancelled: 0 }
+          const progress: SyncResult = { created: 0, updated: 0, skipped: 0, cancelled: 0, processed: 0 }
           try {
             const r = await syncOneListing(supabase, listing, progress)
             created += r.created; updated += r.updated
@@ -522,7 +525,7 @@ export async function GET(request: NextRequest) {
               direction: 'inbound',
               status: 'failed',
               error_message: errorMessage,
-              records_processed: progress.created + progress.updated + progress.skipped,
+              records_processed: progress.processed,
               records_created: progress.created,
               records_updated: progress.updated,
               records_failed: 1,
