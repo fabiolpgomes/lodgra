@@ -224,12 +224,17 @@ describe('GET /api/cron/sync-ical', () => {
 
     ;(createAdminClient as jest.Mock).mockReturnValue(mockSupabase)
     ;(isBlockedEvent as jest.Mock).mockReturnValue(true)
+    const start = new Date()
+    start.setUTCDate(start.getUTCDate() + 1)
+    start.setUTCHours(0, 0, 0, 0)
+    const end = new Date(start)
+    end.setUTCDate(end.getUTCDate() + 2)
     ;(importICalFromUrl as jest.Mock).mockResolvedValue([{
       uid: 'blocked-uid',
       summary: 'Not available',
       description: '',
-      start: new Date('2026-09-10T00:00:00.000Z'),
-      end: new Date('2026-09-12T00:00:00.000Z'),
+      start,
+      end,
     }])
 
     const response = await GET(buildRequest())

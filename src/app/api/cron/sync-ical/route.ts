@@ -135,6 +135,10 @@ async function syncOneListing(
       // Create or update a tenant-scoped block instead of a reservation.
       const blockOrgId = cronOrgId
 
+      if (!event.uid) {
+        throw new Error(`Bloqueio sem UID para listing ${listing.id}`)
+      }
+
       // Verificar se bloqueio já existe (pelo external_uid)
       let blockError = null
       if (event.uid) {
@@ -266,7 +270,7 @@ async function syncOneListing(
         .eq('id', existingReservation.id)
       if (error) {
         console.error(`[Cron] Erro ao atualizar reserva ${externalIdLookup}:`, error)
-        skipped++; processed++; progress.skipped++; progress.processed++
+        throw new Error(`Falha ao atualizar reserva ${externalIdLookup}: ${error.message}`)
       } else {
         updated++; processed++; progress.updated++; progress.processed++
       }
