@@ -43,7 +43,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const property = reservation.properties as unknown as { name: string; slug: string | null; city: string | null } | undefined
+    const propertyRelation = reservation.properties as unknown as
+      | { name: string; slug: string | null; city: string | null }
+      | Array<{ name: string; slug: string | null; city: string | null }>
+      | null
+    const property = Array.isArray(propertyRelation) ? propertyRelation[0] : propertyRelation
     if (!property) {
       console.error('[email] Propriedade não encontrada para reserva:', reservationId)
       return NextResponse.json(

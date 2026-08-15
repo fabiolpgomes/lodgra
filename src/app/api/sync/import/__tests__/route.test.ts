@@ -48,6 +48,7 @@ function makeQuery(result: unknown) {
     limit: jest.fn(() => query),
     update: jest.fn(() => query),
     single: jest.fn(() => Promise.resolve(result)),
+    maybeSingle: jest.fn(() => Promise.resolve(result)),
     then: (onFulfilled: (value: unknown) => unknown) =>
       Promise.resolve(result).then(onFulfilled),
   }
@@ -277,6 +278,11 @@ describe('POST /api/sync/import', () => {
 
     const mockSupabase = {
       from: jest.fn((table: string) => {
+        if (table === 'property_listings') {
+          return {
+            select: jest.fn(() => makeQuery({ data: { id: 'listing-3', property_id: 'prop-3' }, error: null })),
+          }
+        }
         if (table === 'properties') {
           return {
             select: jest.fn(() => makeQuery({ data: { organization_id: 'org-1' }, error: null })),

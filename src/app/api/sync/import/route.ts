@@ -95,30 +95,34 @@ async function syncListing(
     } else {
       // Verificar se já existe reserva com datas sobrepostas na mesma propriedade
       // (pode ser a mesma reserva importada de outra plataforma)
-      const { data: propertyListing } = await supabase
+      const { data: propertyListing, error: propertyListingError } = await supabase
         .from('property_listings')
         .select('property_id, properties:properties!property_listings_property_org_fk(cleaning_fee, cleaning_fee_type, pet_fee, pet_fee_type)')
         .eq('id', listingId)
         .single()
 
-      if (propertyListing) {
-        // Verificar sobreposição REAL com reservas existentes na mesma propriedade
-        // Usar < e > (estrito) para que check-out == check-in NÃO seja sobreposição
-        // (saída de um hóspede e entrada de outro no mesmo dia é válido)
-        const { data: overlapping } = await supabase
-          .from('reservations')
-          .select('id, external_id, property_listing_id')
-          .eq('property_id', propertyListing.property_id)
-          .not('status', 'eq', 'cancelled')
-          .lt('check_in', checkOut)
-          .gt('check_out', checkIn)
+      if (propertyListingError || !propertyListing?.property_id) {
+        throw new Error(
+          `Anúncio ${listingId} inválido: ${propertyListingError?.message || 'property_id ausente'}`
+        )
+      }
 
-        if (overlapping && overlapping.length > 0) {
-          // Já existe reserva neste período nesta propriedade — mesmo bloqueio de outra plataforma
-          console.log(`[Sync] Reserva sobreposta encontrada para "${event.summary}" (${checkIn}-${checkOut}), ignorando duplicado`)
-          skipped++
-          continue
-        }
+      // Verificar sobreposição REAL com reservas existentes na mesma propriedade
+      // Usar < e > (estrito) para que check-out == check-in NÃO seja sobreposição
+      // (saída de um hóspede e entrada de outro no mesmo dia é válido)
+      const { data: overlapping } = await supabase
+        .from('reservations')
+        .select('id, external_id, property_listing_id')
+        .eq('property_id', propertyListing.property_id)
+        .not('status', 'eq', 'cancelled')
+        .lt('check_in', checkOut)
+        .gt('check_out', checkIn)
+
+      if (overlapping && overlapping.length > 0) {
+        // Já existe reserva neste período nesta propriedade — mesmo bloqueio de outra plataforma
+        console.log(`[Sync] Reserva sobreposta encontrada para "${event.summary}" (${checkIn}-${checkOut}), ignorando duplicado`)
+        skipped++
+        continue
       }
 
       const uniqueEmail = `imported-${Date.now()}-${Math.random().toString(36).substring(7)}@lodgra.local`
@@ -398,6 +402,20 @@ export async function POST(request: NextRequest) {
     }
 
     const adminSupabase = await createAdminClient()
+
+    const { data: legacyListing, error: legacyListingError } = await adminSupabase
+      .from('property_listings')
+      .select('id, property_id')
+      .eq('id', listing_id)
+      .eq('property_id', property_id)
+      .maybeSingle()
+
+    if (legacyListingError) {
+      return NextResponse.json({ error: 'Erro ao validar anúncio: ' + legacyListingError.message }, { status: 500 })
+    }
+    if (!legacyListing) {
+      return NextResponse.json({ error: 'Anúncio não encontrado para esta propriedade' }, { status: 404 })
+    }
 
     // Buscar org_id via propriedade
     const { data: propData } = await adminSupabase

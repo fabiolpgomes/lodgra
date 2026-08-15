@@ -21,11 +21,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Reserva não encontrada' }, { status: 404 })
     }
 
-    const { data: org } = await supabase
+    const { data: org, error: orgError } = await supabase
       .from('organizations')
       .select('id, asaas_api_key, asaas_environment')
       .eq('id', reservation.organization_id)
       .single()
+    if (orgError) {
+      console.error('Failed to load organization payment configuration:', orgError)
+      return NextResponse.json({ error: 'Erro ao carregar configuração de pagamento.' }, { status: 500 })
+    }
     if (!org) {
       return NextResponse.json({ error: 'Organização da reserva não encontrada.' }, { status: 404 })
     }

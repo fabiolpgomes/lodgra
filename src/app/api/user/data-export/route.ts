@@ -126,7 +126,7 @@ export async function POST(_request: Request) {
       },
       properties: propertiesResult.data || [],
       reservations: (reservationsResult.data || []).map((r: Record<string, unknown>) => {
-        const { property_listings: _pl, ...rest } = r as Record<string, unknown>
+        const { property_listings: _pl, properties: _properties, ...rest } = r as Record<string, unknown>
         return rest
       }),
       expenses: (expensesResult.data || []).map((e: Record<string, unknown>) => {

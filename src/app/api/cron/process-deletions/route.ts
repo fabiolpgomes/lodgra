@@ -87,69 +87,59 @@ async function processUserDeletion(adminClient: any, userId: string, requestId: 
   const anonymizedEmail = null
 
   // 1. Get user's organization for scoped queries
-  const { data: profile } = await adminClient
+  const { data: profile, error: profileError } = await adminClient
     .from('user_profiles')
     .select('organization_id')
     .eq('id', userId)
     .single()
 
+  if (profileError || !profile) {
+    throw new Error(`Failed to load user profile: ${profileError?.message || 'profile not found'}`)
+  }
+
   const orgId = profile?.organization_id
 
-  // 2. Anonymize reservations (keep financial data, anonymize guest_name)
+  // Reservations and guests belong to the organization, not to this user account.
+  // Preserve those operational records and anonymize only the owner linked to userId.
   if (orgId) {
-    // Get property IDs for this org
-    const { data: properties } = await adminClient
-      .from('properties')
-      .select('id')
-      .eq('organization_id', orgId)
-
-    if (properties && properties.length > 0) {
-      const propertyIds = properties.map((p: { id: string }) => p.id)
-
-      await adminClient
-        .from('reservations')
-        .update({ guest_name: anonymizedName })
-        .in('property_id', propertyIds)
-    }
-
-    // 3. Anonymize owners (email/phone) and guests
-    await adminClient
+    const { error: ownerError } = await adminClient
       .from('owners')
-      .update({ email: anonymizedEmail, phone: anonymizedEmail })
+      .update({ full_name: anonymizedName, email: anonymizedEmail, phone: anonymizedEmail })
+      .eq('user_id', userId)
       .eq('organization_id', orgId)
-
-    await adminClient
-      .from('guests')
-      .update({ first_name: anonymizedName, last_name: anonymizedName, email: anonymizedEmail, phone: anonymizedEmail })
-      .eq('organization_id', orgId)
+    if (ownerError) throw new Error(`Failed to anonymize owner: ${ownerError.message}`)
   }
 
   // 4. Delete user profile and anonymize consent IPs
-  await adminClient
+  const { error: consentError } = await adminClient
     .from('consent_records')
     .update({ ip_address: null })
     .eq('user_id', userId)
+  if (consentError) throw new Error(`Failed to anonymize consent records: ${consentError.message}`)
 
-  await adminClient
+  const { error: deleteProfileError } = await adminClient
     .from('user_profiles')
     .delete()
     .eq('id', userId)
+  if (deleteProfileError) throw new Error(`Failed to delete user profile: ${deleteProfileError.message}`)
 
   // 5. Mark deletion request as completed
-  await adminClient
+  const { error: requestError } = await adminClient
     .from('deletion_requests')
     .update({
       status: 'completed',
       completed_at: new Date().toISOString(),
     })
     .eq('id', requestId)
+  if (requestError) throw new Error(`Failed to complete deletion request: ${requestError.message}`)
 
   // 6. Audit log
-  await adminClient.from('audit_logs').insert({
+  const { error: auditError } = await adminClient.from('audit_logs').insert({
     user_id: userId,
     action: 'deletion_completed',
     details: { request_id: requestId, anonymized_tables: ['reservations', 'owners', 'user_profiles'] },
   })
+  if (auditError) throw new Error(`Failed to write deletion audit log: ${auditError.message}`)
 
   // 7. Delete auth user (last step)
   const { error: authError } = await adminClient.auth.admin.deleteUser(userId)

@@ -11,13 +11,14 @@ interface ReservationCandidate {
   id: string
   property_id: string
   property_listing_id: string | null
-  properties: Array<{ name: string }> | null
+  properties: { name: string } | Array<{ name: string }> | null
 }
 
 function getPropertyName(candidate: ReservationCandidate): string {
-  const properties = candidate.properties
-  if (!Array.isArray(properties) || properties.length === 0) return ''
-  return properties[0].name || ''
+  const property = Array.isArray(candidate.properties)
+    ? candidate.properties[0]
+    : candidate.properties
+  return property?.name || ''
 }
 
 export async function syncExtractedDataToReservation(extractionId: string): Promise<{ success: boolean; error?: string }> {

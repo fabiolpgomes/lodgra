@@ -184,7 +184,7 @@ export default function EditReservationPage({
         .from('reservations')
         .update({
           property_id: selectedProperty,
-          property_listing_id: selectedListing,
+          property_listing_id: selectedListing || null,
           check_in: checkInStr,
           check_out: checkOutStr,
           number_of_guests: parseInt(formData.get('number_of_guests') as string) || 1,
@@ -297,7 +297,13 @@ export default function EditReservationPage({
                 <Label htmlFor="property_id" className="mb-1">
                   Selecione a Propriedade *
                 </Label>
-                <Select value={selectedProperty} onValueChange={setSelectedProperty}>
+                <Select
+                  value={selectedProperty}
+                  onValueChange={(propertyId) => {
+                    setSelectedProperty(propertyId)
+                    setSelectedListing('')
+                  }}
+                >
                   <SelectTrigger id="property_id" className="w-full">
                     <SelectValue placeholder="Escolha uma propriedade..." />
                   </SelectTrigger>
@@ -313,7 +319,7 @@ export default function EditReservationPage({
               {selectedProperty && propertyListings.length > 0 && (
                 <div>
                   <Label htmlFor="property_listing_id" className="mb-1">
-                    Anúncio / Plataforma *
+                    Anúncio / Plataforma (opcional)
                   </Label>
                   <Select value={selectedListing} onValueChange={setSelectedListing}>
                     <SelectTrigger id="property_listing_id" className="w-full">
@@ -500,7 +506,7 @@ export default function EditReservationPage({
           <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
             <Button
               type="submit"
-              disabled={loading || !selectedProperty || propertyListings.length === 0}
+              disabled={loading || !selectedProperty}
               className="flex-1"
             >
               {loading ? <>Salvando...</> : <><Save className="h-5 w-5" />Salvar Alterações</>}

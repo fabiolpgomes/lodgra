@@ -39,13 +39,11 @@ const mockReservation = {
   total_amount: 450.00,
   currency: 'EUR',
   property_listing_id: 'listing-001',
-  property_listings: {
-    properties: {
-      name: 'Apartamento Lisboa',
-      city: 'Lisboa',
-      slug: 'apartamento-lisboa',
-      organization_id: 'org-001',
-    },
+  properties: {
+    name: 'Apartamento Lisboa',
+    city: 'Lisboa',
+    slug: 'apartamento-lisboa',
+    organization_id: 'org-001',
   },
 }
 
@@ -135,7 +133,7 @@ describe('POST /api/email/send-confirmation', () => {
   it('should return 404 when property not found', async () => {
     const reservationWithoutProperty = {
       ...mockReservation,
-      property_listings: { properties: null },
+      properties: null,
     }
 
     mockCreateAdminClient.mockReturnValue(

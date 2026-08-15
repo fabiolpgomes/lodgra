@@ -54,7 +54,7 @@ describe('syncExtractedDataToReservation', () => {
       }
       if (table === 'reservations') {
         return {
-          ...buildReservationQuery([{ id: 'res-1', property_listing_id: 'pl-1', property_listings: null }]),
+          ...buildReservationQuery([{ id: 'res-1', property_id: 'p-1', property_listing_id: 'pl-1', properties: null }]),
           update: updateMock,
         }
       }
@@ -74,8 +74,8 @@ describe('syncExtractedDataToReservation', () => {
     const updateMock = jest.fn().mockReturnValue({ eq: jest.fn().mockResolvedValue({ error: null }) })
 
     const candidates = [
-      { id: 'res-WRONG', property_listing_id: 'pl-1', property_listings: [{ property_id: 'p-1', properties: [{ name: 'Apartamento Centro' }] }] },
-      { id: 'res-CORRECT', property_listing_id: 'pl-2', property_listings: [{ property_id: 'p-2', properties: [{ name: 'Villa Azul' }] }] },
+      { id: 'res-WRONG', property_id: 'p-1', property_listing_id: 'pl-1', properties: [{ name: 'Apartamento Centro' }] },
+      { id: 'res-CORRECT', property_id: 'p-2', property_listing_id: 'pl-2', properties: [{ name: 'Villa Azul' }] },
     ]
 
     mockSupabase.from.mockImplementation((table: string) => {
@@ -104,8 +104,8 @@ describe('syncExtractedDataToReservation', () => {
     const reservationUpdateMock = jest.fn()
 
     const candidates = [
-      { id: 'res-A', property_listing_id: 'pl-1', property_listings: [{ property_id: 'p-1', properties: [{ name: 'Apartamento Centro' }] }] },
-      { id: 'res-B', property_listing_id: 'pl-2', property_listings: [{ property_id: 'p-2', properties: [{ name: 'Villa Azul' }] }] },
+      { id: 'res-A', property_id: 'p-1', property_listing_id: 'pl-1', properties: [{ name: 'Apartamento Centro' }] },
+      { id: 'res-B', property_id: 'p-2', property_listing_id: 'pl-2', properties: [{ name: 'Villa Azul' }] },
     ]
 
     mockSupabase.from.mockImplementation((table: string) => {
@@ -134,8 +134,8 @@ describe('syncExtractedDataToReservation', () => {
     const reservationUpdateMock = jest.fn()
 
     const candidates = [
-      { id: 'res-A', property_listing_id: 'pl-1', property_listings: [{ property_id: 'p-1', properties: [{ name: 'Apartamento Centro' }] }] },
-      { id: 'res-B', property_listing_id: 'pl-2', property_listings: [{ property_id: 'p-2', properties: [{ name: 'Villa Azul' }] }] },
+      { id: 'res-A', property_id: 'p-1', property_listing_id: 'pl-1', properties: [{ name: 'Apartamento Centro' }] },
+      { id: 'res-B', property_id: 'p-2', property_listing_id: 'pl-2', properties: [{ name: 'Villa Azul' }] },
     ]
 
     mockSupabase.from.mockImplementation((table: string) => {
@@ -215,7 +215,7 @@ describe('syncExtractedDataToReservation', () => {
         }
       }
       if (table === 'reservations') {
-        return { ...buildReservationQuery([{ id: 'res-999', property_listing_id: 'pl-1', property_listings: null }]), update: updateMock }
+        return { ...buildReservationQuery([{ id: 'res-999', property_id: 'p-1', property_listing_id: 'pl-1', properties: null }]), update: updateMock }
       }
       throw new Error(`Unexpected table: ${table}`)
     })

@@ -138,13 +138,21 @@ export async function processBookingReservation(
   // Determine stay duration and fetch default policy for property
   const stayDuration: StayDuration = nights >= 28 ? 'long' : 'short'
 
-  const { data: propertyListingData } = await adminClient
+  const { data: propertyListingData, error: propertyListingError } = await adminClient
     .from('property_listings')
     .select('property_id')
     .eq('id', propertyListingId)
     .maybeSingle()
 
-  const propertyIdForPolicy = propertyListingData?.property_id
+  if (propertyListingError || !propertyListingData?.property_id) {
+    return {
+      success: false,
+      isDuplicate: false,
+      error: `Property lookup failed: ${propertyListingError?.message ?? 'property_id missing'}`,
+    }
+  }
+
+  const propertyIdForPolicy = propertyListingData.property_id
 
   let cancellationPolicyId: string | null = null
   let cancellationPolicySnapshot: CancellationPolicySnapshot | null = null

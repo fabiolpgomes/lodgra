@@ -1,7 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { requireRole } from '@/lib/auth/requireRole'
 
 export async function GET(request: NextRequest) {
+  const auth = await requireRole(['admin', 'gestor'])
+  if (!auth.authorized) return auth.response!
+  if (!auth.organizationId) {
+    return NextResponse.json({ error: 'Organização não encontrada' }, { status: 403 })
+  }
+
   const propertyId = request.nextUrl.searchParams.get('property_id')
 
   if (!propertyId) {
@@ -10,6 +17,18 @@ export async function GET(request: NextRequest) {
 
   try {
     const supabase = await createAdminClient()
+
+    const { data: property, error: propertyError } = await supabase
+      .from('properties')
+      .select('id')
+      .eq('id', propertyId)
+      .eq('organization_id', auth.organizationId)
+      .maybeSingle()
+
+    if (propertyError) throw propertyError
+    if (!property) {
+      return NextResponse.json({ error: 'Propriedade não encontrada' }, { status: 404 })
+    }
 
     // Query: Encontrar reservas canceladas
     const { data, error } = await supabase
@@ -25,6 +44,7 @@ export async function GET(request: NextRequest) {
         property_id,
         property_listing_id
       `)
+      .eq('organization_id', auth.organizationId)
       .eq('property_id', propertyId)
       .eq('status', 'cancelled')
       .gte('cancelled_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())

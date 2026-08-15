@@ -1,7 +1,11 @@
 import { createClient } from '@supabase/supabase-js';
 
-const SUPABASE_URL = 'https://brjumbfpvijrkhrherpt.supabase.co';
-const SUPABASE_SERVICE_ROLE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyanVtYmZwdmlqcmtocmhlcnB0Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODA0ODY4OSwiZXhwIjoyMDgzNjI0Njg5fQ.BhCE3-QhkUvmiNEppS2OS_U_j2vdHqM9rkfZj2kUwpo';
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+  throw new Error('NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required');
+}
 
 async function insertReservation() {
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
