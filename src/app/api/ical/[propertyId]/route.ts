@@ -66,7 +66,7 @@ export async function GET(
         property_listing_id,
         property_listings(
           property_id,
-          properties(
+          properties:properties!property_listings_property_org_fk(
             id,
             name
           )
