@@ -44,7 +44,7 @@ export async function GET(
     // Verify ownership via owners table JOIN
     const { data: property, error: propertyError } = await supabase
       .from('properties')
-      .select('id, owner_id, owners(id, user_id)')
+      .select('id, owner_id, currency, owners(id, user_id)')
       .eq('id', propertyId)
       .single()
 
@@ -81,10 +81,13 @@ export async function GET(
 
     return NextResponse.json({
       success: true,
-      data: pricing || {
-        property_id: propertyId,
-        base_price: 0,
-        weekend_price: null,
+      data: {
+        ...(pricing || {
+          property_id: propertyId,
+          base_price: 0,
+          weekend_price: null,
+        }),
+        currency: property.currency || 'EUR',
       },
     })
   } catch (error) {

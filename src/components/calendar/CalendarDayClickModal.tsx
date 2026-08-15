@@ -13,7 +13,8 @@ import { Button } from '@/components/common/ui/button'
 import { Input } from '@/components/common/ui/input'
 import { Label } from '@/components/common/ui/label'
 import { toast } from 'sonner'
-import { CalendarDays, Euro } from 'lucide-react'
+import { CalendarDays } from 'lucide-react'
+import { CURRENCIES, formatCurrency, getCurrencySymbol, type CurrencyCode } from '@/lib/utils/currency'
 
 interface DateRange {
   start: Date
@@ -24,6 +25,7 @@ interface CalendarDayClickModalProps {
   isOpen: boolean
   dates: Date | DateRange | null
   propertyId: string
+  currency?: string
   onClose: () => void
   onSavePrice?: (price: number) => Promise<void>
   onBlockDates?: (reason?: string) => Promise<void>
@@ -37,6 +39,7 @@ export function CalendarDayClickModal({
   isOpen,
   dates,
   propertyId,
+  currency = 'EUR',
   onClose,
   onSavePrice,
   onBlockDates,
@@ -84,10 +87,10 @@ export function CalendarDayClickModal({
   const parsedPrice = Number(price.replace(',', '.'))
   const isPriceValid = Number.isFinite(parsedPrice) && parsedPrice > 0
   const totalPrice = isPriceValid ? parsedPrice * nights : 0
-  const currencyFormatter = new Intl.NumberFormat('pt-PT', {
-    style: 'currency',
-    currency: 'EUR',
-  })
+  const normalizedCurrency = currency.toUpperCase()
+  const currencyCode: CurrencyCode = normalizedCurrency in CURRENCIES
+    ? normalizedCurrency as CurrencyCode
+    : 'EUR'
 
   const handleClose = () => {
     setPrice('')
@@ -292,7 +295,7 @@ export function CalendarDayClickModal({
                 </Label>
                 <div className="flex h-14 items-center overflow-hidden rounded-xl border border-[#B8C0CC] bg-white shadow-sm transition focus-within:border-[#10203E] focus-within:ring-2 focus-within:ring-[#10203E]/15">
                   <span className="flex h-full w-14 shrink-0 items-center justify-center border-r border-[#E5E7EB] bg-[#F7F8FA] text-[#4D5566]" aria-hidden="true">
-                    <Euro className="h-5 w-5" />
+                    {getCurrencySymbol(currencyCode)}
                   </span>
                   <Input
                     id="price"
@@ -315,8 +318,8 @@ export function CalendarDayClickModal({
               {!isSingleDay && (
                 <div id="price-summary" className="rounded-xl border border-[#E5E7EB] bg-[#F7F8FA] p-4" aria-live="polite">
                   <div className="flex items-center justify-between gap-4 text-sm text-[#5E6878]">
-                    <span>{currencyFormatter.format(isPriceValid ? parsedPrice : 0)} × {nights} noites</span>
-                    <span className="text-base font-semibold text-[#1B2430]">{currencyFormatter.format(totalPrice)}</span>
+                    <span>{formatCurrency(isPriceValid ? parsedPrice : 0, currencyCode)} × {nights} noites</span>
+                    <span className="text-base font-semibold text-[#1B2430]">{formatCurrency(totalPrice, currencyCode)}</span>
                   </div>
                   <p className="mt-1 text-xs text-[#697386]">Estimativa total do período</p>
                 </div>

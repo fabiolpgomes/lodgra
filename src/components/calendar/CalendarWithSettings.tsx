@@ -461,6 +461,7 @@ function CalendarWithSettingsContent({
         isOpen={selection.isModalOpen}
         dates={selection.modalData?.dates || selection.modalData?.date || null}
         propertyId={propertyId}
+        currency={pricingQuery.data?.currency || 'EUR'}
         onClose={() => {
           selection.closeModal()
           setSelectedBlocks([])

@@ -27,6 +27,7 @@ interface ReservationsResponse {
 interface PricingData {
   base_price: number
   weekend_price?: number | null
+  currency: string
 }
 
 interface BlockedDate {

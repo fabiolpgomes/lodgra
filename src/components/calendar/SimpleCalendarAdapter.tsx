@@ -17,7 +17,7 @@ interface Reservation {
   startDate: Date
   endDate: Date
   price: number
-  currency: string
+  currency?: string
   status: 'pending' | 'confirmed' | 'hosting' | 'completed'
 }
 
@@ -102,7 +102,7 @@ function SimpleCalendarAdapterComponent({
       USD: '$',
       GBP: '£',
     }
-    const currency = reservation.currency.toUpperCase()
+    const currency = (reservation.currency || 'EUR').toUpperCase()
     const symbol = symbols[currency] || currency
     return `${symbol}${reservation.price.toFixed(0)}`
   }

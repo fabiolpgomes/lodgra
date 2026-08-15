@@ -52,4 +52,28 @@ describe('CalendarDayClickModal', () => {
     fireEvent.click(screen.getByRole('button', { name: /Definir Preço/ }))
     expect(screen.getByRole('button', { name: 'Salvar Preço' })).toBeDisabled()
   })
+
+  it('uses the property currency in the price field and estimate', () => {
+    render(
+      <CalendarDayClickModal
+        isOpen
+        dates={{
+          start: new Date(2026, 9, 1),
+          end: new Date(2026, 9, 3),
+        }}
+        propertyId="property-brl"
+        currency="BRL"
+        onClose={jest.fn()}
+        onSavePrice={jest.fn()}
+      />
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: /Definir Preço/ }))
+    fireEvent.change(screen.getByLabelText('Preço por noite'), { target: { value: '125,50' } })
+
+    expect(screen.getByText('R$')).toBeInTheDocument()
+    expect(screen.getByText(/R\$\s*125,50/)).toBeInTheDocument()
+    expect(screen.getByText(/R\$\s*251,00/)).toBeInTheDocument()
+    expect(screen.queryByText('€')).not.toBeInTheDocument()
+  })
 })
