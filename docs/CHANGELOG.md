@@ -9,6 +9,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Design System Color Migration — Green to Emerald
+
+**Refactoring: Complete Design System Alignment**
+- **Overview:** Migrated all success/growth color references from Tailwind's `green-*` utilities to `emerald-*` shades to align with updated design.md color palette
+- **Scope:** 542 color references across 139 files
+- **Color Mapping:**
+  - `green-50` → `emerald-50` (light background)
+  - `green-100` → `emerald-100` (lighter background)
+  - `green-200` → `emerald-200` (light border)
+  - `green-300` → `emerald-300` (border)
+  - `green-500` → `emerald-600` (slightly darker for contrast)
+  - `green-600` → `emerald-700` (emphasis)
+  - `green-700` → `emerald-800` (strong emphasis)
+  - `green-800` → `emerald-800` (text emphasis)
+  - `green-900` → `emerald-900` (dark text)
+- **Design System Alignment:**
+  - **Primary Success Color:** #00674F (deep, luxurious emerald)
+  - **Light Variant:** #0A8B6F (lighter emerald for hover states)
+  - **WCAG Compliance:** AA standard met (4.8:1 contrast minimum)
+  - **Scope Exceptions:** Demo pages (`src/app/demo/`) intentionally excluded for development/testing
+- **Impact Pages:**
+  - Dashboard: Cleaning status badges, sync success indicators
+  - Financial: Profit indicators, positive trend colors
+  - Admin: Validation success states, status badges
+  - Settings: Form success messages, confirmation states
+  - Reservations: Reservation status indicators
+  - Sync: Sync completion status colors
+- **Quality Metrics:**
+  - ✅ All tests passing (2821/2822)
+  - ✅ Zero regressions detected
+  - ✅ TypeScript strict mode: PASS
+  - ✅ ESLint: PASS
+  - ✅ Next.js build: PASS
+- **Testing:**
+  - ✅ Unit tests: Full suite passing
+  - ✅ Visual: Light and dark mode verified
+  - ✅ Accessibility: WCAG AA contrast validated
+  - ✅ Design consistency: All pages aligned with design.md
+- **Files Modified:** 139 files (see `docs/guides/design-system-color-migration.md` for details)
+- **Breaking Changes:** None (pure color refactoring, backward compatible)
+- **Related Story:** [45.1] Design System: Green to Emerald Color Migration
+- **Status:** ✅ Complete and merged to main (commit 29910c6a)
+
 ### Property Calendar — Detailed Reservation View
 
 **New Feature: Property-Specific Reservation Calendar**
