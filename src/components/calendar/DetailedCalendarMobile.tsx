@@ -67,7 +67,7 @@ export function DetailedCalendarMobile({
         <button
           onClick={onBackClick}
           className="back-button"
-          aria-label="Back"
+          aria-label="Voltar para propriedades"
         >
           ← Voltar
         </button>
@@ -77,9 +77,9 @@ export function DetailedCalendarMobile({
         <button
           onClick={onSettingsClick}
           className="settings-button"
-          aria-label="Settings"
+          aria-label="Abrir configurações"
         >
-          <Settings size={24} />
+          <Settings size={24} aria-hidden="true" />
         </button>
       </div>
 
@@ -88,9 +88,9 @@ export function DetailedCalendarMobile({
         <button
           onClick={handlePrevMonth}
           className="nav-button prev"
-          aria-label="Previous month"
+          aria-label="Mês anterior"
         >
-          <ChevronLeft size={20} />
+          <ChevronLeft size={20} aria-hidden="true" />
         </button>
 
         <h3 className="month-year">{monthYear}</h3>
@@ -98,24 +98,25 @@ export function DetailedCalendarMobile({
         <button
           onClick={handleNextMonth}
           className="nav-button next"
-          aria-label="Next month"
+          aria-label="Próximo mês"
         >
-          <ChevronRight size={20} />
+          <ChevronRight size={20} aria-hidden="true" />
         </button>
       </div>
 
       {/* Calendar Grid */}
-      <div className="calendar-grid-mobile">
+      <div className="calendar-grid-mobile" role="grid" aria-label="Calendário de disponibilidade">
         {/* Day headers - Week starts on Monday */}
-        {['S', 'T', 'Q', 'Q', 'S', 'S', 'D'].map((day, idx) => (
-          <div key={idx} className="day-header">
-            {day}
+        {['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab', 'Dom'].map((day, idx) => (
+          <div key={idx} className="day-header" role="columnheader" aria-label={day}>
+            {day.charAt(0)}
           </div>
         ))}
 
         {/* Calendar days */}
         {calendarDays.map((day, idx) => {
           const isSelected = day && selectedDates.some(d => d.getTime() === day.date.getTime())
+          const dayLabel = day ? `${day.date.getDate()} ${day.isBooked ? 'reservado' : 'disponível'}${day.isToday ? ' hoje' : ''}` : ''
           return (
             <div
               key={idx}
@@ -127,6 +128,10 @@ export function DetailedCalendarMobile({
                 ${isSelected ? 'selected' : ''}
               `.trim()}`}
               onClick={() => day && onDayClick?.(day.date)}
+              role={day ? 'button' : undefined}
+              tabIndex={day ? 0 : undefined}
+              aria-label={day ? dayLabel : undefined}
+              onKeyPress={(e) => day && (e.key === 'Enter' || e.key === ' ') && onDayClick?.(day.date)}
           >
             {day && (
               <>
