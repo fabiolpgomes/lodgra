@@ -91,18 +91,18 @@ export function AccountDeletionSection() {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow p-6 animate-pulse">
-        <div className="h-6 bg-gray-200 rounded w-48 mb-4" />
-        <div className="h-4 bg-gray-200 rounded w-full" />
+      <div className="bg-brand-white rounded-2xl border border-neutral-200/60 shadow-2xs p-6 animate-pulse">
+        <div className="h-6 bg-neutral-200 rounded w-48 mb-4" />
+        <div className="h-4 bg-neutral-200 rounded w-full" />
       </div>
     )
   }
 
   return (
-    <div className="bg-white rounded-lg shadow p-6 border border-red-100">
+    <div className="bg-brand-white rounded-2xl border border-red-100 shadow-2xs p-6">
       <div className="flex items-center gap-2 mb-4">
         <Trash2 className="h-5 w-5 text-red-500" />
-        <h2 className="text-lg font-semibold text-gray-900">{t('deletion.title')}</h2>
+        <h2 className="text-lg font-semibold text-brand-text-dark">{t('deletion.title')}</h2>
       </div>
 
       {error && (
@@ -186,7 +186,7 @@ export function AccountDeletionSection() {
       ) : (
         // Default state — show delete button
         <div>
-          <p className="text-sm text-gray-600 mb-4">
+          <p className="text-sm text-brand-text-medium mb-4">
             {t('deletion.description')}
           </p>
           <button

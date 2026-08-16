@@ -114,26 +114,26 @@ export function EmailConnection({ initialEmail, initialLastSync }: EmailConnecti
   }
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-6">
+    <div className="rounded-2xl border border-neutral-200/60 bg-brand-white p-6">
       <div className="flex items-center gap-3 mb-4">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-50">
-          <Mail className="h-5 w-5 text-brand-600" />
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-blue/5 border border-brand-blue/10">
+          <Mail className="h-5 w-5 text-brand-blue" />
         </div>
         <div>
-          <h3 className="font-semibold text-gray-900">Ligação Gmail</h3>
-          <p className="text-sm text-gray-600">Importação automática de reservas por email</p>
+          <h3 className="font-semibold text-brand-text-dark">Ligação Gmail</h3>
+          <p className="text-sm text-brand-text-medium">Importação automática de reservas por email</p>
         </div>
       </div>
 
       {email ? (
         <div className="space-y-3">
-          <div className="flex items-center gap-2 text-sm text-emerald-800">
+          <div className="flex items-center gap-2 text-sm text-emerald-700">
             <CheckCircle className="h-4 w-4" />
             <span>Conectado como <strong>{email}</strong></span>
           </div>
 
           {!checkingStatus && tokenStatus?.status === 'expired' && (
-            <div className="flex items-start gap-2 text-sm bg-red-50 border border-red-200 rounded-md p-3">
+            <div className="flex items-start gap-2 text-sm bg-red-50 border border-red-200 rounded-lg p-3">
               <AlertCircle className="h-4 w-4 text-red-600 flex-shrink-0 mt-0.5" />
               <div className="flex-1">
                 <p className="text-red-600 font-medium">Token do Gmail expirou</p>
@@ -143,7 +143,7 @@ export function EmailConnection({ initialEmail, initialLastSync }: EmailConnecti
           )}
 
           {!checkingStatus && tokenStatus?.status === 'expiring_soon' && (
-            <div className="flex items-start gap-2 text-sm bg-amber-50 border border-amber-200 rounded-md p-3">
+            <div className="flex items-start gap-2 text-sm bg-amber-50 border border-amber-200 rounded-lg p-3">
               <Clock className="h-4 w-4 text-amber-600 flex-shrink-0 mt-0.5" />
               <div className="flex-1">
                 <p className="text-amber-700 font-medium">Token expira em breve</p>
@@ -152,7 +152,7 @@ export function EmailConnection({ initialEmail, initialLastSync }: EmailConnecti
             </div>
           )}
 
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-brand-text-medium">
             Última sincronização: {formatLastSync(lastSync)}
           </div>
           {error && (
@@ -162,21 +162,21 @@ export function EmailConnection({ initialEmail, initialLastSync }: EmailConnecti
             </div>
           )}
           {syncResult && (
-            <div className="text-sm text-emerald-800 bg-emerald-50 rounded-md px-3 py-2">
+            <div className="text-sm text-emerald-700 bg-emerald-50 rounded-lg px-3 py-2">
               Sincronização concluída: {syncResult.created} criada{syncResult.created !== 1 ? 's' : ''}, {syncResult.skipped} ignorada{syncResult.skipped !== 1 ? 's' : ''}, {syncResult.errors} erro{syncResult.errors !== 1 ? 's' : ''}
             </div>
           )}
           <div className="space-y-3">
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="flex-1 flex flex-col">
-                <label className="text-xs font-medium text-gray-600 mb-1.5">Período de sincronização</label>
+                <label className="text-xs font-medium text-brand-text-medium mb-1.5">Período de sincronização</label>
                 <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                  <Calendar className="h-4 w-4 text-brand-text-disabled flex-shrink-0" />
                   <select
                     value={daysBack}
                     onChange={e => setDaysBack(Number(e.target.value))}
                     disabled={syncing}
-                    className="flex-1 h-10 rounded-md border border-gray-300 bg-white px-3 text-sm text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex-1 h-10 rounded-lg border border-neutral-200/60 bg-brand-white px-3 text-sm text-brand-text-dark font-medium focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <option value={30}>Últimos 30 dias</option>
                     <option value={60}>Últimos 60 dias</option>
@@ -230,11 +230,11 @@ export function EmailConnection({ initialEmail, initialLastSync }: EmailConnecti
         </div>
       ) : (
         <div className="space-y-3">
-          <div className="flex items-center gap-2 text-sm text-gray-600">
+          <div className="flex items-center gap-2 text-sm text-brand-text-medium">
             <XCircle className="h-4 w-4" />
             <span>Não conectado</span>
           </div>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-brand-text-medium">
             Conecta o teu Gmail para importar automaticamente reservas do Airbnb, Booking.com e Flatio.
           </p>
           {error && (

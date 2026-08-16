@@ -85,14 +85,14 @@ export function ChangePasswordSection() {
   }
 
   return (
-    <section className="bg-white rounded-lg shadow p-6">
+    <section className="bg-brand-white rounded-2xl border border-neutral-200/60 shadow-2xs p-6">
       <div className="flex items-center gap-3 mb-6">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100">
-          <LockKeyhole className="h-5 w-5 text-gray-600" />
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-blue/5 border border-brand-blue/10">
+          <LockKeyhole className="h-5 w-5 text-brand-blue" />
         </div>
         <div>
-          <h2 className="text-lg font-semibold text-gray-900">Alterar Senha</h2>
-          <p className="text-sm text-gray-600">Crie uma nova senha para proteger sua conta</p>
+          <h2 className="text-lg font-semibold text-brand-text-dark">Alterar Senha</h2>
+          <p className="text-sm text-brand-text-medium">Crie uma nova senha para proteger sua conta</p>
         </div>
       </div>
 
@@ -112,7 +112,7 @@ export function ChangePasswordSection() {
 
       <form onSubmit={handleChangePassword} className="space-y-4">
         <div>
-          <Label htmlFor="newPassword" className="mb-2">
+          <Label htmlFor="newPassword" className="mb-2 text-brand-text-dark">
             Nova Senha
           </Label>
           <Input
@@ -122,15 +122,15 @@ export function ChangePasswordSection() {
             onChange={(e) => setNewPassword(e.target.value)}
             placeholder="Mínimo 8 caracteres"
             disabled={loading}
-            className="bg-gray-50"
+            className="bg-brand-bg border-neutral-200/60 text-brand-text-dark placeholder:text-brand-text-disabled"
           />
-          <p className="text-xs text-gray-600 mt-2">
+          <p className="text-xs text-brand-text-medium mt-2">
             Requisitos: Mínimo 8 caracteres, letra maiúscula e número
           </p>
         </div>
 
         <div>
-          <Label htmlFor="confirmPassword" className="mb-2">
+          <Label htmlFor="confirmPassword" className="mb-2 text-brand-text-dark">
             Confirmar Nova Senha
           </Label>
           <Input
@@ -140,7 +140,7 @@ export function ChangePasswordSection() {
             onChange={(e) => setConfirmPassword(e.target.value)}
             placeholder="Confirme sua nova senha"
             disabled={loading}
-            className="bg-gray-50"
+            className="bg-brand-bg border-neutral-200/60 text-brand-text-dark placeholder:text-brand-text-disabled"
           />
         </div>
 

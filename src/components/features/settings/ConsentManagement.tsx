@@ -70,10 +70,10 @@ export function ConsentManagement() {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow p-6 animate-pulse">
-        <div className="h-6 bg-gray-200 rounded w-48 mb-4" />
-        <div className="h-4 bg-gray-200 rounded w-full mb-2" />
-        <div className="h-4 bg-gray-200 rounded w-3/4" />
+      <div className="bg-brand-white rounded-2xl border border-neutral-200/60 shadow-2xs p-6 animate-pulse">
+        <div className="h-6 bg-neutral-200 rounded w-48 mb-4" />
+        <div className="h-4 bg-neutral-200 rounded w-full mb-2" />
+        <div className="h-4 bg-neutral-200 rounded w-3/4" />
       </div>
     )
   }
@@ -84,24 +84,24 @@ export function ConsentManagement() {
     : null
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
+    <div className="bg-brand-white rounded-2xl border border-neutral-200/60 shadow-2xs p-6">
       <div className="flex items-center gap-2 mb-4">
-        <Shield className="h-5 w-5 text-gray-600" />
-        <h2 className="text-lg font-semibold text-gray-900">{t('settings.title')}</h2>
+        <Shield className="h-5 w-5 text-brand-blue" />
+        <h2 className="text-lg font-semibold text-brand-text-dark">{t('settings.title')}</h2>
       </div>
-      <p className="text-sm text-gray-600 mb-6">
+      <p className="text-sm text-brand-text-medium mb-6">
         {t('settings.description')}
       </p>
 
       {/* Analytics consent */}
-      <div className="flex items-center justify-between py-4 border-t border-gray-100">
+      <div className="flex items-center justify-between py-4 border-t border-neutral-200/60">
         <div>
-          <p className="text-sm font-medium text-gray-900">{t('settings.analytics')}</p>
-          <p className="text-xs text-gray-600 mt-1">
+          <p className="text-sm font-medium text-brand-text-dark">{t('settings.analytics')}</p>
+          <p className="text-xs text-brand-text-medium mt-1">
             {t('banner.analyticsDescription')}
           </p>
           {formattedDate && (
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-brand-text-disabled mt-1">
               {t('settings.lastUpdated')}: {formattedDate}
             </p>
           )}
@@ -115,8 +115,8 @@ export function ConsentManagement() {
             disabled={saving}
             role="switch"
             aria-checked={localAnalytics || false}
-            className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 disabled:opacity-50 ${
-              localAnalytics ? 'bg-brand-500' : 'bg-gray-300'
+            className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2 disabled:opacity-50 ${
+              localAnalytics ? 'bg-brand-blue' : 'bg-neutral-300'
             }`}
           >
             <span
@@ -129,10 +129,10 @@ export function ConsentManagement() {
       </div>
 
       {/* Essential cookies info */}
-      <div className="flex items-center justify-between py-4 border-t border-gray-100">
+      <div className="flex items-center justify-between py-4 border-t border-neutral-200/60">
         <div>
-          <p className="text-sm font-medium text-gray-900">{t('settings.essential') || t('banner.essential')}</p>
-          <p className="text-xs text-gray-600 mt-1">
+          <p className="text-sm font-medium text-brand-text-dark">{t('settings.essential') || t('banner.essential')}</p>
+          <p className="text-xs text-brand-text-medium mt-1">
             {t('settings.essentialDescription') || t('banner.essentialDescription')}
           </p>
         </div>
