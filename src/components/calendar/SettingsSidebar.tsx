@@ -86,6 +86,18 @@ export function SettingsSidebar({ propertyId: propPropertyId, calendarMonth, cal
 
   const weeklyDiscount = discounts.find((discount) => discount.discount_type === 'weekly')
   const monthlyDiscount = discounts.find((discount) => discount.discount_type === 'monthly')
+  const loyaltyDiscount = discounts.find((discount) => discount.discount_type === 'excellent_guest')
+  const activeDiscountLines = [
+    weeklyDiscount && Number(weeklyDiscount.percentage) > 0
+      ? `Desconto semanal de ${weeklyDiscount.percentage}%`
+      : null,
+    monthlyDiscount && Number(monthlyDiscount.percentage) > 0
+      ? `Desconto mensal de ${monthlyDiscount.percentage}%`
+      : null,
+    loyaltyDiscount && Number(loyaltyDiscount.percentage) > 0
+      ? `Desconto fidelidade de ${loyaltyDiscount.percentage}%`
+      : null,
+  ].filter((line): line is string => line !== null)
   const shortStayPolicy = cancellationPolicies.find((policy) => !policy.is_long_stay)
   const longStayPolicy = cancellationPolicies.find((policy) => policy.is_long_stay)
   const normalizedCurrency = pricing?.currency?.toUpperCase() || 'EUR'
@@ -103,7 +115,7 @@ export function SettingsSidebar({ propertyId: propPropertyId, calendarMonth, cal
     {
       id: 'discounts',
       title: 'Descontos',
-      lines: [monthlyDiscount ? `Desconto mensal de ${monthlyDiscount.percentage}%` : weeklyDiscount ? `Desconto semanal de ${weeklyDiscount.percentage}%` : 'Configurar descontos'],
+      lines: activeDiscountLines.length > 0 ? activeDiscountLines : ['Nenhum desconto ativo'],
     },
     { id: 'availability', title: 'Disponibilidade', lines: ['Estadias e antecedência', 'Regras de preparação'] },
     {
@@ -168,7 +180,11 @@ export function SettingsSidebar({ propertyId: propPropertyId, calendarMonth, cal
         />
       )}
       {activeSection === 'discounts' && propertyId && (
-        <DiscountCard propertyId={propertyId} currency={currencyCode} />
+        <DiscountCard
+          propertyId={propertyId}
+          currency={currencyCode}
+          onUpdate={() => { void onUpdate?.(); void loadData() }}
+        />
       )}
       {activeSection === 'availability' && propertyId && <AvailabilityCard propertyId={propertyId} />}
       {activeSection === 'cancellations' && cancellationPolicies.map((policy) => (

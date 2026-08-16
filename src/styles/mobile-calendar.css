@@ -24,7 +24,7 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   cursor: pointer;
   transition: all 0.2s ease;
-  min-height: 280px;
+  min-height: auto;
   width: 100%;
 }
 
@@ -41,7 +41,7 @@
 .property-image {
   position: relative;
   width: 100%;
-  height: 160px;
+  height: 120px;
   background: #f0f0f0;
   border-radius: 8px;
   overflow: hidden;
@@ -87,9 +87,16 @@
 
 .dots-grid {
   display: grid;
-  grid-template-columns: repeat(15, 1fr);
-  gap: 4px;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
   padding: 0;
+}
+
+@media (min-width: 768px) {
+  .dots-grid {
+    grid-template-columns: repeat(15, 1fr);
+    gap: 4px;
+  }
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
@@ -184,8 +191,8 @@
 .calendar-grid-mobile {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 2px;
-  padding: 4px;
+  gap: 6px;
+  padding: 8px;
   flex: 1;
   overflow-y: auto;
   background: #fbfaf6;
@@ -208,14 +215,15 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 3px;
+  padding: 4px;
   background: #fbfaf6;
   border-radius: 6px;
   cursor: pointer;
-  height: 62px;
+  height: 56px;
   border: 1px solid #e5dfd2;
   transition: all 0.2s ease;
   position: relative;
+  min-width: 44px;
 }
 
 .day-cell:not(.empty):active {
@@ -1153,5 +1161,64 @@
     grid-column: 2;
     padding: 0;
     overflow-y: auto;
+  }
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/* TABLET BREAKPOINT (768px+) — Mobile-First Progressive Enhancement */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+@media (min-width: 768px) {
+  .property-card {
+    min-height: 220px;
+    padding: 16px;
+  }
+
+  .property-image {
+    height: 160px;
+  }
+
+  .property-name {
+    font-size: 20px;
+  }
+
+  .calendar-grid-mobile {
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .day-cell {
+    height: 64px;
+    padding: 6px;
+  }
+
+  .day-header {
+    height: 36px;
+    font-size: 13px;
+  }
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/* DESKTOP BREAKPOINT (1024px+) */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+@media (min-width: 1024px) {
+  .property-card {
+    min-height: 280px;
+    padding: 18px;
+  }
+
+  .property-image {
+    height: 200px;
+  }
+
+  .calendar-grid-mobile {
+    gap: 10px;
+    padding: 16px;
+  }
+
+  .day-cell {
+    height: 72px;
+    padding: 8px;
   }
 }
