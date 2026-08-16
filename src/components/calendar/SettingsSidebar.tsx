@@ -10,7 +10,7 @@ import { CancellationCard } from './CancellationCard'
 import { TaxesCard } from './TaxesCard'
 import { toast } from 'sonner'
 import { PropertyDiscount } from '@/types/pricing.types'
-import { PropertyCancellationPolicy } from '@/types/cancellation.types'
+import { PropertyCancellationPolicy, CancellationPolicyType } from '@/types/cancellation.types'
 import { CURRENCIES, getCurrencySymbol, type CurrencyCode } from '@/lib/utils/currency'
 
 type SectionName = 'prices' | 'discounts' | 'availability' | 'cancellations' | 'taxes'
@@ -36,6 +36,27 @@ const sectionMeta: Record<SectionName, { title: string; description: string }> =
   taxes: { title: 'Taxas', description: 'Configure limpeza, serviço e valores para hóspedes adicionais.' },
 }
 
+const cancellationPolicyLabels: Record<CancellationPolicyType, string> = {
+  flexible: 'Flexível',
+  moderate: 'Moderada',
+  limited: 'Limitada',
+  firm: 'Firme',
+  rigid: 'Rígida de longa duração',
+}
+
+function getCancellationPolicyLabel(policy: PropertyCancellationPolicy): string {
+  if (policy.policy_type === 'rigid' && !policy.is_long_stay) return 'Opção não reembolsável'
+  return cancellationPolicyLabels[policy.policy_type]
+}
+
+const cancellationPolicyDescriptions: Record<CancellationPolicyType, string> = {
+  flexible: 'Reembolso integral até 1 dia antes do check-in',
+  moderate: 'Reembolso integral até 5 dias antes do check-in',
+  limited: 'Reembolso integral até 14 dias antes do check-in',
+  firm: 'Reembolso total pelo menos 30 dias antes do check-in',
+  rigid: 'Opção não reembolsável',
+}
+
 export function SettingsSidebar({ propertyId: propPropertyId, calendarMonth, calendarYear, onUpdate }: SettingsSidebarProps = {}) {
   const params = useParams()
   const propertyId = propPropertyId || (params?.propertyId as string | undefined)
@@ -58,7 +79,29 @@ export function SettingsSidebar({ propertyId: propPropertyId, calendarMonth, cal
 
       if (pricingRes.ok) setPricing((await pricingRes.json()).data)
       if (discountsRes.ok) setDiscounts((await discountsRes.json()).data || [])
-      if (policiesRes.ok) setCancellationPolicies((await policiesRes.json()).data || [])
+      if (policiesRes.ok) {
+        const policiesPayload = await policiesRes.json()
+        let policies = policiesPayload.data || []
+
+        // Policies are property-scoped. Seed the Airbnb-compatible defaults on
+        // first use so the cancellation card is useful immediately after a
+        // property is created.
+        if (policies.length === 0) {
+          const seedResponse = await fetch(`/api/properties/${propertyId}/cancellation-policies`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ action: 'seed' }),
+          })
+
+          if (seedResponse.ok) {
+            const seededPayload = await seedResponse.json()
+            policies = seededPayload.data || []
+          }
+        }
+
+        setCancellationPolicies(policies)
+      }
     } catch (error) {
       console.error('Error loading settings data:', error)
     } finally {
@@ -121,7 +164,14 @@ export function SettingsSidebar({ propertyId: propPropertyId, calendarMonth, cal
     {
       id: 'cancellations',
       title: 'Cancelamentos',
-      lines: [shortStayPolicy?.policy_type || 'Política de curta duração', longStayPolicy?.policy_type || 'Política de longa duração'],
+      lines: [
+        shortStayPolicy
+          ? `Curta duração: ${getCancellationPolicyLabel(shortStayPolicy)}`
+          : 'Definir política de curta duração',
+        longStayPolicy
+          ? `Longa duração: ${getCancellationPolicyLabel(longStayPolicy)}`
+          : 'Definir política de longa duração',
+      ],
     },
     { id: 'taxes', title: 'Taxas', lines: ['Limpeza, serviço e hóspedes adicionais'] },
   ]
@@ -187,15 +237,39 @@ export function SettingsSidebar({ propertyId: propPropertyId, calendarMonth, cal
         />
       )}
       {activeSection === 'availability' && propertyId && <AvailabilityCard propertyId={propertyId} />}
-      {activeSection === 'cancellations' && cancellationPolicies.map((policy) => (
-        <CancellationCard
-          key={policy.id}
-          title={policy.policy_type}
-          description={policy.is_long_stay ? 'Long-stay' : 'Short-stay'}
-          policy={policy}
-          onSave={handleSaveCancellationPolicy}
-        />
-      ))}
+      {activeSection === 'cancellations' && (
+        <div className="space-y-7">
+          {(['short', 'long'] as const).map((duration) => {
+            const isLongStay = duration === 'long'
+            const policies = cancellationPolicies.filter((policy) => policy.is_long_stay === isLongStay)
+
+            return (
+              <section key={duration} aria-labelledby={`${duration}-stay-policies`}>
+                <h3 id={`${duration}-stay-policies`} className="mb-3 text-lg font-semibold text-[#222222]">
+                  {isLongStay ? 'Estadias de longa duração' : 'Estadias de curta duração'}
+                </h3>
+                <p className="mb-3 text-sm text-[#717171]">
+                  {isLongStay ? '28 noites ou mais' : 'Menos de 28 noites'}
+                </p>
+                <div className="space-y-3">
+                  {policies.map((policy) => (
+                    <CancellationCard
+                      key={policy.id}
+                      title={getCancellationPolicyLabel(policy)}
+                      description={cancellationPolicyDescriptions[policy.policy_type]}
+                      policy={policy}
+                      onSave={handleSaveCancellationPolicy}
+                    />
+                  ))}
+                </div>
+              </section>
+            )
+          })}
+          {cancellationPolicies.length === 0 && (
+            <p className="text-sm text-[#717171]">Não foi possível carregar as políticas de cancelamento.</p>
+          )}
+        </div>
+      )}
       {activeSection === 'taxes' && propertyId && <TaxesCard propertyId={propertyId} />}
     </div>
   )
