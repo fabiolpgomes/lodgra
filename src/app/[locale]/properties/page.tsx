@@ -333,7 +333,7 @@ function PropertyCard({ property, imageUrl, canEdit, locale }: {
               <span className="ml-auto inline-flex items-center justify-center h-4 px-1.5 text-[10px] font-bold uppercase tracking-wider rounded"
                 style={{
                   background: property.currency === 'EUR' ? '#EFF6FF' : property.currency === 'BRL' ? '#ECFDF5' : '#FEF9C3',
-                  color: property.currency === 'EUR' ? '#10203E' : property.currency === 'BRL' ? '#059669' : '#92400e',
+                  color: property.currency === 'EUR' ? '#10203E' : property.currency === 'BRL' ? '#00674F' : '#92400e',
                 }}>
                 {property.currency}
               </span>

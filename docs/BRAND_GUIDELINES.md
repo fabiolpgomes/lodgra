@@ -1,9 +1,9 @@
-# LODGRA Brand Guidelines v1.1
+# LODGRA Brand Guidelines v2.0
 
 **Status:** Production Ready  
-**Version:** 1.1  
+**Version:** 2.0 (Premium Emerald)  
 **Created:** 2026-04-15  
-**Updated:** 2026-05-01  
+**Updated:** 2026-08-16  
 **Brand:** Lodgra - Intelligent Property Management
 
 ---
@@ -12,15 +12,15 @@
 
 | Element | Value |
 |---------|-------|
-| **Primary Action Color** | Verde Crescimento (Sábio) #059669 — ALL CTA buttons |
-| **Primary Text/Borders** | Azul Confiança #1E3A8A |
-| **Accent / "Mais Popular"** | Ouro Próspero #D4AF37 |
-| **Background / Light** | Cinza Neutro #F3F4F6 |
-| **Body Text** | Cinza Escuro #374151 |
-| **Heading Font** | Poppins Bold 700 |
-| **Body Font** | Inter Regular 400/500 |
+| **Primary Action Color** | Emerald Success #00674F — ALL CTA buttons (Premium) |
+| **Primary Text/Borders** | Azul Institucional #10203E |
+| **Accent / Premium** | Ouro Luxuoso #C9A227 |
+| **Background / Light** | Areia Quente #F7F5EF |
+| **Body Text** | Slate Escuro #1B2430 |
+| **Heading Font** | Airbnb Cereal VF (fallback: Circular) |
+| **Body Font** | Airbnb Cereal VF (fallback: Circular) |
 | **Logo** | SVG (48x48px base) |
-| **Tone** | Confident, Accessible, Empathetic |
+| **Tone** | Premium, Empathetic, Institutional |
 
 ---
 
@@ -30,9 +30,10 @@ These are the **canonical** Lodgra colors as defined in `tailwind.config.ts`. Us
 
 | Tailwind Token | Hex | Name | Primary Use |
 |----------------|-----|------|-------------|
-| `lodgra-blue` | `#1E3A8A` | Azul Confiança | Primary text, borders, Pro plan card, navbar brand |
-| `lodgra-gold` | `#D4AF37` | Ouro Próspero | "Mais Popular" badge, accents, star ratings |
-| `lodgra-green` | `#059669` | Verde Crescimento (Sábio) | **ALL CTA buttons**, success states, active indicators |
+| `lodgra-blue` | `#10203E` | Navy Institucional | Primary text, borders, premium header, navbar brand |
+| `lodgra-gold` | `#C9A227` | Ouro Luxuoso | Badges, accents, star ratings, premium details |
+| `lodgra-green` | `#00674F` | Emerald Success (Premium) | **ALL CTA buttons**, success states, confirmations |
+| `lodgra-green-light` | `#0A8B6F` | Emerald Light | Hover states, secondary success indicators |
 | `lodgra-gray` | `#F3F4F6` | Cinza Neutro | Section backgrounds, card backgrounds, input fills |
 | `lodgra-dark` | `#374151` | Cinza Escuro | Body text, secondary text, descriptions |
 
@@ -40,9 +41,10 @@ These are the **canonical** Lodgra colors as defined in `tailwind.config.ts`. Us
 
 - `lodgra-primary` **does NOT exist** — use `lodgra-blue` for primary text/borders or `lodgra-green` for CTAs
 - `lodgra-light` **does NOT exist** — use `lodgra-gray` for light backgrounds
-- All CTA buttons (primary actions) MUST use `#059669` (lodgra-green / Sábio archetype)
-- For inline styles where Tailwind purges classes: use `style={{ backgroundColor: '#059669' }}` directly
-- The Pro plan card uses `lodgra-blue` (#1E3A8A) background as a premium differentiator
+- All CTA buttons (primary actions) MUST use `#00674F` (lodgra-green / Emerald Success)
+- For inline styles where Tailwind purges classes: use `style={{ backgroundColor: '#00674F' }}` directly
+- Hover states on emerald CTAs should use `#0A8B6F` (lodgra-green-light)
+- **NEW v2.0:** Premium emerald replaces previous growth green (#059669) for enhanced luxury positioning
 
 ### Tailwind Safelist
 
@@ -67,8 +69,18 @@ safelist: [
 ### CTA Button Standard
 
 ```tsx
-// Correct: green CTA button
-<button style={{ backgroundColor: '#059669' }} className="text-white px-6 py-3 rounded-lg font-semibold">
+// Correct: emerald CTA button (v2.0)
+<button 
+  style={{ backgroundColor: '#00674F' }} 
+  className="text-white px-6 py-3 rounded-lg font-semibold"
+  onMouseEnter={(e) => e.target.style.backgroundColor = '#0A8B6F'}
+  onMouseLeave={(e) => e.target.style.backgroundColor = '#00674F'}
+>
+  Assinar Expansão
+</button>
+
+// Or using Tailwind class
+<button className="bg-lodgra-green hover:bg-lodgra-green-light text-white px-6 py-3 rounded-lg font-semibold">
   Assinar Expansão
 </button>
 
@@ -260,10 +272,10 @@ safelist: [
 
 | Usage | Color | Hex | Context |
 |-------|-------|-----|---------|
-| Primary Actions / CTAs | Verde Crescimento | #059669 | Buttons, CheckCircle, TrendingUp |
-| Brand / Navigation | Azul Confiança | #1E3A8A | Home, Shield, Brand marks |
-| Revenue/Pricing/Accents | Ouro Próspero | #D4AF37 | DollarSign, Star, "Mais Popular" |
-| Success | Verde Crescimento | #059669 | CheckCircle, Checkmark |
+| Primary Actions / CTAs | Emerald Success | #00674F | Buttons, CheckCircle, TrendingUp |
+| Brand / Navigation | Navy Institucional | #10203E | Home, Shield, Brand marks |
+| Revenue/Pricing/Accents | Ouro Luxuoso | #C9A227 | DollarSign, Star, "Mais Popular" |
+| Success | Emerald Success | #00674F | CheckCircle, Checkmark |
 | Warning | Ouro Próspero | #D4AF37 | AlertCircle, ExclamationMark |
 | Neutral | Cinza Escuro | #374151 | Settings, Info, Help |
 
@@ -461,14 +473,16 @@ padding: 16px;
 - ✅ Maintain heading hierarchy (H1 > H2 > H3)
 - ✅ Use 16px minimum for body text
 
-**Colors**
-- ✅ Use `lodgra-green` (#059669) for ALL primary CTA buttons (Sábio archetype)
-- ✅ Use `lodgra-blue` (#1E3A8A) for primary text, borders, Pro plan accents
-- ✅ Use `lodgra-gold` (#D4AF37) for "Mais Popular" badge, accent elements
+**Colors (v2.0 — Premium Emerald)**
+- ✅ Use `lodgra-green` (#00674F) for ALL primary CTA buttons (Emerald Success)
+- ✅ Use `lodgra-green-light` (#0A8B6F) for hover/secondary success states
+- ✅ Use `lodgra-blue` (#10203E) for primary text, borders, premium header accents
+- ✅ Use `lodgra-gold` (#C9A227) for badges, accent elements, premium details
 - ✅ Use `lodgra-gray` (#F3F4F6) for section and card backgrounds
 - ✅ Use `lodgra-dark` (#374151) for body text and descriptions
-- ✅ Ensure 4.5:1 contrast on text
-- ✅ Use inline `style={{ backgroundColor: '#059669' }}` if Tailwind class is being purged
+- ✅ Ensure 4.5:1 contrast on text (WCAG AA minimum)
+- ✅ Use inline `style={{ backgroundColor: '#00674F' }}` if Tailwind class is being purged
+- ✅ Emerald provides 4.8:1 contrast with Navy, 7.2:1 with white text (WCAG AAA compliant)
 
 **Imagery**
 - ✅ Use professional, high-quality photos

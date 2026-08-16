@@ -39,7 +39,7 @@ Baseado em padrões com score 88, os problemas típicos são:
 #### ⚠️ **Problema #1: Contraste de Cores Insuficiente (4-6 pontos de perda)**
 
 **Localização Provável:**
-- Botões CTA (verde `#059669` em fundo branco)
+- Botões CTA (verde `#00674F` em fundo branco)
 - Labels em formulários
 - Links na landing page
 
@@ -53,7 +53,7 @@ Baseado em padrões com score 88, os problemas típicos são:
 
 **Exemplo - Botão CTA:**
 ```
-Cor do texto: #059669 (Verde Lodgra)
+Cor do texto: #00674F (Verde Lodgra)
 Fundo: #FFFFFF (Branco)
 Ratio: ~3.2:1 ❌ (WCAG AA requer 4.5:1)
 
@@ -171,7 +171,7 @@ Exemplos:
 
 /* Remove default outline apenas se substituir por custom */
 :focus {
-  outline: 2px solid #059669;
+  outline: 2px solid #00674F;
   outline-offset: 2px;
 }
 
@@ -181,7 +181,7 @@ a[href]:focus,
 input:focus,
 select:focus,
 textarea:focus {
-  outline: 2px solid #059669;
+  outline: 2px solid #00674F;
   outline-offset: 2px;
 }
 
@@ -457,7 +457,7 @@ export function PropertyReviews() {
 ### **P0 — Crítico (Faz +10 pontos)**
 
 #### Desktop Acessibilidade:
-- [ ] **Contraste:** Alterar botões `#059669` → `#045a4f` (15 min)
+- [ ] **Contraste:** Alterar botões `#00674F` → `#045a4f` (15 min)
   - Arquivo: `src/components/landing/atoms/Button.tsx`
   - Também: `src/app/globals.css` (CSS inline)
 

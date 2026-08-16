@@ -125,20 +125,20 @@ Abra o ficheiro HTML e procure a seção `<style>`.
 | Cor | Código | Gradient |
 |-----|--------|----------|
 | Azul (atual) | `#2563eb` | `linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)` |
-| Verde | `#10b981` | `linear-gradient(135deg, #10b981 0%, #059669 100%)` |
+| Verde | `#10b981` | `linear-gradient(135deg, #10b981 0%, #00674F 100%)` |
 | Laranja | `#f97316` | `linear-gradient(135deg, #f97316 0%, #ea580c 100%)` |
 | Roxo | `#a855f7` | `linear-gradient(135deg, #a855f7 0%, #9333ea 100%)` |
 
 **Exemplo - trocar para verde:**
 ```css
 .header {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    background: linear-gradient(135deg, #10b981 0%, #00674F 100%);
 }
 .cta-button {
     background-color: #10b981;
 }
 .cta-button:hover {
-    background-color: #059669;
+    background-color: #00674F;
 }
 ```
 

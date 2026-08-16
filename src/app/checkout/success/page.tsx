@@ -20,7 +20,7 @@ function SuccessContent() {
         {/* Ícone de sucesso */}
         <div className="flex justify-center mb-6">
           <div className="w-20 h-20 rounded-full flex items-center justify-center" style={{ backgroundColor: '#D1FAE5' }}>
-            <svg className="w-10 h-10" fill="none" stroke="#059669" viewBox="0 0 24 24" strokeWidth={2.5}>
+            <svg className="w-10 h-10" fill="none" stroke="#00674F" viewBox="0 0 24 24" strokeWidth={2.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
             </svg>
           </div>
@@ -33,7 +33,7 @@ function SuccessContent() {
         <p className="text-base mb-2" style={{ color: '#374151' }}>
           Bem-vindo à Lodgra. Sua assinatura está ativa.
         </p>
-        <p className="text-sm font-semibold mb-8" style={{ color: '#059669' }}>
+        <p className="text-sm font-semibold mb-8" style={{ color: '#00674F' }}>
           Próximo passo: verifique seu email e crie sua senha ↓
         </p>
 
@@ -68,7 +68,7 @@ function SuccessContent() {
             { label: 'Será redirecionado para o seu painel', note: 'Configure suas propriedades e comece a gerir' },
           ].map((step, i) => (
             <li key={i} className="flex items-start gap-3" style={{ color: '#374151' }}>
-              <span className="flex-shrink-0 w-7 h-7 rounded-full text-white text-xs flex items-center justify-center font-bold mt-0.5" style={{ backgroundColor: '#059669' }}>
+              <span className="flex-shrink-0 w-7 h-7 rounded-full text-white text-xs flex items-center justify-center font-bold mt-0.5" style={{ backgroundColor: '#00674F' }}>
                 {i + 1}
               </span>
               <div>

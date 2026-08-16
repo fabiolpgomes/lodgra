@@ -64,15 +64,16 @@ const config: any = {
         'lodgra-bg-light': 'var(--lodgra-bg-light)',
 
         // ========== EXISTING BRAND COLORS ==========
-        // LODGRA Brand Guidelines v1.0 - Official Palette
+        // LODGRA Brand Guidelines v2.0 - Official Palette (Premium Emerald)
         'lodgra-blue': '#10203E',
         'lodgra-gold': '#C9A227',
-        'lodgra-green': '#059669',   // Verde Crescimento
+        'lodgra-green': '#00674F',   // Emerald Success (Premium)
+        'lodgra-green-light': '#0A8B6F',   // Emerald Light (Hover)
         'lodgra-gray': '#F3F4F6',    // Cinza Neutro
         'lodgra-dark': '#374151',    // Cinza Escuro
 
         // Semantic Colors (aligned with brand)
-        'success': '#059669',
+        'success': '#00674F',
         'warning': '#C9A227',
         'error': '#DC2626',
         'info': '#1B2430',

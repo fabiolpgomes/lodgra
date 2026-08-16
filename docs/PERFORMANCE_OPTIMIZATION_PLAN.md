@@ -19,13 +19,13 @@
 
 **Audit:**
 - Check all text colors in `src/components/marketing/regions/BrazilLanding.tsx`
-- Check CTA buttons (currently using `#059669` green)
+- Check CTA buttons (currently using `#00674F` green)
 - Check heading colors against background
 
 **Fix Template:**
 ```css
 /* Current (potentially problematic) */
-.button-primary { color: #059669; background: white; } /* May fail WCAG AA */
+.button-primary { color: #00674F; background: white; } /* May fail WCAG AA */
 
 /* Fixed (WCAG AA compliant) */
 .button-primary { color: #045a4f; background: white; } /* Darker green, 4.5:1 ratio */
@@ -96,7 +96,7 @@
 
 **Fix:**
 - Add `tabIndex="0"` to interactive custom components
-- Ensure focus visible: `outline: 2px solid #059669`
+- Ensure focus visible: `outline: 2px solid #00674F`
 - Test with `src/components/landing/organisms/FinalCTA.tsx`
 
 ```css
@@ -104,7 +104,7 @@
 button:focus,
 a:focus,
 input:focus {
-  outline: 2px solid #059669;
+  outline: 2px solid #00674F;
   outline-offset: 2px;
 }
 ```

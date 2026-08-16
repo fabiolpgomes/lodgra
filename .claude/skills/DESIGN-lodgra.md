@@ -3,7 +3,7 @@ name: LODGRA Precision
 colors:
   lamborghini-gold: '#ffc000'
   navy-blue: '#1E3A8A'
-  accent-green: '#059669'
+  accent-green: '#00674F'
   dark-iron: '#181818'
   near-white: '#f8f8f8'
   pure-white: '#ffffff'
@@ -28,7 +28,7 @@ A high-performance interface that bridges the gap between automotive engineering
 - **Deep Contrast:** Using pure white (#ffffff) backgrounds with Navy Blue (#1E3A8A) typography for maximum legibility and a corporate-technical feel.
 - **Strategic Accents:** 
   - **Lamborghini Gold (#ffc000):** Reserved exclusively for primary CTAs and critical performance indicators.
-  - **Emerald Green (#059669):** Used for technical specs, success states, and secondary visual accents.
+  - **Emerald Green (#00674F):** Used for technical specs, success states, and secondary visual accents.
 
 ## Typography
 - **Primary Font:** Hanken Grotesk.

@@ -70,7 +70,7 @@ Na seção `<style>`, procure por:
 
 **Cores disponíveis:**
 - Azul (novo): `background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);`
-- Verde: `background: linear-gradient(135deg, #10b981 0%, #059669 100%);`
+- Verde: `background: linear-gradient(135deg, #10b981 0%, #00674F 100%);`
 - Laranja: `background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);`
 
 ### Mudar Texto do Botão

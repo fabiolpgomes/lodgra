@@ -51,7 +51,8 @@ color:
 
   # Semantic
   error: "#DC2626"
-  success: "#059669"
+  success: "#00674F"
+  success-light: "#0A8B6F"
   warning: "#F59E0B"
 
   # Neutrals

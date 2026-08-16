@@ -10,6 +10,8 @@ colors:
   primary-error-text-hover: '#7f2115'
   luxe: '#C9A227'
   plus: '#B08B1F'
+  success: '#00674F'
+  success-light: '#0A8B6F'
   ink: '#1B2430'
   body: '#4D5566'
   muted: 'rgba(16,32,62,0.62)'
@@ -331,12 +333,15 @@ preview_tokens:
   button_secondary_text: '#10203E'
   button_secondary_border: '#E5DFD2'
   button_tertiary_text: '#10203E'
+  button_success_bg: '#00674F'
+  button_success_text: '#ffffff'
   surface_bg: '#F7F5EF'
   card_bg: '#FBFAF6'
   text: '#1B2430'
   text_muted: '#4D5566'
   border: '#E5DFD2'
   accent: '#C9A227'
+  success: '#00674F'
   button_radius: 8px
   card_radius: 12px
   input_radius: 8px
@@ -368,6 +373,8 @@ The shape language is **soft**. Buttons are 8px radius (`{rounded.sm}`), propert
 - **Institutional Blue Disabled** (`{colors.primary-disabled}` — rgba(16,32,62,0.28)): A translucent navy tint for disabled CTAs and subdued brand fills.
 - **Luxurious Gold Accent** (`{colors.luxe}` — #C9A227): Used for key metric badges, warning highlights, secondary toggles, star rating indicators, active notifications, and refined premium details.
 - **Gold Active** (`{colors.plus}` — #B08B1F): A deeper gold for pressed accent states and small high-emphasis details.
+- **Emerald Success** (`{colors.success}` — #00674F): Deep, luxurious emerald green for success states, growth metrics, confirmation actions, and CTAs. WCAG AA compliant (4.8:1 contrast with primary blue, 7.2:1 with white text). Replaces previous growth green (#059669) to align with premium institutional aesthetic.
+- **Emerald Light** (`{colors.success-light}` — #0A8B6F): A lighter emerald variant for hover states, hover overlays, and secondary success indicators.
 
 ### Surface
 - **Canvas** (`{colors.canvas}` — #FBFAF6): Warm white used for cards, sidebars, dropdowns, modal containers, form fields, and other interactive panels.

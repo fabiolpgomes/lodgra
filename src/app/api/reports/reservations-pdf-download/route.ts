@@ -167,7 +167,7 @@ function generateHtml(
     th, td { border: 1px solid #ddd; padding: 4px 3px; text-align: left; font-size: 8px; line-height: 1.2; overflow: hidden; }
     th { background: #f0f0f0; font-weight: bold; }
     tr:nth-child(even) { background: #f9f9f9; }
-    .currency { text-align: right; font-weight: bold; color: #059669; }
+    .currency { text-align: right; font-weight: bold; color: #00674F; }
     .col-channel { width: 10%; }
     .col-date { width: 9%; }
     .col-guest { width: 15%; }

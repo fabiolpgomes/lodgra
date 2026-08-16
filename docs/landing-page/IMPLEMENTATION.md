@@ -50,9 +50,10 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        'lodgra-blue': '#1E3A8A',
-        'lodgra-gold': '#D4AF37',
-        'lodgra-green': '#059669',
+        'lodgra-blue': '#10203E',
+        'lodgra-gold': '#C9A227',
+        'lodgra-green': '#00674F',
+        'lodgra-green-light': '#0A8B6F',
         'lodgra-dark': '#374151',
       },
       fontFamily: {

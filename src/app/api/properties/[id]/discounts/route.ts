@@ -8,6 +8,20 @@ import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 import { ApiResponse, CreateDiscountPayload, PropertyDiscount } from '@/types/pricing.types';
 
+function isMissingDiscountsTableError(error: unknown): boolean {
+  if (!error || typeof error !== 'object') return false;
+
+  const details = error as { code?: string; message?: string; details?: string };
+  const text = `${details.message ?? ''} ${details.details ?? ''}`.toLowerCase();
+
+  return (
+    details.code === '42P01' ||
+    details.code === 'PGRST205' ||
+    text.includes('property_discounts') ||
+    text.includes('relation') && text.includes('does not exist')
+  );
+}
+
 
 async function validatePropertyOwnership(propertyId: string, userId: string): Promise<boolean> {
   const supabase = await createClient();
@@ -172,7 +186,7 @@ export async function POST(
 
     return NextResponse.json({ success: true, data: body.discount_type ? saved[0] : saved });
   } catch (err) {
-    if (err && typeof err === 'object' && 'code' in err && (err as { code?: string }).code === '42P01') {
+    if (isMissingDiscountsTableError(err)) {
       return NextResponse.json({ success: false, error: 'Discounts feature is not available' }, { status: 501 });
     }
     console.error('Error creating discount:', err);

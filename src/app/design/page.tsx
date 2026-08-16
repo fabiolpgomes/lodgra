@@ -69,7 +69,7 @@ function DesignPageContent() {
           <div className="grid grid-cols-3 md:grid-cols-5 gap-3">
             <Swatch name="[color:var(--be-text)]" hex="#1B2430" />
             <Swatch name="[color:var(--be-blue)]" hex="#10203E" />
-            <Swatch name="[color:var(--be-success)]" hex="#059669" />
+            <Swatch name="[color:var(--be-success)]" hex="#00674F" />
             <Swatch name="[color:var(--lodgra-accent)]" hex="#C9A227" />
             <Swatch name="[color:var(--be-surface)]" hex="#FBFAF6" className="border border-zinc-200" />
             <Swatch name="[color:var(--be-text-muted)]" hex="#4D5566" />

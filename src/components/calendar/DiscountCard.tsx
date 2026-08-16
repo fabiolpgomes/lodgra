@@ -238,6 +238,7 @@ export function DiscountCard({ propertyId, currency = 'EUR', onUpdate }: Discoun
                   min="0"
                   max="100"
                   value={discounts.weeklyPercent}
+                  onFocus={(event) => event.currentTarget.select()}
                   onChange={(e) =>
                     setDiscounts({
                       ...discounts,
@@ -266,6 +267,7 @@ export function DiscountCard({ propertyId, currency = 'EUR', onUpdate }: Discoun
                   min="0"
                   max="100"
                   value={discounts.monthlyPercent}
+                  onFocus={(event) => event.currentTarget.select()}
                   onChange={(e) =>
                     setDiscounts({
                       ...discounts,
@@ -294,6 +296,7 @@ export function DiscountCard({ propertyId, currency = 'EUR', onUpdate }: Discoun
                   min="0"
                   max="100"
                   value={discounts.loyaltyPercent}
+                  onFocus={(event) => event.currentTarget.select()}
                   onChange={(e) =>
                     setDiscounts({
                       ...discounts,
