@@ -268,21 +268,19 @@
   bottom: -6px;
 }
 
+/* Mobile: Simple booked indicator (emoji/icon only) */
+.booked-indicator {
+  font-size: 18px;
+  margin-top: 2px;
+}
+
+/* Deprecated: day-price and guest-name hidden on mobile */
 .day-price {
-  font-size: 12px;
-  font-weight: 500;
-  color: #4d5566;
-  margin-top: 3px;
+  display: none;
 }
 
 .guest-name {
-  font-size: 11px;
-  color: #4d5566;
-  margin-top: 4px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  width: 100%;
+  display: none;
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */

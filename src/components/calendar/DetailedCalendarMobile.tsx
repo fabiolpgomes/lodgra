@@ -134,9 +134,9 @@ export function DetailedCalendarMobile({
                   {day.date.getDate()}
                   {day.isToday && <div className="today-indicator" />}
                 </div>
-                <div className="day-price">€{day.price}</div>
-                {day.isBooked && day.guestName && (
-                  <div className="guest-name">{day.guestName}</div>
+                {/* Mobile: Show only a visual indicator for booked dates */}
+                {day.isBooked && (
+                  <div className="booked-indicator" title="Reservado">🛏️</div>
                 )}
               </>
             )}

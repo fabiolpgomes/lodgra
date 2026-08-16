@@ -427,12 +427,12 @@ function CalendarWithSettingsContent({
         <PropertyRail activePropertyId={propertyId} locale={locale} />
         {/* Calendar - Mobile Full Width, Desktop Left */}
         <main className="min-w-0 flex-1 overflow-auto flex flex-col bg-white">
-          {/* Mobile Settings Button */}
+          {/* Mobile Settings Button — WCAG AAA Compliant (44x44px minimum) */}
           <div className="flex items-center justify-between border-b border-[#E5DFD2] bg-[#FBFAF6] px-4 py-3 md:hidden">
             <span className="text-sm font-medium text-[#1B2430]">Configurações</span>
             <button
               onClick={() => setShowSettings(true)}
-              className="flex h-10 w-10 items-center justify-center rounded-lg hover:bg-[#F0F0F0]"
+              className="flex h-11 w-11 items-center justify-center rounded-lg hover:bg-[#F0F0F0] transition-colors"
               aria-label="Abrir configurações"
             >
               ⚙️
