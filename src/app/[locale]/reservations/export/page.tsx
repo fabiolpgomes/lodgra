@@ -60,9 +60,9 @@ export default async function ReservationsExportPage() {
             </ul>
           </div>
 
-          <div className="bg-green-50 rounded-lg p-6 border border-green-200">
-            <h3 className="text-lg font-semibold text-green-900 mb-2">Como usar?</h3>
-            <ol className="text-sm text-green-800 space-y-2">
+          <div className="bg-emerald-50 rounded-lg p-6 border border-emerald-200">
+            <h3 className="text-lg font-semibold text-emerald-900 mb-2">Como usar?</h3>
+            <ol className="text-sm text-emerald-800 space-y-2">
               <li>1. Selecione a propriedade (ou todas)</li>
               <li>2. Escolha o período desejado</li>
               <li>3. Clique em &quot;Gerar PDF&quot;</li>

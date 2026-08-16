@@ -106,7 +106,7 @@ export function ForecastingDashboard({ propertyId, propertyName }: ForecastingDa
           <button
             onClick={handleCsvExport}
             disabled={!data || isLoading}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-green-400 disabled:cursor-not-allowed text-white rounded-md transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-700 hover:bg-emerald-800 disabled:bg-emerald-400 disabled:cursor-not-allowed text-white rounded-md transition-colors"
             aria-label="Download CSV export"
           >
             <FileJson className="w-4 h-4" />

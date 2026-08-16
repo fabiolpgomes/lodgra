@@ -86,13 +86,13 @@ export function TogglePropertyStatusButton({
                 className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center ${
                   isActive
                     ? 'bg-orange-100'
-                    : 'bg-green-100'
+                    : 'bg-emerald-100'
                 }`}
               >
                 {isActive ? (
                   <Power className="h-6 w-6 text-orange-600" />
                 ) : (
-                  <CheckCircle className="h-6 w-6 text-green-600" />
+                  <CheckCircle className="h-6 w-6 text-emerald-700" />
                 )}
               </div>
               <div>

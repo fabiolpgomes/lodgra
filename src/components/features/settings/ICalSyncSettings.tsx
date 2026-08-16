@@ -147,7 +147,7 @@ export function ICalSyncSettings({ listings, properties, locale }: ICalSyncSetti
                 </p>
               )}
             </div>
-            <span className={`text-xs px-2 py-1 rounded ${listing.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
+            <span className={`text-xs px-2 py-1 rounded ${listing.is_active ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-700'}`}>
               {listing.is_active ? 'Ativo' : 'Inativo'}
             </span>
           </div>
@@ -217,7 +217,7 @@ export function ICalSyncSettings({ listings, properties, locale }: ICalSyncSetti
               <button
                 onClick={() => handleSync(listing)}
                 disabled={syncingId === listing.id}
-                className="px-3 py-1.5 text-sm font-medium bg-green-100 text-green-700 rounded-lg hover:bg-green-200 disabled:opacity-50 flex items-center gap-1"
+                className="px-3 py-1.5 text-sm font-medium bg-emerald-100 text-emerald-800 rounded-lg hover:bg-emerald-200 disabled:opacity-50 flex items-center gap-1"
               >
                 {syncingId === listing.id ? (
                   <>

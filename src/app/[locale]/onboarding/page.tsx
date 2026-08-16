@@ -229,7 +229,7 @@ export default function OnboardingPage() {
           </div>
           <div className="bg-white rounded-xl shadow-xl p-8">
             <div className="text-center mb-6">
-              <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-14 h-14 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-2xl">✓</span>
               </div>
               <h2 className="text-2xl font-bold text-gray-900 mb-2">Pagamento concluído!</h2>

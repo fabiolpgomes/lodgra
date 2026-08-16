@@ -119,7 +119,7 @@ export function OwnersFilter({ locale, owners, countMap, canEdit, canDelete, pag
                     <div className="flex items-center gap-2 mb-0.5">
                       <p className="font-semibold text-gray-900 text-sm truncate">{owner.full_name}</p>
                       {owner.is_active ? (
-                        <Badge className="bg-green-100 text-green-800 hover:bg-green-100 text-xs shrink-0">Ativo</Badge>
+                        <Badge className="bg-emerald-100 text-emerald-800 hover:bg-emerald-100 text-xs shrink-0">Ativo</Badge>
                       ) : (
                         <Badge variant="outline" className="text-xs shrink-0">Inativo</Badge>
                       )}
@@ -201,7 +201,7 @@ export function OwnersFilter({ locale, owners, countMap, canEdit, canDelete, pag
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {owner.is_active ? (
-                        <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Ativo</Badge>
+                        <Badge className="bg-emerald-100 text-emerald-800 hover:bg-emerald-100">Ativo</Badge>
                       ) : (
                         <Badge variant="outline">Inativo</Badge>
                       )}

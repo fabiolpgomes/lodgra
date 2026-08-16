@@ -106,7 +106,7 @@ export function PriceAnalyticsDashboard({
           <button
             onClick={handleExport}
             disabled={history.loading || history.data.length === 0}
-            className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:opacity-50 font-medium"
+            className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50 font-medium"
           >
             📥 Export CSV
           </button>

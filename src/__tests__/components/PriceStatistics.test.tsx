@@ -95,7 +95,7 @@ describe('PriceStatisticsComponent', () => {
     );
 
     // Check that class names are applied to elements (in HTML, not text content)
-    expect(container.innerHTML).toContain('text-green-600'); // Min
+    expect(container.innerHTML).toContain('text-emerald-700'); // Min
     expect(container.innerHTML).toContain('text-red-600'); // Max
     expect(container.innerHTML).toContain('text-blue-600'); // Avg
   });

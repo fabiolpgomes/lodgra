@@ -55,7 +55,7 @@ interface TaskTableProps {
 const statusColors = {
   pending: 'bg-yellow-100 text-yellow-800',
   in_progress: 'bg-brand-100 text-brand-800',
-  done: 'bg-green-100 text-green-800',
+  done: 'bg-emerald-100 text-emerald-800',
   issue: 'bg-red-100 text-red-800',
 };
 

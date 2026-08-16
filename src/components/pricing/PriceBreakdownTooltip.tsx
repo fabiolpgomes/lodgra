@@ -266,7 +266,7 @@ export function PriceBreakdownTooltip({
               )}
 
               {/* Final Price */}
-              <div className="flex justify-between font-bold text-lg text-green-600">
+              <div className="flex justify-between font-bold text-lg text-emerald-700">
                 <span>Preço Final</span>
                 <span>€{breakdown.final_price.toFixed(2)}</span>
               </div>

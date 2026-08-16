@@ -112,7 +112,7 @@ export function AccountDeletionSection() {
       )}
 
       {success && (
-        <div role="status" aria-live="polite" className="bg-green-50 border border-green-200 text-green-700 text-sm rounded-lg p-3 mb-4">
+        <div role="status" aria-live="polite" className="bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm rounded-lg p-3 mb-4">
           {success}
         </div>
       )}

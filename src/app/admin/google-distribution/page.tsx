@@ -202,13 +202,13 @@ export default function GoogleDistributionDashboard() {
       )}
 
       {refreshMessage && (
-        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded mb-6">
+        <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded mb-6">
           {refreshMessage}
         </div>
       )}
 
       {syncMessage && (
-        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded mb-6">
+        <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded mb-6">
           {syncMessage}
         </div>
       )}
@@ -259,7 +259,7 @@ export default function GoogleDistributionDashboard() {
           <MetricCard
             label="Total Indexed"
             value={metrics.totalIndexed}
-            color="bg-green-50 border-green-200"
+            color="bg-emerald-50 border-emerald-200"
           />
           <MetricCard label="Pending" value={metrics.pendingCount} color="bg-[color:var(--be-blue-pale)] border-[color:var(--be-blue-light)]" />
           <MetricCard
@@ -334,7 +334,7 @@ export default function GoogleDistributionDashboard() {
                     <span
                       className={`px-2 py-1 rounded text-xs font-semibold ${
                         log.status === 'success'
-                          ? 'bg-green-100 text-green-800'
+                          ? 'bg-emerald-100 text-emerald-800'
                           : log.status === 'failed'
                             ? 'bg-red-100 text-red-800'
                             : 'bg-[color:var(--be-blue-pale)] text-brand-800'
@@ -413,7 +413,7 @@ export default function GoogleDistributionDashboard() {
                     <span
                       className={`px-2 py-1 rounded text-xs font-semibold ${
                         log.status === 'completed'
-                          ? 'bg-green-100 text-green-800'
+                          ? 'bg-emerald-100 text-emerald-800'
                           : log.status === 'failed'
                             ? 'bg-red-100 text-red-800'
                             : 'bg-[color:var(--be-blue-pale)] text-brand-800'
@@ -456,7 +456,7 @@ function MetricCard({ label, value, color }: { label: string; value: number; col
 
 function StatusBadge({ status }: { status: string }) {
   const colors: Record<string, string> = {
-    indexed: 'bg-green-100 text-green-800',
+    indexed: 'bg-emerald-100 text-emerald-800',
     pending: 'bg-[color:var(--be-blue-pale)] text-brand-800',
     error: 'bg-red-100 text-red-800',
     rejected: 'bg-yellow-100 text-yellow-800',
@@ -619,7 +619,7 @@ function FreshnessIndicator({ timestamp }: { timestamp: string }) {
   const syncDate = new Date(timestamp)
   const hoursOld = (now.getTime() - syncDate.getTime()) / (1000 * 60 * 60)
 
-  let color = 'bg-green-100 text-green-800'
+  let color = 'bg-emerald-100 text-emerald-800'
   let label = 'Fresh'
 
   if (hoursOld >= 12) {

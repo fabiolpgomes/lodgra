@@ -62,7 +62,7 @@ export function PricingRulesEditor({
                 className="flex-shrink-0"
               >
                 {rule.enabled ? (
-                  <ToggleRight className="w-5 h-5 text-green-600" />
+                  <ToggleRight className="w-5 h-5 text-emerald-700" />
                 ) : (
                   <ToggleLeft className="w-5 h-5 text-gray-400" />
                 )}

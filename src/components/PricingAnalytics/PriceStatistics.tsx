@@ -49,7 +49,7 @@ export function PriceStatisticsComponent({
       label: 'Minimum Price',
       value: formatPrice(stats.minPrice),
       icon: '📉',
-      color: 'text-green-600',
+      color: 'text-emerald-700',
     },
     {
       label: 'Maximum Price',

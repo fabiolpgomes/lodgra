@@ -74,7 +74,7 @@ export function PropertyPageHeader({
         <div className="flex items-center gap-3">
           {/* Badge */}
           <div className={`hidden md:inline-block px-3 py-1 rounded-full text-sm font-medium ${
-            scrolled ? 'bg-green-50 text-green-700' : 'bg-white/20 text-white backdrop-blur-sm'
+            scrolled ? 'bg-emerald-50 text-emerald-800' : 'bg-white/20 text-white backdrop-blur-sm'
           }`}>
             ✓ Reserva Directa
           </div>
@@ -91,8 +91,8 @@ export function PropertyPageHeader({
           >
             {copied ? (
               <>
-                <Check className="w-4 h-4 text-green-500" />
-                <span className="hidden sm:inline text-green-500">Copiado!</span>
+                <Check className="w-4 h-4 text-emerald-600" />
+                <span className="hidden sm:inline text-emerald-600">Copiado!</span>
               </>
             ) : (
               <>

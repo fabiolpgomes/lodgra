@@ -149,7 +149,7 @@ export function PricingConstraints({
 
       {/* Success Message */}
       {success && (
-        <div className="rounded-md bg-green-50 p-3 text-sm text-green-800 dark:bg-green-900/20 dark:text-green-400">
+        <div className="rounded-md bg-emerald-50 p-3 text-sm text-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-400">
           Pricing constraints updated successfully
         </div>
       )}

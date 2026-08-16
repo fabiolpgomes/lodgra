@@ -23,7 +23,7 @@ function DependencyBar({ pct }: { pct: number }) {
   const color =
     pct > 50 ? 'bg-red-500' :
     pct >= 25 ? 'bg-yellow-500' :
-    'bg-green-500'
+    'bg-emerald-600'
 
   const riskLevel = pct > 50 ? 'high' : pct >= 25 ? 'moderate' : 'low'
 
@@ -95,7 +95,7 @@ export function ChannelAnalysis({ channelStats, totalRevenue, startDate, endDate
               Moderada (25–50%)
             </span>
             <span className="flex items-center gap-1">
-              <span className="inline-block w-3 h-3 rounded-full bg-green-500" />
+              <span className="inline-block w-3 h-3 rounded-full bg-emerald-600" />
               Baixa (&lt;25%)
             </span>
           </div>
@@ -125,7 +125,7 @@ export function ChannelAnalysis({ channelStats, totalRevenue, startDate, endDate
                       <span>{channel.nights} noites</span>
                       <span>ADR: {formatCurrency(adr, channel.currency as CurrencyCode)}</span>
                     </div>
-                    <span className={`font-semibold ${pct > 50 ? 'text-red-600' : pct >= 25 ? 'text-yellow-600' : 'text-green-600'}`}>
+                    <span className={`font-semibold ${pct > 50 ? 'text-red-600' : pct >= 25 ? 'text-yellow-600' : 'text-emerald-700'}`}>
                       {pct.toFixed(1)}%
                     </span>
                   </div>

@@ -171,8 +171,8 @@ export function ComplianceDashboard() {
               <p className="text-sm font-medium text-gray-700 capitalize mb-2">{type}</p>
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-1">
-                  <CheckCircle className="h-4 w-4 text-green-500" />
-                  <span className="text-sm font-medium text-green-700">{data.consent.stats[type].accepted}</span>
+                  <CheckCircle className="h-4 w-4 text-emerald-600" />
+                  <span className="text-sm font-medium text-emerald-800">{data.consent.stats[type].accepted}</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <XCircle className="h-4 w-4 text-red-400" />
@@ -206,7 +206,7 @@ export function ComplianceDashboard() {
                   <td className="py-2 pr-4 capitalize">{record.consent_type}</td>
                   <td className="py-2 pr-4">
                     {record.consent_value ? (
-                      <span className="inline-flex items-center gap-1 text-green-600">
+                      <span className="inline-flex items-center gap-1 text-emerald-700">
                         <CheckCircle className="h-3 w-3" /> {t('dashboard.table.accepted')}
                       </span>
                     ) : (
@@ -257,7 +257,7 @@ export function ComplianceDashboard() {
                       </span>
                     )}
                     {req.status === 'completed' && (
-                      <span className="inline-flex items-center gap-1 text-green-600">
+                      <span className="inline-flex items-center gap-1 text-emerald-700">
                         <CheckCircle className="h-3 w-3" /> {t('dashboard.deletions.completed')}
                       </span>
                     )}

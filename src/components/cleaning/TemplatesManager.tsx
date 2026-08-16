@@ -155,7 +155,7 @@ export default function TemplatesManager({
                     <p className="text-sm text-gray-600 mt-1">{template.description}</p>
                   )}
                   {template.is_default && (
-                    <span className="inline-block mt-2 px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
+                    <span className="inline-block mt-2 px-2 py-1 bg-emerald-100 text-emerald-800 text-xs rounded-full">
                       ✓ Padrão
                     </span>
                   )}
@@ -220,7 +220,7 @@ export default function TemplatesManager({
                       <p className="text-sm text-gray-600 mt-1">{template.description}</p>
                     )}
                     {template.is_default && (
-                      <span className="inline-block mt-2 px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
+                      <span className="inline-block mt-2 px-2 py-1 bg-emerald-100 text-emerald-800 text-xs rounded-full">
                         ✓ Padrão
                       </span>
                     )}

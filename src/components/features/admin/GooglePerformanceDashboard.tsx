@@ -174,8 +174,8 @@ export function GooglePerformanceDashboard() {
                     Peak: {summary.peakClicks.toLocaleString()} per day
                   </p>
                 </div>
-                <div className="p-3 bg-green-50 rounded-lg">
-                  <MousePointerClick className="w-6 h-6 text-green-600" />
+                <div className="p-3 bg-emerald-50 rounded-lg">
+                  <MousePointerClick className="w-6 h-6 text-emerald-700" />
                 </div>
               </div>
             </div>
@@ -284,7 +284,7 @@ export function GooglePerformanceDashboard() {
                     <td className="px-4 py-3 text-right text-sm text-be-text">
                       {metric.ctr ? metric.ctr.toFixed(2) : '-'}%
                     </td>
-                    <td className="px-4 py-3 text-right text-sm font-medium text-green-600">
+                    <td className="px-4 py-3 text-right text-sm font-medium text-emerald-700">
                       {metric.conversions.toLocaleString()}
                     </td>
                   </tr>

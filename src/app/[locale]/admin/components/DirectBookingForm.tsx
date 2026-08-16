@@ -259,11 +259,11 @@ export function DirectBookingForm({ onSuccess }: DirectBookingFormProps) {
 
       {/* Confirmation Button - Only shown if validation passed */}
       {canConfirm && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+        <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
           <button
             onClick={handleCreateReservation}
             disabled={creationLoading}
-            className="w-full px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 disabled:bg-gray-400 transition-colors"
+            className="w-full px-4 py-2 bg-emerald-700 text-white rounded-lg font-medium hover:bg-emerald-800 disabled:bg-gray-400 transition-colors"
           >
             {creationLoading ? 'Criando reserva...' : 'Confirmar Reserva'}
           </button>
@@ -277,17 +277,17 @@ export function DirectBookingForm({ onSuccess }: DirectBookingFormProps) {
 
       {/* Success Message */}
       {successMessage && (
-        <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4">
-          <div className="text-sm font-semibold text-green-700">
+        <div className="bg-emerald-50 border-2 border-emerald-200 rounded-lg p-4">
+          <div className="text-sm font-semibold text-emerald-800">
             ✅ Reserva criada com sucesso!
           </div>
-          <div className="mt-2 text-sm text-green-700">
+          <div className="mt-2 text-sm text-emerald-800">
             <strong>ID da Reserva:</strong> {successMessage.id}
           </div>
-          <div className="mt-2 text-sm text-green-700">{successMessage.message}</div>
+          <div className="mt-2 text-sm text-emerald-800">{successMessage.message}</div>
           <button
             onClick={() => setSuccessMessage(null)}
-            className="mt-3 px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors"
+            className="mt-3 px-4 py-2 bg-emerald-700 text-white rounded-lg font-medium hover:bg-emerald-800 transition-colors"
           >
             Nova Reserva
           </button>

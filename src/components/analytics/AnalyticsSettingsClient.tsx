@@ -171,11 +171,11 @@ export default function AnalyticsSettingsClient() {
 
       {/* Success Alert */}
       {success && (
-        <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg flex gap-3">
-          <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+        <div className="mb-4 p-4 bg-emerald-50 border border-emerald-200 rounded-lg flex gap-3">
+          <CheckCircle className="h-5 w-5 text-emerald-700 flex-shrink-0 mt-0.5" />
           <div>
-            <h3 className="font-medium text-green-900">Success</h3>
-            <p className="text-sm text-green-800">
+            <h3 className="font-medium text-emerald-900">Success</h3>
+            <p className="text-sm text-emerald-800">
               {config ? 'GA settings updated.' : 'GA settings cleared.'}
             </p>
           </div>
@@ -245,7 +245,7 @@ export default function AnalyticsSettingsClient() {
         /* Connected State */
         <div className="space-y-4">
           <div className="flex items-center gap-3">
-            <CheckCircle className="h-6 w-6 text-green-600" />
+            <CheckCircle className="h-6 w-6 text-emerald-700" />
             <div>
               <h2 className="text-lg font-semibold text-gray-900">Connected ✓</h2>
               <p className="text-sm text-gray-600">

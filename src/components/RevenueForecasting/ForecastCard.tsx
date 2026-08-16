@@ -14,7 +14,7 @@ export function ForecastCard({ forecast, period, onClick }: ForecastCardProps) {
   const confidenceColors = {
     low: 'bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-200 border-red-200 dark:border-red-800',
     medium: 'bg-yellow-50 dark:bg-yellow-950 text-yellow-700 dark:text-yellow-200 border-yellow-200 dark:border-yellow-800',
-    high: 'bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-200 border-green-200 dark:border-green-800',
+    high: 'bg-emerald-50 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-200 border-emerald-200 dark:border-emerald-800',
   };
 
   const changePercentage =
@@ -48,7 +48,7 @@ export function ForecastCard({ forecast, period, onClick }: ForecastCardProps) {
         <span
           className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium ${
             isPositive
-              ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200'
+              ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-200'
               : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200'
           }`}
         >

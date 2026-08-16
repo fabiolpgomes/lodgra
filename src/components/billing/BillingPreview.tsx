@@ -97,7 +97,7 @@ export function BillingPreview({ orgId, onAddExtraProperty, onManagePlan }: Bill
         <div className="border-t border-gray-200 my-3 pt-3 space-y-1">
           <div className="flex justify-between text-lg">
             <span className="font-semibold text-gray-900">Valor esperado/mês:</span>
-            <span className="font-bold text-green-600">R${totalMonthly}</span>
+            <span className="font-bold text-emerald-700">R${totalMonthly}</span>
           </div>
           <p className="text-xs text-gray-600">
             Será cobrado no próximo ciclo (incluindo créditos/taxas de ajuste)
@@ -134,8 +134,8 @@ export function BillingPreview({ orgId, onAddExtraProperty, onManagePlan }: Bill
       )}
 
       {extraCount > 2 && (plan === 'essencial' || plan === 'expansao') && (
-        <div className="mt-4 rounded-lg bg-green-50 p-3 border border-green-200">
-          <p className="text-xs text-green-800">
+        <div className="mt-4 rounded-lg bg-emerald-50 p-3 border border-emerald-200">
+          <p className="text-xs text-emerald-800">
             🚀 <strong>Dica:</strong> Plano Premium inclui propriedades ilimitadas + API. Poderia ser mais econômico!
           </p>
         </div>

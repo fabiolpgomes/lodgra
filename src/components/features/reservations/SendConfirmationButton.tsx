@@ -58,14 +58,14 @@ export function SendConfirmationButton({ reservationId, guestEmail }: SendConfir
           {isLoading ? (
             <Loader className="h-4 w-4 animate-spin" />
           ) : status === 'success' ? (
-            <Check className="h-4 w-4 text-green-600" />
+            <Check className="h-4 w-4 text-emerald-700" />
           ) : (
             <Send className="h-4 w-4" />
           )}
           {isLoading ? 'Enviando...' : 'Envio de confirmação'}
         </span>
         {status === 'success' && (
-          <span className="text-xs text-green-600 font-medium">Enviado!</span>
+          <span className="text-xs text-emerald-700 font-medium">Enviado!</span>
         )}
         {status === 'error' && (
           <AlertCircle className="h-4 w-4 text-red-600" />

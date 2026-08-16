@@ -88,7 +88,7 @@ export function PropertyCard({
           </div>
         )}
         {country?.toLowerCase().includes('brasil') && (
-          <div className="absolute top-3 right-3 md:top-2 md:right-2 bg-green-100 text-green-800 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-[0.5px] z-10 flex items-center gap-1">
+          <div className="absolute top-3 right-3 md:top-2 md:right-2 bg-emerald-100 text-emerald-800 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-[0.5px] z-10 flex items-center gap-1">
             🇧🇷 Brasil
           </div>
         )}

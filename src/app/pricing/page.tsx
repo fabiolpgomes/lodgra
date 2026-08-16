@@ -183,7 +183,7 @@ export default function PricingPage() {
                   <ul className="space-y-4">
                     {plan.features.map((feature) => (
                       <li key={feature} className="flex items-start gap-3">
-                        <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                        <Check className="w-5 h-5 text-emerald-700 flex-shrink-0 mt-0.5" />
                         <span className="text-gray-700">{feature}</span>
                       </li>
                     ))}
@@ -215,21 +215,21 @@ export default function PricingPage() {
                     <td className="border border-gray-300 p-4">{row.name}</td>
                     <td className="border border-gray-300 p-4 text-center">
                       {row.essencial ? (
-                        <Check className="w-6 h-6 text-green-600 mx-auto" />
+                        <Check className="w-6 h-6 text-emerald-700 mx-auto" />
                       ) : (
                         <X className="w-6 h-6 text-gray-500 mx-auto" />
                       )}
                     </td>
                     <td className="border border-gray-300 p-4 text-center">
                       {row.expansao ? (
-                        <Check className="w-6 h-6 text-green-600 mx-auto" />
+                        <Check className="w-6 h-6 text-emerald-700 mx-auto" />
                       ) : (
                         <X className="w-6 h-6 text-gray-500 mx-auto" />
                       )}
                     </td>
                     <td className="border border-gray-300 p-4 text-center">
                       {row.premium ? (
-                        <Check className="w-6 h-6 text-green-600 mx-auto" />
+                        <Check className="w-6 h-6 text-emerald-700 mx-auto" />
                       ) : (
                         <X className="w-6 h-6 text-gray-500 mx-auto" />
                       )}

@@ -214,7 +214,7 @@ export function RoomsEditor({ propertyId }: RoomsEditorProps) {
           {saving ? 'A guardar…' : 'Guardar Quartos'}
         </button>
 
-        {saved && <span className="text-sm text-green-600 font-medium">✓ Guardado</span>}
+        {saved && <span className="text-sm text-emerald-700 font-medium">✓ Guardado</span>}
         {saveError && <span className="text-sm text-red-600">{saveError}</span>}
       </div>
     </div>

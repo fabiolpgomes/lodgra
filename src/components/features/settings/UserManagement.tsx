@@ -303,7 +303,7 @@ export function UserManagement({ users, onUserUpdated }: UserManagementProps) {
                           <button
                             onClick={() => handleSaveRole(user.id)}
                             disabled={loading}
-                            className="p-1 text-green-600 hover:bg-green-50 rounded disabled:opacity-50"
+                            className="p-1 text-emerald-700 hover:bg-emerald-50 rounded disabled:opacity-50"
                           >
                             <Check className="h-4 w-4" />
                           </button>

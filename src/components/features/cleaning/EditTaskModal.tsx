@@ -173,7 +173,7 @@ export function EditTaskModal({
               className={`w-full px-4 py-2 rounded-lg font-bold flex items-center justify-center gap-2 transition ${
                 linkCopied
                   ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400'
-                  : 'bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-900'
+                  : 'bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-400 hover:bg-emerald-200 dark:hover:bg-emerald-900'
               } disabled:opacity-50`}
             >
               {linkCopied ? (
@@ -183,7 +183,7 @@ export function EditTaskModal({
                 </>
               ) : copyingLink ? (
                 <>
-                  <div className="h-4 w-4 border-2 border-green-400 border-t-green-700 rounded-full animate-spin" />
+                  <div className="h-4 w-4 border-2 border-emerald-400 border-t-emerald-800 rounded-full animate-spin" />
                   Copiando...
                 </>
               ) : (

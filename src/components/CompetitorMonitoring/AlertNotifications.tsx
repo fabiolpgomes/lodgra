@@ -25,21 +25,21 @@ export function AlertNotifications({ alerts }: AlertNotificationsProps) {
               className={`flex items-center justify-between p-4 rounded-lg ${
                 alert.alertType === 'increase'
                   ? 'bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800'
-                  : 'bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800'
+                  : 'bg-emerald-50 dark:bg-emerald-950 border border-emerald-200 dark:border-emerald-800'
               }`}
             >
               <div className="flex items-center gap-3">
                 {alert.alertType === 'increase' ? (
                   <TrendingUp className="w-5 h-5 text-red-600 dark:text-red-400" />
                 ) : (
-                  <TrendingDown className="w-5 h-5 text-green-600 dark:text-green-400" />
+                  <TrendingDown className="w-5 h-5 text-emerald-700 dark:text-emerald-400" />
                 )}
                 <div>
                   <p
                     className={`font-medium ${
                       alert.alertType === 'increase'
                         ? 'text-red-900 dark:text-red-100'
-                        : 'text-green-900 dark:text-green-100'
+                        : 'text-emerald-900 dark:text-emerald-100'
                     }`}
                   >
                     {alert.alertType === 'increase' ? 'Price Increase' : 'Price Decrease'}
@@ -48,7 +48,7 @@ export function AlertNotifications({ alerts }: AlertNotificationsProps) {
                     className={`text-sm ${
                       alert.alertType === 'increase'
                         ? 'text-red-700 dark:text-red-300'
-                        : 'text-green-700 dark:text-green-300'
+                        : 'text-emerald-800 dark:text-emerald-300'
                     }`}
                   >
                     €{alert.previousPrice.toFixed(2)} → €{alert.newPrice.toFixed(2)} (
@@ -61,7 +61,7 @@ export function AlertNotifications({ alerts }: AlertNotificationsProps) {
                 className={`p-1 hover:bg-opacity-50 rounded transition-colors ${
                   alert.alertType === 'increase'
                     ? 'text-red-600 dark:text-red-400'
-                    : 'text-green-600 dark:text-green-400'
+                    : 'text-emerald-700 dark:text-emerald-400'
                 }`}
                 aria-label="Dismiss alert"
               >

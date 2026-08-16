@@ -212,7 +212,7 @@ export default function CleanerTaskDetailPage() {
   const statusColors: Record<string, { bg: string; text: string; label: string }> = {
     pending: { bg: 'bg-gray-50', text: 'text-gray-700', label: 'Pendente' },
     in_progress: { bg: 'bg-yellow-50', text: 'text-yellow-700', label: 'Em Progresso' },
-    done: { bg: 'bg-green-50', text: 'text-green-700', label: 'Concluída' },
+    done: { bg: 'bg-emerald-50', text: 'text-emerald-800', label: 'Concluída' },
     issue: { bg: 'bg-red-50', text: 'text-red-700', label: 'Problema' },
   }
 
@@ -303,7 +303,7 @@ export default function CleanerTaskDetailPage() {
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div
-                    className="bg-green-500 h-2 rounded-full transition-all duration-300"
+                    className="bg-emerald-600 h-2 rounded-full transition-all duration-300"
                     style={{ width: `${progress}%` }}
                   ></div>
                 </div>
@@ -319,7 +319,7 @@ export default function CleanerTaskDetailPage() {
                   type="checkbox"
                   checked={item.is_checked}
                   onChange={() => handleChecklistToggle(item.id, item.is_checked)}
-                  className="w-5 h-5 rounded border-gray-300 text-green-500 focus:ring-2 focus:ring-green-500 cursor-pointer"
+                  className="w-5 h-5 rounded border-gray-300 text-emerald-600 focus:ring-2 focus:ring-emerald-600 cursor-pointer"
                 />
                 <span className={`font-medium ${item.is_checked ? 'line-through text-gray-500' : 'text-gray-900'}`}>
                   {item.item}
@@ -413,7 +413,7 @@ export default function CleanerTaskDetailPage() {
           <>
             <button
               onClick={() => handleStatusChange('done')}
-              className="w-full px-4 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition flex items-center justify-center gap-2"
+              className="w-full px-4 py-3 bg-emerald-700 text-white rounded-lg font-semibold hover:bg-emerald-800 transition flex items-center justify-center gap-2"
             >
               <CheckCircle className="h-5 w-5" />
               Marcar Concluída
@@ -429,7 +429,7 @@ export default function CleanerTaskDetailPage() {
         )}
 
         {task.status === 'done' && (
-          <div className="p-4 bg-green-50 border border-green-200 rounded-lg text-green-700 text-center font-semibold">
+          <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-800 text-center font-semibold">
             ✓ Tarefa Concluída
           </div>
         )}

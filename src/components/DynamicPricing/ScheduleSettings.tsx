@@ -94,17 +94,17 @@ export function ScheduleSettings({
       </div>
 
       {/* Current Status */}
-      <div className={`rounded-lg border-2 p-4 ${localEnabled ? 'bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800' : 'bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-800'}`}>
+      <div className={`rounded-lg border-2 p-4 ${localEnabled ? 'bg-emerald-50 dark:bg-emerald-950 border-emerald-200 dark:border-emerald-800' : 'bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-800'}`}>
         <div className="flex items-center gap-3">
           {localEnabled ? (
             <>
-              <Play className="w-5 h-5 text-green-600" />
+              <Play className="w-5 h-5 text-emerald-700" />
               <div>
-                <p className="font-semibold text-green-900 dark:text-green-100">
+                <p className="font-semibold text-emerald-900 dark:text-emerald-100">
                   Automação Ativada
                 </p>
                 {nextRunTime && (
-                  <p className="text-sm text-green-800 dark:text-green-200">
+                  <p className="text-sm text-emerald-800 dark:text-emerald-200">
                     Próxima execução: {new Date(nextRunTime).toLocaleString('pt-PT')}
                   </p>
                 )}
@@ -139,7 +139,7 @@ export function ScheduleSettings({
           <button
             onClick={() => setLocalEnabled(!localEnabled)}
             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-              localEnabled ? 'bg-green-600' : 'bg-slate-300 dark:bg-slate-600'
+              localEnabled ? 'bg-emerald-700' : 'bg-slate-300 dark:bg-slate-600'
             }`}
           >
             <span
@@ -191,7 +191,7 @@ export function ScheduleSettings({
         <button
           onClick={handleManualTrigger}
           disabled={triggering}
-          className="w-full px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+          className="w-full px-4 py-2 bg-emerald-700 hover:bg-emerald-800 disabled:bg-emerald-400 text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
         >
           <Play className="w-4 h-4" />
           {triggering ? 'Aplicando...' : 'Aplicar Regras Agora'}

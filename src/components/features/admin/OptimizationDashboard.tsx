@@ -240,7 +240,7 @@ export function OptimizationDashboard({ properties }: { properties: Array<{ id: 
                     <div className="flex items-center gap-4 mt-4">
                       <div>
                         <p className="text-xs text-be-text-muted">Expected Impact</p>
-                        <p className="text-lg font-semibold text-green-600">
+                        <p className="text-lg font-semibold text-emerald-700">
                           {currentData.topRecommendation.estimatedImpact}
                         </p>
                       </div>
@@ -288,7 +288,7 @@ export function OptimizationDashboard({ properties }: { properties: Array<{ id: 
                         <h4 className="font-medium text-be-text">{rec.title}</h4>
                         <p className="text-sm text-be-text-muted-700 mt-1">{rec.action}</p>
                         <div className="flex items-center gap-4 mt-2 text-xs">
-                          <span className="font-medium text-green-600">+{rec.estimatedImpactPercent}%</span>
+                          <span className="font-medium text-emerald-700">+{rec.estimatedImpactPercent}%</span>
                           <span className="text-be-text-muted">{getEffortLabel(rec.effort)}</span>
                         </div>
                       </div>
@@ -328,7 +328,7 @@ export function OptimizationDashboard({ properties }: { properties: Array<{ id: 
                   </div>
 
                   <div className="flex items-center gap-3 ml-4">
-                    <span className="text-sm font-semibold text-green-600">+{rec.estimatedImpactPercent}%</span>
+                    <span className="text-sm font-semibold text-emerald-700">+{rec.estimatedImpactPercent}%</span>
                     <span className="text-xs px-2 py-1 bg-lodgra-neutral-200 rounded text-be-text-muted-700">
                       {rec.category}
                     </span>

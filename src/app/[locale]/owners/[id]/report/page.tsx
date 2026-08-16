@@ -66,7 +66,7 @@ function getPeriodDates(period: Period, customFrom?: string, customTo?: string):
 
 const BADGE_COLORS: Record<string, string> = {
   EUR: 'bg-[color:var(--be-blue-pale)] text-[color:var(--be-blue-hover)] ring-brand-200',
-  BRL: 'bg-green-50 text-green-700 ring-green-200',
+  BRL: 'bg-emerald-50 text-emerald-800 ring-emerald-200',
   USD: 'bg-yellow-50 text-yellow-700 ring-yellow-200',
   GBP: 'bg-purple-50 text-purple-700 ring-purple-200',
 }
@@ -296,7 +296,7 @@ export default function OwnerReportPage() {
               variant="outline"
               size="sm"
               disabled={!report || report.properties.length === 0}
-              className="flex items-center gap-2 text-green-700 border-green-300 hover:bg-green-50"
+              className="flex items-center gap-2 text-emerald-800 border-emerald-300 hover:bg-emerald-50"
             >
               <MessageCircle className="h-4 w-4" />
               WhatsApp
@@ -466,7 +466,7 @@ export default function OwnerReportPage() {
 
                 {/* Summary cards — grouped by currency */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 no-print">
-                  <div className="bg-green-50 rounded-lg p-4">
+                  <div className="bg-emerald-50 rounded-lg p-4">
                     <p className="text-xs text-gray-600 uppercase font-medium mb-2">Receita Bruta</p>
                     <CurrencyStack
                       totals={Object.fromEntries(Object.entries(getSummaryByCurrency()).map(([c, s]) => [c, s.revenue]))}

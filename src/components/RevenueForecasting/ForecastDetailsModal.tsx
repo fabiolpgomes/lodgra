@@ -158,7 +158,7 @@ export function ForecastDetailsModal({
                         <span
                           className={`px-2 py-1 rounded text-xs font-medium ${
                             event.expectedImpact > 0
-                              ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200'
+                              ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-200'
                               : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200'
                           }`}
                         >

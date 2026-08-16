@@ -169,7 +169,7 @@ export function ChecklistProgress({
                       className="flex items-start gap-3 p-3 rounded-lg bg-gray-50"
                     >
                       {isChecked ? (
-                        <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                        <CheckCircle2 className="h-5 w-5 text-emerald-700 flex-shrink-0 mt-0.5" />
                       ) : (
                         <Circle className="h-5 w-5 text-gray-300 flex-shrink-0 mt-0.5" />
                       )}

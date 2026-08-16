@@ -73,7 +73,7 @@ export function PriceRecommendationCard({
                 </span>
                 <span
                   className={`text-lg font-semibold ${
-                    priceChange >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+                    priceChange >= 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'
                   }`}
                 >
                   {priceChange >= 0 ? '+' : ''}€{priceChange.toFixed(2)} ({priceChangePercent.toFixed(1)}%)
@@ -89,7 +89,7 @@ export function PriceRecommendationCard({
               <div
                 className={`px-3 py-2 rounded-full text-sm font-semibold whitespace-nowrap ${
                   confidence.level === 'high'
-                    ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                    ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300'
                     : confidence.level === 'medium'
                       ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
                       : 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300'
@@ -135,7 +135,7 @@ export function PriceRecommendationCard({
               <p
                 className={`text-lg font-semibold mt-1 ${
                   revenueChange >= 0
-                    ? 'text-green-600 dark:text-green-400'
+                    ? 'text-emerald-700 dark:text-emerald-400'
                     : 'text-red-600 dark:text-red-400'
                 }`}
               >
@@ -187,7 +187,7 @@ export function PriceRecommendationCard({
                 <span
                   className={`font-semibold capitalize ${
                     recommendation.market_analysis.market_trend === 'up'
-                      ? 'text-green-600 dark:text-green-400'
+                      ? 'text-emerald-700 dark:text-emerald-400'
                       : recommendation.market_analysis.market_trend === 'down'
                         ? 'text-red-600 dark:text-red-400'
                         : 'text-slate-900 dark:text-white'
@@ -227,8 +227,8 @@ export function PriceRecommendationCard({
         )}
 
         {recommendation.accepted && (
-          <div className="p-4 sm:p-6 bg-green-50 dark:bg-green-900/20 border-t border-green-200 dark:border-green-800">
-            <p className="text-sm font-semibold text-green-800 dark:text-green-300">
+          <div className="p-4 sm:p-6 bg-emerald-50 dark:bg-emerald-900/20 border-t border-emerald-200 dark:border-emerald-800">
+            <p className="text-sm font-semibold text-emerald-800 dark:text-emerald-300">
               ✓ Accepted on {new Date(recommendation.accepted_at!).toLocaleDateString()}
             </p>
           </div>
@@ -275,7 +275,7 @@ export function PriceRecommendationCard({
               <button
                 onClick={handleAccept}
                 disabled={isAccepting}
-                className="flex-1 px-4 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="flex-1 px-4 py-2 bg-emerald-700 text-white font-semibold rounded-lg hover:bg-emerald-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {isAccepting ? 'Accepting...' : 'Yes, Apply Now'}
               </button>

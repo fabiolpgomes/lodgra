@@ -269,8 +269,8 @@ export function ReservationsPdfGenerator({ properties }: ReservationsPdfGenerato
 
             {/* Content */}
             <div className="p-6 space-y-4">
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                <p className="text-green-800 text-sm font-medium">
+              <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
+                <p className="text-emerald-800 text-sm font-medium">
                   ✓ Arquivo: <span className="font-semibold">{shareModal.fileName}</span>
                 </p>
               </div>
@@ -314,7 +314,7 @@ export function ReservationsPdfGenerator({ properties }: ReservationsPdfGenerato
                 {/* WhatsApp Share Button */}
                 <Button
                   onClick={handleShareWhatsApp}
-                  className="w-full bg-green-600 hover:bg-green-700"
+                  className="w-full bg-emerald-700 hover:bg-emerald-800"
                   size="sm"
                 >
                   <Share2 className="mr-2 h-4 w-4" />

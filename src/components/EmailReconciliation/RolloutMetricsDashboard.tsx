@@ -106,16 +106,16 @@ export function RolloutMetricsDashboard({ organizationId }: DashboardProps) {
       {/* Overall Status */}
       <div
         className={`rounded-lg p-6 ${
-          all_checks_pass ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'
+          all_checks_pass ? 'bg-emerald-50 border border-emerald-200' : 'bg-red-50 border border-red-200'
         }`}
       >
         <div className="flex items-center gap-3">
           <div className={`text-2xl ${all_checks_pass ? '✅' : '❌'}`} />
           <div>
-            <h3 className={`text-lg font-bold ${all_checks_pass ? 'text-green-900' : 'text-red-900'}`}>
+            <h3 className={`text-lg font-bold ${all_checks_pass ? 'text-emerald-900' : 'text-red-900'}`}>
               {all_checks_pass ? 'Todos os critérios atendidos' : 'Falha nos critérios'}
             </h3>
-            <p className={all_checks_pass ? 'text-green-700' : 'text-red-700'}>
+            <p className={all_checks_pass ? 'text-emerald-800' : 'text-red-700'}>
               {all_checks_pass
                 ? 'Pronto para expansão após 2 semanas'
                 : 'Problemas detectados - revisão necessária'}
@@ -141,7 +141,7 @@ export function RolloutMetricsDashboard({ organizationId }: DashboardProps) {
             <div
               className={`inline-block rounded px-2 py-1 text-xs font-semibold ${
                 metrics.target_met
-                  ? 'bg-green-100 text-green-800'
+                  ? 'bg-emerald-100 text-emerald-800'
                   : 'bg-yellow-100 text-yellow-800'
               }`}
             >
@@ -184,7 +184,7 @@ export function RolloutMetricsDashboard({ organizationId }: DashboardProps) {
           className={`rounded-lg border p-6 ${
             duplicates.has_duplicates
               ? 'border-red-200 bg-red-50'
-              : 'border-green-200 bg-green-50'
+              : 'border-emerald-200 bg-emerald-50'
           }`}
         >
           <div className="flex items-center gap-2">
@@ -193,7 +193,7 @@ export function RolloutMetricsDashboard({ organizationId }: DashboardProps) {
               <h4 className="font-semibold">Duplicações</h4>
               <p
                 className={`text-sm ${
-                  duplicates.has_duplicates ? 'text-red-700' : 'text-green-700'
+                  duplicates.has_duplicates ? 'text-red-700' : 'text-emerald-800'
                 }`}
               >
                 {duplicates.duplicate_count === 0
@@ -216,7 +216,7 @@ export function RolloutMetricsDashboard({ organizationId }: DashboardProps) {
           className={`rounded-lg border p-6 ${
             property_associations.has_wrong_associations
               ? 'border-red-200 bg-red-50'
-              : 'border-green-200 bg-green-50'
+              : 'border-emerald-200 bg-emerald-50'
           }`}
         >
           <div className="flex items-center gap-2">
@@ -227,7 +227,7 @@ export function RolloutMetricsDashboard({ organizationId }: DashboardProps) {
                 className={`text-sm ${
                   property_associations.has_wrong_associations
                     ? 'text-red-700'
-                    : 'text-green-700'
+                    : 'text-emerald-800'
                 }`}
               >
                 {property_associations.wrong_association_count === 0

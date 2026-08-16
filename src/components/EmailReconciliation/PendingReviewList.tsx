@@ -114,8 +114,8 @@ function PendingReviewItem({
 
       {/* Auto-Match Notification */}
       {item.decision.status === 'auto_matched' && (
-        <div className="mb-6 rounded-md bg-green-50 p-4">
-          <p className="text-sm text-green-800">
+        <div className="mb-6 rounded-md bg-emerald-50 p-4">
+          <p className="text-sm text-emerald-800">
             ✓ <strong>Auto-match confirmado</strong> com score {item.decision.candidates[0].score}
           </p>
         </div>
@@ -126,7 +126,7 @@ function PendingReviewItem({
         <button
           onClick={onConfirm}
           disabled={isProcessing || loading}
-          className="flex-1 rounded-md bg-green-600 px-4 py-2 text-white hover:bg-green-700 disabled:opacity-50"
+          className="flex-1 rounded-md bg-emerald-700 px-4 py-2 text-white hover:bg-emerald-800 disabled:opacity-50"
         >
           {isProcessing ? 'Processando...' : 'Confirmar'}
         </button>

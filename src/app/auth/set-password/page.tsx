@@ -182,8 +182,8 @@ export default function SetPasswordPage() {
         <div className="bg-white rounded-xl shadow-xl p-8">
           {success ? (
             <div className="text-center">
-              <div className="flex items-center justify-center w-12 h-12 rounded-full bg-green-100 mx-auto mb-4">
-                <CheckCircle className="h-6 w-6 text-green-600" />
+              <div className="flex items-center justify-center w-12 h-12 rounded-full bg-emerald-100 mx-auto mb-4">
+                <CheckCircle className="h-6 w-6 text-emerald-700" />
               </div>
               <h2 className="text-2xl font-bold text-gray-900 mb-2">Sucesso!</h2>
               <p className="text-gray-600 mb-6">

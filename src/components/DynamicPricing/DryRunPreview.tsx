@@ -85,11 +85,11 @@ export function DryRunPreview({
           </p>
         </div>
 
-        <div className="bg-green-50 dark:bg-green-950 rounded-lg p-4">
-          <p className="text-xs font-semibold text-green-600 dark:text-green-400 uppercase">
+        <div className="bg-emerald-50 dark:bg-emerald-950 rounded-lg p-4">
+          <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 uppercase">
             Aumentos
           </p>
-          <p className="text-2xl font-bold text-green-700 dark:text-green-300 mt-2">
+          <p className="text-2xl font-bold text-emerald-800 dark:text-emerald-300 mt-2">
             {stats.increases}
           </p>
         </div>
@@ -107,16 +107,16 @@ export function DryRunPreview({
           <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">
             Mudança Média
           </p>
-          <p className={`text-2xl font-bold mt-2 ${stats.avgChange > 0 ? 'text-green-600' : stats.avgChange < 0 ? 'text-red-600' : 'text-slate-600'}`}>
+          <p className={`text-2xl font-bold mt-2 ${stats.avgChange > 0 ? 'text-emerald-700' : stats.avgChange < 0 ? 'text-red-600' : 'text-slate-600'}`}>
             €{stats.avgChange.toFixed(2)}
           </p>
         </div>
 
-        <div className={`rounded-lg p-4 ${totalRevenueDifference > 0 ? 'bg-green-50 dark:bg-green-950' : 'bg-red-50 dark:bg-red-950'}`}>
+        <div className={`rounded-lg p-4 ${totalRevenueDifference > 0 ? 'bg-emerald-50 dark:bg-emerald-950' : 'bg-red-50 dark:bg-red-950'}`}>
           <p className="text-xs font-semibold uppercase">
             {totalRevenueDifference > 0 ? 'Impacto em Receita' : 'Impacto em Receita'}
           </p>
-          <p className={`text-2xl font-bold mt-2 ${totalRevenueDifference > 0 ? 'text-green-700 dark:text-green-300' : 'text-red-700 dark:text-red-300'}`}>
+          <p className={`text-2xl font-bold mt-2 ${totalRevenueDifference > 0 ? 'text-emerald-800 dark:text-emerald-300' : 'text-red-700 dark:text-red-300'}`}>
             €{totalRevenueDifference.toFixed(2)}
           </p>
         </div>
@@ -160,7 +160,7 @@ export function DryRunPreview({
                   <div
                     className={`font-semibold ${
                       change.change > 0
-                        ? 'text-green-600'
+                        ? 'text-emerald-700'
                         : change.change < 0
                           ? 'text-red-600'
                           : 'text-slate-600 dark:text-slate-400'
@@ -171,7 +171,7 @@ export function DryRunPreview({
                 </td>
                 <td className="px-4 py-3 text-center">
                   {change.change > 0 ? (
-                    <TrendingUp className="w-4 h-4 text-green-600 mx-auto" />
+                    <TrendingUp className="w-4 h-4 text-emerald-700 mx-auto" />
                   ) : change.change < 0 ? (
                     <TrendingDown className="w-4 h-4 text-red-600 mx-auto" />
                   ) : (
@@ -210,7 +210,7 @@ export function DryRunPreview({
         <button
           onClick={handleApply}
           disabled={applying || loading}
-          className="flex-1 px-4 py-3 bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white rounded-lg font-medium transition-colors"
+          className="flex-1 px-4 py-3 bg-emerald-700 hover:bg-emerald-800 disabled:bg-emerald-400 text-white rounded-lg font-medium transition-colors"
         >
           <CheckCircle className="w-4 h-4 inline-block mr-2" />
           {applying ? 'Aplicando...' : 'Aplicar Mudanças'}

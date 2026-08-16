@@ -69,12 +69,12 @@ export default function WhatsAppPaywall({ currentPlan = 'essential', locale = 'p
         </div>
 
         {/* Expansão */}
-        <div className="p-4 rounded-lg border border-green-200 bg-green-50">
+        <div className="p-4 rounded-lg border border-emerald-200 bg-emerald-50">
           <h3 className="font-semibold text-gray-900 mb-3">Expansão</h3>
           <ul className="space-y-2 text-sm">
             <li className="flex items-center text-gray-700">
               <span className="mr-2">✅</span>
-              <span className="font-semibold text-green-600">WhatsApp Automation</span>
+              <span className="font-semibold text-emerald-700">WhatsApp Automation</span>
             </li>
             <li className="flex items-center text-gray-600">
               <span className="mr-2">✅</span> Advanced Features

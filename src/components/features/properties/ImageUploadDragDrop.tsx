@@ -250,9 +250,9 @@ export function ImageUploadDragDrop({
 
       {state.success && state.fileName && (
         <div className="space-y-2">
-          <CheckCircle className="mx-auto h-8 w-8 text-green-500" />
+          <CheckCircle className="mx-auto h-8 w-8 text-emerald-600" />
           <p className="font-medium text-gray-900">Upload complete!</p>
-          <p className="text-sm text-green-600">{state.fileName}</p>
+          <p className="text-sm text-emerald-700">{state.fileName}</p>
         </div>
       )}
 

@@ -94,7 +94,7 @@ export function PropertyAnalysis({ propertyStats }: PropertyAnalysisProps) {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className="text-sm text-gray-600">Receita Bruta</p>
-                    <p className="text-xl font-bold text-green-600">{formatCurrency(stat.revenue, currency)}</p>
+                    <p className="text-xl font-bold text-emerald-700">{formatCurrency(stat.revenue, currency)}</p>
                   </div>
 
                   <div>
@@ -143,7 +143,7 @@ export function PropertyAnalysis({ propertyStats }: PropertyAnalysisProps) {
                       aria-label={`Occupancy rate: ${occupancy.toFixed(1)}%`}
                     >
                       <div
-                        className={`h-2 rounded-full transition-all ${occupancy >= 70 ? 'bg-green-500' : occupancy >= 40 ? 'bg-yellow-500' : 'bg-red-500'}`}
+                        className={`h-2 rounded-full transition-all ${occupancy >= 70 ? 'bg-emerald-600' : occupancy >= 40 ? 'bg-yellow-500' : 'bg-red-500'}`}
                         style={{ width: `${Math.min(occupancy, 100)}%` }}
                       />
                     </div>

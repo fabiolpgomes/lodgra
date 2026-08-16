@@ -127,7 +127,7 @@ export function TabDisponibilidade({ propertyId, onSaved }: TabDisponibilidadePr
 
       {/* Messages */}
       {error && <div className="p-2 bg-red-100 text-red-700 rounded text-sm">{error}</div>}
-      {success && <div className="p-2 bg-green-100 text-green-700 rounded text-sm">Disponibilidade salva com sucesso</div>}
+      {success && <div className="p-2 bg-emerald-100 text-emerald-800 rounded text-sm">Disponibilidade salva com sucesso</div>}
 
       {/* Save Button */}
       <button

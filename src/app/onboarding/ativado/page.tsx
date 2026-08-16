@@ -43,8 +43,8 @@ export default function OnboardingAtivadoPage() {
         </div>
 
         <div className="flex justify-center mb-4">
-          <div className="p-3 bg-green-100 rounded-full">
-            <Check className="h-8 w-8 text-green-600" />
+          <div className="p-3 bg-emerald-100 rounded-full">
+            <Check className="h-8 w-8 text-emerald-700" />
           </div>
         </div>
 

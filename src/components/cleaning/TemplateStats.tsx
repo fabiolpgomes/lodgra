@@ -88,14 +88,14 @@ export default function TemplateStats() {
         const Icon = card.icon;
         const bgColor = {
           blue: 'bg-blue-50',
-          green: 'bg-green-50',
+          green: 'bg-emerald-50',
           purple: 'bg-purple-50',
           orange: 'bg-orange-50',
         }[card.color];
 
         const textColor = {
           blue: 'text-blue-600',
-          green: 'text-green-600',
+          green: 'text-emerald-700',
           purple: 'text-purple-600',
           orange: 'text-orange-600',
         }[card.color];

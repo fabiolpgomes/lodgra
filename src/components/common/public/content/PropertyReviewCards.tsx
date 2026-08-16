@@ -16,7 +16,7 @@ const SOURCE_COLORS: Record<ReviewSource, string> = {
   booking: 'text-brand-700',
   airbnb: 'text-rose-600',
   google: 'text-amber-700',
-  tripadvisor: 'text-green-700',
+  tripadvisor: 'text-emerald-800',
   direct: 'text-be-text-700',
   other: 'text-gray-600',
 }

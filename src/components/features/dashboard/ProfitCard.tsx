@@ -35,7 +35,7 @@ export function ProfitCard({ revenue, expenses, currency }: ProfitCardProps) {
         {/* Detalhamento */}
         <div className="pt-3 border-t space-y-2 text-sm">
           <div className="flex justify-between items-center">
-            <div className="flex items-center gap-1 text-green-600">
+            <div className="flex items-center gap-1 text-emerald-700">
               <TrendingUp className="h-4 w-4" />
               <span>Receita</span>
             </div>
@@ -57,7 +57,7 @@ export function ProfitCard({ revenue, expenses, currency }: ProfitCardProps) {
           {/* Margem */}
           <div className="flex justify-between items-center pt-2 border-t">
             <span className="text-gray-600">Margem</span>
-            <span className={`font-bold ${isProfit ? 'text-green-600' : 'text-red-600'}`}>
+            <span className={`font-bold ${isProfit ? 'text-emerald-700' : 'text-red-600'}`}>
               {profitMargin.toFixed(1)}%
             </span>
           </div>

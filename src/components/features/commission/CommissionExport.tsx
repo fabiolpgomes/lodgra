@@ -149,8 +149,8 @@ export function CommissionExport({
         )}
 
         {success && (
-          <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-            <p className="text-sm text-green-700">✓ Export downloaded successfully</p>
+          <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
+            <p className="text-sm text-emerald-800">✓ Export downloaded successfully</p>
           </div>
         )}
 

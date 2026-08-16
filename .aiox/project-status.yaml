@@ -1,19 +1,15 @@
 status:
   branch: main
   modifiedFiles:
-    - scripts/insert-reservation.mjs
-    - src/app/[locale]/properties/[id]/edit/page.tsx
-    - src/app/[locale]/properties/[id]/page.tsx
-    - src/app/[locale]/properties/page.tsx
-    - src/app/api/properties/[id]/daily-prices/route.ts
-  modifiedFilesTotalCount: 13
+    - .aiox/project-status.yaml
+  modifiedFilesTotalCount: 1
   recentCommits:
-    - 'fix(calendar): unify property currency display'
-    - 'fix(calendar): use property currency in price modal'
+    - 'fix(auth): preserve locale on login redirects'
+    - 'feat(calendar): clarify cancellation policy action'
   currentEpic: 20 — Checkout Directo (Housekeeping)
   currentStory: 20.3.story
-  lastUpdate: '2026-08-16T06:58:00.400Z'
+  lastUpdate: '2026-08-16T11:20:22.488Z'
   isGitRepo: true
-timestamp: 1786863480403
+timestamp: 1786879222503
 ttl: 60
-gitFingerprint: 1785569665275.2065:1786862148769.0012
+gitFingerprint: 1785569665275.2065:1786874431656.8079

@@ -140,7 +140,7 @@ export default function BrandingPage(props: { params: Promise<{ orgId: string; l
       </div>
 
       {error && <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded">{error}</div>}
-      {success && <div className="bg-green-50 border border-green-200 text-green-700 p-4 rounded">{success}</div>}
+      {success && <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 p-4 rounded">{success}</div>}
 
       <div className="border rounded-lg p-6">
         <h2 className="text-lg font-semibold mb-4">Logotipo</h2>
@@ -219,7 +219,7 @@ export default function BrandingPage(props: { params: Promise<{ orgId: string; l
         </div>
 
         <div className="flex gap-2">
-          <button onClick={handleSaveColors} disabled={saving} className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50">
+          <button onClick={handleSaveColors} disabled={saving} className="px-4 py-2 bg-emerald-700 text-white rounded hover:bg-emerald-800 disabled:opacity-50">
             Guardar cores
           </button>
           <button onClick={() => setShowPreview(!showPreview)} className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">

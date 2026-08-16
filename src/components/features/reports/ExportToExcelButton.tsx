@@ -46,7 +46,7 @@ export function ExportToExcelButton({ data, filename }: ExportToExcelProps) {
     <Button
       onClick={handleExport}
       disabled={data.length === 0}
-      className="bg-green-600 hover:bg-green-700"
+      className="bg-emerald-700 hover:bg-emerald-800"
     >
       <Download className="h-4 w-4" />
       Exportar CSV

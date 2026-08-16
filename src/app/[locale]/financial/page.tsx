@@ -230,7 +230,7 @@ export default async function FinancialPage({
                         <div className="flex items-start gap-2">
                           {property.currency && (() => {
                             const badgeColor = property.currency === 'EUR' ? 'bg-[color:var(--be-blue-pale)] text-[color:var(--be-blue-hover)] ring-brand-200'
-                              : property.currency === 'BRL' ? 'bg-green-50 text-green-700 ring-green-200'
+                              : property.currency === 'BRL' ? 'bg-emerald-50 text-emerald-800 ring-emerald-200'
                               : property.currency === 'USD' ? 'bg-yellow-50 text-yellow-700 ring-yellow-200'
                               : property.currency === 'GBP' ? 'bg-purple-50 text-purple-700 ring-purple-200'
                               : 'bg-gray-100 text-gray-700 ring-gray-200'
@@ -257,7 +257,7 @@ export default async function FinancialPage({
                       </td>
                       <td className="px-2 py-3 whitespace-nowrap text-right">
                         <div className="flex items-center justify-end gap-0.5">
-                          <TrendingUp className="h-3 w-3 text-green-600" />
+                          <TrendingUp className="h-3 w-3 text-emerald-700" />
                           <span className="text-xs font-medium text-brand-text-dark">
                             {formatCurrency(property.revenue, property.currency as CurrencyCode)}
                           </span>
@@ -285,7 +285,7 @@ export default async function FinancialPage({
                       </td>
                       <td className="px-2 py-3 whitespace-nowrap text-right">
                         <span className={`text-xs font-bold ${
-                          property.profit >= 0 ? 'text-green-600' : 'text-red-600'
+                          property.profit >= 0 ? 'text-emerald-700' : 'text-red-600'
                         }`}>
                           {formatCurrency(property.profit, property.currency as CurrencyCode)}
                         </span>
@@ -294,7 +294,7 @@ export default async function FinancialPage({
                         <div className="flex items-center justify-end gap-0.5">
                           <Percent className="h-3 w-3 text-brand-text-medium" />
                           <span className={`text-xs font-bold ${
-                            property.profitMargin >= 0 ? 'text-green-600' : 'text-red-600'
+                            property.profitMargin >= 0 ? 'text-emerald-700' : 'text-red-600'
                           }`}>
                             {property.profitMargin.toFixed(1)}%
                           </span>

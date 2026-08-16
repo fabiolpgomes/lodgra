@@ -221,7 +221,7 @@ export function CashFlowForecast({
               label="Próximos 30 dias"
               sublabel="A partir de hoje"
               summary={horizon30}
-              color="border-green-500"
+              color="border-emerald-600"
             />
             <HorizonCard
               label="31–60 dias"

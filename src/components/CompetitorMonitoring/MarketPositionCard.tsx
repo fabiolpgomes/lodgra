@@ -15,7 +15,7 @@ export function MarketPositionCard({ analysis }: MarketPositionCardProps) {
   const getPositionColor = (position: string) => {
     switch (position) {
       case 'very_low':
-        return { bg: 'bg-green-50 dark:bg-green-950', text: 'text-green-700 dark:text-green-300', badge: 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200' };
+        return { bg: 'bg-emerald-50 dark:bg-emerald-950', text: 'text-emerald-800 dark:text-emerald-300', badge: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-200' };
       case 'low':
         return { bg: 'bg-emerald-50 dark:bg-emerald-950', text: 'text-emerald-700 dark:text-emerald-300', badge: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-200' };
       case 'competitive':
@@ -61,7 +61,7 @@ export function MarketPositionCard({ analysis }: MarketPositionCardProps) {
                 {isHigher ? (
                   <TrendingUp className="w-5 h-5 text-red-600 dark:text-red-400" />
                 ) : (
-                  <TrendingDown className="w-5 h-5 text-green-600 dark:text-green-400" />
+                  <TrendingDown className="w-5 h-5 text-emerald-700 dark:text-emerald-400" />
                 )}
                 <span className={`font-semibold ${colors.text}`}>
                   {percentDiff.toFixed(1)}% {isHigher ? 'higher' : 'lower'} than market

@@ -86,7 +86,7 @@ export function CommissionMetrics() {
       title: 'Year to Date',
       label: '2026',
       ...data.yearToDate,
-      color: 'from-green-500 to-green-600',
+      color: 'from-emerald-600 to-emerald-700',
     },
     {
       title: 'All Time',

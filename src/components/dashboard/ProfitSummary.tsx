@@ -84,7 +84,7 @@ export function ProfitSummary({ currency, month, className = '' }: ProfitSummary
             <div className="flex items-center justify-between pt-3 border-t-2">
               <span className="text-lg font-bold">Real Profit:</span>
               <span
-                className={`text-2xl font-bold ${profit.profit >= 0 ? 'text-green-600' : 'text-red-600'}`}
+                className={`text-2xl font-bold ${profit.profit >= 0 ? 'text-emerald-700' : 'text-red-600'}`}
               >
                 {isSupportedCurrency(curr)
                   ? formatCurrency(profit.profit, curr)

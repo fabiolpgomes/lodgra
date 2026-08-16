@@ -237,7 +237,7 @@ export default async function PropertyDetailsPage({
             <div className="flex items-center gap-3 mb-2">
               <h2 className="text-3xl font-bold text-gray-900">{property.name}</h2>
               {property.is_active ? (
-                <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Ativo</Badge>
+                <Badge className="bg-emerald-100 text-emerald-800 hover:bg-emerald-100">Ativo</Badge>
               ) : (
                 <Badge variant="outline">Inativo</Badge>
               )}

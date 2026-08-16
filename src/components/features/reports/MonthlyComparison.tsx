@@ -81,7 +81,7 @@ export function MonthlyComparison({ monthlyStats }: MonthlyComparisonProps) {
                           <>
                             <span>·</span>
                             <span
-                              className={`font-medium ${occupancy >= 70 ? 'text-green-600' : occupancy >= 40 ? 'text-yellow-600' : 'text-red-600'}`}
+                              className={`font-medium ${occupancy >= 70 ? 'text-emerald-700' : occupancy >= 40 ? 'text-yellow-600' : 'text-red-600'}`}
                               role="meter"
                               aria-valuenow={Math.round(occupancy)}
                               aria-valuemin={0}
@@ -102,7 +102,7 @@ export function MonthlyComparison({ monthlyStats }: MonthlyComparisonProps) {
 
                   {prevStat && (
                     <div className={`flex items-center gap-1 text-sm ${
-                      isIncrease ? 'text-green-600' : 'text-red-600'
+                      isIncrease ? 'text-emerald-700' : 'text-red-600'
                     }`}>
                       {isIncrease ? (
                         <TrendingUp className="h-3 w-3" />
@@ -134,7 +134,7 @@ export function MonthlyComparison({ monthlyStats }: MonthlyComparisonProps) {
               </div>
               <div>
                 <p className="text-sm text-gray-600">Melhor Mês</p>
-                <p className="text-xl font-bold text-green-600">
+                <p className="text-xl font-bold text-emerald-700">
                   {formatCurrency(Math.max(...monthlyStats.map((s) => s.revenue)), currency)}
                 </p>
               </div>

@@ -118,7 +118,7 @@ export default function TemplateOnboarding() {
                 {step.details.map((detail, idx) => (
                   <div key={idx} className="flex gap-3 items-start">
                     <div className="flex-shrink-0 mt-1">
-                      <CheckCircle className="h-5 w-5 text-green-500" />
+                      <CheckCircle className="h-5 w-5 text-emerald-600" />
                     </div>
                     <p className="text-gray-700">{detail}</p>
                   </div>
@@ -154,7 +154,7 @@ export default function TemplateOnboarding() {
                 {isLast ? (
                   <button
                     onClick={() => setIsOpen(false)}
-                    className="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors font-medium flex items-center gap-2"
+                    className="px-6 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium flex items-center gap-2"
                   >
                     <CheckCircle className="h-4 w-4" />
                     Entendi!

@@ -60,7 +60,7 @@ export function WorkflowFlowModal({ isOpen, onClose }: WorkflowFlowModalProps) {
       id: 'completed',
       number: 3,
       title: 'Finalizado',
-      color: 'from-green-500 to-emerald-500',
+      color: 'from-emerald-600 to-emerald-500',
       icon: '✅',
       description: 'Limpeza concluída com sucesso',
       actions: [

@@ -127,7 +127,7 @@ export function CookieBanner() {
               <p className="text-sm font-medium">{t('essential')}</p>
               <p className="text-xs text-gray-400">{t('essentialDescription')}</p>
             </div>
-            <span className="text-xs text-green-400 font-medium whitespace-nowrap ml-4">
+            <span className="text-xs text-emerald-400 font-medium whitespace-nowrap ml-4">
               {t('alwaysActive')}
             </span>
           </div>

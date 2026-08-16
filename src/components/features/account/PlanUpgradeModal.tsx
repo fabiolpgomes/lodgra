@@ -98,7 +98,7 @@ export function PlanUpgradeModal({ currentPlan, isOpen, onClose }: PlanUpgradeMo
                     </div>
                   </div>
                   <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                    isUpgrade ? 'bg-green-100 text-green-800' : 'bg-orange-100 text-orange-800'
+                    isUpgrade ? 'bg-emerald-100 text-emerald-800' : 'bg-orange-100 text-orange-800'
                   }`}>
                     {isUpgrade ? 'Upgrade' : 'Downgrade'}
                   </span>
@@ -106,18 +106,18 @@ export function PlanUpgradeModal({ currentPlan, isOpen, onClose }: PlanUpgradeMo
 
                 <ul className="space-y-1 mt-3 text-sm text-gray-600">
                   <li className="flex items-center gap-2">
-                    <Check className="h-4 w-4 text-green-600" />
+                    <Check className="h-4 w-4 text-emerald-700" />
                     Unidades ilimitadas
                   </li>
                   {limits.ownerReports && (
                     <li className="flex items-center gap-2">
-                      <Check className="h-4 w-4 text-green-600" />
+                      <Check className="h-4 w-4 text-emerald-700" />
                       Relatórios por proprietário
                     </li>
                   )}
                   {limits.fiscalCompliance && (
                     <li className="flex items-center gap-2">
-                      <Check className="h-4 w-4 text-green-600" />
+                      <Check className="h-4 w-4 text-emerald-700" />
                       Compliance fiscal
                     </li>
                   )}

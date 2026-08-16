@@ -74,7 +74,7 @@ export function PriceHistoryTimeline({
                       : priceChange > 0
                         ? 'bg-red-500'
                         : priceChange < 0
-                          ? 'bg-green-500'
+                          ? 'bg-emerald-600'
                           : 'bg-gray-400'
                   }`}
                 >
@@ -97,7 +97,7 @@ export function PriceHistoryTimeline({
                         {previousRecord && (
                           <span
                             className={`text-sm font-medium ${
-                              priceChange > 0 ? 'text-red-600' : 'text-green-600'
+                              priceChange > 0 ? 'text-red-600' : 'text-emerald-700'
                             }`}
                           >
                             {priceChange > 0 ? '+' : ''}{formatPrice(priceChange)} ({percentageChange}%)

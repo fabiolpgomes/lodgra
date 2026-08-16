@@ -127,7 +127,7 @@ export function EmailConnection({ initialEmail, initialLastSync }: EmailConnecti
 
       {email ? (
         <div className="space-y-3">
-          <div className="flex items-center gap-2 text-sm text-green-700">
+          <div className="flex items-center gap-2 text-sm text-emerald-800">
             <CheckCircle className="h-4 w-4" />
             <span>Conectado como <strong>{email}</strong></span>
           </div>
@@ -162,7 +162,7 @@ export function EmailConnection({ initialEmail, initialLastSync }: EmailConnecti
             </div>
           )}
           {syncResult && (
-            <div className="text-sm text-green-700 bg-green-50 rounded-md px-3 py-2">
+            <div className="text-sm text-emerald-800 bg-emerald-50 rounded-md px-3 py-2">
               Sincronização concluída: {syncResult.created} criada{syncResult.created !== 1 ? 's' : ''}, {syncResult.skipped} ignorada{syncResult.skipped !== 1 ? 's' : ''}, {syncResult.errors} erro{syncResult.errors !== 1 ? 's' : ''}
             </div>
           )}

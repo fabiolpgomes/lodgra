@@ -76,7 +76,7 @@ export default function BillingPage() {
     switch (status) {
       case 'active':
       case 'trialing':
-        return 'text-green-600'
+        return 'text-emerald-700'
       case 'past_due':
         return 'text-red-600'
       case 'canceled':
@@ -242,7 +242,7 @@ export default function BillingPage() {
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
                         <span
                           className={`px-2 py-1 rounded text-white text-xs font-medium ${
-                            invoice.status === 'paid' ? 'bg-green-600' : 'bg-yellow-600'
+                            invoice.status === 'paid' ? 'bg-emerald-700' : 'bg-yellow-600'
                           }`}
                         >
                           {invoice.status === 'paid' ? 'Pago' : 'Pendente'}

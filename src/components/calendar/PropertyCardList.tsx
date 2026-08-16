@@ -31,7 +31,7 @@ export function PropertyCardList({ properties, onSelectProperty }: PropertyCardL
         <div
           key={i}
           className={`w-2 h-2 rounded-full ${
-            isBooked ? 'bg-gray-400' : 'bg-green-500'
+            isBooked ? 'bg-gray-400' : 'bg-emerald-600'
           }`}
         />
       )

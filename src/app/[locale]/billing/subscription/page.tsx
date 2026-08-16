@@ -158,8 +158,8 @@ export default function SubscriptionPage() {
         )}
 
         {success && (
-          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-            <p className="text-green-700">{success}</p>
+          <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
+            <p className="text-emerald-800">{success}</p>
           </div>
         )}
 
@@ -200,7 +200,7 @@ export default function SubscriptionPage() {
                     {plan.features.map((feature, idx) => (
                       <li key={idx} className="flex items-start">
                         <svg
-                          className="w-5 h-5 text-green-600 mr-3 flex-shrink-0 mt-0.5"
+                          className="w-5 h-5 text-emerald-700 mr-3 flex-shrink-0 mt-0.5"
                           fill="currentColor"
                           viewBox="0 0 20 20"
                         >

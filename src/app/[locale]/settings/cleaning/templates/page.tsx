@@ -64,11 +64,11 @@ export default async function TemplatesPage() {
             </div>
           </div>
 
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex gap-3">
-            <Zap className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+          <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4 flex gap-3">
+            <Zap className="h-5 w-5 text-emerald-700 flex-shrink-0 mt-0.5" />
             <div className="text-sm">
-              <p className="font-semibold text-green-900">Reutilizável</p>
-              <p className="text-green-800 mt-1">
+              <p className="font-semibold text-emerald-900">Reutilizável</p>
+              <p className="text-emerald-800 mt-1">
                 Crie uma vez, use em múltiplas tarefas. Duplique para criar variações customizadas.
               </p>
             </div>

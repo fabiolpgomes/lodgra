@@ -366,9 +366,9 @@ export function BookingWidgetDesktop({
 
       {/* Trust */}
       <div className="space-y-1.5 text-[13px] text-brand-text-medium">
-        <p className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span>Sem comissões</p>
-        <p className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span>Pagamento seguro</p>
-        <p className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span>Confirmação instantânea</p>
+        <p className="flex items-center gap-2"><span className="text-emerald-700 font-bold">✓</span>Sem comissões</p>
+        <p className="flex items-center gap-2"><span className="text-emerald-700 font-bold">✓</span>Pagamento seguro</p>
+        <p className="flex items-center gap-2"><span className="text-emerald-700 font-bold">✓</span>Confirmação instantânea</p>
       </div>
     </div>
   )

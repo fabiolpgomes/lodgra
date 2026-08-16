@@ -222,12 +222,12 @@ export default function ResetPasswordConfirmPage() {
                 <div className="flex items-center gap-2">
                   <div
                     className={`h-2 w-2 rounded-full ${
-                      passwordStrength.hasLength ? 'bg-green-500' : 'bg-gray-300'
+                      passwordStrength.hasLength ? 'bg-emerald-600' : 'bg-gray-300'
                     }`}
                   />
                   <span
                     className={`text-xs ${
-                      passwordStrength.hasLength ? 'text-green-700' : 'text-gray-600'
+                      passwordStrength.hasLength ? 'text-emerald-800' : 'text-gray-600'
                     }`}
                   >
                     Mínimo 8 caracteres
@@ -236,12 +236,12 @@ export default function ResetPasswordConfirmPage() {
                 <div className="flex items-center gap-2">
                   <div
                     className={`h-2 w-2 rounded-full ${
-                      passwordStrength.hasUppercase ? 'bg-green-500' : 'bg-gray-300'
+                      passwordStrength.hasUppercase ? 'bg-emerald-600' : 'bg-gray-300'
                     }`}
                   />
                   <span
                     className={`text-xs ${
-                      passwordStrength.hasUppercase ? 'text-green-700' : 'text-gray-600'
+                      passwordStrength.hasUppercase ? 'text-emerald-800' : 'text-gray-600'
                     }`}
                   >
                     Incluir 1 letra maiúscula (A-Z)
@@ -250,12 +250,12 @@ export default function ResetPasswordConfirmPage() {
                 <div className="flex items-center gap-2">
                   <div
                     className={`h-2 w-2 rounded-full ${
-                      passwordStrength.hasNumber ? 'bg-green-500' : 'bg-gray-300'
+                      passwordStrength.hasNumber ? 'bg-emerald-600' : 'bg-gray-300'
                     }`}
                   />
                   <span
                     className={`text-xs ${
-                      passwordStrength.hasNumber ? 'text-green-700' : 'text-gray-600'
+                      passwordStrength.hasNumber ? 'text-emerald-800' : 'text-gray-600'
                     }`}
                   >
                     Incluir 1 número (0-9)

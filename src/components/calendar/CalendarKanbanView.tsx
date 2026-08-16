@@ -60,9 +60,9 @@ const STATUS_COLORS: Record<string, { bg: string; text: string; border: string }
     border: 'border-blue-200',
   },
   hosting: {
-    bg: 'bg-green-50',
-    text: 'text-green-900',
-    border: 'border-green-200',
+    bg: 'bg-emerald-50',
+    text: 'text-emerald-900',
+    border: 'border-emerald-200',
   },
   pending: {
     bg: 'bg-amber-50',

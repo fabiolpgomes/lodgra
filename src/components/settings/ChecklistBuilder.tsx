@@ -119,8 +119,8 @@ export function ChecklistBuilder({ initialTemplate }: ChecklistBuilderProps) {
       )}
 
       {success && (
-        <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-          <p className="text-sm text-green-800">
+        <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
+          <p className="text-sm text-emerald-800">
             {initialTemplate ? 'Modelo atualizado com sucesso!' : 'Modelo criado com sucesso!'}
           </p>
         </div>

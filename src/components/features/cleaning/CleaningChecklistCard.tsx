@@ -196,7 +196,7 @@ export function CleaningChecklistCard({ checklist, members = [], onUpdate, onDel
              {checklist.cleaner_id && (
                <button
                  onClick={() => setShowAccessLinkModal(true)}
-                 className="bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-400 p-4 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 hover:bg-green-200 transition-colors"
+                 className="bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-400 p-4 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 hover:bg-emerald-200 transition-colors"
                  title="Ver link de acesso do limpador"
                >
                  <Link2 className="h-4 w-4" />

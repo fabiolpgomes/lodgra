@@ -97,8 +97,8 @@ export function ChangePasswordSection() {
       </div>
 
       {success && (
-        <Alert className="mb-6 border-green-200 bg-green-50">
-          <AlertDescription className="text-green-800">
+        <Alert className="mb-6 border-emerald-200 bg-emerald-50">
+          <AlertDescription className="text-emerald-800">
             ✓ Senha alterada com sucesso!
           </AlertDescription>
         </Alert>

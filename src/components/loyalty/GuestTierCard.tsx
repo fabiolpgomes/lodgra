@@ -126,7 +126,7 @@ export function GuestTierCard({
               key={idx}
               className="text-xs text-gray-700 flex items-start gap-2"
             >
-              <span className="text-green-600 font-bold mt-0.5">✓</span>
+              <span className="text-emerald-700 font-bold mt-0.5">✓</span>
               <span>{perk}</span>
             </li>
           ))}

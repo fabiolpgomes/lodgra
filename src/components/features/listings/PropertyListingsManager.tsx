@@ -145,7 +145,7 @@ export function PropertyListingsManager({ propertyId }: { propertyId: string }) 
           {listings.length > 0 && (
             <div className="flex gap-4 mt-2">
               <span className="text-sm text-gray-600">
-                <span className="font-medium text-green-700">{activeListings} ativo{activeListings !== 1 ? 's' : ''}</span>
+                <span className="font-medium text-emerald-800">{activeListings} ativo{activeListings !== 1 ? 's' : ''}</span>
               </span>
               {inactiveListings > 0 && (
                 <span className="text-sm text-gray-600">
@@ -201,7 +201,7 @@ export function PropertyListingsManager({ propertyId }: { propertyId: string }) 
                 </div>
                 <div>
                   {listing.is_active ? (
-                    <Badge className="bg-green-100 text-green-800 border-green-300">
+                    <Badge className="bg-emerald-100 text-emerald-800 border-emerald-300">
                       ✓ Ativo
                     </Badge>
                   ) : (
@@ -235,7 +235,7 @@ export function PropertyListingsManager({ propertyId }: { propertyId: string }) 
                   size="sm"
                   onClick={() => toggleActive(listing.id, listing.is_active)}
                   className={listing.is_active
-                    ? 'text-green-700 border-green-300 hover:bg-green-50'
+                    ? 'text-emerald-800 border-emerald-300 hover:bg-emerald-50'
                     : 'text-gray-600 border-gray-300 hover:bg-gray-100'
                   }
                   title={listing.is_active ? 'Desativar' : 'Ativar'}

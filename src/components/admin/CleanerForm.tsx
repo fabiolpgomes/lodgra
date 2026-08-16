@@ -77,7 +77,7 @@ export default function CleanerForm({ organizationId, onSuccess }: CleanerFormPr
       <h2 className="text-xl font-semibold text-gray-800">{t('title')}</h2>
 
       {successMessage && (
-        <div className="p-4 bg-green-50 border border-green-200 rounded-lg text-green-800">
+        <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-800">
           {successMessage}
         </div>
       )}

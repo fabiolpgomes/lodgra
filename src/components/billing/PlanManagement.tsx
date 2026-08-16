@@ -18,7 +18,7 @@ const PLAN_LABELS: Record<Plan, string> = {
 }
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
-  active:    { label: 'Activa',       color: 'bg-green-100 text-green-800' },
+  active:    { label: 'Activa',       color: 'bg-emerald-100 text-emerald-800' },
   trial:     { label: 'Trial',        color: 'bg-brand-100 text-brand-800' },
   past_due:  { label: 'Pagamento em atraso', color: 'bg-red-100 text-red-800' },
   cancelled: { label: 'Cancelada',    color: 'bg-gray-100 text-gray-800' },
@@ -89,7 +89,7 @@ export function PlanManagement({ currentPlan, subscriptionStatus }: PlanManageme
 
       {/* Feedback */}
       {error && <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{error}</p>}
-      {success && <p className="text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg px-3 py-2">{success}</p>}
+      {success && <p className="text-sm text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2">{success}</p>}
 
       {/* Plan options */}
       <div className="space-y-2">

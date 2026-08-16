@@ -21,6 +21,8 @@ interface Fee {
   amount: number
 }
 
+type FormFee = Omit<Fee, 'amount'> & { amount: number | '' }
+
 interface TaxesCardProps {
   propertyId: string
   onUpdate?: () => void
@@ -31,7 +33,7 @@ export function TaxesCard({ propertyId, onUpdate }: TaxesCardProps) {
   const [loading, setLoading] = useState(true)
   const [showDialog, setShowDialog] = useState(false)
   const [editingIndex, setEditingIndex] = useState<number | null>(null)
-  const [formFees, setFormFees] = useState<Fee[]>([])
+  const [formFees, setFormFees] = useState<FormFee[]>([])
 
   useEffect(() => {
     loadFees()
@@ -40,13 +42,14 @@ export function TaxesCard({ propertyId, onUpdate }: TaxesCardProps) {
   const loadFees = async () => {
     try {
       setLoading(true)
-      // This would fetch from property fees endpoint
-      // For now, assuming fees are stored in property object
-      const response = await fetch(`/api/properties/${propertyId}`)
+      const response = await fetch(`/api/properties/${propertyId}/fees`)
+      if (!response.ok) throw new Error(`Failed to load fees (${response.status})`)
       const data = await response.json()
 
       if (data.success && data.data.fees) {
         setFees(data.data.fees)
+      } else if (data.success && Array.isArray(data.data)) {
+        setFees(data.data)
       }
     } catch (error) {
       console.error('Error loading fees:', error)
@@ -63,7 +66,7 @@ export function TaxesCard({ propertyId, onUpdate }: TaxesCardProps) {
   }
 
   const handleAddFee = () => {
-    setFormFees([...formFees, { name: '', amount: 0 }])
+    setFormFees([...formFees, { name: '', amount: '' }])
   }
 
   const handleRemoveFee = (index: number) => {
@@ -73,7 +76,11 @@ export function TaxesCard({ propertyId, onUpdate }: TaxesCardProps) {
   const handleFeeChange = (index: number, field: 'name' | 'amount', value: string | number) => {
     const updated = [...formFees]
     if (field === 'amount') {
-      updated[index].amount = typeof value === 'string' ? parseFloat(value) || 0 : value
+      updated[index].amount = value === ''
+        ? ''
+        : typeof value === 'string'
+          ? parseFloat(value) || 0
+          : value
     } else {
       updated[index].name = value as string
     }
@@ -88,26 +95,31 @@ export function TaxesCard({ propertyId, onUpdate }: TaxesCardProps) {
           toast.error('Nome da taxa é obrigatório')
           return
         }
-        if (fee.amount <= 0) {
+        if (typeof fee.amount !== 'number' || !Number.isFinite(fee.amount) || fee.amount <= 0) {
           toast.error('Valor da taxa deve ser maior que 0')
           return
         }
       }
 
-      // Save to backend (endpoint needs to be created)
+      const normalizedFees: Fee[] = formFees.map((fee) => ({
+        name: fee.name.trim(),
+        amount: fee.amount as number,
+      }))
+
       const response = await fetch(`/api/properties/${propertyId}/fees`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fees: formFees }),
+        body: JSON.stringify({ fees: normalizedFees }),
       })
 
-      if (response.ok) {
-        setFees(formFees)
+      const data = await response.json().catch(() => null)
+      if (response.ok && data?.success) {
+        setFees(normalizedFees)
         setShowDialog(false)
         toast.success('Taxas atualizadas')
         onUpdate?.()
       } else {
-        toast.error('Erro ao salvar taxas')
+        toast.error(data?.error || 'Erro ao salvar taxas')
       }
     } catch (error) {
       console.error('Error saving fees:', error)
@@ -163,7 +175,7 @@ export function TaxesCard({ propertyId, onUpdate }: TaxesCardProps) {
               >
                 <div className="flex-1">
                   <p className="font-medium text-sm text-[#1B2430]">{fee.name}</p>
-                  <p className="text-xs text-[#4D5566] mt-1">€{fee.amount.toFixed(2)}</p>
+                  <p className="text-xs text-[#4D5566] mt-1">{fee.amount.toFixed(2)}</p>
                 </div>
               </div>
             ))}
@@ -196,7 +208,7 @@ export function TaxesCard({ propertyId, onUpdate }: TaxesCardProps) {
                       />
                     </div>
                     <div>
-                      <Label className="text-xs mb-1 block text-[#1B2430]">Valor (€)</Label>
+                      <Label className="text-xs mb-1 block text-[#1B2430]">Valor</Label>
                       <Input
                         type="number"
                         value={fee.amount}

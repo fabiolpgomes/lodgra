@@ -153,7 +153,7 @@ export default async function LoyaltyDashboard() {
             <div className="flex justify-between items-start mb-4">
               <div>
                 <p className="text-gray-600 text-sm font-medium">Revenue Impact</p>
-                <p className="text-3xl font-bold text-green-600 mt-2">
+                <p className="text-3xl font-bold text-emerald-700 mt-2">
                   €{stats.revenue_impact_estimated.toFixed(2)}
                 </p>
               </div>

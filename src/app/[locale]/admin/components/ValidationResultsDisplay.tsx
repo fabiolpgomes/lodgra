@@ -7,8 +7,8 @@ interface ValidationResultsDisplayProps {
 }
 
 export function ValidationResultsDisplay({ result }: ValidationResultsDisplayProps) {
-  const statusColor = result.success ? 'text-green-600' : 'text-red-600'
-  const statusBg = result.success ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'
+  const statusColor = result.success ? 'text-emerald-700' : 'text-red-600'
+  const statusBg = result.success ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'
   const statusIcon = result.success ? '✅' : '❌'
 
   return (
@@ -73,7 +73,7 @@ export function ValidationResultsDisplay({ result }: ValidationResultsDisplayPro
             <span className="text-sm ml-1">{result.price.currency}</span>
           </div>
           {result.discount.hasDiscount && (
-            <p className="text-xs text-green-600 mt-1">
+            <p className="text-xs text-emerald-700 mt-1">
               -{result.discount.discountPercentage}%
             </p>
           )}
@@ -82,7 +82,7 @@ export function ValidationResultsDisplay({ result }: ValidationResultsDisplayPro
 
       {/* Discounts */}
       {result.discount.hasDiscount && (
-        <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4">
+        <div className="bg-emerald-50 border-2 border-emerald-200 rounded-lg p-4">
           <div className="text-sm font-semibold flex items-center gap-2">
             <span>✅</span>
             Desconto Aplicado
@@ -100,7 +100,7 @@ export function ValidationResultsDisplay({ result }: ValidationResultsDisplayPro
             </div>
             <div className="flex justify-between">
               <span>Economia:</span>
-              <span className="font-medium text-green-600">
+              <span className="font-medium text-emerald-700">
                 {result.price.currency}{(result.discount.originalPrice - result.discount.discountedPrice).toFixed(2)}
               </span>
             </div>
@@ -111,7 +111,7 @@ export function ValidationResultsDisplay({ result }: ValidationResultsDisplayPro
 
       {/* Minimum Nights */}
       <div
-        className={`border-2 rounded-lg p-4 ${result.minimumNights.passed ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}
+        className={`border-2 rounded-lg p-4 ${result.minimumNights.passed ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'}`}
       >
         <div className="text-sm font-semibold flex items-center gap-2">
           <span>{result.minimumNights.passed ? '✅' : '❌'}</span>

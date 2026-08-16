@@ -130,7 +130,7 @@ export function CheckoutForm({
                 i + 1 === stepNumber
                   ? 'bg-brand-blue text-white'
                   : i + 1 < stepNumber
-                  ? 'bg-green-500 text-white'
+                  ? 'bg-emerald-600 text-white'
                   : 'bg-brand-white text-brand-text-medium border border-brand-gold/15'
               }`}
             >

@@ -241,7 +241,7 @@ export function ReviewsManager({ propertyId }: ReviewsManagerProps) {
                       </span>
                     )}
                     {savedId === review.id && (
-                      <span className="text-xs text-green-600 font-medium">✓ Guardado</span>
+                      <span className="text-xs text-emerald-700 font-medium">✓ Guardado</span>
                     )}
                   </div>
                   {review.review_text && (

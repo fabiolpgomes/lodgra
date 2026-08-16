@@ -76,8 +76,8 @@ export function Step3ICalSetup({ propertyId, onFinish, checkoutLoading, checkout
     return (
       <div className="text-center py-8">
         <div className="flex justify-center mb-6">
-          <div className="p-4 bg-green-100 rounded-full">
-            <CheckCircle className="h-10 w-10 text-green-600" />
+          <div className="p-4 bg-emerald-100 rounded-full">
+            <CheckCircle className="h-10 w-10 text-emerald-700" />
           </div>
         </div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Tudo configurado!</h2>

@@ -150,7 +150,7 @@ export function BenchmarkReport({
 
         <button
           onClick={handleExportCSV}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-md transition-colors"
         >
           <Download className="w-4 h-4" />
           Export CSV
@@ -251,7 +251,7 @@ export function BenchmarkReport({
             {sortedCompetitors.map((comp) => {
               const currentPrice = comp.lastScrapedPrice || 0;
               const vsMarket = currentPrice - analysis.marketAveragePrice;
-              const vsMarketColor = vsMarket > 0 ? 'text-red-600' : 'text-green-600';
+              const vsMarketColor = vsMarket > 0 ? 'text-red-600' : 'text-emerald-700';
 
               return (
                 <tr key={comp.id} className="hover:bg-slate-50 dark:hover:bg-slate-900">
@@ -266,7 +266,7 @@ export function BenchmarkReport({
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div
-                      className={`text-sm font-semibold ${comp.percentageChange > 0 ? 'text-red-600' : comp.percentageChange < 0 ? 'text-green-600' : 'text-slate-600 dark:text-slate-400'}`}
+                      className={`text-sm font-semibold ${comp.percentageChange > 0 ? 'text-red-600' : comp.percentageChange < 0 ? 'text-emerald-700' : 'text-slate-600 dark:text-slate-400'}`}
                     >
                       €{comp.priceChange.toFixed(2)} ({comp.percentageChange.toFixed(1)}%)
                     </div>
@@ -280,7 +280,7 @@ export function BenchmarkReport({
                         comp.trend === 'up'
                           ? 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
                           : comp.trend === 'down'
-                            ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
+                            ? 'bg-emerald-100 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-200'
                             : 'bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-200'
                       }`}
                     >

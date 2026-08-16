@@ -61,7 +61,7 @@ export function StatisticsCards({ data }: StatisticsCardsProps) {
           }
           icon={
             isUpward ? (
-              <TrendingUp className="text-green-600 dark:text-green-400" />
+              <TrendingUp className="text-emerald-700 dark:text-emerald-400" />
             ) : isDownward ? (
               <TrendingDown className="text-red-600 dark:text-red-400" />
             ) : (

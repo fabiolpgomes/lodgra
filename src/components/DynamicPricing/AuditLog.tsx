@@ -261,7 +261,7 @@ export function AuditLog({ propertyId, entries = [], onExport }: AuditLogProps) 
                     <div
                       className={`font-semibold ${
                         entry.change > 0
-                          ? 'text-green-600'
+                          ? 'text-emerald-700'
                           : entry.change < 0
                             ? 'text-red-600'
                             : 'text-slate-600 dark:text-slate-400'

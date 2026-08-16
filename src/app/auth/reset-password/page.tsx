@@ -58,8 +58,8 @@ export default function ResetPasswordPage() {
 
           {/* Success Card */}
           <div className="bg-white rounded-xl shadow-xl p-8 text-center">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <CheckCircle className="h-8 w-8 text-green-600" />
+            <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <CheckCircle className="h-8 w-8 text-emerald-700" />
             </div>
 
             <h2 className="text-2xl font-bold text-gray-900 mb-2">

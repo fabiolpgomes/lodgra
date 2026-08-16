@@ -669,7 +669,7 @@ export default function NewReservationPage() {
                   min="0"
                   placeholder="0.00"
                   defaultValue={calculatedPrice ? calculatedPrice.toString() : ""}
-                  className={calculatedPrice ? 'bg-green-50 border-green-300' : ''}
+                  className={calculatedPrice ? 'bg-emerald-50 border-emerald-300' : ''}
                 />
                 {priceCalculating && (
                   <div className="flex items-center gap-1 text-sm text-blue-600 animate-pulse">
@@ -679,8 +679,8 @@ export default function NewReservationPage() {
                 )}
               </div>
               {calculatedPrice ? (
-                <div className="bg-green-50 border border-green-200 rounded px-3 py-2 mt-2">
-                  <p className="text-sm font-semibold text-green-800">
+                <div className="bg-emerald-50 border border-emerald-200 rounded px-3 py-2 mt-2">
+                  <p className="text-sm font-semibold text-emerald-800">
                     ✓ Preço calculado: {getCurrencySymbol((properties.find(p => p.id === selectedProperty)?.currency || 'EUR') as CurrencyCode)}{calculatedPrice.toFixed(2)}
                   </p>
                 </div>

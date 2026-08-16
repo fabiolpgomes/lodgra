@@ -96,7 +96,7 @@ export default function TaskHistory({ taskId, isOpen, onClose }: TaskHistoryProp
   const getActionColor = (action: string) => {
     switch (action) {
       case 'created':
-        return 'bg-green-50 border-green-200';
+        return 'bg-emerald-50 border-emerald-200';
       case 'updated':
         return 'bg-blue-50 border-blue-200';
       case 'deleted':
@@ -180,7 +180,7 @@ export default function TaskHistory({ taskId, isOpen, onClose }: TaskHistoryProp
                               {' → '}
                             </>
                           )}
-                          <span className="text-green-600">{entry.new_value}</span>
+                          <span className="text-emerald-700">{entry.new_value}</span>
                         </p>
                       )}
 

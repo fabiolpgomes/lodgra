@@ -202,7 +202,7 @@ export function EditReservationForm({ reservation, onClose, onSave }: EditReserv
             <Button
               type="submit"
               disabled={loading}
-              className="bg-green-600 hover:bg-green-700 text-white"
+              className="bg-emerald-700 hover:bg-emerald-800 text-white"
             >
               <Save className="h-4 w-4 mr-2" />
               {loading ? 'Salvando...' : 'Salvar Mudanças'}

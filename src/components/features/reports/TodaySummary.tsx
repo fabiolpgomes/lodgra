@@ -106,7 +106,7 @@ export function TodaySummary({
     if (totalProperties > 0) {
       statusPercent = (occupiedProperties / totalProperties) * 100
       if (statusPercent === 100) {
-        statusColor = 'bg-green-50 border-green-200'
+        statusColor = 'bg-emerald-50 border-emerald-200'
         statusLabel = 'Lotado'
       } else if (statusPercent >= 50) {
         statusColor = 'bg-yellow-50 border-yellow-200'
@@ -165,7 +165,7 @@ export function TodaySummary({
             <Home className="h-4 w-4" />
             Disponíveis
           </div>
-          <p className="mt-2 text-2xl font-bold text-green-600">
+          <p className="mt-2 text-2xl font-bold text-emerald-700">
             {summary.availableProperties}
           </p>
         </div>

@@ -197,7 +197,7 @@ export function PublicContactSettings({ organizationId, initialProfile }: Props)
         </label>
       </div>
 
-      {message && <p className="text-sm font-medium text-green-700">{message}</p>}
+      {message && <p className="text-sm font-medium text-emerald-800">{message}</p>}
       {error && <p className="text-sm font-medium text-red-700">{error}</p>}
 
       <button

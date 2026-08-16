@@ -93,7 +93,7 @@ export default async function BookingConfirmedPage({ params, searchParams }: Pag
 
       <main className="max-w-lg mx-auto px-4 sm:px-6 py-12 text-center">
         <div className="flex justify-center mb-4">
-          <CheckCircle2 className="h-16 w-16 text-green-500" />
+          <CheckCircle2 className="h-16 w-16 text-emerald-600" />
         </div>
 
         <h1 className="text-2xl font-bold text-brand-text-dark mb-2">Reserva confirmada!</h1>

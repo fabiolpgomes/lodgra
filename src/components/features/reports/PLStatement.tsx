@@ -31,7 +31,7 @@ function PLRow({
   note?: string
 }) {
   const colorMap = {
-    positive: 'text-green-700',
+    positive: 'text-emerald-800',
     negative: 'text-red-700',
     subtotal: 'text-brand-700',
     total: 'text-gray-900',
@@ -142,7 +142,7 @@ export function PLStatement({
           const margin = net > 0 ? (profit / net) * 100 : 0
 
           const marginColor =
-            margin >= 30 ? 'bg-green-100 text-green-800' :
+            margin >= 30 ? 'bg-emerald-100 text-emerald-800' :
             margin >= 10 ? 'bg-yellow-100 text-yellow-800' :
             'bg-red-100 text-red-800'
 
@@ -199,10 +199,10 @@ export function PLStatement({
                 />
 
                 {/* Lucro Líquido */}
-                <div className={`flex items-center justify-between py-4 border-t-2 ${profit >= 0 ? 'border-green-600' : 'border-red-600'} mt-2`}>
+                <div className={`flex items-center justify-between py-4 border-t-2 ${profit >= 0 ? 'border-emerald-700' : 'border-red-600'} mt-2`}>
                   <div className="flex items-center gap-3">
                     {profit >= 0 ? (
-                      <TrendingUp className="h-5 w-5 text-green-600" />
+                      <TrendingUp className="h-5 w-5 text-emerald-700" />
                     ) : (
                       <TrendingDown className="h-5 w-5 text-red-600" />
                     )}
@@ -213,7 +213,7 @@ export function PLStatement({
                       </span>
                     )}
                   </div>
-                  <p className={`text-xl font-bold ${profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  <p className={`text-xl font-bold ${profit >= 0 ? 'text-emerald-700' : 'text-red-600'}`}>
                     {formatCurrency(profit, currency as CurrencyCode)}
                   </p>
                 </div>

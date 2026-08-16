@@ -2,7 +2,7 @@ import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
 
 const BADGE_COLORS: Record<string, string> = {
   EUR: 'bg-brand-50 text-brand-700 ring-brand-200',
-  BRL: 'bg-green-50 text-green-700 ring-green-200',
+  BRL: 'bg-emerald-50 text-emerald-800 ring-emerald-200',
   USD: 'bg-yellow-50 text-yellow-700 ring-yellow-200',
   GBP: 'bg-purple-50 text-purple-700 ring-purple-200',
 }

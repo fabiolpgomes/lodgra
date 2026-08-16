@@ -229,17 +229,17 @@ export function SyncPanel({ properties, listings }: SyncPanelProps) {
               <div
                 className={`p-4 rounded-lg ${
                   syncResult.success
-                    ? 'bg-green-50 border border-green-200'
+                    ? 'bg-emerald-50 border border-emerald-200'
                     : 'bg-red-50 border border-red-200'
                 }`}
               >
                 <div className="flex items-start gap-2 mb-2">
                   {syncResult.success ? (
-                    <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                    <CheckCircle className="h-5 w-5 text-emerald-700 flex-shrink-0 mt-0.5" />
                   ) : (
                     <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
                   )}
-                  <p className={`text-sm font-medium ${syncResult.success ? 'text-green-800' : 'text-red-800'}`}>
+                  <p className={`text-sm font-medium ${syncResult.success ? 'text-emerald-800' : 'text-red-800'}`}>
                     {syncResult.message}
                   </p>
                 </div>
@@ -248,7 +248,7 @@ export function SyncPanel({ properties, listings }: SyncPanelProps) {
                 {syncResult.data?.results && syncResult.data.results.length > 0 && (
                   <div className="mt-3 space-y-1 ml-7">
                     {syncResult.data.results.map((r) => (
-                      <div key={r.property_id} className="text-sm text-green-700 flex items-center justify-between">
+                      <div key={r.property_id} className="text-sm text-emerald-800 flex items-center justify-between">
                         <span className="font-medium">{r.property_name}</span>
                         <span>
                           {r.created} nova(s), {r.updated} atualizada(s), {r.skipped} ignorada(s){r.cancelled && r.cancelled > 0 ? `, ${r.cancelled} cancelada(s)` : ''}
@@ -276,7 +276,7 @@ export function SyncPanel({ properties, listings }: SyncPanelProps) {
       {/* Export Section */}
       <div className="bg-white rounded-lg shadow p-6">
         <div className="flex items-center gap-2 mb-4">
-          <Download className="h-5 w-5 text-green-600" />
+          <Download className="h-5 w-5 text-emerald-700" />
           <h3 className="text-lg font-semibold text-gray-900">Exportar Calendário</h3>
         </div>
 
@@ -315,7 +315,7 @@ export function SyncPanel({ properties, listings }: SyncPanelProps) {
                     <a
                       href={exportUrl}
                       download
-                      className="inline-flex items-center justify-center px-3 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                      className="inline-flex items-center justify-center px-3 py-2 text-sm bg-emerald-700 text-white rounded-lg hover:bg-emerald-800 transition-colors"
                     >
                       <Download className="h-4 w-4" />
                     </a>
@@ -354,7 +354,7 @@ export function SyncPanel({ properties, listings }: SyncPanelProps) {
                   </div>
 
                   {listing.sync_enabled ? (
-                    <Badge variant="secondary" className="bg-green-100 text-green-800">
+                    <Badge variant="secondary" className="bg-emerald-100 text-emerald-800">
                       Ativo
                     </Badge>
                   ) : (

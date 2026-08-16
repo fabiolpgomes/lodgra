@@ -139,7 +139,7 @@ function ConnectForm({
       )}
 
       {success && (
-        <div className="flex items-center gap-2 text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg p-3">
+        <div className="flex items-center gap-2 text-sm text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-lg p-3">
           <CheckCircle className="h-4 w-4 flex-shrink-0" />
           <span>Canal ligado com sucesso! A sincronização inicial irá importar os últimos 90 dias.</span>
         </div>
@@ -275,7 +275,7 @@ export function ChannelsClient({ listings, existingConfigs }: ChannelsClientProp
                     <p className="text-xs text-gray-600">
                       Último sync: {formatRelativeTime(config.last_synced_at)}
                       {config.sync_count > 0 && (
-                        <span className="ml-1 text-green-700 font-medium">
+                        <span className="ml-1 text-emerald-800 font-medium">
                           · {config.sync_count} reservas importadas
                         </span>
                       )}
@@ -288,7 +288,7 @@ export function ChannelsClient({ listings, existingConfigs }: ChannelsClientProp
 
               <div className="flex items-center gap-2 flex-shrink-0">
                 {isConnected ? (
-                  <span className="inline-flex items-center gap-1 text-xs font-medium text-green-700 bg-green-50 border border-green-200 rounded-full px-2.5 py-1">
+                  <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-full px-2.5 py-1">
                     <CheckCircle className="h-3 w-3" />
                     Ligado
                   </span>

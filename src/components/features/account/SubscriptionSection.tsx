@@ -26,7 +26,7 @@ export function SubscriptionSection({
   const isActive = subscriptionStatus === 'active'
 
   const statusColor = {
-    active: 'bg-green-100 text-green-800',
+    active: 'bg-emerald-100 text-emerald-800',
     cancelled: 'bg-red-100 text-red-800',
     past_due: 'bg-yellow-100 text-yellow-800',
     trial: 'bg-brand-100 text-brand-800',

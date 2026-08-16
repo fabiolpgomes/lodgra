@@ -129,7 +129,7 @@ export default async function UsersPage({
                                 : profile.role === 'viewer'
                                 ? 'bg-gray-100 text-gray-800'
                                 : profile.role === 'guest'
-                                ? 'bg-green-100 text-green-800'
+                                ? 'bg-emerald-100 text-emerald-800'
                                 : 'bg-gray-100 text-gray-800'
                             }
                           >
@@ -144,7 +144,7 @@ export default async function UsersPage({
                       </td>
                       <td className="px-4 sm:px-6 py-4">
                         {profile.access_all_properties ? (
-                          <Badge className="bg-green-100 text-green-800 inline-flex items-center gap-1">
+                          <Badge className="bg-emerald-100 text-emerald-800 inline-flex items-center gap-1">
                             <Shield className="h-3 w-3" />
                             Todas
                           </Badge>

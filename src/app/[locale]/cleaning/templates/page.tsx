@@ -206,7 +206,7 @@ export default function TemplatesPage() {
                       {template.name}
                     </h3>
                     {template.is_default && (
-                      <span className="inline-block px-2 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">
+                      <span className="inline-block px-2 py-1 bg-emerald-100 text-emerald-800 text-xs font-semibold rounded-full">
                         Padrão
                       </span>
                     )}

@@ -107,7 +107,7 @@ export function ConsentManagement() {
           )}
         </div>
         <div className="flex items-center gap-3 ml-4">
-          <span className={`text-xs font-medium ${localAnalytics ? 'text-green-600' : 'text-red-500'}`}>
+          <span className={`text-xs font-medium ${localAnalytics ? 'text-emerald-700' : 'text-red-500'}`}>
             {localAnalytics ? t('settings.accepted') : t('settings.declined')}
           </span>
           <button
@@ -136,7 +136,7 @@ export function ConsentManagement() {
             {t('settings.essentialDescription') || t('banner.essentialDescription')}
           </p>
         </div>
-        <span className="text-xs text-green-600 font-medium ml-4">{t('settings.alwaysActive') || t('banner.alwaysActive')}</span>
+        <span className="text-xs text-emerald-700 font-medium ml-4">{t('settings.alwaysActive') || t('banner.alwaysActive')}</span>
       </div>
     </div>
   )

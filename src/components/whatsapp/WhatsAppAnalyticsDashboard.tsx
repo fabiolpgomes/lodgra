@@ -136,7 +136,7 @@ export default function WhatsAppAnalyticsDashboard() {
               <span className="w-24 text-sm">{day.date}</span>
               <div className="flex-1 h-6 bg-gray-100 rounded relative">
                 <div
-                  className="h-full bg-green-500 rounded"
+                  className="h-full bg-emerald-600 rounded"
                   style={{
                     width: `${(day.successful / Math.max(...analytics.trend.map((d) => d.sent))) * 100}%`,
                   }}
@@ -173,7 +173,7 @@ function SummaryCard({
   icon?: string;
 }) {
   const colors = {
-    green: 'bg-green-50 border-green-200',
+    green: 'bg-emerald-50 border-emerald-200',
     blue: 'bg-blue-50 border-blue-200',
     purple: 'bg-purple-50 border-purple-200',
     gray: 'bg-gray-50 border-gray-200',

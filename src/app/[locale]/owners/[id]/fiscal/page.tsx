@@ -262,7 +262,7 @@ export default function OwnerFiscalPage() {
                             <td className="px-6 py-4 text-right text-sm text-gray-900">
                               {formatCurrency(prop.totalRevenue, propCurrency)}
                             </td>
-                            <td className="px-6 py-4 text-right text-sm text-green-700">
+                            <td className="px-6 py-4 text-right text-sm text-emerald-800">
                               {prop.deductibleExpenses > 0
                                 ? `− ${formatCurrency(prop.deductibleExpenses, propCurrency)}`
                                 : '—'}
@@ -280,7 +280,7 @@ export default function OwnerFiscalPage() {
                         <td className="px-6 py-4 text-right text-sm font-bold text-gray-900">
                           {formatCurrency(data.summary.totalRevenue, currency)}
                         </td>
-                        <td className="px-6 py-4 text-right text-sm font-bold text-green-700">
+                        <td className="px-6 py-4 text-right text-sm font-bold text-emerald-800">
                           {data.summary.deductibleExpenses > 0
                             ? `− ${formatCurrency(data.summary.deductibleExpenses, currency)}`
                             : '—'}
@@ -299,9 +299,9 @@ export default function OwnerFiscalPage() {
                     <p className="text-xs text-gray-600 uppercase font-medium mb-1">Rendas Totais</p>
                     <p className="text-xl font-bold text-[color:var(--be-blue-hover)]">{formatCurrency(data.summary.totalRevenue, currency)}</p>
                   </div>
-                  <div className="bg-green-50 rounded-lg p-4 text-center">
+                  <div className="bg-emerald-50 rounded-lg p-4 text-center">
                     <p className="text-xs text-gray-600 uppercase font-medium mb-1">Deduções Cat. F</p>
-                    <p className="text-xl font-bold text-green-700">{formatCurrency(data.summary.deductibleExpenses, currency)}</p>
+                    <p className="text-xl font-bold text-emerald-800">{formatCurrency(data.summary.deductibleExpenses, currency)}</p>
                   </div>
                   <div className="bg-purple-50 rounded-lg p-4 text-center">
                     <p className="text-xs text-gray-600 uppercase font-medium mb-1">Líquido Tributável</p>

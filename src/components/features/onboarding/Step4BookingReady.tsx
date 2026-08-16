@@ -20,8 +20,8 @@ export function Step4BookingReady({ orgName, orgSlug, onDashboard, dashboardLoad
   return (
     <div className="text-center">
       <div className="flex justify-center mb-6">
-        <div className="p-4 bg-green-100 rounded-full">
-          <CheckCircle2 className="h-10 w-10 text-green-600" />
+        <div className="p-4 bg-emerald-100 rounded-full">
+          <CheckCircle2 className="h-10 w-10 text-emerald-700" />
         </div>
       </div>
 
@@ -32,9 +32,9 @@ export function Step4BookingReady({ orgName, orgSlug, onDashboard, dashboardLoad
         {orgName || 'Sua empresa'} já tem um canal direto para receber reservas sem depender apenas das OTAs.
       </p>
 
-      <div className="rounded-xl border border-green-100 bg-green-50 p-4 text-left mb-6">
-        <p className="text-sm font-semibold text-green-950 mb-2">Link público da empresa</p>
-        <p className="font-mono text-sm text-green-800 break-all">{bookingUrl}</p>
+      <div className="rounded-xl border border-emerald-100 bg-emerald-50 p-4 text-left mb-6">
+        <p className="text-sm font-semibold text-emerald-950 mb-2">Link público da empresa</p>
+        <p className="font-mono text-sm text-emerald-800 break-all">{bookingUrl}</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">

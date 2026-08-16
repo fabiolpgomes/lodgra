@@ -33,7 +33,7 @@ const platformColors = {
   airbnb: 'bg-red-50 border-red-200',
   booking: 'bg-yellow-50 border-yellow-200',
   vrbo: 'bg-purple-50 border-purple-200',
-  flatio: 'bg-green-50 border-green-200',
+  flatio: 'bg-emerald-50 border-emerald-200',
 }
 
 const platformIcons = {
@@ -173,7 +173,7 @@ export function MultiPlatformDashboard({ properties }: { properties: Array<{ id:
             <Card>
               <div className="p-4">
                 <p className="text-sm text-be-text-muted">Total Bookings</p>
-                <p className="text-2xl font-bold text-green-600 mt-1">
+                <p className="text-2xl font-bold text-emerald-700 mt-1">
                   {data.totalBookings.toLocaleString()}
                 </p>
               </div>
@@ -199,7 +199,7 @@ export function MultiPlatformDashboard({ properties }: { properties: Array<{ id:
                       {platformIcons[platform.platform as keyof typeof platformIcons]} {platform.platform}
                     </h3>
                     {platform.trend === 'up' ? (
-                      <TrendingUp className="w-4 h-4 text-green-600" />
+                      <TrendingUp className="w-4 h-4 text-emerald-700" />
                     ) : platform.trend === 'down' ? (
                       <TrendingDown className="w-4 h-4 text-red-600" />
                     ) : null}
@@ -311,7 +311,7 @@ export function MultiPlatformDashboard({ properties }: { properties: Array<{ id:
 
               <div className="p-4 space-y-2">
                 {data.recommendations.map((rec, idx) => (
-                  <div key={idx} className="flex items-start gap-3 p-3 bg-green-50 rounded-lg">
+                  <div key={idx} className="flex items-start gap-3 p-3 bg-emerald-50 rounded-lg">
                     <span className="text-lg mt-1">✨</span>
                     <p className="text-sm text-be-text-muted-800">{rec}</p>
                   </div>

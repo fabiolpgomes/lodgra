@@ -62,7 +62,7 @@ export default function ReviewDecisionForm({ reservationId, token, totalAmount }
         <label className="block text-sm font-medium mb-3">Decisão</label>
         <div className="space-y-3">
           {[
-            { value: 'APPROVED' as const, label: '✅ Reembolso Completo (100%)', color: 'border-green-300 bg-green-50' },
+            { value: 'APPROVED' as const, label: '✅ Reembolso Completo (100%)', color: 'border-emerald-300 bg-emerald-50' },
             { value: 'PARTIAL' as const, label: '⚠️ Reembolso Parcial (50%)', color: 'border-yellow-300 bg-yellow-50' },
             { value: 'DENIED' as const, label: '❌ Sem Reembolso', color: 'border-red-300 bg-red-50' },
           ].map((option) => (

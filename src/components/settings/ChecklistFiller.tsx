@@ -210,7 +210,7 @@ export function ChecklistFiller({
                           )}
                         </div>
                         {isChecked && (
-                          <Check className="h-5 w-5 text-green-600 flex-shrink-0" />
+                          <Check className="h-5 w-5 text-emerald-700 flex-shrink-0" />
                         )}
                       </label>
 

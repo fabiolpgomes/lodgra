@@ -71,8 +71,8 @@ export function Step2Property({ onNext, onSkip, onContinueExisting, onboardingSe
   return (
     <div>
       <div className="flex justify-center mb-6">
-        <div className="p-4 bg-green-100 rounded-full">
-          <Home className="h-10 w-10 text-green-600" />
+        <div className="p-4 bg-emerald-100 rounded-full">
+          <Home className="h-10 w-10 text-emerald-700" />
         </div>
       </div>
 

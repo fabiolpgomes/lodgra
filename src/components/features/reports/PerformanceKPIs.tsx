@@ -41,7 +41,7 @@ export function PerformanceKPIs({
 
   const kpiData = useMemo(() => {
     const getOccupancyColor = (rate: number) => {
-      if (rate >= 70) return 'text-green-600'
+      if (rate >= 70) return 'text-emerald-700'
       if (rate >= 40) return 'text-yellow-600'
       return 'text-red-600'
     }

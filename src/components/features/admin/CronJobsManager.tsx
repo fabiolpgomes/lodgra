@@ -130,27 +130,27 @@ export function CronJobsManager() {
               <div
                 className={`mt-4 p-4 rounded-lg border ${
                   result.success
-                    ? 'bg-green-50 border-green-200'
+                    ? 'bg-emerald-50 border-emerald-200'
                     : 'bg-red-50 border-red-200'
                 }`}
               >
                 <div className="flex items-start gap-2 mb-2">
                   {result.success ? (
-                    <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />
+                    <CheckCircle className="h-5 w-5 text-emerald-700 flex-shrink-0" />
                   ) : (
                     <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0" />
                   )}
                   <div className="flex-1">
                     <p
                       className={`font-medium ${
-                        result.success ? 'text-green-900' : 'text-red-900'
+                        result.success ? 'text-emerald-900' : 'text-red-900'
                       }`}
                     >
                       {result.success ? 'Executado com sucesso!' : 'Erro na execução'}
                     </p>
                     <p
                       className={`text-sm mt-1 ${
-                        result.success ? 'text-green-700' : 'text-red-700'
+                        result.success ? 'text-emerald-800' : 'text-red-700'
                       }`}
                     >
                       {new Date(result.timestamp).toLocaleString('pt-BR')}

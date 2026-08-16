@@ -185,7 +185,7 @@ export function TroubleshootingDashboard({ properties }: { properties: Array<{ i
         <Card>
           <div className="p-4">
             <p className="text-sm text-be-text-muted">Indexed</p>
-            <p className="text-2xl font-bold text-green-600 mt-1">
+            <p className="text-2xl font-bold text-emerald-700 mt-1">
               {Array.from(diagnostics.values()).filter((d) => d.validation.indexationStatus === 'indexed').length}
             </p>
           </div>
@@ -240,9 +240,9 @@ export function TroubleshootingDashboard({ properties }: { properties: Array<{ i
 
                   <div className="flex items-center gap-2">
                     {validation.indexationStatus === 'indexed' ? (
-                      <div className="flex items-center gap-2 px-3 py-1 bg-green-50 rounded-full">
-                        <CheckCircle className="w-4 h-4 text-green-600" />
-                        <span className="text-sm font-medium text-green-600">Indexed</span>
+                      <div className="flex items-center gap-2 px-3 py-1 bg-emerald-50 rounded-full">
+                        <CheckCircle className="w-4 h-4 text-emerald-700" />
+                        <span className="text-sm font-medium text-emerald-700">Indexed</span>
                       </div>
                     ) : validation.indexationStatus === 'pending' ? (
                       <div className="flex items-center gap-2 px-3 py-1 bg-yellow-50 rounded-full">

@@ -7,7 +7,7 @@ import Link from 'next/link'
 const statusColors: Record<string, { bg: string; text: string; label: string; border: string }> = {
   pending: { bg: 'bg-gray-50', text: 'text-gray-700', label: 'Pendente', border: 'border-gray-200' },
   in_progress: { bg: 'bg-yellow-50', text: 'text-yellow-700', label: 'Em Progresso', border: 'border-yellow-200' },
-  done: { bg: 'bg-green-50', text: 'text-green-700', label: 'Concluída', border: 'border-green-200' },
+  done: { bg: 'bg-emerald-50', text: 'text-emerald-800', label: 'Concluída', border: 'border-emerald-200' },
   issue: { bg: 'bg-red-50', text: 'text-red-700', label: 'Problema', border: 'border-red-200' }
 }
 

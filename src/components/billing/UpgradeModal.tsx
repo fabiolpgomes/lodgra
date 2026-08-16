@@ -124,19 +124,19 @@ export function UpgradeModal({
               onUpgrade?.(targetPlan)
               handleClose()
             }}
-            className="w-full transform rounded-lg border-2 border-green-500 bg-green-50 p-4 text-left transition-all hover:border-green-600 hover:bg-green-100 active:scale-95"
+            className="w-full transform rounded-lg border-2 border-emerald-600 bg-emerald-50 p-4 text-left transition-all hover:border-emerald-700 hover:bg-emerald-100 active:scale-95"
           >
             <div className="flex items-start justify-between">
               <div>
-                <h3 className="font-semibold text-green-900">
+                <h3 className="font-semibold text-emerald-900">
                   Fazer Upgrade para {targetPlanInfo.name}
                 </h3>
-                <p className="mt-1 text-sm text-green-700">
+                <p className="mt-1 text-sm text-emerald-800">
                   Acesso completo • Mais funcionalidades
                 </p>
               </div>
               <div className="ml-2 flex-shrink-0">
-                <div className="rounded bg-green-200 px-2 py-1 text-xs font-semibold text-green-900">
+                <div className="rounded bg-emerald-200 px-2 py-1 text-xs font-semibold text-emerald-900">
                   R${targetPlanInfo.price}
                 </div>
               </div>

@@ -58,11 +58,11 @@ export default function InitializeTemplatesButton({ onComplete }: InitializeTemp
       </button>
 
       {status === 'success' && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex gap-2 items-start">
-          <Check className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+        <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3 flex gap-2 items-start">
+          <Check className="h-5 w-5 text-emerald-700 flex-shrink-0 mt-0.5" />
           <div className="text-sm">
-            <p className="font-semibold text-green-900">{message}</p>
-            <p className="text-green-800 text-xs mt-1">
+            <p className="font-semibold text-emerald-900">{message}</p>
+            <p className="text-emerald-800 text-xs mt-1">
               3 templates foram adicionados: Limpeza Padrão, Profunda e Rápida
             </p>
           </div>
