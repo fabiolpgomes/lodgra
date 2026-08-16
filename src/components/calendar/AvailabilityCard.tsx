@@ -66,7 +66,8 @@ export function AvailabilityCard({ propertyId, onUpdate }: AvailabilityCardProps
     try {
       setLoading(true)
       const response = await fetch(
-        `/api/properties/${propertyId}/availability/settings`
+        `/api/properties/${propertyId}/availability/settings`,
+        { credentials: 'include' }
       )
       const data = await response.json()
 
@@ -79,7 +80,7 @@ export function AvailabilityCard({ propertyId, onUpdate }: AvailabilityCardProps
         setWindowMonths(data.availabilityWindowMonths.toString())
         setAllowBeyondWindow(data.allowBookingsBeyondWindow)
       } else {
-        toast.error('Erro ao carregar configurações')
+        toast.error(data?.error || 'Erro ao carregar configurações')
       }
     } catch (error) {
       console.error('Error loading settings:', error)
@@ -117,6 +118,7 @@ export function AvailabilityCard({ propertyId, onUpdate }: AvailabilityCardProps
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify({
             minNights: minVal,
             maxNights: maxVal,

@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query'
 import { SettingsSidebar } from './SettingsSidebar'
+import { SettingsDrawer } from './SettingsDrawer'
 import { PropertyRail } from './PropertyRail'
 import { CalendarDayClickModal } from './CalendarDayClickModal'
 import { ReservationDetailsModal } from './ReservationDetailsModal'
@@ -75,6 +76,7 @@ function CalendarWithSettingsContent({
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear())
   const [showDiscountModal, setShowDiscountModal] = useState(false)
   const [showCancellationModal, setShowCancellationModal] = useState(false)
+  const [showSettings, setShowSettings] = useState(false)
   const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null)
   const [selectedBlocks, setSelectedBlocks] = useState<BlockedDate[]>([])
 
@@ -425,6 +427,18 @@ function CalendarWithSettingsContent({
         <PropertyRail activePropertyId={propertyId} locale={locale} />
         {/* Calendar - Mobile Full Width, Desktop Left */}
         <main className="min-w-0 flex-1 overflow-auto flex flex-col bg-white">
+          {/* Mobile Settings Button */}
+          <div className="flex items-center justify-between border-b border-[#E5DFD2] bg-[#FBFAF6] px-4 py-3 md:hidden">
+            <span className="text-sm font-medium text-[#1B2430]">Configurações</span>
+            <button
+              onClick={() => setShowSettings(true)}
+              className="flex h-10 w-10 items-center justify-center rounded-lg hover:bg-[#F0F0F0]"
+              aria-label="Abrir configurações"
+            >
+              ⚙️
+            </button>
+          </div>
+
           <CalendarComponent
             onDayClick={handleDayClick}
             onRangeSelect={handleRangeSelect}
@@ -439,8 +453,8 @@ function CalendarWithSettingsContent({
 
         </main>
 
-        {/* Settings Sidebar - Mobile Bottom Sheet, Desktop Right */}
-        <aside className="md:w-[380px] md:overflow-auto lg:w-[390px] lg:flex-none" style={{ borderTop: '1px solid #E5DFD2', borderLeft: '1px solid #E5DFD2', backgroundColor: '#FFFFFF' }}>
+        {/* Settings Sidebar - Desktop Only */}
+        <aside className="hidden md:flex md:w-[380px] md:overflow-auto lg:w-[390px] lg:flex-none flex-col" style={{ borderLeft: '1px solid #E5DFD2', backgroundColor: '#FFFFFF' }}>
           <SettingsSidebar
             key={propertyId}
             propertyId={propertyId}
@@ -450,6 +464,16 @@ function CalendarWithSettingsContent({
           />
         </aside>
       </div>
+
+      {/* Mobile Settings Drawer */}
+      <SettingsDrawer
+        isOpen={showSettings}
+        onClose={() => setShowSettings(false)}
+        propertyId={propertyId}
+        calendarMonth={currentMonth}
+        calendarYear={currentYear}
+        onUpdate={refetchData}
+      />
 
       {/* Reservation Details Modal */}
       <ReservationDetailsModal
