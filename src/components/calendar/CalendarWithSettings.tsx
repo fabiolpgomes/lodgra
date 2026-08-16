@@ -10,7 +10,6 @@ import { PropertyRail } from './PropertyRail'
 import { CalendarDayClickModal } from './CalendarDayClickModal'
 import { ReservationDetailsModal } from './ReservationDetailsModal'
 import { DiscountSelectionModal } from './DiscountSelectionModal'
-import { CancellationPolicyModal } from './CancellationPolicyModal'
 import { useCalendarSelection } from '@/hooks/useCalendarSelection'
 import { PropertyCancellationPolicy } from '@/types/cancellation.types'
 import {
@@ -76,7 +75,6 @@ function CalendarWithSettingsContent({
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth())
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear())
   const [showDiscountModal, setShowDiscountModal] = useState(false)
-  const [showCancellationModal, setShowCancellationModal] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
   const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null)
   const [selectedBlocks, setSelectedBlocks] = useState<BlockedDate[]>([])
@@ -427,14 +425,6 @@ function CalendarWithSettingsContent({
     setShowDiscountModal(true)
   }, [])
 
-  // Handle opening cancellation policy modal
-  const handleOpenCancellationPolicy = useCallback(() => {
-    void loadCancellationPolicies().catch((error) => {
-      console.error('Error refreshing cancellation policies:', error)
-    })
-    setShowCancellationModal(true)
-  }, [loadCancellationPolicies])
-
   const handleApplyCancellationPolicy = useCallback(async (policyId: string) => {
     const selected = [...selection.state.selectedDates].sort((a, b) => a.getTime() - b.getTime())
     if (selected.length === 0) throw new Error('No dates selected')
@@ -454,7 +444,6 @@ function CalendarWithSettingsContent({
       throw new Error(payload.error || 'Failed to apply cancellation policy')
     }
 
-    setShowCancellationModal(false)
     selection.clearSelection()
     try {
       await loadCancellationPolicies()
@@ -565,7 +554,8 @@ function CalendarWithSettingsContent({
           count: selectedBlocks.length,
         } : null}
         onOpenDiscounts={handleOpenDiscounts}
-        onOpenCancellationPolicy={handleOpenCancellationPolicy}
+        cancellationPolicies={cancellationPolicies}
+        onApplyCancellationPolicy={handleApplyCancellationPolicy}
       />
 
       {/* Discount Selection Modal */}
@@ -578,16 +568,6 @@ function CalendarWithSettingsContent({
         onApply={async () => {
           await refetchData()
         }}
-      />
-
-      {/* Cancellation Policy Modal */}
-      <CancellationPolicyModal
-        isOpen={showCancellationModal}
-        selectedDates={selection.state.selectedDates}
-        propertyId={propertyId}
-        policies={cancellationPolicies}
-        onClose={() => setShowCancellationModal(false)}
-        onApply={handleApplyCancellationPolicy}
       />
 
       {/* Mobile-specific styles */}

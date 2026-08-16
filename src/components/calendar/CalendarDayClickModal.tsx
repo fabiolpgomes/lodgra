@@ -15,6 +15,7 @@ import { Label } from '@/components/common/ui/label'
 import { toast } from 'sonner'
 import { CalendarDays } from 'lucide-react'
 import { CURRENCIES, formatCurrency, getCurrencySymbol, type CurrencyCode } from '@/lib/utils/currency'
+import { CancellationPolicyType, PropertyCancellationPolicy } from '@/types/cancellation.types'
 
 interface DateRange {
   start: Date
@@ -32,7 +33,8 @@ interface CalendarDayClickModalProps {
   onUnblockDates?: () => Promise<void>
   blockedDateInfo?: { reason: string; count: number } | null
   onOpenDiscounts?: () => void
-  onOpenCancellationPolicy?: () => void
+  cancellationPolicies?: PropertyCancellationPolicy[]
+  onApplyCancellationPolicy?: (policyId: string) => Promise<void>
 }
 
 export function CalendarDayClickModal({
@@ -46,11 +48,13 @@ export function CalendarDayClickModal({
   onUnblockDates,
   blockedDateInfo,
   onOpenDiscounts,
-  onOpenCancellationPolicy,
+  cancellationPolicies = [],
+  onApplyCancellationPolicy,
 }: CalendarDayClickModalProps) {
   const [price, setPrice] = useState('')
   const [blockReason, setBlockReason] = useState('')
   const [saving, setSaving] = useState(false)
+  const [selectedPolicy, setSelectedPolicy] = useState<string | null>(null)
   const [action, setAction] = useState<'price' | 'block' | 'discounts' | 'policy' | 'unblock' | null>(null)
 
   // If dates not ready, show loading state inside Dialog
@@ -95,8 +99,29 @@ export function CalendarDayClickModal({
   const handleClose = () => {
     setPrice('')
     setBlockReason('')
+    setSelectedPolicy(null)
     setAction(null)
     onClose()
+  }
+
+  const handleApplyCancellationPolicy = async () => {
+    if (!selectedPolicy || !onApplyCancellationPolicy) {
+      toast.error('Selecione uma política de cancelamento')
+      return
+    }
+
+    try {
+      setSaving(true)
+      await onApplyCancellationPolicy(selectedPolicy)
+      toast.success('Política aplicada com sucesso')
+      setSelectedPolicy(null)
+      setAction(null)
+    } catch (error) {
+      console.error('Error applying cancellation policy:', error)
+      toast.error('Erro ao aplicar política')
+    } finally {
+      setSaving(false)
+    }
   }
 
   const handleSavePrice = async () => {
@@ -241,14 +266,18 @@ export function CalendarDayClickModal({
                   </Button>
                   <Button
                     onClick={() => {
-                      onOpenCancellationPolicy?.()
-                      onClose()
+                      setAction('policy')
                     }}
                     variant="outline"
                     className="h-20 flex flex-col items-center justify-center gap-1"
                   >
                     <span className="text-2xl">📋</span>
-                    <span className="text-xs font-semibold">Cancelamento</span>
+                    <span className="text-center text-xs font-semibold leading-tight">
+                      Política de cancelamento
+                      <span className="mt-1 block text-[10px] font-normal text-[#697386]">
+                        Definir regra de reembolso
+                      </span>
+                    </span>
                   </Button>
                 </div>
               </>
@@ -415,7 +444,96 @@ export function CalendarDayClickModal({
             </DialogFooter>
           </>
         )}
+
+        {/* Cancellation Policy View */}
+        {action === 'policy' && (
+          <>
+            <DialogHeader>
+              <DialogTitle>Política de cancelamento</DialogTitle>
+              <DialogDescription>
+                {isSingleDay
+                  ? formatDate(dates)
+                  : `${formatDate(dateRange.start)} → ${formatDate(dateRange.end)} (${nights} noites)`}
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="max-h-96 space-y-3 overflow-y-auto py-4">
+              {cancellationPolicies.length === 0 ? (
+                <p className="rounded-lg border border-[#E5DFD2] p-4 text-sm text-[#697386]">
+                  Nenhuma política de cancelamento disponível.
+                </p>
+              ) : (
+                cancellationPolicies.map((policy) => (
+                  <label
+                    key={policy.id}
+                    className="flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-colors hover:bg-[#F7F5EF]"
+                    style={{
+                      borderColor: selectedPolicy === policy.id ? '#10203E' : '#E5DFD2',
+                      backgroundColor: selectedPolicy === policy.id ? '#F0F4F8' : 'transparent',
+                    }}
+                  >
+                    <input
+                      type="radio"
+                      name="calendar-cancellation-policy"
+                      checked={selectedPolicy === policy.id}
+                      onChange={() => setSelectedPolicy(policy.id)}
+                      className="mt-1 h-4 w-4"
+                      disabled={saving}
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p className="font-semibold text-[#1B2430]">{getCancellationPolicyLabel(policy)}</p>
+                      <p className="mt-1 text-xs text-[#697386]">
+                        {policy.is_long_stay ? 'Estadias de longa duração' : 'Estadias de curta duração'}
+                      </p>
+                      <div className="mt-2 space-y-1 text-xs text-[#4D5566]">
+                        <p>Reembolso integral até {policy.full_refund_days} dia(s) antes do check-in</p>
+                        {policy.partial_refund_days !== null && policy.partial_refund_percent !== null && (
+                          <p>{policy.partial_refund_percent}% de reembolso até {policy.partial_refund_days} dia(s) antes</p>
+                        )}
+                        {policy.policy_type === 'rigid' && !policy.is_long_stay && (
+                          <p>Desconto de {policy.non_refundable_discount_percent}% na tarifa não reembolsável</p>
+                        )}
+                      </div>
+                    </div>
+                  </label>
+                ))
+              )}
+            </div>
+
+            <DialogFooter className="grid grid-cols-2 gap-3">
+              <Button
+                onClick={() => setAction(null)}
+                variant="outline"
+                className="h-12"
+                disabled={saving}
+              >
+                Voltar
+              </Button>
+              <Button
+                onClick={() => void handleApplyCancellationPolicy()}
+                disabled={saving || !selectedPolicy || !onApplyCancellationPolicy}
+                className="h-12 text-white"
+                style={{ backgroundColor: '#10203E' }}
+              >
+                {saving ? 'Aplicando...' : 'Aplicar política'}
+              </Button>
+            </DialogFooter>
+          </>
+        )}
       </DialogContent>
     </Dialog>
   )
+}
+
+const cancellationPolicyLabels: Record<CancellationPolicyType, string> = {
+  flexible: 'Flexível',
+  moderate: 'Moderada',
+  limited: 'Limitada',
+  firm: 'Firme',
+  rigid: 'Rígida de longa duração',
+}
+
+function getCancellationPolicyLabel(policy: PropertyCancellationPolicy): string {
+  if (policy.policy_type === 'rigid' && !policy.is_long_stay) return 'Opção não reembolsável'
+  return cancellationPolicyLabels[policy.policy_type]
 }
