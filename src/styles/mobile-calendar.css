@@ -1220,3 +1220,109 @@
     padding: 8px;
   }
 }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/* LANDSCAPE ORIENTATION (Portrait-constrained heights) */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+@media (max-height: 500px) {
+  /* Landscape on mobile: reduce heights to prevent overflow */
+  .detailed-calendar-mobile {
+    height: auto;
+    max-height: 100vh;
+  }
+
+  .calendar-header-mobile {
+    min-height: 44px;
+    padding: 8px 16px;
+  }
+
+  .month-navigator {
+    min-height: 44px;
+    padding: 8px 16px;
+  }
+
+  .calendar-title {
+    font-size: 14px;
+  }
+
+  .month-year {
+    font-size: 14px;
+  }
+
+  .calendar-grid-mobile {
+    padding: 4px;
+    gap: 2px;
+    auto-rows: minmax(0, 1fr);
+    max-height: calc(100vh - 140px);
+  }
+
+  .day-cell {
+    height: 40px;
+    padding: 2px;
+    font-size: 12px;
+  }
+
+  .day-header {
+    height: 24px;
+    font-size: 10px;
+  }
+
+  .day-number {
+    font-size: 12px;
+  }
+
+  .booked-indicator {
+    font-size: 14px;
+  }
+
+  /* Tabs & content remain scrollable */
+  .tabs-nav {
+    padding: 0 8px;
+    gap: 4px;
+  }
+
+  .tab-button {
+    padding: 8px 12px;
+    font-size: 12px;
+    min-height: 40px;
+  }
+
+  .tab-content {
+    padding: 4px;
+    gap: 4px;
+  }
+
+  /* Settings cards shrink in landscape */
+  .price-card,
+  .discount-card,
+  .availability-card {
+    min-height: 48px;
+    padding: 8px;
+  }
+
+  .price-title,
+  .discount-title,
+  .availability-title {
+    font-size: 12px;
+  }
+
+  .amount {
+    font-size: 14px;
+  }
+
+  .percent {
+    font-size: 16px;
+  }
+}
+
+/* Ultra-wide landscape (iPad landscape) */
+@media (min-width: 1000px) and (max-height: 500px) {
+  .calendar-grid-mobile {
+    grid-template-columns: repeat(14, 1fr);
+  }
+
+  .day-cell {
+    height: 50px;
+  }
+}
