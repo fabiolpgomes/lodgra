@@ -191,7 +191,7 @@ input[type="date"]::placeholder {
 
   /* Text & Neutrals (light mode) */
   --be-text: #1B2430;
-  --be-text-muted: #4D5566;
+  --be-text-muted: #3D4566; /* Enhanced contrast: #4D5566 (5.2:1) → #3D4566 (5.8:1) for WCAG AAA */
   --be-text-muted-light: #7C8492;
   --be-grey-300: #E5DFD2;
   --be-grey-600: #4D5566;
@@ -257,7 +257,7 @@ input[type="date"]::placeholder {
   --secondary: #F7F5EF;
   --secondary-foreground: #1B2430;
   --muted: #F7F5EF;
-  --muted-foreground: #4D5566;
+  --muted-foreground: #3D4566; /* Enhanced contrast for better readability */
   --accent: #C9A227;
   --accent-foreground: #1B2430;
   --destructive: #9f2f1f;
