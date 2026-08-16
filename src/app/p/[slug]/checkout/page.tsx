@@ -1,10 +1,7 @@
 import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { CheckoutForm } from '@/components/common/public/CheckoutForm'
 import { Logo } from '@/components/common/ui/Logo'
-import { getPriceForRangePublic } from '@/lib/pricing/getPriceForRange'
-import { differenceInDays, parseISO, isValid, isBefore, startOfDay } from 'date-fns'
+import { CheckoutPageClient } from './CheckoutPageClient'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -12,55 +9,20 @@ export const metadata: Metadata = {
   robots: { index: false },
 }
 
+export const dynamic = 'force-dynamic'
+
 interface PageProps {
   params: Promise<{ slug: string }>
-  searchParams: Promise<{ checkin?: string; checkout?: string; guests?: string }>
 }
 
-export default async function CheckoutPage({ params, searchParams }: PageProps) {
+export default async function CheckoutPage({ params }: PageProps) {
   const { slug } = await params
-  const { checkin, checkout, guests: guestsParam } = await searchParams
 
-  // Validate query params — redirect back if invalid
-  if (!checkin || !checkout) {
-    console.error('Missing dates:', { checkin, checkout })
-    redirect(`/p/${slug}`)
-  }
-
-  console.log('Checkout dates received:', { checkin, checkout, slug })
-
-  const checkinDate = parseISO(checkin)
-  const checkoutDate = parseISO(checkout)
-  const today = startOfDay(new Date())
-
-  console.log('Parsed dates:', {
-    checkinDate: checkinDate.toISOString(),
-    checkoutDate: checkoutDate.toISOString(),
-    today: today.toISOString(),
-    isValidCheckin: isValid(checkinDate),
-    isValidCheckout: isValid(checkoutDate),
-    isBefore: isBefore(checkinDate, today),
-    daysDifference: differenceInDays(checkoutDate, checkinDate),
-  })
-
-  if (
-    !isValid(checkinDate) ||
-    !isValid(checkoutDate) ||
-    isBefore(checkinDate, today) ||
-    differenceInDays(checkoutDate, checkinDate) < 1
-  ) {
-    console.error('Date validation failed - redirecting back to property page')
-    redirect(`/p/${slug}`)
-  }
-
-  const nights = differenceInDays(checkoutDate, checkinDate)
-  const guests = Math.max(1, parseInt(guestsParam ?? '1') || 1)
-
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   const { data: property } = await supabase
     .from('properties')
-    .select('id, name, city, base_price, currency, is_public, slug, min_nights, max_guests, cleaning_fee, cleaning_fee_type, pet_fee, pet_fee_type')
+    .select('id, name, city, currency, is_public, slug, max_guests, cleaning_fee, cleaning_fee_type, pet_fee, pet_fee_type')
     .eq('slug', slug)
     .eq('is_public', true)
     .single()
@@ -68,51 +30,6 @@ export default async function CheckoutPage({ params, searchParams }: PageProps) 
   if (!property) {
     redirect('/')
   }
-
-  // Validate guests against property capacity
-  if (property.max_guests && guests > property.max_guests) {
-    redirect(`/p/${slug}?checkIn=${checkin}&checkOut=${checkout}&guests=${property.max_guests}`)
-  }
-
-  // Availability check: redirect back if dates are already taken
-  const adminClient = createAdminClient()
-  const { data: conflicts } = await adminClient
-    .from('reservations')
-    .select('id')
-    .eq('property_id', property.id)
-    .in('status', ['confirmed', 'pending_payment'])
-    .lt('check_in', checkout)
-    .gt('check_out', checkin)
-    .limit(1)
-
-  if ((conflicts ?? []).length > 0) {
-    redirect(`/p/${slug}?datesUnavailable=1`)
-  }
-
-  // Calculate price with pricing rules first (admin client bypasses RLS on public page)
-  const priceData = await getPriceForRangePublic(property.id, checkinDate, checkoutDate)
-
-  // Validate minimum stay using effective minNights (includes pricing rule overrides)
-  if (nights < priceData.minNights) {
-    redirect(`/p/${slug}?checkIn=${checkin}&checkOut=${checkout}&minNightsError=${priceData.minNights}`)
-  }
-
-  // Calculate fees
-  const cleaningFee = property.cleaning_fee ?? 0
-  const petFee = property.pet_fee ?? 0
-  const fees: { label: string; amount: number }[] = []
-
-  if (cleaningFee > 0) {
-    const amount = property.cleaning_fee_type === 'per_night' ? cleaningFee * nights : cleaningFee
-    fees.push({ label: 'Taxa de limpeza', amount })
-  }
-  if (petFee > 0) {
-    const amount = property.pet_fee_type === 'per_night' ? petFee * nights : petFee
-    fees.push({ label: 'Taxa de animais', amount })
-  }
-
-  const feesTotal = fees.reduce((sum, f) => sum + f.amount, 0)
-  const totalPrice = priceData.total + feesTotal
 
   return (
     <div className="min-h-screen bg-brand-bg">
@@ -127,18 +44,18 @@ export default async function CheckoutPage({ params, searchParams }: PageProps) 
 
       <main className="max-w-lg mx-auto px-4 sm:px-6 py-8">
         <h1 className="text-xl font-bold text-brand-text-dark mb-6">Finalizar Reserva</h1>
-
-        <CheckoutForm
+        <CheckoutPageClient
           slug={slug}
           propertyName={property.name}
           city={property.city ?? null}
-          checkin={checkin}
-          checkout={checkout}
-          guests={guests}
-          totalPrice={totalPrice}
-          accommodationTotal={priceData.total}
-          fees={fees}
           currency={property.currency ?? 'EUR'}
+          maxGuests={property.max_guests ?? null}
+          feeConfig={{
+            cleaningFee: property.cleaning_fee ?? null,
+            cleaningFeeType: property.cleaning_fee_type ?? null,
+            petFee: property.pet_fee ?? null,
+            petFeeType: property.pet_fee_type ?? null,
+          }}
         />
       </main>
 
