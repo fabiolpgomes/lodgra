@@ -65,7 +65,7 @@ export function DryRunPreview({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-2xl font-bold text-slate-900 dark:text-white">
+          <h3 className="text-2xl font-bold text-slate-900 dark:text-dark-text-primary">
             Prévia de Mudanças de Preço
           </h3>
           <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
@@ -80,7 +80,7 @@ export function DryRunPreview({
           <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">
             Total de Noites
           </p>
-          <p className="text-2xl font-bold text-slate-900 dark:text-white mt-2">
+          <p className="text-2xl font-bold text-slate-900 dark:text-dark-text-primary mt-2">
             {stats.total}
           </p>
         </div>
@@ -127,19 +127,19 @@ export function DryRunPreview({
         <table className="w-full text-sm">
           <thead className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
             <tr>
-              <th className="px-4 py-3 text-left font-semibold text-slate-900 dark:text-white">
+              <th className="px-4 py-3 text-left font-semibold text-slate-900 dark:text-dark-text-primary">
                 Data
               </th>
-              <th className="px-4 py-3 text-right font-semibold text-slate-900 dark:text-white">
+              <th className="px-4 py-3 text-right font-semibold text-slate-900 dark:text-dark-text-primary">
                 Preço Atual
               </th>
-              <th className="px-4 py-3 text-right font-semibold text-slate-900 dark:text-white">
+              <th className="px-4 py-3 text-right font-semibold text-slate-900 dark:text-dark-text-primary">
                 Preço Simulado
               </th>
-              <th className="px-4 py-3 text-right font-semibold text-slate-900 dark:text-white">
+              <th className="px-4 py-3 text-right font-semibold text-slate-900 dark:text-dark-text-primary">
                 Mudança
               </th>
-              <th className="px-4 py-3 text-center font-semibold text-slate-900 dark:text-white">
+              <th className="px-4 py-3 text-center font-semibold text-slate-900 dark:text-dark-text-primary">
                 Tipo
               </th>
             </tr>
@@ -147,13 +147,13 @@ export function DryRunPreview({
           <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
             {priceChanges.slice(0, 15).map((change) => (
               <tr key={change.date} className="hover:bg-slate-50 dark:hover:bg-slate-800">
-                <td className="px-4 py-3 text-slate-900 dark:text-white">
+                <td className="px-4 py-3 text-slate-900 dark:text-dark-text-primary">
                   {new Date(change.date).toLocaleDateString('pt-PT')}
                 </td>
-                <td className="px-4 py-3 text-right font-medium text-slate-900 dark:text-white">
+                <td className="px-4 py-3 text-right font-medium text-slate-900 dark:text-dark-text-primary">
                   €{change.currentPrice.toFixed(2)}
                 </td>
-                <td className="px-4 py-3 text-right font-bold text-slate-900 dark:text-white">
+                <td className="px-4 py-3 text-right font-bold text-slate-900 dark:text-dark-text-primary">
                   €{change.simulatedPrice.toFixed(2)}
                 </td>
                 <td className="px-4 py-3 text-right">

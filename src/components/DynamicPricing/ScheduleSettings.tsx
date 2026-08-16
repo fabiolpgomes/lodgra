@@ -85,7 +85,7 @@ export function ScheduleSettings({
     <div className="space-y-6 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
       {/* Header */}
       <div>
-        <h3 className="text-2xl font-bold text-slate-900 dark:text-white">
+        <h3 className="text-2xl font-bold text-slate-900 dark:text-dark-text-primary">
           Agendamento da Automação
         </h3>
         <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
@@ -131,7 +131,7 @@ export function ScheduleSettings({
         {/* Enable/Disable Toggle */}
         <div className="flex items-center justify-between p-4 border border-slate-200 dark:border-slate-700 rounded-lg">
           <div>
-            <p className="font-medium text-slate-900 dark:text-white">Ativar Automação</p>
+            <p className="font-medium text-slate-900 dark:text-dark-text-primary">Ativar Automação</p>
             <p className="text-sm text-slate-600 dark:text-slate-400">
               Permite que as regras sejam aplicadas automaticamente
             </p>
@@ -162,7 +162,7 @@ export function ScheduleSettings({
               value={localRunTime}
               onChange={(e) => setLocalRunTime(e.target.value)}
               disabled={!localEnabled}
-              className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-dark-text-primary disabled:opacity-50 disabled:cursor-not-allowed"
             />
             <span className="text-sm text-slate-600 dark:text-slate-400">
               (Padrão: 00:00 UTC)
@@ -182,7 +182,7 @@ export function ScheduleSettings({
 
       {/* Manual Trigger */}
       <div className="space-y-3 pt-6 border-t border-slate-200 dark:border-slate-700">
-        <h4 className="font-semibold text-slate-900 dark:text-white">
+        <h4 className="font-semibold text-slate-900 dark:text-dark-text-primary">
           Aplicar Manualmente
         </h4>
         <p className="text-sm text-slate-600 dark:text-slate-400">
@@ -200,7 +200,7 @@ export function ScheduleSettings({
 
       {/* Pause Automation */}
       <div className="space-y-3 pt-6 border-t border-slate-200 dark:border-slate-700">
-        <h4 className="font-semibold text-slate-900 dark:text-white">
+        <h4 className="font-semibold text-slate-900 dark:text-dark-text-primary">
           Pausar Automação Temporariamente
         </h4>
         <p className="text-sm text-slate-600 dark:text-slate-400">
@@ -226,7 +226,7 @@ export function ScheduleSettings({
                   type="date"
                   value={pauseStart}
                   onChange={(e) => setPauseStart(e.target.value)}
-                  className="w-full px-3 py-2 border border-amber-300 dark:border-amber-700 rounded-lg bg-white dark:bg-amber-900 text-slate-900 dark:text-white"
+                  className="w-full px-3 py-2 border border-amber-300 dark:border-amber-700 rounded-lg bg-white dark:bg-amber-900 text-slate-900 dark:text-dark-text-primary"
                 />
               </div>
               <div>
@@ -237,7 +237,7 @@ export function ScheduleSettings({
                   type="date"
                   value={pauseEnd}
                   onChange={(e) => setPauseEnd(e.target.value)}
-                  className="w-full px-3 py-2 border border-amber-300 dark:border-amber-700 rounded-lg bg-white dark:bg-amber-900 text-slate-900 dark:text-white"
+                  className="w-full px-3 py-2 border border-amber-300 dark:border-amber-700 rounded-lg bg-white dark:bg-amber-900 text-slate-900 dark:text-dark-text-primary"
                 />
               </div>
             </div>

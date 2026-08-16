@@ -116,7 +116,7 @@ export function AuditLog({ propertyId, entries = [], onExport }: AuditLogProps) 
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-2xl font-bold text-slate-900 dark:text-white">
+          <h3 className="text-2xl font-bold text-slate-900 dark:text-dark-text-primary">
             Histórico de Mudanças (Audit Log)
           </h3>
           <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
@@ -139,7 +139,7 @@ export function AuditLog({ propertyId, entries = [], onExport }: AuditLogProps) 
           <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">
             Total
           </p>
-          <p className="text-2xl font-bold text-slate-900 dark:text-white mt-2">
+          <p className="text-2xl font-bold text-slate-900 dark:text-dark-text-primary mt-2">
             {filteredEntries.length}
           </p>
         </div>
@@ -173,7 +173,7 @@ export function AuditLog({ propertyId, entries = [], onExport }: AuditLogProps) 
           <select
             value={dateFilter}
             onChange={(e) => setDateFilter(e.target.value as DateFilter)}
-            className="px-3 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
+            className="px-3 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-dark-text-primary"
           >
             <option value="today">Hoje</option>
             <option value="7d">Últimos 7 dias</option>
@@ -190,7 +190,7 @@ export function AuditLog({ propertyId, entries = [], onExport }: AuditLogProps) 
           <select
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value as 'all' | 'manual' | 'automated')}
-            className="px-3 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
+            className="px-3 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-dark-text-primary"
           >
             <option value="all">Todos</option>
             <option value="manual">Manual</option>
@@ -211,22 +211,22 @@ export function AuditLog({ propertyId, entries = [], onExport }: AuditLogProps) 
           <table className="w-full text-sm">
             <thead className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
               <tr>
-                <th className="px-4 py-3 text-left font-semibold text-slate-900 dark:text-white">
+                <th className="px-4 py-3 text-left font-semibold text-slate-900 dark:text-dark-text-primary">
                   Data
                 </th>
-                <th className="px-4 py-3 text-left font-semibold text-slate-900 dark:text-white">
+                <th className="px-4 py-3 text-left font-semibold text-slate-900 dark:text-dark-text-primary">
                   Tipo
                 </th>
-                <th className="px-4 py-3 text-left font-semibold text-slate-900 dark:text-white">
+                <th className="px-4 py-3 text-left font-semibold text-slate-900 dark:text-dark-text-primary">
                   Regra/Motivo
                 </th>
-                <th className="px-4 py-3 text-right font-semibold text-slate-900 dark:text-white">
+                <th className="px-4 py-3 text-right font-semibold text-slate-900 dark:text-dark-text-primary">
                   Preço Anterior
                 </th>
-                <th className="px-4 py-3 text-right font-semibold text-slate-900 dark:text-white">
+                <th className="px-4 py-3 text-right font-semibold text-slate-900 dark:text-dark-text-primary">
                   Novo Preço
                 </th>
-                <th className="px-4 py-3 text-right font-semibold text-slate-900 dark:text-white">
+                <th className="px-4 py-3 text-right font-semibold text-slate-900 dark:text-dark-text-primary">
                   Mudança
                 </th>
               </tr>
@@ -234,7 +234,7 @@ export function AuditLog({ propertyId, entries = [], onExport }: AuditLogProps) 
             <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
               {filteredEntries.map((entry) => (
                 <tr key={entry.id} className="hover:bg-slate-50 dark:hover:bg-slate-800">
-                  <td className="px-4 py-3 text-slate-900 dark:text-white">
+                  <td className="px-4 py-3 text-slate-900 dark:text-dark-text-primary">
                     {new Date(entry.date).toLocaleDateString('pt-PT')}
                   </td>
                   <td className="px-4 py-3">
@@ -248,13 +248,13 @@ export function AuditLog({ propertyId, entries = [], onExport }: AuditLogProps) 
                       {entry.type === 'manual' ? 'Manual' : 'Automática'}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-slate-900 dark:text-white">
+                  <td className="px-4 py-3 text-slate-900 dark:text-dark-text-primary">
                     {entry.ruleName || 'Ajuste manual'}
                   </td>
-                  <td className="px-4 py-3 text-right text-slate-900 dark:text-white">
+                  <td className="px-4 py-3 text-right text-slate-900 dark:text-dark-text-primary">
                     €{entry.oldPrice.toFixed(2)}
                   </td>
-                  <td className="px-4 py-3 text-right font-semibold text-slate-900 dark:text-white">
+                  <td className="px-4 py-3 text-right font-semibold text-slate-900 dark:text-dark-text-primary">
                     €{entry.newPrice.toFixed(2)}
                   </td>
                   <td className="px-4 py-3 text-right">

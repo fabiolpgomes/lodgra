@@ -101,7 +101,7 @@ export function RuleBuilder({ propertyId, onCreateRule, onClose }: RuleBuilderPr
         <div className="bg-white dark:bg-slate-900 rounded-lg shadow-xl max-w-2xl w-full">
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700">
-            <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+            <h2 className="text-xl font-bold text-slate-900 dark:text-dark-text-primary">
               Criar Regra de Preço
             </h2>
             <button onClick={onClose} className="text-slate-400 hover:text-slate-600">
@@ -121,7 +121,7 @@ export function RuleBuilder({ propertyId, onCreateRule, onClose }: RuleBuilderPr
                   onClick={() => applyTemplate(template)}
                   className="p-3 text-left border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition"
                 >
-                  <p className="text-sm font-medium text-slate-900 dark:text-white">
+                  <p className="text-sm font-medium text-slate-900 dark:text-dark-text-primary">
                     {template.name}
                   </p>
                   <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
@@ -144,7 +144,7 @@ export function RuleBuilder({ propertyId, onCreateRule, onClose }: RuleBuilderPr
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="ex: Preço de fim de semana"
-                className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-dark-text-primary"
               />
             </div>
 
@@ -159,7 +159,7 @@ export function RuleBuilder({ propertyId, onCreateRule, onClose }: RuleBuilderPr
                 max="10"
                 value={priority}
                 onChange={(e) => setPriority(Number(e.target.value))}
-                className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-dark-text-primary"
               />
               <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
                 Regras com maior prioridade são avaliadas primeiro
@@ -175,7 +175,7 @@ export function RuleBuilder({ propertyId, onCreateRule, onClose }: RuleBuilderPr
                 <select
                   value={conditionType}
                   onChange={(e) => setConditionType(e.target.value as ConditionType)}
-                  className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                  className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-dark-text-primary"
                 >
                   <option value="occupancy">Ocupação (%)</option>
                   <option value="booking_pace">Dias até cheio</option>
@@ -187,7 +187,7 @@ export function RuleBuilder({ propertyId, onCreateRule, onClose }: RuleBuilderPr
                 <select
                   value={operator}
                   onChange={(e) => setOperator(e.target.value)}
-                  className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                  className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-dark-text-primary"
                 >
                   <option value=">=">&gt;=</option>
                   <option value="<=">&lt;=</option>
@@ -199,7 +199,7 @@ export function RuleBuilder({ propertyId, onCreateRule, onClose }: RuleBuilderPr
                   value={conditionValue}
                   onChange={(e) => setConditionValue(e.target.value)}
                   placeholder="Valor"
-                  className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                  className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-dark-text-primary"
                 />
               </div>
             </div>
@@ -213,7 +213,7 @@ export function RuleBuilder({ propertyId, onCreateRule, onClose }: RuleBuilderPr
                 <select
                   value={actionType}
                   onChange={(e) => setActionType(e.target.value as ActionType)}
-                  className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                  className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-dark-text-primary"
                 >
                   <option value="increase_percent">Aumentar %</option>
                   <option value="decrease_percent">Diminuir %</option>
@@ -225,7 +225,7 @@ export function RuleBuilder({ propertyId, onCreateRule, onClose }: RuleBuilderPr
                   value={actionValue}
                   onChange={(e) => setActionValue(e.target.value)}
                   placeholder="Valor"
-                  className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                  className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-dark-text-primary"
                 />
               </div>
             </div>

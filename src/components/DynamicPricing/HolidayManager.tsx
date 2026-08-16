@@ -103,7 +103,7 @@ export function HolidayManager({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-xl font-bold text-slate-900 dark:text-white">
+          <h3 className="text-xl font-bold text-slate-900 dark:text-dark-text-primary">
             Gerenciar Feriados
           </h3>
           <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
@@ -131,7 +131,7 @@ export function HolidayManager({
               value={customName}
               onChange={(e) => setCustomName(e.target.value)}
               placeholder="ex: Festa Local"
-              className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+              className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-dark-text-primary"
             />
           </div>
 
@@ -144,7 +144,7 @@ export function HolidayManager({
                 type="date"
                 value={customDate}
                 onChange={(e) => setCustomDate(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-dark-text-primary"
               />
             </div>
 
@@ -158,7 +158,7 @@ export function HolidayManager({
                 max="7"
                 value={affectsDays}
                 onChange={(e) => setAffectsDays(Number(e.target.value))}
-                className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-dark-text-primary"
               />
             </div>
           </div>
@@ -184,7 +184,7 @@ export function HolidayManager({
 
       {/* Current Holidays */}
       <div className="space-y-3">
-        <h4 className="font-semibold text-slate-900 dark:text-white">Feriados Configurados</h4>
+        <h4 className="font-semibold text-slate-900 dark:text-dark-text-primary">Feriados Configurados</h4>
         {holidays.length === 0 ? (
           <p className="text-sm text-slate-600 dark:text-slate-400">
             Nenhum feriado configurado. Adicione feriados principais abaixo.
@@ -197,7 +197,7 @@ export function HolidayManager({
                 className="flex items-center justify-between p-3 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800"
               >
                 <div>
-                  <p className="font-medium text-slate-900 dark:text-white">
+                  <p className="font-medium text-slate-900 dark:text-dark-text-primary">
                     {holiday.name}
                   </p>
                   <p className="text-sm text-slate-600 dark:text-slate-400">
@@ -218,7 +218,7 @@ export function HolidayManager({
 
       {/* Major Portuguese Holidays */}
       <div className="space-y-3 pt-4 border-t border-slate-200 dark:border-slate-700">
-        <h4 className="font-semibold text-slate-900 dark:text-white">Feriados Principais (Portugal)</h4>
+        <h4 className="font-semibold text-slate-900 dark:text-dark-text-primary">Feriados Principais (Portugal)</h4>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
           {MAJOR_HOLIDAYS_PT.map((holiday) => (
             <button
@@ -226,7 +226,7 @@ export function HolidayManager({
               onClick={() => handleAddMajorHoliday(holiday)}
               className="p-3 text-left border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-950 hover:border-blue-300 dark:hover:border-blue-700 transition-colors"
             >
-              <p className="text-sm font-medium text-slate-900 dark:text-white">
+              <p className="text-sm font-medium text-slate-900 dark:text-dark-text-primary">
                 {holiday.name}
               </p>
               <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
