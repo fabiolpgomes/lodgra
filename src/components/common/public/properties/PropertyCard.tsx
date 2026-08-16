@@ -76,6 +76,7 @@ export function PropertyCard({
           <Image
             src={image} alt={name} fill loading="lazy"
             sizes="(max-width: 768px) 100vw, 280px"
+            quality={85}
             className="object-cover group-hover:scale-105 transition-transform duration-300"
           />
         ) : (

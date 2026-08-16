@@ -27,7 +27,7 @@ export async function GET(
     // Verify ownership
     const { data: property, error: propError } = await supabase
       .from('properties')
-      .select('owner_id')
+      .select('id, owner_id, owners(id, user_id)')
       .eq('id', propertyId)
       .single()
 
@@ -41,7 +41,8 @@ export async function GET(
     const {
       data: { user },
     } = await supabase.auth.getUser()
-    if (!user || user.id !== property.owner_id) {
+    const owners = Array.isArray(property.owners) ? property.owners[0] : property.owners
+    if (!user || owners?.user_id !== user.id) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 403 }
@@ -123,7 +124,7 @@ export async function POST(
     // Verify ownership
     const { data: property, error: propError } = await supabase
       .from('properties')
-      .select('owner_id')
+      .select('id, owner_id, owners(id, user_id)')
       .eq('id', propertyId)
       .single()
 
@@ -137,7 +138,8 @@ export async function POST(
     const {
       data: { user },
     } = await supabase.auth.getUser()
-    if (!user || user.id !== property.owner_id) {
+    const owners = Array.isArray(property.owners) ? property.owners[0] : property.owners
+    if (!user || owners?.user_id !== user.id) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 403 }
