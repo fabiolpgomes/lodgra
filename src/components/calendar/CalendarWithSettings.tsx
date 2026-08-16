@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useCallback, useMemo } from 'react'
+import React, { useState, useCallback, useEffect, useMemo } from 'react'
 import { useParams } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query'
@@ -12,6 +12,7 @@ import { ReservationDetailsModal } from './ReservationDetailsModal'
 import { DiscountSelectionModal } from './DiscountSelectionModal'
 import { CancellationPolicyModal } from './CancellationPolicyModal'
 import { useCalendarSelection } from '@/hooks/useCalendarSelection'
+import { PropertyCancellationPolicy } from '@/types/cancellation.types'
 import {
   useDailyPrices,
   useReservations,
@@ -79,6 +80,7 @@ function CalendarWithSettingsContent({
   const [showSettings, setShowSettings] = useState(false)
   const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null)
   const [selectedBlocks, setSelectedBlocks] = useState<BlockedDate[]>([])
+  const [cancellationPolicies, setCancellationPolicies] = useState<PropertyCancellationPolicy[]>([])
 
   // React Query hooks
   const pricesQuery = useDailyPrices(propertyId, currentYear, currentMonth)
@@ -86,6 +88,36 @@ function CalendarWithSettingsContent({
   const pricingQuery = usePropertyPricing(propertyId)
   const blockedDatesQuery = useBlockedDates(propertyId, currentYear, currentMonth)
   const invalidateQueries = useInvalidateCalendarQueries()
+
+  const loadCancellationPolicies = useCallback(async () => {
+    const response = await fetch(`/api/properties/${propertyId}/cancellation-policies`, {
+      credentials: 'include',
+    })
+    if (!response.ok) throw new Error('Failed to load cancellation policies')
+
+    const payload = await response.json()
+    let policies = payload.data || []
+
+    // Existing properties may not have received the default policies yet.
+    if (policies.length === 0) {
+      const seedResponse = await fetch(`/api/properties/${propertyId}/cancellation-policies`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ action: 'seed' }),
+      })
+      if (seedResponse.ok) policies = (await seedResponse.json()).data || []
+    }
+
+    setCancellationPolicies(policies)
+  }, [propertyId])
+
+  useEffect(() => {
+    void loadCancellationPolicies().catch((error) => {
+      console.error('Error loading cancellation policies:', error)
+      setCancellationPolicies([])
+    })
+  }, [loadCancellationPolicies])
 
   // Memoized computed values
   const selectedDateStr = useMemo(() => {
@@ -397,8 +429,41 @@ function CalendarWithSettingsContent({
 
   // Handle opening cancellation policy modal
   const handleOpenCancellationPolicy = useCallback(() => {
+    void loadCancellationPolicies().catch((error) => {
+      console.error('Error refreshing cancellation policies:', error)
+    })
     setShowCancellationModal(true)
-  }, [])
+  }, [loadCancellationPolicies])
+
+  const handleApplyCancellationPolicy = useCallback(async (policyId: string) => {
+    const selected = [...selection.state.selectedDates].sort((a, b) => a.getTime() - b.getTime())
+    if (selected.length === 0) throw new Error('No dates selected')
+
+    const response = await fetch(`/api/properties/${propertyId}/cancellation-policies/apply`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({
+        policyId,
+        startDate: formatLocalDate(selected[0]),
+        endDate: formatLocalDate(selected[selected.length - 1]),
+      }),
+    })
+    const payload = await response.json()
+    if (!response.ok || !payload.success) {
+      throw new Error(payload.error || 'Failed to apply cancellation policy')
+    }
+
+    setShowCancellationModal(false)
+    selection.clearSelection()
+    try {
+      await loadCancellationPolicies()
+    } catch (error) {
+      // The assignment already succeeded; a refresh failure should not make
+      // the modal report a false application error.
+      console.error('Error refreshing cancellation policies after apply:', error)
+    }
+  }, [formatLocalDate, loadCancellationPolicies, propertyId, selection])
 
   // Handle reservation click - show details modal
   const handleReservationClick = useCallback((reservation: Reservation) => {
@@ -520,11 +585,9 @@ function CalendarWithSettingsContent({
         isOpen={showCancellationModal}
         selectedDates={selection.state.selectedDates}
         propertyId={propertyId}
-        policies={[]}
+        policies={cancellationPolicies}
         onClose={() => setShowCancellationModal(false)}
-        onApply={async () => {
-          await refetchData()
-        }}
+        onApply={handleApplyCancellationPolicy}
       />
 
       {/* Mobile-specific styles */}

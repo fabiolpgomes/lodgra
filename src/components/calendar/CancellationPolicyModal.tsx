@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import { Card } from '@/components/common/ui/card'
 import { Button } from '@/components/common/ui/button'
 import { toast } from 'sonner'
-import { PropertyCancellationPolicy } from '@/types/cancellation.types'
+import { CancellationPolicyType, PropertyCancellationPolicy } from '@/types/cancellation.types'
 
 interface CancellationPolicyModalProps {
   isOpen: boolean
@@ -48,10 +48,30 @@ export function CancellationPolicyModal({
 
   if (!isOpen) return null
 
-  const policyDescriptions: Record<string, string> = {
-    flexible: '⏰ Cancelamento livre até 1 dia antes',
-    moderate: '📋 Retenção de 50% até 7 dias antes',
-    strict: '🔒 Retenção de 100% até 30 dias antes',
+  const policyLabels: Record<CancellationPolicyType, string> = {
+    flexible: 'Flexível',
+    moderate: 'Moderada',
+    limited: 'Limitada',
+    firm: 'Firme',
+    rigid: 'Rígida de longa duração',
+  }
+
+  const getPolicyLabel = (policy: PropertyCancellationPolicy) => {
+    if (policy.policy_type === 'rigid' && !policy.is_long_stay) return 'Opção não reembolsável'
+    return policyLabels[policy.policy_type]
+  }
+
+  const getPolicyDetails = (policy: PropertyCancellationPolicy) => {
+    const details: string[] = [`Reembolso integral até ${policy.full_refund_days} dia(s) antes do check-in`]
+    if (policy.partial_refund_days !== null && policy.partial_refund_percent !== null) {
+      details.push(`${policy.partial_refund_percent}% de reembolso até ${policy.partial_refund_days} dia(s) antes`)
+    } else if (policy.policy_type === 'flexible') {
+      details.push('Reembolso parcial de 50% no prazo de 1 dia após o check-in')
+    }
+    if (policy.policy_type === 'rigid' && !policy.is_long_stay) {
+      details.push(`Desconto de ${policy.non_refundable_discount_percent}% na tarifa não reembolsável`)
+    }
+    return details
   }
 
   return (
@@ -88,10 +108,13 @@ export function CancellationPolicyModal({
                 />
                 <div className="flex-1">
                   <div className="font-semibold text-sm" style={{ color: '#1B2430' }}>
-                    {policyDescriptions[policy.policy_type] || policy.policy_type}
+                    {getPolicyLabel(policy)}
                   </div>
                   <div className="text-xs text-gray-500 mt-1">
                     {policy.is_long_stay ? 'Aplica a estadias longas' : 'Aplica a estadias curtas'}
+                  </div>
+                  <div className="mt-2 space-y-1 text-xs text-gray-600">
+                    {getPolicyDetails(policy).map((detail) => <p key={detail}>{detail}</p>)}
                   </div>
                 </div>
               </label>

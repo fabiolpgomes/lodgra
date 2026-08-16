@@ -5,6 +5,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { PropertyCancellationPolicy, CreateCancellationPolicyPayload, DEFAULT_POLICIES } from '@/types/cancellation.types'
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -96,28 +97,34 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
     // If "seed" action, create default policies
     if (body.action === 'seed') {
-      const policies: PropertyCancellationPolicy[] = []
+      // The authenticated client can read the property but may not insert
+      // defaults in environments where the legacy ALL policy has no INSERT
+      // WITH CHECK clause. Ownership was already verified above, so use the
+      // service client only for this server-side seed operation.
+      const templates = (['flexible', 'moderate', 'limited', 'firm', 'rigid'] as const)
+        .flatMap((policyType) => (['short', 'long'] as const).map((duration) => ({
+          property_id: propertyId,
+          ...DEFAULT_POLICIES[policyType][duration],
+        })))
+      const admin = createAdminClient()
+      const { data: policies, error } = await admin
+        .from('property_cancellation_policies')
+        .upsert(templates, { onConflict: 'property_id,policy_type,is_long_stay' })
+        .select()
+        .order('is_long_stay', { ascending: true })
+        .order('policy_type', { ascending: true })
 
-      for (const policyType of ['flexible', 'moderate', 'limited', 'firm', 'rigid'] as const) {
-        for (const duration of ['short', 'long'] as const) {
-          const template = DEFAULT_POLICIES[policyType][duration]
-          if (!template) continue
-
-          const { data: policy, error } = await supabase
-            .from('property_cancellation_policies')
-            .insert({
-              property_id: propertyId,
-              ...template,
-            })
-            .select()
-            .single()
-
-          if (error && !error.message.includes('duplicate')) throw error
-          if (policy) policies.push(policy)
+      if (error) {
+        if (error.code === '42P01' || error.code === 'PGRST205' || error.message?.includes('does not exist')) {
+          return NextResponse.json(
+            { success: false, error: 'Cancellation policies feature is not available' },
+            { status: 501 }
+          )
         }
+        throw error
       }
 
-      return NextResponse.json({ success: true, data: policies })
+      return NextResponse.json({ success: true, data: policies || [] })
     }
 
     // Otherwise, create single policy
