@@ -18,14 +18,16 @@ export async function PUT(
     const supabase = await createClient()
     const body: UpdateCancellationPolicyPayload = await request.json()
 
-    // Verify ownership
+    // Verify ownership through the owner record. `properties.owner_id` points
+    // to `owners.id`, not directly to `auth.users.id`.
     const { data: property } = await supabase
       .from('properties')
-      .select('owner_id')
+      .select('id, owner_id, owners(id, user_id)')
       .eq('id', propertyId)
       .single()
 
-    if (!property || property.owner_id !== (await getAuthUserId(request))) {
+    const owners = Array.isArray(property?.owners) ? property?.owners[0] : property?.owners
+    if (!property || owners?.user_id !== (await getAuthUserId(request))) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 403 })
     }
 
@@ -79,14 +81,16 @@ export async function DELETE(
   try {
     const supabase = await createClient()
 
-    // Verify ownership
+    // Verify ownership through the owner record. `properties.owner_id` points
+    // to `owners.id`, not directly to `auth.users.id`.
     const { data: property } = await supabase
       .from('properties')
-      .select('owner_id')
+      .select('id, owner_id, owners(id, user_id)')
       .eq('id', propertyId)
       .single()
 
-    if (!property || property.owner_id !== (await getAuthUserId(request))) {
+    const owners = Array.isArray(property?.owners) ? property?.owners[0] : property?.owners
+    if (!property || owners?.user_id !== (await getAuthUserId(request))) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 403 })
     }
 
