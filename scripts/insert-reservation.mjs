@@ -12,11 +12,11 @@ async function insertReservation() {
 
   try {
     // Buscar propriedade
-    console.log('🔍 Procurando propriedade "AHS Premium apart"...');
+    console.log('🔍 Procurando propriedade "AHS T1 Portimão"...');
     const { data: property, error: propertyError } = await supabase
       .from('properties')
       .select('id, name')
-      .ilike('name', '%AHS Premium apart%')
+      .ilike('name', '%T1 Portim%')
       .single();
 
     if (propertyError) {
@@ -35,14 +35,14 @@ async function insertReservation() {
     const reservationData = {
       organization_id: '00000000-0000-0000-0000-000000000001',
       property_id: property.id,
-      guest_name: 'Laura Feghaly',
-      guest_email: 'laura@email.com',
+      guest_name: 'Domingos Bento',
+      guest_email: 'domingos@email.com',
       number_of_guests: 1,
-      check_in: '2026-05-29',
-      check_out: '2026-06-26',
-      total_price: 1290,
+      check_in: '2026-06-06',
+      check_out: '2026-07-06',
+      total_price: 720,
       currency: 'EUR',
-      booking_source: 'Flatio',
+      booking_source: 'Reserva Direta',
       status: 'confirmed',
       notes: 'Reserva inserida via script administrativo',
     };
