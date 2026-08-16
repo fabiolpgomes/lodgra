@@ -25,7 +25,12 @@ export function isPublicPath(pathname: string): boolean {
 }
 
 export function redirectToLogin(request: NextRequest, pathname: string): NextResponse {
-  const loginUrl = new URL('/login', request.url)
+  // Keep the user's locale when redirecting from a localized protected route.
+  // The localized login page is the canonical auth entry point in production;
+  // the unscoped `/login` path is not available on the deployed app.
+  const localeMatch = pathname.match(/^\/([a-z]{2}(?:-[A-Z]{2})?)(?:\/|$)/)
+  const locale = localeMatch?.[1] ?? 'pt-BR'
+  const loginUrl = new URL(`/${locale}/login`, request.url)
   loginUrl.searchParams.set('redirectTo', pathname)
   return NextResponse.redirect(loginUrl)
 }
