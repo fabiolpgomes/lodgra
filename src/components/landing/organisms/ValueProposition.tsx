@@ -12,7 +12,7 @@ export const ValueProposition: React.FC<ValuePropProps> = ({
   description,
   bullets,
 }) => (
-  <section className="bg-white dark:bg-gray-950 py-20 md:py-32">
+  <section className="bg-white dark:bg-dark-bg-surface py-20 md:py-32">
     <Container>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
         {/* Left: Text */}

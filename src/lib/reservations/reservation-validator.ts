@@ -232,13 +232,17 @@ export class ReservationValidator {
         }
       }
 
-      // Find applicable discount (highest discount for the night range)
-      let applicableDiscount = null
-      for (const discount of discounts) {
-        if (nights >= discount.min_nights) {
-          applicableDiscount = discount
-        }
-      }
+      // The calendar rules are mutually exclusive: weekly applies to 7-27
+      // nights and monthly applies from 28 nights onward. Do not let a stale
+      // min_nights value make the wrong card rule win.
+      const expectedType = nights >= 28 ? 'monthly' : 'weekly'
+      const eligibleDiscounts = discounts.filter(
+        (discount) =>
+          discount.discount_type === expectedType &&
+          nights >= (discount.min_nights ?? (expectedType === 'monthly' ? 28 : 7))
+      )
+      const applicableDiscount = eligibleDiscounts
+        .sort((a, b) => (b.min_nights ?? 0) - (a.min_nights ?? 0))[0]
 
       if (!applicableDiscount) {
         return {
@@ -282,7 +286,9 @@ export class ReservationValidator {
 
   static async validateMinimumNights(
     propertyId: string,
-    nights: number
+    nights: number,
+    checkIn?: string,
+    checkOut?: string
   ): Promise<MinimumNightsResult> {
     try {
       const supabase = await this.getClient()
@@ -294,20 +300,50 @@ export class ReservationValidator {
         .eq('property_id', propertyId)
         .maybeSingle()
 
-      // Defaults: min 1, max 365 (if no record found)
-      const minimumNights = availabilityData?.min_nights ?? 1
-      const maximumNights = availabilityData?.max_nights ?? 365
-
       if (error && error.code !== 'PGRST116') {
         // PGRST116 = "no rows" (expected), other errors should be reported
         return {
           success: false,
           passed: false,
-          minimumNights,
+          minimumNights: Number(availabilityData?.min_nights) || 1,
           selectedNights: nights,
           error: `Database error: ${error.message}`,
         }
       }
+
+      // A pricing rule can impose a stricter minimum for the selected period.
+      // Use the same overlap semantics as the calendar/public availability API
+      // so a direct reservation cannot bypass a seasonal minimum stay.
+      let periodMinimumNights = 1
+      if (checkIn && checkOut) {
+        const { data: pricingRules, error: pricingRulesError } = await supabase
+          .from('pricing_rules')
+          .select('min_nights')
+          .eq('property_id', propertyId)
+          .lte('start_date', checkOut)
+          .gte('end_date', checkIn)
+
+        if (pricingRulesError) {
+          return {
+            success: false,
+            passed: false,
+            minimumNights: availabilityData?.min_nights ?? 1,
+            selectedNights: nights,
+            error: `Database error: ${pricingRulesError.message}`,
+          }
+        }
+
+        periodMinimumNights = (pricingRules ?? []).reduce(
+          (maximum, rule) => Math.max(maximum, Number(rule.min_nights) || 1),
+          1
+        )
+      }
+
+      // Defaults: min 1, max 365 (if no record found). The effective minimum
+      // is the strictest value from the global availability card or period rule.
+      const configuredMinimumNights = Number(availabilityData?.min_nights) || 1
+      const minimumNights = Math.max(configuredMinimumNights, periodMinimumNights)
+      const maximumNights = Number(availabilityData?.max_nights) || 365
 
       return {
         success: true,
@@ -334,14 +370,16 @@ export class ReservationValidator {
 
   static async validateCancellationPolicy(
     propertyId: string,
-    checkIn: string
+    checkIn: string,
+    nights = 0
   ): Promise<CancellationPolicyResult> {
     try {
       const supabase = await this.getClient()
 
-      // Determine if this is a long-stay reservation (28+ nights)
-      // For now, default to short-stay (false) - this should be enhanced with actual night count
-      const isLongStay = false
+      // The property has separate cancellation rules for short stays and
+      // long stays. Long stay starts at the same 28-night boundary as the
+      // monthly discount card.
+      const isLongStay = nights >= 28
 
       // Fetch cancellation policy for the property
       const { data: policies, error } = await supabase
@@ -437,20 +475,45 @@ export class ReservationValidator {
       }
 
       if (!reservations || reservations.length === 0) {
-        return {
-          hasConflict: false,
-          conflictingReservations: [],
-        }
+        // Continue to calendar blocks even when there are no reservations.
       }
 
       // Filter out excluded reservation (for edit scenarios)
       const conflicts = excludeReservationId
-        ? reservations.filter((r) => r.id !== excludeReservationId)
-        : reservations
+        ? (reservations ?? []).filter((r) => r.id !== excludeReservationId)
+        : (reservations ?? [])
+
+      // Manual and iCal blocks are part of the property's calendar and must
+      // be treated as unavailable just like a reservation.
+      const { data: calendarBlocks, error: blocksError } = await supabase
+        .from('calendar_blocks')
+        .select('id, start_date, end_date')
+        .eq('property_id', propertyId)
+        .lt('start_date', checkOut)
+        .gt('end_date', checkIn)
+
+      if (blocksError) {
+        return {
+          hasConflict: conflicts.length > 0,
+          conflictingReservations: conflicts.map((r) => ({
+            id: r.id,
+            checkIn: r.check_in,
+            checkOut: r.check_out,
+          })),
+          error: `Database error: ${blocksError.message}`,
+        }
+      }
+
+      const blockConflicts = (calendarBlocks ?? []).map((block) => ({
+        id: `block:${block.id}`,
+        check_in: block.start_date,
+        check_out: block.end_date,
+      }))
+      const allConflicts = [...conflicts, ...blockConflicts]
 
       return {
-        hasConflict: conflicts.length > 0,
-        conflictingReservations: conflicts.map((r) => ({
+        hasConflict: allConflicts.length > 0,
+        conflictingReservations: allConflicts.map((r) => ({
           id: r.id,
           checkIn: r.check_in,
           checkOut: r.check_out,
@@ -570,8 +633,8 @@ export class ReservationValidator {
     const [priceResult, minimumNightsResult, cancellationPolicyResult, overlapResult, feesResult] =
       await Promise.all([
         this.validatePrice(propertyId, checkIn, checkOut),
-        this.validateMinimumNights(propertyId, nights),
-        this.validateCancellationPolicy(propertyId, checkIn),
+        this.validateMinimumNights(propertyId, nights, checkIn, checkOut),
+        this.validateCancellationPolicy(propertyId, checkIn, nights),
         this.validateReservationOverlap(propertyId, checkIn, checkOut),
         this.validateFees(propertyId, nights),
       ])

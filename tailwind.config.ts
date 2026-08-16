@@ -57,6 +57,33 @@ const config: any = {
           900: '#111111',
         },
 
+        // ========== DARK MODE TOKENS (Consolidated - 81.3% reduction) ==========
+        // Consolidated dark mode colors (replaces 75 redundant classes with 14 tokens)
+        'dark-text': {
+          primary: '#ffffff',          // Headings, emphasis (was: dark:text-white)
+          secondary: '#cbd5e1',        // Body text (was: dark:text-slate-300/400)
+          muted: '#94a3b8',            // Helper text (was: dark:text-slate-500/600)
+        },
+        'dark-text-accent': {
+          info: '#60a5fa',             // Info/links (was: dark:text-blue-400)
+          danger: '#f87171',           // Errors (was: dark:text-red-400)
+          success: '#34d399',          // Success (was: dark:text-emerald-400)
+        },
+        'dark-bg': {
+          surface: '#0f172a',          // Page background (was: dark:bg-slate-900)
+          card: '#1e293b',             // Card/modal (was: dark:bg-slate-800)
+          input: '#334155',            // Input fields (was: dark:bg-slate-700)
+        },
+        'dark-bg-overlay': {
+          danger: '#7f1d1d',           // Error overlay (was: dark:bg-red-950)
+          success: '#064e3b',          // Success overlay (was: dark:bg-emerald-950)
+          info: '#172554',             // Info overlay (was: dark:bg-blue-950)
+        },
+        'dark-border': {
+          divider: '#475569',          // Subtle separators (was: dark:border-slate-600/700)
+          focus: '#64748b',            // Focus state (was: dark:border-slate-400)
+        },
+
         // ========== DESIGN TOKENS (Phase 3) ==========
         // Token-based colors (CSS variables from tokens.css)
         'lodgra-primary': 'var(--lodgra-primary)',

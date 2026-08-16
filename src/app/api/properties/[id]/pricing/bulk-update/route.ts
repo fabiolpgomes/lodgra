@@ -4,6 +4,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server'
+import { revalidatePath } from 'next/cache'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(
@@ -28,7 +29,7 @@ export async function POST(
     // Verify ownership via owners table JOIN
     const { data: property, error: propertyError } = await supabase
       .from('properties')
-      .select('id, owner_id, owners(id, user_id)')
+      .select('id, slug, owner_id, owners(id, user_id)')
       .eq('id', propertyId)
       .single()
 
@@ -139,6 +140,11 @@ export async function POST(
     }
 
     console.log('✅ Upsert successful:', { upserted: data?.length || 0 })
+
+    // Keep the public pages in sync with the updated calendar prices.
+    revalidatePath(`/p/${property.slug}`)
+    revalidatePath(`/p/${property.slug}/checkout`)
+    revalidatePath('/booking')
 
     return NextResponse.json({
       success: true,

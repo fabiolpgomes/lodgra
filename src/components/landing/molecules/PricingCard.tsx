@@ -44,7 +44,7 @@ export const PricingCard: React.FC<PricingCardProps> = ({
 
     <div className="mb-6">
       <div className="flex items-baseline gap-1">
-        <span className="text-5xl font-poppins font-bold text-be-text-muted dark:text-white">
+        <span className="text-5xl font-poppins font-bold text-be-text-muted dark:text-dark-text-primary">
           {price}
         </span>
         <span className="text-sm font-inter text-gray-600 dark:text-gray-400">{period}</span>

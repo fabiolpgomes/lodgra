@@ -101,7 +101,7 @@ export const LandingPageClient: React.FC<LandingPageClientProps> = ({ content })
   }, [])
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-950">
+    <div className="min-h-screen bg-white dark:bg-dark-bg-surface">
       <Navbar />
 
       <Hero

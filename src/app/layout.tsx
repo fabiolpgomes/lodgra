@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import "@/styles/tokens.css";
+import "@/styles/design-tokens.css";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/common/ui/sonner";
 import { CookieBanner } from "@/components/common/ui/CookieBanner";

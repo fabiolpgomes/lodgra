@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { revalidateTag } from 'next/cache'
+import { revalidatePath } from 'next/cache'
 import { createAdminClient } from '@/lib/supabase/admin'
 
 /**
@@ -55,13 +55,10 @@ export async function POST(
       `[Revalidate] Property ${property.slug} (${id}): price=${newPrice || 'N/A'}, reason=${reason}`
     )
 
-    // ✅ Invalidate ISR cache for this property immediately
-    // This causes the next request to regenerate the page (< 1 second)
-    // revalidateTag(`property-${id}`)
-
-    // Optional: Also invalidate /p/[slug] path
-    // Note: Next.js 15+ doesn't have per-path invalidation, only tag-based
-    // So we use the property ID as a tag
+    // Invalidate the public pages that surface the property price.
+    revalidatePath(`/p/${property.slug}`)
+    revalidatePath(`/p/${property.slug}/checkout`)
+    revalidatePath('/booking')
 
     const timestamp = new Date().toISOString()
 

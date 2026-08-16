@@ -16,6 +16,7 @@ import { toast } from 'sonner'
 import { getCurrencySymbol, type CurrencyCode } from '@/lib/utils/currency'
 import { getPlatformPrefix, buildExternalId } from '@/lib/utils/platform-mapping'
 import { calculateServiceFeeAmount, nightsBetween } from '@/lib/reservations/serviceFee'
+import type { ValidationResult } from '@/lib/reservations/reservation-validator'
 
 export default function NewReservationPage() {
   const router = useRouter()
@@ -36,6 +37,9 @@ export default function NewReservationPage() {
   const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null)
   const [calculatedPrice, setCalculatedPrice] = useState<number | null>(null)
   const [priceCalculating, setPriceCalculating] = useState(false)
+  const [validationResult, setValidationResult] = useState<ValidationResult | null>(null)
+  const [checkIn, setCheckIn] = useState(preCheckIn)
+  const [checkOut, setCheckOut] = useState(preCheckOut)
 
   useEffect(() => {
     async function loadProperties() {
@@ -116,39 +120,49 @@ export default function NewReservationPage() {
       setSelectedPlatform(null)
     }
   }, [selectedListing, propertyListings])
-  // Auto-calculate price based on dates and property
+  // Validate the property's calendar rules before showing a price. This is
+  // the single source of truth for availability, base price, discounts,
+  // fees and cancellation policy.
   useEffect(() => {
-    async function calculatePrice() {
-      if (!preCheckIn || !preCheckOut || !selectedProperty) {
+    async function validateReservation() {
+      if (!checkIn || !checkOut || !selectedProperty) {
         setCalculatedPrice(null)
+        setValidationResult(null)
         return
       }
 
       setPriceCalculating(true)
       try {
-        const response = await fetch('/api/reservations/calculate-price', {
+        const response = await fetch('/api/admin/reservations/validate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            property_id: selectedProperty,
-            check_in: preCheckIn,
-            check_out: preCheckOut,
+            propertyId: selectedProperty,
+            checkIn,
+            checkOut,
           }),
         })
 
-        if (response.ok) {
-          const data = await response.json()
-          setCalculatedPrice(data.total_amount)
-        }
+        const data = await response.json() as ValidationResult & { error?: string }
+        if (!response.ok) throw new Error(data.error || 'Não foi possível validar a reserva')
+        setValidationResult(data)
+        setCalculatedPrice(data.finalPrice)
       } catch (err) {
         console.error('Erro ao calcular preço:', err)
+        setValidationResult(null)
+        setCalculatedPrice(null)
       } finally {
         setPriceCalculating(false)
       }
     }
 
-    calculatePrice()
-  }, [preCheckIn, preCheckOut, selectedProperty])
+    validateReservation()
+  }, [checkIn, checkOut, selectedProperty])
+
+  const canCreateReservation = validationResult?.success === true && !loading && !priceCalculating
+  const availabilityBlocked = validationResult?.errors.some((item) =>
+    item.toLowerCase().includes('overlapping')
+  ) ?? false
 
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -165,64 +179,44 @@ export default function NewReservationPage() {
       return
     }
 
-    const checkInStr = formData.get('check_in') as string
-    const checkOutStr = formData.get('check_out') as string
+    const checkInStr = checkIn
+    const checkOutStr = checkOut
 
-    // Validação: Checar disponibilidade (ANTES de criar a reserva)
+    // A validação acima pode ter sido feita antes de outra reserva/bloqueio.
+    // Revalidar no submit evita criar uma reserva com preço ou disponibilidade
+    // desatualizados.
+    let validatedPrice: number | null = null
     try {
-      const availabilityResponse = await fetch('/api/reservations/check-availability', {
+      const validationResponse = await fetch('/api/admin/reservations/validate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          property_id: selectedProperty,
-          check_in: checkInStr,
-          check_out: checkOutStr,
+          propertyId: selectedProperty,
+          checkIn: checkInStr,
+          checkOut: checkOutStr,
         }),
       })
 
-      if (!availabilityResponse.ok) {
-        const availabilityError = await availabilityResponse.json()
-        setError(`Erro ao verificar disponibilidade: ${availabilityError.error}`)
+      const latestValidation = await validationResponse.json() as ValidationResult & { error?: string }
+      if (!validationResponse.ok) {
+        setError(`Erro ao validar reserva: ${latestValidation.error || 'resposta inválida'}`)
         setLoading(false)
         return
       }
 
-      const availability = await availabilityResponse.json()
-
-      if (!availability.available) {
-        const conflicts = availability.conflicting_reservations as Array<{ check_in: string; check_out: string; guest_name?: string }>
-        const conflictDates = conflicts
-          .map((c) => `${c.check_in} a ${c.check_out}${c.guest_name ? ` (${c.guest_name})` : ''}`)
-          .join('\n')
-        setError(
-          `As datas selecionadas já estão bloqueadas:\n\n${conflictDates}\n\nPor favor, escolha outras datas.`
-        )
+      setValidationResult(latestValidation)
+      setCalculatedPrice(latestValidation.finalPrice)
+      validatedPrice = latestValidation.finalPrice
+      if (!latestValidation.success) {
+        setError(latestValidation.errors.join('\n'))
         setLoading(false)
         return
       }
     } catch (err) {
       console.error('Erro ao verificar disponibilidade:', err)
-      setError('Erro ao verificar disponibilidade. Tente novamente.')
+      setError('Erro ao validar disponibilidade e preço. Tente novamente.')
       setLoading(false)
       return
-    }
-
-    // Validação: Noites mínimas (Apenas aviso, permite bypass se confirmado)
-    if (checkInStr && checkOutStr) {
-      const checkIn = new Date(checkInStr)
-      const checkOut = new Date(checkOutStr)
-      const nights = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24))
-      const property = properties.find(p => p.id === selectedProperty)
-
-      if (property && nights < property.min_nights) {
-        const confirm = window.confirm(
-          `Aviso: A propriedade "${property.name}" tem um requisito de estadia mínima de ${property.min_nights} noites. \n\nAtualmente esta reserva tem apenas ${nights} noites. \n\nDeseja prosseguir assim mesmo?`
-        )
-        if (!confirm) {
-          setLoading(false)
-          return
-        }
-      }
     }
 
     try {
@@ -314,7 +308,7 @@ export default function NewReservationPage() {
         number_of_guests: parseInt(formData.get('number_of_guests') as string) || 1,
         adults: parseInt(formData.get('adults') as string) || 1,
         children: parseInt(formData.get('children') as string) || 0,
-        total_price: parseFloat(formData.get('total_amount') as string) || null,
+        total_price: validatedPrice ?? calculatedPrice,
         currency: propertyCurrency,
         reservation_status: 'confirmed',
         guest_name: (formData.get('guest_first_name') as string) + ' ' + (formData.get('guest_last_name') as string),
@@ -492,7 +486,8 @@ export default function NewReservationPage() {
                   id="check_in"
                   name="check_in"
                   required
-                  defaultValue={preCheckIn}
+                  value={checkIn}
+                  onChange={(event) => setCheckIn(event.target.value)}
                   min={preCheckIn ? undefined : new Date().toISOString().split('T')[0]}
                 />
               </div>
@@ -506,7 +501,8 @@ export default function NewReservationPage() {
                   id="check_out"
                   name="check_out"
                   required
-                  defaultValue={preCheckOut}
+                  value={checkOut}
+                  onChange={(event) => setCheckOut(event.target.value)}
                   min={preCheckOut ? undefined : new Date().toISOString().split('T')[0]}
                 />
               </div>
@@ -668,8 +664,13 @@ export default function NewReservationPage() {
                   step="0.01"
                   min="0"
                   placeholder="0.00"
-                  defaultValue={calculatedPrice ? calculatedPrice.toString() : ""}
-                  className={calculatedPrice ? 'bg-emerald-50 border-emerald-300' : ''}
+                  value={calculatedPrice ?? ''}
+                  readOnly
+                  className={calculatedPrice
+                    ? validationResult?.success
+                      ? 'bg-emerald-50 border-emerald-300'
+                      : 'bg-red-50 border-red-300'
+                    : ''}
                 />
                 {priceCalculating && (
                   <div className="flex items-center gap-1 text-sm text-blue-600 animate-pulse">
@@ -678,11 +679,29 @@ export default function NewReservationPage() {
                   </div>
                 )}
               </div>
-              {calculatedPrice ? (
-                <div className="bg-emerald-50 border border-emerald-200 rounded px-3 py-2 mt-2">
-                  <p className="text-sm font-semibold text-emerald-800">
-                    ✓ Preço calculado: {getCurrencySymbol((properties.find(p => p.id === selectedProperty)?.currency || 'EUR') as CurrencyCode)}{calculatedPrice.toFixed(2)}
+              {validationResult ? (
+                <div className={`${validationResult.success ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'} border rounded px-3 py-2 mt-2`}>
+                  <p className={`text-sm font-semibold ${validationResult.success ? 'text-emerald-800' : 'text-red-800'}`}>
+                    {validationResult.success ? '✓' : '⚠️'} Total calculado: {getCurrencySymbol((properties.find(p => p.id === selectedProperty)?.currency || 'EUR') as CurrencyCode)}{validationResult.finalPrice.toFixed(2)}
                   </p>
+                  <div className="mt-2 text-xs text-gray-700 space-y-1">
+                    <p>
+                      Preço por noite: {(validationResult.nights > 0 ? validationResult.price.subtotal / validationResult.nights : 0).toFixed(2)} × {validationResult.nights} noites = {validationResult.price.subtotal.toFixed(2)}
+                    </p>
+                    <p>Desconto: {validationResult.discount.hasDiscount ? `-${(validationResult.discount.originalPrice - validationResult.discount.discountedPrice).toFixed(2)} (${validationResult.discount.discountPercentage}%)` : 'Nenhum desconto aplicável'}</p>
+                    <p>Taxas: {validationResult.fees.totalFees.toFixed(2)}</p>
+                    <p className={validationResult.minimumNights.passed ? '' : 'font-semibold text-red-700'}>
+                      Estadia mínima: {validationResult.minimumNights.minimumNights} noites
+                      {' · '}selecionadas: {validationResult.minimumNights.selectedNights}
+                    </p>
+                    <p>Disponibilidade: {availabilityBlocked ? 'Indisponível' : 'Disponível'}</p>
+                    <p>Política: {validationResult.cancellationPolicy.success ? validationResult.cancellationPolicy.policyName : 'Não configurada'}</p>
+                  </div>
+                  {!validationResult.success && (
+                    <p className="mt-2 text-xs font-medium text-red-700">
+                      Corrija os problemas acima antes de criar a reserva.
+                    </p>
+                  )}
                 </div>
               ) : (
                 <p className="text-xs text-gray-600 mt-1">
@@ -696,7 +715,7 @@ export default function NewReservationPage() {
           <div className="flex gap-4">
             <Button
               type="submit"
-              disabled={loading}
+              disabled={!canCreateReservation}
               className="flex-1"
             >
               {loading ? (
@@ -704,7 +723,7 @@ export default function NewReservationPage() {
               ) : (
                 <>
                   <Save className="h-5 w-5" />
-                  Criar Reserva
+                  {validationResult?.success === false ? 'Reserva bloqueada' : 'Criar Reserva'}
                 </>
               )}
             </Button>

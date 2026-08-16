@@ -9,6 +9,7 @@ module.exports = [
       'dist/**',
       'build/**',
       'coverage/**',
+      'outputs/**',
       '.vercel/**',
       'playwright-report/**',
       '.aios-core/**',

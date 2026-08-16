@@ -4,6 +4,7 @@
  */
 
 import { createAdminClient } from '@/lib/supabase/admin';
+import { revalidatePath } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
 import { ApiResponse } from '@/types/pricing.types';
 
@@ -52,6 +53,19 @@ export async function POST(
       );
     }
 
+    const { data: property, error: propertyError } = await supabase
+      .from('properties')
+      .select('id, slug')
+      .eq('id', id)
+      .single();
+
+    if (propertyError || !property) {
+      return NextResponse.json(
+        { success: false, error: 'Property not found' },
+        { status: 404 }
+      );
+    }
+
     const body = await req.json();
     const { operations } = body;
 
@@ -94,6 +108,10 @@ export async function POST(
       .select();
 
     if (error) throw error;
+
+    revalidatePath(`/p/${property.slug}`);
+    revalidatePath(`/p/${property.slug}/checkout`);
+    revalidatePath('/booking');
 
     return NextResponse.json(
       {
@@ -140,6 +158,19 @@ export async function DELETE(
       );
     }
 
+    const { data: property, error: propertyError } = await supabase
+      .from('properties')
+      .select('id, slug')
+      .eq('id', id)
+      .single();
+
+    if (propertyError || !property) {
+      return NextResponse.json(
+        { success: false, error: 'Property not found' },
+        { status: 404 }
+      );
+    }
+
     const body = await req.json();
     const { dates } = body;
 
@@ -168,6 +199,10 @@ export async function DELETE(
       .in('date', dates);
 
     if (error) throw error;
+
+    revalidatePath(`/p/${property.slug}`);
+    revalidatePath(`/p/${property.slug}/checkout`);
+    revalidatePath('/booking');
 
     return NextResponse.json(
       {

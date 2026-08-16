@@ -23,7 +23,7 @@ export const Hero: React.FC<HeroProps> = ({
   onCtaPrimary,
   onCtaSecondary,
 }) => (
-  <section className="bg-white dark:bg-gray-950 pt-8 sm:pt-16 pb-16 sm:pb-20 md:pt-24 md:pb-32">
+  <section className="bg-white dark:bg-dark-bg-surface pt-8 sm:pt-16 pb-16 sm:pb-20 md:pt-24 md:pb-32">
     <Container>
       <div className="text-center max-w-4xl mx-auto">
         {/* Logo - Clean and minimal */}
@@ -32,7 +32,7 @@ export const Hero: React.FC<HeroProps> = ({
         </div>
 
         {/* Headline - Clean and premium */}
-        <h1 className="font-poppins font-bold text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-be-text-muted dark:text-white mb-4 sm:mb-6 leading-tight tracking-tight">
+        <h1 className="font-poppins font-bold text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-be-text-muted dark:text-dark-text-primary mb-4 sm:mb-6 leading-tight tracking-tight">
           {headline}
         </h1>
 

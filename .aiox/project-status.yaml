@@ -1,15 +1,14 @@
 status:
   branch: main
-  modifiedFiles:
-    - .aiox/project-status.yaml
-  modifiedFilesTotalCount: 1
+  modifiedFiles: []
+  modifiedFilesTotalCount: 0
   recentCommits:
-    - 'fix(auth): preserve locale on login redirects'
-    - 'feat(calendar): clarify cancellation policy action'
+    - 'docs: add changelog entry and migration guide for color system refactoring'
+    - 'docs(qa): add QA Results and gate decision for story 45.1'
   currentEpic: 20 — Checkout Directo (Housekeeping)
   currentStory: 20.3.story
-  lastUpdate: '2026-08-16T11:20:22.488Z'
+  lastUpdate: '2026-08-16T12:42:08.112Z'
   isGitRepo: true
-timestamp: 1786879222503
+timestamp: 1786884128114
 ttl: 60
-gitFingerprint: 1785569665275.2065:1786874431656.8079
+gitFingerprint: 1785569665275.2065:1786883403938.5515

@@ -24,7 +24,7 @@ export const SocialProof: React.FC<SocialProofProps> = ({
   ]
 
   return (
-    <section className="py-20 bg-white dark:bg-gray-950 border-y border-gray-200 dark:border-gray-800">
+    <section className="py-20 bg-white dark:bg-dark-bg-surface border-y border-gray-200 dark:border-gray-800">
       <Container>
         {/* Stats */}
         <div className="mb-16 grid grid-cols-2 md:grid-cols-3 gap-8 text-center">
@@ -42,7 +42,7 @@ export const SocialProof: React.FC<SocialProofProps> = ({
 
         {/* Property logos */}
         <div className="mb-16">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white text-center mb-8">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-dark-text-primary text-center mb-8">
             {trustedByTitle}
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -61,7 +61,7 @@ export const SocialProof: React.FC<SocialProofProps> = ({
 
         {/* Testimonials */}
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white text-center mb-12">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-dark-text-primary text-center mb-12">
             {testimonialsTitle}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -75,7 +75,7 @@ export const SocialProof: React.FC<SocialProofProps> = ({
                   &quot;{t.quote}&quot;
                 </p>
                 <div>
-                  <div className="font-semibold text-gray-900 dark:text-white">{t.author}</div>
+                  <div className="font-semibold text-gray-900 dark:text-dark-text-primary">{t.author}</div>
                   <div className="text-sm text-gray-600 dark:text-gray-400">{t.role}</div>
                   <div className="text-xs text-be-text font-medium mt-2">{t.properties}</div>
                 </div>

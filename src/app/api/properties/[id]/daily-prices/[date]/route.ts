@@ -4,7 +4,7 @@
  */
 
 import { createAdminClient } from '@/lib/supabase/admin';
-import { cookies } from 'next/headers';
+import { revalidatePath } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
 import { ApiResponse } from '@/types/pricing.types';
 
@@ -47,6 +47,19 @@ export async function DELETE(
       );
     }
 
+    const { data: property, error: propertyError } = await supabase
+      .from('properties')
+      .select('id, slug')
+      .eq('id', id)
+      .single();
+
+    if (propertyError || !property) {
+      return NextResponse.json(
+        { success: false, error: 'Property not found' },
+        { status: 404 }
+      );
+    }
+
     // Validate date format
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
       return NextResponse.json(
@@ -62,6 +75,10 @@ export async function DELETE(
       .eq('date', date);
 
     if (error) throw error;
+
+    revalidatePath(`/p/${property.slug}`);
+    revalidatePath(`/p/${property.slug}/checkout`);
+    revalidatePath('/booking');
 
     return NextResponse.json({ success: true, data: { deleted: true } });
   } catch (err) {

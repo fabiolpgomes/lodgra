@@ -6,6 +6,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server'
+import { revalidatePath } from 'next/cache'
 import { NextRequest, NextResponse } from 'next/server'
 
 interface PricingData {
@@ -44,7 +45,7 @@ export async function GET(
     // Verify ownership via owners table JOIN
     const { data: property, error: propertyError } = await supabase
       .from('properties')
-      .select('id, owner_id, currency, owners(id, user_id)')
+      .select('id, slug, owner_id, currency, owners(id, user_id)')
       .eq('id', propertyId)
       .single()
 
@@ -163,7 +164,7 @@ export async function PUT(
     // Verify ownership via owners table JOIN
     const { data: property, error: propertyError } = await supabase
       .from('properties')
-      .select('id, owner_id, owners(id, user_id)')
+      .select('id, slug, owner_id, owners(id, user_id)')
       .eq('id', propertyId)
       .single()
 
@@ -269,6 +270,11 @@ export async function PUT(
       }
       result = data
     }
+
+    // Keep the public property and checkout pages in sync with the new price.
+    revalidatePath(`/p/${property.slug}`)
+    revalidatePath(`/p/${property.slug}/checkout`)
+    revalidatePath('/booking')
 
     return NextResponse.json({
       success: true,
