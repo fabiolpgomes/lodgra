@@ -14,6 +14,7 @@ import {
 } from '@/components/common/ui/dialog'
 import { toast } from 'sonner'
 import { AlertCircle, Info } from 'lucide-react'
+import { CURRENCIES, getCurrencySymbol, type CurrencyCode } from '@/lib/utils/currency'
 
 interface PropertyDiscounts {
   weeklyPercent: number
@@ -23,6 +24,7 @@ interface PropertyDiscounts {
 
 interface DiscountCardProps {
   propertyId: string
+  currency?: string
   onUpdate?: () => void
 }
 
@@ -31,7 +33,7 @@ const AVERAGES = {
   monthly: 1724,
 }
 
-export function DiscountCard({ propertyId, onUpdate }: DiscountCardProps) {
+export function DiscountCard({ propertyId, currency = 'EUR', onUpdate }: DiscountCardProps) {
   const [discounts, setDiscounts] = useState<PropertyDiscounts>({
     weeklyPercent: 0,
     monthlyPercent: 0,
@@ -40,6 +42,9 @@ export function DiscountCard({ propertyId, onUpdate }: DiscountCardProps) {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [showDialog, setShowDialog] = useState(false)
+  const normalizedCurrency = currency?.toUpperCase() || 'EUR'
+  const currencyCode = (normalizedCurrency in CURRENCIES ? normalizedCurrency : 'EUR') as CurrencyCode
+  const currencySymbol = getCurrencySymbol(currencyCode)
 
   useEffect(() => {
     loadDiscounts()
@@ -164,7 +169,7 @@ export function DiscountCard({ propertyId, onUpdate }: DiscountCardProps) {
               <p className="text-2xl font-bold text-[#C9A227]">{discounts.weeklyPercent}%</p>
             </div>
             <p className="text-xs text-[#4D5566]">
-              Média semanal: €{AVERAGES.weekly} → Economia: €
+              Média semanal: {currencySymbol}{AVERAGES.weekly} → Economia: {currencySymbol}
               {(AVERAGES.weekly * (discounts.weeklyPercent / 100)).toFixed(0)}
             </p>
           </div>
@@ -179,7 +184,7 @@ export function DiscountCard({ propertyId, onUpdate }: DiscountCardProps) {
               <p className="text-2xl font-bold text-[#C9A227]">{discounts.monthlyPercent}%</p>
             </div>
             <p className="text-xs text-[#4D5566]">
-              Média mensal: €{AVERAGES.monthly} → Economia: €
+              Média mensal: {currencySymbol}{AVERAGES.monthly} → Economia: {currencySymbol}
               {(AVERAGES.monthly * (discounts.monthlyPercent / 100)).toFixed(0)}
             </p>
           </div>
@@ -245,7 +250,7 @@ export function DiscountCard({ propertyId, onUpdate }: DiscountCardProps) {
                 <span className="flex items-center text-lg font-semibold text-[#C9A227]">%</span>
               </div>
               <p className="text-xs text-[#4D5566]">
-                Economia: €{(AVERAGES.weekly * (discounts.weeklyPercent / 100)).toFixed(0)}
+                Economia: {currencySymbol}{(AVERAGES.weekly * (discounts.weeklyPercent / 100)).toFixed(0)}
               </p>
             </div>
 
@@ -273,7 +278,7 @@ export function DiscountCard({ propertyId, onUpdate }: DiscountCardProps) {
                 <span className="flex items-center text-lg font-semibold text-[#C9A227]">%</span>
               </div>
               <p className="text-xs text-[#4D5566]">
-                Economia: €{(AVERAGES.monthly * (discounts.monthlyPercent / 100)).toFixed(0)}
+                Economia: {currencySymbol}{(AVERAGES.monthly * (discounts.monthlyPercent / 100)).toFixed(0)}
               </p>
             </div>
 

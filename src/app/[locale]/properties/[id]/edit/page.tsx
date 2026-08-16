@@ -41,7 +41,6 @@ export default function EditPropertyPage({
   const [slug, setSlug] = useState('')
   const [isPublic, setIsPublic] = useState(false)
   const [description, setDescription] = useState('')
-  const [basePrice, setBasePrice] = useState<string>('')
   const [isActive, setIsActive] = useState(true)
   const [galleryImages, setGalleryImages] = useState<PropertyImage[]>([])
   const [uploadError, setUploadError] = useState<string | null>(null)
@@ -136,7 +135,6 @@ export default function EditPropertyPage({
       setIsPublic(propResult.data.is_public || false)
       setIsActive(propResult.data.is_active ?? true)
       setDescription(propResult.data.description || '')
-      setBasePrice((propResult.data.base_price as number | null)?.toString() || '')
       setCleaningFee((propResult.data.cleaning_fee as number | null)?.toString() || '')
       setCleaningFeeType((propResult.data.cleaning_fee_type as string | null) || 'per_stay')
       setPetFee((propResult.data.pet_fee as number | null)?.toString() || '')
@@ -202,7 +200,6 @@ export default function EditPropertyPage({
           bathrooms: parseInt(formData.get('bathrooms') as string) || 0,
           max_guests: parseInt(formData.get('max_guests') as string) || 0,
           management_percentage: parseFloat(formData.get('management_percentage') as string) || 0,
-          base_price: basePrice ? parseFloat(basePrice) : null,
           slug: finalSlug,
           is_public: isPublic,
           is_active: isActive,
@@ -494,46 +491,6 @@ export default function EditPropertyPage({
           </div>
 
           <div className="mb-8">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Preço Base (Fallback)</h3>
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="base_price" className="mb-1">
-                  Preço Base (por Noite) *
-                </Label>
-                <Input
-                  type="number"
-                  id="base_price"
-                  min="0"
-                  step="0.01"
-                  value={basePrice}
-                  onChange={(e) => setBasePrice(e.target.value)}
-                  placeholder="Ex: 100.00"
-                />
-                <p className="text-xs text-gray-600 mt-1">
-                  Preço padrão por noite quando não há preço configurado no calendário. Gerencie preços diários no calendário para melhor controlo.
-                </p>
-              </div>
-
-              {/* Pricing Rules Link */}
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <h4 className="font-semibold text-blue-900 mb-2">Gerir Preços no Calendário</h4>
-                <p className="text-sm text-blue-800 mb-3">
-                  Configure preços por dia, descontos por duração e períodos de indisponibilidade no calendário.
-                </p>
-                <Link
-                  href={`/${locale}/calendar/${propertyId}`}
-                  className="inline-flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 transition"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  Ir para Calendário
-                </Link>
-              </div>
-            </div>
-          </div>
-
-          <div className="mb-8">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Gestão</h3>
             <div className="space-y-4">
               <div>
@@ -557,11 +514,11 @@ export default function EditPropertyPage({
             </div>
           </div>
 
-          {/* Taxas e Horários */}
+          {/* Horários */}
           <div className="mb-8">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Taxas e Horários</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Horários</h3>
             <div className="space-y-6">
-              <div>
+              <div className="hidden">
                 <h4 className="text-sm font-medium text-gray-700 mb-3">Taxas Adicionais</h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>

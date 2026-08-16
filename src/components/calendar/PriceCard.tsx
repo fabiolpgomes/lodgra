@@ -345,7 +345,7 @@ function PriceCardComponent({ propertyId, basePrice: initialPrice, weekendPrice:
         <AlertCircle className="w-5 h-5 text-[#1B2430] flex-shrink-0 mt-0.5" />
         <div className="text-xs text-[#4D5566]">
           <p className="font-semibold text-[#1B2430] mb-1">Hierarquia de Preços:</p>
-          <p>Preços diários → Períodos configurados → Preço base</p>
+          <p>Preços diários → Fim de semana → Períodos configurados → Preço base</p>
         </div>
       </div>
     </div>

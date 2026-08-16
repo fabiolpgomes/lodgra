@@ -4,7 +4,8 @@
  *
  * Returns pricing by date using this hierarchy:
  * 1. daily_prices (daily overrides set via admin calendar)
- * 2. pricing_rules (period-based pricing fallback)
+ * 2. weekend_price (Friday/Saturday property fallback)
+ * 3. pricing_rules (period-based pricing fallback)
  */
 
 import { createAdminClient } from '@/lib/supabase/admin'
@@ -54,9 +55,10 @@ export async function GET(
     const weekendPrice = Number(pricing?.weekend_price) || null
 
     // Base price applies to every night in the selected calendar month.
+    // Weekend pricing follows reservation-validator: Friday and Saturday.
     if (basePrice > 0) {
       for (const day of eachDayOfInterval({ start: rangeStart, end: rangeEnd })) {
-        const isWeekend = day.getDay() === 0 || day.getDay() === 6
+        const isWeekend = day.getDay() === 5 || day.getDay() === 6
         pricesMap.set(
           format(day, 'yyyy-MM-dd'),
           isWeekend && weekendPrice ? weekendPrice : basePrice
@@ -94,7 +96,18 @@ export async function GET(
       }
     }
 
-    // Step 2: Get daily_prices overrides (overlay on top of pricing_rules)
+    // Weekend pricing is the property-level fallback used by reservations.
+    // Apply it after period rules so the calendar and reservation fallback
+    // show the same Friday/Saturday price. Explicit daily prices still win.
+    if (weekendPrice) {
+      for (const day of eachDayOfInterval({ start: rangeStart, end: rangeEnd })) {
+        if (day.getDay() === 5 || day.getDay() === 6) {
+          pricesMap.set(format(day, 'yyyy-MM-dd'), weekendPrice)
+        }
+      }
+    }
+
+    // Step 2: Get daily_prices overrides (overlay on top of weekend pricing)
     const { data: dailyPricesRaw, error: dailyError } = await supabase
       .from('daily_prices')
       .select('date, base_price')

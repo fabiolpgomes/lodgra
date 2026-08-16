@@ -141,10 +141,23 @@ async function getInitialProperties(orgSlug: string | null) {
   const { data: propertiesRaw, count } = await query
   const properties = propertiesRaw ?? []
   const propertyIds = properties.map((property) => property.id)
+  const calendarBasePriceMap = new Map<string, number>()
   const imageMap = new Map<string, string>()
   const amenitiesMap = new Map<string, Array<{ id: string; name: string; icon: string; category: string }>>()
 
   if (propertyIds.length > 0) {
+    const { data: calendarPrices } = await supabase
+      .from('property_prices')
+      .select('property_id, base_price')
+      .in('property_id', propertyIds)
+
+    for (const pricing of calendarPrices ?? []) {
+      const basePrice = Number(pricing.base_price)
+      if (Number.isFinite(basePrice)) {
+        calendarBasePriceMap.set(pricing.property_id, basePrice)
+      }
+    }
+
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
     const { data: propertyImages } = await supabase
       .from('property_images')
@@ -221,7 +234,9 @@ async function getInitialProperties(orgSlug: string | null) {
     city: property.city,
     country: property.country,
     image: imageMap.get(property.id) || property.photos?.[0] || '',
-    price: property.base_price,
+    // The calendar is the source of truth for the public nightly base price.
+    // Keep the legacy property value only as a compatibility fallback.
+    price: calendarBasePriceMap.get(property.id) ?? property.base_price,
     currency: property.currency,
     amenities: property.amenities || [],
     structuredAmenities: amenitiesMap.get(property.id),

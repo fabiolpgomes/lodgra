@@ -276,9 +276,22 @@ export async function GET(request: Request): Promise<Response> {
 
     // Fetch first image per property from property_images table (new system)
     const propertyIds = (data as PropertyRecord[] || []).map(p => p.id)
+    const calendarBasePriceMap = new Map<string, number>()
     const imageMap = new Map<string, string>()
 
     if (propertyIds.length > 0) {
+      const { data: calendarPrices } = await supabase
+        .from('property_prices')
+        .select('property_id, base_price')
+        .in('property_id', propertyIds)
+
+      for (const pricing of calendarPrices ?? []) {
+        const basePrice = Number(pricing.base_price)
+        if (Number.isFinite(basePrice)) {
+          calendarBasePriceMap.set(pricing.property_id, basePrice)
+        }
+      }
+
       const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
 
       // Step 1: get first property_image per property
@@ -393,7 +406,9 @@ export async function GET(request: Request): Promise<Response> {
           city: prop.city,
           country: prop.country,
           image,
-          price: prop.base_price,
+          // The calendar is the source of truth for the public nightly base price.
+          // Keep the legacy property value only as a compatibility fallback.
+          price: calendarBasePriceMap.get(prop.id) ?? prop.base_price,
           currency: prop.currency,
           amenities: prop.amenities || [],
           structuredAmenities: amenitiesMap.get(prop.id),

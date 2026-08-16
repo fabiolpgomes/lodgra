@@ -46,7 +46,26 @@ async function fetchDailyPrices(
 
   const dailyPrices = new Map<string, number>()
 
-  // Step 1: Load pricing_rules as base layer
+  // Calendar base and weekend prices are the fallback pricing source.
+  const { data: propertyPricing } = await db
+    .from('property_prices')
+    .select('base_price, weekend_price')
+    .eq('property_id', propertyId)
+    .maybeSingle()
+
+  const calendarBasePrice = Number(propertyPricing?.base_price) || 0
+  const calendarWeekendPrice = Number(propertyPricing?.weekend_price) || null
+  if (calendarBasePrice > 0) {
+    for (const day of eachDayOfInterval({ start: checkIn, end: addDays(checkOut, -1) })) {
+      const isWeekend = day.getDay() === 5 || day.getDay() === 6
+      dailyPrices.set(
+        format(day, 'yyyy-MM-dd'),
+        isWeekend && calendarWeekendPrice ? calendarWeekendPrice : calendarBasePrice,
+      )
+    }
+  }
+
+  // Step 1: Load pricing_rules as an override layer
   const { data: pricingRulesRaw, error: rulesError } = await db
     .from('pricing_rules')
     .select('start_date, end_date, price_per_night')

@@ -132,6 +132,18 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
     notFound()
   }
 
+  // Public pricing is controlled from the calendar. Keep properties.base_price
+  // only as a legacy database fallback for properties without calendar pricing.
+  const { data: calendarPricing } = await adminClient
+    .from('property_prices')
+    .select('base_price')
+    .eq('property_id', property.id)
+    .maybeSingle()
+  const publicProperty = {
+    ...property,
+    base_price: calendarPricing?.base_price ?? property.base_price,
+  }
+
   // Load min_nights from property_availability (new schema)
   const { data: availabilityData, error: availabilityError } = await supabase
     .from('property_availability')
@@ -388,7 +400,7 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
 
   const nonce = (await headers()).get('x-nonce') ?? undefined
   const jsonLd = generateLodgingBusinessJsonLd({
-    ...property,
+    ...publicProperty,
     imageUrls: allPhotos,
     structuredAmenities,
     telephone: orgPublicProfile?.contact_phone ?? undefined,
@@ -414,7 +426,7 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <PropertyPageV2
-        property={property}
+        property={publicProperty}
         allPhotos={allPhotos}
         currency={property.currency}
         initialCheckIn={checkIn}

@@ -340,7 +340,7 @@ function PropertyCard({ property, imageUrl, canEdit, locale }: {
             )}
           </div>
 
-          <div className="mb-4 flex items-end justify-between gap-3 rounded-xl border border-brand-bg bg-brand-white px-3 py-2 shadow-sm transition-colors group-hover:border-brand-gold/45">
+          <div className="mb-4 hidden flex items-end justify-between gap-3 rounded-xl border border-brand-bg bg-brand-white px-3 py-2 shadow-sm transition-colors group-hover:border-brand-gold/45">
             <div>
               <p className="text-[10px] font-bold uppercase tracking-wider text-brand-text-medium">
                 Diária mínima

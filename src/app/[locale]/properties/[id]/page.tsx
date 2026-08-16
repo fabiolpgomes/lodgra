@@ -421,13 +421,13 @@ export default async function PropertyDetailsPage({
               </div>
             )}
 
-            {/* Taxas e Horários */}
-            {(property.cleaning_fee || property.pet_fee || property.checkin_from || property.checkout_until) && (
+            {/* Horários */}
+            {(property.checkin_from || property.checkout_until) && (
               <div className="bg-white rounded-lg shadow p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Taxas e Horários</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Horários</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {(property.cleaning_fee || property.pet_fee) && (
-                    <div>
+                    <div className="hidden">
                       <p className="text-sm font-medium text-gray-700 mb-2">Taxas Adicionais</p>
                       <div className="space-y-1">
                         {property.cleaning_fee && (

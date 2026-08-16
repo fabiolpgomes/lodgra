@@ -167,7 +167,9 @@ export function SettingsSidebar({ propertyId: propPropertyId, calendarMonth, cal
           onUpdate={() => { void onUpdate?.(); void loadData() }}
         />
       )}
-      {activeSection === 'discounts' && propertyId && <DiscountCard propertyId={propertyId} />}
+      {activeSection === 'discounts' && propertyId && (
+        <DiscountCard propertyId={propertyId} currency={currencyCode} />
+      )}
       {activeSection === 'availability' && propertyId && <AvailabilityCard propertyId={propertyId} />}
       {activeSection === 'cancellations' && cancellationPolicies.map((policy) => (
         <CancellationCard
