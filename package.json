@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "next dev",
     "dev:prod-db": "bash -c 'set -a && . ./.env.local && . ./.env.local.prod-db && set +a && exec ./node_modules/.bin/next dev'",
+    "dev:production": "bash -c 'set -a && . ./.env.local.production && set +a && exec ./node_modules/.bin/next dev'",
     "build": "node scripts/next-build.js",
     "start": "next start",
     "lint": "eslint",

@@ -104,6 +104,18 @@ This ensures staging is a safe replica without exposing production payment data.
 
 ## 3. Working on Staging
 
+### Local Default
+
+For local development, keep `.env.local` pointing to the staging Supabase project. That lets `npm run dev` use staging by default without any manual swapping.
+
+### Production Check
+
+If you need to test against production locally, use:
+
+```bash
+npm run dev:production
+```
+
 ### Branching Strategy
 
 ```bash
