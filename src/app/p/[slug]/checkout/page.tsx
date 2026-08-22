@@ -67,6 +67,7 @@ export default async function CheckoutPage({ params, searchParams }: PageProps) 
       <main className="max-w-lg mx-auto px-4 sm:px-6 py-8">
         <h1 className="text-xl font-bold text-brand-text-dark mb-6">Finalizar Reserva</h1>
         <CheckoutPageClient
+          propertyId={property.id}
           slug={slug}
           propertyName={property.name}
           city={property.city ?? null}

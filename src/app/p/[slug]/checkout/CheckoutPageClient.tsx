@@ -1,9 +1,10 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { differenceInDays, isBefore, isValid, parseISO, startOfDay } from 'date-fns'
 import { CheckoutForm } from '@/components/common/public/CheckoutForm'
+import { usePropertyPriceQuote } from '@/hooks/usePropertyPriceQuote'
 
 type FeeConfig = {
   cleaningFee: number | null
@@ -21,6 +22,7 @@ type CancellationPolicy = {
 }
 
 interface CheckoutPageClientProps {
+  propertyId: string
   slug: string
   propertyName: string
   city?: string | null
@@ -30,13 +32,8 @@ interface CheckoutPageClientProps {
   feeConfig: FeeConfig
 }
 
-type PricingResult = {
-  total: number
-  accommodationTotal?: number
-  fees?: { label: string; amount: number }[]
-}
-
 export function CheckoutPageClient({
+  propertyId,
   slug,
   propertyName,
   city,
@@ -47,21 +44,35 @@ export function CheckoutPageClient({
 }: CheckoutPageClientProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [pricing, setPricing] = useState<PricingResult | null>(null)
-  const [error, setError] = useState<string | null>(null)
 
   const checkin = searchParams.get('checkin') ?? searchParams.get('checkIn')
   const checkout = searchParams.get('checkout') ?? searchParams.get('checkOut')
   const guests = Math.max(1, parseInt(searchParams.get('guests') ?? '1', 10) || 1)
+  const { quote, loading: pricingLoading, error: pricingQuoteError } = usePropertyPriceQuote(
+    propertyId,
+    checkin ?? undefined,
+    checkout ?? undefined
+  )
 
-  const feeQuery = useMemo(() => {
-    const params = new URLSearchParams()
-    if (feeConfig.cleaningFee != null) params.set('cleaningFee', String(feeConfig.cleaningFee))
-    if (feeConfig.cleaningFeeType) params.set('cleaningFeeType', feeConfig.cleaningFeeType)
-    if (feeConfig.petFee != null) params.set('petFee', String(feeConfig.petFee))
-    if (feeConfig.petFeeType) params.set('petFeeType', feeConfig.petFeeType)
-    return params
-  }, [feeConfig.cleaningFee, feeConfig.cleaningFeeType, feeConfig.petFee, feeConfig.petFeeType])
+  const feeItems = useMemo(() => {
+    if (!quote) return []
+
+    const nights = quote.breakdown.length
+    const items: { label: string; amount: number }[] = []
+    if (feeConfig.cleaningFee != null && feeConfig.cleaningFee > 0) {
+      items.push({
+        label: 'Taxa de limpeza',
+        amount: feeConfig.cleaningFeeType === 'per_night' ? feeConfig.cleaningFee * nights : feeConfig.cleaningFee,
+      })
+    }
+    if (feeConfig.petFee != null && feeConfig.petFee > 0) {
+      items.push({
+        label: 'Taxa de animais',
+        amount: feeConfig.petFeeType === 'per_night' ? feeConfig.petFee * nights : feeConfig.petFee,
+      })
+    }
+    return items
+  }, [feeConfig.cleaningFee, feeConfig.cleaningFeeType, feeConfig.petFee, feeConfig.petFeeType, quote])
 
   useEffect(() => {
     if (!checkin || !checkout) {
@@ -87,47 +98,17 @@ export function CheckoutPageClient({
       router.replace(`/p/${slug}?checkIn=${checkin}&checkOut=${checkout}&guests=${maxGuests}`)
       return
     }
+  }, [checkin, checkout, guests, maxGuests, router, slug])
 
-    const controller = new AbortController()
-    setError(null)
-    setPricing(null)
-
-    const params = new URLSearchParams({
-      checkin,
-      checkout,
-      ...Object.fromEntries(feeQuery.entries()),
-    })
-
-    fetch(`/api/public/properties/${slug}/pricing?${params.toString()}`, {
-      signal: controller.signal,
-    })
-      .then(async (res) => {
-        const data = await res.json().catch(() => null)
-        if (!res.ok) {
-          throw new Error(data?.error || 'Erro ao calcular o preço')
-        }
-        return data as PricingResult
-      })
-      .then((data) => setPricing(data))
-      .catch((err: unknown) => {
-        if (!controller.signal.aborted) {
-          const message = err instanceof Error ? err.message : 'Erro ao calcular o preço'
-          setError(message)
-        }
-      })
-
-    return () => controller.abort()
-  }, [checkin, checkout, guests, feeQuery, maxGuests, router, slug])
-
-  if (error) {
+  if (pricingQuoteError && !quote) {
     return (
-      <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-        {error}
+      <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+        {pricingQuoteError}
       </div>
     )
   }
 
-  if (!pricing || !checkin || !checkout) {
+  if (!quote || !checkin || !checkout) {
     return (
       <div className="rounded-2xl border border-brand-gold/15 bg-brand-white p-5 text-sm text-brand-text-medium shadow-sm">
         A carregar checkout...
@@ -135,8 +116,8 @@ export function CheckoutPageClient({
     )
   }
 
-  const fees = pricing.fees ?? []
-  const totalPrice = pricing.total
+  const feeTotal = feeItems.reduce((sum, fee) => sum + fee.amount, 0)
+  const totalPrice = quote.finalTotal + feeTotal
 
   return (
     <CheckoutForm
@@ -147,10 +128,13 @@ export function CheckoutPageClient({
       checkout={checkout}
       guests={guests}
       totalPrice={totalPrice}
-      accommodationTotal={pricing.accommodationTotal ?? totalPrice}
-      fees={fees}
+      accommodationTotal={quote.baseTotal}
+      fees={feeItems}
       currency={currency}
       cancellationPolicy={cancellationPolicy}
+      pricingQuote={quote}
+      pricingLoading={pricingLoading}
+      pricingError={pricingQuoteError}
     />
   )
 }

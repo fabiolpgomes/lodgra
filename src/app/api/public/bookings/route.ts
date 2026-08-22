@@ -41,16 +41,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Corpo da requisição inválido' }, { status: 400 })
     }
 
-  const {
-    slug,
-    checkin,
-    checkout,
-    num_guests,
-    guest_name,
-    guest_email,
-    guest_phone,
-    guest_country,
-  } = body as Record<string, string | number>
+    const {
+      slug,
+      checkin,
+      checkout,
+      num_guests,
+      guest_name,
+      guest_email,
+      guest_phone,
+      guest_country,
+      pricing_snapshot,
+    } = body
 
   // ── Validation ─────────────────────────────────────────────────────────────
 
@@ -58,8 +59,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Campos obrigatórios em falta' }, { status: 400 })
   }
 
-  const checkinDate = parseISO(checkin as string)
-  const checkoutDate = parseISO(checkout as string)
+  const checkinDate = parseISO(String(checkin))
+  const checkoutDate = parseISO(String(checkout))
   const today = startOfDay(new Date())
 
   if (!isValid(checkinDate) || !isValid(checkoutDate)) {
@@ -78,13 +79,22 @@ export async function POST(request: NextRequest) {
 
   // Email validation
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  if (!emailRegex.test(guest_email as string)) {
+  if (!emailRegex.test(String(guest_email))) {
     return NextResponse.json({ error: 'Email inválido' }, { status: 400 })
   }
 
   const guests = typeof num_guests === 'number' ? num_guests : parseInt(String(num_guests)) || 1
 
   const adminClient = await createAdminClient()
+  const pricingSnapshot = typeof pricing_snapshot === 'object' && pricing_snapshot !== null
+    ? pricing_snapshot as {
+        base_total?: number
+        discount_type?: 'weekly' | 'monthly' | null
+        discount_percentage?: number
+        discount_amount?: number
+        final_total?: number
+      }
+    : null
 
   // ── Fetch property ──────────────────────────────────────────────────────────
 
@@ -232,10 +242,13 @@ export async function POST(request: NextRequest) {
   const petFeeTotal = petFee > 0
     ? (property.pet_fee_type === 'per_night' ? petFee * nights : petFee)
     : 0
-  const totalAmount = pricing.total + cleaningFeeTotal + petFeeTotal
+  const baseTotal = Number(pricingSnapshot?.base_total ?? pricing.total)
+  const discountAmount = Number(pricingSnapshot?.discount_amount ?? 0)
+  const finalAccommodationTotal = Number(pricingSnapshot?.final_total ?? pricing.total)
+  const totalAmount = finalAccommodationTotal + cleaningFeeTotal + petFeeTotal
   // Story 39.1 — snapshot de service_fee_amount no momento da criação (não recalcular depois)
   const serviceFeeAmount = calculateServiceFeeAmount(property, nights)
-  console.log('[Bookings API] Price calculated:', pricing.total, '+ fees:', cleaningFeeTotal + petFeeTotal, '= total:', totalAmount)
+  console.log('[Bookings API] Price calculated:', finalAccommodationTotal, '+ fees:', cleaningFeeTotal + petFeeTotal, '= total:', totalAmount)
 
   if (totalAmount <= 0) {
     return NextResponse.json(
@@ -262,26 +275,26 @@ export async function POST(request: NextRequest) {
 
   console.log('[Bookings API] Creating reservation with listing:', directListingId)
   const { data: reservation, error: reservationError } = await adminClient
-    .from('reservations')
-    .insert({
-      property_id: property.id,
-      property_listing_id: directListingId,
-      guest_id: guestRecord?.id ?? null,
-      check_in: checkin as string,
-      check_out: checkout as string,
-      number_of_guests: guests,
-      total_amount: totalAmount,
-      currency: property.currency ?? 'EUR',
+      .from('reservations')
+      .insert({
+        property_id: property.id,
+        property_listing_id: directListingId,
+        guest_id: guestRecord?.id ?? null,
+        check_in: String(checkin),
+        check_out: String(checkout),
+        number_of_guests: guests,
+        total_amount: totalAmount,
+        currency: property.currency ?? 'EUR',
       service_fee_amount: serviceFeeAmount,
       status: 'pending_payment',
       booking_source: 'direct',
-      guest_name: (guest_name as string).trim(),
+      guest_name: String(guest_name).trim(),
       first_name: firstName,
       last_name: lastName,
-      guest_email: (guest_email as string).toLowerCase().trim(),
-      guest_phone: (guest_phone as string) || null,
+      guest_email: String(guest_email).toLowerCase().trim(),
+      guest_phone: String(guest_phone || '') || null,
       num_guests: guests,
-      discount_amount: 0,
+      discount_amount: discountAmount,
       organization_id: property.organization_id,
       commission_calculated_at: new Date().toISOString(),
     })
@@ -332,13 +345,25 @@ export async function POST(request: NextRequest) {
           quantity: 1,
         },
       ],
-      customer_email: (guest_email as string).toLowerCase().trim(),
+      customer_email: String(guest_email).toLowerCase().trim(),
       success_url: `${appUrl}/p/${slug}/booking-confirmed?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${appUrl}/p/${slug}`,
       expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
       metadata: {
         reservation_id: reservation.id,
         property_slug: slug as string,
+        base_total: String(baseTotal),
+        discount_type: pricingSnapshot?.discount_type ?? '',
+        discount_percentage: String(pricingSnapshot?.discount_percentage ?? 0),
+        discount_amount: String(discountAmount),
+        final_total: String(finalAccommodationTotal),
+        pricing_snapshot: pricingSnapshot ? JSON.stringify({
+          base_total: baseTotal,
+          discount_type: pricingSnapshot.discount_type ?? null,
+          discount_percentage: pricingSnapshot.discount_percentage ?? 0,
+          discount_amount: discountAmount,
+          final_total: finalAccommodationTotal,
+        }) : '',
       },
     }
 

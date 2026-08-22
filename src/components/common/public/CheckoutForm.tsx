@@ -4,6 +4,8 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { BookingSummary } from './BookingSummary'
 import { Loader2, ArrowLeft } from 'lucide-react'
+import { PriceBreakdownCard } from './booking/PriceBreakdownCard'
+import type { PropertyPriceQuote } from '@/hooks/usePropertyPriceQuote'
 
 interface CheckoutFormProps {
   slug: string
@@ -16,6 +18,9 @@ interface CheckoutFormProps {
   accommodationTotal?: number
   fees?: { label: string; amount: number }[]
   currency?: string
+  pricingQuote?: PropertyPriceQuote | null
+  pricingLoading?: boolean
+  pricingError?: string | null
   cancellationPolicy?: {
     id?: string
     policy_type: string
@@ -58,6 +63,9 @@ export function CheckoutForm({
   accommodationTotal,
   fees,
   currency = 'EUR',
+  pricingQuote = null,
+  pricingLoading = false,
+  pricingError = null,
   cancellationPolicy,
 }: CheckoutFormProps) {
   const router = useRouter()
@@ -105,6 +113,15 @@ export function CheckoutForm({
           guest_email: guestData.email.trim(),
           guest_phone: guestData.phone.trim(),
           guest_country: guestData.country,
+          pricing_snapshot: pricingQuote
+            ? {
+                base_total: pricingQuote.baseTotal,
+                discount_type: pricingQuote.discountType,
+                discount_percentage: pricingQuote.discountPercentage,
+                discount_amount: pricingQuote.discountAmount,
+                final_total: pricingQuote.finalTotal,
+              }
+            : null,
         }),
       })
 
@@ -157,6 +174,12 @@ export function CheckoutForm({
       {/* Step 1 — Summary */}
       {step === 'summary' && (
         <div className="space-y-4">
+          <PriceBreakdownCard
+            quote={pricingQuote}
+            currency={currency}
+            loading={pricingLoading}
+            error={pricingError}
+          />
           <BookingSummary
             propertyName={propertyName}
             city={city}
@@ -187,6 +210,13 @@ export function CheckoutForm({
       {/* Step 2 — Guest details */}
       {step === 'guest' && (
         <div className="space-y-4">
+          <PriceBreakdownCard
+            quote={pricingQuote}
+            currency={currency}
+            loading={pricingLoading}
+            error={pricingError}
+            compact
+          />
           <BookingSummary
             propertyName={propertyName}
             city={city}

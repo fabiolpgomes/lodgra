@@ -284,6 +284,7 @@ export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, 
             <div className="hidden lg:block">
               <div className="sticky top-24">
                 <BookingWidgetDesktop
+                  propertyId={property.id}
                   propertyName={property.name}
                   basePrice={property.base_price ?? 0}
                   currency={currency}
@@ -331,6 +332,7 @@ export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, 
 
       {/* Mobile Booking Widget - Fixed Bottom */}
       <BookingWidgetMobile
+        propertyId={property.id}
         propertyName={property.name}
         basePrice={property.base_price ?? 0}
         currency={currency}

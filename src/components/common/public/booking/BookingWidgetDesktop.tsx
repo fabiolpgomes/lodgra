@@ -3,6 +3,8 @@
 import { useState, useMemo, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { differenceInDays, parseISO, isValid, isBefore, startOfDay, addDays, format } from 'date-fns'
+import { usePropertyPriceQuote } from '@/hooks/usePropertyPriceQuote'
+import { PriceBreakdownCard } from './PriceBreakdownCard'
 
 interface PricingRule {
   start_date: string
@@ -10,17 +12,13 @@ interface PricingRule {
   min_nights: number
 }
 
-type PriceState =
-  | { status: 'idle' }
-  | { status: 'loading' }
-  | { status: 'ready'; total: number; accommodationTotal?: number; fees?: { label: string; amount: number }[]; breakdown?: { date: string; price: number }[] }
-
 interface BlockedRange {
   start: string
   end: string
 }
 
 interface BookingWidgetDesktopProps {
+  propertyId: string
   propertyName: string
   basePrice: number
   currency: string
@@ -52,6 +50,7 @@ function isRangeOverlapping(ci: string, co: string, ranges: BlockedRange[]): boo
 }
 
 export function BookingWidgetDesktop({
+  propertyId,
   basePrice,
   currency,
   slug,
@@ -86,7 +85,11 @@ export function BookingWidgetDesktop({
   const [guests, setGuests] = useState(Math.min(initialGuests, Math.max(1, maxGuests)))
   const [checkInError, setCheckInError] = useState('')
   const [checkOutError, setCheckOutError] = useState('')
-  const [priceState, setPriceState] = useState<PriceState>({ status: 'idle' })
+  const { quote, loading: isPriceFetching, error: priceError } = usePropertyPriceQuote(
+    propertyId,
+    checkIn,
+    checkOut
+  )
 
   const currencySymbols: Record<string, string> = { BRL: 'R$', EUR: '€', USD: '$' }
   const symbol = currencySymbols[currency] || currency
@@ -150,42 +153,29 @@ export function BookingWidgetDesktop({
     }
   }, [blockedRanges, checkIn, checkOut, effectiveMinNights])
 
-  // Fetch real price from pricing rules API when dates are selected
-  const fetchKey = checkIn && checkOut && nights >= 1 ? `${checkIn}|${checkOut}` : null
-
-  useEffect(() => {
-    if (!fetchKey) return
-    let cancelled = false
-    setPriceState({ status: 'loading' })
-    const params = new URLSearchParams({
-      checkin: checkIn,
-      checkout: checkOut,
-      ...(cleaningFee !== undefined && cleaningFee !== null && { cleaningFee: cleaningFee.toString() }),
-      ...(cleaningFeeType && { cleaningFeeType }),
-      ...(petFee !== undefined && petFee !== null && { petFee: petFee.toString() }),
-      ...(petFeeType && { petFeeType }),
-    })
-    fetch(`/api/public/properties/${slug}/pricing?${params}`)
-      .then(r => r.ok ? r.json() : null)
-      .then(data => {
-        if (!cancelled) {
-          setPriceState(data ? { status: 'ready', total: data.total, breakdown: data.breakdown } : { status: 'idle' })
-        }
+  const isReady = !!quote
+  const feeItems = useMemo(() => {
+    const items: { label: string; amount: number }[] = []
+    if (cleaningFee != null && cleaningFee > 0) {
+      items.push({
+        label: 'Taxa de limpeza',
+        amount: cleaningFeeType === 'per_night' ? cleaningFee * nights : cleaningFee,
       })
-      .catch(() => { if (!cancelled) setPriceState({ status: 'idle' }) })
-    return () => { cancelled = true }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fetchKey, slug, cleaningFee, cleaningFeeType, petFee, petFeeType])
-
-  const isReady = priceState.status === 'ready' && fetchKey !== null
-  const isPriceFetching = priceState.status === 'loading'
-  const displayTotal = isReady ? priceState.total : nights * basePrice
-  const accommodationTotal = isReady && priceState.accommodationTotal != null
-    ? priceState.accommodationTotal
-    : displayTotal
-  const hasVaryingPrices = isReady && priceState.breakdown && priceState.breakdown.length > 1
-    && priceState.breakdown.some(b => b.price !== priceState.breakdown![0].price)
-  const avgPerNight = nights > 0 ? Math.round(accommodationTotal / nights) : 0
+    }
+    if (petFee != null && petFee > 0) {
+      items.push({
+        label: 'Taxa de animais',
+        amount: petFeeType === 'per_night' ? petFee * nights : petFee,
+      })
+    }
+    return items
+  }, [cleaningFee, cleaningFeeType, nights, petFee, petFeeType])
+  const feeTotal = feeItems.reduce((sum, fee) => sum + fee.amount, 0)
+  const displayTotal = (quote?.finalTotal ?? nights * basePrice) + feeTotal
+  const accommodationTotal = quote?.baseTotal ?? (quote?.finalTotal ?? nights * basePrice)
+  const hasVaryingPrices = quote?.breakdown && quote.breakdown.length > 1
+    && quote.breakdown.some(b => b.price !== quote.breakdown![0].price)
+  const avgPerNight = nights > 0 ? Math.round(accommodationTotal / nights) : basePrice
 
   const checkoutHref = useMemo(() => {
     if (!checkIn || !checkOut || nights < 1 || nights < effectiveMinNights) return null
@@ -349,37 +339,46 @@ export function BookingWidgetDesktop({
         </select>
       </div>
 
-      {/* Price summary */}
-      {nights > 0 && (
-        <div className="mb-4 p-3 bg-brand-bg rounded-xl text-sm space-y-1.5">
-          {isPriceFetching ? (
-            <div className="flex justify-between text-gray-400 animate-pulse">
-              <span>{nights} noite{nights !== 1 ? 's' : ''}</span>
-              <span className="bg-gray-200 rounded w-16">&nbsp;</span>
-            </div>
-          ) : (
-            <>
-              <div className="flex justify-between text-brand-text-medium">
-                {hasVaryingPrices
-                  ? <span>{nights} noite{nights !== 1 ? 's' : ''} · por época</span>
-                  : <span>{symbol}{avgPerNight} × {nights} noite{nights !== 1 ? 's' : ''}</span>
-                }
-                <span>{symbol}{Math.round(accommodationTotal)}</span>
-              </div>
-              {isReady && priceState.fees?.map((fee, i) => (
-                <div key={i} className="flex justify-between text-brand-text-medium">
-                  <span>{fee.label}</span>
-                  <span>{symbol}{Math.round(fee.amount)}</span>
+        {/* Price summary */}
+        {nights > 0 && (
+          <div className="mb-4 space-y-3">
+            <div className="p-3 bg-brand-bg rounded-xl text-sm space-y-1.5">
+              {isPriceFetching && !quote ? (
+                <div className="flex justify-between text-gray-400 animate-pulse">
+                  <span>{nights} noite{nights !== 1 ? 's' : ''}</span>
+                  <span className="bg-gray-200 rounded w-16">&nbsp;</span>
                 </div>
-              ))}
-              <div className="flex justify-between font-bold text-brand-text-dark pt-1.5 border-t border-brand-gold/15">
-                <span>Total</span>
-                <span>{symbol}{Math.round(displayTotal)}</span>
-              </div>
-            </>
-          )}
-        </div>
-      )}
+              ) : (
+                <>
+                  <div className="flex justify-between text-brand-text-medium">
+                    {hasVaryingPrices
+                      ? <span>{nights} noite{nights !== 1 ? 's' : ''} · por época</span>
+                      : <span>{symbol}{avgPerNight} × {nights} noite{nights !== 1 ? 's' : ''}</span>
+                    }
+                    <span>{symbol}{Math.round(accommodationTotal)}</span>
+                  </div>
+                  {feeItems.map((fee) => (
+                    <div key={fee.label} className="flex justify-between text-brand-text-medium">
+                      <span>{fee.label}</span>
+                      <span>{symbol}{Math.round(fee.amount)}</span>
+                    </div>
+                  ))}
+                  <div className="flex justify-between font-bold text-brand-text-dark pt-1.5 border-t border-brand-gold/15">
+                    <span>Total</span>
+                    <span>{symbol}{Math.round(displayTotal)}</span>
+                  </div>
+                </>
+              )}
+            </div>
+
+            <PriceBreakdownCard
+              quote={quote}
+              currency={currency}
+              loading={isPriceFetching}
+              error={priceError}
+            />
+          </div>
+        )}
 
       {/* CTA — button-primary per design.md */}
       {checkoutHref && !checkInError && !checkOutError ? (
