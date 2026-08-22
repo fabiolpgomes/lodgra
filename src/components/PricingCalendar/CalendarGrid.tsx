@@ -6,6 +6,15 @@
 import React from 'react';
 import { CalendarDay, DailyPrice } from '@/types/calendar.types';
 import { PriceIndicator } from './PriceIndicator';
+import { startOfDay } from 'date-fns';
+
+export interface CalendarReservation {
+  id: string;
+  guestName: string;
+  checkIn: Date;
+  checkOut: Date;
+  status: 'confirmed' | 'pending' | 'cancelled';
+}
 
 interface CalendarGridProps {
   days: CalendarDay[];
@@ -14,6 +23,7 @@ interface CalendarGridProps {
   rangeStart?: Date | null;
   rangeEnd?: Date | null;
   isSelectingRange?: boolean;
+  reservations?: CalendarReservation[];
 }
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -25,7 +35,17 @@ export function CalendarGrid({
   rangeStart,
   rangeEnd,
   isSelectingRange = false,
+  reservations = [],
 }: CalendarGridProps) {
+  const reservationForDay = (day: CalendarDay): CalendarReservation | null => {
+    const dayDate = startOfDay(day.date)
+    return reservations.find((reservation) => {
+      const checkIn = startOfDay(reservation.checkIn)
+      const checkOut = startOfDay(reservation.checkOut)
+      return dayDate >= checkIn && dayDate < checkOut
+    }) || null
+  }
+
   const isInRange = (day: CalendarDay): boolean => {
     if (!rangeStart || !rangeEnd) return false;
     const dayDate = new Date(day.date);
@@ -43,6 +63,10 @@ export function CalendarGrid({
   const getCellColor = (day: CalendarDay): string => {
     if (!day.isCurrentMonth) {
       return 'bg-gray-50 text-gray-400';
+    }
+
+    if (reservationForDay(day)) {
+      return 'bg-slate-100 border-slate-300 text-slate-700 cursor-not-allowed';
     }
 
     if (isInRange(day)) {
@@ -81,30 +105,43 @@ export function CalendarGrid({
 
       {/* Calendar grid */}
       <div className="grid grid-cols-7 gap-1">
-        {days.map((day, idx) => (
-          <button
-            key={`${day.date.toISOString()}-${idx}`}
-            onClick={(e) => day.isCurrentMonth && onDateClick(day.date, e)}
-            disabled={!day.isCurrentMonth || day.priceType === 'disabled'}
-            className={`
-              aspect-square p-1 rounded border-2 text-sm font-medium
-              transition-colors duration-200
-              ${getCellColor(day)}
-              ${day.isCurrentMonth && day.priceType !== 'disabled' ? 'cursor-pointer' : ''}
-              flex flex-col items-center justify-center
-            `}
-          >
-            <div className="text-base">{day.dayOfMonth}</div>
-            {day.price && day.isCurrentMonth && (
-              <div className="text-xs mt-1">
-                <PriceIndicator
-                  priceType={day.priceType}
-                  price={day.price}
-                />
-              </div>
-            )}
-          </button>
-        ))}
+        {days.map((day, idx) => {
+          const reservation = reservationForDay(day);
+
+          return (
+            <button
+              key={`${day.date.toISOString()}-${idx}`}
+              onClick={(e) => {
+                if (day.isCurrentMonth && day.priceType !== 'disabled' && !reservation) {
+                  onDateClick(day.date, e);
+                }
+              }}
+              disabled={!day.isCurrentMonth || day.priceType === 'disabled' || Boolean(reservation)}
+              className={`
+                aspect-square p-1 rounded border-2 text-sm font-medium
+                transition-colors duration-200
+                ${getCellColor(day)}
+                ${day.isCurrentMonth && day.priceType !== 'disabled' && !reservation ? 'cursor-pointer' : ''}
+                flex flex-col items-center justify-center
+              `}
+            >
+              <div className="text-base">{day.dayOfMonth}</div>
+              {day.price && day.isCurrentMonth && (
+                <div className="text-xs mt-1">
+                  <PriceIndicator
+                    priceType={day.priceType}
+                    price={day.price}
+                  />
+                </div>
+              )}
+              {reservation && (
+                <div className="mt-1 text-[10px] font-semibold leading-tight text-slate-600 truncate max-w-full">
+                  {reservation.guestName}
+                </div>
+              )}
+            </button>
+          );
+        })}
       </div>
     </div>
   );

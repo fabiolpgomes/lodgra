@@ -3,7 +3,7 @@
  */
 
 import { renderHook, waitFor, act } from '@testing-library/react';
-import { useCalendarMonth } from '@/components/PricingCalendar/hooks/useCalendarMonth';
+import { clearCalendarMonthCache, useCalendarMonth } from '@/components/PricingCalendar/hooks/useCalendarMonth';
 
 global.fetch = jest.fn();
 const mockFetch = fetch as jest.MockedFunction<typeof fetch>;
@@ -11,6 +11,7 @@ const mockFetch = fetch as jest.MockedFunction<typeof fetch>;
 describe('useCalendarMonth', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    clearCalendarMonthCache();
   });
 
   it('fetches prices on mount', async () => {

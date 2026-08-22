@@ -6,6 +6,12 @@
 import { useEffect, useState, useCallback } from 'react';
 import { DailyPrice } from '@/types/calendar.types';
 
+const pricesCache = new Map<string, Map<string, DailyPrice>>();
+
+export function clearCalendarMonthCache() {
+  pricesCache.clear();
+}
+
 interface UseCalendarMonthReturn {
   prices: Map<string, DailyPrice>;
   loading: boolean;
@@ -25,9 +31,18 @@ export function useCalendarMonth(
 
   // Format month as YYYY-MM
   const monthStr = `${month.getFullYear()}-${String(month.getMonth() + 1).padStart(2, '0')}`;
+  const cacheKey = `${propertyId}:${monthStr}`;
 
-  const fetchPrices = useCallback(async () => {
+  const fetchPrices = useCallback(async (force = false) => {
     try {
+      const cachedPrices = pricesCache.get(cacheKey);
+      if (!force && cachedPrices) {
+        setPrices(new Map(cachedPrices));
+        setError(null);
+        setLoading(false);
+        return;
+      }
+
       setLoading(true);
       setError(null);
 
@@ -50,6 +65,7 @@ export function useCalendarMonth(
         });
       }
 
+      pricesCache.set(cacheKey, new Map(priceMap));
       setPrices(priceMap);
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Unknown error');
@@ -58,7 +74,7 @@ export function useCalendarMonth(
     } finally {
       setLoading(false);
     }
-  }, [propertyId, monthStr]);
+  }, [propertyId, monthStr, cacheKey]);
 
   // Fetch on mount and when month changes
   useEffect(() => {
@@ -94,6 +110,7 @@ export function useCalendarMonth(
           setPrices((prev) => {
             const updated = new Map(prev);
             updated.set(date, response.data);
+            pricesCache.set(cacheKey, new Map(updated));
             return updated;
           });
         }
@@ -114,7 +131,7 @@ export function useCalendarMonth(
         throw error;
       }
     },
-    [propertyId, prices]
+    [propertyId, prices, cacheKey]
   );
 
   const deletePrice = useCallback(
@@ -135,16 +152,23 @@ export function useCalendarMonth(
         if (!res.ok) {
           throw new Error('Failed to delete price');
         }
+
+        setPrices((prev) => {
+          const updated = new Map(prev);
+          updated.delete(date);
+          pricesCache.set(cacheKey, new Map(updated));
+          return updated;
+        });
       } catch (err) {
         // Refetch on error to restore state
-        await fetchPrices();
+        await fetchPrices(true);
 
         const error = err instanceof Error ? err : new Error('Unknown error');
         setError(error);
         throw error;
       }
     },
-    [propertyId, fetchPrices]
+    [propertyId, fetchPrices, cacheKey]
   );
 
   return {
@@ -153,6 +177,6 @@ export function useCalendarMonth(
     error,
     setPrice,
     deletePrice,
-    refetchPrices: fetchPrices,
+    refetchPrices: () => fetchPrices(true),
   };
 }

@@ -5,6 +5,8 @@
 
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { CalendarMonth } from '@/components/PricingCalendar/CalendarMonth';
+import { clearCalendarMonthCache } from '@/components/PricingCalendar/hooks/useCalendarMonth';
+import { clearCalendarMonthReservationsCache } from '@/components/PricingCalendar/CalendarMonth';
 
 // Mock fetch globally
 global.fetch = jest.fn();
@@ -14,6 +16,8 @@ const mockFetch = fetch as jest.MockedFunction<typeof fetch>;
 describe('CalendarMonth', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    clearCalendarMonthCache();
+    clearCalendarMonthReservationsCache();
     // Set up default mock response
     mockFetch.mockResolvedValue({
       ok: true,
@@ -104,8 +108,9 @@ describe('CalendarMonth', () => {
     const nextButton = screen.getByRole('button', { name: /next/i });
     fireEvent.click(nextButton);
 
-    // Component should still be renderable
-    expect(screen.getByRole('button', { name: /prev/i })).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /prev/i })).toBeInTheDocument();
+    });
   });
 
   it('calls onPriceUpdate callback when available', async () => {
@@ -156,5 +161,41 @@ describe('CalendarMonth', () => {
         expect.stringContaining('/api/properties/different-prop-456/daily-prices?month=')
       );
     });
+  });
+
+  it('shows guest names on booked days', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ data: [], success: true }),
+    } as Response);
+
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        data: [
+          {
+            id: 'res-1',
+            guest_name: 'João Silva',
+            start_date: '2026-08-10',
+            end_date: '2026-08-12',
+            status: 'confirmed',
+          },
+        ],
+      }),
+    } as Response);
+
+    render(
+      <CalendarMonth
+        propertyId="prop-123"
+        basePrice={100}
+      />
+    );
+
+    await waitFor(() => {
+      expect(screen.getAllByText('João Silva').length).toBeGreaterThan(0);
+    });
+
+    const guestBadge = screen.getAllByText('João Silva')[0];
+    expect(guestBadge.closest('button')).toHaveClass('bg-slate-100');
   });
 });

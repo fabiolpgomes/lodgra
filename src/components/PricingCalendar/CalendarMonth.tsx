@@ -3,19 +3,46 @@
  * Main calendar container with month navigation and bulk operations
  */
 
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { CalendarDay, DailyPrice } from '@/types/calendar.types';
-import { CalendarGrid } from './CalendarGrid';
+import { CalendarGrid, CalendarReservation } from './CalendarGrid';
 import { DateDetailModal } from './DateDetailModal';
 import { BulkOperationModal } from './BulkOperationModal';
 import { useCalendarMonth } from './hooks/useCalendarMonth';
 import { useBulkPricingOperation, BulkOperationConfig } from '@/hooks/useBulkPricingOperation';
+
+const reservationsCache = new Map<string, CalendarReservation[]>();
+
+export function clearCalendarMonthReservationsCache() {
+  reservationsCache.clear();
+}
 
 interface CalendarMonthProps {
   propertyId: string;
   basePrice?: number;
   weekendPrice?: number;
   onPriceUpdate?: () => void;
+}
+
+interface ReservationApiItem {
+  id: string;
+  guest_name?: string;
+  guestName?: string;
+  start_date?: string;
+  end_date?: string;
+  check_in?: string;
+  check_out?: string;
+  status?: 'confirmed' | 'pending' | 'cancelled' | 'hosting' | 'completed';
+}
+
+function parseLocalDate(dateStr: string): Date {
+  const match = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})/)
+  if (match) {
+    const [, year, month, day] = match
+    return new Date(Number(year), Number(month) - 1, Number(day))
+  }
+
+  return new Date(dateStr)
 }
 
 export function CalendarMonth({
@@ -34,6 +61,8 @@ export function CalendarMonth({
   const [showBulkModal, setShowBulkModal] = useState(false);
   const [bulkConfig, setBulkConfig] = useState<BulkOperationConfig | null>(null);
   const [prices, setPrices] = useState<Map<string, DailyPrice>>(new Map());
+  const [reservations, setReservations] = useState<CalendarReservation[]>([]);
+  const [loadingReservations, setLoadingReservations] = useState(false);
 
   const { prices: fetchedPrices, loading, error, setPrice, deletePrice, refetchPrices } =
     useCalendarMonth(propertyId, currentMonth);
@@ -56,9 +85,74 @@ export function CalendarMonth({
   });
 
   // Sync fetched prices with state
-  useMemo(() => {
+  useEffect(() => {
     setPrices(fetchedPrices);
   }, [fetchedPrices]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const monthStr = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, '0')}`;
+    const cacheKey = `${propertyId}:${monthStr}`;
+    const cachedReservations = reservationsCache.get(cacheKey);
+
+    if (cachedReservations) {
+      setReservations(cachedReservations);
+      setLoadingReservations(false);
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    const fetchReservations = async () => {
+      try {
+        setLoadingReservations(true);
+        const res = await fetch(`/api/properties/${propertyId}/reservations?month=${monthStr}`);
+
+        if (!res.ok) {
+          throw new Error('Failed to fetch reservations');
+        }
+
+        const data = await res.json();
+        const list = Array.isArray(data) ? data : data.data || [];
+
+        const transformed: CalendarReservation[] = list.map((item: ReservationApiItem) => {
+          const startStr = item.start_date || item.check_in || '';
+          const endStr = item.end_date || item.check_out || '';
+          const guestName = item.guest_name || item.guestName || 'Guest';
+
+          return {
+            id: item.id,
+            guestName,
+            checkIn: parseLocalDate(startStr),
+            checkOut: parseLocalDate(endStr),
+            status: item.status === 'hosting' || item.status === 'completed'
+              ? 'confirmed'
+              : (item.status || 'pending'),
+          };
+        });
+
+        if (!cancelled) {
+          reservationsCache.set(cacheKey, transformed);
+          setReservations(transformed);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          console.error('Error fetching reservations:', err);
+          setReservations([]);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoadingReservations(false);
+        }
+      }
+    };
+
+    void fetchReservations();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [propertyId, currentMonth]);
 
   // Get calendar days for current month
   const calendarDays = useMemo(() => {
@@ -308,6 +402,8 @@ export function CalendarMonth({
     ? selectedDate.getDay() === 0 || selectedDate.getDay() === 6
     : false;
 
+  const isLoading = loading || loadingReservations;
+
   return (
     <div className="w-full max-w-4xl mx-auto">
       {/* Header */}
@@ -331,7 +427,7 @@ export function CalendarMonth({
         </div>
 
         {/* Loading State */}
-        {loading && (
+        {isLoading && (
           <div className="text-center text-gray-500 text-sm">
             Loading prices...
           </div>
@@ -421,7 +517,7 @@ export function CalendarMonth({
       </div>
 
       {/* Calendar Grid */}
-      {!loading && (
+      {!isLoading && (
         <div className="bg-white rounded-lg shadow-sm p-4">
           <CalendarGrid
             days={calendarDays}
@@ -430,6 +526,7 @@ export function CalendarMonth({
             rangeStart={rangeStart}
             rangeEnd={rangeEnd}
             isSelectingRange={isSelectingRange}
+            reservations={reservations}
           />
         </div>
       )}
