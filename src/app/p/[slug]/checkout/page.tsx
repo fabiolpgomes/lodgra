@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import { differenceInCalendarDays, isValid, parseISO } from 'date-fns'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { Logo } from '@/components/common/ui/Logo'
 import { CheckoutPageClient } from './CheckoutPageClient'
@@ -24,10 +25,11 @@ export default async function CheckoutPage({ params, searchParams }: PageProps) 
 
   let isLongStay = false
   if (checkIn && checkOut) {
-    const checkInDate = new Date(checkIn)
-    const checkOutDate = new Date(checkOut)
-    const nights = Math.ceil((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24))
-    isLongStay = nights >= 28
+    const checkInDate = parseISO(checkIn)
+    const checkOutDate = parseISO(checkOut)
+    if (isValid(checkInDate) && isValid(checkOutDate)) {
+      isLongStay = differenceInCalendarDays(checkOutDate, checkInDate) >= 28
+    }
   }
 
   const supabase = createAdminClient()
