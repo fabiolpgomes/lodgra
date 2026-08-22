@@ -1,7 +1,7 @@
 # Epic Modularização IA Native - Consolidated View
 
 **Epic:** Evolução Modular do Lodgra + MVP de IA Native para Viabilidade de Propriedades  
-**Status:** Draft  
+**Status:** Ready for execution
 **Purpose:** visão única consolidada para iniciar execução real
 
 ## 1. Current State
@@ -45,6 +45,12 @@
 15. PM-3
 16. QA-3
 
+## 3.5. Latest Progress
+
+- PM-2, ARCH-2, UX-2, DEV-3, QA-2, DEV-4, UX-3, PM-3 and QA-3 are now aligned as ready-for-review stories or validated QA artifacts
+- OPS-1 is documented with a PASS WITH CONCERNS QA closeout because the staging restore point is explicit, while production-side restoration remains a follow-up concern
+- the closeout view now reflects a reusable expansion policy for future capabilities
+
 ## 3. Execution Readiness
 
 The epic is ready to start execution when:
@@ -77,9 +83,9 @@ Keep the PRD as the source of truth for the MVP, and use Story 46.1 as the first
 
 ## 6. Notes
 
-- No code has been started yet.
-- The structure is intentionally modular and ready for handoff.
-- Future capabilities should follow the same wave-based governance.
+- The modular structure is in place and the IA Native path now has an execution-ready closeout chain.
+- The structure remains modular and ready for handoff.
+- Future capabilities should follow the same wave-based governance and the core / capability / extension policy defined in PM-3.
 
 ## 7. Session Update - 2026-08-21
 

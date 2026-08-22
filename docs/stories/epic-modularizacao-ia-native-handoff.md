@@ -1,7 +1,7 @@
 # Epic Modularização IA Native - Handoff Package
 
 **Epic:** Evolução Modular do Lodgra + MVP de IA Native para Viabilidade de Propriedades  
-**Status:** Draft  
+**Status:** Ready for handoff
 **Purpose:** pacote final de passagem para PM, Architect, UX, Dev, QA e DevOps
 
 ## 1. Resumo Executivo
@@ -173,6 +173,8 @@ flowchart TD
 - [x] PRD oficial do módulo criado
 - [x] Story 46.1 criada como primeiro corte funcional
 - [x] Story QA-3 criada como closeout de governança
+- [x] PM-2, ARCH-2, UX-2, DEV-3, QA-2, DEV-4, UX-3, PM-3 e QA-3 alinhadas para closeout
+- [x] OPS-1 documentada com closeout operacional e ressalva de restauração em produção
 
 ## 8. Critério para Iniciar a Execução
 
@@ -183,6 +185,13 @@ A execução pode começar quando:
 - o Dev tiver clareza do shell base
 - o QA tiver checklist para validar a fundação
 - o DevOps tiver plano de rollout e rollback
+
+## 8.5. Current Closeout State
+
+- PM-2, ARCH-2, UX-2, DEV-3, QA-2, DEV-4, UX-3 and PM-3 are now marked Ready for Review in the story chain
+- QA-3 has been updated with the expansion-policy closeout
+- OPS-1 has been validated with PASS WITH CONCERNS, keeping the staging restore point explicit and the production restore point as a follow-up
+- the repository now has a reusable expansion policy artifact for future capability gating
 
 ## 9. Referências
 
@@ -215,6 +224,19 @@ QA-1 fica com o núcleo validado e apenas a prova visual de moeda bloqueada por 
 O próximo passo na cadeia é OPS-1, que já pode usar este pacote como base de rollout e rollback.
 
 A validação de closeout da expansão segue em QA-3 depois da integração e da definição de PM-3.
+
+## 11. Session Update - 2026-08-22
+
+### What was advanced today
+- the IA Native story chain moved through PM-2, ARCH-2, UX-2, DEV-3, QA-2, DEV-4, UX-3, PM-3, QA-3 and OPS-1 closeout alignment
+- the expansion policy is now formalized in `docs/stories/ia-native/pm-3-expansion-policy.md`
+- the QA-3 closeout now treats the policy as a reusable governance gate
+- the operational closeout keeps staging restoration explicit and flags production restoration as a follow-up
+
+### Resume point
+1. use the ready-for-review story chain as the execution baseline
+2. keep the expansion policy as the default gate for future capabilities
+3. resolve the production restore-point follow-up before the next operational promotion if needed
 
 ## 11. Session Update - 2026-08-21
 

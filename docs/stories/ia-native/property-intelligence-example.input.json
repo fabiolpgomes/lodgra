@@ -1,0 +1,39 @@
+{
+  "lead": {
+    "name": "Ana Silva",
+    "source": "WhatsApp",
+    "note": "Pedido para avaliar potencial de exploração."
+  },
+  "property": {
+    "location": "Faro, Algarve",
+    "typology": "T2",
+    "areaM2": 82,
+    "bedrooms": 2,
+    "market": "coastal",
+    "condition": "good",
+    "furnished": true
+  },
+  "assumptions": {
+    "currency": "EUR",
+    "longStay": {
+      "occupancyPct": 0.96,
+      "fixedCostsMonthly": 180,
+      "variableCostsPct": 0.05,
+      "commissionPct": 0.08
+    },
+    "midStay": {
+      "occupancyPct": 0.87,
+      "fixedCostsMonthly": 220,
+      "variableCostsPct": 0.06,
+      "commissionPct": 0.12
+    },
+    "shortStay": {
+      "occupancyPct": 0.74,
+      "fixedCostsMonthly": 320,
+      "variableCostsPct": 0.12,
+      "commissionPct": 0.18,
+      "cleaningPerTurnover": 50,
+      "turnoversPerMonth": 7
+    }
+  }
+}

@@ -210,3 +210,19 @@ Today we completed the staging access recovery and confirmed the dashboard flow 
 1. keep working from the staging-first setup
 2. continue the next QA or story flow from the dashboard context
 3. if production validation is needed, use `npm run dev:production`
+
+## 11. Session Update - 2026-08-22
+
+### What was advanced today
+- PM-2, ARCH-2, UX-2, DEV-3, QA-2, DEV-4, UX-3, PM-3 and QA-3 were advanced to ready-for-review or validated closeout states
+- OPS-1 was validated with a PASS WITH CONCERNS result because the staging restore point is explicit while the production restore point remains a follow-up
+- the PM-3 expansion policy artifact was created and is now the reusable governance reference for future capabilities
+
+### Practical implication
+- the chain is no longer just staged; the execution and closeout docs now reflect the live working state
+- future capabilities should use the core / capability / extension policy as the default filter
+
+### Resume point for the next session
+1. start from the ready-for-review story chain
+2. carry the PM-3 policy into future capability reviews
+3. close the production restore-point follow-up only if the next promotion wave requires it
