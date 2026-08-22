@@ -1,13 +1,68 @@
 import { ReservationValidator } from '@/lib/reservations/reservation-validator'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 // Mock Supabase
-jest.mock('@/lib/supabase/server', () => ({
-  createClient: jest.fn(),
+jest.mock('@/lib/supabase/admin', () => ({
+  createAdminClient: jest.fn(),
 }))
 
+type QueryResult = {
+  data: any
+  error: any
+}
+
+function createQueryChain(result: QueryResult) {
+  const chain: any = {
+    select: jest.fn(() => chain),
+    eq: jest.fn(() => chain),
+    neq: jest.fn(() => chain),
+    gte: jest.fn(() => chain),
+    gt: jest.fn(() => Promise.resolve(result)),
+    lt: jest.fn(() => chain),
+    lte: jest.fn(() => chain),
+    order: jest.fn(() => Promise.resolve(result)),
+    limit: jest.fn(() => Promise.resolve(result)),
+    maybeSingle: jest.fn(() => Promise.resolve(result)),
+    single: jest.fn(() => Promise.resolve(result)),
+  }
+
+  return chain
+}
+
+function buildSupabaseMock(overrides: Record<string, QueryResult> = {}) {
+  const defaults: Record<string, QueryResult> = {
+    property_prices: { data: null, error: { code: 'PGRST116' } },
+    pricing_rules: { data: [], error: null },
+    daily_prices: { data: [], error: null },
+    property_availability: { data: null, error: { code: 'PGRST116' } },
+    property_cancellation_policies: { data: [], error: null },
+    reservations: { data: [], error: null },
+    calendar_blocks: { data: [], error: null },
+    property_discounts: { data: [], error: null },
+    properties: { data: null, error: { code: 'PGRST116' } },
+  }
+
+  const results = { ...defaults, ...overrides }
+
+  return {
+    auth: {
+      getUser: jest.fn().mockResolvedValue({
+        data: { user: { id: 'admin-1' } },
+        error: null,
+      }),
+    },
+    from: jest.fn((table: string) => createQueryChain(results[table] ?? { data: [], error: null })),
+  }
+}
+
 describe('ReservationValidator', () => {
+  const mockCreateClient = createAdminClient as jest.Mock
+  let mockSupabase: ReturnType<typeof buildSupabaseMock>
+
   beforeEach(() => {
     jest.clearAllMocks()
+    mockSupabase = buildSupabaseMock()
+    mockCreateClient.mockResolvedValue(mockSupabase)
   })
 
   describe('validatePrice', () => {
@@ -45,6 +100,39 @@ describe('ReservationValidator', () => {
       expect(result).toHaveProperty('success')
       expect(result).toHaveProperty('pricePerNight')
       expect(result).toHaveProperty('subtotal')
+    })
+
+    it('should use pricing_rules when property_prices is missing', async () => {
+      mockSupabase = buildSupabaseMock({
+        property_prices: { data: null, error: { code: 'PGRST116' } },
+        pricing_rules: {
+          data: [
+            {
+              start_date: '2026-08-01',
+              end_date: '2026-08-31',
+              price_per_night: 110,
+            },
+          ],
+          error: null,
+        },
+        daily_prices: { data: [], error: null },
+      })
+      mockCreateClient.mockResolvedValue(mockSupabase)
+
+      const result = await ReservationValidator.validatePrice(
+        'prop-123',
+        '2026-08-05',
+        '2026-08-08'
+      )
+
+      expect(result.success).toBe(true)
+      expect(result.pricePerNight).toEqual([110, 110, 110])
+      expect(result.subtotal).toBe(330)
+      expect(result.breakdown).toEqual([
+        { date: '2026-08-05', price: 110 },
+        { date: '2026-08-06', price: 110 },
+        { date: '2026-08-07', price: 110 },
+      ])
     })
   })
 
@@ -209,6 +297,32 @@ describe('ReservationValidator', () => {
       }
     })
 
+    it('should ignore calendar blocks for manual reservations', async () => {
+      mockSupabase = buildSupabaseMock({
+        reservations: { data: [], error: null },
+        calendar_blocks: {
+          data: [
+            {
+              id: 'block-001',
+              start_date: '2026-08-19',
+              end_date: '2026-08-24',
+            },
+          ],
+          error: null,
+        },
+      })
+      mockCreateClient.mockResolvedValue(mockSupabase)
+
+      const result = await ReservationValidator.validateReservationOverlap(
+        'prop-123',
+        '2026-08-20',
+        '2026-08-24'
+      )
+
+      expect(result.hasConflict).toBe(false)
+      expect(result.conflictingReservations).toEqual([])
+    })
+
     it('should handle database errors gracefully', async () => {
       const result = await ReservationValidator.validateReservationOverlap(
         'prop-error',
@@ -326,31 +440,32 @@ describe('ReservationValidator', () => {
         expect(result.discountedPrice).toBe(600)
       })
 
-      it('should evaluate discount eligibility for 7+ night stays', async () => {
+      it('should apply the default weekly discount for 7+ night stays', async () => {
         const nightlyRate = 85
         const nights = 9
         const basePrice = nightlyRate * nights // 9 nights = €765
         const result = await ReservationValidator.validateDiscounts('prop-123', basePrice, nights)
 
         expect(result).toHaveProperty('success')
-        expect(result).toHaveProperty('discountPercentage')
-        expect(result).toHaveProperty('discountedPrice')
-        // Should evaluate eligibility (discount may or may not apply depending on DB config)
+        expect(result.hasDiscount).toBe(true)
+        expect(result.discountPercentage).toBe(10)
+        expect(result.discountedPrice).toBe(688.5)
         expect(result.originalPrice).toBe(basePrice)
+        expect(result.reason).toContain('Default Weekly discount applied')
       })
 
-      it('should evaluate discount eligibility for 28+ night stays', async () => {
+      it('should apply the default monthly discount for 28+ night stays', async () => {
         const nightlyRate = 85
         const nights = 36
         const basePrice = nightlyRate * nights // 36 nights = €3060
         const result = await ReservationValidator.validateDiscounts('prop-123', basePrice, nights)
 
         expect(result).toHaveProperty('success')
-        expect(result).toHaveProperty('discountPercentage')
-        expect(result).toHaveProperty('discountedPrice')
+        expect(result.hasDiscount).toBe(true)
+        expect(result.discountPercentage).toBe(20)
+        expect(result.discountedPrice).toBe(2448)
         expect(result.originalPrice).toBe(basePrice)
-        // Discounted price should not exceed original
-        expect(result.discountedPrice).toBeLessThanOrEqual(basePrice)
+        expect(result.reason).toContain('Default Monthly discount applied')
       })
 
       it('should never apply discount for stays under 7 nights regardless of DB', async () => {

@@ -1,4 +1,6 @@
-import { createClient } from '@/lib/supabase/server'
+import { addDays, eachDayOfInterval, format } from 'date-fns'
+import { createAdminClient } from '@/lib/supabase/admin'
+import { resolveVolumeDiscountRule } from '@/lib/pricing/volume-discount-rules'
 
 export interface PriceResult {
   success: boolean
@@ -83,7 +85,12 @@ export interface ValidationResult {
 
 export class ReservationValidator {
   static async getClient() {
-    return await createClient()
+    return createAdminClient()
+  }
+
+  private static parseLocalDate(value: string) {
+    const [year, month, day] = value.split('-').map(Number)
+    return new Date(year, month - 1, day)
   }
 
   static async validatePrice(
@@ -93,8 +100,8 @@ export class ReservationValidator {
   ): Promise<PriceResult> {
     try {
       const supabase = await this.getClient()
-      const checkInDate = new Date(checkIn)
-      const checkOutDate = new Date(checkOut)
+      const checkInDate = this.parseLocalDate(checkIn)
+      const checkOutDate = this.parseLocalDate(checkOut)
 
       if (checkOutDate <= checkInDate) {
         return {
@@ -106,63 +113,108 @@ export class ReservationValidator {
         }
       }
 
-      // Convert dates to ISO 8601 format (YYYY-MM-DD) for database comparison
-      const checkInISO = checkInDate.toISOString().split('T')[0]
-      const checkOutISO = checkOutDate.toISOString().split('T')[0]
+      const checkInISO = format(checkInDate, 'yyyy-MM-dd')
+      const checkOutISO = format(checkOutDate, 'yyyy-MM-dd')
       const nights = Math.ceil(
         (checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24)
       )
+      const stayDays = eachDayOfInterval({
+        start: checkInDate,
+        end: addDays(checkOutDate, -1),
+      })
+      const lastNight = addDays(checkOutDate, -1)
+      const nightlyPrices = new Map<string, number>()
 
-      // Try to fetch daily prices from property_daily_prices table (overrides)
-      const { data: dailyPrices, error: dailyError } = await supabase
-        .from('property_daily_prices')
-        .select('date, price')
-        .eq('property_id', propertyId)
-        .gte('date', checkInISO)
-        .lt('date', checkOutISO)
-        .order('date', { ascending: true })
+      const [
+        { data: basePrice, error: basePriceError },
+        { data: pricingRules, error: pricingRulesError },
+        { data: dailyPrices, error: dailyError },
+      ] = await Promise.all([
+        supabase
+          .from('property_prices')
+          .select('base_price, weekend_price')
+          .eq('property_id', propertyId)
+          .maybeSingle(),
+        supabase
+          .from('pricing_rules')
+          .select('start_date, end_date, price_per_night')
+          .eq('property_id', propertyId)
+          .lte('start_date', checkOutISO)
+          .gte('end_date', checkInISO)
+          .order('start_date', { ascending: true }),
+        supabase
+          .from('daily_prices')
+          .select('date, base_price')
+          .eq('property_id', propertyId)
+          .gte('date', checkInISO)
+          .lt('date', checkOutISO)
+          .order('date', { ascending: true }),
+      ])
 
-      // If daily prices found, use them
-      if (dailyPrices && dailyPrices.length > 0) {
-        const pricePerNight = dailyPrices.map((p) => p.price)
-        const subtotal = pricePerNight.reduce((sum, price) => sum + price, 0)
+      if (basePriceError && basePriceError.code !== 'PGRST116') {
+        console.error('[ReservationValidator] Error fetching property_prices:', basePriceError)
+      }
 
-        return {
-          success: true,
-          pricePerNight,
-          subtotal,
-          currency: 'EUR',
-          breakdown: dailyPrices.map((p) => ({ date: p.date, price: p.price })),
+      if (pricingRulesError && pricingRulesError.code !== 'PGRST116') {
+        console.error('[ReservationValidator] Error fetching pricing_rules:', pricingRulesError)
+      }
+
+      if (dailyError && dailyError.code !== 'PGRST116') {
+        console.error('[ReservationValidator] Error fetching daily_prices:', dailyError)
+      }
+
+      const baseNightlyPrice = Number(basePrice?.base_price) || 0
+      const weekendPrice = Number(basePrice?.weekend_price) || null
+
+      if (baseNightlyPrice > 0) {
+        for (const day of stayDays) {
+          const dateKey = format(day, 'yyyy-MM-dd')
+          const isWeekend = day.getDay() === 5 || day.getDay() === 6
+          nightlyPrices.set(
+            dateKey,
+            isWeekend && weekendPrice ? weekendPrice : baseNightlyPrice
+          )
         }
       }
 
-      // Fallback: Use base price from property_prices table
-      const { data: basePrice, error: basePriceError } = await supabase
-        .from('property_prices')
-        .select('base_price, weekend_price')
-        .eq('property_id', propertyId)
-        .single()
+      for (const rule of pricingRules ?? []) {
+        const ruleStart = this.parseLocalDate(rule.start_date)
+        const ruleEnd = this.parseLocalDate(rule.end_date)
+        const overlapStart = ruleStart > checkInDate ? ruleStart : checkInDate
+        const overlapEnd = ruleEnd < lastNight ? ruleEnd : lastNight
 
-      if (basePriceError || !basePrice) {
+        if (overlapStart > overlapEnd) continue
+
+        for (const day of eachDayOfInterval({ start: overlapStart, end: overlapEnd })) {
+          nightlyPrices.set(format(day, 'yyyy-MM-dd'), Number(rule.price_per_night))
+        }
+      }
+
+      for (const daily of dailyPrices ?? []) {
+        nightlyPrices.set(format(this.parseLocalDate(daily.date), 'yyyy-MM-dd'), Number(daily.base_price))
+      }
+
+      const pricePerNight: number[] = []
+      const missingDates: string[] = []
+
+      for (const day of stayDays) {
+        const dateKey = format(day, 'yyyy-MM-dd')
+        const price = nightlyPrices.get(dateKey)
+        if (price === undefined) {
+          missingDates.push(dateKey)
+          continue
+        }
+        pricePerNight.push(price)
+      }
+
+      if (missingDates.length > 0) {
         return {
           success: false,
           pricePerNight: [],
           subtotal: 0,
           currency: 'EUR',
-          error: 'No pricing configured for this property',
+          error: `No pricing configured for date ${missingDates[0]} (configure pricing_rules or daily_prices)`,
         }
-      }
-
-      // Calculate prices for each night (weekday vs weekend)
-      const pricePerNight: number[] = []
-      for (let i = 0; i < nights; i++) {
-        const date = new Date(checkInDate)
-        date.setDate(date.getDate() + i)
-        const dayOfWeek = date.getDay()
-        // Friday (5) and Saturday (6) are weekends
-        const isWeekend = dayOfWeek === 5 || dayOfWeek === 6
-        const price = isWeekend && basePrice.weekend_price ? basePrice.weekend_price : basePrice.base_price
-        pricePerNight.push(price)
       }
 
       const subtotal = pricePerNight.reduce((sum, price) => sum + price, 0)
@@ -172,6 +224,10 @@ export class ReservationValidator {
         pricePerNight,
         subtotal,
         currency: 'EUR',
+        breakdown: stayDays.map((day, index) => ({
+          date: format(day, 'yyyy-MM-dd'),
+          price: pricePerNight[index] ?? 0,
+        })),
       }
     } catch (error) {
       return {
@@ -221,30 +277,9 @@ export class ReservationValidator {
         }
       }
 
-      if (!discounts || discounts.length === 0) {
-        return {
-          success: true,
-          hasDiscount: false,
-          discountPercentage: 0,
-          originalPrice: subtotal,
-          discountedPrice: subtotal,
-          reason: 'No discount rules configured',
-        }
-      }
+      const resolvedDiscount = resolveVolumeDiscountRule(discounts ?? [], nights)
 
-      // The calendar rules are mutually exclusive: weekly applies to 7-27
-      // nights and monthly applies from 28 nights onward. Do not let a stale
-      // min_nights value make the wrong card rule win.
-      const expectedType = nights >= 28 ? 'monthly' : 'weekly'
-      const eligibleDiscounts = discounts.filter(
-        (discount) =>
-          discount.discount_type === expectedType &&
-          nights >= (discount.min_nights ?? (expectedType === 'monthly' ? 28 : 7))
-      )
-      const applicableDiscount = eligibleDiscounts
-        .sort((a, b) => (b.min_nights ?? 0) - (a.min_nights ?? 0))[0]
-
-      if (!applicableDiscount) {
+      if (!resolvedDiscount) {
         return {
           success: true,
           hasDiscount: false,
@@ -255,22 +290,25 @@ export class ReservationValidator {
         }
       }
 
-      const discountAmount = (subtotal * applicableDiscount.percentage) / 100
+      const { discount, isDefault } = resolvedDiscount
+      const discountAmount = (subtotal * discount.percentage) / 100
       const discountedPrice = subtotal - discountAmount
-      const discountTypeLabel = applicableDiscount.discount_type === 'weekly' ? 'Weekly' :
-                               applicableDiscount.discount_type === 'monthly' ? 'Monthly' :
-                               applicableDiscount.discount_type
+      const discountTypeLabel = discount.discount_type === 'weekly'
+        ? 'Weekly'
+        : discount.discount_type === 'monthly'
+        ? 'Monthly'
+        : discount.discount_type
 
       return {
         success: true,
-        hasDiscount: true,
-        discountType: applicableDiscount.discount_type.includes('monthly') || applicableDiscount.discount_type.includes('weekly')
+        hasDiscount: discount.percentage > 0,
+        discountType: discount.discount_type.includes('monthly') || discount.discount_type.includes('weekly')
           ? ('min_stay' as const)
           : ('extended_stay' as const),
-        discountPercentage: applicableDiscount.percentage,
+        discountPercentage: discount.percentage,
         originalPrice: subtotal,
         discountedPrice,
-        reason: `${discountTypeLabel} discount applied (${nights} nights)`,
+        reason: `${isDefault ? 'Default ' : ''}${discountTypeLabel} discount applied (${nights} nights)`,
       }
     } catch (error) {
       return {
@@ -474,46 +512,14 @@ export class ReservationValidator {
         }
       }
 
-      if (!reservations || reservations.length === 0) {
-        // Continue to calendar blocks even when there are no reservations.
-      }
-
       // Filter out excluded reservation (for edit scenarios)
       const conflicts = excludeReservationId
         ? (reservations ?? []).filter((r) => r.id !== excludeReservationId)
         : (reservations ?? [])
 
-      // Manual and iCal blocks are part of the property's calendar and must
-      // be treated as unavailable just like a reservation.
-      const { data: calendarBlocks, error: blocksError } = await supabase
-        .from('calendar_blocks')
-        .select('id, start_date, end_date')
-        .eq('property_id', propertyId)
-        .lt('start_date', checkOut)
-        .gt('end_date', checkIn)
-
-      if (blocksError) {
-        return {
-          hasConflict: conflicts.length > 0,
-          conflictingReservations: conflicts.map((r) => ({
-            id: r.id,
-            checkIn: r.check_in,
-            checkOut: r.check_out,
-          })),
-          error: `Database error: ${blocksError.message}`,
-        }
-      }
-
-      const blockConflicts = (calendarBlocks ?? []).map((block) => ({
-        id: `block:${block.id}`,
-        check_in: block.start_date,
-        check_out: block.end_date,
-      }))
-      const allConflicts = [...conflicts, ...blockConflicts]
-
       return {
-        hasConflict: allConflicts.length > 0,
-        conflictingReservations: allConflicts.map((r) => ({
+        hasConflict: conflicts.length > 0,
+        conflictingReservations: conflicts.map((r) => ({
           id: r.id,
           checkIn: r.check_in,
           checkOut: r.check_out,

@@ -3,10 +3,11 @@
  * GET/POST /api/properties/:id/discounts
  */
 
-import { createClient } from '@/lib/supabase/server';
-import { cookies } from 'next/headers';
+import { createAdminClient } from '@/lib/supabase/admin';
+import { requirePropertyAccess } from '@/lib/auth/requirePropertyAccess';
 import { NextRequest, NextResponse } from 'next/server';
-import { ApiResponse, CreateDiscountPayload, PropertyDiscount } from '@/types/pricing.types';
+import { ApiResponse, CreateDiscountPayload } from '@/types/pricing.types';
+import { hydratePropertyDiscounts } from '@/lib/pricing/volume-discount-rules';
 
 function isMissingDiscountsTableError(error: unknown): boolean {
   if (!error || typeof error !== 'object') return false;
@@ -23,19 +24,6 @@ function isMissingDiscountsTableError(error: unknown): boolean {
 }
 
 
-async function validatePropertyOwnership(propertyId: string, userId: string): Promise<boolean> {
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from('properties')
-    .select('id, owners(id, user_id)')
-    .eq('id', propertyId)
-    .single();
-
-  if (!data) return false;
-  const owners = Array.isArray(data.owners) ? data.owners[0] : data.owners;
-  return owners?.user_id === userId;
-}
-
 // GET /api/properties/:id/discounts
 export async function GET(
   req: NextRequest,
@@ -43,25 +31,9 @@ export async function GET(
 ): Promise<NextResponse<ApiResponse>> {
   const { id } = await params;
   try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
-    const isOwner = await validatePropertyOwnership(id, user.id);
-    if (!isOwner) {
-      return NextResponse.json(
-        { success: false, error: 'Forbidden' },
-        { status: 403 }
-      );
-    }
+    const access = await requirePropertyAccess(id, ['admin', 'gestor', 'owner', 'viewer']);
+    if (!access.authorized) return access.response;
+    const supabase = createAdminClient();
 
     const { data, error } = await supabase
       .from('property_discounts')
@@ -95,7 +67,7 @@ export async function GET(
 
     return NextResponse.json({
       success: true,
-      data: data || [],
+      data: hydratePropertyDiscounts(id, (data || []) as Parameters<typeof hydratePropertyDiscounts>[1]),
     });
   } catch (err) {
     console.error('[Discounts] Exception:', err);
@@ -113,25 +85,9 @@ export async function POST(
 ): Promise<NextResponse<ApiResponse>> {
   const { id } = await params;
   try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
-    const isOwner = await validatePropertyOwnership(id, user.id);
-    if (!isOwner) {
-      return NextResponse.json(
-        { success: false, error: 'Forbidden' },
-        { status: 403 }
-      );
-    }
+    const access = await requirePropertyAccess(id, ['admin', 'gestor', 'owner']);
+    if (!access.authorized) return access.response;
+    const supabase = createAdminClient();
 
     const body = (await req.json()) as Partial<CreateDiscountPayload> & {
       weeklyPercent?: number;

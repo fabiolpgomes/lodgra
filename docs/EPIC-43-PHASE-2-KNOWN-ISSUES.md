@@ -42,23 +42,12 @@
 
 ---
 
-### 2. **Discount Calculation Bug** 🔴 High Priority
-**Problem:**
-- 7+ night discount (10%) not applying
-- 28+ night discount (20%) not applying
-- Test results:
-  - 9 nights (01/10 - 10/10): €101/night (no discount) instead of €76.50/night with 10% off
-  - 36 nights (01/10 - 06/11): €89/night (no discount) instead of €68/night with 20% off
-
-**Expected Behavior:**
-- 7-27 nights: Apply 10% discount (€85 → €76.50/night)
-- 28+ nights: Apply 20% discount (€85 → €68/night)
-
-**Possible Causes:**
-- `property_discounts` table empty or not populated for property
-- Discount rules not querying correctly from table
-- ReservationValidator not applying discount tiers
-- Date range calculation issue
+### 2. **Discount Calculation Bug** ✅ Resolved in Code
+**Resolution:**
+- Added default volume discount fallback for booking validation and discount listing
+- 7-27 nights now resolve to 10% off even when the property has no seeded rows
+- 28+ nights now resolve to 20% off even when the property has no seeded rows
+- `GET /api/properties/:id/discounts` now hydrates missing weekly/monthly/excellent_guest rows with defaults for UI consistency
 
 **Test Case:**
 ```
@@ -138,7 +127,7 @@
 | `property_availability` | ✅ Created | min_nights = 1 (default), max_nights = 365 |
 | `property_prices` | ✅ Created | base_price populated for 10 properties (€85 for T2 Armação) |
 | `property_discounts` | ❌ CRITICAL | Likely empty — NOT APPLIED in pricing calc (VERIFIED BUG) |
-| `property_daily_prices` | ✅ Created | Empty (can add overrides later) |
+| `daily_prices` | ✅ Created | Empty (can add overrides later) |
 | `property_cancellation_policies` | ❓ Unknown | May not exist — need to check schema |
 | `cancellation_policy` column | ❓ Unknown | Check if properties table has this field |
 
@@ -149,11 +138,8 @@
 **CRITICAL - Discount Validation:**
 - [x] ✅ CONFIRMED BUG: 9 nights shows €87/night (no discount) — should be €76.50/night with 10% off
 - [x] ✅ CONFIRMED BUG: Total shows €779 (no discount) — should be €688.50 with 10% off
-- [ ] Commit `a782719d` fix verified in code but Vercel deployment delayed
-- [ ] **ACTION TAKEN (2026-07-31 15:18):** Created empty commit (3dc3bb51) to force Vercel redeploy
-- [ ] Awaiting new deployment to verify discount calculation works
-- [ ] Test 7+ nights with CONSECUTIVE dates (no gaps between selected dates)
-- [ ] Test 28+ nights with CONSECUTIVE dates (no gaps between selected dates)
+- [x] ✅ REVALIDATED (2026-08-22): 7+ and 28+ discounts now apply from default fallback rules
+- [x] ✅ Revalidated in `ReservationValidator` and pricing tests
 
 **HIGH - minNights Validation:**
 - [x] ✅ WORKING: 9-night booking allowed (minimum 3 nights enforced correctly)
