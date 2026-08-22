@@ -5,7 +5,14 @@ import { useRouter } from '@/lib/i18n/routing'
 import { ReservationUI } from './types/reservation-ui'
 import { EditReservationForm } from './EditReservationForm'
 import { Button } from '@/components/common/ui/button'
-import { Trash2, Edit } from 'lucide-react'
+import { Trash2, Edit, CircleDollarSign, BadgeInfo } from 'lucide-react'
+
+type CancellationRefundInfo = {
+  refund_amount: number
+  refund_percentage: number
+  stripe_refund_id: string | null
+  processed_at: string | null
+}
 
 interface EditReservationClientProps {
   reservation: ReservationUI
@@ -19,6 +26,10 @@ export function EditReservationClient({ reservation, locale }: EditReservationCl
   const [showPermanentDeleteDialog, setShowPermanentDeleteDialog] = useState(false)
   const [loading, setLoading] = useState(false)
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
+  const [cancelResult, setCancelResult] = useState<{
+    already_cancelled: boolean
+    refund_info?: CancellationRefundInfo
+  } | null>(null)
 
   const handleSave = async (data: Partial<ReservationUI>) => {
     try {
@@ -61,8 +72,27 @@ export function EditReservationClient({ reservation, locale }: EditReservationCl
         throw new Error(payload?.error || 'Falha ao cancelar')
       }
 
-      setToast({ message: 'Reserva cancelada com sucesso!', type: 'success' })
-      setTimeout(() => router.push(`/${locale}/reservations`), 1000)
+      const payload = await response.json().catch(() => null)
+      const refundInfo = payload?.refund_info as CancellationRefundInfo | undefined
+
+      setCancelResult({
+        already_cancelled: Boolean(payload?.already_cancelled),
+        refund_info: refundInfo,
+      })
+
+      if (refundInfo) {
+        setToast({
+          message: `Reserva cancelada. Reembolso de €${refundInfo.refund_amount.toFixed(2)} pronto.`,
+          type: 'success',
+        })
+      } else if (payload?.already_cancelled) {
+        setToast({ message: 'Reserva já estava cancelada.', type: 'success' })
+      } else {
+        setToast({ message: 'Reserva cancelada com sucesso!', type: 'success' })
+      }
+
+      setLoading(false)
+      setTimeout(() => router.push(`/${locale}/reservations`), 1800)
     } catch (error) {
       setToast({
         message: error instanceof Error ? error.message : 'Erro ao cancelar',
@@ -115,7 +145,10 @@ export function EditReservationClient({ reservation, locale }: EditReservationCl
           <Button
             className="w-full text-[#9f2f1f] hover:text-[#7f2115] hover:bg-[#9f2f1f]/10 border border-[#E5DFD2]"
             variant="outline"
-            onClick={() => setShowDeleteDialog(true)}
+            onClick={() => {
+              setCancelResult(null)
+              setShowDeleteDialog(true)
+            }}
             disabled={loading}
           >
             <Trash2 className="h-4 w-4 mr-2" />
@@ -163,6 +196,41 @@ export function EditReservationClient({ reservation, locale }: EditReservationCl
             <p className="text-sm text-[#4D5566] mb-4">
               Esta ação é reversível. A reserva será marcada como cancelada mas os dados serão preservados para auditoria.
             </p>
+            {cancelResult?.refund_info && (
+              <div className="mb-4 rounded-[8px] border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
+                <div className="flex items-start gap-3">
+                  <CircleDollarSign className="mt-0.5 h-5 w-5 text-emerald-700" />
+                  <div className="space-y-2">
+                    <p className="font-semibold">Cancelamento processado com reembolso</p>
+                    <p>
+                      Reembolso: <strong>€{cancelResult.refund_info.refund_amount.toFixed(2)}</strong>
+                    </p>
+                    <p>
+                      Percentual: <strong>{cancelResult.refund_info.refund_percentage}%</strong>
+                    </p>
+                    <p className="text-xs text-emerald-700">
+                      Stripe Refund ID: {cancelResult.refund_info.stripe_refund_id || 'em processamento'}
+                    </p>
+                    {cancelResult.refund_info.processed_at && (
+                      <p className="text-xs text-emerald-700">
+                        Processado em {new Date(cancelResult.refund_info.processed_at).toLocaleString()}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+            {cancelResult?.already_cancelled && (
+              <div className="mb-4 rounded-[8px] border border-sky-200 bg-sky-50 p-4 text-sm text-sky-900">
+                <div className="flex items-start gap-3">
+                  <BadgeInfo className="mt-0.5 h-5 w-5 text-sky-700" />
+                  <div>
+                    <p className="font-semibold">Reserva já estava cancelada</p>
+                    <p>Não foi necessário processar outra alteração.</p>
+                  </div>
+                </div>
+              </div>
+            )}
             <div className="bg-[#C9A227]/10 border border-[#C9A227]/30 rounded-[8px] p-3 text-sm text-[#C9A227] mb-6">
               ⚠️ Certifique-se de notificar o hóspede antes de cancelar.
             </div>
@@ -170,18 +238,25 @@ export function EditReservationClient({ reservation, locale }: EditReservationCl
               <Button
                 variant="outline"
                 className="border-[#E5DFD2] text-[#1B2430] hover:bg-[#F7F5EF]"
-                onClick={() => setShowDeleteDialog(false)}
+                onClick={() => {
+                  setShowDeleteDialog(false)
+                  if (cancelResult) {
+                    router.refresh()
+                  }
+                }}
                 disabled={loading}
               >
-                Manter
+                {cancelResult ? 'Fechar' : 'Manter'}
               </Button>
-              <Button
-                onClick={handleDelete}
-                disabled={loading}
-                className="bg-[#9f2f1f] hover:bg-[#7f2115] text-white"
-              >
-                {loading ? 'Cancelando...' : 'Cancelar Reserva'}
-              </Button>
+              {!cancelResult && (
+                <Button
+                  onClick={handleDelete}
+                  disabled={loading}
+                  className="bg-[#9f2f1f] hover:bg-[#7f2115] text-white"
+                >
+                  {loading ? 'Cancelando...' : 'Cancelar Reserva'}
+                </Button>
+              )}
             </div>
           </div>
         </div>
