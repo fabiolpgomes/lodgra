@@ -45,4 +45,24 @@ describe('BookingSummary cancellation policy', () => {
     expect(screen.getByText(/Firme/)).toBeInTheDocument()
     expect(screen.getByText(/30 dias antes do check-in/)).toBeInTheDocument()
   })
+
+  it('renders partial refund details even when the partial window is zero days', () => {
+    render(
+      <BookingSummary
+        propertyName="Casa do Mar"
+        checkin="2026-08-10"
+        checkout="2026-08-13"
+        guests={2}
+        totalPrice={300}
+        cancellationPolicy={{
+          policy_type: 'flexible',
+          full_refund_days: 7,
+          partial_refund_days: 0,
+          partial_refund_percent: 25,
+        }}
+      />
+    )
+
+    expect(screen.getByText(/25% até 0 dias antes/)).toBeInTheDocument()
+  })
 })

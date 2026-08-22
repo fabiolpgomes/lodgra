@@ -66,7 +66,7 @@ export function BookingSummary({
 
   const cancellationPolicyText = cancellationPolicy
     ? `Política: ${getCancellationPolicyLabel(cancellationPolicy.policy_type)} · reembolso integral até ${formatDaysLabel(cancellationPolicy.full_refund_days)} antes do check-in${
-        cancellationPolicy.partial_refund_days && cancellationPolicy.partial_refund_percent
+        cancellationPolicy.partial_refund_days != null && cancellationPolicy.partial_refund_percent != null
           ? ` · ${cancellationPolicy.partial_refund_percent}% até ${formatDaysLabel(cancellationPolicy.partial_refund_days)} antes`
           : ''
       }`
