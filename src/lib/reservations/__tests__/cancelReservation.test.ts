@@ -1,6 +1,15 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { UserAccess } from '@/lib/auth/getUserAccess'
 import { cancelReservation } from '@/lib/reservations/cancelReservation'
+import { stripePT } from '@/lib/stripe/client-pt'
+
+jest.mock('@/lib/stripe/client-pt', () => ({
+  stripePT: {
+    refunds: {
+      create: jest.fn(),
+    },
+  },
+}))
 
 function access(overrides: Partial<UserAccess['profile']> = {}): UserAccess {
   return {
@@ -36,6 +45,10 @@ function query(result: { data: unknown; error: unknown }) {
 }
 
 describe('cancelReservation', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
   it('updates the canonical status and writes an audit entry', async () => {
     const fetchQuery = query({
       data: { id: 'reservation-1', property_id: 'property-1', reservation_status: 'confirmed' },
@@ -65,7 +78,74 @@ describe('cancelReservation', () => {
     expect(auditInsert).toHaveBeenCalledWith(expect.objectContaining({
       action: 'update',
       resource_id: 'reservation-1',
-      details: { event: 'reservation_cancelled', reason: 'Solicitado pelo hóspede' },
+      details: expect.objectContaining({
+        event: 'reservation_cancelled',
+        reason: 'Solicitado pelo hóspede',
+        refund_amount: 0,
+        refund_processed: false,
+      }),
+    }))
+  })
+
+  it('calculates and stores refund information when policy data is available', async () => {
+    const fetchQuery = query({
+      data: {
+        id: 'reservation-1',
+        property_id: 'property-1',
+        reservation_status: 'confirmed',
+        deleted_at: null,
+        check_in: '2026-08-30',
+        check_out: '2026-09-02',
+        total_amount: 900,
+        cancellation_policy_id: 'policy-1',
+        cancellation_policy_snapshot: {
+          policy_type: 'flexible',
+          is_long_stay: false,
+          full_refund_days: 1,
+          partial_refund_days: null,
+          partial_refund_percent: null,
+          non_refundable_discount_percent: 0,
+          captured_at: '2026-08-01T00:00:00Z',
+        },
+        stripe_payment_intent_id: 'pi_123',
+      },
+      error: null,
+    })
+    const updateQuery = query({ data: { id: 'reservation-1' }, error: null })
+    const auditInsert = jest.fn().mockResolvedValue({ error: null })
+    const from = jest.fn()
+      .mockReturnValueOnce(fetchQuery)
+      .mockReturnValueOnce(updateQuery)
+      .mockReturnValueOnce({ insert: auditInsert })
+
+    ;(stripePT.refunds.create as jest.Mock).mockResolvedValue({
+      id: 're_123',
+    })
+
+    const result = await cancelReservation(
+      { from } as unknown as SupabaseClient,
+      access(),
+      'reservation-1',
+      'Cancelamento solicitado',
+    )
+
+    expect(result).toEqual({ ok: true, alreadyCancelled: false, reservationId: 'reservation-1' })
+    expect(stripePT.refunds.create).toHaveBeenCalledWith({
+      payment_intent: 'pi_123',
+      amount: 90000,
+      reason: 'requested_by_customer',
+    })
+    expect(updateQuery.update).toHaveBeenCalledWith(expect.objectContaining({
+      refund_amount: 900,
+      stripe_refund_id: 're_123',
+      refund_processed_at: expect.any(String),
+    }))
+    expect(auditInsert).toHaveBeenCalledWith(expect.objectContaining({
+      details: expect.objectContaining({
+        event: 'reservation_cancelled',
+        refund_amount: 900,
+        refund_processed: true,
+      }),
     }))
   })
 

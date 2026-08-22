@@ -4,8 +4,8 @@
  * POST: Create or seed default policies
  */
 
-import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { requirePropertyAccess } from '@/lib/auth/requirePropertyAccess'
 import { PropertyCancellationPolicy, CreateCancellationPolicyPayload, DEFAULT_POLICIES } from '@/types/cancellation.types'
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -13,31 +13,18 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const { id: propertyId } = await params
 
   try {
-    const supabase = await createClient()
-    const userId = await getAuthUserId(request)
+    const access = await requirePropertyAccess(propertyId, ['admin', 'gestor', 'owner', 'viewer'])
+    if (!access.authorized) return access.response
 
-    if (!userId) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
-    }
-
-    // Verify ownership via owners table JOIN
-    const { data: property } = await supabase
-      .from('properties')
-      .select('id, owner_id, owners(id, user_id)')
-      .eq('id', propertyId)
-      .single()
-
-    const owners = Array.isArray(property?.owners) ? property?.owners[0] : property?.owners
-    if (!property || owners?.user_id !== userId) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 403 })
-    }
+    const admin = createAdminClient()
 
     // Fetch policies
-    const { data: policies, error } = await supabase
+    const { data: policies, error } = await admin
       .from('property_cancellation_policies')
       .select('*')
       .eq('property_id', propertyId)
-      .order('policy_type, is_long_stay')
+      .order('policy_type', { ascending: true })
+      .order('is_long_stay', { ascending: true })
 
     // Handle missing table gracefully
     if (error) {
@@ -75,25 +62,10 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   const { id: propertyId } = await params
 
   try {
-    const supabase = await createClient()
     const body = await request.json()
-    const userId = await getAuthUserId(request)
-
-    if (!userId) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
-    }
-
-    // Verify ownership via owners table JOIN
-    const { data: property } = await supabase
-      .from('properties')
-      .select('id, owner_id, owners(id, user_id)')
-      .eq('id', propertyId)
-      .single()
-
-    const owners = Array.isArray(property?.owners) ? property?.owners[0] : property?.owners
-    if (!property || owners?.user_id !== userId) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 403 })
-    }
+    const access = await requirePropertyAccess(propertyId, ['admin', 'gestor', 'owner'])
+    if (!access.authorized) return access.response
+    const admin = createAdminClient()
 
     // If "seed" action, create default policies
     if (body.action === 'seed') {
@@ -106,7 +78,6 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
           property_id: propertyId,
           ...DEFAULT_POLICIES[policyType][duration],
         })))
-      const admin = createAdminClient()
       const { data: policies, error } = await admin
         .from('property_cancellation_policies')
         .upsert(templates, { onConflict: 'property_id,policy_type,is_long_stay' })
@@ -130,16 +101,16 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     // Otherwise, create single policy
     const payload: CreateCancellationPolicyPayload = body
 
-    const { data: policy, error } = await supabase
+    const { data: policy, error } = await admin
       .from('property_cancellation_policies')
       .insert({
         property_id: propertyId,
         policy_type: payload.policy_type,
         is_long_stay: payload.is_long_stay,
         full_refund_days: payload.full_refund_days,
-        partial_refund_days: payload.partial_refund_days || null,
-        partial_refund_percent: payload.partial_refund_percent || null,
-        non_refundable_discount_percent: payload.non_refundable_discount_percent || 0,
+        partial_refund_days: payload.partial_refund_days ?? null,
+        partial_refund_percent: payload.partial_refund_percent ?? null,
+        non_refundable_discount_percent: payload.non_refundable_discount_percent ?? 0,
       })
       .select()
       .single()
@@ -170,10 +141,4 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       { status: 500 }
     )
   }
-}
-
-async function getAuthUserId(request: NextRequest): Promise<string | null> {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  return user?.id || null
 }

@@ -1,5 +1,11 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { UserAccess } from '@/lib/auth/getUserAccess'
+import { stripePT } from '@/lib/stripe/client-pt'
+import { calculateRefundForReservation } from '@/lib/cancellation/refund-calculator'
+import type {
+  CancellationPolicySnapshot,
+  PropertyCancellationPolicy,
+} from '@/types/cancellation.types'
 
 export type CancellationResult =
   | { ok: true; alreadyCancelled: boolean; reservationId: string }
@@ -24,7 +30,9 @@ export async function cancelReservation(
 
   let reservationQuery = supabase
     .from('reservations')
-    .select('id, property_id, reservation_status, deleted_at')
+    .select(
+      'id, property_id, reservation_status, deleted_at, check_in, check_out, total_amount, cancellation_policy_id, cancellation_policy_snapshot, stripe_payment_intent_id'
+    )
     .eq('id', reservationId)
     .eq('organization_id', organizationId)
 
@@ -65,7 +73,26 @@ export async function cancelReservation(
     return { ok: true, alreadyCancelled: true, reservationId }
   }
 
+  const refundData = await resolveRefundData(supabase, reservation)
   const cancelledAt = new Date().toISOString()
+  let stripeRefundId: string | null = null
+  let refundProcessedAt: string | null = null
+
+  if (refundData && refundData.refund_amount > 0 && reservation.stripe_payment_intent_id) {
+    try {
+      const refund = await stripePT.refunds.create({
+        payment_intent: reservation.stripe_payment_intent_id,
+        amount: Math.round(refundData.refund_amount * 100),
+        reason: 'requested_by_customer',
+      })
+
+      stripeRefundId = refund.id
+      refundProcessedAt = new Date().toISOString()
+    } catch (stripeError) {
+      console.error('Failed to create Stripe refund:', stripeError)
+    }
+  }
+
   let updateQuery = supabase
     .from('reservations')
     .update({
@@ -73,6 +100,9 @@ export async function cancelReservation(
       cancelled_at: cancelledAt,
       deleted_at: null,
       updated_at: cancelledAt,
+      refund_amount: refundData?.refund_amount ?? 0,
+      stripe_refund_id: stripeRefundId,
+      refund_processed_at: refundProcessedAt,
     })
     .eq('id', reservationId)
     .eq('organization_id', organizationId)
@@ -117,7 +147,12 @@ export async function cancelReservation(
     action: 'update',
     resource_type: 'reservation',
     resource_id: reservationId,
-    details: { event: 'reservation_cancelled', reason },
+    details: {
+      event: 'reservation_cancelled',
+      reason,
+      refund_amount: refundData?.refund_amount ?? 0,
+      refund_processed: Boolean(stripeRefundId),
+    },
   })
 
   if (auditError) {
@@ -125,4 +160,76 @@ export async function cancelReservation(
   }
 
   return { ok: true, alreadyCancelled: false, reservationId }
+}
+
+type ReservationForCancellation = {
+  property_id: string
+  check_in: string | null
+  check_out: string | null
+  total_amount: number | string | null
+  cancellation_policy_id: string | null
+  cancellation_policy_snapshot: CancellationPolicySnapshot | null
+}
+
+async function resolveRefundData(
+  supabase: SupabaseClient,
+  reservation: ReservationForCancellation
+): Promise<{ refund_amount: number } | null> {
+  const totalAmount = Number(reservation.total_amount || 0)
+  if (!reservation.check_in || !reservation.check_out || totalAmount <= 0) {
+    return null
+  }
+
+  const policy = await resolveCancellationPolicy(supabase, reservation)
+  if (!policy) {
+    return null
+  }
+
+  const refund = calculateRefundForReservation(
+    policy,
+    new Date(reservation.check_in),
+    new Date(reservation.check_out),
+    totalAmount
+  )
+
+  return {
+    refund_amount: refund.refund_amount,
+  }
+}
+
+async function resolveCancellationPolicy(
+  supabase: SupabaseClient,
+  reservation: ReservationForCancellation
+): Promise<PropertyCancellationPolicy | null> {
+  if (reservation.cancellation_policy_snapshot) {
+    const snapshot = reservation.cancellation_policy_snapshot
+    return {
+      id: reservation.cancellation_policy_id || 'snapshot',
+      property_id: reservation.property_id,
+      policy_type: snapshot.policy_type,
+      is_long_stay: snapshot.is_long_stay,
+      full_refund_days: snapshot.full_refund_days,
+      partial_refund_days: snapshot.partial_refund_days,
+      partial_refund_percent: snapshot.partial_refund_percent,
+      non_refundable_discount_percent: snapshot.non_refundable_discount_percent,
+      is_active: true,
+      created_at: snapshot.captured_at,
+      updated_at: snapshot.captured_at,
+    }
+  }
+
+  if (!reservation.cancellation_policy_id) {
+    return null
+  }
+
+  const { data: policy } = await supabase
+    .from('property_cancellation_policies')
+    .select(
+      'id, property_id, policy_type, is_long_stay, full_refund_days, partial_refund_days, partial_refund_percent, non_refundable_discount_percent, is_active, created_at, updated_at'
+    )
+    .eq('id', reservation.cancellation_policy_id)
+    .eq('property_id', reservation.property_id)
+    .maybeSingle()
+
+  return policy as PropertyCancellationPolicy | null
 }
