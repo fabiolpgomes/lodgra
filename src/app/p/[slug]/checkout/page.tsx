@@ -13,10 +13,22 @@ export const dynamic = 'force-dynamic'
 
 interface PageProps {
   params: Promise<{ slug: string }>
+  searchParams?: Promise<{ checkIn?: string; checkOut?: string; checkin?: string; checkout?: string }>
 }
 
-export default async function CheckoutPage({ params }: PageProps) {
+export default async function CheckoutPage({ params, searchParams }: PageProps) {
   const { slug } = await params
+  const resolvedSearchParams = searchParams ? await searchParams : {}
+  const checkIn = resolvedSearchParams.checkIn ?? resolvedSearchParams.checkin
+  const checkOut = resolvedSearchParams.checkOut ?? resolvedSearchParams.checkout
+
+  let isLongStay = false
+  if (checkIn && checkOut) {
+    const checkInDate = new Date(checkIn)
+    const checkOutDate = new Date(checkOut)
+    const nights = Math.ceil((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24))
+    isLongStay = nights >= 28
+  }
 
   const supabase = createAdminClient()
 
@@ -30,6 +42,14 @@ export default async function CheckoutPage({ params }: PageProps) {
   if (!property) {
     redirect('/')
   }
+
+  const { data: cancellationPolicyData } = await supabase
+    .from('property_cancellation_policies')
+    .select('id, policy_type, full_refund_days, partial_refund_days, partial_refund_percent')
+    .eq('property_id', property.id)
+    .eq('is_long_stay', isLongStay)
+    .eq('is_active', true)
+    .maybeSingle()
 
   return (
     <div className="min-h-screen bg-brand-bg">
@@ -50,6 +70,7 @@ export default async function CheckoutPage({ params }: PageProps) {
           city={property.city ?? null}
           currency={property.currency ?? 'EUR'}
           maxGuests={property.max_guests ?? null}
+          cancellationPolicy={cancellationPolicyData ?? null}
           feeConfig={{
             cleaningFee: property.cleaning_fee ?? null,
             cleaningFeeType: property.cleaning_fee_type ?? null,

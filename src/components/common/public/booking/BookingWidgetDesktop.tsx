@@ -116,6 +116,40 @@ export function BookingWidgetDesktop({
     return Math.max(0, differenceInDays(d2, d1))
   }, [checkIn, checkOut])
 
+  useEffect(() => {
+    if (!checkIn) {
+      setCheckInError('')
+      setCheckOutError('')
+      return
+    }
+
+    setCheckInError(isDateBlocked(checkIn, blockedRanges) ? 'Data indisponível' : '')
+
+    if (!checkOut) {
+      setCheckOutError('')
+      return
+    }
+
+    try {
+      const selectedNights = differenceInDays(parseISO(checkOut), parseISO(checkIn))
+      if (selectedNights < effectiveMinNights) {
+        setCheckOutError(
+          effectiveMinNights === 1
+            ? 'Check-out deve ser no mínimo 1 dia após check-in'
+            : `Esta propriedade exige estadia mínima de ${effectiveMinNights} noites`
+        )
+      } else if (selectedNights > 90) {
+        setCheckOutError('Estadia máxima permitida: 90 noites')
+      } else if (isRangeOverlapping(checkIn, checkOut, blockedRanges)) {
+        setCheckOutError('Período contém datas reservadas')
+      } else {
+        setCheckOutError('')
+      }
+    } catch {
+      setCheckOutError('Data inválida')
+    }
+  }, [blockedRanges, checkIn, checkOut, effectiveMinNights])
+
   // Fetch real price from pricing rules API when dates are selected
   const fetchKey = checkIn && checkOut && nights >= 1 ? `${checkIn}|${checkOut}` : null
 
@@ -154,7 +188,7 @@ export function BookingWidgetDesktop({
   const avgPerNight = nights > 0 ? Math.round(accommodationTotal / nights) : 0
 
   const checkoutHref = useMemo(() => {
-    if (!checkIn || !checkOut || nights < 1) return null
+    if (!checkIn || !checkOut || nights < 1 || nights < effectiveMinNights) return null
 
     // Ensure dates are in YYYY-MM-DD format for API
     const normalizeCheckoutDate = (date: string) => {
@@ -180,7 +214,7 @@ export function BookingWidgetDesktop({
     })
 
     return href
-  }, [slug, checkIn, checkOut, guests, nights])
+  }, [slug, checkIn, checkOut, guests, nights, effectiveMinNights])
 
   const handleCheckInChange = (val: string) => {
     // Handle both YYYY-MM-DD (HTML5 date input) and DD/MM/YYYY (user input)
@@ -360,7 +394,11 @@ export function BookingWidgetDesktop({
           disabled
           className="booking-widget-btn-disabled block w-full text-center mb-4"
         >
-          {checkInError || checkOutError ? 'Datas indisponíveis' : 'Seleccione as datas'}
+          {checkInError || checkOutError
+            ? checkOutError || checkInError
+            : nights > 0 && nights < effectiveMinNights
+            ? `Estadia mínima de ${effectiveMinNights} noites`
+            : 'Seleccione as datas'}
         </button>
       )}
 

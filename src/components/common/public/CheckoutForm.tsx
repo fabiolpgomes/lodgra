@@ -16,6 +16,13 @@ interface CheckoutFormProps {
   accommodationTotal?: number
   fees?: { label: string; amount: number }[]
   currency?: string
+  cancellationPolicy?: {
+    id?: string
+    policy_type: string
+    full_refund_days: number
+    partial_refund_days?: number | null
+    partial_refund_percent?: number | null
+  } | null
 }
 
 type Step = 'summary' | 'guest' | 'payment'
@@ -51,6 +58,7 @@ export function CheckoutForm({
   accommodationTotal,
   fees,
   currency = 'EUR',
+  cancellationPolicy,
 }: CheckoutFormProps) {
   const router = useRouter()
   const [step, setStep] = useState<Step>('summary')
@@ -159,6 +167,7 @@ export function CheckoutForm({
             accommodationTotal={accommodationTotal}
             fees={fees}
             currency={currency}
+            cancellationPolicy={cancellationPolicy}
           />
           <button
             onClick={() => setStep('guest')}
@@ -186,6 +195,7 @@ export function CheckoutForm({
             guests={guests}
             totalPrice={totalPrice}
             compact
+            cancellationPolicy={cancellationPolicy}
           />
 
           <div className="space-y-3">
@@ -285,6 +295,7 @@ export function CheckoutForm({
             guests={guests}
             totalPrice={totalPrice}
             compact
+            cancellationPolicy={cancellationPolicy}
           />
 
           <div className="rounded-2xl border border-brand-gold/20 bg-brand-white p-4 space-y-2 text-sm text-brand-text-medium">

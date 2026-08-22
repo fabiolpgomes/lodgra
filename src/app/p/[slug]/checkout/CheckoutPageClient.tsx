@@ -12,12 +12,21 @@ type FeeConfig = {
   petFeeType: string | null
 }
 
+type CancellationPolicy = {
+  id?: string
+  policy_type: string
+  full_refund_days: number
+  partial_refund_days?: number | null
+  partial_refund_percent?: number | null
+}
+
 interface CheckoutPageClientProps {
   slug: string
   propertyName: string
   city?: string | null
   currency?: string | null
   maxGuests?: number | null
+  cancellationPolicy?: CancellationPolicy | null
   feeConfig: FeeConfig
 }
 
@@ -33,6 +42,7 @@ export function CheckoutPageClient({
   city,
   currency = 'EUR',
   maxGuests,
+  cancellationPolicy,
   feeConfig,
 }: CheckoutPageClientProps) {
   const router = useRouter()
@@ -140,6 +150,7 @@ export function CheckoutPageClient({
       accommodationTotal={pricing.accommodationTotal ?? totalPrice}
       fees={fees}
       currency={currency}
+      cancellationPolicy={cancellationPolicy}
     />
   )
 }

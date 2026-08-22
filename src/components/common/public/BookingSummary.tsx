@@ -2,6 +2,14 @@ import { differenceInDays, format, parseISO } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { Calendar, Users, MapPin } from 'lucide-react'
 
+interface CancellationPolicy {
+  id?: string
+  policy_type: string
+  full_refund_days: number
+  partial_refund_days?: number | null
+  partial_refund_percent?: number | null
+}
+
 interface BookingSummaryProps {
   propertyName: string
   city?: string | null
@@ -14,6 +22,22 @@ interface BookingSummaryProps {
   fees?: { label: string; amount: number }[]
   currency?: string
   compact?: boolean
+  cancellationPolicy?: CancellationPolicy | null
+}
+
+function getCancellationPolicyLabel(policyType: string): string {
+  const labels: Record<string, string> = {
+    flexible: 'Flexível',
+    moderate: 'Moderada',
+    limited: 'Limitada',
+    firm: 'Firme',
+    rigid: 'Rígida',
+  }
+  return labels[policyType] || policyType
+}
+
+function formatDaysLabel(days: number): string {
+  return `${days} ${days === 1 ? 'dia' : 'dias'}`
 }
 
 export function BookingSummary({
@@ -28,6 +52,7 @@ export function BookingSummary({
   fees,
   currency = 'EUR',
   compact = false,
+  cancellationPolicy,
 }: BookingSummaryProps) {
   const checkinDate = parseISO(checkin)
   const checkoutDate = parseISO(checkout)
@@ -39,6 +64,14 @@ export function BookingSummary({
   const fmtDate = (d: Date) =>
     format(d, "d 'de' MMMM yyyy", { locale: ptBR })
 
+  const cancellationPolicyText = cancellationPolicy
+    ? `Política: ${getCancellationPolicyLabel(cancellationPolicy.policy_type)} · reembolso integral até ${formatDaysLabel(cancellationPolicy.full_refund_days)} antes do check-in${
+        cancellationPolicy.partial_refund_days && cancellationPolicy.partial_refund_percent
+          ? ` · ${cancellationPolicy.partial_refund_percent}% até ${formatDaysLabel(cancellationPolicy.partial_refund_days)} antes`
+          : ''
+      }`
+    : null
+
   if (compact) {
     return (
       <div className="rounded-2xl border border-brand-gold/15 bg-brand-white p-4 space-y-1 text-sm shadow-sm">
@@ -47,6 +80,9 @@ export function BookingSummary({
           {format(checkinDate, 'dd/MM/yyyy')} → {format(checkoutDate, 'dd/MM/yyyy')} · {nights} noite{nights !== 1 ? 's' : ''}
         </p>
         <p className="font-semibold text-brand-blue">{sym}{total.toFixed(2)}</p>
+        {cancellationPolicyText && (
+          <p className="text-xs text-brand-text-medium pt-1">{cancellationPolicyText}</p>
+        )}
       </div>
     )
   }
@@ -93,6 +129,11 @@ export function BookingSummary({
           <span className="text-brand-blue">{sym}{total.toFixed(2)}</span>
         </div>
         <p className="text-xs text-brand-text-medium">Impostos incluídos</p>
+        {cancellationPolicyText && (
+          <p className="text-xs text-brand-text-medium pt-1 border-t border-brand-gold/10">
+            {cancellationPolicyText}
+          </p>
+        )}
       </div>
     </div>
   )

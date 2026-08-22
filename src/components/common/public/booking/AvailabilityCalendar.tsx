@@ -78,7 +78,6 @@ function MonthGrid({ baseDate, today, checkIn, checkOut, hoverDate, blockedRange
           const inRange = checkIn && checkOut && d > checkIn && d < checkOut
 
           // Is in hover preview range?
-          const effectiveEnd = hoverDate || checkOut
           const inHover = checkIn && !checkOut && hoverDate &&
             ((d > checkIn && d <= hoverDate) || (d < checkIn && d >= hoverDate))
 
@@ -90,9 +89,9 @@ function MonthGrid({ baseDate, today, checkIn, checkOut, hoverDate, blockedRange
           let cellClass = 'relative h-9 flex items-center justify-center text-[13px] select-none cursor-default transition-colors '
 
           if (isPast || isBlocked) {
-            // Reserved/Past dates: gray background with striped pattern
+            // Reserved/Past dates: darker, more explicit treatment
             cellClass += isBlocked
-              ? 'bg-slate-200 text-slate-500 cursor-not-allowed font-medium shadow-sm border border-slate-300 '
+              ? 'bg-slate-300 text-slate-700 cursor-not-allowed font-bold shadow-inner ring-1 ring-slate-400/60 line-through decoration-slate-600/80 '
               : 'text-gray-300 cursor-not-allowed '
           } else if (isCI || isCO) {
             cellClass += 'bg-brand-800 text-white rounded-full font-bold cursor-pointer z-10 shadow-md border-2 border-brand-600 '
@@ -120,14 +119,14 @@ function MonthGrid({ baseDate, today, checkIn, checkOut, hoverDate, blockedRange
             <div
               key={d}
               className={`${cellClass} ${isRangeStart ? 'rounded-l-full' : ''} ${isRangeEnd ? 'rounded-r-full' : ''}`}
-              onClick={() => !isPast && !isBlocked && onDateClick(day)}
-              onMouseEnter={() => !isPast && !isBlocked && onDateHover(d)}
+              onClick={() => !isDisabled && onDateClick(day)}
+              onMouseEnter={() => !isDisabled && onDateHover(d)}
               onMouseLeave={() => onDateHover(null)}
-              title={isBlocked ? 'Reservado' : isPast ? 'Data passada' : undefined}
+              title={isBlocked ? `Reservado: ${fmt(day)} → ${fmt(addDays(day, 1))}` : isPast ? 'Data passada' : undefined}
               aria-label={`${format(day, 'd MMMM yyyy', { locale: ptBR })}${isBlocked ? ' — reservado' : isPast ? ' — passado' : ''}`}
               role="button"
-              tabIndex={isPast || isBlocked ? -1 : 0}
-              onKeyDown={e => e.key === 'Enter' && !isPast && !isBlocked && onDateClick(day)}
+              tabIndex={isDisabled ? -1 : 0}
+              onKeyDown={e => e.key === 'Enter' && !isDisabled && onDateClick(day)}
             >
               <span className={`${isCI || isCO ? 'z-10 relative' : ''}`}>
                 {format(day, 'd')}
