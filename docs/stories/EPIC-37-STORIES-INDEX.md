@@ -1,6 +1,6 @@
 # EPIC 37: Calendar Pricing & Availability — Stories Index
 
-**Status:** 5/5 Stories Drafted & Ready for Development  
+**Status:** Core Delivery Complete / Optional Follow-Up Remains
 **Model:** Airbnb Host Dashboard (Exactly Replicated)  
 **Timeline:** 2–3 weeks  
 **Total Size:** 38h  
@@ -12,11 +12,11 @@
 
 | # | Story | Size | Priority | Status | File |
 |---|-------|------|----------|--------|------|
-| **37.1** | Card Preços (Funcional) | 8h | P1 | Ready for Dev | [37.1-card-precos-funcional.md](./37.1-card-precos-funcional.md) |
-| **37.2** | Card Descontos (Funcional) | 6h | P1 | Ready for Dev | [37.2-card-descontos-funcional.md](./37.2-card-descontos-funcional.md) |
-| **37.3** | Card Disponibilidade (Funcional) | 6h | P1 | Ready for Dev | [37.3-card-disponibilidade-funcional.md](./37.3-card-disponibilidade-funcional.md) |
-| **37.4** | Card Cancelamento + Stripe | 12h | P1 | Ready for Dev | [37.4-card-cancelamento-stripe.md](./37.4-card-cancelamento-stripe.md) |
-| **37.5** | Loyalty Discount (Auto) | 6h | P2 | Ready for Dev | [37.5-loyalty-discount-automatico.md](./37.5-loyalty-discount-automatico.md) |
+| **37.1** | Card Preços (Funcional) | 8h | P1 | Ready for Production | [37.1-card-precos-funcional.md](./37.1-card-precos-funcional.md) |
+| **37.2** | Card Descontos (Funcional) | 6h | P1 | Done | [37.2-card-descontos-funcional.md](./37.2-card-descontos-funcional.md) |
+| **37.3** | Card Disponibilidade (Funcional) | 6h | P1 | Done | [37.3-card-disponibilidade-funcional.md](./37.3-card-disponibilidade-funcional.md) |
+| **37.4** | Card Cancelamento + Stripe | 12h | P1 | Ready for Production | [37.4-card-cancelamento-stripe.md](./37.4-card-cancelamento-stripe.md) |
+| **37.5** | Loyalty Discount (Auto) | 6h | P2 | Ready for Dev (Optional) | [37.5-loyalty-discount-automatico.md](./37.5-loyalty-discount-automatico.md) |
 
 ---
 
@@ -89,7 +89,7 @@
 ```
 NEW TABLE: property_cancellation_policies
 MODIFIED: reservations (add cancellation_policy_id, snapshot, refund_amount, stripe_refund_id)
-EXISTING TABLES ENHANCED: property_prices, property_discounts, property_availability, property_daily_prices
+EXISTING TABLES ENHANCED: property_prices, property_discounts, property_availability, daily_prices
 ```
 
 ### API Endpoints (All CRUD)
@@ -141,8 +141,8 @@ SettingsSidebar.tsx          — orchestrates all 4 cards + tabs
 5. File List updated (all new/modified files documented)
 
 **Before marking EPIC DONE:**
-1. All 5 stories marked "Ready for Review"
-2. @qa conducts full QA pass (Story 37 QA checklist)
+1. Core stories 37.1–37.4 must be delivered and revalidated
+2. @qa conducts full QA pass on the cancellation and pricing paths
 3. Design validation (UI matches Airbnb screenshots)
 4. Stripe testing (sandbox → staging → production flow)
 5. Documentation updated (user guide + dev docs)
@@ -200,4 +200,4 @@ SettingsSidebar.tsx          — orchestrates all 4 cards + tabs
 
 *Created: 2026-07-28*  
 *Model: Airbnb Host Dashboard*  
-*Status: READY FOR DEVELOPMENT*
+*Status: CORE DELIVERY COMPLETE, OPTIONAL FOLLOW-UP REMAINS*

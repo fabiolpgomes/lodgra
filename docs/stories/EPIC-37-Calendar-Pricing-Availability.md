@@ -1,6 +1,6 @@
 # EPIC 37: Calendar Pricing & Availability Management
 
-**Status:** Draft  
+**Status:** Core Delivery Complete / Optional Follow-Up Remains
 **Epic Owner:** @aios-master  
 **Stories:** 5 (37.1–37.5)  
 **Estimated Timeline:** 2–3 weeks  
@@ -159,6 +159,14 @@ See `src/types/cancellation.types.ts` (to be created by Story 37.4)
 - Full booking flow (search → select → pay → cancel)
 - Admin settings workflow (edit policies → see impact on calendar)
 
+## 📌 Current Status
+
+- Story 37.1 pricing has been revalidated against the current code path
+- Stories 37.2 and 37.3 are documented as complete/ready for review
+- Story 37.4 is documented as ready for production with the Stripe cancellation path
+- Story 37.5 remains the optional follow-up for loyalty discount behavior
+- The epic is in delivery, not draft, and the remaining work is now mostly closeout / optional enhancement
+
 ---
 
 ## 🔄 Dependencies
@@ -166,7 +174,7 @@ See `src/types/cancellation.types.ts` (to be created by Story 37.4)
 ### Input (Prerequisites)
 - ✅ Story 36: Calendar UI + reservation bars (completed)
 - ✅ Story 12: Stripe integration foundation (completed)
-- ✅ Database: 4 existing tables (property_prices, property_discounts, property_availability, property_daily_prices)
+- ✅ Database: 4 existing tables (property_prices, property_discounts, property_availability, daily_prices)
 
 ### Output (Used by Future Work)
 - Dynamic pricing (AI recommendations)
