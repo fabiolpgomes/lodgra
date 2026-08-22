@@ -5,14 +5,11 @@ import { useRouter } from '@/lib/i18n/routing'
 import { ReservationUI } from './types/reservation-ui'
 import { EditReservationForm } from './EditReservationForm'
 import { Button } from '@/components/common/ui/button'
-import { Trash2, Edit, CircleDollarSign, BadgeInfo } from 'lucide-react'
-
-type CancellationRefundInfo = {
-  refund_amount: number
-  refund_percentage: number
-  stripe_refund_id: string | null
-  processed_at: string | null
-}
+import { Trash2, Edit } from 'lucide-react'
+import {
+  CancellationRefundSummary,
+  type CancellationRefundInfo,
+} from './CancellationRefundSummary'
 
 interface EditReservationClientProps {
   reservation: ReservationUI
@@ -196,41 +193,10 @@ export function EditReservationClient({ reservation, locale }: EditReservationCl
             <p className="text-sm text-[#4D5566] mb-4">
               Esta ação é reversível. A reserva será marcada como cancelada mas os dados serão preservados para auditoria.
             </p>
-            {cancelResult?.refund_info && (
-              <div className="mb-4 rounded-[8px] border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
-                <div className="flex items-start gap-3">
-                  <CircleDollarSign className="mt-0.5 h-5 w-5 text-emerald-700" />
-                  <div className="space-y-2">
-                    <p className="font-semibold">Cancelamento processado com reembolso</p>
-                    <p>
-                      Reembolso: <strong>€{cancelResult.refund_info.refund_amount.toFixed(2)}</strong>
-                    </p>
-                    <p>
-                      Percentual: <strong>{cancelResult.refund_info.refund_percentage}%</strong>
-                    </p>
-                    <p className="text-xs text-emerald-700">
-                      Stripe Refund ID: {cancelResult.refund_info.stripe_refund_id || 'em processamento'}
-                    </p>
-                    {cancelResult.refund_info.processed_at && (
-                      <p className="text-xs text-emerald-700">
-                        Processado em {new Date(cancelResult.refund_info.processed_at).toLocaleString()}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
-            {cancelResult?.already_cancelled && (
-              <div className="mb-4 rounded-[8px] border border-sky-200 bg-sky-50 p-4 text-sm text-sky-900">
-                <div className="flex items-start gap-3">
-                  <BadgeInfo className="mt-0.5 h-5 w-5 text-sky-700" />
-                  <div>
-                    <p className="font-semibold">Reserva já estava cancelada</p>
-                    <p>Não foi necessário processar outra alteração.</p>
-                  </div>
-                </div>
-              </div>
-            )}
+            <CancellationRefundSummary
+              refundInfo={cancelResult?.refund_info}
+              alreadyCancelled={cancelResult?.already_cancelled}
+            />
             <div className="bg-[#C9A227]/10 border border-[#C9A227]/30 rounded-[8px] p-3 text-sm text-[#C9A227] mb-6">
               ⚠️ Certifique-se de notificar o hóspede antes de cancelar.
             </div>
