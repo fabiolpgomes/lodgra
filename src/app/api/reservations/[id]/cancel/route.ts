@@ -41,5 +41,6 @@ export async function POST(
     reservation_id: result.reservationId,
     status: 'cancelled',
     already_cancelled: result.alreadyCancelled,
+    refund_info: result.ok && !result.alreadyCancelled ? result.refundInfo : undefined,
   })
 }

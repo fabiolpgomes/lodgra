@@ -8,7 +8,17 @@ import type {
 } from '@/types/cancellation.types'
 
 export type CancellationResult =
-  | { ok: true; alreadyCancelled: boolean; reservationId: string }
+  | {
+      ok: true
+      alreadyCancelled: boolean
+      reservationId: string
+      refundInfo?: {
+        refund_amount: number
+        refund_percentage: number
+        stripe_refund_id: string | null
+        processed_at: string | null
+      }
+    }
   | { ok: false; status: 403 | 404 | 500; error: string }
 
 const CANCELLATION_ROLES = new Set(['admin', 'gestor', 'manager', 'owner'])
@@ -159,7 +169,19 @@ export async function cancelReservation(
     console.error('Reservation cancellation audit failed:', auditError)
   }
 
-  return { ok: true, alreadyCancelled: false, reservationId }
+  return {
+    ok: true,
+    alreadyCancelled: false,
+    reservationId,
+    refundInfo: refundData
+      ? {
+          refund_amount: refundData.refund_amount,
+          refund_percentage: refundData.refund_percentage,
+          stripe_refund_id: stripeRefundId,
+          processed_at: refundProcessedAt,
+        }
+      : undefined,
+  }
 }
 
 type ReservationForCancellation = {
@@ -174,7 +196,7 @@ type ReservationForCancellation = {
 async function resolveRefundData(
   supabase: SupabaseClient,
   reservation: ReservationForCancellation
-): Promise<{ refund_amount: number } | null> {
+): Promise<{ refund_amount: number; refund_percentage: number } | null> {
   const totalAmount = Number(reservation.total_amount || 0)
   if (!reservation.check_in || !reservation.check_out || totalAmount <= 0) {
     return null
@@ -194,6 +216,7 @@ async function resolveRefundData(
 
   return {
     refund_amount: refund.refund_amount,
+    refund_percentage: refund.refund_percentage,
   }
 }
 
