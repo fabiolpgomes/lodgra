@@ -258,3 +258,28 @@ A validação de closeout da expansão segue em QA-3 depois da integração e da
 1. continue from the authenticated staging dashboard state
 2. pick up the next QA or story task from the active epic
 3. keep the staging-first local workflow as the default development path
+
+## 12. Session Update - 2026-08-22 (Lodgra Pricing / Cancellation Track)
+
+### What was delivered
+- pricing/cancellation work moved through four clean commits:
+  - `38c8a410` - `feat: add cancellation refund processing`
+  - `e40ce17d` - `feat: expose refund info on reservation cancel`
+  - `d1ab878c` - `feat: show cancellation refund summary`
+  - `4b1d46d7` - `refactor: extract cancellation refund summary`
+- the cancellation flow now calculates refund data, persists it, exposes it via the API, and renders it in the reservation detail UI
+- the refund summary is extracted into a reusable component so future cancellation surfaces can reuse it
+- targeted validation passed:
+  - `src/lib/reservations/__tests__/cancelReservation.test.ts`
+  - `src/__tests__/api/reservations-cancel-route.test.ts`
+  - `npm run typecheck`
+
+### Practical result
+- the UI now shows refund amount, percentage, Stripe refund id, and processed timestamp after cancellation
+- the endpoint now returns `refund_info` for reuse in other screens
+- the worktree still has unrelated pre-existing changes, but the pricing/cancellation flow itself is preserved in the commits above
+
+### Resume point for tomorrow
+1. start from `CancellationRefundSummary`
+2. decide whether to reuse the component in another cancellation surface or move to the next epic front
+3. keep the finished refund calculation path as the baseline unless a new requirement appears

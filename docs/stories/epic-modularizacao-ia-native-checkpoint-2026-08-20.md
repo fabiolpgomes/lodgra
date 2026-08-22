@@ -226,3 +226,29 @@ Today we completed the staging access recovery and confirmed the dashboard flow 
 1. start from the ready-for-review story chain
 2. carry the PM-3 policy into future capability reviews
 3. close the production restore-point follow-up only if the next promotion wave requires it
+
+## 12. Session Update - 2026-08-22 (Lodgra Pricing / Cancellation Track)
+
+### What we advanced today
+- closed the pricing/cancellation validation loop with a clean set of commits:
+  - `38c8a410` - `feat: add cancellation refund processing`
+  - `e40ce17d` - `feat: expose refund info on reservation cancel`
+  - `d1ab878c` - `feat: show cancellation refund summary`
+  - `4b1d46d7` - `refactor: extract cancellation refund summary`
+- the cancellation flow now calculates refund data, exposes it through the API, and shows a reusable refund summary in the reservation detail UI
+- the refund summary was extracted into a reusable component so the UX can be reused in other cancellation surfaces later
+- focused validation passed:
+  - `src/lib/reservations/__tests__/cancelReservation.test.ts`
+  - `src/__tests__/api/reservations-cancel-route.test.ts`
+  - `npm run typecheck`
+
+### Current implementation state
+- the cancellation endpoint now returns `refund_info`
+- `cancelReservation` persists refund metadata when policy/payment data is available
+- the reservation detail screen displays the refund summary or the already-cancelled state
+- the summary UI now lives in `CancellationRefundSummary.tsx` and can be reused elsewhere
+
+### Resume point for tomorrow
+1. continue from the reusable cancellation summary component
+2. decide whether the next step is a second cancellation surface or the next epic front
+3. keep the current checkout/pricing/cancellation history as the baseline, without reworking the finished refund flow

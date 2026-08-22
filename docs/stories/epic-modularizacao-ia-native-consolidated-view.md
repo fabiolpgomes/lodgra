@@ -101,3 +101,32 @@ The staging foundation is now validated in the local dev loop.
 ### Practical implication
 - the next session can resume directly from authenticated staging validation
 - the local env workflow is now less error-prone for development and QA
+
+## 8. Session Update - 2026-08-22 (Lodgra Pricing / Cancellation Track)
+
+### What was completed
+- the pricing/cancellation work was captured in these commits:
+  - `38c8a410` - `feat: add cancellation refund processing`
+  - `e40ce17d` - `feat: expose refund info on reservation cancel`
+  - `d1ab878c` - `feat: show cancellation refund summary`
+  - `4b1d46d7` - `refactor: extract cancellation refund summary`
+- the cancellation path now:
+  - computes refund data from the stored policy / snapshot
+  - persists refund metadata on the reservation
+  - returns `refund_info` from the API
+  - shows the result in the reservation detail UI
+- the refund summary now lives in a reusable component, `CancellationRefundSummary`
+- focused validation passed:
+  - `src/lib/reservations/__tests__/cancelReservation.test.ts`
+  - `src/__tests__/api/reservations-cancel-route.test.ts`
+  - `npm run typecheck`
+
+### Practical implication
+- the reservation detail screen now gives immediate feedback about the refund after cancellation
+- other cancellation surfaces can reuse the same component instead of duplicating the summary block
+- the repo still contains unrelated pre-existing changes, but this flow is fully documented and committed
+
+### Resume point for tomorrow
+1. start from the reusable cancellation summary component
+2. decide whether the next step is a second cancellation surface or the next epic front
+3. keep the pricing/cancellation flow as the baseline and only extend it if a new requirement appears
