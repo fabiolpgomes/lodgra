@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import { requireRole } from '@/lib/auth/requireRole'
 import { createClient } from '@/lib/supabase/server'
 import { getUserPropertyIds } from '@/lib/auth/getUserProperties'
+import {
+  formatReportAmount,
+  groupReportByCurrency,
+  reportCurrencyLabel,
+  resolveReportCurrency,
+} from '@/lib/utils/report-currency'
 
 interface Reservation {
   id: string
@@ -10,10 +16,10 @@ interface Reservation {
   total_amount: number | null
   platform_fee: number | null
   net_amount: number | null
-  currency: string
+  currency: string | null
   source: string | null
   property_id: string
-  properties: { id: string; name: string; city: string; currency?: string }
+  properties: { id: string; name: string; city: string; currency?: string | null }
   guests: { first_name: string; last_name: string } | null
 }
 
@@ -21,11 +27,11 @@ interface Expense {
   id: string
   expense_date: string
   amount: number
-  currency: string
+  currency: string | null
   category: string
   description: string
   notes: string | null
-  properties: { id: string; name: string; currency: string }
+  properties: { id: string; name: string; currency: string | null }
 }
 
 interface PropertyData {
@@ -33,23 +39,6 @@ interface PropertyData {
   name: string
   management_percentage: number
   owners: { full_name: string } | null
-}
-
-function formatCurrency(amount: number, currency: string): string {
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: currency,
-  }).format(amount)
-}
-
-function groupByCurrency(
-  items: Array<{ currency: string; amount: number }>
-): Record<string, number> {
-  return items.reduce((acc: Record<string, number>, item) => {
-    const currency = item.currency || 'EUR'
-    acc[currency] = (acc[currency] || 0) + (item.amount || 0)
-    return acc
-  }, {})
 }
 
 function normalizeChannelName(source: string | null): string {
@@ -102,7 +91,7 @@ function generateHtml(
   nonce: string
 ): string {
   const currencies = Object.keys(data.revenueByCurrency)
-  const mainCurrency = currencies[0] || 'EUR'
+  const mainCurrency = reportCurrencyLabel(currencies[0])
 
   return `<!DOCTYPE html>
 <html>
@@ -185,10 +174,10 @@ function generateHtml(
         <div class="summary-item"><strong>Taxa de Ocupação:</strong> ${data.occupancyRate.toFixed(1)}%</div>
         ${currencies.map(curr => `
           <div class="summary-grid">
-            <div class="summary-item"><strong>Receita Bruta (${curr}):</strong> ${formatCurrency(data.revenueByCurrency[curr], curr)}</div>
-            <div class="summary-item"><strong>Receita Líquida (${curr}):</strong> ${formatCurrency(data.netRevenueByCurrency[curr], curr)}</div>
-            <div class="summary-item"><strong>Despesas (${curr}):</strong> ${formatCurrency(data.operationalByCurrency[curr] + data.taxByCurrency[curr], curr)}</div>
-            <div class="summary-item"><strong>Lucro Líquido (${curr}):</strong> ${formatCurrency(data.netProfitByCurrency[curr], curr)}</div>
+            <div class="summary-item"><strong>Receita Bruta (${curr}):</strong> ${formatReportAmount(data.revenueByCurrency[curr] || 0, curr)}</div>
+            <div class="summary-item"><strong>Receita Líquida (${curr}):</strong> ${formatReportAmount(data.netRevenueByCurrency[curr] || 0, curr)}</div>
+            <div class="summary-item"><strong>Despesas (${curr}):</strong> ${formatReportAmount((data.operationalByCurrency[curr] || 0) + (data.taxByCurrency[curr] || 0), curr)}</div>
+            <div class="summary-item"><strong>Lucro Líquido (${curr}):</strong> ${formatReportAmount(data.netProfitByCurrency[curr] || 0, curr)}</div>
           </div>
         `).join('')}
       </div>
@@ -198,33 +187,33 @@ function generateHtml(
         <thead>
           <tr>
             <th>Descrição</th>
-            ${currencies.map(c => `<th class="text-right">${c}</th>`).join('')}
+            ${currencies.map(c => `<th class="text-right">${reportCurrencyLabel(c)}</th>`).join('')}
           </tr>
         </thead>
         <tbody>
           <tr>
             <td><strong>Receita Bruta</strong></td>
-            ${currencies.map(c => `<td class="currency">${formatCurrency(data.revenueByCurrency[c], c)}</td>`).join('')}
+            ${currencies.map(c => `<td class="currency">${formatReportAmount(data.revenueByCurrency[c], c)}</td>`).join('')}
           </tr>
           <tr>
             <td>Taxas de Plataforma</td>
-            ${currencies.map(c => `<td class="currency">${formatCurrency(data.platformFeesByCurrency[c], c)}</td>`).join('')}
+            ${currencies.map(c => `<td class="currency">${formatReportAmount(data.platformFeesByCurrency[c], c)}</td>`).join('')}
           </tr>
           <tr>
             <td><strong>Receita Líquida</strong></td>
-            ${currencies.map(c => `<td class="currency">${formatCurrency(data.netRevenueByCurrency[c], c)}</td>`).join('')}
+            ${currencies.map(c => `<td class="currency">${formatReportAmount(data.netRevenueByCurrency[c], c)}</td>`).join('')}
           </tr>
           <tr>
             <td>Despesas Operacionais</td>
-            ${currencies.map(c => `<td class="currency">${formatCurrency(data.operationalByCurrency[c], c)}</td>`).join('')}
+            ${currencies.map(c => `<td class="currency">${formatReportAmount(data.operationalByCurrency[c], c)}</td>`).join('')}
           </tr>
           <tr>
             <td>Impostos</td>
-            ${currencies.map(c => `<td class="currency">${formatCurrency(data.taxByCurrency[c], c)}</td>`).join('')}
+            ${currencies.map(c => `<td class="currency">${formatReportAmount(data.taxByCurrency[c], c)}</td>`).join('')}
           </tr>
           <tr style="background: #fef2f2; font-weight: bold;">
             <td><strong>Lucro Líquido</strong></td>
-            ${currencies.map(c => `<td class="currency">${formatCurrency(data.netProfitByCurrency[c], c)}</td>`).join('')}
+            ${currencies.map(c => `<td class="currency">${formatReportAmount(data.netProfitByCurrency[c], c)}</td>`).join('')}
           </tr>
           <tr style="background: #fef2f2; font-weight: bold;">
             <td><strong>Margem (%)</strong></td>
@@ -255,11 +244,11 @@ function generateHtml(
           ${data.propertyStats.map(prop => `
             <tr>
               <td>${prop.name}</td>
-              <td class="currency">${formatCurrency(prop.revenue, mainCurrency)}</td>
+              <td class="currency">${formatReportAmount(prop.revenue, mainCurrency)}</td>
               <td class="text-right">${prop.reservations}</td>
               <td class="text-right">${prop.nights}</td>
-              <td class="currency">${formatCurrency(prop.managementFee, mainCurrency)}</td>
-              <td class="currency">${formatCurrency(prop.ownerNet, mainCurrency)}</td>
+              <td class="currency">${formatReportAmount(prop.managementFee, mainCurrency)}</td>
+              <td class="currency">${formatReportAmount(prop.ownerNet, mainCurrency)}</td>
             </tr>
           `).join('')}
         </tbody>
@@ -281,7 +270,7 @@ function generateHtml(
           ${data.monthlyStats.map(month => `
             <tr>
               <td>${month.month}</td>
-              <td class="currency">${formatCurrency(month.revenue, mainCurrency)}</td>
+              <td class="currency">${formatReportAmount(month.revenue, mainCurrency)}</td>
               <td class="text-right">${month.reservations}</td>
               <td class="text-right">${month.nights}</td>
             </tr>
@@ -309,7 +298,7 @@ function generateHtml(
             return `
             <tr>
               <td>${channel.name}</td>
-              <td class="currency">${formatCurrency(channel.revenue, mainCurrency)}</td>
+              <td class="currency">${formatReportAmount(channel.revenue, mainCurrency)}</td>
               <td class="text-right">${channel.reservations}</td>
               <td class="text-right">${percentage}%</td>
             </tr>`
@@ -456,32 +445,32 @@ export async function GET(request: NextRequest) {
     const expensesList = (expenses as unknown as Expense[]) || []
     const propertiesList = (properties as unknown as PropertyData[]) || []
 
-    // Helper: property.currency tem prioridade sobre r.currency (Airbnb guarda 'EUR' para propriedades BRL)
-    function getResCur(r: Reservation): string {
+    // Helper: property.currency tem prioridade sobre r.currency.
+    function getResCur(r: Reservation): string | null {
       const prop = r.properties
       const propObj = Array.isArray(prop) ? prop[0] : prop
-      return propObj?.currency || r.currency || 'EUR'
+      return resolveReportCurrency(propObj?.currency) || resolveReportCurrency(r.currency)
     }
 
     // Cálculos financeiros
-    const revenueByCurrency = groupByCurrency(
+    const revenueByCurrency = groupReportByCurrency(
       reservationsList.map(r => ({ currency: getResCur(r), amount: Number(r.total_amount) || 0 }))
     )
-    const platformFeesByCurrency = groupByCurrency(
+    const platformFeesByCurrency = groupReportByCurrency(
       reservationsList.map(r => ({ currency: getResCur(r), amount: Number(r.platform_fee) || 0 }))
     )
-    const netRevenueByCurrency = groupByCurrency(
+    const netRevenueByCurrency = groupReportByCurrency(
       reservationsList.map(r => ({ currency: getResCur(r), amount: Number(r.net_amount) || Number(r.total_amount) || 0 }))
     )
 
     const operationalExpenses = expensesList.filter(e => e.category !== 'taxes')
     const taxExpenses = expensesList.filter(e => e.category === 'taxes')
 
-    const operationalByCurrency = groupByCurrency(
-      operationalExpenses.map(e => ({ currency: e.currency, amount: e.amount }))
+    const operationalByCurrency = groupReportByCurrency(
+      operationalExpenses.map(e => ({ currency: resolveReportCurrency(e.currency) || resolveReportCurrency(e.properties?.currency), amount: e.amount }))
     )
-    const taxByCurrency = groupByCurrency(
-      taxExpenses.map(e => ({ currency: e.currency, amount: e.amount }))
+    const taxByCurrency = groupReportByCurrency(
+      taxExpenses.map(e => ({ currency: resolveReportCurrency(e.currency) || resolveReportCurrency(e.properties?.currency), amount: e.amount }))
     )
 
     const netProfitByCurrency: Record<string, number> = {}
