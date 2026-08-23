@@ -1,12 +1,12 @@
 'use client'
 
 import { TrendingUp, TrendingDown, DollarSign } from 'lucide-react'
-import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
+import { formatFinancialAmount } from '@/lib/utils/financial-report-currency'
 
 interface ProfitCardProps {
   revenue: number
   expenses: number
-  currency: string
+  currency: string | null
 }
 
 export function ProfitCard({ revenue, expenses, currency }: ProfitCardProps) {
@@ -27,7 +27,7 @@ export function ProfitCard({ revenue, expenses, currency }: ProfitCardProps) {
         {/* Lucro Líquido */}
         <div>
           <h3 className={`text-3xl font-black font-display ${isProfit ? 'text-lodgra-blue' : 'text-red-600'}`}>
-            {formatCurrency(profit, currency as CurrencyCode)}
+            {formatFinancialAmount(profit, currency)}
           </h3>
           <p className="text-[10px] font-black uppercase tracking-wider text-[color:var(--be-text)]/30 mt-1">Lucro Líquido</p>
         </div>
@@ -40,7 +40,7 @@ export function ProfitCard({ revenue, expenses, currency }: ProfitCardProps) {
               <span>Receita</span>
             </div>
             <span className="font-medium text-gray-900">
-              {formatCurrency(revenue, currency as CurrencyCode)}
+              {formatFinancialAmount(revenue, currency)}
             </span>
           </div>
           
@@ -50,7 +50,7 @@ export function ProfitCard({ revenue, expenses, currency }: ProfitCardProps) {
               <span>Despesas</span>
             </div>
             <span className="font-medium text-gray-900">
-              {formatCurrency(expenses, currency as CurrencyCode)}
+              {formatFinancialAmount(expenses, currency)}
             </span>
           </div>
 

@@ -1,6 +1,5 @@
 import { TrendingUp, TrendingDown, DollarSign, Percent, BarChart3 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
-import { formatCurrency, groupByCurrency, type CurrencyCode } from '@/lib/utils/currency'
 import { ProfitCard } from '@/components/features/dashboard/ProfitCard'
 import { AuthLayout } from '@/components/common/layout/AuthLayout'
 import { calcManagementFee, calcOwnerNet } from '@/lib/financial/calculations'
@@ -8,6 +7,12 @@ import { CurrencyStack } from '@/components/common/ui/CurrencyStack'
 import { MonthNavigator } from '@/components/common/ui/MonthNavigator'
 import { calculateRevenueForReservation } from '@/lib/financial/revenue-calculator'
 import { PremiumCard, PremiumPageHeader, PremiumPageShell } from '@/components/common/layout/PremiumPage'
+import {
+  financialCurrencyLabel,
+  formatFinancialAmount,
+  groupFinancialByCurrency,
+  resolveFinancialCurrency,
+} from '@/lib/utils/financial-report-currency'
 
 export default async function FinancialPage({
   searchParams,
@@ -51,15 +56,15 @@ export default async function FinancialPage({
 
   // Helper: property.currency tem prioridade sobre reservation.currency
   // (Airbnb imports gravam 'EUR' mesmo para propriedades BRL)
-  function getResCurrency(r: { currency?: string | null; properties?: unknown }): CurrencyCode {
+  function getResCurrency(r: { currency?: string | null; properties?: unknown }): string | null {
     const prop = r.properties as { currency?: string } | { currency?: string }[] | null
     const propObj = Array.isArray(prop) ? prop[0] : prop
-    return ((propObj?.currency || r.currency || 'EUR') as CurrencyCode)
+    return resolveFinancialCurrency(propObj?.currency) || resolveFinancialCurrency(r.currency)
   }
 
   // Calcular receita por moeda usando distribuição proporcional
   const monthKey = `${mYear}-${String(mMonth).padStart(2, '0')}`
-  const revenueByCurrency = groupByCurrency(
+  const revenueByCurrency = groupFinancialByCurrency(
     (reservations || []).flatMap(r => {
       const revenueBreakdown = calculateRevenueForReservation({
         id: r.id,
@@ -81,12 +86,12 @@ export default async function FinancialPage({
   )
 
   // Calcular despesas por moeda (expense.currency > property.currency > EUR)
-  const expensesByCurrency = groupByCurrency(
+  const expensesByCurrency = groupFinancialByCurrency(
     expenses?.map(e => {
       const prop = e.properties as { currency?: string } | { currency?: string }[] | null
       const propObj = Array.isArray(prop) ? prop[0] : prop
       return {
-        currency: (e.currency || propObj?.currency || 'EUR') as CurrencyCode,
+        currency: resolveFinancialCurrency(e.currency) || resolveFinancialCurrency(propObj?.currency),
         amount: Number(e.amount)
       }
     }) || []
@@ -101,8 +106,8 @@ export default async function FinancialPage({
   ])
 
   allCurrencies.forEach(currency => {
-    const revenue = revenueByCurrency[currency as CurrencyCode] || 0
-    const expense = expensesByCurrency[currency as CurrencyCode] || 0
+    const revenue = revenueByCurrency[currency] || 0
+    const expense = expensesByCurrency[currency] || 0
     profitByCurrency[currency] = {
       revenue,
       expenses: expense,
@@ -255,41 +260,41 @@ export default async function FinancialPage({
                           </div>
                         </div>
                       </td>
-                      <td className="px-2 py-3 whitespace-nowrap text-right">
-                        <div className="flex items-center justify-end gap-0.5">
-                          <TrendingUp className="h-3 w-3 text-emerald-700" />
-                          <span className="text-xs font-medium text-brand-text-dark">
-                            {formatCurrency(property.revenue, property.currency as CurrencyCode)}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-2 py-3 whitespace-nowrap text-right">
-                        <span className="text-xs font-medium text-orange-600">
-                          {property.management_percentage > 0
-                            ? formatCurrency(property.management_fee, property.currency as CurrencyCode)
-                            : '—'}
-                        </span>
-                      </td>
-                      <td className="px-2 py-3 whitespace-nowrap text-right">
-                        <span className="text-xs font-medium text-teal-600">
-                          {formatCurrency(property.owner_net, property.currency as CurrencyCode)}
-                        </span>
-                      </td>
-                      <td className="px-2 py-3 whitespace-nowrap text-right">
-                        <div className="flex items-center justify-end gap-0.5">
-                          <TrendingDown className="h-3 w-3 text-red-600" />
-                          <span className="text-xs font-medium text-brand-text-dark">
-                            {formatCurrency(property.expenses, property.currency as CurrencyCode)}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-2 py-3 whitespace-nowrap text-right">
-                        <span className={`text-xs font-bold ${
-                          property.profit >= 0 ? 'text-emerald-700' : 'text-red-600'
-                        }`}>
-                          {formatCurrency(property.profit, property.currency as CurrencyCode)}
-                        </span>
-                      </td>
+                          <td className="px-2 py-3 whitespace-nowrap text-right">
+                            <div className="flex items-center justify-end gap-0.5">
+                              <TrendingUp className="h-3 w-3 text-emerald-700" />
+                              <span className="text-xs font-medium text-brand-text-dark">
+                                {formatFinancialAmount(property.revenue, property.currency)}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="px-2 py-3 whitespace-nowrap text-right">
+                            <span className="text-xs font-medium text-orange-600">
+                              {property.management_percentage > 0
+                                ? formatFinancialAmount(property.management_fee, property.currency)
+                                : '—'}
+                            </span>
+                          </td>
+                          <td className="px-2 py-3 whitespace-nowrap text-right">
+                            <span className="text-xs font-medium text-teal-600">
+                              {formatFinancialAmount(property.owner_net, property.currency)}
+                            </span>
+                          </td>
+                          <td className="px-2 py-3 whitespace-nowrap text-right">
+                            <div className="flex items-center justify-end gap-0.5">
+                              <TrendingDown className="h-3 w-3 text-red-600" />
+                              <span className="text-xs font-medium text-brand-text-dark">
+                                {formatFinancialAmount(property.expenses, property.currency)}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="px-2 py-3 whitespace-nowrap text-right">
+                            <span className={`text-xs font-bold ${
+                              property.profit >= 0 ? 'text-emerald-700' : 'text-red-600'
+                            }`}>
+                              {formatFinancialAmount(property.profit, property.currency)}
+                            </span>
+                          </td>
                       <td className="px-2 py-3 whitespace-nowrap text-right">
                         <div className="flex items-center justify-end gap-0.5">
                           <Percent className="h-3 w-3 text-brand-text-medium" />
@@ -351,9 +356,9 @@ export default async function FinancialPage({
                     currency === 'BRL' ? 'bg-white text-[#10203E] ring-[#10203E]/20' :
                     currency === 'USD' ? 'bg-white text-[#10203E] ring-[#10203E]/20' :
                     'bg-white text-[#10203E] ring-[#10203E]/20'
-                  }`}>{currency}</span>
+                  }`}>{financialCurrencyLabel(currency)}</span>
                   <span className={`text-2xl font-black tabular-nums font-display ${data.profit >= 0 ? '' : 'text-red-600'}`} style={{ color: data.profit >= 0 ? '#10203E' : undefined }}>
-                    {formatCurrency(data.profit, currency as CurrencyCode)}
+                    {formatFinancialAmount(data.profit, currency)}
                   </span>
                 </div>
               ))}
