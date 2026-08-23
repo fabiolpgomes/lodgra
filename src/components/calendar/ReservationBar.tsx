@@ -1,5 +1,7 @@
 'use client'
 
+import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
+
 interface Reservation {
   id: string
   propertyId: string
@@ -76,24 +78,8 @@ export function ReservationBar({
     return 'Confirmado'
   }
 
-  // Format price with currency symbol
-  const getCurrencySymbol = (currency: string): string => {
-    const symbols: Record<string, string> = {
-      'EUR': '€',
-      'BRL': 'R$',
-      'USD': '$',
-      'GBP': '£',
-      'CHF': 'CHF',
-      'SEK': 'kr',
-      'NOK': 'kr',
-      'DKK': 'kr',
-    }
-    return symbols[currency] || currency
-  }
-
   const formatPrice = (price: number, currency: string = 'EUR') => {
-    const symbol = getCurrencySymbol(currency)
-    return `${symbol} ${price.toFixed(2)}`
+    return formatCurrency(price, currency.toUpperCase() as CurrencyCode)
   }
 
   const formatGuestCount = (count: number): string => {

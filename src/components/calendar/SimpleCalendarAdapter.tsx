@@ -2,6 +2,7 @@
 
 import React from 'react'
 import { MonthYearPicker } from './MonthYearPicker'
+import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
 
 /**
  * Simple Calendar Adapter for CalendarWithSettings
@@ -98,15 +99,9 @@ function SimpleCalendarAdapterComponent({
   }
 
   const formatPrice = (price: number) => {
-    const symbols: Record<string, string> = {
-      EUR: '€',
-      BRL: 'R$',
-      USD: '$',
-      GBP: '£',
-    }
-    const currency = propertyCurrency.toUpperCase()
-    const symbol = symbols[currency] || currency
-    return `${symbol}${price.toFixed(0)}`
+    return formatCurrency(price, propertyCurrency.toUpperCase() as CurrencyCode)
+      .replace(/\s+/g, '')
+      .replace(/,00$/, '')
   }
 
   const getReservationForDay = (day: number) => {
