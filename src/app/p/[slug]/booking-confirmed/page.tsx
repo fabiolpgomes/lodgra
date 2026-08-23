@@ -41,7 +41,7 @@ export default async function BookingConfirmedPage({ params, searchParams }: Pag
         total_amount,
         currency,
         num_guests,
-        properties:properties!reservations_property_org_fk(slug)
+        properties:properties!reservations_property_org_fk(slug, currency)
       `)
       .eq('stripe_checkout_session_id', session_id)
       .single()
@@ -66,14 +66,17 @@ export default async function BookingConfirmedPage({ params, searchParams }: Pag
         check_in: string; check_out: string; guest_name: string | null
         guest_email: string | null; total_amount: string | null
         currency: string | null; num_guests: number | null
+        properties: { currency: string | null } | null
       }
+      const reservationCurrency = d.currency?.toUpperCase() as CurrencyCode | null
+      const propertyCurrency = d.properties?.currency?.toUpperCase() as CurrencyCode | null
       reservation = {
         check_in: d.check_in,
         check_out: d.check_out,
         guest_name: d.guest_name || null,
         guest_email: d.guest_email || null,
         total_amount: d.total_amount || null,
-        currency: (d.currency?.toUpperCase() as CurrencyCode) || 'EUR',
+        currency: reservationCurrency ?? propertyCurrency,
         num_guests: d.num_guests || null,
       }
     }
@@ -122,7 +125,9 @@ export default async function BookingConfirmedPage({ params, searchParams }: Pag
             )}
             {reservation.total_amount && (
               <p className="text-sm font-semibold text-brand-text-dark pt-1 border-t border-brand-gold/15">
-                Total pago: {formatCurrency(parseFloat(reservation.total_amount), reservation.currency ?? 'EUR')}
+                Total pago: {reservation.currency
+                  ? formatCurrency(parseFloat(reservation.total_amount), reservation.currency)
+                  : 'Total pago indisponível'}
               </p>
             )}
           </div>

@@ -44,6 +44,7 @@ const mockReservation = {
     city: 'Lisboa',
     slug: 'apartamento-lisboa',
     organization_id: 'org-001',
+    currency: 'EUR',
   },
 }
 

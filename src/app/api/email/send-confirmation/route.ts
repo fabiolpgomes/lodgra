@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { sendBookingConfirmationToGuest, sendBookingNotificationToManager } from '@/lib/email/bookingConfirmationGuest'
 import type { BookingEmailData } from '@/lib/email/bookingConfirmationGuest'
+import type { CurrencyCode } from '@/lib/utils/currency'
 
 export async function POST(request: NextRequest) {
   try {
@@ -30,7 +31,7 @@ export async function POST(request: NextRequest) {
         total_amount,
         currency,
         property_listing_id,
-        properties:properties!reservations_property_org_fk(name, city, slug, organization_id)
+        properties:properties!reservations_property_org_fk(name, city, slug, organization_id, currency)
       `)
       .eq('id', reservationId)
       .single()
@@ -44,8 +45,8 @@ export async function POST(request: NextRequest) {
     }
 
     const propertyRelation = reservation.properties as unknown as
-      | { name: string; slug: string | null; city: string | null }
-      | Array<{ name: string; slug: string | null; city: string | null }>
+      | { name: string; slug: string | null; city: string | null; currency: string | null }
+      | Array<{ name: string; slug: string | null; city: string | null; currency: string | null }>
       | null
     const property = Array.isArray(propertyRelation) ? propertyRelation[0] : propertyRelation
     if (!property) {
@@ -53,6 +54,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: 'Propriedade associada não encontrada' },
         { status: 404 }
+      )
+    }
+
+    const currency = (reservation.currency ?? property.currency)?.toUpperCase() as CurrencyCode | undefined
+    if (!currency) {
+      console.error('[email] Reserva sem moeda disponível:', reservationId)
+      return NextResponse.json(
+        { error: 'Reserva sem moeda configurada' },
+        { status: 500 }
       )
     }
 
@@ -67,7 +77,7 @@ export async function POST(request: NextRequest) {
       guestEmail: reservation.guest_email,
       numGuests: reservation.num_guests || 1,
       totalAmount: reservation.total_amount ? parseFloat(String(reservation.total_amount)) : 0,
-      currency: reservation.currency || 'EUR',
+      currency,
       appUrl: process.env.NEXT_PUBLIC_APP_URL || '',
     }
 

@@ -3,6 +3,7 @@ import { differenceInCalendarDays, isValid, parseISO } from 'date-fns'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { Logo } from '@/components/common/ui/Logo'
 import { CheckoutPageClient } from './CheckoutPageClient'
+import type { CurrencyCode } from '@/lib/utils/currency'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -45,6 +46,16 @@ export default async function CheckoutPage({ params, searchParams }: PageProps) 
     redirect('/')
   }
 
+  if (!property.currency) {
+    return (
+      <div className="min-h-screen bg-brand-bg flex items-center justify-center px-4">
+        <div className="max-w-lg rounded-2xl border border-amber-200 bg-amber-50 p-6 text-center text-sm text-amber-800 shadow-sm">
+          Não foi possível abrir o checkout porque a propriedade não tem moeda configurada.
+        </div>
+      </div>
+    )
+  }
+
   const { data: cancellationPolicyData } = await supabase
     .from('property_cancellation_policies')
     .select('id, policy_type, full_refund_days, partial_refund_days, partial_refund_percent')
@@ -71,7 +82,7 @@ export default async function CheckoutPage({ params, searchParams }: PageProps) 
           slug={slug}
           propertyName={property.name}
           city={property.city ?? null}
-          currency={property.currency ?? 'EUR'}
+          currency={property.currency as CurrencyCode}
           maxGuests={property.max_guests ?? null}
           cancellationPolicy={cancellationPolicyData ?? null}
           feeConfig={{

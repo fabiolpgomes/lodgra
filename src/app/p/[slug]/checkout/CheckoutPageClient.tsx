@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { differenceInDays, isBefore, isValid, parseISO, startOfDay } from 'date-fns'
 import { CheckoutForm } from '@/components/common/public/CheckoutForm'
 import { usePropertyPriceQuote } from '@/hooks/usePropertyPriceQuote'
+import type { CurrencyCode } from '@/lib/utils/currency'
 
 type FeeConfig = {
   cleaningFee: number | null
@@ -26,7 +27,7 @@ interface CheckoutPageClientProps {
   slug: string
   propertyName: string
   city?: string | null
-  currency?: string | null
+  currency: CurrencyCode
   maxGuests?: number | null
   cancellationPolicy?: CancellationPolicy | null
   feeConfig: FeeConfig
@@ -37,7 +38,7 @@ export function CheckoutPageClient({
   slug,
   propertyName,
   city,
-  currency = 'EUR',
+  currency,
   maxGuests,
   cancellationPolicy,
   feeConfig,

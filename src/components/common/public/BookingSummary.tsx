@@ -21,7 +21,7 @@ interface BookingSummaryProps {
   totalPrice: number  // Final price respecting pricing rules
   accommodationTotal?: number
   fees?: { label: string; amount: number }[]
-  currency?: CurrencyCode
+  currency: CurrencyCode
   compact?: boolean
   cancellationPolicy?: CancellationPolicy | null
 }
@@ -51,7 +51,7 @@ export function BookingSummary({
   totalPrice,
   accommodationTotal,
   fees,
-  currency = 'EUR',
+  currency,
   compact = false,
   cancellationPolicy,
 }: BookingSummaryProps) {

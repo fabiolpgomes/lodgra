@@ -1,6 +1,7 @@
 import { Resend } from 'resend'
 import { differenceInDays, parseISO, format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
+import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
 
 function getResendClient() {
   const apiKey = process.env.RESEND_API_KEY
@@ -21,7 +22,7 @@ export interface BookingEmailData {
   guestEmail: string | null
   numGuests: number
   totalAmount: number
-  currency?: string
+  currency: CurrencyCode
   appUrl: string
 }
 
@@ -46,7 +47,7 @@ export async function sendBookingConfirmationToGuest(data: BookingEmailData): Pr
     ? `${data.appUrl}/p/${data.propertySlug}`
     : data.appUrl
   const logoUrl = `${data.appUrl}/brand/lodgra-logo-vertical.png`
-  const sym = ({ BRL: 'R$', EUR: '€', USD: '$' } as Record<string, string>)[data.currency ?? 'EUR'] ?? (data.currency ?? '€')
+  const total = formatCurrency(data.totalAmount, data.currency)
 
   const html = `
 <!DOCTYPE html>
@@ -105,7 +106,7 @@ export async function sendBookingConfirmationToGuest(data: BookingEmailData): Pr
         </tr>
         <tr>
           <td style="padding:10px 12px;color:#6b7280;font-size:14px;">Total pago</td>
-          <td style="padding:10px 12px;font-weight:700;color:#111827;font-size:15px;">${sym}${data.totalAmount.toFixed(2)}</td>
+          <td style="padding:10px 12px;font-weight:700;color:#111827;font-size:15px;">${total}</td>
         </tr>
       </table>
 
@@ -168,7 +169,7 @@ export async function sendBookingNotificationToManager(data: BookingEmailData): 
   const nights = differenceInDays(parseISO(data.checkOut), parseISO(data.checkIn))
   const dashboardUrl = `${data.appUrl}/reservations`
   const logoUrl = `${data.appUrl}/brand/lodgra-logo-vertical.png`
-  const sym = ({ BRL: 'R$', EUR: '€', USD: '$' } as Record<string, string>)[data.currency ?? 'EUR'] ?? (data.currency ?? '€')
+  const total = formatCurrency(data.totalAmount, data.currency)
 
   const html = `
 <!DOCTYPE html>
@@ -238,7 +239,7 @@ export async function sendBookingNotificationToManager(data: BookingEmailData): 
         </tr>
         <tr>
           <td style="padding:10px 12px;color:#6b7280;font-size:14px;">Valor recebido</td>
-          <td style="padding:10px 12px;font-weight:700;color:#16a34a;font-size:15px;">${sym}${data.totalAmount.toFixed(2)}</td>
+          <td style="padding:10px 12px;font-weight:700;color:#16a34a;font-size:15px;">${total}</td>
         </tr>
       </table>
 
@@ -261,7 +262,7 @@ export async function sendBookingNotificationToManager(data: BookingEmailData): 
     const { error } = await resend.emails.send({
       from: FROM_EMAIL,
       to: ADMIN_EMAIL,
-      subject: `🎉 Nova reserva directa — ${data.propertyName} (${sym}${data.totalAmount.toFixed(2)})`,
+      subject: `🎉 Nova reserva directa — ${data.propertyName} (${total})`,
       html,
     })
     if (error) console.error('[email] Erro ao enviar notificação ao gestor:', error)

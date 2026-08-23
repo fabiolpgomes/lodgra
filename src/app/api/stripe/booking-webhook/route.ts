@@ -3,6 +3,7 @@ import Stripe from 'stripe'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { sendBookingConfirmationToGuest, sendBookingNotificationToManager } from '@/lib/email/bookingConfirmationGuest'
 import { enqueueEmail } from '@/lib/email/queue'
+import type { CurrencyCode } from '@/lib/utils/currency'
 
 export const dynamic = 'force-dynamic'
 
@@ -107,7 +108,7 @@ async function handleBookingCompleted(supabase: AdminClient, session: Stripe.Che
   console.log(`[booking-webhook] Fetching property listing: ${existing.property_listing_id}`)
   const { data: listing, error: listingError } = await supabase
     .from('property_listings')
-    .select('property_id, properties(name, city, slug, organization_id, owner_id)')
+    .select('property_id, properties(name, city, slug, organization_id, owner_id, currency)')
     .eq('id', existing.property_listing_id)
     .single()
 
@@ -116,22 +117,40 @@ async function handleBookingCompleted(supabase: AdminClient, session: Stripe.Che
     return
   }
 
-  const property = listing?.properties as unknown as { name: string; city: string | null; slug: string | null; organization_id: string; owner_id: string | null } | null
+  const property = listing?.properties as unknown as {
+    name: string
+    city: string | null
+    slug: string | null
+    organization_id: string
+    owner_id: string | null
+    currency: string | null
+  } | null
   console.log(`[booking-webhook] Property found: ${property?.name ?? 'Unknown'}`)
 
+  if (!property) {
+    console.error('[booking-webhook] Propriedade não encontrada para emails')
+    return
+  }
+
   // ── Send emails (non-blocking) ──────────────────────────────────────────────
+  const currency = (existing.currency ?? property.currency)?.toUpperCase() as CurrencyCode | undefined
+  if (!currency) {
+    console.error('[booking-webhook] Reserva sem moeda disponível para emails:', reservationId)
+    return
+  }
+
   const emailData = {
     reservationId,
-    propertyName: property?.name ?? 'Propriedade',
-    propertySlug: property?.slug ?? null,
-    propertyCity: property?.city ?? null,
+    propertyName: property.name,
+    propertySlug: property.slug,
+    propertyCity: property.city,
     checkIn: existing.check_in,
     checkOut: existing.check_out,
     guestName: existing.guest_name ?? 'Hóspede',
     guestEmail: existing.guest_email ?? null,
     numGuests: existing.num_guests ?? 1,
     totalAmount: existing.total_amount ? parseFloat(String(existing.total_amount)) : 0,
-    currency: existing.currency ?? 'EUR',
+    currency,
     appUrl: process.env.NEXT_PUBLIC_APP_URL ?? '',
   }
 
@@ -171,7 +190,7 @@ async function handleBookingCompleted(supabase: AdminClient, session: Stripe.Che
         checkOut: existing.check_out,
         nights,
         totalAmount: existing.total_amount ? String(existing.total_amount) : undefined,
-        currency: existing.currency ?? 'EUR',
+        currency,
         source: 'direct',
       })
       console.log(`[booking-webhook] Notificação ao proprietário enviada para ${owner.email}`)

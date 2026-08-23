@@ -57,12 +57,18 @@ function buildMockSupabase(options: {
 } = {}) {
   const {
     reservationData = pendingReservation,
-    updateError = null,
-    listingData = {
-      property_id: 'prop-123',
-      properties: { name: 'Villa Algarve', city: 'Faro', slug: 'villa-algarve', organization_id: 'org-001' },
-    },
-  } = options
+      updateError = null,
+      listingData = {
+        property_id: 'prop-123',
+        properties: {
+          name: 'Villa Algarve',
+          city: 'Faro',
+          slug: 'villa-algarve',
+          organization_id: 'org-001',
+          currency: 'EUR',
+        },
+      },
+    } = options
 
   const mockFrom = jest.fn().mockImplementation((table: string) => {
     if (table === 'reservations') {

@@ -12,6 +12,7 @@ describe('BookingSummary cancellation policy', () => {
         checkout="2026-08-13"
         guests={2}
         totalPrice={300}
+        currency="EUR"
         cancellationPolicy={{
           policy_type: 'flexible',
           full_refund_days: 5,
@@ -34,6 +35,7 @@ describe('BookingSummary cancellation policy', () => {
         checkout="2026-08-13"
         guests={2}
         totalPrice={300}
+        currency="EUR"
         compact
         cancellationPolicy={{
           policy_type: 'firm',
@@ -54,6 +56,7 @@ describe('BookingSummary cancellation policy', () => {
         checkout="2026-08-13"
         guests={2}
         totalPrice={300}
+        currency="EUR"
         cancellationPolicy={{
           policy_type: 'flexible',
           full_refund_days: 7,

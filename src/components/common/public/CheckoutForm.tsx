@@ -18,7 +18,7 @@ interface CheckoutFormProps {
   totalPrice: number
   accommodationTotal?: number
   fees?: { label: string; amount: number }[]
-  currency?: CurrencyCode
+  currency: CurrencyCode
   pricingQuote?: PropertyPriceQuote | null
   pricingLoading?: boolean
   pricingError?: string | null
@@ -63,7 +63,7 @@ export function CheckoutForm({
   totalPrice,
   accommodationTotal,
   fees,
-  currency = 'EUR',
+  currency,
   pricingQuote = null,
   pricingLoading = false,
   pricingError = null,
@@ -226,6 +226,7 @@ export function CheckoutForm({
             guests={guests}
             totalPrice={totalPrice}
             compact
+            currency={currency}
             cancellationPolicy={cancellationPolicy}
           />
 
@@ -326,6 +327,7 @@ export function CheckoutForm({
             guests={guests}
             totalPrice={totalPrice}
             compact
+            currency={currency}
             cancellationPolicy={cancellationPolicy}
           />
 
