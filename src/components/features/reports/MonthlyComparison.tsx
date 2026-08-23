@@ -2,7 +2,7 @@
 
 import { Calendar, TrendingUp, TrendingDown } from 'lucide-react'
 import { ExportToExcelButton } from './ExportToExcelButton'
-import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
+import { CURRENCIES, formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
 
 interface MonthlyStat {
   monthKey: string
@@ -18,14 +18,36 @@ interface MonthlyComparisonProps {
   monthlyStats: MonthlyStat[]
 }
 
+const KNOWN_CURRENCIES = new Set<CurrencyCode>(Object.keys(CURRENCIES) as CurrencyCode[])
+
+function resolveMonthlyCurrency(currency: string | null | undefined): CurrencyCode | null {
+  if (!currency) {
+    return null
+  }
+
+  const normalizedCurrency = currency.toUpperCase() as CurrencyCode
+  return KNOWN_CURRENCIES.has(normalizedCurrency) ? normalizedCurrency : null
+}
+
+function formatMonthlyAmount(amount: number, currency: CurrencyCode | null): string {
+  if (!currency) {
+    return new Intl.NumberFormat('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(amount)
+  }
+
+  return formatCurrency(amount, currency)
+}
+
 export function MonthlyComparison({ monthlyStats }: MonthlyComparisonProps) {
-  const currency = (monthlyStats.length > 0 ? monthlyStats[0].currency : 'EUR') as CurrencyCode
+  const currency = resolveMonthlyCurrency(monthlyStats.find(stat => resolveMonthlyCurrency(stat.currency))?.currency ?? null)
 
   const exportData = monthlyStats.map(stat => {
     const occupancy = stat.availableNights > 0 ? Math.min((stat.nights / stat.availableNights) * 100, 100) : 0
     return {
       'Mês': stat.month,
-      'Moeda': stat.currency || 'EUR',
+      'Moeda': resolveMonthlyCurrency(stat.currency) || 'sem moeda',
       'Receita': stat.revenue.toFixed(2),
       'Reservas': stat.reservations,
       'Noites': stat.nights,
@@ -57,7 +79,7 @@ export function MonthlyComparison({ monthlyStats }: MonthlyComparisonProps) {
       ) : (
         <div className="space-y-3">
           {monthlyStats.map((stat, index: number) => {
-            const statCurrency = (stat.currency || 'EUR') as CurrencyCode
+            const statCurrency = resolveMonthlyCurrency(stat.currency)
             const prevStat = index > 0 ? monthlyStats[index - 1] : null
             const revenueChange = prevStat ? ((stat.revenue - prevStat.revenue) / prevStat.revenue) * 100 : 0
             const isIncrease = revenueChange > 0
@@ -76,7 +98,7 @@ export function MonthlyComparison({ monthlyStats }: MonthlyComparisonProps) {
                         <span>·</span>
                         <span>{stat.nights} noites</span>
                         <span>·</span>
-                        <span>{formatCurrency(stat.nights > 0 ? stat.revenue / stat.nights : 0, statCurrency)} ADR</span>
+                        <span>{formatMonthlyAmount(stat.nights > 0 ? stat.revenue / stat.nights : 0, statCurrency)} ADR</span>
                         {stat.availableNights > 0 && (
                           <>
                             <span>·</span>
@@ -98,7 +120,7 @@ export function MonthlyComparison({ monthlyStats }: MonthlyComparisonProps) {
                 </div>
 
                 <div className="text-right">
-                  <p className="text-lg font-bold text-gray-900">{formatCurrency(stat.revenue, statCurrency)}</p>
+                  <p className="text-lg font-bold text-gray-900">{formatMonthlyAmount(stat.revenue, statCurrency)}</p>
 
                   {prevStat && (
                     <div className={`flex items-center gap-1 text-sm ${
@@ -123,19 +145,19 @@ export function MonthlyComparison({ monthlyStats }: MonthlyComparisonProps) {
               <div>
                 <p className="text-sm text-gray-600">Total</p>
                 <p className="text-xl font-bold text-gray-900">
-                  {formatCurrency(monthlyStats.reduce((sum: number, s) => sum + s.revenue, 0), currency)}
+                  {formatMonthlyAmount(monthlyStats.reduce((sum: number, s) => sum + s.revenue, 0), currency)}
                 </p>
               </div>
               <div>
                 <p className="text-sm text-gray-600">Média Mensal</p>
                 <p className="text-xl font-bold text-brand-600">
-                  {formatCurrency(monthlyStats.reduce((sum: number, s) => sum + s.revenue, 0) / monthlyStats.length, currency)}
+                  {formatMonthlyAmount(monthlyStats.reduce((sum: number, s) => sum + s.revenue, 0) / monthlyStats.length, currency)}
                 </p>
               </div>
               <div>
                 <p className="text-sm text-gray-600">Melhor Mês</p>
                 <p className="text-xl font-bold text-emerald-700">
-                  {formatCurrency(Math.max(...monthlyStats.map((s) => s.revenue)), currency)}
+                  {formatMonthlyAmount(Math.max(...monthlyStats.map((s) => s.revenue)), currency)}
                 </p>
               </div>
             </div>
