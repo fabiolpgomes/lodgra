@@ -3,6 +3,8 @@
  * Used for Google Vacation Rentals integration (Epic 27)
  */
 
+import { getCurrencySymbol } from '@/lib/utils/currency';
+
 export interface Property {
   id: string;
   name: string;
@@ -64,7 +66,7 @@ export function generateLodgingBusinessSchema(
   property: Property,
   images: PropertyImage[],
   review?: PropertyReview,
-  priceRange: string = '€50-€200'
+  priceRange: string = `${getCurrencySymbol('EUR')}50-${getCurrencySymbol('EUR')}200`
 ): LodgingBusinessSchema {
   // Validate required fields
   if (!property.name || !property.description || !property.address) {
