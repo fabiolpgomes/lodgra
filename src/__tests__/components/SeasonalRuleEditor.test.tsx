@@ -58,6 +58,20 @@ describe('SeasonalRuleEditor Component', () => {
     expect(screen.getByText(/Edit Seasonal Rule/)).toBeInTheDocument();
   });
 
+  it('should display the provided currency in the price label', () => {
+    const mockSave = jest.fn();
+    render(
+      <SeasonalRuleEditor
+        isOpen={true}
+        onClose={jest.fn()}
+        onSave={mockSave}
+        currency="USD"
+      />
+    );
+
+    expect(screen.getByLabelText(/Price per Night \(USD\)/)).toBeInTheDocument();
+  });
+
   it('should populate fields from existing rule', () => {
     const mockSave = jest.fn();
     render(

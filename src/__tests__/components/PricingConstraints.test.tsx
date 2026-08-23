@@ -25,6 +25,20 @@ describe('PricingConstraints Component', () => {
     expect(screen.getByLabelText(/Maximum Nightly Price/)).toHaveValue(200);
   });
 
+  it('should display the provided currency in labels', () => {
+    const mockUpdate = jest.fn();
+    render(
+      <PricingConstraints
+        constraints={mockConstraints}
+        onUpdate={mockUpdate}
+        currency="BRL"
+      />
+    );
+
+    expect(screen.getByLabelText(/Minimum Nightly Price \(BRL\)/)).toHaveValue(50);
+    expect(screen.getByLabelText(/Maximum Nightly Price \(BRL\)/)).toHaveValue(200);
+  });
+
   it('should handle null constraints', () => {
     const mockUpdate = jest.fn();
     render(

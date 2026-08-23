@@ -7,17 +7,20 @@
 
 import React, { useState, useCallback } from 'react';
 import { PropertyPricingConstraints } from '@/types/pricing.types';
+import type { CurrencyCode } from '@/lib/utils/currency';
 
 export interface PricingConstraintsProps {
   constraints: PropertyPricingConstraints | null;
   onUpdate: (min?: number | null, max?: number | null) => Promise<void>;
   isLoading?: boolean;
+  currency?: CurrencyCode;
 }
 
 export function PricingConstraints({
   constraints,
   onUpdate,
   isLoading = false,
+  currency = 'EUR',
 }: PricingConstraintsProps) {
   const [minPrice, setMinPrice] = useState(constraints?.min_nightly_price ?? '');
   const [maxPrice, setMaxPrice] = useState(constraints?.max_nightly_price ?? '');
@@ -94,7 +97,7 @@ export function PricingConstraints({
         {/* Minimum Price */}
         <div>
           <label htmlFor="min-price" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Minimum Nightly Price (EUR)
+            Minimum Nightly Price ({currency})
           </label>
           <input
             id="min-price"
@@ -118,7 +121,7 @@ export function PricingConstraints({
         {/* Maximum Price */}
         <div>
           <label htmlFor="max-price" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Maximum Nightly Price (EUR)
+            Maximum Nightly Price ({currency})
           </label>
           <input
             id="max-price"

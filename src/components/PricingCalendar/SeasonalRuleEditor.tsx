@@ -7,6 +7,7 @@
 
 import React, { useState, useCallback, useEffect } from 'react';
 import { SeasonalPricingRule } from '@/types/pricing.types';
+import type { CurrencyCode } from '@/lib/utils/currency';
 
 export interface SeasonalRuleEditorProps {
   rule?: SeasonalPricingRule | null;
@@ -20,6 +21,7 @@ export interface SeasonalRuleEditorProps {
     isActive: boolean
   ) => Promise<void>;
   isLoading?: boolean;
+  currency?: CurrencyCode;
 }
 
 export function SeasonalRuleEditor({
@@ -28,6 +30,7 @@ export function SeasonalRuleEditor({
   onClose,
   onSave,
   isLoading = false,
+  currency = 'EUR',
 }: SeasonalRuleEditorProps) {
   const [name, setName] = useState('');
   const [dateStart, setDateStart] = useState('');
@@ -180,7 +183,7 @@ export function SeasonalRuleEditor({
             {/* Price */}
             <div>
               <label htmlFor="rule-price" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Price per Night (EUR)
+                Price per Night ({currency})
               </label>
               <input
                 id="rule-price"
