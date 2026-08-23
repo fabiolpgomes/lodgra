@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { MapPin, Users, BedDouble, Bath, ArrowRight } from 'lucide-react'
-import { getCurrencySymbol } from '@/lib/currency/symbols'
+import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
 import type { StructuredAmenity } from '../content/PropertyAmenitiesV2'
 
 export interface PropertyCardProps {
@@ -50,7 +50,7 @@ export function PropertyCard({
   bedrooms, bathrooms, maxGuests, amenities = [],
   rating, reviewCount, isFeatured, checkIn, checkOut,
 }: PropertyCardProps) {
-  const currencySymbol = getCurrencySymbol(currency)
+  const resolvedCurrency = currency?.toUpperCase() as CurrencyCode
   const href = checkIn && checkOut
     ? `/p/${slug}?checkIn=${checkIn}&checkOut=${checkOut}`
     : `/p/${slug}`
@@ -109,7 +109,7 @@ export function PropertyCard({
           </h2>
           <div className="hidden md:block text-right shrink-0">
             <p className="text-[11px] text-brand-text-medium uppercase tracking-[0.5px]">desde</p>
-            <p className="text-[24px] font-bold text-brand-blue leading-none transition-colors group-hover:text-brand-gold">{currencySymbol}{price}</p>
+            <p className="text-[24px] font-bold text-brand-blue leading-none transition-colors group-hover:text-brand-gold">{formatCurrency(price, resolvedCurrency)}</p>
             <p className="text-[11px] text-brand-text-medium mt-0.5">/ noite</p>
           </div>
         </div>
@@ -158,7 +158,7 @@ export function PropertyCard({
         <div className="mt-auto pt-4 flex items-end justify-between gap-3">
           <div className="md:hidden">
             <p className="text-[11px] text-brand-text-medium">desde</p>
-            <p className="text-[20px] font-bold text-brand-blue leading-tight">{currencySymbol}{price}</p>
+            <p className="text-[20px] font-bold text-brand-blue leading-tight">{formatCurrency(price, resolvedCurrency)}</p>
             <p className="text-[11px] text-brand-text-medium">/ noite</p>
           </div>
 
