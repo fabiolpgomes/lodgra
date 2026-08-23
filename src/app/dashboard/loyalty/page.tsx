@@ -1,4 +1,7 @@
+import { headers } from 'next/headers'
 import { Metadata } from 'next'
+import { formatCurrency } from '@/lib/utils/currency'
+import { buildLoyaltyStatsUrl, getLoyaltyDashboardOrigin } from '@/lib/dashboard/loyalty'
 
 export const dynamic = 'force-dynamic'
 
@@ -35,8 +38,10 @@ interface LoyaltyStats {
 
 async function fetchLoyaltyStats(): Promise<LoyaltyStats | null> {
   try {
+    const hdrs = await headers()
+    const origin = getLoyaltyDashboardOrigin(hdrs)
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/dashboard/loyalty/stats`,
+      buildLoyaltyStatsUrl(origin),
       { cache: 'no-store' }
     )
 
@@ -81,7 +86,7 @@ export default async function LoyaltyDashboard() {
         </div>
 
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
           {/* Total Guests Card */}
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex justify-between items-start mb-4">
@@ -138,7 +143,7 @@ export default async function LoyaltyDashboard() {
               <div>
                 <p className="text-gray-600 text-sm font-medium">Total Discounts Given</p>
                 <p className="text-3xl font-bold text-gray-900 mt-2">
-                  €{stats.total_discounts_given.toFixed(2)}
+                  {formatCurrency(stats.total_discounts_given)}
                 </p>
               </div>
               <div className="text-3xl">💰</div>
@@ -154,13 +159,29 @@ export default async function LoyaltyDashboard() {
               <div>
                 <p className="text-gray-600 text-sm font-medium">Revenue Impact</p>
                 <p className="text-3xl font-bold text-emerald-700 mt-2">
-                  €{stats.revenue_impact_estimated.toFixed(2)}
+                  {formatCurrency(stats.revenue_impact_estimated)}
                 </p>
               </div>
               <div className="text-3xl">📈</div>
             </div>
             <p className="text-xs text-gray-600">
               Estimated repeat value
+            </p>
+          </div>
+
+          {/* Churn Risk Card */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="flex justify-between items-start mb-4">
+              <div>
+                <p className="text-gray-600 text-sm font-medium">Churn Risk</p>
+                <p className="text-3xl font-bold text-red-700 mt-2">
+                  {stats.churn_risk_guests.length}
+                </p>
+              </div>
+              <div className="text-3xl">⚠️</div>
+            </div>
+            <p className="text-xs text-gray-600">
+              Guests inactive for 90+ days
             </p>
           </div>
         </div>
