@@ -24,6 +24,7 @@ export function PriceStatisticsComponent({
   loading = false,
   currency = 'EUR',
 }: PriceStatisticsProps) {
+  const resolvedCurrency = currency?.toUpperCase() as CurrencyCode
   if (loading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -50,19 +51,19 @@ export function PriceStatisticsComponent({
   const cards = [
     {
       label: 'Minimum Price',
-      value: formatPrice(stats.minPrice, currency),
+      value: formatPrice(stats.minPrice, resolvedCurrency),
       icon: '📉',
       color: 'text-emerald-700',
     },
     {
       label: 'Maximum Price',
-      value: formatPrice(stats.maxPrice, currency),
+      value: formatPrice(stats.maxPrice, resolvedCurrency),
       icon: '📈',
       color: 'text-red-600',
     },
     {
       label: 'Average Price',
-      value: formatPrice(stats.avgPrice, currency),
+      value: formatPrice(stats.avgPrice, resolvedCurrency),
       icon: '📊',
       color: 'text-blue-600',
     },
@@ -101,7 +102,7 @@ export function PriceStatisticsComponent({
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <p className="text-sm font-medium text-blue-900">Price Volatility (Std Dev)</p>
           <p className="text-lg font-bold text-blue-700 mt-1">
-            {formatPrice(stats.stdDeviation, currency)}
+            {formatPrice(stats.stdDeviation, resolvedCurrency)}
           </p>
           <p className="text-xs text-blue-600 mt-2">
             Measures how much prices vary from the average

@@ -32,6 +32,7 @@ export function RevertModal({
   loading = false,
   currency = 'EUR',
 }: RevertModalProps) {
+  const resolvedCurrency = currency?.toUpperCase() as CurrencyCode
   const [reason, setReason] = useState<string>('');
   const [submitting, setSubmitting] = useState(false);
 
@@ -83,7 +84,7 @@ export function RevertModal({
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <p className="text-sm font-medium text-blue-900">Current Price</p>
               <p className="text-2xl font-bold text-blue-700 mt-1">
-                {formatPrice(currentPrice, currency)}
+                {formatPrice(currentPrice, resolvedCurrency)}
               </p>
             </div>
 
@@ -91,7 +92,7 @@ export function RevertModal({
             <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
               <p className="text-sm font-medium text-emerald-900">Revert To</p>
               <p className="text-2xl font-bold text-emerald-800 mt-1">
-                {formatPrice(record.price, currency)}
+                {formatPrice(record.price, resolvedCurrency)}
               </p>
               <p className="text-xs text-emerald-700 mt-2">
                 From {formatDate(record.date_applied)}
@@ -106,7 +107,7 @@ export function RevertModal({
                   priceChange > 0 ? 'text-red-600' : 'text-emerald-700'
                 }`}
               >
-                {priceChange > 0 ? '+' : ''}{formatPrice(Math.abs(priceChange), currency)} ({priceChange > 0 ? '+' : ''}{percentageChange}%)
+                {priceChange > 0 ? '+' : ''}{formatPrice(Math.abs(priceChange), resolvedCurrency)} ({priceChange > 0 ? '+' : ''}{percentageChange}%)
               </p>
             </div>
 
