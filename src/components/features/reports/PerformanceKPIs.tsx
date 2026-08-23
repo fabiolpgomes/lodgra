@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react'
 import { TrendingUp, HelpCircle } from 'lucide-react'
 import { CurrencyStack } from '@/components/common/ui/CurrencyStack'
+import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
 
 export interface Reservation {
   id: string
@@ -22,6 +23,7 @@ interface PerformanceKPIsProps {
   reservations: Reservation[]
   _startDate: string
   _endDate: string
+  currency?: CurrencyCode
 }
 
 export function PerformanceKPIs({
@@ -29,8 +31,10 @@ export function PerformanceKPIs({
   reservations,
   _startDate,
   _endDate,
+  currency = 'EUR',
 }: PerformanceKPIsProps) {
   const [hoveredKpi, setHoveredKpi] = useState<number | null>(null)
+  const resolvedCurrency = currency?.toUpperCase() as CurrencyCode
 
   const kpiDescriptions = [
     'Percentual de dias ocupados em relação ao total de dias no período. Acima de 70% é excelente.',
@@ -55,13 +59,13 @@ export function PerformanceKPIs({
       },
       {
         title: 'ADR (Diária Média)',
-        value: `€${metrics.adr.toFixed(2)}`,
+        value: formatCurrency(metrics.adr, resolvedCurrency),
         valueClass: 'text-blue-600',
         subtitle: `${metrics.reservationCount} reservas`,
       },
       {
         title: 'Receita',
-        value: `€${metrics.revenue.toFixed(2)}`,
+        value: formatCurrency(metrics.revenue, resolvedCurrency),
         valueClass: 'text-purple-600',
         subtitle: `${(metrics.revenue / metrics.occupancyRate || 0).toFixed(0)} por dia`,
       },
@@ -72,16 +76,16 @@ export function PerformanceKPIs({
         subtitle: 'Confirmadas',
       },
     ]
-  }, [metrics])
+  }, [metrics, resolvedCurrency])
 
   const currencyTotals = useMemo(() => {
     const totals: Record<string, number> = {}
     reservations.forEach((r) => {
-      const currency = r.currency || 'EUR'
-      totals[currency] = (totals[currency] || 0) + (r.total_amount || 0)
+      const reservationCurrency = (r.currency || resolvedCurrency).toUpperCase() as CurrencyCode
+      totals[reservationCurrency] = (totals[reservationCurrency] || 0) + (r.total_amount || 0)
     })
     return totals
-  }, [reservations])
+  }, [reservations, resolvedCurrency])
 
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-6">

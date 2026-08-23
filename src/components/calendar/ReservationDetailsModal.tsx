@@ -7,7 +7,7 @@ import {
   DialogTitle,
 } from '@/components/common/ui/dialog'
 import { X } from 'lucide-react'
-import { formatCurrency } from '@/lib/utils/currency'
+import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
 
 interface Reservation {
   id: string
@@ -23,14 +23,17 @@ interface ReservationDetailsModalProps {
   isOpen: boolean
   reservation: Reservation | null
   onClose: () => void
+  currency?: CurrencyCode
 }
 
 export function ReservationDetailsModal({
   isOpen,
   reservation,
   onClose,
+  currency = 'EUR',
 }: ReservationDetailsModalProps) {
   if (!reservation) return null
+  const resolvedCurrency = currency?.toUpperCase() as CurrencyCode
 
   const nights = Math.ceil(
     (reservation.endDate.getTime() - reservation.startDate.getTime()) /
@@ -118,10 +121,10 @@ export function ReservationDetailsModal({
               Valor por Noite
             </p>
             <p className="text-lg font-bold" style={{ color: '#1B2430' }}>
-              {formatCurrency(reservation.price)}
+              {formatCurrency(reservation.price, resolvedCurrency)}
             </p>
             <p className="text-sm mt-1" style={{ color: '#4D5566' }}>
-              Total: {formatCurrency(reservation.price * nights)}
+              Total: {formatCurrency(reservation.price * nights, resolvedCurrency)}
             </p>
           </div>
 

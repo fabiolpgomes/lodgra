@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useMemo } from 'react'
-import { formatCurrency } from '@/lib/utils/currency'
+import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
 
 interface Reservation {
   id: string
@@ -17,6 +17,7 @@ interface ReservationsListProps {
   reservations: Reservation[]
   monthName: string
   year: number
+  currency?: CurrencyCode
 }
 
 const ITEMS_PER_PAGE = 6
@@ -25,8 +26,10 @@ function ReservationsListComponent({
   reservations,
   monthName,
   year,
+  currency = 'EUR',
 }: ReservationsListProps) {
   const [page, setPagination] = useState(0)
+  const resolvedCurrency = currency?.toUpperCase() as CurrencyCode
 
   const paginatedReservations = useMemo(() => {
     const start = page * ITEMS_PER_PAGE
@@ -59,8 +62,7 @@ function ReservationsListComponent({
             <div className="text-xs mt-1">
               {res.guestCount} {res.guestCount === 1 ? 'hóspede' : 'hóspedes'}
             </div>
-            <div className="text-sm font-bold mt-1">€{res.price.toFixed(2)}</div>
-            <div className="text-sm font-bold mt-1">{formatCurrency(res.price)}</div>
+            <div className="text-sm font-bold mt-1">{formatCurrency(res.price, resolvedCurrency)}</div>
             <div className="text-xs mt-1 opacity-75">
               {res.startDate.toLocaleDateString('pt-BR')} até{' '}
               {res.endDate.toLocaleDateString('pt-BR')}
