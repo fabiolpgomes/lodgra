@@ -1,19 +1,22 @@
 status:
   branch: main
+  sessionState: paused
+  nextAction: 'Review eur-fallback-cleanup-handoff-2026-08-23.md and resume from the currency cleanup handoff'
   modifiedFiles:
     - .aiox/project-status.yaml
-    - docs/CHANGELOG.md
-    - docs/PRICING_ARCHITECTURE.md
-    - docs/STAGING_SETUP_GUIDE.md
-    - docs/architecture/project-analysis.md
-  modifiedFilesTotalCount: 40
+    - AGENTS.md
+    - src/app/[locale]/properties/[id]/page.tsx
+    - src/app/[locale]/properties/new/page.tsx
+    - src/app/[locale]/register/layout.tsx
+  modifiedFilesTotalCount: 32
   recentCommits:
-    - 'docs: record pricing and cancellation session state'
-    - 'refactor: extract cancellation refund summary'
+    - 'refactor: remove remaining eur fallbacks'
+    - 'refactor: remove eur fallback from dashboard currency helper'
+    - 'refactor: remove eur fallback from property helpers'
   currentEpic: 20 — Checkout Directo (Housekeeping)
   currentStory: 20.3.story
-  lastUpdate: '2026-08-23T07:31:40.642Z'
+  lastUpdate: '2026-08-23T18:00:46.300Z'
   isGitRepo: true
-timestamp: 1787470300648
+timestamp: 1787504188249
 ttl: 60
-gitFingerprint: 1785569665275.2065:1787430362182.2227
+gitFingerprint: 1785569665275.2065:1787503947005.781

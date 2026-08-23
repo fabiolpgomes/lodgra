@@ -41,6 +41,9 @@ O PRD oficial do módulo é a fonte de verdade para o MVP, e a story 46.1 define
 ### Closeout - Expansion Governance Validation
 - `qa-3-validar-expansao-capabilities.md`
 
+### Session Handoffs
+- `eur-fallback-cleanup-handoff-2026-08-23.md`
+
 ## Sequence Documents
 
 - `epic-modularizacao-ia-native-sequencia.md`
@@ -102,3 +105,4 @@ O PRD oficial do módulo é a fonte de verdade para o MVP, e a story 46.1 define
 ## Handoff Package
 
 Use `epic-modularizacao-ia-native-handoff.md` as the single entry point for execution readiness.
+Use `eur-fallback-cleanup-handoff-2026-08-23.md` as the closeout note for the EUR fallback cleanup debt-teardown.
