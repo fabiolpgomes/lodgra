@@ -51,6 +51,7 @@ export function PriceBreakdownTooltip({
   open = false,
   onOpenChange,
 }: PriceBreakdownTooltipProps) {
+  const resolvedCurrency = currency?.toUpperCase() as CurrencyCode
   const [isOpen, setIsOpen] = useState(open)
   const [breakdown, setBreakdown] = useState<PriceBreakdownData | null>(null)
   const [loading, setLoading] = useState(false)
@@ -208,14 +209,14 @@ export function PriceBreakdownTooltip({
               {/* Base Price */}
               <div className="flex justify-between font-semibold text-gray-900">
                 <span>Preço Base</span>
-                <span>{formatCurrency(breakdown.base_price, currency)}</span>
+                <span>{formatCurrency(breakdown.base_price, resolvedCurrency)}</span>
               </div>
 
               {/* Loyalty Discount */}
               {breakdown.loyalty_discount_amount > 0 && (
                 <div className="flex justify-between text-gray-700">
                   <span>- Desconto Fidelidade</span>
-                  <span>-{formatCurrency(breakdown.loyalty_discount_amount, currency)}</span>
+                  <span>-{formatCurrency(breakdown.loyalty_discount_amount, resolvedCurrency)}</span>
                 </div>
               )}
 
@@ -223,7 +224,7 @@ export function PriceBreakdownTooltip({
               {breakdown.early_bird_discount.applied && (
                 <div className="flex justify-between text-gray-700">
                   <span>- Desconto Antecipado</span>
-                  <span>-{formatCurrency(breakdown.early_bird_discount.amount, currency)}</span>
+                  <span>-{formatCurrency(breakdown.early_bird_discount.amount, resolvedCurrency)}</span>
                 </div>
               )}
 
@@ -231,7 +232,7 @@ export function PriceBreakdownTooltip({
               {breakdown.extended_stay_discount.applied && (
                 <div className="flex justify-between text-gray-700">
                   <span>- Estadia Estendida</span>
-                  <span>-{formatCurrency(breakdown.extended_stay_discount.amount, currency)}</span>
+                  <span>-{formatCurrency(breakdown.extended_stay_discount.amount, resolvedCurrency)}</span>
                 </div>
               )}
 
@@ -239,7 +240,7 @@ export function PriceBreakdownTooltip({
               {breakdown.last_minute_discount.applied && (
                 <div className="flex justify-between text-gray-700">
                   <span>- Last-Minute</span>
-                  <span>-{formatCurrency(breakdown.last_minute_discount.amount, currency)}</span>
+                  <span>-{formatCurrency(breakdown.last_minute_discount.amount, resolvedCurrency)}</span>
                 </div>
               )}
 
@@ -252,7 +253,7 @@ export function PriceBreakdownTooltip({
                   </span>
                   <span>
                     {breakdown.seasonal_adjustment.amount > 0 ? '+' : '-'}
-                    {formatCurrency(Math.abs(breakdown.seasonal_adjustment.amount), currency)}
+                    {formatCurrency(Math.abs(breakdown.seasonal_adjustment.amount), resolvedCurrency)}
                   </span>
                 </div>
               )}
@@ -264,21 +265,21 @@ export function PriceBreakdownTooltip({
               {breakdown.total_discounts_amount > 0 && (
                 <div className="flex justify-between text-gray-700 text-xs">
                   <span>Desconto Total</span>
-                  <span>-{formatCurrency(breakdown.total_discounts_amount, currency)}</span>
+                  <span>-{formatCurrency(breakdown.total_discounts_amount, resolvedCurrency)}</span>
                 </div>
               )}
 
               {/* Final Price */}
               <div className="flex justify-between font-bold text-lg text-emerald-700">
                 <span>Preço Final</span>
-                <span>{formatCurrency(breakdown.final_price, currency)}</span>
+                <span>{formatCurrency(breakdown.final_price, resolvedCurrency)}</span>
               </div>
 
               {/* Hidden for screen readers */}
               <div className="sr-only">
-                {`Price breakdown: Base price ${formatCurrency(breakdown.base_price, currency)}.
-                Total discounts: ${formatCurrency(breakdown.total_discounts_amount, currency)}.
-                Final price: ${formatCurrency(breakdown.final_price, currency)}.`}
+                {`Price breakdown: Base price ${formatCurrency(breakdown.base_price, resolvedCurrency)}.
+                Total discounts: ${formatCurrency(breakdown.total_discounts_amount, resolvedCurrency)}.
+                Final price: ${formatCurrency(breakdown.final_price, resolvedCurrency)}.`}
               </div>
             </div>
           )}
