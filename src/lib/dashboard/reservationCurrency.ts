@@ -7,7 +7,7 @@ export function resolveReservationCurrency(
   reservation: ReservationCurrencyInput,
   propertyCurrencies: Record<string, string>,
   organizationCurrency?: string | null
-): string {
+): string | null {
   const reservationCurrency = reservation.currency?.trim().toUpperCase()
   if (reservationCurrency) return reservationCurrency
 
@@ -15,5 +15,5 @@ export function resolveReservationCurrency(
     ? propertyCurrencies[reservation.propertyId]?.trim().toUpperCase()
     : undefined
 
-  return propertyCurrency || organizationCurrency?.trim().toUpperCase() || 'EUR'
+  return propertyCurrency || organizationCurrency?.trim().toUpperCase() || null
 }

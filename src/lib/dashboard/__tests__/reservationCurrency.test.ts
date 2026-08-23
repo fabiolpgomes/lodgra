@@ -19,8 +19,8 @@ describe('resolveReservationCurrency', () => {
     )).toBe('BRL')
   })
 
-  it('usa a moeda da organização e EUR como fallbacks finais', () => {
+  it('usa a moeda da organização e retorna null quando não há contexto', () => {
     expect(resolveReservationCurrency({}, propertyCurrencies, 'BRL')).toBe('BRL')
-    expect(resolveReservationCurrency({}, propertyCurrencies)).toBe('EUR')
+    expect(resolveReservationCurrency({}, propertyCurrencies)).toBeNull()
   })
 })

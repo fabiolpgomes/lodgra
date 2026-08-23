@@ -13,7 +13,7 @@ interface ReservationData {
   totalAmount: number
   checkIn: Date | string
   checkOut: Date | string
-  currency: string
+  currency: string | null
   status: 'confirmed' | 'cancelled' | 'pending'
 }
 
@@ -24,7 +24,7 @@ export interface MonthlyRevenue {
 }
 
 interface RevenueCalculationResult {
-  currency: string
+  currency: string | null
   reservationId: string
   totalAmount: number
   durationDays: number
@@ -171,6 +171,7 @@ export function aggregateMonthlyRevenue(
   for (const reservation of confirmedReservations) {
     const result = calculateRevenueForReservation(reservation)
     const currency = result.currency
+    if (!currency) continue
 
     if (!byCurrency.has(currency)) {
       byCurrency.set(currency, new Map())
@@ -254,6 +255,7 @@ export function calculateForecast(reservations: ReservationData[], referenceDate
 
     if (forecastValue > 0) {
       const currency = reservation.currency
+      if (!currency) continue
       const current = byCurrency.get(currency) || 0
       byCurrency.set(currency, current + forecastValue)
     }
