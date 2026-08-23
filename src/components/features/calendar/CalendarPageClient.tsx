@@ -13,6 +13,7 @@ import { SelectActionModal } from './SelectActionModal'
 import { createClient } from '@/lib/supabase/client'
 import { addDays } from 'date-fns'
 import { MonthYearPicker } from '@/components/calendar/MonthYearPicker'
+import { formatCurrency } from '@/lib/utils/currency'
 
 interface Property {
   id: string
@@ -124,7 +125,7 @@ export function CalendarPageClient() {
 
   const showCancellationSuccess = (payload: CalendarCancellationPayload | null) => {
     if (payload?.refund_info) {
-      toast.success(`Reserva cancelada. Reembolso de €${payload.refund_info.refund_amount.toFixed(2)} pronto.`)
+      toast.success(`Reserva cancelada. Reembolso de ${formatCurrency(payload.refund_info.refund_amount)} pronto.`)
       return
     }
 

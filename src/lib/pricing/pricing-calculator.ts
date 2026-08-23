@@ -12,6 +12,7 @@ import type {
   SeasonalPricingRule,
   PricingConstraints,
 } from '../../types/pricing.types'
+import { formatCurrency } from '@/lib/utils/currency'
 
 export { PricingConfig, PricingResult, BreakdownItem, DailyPrice, SeasonalPricingRule, PricingConstraints }
 
@@ -283,13 +284,13 @@ export class PricingCalculator {
     if (constraints.min_nightly_price && price < constraints.min_nightly_price) {
       constrainedPrice = constraints.min_nightly_price;
       constrained = true;
-      warning = `Price below minimum (€${constraints.min_nightly_price.toFixed(2)})`;
+      warning = `Price below minimum (${formatCurrency(constraints.min_nightly_price)})`;
     }
 
     if (constraints.max_nightly_price && price > constraints.max_nightly_price) {
       constrainedPrice = constraints.max_nightly_price;
       constrained = true;
-      warning = `Price exceeds maximum (€${constraints.max_nightly_price.toFixed(2)})`;
+      warning = `Price exceeds maximum (${formatCurrency(constraints.max_nightly_price)})`;
     }
 
     return { price: constrainedPrice, constrained, warning };

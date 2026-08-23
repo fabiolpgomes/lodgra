@@ -11,6 +11,7 @@ import {
   CancellationRefundSummary,
   type CancellationRefundInfo,
 } from './CancellationRefundSummary'
+import { formatCurrency } from '@/lib/utils/currency'
 import {
   Dialog,
   DialogContent,
@@ -77,7 +78,7 @@ export function CancelReservationButton({
 
       toast.success(
         payload?.refund_info
-          ? `Reserva cancelada. Reembolso de €${payload.refund_info.refund_amount.toFixed(2)} pronto.`
+          ? `Reserva cancelada. Reembolso de ${formatCurrency(payload.refund_info.refund_amount)} pronto.`
           : payload?.already_cancelled
             ? 'Reserva já estava cancelada.'
             : 'Reserva cancelada com sucesso!'

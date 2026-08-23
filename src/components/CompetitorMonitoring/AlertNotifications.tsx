@@ -3,12 +3,14 @@
 import React from 'react';
 import { CompetitorPriceAlert } from '@/types/competitor';
 import { TrendingUp, TrendingDown, X } from 'lucide-react';
+import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency';
 
 interface AlertNotificationsProps {
   alerts: CompetitorPriceAlert[];
+  currency?: CurrencyCode;
 }
 
-export function AlertNotifications({ alerts }: AlertNotificationsProps) {
+export function AlertNotifications({ alerts, currency = 'EUR' }: AlertNotificationsProps) {
   const recentAlerts = alerts.slice(0, 5);
 
   return (
@@ -51,7 +53,7 @@ export function AlertNotifications({ alerts }: AlertNotificationsProps) {
                         : 'text-emerald-800 dark:text-emerald-300'
                     }`}
                   >
-                    €{alert.previousPrice.toFixed(2)} → €{alert.newPrice.toFixed(2)} (
+                    {formatCurrency(alert.previousPrice, currency)} → {formatCurrency(alert.newPrice, currency)} (
                     {alert.percentageChange > 0 ? '+' : ''}
                     {alert.percentageChange.toFixed(1)}%)
                   </p>

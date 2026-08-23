@@ -21,6 +21,8 @@
  * })
  */
 
+import { formatCurrency } from '@/lib/utils/currency'
+
 export interface PricingRuleMatch {
   pricePerNight: number
   minNights?: number
@@ -388,9 +390,9 @@ export class ReservationPriceCalculator {
     const lines: string[] = []
 
     lines.push('═══════════════════════════════════════')
-    lines.push(`Preço por Noite: €${pricePerNight.toFixed(2)}`)
+    lines.push(`Preço por Noite: ${formatCurrency(pricePerNight)}`)
     lines.push(`Nº de Noites: ${nights}`)
-    lines.push(`Subtotal: €${subtotal.toFixed(2)}`)
+    lines.push(`Subtotal: ${formatCurrency(subtotal)}`)
     lines.push('')
 
     if (volumeDiscount.amount > 0) {
@@ -398,27 +400,27 @@ export class ReservationPriceCalculator {
         volumeDiscount.type === 'weekly'
           ? 'Desconto Semanal'
           : 'Desconto Mensal'
-      lines.push(`- ${type} (${volumeDiscount.percent}%): -€${volumeDiscount.amount.toFixed(2)}`)
-      lines.push(`  Subtotal com Desconto: €${afterVolume.toFixed(2)}`)
+      lines.push(`- ${type} (${volumeDiscount.percent}%): -${formatCurrency(volumeDiscount.amount)}`)
+      lines.push(`  Subtotal com Desconto: ${formatCurrency(afterVolume)}`)
     }
 
     if (loyaltyDiscount.amount > 0) {
-      lines.push(`- Desconto Fidelidade (${loyaltyDiscount.percent}%): -€${loyaltyDiscount.amount.toFixed(2)}`)
-      lines.push(`  Subtotal com Fidelidade: €${afterLoyalty.toFixed(2)}`)
+      lines.push(`- Desconto Fidelidade (${loyaltyDiscount.percent}%): -${formatCurrency(loyaltyDiscount.amount)}`)
+      lines.push(`  Subtotal com Fidelidade: ${formatCurrency(afterLoyalty)}`)
     }
 
     if (feesTotal > 0) {
       lines.push('')
       lines.push('Taxas:')
       for (const fee of fees) {
-        lines.push(`  + ${fee.name}: €${fee.amount.toFixed(2)}`)
+        lines.push(`  + ${fee.name}: ${formatCurrency(fee.amount)}`)
       }
-      lines.push(`  Total Taxas: €${feesTotal.toFixed(2)}`)
+      lines.push(`  Total Taxas: ${formatCurrency(feesTotal)}`)
     }
 
     lines.push('')
     lines.push('═══════════════════════════════════════')
-    lines.push(`TOTAL: €${finalPrice.toFixed(2)}`)
+    lines.push(`TOTAL: ${formatCurrency(finalPrice)}`)
     lines.push('═══════════════════════════════════════')
 
     return lines.join('\n')

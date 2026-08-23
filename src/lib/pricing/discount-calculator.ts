@@ -11,6 +11,8 @@
  * Discounts are applied in order with price floor protection (50% minimum).
  */
 
+import { formatCurrency } from '@/lib/utils/currency'
+
 /**
  * Input for discount calculation
  */
@@ -435,36 +437,36 @@ export class DiscountCalculator {
     finalPrice: number
   ): string {
     const lines: string[] = [
-      `Preço Base: €${basePrice.toFixed(2)}`,
+      `Preço Base: ${formatCurrency(basePrice)}`,
     ]
 
     if (loyaltyAmount > 0) {
-      lines.push(`- Desconto de Lealdade: -€${loyaltyAmount.toFixed(2)}`)
+      lines.push(`- Desconto de Lealdade: -${formatCurrency(loyaltyAmount)}`)
     }
 
     if (lastMinute.applied) {
-      lines.push(`- Last-Minute (${lastMinute.percent}%): -€${lastMinute.amount.toFixed(2)}`)
+      lines.push(`- Last-Minute (${lastMinute.percent}%): -${formatCurrency(lastMinute.amount)}`)
     }
 
     if (extendedStay.applied) {
-      lines.push(`- Estadia Estendida (${extendedStay.percent}%): -€${extendedStay.amount.toFixed(2)}`)
+      lines.push(`- Estadia Estendida (${extendedStay.percent}%): -${formatCurrency(extendedStay.amount)}`)
     }
 
     if (earlyBird.applied) {
-      lines.push(`- Antecipado (${earlyBird.percent}%): -€${earlyBird.amount.toFixed(2)}`)
+      lines.push(`- Antecipado (${earlyBird.percent}%): -${formatCurrency(earlyBird.amount)}`)
     }
 
     if (seasonal.applied) {
       if (seasonal.amount > 0) {
-        lines.push(`+ Ajuste Sazonal (+${seasonal.percent}%): +€${seasonal.amount.toFixed(2)}`)
+        lines.push(`+ Ajuste Sazonal (+${seasonal.percent}%): +${formatCurrency(seasonal.amount)}`)
       } else {
-        lines.push(`- Ajuste Sazonal (${seasonal.percent}%): -€${Math.abs(seasonal.amount).toFixed(2)}`)
+        lines.push(`- Ajuste Sazonal (${seasonal.percent}%): -${formatCurrency(Math.abs(seasonal.amount))}`)
       }
     }
 
     lines.push(`---`)
-    lines.push(`Desconto Total: -€${totalDiscounts.toFixed(2)}`)
-    lines.push(`Preço Final: €${finalPrice.toFixed(2)}`)
+    lines.push(`Desconto Total: -${formatCurrency(totalDiscounts)}`)
+    lines.push(`Preço Final: ${formatCurrency(finalPrice)}`)
 
     return lines.join('\n')
   }

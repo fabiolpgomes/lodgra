@@ -4,6 +4,24 @@
  */
 
 import { PriceHistory } from '@/types/pricing.types';
+import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency';
+
+const LEGACY_SYMBOL_TO_CURRENCY: Record<string, CurrencyCode> = {
+  '€': 'EUR',
+  '$': 'USD',
+  '£': 'GBP',
+  'R$': 'BRL',
+  'CHF': 'CHF',
+  '¥': 'JPY',
+  'C$': 'CAD',
+  'A$': 'AUD',
+};
+
+function normalizeCurrency(currency: string): CurrencyCode {
+  return currency in LEGACY_SYMBOL_TO_CURRENCY
+    ? LEGACY_SYMBOL_TO_CURRENCY[currency]
+    : (currency as CurrencyCode);
+}
 
 /**
  * Escape CSV special characters
@@ -26,12 +44,12 @@ function escapeCsvValue(value: unknown): string {
 /**
  * Convert price history to CSV string
  * @param history Price history records
- * @param currency Currency symbol (default: €)
+ * @param currency Currency code or legacy symbol (default: EUR)
  * @returns CSV string with header and data rows
  */
 export function convertToCsv(
   history: PriceHistory[],
-  currency: string = '€'
+  currency: string = 'EUR'
 ): string {
   if (history.length === 0) {
     return 'Date Applied,Price,Changed By,Reason,Status\n';
@@ -47,7 +65,7 @@ export function convertToCsv(
   history.forEach((record) => {
     const cells = [
       record.date_applied,
-      `${currency} ${record.price.toFixed(2)}`,
+      formatCurrency(record.price, normalizeCurrency(currency)),
       record.changed_by,
       record.change_reason || 'N/A',
       record.is_revert ? 'Reverted' : 'Active',
@@ -62,12 +80,12 @@ export function convertToCsv(
 /**
  * Convert price history to CSV with extended details
  * @param history Price history records
- * @param currency Currency symbol (default: €)
+ * @param currency Currency code or legacy symbol (default: EUR)
  * @returns CSV string with extended information
  */
 export function convertToCsvExtended(
   history: PriceHistory[],
-  currency: string = '€'
+  currency: string = 'EUR'
 ): string {
   if (history.length === 0) {
     return 'Date Applied,Time,Price,Previous Price,Change %,Changed By,Reason,Type\n';
@@ -107,8 +125,8 @@ export function convertToCsvExtended(
     const cells = [
       record.date_applied,
       time,
-      `${currency} ${record.price.toFixed(2)}`,
-      previousPrice > 0 ? `${currency} ${previousPrice.toFixed(2)}` : 'N/A',
+      formatCurrency(record.price, normalizeCurrency(currency)),
+      previousPrice > 0 ? formatCurrency(previousPrice, normalizeCurrency(currency)) : 'N/A',
       `${changePercent}%`,
       record.changed_by,
       record.change_reason || 'N/A',

@@ -3,12 +3,14 @@
 import React from 'react';
 import { Competitor } from '@/types/competitor';
 import { ExternalLink, Trash2 } from 'lucide-react';
+import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency';
 
 interface CompetitorListProps {
   competitors: Competitor[];
+  currency?: CurrencyCode;
 }
 
-export function CompetitorList({ competitors }: CompetitorListProps) {
+export function CompetitorList({ competitors, currency = 'EUR' }: CompetitorListProps) {
   const platformIcons = {
     airbnb: '🏠',
     'booking.com': '🔖',
@@ -65,7 +67,7 @@ export function CompetitorList({ competitors }: CompetitorListProps) {
                   </td>
                   <td className="px-4 py-3 text-right">
                     <p className="font-semibold text-slate-900 dark:text-white">
-                      {competitor.lastScrapedPrice ? `€${competitor.lastScrapedPrice.toFixed(2)}` : '-'}
+                      {competitor.lastScrapedPrice ? formatCurrency(competitor.lastScrapedPrice, currency) : '-'}
                     </p>
                   </td>
                   <td className="px-4 py-3 text-center text-sm text-slate-600 dark:text-slate-400">
@@ -120,7 +122,7 @@ export function CompetitorList({ competitors }: CompetitorListProps) {
                   </div>
                 </div>
                 <span className="text-lg font-bold text-slate-900 dark:text-white">
-                  €{competitor.lastScrapedPrice?.toFixed(2) || '-'}
+                  {competitor.lastScrapedPrice ? formatCurrency(competitor.lastScrapedPrice, currency) : '-'}
                 </span>
               </div>
 

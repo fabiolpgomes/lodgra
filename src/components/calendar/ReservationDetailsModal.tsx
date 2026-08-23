@@ -7,6 +7,7 @@ import {
   DialogTitle,
 } from '@/components/common/ui/dialog'
 import { X } from 'lucide-react'
+import { formatCurrency } from '@/lib/utils/currency'
 
 interface Reservation {
   id: string
@@ -117,10 +118,10 @@ export function ReservationDetailsModal({
               Valor por Noite
             </p>
             <p className="text-lg font-bold" style={{ color: '#1B2430' }}>
-              €{reservation.price.toFixed(2)}
+              {formatCurrency(reservation.price)}
             </p>
             <p className="text-sm mt-1" style={{ color: '#4D5566' }}>
-              Total: €{(reservation.price * nights).toFixed(2)}
+              Total: {formatCurrency(reservation.price * nights)}
             </p>
           </div>
 

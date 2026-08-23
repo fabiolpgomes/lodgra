@@ -9,6 +9,7 @@ import {
   RuleAction,
   PriceGuardrails,
 } from '@/types/pricing';
+import { formatCurrency } from '@/lib/utils/currency';
 
 interface RuleEvaluationContext {
   occupancy_rate: number;
@@ -164,7 +165,7 @@ export function validateRule(rule: PricingRule, guardrails?: PriceGuardrails): {
         rule.action.value > guardrails.max_price
       ) {
         errors.push(
-          `Set price must be between €${guardrails.min_price} and €${guardrails.max_price}`
+          `Set price must be between ${formatCurrency(guardrails.min_price)} and ${formatCurrency(guardrails.max_price)}`
         );
       }
     }

@@ -5,6 +5,7 @@ import {
   CancellationRefundSummary,
   type CancellationRefundInfo,
 } from '@/components/features/reservations/CancellationRefundSummary'
+import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
 
 interface Reservation {
   id: string
@@ -12,6 +13,7 @@ interface Reservation {
   check_in: string
   check_out: string
   total_amount: number
+  currency?: CurrencyCode
 }
 
 interface PropertyCancellationPolicy {
@@ -199,7 +201,7 @@ export default function CancellationModal({
                 <div className="bg-blue-50 p-3 rounded-lg">
                   <p className="text-sm font-medium">Reembolso Estimado</p>
                   <p className="text-2xl font-bold text-blue-700 mt-1">
-                    €{estimatedRefund.toFixed(2)}
+                    {formatCurrency(estimatedRefund, reservation.currency)}
                   </p>
                   <p className="text-xs text-gray-600 mt-1">
                     Baseado na política {policy.policy_type}
@@ -243,12 +245,12 @@ export default function CancellationModal({
                 <p className="text-lg font-bold">Cancelamento Processado</p>
                 <p className="text-sm text-gray-600 mt-2">
                   {cancellationResult?.refundInfo
-                    ? `Reembolso de €${cancellationResult.refundInfo.refund_amount.toFixed(2)} processado com sucesso.`
+                    ? `Reembolso de ${formatCurrency(cancellationResult.refundInfo.refund_amount, reservation.currency)} processado com sucesso.`
                     : cancellationResult?.alreadyCancelled
                       ? 'A reserva já estava cancelada.'
                       : cancellationType === 'serious_issue'
                     ? 'Seu caso foi reportado para revisão. Receberá notificações por email.'
-                    : `Reembolso de €${estimatedRefund.toFixed(2)} será processado em breve.`}
+                    : `Reembolso de ${formatCurrency(estimatedRefund, reservation.currency)} será processado em breve.`}
                 </p>
               </div>
               <button

@@ -1,6 +1,7 @@
 import { differenceInDays, format, parseISO } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { Calendar, Users, MapPin } from 'lucide-react'
+import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
 
 interface CancellationPolicy {
   id?: string
@@ -20,7 +21,7 @@ interface BookingSummaryProps {
   totalPrice: number  // Final price respecting pricing rules
   accommodationTotal?: number
   fees?: { label: string; amount: number }[]
-  currency?: string
+  currency?: CurrencyCode
   compact?: boolean
   cancellationPolicy?: CancellationPolicy | null
 }
@@ -58,8 +59,6 @@ export function BookingSummary({
   const checkoutDate = parseISO(checkout)
   const nights = differenceInDays(checkoutDate, checkinDate)
   const total = totalPrice
-  const currencySymbols: Record<string, string> = { BRL: 'R$', EUR: '€', USD: '$' }
-  const sym = currencySymbols[currency] || currency
 
   const fmtDate = (d: Date) =>
     format(d, "d 'de' MMMM yyyy", { locale: ptBR })
@@ -79,7 +78,7 @@ export function BookingSummary({
         <p className="text-brand-text-medium">
           {format(checkinDate, 'dd/MM/yyyy')} → {format(checkoutDate, 'dd/MM/yyyy')} · {nights} noite{nights !== 1 ? 's' : ''}
         </p>
-        <p className="font-semibold text-brand-blue">{sym}{total.toFixed(2)}</p>
+        <p className="font-semibold text-brand-blue">{formatCurrency(total, currency)}</p>
         {cancellationPolicyText && (
           <p className="text-xs text-brand-text-medium pt-1">{cancellationPolicyText}</p>
         )}
@@ -115,18 +114,18 @@ export function BookingSummary({
 
       <div className="border-t border-brand-gold/15 pt-3 space-y-1 text-sm">
         <div className="flex justify-between text-brand-text-medium">
-          <span>{sym}{(nights > 0 ? ((accommodationTotal ?? total) / nights).toFixed(2) : '0.00')} × {nights} noite{nights !== 1 ? 's' : ''}</span>
-          <span>{sym}{(accommodationTotal ?? total).toFixed(2)}</span>
+          <span>{formatCurrency(nights > 0 ? (accommodationTotal ?? total) / nights : 0, currency)} × {nights} noite{nights !== 1 ? 's' : ''}</span>
+          <span>{formatCurrency(accommodationTotal ?? total, currency)}</span>
         </div>
         {fees?.map((fee, i) => (
           <div key={i} className="flex justify-between text-brand-text-medium">
             <span>{fee.label}</span>
-            <span>{sym}{fee.amount.toFixed(2)}</span>
+            <span>{formatCurrency(fee.amount, currency)}</span>
           </div>
         ))}
         <div className="flex justify-between font-semibold text-brand-text-dark text-base pt-1">
           <span>Total</span>
-          <span className="text-brand-blue">{sym}{total.toFixed(2)}</span>
+          <span className="text-brand-blue">{formatCurrency(total, currency)}</span>
         </div>
         <p className="text-xs text-brand-text-medium">Impostos incluídos</p>
         {cancellationPolicyText && (

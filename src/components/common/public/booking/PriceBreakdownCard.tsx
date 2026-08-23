@@ -1,24 +1,14 @@
 'use client'
 
 import type { PropertyPriceQuote } from '@/hooks/usePropertyPriceQuote'
+import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
 
 interface PriceBreakdownCardProps {
   quote: PropertyPriceQuote | null
-  currency: string
+  currency: CurrencyCode
   loading?: boolean
   error?: string | null
   compact?: boolean
-}
-
-const currencySymbols: Record<string, string> = {
-  BRL: 'R$',
-  EUR: '€',
-  USD: '$',
-}
-
-function formatMoney(currency: string, value: number): string {
-  const symbol = currencySymbols[currency] || currency
-  return `${symbol}${value.toFixed(2)}`
 }
 
 function discountLabel(discountType: 'weekly' | 'monthly' | null): string {
@@ -58,13 +48,13 @@ export function PriceBreakdownCard({
         <div className="space-y-1.5">
           <div className="flex justify-between text-brand-text-medium">
             <span>Preço base</span>
-            <span>{formatMoney(currency, quote.baseTotal)}</span>
+            <span>{formatCurrency(quote.baseTotal, currency)}</span>
           </div>
 
           {quote.discountApplied ? (
             <div className="flex justify-between text-brand-text-medium">
               <span>{discountLabel(quote.discountType)} ({quote.discountPercentage}%)</span>
-              <span className="text-emerald-700">-{formatMoney(currency, quote.discountAmount)}</span>
+              <span className="text-emerald-700">-{formatCurrency(quote.discountAmount, currency)}</span>
             </div>
           ) : (
             <div className="flex justify-between text-brand-text-medium">
@@ -78,7 +68,7 @@ export function PriceBreakdownCard({
               {quote.breakdown.map((item) => (
                 <div key={item.date} className="flex justify-between">
                   <span>{item.date}</span>
-                  <span>{formatMoney(currency, item.price)}</span>
+                  <span>{formatCurrency(item.price, currency)}</span>
                 </div>
               ))}
             </div>
@@ -86,7 +76,7 @@ export function PriceBreakdownCard({
 
           <div className="flex justify-between font-bold text-brand-text-dark pt-1 border-t border-brand-gold/15">
             <span>Total</span>
-            <span className="text-brand-blue">{formatMoney(currency, quote.finalTotal)}</span>
+            <span className="text-brand-blue">{formatCurrency(quote.finalTotal, currency)}</span>
           </div>
         </div>
       )}

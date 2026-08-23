@@ -2,6 +2,7 @@
 
 import { CircleDollarSign, BadgeInfo } from 'lucide-react'
 import { Alert, AlertDescription, AlertTitle } from '@/components/common/ui/alert'
+import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
 
 export type CancellationRefundInfo = {
   refund_amount: number
@@ -13,11 +14,13 @@ export type CancellationRefundInfo = {
 interface CancellationRefundSummaryProps {
   refundInfo?: CancellationRefundInfo
   alreadyCancelled?: boolean
+  currency?: CurrencyCode
 }
 
 export function CancellationRefundSummary({
   refundInfo,
   alreadyCancelled,
+  currency = 'EUR',
 }: CancellationRefundSummaryProps) {
   if (refundInfo) {
     return (
@@ -27,7 +30,7 @@ export function CancellationRefundSummary({
         <AlertDescription className="text-emerald-900">
           <div className="space-y-2 pt-1">
             <p>
-              Reembolso: <strong>€{refundInfo.refund_amount.toFixed(2)}</strong>
+              Reembolso: <strong>{formatCurrency(refundInfo.refund_amount, currency)}</strong>
             </p>
             <p>
               Percentual: <strong>{refundInfo.refund_percentage}%</strong>

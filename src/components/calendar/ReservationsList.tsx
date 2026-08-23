@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useMemo } from 'react'
+import { formatCurrency } from '@/lib/utils/currency'
 
 interface Reservation {
   id: string
@@ -59,6 +60,7 @@ function ReservationsListComponent({
               {res.guestCount} {res.guestCount === 1 ? 'hóspede' : 'hóspedes'}
             </div>
             <div className="text-sm font-bold mt-1">€{res.price.toFixed(2)}</div>
+            <div className="text-sm font-bold mt-1">{formatCurrency(res.price)}</div>
             <div className="text-xs mt-1 opacity-75">
               {res.startDate.toLocaleDateString('pt-BR')} até{' '}
               {res.endDate.toLocaleDateString('pt-BR')}

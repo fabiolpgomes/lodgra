@@ -10,6 +10,7 @@ import type {
   RevenueProjection,
   ConfidenceBadge,
 } from '@/types/pricing.types';
+import { formatCurrency } from '@/lib/utils/currency';
 
 /**
  * Seasonal pattern data (month-over-month comparison)
@@ -392,13 +393,13 @@ export class RecommendationEngine {
           100
       ) * 100) / 100;
     if (marketDiff > 5) {
-      reasons.push(`Above market median (${marketBenchmark.median_price}€) by ${marketDiff}%`);
+      reasons.push(`Above market median (${formatCurrency(marketBenchmark.median_price)}) by ${marketDiff}%`);
     } else if (marketDiff < -5) {
       reasons.push(
-        `Below market median (${marketBenchmark.median_price}€) by ${Math.abs(marketDiff)}%`
+        `Below market median (${formatCurrency(marketBenchmark.median_price)}) by ${Math.abs(marketDiff)}%`
       );
     } else {
-      reasons.push(`Aligned with market median (${marketBenchmark.median_price}€)`);
+      reasons.push(`Aligned with market median (${formatCurrency(marketBenchmark.median_price)})`);
     }
 
     // Trend reason

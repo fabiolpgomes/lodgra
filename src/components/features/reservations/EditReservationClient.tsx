@@ -10,6 +10,7 @@ import {
   CancellationRefundSummary,
   type CancellationRefundInfo,
 } from './CancellationRefundSummary'
+import { formatCurrency } from '@/lib/utils/currency'
 
 interface EditReservationClientProps {
   reservation: ReservationUI
@@ -79,7 +80,7 @@ export function EditReservationClient({ reservation, locale }: EditReservationCl
 
       if (refundInfo) {
         setToast({
-          message: `Reserva cancelada. Reembolso de €${refundInfo.refund_amount.toFixed(2)} pronto.`,
+          message: `Reserva cancelada. Reembolso de ${formatCurrency(refundInfo.refund_amount)} pronto.`,
           type: 'success',
         })
       } else if (payload?.already_cancelled) {

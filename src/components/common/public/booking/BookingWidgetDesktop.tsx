@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { differenceInDays, parseISO, isValid, isBefore, startOfDay, addDays, format } from 'date-fns'
 import { usePropertyPriceQuote } from '@/hooks/usePropertyPriceQuote'
 import { PriceBreakdownCard } from './PriceBreakdownCard'
+import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
 
 interface PricingRule {
   start_date: string
@@ -21,7 +22,7 @@ interface BookingWidgetDesktopProps {
   propertyId: string
   propertyName: string
   basePrice: number
-  currency: string
+  currency: CurrencyCode
   slug: string
   initialCheckIn?: string
   initialCheckOut?: string
@@ -90,9 +91,6 @@ export function BookingWidgetDesktop({
     checkIn,
     checkOut
   )
-
-  const currencySymbols: Record<string, string> = { BRL: 'R$', EUR: '€', USD: '$' }
-  const symbol = currencySymbols[currency] || currency
 
   const today = format(startOfDay(new Date()), 'yyyy-MM-dd')
 
@@ -281,12 +279,12 @@ export function BookingWidgetDesktop({
     <div className="bg-brand-white border border-brand-gold/20 rounded-2xl p-6 shadow-[0_18px_42px_rgba(16,32,62,0.10)] transition-all hover:border-brand-gold/45 hover:shadow-[0_18px_42px_rgba(201,162,39,0.14)]">
       {/* Price */}
       <div className="mb-5">
-        <p className="text-sm text-brand-text-medium mb-0.5">
+          <p className="text-sm text-brand-text-medium mb-0.5">
           {nights > 0 && isReady && hasVaryingPrices ? 'Preço médio' : 'Preço base'}
         </p>
         <div className="flex items-baseline gap-1.5">
           <span className="text-[36px] font-black text-brand-blue leading-none">
-            {symbol}{nights > 0 && isReady ? avgPerNight : basePrice}
+            {formatCurrency(nights > 0 && isReady ? avgPerNight : basePrice, currency)}
           </span>
           <span className="text-[16px] font-medium text-brand-text-medium">/noite</span>
         </div>
@@ -353,19 +351,19 @@ export function BookingWidgetDesktop({
                   <div className="flex justify-between text-brand-text-medium">
                     {hasVaryingPrices
                       ? <span>{nights} noite{nights !== 1 ? 's' : ''} · por época</span>
-                      : <span>{symbol}{avgPerNight} × {nights} noite{nights !== 1 ? 's' : ''}</span>
+                      : <span>{formatCurrency(avgPerNight, currency)} × {nights} noite{nights !== 1 ? 's' : ''}</span>
                     }
-                    <span>{symbol}{Math.round(accommodationTotal)}</span>
+                    <span>{formatCurrency(Math.round(accommodationTotal), currency)}</span>
                   </div>
                   {feeItems.map((fee) => (
                     <div key={fee.label} className="flex justify-between text-brand-text-medium">
                       <span>{fee.label}</span>
-                      <span>{symbol}{Math.round(fee.amount)}</span>
+                      <span>{formatCurrency(Math.round(fee.amount), currency)}</span>
                     </div>
                   ))}
                   <div className="flex justify-between font-bold text-brand-text-dark pt-1.5 border-t border-brand-gold/15">
                     <span>Total</span>
-                    <span>{symbol}{Math.round(displayTotal)}</span>
+                    <span>{formatCurrency(Math.round(displayTotal), currency)}</span>
                   </div>
                 </>
               )}

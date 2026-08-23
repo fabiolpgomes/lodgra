@@ -6,6 +6,7 @@ import { BookingSummary } from './BookingSummary'
 import { Loader2, ArrowLeft } from 'lucide-react'
 import { PriceBreakdownCard } from './booking/PriceBreakdownCard'
 import type { PropertyPriceQuote } from '@/hooks/usePropertyPriceQuote'
+import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
 
 interface CheckoutFormProps {
   slug: string
@@ -17,7 +18,7 @@ interface CheckoutFormProps {
   totalPrice: number
   accommodationTotal?: number
   fees?: { label: string; amount: number }[]
-  currency?: string
+  currency?: CurrencyCode
   pricingQuote?: PropertyPriceQuote | null
   pricingLoading?: boolean
   pricingError?: string | null
@@ -356,7 +357,7 @@ export function CheckoutForm({
                 A processar...
               </>
             ) : (
-              `Pagar ${{ BRL: 'R$', EUR: '€', USD: '$' }[currency] || currency}${totalPrice.toFixed(2)}`
+              `Pagar ${formatCurrency(totalPrice, currency)}`
             )}
           </button>
 
