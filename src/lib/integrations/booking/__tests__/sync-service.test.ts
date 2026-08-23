@@ -18,11 +18,24 @@ import { createAdminClient } from '@/lib/supabase/admin'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mockCreateAdminClient = createAdminClient as jest.Mock<any>
+const mockPushPrices = jest.fn(async (prices: unknown[]) =>
+  (prices as unknown[]).map((p) => ({
+    date: (p as { date: string }).date,
+    success: true,
+  }))
+)
+const mockPushAvailabilities = jest.fn(async (avail: unknown[]) =>
+  avail.map((a) => ({
+    date: (a as { date: string }).date,
+    success: true,
+  }))
+)
 
-// Mock dependencies
-jest.mock('@/lib/supabase/admin', () => ({
-  createAdminClient: jest.fn(() => ({
-    from: jest.fn((table: string) => ({
+const createMockAdminClient = (options?: {
+  pricingRules?: Array<{ date: string; price: number; currency?: string | null }>
+}) => ({
+  from: jest.fn((table: string) => {
+    const query = {
       select: jest.fn(function () {
         return this
       }),
@@ -38,8 +51,12 @@ jest.mock('@/lib/supabase/admin', () => ({
       gt: jest.fn(function () {
         return this
       }),
-      order: jest.fn(function () {
-        return this
+      order: jest.fn(async function () {
+        if (table === 'pricing_rules') {
+          return { data: options?.pricingRules ?? [], error: null }
+        }
+
+        return { data: null, error: null }
       }),
       single: jest.fn(async function () {
         if (table === 'property_listings') {
@@ -60,24 +77,21 @@ jest.mock('@/lib/supabase/admin', () => ({
       async *[Symbol.asyncIterator]() {
         yield this
       },
-    })),
-  })),
+    }
+
+    return query
+  }),
+})
+
+// Mock dependencies
+jest.mock('@/lib/supabase/admin', () => ({
+  createAdminClient: jest.fn(() => createMockAdminClient()),
 }))
 
 jest.mock('../client', () => ({
   createBookingComClient: jest.fn(() => ({
-    pushPrices: jest.fn(async (prices: unknown[]) =>
-      (prices as unknown[]).map((p) => ({
-        date: (p as { date: string }).date,
-        success: true,
-      }))
-    ),
-    pushAvailabilities: jest.fn(async (avail: unknown[]) =>
-      avail.map((a) => ({
-        date: (a as { date: string }).date,
-        success: true,
-      }))
-    ),
+    pushPrices: mockPushPrices,
+    pushAvailabilities: mockPushAvailabilities,
   })),
 }))
 
@@ -97,6 +111,35 @@ describe('Booking Sync Service', () => {
 
       expect(result.success).toBe(true)
       expect(result.synced).toBeGreaterThanOrEqual(0)
+    })
+
+    it('should skip pricing rules without currency', async () => {
+      mockCreateAdminClient.mockImplementationOnce(() =>
+        createMockAdminClient({
+          pricingRules: [
+            { date: '2026-05-01', price: 100, currency: 'usd' },
+            { date: '2026-05-02', price: 110, currency: null },
+            { date: '2026-05-03', price: 120, currency: ' eur ' },
+          ],
+        })
+      )
+      mockCreateAdminClient.mockImplementationOnce(() =>
+        createMockAdminClient({
+          pricingRules: [
+            { date: '2026-05-01', price: 100, currency: 'usd' },
+            { date: '2026-05-02', price: 110, currency: null },
+            { date: '2026-05-03', price: 120, currency: ' eur ' },
+          ],
+        })
+      )
+
+      await syncPricesToBooking('prop_123', '2026-05-01', '2026-05-03')
+
+      expect(mockPushPrices).toHaveBeenCalledTimes(1)
+      expect(mockPushPrices).toHaveBeenCalledWith([
+        { date: '2026-05-01', amount: 100, currency: 'USD' },
+        { date: '2026-05-03', amount: 120, currency: 'EUR' },
+      ])
     })
 
     it('should return error if property not linked to Booking.com', async () => {

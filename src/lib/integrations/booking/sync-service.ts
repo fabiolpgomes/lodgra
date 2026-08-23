@@ -53,12 +53,17 @@ async function fetchPropertyPrices(
     return []
   }
 
-  // Transform to SyncPrice format
-  return (pricingRules || []).map((rule: { date: string; price: number; currency?: string }) => ({
-    date: rule.date,
-    amount: rule.price,
-    currency: rule.currency || 'EUR', // Default to EUR
-  }))
+  // Transform to SyncPrice format, but skip rules without a currency.
+  return (pricingRules || [])
+    .filter(
+      (rule: { currency?: string | null }) =>
+        typeof rule.currency === 'string' && rule.currency.trim().length > 0
+    )
+    .map((rule: { date: string; price: number; currency: string }) => ({
+      date: rule.date,
+      amount: rule.price,
+      currency: rule.currency.trim().toUpperCase(),
+    }))
 }
 
 /**
