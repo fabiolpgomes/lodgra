@@ -5,8 +5,8 @@ import { useParams, getLocalizedPath } from '@/lib/i18n/routing'
 import Link from 'next/link'
 import { ArrowLeft, FileText, Building2, Download, TrendingUp, Loader2, MessageCircle } from 'lucide-react'
 import { Button } from '@/components/common/ui/button'
-import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
 import { CurrencyStack } from '@/components/common/ui/CurrencyStack'
+import { formatReportAmount, reportCurrencyLabel } from '@/lib/utils/report-currency'
 // Lazy import: @react-pdf/renderer is ~500KB, only load when user clicks download
 const loadOwnerReportPDF = () => import('@/components/features/reports/OwnerReportPDF')
 
@@ -126,12 +126,16 @@ export default function OwnerReportPage() {
   function getSummaryByCurrency(): Record<string, CurrencySummary> {
     if (!report) return {}
     if (report.summaryByCurrency && Object.keys(report.summaryByCurrency).length > 0) {
-      return report.summaryByCurrency
+      return Object.entries(report.summaryByCurrency).reduce((acc, [currency, summary]) => {
+        const label = reportCurrencyLabel(currency)
+        acc[label] = summary
+        return acc
+      }, {} as Record<string, CurrencySummary>)
     }
     // Fallback: build from properties
     const byCur: Record<string, CurrencySummary> = {}
     report.properties.forEach(p => {
-      const cur = p.currency || 'EUR'
+      const cur = reportCurrencyLabel(p.currency)
       if (!byCur[cur]) byCur[cur] = { revenue: 0, managementFee: 0, expenses: 0, ownerNet: 0 }
       byCur[cur].revenue += p.revenue
       byCur[cur].managementFee += p.managementFee
@@ -144,7 +148,7 @@ export default function OwnerReportPage() {
   function exportToCsv() {
     if (!report) return
     const rows: Record<string, unknown>[] = report.properties.map(p => ({
-      'Moeda': p.currency || 'EUR',
+      'Moeda': reportCurrencyLabel(p.currency),
       'Propriedade': p.name,
       'Receita Bruta': p.revenue.toFixed(2),
       'Comissão Gestão (%)': p.management_percentage,
@@ -197,19 +201,19 @@ export default function OwnerReportPage() {
 
     let financialLines: string[]
     if (currencies.length === 1) {
-      const cur = currencies[0] as CurrencyCode
+      const cur = currencies[0]
       const s = byCur[cur]
       financialLines = [
-        `💰 Receita bruta: ${formatCurrency(s.revenue, cur)}`,
-        `🔧 Despesas: ${formatCurrency(s.expenses, cur)}`,
-        `📋 Taxa de gestão: ${formatCurrency(s.managementFee, cur)}`,
-        `✅ *Líquido proprietário: ${formatCurrency(s.ownerNet, cur)}*`,
+        `💰 Receita bruta: ${formatReportAmount(s.revenue, cur)}`,
+        `🔧 Despesas: ${formatReportAmount(s.expenses, cur)}`,
+        `📋 Taxa de gestão: ${formatReportAmount(s.managementFee, cur)}`,
+        `✅ *Líquido proprietário: ${formatReportAmount(s.ownerNet, cur)}*`,
       ]
     } else {
       financialLines = currencies.flatMap(cur => {
         const s = byCur[cur]
         return [
-          `[${cur}] 💰 ${formatCurrency(s.revenue, cur as CurrencyCode)} | 🔧 ${formatCurrency(s.expenses, cur as CurrencyCode)} | ✅ ${formatCurrency(s.ownerNet, cur as CurrencyCode)}`,
+          `[${cur}] 💰 ${formatReportAmount(s.revenue, cur)} | 🔧 ${formatReportAmount(s.expenses, cur)} | ✅ ${formatReportAmount(s.ownerNet, cur)}`,
         ]
       })
     }
@@ -404,12 +408,12 @@ export default function OwnerReportPage() {
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
                       {report.properties.map(prop => {
-                        const propCurrency = (prop.currency || 'EUR') as CurrencyCode
+                        const propCurrency = reportCurrencyLabel(prop.currency)
                         return (
                           <tr key={prop.id}>
                             <td className="px-6 py-4">
                               <div className="flex items-center gap-2">
-                                <CurrencyBadge currency={prop.currency || 'EUR'} />
+                                <CurrencyBadge currency={propCurrency} />
                                 <div>
                                   <div className="text-sm font-medium text-gray-900">{prop.name}</div>
                                   {prop.management_percentage > 0 && (
@@ -419,18 +423,18 @@ export default function OwnerReportPage() {
                               </div>
                             </td>
                             <td className="px-6 py-4 text-right text-sm text-gray-900">
-                              {formatCurrency(prop.revenue, propCurrency)}
+                              {formatReportAmount(prop.revenue, propCurrency)}
                             </td>
                             <td className="px-6 py-4 text-right text-sm text-orange-600">
                               {prop.management_percentage > 0
-                                ? formatCurrency(prop.managementFee, propCurrency)
+                                ? formatReportAmount(prop.managementFee, propCurrency)
                                 : '—'}
                             </td>
                             <td className="px-6 py-4 text-right text-sm text-red-600">
-                              {formatCurrency(prop.expenses, propCurrency)}
+                              {formatReportAmount(prop.expenses, propCurrency)}
                             </td>
                             <td className="px-6 py-4 text-right text-sm font-semibold text-teal-700">
-                              {formatCurrency(prop.ownerNet, propCurrency)}
+                              {formatReportAmount(prop.ownerNet, propCurrency)}
                             </td>
                           </tr>
                         )
@@ -447,16 +451,16 @@ export default function OwnerReportPage() {
                             </div>
                           </td>
                           <td className="px-6 py-4 text-right text-sm font-bold text-gray-900">
-                            {formatCurrency(s.revenue, cur as CurrencyCode)}
+                            {formatReportAmount(s.revenue, cur)}
                           </td>
                           <td className="px-6 py-4 text-right text-sm font-bold text-orange-600">
-                            {formatCurrency(s.managementFee, cur as CurrencyCode)}
+                            {formatReportAmount(s.managementFee, cur)}
                           </td>
                           <td className="px-6 py-4 text-right text-sm font-bold text-red-600">
-                            {formatCurrency(s.expenses, cur as CurrencyCode)}
+                            {formatReportAmount(s.expenses, cur)}
                           </td>
                           <td className="px-6 py-4 text-right text-sm font-bold text-teal-700">
-                            {formatCurrency(s.ownerNet, cur as CurrencyCode)}
+                            {formatReportAmount(s.ownerNet, cur)}
                           </td>
                         </tr>
                       ))}

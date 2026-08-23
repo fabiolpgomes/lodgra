@@ -5,7 +5,7 @@ import { useParams, getLocalizedPath } from '@/lib/i18n/routing'
 import Link from 'next/link'
 import { ArrowLeft, FileText, Download, Scale, Building2, TrendingUp, Loader2 } from 'lucide-react'
 import { Button } from '@/components/common/ui/button'
-import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
+import { formatReportAmount } from '@/lib/utils/report-currency'
 // Lazy import: @react-pdf/renderer is ~500KB, only load when user clicks download
 const loadFiscalReportPDF = () => import('@/components/features/reports/FiscalReportPDF')
 
@@ -63,7 +63,7 @@ export default function OwnerFiscalPage() {
 
   useEffect(() => { fetchFiscal() }, [fetchFiscal])
 
-  const currency = (data?.owner?.preferred_currency || 'EUR') as CurrencyCode
+  const currency = data?.owner?.preferred_currency
 
   function exportToCsv() {
     if (!data) return
@@ -250,7 +250,7 @@ export default function OwnerFiscalPage() {
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
                       {data.properties.map(prop => {
-                        const propCurrency = (prop.currency || currency) as CurrencyCode
+                        const propCurrency = prop.currency || currency
                         return (
                           <tr key={prop.id}>
                             <td className="px-6 py-4">
@@ -260,15 +260,15 @@ export default function OwnerFiscalPage() {
                               )}
                             </td>
                             <td className="px-6 py-4 text-right text-sm text-gray-900">
-                              {formatCurrency(prop.totalRevenue, propCurrency)}
+                              {formatReportAmount(prop.totalRevenue, propCurrency)}
                             </td>
                             <td className="px-6 py-4 text-right text-sm text-emerald-800">
                               {prop.deductibleExpenses > 0
-                                ? `− ${formatCurrency(prop.deductibleExpenses, propCurrency)}`
+                                ? `− ${formatReportAmount(prop.deductibleExpenses, propCurrency)}`
                                 : '—'}
                             </td>
                             <td className="px-6 py-4 text-right text-sm font-semibold text-purple-700">
-                              {formatCurrency(prop.taxableNet, propCurrency)}
+                              {formatReportAmount(prop.taxableNet, propCurrency)}
                             </td>
                           </tr>
                         )
@@ -278,15 +278,15 @@ export default function OwnerFiscalPage() {
                       <tr>
                         <td className="px-6 py-4 text-sm font-bold text-gray-900 uppercase">Total</td>
                         <td className="px-6 py-4 text-right text-sm font-bold text-gray-900">
-                          {formatCurrency(data.summary.totalRevenue, currency)}
+                          {formatReportAmount(data.summary.totalRevenue, currency)}
                         </td>
                         <td className="px-6 py-4 text-right text-sm font-bold text-emerald-800">
                           {data.summary.deductibleExpenses > 0
-                            ? `− ${formatCurrency(data.summary.deductibleExpenses, currency)}`
+                            ? `− ${formatReportAmount(data.summary.deductibleExpenses, currency)}`
                             : '—'}
                         </td>
                         <td className="px-6 py-4 text-right text-sm font-bold text-purple-700">
-                          {formatCurrency(data.summary.taxableNet, currency)}
+                          {formatReportAmount(data.summary.taxableNet, currency)}
                         </td>
                       </tr>
                     </tfoot>
@@ -297,15 +297,15 @@ export default function OwnerFiscalPage() {
                 <div className="grid grid-cols-3 gap-4 no-print">
                   <div className="bg-[color:var(--be-blue-pale)] rounded-lg p-4 text-center">
                     <p className="text-xs text-gray-600 uppercase font-medium mb-1">Rendas Totais</p>
-                    <p className="text-xl font-bold text-[color:var(--be-blue-hover)]">{formatCurrency(data.summary.totalRevenue, currency)}</p>
+                    <p className="text-xl font-bold text-[color:var(--be-blue-hover)]">{formatReportAmount(data.summary.totalRevenue, currency)}</p>
                   </div>
                   <div className="bg-emerald-50 rounded-lg p-4 text-center">
                     <p className="text-xs text-gray-600 uppercase font-medium mb-1">Deduções Cat. F</p>
-                    <p className="text-xl font-bold text-emerald-800">{formatCurrency(data.summary.deductibleExpenses, currency)}</p>
+                    <p className="text-xl font-bold text-emerald-800">{formatReportAmount(data.summary.deductibleExpenses, currency)}</p>
                   </div>
                   <div className="bg-purple-50 rounded-lg p-4 text-center">
                     <p className="text-xs text-gray-600 uppercase font-medium mb-1">Líquido Tributável</p>
-                    <p className="text-xl font-bold text-purple-700">{formatCurrency(data.summary.taxableNet, currency)}</p>
+                    <p className="text-xl font-bold text-purple-700">{formatReportAmount(data.summary.taxableNet, currency)}</p>
                   </div>
                 </div>
 
