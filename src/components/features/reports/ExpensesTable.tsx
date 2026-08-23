@@ -1,7 +1,7 @@
 'use client'
 
 import { ExportToExcelButton } from './ExportToExcelButton'
-import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
+import { CURRENCIES, formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
 
 const categoryLabels: Record<string, string> = {
   cleaning: 'Limpeza',
@@ -34,10 +34,35 @@ interface ExpensesTableProps {
   endDate: string
 }
 
+const KNOWN_CURRENCIES = new Set<CurrencyCode>(Object.keys(CURRENCIES) as CurrencyCode[])
+const MISSING_CURRENCY_KEY = '__missing_currency__'
+
+function resolveExpenseCurrency(expense: ExpenseRow): CurrencyCode | null {
+  const resolvedCurrency = expense.currency || expense.properties?.currency
+
+  if (!resolvedCurrency) {
+    return null
+  }
+
+  const normalizedCurrency = resolvedCurrency.toUpperCase() as CurrencyCode
+  return KNOWN_CURRENCIES.has(normalizedCurrency) ? normalizedCurrency : null
+}
+
+function formatExpenseAmount(amount: number | string, currency: CurrencyCode | null): string {
+  if (!currency) {
+    return new Intl.NumberFormat('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(Number(amount))
+  }
+
+  return formatCurrency(amount, currency)
+}
+
 export function ExpensesTable({ expenses, startDate, endDate }: ExpensesTableProps) {
   // Totalizar por moeda
   const totalsByCurrency = expenses.reduce((acc: Record<string, number>, e) => {
-    const currency = e.currency || e.properties?.currency || 'EUR'
+    const currency = resolveExpenseCurrency(e) || MISSING_CURRENCY_KEY
     acc[currency] = (acc[currency] || 0) + Number(e.amount)
     return acc
   }, {})
@@ -47,14 +72,14 @@ export function ExpensesTable({ expenses, startDate, endDate }: ExpensesTablePro
     'Propriedade': e.properties?.name || '-',
     'Descrição': e.description,
     'Categoria': categoryLabels[e.category] || e.category,
-    'Moeda': e.currency || e.properties?.currency || 'EUR',
+    'Moeda': resolveExpenseCurrency(e) || 'sem moeda',
     'Valor': Number(e.amount).toFixed(2),
   }))
 
   // Agrupar por categoria e moeda
   const byCategory = expenses.reduce((acc: Record<string, Record<string, number>>, e) => {
     const cat = e.category || 'other'
-    const currency = e.currency || e.properties?.currency || 'EUR'
+    const currency = resolveExpenseCurrency(e) || MISSING_CURRENCY_KEY
     if (!acc[cat]) acc[cat] = {}
     acc[cat][currency] = (acc[cat][currency] || 0) + Number(e.amount)
     return acc
@@ -133,7 +158,7 @@ export function ExpensesTable({ expenses, startDate, endDate }: ExpensesTablePro
                       </span>
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-red-600 text-right">
-                      {formatCurrency(expense.amount, (expense.currency || expense.properties?.currency || 'EUR') as CurrencyCode)}
+                      {formatExpenseAmount(expense.amount, resolveExpenseCurrency(expense))}
                     </td>
                   </tr>
                 ))}
@@ -142,10 +167,15 @@ export function ExpensesTable({ expenses, startDate, endDate }: ExpensesTablePro
                 {Object.entries(totalsByCurrency).map(([currency, total]) => (
                   <tr key={currency}>
                     <td colSpan={4} className="px-4 py-3 text-sm text-gray-900 text-right">
-                      TOTAL ({currency}):
+                      TOTAL ({currency === MISSING_CURRENCY_KEY ? 'sem moeda' : currency}):
                     </td>
                     <td className="px-4 py-3 text-sm text-red-600 text-right">
-                      {formatCurrency(total, currency as CurrencyCode)}
+                      {currency === MISSING_CURRENCY_KEY
+                        ? new Intl.NumberFormat('pt-BR', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          }).format(total)
+                        : formatCurrency(total, currency as CurrencyCode)}
                     </td>
                   </tr>
                 ))}
@@ -168,7 +198,12 @@ export function ExpensesTable({ expenses, startDate, endDate }: ExpensesTablePro
                   </span>
                   <span className="text-sm font-semibold text-gray-900">
                     {Object.entries(currencies)
-                      .map(([cur, amt]) => formatCurrency(amt, cur as CurrencyCode))
+                      .map(([cur, amt]) => cur === MISSING_CURRENCY_KEY
+                        ? new Intl.NumberFormat('pt-BR', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          }).format(amt)
+                        : formatCurrency(amt, cur as CurrencyCode))
                       .join(' + ')}
                   </span>
                 </div>
@@ -178,7 +213,9 @@ export function ExpensesTable({ expenses, startDate, endDate }: ExpensesTablePro
                   const percentage = (amt / currencyTotal) * 100
                   return (
                     <div key={cur} className="flex items-center gap-2 mb-1">
-                      <span className="text-xs text-gray-600 w-8">{cur}</span>
+                      <span className="text-xs text-gray-600 w-8">
+                        {cur === MISSING_CURRENCY_KEY ? 'sem moeda' : cur}
+                      </span>
                       <div className="flex-1 bg-gray-200 rounded-full h-2">
                         <div
                           className="bg-red-500 h-2 rounded-full"
