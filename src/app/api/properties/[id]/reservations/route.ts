@@ -25,7 +25,7 @@ export async function GET(
     const adminClient = createAdminClient()
     const { data: property, error: propertyError } = await adminClient
       .from('properties')
-      .select('id')
+      .select('id, currency')
       .eq('id', propertyId)
       .eq('organization_id', auth.organizationId)
       .maybeSingle()
@@ -62,7 +62,7 @@ export async function GET(
           end_date: reservation.check_out,
           total_amount: reservation.total_price,
           price_per_night: Number(reservation.total_price || 0) / nights,
-          currency: reservation.currency || 'EUR',
+          currency: reservation.currency ?? property?.currency ?? null,
           status: reservation.reservation_status || 'pending',
         }
       }),

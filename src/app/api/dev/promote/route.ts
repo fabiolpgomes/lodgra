@@ -28,7 +28,6 @@ export async function GET(request: Request) {
       id: orgId,
       name: 'Lodgra Test Org',
       plan: 'expansao',
-      currency: 'EUR'
     })
   }
 

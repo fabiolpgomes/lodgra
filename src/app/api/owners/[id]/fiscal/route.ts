@@ -110,7 +110,7 @@ export async function GET(
         id: p.id,
         name: p.name,
         address: p.address || p.name,
-        currency: p.currency || 'EUR',
+        currency: p.currency ?? null,
         totalRevenue,
         deductibleExpenses,
         taxableNet,

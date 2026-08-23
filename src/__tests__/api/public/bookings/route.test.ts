@@ -55,6 +55,7 @@ const mockProperty = {
   id: 'prop-123',
   name: 'Villa Algarve',
   base_price: 100,
+  currency: 'BRL',
   organization_id: 'org-001',
   is_public: true,
   max_guests: 6,

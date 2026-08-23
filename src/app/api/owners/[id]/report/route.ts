@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { requireRole } from '@/lib/auth/requireRole'
 import { calcManagementFee, calcOwnerNet } from '@/lib/financial/calculations'
 import { requirePlanFeature } from '@/lib/billing/requirePlanFeature'
+import { reportCurrencyLabel } from '@/lib/utils/report-currency'
 
 export async function GET(
   request: NextRequest,
@@ -118,7 +119,7 @@ export async function GET(
     // Totais por moeda (nunca somar entre moedas diferentes)
     const summaryByCurrency: Record<string, { revenue: number; managementFee: number; expenses: number; ownerNet: number }> = {}
     propertyResults.forEach(p => {
-      const cur = p.currency || 'EUR'
+      const cur = reportCurrencyLabel(p.currency)
       if (!summaryByCurrency[cur]) {
         summaryByCurrency[cur] = { revenue: 0, managementFee: 0, expenses: 0, ownerNet: 0 }
       }

@@ -59,7 +59,7 @@ export async function GET(
           base_price: 0,
           weekend_price: null,
         }),
-        currency: property.currency || 'EUR',
+        currency: property.currency ?? null,
       },
     })
   } catch (error) {

@@ -40,9 +40,6 @@ export async function GET(
     return NextResponse.json({ error: 'Invalid date range' }, { status: 400 })
   }
 
-  // Validate and parse currency parameter (defaults to EUR)
-  const targetCurrency = (currencyParam && isSupportedCurrency(currencyParam)) ? currencyParam : 'EUR'
-
   // Parse fees
   const cleaningFee = cleaningFeeStr ? parseFloat(cleaningFeeStr) : 0
   const petFee = petFeeStr ? parseFloat(petFeeStr) : 0
@@ -52,13 +49,25 @@ export async function GET(
 
   const { data: property } = await supabase
     .from('properties')
-    .select('id')
+    .select('id, currency')
     .eq('slug', slug)
     .eq('is_public', true)
     .single()
 
   if (!property) {
     return NextResponse.json({ error: 'Property not found' }, { status: 404 })
+  }
+  const targetCurrency = currencyParam && isSupportedCurrency(currencyParam)
+    ? currencyParam
+    : property.currency && isSupportedCurrency(property.currency)
+      ? property.currency
+      : null
+
+  if (!targetCurrency) {
+    return NextResponse.json(
+      { error: 'Currency is required for price conversion' },
+      { status: 400 }
+    )
   }
 
   try {

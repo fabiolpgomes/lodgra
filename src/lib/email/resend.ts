@@ -210,7 +210,7 @@ export async function sendReservationConfirmation(data: CheckInNotification) {
           ${data.totalAmount ? `
           <tr>
             <td style="padding: 8px 0; color: #6b7280;">Valor Total</td>
-            <td style="padding: 8px 0; font-weight: 600; color: #111827;">${data.totalAmount} ${data.currency || 'EUR'}</td>
+            <td style="padding: 8px 0; font-weight: 600; color: #111827;">${data.currency ? `${data.totalAmount} ${data.currency}` : data.totalAmount}</td>
           </tr>
           ` : ''}
         </table>
@@ -304,7 +304,7 @@ export async function sendOwnerReservationNotification(data: OwnerReservationNot
           ${data.totalAmount ? `
           <tr>
             <td style="padding: 8px 0; color: #6b7280;">Valor Total</td>
-            <td style="padding: 8px 0; font-weight: 600; color: #111827;">${data.totalAmount} ${data.currency || 'EUR'}</td>
+            <td style="padding: 8px 0; font-weight: 600; color: #111827;">${data.currency ? `${data.totalAmount} ${data.currency}` : data.totalAmount}</td>
           </tr>
           ` : ''}
           ${data.source ? `

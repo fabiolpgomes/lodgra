@@ -21,7 +21,10 @@ export async function GET(request: NextRequest) {
     const limit = Math.min(parseInt(searchParams.get('limit') || '100'), 1000)
     const offset = parseInt(searchParams.get('offset') || '0')
     const updated_since = searchParams.get('updated_since') || undefined
-    const currency = searchParams.get('currency') || 'EUR'
+    const currency = searchParams.get('currency')
+    if (!currency || !/^[A-Z]{3}$/.test(currency)) {
+      return NextResponse.json({ error: 'Invalid currency' }, { status: 400 })
+    }
     const include_reviews = searchParams.get('include_reviews') !== 'false' // Default: true
 
     // Detect organization from subdomain
@@ -117,7 +120,10 @@ export async function HEAD(request: NextRequest) {
     const limit = Math.min(parseInt(searchParams.get('limit') || '100'), 1000)
     const offset = parseInt(searchParams.get('offset') || '0')
     const updated_since = searchParams.get('updated_since') || undefined
-    const currency = searchParams.get('currency') || 'EUR'
+    const currency = searchParams.get('currency')
+    if (!currency || !/^[A-Z]{3}$/.test(currency)) {
+      return new NextResponse(null, { status: 400 })
+    }
     const include_reviews = searchParams.get('include_reviews') !== 'false' // Default: true
 
     // Detect organization from subdomain

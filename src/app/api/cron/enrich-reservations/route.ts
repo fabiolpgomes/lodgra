@@ -83,7 +83,7 @@ export async function GET(request: NextRequest) {
         // reservation_id is already set by email-parser, so just fetch it
         const { data: reservation, error: resError } = await supabase
           .from('reservations')
-          .select('id, first_name, last_name, number_of_guests')
+          .select('id, first_name, last_name, number_of_guests, currency')
           .eq('id', email.reservation_id)
           .single()
 
@@ -127,7 +127,7 @@ export async function GET(request: NextRequest) {
         // Update amount if provided
         if (parsed.amount && parsed.amount > 0) {
           updates.amount = parsed.amount
-          updates.currency = parsed.currency || 'EUR'
+          updates.currency = parsed.currency ?? reservation.currency ?? null
         }
 
         const { error: updateError } = await supabase

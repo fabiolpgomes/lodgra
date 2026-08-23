@@ -316,9 +316,9 @@ async function processOrg(
 
     // AC6: Notificar proprietário da nova reserva draft
     if (draftResult && parsed && parsed.checkin_date && parsed.checkout_date) {
-      const { data: ownerData } = await supabase
-        .from('user_profiles')
-        .select('email, full_name')
+    const { data: ownerData } = await supabase
+      .from('user_profiles')
+      .select('email, full_name')
         .eq('organization_id', conn.organization_id)
         .in('role', ['admin', 'gestor'])
         .limit(1)
@@ -336,7 +336,7 @@ async function processOrg(
           checkOut: parsed.checkout_date,
           nights,
           totalAmount: parsed.amount ? `${parsed.amount.toFixed(2)}` : undefined,
-          currency: parsed.currency || 'EUR',
+          currency: parsed.currency ?? draftResult.currency ?? undefined,
           source: `${parsed.platform || 'email_parse'} (rascunho)`,
         })
       }
@@ -352,13 +352,13 @@ async function createDraftReservation(
   organizationId: string,
   parsed: Awaited<ReturnType<typeof parseReservationEmail>>,
   propertyId?: string,
-): Promise<{ id: string; propertyName: string } | null> {
+): Promise<{ id: string; propertyName: string; currency: string | null } | null> {
   if (!parsed) return null
 
   // Encontrar property_listing para a propriedade detectada (ou primeira da org)
   let query = supabase
     .from('property_listings')
-    .select('id, name, properties!inner(id, organization_id, cleaning_fee, cleaning_fee_type, pet_fee, pet_fee_type)')
+    .select('id, name, properties!inner(id, organization_id, currency, cleaning_fee, cleaning_fee_type, pet_fee, pet_fee_type)')
     .eq('properties.organization_id', organizationId)
 
   if (propertyId) {
@@ -407,7 +407,7 @@ async function createDraftReservation(
       check_in: parsed.checkin_date,
       check_out: parsed.checkout_date,
       total_amount: parsed.amount,
-      currency: parsed.currency || 'EUR',
+      currency: parsed.currency ?? listing.properties?.currency ?? null,
       number_of_guests: parsed.num_guests || 1,
       status: 'draft',
       source: parsed.platform || 'email_parse',
@@ -425,5 +425,5 @@ async function createDraftReservation(
     return null
   }
 
-  return reservation ? { id: reservation.id, propertyName: listing.name } : null
+  return reservation ? { id: reservation.id, propertyName: listing.name, currency: parsed.currency ?? listing.properties?.currency ?? null } : null
 }

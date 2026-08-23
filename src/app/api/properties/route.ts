@@ -499,12 +499,16 @@ export async function POST(request: Request): Promise<Response> {
     const address: string | null = body.address?.trim() || null
     const city: string | null = body.city?.trim() || null
     const country: string = body.country?.trim() || 'Brasil'
-    const currency: string = body.currency?.trim() || (country === 'Brasil' ? 'BRL' : 'EUR')
+    const currency: string | null = body.currency?.trim() || (country === 'Brasil' ? 'BRL' : null)
     const basePrice = Number(body.base_price ?? body.basePrice ?? 0)
     const maxGuests = Number(body.max_guests ?? body.maxGuests ?? 2)
 
     if (!name) {
       return Response.json({ error: 'Nome é obrigatório' }, { status: 400 })
+    }
+
+    if (!currency) {
+      return Response.json({ error: 'Moeda é obrigatória' }, { status: 400 })
     }
 
     if (!city) {

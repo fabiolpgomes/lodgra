@@ -59,7 +59,7 @@ export async function PUT(
         property_id,
         description,
         amount,
-        currency: property?.currency || 'EUR',
+        currency: property?.currency ?? null,
         category,
         expense_date,
         notes: notes || null,

@@ -45,11 +45,11 @@ export async function POST(request: NextRequest) {
     // Buscar property via listing
     const { data: listing } = await supabase
       .from('property_listings')
-      .select('property_id, properties!inner(name, owner_id)')
+      .select('property_id, properties!inner(name, owner_id, currency)')
       .eq('id', reservation.property_listing_id)
       .single()
 
-    const property = listing?.properties as unknown as { name: string; owner_id: string } | null
+    const property = listing?.properties as unknown as { name: string; owner_id: string; currency?: string | null } | null
 
     if (!property?.owner_id) {
       console.warn('Propriedade sem proprietário, pulando notificação')
@@ -101,7 +101,7 @@ export async function POST(request: NextRequest) {
         checkOut: reservation.check_out,
         nights,
         totalAmount: reservation.total_amount?.toString(),
-        currency: reservation.currency || 'EUR',
+        currency: reservation.currency ?? property.currency ?? undefined,
         source: reservation.source || reservation.booking_source || 'manual',
       })
       console.log(`Notificação enviada ao proprietário ${owner.email} para reserva ${reservation_id}`)

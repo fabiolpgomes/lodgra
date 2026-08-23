@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
     })
 
     console.log(
-      `[payment-intent] Created: ${paymentIntent.id} for booking ${booking_id} (EUR ${amount_eur})`
+      `[payment-intent] Created: ${paymentIntent.id} for booking ${booking_id} (${amount_eur})`
     )
 
     return NextResponse.json({

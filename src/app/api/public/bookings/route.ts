@@ -108,6 +108,12 @@ export async function POST(request: NextRequest) {
   if (!property) {
     return NextResponse.json({ error: 'Propriedade não encontrada' }, { status: 404 })
   }
+  if (!property.currency) {
+    return NextResponse.json(
+      { error: 'Moeda da propriedade não configurada. Contacte o gestor.' },
+      { status: 400 }
+    )
+  }
 
   // ── Validate guests against property capacity ────────────────────────────────
   if (property.max_guests && guests > property.max_guests) {
@@ -284,7 +290,7 @@ export async function POST(request: NextRequest) {
         check_out: String(checkout),
         number_of_guests: guests,
         total_amount: totalAmount,
-        currency: property.currency ?? 'EUR',
+        currency: property.currency,
       service_fee_amount: serviceFeeAmount,
       status: 'pending_payment',
       booking_source: 'direct',
@@ -327,7 +333,7 @@ export async function POST(request: NextRequest) {
   try {
     console.log('[Bookings API] Creating Stripe checkout session')
     const amountInCents = Math.round(totalAmount * 100)
-    const currency = (property.currency ?? 'EUR').toLowerCase()
+    const currency = property.currency.toLowerCase()
 
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       payment_method_types: ['card'],
