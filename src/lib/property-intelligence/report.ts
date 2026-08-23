@@ -1,6 +1,10 @@
 import type { ComparableBenchmark, PropertyIntelligenceResult, StayModelResult } from './types'
 
-function formatMoney(value: number, currency: string): string {
+function formatMoney(value: number, currency?: string): string {
+  if (!currency) {
+    return value.toFixed(2)
+  }
+
   return new Intl.NumberFormat('en-GB', {
     style: 'currency',
     currency,
@@ -57,7 +61,7 @@ export function buildMarkdownReport(result: PropertyIntelligenceResult): string 
   lines.push(`- Started at: ${result.startedAt}`)
   lines.push(`- Finished at: ${result.finishedAt}`)
   lines.push(`- Duration: ${result.durationMs} ms`)
-  lines.push(`- Currency: ${currency}`)
+  lines.push(`- Currency: ${currency || 'unavailable'}`)
   lines.push(`- Publish approval: ${result.publication.approved ? 'approved' : 'pending'}`)
   lines.push('')
   lines.push('## Intake')
@@ -128,4 +132,3 @@ export function buildMarkdownReport(result: PropertyIntelligenceResult): string 
 export function serializeJsonReport(result: PropertyIntelligenceResult): string {
   return `${JSON.stringify(result, null, 2)}`
 }
-

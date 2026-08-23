@@ -247,7 +247,7 @@ export default function NewReservationPage() {
         .eq('id', listingId)
         .single()
 
-      const propertyCurrency = (listing?.properties as { currency?: string } | null)?.currency || 'EUR'
+      const propertyCurrency = (listing?.properties as { currency?: string } | null)?.currency || ''
 
       // Criar reserva
       const { data, error: insertError } = await supabase
@@ -571,7 +571,7 @@ export default function NewReservationPage() {
             </h3>
             <div>
               <Label htmlFor="total_amount" className="mb-1">
-                Valor Total ({getCurrencySymbol((properties.find(p => p.id === selectedProperty)?.currency || 'EUR') as CurrencyCode)})
+                Valor Total ({getCurrencySymbol((properties.find(p => p.id === selectedProperty)?.currency || '') as CurrencyCode)})
               </Label>
               <Input
                 type="number"

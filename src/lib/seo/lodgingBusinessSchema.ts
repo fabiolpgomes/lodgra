@@ -131,8 +131,6 @@ function generatePriceRange(basePrice: number | null | undefined): string | unde
 export function generateLodgingBusinessJsonLd(
   property: PropertyData
 ): Record<string, unknown> {
-  const currency = property.currency ?? 'EUR'
-
   // Resolve images
   const images = property.imageUrls?.length
     ? property.imageUrls
@@ -170,7 +168,9 @@ export function generateLodgingBusinessJsonLd(
   const offers: Record<string, unknown> = { '@type': 'Offer' }
   if (property.base_price && property.base_price > 0) {
     offers.price = property.base_price
-    offers.priceCurrency = currency
+    if (property.currency) {
+      offers.priceCurrency = property.currency
+    }
   }
 
   // Aggregate rating

@@ -58,7 +58,7 @@ export async function syncReservationToBeds24(
     numAdult: reservation.adults ?? 1,
     numChild: reservation.children ?? 0,
     price: reservation.total_amount ? Number(reservation.total_amount) : undefined,
-    currency: reservation.currency ?? 'EUR',
+    ...(reservation.currency ? { currency: reservation.currency } : {}),
     guestFirstName: reservation.guest_name?.split(' ')[0] ?? 'Guest',
     guestLastName: reservation.guest_name?.split(' ').slice(1).join(' ') || '-',
     guestEmail: reservation.guest_email ?? undefined,

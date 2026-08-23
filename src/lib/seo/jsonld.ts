@@ -165,8 +165,6 @@ const SOURCE_MAX: Record<string, number> = {
 }
 
 export function generatePropertyJsonLd(property: PropertyData) {
-  const currency = property.currency ?? 'EUR'
-
   // Resolve images: prefer optimised WebP gallery, fall back to legacy photos[]
   const images = property.imageUrls?.length
     ? property.imageUrls
@@ -206,7 +204,9 @@ export function generatePropertyJsonLd(property: PropertyData) {
   const mainOffer: Record<string, unknown> = { '@type': 'Offer' }
   if (property.base_price && property.base_price > 0) {
     mainOffer.price = property.base_price
-    mainOffer.priceCurrency = currency
+    if (property.currency) {
+      mainOffer.priceCurrency = property.currency
+    }
   }
 
   const pageUrl = property.slug ? `${APP_URL}/p/${property.slug}` : undefined
@@ -297,7 +297,6 @@ export function generateWebsiteJsonLd() {
  * Complement to VacationRental with business-focused info (reviews, contact)
  */
 export function generateLocalBusinessJsonLd(property: PropertyData) {
-  const currency = property.currency ?? 'EUR'
   const pageUrl = property.slug ? `${APP_URL}/p/${property.slug}` : APP_URL
 
   const postalAddress = {
@@ -328,7 +327,7 @@ export function generateLocalBusinessJsonLd(property: PropertyData) {
     '@type': 'Offer',
     ...(property.base_price && property.base_price > 0 && {
       price: property.base_price,
-      priceCurrency: currency,
+      ...(property.currency ? { priceCurrency: property.currency } : {}),
     }),
     availability: 'https://schema.org/InStock',
   }

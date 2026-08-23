@@ -53,7 +53,7 @@ function normalizeCurrency(currency: unknown): string {
     return currency.trim().toUpperCase()
   }
 
-  return 'EUR'
+  return ''
 }
 
 export function normalizeIntake(input: PropertyIntelligenceInput): IntakeResult {
@@ -133,4 +133,3 @@ export function normalizeIntake(input: PropertyIntelligenceInput): IntakeResult 
     lead,
   }
 }
-
