@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import { Download, Filter, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
+import { formatCurrency } from '@/lib/utils/currency';
 
 interface AuditLogEntry {
   id: string;
@@ -68,7 +69,7 @@ export function AuditLog({ propertyId, entries = [], onExport }: AuditLogProps) 
         ['Audit Log Report', 'Propriedade ' + propertyId],
         ['Gerado:', new Date().toISOString()],
         [],
-        ['Data', 'Tipo', 'Regra', 'Preço Anterior €', 'Novo Preço €', 'Mudança €', 'Mudança %', 'Usuário', 'Notas'],
+        ['Data', 'Tipo', 'Regra', 'Preço Anterior', 'Novo Preço', 'Mudança', 'Mudança %', 'Usuário', 'Notas'],
       ];
 
       filteredEntries.forEach((entry) => {
@@ -76,9 +77,9 @@ export function AuditLog({ propertyId, entries = [], onExport }: AuditLogProps) 
           new Date(entry.date).toLocaleDateString('pt-PT'),
           entry.type === 'manual' ? 'Manual' : 'Automática',
           entry.ruleName || '-',
-          entry.oldPrice.toFixed(2),
-          entry.newPrice.toFixed(2),
-          entry.change.toFixed(2),
+          formatCurrency(entry.oldPrice),
+          formatCurrency(entry.newPrice),
+          formatCurrency(entry.change),
           entry.percentChange.toFixed(2) + '%',
           entry.userId || '-',
           entry.notes || '-',
@@ -252,10 +253,10 @@ export function AuditLog({ propertyId, entries = [], onExport }: AuditLogProps) 
                     {entry.ruleName || 'Ajuste manual'}
                   </td>
                   <td className="px-4 py-3 text-right text-slate-900 dark:text-dark-text-primary">
-                    €{entry.oldPrice.toFixed(2)}
+                    {formatCurrency(entry.oldPrice)}
                   </td>
                   <td className="px-4 py-3 text-right font-semibold text-slate-900 dark:text-dark-text-primary">
-                    €{entry.newPrice.toFixed(2)}
+                    {formatCurrency(entry.newPrice)}
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div
@@ -267,7 +268,7 @@ export function AuditLog({ propertyId, entries = [], onExport }: AuditLogProps) 
                             : 'text-slate-600 dark:text-slate-400'
                       }`}
                     >
-                      {entry.change > 0 ? '+' : ''}€{entry.change.toFixed(2)} ({entry.percentChange.toFixed(1)}%)
+                      {entry.change > 0 ? '+' : ''}{formatCurrency(entry.change)} ({entry.percentChange.toFixed(1)}%)
                     </div>
                   </td>
                 </tr>

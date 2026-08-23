@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { formatCurrency } from '@/lib/utils/currency'
 
 /**
  * DEMO PAGE - Epic 43 Calendar (100% Standalone - No Auth)
@@ -57,7 +58,7 @@ export default function DemoCalendarPage() {
         setPrices({ ...prices, [selectedDate]: price })
         setShowModal(false)
         setSelectedDate(null)
-        alert(`✅ Preço salvo: €${price}`)
+        alert(`✅ Preço salvo: ${formatCurrency(price)}`)
       }
     }
   }
@@ -175,7 +176,7 @@ export default function DemoCalendarPage() {
                         `}
                       >
                         <div>{day}</div>
-                        {price && <div className="text-xs mt-1">€{price}</div>}
+                        {price && <div className="text-xs mt-1">{formatCurrency(price)}</div>}
                         {isBlocked && <div className="text-xs">🔒</div>}
                       </button>
                     )}
@@ -231,7 +232,7 @@ export default function DemoCalendarPage() {
                   <div className="space-y-3">
                     <div>
                       <label className="block text-sm font-semibold text-gray-900 mb-1">
-                        Preço Base (€)
+                        Preço Base
                       </label>
                       <input
                         type="number"
@@ -254,7 +255,7 @@ export default function DemoCalendarPage() {
                         placeholder="10"
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
-                      <p className="text-xs text-gray-600 mt-1">Economia: €70</p>
+                      <p className="text-xs text-gray-600 mt-1">Economia: {formatCurrency(70)}</p>
                     </div>
                     <div className="bg-green-50 p-3 rounded-lg">
                       <label className="text-sm font-semibold text-gray-900">Desconto Mensal (28+ noites)</label>
@@ -263,7 +264,7 @@ export default function DemoCalendarPage() {
                         placeholder="20"
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg mt-1 focus:outline-none focus:ring-2 focus:ring-green-500"
                       />
-                      <p className="text-xs text-gray-600 mt-1">Economia: €140</p>
+                      <p className="text-xs text-gray-600 mt-1">Economia: {formatCurrency(140)}</p>
                     </div>
                     <div className="bg-purple-50 p-3 rounded-lg">
                       <label className="text-sm font-semibold text-gray-900">Desconto Fidelidade</label>
@@ -323,7 +324,7 @@ export default function DemoCalendarPage() {
                     <div className="bg-gray-50 p-3 rounded-lg flex justify-between items-center">
                       <div>
                         <p className="font-semibold text-gray-900">Limpeza</p>
-                        <p className="text-xs text-gray-600">€50</p>
+                        <p className="text-xs text-gray-600">{formatCurrency(50)}</p>
                       </div>
                       <button className="text-red-600 text-sm hover:text-red-800">✕</button>
                     </div>
@@ -358,7 +359,7 @@ export default function DemoCalendarPage() {
                   type="number"
                   value={inputPrice}
                   onChange={(e) => setInputPrice(e.target.value)}
-                  placeholder="Digite o preço em €"
+                  placeholder="Digite o preço"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
                   autoFocus
                 />

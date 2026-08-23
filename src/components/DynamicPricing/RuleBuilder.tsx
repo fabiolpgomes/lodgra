@@ -217,7 +217,7 @@ export function RuleBuilder({ propertyId, onCreateRule, onClose }: RuleBuilderPr
                 >
                   <option value="increase_percent">Aumentar %</option>
                   <option value="decrease_percent">Diminuir %</option>
-                  <option value="set_price">Preço Fixo €</option>
+                  <option value="set_price">Preço Fixo</option>
                 </select>
 
                 <input
