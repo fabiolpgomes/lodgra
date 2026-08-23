@@ -63,7 +63,7 @@ export type ReservationReportRow = {
   check_out: string
   status: string
   total_amount: number | null
-  currency: string
+  currency: string | null
   number_of_guests: number
   adults: number | null
   children: number | null
@@ -113,7 +113,7 @@ export function mapCanonicalReservationToReport(
     check_out: reservation.check_out,
     status: reservation.reservation_status || '',
     total_amount: reservation.total_price,
-    currency: reservation.currency || property.currency || 'EUR',
+    currency: reservation.currency || property.currency || null,
     number_of_guests: reservation.number_of_guests || 0,
     adults: reservation.adults,
     children: reservation.children,

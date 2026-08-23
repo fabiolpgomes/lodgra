@@ -115,4 +115,25 @@ describe('mapCanonicalReservationToReport', () => {
     expect(row.property_listings.platforms).toBeNull()
     expect(row.number_of_guests).toBe(0)
   })
+
+  it('preserva moeda ausente quando nem reserva nem propriedade a informam', () => {
+    const row = mapCanonicalReservationToReport({
+      id: 'reservation-3',
+      property_id: property.id,
+      check_in: '2026-08-10',
+      check_out: '2026-08-12',
+      reservation_status: 'confirmed',
+      total_price: 120,
+      currency: null,
+      number_of_guests: 1,
+      adults: 1,
+      children: 0,
+      notes: null,
+      guest_name: 'Ana',
+      guest_email: null,
+      channel_connections: null,
+    }, { ...property, currency: null })
+
+    expect(row.currency).toBeNull()
+  })
 })

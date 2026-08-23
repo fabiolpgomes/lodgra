@@ -16,6 +16,10 @@ import {
   truncateReportText,
   type ReservationReportRow,
 } from '@/lib/reports/reservationReportData'
+import {
+  formatReportAmount,
+  groupReportByCurrency,
+} from '@/lib/utils/report-currency'
 
 type Channel = {
   name?: string
@@ -23,21 +27,13 @@ type Channel = {
 
 type Reservation = ReservationReportRow & { channels: Channel | null }
 
-function formatCurrency(amount: number, currency: string): string {
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: currency,
-  }).format(amount)
-}
-
-// property.currency takes priority: Airbnb imports reservations with currency='EUR' even for BRL properties
-function getResCurrency(r: Reservation): string {
+function getResCurrency(r: Reservation): string | null {
   if (r.currency) return r.currency
   const listing = r.property_listings
   const lObj = Array.isArray(listing) ? listing[0] : listing
   const prop = (lObj as { properties?: { currency?: string } } | null)?.properties
   const propObj = Array.isArray(prop) ? prop[0] : prop
-  return propObj?.currency || 'EUR'
+  return propObj?.currency || null
 }
 
 function calculateProportionalAmount(r: Reservation, startDate: string, endDate: string): number {
@@ -105,11 +101,12 @@ function generateHtml(
   fileName: string,
   nonce: string
 ): string {
-  const currencyTotals = reservations.reduce<Record<string, number>>((acc, r) => {
-    const cur = getResCurrency(r)
-    acc[cur] = (acc[cur] || 0) + calculateProportionalAmount(r, startDate, endDate)
-    return acc
-  }, {})
+  const currencyTotals = groupReportByCurrency(
+    reservations.map((r) => ({
+      currency: getResCurrency(r),
+      amount: calculateProportionalAmount(r, startDate, endDate),
+    }))
+  )
   const groupedByProperty = reservations.reduce<Record<string, Reservation[]>>((acc, r) => {
     const propId = r.property_listings.properties?.id || 'unknown'
     if (!acc[propId]) acc[propId] = []
@@ -205,16 +202,15 @@ function generateHtml(
       <div class="summary">
         <div class="summary-item"><strong>Total de Reservas:</strong> ${reservations.length}</div>
         ${showValues ? Object.entries(currencyTotals).map(([cur, total]) =>
-          `<div class="summary-item"><strong>Receita Total (${cur}):</strong> ${formatCurrency(total, cur)}</div>`
+          `<div class="summary-item"><strong>Receita Total (${cur}):</strong> ${formatReportAmount(total, cur)}</div>`
         ).join('') : ''}
-        ${showValues && Object.keys(currencyTotals).length === 1 ? `<div class="summary-item"><strong>Média por Reserva:</strong> ${reservations.length > 0 ? formatCurrency(Object.values(currencyTotals)[0] / reservations.length, Object.keys(currencyTotals)[0]) : formatCurrency(0, Object.keys(currencyTotals)[0] || 'EUR')}</div>` : ''}
+        ${showValues && Object.keys(currencyTotals).length === 1 ? `<div class="summary-item"><strong>Média por Reserva:</strong> ${reservations.length > 0 ? formatReportAmount(Object.values(currencyTotals)[0] / reservations.length, Object.keys(currencyTotals)[0]) : formatReportAmount(0, Object.keys(currencyTotals)[0] || null)}</div>` : ''}
         <div class="summary-item"><strong>Noites Reservadas:</strong> ${totalNights}</div>
       </div>
 
       ${Object.entries(groupedByProperty)
-        .map(([, propReservations]: [string, Reservation[]]) => {
+          .map(([, propReservations]: [string, Reservation[]]) => {
           const propData = propReservations[0]?.property_listings.properties
-          const propCurrency = propData?.currency || 'EUR'
           const propertyName = truncateReportText(propData?.name || 'Propriedade', 52)
 
           // Calculate property totals
@@ -265,7 +261,7 @@ function generateHtml(
                       <td class="col-num" style="text-align:center">${r.children ?? '—'}</td>
                       <td class="col-num" style="text-align:center">${nights}</td>
                       <td class="col-notes">${notesRaw}</td>
-                      ${showValues ? '<td class="col-value currency">' + formatCurrency(proportionalAmount, getResCurrency(r)) + '</td>' : ''}
+                      ${showValues ? '<td class="col-value currency">' + formatReportAmount(proportionalAmount, getResCurrency(r)) + '</td>' : ''}
                     </tr>`
                   })
                   .join('')}
@@ -273,7 +269,7 @@ function generateHtml(
                   <td colspan="6" style="text-align: right; padding: 8px;">TOTAL:</td>
                   <td class="col-num" style="text-align:center; border: 1px solid #ddd; padding: 6px 8px;">${propertyTotalNights} dias</td>
                   <td></td>
-                  ${showValues ? '<td class="col-value currency" style="border: 1px solid #ddd; padding: 6px 8px;">' + formatCurrency(propertyTotalAmount, propCurrency) + '</td>' : ''}
+                  ${showValues ? '<td class="col-value currency" style="border: 1px solid #ddd; padding: 6px 8px;">' + formatReportAmount(propertyTotalAmount, propData?.currency) + '</td>' : ''}
                 </tr>
               </tbody>
             </table>
