@@ -5,6 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { DailyPrice } from '@/types/calendar.types';
+import { formatCurrency, getCurrencySymbol, type CurrencyCode } from '@/lib/utils/currency';
 
 interface DateDetailModalProps {
   isOpen: boolean;
@@ -13,6 +14,7 @@ interface DateDetailModalProps {
   basePrice?: number;
   weekendPrice?: number;
   isWeekend: boolean;
+  currency?: CurrencyCode;
   onClose: () => void;
   onSave: (price: number) => Promise<void>;
   onDelete: () => Promise<void>;
@@ -26,6 +28,7 @@ export function DateDetailModal({
   basePrice,
   weekendPrice,
   isWeekend,
+  currency = 'EUR',
   onClose,
   onSave,
   onDelete,
@@ -115,14 +118,14 @@ export function DateDetailModal({
             {/* Base Price Display */}
             {effectiveBasePrice && (
               <div className="bg-gray-50 rounded p-3">
-                <div className="text-sm text-gray-600">
-                  {isWeekend ? 'Weekend Price' : 'Base Price'}
-                </div>
-                <div className="text-2xl font-bold text-gray-900">
-                  €{effectiveBasePrice.toFixed(2)}
-                </div>
+              <div className="text-sm text-gray-600">
+                {isWeekend ? 'Weekend Price' : 'Base Price'}
               </div>
-            )}
+              <div className="text-2xl font-bold text-gray-900">
+                {formatCurrency(effectiveBasePrice, currency)}
+              </div>
+            </div>
+          )}
 
             {/* Price Override Input */}
             <div className="space-y-2">
@@ -130,7 +133,7 @@ export function DateDetailModal({
                 Override Price (Optional)
               </label>
               <div className="flex items-center">
-                <span className="text-gray-500 mr-2">€</span>
+                <span className="text-gray-500 mr-2">{getCurrencySymbol(currency)}</span>
                 <input
                   type="number"
                   step="0.01"
@@ -144,7 +147,7 @@ export function DateDetailModal({
               </div>
               {inputPrice && inputPrice !== (basePrice || '').toString() && (
                 <div className="text-sm text-blue-600">
-                  Difference: €{(parseFloat(inputPrice) - (effectiveBasePrice || 0)).toFixed(2)}
+                  Difference: {formatCurrency(parseFloat(inputPrice) - (effectiveBasePrice || 0), currency)}
                 </div>
               )}
             </div>

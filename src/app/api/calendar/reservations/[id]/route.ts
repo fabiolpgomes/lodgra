@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { getUserAccess } from '@/lib/auth/getUserAccess'
 import { requireRole } from '@/lib/auth/requireRole'
 import { notifyPlatformSync } from '@/lib/ical/syncWebhook'
 import { enqueueEmail } from '@/lib/email/queue'
 import { cancelReservationInBeds24 } from '@/lib/reservations/syncToBeds24'
+import { cancelReservation } from '@/lib/reservations/cancelReservation'
 import { notifyAllPlatforms } from '@/lib/integrations/platform-notifier'
 
 export async function PATCH(
@@ -84,11 +86,16 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const auth = await requireRole(['admin', 'gestor'])
-    if (!auth.authorized) return auth.response!
-
     const { id } = await params
     const supabase = await createClient()
+    const access = await getUserAccess(supabase)
+
+    if (!access || !['admin', 'gestor'].includes(access.profile.role)) {
+      return NextResponse.json(
+        { error: access ? 'Permissão insuficiente' : 'Não autenticado' },
+        { status: access ? 403 : 401 }
+      )
+    }
 
     // Verify reservation exists and get required data
     const { data: reservation, error: fetchError } = await supabase
@@ -101,31 +108,34 @@ export async function DELETE(
       return NextResponse.json({ error: 'Reserva não encontrada' }, { status: 404 })
     }
 
+    const cancellationResult = await cancelReservation(
+      supabase,
+      access,
+      id,
+      'Cancelada pelo proprietário no calendário'
+    )
+
+    if (cancellationResult.ok === false) {
+      return NextResponse.json(
+        { error: cancellationResult.error },
+        { status: cancellationResult.status }
+      )
+    }
+
+    if (cancellationResult.alreadyCancelled) {
+      return NextResponse.json({
+        success: true,
+        reservation_id: id,
+        already_cancelled: true,
+      })
+    }
+
     // Fetch beds24_booking_id if it exists (for sync on cancel)
     const { data: existingRes } = await supabase
       .from('reservations')
       .select('beds24_booking_id, source')
       .eq('id', id)
       .single()
-
-    // Mark reservation as cancelled instead of deleting (preserves history)
-    const { error: updateError } = await supabase
-      .from('reservations')
-      .update({
-        status: 'cancelled',
-        cancelled_at: new Date().toISOString(),
-        cancellation_reason: 'Cancelada pelo proprietário no calendário',
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', id)
-
-    if (updateError) {
-      console.error('[Reservations API] UPDATE error:', updateError)
-      return NextResponse.json(
-        { error: 'Erro ao cancelar reserva' },
-        { status: 500 }
-      )
-    }
 
     // Sync cancellation to Beds24 if this reservation has a beds24_booking_id
     if (existingRes?.beds24_booking_id) {
@@ -223,7 +233,12 @@ export async function DELETE(
       // Don't fail the request if email fails
     }
 
-    return NextResponse.json({ success: true })
+    return NextResponse.json({
+      success: true,
+      reservation_id: id,
+      already_cancelled: false,
+      refund_info: cancellationResult.refundInfo,
+    })
   } catch (error) {
     console.error('[Reservations API] DELETE exception:', error)
     return NextResponse.json(

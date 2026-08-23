@@ -24,12 +24,12 @@ updated_at TIMESTAMP
 
 ---
 
-#### `property_daily_prices` (Calendar Pricing Overrides)
+#### `daily_prices` (Calendar Pricing Overrides)
 ```sql
 id UUID PRIMARY KEY
 property_id UUID -- references properties(id)
 date DATE -- specific date override
-price DECIMAL(10, 2) -- price for this date
+base_price DECIMAL(10, 2) -- price for this date
 created_at TIMESTAMP
 updated_at TIMESTAMP
 UNIQUE(property_id, date)
@@ -119,7 +119,7 @@ UNIQUE(property_id, policy_type, is_long_stay)
                ▼
     ┌──────────────────────────┐
     │ Final Price with Breakdown
-    │ - Base: €360             │
+│ - Base: €360             │
     │ - Discount: -€36 (10%)   │
     │ - Cleaning: +€30         │
     │ - Total: €354            │

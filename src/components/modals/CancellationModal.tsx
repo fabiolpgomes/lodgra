@@ -1,6 +1,10 @@
 'use client'
 
 import { useState } from 'react'
+import {
+  CancellationRefundSummary,
+  type CancellationRefundInfo,
+} from '@/components/features/reservations/CancellationRefundSummary'
 
 interface Reservation {
   id: string
@@ -33,6 +37,10 @@ export default function CancellationModal({
   const [evidenceUrl, setEvidenceUrl] = useState('')
   const [estimatedRefund, setEstimatedRefund] = useState(0)
   const [isPending, setIsPending] = useState(false)
+  const [cancellationResult, setCancellationResult] = useState<{
+    alreadyCancelled: boolean
+    refundInfo?: CancellationRefundInfo
+  } | null>(null)
 
   const handleSelectType = async (type: 'voluntary' | 'serious_issue') => {
     setCancellationType(type)
@@ -87,7 +95,17 @@ export default function CancellationModal({
           cancellation_evidence_url: evidenceUrl || undefined,
         }),
       })
-      if (!response.ok) throw new Error('Cancelamento falhou')
+      const payload = await response.json().catch(() => null)
+
+      if (!response.ok) {
+        throw new Error(payload?.error || 'Cancelamento falhou')
+      }
+
+      setCancellationResult({
+        alreadyCancelled: Boolean(payload?.already_cancelled),
+        refundInfo: payload?.refund_info as CancellationRefundInfo | undefined,
+      })
+
       setStep('success')
     } catch (error) {
       console.error('Error cancelling reservation:', error)
@@ -217,10 +235,18 @@ export default function CancellationModal({
           {step === 'success' && (
             <div className="text-center space-y-4">
               <div className="text-5xl">✅</div>
+              <CancellationRefundSummary
+                refundInfo={cancellationResult?.refundInfo}
+                alreadyCancelled={cancellationResult?.alreadyCancelled}
+              />
               <div>
                 <p className="text-lg font-bold">Cancelamento Processado</p>
                 <p className="text-sm text-gray-600 mt-2">
-                  {cancellationType === 'serious_issue'
+                  {cancellationResult?.refundInfo
+                    ? `Reembolso de €${cancellationResult.refundInfo.refund_amount.toFixed(2)} processado com sucesso.`
+                    : cancellationResult?.alreadyCancelled
+                      ? 'A reserva já estava cancelada.'
+                      : cancellationType === 'serious_issue'
                     ? 'Seu caso foi reportado para revisão. Receberá notificações por email.'
                     : `Reembolso de €${estimatedRefund.toFixed(2)} será processado em breve.`}
                 </p>

@@ -18,10 +18,16 @@ global.URL.revokeObjectURL = jest.fn();
 describe('AuditLog', () => {
   const mockOnExport = jest.fn();
 
+  const daysAgo = (days: number) => {
+    const date = new Date();
+    date.setDate(date.getDate() - days);
+    return date.toISOString();
+  };
+
   const mockEntries = [
     {
       id: '1',
-      date: '2026-07-22T10:00:00Z',
+      date: daysAgo(1),
       type: 'manual' as const,
       ruleName: undefined,
       oldPrice: 100,
@@ -33,7 +39,7 @@ describe('AuditLog', () => {
     },
     {
       id: '2',
-      date: '2026-07-21T15:30:00Z',
+      date: daysAgo(2),
       type: 'automated' as const,
       ruleName: 'High Occupancy Boost',
       oldPrice: 100,
@@ -45,7 +51,7 @@ describe('AuditLog', () => {
     },
     {
       id: '3',
-      date: '2026-07-20T08:00:00Z',
+      date: daysAgo(3),
       type: 'manual' as const,
       ruleName: undefined,
       oldPrice: 110,
@@ -265,8 +271,8 @@ describe('AuditLog', () => {
       );
 
       const rows = screen.getAllByRole('row');
-      // First data row should be the most recent (2026-07-22)
-      expect(rows[1]).toHaveTextContent('22');
+      const expectedDate = new Date(mockEntries[0].date).toLocaleDateString('pt-PT');
+      expect(rows[1]).toHaveTextContent(expectedDate);
     });
   });
 
@@ -298,7 +304,7 @@ describe('AuditLog', () => {
       expect(screen.getByText(/15\.0?0?%/)).toBeInTheDocument();
     });
 
-    it('should display negative price changes', () => {
+    it('should display negative price changes', async () => {
       render(
         <AuditLog
           propertyId="prop-123"
@@ -307,7 +313,11 @@ describe('AuditLog', () => {
         />
       );
 
-      expect(screen.getByText(/-€?5\.00/)).toBeInTheDocument();
+      await userEvent.selectOptions(screen.getByDisplayValue('Últimos 30 dias'), 'all');
+
+      expect(
+        screen.queryAllByText((_, element) => element?.textContent === '€-5.00 (-4.5%)')
+      ).not.toHaveLength(0);
     });
   });
 

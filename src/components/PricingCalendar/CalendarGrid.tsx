@@ -7,6 +7,7 @@ import React from 'react';
 import { CalendarDay, DailyPrice } from '@/types/calendar.types';
 import { PriceIndicator } from './PriceIndicator';
 import { startOfDay } from 'date-fns';
+import type { CurrencyCode } from '@/lib/utils/currency';
 
 export interface CalendarReservation {
   id: string;
@@ -24,6 +25,7 @@ interface CalendarGridProps {
   rangeEnd?: Date | null;
   isSelectingRange?: boolean;
   reservations?: CalendarReservation[];
+  currency?: CurrencyCode;
 }
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -36,6 +38,7 @@ export function CalendarGrid({
   rangeEnd,
   isSelectingRange = false,
   reservations = [],
+  currency = 'EUR',
 }: CalendarGridProps) {
   const reservationForDay = (day: CalendarDay): CalendarReservation | null => {
     const dayDate = startOfDay(day.date)
@@ -131,6 +134,7 @@ export function CalendarGrid({
                   <PriceIndicator
                     priceType={day.priceType}
                     price={day.price}
+                    currency={currency}
                   />
                 </div>
               )}

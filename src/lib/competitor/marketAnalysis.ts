@@ -197,6 +197,19 @@ export function interpretMarketVolatility(volatility: number): string {
   }
 }
 
+import type { CurrencyCode } from '@/lib/utils/currency';
+
+const LEGACY_SYMBOL_TO_CURRENCY: Record<string, CurrencyCode> = {
+  '€': 'EUR',
+  '$': 'USD',
+  '£': 'GBP',
+  'R$': 'BRL',
+  'CHF': 'CHF',
+  '¥': 'JPY',
+  'C$': 'CAD',
+  'A$': 'AUD',
+};
+
 /**
  * Get position color for UI
  */
@@ -220,6 +233,21 @@ export function getPositionColor(position: string): string {
 /**
  * Format price for display
  */
-export function formatPrice(price: number, currency: string = '€'): string {
-  return `${currency}${price.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
+export function formatPrice(price: number, currency: string = 'EUR'): string {
+  const normalizedCurrency =
+    currency in LEGACY_SYMBOL_TO_CURRENCY
+      ? LEGACY_SYMBOL_TO_CURRENCY[currency]
+      : (currency as CurrencyCode);
+
+  try {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: normalizedCurrency,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(price);
+  } catch {
+    const symbol = LEGACY_SYMBOL_TO_CURRENCY[currency] || normalizedCurrency;
+    return `${symbol}${price.toFixed(2)}`;
+  }
 }

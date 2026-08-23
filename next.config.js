@@ -105,6 +105,13 @@ const finalConfig = withSentryConfig(analyzedConfig, {
   // side errors will fail.
   tunnelRoute: "/monitoring",
 
+  // Production deploys in this environment do not need Sentry build-time upload hooks.
+  // Disabling them avoids a stuck post-compile step during Vercel deployment.
+  useRunAfterProductionCompileHook: false,
+  sourcemaps: {
+    disable: true,
+  },
+
   webpack: {
     // Enables automatic instrumentation of Vercel Cron Monitors. (Does not yet work with App Router route handlers.)
     // See the following for more information:

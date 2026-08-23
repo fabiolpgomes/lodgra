@@ -5,7 +5,8 @@
  * Story 37.1: Card Preços (Funcional)
  */
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
+import { requirePropertyAccess } from '@/lib/auth/requirePropertyAccess'
 import { revalidatePath } from 'next/cache'
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -30,43 +31,13 @@ export async function GET(
   const { id: propertyId } = await params
 
   try {
-    const supabase = await createClient()
+    const access = await requirePropertyAccess(propertyId, ['admin', 'gestor', 'owner', 'viewer'])
+    if (!access.authorized) return access.response
 
-    // Get current user from session cookie
-    const { data: { user }, error: userError } = await supabase.auth.getUser()
-
-    if (userError || !user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
-    }
-
-    // Verify ownership via owners table JOIN
-    const { data: property, error: propertyError } = await supabase
-      .from('properties')
-      .select('id, slug, owner_id, currency, owners(id, user_id)')
-      .eq('id', propertyId)
-      .single()
-
-    if (propertyError || !property) {
-      return NextResponse.json(
-        { error: 'Property not found' },
-        { status: 404 }
-      )
-    }
-
-    // Verify user owns property by checking owners.user_id
-    const owners = Array.isArray(property.owners) ? property.owners[0] : property.owners
-    if (owners?.user_id !== user.id) {
-      return NextResponse.json(
-        { error: 'Forbidden' },
-        { status: 403 }
-      )
-    }
+    const admin = createAdminClient()
 
     // Fetch pricing
-    const { data: pricing, error: pricingError } = await supabase
+    const { data: pricing, error: pricingError } = await admin
       .from('property_prices')
       .select('*')
       .eq('property_id', propertyId)
@@ -88,9 +59,9 @@ export async function GET(
           base_price: 0,
           weekend_price: null,
         }),
-        currency: property.currency || 'EUR',
-      },
-    })
+          currency: access.property.currency || 'EUR',
+        },
+      })
   } catch (error) {
     console.error('GET /api/properties/[id]/pricing:', error)
     return NextResponse.json(
@@ -118,18 +89,10 @@ export async function PUT(
   const { id: propertyId } = await params
 
   try {
-    const supabase = await createClient()
+    const access = await requirePropertyAccess(propertyId, ['admin', 'gestor', 'owner'])
+    if (!access.authorized) return access.response
 
-    // Get current user from session cookie
-    const { data: { user }, error: userError } = await supabase.auth.getUser()
-
-    if (userError || !user) {
-      console.error('[PUT /pricing] Auth error:', userError)
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
-    }
+    const admin = createAdminClient()
 
     const body: PricingData = await req.json()
 
@@ -161,46 +124,8 @@ export async function PUT(
       }
     }
 
-    // Verify ownership via owners table JOIN
-    const { data: property, error: propertyError } = await supabase
-      .from('properties')
-      .select('id, slug, owner_id, owners(id, user_id)')
-      .eq('id', propertyId)
-      .single()
-
-    if (propertyError || !property) {
-      console.error('[PUT /pricing] Property lookup error:', propertyError)
-      return NextResponse.json(
-        { error: 'Property not found' },
-        { status: 404 }
-      )
-    }
-
-    // Verify user owns property by checking owners.user_id
-    const owners = Array.isArray(property.owners) ? property.owners[0] : property.owners
-    const ownerUserId = owners?.user_id
-    console.log('[PUT /pricing] Checking ownership:', {
-      propertyId,
-      ownerId: property.owner_id,
-      ownerUserId,
-      userId: user.id,
-      match: ownerUserId === user.id
-    })
-
-    if (ownerUserId !== user.id) {
-      console.error('[PUT /pricing] Ownership check FAILED:', {
-        ownerUserId,
-        userId: user.id,
-        match: ownerUserId === user.id
-      })
-      return NextResponse.json(
-        { error: 'Forbidden' },
-        { status: 403 }
-      )
-    }
-
     // Check if pricing record exists
-    const { data: existing, error: existingError } = await supabase
+    const { data: existing, error: existingError } = await admin
       .from('property_prices')
       .select('id')
       .eq('property_id', propertyId)
@@ -230,7 +155,7 @@ export async function PUT(
 
     if (existing) {
       // Update existing record
-      const { data, error } = await supabase
+      const { data, error } = await admin
         .from('property_prices')
         .update({
           base_price: basePrice,
@@ -251,7 +176,7 @@ export async function PUT(
       result = data
     } else {
       // Insert new record
-      const { data, error } = await supabase
+      const { data, error } = await admin
         .from('property_prices')
         .insert({
           property_id: propertyId,
@@ -272,8 +197,10 @@ export async function PUT(
     }
 
     // Keep the public property and checkout pages in sync with the new price.
-    revalidatePath(`/p/${property.slug}`)
-    revalidatePath(`/p/${property.slug}/checkout`)
+    if (access.property.slug) {
+      revalidatePath(`/p/${access.property.slug}`)
+      revalidatePath(`/p/${access.property.slug}/checkout`)
+    }
     revalidatePath('/booking')
 
     return NextResponse.json({

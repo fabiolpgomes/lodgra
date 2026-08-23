@@ -8,6 +8,10 @@ import { Alert, AlertDescription } from '@/components/common/ui/alert'
 import { Label } from '@/components/common/ui/label'
 import { Textarea } from '@/components/common/ui/textarea'
 import {
+  CancellationRefundSummary,
+  type CancellationRefundInfo,
+} from './CancellationRefundSummary'
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -29,6 +33,18 @@ export function CancelReservationButton({
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [cancellationReason, setCancellationReason] = useState('')
+  const [cancelResult, setCancelResult] = useState<{
+    already_cancelled: boolean
+    refund_info?: CancellationRefundInfo
+  } | null>(null)
+
+  const closeModal = () => {
+    setShowModal(false)
+    setError(null)
+    setLoading(false)
+    setCancellationReason('')
+    setCancelResult(null)
+  }
 
   async function handleCancel() {
     setLoading(true)
@@ -46,6 +62,12 @@ export function CancelReservationButton({
         throw new Error(payload?.error || 'Erro ao cancelar reserva')
       }
 
+      const payload = await response.json().catch(() => null)
+      setCancelResult({
+        already_cancelled: Boolean(payload?.already_cancelled),
+        refund_info: payload?.refund_info as CancellationRefundInfo | undefined,
+      })
+
       // Notificar proprietário (fire-and-forget)
       fetch('/api/notifications/owner-reservation', {
         method: 'POST',
@@ -53,14 +75,20 @@ export function CancelReservationButton({
         body: JSON.stringify({ reservation_id: reservationId, type: 'cancellation' }),
       }).catch(err => console.error('Erro ao notificar proprietário sobre cancelamento:', err))
 
-      toast.success('Reserva cancelada com sucesso!')
+      toast.success(
+        payload?.refund_info
+          ? `Reserva cancelada. Reembolso de €${payload.refund_info.refund_amount.toFixed(2)} pronto.`
+          : payload?.already_cancelled
+            ? 'Reserva já estava cancelada.'
+            : 'Reserva cancelada com sucesso!'
+      )
       router.refresh()
-      setShowModal(false)
     } catch (err: unknown) {
       console.error('Erro ao cancelar reserva:', err)
       const message = err instanceof Error ? err.message : 'Erro ao cancelar reserva'
       toast.error(message)
       setError(message)
+    } finally {
       setLoading(false)
     }
   }
@@ -72,7 +100,17 @@ export function CancelReservationButton({
         Cancelar
       </Button>
 
-      <Dialog open={showModal} onOpenChange={setShowModal}>
+      <Dialog
+        open={showModal}
+        onOpenChange={(open) => {
+          if (open) {
+            setShowModal(true)
+            return
+          }
+
+          closeModal()
+        }}
+      >
         <DialogContent className="max-w-md">
           <DialogHeader>
             <div className="flex items-center gap-3 mb-2">
@@ -98,6 +136,11 @@ export function CancelReservationButton({
               </p>
             )}
 
+            <CancellationRefundSummary
+              refundInfo={cancelResult?.refund_info}
+              alreadyCancelled={cancelResult?.already_cancelled}
+            />
+
             {/* Motivo do cancelamento */}
             <div className="mt-4">
               <Label htmlFor="cancellation_reason" className="mb-2">
@@ -110,6 +153,7 @@ export function CancelReservationButton({
                 rows={3}
                 placeholder="Ex: Cancelado pelo hóspede, mudança de planos, etc."
                 className="resize-none"
+                disabled={loading || Boolean(cancelResult)}
               />
             </div>
 
@@ -132,12 +176,14 @@ export function CancelReservationButton({
           )}
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowModal(false)} disabled={loading}>
-              Não, Voltar
+            <Button variant="outline" onClick={closeModal} disabled={loading}>
+              {cancelResult ? 'Fechar' : 'Não, Voltar'}
             </Button>
-            <Button variant="destructive" onClick={handleCancel} disabled={loading}>
-              {loading ? 'Cancelando...' : 'Sim, Cancelar Reserva'}
-            </Button>
+            {!cancelResult && (
+              <Button variant="destructive" onClick={handleCancel} disabled={loading}>
+                {loading ? 'Cancelando...' : 'Sim, Cancelar Reserva'}
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -3,12 +3,14 @@
 import React from 'react';
 import { MarketPositionAnalysis } from '@/types/competitor';
 import { TrendingUp, TrendingDown, AlertCircle } from 'lucide-react';
+import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency';
 
 interface MarketPositionCardProps {
   analysis: MarketPositionAnalysis;
+  currency?: CurrencyCode;
 }
 
-export function MarketPositionCard({ analysis }: MarketPositionCardProps) {
+export function MarketPositionCard({ analysis, currency = 'EUR' }: MarketPositionCardProps) {
   const percentDiff = Math.abs(analysis.percentageDifference);
   const isHigher = analysis.percentageDifference > 0;
 
@@ -44,14 +46,14 @@ export function MarketPositionCard({ analysis }: MarketPositionCardProps) {
             <div>
               <p className="text-sm text-slate-600 dark:text-slate-400">Your Current Price</p>
               <p className="text-3xl font-bold text-slate-900 dark:text-white">
-                €{analysis.hostPrice.toFixed(2)}/night
+                {formatCurrency(analysis.hostPrice, currency)}/night
               </p>
             </div>
 
             <div>
               <p className="text-sm text-slate-600 dark:text-slate-400">Market Average</p>
               <p className="text-2xl font-bold text-slate-700 dark:text-slate-200">
-                €{analysis.marketAveragePrice.toFixed(2)}/night
+                {formatCurrency(analysis.marketAveragePrice, currency)}/night
               </p>
             </div>
 
@@ -81,7 +83,7 @@ export function MarketPositionCard({ analysis }: MarketPositionCardProps) {
             <div>
               <p className="text-sm text-slate-600 dark:text-slate-400">Market Range</p>
               <p className="text-sm text-slate-900 dark:text-white font-medium">
-                €{analysis.marketRange.min.toFixed(2)} - €{analysis.marketRange.max.toFixed(2)}
+                {formatCurrency(analysis.marketRange.min, currency)} - {formatCurrency(analysis.marketRange.max, currency)}
               </p>
             </div>
 

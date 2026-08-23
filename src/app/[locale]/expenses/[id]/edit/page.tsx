@@ -12,6 +12,7 @@ import { Label } from '@/components/common/ui/label'
 import { Textarea } from '@/components/common/ui/textarea'
 import { Alert, AlertDescription } from '@/components/common/ui/alert'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/common/ui/select'
+import { CATEGORY_LABELS, CATEGORY_ORDER } from '@/lib/utils/expense-categories'
 import { toast } from 'sonner'
 import { Skeleton } from '@/components/common/ui/skeleton'
 
@@ -93,7 +94,7 @@ export default function EditExpensePage({
       if (updateError) throw updateError
 
       toast.success('Despesa atualizada com sucesso!')
-      router.push(`/expenses/${expenseId}`)
+      router.push(`/${locale}/expenses/${expenseId}`)
       router.refresh()
     } catch (err: unknown) {
       console.error('Erro ao atualizar despesa:', err)
@@ -149,7 +150,7 @@ export default function EditExpensePage({
     <AuthLayout>
       <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Link
-          href={expenseId ? `/expenses/${expenseId}` : '/expenses'}
+          href={expenseId ? `/${locale}/expenses/${expenseId}` : `/${locale}/expenses`}
           className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -209,17 +210,9 @@ export default function EditExpensePage({
                     <SelectValue placeholder="Selecione..." />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="cleaning">Limpeza</SelectItem>
-                    <SelectItem value="maintenance">Manutenção</SelectItem>
-                    <SelectItem value="utilities">Utilidades (água, luz, gás)</SelectItem>
-                    <SelectItem value="taxes">Impostos</SelectItem>
-                    <SelectItem value="insurance">Seguros</SelectItem>
-                    <SelectItem value="supplies">Suprimentos</SelectItem>
-                    <SelectItem value="repairs">Reparos</SelectItem>
-                    <SelectItem value="marketing">Marketing</SelectItem>
-                    <SelectItem value="management">Gestão</SelectItem>
-                    <SelectItem value="mortgage">Hipoteca</SelectItem>
-                    <SelectItem value="other">Outros</SelectItem>
+                    {CATEGORY_ORDER.map(value => (
+                      <SelectItem key={value} value={value}>{CATEGORY_LABELS[value]}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>

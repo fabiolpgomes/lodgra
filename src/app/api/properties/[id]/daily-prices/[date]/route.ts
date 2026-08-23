@@ -4,21 +4,10 @@
  */
 
 import { createAdminClient } from '@/lib/supabase/admin';
+import { requirePropertyAccess } from '@/lib/auth/requirePropertyAccess'
 import { revalidatePath } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
 import { ApiResponse } from '@/types/pricing.types';
-
-async function validatePropertyOwnership(propertyId: string, userId: string): Promise<boolean> {
-  const supabase = await createAdminClient();
-  const { data } = await supabase
-    .from('properties')
-    .select('id')
-    .eq('id', propertyId)
-    .eq('owner_id', userId)
-    .single();
-
-  return !!data;
-}
 
 // DELETE /api/properties/:id/daily-prices/:date
 export async function DELETE(
@@ -27,25 +16,10 @@ export async function DELETE(
 ): Promise<NextResponse<ApiResponse>> {
   const { id, date } = await params;
   try {
+    const access = await requirePropertyAccess(id, ['admin', 'gestor', 'owner'])
+    if (!access.authorized) return access.response
+
     const supabase = await createAdminClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
-    const isOwner = await validatePropertyOwnership(id, user.id);
-    if (!isOwner) {
-      return NextResponse.json(
-        { success: false, error: 'Forbidden' },
-        { status: 403 }
-      );
-    }
 
     const { data: property, error: propertyError } = await supabase
       .from('properties')
@@ -69,7 +43,7 @@ export async function DELETE(
     }
 
     const { error } = await supabase
-      .from('property_daily_prices')
+      .from('daily_prices')
       .delete()
       .eq('property_id', id)
       .eq('date', date);

@@ -8,6 +8,7 @@
 import React, { useState } from 'react';
 import { PriceHistory } from '@/types/pricing.types';
 import { formatPrice, formatDate } from '@/lib/pricing/price-history-calculator';
+import type { CurrencyCode } from '@/lib/utils/currency';
 
 interface RevertModalProps {
   isOpen: boolean;
@@ -16,6 +17,7 @@ interface RevertModalProps {
   onConfirm: (recordId: string, reason?: string) => Promise<void>;
   onCancel: () => void;
   loading?: boolean;
+  currency?: CurrencyCode;
 }
 
 /**
@@ -28,6 +30,7 @@ export function RevertModal({
   onConfirm,
   onCancel,
   loading = false,
+  currency = 'EUR',
 }: RevertModalProps) {
   const [reason, setReason] = useState<string>('');
   const [submitting, setSubmitting] = useState(false);
@@ -80,7 +83,7 @@ export function RevertModal({
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <p className="text-sm font-medium text-blue-900">Current Price</p>
               <p className="text-2xl font-bold text-blue-700 mt-1">
-                {formatPrice(currentPrice)}
+                {formatPrice(currentPrice, currency)}
               </p>
             </div>
 
@@ -88,7 +91,7 @@ export function RevertModal({
             <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
               <p className="text-sm font-medium text-emerald-900">Revert To</p>
               <p className="text-2xl font-bold text-emerald-800 mt-1">
-                {formatPrice(record.price)}
+                {formatPrice(record.price, currency)}
               </p>
               <p className="text-xs text-emerald-700 mt-2">
                 From {formatDate(record.date_applied)}
@@ -103,7 +106,7 @@ export function RevertModal({
                   priceChange > 0 ? 'text-red-600' : 'text-emerald-700'
                 }`}
               >
-                {priceChange > 0 ? '+' : ''}{formatPrice(Math.abs(priceChange))} ({priceChange > 0 ? '+' : ''}{percentageChange}%)
+                {priceChange > 0 ? '+' : ''}{formatPrice(Math.abs(priceChange), currency)} ({priceChange > 0 ? '+' : ''}{percentageChange}%)
               </p>
             </div>
 

@@ -8,12 +8,14 @@
 import React, { useState } from 'react';
 import { PriceHistory } from '@/types/pricing.types';
 import { formatPrice, formatDate } from '@/lib/pricing/price-history-calculator';
+import type { CurrencyCode } from '@/lib/utils/currency';
 
 interface PriceHistoryTimelineProps {
   history: PriceHistory[];
   loading?: boolean;
   onLoadMore?: () => void;
   hasMore?: boolean;
+  currency?: CurrencyCode;
 }
 
 /**
@@ -24,6 +26,7 @@ export function PriceHistoryTimeline({
   loading = false,
   onLoadMore,
   hasMore = false,
+  currency = 'EUR',
 }: PriceHistoryTimelineProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
@@ -92,7 +95,7 @@ export function PriceHistoryTimeline({
                     <div className="flex-1">
                       <div className="flex items-baseline gap-2">
                         <span className="text-lg font-semibold">
-                          {formatPrice(record.price)}
+                          {formatPrice(record.price, currency)}
                         </span>
                         {previousRecord && (
                           <span
@@ -100,7 +103,7 @@ export function PriceHistoryTimeline({
                               priceChange > 0 ? 'text-red-600' : 'text-emerald-700'
                             }`}
                           >
-                            {priceChange > 0 ? '+' : ''}{formatPrice(priceChange)} ({percentageChange}%)
+                            {priceChange > 0 ? '+' : ''}{formatPrice(priceChange, currency)} ({percentageChange}%)
                           </span>
                         )}
                       </div>
@@ -134,7 +137,7 @@ export function PriceHistoryTimeline({
                         <div>
                           <p className="text-sm text-gray-600">Previous Price:</p>
                           <p className="text-sm font-medium">
-                            {formatPrice(previousRecord.price)}
+                            {formatPrice(previousRecord.price, currency)}
                           </p>
                         </div>
                       )}

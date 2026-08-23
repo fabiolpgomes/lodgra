@@ -4,12 +4,14 @@ import React, { useState, useMemo } from 'react';
 import { Download, Filter, ArrowUpDown } from 'lucide-react';
 import { toast } from 'sonner';
 import { Competitor, CompetitorPriceHistory, MarketPositionAnalysis } from '@/types/competitor';
+import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency';
 
 interface BenchmarkReportProps {
   competitors: Competitor[];
   priceHistory: Record<string, CompetitorPriceHistory[]>;
   analysis: MarketPositionAnalysis;
   propertyName: string;
+  currency?: CurrencyCode;
 }
 
 type SortBy = 'name' | 'price' | 'change';
@@ -20,6 +22,7 @@ export function BenchmarkReport({
   priceHistory,
   analysis,
   propertyName,
+  currency = 'EUR',
 }: BenchmarkReportProps) {
   const [sortBy, setSortBy] = useState<SortBy>('name');
   const [dateRange, setDateRange] = useState<DateRange>('7');
@@ -90,8 +93,8 @@ export function BenchmarkReport({
         [
           'Competitor',
           'Platform',
-          'Current Price €',
-          '7-Day Change €',
+          'Current Price',
+          '7-Day Change',
           'Change %',
           'vs Market Avg',
           'Trend',
@@ -104,21 +107,21 @@ export function BenchmarkReport({
         rows.push([
           comp.competitorName,
           comp.platform,
-          currentPrice > 0 ? currentPrice.toFixed(2) : 'N/A',
-          comp.priceChange.toFixed(2),
+          currentPrice > 0 ? formatCurrency(currentPrice, currency) : 'N/A',
+          formatCurrency(comp.priceChange, currency),
           `${comp.percentageChange.toFixed(1)}%`,
-          `€${vsMarket.toFixed(2)}`,
+          formatCurrency(vsMarket, currency),
           comp.trend,
         ]);
       });
 
       rows.push([]);
       rows.push(['Market Summary']);
-      rows.push(['Average Price €', analysis.marketAveragePrice.toFixed(2)]);
-      rows.push(['Your Price €', analysis.hostPrice.toFixed(2)]);
+      rows.push(['Average Price', formatCurrency(analysis.marketAveragePrice, currency)]);
+      rows.push(['Your Price', formatCurrency(analysis.hostPrice, currency)]);
       rows.push(['Your Position', analysis.pricePosition.replace('_', ' ').charAt(0).toUpperCase() + analysis.pricePosition.replace('_', ' ').slice(1)]);
-      rows.push(['Market Range €', `€${analysis.marketRange.min.toFixed(2)} - €${analysis.marketRange.max.toFixed(2)}`]);
-      rows.push(['Volatility (Std Dev) €', marketVolatility.toFixed(2)]);
+      rows.push(['Market Range', `${formatCurrency(analysis.marketRange.min, currency)} - ${formatCurrency(analysis.marketRange.max, currency)}`]);
+      rows.push(['Volatility (Std Dev)', formatCurrency(marketVolatility, currency)]);
 
       const csv = rows.map((row) => row.map((cell) => `"${cell}"`).join(',')).join('\n');
       const blob = new Blob([csv], { type: 'text/csv' });
@@ -199,7 +202,7 @@ export function BenchmarkReport({
             Market Average
           </p>
           <p className="text-2xl font-bold text-slate-900 dark:text-white mt-2">
-            €{analysis.marketAveragePrice.toFixed(2)}
+            {formatCurrency(analysis.marketAveragePrice, currency)}
           </p>
         </div>
 
@@ -208,7 +211,7 @@ export function BenchmarkReport({
             Your Price
           </p>
           <p className="text-2xl font-bold text-slate-900 dark:text-white mt-2">
-            €{analysis.hostPrice.toFixed(2)}
+            {formatCurrency(analysis.hostPrice, currency)}
           </p>
         </div>
 
@@ -217,7 +220,7 @@ export function BenchmarkReport({
             Market Volatility
           </p>
           <p className="text-2xl font-bold text-slate-900 dark:text-white mt-2">
-            €{marketVolatility.toFixed(2)}
+            {formatCurrency(marketVolatility, currency)}
           </p>
         </div>
       </div>
@@ -262,17 +265,17 @@ export function BenchmarkReport({
                     {comp.platform}
                   </td>
                   <td className="px-4 py-3 text-right font-semibold text-slate-900 dark:text-white">
-                    €{currentPrice > 0 ? currentPrice.toFixed(2) : 'N/A'}
+                    {currentPrice > 0 ? formatCurrency(currentPrice, currency) : 'N/A'}
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div
                       className={`text-sm font-semibold ${comp.percentageChange > 0 ? 'text-red-600' : comp.percentageChange < 0 ? 'text-emerald-700' : 'text-slate-600 dark:text-slate-400'}`}
                     >
-                      €{comp.priceChange.toFixed(2)} ({comp.percentageChange.toFixed(1)}%)
+                      {formatCurrency(comp.priceChange, currency)} ({comp.percentageChange.toFixed(1)}%)
                     </div>
                   </td>
                   <td className={`px-4 py-3 text-right text-sm font-semibold ${vsMarketColor}`}>
-                    €{vsMarket.toFixed(2)}
+                    {formatCurrency(vsMarket, currency)}
                   </td>
                   <td className="px-4 py-3 text-center">
                     <span
@@ -302,14 +305,14 @@ export function BenchmarkReport({
         </p>
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 text-sm text-blue-800 dark:text-blue-300">
           <div>
-            <span className="font-medium">Min:</span> €{analysis.marketRange.min.toFixed(2)}
+            <span className="font-medium">Min:</span> {formatCurrency(analysis.marketRange.min, currency)}
           </div>
           <div>
-            <span className="font-medium">Max:</span> €{analysis.marketRange.max.toFixed(2)}
+            <span className="font-medium">Max:</span> {formatCurrency(analysis.marketRange.max, currency)}
           </div>
           <div>
-            <span className="font-medium">Range:</span> €
-            {(analysis.marketRange.max - analysis.marketRange.min).toFixed(2)}
+            <span className="font-medium">Range:</span>{' '}
+            {formatCurrency(analysis.marketRange.max - analysis.marketRange.min, currency)}
           </div>
         </div>
       </div>

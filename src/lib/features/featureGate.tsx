@@ -96,13 +96,21 @@ export function FeatureGate({
  * @param orgId Organization ID
  * @returns { hasAccess, loading, plan, error }
  */
-export function useFeatureAccess(feature: FeatureName, orgId: string) {
+export function useFeatureAccess(feature: FeatureName, orgId?: string | null) {
   const [hasAccess, setHasAccess] = useState<boolean | null>(null)
   const [loading, setLoading] = useState(true)
   const [plan, setPlan] = useState<string>('essencial')
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    if (!orgId) {
+      setHasAccess(false)
+      setLoading(false)
+      setPlan('essencial')
+      setError(null)
+      return
+    }
+
     const checkAccess = async () => {
       try {
         setLoading(true)

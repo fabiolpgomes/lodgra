@@ -5,6 +5,7 @@
  */
 
 import { createAdminClient } from '@/lib/supabase/admin';
+import { requirePropertyAccess } from '@/lib/auth/requirePropertyAccess';
 import { NextRequest, NextResponse } from 'next/server';
 import {
   ApiResponse,
@@ -14,18 +15,6 @@ import {
 } from '@/types/pricing.types';
 
 
-async function validatePropertyOwnership(propertyId: string, userId: string): Promise<boolean> {
-  const supabase = await createAdminClient();
-  const { data } = await supabase
-    .from('properties')
-    .select('id')
-    .eq('id', propertyId)
-    .eq('owner_id', userId)
-    .single();
-
-  return !!data;
-}
-
 // GET /api/properties/:id/price-history?page=1&limit=50
 export async function GET(
   req: NextRequest,
@@ -34,24 +23,10 @@ export async function GET(
   const { id } = await params;
 
   try {
-    const supabase = await createAdminClient();const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const access = await requirePropertyAccess(id, ['admin', 'gestor', 'owner', 'viewer'])
+    if (!access.authorized) return access.response
 
-    if (!user) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
-    const isOwner = await validatePropertyOwnership(id, user.id);
-    if (!isOwner) {
-      return NextResponse.json(
-        { success: false, error: 'Forbidden' },
-        { status: 403 }
-      );
-    }
+    const supabase = await createAdminClient()
 
     // Get pagination params
     const searchParams = req.nextUrl.searchParams;
@@ -107,24 +82,10 @@ export async function POST(
   const { id } = await params;
 
   try {
-    const supabase = await createAdminClient();const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const access = await requirePropertyAccess(id, ['admin', 'gestor', 'owner'])
+    if (!access.authorized) return access.response
 
-    if (!user) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
-    const isOwner = await validatePropertyOwnership(id, user.id);
-    if (!isOwner) {
-      return NextResponse.json(
-        { success: false, error: 'Forbidden' },
-        { status: 403 }
-      );
-    }
+    const supabase = await createAdminClient()
 
     const filters: HistoryFiltersPayload = await req.json();
     const page = Math.max(1, filters.page || 1);

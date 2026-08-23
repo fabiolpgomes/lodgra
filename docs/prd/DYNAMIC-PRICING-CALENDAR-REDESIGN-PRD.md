@@ -73,10 +73,10 @@ Implement database schema and API endpoints for pricing configuration (basic pri
   - preparation_days (default 0)
   - created_at, updated_at
 
-- [ ] Create table `property_daily_prices`:
+- [ ] Create table `daily_prices`:
   - property_id (FK)
   - date (YYYY-MM-DD)
-  - price (EUR, overrides base_price)
+  - base_price (EUR, overrides base_price)
   - created_at, updated_at
   - Unique constraint (property_id, date)
 
@@ -165,7 +165,7 @@ Build calendar grid (7x4 or 7x5 for month view) with editable daily prices. Tap 
   - Header: Month name + navigation (◄ ►) to previous/next month
   - Grid: 7 columns (Sun-Sat), rows per month
   - Each cell: Day number + Price (EUR)
-  - Price fetched from property_prices.base_price OR property_daily_prices (override)
+  - Price fetched from property_prices.base_price OR daily_prices (override)
 
 - [ ] Tap any day cell → Modal/Bottom sheet with:
   - Day label (e.g., "Friday, July 21")
@@ -174,8 +174,8 @@ Build calendar grid (7x4 or 7x5 for month view) with editable daily prices. Tap 
   - Close button (X)
 
 - [ ] On save:
-  - If price = base_price, delete from property_daily_prices
-  - If price ≠ base_price, insert/update property_daily_prices
+  - If price = base_price, delete from daily_prices
+  - If price ≠ base_price, insert/update daily_prices
   - Grid updates immediately (optimistic UI)
 
 - [ ] Visual indicators:
@@ -213,7 +213,7 @@ Implement pricing calculation engine that applies discounts based on stay durati
   
 - [ ] Logic:
   - Calculate total nights = checkOutDate - checkInDate
-  - Fetch base_price (or daily overrides from property_daily_prices)
+  - Fetch base_price (or daily overrides from daily_prices)
   - Fetch applicable discounts:
     - If nights >= 7: Apply weekly discount (7+ nights rule)
     - If nights >= 28: Apply monthly discount (28+ nights rule)
@@ -693,12 +693,12 @@ CREATE TABLE property_availability (
   UNIQUE(property_id)
 );
 
--- property_daily_prices
-CREATE TABLE property_daily_prices (
+-- daily_prices
+CREATE TABLE daily_prices (
   id UUID PRIMARY KEY,
   property_id UUID NOT NULL REFERENCES properties(id),
   date DATE NOT NULL,
-  price DECIMAL(10,2) NOT NULL,
+  base_price DECIMAL(10,2) NOT NULL,
   created_at TIMESTAMP,
   updated_at TIMESTAMP,
   UNIQUE(property_id, date)
@@ -840,4 +840,3 @@ CREATE TABLE property_daily_prices (
 **Status:** Ready for @sm story creation  
 **Approvals Pending:** @po (Story validation)  
 **Target Sprint Start:** 2026-07-28
-

@@ -178,7 +178,7 @@ property_availability
 ├─ advance_notice_days
 ├─ preparation_days
 
-property_daily_prices
+daily_prices
 ├─ date (YYYY-MM-DD)
 ├─ price (override)
 └─ UNIQUE(property_id, date)
@@ -317,4 +317,3 @@ This epic follows Airbnb's proven patterns:
 ---
 
 **Next Action:** Pass to @po for 10-point validation checklist.
-

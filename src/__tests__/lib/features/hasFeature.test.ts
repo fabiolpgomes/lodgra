@@ -25,6 +25,7 @@ describe('Feature Gating System', () => {
       expect(FEATURE_MATRIX).toHaveProperty('advanced_reports')
       expect(FEATURE_MATRIX).toHaveProperty('api_access')
       expect(FEATURE_MATRIX).toHaveProperty('forecast_bi')
+      expect(FEATURE_MATRIX).toHaveProperty('property_intelligence')
     })
 
     test('cleaner_portal should include expansao and premium', () => {
@@ -36,6 +37,12 @@ describe('Feature Gating System', () => {
       expect(FEATURE_MATRIX.api_access).toContain('premium')
       expect(FEATURE_MATRIX.api_access).not.toContain('expansao')
       expect(FEATURE_MATRIX.api_access).not.toContain('essencial')
+    })
+
+    test('property_intelligence should include premium and enterprise', () => {
+      expect(FEATURE_MATRIX.property_intelligence).toContain('premium')
+      expect(FEATURE_MATRIX.property_intelligence).toContain('enterprise')
+      expect(FEATURE_MATRIX.property_intelligence).not.toContain('expansao')
     })
   })
 
@@ -64,6 +71,11 @@ describe('Feature Gating System', () => {
 
     test('should NOT have access to forecast_bi', async () => {
       const result = await hasFeature('essencial-org', 'forecast_bi')
+      expect(result).toBe(false)
+    })
+
+    test('should NOT have access to property_intelligence', async () => {
+      const result = await hasFeature('essencial-org', 'property_intelligence')
       expect(result).toBe(false)
     })
   })
@@ -95,6 +107,11 @@ describe('Feature Gating System', () => {
       const result = await hasFeature('expansao-org', 'forecast_bi')
       expect(result).toBe(false)
     })
+
+    test('should NOT have access to property_intelligence', async () => {
+      const result = await hasFeature('expansao-org', 'property_intelligence')
+      expect(result).toBe(false)
+    })
   })
 
   describe('hasFeature - Premium plan', () => {
@@ -110,6 +127,7 @@ describe('Feature Gating System', () => {
       expect(await hasFeature('premium-org', 'advanced_reports')).toBe(true)
       expect(await hasFeature('premium-org', 'api_access')).toBe(true)
       expect(await hasFeature('premium-org', 'forecast_bi')).toBe(true)
+      expect(await hasFeature('premium-org', 'property_intelligence')).toBe(true)
     })
   })
 
@@ -177,6 +195,7 @@ describe('Feature Gating System', () => {
       expect(features).toContain('advanced_reports')
       expect(features).toContain('api_access')
       expect(features).toContain('forecast_bi')
+      expect(features).toContain('property_intelligence')
     })
   })
 

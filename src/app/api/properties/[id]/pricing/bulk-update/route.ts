@@ -3,7 +3,8 @@
  * POST /api/properties/:id/pricing/bulk-update
  */
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
+import { requirePropertyAccess } from '@/lib/auth/requirePropertyAccess'
 import { revalidatePath } from 'next/cache'
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -14,46 +15,9 @@ export async function POST(
   const { id: propertyId } = await params
 
   try {
-    const supabase = await createClient()
-
-    // Get current user from session
-    const { data: { user }, error: userError } = await supabase.auth.getUser()
-
-    if (userError || !user) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      )
-    }
-
-    // Verify ownership via owners table JOIN
-    const { data: property, error: propertyError } = await supabase
-      .from('properties')
-      .select('id, slug, owner_id, owners(id, user_id)')
-      .eq('id', propertyId)
-      .single()
-
-    if (propertyError || !property) {
-      return NextResponse.json(
-        { success: false, error: 'Property not found' },
-        { status: 404 }
-      )
-    }
-
-    // Verify user owns property by checking owners.user_id
-    const owners = Array.isArray(property.owners) ? property.owners[0] : property.owners
-    if (owners?.user_id !== user.id) {
-      console.error('[bulk-update /pricing] Ownership check failed:', {
-        ownerUserId: owners?.user_id,
-        userId: user.id,
-        match: owners?.user_id === user.id,
-        propertyId
-      })
-      return NextResponse.json(
-        { success: false, error: 'Forbidden' },
-        { status: 403 }
-      )
-    }
+    const access = await requirePropertyAccess(propertyId, ['admin', 'gestor', 'owner'])
+    if (!access.authorized) return access.response
+    const admin = createAdminClient()
 
     const body = await request.json()
     const { startDate, endDate, price, dates, base_price } = body
@@ -116,7 +80,7 @@ export async function POST(
       lastDate: datesArray[datesArray.length - 1],
     })
 
-    const { data, error } = await supabase
+    const { data, error } = await admin
       .from('daily_prices')
       .upsert(datesArray.map(date => ({
         property_id: propertyId,
@@ -142,8 +106,10 @@ export async function POST(
     console.log('✅ Upsert successful:', { upserted: data?.length || 0 })
 
     // Keep the public pages in sync with the updated calendar prices.
-    revalidatePath(`/p/${property.slug}`)
-    revalidatePath(`/p/${property.slug}/checkout`)
+    if (access.property.slug) {
+      revalidatePath(`/p/${access.property.slug}`)
+      revalidatePath(`/p/${access.property.slug}/checkout`)
+    }
     revalidatePath('/booking')
 
     return NextResponse.json({

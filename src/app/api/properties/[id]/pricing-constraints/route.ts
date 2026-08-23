@@ -4,22 +4,10 @@
  */
 
 import { createAdminClient } from '@/lib/supabase/admin';
+import { requirePropertyAccess } from '@/lib/auth/requirePropertyAccess';
 import { NextRequest, NextResponse } from 'next/server';
 import { ApiResponse, PricingConstraintsPayload, PropertyPricingConstraints } from '@/types/pricing.types';
 import { PricingCalculator } from '@/lib/pricing/pricing-calculator';
-
-
-async function validatePropertyOwnership(propertyId: string, userId: string): Promise<boolean> {
-  const supabase = await createAdminClient();
-  const { data } = await supabase
-    .from('properties')
-    .select('id')
-    .eq('id', propertyId)
-    .eq('owner_id', userId)
-    .single();
-
-  return !!data;
-}
 
 // GET /api/properties/:id/pricing-constraints
 export async function GET(
@@ -28,24 +16,9 @@ export async function GET(
 ): Promise<NextResponse<ApiResponse>> {
   const { id } = await params;
   try {
-    const supabase = await createAdminClient();const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
-    const isOwner = await validatePropertyOwnership(id, user.id);
-    if (!isOwner) {
-      return NextResponse.json(
-        { success: false, error: 'Forbidden' },
-        { status: 403 }
-      );
-    }
+    const access = await requirePropertyAccess(id, ['admin', 'gestor', 'owner', 'viewer']);
+    if (!access.authorized) return access.response;
+    const supabase = createAdminClient();
 
     const { data, error } = await supabase
       .from('property_prices')
@@ -83,24 +56,9 @@ export async function POST(
 ): Promise<NextResponse<ApiResponse>> {
   const { id } = await params;
   try {
-    const supabase = await createAdminClient();const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
-    const isOwner = await validatePropertyOwnership(id, user.id);
-    if (!isOwner) {
-      return NextResponse.json(
-        { success: false, error: 'Forbidden' },
-        { status: 403 }
-      );
-    }
+    const access = await requirePropertyAccess(id, ['admin', 'gestor', 'owner']);
+    if (!access.authorized) return access.response;
+    const supabase = createAdminClient();
 
     const body: PricingConstraintsPayload = await req.json();
 

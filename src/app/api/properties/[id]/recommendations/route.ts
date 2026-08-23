@@ -4,24 +4,13 @@
  */
 
 import { createAdminClient } from '@/lib/supabase/admin';
+import { requirePropertyAccess } from '@/lib/auth/requirePropertyAccess';
 import { RecommendationEngine } from '@/lib/pricing/recommendation-engine';
 import { MarketBenchmarkService } from '@/lib/pricing/market-benchmark';
 import { NextRequest, NextResponse } from 'next/server';
 import type { ApiResponse, PriceRecommendation } from '@/types/pricing.types';
 import type { PriceHistory } from '@/types/pricing.types';
 
-
-async function validatePropertyOwnership(propertyId: string, userId: string): Promise<boolean> {
-  const supabase = await createAdminClient();
-  const { data } = await supabase
-    .from('properties')
-    .select('id')
-    .eq('id', propertyId)
-    .eq('owner_id', userId)
-    .single();
-
-  return !!data;
-}
 
 async function getPropertyDetails(propertyId: string) {
   const supabase = await createAdminClient();
@@ -35,8 +24,7 @@ async function getPropertyDetails(propertyId: string) {
       bedrooms,
       bathrooms,
       amenities,
-      region_id,
-      owner_id
+      region_id
     `
     )
     .eq('id', propertyId)
@@ -79,19 +67,9 @@ export async function GET(
   const { id } = await params;
 
   try {
+    const access = await requirePropertyAccess(id, ['admin', 'gestor', 'owner', 'viewer'])
+    if (!access.authorized) return access.response
     const supabase = await createAdminClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const isOwner = await validatePropertyOwnership(id, user.id);
-    if (!isOwner) {
-      return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
-    }
 
     // Get property details
     const property = await getPropertyDetails(id);

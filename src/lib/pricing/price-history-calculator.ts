@@ -8,6 +8,7 @@ import {
   PriceStatistics,
   RevenueImpactAnalysis,
 } from '@/types/pricing.types';
+import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency';
 
 /**
  * Calculate price statistics from price history
@@ -148,12 +149,7 @@ export function detectSignificantPriceChanges(
  * @returns Formatted price string
  */
 export function formatPrice(price: number, currency: string = 'EUR'): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency,
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(price);
+  return formatCurrency(price, currency as CurrencyCode);
 }
 
 /**

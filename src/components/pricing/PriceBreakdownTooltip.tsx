@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
 
 interface PriceBreakdownData {
   base_price: number
@@ -33,6 +34,7 @@ interface PriceBreakdownData {
 
 interface PriceBreakdownTooltipProps {
   base_price: number
+  currency?: CurrencyCode
   check_in?: string // ISO date
   check_out?: string // ISO date
   guest_id?: string // Current logged-in user
@@ -42,6 +44,7 @@ interface PriceBreakdownTooltipProps {
 
 export function PriceBreakdownTooltip({
   base_price,
+  currency = 'EUR',
   check_in,
   check_out,
   guest_id,
@@ -205,14 +208,14 @@ export function PriceBreakdownTooltip({
               {/* Base Price */}
               <div className="flex justify-between font-semibold text-gray-900">
                 <span>Preço Base</span>
-                <span>€{breakdown.base_price.toFixed(2)}</span>
+                <span>{formatCurrency(breakdown.base_price, currency)}</span>
               </div>
 
               {/* Loyalty Discount */}
               {breakdown.loyalty_discount_amount > 0 && (
                 <div className="flex justify-between text-gray-700">
                   <span>- Desconto Fidelidade</span>
-                  <span>-€{breakdown.loyalty_discount_amount.toFixed(2)}</span>
+                  <span>-{formatCurrency(breakdown.loyalty_discount_amount, currency)}</span>
                 </div>
               )}
 
@@ -220,7 +223,7 @@ export function PriceBreakdownTooltip({
               {breakdown.early_bird_discount.applied && (
                 <div className="flex justify-between text-gray-700">
                   <span>- Desconto Antecipado</span>
-                  <span>-€{breakdown.early_bird_discount.amount.toFixed(2)}</span>
+                  <span>-{formatCurrency(breakdown.early_bird_discount.amount, currency)}</span>
                 </div>
               )}
 
@@ -228,7 +231,7 @@ export function PriceBreakdownTooltip({
               {breakdown.extended_stay_discount.applied && (
                 <div className="flex justify-between text-gray-700">
                   <span>- Estadia Estendida</span>
-                  <span>-€{breakdown.extended_stay_discount.amount.toFixed(2)}</span>
+                  <span>-{formatCurrency(breakdown.extended_stay_discount.amount, currency)}</span>
                 </div>
               )}
 
@@ -236,7 +239,7 @@ export function PriceBreakdownTooltip({
               {breakdown.last_minute_discount.applied && (
                 <div className="flex justify-between text-gray-700">
                   <span>- Last-Minute</span>
-                  <span>-€{breakdown.last_minute_discount.amount.toFixed(2)}</span>
+                  <span>-{formatCurrency(breakdown.last_minute_discount.amount, currency)}</span>
                 </div>
               )}
 
@@ -248,8 +251,8 @@ export function PriceBreakdownTooltip({
                     Ajuste Sazonal
                   </span>
                   <span>
-                    {breakdown.seasonal_adjustment.amount > 0 ? '+' : ''}
-                    €{Math.abs(breakdown.seasonal_adjustment.amount).toFixed(2)}
+                    {breakdown.seasonal_adjustment.amount > 0 ? '+' : '-'}
+                    {formatCurrency(Math.abs(breakdown.seasonal_adjustment.amount), currency)}
                   </span>
                 </div>
               )}
@@ -261,14 +264,14 @@ export function PriceBreakdownTooltip({
               {breakdown.total_discounts_amount > 0 && (
                 <div className="flex justify-between text-gray-700 text-xs">
                   <span>Desconto Total</span>
-                  <span>-€{breakdown.total_discounts_amount.toFixed(2)}</span>
+                  <span>-{formatCurrency(breakdown.total_discounts_amount, currency)}</span>
                 </div>
               )}
 
               {/* Final Price */}
               <div className="flex justify-between font-bold text-lg text-emerald-700">
                 <span>Preço Final</span>
-                <span>€{breakdown.final_price.toFixed(2)}</span>
+                <span>{formatCurrency(breakdown.final_price, currency)}</span>
               </div>
 
               {/* Hidden for screen readers */}

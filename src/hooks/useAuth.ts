@@ -14,6 +14,7 @@ export interface UserProfile {
   role: UserRole
   avatar_url: string | null
   access_all_properties: boolean
+  organization_id?: string | null
   phone_number?: string | null
   accepts_whatsapp?: boolean
 }
@@ -31,16 +32,21 @@ export function useAuth() {
         setUser(user)
 
         if (user) {
-          const { data: rpcData } = await supabase.rpc('get_my_profile')
-          if (rpcData && rpcData.length > 0) {
-            const row = rpcData[0]
+          const { data: profileRow } = await supabase
+            .from('user_profiles')
+            .select('full_name, role, avatar_url, access_all_properties, organization_id')
+            .eq('id', user.id)
+            .maybeSingle()
+
+          if (profileRow) {
             setProfile({
               id: user.id,
               email: user.email ?? '',
-              full_name: null,
-              role: row.role as UserRole,
-              avatar_url: null,
-              access_all_properties: row.access_all_properties,
+              full_name: profileRow.full_name,
+              role: profileRow.role as UserRole,
+              avatar_url: profileRow.avatar_url,
+              access_all_properties: profileRow.access_all_properties,
+              organization_id: profileRow.organization_id ?? null,
             })
           }
         }

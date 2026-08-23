@@ -9,6 +9,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Manual Reservation Validation Fix
+
+**Production Fix: Manual reservations now calculate and submit correctly**
+- **Issue:** The manual reservation form was blocking creation with `Preço por noite: 0.00`, `Disponibilidade: Indisponível` and `Política: Não configurada` even when the property had valid pricing in the calendar.
+- **Root Cause:** The reservation validator was reading pricing data through a restricted client and treating calendar blocks as a hard conflict for manual admin reservations.
+- **Fix:**
+  - Switched the reservation validator to the admin Supabase client so it can read `property_prices`, `pricing_rules` and `daily_prices` consistently.
+  - Kept real reservation overlap checks intact, but stopped using `calendar_blocks` as a hard blocker in the manual reservation flow.
+  - Added regression coverage for pricing fallback and calendar-block behavior.
+- **Validation:**
+  - Manual reservation creation confirmed working in production on `www.lodgra.io`
+  - `npm run lint` PASS
+  - `npm run typecheck` PASS
+  - `npm test` PASS
+- **Files Modified:**
+  - `src/lib/reservations/reservation-validator.ts`
+  - `src/__tests__/lib/reservation-validator.test.ts`
+  - `src/__tests__/api/daily-prices-bulk-revalidate.test.ts`
+  - `src/__tests__/api/pricing-route-revalidate.test.ts`
+
 ### Design System Color Migration — Green to Emerald
 
 **Refactoring: Complete Design System Alignment**

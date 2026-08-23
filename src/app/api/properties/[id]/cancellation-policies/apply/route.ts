@@ -1,4 +1,5 @@
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
+import { requirePropertyAccess } from '@/lib/auth/requirePropertyAccess'
 import { NextRequest, NextResponse } from 'next/server'
 
 interface ApplyPolicyBody {
@@ -18,19 +19,9 @@ export async function POST(
   const { id: propertyId } = await params
 
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
-
-    const { data: property } = await supabase
-      .from('properties')
-      .select('id, owner_id, owners(id, user_id)')
-      .eq('id', propertyId)
-      .single()
-    const owners = Array.isArray(property?.owners) ? property?.owners[0] : property?.owners
-    if (!property || owners?.user_id !== user.id) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 403 })
-    }
+    const access = await requirePropertyAccess(propertyId, ['admin', 'gestor', 'owner'])
+    if (!access.authorized) return access.response
+    const admin = createAdminClient()
 
     const body = await request.json() as Partial<ApplyPolicyBody>
     if (!body.policyId || !isDate(body.startDate) || !isDate(body.endDate) || body.startDate > body.endDate) {
@@ -40,7 +31,7 @@ export async function POST(
       )
     }
 
-    const { data: policy } = await supabase
+    const { data: policy } = await admin
       .from('property_cancellation_policies')
       .select('id')
       .eq('id', body.policyId)
@@ -51,7 +42,7 @@ export async function POST(
 
     // Replace overlapping overrides so one calendar date cannot resolve to
     // multiple cancellation policies.
-    const { error: deleteError } = await supabase
+    const { error: deleteError } = await admin
       .from('property_cancellation_policy_periods')
       .delete()
       .eq('property_id', propertyId)
@@ -59,7 +50,7 @@ export async function POST(
       .gte('end_date', body.startDate)
     if (deleteError) throw deleteError
 
-    const { data: assignment, error: insertError } = await supabase
+    const { data: assignment, error: insertError } = await admin
       .from('property_cancellation_policy_periods')
       .insert({
         property_id: propertyId,

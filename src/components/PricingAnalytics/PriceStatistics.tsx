@@ -8,10 +8,12 @@
 import React from 'react';
 import { PriceStatistics } from '@/types/pricing.types';
 import { formatPrice } from '@/lib/pricing/price-history-calculator';
+import type { CurrencyCode } from '@/lib/utils/currency';
 
 interface PriceStatisticsProps {
   stats: PriceStatistics | null;
   loading?: boolean;
+  currency?: CurrencyCode;
 }
 
 /**
@@ -20,6 +22,7 @@ interface PriceStatisticsProps {
 export function PriceStatisticsComponent({
   stats,
   loading = false,
+  currency = 'EUR',
 }: PriceStatisticsProps) {
   if (loading) {
     return (
@@ -47,19 +50,19 @@ export function PriceStatisticsComponent({
   const cards = [
     {
       label: 'Minimum Price',
-      value: formatPrice(stats.minPrice),
+      value: formatPrice(stats.minPrice, currency),
       icon: '📉',
       color: 'text-emerald-700',
     },
     {
       label: 'Maximum Price',
-      value: formatPrice(stats.maxPrice),
+      value: formatPrice(stats.maxPrice, currency),
       icon: '📈',
       color: 'text-red-600',
     },
     {
       label: 'Average Price',
-      value: formatPrice(stats.avgPrice),
+      value: formatPrice(stats.avgPrice, currency),
       icon: '📊',
       color: 'text-blue-600',
     },
@@ -98,7 +101,7 @@ export function PriceStatisticsComponent({
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <p className="text-sm font-medium text-blue-900">Price Volatility (Std Dev)</p>
           <p className="text-lg font-bold text-blue-700 mt-1">
-            {formatPrice(stats.stdDeviation)}
+            {formatPrice(stats.stdDeviation, currency)}
           </p>
           <p className="text-xs text-blue-600 mt-2">
             Measures how much prices vary from the average

@@ -4,24 +4,13 @@
  */
 
 import { createAdminClient } from '@/lib/supabase/admin';
+import { requirePropertyAccess } from '@/lib/auth/requirePropertyAccess';
 import { NextRequest, NextResponse } from 'next/server';
 import type { ApiResponse } from '@/types/pricing.types';
 
 
 interface AcceptPayload {
   applyImmediately?: boolean;
-}
-
-async function validatePropertyOwnership(propertyId: string, userId: string): Promise<boolean> {
-  const supabase = await createAdminClient();
-  const { data } = await supabase
-    .from('properties')
-    .select('id')
-    .eq('id', propertyId)
-    .eq('owner_id', userId)
-    .single();
-
-  return !!data;
 }
 
 async function getRecommendation(
@@ -49,18 +38,8 @@ export async function POST(
 
   try {
     const supabase = await createAdminClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const isOwner = await validatePropertyOwnership(id, user.id);
-    if (!isOwner) {
-      return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
-    }
+    const access = await requirePropertyAccess(id, ['admin', 'gestor', 'owner'])
+    if (!access.authorized) return access.response
 
     // Get the recommendation
     const recommendation = await getRecommendation(id, recommendationId);
@@ -110,7 +89,7 @@ export async function POST(
           property_id: id,
           price: recommendation.recommended_price,
           date_applied: new Date().toISOString().split('T')[0], // YYYY-MM-DD
-          changed_by: user.id,
+          changed_by: access.auth.userId,
           change_reason: 'AI recommendation accepted',
         },
       ]);

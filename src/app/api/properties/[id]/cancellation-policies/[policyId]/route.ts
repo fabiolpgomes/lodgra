@@ -4,7 +4,8 @@
  * DELETE: Remove policy
  */
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
+import { requirePropertyAccess } from '@/lib/auth/requirePropertyAccess'
 import { UpdateCancellationPolicyPayload } from '@/types/cancellation.types'
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -15,24 +16,13 @@ export async function PUT(
   const { id: propertyId, policyId } = await params
 
   try {
-    const supabase = await createClient()
     const body: UpdateCancellationPolicyPayload = await request.json()
-
-    // Verify ownership through the owner record. `properties.owner_id` points
-    // to `owners.id`, not directly to `auth.users.id`.
-    const { data: property } = await supabase
-      .from('properties')
-      .select('id, owner_id, owners(id, user_id)')
-      .eq('id', propertyId)
-      .single()
-
-    const owners = Array.isArray(property?.owners) ? property?.owners[0] : property?.owners
-    if (!property || owners?.user_id !== (await getAuthUserId(request))) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 403 })
-    }
+    const access = await requirePropertyAccess(propertyId, ['admin', 'gestor', 'owner'])
+    if (!access.authorized) return access.response
+    const admin = createAdminClient()
 
     // Verify policy belongs to property
-    const { data: policy } = await supabase
+    const { data: policy } = await admin
       .from('property_cancellation_policies')
       .select('*')
       .eq('id', policyId)
@@ -53,7 +43,7 @@ export async function PUT(
       updatePayload.non_refundable_discount_percent = body.non_refundable_discount_percent
     if (body.is_active !== undefined) updatePayload.is_active = body.is_active
 
-    const { data: updated, error } = await supabase
+    const { data: updated, error } = await admin
       .from('property_cancellation_policies')
       .update(updatePayload)
       .eq('id', policyId)
@@ -79,23 +69,12 @@ export async function DELETE(
   const { id: propertyId, policyId } = await params
 
   try {
-    const supabase = await createClient()
-
-    // Verify ownership through the owner record. `properties.owner_id` points
-    // to `owners.id`, not directly to `auth.users.id`.
-    const { data: property } = await supabase
-      .from('properties')
-      .select('id, owner_id, owners(id, user_id)')
-      .eq('id', propertyId)
-      .single()
-
-    const owners = Array.isArray(property?.owners) ? property?.owners[0] : property?.owners
-    if (!property || owners?.user_id !== (await getAuthUserId(request))) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 403 })
-    }
+    const access = await requirePropertyAccess(propertyId, ['admin', 'gestor', 'owner'])
+    if (!access.authorized) return access.response
+    const admin = createAdminClient()
 
     // Verify policy belongs to property
-    const { data: policy } = await supabase
+    const { data: policy } = await admin
       .from('property_cancellation_policies')
       .select('*')
       .eq('id', policyId)
@@ -107,7 +86,7 @@ export async function DELETE(
     }
 
     // Check if policy is used by active reservations
-    const { data: reservations } = await supabase
+    const { data: reservations } = await admin
       .from('reservations')
       .select('id')
       .eq('cancellation_policy_id', policyId)
@@ -122,7 +101,7 @@ export async function DELETE(
     }
 
     // Delete
-    const { error } = await supabase
+    const { error } = await admin
       .from('property_cancellation_policies')
       .delete()
       .eq('id', policyId)
@@ -137,10 +116,4 @@ export async function DELETE(
       { status: 500 }
     )
   }
-}
-
-async function getAuthUserId(request: NextRequest): Promise<string | null> {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  return user?.id || null
 }

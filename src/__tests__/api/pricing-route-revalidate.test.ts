@@ -1,10 +1,15 @@
 import { PUT } from '@/app/api/properties/[id]/pricing/route'
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
+import { requirePropertyAccess } from '@/lib/auth/requirePropertyAccess'
 import { createTestRequest } from '@/__tests__/utils/test-request'
 
-jest.mock('@/lib/supabase/server', () => ({
-  createClient: jest.fn(),
+jest.mock('@/lib/supabase/admin', () => ({
+  createAdminClient: jest.fn(),
+}))
+
+jest.mock('@/lib/auth/requirePropertyAccess', () => ({
+  requirePropertyAccess: jest.fn(),
 }))
 
 jest.mock('next/cache', () => ({
@@ -17,12 +22,6 @@ describe('PUT /api/properties/[id]/pricing revalidation', () => {
   beforeEach(() => {
     jest.clearAllMocks()
 
-    const propertyChain = {
-      select: jest.fn(() => propertyChain),
-      eq: jest.fn(() => propertyChain),
-      single: jest.fn(),
-    }
-
     const pricingChain = {
       select: jest.fn(() => pricingChain),
       eq: jest.fn(() => pricingChain),
@@ -32,37 +31,31 @@ describe('PUT /api/properties/[id]/pricing revalidation', () => {
     }
 
     mockSupabase = {
-      auth: {
-        getUser: jest.fn(),
-      },
       from: jest.fn((table: string) => {
-        if (table === 'properties') return propertyChain
         if (table === 'property_prices') return pricingChain
         return pricingChain
       }),
     }
 
-    ;(createClient as jest.Mock).mockResolvedValue(mockSupabase)
-
-    mockSupabase.auth.getUser.mockResolvedValue({
-      data: { user: { id: 'user-123' } },
-      error: null,
-    })
-
-    propertyChain.single.mockResolvedValue({
-      data: {
+    ;(createAdminClient as jest.Mock).mockReturnValue(mockSupabase)
+    ;(requirePropertyAccess as jest.Mock).mockResolvedValue({
+      authorized: true,
+      property: {
         id: 'prop-123',
         slug: 'test-property',
-        owner_id: 'user-123',
         currency: 'EUR',
-        owners: { user_id: 'user-123' },
+        organization_id: 'org-123',
       },
-      error: null,
+      auth: {
+        authorized: true,
+        organizationId: 'org-123',
+        role: 'admin',
+        user: { id: 'user-123', email: 'owner@example.com' },
+      },
     })
   })
 
   it('revalidates public pages when updating existing pricing', async () => {
-    const propertyChain = mockSupabase.from('properties')
     const pricingChain = mockSupabase.from('property_prices')
 
     pricingChain.single
@@ -95,7 +88,6 @@ describe('PUT /api/properties/[id]/pricing revalidation', () => {
     expect(revalidatePath).toHaveBeenCalledWith('/p/test-property/checkout')
     expect(revalidatePath).toHaveBeenCalledWith('/booking')
     expect(pricingChain.update).toHaveBeenCalled()
-    expect(propertyChain.single).toHaveBeenCalled()
   })
 
   it('revalidates public pages when creating new pricing', async () => {

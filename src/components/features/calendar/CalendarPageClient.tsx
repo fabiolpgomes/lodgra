@@ -44,6 +44,16 @@ interface ExistingEvent {
   title: string
 }
 
+type CalendarCancellationPayload = {
+  already_cancelled?: boolean
+  refund_info?: {
+    refund_amount: number
+    refund_percentage: number
+    stripe_refund_id: string | null
+    processed_at: string | null
+  }
+}
+
 function propertyColor(propertyId: string): string {
   let hash = 0
   for (let i = 0; i < propertyId.length; i++) {
@@ -111,6 +121,20 @@ export function CalendarPageClient() {
   const [dayMaxEvents, setDayMaxEvents] = useState(3)
   const [swipeActive, setSwipeActive] = useState(false)
   const [showMonthPicker, setShowMonthPicker] = useState(false)
+
+  const showCancellationSuccess = (payload: CalendarCancellationPayload | null) => {
+    if (payload?.refund_info) {
+      toast.success(`Reserva cancelada. Reembolso de €${payload.refund_info.refund_amount.toFixed(2)} pronto.`)
+      return
+    }
+
+    if (payload?.already_cancelled) {
+      toast.success('Reserva já estava cancelada.')
+      return
+    }
+
+    toast.success('Reserva cancelada')
+  }
 
   // Calculate responsive dayMaxEvents based on screen width
   useEffect(() => {
@@ -292,14 +316,14 @@ export function CalendarPageClient() {
         const response = await fetch(`/api/calendar/reservations/${reservationId}`, {
           method: 'DELETE',
         })
+        const payload = await response.json().catch(() => null)
 
         if (!response.ok) {
-          const data = await response.json()
-          toast.error(data.error ?? 'Erro ao cancelar reserva')
+          toast.error(payload?.error ?? 'Erro ao cancelar reserva')
           return
         }
 
-        toast.success('Reserva cancelada')
+        showCancellationSuccess(payload)
         // Refresh calendar
         if (dateRange) {
           fetchEvents(dateRange.from, dateRange.to, selectedPropertyId)
@@ -606,14 +630,14 @@ export function CalendarPageClient() {
               const response = await fetch(`/api/calendar/reservations/${reservationId}`, {
                 method: 'DELETE',
               })
+              const payload = await response.json().catch(() => null)
 
               if (!response.ok) {
-                const data = await response.json()
-                toast.error(data.error ?? 'Erro ao cancelar reserva')
+                toast.error(payload?.error ?? 'Erro ao cancelar reserva')
                 return
               }
 
-              toast.success('Reserva cancelada')
+              showCancellationSuccess(payload)
               setSelectActionModal(null)
               // Refresh calendar
               if (dateRange) {

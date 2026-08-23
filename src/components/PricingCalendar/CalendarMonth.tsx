@@ -10,6 +10,7 @@ import { DateDetailModal } from './DateDetailModal';
 import { BulkOperationModal } from './BulkOperationModal';
 import { useCalendarMonth } from './hooks/useCalendarMonth';
 import { useBulkPricingOperation, BulkOperationConfig } from '@/hooks/useBulkPricingOperation';
+import type { CurrencyCode } from '@/lib/utils/currency';
 
 const reservationsCache = new Map<string, CalendarReservation[]>();
 
@@ -21,6 +22,7 @@ interface CalendarMonthProps {
   propertyId: string;
   basePrice?: number;
   weekendPrice?: number;
+  currency?: CurrencyCode;
   onPriceUpdate?: () => void;
 }
 
@@ -49,6 +51,7 @@ export function CalendarMonth({
   propertyId,
   basePrice = 0,
   weekendPrice,
+  currency = 'EUR',
   onPriceUpdate,
 }: CalendarMonthProps) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -527,6 +530,7 @@ export function CalendarMonth({
             rangeEnd={rangeEnd}
             isSelectingRange={isSelectingRange}
             reservations={reservations}
+            currency={currency}
           />
         </div>
       )}
@@ -539,6 +543,7 @@ export function CalendarMonth({
         basePrice={basePrice}
         weekendPrice={isSelectedWeekend ? weekendPrice : undefined}
         isWeekend={isSelectedWeekend}
+        currency={currency}
         onClose={() => {
           setShowDetailModal(false);
           setSelectedDate(null);

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { hasFeature, FeatureName, FEATURE_MATRIX } from '@/lib/features/hasFeature'
+import { evaluateFeatureRollout } from '@/lib/features/featureRollout'
 
 const validFeatures = Object.keys(FEATURE_MATRIX)
 
@@ -43,14 +44,18 @@ export async function GET(request: NextRequest) {
     const plan = (org as unknown as Record<string, unknown>)?.subscription_plan || (org as unknown as Record<string, unknown>)?.plan || 'essencial'
 
     // Check if feature is accessible
-    const hasAccess = await hasFeature(orgId, feature)
+    const planAccess = await hasFeature(orgId, feature)
+    const rollout = evaluateFeatureRollout(feature, orgId)
+    const hasAccess = planAccess && rollout.enabled
 
     return NextResponse.json({
       success: true,
       hasAccess,
+      planAccess,
       feature,
       plan,
       organizationId: orgId,
+      rollout,
       message: hasAccess ? undefined : 'Feature not available for this plan',
     })
   } catch (error) {

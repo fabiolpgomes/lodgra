@@ -6,12 +6,14 @@ export type FeatureName =
   | 'advanced_reports'
   | 'api_access'
   | 'forecast_bi'
+  | 'property_intelligence'
 
 export const FEATURE_MATRIX: Record<FeatureName, (keyof typeof PLAN_LIMITS)[]> = {
   cleaner_portal:   ['expansao', 'premium', 'enterprise'],
   advanced_reports: ['expansao', 'premium', 'enterprise'],
   api_access:       ['premium', 'enterprise'],
   forecast_bi:      ['premium', 'enterprise'],
+  property_intelligence: ['premium', 'enterprise'],
 }
 
 /**
@@ -89,6 +91,7 @@ export async function getAccessibleFeatures(orgId: string): Promise<FeatureName[
     'advanced_reports',
     'api_access',
     'forecast_bi',
+    'property_intelligence',
   ]
 
   const accessible: FeatureName[] = []

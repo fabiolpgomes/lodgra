@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
+import { requirePropertyAccess } from '@/lib/auth/requirePropertyAccess'
 
 interface AvailabilitySettings {
   minNights: number
@@ -22,32 +23,9 @@ export async function GET(
 ) {
   try {
     const { id: propertyId } = await params
-    const supabase = await createClient()
-
-    // Verify ownership
-    const { data: property, error: propError } = await supabase
-      .from('properties')
-      .select('id, owner_id, owners(id, user_id)')
-      .eq('id', propertyId)
-      .single()
-
-    if (propError || !property) {
-      return NextResponse.json(
-        { error: 'Property not found' },
-        { status: 404 }
-      )
-    }
-
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-    const owners = Array.isArray(property.owners) ? property.owners[0] : property.owners
-    if (!user || owners?.user_id !== user.id) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 403 }
-      )
-    }
+    const access = await requirePropertyAccess(propertyId, ['admin', 'gestor', 'owner', 'viewer'])
+    if (!access.authorized) return access.response
+    const supabase = createAdminClient()
 
     // Fetch availability settings
     const { data: availability, error } = await supabase
@@ -118,33 +96,10 @@ export async function POST(
 ) {
   try {
     const { id: propertyId } = await params
-    const supabase = await createClient()
+    const access = await requirePropertyAccess(propertyId, ['admin', 'gestor', 'owner'])
+    if (!access.authorized) return access.response
+    const supabase = createAdminClient()
     const body: Partial<AvailabilitySettings> = await request.json()
-
-    // Verify ownership
-    const { data: property, error: propError } = await supabase
-      .from('properties')
-      .select('id, owner_id, owners(id, user_id)')
-      .eq('id', propertyId)
-      .single()
-
-    if (propError || !property) {
-      return NextResponse.json(
-        { error: 'Property not found' },
-        { status: 404 }
-      )
-    }
-
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-    const owners = Array.isArray(property.owners) ? property.owners[0] : property.owners
-    if (!user || owners?.user_id !== user.id) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 403 }
-      )
-    }
 
     // Validate inputs
     if (

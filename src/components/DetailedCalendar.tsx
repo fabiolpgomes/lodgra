@@ -9,6 +9,7 @@ import { CalendarHeader } from './CalendarHeader';
 import { ReservationOverlay } from './ReservationOverlay';
 import { useCalendarMonth } from './PricingCalendar/hooks/useCalendarMonth';
 import { CalendarDay, DailyPrice } from '@/types/calendar.types';
+import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface Reservation {
@@ -22,6 +23,7 @@ interface Reservation {
 interface DetailedCalendarProps {
   propertyId: string;
   isMobile?: boolean;
+  currency?: CurrencyCode;
   onSettingsClick?: () => void;
   onMonthPickerClick?: () => void;
 }
@@ -29,6 +31,7 @@ interface DetailedCalendarProps {
 export function DetailedCalendar({
   propertyId,
   isMobile = false,
+  currency = 'EUR',
   onSettingsClick,
   onMonthPickerClick,
 }: DetailedCalendarProps) {
@@ -140,7 +143,7 @@ export function DetailedCalendar({
   const getPriceForDate = (date: Date | string): string => {
     const dateStr = typeof date === 'string' ? date : date.toISOString().split('T')[0];
     const price = calendarMonth.prices.get(dateStr);
-    return price?.price ? `€${price.price}` : '—';
+    return price?.price ? formatCurrency(price.price, currency) : '—';
   };
 
   const isLoading = calendarMonth.loading || loadingReservations;
@@ -195,6 +198,7 @@ export function DetailedCalendar({
             days={calendarDays}
             onDateClick={handleDateClick}
             selectedDate={selectedDate}
+            currency={currency}
           />
 
           {/* Reservations Overlay */}

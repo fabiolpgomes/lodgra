@@ -4,11 +4,12 @@
  */
 
 import React from 'react';
+import { getCurrencySymbol, type CurrencyCode } from '@/lib/utils/currency';
 
 interface PriceIndicatorProps {
   priceType: 'base' | 'weekend' | 'override' | 'disabled';
   price?: number;
-  currency?: string;
+  currency?: CurrencyCode;
 }
 
 export function PriceIndicator({
@@ -33,11 +34,14 @@ export function PriceIndicator({
     return null;
   }
 
+  const symbol = getCurrencySymbol(currency)
+
   return (
     <span
       className={`inline-block px-2 py-1 text-xs font-semibold rounded border ${getIndicatorColor(priceType)}`}
     >
-      €{price.toFixed(2)}
+      {symbol}
+      {price.toFixed(2)}
     </span>
   );
 }

@@ -6,48 +6,30 @@ import { Bell, Search } from 'lucide-react'
 import { LocaleSelector } from '@/components/common/header/LocaleSelector'
 import { ThemeToggle } from '@/components/common/header/ThemeToggle'
 import { useGlobalSearch } from '@/hooks/useGlobalSearch'
+import { getModuleSummary, getPageTitle } from '@/lib/navigation/module-shell'
 
 const SearchModal = dynamic(() => import('@/components/common/search/SearchModal').then(mod => mod.SearchModal), { ssr: false })
-
-const PATH_LABELS: Record<string, string> = {
-  '/': 'Dashboard',
-  '/properties': 'Propriedades',
-  '/reservations': 'Reservas',
-  '/expenses': 'Despesas',
-  '/financial': 'Financeiro',
-  '/calendar': 'Calendário',
-  '/reports': 'Relatórios',
-  '/owners': 'Proprietários',
-  '/sync': 'Sincronização',
-  '/settings': 'Definições',
-  '/admin/users': 'Usuários',
-}
-
-function getPageTitle(pathname: string): string {
-  // Strip locale prefix (e.g. /pt, /en, /es)
-  const withoutLocale = pathname.replace(/^\/[a-z]{2}(\/|$)/, '/')
-  const normalized = withoutLocale === '' ? '/' : withoutLocale
-
-  // Exact match first
-  if (PATH_LABELS[normalized]) return PATH_LABELS[normalized]
-
-  // Prefix match (e.g. /properties/123 → Propriedades)
-  for (const [key, label] of Object.entries(PATH_LABELS)) {
-    if (key !== '/' && normalized.startsWith(key)) return label
-  }
-
-  return ''
-}
 
 export function TopBar() {
   const pathname = usePathname()
   const title = getPageTitle(pathname)
+  const moduleSummary = getModuleSummary(pathname)
   const { query, results, isLoading, isOpen, handleInputChange, handleOpen, handleClose } = useGlobalSearch()
 
   return (
     <>
-      <header className="hidden md:flex items-center justify-between h-[64px] px-8 bg-brand-canvas border-b border-brand-border-soft sticky top-0 z-30">
-        <h1 className="text-sm font-semibold text-brand-text-dark tracking-wide">{title}</h1>
+      <header className="hidden md:flex items-center justify-between gap-6 h-[64px] px-8 bg-brand-canvas border-b border-brand-border-soft sticky top-0 z-30">
+        <div className="min-w-0">
+          <p className="text-[10px] font-black uppercase tracking-[2px] text-brand-text-medium">
+            {moduleSummary.scopeLabel}
+          </p>
+          <div className="mt-1 flex min-w-0 items-center gap-2">
+            <span className="shrink-0 rounded-full bg-brand-blue/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[1px] text-brand-blue">
+              {moduleSummary.label}
+            </span>
+            <h1 className="truncate text-sm font-semibold text-brand-text-dark tracking-wide">{title}</h1>
+          </div>
+        </div>
 
         <div className="flex items-center gap-4">
           {/* Search Input - Padronizado */}

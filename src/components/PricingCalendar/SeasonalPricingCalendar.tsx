@@ -8,15 +8,18 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { SeasonalPricingRule } from '@/types/pricing.types';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency';
 
 export interface SeasonalPricingCalendarProps {
   rules: SeasonalPricingRule[];
+  currency?: CurrencyCode;
   onEditRule?: (rule: SeasonalPricingRule) => void;
   onDeleteRule?: (ruleId: string) => Promise<void>;
 }
 
 export function SeasonalPricingCalendar({
   rules,
+  currency = 'EUR',
   onEditRule,
   onDeleteRule,
 }: SeasonalPricingCalendarProps) {
@@ -150,12 +153,12 @@ export function SeasonalPricingCalendar({
                 {hasRules && (
                   <div className="mt-0.5 flex flex-wrap gap-0.5">
                     {seasonalRules.slice(0, 1).map((rule) => (
-                      <span
+                    <span
                         key={rule.id}
                         className="truncate rounded bg-amber-200 px-1 text-amber-900 dark:bg-amber-700 dark:text-amber-100"
                         title={rule.name}
                       >
-                        €{rule.price_per_night}
+                        {formatCurrency(rule.price_per_night, currency)}
                       </span>
                     ))}
                     {seasonalRules.length > 1 && (
@@ -196,7 +199,7 @@ export function SeasonalPricingCalendar({
                     )}
                   </div>
                   <p className="text-xs text-gray-600 dark:text-gray-400">
-                    {rule.date_start} → {rule.date_end} • €{rule.price_per_night}/night
+                    {rule.date_start} → {rule.date_end} • {formatCurrency(rule.price_per_night, currency)}/night
                   </p>
                 </div>
                 <div className="flex gap-1">

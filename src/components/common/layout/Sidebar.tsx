@@ -5,22 +5,12 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTheme } from 'next-themes'
 import {
-  Home,
-  Calendar,
-  Building2,
-  CalendarDays,
-  Receipt,
-  TrendingUp,
-  BarChart3,
-  CheckSquare,
-  RefreshCw,
-  Users,
-  Settings,
-  UserCog,
-  LogOut,
-  Globe,
-  ChevronDown,
   CreditCard,
+  Globe,
+  LogOut,
+  RefreshCw,
+  Settings,
+  Users,
 } from 'lucide-react'
 import { Logo } from '@/components/common/ui/Logo'
 import { useAuth } from '@/hooks/useAuth'
@@ -29,38 +19,50 @@ import { useLocale } from '@/lib/i18n/routing'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import type { UserProfile } from '@/lib/auth/getUserAccess'
-
-const PRIMARY_PATHS = [
-  { path: '/dashboard', label: 'Dashboard', icon: Home },
-  { path: '/properties', label: 'Propriedades', icon: Building2 },
-  { path: '/reservations', label: 'Reservas', icon: Calendar },
-  { path: '/expenses', label: 'Despesas', icon: Receipt },
-  { path: '/financial', label: 'Financeiro', icon: TrendingUp },
-  { path: '/calendar', label: 'Calendário', icon: CalendarDays },
-]
-
-const CLEANING_SUBMENU = [
-  { path: '/cleaning', label: 'Próximas Limpezas' },
-  { path: '/cleaning/manage', label: 'Gerenciar Tarefas' },
-  { path: '/cleaning/templates', label: 'Modelos de Checklist' },
-]
-
-const REPORTS_MODULES = [
-  { id: 'financeiro', label: 'Financeiro', icon: TrendingUp },
-  { id: 'reservas', label: 'Reservas', icon: Calendar },
-  { id: 'empresa', label: 'Empresa', icon: BarChart3, href: '/dashboard/empresa' },
-  { id: 'empresa-custos', label: 'Custos Empresa', icon: Receipt, href: '/dashboard/empresa/custos' },
-]
-
-const CONFIG_PATHS = [
-  { path: '/owners', label: 'Proprietários', icon: Users },
-  { path: '/settings/billing', label: 'Planos & Faturamento', icon: CreditCard },
-  { path: '/sync', label: 'Sincronização', icon: RefreshCw },
-  { path: '/settings', label: 'Definições', icon: Settings },
-]
+import { useFeatureAccess } from '@/lib/features/featureGate'
+import {
+  getLocalizedHref,
+  getModuleForPath,
+  getModuleNavLinks,
+  MODULE_FEATURE_LINKS,
+  type ModuleNavigationEntry,
+} from '@/lib/navigation/module-shell'
 
 interface SidebarProps {
   serverProfile?: UserProfile
+}
+
+function navClassName(active: boolean) {
+  return `flex items-center gap-3 rounded-full px-4 py-3 text-[14px] font-medium tracking-normal transition-all ${
+    active
+      ? 'bg-be-blue text-white'
+      : 'text-be-text hover:bg-be-surface hover:text-be-text'
+  }`
+}
+
+function cardClassName(active: boolean) {
+  return `flex items-start gap-3 rounded-2xl border px-4 py-3 transition-all ${
+    active
+      ? 'border-be-blue bg-be-blue text-white shadow-sm'
+      : 'border-be-border bg-card text-be-text hover:border-be-blue/30 hover:bg-be-surface'
+  }`
+}
+
+function renderFeatureLink(
+  prefix: string,
+  pathname: string,
+  link: ModuleNavigationEntry
+) {
+  const href = getLocalizedHref(prefix, link.path)
+  const active = pathname === href || pathname.startsWith(`${href}/`)
+  const Icon = link.icon
+
+  return (
+    <Link key={link.path} href={href} className={navClassName(active)}>
+      <Icon className="h-4 w-4 shrink-0" />
+      {link.label}
+    </Link>
+  )
 }
 
 export function Sidebar({ serverProfile }: SidebarProps) {
@@ -71,19 +73,30 @@ export function Sidebar({ serverProfile }: SidebarProps) {
   const router = useRouter()
   const { resolvedTheme, theme } = useTheme()
   const [hasPremium, setHasPremium] = useState(false)
-  const [reportsExpanded, setReportsExpanded] = useState(pathname.includes('/reports') || pathname.includes('/dashboard/empresa'))
-  const [cleaningExpanded, setCleaningExpanded] = useState(pathname.includes('/cleaning'))
 
   const isAdmin = profile?.role === 'admin'
   const isLimitedGestor = isRestrictedGestor(profile)
   const prefix = locale ? `/${locale}` : ''
   const isDarkMode = (resolvedTheme || theme) === 'dark'
-  const expandedSubmenuClass = isDarkMode
-    ? 'sidebar-submenu-trigger-expanded bg-white/10 text-white'
-    : 'sidebar-submenu-trigger-expanded bg-brand-bg text-brand-blue'
-  const mutedSubmenuLinkClass = isDarkMode
-    ? 'text-white/75 hover:text-white hover:bg-white/10'
-    : 'text-be-text-muted hover:text-be-text hover:bg-be-surface'
+  const currentModule = getModuleForPath(pathname)
+  const organizationId = profile?.organization_id ?? null
+  const { hasAccess: hasIaNativeAccess, loading: iaNativeLoading } = useFeatureAccess(
+    'property_intelligence',
+    organizationId ?? undefined
+  )
+  const moduleLinks = getModuleNavLinks(prefix).filter(link => {
+    if (link.id === 'ia-native' && (iaNativeLoading || !hasIaNativeAccess)) {
+      return false
+    }
+
+    return !isLimitedGestor || (link.id !== 'core' && link.id !== 'empresa')
+  })
+  const featureLinks = MODULE_FEATURE_LINKS[currentModule.id].filter(link => {
+    if (isLimitedGestor && (link.path === '/dashboard' || link.path === '/financial' || link.path === '/reports')) {
+      return false
+    }
+    return true
+  })
 
   useEffect(() => {
     const checkPremiumTier = async () => {
@@ -103,7 +116,6 @@ export function Sidebar({ serverProfile }: SidebarProps) {
           return
         }
 
-        // Safely query organizations table with error handling
         try {
           const { data: organization } = await supabase
             .from('organizations')
@@ -113,8 +125,7 @@ export function Sidebar({ serverProfile }: SidebarProps) {
 
           const plan = organization?.subscription_plan || organization?.plan
           setHasPremium(plan === 'premium')
-        } catch (_orgError) {
-          // Organizations table doesn't exist or not accessible - default to false
+        } catch {
           setHasPremium(false)
         }
       } catch (error) {
@@ -126,34 +137,6 @@ export function Sidebar({ serverProfile }: SidebarProps) {
     checkPremiumTier()
   }, [profile?.id])
 
-  const primaryLinks = PRIMARY_PATHS
-    .filter(({ path }) => {
-      if (isLimitedGestor && (path === '/' || path === '/financial' || path === '/reports')) return false
-      return true
-    })
-    .map(({ path, label, icon }) => ({
-      href: path === '/' ? (prefix || '/') : `${prefix}${path}`,
-      label,
-      icon,
-    }))
-
-  const adminLinks = [
-    ...(isAdmin ? [{ href: `${prefix}/admin/users`, label: 'Usuários', icon: UserCog }] : []),
-    ...(hasPremium ? [{ href: `${prefix}/admin/google-distribution`, label: 'Google Distribution', icon: Globe }] : []),
-  ]
-
-  const configLinks = [
-    ...CONFIG_PATHS.map(({ path, label, icon }) => ({ href: `${prefix}${path}`, label, icon })),
-    ...adminLinks,
-  ]
-
-  function isActive(href: string) {
-    return pathname === href || (href !== '/' && pathname.startsWith(href))
-  }
-
-  const cleaningActive = pathname.includes('/cleaning')
-  const reportsActive = pathname.includes('/reports') || pathname.includes('/dashboard/empresa')
-
   async function handleSignOut() {
     const supabase = createClient()
     await supabase.auth.signOut()
@@ -161,184 +144,104 @@ export function Sidebar({ serverProfile }: SidebarProps) {
   }
 
   const initials = profile?.full_name
-    ? profile.full_name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase()
+    ? profile.full_name.split(' ').map(word => word[0]).slice(0, 2).join('').toUpperCase()
     : profile?.email?.[0]?.toUpperCase() ?? 'U'
+
+  const accountShortcuts = [
+    { href: `${prefix}/settings`, label: 'Definições', icon: Settings },
+    { href: `${prefix}/settings/billing`, label: 'Planos & Faturamento', icon: CreditCard },
+    { href: `${prefix}/sync`, label: 'Sincronização', icon: RefreshCw },
+    { href: `${prefix}/owners`, label: 'Proprietários', icon: Users },
+    ...(isAdmin ? [{ href: `${prefix}/admin/users`, label: 'Usuários', icon: Users }] : []),
+    ...(hasPremium ? [{ href: `${prefix}/admin/google-distribution`, label: 'Google Distribution', icon: Globe }] : []),
+  ]
 
   return (
     <>
-      {/* Sidebar — desktop only. No mobile hamburger toggle here: BottomNav.tsx
-          já cobre navegação mobile (tab bar + sheet "Mais"); ter os dois sistemas
-          juntos causava o hambúrguer sobrepondo o logo do header mobile e duas
-          listas de menu concorrentes na tela. */}
       <aside
         data-theme={isDarkMode ? 'dark' : 'light'}
         className="lodgra-sidebar hidden md:flex flex-col fixed top-0 left-0 h-screen z-40 bg-be-surface border-r border-be-border"
         style={{ width: '260px' }}
       >
-      <div className="px-6 py-8 bg-be-surface border-b border-be-border flex items-center justify-center">
-        <Link href={prefix || '/'} className="flex items-center">
-          <Logo size="lg" />
-        </Link>
-      </div>
-
-      {/* Nav */}
-      <nav className="flex-1 overflow-y-auto px-4 py-8 space-y-2">
-        {/* Primary group */}
-        {primaryLinks.map(({ href, label, icon: Icon }) => {
-          const active = isActive(href)
-          return (
-            <Link
-              key={href}
-              href={href}
-              className={`sidebar-nav-link flex items-center gap-3 px-4 py-3 rounded-full text-[14px] font-medium tracking-normal transition-all ${
-                active
-                  ? 'sidebar-nav-link-active bg-be-blue text-white'
-                  : 'sidebar-nav-link-muted text-be-text hover:text-be-text hover:bg-be-surface'
-              }`}
-            >
-              <Icon className="h-4 w-4 shrink-0" />
-              {label}
-            </Link>
-          )
-        })}
-
-        {/* Cleaning submenu */}
-        <div>
-          <button
-            onClick={() => setCleaningExpanded(!cleaningExpanded)}
-            className={`sidebar-submenu-trigger w-full flex items-center gap-3 px-4 py-3 rounded-full text-[14px] font-medium tracking-normal transition-all ${
-              cleaningActive
-                ? 'sidebar-submenu-trigger-active bg-be-blue text-white'
-                : cleaningExpanded
-                  ? expandedSubmenuClass
-                  : 'sidebar-submenu-trigger-muted text-be-text hover:text-be-text hover:bg-be-surface'
-            }`}
-          >
-            <CheckSquare className="h-4 w-4 shrink-0" />
-            <span className="flex-1 text-left">Limpeza</span>
-            <ChevronDown
-              className={`h-4 w-4 shrink-0 transition-transform ${
-                cleaningExpanded ? 'rotate-180' : ''
-              }`}
-            />
-          </button>
-
-          {/* Cleaning submenu items */}
-          {cleaningExpanded && (
-            <div className="ml-4 mt-1 space-y-1">
-              {CLEANING_SUBMENU.map(({ path, label: submenuLabel }) => {
-                const href = path === '/' ? (prefix || '/') : `${prefix}${path}`
-                const active = pathname === href
-                return (
-                  <Link
-                    key={path}
-                    href={href}
-                    className={`sidebar-submenu-link flex items-center gap-3 px-4 py-2 rounded-full text-[13px] font-medium tracking-normal transition-all ${
-                      active
-                        ? 'sidebar-submenu-link-active bg-be-blue text-white'
-                        : mutedSubmenuLinkClass
-                    }`}
-                  >
-                    {submenuLabel}
-                  </Link>
-                )
-              })}
-            </div>
-          )}
+        <div className="px-6 py-8 bg-be-surface border-b border-be-border flex items-center justify-center">
+          <Link href={prefix || '/'} className="flex items-center">
+            <Logo size="lg" />
+          </Link>
         </div>
 
-        {/* Reports submenu */}
-        {!isLimitedGestor && <div>
-          <button
-            onClick={() => setReportsExpanded(!reportsExpanded)}
-            className={`sidebar-submenu-trigger w-full flex items-center gap-3 px-4 py-3 rounded-full text-[14px] font-medium tracking-normal transition-all ${
-              reportsExpanded || reportsActive
-                ? expandedSubmenuClass
-                : 'sidebar-submenu-trigger-muted text-be-text hover:text-be-text hover:bg-be-surface'
-            }`}
-          >
-            <BarChart3 className="h-4 w-4 shrink-0" />
-            <span className="flex-1 text-left">Relatórios</span>
-            <ChevronDown
-              className={`h-4 w-4 shrink-0 transition-transform ${
-                reportsExpanded ? 'rotate-180' : ''
-              }`}
-            />
-          </button>
+        <div className="border-b border-be-border px-4 py-6">
+          <p className="px-2 mb-4 text-[12px] font-semibold tracking-normal text-be-text-muted">
+            Módulos
+          </p>
+          <div className="space-y-2">
+            {moduleLinks.map(({ href, label, scopeLabel, icon: Icon, id }) => {
+              const active = currentModule.id === id
 
-          {/* Reports submenu items */}
-          {reportsExpanded && (
-            <div className="ml-4 mt-1 space-y-1">
-              {REPORTS_MODULES.map(({ id, label, href: moduleHref }) => {
-                const href = moduleHref ? `${prefix}${moduleHref}` : `${prefix}/reports/${id}`
-                const active = pathname === href
+              return (
+                <Link key={id} href={href} className={cardClassName(active)}>
+                  <Icon className="mt-0.5 h-4 w-4 shrink-0" />
+                  <div className="min-w-0">
+                    <div className="text-[13px] font-semibold tracking-normal">{label}</div>
+                    <div className={`text-[11px] leading-tight ${active ? 'text-white/80' : 'text-be-text-muted'}`}>
+                      {scopeLabel}
+                    </div>
+                  </div>
+                </Link>
+              )
+            })}
+          </div>
+        </div>
+
+        <nav className="flex-1 overflow-y-auto px-4 py-6 space-y-6">
+          <div>
+            <p className="px-2 mb-3 text-[12px] font-semibold tracking-normal text-be-text-muted">
+              {currentModule.label}
+            </p>
+            <div className="space-y-2">
+              {featureLinks.map(link => renderFeatureLink(prefix, pathname, link))}
+            </div>
+          </div>
+
+          <div>
+            <p className="px-2 mb-3 text-[12px] font-semibold tracking-normal text-be-text-muted">
+              Atalhos da conta
+            </p>
+            <div className="space-y-2">
+              {accountShortcuts.map(({ href, label, icon: Icon }) => {
+                const active = pathname === href || pathname.startsWith(`${href}/`)
+
                 return (
-                  <Link
-                    key={id}
-                    href={href}
-                    className={`sidebar-submenu-link flex items-center gap-3 px-4 py-2 rounded-full text-[13px] font-medium tracking-normal transition-all ${
-                      active
-                        ? 'sidebar-submenu-link-active bg-be-blue text-white'
-                        : mutedSubmenuLinkClass
-                    }`}
-                  >
+                  <Link key={href} href={href} className={navClassName(active)}>
+                    <Icon className="h-4 w-4 shrink-0" />
                     {label}
                   </Link>
                 )
               })}
             </div>
-          )}
-        </div>}
-
-        {/* Config group */}
-        <div className="pt-8">
-          <p className="px-4 mb-4 text-[12px] font-semibold tracking-normal text-be-text-muted">
-            Configuração
-          </p>
-          {configLinks.map(({ href, label, icon: Icon }) => {
-            const active = isActive(href)
-            return (
-              <Link
-                key={href}
-                href={href}
-                className={`sidebar-nav-link flex items-center gap-3 px-4 py-3 rounded-full text-[14px] font-medium tracking-normal transition-all ${
-                  active
-                    ? 'sidebar-nav-link-active bg-be-blue text-white'
-                    : 'sidebar-nav-link-muted text-be-text hover:text-be-text hover:bg-be-surface'
-                }`}
-              >
-                <Icon className="h-4 w-4 shrink-0" />
-                {label}
-              </Link>
-            )
-          })}
-        </div>
-      </nav>
-
-      {/* Bottom: profile + signout */}
-      <div className="px-4 py-6 border-t border-be-border space-y-4 bg-be-surface">
-        <div className="flex items-center gap-3 px-2 py-3 bg-card border border-be-border rounded-md">
-          <div
-            className="w-9 h-9 rounded-full flex items-center justify-center text-[14px] font-semibold text-white shrink-0 bg-be-blue"
-          >
-            {initials}
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-[14px] font-semibold text-be-text truncate tracking-normal">
-              {profile?.full_name || profile?.email || 'Usuário'}
-            </p>
-            <p className="text-[12px] text-be-text-muted font-normal tracking-normal">{profile?.role || 'user'}</p>
+        </nav>
+
+        <div className="px-4 py-6 border-t border-be-border space-y-4 bg-be-surface">
+          <div className="flex items-center gap-3 px-2 py-3 bg-card border border-be-border rounded-md">
+            <div className="w-9 h-9 rounded-full flex items-center justify-center text-[14px] font-semibold text-white shrink-0 bg-be-blue">
+              {initials}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[14px] font-semibold text-be-text truncate tracking-normal">
+                {profile?.full_name || profile?.email || 'Usuário'}
+              </p>
+              <p className="text-[12px] text-be-text-muted font-normal tracking-normal">{profile?.role || 'user'}</p>
+            </div>
+            <button
+              onClick={handleSignOut}
+              className="p-2 text-be-text-muted hover:text-be-blue hover:bg-be-surface transition-all rounded-full"
+              title="Sair"
+            >
+              <LogOut className="h-4 w-4" />
+            </button>
           </div>
-          <button
-            onClick={handleSignOut}
-            className="p-2 text-be-text-muted hover:text-be-blue hover:bg-be-surface transition-all rounded-full"
-            title="Sair"
-          >
-            <LogOut className="h-4 w-4" />
-          </button>
         </div>
-      </div>
-    </aside>
+      </aside>
     </>
   )
 }

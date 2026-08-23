@@ -33,7 +33,7 @@ export default async function ExpenseDetailsPage({
   const supabase = await createClient()
   const userRole = await getUserRole(supabase)
   const canEdit = userRole === 'admin' || userRole === 'gestor'
-  const canDelete = userRole === 'admin'
+  const canDelete = userRole === 'admin' || userRole === 'gestor'
 
   const { data: expense, error } = await supabase
     .from('expenses')

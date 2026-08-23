@@ -11,6 +11,7 @@ jest.mock('@/lib/features/hasFeature', () => ({
     advanced_reports: ['expansao', 'premium'],
     api_access: ['premium'],
     forecast_bi: ['premium'],
+    property_intelligence: ['premium'],
   },
 }))
 
@@ -93,6 +94,9 @@ describe('GET /api/features/check', () => {
     expect(data.hasAccess).toBe(true)
     expect(data.feature).toBe('api_access')
     expect(data.plan).toBe('premium')
+    expect(data.planAccess).toBe(true)
+    expect(data.rollout).toBeDefined()
+    expect(data.rollout.enabled).toBe(true)
     expect(data.message).toBeUndefined()
   })
 

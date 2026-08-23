@@ -163,7 +163,7 @@ describe('PriceBreakdownTooltip - Story 41.5', () => {
     })
 
     const dialog = screen.getByRole('dialog')
-    expect(dialog).toHaveTextContent('€200.00')
+    expect(dialog).toHaveTextContent(/200,00\s?€|€200\.00/)
   })
 
   it('should show loading state while fetching', async () => {

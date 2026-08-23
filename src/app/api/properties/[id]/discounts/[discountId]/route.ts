@@ -4,21 +4,9 @@
  */
 
 import { createAdminClient } from '@/lib/supabase/admin';
-import { cookies } from 'next/headers';
+import { requirePropertyAccess } from '@/lib/auth/requirePropertyAccess';
 import { NextRequest, NextResponse } from 'next/server';
 import { ApiResponse, UpdateDiscountPayload } from '@/types/pricing.types';
-
-async function validatePropertyOwnership(propertyId: string, userId: string): Promise<boolean> {
-  const supabase = await createAdminClient();
-  const { data } = await supabase
-    .from('properties')
-    .select('id')
-    .eq('id', propertyId)
-    .eq('owner_id', userId)
-    .single();
-
-  return !!data;
-}
 
 // PUT /api/properties/:id/discounts/:discountId
 export async function PUT(
@@ -27,25 +15,9 @@ export async function PUT(
 ): Promise<NextResponse<ApiResponse>> {
   const { id, discountId } = await params;
   try {
-    const supabase = await createAdminClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
-    const isOwner = await validatePropertyOwnership(id, user.id);
-    if (!isOwner) {
-      return NextResponse.json(
-        { success: false, error: 'Forbidden' },
-        { status: 403 }
-      );
-    }
+    const access = await requirePropertyAccess(id, ['admin', 'gestor', 'owner']);
+    if (!access.authorized) return access.response;
+    const supabase = createAdminClient();
 
     const body: UpdateDiscountPayload = await req.json();
 
@@ -93,25 +65,9 @@ export async function DELETE(
 ): Promise<NextResponse<ApiResponse>> {
   const { id, discountId } = await params;
   try {
-    const supabase = await createAdminClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
-    const isOwner = await validatePropertyOwnership(id, user.id);
-    if (!isOwner) {
-      return NextResponse.json(
-        { success: false, error: 'Forbidden' },
-        { status: 403 }
-      );
-    }
+    const access = await requirePropertyAccess(id, ['admin', 'gestor', 'owner']);
+    if (!access.authorized) return access.response;
+    const supabase = createAdminClient();
 
     const { error } = await supabase
       .from('property_discounts')

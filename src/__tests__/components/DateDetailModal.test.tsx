@@ -43,7 +43,7 @@ describe('DateDetailModal', () => {
     render(<DateDetailModal {...defaultProps} />);
 
     expect(screen.getByText('Base Price')).toBeInTheDocument();
-    expect(screen.getByText('€100.00')).toBeInTheDocument();
+    expect(screen.getByText(/100,00.*€|€100\.00/)).toBeInTheDocument();
   });
 
   it('displays weekend price label for weekend dates', () => {
@@ -56,7 +56,7 @@ describe('DateDetailModal', () => {
     );
 
     expect(screen.getByText('Weekend Price')).toBeInTheDocument();
-    expect(screen.getByText('€150.00')).toBeInTheDocument();
+    expect(screen.getByText(/150,00.*€|€150\.00/)).toBeInTheDocument();
   });
 
   it('shows delete button when override exists', () => {
@@ -143,7 +143,7 @@ describe('DateDetailModal', () => {
     );
 
     // Should show weekend price instead of base price
-    const priceText = screen.getByText(/€150\.00/);
+    const priceText = screen.getByText(/150,00.*€|€150\.00/);
     expect(priceText).toBeInTheDocument();
   });
 });

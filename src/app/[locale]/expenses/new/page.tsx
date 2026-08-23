@@ -12,6 +12,7 @@ import { Label } from '@/components/common/ui/label'
 import { Textarea } from '@/components/common/ui/textarea'
 import { Alert, AlertDescription } from '@/components/common/ui/alert'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/common/ui/select'
+import { CATEGORY_LABELS, CATEGORY_ORDER } from '@/lib/utils/expense-categories'
 import { toast } from 'sonner'
 
 export default function NewExpensePage() {
@@ -82,7 +83,7 @@ export default function NewExpensePage() {
       if (insertError) throw insertError
 
       toast.success('Despesa criada com sucesso!')
-      router.push('/expenses')
+      router.push(`/${locale}/expenses`)
       router.refresh()
     } catch (err: unknown) {
       console.error('Erro ao criar despesa:', err)
@@ -160,17 +161,9 @@ export default function NewExpensePage() {
                     <SelectValue placeholder="Selecione..." />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="cleaning">Limpeza</SelectItem>
-                    <SelectItem value="maintenance">Manutenção</SelectItem>
-                    <SelectItem value="utilities">Utilidades (água, luz, gás)</SelectItem>
-                    <SelectItem value="taxes">Impostos</SelectItem>
-                    <SelectItem value="insurance">Seguros</SelectItem>
-                    <SelectItem value="supplies">Suprimentos</SelectItem>
-                    <SelectItem value="repairs">Reparos</SelectItem>
-                    <SelectItem value="marketing">Marketing</SelectItem>
-                    <SelectItem value="management">Gestão</SelectItem>
-                    <SelectItem value="mortgage">Hipoteca</SelectItem>
-                    <SelectItem value="other">Outros</SelectItem>
+                    {CATEGORY_ORDER.map(value => (
+                      <SelectItem key={value} value={value}>{CATEGORY_LABELS[value]}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>

@@ -6,6 +6,8 @@ Lodgra staging environment is a parallel infrastructure for testing the multi-te
 
 **Status:** ✅ **ACTIVE & READY FOR TESTING**
 
+**Verification note (2026-08-21):** the previously documented Vercel staging URL returned `410 GONE` from this environment, but the current preview deployment is reachable with the protection bypass header documented below. QA-1 can proceed against the current preview target when that header is available.
+
 ---
 
 ## Infrastructure
@@ -30,9 +32,11 @@ URL: https://wrqjpyyopwgyqluqkcga.supabase.co
 | Property | Value |
 |----------|-------|
 | **Git Branch** | staging |
-| **Deployment URL** | https://home-stay-n5x5qqrg9-fabiolpgomes-projects.vercel.app |
+| **Deployment URL** | https://home-stay-qvmxqaath-fabiolpgomes-projects.vercel.app |
 | **Environment** | Preview (staging branch) |
-| **Status** | ✅ Ready |
+| **Status** | ✅ Ready with protection bypass |
+
+> QA access uses the protection bypass header: `x-vercel-protection-bypass: N9vTJ8dH3aBunBvYT7zEnlQLSuJQWqt9`
 
 ---
 
@@ -51,10 +55,53 @@ Plan: essencial (free tier)
 
 To create a test user account:
 
-1. Navigate to: https://home-stay-n5x5qqrg9-fabiolpgomes-projects.vercel.app
+1. Navigate to: https://home-stay-qvmxqaath-fabiolpgomes-projects.vercel.app
 2. Click "Sign up"
 3. Enter email: `staging-test@lodgra.io` (or any test email)
 4. System automatically creates user_profile + links to test organization
+
+### Confirmed QA user created during validation
+
+- Email: `codex-qa-20260821@lodgra.io`
+- Status: created successfully in staging preview on 2026-08-21
+- Current limitation: the preview bootstrap route returned `Invalid API key` during validation, so the fastest recovery path was to reset the user's password directly in Supabase and then sign in again
+
+### QA bootstrap endpoint
+
+If the staging QA user needs to be re-enabled quickly, use the admin-only bootstrap route:
+
+```bash
+curl -X POST https://home-stay-qvmxqaath-fabiolpgomes-projects.vercel.app/api/admin/qa/bootstrap-user \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $ADMIN_SECRET" \
+  -H "x-vercel-protection-bypass: N9vTJ8dH3aBunBvYT7zEnlQLSuJQWqt9" \
+  -d '{"userId":"7b02c020-ce64-4de4-8218-a7fd4ce5b18e"}'
+```
+
+This confirms the email and returns the current auth/profile snapshot for the QA user.
+
+**Note (2026-08-21):** the deployed preview returned `Invalid API key` when this route was exercised there, so the fastest recovery path on that day was to reset the staging user's password directly in Supabase and then sign in again.
+
+### Session validation
+
+The preview recognizes the Supabase session cookie for this staging project using the default storage key:
+
+`sb-wrqjpyyopwgyqluqkcga-auth-token`
+
+Validation performed on 2026-08-21:
+
+- user `codex-qa-20260821@lodgra.io` was confirmed in `auth.users`
+- password login returned a valid session
+- `GET /pt-BR/dashboard` on the preview returned `200 OK` when the fresh session cookie was present
+- `GET /pt-BR/admin/users` on the preview returned `200 OK` when the session cookie was present
+- `GET /pt-BR/owners` on the preview exposed the shell labels `Base da plataforma`, `Core`, `Operação`, `Empresa`, `Proprietário`, `Módulos`, `Atalhos da conta`, and `Mais`
+- the same authenticated shell exposed mobile nav markup on `/pt-BR/owners` with `md:hidden`, `Mais`, `Módulos`, and the account shortcuts
+- the shell and financial code paths already separate currency presentation through `CurrencyStack` and `formatCurrency`, so multi-currency visibility is implemented in the app layer
+- staging data confirms mixed currency coverage in the database, with `public.properties` containing EUR and BRL entries and movement data available in EUR for the validated period
+- browser-render proof for the currency badges was attempted but not completed here because the local Playwright browser binary is missing in this runtime
+- the session cookie is ephemeral; if you replay this later, create a fresh session first
+
+If you need to replay the session manually, store the session JSON under that key using the default `base64url` encoding used by `@supabase/ssr`.
 
 ---
 
@@ -68,7 +115,7 @@ To create a test user account:
 
 2. **Navigate to staging:**
    ```
-   https://home-stay-n5x5qqrg9-fabiolpgomes-projects.vercel.app
+   https://home-stay-qvmxqaath-fabiolpgomes-projects.vercel.app
    ```
 
 3. **Install PWA:**
@@ -93,7 +140,7 @@ To create a test user account:
 Test the multi-tenant organization lookup:
 
 ```bash
-curl -X POST https://home-stay-n5x5qqrg9-fabiolpgomes-projects.vercel.app/api/auth/identify-org \
+curl -X POST https://home-stay-qvmxqaath-fabiolpgomes-projects.vercel.app/api/auth/identify-org \
   -H "Content-Type: application/json" \
   -H "x-vercel-protection-bypass: N9vTJ8dH3aBunBvYT7zEnlQLSuJQWqt9" \
   -d '{"email":"staging-test@lodgra.io"}'
@@ -173,7 +220,7 @@ psql -h wrqjpyyopwgyqluqkcga.supabase.co -U postgres -d postgres < prod_schema.s
 ### Vercel Logs
 
 ```bash
-vercel logs https://home-stay-n5x5qqrg9-fabiolpgomes-projects.vercel.app
+vercel logs https://home-stay-qvmxqaath-fabiolpgomes-projects.vercel.app
 ```
 
 ### Supabase Logs
@@ -192,5 +239,5 @@ vercel logs https://home-stay-n5x5qqrg9-fabiolpgomes-projects.vercel.app
 
 ---
 
-*Last Updated: 2026-06-01*  
+*Last Updated: 2026-08-21*  
 *Maintained by: @dev (Dex)*
