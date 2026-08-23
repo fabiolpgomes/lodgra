@@ -94,7 +94,7 @@ export function PropertyOGImage({ property }: PropertyOGImageProps) {
             {property.base_price}
           </span>
           <span style={{ fontSize: '14px', color: '#666666', fontWeight: 500 }}>
-            {property.currency}/noite
+            {property.currency ? `${property.currency}/noite` : '/noite'}
           </span>
         </div>
 

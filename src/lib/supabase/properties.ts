@@ -11,7 +11,7 @@ export interface PropertyForOG {
   rating?: number
   review_count?: number
   base_price: number
-  currency: string
+  currency: string | null
 }
 
 /**
@@ -41,7 +41,7 @@ export async function getPropertyBySlug(slug: string): Promise<PropertyForOG | n
     photos: property.photos,
     photo_url: property.photos?.[0],
     base_price: property.base_price,
-    currency: property.currency || 'EUR',
+    currency: property.currency ?? null,
   }
 }
 
@@ -56,7 +56,7 @@ export interface SimilarProperty {
   rating?: number
   review_count?: number
   base_price: number
-  currency: string
+  currency: string | null
 }
 
 /**
@@ -95,6 +95,6 @@ export async function getSimilarProperties(
     rating: p.rating,
     review_count: p.review_count,
     base_price: p.base_price,
-    currency: p.currency || 'EUR',
+    currency: p.currency ?? null,
   }))
 }

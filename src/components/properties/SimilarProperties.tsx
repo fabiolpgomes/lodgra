@@ -88,8 +88,7 @@ export const SimilarProperties: React.FC<SimilarPropertiesProps> = ({
 
                 {/* Price */}
                 <div className="text-lg font-bold text-gray-900">
-                  {property.currency}
-                  {' '}
+                  {property.currency ? `${property.currency} ` : ''}
                   {property.base_price.toFixed(0)}
                   <span className="text-sm font-normal text-gray-600">/noite</span>
                 </div>
