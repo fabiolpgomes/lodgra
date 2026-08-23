@@ -44,7 +44,7 @@ export function buildCompetitorReportCSV(
     `"Position","${reportData.marketAnalysis.percentageDifference > 0 ? '+' : ''}${reportData.marketAnalysis.percentageDifference.toFixed(1)}%"`
   );
   lines.push(
-    `"Market Range","${formatCurrency(reportData.marketAnalysis.marketMinPrice, currency)} - ${formatCurrency(reportData.marketAnalysis.marketMaxPrice, currency)}"`
+    `"Market Range","${formatCurrency(reportData.marketAnalysis.marketRange.min, currency)} - ${formatCurrency(reportData.marketAnalysis.marketRange.max, currency)}"`
   );
   lines.push('');
 

@@ -29,8 +29,10 @@ describe('buildCompetitorReportCSV', () => {
     ],
     marketAnalysis: {
       marketAveragePrice: 132.5,
-      marketMinPrice: 110,
-      marketMaxPrice: 155,
+      marketRange: {
+        min: 110,
+        max: 155,
+      },
       hostPrice: 125,
       pricePosition: 'competitive',
       percentageDifference: -5.7,

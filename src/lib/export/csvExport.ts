@@ -1,4 +1,5 @@
 import { ForecastingAPIResponse } from '@/types/forecasting';
+import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency';
 
 /**
  * Generate and download CSV report for forecast data
@@ -7,59 +8,11 @@ export function generateForecastCSV(
   data: ForecastingAPIResponse,
   propertyName: string,
   startDate: string,
-  endDate: string
+  endDate: string,
+  currency: CurrencyCode = 'EUR'
 ): void {
   try {
-    // Build CSV content
-    const lines: string[] = [];
-
-    // Header section
-    lines.push(`"Property","${escapeCsvValue(propertyName)}"`);
-    lines.push(`"Report Type","Revenue Forecast"`);
-    lines.push(`"Period","${startDate} to ${endDate}"`);
-    lines.push(`"Generated","${new Date().toLocaleString()}"`);
-    lines.push(''); // Empty line for readability
-
-    // Summary section
-    lines.push('"FORECAST SUMMARY"');
-    lines.push(`"Period","Projected Revenue (EUR)","Confidence","Confidence Score"`);
-    lines.push(`"30 Days","${data.forecasts.days30.projectedRevenue.toFixed(2)}","${data.forecasts.days30.confidenceLevel}","${(data.forecasts.days30.confidenceScore * 100).toFixed(1)}%"`);
-    lines.push(`"60 Days","${data.forecasts.days60.projectedRevenue.toFixed(2)}","${data.forecasts.days60.confidenceLevel}","${(data.forecasts.days60.confidenceScore * 100).toFixed(1)}%"`);
-    lines.push(`"90 Days","${data.forecasts.days90.projectedRevenue.toFixed(2)}","${data.forecasts.days90.confidenceLevel}","${(data.forecasts.days90.confidenceScore * 100).toFixed(1)}%"`);
-    lines.push(''); // Empty line for readability
-
-    // Statistics section
-    lines.push('"STATISTICS"');
-    lines.push(`"Metric","Value"`);
-    lines.push(`"Average Daily Rate (ADR)","€${data.assumptions.baseRevenue90Days ? (data.assumptions.baseRevenue90Days / 90).toFixed(2) : 'N/A'}"`);
-    lines.push(`"Average Occupancy Rate","${(data.assumptions.avgOccupancyRate * 100).toFixed(1)}%"`);
-    lines.push(`"Last 90 Days Bookings","${data.assumptions.last90DaysBookings}"`);
-    lines.push(''); // Empty line for readability
-
-    // Daily forecast data
-    lines.push('"DAILY FORECAST DATA"');
-    lines.push(`"Date","Projected Revenue (EUR)","Confidence Lower Bound (EUR)","Confidence Upper Bound (EUR)","Confidence Range (EUR)"`);
-
-    // Add daily data points
-    data.chartData.forEach((point) => {
-      const confidenceRange = (point.upper - point.lower).toFixed(2);
-      lines.push(
-        `"${point.date}","${point.projected.toFixed(2)}","${point.lower.toFixed(2)}","${point.upper.toFixed(2)}","${confidenceRange}"`
-      );
-    });
-
-    lines.push(''); // Empty line for readability
-
-    // Assumptions section
-    lines.push('"ASSUMPTIONS & METHODOLOGY"');
-    lines.push(`"Seasonal Pattern","${data.assumptions.seasonalPattern ? 'Applied' : 'None'}"`);
-    lines.push(`"Day-of-Week Pattern","${data.assumptions.dayOfWeekPattern ? 'Applied' : 'None'}"`);
-    lines.push(`"Holiday Events","${data.assumptions.holidayEvents && data.assumptions.holidayEvents.length > 0 ? data.assumptions.holidayEvents.length : 0} events"`);
-    lines.push(`"Forecast Description","${escapeCsvValue(data.summary.trendsDescription)}"`);
-    lines.push(`"Seasonality Description","${escapeCsvValue(data.summary.seasonalityDescription)}"`);
-
-    // Join all lines
-    const csv = lines.join('\n');
+    const csv = buildForecastCSV(data, propertyName, startDate, endDate, currency);
 
     // Create blob and download
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -82,6 +35,66 @@ export function generateForecastCSV(
     console.error('CSV export error:', error);
     throw new Error('Failed to generate CSV: ' + (error instanceof Error ? error.message : 'Unknown error'));
   }
+}
+
+/**
+ * Build forecast CSV content.
+ */
+export function buildForecastCSV(
+  data: ForecastingAPIResponse,
+  propertyName: string,
+  startDate: string,
+  endDate: string,
+  currency: CurrencyCode = 'EUR'
+): string {
+  const lines: string[] = [];
+
+  // Header section
+  lines.push(`"Property","${escapeCsvValue(propertyName)}"`);
+  lines.push(`"Report Type","Revenue Forecast"`);
+  lines.push(`"Period","${startDate} to ${endDate}"`);
+  lines.push(`"Generated","${new Date().toLocaleString()}"`);
+  lines.push(''); // Empty line for readability
+
+  // Summary section
+  lines.push('"FORECAST SUMMARY"');
+  lines.push(`"Period","Projected Revenue (${currency})","Confidence","Confidence Score"`);
+  lines.push(`"30 Days","${formatCurrency(data.forecasts.days30.projectedRevenue, currency)}","${data.forecasts.days30.confidenceLevel}","${(data.forecasts.days30.confidenceScore * 100).toFixed(1)}%"`);
+  lines.push(`"60 Days","${formatCurrency(data.forecasts.days60.projectedRevenue, currency)}","${data.forecasts.days60.confidenceLevel}","${(data.forecasts.days60.confidenceScore * 100).toFixed(1)}%"`);
+  lines.push(`"90 Days","${formatCurrency(data.forecasts.days90.projectedRevenue, currency)}","${data.forecasts.days90.confidenceLevel}","${(data.forecasts.days90.confidenceScore * 100).toFixed(1)}%"`);
+  lines.push(''); // Empty line for readability
+
+  // Statistics section
+  lines.push('"STATISTICS"');
+  lines.push(`"Metric","Value"`);
+  lines.push(`"Average Daily Rate (ADR)","${data.assumptions.baseRevenue90Days ? formatCurrency(data.assumptions.baseRevenue90Days / 90, currency) : 'N/A'}"`);
+  lines.push(`"Average Occupancy Rate","${(data.assumptions.avgOccupancyRate * 100).toFixed(1)}%"`);
+  lines.push(`"Last 90 Days Bookings","${data.assumptions.last90DaysBookings}"`);
+  lines.push(''); // Empty line for readability
+
+  // Daily forecast data
+  lines.push('"DAILY FORECAST DATA"');
+  lines.push(`"Date","Projected Revenue (${currency})","Confidence Lower Bound (${currency})","Confidence Upper Bound (${currency})","Confidence Range (${currency})"`);
+
+  // Add daily data points
+  data.chartData.forEach((point) => {
+    const confidenceRange = point.upper - point.lower;
+    lines.push(
+      `"${point.date}","${formatCurrency(point.projected, currency)}","${formatCurrency(point.lower, currency)}","${formatCurrency(point.upper, currency)}","${formatCurrency(confidenceRange, currency)}"`
+    );
+  });
+
+  lines.push(''); // Empty line for readability
+
+  // Assumptions section
+  lines.push('"ASSUMPTIONS & METHODOLOGY"');
+  lines.push(`"Seasonal Pattern","${data.assumptions.seasonalPattern ? 'Applied' : 'None'}"`);
+  lines.push(`"Day-of-Week Pattern","${data.assumptions.dayOfWeekPattern ? 'Applied' : 'None'}"`);
+  lines.push(`"Holiday Events","${data.assumptions.holidayEvents && data.assumptions.holidayEvents.length > 0 ? data.assumptions.holidayEvents.length : 0} events"`);
+  lines.push(`"Forecast Description","${escapeCsvValue(data.summary.trendsDescription)}"`);
+  lines.push(`"Seasonality Description","${escapeCsvValue(data.summary.seasonalityDescription)}"`);
+
+  return lines.join('\n');
 }
 
 /**
