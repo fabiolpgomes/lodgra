@@ -276,9 +276,9 @@ export function PriceBreakdownTooltip({
 
               {/* Hidden for screen readers */}
               <div className="sr-only">
-                {`Price breakdown: Base price ${breakdown.base_price.toFixed(2)} EUR.
-                Total discounts: ${breakdown.total_discounts_amount.toFixed(2)} EUR.
-                Final price: ${breakdown.final_price.toFixed(2)} EUR.`}
+                {`Price breakdown: Base price ${formatCurrency(breakdown.base_price, currency)}.
+                Total discounts: ${formatCurrency(breakdown.total_discounts_amount, currency)}.
+                Final price: ${formatCurrency(breakdown.final_price, currency)}.`}
               </div>
             </div>
           )}

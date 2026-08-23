@@ -315,6 +315,7 @@ describe('PriceBreakdownTooltip - Story 41.5', () => {
         base_price={200}
         check_in="2026-08-29"
         check_out="2026-09-05"
+        currency="BRL"
         open={true}
       />
     )
@@ -323,6 +324,7 @@ describe('PriceBreakdownTooltip - Story 41.5', () => {
       const srOnly = container.querySelector('.sr-only')
       expect(srOnly).toBeInTheDocument()
       expect(srOnly).toHaveTextContent(/Price breakdown/)
+      expect(srOnly).toHaveTextContent(/R\$/)
     })
   })
 
