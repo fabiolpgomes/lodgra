@@ -1,4 +1,4 @@
-import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
+import { CURRENCIES, formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
 
 const BADGE_COLORS: Record<string, string> = {
   EUR: 'bg-brand-50 text-brand-700 ring-brand-200',
@@ -39,6 +39,18 @@ export function CurrencyStack({
   }
 
   const isSingle = entries.length === 1
+  const knownCurrencies = new Set<CurrencyCode>(Object.keys(CURRENCIES) as CurrencyCode[])
+
+  function formatStackAmount(amount: number, currency: string): string {
+    if (knownCurrencies.has(currency as CurrencyCode)) {
+      return formatCurrency(amount, currency as CurrencyCode)
+    }
+
+    return new Intl.NumberFormat('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(amount)
+  }
 
   return (
     <div className="space-y-1.5">
@@ -58,7 +70,7 @@ export function CurrencyStack({
               </span>
             )}
             <span className={`${SIZE_CLASSES[size]} ${amountColor} tabular-nums`}>
-              {formatCurrency(amount, currency as CurrencyCode)}
+              {formatStackAmount(amount, currency)}
             </span>
           </div>
         )

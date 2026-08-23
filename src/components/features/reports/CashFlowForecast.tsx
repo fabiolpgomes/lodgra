@@ -3,8 +3,8 @@
 import { Calendar, TrendingUp, DollarSign, ChevronDown, ChevronRight } from 'lucide-react'
 import { useState } from 'react'
 import { ExportToExcelButton } from './ExportToExcelButton'
-import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
 import { normalizeChannelName } from '@/lib/utils/channels'
+import { formatReportAmount, reportCurrencyLabel } from '@/lib/utils/report-currency'
 
 interface FutureReservation {
   id: string
@@ -59,7 +59,7 @@ function HorizonCard({
         {hasData ? (
           Object.entries(summary.revenueByCurrency).map(([cur, amount]) => (
             <p key={cur} className="text-2xl font-bold text-gray-900">
-              {formatCurrency(amount, cur as CurrencyCode)}
+              {formatReportAmount(amount, cur)}
             </p>
           ))
         ) : (
@@ -101,9 +101,9 @@ function MonthGroup({
           </span>
         </div>
         <span className="text-sm font-semibold text-gray-700">
-          {formatCurrency(
+          {formatReportAmount(
             reservations.reduce((s, r) => s + (r.total_amount ? Number(r.total_amount) : 0), 0),
-            (reservations[0]?.currency || 'EUR') as CurrencyCode
+            reservations[0]?.currency
           )}
         </span>
       </button>
@@ -140,7 +140,7 @@ function MonthGroup({
                 <div className="text-right">
                   <p className="font-semibold text-gray-900">
                     {r.total_amount
-                      ? formatCurrency(Number(r.total_amount), (r.currency || 'EUR') as CurrencyCode)
+                      ? formatReportAmount(Number(r.total_amount), r.currency)
                       : '—'}
                   </p>
                 </div>
@@ -177,7 +177,7 @@ export function CashFlowForecast({
       'Noites': nights,
       'Canal': r.source ? normalizeChannelName(r.source) : 'Directo',
       'Valor': r.total_amount ? Number(r.total_amount).toFixed(2) : '0.00',
-      'Moeda': r.currency || 'EUR',
+      'Moeda': reportCurrencyLabel(r.currency),
     }
   })
 

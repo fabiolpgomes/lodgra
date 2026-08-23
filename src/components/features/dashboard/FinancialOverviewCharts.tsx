@@ -16,8 +16,8 @@ import {
 import {
   ArrowUpRight,
 } from 'lucide-react'
-import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
 import { BRAND, ACCENT } from '@/lib/design/tokens'
+import { formatReportAmount } from '@/lib/utils/report-currency'
 
 interface MonthlyStat {
   month: string
@@ -79,7 +79,7 @@ export function FinancialOverviewCharts({ monthlyStats, propertyStats, totalsByC
           <div className="space-y-1">
             {Object.entries(totalsByCurrency).map(([currency, data]) => (
               <h2 key={currency} className="text-2xl font-black font-display" style={{ color: BRAND[800] }}>
-                {formatCurrency(data.revenue, currency as CurrencyCode)}
+                {formatReportAmount(data.revenue, currency)}
               </h2>
             ))}
           </div>
@@ -98,7 +98,7 @@ export function FinancialOverviewCharts({ monthlyStats, propertyStats, totalsByC
             {Object.entries(totalsByCurrency).map(([currency, data]) => (
               <div key={currency}>
                 <h2 className="text-2xl font-black text-lodgra-blue font-display">
-                  {formatCurrency(data.mgmt, currency as CurrencyCode)}
+                  {formatReportAmount(data.mgmt, currency)}
                 </h2>
                 {data.revenue > 0 && (
                   <div className="flex items-center gap-2 text-lodgra-blue font-black text-[10px] uppercase tracking-widest mt-1">
@@ -116,7 +116,7 @@ export function FinancialOverviewCharts({ monthlyStats, propertyStats, totalsByC
           <div className="space-y-1">
             {Object.entries(totalsByCurrency).map(([currency, data]) => (
               <h2 key={currency} className="text-2xl font-black text-[color:var(--be-blue)] font-display">
-                {formatCurrency(data.owner, currency as CurrencyCode)}
+                {formatReportAmount(data.owner, currency)}
               </h2>
             ))}
           </div>

@@ -2,7 +2,7 @@
 
 import { BarChart2, DollarSign } from 'lucide-react'
 import { ExportToExcelButton } from './ExportToExcelButton'
-import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
+import { formatReportAmount, reportCurrencyLabel } from '@/lib/utils/report-currency'
 
 interface ChannelStat {
   name: string
@@ -51,7 +51,7 @@ export function ChannelAnalysis({ channelStats, totalRevenue, startDate, endDate
     return {
       'Canal': c.name,
       'Receita': c.revenue.toFixed(2),
-      'Moeda': c.currency,
+      'Moeda': reportCurrencyLabel(c.currency),
       'Reservas': c.reservations,
       'Noites': c.nights,
       'ADR': adr.toFixed(2),
@@ -113,7 +113,7 @@ export function ChannelAnalysis({ channelStats, totalRevenue, startDate, endDate
                       <span className="font-semibold text-gray-900 text-sm">{channel.name}</span>
                     </div>
                     <span className="text-sm font-bold text-gray-900">
-                      {formatCurrency(channel.revenue, channel.currency as CurrencyCode)}
+                      {formatReportAmount(channel.revenue, channel.currency)}
                     </span>
                   </div>
 
@@ -123,7 +123,7 @@ export function ChannelAnalysis({ channelStats, totalRevenue, startDate, endDate
                     <div className="flex gap-4">
                       <span>{channel.reservations} reservas</span>
                       <span>{channel.nights} noites</span>
-                      <span>ADR: {formatCurrency(adr, channel.currency as CurrencyCode)}</span>
+                      <span>ADR: {formatReportAmount(adr, channel.currency)}</span>
                     </div>
                     <span className={`font-semibold ${pct > 50 ? 'text-red-600' : pct >= 25 ? 'text-yellow-600' : 'text-emerald-700'}`}>
                       {pct.toFixed(1)}%

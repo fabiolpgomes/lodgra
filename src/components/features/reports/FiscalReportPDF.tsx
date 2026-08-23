@@ -1,6 +1,7 @@
 'use client'
 
 import { Document, Page, Text, View, StyleSheet, pdf } from '@react-pdf/renderer'
+import { formatReportAmount } from '@/lib/utils/report-currency'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -150,17 +151,13 @@ const s = StyleSheet.create({
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function fmt(value: number, currency: string) {
-  return new Intl.NumberFormat('pt-PT', {
-    style: 'currency',
-    currency: currency || 'EUR',
-    minimumFractionDigits: 2,
-  }).format(value)
+  return formatReportAmount(value, currency)
 }
 
 // ─── PDF Document ─────────────────────────────────────────────────────────────
 
 function FiscalDocument({ data }: { data: FiscalData }) {
-  const currency = data.owner.preferred_currency || 'EUR'
+  const currency = data.owner.preferred_currency
   const generated = new Date().toLocaleDateString('pt-PT', {
     day: '2-digit', month: 'long', year: 'numeric',
   })

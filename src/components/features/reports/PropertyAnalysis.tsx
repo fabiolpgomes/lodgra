@@ -2,7 +2,7 @@
 
 import { Building2 } from 'lucide-react'
 import { ExportToExcelButton } from './ExportToExcelButton'
-import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
+import { formatReportAmount, reportCurrencyLabel } from '@/lib/utils/report-currency'
 
 interface PropertyStat {
   id: string
@@ -31,7 +31,7 @@ export function PropertyAnalysis({ propertyStats }: PropertyAnalysisProps) {
     return {
       'Propriedade': stat.name,
       'Proprietário': stat.owner_name || '—',
-      'Moeda': stat.currency || 'EUR',
+      'Moeda': reportCurrencyLabel(stat.currency),
       'Receita Total': stat.revenue.toFixed(2),
       'Comissão Gestão (%)': stat.management_percentage ?? 0,
       'Comissão Gestão': (stat.management_fee ?? 0).toFixed(2),
@@ -68,7 +68,7 @@ export function PropertyAnalysis({ propertyStats }: PropertyAnalysisProps) {
       ) : (
         <div className="space-y-4">
           {sortedStats.map((stat) => {
-            const currency = (stat.currency || 'EUR') as CurrencyCode
+            const currency = stat.currency
             const avgNightly = stat.nights > 0 ? stat.revenue / stat.nights : 0
             const occupancy = stat.availableNights > 0
               ? Math.min((stat.nights / stat.availableNights) * 100, 100)
@@ -94,7 +94,7 @@ export function PropertyAnalysis({ propertyStats }: PropertyAnalysisProps) {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className="text-sm text-gray-600">Receita Bruta</p>
-                    <p className="text-xl font-bold text-emerald-700">{formatCurrency(stat.revenue, currency)}</p>
+                    <p className="text-xl font-bold text-emerald-700">{formatReportAmount(stat.revenue, currency)}</p>
                   </div>
 
                   <div>
@@ -106,23 +106,23 @@ export function PropertyAnalysis({ propertyStats }: PropertyAnalysisProps) {
                     <>
                       <div>
                         <p className="text-sm text-gray-600">Comissão Gestão</p>
-                        <p className="text-lg font-semibold text-orange-600">{formatCurrency(stat.management_fee ?? 0, currency)}</p>
+                        <p className="text-lg font-semibold text-orange-600">{formatReportAmount(stat.management_fee ?? 0, currency)}</p>
                       </div>
                       <div>
                         <p className="text-sm text-gray-600">Líquido Proprietário</p>
-                        <p className="text-lg font-semibold text-teal-600">{formatCurrency(stat.owner_net ?? stat.revenue, currency)}</p>
+                        <p className="text-lg font-semibold text-teal-600">{formatReportAmount(stat.owner_net ?? stat.revenue, currency)}</p>
                       </div>
                     </>
                   )}
 
                   <div>
                     <p className="text-sm text-gray-600">ADR (Diária)</p>
-                    <p className="text-lg font-semibold text-gray-900">{formatCurrency(avgNightly, currency)}</p>
+                    <p className="text-lg font-semibold text-gray-900">{formatReportAmount(avgNightly, currency)}</p>
                   </div>
 
                   <div>
                     <p className="text-sm text-gray-600">RevPAR</p>
-                    <p className="text-lg font-semibold text-purple-700">{formatCurrency(revpar, currency)}</p>
+                    <p className="text-lg font-semibold text-purple-700">{formatReportAmount(revpar, currency)}</p>
                   </div>
                 </div>
 

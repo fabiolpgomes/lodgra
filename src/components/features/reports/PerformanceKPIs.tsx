@@ -3,7 +3,8 @@
 import { useMemo, useState } from 'react'
 import { TrendingUp, HelpCircle } from 'lucide-react'
 import { CurrencyStack } from '@/components/common/ui/CurrencyStack'
-import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
+import { type CurrencyCode } from '@/lib/utils/currency'
+import { formatReportAmount, reportCurrencyLabel } from '@/lib/utils/report-currency'
 
 export interface Reservation {
   id: string
@@ -31,10 +32,10 @@ export function PerformanceKPIs({
   reservations,
   _startDate,
   _endDate,
-  currency = 'EUR',
+  currency,
 }: PerformanceKPIsProps) {
   const [hoveredKpi, setHoveredKpi] = useState<number | null>(null)
-  const resolvedCurrency = currency?.toUpperCase() as CurrencyCode
+  const resolvedCurrency = currency?.toUpperCase() as CurrencyCode | undefined
 
   const kpiDescriptions = [
     'Percentual de dias ocupados em relação ao total de dias no período. Acima de 70% é excelente.',
@@ -59,13 +60,13 @@ export function PerformanceKPIs({
       },
       {
         title: 'ADR (Diária Média)',
-        value: formatCurrency(metrics.adr, resolvedCurrency),
+        value: formatReportAmount(metrics.adr, resolvedCurrency),
         valueClass: 'text-blue-600',
         subtitle: `${metrics.reservationCount} reservas`,
       },
       {
         title: 'Receita',
-        value: formatCurrency(metrics.revenue, resolvedCurrency),
+        value: formatReportAmount(metrics.revenue, resolvedCurrency),
         valueClass: 'text-purple-600',
         subtitle: `${(metrics.revenue / metrics.occupancyRate || 0).toFixed(0)} por dia`,
       },
@@ -81,7 +82,7 @@ export function PerformanceKPIs({
   const currencyTotals = useMemo(() => {
     const totals: Record<string, number> = {}
     reservations.forEach((r) => {
-      const reservationCurrency = (r.currency || resolvedCurrency).toUpperCase() as CurrencyCode
+      const reservationCurrency = reportCurrencyLabel(r.currency || resolvedCurrency)
       totals[reservationCurrency] = (totals[reservationCurrency] || 0) + (r.total_amount || 0)
     })
     return totals
