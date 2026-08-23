@@ -27,6 +27,7 @@ describe('PriceBreakdownTooltip - Story 41.5', () => {
     render(
       <PriceBreakdownTooltip
         base_price={200}
+        currency="BRL"
         check_in="2026-08-29"
         check_out="2026-09-05"
       />
@@ -44,6 +45,7 @@ describe('PriceBreakdownTooltip - Story 41.5', () => {
     render(
       <PriceBreakdownTooltip
         base_price={200}
+        currency="BRL"
         check_in="2026-08-29"
         check_out="2026-09-05"
       />
@@ -66,6 +68,7 @@ describe('PriceBreakdownTooltip - Story 41.5', () => {
     render(
       <PriceBreakdownTooltip
         base_price={200}
+        currency="BRL"
         check_in="2026-08-29"
         check_out="2026-09-05"
         open={true}
@@ -110,6 +113,7 @@ describe('PriceBreakdownTooltip - Story 41.5', () => {
     render(
       <PriceBreakdownTooltip
         base_price={200}
+        currency="BRL"
         check_in="2026-08-29"
         check_out="2026-09-05"
         open={true}
@@ -152,6 +156,7 @@ describe('PriceBreakdownTooltip - Story 41.5', () => {
     render(
       <PriceBreakdownTooltip
         base_price={200}
+        currency="BRL"
         check_in="2026-08-29"
         check_out="2026-09-05"
         open={true}
@@ -163,7 +168,7 @@ describe('PriceBreakdownTooltip - Story 41.5', () => {
     })
 
     const dialog = screen.getByRole('dialog')
-    expect(dialog).toHaveTextContent(/200,00\s?€|€200\.00/)
+    expect(dialog).toHaveTextContent(/R\$\s*200,00|R\$\s*200\.00/)
   })
 
   it('should show loading state while fetching', async () => {
@@ -174,6 +179,7 @@ describe('PriceBreakdownTooltip - Story 41.5', () => {
     render(
       <PriceBreakdownTooltip
         base_price={200}
+        currency="BRL"
         check_in="2026-08-29"
         check_out="2026-09-05"
         open={true}
@@ -202,6 +208,7 @@ describe('PriceBreakdownTooltip - Story 41.5', () => {
     render(
       <PriceBreakdownTooltip
         base_price={200}
+        currency="BRL"
         check_in="2026-08-29"
         check_out="2026-09-05"
         open={true}
@@ -222,6 +229,7 @@ describe('PriceBreakdownTooltip - Story 41.5', () => {
     render(
       <PriceBreakdownTooltip
         base_price={200}
+        currency="BRL"
         check_in="2026-08-29"
         check_out="2026-09-05"
         open={true}
@@ -259,6 +267,7 @@ describe('PriceBreakdownTooltip - Story 41.5', () => {
     render(
       <PriceBreakdownTooltip
         base_price={200}
+        currency="BRL"
         check_in="2026-08-29"
         check_out="2026-09-05"
         guest_id="guest-123"
@@ -288,6 +297,7 @@ describe('PriceBreakdownTooltip - Story 41.5', () => {
     render(
       <PriceBreakdownTooltip
         base_price={200}
+        currency="BRL"
         check_in="2026-08-29"
         check_out="2026-09-05"
       />
@@ -337,6 +347,7 @@ describe('PriceBreakdownTooltip - Story 41.5', () => {
     render(
       <PriceBreakdownTooltip
         base_price={200}
+        currency="BRL"
         check_in="2026-09-05"
         check_out="2026-08-29"
         open={true}
@@ -358,6 +369,7 @@ describe('PriceBreakdownTooltip - Story 41.5', () => {
     render(
       <PriceBreakdownTooltip
         base_price={200}
+        currency="BRL"
         check_in="2026-08-29"
         check_out="2026-09-05"
         onOpenChange={onOpenChange}
@@ -376,6 +388,7 @@ describe('PriceBreakdownTooltip - Story 41.5', () => {
     const { container } = render(
       <PriceBreakdownTooltip
         base_price={200}
+        currency="BRL"
         check_in="2026-08-29"
         check_out="2026-09-05"
         open={true}

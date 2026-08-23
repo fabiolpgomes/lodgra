@@ -9,12 +9,11 @@ import React, { useState } from 'react';
 import type { PriceRecommendation } from '@/types/pricing.types';
 import { PriceRecommendationCard } from './PriceRecommendationCard';
 import { AlertCircle, Loader } from 'lucide-react';
-import type { CurrencyCode } from '@/lib/utils/currency';
 
 interface RecommendationsViewProps {
   recommendations: PriceRecommendation[];
   currentPrice: number;
-  currency?: CurrencyCode;
+  currency?: string;
   onAccept: (recommendationId: string, applyImmediately: boolean) => Promise<void>;
   onReject: (recommendationId: string) => Promise<void>;
   isLoading?: boolean;
@@ -27,7 +26,7 @@ type SortOption = 'newest' | 'confidence' | 'impact';
 export function RecommendationsView({
   recommendations,
   currentPrice,
-  currency = 'EUR',
+  currency,
   onAccept,
   onReject,
   isLoading = false,

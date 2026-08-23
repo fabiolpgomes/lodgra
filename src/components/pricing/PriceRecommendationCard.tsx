@@ -10,12 +10,12 @@ import React, { useState } from 'react';
 import type { PriceRecommendation } from '@/types/pricing.types';
 import { RecommendationEngine } from '@/lib/pricing/recommendation-engine';
 import { ChevronDown, TrendingUp, Zap } from 'lucide-react';
-import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency';
+import { formatPricingAmount } from '@/lib/utils/pricing-currency';
 
 interface PriceRecommendationCardProps {
   recommendation: PriceRecommendation;
   currentPrice: number;
-  currency?: CurrencyCode;
+  currency?: string;
   onAccept: (recommendationId: string, applyImmediately: boolean) => Promise<void>;
   onReject: (recommendationId: string) => Promise<void>;
   isLoading?: boolean;
@@ -24,12 +24,11 @@ interface PriceRecommendationCardProps {
 export function PriceRecommendationCard({
   recommendation,
   currentPrice,
-  currency = 'EUR',
+  currency,
   onAccept,
   onReject,
   isLoading = false,
 }: PriceRecommendationCardProps) {
-  const resolvedCurrency = currency?.toUpperCase() as CurrencyCode
   const [showDetails, setShowDetails] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [isAccepting, setIsAccepting] = useState(false);
@@ -73,18 +72,18 @@ export function PriceRecommendationCard({
               </p>
               <div className="mt-2 flex items-baseline gap-2 flex-wrap">
                 <span className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white">
-                  {formatCurrency(recommendation.recommended_price, resolvedCurrency)}
+                  {formatPricingAmount(recommendation.recommended_price, currency)}
                 </span>
                 <span
                   className={`text-lg font-semibold ${
                     priceChange >= 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'
                   }`}
                 >
-                  {priceChange >= 0 ? '+' : ''}{formatCurrency(priceChange, resolvedCurrency)} ({priceChangePercent.toFixed(1)}%)
+                  {priceChange >= 0 ? '+' : ''}{formatPricingAmount(priceChange, currency)} ({priceChangePercent.toFixed(1)}%)
                 </span>
               </div>
               <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">
-                Current: {formatCurrency(currentPrice, resolvedCurrency)}
+                Current: {formatPricingAmount(currentPrice, currency)}
               </p>
             </div>
 
@@ -125,13 +124,13 @@ export function PriceRecommendationCard({
             <div>
               <p className="text-xs text-slate-500 dark:text-slate-400 uppercase">Current</p>
               <p className="text-lg font-semibold text-slate-900 dark:text-white mt-1">
-                {formatCurrency(recommendation.revenue_projection.current_monthly, resolvedCurrency)}
+                {formatPricingAmount(recommendation.revenue_projection.current_monthly, currency)}
               </p>
             </div>
             <div>
               <p className="text-xs text-slate-500 dark:text-slate-400 uppercase">Projected</p>
               <p className="text-lg font-semibold text-slate-900 dark:text-white mt-1">
-                {formatCurrency(recommendation.revenue_projection.projected_monthly, resolvedCurrency)}
+                {formatPricingAmount(recommendation.revenue_projection.projected_monthly, currency)}
               </p>
             </div>
             <div>
@@ -143,7 +142,7 @@ export function PriceRecommendationCard({
                     : 'text-red-600 dark:text-red-400'
                 }`}
               >
-                {revenueChange >= 0 ? '+' : ''}{formatCurrency(revenueChange, resolvedCurrency)}
+                {revenueChange >= 0 ? '+' : ''}{formatPricingAmount(revenueChange, currency)}
               </p>
             </div>
           </div>
@@ -177,13 +176,13 @@ export function PriceRecommendationCard({
               <div className="flex justify-between">
                 <span className="text-slate-600 dark:text-slate-400">Market Median:</span>
                 <span className="font-semibold text-slate-900 dark:text-white">
-                  {formatCurrency(recommendation.market_analysis.median_price, resolvedCurrency)}
+                  {formatPricingAmount(recommendation.market_analysis.median_price, currency)}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-600 dark:text-slate-400">Competitor Avg:</span>
                 <span className="font-semibold text-slate-900 dark:text-white">
-                  {formatCurrency(recommendation.market_analysis.competitor_avg, resolvedCurrency)}
+                  {formatPricingAmount(recommendation.market_analysis.competitor_avg, currency)}
                 </span>
               </div>
               <div className="flex justify-between">
@@ -253,7 +252,7 @@ export function PriceRecommendationCard({
               <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
                 <p className="text-sm text-slate-700 dark:text-slate-300">
                   This will immediately update your property's nightly price to{' '}
-                  <span className="font-bold">{formatCurrency(recommendation.recommended_price, resolvedCurrency)}</span>.
+                  <span className="font-bold">{formatPricingAmount(recommendation.recommended_price, currency)}</span>.
                 </p>
               </div>
 
