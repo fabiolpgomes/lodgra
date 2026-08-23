@@ -137,7 +137,8 @@ describe('Loyalty Calculator', () => {
       const message = formatLoyaltyMessage(true, 10, 6650)
       expect(message).toContain('🎁')
       expect(message).toContain('Desconto Fidelidade')
-      expect(message).toContain('66.50 EUR')
+      expect(message).toMatch(/66,50/)
+      expect(message).toContain('€')
       expect(message).toContain('10%')
     })
 

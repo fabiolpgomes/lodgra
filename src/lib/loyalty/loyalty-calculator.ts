@@ -3,6 +3,8 @@
  * Identifies recurring guests and calculates loyalty discount eligibility
  */
 
+import { formatCurrency } from '@/lib/utils/currency'
+
 export interface LoyaltyStatus {
   is_loyal: boolean
   average_rating: number | null
@@ -112,7 +114,7 @@ export function formatLoyaltyMessage(
   }
 
   if (discountAmount !== undefined) {
-    return `🎁 Desconto Fidelidade: -€${(discountAmount / 100).toFixed(2)} (${discountPercentage}%)`
+    return `🎁 Desconto Fidelidade: -${formatCurrency(discountAmount / 100)} (${discountPercentage}%)`
   }
 
   return `🎁 Desconto Fidelidade: ${discountPercentage}%`
