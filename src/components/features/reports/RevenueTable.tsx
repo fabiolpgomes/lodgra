@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { ExportToExcelButton } from './ExportToExcelButton'
-import { formatCurrency, groupByCurrency, type CurrencyCode } from '@/lib/utils/currency'
+import { CURRENCIES, formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
 import { getLocalizedPath, useLocale } from '@/lib/i18n/routing'
 
 interface ReservationRow {
@@ -16,9 +16,28 @@ interface ReservationRow {
   property_listings: { properties: { name: string; city: string; currency?: string | null } }
 }
 
-function getRowCurrency(r: ReservationRow): CurrencyCode {
-  const propertyCurrency = r.property_listings?.properties?.currency
-  return ((propertyCurrency || r.currency || 'EUR') as CurrencyCode)
+const KNOWN_CURRENCIES = new Set<CurrencyCode>(Object.keys(CURRENCIES) as CurrencyCode[])
+
+function getRowCurrency(r: ReservationRow): CurrencyCode | null {
+  const propertyCurrency = r.property_listings?.properties?.currency || r.currency
+
+  if (!propertyCurrency) {
+    return null
+  }
+
+  const normalizedCurrency = propertyCurrency.toUpperCase() as CurrencyCode
+  return KNOWN_CURRENCIES.has(normalizedCurrency) ? normalizedCurrency : null
+}
+
+function formatRevenueAmount(amount: number, currency: CurrencyCode | null): string {
+  if (!currency) {
+    return new Intl.NumberFormat('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(amount)
+  }
+
+  return formatCurrency(amount, currency)
 }
 
 interface RevenueTableProps {
@@ -45,19 +64,17 @@ export function RevenueTable({ reservations, startDate, endDate }: RevenueTableP
       'Propriedade': r.property_listings.properties.name,
       'Cidade': r.property_listings.properties.city,
       'Status': r.status,
-      'Moeda': getRowCurrency(r),
+      'Moeda': getRowCurrency(r) || 'sem moeda',
       'Valor Total': r.total_amount ? Number(r.total_amount).toFixed(2) : '0.00',
       'Diária Média': r.total_amount ? (Number(r.total_amount) / nights).toFixed(2) : '0.00',
     }
   })
 
-  // Calcular totais por moeda usando property.currency como fonte de verdade
-  const totalsByCurrency = groupByCurrency(
-    reservations.map(r => ({
-      currency: getRowCurrency(r),
-      amount: r.total_amount ? Number(r.total_amount) : 0
-    }))
-  )
+  const totalsByCurrency = reservations.reduce((acc: Record<string, number>, r) => {
+    const currency = getRowCurrency(r) || 'sem_moeda'
+    acc[currency] = (acc[currency] || 0) + (r.total_amount ? Number(r.total_amount) : 0)
+    return acc
+  }, {})
 
   return (
     <div className="bg-white rounded-lg shadow p-6">
@@ -142,10 +159,10 @@ export function RevenueTable({ reservations, startDate, endDate }: RevenueTableP
                       {nights}
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900 text-right">
-                      {formatCurrency(total, currency)}
+                      {formatRevenueAmount(total, currency)}
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600 text-right">
-                      {formatCurrency(avgNightly, currency)}
+                      {formatRevenueAmount(avgNightly, currency)}
                     </td>
                   </tr>
                 )
@@ -155,10 +172,15 @@ export function RevenueTable({ reservations, startDate, endDate }: RevenueTableP
               {Object.entries(totalsByCurrency).map(([currency, amount]) => (
                 <tr key={currency}>
                   <td colSpan={5} className="px-4 py-3 text-sm text-gray-900 text-right">
-                    TOTAL ({currency}):
+                    TOTAL ({currency === 'sem_moeda' ? 'sem moeda' : currency}):
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-900 text-right">
-                    {formatCurrency(amount, currency as CurrencyCode)}
+                    {currency === 'sem_moeda'
+                      ? new Intl.NumberFormat('pt-BR', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        }).format(amount)
+                      : formatCurrency(amount, currency as CurrencyCode)}
                   </td>
                   <td></td>
                 </tr>
