@@ -77,13 +77,17 @@ export default function EditExpensePage({
     const property = properties.find(p => p.id === selectedPropertyId)
 
     try {
+      if (!property?.currency && !expense?.currency) {
+        throw new Error('Moeda da despesa não encontrada')
+      }
+
       const { error: updateError } = await supabase
         .from('expenses')
         .update({
           property_id: selectedPropertyId,
           description: formData.get('description') as string,
           amount: parseFloat(formData.get('amount') as string),
-          currency: property?.currency || 'EUR',
+          currency: property?.currency ?? expense?.currency,
           category: selectedCategory,
           expense_date: formData.get('expense_date') as string,
           notes: formData.get('notes') as string || null,

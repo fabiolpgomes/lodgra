@@ -1,11 +1,11 @@
 import Link from 'next/link'
 import { Plus, Receipt, TrendingDown, FileText } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
-import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
 import { CurrencyStack } from '@/components/common/ui/CurrencyStack'
 import { AuthLayout } from '@/components/common/layout/AuthLayout'
 import { Button } from '@/components/common/ui/button'
 import { Badge } from '@/components/common/ui/badge'
+import { formatFinancialAmount, groupFinancialByCurrency } from '@/lib/utils/financial-report-currency'
 
 export default async function ExpensesPage() {
   const supabase = await createClient()
@@ -25,13 +25,12 @@ export default async function ExpensesPage() {
   if (error) {
     console.error('Erro ao buscar despesas:', error)
   }
-
-
-  const totalExpensesByCurrency = (expenses || []).reduce((acc, e) => {
-    const cur = (e.currency || e.properties?.currency || 'EUR') as string
-    acc[cur] = (acc[cur] || 0) + Number(e.amount || 0)
-    return acc
-  }, {} as Record<string, number>)
+  const totalExpensesByCurrency = groupFinancialByCurrency(
+    (expenses || []).map(e => ({
+      currency: e.currency || e.properties?.currency,
+      amount: Number(e.amount || 0),
+    }))
+  )
 
   const categoryLabels: Record<string, string> = {
     cleaning: 'Limpeza',
@@ -162,7 +161,7 @@ export default async function ExpensesPage() {
                       </Badge>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium text-red-600">
-                      {formatCurrency(expense.amount, (expense.currency || expense.properties?.currency || 'EUR') as CurrencyCode)}
+                      {formatFinancialAmount(expense.amount, expense.currency || expense.properties?.currency)}
                     </td>
                   </tr>
                 ))}

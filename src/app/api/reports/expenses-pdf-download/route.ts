@@ -3,6 +3,7 @@ import { requireRole } from '@/lib/auth/requireRole'
 import { createClient } from '@/lib/supabase/server'
 import { getUserPropertyIds } from '@/lib/auth/getUserProperties'
 import { getCategoryLabel } from '@/lib/utils/expense-categories'
+import { formatFinancialAmount, financialCurrencyLabel } from '@/lib/utils/financial-report-currency'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 interface Expense {
@@ -17,13 +18,6 @@ interface Expense {
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
-function formatCurrency(amount: number, currency: string): string {
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: currency,
-  }).format(amount)
-}
-
 function generateHtml(
   expenses: Expense[],
   startDate: string,
@@ -34,7 +28,7 @@ function generateHtml(
   nonce: string
 ): string {
   const totalAmount = expenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0)
-  const mainCurrency = expenses[0]?.currency || 'EUR'
+  const mainCurrency = financialCurrencyLabel(expenses[0]?.currency)
 
   const groupedByProperty = expenses.reduce((acc: Record<string, Expense[]>, e) => {
     const propId = e.properties.id
@@ -132,8 +126,8 @@ function generateHtml(
 
       <div class="summary">
         <div class="summary-item"><strong>Total de Despesas:</strong> ${expenses.length}</div>
-        <div class="summary-item"><strong>Valor Total:</strong> ${formatCurrency(totalAmount, mainCurrency)}</div>
-        ${expenses.length > 0 ? `<div class="summary-item"><strong>Media por Despesa:</strong> ${formatCurrency(totalAmount / expenses.length, mainCurrency)}</div>` : ''}
+        <div class="summary-item"><strong>Valor Total:</strong> ${formatFinancialAmount(totalAmount, mainCurrency)}</div>
+        ${expenses.length > 0 ? `<div class="summary-item"><strong>Media por Despesa:</strong> ${formatFinancialAmount(totalAmount / expenses.length, mainCurrency)}</div>` : ''}
       </div>
 
       ${Object.keys(groupedByCategory).length > 0 ? `
@@ -144,7 +138,7 @@ function generateHtml(
           .map(([cat, amount]) => `
             <div class="category-row">
               <span>${cat}</span>
-              <span class="currency">${formatCurrency(amount, mainCurrency)}</span>
+              <span class="currency">${formatFinancialAmount(amount, mainCurrency)}</span>
             </div>
           `).join('')}
       </div>` : ''}
@@ -170,12 +164,12 @@ function generateHtml(
                     <td>${new Date(e.expense_date).toLocaleDateString('pt-BR')}</td>
                     <td>${getCategoryLabel(e.category)}</td>
                     <td>${e.description}${e.notes ? ' (' + e.notes + ')' : ''}</td>
-                    <td class="currency">${formatCurrency(Number(e.amount), e.currency || 'EUR')}</td>
+                    <td class="currency">${formatFinancialAmount(Number(e.amount), e.currency)}</td>
                   </tr>`)
                   .join('')}
                 <tr class="subtotal">
                   <td colspan="3" style="text-align: right;">Subtotal</td>
-                  <td class="currency">${formatCurrency(propTotal, propExpenses[0]?.currency || 'EUR')}</td>
+                  <td class="currency">${formatFinancialAmount(propTotal, propExpenses[0]?.currency)}</td>
                 </tr>
               </tbody>
             </table>

@@ -4,11 +4,11 @@ import { Receipt, ArrowLeft, Edit, Building2, StickyNote, CreditCard } from 'luc
 import { createClient } from '@/lib/supabase/server'
 import { DeleteExpenseButton } from '@/components/features/expenses/DeleteExpenseButton'
 import { ExpenseDocuments } from '@/components/features/expenses/ExpenseDocuments'
-import { formatCurrency } from '@/lib/utils/currency'
 import { AuthLayout } from '@/components/common/layout/AuthLayout'
 import { getUserRole } from '@/lib/auth/getUserRole'
 import { Button } from '@/components/common/ui/button'
 import { Badge } from '@/components/common/ui/badge'
+import { formatFinancialAmount, financialCurrencyLabel } from '@/lib/utils/financial-report-currency'
 
 const categoryLabels: Record<string, string> = {
   cleaning: 'Limpeza',
@@ -152,7 +152,7 @@ export default async function ExpenseDetailsPage({
                 <div>
                   <p className="text-sm text-gray-600 mb-1">Valor</p>
                   <p className="text-2xl font-bold text-red-600">
-                    {formatCurrency(expense.amount, expense.currency || 'EUR')}
+                    {formatFinancialAmount(expense.amount, expense.currency)}
                   </p>
                 </div>
               </div>
@@ -213,13 +213,13 @@ export default async function ExpenseDetailsPage({
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600">Valor</span>
                   <span className="text-2xl font-bold text-red-600">
-                    {formatCurrency(expense.amount, expense.currency || 'EUR')}
+                    {formatFinancialAmount(expense.amount, expense.currency)}
                   </span>
                 </div>
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-gray-600">Moeda</span>
                   <span className="text-gray-900 font-medium">
-                    {expense.currency || 'EUR'}
+                    {financialCurrencyLabel(expense.currency)}
                   </span>
                 </div>
               </div>

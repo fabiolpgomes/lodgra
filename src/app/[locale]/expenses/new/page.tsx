@@ -66,6 +66,11 @@ export default function NewExpensePage() {
         setLoading(false)
         return
       }
+      if (!property?.currency) {
+        setError('Moeda da propriedade não encontrada')
+        setLoading(false)
+        return
+      }
 
       const { error: insertError } = await supabase
         .from('expenses')
@@ -73,7 +78,7 @@ export default function NewExpensePage() {
           property_id: propertyId,
           description: formData.get('description') as string,
           amount: parseFloat(formData.get('amount') as string),
-          currency: property?.currency || 'EUR',
+          currency: property.currency,
           category,
           expense_date: formData.get('expense_date') as string,
           notes: formData.get('notes') as string || null,
