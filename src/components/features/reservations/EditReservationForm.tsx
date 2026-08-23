@@ -14,6 +14,7 @@ interface EditReservationFormProps {
 }
 
 export function EditReservationForm({ reservation, onClose, onSave }: EditReservationFormProps) {
+  const currency = reservation.currency?.toUpperCase() || 'EUR'
   const [formData, setFormData] = useState({
     guest_name: reservation.guest_name || '',
     guest_email: reservation.guest_email || '',
@@ -159,7 +160,7 @@ export function EditReservationForm({ reservation, onClose, onSave }: EditReserv
           {/* Total Price */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Valor Total (EUR)
+              Valor Total ({currency})
             </label>
             <Input
               type="number"
