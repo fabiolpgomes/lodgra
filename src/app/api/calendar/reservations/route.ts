@@ -80,7 +80,7 @@ export async function GET(request: NextRequest) {
           status,
           number_of_guests: reservation.number_of_guests,
           total_amount: reservation.total_price,
-          currency: reservation.currency || 'EUR',
+          currency: reservation.currency ?? null,
           opacity: status === 'pending' ? 0.65 : 1,
         },
       }
