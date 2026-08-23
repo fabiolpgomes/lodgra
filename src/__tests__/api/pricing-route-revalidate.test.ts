@@ -1,15 +1,15 @@
 import { PUT } from '@/app/api/properties/[id]/pricing/route'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
-import { requirePropertyAccess } from '@/lib/auth/requirePropertyAccess'
+import { authorizePropertyManagement } from '@/lib/auth/authorizePropertyManagement'
 import { createTestRequest } from '@/__tests__/utils/test-request'
 
 jest.mock('@/lib/supabase/admin', () => ({
   createAdminClient: jest.fn(),
 }))
 
-jest.mock('@/lib/auth/requirePropertyAccess', () => ({
-  requirePropertyAccess: jest.fn(),
+jest.mock('@/lib/auth/authorizePropertyManagement', () => ({
+  authorizePropertyManagement: jest.fn(),
 }))
 
 jest.mock('next/cache', () => ({
@@ -38,19 +38,14 @@ describe('PUT /api/properties/[id]/pricing revalidation', () => {
     }
 
     ;(createAdminClient as jest.Mock).mockReturnValue(mockSupabase)
-    ;(requirePropertyAccess as jest.Mock).mockResolvedValue({
+    ;(authorizePropertyManagement as jest.Mock).mockResolvedValue({
       authorized: true,
+      admin: mockSupabase,
       property: {
         id: 'prop-123',
         slug: 'test-property',
         currency: 'EUR',
         organization_id: 'org-123',
-      },
-      auth: {
-        authorized: true,
-        organizationId: 'org-123',
-        role: 'admin',
-        user: { id: 'user-123', email: 'owner@example.com' },
       },
     })
   })

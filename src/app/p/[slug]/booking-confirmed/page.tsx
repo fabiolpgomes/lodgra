@@ -3,6 +3,7 @@ import { CheckCircle2, Calendar, Mail } from 'lucide-react'
 import { format, parseISO } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import type { Metadata } from 'next'
+import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
 
 export const metadata: Metadata = {
   title: 'Reserva Confirmada — lodgra.pt',
@@ -24,7 +25,7 @@ export default async function BookingConfirmedPage({ params, searchParams }: Pag
     guest_name: string | null
     guest_email: string | null
     total_amount: string | null
-    currency: string | null
+    currency: CurrencyCode | null
     num_guests: number | null
   } | null = null
 
@@ -72,7 +73,7 @@ export default async function BookingConfirmedPage({ params, searchParams }: Pag
         guest_name: d.guest_name || null,
         guest_email: d.guest_email || null,
         total_amount: d.total_amount || null,
-        currency: d.currency || 'EUR',
+        currency: (d.currency?.toUpperCase() as CurrencyCode) || 'EUR',
         num_guests: d.num_guests || null,
       }
     }
@@ -121,7 +122,7 @@ export default async function BookingConfirmedPage({ params, searchParams }: Pag
             )}
             {reservation.total_amount && (
               <p className="text-sm font-semibold text-brand-text-dark pt-1 border-t border-brand-gold/15">
-                Total pago: {{ BRL: 'R$', EUR: '€', USD: '$' }[reservation.currency ?? 'EUR'] || reservation.currency}{parseFloat(reservation.total_amount).toFixed(2)}
+                Total pago: {formatCurrency(parseFloat(reservation.total_amount), reservation.currency ?? 'EUR')}
               </p>
             )}
           </div>

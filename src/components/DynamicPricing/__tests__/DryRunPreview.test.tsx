@@ -100,7 +100,7 @@ describe('DryRunPreview', () => {
         />
       );
 
-      expect(screen.getByText('€15.00')).toBeInTheDocument();
+      expect(screen.getByText(/15,00\s?€|€15\.00/)).toBeInTheDocument();
     });
 
     it('should display negative revenue impact', () => {
@@ -114,7 +114,7 @@ describe('DryRunPreview', () => {
         />
       );
 
-      expect(screen.getByText(/€-?10\.00/)).toBeInTheDocument();
+      expect(screen.getByText('Impacto em Receita').parentElement).toHaveTextContent('-10,00 €');
     });
   });
 
@@ -132,8 +132,8 @@ describe('DryRunPreview', () => {
       );
 
       expect(screen.getByText(/22/)).toBeInTheDocument();
-      expect(screen.getAllByText(/€100\.00/)[0]).toBeInTheDocument();
-      expect(screen.getByText(/€110\.00/)).toBeInTheDocument();
+      expect(screen.getAllByText(/100,00\s?€|€100\.00/)[0]).toBeInTheDocument();
+      expect(screen.getByText(/110,00\s?€|€110\.00/)).toBeInTheDocument();
     });
 
     it('should display percentage change correctly', () => {
@@ -147,7 +147,7 @@ describe('DryRunPreview', () => {
         />
       );
 
-      expect(screen.getByText(/\+10\.00.*10\.0%/)).toBeInTheDocument();
+      expect(screen.getByText(/\+10\.00.*10\.0%|\+10,00.*10,0%/)).toBeInTheDocument();
     });
 
     it('should show decrease with negative symbol', () => {
@@ -161,7 +161,7 @@ describe('DryRunPreview', () => {
         />
       );
 
-      expect(screen.getByText(/-5\.00.*-5\.0%/)).toBeInTheDocument();
+      expect(screen.getByText(/-5\.00.*-5\.0%|-5,00.*-5,0%/)).toBeInTheDocument();
     });
 
     it('should truncate table to first 15 rows', () => {

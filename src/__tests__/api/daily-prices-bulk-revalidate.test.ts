@@ -1,16 +1,16 @@
 import { NextRequest } from 'next/server'
 import { POST, DELETE } from '@/app/api/properties/[id]/daily-prices/bulk/route'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { requirePropertyAccess } from '@/lib/auth/requirePropertyAccess'
 import { revalidatePath } from 'next/cache'
 import { createTestRequest } from '@/__tests__/utils/test-request'
+import { authorizePropertyManagement } from '@/lib/auth/authorizePropertyManagement'
 
 jest.mock('@/lib/supabase/admin', () => ({
   createAdminClient: jest.fn(),
 }))
 
-jest.mock('@/lib/auth/requirePropertyAccess', () => ({
-  requirePropertyAccess: jest.fn(),
+jest.mock('@/lib/auth/authorizePropertyManagement', () => ({
+  authorizePropertyManagement: jest.fn(),
 }))
 
 jest.mock('next/cache', () => ({
@@ -31,12 +31,6 @@ describe('daily-prices bulk revalidation', () => {
   beforeEach(() => {
     jest.clearAllMocks()
 
-    const propertyChain = {
-      select: jest.fn(() => propertyChain),
-      eq: jest.fn(() => propertyChain),
-      single: jest.fn(),
-    }
-
     const upsertResult = {
       select: jest.fn(async () => ({
         data: [],
@@ -52,11 +46,7 @@ describe('daily-prices bulk revalidation', () => {
     }
 
     mockSupabase = {
-      auth: {
-        getUser: jest.fn(),
-      },
       from: jest.fn((table: string) => {
-        if (table === 'properties') return propertyChain
         if (table === 'daily_prices') {
           return {
             upsert: jest.fn(() => upsertResult),
@@ -71,24 +61,11 @@ describe('daily-prices bulk revalidation', () => {
     }
 
     ;(createAdminClient as jest.Mock).mockResolvedValue(mockSupabase)
-    ;(requirePropertyAccess as jest.Mock).mockResolvedValue({
+    ;(authorizePropertyManagement as jest.Mock).mockResolvedValue({
       authorized: true,
-      property: {
-        id: 'prop-123',
-        slug: 'test-property',
-        currency: 'EUR',
-        organization_id: 'org-123',
-      },
-      auth: {
-        authorized: true,
-        organizationId: 'org-123',
-        role: 'admin',
-        user: { id: 'user-123', email: 'owner@example.com' },
-      },
-    })
-    propertyChain.single.mockResolvedValue({
-      data: { id: 'prop-123', slug: 'test-property' },
-      error: null,
+      admin: mockSupabase,
+      property: { id: 'prop-123', slug: 'test-property' },
+      auth: { authorized: true, userId: 'user-123', role: 'admin', accessAllProperties: true, organizationId: 'org-123' },
     })
   })
 

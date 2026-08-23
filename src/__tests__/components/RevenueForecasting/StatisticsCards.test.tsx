@@ -90,10 +90,10 @@ describe('StatisticsCards', () => {
   });
 
   it('should display correct ADR value', () => {
-    render(<StatisticsCards data={mockData} />);
+    const { container } = render(<StatisticsCards data={mockData} />);
 
     // ADR = 9000 / 90 = 100
-    expect(screen.getByText(/€100/)).toBeInTheDocument();
+    expect(container.textContent).toMatch(/100,00\s*€/);
   });
 
   it('should display confidence percentage', () => {
@@ -119,42 +119,33 @@ describe('StatisticsCards', () => {
   });
 
   it('should show upward trend when trend description mentions upward', () => {
-    render(<StatisticsCards data={mockData} />);
+    const upwardData = JSON.parse(JSON.stringify(mockData)) as ForecastingAPIResponse;
+    const { container } = render(<StatisticsCards data={upwardData} />);
 
-    expect(screen.getByText(/↑ Upward/)).toBeInTheDocument();
+    expect(container).toHaveTextContent('↑ Upward');
   });
 
   it('should show downward trend when trend description mentions downward', () => {
-    const downwardData: ForecastingAPIResponse = {
-      ...mockData,
-      summary: {
-        ...mockData.summary,
-        trendsDescription: 'Downward trend expected',
-      },
-    };
+    const downwardData = JSON.parse(JSON.stringify(mockData)) as ForecastingAPIResponse;
+    downwardData.summary.trendsDescription = 'Downward trend expected';
 
-    render(<StatisticsCards data={downwardData} />);
+    const { container } = render(<StatisticsCards data={downwardData} />);
 
-    expect(screen.getByText(/↓ Downward/)).toBeInTheDocument();
+    expect(container).toHaveTextContent('↓ Downward');
   });
 
   it('should show stable trend when trend description is neutral', () => {
-    const stableData: ForecastingAPIResponse = {
-      ...mockData,
-      summary: {
-        ...mockData.summary,
-        trendsDescription: 'Stable market conditions',
-      },
-    };
+    const stableData = JSON.parse(JSON.stringify(mockData)) as ForecastingAPIResponse;
+    stableData.summary.trendsDescription = 'Stable market conditions';
 
-    render(<StatisticsCards data={stableData} />);
+    const { container } = render(<StatisticsCards data={stableData} />);
 
-    expect(screen.getByText(/→ Stable/)).toBeInTheDocument();
+    expect(container).toHaveTextContent('→ Stable');
   });
 
   // Integration tests
   it('should render all four metric cards with correct labels and values', () => {
-    render(<StatisticsCards data={mockData} />);
+    const { container } = render(<StatisticsCards data={mockData} />);
 
     // Verify all labels exist
     expect(screen.getByText(/Average Daily Rate/)).toBeInTheDocument();
@@ -163,7 +154,7 @@ describe('StatisticsCards', () => {
     expect(screen.getByText(/Trend Indicator/)).toBeInTheDocument();
 
     // Verify values render correctly
-    expect(screen.getByText(/€100/)).toBeInTheDocument();
+    expect(container.textContent).toMatch(/100,00\s*€/);
   });
 
   it('should display correct ADR formatting with currency symbol', () => {

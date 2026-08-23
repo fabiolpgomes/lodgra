@@ -177,9 +177,9 @@ export function isSignificantPriceChange(
 export function getMarketRangeDescription(
   minPrice: number,
   maxPrice: number,
-  currency: string = '€'
+  currency: string = 'EUR'
 ): string {
-  return `Competitors charge ${currency}${Math.round(minPrice)}-${currency}${Math.round(maxPrice)} per night`;
+  return `Competitors charge ${formatPrice(minPrice, currency)}-${formatPrice(maxPrice, currency)} per night`;
 }
 
 /**

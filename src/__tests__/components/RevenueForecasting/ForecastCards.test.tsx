@@ -114,7 +114,7 @@ describe('ForecastCards', () => {
     );
 
     // Total should be 2500 + 5200 + 7800 = 15500
-    expect(screen.getByText(/15500/)).toBeInTheDocument();
+    expect(screen.getByText(/15\s?500,00\s?€/)).toBeInTheDocument();
   });
 
   it('should call onCardClick when card is clicked', () => {

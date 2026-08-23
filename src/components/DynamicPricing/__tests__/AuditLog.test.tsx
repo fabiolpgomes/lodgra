@@ -92,7 +92,7 @@ describe('AuditLog', () => {
 
       expect(screen.getAllByText('Manual').length).toBeGreaterThan(0);
       expect(screen.getByText('High Occupancy Boost')).toBeInTheDocument();
-      expect(screen.getAllByText(/€100\.00/).length).toBeGreaterThan(0);
+      expect(screen.getAllByText(/100,00\s*€|€100(,00)?/).length).toBeGreaterThan(0);
     });
 
     it('should display empty state when no entries', () => {
@@ -287,7 +287,7 @@ describe('AuditLog', () => {
         />
       );
 
-      const eurElements = screen.getAllByText(/€\d+\.\d{2}/);
+      const eurElements = screen.getAllByText(/\d+,\d{2}\s?€|€\d+\.\d{2}/);
       expect(eurElements.length).toBeGreaterThanOrEqual(6); // At least 3 entries × 2 prices each
     });
 
@@ -316,8 +316,8 @@ describe('AuditLog', () => {
       await userEvent.selectOptions(screen.getByDisplayValue('Últimos 30 dias'), 'all');
 
       expect(
-        screen.queryAllByText((_, element) => element?.textContent === '€-5.00 (-4.5%)')
-      ).not.toHaveLength(0);
+        screen.getByText(/-5,00\s*€|€-5(,00)?/)
+      ).toBeInTheDocument();
     });
   });
 
