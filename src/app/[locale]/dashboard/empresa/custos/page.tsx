@@ -54,7 +54,7 @@ async function createCompanyExpenseAction(formData: FormData) {
 
   const description = getString(formData, 'description')
   const category = getString(formData, 'category') || 'other'
-  const currency = (getString(formData, 'currency') || 'EUR').toUpperCase()
+  const currency = getString(formData, 'currency').toUpperCase()
   const expenseDate = getString(formData, 'expense_date')
   const recurrenceType = getString(formData, 'recurrence_type') || 'none'
   const recurrenceEndDate = getString(formData, 'recurrence_end_date')
@@ -62,8 +62,8 @@ async function createCompanyExpenseAction(formData: FormData) {
   const notes = getString(formData, 'notes')
   const amount = parseAmount(formData.get('amount'))
 
-  if (!description || !expenseDate || amount <= 0) {
-    throw new Error('Descrição, data e valor positivo são obrigatórios.')
+  if (!description || !expenseDate || amount <= 0 || !currency) {
+    throw new Error('Descrição, moeda, data e valor positivo são obrigatórios.')
   }
 
   const supabase = await createClient()
@@ -336,9 +336,11 @@ export default async function CompanyCostsPage({
                   <select
                     id="currency"
                     name="currency"
-                    defaultValue="EUR"
+                    defaultValue=""
+                    required
                     className="mt-1 w-full rounded-xl border border-neutral-200 bg-brand-white px-4 py-3 text-sm font-semibold text-brand-text-dark outline-none transition-all focus:border-brand-gold"
                   >
+                    <option value="" disabled>Selecione</option>
                     <option value="EUR">EUR</option>
                     <option value="BRL">BRL</option>
                     <option value="USD">USD</option>
@@ -476,7 +478,7 @@ export default async function CompanyCostsPage({
                 const recurrence = expense.recurrence_type || 'none'
                 const status = expense.status || 'paid'
                 const amount = Number(expense.amount || 0)
-                const currency = (expense.currency || 'EUR') as CurrencyCode
+                const currency = expense.currency?.toUpperCase() || null
 
                 return (
                   <div key={expense.id} className="grid grid-cols-1 gap-4 px-5 py-4 lg:grid-cols-[1fr_auto]">
@@ -503,7 +505,7 @@ export default async function CompanyCostsPage({
                     <div className="flex items-center justify-between gap-4 lg:justify-end">
                       <div className="text-left lg:text-right">
                         <p className="text-lg font-black tabular-nums text-brand-text-dark">
-                          {formatCurrency(amount, currency)}
+                          {currency ? formatCurrency(amount, currency as CurrencyCode) : amount.toFixed(2)}
                         </p>
                         <p className="text-[10px] font-bold uppercase tracking-wider text-brand-text-medium">
                           valor base

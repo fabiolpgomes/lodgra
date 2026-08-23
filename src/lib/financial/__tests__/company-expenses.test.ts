@@ -73,4 +73,24 @@ describe('company expenses recurrence', () => {
 
     expect(total).toEqual({})
   })
+
+  it('skips expenses without currency instead of inventing EUR', () => {
+    const expense = {
+      id: 'expense-5',
+      description: 'Missing currency',
+      amount: 120,
+      currency: null,
+      expense_date: '2026-05-01',
+      recurrence_type: 'none',
+      status: 'paid',
+    }
+
+    expect(getCompanyExpenseOccurrencesForYear(expense, 2026)).toEqual([
+      { monthIndex: 4, currency: null, amount: 120 },
+    ])
+
+    const { total, monthly } = sumCompanyExpensesForYear([expense], 2026)
+    expect(total).toEqual({})
+    expect(monthly[4]).toEqual({})
+  })
 })

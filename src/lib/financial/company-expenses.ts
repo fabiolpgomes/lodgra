@@ -2,6 +2,12 @@ import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
 
 export type MoneyMap = Record<string, number>
 
+type ExpenseOccurrence = {
+  monthIndex: number
+  currency: string | null
+  amount: number
+}
+
 export type CompanyExpenseRow = {
   id: string
   description: string
@@ -85,14 +91,14 @@ function isWithin(date: Date, start: Date, end: Date) {
   return date.getTime() >= start.getTime() && date.getTime() <= end.getTime()
 }
 
-export function getCompanyExpenseOccurrencesForYear(expense: CompanyExpenseRow, year: number) {
+export function getCompanyExpenseOccurrencesForYear(expense: CompanyExpenseRow, year: number): ExpenseOccurrence[] {
   const startDate = parseDate(expense.expense_date)
   if (!startDate || expense.status === 'cancelled') return []
 
   const amount = Number(expense.amount || 0)
   if (!Number.isFinite(amount) || amount <= 0) return []
 
-  const currency = (expense.currency || 'EUR').toUpperCase()
+  const currency = expense.currency?.trim().toUpperCase() || null
   const recurrenceType = expense.recurrence_type || 'none'
   const recurrenceEnd = parseDate(expense.recurrence_end_date)
   const yearStart = new Date(year, 0, 1)
@@ -129,6 +135,7 @@ export function sumCompanyExpensesForYear(expenses: CompanyExpenseRow[], year: n
 
   expenses.forEach((expense) => {
     getCompanyExpenseOccurrencesForYear(expense, year).forEach(({ monthIndex, currency, amount }) => {
+      if (!currency) return
       addMoney(total, currency, amount)
       addMoney(monthly[monthIndex], currency, amount)
     })

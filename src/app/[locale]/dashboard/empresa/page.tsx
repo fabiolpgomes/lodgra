@@ -69,7 +69,7 @@ type PropertyStats = {
   id: string
   name: string
   ownerName: string
-  currency: string
+  currency: string | null
   managementPercentage: number
   revenue: number
   commission: number
@@ -134,7 +134,7 @@ function getOwnerName(property: PropertyRow) {
 function getExpenseCurrency(expense: ExpenseRow, propertyById: Map<string, PropertyRow>) {
   const property = Array.isArray(expense.properties) ? expense.properties[0] : expense.properties
   const fallback = expense.property_id ? propertyById.get(expense.property_id)?.currency : null
-  return expense.currency || property?.currency || fallback || 'EUR'
+  return expense.currency || property?.currency || fallback || null
 }
 
 function monthKey(year: number, monthIndex: number) {
@@ -304,7 +304,7 @@ export default async function CompanyDashboardPage({
       id: property.id,
       name: property.name,
       ownerName: getOwnerName(property),
-      currency: property.currency || 'EUR',
+      currency: property.currency ?? null,
       managementPercentage: Number(property.management_percentage || 0),
       revenue: 0,
       commission: 0,
@@ -327,7 +327,7 @@ export default async function CompanyDashboardPage({
     const property = propertyById.get(propertyId)
     if (!stat || !property) return
 
-    const propertyCurrency = getPropertyFromListing(reservation)?.currency || property.currency || reservation.currency || 'EUR'
+    const propertyCurrency = getPropertyFromListing(reservation)?.currency || property.currency || reservation.currency || null
     const totalAmount = Number(reservation.total_amount || 0)
     const nights = getNights(reservation.check_in, reservation.check_out)
     const source = getReservationPlatformName(reservation)
@@ -348,7 +348,7 @@ export default async function CompanyDashboardPage({
       totalAmount,
       checkIn: reservation.check_in,
       checkOut: reservation.check_out,
-      currency: propertyCurrency as CurrencyCode,
+      currency: propertyCurrency as CurrencyCode | null,
       status: 'confirmed',
     })
 
@@ -365,11 +365,13 @@ export default async function CompanyDashboardPage({
         stat.revenue += revenue
         stat.commission += commission
         stat.ownerNet += ownerNet
-        if (platform) addMoney(platform.revenue, propertyCurrency, revenue)
+        if (platform && propertyCurrency) addMoney(platform.revenue, propertyCurrency, revenue)
 
-        addMoney(monthly[index].revenue, propertyCurrency, revenue)
-        addMoney(monthly[index].commission, propertyCurrency, commission)
-        addMoney(monthly[index].ownerNet, propertyCurrency, ownerNet)
+        if (propertyCurrency) {
+          addMoney(monthly[index].revenue, propertyCurrency, revenue)
+          addMoney(monthly[index].commission, propertyCurrency, commission)
+          addMoney(monthly[index].ownerNet, propertyCurrency, ownerNet)
+        }
       })
   })
 
@@ -382,6 +384,7 @@ export default async function CompanyDashboardPage({
     const currency = getExpenseCurrency(expense, propertyById)
     const date = expense.expense_date ? new Date(expense.expense_date) : null
     const monthIndex = date && date.getFullYear() === safeYear ? date.getMonth() : -1
+    if (!currency) return
 
     stat.expenses += amount
     stat.ownerNet -= amount
@@ -405,10 +408,12 @@ export default async function CompanyDashboardPage({
     const owner = ownerStats.get(stat.ownerName)
     if (!owner) return
     owner.properties.add(stat.name)
-    addMoney(owner.revenue, stat.currency, stat.revenue)
-    addMoney(owner.commission, stat.currency, stat.commission)
-    addMoney(owner.expenses, stat.currency, stat.expenses)
-    addMoney(owner.ownerNet, stat.currency, stat.ownerNet)
+    if (stat.currency) {
+      addMoney(owner.revenue, stat.currency, stat.revenue)
+      addMoney(owner.commission, stat.currency, stat.commission)
+      addMoney(owner.expenses, stat.currency, stat.expenses)
+      addMoney(owner.ownerNet, stat.currency, stat.ownerNet)
+    }
   })
 
   monthly.forEach((item) => {
@@ -440,8 +445,10 @@ export default async function CompanyDashboardPage({
 
   const forecast90 = futureReservations.reduce((acc, reservation) => {
     const property = getPropertyFromListing(reservation)
-    const currency = property?.currency || reservation.currency || 'EUR'
-    addMoney(acc, currency, Number(reservation.total_amount || 0))
+    const currency = property?.currency || reservation.currency || null
+    if (currency) {
+      addMoney(acc, currency, Number(reservation.total_amount || 0))
+    }
     return acc
   }, {} as MoneyMap)
 
