@@ -124,7 +124,6 @@ export class ReservationValidator {
       })
       const lastNight = addDays(checkOutDate, -1)
       const nightlyPrices = new Map<string, number>()
-
       const [
         { data: basePrice, error: basePriceError },
         { data: pricingRules, error: pricingRulesError },
@@ -170,10 +169,7 @@ export class ReservationValidator {
         for (const day of stayDays) {
           const dateKey = format(day, 'yyyy-MM-dd')
           const isWeekend = day.getDay() === 5 || day.getDay() === 6
-          nightlyPrices.set(
-            dateKey,
-            isWeekend && weekendPrice ? weekendPrice : baseNightlyPrice
-          )
+          nightlyPrices.set(dateKey, isWeekend && weekendPrice ? weekendPrice : baseNightlyPrice)
         }
       }
 
@@ -191,7 +187,10 @@ export class ReservationValidator {
       }
 
       for (const daily of dailyPrices ?? []) {
-        nightlyPrices.set(format(this.parseLocalDate(daily.date), 'yyyy-MM-dd'), Number(daily.base_price))
+        nightlyPrices.set(
+          format(this.parseLocalDate(daily.date), 'yyyy-MM-dd'),
+          Number(daily.base_price)
+        )
       }
 
       const pricePerNight: number[] = []

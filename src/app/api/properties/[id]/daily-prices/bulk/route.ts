@@ -3,89 +3,77 @@
  * POST/DELETE /api/properties/:id/daily-prices/bulk
  */
 
-import { createAdminClient } from '@/lib/supabase/admin';
-import { requirePropertyAccess } from '@/lib/auth/requirePropertyAccess'
-import { revalidatePath } from 'next/cache';
-import { NextRequest, NextResponse } from 'next/server';
-import { ApiResponse } from '@/types/pricing.types';
+import { revalidatePath } from 'next/cache'
+import { NextRequest, NextResponse } from 'next/server'
+import { authorizePropertyManagement } from '@/lib/auth/authorizePropertyManagement'
+import { ApiResponse } from '@/types/pricing.types'
 
 interface BulkPriceOperation {
-  date: string;
-  price: number;
+  date: string
+  price: number
 }
 
-// POST /api/properties/:id/daily-prices/bulk
-// Batch upsert for bulk price operations
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse<ApiResponse>> {
-  const { id } = await params;
+  const { id } = await params
+
   try {
-    const access = await requirePropertyAccess(id, ['admin', 'gestor', 'owner'])
-    if (!access.authorized) return access.response
+    const access = await authorizePropertyManagement(id, [
+      'admin',
+      'gestor',
+      'manager',
+      'owner',
+    ])
+    if (!access.authorized) return access.response! as NextResponse<ApiResponse>
+    const { admin, property } = access
 
-    const supabase = await createAdminClient();
-
-    const { data: property, error: propertyError } = await supabase
-      .from('properties')
-      .select('id, slug')
-      .eq('id', id)
-      .single();
-
-    if (propertyError || !property) {
-      return NextResponse.json(
-        { success: false, error: 'Property not found' },
-        { status: 404 }
-      );
-    }
-
-    const body = await req.json();
-    const { operations } = body;
+    const body = await req.json()
+    const { operations } = body
 
     if (!Array.isArray(operations) || operations.length === 0) {
       return NextResponse.json(
         { success: false, error: 'Invalid operations array' },
         { status: 422 }
-      );
+      )
     }
 
-    // Validate all operations
     for (const op of operations) {
       if (!op.date || !/^\d{4}-\d{2}-\d{2}$/.test(op.date)) {
         return NextResponse.json(
           { success: false, error: 'Invalid date format (YYYY-MM-DD)' },
           { status: 422 }
-        );
+        )
       }
 
       if (typeof op.price !== 'number' || op.price < 0) {
         return NextResponse.json(
           { success: false, error: 'Price must be a non-negative number' },
           { status: 422 }
-        );
+        )
       }
     }
 
-    // Prepare data for upsert
     const records = operations.map((op: BulkPriceOperation) => ({
       property_id: id,
       date: op.date,
       base_price: op.price,
       updated_at: new Date().toISOString(),
-    }));
+    }))
 
-    // Batch upsert
-    const { data, error } = await supabase
+    const { data, error } = await admin
       .from('daily_prices')
       .upsert(records, { onConflict: 'property_id,date' })
-      .select();
+      .select()
 
-    if (error) throw error;
+    if (error) throw error
 
-    revalidatePath(`/p/${property.slug}`);
-    revalidatePath(`/p/${property.slug}/checkout`);
-    revalidatePath('/booking');
+    if (property.slug) {
+      revalidatePath(`/p/${property.slug}`)
+      revalidatePath(`/p/${property.slug}/checkout`)
+    }
+    revalidatePath('/booking')
 
     return NextResponse.json(
       {
@@ -94,74 +82,64 @@ export async function POST(
         message: `Updated ${records.length} prices`,
       },
       { status: 201 }
-    );
+    )
   } catch (err) {
-    console.error('Error in bulk pricing operation:', err);
+    console.error('Error in bulk pricing operation:', err)
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }
-    );
+    )
   }
 }
 
-// DELETE /api/properties/:id/daily-prices/bulk
-// Batch delete for bulk delete operations
 export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse<ApiResponse>> {
-  const { id } = await params;
+  const { id } = await params
+
   try {
-    const access = await requirePropertyAccess(id, ['admin', 'gestor', 'owner'])
-    if (!access.authorized) return access.response
+    const access = await authorizePropertyManagement(id, [
+      'admin',
+      'gestor',
+      'manager',
+      'owner',
+    ])
+    if (!access.authorized) return access.response! as NextResponse<ApiResponse>
+    const { admin, property } = access
 
-    const supabase = await createAdminClient();
-
-    const { data: property, error: propertyError } = await supabase
-      .from('properties')
-      .select('id, slug')
-      .eq('id', id)
-      .single();
-
-    if (propertyError || !property) {
-      return NextResponse.json(
-        { success: false, error: 'Property not found' },
-        { status: 404 }
-      );
-    }
-
-    const body = await req.json();
-    const { dates } = body;
+    const body = await req.json()
+    const { dates } = body
 
     if (!Array.isArray(dates) || dates.length === 0) {
       return NextResponse.json(
         { success: false, error: 'Invalid dates array' },
         { status: 422 }
-      );
+      )
     }
 
-    // Validate all dates
     for (const date of dates) {
       if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
         return NextResponse.json(
           { success: false, error: 'Invalid date format (YYYY-MM-DD)' },
           { status: 422 }
-        );
+        )
       }
     }
 
-    // Batch delete
-    const { error } = await supabase
+    const { error } = await admin
       .from('daily_prices')
       .delete()
       .eq('property_id', id)
-      .in('date', dates);
+      .in('date', dates)
 
-    if (error) throw error;
+    if (error) throw error
 
-    revalidatePath(`/p/${property.slug}`);
-    revalidatePath(`/p/${property.slug}/checkout`);
-    revalidatePath('/booking');
+    if (property.slug) {
+      revalidatePath(`/p/${property.slug}`)
+      revalidatePath(`/p/${property.slug}/checkout`)
+    }
+    revalidatePath('/booking')
 
     return NextResponse.json(
       {
@@ -169,12 +147,12 @@ export async function DELETE(
         message: `Deleted ${dates.length} prices`,
       },
       { status: 200 }
-    );
+    )
   } catch (err) {
-    console.error('Error in bulk delete operation:', err);
+    console.error('Error in bulk delete operation:', err)
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }
-    );
+    )
   }
 }

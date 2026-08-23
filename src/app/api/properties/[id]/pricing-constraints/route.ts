@@ -3,80 +3,86 @@
  * GET/POST /api/properties/:id/pricing-constraints
  */
 
-import { createAdminClient } from '@/lib/supabase/admin';
-import { requirePropertyAccess } from '@/lib/auth/requirePropertyAccess';
-import { NextRequest, NextResponse } from 'next/server';
-import { ApiResponse, PricingConstraintsPayload, PropertyPricingConstraints } from '@/types/pricing.types';
-import { PricingCalculator } from '@/lib/pricing/pricing-calculator';
+import { NextRequest, NextResponse } from 'next/server'
+import { authorizePropertyManagement } from '@/lib/auth/authorizePropertyManagement'
+import { ApiResponse, PricingConstraintsPayload, PropertyPricingConstraints } from '@/types/pricing.types'
+import { PricingCalculator } from '@/lib/pricing/pricing-calculator'
 
-// GET /api/properties/:id/pricing-constraints
 export async function GET(
-  req: NextRequest,
+  _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse<ApiResponse>> {
-  const { id } = await params;
+  const { id } = await params
   try {
-    const access = await requirePropertyAccess(id, ['admin', 'gestor', 'owner', 'viewer']);
-    if (!access.authorized) return access.response;
-    const supabase = createAdminClient();
+    const access = await authorizePropertyManagement(id, [
+      'admin',
+      'gestor',
+      'manager',
+      'owner',
+      'viewer',
+    ])
+    if (!access.authorized) return access.response! as NextResponse<ApiResponse>
+    const { admin } = access
 
-    const { data, error } = await supabase
+    const { data, error } = await admin
       .from('property_prices')
       .select('min_nightly_price, max_nightly_price')
       .eq('property_id', id)
-      .single();
+      .single()
 
     if (error && error.code !== 'PGRST116') {
-      throw error;
+      throw error
     }
 
     const constraints: PropertyPricingConstraints = {
       property_id: id,
       min_nightly_price: data?.min_nightly_price ?? null,
       max_nightly_price: data?.max_nightly_price ?? null,
-    };
+    }
 
     return NextResponse.json({
       success: true,
       data: constraints,
-    });
+    })
   } catch (err) {
-    console.error('Error fetching pricing constraints:', err);
+    console.error('Error fetching pricing constraints:', err)
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }
-    );
+    )
   }
 }
 
-// POST /api/properties/:id/pricing-constraints
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse<ApiResponse>> {
-  const { id } = await params;
+  const { id } = await params
   try {
-    const access = await requirePropertyAccess(id, ['admin', 'gestor', 'owner']);
-    if (!access.authorized) return access.response;
-    const supabase = createAdminClient();
+    const access = await authorizePropertyManagement(id, [
+      'admin',
+      'gestor',
+      'manager',
+      'owner',
+    ])
+    if (!access.authorized) return access.response! as NextResponse<ApiResponse>
+    const { admin } = access
 
-    const body: PricingConstraintsPayload = await req.json();
+    const body: PricingConstraintsPayload = await req.json()
 
-    // Validate constraints
     const validation = PricingCalculator.validatePriceRange(
       body.min_nightly_price,
       body.max_nightly_price
-    );
+    )
 
     if (!validation.valid) {
       return NextResponse.json(
         { success: false, error: validation.error },
         { status: 422 }
-      );
+      )
     }
 
-    // Upsert constraints
-    const { data, error } = await supabase
+    const { data, error } = await admin
       .from('property_prices')
       .upsert(
         {
@@ -88,25 +94,25 @@ export async function POST(
         { onConflict: 'property_id' }
       )
       .select('min_nightly_price, max_nightly_price')
-      .single();
+      .single()
 
-    if (error) throw error;
+    if (error) throw error
 
     const constraints: PropertyPricingConstraints = {
       property_id: id,
       min_nightly_price: data?.min_nightly_price ?? null,
       max_nightly_price: data?.max_nightly_price ?? null,
-    };
+    }
 
     return NextResponse.json(
       { success: true, data: constraints },
       { status: 200 }
-    );
+    )
   } catch (err) {
-    console.error('Error updating pricing constraints:', err);
+    console.error('Error updating pricing constraints:', err)
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }
-    );
+    )
   }
 }

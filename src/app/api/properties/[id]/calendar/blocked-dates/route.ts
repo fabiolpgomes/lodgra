@@ -5,7 +5,7 @@
  * Returns all blocked date ranges for the given month
  */
 
-import { createAdminClient } from '@/lib/supabase/admin'
+import { authorizePropertyManagement } from '@/lib/auth/authorizePropertyManagement'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(
@@ -15,6 +15,10 @@ export async function GET(
   const { id: propertyId } = await params
 
   try {
+    const access = await authorizePropertyManagement(propertyId)
+    if (!access.authorized) return access.response!
+    const { admin } = access
+
     // Get query parameters for month filtering
     const url = new URL(request.url)
     const year = parseInt(url.searchParams.get('year') || new Date().getFullYear().toString())
@@ -30,8 +34,6 @@ export async function GET(
         { status: 400 }
       )
     }
-
-    const supabase = await createAdminClient()
 
     // Calculate start and end dates for the month (month is 0-indexed)
     const monthStart = new Date(year, month, 1)
@@ -51,7 +53,7 @@ export async function GET(
     console.log(`📅 [blocked-dates GET] Fetching for property=${propertyId}, month=${year}-${String(month).padStart(2, '0')}, queryRange=${startDateStr} to ${endDateStr}`)
 
     // Fetch all blocks that overlap with this month using admin client (no RLS)
-    const { data: blocks, error } = await supabase
+    const { data: blocks, error } = await admin
       .from('calendar_blocks')
       .select('id, start_date, end_date, notes, block_type, created_at')
       .eq('property_id', propertyId)

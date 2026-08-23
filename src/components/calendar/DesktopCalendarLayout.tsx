@@ -79,6 +79,7 @@ export function DesktopCalendarLayout({
       const response = await fetch(`/api/properties/${selectedProperty.id}/pricing/bulk-update`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           dates: selectedDates.map(d => d.toISOString().split('T')[0]),
           base_price: price,
@@ -179,13 +180,13 @@ export function DesktopCalendarLayout({
               {selectedDates.length} dia(s) selecionado(s)
             </p>
 
-            <input
+              <input
               type="number"
               min="1"
               step="0.01"
               value={editingPrice}
               onChange={e => setEditingPrice(e.target.value ? parseFloat(e.target.value) : '')}
-              placeholder="Preço Base (€)"
+              placeholder="Preço Base"
               className="price-input"
               autoFocus
             />

@@ -3,43 +3,48 @@
  * POST /api/properties/:id/pricing/bulk-update
  */
 
-import { createAdminClient } from '@/lib/supabase/admin'
-import { requirePropertyAccess } from '@/lib/auth/requirePropertyAccess'
 import { revalidatePath } from 'next/cache'
 import { NextRequest, NextResponse } from 'next/server'
+import { authorizePropertyManagement } from '@/lib/auth/authorizePropertyManagement'
+import { ApiResponse } from '@/types/pricing.types'
+
+interface BulkPriceOperation {
+  date: string
+  price: number
+}
 
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+): Promise<NextResponse<ApiResponse>> {
   const { id: propertyId } = await params
 
   try {
-    const access = await requirePropertyAccess(propertyId, ['admin', 'gestor', 'owner'])
-    if (!access.authorized) return access.response
-    const admin = createAdminClient()
+    const access = await authorizePropertyManagement(propertyId, [
+      'admin',
+      'gestor',
+      'manager',
+      'owner',
+    ])
+    if (!access.authorized) return access.response! as NextResponse<ApiResponse>
+    const { admin, property } = access
 
     const body = await request.json()
     const { startDate, endDate, price, dates, base_price } = body
 
-    // Support both formats: (startDate/endDate/price) or (dates/base_price)
     let datesArray: string[] = []
     let priceValue: number
 
     if (startDate && endDate && price !== undefined) {
-      // Format from CalendarWithSettings
       priceValue = price
       const start = new Date(startDate)
       const end = new Date(endDate)
-
-      // Generate all dates between startDate and endDate
       const current = new Date(start)
       while (current <= end) {
         datesArray.push(current.toISOString().split('T')[0])
         current.setDate(current.getDate() + 1)
       }
     } else if (dates && base_price !== undefined) {
-      // Legacy format
       datesArray = dates
       priceValue = base_price
     } else {
@@ -49,7 +54,7 @@ export async function POST(
       )
     }
 
-    if (!datesArray || datesArray.length === 0) {
+    if (!datesArray.length) {
       return NextResponse.json(
         { success: false, error: 'Invalid dates' },
         { status: 400 }
@@ -63,31 +68,16 @@ export async function POST(
       )
     }
 
-    // Update pricing for each date
-    const updates = datesArray.map(date => ({
+    const records = datesArray.map((date) => ({
       property_id: propertyId,
       date,
       base_price: priceValue,
       updated_at: new Date().toISOString(),
     }))
 
-    // Upsert prices for all dates
-    console.log('📊 Bulk Update Request:', {
-      propertyId,
-      dateCount: datesArray.length,
-      priceValue,
-      firstDate: datesArray[0],
-      lastDate: datesArray[datesArray.length - 1],
-    })
-
     const { data, error } = await admin
       .from('daily_prices')
-      .upsert(datesArray.map(date => ({
-        property_id: propertyId,
-        date,
-        base_price: priceValue,
-        updated_at: new Date().toISOString(),
-      })), { onConflict: 'property_id,date' })
+      .upsert(records, { onConflict: 'property_id,date' })
       .select()
 
     if (error) {
@@ -103,22 +93,20 @@ export async function POST(
       )
     }
 
-    console.log('✅ Upsert successful:', { upserted: data?.length || 0 })
-
-    // Keep the public pages in sync with the updated calendar prices.
-    if (access.property.slug) {
-      revalidatePath(`/p/${access.property.slug}`)
-      revalidatePath(`/p/${access.property.slug}/checkout`)
+    if (property.slug) {
+      revalidatePath(`/p/${property.slug}`)
+      revalidatePath(`/p/${property.slug}/checkout`)
     }
     revalidatePath('/booking')
 
-    return NextResponse.json({
-      success: true,
-      data: {
-        updated_dates: datesArray.length,
-        price: priceValue,
+    return NextResponse.json(
+      {
+        success: true,
+        data,
+        message: `Updated ${records.length} prices`,
       },
-    })
+      { status: 201 }
+    )
   } catch (error) {
     console.error('❌ Error in bulk price update:', error)
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'

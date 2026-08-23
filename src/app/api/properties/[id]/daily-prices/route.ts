@@ -8,7 +8,8 @@
  * 3. pricing_rules (period-based pricing fallback)
  */
 
-import { createAdminClient } from '@/lib/supabase/admin'
+import { authorizePropertyManagement } from '@/lib/auth/authorizePropertyManagement'
+import { revalidatePath } from 'next/cache'
 import { NextRequest, NextResponse } from 'next/server'
 import { eachDayOfInterval, format } from 'date-fns'
 
@@ -24,7 +25,9 @@ export async function GET(
   const { id: propertyId } = await params
 
   try {
-    const supabase = await createAdminClient()
+    const access = await authorizePropertyManagement(propertyId)
+    if (!access.authorized) return access.response!
+    const { admin } = access
     const pricesMap = new Map<string, number>()
     const requestedYear = Number(request.nextUrl.searchParams.get('year'))
     const requestedMonth = Number(request.nextUrl.searchParams.get('month'))
@@ -39,7 +42,7 @@ export async function GET(
     const rangeEnd = new Date(year, month + 1, 0)
 
     // Fetch weekend_price from property_prices table (where it's actually stored)
-    const { data: pricing, error: pricingError } = await supabase
+    const { data: pricing, error: pricingError } = await admin
       .from('property_prices')
       .select('base_price, weekend_price')
       .eq('property_id', propertyId)
@@ -67,7 +70,7 @@ export async function GET(
     }
 
     // Step 1: Get all pricing_rules for this property (base layer)
-    const { data: rules, error: rulesError } = await supabase
+    const { data: rules, error: rulesError } = await admin
       .from('pricing_rules')
       .select('start_date, end_date, price_per_night')
       .eq('property_id', propertyId)
@@ -108,7 +111,7 @@ export async function GET(
     }
 
     // Step 2: Get daily_prices overrides (overlay on top of weekend pricing)
-    const { data: dailyPricesRaw, error: dailyError } = await supabase
+    const { data: dailyPricesRaw, error: dailyError } = await admin
       .from('daily_prices')
       .select('date, base_price')
       .eq('property_id', propertyId)
@@ -146,5 +149,63 @@ export async function GET(
       { error: `Server error: ${errorMessage}` },
       { status: 500 }
     )
+  }
+}
+
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id: propertyId } = await params
+
+  try {
+    const access = await authorizePropertyManagement(propertyId)
+    if (!access.authorized) return access.response!
+    const { admin, property } = access
+
+    const body = (await request.json()) as { date?: string; price?: number }
+    if (!body.date || !/^\d{4}-\d{2}-\d{2}$/.test(body.date)) {
+      return NextResponse.json({ error: 'Invalid date format (YYYY-MM-DD)' }, { status: 422 })
+    }
+
+    if (typeof body.price !== 'number' || !Number.isFinite(body.price) || body.price < 0) {
+      return NextResponse.json({ error: 'Price must be a non-negative number' }, { status: 422 })
+    }
+
+    const { data, error } = await admin
+      .from('daily_prices')
+      .upsert(
+        {
+          property_id: propertyId,
+          date: body.date,
+          base_price: body.price,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: 'property_id,date' }
+      )
+      .select('id, property_id, date, base_price, created_at, updated_at')
+      .single()
+
+    if (error) throw error
+
+    revalidatePath(`/p/${property.slug}`)
+    revalidatePath(`/p/${property.slug}/checkout`)
+    revalidatePath('/booking')
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        id: data.id,
+        property_id: data.property_id,
+        date: data.date,
+        price: data.base_price,
+        created_at: data.created_at,
+        updated_at: data.updated_at,
+      },
+    })
+  } catch (error) {
+    console.error('[daily-prices] POST error:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    return NextResponse.json({ error: `Server error: ${errorMessage}` }, { status: 500 })
   }
 }

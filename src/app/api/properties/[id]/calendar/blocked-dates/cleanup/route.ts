@@ -5,7 +5,7 @@
  * ⚠️ WARNING: This deletes ALL blocks for a property. Use with caution!
  */
 
-import { createAdminClient } from '@/lib/supabase/admin'
+import { authorizePropertyManagement } from '@/lib/auth/authorizePropertyManagement'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function DELETE(
@@ -15,12 +15,14 @@ export async function DELETE(
   const { id: propertyId } = await params
 
   try {
-    const supabase = await createAdminClient()
+    const access = await authorizePropertyManagement(propertyId)
+    if (!access.authorized) return access.response!
+    const { admin } = access
 
     console.log(`[Cleanup] Deleting all blocks for property=${propertyId}`)
 
     // Get all blocks first to show what we're deleting
-    const { data: blocks, error: fetchError } = await supabase
+    const { data: blocks, error: fetchError } = await admin
       .from('calendar_blocks')
       .select('id, start_date, end_date, notes')
       .eq('property_id', propertyId)
@@ -44,7 +46,7 @@ export async function DELETE(
     }
 
     // Delete all blocks
-    const { error: deleteError } = await supabase
+    const { error: deleteError } = await admin
       .from('calendar_blocks')
       .delete()
       .eq('property_id', propertyId)

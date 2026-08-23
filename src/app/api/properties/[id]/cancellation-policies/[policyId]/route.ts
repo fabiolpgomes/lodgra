@@ -4,10 +4,9 @@
  * DELETE: Remove policy
  */
 
-import { createAdminClient } from '@/lib/supabase/admin'
-import { requirePropertyAccess } from '@/lib/auth/requirePropertyAccess'
-import { UpdateCancellationPolicyPayload } from '@/types/cancellation.types'
 import { NextRequest, NextResponse } from 'next/server'
+import { authorizePropertyManagement } from '@/lib/auth/authorizePropertyManagement'
+import { UpdateCancellationPolicyPayload } from '@/types/cancellation.types'
 
 export async function PUT(
   request: NextRequest,
@@ -17,11 +16,15 @@ export async function PUT(
 
   try {
     const body: UpdateCancellationPolicyPayload = await request.json()
-    const access = await requirePropertyAccess(propertyId, ['admin', 'gestor', 'owner'])
-    if (!access.authorized) return access.response
-    const admin = createAdminClient()
+    const access = await authorizePropertyManagement(propertyId, [
+      'admin',
+      'gestor',
+      'manager',
+      'owner',
+    ])
+    if (!access.authorized) return access.response!
+    const { admin } = access
 
-    // Verify policy belongs to property
     const { data: policy } = await admin
       .from('property_cancellation_policies')
       .select('*')
@@ -33,14 +36,14 @@ export async function PUT(
       return NextResponse.json({ success: false, error: 'Policy not found' }, { status: 404 })
     }
 
-    // Update
-    const updatePayload: any = { updated_at: new Date().toISOString() }
+    const updatePayload: Record<string, unknown> = { updated_at: new Date().toISOString() }
     if (body.policy_type !== undefined) updatePayload.policy_type = body.policy_type
     if (body.full_refund_days !== undefined) updatePayload.full_refund_days = body.full_refund_days
     if (body.partial_refund_days !== undefined) updatePayload.partial_refund_days = body.partial_refund_days
     if (body.partial_refund_percent !== undefined) updatePayload.partial_refund_percent = body.partial_refund_percent
-    if (body.non_refundable_discount_percent !== undefined)
+    if (body.non_refundable_discount_percent !== undefined) {
       updatePayload.non_refundable_discount_percent = body.non_refundable_discount_percent
+    }
     if (body.is_active !== undefined) updatePayload.is_active = body.is_active
 
     const { data: updated, error } = await admin
@@ -63,17 +66,21 @@ export async function PUT(
 }
 
 export async function DELETE(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string; policyId: string }> }
 ) {
   const { id: propertyId, policyId } = await params
 
   try {
-    const access = await requirePropertyAccess(propertyId, ['admin', 'gestor', 'owner'])
-    if (!access.authorized) return access.response
-    const admin = createAdminClient()
+    const access = await authorizePropertyManagement(propertyId, [
+      'admin',
+      'gestor',
+      'manager',
+      'owner',
+    ])
+    if (!access.authorized) return access.response!
+    const { admin } = access
 
-    // Verify policy belongs to property
     const { data: policy } = await admin
       .from('property_cancellation_policies')
       .select('*')
@@ -85,7 +92,6 @@ export async function DELETE(
       return NextResponse.json({ success: false, error: 'Policy not found' }, { status: 404 })
     }
 
-    // Check if policy is used by active reservations
     const { data: reservations } = await admin
       .from('reservations')
       .select('id')
@@ -100,7 +106,6 @@ export async function DELETE(
       )
     }
 
-    // Delete
     const { error } = await admin
       .from('property_cancellation_policies')
       .delete()

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createAdminClient } from '@/lib/supabase/admin'
-import { requirePropertyAccess } from '@/lib/auth/requirePropertyAccess'
+import { authorizePropertyManagement } from '@/lib/auth/authorizePropertyManagement'
 
 interface AvailabilitySettings {
   minNights: number
@@ -15,20 +14,25 @@ interface AvailabilitySettings {
  * GET /api/properties/[id]/availability/settings
  *
  * Fetch availability configuration for a property.
- * Only property owner can access.
+ * Only authorized property managers can access.
  */
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id: propertyId } = await params
-    const access = await requirePropertyAccess(propertyId, ['admin', 'gestor', 'owner', 'viewer'])
-    if (!access.authorized) return access.response
-    const supabase = createAdminClient()
+    const access = await authorizePropertyManagement(propertyId, [
+      'admin',
+      'gestor',
+      'manager',
+      'owner',
+      'viewer',
+    ])
+    if (!access.authorized) return access.response!
+    const { admin } = access
 
-    // Fetch availability settings
-    const { data: availability, error } = await supabase
+    const { data: availability, error } = await admin
       .from('property_availability')
       .select(
         `
@@ -46,7 +50,6 @@ export async function GET(
 
     if (error) {
       if (error.code === 'PGRST116') {
-        // No record exists, return defaults
         return NextResponse.json({
           minNights: 1,
           maxNights: 365,
@@ -79,16 +82,6 @@ export async function GET(
  *
  * Epic 43: Update availability configuration for a property.
  * Creates or updates the property_availability record.
- *
- * Request body:
- * {
- *   minNights: number (1-365)
- *   maxNights: number (1-365)
- *   advanceNoticeDays: number (0, 1, 2, 7)
- *   allowLastMinuteBookings: boolean
- *   availabilityWindowMonths: number (3, 6, 9, 12, 24)
- *   allowBookingsBeyondWindow: boolean
- * }
  */
 export async function POST(
   request: NextRequest,
@@ -96,12 +89,17 @@ export async function POST(
 ) {
   try {
     const { id: propertyId } = await params
-    const access = await requirePropertyAccess(propertyId, ['admin', 'gestor', 'owner'])
-    if (!access.authorized) return access.response
-    const supabase = createAdminClient()
+    const access = await authorizePropertyManagement(propertyId, [
+      'admin',
+      'gestor',
+      'manager',
+      'owner',
+    ])
+    if (!access.authorized) return access.response!
+    const { admin } = access
+
     const body: Partial<AvailabilitySettings> = await request.json()
 
-    // Validate inputs
     if (
       body.minNights !== undefined &&
       (body.minNights < 1 || body.minNights > 365)
@@ -149,8 +147,7 @@ export async function POST(
       )
     }
 
-    // Upsert availability settings
-    const { data: availability, error: upsertError } = await supabase
+    const { data: availability, error: upsertError } = await admin
       .from('property_availability')
       .upsert(
         {

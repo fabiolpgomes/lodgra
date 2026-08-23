@@ -1,6 +1,5 @@
-import { createAdminClient } from '@/lib/supabase/admin'
-import { requirePropertyAccess } from '@/lib/auth/requirePropertyAccess'
 import { NextRequest, NextResponse } from 'next/server'
+import { authorizePropertyManagement } from '@/lib/auth/authorizePropertyManagement'
 
 interface ApplyPolicyBody {
   policyId: string
@@ -19,11 +18,16 @@ export async function POST(
   const { id: propertyId } = await params
 
   try {
-    const access = await requirePropertyAccess(propertyId, ['admin', 'gestor', 'owner'])
-    if (!access.authorized) return access.response
-    const admin = createAdminClient()
+    const access = await authorizePropertyManagement(propertyId, [
+      'admin',
+      'gestor',
+      'manager',
+      'owner',
+    ])
+    if (!access.authorized) return access.response!
+    const { admin } = access
 
-    const body = await request.json() as Partial<ApplyPolicyBody>
+    const body = (await request.json()) as Partial<ApplyPolicyBody>
     if (!body.policyId || !isDate(body.startDate) || !isDate(body.endDate) || body.startDate > body.endDate) {
       return NextResponse.json(
         { success: false, error: 'policyId, startDate and endDate are required; startDate must be before endDate' },
@@ -38,10 +42,11 @@ export async function POST(
       .eq('property_id', propertyId)
       .eq('is_active', true)
       .single()
-    if (!policy) return NextResponse.json({ success: false, error: 'Policy not found' }, { status: 404 })
 
-    // Replace overlapping overrides so one calendar date cannot resolve to
-    // multiple cancellation policies.
+    if (!policy) {
+      return NextResponse.json({ success: false, error: 'Policy not found' }, { status: 404 })
+    }
+
     const { error: deleteError } = await admin
       .from('property_cancellation_policy_periods')
       .delete()

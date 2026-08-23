@@ -3,63 +3,54 @@
  * DELETE /api/properties/:id/daily-prices/:date
  */
 
-import { createAdminClient } from '@/lib/supabase/admin';
-import { requirePropertyAccess } from '@/lib/auth/requirePropertyAccess'
-import { revalidatePath } from 'next/cache';
-import { NextRequest, NextResponse } from 'next/server';
-import { ApiResponse } from '@/types/pricing.types';
+import { revalidatePath } from 'next/cache'
+import { NextRequest, NextResponse } from 'next/server'
+import { authorizePropertyManagement } from '@/lib/auth/authorizePropertyManagement'
+import { ApiResponse } from '@/types/pricing.types'
 
-// DELETE /api/properties/:id/daily-prices/:date
 export async function DELETE(
-  req: NextRequest,
+  _req: NextRequest,
   { params }: { params: Promise<{ id: string; date: string }> }
 ): Promise<NextResponse<ApiResponse>> {
-  const { id, date } = await params;
+  const { id, date } = await params
+
   try {
-    const access = await requirePropertyAccess(id, ['admin', 'gestor', 'owner'])
-    if (!access.authorized) return access.response
+    const access = await authorizePropertyManagement(id, [
+      'admin',
+      'gestor',
+      'manager',
+      'owner',
+    ])
+    if (!access.authorized) return access.response! as NextResponse<ApiResponse>
+    const { admin, property } = access
 
-    const supabase = await createAdminClient();
-
-    const { data: property, error: propertyError } = await supabase
-      .from('properties')
-      .select('id, slug')
-      .eq('id', id)
-      .single();
-
-    if (propertyError || !property) {
-      return NextResponse.json(
-        { success: false, error: 'Property not found' },
-        { status: 404 }
-      );
-    }
-
-    // Validate date format
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
       return NextResponse.json(
         { success: false, error: 'Invalid date format (YYYY-MM-DD)' },
         { status: 400 }
-      );
+      )
     }
 
-    const { error } = await supabase
+    const { error } = await admin
       .from('daily_prices')
       .delete()
       .eq('property_id', id)
-      .eq('date', date);
+      .eq('date', date)
 
-    if (error) throw error;
+    if (error) throw error
 
-    revalidatePath(`/p/${property.slug}`);
-    revalidatePath(`/p/${property.slug}/checkout`);
-    revalidatePath('/booking');
+    if (property.slug) {
+      revalidatePath(`/p/${property.slug}`)
+      revalidatePath(`/p/${property.slug}/checkout`)
+    }
+    revalidatePath('/booking')
 
-    return NextResponse.json({ success: true, data: { deleted: true } });
+    return NextResponse.json({ success: true, data: { deleted: true } })
   } catch (err) {
-    console.error('Error deleting daily price:', err);
+    console.error('Error deleting daily price:', err)
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }
-    );
+    )
   }
 }

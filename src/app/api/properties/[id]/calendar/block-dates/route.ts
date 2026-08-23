@@ -6,7 +6,7 @@
  * This endpoint creates a single block record covering the entire range
  */
 
-import { createAdminClient } from '@/lib/supabase/admin'
+import { authorizePropertyManagement } from '@/lib/auth/authorizePropertyManagement'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(
@@ -26,7 +26,9 @@ export async function POST(
       )
     }
 
-    const supabase = await createAdminClient()
+    const access = await authorizePropertyManagement(propertyId)
+    if (!access.authorized) return access.response!
+    const { admin, property } = access
 
     // Parse dates - frontend already sends YYYY-MM-DD format in local date
     // Do NOT use new Date() which interprets as UTC
@@ -61,15 +63,8 @@ export async function POST(
       reason,
     })
 
-    // Get property's organization_id to satisfy RLS policy
-    const { data: propertyData, error: propError } = await supabase
-      .from('properties')
-      .select('organization_id')
-      .eq('id', propertyId)
-      .single()
-
-    if (propError || !propertyData?.organization_id) {
-      console.error('❌ Property lookup error:', propError)
+    if (!property.organization_id) {
+      console.error('❌ Property lookup error:', { propertyId, organizationId: property.organization_id })
       return NextResponse.json(
         { success: false, error: 'Property not found or has no organization' },
         { status: 404 }
@@ -77,11 +72,11 @@ export async function POST(
     }
 
     // Insert block record using start_date/end_date (schema supports date ranges)
-    const { data, error } = await supabase
+    const { data, error } = await admin
       .from('calendar_blocks')
       .insert({
         property_id: propertyId,
-        organization_id: propertyData.organization_id,
+        organization_id: property.organization_id,
         start_date: startDateStr,
         end_date: endDateStr,
         notes: reason,
