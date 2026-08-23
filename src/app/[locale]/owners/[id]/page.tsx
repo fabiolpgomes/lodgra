@@ -158,7 +158,7 @@ export default async function OwnerDetailsPage({
                 </div>
                 <div>
                   <p className="text-sm text-gray-600 mb-1">Moeda Preferencial</p>
-                  <p className="font-medium text-gray-900">{owner.preferred_currency || 'EUR'}</p>
+                  <p className="font-medium text-gray-900">{owner.preferred_currency || '-'}</p>
                 </div>
                 {linkedUser && (
                   <div>

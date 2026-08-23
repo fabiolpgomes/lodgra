@@ -23,7 +23,7 @@ export default function NewOwnerPage() {
   const [country, setCountry] = useState('Portugal')
   const [users, setUsers] = useState<{ id: string; full_name: string | null; email: string }[]>([])
   const [userId, setUserId] = useState('')
-  const [preferredCurrency, setPreferredCurrency] = useState('EUR')
+  const [preferredCurrency, setPreferredCurrency] = useState('')
   const [organizationId, setOrganizationId] = useState<string | null>(null)
 
   useEffect(() => {
@@ -72,6 +72,12 @@ export default function NewOwnerPage() {
       return
     }
 
+    if (!preferredCurrency) {
+      setError('Deve selecionar uma moeda preferencial')
+      setLoading(false)
+      return
+    }
+
     try {
       const { error: insertError } = await supabase
         .from('owners')
@@ -96,7 +102,7 @@ export default function NewOwnerPage() {
           account_number: formData.get('account_number') as string || null,
           pix_key: formData.get('pix_key') as string || null,
           // Meta
-          preferred_currency: preferredCurrency || 'EUR',
+          preferred_currency: preferredCurrency,
           notes: formData.get('notes') as string || null,
           // CRITICAL: organization_id para RLS
           organization_id: organizationId,

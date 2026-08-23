@@ -31,7 +31,7 @@ export default function EditOwnerPage({
   const [country, setCountry] = useState('Portugal')
   const [users, setUsers] = useState<{ id: string; full_name: string | null; email: string }[]>([])
   const [selectedUserId, setSelectedUserId] = useState('')
-  const [preferredCurrency, setPreferredCurrency] = useState('EUR')
+  const [preferredCurrency, setPreferredCurrency] = useState('')
 
   useEffect(() => {
     async function loadData() {
@@ -53,7 +53,7 @@ export default function EditOwnerPage({
         setOwner(ownerResult.data)
         setCountry(ownerResult.data.country || 'Portugal')
         setSelectedUserId(ownerResult.data.user_id || '')
-        setPreferredCurrency(ownerResult.data.preferred_currency || 'EUR')
+        setPreferredCurrency(ownerResult.data.preferred_currency || '')
         setUsers(usersResult.data || [])
         setLoadingData(false)
       } catch (err: unknown) {
@@ -83,6 +83,12 @@ export default function EditOwnerPage({
       return
     }
 
+    if (!preferredCurrency) {
+      setError('Deve selecionar uma moeda preferencial')
+      setLoading(false)
+      return
+    }
+
     try {
       const { error: updateError } = await supabase
         .from('owners')
@@ -104,7 +110,7 @@ export default function EditOwnerPage({
           agency_number: formData.get('agency_number') as string || null,
           account_number: formData.get('account_number') as string || null,
           pix_key: formData.get('pix_key') as string || null,
-          preferred_currency: preferredCurrency || 'EUR',
+          preferred_currency: preferredCurrency,
           notes: formData.get('notes') as string || null,
         })
         .eq('id', ownerId)
@@ -356,7 +362,7 @@ export default function EditOwnerPage({
                   </Label>
                   <Select value={preferredCurrency} onValueChange={setPreferredCurrency}>
                     <SelectTrigger id="preferred_currency" className="w-full">
-                      <SelectValue />
+                      <SelectValue placeholder="Selecione a moeda" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="EUR">EUR - Euro</SelectItem>
