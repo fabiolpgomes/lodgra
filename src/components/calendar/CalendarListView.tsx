@@ -49,6 +49,9 @@ export function CalendarListView({
     <div className="calendar-list-view">
       <div className="calendar-list-header px-4 pt-4 sm:px-6">
         <h1 className="text-2xl font-semibold tracking-tight text-[#1B2430] sm:text-3xl">Calendários</h1>
+        <p className="mt-1 max-w-xl text-sm text-[#717171] sm:text-base">
+          Toque numa propriedade para abrir o calendário detalhado. No mobile, mantemos a lista direta para acelerar a navegação.
+        </p>
       </div>
 
       <div className="calendar-list-container px-4 pb-4 pt-3 sm:px-6">
@@ -71,7 +74,7 @@ export function CalendarListView({
                 {property.imageUrl ? (
                   <img src={property.imageUrl} alt={property.name} className="h-full w-full object-cover" />
                 ) : (
-                  <div className="flex h-40 items-center justify-center text-3xl sm:h-full">📷</div>
+                  <div className="flex h-28 items-center justify-center text-3xl sm:h-full">📷</div>
                 )}
               </div>
 

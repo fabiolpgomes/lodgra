@@ -55,42 +55,51 @@ export function CleaningPageClient({ properties, members, userRole }: Props) {
   const _inProgressCount = checklists.filter(c => c.status === 'in_progress').length
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-10 pb-24">
+    <div className="max-w-2xl mx-auto px-4 py-8 pb-24 sm:py-10">
       {/* Header Visual */}
-      <div className="flex items-center justify-between mb-10">
-        <div>
-          <div className="flex items-center gap-2 mb-2">
+      <div className="mb-8 flex flex-col gap-4 sm:mb-10 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <div className="mb-2 flex items-center gap-2">
              <div className="p-2 bg-lodgra-blue text-white rounded-xl">
                <CheckSquare className="h-5 w-5" />
              </div>
              <span className="text-xs font-black uppercase tracking-widest text-lodgra-blue">Operacional</span>
           </div>
-          <h1 className="text-3xl font-black text-lodgra-blue dark:text-white leading-tight">
-            Próximas <br />
-            Limpezas
+          <h1 className="text-2xl font-black text-lodgra-blue dark:text-white leading-tight sm:text-3xl">
+            Próximas Limpezas
           </h1>
-          <p className="text-sm font-bold text-gray-500 mt-2">
+          <p className="mt-2 text-sm font-bold text-gray-500">
             {pendingCount > 0 ? `${pendingCount} tarefas aguardando início` : 'Tudo em dia por aqui!'}
           </p>
+          <p className="mt-1 text-xs text-gray-500 sm:text-sm">
+            Toque numa limpeza para expandir e concluir em poucos passos.
+          </p>
         </div>
-        <div className="flex gap-3">
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:gap-3">
           <button
             onClick={() => setShowWorkflowModal(true)}
-            className="p-3 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-2xl hover:bg-blue-200 dark:hover:bg-blue-900/50 transition shadow-lg"
+            className="flex items-center justify-center gap-2 rounded-2xl bg-blue-100 px-4 py-3 text-sm font-bold text-blue-600 transition hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
             title="Ver fluxo de trabalho"
           >
             <HelpCircle className="h-6 w-6" />
+            <span className="sm:hidden">Fluxo</span>
+            <span className="hidden sm:inline">Fluxo</span>
           </button>
           {isAdmin && (
-            <Button onClick={() => setShowModal(true)} size="lg" className="rounded-2xl h-14 w-14 p-0 shadow-lg shadow-brand-500/20">
-              <Plus className="h-6 w-6" />
+            <Button
+              onClick={() => setShowModal(true)}
+              size="lg"
+              className="h-14 rounded-2xl px-5 shadow-lg shadow-brand-500/20"
+            >
+              <Plus className="h-5 w-5" />
+              <span className="text-sm font-bold">Nova limpeza</span>
             </Button>
           )}
         </div>
       </div>
 
       {/* Modern Filter HUD */}
-      <div className="flex gap-2 mb-8 overflow-x-auto pb-2 no-scrollbar">
+      <div className="mb-8 flex gap-2 overflow-x-auto pb-2 no-scrollbar">
         {(['pending', 'in_progress', 'all', 'completed'] as FilterStatus[]).map(s => (
           <button
             key={s}

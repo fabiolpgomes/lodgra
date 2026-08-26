@@ -75,6 +75,12 @@ export function ReservationsFilter({
     return query ? `${pathname}?${query}` : pathname
   }, [pathname, searchParams])
 
+  function clearFilters() {
+    setSearch('')
+    setStatusFilter('all')
+    handlePropertyChange('all')
+  }
+
   // Restore a valid persisted filter when the URL has no explicit selection.
   useEffect(() => {
     if (selectedPropertyId !== 'all' || searchParams.has('property_id')) return
@@ -148,16 +154,43 @@ export function ReservationsFilter({
     <>
       {/* Month Navigator */}
       {currentMonth && (
-        <div className="flex items-center justify-between mb-4">
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <MonthNavigator currentMonth={currentMonth} />
+          <div className="flex items-center gap-2 text-xs text-brand-text-medium sm:hidden">
+            <span className="rounded-full bg-brand-bg px-3 py-1 font-semibold">
+              Toque num cartão para abrir
+            </span>
+          </div>
         </div>
       )}
+
+      <div className="mb-4 rounded-2xl border border-brand-border bg-brand-white p-4 shadow-sm sm:hidden">
+        <p className="text-[10px] font-black uppercase tracking-[1.5px] text-brand-text-medium">Acesso rápido</p>
+        <div className="mt-3 grid grid-cols-1 gap-2">
+          {canCreate && (
+            <Link href={getLocalizedPath('/reservations/new', locale)}>
+              <Button variant="premium-primary" className="h-12 w-full justify-center">
+                <Plus className="h-4 w-4" />
+                Nova Reserva
+              </Button>
+            </Link>
+          )}
+          <Button
+            type="button"
+            variant="outline"
+            className="h-12 w-full justify-center"
+            onClick={clearFilters}
+          >
+            Limpar filtros
+          </Button>
+        </div>
+      </div>
 
       {/* Search + Filters */}
       <PremiumCard className="p-4 mb-8 relative z-0">
         <div className="flex flex-col gap-4">
           {/* Row 1: Search and Property Filter */}
-          <div className="flex flex-col sm:flex-row gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_13rem]">
             <div className="relative flex-1">
               <Input
                 placeholder="Procurar hóspede..."
@@ -167,7 +200,7 @@ export function ReservationsFilter({
               />
             </div>
             <Select value={selectedPropertyId} onValueChange={handlePropertyChange}>
-              <SelectTrigger className="w-full sm:w-52 rounded">
+              <SelectTrigger className="w-full rounded">
                 <SelectValue placeholder="Propriedade" />
               </SelectTrigger>
               <SelectContent>
@@ -195,6 +228,13 @@ export function ReservationsFilter({
                 {f.label}
               </button>
             ))}
+            <button
+              type="button"
+              onClick={clearFilters}
+              className="ml-auto rounded-full border border-brand-border bg-white px-3 py-1 text-xs font-semibold text-brand-text-medium transition-colors hover:border-brand-gold/40 hover:text-brand-text-dark"
+            >
+              Limpar
+            </button>
           </div>
         </div>
       </PremiumCard>
@@ -230,8 +270,15 @@ export function ReservationsFilter({
                     {r.total_amount ? (
                       <span className="text-sm font-semibold text-brand-text-dark">
                         {(() => {
-                          const cur = (r.properties?.currency || r.property_listings?.properties?.currency || r.currency || 'EUR') as CurrencyCode
-                          return formatCurrency(Number(r.total_amount), cur)
+                          const cur = (
+                            r.properties?.currency?.toUpperCase()
+                            || r.property_listings?.properties?.currency?.toUpperCase()
+                            || r.currency?.toUpperCase()
+                            || null
+                          ) as CurrencyCode | null
+                          return cur
+                            ? formatCurrency(Number(r.total_amount), cur)
+                            : Number(r.total_amount).toFixed(2)
                         })()}
                       </span>
                     ) : null}
