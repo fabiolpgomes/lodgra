@@ -20,10 +20,12 @@ export function DeleteExpenseButton({
   expenseId,
   description,
   className,
+  compact = false,
 }: {
   expenseId: string
   description?: string
   className?: string
+  compact?: boolean
 }) {
   const router = useRouter()
   const locale = useLocale()
@@ -62,7 +64,7 @@ export function DeleteExpenseButton({
       <Button
         variant="outline"
         onClick={() => setShowModal(true)}
-        className={`flex items-center gap-2 text-destructive border-destructive hover:bg-destructive/10 ${className ?? ''}`}
+        className={`flex items-center gap-2 text-destructive border-destructive hover:bg-destructive/10 ${compact ? 'h-9 px-3 text-xs' : ''} ${className ?? ''}`}
       >
         <Trash2 className="h-4 w-4" />
         Eliminar

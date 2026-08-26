@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo, useEffect } from 'react'
-import { Search, Eye, Edit, Receipt, Plus, ArrowRight, Calendar, TrendingDown } from 'lucide-react'
+import { Search, Eye, Edit, Receipt, Plus, Calendar, TrendingDown } from 'lucide-react'
 import Link from 'next/link'
 import { Input } from '@/components/common/ui/input'
 import { Button } from '@/components/common/ui/button'
@@ -357,153 +357,90 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
 
       {filtered.length === 0 ? emptyState : (
         <>
-          {/* Mobile: cards */}
-          <div className="block sm:hidden space-y-3">
+          <div className="space-y-3">
             {filtered.map(expense => {
               const property = getProperty(expense)
               const propertyName = property?.name ? truncateText(property.name, 40) : ''
               return (
-                <div
+                <article
                   key={expense.id}
-                  className="bg-white rounded-xl shadow p-4 active:bg-gray-50"
+                  className="rounded-2xl border border-brand-border-soft bg-white p-4 shadow-sm transition-shadow hover:shadow-md"
                 >
-                  <Link href={`${prefix}/expenses/${expense.id}`} className="block">
-                    <div className="flex items-start justify-between mb-1">
-                      <Badge variant="secondary" className="bg-gray-100 text-gray-800 text-xs">
-                        {CATEGORY_LABELS[expense.category] || expense.category}
-                      </Badge>
-                      <ArrowRight className="h-4 w-4 text-gray-500 shrink-0" />
-                    </div>
-                    <p className="font-semibold text-gray-900 text-sm mt-2">{expense.description}</p>
-                    <p className="text-gray-600 text-xs mt-0.5" title={property?.name}>{propertyName}</p>
-                    <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
-                      <span className="text-xs text-gray-600">
-                        {new Date(expense.expense_date).toLocaleDateString('pt-BR')}
-                      </span>
-                      <span className="text-sm font-semibold text-red-600">
-                        {formatCurrency(expense.amount, expense.currency as CurrencyCode)}
-                      </span>
-                    </div>
-                  </Link>
+                  <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Badge
+                          variant="secondary"
+                          className="bg-gray-100 text-gray-800 text-[10px] px-2 py-0.5 uppercase tracking-wider"
+                        >
+                          {CATEGORY_LABELS[expense.category] || expense.category}
+                        </Badge>
+                        <span className="text-xs text-gray-500">
+                          {new Date(expense.expense_date).toLocaleDateString('pt-BR')}
+                        </span>
+                      </div>
 
-                  <div className="mt-3 flex flex-col gap-2 border-t border-gray-100 pt-3">
-                    <Button asChild variant="outline" size="sm" className="flex-1">
-                      <Link href={`${prefix}/expenses/${expense.id}`}>
-                        <Eye className="h-4 w-4" />
-                        Ver detalhes
+                      <Link href={`${prefix}/expenses/${expense.id}`} className="block">
+                        <h3
+                          className="mt-2 truncate text-sm font-semibold text-gray-900 md:text-base hover:text-brand-600"
+                          title={expense.description}
+                        >
+                          {expense.description}
+                        </h3>
                       </Link>
-                    </Button>
-                    {canEdit && (
-                      <div className="grid grid-cols-2 gap-2">
-                        <Button asChild variant="action" size="sm" className="w-full">
-                          <Link href={`${prefix}/expenses/${expense.id}/edit`}>
-                            <Edit className="h-4 w-4" />
-                            Editar
+
+                      <p
+                        className="mt-1 truncate text-xs text-gray-600 md:text-sm"
+                        title={property?.name}
+                      >
+                        {propertyName}
+                      </p>
+
+                      {expense.notes && (
+                        <p className="mt-2 text-xs text-gray-600 md:text-sm">
+                          {expense.notes}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="flex flex-col gap-3 md:min-w-[220px] md:items-end">
+                      <div className="text-xl font-bold text-red-600 md:text-2xl">
+                        {formatCurrency(expense.amount, expense.currency as CurrencyCode)}
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-2 md:justify-end">
+                        <Button asChild variant="outline" size="xs" className="h-9 px-3 text-xs">
+                          <Link href={`${prefix}/expenses/${expense.id}`}>
+                            <Eye className="h-4 w-4" />
+                            <span className="hidden sm:inline">Ver</span>
                           </Link>
                         </Button>
-                        <DeleteExpenseButton
-                          expenseId={expense.id}
-                          description={expense.description}
-                          className="w-full justify-center"
-                        />
+                        {canEdit && (
+                          <>
+                            <Button asChild variant="action" size="xs" className="h-9 px-3 text-xs">
+                              <Link href={`${prefix}/expenses/${expense.id}/edit`}>
+                                <Edit className="h-4 w-4" />
+                                <span className="hidden sm:inline">Editar</span>
+                              </Link>
+                            </Button>
+                            <DeleteExpenseButton
+                              expenseId={expense.id}
+                              description={expense.description}
+                              compact
+                              className="h-9 px-3 text-xs"
+                            />
+                          </>
+                        )}
                       </div>
-                    )}
+                    </div>
                   </div>
-                </div>
+                </article>
               )
             })}
             {filtered.length < expenses.length && (
               <p className="text-center text-sm text-gray-600 py-2">
                 Mostrando {filtered.length} de {expenses.length} despesas
               </p>
-            )}
-          </div>
-
-          {/* Tablet+: tabela */}
-          <div className="hidden sm:block bg-white rounded-2xl shadow-sm border border-brand-border-soft overflow-hidden">
-            <table className="min-w-full table-fixed divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="w-[12%] px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Data</th>
-                  <th className="w-[28%] px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Propriedade</th>
-                  <th className="w-[30%] px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Descrição</th>
-                  <th className="w-[12%] px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Categoria</th>
-                  <th className="w-[10%] px-4 py-3 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">Valor</th>
-                  <th className="w-[8%] px-4 py-3 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">Ações</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {filtered.map(expense => {
-                  const property = getProperty(expense)
-                  const propertyName = property?.name ? truncateText(property.name, 40) : ''
-                  return (
-                    <tr key={expense.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                        <Link href={`${prefix}/expenses/${expense.id}`} className="hover:text-brand-600">
-                          {new Date(expense.expense_date).toLocaleDateString('pt-BR')}
-                        </Link>
-                      </td>
-                      <td className="px-4 py-4">
-                        <Link
-                          href={`${prefix}/expenses/${expense.id}`}
-                          className="block truncate text-sm font-medium text-gray-900 hover:text-brand-600"
-                          title={property?.name}
-                        >
-                          {propertyName}
-                        </Link>
-                      </td>
-                      <td className="px-4 py-4">
-                        <Link href={`${prefix}/expenses/${expense.id}`} className="block">
-                          <div className="truncate text-sm text-gray-900 hover:text-brand-600" title={expense.description}>
-                            {expense.description}
-                          </div>
-                          {expense.notes && <div className="truncate text-xs text-gray-600 mt-1" title={expense.notes}>{expense.notes}</div>}
-                        </Link>
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap">
-                        <Badge variant="secondary" className="bg-gray-100 text-gray-800">
-                          {CATEGORY_LABELS[expense.category] || expense.category}
-                        </Badge>
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-right text-sm font-medium text-red-600">
-                        {formatCurrency(expense.amount, expense.currency as CurrencyCode)}
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <Link
-                            href={`${prefix}/expenses/${expense.id}`}
-                            className="p-1.5 text-gray-500 hover:text-brand-600 rounded-lg hover:bg-brand-50 transition-colors"
-                            title="Ver detalhes"
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Link>
-                          {canEdit && (
-                            <>
-                              <Link
-                                href={`${prefix}/expenses/${expense.id}/edit`}
-                                className="p-1.5 text-lodgra-blue rounded-lg bg-be-blue hover:bg-be-blue/80 transition-colors"
-                                title="Editar"
-                              >
-                                <Edit className="h-4 w-4" />
-                              </Link>
-                              <DeleteExpenseButton
-                                expenseId={expense.id}
-                                description={expense.description}
-                                className="px-3 py-2 text-sm"
-                              />
-                            </>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-            {filtered.length < expenses.length && (
-              <div className="px-6 py-3 bg-gray-50 text-sm text-gray-600 border-t">
-                Mostrando {filtered.length} de {expenses.length} despesas nesta página
-              </div>
             )}
             {pagination && <PaginationNav {...pagination} />}
           </div>
