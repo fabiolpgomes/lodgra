@@ -42,6 +42,15 @@ function getStorageKey(key: string): string {
   return `expenses_filter_${key}`
 }
 
+function toIsoDate(value: string | null | undefined): string | null {
+  if (!value) return null
+
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return null
+
+  return date.toISOString().split('T')[0]
+}
+
 export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, pagination }: ExpensesFilterProps) {
   const locale = useLocale()
   const prefix = locale ? `/${locale}` : ''
@@ -127,12 +136,14 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
 
       // Date range filter
       if (startDate) {
-        const expenseDate = new Date(e.expense_date).toISOString().split('T')[0]
+        const expenseDate = toIsoDate(e.expense_date)
+        if (!expenseDate) return false
         if (expenseDate < startDate) return false
       }
 
       if (endDate) {
-        const expenseDate = new Date(e.expense_date).toISOString().split('T')[0]
+        const expenseDate = toIsoDate(e.expense_date)
+        if (!expenseDate) return false
         if (expenseDate > endDate) return false
       }
 
