@@ -98,6 +98,55 @@ export function CleaningPageClient({ properties, members, userRole }: Props) {
         </div>
       </div>
 
+      <div className="mb-6 rounded-2xl border border-brand-border-soft bg-white p-4 shadow-sm sm:hidden">
+        <p className="text-[10px] font-black uppercase tracking-[1.5px] text-gray-500">Acesso rápido</p>
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          {isAdmin && (
+            <Button onClick={() => setShowModal(true)} className="col-span-2 h-12 justify-center rounded-2xl shadow-lg shadow-brand-500/20">
+              <Plus className="h-4 w-4" />
+              Nova limpeza
+            </Button>
+          )}
+          <button
+            onClick={() => setShowWorkflowModal(true)}
+            className="col-span-2 flex h-12 items-center justify-center gap-2 rounded-2xl border border-blue-100 bg-blue-50 px-4 text-sm font-bold text-blue-700 transition hover:bg-blue-100"
+          >
+            <HelpCircle className="h-5 w-5" />
+            Ver fluxo
+          </button>
+          <button
+            onClick={() => setFilterStatus('pending')}
+            className={`h-11 rounded-2xl border px-4 text-xs font-black uppercase tracking-wider transition ${
+              filterStatus === 'pending'
+                ? 'border-brand-600 bg-brand-600 text-white'
+                : 'border-gray-100 bg-white text-gray-500'
+            }`}
+          >
+            Pendentes
+          </button>
+          <button
+            onClick={() => setFilterStatus('in_progress')}
+            className={`h-11 rounded-2xl border px-4 text-xs font-black uppercase tracking-wider transition ${
+              filterStatus === 'in_progress'
+                ? 'border-brand-600 bg-brand-600 text-white'
+                : 'border-gray-100 bg-white text-gray-500'
+            }`}
+          >
+            Em curso
+          </button>
+          <button
+            onClick={() => setFilterStatus('all')}
+            className={`col-span-2 h-11 rounded-2xl border px-4 text-xs font-black uppercase tracking-wider transition ${
+              filterStatus === 'all'
+                ? 'border-brand-600 bg-brand-600 text-white'
+                : 'border-gray-100 bg-white text-gray-500'
+            }`}
+          >
+            Todas as limpezas
+          </button>
+        </div>
+      </div>
+
       {/* Modern Filter HUD */}
       <div className="mb-8 flex gap-2 overflow-x-auto pb-2 no-scrollbar">
         {(['pending', 'in_progress', 'all', 'completed'] as FilterStatus[]).map(s => (

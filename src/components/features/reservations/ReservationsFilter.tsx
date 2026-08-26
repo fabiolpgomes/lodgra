@@ -81,6 +81,10 @@ export function ReservationsFilter({
     handlePropertyChange('all')
   }
 
+  function setQuickStatus(status: StatusFilter) {
+    setStatusFilter(status)
+  }
+
   // Restore a valid persisted filter when the URL has no explicit selection.
   useEffect(() => {
     if (selectedPropertyId !== 'all' || searchParams.has('property_id')) return
@@ -166,9 +170,9 @@ export function ReservationsFilter({
 
       <div className="mb-4 rounded-2xl border border-brand-border bg-brand-white p-4 shadow-sm sm:hidden">
         <p className="text-[10px] font-black uppercase tracking-[1.5px] text-brand-text-medium">Acesso rápido</p>
-        <div className="mt-3 grid grid-cols-1 gap-2">
+        <div className="mt-3 grid grid-cols-2 gap-2">
           {canCreate && (
-            <Link href={getLocalizedPath('/reservations/new', locale)}>
+            <Link href={getLocalizedPath('/reservations/new', locale)} className="col-span-2">
               <Button variant="premium-primary" className="h-12 w-full justify-center">
                 <Plus className="h-4 w-4" />
                 Nova Reserva
@@ -178,7 +182,23 @@ export function ReservationsFilter({
           <Button
             type="button"
             variant="outline"
-            className="h-12 w-full justify-center"
+            className="h-11 w-full justify-center"
+            onClick={() => setQuickStatus('confirmed')}
+          >
+            Confirmadas
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            className="h-11 w-full justify-center"
+            onClick={() => setQuickStatus('pending')}
+          >
+            Pendentes
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            className="col-span-2 h-11 w-full justify-center"
             onClick={clearFilters}
           >
             Limpar filtros
