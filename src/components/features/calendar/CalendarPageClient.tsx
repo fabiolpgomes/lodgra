@@ -381,7 +381,7 @@ export function CalendarPageClient() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold text-gray-900 sm:text-2xl lg:text-3xl">Calendário</h1>
+            <h1 className="text-xl font-bold text-gray-900 sm:text-2xl lg:text-3xl">Calendários</h1>
             <button
               onClick={() => setShowMonthPicker(true)}
               className="min-h-11 rounded-lg bg-gray-100 px-3 py-2 text-xs text-gray-700 transition-colors hover:bg-gray-200 sm:text-sm"

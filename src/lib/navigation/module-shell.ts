@@ -153,7 +153,7 @@ export function getPageTitle(pathname: string): string {
   if (normalized.startsWith('/reservations')) return 'Reservas'
   if (normalized.startsWith('/expenses')) return 'Despesas'
   if (normalized.startsWith('/financial')) return 'Financeiro'
-  if (normalized.startsWith('/calendar')) return 'Calendário'
+  if (normalized.startsWith('/calendar')) return 'Calendários'
   if (normalized.startsWith('/reports')) return 'Relatórios'
   if (normalized.startsWith('/owners')) return 'Proprietários'
   if (normalized.startsWith('/sync')) return 'Sincronização'

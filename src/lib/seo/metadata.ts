@@ -22,7 +22,7 @@ export const seoMetadata = {
   // Pricing page
   pricing: {
     title: 'Planos - Lodgra | Comece Grátis Agora',
-    description: '3 planos flexíveis para proprietários de todos os tamanhos: Starter, Pro, Enterprise. Experimente grátis por 14 dias. Sem compromisso.',
+    description: '3 planos flexíveis para proprietários de todos os tamanhos: Essencial, Profissional, Enterprise. Experimente grátis por 14 dias. Sem compromisso.',
     keywords: 'preço, planos, pricing, gratuito',
   },
 
@@ -105,7 +105,7 @@ export const seoMetadata = {
   },
 
   calendar: {
-    title: 'Calendário - Lodgra | Sincronize Suas Reservas',
+    title: 'Calendários - Lodgra | Sincronize Suas Reservas',
     description: 'Veja o calendário consolidado de todas as suas propriedades e plataformas em um único lugar.',
     keywords: 'calendário, reservas, sincronização',
   },

@@ -18,7 +18,7 @@ const NAV_PATHS = [
   { path: '/reservations', label: 'Reservas' },
   { path: '/expenses', label: 'Despesas' },
   { path: '/financial', label: 'Financeiro' },
-  { path: '/calendar', label: 'Calendário' },
+  { path: '/calendar', label: 'Calendários' },
   { path: '/reports', label: 'Relatórios' },
 ]
 

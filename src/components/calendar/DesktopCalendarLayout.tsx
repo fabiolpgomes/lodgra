@@ -109,7 +109,7 @@ export function DesktopCalendarLayout({
       <div className="sticky top-0 z-30 flex items-center justify-between border-b border-[#E5DFD2] bg-white px-4 py-3 lg:hidden">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#717171]">Propriedades</p>
-          <p className="text-sm font-semibold text-[#1B2430]">Calendário</p>
+          <p className="text-sm font-semibold text-[#1B2430]">Calendários</p>
         </div>
         <HamburgerMenu
           properties={properties}
