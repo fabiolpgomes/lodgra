@@ -12,6 +12,7 @@ import { ptBR } from 'date-fns/locale'
 interface AvailabilityCalendarProps {
   blockedRanges?: { start: string; end: string }[]
   minNights?: number
+  pricingRules?: { start_date: string; end_date: string; min_nights: number }[]
   checkIn: string
   checkOut: string
   onCheckInChange: (date: string) => void
@@ -142,6 +143,7 @@ function MonthGrid({ baseDate, today, checkIn, checkOut, hoverDate, blockedRange
 export function AvailabilityCalendar({
   blockedRanges = [],
   minNights = 1,
+  pricingRules = [],
   checkIn,
   checkOut,
   onCheckInChange,
@@ -151,6 +153,26 @@ export function AvailabilityCalendar({
   const [baseMonth, setBaseMonth] = useState(() => startOfMonth(today))
   const [hoverDate, setHoverDate] = useState<string | null>(null)
   const nextMonth = addMonths(baseMonth, 1)
+
+  const effectiveMinNights = useMemo(() => {
+    if (!pricingRules.length) return minNights
+
+    const applicableRules = pricingRules.filter((rule) => {
+      if (!checkIn) return false
+
+      if (checkOut) {
+        return rule.start_date <= checkOut && rule.end_date >= checkIn
+      }
+
+      return rule.start_date <= checkIn && rule.end_date >= checkIn
+    })
+
+    const ruleMinNights = applicableRules.length > 0
+      ? Math.max(...applicableRules.map((rule) => Number(rule.min_nights) || 1))
+      : 1
+
+    return Math.max(minNights, ruleMinNights)
+  }, [checkIn, checkOut, minNights, pricingRules])
 
   const handleDateClick = (day: Date) => {
     const d = fmt(day)
@@ -178,7 +200,7 @@ export function AvailabilityCalendar({
 
     // Clicked after checkIn — validate
     const nights = Math.round((day.getTime() - parse(checkIn).getTime()) / 86400000)
-    if (nights < minNights) return // too short
+    if (nights < effectiveMinNights) return // too short
 
     if (doesRangeOverlapBlocked(parse(checkIn), day, blockedRanges)) return // overlaps reservation
 
@@ -215,9 +237,9 @@ export function AvailabilityCalendar({
             </span>
           )}
         </p>
-        {checkIn && checkOut && nightsCount && nightsCount < minNights && (
+        {checkIn && checkOut && nightsCount && nightsCount < effectiveMinNights && (
           <p className="mt-2 text-[13px] text-amber-700 bg-amber-50 border border-amber-200 rounded px-3 py-2 inline-block">
-            ⚠️ Período mínimo: {minNights} {minNights === 1 ? 'noite' : 'noites'}. Actualmente: {nightsCount} {nightsCount === 1 ? 'noite' : 'noites'}
+            ⚠️ Período mínimo efetivo: {effectiveMinNights} {effectiveMinNights === 1 ? 'noite' : 'noites'}. Actualmente: {nightsCount} {nightsCount === 1 ? 'noite' : 'noites'}
           </p>
         )}
       </div>
@@ -252,7 +274,7 @@ export function AvailabilityCalendar({
           blockedRanges={blockedRanges}
           onDateClick={handleDateClick}
           onDateHover={setHoverDate}
-          minNights={minNights}
+          minNights={effectiveMinNights}
         />
         <div className="hidden sm:block w-px bg-gray-200 shrink-0 self-stretch" />
         <MonthGrid
@@ -264,7 +286,7 @@ export function AvailabilityCalendar({
           blockedRanges={blockedRanges}
           onDateClick={handleDateClick}
           onDateHover={setHoverDate}
-          minNights={minNights}
+          minNights={effectiveMinNights}
         />
       </div>
 
