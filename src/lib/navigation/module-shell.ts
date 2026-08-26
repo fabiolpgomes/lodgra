@@ -49,10 +49,10 @@ export const PUBLIC_MODULES: ModuleDefinition[] = [
     id: 'operacao',
     label: 'Operação',
     scopeLabel: 'Operação do portfólio',
-    description: 'Propriedades, reservas, calendário e execução diária.',
+    description: 'Reservas, calendário, limpezas, despesas e propriedades.',
     icon: Building2,
     published: true,
-    entryPath: '/properties',
+    entryPath: '/reservations',
     matches: ['/properties', '/reservations', '/calendar', '/cleaning', '/expenses'],
   },
   {
