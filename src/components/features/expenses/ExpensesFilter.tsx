@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo, useEffect } from 'react'
-import { Search, Eye, Edit, Receipt, Plus, Calendar, TrendingDown } from 'lucide-react'
+import { Search, Eye, Edit, Receipt, Plus, Calendar, TrendingDown, X } from 'lucide-react'
 import Link from 'next/link'
 import { Input } from '@/components/common/ui/input'
 import { Button } from '@/components/common/ui/button'
@@ -288,18 +288,36 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
       <div className="bg-white rounded-2xl shadow-sm border border-brand-border-soft p-4 sm:p-5 mb-6">
         <div className="flex flex-col gap-4">
           {/* Row 1: Search and Property Filter */}
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+          <div className="flex flex-col gap-4 lg:flex-row">
+            <div className="flex-1">
+              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-500">
+                Pesquisa
+              </label>
+              <div className="relative">
+                <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
               <Input
-                placeholder="Pesquisar por descrição ou propriedade..."
+                placeholder="Pesquisar despesas, notas ou propriedade..."
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                className="pl-10"
+                  className="h-12 pl-10 pr-10 text-sm md:text-sm"
               />
+                {search && (
+                  <button
+                    type="button"
+                    onClick={() => setSearch('')}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
+                    aria-label="Limpar pesquisa"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+              <p className="mt-1 text-[11px] text-gray-500">
+                Busca por descrição, notas e nome da propriedade.
+              </p>
             </div>
             <Select value={propertyFilter} onValueChange={setPropertyFilter}>
-              <SelectTrigger className="w-full sm:w-56">
+              <SelectTrigger className="h-12 w-full lg:w-64">
                 <SelectValue placeholder="Propriedade" />
               </SelectTrigger>
               <SelectContent>
@@ -312,35 +330,39 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
           </div>
 
           {/* Row 2: Date Range and Category Filters */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <div className="flex-1">
-              <label className="block text-xs font-medium text-gray-700 mb-1">Data inicial <span className="text-gray-500">(dd/mm/aaaa)</span></label>
+              <label className="mb-1.5 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-gray-500">
+                <Calendar className="h-3.5 w-3.5" />
+                Data inicial
+              </label>
               <div className="relative">
-                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
                 <Input
                   type="date"
                   value={startDate}
                   onChange={e => setStartDate(e.target.value)}
-                  className="pl-10"
+                  className="h-12 px-4 text-sm md:text-sm"
                 />
               </div>
             </div>
             <div className="flex-1">
-              <label className="block text-xs font-medium text-gray-700 mb-1">Data final <span className="text-gray-500">(dd/mm/aaaa)</span></label>
+              <label className="mb-1.5 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-gray-500">
+                <Calendar className="h-3.5 w-3.5" />
+                Data final
+              </label>
               <div className="relative">
-                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
                 <Input
                   type="date"
                   value={endDate}
                   onChange={e => setEndDate(e.target.value)}
-                  className="pl-10"
+                  className="h-12 px-4 text-sm md:text-sm"
                 />
               </div>
             </div>
             <div className="flex-1">
-              <label className="block text-xs font-medium text-gray-700 mb-1">Categoria</label>
+              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-500">Categoria</label>
               <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                <SelectTrigger>
+                <SelectTrigger className="h-12 w-full">
                   <SelectValue placeholder="Categoria" />
                 </SelectTrigger>
                 <SelectContent>
