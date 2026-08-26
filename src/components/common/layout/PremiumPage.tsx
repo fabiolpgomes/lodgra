@@ -29,24 +29,29 @@ export function PremiumPageHeader({
   badge,
   icon: Icon,
   actions,
+  denseMobile = false,
 }: {
   title: string
   description?: string
   badge?: string
   icon?: IconComponent
   actions?: ReactNode
+  denseMobile?: boolean
 }) {
   return (
-    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+    <div className={joinClasses('flex flex-col gap-4 md:flex-row md:items-center md:justify-between', denseMobile && 'gap-3')}>
       <div className="flex min-w-0 items-start gap-4">
         {Icon && (
-          <div className="mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-brand-blue/10 bg-brand-blue/5 text-brand-blue">
-            <Icon className="h-5 w-5" />
+          <div className={joinClasses(
+            'mt-0.5 flex shrink-0 items-center justify-center rounded-xl border border-brand-blue/10 bg-brand-blue/5 text-brand-blue',
+            denseMobile ? 'h-10 w-10 md:h-11 md:w-11' : 'h-11 w-11'
+          )}>
+            <Icon className={denseMobile ? 'h-4 w-4 md:h-5 md:w-5' : 'h-5 w-5'} />
           </div>
         )}
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-xl font-bold uppercase tracking-tight text-brand-text-dark">
+            <h1 className={joinClasses('font-bold uppercase tracking-tight text-brand-text-dark', denseMobile ? 'text-lg sm:text-xl' : 'text-xl')}>
               {title}
             </h1>
             {badge && (
@@ -56,13 +61,13 @@ export function PremiumPageHeader({
             )}
           </div>
           {description && (
-            <p className="mt-1 text-xs font-semibold text-brand-text-medium">
+            <p className={joinClasses('mt-1 text-xs font-semibold text-brand-text-medium', denseMobile && 'hidden sm:block')}>
               {description}
             </p>
           )}
         </div>
       </div>
-      {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
+      {actions && <div className={joinClasses('flex flex-wrap items-center gap-2', denseMobile && 'w-full md:w-auto')}>{actions}</div>}
     </div>
   )
 }

@@ -71,15 +71,16 @@ export default async function ExpensesPage({
           description="Gerencie todas as despesas das propriedades"
           icon={Receipt}
           badge={`${totalCount ?? 0} registros`}
+          denseMobile
           actions={canCreate && (
-            <div className="flex gap-2">
-              <Button asChild variant="outline">
+            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+              <Button asChild variant="outline" className="w-full sm:w-auto">
                 <Link href={`/${locale}/expenses/export`}>
                   <FileText className="h-4 w-4" />
                   Exportar PDF
                 </Link>
               </Button>
-              <Button asChild variant="action">
+              <Button asChild variant="action" className="w-full sm:w-auto">
                 <Link href={`/${locale}/expenses/new`}>
                   <Plus className="h-4 w-4" />
                   Nova Despesa
