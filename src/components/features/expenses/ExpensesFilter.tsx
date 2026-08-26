@@ -266,6 +266,9 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
     </div>
   )
 
+  const fieldInputClassName =
+    'h-12 w-full appearance-none rounded-xl px-4 pr-12 text-[15px] leading-none shadow-none sm:text-sm'
+
   const emptyState = (
     <div className="bg-white rounded-2xl shadow-sm border border-brand-border-soft p-8 sm:p-10 text-center">
       <Receipt className="h-16 w-16 text-gray-500 mx-auto mb-4" />
@@ -345,18 +348,18 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
       <div className="bg-white rounded-2xl shadow-sm border border-brand-border-soft p-4 sm:p-5 mb-6">
         <div className="flex flex-col gap-4">
           {/* Row 1: Search and Property Filter */}
-          <div className="flex flex-col gap-4 lg:flex-row">
+          <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1fr)_13rem]">
             <div className="flex-1">
               <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-500">
                 Pesquisa
               </label>
               <div className="relative">
-                <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+                <Search className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
                 <Input
                   placeholder="Pesquisar despesas, notas ou propriedade..."
                   value={search}
                   onChange={e => setSearch(e.target.value)}
-                  className="h-12 pl-10 pr-10 text-sm md:text-sm"
+                  className={fieldInputClassName + ' pl-11'}
                 />
                 {search && (
                   <button
@@ -369,7 +372,7 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
                   </button>
                 )}
               </div>
-              <p className="mt-1 text-[11px] text-gray-500">
+              <p className="mt-1 hidden text-[11px] text-gray-500 sm:block">
                 Busca por descrição, notas e nome da propriedade.
               </p>
             </div>
@@ -387,7 +390,7 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
           </div>
 
           {/* Row 2: Date Range and Category Filters */}
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4">
             <div className="flex-1">
               <label className="mb-1.5 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-gray-500">
                 <Calendar className="h-3.5 w-3.5" />
@@ -398,7 +401,7 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
                   type="date"
                   value={startDate}
                   onChange={e => setStartDate(e.target.value)}
-                  className="h-12 px-4 text-sm md:text-sm"
+                  className={fieldInputClassName}
                 />
                 {startDate && (
                   <button
@@ -422,7 +425,7 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
                   type="date"
                   value={endDate}
                   onChange={e => setEndDate(e.target.value)}
-                  className="h-12 px-4 text-sm md:text-sm"
+                  className={fieldInputClassName}
                 />
                 {endDate && (
                   <button
@@ -436,7 +439,7 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
                 )}
               </div>
             </div>
-            <div className="flex-1">
+            <div className="col-span-2 flex-1 md:col-span-1">
               <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-500">Categoria</label>
               <Select value={categoryFilter} onValueChange={setCategoryFilter}>
                 <SelectTrigger className="h-12 w-full">
