@@ -62,6 +62,7 @@ interface Reservation {
   price: number
   currency: string
   status: 'pending' | 'confirmed' | 'hosting' | 'completed'
+  notes?: string | null
 }
 
 function CalendarWithSettingsContent({
@@ -180,8 +181,9 @@ function CalendarWithSettingsContent({
         startDate: parseISODate(startStr),
         endDate: parseISODate(endStr),
         price: res.price_per_night || res.total_amount || 0,
-        currency: res.currency || 'EUR',
+        currency: res.currency?.toUpperCase() || null,
         status: res.status || 'pending',
+        notes: res.notes || null,
       }
 
       // Debug log first reservation only
@@ -460,10 +462,10 @@ function CalendarWithSettingsContent({
   }, [])
 
   return (
-    <div className="w-full h-screen flex flex-col">
+    <div className="flex min-h-screen w-full flex-col">
       {/* Header with back button - always full width */}
       <div
-        className="flex items-center gap-3 p-4 border-b"
+        className="sticky top-0 z-30 flex items-center gap-3 border-b p-4 pt-[calc(1rem+env(safe-area-inset-top))]"
         style={{ borderColor: '#E5DFD2', backgroundColor: '#FBFAF6' }}
       >
         <a
@@ -502,7 +504,7 @@ function CalendarWithSettingsContent({
             reservations={reservations}
             dailyPrices={dailyPrices}
             blockedDates={blockedDates}
-            propertyCurrency={pricingQuery.data?.currency || 'EUR'}
+            propertyCurrency={pricingQuery.data?.currency?.toUpperCase() || null}
           />
 
         </main>
@@ -541,7 +543,7 @@ function CalendarWithSettingsContent({
         isOpen={selection.isModalOpen}
         dates={selection.modalData?.dates || selection.modalData?.date || null}
         propertyId={propertyId}
-        currency={pricingQuery.data?.currency || 'EUR'}
+        currency={pricingQuery.data?.currency?.toUpperCase() || null}
         onClose={() => {
           selection.closeModal()
           setSelectedBlocks([])

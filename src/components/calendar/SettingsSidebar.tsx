@@ -143,17 +143,19 @@ export function SettingsSidebar({ propertyId: propPropertyId, calendarMonth, cal
   ].filter((line): line is string => line !== null)
   const shortStayPolicy = cancellationPolicies.find((policy) => !policy.is_long_stay)
   const longStayPolicy = cancellationPolicies.find((policy) => policy.is_long_stay)
-  const normalizedCurrency = pricing?.currency?.toUpperCase() || 'EUR'
-  const currencyCode: CurrencyCode = normalizedCurrency in CURRENCIES
+  const normalizedCurrency = pricing?.currency?.toUpperCase() ?? null
+  const currencyCode: CurrencyCode | null = normalizedCurrency && normalizedCurrency in CURRENCIES
     ? normalizedCurrency as CurrencyCode
-    : 'EUR'
-  const currencySymbol = getCurrencySymbol(currencyCode)
+    : null
+  const currencySymbol = currencyCode ? getCurrencySymbol(currencyCode) : ''
 
   const summaries: Array<{ id: SectionName; title: string; lines: string[] }> = [
     {
       id: 'prices',
       title: 'Preços',
-      lines: [pricing?.base_price ? `${currencySymbol} ${pricing.base_price}${pricing.weekend_price ? ` – ${currencySymbol} ${pricing.weekend_price}` : ''} por noite` : 'Definir preço base'],
+      lines: [pricing?.base_price
+        ? `${currencySymbol ? `${currencySymbol} ` : ''}${pricing.base_price}${pricing.weekend_price ? ` – ${currencySymbol ? `${currencySymbol} ` : ''}${pricing.weekend_price}` : ''} por noite`
+        : 'Definir preço base'],
     },
     {
       id: 'discounts',
@@ -177,7 +179,7 @@ export function SettingsSidebar({ propertyId: propPropertyId, calendarMonth, cal
   ]
 
   if (loading) {
-    return <div className="p-8 text-sm text-[#717171]">Carregando configurações...</div>
+    return <div className="px-4 py-5 text-sm text-[#717171] sm:p-8">Carregando configurações...</div>
   }
 
   if (!activeSection) {
@@ -188,13 +190,15 @@ export function SettingsSidebar({ propertyId: propPropertyId, calendarMonth, cal
             key={summary.id}
             type="button"
             onClick={() => setActiveSection(summary.id)}
-            className="flex w-full items-center gap-4 px-7 py-7 text-left transition hover:bg-[#F7F7F7] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#222222]"
+            className="flex w-full items-center gap-3 px-4 py-5 text-left transition hover:bg-[#F7F7F7] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#222222] sm:gap-4 sm:px-7 sm:py-7"
           >
             <span className="min-w-0 flex-1">
-              <span className="mb-2 block text-base font-semibold text-[#222222]">{summary.title}</span>
-              {summary.lines.map((line) => <span key={line} className="block text-sm leading-6 text-[#717171]">{line}</span>)}
+              <span className="mb-1.5 block text-sm font-semibold text-[#222222] sm:mb-2 sm:text-base">
+                {summary.title}
+              </span>
+              {summary.lines.map((line) => <span key={line} className="block text-xs leading-5 text-[#717171] sm:text-sm sm:leading-6">{line}</span>)}
             </span>
-            <span className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-[#F7F7F7]">
+            <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-[#F7F7F7] sm:h-10 sm:w-10">
               <ChevronRight size={19} />
             </span>
           </button>
@@ -206,16 +210,16 @@ export function SettingsSidebar({ propertyId: propPropertyId, calendarMonth, cal
   const meta = sectionMeta[activeSection]
 
   return (
-    <div className="p-6 md:p-7">
+    <div className="px-4 py-5 sm:p-6 md:p-7">
       <button
         type="button"
         onClick={() => setActiveSection(null)}
-        className="mb-5 flex h-11 w-11 items-center justify-center rounded-full bg-[#F7F7F7] hover:bg-[#EBEBEB]"
+        className="mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-[#F7F7F7] hover:bg-[#EBEBEB] sm:mb-5"
         aria-label="Voltar às configurações"
       >
         <ArrowLeft size={20} />
       </button>
-      <h2 className="text-3xl font-semibold tracking-tight text-[#222222]">{meta.title}</h2>
+      <h2 className="text-2xl font-semibold tracking-tight text-[#222222] sm:text-3xl">{meta.title}</h2>
       <p className="mb-7 mt-3 text-base leading-6 text-[#717171]">{meta.description}</p>
 
       {activeSection === 'prices' && propertyId && (

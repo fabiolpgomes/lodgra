@@ -6,6 +6,8 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 import Image from 'next/image'
 import { getISOWeekNumber, getISOWeekStartDate, getWeekDays } from '@/utils/weekUtils'
 import { MonthYearPicker } from './MonthYearPicker'
+import { MinimumOverrideBadge } from './MinimumOverrideBadge'
+import { getCurrencySymbol as getCurrencySymbolFromUtils, type CurrencyCode } from '@/lib/utils/currency'
 
 interface Property {
   id: string
@@ -25,6 +27,7 @@ interface Reservation {
   price: number
   currency?: string
   status: 'pending' | 'confirmed' | 'hosting' | 'completed'
+  notes?: string | null
 }
 
 interface CalendarKanbanViewProps {
@@ -187,12 +190,7 @@ export function CalendarKanbanView({
   }
 
   const getCurrencySymbol = (currency: string): string => {
-    const symbols: Record<string, string> = {
-      'EUR': '€',
-      'BRL': 'R$',
-      'USD': '$',
-    }
-    return symbols[currency] || currency
+    return getCurrencySymbolFromUtils(currency.toUpperCase() as CurrencyCode)
   }
 
   const getStatusLabel = (status: string): string => {
@@ -208,37 +206,37 @@ export function CalendarKanbanView({
   return (
     <div className="min-h-screen" style={{ backgroundColor: COLORS.surface }}>
       {/* Header */}
-      <div className="border-b p-6" style={{ borderColor: COLORS.hairline, backgroundColor: COLORS.canvas }}>
-        <div className="flex items-center justify-between mb-6">
+      <div className="sticky top-0 z-30 border-b px-4 py-4 sm:px-6" style={{ borderColor: COLORS.hairline, backgroundColor: COLORS.canvas }}>
+        <div className="mb-4 flex flex-col gap-3 lg:mb-6 lg:flex-row lg:items-center lg:justify-between">
           <button
             onClick={handleDashboardClick}
             disabled={isNavigating}
-            className="flex items-center gap-2 font-semibold cursor-pointer hover:opacity-70 disabled:opacity-50"
+            className="flex w-full items-center justify-center gap-2 rounded-xl border border-[color:var(--be-blue)]/15 bg-white px-4 py-3 font-semibold cursor-pointer hover:opacity-70 disabled:opacity-50 lg:w-auto"
             style={{ color: COLORS.primary }}
           >
             {isNavigating ? '⏳ Carregando...' : '← Dashboard'}
           </button>
-          <div className="flex items-center gap-4">
-            <button onClick={handlePrevWeek} className="p-2 rounded" style={{ backgroundColor: COLORS.surface }}>
+          <div className="flex items-center justify-between gap-2 sm:justify-center">
+            <button onClick={handlePrevWeek} className="rounded-lg p-2.5" style={{ backgroundColor: COLORS.surface }}>
               <ChevronLeft size={20} style={{ color: COLORS.primary }} />
             </button>
             <div
-              className="text-center min-w-[200px] cursor-pointer hover:opacity-70 transition-opacity"
+              className="min-w-[144px] cursor-pointer text-center transition-opacity hover:opacity-70 sm:min-w-[200px]"
               onClick={() => setShowMonthPicker(true)}
               title="Clique para escolher mês e ano"
             >
-              <div className="text-sm" style={{ color: COLORS.body }}>
+              <div className="text-xs sm:text-sm" style={{ color: COLORS.body }}>
                 {monthDisplay} de {year} 📅
               </div>
-              <div className="text-xl font-semibold" style={{ color: COLORS.primary }}>
+              <div className="text-lg font-semibold sm:text-xl" style={{ color: COLORS.primary }}>
                 Semana {currentWeek}
               </div>
             </div>
-            <button onClick={handleNextWeek} className="p-2 rounded" style={{ backgroundColor: COLORS.surface }}>
+            <button onClick={handleNextWeek} className="rounded-lg p-2.5" style={{ backgroundColor: COLORS.surface }}>
               <ChevronRight size={20} style={{ color: COLORS.primary }} />
             </button>
           </div>
-          <div className="text-sm" style={{ color: COLORS.body }}>
+          <div className="text-center text-xs font-medium sm:text-sm lg:text-right" style={{ color: COLORS.body }}>
             {propertiesWithReservations.length} Propriedades
           </div>
         </div>
@@ -249,7 +247,7 @@ export function CalendarKanbanView({
         <div className="inline-block min-w-full">
           {/* Days Header */}
           <div className="flex" style={{ backgroundColor: COLORS.canvas, borderBottom: `1px solid ${COLORS.hairline}` }}>
-            <div className="w-56 flex-shrink-0 border-r p-4 font-semibold text-sm" style={{ borderColor: COLORS.hairline, color: COLORS.primary }}>
+            <div className="sticky left-0 z-20 w-44 flex-shrink-0 border-r px-3 py-4 text-sm font-semibold sm:w-48 lg:w-56 lg:p-4" style={{ borderColor: COLORS.hairline, color: COLORS.primary, backgroundColor: COLORS.canvas }}>
               Propriedade
             </div>
             <div className="flex flex-1">
@@ -264,17 +262,17 @@ export function CalendarKanbanView({
                 return (
                   <div
                     key={idx}
-                    className={`flex-1 min-w-[140px] p-3 text-center border-r`}
+                    className={`flex-1 min-w-[112px] border-r p-2 text-center sm:min-w-[128px] lg:min-w-[140px] lg:p-3`}
                     style={{
                       borderColor: COLORS.hairline,
                       backgroundColor: isToday ? 'rgba(16,32,62,0.08)' : COLORS.canvas,
                     }}
                   >
-                    <div className="text-xs font-semibold" style={{ color: COLORS.body }}>
+                    <div className="text-[11px] font-semibold sm:text-xs" style={{ color: COLORS.body }}>
                       {dayName}
                     </div>
                     <div
-                      className="text-lg font-bold"
+                      className="text-base font-bold sm:text-lg"
                       style={{ color: isToday ? COLORS.primary : COLORS.ink }}
                     >
                       {dayNum}
@@ -290,7 +288,7 @@ export function CalendarKanbanView({
             <div key={property.id} className="flex" style={{ borderBottom: `1px solid ${COLORS.hairline}` }}>
               {/* Property name with image */}
               <div
-                className="w-56 flex-shrink-0 border-r p-4"
+                className="sticky left-0 z-10 w-44 flex-shrink-0 border-r p-3 sm:w-48 lg:w-56 lg:p-4"
                 style={{ borderColor: COLORS.hairline, backgroundColor: COLORS.canvas }}
               >
                 <div
@@ -298,7 +296,7 @@ export function CalendarKanbanView({
                   onClick={() => onPropertyClick?.(property.id)}
                 >
                   {property.imageUrl && (
-                    <div className="mb-3 rounded overflow-hidden h-16 bg-gray-200">
+                    <div className="mb-3 h-14 overflow-hidden rounded-lg bg-gray-200 sm:h-16">
                       <Image
                         src={property.imageUrl}
                         alt={property.name}
@@ -308,7 +306,7 @@ export function CalendarKanbanView({
                       />
                     </div>
                   )}
-                  <div className="font-semibold text-sm line-clamp-2" style={{ color: COLORS.primary }}>
+                  <div className="line-clamp-2 text-sm font-semibold" style={{ color: COLORS.primary }}>
                     {property.name}
                   </div>
                   <div className="text-xs" style={{ color: COLORS.body }}>
@@ -329,24 +327,31 @@ export function CalendarKanbanView({
                   return (
                     <div
                       key={`${property.id}-${idx}`}
-                      className={`flex-1 min-w-[140px] p-2 border-r`}
+                      className={`flex-1 min-w-[112px] border-r p-1.5 sm:min-w-[128px] lg:min-w-[140px] lg:p-2`}
                       style={{
                         borderColor: COLORS.hairline,
                         backgroundColor: isToday ? 'rgba(16,32,62,0.04)' : COLORS.surface,
                       }}
                     >
-                      <div className="space-y-2 min-h-[120px]">
+                      <div className="min-h-[108px] space-y-2 sm:min-h-[120px]">
                         {dayReservations.map((res) => {
                           const colors = STATUS_COLORS[res.status] || STATUS_COLORS.confirmed
                           const statusLabel = getStatusLabel(res.status)
-                          const currencySymbol = getCurrencySymbol(res.currency || 'EUR')
+                          const currencySymbol = res.currency
+                            ? getCurrencySymbol(res.currency.toUpperCase() as CurrencyCode)
+                            : ''
+                          const reservationNotes = res.notes || ''
+                          const minimumOverrideMatch = reservationNotes.match(
+                            /Exceção aprovada para mínimo de noites:\s*(\d+)\s*noites?/i
+                          )
+                          const hasApprovedMinimumOverride = Boolean(minimumOverrideMatch)
 
                           return (
                             <div
                               key={res.id}
-                              className={`${colors.bg} ${colors.border} border rounded p-2 text-xs`}
+                              className={`${colors.bg} ${colors.border} rounded-lg border p-2 text-[11px] sm:text-xs`}
                             >
-                              <div className={`font-semibold line-clamp-1 ${colors.text}`}>
+                              <div className={`line-clamp-1 font-semibold ${colors.text}`}>
                                 {res.guestName}
                               </div>
                               <div className={`text-xs ${colors.text} opacity-75`}>
@@ -358,6 +363,11 @@ export function CalendarKanbanView({
                               <div className={`text-xs font-semibold ${colors.text}`}>
                                 {statusLabel}
                               </div>
+                              {hasApprovedMinimumOverride && (
+                                <div className="mt-1">
+                                  <MinimumOverrideBadge minimumNights={minimumOverrideMatch?.[1] || '-'} />
+                                </div>
+                              )}
                             </div>
                           )
                         })}

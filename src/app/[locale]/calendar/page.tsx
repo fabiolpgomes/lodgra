@@ -78,8 +78,9 @@ export default function CalendarPage() {
               startDate: new Date(Date.UTC(startYear, startMonth - 1, startDay)),
               endDate: new Date(Date.UTC(endYear, endMonth - 1, endDay)),
               price: evt.extendedProps?.total_amount || 0,
-              currency: evt.extendedProps?.currency || 'EUR',
+              currency: evt.extendedProps?.currency?.toUpperCase() || null,
               status: evt.extendedProps?.status || 'confirmed',
+              notes: evt.extendedProps?.notes || null,
             }
           })
           setReservations(mappedReserv)
@@ -135,15 +136,7 @@ export default function CalendarPage() {
   if (isLoading) {
     return (
       <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          height: '100vh',
-          background: '#fbfaf6',
-          fontSize: '16px',
-          color: '#4d5566',
-        }}
+        className="flex min-h-screen items-center justify-center bg-[#FBFAF6] px-4 text-sm text-[#4D5566] sm:text-base"
       >
         Carregando calendário...
       </div>

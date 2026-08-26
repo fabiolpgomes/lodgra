@@ -26,7 +26,7 @@ interface CalendarDayClickModalProps {
   isOpen: boolean
   dates: Date | DateRange | null
   propertyId: string
-  currency?: string
+  currency?: string | null
   onClose: () => void
   onSavePrice?: (price: number) => Promise<void>
   onBlockDates?: (reason?: string) => Promise<void>
@@ -41,7 +41,7 @@ export function CalendarDayClickModal({
   isOpen,
   dates,
   propertyId,
-  currency = 'EUR',
+  currency,
   onClose,
   onSavePrice,
   onBlockDates,
@@ -91,10 +91,10 @@ export function CalendarDayClickModal({
   const parsedPrice = Number(price.replace(',', '.'))
   const isPriceValid = Number.isFinite(parsedPrice) && parsedPrice > 0
   const totalPrice = isPriceValid ? parsedPrice * nights : 0
-  const normalizedCurrency = currency.toUpperCase()
-  const currencyCode: CurrencyCode = normalizedCurrency in CURRENCIES
+  const normalizedCurrency = currency?.toUpperCase() ?? null
+  const currencyCode: CurrencyCode | null = normalizedCurrency && normalizedCurrency in CURRENCIES
     ? normalizedCurrency as CurrencyCode
-    : 'EUR'
+    : null
 
   const handleClose = () => {
     setPrice('')
@@ -180,8 +180,8 @@ export function CalendarDayClickModal({
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) handleClose() }}>
       <DialogContent className={action === 'price'
-        ? 'w-[calc(100%_-_2rem)] max-w-lg overflow-hidden rounded-3xl border-[#E5E7EB] p-0 shadow-2xl'
-        : 'mx-auto w-full max-w-lg'}>
+        ? 'w-[calc(100%_-_1rem)] max-w-lg overflow-hidden rounded-3xl border-[#E5E7EB] p-0 shadow-2xl sm:w-[calc(100%_-_2rem)]'
+        : 'mx-auto w-[calc(100%_-_1rem)] max-w-lg sm:w-full'}>
         {/* Action Selection View */}
         {action === null && (
           <>
@@ -213,11 +213,11 @@ export function CalendarDayClickModal({
                   </div>
                 </div>
 
-                <DialogFooter className="flex gap-2 sm:gap-3">
+                <DialogFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:gap-3">
                   <Button
                     onClick={onClose}
                     variant="outline"
-                    className="flex-1 h-12"
+                    className="h-12 w-full flex-1 sm:w-auto"
                     disabled={saving}
                   >
                     Cancelar
@@ -225,7 +225,7 @@ export function CalendarDayClickModal({
                   <Button
                     onClick={handleUnblockDates}
                     disabled={saving || !onUnblockDates}
-                    className="flex-1 h-12 text-base font-semibold text-white"
+                    className="h-12 w-full flex-1 text-base font-semibold text-white sm:w-auto"
                     style={{ backgroundColor: '#10203E' }}
                     onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.9')}
                     onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
@@ -236,11 +236,11 @@ export function CalendarDayClickModal({
               </>
             ) : (
               <>
-                <div className="grid grid-cols-2 gap-3 py-4">
+                <div className="grid grid-cols-1 gap-3 py-4 sm:grid-cols-2">
                   <Button
                     onClick={() => setAction('price')}
                     variant="outline"
-                    className="h-20 flex flex-col items-center justify-center gap-1"
+                    className="h-20 w-full flex flex-col items-center justify-center gap-1"
                   >
                     <span className="text-2xl">💰</span>
                     <span className="text-xs font-semibold">Definir Preço</span>
@@ -248,7 +248,7 @@ export function CalendarDayClickModal({
                   <Button
                     onClick={() => setAction('block')}
                     variant="outline"
-                    className="h-20 flex flex-col items-center justify-center gap-1"
+                    className="h-20 w-full flex flex-col items-center justify-center gap-1"
                   >
                     <span className="text-2xl">🔒</span>
                     <span className="text-xs font-semibold">Bloquear Datas</span>
@@ -259,7 +259,7 @@ export function CalendarDayClickModal({
                       onClose()
                     }}
                     variant="outline"
-                    className="h-20 flex flex-col items-center justify-center gap-1"
+                    className="h-20 w-full flex flex-col items-center justify-center gap-1"
                   >
                     <span className="text-2xl">🏷️</span>
                     <span className="text-xs font-semibold">Descontos</span>
@@ -269,7 +269,7 @@ export function CalendarDayClickModal({
                       setAction('policy')
                     }}
                     variant="outline"
-                    className="h-20 flex flex-col items-center justify-center gap-1"
+                    className="h-20 w-full flex flex-col items-center justify-center gap-1"
                   >
                     <span className="text-2xl">📋</span>
                     <span className="text-center text-xs font-semibold leading-tight">
@@ -324,7 +324,7 @@ export function CalendarDayClickModal({
                 </Label>
                 <div className="flex h-14 items-center overflow-hidden rounded-xl border border-[#B8C0CC] bg-white shadow-sm transition focus-within:border-[#10203E] focus-within:ring-2 focus-within:ring-[#10203E]/15">
                   <span className="flex h-full w-14 shrink-0 items-center justify-center border-r border-[#E5E7EB] bg-[#F7F8FA] text-[#4D5566]" aria-hidden="true">
-                    {getCurrencySymbol(currencyCode)}
+                    {currencyCode ? getCurrencySymbol(currencyCode) : ''}
                   </span>
                   <Input
                     id="price"
@@ -347,20 +347,20 @@ export function CalendarDayClickModal({
               {!isSingleDay && (
                 <div id="price-summary" className="rounded-xl border border-[#E5E7EB] bg-[#F7F8FA] p-4" aria-live="polite">
                   <div className="flex items-center justify-between gap-4 text-sm text-[#5E6878]">
-                    <span>{formatCurrency(isPriceValid ? parsedPrice : 0, currencyCode)} × {nights} noites</span>
-                    <span className="text-base font-semibold text-[#1B2430]">{formatCurrency(totalPrice, currencyCode)}</span>
+                    <span>{currencyCode ? formatCurrency(isPriceValid ? parsedPrice : 0, currencyCode) : `${(isPriceValid ? parsedPrice : 0).toFixed(2)}`} × {nights} noites</span>
+                    <span className="text-base font-semibold text-[#1B2430]">{currencyCode ? formatCurrency(totalPrice, currencyCode) : totalPrice.toFixed(2)}</span>
                   </div>
                   <p className="mt-1 text-xs text-[#697386]">Estimativa total do período</p>
                 </div>
               )}
             </div>
 
-            <DialogFooter className="grid grid-cols-2 gap-3 border-t border-[#E5E7EB] bg-white px-6 py-5 sm:px-8">
+            <DialogFooter className="grid grid-cols-1 gap-3 border-t border-[#E5E7EB] bg-white px-4 py-5 sm:grid-cols-2 sm:px-8">
               <Button
                 onClick={() => setAction(null)}
                 variant="outline"
                 type="button"
-                className="h-12 rounded-xl border-[#CDD3DB] text-base font-semibold"
+                className="h-12 w-full rounded-xl border-[#CDD3DB] text-base font-semibold"
                 disabled={saving}
               >
                 Voltar
@@ -368,7 +368,7 @@ export function CalendarDayClickModal({
               <Button
                 type="submit"
                 disabled={saving || !isPriceValid}
-                className="h-12 rounded-xl bg-[#10203E] text-base font-semibold text-white hover:bg-[#1B3155] disabled:bg-[#D8DDE5]"
+                className="h-12 w-full rounded-xl bg-[#10203E] text-base font-semibold text-white hover:bg-[#1B3155] disabled:bg-[#D8DDE5]"
               >
                 {saving ? 'Salvando...' : 'Salvar Preço'}
               </Button>
@@ -379,16 +379,18 @@ export function CalendarDayClickModal({
         {/* Block Dates View */}
         {action === 'block' && (
           <>
-            <DialogHeader>
-              <DialogTitle>Bloquear Datas</DialogTitle>
-              <DialogDescription>
+            <DialogHeader className="px-4 pt-5 sm:px-8 sm:pt-6">
+              <DialogTitle className="text-xl font-semibold tracking-tight text-[#1B2430] sm:text-2xl">
+                Bloquear Datas
+              </DialogTitle>
+              <DialogDescription className="text-sm text-[#5E6878]">
                 {isSingleDay
                   ? `${formatDate(dates)}`
                   : `${formatDate(dateRange.start)} → ${formatDate(dateRange.end)}`}
               </DialogDescription>
             </DialogHeader>
 
-            <div className="space-y-4 py-4">
+            <div className="space-y-4 px-4 py-4 sm:px-8">
               <div className="p-4 rounded-lg border" style={{ backgroundColor: '#F7F5EF', borderColor: '#E5DFD2' }}>
                 <p className="text-sm font-medium mb-2" style={{ color: '#1B2430' }}>
                   ⚠️ Datas Bloqueadas
@@ -422,11 +424,11 @@ export function CalendarDayClickModal({
               </div>
             </div>
 
-            <DialogFooter className="flex gap-2 sm:gap-3">
+            <DialogFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:gap-3">
               <Button
                 onClick={() => setAction(null)}
                 variant="outline"
-                className="flex-1 h-12"
+                className="h-12 w-full flex-1 sm:w-auto"
                 disabled={saving}
               >
                 Voltar
@@ -434,7 +436,7 @@ export function CalendarDayClickModal({
               <Button
                 onClick={handleBlockDates}
                 disabled={saving}
-                className="flex-1 h-12 text-base font-semibold text-white"
+                className="h-12 w-full flex-1 text-base font-semibold text-white sm:w-auto"
                 style={{ backgroundColor: '#10203E' }}
                 onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.9')}
                 onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
@@ -448,16 +450,18 @@ export function CalendarDayClickModal({
         {/* Cancellation Policy View */}
         {action === 'policy' && (
           <>
-            <DialogHeader>
-              <DialogTitle>Política de cancelamento</DialogTitle>
-              <DialogDescription>
+            <DialogHeader className="px-4 pt-5 sm:px-8 sm:pt-6">
+              <DialogTitle className="text-xl font-semibold tracking-tight text-[#1B2430] sm:text-2xl">
+                Política de cancelamento
+              </DialogTitle>
+              <DialogDescription className="text-sm text-[#5E6878]">
                 {isSingleDay
                   ? formatDate(dates)
                   : `${formatDate(dateRange.start)} → ${formatDate(dateRange.end)} (${nights} noites)`}
               </DialogDescription>
             </DialogHeader>
 
-            <div className="max-h-96 space-y-3 overflow-y-auto py-4">
+            <div className="max-h-96 space-y-3 overflow-y-auto px-4 py-4 sm:px-8">
               {cancellationPolicies.length === 0 ? (
                 <p className="rounded-lg border border-[#E5DFD2] p-4 text-sm text-[#697386]">
                   Nenhuma política de cancelamento disponível.
@@ -500,11 +504,11 @@ export function CalendarDayClickModal({
               )}
             </div>
 
-            <DialogFooter className="grid grid-cols-2 gap-3">
+            <DialogFooter className="grid grid-cols-1 gap-3 border-t border-[#E5E7EB] bg-white px-4 py-5 sm:grid-cols-2 sm:px-8">
               <Button
                 onClick={() => setAction(null)}
                 variant="outline"
-                className="h-12"
+                className="h-12 w-full"
                 disabled={saving}
               >
                 Voltar
@@ -512,7 +516,7 @@ export function CalendarDayClickModal({
               <Button
                 onClick={() => void handleApplyCancellationPolicy()}
                 disabled={saving || !selectedPolicy || !onApplyCancellationPolicy}
-                className="h-12 text-white"
+                className="h-12 w-full text-white"
                 style={{ backgroundColor: '#10203E' }}
               >
                 {saving ? 'Aplicando...' : 'Aplicar política'}

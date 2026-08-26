@@ -130,7 +130,7 @@ export function TaxesCard({ propertyId, onUpdate }: TaxesCardProps) {
   if (loading) {
     return (
       <Card className="p-4 md:p-6">
-        <h3 className="text-lg font-semibold mb-4 text-[#1B2430]">Taxas</h3>
+        <h3 className="mb-4 text-lg font-semibold text-[#1B2430]">Taxas</h3>
         <div className="animate-pulse space-y-3">
           <div className="h-16 bg-[#E5DFD2] rounded"></div>
         </div>
@@ -141,13 +141,13 @@ export function TaxesCard({ propertyId, onUpdate }: TaxesCardProps) {
   return (
     <>
       <Card className="p-4 md:p-6">
-        <div className="flex items-center justify-between mb-4">
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h3 className="text-lg font-semibold text-[#1B2430]">Taxas</h3>
           <Button
             onClick={handleOpenDialog}
             variant="outline"
             size="sm"
-            className="h-10"
+            className="h-10 w-full sm:w-auto"
           >
             <Plus className="w-4 h-4 mr-2" />
             Editar
@@ -161,7 +161,7 @@ export function TaxesCard({ propertyId, onUpdate }: TaxesCardProps) {
               onClick={handleOpenDialog}
               variant="default"
               size="sm"
-              className="h-10"
+              className="h-10 w-full sm:w-auto"
             >
               Adicionar Taxa
             </Button>
@@ -185,7 +185,7 @@ export function TaxesCard({ propertyId, onUpdate }: TaxesCardProps) {
 
       {/* Edit Dialog */}
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
-        <DialogContent className="max-w-lg w-full mx-auto">
+        <DialogContent className="w-[calc(100%_-_1rem)] max-w-lg sm:w-full">
           <DialogHeader>
             <DialogTitle className="text-[#1B2430]">Gerenciar Taxas</DialogTitle>
             <DialogDescription className="text-[#4D5566]">
@@ -193,10 +193,10 @@ export function TaxesCard({ propertyId, onUpdate }: TaxesCardProps) {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4 max-h-96 overflow-y-auto">
+          <div className="max-h-96 space-y-4 overflow-y-auto">
             {formFees.map((fee, index) => (
               <div key={index} className="space-y-2 p-3 bg-[#F7F5EF] rounded-lg">
-                <div className="flex items-start gap-2">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
                   <div className="flex-1 space-y-2">
                     <div>
                       <Label className="text-xs mb-1 block text-[#1B2430]">Nome da Taxa</Label>
@@ -224,7 +224,7 @@ export function TaxesCard({ propertyId, onUpdate }: TaxesCardProps) {
                     onClick={() => handleRemoveFee(index)}
                     variant="ghost"
                     size="sm"
-                    className="mt-6 h-10 w-10 p-0"
+                    className="h-10 w-10 self-end p-0 sm:mt-6 sm:self-auto"
                   >
                     <X className="w-4 h-4 text-[#1B2430]" />
                   </Button>
@@ -236,23 +236,23 @@ export function TaxesCard({ propertyId, onUpdate }: TaxesCardProps) {
           <Button
             onClick={handleAddFee}
             variant="outline"
-            className="w-full h-12 text-base"
+            className="h-12 w-full text-base"
           >
             <Plus className="w-4 h-4 mr-2" />
             Adicionar Taxa
           </Button>
 
-          <DialogFooter className="flex gap-2 sm:gap-3">
+          <DialogFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:gap-3">
             <Button
               onClick={() => setShowDialog(false)}
               variant="outline"
-              className="flex-1 h-12 text-[#1B2430] border-[#E5DFD2]"
+              className="h-12 w-full flex-1 text-[#1B2430] border-[#E5DFD2] sm:w-auto"
             >
               Cancelar
             </Button>
             <Button
               onClick={handleSave}
-              className="flex-1 h-12 text-base font-semibold bg-[#10203E] hover:bg-[#0D1A2E]"
+              className="h-12 w-full flex-1 text-base font-semibold bg-[#10203E] hover:bg-[#0D1A2E] sm:w-auto"
             >
               Salvar Taxas
             </Button>

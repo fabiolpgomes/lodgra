@@ -31,15 +31,15 @@ export function SelectActionModal({
   const hasBlock = existingEvents.some(e => e.type === 'block')
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-sm">
-        <h2 className="text-xl font-bold text-gray-900 mb-2">Período Seleccionado</h2>
-        <p className="text-sm text-gray-600 mb-6">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-3 sm:items-center sm:p-4">
+      <div className="w-full max-w-sm rounded-t-2xl bg-white p-5 shadow-lg sm:rounded-2xl sm:p-6">
+        <h2 className="mb-2 text-lg font-bold text-gray-900 sm:text-xl">Período Seleccionado</h2>
+        <p className="mb-6 text-sm text-gray-600">
           {checkIn} até {checkOut}
         </p>
 
         {existingEvents.length > 0 && (
-          <div className="mb-6 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+          <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-3">
             <p className="text-xs font-semibold text-amber-900 mb-2">Encontrados neste período:</p>
             <ul className="space-y-1">
               {existingEvents.map(event => (
@@ -59,7 +59,7 @@ export function SelectActionModal({
                 const reservation = existingEvents.find(e => e.type === 'reservation')
                 if (reservation) onCancelReservation(reservation.id)
               }}
-              className="w-full text-left p-4 border border-red-200 rounded-lg hover:bg-red-50 transition-colors"
+              className="w-full rounded-lg border border-red-200 p-4 text-left transition-colors hover:bg-red-50 min-h-14"
             >
               <div className="font-semibold text-red-900">Cancelar Reserva</div>
               <div className="text-xs text-red-700">Remover a reserva existente</div>
@@ -80,7 +80,7 @@ export function SelectActionModal({
                   onCancelBlock(block.id)
                 }
               }}
-              className="w-full text-left p-4 border border-gray-400 rounded-lg hover:bg-gray-100 transition-colors"
+              className="w-full rounded-lg border border-gray-400 p-4 text-left transition-colors hover:bg-gray-100 min-h-14"
             >
               <div className="font-semibold text-gray-900">Cancelar Bloqueio</div>
               <div className="text-xs text-gray-700">Remover o bloqueio existente</div>
@@ -90,7 +90,7 @@ export function SelectActionModal({
           {/* Nova Reserva */}
           <button
             onClick={onSelectReservation}
-            className="w-full text-left p-4 border border-brand-200 rounded-lg hover:bg-brand-50 transition-colors"
+            className="w-full rounded-lg border border-brand-200 p-4 text-left transition-colors hover:bg-brand-50 min-h-14"
           >
             <div className="font-semibold text-gray-900">Nova Reserva</div>
             <div className="text-xs text-gray-600">Criar uma reserva de hóspede para este período</div>
@@ -99,7 +99,7 @@ export function SelectActionModal({
           {/* Bloquear Datas */}
           <button
             onClick={onSelectBlock}
-            className="w-full text-left p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            className="w-full rounded-lg border border-gray-300 p-4 text-left transition-colors hover:bg-gray-50 min-h-14"
           >
             <div className="font-semibold text-gray-900">Bloquear Datas</div>
             <div className="text-xs text-gray-600">Marcar datas como indisponíveis (manutenção, etc.)</div>
@@ -108,7 +108,7 @@ export function SelectActionModal({
 
         <button
           onClick={onClose}
-          className="w-full mt-4 px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+          className="mt-4 h-12 w-full rounded-lg bg-gray-100 px-4 text-gray-700 transition-colors hover:bg-gray-200"
         >
           Cancelar
         </button>

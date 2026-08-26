@@ -55,7 +55,7 @@ export const ReservationOverlay = React.memo(function ReservationOverlay({
   };
 
   return (
-    <div className="mt-4 space-y-2">
+    <div className="mt-4 space-y-3">
       {reservations.length > 0 && (
         <div className="grid grid-cols-7 gap-1">
           {days.map((day, idx) => {
@@ -65,7 +65,7 @@ export const ReservationOverlay = React.memo(function ReservationOverlay({
               return (
                 <div
                   key={`overlay-${day.date}`}
-                  className="h-6 bg-transparent"
+                  className="h-8 bg-transparent sm:h-6"
                 />
               );
             }
@@ -73,19 +73,16 @@ export const ReservationOverlay = React.memo(function ReservationOverlay({
             return (
               <div
                 key={`overlay-${day.date}`}
-                className="h-6 relative"
+                className="relative h-8 sm:h-6"
               >
                 {startingReservations.slice(0, 2).map((res, resIdx) => {
                   const durationDays = getReservationDurationDays(res);
-                  const daysFromLeft =
-                    (idx % daysPerRow) +
-                    (Math.floor(idx / daysPerRow) * daysPerRow);
 
                   return (
                     <div
                       key={res.id}
                       className={`
-                        absolute top-0 text-xs font-semibold px-1 rounded
+                        absolute top-0 rounded px-1 text-[10px] font-semibold sm:text-xs
                         ${
                           res.status === 'confirmed'
                             ? 'bg-blue-400 text-white'
@@ -100,7 +97,7 @@ export const ReservationOverlay = React.memo(function ReservationOverlay({
                       }}
                       title={`${res.guestName} (${new Date(res.checkIn).getDate()}-${new Date(res.checkOut).getDate()})`}
                     >
-                      <span className="truncate inline-block w-full">
+                      <span className="inline-block w-full truncate">
                         {res.guestName.substring(0, 8)}
                         {res.guestName.length > 8 ? '...' : ''}
                       </span>
@@ -109,7 +106,7 @@ export const ReservationOverlay = React.memo(function ReservationOverlay({
                 })}
 
                 {startingReservations.length > 2 && (
-                  <div className="text-xs text-gray-500 px-1 absolute top-4">
+                  <div className="absolute top-4 px-1 text-xs text-gray-500">
                     +{startingReservations.length - 2}
                   </div>
                 )}
@@ -121,9 +118,9 @@ export const ReservationOverlay = React.memo(function ReservationOverlay({
 
       {/* Legend */}
       {reservations.length > 0 && (
-        <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
-          <p className="font-semibold text-sm mb-2">Legenda:</p>
-          <div className="grid grid-cols-1 gap-2 text-sm">
+        <div className="mt-4 rounded-lg border border-gray-200 bg-gray-50 p-3">
+          <p className="mb-2 text-sm font-semibold">Legenda:</p>
+          <div className="grid grid-cols-1 gap-2 text-sm sm:grid-cols-3">
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 bg-blue-400 rounded"></div>
               <span>Confirmada</span>

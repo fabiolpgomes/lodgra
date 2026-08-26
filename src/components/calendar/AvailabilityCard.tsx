@@ -149,7 +149,7 @@ export function AvailabilityCard({ propertyId, onUpdate }: AvailabilityCardProps
   if (loading) {
     return (
       <Card className="p-4 md:p-6">
-        <h3 className="text-lg font-semibold mb-4 text-[#1B2430]">Disponibilidade</h3>
+        <h3 className="mb-4 text-lg font-semibold text-[#1B2430]">Disponibilidade</h3>
         <div className="animate-pulse space-y-4">
           <div className="h-10 bg-[#E5DFD2] rounded"></div>
           <div className="h-10 bg-[#E5DFD2] rounded"></div>
@@ -160,11 +160,11 @@ export function AvailabilityCard({ propertyId, onUpdate }: AvailabilityCardProps
 
   return (
     <Card className="p-4 md:p-6">
-      <h3 className="text-lg font-semibold mb-6 text-[#1B2430]">Disponibilidade</h3>
+      <h3 className="mb-6 text-lg font-semibold text-[#1B2430]">Disponibilidade</h3>
 
       {/* Min/Max Nights */}
       <div className="space-y-4 mb-6">
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div>
             <Label htmlFor="minNights" className="text-sm mb-2 text-[#1B2430]">
               Mínimo de Noites
@@ -176,7 +176,7 @@ export function AvailabilityCard({ propertyId, onUpdate }: AvailabilityCardProps
               max="365"
               value={minNights}
               onChange={(e) => setMinNights(e.target.value)}
-              className="h-12 text-base"
+              className="h-12 w-full text-base"
               placeholder="1"
             />
           </div>
@@ -191,7 +191,7 @@ export function AvailabilityCard({ propertyId, onUpdate }: AvailabilityCardProps
               max="365"
               value={maxNights}
               onChange={(e) => setMaxNights(e.target.value)}
-              className="h-12 text-base"
+              className="h-12 w-full text-base"
               placeholder="365"
             />
           </div>
@@ -204,7 +204,7 @@ export function AvailabilityCard({ propertyId, onUpdate }: AvailabilityCardProps
           Aviso Prévio Requerido
         </Label>
         <Select value={advanceNoticeDays} onValueChange={setAdvanceNoticeDays}>
-          <SelectTrigger id="notice" className="h-12 text-base">
+          <SelectTrigger id="notice" className="h-12 w-full text-base">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -218,7 +218,7 @@ export function AvailabilityCard({ propertyId, onUpdate }: AvailabilityCardProps
       </div>
 
       {/* Last Minute Bookings Flag */}
-      <div className="flex items-center gap-3 mb-6 p-3 bg-[#F7F5EF] rounded-lg">
+      <div className="mb-6 flex flex-col gap-3 rounded-lg bg-[#F7F5EF] p-3 sm:flex-row sm:items-center">
         <Switch
           id="allowLastMinute"
           checked={allowLastMinute}
@@ -242,7 +242,7 @@ export function AvailabilityCard({ propertyId, onUpdate }: AvailabilityCardProps
           Período de Disponibilidade
         </Label>
         <Select value={windowMonths} onValueChange={setWindowMonths}>
-          <SelectTrigger id="window" className="h-12 text-base">
+          <SelectTrigger id="window" className="h-12 w-full text-base">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -256,7 +256,7 @@ export function AvailabilityCard({ propertyId, onUpdate }: AvailabilityCardProps
       </div>
 
       {/* Beyond Window Flag */}
-      <div className="flex items-center gap-3 mb-6 p-3 bg-[#F7F5EF] rounded-lg">
+      <div className="mb-6 flex flex-col gap-3 rounded-lg bg-[#F7F5EF] p-3 sm:flex-row sm:items-center">
         <Switch
           id="allowBeyond"
           checked={allowBeyondWindow}

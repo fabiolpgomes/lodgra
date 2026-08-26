@@ -36,7 +36,7 @@ interface SimpleCalendarAdapterProps {
   reservations?: Reservation[]
   dailyPrices?: Record<string, number> // ISO date -> price
   blockedDates?: BlockedDate[] // Blocked date ranges
-  propertyCurrency?: string
+  propertyCurrency?: string | null
 }
 
 function SimpleCalendarAdapterComponent({
@@ -48,7 +48,7 @@ function SimpleCalendarAdapterComponent({
   reservations = [],
   dailyPrices = {},
   blockedDates = [],
-  propertyCurrency = 'EUR',
+  propertyCurrency,
 }: SimpleCalendarAdapterProps) {
   const today = new Date()
 
@@ -99,6 +99,10 @@ function SimpleCalendarAdapterComponent({
   }
 
   const formatPrice = (price: number) => {
+    if (!propertyCurrency) {
+      return price.toFixed(2)
+    }
+
     return formatCurrency(price, propertyCurrency.toUpperCase() as CurrencyCode)
       .replace(/\s+/g, '')
       .replace(/,00$/, '')
@@ -224,19 +228,19 @@ function SimpleCalendarAdapterComponent({
   ]
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-4" style={{ userSelect: 'none', touchAction: 'none' }}>
-      <div className="rounded-lg shadow" style={{ backgroundColor: '#FBFAF6' }}>
+    <div className="mx-auto w-full max-w-4xl p-3 sm:p-4" style={{ userSelect: 'none', touchAction: 'none' }}>
+      <div className="overflow-hidden rounded-2xl shadow-sm" style={{ backgroundColor: '#FBFAF6' }}>
         {/* Header */}
-        <div className="p-4 border-b" style={{ borderColor: '#E5DFD2' }}>
+        <div className="border-b px-4 py-4 sm:p-4" style={{ borderColor: '#E5DFD2' }}>
           <h2
-            className="text-xl font-bold cursor-pointer hover:opacity-70 transition-opacity"
+            className="cursor-pointer text-lg font-bold transition-opacity hover:opacity-70 sm:text-xl"
             style={{ color: '#1B2430' }}
             onClick={() => setShowMonthPicker(true)}
             title="Clique para escolher mês e ano"
           >
             {monthNames[currentMonth]} {currentYear} 📅
           </h2>
-          <p className="text-sm mt-1" style={{ color: '#4D5566' }}>
+          <p className="mt-1 text-xs leading-5 sm:text-sm" style={{ color: '#4D5566' }}>
             {rangeStart === null
               ? 'Clique e arraste o mouse (ou dedo) pelos dias desejados'
               : `Selecionado: ${Math.min(rangeStart, rangeEnd || rangeStart)} até ${Math.max(rangeStart, rangeEnd || rangeStart)}`}
@@ -244,13 +248,13 @@ function SimpleCalendarAdapterComponent({
         </div>
 
         {/* Calendar */}
-        <div className="p-4">
+        <div className="px-3 py-4 sm:p-4">
           {/* Day headers */}
-          <div className="grid grid-cols-7 gap-1 mb-2">
+          <div className="mb-2 grid grid-cols-7 gap-0.5 sm:gap-1">
             {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'].map((day) => (
               <div
                 key={day}
-                className="text-center font-semibold text-sm py-2"
+                className="py-2 text-center text-[11px] font-semibold sm:text-sm"
                 style={{ color: '#4D5566' }}
               >
                 {day}
@@ -259,7 +263,7 @@ function SimpleCalendarAdapterComponent({
           </div>
 
           {/* Calendar days */}
-          <div className="grid grid-cols-7 gap-1 select-none">
+          <div className="grid grid-cols-7 gap-0.5 select-none sm:gap-1">
             {days.map((day, index) => (
               <div
                 key={index}
@@ -267,7 +271,7 @@ function SimpleCalendarAdapterComponent({
                 onPointerEnter={() => handleDayPointerEnter(day)}
                 data-day={day}
                 className={`
-                  aspect-square flex items-center justify-center rounded text-sm font-medium
+                  flex aspect-square min-h-[72px] items-center justify-center rounded-lg text-sm font-medium sm:min-h-[88px]
                   transition-colors duration-75 select-none user-select-none
                 `}
                 style={{
@@ -298,18 +302,18 @@ function SimpleCalendarAdapterComponent({
                 }}
               >
                 {day && (
-                  <div className="flex flex-col items-center justify-center w-full h-full gap-0.5 px-0.5 py-1">
-                    <div className="text-sm font-bold">{day}</div>
+                  <div className="flex h-full w-full flex-col items-center justify-center gap-0.5 px-0.5 py-1">
+                    <div className="text-sm font-bold sm:text-base">{day}</div>
                     {isDateBlocked(day) ? (
-                      <div className="flex flex-col items-center justify-center gap-0.5 w-full h-full px-0.5">
-                        <div className="text-lg font-bold">🔒</div>
-                        <div className="text-xs font-semibold" style={{ color: isInDragRange(day) || isDateSelected(day) ? 'white' : '#10203E' }}>
+                      <div className="flex h-full w-full flex-col items-center justify-center gap-0.5 px-0.5">
+                        <div className="text-base font-bold sm:text-lg">🔒</div>
+                        <div className="text-[10px] font-semibold sm:text-xs" style={{ color: isInDragRange(day) || isDateSelected(day) ? 'white' : '#10203E' }}>
                           Bloqueado
                         </div>
                       </div>
                     ) : getReservationForDay(day) ? (
                       <div
-                        className="flex flex-col items-center justify-center gap-0.5 w-full h-full px-0.5 cursor-pointer hover:opacity-75 transition-opacity"
+                        className="flex h-full w-full cursor-pointer flex-col items-center justify-center gap-0.5 px-0.5 transition-opacity hover:opacity-75"
                         onPointerDown={(event) => event.stopPropagation()}
                         onClick={() => {
                           const res = getReservationForDay(day)
@@ -318,17 +322,17 @@ function SimpleCalendarAdapterComponent({
                         role="button"
                         tabIndex={0}
                       >
-                        <div className="text-xs font-bold">🛏️</div>
-                        <div className="text-xs font-semibold truncate max-w-full" style={{ color: '#10203E' }}>
+                        <div className="text-xs font-bold sm:text-sm">🛏️</div>
+                        <div className="max-w-full truncate text-[10px] font-semibold sm:text-xs" style={{ color: '#10203E' }}>
                           {getReservationForDay(day)?.guestName?.substring(0, 10) || 'Guest'}
                         </div>
-                        <div className="text-xs opacity-75" style={{ color: '#4D5566' }}>
+                        <div className="text-[10px] opacity-75 sm:text-xs" style={{ color: '#4D5566' }}>
                           {getReservationForDay(day)?.guestCount} hósp.
                         </div>
-                        <div className="text-xs font-bold" style={{ color: '#10203E' }}>
+                        <div className="text-[10px] font-bold sm:text-xs" style={{ color: '#10203E' }}>
                           {formatPrice(getReservationForDay(day)!.price)}
                         </div>
-                        <div className="text-xs font-semibold" style={{
+                        <div className="text-[10px] font-semibold sm:text-xs" style={{
                           color: getReservationForDay(day)?.status === 'confirmed' ? '#1976D2' : '#F57C00'
                         }}>
                           {getReservationForDay(day)?.status === 'confirmed' ? 'Confirmado' :
@@ -338,7 +342,7 @@ function SimpleCalendarAdapterComponent({
                         </div>
                       </div>
                     ) : getDayPrice(day) ? (
-                      <div className="text-xs font-bold whitespace-nowrap" style={{ color: '#10203E' }}>
+                      <div className="whitespace-nowrap text-[10px] font-bold sm:text-xs" style={{ color: '#10203E' }}>
                         {formatPrice(getDayPrice(day)!)}
                       </div>
                     ) : null}
@@ -350,7 +354,7 @@ function SimpleCalendarAdapterComponent({
         </div>
 
         {/* Info */}
-        <div className="p-4 border-t text-sm" style={{ borderColor: '#E5DFD2', backgroundColor: '#FBFAF6', color: '#4D5566' }}>
+        <div className="border-t px-4 py-3 text-sm" style={{ borderColor: '#E5DFD2', backgroundColor: '#FBFAF6', color: '#4D5566' }}>
           <p>
             {selectedDates.length > 0
               ? `${selectedDates.length} data(s) selecionada(s)`

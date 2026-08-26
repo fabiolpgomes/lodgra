@@ -33,7 +33,7 @@ const AVERAGES = {
   monthly: 1724,
 }
 
-export function DiscountCard({ propertyId, currency = 'EUR', onUpdate }: DiscountCardProps) {
+export function DiscountCard({ propertyId, currency, onUpdate }: DiscountCardProps) {
   const [discounts, setDiscounts] = useState<PropertyDiscounts>({
     weeklyPercent: 0,
     monthlyPercent: 0,
@@ -42,9 +42,11 @@ export function DiscountCard({ propertyId, currency = 'EUR', onUpdate }: Discoun
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [showDialog, setShowDialog] = useState(false)
-  const normalizedCurrency = currency?.toUpperCase() || 'EUR'
-  const currencyCode = (normalizedCurrency in CURRENCIES ? normalizedCurrency : 'EUR') as CurrencyCode
-  const currencySymbol = getCurrencySymbol(currencyCode)
+  const normalizedCurrency = currency?.toUpperCase() ?? null
+  const currencyCode = normalizedCurrency && normalizedCurrency in CURRENCIES
+    ? normalizedCurrency as CurrencyCode
+    : null
+  const currencySymbol = currencyCode ? getCurrencySymbol(currencyCode) : ''
 
   useEffect(() => {
     loadDiscounts()
@@ -119,8 +121,8 @@ export function DiscountCard({ propertyId, currency = 'EUR', onUpdate }: Discoun
 
   if (loading) {
     return (
-      <div className="p-4 md:p-6 bg-[#FBFAF6] rounded-lg border border-[#E5DFD2]">
-        <h3 className="text-lg font-semibold text-[#1B2430] mb-4">Descontos</h3>
+      <div className="rounded-lg border border-[#E5DFD2] bg-[#FBFAF6] p-4 md:p-6">
+        <h3 className="mb-4 text-lg font-semibold text-[#1B2430]">Descontos</h3>
         <div className="animate-pulse space-y-4">
           <div className="h-20 bg-[#F7F5EF] rounded"></div>
           <div className="h-20 bg-[#F7F5EF] rounded"></div>
@@ -132,22 +134,22 @@ export function DiscountCard({ propertyId, currency = 'EUR', onUpdate }: Discoun
   return (
     <>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h3 className="text-lg font-semibold text-[#1B2430]">Descontos</h3>
           <Button
             onClick={() => setShowDialog(true)}
             variant="outline"
             size="sm"
-            className="h-10 border-[#E5DFD2] text-[#1B2430] hover:bg-[#F7F5EF]"
+            className="h-10 w-full border-[#E5DFD2] text-[#1B2430] hover:bg-[#F7F5EF] sm:w-auto"
           >
             Editar
           </Button>
         </div>
 
         {/* Warning: Exclusive Discounts */}
-        <div className="p-4 bg-[#FBFAF6] border border-[#E5DFD2] rounded-lg flex gap-3">
-          <AlertCircle className="w-5 h-5 text-[#C9A227] flex-shrink-0 mt-0.5" />
-          <div className="text-sm text-[#4D5566]">
+          <div className="flex gap-3 rounded-lg border border-[#E5DFD2] bg-[#FBFAF6] p-4">
+            <AlertCircle className="w-5 h-5 text-[#C9A227] flex-shrink-0 mt-0.5" />
+            <div className="text-sm text-[#4D5566]">
             <p className="font-semibold text-[#1B2430] mb-1">⚠️ Descontos Exclusivos</p>
             <p>
               Apenas um desconto de volume é aplicado por reserva:
@@ -161,12 +163,12 @@ export function DiscountCard({ propertyId, currency = 'EUR', onUpdate }: Discoun
         <div className="space-y-3">
           {/* Weekly */}
           <div className="p-4 bg-[#FBFAF6] rounded-lg border border-[#E5DFD2]">
-            <div className="flex items-start justify-between mb-2">
+            <div className="flex items-start justify-between gap-3 mb-2">
               <div>
                 <p className="font-semibold text-sm text-[#1B2430]">Desconto Semanal</p>
                 <p className="text-xs text-[#4D5566] mt-1">Para estadias de 7-27 noites</p>
               </div>
-              <p className="text-2xl font-bold text-[#C9A227]">{discounts.weeklyPercent}%</p>
+              <p className="text-xl font-bold text-[#C9A227] sm:text-2xl">{discounts.weeklyPercent}%</p>
             </div>
             <p className="text-xs text-[#4D5566]">
               Média semanal: {currencySymbol}{AVERAGES.weekly} → Economia: {currencySymbol}
@@ -176,12 +178,12 @@ export function DiscountCard({ propertyId, currency = 'EUR', onUpdate }: Discoun
 
           {/* Monthly */}
           <div className="p-4 bg-[#FBFAF6] rounded-lg border border-[#E5DFD2]">
-            <div className="flex items-start justify-between mb-2">
+            <div className="flex items-start justify-between gap-3 mb-2">
               <div>
                 <p className="font-semibold text-sm text-[#1B2430]">Desconto Mensal</p>
                 <p className="text-xs text-[#4D5566] mt-1">Para estadias de 28+ noites</p>
               </div>
-              <p className="text-2xl font-bold text-[#C9A227]">{discounts.monthlyPercent}%</p>
+              <p className="text-xl font-bold text-[#C9A227] sm:text-2xl">{discounts.monthlyPercent}%</p>
             </div>
             <p className="text-xs text-[#4D5566]">
               Média mensal: {currencySymbol}{AVERAGES.monthly} → Economia: {currencySymbol}
@@ -191,14 +193,14 @@ export function DiscountCard({ propertyId, currency = 'EUR', onUpdate }: Discoun
 
           {/* Loyalty */}
           <div className="p-4 bg-[#FBFAF6] rounded-lg border border-[#E5DFD2]">
-            <div className="flex items-start justify-between mb-2">
+            <div className="flex items-start justify-between gap-3 mb-2">
               <div>
                 <p className="font-semibold text-sm text-[#1B2430]">Desconto Fidelidade</p>
                 <p className="text-xs text-[#4D5566] mt-1">
                   Aplicado em cascata (após desconto de volume)
                 </p>
               </div>
-              <p className="text-2xl font-bold text-[#C9A227]">{discounts.loyaltyPercent}%</p>
+              <p className="text-xl font-bold text-[#C9A227] sm:text-2xl">{discounts.loyaltyPercent}%</p>
             </div>
             <p className="text-xs text-[#4D5566]">
               Bônus para hóspedes recorrentes
@@ -217,7 +219,7 @@ export function DiscountCard({ propertyId, currency = 'EUR', onUpdate }: Discoun
 
       {/* Edit Dialog */}
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
-        <DialogContent className="max-w-lg w-full mx-auto bg-[#FBFAF6] border-[#E5DFD2]">
+        <DialogContent className="w-[calc(100%_-_1rem)] max-w-lg bg-[#FBFAF6] border-[#E5DFD2] sm:w-full">
           <DialogHeader>
             <DialogTitle className="text-[#1B2430]">Configurar Descontos</DialogTitle>
             <DialogDescription className="text-[#4D5566]">
@@ -245,7 +247,7 @@ export function DiscountCard({ propertyId, currency = 'EUR', onUpdate }: Discoun
                       weeklyPercent: parseInt(e.target.value) || 0,
                     })
                   }
-                  className="h-12 text-base flex-1 border-[#E5DFD2] bg-[#FBFAF6] text-[#1B2430]"
+                  className="h-12 flex-1 border-[#E5DFD2] bg-[#FBFAF6] text-base text-[#1B2430]"
                   placeholder="0"
                 />
                 <span className="flex items-center text-lg font-semibold text-[#C9A227]">%</span>
@@ -274,7 +276,7 @@ export function DiscountCard({ propertyId, currency = 'EUR', onUpdate }: Discoun
                       monthlyPercent: parseInt(e.target.value) || 0,
                     })
                   }
-                  className="h-12 text-base flex-1 border-[#E5DFD2] bg-[#FBFAF6] text-[#1B2430]"
+                  className="h-12 flex-1 border-[#E5DFD2] bg-[#FBFAF6] text-base text-[#1B2430]"
                   placeholder="0"
                 />
                 <span className="flex items-center text-lg font-semibold text-[#C9A227]">%</span>
@@ -303,7 +305,7 @@ export function DiscountCard({ propertyId, currency = 'EUR', onUpdate }: Discoun
                       loyaltyPercent: parseInt(e.target.value) || 0,
                     })
                   }
-                  className="h-12 text-base flex-1 border-[#E5DFD2] bg-[#FBFAF6] text-[#1B2430]"
+                  className="h-12 flex-1 border-[#E5DFD2] bg-[#FBFAF6] text-base text-[#1B2430]"
                   placeholder="0"
                 />
                 <span className="flex items-center text-lg font-semibold text-[#C9A227]">%</span>
@@ -314,11 +316,11 @@ export function DiscountCard({ propertyId, currency = 'EUR', onUpdate }: Discoun
             </div>
           </div>
 
-          <DialogFooter className="flex gap-2 sm:gap-3">
+          <DialogFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:gap-3">
             <Button
               onClick={() => setShowDialog(false)}
               variant="outline"
-              className="flex-1 h-12 border-[#E5DFD2] text-[#1B2430] hover:bg-[#F7F5EF]"
+              className="h-12 w-full flex-1 border-[#E5DFD2] text-[#1B2430] hover:bg-[#F7F5EF] sm:w-auto"
               disabled={saving}
             >
               Cancelar
@@ -326,7 +328,7 @@ export function DiscountCard({ propertyId, currency = 'EUR', onUpdate }: Discoun
             <Button
               onClick={handleSaveDiscounts}
               disabled={saving}
-              className="flex-1 h-12 text-base font-semibold bg-[#10203E] hover:bg-[#0c1830] text-white"
+              className="h-12 w-full flex-1 text-base font-semibold bg-[#10203E] text-white hover:bg-[#0c1830] sm:w-auto"
             >
               {saving ? 'Salvando...' : 'Salvar Descontos'}
             </Button>

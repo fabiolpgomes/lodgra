@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import CancellationModal from '@/components/modals/CancellationModal'
+import { formatCurrency } from '@/lib/utils/currency'
 
 interface Reservation {
   id: string
@@ -30,21 +31,21 @@ export function GuestCancellationCard({
 
   return (
     <>
-      <div className="p-4 border-t">
-        <div className="flex items-start justify-between">
-          <div>
+      <div className="border-t px-4 py-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
             <h3 className="font-semibold text-sm">Cancelamento</h3>
             <p className="text-xs text-gray-600 mt-1">
               Política: <strong className="capitalize">{policy.policy_type}</strong>
             </p>
             <p className="text-xs text-gray-600 mt-1">
               Reembolso estimado:{' '}
-              <strong>€{estimatedRefund.toFixed(2)}</strong>
+              <strong>{formatCurrency(estimatedRefund)}</strong>
             </p>
           </div>
           <button
             onClick={() => setShowModal(true)}
-            className="px-3 py-1 bg-red-50 text-red-700 text-xs rounded font-medium hover:bg-red-100 transition"
+            className="h-11 w-full rounded bg-red-50 px-3 text-xs font-medium text-red-700 transition hover:bg-red-100 sm:w-auto"
           >
             Cancelar
           </button>

@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from 'react'
 import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
+import { MinimumOverrideBadge } from './MinimumOverrideBadge'
 
 interface Reservation {
   id: string
@@ -11,6 +12,7 @@ interface Reservation {
   endDate: Date
   price: number
   status: 'pending' | 'confirmed' | 'hosting' | 'completed'
+  notes?: string | null
 }
 
 interface ReservationsListProps {
@@ -26,10 +28,10 @@ function ReservationsListComponent({
   reservations,
   monthName,
   year,
-  currency = 'EUR',
+  currency,
 }: ReservationsListProps) {
   const [page, setPagination] = useState(0)
-  const resolvedCurrency = currency?.toUpperCase() as CurrencyCode
+  const resolvedCurrency = currency?.toUpperCase() as CurrencyCode | undefined
 
   const paginatedReservations = useMemo(() => {
     const start = page * ITEMS_PER_PAGE
@@ -39,53 +41,73 @@ function ReservationsListComponent({
 
   const totalPages = Math.ceil(reservations.length / ITEMS_PER_PAGE)
 
+  const getMinimumOverrideLabel = (notes?: string | null) => {
+    const reservationNotes = notes || ''
+    const minimumOverrideMatch = reservationNotes.match(
+      /Exceção aprovada para mínimo de noites:\s*(\d+)\s*noites?/i
+    )
+
+    return minimumOverrideMatch?.[1] || null
+  }
+
   if (reservations.length === 0) return null
 
   return (
-    <div className="p-4 border-t" style={{ borderColor: '#E5DFD2', backgroundColor: '#FBFAF6' }}>
-      <h3 className="font-bold mb-3" style={{ color: '#1B2430' }}>
+    <div className="border-t px-4 py-4 sm:p-4" style={{ borderColor: '#E5DFD2', backgroundColor: '#FBFAF6' }}>
+      <h3 className="mb-3 text-lg font-bold text-[#1B2430]">
         Reservas do Mês ({reservations.length})
       </h3>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-3">
-        {paginatedReservations.map((res) => (
-          <div
-            key={res.id}
-            className="p-3 rounded border min-w-[200px]"
-            style={{
-              backgroundColor: res.status === 'confirmed' ? '#E3F2FD' : '#FFF3E0',
-              borderColor: res.status === 'confirmed' ? '#1976D2' : '#F57C00',
-              color: res.status === 'confirmed' ? '#1976D2' : '#F57C00',
-            }}
-          >
-            <div className="font-semibold text-sm truncate">{res.guestName}</div>
-            <div className="text-xs mt-1">
-              {res.guestCount} {res.guestCount === 1 ? 'hóspede' : 'hóspedes'}
+      <div className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {paginatedReservations.map((res) => {
+          const minimumOverrideLabel = getMinimumOverrideLabel(res.notes)
+
+          return (
+            <div
+              key={res.id}
+              className="min-w-0 rounded-2xl border p-3 shadow-sm"
+              style={{
+                backgroundColor: res.status === 'confirmed' ? '#E3F2FD' : '#FFF3E0',
+                borderColor: res.status === 'confirmed' ? '#1976D2' : '#F57C00',
+                color: res.status === 'confirmed' ? '#1976D2' : '#F57C00',
+              }}
+            >
+              <div className="truncate text-sm font-semibold">{res.guestName}</div>
+              <div className="mt-1 text-xs">
+                {res.guestCount} {res.guestCount === 1 ? 'hóspede' : 'hóspedes'}
+              </div>
+              <div className="mt-1 text-base font-bold">
+                {resolvedCurrency ? formatCurrency(res.price, resolvedCurrency) : res.price.toFixed(2)}
+              </div>
+              <div className="mt-1 text-xs opacity-75">
+                {res.startDate.toLocaleDateString('pt-BR')} até{' '}
+                {res.endDate.toLocaleDateString('pt-BR')}
+              </div>
+              <div className="mt-1 text-xs font-medium">
+                {res.status === 'confirmed'
+                  ? 'Confirmado'
+                  : res.status === 'hosting'
+                  ? 'Hospedado'
+                  : res.status === 'completed'
+                  ? 'Concluído'
+                  : 'Pendente'}
+              </div>
+              {minimumOverrideLabel && (
+                <div className="mt-2">
+                  <MinimumOverrideBadge minimumNights={minimumOverrideLabel} />
+                </div>
+              )}
             </div>
-            <div className="text-sm font-bold mt-1">{formatCurrency(res.price, resolvedCurrency)}</div>
-            <div className="text-xs mt-1 opacity-75">
-              {res.startDate.toLocaleDateString('pt-BR')} até{' '}
-              {res.endDate.toLocaleDateString('pt-BR')}
-            </div>
-            <div className="text-xs mt-1">
-              {res.status === 'confirmed'
-                ? 'Confirmado'
-                : res.status === 'hosting'
-                ? 'Hospedado'
-                : res.status === 'completed'
-                ? 'Concluído'
-                : 'Pendente'}
-            </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
 
       {totalPages > 1 && (
-        <div className="flex justify-between items-center pt-3 border-t" style={{ borderColor: '#E5DFD2' }}>
+        <div className="flex flex-col gap-3 border-t pt-3 sm:flex-row sm:items-center sm:justify-between" style={{ borderColor: '#E5DFD2' }}>
           <button
             onClick={() => setPagination(Math.max(0, page - 1))}
             disabled={page === 0}
-            className="px-3 py-1 text-sm rounded"
+            className="h-11 rounded-xl px-4 text-sm font-semibold"
             style={{
               backgroundColor: page === 0 ? '#E5DFD2' : '#10203E',
               color: page === 0 ? '#999' : 'white',
@@ -94,13 +116,13 @@ function ReservationsListComponent({
           >
             ← Anterior
           </button>
-          <span style={{ color: '#4D5566' }}>
+          <span className="text-sm font-medium" style={{ color: '#4D5566' }}>
             Página {page + 1} de {totalPages}
           </span>
           <button
             onClick={() => setPagination(Math.min(totalPages - 1, page + 1))}
             disabled={page >= totalPages - 1}
-            className="px-3 py-1 text-sm rounded"
+            className="h-11 rounded-xl px-4 text-sm font-semibold"
             style={{
               backgroundColor: page >= totalPages - 1 ? '#E5DFD2' : '#10203E',
               color: page >= totalPages - 1 ? '#999' : 'white',

@@ -24,48 +24,52 @@ export function PropertySidebar({
   onPropertySelect,
 }: PropertySidebarProps) {
   return (
-    <div className="property-sidebar">
-      <div className="property-sidebar-header">
-        <h3>Propriedades</h3>
+    <div className="flex h-full flex-col bg-white">
+      <div className="border-b border-[#E5DFD2] px-4 py-4 sm:px-5">
+        <h3 className="text-base font-semibold text-[#1B2430] sm:text-lg">Propriedades</h3>
       </div>
 
-      <div className="property-sidebar-list">
+      <div className="flex-1 space-y-3 overflow-y-auto px-3 py-3 sm:px-4 sm:py-4">
         {properties.map(property => (
           <button
             key={property.id}
-            className={`property-sidebar-card ${
-              selectedPropertyId === property.id ? 'active' : ''
+            className={`flex w-full gap-3 rounded-2xl border p-3 text-left transition hover:bg-[#F7F5EF] sm:gap-4 sm:p-4 ${
+              selectedPropertyId === property.id
+                ? 'border-[#10203E] bg-[#F0F4F8]'
+                : 'border-[#E5DFD2] bg-white'
             }`}
             onClick={() => onPropertySelect?.(property.id)}
             aria-label={`Select ${property.name}`}
           >
-            <div className="sidebar-property-image">
+            <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-[#F7F5EF] sm:h-20 sm:w-20">
               {property.imageUrl ? (
                 <Image
                   src={property.imageUrl}
                   alt={property.name}
                   width={80}
                   height={80}
-                  className="sidebar-image-img"
+                  className="h-full w-full object-cover"
                 />
               ) : (
-                <div className="sidebar-image-placeholder" />
+                <div className="h-full w-full bg-[#F7F5EF]" />
               )}
             </div>
 
-            <div className="sidebar-property-info">
-              <h4 className="sidebar-property-name">{property.name}</h4>
-              <p className="sidebar-property-type">{property.type}</p>
-              <p className="sidebar-property-location">{property.location}</p>
+            <div className="min-w-0 flex-1">
+              <h4 className="truncate text-sm font-semibold text-[#1B2430] sm:text-base">{property.name}</h4>
+              <p className="mt-1 text-xs font-medium text-[#4D5566] sm:text-sm">{property.type}</p>
+              <p className="truncate text-xs text-[#717171] sm:text-sm">{property.location}</p>
             </div>
 
-            <div className="sidebar-availability-preview">
-              <div className="sidebar-dots-grid">
+            <div className="shrink-0">
+              <div className="grid grid-cols-5 gap-1">
                 {property.availabilityDots.slice(0, 15).map((available, idx) => (
                   <div
                     key={idx}
-                    className={`sidebar-dot ${available ? 'available' : 'booked'}`}
-                    title={available ? 'Available' : 'Booked'}
+                    className={`h-2 w-2 rounded-full sm:h-2.5 sm:w-2.5 ${
+                      available ? 'bg-emerald-500' : 'bg-gray-400'
+                    }`}
+                    title={available ? 'Disponível' : 'Reservado'}
                   />
                 ))}
               </div>

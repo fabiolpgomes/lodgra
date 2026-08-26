@@ -378,13 +378,13 @@ export function CalendarPageClient() {
   return (
     <div className="space-y-4 px-2 sm:px-3 md:px-4" ref={calendarWrapperRef}>
       {/* Header + filter */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">Calendário</h1>
+            <h1 className="text-xl font-bold text-gray-900 sm:text-2xl lg:text-3xl">Calendário</h1>
             <button
               onClick={() => setShowMonthPicker(true)}
-              className="text-xs sm:text-sm px-2 sm:px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded cursor-pointer transition-colors"
+              className="min-h-11 rounded-lg bg-gray-100 px-3 py-2 text-xs text-gray-700 transition-colors hover:bg-gray-200 sm:text-sm"
             >
               {new Date(`${dateRange.from}T00:00:00`).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}
             </button>
@@ -394,12 +394,12 @@ export function CalendarPageClient() {
           )}
         </div>
 
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
+        <div className="flex w-full flex-col items-stretch gap-2 sm:w-auto sm:flex-row sm:items-center sm:gap-3">
           {properties.length > 0 && (
             <select
               value={selectedPropertyId}
               onChange={e => setSelectedPropertyId(e.target.value)}
-              className="border border-gray-300 rounded-lg px-3 py-2.5 sm:py-2 text-[13px] sm:text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent min-h-[44px] sm:min-h-auto"
+              className="min-h-[44px] rounded-lg border border-gray-300 px-3 py-2.5 text-[13px] focus:border-transparent focus:ring-2 focus:ring-brand-500 sm:min-h-0 sm:py-2 sm:text-sm"
             >
               <option value="">Todas as propriedades</option>
               {properties.map(p => (
@@ -418,7 +418,7 @@ export function CalendarPageClient() {
       {properties.length > 0 && (
         <div className="flex flex-wrap gap-2 sm:gap-3">
           {properties.slice(0, 8).map(p => (
-            <div key={p.id} className="flex items-center gap-1 sm:gap-1.5 text-[10px] sm:text-xs text-gray-600">
+            <div key={p.id} className="flex items-center gap-1 text-[10px] text-gray-600 sm:gap-1.5 sm:text-xs">
               <span
                 className="w-2 h-2 sm:w-3 sm:h-3 rounded-full flex-shrink-0"
                 style={{ backgroundColor: propertyColor(p.id) }}
@@ -457,7 +457,7 @@ export function CalendarPageClient() {
           height="auto"
           contentHeight="auto"
           eventContent={({ event }) => (
-            <div className={`px-1 sm:px-1.5 py-0.5 truncate text-[9px] sm:text-[10px] md:text-[11px] font-medium text-white leading-tight ${dayMaxEvents === 1 ? 'text-[8px]' : ''}`}>
+            <div className={`truncate px-1 py-0.5 text-[9px] font-medium leading-tight text-white sm:px-1.5 sm:text-[10px] md:text-[11px] ${dayMaxEvents === 1 ? 'text-[8px]' : ''}`}>
               {event.extendedProps.status === 'pending' ? '⏳ ' : ''}{event.title}
             </div>
           )}

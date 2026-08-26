@@ -26,12 +26,13 @@ export function SettingsTabs({ onTabChange, children }: SettingsTabsProps) {
   }
 
   return (
-    <div className="w-full flex flex-col bg-white">
+    <div className="flex w-full flex-col bg-white">
       {/* Tab Navigation - Design.md product-tab style */}
       <div
-        className="flex gap-0 border-b border-[#E5DFD2]"
+        className="overflow-x-auto border-b border-[#E5DFD2]"
         role="tablist"
       >
+        <div className="flex min-w-max gap-0">
         {tabs.map(tab => (
           <button
             key={tab.name}
@@ -39,7 +40,7 @@ export function SettingsTabs({ onTabChange, children }: SettingsTabsProps) {
             aria-selected={activeTab === tab.name}
             aria-controls={`${tab.name}-panel`}
             onClick={() => handleTabChange(tab.name)}
-            className={`px-4 py-3 text-sm font-semibold transition-colors ${
+            className={`shrink-0 px-4 py-3 text-sm font-semibold transition-colors ${
               activeTab === tab.name
                 ? 'text-[#1B2430] border-b-2 border-[#1B2430]' // ink + underline
                 : 'text-[#4D5566]' // body/muted
@@ -48,6 +49,7 @@ export function SettingsTabs({ onTabChange, children }: SettingsTabsProps) {
             {tab.label}
           </button>
         ))}
+        </div>
       </div>
 
       {/* Tab Content */}

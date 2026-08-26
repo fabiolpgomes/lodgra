@@ -99,9 +99,9 @@ export function BlockDatesModal({
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md max-h-[calc(100vh-2rem)] overflow-y-auto">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Bloquear Datas</h2>
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-3 sm:items-center sm:p-4">
+      <div className="max-h-[calc(100vh-1.5rem)] w-full max-w-md overflow-y-auto rounded-t-2xl bg-white p-5 shadow-lg sm:max-h-[calc(100vh-2rem)] sm:rounded-2xl sm:p-6">
+        <h2 className="mb-4 text-lg font-bold text-gray-900 sm:text-xl">Bloquear Datas</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Check-in */}
@@ -116,7 +116,7 @@ export function BlockDatesModal({
               onChange={(e) => setFormCheckIn(e.target.value)}
               maxLength={10}
               disabled={loading}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent disabled:opacity-50"
+              className="w-full rounded-lg border border-gray-300 px-3 py-3 focus:border-transparent focus:ring-2 focus:ring-brand-500 disabled:opacity-50"
             />
           </div>
 
@@ -132,7 +132,7 @@ export function BlockDatesModal({
               onChange={(e) => setFormCheckOut(e.target.value)}
               maxLength={10}
               disabled={loading}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent disabled:opacity-50"
+              className="w-full rounded-lg border border-gray-300 px-3 py-3 focus:border-transparent focus:ring-2 focus:ring-brand-500 disabled:opacity-50"
             />
           </div>
 
@@ -144,7 +144,7 @@ export function BlockDatesModal({
             <select
               value={propertyId}
               onChange={(e) => setPropertyId(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+              className="w-full rounded-lg border border-gray-300 px-3 py-3 focus:border-transparent focus:ring-2 focus:ring-brand-500"
               disabled={loading}
             >
               <option value="">Seleccione uma propriedade</option>
@@ -166,25 +166,25 @@ export function BlockDatesModal({
               placeholder="Ex: Manutenção, Limpeza especial..."
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+              className="w-full rounded-lg border border-gray-300 px-3 py-3 focus:border-transparent focus:ring-2 focus:ring-brand-500"
               disabled={loading}
             />
           </div>
 
           {/* Buttons */}
-          <div className="flex gap-3 pt-4">
+          <div className="flex flex-col-reverse gap-3 pt-4 sm:flex-row">
             <button
               type="button"
               onClick={onClose}
               disabled={loading}
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+              className="h-12 flex-1 rounded-lg border border-gray-300 px-4 text-gray-700 hover:bg-gray-50 disabled:opacity-50"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+              className="h-12 flex-1 rounded-lg bg-blue-600 px-4 text-white hover:bg-blue-700 disabled:opacity-50"
             >
               {loading ? 'A bloquear...' : 'Bloquear Datas'}
             </button>

@@ -104,9 +104,13 @@ export function DesktopCalendarLayout({
   }
 
   return (
-    <div className="desktop-calendar-layout">
+    <div className="desktop-calendar-layout grid min-h-screen grid-cols-1 bg-[#FBFAF6] lg:grid-cols-[280px_minmax(0,1fr)_320px]">
       {/* Mobile hamburger menu (768px < width < 1024px) */}
-      <div className="hamburger-menu-container">
+      <div className="sticky top-0 z-30 flex items-center justify-between border-b border-[#E5DFD2] bg-white px-4 py-3 lg:hidden">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#717171]">Propriedades</p>
+          <p className="text-sm font-semibold text-[#1B2430]">Calendário</p>
+        </div>
         <HamburgerMenu
           properties={properties}
           selectedPropertyId={selectedPropertyId}
@@ -115,7 +119,7 @@ export function DesktopCalendarLayout({
       </div>
 
       {/* Left sidebar: Property list (hidden on tablet, shown on desktop) */}
-      <div className="sidebar-left">
+      <div className="sidebar-left hidden border-r border-[#E5DFD2] bg-white lg:block">
         <PropertySidebar
           properties={properties}
           selectedPropertyId={selectedPropertyId}
@@ -124,7 +128,7 @@ export function DesktopCalendarLayout({
       </div>
 
       {/* Center: Detailed calendar */}
-      <div className="calendar-center">
+      <div className="calendar-center min-w-0 lg:border-r lg:border-[#E5DFD2]">
         {selectedProperty && (
           <>
             <DetailedCalendarMobile
@@ -137,9 +141,9 @@ export function DesktopCalendarLayout({
 
             {/* Price Editor for Selected Dates */}
             {selectedDates.length > 0 && (
-              <div className="date-selection-footer">
+              <div className="date-selection-footer fixed bottom-4 left-1/2 z-40 flex w-[calc(100%-1rem)] max-w-md -translate-x-1/2 items-center justify-between gap-3 rounded-2xl border border-[#E5DFD2] bg-white px-4 py-3 shadow-lg">
                 <span>{selectedDates.length} dia(s) selecionado(s)</span>
-                <button onClick={openPriceEditor} className="btn-edit-price">
+                <button onClick={openPriceEditor} className="btn-edit-price h-11 rounded-xl bg-[#10203E] px-4 font-medium text-white">
                   Editar Preço
                 </button>
               </div>
@@ -150,12 +154,12 @@ export function DesktopCalendarLayout({
 
       {/* Settings Modal Overlay (mobile) */}
       {showSettings && (
-        <div className={`settings-modal-overlay ${showSettings ? 'open' : ''}`} onClick={() => setShowSettings(false)}>
-          <div className="settings-modal-content" onClick={e => e.stopPropagation()}>
-            <div className="settings-modal-header">
-              <h2>Configurações</h2>
+        <div className={`settings-modal-overlay ${showSettings ? 'open' : ''} fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-3 lg:hidden`} onClick={() => setShowSettings(false)}>
+          <div className="settings-modal-content w-full max-w-md rounded-t-2xl bg-white" onClick={e => e.stopPropagation()}>
+            <div className="settings-modal-header flex items-center justify-between border-b border-[#E5DFD2] px-4 py-4">
+              <h2 className="text-base font-semibold text-[#1B2430]">Configurações</h2>
               <button
-                className="settings-modal-close"
+                className="settings-modal-close flex h-11 w-11 items-center justify-center rounded-full text-[#1B2430] hover:bg-[#F7F5EF]"
                 onClick={() => setShowSettings(false)}
               >
                 ✕
@@ -167,40 +171,40 @@ export function DesktopCalendarLayout({
       )}
 
       {/* Right sidebar: Settings (hidden on tablet, shown on desktop) */}
-      <div className="sidebar-right">
+      <div className="sidebar-right hidden border-l border-[#E5DFD2] bg-white lg:block">
         <SettingsSidebar />
       </div>
 
       {/* Price Editor Modal */}
       {showPriceEditor && (
-        <div className="modal-overlay" onClick={() => setShowPriceEditor(false)}>
-          <div className="modal-box" onClick={e => e.stopPropagation()}>
+        <div className="modal-overlay fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-3 sm:items-center sm:p-4" onClick={() => setShowPriceEditor(false)}>
+          <div className="modal-box w-full max-w-md rounded-t-2xl bg-white p-5 shadow-xl sm:rounded-2xl" onClick={e => e.stopPropagation()}>
             <h3>Editar Preço Base</h3>
-            <p className="modal-subtitle">
+            <p className="modal-subtitle text-sm text-[#4D5566]">
               {selectedDates.length} dia(s) selecionado(s)
             </p>
 
-              <input
+            <input
               type="number"
               min="1"
               step="0.01"
               value={editingPrice}
               onChange={e => setEditingPrice(e.target.value ? parseFloat(e.target.value) : '')}
               placeholder="Preço Base"
-              className="price-input"
+              className="price-input mt-4 h-12 w-full rounded-xl border border-[#E5DFD2] px-4 text-base"
               autoFocus
             />
 
-            <div className="modal-buttons">
+            <div className="modal-buttons mt-4 flex flex-col-reverse gap-2 sm:flex-row">
               <button
                 onClick={() => setShowPriceEditor(false)}
-                className="btn-cancel"
+                className="btn-cancel h-12 flex-1 rounded-xl border border-[#E5DFD2] px-4 text-[#1B2430] hover:bg-[#F7F5EF]"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleSavePrice}
-                className="btn-save"
+                className="btn-save h-12 flex-1 rounded-xl bg-[#10203E] px-4 text-white hover:bg-[#0D1A2E]"
                 disabled={editingPrice === ''}
               >
                 Guardar

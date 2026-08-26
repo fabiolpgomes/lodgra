@@ -40,7 +40,7 @@ export function PropertyCardList({ properties, onSelectProperty }: PropertyCardL
   }
 
   return (
-    <div className="mobile-property-list">
+    <div className="space-y-3 px-4 py-4 sm:px-6">
       {properties.map(property => (
         <button
           key={property.id}
@@ -48,12 +48,16 @@ export function PropertyCardList({ properties, onSelectProperty }: PropertyCardL
             setSelectedId(property.id)
             onSelectProperty(property.id)
           }}
-          className={`property-card ${selectedId === property.id ? 'active' : ''}`}
+          className={`flex w-full flex-col gap-3 rounded-2xl border p-3 text-left transition hover:bg-[#F7F5EF] sm:flex-row sm:items-center sm:gap-4 sm:p-4 ${
+            selectedId === property.id
+              ? 'border-[#10203E] bg-[#F0F4F8]'
+              : 'border-[#E5DFD2] bg-white'
+          }`}
           aria-label={`Select ${property.name}`}
         >
           {/* Property Image */}
           {property.image_url && (
-            <div className="property-image">
+            <div className="relative h-40 w-full overflow-hidden rounded-xl bg-[#F7F5EF] sm:h-20 sm:w-24 sm:flex-none">
               <Image
                 src={property.image_url}
                 alt={property.name}
@@ -64,15 +68,15 @@ export function PropertyCardList({ properties, onSelectProperty }: PropertyCardL
           )}
 
           {/* Property Info */}
-          <div className="property-info">
-            <h3 className="property-name">{property.name}</h3>
-            <p className="property-type">{property.type}</p>
-            <p className="property-location">{property.location}</p>
+          <div className="min-w-0 flex-1">
+            <h3 className="truncate text-base font-semibold text-[#1B2430]">{property.name}</h3>
+            <p className="mt-1 text-sm font-medium text-[#4D5566]">{property.type}</p>
+            <p className="truncate text-sm text-[#717171]">{property.location}</p>
           </div>
 
           {/* Availability Dot Pattern */}
-          <div className="availability-preview">
-            <div className="dots-grid">
+          <div className="shrink-0">
+            <div className="grid grid-cols-5 gap-1">
               {renderAvailabilityDots(property.reservations)}
             </div>
           </div>

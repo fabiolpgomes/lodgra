@@ -7,9 +7,9 @@ export default function Loading() {
         <div className="animate-pulse">
           <div className="h-8 bg-gray-200 rounded w-40 mb-6"></div>
           <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center justify-between mb-6">
+            <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="h-6 bg-gray-200 rounded w-32"></div>
-              <div className="flex gap-2">
+              <div className="flex gap-2 self-end sm:self-auto">
                 <div className="h-9 bg-gray-200 rounded w-9"></div>
                 <div className="h-9 bg-gray-200 rounded w-9"></div>
               </div>

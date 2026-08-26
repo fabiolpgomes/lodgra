@@ -70,7 +70,7 @@ export function CancellationCard({ title, description, policy, onSave }: Cancell
     <>
       <div
         onClick={() => setIsOpen(true)}
-        className="p-4 rounded-lg border border-[#E5DFD2] cursor-pointer hover:bg-[#F7F5EF] transition-colors"
+        className="rounded-lg border border-[#E5DFD2] p-4 transition-colors hover:bg-[#F7F5EF] cursor-pointer"
       >
         <h3 className="font-semibold text-base text-[#1B2430]">{title}</h3>
         <p className="text-sm text-[#4D5566] mt-1">{description}</p>
@@ -86,9 +86,9 @@ export function CancellationCard({ title, description, policy, onSave }: Cancell
       </div>
 
       {isOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-[#FBFAF6] rounded-lg max-w-md w-full mx-4 p-6">
-            <h2 className="text-lg font-semibold mb-4 text-[#1B2430]">Editar {title}</h2>
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-3 sm:items-center sm:p-4">
+          <div className="w-full max-w-md rounded-t-2xl bg-[#FBFAF6] p-5 sm:mx-4 sm:rounded-2xl sm:p-6">
+            <h2 className="mb-4 text-lg font-semibold text-[#1B2430]">Editar {title}</h2>
 
             <div className="space-y-4">
               <div>
@@ -99,7 +99,7 @@ export function CancellationCard({ title, description, policy, onSave }: Cancell
                   value={fullRefundDays}
                   onChange={(e) => setFullRefundDays(e.target.value)}
                   disabled={loading}
-                  className="w-full border border-[#E5DFD2] rounded px-2 py-1"
+                  className="w-full rounded border border-[#E5DFD2] px-3 py-3"
                 />
                 <p className="text-xs text-[#4D5566] mt-1">
                   Número de dias antes do check-in para 100% de reembolso
@@ -115,7 +115,7 @@ export function CancellationCard({ title, description, policy, onSave }: Cancell
                   value={partialRefundDays}
                   onChange={(e) => setPartialRefundDays(e.target.value)}
                   disabled={loading}
-                  className="w-full border border-[#E5DFD2] rounded px-2 py-1"
+                  className="w-full rounded border border-[#E5DFD2] px-3 py-3"
                 />
               </div>
 
@@ -129,7 +129,7 @@ export function CancellationCard({ title, description, policy, onSave }: Cancell
                     value={partialRefundPercent}
                     onChange={(e) => setPartialRefundPercent(e.target.value)}
                     disabled={loading}
-                    className="w-full border border-[#E5DFD2] rounded px-2 py-1"
+                    className="w-full rounded border border-[#E5DFD2] px-3 py-3"
                   />
                 </div>
               )}
@@ -143,24 +143,24 @@ export function CancellationCard({ title, description, policy, onSave }: Cancell
                   value={discountPercent}
                   onChange={(e) => setDiscountPercent(e.target.value)}
                   disabled={loading}
-                  className="w-full border border-[#E5DFD2] rounded px-2 py-1"
+                  className="w-full rounded border border-[#E5DFD2] px-3 py-3"
                 />
                 <p className="text-xs text-[#4D5566] mt-1">Desconto oferecido se o hóspede escolher tarifa não-reembolsável</p>
               </div>
             </div>
 
-            <div className="flex gap-2 mt-6">
+            <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row">
               <button
                 onClick={() => setIsOpen(false)}
                 disabled={loading}
-                className="flex-1 px-4 py-2 border border-[#E5DFD2] rounded hover:bg-[#F7F5EF] disabled:opacity-50 text-[#1B2430]"
+                className="h-12 flex-1 rounded border border-[#E5DFD2] px-4 text-[#1B2430] hover:bg-[#F7F5EF] disabled:opacity-50"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleSave}
                 disabled={loading}
-                className="flex-1 px-4 py-2 bg-[#10203E] text-white rounded hover:bg-[#0D1A2E] disabled:opacity-50"
+                className="h-12 flex-1 rounded bg-[#10203E] px-4 text-white hover:bg-[#0D1A2E] disabled:opacity-50"
               >
                 {loading ? 'Guardando...' : 'Guardar'}
               </button>

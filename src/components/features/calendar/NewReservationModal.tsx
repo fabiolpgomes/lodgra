@@ -95,7 +95,7 @@ export function NewReservationModal({ open, checkIn: initialCheckIn, checkOut: i
 
   return (
     <Dialog open={open} onOpenChange={v => { if (!v) onClose() }}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="w-[calc(100%_-_1rem)] max-w-md sm:w-full">
         <DialogHeader>
           <DialogTitle>Nova Reserva</DialogTitle>
         </DialogHeader>
@@ -107,7 +107,7 @@ export function NewReservationModal({ open, checkIn: initialCheckIn, checkOut: i
         )}
 
         <div className="space-y-4 py-2">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <Label className="text-xs text-gray-600 mb-1 block">Check-in</Label>
               <div className="flex flex-col gap-2">
@@ -146,7 +146,7 @@ export function NewReservationModal({ open, checkIn: initialCheckIn, checkOut: i
             <div>
               <Label className="text-xs text-gray-600 mb-1 block">Propriedade *</Label>
               <Select value={selectedPropertyId} onValueChange={setSelectedPropertyId}>
-                <SelectTrigger>
+                <SelectTrigger className="h-12 w-full">
                   <SelectValue placeholder="Seleccionar propriedade…" />
                 </SelectTrigger>
                 <SelectContent>
@@ -159,9 +159,9 @@ export function NewReservationModal({ open, checkIn: initialCheckIn, checkOut: i
           )}
         </div>
 
-        <DialogFooter className="gap-2">
-          <Button variant="outline" onClick={onClose}>Cancelar</Button>
-          <Button onClick={handleCreate}>Criar Reserva</Button>
+        <DialogFooter className="flex flex-col-reverse gap-2 sm:flex-row">
+          <Button variant="outline" onClick={onClose} className="h-12 w-full sm:w-auto">Cancelar</Button>
+          <Button onClick={handleCreate} className="h-12 w-full sm:w-auto">Criar Reserva</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

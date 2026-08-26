@@ -20,14 +20,14 @@ interface PriceCardProps {
   calendarYear?: number
 }
 
-function PriceCardComponent({ propertyId, basePrice: initialPrice, weekendPrice: initialWeekendPrice, currency = 'EUR', onUpdate, calendarMonth, calendarYear }: PriceCardProps) {
+function PriceCardComponent({ propertyId, basePrice: initialPrice, weekendPrice: initialWeekendPrice, currency, onUpdate, calendarMonth, calendarYear }: PriceCardProps) {
   const [basePrice, setBasePrice] = useState(initialPrice?.toString() || '')
   const [weekendPrice, setWeekendPrice] = useState(initialWeekendPrice?.toString() || '')
   const [smartPricingEnabled, setSmartPricingEnabled] = useState(false)
   const [minPrice, setMinPrice] = useState('')
   const [maxPrice, setMaxPrice] = useState('')
   const [saving, setSaving] = useState(false)
-  const currencySymbol = getCurrencySymbol(currency)
+  const currencySymbol = currency ? getCurrencySymbol(currency) : ''
 
   useEffect(() => {
     if (initialPrice) {
@@ -187,7 +187,7 @@ function PriceCardComponent({ propertyId, basePrice: initialPrice, weekendPrice:
         <Label htmlFor="basePrice" className="text-sm font-semibold text-[#1B2430] mb-3 block">
           Preço Base por Noite
         </Label>
-        <div className="flex gap-3">
+        <div className="flex flex-col gap-3 sm:flex-row">
           <div className="flex-1">
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-base font-semibold text-[#4D5566] pointer-events-none">
@@ -208,7 +208,7 @@ function PriceCardComponent({ propertyId, basePrice: initialPrice, weekendPrice:
           <Button
             onClick={handleSaveBasePrice}
             disabled={saving}
-            className="h-12 px-6 font-semibold bg-[#10203E] hover:bg-[#0c1830] text-white"
+            className="h-12 w-full px-6 font-semibold bg-[#10203E] text-white hover:bg-[#0c1830] sm:w-auto"
           >
             {saving ? 'Salvando...' : 'Salvar'}
           </Button>
@@ -223,7 +223,7 @@ function PriceCardComponent({ propertyId, basePrice: initialPrice, weekendPrice:
         <Label htmlFor="weekendPrice" className="text-sm font-semibold text-[#1B2430] mb-3 block">
           Preço Fim de Semana (Sab-Dom)
         </Label>
-        <div className="flex gap-3">
+        <div className="flex flex-col gap-3 sm:flex-row">
           <div className="flex-1">
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-base font-semibold text-[#4D5566] pointer-events-none">
@@ -244,7 +244,7 @@ function PriceCardComponent({ propertyId, basePrice: initialPrice, weekendPrice:
           <Button
             onClick={handleSaveWeekendPrice}
             disabled={saving}
-            className="h-12 px-6 font-semibold bg-[#10203E] hover:bg-[#0c1830] text-white"
+            className="h-12 w-full px-6 font-semibold bg-[#10203E] text-white hover:bg-[#0c1830] sm:w-auto"
           >
             {saving ? 'Salvando...' : 'Salvar'}
           </Button>
@@ -259,7 +259,7 @@ function PriceCardComponent({ propertyId, basePrice: initialPrice, weekendPrice:
         <Button
           onClick={handleFillCalendar}
           disabled={saving || !basePrice}
-          className="w-full h-12 text-base font-semibold border-[#E5DFD2] border bg-white text-[#1B2430] hover:bg-[#F7F5EF]"
+          className="h-12 w-full border border-[#E5DFD2] bg-white text-base font-semibold text-[#1B2430] hover:bg-[#F7F5EF]"
         >
           📅 Preencher Calendário com Preço Base
         </Button>
@@ -278,7 +278,7 @@ function PriceCardComponent({ propertyId, basePrice: initialPrice, weekendPrice:
 
       {/* Smart Pricing Section */}
       <div className="pb-6 border-b border-[#E5DFD2]">
-        <div className="flex items-center justify-between p-4 bg-[#FBFAF6] rounded-lg border border-[#E5DFD2]">
+        <div className="flex flex-col items-start gap-3 p-4 bg-[#FBFAF6] rounded-lg border border-[#E5DFD2] sm:flex-row sm:items-center sm:justify-between">
           <div className="flex-1">
             <Label className="text-sm font-semibold text-[#1B2430] mb-1 block">
               Preços Inteligentes
@@ -291,7 +291,7 @@ function PriceCardComponent({ propertyId, basePrice: initialPrice, weekendPrice:
             checked={smartPricingEnabled}
             onCheckedChange={setSmartPricingEnabled}
             disabled={true}
-            className="ml-4"
+            className="ml-0 sm:ml-4"
           />
         </div>
       </div>

@@ -19,8 +19,8 @@ import { useParams } from 'next/navigation'
 // Fallback component for debugging
 function CalendarFallback() {
   return (
-    <div className="w-full h-screen flex items-center justify-center bg-gray-50">
-      <div className="text-center">
+    <div className="flex min-h-screen w-full items-center justify-center bg-gray-50 px-4">
+      <div className="max-w-sm text-center">
         <p className="text-red-600 font-bold mb-4">⚠️ Error loading calendar component</p>
         <p className="text-gray-600 text-sm">Check browser console for details</p>
       </div>
@@ -35,9 +35,9 @@ export default function IntegratedCalendarPage() {
 
   if (!propertyId) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gray-50">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
+        <div className="max-w-sm text-center">
+          <h1 className="mb-2 text-2xl font-bold text-gray-900">
             Propriedade não encontrada
           </h1>
           <p className="text-gray-600">
