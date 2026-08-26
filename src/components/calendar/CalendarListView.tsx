@@ -33,6 +33,8 @@ export function CalendarListView({
   reservations,
   onPropertySelect,
 }: CalendarListViewProps) {
+  const firstProperty = properties[0]
+
   const getReservationCount = (propertyId: string) => {
     return reservations.filter(r => r.propertyId === propertyId).length
   }
@@ -54,6 +56,25 @@ export function CalendarListView({
         </p>
       </div>
 
+      {firstProperty && (
+        <div className="px-4 pt-4 sm:hidden">
+          <div className="rounded-2xl border border-[#E5E7EB] bg-white p-4 shadow-sm">
+            <p className="text-[10px] font-black uppercase tracking-[1.5px] text-[#717171]">Acesso rápido</p>
+            <button
+              type="button"
+              onClick={() => onPropertySelect(firstProperty.id)}
+              className="mt-3 flex w-full items-center justify-between gap-3 rounded-2xl bg-[#10203E] px-4 py-3 text-left text-white"
+            >
+              <div className="min-w-0">
+                <p className="text-sm font-black uppercase tracking-[1px]">Abrir primeiro imóvel</p>
+                <p className="truncate text-[11px] text-white/75">{firstProperty.name}</p>
+              </div>
+              <span className="text-[11px] font-black uppercase tracking-[1px] text-white/90">Entrar</span>
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="calendar-list-container px-4 pb-4 pt-3 sm:px-6">
         {properties.map(property => {
           const resCount = getReservationCount(property.id)
@@ -67,19 +88,19 @@ export function CalendarListView({
           return (
             <div
               key={property.id}
-              className="calendar-list-card mb-3 flex cursor-pointer flex-col gap-3 rounded-2xl border border-[#E5E7EB] bg-white p-4 shadow-sm transition hover:shadow-md sm:flex-row sm:items-center sm:p-5"
+              className="calendar-list-card mb-3 flex cursor-pointer flex-col gap-2 rounded-2xl border border-[#E5E7EB] bg-white p-4 shadow-sm transition hover:shadow-md sm:flex-row sm:items-center sm:gap-3 sm:p-5"
               onClick={() => onPropertySelect(property.id)}
             >
               <div className="card-image shrink-0 overflow-hidden rounded-xl bg-[#F7F5EF] sm:h-20 sm:w-24">
                 {property.imageUrl ? (
                   <img src={property.imageUrl} alt={property.name} className="h-full w-full object-cover" />
                 ) : (
-                  <div className="flex h-28 items-center justify-center text-3xl sm:h-full">📷</div>
+                  <div className="flex h-20 items-center justify-center text-2xl sm:h-full sm:text-3xl">📷</div>
                 )}
               </div>
 
               <div className="card-content min-w-0 flex-1">
-                <h3 className="card-name truncate text-lg font-semibold text-[#1B2430]">{property.name}</h3>
+                <h3 className="card-name truncate text-base font-semibold text-[#1B2430] sm:text-lg">{property.name}</h3>
                 <p className="card-type mt-1 text-sm font-medium text-[#4D5566]">{property.type}</p>
                 <p className="card-location truncate text-sm text-[#717171]">{property.location}</p>
                 {resCount > 0 ? (
