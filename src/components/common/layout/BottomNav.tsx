@@ -2,8 +2,8 @@
 
 import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
-import { useState } from 'react'
-import { CreditCard, MoreHorizontal, LogOut, RefreshCw, Settings, Users } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { ChevronDown, CreditCard, MoreHorizontal, LogOut, RefreshCw, Settings, Users } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { isRestrictedGestor } from '@/lib/auth/permissions'
 import { useLocale } from '@/lib/i18n/routing'
@@ -55,6 +55,8 @@ export function BottomNav() {
   const isAdmin = profile?.role === 'admin'
   const isLimitedGestor = isRestrictedGestor(profile)
   const [moreOpen, setMoreOpen] = useState(false)
+  const [showModuleSwitcher, setShowModuleSwitcher] = useState(false)
+  const [showAccountLinks, setShowAccountLinks] = useState(false)
 
   const prefix = locale ? `/${locale}` : ''
   const currentModule = getModuleForPath(pathname)
@@ -99,6 +101,13 @@ export function BottomNav() {
       toast.error('Erro ao terminar sessão')
     }
   }
+
+  useEffect(() => {
+    if (!moreOpen) {
+      setShowModuleSwitcher(false)
+      setShowAccountLinks(false)
+    }
+  }, [moreOpen])
 
   return (
     <>
@@ -174,9 +183,9 @@ export function BottomNav() {
 
             <div>
               <p className="text-[10px] font-black text-lodgra-blue/30 uppercase tracking-[2px] mb-3 px-1 font-[family-name:var(--font-hanken-grotesk)]">
-                Módulo
+                Módulo atual
               </p>
-              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-2">
                 {currentModuleFeatures.map(({ path, label, icon }) => {
                   const href = getLocalizedHref(prefix, path)
                   const active = pathname === href || pathname.startsWith(`${href}/`)
@@ -186,28 +195,46 @@ export function BottomNav() {
             </div>
 
             <div>
-              <p className="text-[10px] font-black text-lodgra-blue/30 uppercase tracking-[2px] mb-3 px-1 font-[family-name:var(--font-hanken-grotesk)]">
-                Módulos
-              </p>
-              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                {moduleLinks.map(({ href, label, icon, id }) => {
-                  const active = currentModule.id === id
-                  return renderGridLink(href, label, icon, active, () => setMoreOpen(false))
-                })}
-              </div>
+              <button
+                type="button"
+                onClick={() => setShowModuleSwitcher(value => !value)}
+                className="flex w-full items-center justify-between px-1 py-2 text-left"
+              >
+                <p className="text-[10px] font-black text-lodgra-blue/30 uppercase tracking-[2px] font-[family-name:var(--font-hanken-grotesk)]">
+                  Módulos
+                </p>
+                <ChevronDown className={`h-4 w-4 text-lodgra-blue/30 transition-transform ${showModuleSwitcher ? 'rotate-180' : ''}`} />
+              </button>
+              {showModuleSwitcher && (
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  {moduleLinks.map(({ href, label, icon, id }) => {
+                    const active = currentModule.id === id
+                    return renderGridLink(href, label, icon, active, () => setMoreOpen(false))
+                  })}
+                </div>
+              )}
             </div>
 
             <div>
-              <p className="text-[10px] font-black text-lodgra-blue/30 uppercase tracking-[2px] mb-3 px-1 font-[family-name:var(--font-hanken-grotesk)]">
-                Conta
-              </p>
-              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                {accountLinks.map(({ path, label, icon }) => {
-                  const href = getLocalizedHref(prefix, path)
-                  const active = pathname === href || pathname.startsWith(`${href}/`)
-                  return renderGridLink(href, label, icon, active, () => setMoreOpen(false))
-                })}
-              </div>
+              <button
+                type="button"
+                onClick={() => setShowAccountLinks(value => !value)}
+                className="flex w-full items-center justify-between px-1 py-2 text-left"
+              >
+                <p className="text-[10px] font-black text-lodgra-blue/30 uppercase tracking-[2px] font-[family-name:var(--font-hanken-grotesk)]">
+                  Conta
+                </p>
+                <ChevronDown className={`h-4 w-4 text-lodgra-blue/30 transition-transform ${showAccountLinks ? 'rotate-180' : ''}`} />
+              </button>
+              {showAccountLinks && (
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  {accountLinks.map(({ path, label, icon }) => {
+                    const href = getLocalizedHref(prefix, path)
+                    const active = pathname === href || pathname.startsWith(`${href}/`)
+                    return renderGridLink(href, label, icon, active, () => setMoreOpen(false))
+                  })}
+                </div>
+              )}
             </div>
 
             <div className="pt-4 border-t border-be-blue/10">
