@@ -51,6 +51,11 @@ function toIsoDate(value: string | null | undefined): string | null {
   return date.toISOString().split('T')[0]
 }
 
+function truncateText(value: string, maxLength: number): string {
+  if (value.length <= maxLength) return value
+  return `${value.slice(0, Math.max(0, maxLength - 1)).trimEnd()}…`
+}
+
 export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, pagination }: ExpensesFilterProps) {
   const locale = useLocale()
   const prefix = locale ? `/${locale}` : ''
@@ -60,6 +65,7 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
   const [propertyFilter, setPropertyFilter] = useState<string>('all')
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
+  const hasRequiredFilters = propertyFilter !== 'all' && Boolean(startDate) && Boolean(endDate)
 
   useEffect(() => {
     try {
@@ -115,6 +121,10 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
   }, [properties, expenses])
 
   const filtered = useMemo(() => {
+    if (!hasRequiredFilters) {
+      return []
+    }
+
     return expenses.filter(e => {
       // Property filter
       if (propertyFilter !== 'all') {
@@ -149,10 +159,17 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
 
       return true
     })
-  }, [expenses, search, categoryFilter, propertyFilter, startDate, endDate])
+  }, [expenses, search, categoryFilter, propertyFilter, startDate, endDate, hasRequiredFilters])
 
   // Calculate filtered stats
   const filteredStats = useMemo(() => {
+    if (!hasRequiredFilters) {
+      return {
+        count: 0,
+        totalsByCurrency: {},
+      }
+    }
+
     const totalsByCurrency = groupByCurrency(
       filtered.flatMap((e) => {
         const prop = Array.isArray(e.properties) ? e.properties[0] : e.properties
@@ -172,21 +189,57 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
       count: filtered.length,
       totalsByCurrency,
     }
-  }, [filtered])
+  }, [filtered, hasRequiredFilters])
+
+  const filtersHint = (() => {
+    if (propertyFilter === 'all') {
+      return 'Escolha uma propriedade para carregar as despesas.'
+    }
+
+    if (!startDate && !endDate) {
+      return 'Agora defina a data inicial e a data final para ver os lançamentos.'
+    }
+
+    if (!startDate) {
+      return 'Informe a data inicial para continuar.'
+    }
+
+    if (!endDate) {
+      return 'Informe a data final para continuar.'
+    }
+
+    return 'Aplique os filtros para ver a lista.'
+  })()
 
   const emptyState = (
-    <div className="bg-white rounded-lg shadow p-12 text-center">
+    <div className="bg-white rounded-2xl shadow-sm border border-brand-border-soft p-8 sm:p-10 text-center">
       <Receipt className="h-16 w-16 text-gray-500 mx-auto mb-4" />
       <h3 className="text-xl font-semibold text-gray-900 mb-2">
-        {expenses.length === 0 ? 'Nenhuma despesa cadastrada' : 'Nenhum resultado encontrado'}
+        {hasRequiredFilters ? 'Nenhum resultado encontrado' : 'Selecione filtros para ver despesas'}
       </h3>
-      <p className="text-gray-600 mb-6">
-        {expenses.length === 0
-          ? 'Comece adicionando sua primeira despesa'
-          : 'Tente ajustar os filtros ou o termo de pesquisa.'}
+      <p className="text-gray-600 max-w-xl mx-auto">
+        {hasRequiredFilters
+          ? 'Tente ajustar a pesquisa, a categoria ou o período escolhido.'
+          : filtersHint}
       </p>
-      {expenses.length === 0 && canCreate && (
-        <Button asChild>
+      {!hasRequiredFilters && (
+        <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
+          <span className="inline-flex items-center gap-2 rounded-full bg-brand-surface px-4 py-2 border border-brand-border-soft text-sm text-gray-600">
+            <span className="h-2 w-2 rounded-full bg-brand-blue" />
+            Propriedade + período = lista
+          </span>
+          {canCreate && (
+            <Button asChild variant="outline">
+              <Link href={`${prefix}/expenses/new`}>
+                <Plus className="h-5 w-5" />
+                Nova Despesa
+              </Link>
+            </Button>
+          )}
+        </div>
+      )}
+      {hasRequiredFilters && canCreate && expenses.length === 0 && (
+        <Button asChild className="mt-6">
           <Link href={`${prefix}/expenses/new`}>
             <Plus className="h-5 w-5" />
             Adicionar Primeira Despesa
@@ -199,37 +252,40 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
   return (
     <>
       {/* Filtered Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-6">
-        {/* Count */}
-        <div className="bg-white rounded-xl shadow-sm p-5">
-          <div className="flex items-center justify-between mb-4">
-            <div className="p-2.5 bg-red-100 rounded-xl">
-              <TrendingDown className="h-5 w-5 text-red-600" />
+      {hasRequiredFilters ? (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-6">
+          <div className="bg-white rounded-xl shadow-sm p-5">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-2.5 bg-red-100 rounded-xl">
+                <TrendingDown className="h-5 w-5 text-red-600" />
+              </div>
+              <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">Total</span>
             </div>
-            <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">Total</span>
+            <p className="text-4xl font-bold text-gray-900">{filteredStats.count}</p>
+            <p className="text-sm text-gray-600 mt-1">Despesas</p>
           </div>
-          <p className="text-4xl font-bold text-gray-900">{filteredStats.count}</p>
-          <p className="text-sm text-gray-600 mt-1">Despesas</p>
-        </div>
 
-        {/* Totals by currency — span 2 cols */}
-        <div className="bg-white rounded-xl shadow-sm p-5 sm:col-span-2">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <p className="text-sm font-semibold text-gray-700">Valor Total</p>
-              <p className="text-xs text-gray-500 mt-0.5">
-                {propertyFilter !== 'all' || startDate || endDate ? 'Despesas filtradas' : 'Todas as despesas'}
-              </p>
+          <div className="bg-white rounded-xl shadow-sm p-5 sm:col-span-2">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <p className="text-sm font-semibold text-gray-700">Valor Total</p>
+                <p className="text-xs text-gray-500 mt-0.5">Despesas filtradas</p>
+              </div>
+            </div>
+            <div className="text-red-600">
+              <CurrencyStack totals={filteredStats.totalsByCurrency} size="md" showEmpty={true} />
             </div>
           </div>
-          <div className="text-red-600">
-            <CurrencyStack totals={filteredStats.totalsByCurrency} size="md" showEmpty={true} />
-          </div>
         </div>
-      </div>
+      ) : (
+        <div className="mb-6 rounded-2xl border border-dashed border-brand-border-soft bg-white/80 px-5 py-4 text-sm text-gray-600">
+          <span className="font-semibold text-gray-900">Visão protegida</span>
+          <span className="ml-2">{filtersHint}</span>
+        </div>
+      )}
 
       {/* Search + Filters */}
-      <div className="bg-white rounded-lg shadow p-4 mb-6">
+      <div className="bg-white rounded-2xl shadow-sm border border-brand-border-soft p-4 sm:p-5 mb-6">
         <div className="flex flex-col gap-4">
           {/* Row 1: Search and Property Filter */}
           <div className="flex flex-col sm:flex-row gap-4">
@@ -239,24 +295,24 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
                 placeholder="Pesquisar por descrição ou propriedade..."
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                className="pl-9"
+                className="pl-10"
               />
             </div>
             <Select value={propertyFilter} onValueChange={setPropertyFilter}>
-              <SelectTrigger className="w-full sm:w-48">
+              <SelectTrigger className="w-full sm:w-56">
                 <SelectValue placeholder="Propriedade" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todas as propriedades</SelectItem>
                 {uniqueProperties.map(prop => (
-                  <SelectItem key={prop} value={prop}>{prop}</SelectItem>
+                  <SelectItem key={prop} value={prop} title={prop}>{truncateText(prop, 40)}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
 
           {/* Row 2: Date Range and Category Filters */}
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="flex-1">
               <label className="block text-xs font-medium text-gray-700 mb-1">Data inicial <span className="text-gray-500">(dd/mm/aaaa)</span></label>
               <div className="relative">
@@ -265,7 +321,7 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
                   type="date"
                   value={startDate}
                   onChange={e => setStartDate(e.target.value)}
-                  className="pl-9"
+                  className="pl-10"
                 />
               </div>
             </div>
@@ -277,7 +333,7 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
                   type="date"
                   value={endDate}
                   onChange={e => setEndDate(e.target.value)}
-                  className="pl-9"
+                  className="pl-10"
                 />
               </div>
             </div>
@@ -305,6 +361,7 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
           <div className="block sm:hidden space-y-3">
             {filtered.map(expense => {
               const property = getProperty(expense)
+              const propertyName = property?.name ? truncateText(property.name, 40) : ''
               return (
                 <div
                   key={expense.id}
@@ -318,7 +375,7 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
                       <ArrowRight className="h-4 w-4 text-gray-500 shrink-0" />
                     </div>
                     <p className="font-semibold text-gray-900 text-sm mt-2">{expense.description}</p>
-                    <p className="text-gray-600 text-xs mt-0.5">{property?.name}</p>
+                    <p className="text-gray-600 text-xs mt-0.5" title={property?.name}>{propertyName}</p>
                     <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
                       <span className="text-xs text-gray-600">
                         {new Date(expense.expense_date).toLocaleDateString('pt-BR')}
@@ -363,48 +420,55 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
           </div>
 
           {/* Tablet+: tabela */}
-          <div className="hidden sm:block bg-white rounded-lg shadow overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
+          <div className="hidden sm:block bg-white rounded-2xl shadow-sm border border-brand-border-soft overflow-hidden">
+            <table className="min-w-full table-fixed divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Data</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Propriedade</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Forma de Pagamento</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Categoria</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">Valor</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">Ações</th>
+                  <th className="w-[12%] px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Data</th>
+                  <th className="w-[28%] px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Propriedade</th>
+                  <th className="w-[30%] px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Descrição</th>
+                  <th className="w-[12%] px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Categoria</th>
+                  <th className="w-[10%] px-4 py-3 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">Valor</th>
+                  <th className="w-[8%] px-4 py-3 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">Ações</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {filtered.map(expense => {
                   const property = getProperty(expense)
+                  const propertyName = property?.name ? truncateText(property.name, 40) : ''
                   return (
                     <tr key={expense.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
                         <Link href={`${prefix}/expenses/${expense.id}`} className="hover:text-brand-600">
                           {new Date(expense.expense_date).toLocaleDateString('pt-BR')}
                         </Link>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <Link href={`${prefix}/expenses/${expense.id}`} className="text-sm font-medium text-gray-900 hover:text-brand-600">
-                          {property?.name}
+                      <td className="px-4 py-4">
+                        <Link
+                          href={`${prefix}/expenses/${expense.id}`}
+                          className="block truncate text-sm font-medium text-gray-900 hover:text-brand-600"
+                          title={property?.name}
+                        >
+                          {propertyName}
                         </Link>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-4 py-4">
                         <Link href={`${prefix}/expenses/${expense.id}`} className="block">
-                          <div className="text-sm text-gray-900 hover:text-brand-600">{expense.description}</div>
-                          {expense.notes && <div className="text-xs text-gray-600 mt-1">{expense.notes}</div>}
+                          <div className="truncate text-sm text-gray-900 hover:text-brand-600" title={expense.description}>
+                            {expense.description}
+                          </div>
+                          {expense.notes && <div className="truncate text-xs text-gray-600 mt-1" title={expense.notes}>{expense.notes}</div>}
                         </Link>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-4 py-4 whitespace-nowrap">
                         <Badge variant="secondary" className="bg-gray-100 text-gray-800">
                           {CATEGORY_LABELS[expense.category] || expense.category}
                         </Badge>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium text-red-600">
+                      <td className="px-4 py-4 whitespace-nowrap text-right text-sm font-medium text-red-600">
                         {formatCurrency(expense.amount, expense.currency as CurrencyCode)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right">
+                      <td className="px-4 py-4 whitespace-nowrap text-right">
                         <div className="flex items-center justify-end gap-2">
                           <Link
                             href={`${prefix}/expenses/${expense.id}`}
