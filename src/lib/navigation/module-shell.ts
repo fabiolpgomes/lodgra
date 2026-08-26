@@ -96,11 +96,11 @@ export const MODULE_FEATURE_LINKS: Record<ModuleId, ModuleNavigationEntry[]> = {
     { path: '/admin/users', label: 'Usuários', icon: Users },
   ],
   operacao: [
-    { path: '/properties', label: 'Propriedades', icon: Building2 },
     { path: '/reservations', label: 'Reservas', icon: Calendar },
-    { path: '/calendar', label: 'Calendário', icon: CalendarDays },
+    { path: '/calendar', label: 'Calendários', icon: CalendarDays },
     { path: '/cleaning', label: 'Limpezas', icon: CheckSquare },
     { path: '/expenses', label: 'Despesas', icon: Receipt },
+    { path: '/properties', label: 'Propriedades', icon: Building2 },
   ],
   empresa: [
     { path: '/dashboard/empresa', label: 'Empresa', icon: BarChart3 },

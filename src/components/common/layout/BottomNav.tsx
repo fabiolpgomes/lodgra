@@ -135,7 +135,7 @@ export function BottomNav() {
       </nav>
 
       <Sheet open={moreOpen} onOpenChange={setMoreOpen}>
-        <SheetContent side="bottom" className="rounded-none pb-safe border-t border-be-blue/10">
+        <SheetContent side="bottom" className="rounded-none pb-safe border-t border-be-blue/10 max-h-[85vh] overflow-y-auto">
           <SheetHeader className="mb-6">
             <SheetTitle className="text-left text-[14px] font-black text-lodgra-blue uppercase tracking-[2px] font-[family-name:var(--font-hanken-grotesk)]">
               {currentModule.label}
