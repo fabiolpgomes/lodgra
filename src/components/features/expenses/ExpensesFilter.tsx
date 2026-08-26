@@ -56,6 +56,13 @@ function truncateText(value: string, maxLength: number): string {
   return `${value.slice(0, Math.max(0, maxLength - 1)).trimEnd()}…`
 }
 
+function formatDateInputLocal(date: Date): string {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
 export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, pagination }: ExpensesFilterProps) {
   const locale = useLocale()
   const prefix = locale ? `/${locale}` : ''
@@ -66,6 +73,15 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const hasRequiredFilters = propertyFilter !== 'all' && Boolean(startDate) && Boolean(endDate)
+
+  function setQuickRange(days: number) {
+    const end = new Date()
+    const start = new Date()
+    start.setDate(end.getDate() - days + 1)
+
+    setStartDate(formatDateInputLocal(start))
+    setEndDate(formatDateInputLocal(end))
+  }
 
   useEffect(() => {
     try {
@@ -295,12 +311,12 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
               </label>
               <div className="relative">
                 <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
-              <Input
-                placeholder="Pesquisar despesas, notas ou propriedade..."
-                value={search}
-                onChange={e => setSearch(e.target.value)}
+                <Input
+                  placeholder="Pesquisar despesas, notas ou propriedade..."
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
                   className="h-12 pl-10 pr-10 text-sm md:text-sm"
-              />
+                />
                 {search && (
                   <button
                     type="button"
@@ -343,6 +359,16 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
                   onChange={e => setStartDate(e.target.value)}
                   className="h-12 px-4 text-sm md:text-sm"
                 />
+                {startDate && (
+                  <button
+                    type="button"
+                    onClick={() => setStartDate('')}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
+                    aria-label="Limpar data inicial"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
               </div>
             </div>
             <div className="flex-1">
@@ -357,6 +383,16 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
                   onChange={e => setEndDate(e.target.value)}
                   className="h-12 px-4 text-sm md:text-sm"
                 />
+                {endDate && (
+                  <button
+                    type="button"
+                    onClick={() => setEndDate('')}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
+                    aria-label="Limpar data final"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
               </div>
             </div>
             <div className="flex-1">
@@ -373,6 +409,36 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
                 </SelectContent>
               </Select>
             </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2 text-xs">
+            <span className="text-gray-500">Períodos rápidos:</span>
+            <button
+              type="button"
+              onClick={() => setQuickRange(7)}
+              className="rounded-full border border-brand-border-soft bg-brand-surface px-3 py-1.5 font-medium text-gray-700 transition-colors hover:border-brand-blue/30 hover:text-brand-blue"
+            >
+              7 dias
+            </button>
+            <button
+              type="button"
+              onClick={() => setQuickRange(30)}
+              className="rounded-full border border-brand-border-soft bg-brand-surface px-3 py-1.5 font-medium text-gray-700 transition-colors hover:border-brand-blue/30 hover:text-brand-blue"
+            >
+              30 dias
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                const now = new Date()
+                const start = new Date(now.getFullYear(), now.getMonth(), 1)
+                setStartDate(formatDateInputLocal(start))
+                setEndDate(formatDateInputLocal(now))
+              }}
+              className="rounded-full border border-brand-border-soft bg-brand-surface px-3 py-1.5 font-medium text-gray-700 transition-colors hover:border-brand-blue/30 hover:text-brand-blue"
+            >
+              Este mês
+            </button>
           </div>
         </div>
       </div>
