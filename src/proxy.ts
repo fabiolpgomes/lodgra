@@ -4,6 +4,7 @@ import { locales, defaultLocale } from '../i18n.config'
 import { applySecurityHeaders } from '@/lib/middleware/security-headers'
 import { checkCsrf } from '@/lib/middleware/csrf'
 import { getClientIp, applyRateLimit } from '@/lib/middleware/rate-limit'
+import { getSupabaseCookieOptions } from '@/lib/supabase/cookie-options'
 import {
   isPublicPath,
   redirectToLogin,
@@ -45,11 +46,13 @@ export async function proxy(request: NextRequest) {
 
   // 3. Supabase session refresh
   let supabaseResponse = NextResponse.next({ request: { headers: requestHeaders } })
+  const cookieOptions = getSupabaseCookieOptions(request.headers.get('x-forwarded-host') || request.headers.get('host'))
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
+      cookieOptions,
       cookies: {
         getAll() {
           return request.cookies.getAll()
