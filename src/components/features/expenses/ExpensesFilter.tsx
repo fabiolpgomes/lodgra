@@ -83,6 +83,14 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
     setEndDate(formatDateInputLocal(end))
   }
 
+  function clearFilters() {
+    setSearch('')
+    setCategoryFilter('all')
+    setPropertyFilter('all')
+    setStartDate('')
+    setEndDate('')
+  }
+
   useEffect(() => {
     try {
       setSearch(localStorage.getItem(getStorageKey('search')) || '')
@@ -227,6 +235,37 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
     return 'Aplique os filtros para ver a lista.'
   })()
 
+  const mobileQuickActions = (
+    <div className="mb-4 rounded-2xl border border-brand-border-soft bg-white p-4 shadow-sm sm:hidden">
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-[10px] font-black uppercase tracking-[1.5px] text-gray-500">Acesso rápido</p>
+          <p className="mt-1 text-sm font-semibold text-gray-900">Comece por uma ação principal</p>
+        </div>
+        <Receipt className="h-5 w-5 text-brand-blue shrink-0" />
+      </div>
+      <div className="mt-4 grid grid-cols-2 gap-2">
+        {canCreate && (
+          <Button asChild variant="action" className="h-11 w-full col-span-2">
+            <Link href={`${prefix}/expenses/new`}>
+              <Plus className="h-4 w-4" />
+              Nova despesa
+            </Link>
+          </Button>
+        )}
+        <Button type="button" variant="outline" className="h-11 w-full" onClick={() => setQuickRange(7)}>
+          7 dias
+        </Button>
+        <Button type="button" variant="outline" className="h-11 w-full" onClick={() => setQuickRange(30)}>
+          30 dias
+        </Button>
+        <Button type="button" variant="outline" className="h-11 w-full" onClick={clearFilters}>
+          Limpar
+        </Button>
+      </div>
+    </div>
+  )
+
   const emptyState = (
     <div className="bg-white rounded-2xl shadow-sm border border-brand-border-soft p-8 sm:p-10 text-center">
       <Receipt className="h-16 w-16 text-gray-500 mx-auto mb-4" />
@@ -267,6 +306,8 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
 
   return (
     <>
+      {mobileQuickActions}
+
       {/* Filtered Stats */}
       {hasRequiredFilters ? (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-6">
