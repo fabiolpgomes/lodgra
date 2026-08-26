@@ -45,32 +45,52 @@ function getStorageKey(key: string): string {
 export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, pagination }: ExpensesFilterProps) {
   const locale = useLocale()
   const prefix = locale ? `/${locale}` : ''
-  const [search, setSearch] = useState(() => localStorage.getItem(getStorageKey('search')) || '')
-  const [categoryFilter, setCategoryFilter] = useState(() => localStorage.getItem(getStorageKey('category')) || 'all')
-  const [propertyFilter, setPropertyFilter] = useState<string>(() => localStorage.getItem(getStorageKey('property')) || 'all')
-  const [startDate, setStartDate] = useState<string>(() => localStorage.getItem(getStorageKey('start_date')) || '')
-  const [endDate, setEndDate] = useState<string>(() => localStorage.getItem(getStorageKey('end_date')) || '')
+  const [mounted, setMounted] = useState(false)
+  const [search, setSearch] = useState('')
+  const [categoryFilter, setCategoryFilter] = useState('all')
+  const [propertyFilter, setPropertyFilter] = useState<string>('all')
+  const [startDate, setStartDate] = useState('')
+  const [endDate, setEndDate] = useState('')
+
+  useEffect(() => {
+    try {
+      setSearch(localStorage.getItem(getStorageKey('search')) || '')
+      setCategoryFilter(localStorage.getItem(getStorageKey('category')) || 'all')
+      setPropertyFilter(localStorage.getItem(getStorageKey('property')) || 'all')
+      setStartDate(localStorage.getItem(getStorageKey('start_date')) || '')
+      setEndDate(localStorage.getItem(getStorageKey('end_date')) || '')
+    } catch (error) {
+      console.error('Failed to load expense filter preferences:', error)
+    }
+
+    setMounted(true)
+  }, [])
 
   // Save filters to localStorage whenever they change
   useEffect(() => {
+    if (!mounted) return
     localStorage.setItem(getStorageKey('search'), search)
-  }, [search])
+  }, [mounted, search])
 
   useEffect(() => {
+    if (!mounted) return
     localStorage.setItem(getStorageKey('category'), categoryFilter)
-  }, [categoryFilter])
+  }, [mounted, categoryFilter])
 
   useEffect(() => {
+    if (!mounted) return
     localStorage.setItem(getStorageKey('property'), propertyFilter)
-  }, [propertyFilter])
+  }, [mounted, propertyFilter])
 
   useEffect(() => {
+    if (!mounted) return
     localStorage.setItem(getStorageKey('start_date'), startDate)
-  }, [startDate])
+  }, [mounted, startDate])
 
   useEffect(() => {
+    if (!mounted) return
     localStorage.setItem(getStorageKey('end_date'), endDate)
-  }, [endDate])
+  }, [mounted, endDate])
 
   // Extract unique properties from server-passed properties or from expenses
   const uniqueProperties = useMemo(() => {
