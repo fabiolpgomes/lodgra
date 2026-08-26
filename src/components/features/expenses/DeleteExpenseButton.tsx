@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useLocale } from 'next-intl'
 import { Trash2, AlertTriangle } from 'lucide-react'
 import { Button } from '@/components/common/ui/button'
 import { Alert, AlertDescription } from '@/components/common/ui/alert'
@@ -15,6 +14,7 @@ import {
   DialogTitle,
 } from '@/components/common/ui/dialog'
 import { toast } from 'sonner'
+import { useLocale } from '@/lib/i18n/routing'
 
 export function DeleteExpenseButton({
   expenseId,
