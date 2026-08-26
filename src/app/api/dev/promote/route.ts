@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
+import { invalidateCachedProfile } from '@/lib/cache/profileCache'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -46,6 +47,7 @@ export async function GET(request: Request) {
   }
 
   if (data && data.length > 0) {
+    await invalidateCachedProfile(data[0].id)
     return NextResponse.json({ 
       success: true, 
       message: `User ${email} promoted to ADMIN successfully.`,
