@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Building2, MapPin, Users, Plus, Home } from 'lucide-react'
+import { Building2, MapPin, Users, Plus, Home, Eye, Edit } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { AuthLayout } from '@/components/common/layout/AuthLayout'
@@ -9,6 +9,7 @@ import { getUserAccess } from '@/lib/auth/getUserAccess'
 import { Button } from '@/components/common/ui/button'
 import { getPlanLimits } from '@/lib/billing/plans'
 import { getCurrencySymbol } from '@/lib/currency/symbols'
+import { DeletePropertyButton } from '@/components/features/properties/DeletePropertyButton'
 import { PublicUrlBadge } from '@/components/features/properties/PublicUrlBadge'
 import { PropertyFilterBar } from '@/components/features/properties/PropertyFilterBar'
 import { PremiumCard, PremiumPageHeader, PremiumPageShell } from '@/components/common/layout/PremiumPage'
@@ -33,6 +34,7 @@ export default async function PropertiesPage({
   const userRole = profile.role
   const canCreate = userRole === 'admin' || userRole === 'gestor'
   const canEdit = userRole === 'admin' || userRole === 'gestor'
+  const canDelete = userRole === 'admin'
 
   let query = supabase
     .from('properties')
@@ -97,6 +99,12 @@ export default async function PropertiesPage({
     }
   }
 
+  const planNames: Record<string, string> = {
+    starter: 'Essencial',
+    professional: 'Profissional',
+    enterprise: 'Enterprise',
+  }
+
   // Get org plan for usage bar
   const adminClient = createAdminClient()
   let subscriptionPlan: string | null = null
@@ -111,9 +119,7 @@ export default async function PropertiesPage({
   }
 
   const limits = getPlanLimits(subscriptionPlan)
-  const planName = subscriptionPlan
-    ? subscriptionPlan.charAt(0).toUpperCase() + subscriptionPlan.slice(1)
-    : 'Starter'
+  const planName = subscriptionPlan ? planNames[subscriptionPlan] || subscriptionPlan : 'Essencial'
 
   // Get available currencies
   const availableCurrencies = Array.from(
@@ -182,6 +188,30 @@ export default async function PropertiesPage({
           </div>
         )}
 
+        {filteredProperties.length > 0 && (
+          <div className="mb-4 rounded-2xl border border-brand-border-soft bg-white p-4 shadow-sm sm:hidden">
+            <p className="text-[10px] font-black uppercase tracking-[1.5px] text-brand-text-medium">Acesso rápido</p>
+            <div className="mt-3 grid grid-cols-1 gap-2">
+              <Button asChild variant="action" className="h-12 w-full justify-center">
+                <Link href={`/${locale}/properties/new`}>
+                  <Plus className="h-4 w-4" />
+                  Nova Propriedade
+                </Link>
+              </Button>
+              <Button
+                asChild
+                variant="outline"
+                className="h-12 w-full justify-center"
+              >
+                <Link href={`/${locale}/properties/${filteredProperties[0].id}`}>
+                  <Eye className="h-4 w-4" />
+                  Abrir primeira
+                </Link>
+              </Button>
+            </div>
+          </div>
+        )}
+
         {/* Filter Bar */}
         {properties && properties.length > 0 && (
           <PropertyFilterBar availableCurrencies={availableCurrencies} />
@@ -226,6 +256,7 @@ export default async function PropertiesPage({
                 property={property}
                 imageUrl={propertyImageMap.get(property.id) ?? null}
                 canEdit={canEdit}
+                canDelete={canDelete}
                 locale={locale}
               />
             ))}
@@ -236,7 +267,7 @@ export default async function PropertiesPage({
   )
 }
 
-function PropertyCard({ property, imageUrl, canEdit, locale }: {
+function PropertyCard({ property, imageUrl, canEdit, canDelete, locale }: {
   property: {
     id: string
     name: string
@@ -253,26 +284,27 @@ function PropertyCard({ property, imageUrl, canEdit, locale }: {
   }
   imageUrl: string | null
   canEdit: boolean
+  canDelete: boolean
   locale: string
 }) {
   const propertyHref = `/${locale}/properties/${property.id}`
   const basePrice = property.base_price ? Number(property.base_price) : 0
-  const currency = property.currency || 'EUR'
+  const currency = property.currency?.toUpperCase() ?? null
   const formattedBasePrice = basePrice > 0
-    ? `${getCurrencySymbol(currency)} ${basePrice.toLocaleString(locale, {
+    ? `${currency ? `${getCurrencySymbol(currency)}` : ''}${currency ? ' ' : ''}${basePrice.toLocaleString(locale, {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     })}`
     : null
 
   return (
-    <Link href={propertyHref}>
-      <div className={`be-card be-card-hover group cursor-pointer overflow-hidden p-0 border-2 transition-all ${
+      <div className={`be-card be-card-hover group overflow-hidden p-0 border-2 transition-all ${
         property.is_active
           ? 'border-brand-blue/20 shadow-md'
           : 'border-brand-border opacity-60 hover:opacity-80'
       }`}>
-        <div className="relative aspect-[4/3] w-full overflow-hidden bg-brand-bg">
+      <Link href={propertyHref} className="block">
+        <div className="relative aspect-[16/10] w-full overflow-hidden bg-brand-bg sm:aspect-[4/3]">
           {imageUrl ? (
             <Image
               src={imageUrl}
@@ -305,22 +337,19 @@ function PropertyCard({ property, imageUrl, canEdit, locale }: {
           </div>
         </div>
 
-        <div className="p-5">
-          {/* Name */}
-          <h3 className="text-sm font-semibold text-brand-text-dark leading-snug mb-3 transition-colors group-hover:text-brand-gold">
+        <div className="p-4 sm:p-5">
+          <h3 className="mb-2 text-sm font-semibold leading-snug text-brand-text-dark transition-colors group-hover:text-brand-gold">
             {property.name}
           </h3>
 
-          {/* Location */}
-          <div className="flex items-center gap-1.5 text-brand-text-medium mb-3">
+          <div className="mb-2 flex items-center gap-1.5 text-brand-text-medium">
             <MapPin className="h-3.5 w-3.5 shrink-0" />
             <span className="text-xs">
               {property.city}{property.country ? `, ${property.country}` : ''}
             </span>
           </div>
 
-          {/* Capacity row */}
-          <div className="flex items-center gap-4 text-xs text-brand-text-medium mb-4">
+          <div className="mb-3 flex items-center gap-3 text-xs text-brand-text-medium sm:gap-4">
             <div className="flex items-center gap-1">
               <Building2 className="h-3.5 w-3.5" />
               <span>{property.bedrooms || 0} quartos</span>
@@ -360,7 +389,6 @@ function PropertyCard({ property, imageUrl, canEdit, locale }: {
             </span>
           </div>
 
-          {/* Public page badge + toggle */}
           <div className="border-t border-brand-bg pt-3">
             <PublicUrlBadge
               propertyId={property.id}
@@ -370,7 +398,29 @@ function PropertyCard({ property, imageUrl, canEdit, locale }: {
             />
           </div>
         </div>
+      </Link>
+
+      <div className="flex flex-col gap-2 border-t border-brand-bg px-5 py-4 sm:hidden">
+        <div className="flex gap-2">
+          <Button asChild variant="outline" size="sm" className="flex-1">
+            <Link href={propertyHref} className="inline-flex items-center justify-center gap-2">
+              <Eye className="h-4 w-4" />
+              Ver
+            </Link>
+          </Button>
+          {canEdit && (
+            <Button asChild variant="action" size="sm" className="flex-1">
+              <Link href={`/${locale}/properties/${property.id}/edit`} className="inline-flex items-center justify-center gap-2">
+                <Edit className="h-4 w-4" />
+                Editar
+              </Link>
+            </Button>
+          )}
+        </div>
+        {canDelete && (
+          <DeletePropertyButton propertyId={property.id} propertyName={property.name} />
+        )}
       </div>
-    </Link>
+    </div>
   )
 }
