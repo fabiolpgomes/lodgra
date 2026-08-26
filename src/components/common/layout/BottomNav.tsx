@@ -76,6 +76,7 @@ export function BottomNav() {
     }
     return true
   })
+  const primaryFeature = currentModuleFeatures[0]
 
   const accountLinks = [
     { path: '/settings', label: 'Definições', icon: Settings },
@@ -143,11 +144,39 @@ export function BottomNav() {
           </SheetHeader>
 
           <div className="space-y-6 pb-8">
+            {primaryFeature && (
+              <div>
+                <p className="text-[10px] font-black text-lodgra-blue/30 uppercase tracking-[2px] mb-3 px-1 font-[family-name:var(--font-hanken-grotesk)]">
+                  Acesso rápido
+                </p>
+                <Link
+                  href={getLocalizedHref(prefix, primaryFeature.path)}
+                  onClick={() => setMoreOpen(false)}
+                  className="flex items-center justify-between gap-4 rounded-2xl border border-be-blue bg-be-blue px-4 py-4 text-white shadow-sm"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <primaryFeature.icon className="h-5 w-5 shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-sm font-black uppercase tracking-[1px] font-[family-name:var(--font-hanken-grotesk)]">
+                        {primaryFeature.label}
+                      </p>
+                      <p className="text-[11px] text-white/80">
+                        Abrir primeiro no mobile
+                      </p>
+                    </div>
+                  </div>
+                  <span className="text-[11px] font-black uppercase tracking-[1px] text-white/90">
+                    Entrar
+                  </span>
+                </Link>
+              </div>
+            )}
+
             <div>
               <p className="text-[10px] font-black text-lodgra-blue/30 uppercase tracking-[2px] mb-3 px-1 font-[family-name:var(--font-hanken-grotesk)]">
                 Módulo
               </p>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 {currentModuleFeatures.map(({ path, label, icon }) => {
                   const href = getLocalizedHref(prefix, path)
                   const active = pathname === href || pathname.startsWith(`${href}/`)
@@ -160,7 +189,7 @@ export function BottomNav() {
               <p className="text-[10px] font-black text-lodgra-blue/30 uppercase tracking-[2px] mb-3 px-1 font-[family-name:var(--font-hanken-grotesk)]">
                 Módulos
               </p>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 {moduleLinks.map(({ href, label, icon, id }) => {
                   const active = currentModule.id === id
                   return renderGridLink(href, label, icon, active, () => setMoreOpen(false))
@@ -172,7 +201,7 @@ export function BottomNav() {
               <p className="text-[10px] font-black text-lodgra-blue/30 uppercase tracking-[2px] mb-3 px-1 font-[family-name:var(--font-hanken-grotesk)]">
                 Conta
               </p>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 {accountLinks.map(({ path, label, icon }) => {
                   const href = getLocalizedHref(prefix, path)
                   const active = pathname === href || pathname.startsWith(`${href}/`)
