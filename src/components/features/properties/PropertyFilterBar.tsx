@@ -94,9 +94,9 @@ export function PropertyFilterBar({ availableCurrencies }: PropertyFilterBarProp
   }
 
   return (
-    <div className="mb-6 p-4 bg-brand-surface rounded-lg border border-brand-border-soft">
-      <div className="flex items-center justify-between flex-wrap gap-4">
-        <div className="flex items-center gap-4 flex-wrap">
+    <div className="mb-6 rounded-2xl border border-brand-border-soft bg-brand-surface p-4 shadow-sm">
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2">
             <Filter className="h-4 w-4 text-brand-text-medium" />
             <span className="text-sm font-medium text-brand-text-dark">Filtros</span>
@@ -108,12 +108,12 @@ export function PropertyFilterBar({ availableCurrencies }: PropertyFilterBarProp
           </div>
 
           {/* Status Filter */}
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
             <label className="text-xs font-semibold text-brand-text-medium">Status:</label>
             <select
               value={isActive || ''}
               onChange={(e) => handleActiveChange(e.target.value || null)}
-              className="px-3 py-1.5 text-sm rounded border border-brand-border bg-brand-canvas text-brand-text-dark focus:outline-none focus:ring-2 focus:ring-brand-blue/30"
+              className="h-11 rounded-xl border border-brand-border bg-brand-canvas px-3 text-sm text-brand-text-dark focus:outline-none focus:ring-2 focus:ring-brand-blue/30"
             >
               <option value="">Todos</option>
               <option value="true">✓ Ativos</option>
@@ -123,12 +123,12 @@ export function PropertyFilterBar({ availableCurrencies }: PropertyFilterBarProp
 
           {/* Currency Filter */}
           {availableCurrencies.length > 0 && (
-            <div className="flex items-center gap-2">
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
               <label className="text-xs font-semibold text-brand-text-medium">Moeda:</label>
               <select
                 value={selectedCurrency || ''}
                 onChange={(e) => handleCurrencyChange(e.target.value)}
-                className="px-3 py-1.5 text-sm rounded border border-brand-border bg-brand-canvas text-brand-text-dark focus:outline-none focus:ring-2 focus:ring-brand-blue/30"
+                className="h-11 rounded-xl border border-brand-border bg-brand-canvas px-3 text-sm text-brand-text-dark focus:outline-none focus:ring-2 focus:ring-brand-blue/30"
               >
                 <option value="">Todas</option>
                 {availableCurrencies.map((curr) => (
@@ -145,7 +145,7 @@ export function PropertyFilterBar({ availableCurrencies }: PropertyFilterBarProp
         {hasFilters && (
           <button
             onClick={handleReset}
-            className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium bg-brand-blue/10 text-brand-blue rounded border border-brand-blue/20 hover:bg-brand-blue/15 transition-all"
+            className="flex h-11 w-full items-center justify-center gap-1 rounded-xl border border-brand-blue/20 bg-brand-blue/10 px-3 text-sm font-medium text-brand-blue transition-all hover:bg-brand-blue/15 sm:w-auto"
           >
             <X className="h-3 w-3" />
             Limpar

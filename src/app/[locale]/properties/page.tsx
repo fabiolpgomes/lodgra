@@ -148,6 +148,7 @@ export default async function PropertiesPage({
           description="Gerencie suas propriedades e anúncios"
           badge={planName}
           icon={Building2}
+          denseMobile
           actions={canCreate && (
             <Button asChild variant="action">
               <Link href={`/${locale}/properties/new`} className="flex items-center gap-2">
