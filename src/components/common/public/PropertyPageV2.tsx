@@ -24,6 +24,7 @@ import { SimilarProperties } from '@/components/properties/SimilarProperties'
 import { InstallPromptButton } from '@/components/booking/InstallPromptButton'
 import { Logo } from '@/components/common/ui/Logo'
 import type { SimilarProperty } from '@/lib/supabase/properties'
+import type { CurrencyCode } from '@/lib/utils/currency'
 
 interface PricingRule {
   start_date: string
@@ -42,7 +43,7 @@ interface CancellationPolicy {
 interface PropertyPageV2Props {
   property: Property
   allPhotos: string[]
-  currency: string
+  currency: CurrencyCode
   initialCheckIn?: string
   initialCheckOut?: string
   initialGuests?: number
@@ -85,6 +86,7 @@ export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, 
   // Shared date state — synced between AvailabilityCalendar ↔ BookingWidgetDesktop
   const [sharedCheckIn, setSharedCheckIn] = useState(initialCheckIn || '')
   const [sharedCheckOut, setSharedCheckOut] = useState(initialCheckOut || '')
+  const normalizedCurrency = currency as CurrencyCode
 
   const handleOpenLightbox = (index: number) => {
     setLightboxIndex(index)
@@ -268,6 +270,7 @@ export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, 
               <AvailabilityCalendar
                 blockedRanges={blockedRanges}
                 minNights={minNights}
+                pricingRules={pricingRules}
                 checkIn={sharedCheckIn}
                 checkOut={sharedCheckOut}
                 onCheckInChange={handleCheckInChange}
@@ -284,10 +287,10 @@ export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, 
             <div className="hidden lg:block">
               <div className="sticky top-24">
                 <BookingWidgetDesktop
-                  propertyId={property.id}
-                  propertyName={property.name}
-                  basePrice={property.base_price ?? 0}
-                  currency={currency}
+                propertyId={property.id}
+                propertyName={property.name}
+                basePrice={property.base_price ?? 0}
+                  currency={normalizedCurrency}
                   slug={property.slug}
                   initialCheckIn={sharedCheckIn}
                   initialCheckOut={sharedCheckOut}
@@ -335,7 +338,7 @@ export function PropertyPageV2({ property, allPhotos, currency, initialCheckIn, 
         propertyId={property.id}
         propertyName={property.name}
         basePrice={property.base_price ?? 0}
-        currency={currency}
+        currency={normalizedCurrency}
         slug={property.slug}
         initialCheckIn={sharedCheckIn}
         initialCheckOut={sharedCheckOut}
