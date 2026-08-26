@@ -8,9 +8,14 @@ import { FileText } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
-export default async function ExpensesExportPage() {
+export default async function ExpensesExportPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}) {
+  const { locale } = await params
   const auth = await requireRole(['admin', 'gestor'])
-  if (!auth.authorized) redirect('/login')
+  if (!auth.authorized) redirect(`/${locale}/login?redirectTo=${encodeURIComponent(`/${locale}/expenses/export`)}`)
 
   const supabase = await createClient()
   const userPropertyIds = await getUserPropertyIds(supabase)

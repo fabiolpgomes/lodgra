@@ -25,7 +25,7 @@ export default async function ExpensesPage({
   const access = await getUserAccess(supabase)
 
   if (!access) {
-    redirect('/login')
+    redirect(`/${locale}/login?redirectTo=${encodeURIComponent(`/${locale}/expenses`)}`)
   }
 
   const { profile, propertyIds } = access
