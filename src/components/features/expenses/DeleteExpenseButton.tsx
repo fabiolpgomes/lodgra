@@ -18,10 +18,12 @@ import { toast } from 'sonner'
 
 export function DeleteExpenseButton({
   expenseId,
-  description
+  description,
+  className,
 }: {
   expenseId: string
   description?: string
+  className?: string
 }) {
   const router = useRouter()
   const locale = useLocale()
@@ -60,7 +62,7 @@ export function DeleteExpenseButton({
       <Button
         variant="outline"
         onClick={() => setShowModal(true)}
-        className="flex items-center gap-2 text-destructive border-destructive hover:bg-destructive/10"
+        className={`flex items-center gap-2 text-destructive border-destructive hover:bg-destructive/10 ${className ?? ''}`}
       >
         <Trash2 className="h-4 w-4" />
         Eliminar

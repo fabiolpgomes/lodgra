@@ -34,7 +34,7 @@ export default async function ExpensesExportPage() {
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
             <FileText className="h-8 w-8 text-red-600" />
-            <h1 className="text-3xl font-bold text-gray-900">Exportar Despesas</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Exportar Despesas</h1>
           </div>
           <p className="text-gray-600">
             Gere um relatorio em PDF com todas as despesas dentro de um periodo especifico

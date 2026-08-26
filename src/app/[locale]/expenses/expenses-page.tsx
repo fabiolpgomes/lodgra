@@ -55,7 +55,7 @@ export default async function ExpensesPage() {
           <div>
             <div className="flex items-center gap-3 mb-2">
               <Receipt className="h-8 w-8 text-red-600" />
-              <h2 className="text-3xl font-bold text-gray-900">Despesas</h2>
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Despesas</h2>
             </div>
             <p className="text-gray-600">Gerencie todas as despesas das propriedades</p>
           </div>
@@ -84,7 +84,7 @@ export default async function ExpensesPage() {
               </div>
               <span className="text-sm text-gray-600">Total</span>
             </div>
-            <h3 className="text-3xl font-bold text-gray-900">{expenses?.length || 0}</h3>
+            <h3 className="text-2xl sm:text-3xl font-bold text-gray-900">{expenses?.length || 0}</h3>
             <p className="text-sm text-gray-600 mt-1">Despesas</p>
           </div>
 

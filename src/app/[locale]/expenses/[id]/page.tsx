@@ -39,7 +39,7 @@ export default async function ExpenseDetailsPage({
     .from('expenses')
     .select(`
       *,
-      properties!inner(
+      properties(
         id,
         name,
         address,
@@ -54,7 +54,7 @@ export default async function ExpenseDetailsPage({
     notFound()
   }
 
-  const property = expense.properties
+  const property = Array.isArray(expense.properties) ? expense.properties[0] : expense.properties
 
   return (
     <AuthLayout>

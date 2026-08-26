@@ -113,9 +113,24 @@ export default function NewExpensePage() {
           Voltar para Despesas
         </Link>
 
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Nova Despesa</h2>
+        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between mb-6">
+          <div>
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Nova Despesa</h2>
+            <p className="mt-1 text-sm text-gray-600">
+              Registre uma nova despesa associada a uma propriedade.
+            </p>
+          </div>
 
+          <div className="flex flex-wrap items-center gap-3">
+            <Button asChild variant="outline">
+              <Link href={`/${locale}/expenses`}>
+                Ver Lista
+              </Link>
+            </Button>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow p-6">
           {error && (
             <Alert variant="destructive" className="mb-6">
               <AlertDescription>{error}</AlertDescription>

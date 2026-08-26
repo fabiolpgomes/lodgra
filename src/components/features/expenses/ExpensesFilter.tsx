@@ -12,6 +12,7 @@ import { CATEGORY_LABELS, CATEGORY_ORDER } from '@/lib/utils/expense-categories'
 import { CurrencyStack } from '@/components/common/ui/CurrencyStack'
 import { PaginationNav } from '@/components/common/ui/PaginationNav'
 import { useLocale } from '@/lib/i18n/routing'
+import { DeleteExpenseButton } from './DeleteExpenseButton'
 
 interface Expense {
   id: string
@@ -122,12 +123,18 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
   // Calculate filtered stats
   const filteredStats = useMemo(() => {
     const totalsByCurrency = groupByCurrency(
-      filtered.map(e => {
+      filtered.flatMap((e) => {
         const prop = Array.isArray(e.properties) ? e.properties[0] : e.properties
-        return {
-          currency: (e.currency || prop?.currency || 'EUR') as CurrencyCode,
-          amount: e.amount ? Number(e.amount) : 0,
+        const currency = e.currency?.toUpperCase() || prop?.currency?.toUpperCase() || null
+
+        if (!currency) {
+          return []
         }
+
+        return [{
+          currency: currency as CurrencyCode,
+          amount: e.amount ? Number(e.amount) : 0,
+        }]
       })
     )
     return {
@@ -268,28 +275,53 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
             {filtered.map(expense => {
               const property = getProperty(expense)
               return (
-                <Link
+                <div
                   key={expense.id}
-                  href={`${prefix}/expenses/${expense.id}`}
-                  className="block bg-white rounded-xl shadow p-4 active:bg-gray-50"
+                  className="bg-white rounded-xl shadow p-4 active:bg-gray-50"
                 >
-                  <div className="flex items-start justify-between mb-1">
-                    <Badge variant="secondary" className="bg-gray-100 text-gray-800 text-xs">
-                      {CATEGORY_LABELS[expense.category] || expense.category}
-                    </Badge>
-                    <ArrowRight className="h-4 w-4 text-gray-500 shrink-0" />
+                  <Link href={`${prefix}/expenses/${expense.id}`} className="block">
+                    <div className="flex items-start justify-between mb-1">
+                      <Badge variant="secondary" className="bg-gray-100 text-gray-800 text-xs">
+                        {CATEGORY_LABELS[expense.category] || expense.category}
+                      </Badge>
+                      <ArrowRight className="h-4 w-4 text-gray-500 shrink-0" />
+                    </div>
+                    <p className="font-semibold text-gray-900 text-sm mt-2">{expense.description}</p>
+                    <p className="text-gray-600 text-xs mt-0.5">{property?.name}</p>
+                    <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
+                      <span className="text-xs text-gray-600">
+                        {new Date(expense.expense_date).toLocaleDateString('pt-BR')}
+                      </span>
+                      <span className="text-sm font-semibold text-red-600">
+                        {formatCurrency(expense.amount, expense.currency as CurrencyCode)}
+                      </span>
+                    </div>
+                  </Link>
+
+                  <div className="mt-3 flex flex-col gap-2 border-t border-gray-100 pt-3">
+                    <Button asChild variant="outline" size="sm" className="flex-1">
+                      <Link href={`${prefix}/expenses/${expense.id}`}>
+                        <Eye className="h-4 w-4" />
+                        Ver detalhes
+                      </Link>
+                    </Button>
+                    {canEdit && (
+                      <div className="grid grid-cols-2 gap-2">
+                        <Button asChild variant="action" size="sm" className="w-full">
+                          <Link href={`${prefix}/expenses/${expense.id}/edit`}>
+                            <Edit className="h-4 w-4" />
+                            Editar
+                          </Link>
+                        </Button>
+                        <DeleteExpenseButton
+                          expenseId={expense.id}
+                          description={expense.description}
+                          className="w-full justify-center"
+                        />
+                      </div>
+                    )}
                   </div>
-                  <p className="font-semibold text-gray-900 text-sm mt-2">{expense.description}</p>
-                  <p className="text-gray-600 text-xs mt-0.5">{property?.name}</p>
-                  <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
-                    <span className="text-xs text-gray-600">
-                      {new Date(expense.expense_date).toLocaleDateString('pt-BR')}
-                    </span>
-                    <span className="text-sm font-semibold text-red-600">
-                      {formatCurrency(expense.amount, expense.currency as CurrencyCode)}
-                    </span>
-                  </div>
-                </Link>
+                </div>
               )
             })}
             {filtered.length < expenses.length && (
@@ -351,13 +383,20 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
                             <Eye className="h-4 w-4" />
                           </Link>
                           {canEdit && (
-                            <Link
-                              href={`${prefix}/expenses/${expense.id}/edit`}
-                              className="p-1.5 text-lodgra-blue rounded-lg bg-be-blue hover:bg-be-blue/80 transition-colors"
-                              title="Editar"
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Link>
+                            <>
+                              <Link
+                                href={`${prefix}/expenses/${expense.id}/edit`}
+                                className="p-1.5 text-lodgra-blue rounded-lg bg-be-blue hover:bg-be-blue/80 transition-colors"
+                                title="Editar"
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Link>
+                              <DeleteExpenseButton
+                                expenseId={expense.id}
+                                description={expense.description}
+                                className="px-3 py-2 text-sm"
+                              />
+                            </>
                           )}
                         </div>
                       </td>

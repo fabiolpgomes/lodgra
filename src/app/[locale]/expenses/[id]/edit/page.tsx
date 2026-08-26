@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { ArrowLeft, Save } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { AuthLayout } from '@/components/common/layout/AuthLayout'
+import { DeleteExpenseButton } from '@/components/features/expenses/DeleteExpenseButton'
 import { Button } from '@/components/common/ui/button'
 import { Input } from '@/components/common/ui/input'
 import { Label } from '@/components/common/ui/label'
@@ -29,6 +30,7 @@ export default function EditExpensePage({
   const [error, setError] = useState<string | null>(null)
   const [expense, setExpense] = useState<Record<string, string | number | null> | null>(null)
   const [expenseId, setExpenseId] = useState<string>('')
+  const [canDelete, setCanDelete] = useState(false)
   const [properties, setProperties] = useState<{ id: string; name: string; currency: string }[]>([])
   const [selectedPropertyId, setSelectedPropertyId] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('')
@@ -61,6 +63,21 @@ export default function EditExpensePage({
         .order('name')
 
       setProperties(propertiesData || [])
+
+      const { data: userData } = await supabase.auth.getUser()
+      if (userData.user) {
+        const { data: profile } = await supabase
+          .from('user_profiles')
+          .select('role')
+          .eq('id', userData.user.id)
+          .single()
+
+        const role = profile?.role
+        setCanDelete(role === 'admin' || role === 'gestor')
+      } else {
+        setCanDelete(false)
+      }
+
       setLoadingData(false)
     }
 
@@ -161,9 +178,32 @@ export default function EditExpensePage({
           Voltar para Detalhes
         </Link>
 
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Editar Despesa</h2>
+        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between mb-6">
+          <div>
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Editar Despesa</h2>
+            <p className="mt-1 text-sm text-gray-600">
+              Atualize os dados desta despesa ou acesse as ações de gestão.
+            </p>
+          </div>
 
+          <div className="flex flex-wrap items-center gap-3">
+            {expenseId && (
+              <Button asChild variant="outline">
+                <Link href={`/${locale}/expenses/${expenseId}`}>
+                  Ver Detalhes
+                </Link>
+              </Button>
+            )}
+            {canDelete && expenseId && (
+              <DeleteExpenseButton
+                expenseId={expenseId}
+                description={expense?.description?.toString() ?? undefined}
+              />
+            )}
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow p-6">
           {error && (
             <Alert variant="destructive" className="mb-6">
               <AlertDescription>{error}</AlertDescription>
