@@ -1,5 +1,5 @@
 /* Lodgra PWA Service Worker - Offline Support */
-const CACHE_NAME = 'lodgra-v1'
+const CACHE_NAME = 'lodgra-v2'
 const URLS_TO_CACHE = [
   '/',
   '/offline',
@@ -39,6 +39,9 @@ self.addEventListener('fetch', (event) => {
   /* Skip non-GET requests */
   if (request.method !== 'GET') return
 
+  /* Only handle same-origin requests */
+  if (new URL(request.url).origin !== self.location.origin) return
+
   /* Skip API calls (let them fail gracefully) */
   if (request.url.includes('/api/')) {
     return event.respondWith(fetch(request).catch(() => new Response(null, { status: 503 })))
@@ -50,10 +53,12 @@ self.addEventListener('fetch', (event) => {
       .then((response) => {
         if (!response || response.status === 404) return response
 
-        const responseToCache = response.clone()
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(request, responseToCache)
-        })
+        if (response.ok) {
+          const responseToCache = response.clone()
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(request, responseToCache)
+          })
+        }
 
         return response
       })
