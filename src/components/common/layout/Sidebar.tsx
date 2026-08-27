@@ -19,7 +19,6 @@ import { useLocale } from '@/lib/i18n/routing'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import type { UserProfile } from '@/lib/auth/getUserAccess'
-import { useFeatureAccess } from '@/lib/features/featureGate'
 import {
   getLocalizedHref,
   getModuleForPath,
@@ -35,16 +34,16 @@ interface SidebarProps {
 function navClassName(active: boolean) {
   return `flex items-center gap-3 rounded-full px-4 py-3 text-[14px] font-medium tracking-normal transition-all ${
     active
-      ? 'bg-be-blue text-white'
-      : 'text-be-text hover:bg-be-surface hover:text-be-text'
+      ? 'bg-[#10203E] !text-white shadow-sm'
+      : 'text-[#10203E] hover:bg-be-surface hover:text-[#10203E]'
   }`
 }
 
 function cardClassName(active: boolean) {
   return `flex items-start gap-3 rounded-2xl border px-4 py-3 transition-all ${
     active
-      ? 'border-be-blue bg-be-blue text-white shadow-sm'
-      : 'border-be-border bg-card text-be-text hover:border-be-blue/30 hover:bg-be-surface'
+      ? 'border-[#10203E] bg-[#10203E] !text-white shadow-sm'
+      : 'border-be-border bg-card text-[#10203E] hover:border-be-blue/30 hover:bg-be-surface'
   }`
 }
 
@@ -79,16 +78,7 @@ export function Sidebar({ serverProfile }: SidebarProps) {
   const prefix = locale ? `/${locale}` : ''
   const isDarkMode = (resolvedTheme || theme) === 'dark'
   const currentModule = getModuleForPath(pathname)
-  const organizationId = profile?.organization_id ?? null
-  const { hasAccess: hasIaNativeAccess, loading: iaNativeLoading } = useFeatureAccess(
-    'property_intelligence',
-    organizationId ?? undefined
-  )
   const moduleLinks = getModuleNavLinks(prefix).filter(link => {
-    if (link.id === 'ia-native' && (iaNativeLoading || !hasIaNativeAccess)) {
-      return false
-    }
-
     return !isLimitedGestor || (link.id !== 'core' && link.id !== 'empresa')
   })
   const featureLinks = MODULE_FEATURE_LINKS[currentModule.id].filter(link => {
@@ -181,8 +171,18 @@ export function Sidebar({ serverProfile }: SidebarProps) {
                 <Link key={id} href={href} className={cardClassName(active)}>
                   <Icon className="mt-0.5 h-4 w-4 shrink-0" />
                   <div className="min-w-0">
-                    <div className="text-[13px] font-semibold tracking-normal">{label}</div>
-                    <div className={`text-[11px] leading-tight ${active ? 'text-white/80' : 'text-be-text-muted'}`}>
+                    <div className="flex items-center gap-2">
+                      <div className="text-[13px] font-semibold tracking-normal">{label}</div>
+                      {id === 'ia-native' && (
+                        <span className="rounded-full bg-be-blue/10 px-2 py-0.5 text-[9px] font-black uppercase tracking-[1.6px] text-be-blue">
+                          IA
+                        </span>
+                      )}
+                    </div>
+                    <div
+                      className="text-[11px] leading-tight"
+                      style={active ? { color: 'rgba(255, 255, 255, 0.8)' } : undefined}
+                    >
                       {scopeLabel}
                     </div>
                   </div>
@@ -211,7 +211,7 @@ export function Sidebar({ serverProfile }: SidebarProps) {
                 const active = pathname === href || pathname.startsWith(`${href}/`)
 
                 return (
-                  <Link key={href} href={href} className={navClassName(active)}>
+                  <Link key={href} href={href} className={navClassName(active)} aria-current={active ? 'page' : undefined}>
                     <Icon className="h-4 w-4 shrink-0" />
                     {label}
                   </Link>
