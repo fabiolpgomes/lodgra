@@ -49,7 +49,7 @@ const LEGACY_PLAN_MAP: Record<string, string> = {
 
 /**
  * Get the subscription plan for an organization
- * Defaults to 'essencial' if no subscription found
+ * Defaults to 'essencial' if no plan is found
  * Normalizes legacy plan names to current names
  * @param orgId Organization ID
  * @returns Plan name (essencial, expansao, premium, etc)
@@ -60,23 +60,27 @@ async function getSubscriptionPlan(orgId: string): Promise<string> {
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   )
 
-  const { data, error } = await supabase
-    .from('subscriptions')
-    .select('plan')
-    .eq('organization_id', orgId)
-    .order('created_at', { ascending: false })
-    .limit(1)
+  const { data: organization, error: orgError } = await supabase
+    .from('organizations')
+    .select('subscription_plan, plan')
+    .eq('id', orgId)
     .single()
 
-  if (error && error.code !== 'PGRST116') {
-    // PGRST116 = no rows found, which is expected for new orgs
-    console.error('Error fetching subscription plan:', error)
-    return 'essencial'
+  const orgPlan = (organization as { subscription_plan?: string | null; plan?: string | null } | null)?.subscription_plan
+    || (organization as { subscription_plan?: string | null; plan?: string | null } | null)?.plan
+
+  if (orgPlan) {
+    return LEGACY_PLAN_MAP[orgPlan] ?? orgPlan
   }
 
-  const plan = data?.plan ?? 'essencial'
-  // Normalize legacy plan names to current plan names
-  return LEGACY_PLAN_MAP[plan] ?? plan
+  if (orgError && orgError.code !== 'PGRST116') {
+    // PGRST116 = no rows found, which is expected for new orgs
+    console.error('Error fetching organization plan:', orgError)
+  }
+
+  // Production schema now resolves the active plan directly from organizations.
+  // If the organization record is missing, fall back to the safest base plan.
+  return 'essencial'
 }
 
 /**
