@@ -6,6 +6,7 @@
 import React, { useState } from 'react';
 import { Plus, Trash2, ToggleLeft, ToggleRight } from 'lucide-react';
 import { PricingRule, PriceGuardrails } from '@/types/pricing';
+import { formatCurrency } from '@/lib/utils/currency';
 
 interface PricingRulesEditorProps {
   propertyId: string;
@@ -33,7 +34,7 @@ export function PricingRulesEditor({
         <div>
           <h3 className="text-xl font-bold">Regras de Preço</h3>
           <p className="text-sm text-gray-600 mt-1">
-            Preço mínimo: €{guardrails.min_price} | Máximo: €{guardrails.max_price}
+            Preço mínimo: {formatCurrency(guardrails.min_price)} | Máximo: {formatCurrency(guardrails.max_price)}
           </p>
         </div>
         <button

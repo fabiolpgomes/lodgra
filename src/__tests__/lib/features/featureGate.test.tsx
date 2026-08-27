@@ -92,7 +92,7 @@ describe('FeatureGate Component', () => {
 
       await waitFor(() => {
         expect(
-          screen.getByText('Upgrade your plan to access api access.')
+          screen.getByText('Faça upgrade do seu plano para aceder a api access.')
         ).toBeInTheDocument()
       })
     })
@@ -136,7 +136,7 @@ describe('FeatureGate Component', () => {
         </FeatureGate>
       )
 
-      expect(screen.getByText(/Loading/i)).toBeInTheDocument()
+      expect(screen.getByText(/A carregar/i)).toBeInTheDocument()
     })
   })
 
@@ -203,7 +203,7 @@ describe('FeatureGate Component', () => {
 
       await waitFor(() => {
         expect(
-          screen.getByText(/Upgrade your plan to access advanced reports/i)
+          screen.getByText(/Faça upgrade do seu plano para aceder a advanced reports/i)
         ).toBeInTheDocument()
       })
     })

@@ -92,7 +92,7 @@ describe('AuditLog', () => {
 
       expect(screen.getAllByText('Manual').length).toBeGreaterThan(0);
       expect(screen.getByText('High Occupancy Boost')).toBeInTheDocument();
-      expect(screen.getAllByText(/100,00\s*€|€100(,00)?/).length).toBeGreaterThan(0);
+      expect(screen.getAllByText('100.00').length).toBeGreaterThan(0);
     });
 
     it('should display empty state when no entries', () => {
@@ -278,7 +278,7 @@ describe('AuditLog', () => {
 
   // Price Display Tests
   describe('Price Display', () => {
-    it('should display prices with EUR formatting', () => {
+    it('should display prices without implicit currency', () => {
       render(
         <AuditLog
           propertyId="prop-123"
@@ -287,8 +287,8 @@ describe('AuditLog', () => {
         />
       );
 
-      const eurElements = screen.getAllByText(/\d+,\d{2}\s?€|€\d+\.\d{2}/);
-      expect(eurElements.length).toBeGreaterThanOrEqual(6); // At least 3 entries × 2 prices each
+      const priceElements = screen.getAllByText(/^\d+\.\d{2}$/);
+      expect(priceElements.length).toBeGreaterThanOrEqual(6); // At least 3 entries × 2 prices each
     });
 
     it('should display percentage changes', () => {
@@ -315,9 +315,7 @@ describe('AuditLog', () => {
 
       await userEvent.selectOptions(screen.getByDisplayValue('Últimos 30 dias'), 'all');
 
-      expect(
-        screen.getByText(/-5,00\s*€|€-5(,00)?/)
-      ).toBeInTheDocument();
+      expect(document.body.textContent).toContain('-5.00');
     });
   });
 

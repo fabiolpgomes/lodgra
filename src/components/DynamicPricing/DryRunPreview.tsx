@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import { Calendar, TrendingUp, TrendingDown, CheckCircle, XCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { formatCurrency } from '@/lib/utils/currency';
 
 interface PriceChange {
   date: string;
@@ -108,7 +109,7 @@ export function DryRunPreview({
             Mudança Média
           </p>
           <p className={`text-2xl font-bold mt-2 ${stats.avgChange > 0 ? 'text-emerald-700' : stats.avgChange < 0 ? 'text-red-600' : 'text-slate-600'}`}>
-            €{stats.avgChange.toFixed(2)}
+            {formatCurrency(stats.avgChange)}
           </p>
         </div>
 
@@ -117,7 +118,7 @@ export function DryRunPreview({
             {totalRevenueDifference > 0 ? 'Impacto em Receita' : 'Impacto em Receita'}
           </p>
           <p className={`text-2xl font-bold mt-2 ${totalRevenueDifference > 0 ? 'text-emerald-800 dark:text-emerald-300' : 'text-red-700 dark:text-red-300'}`}>
-            €{totalRevenueDifference.toFixed(2)}
+            {formatCurrency(totalRevenueDifference)}
           </p>
         </div>
       </div>
@@ -151,10 +152,10 @@ export function DryRunPreview({
                   {new Date(change.date).toLocaleDateString('pt-PT')}
                 </td>
                 <td className="px-4 py-3 text-right font-medium text-slate-900 dark:text-dark-text-primary">
-                  €{change.currentPrice.toFixed(2)}
+                  {formatCurrency(change.currentPrice)}
                 </td>
                 <td className="px-4 py-3 text-right font-bold text-slate-900 dark:text-dark-text-primary">
-                  €{change.simulatedPrice.toFixed(2)}
+                  {formatCurrency(change.simulatedPrice)}
                 </td>
                 <td className="px-4 py-3 text-right">
                   <div

@@ -48,22 +48,22 @@ export default function WhatsAppPaywall({ currentPlan = 'essential', locale = 'p
 
       {/* Plan Comparison */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        {/* Essential */}
+        {/* Essencial */}
         <div className={`p-4 rounded-lg border ${
           currentPlan === 'essential'
             ? 'border-blue-600 bg-blue-50'
             : 'border-gray-200 bg-white'
         }`}>
-          <h3 className="font-semibold text-gray-900 mb-3">Essential</h3>
+          <h3 className="font-semibold text-gray-900 mb-3">Essencial</h3>
           <ul className="space-y-2 text-sm">
             <li className="flex items-center text-gray-600">
-              <span className="mr-2">❌</span> WhatsApp Automation
+              <span className="mr-2">❌</span> Automação WhatsApp
             </li>
             <li className="flex items-center text-gray-600">
-              <span className="mr-2">✅</span> Basic Features
+              <span className="mr-2">✅</span> Funcionalidades básicas
             </li>
             <li className="flex items-center text-gray-600">
-              <span className="mr-2">✅</span> 1 Property
+              <span className="mr-2">✅</span> 1 propriedade
             </li>
           </ul>
         </div>
@@ -74,13 +74,13 @@ export default function WhatsAppPaywall({ currentPlan = 'essential', locale = 'p
           <ul className="space-y-2 text-sm">
             <li className="flex items-center text-gray-700">
               <span className="mr-2">✅</span>
-              <span className="font-semibold text-emerald-700">WhatsApp Automation</span>
+              <span className="font-semibold text-emerald-700">Automação WhatsApp</span>
             </li>
             <li className="flex items-center text-gray-600">
-              <span className="mr-2">✅</span> Advanced Features
+              <span className="mr-2">✅</span> Funcionalidades avançadas
             </li>
             <li className="flex items-center text-gray-600">
-              <span className="mr-2">✅</span> 5 Properties
+              <span className="mr-2">✅</span> 5 propriedades
             </li>
           </ul>
         </div>
@@ -91,13 +91,13 @@ export default function WhatsAppPaywall({ currentPlan = 'essential', locale = 'p
           <ul className="space-y-2 text-sm">
             <li className="flex items-center text-gray-700">
               <span className="mr-2">✅</span>
-              <span className="font-semibold text-purple-600">WhatsApp Automation</span>
+              <span className="font-semibold text-purple-600">Automação WhatsApp</span>
             </li>
             <li className="flex items-center text-gray-600">
-              <span className="mr-2">✅</span> Premium Support
+              <span className="mr-2">✅</span> Suporte premium
             </li>
             <li className="flex items-center text-gray-600">
-              <span className="mr-2">✅</span> Unlimited Properties
+              <span className="mr-2">✅</span> Propriedades ilimitadas
             </li>
           </ul>
         </div>

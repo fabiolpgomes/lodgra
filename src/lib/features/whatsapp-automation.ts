@@ -36,7 +36,7 @@ export async function hasWhatsAppAutomation(organizationId: string): Promise<Fea
       return {
         enabled: false,
         reason: 'disabled',
-        message: 'Organization not found',
+        message: 'Organização não encontrada',
       };
     }
 
@@ -45,7 +45,7 @@ export async function hasWhatsAppAutomation(organizationId: string): Promise<Fea
       return {
         enabled: true,
         reason: 'addon_purchased',
-        message: 'WhatsApp Automation enabled',
+        message: 'Automação WhatsApp ativa',
       };
     }
 
@@ -58,7 +58,7 @@ export async function hasWhatsAppAutomation(organizationId: string): Promise<Fea
       return {
         enabled: false,
         reason: 'disabled',
-        message: 'No active subscription',
+        message: 'Sem subscrição ativa',
       };
     }
 
@@ -67,7 +67,7 @@ export async function hasWhatsAppAutomation(organizationId: string): Promise<Fea
       return {
         enabled: true,
         reason: 'premium_plan',
-        message: 'Included in Premium plan',
+        message: 'Incluído no plano Premium',
       };
     }
 
@@ -75,7 +75,7 @@ export async function hasWhatsAppAutomation(organizationId: string): Promise<Fea
       return {
         enabled: true,
         reason: 'expansao_plan',
-        message: 'Included in Expansão plan',
+        message: 'Incluído no plano Expansão',
       };
     }
 
@@ -83,14 +83,14 @@ export async function hasWhatsAppAutomation(organizationId: string): Promise<Fea
     return {
       enabled: false,
       reason: 'disabled',
-      message: 'WhatsApp Automation requires upgrade or add-on',
+      message: 'A Automação WhatsApp requer upgrade ou complemento',
     };
   } catch (error) {
-    console.error('Error checking WhatsApp Automation feature:', error);
+    console.error('Erro ao verificar a funcionalidade de Automação WhatsApp:', error);
     return {
       enabled: false,
       reason: 'disabled',
-      message: 'Error checking feature availability',
+      message: 'Erro ao verificar a disponibilidade da funcionalidade',
     };
   }
 }
