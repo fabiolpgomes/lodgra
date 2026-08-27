@@ -25,7 +25,7 @@ interface PriceAnalyticsDashboardProps {
  */
 export function PriceAnalyticsDashboard({
   propertyId,
-  title = 'Price Analytics & History',
+  title = 'Histórico e Análise de Preços',
 }: PriceAnalyticsDashboardProps) {
   const [revertingRecordId, setRevertingRecordId] = useState<string | null>(null);
   const [revertLoading, setRevertLoading] = useState(false);
@@ -50,14 +50,14 @@ export function PriceAnalyticsDashboard({
       );
 
       if (!res.ok) {
-        throw new Error('Export failed');
+        throw new Error('Falha ao exportar');
       }
 
       const csv = await res.text();
       exportCsvFile(history.data, propertyId, true);
     } catch (error) {
-      console.error('Export error:', error);
-      alert('Failed to export price history');
+      console.error('Erro na exportação:', error);
+      alert('Falha ao exportar o histórico de preços');
     }
   };
 
@@ -75,16 +75,16 @@ export function PriceAnalyticsDashboard({
       );
 
       if (!res.ok) {
-        throw new Error('Revert failed');
+        throw new Error('Falha ao reverter');
       }
 
       // Refresh history
       await history.fetch();
       setRevertingRecordId(null);
-      alert('Price reverted successfully');
+      alert('Preço revertido com sucesso');
     } catch (error) {
-      console.error('Revert error:', error);
-      alert('Failed to revert price');
+      console.error('Erro na reversão:', error);
+      alert('Falha ao reverter o preço');
     } finally {
       setRevertLoading(false);
     }
@@ -97,7 +97,7 @@ export function PriceAnalyticsDashboard({
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900">{title}</h1>
           <p className="text-gray-600 mt-1">
-            Track and analyze price changes over time
+            Acompanhe e analise a evolução dos preços ao longo do tempo
           </p>
         </div>
 
@@ -108,14 +108,14 @@ export function PriceAnalyticsDashboard({
             disabled={history.loading || history.data.length === 0}
             className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50 font-medium"
           >
-            📥 Export CSV
+            📥 Exportar CSV
           </button>
         </div>
       </div>
 
       {/* Statistics cards */}
       <div>
-        <h2 className="text-lg font-bold text-gray-900 mb-4">Key Metrics</h2>
+        <h2 className="text-lg font-bold text-gray-900 mb-4">Métricas Principais</h2>
         <PriceStatisticsComponent
           stats={stats.data}
           loading={stats.loading}
@@ -126,23 +126,23 @@ export function PriceAnalyticsDashboard({
       {!stats.loading && stats.data && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-white border border-gray-200 rounded-lg p-4">
-            <p className="text-sm text-gray-600">Trend</p>
+            <p className="text-sm text-gray-600">Tendência</p>
             <p className="text-2xl font-bold mt-2 capitalize">
-              {analytics.trend === 'up' && '📈 Up'}
-              {analytics.trend === 'down' && '📉 Down'}
-              {analytics.trend === 'stable' && '➡️ Stable'}
+              {analytics.trend === 'up' && '📈 A subir'}
+              {analytics.trend === 'down' && '📉 A descer'}
+              {analytics.trend === 'stable' && '➡️ Estável'}
             </p>
           </div>
 
           <div className="bg-white border border-gray-200 rounded-lg p-4">
-            <p className="text-sm text-gray-600">Change Frequency</p>
+            <p className="text-sm text-gray-600">Frequência de Alterações</p>
             <p className="text-2xl font-bold mt-2">
-              {analytics.frequency.toFixed(1)} per week
+              {analytics.frequency.toFixed(1)} por semana
             </p>
           </div>
 
           <div className="bg-white border border-gray-200 rounded-lg p-4">
-            <p className="text-sm text-gray-600">Significant Changes</p>
+            <p className="text-sm text-gray-600">Alterações Significativas</p>
             <p className="text-2xl font-bold mt-2">
               {analytics.significantChanges.length}
             </p>
@@ -152,7 +152,7 @@ export function PriceAnalyticsDashboard({
 
       {/* Filters */}
       <div>
-        <h2 className="text-lg font-bold text-gray-900 mb-4">Filter History</h2>
+        <h2 className="text-lg font-bold text-gray-900 mb-4">Filtrar Histórico</h2>
         <HistoryFilters
           onApplyFilters={history.applyFilters}
           loading={history.loading}
@@ -161,7 +161,7 @@ export function PriceAnalyticsDashboard({
 
       {/* Timeline */}
       <div>
-        <h2 className="text-lg font-bold text-gray-900 mb-4">Price Timeline</h2>
+        <h2 className="text-lg font-bold text-gray-900 mb-4">Linha Temporal dos Preços</h2>
         <PriceHistoryTimeline
           history={history.data}
           loading={history.loading}
@@ -183,8 +183,8 @@ export function PriceAnalyticsDashboard({
       {/* Action buttons for timeline items */}
       <div className="text-sm text-gray-600 bg-blue-50 border border-blue-200 rounded-lg p-4">
         <p>
-          💡 <strong>Tip:</strong> Click on any price change to expand details. Use the
-          filters above to search by date range or reason.
+          💡 <strong>Dica:</strong> clique em qualquer alteração de preço para ver os detalhes.
+          Use os filtros acima para pesquisar por intervalo de datas ou motivo.
         </p>
       </div>
     </div>

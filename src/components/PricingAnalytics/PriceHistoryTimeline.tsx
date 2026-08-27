@@ -26,9 +26,12 @@ export function PriceHistoryTimeline({
   loading = false,
   onLoadMore,
   hasMore = false,
-  currency = 'EUR',
+  currency,
 }: PriceHistoryTimelineProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const formatHistoryPrice = (value: number): string => {
+    return currency ? formatPrice(value, currency) : value.toFixed(2);
+  };
 
   if (loading && history.length === 0) {
     return (
@@ -41,7 +44,7 @@ export function PriceHistoryTimeline({
   if (history.length === 0) {
     return (
       <div className="text-center py-8 text-gray-500">
-        <p>No price history available</p>
+        <p>Sem histórico de preços disponível</p>
       </div>
     );
   }
@@ -95,7 +98,7 @@ export function PriceHistoryTimeline({
                     <div className="flex-1">
                       <div className="flex items-baseline gap-2">
                         <span className="text-lg font-semibold">
-                          {formatPrice(record.price, currency)}
+                          {formatHistoryPrice(record.price)}
                         </span>
                         {previousRecord && (
                           <span
@@ -103,7 +106,7 @@ export function PriceHistoryTimeline({
                               priceChange > 0 ? 'text-red-600' : 'text-emerald-700'
                             }`}
                           >
-                            {priceChange > 0 ? '+' : ''}{formatPrice(priceChange, currency)} ({percentageChange}%)
+                            {priceChange > 0 ? '+' : ''}{formatHistoryPrice(priceChange)} ({percentageChange}%)
                           </span>
                         )}
                       </div>
@@ -120,7 +123,7 @@ export function PriceHistoryTimeline({
                           : 'bg-blue-100 text-blue-800'
                       }`}
                     >
-                      {record.is_revert ? 'Reverted' : 'Active'}
+                      {record.is_revert ? 'Revertido' : 'Ativo'}
                     </span>
                   </div>
 
@@ -129,20 +132,20 @@ export function PriceHistoryTimeline({
                     <div className="mt-4 pt-4 border-t border-gray-200 space-y-2">
                       {record.change_reason && (
                         <div>
-                          <p className="text-sm text-gray-600">Reason:</p>
+                          <p className="text-sm text-gray-600">Motivo:</p>
                           <p className="text-sm font-medium">{record.change_reason}</p>
                         </div>
                       )}
                       {previousRecord && (
                         <div>
-                          <p className="text-sm text-gray-600">Previous Price:</p>
+                          <p className="text-sm text-gray-600">Preço anterior:</p>
                           <p className="text-sm font-medium">
-                            {formatPrice(previousRecord.price, currency)}
+                            {formatHistoryPrice(previousRecord.price)}
                           </p>
                         </div>
                       )}
                       <div>
-                        <p className="text-sm text-gray-600">Changed:</p>
+                        <p className="text-sm text-gray-600">Alterado:</p>
                         <p className="text-sm font-medium">
                           {new Date(record.created_at).toLocaleString()}
                         </p>
@@ -164,7 +167,7 @@ export function PriceHistoryTimeline({
             disabled={loading}
             className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50"
           >
-            {loading ? 'Loading...' : 'Load More'}
+            {loading ? 'A carregar...' : 'Carregar mais'}
           </button>
         </div>
       )}

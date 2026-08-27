@@ -58,10 +58,10 @@ export function HistoryFilters({
         }`}
       >
         <span className="flex items-center gap-2">
-          🔍 {isOpen ? 'Hide' : 'Show'} Filters
+          🔍 {isOpen ? 'Esconder' : 'Mostrar'} filtros
           {hasActiveFilters && (
             <span className="text-xs font-semibold text-blue-600 bg-blue-100 px-2 py-1 rounded">
-              {[startDate, endDate, search].filter(Boolean).length} active
+              {[startDate, endDate, search].filter(Boolean).length} ativos
             </span>
           )}
         </span>
@@ -74,7 +74,7 @@ export function HistoryFilters({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Start Date
+                Data de início
               </label>
               <input
                 type="date"
@@ -85,7 +85,7 @@ export function HistoryFilters({
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                End Date
+                Data de fim
               </label>
               <input
                 type="date"
@@ -99,11 +99,11 @@ export function HistoryFilters({
           {/* Search filter */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Search Reason
+              Motivo da pesquisa
             </label>
             <input
               type="text"
-              placeholder="Search by reason or note..."
+              placeholder="Pesquisar por motivo ou nota..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -117,14 +117,14 @@ export function HistoryFilters({
               disabled={loading || !hasActiveFilters}
               className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50"
             >
-              Reset
+              Limpar
             </button>
             <button
               onClick={handleApply}
               disabled={loading}
               className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50"
             >
-              {loading ? 'Applying...' : 'Apply Filters'}
+              {loading ? 'A aplicar...' : 'Aplicar filtros'}
             </button>
           </div>
         </div>

@@ -68,7 +68,7 @@ export function getCurrencyByLocale(locale: Locale): SupportedCurrency {
  * Get currency symbol for a currency code
  */
 export function getCurrencySymbol(currency: SupportedCurrency): string {
-  return CURRENCY_CONFIG[currency]?.symbol || '€'
+  return CURRENCY_CONFIG[currency]?.symbol || currency
 }
 
 /**

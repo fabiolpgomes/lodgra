@@ -22,7 +22,7 @@ export const currencySymbols: Record<string, string> = {
   'SAR': 'ر.س',
 }
 
-export function getCurrencySymbol(currencyCode: string | null | undefined = 'EUR'): string {
-  if (!currencyCode) return currencySymbols['EUR']
+export function getCurrencySymbol(currencyCode: string | null | undefined): string {
+  if (!currencyCode) return ''
   return currencySymbols[currencyCode.toUpperCase()] || currencyCode
 }

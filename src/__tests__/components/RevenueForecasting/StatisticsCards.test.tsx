@@ -83,26 +83,26 @@ describe('StatisticsCards', () => {
   it('should render four metric cards', () => {
     render(<StatisticsCards data={mockData} />);
 
-    expect(screen.getByText(/Average Daily Rate/)).toBeInTheDocument();
-    expect(screen.getByText(/Confidence Score/)).toBeInTheDocument();
-    expect(screen.getByText(/Occupancy Rate Forecast/)).toBeInTheDocument();
-    expect(screen.getByText(/Trend Indicator/)).toBeInTheDocument();
+    expect(screen.getByText(/Tarifa média diária/)).toBeInTheDocument();
+    expect(screen.getByText(/Índice de confiança/)).toBeInTheDocument();
+    expect(screen.getByText(/Previsão de taxa de ocupação/)).toBeInTheDocument();
+    expect(screen.getByText(/Indicador de tendência/)).toBeInTheDocument();
   });
 
   it('should display correct ADR value', () => {
     const { container } = render(<StatisticsCards data={mockData} />);
 
     // ADR = 9000 / 90 = 100
-    expect(container.textContent).toMatch(/100,00\s*€/);
+    expect(container.textContent).toMatch(/100\.00/);
   });
 
   it('should display confidence percentage', () => {
     render(<StatisticsCards data={mockData} />);
 
     // Confidence score = 0.85 * 100 = 85%
-    expect(screen.getByText(/Confidence Score/)).toBeInTheDocument();
+    expect(screen.getByText(/Índice de confiança/)).toBeInTheDocument();
     // Check that 85 and % exist somewhere in the document
-    const allText = screen.getByText(/Confidence Score/).textContent;
+    const allText = screen.getByText(/Índice de confiança/).textContent;
     expect(document.body.textContent).toContain('85');
     expect(document.body.textContent).toContain('%');
   });
@@ -112,7 +112,7 @@ describe('StatisticsCards', () => {
 
     // Occupancy = 0.75 * 100 = 75%
     // Using getByLabelText or container query to get specific occupancy value
-    expect(screen.getByText(/Occupancy Rate Forecast/)).toBeInTheDocument();
+    expect(screen.getByText(/Previsão de taxa de ocupação/)).toBeInTheDocument();
     // Check that a percent sign exists for the occupancy rate
     const percentElements = screen.getAllByText('%');
     expect(percentElements.length).toBeGreaterThan(0);
@@ -122,7 +122,7 @@ describe('StatisticsCards', () => {
     const upwardData = JSON.parse(JSON.stringify(mockData)) as ForecastingAPIResponse;
     const { container } = render(<StatisticsCards data={upwardData} />);
 
-    expect(container).toHaveTextContent('↑ Upward');
+    expect(container).toHaveTextContent('↑ Em subida');
   });
 
   it('should show downward trend when trend description mentions downward', () => {
@@ -131,7 +131,7 @@ describe('StatisticsCards', () => {
 
     const { container } = render(<StatisticsCards data={downwardData} />);
 
-    expect(container).toHaveTextContent('↓ Downward');
+    expect(container).toHaveTextContent('↓ Em descida');
   });
 
   it('should show stable trend when trend description is neutral', () => {
@@ -140,7 +140,7 @@ describe('StatisticsCards', () => {
 
     const { container } = render(<StatisticsCards data={stableData} />);
 
-    expect(container).toHaveTextContent('→ Stable');
+    expect(container).toHaveTextContent('→ Estável');
   });
 
   // Integration tests
@@ -148,30 +148,30 @@ describe('StatisticsCards', () => {
     const { container } = render(<StatisticsCards data={mockData} />);
 
     // Verify all labels exist
-    expect(screen.getByText(/Average Daily Rate/)).toBeInTheDocument();
-    expect(screen.getByText(/Confidence Score/)).toBeInTheDocument();
-    expect(screen.getByText(/Occupancy Rate Forecast/)).toBeInTheDocument();
-    expect(screen.getByText(/Trend Indicator/)).toBeInTheDocument();
+    expect(screen.getByText(/Tarifa média diária/)).toBeInTheDocument();
+    expect(screen.getByText(/Índice de confiança/)).toBeInTheDocument();
+    expect(screen.getByText(/Previsão de taxa de ocupação/)).toBeInTheDocument();
+    expect(screen.getByText(/Indicador de tendência/)).toBeInTheDocument();
 
     // Verify values render correctly
-    expect(container.textContent).toMatch(/100,00\s*€/);
+    expect(container.textContent).toMatch(/100\.00/);
   });
 
   it('should display correct ADR formatting with currency symbol', () => {
     render(<StatisticsCards data={mockData} />);
 
-    // ADR = 7800 / 90 = 86.67, but with toFixed(2) = 86.67
-    expect(screen.getByText(/Average Daily Rate/)).toBeInTheDocument();
-    expect(document.body.textContent).toContain('€');
+    // ADR = 9000 / 90 = 100.00
+    expect(screen.getByText(/Tarifa média diária/)).toBeInTheDocument();
+    expect(document.body.textContent).toContain('100.00');
   });
 
   it('should display help text for each metric', () => {
     render(<StatisticsCards data={mockData} />);
 
-    expect(screen.getByText(/Based on historical booking data and seasonal adjustments/)).toBeInTheDocument();
-    expect(screen.getByText(/Based on \d+ recent bookings/)).toBeInTheDocument();
-    expect(screen.getByText(/May vary based on market conditions/)).toBeInTheDocument();
-    expect(screen.getByText(/Based on historical and seasonal patterns/)).toBeInTheDocument();
+    expect(screen.getByText(/Com base nos dados históricos de reservas e nos ajustes sazonais/)).toBeInTheDocument();
+    expect(screen.getByText(/Com base em \d+ reservas recentes/)).toBeInTheDocument();
+    expect(screen.getByText(/Pode variar consoante as condições de mercado/)).toBeInTheDocument();
+    expect(screen.getByText(/Com base nos padrões históricos e sazonais/)).toBeInTheDocument();
   });
 
   it('should display responsive grid layout', () => {

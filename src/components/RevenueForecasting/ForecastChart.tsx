@@ -14,6 +14,7 @@ import {
   AreaChart,
 } from 'recharts';
 import { ForecastingAPIResponse } from '@/types/forecasting';
+import { formatCurrency } from '@/lib/utils/currency';
 
 interface ForecastChartProps {
   data: ForecastingAPIResponse;
@@ -35,10 +36,10 @@ export function ForecastChart({ data, period = '90' }: ForecastChartProps) {
         <div className="bg-white dark:bg-slate-800 p-3 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700">
           <p className="text-sm font-medium text-slate-900 dark:text-white">{data.date}</p>
           <p className="text-sm text-blue-600 dark:text-blue-400">
-            Forecast: €{data.projected.toFixed(2)}
+            Previsão: {formatCurrency(data.projected)}
           </p>
           <p className="text-sm text-slate-600 dark:text-slate-400">
-            Range: €{data.lower.toFixed(2)} - €{data.upper.toFixed(2)}
+            Intervalo: {formatCurrency(data.lower)} - {formatCurrency(data.upper)}
           </p>
         </div>
       );
@@ -50,10 +51,10 @@ export function ForecastChart({ data, period = '90' }: ForecastChartProps) {
     <div className="w-full h-96 md:h-96 bg-white dark:bg-slate-900 rounded-lg p-4 md:p-6 border border-slate-200 dark:border-slate-700">
       <div className="mb-4">
         <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
-          Revenue Forecast Chart ({period} days)
+          Gráfico de previsão de receita ({period} dias)
         </h3>
         <p className="text-sm text-slate-600 dark:text-slate-400">
-          Solid line shows forecast, shaded area shows confidence interval
+          A linha sólida mostra a previsão e a área sombreada mostra o intervalo de confiança
         </p>
       </div>
 
@@ -86,7 +87,7 @@ export function ForecastChart({ data, period = '90' }: ForecastChartProps) {
             stroke="#6b7280"
             className="dark:stroke-slate-600"
             tick={{ fontSize: 12 }}
-            label={{ value: 'EUR', angle: -90, position: 'insideLeft' }}
+            label={{ value: 'Receita', angle: -90, position: 'insideLeft' }}
           />
 
           <Tooltip content={<CustomTooltip />} />
@@ -118,7 +119,7 @@ export function ForecastChart({ data, period = '90' }: ForecastChartProps) {
             strokeWidth={3}
             dot={false}
             isAnimationActive={false}
-            name="Forecast"
+            name="Previsão"
           />
 
           <Legend

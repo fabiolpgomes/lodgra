@@ -73,7 +73,11 @@ export function getPlanInfo(plan: PlanType) {
  * @param currency - Currency code (EUR, USD, etc)
  * @returns Formatted currency string
  */
-export function formatCommission(amount: number, currency: string = 'EUR'): string {
+export function formatCommission(amount: number, currency?: string): string {
+  if (!currency) {
+    return amount.toFixed(2)
+  }
+
   const formatter = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency,

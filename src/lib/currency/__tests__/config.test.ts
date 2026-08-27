@@ -56,8 +56,8 @@ describe('Currency Configuration', () => {
       expect(getCurrencySymbol('USD')).toBe('$')
     })
 
-    it('should return default € for unknown currency', () => {
-      expect(getCurrencySymbol('GBP' as unknown as 'EUR')).toBe('€')
+    it('should return the input code for unknown currency', () => {
+      expect(getCurrencySymbol('GBP' as unknown as 'EUR')).toBe('GBP')
     })
   })
 

@@ -22,9 +22,12 @@ interface PriceStatisticsProps {
 export function PriceStatisticsComponent({
   stats,
   loading = false,
-  currency = 'EUR',
+  currency,
 }: PriceStatisticsProps) {
-  const resolvedCurrency = currency?.toUpperCase() as CurrencyCode
+  const resolvedCurrency = currency?.toUpperCase() as CurrencyCode | undefined;
+  const formatValue = (value: number): string => {
+    return resolvedCurrency ? formatPrice(value, resolvedCurrency) : value.toFixed(2);
+  };
   if (loading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -43,32 +46,32 @@ export function PriceStatisticsComponent({
   if (!stats) {
     return (
       <div className="text-center py-8 text-gray-500">
-        <p>No statistics available</p>
+        <p>Sem estatísticas disponíveis</p>
       </div>
     );
   }
 
   const cards = [
     {
-      label: 'Minimum Price',
-      value: formatPrice(stats.minPrice, resolvedCurrency),
+      label: 'Preço mínimo',
+      value: formatValue(stats.minPrice),
       icon: '📉',
       color: 'text-emerald-700',
     },
     {
-      label: 'Maximum Price',
-      value: formatPrice(stats.maxPrice, resolvedCurrency),
+      label: 'Preço máximo',
+      value: formatValue(stats.maxPrice),
       icon: '📈',
       color: 'text-red-600',
     },
     {
-      label: 'Average Price',
-      value: formatPrice(stats.avgPrice, resolvedCurrency),
+      label: 'Preço médio',
+      value: formatValue(stats.avgPrice),
       icon: '📊',
       color: 'text-blue-600',
     },
     {
-      label: 'Price Changes',
+      label: 'Alterações de preço',
       value: stats.changeCount.toString(),
       icon: '🔄',
       color: 'text-purple-600',
@@ -100,12 +103,12 @@ export function PriceStatisticsComponent({
       {/* Standard deviation (if available) */}
       {stats.stdDeviation !== undefined && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <p className="text-sm font-medium text-blue-900">Price Volatility (Std Dev)</p>
+          <p className="text-sm font-medium text-blue-900">Volatilidade do preço (desvio padrão)</p>
           <p className="text-lg font-bold text-blue-700 mt-1">
-            {formatPrice(stats.stdDeviation, resolvedCurrency)}
+            {formatValue(stats.stdDeviation)}
           </p>
           <p className="text-xs text-blue-600 mt-2">
-            Measures how much prices vary from the average
+            Mede o quanto os preços variam em relação à média
           </p>
         </div>
       )}

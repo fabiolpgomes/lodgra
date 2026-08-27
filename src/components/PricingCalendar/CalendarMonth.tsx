@@ -51,7 +51,7 @@ export function CalendarMonth({
   propertyId,
   basePrice = 0,
   weekendPrice,
-  currency = 'EUR',
+  currency,
   onPriceUpdate,
 }: CalendarMonthProps) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -112,7 +112,7 @@ export function CalendarMonth({
         const res = await fetch(`/api/properties/${propertyId}/reservations?month=${monthStr}`);
 
         if (!res.ok) {
-          throw new Error('Failed to fetch reservations');
+          throw new Error('Falha ao obter reservas');
         }
 
         const data = await res.json();
@@ -140,7 +140,7 @@ export function CalendarMonth({
         }
       } catch (err) {
         if (!cancelled) {
-          console.error('Error fetching reservations:', err);
+          console.error('Erro ao obter reservas:', err);
           setReservations([]);
         }
       } finally {
@@ -394,7 +394,7 @@ export function CalendarMonth({
     }
   };
 
-  const monthName = currentMonth.toLocaleDateString('en-US', {
+  const monthName = currentMonth.toLocaleDateString('pt-PT', {
     month: 'long',
     year: 'numeric',
   });
@@ -418,13 +418,13 @@ export function CalendarMonth({
               onClick={handlePrevMonth}
               className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 text-gray-700 font-medium"
             >
-              ← Prev
+              ← Anterior
             </button>
             <button
               onClick={handleNextMonth}
               className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 text-gray-700 font-medium"
             >
-              Next →
+              Seguinte →
             </button>
           </div>
         </div>
@@ -432,7 +432,7 @@ export function CalendarMonth({
         {/* Loading State */}
         {isLoading && (
           <div className="text-center text-gray-500 text-sm">
-            Loading prices...
+            A carregar preços...
           </div>
         )}
 
@@ -449,22 +449,22 @@ export function CalendarMonth({
             <div className="flex items-center justify-between">
               <div className="text-sm text-gray-700">
                 <p className="font-medium">
-                  {rangeStart.toLocaleDateString('en-US', {
+                  {rangeStart.toLocaleDateString('pt-PT', {
                     month: 'short',
                     day: 'numeric',
                     year: 'numeric',
                   })}
                   {rangeEnd
-                    ? ` → ${rangeEnd.toLocaleDateString('en-US', {
+                    ? ` → ${rangeEnd.toLocaleDateString('pt-PT', {
                         month: 'short',
                         day: 'numeric',
                         year: 'numeric',
                       })}`
-                    : ' (click to end)'}
+                    : ' (clique para terminar)'}
                 </p>
                 {rangeEnd && (
                   <p className="text-xs text-gray-500 mt-1">
-                    {getAffectedDates(rangeStart, rangeEnd).length} dates selected
+                    {getAffectedDates(rangeStart, rangeEnd).length} datas selecionadas
                   </p>
                 )}
               </div>
@@ -475,19 +475,19 @@ export function CalendarMonth({
                     onClick={() => handleBulkPrice()}
                     className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
                   >
-                    Set Price
+                    Definir preço
                   </button>
                   <button
                     onClick={() => handleBulkDiscount(10)}
                     className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
                   >
-                    10% Off
+                    10% de desconto
                   </button>
                   <button
                     onClick={() => handleBulkDelete()}
                     className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700"
                   >
-                    Delete
+                    Eliminar
                   </button>
                   <button
                     onClick={() => {
@@ -497,7 +497,7 @@ export function CalendarMonth({
                     }}
                     className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50"
                   >
-                    Cancel
+                    Cancelar
                   </button>
                 </div>
               )}
@@ -513,7 +513,7 @@ export function CalendarMonth({
               disabled={!canUndo || bulkLoading}
               className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50"
             >
-              ↶ Undo
+              ↶ Desfazer
             </button>
           </div>
         )}

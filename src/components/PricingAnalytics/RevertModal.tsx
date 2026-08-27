@@ -30,9 +30,12 @@ export function RevertModal({
   onConfirm,
   onCancel,
   loading = false,
-  currency = 'EUR',
+  currency,
 }: RevertModalProps) {
-  const resolvedCurrency = currency?.toUpperCase() as CurrencyCode
+  const resolvedCurrency = currency?.toUpperCase() as CurrencyCode | undefined;
+  const formatRevertPrice = (value: number): string => {
+    return resolvedCurrency ? formatPrice(value, resolvedCurrency) : value.toFixed(2);
+  };
   const [reason, setReason] = useState<string>('');
   const [submitting, setSubmitting] = useState(false);
 
@@ -72,9 +75,9 @@ export function RevertModal({
         <div className="bg-white rounded-lg shadow-xl max-w-md w-full space-y-6">
           {/* Header */}
           <div className="border-b border-gray-200 px-6 py-4">
-            <h2 className="text-xl font-bold text-gray-900">Revert Price</h2>
+            <h2 className="text-xl font-bold text-gray-900">Reverter preço</h2>
             <p className="text-sm text-gray-600 mt-1">
-              Change the current price back to a previous value
+              Volte o preço atual para um valor anterior
             </p>
           </div>
 
@@ -82,44 +85,44 @@ export function RevertModal({
           <div className="px-6 space-y-4">
             {/* Current price info */}
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <p className="text-sm font-medium text-blue-900">Current Price</p>
+              <p className="text-sm font-medium text-blue-900">Preço atual</p>
               <p className="text-2xl font-bold text-blue-700 mt-1">
-                {formatPrice(currentPrice, resolvedCurrency)}
+                {formatRevertPrice(currentPrice)}
               </p>
             </div>
 
             {/* Revert to price info */}
             <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
-              <p className="text-sm font-medium text-emerald-900">Revert To</p>
+              <p className="text-sm font-medium text-emerald-900">Reverter para</p>
               <p className="text-2xl font-bold text-emerald-800 mt-1">
-                {formatPrice(record.price, resolvedCurrency)}
+                {formatRevertPrice(record.price)}
               </p>
               <p className="text-xs text-emerald-700 mt-2">
-                From {formatDate(record.date_applied)}
+                De {formatDate(record.date_applied)}
               </p>
             </div>
 
             {/* Price change summary */}
             <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-              <p className="text-sm font-medium text-gray-700">Price Change</p>
+              <p className="text-sm font-medium text-gray-700">Alteração de preço</p>
               <p
                 className={`text-lg font-bold mt-1 ${
                   priceChange > 0 ? 'text-red-600' : 'text-emerald-700'
                 }`}
               >
-                {priceChange > 0 ? '+' : ''}{formatPrice(Math.abs(priceChange), resolvedCurrency)} ({priceChange > 0 ? '+' : ''}{percentageChange}%)
+                {priceChange > 0 ? '+' : ''}{formatRevertPrice(Math.abs(priceChange))} ({priceChange > 0 ? '+' : ''}{percentageChange}%)
               </p>
             </div>
 
             {/* Reason field */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Reason for Revert (Optional)
+                Motivo da reversão (opcional)
               </label>
               <textarea
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
-                placeholder="e.g., 'Correcting seasonal rate error'"
+                placeholder="Ex.: correção de um erro na tarifa sazonal"
                 rows={3}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600"
               />
@@ -128,7 +131,7 @@ export function RevertModal({
             {/* Warning message */}
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
               <p className="text-sm text-yellow-800">
-                ⚠️ This creates a new price history record. The old records are not deleted.
+                ⚠️ Isto cria um novo registo de histórico de preços. Os registos antigos não são apagados.
               </p>
             </div>
           </div>
@@ -140,14 +143,14 @@ export function RevertModal({
               disabled={submitting || loading}
               className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50"
             >
-              Cancel
+              Cancelar
             </button>
             <button
               onClick={handleConfirm}
               disabled={submitting || loading}
               className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50"
             >
-              {submitting || loading ? 'Reverting...' : 'Confirm Revert'}
+              {submitting || loading ? 'A reverter...' : 'Confirmar reversão'}
             </button>
           </div>
         </div>

@@ -4,6 +4,7 @@
 
 import { useState } from 'react';
 import { usePricingSettings } from '@/hooks/usePricingSettings';
+import { formatCurrency } from '@/lib/utils/currency';
 
 interface TabDescontosProps {
   propertyId: string;
@@ -59,7 +60,7 @@ export function TabDescontos({ propertyId, basePrice = 0, onSaved }: TabDesconto
           </div>
         </div>
         <p className="text-sm text-gray-700">
-          A média semanal é de €{weeklyAverage.toFixed(2)}
+          A média semanal é de {formatCurrency(weeklyAverage)}
         </p>
       </div>
 
@@ -83,7 +84,7 @@ export function TabDescontos({ propertyId, basePrice = 0, onSaved }: TabDesconto
           </div>
         </div>
         <p className="text-sm text-gray-700">
-          A média mensal é de €{monthlyAverage.toFixed(2)}
+          A média mensal é de {formatCurrency(monthlyAverage)}
         </p>
       </div>
 

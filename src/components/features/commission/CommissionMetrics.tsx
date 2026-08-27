@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { Card } from '@/components/common/ui/card'
 import { Skeleton } from '@/components/common/ui/skeleton'
+import { formatCurrency } from '@/lib/utils/currency'
 
 interface MetricData {
   total: number
@@ -112,7 +113,7 @@ export function CommissionMetrics() {
 
           <div className="mb-4">
             <p className="text-3xl font-bold text-gray-900">
-              €{metric.total.toFixed(2)}
+              {formatCurrency(metric.total)}
             </p>
             <p className="text-sm text-gray-600 mt-1">
               {metric.count} booking{metric.count !== 1 ? 's' : ''}
@@ -123,7 +124,7 @@ export function CommissionMetrics() {
             <div className="flex justify-between items-center text-sm">
               <span className="text-gray-600">Avg per booking</span>
               <span className="font-semibold text-gray-900">
-                €{metric.avgPerBooking.toFixed(2)}
+                {formatCurrency(metric.avgPerBooking)}
               </span>
             </div>
             <div className="flex justify-between items-center text-sm">

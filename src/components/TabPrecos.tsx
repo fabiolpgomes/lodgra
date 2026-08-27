@@ -54,7 +54,7 @@ export function TabPrecos({ propertyId, onSaved }: TabPrecosProps) {
           value={basePrice}
           onChange={(e) => setBasePrice(parseFloat(e.target.value) || 0)}
           className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-          placeholder="€0.00"
+          placeholder="0.00"
         />
       </div>
 
@@ -71,7 +71,7 @@ export function TabPrecos({ propertyId, onSaved }: TabPrecosProps) {
           value={weekendPrice || ''}
           onChange={(e) => setWeekendPrice(e.target.value ? parseFloat(e.target.value) : undefined)}
           className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-          placeholder="€0.00 (opcional)"
+          placeholder="0.00 (opcional)"
         />
       </div>
 

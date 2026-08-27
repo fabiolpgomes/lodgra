@@ -177,7 +177,7 @@ export function isSignificantPriceChange(
 export function getMarketRangeDescription(
   minPrice: number,
   maxPrice: number,
-  currency: string = 'EUR'
+  currency?: string
 ): string {
   return `Competitors charge ${formatPrice(minPrice, currency)}-${formatPrice(maxPrice, currency)} per night`;
 }
@@ -233,7 +233,11 @@ export function getPositionColor(position: string): string {
 /**
  * Format price for display
  */
-export function formatPrice(price: number, currency: string = 'EUR'): string {
+export function formatPrice(price: number, currency?: string): string {
+  if (!currency) {
+    return price.toFixed(2);
+  }
+
   const normalizedCurrency =
     currency in LEGACY_SYMBOL_TO_CURRENCY
       ? LEGACY_SYMBOL_TO_CURRENCY[currency]

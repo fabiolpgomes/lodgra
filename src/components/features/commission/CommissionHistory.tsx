@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { Card } from '@/components/common/ui/card'
 import { Skeleton } from '@/components/common/ui/skeleton'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { formatCurrency } from '@/lib/utils/currency'
 
 interface CommissionRow {
   id: string
@@ -156,13 +157,13 @@ export function CommissionHistory({ pageSize = 50 }: CommissionHistoryProps) {
                     <td className="py-3 px-4 text-gray-600">{formatDate(row.checkIn)}</td>
                     <td className="py-3 px-4 text-gray-600">{formatDate(row.checkOut)}</td>
                     <td className="py-3 px-4 text-right text-gray-900">
-                      €{row.grossRevenue.toFixed(2)}
+                      {formatCurrency(row.grossRevenue)}
                     </td>
                     <td className="py-3 px-4 text-right text-gray-600">
                       {(row.commissionRate * 100).toFixed(0)}%
                     </td>
                     <td className="py-3 px-4 text-right text-gray-900 font-semibold">
-                      €{row.commissionAmount.toFixed(2)}
+                      {formatCurrency(row.commissionAmount)}
                     </td>
                   </tr>
                 ))}
@@ -183,14 +184,14 @@ export function CommissionHistory({ pageSize = 50 }: CommissionHistoryProps) {
                     <p className="text-xs text-gray-600">{row.guestName}</p>
                   </div>
                   <p className="text-sm font-semibold text-gray-900">
-                    €{row.commissionAmount.toFixed(2)}
+                    {formatCurrency(row.commissionAmount)}
                   </p>
                 </div>
                 <div className="text-xs text-gray-600 space-y-1">
                   <p>
                     Dates: {formatDate(row.checkIn)} → {formatDate(row.checkOut)}
                   </p>
-                  <p>Revenue: €{row.grossRevenue.toFixed(2)}</p>
+                  <p>Revenue: {formatCurrency(row.grossRevenue)}</p>
                   <p>Rate: {(row.commissionRate * 100).toFixed(0)}%</p>
                 </div>
               </div>

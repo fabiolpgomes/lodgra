@@ -120,9 +120,9 @@ describe('Market Analysis', () => {
     it('should format market range', () => {
       const description = getMarketRangeDescription(80, 150);
 
-      expect(description).toContain('80');
-      expect(description).toContain('150');
-      expect(description).toContain('€');
+      expect(description).toContain('80.00');
+      expect(description).toContain('150.00');
+      expect(description).not.toContain('€');
     });
 
     it('should use custom currency', () => {
@@ -173,8 +173,8 @@ describe('Market Analysis', () => {
 
   describe('formatPrice', () => {
     it('should format price with currency', () => {
-      expect(formatPrice(100)).toBe('€100.00');
-      expect(formatPrice(1234.56)).toBe('€1,234.56');
+      expect(formatPrice(100)).toBe('100.00');
+      expect(formatPrice(1234.56)).toBe('1234.56');
     });
 
     it('should use custom currency', () => {

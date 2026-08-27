@@ -4,6 +4,7 @@ import React from 'react';
 import { ForecastCard } from './ForecastCard';
 import { ForecastingAPIResponse } from '@/types/forecasting';
 import { RefreshCw } from 'lucide-react';
+import { formatCurrency } from '@/lib/utils/currency';
 
 interface ForecastCardsProps {
   data: ForecastingAPIResponse | null;
@@ -23,14 +24,14 @@ export function ForecastCards({
   if (error) {
     return (
       <div className="w-full bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg p-4">
-        <p className="text-red-800 dark:text-red-200 font-medium mb-2">Error loading forecast</p>
+        <p className="text-red-800 dark:text-red-200 font-medium mb-2">Erro ao carregar a previsão</p>
         <p className="text-red-700 dark:text-red-300 text-sm mb-3">{error}</p>
         <button
           onClick={onRefresh}
           className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors"
         >
           <RefreshCw className="w-4 h-4" />
-          Retry
+          Tentar novamente
         </button>
       </div>
     );
@@ -44,7 +45,7 @@ export function ForecastCards({
             key={i}
             className="bg-slate-200 dark:bg-slate-700 rounded-lg h-48 animate-pulse"
             aria-busy="true"
-            aria-label="Loading forecast card"
+            aria-label="A carregar cartão da previsão"
           />
         ))}
       </div>
@@ -54,7 +55,7 @@ export function ForecastCards({
   if (!data) {
     return (
       <div className="w-full bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-        <p className="text-blue-800 dark:text-blue-200">No forecast data available</p>
+        <p className="text-blue-800 dark:text-blue-200">Não existem dados de previsão disponíveis</p>
       </div>
     );
   }
@@ -70,18 +71,18 @@ export function ForecastCards({
       {/* Summary line */}
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <p className="text-sm text-slate-600 dark:text-slate-400">Total 90-day projection</p>
+          <p className="text-sm text-slate-600 dark:text-slate-400">Projeção total a 90 dias</p>
           <p className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">
-            €{totalRevenue.toFixed(2)}
+            {formatCurrency(totalRevenue)}
           </p>
         </div>
         <button
           onClick={onRefresh}
           className="inline-flex items-center gap-2 px-4 py-2 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500 rounded-md transition-colors"
-          aria-label="Refresh forecast data"
+          aria-label="Atualizar dados da previsão"
         >
           <RefreshCw className="w-4 h-4" />
-          <span className="text-sm font-medium">Refresh</span>
+          <span className="text-sm font-medium">Atualizar</span>
         </button>
       </div>
 
@@ -106,10 +107,10 @@ export function ForecastCards({
 
       {/* Last updated timestamp */}
       <div className="mt-4 text-xs text-slate-500 dark:text-slate-400">
-        Last updated:{' '}
+        Atualizado pela última vez:{' '}
         {data.forecasts.days30.updatedAt
-          ? new Date(data.forecasts.days30.updatedAt).toLocaleString()
-          : 'Just now'}
+          ? new Date(data.forecasts.days30.updatedAt).toLocaleString('pt-PT')
+          : 'Agora mesmo'}
       </div>
     </div>
   );

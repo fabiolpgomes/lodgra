@@ -3,6 +3,7 @@
 import React, { useEffect } from 'react';
 import { ForecastingAPIResponse, RevenueForecast } from '@/types/forecasting';
 import { X } from 'lucide-react';
+import { formatCurrency } from '@/lib/utils/currency';
 
 interface ForecastDetailsModalProps {
   isOpen: boolean;
@@ -19,7 +20,7 @@ export function ForecastDetailsModal({
   data,
   period,
 }: ForecastDetailsModalProps) {
-  // Close on Escape key
+  // Fecha ao carregar a tecla Escape
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isOpen) {
@@ -61,18 +62,18 @@ export function ForecastDetailsModal({
           <div className="sticky top-0 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 p-6 flex items-center justify-between">
             <div>
               <h2 id="modal-title" className="text-2xl font-bold text-slate-900 dark:text-white">
-                {period}-Day Forecast Details
+                Detalhes da previsão de {period} dias
               </h2>
               <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
                 {forecast.createdAt
-                  ? new Date(forecast.createdAt).toLocaleDateString()
-                  : 'No date'}
+                  ? new Date(forecast.createdAt).toLocaleDateString('pt-PT')
+                  : 'Sem data'}
               </p>
             </div>
             <button
               onClick={onClose}
               className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
-              aria-label="Close modal"
+              aria-label="Fechar modal"
             >
               <X className="w-6 h-6" />
             </button>
@@ -80,23 +81,23 @@ export function ForecastDetailsModal({
 
           {/* Content */}
           <div className="p-6 space-y-8">
-            {/* Forecast Summary */}
+            {/* Resumo da previsão */}
             <section>
               <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">
-                Forecast Summary
+                Resumo da previsão
               </h3>
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-blue-50 dark:bg-blue-950 rounded-lg p-4">
                   <p className="text-sm text-blue-600 dark:text-blue-400 font-medium">
-                    Projected Revenue
+                    Receita prevista
                   </p>
                   <p className="text-2xl font-bold text-blue-900 dark:text-blue-100 mt-1">
-                    €{forecast.projectedRevenue.toFixed(2)}
+                    {formatCurrency(forecast.projectedRevenue)}
                   </p>
                 </div>
                 <div className="bg-purple-50 dark:bg-purple-950 rounded-lg p-4">
                   <p className="text-sm text-purple-600 dark:text-purple-400 font-medium">
-                    Confidence Score
+                    Índice de confiança
                   </p>
                   <p className="text-2xl font-bold text-purple-900 dark:text-purple-100 mt-1">
                     {(forecast.confidenceScore * 100).toFixed(0)}%
@@ -105,44 +106,44 @@ export function ForecastDetailsModal({
               </div>
             </section>
 
-            {/* Assumptions */}
+            {/* Premissas */}
             <section>
               <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">
-                Key Assumptions
+                Premissas principais
               </h3>
               <dl className="space-y-3">
                 <div className="flex justify-between">
-                  <dt className="text-slate-600 dark:text-slate-400">Seasonal Factor</dt>
+                  <dt className="text-slate-600 dark:text-slate-400">Fator sazonal</dt>
                   <dd className="font-medium text-slate-900 dark:text-white">
-                    {data.assumptions.seasonalPattern ? 'Applied' : 'None'}
+                    {data.assumptions.seasonalPattern ? 'Aplicado' : 'Nenhum'}
                   </dd>
                 </div>
                 <div className="flex justify-between border-t border-slate-200 dark:border-slate-700 pt-3">
-                  <dt className="text-slate-600 dark:text-slate-400">Base Occupancy Rate</dt>
+                  <dt className="text-slate-600 dark:text-slate-400">Taxa base de ocupação</dt>
                   <dd className="font-medium text-slate-900 dark:text-white">
                     {(data.assumptions.avgOccupancyRate * 100).toFixed(1)}%
                   </dd>
                 </div>
                 <div className="flex justify-between border-t border-slate-200 dark:border-slate-700 pt-3">
-                  <dt className="text-slate-600 dark:text-slate-400">Base Price Estimate</dt>
+                  <dt className="text-slate-600 dark:text-slate-400">Estimativa de preço base</dt>
                   <dd className="font-medium text-slate-900 dark:text-white">
-                    €{forecast.basePriceEstimate ? forecast.basePriceEstimate.toFixed(2) : 'N/A'}
+                    {forecast.basePriceEstimate ? formatCurrency(forecast.basePriceEstimate) : 'N/D'}
                   </dd>
                 </div>
                 <div className="flex justify-between border-t border-slate-200 dark:border-slate-700 pt-3">
-                  <dt className="text-slate-600 dark:text-slate-400">Data Points Used</dt>
+                  <dt className="text-slate-600 dark:text-slate-400">Pontos de dados usados</dt>
                   <dd className="font-medium text-slate-900 dark:text-white">
-                    {forecast.dataPointsCount} bookings
+                    {forecast.dataPointsCount} reservas
                   </dd>
                 </div>
               </dl>
             </section>
 
-            {/* Holiday Events */}
+            {/* Eventos sazonais */}
             {data.assumptions.holidayEvents && data.assumptions.holidayEvents.length > 0 && (
               <section>
                 <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">
-                  Holiday Events
+                  Eventos sazonais
                 </h3>
                 <ul className="space-y-2">
                   {data.assumptions.holidayEvents.map((event, idx) => (
@@ -172,10 +173,10 @@ export function ForecastDetailsModal({
               </section>
             )}
 
-            {/* Recommendations */}
+            {/* Recomendações */}
             <section>
               <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">
-                Recommendations
+                Recomendações
               </h3>
               <ul className="space-y-2">
                 {data.summary.recommendations.map((rec, idx) => (
@@ -192,16 +193,16 @@ export function ForecastDetailsModal({
               </ul>
             </section>
 
-            {/* Methodology */}
+            {/* Metodologia */}
             <section className="bg-slate-50 dark:bg-slate-800 rounded-lg p-4">
               <h3 className="font-semibold text-slate-900 dark:text-white mb-2">
-                Forecast Methodology
+                Metodologia da previsão
               </h3>
               <p className="text-sm text-slate-700 dark:text-slate-300">
-                This forecast is based on {data.assumptions.last90DaysBookings} recent bookings
-                combined with seasonal adjustments, day-of-week patterns, and historical
-                occupancy rates. The confidence interval represents ±15% variance from the
-                central forecast.
+                Esta previsão é baseada em {data.assumptions.last90DaysBookings} reservas recentes,
+                combinadas com ajustes sazonais, padrões por dia da semana e taxas históricas
+                de ocupação. O intervalo de confiança representa uma variação de ±15% em relação
+                à previsão central.
               </p>
             </section>
           </div>

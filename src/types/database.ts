@@ -120,6 +120,7 @@ export type Guest = {
   last_name: string | null
   email: string | null
   phone: string | null
+  preferred_locale: string | null
   total_bookings: number
   created_at: string
   updated_at: string
@@ -143,6 +144,7 @@ export type Reservation = {
   net_amount: number | null
   status: ReservationStatus
   notes: string | null
+  preferred_locale: string | null
   synced_at: string | null
   source: string | null
   created_at: string

@@ -19,10 +19,14 @@ export interface SeasonalPricingCalendarProps {
 
 export function SeasonalPricingCalendar({
   rules,
-  currency = 'EUR',
+  currency,
   onEditRule,
   onDeleteRule,
 }: SeasonalPricingCalendarProps) {
+  const formatRulePrice = (price: number): string => {
+    return currency ? formatCurrency(price, currency) : price.toFixed(2);
+  };
+
   const [currentDate, setCurrentDate] = useState(new Date());
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
 
@@ -86,9 +90,9 @@ export function SeasonalPricingCalendar({
     <div className="space-y-4 rounded-lg border border-gray-200 p-4 dark:border-gray-800">
       {/* Header */}
       <div>
-        <h3 className="font-semibold text-gray-900 dark:text-white">Seasonal Rules</h3>
+        <h3 className="font-semibold text-gray-900 dark:text-white">Regras sazonais</h3>
         <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-          View active seasonal pricing rules and manage dates
+          Veja e gestione as regras sazonais ativas
         </p>
       </div>
 
@@ -158,7 +162,7 @@ export function SeasonalPricingCalendar({
                         className="truncate rounded bg-amber-200 px-1 text-amber-900 dark:bg-amber-700 dark:text-amber-100"
                         title={rule.name}
                       >
-                        {formatCurrency(rule.price_per_night, currency)}
+                    {formatRulePrice(rule.price_per_night)}
                       </span>
                     ))}
                     {seasonalRules.length > 1 && (
@@ -179,7 +183,7 @@ export function SeasonalPricingCalendar({
         <div className="space-y-2">
           {rules.length === 0 ? (
             <p className="text-center text-sm text-gray-500 dark:text-gray-400">
-              No seasonal rules yet
+              Ainda não existem regras sazonais
             </p>
           ) : (
             rules.map((rule) => (
@@ -199,7 +203,9 @@ export function SeasonalPricingCalendar({
                     )}
                   </div>
                   <p className="text-xs text-gray-600 dark:text-gray-400">
-                    {rule.date_start} → {rule.date_end} • {formatCurrency(rule.price_per_night, currency)}/night
+                    {rule.date_start} → {rule.date_end} • {formatRulePrice(rule.price_per_night)}/night
+                    {' '}
+                    • Min {rule.min_nights ?? 1} nights
                   </p>
                 </div>
                 <div className="flex gap-1">
@@ -208,7 +214,7 @@ export function SeasonalPricingCalendar({
                       onClick={() => onEditRule(rule)}
                       className="rounded px-2 py-1 text-xs text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 dark:text-blue-400"
                     >
-                      Edit
+                      Editar
                     </button>
                   )}
                   {onDeleteRule && (
@@ -217,7 +223,7 @@ export function SeasonalPricingCalendar({
                       disabled={isDeleting === rule.id}
                       className="rounded px-2 py-1 text-xs text-red-600 hover:bg-red-50 disabled:text-gray-400 dark:hover:bg-red-900/20 dark:text-red-400 dark:disabled:text-gray-600"
                     >
-                      {isDeleting === rule.id ? 'Deleting...' : 'Delete'}
+                      {isDeleting === rule.id ? 'A eliminar...' : 'Eliminar'}
                     </button>
                   )}
                 </div>

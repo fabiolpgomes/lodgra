@@ -7,6 +7,7 @@ import { CommissionMetrics } from './CommissionMetrics'
 import { CommissionChart } from './CommissionChart'
 import { CommissionHistory } from './CommissionHistory'
 import { CommissionExport } from './CommissionExport'
+import { formatCurrency } from '@/lib/utils/currency'
 
 interface PropertyData {
   id: string
@@ -91,7 +92,7 @@ export function CommissionDashboard() {
                     borderRadius: '8px',
                   }}
                   formatter={(value) =>
-                    typeof value === 'number' ? `€${value.toFixed(2)}` : value
+                    typeof value === 'number' ? formatCurrency(value) : value
                   }
                   labelFormatter={(label) => `${label}`}
                 />
@@ -127,7 +128,7 @@ export function CommissionDashboard() {
                         </div>
                       </td>
                       <td className="text-right py-3 px-4 font-semibold text-gray-900">
-                        €{prop.total.toFixed(2)}
+                        {formatCurrency(prop.total)}
                       </td>
                       <td className="text-right py-3 px-4">
                         {totalCommission > 0

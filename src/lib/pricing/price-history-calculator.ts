@@ -145,11 +145,11 @@ export function detectSignificantPriceChanges(
 /**
  * Format price for display
  * @param price Price value
- * @param currency Currency code (default: EUR)
+ * @param currency Currency code
  * @returns Formatted price string
  */
-export function formatPrice(price: number, currency: string = 'EUR'): string {
-  return formatCurrency(price, currency as CurrencyCode);
+export function formatPrice(price: number, currency?: string): string {
+  return currency ? formatCurrency(price, currency as CurrencyCode) : price.toFixed(2);
 }
 
 /**

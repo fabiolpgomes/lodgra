@@ -18,6 +18,7 @@ export interface SeasonalRuleEditorProps {
     dateStart: string,
     dateEnd: string,
     pricePerNight: number,
+    minNights: number,
     isActive: boolean
   ) => Promise<void>;
   isLoading?: boolean;
@@ -30,12 +31,13 @@ export function SeasonalRuleEditor({
   onClose,
   onSave,
   isLoading = false,
-  currency = 'EUR',
+  currency,
 }: SeasonalRuleEditorProps) {
   const [name, setName] = useState('');
   const [dateStart, setDateStart] = useState('');
   const [dateEnd, setDateEnd] = useState('');
   const [pricePerNight, setPricePerNight] = useState('');
+  const [minNights, setMinNights] = useState('1');
   const [isActive, setIsActive] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -46,12 +48,14 @@ export function SeasonalRuleEditor({
       setDateStart(rule.date_start);
       setDateEnd(rule.date_end);
       setPricePerNight(rule.price_per_night.toString());
+      setMinNights((rule.min_nights ?? 1).toString());
       setIsActive(rule.is_active);
     } else {
       setName('');
       setDateStart('');
       setDateEnd('');
       setPricePerNight('');
+      setMinNights('1');
       setIsActive(true);
     }
     setError(null);
@@ -59,48 +63,54 @@ export function SeasonalRuleEditor({
 
   const validateForm = useCallback(() => {
     if (!name.trim()) {
-      setError('Rule name is required');
+      setError('O nome da regra é obrigatório');
       return false;
     }
 
     if (!dateStart) {
-      setError('Start date is required');
+      setError('A data inicial é obrigatória');
       return false;
     }
 
     if (!dateEnd) {
-      setError('End date is required');
+      setError('A data final é obrigatória');
       return false;
     }
 
     if (dateEnd < dateStart) {
-      setError('End date must be after or equal to start date');
+      setError('A data final deve ser igual ou posterior à data inicial');
       return false;
     }
 
     const price = Number(pricePerNight);
     if (isNaN(price) || price < 0) {
-      setError('Price per night must be a positive number');
+      setError('O preço por noite deve ser um número válido');
+      return false;
+    }
+
+    const minimumNights = Number(minNights);
+    if (isNaN(minimumNights) || minimumNights < 1 || minimumNights > 365) {
+      setError('O mínimo de noites deve estar entre 1 e 365');
       return false;
     }
 
     setError(null);
     return true;
-  }, [name, dateStart, dateEnd, pricePerNight]) as () => boolean;
+  }, [name, dateStart, dateEnd, pricePerNight, minNights]) as () => boolean;
 
   const handleSave = useCallback(async () => {
     if (!validateForm()) return;
 
     try {
       setIsSaving(true);
-      await onSave(name.trim(), dateStart, dateEnd, Number(pricePerNight), isActive);
+      await onSave(name.trim(), dateStart, dateEnd, Number(pricePerNight), Number(minNights), isActive);
       onClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to save rule');
     } finally {
       setIsSaving(false);
     }
-  }, [name, dateStart, dateEnd, pricePerNight, isActive, validateForm, onSave, onClose]);
+  }, [name, dateStart, dateEnd, pricePerNight, minNights, isActive, validateForm, onSave, onClose]);
 
   if (!isOpen) return null;
 
@@ -119,7 +129,7 @@ export function SeasonalRuleEditor({
           {/* Header */}
           <div className="border-b border-gray-200 p-4 dark:border-gray-800">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-              {rule ? 'Edit Seasonal Rule' : 'Create Seasonal Rule'}
+              {rule ? 'Editar regra sazonal' : 'Criar regra sazonal'}
             </h2>
           </div>
 
@@ -128,7 +138,7 @@ export function SeasonalRuleEditor({
             {/* Name */}
             <div>
               <label htmlFor="rule-name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Rule Name
+                Nome da regra
               </label>
               <input
                 id="rule-name"
@@ -138,7 +148,7 @@ export function SeasonalRuleEditor({
                   setName(e.target.value);
                   setError(null);
                 }}
-                placeholder="e.g., Summer Peak, Winter Discount"
+                placeholder="Ex.: Alta temporada, Baixa temporada"
                 disabled={isSaving || isLoading}
                 className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 disabled:bg-gray-50 dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:disabled:bg-gray-800"
               />
@@ -148,7 +158,7 @@ export function SeasonalRuleEditor({
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label htmlFor="rule-start-date" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Start Date
+                  Data inicial
                 </label>
                 <input
                   id="rule-start-date"
@@ -164,7 +174,7 @@ export function SeasonalRuleEditor({
               </div>
               <div>
                 <label htmlFor="rule-end-date" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  End Date
+                  Data final
                 </label>
                 <input
                   id="rule-end-date"
@@ -183,7 +193,7 @@ export function SeasonalRuleEditor({
             {/* Price */}
             <div>
               <label htmlFor="rule-price" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Price per Night ({currency})
+                Preço por noite{currency ? ` (${currency})` : ''}
               </label>
               <input
                 id="rule-price"
@@ -195,7 +205,29 @@ export function SeasonalRuleEditor({
                   setPricePerNight(e.target.value);
                   setError(null);
                 }}
-                placeholder="0.00"
+                placeholder="0,00"
+                disabled={isSaving || isLoading}
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 disabled:bg-gray-50 dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:disabled:bg-gray-800"
+              />
+            </div>
+
+            {/* Minimum Nights */}
+            <div>
+              <label htmlFor="rule-min-nights" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Mínimo de noites
+              </label>
+              <input
+                id="rule-min-nights"
+                type="number"
+                min="1"
+                max="365"
+                step="1"
+                value={minNights}
+                onChange={(e) => {
+                  setMinNights(e.target.value);
+                  setError(null);
+                }}
+                placeholder="1"
                 disabled={isSaving || isLoading}
                 className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 disabled:bg-gray-50 dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:disabled:bg-gray-800"
               />
@@ -212,7 +244,7 @@ export function SeasonalRuleEditor({
                 className="h-4 w-4 rounded border-gray-300 text-blue-600"
               />
               <label htmlFor="isActive" className="ml-2 text-sm text-gray-700 dark:text-gray-300">
-                Active (apply this rule)
+                Ativa (aplica esta regra)
               </label>
             </div>
 
@@ -232,14 +264,14 @@ export function SeasonalRuleEditor({
                 disabled={isSaving || isLoading}
                 className="rounded-md border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:disabled:bg-gray-900"
               >
-                Cancel
+                Cancelar
               </button>
               <button
                 onClick={handleSave}
                 disabled={isSaving || isLoading}
                 className="inline-flex items-center justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:bg-gray-400 dark:disabled:bg-gray-700"
               >
-                {isSaving ? 'Saving...' : 'Save'}
+                {isSaving ? 'Guardando...' : 'Guardar'}
               </button>
             </div>
           </div>

@@ -77,6 +77,7 @@ export interface SeasonalPricingRule {
   date_start: string; // YYYY-MM-DD
   date_end: string; // YYYY-MM-DD
   price_per_night: number;
+  min_nights?: number | null;
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -151,6 +152,7 @@ export interface SeasonalRulePayload {
   date_start: string; // YYYY-MM-DD
   date_end: string; // YYYY-MM-DD
   price_per_night: number;
+  min_nights?: number;
   is_active?: boolean;
 }
 
@@ -159,6 +161,7 @@ export interface UpdateSeasonalRulePayload {
   date_start?: string;
   date_end?: string;
   price_per_night?: number;
+  min_nights?: number;
   is_active?: boolean;
 }
 

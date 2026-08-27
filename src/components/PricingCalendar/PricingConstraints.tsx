@@ -20,7 +20,7 @@ export function PricingConstraints({
   constraints,
   onUpdate,
   isLoading = false,
-  currency = 'EUR',
+  currency,
 }: PricingConstraintsProps) {
   const [minPrice, setMinPrice] = useState(constraints?.min_nightly_price ?? '');
   const [maxPrice, setMaxPrice] = useState(constraints?.max_nightly_price ?? '');
@@ -40,17 +40,17 @@ export function PricingConstraints({
     const max = maxPrice === '' ? null : Number(maxPrice);
 
     if (min !== null && min < 0) {
-      setError('Minimum price cannot be negative');
+      setError('O preço mínimo não pode ser negativo');
       return false;
     }
 
     if (max !== null && max < 0) {
-      setError('Maximum price cannot be negative');
+      setError('O preço máximo não pode ser negativo');
       return false;
     }
 
     if (min !== null && max !== null && min > max) {
-      setError('Minimum price cannot exceed maximum price');
+      setError('O preço mínimo não pode exceder o preço máximo');
       return false;
     }
 
@@ -69,7 +69,7 @@ export function PricingConstraints({
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update constraints');
+      setError(err instanceof Error ? err.message : 'Falha ao atualizar as restrições');
     } finally {
       setIsSaving(false);
     }
@@ -87,9 +87,9 @@ export function PricingConstraints({
   return (
     <div className="space-y-4 rounded-lg border border-gray-200 p-4 dark:border-gray-800">
       <div>
-        <h3 className="font-semibold text-gray-900 dark:text-white">Pricing Constraints</h3>
+        <h3 className="font-semibold text-gray-900 dark:text-white">Restrições de preço</h3>
         <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-          Set minimum and maximum nightly prices to prevent accidental over/under-pricing
+          Defina preços mínimos e máximos por noite para evitar preços demasiado altos ou baixos por engano
         </p>
       </div>
 
@@ -97,7 +97,7 @@ export function PricingConstraints({
         {/* Minimum Price */}
         <div>
           <label htmlFor="min-price" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Minimum Nightly Price ({currency})
+            Preço mínimo por noite{currency ? ` (${currency})` : ''}
           </label>
           <input
             id="min-price"
@@ -111,17 +111,17 @@ export function PricingConstraints({
             }}
             disabled={isLoading || isSaving}
             className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 disabled:bg-gray-50 dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:disabled:bg-gray-800"
-            placeholder="No minimum"
+            placeholder="Sem mínimo"
           />
           <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-            Leave empty for no minimum
+            Deixe vazio para não definir mínimo
           </p>
         </div>
 
         {/* Maximum Price */}
         <div>
           <label htmlFor="max-price" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Maximum Nightly Price ({currency})
+            Preço máximo por noite{currency ? ` (${currency})` : ''}
           </label>
           <input
             id="max-price"
@@ -135,10 +135,10 @@ export function PricingConstraints({
             }}
             disabled={isLoading || isSaving}
             className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 disabled:bg-gray-50 dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:disabled:bg-gray-800"
-            placeholder="No maximum"
+            placeholder="Sem máximo"
           />
           <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-            Leave empty for no maximum
+            Deixe vazio para não definir máximo
           </p>
         </div>
       </div>
@@ -153,7 +153,7 @@ export function PricingConstraints({
       {/* Success Message */}
       {success && (
         <div className="rounded-md bg-emerald-50 p-3 text-sm text-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-400">
-          Pricing constraints updated successfully
+          Restrições de preço atualizadas com sucesso
         </div>
       )}
 
@@ -164,14 +164,14 @@ export function PricingConstraints({
           disabled={isLoading || isSaving}
           className="inline-flex items-center justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:bg-gray-400 dark:disabled:bg-gray-700"
         >
-          {isSaving ? 'Saving...' : 'Save'}
+          {isSaving ? 'A guardar...' : 'Guardar'}
         </button>
         <button
           onClick={handleReset}
           disabled={isLoading || isSaving}
           className="inline-flex items-center justify-center rounded-md border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:disabled:bg-gray-900"
         >
-          Reset
+          Repor
         </button>
       </div>
     </div>

@@ -44,12 +44,12 @@ function escapeCsvValue(value: unknown): string {
 /**
  * Convert price history to CSV string
  * @param history Price history records
- * @param currency Currency code or legacy symbol (default: EUR)
+ * @param currency Currency code or legacy symbol
  * @returns CSV string with header and data rows
  */
 export function convertToCsv(
   history: PriceHistory[],
-  currency: string = 'EUR'
+  currency?: string
 ): string {
   if (history.length === 0) {
     return 'Date Applied,Price,Changed By,Reason,Status\n';
@@ -65,7 +65,7 @@ export function convertToCsv(
   history.forEach((record) => {
     const cells = [
       record.date_applied,
-      formatCurrency(record.price, normalizeCurrency(currency)),
+      currency ? formatCurrency(record.price, normalizeCurrency(currency)) : record.price.toFixed(2),
       record.changed_by,
       record.change_reason || 'N/A',
       record.is_revert ? 'Reverted' : 'Active',
@@ -80,12 +80,12 @@ export function convertToCsv(
 /**
  * Convert price history to CSV with extended details
  * @param history Price history records
- * @param currency Currency code or legacy symbol (default: EUR)
+ * @param currency Currency code or legacy symbol
  * @returns CSV string with extended information
  */
 export function convertToCsvExtended(
   history: PriceHistory[],
-  currency: string = 'EUR'
+  currency?: string
 ): string {
   if (history.length === 0) {
     return 'Date Applied,Time,Price,Previous Price,Change %,Changed By,Reason,Type\n';
@@ -125,8 +125,10 @@ export function convertToCsvExtended(
     const cells = [
       record.date_applied,
       time,
-      formatCurrency(record.price, normalizeCurrency(currency)),
-      previousPrice > 0 ? formatCurrency(previousPrice, normalizeCurrency(currency)) : 'N/A',
+      currency ? formatCurrency(record.price, normalizeCurrency(currency)) : record.price.toFixed(2),
+      previousPrice > 0
+        ? (currency ? formatCurrency(previousPrice, normalizeCurrency(currency)) : previousPrice.toFixed(2))
+        : 'N/A',
       `${changePercent}%`,
       record.changed_by,
       record.change_reason || 'N/A',

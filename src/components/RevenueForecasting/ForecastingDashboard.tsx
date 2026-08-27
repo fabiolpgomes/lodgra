@@ -40,20 +40,20 @@ export function ForecastingDashboard({ propertyId, propertyName }: ForecastingDa
   // Handle PDF export
   const handlePdfExport = useCallback(async () => {
     if (!data) {
-      toast.error('No forecast data to export');
+      toast.error('Não existem dados de previsão para exportar');
       return;
     }
 
     try {
       setIsExporting(true);
-      const startDate = new Date().toLocaleDateString();
-      const endDate = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toLocaleDateString();
+      const startDate = new Date().toLocaleDateString('pt-PT');
+      const endDate = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toLocaleDateString('pt-PT');
 
       await generateForecastPDF(data, propertyName, startDate, endDate);
-      toast.success('PDF downloaded successfully');
+      toast.success('PDF descarregado com sucesso');
     } catch (err) {
-      console.error('PDF export error:', err);
-      toast.error('Failed to generate PDF');
+      console.error('Erro ao exportar PDF:', err);
+      toast.error('Falha ao gerar o PDF');
     } finally {
       setIsExporting(false);
     }
@@ -62,19 +62,19 @@ export function ForecastingDashboard({ propertyId, propertyName }: ForecastingDa
   // Handle CSV export
   const handleCsvExport = useCallback(() => {
     if (!data) {
-      toast.error('No forecast data to export');
+      toast.error('Não existem dados de previsão para exportar');
       return;
     }
 
     try {
-      const startDate = new Date().toLocaleDateString();
-      const endDate = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toLocaleDateString();
+      const startDate = new Date().toLocaleDateString('pt-PT');
+      const endDate = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toLocaleDateString('pt-PT');
 
       generateForecastCSV(data, propertyName, startDate, endDate);
-      toast.success('CSV downloaded successfully');
+      toast.success('CSV descarregado com sucesso');
     } catch (err) {
-      console.error('CSV export error:', err);
-      toast.error('Failed to generate CSV');
+      console.error('Erro ao exportar CSV:', err);
+      toast.error('Falha ao gerar o CSV');
     }
   }, [data, propertyName]);
 
@@ -84,10 +84,10 @@ export function ForecastingDashboard({ propertyId, propertyName }: ForecastingDa
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
-            Revenue Forecasting
+            Previsão de receitas
           </h1>
           <p className="text-slate-600 dark:text-slate-400 mt-1">
-            Projected revenue analysis for {propertyName}
+            Análise da receita prevista para {propertyName}
           </p>
         </div>
 
@@ -97,20 +97,20 @@ export function ForecastingDashboard({ propertyId, propertyName }: ForecastingDa
             onClick={handlePdfExport}
             disabled={!data || isLoading || isExporting}
             className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white rounded-md transition-colors"
-            aria-label="Download PDF report"
+            aria-label="Descarregar relatório em PDF"
           >
             <Download className="w-4 h-4" />
-            <span className="text-sm font-medium">PDF</span>
+            <span className="text-sm font-medium">Descarregar PDF</span>
           </button>
 
           <button
             onClick={handleCsvExport}
             disabled={!data || isLoading}
             className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-700 hover:bg-emerald-800 disabled:bg-emerald-400 disabled:cursor-not-allowed text-white rounded-md transition-colors"
-            aria-label="Download CSV export"
+            aria-label="Descarregar exportação em CSV"
           >
             <FileJson className="w-4 h-4" />
-            <span className="text-sm font-medium">CSV</span>
+            <span className="text-sm font-medium">Descarregar CSV</span>
           </button>
         </div>
       </div>
@@ -120,7 +120,7 @@ export function ForecastingDashboard({ propertyId, propertyName }: ForecastingDa
         {/* Forecast Cards */}
         <section aria-labelledby="forecast-heading">
           <h2 id="forecast-heading" className="sr-only">
-            Forecast Cards
+            Cartões de previsão
           </h2>
           <ForecastCards
             data={data}
@@ -135,7 +135,7 @@ export function ForecastingDashboard({ propertyId, propertyName }: ForecastingDa
         {data && !isLoading && (
           <section aria-labelledby="chart-heading">
             <h2 id="chart-heading" className="sr-only">
-              Revenue Forecast Chart
+              Gráfico da previsão de receitas
             </h2>
             <ForecastChart data={data} period={selectedPeriod || '90'} />
           </section>
@@ -145,11 +145,11 @@ export function ForecastingDashboard({ propertyId, propertyName }: ForecastingDa
         {data && !isLoading && (
           <section aria-labelledby="stats-heading">
             <h2 id="stats-heading" className="sr-only">
-              Key Statistics
+              Estatísticas principais
             </h2>
             <div className="space-y-4">
               <h3 className="text-xl font-semibold text-slate-900 dark:text-white">
-                Key Statistics
+                Estatísticas principais
               </h3>
               <StatisticsCards data={data} />
             </div>

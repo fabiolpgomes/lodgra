@@ -28,7 +28,7 @@ export function DateDetailModal({
   basePrice,
   weekendPrice,
   isWeekend,
-  currency = 'EUR',
+  currency,
   onClose,
   onSave,
   onDelete,
@@ -56,14 +56,14 @@ export function DateDetailModal({
 
       const price = parseFloat(inputPrice);
       if (isNaN(price) || price < 0) {
-        setError('Price must be a valid positive number');
+        setError('O preço deve ser um número positivo válido');
         return;
       }
 
       await onSave(price);
       onClose();
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to save price';
+      const message = err instanceof Error ? err.message : 'Falha ao guardar o preço';
       setError(message);
     } finally {
       setIsSaving(false);
@@ -71,7 +71,7 @@ export function DateDetailModal({
   };
 
   const handleDelete = async () => {
-    if (!window.confirm('Are you sure you want to delete this price override?')) {
+    if (!window.confirm('Tem a certeza de que quer eliminar esta alteração de preço?')) {
       return;
     }
 
@@ -81,14 +81,14 @@ export function DateDetailModal({
       await onDelete();
       onClose();
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to delete price';
+      const message = err instanceof Error ? err.message : 'Falha ao eliminar o preço';
       setError(message);
     } finally {
       setIsSaving(false);
     }
   };
 
-  const dateStr = date.toLocaleDateString('en-US', {
+  const dateStr = date.toLocaleDateString('pt-PT', {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
@@ -96,6 +96,11 @@ export function DateDetailModal({
   });
 
   const effectiveBasePrice = isWeekend && weekendPrice ? weekendPrice : basePrice;
+  const currencySymbol = currency ? getCurrencySymbol(currency) : '';
+  const formatPriceValue = (value: number | undefined): string => {
+    if (value === undefined) return '—';
+    return currency ? formatCurrency(value, currency) : value.toFixed(2);
+  };
 
   return (
     <>
@@ -118,11 +123,11 @@ export function DateDetailModal({
             {/* Base Price Display */}
             {effectiveBasePrice && (
               <div className="bg-gray-50 rounded p-3">
-              <div className="text-sm text-gray-600">
-                {isWeekend ? 'Weekend Price' : 'Base Price'}
-              </div>
+                <div className="text-sm text-gray-600">
+                  {isWeekend ? 'Preço de fim de semana' : 'Preço base'}
+                </div>
               <div className="text-2xl font-bold text-gray-900">
-                {formatCurrency(effectiveBasePrice, currency)}
+                {formatPriceValue(effectiveBasePrice)}
               </div>
             </div>
           )}
@@ -130,10 +135,10 @@ export function DateDetailModal({
             {/* Price Override Input */}
             <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-700">
-                Override Price (Optional)
+                Preço de exceção (opcional)
               </label>
               <div className="flex items-center">
-                <span className="text-gray-500 mr-2">{getCurrencySymbol(currency)}</span>
+                {currencySymbol && <span className="text-gray-500 mr-2">{currencySymbol}</span>}
                 <input
                   type="number"
                   step="0.01"
@@ -141,13 +146,13 @@ export function DateDetailModal({
                   value={inputPrice}
                   onChange={(e) => setInputPrice(e.target.value)}
                   className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Leave empty to use base price"
+                  placeholder="Deixe vazio para usar o preço base"
                   disabled={isSaving}
                 />
               </div>
               {inputPrice && inputPrice !== (basePrice || '').toString() && (
                 <div className="text-sm text-blue-600">
-                  Difference: {formatCurrency(parseFloat(inputPrice) - (effectiveBasePrice || 0), currency)}
+                  Diferença: {formatPriceValue(parseFloat(inputPrice) - (effectiveBasePrice || 0))}
                 </div>
               )}
             </div>
@@ -167,7 +172,7 @@ export function DateDetailModal({
               disabled={isSaving}
               className="flex-1 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 disabled:opacity-50"
             >
-              Cancel
+              Cancelar
             </button>
             {currentPrice !== undefined && (
               <button
@@ -175,7 +180,7 @@ export function DateDetailModal({
                 disabled={isSaving}
                 className="px-4 py-2 border border-red-300 bg-red-50 text-red-700 rounded-md hover:bg-red-100 disabled:opacity-50"
               >
-                Delete
+                Eliminar
               </button>
             )}
             <button
@@ -183,7 +188,7 @@ export function DateDetailModal({
               disabled={isSaving}
               className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
             >
-              {isSaving ? 'Saving...' : 'Save'}
+              {isSaving ? 'A guardar...' : 'Guardar'}
             </button>
           </div>
         </div>

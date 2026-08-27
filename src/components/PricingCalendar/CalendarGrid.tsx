@@ -38,7 +38,7 @@ export function CalendarGrid({
   rangeEnd,
   isSelectingRange = false,
   reservations = [],
-  currency = 'EUR',
+  currency,
 }: CalendarGridProps) {
   const reservationForDay = (day: CalendarDay): CalendarReservation | null => {
     const dayDate = startOfDay(day.date)

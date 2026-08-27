@@ -15,7 +15,7 @@ interface PriceIndicatorProps {
 export function PriceIndicator({
   priceType,
   price,
-  currency = 'EUR',
+  currency,
 }: PriceIndicatorProps) {
   const getIndicatorColor = (type: string): string => {
     switch (type) {
@@ -38,7 +38,7 @@ export function PriceIndicator({
     <span
       className={`inline-block px-2 py-1 text-xs font-semibold rounded border ${getIndicatorColor(priceType)}`}
     >
-      {formatCurrency(price, currency)}
+      {currency ? formatCurrency(price, currency) : price.toFixed(2)}
     </span>
   );
 }

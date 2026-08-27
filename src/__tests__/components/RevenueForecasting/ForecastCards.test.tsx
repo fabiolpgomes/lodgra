@@ -94,9 +94,9 @@ describe('ForecastCards', () => {
       />
     );
 
-    expect(screen.getByText('30 Days')).toBeInTheDocument();
-    expect(screen.getByText('60 Days')).toBeInTheDocument();
-    expect(screen.getByText('90 Days')).toBeInTheDocument();
+    expect(screen.getByText('30 dias')).toBeInTheDocument();
+    expect(screen.getByText('60 dias')).toBeInTheDocument();
+    expect(screen.getByText('90 dias')).toBeInTheDocument();
   });
 
   it('should display total 90-day projection', () => {
@@ -114,7 +114,7 @@ describe('ForecastCards', () => {
     );
 
     // Total should be 2500 + 5200 + 7800 = 15500
-    expect(screen.getByText(/15\s?500,00\s?€/)).toBeInTheDocument();
+    expect(screen.getByText('15500.00')).toBeInTheDocument();
   });
 
   it('should call onCardClick when card is clicked', () => {
@@ -131,9 +131,9 @@ describe('ForecastCards', () => {
       />
     );
 
-    // Find the button containing "30 Days"
+    // Encontrar o botão que contém "30 dias"
     const buttons = container.querySelectorAll('button');
-    const thirtydayCard = Array.from(buttons).find(btn => btn.textContent?.includes('30 Days'));
+    const thirtydayCard = Array.from(buttons).find((btn) => btn.textContent?.includes('30 dias'));
 
     if (thirtydayCard) {
       fireEvent.click(thirtydayCard);
@@ -175,7 +175,7 @@ describe('ForecastCards', () => {
     );
 
     expect(screen.getByText(errorMessage)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /retry/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /tentar novamente/i })).toBeInTheDocument();
   });
 
   it('should call onRefresh when Retry button is clicked', () => {
@@ -192,7 +192,7 @@ describe('ForecastCards', () => {
       />
     );
 
-    const retryButton = screen.getByRole('button', { name: /retry/i });
+    const retryButton = screen.getByRole('button', { name: /tentar novamente/i });
     fireEvent.click(retryButton);
 
     expect(mockOnRefresh).toHaveBeenCalled();
@@ -213,14 +213,14 @@ describe('ForecastCards', () => {
       />
     );
 
-    expect(screen.getByText('30 Days')).toBeInTheDocument();
-    expect(screen.getByText('60 Days')).toBeInTheDocument();
-    expect(screen.getByText('90 Days')).toBeInTheDocument();
+    expect(screen.getByText('30 dias')).toBeInTheDocument();
+    expect(screen.getByText('60 dias')).toBeInTheDocument();
+    expect(screen.getByText('90 dias')).toBeInTheDocument();
 
     // Verify revenue values are displayed
-    expect(screen.getByText(/2500|2,500/)).toBeInTheDocument();
-    expect(screen.getByText(/5200|5,200/)).toBeInTheDocument();
-    expect(screen.getByText(/7800|7,800/)).toBeInTheDocument();
+    expect(screen.getByText('2500.00')).toBeInTheDocument();
+    expect(screen.getByText('5200.00')).toBeInTheDocument();
+    expect(screen.getByText('7800.00')).toBeInTheDocument();
   });
 
   it('should display summary with total 90-day projection', () => {
@@ -238,7 +238,7 @@ describe('ForecastCards', () => {
     );
 
     // Summary should show total projection
-    expect(screen.getByText(/Total 90-day projection/i)).toBeInTheDocument();
+    expect(screen.getByText(/Projeção total a 90 dias/i)).toBeInTheDocument();
   });
 
   it('should have responsive grid layout for cards', () => {
@@ -278,7 +278,7 @@ describe('ForecastCards', () => {
     // Click each card and verify callback
     const buttons = container.querySelectorAll('button');
     buttons.forEach((btn) => {
-      if (btn.textContent?.includes('Days')) {
+      if (btn.textContent?.includes('dias')) {
         fireEvent.click(btn);
       }
     });

@@ -43,7 +43,7 @@ export function ProfitSummary({ currency, month, className = '' }: ProfitSummary
         setData(result)
         setError(null)
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch profit data')
+        setError(err instanceof Error ? err.message : 'Falha ao carregar os dados de lucro')
       } finally {
         setLoading(false)
       }
@@ -52,19 +52,19 @@ export function ProfitSummary({ currency, month, className = '' }: ProfitSummary
     fetchProfit()
   }, [currency, month])
 
-  if (loading) return <div className={className}>Loading profit data...</div>
-  if (error) return <div className={className}>Error: {error}</div>
-  if (!data) return <div className={className}>No data available</div>
+  if (loading) return <div className={className}>A carregar dados de lucro...</div>
+  if (error) return <div className={className}>Erro: {error}</div>
+  if (!data) return <div className={className}>Sem dados disponíveis</div>
 
   return (
     <div className={className}>
       {Object.entries(data).map(([curr, profit]) => (
         <div key={curr} className="mb-6 p-4 border rounded-lg bg-gradient-to-br from-white to-gray-50">
-          <h3 className="text-lg font-semibold mb-4">{curr} Profit</h3>
+          <h3 className="text-lg font-semibold mb-4">Lucro em {curr}</h3>
 
           <div className="space-y-3">
             <div className="flex items-center justify-between pb-2">
-              <span className="text-gray-700">Revenue (Real):</span>
+              <span className="text-gray-700">Receita real:</span>
               <span className="font-semibold">
                 {isSupportedCurrency(curr)
                   ? formatCurrency(profit.revenue, curr)
@@ -73,7 +73,7 @@ export function ProfitSummary({ currency, month, className = '' }: ProfitSummary
             </div>
 
             <div className="flex items-center justify-between pb-2">
-              <span className="text-gray-700">Total Expenses:</span>
+              <span className="text-gray-700">Despesas totais:</span>
               <span className="font-semibold text-red-600">
                 -{isSupportedCurrency(curr)
                   ? formatCurrency(profit.expenses, curr)
@@ -82,7 +82,7 @@ export function ProfitSummary({ currency, month, className = '' }: ProfitSummary
             </div>
 
             <div className="flex items-center justify-between pt-3 border-t-2">
-              <span className="text-lg font-bold">Real Profit:</span>
+              <span className="text-lg font-bold">Lucro real:</span>
               <span
                 className={`text-2xl font-bold ${profit.profit >= 0 ? 'text-emerald-700' : 'text-red-600'}`}
               >
@@ -95,10 +95,10 @@ export function ProfitSummary({ currency, month, className = '' }: ProfitSummary
 
           <div className="mt-4 p-3 bg-brand-50 rounded text-sm text-gray-700">
             <p className="mb-1">
-              <strong>Formula:</strong> Real Profit = Revenue (Real) - Total Expenses
+              <strong>Fórmula:</strong> Lucro real = Receita real - Despesas totais
             </p>
             <p className="text-xs text-gray-600">
-              Revenue shown is actual revenue for the current month (not including predicted future months)
+              A receita apresentada corresponde à receita real do mês atual, sem incluir meses futuros previstos
             </p>
           </div>
         </div>

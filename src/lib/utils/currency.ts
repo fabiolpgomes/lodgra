@@ -22,7 +22,7 @@ export type CurrencyCode = keyof typeof CURRENCIES
  */
 export function formatCurrency(
   amount: number | string | null | undefined,
-  currency: CurrencyCode = 'EUR',
+  currency?: CurrencyCode | null,
   showSymbol: boolean = true
 ): string {
   if (amount === null || amount === undefined || amount === '') {
@@ -35,7 +35,14 @@ export function formatCurrency(
     return '-'
   }
 
-  const currencyInfo = CURRENCIES[currency] || CURRENCIES.EUR
+  if (!currency) {
+    return numAmount.toFixed(2)
+  }
+
+  const currencyInfo = CURRENCIES[currency]
+  if (!currencyInfo) {
+    return showSymbol ? `${currency} ${numAmount.toFixed(2)}` : numAmount.toFixed(2)
+  }
   
   try {
     const formatted = new Intl.NumberFormat(currencyInfo.locale, {
@@ -47,8 +54,7 @@ export function formatCurrency(
 
     return formatted
   } catch {
-    // Fallback se Intl falhar
-    return showSymbol 
+    return showSymbol
       ? `${currencyInfo.symbol} ${numAmount.toFixed(2)}`
       : numAmount.toFixed(2)
   }
@@ -59,8 +65,8 @@ export function formatCurrency(
  * @param currency - Código da moeda
  * @returns Símbolo (ex: "€", "R$", "$")
  */
-export function getCurrencySymbol(currency: CurrencyCode = 'EUR'): string {
-  return CURRENCIES[currency]?.symbol || '€'
+export function getCurrencySymbol(currency?: CurrencyCode | null): string {
+  return currency ? CURRENCIES[currency]?.symbol || currency : ''
 }
 
 /**
@@ -68,8 +74,8 @@ export function getCurrencySymbol(currency: CurrencyCode = 'EUR'): string {
  * @param currency - Código da moeda
  * @returns Nome (ex: "Euro", "Real Brasileiro")
  */
-export function getCurrencyName(currency: CurrencyCode = 'EUR'): string {
-  return CURRENCIES[currency]?.name || 'Euro'
+export function getCurrencyName(currency?: CurrencyCode | null): string {
+  return currency ? CURRENCIES[currency]?.name || currency : ''
 }
 
 /**
@@ -91,10 +97,14 @@ export function getCurrencyOptions() {
  * @returns Objeto com totais por moeda
  */
 export function groupByCurrency(
-  items: Array<{ currency: CurrencyCode; amount: number }>
+  items: Array<{ currency?: CurrencyCode | null; amount: number }>
 ): Record<CurrencyCode, number> {
   return items.reduce((acc, item) => {
-    const currency = item.currency || 'EUR'
+    if (!item.currency) {
+      return acc
+    }
+
+    const currency = item.currency
     acc[currency] = (acc[currency] || 0) + item.amount
     return acc
   }, {} as Record<CurrencyCode, number>)

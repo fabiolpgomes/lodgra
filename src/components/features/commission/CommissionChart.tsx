@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { Card } from '@/components/common/ui/card'
 import { Skeleton } from '@/components/common/ui/skeleton'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
+import { formatCurrency } from '@/lib/utils/currency'
 
 interface ChartDataPoint {
   date: string
@@ -156,7 +157,7 @@ export function CommissionChart({ days = 30 }: CommissionChartProps) {
               padding: '8px',
             }}
             formatter={(value) => [
-              typeof value === 'number' ? `€${value.toFixed(2)}` : value,
+              typeof value === 'number' ? formatCurrency(value) : value,
             ]}
             labelFormatter={(label) => `Date: ${label}`}
           />

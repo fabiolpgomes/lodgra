@@ -66,11 +66,11 @@ export function RecommendationsView({
     return (
       <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-8 text-center">
         <AlertCircle className="w-12 h-12 text-slate-400 dark:text-slate-500 mx-auto mb-4" />
-        <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
-          No recommendations available
+          <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
+          Não há recomendações disponíveis
         </h3>
         <p className="text-slate-600 dark:text-slate-400">
-          We need at least 30 days of price history to generate recommendations. Check back soon!
+          Precisamos de pelo menos 30 dias de histórico de preços para gerar recomendações. Volte em breve.
         </p>
       </div>
     );
@@ -80,7 +80,7 @@ export function RecommendationsView({
   if (!isLoading && sortedRecommendations.length === 0) {
     return (
       <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-8 text-center">
-        <p className="text-slate-600 dark:text-slate-400">No recommendations match the selected filter.</p>
+        <p className="text-slate-600 dark:text-slate-400">Nenhuma recomendação corresponde ao filtro selecionado.</p>
       </div>
     );
   }
@@ -92,7 +92,7 @@ export function RecommendationsView({
         <div className="flex gap-3">
           <AlertCircle className="w-6 h-6 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
           <div>
-            <h3 className="font-semibold text-red-900 dark:text-red-100">Error loading recommendations</h3>
+            <h3 className="font-semibold text-red-900 dark:text-red-100">Erro ao carregar recomendações</h3>
             <p className="text-sm text-red-800 dark:text-red-200 mt-1">{error}</p>
           </div>
         </div>
@@ -108,23 +108,23 @@ export function RecommendationsView({
           {/* Filter */}
           <div>
             <label className="block text-sm font-semibold text-slate-900 dark:text-white mb-2">
-              Status
+              Estado
             </label>
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value as FilterStatus)}
               className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option value="all">All Recommendations ({recommendations.length})</option>
+              <option value="all">Todas as recomendações ({recommendations.length})</option>
               <option value="pending">
-                Pending (
+                Pendentes (
                 {recommendations.filter((r) => !r.accepted && !r.rejected_at).length})
               </option>
               <option value="accepted">
-                Accepted ({recommendations.filter((r) => r.accepted).length})
+                Aceites ({recommendations.filter((r) => r.accepted).length})
               </option>
               <option value="rejected">
-                Rejected ({recommendations.filter((r) => r.rejected_at).length})
+                Rejeitadas ({recommendations.filter((r) => r.rejected_at).length})
               </option>
             </select>
           </div>
@@ -132,16 +132,16 @@ export function RecommendationsView({
           {/* Sort */}
           <div>
             <label className="block text-sm font-semibold text-slate-900 dark:text-white mb-2">
-              Sort By
+              Ordenar por
             </label>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as SortOption)}
               className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option value="newest">Newest First</option>
-              <option value="confidence">Highest Confidence</option>
-              <option value="impact">Highest Impact</option>
+              <option value="newest">Mais recentes primeiro</option>
+              <option value="confidence">Maior confiança</option>
+              <option value="impact">Maior impacto</option>
             </select>
           </div>
         </div>
@@ -149,7 +149,7 @@ export function RecommendationsView({
 
       {/* Results Count */}
       <p className="text-sm text-slate-600 dark:text-slate-400">
-        Showing {sortedRecommendations.length} recommendation{sortedRecommendations.length !== 1 ? 's' : ''}
+        A mostrar {sortedRecommendations.length} recomendação{sortedRecommendations.length !== 1 ? 'es' : ''}
       </p>
 
       {/* Loading State */}
@@ -178,9 +178,9 @@ export function RecommendationsView({
       {/* Info Box */}
       <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
         <p className="text-sm text-blue-900 dark:text-blue-100">
-          <span className="font-semibold">💡 Tip:</span> Recommendations are updated daily based on your
-          property's pricing history and market trends. Accept recommendations to automatically update your
-          nightly rate.
+          <span className="font-semibold">💡 Dica:</span> As recomendações são atualizadas diariamente com base
+          no histórico de preços da propriedade e nas tendências do mercado. Aceite recomendações para
+          atualizar automaticamente o seu preço por noite.
         </p>
       </div>
     </div>

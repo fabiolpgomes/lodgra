@@ -56,18 +56,18 @@ export function GuestTierCard({
   // Unlock message
   const unlockMessage = useMemo(() => {
     if (!next_tier || points_to_next <= 0) {
-      return 'You have reached the highest tier!'
+      return 'Já atingiu o nível mais alto!'
     }
     
-    const stayWord = points_to_next === 1 ? 'stay' : 'stays'
-    return `${points_to_next} more ${stayWord} to unlock ${next_tier.tier_name} tier (${next_tier.base_discount_percent}% discount)`
+    const stayWord = points_to_next === 1 ? 'estadia' : 'estadias'
+    return `Faltam ${points_to_next} ${stayWord} para desbloquear o nível ${next_tier.tier_name} (${next_tier.base_discount_percent}% de desconto)`
   }, [next_tier, points_to_next])
 
   if (loading) {
     return (
       <div className="p-4 border-t">
         <div className="text-center text-sm text-gray-600">
-          Loading tier information...
+          A carregar informações do nível...
         </div>
       </div>
     )
@@ -77,7 +77,7 @@ export function GuestTierCard({
     <div className="p-4 border-t w-full">
       {/* Header with tier badge */}
       <div className="flex items-center gap-2 mb-4">
-        <h3 className="text-sm font-semibold">Guest Tier 🏆</h3>
+        <h3 className="text-sm font-semibold">Nível de Hóspede 🏆</h3>
       </div>
 
       {/* Current tier and discount */}
@@ -87,7 +87,7 @@ export function GuestTierCard({
             {current_tier.tier_name}
           </span>
           <span className="text-sm text-gray-600">
-            {current_tier.base_discount_percent}% discount
+            {current_tier.base_discount_percent}% de desconto
           </span>
         </div>
 
@@ -100,13 +100,13 @@ export function GuestTierCard({
             aria-valuenow={loyalty_score}
             aria-valuemin={0}
             aria-valuemax={100}
-            aria-label={`Loyalty progress: ${loyalty_score} out of 100 points`}
+            aria-label={`Progresso de fidelidade: ${loyalty_score} em 100 pontos`}
           />
         </div>
 
         {/* Score display */}
         <p className="text-xs text-gray-600">
-          <strong>{loyalty_score}/100</strong> points
+          <strong>{loyalty_score}/100</strong> pontos
         </p>
       </div>
 
@@ -119,7 +119,7 @@ export function GuestTierCard({
 
       {/* Perks list */}
       <div>
-        <p className="text-xs font-semibold text-gray-700 mb-2">Tier Benefits</p>
+        <p className="text-xs font-semibold text-gray-700 mb-2">Vantagens do Nível</p>
         <ul className="space-y-1">
           {current_tier.perks.map((perk, idx) => (
             <li
@@ -135,11 +135,11 @@ export function GuestTierCard({
 
       {/* Accessibility: Hidden tier badge for screen readers */}
       <div className="sr-only">
-        You are a {current_tier.tier_name} member with {loyalty_score} loyalty points.
-        Current discount: {current_tier.base_discount_percent}%.{' '}
+        É membro do nível {current_tier.tier_name} com {loyalty_score} pontos de fidelidade.
+        Desconto atual: {current_tier.base_discount_percent}%.{' '}
         {next_tier
-          ? `Next tier: ${next_tier.tier_name} with ${next_tier.base_discount_percent}% discount. ${unlockMessage}`
-          : 'You have reached the highest tier.'}
+          ? `Próximo nível: ${next_tier.tier_name} com ${next_tier.base_discount_percent}% de desconto. ${unlockMessage}`
+          : 'Já atingiu o nível mais alto.'}
       </div>
     </div>
   )

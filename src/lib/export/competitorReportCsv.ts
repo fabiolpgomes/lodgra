@@ -7,7 +7,7 @@ import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency';
 export function generateCompetitorReportCSV(
   reportData: BenchmarkReportData,
   propertyName: string,
-  currency: CurrencyCode = 'EUR'
+  currency?: CurrencyCode
 ): void {
   try {
     const csv = buildCompetitorReportCSV(reportData, propertyName, currency);
@@ -26,7 +26,7 @@ export function generateCompetitorReportCSV(
 export function buildCompetitorReportCSV(
   reportData: BenchmarkReportData,
   propertyName: string,
-  currency: CurrencyCode = 'EUR'
+  currency?: CurrencyCode
 ): string {
   const lines: string[] = [];
 
@@ -38,13 +38,13 @@ export function buildCompetitorReportCSV(
 
   // Market summary section
   lines.push('"MARKET SUMMARY"');
-  lines.push(`"Your Price","${formatCurrency(reportData.property.currentPrice, currency)}"`);
-  lines.push(`"Market Average","${formatCurrency(reportData.marketAnalysis.marketAveragePrice, currency)}"`);
+  lines.push(`"Your Price","${currency ? formatCurrency(reportData.property.currentPrice, currency) : reportData.property.currentPrice.toFixed(2)}"`);
+  lines.push(`"Market Average","${currency ? formatCurrency(reportData.marketAnalysis.marketAveragePrice, currency) : reportData.marketAnalysis.marketAveragePrice.toFixed(2)}"`);
   lines.push(
     `"Position","${reportData.marketAnalysis.percentageDifference > 0 ? '+' : ''}${reportData.marketAnalysis.percentageDifference.toFixed(1)}%"`
   );
   lines.push(
-    `"Market Range","${formatCurrency(reportData.marketAnalysis.marketRange.min, currency)} - ${formatCurrency(reportData.marketAnalysis.marketRange.max, currency)}"`
+    `"Market Range","${currency ? formatCurrency(reportData.marketAnalysis.marketRange.min, currency) : reportData.marketAnalysis.marketRange.min.toFixed(2)} - ${currency ? formatCurrency(reportData.marketAnalysis.marketRange.max, currency) : reportData.marketAnalysis.marketRange.max.toFixed(2)}"`
   );
   lines.push('');
 
@@ -61,8 +61,8 @@ export function buildCompetitorReportCSV(
 
   reportData.competitors.forEach((comp) => {
     lines.push(
-      `"${escapeCsvValue(comp.competitor.competitorName)}","${comp.competitor.platform}","${comp.currentPrice !== null ? formatCurrency(comp.currentPrice, currency) : 'N/A'}","${comp.priceChange7d !== null ? formatCurrency(comp.priceChange7d, currency) : 'N/A'}","${comp.percentageChange7d?.toFixed(1) || 'N/A'}%","${comp.daysMonitored}"`
-    );
+    `"${escapeCsvValue(comp.competitor.competitorName)}","${comp.competitor.platform}","${comp.currentPrice !== null ? (currency ? formatCurrency(comp.currentPrice, currency) : comp.currentPrice.toFixed(2)) : 'N/A'}","${comp.priceChange7d !== null ? (currency ? formatCurrency(comp.priceChange7d, currency) : comp.priceChange7d.toFixed(2)) : 'N/A'}","${comp.percentageChange7d?.toFixed(1) || 'N/A'}%","${comp.daysMonitored}"`
+  );
   });
 
   return lines.join('\n');

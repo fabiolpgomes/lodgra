@@ -68,7 +68,7 @@ export function PriceRecommendationCard({
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1 min-w-0">
               <p className="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
-                Recommended Price
+                Preço recomendado
               </p>
               <div className="mt-2 flex items-baseline gap-2 flex-wrap">
                 <span className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white">
@@ -83,7 +83,7 @@ export function PriceRecommendationCard({
                 </span>
               </div>
               <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">
-                Current: {formatPricingAmount(currentPrice, currency)}
+                Atual: {formatPricingAmount(currentPrice, currency)}
               </p>
             </div>
 
@@ -118,23 +118,23 @@ export function PriceRecommendationCard({
         <div className="p-4 sm:p-6 border-b border-slate-200 dark:border-slate-700">
           <div className="flex items-center gap-2 mb-3">
             <TrendingUp className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-            <h3 className="font-semibold text-slate-900 dark:text-white">Projected Monthly Impact</h3>
+            <h3 className="font-semibold text-slate-900 dark:text-white">Impacto mensal previsto</h3>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
             <div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 uppercase">Current</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 uppercase">Atual</p>
               <p className="text-lg font-semibold text-slate-900 dark:text-white mt-1">
                 {formatPricingAmount(recommendation.revenue_projection.current_monthly, currency)}
               </p>
             </div>
             <div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 uppercase">Projected</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 uppercase">Previsto</p>
               <p className="text-lg font-semibold text-slate-900 dark:text-white mt-1">
                 {formatPricingAmount(recommendation.revenue_projection.projected_monthly, currency)}
               </p>
             </div>
             <div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 uppercase">Change</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 uppercase">Variação</p>
               <p
                 className={`text-lg font-semibold mt-1 ${
                   revenueChange >= 0
@@ -149,7 +149,7 @@ export function PriceRecommendationCard({
           {recommendation.revenue_projection.percentage_change !== 0 && (
             <p className="text-xs text-slate-600 dark:text-slate-400 mt-3">
               {recommendation.revenue_projection.percentage_change >= 0 ? '+' : ''}
-              {recommendation.revenue_projection.percentage_change.toFixed(1)}% monthly revenue change
+              {recommendation.revenue_projection.percentage_change.toFixed(1)}% de variação mensal da receita
             </p>
           )}
         </div>
@@ -162,7 +162,7 @@ export function PriceRecommendationCard({
           >
             <div className="flex items-center gap-2">
               <Zap className="w-5 h-5 text-slate-600 dark:text-slate-400" />
-              <span className="font-semibold text-slate-900 dark:text-white">Market Analysis</span>
+              <span className="font-semibold text-slate-900 dark:text-white">Análise de mercado</span>
             </div>
             <ChevronDown
               className={`w-5 h-5 text-slate-600 dark:text-slate-400 transition-transform ${
@@ -174,19 +174,19 @@ export function PriceRecommendationCard({
           {showDetails && (
             <div className="px-4 sm:px-6 pb-4 space-y-3 text-sm bg-slate-50/50 dark:bg-slate-800/50">
               <div className="flex justify-between">
-                <span className="text-slate-600 dark:text-slate-400">Market Median:</span>
+                <span className="text-slate-600 dark:text-slate-400">Mediana do mercado:</span>
                 <span className="font-semibold text-slate-900 dark:text-white">
                   {formatPricingAmount(recommendation.market_analysis.median_price, currency)}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-600 dark:text-slate-400">Competitor Avg:</span>
+                <span className="text-slate-600 dark:text-slate-400">Média dos concorrentes:</span>
                 <span className="font-semibold text-slate-900 dark:text-white">
                   {formatPricingAmount(recommendation.market_analysis.competitor_avg, currency)}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-600 dark:text-slate-400">Market Trend:</span>
+                <span className="text-slate-600 dark:text-slate-400">Tendência do mercado:</span>
                 <span
                   className={`font-semibold capitalize ${
                     recommendation.market_analysis.market_trend === 'up'
@@ -200,9 +200,9 @@ export function PriceRecommendationCard({
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-600 dark:text-slate-400">Sample Size:</span>
+                <span className="text-slate-600 dark:text-slate-400">Amostra:</span>
                 <span className="font-semibold text-slate-900 dark:text-white">
-                  {recommendation.market_analysis.sample_size} properties
+                  {recommendation.market_analysis.sample_size} propriedades
                 </span>
               </div>
             </div>
@@ -217,14 +217,14 @@ export function PriceRecommendationCard({
               disabled={isLoading}
               className="flex-1 px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              {isLoading ? 'Processing...' : 'Accept & Apply'}
+              {isLoading ? 'A processar...' : 'Aceitar e aplicar'}
             </button>
             <button
               onClick={handleReject}
               disabled={isLoading}
               className="flex-1 px-4 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-semibold rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              Reject
+              Rejeitar
             </button>
           </div>
         )}
@@ -232,7 +232,7 @@ export function PriceRecommendationCard({
         {recommendation.accepted && (
           <div className="p-4 sm:p-6 bg-emerald-50 dark:bg-emerald-900/20 border-t border-emerald-200 dark:border-emerald-800">
             <p className="text-sm font-semibold text-emerald-800 dark:text-emerald-300">
-              ✓ Accepted on {new Date(recommendation.accepted_at!).toLocaleDateString()}
+              ✓ Aceite em {new Date(recommendation.accepted_at!).toLocaleDateString('pt-PT')}
             </p>
           </div>
         )}
@@ -244,25 +244,25 @@ export function PriceRecommendationCard({
           <div className="bg-white dark:bg-slate-900 rounded-lg shadow-lg max-w-sm w-full">
             <div className="p-6 border-b border-slate-200 dark:border-slate-700">
               <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-                Accept Recommendation?
+                Aceitar a recomendação?
               </h2>
             </div>
 
             <div className="p-6 space-y-4">
               <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
                 <p className="text-sm text-slate-700 dark:text-slate-300">
-                  This will immediately update your property's nightly price to{' '}
+                  Isto irá atualizar imediatamente o preço por noite da sua propriedade para{' '}
                   <span className="font-bold">{formatPricingAmount(recommendation.recommended_price, currency)}</span>.
                 </p>
               </div>
 
               <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-lg">
                 <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">
-                  Projected monthly impact:
+                  Impacto mensal previsto:
                 </p>
                 <p className="text-lg font-bold text-slate-900 dark:text-white">
                   {recommendation.revenue_projection.percentage_change >= 0 ? '+' : ''}
-                  {recommendation.revenue_projection.percentage_change.toFixed(1)}% revenue
+                  {recommendation.revenue_projection.percentage_change.toFixed(1)}% de receita
                 </p>
               </div>
             </div>
@@ -273,14 +273,14 @@ export function PriceRecommendationCard({
                 disabled={isAccepting}
                 className="flex-1 px-4 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-semibold rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50"
               >
-                Cancel
+                Cancelar
               </button>
               <button
                 onClick={handleAccept}
                 disabled={isAccepting}
                 className="flex-1 px-4 py-2 bg-emerald-700 text-white font-semibold rounded-lg hover:bg-emerald-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                {isAccepting ? 'Accepting...' : 'Yes, Apply Now'}
+                {isAccepting ? 'A aceitar...' : 'Sim, aplicar agora'}
               </button>
             </div>
           </div>

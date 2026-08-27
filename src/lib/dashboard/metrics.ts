@@ -243,13 +243,16 @@ export function filterRowsByProperties(
 export function aggregateMonthlyMetricsByCurrency(
   rows: MonthlyPropertyMetricRow[],
   propertyCurrencyMap: Record<string, string>,
-  fallbackCurrency: string
+  fallbackCurrency: string | null = null
 ): Record<string, PeriodCurrencyMetrics> {
   const result: Record<string, PeriodCurrencyMetrics> = {}
   const propertiesByCurrency: Record<string, Set<string>> = {}
 
   rows.forEach((row) => {
-    const currency = propertyCurrencyMap[row.property_id] || fallbackCurrency
+    const currency = propertyCurrencyMap[row.property_id]?.toUpperCase() || fallbackCurrency?.toUpperCase() || null
+    if (!currency) {
+      return
+    }
     if (!result[currency]) {
       result[currency] = emptyPeriodMetrics()
       propertiesByCurrency[currency] = new Set()
@@ -296,13 +299,16 @@ export type ManagementFeeByCurrency = Record<string, { commission: number; rowCo
 export function aggregateManagementFeeByCurrency(
   rows: MonthlyPropertyMetricRow[],
   propertyMeta: Record<string, { currency: string; managementPercentage: number }>,
-  fallbackCurrency: string
+  fallbackCurrency: string | null = null
 ): ManagementFeeByCurrency {
   const result: ManagementFeeByCurrency = {}
 
   rows.forEach((row) => {
     const meta = propertyMeta[row.property_id]
-    const currency = meta?.currency || fallbackCurrency
+    const currency = meta?.currency?.toUpperCase() || fallbackCurrency?.toUpperCase() || null
+    if (!currency) {
+      return
+    }
     const fee = calcManagementFee(Number(row.gross_revenue || 0), meta?.managementPercentage || 0)
 
     if (!result[currency]) result[currency] = { commission: 0, rowCount: 0 }

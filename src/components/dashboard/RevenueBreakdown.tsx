@@ -43,7 +43,7 @@ export function RevenueBreakdown({ currency, month, className = '' }: RevenueBre
         setData(result)
         setError(null)
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch revenue data')
+        setError(err instanceof Error ? err.message : 'Falha ao carregar os dados de receita')
       } finally {
         setLoading(false)
       }
@@ -52,18 +52,18 @@ export function RevenueBreakdown({ currency, month, className = '' }: RevenueBre
     fetchRevenue()
   }, [currency, month])
 
-  if (loading) return <div className={className}>Loading revenue data...</div>
-  if (error) return <div className={className}>Error: {error}</div>
-  if (!data) return <div className={className}>No data available</div>
+  if (loading) return <div className={className}>A carregar dados de receita...</div>
+  if (error) return <div className={className}>Erro: {error}</div>
+  if (!data) return <div className={className}>Sem dados disponíveis</div>
 
   return (
     <div className={className}>
       {Object.entries(data).map(([curr, revenues]) => (
         <div key={curr} className="mb-6 p-4 border rounded-lg">
-          <h3 className="text-lg font-semibold mb-4">{curr} Revenue</h3>
+          <h3 className="text-lg font-semibold mb-4">Receita em {curr}</h3>
 
           {revenues.length === 0 ? (
-            <p className="text-gray-600">No revenue data available</p>
+            <p className="text-gray-600">Não existem dados de receita disponíveis</p>
           ) : (
             <div className="space-y-3">
               {revenues.map(item => (
@@ -74,8 +74,8 @@ export function RevenueBreakdown({ currency, month, className = '' }: RevenueBre
 
                   <div className="ml-4 text-right">
                     <div className="mb-1">
-                      <span className="text-sm text-gray-600">Real: </span>
-                      <span className="font-semibold" title="Actual revenue for current month">
+                      <span className="text-sm text-gray-600">Atual: </span>
+                      <span className="font-semibold" title="Receita real do mês atual">
                         {isSupportedCurrency(curr)
                           ? formatCurrency(item.actual, curr)
                           : `${item.actual.toFixed(2)} ${curr}`}
@@ -84,10 +84,10 @@ export function RevenueBreakdown({ currency, month, className = '' }: RevenueBre
 
                     {item.predicted > 0 && (
                       <div>
-                        <span className="text-sm text-gray-600">Predicted: </span>
+                        <span className="text-sm text-gray-600">Previsto: </span>
                         <span
                           className="font-semibold text-brand-600"
-                          title="Predicted revenue (proportional formula for >30 day reservations)"
+                          title="Receita prevista (fórmula proporcional para reservas com mais de 30 dias)"
                         >
                           {isSupportedCurrency(curr)
                             ? formatCurrency(item.predicted, curr)
@@ -101,10 +101,10 @@ export function RevenueBreakdown({ currency, month, className = '' }: RevenueBre
 
               <div className="mt-4 pt-3 border-t-2">
                 <p className="text-xs text-gray-600">
-                  💡 Reservations ≤30 days: 100% counted in check-in month
+                  💡 Reservas ≤30 dias: 100% contabilizadas no mês do check-in
                 </p>
                 <p className="text-xs text-gray-600 mt-1">
-                  💡 Reservations &gt;30 days: Proportional distribution using formula (Total / Days) × 30
+                  💡 Reservas &gt;30 dias: distribuição proporcional usando a fórmula (Total / Dias) × 30
                 </p>
               </div>
             </div>
