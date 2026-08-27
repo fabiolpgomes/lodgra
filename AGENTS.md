@@ -73,3 +73,15 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+<!-- SECOND-BRAIN-START -->
+## Segundo cérebro (contexto de produto/negócio, fora do código)
+
+Antes de tarefas que envolvam decisão de produto, modelo de dados ou estratégia (não apenas execução de story), consulte:
+
+1. Mapa completo: `/Users/fabiogomes/Documents/second-brain/AGENTS.md`
+2. Status deste projeto: `/Users/fabiogomes/Documents/second-brain/projects/lodgra.md`
+
+Registre decisão relevante em `/Users/fabiogomes/Documents/second-brain/decisions.md`.
+Registre erro/lição em `/Users/fabiogomes/Documents/second-brain/LEARNINGS.md`.
+<!-- SECOND-BRAIN-END -->
