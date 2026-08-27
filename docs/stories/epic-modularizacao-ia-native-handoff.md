@@ -238,6 +238,18 @@ A validação de closeout da expansão segue em QA-3 depois da integração e da
 2. keep the expansion policy as the default gate for future capabilities
 3. resolve the production restore-point follow-up before the next operational promotion if needed
 
+## 12. Session Update - 2026-08-24
+
+### What was closed today
+- QA-3 completed with PASS and the expansion policy is now the standing governance gate
+- PM-3, UX-3 and DEV-4 are aligned as the closeout chain for the IA Native capability
+- the epic can now be handed off as a reusable model for future modular waves
+
+### Recommended next step
+1. start the next planning cycle from the validated core / capability / extension policy
+2. reuse the same shell-first, staging-first, validation-first order for new capabilities
+3. keep the MVP boundary intact unless a new wave is explicitly approved
+
 ## 11. Session Update - 2026-08-21
 
 ### What was completed today

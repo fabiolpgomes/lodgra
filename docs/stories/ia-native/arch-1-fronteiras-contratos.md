@@ -1,7 +1,7 @@
 # Story ARCH-1 - Definir fronteiras e contratos entre módulos
 
 **Epic:** Evolução Modular do Lodgra + MVP de IA Native para Viabilidade de Propriedades  
-**Status:** Draft  
+**Status:** Ready for Review  
 **Owner:** @architect  
 **Quality Gate:** @qa  
 **Depends On:** PM-1
@@ -33,31 +33,31 @@ Agora esta story transforma essa separação em regras arquiteturais:
 ## Acceptance Criteria
 
 ### AC1: Fronteiras claras
-- [ ] Core não contém lógica de negócio específica de módulo
-- [ ] Operação não mistura regras de Empresa ou Proprietário
-- [ ] Empresa não depende de UI operacional para calcular resultado
-- [ ] IA Native é tratada como capability separada
+- [x] Core não contém lógica de negócio específica de módulo
+- [x] Operação não mistura regras de Empresa ou Proprietário
+- [x] Empresa não depende de UI operacional para calcular resultado
+- [x] IA Native é tratada como capability separada
 
 ### AC2: Contratos documentados
-- [ ] Cada módulo tem entradas
-- [ ] Cada módulo tem saídas
-- [ ] Cada módulo tem dependências permitidas
-- [ ] Cada módulo tem dependências proibidas
+- [x] Cada módulo tem entradas
+- [x] Cada módulo tem saídas
+- [x] Cada módulo tem dependências permitidas
+- [x] Cada módulo tem dependências proibidas
 
 ### AC3: Regras de integração
-- [ ] Serviços compartilhados são explicitamente listados
-- [ ] Regras de moeda e timezone ficam em camada comum
-- [ ] Regras financeiras não ficam espalhadas em páginas
+- [x] Serviços compartilhados são explicitamente listados
+- [x] Regras de moeda e timezone ficam em camada comum
+- [x] Regras financeiras não ficam espalhadas em páginas
 
 ### AC4: Estratégia de expansão
-- [ ] Novas features seguem o contrato modular
-- [ ] Cada módulo pode crescer sem quebrar o shell
-- [ ] IA Native pode ser desligada sem afetar a operação
+- [x] Novas features seguem o contrato modular
+- [x] Cada módulo pode crescer sem quebrar o shell
+- [x] IA Native pode ser desligada sem afetar a operação
 
 ### AC5: Pronto para UX e DEV
-- [ ] O documento pode ser consumido pela story de navegação
-- [ ] O documento pode ser consumido pela story do shell modular
-- [ ] O documento pode ser consumido pelo handoff da próxima wave
+- [x] O documento pode ser consumido pela story de navegação
+- [x] O documento pode ser consumido pela story do shell modular
+- [x] O documento pode ser consumido pelo handoff da próxima wave
 
 ## Scope
 

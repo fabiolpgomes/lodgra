@@ -99,43 +99,31 @@ Executar este checklist no staging antes de fechar a fundação modular:
 **Decision:** CONCERNS
 
 ### Summary
-The foundation is well structured at the story level. PM-1, ARCH-1, UX-1, DEV-1 and DEV-2 define a coherent modular path with clear boundaries, navigation intent and staging expectations.
+The foundation is structurally sound and the core shell contracts are passing in automated tests. PM-1, ARCH-1, UX-1, DEV-1 and DEV-2 now form a coherent modular path with staging readiness documented, but the QA evidence trail still needs one clearer pass on browser-observable staging proof and the IA Native visibility narrative needs to stay aligned with the code-level gate model.
 
 ### Strengths
 - module separation is explicit across product, architecture and UX
-- the IA Native capability is isolated conceptually
-- staging is defined as a production mirror with masking and rollback readiness
+- the staging mirror is documented with production-like fidelity and sanitization expectations
 - rollout and rollback are already part of the wave design
+- focused shell tests passed on 2026-08-25 for registry, sidebar, top bar and bottom nav
 
 ### Concerns
-- QA-1 still needs the remaining shell and module smoke-test items to be exercised explicitly in the browser
-- the smoke-test checklist now exists, but the story should keep one evidence trail per item before it is closed
-- promotion and rollback still need final operational evidence attached to the story, not only documented in the runbook
+- the smoke-test checklist still lacks a complete one-item-per-evidence trail in the browser for the current preview target
+- the story narrative should explicitly say that IA Native is controlled by the navigation/access gate, because the registry currently publishes the module and the shell components filter it later
+- promotion and rollback are documented, but the final operational proof is still stronger in the runbook than in attached staging evidence
+- browser-render proof for currency context remains pending in this environment, so that item should stay marked as an execution limitation rather than a product defect
 
 ### Risk Level
 - Medium
 
 ### Recommendation
-- the core modular shell has now been validated through contract and staging evidence
-- the remaining browser proof for currency context is blocked by the browser policy in this environment, so it should be treated as a documented limitation rather than a product defect
-- hand off to OPS-1 with the current evidence trail, and resume the blocked browser proof only when a reachable preview path is available again
+- the core modular shell is ready for the next operational gate, but QA-1 should remain CONCERNS until the browser smoke trail is attached to the story
+- hand off to OPS-1 with the current evidence trail, and keep the missing browser proof explicitly tracked as an environment limitation
+- update the story narrative so the IA Native visibility model matches the actual implementation: published in the registry, then filtered by the shell gate
 
-### Verified on 2026-08-21
-- the staging QA user `codex-qa-20260821@lodgra.io` was confirmed in `auth.users`
-- password login returned a valid session for that user
-- the fresh preview session returned `200 OK` for `/pt-BR/dashboard`
-- the current preview accepted the session cookie and returned `200 OK` for `/pt-BR/admin/users`
-- the fresh preview session returned `200 OK` for `/pt-BR/owners` and exposed the shell labels `Base da plataforma`, `Core`, `Operação`, `Empresa`, `Proprietário`, `Módulos`, `Atalhos da conta`, and `Mais`
-- the same authenticated shell exposed mobile nav markup on `/pt-BR/owners` with `md:hidden`, `Mais`, `Módulos`, and the account shortcuts
-- the shell registry defines `IA Native` as a separate module with `published: false` and `matches: ['/ia-native', '/property-intelligence']`, so it is intentionally isolated from the public shell until DEV-4
-- the top bar and shell labels on `/pt-BR/owners` make the current module state legible before action, satisfying the "understand which module you are in" check
-- the shell contract only publishes modules when `published: true`, and `IA Native` is excluded from `getModuleNavLinks()` and falls back to the Core shell in `getModuleForPath()`, so the feature gate hides the module without changing the rest of the navigation contract
-- the same shell contract keeps fallback navigation alive when a module is disabled: hidden modules are not rendered in the published module links, and unmatched paths resolve to the Core module instead of breaking the shell
-- the rollback model in DEV-4 and OPS-1 is explicit: rollback disables the module entry first, keeps the shell operating normally, and does not require data migration at this stage, so disablement is documented instead of improvised
-- the staging preview validated on 2026-08-21 returned `200 OK` for authenticated `/pt-BR/dashboard`, `/pt-BR/admin/users`, and `/pt-BR/owners`, with the expected desktop and mobile shell labels, so the staging mirror reproduces the shell behavior needed for QA-1
-- on 2026-08-22 the shell registry contract was tightened in code so `IA Native` is now `published: false` by default again, and the regression is covered by `src/__tests__/navigation/module-shell.test.ts`
-- the financial page already renders currency-aware presentation in code through `CurrencyStack` and `formatCurrency`
-- staging data shows mixed currency coverage in `public.properties`, with EUR and BRL present, and movement data available in EUR for the validated period
-- browser-render proof for the currency context item is still pending because the local Playwright browser binary could not be launched in this runtime, and the controlled browser also blocked access to `vercel.com` by security policy when trying to open the protected preview
-- the cookie namespace used by the preview is `sb-wrqjpyyopwgyqluqkcga-auth-token`
-- treat the captured session as ephemeral; replaying the smoke test later should start from a fresh login/bootstrap step
+### Verified on 2026-08-25
+- the staging baseline is documented with Supabase project `wrqjpyyopwgyqluqkcga` and the current preview deployment reference
+- targeted shell tests passed for `module-shell`, `Sidebar`, `TopBar` and `BottomNav`
+- the registry and shell contract still preserve fallback navigation when a module is not accessible
+- the preview/browser evidence for the full smoke checklist remains partial in this environment
+- the documented IA Native visibility model should be described as access-gated in the shell, not simply hidden in the registry

@@ -231,3 +231,29 @@ This story is ready to close when:
 - a próxima onda deve usar este critério como filtro de expansão
 - a política formal está consolidada em `docs/stories/ia-native/pm-3-expansion-policy.md`
 - QA-3 recebe a regra de classificação como input de validação
+
+## Session Update - 2026-08-24
+
+### What was confirmed
+- the expansion policy is now the reusable gate for future Lodgra capabilities
+- core, capability and extension are distinguished clearly enough to avoid reopening the shell model
+- the policy stays open for future modules without pinning the product to Property Intelligence
+- the policy is ready to serve as the standing filter for the next planning cycle
+
+### Validation completed
+- reviewed the policy artifact at `docs/stories/ia-native/pm-3-expansion-policy.md`
+- confirmed the classification model uses core / capability / extension as the default lens
+- confirmed the roadmap rule keeps the current MVP stable before new shell entries are added
+
+## Session Update - 2026-08-25
+
+### What was confirmed
+- the PM-3 policy remains reusable after DEV-4, UX-3 and the completed MVP closeout chain
+- future roadmap items can be classified without reopening the shell model
+- the current MVP stays protected from scope creep while the next wave is planned
+- QA-3 can use the policy as the standing validation gate for future capabilities
+
+### Validation completed
+- reviewed the expansion policy and classification examples again in the current closeout context
+- confirmed the roadmap rule still prefers extensions before new shell entries
+- confirmed the policy remains open for future modules without binding the product to Property Intelligence

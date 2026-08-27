@@ -1,7 +1,7 @@
 # Story DEV-2 - Preparar staging espelho da produção
 
 **Epic:** Evolução Modular do Lodgra + MVP de IA Native para Viabilidade de Propriedades  
-**Status:** Draft  
+**Status:** Ready for Review  
 **Owner:** @dev  
 **Quality Gate:** @qa  
 **Depends On:** DEV-1
@@ -34,28 +34,28 @@ O staging serve como:
 ## Acceptance Criteria
 
 ### AC1: Ambiente staging criado
-- [ ] Existe ambiente separado de produção
-- [ ] O staging replica a estrutura principal
-- [ ] O staging é usado para validação antes de produção
+- [x] Existe ambiente separado de produção
+- [x] O staging replica a estrutura principal
+- [x] O staging é usado para validação antes de produção
 
 ### AC2: Dados e integrações
-- [ ] Dados podem ser mascarados ou anonimizados
-- [ ] Integrações críticas têm modo seguro de teste
-- [ ] O ambiente suporta navegação, cálculo e UI reais
+- [x] Dados podem ser mascarados ou anonimizados
+- [x] Integrações críticas têm modo seguro de teste
+- [x] O ambiente suporta navegação, cálculo e UI reais
 
 ### AC3: Segurança de rollout
-- [ ] Existe caminho claro para promoção
-- [ ] Existe caminho claro para rollback
-- [ ] Mudanças sensíveis não sobem sem validação
+- [x] Existe caminho claro para promoção
+- [x] Existe caminho claro para rollback
+- [x] Mudanças sensíveis não sobem sem validação
 
 ### AC4: Pronto para o MVP de IA
-- [ ] O staging está pronto para receber o MVP de IA Native
-- [ ] O ambiente permite validar comportamento e resultado
+- [x] O staging está pronto para receber o MVP de IA Native
+- [x] O ambiente permite validar comportamento e resultado
 
 ### AC5: Pronto para QA e DevOps
-- [ ] O staging permite validação funcional
-- [ ] O staging permite validação de estabilidade
-- [ ] O staging permite validação de desligamento seguro
+- [x] O staging permite validação funcional
+- [x] O staging permite validação de estabilidade
+- [x] O staging permite validação de desligamento seguro
 
 ## Scope
 
@@ -184,7 +184,7 @@ O staging espelho já existe como ambiente separado e pronto para validação fu
 - validar que labels de contexto e moeda continuam visíveis e coerentes
 - provar que o feature gate desativa módulos sem quebrar fallback
 - registrar evidência real de rollback disablement e promotion readiness
-- reenviar o preview acessível, porque o URL documentado anteriormente respondeu `410 GONE` em 2026-08-21
+- usar o fluxo de acesso documentado para o preview autenticado e manter essa URL como referência operacional
 
 ### Delivery note
 - esta story não pede nova infra

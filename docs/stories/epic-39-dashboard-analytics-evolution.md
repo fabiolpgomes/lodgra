@@ -1,6 +1,6 @@
 # Epic 39: Evolução do Dashboard — Analytics do Gestor
 
-**Status:** Story 39.1 em elaboração
+**Status:** Epic concluída (7/7 stories Done)
 **Prioridade:** P1 — Visibilidade operacional do gestor
 **Tipo:** Brownfield / Database / UI / Analytics
 **Fonte:** `docs/specs/lodgra-dashboard-spec-consolidada.md` (spec funciona como PRD desta epic)
@@ -14,7 +14,7 @@ Evoluir o dashboard operacional do gestor (`/dashboard`) com comparação tempor
 
 ## Contexto brownfield
 
-- Next.js App Router, página monolítica: `src/app/[locale]/dashboard/page.tsx` (848 linhas, server component, sem componentização dos cards).
+- Next.js App Router, página monolítica: `src/app/[locale]/dashboard/page.tsx` (dashboard consolidado com os cards da Epic 39, server component, sem componentização dos cards).
 - Supabase/PostgreSQL, multi-tenant por `organization_id` com RLS.
 - **Campos de schema já existentes** que reduzem o escopo original da spec — não recriar:
   - `reservations.commission_amount` / `commission_rate` / `commission_calculated_at` + materialized view `commission_summary` (migration `20260326020000_add_commission_tracking.sql`) — já cobre o requisito de "comissão por reserva" da spec (lá chamado `comissao_valor`).

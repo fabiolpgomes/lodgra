@@ -1,7 +1,7 @@
 # Story UX-1 - Redesenhar navegação por público e intenção
 
 **Epic:** Evolução Modular do Lodgra + MVP de IA Native para Viabilidade de Propriedades  
-**Status:** Draft  
+**Status:** Ready for Review  
 **Owner:** @ux-design-expert  
 **Quality Gate:** @pm + @architect  
 **Depends On:** PM-1, ARCH-1
@@ -36,29 +36,29 @@ Isso faz com que:
 ## Acceptance Criteria
 
 ### AC1: Navegação por público
-- [ ] A navegação separa Empresa, Operação, Proprietário e IA
-- [ ] O texto dos módulos é compreensível sem depender do jargão técnico
-- [ ] A intenção de uso fica clara ao nível do menu
+- [x] A navegação separa Empresa, Operação, Proprietário e IA
+- [x] O texto dos módulos é compreensível sem depender do jargão técnico
+- [x] A intenção de uso fica clara ao nível do menu
 
 ### AC2: Hierarquia visual
-- [ ] O módulo ativo é evidente
-- [ ] O contexto da página aparece no topo da tela
-- [ ] Submódulos não competem visualmente com o módulo principal
+- [x] O módulo ativo é evidente
+- [x] O contexto da página aparece no topo da tela
+- [x] Submódulos não competem visualmente com o módulo principal
 
 ### AC3: Leitura por moeda e contexto
-- [ ] Valores multi-moeda não aparecem misturados sem rótulo
-- [ ] A visão executiva distingue consolidado vs por imóvel
-- [ ] O utilizador entende quando está a ver empresa ou propriedade
+- [x] Valores multi-moeda não aparecem misturados sem rótulo
+- [x] A visão executiva distingue consolidado vs por imóvel
+- [x] O utilizador entende quando está a ver empresa ou propriedade
 
 ### AC4: Entrada do MVP de IA
-- [ ] A IA Native aparece como módulo próprio
-- [ ] A entrada do MVP explica valor e limitação
-- [ ] O fluxo do MVP não parece parte do operacional diário
+- [x] A IA Native aparece como módulo próprio
+- [x] A entrada do MVP explica valor e limitação
+- [x] O fluxo do MVP não parece parte do operacional diário
 
 ### AC5: Pronto para shell modular
-- [ ] A navegação pode ser usada pelo shell da DEV-1
-- [ ] A navegação não depende de implementação ainda inexistente
-- [ ] O wireframe conceitual é suficiente para handoff
+- [x] A navegação pode ser usada pelo shell da DEV-1
+- [x] A navegação não depende de implementação ainda inexistente
+- [x] O wireframe conceitual é suficiente para handoff
 
 ## Scope
 

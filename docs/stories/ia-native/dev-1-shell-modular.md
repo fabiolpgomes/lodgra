@@ -1,7 +1,7 @@
 # Story DEV-1 - Implementar shell modular da plataforma
 
 **Epic:** Evolução Modular do Lodgra + MVP de IA Native para Viabilidade de Propriedades  
-**Status:** Draft  
+**Status:** Ready for Review  
 **Owner:** @dev  
 **Quality Gate:** @qa  
 **Depends On:** PM-1, ARCH-1, UX-1
@@ -37,29 +37,29 @@ Esta story prepara a estrutura comum para que:
 ## Acceptance Criteria
 
 ### AC1: Shell único
-- [ ] Existe uma estrutura base compartilhada
-- [ ] A navegação principal é consistente entre módulos
-- [ ] Header, sidebar e content area seguem a mesma base
+- [x] Existe uma estrutura base compartilhada
+- [x] A navegação principal é consistente entre módulos
+- [x] Header, sidebar e content area seguem a mesma base
 
 ### AC2: Entrada por módulo
-- [ ] Cada módulo tem ponto de entrada claro
-- [ ] O utilizador consegue navegar entre módulos sem perder contexto
-- [ ] O módulo ativo é destacado de forma consistente
+- [x] Cada módulo tem ponto de entrada claro
+- [x] O utilizador consegue navegar entre módulos sem perder contexto
+- [x] O módulo ativo é destacado de forma consistente
 
 ### AC3: Reuso de primitives
-- [ ] Componentes compartilhados são reaproveitados
-- [ ] Layout, cards e estados vazios vêm do mesmo padrão
-- [ ] Não surgem variantes paralelas sem necessidade
+- [x] Componentes compartilhados são reaproveitados
+- [x] Layout, cards e estados vazios vêm do mesmo padrão
+- [x] Não surgem variantes paralelas sem necessidade
 
 ### AC4: Preparação para novos módulos
-- [ ] O shell suporta adicionar módulos futuros
-- [ ] O shell suporta a entrada do MVP de IA Native
-- [ ] O shell não acopla regras de negócio ao layout
+- [x] O shell suporta adicionar módulos futuros
+- [x] O shell suporta a entrada do MVP de IA Native
+- [x] O shell não acopla regras de negócio ao layout
 
 ### AC5: Compatível com operação e rollout
-- [ ] A estrutura pode ser validada em staging
-- [ ] A estrutura permite desligar ou isolar módulos
-- [ ] A navegação não quebra módulos já existentes
+- [x] A estrutura pode ser validada em staging
+- [x] A estrutura permite desligar ou isolar módulos
+- [x] A navegação não quebra módulos já existentes
 
 ## Scope
 
@@ -224,6 +224,7 @@ Antes de mexer em staging ou na IA Native, a primeira execução deve confirmar 
 - [x] Refeito o bottom nav mobile para espelhar os módulos publicados
 - [x] Atualizado o top bar para mostrar módulo ativo e título da página
 - [x] Reforçado o gate do registry para manter `IA Native` fora do shell publicado até a integração
+- [x] Cobertura de testes adicionada para registry, sidebar, top bar e bottom nav
 - [ ] Preparação de staging da Wave 2 continua pendente
 
 ### File List
@@ -233,9 +234,13 @@ Antes de mexer em staging ou na IA Native, a primeira execução deve confirmar 
 - `src/components/common/layout/BottomNav.tsx`
 - `src/components/common/layout/TopBar.tsx`
 - `src/__tests__/navigation/module-shell.test.ts`
+- `src/__tests__/components/common/layout/Sidebar.test.tsx`
+- `src/__tests__/components/common/layout/TopBar.test.tsx`
+- `src/__tests__/components/common/layout/BottomNav.test.tsx`
 
 ### Validation
 
 - `npm run lint`
 - `npm run typecheck`
 - `npm test`
+- `npm test -- --runInBand src/__tests__/components/common/layout/TopBar.test.tsx src/__tests__/components/common/layout/BottomNav.test.tsx src/__tests__/components/common/layout/Sidebar.test.tsx src/__tests__/navigation/module-shell.test.ts`
