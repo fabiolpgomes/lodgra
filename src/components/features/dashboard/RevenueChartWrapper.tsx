@@ -9,7 +9,7 @@ interface RevenueChartWrapperProps {
 
 export function RevenueChartWrapper({ revenueDataByCurrency }: RevenueChartWrapperProps) {
   const currencies = Object.keys(revenueDataByCurrency)
-  const [selected, setSelected] = useState(currencies[0] || 'EUR')
+  const [selected, setSelected] = useState(currencies[0] || '')
   const data = revenueDataByCurrency[selected] || []
 
   return (
@@ -33,7 +33,7 @@ export function RevenueChartWrapper({ revenueDataByCurrency }: RevenueChartWrapp
           </div>
         </div>
       )}
-      <RevenueChart data={data} currency={selected} />
+      <RevenueChart data={data} currency={selected || undefined} />
     </>
   )
 }

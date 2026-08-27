@@ -15,7 +15,7 @@ type PropertyFilterDropdownProps = {
   properties: PropertyOption[]
   selectedPropertyId?: string
   totalProperties: number
-  fallbackCurrency: string
+  fallbackCurrency?: string | null
 }
 
 export function PropertyFilterDropdown({
@@ -106,7 +106,7 @@ export function PropertyFilterDropdown({
               >
                 <span className="truncate">{property.name}</span>
                 <span className="shrink-0 rounded-md border border-brand-blue/10 bg-brand-bg px-2 py-0.5 font-mono text-[10px] font-bold text-brand-blue">
-                  {property.currency || fallbackCurrency}
+                  {property.currency || fallbackCurrency || '-'}
                 </span>
               </button>
             ))}

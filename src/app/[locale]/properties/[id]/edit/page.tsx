@@ -294,7 +294,7 @@ export default function EditPropertyPage({
           Voltar para Detalhes
         </Link>
 
-        <div className="mb-6">
+        <div className="mb-6 flex flex-col gap-2">
           <h2 className="text-3xl font-bold text-gray-900">Editar Propriedade</h2>
           <p className="text-gray-600 mt-1">Atualize as informações da propriedade</p>
         </div>
@@ -733,15 +733,15 @@ export default function EditPropertyPage({
             </div>
           </div>
 
-          <div className="flex gap-4">
+          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:gap-4">
             <Button
               type="submit"
               disabled={loading}
-              className="flex-1 flex items-center justify-center gap-2"
+              className="flex w-full items-center justify-center gap-2 sm:flex-1"
             >
               {loading ? <>Salvando...</> : <><Save className="h-5 w-5" />Salvar Alterações</>}
             </Button>
-            <Button asChild variant="outline">
+            <Button asChild variant="outline" className="w-full sm:w-auto">
               <Link href={propertyId ? `/${locale}/properties/${propertyId}` : `/${locale}/properties`}>
                 Cancelar
               </Link>

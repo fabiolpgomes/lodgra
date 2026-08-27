@@ -65,7 +65,7 @@ export default function ReportsPage() {
           setProperties(data)
         }
       } catch (error) {
-        console.error('Error fetching data:', error)
+        console.error('Erro ao carregar os dados:', error)
       } finally {
         setLoading(false)
       }
@@ -75,11 +75,11 @@ export default function ReportsPage() {
   }, [])
 
   const tabs: Array<{ id: ReportTab; label: string; description: string }> = [
-    { id: 'commissions', label: 'Commissions', description: 'Platform commission tracking' },
-    { id: 'reservas', label: 'Reservas', description: 'Reservation dashboard' },
-    { id: 'expenses', label: 'Expenses', description: 'Property expenses (coming soon)' },
-    { id: 'revenue', label: 'Revenue', description: 'Booking revenue analysis (coming soon)' },
-    { id: 'analytics', label: 'Analytics', description: 'Advanced analytics (coming soon)' },
+    { id: 'commissions', label: 'Comissões', description: 'Acompanhamento das comissões da plataforma' },
+    { id: 'reservas', label: 'Reservas', description: 'Painel de reservas' },
+    { id: 'expenses', label: 'Despesas', description: 'Despesas por propriedade (em breve)' },
+    { id: 'revenue', label: 'Receita', description: 'Análise da receita das reservas (em breve)' },
+    { id: 'analytics', label: 'Análises', description: 'Análises avançadas (em breve)' },
   ]
 
   return (
@@ -87,10 +87,10 @@ export default function ReportsPage() {
       {/* Header */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Reports</h1>
-            <p className="mt-1 text-sm text-gray-600">
-              Track commissions, expenses, and revenue across your properties
+          <div className="flex flex-col gap-2">
+            <h1 className="text-3xl font-bold text-gray-900">Relatórios</h1>
+            <p className="text-sm text-gray-600">
+              Acompanhe comissões, despesas e receita em todas as suas propriedades
             </p>
           </div>
         </div>
@@ -99,15 +99,15 @@ export default function ReportsPage() {
       {/* Tabs */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex space-x-8 overflow-x-auto">
+          <div className="flex gap-2 overflow-x-auto pb-1 sm:gap-6">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap transition-colors ${
+                className={`rounded-full px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors ${
                   activeTab === tab.id
-                    ? 'border-brand-500 text-[color:var(--be-blue)]'
-                    : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
+                    ? 'bg-[color:var(--be-blue)] text-white'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-900'
                 }`}
               >
                 {tab.label}
@@ -147,22 +147,22 @@ export default function ReportsPage() {
 
         {activeTab === 'expenses' && (
           <div className="bg-white rounded-lg shadow p-8 text-center">
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Expenses Report</h2>
-            <p className="text-gray-600">Coming soon. Track property-level expenses here.</p>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Relatório de Despesas</h2>
+            <p className="text-gray-600">Em breve. Acompanhe aqui as despesas por propriedade.</p>
           </div>
         )}
 
         {activeTab === 'revenue' && (
           <div className="bg-white rounded-lg shadow p-8 text-center">
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Revenue Analysis</h2>
-            <p className="text-gray-600">Coming soon. Analyze booking revenue trends here.</p>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Análise de Receita</h2>
+            <p className="text-gray-600">Em breve. Analise aqui as tendências de receita das reservas.</p>
           </div>
         )}
 
         {activeTab === 'analytics' && (
           <div className="bg-white rounded-lg shadow p-8 text-center">
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Advanced Analytics</h2>
-            <p className="text-gray-600">Coming soon. Advanced analytics for Professional+ plans.</p>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Análises Avançadas</h2>
+            <p className="text-gray-600">Em breve. Análises avançadas para os planos Profissional+.</p>
           </div>
         )}
       </div>

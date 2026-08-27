@@ -30,20 +30,21 @@ interface RevenueChartProps {
   currency?: string
 }
 
-export function RevenueChart({ data, currency = 'EUR' }: RevenueChartProps) {
-  const currencySymbol = getCurrencySymbol(currency as CurrencyCode)
+export function RevenueChart({ data, currency }: RevenueChartProps) {
+  const currencyCode = currency?.toUpperCase() as CurrencyCode | undefined
+  const currencySymbol = currencyCode ? getCurrencySymbol(currencyCode) : ''
   const formatAxisValue = (value: number | string) => {
     const amount = Number(value)
-    if (!Number.isFinite(amount)) return `${currencySymbol}${value}`
-    if (amount >= 1000) return `${currencySymbol} ${(amount / 1000).toFixed(0)}k`
-    return `${currencySymbol} ${amount.toFixed(0)}`
+    if (!Number.isFinite(amount)) return currencySymbol ? `${currencySymbol}${value}` : String(value)
+    if (amount >= 1000) return currencySymbol ? `${currencySymbol} ${(amount / 1000).toFixed(0)}k` : `${(amount / 1000).toFixed(0)}k`
+    return currencySymbol ? `${currencySymbol} ${amount.toFixed(0)}` : amount.toFixed(0)
   }
 
   const chartData = {
     labels: data.map(d => d.month),
     datasets: [
       {
-        label: `Receita (${currencySymbol})`,
+        label: currencySymbol ? `Receita (${currencySymbol})` : 'Receita',
         data: data.map(d => d.revenue),
         backgroundColor: '#C9A227',
         borderColor: '#C9A227',
@@ -90,7 +91,7 @@ export function RevenueChart({ data, currency = 'EUR' }: RevenueChartProps) {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
             })
-            return `${currencySymbol} ${value}`
+            return currencySymbol ? `${currencySymbol} ${value}` : value
           },
         },
       },

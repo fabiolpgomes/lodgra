@@ -263,7 +263,7 @@ export default function OwnerReportPage() {
                     period === p ? 'bg-white shadow text-gray-900' : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
-                  {p === 'month' ? 'Mês' : p === 'quarter' ? 'Trimestre' : p === 'year' ? 'Ano' : 'Custom'}
+                  {p === 'month' ? 'Mês' : p === 'quarter' ? 'Trimestre' : p === 'year' ? 'Ano' : 'Personalizado'}
                 </button>
               ))}
             </div>
@@ -347,7 +347,7 @@ export default function OwnerReportPage() {
                 <TrendingUp className="h-8 w-8 text-amber-600" />
               </div>
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Funcionalidade exclusiva do plano Professional</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Funcionalidade exclusiva do plano Profissional</h3>
             <p className="text-gray-600 mb-6">Faça upgrade para aceder a relatórios por proprietário e compliance fiscal.</p>
             <Link href="/#pricing" className="inline-flex items-center gap-2 bg-[color:var(--be-blue)] text-white px-6 py-2.5 rounded-lg font-medium hover:bg-brand-700 transition-colors">
               Ver planos

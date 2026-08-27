@@ -24,7 +24,7 @@ export default function NewPropertyPage() {
   const [owners, setOwners] = useState<{ id: string; full_name: string | null }[]>([])
   const [ownerId, setOwnerId] = useState('')
   const [propertyType, setPropertyType] = useState('')
-  const [currency, setCurrency] = useState('EUR')
+  const [currency, setCurrency] = useState('')
   const [profile, setProfile] = useState<UserProfile | null>(null)
 
   useEffect(() => {
@@ -70,6 +70,10 @@ export default function NewPropertyPage() {
     const formData = new FormData(e.currentTarget)
 
     try {
+      if (!currency) {
+        throw new Error('Selecione uma moeda para a propriedade')
+      }
+
       const result = await createProperty({
         name: formData.get('name') as string,
         owner_id: ownerId || null,
@@ -81,7 +85,7 @@ export default function NewPropertyPage() {
         bedrooms: parseInt(formData.get('bedrooms') as string) || 0,
         bathrooms: parseInt(formData.get('bathrooms') as string) || 0,
         max_guests: parseInt(formData.get('max_guests') as string) || 0,
-        currency: currency || 'EUR',
+        currency,
         management_percentage: parseFloat(formData.get('management_percentage') as string) || 0,
       })
 
@@ -117,7 +121,7 @@ export default function NewPropertyPage() {
         </Link>
 
         {/* Page Header */}
-        <div className="mb-6">
+        <div className="mb-6 flex flex-col gap-2">
           <h2 className="text-3xl font-bold text-gray-900">Nova Propriedade</h2>
           <p className="text-gray-600 mt-1">
             Adicione as informações da sua propriedade
@@ -258,7 +262,7 @@ export default function NewPropertyPage() {
                     <SelectValue placeholder="Selecione a moeda" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="EUR">€ Euro (EUR)</SelectItem>
+                    <SelectItem value="EUR">EUR Euro</SelectItem>
                     <SelectItem value="BRL">R$ Real Brasileiro (BRL)</SelectItem>
                     <SelectItem value="USD">$ Dólar Americano (USD)</SelectItem>
                     <SelectItem value="GBP">£ Libra Esterlina (GBP)</SelectItem>
@@ -350,11 +354,11 @@ export default function NewPropertyPage() {
           </div>
 
           {/* Buttons */}
-          <div className="flex gap-4">
+          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:gap-4">
             <Button
               type="submit"
               disabled={loading}
-              className="flex-1 flex items-center justify-center gap-2"
+              className="flex w-full items-center justify-center gap-2 sm:flex-1"
             >
               {loading ? (
                 <>Salvando...</>
@@ -365,7 +369,7 @@ export default function NewPropertyPage() {
                 </>
               )}
             </Button>
-            <Button asChild variant="outline">
+            <Button asChild variant="outline" className="w-full sm:w-auto">
               <Link href={`/${locale}/properties`}>
                 Cancelar
               </Link>

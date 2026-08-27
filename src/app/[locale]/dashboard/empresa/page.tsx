@@ -464,25 +464,25 @@ export default async function CompanyDashboardPage({
             <>
               <Link
                 href={`/${locale}/dashboard/empresa?year=${safeYear - 1}`}
-                className="rounded-full border border-neutral-200 bg-brand-white px-4 py-2 text-xs font-bold text-brand-text-dark transition-all hover:border-brand-gold/45 hover:bg-brand-bg hover:text-brand-gold"
+                className="inline-flex w-full items-center justify-center rounded-full border border-neutral-200 bg-brand-white px-4 py-2 text-xs font-bold text-brand-text-dark transition-all hover:border-brand-gold/45 hover:bg-brand-bg hover:text-brand-gold sm:w-auto"
               >
                 {safeYear - 1}
               </Link>
               <Link
                 href={`/${locale}/dashboard/empresa?year=${safeYear + 1}`}
-                className="rounded-full border border-neutral-200 bg-brand-white px-4 py-2 text-xs font-bold text-brand-text-dark transition-all hover:border-brand-gold/45 hover:bg-brand-bg hover:text-brand-gold"
+                className="inline-flex w-full items-center justify-center rounded-full border border-neutral-200 bg-brand-white px-4 py-2 text-xs font-bold text-brand-text-dark transition-all hover:border-brand-gold/45 hover:bg-brand-bg hover:text-brand-gold sm:w-auto"
               >
                 {safeYear + 1}
               </Link>
               <Link
                 href={`/${locale}/dashboard/empresa/custos?year=${safeYear}`}
-                className="rounded-full border border-neutral-200 bg-brand-white px-4 py-2 text-xs font-bold text-brand-text-dark transition-all hover:border-brand-gold/45 hover:bg-brand-bg hover:text-brand-gold"
+                className="inline-flex w-full items-center justify-center rounded-full border border-neutral-200 bg-brand-white px-4 py-2 text-xs font-bold text-brand-text-dark transition-all hover:border-brand-gold/45 hover:bg-brand-bg hover:text-brand-gold sm:w-auto"
               >
                 Custos empresa
               </Link>
               <Link
                 href={`/${locale}/reports/financeiro?start_date=${start}&end_date=${end}`}
-                className="inline-flex items-center gap-2 rounded-full bg-brand-blue px-4 py-2 text-xs font-bold text-white shadow-sm transition-all hover:bg-brand-blue/90"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-brand-blue px-4 py-2 text-xs font-bold text-white shadow-sm transition-all hover:bg-brand-blue/90 sm:w-auto"
               >
                 <Download className="h-3.5 w-3.5" />
                 Exportar
@@ -591,7 +591,7 @@ export default async function CompanyDashboardPage({
             </div>
             <div className="space-y-5">
               <div className="company-return-card rounded-2xl border border-brand-gold/25 bg-brand-bg p-5 text-brand-text-dark shadow-2xs">
-                <div className="flex items-center justify-between gap-3">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <span className="company-return-card__label text-xs font-black uppercase tracking-widest text-brand-gold">Resultado empresa</span>
                   <ArrowUpRight className="h-5 w-5 text-brand-gold" />
                 </div>
@@ -602,12 +602,12 @@ export default async function CompanyDashboardPage({
               </div>
               <div className="space-y-3">
                 {platformRows.slice(0, 5).map((platform) => (
-                  <div key={platform.name} className="flex items-center justify-between gap-3 border-b border-brand-bg pb-3 last:border-0 last:pb-0">
+                  <div key={platform.name} className="flex flex-col gap-2 border-b border-brand-bg pb-3 last:border-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                       <p className="text-xs font-bold text-brand-text-dark">{platform.name}</p>
                       <p className="text-[10px] font-semibold uppercase tracking-wider text-brand-text-medium">{platform.reservations} reservas</p>
                     </div>
-                    <div className="text-right text-xs font-black text-brand-text-dark">{formatMoneyMap(platform.revenue)}</div>
+                    <div className="text-left text-xs font-black text-brand-text-dark sm:text-right">{formatMoneyMap(platform.revenue)}</div>
                   </div>
                 ))}
                 {platformRows.length === 0 && (

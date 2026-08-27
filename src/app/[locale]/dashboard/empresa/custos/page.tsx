@@ -196,20 +196,20 @@ export default async function CompanyCostsPage({
             <>
               <Link
                 href={`/${locale}/dashboard/empresa?year=${safeYear}`}
-                className="inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-brand-white px-4 py-2 text-xs font-bold text-brand-text-dark transition-all hover:border-brand-gold/45 hover:bg-brand-bg hover:text-brand-gold"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-neutral-200 bg-brand-white px-4 py-2 text-xs font-bold text-brand-text-dark transition-all hover:border-brand-gold/45 hover:bg-brand-bg hover:text-brand-gold sm:w-auto"
               >
                 <ArrowLeft className="h-3.5 w-3.5" />
                 Dashboard Empresa
               </Link>
               <Link
                 href={`/${locale}/dashboard/empresa/custos?year=${safeYear - 1}`}
-                className="rounded-full border border-neutral-200 bg-brand-white px-4 py-2 text-xs font-bold text-brand-text-dark transition-all hover:border-brand-gold/45 hover:bg-brand-bg hover:text-brand-gold"
+                className="inline-flex w-full items-center justify-center rounded-full border border-neutral-200 bg-brand-white px-4 py-2 text-xs font-bold text-brand-text-dark transition-all hover:border-brand-gold/45 hover:bg-brand-bg hover:text-brand-gold sm:w-auto"
               >
                 {safeYear - 1}
               </Link>
               <Link
                 href={`/${locale}/dashboard/empresa/custos?year=${safeYear + 1}`}
-                className="rounded-full border border-neutral-200 bg-brand-white px-4 py-2 text-xs font-bold text-brand-text-dark transition-all hover:border-brand-gold/45 hover:bg-brand-bg hover:text-brand-gold"
+                className="inline-flex w-full items-center justify-center rounded-full border border-neutral-200 bg-brand-white px-4 py-2 text-xs font-bold text-brand-text-dark transition-all hover:border-brand-gold/45 hover:bg-brand-bg hover:text-brand-gold sm:w-auto"
               >
                 {safeYear + 1}
               </Link>
@@ -274,11 +274,11 @@ export default async function CompanyCostsPage({
                   Use para sistemas, contabilidade, salários, marketing e outros custos da empresa.
                 </p>
               </div>
-              <div className="flex shrink-0 gap-2">
+              <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
                 <button
                   type="reset"
                   form="company-expense-form"
-                  className="inline-flex items-center justify-center gap-2 rounded-full border border-neutral-200 bg-brand-white px-4 py-2 text-xs font-bold text-brand-text-dark transition-all hover:border-brand-gold/45 hover:bg-brand-bg hover:text-brand-gold"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-neutral-200 bg-brand-white px-4 py-2 text-xs font-bold text-brand-text-dark transition-all hover:border-brand-gold/45 hover:bg-brand-bg hover:text-brand-gold sm:w-auto"
                 >
                   <RotateCcw className="h-3.5 w-3.5" />
                   Cancelar
@@ -286,7 +286,7 @@ export default async function CompanyCostsPage({
                 <button
                   type="submit"
                   form="company-expense-form"
-                  className="company-cost-save-button inline-flex items-center justify-center gap-2 rounded-full border border-brand-blue bg-brand-blue px-4 py-2 text-xs font-bold text-white shadow-sm transition-all hover:bg-brand-blue/90 disabled:border-brand-blue/60 disabled:bg-brand-blue/60 disabled:text-white disabled:opacity-100"
+                  className="company-cost-save-button inline-flex w-full items-center justify-center gap-2 rounded-full border border-brand-blue bg-brand-blue px-4 py-2 text-xs font-bold text-white shadow-sm transition-all hover:bg-brand-blue/90 disabled:border-brand-blue/60 disabled:bg-brand-blue/60 disabled:text-white disabled:opacity-100 sm:w-auto"
                   disabled={setupPending}
                 >
                   <Save className="h-3.5 w-3.5" />
@@ -502,7 +502,7 @@ export default async function CompanyCostsPage({
                         <p className="mt-2 text-xs font-medium text-brand-text-medium">{expense.notes}</p>
                       )}
                     </div>
-                    <div className="flex items-center justify-between gap-4 lg:justify-end">
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between lg:justify-end">
                       <div className="text-left lg:text-right">
                         <p className="text-lg font-black tabular-nums text-brand-text-dark">
                           {currency ? formatCurrency(amount, currency as CurrencyCode) : amount.toFixed(2)}
@@ -517,7 +517,7 @@ export default async function CompanyCostsPage({
                         <input type="hidden" name="id" value={expense.id} />
                         <button
                           type="submit"
-                          className="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-red-500/20 px-4 text-xs font-bold text-red-600 transition-all hover:border-red-500/40 hover:bg-red-500/10"
+                          className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-full border border-red-500/20 px-4 text-xs font-bold text-red-600 transition-all hover:border-red-500/40 hover:bg-red-500/10 sm:w-auto"
                           aria-label={`Excluir ${expense.description}`}
                         >
                           <Trash2 className="h-4 w-4" />

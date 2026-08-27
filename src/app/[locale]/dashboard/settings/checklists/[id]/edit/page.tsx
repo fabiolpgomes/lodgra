@@ -33,10 +33,10 @@ export default async function EditChecklistPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
         <Link
           href="/[locale]/dashboard/settings/checklists"
-          className="p-2 hover:bg-gray-100 rounded-lg transition"
+          className="rounded-lg p-2 transition hover:bg-gray-100"
         >
           <ChevronLeft className="h-5 w-5 text-gray-600" />
         </Link>

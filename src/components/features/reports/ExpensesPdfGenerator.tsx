@@ -22,18 +22,18 @@ interface ShareModalState {
 
 const CATEGORY_OPTIONS = [
   { value: '', label: 'Todas as categorias' },
-  { value: 'water', label: 'Agua' },
-  { value: 'electricity', label: 'Luz' },
-  { value: 'gas', label: 'Gas' },
+  { value: 'water', label: 'Água' },
+  { value: 'electricity', label: 'Eletricidade' },
+  { value: 'gas', label: 'Gás' },
   { value: 'phone', label: 'Telefone' },
   { value: 'internet', label: 'Internet' },
-  { value: 'condo', label: 'Condominio' },
+  { value: 'condo', label: 'Condomínio' },
   { value: 'cleaning', label: 'Limpeza' },
-  { value: 'laundry', label: 'Lavanderia' },
+  { value: 'laundry', label: 'Lavandaria' },
   { value: 'cleaning_supplies', label: 'Material de limpeza' },
   { value: 'repairs', label: 'Reparos' },
   { value: 'insurance', label: 'Seguro Residencial' },
-  { value: 'management', label: 'Gestao do Imovel' },
+  { value: 'management', label: 'Gestão do imóvel' },
   { value: 'other', label: 'Outros' },
 ]
 
@@ -64,12 +64,12 @@ export function ExpensesPdfGenerator({ properties }: ExpensesPdfGeneratorProps) 
 
   async function handleGeneratePdf() {
     if (!startDate || !endDate) {
-      toast.error('Por favor, selecione um periodo')
+      toast.error('Por favor, selecione um período')
       return
     }
 
     if (new Date(startDate) > new Date(endDate)) {
-      toast.error('Data inicial nao pode ser depois da data final')
+      toast.error('A data inicial não pode ser depois da data final')
       return
     }
 
@@ -98,7 +98,7 @@ export function ExpensesPdfGenerator({ properties }: ExpensesPdfGeneratorProps) 
 
       const fileName = `despesas-${startDate}-${endDate}.pdf`
 
-      const whatsappText = `📋 Relatorio de Despesas\n\nPeriodo: ${new Date(startDate).toLocaleDateString('pt-BR')} a ${new Date(endDate).toLocaleDateString('pt-BR')}\nTotal de Despesas: ${data.expenses.length}\n\nFaca o download do PDF para visualizar detalhes completos.`
+      const whatsappText = `📋 Relatório de Despesas\n\nPeríodo: ${new Date(startDate).toLocaleDateString('pt-PT')} a ${new Date(endDate).toLocaleDateString('pt-PT')}\nTotal de despesas: ${data.expenses.length}\n\nDescarregue o PDF para ver todos os detalhes.`
 
       setShareModal({
         isOpen: true,
@@ -133,17 +133,17 @@ export function ExpensesPdfGenerator({ properties }: ExpensesPdfGeneratorProps) 
       })
 
       window.open(`/api/reports/expenses-pdf-download?${queryParams}`, '_blank')
-      toast.success('Abrindo relatorio em nova aba...')
+      toast.success('A abrir relatório em nova aba...')
     } catch (error) {
       console.error('Erro:', error)
-      toast.error('Erro ao abrir relatorio')
+      toast.error('Erro ao abrir relatório')
     }
   }
 
   function handleCopyText() {
     navigator.clipboard.writeText(shareModal.whatsappText)
     setShareModal(prev => ({ ...prev, copied: true }))
-    toast.success('Copiado para a area de transferencia!')
+    toast.success('Copiado para a área de transferência!')
 
     setTimeout(() => {
       setShareModal(prev => ({ ...prev, copied: false }))
@@ -151,7 +151,7 @@ export function ExpensesPdfGenerator({ properties }: ExpensesPdfGeneratorProps) 
   }
 
   function handleShareWhatsApp() {
-    const text = `${shareModal.whatsappText}\n\n💾 Faca o download do PDF clicando no botao "Download PDF"!`
+    const text = `${shareModal.whatsappText}\n\n💾 Descarregue o PDF clicando no botão "Descarregar PDF"!`
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank')
   }
 
@@ -167,7 +167,7 @@ export function ExpensesPdfGenerator({ properties }: ExpensesPdfGeneratorProps) 
         </div>
         <div>
           <h2 className="text-lg font-semibold text-gray-900">Gerar PDF de Despesas</h2>
-          <p className="text-sm text-gray-600">Exporte um relatorio de despesas em PDF</p>
+          <p className="text-sm text-gray-600">Exporte um relatório de despesas em PDF</p>
         </div>
       </div>
 
@@ -217,7 +217,7 @@ export function ExpensesPdfGenerator({ properties }: ExpensesPdfGeneratorProps) 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <Label htmlFor="startDate" className="mb-2 block">
-              Data Inicial
+              Data inicial
             </Label>
             <Input
               type="date"
@@ -230,7 +230,7 @@ export function ExpensesPdfGenerator({ properties }: ExpensesPdfGeneratorProps) 
           </div>
           <div>
             <Label htmlFor="endDate" className="mb-2 block">
-              Data Final
+              Data final
             </Label>
             <Input
               type="date"
@@ -246,7 +246,7 @@ export function ExpensesPdfGenerator({ properties }: ExpensesPdfGeneratorProps) 
         {/* Info */}
         <Alert className="border-red-200 bg-red-50">
           <AlertDescription className="text-red-800 text-sm">
-            O relatorio incluira todas as despesas registradas dentro do periodo selecionado.
+            O relatório incluirá todas as despesas registadas dentro do período selecionado.
           </AlertDescription>
         </Alert>
 
@@ -259,7 +259,7 @@ export function ExpensesPdfGenerator({ properties }: ExpensesPdfGeneratorProps) 
             size="lg"
           >
             <FileText className="mr-2 h-5 w-5" />
-            {loading ? 'Gerando PDF...' : 'Gerar PDF'}
+            {loading ? 'A gerar PDF...' : 'Gerar PDF'}
           </Button>
         </div>
       </div>
@@ -270,7 +270,7 @@ export function ExpensesPdfGenerator({ properties }: ExpensesPdfGeneratorProps) 
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full animate-in">
             {/* Header */}
             <div className="flex items-center justify-between border-b p-6">
-              <h2 className="text-xl font-semibold text-gray-900">PDF Gerado!</h2>
+              <h2 className="text-xl font-semibold text-gray-900">PDF gerado!</h2>
               <button
                 onClick={closeShareModal}
                 className="text-gray-600 hover:text-gray-700 transition"
@@ -294,13 +294,13 @@ export function ExpensesPdfGenerator({ properties }: ExpensesPdfGeneratorProps) 
                 size="lg"
               >
                 <Download className="mr-2 h-5 w-5" />
-                Download PDF
+                Descarregar PDF
               </Button>
 
               {/* Share Section */}
               <div className="border-t pt-4">
                 <p className="text-sm font-medium text-gray-700 mb-3">
-                  Compartilhar via WhatsApp
+                  Partilhar via WhatsApp
                 </p>
 
                 <Button
@@ -317,7 +317,7 @@ export function ExpensesPdfGenerator({ properties }: ExpensesPdfGeneratorProps) 
                   ) : (
                     <>
                       <Copy className="mr-2 h-4 w-4" />
-                      Copiar Mensagem
+                      Copiar mensagem
                     </>
                   )}
                 </Button>
@@ -332,14 +332,14 @@ export function ExpensesPdfGenerator({ properties }: ExpensesPdfGeneratorProps) 
                 </Button>
 
                 <p className="text-xs text-gray-600 mt-2 text-center">
-                  Copie a mensagem ou abra o WhatsApp para compartilhar
+                  Copie a mensagem ou abra o WhatsApp para partilhar
                 </p>
               </div>
 
               {/* Info */}
               <div className="bg-red-50 border border-red-200 rounded-lg p-3">
                 <p className="text-xs text-red-800">
-                  💡 O PDF foi gerado com sucesso. Use o botao &quot;Download PDF&quot; para salva-lo no seu dispositivo.
+                  💡 O PDF foi gerado com sucesso. Use o botão &quot;Descarregar PDF&quot; para o guardar no seu dispositivo.
                 </p>
               </div>
             </div>

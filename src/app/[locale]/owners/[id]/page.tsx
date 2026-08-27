@@ -72,10 +72,10 @@ export default async function OwnerDetailsPage({
         </Link>
 
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
+        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between mb-6">
+          <div className="min-w-0">
             <div className="flex items-center gap-3 mb-2">
-              <h2 className="text-3xl font-bold text-gray-900">{owner.full_name}</h2>
+              <h2 className="text-3xl font-bold text-gray-900 leading-tight break-words">{owner.full_name}</h2>
               {owner.is_active ? (
                 <Badge className="bg-emerald-100 text-emerald-800 hover:bg-emerald-100">Ativo</Badge>
               ) : (
@@ -85,14 +85,14 @@ export default async function OwnerDetailsPage({
             {owner.city && (
               <div className="flex items-center gap-2 text-gray-600">
                 <MapPin className="h-5 w-5" />
-                <span>{owner.city}, {owner.country}</span>
+                <span className="break-words">{owner.city}, {owner.country}</span>
               </div>
             )}
           </div>
 
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-3 md:justify-end">
             {canEdit && (
-              <Button asChild variant="outline">
+              <Button asChild variant="outline" className="w-full md:w-auto">
                 <Link href={`/${locale}/owners/${id}/fiscal`} className="flex items-center gap-2">
                   <Scale className="h-4 w-4" />
                   Relatório Fiscal
@@ -100,7 +100,7 @@ export default async function OwnerDetailsPage({
               </Button>
             )}
             {canEdit && (
-              <Button asChild variant="outline">
+              <Button asChild variant="outline" className="w-full md:w-auto">
                 <Link href={`/${locale}/owners/${id}/report`} className="flex items-center gap-2">
                   <FileText className="h-4 w-4" />
                   Ver Relatório
@@ -108,7 +108,7 @@ export default async function OwnerDetailsPage({
               </Button>
             )}
             {canEdit && (
-              <Button asChild variant="action">
+              <Button asChild variant="action" className="w-full md:w-auto">
                 <Link href={`/${locale}/owners/${id}/edit`} className="flex items-center gap-2">
                   <Edit className="h-4 w-4" />
                   Editar

@@ -17,6 +17,7 @@ import { AuthLayout } from '@/components/common/layout/AuthLayout'
 import { getUserRole } from '@/lib/auth/getUserRole'
 import { Button } from '@/components/common/ui/button'
 import { Badge } from '@/components/common/ui/badge'
+import { getCurrencySymbol as getCurrencySymbolFromUtils, type CurrencyCode } from '@/lib/utils/currency'
 
 export async function generateMetadata(
   { params }: { params: Promise<{ locale: string; id: string }> }
@@ -160,8 +161,11 @@ export default async function PropertyDetailsPage({
   const totalExpenses = (expensesData || []).reduce((sum: number, e) => sum + (parseFloat(e.amount) || 0), 0)
 
   // Moeda da propriedade
-  const currency = property.currency || 'EUR'
-  const currencySymbol = currency === 'BRL' ? 'R$' : currency === 'USD' ? '$' : currency === 'GBP' ? '£' : '€'
+  const currency = property.currency?.toUpperCase() ?? null
+  const currencySymbol = currency ? getCurrencySymbolFromUtils(currency as CurrencyCode) : ''
+  const formatMoney = (amount: number) => (
+    currency ? `${currencySymbol}${amount.toFixed(2)}` : amount.toFixed(2)
+  )
 
   // Buscar proprietário associado
   let owner = null
@@ -232,10 +236,10 @@ export default async function PropertyDetailsPage({
         </Link>
 
         {/* Header com ações */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
+        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between mb-6">
+          <div className="min-w-0">
             <div className="flex items-center gap-3 mb-2">
-              <h2 className="text-3xl font-bold text-gray-900">{property.name}</h2>
+              <h2 className="text-3xl font-bold text-gray-900 leading-tight break-words">{property.name}</h2>
               {property.is_active ? (
                 <Badge className="bg-emerald-100 text-emerald-800 hover:bg-emerald-100">Ativo</Badge>
               ) : (
@@ -244,13 +248,13 @@ export default async function PropertyDetailsPage({
             </div>
             <div className="flex items-center gap-2 text-gray-600">
               <MapPin className="h-5 w-5" />
-              <span>{property.city}, {property.country}</span>
+              <span className="break-words">{property.city}, {property.country}</span>
             </div>
           </div>
 
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-3 md:justify-end">
             {canEdit && (
-              <Button asChild variant="be-secondary">
+              <Button asChild variant="be-secondary" className="w-full md:w-auto">
                 <Link href={`/${locale}/properties/${id}/edit`} className="flex items-center gap-2">
                   <Edit className="h-4 w-4" />
                   Editar
@@ -432,7 +436,7 @@ export default async function PropertyDetailsPage({
                       <div className="space-y-1">
                         {property.cleaning_fee && (
                           <p className="text-sm text-gray-600">
-                            Limpeza: <span className="font-medium text-gray-900">{currency} {Number(property.cleaning_fee).toFixed(2)}</span>
+                            Limpeza: <span className="font-medium text-gray-900">{currency ? `${currency} ` : ''}{Number(property.cleaning_fee).toFixed(2)}</span>
                             <span className="text-xs text-gray-500 ml-1">
                               {property.cleaning_fee_type === 'per_night' ? '/ noite' : '/ estadia'}
                             </span>
@@ -440,7 +444,7 @@ export default async function PropertyDetailsPage({
                         )}
                         {property.pet_fee && (
                           <p className="text-sm text-gray-600">
-                            Animais: <span className="font-medium text-gray-900">{currency} {Number(property.pet_fee).toFixed(2)}</span>
+                            Animais: <span className="font-medium text-gray-900">{currency ? `${currency} ` : ''}{Number(property.pet_fee).toFixed(2)}</span>
                             <span className="text-xs text-gray-500 ml-1">
                               {property.pet_fee_type === 'per_night' ? '/ noite' : '/ estadia'}
                             </span>
@@ -534,12 +538,12 @@ export default async function PropertyDetailsPage({
                 },
                 {
                   label: 'Receita Total',
-                  value: `${currencySymbol}${totalRevenue.toLocaleString('pt-PT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+                  value: formatMoney(totalRevenue),
                   variant: 'highlight',
                 },
                 {
                   label: 'Despesas Total',
-                  value: `${currencySymbol}${totalExpenses.toLocaleString('pt-PT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+                  value: formatMoney(totalExpenses),
                 },
               ]}
             />

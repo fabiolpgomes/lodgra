@@ -12,7 +12,7 @@ export default async function ChecklistsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Modelos de Checklist</h1>
           <p className="mt-2 text-gray-600">
@@ -21,7 +21,7 @@ export default async function ChecklistsPage() {
         </div>
         <Link
           href="/[locale]/dashboard/settings/checklists/new"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white transition hover:bg-blue-700 sm:w-auto"
         >
           <Plus className="h-5 w-5" />
           Novo Modelo
@@ -45,10 +45,10 @@ export default async function ChecklistsPage() {
           {templates.map((template: { id: string; name: string; description?: string; property_id?: string; items?: Array<{ id: string }> }) => (
             <div
               key={template.id}
-              className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition"
-            >
-              <div className="flex-1">
-                <h3 className="font-medium text-gray-900">{template.name}</h3>
+            className="flex flex-col gap-4 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition sm:flex-row sm:items-center sm:justify-between"
+          >
+            <div className="flex-1">
+              <h3 className="font-medium text-gray-900">{template.name}</h3>
                 {template.description && (
                   <p className="text-sm text-gray-600 mt-1">{template.description}</p>
                 )}
@@ -58,14 +58,14 @@ export default async function ChecklistsPage() {
                   {template.items?.length || 0} itens
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 self-end sm:self-auto">
                 <Link
                   href={`/[locale]/dashboard/settings/checklists/${template.id}/edit`}
-                  className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition"
+                  className="rounded-lg p-2 text-gray-600 transition hover:bg-gray-100"
                 >
                   <Edit2 className="h-5 w-5" />
                 </Link>
-                <button className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition">
+                <button className="rounded-lg p-2 text-red-600 transition hover:bg-red-50">
                   <Trash2 className="h-5 w-5" />
                 </button>
                 <ChevronRight className="h-5 w-5 text-gray-400" />

@@ -420,7 +420,7 @@ export default async function DashboardPage({
   // ─── Story 39.2: Badges MoM/YoY + ADR/RevPAR + Lucro Real ───
   // Metrics are derived from the canonical reservations contract because the
   // optional materialized view is not present in every deployed environment.
-  const orgCurrency = org?.currency || 'EUR'
+  const orgCurrency = org?.currency?.toUpperCase() ?? null
   const previousMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1)
   const yoyMonthDate = new Date(now.getFullYear() - 1, now.getMonth(), 1)
   const currentMonthKeyView = monthKeyFromDate(now)
@@ -935,7 +935,7 @@ export default async function DashboardPage({
               properties={allProperties || []}
               selectedPropertyId={selectedPropertyId}
               totalProperties={totalOrganizationProperties}
-              fallbackCurrency={org?.currency || 'EUR'}
+              fallbackCurrency={orgCurrency}
             />
           </div>
         </div>
@@ -1561,10 +1561,14 @@ export default async function DashboardPage({
                           </span>
                         </div>
                         <span className="shrink-0 text-sm font-bold text-emerald-600">
-                          {formatCurrency(
-                            property.revpar,
-                            (propertyCurrencyMap[property.propertyId] || org?.currency || 'EUR') as CurrencyCode
-                          )}
+                          {(() => {
+                            const currency = propertyCurrencyMap[property.propertyId]?.toUpperCase()
+                              || orgCurrency
+                              || null
+                            return currency
+                              ? formatCurrency(property.revpar, currency as CurrencyCode)
+                              : property.revpar.toFixed(2)
+                          })()}
                         </span>
                       </li>
                     ))}
@@ -1595,10 +1599,14 @@ export default async function DashboardPage({
                           </span>
                         </div>
                         <span className="shrink-0 text-sm font-bold text-red-600">
-                          {formatCurrency(
-                            property.revpar,
-                            (propertyCurrencyMap[property.propertyId] || org?.currency || 'EUR') as CurrencyCode
-                          )}
+                          {(() => {
+                            const currency = propertyCurrencyMap[property.propertyId]?.toUpperCase()
+                              || orgCurrency
+                              || null
+                            return currency
+                              ? formatCurrency(property.revpar, currency as CurrencyCode)
+                              : property.revpar.toFixed(2)
+                          })()}
                         </span>
                       </li>
                     ))}

@@ -1,12 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { BookingSummary } from './BookingSummary'
 import { Loader2, ArrowLeft } from 'lucide-react'
 import { PriceBreakdownCard } from './booking/PriceBreakdownCard'
 import type { PropertyPriceQuote } from '@/hooks/usePropertyPriceQuote'
 import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
+import { BOOKING_LOCALE_OPTIONS, BOOKING_STANDARD_LOCALE, normalizeBookingLocale } from '@/lib/email/booking-locale'
 
 interface CheckoutFormProps {
   slug: string
@@ -38,6 +39,7 @@ interface GuestData {
   email: string
   phone: string
   country: string
+  preferredLocale: string
 }
 
 const COUNTRIES = [
@@ -76,10 +78,22 @@ export function CheckoutForm({
     email: '',
     phone: '',
     country: 'PT',
+    preferredLocale: BOOKING_STANDARD_LOCALE,
   })
   const [errors, setErrors] = useState<Partial<GuestData>>({})
   const [submitting, setSubmitting] = useState(false)
   const [apiError, setApiError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const browserLocale = typeof navigator !== 'undefined'
+      ? normalizeBookingLocale(navigator.language)
+      : BOOKING_STANDARD_LOCALE
+    setGuestData((current) => (
+      current.preferredLocale === BOOKING_STANDARD_LOCALE
+        ? { ...current, preferredLocale: browserLocale }
+        : current
+    ))
+  }, [])
 
   function validateGuest(): boolean {
     const newErrors: Partial<GuestData> = {}
@@ -114,6 +128,7 @@ export function CheckoutForm({
           guest_email: guestData.email.trim(),
           guest_phone: guestData.phone.trim(),
           guest_country: guestData.country,
+          preferred_locale: normalizeBookingLocale(guestData.preferredLocale),
           pricing_snapshot: pricingQuote
             ? {
                 base_total: pricingQuote.baseTotal,
@@ -244,6 +259,26 @@ export function CheckoutForm({
                 autoComplete="name"
               />
               {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name}</p>}
+          </div>
+
+            <div>
+              <label className="block text-sm font-medium text-brand-text-dark mb-1">
+                Idioma de contacto
+              </label>
+              <select
+                value={guestData.preferredLocale}
+                onChange={(e) => setGuestData((d) => ({ ...d, preferredLocale: e.target.value }))}
+                className="w-full rounded-xl border border-brand-gold/20 bg-brand-white px-3 py-2.5 text-sm text-brand-text-dark focus:outline-none focus:ring-2 focus:ring-brand-gold/30"
+              >
+                {BOOKING_LOCALE_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+              <p className="mt-1 text-xs text-brand-text-medium">
+                Usado nos emails e instruções da reserva.
+              </p>
             </div>
 
             <div>

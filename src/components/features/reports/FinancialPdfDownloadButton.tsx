@@ -31,9 +31,9 @@ export function FinancialPdfDownloadButton({
         '_blank'
       )
 
-      toast.success('Abrindo relatório em nova aba...')
+      toast.success('A abrir relatório em nova aba...')
     } catch (error) {
-      console.error('Error downloading financial PDF:', error)
+      console.error('Erro ao descarregar PDF financeiro:', error)
       toast.error('Erro ao gerar relatório')
     } finally {
       setLoading(false)
@@ -47,7 +47,7 @@ export function FinancialPdfDownloadButton({
       className="flex items-center gap-2 bg-brand-600 hover:bg-brand-700"
     >
       <FileText className="h-4 w-4" />
-      {loading ? 'Gerando...' : 'Download PDF'}
+      {loading ? 'A gerar...' : 'Descarregar PDF'}
     </Button>
   )
 }

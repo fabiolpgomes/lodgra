@@ -62,7 +62,7 @@ export function PublicPagesUsageBar({ used, limit, plan }: PublicPagesUsageBarPr
           </div>
           <Button asChild size="sm" className="shrink-0 bg-be-blue-600 hover:bg-be-blue-700 text-white border-0">
             <Link href="/#pricing" className="gap-1">
-              Upgrade <ArrowRight className="h-3 w-3" />
+              Ver planos <ArrowRight className="h-3 w-3" />
             </Link>
           </Button>
         </div>
@@ -71,7 +71,7 @@ export function PublicPagesUsageBar({ used, limit, plan }: PublicPagesUsageBarPr
       {isUnlimited && (
         <div className="mt-2 text-xs text-be-text-600 font-medium flex items-center gap-1">
           <TrendingUp className="h-3 w-3" />
-          Páginas públicas ilimitadas com o plano {plan}
+          Páginas públicas ilimitadas no plano {plan}
         </div>
       )}
     </div>

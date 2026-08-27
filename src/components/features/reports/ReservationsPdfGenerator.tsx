@@ -86,7 +86,7 @@ export function ReservationsPdfGenerator({ properties }: ReservationsPdfGenerato
       const fileName = `reservas-${startDate}-${endDate}.pdf`
 
       // Show share modal with data
-      const whatsappText = `📋 Relatório de Reservas\n\nPeríodo: ${new Date(startDate).toLocaleDateString('pt-BR')} a ${new Date(endDate).toLocaleDateString('pt-BR')}\nTotal de Reservas: ${data.reservations.length}\n\nFaça o download do PDF para visualizar detalhes completos.`
+      const whatsappText = `📋 Relatório de Reservas\n\nPeríodo: ${new Date(startDate).toLocaleDateString('pt-PT')} a ${new Date(endDate).toLocaleDateString('pt-PT')}\nTotal de reservas: ${data.reservations.length}\n\nDescarregue o PDF para ver todos os detalhes.`
 
       setShareModal({
         isOpen: true,
@@ -120,12 +120,12 @@ export function ReservationsPdfGenerator({ properties }: ReservationsPdfGenerato
         showValues: String(params.showValues),
       })
 
-      // Open report in new window - user can click "Download PDF" button there
+      // Abrir o relatório numa nova janela - o utilizador pode clicar em "Descarregar PDF"
       window.open(`/api/reports/reservations-pdf-download?${queryParams}`, '_blank')
-      toast.success('Abrindo relatório em nova aba...')
+      toast.success('A abrir o relatório numa nova aba...')
     } catch (error) {
       console.error('Erro:', error)
-      toast.error('Erro ao abrir relatório')
+      toast.error('Erro ao abrir o relatório')
     }
   }
 
@@ -141,7 +141,7 @@ export function ReservationsPdfGenerator({ properties }: ReservationsPdfGenerato
   }
 
   function handleShareWhatsApp() {
-    const text = `${shareModal.whatsappText}\n\n💾 Faça o download do PDF clicando no botão "Download PDF"!`
+    const text = `${shareModal.whatsappText}\n\n💾 Descarregue o PDF clicando no botão "Descarregar PDF"!`
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank')
   }
 
@@ -282,7 +282,7 @@ export function ReservationsPdfGenerator({ properties }: ReservationsPdfGenerato
                 size="lg"
               >
                 <Download className="mr-2 h-5 w-5" />
-                Download PDF
+                Descarregar PDF
               </Button>
 
               {/* Share Section */}
@@ -329,7 +329,7 @@ export function ReservationsPdfGenerator({ properties }: ReservationsPdfGenerato
               {/* Info */}
               <div className="bg-brand-50 border border-brand-200 rounded-lg p-3">
                 <p className="text-xs text-brand-800">
-                  💡 O PDF foi gerado com sucesso. Use o botão &quot;Download PDF&quot; para salvá-lo no seu dispositivo.
+                  💡 O PDF foi gerado com sucesso. Use o botão &quot;Descarregar PDF&quot; para o guardar no seu dispositivo.
                 </p>
               </div>
             </div>
