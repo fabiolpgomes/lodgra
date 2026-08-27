@@ -69,7 +69,7 @@ export default async function ChannelsSettingsPage() {
 
         {/* Booking.com section */}
         <PremiumCard>
-          <div className="flex items-center gap-3 mb-1">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center mb-1">
             <span className="text-lg font-semibold text-brand-text-dark transition-colors group-hover:text-brand-gold">Booking.com</span>
             <span className="rounded-full border border-brand-gold/25 bg-brand-gold/10 px-2.5 py-0.5 text-xs font-medium text-brand-blue">
               API Oficial

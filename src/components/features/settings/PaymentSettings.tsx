@@ -62,8 +62,8 @@ export function PaymentSettings({ organization }: Props) {
               Ambiente
               <span className="text-[10px] font-normal text-gray-500 bg-gray-100 px-2 py-0.5 rounded">Escolha Sandbox para testes</span>
             </label>
-            <div className="flex gap-4">
-              <label className="flex items-center gap-2 cursor-pointer">
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              <label className="flex w-full cursor-pointer items-center gap-2 sm:w-auto">
                 <input 
                   type="radio" 
                   name="env" 
@@ -74,7 +74,7 @@ export function PaymentSettings({ organization }: Props) {
                 />
                 <span className="text-sm text-gray-600">Sandbox (Testes)</span>
               </label>
-              <label className="flex items-center gap-2 cursor-pointer">
+              <label className="flex w-full cursor-pointer items-center gap-2 sm:w-auto">
                 <input 
                   type="radio" 
                   name="env" 
@@ -113,11 +113,11 @@ export function PaymentSettings({ organization }: Props) {
           </div>
         </div>
 
-        <div className="flex justify-end pt-2">
+        <div className="flex justify-stretch pt-2 sm:justify-end">
           <Button 
             onClick={handleSave} 
             disabled={loading}
-            className="bg-brand-600 hover:bg-brand-700 text-white gap-2 h-11 px-8 rounded-xl font-bold transition-all shadow-lg shadow-brand-500/10"
+            className="h-11 w-full gap-2 rounded-xl bg-brand-600 px-8 font-bold text-white shadow-lg shadow-brand-500/10 transition-all hover:bg-brand-700 sm:w-auto"
           >
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             Salvar Configurações

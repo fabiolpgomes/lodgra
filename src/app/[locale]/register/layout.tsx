@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Criar Conta — Lodgra',
-  description: 'Crie a sua conta gratuita e comece a gerir os seus alojamentos no Airbnb e Booking. A partir de €9,90/imóvel/mês.',
+  description: 'Crie a sua conta gratuita e comece a gerir os seus alojamentos no Airbnb e Booking. A partir de 9,90 EUR/imóvel/mês.',
   robots: { index: true, follow: true },
 }
 

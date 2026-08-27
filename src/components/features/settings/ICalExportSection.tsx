@@ -71,13 +71,13 @@ export function ICalExportSection({ properties, appUrl }: ICalExportSectionProps
               <div className="space-y-3">
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">URL de Exportação</label>
-                  <div className="flex gap-2">
+                  <div className="flex flex-col gap-2 sm:flex-row">
                     <code className="flex-1 px-3 py-2 bg-gray-50 border border-gray-200 rounded text-xs text-gray-700 overflow-auto">
                       {exportUrl}
                     </code>
                     <button
                       onClick={() => copyToClipboard(exportUrl)}
-                      className="px-3 py-2 bg-brand-100 text-brand-700 rounded hover:bg-brand-200 flex items-center gap-1 text-sm font-medium"
+                      className="flex w-full items-center justify-center gap-1 rounded bg-brand-100 px-3 py-2 text-sm font-medium text-brand-700 hover:bg-brand-200 sm:w-auto"
                     >
                       <Copy className="h-3 w-3" />
                       Copiar
@@ -97,7 +97,7 @@ export function ICalExportSection({ properties, appUrl }: ICalExportSectionProps
                 <button
                   onClick={() => handleRegenerate(property.id)}
                   disabled={regeneratingId === property.id}
-                  className="px-3 py-1.5 text-sm font-medium bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50 flex items-center gap-1"
+                  className="flex w-full items-center justify-center gap-1 rounded-lg bg-gray-100 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-200 disabled:opacity-50 sm:w-auto"
                 >
                   {regeneratingId === property.id ? (
                     <>

@@ -217,11 +217,11 @@ export function UserManagement({ users, onUserUpdated }: UserManagementProps) {
               </ul>
             </div>
 
-            <div className="flex gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row">
               <button
                 type="submit"
                 disabled={loading}
-                className="px-4 py-2 bg-brand-600 text-white rounded-lg text-sm font-medium hover:bg-brand-700 disabled:opacity-50"
+                className="w-full px-4 py-2 bg-brand-600 text-white rounded-lg text-sm font-medium hover:bg-brand-700 disabled:opacity-50 sm:w-auto"
               >
                 {loading ? 'Criando...' : 'Criar Usuário'}
               </button>
@@ -229,7 +229,7 @@ export function UserManagement({ users, onUserUpdated }: UserManagementProps) {
                 type="button"
                 onClick={() => setShowCreateForm(false)}
                 disabled={loading}
-                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300 disabled:opacity-50"
+                className="w-full px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300 disabled:opacity-50 sm:w-auto"
               >
                 Cancelar
               </button>
@@ -242,7 +242,7 @@ export function UserManagement({ users, onUserUpdated }: UserManagementProps) {
       {!showCreateForm && (
         <button
           onClick={() => setShowCreateForm(true)}
-          className="mb-4 flex items-center gap-2 px-4 py-2 bg-brand-600 text-white rounded-lg text-sm font-medium hover:bg-brand-700"
+          className="mb-4 flex w-full items-center justify-center gap-2 px-4 py-2 bg-brand-600 text-white rounded-lg text-sm font-medium hover:bg-brand-700 sm:w-auto"
         >
           <Plus className="h-4 w-4" />
           Novo Usuário
@@ -361,13 +361,13 @@ export function UserManagement({ users, onUserUpdated }: UserManagementProps) {
 
             <div>
               <label className="block text-sm font-medium text-gray-600 mb-1">Senha Temporária</label>
-              <div className="flex gap-2">
+              <div className="flex flex-col gap-2 sm:flex-row">
                 <code className="flex-1 px-3 py-2 bg-gray-50 border border-gray-200 rounded text-sm text-gray-900 overflow-auto">
                   {createdPassword}
                 </code>
                 <button
                   onClick={copyToClipboard}
-                  className="px-3 py-2 bg-brand-50 text-brand-600 hover:bg-brand-100 border border-brand-200 rounded transition-colors"
+                  className="w-full px-3 py-2 bg-brand-50 text-brand-600 hover:bg-brand-100 border border-brand-200 rounded transition-colors sm:w-auto"
                 >
                   {copied ? (
                     <Check className="h-4 w-4" />

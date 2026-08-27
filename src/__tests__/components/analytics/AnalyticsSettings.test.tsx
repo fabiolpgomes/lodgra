@@ -87,7 +87,7 @@ describe('AnalyticsSettingsClient', () => {
       render(<AnalyticsSettingsClient />);
 
       await waitFor(() => {
-        expect(screen.getByText('Connected ✓')).toBeInTheDocument();
+        expect(screen.getByText('Ligado ✓')).toBeInTheDocument();
       });
     });
 
@@ -109,13 +109,13 @@ describe('AnalyticsSettingsClient', () => {
       });
 
       const input = screen.getByPlaceholderText('G-XXXXXXXXXX');
-      const button = screen.getByRole('button', { name: /connect ga/i });
+      const button = screen.getByRole('button', { name: /Ligar GA/i });
 
       await userEvent.type(input, 'invalid-ga-id');
       fireEvent.click(button);
 
       await waitFor(() => {
-        expect(screen.getByText(/invalid ga measurement id format/i)).toBeInTheDocument();
+        expect(screen.getByText(/Formato inválido do ID de medição do GA/i)).toBeInTheDocument();
       });
     });
 
@@ -138,7 +138,7 @@ describe('AnalyticsSettingsClient', () => {
       const { container } = render(<AnalyticsSettingsClient />);
 
       await waitFor(() => {
-        expect(screen.getByText('Connected ✓')).toBeInTheDocument();
+        expect(screen.getByText('Ligado ✓')).toBeInTheDocument();
       });
       expect(container).toBeTruthy();
       expect(mockFetch).toBeDefined();
@@ -161,7 +161,7 @@ describe('AnalyticsSettingsClient', () => {
       });
 
       const input = screen.getByPlaceholderText('G-XXXXXXXXXX');
-      const button = screen.getByRole('button', { name: /connect ga/i });
+      const button = screen.getByRole('button', { name: /Ligar GA/i });
 
       await userEvent.type(input, 'G-1234567890');
       fireEvent.click(button);
@@ -190,7 +190,7 @@ describe('AnalyticsSettingsClient', () => {
       const { container } = render(<AnalyticsSettingsClient />);
 
       await waitFor(() => {
-        expect(screen.getByText('Connected ✓')).toBeInTheDocument();
+        expect(screen.getByText('Ligado ✓')).toBeInTheDocument();
       });
       expect(container).toBeTruthy();
       expect(mockFetch).toBeDefined();
@@ -230,11 +230,11 @@ describe('AnalyticsSettingsClient', () => {
       render(<AnalyticsSettingsClient />);
 
       await waitFor(() => {
-        const testButton = screen.getByRole('button', { name: /test connection/i });
+        const testButton = screen.getByRole('button', { name: /Testar ligação/i });
         expect(testButton).toBeInTheDocument();
       });
 
-      const testButton = screen.getByRole('button', { name: /test connection/i });
+      const testButton = screen.getByRole('button', { name: /Testar ligação/i });
       fireEvent.click(testButton);
 
       await waitFor(() => {
@@ -254,11 +254,11 @@ describe('AnalyticsSettingsClient', () => {
       render(<AnalyticsSettingsClient />);
 
       await waitFor(() => {
-        const disconnectButton = screen.getByRole('button', { name: /disconnect ga/i });
+        const disconnectButton = screen.getByRole('button', { name: /Desligar GA/i });
         expect(disconnectButton).toBeInTheDocument();
       });
 
-      const disconnectButton = screen.getByRole('button', { name: /disconnect ga/i });
+      const disconnectButton = screen.getByRole('button', { name: /Desligar GA/i });
       fireEvent.click(disconnectButton);
 
       // Verify fetch was called for disconnect
@@ -280,16 +280,16 @@ describe('AnalyticsSettingsClient', () => {
       render(<AnalyticsSettingsClient />);
 
       await waitFor(() => {
-        const disconnectButton = screen.getByRole('button', { name: /disconnect ga/i });
+        const disconnectButton = screen.getByRole('button', { name: /Desligar GA/i });
         expect(disconnectButton).toBeInTheDocument();
       });
 
-      const disconnectButton = screen.getByRole('button', { name: /disconnect ga/i });
+      const disconnectButton = screen.getByRole('button', { name: /Desligar GA/i });
       fireEvent.click(disconnectButton);
 
       // Verify fetch was called
       await waitFor(() => {
-        expect(screen.getByText('GA settings cleared.')).toBeInTheDocument();
+        expect(screen.getByText('Definições do GA removidas.')).toBeInTheDocument();
       });
     });
   });
@@ -303,7 +303,7 @@ describe('AnalyticsSettingsClient', () => {
       });
 
       expect(screen.getByPlaceholderText('G-XXXXXXXXXX')).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: /connect ga/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Ligar GA/i })).toBeInTheDocument();
     });
 
     it('should have aria-label on input', async () => {
@@ -337,7 +337,7 @@ describe('AnalyticsSettingsClient', () => {
       });
 
       const input = screen.getByPlaceholderText('G-XXXXXXXXXX');
-      const button = screen.getByRole('button', { name: /connect ga/i });
+      const button = screen.getByRole('button', { name: /Ligar GA/i });
 
       await userEvent.type(input, 'G-1234567890');
       fireEvent.click(button);
@@ -360,7 +360,7 @@ describe('AnalyticsSettingsClient', () => {
       });
 
       const input = screen.getByPlaceholderText('G-XXXXXXXXXX');
-      const button = screen.getByRole('button', { name: /connect ga/i });
+      const button = screen.getByRole('button', { name: /Ligar GA/i });
 
       await userEvent.type(input, 'G-1234567890');
       fireEvent.click(button);

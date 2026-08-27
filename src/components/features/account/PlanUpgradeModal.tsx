@@ -6,9 +6,10 @@ import { Alert, AlertDescription } from '@/components/common/ui/alert'
 import { PLAN_DISPLAY, getPlanLimits } from '@/lib/billing/plans'
 import { toast } from 'sonner'
 import { Check, AlertCircle } from 'lucide-react'
+import { formatCurrency } from '@/lib/utils/currency'
 
 const FEE_LABELS: Record<string, string> = {
-  growth: '+ €1 por reserva',
+  growth: '+ 1 EUR por reserva',
   pro:    '+ 1% da receita',
 }
 
@@ -25,7 +26,7 @@ export function PlanUpgradeModal({ currentPlan, isOpen, onClose }: PlanUpgradeMo
   if (!isOpen) return null
 
   const currentPlanObj = PLAN_DISPLAY.find(p => p.id === currentPlan)
-  // Exclude current plan and enterprise (enterprise requires contacting sales)
+  // Exclui o plano atual e o Enterprise (o Enterprise exige contacto comercial)
   const plans = PLAN_DISPLAY.filter(p => p.id !== currentPlan && !p.enterprise)
 
   async function handleUpgrade() {
@@ -63,7 +64,7 @@ export function PlanUpgradeModal({ currentPlan, isOpen, onClose }: PlanUpgradeMo
         <div className="p-6 border-b">
           <h2 className="text-2xl font-bold text-gray-900">Alterar Plano</h2>
           <p className="text-gray-600 mt-1">
-            Plano actual: <strong>{currentPlanObj?.name ?? currentPlan ?? '—'}</strong>
+            Plano atual: <strong>{currentPlanObj?.name ?? currentPlan ?? '—'}</strong>
           </p>
         </div>
 
@@ -90,7 +91,7 @@ export function PlanUpgradeModal({ currentPlan, isOpen, onClose }: PlanUpgradeMo
                     <p className="text-sm text-gray-600">{plan.description}</p>
                     <div className="flex items-baseline gap-1 mt-2">
                       <p className="text-sm font-semibold text-gray-900">
-                        €{plan.price}/unidade/mês
+                        {formatCurrency(plan.price)}/unidade/mês
                       </p>
                       {feeLabel && (
                         <span className="text-xs text-brand-600 font-medium">{feeLabel}</span>
@@ -100,7 +101,7 @@ export function PlanUpgradeModal({ currentPlan, isOpen, onClose }: PlanUpgradeMo
                   <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                     isUpgrade ? 'bg-emerald-100 text-emerald-800' : 'bg-orange-100 text-orange-800'
                   }`}>
-                    {isUpgrade ? 'Upgrade' : 'Downgrade'}
+                    {isUpgrade ? 'Plano superior' : 'Plano inferior'}
                   </span>
                 </div>
 
@@ -131,8 +132,8 @@ export function PlanUpgradeModal({ currentPlan, isOpen, onClose }: PlanUpgradeMo
               <AlertCircle className="h-4 w-4 text-brand-600" />
               <AlertDescription className="text-brand-800">
                 {PLAN_DISPLAY.findIndex(p => p.id === selectedPlan) > PLAN_DISPLAY.findIndex(p => p.id === currentPlan)
-                  ? 'Será cobrado pro-rata pela diferença no próximo ciclo de faturação.'
-                  : 'Receberá crédito pro-rata no próximo ciclo de faturação.'}
+                  ? 'Será cobrada a diferença proporcional no próximo ciclo de faturação.'
+                  : 'Receberá crédito proporcional no próximo ciclo de faturação.'}
               </AlertDescription>
             </Alert>
           )}
@@ -147,7 +148,7 @@ export function PlanUpgradeModal({ currentPlan, isOpen, onClose }: PlanUpgradeMo
             disabled={!selectedPlan || loading}
             className="bg-brand-600 hover:bg-brand-700"
           >
-            {loading ? 'A actualizar...' : 'Confirmar alteração'}
+            {loading ? 'A atualizar...' : 'Confirmar alteração'}
           </Button>
         </div>
       </div>

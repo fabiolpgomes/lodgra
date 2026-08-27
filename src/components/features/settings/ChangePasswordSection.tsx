@@ -86,7 +86,7 @@ export function ChangePasswordSection() {
 
   return (
     <section className="bg-brand-white rounded-2xl border border-neutral-200/60 shadow-2xs p-6">
-      <div className="flex items-center gap-3 mb-6">
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center">
         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-blue/5 border border-brand-blue/10">
           <LockKeyhole className="h-5 w-5 text-brand-blue" />
         </div>

@@ -49,7 +49,7 @@ export function EmailConnection({ initialEmail, initialLastSync }: EmailConnecti
     }
 
     checkTokenStatus()
-    const interval = setInterval(checkTokenStatus, 5 * 60 * 1000) // Check every 5 min
+    const interval = setInterval(checkTokenStatus, 5 * 60 * 1000) // Verifica a cada 5 min
     return () => clearInterval(interval)
   }, [])
 
@@ -67,7 +67,7 @@ export function EmailConnection({ initialEmail, initialLastSync }: EmailConnecti
     setError(null)
     try {
       const res = await fetch('/api/email/disconnect', { method: 'DELETE' })
-      if (!res.ok) throw new Error('Erro ao desconectar')
+      if (!res.ok) throw new Error('Erro ao desligar')
       setEmail(null)
       setLastSync(null)
     } catch (err) {
@@ -129,15 +129,15 @@ export function EmailConnection({ initialEmail, initialLastSync }: EmailConnecti
         <div className="space-y-3">
           <div className="flex items-center gap-2 text-sm text-emerald-700">
             <CheckCircle className="h-4 w-4" />
-            <span>Conectado como <strong>{email}</strong></span>
+            <span>Ligado como <strong>{email}</strong></span>
           </div>
 
           {!checkingStatus && tokenStatus?.status === 'expired' && (
             <div className="flex items-start gap-2 text-sm bg-red-50 border border-red-200 rounded-lg p-3">
               <AlertCircle className="h-4 w-4 text-red-600 flex-shrink-0 mt-0.5" />
               <div className="flex-1">
-                <p className="text-red-600 font-medium">Token do Gmail expirou</p>
-                <p className="text-red-600 text-xs mt-1">Reconecte para continuar importando reservas automaticamente</p>
+                <p className="text-red-600 font-medium">O token do Gmail expirou</p>
+                <p className="text-red-600 text-xs mt-1">Ligue novamente para continuar a importar reservas automaticamente</p>
               </div>
             </div>
           )}
@@ -146,7 +146,7 @@ export function EmailConnection({ initialEmail, initialLastSync }: EmailConnecti
             <div className="flex items-start gap-2 text-sm bg-amber-50 border border-amber-200 rounded-lg p-3">
               <Clock className="h-4 w-4 text-amber-600 flex-shrink-0 mt-0.5" />
               <div className="flex-1">
-                <p className="text-amber-700 font-medium">Token expira em breve</p>
+                <p className="text-amber-700 font-medium">O token expira em breve</p>
                 <p className="text-amber-700 text-xs mt-1">{tokenStatus.warning}</p>
               </div>
             </div>
@@ -167,7 +167,7 @@ export function EmailConnection({ initialEmail, initialLastSync }: EmailConnecti
             </div>
           )}
           <div className="space-y-3">
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-col gap-3 sm:flex-row">
               <div className="flex-1 flex flex-col">
                 <label className="text-xs font-medium text-brand-text-medium mb-1.5">Período de sincronização</label>
                 <div className="flex items-center gap-2">
@@ -185,7 +185,7 @@ export function EmailConnection({ initialEmail, initialLastSync }: EmailConnecti
                 </div>
               </div>
               <Button
-                className="h-10 self-end"
+                className="h-10 w-full self-stretch sm:w-auto sm:self-end"
                 onClick={handleSync}
                 disabled={syncing || loading || tokenStatus?.status === 'expired'}
               >
@@ -194,14 +194,14 @@ export function EmailConnection({ initialEmail, initialLastSync }: EmailConnecti
               </Button>
             </div>
 
-            <div className="flex gap-2 flex-wrap">
+            <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
               {tokenStatus?.status === 'expired' ? (
                 <Button
                   onClick={handleReconnect}
-                  className="bg-red-600 hover:bg-red-700 text-white"
+                  className="w-full bg-red-600 text-white hover:bg-red-700 sm:w-auto"
                 >
                   <RefreshCw className="h-4 w-4 mr-2" />
-                  Reconectar Gmail
+                  Ligar Gmail novamente
                 </Button>
               ) : (
                 <>
@@ -209,19 +209,20 @@ export function EmailConnection({ initialEmail, initialLastSync }: EmailConnecti
                     variant="outline"
                     onClick={handleReconnect}
                     disabled={loading || syncing}
-                    title="Reconectar Gmail se o auto-refresh falhar"
+                    title="Ligue novamente o Gmail se a atualização automática falhar"
+                    className="w-full sm:w-auto"
                   >
                     <RefreshCw className="h-4 w-4 mr-2" />
-                    Reconectar
+                    Ligar novamente
                   </Button>
                   <Button
                     variant="outline"
                     onClick={handleDisconnect}
                     disabled={loading || syncing}
-                    className="text-red-600 border-red-200 hover:bg-red-50"
+                    className="w-full border-red-200 text-red-600 hover:bg-red-50 sm:w-auto"
                   >
                     {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                    Desconectar
+                    Desligar
                   </Button>
                 </>
               )}
@@ -232,10 +233,10 @@ export function EmailConnection({ initialEmail, initialLastSync }: EmailConnecti
         <div className="space-y-3">
           <div className="flex items-center gap-2 text-sm text-brand-text-medium">
             <XCircle className="h-4 w-4" />
-            <span>Não conectado</span>
+            <span>Não ligado</span>
           </div>
           <p className="text-sm text-brand-text-medium">
-            Conecta o teu Gmail para importar automaticamente reservas do Airbnb, Booking.com e Flatio.
+            Ligue o seu Gmail para importar automaticamente reservas do Airbnb, Booking.com e Flatio.
           </p>
           {error && (
             <div className="flex items-center gap-2 text-sm text-red-600">
@@ -243,9 +244,9 @@ export function EmailConnection({ initialEmail, initialLastSync }: EmailConnecti
               {error}
             </div>
           )}
-          <Button onClick={handleConnect} size="sm">
+          <Button onClick={handleConnect} size="sm" className="w-full sm:w-auto">
             <Mail className="h-4 w-4 mr-2" />
-            Conectar Gmail
+            Ligar Gmail
           </Button>
         </div>
       )}

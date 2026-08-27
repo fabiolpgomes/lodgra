@@ -100,7 +100,7 @@ export function AccountDeletionSection() {
 
   return (
     <div className="bg-brand-white rounded-2xl border border-red-100 shadow-2xs p-6">
-      <div className="flex items-center gap-2 mb-4">
+      <div className="mb-4 flex items-center gap-2">
         <Trash2 className="h-5 w-5 text-red-500" />
         <h2 className="text-lg font-semibold text-brand-text-dark">{t('deletion.title')}</h2>
       </div>
@@ -144,7 +144,7 @@ export function AccountDeletionSection() {
           <button
             onClick={handleCancelDeletion}
             disabled={actionLoading}
-            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 transition-colors"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-50 sm:w-auto"
           >
             <XCircle className="h-4 w-4" />
             {actionLoading ? t('deletion.cancelling') : t('deletion.cancelButton')}
@@ -167,17 +167,17 @@ export function AccountDeletionSection() {
             </ul>
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex flex-col gap-2 sm:flex-row">
             <button
               onClick={() => setShowConfirm(false)}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 sm:w-auto"
             >
               {t('deletion.back')}
             </button>
             <button
               onClick={handleRequestDeletion}
               disabled={actionLoading}
-              className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors"
+              className="w-full rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700 disabled:opacity-50 sm:w-auto"
             >
               {actionLoading ? t('deletion.requesting') : t('deletion.confirmButton')}
             </button>
@@ -191,7 +191,7 @@ export function AccountDeletionSection() {
           </p>
           <button
             onClick={() => setShowConfirm(true)}
-            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-600 bg-white border border-red-300 rounded-lg hover:bg-red-50 transition-colors"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-red-300 bg-white px-4 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 sm:w-auto"
           >
             <Trash2 className="h-4 w-4" />
             {t('deletion.title')}

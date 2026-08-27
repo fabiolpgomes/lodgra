@@ -38,9 +38,9 @@ export default async function TemplatesPage() {
 
   return (
     <>
-      <div className="p-8 space-y-8">
+      <div className="p-4 sm:p-8 space-y-8">
         {/* Header with Info */}
-        <div className="flex items-start justify-between gap-4">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex-1">
             <h1 className="text-3xl font-bold text-gray-900">Templates de Limpeza</h1>
             <p className="text-gray-600 mt-2">
@@ -54,7 +54,7 @@ export default async function TemplatesPage() {
 
         {/* Quick Info Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex gap-3">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex flex-col gap-3 sm:flex-row">
             <Zap className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
             <div className="text-sm">
               <p className="font-semibold text-blue-900">Templates Globais</p>
@@ -64,7 +64,7 @@ export default async function TemplatesPage() {
             </div>
           </div>
 
-          <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4 flex gap-3">
+          <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4 flex flex-col gap-3 sm:flex-row">
             <Zap className="h-5 w-5 text-emerald-700 flex-shrink-0 mt-0.5" />
             <div className="text-sm">
               <p className="font-semibold text-emerald-900">Reutilizável</p>

@@ -22,7 +22,7 @@ export function SubscriptionSection({
 
   if (!isAdmin) return null
 
-  const planName = PLAN_DISPLAY.find(p => p.id === currentPlan)?.name || 'Starter'
+  const planName = PLAN_DISPLAY.find(p => p.id === currentPlan)?.name || 'Essencial'
   const isActive = subscriptionStatus === 'active'
 
   const statusColor = {
@@ -36,7 +36,7 @@ export function SubscriptionSection({
     active: 'Ativo',
     cancelled: 'Cancelado',
     past_due: 'Pendente',
-    trial: 'Trial',
+    trial: 'Período experimental',
   }[subscriptionStatus as string] || 'Desconhecido'
 
   async function handleCancelSubscription() {
@@ -78,7 +78,7 @@ export function SubscriptionSection({
         </div>
         <div className="space-y-3">
           <div>
-            <p className="text-xs text-gray-600">Plano Atual</p>
+            <p className="text-xs text-gray-600">Plano atual</p>
             <div className="flex items-center justify-between">
               <p className="text-sm font-medium text-gray-900">{planName}</p>
               <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColor}`}>
@@ -92,7 +92,7 @@ export function SubscriptionSection({
                 onClick={() => setUpgradeModalOpen(true)}
                 className="inline-flex items-center gap-1 text-sm text-brand-600 hover:text-brand-700 font-medium"
               >
-                Atualizar Plano <ArrowRight className="h-4 w-4" />
+                Alterar plano <ArrowRight className="h-4 w-4" />
               </button>
             )}
             {isActive && (
@@ -102,7 +102,7 @@ export function SubscriptionSection({
                 className="inline-flex items-center gap-1 text-sm text-red-600 hover:text-red-700 font-medium ml-auto"
               >
                 <Trash2 className="h-4 w-4" />
-                {cancelLoading ? 'Cancelando...' : 'Cancelar'}
+                {cancelLoading ? 'A cancelar...' : 'Cancelar'}
               </button>
             )}
           </div>

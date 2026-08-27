@@ -6,7 +6,7 @@ import { ICalSyncSettings } from '@/components/features/settings/ICalSyncSetting
 import { ICalExportSection } from '@/components/features/settings/ICalExportSection'
 import { SettingsUserManagement } from '@/components/features/settings/SettingsUserManagement'
 import { ChangePasswordSection } from '@/components/features/settings/ChangePasswordSection'
-import { Building2, ExternalLink, Palette, Settings, Upload, Download, Users, BarChart3 } from 'lucide-react'
+import { Building2, ExternalLink, Mail, Palette, Settings, Upload, Download, Users, BarChart3 } from 'lucide-react'
 import { ConsentManagement } from '@/components/features/settings/ConsentManagement'
 import { DataExportSection } from '@/components/features/settings/DataExportSection'
 import { AccountDeletionSection } from '@/components/features/settings/AccountDeletionSection'
@@ -119,10 +119,17 @@ export default async function SettingsPage(props: { params: Promise<{ locale: st
                   <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
                     <Link
                       href={`/${locale}/settings/organizations/${organization.id}/branding`}
-                      className="inline-flex items-center justify-center gap-2 rounded-full bg-brand-blue px-4 py-2 text-sm font-semibold !text-white transition-colors hover:bg-brand-gold hover:!text-white focus:outline-none focus:ring-2 focus:ring-brand-gold focus:ring-offset-2"
+                      className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-brand-blue px-4 py-2 text-sm font-semibold !text-white transition-colors hover:bg-brand-gold hover:!text-white focus:outline-none focus:ring-2 focus:ring-brand-gold focus:ring-offset-2 sm:w-auto"
                     >
                       <Palette className="h-4 w-4 !text-white" />
                       Logo e marca
+                    </Link>
+                    <Link
+                      href={`/${locale}/settings/organizations/${organization.id}/email-templates`}
+                      className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-brand-blue/20 bg-white px-4 py-2 text-sm font-semibold text-brand-blue transition-colors hover:border-brand-gold hover:text-brand-gold focus:outline-none focus:ring-2 focus:ring-brand-gold focus:ring-offset-2 sm:w-auto"
+                    >
+                      <Mail className="h-4 w-4" />
+                      Templates de email
                     </Link>
                   </div>
                 )}
@@ -130,7 +137,7 @@ export default async function SettingsPage(props: { params: Promise<{ locale: st
 
               {isAdmin && (
                 <div className="mt-6 border-t border-brand-bg pt-6">
-                  <h3 className="text-base font-semibold text-brand-text-dark">Contato público para hóspedes</h3>
+                  <h3 className="text-base font-semibold text-brand-text-dark">Contacto público para hóspedes</h3>
                   <p className="mt-1 mb-5 text-sm text-brand-text-medium">
                     Estes dados aparecem na página pública de reserva direta para o hóspede falar com a empresa.
                   </p>
@@ -170,10 +177,10 @@ export default async function SettingsPage(props: { params: Promise<{ locale: st
             <PremiumCard>
               <div className="flex items-center gap-2 mb-4">
                 <Users className="h-5 w-5 text-brand-blue transition-colors group-hover:text-brand-gold" />
-                <h2 className="text-lg font-semibold text-brand-text-dark transition-colors group-hover:text-brand-gold">Gestão de Usuários</h2>
+                <h2 className="text-lg font-semibold text-brand-text-dark transition-colors group-hover:text-brand-gold">Gestão de utilizadores</h2>
               </div>
               <p className="text-sm text-brand-text-medium mb-4">
-                Gerencie os utilizadores da sua organização e defina as suas funções de acesso.
+                Gere os utilizadores da sua organização e defina as suas funções de acesso.
               </p>
               <SettingsUserManagement users={users || []} />
             </PremiumCard>
@@ -191,7 +198,7 @@ export default async function SettingsPage(props: { params: Promise<{ locale: st
         <section className="mb-8">
           <div className="flex items-center gap-2 mb-4">
             <Upload className="h-5 w-5 text-gray-600" />
-            <h2 className="text-lg font-semibold text-brand-text-dark">Importar Reservas</h2>
+            <h2 className="text-lg font-semibold text-brand-text-dark">Importar reservas</h2>
           </div>
           <p className="text-sm text-brand-text-medium mb-4">
             Cole o URL iCal da sua plataforma (Booking.com, Airbnb, Flatio, etc.) para importar automaticamente as reservas.
@@ -205,7 +212,7 @@ export default async function SettingsPage(props: { params: Promise<{ locale: st
         <section>
           <div className="flex items-center gap-2 mb-4">
             <Download className="h-5 w-5 text-gray-600" />
-            <h2 className="text-lg font-semibold text-brand-text-dark">Exportar Reservas</h2>
+            <h2 className="text-lg font-semibold text-brand-text-dark">Exportar reservas</h2>
           </div>
           <p className="text-sm text-brand-text-medium mb-4">
             Use estes URLs para sincronizar as suas reservas com outras plataformas. Cada propriedade tem o seu próprio URL seguro com token de autenticação.
@@ -228,7 +235,7 @@ export default async function SettingsPage(props: { params: Promise<{ locale: st
               </div>
               <Link
                 href={`/${locale}/settings/analytics`}
-                className="inline-flex items-center gap-2 rounded-full bg-brand-blue px-4 py-2 text-white font-medium transition-colors hover:bg-brand-gold"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-brand-blue px-4 py-2 text-white font-medium transition-colors hover:bg-brand-gold sm:w-auto"
               >
                 Configurar <ExternalLink className="h-4 w-4" />
               </Link>

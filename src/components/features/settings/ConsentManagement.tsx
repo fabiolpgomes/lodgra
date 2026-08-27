@@ -94,7 +94,7 @@ export function ConsentManagement() {
       </p>
 
       {/* Analytics consent */}
-      <div className="flex items-center justify-between py-4 border-t border-neutral-200/60">
+      <div className="flex flex-col gap-3 py-4 border-t border-neutral-200/60 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-sm font-medium text-brand-text-dark">{t('settings.analytics')}</p>
           <p className="text-xs text-brand-text-medium mt-1">
@@ -106,7 +106,7 @@ export function ConsentManagement() {
             </p>
           )}
         </div>
-        <div className="flex items-center gap-3 ml-4">
+        <div className="flex items-center justify-between gap-3 sm:ml-4">
           <span className={`text-xs font-medium ${localAnalytics ? 'text-emerald-700' : 'text-red-500'}`}>
             {localAnalytics ? t('settings.accepted') : t('settings.declined')}
           </span>
@@ -129,14 +129,14 @@ export function ConsentManagement() {
       </div>
 
       {/* Essential cookies info */}
-      <div className="flex items-center justify-between py-4 border-t border-neutral-200/60">
+      <div className="flex flex-col gap-2 py-4 border-t border-neutral-200/60 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-sm font-medium text-brand-text-dark">{t('settings.essential') || t('banner.essential')}</p>
           <p className="text-xs text-brand-text-medium mt-1">
             {t('settings.essentialDescription') || t('banner.essentialDescription')}
           </p>
         </div>
-        <span className="text-xs text-emerald-700 font-medium ml-4">{t('settings.alwaysActive') || t('banner.alwaysActive')}</span>
+        <span className="text-xs text-emerald-700 font-medium sm:ml-4">{t('settings.alwaysActive') || t('banner.alwaysActive')}</span>
       </div>
     </div>
   )

@@ -129,10 +129,10 @@ export default function BrandingPage(props: { params: Promise<{ orgId: string; l
   return (
     <div className="max-w-4xl mx-auto p-4 space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-2xl font-bold">Logo e marca da empresa</h1>
+        <h1 className="text-2xl font-bold leading-tight">Logo e marca da empresa</h1>
         <Link
           href={`/${locale}/dashboard`}
-          className="inline-flex items-center justify-center gap-2 rounded-md border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 sm:w-auto"
         >
           <LayoutDashboard className="h-4 w-4" />
           Voltar ao Dashboard
@@ -144,12 +144,12 @@ export default function BrandingPage(props: { params: Promise<{ orgId: string; l
 
       <div className="border rounded-lg p-6">
         <h2 className="text-lg font-semibold mb-4">Logotipo</h2>
-        <div className="flex items-center gap-4 mb-4">
+        <div className="flex flex-col gap-4 mb-4 sm:flex-row sm:items-center">
           {branding?.logo_url && <img src={branding.logo_url} alt="Logotipo da empresa" className="h-[100px] w-[100px] object-contain" />}
           <button
             onClick={() => logoInputRef.current?.click()}
             disabled={saving}
-            className="px-4 py-2 bg-[color:var(--be-blue)] text-white rounded hover:bg-brand-700 disabled:opacity-50"
+            className="px-4 py-2 bg-[color:var(--be-blue)] text-white rounded hover:bg-brand-700 disabled:opacity-50 w-full sm:w-auto"
           >
             {branding?.logo_url ? "Alterar logotipo" : "Enviar logotipo"}
           </button>
@@ -172,7 +172,7 @@ export default function BrandingPage(props: { params: Promise<{ orgId: string; l
         <button
           onClick={() => faviconInputRef.current?.click()}
           disabled={saving}
-          className="px-4 py-2 bg-[color:var(--be-blue)] text-white rounded hover:bg-brand-700 disabled:opacity-50"
+          className="px-4 py-2 bg-[color:var(--be-blue)] text-white rounded hover:bg-brand-700 disabled:opacity-50 w-full sm:w-auto"
         >
           {branding?.favicon_url ? "Alterar ícone" : "Enviar ícone"}
         </button>
@@ -218,11 +218,11 @@ export default function BrandingPage(props: { params: Promise<{ orgId: string; l
           </div>
         </div>
 
-        <div className="flex gap-2">
-          <button onClick={handleSaveColors} disabled={saving} className="px-4 py-2 bg-emerald-700 text-white rounded hover:bg-emerald-800 disabled:opacity-50">
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <button onClick={handleSaveColors} disabled={saving} className="px-4 py-2 bg-emerald-700 text-white rounded hover:bg-emerald-800 disabled:opacity-50 w-full sm:w-auto">
             Guardar cores
           </button>
-          <button onClick={() => setShowPreview(!showPreview)} className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">
+          <button onClick={() => setShowPreview(!showPreview)} className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 w-full sm:w-auto">
             {showPreview ? "Fechar prévia" : "Prévia"}
           </button>
         </div>

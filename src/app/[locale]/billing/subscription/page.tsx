@@ -26,7 +26,7 @@ interface Plan {
 const PLANS: Plan[] = [
   {
     id: 'starter',
-    name: 'Starter',
+    name: 'Essencial',
     price: 59,
     currency: 'BRL',
     description: 'Para começar',
@@ -39,7 +39,7 @@ const PLANS: Plan[] = [
   },
   {
     id: 'professional',
-    name: 'Professional',
+    name: 'Profissional',
     price: 89,
     currency: 'BRL',
     description: 'Para crescer',
@@ -58,7 +58,7 @@ const PLANS: Plan[] = [
     currency: 'BRL',
     description: 'Para escalar',
     features: [
-      'Tudo do Professional',
+      'Tudo do Profissional',
       'API completa',
       'Onboarding dedicado',
       'SLA garantido',
@@ -80,11 +80,11 @@ export default function SubscriptionPage() {
     const fetchSubscription = async () => {
       try {
         const res = await fetch('/api/billing/subscription')
-        if (!res.ok) throw new Error('Failed to fetch subscription')
+        if (!res.ok) throw new Error('Falha ao obter a subscrição')
         const data = await res.json()
         setSubscription(data)
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Unknown error')
+        setError(err instanceof Error ? err.message : 'Erro desconhecido')
       } finally {
         setLoading(false)
       }
@@ -108,7 +108,7 @@ export default function SubscriptionPage() {
 
       if (!res.ok) {
         const errData = await res.json()
-        throw new Error(errData.error || 'Failed to update subscription')
+        throw new Error(errData.error || 'Falha ao atualizar a subscrição')
       }
 
       const data = await res.json()
@@ -120,7 +120,7 @@ export default function SubscriptionPage() {
         router.push(`/${locale}/billing`)
       }, 1500)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error')
+        setError(err instanceof Error ? err.message : 'Erro desconhecido')
     } finally {
       setIsSubmitting(false)
     }
@@ -129,7 +129,7 @@ export default function SubscriptionPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <p>Carregando planos...</p>
+        <p>A carregar planos...</p>
       </div>
     )
   }

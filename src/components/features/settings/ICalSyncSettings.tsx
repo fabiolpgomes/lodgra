@@ -80,7 +80,7 @@ export function ICalSyncSettings({ listings, properties, locale }: ICalSyncSetti
       setEditingId(null)
       router.refresh()
     } catch (error) {
-      alert(`Erro ao guardar: ${error instanceof Error ? error.message : 'unknown'}`)
+        alert(`Erro ao guardar: ${error instanceof Error ? error.message : 'desconhecido'}`)
     }
   }
 
@@ -103,7 +103,7 @@ export function ICalSyncSettings({ listings, properties, locale }: ICalSyncSetti
       alert('Sincronização concluída')
       router.refresh()
     } catch (error) {
-      alert(`Erro: ${error instanceof Error ? error.message : 'unknown'}`)
+        alert(`Erro: ${error instanceof Error ? error.message : 'desconhecido'}`)
     } finally {
       setSyncingId(null)
     }
@@ -123,7 +123,7 @@ export function ICalSyncSettings({ listings, properties, locale }: ICalSyncSetti
         const propertyListings = listingsByProperty.get(property.id) || []
         return (
         <section key={property.id} className="rounded-xl border border-gray-200 bg-white p-4">
-          <div className="mb-3 flex items-center justify-between gap-3">
+          <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <h3 className="font-semibold text-gray-900">{property.name}</h3>
             <Link href={`/${locale}/properties/${property.id}`} className="text-xs font-medium text-brand-600 hover:text-brand-700">
               Gerenciar anúncios
@@ -135,7 +135,7 @@ export function ICalSyncSettings({ listings, properties, locale }: ICalSyncSetti
             </div>
           ) : propertyListings.map(listing => (
         <div key={listing.id} className="mt-3 rounded-lg border border-gray-200 p-4">
-          <div className="flex items-start justify-between mb-3">
+          <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <h4 className="font-medium text-gray-900">
                 {getPlatformName(listing)}
@@ -165,7 +165,7 @@ export function ICalSyncSettings({ listings, properties, locale }: ICalSyncSetti
           {editingId === listing.id ? (
             <div className="space-y-3 pt-3 border-t border-gray-200">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">iCal URL</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">URL iCal</label>
                 <input
                   type="url"
                   value={formData[listing.id]?.url || ''}
@@ -191,43 +191,43 @@ export function ICalSyncSettings({ listings, properties, locale }: ICalSyncSetti
                 <span className="text-sm text-gray-700">Ativar sincronização automática</span>
               </label>
 
-              <div className="flex gap-2">
+              <div className="flex flex-col gap-2 sm:flex-row">
                 <button
                   onClick={() => handleSave(listing.id)}
-                  className="px-3 py-1.5 text-sm font-medium bg-brand-600 text-white rounded-lg hover:bg-brand-700"
+                  className="w-full px-3 py-1.5 text-sm font-medium bg-brand-600 text-white rounded-lg hover:bg-brand-700 sm:w-auto"
                 >
                   Guardar
                 </button>
                 <button
                   onClick={() => setEditingId(null)}
-                  className="px-3 py-1.5 text-sm font-medium bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
+                  className="w-full px-3 py-1.5 text-sm font-medium bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 sm:w-auto"
                 >
                   Cancelar
                 </button>
               </div>
             </div>
           ) : (
-            <div className="flex gap-2 pt-3 border-t border-gray-200">
+            <div className="flex flex-col gap-2 pt-3 border-t border-gray-200 sm:flex-row">
               <button
                 onClick={() => handleEditStart(listing)}
-                className="px-3 py-1.5 text-sm font-medium bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200"
+                className="w-full px-3 py-1.5 text-sm font-medium bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 sm:w-auto"
               >
                 Editar
               </button>
               <button
                 onClick={() => handleSync(listing)}
                 disabled={syncingId === listing.id}
-                className="px-3 py-1.5 text-sm font-medium bg-emerald-100 text-emerald-800 rounded-lg hover:bg-emerald-200 disabled:opacity-50 flex items-center gap-1"
+                className="flex w-full items-center gap-1 rounded-lg bg-emerald-100 px-3 py-1.5 text-sm font-medium text-emerald-800 hover:bg-emerald-200 disabled:opacity-50 sm:w-auto"
               >
                 {syncingId === listing.id ? (
                   <>
                     <Loader className="h-3 w-3 animate-spin" />
-                    Sincronizando...
-                  </>
+                  A sincronizar...
+                </>
                 ) : (
                   <>
                     <RefreshCw className="h-3 w-3" />
-                    Sincronizar Agora
+                    Sincronizar agora
                   </>
                 )}
               </button>

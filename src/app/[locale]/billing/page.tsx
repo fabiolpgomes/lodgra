@@ -48,7 +48,7 @@ export default function BillingPage() {
         ])
 
         if (!subRes.ok || !invoiceRes.ok) {
-          throw new Error('Failed to fetch billing data')
+          throw new Error('Falha ao obter os dados de faturação')
         }
 
         const subData = await subRes.json()
@@ -57,7 +57,7 @@ export default function BillingPage() {
         setSubscription(subData)
         setInvoices(invoiceData.invoices || [])
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Unknown error')
+        setError(err instanceof Error ? err.message : 'Erro desconhecido')
       } finally {
         setLoading(false)
       }
@@ -67,8 +67,8 @@ export default function BillingPage() {
   }, [])
 
   const planNames: Record<string, string> = {
-    starter: 'Starter',
-    professional: 'Professional',
+    starter: 'Essencial',
+    professional: 'Profissional',
     enterprise: 'Enterprise',
   }
 
@@ -89,7 +89,7 @@ export default function BillingPage() {
   const getStatusLabel = (status: string) => {
     switch (status) {
       case 'trialing':
-        return 'Em Período de Teste'
+        return 'Em período experimental'
       case 'active':
         return 'Ativo'
       case 'past_due':
@@ -104,7 +104,7 @@ export default function BillingPage() {
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-brand-bg">
-        <p className="text-sm font-semibold text-brand-text-medium">Carregando dados de faturamento...</p>
+        <p className="text-sm font-semibold text-brand-text-medium">A carregar dados de faturação...</p>
       </div>
     )
   }
