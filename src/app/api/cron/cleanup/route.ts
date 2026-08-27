@@ -15,6 +15,7 @@ export async function GET(request: NextRequest) {
     }
 
     const supabase = await createClient()
+    const adminClient = createAdminClient()
     
     // Data limite: 2 anos atrás
     const twoYearsAgo = new Date()
@@ -37,7 +38,6 @@ export async function GET(request: NextRequest) {
 
     // Cancel expired pending_payment reservations (>30 min without payment)
     const thirtyMinAgo = new Date(Date.now() - 30 * 60 * 1000).toISOString()
-    const adminClient = await createAdminClient()
 
     const { data: expiredPendingPayment, error: expiredError } = await adminClient
       .from('reservations')
@@ -74,13 +74,50 @@ export async function GET(request: NextRequest) {
       cutoffDate,
       oldCancelledReservations: oldCancelledCount || 0,
       expiredDirectCancelled: cancelledPendingCount,
-      action: 'counted',
+      action: 'counted-and-cleaned',
       timestamp: new Date().toISOString(),
     }
 
-    console.log(`Reservas canceladas antigas (>2 anos): ${oldCancelledCount}`)
+    const ninetyDaysAgo = new Date()
+    ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90)
+    const retentionCutoff = ninetyDaysAgo.toISOString()
 
-    return NextResponse.json(result)
+    const { data: oldEmailSent, error: oldEmailSentError } = await adminClient
+      .from('email_sent')
+      .delete()
+      .lt('sent_at', retentionCutoff)
+      .select('id')
+
+    if (oldEmailSentError) {
+      console.error('Erro ao limpar email_sent antigos:', oldEmailSentError)
+    }
+
+    const { data: oldUnsubscribes, error: oldUnsubscribesError } = await adminClient
+      .from('email_unsubscribes')
+      .delete()
+      .lt('unsubscribed_at', retentionCutoff)
+      .select('id')
+
+    if (oldUnsubscribesError) {
+      console.error('Erro ao limpar email_unsubscribes antigos:', oldUnsubscribesError)
+    }
+
+    const oldEmailSentCount = oldEmailSent?.length ?? 0
+    const oldUnsubscribesCount = oldUnsubscribes?.length ?? 0
+
+    console.log(`Reservas canceladas antigas (>2 anos): ${oldCancelledCount}`)
+    if (oldEmailSentCount > 0 || oldUnsubscribesCount > 0) {
+      console.log(
+        `Retenção de email limpa (>90 dias): email_sent=${oldEmailSentCount}, email_unsubscribes=${oldUnsubscribesCount}`,
+      )
+    }
+
+    return NextResponse.json({
+      ...result,
+      retentionCutoff,
+      oldEmailSentDeleted: oldEmailSentCount,
+      oldUnsubscribesDeleted: oldUnsubscribesCount,
+    })
 
   } catch (error: unknown) {
     console.error('Erro no cron job de limpeza:', error)
