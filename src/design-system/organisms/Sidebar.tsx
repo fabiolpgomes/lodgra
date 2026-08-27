@@ -62,9 +62,10 @@ export function Sidebar({
                 'flex items-center gap-3 px-3 py-2 rounded-sm transition-colors',
                 'text-design-sm font-medium',
                 item.active
-                  ? 'bg-be-blue text-white font-bold'
-                  : 'text-be-text hover:bg-be-blue/5'
+                  ? 'bg-[#10203E] !text-white font-bold'
+                  : 'text-[#10203E] hover:bg-be-blue/5'
               )}
+              aria-current={item.active ? 'page' : undefined}
               title={collapsed ? item.label : undefined}
             >
               {Icon && <Icon size={20} className="flex-shrink-0" />}
