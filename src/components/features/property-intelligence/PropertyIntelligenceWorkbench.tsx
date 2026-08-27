@@ -191,6 +191,13 @@ const INITIAL_GUIDED_JSON = JSON.stringify(
         turnoversPerMonth: 7,
       },
     },
+    ownerContext: {
+      flexibility: DEFAULT_FORM.ownerContext.flexibility,
+      operatingModel: DEFAULT_FORM.ownerContext.operatingModel,
+      historicalRevenue: DEFAULT_FORM.ownerContext.historicalRevenue,
+      rentedDays: DEFAULT_FORM.ownerContext.rentedDays,
+      maintenanceNote: DEFAULT_FORM.ownerContext.maintenanceNote,
+    },
   },
   null,
   2
@@ -198,6 +205,14 @@ const INITIAL_GUIDED_JSON = JSON.stringify(
 
 function formatJson(value: unknown) {
   return JSON.stringify(value, null, 2)
+}
+
+function formatCurrencyAmount(value: number, currency = 'EUR') {
+  return new Intl.NumberFormat('pt-PT', {
+    style: 'currency',
+    currency,
+    maximumFractionDigits: 0,
+  }).format(value)
 }
 
 function selectionButtonStyle(active: boolean): CSSProperties {
@@ -562,8 +577,23 @@ export function PropertyIntelligenceWorkbench({
       { label: 'Mercado', value: MARKET_OPTIONS.find(option => option.value === market)?.label ?? 'Não informado' },
       { label: 'Perfil', value: PROFILE_OPTIONS.find(option => option.value === profile)?.label ?? profile },
       { label: 'Moeda', value: currency || 'Não informado' },
+      {
+        label: 'Flexibilidade',
+        value: OWNER_FLEXIBILITY_OPTIONS.find(option => option.value === ownerFlexibility)?.label ?? ownerFlexibility,
+      },
+      {
+        label: 'Operação',
+        value: OWNER_OPERATING_MODEL_OPTIONS.find(option => option.value === ownerOperatingModel)?.label ?? ownerOperatingModel,
+      },
+      {
+        label: 'Histórico',
+        value:
+          historicalRevenue != null || rentedDays != null
+            ? `${historicalRevenue != null ? formatCurrencyAmount(historicalRevenue, 'EUR') : '€ -'} / ${rentedDays ?? '-'} dias`
+            : 'Não informado',
+      },
     ],
-    [currency, location, market, profile, propertyName, propertyType, typology]
+    [currency, historicalRevenue, location, market, ownerFlexibility, ownerOperatingModel, profile, propertyName, propertyType, rentedDays, typology]
   )
 
   const resultHeadline = result
@@ -645,6 +675,11 @@ export function PropertyIntelligenceWorkbench({
     setListingUrl(DEFAULT_FORM.listingUrl)
     setCurrency(DEFAULT_FORM.currency)
     setProfile(DEFAULT_FORM.profile)
+    setOwnerFlexibility(DEFAULT_FORM.ownerContext.flexibility)
+    setOwnerOperatingModel(DEFAULT_FORM.ownerContext.operatingModel)
+    setHistoricalRevenue(DEFAULT_FORM.ownerContext.historicalRevenue)
+    setRentedDays(DEFAULT_FORM.ownerContext.rentedDays)
+    setMaintenanceNote(DEFAULT_FORM.ownerContext.maintenanceNote)
     setInputText(INITIAL_GUIDED_JSON)
     setResult(null)
     setResultView('summary')
@@ -1033,6 +1068,82 @@ export function PropertyIntelligenceWorkbench({
                 placeholder="Ex.: vista mar, varanda solarenga, piscina comum, garagem coberta..."
                 className="min-h-[120px]"
               />
+            </div>
+          </PremiumCard>
+
+          <PremiumCard className="space-y-5">
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-brand-blue" />
+              <h3 className="text-sm font-semibold text-brand-text-dark">Contexto do proprietário</h3>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <ChoiceGroup
+                label="Flexibilidade de uso"
+                description="Quanto o imóvel precisa continuar disponível para uso próprio."
+                options={OWNER_FLEXIBILITY_OPTIONS}
+                value={ownerFlexibility}
+                onChange={setOwnerFlexibility}
+                columns="grid-cols-3"
+              />
+              <ChoiceGroup
+                label="Modelo real de exploração"
+                description="Como o imóvel opera na prática."
+                options={OWNER_OPERATING_MODEL_OPTIONS}
+                value={ownerOperatingModel}
+                onChange={setOwnerOperatingModel}
+                columns="grid-cols-1 sm:grid-cols-3"
+              />
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-3">
+                <h4 className="text-sm font-semibold text-brand-text-dark">Faturamento acumulado</h4>
+                <Input
+                  type="number"
+                  min={0}
+                  step="1"
+                  value={historicalRevenue ?? ''}
+                  onChange={event => {
+                    const nextValue = event.target.value
+                    setHistoricalRevenue(nextValue === '' ? null : Number(nextValue))
+                  }}
+                  placeholder="Ex.: 15000"
+                />
+                <p className="text-xs text-brand-text-medium">
+                  Valor total já faturado pelo imóvel no período informado.
+                </p>
+              </div>
+              <div className="space-y-3">
+                <h4 className="text-sm font-semibold text-brand-text-dark">Dias alugados</h4>
+                <Input
+                  type="number"
+                  min={0}
+                  step="1"
+                  value={rentedDays ?? ''}
+                  onChange={event => {
+                    const nextValue = event.target.value
+                    setRentedDays(nextValue === '' ? null : Number(nextValue))
+                  }}
+                  placeholder="Ex.: 186"
+                />
+                <p className="text-xs text-brand-text-medium">
+                  Ajuda a contextualizar a eficiência real da operação.
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <h4 className="text-sm font-semibold text-brand-text-dark">Nota de manutenção e operação</h4>
+              <Textarea
+                value={maintenanceNote}
+                onChange={event => setMaintenanceNote(event.target.value)}
+                placeholder="Ex.: manutenção preventiva é mais fácil em curta/média duração; contratos longos tendem a concentrar custo no fim."
+                className="min-h-[120px]"
+              />
+              <p className="text-xs text-brand-text-medium">
+                Se o imóvel é de uso próprio, explique por que a flexibilidade e a manutenção preventiva importam.
+              </p>
             </div>
           </PremiumCard>
 

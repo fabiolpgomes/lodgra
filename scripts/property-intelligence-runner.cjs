@@ -6,6 +6,7 @@ const Module = require('node:module')
 const ts = require('typescript')
 
 const originalResolveFilename = Module._resolveFilename
+const PROPERTY_INTELLIGENCE_GATE_ENV = 'PROPERTY_INTELLIGENCE_ANALYSIS_ENABLED'
 
 Module._resolveFilename = function resolveFilename(request, parent, isMain, options) {
   try {
@@ -84,6 +85,11 @@ async function readInput(inputPath) {
 }
 
 async function main() {
+  if (process.env[PROPERTY_INTELLIGENCE_GATE_ENV] === 'false') {
+    stderr.write('Property Intelligence CLI is disabled by feature gate.\n')
+    process.exit(2)
+  }
+
   const { inputPath, format } = parseArgs(process.argv.slice(2))
   const rawInput = await readInput(inputPath)
 

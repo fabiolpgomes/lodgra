@@ -97,7 +97,15 @@ function formatStayType(stayType: string): string {
     return 'estadia média'
   }
 
-  return 'estadia curta'
+  if (stayType === 'short-stay') {
+    return 'estadia curta'
+  }
+
+  if (stayType === 'mixed') {
+    return 'estadia mista'
+  }
+
+  return 'estadia'
 }
 
 function renderPageBreak(): string[] {
@@ -150,6 +158,7 @@ function renderReadingGuide(): string[] {
     '- O cenário conservador usa premissas mais prudentes; o cenário base representa a leitura central; o cenário otimizado mostra o melhor caso plausível.',
     '- A confiança expressa o grau de segurança do modelo em cada tipo de estadia e na referência usada para sustentar a recomendação.',
     '- Quando o proprietário usa o imóvel ou depende de manutenção preventiva, regimes curtos e médios podem receber maior peso do que uma leitura financeira isolada sugeriria.',
+    '- Como a Lodgra é uma operação de gestão patrimonial focada em curta e média duração, o anual só deve liderar quando a diferença económica e operacional for realmente estrutural.',
     '- A estratégia indica qual tipo de estadia apresenta o melhor encaixe económico e por que razão.',
     '- A validação informa se a leitura está pronta, se precisa de atenção ou se ainda está bloqueada por dados em falta.',
   ]
