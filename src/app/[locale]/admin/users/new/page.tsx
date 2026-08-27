@@ -162,7 +162,7 @@ export default function NewUserPage() {
             <ArrowLeft className="h-4 w-4" />
             Voltar para Usuários
           </Link>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <UserPlus className="h-8 w-8 text-blue-600" />
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Novo Usuário</h1>
           </div>
@@ -346,15 +346,15 @@ export default function NewUserPage() {
             </Alert>
           )}
 
-          <div className="flex gap-3">
+          <div className="flex flex-col-reverse gap-3 sm:flex-row">
             <Button
               type="submit"
               disabled={loading}
-              className="flex-1"
+              className="w-full sm:flex-1"
             >
               {loading ? 'Criando...' : 'Criar Usuário'}
             </Button>
-            <Button asChild variant="outline">
+            <Button asChild variant="outline" className="w-full sm:w-auto">
               <Link href={`/${locale}/admin/users`}>
                 Cancelar
               </Link>

@@ -3,6 +3,8 @@ import { createClient } from '@/lib/supabase/server'
 import { ReservationValidator } from '@/lib/reservations/reservation-validator'
 import { sendReservationConfirmationEmailWithRetry } from '@/lib/email/sendgrid'
 import { sendReservationSMSWithRetry } from '@/lib/sms/twilio'
+import { formatCurrency } from '@/lib/utils/currency'
+import { normalizeBookingLocale } from '@/lib/email/booking-locale'
 
 export async function POST(request: NextRequest) {
   try {
@@ -37,7 +39,24 @@ export async function POST(request: NextRequest) {
       guestCount,
       notes,
       finalPrice,
+      channelLabel,
+      channelConnectionId,
+      preferredLocale,
     } = body
+    const resolvedPreferredLocale = normalizeBookingLocale(preferredLocale)
+
+    let resolvedChannelLabel = channelLabel || 'canal selecionado'
+    if (!channelLabel && channelConnectionId) {
+      const { data: channelConnection } = await supabase
+        .from('channel_connections')
+        .select('channel, account_name')
+        .eq('id', channelConnectionId)
+        .maybeSingle()
+
+      resolvedChannelLabel = channelConnection?.account_name
+        ? `${channelConnection.channel} (${channelConnection.account_name})`
+        : channelConnection?.channel || resolvedChannelLabel
+    }
 
     // Validate required fields
     if (!propertyId || !checkIn || !checkOut || !guestName || !guestEmail) {
@@ -96,8 +115,10 @@ export async function POST(request: NextRequest) {
           check_out: checkOut,
           final_price: finalPrice || 0,
           notes: notes || null,
+          booking_source: 'manual',
           status: 'active',
           created_by: user.id,
+          preferred_locale: resolvedPreferredLocale,
           created_at: new Date().toISOString(),
         },
       ])
@@ -106,8 +127,23 @@ export async function POST(request: NextRequest) {
 
     if (insertError) {
       console.error('[Reservation Creation] Database error:', insertError)
+      const rawMessage = insertError.message || 'Database error'
+      const constraintKey = 'reservations_organization_id_channel_connection_id_external_key'
+      const isDuplicateExternalKey =
+        insertError.code === '23505' || rawMessage.includes(constraintKey)
+
+      if (isDuplicateExternalKey) {
+        return NextResponse.json(
+          {
+            error:
+              `Já existe uma reserva com este número/identificador para o canal ${resolvedChannelLabel}. Verifique se a reserva já foi importada ou use um identificador diferente.`,
+          },
+          { status: 409 }
+        )
+      }
+
       return NextResponse.json(
-        { error: `Database error: ${insertError.message}` },
+        { error: `Database error: ${rawMessage}` },
         { status: 500 }
       )
     }
@@ -115,7 +151,7 @@ export async function POST(request: NextRequest) {
     // Fetch property data for email
     const { data: property } = await supabase
       .from('properties')
-      .select('name, address, cancellation_policy_id')
+      .select('name, address, cancellation_policy_id, organization_id')
       .eq('id', propertyId)
       .single()
 
@@ -135,6 +171,42 @@ export async function POST(request: NextRequest) {
         cancellationPolicyName = policy.name
         refundPercentage = policy.refund_percentage
         refundDeadlineDays = policy.refund_deadline_days
+      }
+    }
+
+    let guestId: string | null = null
+    if (property?.organization_id && guestEmail) {
+      const nameParts = String(guestName).trim().split(/\s+/)
+      const firstName = nameParts[0] || String(guestName).trim()
+      const lastName = nameParts.slice(1).join(' ') || null
+
+      const { data: guestRecord, error: guestError } = await supabase
+        .from('guests')
+        .upsert(
+          {
+            first_name: firstName,
+            last_name: lastName,
+            email: String(guestEmail).toLowerCase().trim(),
+            organization_id: property.organization_id,
+            preferred_locale: resolvedPreferredLocale,
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: 'email,organization_id', ignoreDuplicates: false }
+        )
+        .select('id')
+        .single()
+
+      if (guestError) {
+        console.warn('[Reservation Creation] Falha ao guardar o idioma do hóspede:', guestError)
+      } else {
+        guestId = guestRecord?.id ?? null
+      }
+
+      if (guestId) {
+        await supabase
+          .from('reservations')
+          .update({ guest_id: guestId })
+          .eq('id', reservation.id)
       }
     }
 
@@ -162,17 +234,18 @@ export async function POST(request: NextRequest) {
       guestName,
       propertyName: property?.name || 'Propriedade',
       propertyAddress: property?.address || '',
-      checkInDate: checkInFormatted,
-      checkOutDate: checkOutFormatted,
+      checkInDate: checkIn,
+      checkOutDate: checkOut,
       nights: nightsCount,
       guestCount: guestCount || 1,
-      pricePerNight: `€${(parseFloat(String(finalPrice)) / nightsCount).toFixed(2)}`,
-      finalPrice: `€${parseFloat(String(finalPrice)).toFixed(2)}`,
+      pricePerNight: formatCurrency(parseFloat(String(finalPrice)) / nightsCount),
+      finalPrice: formatCurrency(parseFloat(String(finalPrice))),
       cancellationPolicyName,
       refundPercentage,
       refundDeadlineDays,
       supportEmail: process.env.SUPPORT_EMAIL || 'support@lodgra.io',
       supportPhone: process.env.SUPPORT_PHONE || '+55 (11) 3000-0000',
+      preferredLocale: resolvedPreferredLocale,
       notes: notes || undefined,
     }).catch((error) => {
       console.error('[Email Send] Error sending confirmation email:', error)
@@ -186,7 +259,7 @@ export async function POST(request: NextRequest) {
         propertyName: property?.name || 'Propriedade',
         checkInDate: checkInFormatted,
         checkOutDate: checkOutFormatted,
-        finalPrice: `€${parseFloat(String(finalPrice)).toFixed(2)}`,
+        finalPrice: formatCurrency(parseFloat(String(finalPrice))),
         reservationId: reservation.id,
         supportPhone: process.env.SUPPORT_PHONE || '+55 (11) 3000-0000',
       }).catch((error) => {

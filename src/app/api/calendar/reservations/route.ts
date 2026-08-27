@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
 
     let query = adminClient
       .from('reservations')
-      .select('id, property_id, check_in, check_out, reservation_status, number_of_guests, guest_name, first_name, last_name, total_price, currency')
+      .select('id, property_id, check_in, check_out, reservation_status, number_of_guests, guest_name, first_name, last_name, total_price, currency, notes')
       .eq('organization_id', auth.organizationId)
       .is('deleted_at', null)
       .in('reservation_status', ['confirmed', 'pending'])
@@ -81,6 +81,7 @@ export async function GET(request: NextRequest) {
           number_of_guests: reservation.number_of_guests,
           total_amount: reservation.total_price,
           currency: reservation.currency ?? null,
+          notes: reservation.notes ?? null,
           opacity: status === 'pending' ? 0.65 : 1,
         },
       }

@@ -31,7 +31,7 @@ describe('CalendarDayClickModal', () => {
     expect(input).toHaveAttribute('inputmode', 'decimal')
 
     fireEvent.change(input, { target: { value: '125,50' } })
-    expect(screen.getByText(/251,00/)).toBeInTheDocument()
+    expect(screen.getByText('251.00')).toBeInTheDocument()
 
     fireEvent.submit(input.closest('form')!)
 

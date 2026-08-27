@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { CheckCircle2, ArrowUpCircle, ExternalLink, Loader2 } from 'lucide-react'
 import { Plan, PLAN_DISPLAY, PLAN_LIMITS } from '@/lib/billing/plans'
+import { formatCurrency } from '@/lib/utils/currency'
 
 interface PlanManagementProps {
   currentPlan: Plan
@@ -14,12 +15,12 @@ const PLAN_LABELS: Record<Plan, string> = {
   expansao:     'Expansão',
   premium:      'Premium',
   enterprise:   'Enterprise',
-  development:  'Development (Lab)',
+  development:  'Desenvolvimento (Laboratório)',
 }
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   active:    { label: 'Activa',       color: 'bg-emerald-100 text-emerald-800' },
-  trial:     { label: 'Trial',        color: 'bg-brand-100 text-brand-800' },
+  trial:     { label: 'Teste',        color: 'bg-brand-100 text-brand-800' },
   past_due:  { label: 'Pagamento em atraso', color: 'bg-red-100 text-red-800' },
   cancelled: { label: 'Cancelada',    color: 'bg-gray-100 text-gray-800' },
 }
@@ -76,7 +77,7 @@ export function PlanManagement({ currentPlan, subscriptionStatus }: PlanManageme
       {/* Current plan summary */}
       <div className="flex items-center justify-between p-4 bg-brand-50 border border-brand-200 rounded-lg">
         <div>
-          <p className="text-xs text-brand-700 font-medium uppercase tracking-wide">Plano actual</p>
+          <p className="text-xs text-brand-700 font-medium uppercase tracking-wide">Plano atual</p>
           <p className="text-lg font-bold text-brand-900">{PLAN_LABELS[currentPlan]}</p>
           <p className="text-xs text-brand-700 mt-0.5">
             {limits.maxProperties ? `Até ${limits.maxProperties} propriedades` : 'Propriedades ilimitadas'}
@@ -118,7 +119,10 @@ export function PlanManagement({ currentPlan, subscriptionStatus }: PlanManageme
               </div>
 
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-end gap-3 ml-4 flex-shrink-0">
-                <p className="text-sm font-bold text-gray-900 whitespace-nowrap">€{plan.price}<span className="text-xs font-normal text-gray-500">/mês</span></p>
+                <p className="text-sm font-bold text-gray-900 whitespace-nowrap">
+                  {formatCurrency(plan.price)}
+                  <span className="text-xs font-normal text-gray-500">/mês</span>
+                </p>
                 {!isCurrent && (
                   <button
                     onClick={() => handleUpgrade(planKey)}
@@ -134,7 +138,7 @@ export function PlanManagement({ currentPlan, subscriptionStatus }: PlanManageme
                     ) : (
                       <ArrowUpCircle className={`w-3.5 h-3.5 ${isDowngrade ? 'rotate-180' : ''}`} />
                     )}
-                    {isUpgrade ? 'Upgrade' : 'Downgrade'}
+                    {isUpgrade ? 'Fazer upgrade' : 'Fazer downgrade'}
                   </button>
                 )}
               </div>

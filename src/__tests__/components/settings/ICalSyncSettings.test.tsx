@@ -70,7 +70,7 @@ describe('ICalSyncSettings', () => {
       />
     )
 
-    fireEvent.click(screen.getByRole('button', { name: /Sincronizar Agora/ }))
+    fireEvent.click(screen.getByRole('button', { name: /Sincronizar agora/ }))
 
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalledWith(

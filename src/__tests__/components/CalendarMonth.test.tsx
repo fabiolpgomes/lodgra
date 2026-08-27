@@ -35,10 +35,10 @@ describe('CalendarMonth', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: /next/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Seguinte/i })).toBeInTheDocument();
     });
 
-    expect(screen.getByRole('button', { name: /prev/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Anterior/i })).toBeInTheDocument();
   });
 
   it('fetches daily prices from API', async () => {
@@ -70,11 +70,11 @@ describe('CalendarMonth', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: /next/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Seguinte/i })).toBeInTheDocument();
     });
 
     // Component renders without errors
-    expect(screen.getByRole('button', { name: /prev/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Anterior/i })).toBeInTheDocument();
   });
 
   it('renders correctly with weekend prices', async () => {
@@ -87,10 +87,10 @@ describe('CalendarMonth', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: /next/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Seguinte/i })).toBeInTheDocument();
     });
 
-    expect(screen.getByRole('button', { name: /prev/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Anterior/i })).toBeInTheDocument();
   });
 
   it('navigates months with button clicks', async () => {
@@ -102,14 +102,14 @@ describe('CalendarMonth', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: /next/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Seguinte/i })).toBeInTheDocument();
     });
 
-    const nextButton = screen.getByRole('button', { name: /next/i });
+    const nextButton = screen.getByRole('button', { name: /Seguinte/i });
     fireEvent.click(nextButton);
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: /prev/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Anterior/i })).toBeInTheDocument();
     });
   });
 
@@ -125,11 +125,11 @@ describe('CalendarMonth', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: /next/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Seguinte/i })).toBeInTheDocument();
     });
 
     // Component renders with callback
-    expect(screen.getByRole('button', { name: /prev/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Anterior/i })).toBeInTheDocument();
   });
 
   it('handles API errors gracefully', async () => {
@@ -144,7 +144,7 @@ describe('CalendarMonth', () => {
 
     // Component should still render
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: /next/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Seguinte/i })).toBeInTheDocument();
     });
   });
 

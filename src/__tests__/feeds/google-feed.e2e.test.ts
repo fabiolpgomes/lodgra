@@ -30,6 +30,7 @@ describe('Google Vacation Rentals Feed API - E2E', () => {
   describe('Feed generation behavior', () => {
     it('should return valid feed with caching properties', async () => {
       const { xml, eTag, count } = await generateGoogleVacationRentalsFeed({
+        currency: 'EUR',
         limit: 10,
         offset: 0,
       })
@@ -41,7 +42,7 @@ describe('Google Vacation Rentals Feed API - E2E', () => {
     })
 
     it('should include XML feed headers', async () => {
-      const { xml } = await generateGoogleVacationRentalsFeed()
+      const { xml } = await generateGoogleVacationRentalsFeed({ currency: 'EUR' })
 
       expect(xml).toContain('<?xml version="1.0"')
       expect(xml).toContain('xmlns="http://www.w3.org/2005/Atom"')
@@ -51,16 +52,16 @@ describe('Google Vacation Rentals Feed API - E2E', () => {
     })
 
     it('should support limit parameter (enforces max 1000)', async () => {
-      const { count: count50 } = await generateGoogleVacationRentalsFeed({ limit: 50 })
-      const { count: count5000 } = await generateGoogleVacationRentalsFeed({ limit: 5000 })
+      const { count: count50 } = await generateGoogleVacationRentalsFeed({ currency: 'EUR', limit: 50 })
+      const { count: count5000 } = await generateGoogleVacationRentalsFeed({ currency: 'EUR', limit: 5000 })
 
       expect(count50).toBeLessThanOrEqual(50)
       expect(count5000).toBeLessThanOrEqual(1000)
     })
 
     it('should support offset parameter', async () => {
-      const { count: count1 } = await generateGoogleVacationRentalsFeed({ limit: 10, offset: 0 })
-      const { count: count2 } = await generateGoogleVacationRentalsFeed({ limit: 10, offset: 10 })
+      const { count: count1 } = await generateGoogleVacationRentalsFeed({ currency: 'EUR', limit: 10, offset: 0 })
+      const { count: count2 } = await generateGoogleVacationRentalsFeed({ currency: 'EUR', limit: 10, offset: 10 })
 
       expect(count1).toBeGreaterThanOrEqual(0)
       expect(count2).toBeGreaterThanOrEqual(0)
@@ -80,6 +81,7 @@ describe('Google Vacation Rentals Feed API - E2E', () => {
 
     it('should handle empty results gracefully', async () => {
       const { xml, count } = await generateGoogleVacationRentalsFeed({
+        currency: 'EUR',
         updated_since: '2099-01-01T00:00:00Z',
       })
 
@@ -91,8 +93,8 @@ describe('Google Vacation Rentals Feed API - E2E', () => {
       // Note: ETags depend on XML content including timestamp.
       // This test verifies the feed generation is reproducible, not that
       // the ETag values are identical across time (since timestamp changes).
-      const { eTag: eTag1, xml: xml1 } = await generateGoogleVacationRentalsFeed({ limit: 10, offset: 0 })
-      const { eTag: eTag2, xml: xml2 } = await generateGoogleVacationRentalsFeed({ limit: 10, offset: 0 })
+      const { eTag: eTag1, xml: xml1 } = await generateGoogleVacationRentalsFeed({ currency: 'EUR', limit: 10, offset: 0 })
+      const { eTag: eTag2, xml: xml2 } = await generateGoogleVacationRentalsFeed({ currency: 'EUR', limit: 10, offset: 0 })
 
       // Both calls should produce valid ETags
       expect(eTag1).toMatch(/^[a-f0-9]{32}$/)
@@ -105,14 +107,14 @@ describe('Google Vacation Rentals Feed API - E2E', () => {
 
     it('should complete feed generation within performance target', async () => {
       const startTime = Date.now()
-      await generateGoogleVacationRentalsFeed({ limit: 100 })
+      await generateGoogleVacationRentalsFeed({ currency: 'EUR', limit: 100 })
       const duration = Date.now() - startTime
 
       expect(duration).toBeLessThan(5000)
     })
 
     it('should generate proper Atom feed structure', async () => {
-      const { xml } = await generateGoogleVacationRentalsFeed()
+      const { xml } = await generateGoogleVacationRentalsFeed({ currency: 'EUR' })
 
       expect(xml).toContain('<title>Lodgra Property Feed</title>')
       expect(xml).toContain('<link href="https://lodgra.io"')
@@ -122,7 +124,7 @@ describe('Google Vacation Rentals Feed API - E2E', () => {
     })
 
     it('should escape XML special characters', async () => {
-      const { xml } = await generateGoogleVacationRentalsFeed({ limit: 50 })
+      const { xml } = await generateGoogleVacationRentalsFeed({ currency: 'EUR', limit: 50 })
 
       // Verify no unescaped dangerous characters in feed
       const hasUnescapedAnd = xml.match(/&(?![a-z]+;)/g)
@@ -132,7 +134,7 @@ describe('Google Vacation Rentals Feed API - E2E', () => {
     })
 
     it('should include eTag header value in valid format', async () => {
-      const { eTag } = await generateGoogleVacationRentalsFeed()
+      const { eTag } = await generateGoogleVacationRentalsFeed({ currency: 'EUR' })
 
       // eTag should be MD5 hash (32 hex chars)
       expect(eTag).toMatch(/^[a-f0-9]{32}$/)

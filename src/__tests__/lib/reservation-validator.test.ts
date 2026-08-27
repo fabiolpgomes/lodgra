@@ -192,6 +192,37 @@ describe('ReservationValidator', () => {
       }
     })
 
+    it('should allow an approved minimum-nights override for manual reservations', async () => {
+      mockSupabase = buildSupabaseMock({
+        property_availability: {
+          data: { min_nights: 3, max_nights: 365 },
+          error: null,
+        },
+        pricing_rules: {
+          data: [
+            {
+              min_nights: 6,
+            },
+          ],
+          error: null,
+        },
+      })
+      mockCreateClient.mockResolvedValue(mockSupabase)
+
+      const result = await ReservationValidator.validateMinimumNights(
+        'prop-123',
+        1,
+        '2026-08-10',
+        '2026-08-11',
+        { allowMinimumNightsOverride: true }
+      )
+
+      expect(result.passed).toBe(true)
+      expect(result.requiresApproval).toBe(true)
+      expect(result.overrideApplied).toBe(true)
+      expect(result.error).toBeUndefined()
+    })
+
     it('should handle non-existent property', async () => {
       const result = await ReservationValidator.validateMinimumNights('non-existent', 5)
 

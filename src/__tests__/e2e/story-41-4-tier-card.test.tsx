@@ -53,7 +53,7 @@ describe('GuestTierCard - Story 41.4', () => {
     )
 
     expect(screen.getByText('Bronze')).toBeInTheDocument()
-    expect(screen.getByText('0% discount')).toBeInTheDocument()
+    expect(screen.getByText('0% de desconto')).toBeInTheDocument()
     expect(screen.getByText('15/100')).toBeInTheDocument()
   })
 
@@ -68,7 +68,7 @@ describe('GuestTierCard - Story 41.4', () => {
     )
 
     expect(screen.getByText('Silver')).toBeInTheDocument()
-    expect(screen.getByText('5% discount')).toBeInTheDocument()
+    expect(screen.getByText('5% de desconto')).toBeInTheDocument()
     expect(screen.getByText('35/100')).toBeInTheDocument()
   })
 
@@ -83,7 +83,7 @@ describe('GuestTierCard - Story 41.4', () => {
     )
 
     expect(screen.getByText('Gold')).toBeInTheDocument()
-    expect(screen.getByText(/10% discount/)).toBeInTheDocument()
+    expect(screen.getByText(/10% de desconto/)).toBeInTheDocument()
     expect(screen.getByText('65/100')).toBeInTheDocument()
   })
 
@@ -98,7 +98,7 @@ describe('GuestTierCard - Story 41.4', () => {
     )
 
     expect(screen.getByText('Platinum')).toBeInTheDocument()
-    expect(screen.getByText('15% discount')).toBeInTheDocument()
+    expect(screen.getByText('15% de desconto')).toBeInTheDocument()
     expect(screen.getByText('100/100')).toBeInTheDocument()
   })
 
@@ -128,7 +128,7 @@ describe('GuestTierCard - Story 41.4', () => {
     )
 
     const unlockBox = container.querySelector('div[class*="bg-blue-50"]')
-    expect(unlockBox).toHaveTextContent('1 more stay to unlock')
+    expect(unlockBox).toHaveTextContent('Faltam 1 estadia para desbloquear')
   })
 
   it('should display plural "stays" message for multiple points', () => {
@@ -142,7 +142,7 @@ describe('GuestTierCard - Story 41.4', () => {
     )
 
     const unlockBox = container.querySelector('div[class*="bg-blue-50"]')
-    expect(unlockBox).toHaveTextContent('11 more stays to unlock')
+    expect(unlockBox).toHaveTextContent('Faltam 11 estadias para desbloquear')
   })
 
   it('should show highest tier message when at Platinum', () => {
@@ -156,7 +156,7 @@ describe('GuestTierCard - Story 41.4', () => {
     )
 
     const unlockBox = container.querySelector('div[class*="bg-blue-50"]')
-    expect(unlockBox).toHaveTextContent('You have reached the highest tier')
+    expect(unlockBox).toHaveTextContent('Já atingiu o nível mais alto')
   })
 
   it('should display all tier perks', () => {
@@ -183,7 +183,7 @@ describe('GuestTierCard - Story 41.4', () => {
       />
     )
 
-    expect(screen.getByText('Loading tier information...')).toBeInTheDocument()
+    expect(screen.getByText('A carregar informações do nível...')).toBeInTheDocument()
   })
 
   it('should have proper accessibility attributes', () => {
@@ -198,7 +198,7 @@ describe('GuestTierCard - Story 41.4', () => {
 
     const srOnly = container.querySelector('.sr-only')
     expect(srOnly).toBeInTheDocument()
-    expect(srOnly).toHaveTextContent(/Gold member/)
+    expect(srOnly).toHaveTextContent(/nível Gold/i)
   })
 
   it('should handle zero loyalty score', () => {

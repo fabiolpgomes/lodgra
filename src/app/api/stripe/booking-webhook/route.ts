@@ -73,7 +73,7 @@ async function handleBookingCompleted(supabase: AdminClient, session: Stripe.Che
   // ── Idempotency check ────────────────────────────────────────────────────────
   const { data: existing } = await supabase
     .from('reservations')
-    .select('status, check_in, check_out, guest_name, guest_email, total_amount, num_guests, property_listing_id, currency')
+    .select('status, check_in, check_out, guest_name, guest_email, total_amount, num_guests, property_listing_id, currency, preferred_locale, guests:guests!reservations_guest_id_fkey(preferred_locale)')
     .eq('id', reservationId)
     .single()
 
@@ -139,11 +139,15 @@ async function handleBookingCompleted(supabase: AdminClient, session: Stripe.Che
     return
   }
 
+  const guestRelation = existing.guests as unknown as { preferred_locale: string | null } | Array<{ preferred_locale: string | null }> | null
+  const guestProfile = Array.isArray(guestRelation) ? guestRelation[0] : guestRelation
+
   const emailData = {
     reservationId,
     propertyName: property.name,
     propertySlug: property.slug,
     propertyCity: property.city,
+    organizationId: property.organization_id,
     checkIn: existing.check_in,
     checkOut: existing.check_out,
     guestName: existing.guest_name ?? 'Hóspede',
@@ -152,6 +156,7 @@ async function handleBookingCompleted(supabase: AdminClient, session: Stripe.Che
     totalAmount: existing.total_amount ? parseFloat(String(existing.total_amount)) : 0,
     currency,
     appUrl: process.env.NEXT_PUBLIC_APP_URL ?? '',
+    preferredLocale: existing.preferred_locale ?? guestProfile?.preferred_locale ?? null,
   }
 
   console.log(`[booking-webhook] Sending emails to ${emailData.guestEmail}`)

@@ -31,10 +31,15 @@ interface DetailedCalendarProps {
 export function DetailedCalendar({
   propertyId,
   isMobile = false,
-  currency = 'EUR',
+  currency,
   onSettingsClick,
   onMonthPickerClick,
 }: DetailedCalendarProps) {
+  const formatCalendarPrice = (price: number | undefined): string => {
+    if (price === undefined) return '—';
+    return currency ? formatCurrency(price, currency) : price.toFixed(2);
+  };
+
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [reservations, setReservations] = useState<Reservation[]>([]);
@@ -143,7 +148,7 @@ export function DetailedCalendar({
   const getPriceForDate = (date: Date | string): string => {
     const dateStr = typeof date === 'string' ? date : date.toISOString().split('T')[0];
     const price = calendarMonth.prices.get(dateStr);
-    return price?.price ? formatCurrency(price.price, currency) : '—';
+    return price?.price !== undefined ? formatCalendarPrice(price.price) : '—';
   };
 
   const isLoading = calendarMonth.loading || loadingReservations;

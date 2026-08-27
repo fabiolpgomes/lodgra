@@ -6,6 +6,7 @@ import { differenceInDays, parseISO, isValid, isBefore, startOfDay } from 'date-
 import { getPriceForRangePublic } from '@/lib/pricing/getPriceForRange'
 import { formatMinimumStayError, detectLocale } from '@/lib/i18n/messages'
 import { calculateServiceFeeAmount } from '@/lib/reservations/serviceFee'
+import { normalizeBookingLocale } from '@/lib/email/booking-locale'
 
 // POST /api/public/bookings — create direct booking + Stripe Checkout Session
 // Public — no auth required
@@ -50,8 +51,12 @@ export async function POST(request: NextRequest) {
       guest_email,
       guest_phone,
       guest_country,
+      preferred_locale,
       pricing_snapshot,
     } = body
+  const preferredLocale = normalizeBookingLocale(
+    typeof preferred_locale === 'string' ? preferred_locale : detectLocale(request.headers.get('accept-language') ?? undefined)
+  )
 
   // ── Validation ─────────────────────────────────────────────────────────────
 
@@ -214,6 +219,7 @@ export async function POST(request: NextRequest) {
         email: (guest_email as string).toLowerCase().trim(),
         phone: (guest_phone as string) || null,
         country: (guest_country as string) || null,
+        preferred_locale: preferredLocale,
         organization_id: property.organization_id,
         updated_at: new Date().toISOString(),
       },
@@ -301,6 +307,7 @@ export async function POST(request: NextRequest) {
       guest_phone: String(guest_phone || '') || null,
       num_guests: guests,
       discount_amount: discountAmount,
+      preferred_locale: preferredLocale,
       organization_id: property.organization_id,
       commission_calculated_at: new Date().toISOString(),
     })
@@ -358,6 +365,7 @@ export async function POST(request: NextRequest) {
       metadata: {
         reservation_id: reservation.id,
         property_slug: slug as string,
+        preferred_locale: preferredLocale,
         base_total: String(baseTotal),
         discount_type: pricingSnapshot?.discount_type ?? '',
         discount_percentage: String(pricingSnapshot?.discount_percentage ?? 0),

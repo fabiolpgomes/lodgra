@@ -64,6 +64,7 @@ describe('Google Vacation Rentals Feed Generator', () => {
   describe('generateGoogleVacationRentalsFeed', () => {
     it('should generate valid XML feed', async () => {
       const { xml, eTag, count } = await generateGoogleVacationRentalsFeed({
+        currency: 'EUR',
         limit: 10,
         offset: 0,
       })
@@ -76,8 +77,8 @@ describe('Google Vacation Rentals Feed Generator', () => {
     })
 
     it('should respect limit parameter', async () => {
-      const { xml: xml100 } = await generateGoogleVacationRentalsFeed({ limit: 100 })
-      const { xml: xml10 } = await generateGoogleVacationRentalsFeed({ limit: 10 })
+      const { xml: xml100 } = await generateGoogleVacationRentalsFeed({ currency: 'EUR', limit: 100 })
+      const { xml: xml10 } = await generateGoogleVacationRentalsFeed({ currency: 'EUR', limit: 10 })
 
       const entries100 = (xml100.match(/<entry>/g) || []).length
       const entries10 = (xml10.match(/<entry>/g) || []).length
@@ -86,12 +87,12 @@ describe('Google Vacation Rentals Feed Generator', () => {
     })
 
     it('should enforce maximum limit of 1000', async () => {
-      const { count } = await generateGoogleVacationRentalsFeed({ limit: 5000 })
+      const { count } = await generateGoogleVacationRentalsFeed({ currency: 'EUR', limit: 5000 })
       expect(count).toBeLessThanOrEqual(1000)
     })
 
     it('should include required feed elements', async () => {
-      const { xml } = await generateGoogleVacationRentalsFeed()
+      const { xml } = await generateGoogleVacationRentalsFeed({ currency: 'EUR' })
 
       expect(xml).toContain('<title>Lodgra Property Feed</title>')
       expect(xml).toContain('<link href="https://lodgra.io"')
@@ -100,7 +101,7 @@ describe('Google Vacation Rentals Feed Generator', () => {
     })
 
     it('should include entry elements with required fields', async () => {
-      const { xml, count } = await generateGoogleVacationRentalsFeed({ limit: 5 })
+      const { xml, count } = await generateGoogleVacationRentalsFeed({ currency: 'EUR', limit: 5 })
 
       if (count > 0) {
         expect(xml).toContain('<entry>')
@@ -113,7 +114,7 @@ describe('Google Vacation Rentals Feed Generator', () => {
     })
 
     it('should escape special characters in property names', async () => {
-      const { xml } = await generateGoogleVacationRentalsFeed({ limit: 100 })
+      const { xml } = await generateGoogleVacationRentalsFeed({ currency: 'EUR', limit: 100 })
 
       // Should not contain unescaped XML special chars in content
       const contentMatch = xml.match(/<content>(.*?)<\/content>/s)
@@ -139,8 +140,8 @@ describe('Google Vacation Rentals Feed Generator', () => {
       } as unknown as typeof Date
 
       try {
-        const { eTag: eTag1 } = await generateGoogleVacationRentalsFeed({ limit: 10, offset: 0 })
-        const { eTag: eTag2 } = await generateGoogleVacationRentalsFeed({ limit: 10, offset: 0 })
+        const { eTag: eTag1 } = await generateGoogleVacationRentalsFeed({ currency: 'EUR', limit: 10, offset: 0 })
+        const { eTag: eTag2 } = await generateGoogleVacationRentalsFeed({ currency: 'EUR', limit: 10, offset: 0 })
 
         expect(eTag1).toBe(eTag2)
       } finally {
@@ -149,8 +150,8 @@ describe('Google Vacation Rentals Feed Generator', () => {
     })
 
     it('should handle different ETags for different parameters', async () => {
-      const { eTag: eTag1 } = await generateGoogleVacationRentalsFeed({ limit: 10, offset: 0 })
-      const { eTag: eTag2 } = await generateGoogleVacationRentalsFeed({ limit: 20, offset: 0 })
+      const { eTag: eTag1 } = await generateGoogleVacationRentalsFeed({ currency: 'EUR', limit: 10, offset: 0 })
+      const { eTag: eTag2 } = await generateGoogleVacationRentalsFeed({ currency: 'EUR', limit: 20, offset: 0 })
 
       // ETags might differ if different properties are included
       // This is valid behavior
@@ -159,8 +160,8 @@ describe('Google Vacation Rentals Feed Generator', () => {
     })
 
     it('should support pagination with offset', async () => {
-      const { count: count1 } = await generateGoogleVacationRentalsFeed({ limit: 5, offset: 0 })
-      const { count: count2 } = await generateGoogleVacationRentalsFeed({ limit: 5, offset: 5 })
+      const { count: count1 } = await generateGoogleVacationRentalsFeed({ currency: 'EUR', limit: 5, offset: 0 })
+      const { count: count2 } = await generateGoogleVacationRentalsFeed({ currency: 'EUR', limit: 5, offset: 5 })
 
       expect(count1).toBeGreaterThanOrEqual(0)
       expect(count2).toBeGreaterThanOrEqual(0)
@@ -179,7 +180,7 @@ describe('Google Vacation Rentals Feed Generator', () => {
     })
 
     it('should include address information', async () => {
-      const { xml, count } = await generateGoogleVacationRentalsFeed({ limit: 5 })
+      const { xml, count } = await generateGoogleVacationRentalsFeed({ currency: 'EUR', limit: 5 })
 
       if (count > 0) {
         expect(xml).toContain('<property:address>')
@@ -190,7 +191,7 @@ describe('Google Vacation Rentals Feed Generator', () => {
     })
 
     it('should include check-in/check-out times', async () => {
-      const { xml, count } = await generateGoogleVacationRentalsFeed({ limit: 5 })
+      const { xml, count } = await generateGoogleVacationRentalsFeed({ currency: 'EUR', limit: 5 })
 
       if (count > 0) {
         expect(xml).toContain('<property:checkInTime>14:00</property:checkInTime>')
@@ -200,6 +201,7 @@ describe('Google Vacation Rentals Feed Generator', () => {
 
     it('should handle empty results gracefully', async () => {
       const { xml, count } = await generateGoogleVacationRentalsFeed({
+        currency: 'EUR',
         limit: 10,
         updated_since: '2099-01-01T00:00:00Z',
       })
@@ -211,7 +213,7 @@ describe('Google Vacation Rentals Feed Generator', () => {
 
     it('should complete within performance target (<5s for 100 properties)', async () => {
       const startTime = Date.now()
-      await generateGoogleVacationRentalsFeed({ limit: 100 })
+      await generateGoogleVacationRentalsFeed({ currency: 'EUR', limit: 100 })
       const duration = Date.now() - startTime
 
       expect(duration).toBeLessThan(5000)
@@ -219,7 +221,7 @@ describe('Google Vacation Rentals Feed Generator', () => {
 
     // AC3: Pricing fields (min_nights, cleaning_fee, pet_fee)
     it('AC3: should include dynamic pricing fields', async () => {
-      const { xml, count } = await generateGoogleVacationRentalsFeed({ limit: 5 })
+      const { xml, count } = await generateGoogleVacationRentalsFeed({ currency: 'EUR', limit: 5 })
 
       if (count > 0) {
         expect(xml).toContain('<property:minNights>')
@@ -230,7 +232,7 @@ describe('Google Vacation Rentals Feed Generator', () => {
 
     // AC4: Dynamic check-in/out times
     it('AC4: should support dynamic check-in/out times from property data', async () => {
-      const { xml, count } = await generateGoogleVacationRentalsFeed({ limit: 5 })
+      const { xml, count } = await generateGoogleVacationRentalsFeed({ currency: 'EUR', limit: 5 })
 
       if (count > 0) {
         expect(xml).toContain('<property:checkInTime>')
@@ -241,7 +243,7 @@ describe('Google Vacation Rentals Feed Generator', () => {
 
     // AC5: Availability/blocked dates
     it('AC5: should include availability with blocked dates when present', async () => {
-      const { xml, count } = await generateGoogleVacationRentalsFeed({ limit: 5 })
+      const { xml, count } = await generateGoogleVacationRentalsFeed({ currency: 'EUR', limit: 5 })
 
       if (count > 0) {
         // Check for availability structure when reservations exist
@@ -256,7 +258,7 @@ describe('Google Vacation Rentals Feed Generator', () => {
 
     // AC6: Amenities
     it('AC6: should include amenities from property_amenities table', async () => {
-      const { xml, count } = await generateGoogleVacationRentalsFeed({ limit: 5 })
+      const { xml, count } = await generateGoogleVacationRentalsFeed({ currency: 'EUR', limit: 5 })
 
       if (count > 0) {
         // Check for amenities structure when amenities exist

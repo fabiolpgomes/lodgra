@@ -16,7 +16,17 @@ import { toast } from 'sonner'
 import { getCurrencySymbol, type CurrencyCode } from '@/lib/utils/currency'
 import { getPlatformPrefix, buildExternalId } from '@/lib/utils/platform-mapping'
 import { calculateServiceFeeAmount, nightsBetween } from '@/lib/reservations/serviceFee'
+import { MinimumOverrideBadge } from '@/components/calendar/MinimumOverrideBadge'
 import type { ValidationResult } from '@/lib/reservations/reservation-validator'
+
+type DuplicateReservationSuggestion = {
+  id: string
+  guestName: string
+  checkIn: string
+  checkOut: string
+  externalId: string
+  channelLabel: string
+}
 
 export default function NewReservationPage() {
   const router = useRouter()
@@ -30,7 +40,7 @@ export default function NewReservationPage() {
   const supabase = createClient()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [properties, setProperties] = useState<{ id: string; name: string; currency: string; city?: string | null; min_nights: number; cleaning_fee?: number | null; cleaning_fee_type?: string | null; pet_fee?: number | null; pet_fee_type?: string | null }[]>([])
+  const [properties, setProperties] = useState<{ id: string; name: string; currency: string | null; city?: string | null; min_nights: number; cleaning_fee?: number | null; cleaning_fee_type?: string | null; pet_fee?: number | null; pet_fee_type?: string | null }[]>([])
   const [propertyListings, setPropertyListings] = useState<{ id: string; property_id: string; external_listing_id?: string | null; platforms: { display_name: string } | null }[]>([])
   const [selectedProperty, setSelectedProperty] = useState(prePropertyId)
   const [selectedListing, setSelectedListing] = useState('')
@@ -38,8 +48,28 @@ export default function NewReservationPage() {
   const [calculatedPrice, setCalculatedPrice] = useState<number | null>(null)
   const [priceCalculating, setPriceCalculating] = useState(false)
   const [validationResult, setValidationResult] = useState<ValidationResult | null>(null)
+  const [allowMinimumNightsOverride, setAllowMinimumNightsOverride] = useState(false)
   const [checkIn, setCheckIn] = useState(preCheckIn)
   const [checkOut, setCheckOut] = useState(preCheckOut)
+  const [duplicateReservationSuggestion, setDuplicateReservationSuggestion] = useState<DuplicateReservationSuggestion | null>(null)
+  const selectedPropertyCurrency = properties.find((property) => property.id === selectedProperty)?.currency?.toUpperCase() ?? null
+  const selectedCurrencySymbol = selectedPropertyCurrency ? getCurrencySymbol(selectedPropertyCurrency as CurrencyCode) : ''
+  const channelLabel = selectedPlatform || 'canal selecionado'
+
+  const getReservationInsertErrorMessage = (err: unknown) => {
+    const errObj = err as { message?: string; code?: string; details?: string; hint?: string } | null
+    const rawMessage = errObj?.message || (err instanceof Error ? err.message : 'Erro ao criar reserva')
+    const constraintKey = 'reservations_organization_id_channel_connection_id_external_key'
+    const isDuplicateExternalKey =
+      errObj?.code === '23505' || rawMessage.includes(constraintKey)
+
+    if (isDuplicateExternalKey) {
+      return `Já existe uma reserva com este número/identificador para o canal ${channelLabel}. Verifique se a reserva já foi importada ou use um identificador diferente.`
+    }
+
+    const details = errObj?.details || errObj?.hint || ''
+    return details ? `${rawMessage} (${details})` : rawMessage
+  }
 
   useEffect(() => {
     async function loadProperties() {
@@ -140,6 +170,7 @@ export default function NewReservationPage() {
             propertyId: selectedProperty,
             checkIn,
             checkOut,
+            allowMinimumNightsOverride,
           }),
         })
 
@@ -157,7 +188,7 @@ export default function NewReservationPage() {
     }
 
     validateReservation()
-  }, [checkIn, checkOut, selectedProperty])
+  }, [allowMinimumNightsOverride, checkIn, checkOut, selectedProperty])
 
   const canCreateReservation = validationResult?.success === true && !loading && !priceCalculating
   const availabilityBlocked = validationResult?.errors.some((item) =>
@@ -169,8 +200,10 @@ export default function NewReservationPage() {
     e.preventDefault()
     setLoading(true)
     setError(null)
+    setDuplicateReservationSuggestion(null)
 
     const formData = new FormData(e.currentTarget)
+    let submissionValidation: ValidationResult | null = null
 
     // Validação: propriedade obrigatória (anúncio é opcional para reservas manuais)
     if (!selectedProperty) {
@@ -187,15 +220,16 @@ export default function NewReservationPage() {
     // desatualizados.
     let validatedPrice: number | null = null
     try {
-      const validationResponse = await fetch('/api/admin/reservations/validate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          propertyId: selectedProperty,
-          checkIn: checkInStr,
-          checkOut: checkOutStr,
-        }),
-      })
+        const validationResponse = await fetch('/api/admin/reservations/validate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            propertyId: selectedProperty,
+            checkIn: checkInStr,
+            checkOut: checkOutStr,
+            allowMinimumNightsOverride,
+          }),
+        })
 
       const latestValidation = await validationResponse.json() as ValidationResult & { error?: string }
       if (!validationResponse.ok) {
@@ -207,6 +241,7 @@ export default function NewReservationPage() {
       setValidationResult(latestValidation)
       setCalculatedPrice(latestValidation.finalPrice)
       validatedPrice = latestValidation.finalPrice
+      submissionValidation = latestValidation
       if (!latestValidation.success) {
         setError(latestValidation.errors.join('\n'))
         setLoading(false)
@@ -243,7 +278,7 @@ export default function NewReservationPage() {
 
       // Buscar dados da propriedade
       let propertyId = selectedProperty
-      let propertyCurrency = 'EUR'
+      let propertyCurrency: string | null = null
 
       if (selectedProperty) {
         const { data: prop } = await supabase
@@ -257,7 +292,7 @@ export default function NewReservationPage() {
         }
 
         propertyId = prop.id
-        propertyCurrency = prop.currency || 'EUR'
+        propertyCurrency = prop.currency?.toUpperCase() ?? null
       }
 
       // Criar reserva
@@ -272,6 +307,9 @@ export default function NewReservationPage() {
       const selectedPropertyData = properties.find(p => p.id === selectedProperty)
       const nights = nightsBetween(checkInStr, checkOutStr)
       const serviceFeeAmount = calculateServiceFeeAmount(selectedPropertyData, nights)
+      const overrideNote = submissionValidation?.minimumNights.overrideApplied
+        ? `\nExceção aprovada para mínimo de noites: ${submissionValidation.minimumNights.minimumNights} noites.`
+        : ''
 
       // Try to get active channel connection for this organization
       let { data: channelConn } = await supabase
@@ -298,11 +336,49 @@ export default function NewReservationPage() {
         throw new Error('Nenhum canal de conexão ativo encontrado na organização ou no sistema. Configure um canal (Booking.com, Airbnb, etc)')
       }
 
+      if (externalId) {
+        const duplicateSelect = 'id, guest_name, check_in, check_out'
+        const [existingByExternalReservationId, existingByExternalId] = await Promise.all([
+          supabase
+            .from('reservations')
+            .select(duplicateSelect)
+            .eq('organization_id', organizationId)
+            .eq('channel_connection_id', channelConn.id)
+            .eq('external_reservation_id', externalId)
+            .maybeSingle(),
+          supabase
+            .from('reservations')
+            .select(duplicateSelect)
+            .eq('organization_id', organizationId)
+            .eq('channel_connection_id', channelConn.id)
+            .eq('external_id', externalId)
+            .maybeSingle(),
+        ])
+
+        const existingReservation = existingByExternalReservationId.data || existingByExternalId.data
+        if (existingReservation) {
+          setDuplicateReservationSuggestion({
+            id: existingReservation.id,
+            guestName: existingReservation.guest_name || 'Reserva existente',
+            checkIn: existingReservation.check_in,
+            checkOut: existingReservation.check_out,
+            externalId,
+            channelLabel,
+          })
+          setError(
+            `Já existe uma reserva com o identificador ${externalId} no canal ${channelLabel}. Abra a reserva existente abaixo ou use outro número de confirmação.`
+          )
+          setLoading(false)
+          return
+        }
+      }
+
       const reservationData: Record<string, any> = {
         organization_id: organizationId,
         property_id: propertyId,
         channel_connection_id: channelConn.id, // Use organization channel or any available channel
         external_reservation_id: externalId || `manual-${Date.now()}`, // Use provided ID or generate one
+        booking_source: 'manual',
         check_in: checkInStr,
         check_out: checkOutStr,
         number_of_guests: parseInt(formData.get('number_of_guests') as string) || 1,
@@ -314,6 +390,7 @@ export default function NewReservationPage() {
         guest_name: (formData.get('guest_first_name') as string) + ' ' + (formData.get('guest_last_name') as string),
         guest_email: formData.get('guest_email') as string,
         guest_phone: (formData.get('guest_phone') as string) || null,
+        notes: `${((formData.get('notes') as string) || '').trim()}${overrideNote}`.trim() || null,
       }
 
       const { data, error: insertError } = await supabase
@@ -367,10 +444,8 @@ export default function NewReservationPage() {
       router.refresh()
     } catch (err: unknown) {
       console.error('Erro detalhado ao criar reserva:', err)
-      const errObj = err as { message?: string; details?: string; hint?: string } | null
-      const message = errObj?.message || (err instanceof Error ? err.message : 'Erro ao criar reserva')
-      const details = errObj?.details || errObj?.hint || ''
-      setError(details ? `${message} (${details})` : message)
+      const message = getReservationInsertErrorMessage(err)
+      setError(message)
       toast.error(message)
     } finally {
       setLoading(false)
@@ -403,6 +478,33 @@ export default function NewReservationPage() {
         {error && (
           <Alert variant="destructive" className="mb-6">
             <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+
+        {duplicateReservationSuggestion && (
+          <Alert className="mb-6 border-amber-200 bg-amber-50 text-amber-950">
+            <AlertDescription className="space-y-3">
+              <div>
+                <p className="font-semibold">Reserva já existente encontrada</p>
+                <p className="text-sm mt-1">
+                  Identificador: <span className="font-mono">{duplicateReservationSuggestion.externalId}</span>
+                </p>
+                <p className="text-sm">
+                  Canal: {duplicateReservationSuggestion.channelLabel}
+                </p>
+                <p className="text-sm">
+                  Hóspede: {duplicateReservationSuggestion.guestName}
+                </p>
+                <p className="text-sm">
+                  Período: {duplicateReservationSuggestion.checkIn} → {duplicateReservationSuggestion.checkOut}
+                </p>
+              </div>
+              <Button asChild variant="outline" className="border-amber-300 text-amber-900 hover:bg-amber-100">
+                <Link href={`${prefix}/reservations/${duplicateReservationSuggestion.id}`}>
+                  Abrir reserva existente
+                </Link>
+              </Button>
+            </AlertDescription>
           </Alert>
         )}
 
@@ -620,6 +722,29 @@ export default function NewReservationPage() {
                   placeholder="Observações internas sobre a reserva..."
                 />
               </div>
+
+              {validationResult && validationResult.minimumNights.requiresApproval && (
+                <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
+                  <div className="mb-3">
+                    <MinimumOverrideBadge minimumNights={validationResult.minimumNights.minimumNights} />
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <input
+                      id="allowMinimumNightsOverride"
+                      type="checkbox"
+                      checked={allowMinimumNightsOverride}
+                      onChange={(event) => setAllowMinimumNightsOverride(event.target.checked)}
+                      className="mt-1 h-4 w-4 rounded border-amber-300 text-amber-700"
+                    />
+                    <label htmlFor="allowMinimumNightsOverride" className="text-sm text-amber-900">
+                      Aprovar exceção ao mínimo de noites para esta reserva manual
+                      <span className="block text-xs text-amber-700 mt-1">
+                        Esta reserva está abaixo do mínimo de {validationResult.minimumNights.minimumNights} noites. Marque para permitir a exceção com registo interno.
+                      </span>
+                    </label>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -654,7 +779,7 @@ export default function NewReservationPage() {
             </h3>
             <div>
               <Label htmlFor="total_amount" className="mb-1">
-                Valor Total ({getCurrencySymbol((properties.find(p => p.id === selectedProperty)?.currency || 'EUR') as CurrencyCode)})
+                Valor Total{selectedCurrencySymbol ? ` (${selectedCurrencySymbol})` : ''}
               </Label>
               <div className="flex gap-2 items-center">
                 <Input
@@ -682,9 +807,12 @@ export default function NewReservationPage() {
               {validationResult ? (
                 <div className={`${validationResult.success ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'} border rounded px-3 py-2 mt-2`}>
                   <p className={`text-sm font-semibold ${validationResult.success ? 'text-emerald-800' : 'text-red-800'}`}>
-                    {validationResult.success ? '✓' : '⚠️'} Total calculado: {getCurrencySymbol((properties.find(p => p.id === selectedProperty)?.currency || 'EUR') as CurrencyCode)}{validationResult.finalPrice.toFixed(2)}
+                    {validationResult.success ? '✓' : '⚠️'} Total calculado: {selectedCurrencySymbol}{validationResult.finalPrice.toFixed(2)}
                   </p>
                   <div className="mt-2 text-xs text-gray-700 space-y-1">
+                    <p>
+                      Mínimo efetivo do período: {validationResult.minimumNights.minimumNights} noites
+                    </p>
                     <p>
                       Preço por noite: {(validationResult.nights > 0 ? validationResult.price.subtotal / validationResult.nights : 0).toFixed(2)} × {validationResult.nights} noites = {validationResult.price.subtotal.toFixed(2)}
                     </p>
@@ -694,6 +822,11 @@ export default function NewReservationPage() {
                       Estadia mínima: {validationResult.minimumNights.minimumNights} noites
                       {' · '}selecionadas: {validationResult.minimumNights.selectedNights}
                     </p>
+                    {validationResult.minimumNights.overrideApplied && (
+                      <p className="font-semibold text-amber-700">
+                        Exceção aprovada para reserva manual
+                      </p>
+                    )}
                     <p>Disponibilidade: {availabilityBlocked ? 'Indisponível' : 'Disponível'}</p>
                     <p>Política: {validationResult.cancellationPolicy.success ? validationResult.cancellationPolicy.policyName : 'Não configurada'}</p>
                   </div>

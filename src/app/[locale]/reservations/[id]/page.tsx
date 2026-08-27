@@ -99,6 +99,11 @@ export default async function ReservationDetailPage({
     hour: '2-digit',
     minute: '2-digit',
   })
+  const reservationNotes = reservation.notes || ''
+  const minimumOverrideMatch = reservationNotes.match(
+    /Exceção aprovada para mínimo de noites:\s*(\d+)\s*noites?/i
+  )
+  const hasApprovedMinimumOverride = Boolean(minimumOverrideMatch)
 
   return (
     <AuthLayout profile={access.profile}>
@@ -238,10 +243,19 @@ export default async function ReservationDetailPage({
               {/* Notes Card */}
               <div className="bg-[#FBFAF6] rounded-[14px] border border-[#E5DFD2] p-6">
                 <h2 className="text-base font-semibold text-[#1B2430] mb-4">Notas</h2>
-                <p className="text-sm text-[#1B2430] bg-[#F7F5EF] p-3 rounded-lg border border-[#E5DFD2] min-h-20">
-                  {reservation.notes || <span className="text-[#4D5566] italic">Sem notas</span>}
+                {hasApprovedMinimumOverride && (
+                  <div className="mb-3 rounded-lg border border-amber-200 bg-amber-50 p-3">
+                    <p className="text-sm font-semibold text-amber-900">Exceção aprovada para mínimo de noites</p>
+                    <p className="text-sm text-amber-900 mt-1">
+                      Esta reserva foi aprovada manualmente abaixo do mínimo de{' '}
+                      {minimumOverrideMatch?.[1] || '-'} noites.
+                    </p>
+                  </div>
+                )}
+                <p className="text-sm text-[#1B2430] bg-[#F7F5EF] p-3 rounded-lg border border-[#E5DFD2] min-h-20 whitespace-pre-wrap">
+                  {reservationNotes || <span className="text-[#4D5566] italic">Sem notas</span>}
                 </p>
-                <p className="text-xs text-[#7C8492] mt-2">{(reservation.notes || '').length}/200 caracteres</p>
+                <p className="text-xs text-[#7C8492] mt-2">{reservationNotes.length}/200 caracteres</p>
               </div>
             </div>
 
@@ -253,8 +267,10 @@ export default async function ReservationDetailPage({
                   <DollarSign className="h-5 w-5 text-[#C9A227]" />
                   Valor
                 </h2>
-                <div className="text-4xl font-bold text-[#C9A227] mb-4">
-                  {formatCurrency(reservation.total_price || 0, (reservation.currency || 'EUR') as any)}
+              <div className="text-4xl font-bold text-[#C9A227] mb-4">
+                  {reservation.currency
+                    ? formatCurrency(reservation.total_price || 0, reservation.currency.toUpperCase() as any)
+                    : Number(reservation.total_price || 0).toFixed(2)}
                 </div>
               </div>
 

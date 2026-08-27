@@ -21,8 +21,8 @@ describe('PricingConstraints Component', () => {
       />
     );
 
-    expect(screen.getByLabelText(/Minimum Nightly Price/)).toHaveValue(50);
-    expect(screen.getByLabelText(/Maximum Nightly Price/)).toHaveValue(200);
+    expect(screen.getByLabelText(/Preço mínimo por noite/)).toHaveValue(50);
+    expect(screen.getByLabelText(/Preço máximo por noite/)).toHaveValue(200);
   });
 
   it('should display the provided currency in labels', () => {
@@ -35,8 +35,8 @@ describe('PricingConstraints Component', () => {
       />
     );
 
-    expect(screen.getByLabelText(/Minimum Nightly Price \(BRL\)/)).toHaveValue(50);
-    expect(screen.getByLabelText(/Maximum Nightly Price \(BRL\)/)).toHaveValue(200);
+    expect(screen.getByLabelText(/Preço mínimo por noite \(BRL\)/)).toHaveValue(50);
+    expect(screen.getByLabelText(/Preço máximo por noite \(BRL\)/)).toHaveValue(200);
   });
 
   it('should handle null constraints', () => {
@@ -48,8 +48,8 @@ describe('PricingConstraints Component', () => {
       />
     );
 
-    expect(screen.getByLabelText(/Minimum Nightly Price/)).toHaveValue(null);
-    expect(screen.getByLabelText(/Maximum Nightly Price/)).toHaveValue(null);
+    expect(screen.getByLabelText(/Preço mínimo por noite/)).toHaveValue(null);
+    expect(screen.getByLabelText(/Preço máximo por noite/)).toHaveValue(null);
   });
 
   it('should validate min > max', async () => {
@@ -61,17 +61,17 @@ describe('PricingConstraints Component', () => {
       />
     );
 
-    const minInput = screen.getByLabelText(/Minimum Nightly Price/);
-    const maxInput = screen.getByLabelText(/Maximum Nightly Price/);
+    const minInput = screen.getByLabelText(/Preço mínimo por noite/);
+    const maxInput = screen.getByLabelText(/Preço máximo por noite/);
 
     fireEvent.change(minInput, { target: { value: '300' } });
     fireEvent.change(maxInput, { target: { value: '100' } });
 
-    const saveButton = screen.getByText(/Save/);
+    const saveButton = screen.getByText(/Guardar/);
     fireEvent.click(saveButton);
 
     await waitFor(() => {
-      expect(screen.getByText(/Minimum price cannot exceed maximum price/i)).toBeInTheDocument();
+      expect(screen.getByText(/O preço mínimo não pode exceder o preço máximo/i)).toBeInTheDocument();
     });
 
     expect(mockUpdate).not.toHaveBeenCalled();
@@ -86,14 +86,14 @@ describe('PricingConstraints Component', () => {
       />
     );
 
-    const minInput = screen.getByLabelText(/Minimum Nightly Price/);
+    const minInput = screen.getByLabelText(/Preço mínimo por noite/);
     fireEvent.change(minInput, { target: { value: '-50' } });
 
-    const saveButton = screen.getByText(/Save/);
+    const saveButton = screen.getByText(/Guardar/);
     fireEvent.click(saveButton);
 
     await waitFor(() => {
-      expect(screen.getByText(/cannot be negative/i)).toBeInTheDocument();
+      expect(screen.getByText(/não pode ser negativo/i)).toBeInTheDocument();
     });
 
     expect(mockUpdate).not.toHaveBeenCalled();
@@ -108,13 +108,13 @@ describe('PricingConstraints Component', () => {
       />
     );
 
-    const minInput = screen.getByLabelText(/Minimum Nightly Price/);
-    const maxInput = screen.getByLabelText(/Maximum Nightly Price/);
+    const minInput = screen.getByLabelText(/Preço mínimo por noite/);
+    const maxInput = screen.getByLabelText(/Preço máximo por noite/);
 
     fireEvent.change(minInput, { target: { value: '75' } });
     fireEvent.change(maxInput, { target: { value: '250' } });
 
-    const saveButton = screen.getByText(/Save/);
+    const saveButton = screen.getByText(/Guardar/);
     fireEvent.click(saveButton);
 
     await waitFor(() => {
@@ -131,13 +131,13 @@ describe('PricingConstraints Component', () => {
       />
     );
 
-    const minInput = screen.getByLabelText(/Minimum Nightly Price/);
-    const maxInput = screen.getByLabelText(/Maximum Nightly Price/);
+    const minInput = screen.getByLabelText(/Preço mínimo por noite/);
+    const maxInput = screen.getByLabelText(/Preço máximo por noite/);
 
     fireEvent.change(minInput, { target: { value: '' } });
     fireEvent.change(maxInput, { target: { value: '' } });
 
-    const saveButton = screen.getByText(/Save/);
+    const saveButton = screen.getByText(/Guardar/);
     fireEvent.click(saveButton);
 
     await waitFor(() => {
@@ -154,11 +154,11 @@ describe('PricingConstraints Component', () => {
       />
     );
 
-    const saveButton = screen.getByText(/Save/);
+    const saveButton = screen.getByText(/Guardar/);
     fireEvent.click(saveButton);
 
     await waitFor(() => {
-      expect(screen.getByText(/Pricing constraints updated successfully/)).toBeInTheDocument();
+      expect(screen.getByText(/Restrições de preço atualizadas com sucesso/)).toBeInTheDocument();
     });
   });
 
@@ -171,8 +171,8 @@ describe('PricingConstraints Component', () => {
       />
     );
 
-    const minInput = screen.getByLabelText(/Minimum Nightly Price/) as HTMLInputElement;
-    const maxInput = screen.getByLabelText(/Maximum Nightly Price/) as HTMLInputElement;
+    const minInput = screen.getByLabelText(/Preço mínimo por noite/) as HTMLInputElement;
+    const maxInput = screen.getByLabelText(/Preço máximo por noite/) as HTMLInputElement;
 
     fireEvent.change(minInput, { target: { value: '100' } });
     fireEvent.change(maxInput, { target: { value: '300' } });
@@ -180,7 +180,7 @@ describe('PricingConstraints Component', () => {
     expect(minInput.value).toBe('100');
     expect(maxInput.value).toBe('300');
 
-    const resetButton = screen.getByText(/Reset/);
+    const resetButton = screen.getByText(/Repor/);
     fireEvent.click(resetButton);
 
     expect(minInput.value).toBe('50');
@@ -197,9 +197,9 @@ describe('PricingConstraints Component', () => {
       />
     );
 
-    expect(screen.getByLabelText(/Minimum Nightly Price/)).toBeDisabled();
-    expect(screen.getByLabelText(/Maximum Nightly Price/)).toBeDisabled();
-    expect(screen.getByText(/Save/)).toBeDisabled();
-    expect(screen.getByText(/Reset/)).toBeDisabled();
+    expect(screen.getByLabelText(/Preço mínimo por noite/)).toBeDisabled();
+    expect(screen.getByLabelText(/Preço máximo por noite/)).toBeDisabled();
+    expect(screen.getByText(/Guardar/)).toBeDisabled();
+    expect(screen.getByText(/Repor/)).toBeDisabled();
   });
 });

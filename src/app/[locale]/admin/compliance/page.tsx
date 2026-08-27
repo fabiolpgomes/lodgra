@@ -23,7 +23,7 @@ export default async function CompliancePage() {
   return (
     <AuthLayout>
       <div className="max-w-6xl mx-auto py-8 px-4">
-        <div className="flex items-center gap-3 mb-8">
+        <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-center">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[color:var(--be-blue-pale)]">
             <Shield className="h-5 w-5 text-blue-600" />
           </div>

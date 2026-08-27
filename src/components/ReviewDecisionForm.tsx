@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { formatCurrency } from '@/lib/utils/currency'
 
 interface ReviewDecisionFormProps {
   reservationId: string
@@ -83,8 +84,8 @@ export default function ReviewDecisionForm({ reservationId, token, totalAmount }
 
       <div className="bg-blue-50 p-4 rounded border border-blue-200">
         <p className="text-sm text-gray-600">Reembolso a Processar</p>
-        <p className="text-2xl font-bold text-blue-600">€{refundAmount.toFixed(2)}</p>
-        <p className="text-xs text-gray-500 mt-1">{refundPercentage}% de €{totalAmount.toFixed(2)}</p>
+        <p className="text-2xl font-bold text-blue-600">{formatCurrency(refundAmount)}</p>
+        <p className="text-xs text-gray-500 mt-1">{refundPercentage}% de {formatCurrency(totalAmount)}</p>
       </div>
 
       <div>

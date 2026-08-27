@@ -41,7 +41,7 @@ describe('SeasonalRuleEditor Component', () => {
       />
     );
 
-    expect(screen.getByText(/Create Seasonal Rule/)).toBeInTheDocument();
+    expect(screen.getByText(/Criar regra sazonal/)).toBeInTheDocument();
   });
 
   it('should render modal when open (edit mode)', () => {
@@ -55,7 +55,7 @@ describe('SeasonalRuleEditor Component', () => {
       />
     );
 
-    expect(screen.getByText(/Edit Seasonal Rule/)).toBeInTheDocument();
+    expect(screen.getByText(/Editar regra sazonal/)).toBeInTheDocument();
   });
 
   it('should display the provided currency in the price label', () => {
@@ -69,7 +69,7 @@ describe('SeasonalRuleEditor Component', () => {
       />
     );
 
-    expect(screen.getByLabelText(/Price per Night \(USD\)/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Preço por noite \(USD\)/)).toBeInTheDocument();
   });
 
   it('should populate fields from existing rule', () => {
@@ -99,11 +99,11 @@ describe('SeasonalRuleEditor Component', () => {
       />
     );
 
-    const saveButton = screen.getByText(/Save/);
+    const saveButton = screen.getByText(/Guardar/);
     fireEvent.click(saveButton);
 
     await waitFor(() => {
-      expect(screen.getByText(/Rule name is required/)).toBeInTheDocument();
+      expect(screen.getByText(/O nome da regra é obrigatório/)).toBeInTheDocument();
     });
   });
 
@@ -117,21 +117,21 @@ describe('SeasonalRuleEditor Component', () => {
       />
     );
 
-    const nameInput = screen.getByPlaceholderText(/Summer Peak/);
-    const startDateInput = screen.getByLabelText(/Start Date/);
-    const endDateInput = screen.getByLabelText(/End Date/);
-    const priceInput = screen.getByPlaceholderText(/0.00/);
+    const nameInput = screen.getByPlaceholderText(/Alta temporada/);
+    const startDateInput = screen.getByLabelText(/Data inicial/);
+    const endDateInput = screen.getByLabelText(/Data final/);
+    const priceInput = screen.getByPlaceholderText(/0,00/);
 
     fireEvent.change(nameInput, { target: { value: 'Test Rule' } });
     fireEvent.change(startDateInput, { target: { value: '2026-08-01' } });
     fireEvent.change(endDateInput, { target: { value: '2026-07-01' } });
     fireEvent.change(priceInput, { target: { value: '100' } });
 
-    const saveButton = screen.getByText(/Save/);
+    const saveButton = screen.getByText(/Guardar/);
     fireEvent.click(saveButton);
 
     await waitFor(() => {
-      expect(screen.getByText(/End date must be after or equal to start date/)).toBeInTheDocument();
+      expect(screen.getByText(/A data final deve ser igual ou posterior à data inicial/)).toBeInTheDocument();
     });
   });
 
@@ -145,19 +145,19 @@ describe('SeasonalRuleEditor Component', () => {
       />
     );
 
-    const nameInput = screen.getByPlaceholderText(/Summer Peak/);
-    const startDateInput = screen.getByLabelText(/Start Date/);
-    const priceInput = screen.getByPlaceholderText(/0.00/);
+    const nameInput = screen.getByPlaceholderText(/Alta temporada/);
+    const startDateInput = screen.getByLabelText(/Data inicial/);
+    const priceInput = screen.getByPlaceholderText(/0,00/);
 
     fireEvent.change(nameInput, { target: { value: 'Test Rule' } });
     fireEvent.change(startDateInput, { target: { value: '2026-06-01' } });
     fireEvent.change(priceInput, { target: { value: '-50' } });
 
-    const saveButton = screen.getByText(/Save/);
+    const saveButton = screen.getByText(/Guardar/);
     fireEvent.click(saveButton);
 
     await waitFor(() => {
-      expect(screen.getByText(/must be a positive number/)).toBeInTheDocument();
+      expect(screen.getByText(/O preço por noite deve ser um número válido/)).toBeInTheDocument();
     });
   });
 
@@ -173,17 +173,17 @@ describe('SeasonalRuleEditor Component', () => {
       />
     );
 
-    const nameInput = screen.getByPlaceholderText(/Summer Peak/);
-    const startDateInput = screen.getByLabelText(/Start Date/);
-    const endDateInput = screen.getByLabelText(/End Date/);
-    const priceInput = screen.getByPlaceholderText(/0.00/);
+    const nameInput = screen.getByPlaceholderText(/Alta temporada/);
+    const startDateInput = screen.getByLabelText(/Data inicial/);
+    const endDateInput = screen.getByLabelText(/Data final/);
+    const priceInput = screen.getByPlaceholderText(/0,00/);
 
     fireEvent.change(nameInput, { target: { value: 'Winter Discount' } });
     fireEvent.change(startDateInput, { target: { value: '2026-12-01' } });
     fireEvent.change(endDateInput, { target: { value: '2027-02-28' } });
     fireEvent.change(priceInput, { target: { value: '80' } });
 
-    const saveButton = screen.getByText(/Save/);
+    const saveButton = screen.getByText(/Guardar/);
     fireEvent.click(saveButton);
 
     await waitFor(() => {
@@ -192,6 +192,7 @@ describe('SeasonalRuleEditor Component', () => {
         '2026-12-01',
         '2027-02-28',
         80,
+        1,
         true
       );
       expect(mockClose).toHaveBeenCalled();
@@ -210,7 +211,7 @@ describe('SeasonalRuleEditor Component', () => {
       />
     );
 
-    const cancelButton = screen.getByText(/Cancel/);
+    const cancelButton = screen.getByText(/Cancelar/);
     fireEvent.click(cancelButton);
 
     expect(mockClose).toHaveBeenCalled();

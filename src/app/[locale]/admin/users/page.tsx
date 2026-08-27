@@ -66,7 +66,7 @@ export default async function UsersPage({
   return (
     <AuthLayout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0 mb-8">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-0 mb-8">
           <div>
             <div className="flex items-center gap-3 mb-2">
               <Users className="h-8 w-8 text-blue-600" />
@@ -74,7 +74,7 @@ export default async function UsersPage({
             </div>
             <p className="text-sm sm:text-base text-gray-600">Gerencie os utilizadores e suas permissões</p>
           </div>
-          <Button asChild className="h-12 sm:h-11 px-4 bg-blue-600 text-white font-semibold hover:bg-blue-700 active:bg-blue-800 rounded-lg transition-colors">
+          <Button asChild className="h-12 sm:h-11 w-full px-4 bg-blue-600 text-white font-semibold hover:bg-blue-700 active:bg-blue-800 rounded-lg transition-colors sm:w-auto">
             <Link href={`/${locale}/admin/users/new`} className="flex items-center justify-center gap-2 w-full sm:w-auto">
               <Plus className="h-5 w-5" />
               <span>Novo Utilizador</span>

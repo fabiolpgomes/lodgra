@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
 
     // Parse request body
     const body = await request.json()
-    const { propertyId, checkIn, checkOut } = body
+    const { propertyId, checkIn, checkOut, allowMinimumNightsOverride } = body
 
     // Validate input
     if (!propertyId || !checkIn || !checkOut) {
@@ -55,7 +55,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Run validation
-    const result = await ReservationValidator.validate(propertyId, checkIn, checkOut)
+    const result = await ReservationValidator.validate(propertyId, checkIn, checkOut, {
+      allowMinimumNightsOverride: allowMinimumNightsOverride === true,
+    })
 
     return NextResponse.json(result, { status: 200 })
   } catch (error) {

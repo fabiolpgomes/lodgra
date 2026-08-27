@@ -94,17 +94,17 @@ describe('Price History Mobile Responsiveness', () => {
       const onApply = jest.fn();
       render(<HistoryFilters onApplyFilters={onApply} />);
 
-      expect(screen.getByText(/Show Filters/)).toBeInTheDocument();
+      expect(screen.getByText(/Mostrar filtros/)).toBeInTheDocument();
     });
 
     it('should show/hide filters on toggle', () => {
       const onApply = jest.fn();
       render(<HistoryFilters onApplyFilters={onApply} />);
 
-      const toggleButton = screen.getByText(/Show Filters/);
+      const toggleButton = screen.getByText(/Mostrar filtros/);
       fireEvent.click(toggleButton);
 
-      expect(screen.getByText('Start Date')).toBeInTheDocument();
+      expect(screen.getByText('Data de início')).toBeInTheDocument();
     });
 
     it('should stack inputs vertically on mobile', () => {
@@ -113,7 +113,7 @@ describe('Price History Mobile Responsiveness', () => {
         <HistoryFilters onApplyFilters={onApply} />
       );
 
-      const toggleButton = screen.getByText(/Show Filters/);
+      const toggleButton = screen.getByText(/Mostrar filtros/);
       fireEvent.click(toggleButton);
 
       expect(container.innerHTML).toContain('grid-cols-1');
@@ -123,7 +123,7 @@ describe('Price History Mobile Responsiveness', () => {
       const onApply = jest.fn();
       render(<HistoryFilters onApplyFilters={onApply} />);
 
-      const toggleButton = screen.getByText(/Show Filters/);
+      const toggleButton = screen.getByText(/Mostrar filtros/);
 
       // Should be clickable element
       expect(toggleButton).toBeInTheDocument();
@@ -135,7 +135,7 @@ describe('Price History Mobile Responsiveness', () => {
       const onApply = jest.fn();
       render(<HistoryFilters onApplyFilters={onApply} />);
 
-      const toggle = screen.getByText(/Show Filters/);
+      const toggle = screen.getByText(/Mostrar filtros/);
       fireEvent.click(toggle);
 
       const dateInputs = screen.getAllByRole('textbox');
@@ -148,7 +148,7 @@ describe('Price History Mobile Responsiveness', () => {
         <HistoryFilters onApplyFilters={onApply} />
       );
 
-      const toggle = screen.getByText(/Show Filters/);
+      const toggle = screen.getByText(/Mostrar filtros/);
       fireEvent.click(toggle);
 
       const inputs = container.querySelectorAll('input[type="date"]');
@@ -175,7 +175,7 @@ describe('Price History Mobile Responsiveness', () => {
       const onApply = jest.fn();
       render(<HistoryFilters onApplyFilters={onApply} />);
 
-      const toggle = screen.getByText(/Show Filters/);
+      const toggle = screen.getByText(/Mostrar filtros/);
 
       // Button should be clickable
       fireEvent.click(toggle);
@@ -186,14 +186,14 @@ describe('Price History Mobile Responsiveness', () => {
       const onApply = jest.fn();
       render(<HistoryFilters onApplyFilters={onApply} />);
 
-      const toggle = screen.getByText(/Show Filters/);
+      const toggle = screen.getByText(/Mostrar filtros/);
       fireEvent.click(toggle);
 
-      expect(screen.getByText('Start Date')).toBeInTheDocument();
+      expect(screen.getByText('Data de início')).toBeInTheDocument();
 
       fireEvent.click(toggle);
       // Content should remain on page
-      expect(screen.getByText(/Show Filters/)).toBeInTheDocument();
+      expect(screen.getByText(/Mostrar filtros/)).toBeInTheDocument();
     });
   });
 
@@ -264,7 +264,7 @@ describe('Price History Mobile Responsiveness', () => {
         />
       );
 
-      const loadBtn = screen.getByText('Load More');
+      const loadBtn = screen.getByText('Carregar mais');
       fireEvent.click(loadBtn);
 
       expect(onLoadMore).toHaveBeenCalled();
@@ -276,23 +276,23 @@ describe('Price History Mobile Responsiveness', () => {
       const onApply = jest.fn();
       render(<HistoryFilters onApplyFilters={onApply} />);
 
-      const toggle = screen.getByText(/Show Filters/);
+      const toggle = screen.getByText(/Mostrar filtros/);
       fireEvent.click(toggle);
 
       // Check for date inputs by label
-      expect(screen.getByText('Start Date')).toBeInTheDocument();
-      expect(screen.getByText('End Date')).toBeInTheDocument();
+      expect(screen.getByText('Data de início')).toBeInTheDocument();
+      expect(screen.getByText('Data de fim')).toBeInTheDocument();
     });
 
     it('should show search input for text input', () => {
       const onApply = jest.fn();
       render(<HistoryFilters onApplyFilters={onApply} />);
 
-      const toggle = screen.getByText(/Show Filters/);
+      const toggle = screen.getByText(/Mostrar filtros/);
       fireEvent.click(toggle);
 
       const searchInputs = screen.getByPlaceholderText(
-        /Search by reason/
+        /Pesquisar por motivo/
       );
       expect(searchInputs).toBeInTheDocument();
     });

@@ -239,4 +239,59 @@ describe('POST /api/admin/reservations', () => {
     const response = await POST(request)
     expect(response.status).toBe(400)
   })
+
+  it('should return a friendly duplicate message with channel when external key conflicts', async () => {
+    mockSupabase.auth.getUser.mockResolvedValue({
+      data: { user: { id: 'admin-1' } },
+    })
+
+    mockSupabase.from
+      .mockReturnValueOnce({
+        select: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        single: jest.fn().mockResolvedValue({
+          data: { role: 'admin' },
+        }),
+      })
+      .mockReturnValueOnce({
+        select: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        maybeSingle: jest.fn().mockResolvedValue({
+          data: { channel: 'booking', account_name: 'Main Account' },
+        }),
+      })
+      .mockReturnValueOnce({
+        insert: jest.fn().mockReturnThis(),
+        select: jest.fn().mockReturnThis(),
+        single: jest.fn().mockResolvedValue({
+          error: {
+            code: '23505',
+            message: 'duplicate key value violates unique constraint',
+          },
+        }),
+      })
+
+    const { ReservationValidator } = require('@/lib/reservations/reservation-validator')
+    ReservationValidator.validateReservationOverlap.mockResolvedValue({
+      hasConflict: false,
+      conflictingReservations: [],
+    })
+
+    const request = createRequest({
+      propertyId: 'prop-123',
+      checkIn: '2026-08-05',
+      checkOut: '2026-08-10',
+      guestName: 'João Silva',
+      guestEmail: 'joao@email.com',
+      guestCount: 2,
+      finalPrice: 500,
+      channelConnectionId: 'chan-1',
+    })
+
+    const response = await POST(request)
+    const data = await response.json()
+
+    expect(response.status).toBe(409)
+    expect(data.error).toContain('booking (Main Account)')
+  })
 })

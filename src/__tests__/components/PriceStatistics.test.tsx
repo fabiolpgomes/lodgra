@@ -20,10 +20,10 @@ describe('PriceStatisticsComponent', () => {
   it('should render statistics cards', () => {
     render(<PriceStatisticsComponent stats={mockStats} />);
 
-    expect(screen.getByText('Minimum Price')).toBeInTheDocument();
-    expect(screen.getByText('Maximum Price')).toBeInTheDocument();
-    expect(screen.getByText('Average Price')).toBeInTheDocument();
-    expect(screen.getByText('Price Changes')).toBeInTheDocument();
+    expect(screen.getByText('Preço mínimo')).toBeInTheDocument();
+    expect(screen.getByText('Preço máximo')).toBeInTheDocument();
+    expect(screen.getByText('Preço médio')).toBeInTheDocument();
+    expect(screen.getByText('Alterações de preço')).toBeInTheDocument();
   });
 
   it('should display correct values', () => {
@@ -43,13 +43,13 @@ describe('PriceStatisticsComponent', () => {
   it('should show no data state', () => {
     render(<PriceStatisticsComponent stats={null} loading={false} />);
 
-    expect(screen.getByText('No statistics available')).toBeInTheDocument();
+    expect(screen.getByText('Sem estatísticas disponíveis')).toBeInTheDocument();
   });
 
   it('should display standard deviation when available', () => {
     render(<PriceStatisticsComponent stats={mockStats} />);
 
-    expect(screen.getByText('Price Volatility (Std Dev)')).toBeInTheDocument();
+    expect(screen.getByText('Volatilidade do preço (desvio padrão)')).toBeInTheDocument();
   });
 
   it('should display metric icons', () => {
@@ -65,7 +65,7 @@ describe('PriceStatisticsComponent', () => {
     const statsNoStdDev = { ...mockStats, stdDeviation: undefined };
     render(<PriceStatisticsComponent stats={statsNoStdDev} />);
 
-    expect(screen.queryByText('Price Volatility')).not.toBeInTheDocument();
+    expect(screen.queryByText('Volatilidade do preço')).not.toBeInTheDocument();
   });
 
   it('should handle zero values', () => {
@@ -82,11 +82,12 @@ describe('PriceStatisticsComponent', () => {
     expect(screen.getByText('0')).toBeInTheDocument();
   });
 
-  it('should format prices with currency', () => {
+  it('should format prices without implicit currency', () => {
     render(<PriceStatisticsComponent stats={mockStats} />);
 
-    const elements = screen.getAllByText(/€|EUR/);
-    expect(elements.length).toBeGreaterThan(0);
+    expect(screen.getByText('100.00')).toBeInTheDocument();
+    expect(screen.getByText('200.00')).toBeInTheDocument();
+    expect(screen.getByText('150.00')).toBeInTheDocument();
   });
 
   it('should display correct metric colors', () => {

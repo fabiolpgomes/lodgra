@@ -42,7 +42,7 @@ export function ValidationResultsDisplay({ result }: ValidationResultsDisplayPro
       </div>
 
       {/* Summary Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
         <div className="bg-white border border-gray-200 rounded-lg p-4">
           <div className="text-sm text-gray-600 font-medium">Período</div>
           <div className="text-2xl font-bold mt-2">{result.nights}</div>
@@ -88,17 +88,17 @@ export function ValidationResultsDisplay({ result }: ValidationResultsDisplayPro
             Desconto Aplicado
           </div>
           <div className="mt-3 space-y-2">
-            <div className="flex justify-between">
+            <div className="flex flex-col gap-1 sm:flex-row sm:justify-between">
               <span>Tipo:</span>
               <span className="font-medium">
                 {result.discount.discountType === 'extended_stay' ? 'Estadia Estendida' : 'Estadia Mínima'}
               </span>
             </div>
-            <div className="flex justify-between">
+            <div className="flex flex-col gap-1 sm:flex-row sm:justify-between">
               <span>Percentual:</span>
               <span className="font-medium">{result.discount.discountPercentage}%</span>
             </div>
-            <div className="flex justify-between">
+            <div className="flex flex-col gap-1 sm:flex-row sm:justify-between">
               <span>Economia:</span>
               <span className="font-medium text-emerald-700">
                 {result.price.currency}{(result.discount.originalPrice - result.discount.discountedPrice).toFixed(2)}
@@ -117,15 +117,15 @@ export function ValidationResultsDisplay({ result }: ValidationResultsDisplayPro
           <span>{result.minimumNights.passed ? '✅' : '❌'}</span>
           Noites Mínimas - {result.minimumNights.passed ? 'OK' : 'Erro'}
         </div>
-        <div className="mt-3 space-y-2">
-          <div className="flex justify-between">
-            <span>Requerido:</span>
-            <span className="font-medium">{result.minimumNights.minimumNights} noites</span>
-          </div>
-          <div className="flex justify-between">
-            <span>Selecionado:</span>
-            <span className="font-medium">{result.minimumNights.selectedNights} noites</span>
-          </div>
+          <div className="mt-3 space-y-2">
+            <div className="flex flex-col gap-1 sm:flex-row sm:justify-between">
+              <span>Requerido:</span>
+              <span className="font-medium">{result.minimumNights.minimumNights} noites</span>
+            </div>
+            <div className="flex flex-col gap-1 sm:flex-row sm:justify-between">
+              <span>Selecionado:</span>
+              <span className="font-medium">{result.minimumNights.selectedNights} noites</span>
+            </div>
           {!result.minimumNights.passed && result.minimumNights.error && (
             <div className="text-sm text-red-700 mt-2">{result.minimumNights.error}</div>
           )}
@@ -138,7 +138,7 @@ export function ValidationResultsDisplay({ result }: ValidationResultsDisplayPro
           <div className="font-semibold text-gray-900">Política de Cancelamento</div>
           <div className="text-sm text-gray-600">{result.cancellationPolicy.policyName}</div>
           <div className="mt-3 space-y-3">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <p className="text-xs text-gray-600">Reembolso:</p>
                 <p className="font-medium">{result.cancellationPolicy.refundPercentage}%</p>

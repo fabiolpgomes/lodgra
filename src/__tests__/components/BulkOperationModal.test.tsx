@@ -53,7 +53,7 @@ describe('BulkOperationModal', () => {
       />
     );
 
-    expect(screen.getByText(/Confirm Set Price/i)).toBeInTheDocument();
+    expect(screen.getByText(/Confirmar Definir preço/i)).toBeInTheDocument();
   });
 
   it('displays date range information', () => {
@@ -68,7 +68,7 @@ describe('BulkOperationModal', () => {
     );
 
     // The dates are rendered together as "Jul 1 → Jul 5"
-    expect(screen.getByText(/Jul 1.*Jul 5/i)).toBeInTheDocument();
+    expect(screen.getByText(/1\/07.*5\/07/i)).toBeInTheDocument();
   });
 
   it('displays affected date count', () => {
@@ -82,8 +82,8 @@ describe('BulkOperationModal', () => {
       />
     );
 
-    expect(screen.getByText(/Affected Dates/i)).toBeInTheDocument();
-    expect(screen.getByText('5 dates')).toBeInTheDocument();
+    expect(screen.getByText(/Datas afetadas/i)).toBeInTheDocument();
+    expect(screen.getByText('5 datas')).toBeInTheDocument();
   });
 
   it('displays price for price operation', () => {
@@ -98,7 +98,7 @@ describe('BulkOperationModal', () => {
     );
 
     // Check for "New Price" section
-    expect(screen.getByText(/New Price/i)).toBeInTheDocument();
+    expect(screen.getByText(/Novo preço/i)).toBeInTheDocument();
     // Price might appear multiple times (in preview and main section)
     expect(screen.getAllByText('$150.00').length).toBeGreaterThan(0);
   });
@@ -120,7 +120,7 @@ describe('BulkOperationModal', () => {
       />
     );
 
-    expect(screen.getByText(/10% off/i)).toBeInTheDocument();
+    expect(screen.getByText(/10% de desconto/i)).toBeInTheDocument();
   });
 
   it('shows warning for large operations (>30 dates)', () => {
@@ -140,7 +140,7 @@ describe('BulkOperationModal', () => {
       />
     );
 
-    expect(screen.getByText(/Large Operation/i)).toBeInTheDocument();
+    expect(screen.getByText(/Operação de grande dimensão/i)).toBeInTheDocument();
   });
 
   it('shows delete warning for delete operation', () => {
@@ -159,7 +159,7 @@ describe('BulkOperationModal', () => {
       />
     );
 
-    expect(screen.getByText(/cannot be undone/i)).toBeInTheDocument();
+    expect(screen.getByText(/não pode ser anulada/i)).toBeInTheDocument();
   });
 
   it('calls onConfirm when confirm button clicked', async () => {
@@ -173,7 +173,7 @@ describe('BulkOperationModal', () => {
       />
     );
 
-    const confirmButton = screen.getByRole('button', { name: /Confirm/i });
+    const confirmButton = screen.getByRole('button', { name: /Confirmar/i });
     fireEvent.click(confirmButton);
 
     await waitFor(() => {
@@ -192,7 +192,7 @@ describe('BulkOperationModal', () => {
       />
     );
 
-    const cancelButton = screen.getByRole('button', { name: /Cancel/i });
+    const cancelButton = screen.getByRole('button', { name: /Cancelar/i });
     fireEvent.click(cancelButton);
 
     expect(mockOnCancel).toHaveBeenCalled();
@@ -210,8 +210,8 @@ describe('BulkOperationModal', () => {
       />
     );
 
-    const confirmButton = screen.getByRole('button', { name: /Applying/i });
-    const cancelButton = screen.getByRole('button', { name: /Cancel/i });
+    const confirmButton = screen.getByRole('button', { name: /A aplicar/i });
+    const cancelButton = screen.getByRole('button', { name: /Cancelar/i });
 
     expect(confirmButton).toBeDisabled();
     expect(cancelButton).toBeDisabled();
@@ -228,7 +228,7 @@ describe('BulkOperationModal', () => {
       />
     );
 
-    expect(screen.getByText(/Price Preview/i)).toBeInTheDocument();
+    expect(screen.getByText(/Pré-visualização de preços/i)).toBeInTheDocument();
   });
 
   it('does not display price preview for delete operations', () => {
@@ -247,6 +247,6 @@ describe('BulkOperationModal', () => {
       />
     );
 
-    expect(screen.queryByText(/Price Preview/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Pré-visualização de preços/i)).not.toBeInTheDocument();
   });
 });

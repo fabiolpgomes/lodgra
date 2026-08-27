@@ -182,7 +182,7 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
             <ArrowLeft className="h-4 w-4" />
             Voltar para Usuários
           </Link>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <UserCog className="h-8 w-8 text-blue-600" />
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Editar Usuário</h1>
           </div>
@@ -278,7 +278,7 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
           </div>
 
           {role !== 'guest' && (
-            <div className="flex items-center gap-3">
+            <div className="flex items-start gap-3">
               <input
                 type="checkbox"
                 id="accessAllProperties"
@@ -298,14 +298,14 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
               {properties.length === 0 ? (
                 <p className="text-sm text-gray-600">Nenhuma propriedade disponível</p>
               ) : (
-                <div className="space-y-2 max-h-60 overflow-y-auto border border-gray-200 rounded-lg p-3">
-                  {properties.map((property) => (
-                    <label key={property.id} className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={selectedProperties.includes(property.id)}
-                        onChange={() => toggleProperty(property.id)}
-                        className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-brand-500"
+                  <div className="space-y-2 max-h-60 overflow-y-auto border border-gray-200 rounded-lg p-3">
+                    {properties.map((property) => (
+                    <label key={property.id} className="flex items-center gap-2 cursor-pointer rounded-md px-1 py-1 hover:bg-gray-50">
+                        <input
+                          type="checkbox"
+                          checked={selectedProperties.includes(property.id)}
+                          onChange={() => toggleProperty(property.id)}
+                          className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-brand-500"
                       />
                       <span className="text-sm text-gray-700">{property.name}</span>
                     </label>
@@ -321,15 +321,15 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
             </Alert>
           )}
 
-          <div className="flex gap-3">
+          <div className="flex flex-col-reverse gap-3 sm:flex-row">
             <Button
               type="submit"
               disabled={loading}
-              className="flex-1"
+              className="w-full sm:flex-1"
             >
               {loading ? 'Salvando...' : 'Salvar Alterações'}
             </Button>
-            <Button asChild variant="outline">
+            <Button asChild variant="outline" className="w-full sm:w-auto">
               <Link href={`/${locale}/admin/users`}>
                 Cancelar
               </Link>

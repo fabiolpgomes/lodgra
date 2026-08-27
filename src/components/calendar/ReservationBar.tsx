@@ -10,7 +10,7 @@ interface Reservation {
   startDate: Date
   endDate: Date
   price: number
-  currency?: string
+  currency?: string | null
   status: 'pending' | 'confirmed' | 'hosting' | 'completed'
 }
 
@@ -78,8 +78,10 @@ export function ReservationBar({
     return 'Confirmado'
   }
 
-  const formatPrice = (price: number, currency: string = 'EUR') => {
-    return formatCurrency(price, currency.toUpperCase() as CurrencyCode)
+  const formatPrice = (price: number, currency?: string | null) => {
+    return currency
+      ? formatCurrency(price, currency.toUpperCase() as CurrencyCode)
+      : price.toFixed(2)
   }
 
   const formatGuestCount = (count: number): string => {

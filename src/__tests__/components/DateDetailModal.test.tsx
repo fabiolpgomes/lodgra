@@ -27,7 +27,7 @@ describe('DateDetailModal', () => {
   it('renders modal when open', () => {
     render(<DateDetailModal {...defaultProps} />);
 
-    expect(screen.getByText('Wednesday, July 15, 2026')).toBeInTheDocument();
+    expect(screen.getByText('quarta-feira, 15 de julho de 2026')).toBeInTheDocument();
   });
 
   it('does not render when closed', () => {
@@ -42,8 +42,8 @@ describe('DateDetailModal', () => {
   it('displays base price correctly', () => {
     render(<DateDetailModal {...defaultProps} />);
 
-    expect(screen.getByText('Base Price')).toBeInTheDocument();
-    expect(screen.getByText(/100,00.*€|€100\.00/)).toBeInTheDocument();
+    expect(screen.getByText('Preço base')).toBeInTheDocument();
+    expect(screen.getByText('100.00')).toBeInTheDocument();
   });
 
   it('displays weekend price label for weekend dates', () => {
@@ -55,8 +55,8 @@ describe('DateDetailModal', () => {
       />
     );
 
-    expect(screen.getByText('Weekend Price')).toBeInTheDocument();
-    expect(screen.getByText(/150,00.*€|€150\.00/)).toBeInTheDocument();
+    expect(screen.getByText('Preço de fim de semana')).toBeInTheDocument();
+    expect(screen.getByText('150.00')).toBeInTheDocument();
   });
 
   it('shows delete button when override exists', () => {
@@ -67,7 +67,7 @@ describe('DateDetailModal', () => {
       />
     );
 
-    expect(screen.getByRole('button', { name: /delete/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /eliminar/i })).toBeInTheDocument();
   });
 
   it('does not show delete button when no override exists', () => {
@@ -78,7 +78,7 @@ describe('DateDetailModal', () => {
       />
     );
 
-    const deleteButton = screen.queryByRole('button', { name: /delete/i });
+    const deleteButton = screen.queryByRole('button', { name: /eliminar/i });
     expect(deleteButton).not.toBeInTheDocument();
   });
 
@@ -92,7 +92,7 @@ describe('DateDetailModal', () => {
       />
     );
 
-    const cancelButton = screen.getByRole('button', { name: /cancel/i });
+    const cancelButton = screen.getByRole('button', { name: /cancelar/i });
     fireEvent.click(cancelButton);
 
     expect(onClose).toHaveBeenCalled();
@@ -101,13 +101,13 @@ describe('DateDetailModal', () => {
   it('displays override price label', () => {
     render(<DateDetailModal {...defaultProps} />);
 
-    expect(screen.getByText('Override Price (Optional)')).toBeInTheDocument();
+    expect(screen.getByText('Preço de exceção (opcional)')).toBeInTheDocument();
   });
 
   it('renders save button', () => {
     render(<DateDetailModal {...defaultProps} />);
 
-    expect(screen.getByRole('button', { name: /save/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /guardar/i })).toBeInTheDocument();
   });
 
   it('handles overlay click to close', () => {
@@ -130,7 +130,7 @@ describe('DateDetailModal', () => {
   it('shows modal header with date', () => {
     render(<DateDetailModal {...defaultProps} />);
 
-    expect(screen.getByText('Wednesday, July 15, 2026')).toBeInTheDocument();
+    expect(screen.getByText('quarta-feira, 15 de julho de 2026')).toBeInTheDocument();
   });
 
   it('displays alternative text for weekend dates', () => {
@@ -143,7 +143,7 @@ describe('DateDetailModal', () => {
     );
 
     // Should show weekend price instead of base price
-    const priceText = screen.getByText(/150,00.*€|€150\.00/);
+    const priceText = screen.getByText('150.00');
     expect(priceText).toBeInTheDocument();
   });
 });

@@ -275,7 +275,7 @@ export default function EditReservationPage({
           Voltar para Detalhes
         </Link>
 
-        <div className="mb-6">
+        <div className="mb-6 flex flex-col gap-2">
           <h2 className="text-3xl font-bold text-gray-900">Editar Reserva</h2>
           <p className="text-gray-600 mt-1">Atualize as informações da reserva</p>
         </div>
@@ -503,15 +503,15 @@ export default function EditReservationPage({
             </div>
           </div>
 
-          <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
+          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:gap-4">
             <Button
               type="submit"
               disabled={loading || !selectedProperty}
-              className="flex-1"
+              className="flex w-full items-center justify-center gap-2 sm:flex-1"
             >
               {loading ? <>Salvando...</> : <><Save className="h-5 w-5" />Salvar Alterações</>}
             </Button>
-            <Button variant="outline" asChild className="sm:w-auto">
+            <Button variant="outline" asChild className="w-full sm:w-auto">
               <Link href={reservationId ? `${prefix}/reservations/${reservationId}` : `${prefix}/reservations`}>
                 Cancelar
               </Link>

@@ -54,7 +54,7 @@ describe('PriceHistoryTimeline', () => {
   it('should show empty state', () => {
     render(<PriceHistoryTimeline history={[]} />);
 
-    expect(screen.getByText('No price history available')).toBeInTheDocument();
+    expect(screen.getByText('Sem histórico de preços disponível')).toBeInTheDocument();
   });
 
   it('should expand/collapse details on click', () => {
@@ -77,7 +77,7 @@ describe('PriceHistoryTimeline', () => {
       />
     );
 
-    const loadMoreBtn = screen.getByText('Load More');
+    const loadMoreBtn = screen.getByText('Carregar mais');
     fireEvent.click(loadMoreBtn);
 
     expect(onLoadMore).toHaveBeenCalled();
@@ -98,7 +98,7 @@ describe('PriceHistoryTimeline', () => {
 
     render(<PriceHistoryTimeline history={withRevert} />);
 
-    expect(screen.getByText('Reverted')).toBeInTheDocument();
+    expect(screen.getByText('Revertido')).toBeInTheDocument();
   });
 
   it('should display percentage change', () => {
@@ -111,7 +111,7 @@ describe('PriceHistoryTimeline', () => {
   it('should show active status for non-reverted records', () => {
     render(<PriceHistoryTimeline history={mockHistory} />);
 
-    const activeElements = screen.getAllByText('Active');
+    const activeElements = screen.getAllByText('Ativo');
     expect(activeElements.length).toBeGreaterThan(0);
   });
 
@@ -129,6 +129,6 @@ describe('PriceHistoryTimeline', () => {
     fireEvent.click(cards[0]);
 
     // Check for the "Changed:" label in expanded details
-    expect(screen.getByText('Changed:')).toBeInTheDocument();
+    expect(screen.getByText('Alterado:')).toBeInTheDocument();
   });
 });

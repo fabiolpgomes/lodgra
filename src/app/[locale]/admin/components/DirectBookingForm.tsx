@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { ValidationResultsDisplay } from './ValidationResultsDisplay'
 import type { ValidationResult } from '@/lib/reservations/reservation-validator'
+import { BOOKING_LOCALE_OPTIONS, BOOKING_STANDARD_LOCALE, normalizeBookingLocale } from '@/lib/email/booking-locale'
 
 interface DirectBookingFormProps {
   onSuccess?: (reservationId: string) => void
@@ -13,6 +14,7 @@ export function DirectBookingForm({ onSuccess }: DirectBookingFormProps) {
     propertyId: '',
     guestName: '',
     guestEmail: '',
+    preferredLocale: BOOKING_STANDARD_LOCALE,
     checkIn: '',
     checkOut: '',
     guestCount: '',
@@ -71,17 +73,18 @@ export function DirectBookingForm({ onSuccess }: DirectBookingFormProps) {
       const response = await fetch('/api/admin/reservations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          propertyId: formData.propertyId,
-          checkIn: formData.checkIn,
-          checkOut: formData.checkOut,
-          guestName: formData.guestName,
-          guestEmail: formData.guestEmail,
-          guestCount: formData.guestCount ? parseInt(formData.guestCount) : undefined,
-          notes: formData.notes || undefined,
-          finalPrice: validationResult?.finalPrice,
-        }),
-      })
+          body: JSON.stringify({
+            propertyId: formData.propertyId,
+            checkIn: formData.checkIn,
+            checkOut: formData.checkOut,
+            guestName: formData.guestName,
+            guestEmail: formData.guestEmail,
+            guestCount: formData.guestCount ? parseInt(formData.guestCount) : undefined,
+            notes: formData.notes || undefined,
+            finalPrice: validationResult?.finalPrice,
+            preferredLocale: normalizeBookingLocale(formData.preferredLocale),
+          }),
+        })
 
       if (!response.ok) {
         const errorData = await response.json()
@@ -99,6 +102,7 @@ export function DirectBookingForm({ onSuccess }: DirectBookingFormProps) {
         propertyId: '',
         guestName: '',
         guestEmail: '',
+        preferredLocale: BOOKING_STANDARD_LOCALE,
         checkIn: '',
         checkOut: '',
         guestCount: '',
@@ -130,10 +134,10 @@ export function DirectBookingForm({ onSuccess }: DirectBookingFormProps) {
           </p>
         </div>
 
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
           <form onSubmit={handleValidateSubmit} className="space-y-4">
             {/* Row 1: Property & Guest Name */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
                 <label className="block text-sm font-medium mb-1">Propriedade *</label>
                 <input
@@ -163,7 +167,7 @@ export function DirectBookingForm({ onSuccess }: DirectBookingFormProps) {
             </div>
 
             {/* Row 2: Email & Guest Count */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
                 <label className="block text-sm font-medium mb-1">Email do Hóspede *</label>
                 <input
@@ -191,8 +195,26 @@ export function DirectBookingForm({ onSuccess }: DirectBookingFormProps) {
               </div>
             </div>
 
+            {/* Row 2b: Language */}
+            <div>
+              <label className="block text-sm font-medium mb-1">Idioma de contacto</label>
+              <select
+                name="preferredLocale"
+                value={formData.preferredLocale}
+                onChange={(e) => setFormData((prev) => ({ ...prev, preferredLocale: normalizeBookingLocale(e.target.value) }))}
+                disabled={loading || creationLoading}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                {BOOKING_LOCALE_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             {/* Row 3: Check-in & Check-out */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
                 <label className="block text-sm font-medium mb-1">Check-in *</label>
                 <input
@@ -287,7 +309,7 @@ export function DirectBookingForm({ onSuccess }: DirectBookingFormProps) {
           <div className="mt-2 text-sm text-emerald-800">{successMessage.message}</div>
           <button
             onClick={() => setSuccessMessage(null)}
-            className="mt-3 px-4 py-2 bg-emerald-700 text-white rounded-lg font-medium hover:bg-emerald-800 transition-colors"
+            className="mt-3 w-full rounded-lg bg-emerald-700 px-4 py-2 font-medium text-white transition-colors hover:bg-emerald-800 sm:w-auto"
           >
             Nova Reserva
           </button>
