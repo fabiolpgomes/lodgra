@@ -10,7 +10,7 @@ interface CompetitorListProps {
   currency?: CurrencyCode;
 }
 
-export function CompetitorList({ competitors, currency = 'EUR' }: CompetitorListProps) {
+export function CompetitorList({ competitors, currency }: CompetitorListProps) {
   const platformIcons = {
     airbnb: '🏠',
     'booking.com': '🔖',

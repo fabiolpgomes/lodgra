@@ -10,7 +10,7 @@ interface MarketPositionCardProps {
   currency?: CurrencyCode;
 }
 
-export function MarketPositionCard({ analysis, currency = 'EUR' }: MarketPositionCardProps) {
+export function MarketPositionCard({ analysis, currency }: MarketPositionCardProps) {
   const percentDiff = Math.abs(analysis.percentageDifference);
   const isHigher = analysis.percentageDifference > 0;
 

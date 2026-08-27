@@ -22,7 +22,7 @@ export function BenchmarkReport({
   priceHistory,
   analysis,
   propertyName,
-  currency = 'EUR',
+  currency,
 }: BenchmarkReportProps) {
   const [sortBy, setSortBy] = useState<SortBy>('name');
   const [dateRange, setDateRange] = useState<DateRange>('7');

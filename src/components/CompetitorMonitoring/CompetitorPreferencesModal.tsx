@@ -22,10 +22,10 @@ export function CompetitorPreferencesModal({ isOpen, onClose }: CompetitorPrefer
       setLoading(true);
       // In a real implementation, this would save preferences to the API
       // For now, we'll just show a success message
-      toast.success('Preferences updated');
+      toast.success('Preferências atualizadas');
       onClose();
     } catch (error) {
-      toast.error('Failed to save preferences');
+      toast.error('Falha ao guardar as preferências');
     } finally {
       setLoading(false);
     }
@@ -54,12 +54,12 @@ export function CompetitorPreferencesModal({ isOpen, onClose }: CompetitorPrefer
               id="preferences-title"
               className="text-xl font-bold text-slate-900 dark:text-white"
             >
-              Alert Preferences
+              Preferências de alertas
             </h2>
             <button
               onClick={onClose}
               className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
-              aria-label="Close modal"
+              aria-label="Fechar modal"
             >
               <X className="w-6 h-6" />
             </button>
@@ -70,7 +70,7 @@ export function CompetitorPreferencesModal({ isOpen, onClose }: CompetitorPrefer
             {/* Alert Threshold */}
             <div>
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                Price Change Threshold: {threshold}%
+                Limiar de variação de preço: {threshold}%
               </label>
               <input
                 type="range"
@@ -82,30 +82,30 @@ export function CompetitorPreferencesModal({ isOpen, onClose }: CompetitorPrefer
                 className="w-full"
               />
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
-                Alert only when price changes by {threshold}% or more
+                Alerta apenas quando o preço variar {threshold}% ou mais
               </p>
             </div>
 
             {/* Monitoring Frequency */}
             <div>
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                Monitoring Frequency
+                Frequência de monitorização
               </label>
               <select
                 value={frequency}
                 onChange={(e) => setFrequency(e.target.value as 'daily' | 'weekly' | 'monthly')}
                 className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-colors"
               >
-                <option value="daily">Daily</option>
-                <option value="weekly">Weekly</option>
-                <option value="monthly">Monthly</option>
+                <option value="daily">Diária</option>
+                <option value="weekly">Semanal</option>
+                <option value="monthly">Mensal</option>
               </select>
             </div>
 
             {/* Alert Method */}
             <div>
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
-                Alert Method
+                Método de alerta
               </label>
               <div className="space-y-2">
                 {['in-app', 'email', 'both'].map((method) => (
@@ -119,7 +119,7 @@ export function CompetitorPreferencesModal({ isOpen, onClose }: CompetitorPrefer
                       className="w-4 h-4"
                     />
                     <span className="text-sm text-slate-700 dark:text-slate-300 capitalize">
-                      {method === 'in-app' ? 'In-App Only' : method === 'email' ? 'Email Only' : 'Both'}
+                      {method === 'in-app' ? 'Só na app' : method === 'email' ? 'Só por email' : 'Ambos'}
                     </span>
                   </label>
                 ))}
@@ -129,7 +129,7 @@ export function CompetitorPreferencesModal({ isOpen, onClose }: CompetitorPrefer
             {/* Sound Notifications */}
             <div className="flex items-center justify-between">
               <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                Notification Sound
+                Som das notificações
               </label>
               <button
                 onClick={() => setSoundEnabled(!soundEnabled)}
@@ -148,7 +148,7 @@ export function CompetitorPreferencesModal({ isOpen, onClose }: CompetitorPrefer
             {/* Pause Monitoring */}
             <div className="flex items-center justify-between pb-6 border-b border-slate-200 dark:border-slate-700">
               <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                Pause All Monitoring
+                Pausar toda a monitorização
               </label>
               <button
                 onClick={() => setPausedMonitoring(!pausedMonitoring)}
@@ -166,7 +166,7 @@ export function CompetitorPreferencesModal({ isOpen, onClose }: CompetitorPrefer
 
             {pausedMonitoring && (
               <p className="text-sm text-amber-700 dark:text-amber-200 bg-amber-50 dark:bg-amber-950/30 p-3 rounded">
-                Monitoring is paused. Price scraping will not run until you re-enable it.
+                A monitorização está pausada. A recolha de preços não será executada até voltar a ativá-la.
               </p>
             )}
 
@@ -177,14 +177,14 @@ export function CompetitorPreferencesModal({ isOpen, onClose }: CompetitorPrefer
                 onClick={onClose}
                 className="flex-1 px-4 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-md hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
               >
-                Cancel
+                Cancelar
               </button>
               <button
                 onClick={handleSave}
                 disabled={loading}
                 className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white rounded-md transition-colors"
               >
-                {loading ? 'Saving...' : 'Save'}
+                {loading ? 'A guardar...' : 'Guardar'}
               </button>
             </div>
           </div>

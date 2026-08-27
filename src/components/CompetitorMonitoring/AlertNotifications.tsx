@@ -10,7 +10,7 @@ interface AlertNotificationsProps {
   currency?: CurrencyCode;
 }
 
-export function AlertNotifications({ alerts, currency = 'EUR' }: AlertNotificationsProps) {
+export function AlertNotifications({ alerts, currency }: AlertNotificationsProps) {
   const recentAlerts = alerts.slice(0, 5);
 
   return (
