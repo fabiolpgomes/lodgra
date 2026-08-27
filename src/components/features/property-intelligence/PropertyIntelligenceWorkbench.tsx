@@ -8,6 +8,7 @@ import { Input } from '@/components/common/ui/input'
 import { PremiumCard, PremiumMetricCard } from '@/components/common/layout/PremiumPage'
 import { Switch } from '@/components/common/ui/switch'
 import { Textarea } from '@/components/common/ui/textarea'
+import type { ReadingObjective } from '@/lib/property-intelligence'
 
 type AnalysisProfile = 'conservative' | 'balanced' | 'premium'
 type LeadSource = 'WhatsApp' | 'Airbnb' | 'Booking' | 'Website' | 'Manual'
@@ -111,10 +112,28 @@ const CURRENCY_OPTIONS: QuickPick<CurrencyCode>[] = [
   { value: 'USD', label: 'Dólar' },
 ]
 
-const NOTE_OPTIONS: QuickPick<string>[] = [
-  { value: 'Avaliar viabilidade para entrada comercial.', label: 'Viabilidade' },
-  { value: 'Preparar um relatório executivo para o proprietário.', label: 'Relatório executivo' },
-  { value: 'Comparar com cenários de exploração antes de avançar.', label: 'Comparar cenários' },
+const READING_OBJECTIVE_OPTIONS: QuickPick<ReadingObjective>[] = [
+  {
+    value: 'viability',
+    label: 'Viabilidade',
+    description: 'Avaliar se o imóvel faz sentido para entrada comercial.',
+  },
+  {
+    value: 'executive_report',
+    label: 'Relatório executivo',
+    description: 'Gerar uma peça premium para o proprietário ou lead.',
+  },
+  {
+    value: 'compare_scenarios',
+    label: 'Comparar cenários',
+    description: 'Contrapor leitura base, conservadora e otimizada.',
+  },
+]
+
+const DEFAULT_READING_OBJECTIVES: ReadingObjective[] = [
+  'viability',
+  'executive_report',
+  'compare_scenarios',
 ]
 
 const DEFAULT_FORM = {
@@ -136,6 +155,7 @@ const DEFAULT_FORM = {
   listingUrl: '',
   currency: 'EUR' as CurrencyCode,
   profile: 'balanced' as AnalysisProfile,
+  readingObjectives: DEFAULT_READING_OBJECTIVES,
   ownerContext: {
     flexibility: 'high' as OwnerFlexibilityLevel,
     operatingModel: 'short_mid' as OwnerOperatingModel,
@@ -153,6 +173,7 @@ const INITIAL_GUIDED_JSON = JSON.stringify(
       source: DEFAULT_FORM.source,
       note: DEFAULT_FORM.note,
     },
+    readingObjectives: DEFAULT_FORM.readingObjectives,
     property: {
       location: DEFAULT_FORM.location,
       propertyType: DEFAULT_FORM.propertyType,
@@ -325,6 +346,22 @@ function formatStayTypeLabel(stayType: string | undefined): string {
   return 'estadia'
 }
 
+function formatReadingObjectiveLabel(objective: ReadingObjective): string {
+  if (objective === 'viability') {
+    return 'Viabilidade'
+  }
+
+  if (objective === 'executive_report') {
+    return 'Relatório executivo'
+  }
+
+  if (objective === 'compare_scenarios') {
+    return 'Comparar cenários'
+  }
+
+  return objective
+}
+
 function ChoiceGroup<T extends string>({
   label,
   description,
@@ -362,6 +399,70 @@ function ChoiceGroup<T extends string>({
               className="h-auto min-h-[76px] flex-col items-start justify-start gap-1.5 px-4 py-3 text-left whitespace-normal leading-5 ring-1 ring-transparent transition-all hover:-translate-y-0.5 hover:ring-brand-blue/20"
             >
               <span className="text-sm font-semibold leading-5" style={{ color: 'inherit' }}>{option.label}</span>
+              {option.description ? (
+                <span
+                  className="text-[11px] leading-4"
+                  style={{ color: active ? 'rgba(255,255,255,0.8)' : 'rgba(16,32,62,0.72)' }}
+                >
+                  {option.description}
+                </span>
+              ) : null}
+            </Button>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+function MultiChoiceGroup<T extends string>({
+  label,
+  description,
+  options,
+  value,
+  onChange,
+  columns = 'sm:grid-cols-2',
+}: {
+  label: string
+  description?: string
+  options: QuickPick<T>[]
+  value: T[]
+  onChange: Dispatch<SetStateAction<T[]>>
+  columns?: string
+}) {
+  return (
+    <div className="space-y-3">
+      <div>
+        <h3 className="text-sm font-semibold text-brand-text-dark">{label}</h3>
+        {description ? <p className="text-xs text-brand-text-medium">{description}</p> : null}
+      </div>
+      <div className={`grid gap-2 ${columns}`}>
+        {options.map(option => {
+          const active = value.includes(option.value)
+
+          return (
+            <Button
+              key={option.value}
+              type="button"
+              variant={active ? 'action' : 'premium-secondary'}
+              size="premium-sm"
+              onClick={() =>
+                onChange(current =>
+                  current.includes(option.value)
+                    ? current.filter(item => item !== option.value)
+                    : [...current, option.value]
+                )
+              }
+              aria-pressed={active}
+              style={selectionButtonStyle(active)}
+              className="h-auto min-h-[92px] flex-col items-start justify-start gap-1.5 px-4 py-3 text-left whitespace-normal leading-5 ring-1 ring-transparent transition-all hover:-translate-y-0.5 hover:ring-brand-blue/20"
+            >
+              <div className="flex w-full items-start justify-between gap-2">
+                <span className="text-sm font-semibold leading-5" style={{ color: 'inherit' }}>
+                  {option.label}
+                </span>
+                {active ? <CheckCircle2 className="h-4 w-4 shrink-0" /> : null}
+              </div>
               {option.description ? (
                 <span
                   className="text-[11px] leading-4"
@@ -443,6 +544,9 @@ export function PropertyIntelligenceWorkbench({
   const [garage, setGarage] = useState<boolean | null>(DEFAULT_FORM.garage)
   const [source, setSource] = useState<LeadSource | ''>(DEFAULT_FORM.source)
   const [note, setNote] = useState(DEFAULT_FORM.note)
+  const [readingObjectives, setReadingObjectives] = useState<ReadingObjective[]>(
+    [...DEFAULT_FORM.readingObjectives]
+  )
   const [highlights, setHighlights] = useState(DEFAULT_FORM.highlights)
   const [listingUrl, setListingUrl] = useState(DEFAULT_FORM.listingUrl)
   const [currency, setCurrency] = useState<CurrencyCode | ''>(DEFAULT_FORM.currency)
@@ -470,6 +574,7 @@ export function PropertyIntelligenceWorkbench({
         source: source || null,
         note: note.trim() || DEFAULT_FORM.note,
       },
+      readingObjectives,
       property: {
         location: location.trim() || null,
         typology: `${propertyType} ${typology.trim() || ''}`.trim() || null,
@@ -509,6 +614,7 @@ export function PropertyIntelligenceWorkbench({
       location,
       market,
       note,
+      readingObjectives,
       historicalRevenue,
       pool,
       profile,
@@ -576,6 +682,13 @@ export function PropertyIntelligenceWorkbench({
       { label: 'Tipologia', value: typology.trim() || 'Não informado' },
       { label: 'Mercado', value: MARKET_OPTIONS.find(option => option.value === market)?.label ?? 'Não informado' },
       { label: 'Perfil', value: PROFILE_OPTIONS.find(option => option.value === profile)?.label ?? profile },
+      {
+        label: 'Objetivos',
+        value:
+          readingObjectives.length > 0
+            ? readingObjectives.map(formatReadingObjectiveLabel).join(', ')
+            : 'Não selecionado',
+      },
       { label: 'Moeda', value: currency || 'Não informado' },
       {
         label: 'Flexibilidade',
@@ -593,7 +706,7 @@ export function PropertyIntelligenceWorkbench({
             : 'Não informado',
       },
     ],
-    [currency, historicalRevenue, location, market, ownerFlexibility, ownerOperatingModel, profile, propertyName, propertyType, rentedDays, typology]
+    [currency, historicalRevenue, location, market, ownerFlexibility, ownerOperatingModel, profile, propertyName, propertyType, readingObjectives, rentedDays, typology]
   )
 
   const resultHeadline = result
@@ -671,6 +784,7 @@ export function PropertyIntelligenceWorkbench({
     setGarage(DEFAULT_FORM.garage)
     setSource(DEFAULT_FORM.source)
     setNote(DEFAULT_FORM.note)
+    setReadingObjectives([...DEFAULT_FORM.readingObjectives])
     setHighlights(DEFAULT_FORM.highlights)
     setListingUrl(DEFAULT_FORM.listingUrl)
     setCurrency(DEFAULT_FORM.currency)
@@ -1209,37 +1323,22 @@ export function PropertyIntelligenceWorkbench({
             </div>
 
             <div className="space-y-3">
-              <h4 className="text-sm font-semibold text-brand-text-dark">Objetivo da leitura</h4>
-              <div className="grid gap-2 sm:grid-cols-3">
-                {NOTE_OPTIONS.map(option => {
-                  const active = note === option.value
-                  return (
-                  <Button
-                    key={option.value}
-                    type="button"
-                    variant={active ? 'action' : 'premium-secondary'}
-                    size="premium-sm"
-                    onClick={() => setNote(option.value)}
-                    aria-pressed={active}
-                    style={selectionButtonStyle(active)}
-                    className="h-auto min-h-[76px] flex-col items-start justify-start gap-1.5 px-4 py-3 text-left whitespace-normal leading-5"
-                  >
-                    <span className="text-sm font-semibold leading-5" style={{ color: 'inherit' }}>{option.label}</span>
-                    <span
-                      className="text-[11px] leading-4"
-                      style={{ color: active ? 'rgba(255,255,255,0.8)' : 'rgba(16,32,62,0.72)' }}
-                    >
-                      {option.value}
-                    </span>
-                  </Button>
-                )
-              })}
-              </div>
-              <Input
-                value={note}
-                onChange={event => setNote(event.target.value)}
-                placeholder="Adicione uma nota curta se precisar de mais contexto"
+              <MultiChoiceGroup
+                label="Objetivos da leitura"
+                description="Marque uma ou mais análises. O lead pode receber a visão por email ou WhatsApp."
+                options={READING_OBJECTIVE_OPTIONS}
+                value={readingObjectives}
+                onChange={setReadingObjectives}
+                columns="grid-cols-1 sm:grid-cols-3"
               />
+              <div className="space-y-3">
+                <h4 className="text-sm font-semibold text-brand-text-dark">Nota adicional</h4>
+                <Input
+                  value={note}
+                  onChange={event => setNote(event.target.value)}
+                  placeholder="Adicione uma nota curta se precisar de mais contexto"
+                />
+              </div>
             </div>
           </PremiumCard>
         </div>

@@ -16,6 +16,8 @@ export type OwnerFlexibilityLevel = 'high' | 'medium' | 'low'
 
 export type OwnerOperatingModel = 'short_mid' | 'mixed' | 'long'
 
+export type ReadingObjective = 'viability' | 'executive_report' | 'compare_scenarios'
+
 export interface PropertyLeadInput {
   name?: string | null
   source?: string | null
@@ -60,6 +62,7 @@ export interface PropertyIntelligenceInput {
   lead?: PropertyLeadInput | null
   property?: PropertyInput | null
   ownerContext?: OwnerContextInput | null
+  readingObjectives?: ReadingObjective[] | null
   assumptions?: {
     currency?: string | null
     longStay?: StayAssumptionsInput | null
@@ -113,6 +116,7 @@ export interface IntakeResult {
   blockingInputs: string[]
   estimatedFields: string[]
   completenessScore: number
+  readingObjectives: ReadingObjective[]
   normalizedProperty: NormalizedProperty
   normalizedAssumptions: NormalizedAssumptions
   ownerContext: NormalizedOwnerContext

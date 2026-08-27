@@ -9,10 +9,12 @@ import type {
   NormalizedProperty,
   OwnerFlexibilityLevel,
   OwnerOperatingModel,
+  ReadingObjective,
 } from './types'
 
 const DEFAULT_AREA = 45
 const DEFAULT_BEDROOMS = 1
+const DEFAULT_READING_OBJECTIVES: ReadingObjective[] = ['viability', 'executive_report', 'compare_scenarios']
 
 function toNumber(value: unknown, fallback: number): number {
   return typeof value === 'number' && Number.isFinite(value) ? value : fallback
@@ -77,6 +79,18 @@ function normalizeOperatingModel(value: unknown): OwnerOperatingModel | null {
 
 function toOptionalNumber(value: unknown): number | null {
   return typeof value === 'number' && Number.isFinite(value) ? value : null
+}
+
+function normalizeReadingObjectives(value: unknown): ReadingObjective[] {
+  if (!Array.isArray(value)) {
+    return DEFAULT_READING_OBJECTIVES
+  }
+
+  const allowed: ReadingObjective[] = ['viability', 'executive_report', 'compare_scenarios']
+  const normalized = value.filter((item): item is ReadingObjective => allowed.includes(item as ReadingObjective))
+  const unique = Array.from(new Set(normalized))
+
+  return unique.length > 0 ? unique : DEFAULT_READING_OBJECTIVES
 }
 
 export function normalizeIntake(input: PropertyIntelligenceInput): IntakeResult {
@@ -160,8 +174,10 @@ export function normalizeIntake(input: PropertyIntelligenceInput): IntakeResult 
     revenuePerRentedDay:
       historicalRevenue != null && rentedDays != null && rentedDays > 0
         ? Math.round((historicalRevenue / rentedDays) * 100) / 100
-        : null,
+      : null,
   }
+
+  const readingObjectives = normalizeReadingObjectives(input.readingObjectives)
 
   const completenessScore = Math.max(
     0,
@@ -177,6 +193,7 @@ export function normalizeIntake(input: PropertyIntelligenceInput): IntakeResult 
     blockingInputs,
     estimatedFields,
     completenessScore: Math.round(completenessScore * 100) / 100,
+    readingObjectives,
     normalizedProperty,
     normalizedAssumptions,
     ownerContext: normalizedOwnerContext,
