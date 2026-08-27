@@ -35,10 +35,10 @@ export default function AnalyticsSettingsClient() {
 
       if (!res.ok) {
         if (res.status === 401) {
-          setError('Unauthorized. Please log in again.');
+          setError('Não autorizado. Faça login novamente.');
           return;
         }
-        throw new Error('Failed to fetch config');
+        throw new Error('Falha ao obter a configuração');
       }
 
       const data = await res.json();
@@ -46,7 +46,7 @@ export default function AnalyticsSettingsClient() {
       setError(null);
     } catch (err) {
       console.error('[Analytics Settings] Fetch config error:', err);
-      setError('Failed to load settings. Please try again.');
+      setError('Falha ao carregar as definições. Tente novamente.');
     } finally {
       setIsInitialLoading(false);
     }
@@ -58,12 +58,12 @@ export default function AnalyticsSettingsClient() {
     setSuccess(false);
 
     if (!gaId.trim()) {
-      setError('Please enter your GA Measurement ID');
+      setError('Introduza o seu ID de medição do GA');
       return;
     }
 
     if (!isValidGAId(gaId)) {
-      setError('Invalid GA Measurement ID format. Expected: G-XXXXXXXXXX');
+      setError('Formato inválido do ID de medição do GA. Esperado: G-XXXXXXXXXX');
       return;
     }
 
@@ -78,7 +78,7 @@ export default function AnalyticsSettingsClient() {
 
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.error || 'Failed to save GA ID');
+        throw new Error(errorData.error || 'Falha ao guardar o ID do GA');
       }
 
       const data = await res.json();
@@ -87,7 +87,7 @@ export default function AnalyticsSettingsClient() {
       setSuccess(true);
       setTimeout(() => setSuccess(false), 5000);
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'An error occurred';
+      const message = err instanceof Error ? err.message : 'Ocorreu um erro';
       console.error('[Analytics Settings] Connect error:', err);
       setError(message);
     } finally {
@@ -104,16 +104,16 @@ export default function AnalyticsSettingsClient() {
 
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.error || 'Test failed');
+        throw new Error(errorData.error || 'Teste falhou');
       }
 
       const data = await res.json();
       setSuccess(true);
       alert(
-        `Test event fired!\n\nEvent ID: ${data.data.test_event_id}\n\n${data.data.instructions}`
+        `Evento de teste enviado!\n\nID do evento: ${data.data.test_event_id}\n\n${data.data.instructions}`
       );
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Test failed';
+      const message = err instanceof Error ? err.message : 'Falha no teste';
       console.error('[Analytics Settings] Test connection error:', err);
       setError(message);
     } finally {
@@ -122,7 +122,7 @@ export default function AnalyticsSettingsClient() {
   };
 
   const handleDisconnect = async () => {
-    if (!confirm('Are you sure? Your GA tracking will revert to Lodgra Analytics.')) {
+    if (!confirm('Tem a certeza? O rastreio do GA voltará para o Lodgra Analytics.')) {
       return;
     }
 
@@ -133,14 +133,14 @@ export default function AnalyticsSettingsClient() {
       const res = await fetch('/api/analytics/config', { method: 'DELETE' });
 
       if (!res.ok) {
-        throw new Error('Failed to disconnect');
+        throw new Error('Falha ao desligar');
       }
 
       setConfig(null);
       setSuccess(true);
       setTimeout(() => setSuccess(false), 5000);
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'An error occurred';
+      const message = err instanceof Error ? err.message : 'Ocorreu um erro';
       console.error('[Analytics Settings] Disconnect error:', err);
       setError(message);
     } finally {
@@ -157,13 +157,13 @@ export default function AnalyticsSettingsClient() {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
       {/* Error Alert */}
       {error && (
         <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg flex gap-3">
           <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
           <div>
-            <h3 className="font-medium text-red-900">Error</h3>
+            <h3 className="font-medium text-red-900">Erro</h3>
             <p className="text-sm text-red-800">{error}</p>
           </div>
         </div>
@@ -174,9 +174,9 @@ export default function AnalyticsSettingsClient() {
         <div className="mb-4 p-4 bg-emerald-50 border border-emerald-200 rounded-lg flex gap-3">
           <CheckCircle className="h-5 w-5 text-emerald-700 flex-shrink-0 mt-0.5" />
           <div>
-            <h3 className="font-medium text-emerald-900">Success</h3>
+            <h3 className="font-medium text-emerald-900">Sucesso</h3>
             <p className="text-sm text-emerald-800">
-              {config ? 'GA settings updated.' : 'GA settings cleared.'}
+              {config ? 'Definições do GA atualizadas.' : 'Definições do GA removidas.'}
             </p>
           </div>
         </div>
@@ -186,16 +186,16 @@ export default function AnalyticsSettingsClient() {
       {!config?.ga_configured ? (
         <div className="space-y-4">
           <div>
-            <h2 className="text-lg font-semibold mb-1">Connect Google Analytics</h2>
+            <h2 className="text-lg font-semibold mb-1">Ligar o Google Analytics</h2>
             <p className="text-sm text-gray-600">
-              Enter your Google Analytics Measurement ID to start tracking your property.
+              Introduza o ID de medição do Google Analytics para começar a acompanhar a sua propriedade.
             </p>
           </div>
 
           <form onSubmit={handleConnect} className="space-y-4">
             <div>
               <label htmlFor="ga-id" className="block text-sm font-medium text-gray-700 mb-1">
-                GA Measurement ID
+                ID de medição do GA
               </label>
               <Input
                 id="ga-id"
@@ -205,21 +205,21 @@ export default function AnalyticsSettingsClient() {
                 onChange={(e) => setGaId(e.target.value.toUpperCase())}
                 disabled={loading}
                 className="font-mono"
-                aria-label="Google Analytics Measurement ID"
+                aria-label="ID de medição do Google Analytics"
               />
               <p className="text-xs text-gray-500 mt-1">
-                Format: G- followed by 10 uppercase letters or numbers
+                Formato: G- seguido de 10 letras maiúsculas ou números
               </p>
             </div>
 
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <h3 className="font-medium text-sm text-blue-900 mb-2">How to find your GA ID</h3>
+              <h3 className="font-medium text-sm text-blue-900 mb-2">Como encontrar o seu ID do GA</h3>
               <ol className="text-xs text-blue-800 space-y-1 list-decimal list-inside">
-                <li>Go to Google Analytics</li>
-                <li>Select your property</li>
-                <li>Go to Admin → Data Streams</li>
-                <li>Click your web stream</li>
-                <li>Copy the Measurement ID (starts with G-)</li>
+                <li>Aceda ao Google Analytics</li>
+                <li>Selecione a sua propriedade</li>
+                <li>Vá a Admin → Fluxos de dados</li>
+                <li>Abra o seu fluxo web</li>
+                <li>Copie o ID de medição (começa por G-)</li>
               </ol>
               <a
                 href="https://support.google.com/analytics/answer/12270356"
@@ -227,7 +227,7 @@ export default function AnalyticsSettingsClient() {
                 rel="noopener noreferrer"
                 className="text-xs text-blue-600 hover:text-blue-800 mt-2 inline-block"
               >
-                Learn more →
+                Saber mais →
               </a>
             </div>
 
@@ -237,7 +237,7 @@ export default function AnalyticsSettingsClient() {
               className="w-full"
             >
               {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              {loading ? 'Connecting...' : 'Connect GA'}
+              {loading ? 'A ligar...' : 'Ligar GA'}
             </Button>
           </form>
         </div>
@@ -247,20 +247,20 @@ export default function AnalyticsSettingsClient() {
           <div className="flex items-center gap-3">
             <CheckCircle className="h-6 w-6 text-emerald-700" />
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">Connected ✓</h2>
+              <h2 className="text-lg font-semibold text-gray-900">Ligado ✓</h2>
               <p className="text-sm text-gray-600">
-                Your Google Analytics account is active and tracking.
+                A sua conta do Google Analytics está ativa e a acompanhar.
               </p>
             </div>
           </div>
 
           <div className="bg-gray-50 rounded-lg p-4">
             <p className="text-sm text-gray-600">
-              <span className="font-medium">GA Measurement ID:</span>{' '}
+              <span className="font-medium">ID de medição do GA:</span>{' '}
               <span className="font-mono text-gray-900">G-●●●●●●●●●●</span>
             </p>
             <p className="text-xs text-gray-500 mt-2">
-              Last updated: {new Date(config.updated_at).toLocaleDateString()}
+              Última atualização: {new Date(config.updated_at).toLocaleDateString('pt-PT')}
             </p>
           </div>
 
@@ -272,11 +272,11 @@ export default function AnalyticsSettingsClient() {
               className="w-full"
             >
               {testingConnection && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              {testingConnection ? 'Testing...' : 'Test Connection'}
+              {testingConnection ? 'A testar...' : 'Testar ligação'}
             </Button>
 
             <p className="text-xs text-gray-500 px-1">
-              A test event will be sent to your Google Analytics. Check your GA account in 5-10 seconds.
+              Será enviado um evento de teste para o seu Google Analytics. Verifique a conta GA dentro de 5 a 10 segundos.
             </p>
           </div>
 
@@ -287,7 +287,7 @@ export default function AnalyticsSettingsClient() {
             className="w-full text-red-600 hover:text-red-700 hover:bg-red-50"
           >
             {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-            {loading ? 'Disconnecting...' : 'Disconnect GA'}
+            {loading ? 'A desligar...' : 'Desligar GA'}
           </Button>
         </div>
       )}

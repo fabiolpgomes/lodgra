@@ -30,7 +30,9 @@ export async function POST(request: NextRequest) {
         num_guests,
         total_amount,
         currency,
+        preferred_locale,
         property_listing_id,
+        guests:guests!reservations_guest_id_fkey(preferred_locale),
         properties:properties!reservations_property_org_fk(name, city, slug, organization_id, currency)
       `)
       .eq('id', reservationId)
@@ -45,8 +47,8 @@ export async function POST(request: NextRequest) {
     }
 
     const propertyRelation = reservation.properties as unknown as
-      | { name: string; slug: string | null; city: string | null; currency: string | null }
-      | Array<{ name: string; slug: string | null; city: string | null; currency: string | null }>
+      | { name: string; slug: string | null; city: string | null; currency: string | null; organization_id: string }
+      | Array<{ name: string; slug: string | null; city: string | null; currency: string | null; organization_id: string }>
       | null
     const property = Array.isArray(propertyRelation) ? propertyRelation[0] : propertyRelation
     if (!property) {
@@ -66,11 +68,15 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    const guestRelation = reservation.guests as unknown as { preferred_locale: string | null } | Array<{ preferred_locale: string | null }> | null
+    const guestProfile = Array.isArray(guestRelation) ? guestRelation[0] : guestRelation
+
     const emailData: BookingEmailData = {
       reservationId: reservation.id,
       propertyName: property.name,
       propertySlug: property.slug,
       propertyCity: property.city,
+      organizationId: property.organization_id,
       checkIn: reservation.check_in,
       checkOut: reservation.check_out,
       guestName: reservation.guest_name || 'Hóspede',
@@ -79,6 +85,7 @@ export async function POST(request: NextRequest) {
       totalAmount: reservation.total_amount ? parseFloat(String(reservation.total_amount)) : 0,
       currency,
       appUrl: process.env.NEXT_PUBLIC_APP_URL || '',
+      preferredLocale: reservation.preferred_locale ?? guestProfile?.preferred_locale ?? null,
     }
 
     // Send emails

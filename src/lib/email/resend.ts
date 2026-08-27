@@ -1,4 +1,5 @@
 import { Resend } from 'resend'
+import { formatBookingDate, getBookingConfirmationSubject, getBookingEmailCopy } from './booking-locale'
 
 function getResendClient() {
   const apiKey = process.env.RESEND_API_KEY
@@ -172,6 +173,7 @@ export async function sendDailySummary({
  */
 export async function sendReservationConfirmation(data: CheckInNotification) {
   if (!data.guestEmail) return null
+  const copy = getBookingEmailCopy('pt-PT')
 
   const html = `
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 600px; margin: 0 auto;">
@@ -192,12 +194,12 @@ export async function sendReservationConfirmation(data: CheckInNotification) {
             <td style="padding: 8px 0; font-weight: 600; color: #111827;">${data.propertyName}</td>
           </tr>
           <tr>
-            <td style="padding: 8px 0; color: #6b7280;">Check-in</td>
-            <td style="padding: 8px 0; font-weight: 600; color: #111827;">${new Date(data.checkIn).toLocaleDateString('pt-BR')}</td>
+            <td style="padding: 8px 0; color: #6b7280;">${copy.checkInLabel}</td>
+            <td style="padding: 8px 0; font-weight: 600; color: #111827;">${formatBookingDate(data.checkIn, 'pt-PT')}</td>
           </tr>
           <tr>
-            <td style="padding: 8px 0; color: #6b7280;">Check-out</td>
-            <td style="padding: 8px 0; font-weight: 600; color: #111827;">${new Date(data.checkOut).toLocaleDateString('pt-BR')}</td>
+            <td style="padding: 8px 0; color: #6b7280;">${copy.checkOutLabel}</td>
+            <td style="padding: 8px 0; font-weight: 600; color: #111827;">${formatBookingDate(data.checkOut, 'pt-PT')}</td>
           </tr>
           <tr>
             <td style="padding: 8px 0; color: #6b7280;">Duração</td>
@@ -234,7 +236,7 @@ export async function sendReservationConfirmation(data: CheckInNotification) {
     const { data: result, error } = await resend.emails.send({
       from: FROM_EMAIL,
       to: data.guestEmail,
-      subject: `Confirmação de Reserva - ${data.propertyName}`,
+      subject: getBookingConfirmationSubject(data.propertyName, 'pt-PT'),
       html,
     })
 
@@ -258,6 +260,7 @@ export async function sendOwnerReservationNotification(data: OwnerReservationNot
     console.warn('Owner sem email, pulando notificação de reserva')
     return null
   }
+  const copy = getBookingEmailCopy('pt-PT')
 
   const sourceLabel: Record<string, string> = {
     manual: 'Manual',
@@ -290,12 +293,12 @@ export async function sendOwnerReservationNotification(data: OwnerReservationNot
             <td style="padding: 8px 0; font-weight: 600; color: #111827;">${data.propertyName}</td>
           </tr>
           <tr>
-            <td style="padding: 8px 0; color: #6b7280;">Check-in</td>
-            <td style="padding: 8px 0; font-weight: 600; color: #111827;">${new Date(data.checkIn).toLocaleDateString('pt-BR')}</td>
+            <td style="padding: 8px 0; color: #6b7280;">${copy.checkInLabel}</td>
+            <td style="padding: 8px 0; font-weight: 600; color: #111827;">${formatBookingDate(data.checkIn, 'pt-PT')}</td>
           </tr>
           <tr>
-            <td style="padding: 8px 0; color: #6b7280;">Check-out</td>
-            <td style="padding: 8px 0; font-weight: 600; color: #111827;">${new Date(data.checkOut).toLocaleDateString('pt-BR')}</td>
+            <td style="padding: 8px 0; color: #6b7280;">${copy.checkOutLabel}</td>
+            <td style="padding: 8px 0; font-weight: 600; color: #111827;">${formatBookingDate(data.checkOut, 'pt-PT')}</td>
           </tr>
           <tr>
             <td style="padding: 8px 0; color: #6b7280;">Duração</td>
@@ -358,6 +361,7 @@ export async function sendOwnerCancellationNotification(data: OwnerCancellationN
     console.warn('Owner sem email, pulando notificação de cancelamento')
     return null
   }
+  const copy = getBookingEmailCopy('pt-PT')
 
   const sourceLabel: Record<string, string> = {
     manual: 'Manual',
@@ -390,12 +394,12 @@ export async function sendOwnerCancellationNotification(data: OwnerCancellationN
             <td style="padding: 8px 0; font-weight: 600; color: #111827;">${data.propertyName}</td>
           </tr>
           <tr>
-            <td style="padding: 8px 0; color: #6b7280;">Check-in</td>
-            <td style="padding: 8px 0; font-weight: 600; color: #111827;">${new Date(data.checkIn).toLocaleDateString('pt-BR')}</td>
+            <td style="padding: 8px 0; color: #6b7280;">${copy.checkInLabel}</td>
+            <td style="padding: 8px 0; font-weight: 600; color: #111827;">${formatBookingDate(data.checkIn, 'pt-PT')}</td>
           </tr>
           <tr>
-            <td style="padding: 8px 0; color: #6b7280;">Check-out</td>
-            <td style="padding: 8px 0; font-weight: 600; color: #111827;">${new Date(data.checkOut).toLocaleDateString('pt-BR')}</td>
+            <td style="padding: 8px 0; color: #6b7280;">${copy.checkOutLabel}</td>
+            <td style="padding: 8px 0; font-weight: 600; color: #111827;">${formatBookingDate(data.checkOut, 'pt-PT')}</td>
           </tr>
           <tr>
             <td style="padding: 8px 0; color: #6b7280;">Duração</td>

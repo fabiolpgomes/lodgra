@@ -1,4 +1,7 @@
 import sgMail from '@sendgrid/mail'
+import { differenceInDays, parseISO } from 'date-fns'
+import { formatBookingDate, getBookingEmailCopy, normalizeBookingLocale } from './booking-locale'
+import { getBookingConfirmationSubject } from './booking-locale'
 
 export interface EmailTemplateData {
   guestName: string
@@ -15,6 +18,7 @@ export interface EmailTemplateData {
   refundDeadlineDays: number
   supportEmail: string
   supportPhone: string
+  preferredLocale?: string | null
   discount?: {
     percentage: number
     amount: string
@@ -39,6 +43,8 @@ const initializeSendGrid = () => {
 }
 
 const renderHTMLTemplate = (data: EmailTemplateData): string => {
+  const locale = normalizeBookingLocale(data.preferredLocale)
+  const copy = getBookingEmailCopy(locale)
   let html = `
 <!DOCTYPE html>
 <html>
@@ -154,88 +160,99 @@ const renderHTMLTemplate = (data: EmailTemplateData): string => {
   <body>
     <div class="container">
       <div class="header">
-        <h1>Confirmação de Reserva</h1>
-        <p style="margin: 10px 0 0 0; font-size: 14px;">Lodgra - Seu espaço no Brasil</p>
+        <h1>${locale === 'en-US' ? 'Booking Confirmation' : locale === 'es-ES' ? 'Confirmación de reserva' : 'Confirmação de Reserva'}</h1>
+        <p style="margin: 10px 0 0 0; font-size: 14px;">Lodgra</p>
       </div>
 
       <div class="content">
         <div class="greeting">
-          Olá <strong>${data.guestName}</strong>,
+          ${copy.greeting} <strong>${data.guestName}</strong>,
         </div>
 
-        <p>Sua reserva foi criada com sucesso! Confira os detalhes da sua hospedagem abaixo.</p>
+        <p>${locale === 'en-US'
+          ? 'Your booking has been created successfully. Check the details below.'
+          : locale === 'es-ES'
+            ? 'Tu reserva ha sido creada con éxito. Consulta los detalles a continuación.'
+            : 'A sua reserva foi criada com sucesso! Confira os detalhes da sua estadia abaixo.'}</p>
 
         <div class="section">
-          <div class="section-title">Detalhes da Propriedade</div>
+          <div class="section-title">${locale === 'en-US' ? 'Property details' : locale === 'es-ES' ? 'Detalles de la propiedad' : 'Detalhes da Propriedade'}</div>
           <div class="detail-row">
-            <span class="detail-label">Propriedade</span>
+            <span class="detail-label">${copy.propertyLabel}</span>
             <span class="detail-value">${data.propertyName}</span>
           </div>
           <div class="detail-row">
-            <span class="detail-label">Endereço</span>
+            <span class="detail-label">${locale === 'en-US' ? 'Address' : locale === 'es-ES' ? 'Dirección' : 'Endereço'}</span>
             <span class="detail-value">${data.propertyAddress}</span>
           </div>
         </div>
 
         <div class="section">
-          <div class="section-title">Datas da Reserva</div>
+          <div class="section-title">${locale === 'en-US' ? 'Booking dates' : locale === 'es-ES' ? 'Fechas de la reserva' : 'Datas da Reserva'}</div>
           <div class="detail-row">
-            <span class="detail-label">Check-in</span>
-            <span class="detail-value">${data.checkInDate}</span>
+            <span class="detail-label">${copy.checkInLabel}</span>
+            <span class="detail-value">${formatBookingDate(data.checkInDate, locale)}</span>
           </div>
           <div class="detail-row">
-            <span class="detail-label">Check-out</span>
-            <span class="detail-value">${data.checkOutDate}</span>
+            <span class="detail-label">${copy.checkOutLabel}</span>
+            <span class="detail-value">${formatBookingDate(data.checkOutDate, locale)}</span>
           </div>
           <div class="detail-row">
-            <span class="detail-label">Noites</span>
-            <span class="detail-value">${data.nights}</span>
+            <span class="detail-label">${copy.nightsLabel}</span>
+            <span class="detail-value">${data.nights} ${locale === 'en-US' ? `night${data.nights !== 1 ? 's' : ''}` : locale === 'es-ES' ? `noche${data.nights !== 1 ? 's' : ''}` : `noite${data.nights !== 1 ? 's' : ''}`}</span>
           </div>
           <div class="detail-row">
-            <span class="detail-label">Hóspedes</span>
+            <span class="detail-label">${copy.guestsLabel}</span>
             <span class="detail-value">${data.guestCount}</span>
           </div>
         </div>
 
         <div class="section">
-          <div class="section-title">Resumo de Preços</div>
+          <div class="section-title">${locale === 'en-US' ? 'Price summary' : locale === 'es-ES' ? 'Resumen de precios' : 'Resumo de Preços'}</div>
           <div class="detail-row">
-            <span class="detail-label">Preço por noite</span>
+            <span class="detail-label">${locale === 'en-US' ? 'Price per night' : locale === 'es-ES' ? 'Precio por noche' : 'Preço por noite'}</span>
             <span class="detail-value">${data.pricePerNight}</span>
           </div>
           ${data.discount ? `<div class="detail-row">
-            <span class="detail-label">Desconto (${data.discount.percentage}%)</span>
+            <span class="detail-label">${locale === 'en-US' ? 'Discount' : locale === 'es-ES' ? 'Descuento' : 'Desconto'} (${data.discount.percentage}%)</span>
             <span class="detail-value">-${data.discount.amount}</span>
           </div>` : ''}
           <div class="price-row">
-            <span>Total</span>
+            <span>${copy.totalPriceLabel}</span>
             <span>${data.finalPrice}</span>
           </div>
         </div>
 
         <div class="section">
-          <div class="section-title">Política de Cancelamento</div>
+          <div class="section-title">${locale === 'en-US' ? 'Cancellation policy' : locale === 'es-ES' ? 'Política de cancelación' : 'Política de Cancelamento'}</div>
           <div class="cancellation-policy">
             <strong>${data.cancellationPolicyName}</strong>
             <p style="margin: 8px 0 0 0;">
-              Você pode cancelar esta reserva e receber <strong>${data.refundPercentage}%</strong> do valor até
-              <strong>${data.refundDeadlineDays} dias</strong> antes do check-in.
+              ${locale === 'en-US'
+                ? `You can cancel this booking and receive <strong>${data.refundPercentage}%</strong> of the amount up to <strong>${data.refundDeadlineDays} days</strong> before check-in.`
+                : locale === 'es-ES'
+                  ? `Puedes cancelar esta reserva y recibir <strong>${data.refundPercentage}%</strong> del importe hasta <strong>${data.refundDeadlineDays} días</strong> antes del check-in.`
+                  : `Pode cancelar esta reserva e receber <strong>${data.refundPercentage}%</strong> do valor até <strong>${data.refundDeadlineDays} dias</strong> antes do check-in.`}
             </p>
           </div>
         </div>
 
         ${data.notes ? `<div class="section">
-          <div class="section-title">Notas</div>
+          <div class="section-title">${locale === 'en-US' ? 'Notes' : locale === 'es-ES' ? 'Notas' : 'Notas'}</div>
           <p>${data.notes}</p>
         </div>` : ''}
       </div>
 
       <div class="footer">
-        <p><strong>Dúvidas ou problemas?</strong></p>
-        <p>Entre em contato conosco: ${data.supportEmail}</p>
-        <p>Telefone: ${data.supportPhone}</p>
+        <p><strong>${locale === 'en-US' ? 'Questions or issues?' : locale === 'es-ES' ? '¿Dudas o problemas?' : 'Dúvidas ou problemas?'}</strong></p>
+        <p>${copy.supportText} ${data.supportEmail}</p>
+        <p>${locale === 'en-US' ? 'Phone' : locale === 'es-ES' ? 'Teléfono' : 'Telefone'}: ${data.supportPhone}</p>
         <p style="margin-top: 15px; font-size: 11px; color: #999;">
-          Esta é uma confirmação automática. Por favor não responda a este email.
+          ${locale === 'en-US'
+            ? 'This is an automated confirmation. Please do not reply to this email.'
+            : locale === 'es-ES'
+              ? 'Esta es una confirmación automática. Por favor no respondas a este email.'
+              : 'Esta é uma confirmação automática. Por favor não responda a este email.'}
         </p>
       </div>
     </div>
@@ -246,58 +263,73 @@ const renderHTMLTemplate = (data: EmailTemplateData): string => {
 }
 
 const renderTextTemplate = (data: EmailTemplateData): string => {
-  let text = `CONFIRMAÇÃO DE RESERVA - LODGRA
+  const locale = normalizeBookingLocale(data.preferredLocale)
+  const copy = getBookingEmailCopy(locale)
 
-Olá ${data.guestName},
+  let text = `${locale === 'en-US' ? 'BOOKING CONFIRMATION - LODGRA' : locale === 'es-ES' ? 'CONFIRMACIÓN DE RESERVA - LODGRA' : 'CONFIRMAÇÃO DE RESERVA - LODGRA'}
 
-Sua reserva foi criada com sucesso! Confira os detalhes abaixo:
+${copy.greeting} ${data.guestName},
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-DETALHES DA PROPRIEDADE
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Propriedade: ${data.propertyName}
-Endereço: ${data.propertyAddress}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-DATAS DA RESERVA
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Check-in: ${data.checkInDate}
-Check-out: ${data.checkOutDate}
-Noites: ${data.nights}
-Hóspedes: ${data.guestCount}
+${locale === 'en-US'
+  ? 'Your booking has been created successfully. Check the details below:'
+  : locale === 'es-ES'
+    ? 'Tu reserva ha sido creada con éxito. Consulta los detalles a continuación:'
+    : 'A sua reserva foi criada com sucesso! Confira os detalhes abaixo:'}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-RESUMO DE PREÇOS
+${locale === 'en-US' ? 'PROPERTY DETAILS' : locale === 'es-ES' ? 'DETALLES DE LA PROPIEDAD' : 'DETALHES DA PROPRIEDADE'}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Preço por noite: ${data.pricePerNight}
-${data.discount ? `Desconto (${data.discount.percentage}%): -${data.discount.amount}` : ''}
+${copy.propertyLabel}: ${data.propertyName}
+${locale === 'en-US' ? 'Address' : locale === 'es-ES' ? 'Dirección' : 'Endereço'}: ${data.propertyAddress}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${locale === 'en-US' ? 'BOOKING DATES' : locale === 'es-ES' ? 'FECHAS DE LA RESERVA' : 'DATAS DA RESERVA'}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+${copy.checkInLabel}: ${formatBookingDate(data.checkInDate, locale)}
+${copy.checkOutLabel}: ${formatBookingDate(data.checkOutDate, locale)}
+${copy.nightsLabel}: ${data.nights} ${locale === 'en-US' ? `night${data.nights !== 1 ? 's' : ''}` : locale === 'es-ES' ? `noche${data.nights !== 1 ? 's' : ''}` : `noite${data.nights !== 1 ? 's' : ''}`}
+${copy.guestsLabel}: ${data.guestCount}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${locale === 'en-US' ? 'PRICE SUMMARY' : locale === 'es-ES' ? 'RESUMEN DE PRECIOS' : 'RESUMO DE PREÇOS'}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+${locale === 'en-US' ? 'Price per night' : locale === 'es-ES' ? 'Precio por noche' : 'Preço por noite'}: ${data.pricePerNight}
+${data.discount ? `${locale === 'en-US' ? 'Discount' : locale === 'es-ES' ? 'Descuento' : 'Desconto'} (${data.discount.percentage}%): -${data.discount.amount}` : ''}
 ──────────────────────────────────────────
-TOTAL: ${data.finalPrice}
+${copy.totalPriceLabel.toUpperCase()}: ${data.finalPrice}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-POLÍTICA DE CANCELAMENTO
+${locale === 'en-US' ? 'CANCELLATION POLICY' : locale === 'es-ES' ? 'POLÍTICA DE CANCELACIÓN' : 'POLÍTICA DE CANCELAMENTO'}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Política: ${data.cancellationPolicyName}
+${locale === 'en-US' ? 'Policy' : locale === 'es-ES' ? 'Política' : 'Política'}: ${data.cancellationPolicyName}
 
-Você pode cancelar esta reserva e receber ${data.refundPercentage}% do valor até ${data.refundDeadlineDays} dias antes do check-in.
+${locale === 'en-US'
+  ? `You can cancel this booking and receive ${data.refundPercentage}% of the amount up to ${data.refundDeadlineDays} days before check-in.`
+  : locale === 'es-ES'
+    ? `Puedes cancelar esta reserva y recibir ${data.refundPercentage}% del importe hasta ${data.refundDeadlineDays} días antes del check-in.`
+    : `Pode cancelar esta reserva e receber ${data.refundPercentage}% do valor até ${data.refundDeadlineDays} dias antes do check-in.`}
 
 ${data.notes ? `NOTAS:\n${data.notes}\n` : ''}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-PRECISA DE AJUDA?
+${locale === 'en-US' ? 'NEED HELP?' : locale === 'es-ES' ? '¿NECESITAS AYUDA?' : 'PRECISA DE AJUDA?'}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Email: ${data.supportEmail}
-Telefone: ${data.supportPhone}
+${locale === 'en-US' ? 'Phone' : locale === 'es-ES' ? 'Teléfono' : 'Telefone'}: ${data.supportPhone}
 
-Obrigado por escolher Lodgra!
+${locale === 'en-US' ? 'Thank you for choosing Lodgra!' : locale === 'es-ES' ? '¡Gracias por elegir Lodgra!' : 'Obrigado por escolher Lodgra!'}
 
 ---
-Esta é uma confirmação automática. Por favor não responda a este email.
+${locale === 'en-US'
+  ? 'This is an automated confirmation. Please do not reply to this email.'
+  : locale === 'es-ES'
+    ? 'Esta es una confirmación automática. Por favor no respondas a este email.'
+    : 'Esta é uma confirmação automática. Por favor não responda a este email.'}
   `
   return text
 }
@@ -324,10 +356,11 @@ export async function sendReservationConfirmationEmail(
     const htmlContent = renderHTMLTemplate(templateData)
     const textContent = renderTextTemplate(templateData)
 
+    const locale = normalizeBookingLocale(templateData.preferredLocale)
     const msg = {
       to: guestEmail,
       from: process.env.SENDGRID_FROM_EMAIL || 'noreply@lodgra.io',
-      subject: 'Confirmação de Reserva - Lodgra',
+      subject: getBookingConfirmationSubject('Lodgra', locale),
       text: textContent,
       html: htmlContent,
     }

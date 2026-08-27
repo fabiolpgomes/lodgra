@@ -2,9 +2,14 @@ import Handlebars from 'handlebars'
 import mjml2html from 'mjml'
 import * as fs from 'fs'
 import * as path from 'path'
+import { BOOKING_STANDARD_VERSION, getBookingConfirmationSubject, getBookingEmailCopy } from './booking-locale'
+import { generateUnsubscribeToken as createSignedUnsubscribeToken } from './security'
 
 interface EmailVariables {
   customerName: string
+  reservationNumber?: string
+  nights?: string
+  guestCount?: string
   propertyName: string
   checkInDate: string
   checkOutDate: string
@@ -12,7 +17,24 @@ interface EmailVariables {
   currency: string
   bookingUrl: string
   unsubscribeUrl: string
-  [key: string]: string | boolean | null | undefined
+  templateVersion: string
+  copy: {
+    previewText: string
+    greeting: string
+    intro: string
+    reservationLabel: string
+    nightsLabel: string
+    guestsLabel: string
+    propertyLabel: string
+    checkInLabel: string
+    checkOutLabel: string
+    totalPriceLabel: string
+    ctaLabel: string
+    supportText: string
+    rightsText: string
+    unsubscribeText: string
+  }
+  [key: string]: unknown
 }
 
 // Cache compiled template
@@ -45,14 +67,15 @@ export async function renderEmailTemplate(
     // Get compiled template
     const template = getCompiledTemplate()
 
-    // Sanitize variables to prevent XSS
-    const sanitizedVariables = sanitizeVariables(variables)
-
-    // Render MJML with Handlebars
-    const mjmlContent = template(sanitizedVariables)
+    // Render MJML with Handlebars.
+    // Handlebars escapes interpolated values by default, which is enough here.
+    const mjmlContent = template(variables)
 
     // Convert MJML to HTML
-    const { html, errors } = mjml2html(mjmlContent)
+    const { html, errors = [] } = (await mjml2html(mjmlContent)) as {
+      html: string
+      errors?: Array<unknown>
+    }
 
     if (errors.length > 0) {
       console.warn('MJML rendering warnings:', errors)
@@ -65,68 +88,33 @@ export async function renderEmailTemplate(
   }
 }
 
-/**
- * Sanitize template variables to prevent HTML/XSS injection
- * Handlebars {{variable}} automatically HTML-escapes, but we double-check
- */
-function sanitizeVariables(variables: EmailVariables): EmailVariables {
-  const sanitized: EmailVariables = {} as EmailVariables
-
-  for (const [key, value] of Object.entries(variables)) {
-    if (typeof value === 'string') {
-      // HTML escape the value
-      sanitized[key] = htmlEscape(value)
-    } else {
-      sanitized[key] = value
-    }
-  }
-
-  return sanitized
-}
-
-/**
- * HTML escape a string to prevent injection
- */
-function htmlEscape(str: string): string {
-  const map: { [key: string]: string } = {
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#039;',
-  }
-  return str.replace(/[&<>"']/g, (char) => map[char])
-}
-
-/**
- * Generate unsubscribe token (JWT-like signed token)
- * For now, returns a placeholder - implement proper JWT signing in production
- */
 export function generateUnsubscribeToken(organizationId: string, customerEmail: string): string {
-  // TODO: Implement proper JWT signing
-  // For now, return base64 encoded combination
-  const payload = `${organizationId}:${customerEmail}`
-  return Buffer.from(payload).toString('base64')
+  return createSignedUnsubscribeToken(organizationId, customerEmail)
 }
 
 /**
  * Test if email rendering works
  */
 export async function testEmailRendering(): Promise<void> {
+  const copy = getBookingEmailCopy('pt-PT')
   const testVariables: EmailVariables = {
     customerName: 'John Doe',
+    reservationNumber: 'AHS-TEST-001',
+    nights: '3',
     propertyName: 'Sunny Beach Resort',
-    checkInDate: 'May 25, 2026',
-    checkOutDate: 'May 30, 2026',
+    checkInDate: '25 de maio de 2026',
+    checkOutDate: '30 de maio de 2026',
     totalPrice: '1250.00',
-    currency: 'USD',
+    currency: 'EUR',
     bookingUrl: 'https://example.com/bookings/123',
     unsubscribeUrl: 'https://lodgra.io/unsubscribe?token=abc123',
-    subject: 'Booking Confirmation',
+    templateVersion: BOOKING_STANDARD_VERSION,
+    copy,
+    subject: getBookingConfirmationSubject('Sunny Beach Resort', 'pt-PT'),
     organizationName: 'Sunny Beach Resort',
     logoUrl: null,
     replyToEmail: 'support@example.com',
-    footerText: 'Thank you for booking with us!',
+    footerText: 'Obrigado por reservar connosco!',
     year: new Date().getFullYear().toString(),
     primaryColor: '#1E40AF',
   }
