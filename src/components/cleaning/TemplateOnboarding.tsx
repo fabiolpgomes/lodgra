@@ -17,7 +17,7 @@ const ONBOARDING_STEPS: OnboardingStep[] = [
     details: [
       'Economize tempo criando tarefas rapidamente',
       'Garanta consistência em todas as limpezas',
-      'Customize por propriedade ou use globalmente',
+      'Personalize por propriedade ou use globalmente',
       'Reutilize e adapte templates existentes',
     ],
     icon: '📋',
@@ -26,8 +26,8 @@ const ONBOARDING_STEPS: OnboardingStep[] = [
     title: 'Tipos de Templates',
     description: 'Você pode criar dois tipos de templates:',
     details: [
-      '🌍 Templates Globais: Usados em toda a organização por padrão',
-      '🏠 Templates por Propriedade: Customizados para cada imóvel específico',
+      '🌍 Templates globais: usados em toda a organização por padrão',
+      '🏠 Templates por propriedade: personalizados para cada imóvel específico',
       'Marque um como "Padrão" para auto-selecionar ao criar tarefas',
       'Cada propriedade pode ter múltiplos templates',
     ],
@@ -37,8 +37,8 @@ const ONBOARDING_STEPS: OnboardingStep[] = [
     title: 'Como Criar um Template',
     description: 'Siga estes passos simples:',
     details: [
-      '1. Clique em "+ Novo Template"',
-      '2. Escolha o escopo (Global ou Propriedade)',
+      '1. Clique em "+ Novo template"',
+      '2. Escolha o âmbito (Global ou Propriedade)',
       '3. Adicione um nome e descrição',
       '4. Configure os itens do checklist com categorias',
       '5. Marque itens obrigatórios se necessário',
@@ -48,13 +48,13 @@ const ONBOARDING_STEPS: OnboardingStep[] = [
   },
   {
     title: 'Usando Templates em Tarefas',
-    description: 'Quando você cria uma nova tarefa de limpeza:',
+    description: 'Quando cria uma nova tarefa de limpeza:',
     details: [
       '1. Selecione a propriedade',
       '2. O template padrão é carregado automaticamente',
-      '3. Você pode trocar para outro template da mesma propriedade',
+      '3. Pode trocar para outro template da mesma propriedade',
       '4. Ou criar a tarefa sem template (checklist em branco)',
-      'O cleaner verá o checklist e marca itens conforme termina',
+      'O colaborador de limpeza verá o checklist e marcará os itens à medida que termina',
     ],
     icon: '✅',
   },

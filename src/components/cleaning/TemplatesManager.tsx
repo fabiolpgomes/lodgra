@@ -40,7 +40,7 @@ export default function TemplatesManager({
     try {
       setLoading(true);
       const response = await fetch('/api/cleaning/templates');
-      if (!response.ok) throw new Error('Failed to fetch templates');
+      if (!response.ok) throw new Error('Falha ao carregar templates');
 
       const { templates: data } = await response.json();
       setTemplates(data);
@@ -52,7 +52,7 @@ export default function TemplatesManager({
   };
 
   const handleDelete = async (templateId: string) => {
-    if (!confirm('Tem a certeza que deseja deletar este template?')) return;
+    if (!confirm('Tem a certeza que deseja eliminar este template?')) return;
 
     try {
       const response = await fetch(`/api/cleaning/templates/${templateId}`, {
@@ -61,7 +61,7 @@ export default function TemplatesManager({
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to delete template');
+        throw new Error(errorData.error || 'Falha ao eliminar o template');
       }
 
       setTemplates(templates.filter((t) => t.id !== templateId));
@@ -76,7 +76,7 @@ export default function TemplatesManager({
         method: 'POST',
       });
 
-      if (!response.ok) throw new Error('Failed to set default');
+      if (!response.ok) throw new Error('Falha ao definir como padrão');
 
       await refreshTemplates();
     } catch (err) {
@@ -98,7 +98,7 @@ export default function TemplatesManager({
         }),
       });
 
-      if (!response.ok) throw new Error('Failed to duplicate template');
+      if (!response.ok) throw new Error('Falha ao duplicar o template');
 
       await refreshTemplates();
     } catch (err) {
@@ -135,7 +135,7 @@ export default function TemplatesManager({
           }}
           className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 font-medium"
         >
-          + Novo Template
+          + Novo template
         </button>
       </div>
 
@@ -143,7 +143,7 @@ export default function TemplatesManager({
       {groupedTemplates.global.length > 0 && (
         <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
           <div className="bg-gray-50 px-6 py-4 border-b font-semibold text-gray-900">
-            Templates Globais
+            Templates globais
           </div>
 
           <div className="divide-y">
@@ -167,7 +167,7 @@ export default function TemplatesManager({
                       onClick={() => handleSetDefault(template.id)}
                       className="px-3 py-2 text-xs bg-gray-100 hover:bg-gray-200 rounded-lg"
                     >
-                      Definir como Padrão
+                      Definir como padrão
                     </button>
                   )}
                   <button
@@ -190,7 +190,7 @@ export default function TemplatesManager({
                     onClick={() => handleDelete(template.id)}
                     className="px-3 py-2 text-xs bg-red-100 text-red-700 hover:bg-red-200 rounded-lg"
                   >
-                    Deletar
+                    Eliminar
                   </button>
                 </div>
               </div>
@@ -232,7 +232,7 @@ export default function TemplatesManager({
                         onClick={() => handleSetDefault(template.id)}
                         className="px-3 py-2 text-xs bg-gray-100 hover:bg-gray-200 rounded-lg"
                       >
-                        Definir como Padrão
+                        Definir como padrão
                       </button>
                     )}
                     <button
@@ -255,7 +255,7 @@ export default function TemplatesManager({
                       onClick={() => handleDelete(template.id)}
                       className="px-3 py-2 text-xs bg-red-100 text-red-700 hover:bg-red-200 rounded-lg"
                     >
-                      Deletar
+                      Eliminar
                     </button>
                   </div>
                 </div>
@@ -296,7 +296,7 @@ export default function TemplatesManager({
               }}
               className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
             >
-              + Criar Custom
+              + Criar personalizado
             </button>
             <InitializeTemplatesButton onComplete={refreshTemplates} />
           </div>

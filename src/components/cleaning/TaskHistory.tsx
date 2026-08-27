@@ -32,11 +32,11 @@ export default function TaskHistory({ taskId, isOpen, onClose }: TaskHistoryProp
     setLoading(true);
     try {
       const res = await fetch(`/api/cleaning/tasks/${taskId}/history`);
-      if (!res.ok) throw new Error('Failed to fetch history');
+      if (!res.ok) throw new Error('Falha ao carregar o histórico');
       const data = await res.json();
       setHistory(data.history || []);
     } catch (error) {
-      console.error('Error fetching history:', error);
+      console.error('Erro ao carregar histórico:', error);
     } finally {
       setLoading(false);
     }
@@ -57,14 +57,14 @@ export default function TaskHistory({ taskId, isOpen, onClose }: TaskHistoryProp
         body: JSON.stringify({ historyId, reason: revertReason }),
       });
 
-      if (!res.ok) throw new Error('Failed to revert');
+      if (!res.ok) throw new Error('Falha ao reverter');
 
       alert('✅ Tarefa revertida com sucesso!');
       setRevertReason('');
       await fetchHistory();
       window.location.reload();
     } catch (error) {
-      console.error('Error reverting:', error);
+      console.error('Erro ao reverter:', error);
       alert('Erro ao reverter tarefa');
     } finally {
       setReverting(null);
@@ -198,7 +198,7 @@ export default function TaskHistory({ taskId, isOpen, onClose }: TaskHistoryProp
                           className="mt-2 text-xs px-3 py-1 bg-amber-500 text-white rounded hover:bg-amber-600 disabled:opacity-50 flex items-center gap-1"
                         >
                           <RotateCcw className="w-3 h-3" />
-                          {reverting === entry.id ? 'Revertendo...' : 'Reverter para aqui'}
+                          {reverting === entry.id ? 'A reverter...' : 'Reverter para este ponto'}
                         </button>
                       )}
                     </div>

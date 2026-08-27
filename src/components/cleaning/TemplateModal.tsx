@@ -54,7 +54,7 @@ export default function TemplateModal({
   const loadTemplate = async () => {
     try {
       const response = await fetch(`/api/cleaning/templates/${templateId}`);
-      if (!response.ok) throw new Error('Failed to load template');
+      if (!response.ok) throw new Error('Falha ao carregar o template');
 
       const { template } = await response.json();
       setName(template.name);
@@ -69,12 +69,12 @@ export default function TemplateModal({
 
   const handleSubmit = async () => {
     if (!name.trim()) {
-      setError('Template name is required');
+      setError('O nome do template é obrigatório');
       return;
     }
 
     if (items.length === 0) {
-      setError('Add at least one item to the checklist');
+      setError('Adicione pelo menos um item à checklist');
       return;
     }
 
@@ -101,7 +101,7 @@ export default function TemplateModal({
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to save template');
+        throw new Error(errorData.error || 'Falha ao guardar o template');
       }
 
       onSaved?.();
@@ -121,7 +121,7 @@ export default function TemplateModal({
         {/* Header */}
         <div className="sticky top-0 bg-white border-b p-6 flex justify-between items-center">
           <h2 className="text-xl font-bold">
-            {templateId ? 'Editar Template' : 'Novo Template de Limpeza'}
+            {templateId ? 'Editar template' : 'Novo template de limpeza'}
           </h2>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
             ✕
@@ -138,7 +138,7 @@ export default function TemplateModal({
 
           {/* Scope Selection */}
           <div className="bg-gray-50 rounded-lg p-4 space-y-3">
-            <h3 className="text-sm font-medium text-gray-700">Escopo do Template</h3>
+            <h3 className="text-sm font-medium text-gray-700">Âmbito do template</h3>
             <div className="space-y-2">
               <label className="flex items-center gap-2">
                 <input
@@ -150,7 +150,7 @@ export default function TemplateModal({
                   }}
                   className="w-4 h-4"
                 />
-                <span className="text-sm">Propriedade Específica</span>
+                <span className="text-sm">Propriedade específica</span>
               </label>
 
               {!isGlobal && (
@@ -178,7 +178,7 @@ export default function TemplateModal({
                   }}
                   className="w-4 h-4"
                 />
-                <span className="text-sm">Template Global (Organização)</span>
+                <span className="text-sm">Template global (organização)</span>
               </label>
             </div>
           </div>
@@ -207,7 +207,7 @@ export default function TemplateModal({
             disabled={loading}
             className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 font-medium"
           >
-            {loading ? 'Salvando...' : templateId ? 'Atualizar' : 'Criar Template'}
+            {loading ? 'A guardar...' : templateId ? 'Atualizar' : 'Criar template'}
           </button>
         </div>
       </div>
