@@ -24,6 +24,11 @@ const COUNTRY_FLAGS: Record<string, string> = {
 export function ReservationRow({ reservation }: ReservationRowProps) {
   const router = useRouter()
   const locale = useLocale()
+  const reservationNotes = reservation.notes || ''
+  const minimumOverrideMatch = reservationNotes.match(
+    /Exceção aprovada para mínimo de noites:\s*(\d+)\s*noites?/i
+  )
+  const hasApprovedMinimumOverride = Boolean(minimumOverrideMatch)
 
   // Get property from direct relationship or nested listing
   const rawProperty = reservation.properties || (reservation.property_listings as any)?.[0]?.properties
@@ -112,13 +117,29 @@ export function ReservationRow({ reservation }: ReservationRowProps) {
       </td>
 
       <td className="px-2.5 py-2.5 whitespace-nowrap w-28">
-        <Badge className={`${status.className} text-xs`}>
-          {status.label}
-        </Badge>
+        <div className="flex flex-col gap-1">
+          <Badge className={`${status.className} text-xs w-fit`}>
+            {status.label}
+          </Badge>
+          {hasApprovedMinimumOverride && (
+            <Badge className="w-fit text-[10px] font-semibold bg-amber-100 text-amber-800 hover:bg-amber-100">
+              Mín. {minimumOverrideMatch?.[1] || '-'} noites aprovado
+            </Badge>
+          )}
+        </div>
       </td>
 
       <td className="px-2.5 py-2.5 whitespace-nowrap text-xs text-brand-text-dark w-24">
-        {formatCurrency(reservation.total_price || reservation.total_amount || 0, ((property as { currency?: string } | null)?.currency || reservation.currency || 'EUR') as CurrencyCode)}
+        {(() => {
+          const amount = reservation.total_price || reservation.total_amount || 0
+          const currency = (property as { currency?: string } | null)?.currency?.toUpperCase()
+            || reservation.currency?.toUpperCase()
+            || null
+
+          return currency
+            ? formatCurrency(amount, currency as CurrencyCode)
+            : Number(amount).toFixed(2)
+        })()}
       </td>
 
       <td className="px-2.5 py-2.5 whitespace-nowrap text-right w-20">

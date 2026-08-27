@@ -20,8 +20,12 @@ interface CancellationRefundSummaryProps {
 export function CancellationRefundSummary({
   refundInfo,
   alreadyCancelled,
-  currency = 'EUR',
+  currency,
 }: CancellationRefundSummaryProps) {
+  const formatRefundAmount = (amount: number): string => {
+    return currency ? formatCurrency(amount, currency) : amount.toFixed(2);
+  };
+
   if (refundInfo) {
     return (
       <Alert className="mb-4 border-emerald-200 bg-emerald-50 text-emerald-900">
@@ -30,7 +34,7 @@ export function CancellationRefundSummary({
         <AlertDescription className="text-emerald-900">
           <div className="space-y-2 pt-1">
             <p>
-              Reembolso: <strong>{formatCurrency(refundInfo.refund_amount, currency)}</strong>
+              Reembolso: <strong>{formatRefundAmount(refundInfo.refund_amount)}</strong>
             </p>
             <p>
               Percentual: <strong>{refundInfo.refund_percentage}%</strong>

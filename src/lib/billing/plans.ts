@@ -81,26 +81,26 @@ export interface PlanDisplay {
 export const PLAN_DISPLAY: PlanDisplay[] = [
   {
     id: 'essencial', name: 'Essencial', highlighted: false, enterprise: false,
-    price: 59, description: 'Saia da planilha. Controle uma unidade com lucro claro.', properties: '1 unidade incluída (+R$49 por unidade extra)',
-    features: ['Motor de Reserva Direta', 'Sync iCal', 'Calendário unificado', 'Gestão básica de reservas'],
+    price: 59, description: 'Saia da folha de cálculo. Controle uma unidade com lucro claro.', properties: '1 unidade incluída (+R$49 por unidade extra)',
+    features: ['Motor de Reserva Direta', 'Sincronização iCal', 'Calendário unificado', 'Gestão básica de reservas'],
   },
   {
     id: 'expansao', name: 'Expansão', highlighted: true, enterprise: false,
     price: 149, description: 'Coordene sem caos. Até 3 unidades e automações de limpeza.', properties: '3 unidades incluídas (+R$49 por unidade extra)',
-    features: ['Tudo do Essencial', 'Portal de Limpadores (WhatsApp)', 'Relatórios por Proprietário', 'Equipe até 5 pessoas'],
+    features: ['Tudo do Essencial', 'Portal de Colaboradores (WhatsApp)', 'Relatórios por proprietário', 'Equipa até 5 pessoas'],
   },
   {
     id: 'premium', name: 'Premium', highlighted: false, enterprise: false,
-    price: 397, description: 'Automatize operação e receita. Inteligência para grandes portfólios.', properties: 'Propriedades ilimitadas',
-    features: ['Tudo do Expansão', 'API Completa', 'Forecast & BI Avançado', 'Gerente Dedicado', 'Propriedades ilimitadas'],
+    price: 397, description: 'Automatize operações e receita. Inteligência para grandes portfólios.', properties: 'Propriedades ilimitadas',
+    features: ['Tudo do Expansão', 'API completa', 'Previsão e BI avançado', 'Gestor dedicado', 'Propriedades ilimitadas'],
   },
   {
     id: 'enterprise', name: 'Enterprise', highlighted: false, enterprise: true,
-    price: 0, description: 'Para grandes operações com requisitos customizados', properties: 'Volume personalizado',
-    features: ['Tudo do Premium', 'Onboarding dedicado', 'SLA garantido', 'Contrato customizado'],
+    price: 0, description: 'Para grandes operações com requisitos personalizados', properties: 'Volume personalizado',
+    features: ['Tudo do Premium', 'Onboarding dedicado', 'SLA garantido', 'Contrato personalizado'],
   },
   {
-    id: 'development', name: 'Development', highlighted: false, enterprise: false,
+    id: 'development', name: 'Desenvolvimento', highlighted: false, enterprise: false,
     price: 0, description: 'Laboratório de testes para desenvolvimento', properties: '99 unidades (ambiente de teste)',
     features: ['Completo', 'Sem limites para testes', 'Ambiente isolado', 'Documentação completa'],
   },

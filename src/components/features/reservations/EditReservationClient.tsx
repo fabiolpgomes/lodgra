@@ -201,7 +201,7 @@ export function EditReservationClient({ reservation, locale }: EditReservationCl
             <div className="bg-[#C9A227]/10 border border-[#C9A227]/30 rounded-[8px] p-3 text-sm text-[#C9A227] mb-6">
               ⚠️ Certifique-se de notificar o hóspede antes de cancelar.
             </div>
-            <div className="flex gap-3 justify-end">
+            <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
               <Button
                 variant="outline"
                 className="border-[#E5DFD2] text-[#1B2430] hover:bg-[#F7F5EF]"
@@ -240,7 +240,7 @@ export function EditReservationClient({ reservation, locale }: EditReservationCl
             <div className="bg-[#9f2f1f]/10 border border-[#9f2f1f]/30 rounded-[8px] p-3 text-sm text-[#9f2f1f] mb-6">
               🚨 Apenas reservas canceladas podem ser excluídas. Esta operação é auditada para conformidade.
             </div>
-            <div className="flex gap-3 justify-end">
+            <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
               <Button
                 variant="outline"
                 className="border-[#E5DFD2] text-[#1B2430] hover:bg-[#F7F5EF]"

@@ -16,7 +16,7 @@ export async function whatsappAutomationGate(
     if (!featureCheck.enabled) {
       return NextResponse.json(
         {
-          error: 'WhatsApp Automation not available',
+          error: 'Automação WhatsApp indisponível',
           reason: featureCheck.reason,
           message: featureCheck.message,
           upgrade_required: true,
@@ -28,9 +28,9 @@ export async function whatsappAutomationGate(
     // Feature is enabled, allow request to proceed
     return null;
   } catch (error) {
-    console.error('Error in whatsappAutomationGate:', error);
+    console.error('Erro em whatsappAutomationGate:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Erro interno do servidor' },
       { status: 500 }
     );
   }
