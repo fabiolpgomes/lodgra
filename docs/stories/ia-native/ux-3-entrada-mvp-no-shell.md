@@ -229,3 +229,62 @@ This story is ready to move to PM-3 when:
 - a próxima story da cadeia é PM-3
 - a validação de closeout segue em QA-3 depois da PM-3
 - manter o recorte aberto para novas capabilities sem alterar a base do shell
+
+## Session Update - 2026-08-24
+
+### What was confirmed
+- the live shell already presents the module as `Property Intelligence`
+- the supporting line now reads as a clear decision-support statement
+- the entry stays native to the shell while keeping the novelty signal subtle
+- the landing copy remains open for future capabilities without pinning expansion to a single use case
+
+## Session Update - 2026-08-26
+
+### What was refined
+- the execution block now uses a higher-contrast command panel so the primary action stays visible
+- the CTA is positioned as an explicit first-class action instead of being buried at the bottom of the page
+- the surrounding copy was tightened to reduce visual noise and guide the user toward the report generation flow
+- the selection controls were adjusted to wrap more safely on smaller widths and avoid text collisions
+- the bottom utility area now avoids duplicating the main CTA, which keeps the page cleaner and makes the flow easier to scan
+- the results column now opens with a premium summary panel before the technical cards, so the reading order feels more executive and less dense
+- the IA Native module entry is now always visible in the menu, so discovery does not depend on the access check finishing first
+
+### Validation completed
+- reviewed the live `IA Native` shell entry in `src/app/[locale]/ia-native/page.tsx`
+- confirmed the module uses the primary `Property Intelligence` label
+- confirmed the entry language frames the module as analysis and return estimation before operations
+
+## Session Update - 2026-08-26
+
+### What was refined
+- the analysis entry now keeps the primary action visually anchored near the top and exposes a direct jump target for `Executar análise`
+- the selected option states were strengthened so the chosen response stays readable on the premium background
+- the entry remains framed as a decision-support capability, but now the path to execute the analysis is more obvious
+
+### Validation to complete
+- confirm the sticky/anchored execution CTA is easy to discover on desktop and mobile
+- confirm selected options retain contrast after interaction
+- confirm the new anchor flow reduces the feeling of a cluttered form
+
+## Dev Agent Record
+
+### Progress
+
+- Refined the IA Native landing hero to use more premium, decision-support language without sounding experimental
+- Added a subtle trust cue row that makes research, deterministic finance and human review visible above the fold
+- Kept the primary module label as `Property Intelligence` and preserved the shell-native entry pattern
+- Aligned the analysis entry page copy so the module and its workbench speak the same product language
+- Strengthened the analysis workbench CTA hierarchy and option contrast so the first execution path is harder to miss
+
+### File List
+
+- `src/app/[locale]/ia-native/page.tsx`
+- `src/app/[locale]/ia-native/analyze/page.tsx`
+- `docs/stories/ia-native/ux-3-entrada-mvp-no-shell.md`
+- `src/components/features/property-intelligence/PropertyIntelligenceWorkbench.tsx`
+
+### Validation
+
+- `npm test -- --runInBand src/__tests__/navigation/module-shell.test.ts src/__tests__/components/common/layout/Sidebar.test.tsx`
+- `npm run typecheck`
+- `npm run lint`

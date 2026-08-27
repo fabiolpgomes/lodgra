@@ -130,3 +130,15 @@ The staging foundation is now validated in the local dev loop.
 1. start from the reusable cancellation summary component
 2. decide whether the next step is a second cancellation surface or the next epic front
 3. keep the pricing/cancellation flow as the baseline and only extend it if a new requirement appears
+
+## 9. Session Update - 2026-08-24 (Epic Closeout)
+
+### What was finalized
+- QA-3 completed with PASS and confirmed the expansion policy as the reusable governance gate
+- PM-3, UX-3 and DEV-4 now stand as the aligned closeout chain for the IA Native capability
+- the epic now has a full lifecycle record from shell modularization through integration and expansion governance
+
+### Practical implication
+- future capability requests should reuse the core / capability / extension policy instead of reopening the MVP boundary
+- the next planning cycle can start from a validated shell, a validated MVP and a validated expansion gate
+- the epic is now ready to be used as a reference model for the next modular wave

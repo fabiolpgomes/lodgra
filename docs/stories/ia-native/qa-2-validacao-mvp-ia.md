@@ -187,16 +187,16 @@ Use this script exactly as written when running the QA agent in yolo mode.
 > If everything matches, mark the run as `Approved for DEV-4`; otherwise list the exact blocker and keep the capability isolated.
 
 ### Yolo checklist
-- [ ] Run the same valid input twice
-- [ ] Compare trace id, status, recommendation and scenario outputs
-- [ ] Confirm output is stable across runs
-- [ ] Confirm Markdown and JSON are both emitted
-- [ ] Confirm telemetry start/end events are visible
-- [ ] Confirm provenance stays attached to the result
-- [ ] Run a broken input without `property.location`
-- [ ] Run a broken input without `property.typology`
-- [ ] Confirm blocked-input output does not invent missing data
-- [ ] Decide `Approved for DEV-4` or `Needs changes`
+- [x] Run the same valid input twice
+- [x] Compare trace id, status, recommendation and scenario outputs
+- [x] Confirm output is stable across runs
+- [x] Confirm Markdown and JSON are both emitted
+- [x] Confirm telemetry start/end events are visible
+- [x] Confirm provenance stays attached to the result
+- [x] Run a broken input without `property.location`
+- [x] Run a broken input without `property.typology`
+- [x] Confirm blocked-input output does not invent missing data
+- [x] Decide `Approved for DEV-4` or `Needs changes`
 
 ## QA Results
 
@@ -230,6 +230,63 @@ Local execution of the DEV-3 baseline confirmed that the MVP behaves determinist
 - preserve isolation until the integration step is complete
 - keep the blocked-input behavior under regression test
 
+## QA Results - 2026-08-24
+
+**Review Type:** Execution QA review
+**Decision:** APPROVED FOR DEV-4
+
+### Summary
+The yolo-mode rerun on 2026-08-24 confirmed the same behavior as the prior baseline: equivalent inputs produced stable logical outputs, Markdown and JSON were both emitted, telemetry start/end events were visible, and blocked inputs returned blockers instead of inferred data.
+
+### Evidence
+- `npm test -- --runInBand src/__tests__/property-intelligence/property-intelligence.test.ts`
+- `npm run property-intelligence -- --input docs/stories/ia-native/property-intelligence-example.input.json --format both` twice
+- broken input without `property.location`
+- broken input without `property.typology`
+- telemetry start/end visible in the CLI output
+- provenance retained on the computed scenarios and comparables
+
+### Residual Notes
+- trace ids differ per execution, so QA comparison should keep focusing on logical outputs
+- the first slice remains stateless and shell-independent
+- integration into the shell stays a DEV-4 concern
+
+## QA Results - 2026-08-25
+
+**Review Type:** Execution QA review
+**Decision:** APPROVED FOR DEV-4
+
+### Summary
+The yolo-mode QA pass on 2026-08-25 confirmed the DEV-3 MVP remains deterministic for equivalent inputs, emits both Markdown and JSON, surfaces telemetry start/end plus publish-approval events, and keeps blocked-input handling contained when required fields are missing. The feature gate also disabled the CLI safely without side effects.
+
+### Evidence
+- `npm test -- --runInBand src/__tests__/property-intelligence/property-intelligence.test.ts src/__tests__/api/property-intelligence/analyze/route.test.ts`
+- `npm run property-intelligence -- --input docs/stories/ia-native/property-intelligence-example.input.json --format both` twice
+- broken input without `property.location`
+- broken input without `property.typology`
+- `PROPERTY_INTELLIGENCE_ANALYSIS_ENABLED=false npm run property-intelligence -- --input docs/stories/ia-native/property-intelligence-example.input.json --format both`
+- telemetry start/end visible in the CLI output
+- telemetry `analysis.blocked_inputs` visible on missing-field cases
+- telemetry `analysis.publish_approval` visible on ready and blocked runs
+- provenance retained on the computed scenarios and comparables
+
+### Strengths
+- stable logical outputs across repeated equivalent runs
+- clear recommendation and scenario ordering in the premium report
+- explicit blocker handling for missing required fields
+- safe off-switch through the feature gate
+- shell-independent CLI execution
+
+### Residual Notes
+- trace ids are intentionally different per run, so QA comparison should stay on logical outputs rather than raw traces
+- blocked runs remain intentionally sparse because the capability refuses to invent missing data
+- the browser-first shell integration is still a DEV-4 concern and was not part of this CLI-first QA pass
+
+### Recommendation
+- approve the capability for DEV-4
+- preserve isolation until integration is explicitly exercised
+- keep blocked-input and feature-gate behavior under regression test
+
 ## QA-2 Prepared Baseline
 
 QA-2 should be executed only after DEV-3 produces an executable staging MVP with observable output and telemetry.
@@ -240,6 +297,18 @@ The validation focus is intentionally narrow:
 - verify the capability can be toggled off safely
 - verify telemetry and audit visibility are sufficient for debugging
 - verify the flow still feels like decision support, not an operational form
+- verify the first slice remains stateless and does not require persistence to prove value
+
+## QA-2 Execution Route
+
+1. Run the baseline test suite for the Property Intelligence module.
+2. Execute the CLI twice with the official example input and compare the logical output.
+3. Verify Markdown and JSON are both emitted.
+4. Verify telemetry start/end events are present.
+5. Run broken inputs that remove `property.location` and `property.typology`.
+6. Confirm the CLI returns blockers instead of inventing missing data.
+7. Record whether the capability can be toggled off safely and whether the result stays isolated from the Lodgra shell.
+8. Mark the story `Approved for DEV-4` only if the logical outputs, blockers and telemetry all behave as expected.
 
 ## QA-2 Validation Checklist
 

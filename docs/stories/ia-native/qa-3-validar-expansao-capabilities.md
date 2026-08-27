@@ -1,7 +1,7 @@
 # Story QA-3 - Validar a política de expansão de capabilities
 
 **Epic:** Evolução Modular do Lodgra + MVP de IA Native para Viabilidade de Propriedades  
-**Status:** Draft  
+**Status:** Ready for Review  
 **Owner:** @qa  
 **Depends On:** PM-3, UX-3, DEV-4
 
@@ -41,25 +41,25 @@ O papel da QA-3 é verificar se a política de expansão é suficientemente obje
 ## Acceptance Criteria
 
 ### AC1: Clareza de classificação
-- [ ] Core, capability e extension podem ser distinguidos sem ambiguidades
-- [ ] A classificação de novas ideias não depende de interpretação ad hoc
-- [ ] A política responde o que entra no core e o que fica fora dele
+- [x] Core, capability e extension podem ser distinguidos sem ambiguidades
+- [x] A classificação de novas ideias não depende de interpretação ad hoc
+- [x] A política responde o que entra no core e o que fica fora dele
 
 ### AC2: Governança aplicável
-- [ ] Cada nova feature pode declarar módulo, público e impacto
-- [ ] Cada nova feature pode declarar se muda navegação
-- [ ] Cada nova feature pode declarar se precisa de nova wave
-- [ ] Cada nova feature pode declarar expectativas de rollback
+- [x] Cada nova feature pode declarar módulo, público e impacto
+- [x] Cada nova feature pode declarar se muda navegação
+- [x] Cada nova feature pode declarar se precisa de nova wave
+- [x] Cada nova feature pode declarar expectativas de rollback
 
 ### AC3: Proteção do roadmap
-- [ ] A política evita expansão acidental do core
-- [ ] A política evita novos shell entries sem justificativa
-- [ ] A política permite manter o MVP estável enquanto o roadmap evolui
+- [x] A política evita expansão acidental do core
+- [x] A política evita novos shell entries sem justificativa
+- [x] A política permite manter o MVP estável enquanto o roadmap evolui
 
 ### AC4: Pronto para a próxima wave
-- [ ] A política é acionável por produto, arquitetura e QA
-- [ ] A política pode ser aplicada a novos casos de uso sem retrabalho
-- [ ] Existe evidência suficiente para usar a regra como filtro de expansão
+- [x] A política é acionável por produto, arquitetura e QA
+- [x] A política pode ser aplicada a novos casos de uso sem retrabalho
+- [x] Existe evidência suficiente para usar a regra como filtro de expansão
 
 ## Scope
 
@@ -111,6 +111,14 @@ O papel da QA-3 é verificar se a política de expansão é suficientemente obje
 - esta story é consumida após PM-3 e DEV-4
 - a próxima decisão da cadeia é usar a política como filtro de expansão
 
+## Session Update - 2026-08-24
+
+### What was prepared
+- PM-3 now has a reusable expansion policy artifact and session note
+- UX-3 now has shell-entry copy aligned with `Property Intelligence`
+- DEV-4 already proved the capability boundary is controlled and reversible
+- QA-3 is now ready to be used as the next governance gate for future capabilities
+
 ## QA-3 Handoff Package
 
 ### For product and architecture
@@ -155,3 +163,45 @@ Recommend keeping it as a standing governance gate, with these follow-ups:
 - require module, audience, impact and rollback expectations before approval
 - keep new shell entries justified and reviewable
 - revisit the policy after the next real feature classification to confirm it remains unambiguous
+
+## QA Results - 2026-08-24
+
+**Review Type:** Execution QA review
+**Decision:** PASS
+
+### Summary
+The 2026-08-24 validation confirmed the policy works as a reusable gate. The classification model remained unambiguous for the documented examples, the governance rules were actionable, and the roadmap protection logic stayed aligned with the shell and feature-gating implementation already in place.
+
+### Evidence
+- `npm test -- --runInBand src/__tests__/lib/features/featureRollout.test.ts`
+- `npm test -- --runInBand src/__tests__/navigation/module-shell.test.ts`
+- `npm run typecheck`
+- [`pm-3-expansion-policy.md`](/Users/fabiogomes/Projetos/lodgra/docs/stories/ia-native/pm-3-expansion-policy.md)
+
+### Residual Notes
+- the policy is ready for the next planning cycle, but future decisions should still be logged to avoid interpretation drift
+- navigation-impact checks remain a discipline issue, not a policy issue
+- repeated shared concerns should continue to be reviewed before promotion to core
+
+## QA Results - 2026-08-25
+
+**Review Type:** Execution QA review
+**Decision:** PASS
+
+### Summary
+The 2026-08-25 validation confirmed the expansion policy remains clear, actionable and stable as a governance gate. The classification model still separates core, capability and extension without ambiguity, and the roadmap rules continue to protect the MVP from accidental scope creep.
+
+### Evidence
+- `npm test -- --runInBand src/__tests__/lib/features/featureRollout.test.ts src/__tests__/navigation/module-shell.test.ts`
+- `npm run typecheck`
+- [`pm-3-expansion-policy.md`](/Users/fabiogomes/Projetos/lodgra/docs/stories/ia-native/pm-3-expansion-policy.md)
+
+### Residual Notes
+- the policy is validated as a standing gate, but future feature classifications should still be logged to avoid interpretation drift
+- navigation-impact checks remain a discipline issue for product and architecture
+- repeated shared concerns should continue to be reviewed before promotion to core
+
+### Recommendation
+- keep the expansion policy as the default filter for future waves
+- require module, audience, impact and rollback expectations before approval
+- keep new shell entries justified and reviewable

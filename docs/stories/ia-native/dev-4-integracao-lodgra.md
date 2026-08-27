@@ -253,3 +253,46 @@ This story is ready to move to UX-3 when:
 - rollout control já está preparado para `IA_NATIVE_ROLLOUT_MODE`, `IA_NATIVE_ROLLOUT_PERCENT` e `IA_NATIVE_ROLLOUT_ALLOWLIST`
 - PM-3 deve usar esta base para a política de expansão core / capability / extension
 - QA-3 deve validar a política depois que PM-3 estiver finalizada
+
+## Session Update - 2026-08-24
+
+### What was confirmed
+- the IA Native entry is already wired into the shell through the existing modular routing contract
+- the shell hides IA Native when the feature gate is disabled and shows it when enabled
+- the integration remains bounded to the capability boundary, with no shell-wide regression
+- the new regression test coverage lives in `src/__tests__/components/common/layout/Sidebar.test.tsx`
+
+### Validation completed
+- `npm test -- --runInBand src/__tests__/components/common/layout/Sidebar.test.tsx`
+- `npm test -- --runInBand src/__tests__/navigation/module-shell.test.ts`
+- `npm test -- --runInBand src/__tests__/property-intelligence/property-intelligence.test.ts`
+- `npm run typecheck`
+
+## Dev Agent Record
+
+### Progress
+
+- Confirmed the IA Native module is already published in the shell registry and resolves through the existing modular navigation contract
+- Confirmed the Sidebar hides and shows IA Native by feature gate without affecting the rest of the module shell
+- Confirmed the dedicated IA Native analysis page preserves auth, organization context, currency and timezone while keeping the capability boundary intact
+- Confirmed the stateless analysis API, feature gate and workbench remain isolated from the operational shell
+
+### File List
+
+- `src/lib/navigation/module-shell.ts`
+- `src/components/common/layout/Sidebar.tsx`
+- `src/app/[locale]/ia-native/page.tsx`
+- `src/app/[locale]/ia-native/analyze/page.tsx`
+- `src/app/[locale]/property-intelligence/page.tsx`
+- `src/app/api/property-intelligence/analyze/route.ts`
+- `src/components/features/property-intelligence/PropertyIntelligenceWorkbench.tsx`
+- `src/lib/property-intelligence/gate.ts`
+- `src/__tests__/navigation/module-shell.test.ts`
+- `src/__tests__/components/common/layout/Sidebar.test.tsx`
+- `src/__tests__/api/property-intelligence/analyze/route.test.ts`
+
+### Validation
+
+- `npm test -- --runInBand src/__tests__/navigation/module-shell.test.ts src/__tests__/components/common/layout/Sidebar.test.tsx src/__tests__/api/property-intelligence/analyze/route.test.ts`
+- `npm run typecheck`
+- `npm run lint`

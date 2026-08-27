@@ -279,10 +279,10 @@ Please confirm the navigation by public area and module labels remains aligned w
 ### QA reference
 QA-1 already provides the acceptance baseline for the foundation package. The remaining browser-render proof for currency context is still blocked by the environment and is documented as such.
 
-## Traceability Final Draft
+## Traceability Final
 
 ### Current state
-- Status: approved for execution
+- Status: active and approved for execution
 - Wave: Wave 2 - Environments and Governance
 - Module: Foundation shell and staging baseline
 - Environment: staging preview + authenticated QA session
@@ -302,7 +302,7 @@ QA-1 already provides the acceptance baseline for the foundation package. The re
 - browser-render proof for currency context when the environment allows it
 
 ### Next action
-- promote the traceability record from draft to active and keep the browser limitation documented
+- keep the browser limitation documented and carry the traceability record forward as the execution baseline
 
 ## Pending By Role
 

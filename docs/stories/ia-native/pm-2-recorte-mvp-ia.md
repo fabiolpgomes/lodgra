@@ -46,6 +46,11 @@ This story is intentionally anchored on two existing artifacts:
 
 The PM-2 recort should remain small enough to let ARCH-2 define a clean motor and UX-2 define a readable decision flow, without depending on the shell or on integration assumptions.
 
+For the first technical slice, the MVP should be treated as stateless:
+- no persistence layer is required for the initial cut
+- the contract must stay CLI-first and reproducible
+- stateful capabilities can only be introduced after the isolated MVP proves value
+
 Direção de produto herdada do PRD:
 - pesquisa antes de perguntar
 - determinismo financeiro
@@ -203,6 +208,7 @@ O fluxo inicial pode começar CLI-first, mas a visão do módulo já pressupõe:
 - [x] If the output is too noisy or too hard to explain, the MVP should stop or shrink
 - [x] If the first cut needs a dashboard or operational integration, the scope is too large
 - [x] If the module cannot remain isolated, the recort is not ready for ARCH-2
+- [x] If the first cut requires persistence before proving value, the MVP is too large
 
 ---
 

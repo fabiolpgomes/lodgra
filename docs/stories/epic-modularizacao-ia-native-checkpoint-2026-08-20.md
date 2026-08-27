@@ -218,6 +218,18 @@ Today we completed the staging access recovery and confirmed the dashboard flow 
 - OPS-1 was validated with a PASS WITH CONCERNS result because the staging restore point is explicit while the production restore point remains a follow-up
 - the PM-3 expansion policy artifact was created and is now the reusable governance reference for future capabilities
 
+## 12. Session Update - 2026-08-24
+
+### What was decided today
+- the first MVP slice remains `CLI-first`
+- the first MVP slice is treated as `stateless`
+- persistence stays out of the initial cut until the isolated capability proves value
+
+### Resume point
+1. keep PM-2 anchored to the CLI-first story 46.1
+2. keep DEV-3 focused on deterministic isolated execution
+3. keep QA-2 focused on repeatability, isolation and non-persistent behavior
+
 ### Practical implication
 - the chain is no longer just staged; the execution and closeout docs now reflect the live working state
 - future capabilities should use the core / capability / extension policy as the default filter
@@ -252,3 +264,15 @@ Today we completed the staging access recovery and confirmed the dashboard flow 
 1. continue from the reusable cancellation summary component
 2. decide whether the next step is a second cancellation surface or the next epic front
 3. keep the current checkout/pricing/cancellation history as the baseline, without reworking the finished refund flow
+
+## 13. Session Update - 2026-08-24
+
+### What was finalized today
+- QA-3 completed with PASS and confirmed the expansion policy as the reusable governance gate
+- PM-3, UX-3 and DEV-4 are aligned as the final closeout chain for the IA Native capability
+- the modular shell, isolated MVP and expansion policy now form a complete execution and governance loop
+
+### Practical implication
+- future ideas should be classified through the core / capability / extension model before they reach implementation
+- the next cycle should start from the validated shell and not from an open-ended product redefinition
+- the checkpoint now captures both the staging validation phase and the closeout phase for this epic

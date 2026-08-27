@@ -39,6 +39,7 @@ O trabalho da DEV-3 é implementar o MVP como capability isolada, com o menor ac
 - telemetria mínima
 - desligamento por gate
 - execução repetível em staging
+- primeira entrega stateless, sem persistência obrigatória
 
 ## Acceptance Criteria
 
@@ -83,6 +84,37 @@ O trabalho da DEV-3 é implementar o MVP como capability isolada, com o menor ac
 - registro de entradas e saídas
 - base para avaliação funcional
 - base para QA-2
+
+---
+
+## Dev Agent Record
+
+### Progress
+
+- Added a shared feature gate for Property Intelligence analysis so the MVP can be disabled cleanly by environment
+- Added a stateless analysis API endpoint that accepts JSON, returns structured analysis data and exposes the Markdown report
+- Added a dedicated analysis page in the IA Native area so the MVP can be exercised in staging without depending on the shell internals
+- Added a premium workbench for structured input, analysis output, markdown review and telemetry visibility
+- Strengthened telemetry to emit publish approval events alongside start, blocked inputs and end markers
+- Kept the CLI runner aligned with the same feature gate so the isolated MVP can be turned off safely
+
+### File List
+
+- `scripts/property-intelligence-runner.cjs`
+- `src/lib/property-intelligence/gate.ts`
+- `src/lib/property-intelligence/engine.ts`
+- `src/app/api/property-intelligence/analyze/route.ts`
+- `src/components/features/property-intelligence/PropertyIntelligenceWorkbench.tsx`
+- `src/app/[locale]/ia-native/analyze/page.tsx`
+- `src/app/[locale]/ia-native/page.tsx`
+- `src/__tests__/property-intelligence/property-intelligence.test.ts`
+- `src/__tests__/api/property-intelligence/analyze/route.test.ts`
+
+### Validation
+
+- `npm test -- --runInBand src/__tests__/property-intelligence/property-intelligence.test.ts src/__tests__/api/property-intelligence/analyze/route.test.ts`
+- `npm run typecheck`
+- `npm run lint`
 
 ## DEV-3 Implementation Checklist
 
@@ -135,6 +167,7 @@ O trabalho da DEV-3 é implementar o MVP como capability isolada, com o menor ac
 - keep the engine deterministic and versioned
 - keep report publication behind human approval
 - keep the first release narrow enough for QA-2 to compare sessions
+- keep the first release stateless until product explicitly expands scope
 
 ---
 
