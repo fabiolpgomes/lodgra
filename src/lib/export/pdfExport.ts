@@ -10,7 +10,7 @@ export async function generateForecastPDF(
   propertyName: string,
   startDate: string,
   endDate: string,
-  currency: CurrencyCode = 'EUR'
+  currency?: CurrencyCode
 ): Promise<void> {
   try {
     // Create a temporary container for rendering
@@ -95,7 +95,7 @@ async function createFallbackPDF(
   propertyName: string,
   startDate: string,
   endDate: string,
-  currency: CurrencyCode = 'EUR'
+  currency?: CurrencyCode
 ): Promise<string> {
   // Create a canvas with text-based content
   const canvas = document.createElement('canvas');
@@ -119,9 +119,9 @@ async function createFallbackPDF(
 
   ctx.font = 'bold 16px Arial';
   ctx.fillStyle = '#1f2937';
-  ctx.fillText(`30-Day Forecast: ${formatCurrency(data.forecasts.days30.projectedRevenue, currency)}`, 40, 160);
-  ctx.fillText(`60-Day Forecast: ${formatCurrency(data.forecasts.days60.projectedRevenue, currency)}`, 40, 190);
-  ctx.fillText(`90-Day Forecast: ${formatCurrency(data.forecasts.days90.projectedRevenue, currency)}`, 40, 220);
+  ctx.fillText(`30-Day Forecast: ${currency ? formatCurrency(data.forecasts.days30.projectedRevenue, currency) : data.forecasts.days30.projectedRevenue.toFixed(2)}`, 40, 160);
+  ctx.fillText(`60-Day Forecast: ${currency ? formatCurrency(data.forecasts.days60.projectedRevenue, currency) : data.forecasts.days60.projectedRevenue.toFixed(2)}`, 40, 190);
+  ctx.fillText(`90-Day Forecast: ${currency ? formatCurrency(data.forecasts.days90.projectedRevenue, currency) : data.forecasts.days90.projectedRevenue.toFixed(2)}`, 40, 220);
 
   ctx.font = 'italic 12px Arial';
   ctx.fillStyle = '#9ca3af';
@@ -134,7 +134,7 @@ async function createFallbackPDF(
 /**
  * Helper function to generate forecast card HTML
  */
-function generateForecastCardHTML(forecast: RevenueForecast, period: string, currency: CurrencyCode): string {
+function generateForecastCardHTML(forecast: RevenueForecast, period: string, currency?: CurrencyCode): string {
   const confidenceColor = {
     high: '#10b981',
     medium: '#f59e0b',
@@ -144,7 +144,7 @@ function generateForecastCardHTML(forecast: RevenueForecast, period: string, cur
   return `
     <div style="border: 1px solid #e5e7eb; border-radius: 6px; padding: 15px; background-color: #f9fafb;">
       <p style="margin: 0 0 10px 0; font-weight: bold; color: #4b5563;">${period}</p>
-      <p style="margin: 0 0 10px 0; font-size: 24px; font-weight: bold; color: #1f2937;">${formatCurrency(forecast.projectedRevenue, currency)}</p>
+      <p style="margin: 0 0 10px 0; font-size: 24px; font-weight: bold; color: #1f2937;">${currency ? formatCurrency(forecast.projectedRevenue, currency) : forecast.projectedRevenue.toFixed(2)}</p>
       <p style="margin: 0; font-size: 12px; color: #6b7280;">Confidence: <span style="color: ${confidenceColor}; font-weight: bold;">${forecast.confidenceLevel.toUpperCase()} (${(forecast.confidenceScore * 100).toFixed(0)}%)</span></p>
     </div>
   `;
@@ -158,7 +158,7 @@ export function buildForecastPDFHtml(
   propertyName: string,
   startDate: string,
   endDate: string,
-  currency: CurrencyCode = 'EUR'
+  currency?: CurrencyCode
 ): string {
   return `
       <div style="font-family: Arial, sans-serif; color: #333;">

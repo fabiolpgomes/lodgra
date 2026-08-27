@@ -18,6 +18,10 @@ interface Expense {
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
+function formatPtDate(date: string): string {
+  return new Date(date).toLocaleDateString('pt-PT')
+}
+
 function generateHtml(
   expenses: Expense[],
   startDate: string,
@@ -51,7 +55,7 @@ function generateHtml(
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Relatorio de Despesas</title>
+  <title>Relatório de despesas</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"><\/script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -107,31 +111,31 @@ function generateHtml(
 </head>
 <body>
   <div class="toolbar">
-    <button id="btnDownload" type="button">Download PDF</button>
+    <button id="btnDownload" type="button">Descarregar PDF</button>
     <button id="btnPrint" type="button" class="secondary">Imprimir</button>
     <button id="btnClose" type="button" class="secondary">Fechar</button>
   </div>
 
   <div class="content">
     <div class="container">
-      <h1>Relatorio de Despesas</h1>
-      <p style="color: #666; font-size: 13px;">Lodgra - Gestao de Propriedades</p>
+      <h1>Relatório de despesas</h1>
+      <p style="color: #666; font-size: 13px;">Lodgra - Gestão de propriedades</p>
 
       <div class="info">
-        <p><strong>Periodo:</strong> ${new Date(startDate).toLocaleDateString('pt-BR')} ate ${new Date(endDate).toLocaleDateString('pt-BR')}</p>
+        <p><strong>Período:</strong> ${formatPtDate(startDate)} até ${formatPtDate(endDate)}</p>
         <p><strong>Escopo:</strong> ${propertyLabel}</p>
         <p><strong>Categoria:</strong> ${categoryLabel}</p>
-        <p><strong>Data de Geracao:</strong> ${new Date().toLocaleDateString('pt-BR')}</p>
+        <p><strong>Data de geração:</strong> ${formatPtDate(new Date().toISOString())}</p>
       </div>
 
       <div class="summary">
-        <div class="summary-item"><strong>Total de Despesas:</strong> ${expenses.length}</div>
-        <div class="summary-item"><strong>Valor Total:</strong> ${formatFinancialAmount(totalAmount, mainCurrency)}</div>
-        ${expenses.length > 0 ? `<div class="summary-item"><strong>Media por Despesa:</strong> ${formatFinancialAmount(totalAmount / expenses.length, mainCurrency)}</div>` : ''}
+        <div class="summary-item"><strong>Total de despesas:</strong> ${expenses.length}</div>
+        <div class="summary-item"><strong>Valor total:</strong> ${formatFinancialAmount(totalAmount, mainCurrency)}</div>
+        ${expenses.length > 0 ? `<div class="summary-item"><strong>Média por despesa:</strong> ${formatFinancialAmount(totalAmount / expenses.length, mainCurrency)}</div>` : ''}
       </div>
 
       ${Object.keys(groupedByCategory).length > 0 ? `
-      <h2 style="background: #374151;">Resumo por Categoria</h2>
+      <h2 style="background: #374151;">Resumo por categoria</h2>
       <div class="category-breakdown">
         ${Object.entries(groupedByCategory)
           .sort(([, a], [, b]) => b - a)
@@ -154,14 +158,14 @@ function generateHtml(
                 <tr>
                   <th>Data</th>
                   <th>Categoria</th>
-                  <th>Descricao</th>
+                  <th>Descrição</th>
                   <th>Valor</th>
                 </tr>
               </thead>
               <tbody>
                 ${propExpenses
                   .map(e => `<tr>
-                    <td>${new Date(e.expense_date).toLocaleDateString('pt-BR')}</td>
+                    <td>${formatPtDate(e.expense_date)}</td>
                     <td>${getCategoryLabel(e.category)}</td>
                     <td>${e.description}${e.notes ? ' (' + e.notes + ')' : ''}</td>
                     <td class="currency">${formatFinancialAmount(Number(e.amount), e.currency)}</td>
@@ -178,7 +182,7 @@ function generateHtml(
         .join('')}
 
       <div class="footer">
-        <p>Este relatorio foi gerado automaticamente pelo sistema Lodgra.</p>
+        <p>Este relatório foi gerado automaticamente pelo sistema Lodgra.</p>
         <p>&copy; ${new Date().getFullYear()} Lodgra. Todos os direitos reservados.</p>
       </div>
     </div>

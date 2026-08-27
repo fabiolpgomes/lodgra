@@ -9,7 +9,7 @@ export function generateForecastCSV(
   propertyName: string,
   startDate: string,
   endDate: string,
-  currency: CurrencyCode = 'EUR'
+  currency?: CurrencyCode
 ): void {
   try {
     const csv = buildForecastCSV(data, propertyName, startDate, endDate, currency);
@@ -45,7 +45,7 @@ export function buildForecastCSV(
   propertyName: string,
   startDate: string,
   endDate: string,
-  currency: CurrencyCode = 'EUR'
+  currency?: CurrencyCode
 ): string {
   const lines: string[] = [];
 
@@ -58,29 +58,29 @@ export function buildForecastCSV(
 
   // Summary section
   lines.push('"FORECAST SUMMARY"');
-  lines.push(`"Period","Projected Revenue (${currency})","Confidence","Confidence Score"`);
-  lines.push(`"30 Days","${formatCurrency(data.forecasts.days30.projectedRevenue, currency)}","${data.forecasts.days30.confidenceLevel}","${(data.forecasts.days30.confidenceScore * 100).toFixed(1)}%"`);
-  lines.push(`"60 Days","${formatCurrency(data.forecasts.days60.projectedRevenue, currency)}","${data.forecasts.days60.confidenceLevel}","${(data.forecasts.days60.confidenceScore * 100).toFixed(1)}%"`);
-  lines.push(`"90 Days","${formatCurrency(data.forecasts.days90.projectedRevenue, currency)}","${data.forecasts.days90.confidenceLevel}","${(data.forecasts.days90.confidenceScore * 100).toFixed(1)}%"`);
+  lines.push(`"Period","Projected Revenue${currency ? ` (${currency})` : ''}","Confidence","Confidence Score"`);
+  lines.push(`"30 Days","${currency ? formatCurrency(data.forecasts.days30.projectedRevenue, currency) : data.forecasts.days30.projectedRevenue.toFixed(2)}","${data.forecasts.days30.confidenceLevel}","${(data.forecasts.days30.confidenceScore * 100).toFixed(1)}%"`);
+  lines.push(`"60 Days","${currency ? formatCurrency(data.forecasts.days60.projectedRevenue, currency) : data.forecasts.days60.projectedRevenue.toFixed(2)}","${data.forecasts.days60.confidenceLevel}","${(data.forecasts.days60.confidenceScore * 100).toFixed(1)}%"`);
+  lines.push(`"90 Days","${currency ? formatCurrency(data.forecasts.days90.projectedRevenue, currency) : data.forecasts.days90.projectedRevenue.toFixed(2)}","${data.forecasts.days90.confidenceLevel}","${(data.forecasts.days90.confidenceScore * 100).toFixed(1)}%"`);
   lines.push(''); // Empty line for readability
 
   // Statistics section
   lines.push('"STATISTICS"');
   lines.push(`"Metric","Value"`);
-  lines.push(`"Average Daily Rate (ADR)","${data.assumptions.baseRevenue90Days ? formatCurrency(data.assumptions.baseRevenue90Days / 90, currency) : 'N/A'}"`);
+  lines.push(`"Average Daily Rate (ADR)","${data.assumptions.baseRevenue90Days ? (currency ? formatCurrency(data.assumptions.baseRevenue90Days / 90, currency) : (data.assumptions.baseRevenue90Days / 90).toFixed(2)) : 'N/A'}"`);
   lines.push(`"Average Occupancy Rate","${(data.assumptions.avgOccupancyRate * 100).toFixed(1)}%"`);
   lines.push(`"Last 90 Days Bookings","${data.assumptions.last90DaysBookings}"`);
   lines.push(''); // Empty line for readability
 
   // Daily forecast data
   lines.push('"DAILY FORECAST DATA"');
-  lines.push(`"Date","Projected Revenue (${currency})","Confidence Lower Bound (${currency})","Confidence Upper Bound (${currency})","Confidence Range (${currency})"`);
+  lines.push(`"Date","Projected Revenue${currency ? ` (${currency})` : ''}","Confidence Lower Bound${currency ? ` (${currency})` : ''}","Confidence Upper Bound${currency ? ` (${currency})` : ''}","Confidence Range${currency ? ` (${currency})` : ''}"`);
 
   // Add daily data points
   data.chartData.forEach((point) => {
     const confidenceRange = point.upper - point.lower;
     lines.push(
-      `"${point.date}","${formatCurrency(point.projected, currency)}","${formatCurrency(point.lower, currency)}","${formatCurrency(point.upper, currency)}","${formatCurrency(confidenceRange, currency)}"`
+      `"${point.date}","${currency ? formatCurrency(point.projected, currency) : point.projected.toFixed(2)}","${currency ? formatCurrency(point.lower, currency) : point.lower.toFixed(2)}","${currency ? formatCurrency(point.upper, currency) : point.upper.toFixed(2)}","${currency ? formatCurrency(confidenceRange, currency) : confidenceRange.toFixed(2)}"`
     );
   });
 

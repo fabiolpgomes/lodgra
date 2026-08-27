@@ -15,7 +15,7 @@ interface ReservationData {
 
 function formatDate(dateStr: string): string {
   const date = new Date(dateStr)
-  return date.toLocaleDateString('pt-BR')
+  return date.toLocaleDateString('pt-PT')
 }
 
 function generateCSV(
@@ -24,7 +24,7 @@ function generateCSV(
   month?: string | null
 ): string {
   // CSV header
-  const headers = ['Data', 'Reserva ID', 'Check-in', 'Check-out', 'Duração', 'Moeda', 'Valor Total', 'Receita Mês', 'Saldo Previsto']
+  const headers = ['Data', 'Reserva ID', 'Check-in', 'Check-out', 'Duração', 'Moeda', 'Valor total', 'Receita do mês', 'Saldo previsto']
   const rows: string[] = [headers.map(h => `"${h}"`).join(',')]
 
   // Process each reservation
@@ -51,7 +51,7 @@ function generateCSV(
       if (month && monthBreakdown.month !== month) continue
 
       const row = [
-        new Date().toLocaleDateString('pt-BR'), // Data (export date)
+        new Date().toLocaleDateString('pt-PT'), // Data (export date)
         `"${result.reservationId}"`, // Reserva ID
         formatDate(checkInStr), // Check-in
         formatDate(checkOutStr), // Check-out

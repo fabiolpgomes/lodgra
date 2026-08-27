@@ -77,6 +77,10 @@ function calculateTotalNights(reservations: Reservation[]): number {
   }, 0)
 }
 
+function formatPtDate(date: string): string {
+  return new Date(date).toLocaleDateString('pt-PT')
+}
+
 function getChannelName(source: string | null | undefined): string {
   if (!source) return 'Direto'
 
@@ -183,7 +187,7 @@ function generateHtml(
 </head>
 <body>
   <div class="toolbar">
-    <button id="btnDownload" type="button">📥 Download PDF</button>
+    <button id="btnDownload" type="button">📥 Descarregar PDF</button>
     <button id="btnPrint" type="button" class="secondary">🖨️ Imprimir</button>
     <button id="btnClose" type="button" class="secondary">✕ Fechar</button>
   </div>
@@ -194,9 +198,9 @@ function generateHtml(
       <p style="color: #666; font-size: 13px;">Lodgra - Gestão de Propriedades</p>
 
       <div class="info">
-        <p><strong>Período:</strong> ${new Date(startDate).toLocaleDateString('pt-BR')} até ${new Date(endDate).toLocaleDateString('pt-BR')}</p>
+        <p><strong>Período:</strong> ${formatPtDate(startDate)} até ${formatPtDate(endDate)}</p>
         <p><strong>Escopo:</strong> ${propertyLabel}</p>
-        <p><strong>Data de Geração:</strong> ${new Date().toLocaleDateString('pt-BR')}</p>
+        <p><strong>Data de geração:</strong> ${formatPtDate(new Date().toISOString())}</p>
       </div>
 
       <div class="summary">
@@ -253,8 +257,8 @@ function generateHtml(
                     const proportionalAmount = calculateProportionalAmount(r, startDate, endDate)
                     const channelName = r.channels?.name || 'Direto'
                     return `<tr>
-                      <td class="col-date">${checkIn.toLocaleDateString('pt-BR')}</td>
-                      <td class="col-date">${checkOut.toLocaleDateString('pt-BR')}</td>
+                      <td class="col-date">${checkIn.toLocaleDateString('pt-PT')}</td>
+                      <td class="col-date">${checkOut.toLocaleDateString('pt-PT')}</td>
                       <td class="col-channel">${channelName}</td>
                       <td class="col-guest">${guestName}</td>
                       <td class="col-num" style="text-align:center">${r.adults ?? '—'}</td>

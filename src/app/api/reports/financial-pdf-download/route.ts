@@ -41,6 +41,10 @@ interface PropertyData {
   owners: { full_name: string } | null
 }
 
+function formatPtDate(date: string): string {
+  return new Date(date).toLocaleDateString('pt-PT')
+}
+
 function normalizeChannelName(source: string | null): string {
   if (!source) return 'Outros'
   const lower = source.toLowerCase()
@@ -98,7 +102,7 @@ function generateHtml(
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Relatório Financeiro</title>
+  <title>Relatório financeiro</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"><\/script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -153,36 +157,36 @@ function generateHtml(
 </head>
 <body>
   <div class="toolbar">
-    <button id="btnDownload" type="button">📥 Download PDF</button>
+    <button id="btnDownload" type="button">📥 Descarregar PDF</button>
     <button id="btnPrint" type="button" class="secondary">🖨️ Imprimir</button>
     <button id="btnClose" type="button" class="secondary">✕ Fechar</button>
   </div>
 
   <div class="content">
     <div class="container">
-      <h1>Relatório Financeiro</h1>
-      <p style="color: #666; font-size: 13px;">Home Stay - Gestão de Propriedades</p>
+      <h1>Relatório financeiro</h1>
+      <p style="color: #666; font-size: 13px;">Home Stay - Gestão de propriedades</p>
 
       <div class="info">
-        <p><strong>Período:</strong> ${new Date(data.startDate).toLocaleDateString('pt-BR')} até ${new Date(data.endDate).toLocaleDateString('pt-BR')}</p>
+        <p><strong>Período:</strong> ${formatPtDate(data.startDate)} até ${formatPtDate(data.endDate)}</p>
         <p><strong>Escopo:</strong> ${data.propertyLabel}</p>
-        <p><strong>Data de Geração:</strong> ${new Date().toLocaleDateString('pt-BR')}</p>
+        <p><strong>Data de geração:</strong> ${formatPtDate(new Date().toISOString())}</p>
       </div>
 
       <div class="summary">
-        <div class="summary-item"><strong>Total de Reservas:</strong> ${data.totalReservations}</div>
-        <div class="summary-item"><strong>Taxa de Ocupação:</strong> ${data.occupancyRate.toFixed(1)}%</div>
+        <div class="summary-item"><strong>Total de reservas:</strong> ${data.totalReservations}</div>
+        <div class="summary-item"><strong>Taxa de ocupação:</strong> ${data.occupancyRate.toFixed(1)}%</div>
         ${currencies.map(curr => `
           <div class="summary-grid">
-            <div class="summary-item"><strong>Receita Bruta (${curr}):</strong> ${formatReportAmount(data.revenueByCurrency[curr] || 0, curr)}</div>
-            <div class="summary-item"><strong>Receita Líquida (${curr}):</strong> ${formatReportAmount(data.netRevenueByCurrency[curr] || 0, curr)}</div>
+            <div class="summary-item"><strong>Receita bruta (${curr}):</strong> ${formatReportAmount(data.revenueByCurrency[curr] || 0, curr)}</div>
+            <div class="summary-item"><strong>Receita líquida (${curr}):</strong> ${formatReportAmount(data.netRevenueByCurrency[curr] || 0, curr)}</div>
             <div class="summary-item"><strong>Despesas (${curr}):</strong> ${formatReportAmount((data.operationalByCurrency[curr] || 0) + (data.taxByCurrency[curr] || 0), curr)}</div>
-            <div class="summary-item"><strong>Lucro Líquido (${curr}):</strong> ${formatReportAmount(data.netProfitByCurrency[curr] || 0, curr)}</div>
+            <div class="summary-item"><strong>Lucro líquido (${curr}):</strong> ${formatReportAmount(data.netProfitByCurrency[curr] || 0, curr)}</div>
           </div>
         `).join('')}
       </div>
 
-      <h2>Demonstrativo de Resultado por Moeda</h2>
+      <h2>Demonstração de resultado por moeda</h2>
       <table>
         <thead>
           <tr>
@@ -192,19 +196,19 @@ function generateHtml(
         </thead>
         <tbody>
           <tr>
-            <td><strong>Receita Bruta</strong></td>
+            <td><strong>Receita bruta</strong></td>
             ${currencies.map(c => `<td class="currency">${formatReportAmount(data.revenueByCurrency[c], c)}</td>`).join('')}
           </tr>
           <tr>
-            <td>Taxas de Plataforma</td>
+            <td>Taxas de plataforma</td>
             ${currencies.map(c => `<td class="currency">${formatReportAmount(data.platformFeesByCurrency[c], c)}</td>`).join('')}
           </tr>
           <tr>
-            <td><strong>Receita Líquida</strong></td>
+            <td><strong>Receita líquida</strong></td>
             ${currencies.map(c => `<td class="currency">${formatReportAmount(data.netRevenueByCurrency[c], c)}</td>`).join('')}
           </tr>
           <tr>
-            <td>Despesas Operacionais</td>
+            <td>Despesas operacionais</td>
             ${currencies.map(c => `<td class="currency">${formatReportAmount(data.operationalByCurrency[c], c)}</td>`).join('')}
           </tr>
           <tr>
@@ -212,7 +216,7 @@ function generateHtml(
             ${currencies.map(c => `<td class="currency">${formatReportAmount(data.taxByCurrency[c], c)}</td>`).join('')}
           </tr>
           <tr style="background: #fef2f2; font-weight: bold;">
-            <td><strong>Lucro Líquido</strong></td>
+            <td><strong>Lucro líquido</strong></td>
             ${currencies.map(c => `<td class="currency">${formatReportAmount(data.netProfitByCurrency[c], c)}</td>`).join('')}
           </tr>
           <tr style="background: #fef2f2; font-weight: bold;">
@@ -228,7 +232,7 @@ function generateHtml(
       </table>
 
       ${data.propertyStats.length > 0 ? `
-      <h2>Análise por Propriedade</h2>
+      <h2>Análise por propriedade</h2>
       <table>
         <thead>
           <tr>

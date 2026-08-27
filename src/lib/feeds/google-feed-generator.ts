@@ -62,7 +62,10 @@ export async function generateGoogleVacationRentalsFeed(
 ): Promise<{ xml: string; eTag: string; count: number }> {
   const limit = Math.min(options.limit || 100, 1000)
   const offset = options.offset || 0
-  const currency = options.currency || 'EUR'
+  const currency = options.currency?.trim()
+  if (!currency) {
+    throw new Error('Feed currency is required')
+  }
   const includeReviews = options.include_reviews !== false // Default: true
   const baseUrl = normalizeBaseUrl(
     options.base_url || process.env.NEXT_PUBLIC_APP_URL || 'https://lodgra.io'
@@ -203,7 +206,15 @@ function generateFeedEntry(
 ): string {
   const lat = property.latitude || 0
   const lon = property.longitude || 0
-  const price = currency === 'EUR' ? 150 : currency === 'USD' ? 165 : 600 // Example conversion
+  const samplePrices: Record<string, number> = {
+    EUR: 150,
+    USD: 165,
+    BRL: 600,
+  }
+  const price = samplePrices[currency]
+  if (price === undefined) {
+    throw new Error(`Unsupported feed currency: ${currency}`)
+  }
   const minNights = property.min_nights || 1
   const cleaningFee = property.cleaning_fee || 0
   const petFee = property.pet_fee || null
