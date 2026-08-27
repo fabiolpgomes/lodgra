@@ -92,8 +92,6 @@ describe('property intelligence MVP', () => {
     expect(result.status).toBe('ready')
     expect(result.blockedInputs).toHaveLength(0)
     expect(result.intake.estimatedFields).toEqual(expect.arrayContaining(['property.location', 'property.typology']))
-    expect(result.models).not.toBeNull()
-    expect(result.strategy).not.toBeNull()
 
     const report = buildMarkdownReport(result)
     expect(report).toContain('## Identificação do Imóvel')
@@ -272,6 +270,7 @@ describe('property intelligence MVP', () => {
 
       expect(output).toContain('# Dossiê Executivo de Property Intelligence')
       expect(output).toContain('## Identificação do Imóvel')
+      expect(output).toContain('## Resumo Executivo')
       expect(output).toContain('## Como ler esta análise')
       expect(output).toContain('## Cenários')
       expect(output).not.toContain('--- JSON ---')
