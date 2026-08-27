@@ -16,19 +16,19 @@ const LOCATION_HINTS: Array<{
   {
     pattern: /(algarve|faro|lagos|lagoa|albufeira|loul[eé]|portim[aã]o|tavira|vila real de santo ant[oó]nio)/i,
     marketTier: 'coastal',
-    rationale: 'Keyword match indicates a coastal or leisure-led market.',
+    rationale: 'A correspondência por palavra-chave indica um mercado costeiro ou orientado ao lazer.',
     confidence: 0.9,
   },
   {
     pattern: /(lisboa|porto|cascais|oeiras|gaia|braga)/i,
     marketTier: 'urban',
-    rationale: 'Keyword match indicates an urban or metro market.',
+    rationale: 'A correspondência por palavra-chave indica um mercado urbano ou metropolitano.',
     confidence: 0.9,
   },
   {
     pattern: /(sintra|set[uú]bal|coimbra|aveiro|funchal)/i,
     marketTier: 'suburban',
-    rationale: 'Keyword match indicates a mixed suburban market.',
+    rationale: 'A correspondência por palavra-chave indica um mercado misto ou suburbano.',
     confidence: 0.8,
   },
 ]
@@ -41,7 +41,7 @@ export function deriveLocationSignal(property: NormalizedProperty): LocationSign
 
   const rationale = match
     ? match.rationale
-    : `Defaulted to ${marketTier} market tier from the provided property profile.`
+    : `Foi usado o perfil de propriedade informado para assumir o mercado ${marketTier}.`
 
   return {
     marketTier,
@@ -51,4 +51,3 @@ export function deriveLocationSignal(property: NormalizedProperty): LocationSign
     provenance: match ? 'derived' : 'estimated',
   }
 }
-

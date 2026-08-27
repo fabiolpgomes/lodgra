@@ -2,10 +2,13 @@ import type {
   ConditionTier,
   IntakeResult,
   MarketTier,
+  NormalizedOwnerContext,
   PropertyIntelligenceInput,
   PropertyLeadInput,
   NormalizedAssumptions,
   NormalizedProperty,
+  OwnerFlexibilityLevel,
+  OwnerOperatingModel,
 } from './types'
 
 const DEFAULT_AREA = 45
@@ -56,24 +59,50 @@ function normalizeCurrency(currency: unknown): string {
   return ''
 }
 
+function normalizeFlexibility(value: unknown): OwnerFlexibilityLevel | null {
+  if (value === 'high' || value === 'medium' || value === 'low') {
+    return value
+  }
+
+  return null
+}
+
+function normalizeOperatingModel(value: unknown): OwnerOperatingModel | null {
+  if (value === 'short_mid' || value === 'mixed' || value === 'long') {
+    return value
+  }
+
+  return null
+}
+
+function toOptionalNumber(value: unknown): number | null {
+  return typeof value === 'number' && Number.isFinite(value) ? value : null
+}
+
 export function normalizeIntake(input: PropertyIntelligenceInput): IntakeResult {
   const lead: PropertyLeadInput = input.lead ?? {}
   const property = input.property ?? {}
+  const ownerContext = input.ownerContext ?? {}
   const assumptions = input.assumptions ?? {}
 
   const location = typeof property.location === 'string' ? property.location.trim() : ''
+  const propertyType = typeof property.propertyType === 'string' ? property.propertyType.trim() : ''
   const typology = typeof property.typology === 'string' ? property.typology.trim() : ''
   const blockingInputs: string[] = []
 
+  const estimatedFields: string[] = []
+
   if (!location) {
-    blockingInputs.push('property.location')
+    estimatedFields.push('property.location')
+  }
+
+  if (!propertyType) {
+    estimatedFields.push('property.propertyType')
   }
 
   if (!typology) {
-    blockingInputs.push('property.typology')
+    estimatedFields.push('property.typology')
   }
-
-  const estimatedFields: string[] = []
 
   const areaM2 = property.areaM2 ?? DEFAULT_AREA
   if (property.areaM2 == null) {
@@ -87,12 +116,18 @@ export function normalizeIntake(input: PropertyIntelligenceInput): IntakeResult 
 
   const normalizedProperty: NormalizedProperty = {
     location,
+    propertyType,
     typology,
     areaM2: toNumber(areaM2, DEFAULT_AREA),
     bedrooms: Math.max(0, toNumber(bedrooms, DEFAULT_BEDROOMS)),
     market: normalizeMarket(property.market, location),
     condition: normalizeCondition(property.condition),
     furnished: toBoolean(property.furnished, false),
+    balcony: toBoolean(property.balcony, false),
+    pool: toBoolean(property.pool, false),
+    garage: toBoolean(property.garage, false),
+    highlights: typeof property.highlights === 'string' ? property.highlights.trim() : '',
+    listingUrl: typeof property.listingUrl === 'string' ? property.listingUrl.trim() : '',
   }
 
   if (property.market == null) {
@@ -114,6 +149,20 @@ export function normalizeIntake(input: PropertyIntelligenceInput): IntakeResult 
     shortStay: assumptions.shortStay ?? {},
   }
 
+  const historicalRevenue = toOptionalNumber(ownerContext.historicalRevenue)
+  const rentedDays = toOptionalNumber(ownerContext.rentedDays)
+  const normalizedOwnerContext: NormalizedOwnerContext = {
+    flexibility: normalizeFlexibility(ownerContext.flexibility),
+    operatingModel: normalizeOperatingModel(ownerContext.operatingModel),
+    historicalRevenue,
+    rentedDays,
+    maintenanceNote: typeof ownerContext.maintenanceNote === 'string' ? ownerContext.maintenanceNote.trim() : '',
+    revenuePerRentedDay:
+      historicalRevenue != null && rentedDays != null && rentedDays > 0
+        ? Math.round((historicalRevenue / rentedDays) * 100) / 100
+        : null,
+  }
+
   const completenessScore = Math.max(
     0,
     Math.min(
@@ -130,6 +179,7 @@ export function normalizeIntake(input: PropertyIntelligenceInput): IntakeResult 
     completenessScore: Math.round(completenessScore * 100) / 100,
     normalizedProperty,
     normalizedAssumptions,
+    ownerContext: normalizedOwnerContext,
     lead,
   }
 }

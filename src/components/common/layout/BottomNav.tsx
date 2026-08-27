@@ -11,7 +11,6 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/commo
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
 import { Button } from '@/components/common/ui/button'
-import { useFeatureAccess } from '@/lib/features/featureGate'
 import {
   getLocalizedHref,
   getModuleForPath,
@@ -60,16 +59,7 @@ export function BottomNav() {
 
   const prefix = locale ? `/${locale}` : ''
   const currentModule = getModuleForPath(pathname)
-  const organizationId = profile?.organization_id ?? null
-  const { hasAccess: hasIaNativeAccess, loading: iaNativeLoading } = useFeatureAccess(
-    'property_intelligence',
-    organizationId ?? undefined
-  )
   const moduleLinks = getModuleNavLinks(prefix).filter(link => {
-    if (link.id === 'ia-native' && (iaNativeLoading || !hasIaNativeAccess)) {
-      return false
-    }
-
     return !isLimitedGestor || (link.id !== 'core' && link.id !== 'empresa')
   })
   const currentModuleFeatures = MODULE_FEATURE_LINKS[currentModule.id].filter(link => {

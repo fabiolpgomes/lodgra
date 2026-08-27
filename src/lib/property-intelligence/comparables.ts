@@ -24,30 +24,30 @@ export function buildComparables(
     return providedComparables.map(item => ({
       label: item.label,
       stayType: item.stayType ?? 'mixed',
-      monthlyGrossRevenue: Math.round(item.monthlyGrossRevenue * 100) / 100,
-      monthlyNetReturn: Math.round((item.monthlyGrossRevenue * 0.72) * 100) / 100,
-      confidence: 'high',
-      provenance: 'provided',
-      note: item.note?.trim() || item.source?.trim() || 'Provided comparable',
-    }))
+        monthlyGrossRevenue: Math.round(item.monthlyGrossRevenue * 100) / 100,
+        monthlyNetReturn: Math.round((item.monthlyGrossRevenue * 0.72) * 100) / 100,
+        confidence: 'high',
+        provenance: 'provided',
+        note: item.note?.trim() || item.source?.trim() || 'Referência informada',
+      }))
   }
 
   const baseline: Array<{ stayType: StayType; label: string; gross: number; net: number }> = [
     {
       stayType: 'long-stay',
-      label: 'Internal long-stay benchmark',
+      label: 'Referência interna de estadia longa',
       gross: models['long-stay'].baseGrossMonthlyRevenue,
       net: models['long-stay'].scenarios.find(scenario => scenario.label === 'base')?.netMonthlyReturn ?? 0,
     },
     {
       stayType: 'mid-stay',
-      label: 'Internal mid-stay benchmark',
+      label: 'Referência interna de estadia média',
       gross: models['mid-stay'].baseGrossMonthlyRevenue,
       net: models['mid-stay'].scenarios.find(scenario => scenario.label === 'base')?.netMonthlyReturn ?? 0,
     },
     {
       stayType: 'short-stay',
-      label: 'Internal short-stay benchmark',
+      label: 'Referência interna de estadia curta',
       gross: models['short-stay'].baseGrossMonthlyRevenue,
       net: models['short-stay'].scenarios.find(scenario => scenario.label === 'base')?.netMonthlyReturn ?? 0,
     },
@@ -64,7 +64,7 @@ export function buildComparables(
         monthlyNetReturn: Math.round(item.net * 100) / 100,
         confidence: confidenceFromDistance(distance),
         provenance: 'derived',
-        note: 'Derived from the deterministic MVP model; no scraping involved.',
+        note: 'Derivado do modelo determinístico do MVP; sem scraping.',
       } satisfies ComparableBenchmark
     })
     .sort((a, b) => b.monthlyNetReturn - a.monthlyNetReturn)

@@ -12,6 +12,10 @@ export type Provenance = 'provided' | 'estimated' | 'derived'
 
 export type AnalysisStatus = 'needs_input' | 'ready'
 
+export type OwnerFlexibilityLevel = 'high' | 'medium' | 'low'
+
+export type OwnerOperatingModel = 'short_mid' | 'mixed' | 'long'
+
 export interface PropertyLeadInput {
   name?: string | null
   source?: string | null
@@ -20,12 +24,26 @@ export interface PropertyLeadInput {
 
 export interface PropertyInput {
   location?: string | null
+  propertyType?: string | null
   typology?: string | null
   areaM2?: number | null
   bedrooms?: number | null
   market?: MarketTier | null
   condition?: ConditionTier | null
   furnished?: boolean | null
+  balcony?: boolean | null
+  pool?: boolean | null
+  garage?: boolean | null
+  highlights?: string | null
+  listingUrl?: string | null
+}
+
+export interface OwnerContextInput {
+  flexibility?: OwnerFlexibilityLevel | null
+  operatingModel?: OwnerOperatingModel | null
+  historicalRevenue?: number | null
+  rentedDays?: number | null
+  maintenanceNote?: string | null
 }
 
 export interface StayAssumptionsInput {
@@ -41,6 +59,7 @@ export interface StayAssumptionsInput {
 export interface PropertyIntelligenceInput {
   lead?: PropertyLeadInput | null
   property?: PropertyInput | null
+  ownerContext?: OwnerContextInput | null
   assumptions?: {
     currency?: string | null
     longStay?: StayAssumptionsInput | null
@@ -60,12 +79,18 @@ export interface ComparableInput {
 
 export interface NormalizedProperty {
   location: string
+  propertyType: string
   typology: string
   areaM2: number
   bedrooms: number
   market: MarketTier
   condition: ConditionTier
   furnished: boolean
+  balcony: boolean
+  pool: boolean
+  garage: boolean
+  highlights: string
+  listingUrl: string
 }
 
 export interface NormalizedAssumptions {
@@ -75,12 +100,22 @@ export interface NormalizedAssumptions {
   shortStay: StayAssumptionsInput
 }
 
+export interface NormalizedOwnerContext {
+  flexibility: OwnerFlexibilityLevel | null
+  operatingModel: OwnerOperatingModel | null
+  historicalRevenue: number | null
+  rentedDays: number | null
+  maintenanceNote: string
+  revenuePerRentedDay: number | null
+}
+
 export interface IntakeResult {
   blockingInputs: string[]
   estimatedFields: string[]
   completenessScore: number
   normalizedProperty: NormalizedProperty
   normalizedAssumptions: NormalizedAssumptions
+  ownerContext: NormalizedOwnerContext
   lead: PropertyLeadInput
 }
 
@@ -175,4 +210,3 @@ export interface PropertyIntelligenceResult {
     events: TelemetryEvent[]
   }
 }
-

@@ -49,26 +49,26 @@ export function FeatureGate({
         if (!data.hasAccess && data.plan) {
           onBlocked?.(feature, data.plan)
 
-          // Redirect to upgrade page with feature context
-          // (Optional: only redirect if not already on upgrade page)
+          // Redireciona para a página de upgrade com contexto da funcionalidade
+          // (Opcional: só redireciona se ainda não estiver na página de upgrade)
           const currentPath = window.location.pathname
           if (!currentPath.includes('/upgrade')) {
             router.push(`/upgrade?feature=${feature}&plan=${data.plan}`)
           }
         }
       } else {
-        console.error('Feature check failed:', data.error)
+        console.error('Falha na verificação da funcionalidade:', data.error)
         setHasAccess(false)
       }
     } catch (error) {
-      console.error('Error checking feature access:', error)
+      console.error('Erro ao verificar acesso à funcionalidade:', error)
       setHasAccess(false)
     }
   }
 
   // Show loading state while checking
   if (hasAccess === null) {
-    return <div className="animate-pulse">Loading...</div>
+    return <div className="animate-pulse">A carregar...</div>
   }
 
   // Show children if access granted, fallback otherwise
@@ -77,9 +77,9 @@ export function FeatureGate({
       <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4">
         {fallback || (
           <div className="text-sm text-yellow-800">
-            <p className="font-semibold">Feature not available</p>
+            <p className="font-semibold">Funcionalidade indisponível</p>
             <p className="text-xs">
-              Upgrade your plan to access {feature.replace(/_/g, ' ')}.
+              Faça upgrade do seu plano para aceder a {feature.replace(/_/g, ' ')}.
             </p>
           </div>
         )}
@@ -127,7 +127,7 @@ export function useFeatureAccess(feature: FeatureName, orgId?: string | null) {
           setHasAccess(false)
         }
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Unknown error'
+        const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido'
         setError(errorMessage)
         setHasAccess(false)
       } finally {

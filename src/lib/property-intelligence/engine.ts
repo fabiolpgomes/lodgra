@@ -60,6 +60,7 @@ function estimateGrossRevenue(
   }
 
   const typologyText = normalizedProperty.typology.toLowerCase()
+  const propertyTypeText = normalizedProperty.propertyType.toLowerCase()
   const typologyMultiplier = /studio|t0/.test(typologyText)
     ? 0.88
     : /t1/.test(typologyText)
@@ -68,9 +69,15 @@ function estimateGrossRevenue(
         ? 1.14
         : /t3/.test(typologyText)
           ? 1.28
-          : /house|villa/.test(typologyText)
-            ? 1.4
+          : /t4\+/.test(typologyText)
+            ? 1.38
             : 1.05
+
+  const propertyTypeMultiplier = /vivenda|cabana|house|villa/.test(propertyTypeText)
+    ? 1.08
+    : /pr[eé]dio/.test(propertyTypeText)
+      ? 1.02
+      : 1
 
   const conditionMultiplier =
     normalizedProperty.condition === 'poor'
@@ -82,9 +89,23 @@ function estimateGrossRevenue(
           : 1.04
 
   const furnishedMultiplier = normalizedProperty.furnished ? 1.05 : 0.96
+  const balconyMultiplier = normalizedProperty.balcony ? 1.02 : 1
+  const poolMultiplier = normalizedProperty.pool ? 1.05 : 1
+  const garageMultiplier = normalizedProperty.garage ? 1.03 : 1
   const bedroomsMultiplier = 1 + Math.max(0, normalizedProperty.bedrooms - 1) * 0.07
   const area = normalizedProperty.areaM2 || 45
-  const base = area * baseRatePerM2 * typologyMultiplier * conditionMultiplier * furnishedMultiplier * bedroomsMultiplier * locationMultiplier
+  const base =
+    area *
+    baseRatePerM2 *
+    typologyMultiplier *
+    propertyTypeMultiplier *
+    conditionMultiplier *
+    furnishedMultiplier *
+    balconyMultiplier *
+    poolMultiplier *
+    garageMultiplier *
+    bedroomsMultiplier *
+    locationMultiplier
 
   if (stayType === 'mid-stay') {
     return base * 1.18
@@ -195,6 +216,15 @@ export function runPropertyIntelligenceAnalysis(
       at: finishedAt,
       payload: { traceId, blockedInputs: blockedInputs.length },
     })
+    telemetryEvents.push({
+      name: 'analysis.publish_approval',
+      at: finishedAt,
+      payload: {
+        traceId,
+        required: true,
+        approved: false,
+      },
+    })
 
     const provisionalResult: PropertyIntelligenceResult = {
       traceId,
@@ -283,7 +313,8 @@ export function runPropertyIntelligenceAnalysis(
   ) as ComparableBenchmark[]
   const strategy = buildStrategyRecommendation(
     models as Record<StayType, { scenarios: { label: 'base'; netMonthlyReturn: number }[] }>,
-    comparables
+    comparables,
+    intake.ownerContext
   )
 
   const provisionalResult: PropertyIntelligenceResult = {
@@ -327,6 +358,15 @@ export function runPropertyIntelligenceAnalysis(
     payload: {
       traceId,
       status: true,
+    },
+  })
+  telemetryEvents.push({
+    name: 'analysis.publish_approval',
+    at: finishedAt,
+    payload: {
+      traceId,
+      required: provisionalResult.publication.required,
+      approved: provisionalResult.publication.approved,
     },
   })
 
