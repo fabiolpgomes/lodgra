@@ -26,7 +26,13 @@ export interface MinimumNightsResult {
   passed: boolean
   minimumNights: number
   selectedNights: number
+  requiresApproval?: boolean
+  overrideApplied?: boolean
   error?: string
+}
+
+export interface ValidationOptions {
+  allowMinimumNightsOverride?: boolean
 }
 
 export interface CancellationPolicyResult {
@@ -325,7 +331,8 @@ export class ReservationValidator {
     propertyId: string,
     nights: number,
     checkIn?: string,
-    checkOut?: string
+    checkOut?: string,
+    options: ValidationOptions = {}
   ): Promise<MinimumNightsResult> {
     try {
       const supabase = await this.getClient()
@@ -381,14 +388,28 @@ export class ReservationValidator {
       const configuredMinimumNights = Number(availabilityData?.min_nights) || 1
       const minimumNights = Math.max(configuredMinimumNights, periodMinimumNights)
       const maximumNights = Number(availabilityData?.max_nights) || 365
+      const allowMinimumNightsOverride = options.allowMinimumNightsOverride === true
+      const isBelowMinimum = nights < minimumNights
+
+      if (isBelowMinimum && allowMinimumNightsOverride) {
+        return {
+          success: true,
+          passed: true,
+          minimumNights,
+          selectedNights: nights,
+          requiresApproval: true,
+          overrideApplied: true,
+        }
+      }
 
       return {
         success: true,
-        passed: nights >= minimumNights && nights <= maximumNights,
+        passed: !isBelowMinimum && nights <= maximumNights,
         minimumNights,
         selectedNights: nights,
+        requiresApproval: isBelowMinimum,
         error:
-          nights < minimumNights
+          isBelowMinimum
             ? `This property requires minimum ${minimumNights} night${minimumNights > 1 ? 's' : ''}. You selected ${nights} nights.`
             : nights > maximumNights
             ? `This property allows maximum ${maximumNights} nights. You selected ${nights} nights.`
@@ -618,7 +639,8 @@ export class ReservationValidator {
   static async validate(
     propertyId: string,
     checkIn: string,
-    checkOut: string
+    checkOut: string,
+    options: ValidationOptions = {}
   ): Promise<ValidationResult> {
     const errors: string[] = []
     const warnings: string[] = []
@@ -638,7 +660,7 @@ export class ReservationValidator {
     const [priceResult, minimumNightsResult, cancellationPolicyResult, overlapResult, feesResult] =
       await Promise.all([
         this.validatePrice(propertyId, checkIn, checkOut),
-        this.validateMinimumNights(propertyId, nights, checkIn, checkOut),
+        this.validateMinimumNights(propertyId, nights, checkIn, checkOut, options),
         this.validateCancellationPolicy(propertyId, checkIn, nights),
         this.validateReservationOverlap(propertyId, checkIn, checkOut),
         this.validateFees(propertyId, nights),
@@ -661,8 +683,13 @@ export class ReservationValidator {
 
     // Collect errors
     if (!priceResult.success && priceResult.error) errors.push(priceResult.error)
-    if (!minimumNightsResult.passed && minimumNightsResult.error)
+    if (!minimumNightsResult.passed && !minimumNightsResult.overrideApplied && minimumNightsResult.error)
       errors.push(minimumNightsResult.error)
+    if (minimumNightsResult.overrideApplied) {
+      warnings.push(
+        `Exceção aprovada: o período fica abaixo do mínimo de ${minimumNightsResult.minimumNights} noites, mas a reserva manual foi autorizada.`
+      )
+    }
     if (overlapResult.hasConflict) {
       const conflictIds = overlapResult.conflictingReservations.map((r) => r.id).join(', ')
       errors.push(`Overlapping reservations found: ${conflictIds}`)

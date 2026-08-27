@@ -5,6 +5,10 @@ interface RateLimitEntry {
 
 const rateLimitStores = new Map<string, Map<string, RateLimitEntry>>();
 
+export function resetRateLimitStores(): void {
+  rateLimitStores.clear()
+}
+
 /**
  * IP-based rate limiter to prevent bot flooding and DoS.
  * In-process store — resets on server restart. Acceptable for this use case.
