@@ -112,7 +112,7 @@ export function OptimizationDashboard({ properties }: { properties: Array<{ id: 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-be-text">
             Google Optimization Tools
@@ -160,7 +160,7 @@ export function OptimizationDashboard({ properties }: { properties: Array<{ id: 
           {/* Overall Score */}
           <Card>
             <div className="p-6">
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between mb-4">
                 <div>
                   <h2 className="text-lg font-semibold text-be-text">Ranking Score</h2>
                   <p className="text-sm text-be-text-muted-500">Overall optimization level</p>
@@ -190,11 +190,11 @@ export function OptimizationDashboard({ properties }: { properties: Array<{ id: 
           </Card>
 
           {/* Ranking Factors */}
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
             {currentData.factors.map((factor, idx) => (
               <Card key={idx}>
                 <div className="p-4">
-                  <div className="flex items-center justify-between mb-2">
+                  <div className="mb-2 flex items-start justify-between gap-3">
                     <h3 className="font-medium text-be-text capitalize">{factor.name}</h3>
                     <div className="text-2xl font-bold text-be-blue">{factor.score.toFixed(1)}</div>
                   </div>
@@ -224,7 +224,7 @@ export function OptimizationDashboard({ properties }: { properties: Array<{ id: 
           {currentData.topRecommendation && (
             <Card className="border-be-blue border-2">
               <div className="p-6">
-                <div className="flex items-start gap-4">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
                   <div className="p-3 bg-be-blue bg-opacity-10 rounded-lg">
                     <Zap className="w-6 h-6 text-be-blue" />
                   </div>
@@ -237,7 +237,7 @@ export function OptimizationDashboard({ properties }: { properties: Array<{ id: 
                       {currentData.topRecommendation.description}
                     </p>
 
-                    <div className="flex items-center gap-4 mt-4">
+                    <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
                       <div>
                         <p className="text-xs text-be-text-muted">Expected Impact</p>
                         <p className="text-lg font-semibold text-emerald-700">
@@ -260,7 +260,7 @@ export function OptimizationDashboard({ properties }: { properties: Array<{ id: 
                     <Button
                       variant="be-primary"
                       size="be-md"
-                      className="rounded-full"
+                      className="w-full rounded-full sm:w-auto"
                     >
                       Start Optimization
                     </Button>
@@ -283,7 +283,7 @@ export function OptimizationDashboard({ properties }: { properties: Array<{ id: 
               <div className="space-y-3 p-4">
                 {currentData.quickWins.slice(0, 5).map((rec) => (
                   <div key={rec.id} className={`p-4 rounded-lg border ${getPriorityColor(rec.priority)}`}>
-                    <div className="flex items-start justify-between">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                       <div className="flex-1">
                         <h4 className="font-medium text-be-text">{rec.title}</h4>
                         <p className="text-sm text-be-text-muted-700 mt-1">{rec.action}</p>
@@ -296,7 +296,7 @@ export function OptimizationDashboard({ properties }: { properties: Array<{ id: 
                       <Button
                         size="be-sm"
                         variant="be-primary"
-                        className="ml-3"
+                        className="w-full sm:ml-3 sm:w-auto"
                       >
                         Apply
                       </Button>
@@ -320,14 +320,14 @@ export function OptimizationDashboard({ properties }: { properties: Array<{ id: 
               {currentData.recommendations.map((rec) => (
                 <div
                   key={rec.id}
-                  className="flex items-center justify-between p-3 bg-lodgra-neutral-50 rounded-lg border border-lodgra-neutral-200"
+                  className="flex flex-col gap-3 p-3 bg-lodgra-neutral-50 rounded-lg border border-lodgra-neutral-200 sm:flex-row sm:items-center sm:justify-between"
                 >
                   <div className="flex-1">
                     <p className="font-medium text-be-text">{rec.title}</p>
                     <p className="text-xs text-be-text-muted mt-1">{rec.description}</p>
                   </div>
 
-                  <div className="flex items-center gap-3 ml-4">
+                  <div className="flex items-center gap-3 sm:ml-4">
                     <span className="text-sm font-semibold text-emerald-700">+{rec.estimatedImpactPercent}%</span>
                     <span className="text-xs px-2 py-1 bg-lodgra-neutral-200 rounded text-be-text-muted-700">
                       {rec.category}

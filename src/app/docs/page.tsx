@@ -10,7 +10,7 @@ const docCategories = [
   {
     icon: BookOpen,
     title: 'Guia de Início Rápido',
-    description: 'Configure sua primeira propriedade em 5 minutos',
+    description: 'Configure a sua primeira propriedade em 5 minutos',
     topics: [
       'Criar conta',
       'Adicionar propriedade',
@@ -20,7 +20,7 @@ const docCategories = [
   {
     icon: Zap,
     title: 'Automação',
-    description: 'Automatize suas operações com workflows inteligentes',
+    description: 'Automatize as suas operações com fluxos de trabalho inteligentes',
     topics: [
       'Configurar sincronização',
       'Criar automações',
@@ -30,7 +30,7 @@ const docCategories = [
   {
     icon: BarChart3,
     title: 'Análise de Dados',
-    description: 'Entenda seus dados e tome melhores decisões',
+    description: 'Compreenda os seus dados e tome melhores decisões',
     topics: [
       'Dashboard de lucros',
       'Relatórios personalizados',
@@ -40,7 +40,7 @@ const docCategories = [
   {
     icon: Settings,
     title: 'Configurações',
-    description: 'Customize Lodgra de acordo com suas necessidades',
+    description: 'Personalize o Lodgra de acordo com as suas necessidades',
     topics: [
       'Preferências de conta',
       'Integrações',
@@ -50,7 +50,7 @@ const docCategories = [
   {
     icon: Shield,
     title: 'Segurança',
-    description: 'Proteja seus dados e operações',
+    description: 'Proteja os seus dados e operações',
     topics: [
       'Autenticação 2FA',
       'Permissões de usuário',

@@ -11,6 +11,7 @@ import { PropertyGrid } from '@/components/common/public/properties/PropertyGrid
 import { TemplateHero } from '@/components/booking/TemplateHero'
 import type { PropertyCardProps } from '@/components/common/public/properties/PropertyCard'
 import { InstallPromptButton } from '@/components/booking/InstallPromptButton'
+import { OrganizationTrafficTracker } from '@/components/analytics/OrganizationTrafficTracker'
 
 interface TemplateConfig {
   booking_headline: string
@@ -161,6 +162,7 @@ export function BookingPageClient({ orgSlug, orgName, orgLogoUrl, publicProfile,
 
   return (
     <div className="min-h-screen bg-brand-bg font-light text-brand-text-medium">
+      <OrganizationTrafficTracker organizationSlug={orgSlug} pagePath="/booking" />
 
       {/* ── Header ─────────────────────────────────────────── */}
       <header className="bg-brand-white/95 border-b border-brand-gold/15 px-4 sm:px-6 h-14 sm:h-[72px] flex items-center sticky top-0 z-40 backdrop-blur">

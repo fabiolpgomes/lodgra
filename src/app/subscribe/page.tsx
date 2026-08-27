@@ -5,9 +5,10 @@ import Link from 'next/link'
 import { AlertCircle, Check, ArrowRight } from 'lucide-react'
 import { Button } from '@/components/common/ui/button'
 import { PLAN_DISPLAY } from '@/lib/billing/plans'
+import { formatCurrency } from '@/lib/utils/currency'
 
 const FEE_LABELS: Record<string, string> = {
-  growth: '+ €1 por reserva',
+  growth: '+ 1 EUR por reserva',
   pro:    '+ 1% da receita',
 }
 
@@ -84,12 +85,14 @@ export default function SubscribePage() {
 
                 {plan.enterprise ? (
                   <div className="mb-5">
-                    <span className="text-2xl font-extrabold text-gray-900">Custom</span>
+                    <span className="text-2xl font-extrabold text-gray-900">Personalizado</span>
                   </div>
                 ) : (
                   <div className="mb-1">
                     <div className="flex items-baseline gap-1">
-                      <span className="text-3xl font-extrabold text-gray-900">€{plan.price}</span>
+                      <span className="text-3xl font-extrabold text-gray-900">
+                        {formatCurrency(plan.price)}
+                      </span>
                       <span className="text-gray-600 text-xs">/unidade/mês</span>
                     </div>
                     {feeLabel && (

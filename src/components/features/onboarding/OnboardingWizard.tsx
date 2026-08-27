@@ -40,7 +40,7 @@ const STEPS = [
 
 const CURRENCIES = [
   { value: 'BRL', label: 'R$ (BRL)' },
-  { value: 'EUR', label: '€ (EUR)' },
+  { value: 'EUR', label: 'EUR (Euro)' },
   { value: 'USD', label: '$ (USD)' },
 ]
 

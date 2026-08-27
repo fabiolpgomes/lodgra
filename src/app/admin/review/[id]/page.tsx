@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useSearchParams } from 'next/navigation'
 import ReviewDecisionForm from '@/components/ReviewDecisionForm'
+import { formatCurrency } from '@/lib/utils/currency'
 
 interface ReviewData {
   reservation_id: string
@@ -140,7 +141,7 @@ export default function ReviewPage() {
 
           <div className="bg-blue-50 p-4 rounded border border-blue-200">
             <p className="text-sm text-gray-600">Valor da Reserva</p>
-            <p className="font-bold text-lg">€{data.total_amount.toFixed(2)}</p>
+            <p className="font-bold text-lg">{formatCurrency(data.total_amount)}</p>
           </div>
         </div>
 
