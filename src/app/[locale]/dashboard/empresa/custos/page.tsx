@@ -162,7 +162,7 @@ export default async function CompanyCostsPage({
     }
     redirect(`/${locale}/account`)
   }
-  if (!auth.organizationId) redirect(`/${locale}/onboarding`)
+  if (!auth.organizationId) redirect(`/${locale}/account`)
 
   const selectedYear = Number(query.year || new Date().getFullYear())
   const safeYear = Number.isFinite(selectedYear) ? selectedYear : new Date().getFullYear()

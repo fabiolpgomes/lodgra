@@ -92,7 +92,7 @@ export default async function DashboardPage({
 
   const organizationId = auth.organizationId
   if (!organizationId) {
-    redirect(`/${locale}/onboarding`)
+    redirect(`/${locale}/account`)
   }
 
   const supabase = await createClient()

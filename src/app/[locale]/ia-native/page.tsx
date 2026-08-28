@@ -32,7 +32,7 @@ export default async function IaNativePage({
   }
 
   if (!auth.organizationId) {
-    redirect(`/${locale}/onboarding`)
+    redirect(`/${locale}/account`)
   }
 
   const adminClient = createAdminClient()

@@ -204,7 +204,7 @@ export default async function CompanyDashboardPage({
   }
 
   if (!auth.organizationId) {
-    redirect(`/${locale}/onboarding`)
+    redirect(`/${locale}/account`)
   }
 
   const selectedYear = Number(query.year || new Date().getFullYear())

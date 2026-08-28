@@ -28,7 +28,7 @@ export default async function PropertyIntelligenceAnalyzePage({
   }
 
   if (!auth.organizationId) {
-    redirect(`/${locale}/onboarding`)
+    redirect(`/${locale}/account`)
   }
 
   const adminClient = createAdminClient()
