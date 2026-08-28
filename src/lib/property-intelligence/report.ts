@@ -109,10 +109,6 @@ function formatStayType(stayType: string): string {
   return 'estadia'
 }
 
-function renderPageBreak(): string[] {
-  return ['<div style="page-break-after: always;"></div>']
-}
-
 function formatReadingObjective(objective: ReadingObjective): string {
   if (objective === 'viability') {
     return 'Viabilidade'
@@ -442,8 +438,6 @@ export function buildMarkdownReport(result: PropertyIntelligenceResult): string 
   lines.push(renderVerdict(result))
   lines.push('')
   lines.push(...renderNextSteps(result))
-  lines.push('')
-  lines.push(...renderPageBreak())
   lines.push('')
   lines.push(...renderReadingGuide())
   lines.push('')

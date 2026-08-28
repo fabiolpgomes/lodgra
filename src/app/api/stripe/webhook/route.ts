@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { invalidateCachedProfile } from '@/lib/cache/profileCache'
 import { invalidateCachedSubscriptionStatus } from '@/lib/cache/subscriptionCache'
 import { getPlanFromPriceId } from '@/lib/billing/plans'
 import { UserRole } from '@/lib/auth/role-types'
@@ -234,6 +235,7 @@ async function handleCheckoutCompleted(supabase: AdminClient, session: Stripe.Ch
         accessAllProperties: true,
         organizationId,
       })
+      await invalidateCachedProfile(userId)
       console.log(`[webhook] Perfil admin criado/actualizado: ${email} → org ${organizationId}`)
     } catch (error) {
       console.error('[webhook] Erro ao criar/actualizar perfil para', email, ':', error)

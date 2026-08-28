@@ -43,7 +43,9 @@ export async function getUserAccess(
 
   if (!profile) return null
 
-  const role = (profile.role as Role) || 'viewer'
+  const role = profile.access_all_properties === true
+    ? 'admin'
+    : ((profile.role as Role) || 'viewer')
 
   if (role === 'admin' || profile.access_all_properties === true) {
     return {

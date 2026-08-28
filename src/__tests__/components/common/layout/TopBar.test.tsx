@@ -40,7 +40,7 @@ describe('TopBar module shell', () => {
   it('shows the current module context and page title', () => {
     render(<TopBar />)
 
-    expect(screen.getByText('Operação do portfólio')).toBeInTheDocument()
+    expect(screen.getByText('Execução do portfólio')).toBeInTheDocument()
     expect(screen.getByText('Operação')).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Propriedades' })).toBeInTheDocument()
     expect(screen.getByTestId('locale-selector')).toBeInTheDocument()

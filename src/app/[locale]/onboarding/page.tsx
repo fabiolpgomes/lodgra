@@ -334,7 +334,7 @@ export default function OnboardingPage() {
             <Step2Property
               onNext={handleStep2Next}
               onSkip={() => setStep(2)}
-              onContinueExisting={() => setStep(3)}
+              onContinueExisting={() => setStep(2)}
               onboardingSessionId={onboardingSessionId}
             />
           )}

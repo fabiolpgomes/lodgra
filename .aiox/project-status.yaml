@@ -1,15 +1,23 @@
 status:
   branch: main
-  modifiedFiles: []
-  modifiedFilesTotalCount: 0
+  modifiedFiles:
+    - .aiox/project-status.yaml
+    - docs/stories/ia-native/dev-4-integracao-lodgra.md
+    - src/__tests__/property-intelligence/property-intelligence.test.ts
+    - src/app/[locale]/ia-native/analyze/page.tsx
+    - src/app/api/stripe/webhook/route.ts
+    - src/app/[locale]/settings/page.tsx
+    - src/app/[locale]/settings/organizations/[orgId]/company-profile/page.tsx
+    - src/app/[locale]/onboarding/page.tsx
+    - src/components/features/onboarding/Step2CompanyProfile.tsx
+  modifiedFilesTotalCount: 11
   recentCommits:
-    - docs: add second brain instructions
-    - docs: sync stories and session helpers
-    - feat: polish public pages and onboarding
+    - 'chore: refresh project status metadata'
+    - 'docs: add second brain instructions'
   currentEpic: 20 — Checkout Directo (Housekeeping)
   currentStory: 20.3.story
-  lastUpdate: '2026-08-27T07:42:37Z'
+  lastUpdate: '2026-08-27T13:57:26Z'
   isGitRepo: true
-timestamp: 1787816557000
+timestamp: 1787838245680
 ttl: 60
-gitFingerprint: 1785569665275.2065:1787816557000
+gitFingerprint: 1785569665275.2065:1787816580122.778

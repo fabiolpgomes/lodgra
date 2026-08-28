@@ -77,8 +77,8 @@ describe('property intelligence MVP', () => {
     expect(report).toContain('Veredito: o imóvel mostra melhor encaixe')
     expect(report).toContain('Faro, Algarve')
     expect(report).toContain('estadia curta')
-    expect(report).toContain('<div style="page-break-after: always;"></div>')
     expect(report).toContain('## Próximos Passos')
+    expect(report).not.toContain('page-break-after: always')
   })
 
   it('allows analysis to continue when the user does not know the core property details', () => {

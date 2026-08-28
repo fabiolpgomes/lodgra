@@ -97,6 +97,21 @@ describe('requireRole — autorizado', () => {
     expect(result.authorized).toBe(true)
     expect(result.role).toBe('gestor')
   })
+
+  it('authorizes viewer with full operational access on admin route', async () => {
+    mockCreateClient.mockResolvedValue(buildSupabaseMock({ id: 'user-lab' }, null))
+    mockGetCachedProfile.mockResolvedValue({
+      role: 'viewer',
+      access_all_properties: true,
+      organization_id: 'org-lab',
+    })
+
+    const result = await requireRole(['admin', 'gestor'])
+
+    expect(result.authorized).toBe(true)
+    expect(result.role).toBe('admin')
+    expect(result.accessAllProperties).toBe(true)
+  })
 })
 
 describe('requireRole — org isolation', () => {

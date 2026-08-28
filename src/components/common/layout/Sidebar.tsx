@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTheme } from 'next-themes'
 import {
+  Building2,
   CreditCard,
   Globe,
   LogOut,
@@ -139,10 +140,12 @@ export function Sidebar({ serverProfile }: SidebarProps) {
 
   const accountShortcuts = [
     { href: `${prefix}/settings`, label: 'Definições', icon: Settings },
-    { href: `${prefix}/settings/billing`, label: 'Planos & Faturamento', icon: CreditCard },
+    ...(isAdmin && profile?.organization_id
+      ? [{ href: `${prefix}/settings/organizations/${profile.organization_id}/company-profile`, label: 'Dados da empresa', icon: Building2 }]
+      : []),
+    { href: `${prefix}/settings/billing`, label: 'Planos e Ferramentas', icon: CreditCard },
     { href: `${prefix}/sync`, label: 'Sincronização', icon: RefreshCw },
     { href: `${prefix}/owners`, label: 'Proprietários', icon: Users },
-    ...(isAdmin ? [{ href: `${prefix}/admin/users`, label: 'Usuários', icon: Users }] : []),
     ...(hasPremium ? [{ href: `${prefix}/admin/google-distribution`, label: 'Google Distribution', icon: Globe }] : []),
   ]
 

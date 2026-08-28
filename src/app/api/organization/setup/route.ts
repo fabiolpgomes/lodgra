@@ -77,6 +77,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({
         organization,
         organizationCode,
+        organizationId: organization.id,
         existingPropertyId: existingProperty?.id ?? null,
       })
     } catch (error) {
@@ -92,6 +93,7 @@ export async function GET(request: NextRequest) {
   return NextResponse.json({
     organization: org,
     organizationCode: org?.id ?? null,
+    organizationId: org?.id ?? null,
     existingPropertyId,
   })
 }
@@ -121,6 +123,7 @@ export async function POST(request: NextRequest) {
         success: true,
         slug: organization.slug,
         organizationCode,
+        organizationId: organization.id,
         existingPropertyId: existingProperty?.id ?? null,
       })
     } catch (error) {
@@ -183,6 +186,7 @@ export async function POST(request: NextRequest) {
   return NextResponse.json({
     success: true,
     slug: organization.organization_slug,
+    organizationId: organization.organization_id,
     existingPropertyId: existingProperty?.id ?? null,
   })
 }

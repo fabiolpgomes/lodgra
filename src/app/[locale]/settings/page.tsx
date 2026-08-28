@@ -21,7 +21,12 @@ export const dynamic = 'force-dynamic'
 export default async function SettingsPage(props: { params: Promise<{ locale: string }> }) {
   const { locale } = await props.params
   const auth = await requireRole(['admin', 'gestor'])
-  if (!auth.authorized) redirect('/login')
+  if (!auth.authorized) {
+    if (auth.response?.status === 401) {
+      redirect(`/${locale}/login`)
+    }
+    redirect(`/${locale}/account`)
+  }
 
   const supabase = createAdminClient()
 
@@ -84,68 +89,120 @@ export default async function SettingsPage(props: { params: Promise<{ locale: st
           badge={isAdmin ? 'Admin' : 'Gestor'}
         />
 
-        {organization && (
+        {isAdmin && auth.organizationId && (
           <section className="mb-8">
             <PremiumCard>
-              <div className="flex items-start justify-between gap-4">
+              <div className="space-y-4">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2 mb-2">
                     <Building2 className="h-5 w-5 text-brand-blue transition-colors group-hover:text-brand-gold" />
-                    <h2 className="text-lg font-semibold text-brand-text-dark transition-colors group-hover:text-brand-gold">Empresa e reserva direta</h2>
+                    <h2 className="text-lg font-semibold text-brand-text-dark transition-colors group-hover:text-brand-gold">Dados da empresa</h2>
                   </div>
                   <p className="text-sm text-brand-text-medium">
-                    O nome da empresa define o endereço público usado na página de reserva direta.
+                    Nome, logotipo, cores e contactos que alimentam o PDF, o rodapé e os canais públicos.
                   </p>
-                  <div className="mt-4 rounded-xl border border-neutral-200/60 bg-brand-bg px-4 py-3">
-                    <p className="text-xs font-medium uppercase tracking-wide text-brand-text-medium">Nome da empresa</p>
-                    <p className="mt-1 truncate text-sm font-semibold text-brand-text-dark">{organization.name}</p>
-                    {bookingUrl && (
-                      <>
-                        <p className="mt-3 text-xs font-medium uppercase tracking-wide text-brand-text-medium">Página pública</p>
-                        <a
-                          href={bookingUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="mt-1 inline-flex max-w-full items-center gap-1 truncate text-sm font-medium text-brand-blue hover:text-brand-gold"
-                        >
-                          <span className="truncate">{bookingUrl}</span>
-                          <ExternalLink className="h-3.5 w-3.5 shrink-0" />
-                        </a>
-                      </>
-                    )}
-                  </div>
+                  {organization?.name && (
+                    <p className="mt-3 text-xs font-medium uppercase tracking-wide text-brand-text-medium">
+                      {organization.name}
+                    </p>
+                  )}
                 </div>
-                {isAdmin && (
-                  <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
-                    <Link
-                      href={`/${locale}/settings/organizations/${organization.id}/branding`}
-                      className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-brand-blue px-4 py-2 text-sm font-semibold !text-white transition-colors hover:bg-brand-gold hover:!text-white focus:outline-none focus:ring-2 focus:ring-brand-gold focus:ring-offset-2 sm:w-auto"
-                    >
-                      <Palette className="h-4 w-4 !text-white" />
-                      Logo e marca
-                    </Link>
-                    <Link
-                      href={`/${locale}/settings/organizations/${organization.id}/email-templates`}
-                      className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-brand-blue/20 bg-white px-4 py-2 text-sm font-semibold text-brand-blue transition-colors hover:border-brand-gold hover:text-brand-gold focus:outline-none focus:ring-2 focus:ring-brand-gold focus:ring-offset-2 sm:w-auto"
-                    >
-                      <Mail className="h-4 w-4" />
-                      Templates de email
-                    </Link>
-                  </div>
-                )}
+                <Link
+                  href={`/${locale}/settings/organizations/${auth.organizationId}/company-profile`}
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-brand-blue px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-brand-gold hover:text-white focus:outline-none focus:ring-2 focus:ring-brand-gold focus:ring-offset-2 sm:w-auto"
+                >
+                  <Building2 className="h-4 w-4" />
+                  Abrir dados da empresa
+                </Link>
               </div>
-
-              {isAdmin && (
-                <div className="mt-6 border-t border-brand-bg pt-6">
-                  <h3 className="text-base font-semibold text-brand-text-dark">Contacto público para hóspedes</h3>
-                  <p className="mt-1 mb-5 text-sm text-brand-text-medium">
-                    Estes dados aparecem na página pública de reserva direta para o hóspede falar com a empresa.
-                  </p>
-                  <PublicContactSettings organizationId={organization.id} initialProfile={publicProfile} />
-                </div>
-              )}
             </PremiumCard>
           </section>
+        )}
+
+        {isAdmin && (
+          <section id="gestao-utilizadores" className="mb-8 scroll-mt-24">
+            <PremiumCard>
+              <div className="flex items-center justify-between gap-4 mb-4">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Users className="h-5 w-5 text-brand-blue transition-colors group-hover:text-brand-gold" />
+                    <h2 className="text-lg font-semibold text-brand-text-dark transition-colors group-hover:text-brand-gold">Gestão de utilizadores</h2>
+                  </div>
+                  <p className="text-sm text-brand-text-medium">
+                    CRUD completo para criar, editar, reenviar convite e eliminar utilizadores da organização.
+                  </p>
+                </div>
+              </div>
+              <SettingsUserManagement users={users || []} />
+            </PremiumCard>
+          </section>
+        )}
+
+        {organization && (
+          <>
+            <section className="mb-8">
+              <PremiumCard>
+                <div className="flex items-start justify-between gap-4">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Building2 className="h-5 w-5 text-brand-blue transition-colors group-hover:text-brand-gold" />
+                      <h2 className="text-lg font-semibold text-brand-text-dark transition-colors group-hover:text-brand-gold">Empresa e reserva direta</h2>
+                    </div>
+                    <p className="text-sm text-brand-text-medium">
+                      O nome da empresa define o endereço público usado na página de reserva direta.
+                    </p>
+                    <div className="mt-4 rounded-xl border border-neutral-200/60 bg-brand-bg px-4 py-3">
+                      <p className="text-xs font-medium uppercase tracking-wide text-brand-text-medium">Nome da empresa</p>
+                      <p className="mt-1 truncate text-sm font-semibold text-brand-text-dark">{organization.name}</p>
+                      {bookingUrl && (
+                        <>
+                          <p className="mt-3 text-xs font-medium uppercase tracking-wide text-brand-text-medium">Página pública</p>
+                          <a
+                            href={bookingUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="mt-1 inline-flex max-w-full items-center gap-1 truncate text-sm font-medium text-brand-blue hover:text-brand-gold"
+                          >
+                            <span className="truncate">{bookingUrl}</span>
+                            <ExternalLink className="h-3.5 w-3.5 shrink-0" />
+                          </a>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  {isAdmin && (
+                    <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
+                      <Link
+                        href={`/${locale}/settings/organizations/${organization.id}/branding`}
+                        className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-brand-blue px-4 py-2 text-sm font-semibold !text-white transition-colors hover:bg-brand-gold hover:!text-white focus:outline-none focus:ring-2 focus:ring-brand-gold focus:ring-offset-2 sm:w-auto"
+                      >
+                        <Palette className="h-4 w-4 !text-white" />
+                        Logo e marca
+                      </Link>
+                      <Link
+                        href={`/${locale}/settings/organizations/${organization.id}/email-templates`}
+                        className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-brand-blue/20 bg-white px-4 py-2 text-sm font-semibold text-brand-blue transition-colors hover:border-brand-gold hover:text-brand-gold focus:outline-none focus:ring-2 focus:ring-brand-gold focus:ring-offset-2 sm:w-auto"
+                      >
+                        <Mail className="h-4 w-4" />
+                        Templates de email
+                      </Link>
+                    </div>
+                  )}
+                </div>
+
+                {isAdmin && (
+                  <div className="mt-6 border-t border-brand-bg pt-6">
+                    <h3 className="text-base font-semibold text-brand-text-dark">Contacto público para hóspedes</h3>
+                    <p className="mt-1 mb-5 text-sm text-brand-text-medium">
+                      Estes dados aparecem na página pública de reserva direta para o hóspede falar com a empresa.
+                    </p>
+                    <PublicContactSettings organizationId={organization.id} initialProfile={publicProfile} />
+                  </div>
+                )}
+              </PremiumCard>
+            </section>
+
+          </>
         )}
 
         {/* Email Connection - Gmail */}
@@ -171,22 +228,6 @@ export default async function SettingsPage(props: { params: Promise<{ locale: st
           <DataExportSection />
         </section>
 
-        {/* User Management - Admin Only */}
-        {isAdmin && (
-          <section className="mb-8">
-            <PremiumCard>
-              <div className="flex items-center gap-2 mb-4">
-                <Users className="h-5 w-5 text-brand-blue transition-colors group-hover:text-brand-gold" />
-                <h2 className="text-lg font-semibold text-brand-text-dark transition-colors group-hover:text-brand-gold">Gestão de utilizadores</h2>
-              </div>
-              <p className="text-sm text-brand-text-medium mb-4">
-                Gere os utilizadores da sua organização e defina as suas funções de acesso.
-              </p>
-              <SettingsUserManagement users={users || []} />
-            </PremiumCard>
-          </section>
-        )}
-        
         {/* Payment Configuration (Brazil) - Admin Only */}
         {isAdmin && organization && (
           <section className="mb-8">

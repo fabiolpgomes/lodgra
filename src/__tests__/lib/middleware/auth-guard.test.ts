@@ -6,6 +6,7 @@ import {
   isPublicPath,
 } from '@/lib/middleware/auth-guard'
 import { getCachedProfile } from '@/lib/cache/profileCache'
+import { getCachedSubscriptionStatus } from '@/lib/cache/subscriptionCache'
 
 jest.mock('next/server', () => ({
   NextRequest: class {
@@ -92,5 +93,43 @@ describe('auth guard for cleaner collaborators', () => {
 
     expect(response?.headers.get('location')).toBe('https://app.lodgra.com/cleaner/request-link')
     expect(from).not.toHaveBeenCalled()
+  })
+
+  it('does not send authenticated users with organization to onboarding just because there are no properties', async () => {
+    ;(getCachedProfile as jest.Mock).mockResolvedValue({
+      role: 'viewer',
+      guest_type: null,
+      organization_id: 'org-algarve-home-stay',
+      access_all_properties: false,
+    })
+    ;(getCachedSubscriptionStatus as jest.Mock).mockResolvedValue('active')
+
+    const from = jest.fn((table: string) => {
+      if (table === 'user_profiles') {
+        const single = jest.fn().mockResolvedValue({
+          data: {
+            role: 'viewer',
+            access_all_properties: false,
+            organization_id: 'org-algarve-home-stay',
+            guest_type: null,
+          },
+        })
+        const eq = jest.fn().mockReturnValue({ single })
+        const select = jest.fn().mockReturnValue({ eq })
+        return { select }
+      }
+
+      return {}
+    })
+
+    const response = await checkSubscriptionAndRole(
+      request('/pt/dashboard'),
+      { from } as unknown as SupabaseClient,
+      'viewer-user',
+      '/pt/dashboard',
+    )
+
+    expect(response).toBeNull()
+    expect(from).not.toHaveBeenCalledWith('properties')
   })
 })

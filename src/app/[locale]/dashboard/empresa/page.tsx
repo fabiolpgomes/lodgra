@@ -197,7 +197,10 @@ export default async function CompanyDashboardPage({
   const auth = await requireRole(['admin', 'gestor'])
 
   if (!auth.authorized) {
-    redirect(`/${locale}/onboarding/pendente`)
+    if (auth.response?.status === 401) {
+      redirect(`/${locale}/login`)
+    }
+    redirect(`/${locale}/account`)
   }
 
   if (!auth.organizationId) {
@@ -456,8 +459,8 @@ export default async function CompanyDashboardPage({
     <AuthLayout>
       <PremiumPageShell maxWidth="max-w-[1500px]" className="pb-28">
         <PremiumPageHeader
-          title="Dashboard Empresa"
-          description="Resultado anual consolidado para sócios: propriedades, comissões, repasses e retorno financeiro do negócio."
+          title="Visão financeira da empresa"
+          description="Resultado anual consolidado para sócios: faturamento, custos, repasses e retorno financeiro do negócio."
           badge={`Ano ${safeYear}`}
           icon={BarChart3}
           actions={(
@@ -478,7 +481,7 @@ export default async function CompanyDashboardPage({
                 href={`/${locale}/dashboard/empresa/custos?year=${safeYear}`}
                 className="inline-flex w-full items-center justify-center rounded-full border border-neutral-200 bg-brand-white px-4 py-2 text-xs font-bold text-brand-text-dark transition-all hover:border-brand-gold/45 hover:bg-brand-bg hover:text-brand-gold sm:w-auto"
               >
-                Custos empresa
+                Prestação de contas
               </Link>
               <Link
                 href={`/${locale}/reports/financeiro?start_date=${start}&end_date=${end}`}

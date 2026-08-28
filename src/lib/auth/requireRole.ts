@@ -91,11 +91,13 @@ export async function requireRole(minimumRoles: Role[]): Promise<AuthResult> {
     })
   }
 
-  if (!minimumRoles.includes(userRole)) {
+  const effectiveRole: Role = accessAllProperties ? 'admin' : userRole
+
+  if (!minimumRoles.includes(effectiveRole)) {
     return {
       authorized: false,
       userId,
-      role: userRole,
+      role: effectiveRole,
       accessAllProperties,
       organizationId,
       guestType,
@@ -106,7 +108,7 @@ export async function requireRole(minimumRoles: Role[]): Promise<AuthResult> {
   return {
     authorized: true,
     userId,
-    role: userRole,
+    role: effectiveRole,
     accessAllProperties,
     organizationId,
     guestType,

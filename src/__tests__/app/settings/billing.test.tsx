@@ -72,7 +72,7 @@ describe('Settings Billing Page', () => {
     const result = await BillingPage()
     render(result)
 
-    expect(screen.getByText('Planos & Faturamento')).toBeInTheDocument()
+    expect(screen.getByText('Planos e Ferramentas')).toBeInTheDocument()
     expect(screen.getByText('Gerencie sua subscrição e escolha o plano ideal para o seu negócio')).toBeInTheDocument()
   })
 

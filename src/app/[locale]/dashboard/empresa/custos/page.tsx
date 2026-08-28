@@ -156,7 +156,12 @@ export default async function CompanyCostsPage({
   const [{ locale }, query] = await Promise.all([params, searchParams])
   const auth = await requireRole(['admin', 'gestor'])
 
-  if (!auth.authorized) redirect(`/${locale}/onboarding/pendente`)
+  if (!auth.authorized) {
+    if (auth.response?.status === 401) {
+      redirect(`/${locale}/login`)
+    }
+    redirect(`/${locale}/account`)
+  }
   if (!auth.organizationId) redirect(`/${locale}/onboarding`)
 
   const selectedYear = Number(query.year || new Date().getFullYear())
@@ -188,7 +193,7 @@ export default async function CompanyCostsPage({
     <AuthLayout>
       <PremiumPageShell maxWidth="max-w-[1400px]" className="pb-28">
         <PremiumPageHeader
-          title="Custos da Empresa"
+          title="Prestação de contas"
           description="Despesas operacionais da Lodgra usadas no resultado líquido dos sócios."
           icon={Receipt}
           badge={`Ano ${safeYear}`}
@@ -199,7 +204,7 @@ export default async function CompanyCostsPage({
                 className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-neutral-200 bg-brand-white px-4 py-2 text-xs font-bold text-brand-text-dark transition-all hover:border-brand-gold/45 hover:bg-brand-bg hover:text-brand-gold sm:w-auto"
               >
                 <ArrowLeft className="h-3.5 w-3.5" />
-                Dashboard Empresa
+                Visão financeira
               </Link>
               <Link
                 href={`/${locale}/dashboard/empresa/custos?year=${safeYear - 1}`}
@@ -222,7 +227,7 @@ export default async function CompanyCostsPage({
             label="Custo anual operacional"
             value={formatMoneyMapText(totals.total)}
             type="EMPRESA"
-            description="Entrará no card Custos do Dashboard Empresa"
+            description="Entrará no card Prestação de contas"
             icon={Receipt}
             tone="danger"
           />
@@ -464,7 +469,7 @@ export default async function CompanyCostsPage({
                   Lançamentos
                 </h2>
                 <p className="mt-1 text-xs font-semibold text-brand-text-medium">
-                  Custos operacionais que alimentam o Dashboard Empresa.
+                  Custos operacionais que alimentam a Visão financeira da empresa.
                 </p>
               </div>
               <span className="rounded-full bg-brand-blue/10 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-brand-blue">

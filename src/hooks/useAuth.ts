@@ -39,11 +39,12 @@ export function useAuth() {
             .maybeSingle()
 
           if (profileRow) {
+            const effectiveRole = profileRow.access_all_properties ? 'admin' : (profileRow.role as UserRole)
             setProfile({
               id: user.id,
               email: user.email ?? '',
               full_name: profileRow.full_name,
-              role: profileRow.role as UserRole,
+              role: effectiveRole,
               avatar_url: profileRow.avatar_url,
               access_all_properties: profileRow.access_all_properties,
               organization_id: profileRow.organization_id ?? null,

@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { ChevronDown, CreditCard, MoreHorizontal, LogOut, RefreshCw, Settings, Users } from 'lucide-react'
+import { Building2, ChevronDown, CreditCard, MoreHorizontal, LogOut, RefreshCw, Settings, Users } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { isRestrictedGestor } from '@/lib/auth/permissions'
 import { useLocale } from '@/lib/i18n/routing'
@@ -72,10 +72,12 @@ export function BottomNav() {
 
   const accountLinks = [
     { path: '/settings', label: 'Definições', icon: Settings },
-    { path: '/settings/billing', label: 'Planos & Faturamento', icon: CreditCard },
+    ...(isAdmin && profile?.organization_id
+      ? [{ path: `/settings/organizations/${profile.organization_id}/company-profile`, label: 'Dados da empresa', icon: Building2 }]
+      : []),
+    { path: '/settings/billing', label: 'Planos e Ferramentas', icon: CreditCard },
     { path: '/sync', label: 'Sincronização', icon: RefreshCw },
     { path: '/owners', label: 'Proprietários', icon: Users },
-    ...(isAdmin ? [{ path: '/admin/users', label: 'Usuários', icon: Users }] : []),
   ]
 
   async function handleLogout() {

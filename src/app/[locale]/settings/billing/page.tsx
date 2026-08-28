@@ -69,7 +69,7 @@ export default async function BillingPage() {
     <AuthLayout>
       <PremiumPageShell maxWidth="max-w-4xl">
         <PremiumPageHeader
-          title="Planos & Faturamento"
+          title="Planos e Ferramentas"
           description="Gerencie sua subscrição e escolha o plano ideal para o seu negócio"
           icon={CreditCard}
           badge={subscriptionStatus === 'active' ? 'Ativo' : subscriptionStatus}

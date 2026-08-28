@@ -276,6 +276,13 @@ This story is ready to move to UX-3 when:
 - Confirmed the Sidebar hides and shows IA Native by feature gate without affecting the rest of the module shell
 - Confirmed the dedicated IA Native analysis page preserves auth, organization context, currency and timezone while keeping the capability boundary intact
 - Confirmed the stateless analysis API, feature gate and workbench remain isolated from the operational shell
+- Refined the workbench so publication approval is explicit and reversible in the UI
+- Moved the approval CTA above the fold inside the result panel so it is visible without scrolling
+- Switched the approval CTA to a guaranteed premium-primary button style so the label and contrast stay visible
+- Kept Markdown as the editable narrative layer for surgical report changes and retained technical JSON export as copy-only
+- Updated PDF generation to omit internal notes and render Markdown tables as clearer grid-style blocks
+- Wired organization branding and public contact data into the PDF output so the footer can show company logo, company name, website, email, phone and WhatsApp
+- Moved the editable company profile data into a dedicated settings page below Empresa so onboarding stays focused on the company name only
 
 ### File List
 
@@ -287,9 +294,16 @@ This story is ready to move to UX-3 when:
 - `src/app/api/property-intelligence/analyze/route.ts`
 - `src/components/features/property-intelligence/PropertyIntelligenceWorkbench.tsx`
 - `src/lib/property-intelligence/gate.ts`
+- `src/lib/property-intelligence/report.ts`
 - `src/__tests__/navigation/module-shell.test.ts`
 - `src/__tests__/components/common/layout/Sidebar.test.tsx`
 - `src/__tests__/api/property-intelligence/analyze/route.test.ts`
+- `src/__tests__/property-intelligence/property-intelligence.test.ts`
+- `src/app/api/stripe/webhook/route.ts`
+- `src/app/[locale]/settings/page.tsx`
+- `src/app/[locale]/settings/organizations/[orgId]/company-profile/page.tsx`
+- `src/app/[locale]/onboarding/page.tsx`
+- `src/components/features/onboarding/Step2CompanyProfile.tsx`
 
 ### Validation
 

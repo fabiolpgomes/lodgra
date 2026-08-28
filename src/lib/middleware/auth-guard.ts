@@ -104,15 +104,10 @@ export async function checkSubscriptionAndRole(
     return NextResponse.redirect(new URL('/cleaner/request-link', request.url))
   }
 
-  // Check onboarding (has at least one property)
-  const { count: propertyCount } = await supabase
-    .from('properties')
-    .select('*', { count: 'exact', head: true })
-    .eq('organization_id', orgId)
-
-  if (!propertyCount || propertyCount === 0) {
-    return NextResponse.redirect(new URL('/onboarding', request.url))
-  }
+  // O onboarding não é um fallback para utilizadores autenticados com organização.
+  // Se a organização ainda não tiver propriedades, as páginas protegidas mostram
+  // estado vazio ou orientações próprias; o fluxo de onboarding fica reservado
+  // para utilizadores não identificados / setup inicial.
 
   // Check subscription status
   let subStatus = await getCachedSubscriptionStatus(orgId)

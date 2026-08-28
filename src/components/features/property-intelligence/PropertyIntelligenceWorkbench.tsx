@@ -1,12 +1,11 @@
 'use client'
 
-import { useMemo, useState, type CSSProperties, type Dispatch, type SetStateAction } from 'react'
+import { useEffect, useMemo, useState, type CSSProperties, type Dispatch, type SetStateAction } from 'react'
 import { CheckCircle2, Copy, Play, RotateCcw, ShieldAlert, Sparkles, WandSparkles } from 'lucide-react'
 
 import { Button } from '@/components/common/ui/button'
 import { Input } from '@/components/common/ui/input'
 import { PremiumCard, PremiumMetricCard } from '@/components/common/layout/PremiumPage'
-import { Switch } from '@/components/common/ui/switch'
 import { Textarea } from '@/components/common/ui/textarea'
 import type { ReadingObjective } from '@/lib/property-intelligence'
 
@@ -16,7 +15,7 @@ type MarketTier = 'coastal' | 'urban' | 'suburban' | 'rural'
 type ConditionTier = 'poor' | 'fair' | 'good' | 'excellent'
 type CurrencyCode = 'EUR' | 'BRL' | 'GBP' | 'USD'
 type PropertyType = 'Apartamento' | 'Vivenda' | 'Cabana' | 'Prédio'
-type ResultView = 'summary' | 'json' | 'markdown'
+type ResultView = 'summary' | 'markdown'
 type OwnerFlexibilityLevel = 'high' | 'medium' | 'low'
 type OwnerOperatingModel = 'short_mid' | 'mixed' | 'long'
 
@@ -136,6 +135,28 @@ const DEFAULT_READING_OBJECTIVES: ReadingObjective[] = [
   'compare_scenarios',
 ]
 
+type PublicationApprovalState = 'pending' | 'approved'
+
+type PropertyIntelligenceAnalysisResult = {
+  status?: string
+  strategy?: { recommendedStayType?: string; reason?: string }
+  audit?: { status?: string; coverageScore?: number }
+  publication?: { approved?: boolean }
+  location?: { marketTier?: string; confidence?: number; baseRatePerM2?: number }
+  telemetry?: { events?: Array<{ name: string }> }
+}
+
+type CompanyInfo = {
+  name: string | null
+  logoUrl: string | null
+  websiteUrl: string | null
+  email: string | null
+  phone: string | null
+  whatsappNumber: string | null
+  primaryColor: string | null
+  secondaryColor: string | null
+}
+
 const DEFAULT_FORM = {
   propertyName: 'AHS Premium apart 2 swing pool 5 min beach',
   location: 'Faro, Algarve',
@@ -166,66 +187,19 @@ const DEFAULT_FORM = {
   },
 }
 
-const INITIAL_GUIDED_JSON = JSON.stringify(
-  {
-    lead: {
-      name: DEFAULT_FORM.propertyName,
-      source: DEFAULT_FORM.source,
-      note: DEFAULT_FORM.note,
-    },
-    readingObjectives: DEFAULT_FORM.readingObjectives,
-    property: {
-      location: DEFAULT_FORM.location,
-      propertyType: DEFAULT_FORM.propertyType,
-      typology: DEFAULT_FORM.typology,
-      areaM2: DEFAULT_FORM.areaM2,
-      bedrooms: DEFAULT_FORM.bedrooms,
-      market: DEFAULT_FORM.market,
-      condition: DEFAULT_FORM.condition,
-      furnished: DEFAULT_FORM.furnished,
-      balcony: DEFAULT_FORM.balcony,
-      pool: DEFAULT_FORM.pool,
-      garage: DEFAULT_FORM.garage,
-      highlights: DEFAULT_FORM.highlights,
-      listingUrl: DEFAULT_FORM.listingUrl,
-    },
-    assumptions: {
-      currency: DEFAULT_FORM.currency,
-      longStay: {
-        occupancyPct: 0.96,
-        fixedCostsMonthly: 180,
-        variableCostsPct: 0.05,
-        commissionPct: 0.08,
-      },
-      midStay: {
-        occupancyPct: 0.87,
-        fixedCostsMonthly: 220,
-        variableCostsPct: 0.06,
-        commissionPct: 0.12,
-      },
-      shortStay: {
-        occupancyPct: 0.74,
-        fixedCostsMonthly: 320,
-        variableCostsPct: 0.12,
-        commissionPct: 0.18,
-        cleaningPerTurnover: 50,
-        turnoversPerMonth: 7,
-      },
-    },
-    ownerContext: {
-      flexibility: DEFAULT_FORM.ownerContext.flexibility,
-      operatingModel: DEFAULT_FORM.ownerContext.operatingModel,
-      historicalRevenue: DEFAULT_FORM.ownerContext.historicalRevenue,
-      rentedDays: DEFAULT_FORM.ownerContext.rentedDays,
-      maintenanceNote: DEFAULT_FORM.ownerContext.maintenanceNote,
-    },
-  },
-  null,
-  2
-)
-
 function formatJson(value: unknown) {
   return JSON.stringify(value, null, 2)
+}
+
+function getApprovalStorageKey(traceId: string) {
+  return `property-intelligence:approval:${traceId}`
+}
+
+function applyPublicationApprovalToMarkdown(markdown: string, approvalState: PublicationApprovalState) {
+  return markdown.replace(
+    /(- Estado da aprovação: )(pendente|aprovada)/,
+    `$1${approvalState === 'approved' ? 'aprovada' : 'pendente'}`
+  )
 }
 
 function formatCurrencyAmount(value: number, currency = 'EUR') {
@@ -234,6 +208,48 @@ function formatCurrencyAmount(value: number, currency = 'EUR') {
     currency,
     maximumFractionDigits: 0,
   }).format(value)
+}
+
+function hexToRgb(hex: string): [number, number, number] {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
+  if (!result) {
+    return [16, 32, 62]
+  }
+
+  return [parseInt(result[1], 16), parseInt(result[2], 16), parseInt(result[3], 16)]
+}
+
+function stripUrlProtocol(url: string) {
+  return url.replace(/^https?:\/\//i, '').replace(/\/$/, '')
+}
+
+async function loadImageDataUrl(url: string): Promise<{ dataUrl: string; format: 'PNG' | 'JPEG' } | null> {
+  try {
+    const response = await fetch(url)
+    if (!response.ok) {
+      return null
+    }
+
+    const blob = await response.blob()
+    const mimeType = blob.type.toLowerCase()
+    const format = mimeType.includes('jpeg') || mimeType.includes('jpg') ? 'JPEG' : mimeType.includes('png') ? 'PNG' : null
+
+    if (!format) {
+      return null
+    }
+
+    return await new Promise(resolve => {
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        const dataUrl = typeof reader.result === 'string' ? reader.result : null
+        resolve(dataUrl ? { dataUrl, format } : null)
+      }
+      reader.onerror = () => resolve(null)
+      reader.readAsDataURL(blob)
+    })
+  } catch {
+    return null
+  }
 }
 
 function selectionButtonStyle(active: boolean): CSSProperties {
@@ -526,10 +542,11 @@ function NumberPills({
 
 export function PropertyIntelligenceWorkbench({
   gateEnabled,
+  companyInfo,
 }: {
   gateEnabled: boolean
+  companyInfo?: CompanyInfo | null
 }) {
-  const [advancedMode, setAdvancedMode] = useState(false)
   const [propertyName, setPropertyName] = useState(DEFAULT_FORM.propertyName)
   const [location, setLocation] = useState(DEFAULT_FORM.location)
   const [propertyType, setPropertyType] = useState<PropertyType>(DEFAULT_FORM.propertyType)
@@ -561,11 +578,12 @@ export function PropertyIntelligenceWorkbench({
     result: Record<string, unknown>
     markdown: string
   } | null>(null)
+  const [markdownDraft, setMarkdownDraft] = useState('')
+  const [publicationApprovalState, setPublicationApprovalState] = useState<PublicationApprovalState>('pending')
   const [resultView, setResultView] = useState<ResultView>('summary')
   const [error, setError] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const [inputText, setInputText] = useState(INITIAL_GUIDED_JSON)
 
   const guidedPayload = useMemo(
     () => ({
@@ -674,6 +692,24 @@ export function PropertyIntelligenceWorkbench({
     }
   }, [result])
 
+  const reportCompany = useMemo(() => {
+    const primaryColor = companyInfo?.primaryColor?.trim() || '#10203E'
+    const secondaryColor = companyInfo?.secondaryColor?.trim() || '#C9A227'
+
+    return {
+      name: companyInfo?.name?.trim() || 'Lodgra',
+      logoUrl: companyInfo?.logoUrl?.trim() || null,
+      websiteUrl: companyInfo?.websiteUrl?.trim() || null,
+      email: companyInfo?.email?.trim() || null,
+      phone: companyInfo?.phone?.trim() || null,
+      whatsappNumber: companyInfo?.whatsappNumber?.trim() || null,
+      primaryColor,
+      primaryColorRgb: hexToRgb(primaryColor),
+      secondaryColor,
+      secondaryColorRgb: hexToRgb(secondaryColor),
+    }
+  }, [companyInfo])
+
   const selectedSummary = useMemo(
     () => [
       { label: 'Imóvel', value: propertyName || '-' },
@@ -718,23 +754,8 @@ export function PropertyIntelligenceWorkbench({
   async function handleSubmit() {
     setError(null)
 
-    if (!advancedMode && !guidedHasRequiredInputs) {
+    if (!guidedHasRequiredInputs) {
       setError('Localização, tipo e tipologia são obrigatórios para esta análise.')
-      return
-    }
-
-    const payload = advancedMode
-      ? (() => {
-          try {
-            return JSON.parse(inputText) as Record<string, unknown>
-          } catch {
-            setError('O JSON informado não é válido.')
-            return null
-          }
-        })()
-      : guidedPayload
-
-    if (!payload) {
       return
     }
 
@@ -745,10 +766,11 @@ export function PropertyIntelligenceWorkbench({
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(guidedPayload),
       })
 
       const responsePayload = await response.json()
+      const analysisResult = responsePayload.result as PropertyIntelligenceAnalysisResult | undefined
 
       if (!response.ok) {
         setResult(null)
@@ -758,9 +780,22 @@ export function PropertyIntelligenceWorkbench({
       }
 
       setResult(responsePayload)
+      const storedApprovalState = window.localStorage.getItem(getApprovalStorageKey(responsePayload.traceId)) as PublicationApprovalState | null
+      const nextApprovalState: PublicationApprovalState =
+        storedApprovalState === 'approved'
+          ? 'approved'
+          : analysisResult?.publication?.approved
+            ? 'approved'
+            : 'pending'
+      setPublicationApprovalState(nextApprovalState)
+      setMarkdownDraft(
+        applyPublicationApprovalToMarkdown(responsePayload.markdown || '', nextApprovalState)
+      )
       setResultView('summary')
     } catch (requestError) {
       setResult(null)
+      setMarkdownDraft('')
+      setPublicationApprovalState('pending')
       setResultView('summary')
       setError(requestError instanceof Error ? requestError.message : 'Falha ao executar a análise.')
     } finally {
@@ -769,7 +804,6 @@ export function PropertyIntelligenceWorkbench({
   }
 
   function handleReset() {
-    setAdvancedMode(false)
     setPropertyName(DEFAULT_FORM.propertyName)
     setLocation(DEFAULT_FORM.location)
     setPropertyType(DEFAULT_FORM.propertyType)
@@ -794,27 +828,331 @@ export function PropertyIntelligenceWorkbench({
     setHistoricalRevenue(DEFAULT_FORM.ownerContext.historicalRevenue)
     setRentedDays(DEFAULT_FORM.ownerContext.rentedDays)
     setMaintenanceNote(DEFAULT_FORM.ownerContext.maintenanceNote)
-    setInputText(INITIAL_GUIDED_JSON)
     setResult(null)
+    setMarkdownDraft('')
+    setPublicationApprovalState('pending')
     setResultView('summary')
     setError(null)
   }
 
-  function handleToggleAdvanced(enabled: boolean) {
-    setAdvancedMode(enabled)
-    if (enabled) {
-      setInputText(formatJson(guidedPayload))
-    }
-  }
-
-  async function handleCopyMarkdown() {
-    if (!result?.markdown) {
+  useEffect(() => {
+    if (!result) {
       return
     }
 
-    await navigator.clipboard.writeText(result.markdown)
+    const analysisResult = result.result as PropertyIntelligenceAnalysisResult | undefined
+    const storedApprovalState = window.localStorage.getItem(getApprovalStorageKey(result.traceId)) as PublicationApprovalState | null
+    const nextApprovalState: PublicationApprovalState =
+      storedApprovalState === 'approved'
+        ? 'approved'
+        : analysisResult?.publication?.approved
+          ? 'approved'
+          : 'pending'
+
+    setPublicationApprovalState(nextApprovalState)
+    setMarkdownDraft(applyPublicationApprovalToMarkdown(result.markdown || '', nextApprovalState))
+  }, [result])
+
+  async function handleCopyMarkdown() {
+    const markdown = markdownDraft || result?.markdown
+    if (!markdown) {
+      return
+    }
+
+    await navigator.clipboard.writeText(markdown)
     setCopied(true)
     window.setTimeout(() => setCopied(false), 1500)
+  }
+
+  async function handleCopyTechnicalData() {
+    await navigator.clipboard.writeText(formatJson(guidedPayload))
+  }
+
+  function handleApprovePublication(nextState: PublicationApprovalState) {
+    if (!result) {
+      return
+    }
+
+    const nextMarkdown = applyPublicationApprovalToMarkdown(markdownDraft || result.markdown, nextState)
+    setPublicationApprovalState(nextState)
+    setMarkdownDraft(nextMarkdown)
+    window.localStorage.setItem(getApprovalStorageKey(result.traceId), nextState)
+  }
+
+  async function handleDownloadPdf() {
+    if (!result) {
+      return
+    }
+
+    const { jsPDF } = await import('jspdf')
+    const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' })
+    const pageWidth = doc.internal.pageSize.getWidth()
+    const pageHeight = doc.internal.pageSize.getHeight()
+    const marginX = 16
+    const marginTop = 18
+    const footerHeight = 24
+    const lineHeight = 6
+    const maxWidth = pageWidth - marginX * 2
+    let cursorY = marginTop
+
+    function ensureSpace(requiredHeight: number) {
+      if (cursorY + requiredHeight > pageHeight - marginTop - footerHeight) {
+        doc.addPage()
+        cursorY = marginTop
+      }
+    }
+
+    function addHeading(text: string) {
+      ensureSpace(12)
+      doc.setFont('helvetica', 'bold')
+      doc.setFontSize(15)
+      doc.setTextColor(16, 32, 62)
+      doc.text(text, marginX, cursorY)
+      cursorY += 9
+    }
+
+    function addParagraph(text: string, bold = false) {
+      const lines = doc.splitTextToSize(text, maxWidth)
+      ensureSpace(lines.length * lineHeight + 4)
+      doc.setFont('helvetica', bold ? 'bold' : 'normal')
+      doc.setFontSize(10)
+      doc.setTextColor(40, 52, 72)
+      doc.text(lines, marginX, cursorY)
+      cursorY += lines.length * lineHeight + 2
+    }
+
+    function addFooter(pageNumber: number, totalPages: number, logoImage: { dataUrl: string; format: 'PNG' | 'JPEG' } | null) {
+      doc.setPage(pageNumber)
+
+      const footerLineY = pageHeight - footerHeight + 2
+      const footerTextY = pageHeight - 10
+      const logoX = marginX
+      const contentX = logoImage ? logoX + 14 : marginX
+      const contentWidth = pageWidth - contentX - marginX - 26
+
+      doc.setDrawColor(...reportCompany.primaryColorRgb)
+      doc.setLineWidth(0.3)
+      doc.line(marginX, footerLineY, pageWidth - marginX, footerLineY)
+
+      if (logoImage) {
+        try {
+          doc.addImage(logoImage.dataUrl, logoImage.format, logoX, pageHeight - 18, 10, 10)
+        } catch {
+          // ignore logo rendering failures and continue with the text footer
+        }
+      }
+
+      doc.setFont('helvetica', 'bold')
+      doc.setFontSize(8.5)
+      doc.setTextColor(...reportCompany.primaryColorRgb)
+      doc.text(reportCompany.name, contentX, footerTextY)
+
+      const footerSegments = [
+        reportCompany.websiteUrl ? `Site: ${stripUrlProtocol(reportCompany.websiteUrl)}` : null,
+        reportCompany.email ? `Email: ${reportCompany.email}` : null,
+        reportCompany.phone ? `Telefone: ${reportCompany.phone}` : null,
+        reportCompany.whatsappNumber ? `WhatsApp: ${reportCompany.whatsappNumber}` : null,
+      ].filter(Boolean)
+
+      const footerLine = footerSegments.length > 0 ? footerSegments.join(' · ') : 'Property Intelligence · Lodgra'
+      const footerLines = doc.splitTextToSize(footerLine, contentWidth)
+
+      doc.setFont('helvetica', 'normal')
+      doc.setFontSize(7.5)
+      doc.setTextColor(102, 114, 132)
+      doc.text(footerLines, contentX, footerTextY + 4)
+
+      doc.setFontSize(7)
+      doc.setTextColor(...reportCompany.secondaryColorRgb)
+      doc.text(`Página ${pageNumber} de ${totalPages}`, pageWidth - marginX, footerTextY, {
+        align: 'right',
+      })
+    }
+
+    function shouldSkipMarkdownLine(text: string) {
+      const normalized = text.trim().toLowerCase()
+      return (
+        normalized.includes('page-break-after: always') ||
+        normalized.includes('nota interna da aplicação') ||
+        normalized.includes('não deve ser impresso ou gerado no pdf') ||
+        normalized.includes('nao deve ser impresso ou gerado no pdf')
+      )
+    }
+
+    function isMarkdownTableDivider(text: string) {
+      const cells = text
+        .trim()
+        .replace(/^\|/, '')
+        .replace(/\|$/, '')
+        .split('|')
+        .map(cell => cell.trim())
+
+      return cells.length >= 2 && cells.every(cell => /^:?-{3,}:?$/.test(cell))
+    }
+
+    function parseMarkdownTableRow(text: string) {
+      return text
+        .trim()
+        .replace(/^\|/, '')
+        .replace(/\|$/, '')
+        .split('|')
+        .map(cell => cell.trim())
+    }
+
+    function renderTableBlock(headers: string[], rows: string[][]) {
+      const columnCount = headers.length
+      if (columnCount === 0 || rows.length === 0) {
+        return
+      }
+
+      const columnGap = 2
+      const cellWidth = (maxWidth - columnGap * (columnCount - 1)) / columnCount
+      const cellPaddingX = 2
+      const cellPaddingY = 2
+      const labelFontSize = columnCount > 5 ? 5.5 : 6
+      const valueFontSize = columnCount > 5 ? 7.5 : 8
+      const lineGap = columnCount > 5 ? 2.6 : 3
+      const rowGap = 3
+
+      rows.forEach(row => {
+        const normalizedRow = headers.map((_, index) => row[index] ?? '')
+        const wrappedCells = normalizedRow.map((value, index) => {
+          doc.setFont('helvetica', 'bold')
+          doc.setFontSize(labelFontSize)
+          const labelLines = doc.splitTextToSize(headers[index], cellWidth - cellPaddingX * 2)
+          doc.setFont('helvetica', 'normal')
+          doc.setFontSize(valueFontSize)
+          const valueLines = doc.splitTextToSize(value || '-', cellWidth - cellPaddingX * 2)
+          return { labelLines, valueLines }
+        })
+
+        const rowHeight =
+          Math.max(
+            ...wrappedCells.map(cell => cell.labelLines.length * lineGap + cell.valueLines.length * lineGap + 2)
+          ) + cellPaddingY * 2
+
+        ensureSpace(rowHeight + rowGap)
+
+        let cellX = marginX
+        wrappedCells.forEach((cell, index) => {
+          doc.setDrawColor(226, 232, 240)
+          doc.setFillColor(255, 255, 255)
+          doc.roundedRect(cellX, cursorY, cellWidth, rowHeight, 2, 2, 'S')
+
+          const cellInnerX = cellX + cellPaddingX
+          let cellCursorY = cursorY + cellPaddingY + 1
+
+          doc.setFont('helvetica', 'bold')
+          doc.setFontSize(labelFontSize)
+          doc.setTextColor(102, 114, 132)
+          doc.text(cell.labelLines, cellInnerX, cellCursorY)
+          cellCursorY += cell.labelLines.length * lineGap + 1
+
+          doc.setFont('helvetica', 'normal')
+          doc.setFontSize(valueFontSize)
+          doc.setTextColor(40, 52, 72)
+          doc.text(cell.valueLines, cellInnerX, cellCursorY)
+
+          if (index < wrappedCells.length - 1) {
+            doc.setDrawColor(236, 239, 244)
+            doc.line(cellX + cellWidth + 1, cursorY + 1, cellX + cellWidth + 1, cursorY + rowHeight - 1)
+          }
+
+          cellX += cellWidth + columnGap
+        })
+
+        cursorY += rowHeight + rowGap
+      })
+    }
+
+    function addMarkdownLine(text: string) {
+      if (shouldSkipMarkdownLine(text)) {
+        return
+      }
+
+      if (!text.trim()) {
+        cursorY += 2
+        return
+      }
+
+      if (text.startsWith('### ')) {
+        addHeading(text.replace(/^###\s+/, ''))
+        return
+      }
+
+      if (text.startsWith('## ')) {
+        addHeading(text.replace(/^##\s+/, ''))
+        return
+      }
+
+      if (text.startsWith('# ')) {
+        addHeading(text.replace(/^#\s+/, ''))
+        return
+      }
+
+      addParagraph(text.replace(/^\-\s+/, '• '))
+    }
+
+    doc.setProperties({
+      title: 'Dossiê Executivo de Property Intelligence',
+      subject: 'Property Intelligence',
+      author: reportCompany.name,
+    })
+
+    const logoImage = reportCompany.logoUrl ? await loadImageDataUrl(reportCompany.logoUrl) : null
+
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(18)
+    doc.setTextColor(...reportCompany.primaryColorRgb)
+    doc.text('Dossiê Executivo de Property Intelligence', marginX, cursorY)
+    cursorY += 10
+
+    addParagraph(`Imóvel: ${propertyName}`)
+    addParagraph(`Localização: ${location || 'Não informada'}`)
+    addParagraph(`Tipologia: ${typology || '-'} · Tipo: ${propertyType} · Moeda: ${currency || '-'}`)
+    addParagraph(`Objetivos: ${readingObjectives.map(formatReadingObjectiveLabel).join(', ')}`)
+    addParagraph(`Estado de publicação: ${summary.publicationApproved ? 'Aprovado' : 'Pendente'}`)
+    addParagraph(`Confiança: ${Math.round(summary.confidence * 100)}% · Recomendação: ${formatStayTypeLabel(summary.recommendation)}`)
+    cursorY += 2
+
+    const markdown = markdownDraft || result.markdown
+    const markdownLines = markdown.split('\n').map(line => line.trim())
+
+    for (let index = 0; index < markdownLines.length; ) {
+      const line = markdownLines[index]
+
+      if (shouldSkipMarkdownLine(line)) {
+        index += 1
+        continue
+      }
+
+      if (line.startsWith('|') && index + 1 < markdownLines.length && isMarkdownTableDivider(markdownLines[index + 1])) {
+        const headers = parseMarkdownTableRow(line)
+        const tableRows: string[][] = []
+        index += 2
+
+        while (index < markdownLines.length && markdownLines[index].startsWith('|')) {
+          const rowLine = markdownLines[index]
+          if (!shouldSkipMarkdownLine(rowLine)) {
+            tableRows.push(parseMarkdownTableRow(rowLine))
+          }
+          index += 1
+        }
+
+        renderTableBlock(headers, tableRows)
+        continue
+      }
+
+      addMarkdownLine(line)
+      index += 1
+    }
+
+    const totalPages = doc.getNumberOfPages()
+    for (let pageNumber = 1; pageNumber <= totalPages; pageNumber += 1) {
+      addFooter(pageNumber, totalPages, logoImage)
+    }
+
+    doc.save(`property-intelligence-${propertyName.replace(/\s+/g, '-').toLowerCase()}.pdf`)
   }
 
   return (
@@ -864,65 +1202,6 @@ export function PropertyIntelligenceWorkbench({
             </div>
           </div>
         </PremiumCard>
-
-        <div id="executar-analise" className="scroll-mt-28 xl:sticky xl:top-6 xl:z-20">
-          <PremiumCard className="border-brand-blue/10 bg-gradient-to-br from-white via-white to-brand-blue/5 shadow-sm">
-            <div className="space-y-4">
-              <div className="space-y-3 max-w-2xl">
-                <p className="text-[10px] font-black uppercase tracking-[2px] text-brand-text-medium">Executar agora</p>
-                <h3 className="text-2xl font-semibold tracking-tight text-brand-text-dark sm:text-3xl">
-                  Gerar relatório sem procurar a ação no fim da página.
-                </h3>
-                <p className="max-w-2xl text-sm leading-6 text-brand-text-medium">
-                  Preencha os campos essenciais e use o comando principal para montar a análise premium. Se faltar contexto, o sistema avisa antes de executar.
-                </p>
-              </div>
-
-              <div className="rounded-3xl border border-brand-blue/10 bg-[#10203E] p-4 text-white shadow-[0_18px_48px_rgba(16,32,62,0.18)]">
-                <p className="text-[10px] font-black uppercase tracking-[2px] text-white/70">Comando principal</p>
-                <div className="mt-3 flex flex-col gap-3">
-                  <Button
-                    type="button"
-                    variant="premium-primary"
-                    size="premium-md"
-                    onClick={handleSubmit}
-                    disabled={isLoading || !gateEnabled || (!advancedMode && !guidedHasRequiredInputs)}
-                    className="h-12 w-full justify-center border border-white/15 bg-white text-[#10203E] shadow-[0_12px_30px_rgba(255,255,255,0.08)] hover:bg-white/95 disabled:cursor-not-allowed disabled:opacity-100 disabled:bg-white/20 disabled:text-white disabled:border-white/25"
-                  >
-                    <Play className="h-4 w-4" />
-                    {isLoading ? 'A gerar...' : 'Executar análise'}
-                  </Button>
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <Button
-                      type="button"
-                      variant="premium-secondary"
-                      size="premium-sm"
-                      onClick={handleReset}
-                      className="w-full justify-center border-white/15 bg-white/95 text-brand-text-dark hover:bg-white"
-                    >
-                      <RotateCcw className="h-4 w-4" />
-                      Repor respostas
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="premium-secondary"
-                      size="premium-sm"
-                      onClick={() => setInputText(formatJson(guidedPayload))}
-                      className="w-full justify-center border-white/15 bg-white/95 text-brand-text-dark hover:bg-white"
-                    >
-                      <Copy className="h-4 w-4" />
-                      Copiar JSON
-                    </Button>
-                  </div>
-                </div>
-              </div>
-
-              <p className="max-w-2xl text-xs leading-5 text-brand-text-medium">
-                O botão principal fica sempre visível. Quando a execução estiver bloqueada, a própria interface indica o que falta.
-              </p>
-            </div>
-          </PremiumCard>
-        </div>
 
         <div className="grid gap-6">
           <PremiumCard className="space-y-5">
@@ -1343,40 +1622,12 @@ export function PropertyIntelligenceWorkbench({
           </PremiumCard>
         </div>
 
-        <PremiumCard className="space-y-4">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <h3 className="text-sm font-semibold text-brand-text-dark">Modo avançado</h3>
-              <p className="text-xs text-brand-text-medium">
-                Para uso técnico. O JSON só aparece se você optar por editar manualmente.
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="text-xs font-medium text-brand-text-medium">Editar JSON</span>
-              <Switch checked={advancedMode} onCheckedChange={handleToggleAdvanced} />
-            </div>
-          </div>
-
-          {advancedMode ? (
-            <Textarea
-              value={inputText}
-              onChange={event => setInputText(event.target.value)}
-              className="min-h-[280px] font-mono text-[12px] leading-5"
-              spellCheck={false}
-            />
-          ) : (
-            <div className="rounded-2xl border border-dashed border-brand-border-soft bg-brand-surface/50 p-4 text-sm text-brand-text-medium">
-              O sistema vai montar o JSON internamente com base nas respostas acima. Mantenha este modo desligado para uma experiência mais simples.
-            </div>
-          )}
-        </PremiumCard>
-
         <div className="rounded-3xl border border-brand-border-soft bg-white/80 p-4 shadow-[0_12px_36px_rgba(16,32,62,0.06)] backdrop-blur-sm">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <h3 className="text-sm font-semibold text-brand-text-dark">Atalhos úteis</h3>
               <p className="text-xs text-brand-text-medium">
-                O comando principal está no topo. Aqui ficam apenas ações de apoio para manter a página limpa.
+                O comando principal fica no fim do fluxo. Aqui ficam apenas ações de apoio e exportação para manter a página limpa.
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
@@ -1388,10 +1639,10 @@ export function PropertyIntelligenceWorkbench({
                 type="button"
                 variant="premium-secondary"
                 size="premium-sm"
-                onClick={() => setInputText(formatJson(guidedPayload))}
+                onClick={handleCopyTechnicalData}
               >
                 <Copy className="h-4 w-4" />
-                Copiar JSON
+                Copiar dados técnicos
               </Button>
             </div>
           </div>
@@ -1408,6 +1659,65 @@ export function PropertyIntelligenceWorkbench({
             <strong className="font-semibold">Falha:</strong> {error}
           </div>
         )}
+
+        <div id="executar-analise" className="scroll-mt-28">
+          <PremiumCard className="border-brand-blue/10 bg-gradient-to-br from-white via-white to-brand-blue/5 shadow-sm">
+            <div className="space-y-4">
+              <div className="space-y-3 max-w-2xl">
+                <p className="text-[10px] font-black uppercase tracking-[2px] text-brand-text-medium">Executar agora</p>
+                <h3 className="text-2xl font-semibold tracking-tight text-brand-text-dark sm:text-3xl">
+                  Gerar relatório depois de rever todos os campos.
+                </h3>
+                <p className="max-w-2xl text-sm leading-6 text-brand-text-medium">
+                  Feche a leitura dos campos essenciais e use o comando principal como último passo. Se faltar contexto, o sistema avisa antes de executar.
+                </p>
+              </div>
+
+              <div className="rounded-3xl border border-brand-blue/10 bg-[#10203E] p-4 text-white shadow-[0_18px_48px_rgba(16,32,62,0.18)]">
+                <p className="text-[10px] font-black uppercase tracking-[2px] text-white/70">Comando principal</p>
+                <div className="mt-3 flex flex-col gap-3">
+                  <Button
+                    type="button"
+                    variant="premium-primary"
+                    size="premium-md"
+                    onClick={handleSubmit}
+                    disabled={isLoading || !gateEnabled || !guidedHasRequiredInputs}
+                    className="h-12 w-full justify-center border border-white/15 bg-white text-[#10203E] shadow-[0_12px_30px_rgba(255,255,255,0.08)] hover:bg-white/95 disabled:cursor-not-allowed disabled:opacity-100 disabled:bg-white/20 disabled:text-white disabled:border-white/25"
+                  >
+                    <Play className="h-4 w-4" />
+                    {isLoading ? 'A gerar...' : 'Executar análise'}
+                  </Button>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <Button
+                      type="button"
+                      variant="premium-secondary"
+                      size="premium-sm"
+                      onClick={handleReset}
+                      className="w-full justify-center border-white/15 bg-white/95 text-brand-text-dark hover:bg-white"
+                    >
+                      <RotateCcw className="h-4 w-4" />
+                      Repor respostas
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="premium-secondary"
+                      size="premium-sm"
+                      onClick={handleCopyTechnicalData}
+                      className="w-full justify-center border-white/15 bg-white/95 text-brand-text-dark hover:bg-white"
+                    >
+                      <Copy className="h-4 w-4" />
+                      Copiar dados técnicos
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              <p className="max-w-2xl text-xs leading-5 text-brand-text-medium">
+                O botão principal fica no fim do fluxo. Quando a execução estiver bloqueada, a própria interface indica o que falta.
+              </p>
+            </div>
+          </PremiumCard>
+        </div>
       </div>
 
       <div className="space-y-4 xl:sticky xl:top-6">
@@ -1470,6 +1780,69 @@ export function PropertyIntelligenceWorkbench({
                 </div>
               </div>
 
+              <div className="rounded-2xl border border-brand-border-soft bg-white/95 p-4 shadow-sm">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="min-w-0 space-y-2">
+                    <p className="text-[10px] font-black uppercase tracking-[2px] text-brand-text-medium">
+                      Aprovação de publicação
+                    </p>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span
+                        className={`inline-flex items-center rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-[2px] ${
+                          publicationApprovalState === 'approved'
+                            ? 'border border-emerald-200 bg-emerald-50 text-emerald-700'
+                            : 'border border-amber-200 bg-amber-50 text-amber-700'
+                        }`}
+                      >
+                        {publicationApprovalState === 'approved' ? 'Aprovado' : 'Pendente'}
+                      </span>
+                      <p className="text-sm font-semibold text-brand-text-dark">
+                        {publicationApprovalState === 'approved' ? 'Relatório aprovado manualmente' : 'Aguardando aprovação manual'}
+                      </p>
+                    </div>
+                    <p className="text-xs leading-5 text-brand-text-medium">
+                      A aprovação atualiza o estado de publicação e também o texto exportado para PDF e cópia.
+                    </p>
+                  </div>
+                  <div className="flex shrink-0 flex-wrap gap-2">
+                    {publicationApprovalState === 'approved' ? (
+                      <>
+                        <Button
+                          type="button"
+                          variant="premium-primary"
+                          size="premium-sm"
+                          onClick={() => handleApprovePublication('pending')}
+                          className="min-w-[180px] justify-center"
+                        >
+                          Reverter aprovação
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="premium-primary"
+                          size="premium-sm"
+                          disabled
+                          className="min-w-[180px] justify-center bg-emerald-600 text-white hover:bg-emerald-600"
+                        >
+                          <CheckCircle2 className="h-4 w-4" />
+                          Aprovado
+                        </Button>
+                      </>
+                    ) : (
+                      <Button
+                        type="button"
+                        variant="premium-primary"
+                        size="premium-md"
+                        onClick={() => handleApprovePublication('approved')}
+                        className="min-w-[240px] justify-center shadow-[0_14px_36px_rgba(16,32,62,0.24)]"
+                      >
+                        <CheckCircle2 className="h-4 w-4" />
+                        Aprovar publicação
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
               <div className="grid gap-3 sm:grid-cols-2">
                 <PremiumMetricCard
                   label="Estado"
@@ -1506,15 +1879,26 @@ export function PropertyIntelligenceWorkbench({
                   <h3 className="text-sm font-semibold text-brand-text-dark">Leitura em uma frase</h3>
                   <p className="max-w-2xl text-sm leading-6 text-brand-text-medium">{resultHeadline}</p>
                 </div>
-                <Button
-                  type="button"
-                  variant="premium-secondary"
-                  size="premium-sm"
-                  onClick={handleCopyMarkdown}
-                >
-                  <Copy className="h-4 w-4" />
-                  {copied ? 'Copiado' : 'Copiar dossiê'}
-                </Button>
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    type="button"
+                    variant="premium-secondary"
+                    size="premium-sm"
+                    onClick={handleCopyMarkdown}
+                  >
+                    <Copy className="h-4 w-4" />
+                    {copied ? 'Copiado' : 'Copiar dossiê'}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="premium-secondary"
+                    size="premium-sm"
+                    onClick={handleDownloadPdf}
+                  >
+                    <WandSparkles className="h-4 w-4" />
+                    Descarregar PDF
+                  </Button>
+                </div>
               </div>
 
               <div className="grid gap-3 sm:grid-cols-3">
@@ -1533,7 +1917,6 @@ export function PropertyIntelligenceWorkbench({
                 <div className="grid grid-cols-3 gap-1">
                   {[
                     { key: 'summary' as const, label: 'Resumo' },
-                    { key: 'json' as const, label: 'JSON' },
                     { key: 'markdown' as const, label: 'Markdown' },
                   ].map(tab => {
                     const active = resultView === tab.key
@@ -1561,14 +1944,14 @@ export function PropertyIntelligenceWorkbench({
                   <div className="rounded-2xl border border-brand-border-soft bg-brand-surface/50 p-4 text-sm text-brand-text-medium">
                     <p className="font-semibold text-brand-text-dark">Saída estruturada</p>
                     <p className="mt-2 leading-6">
-                      O resumo abaixo mostra os indicadores principais. Os detalhes técnicos ficam nas abas JSON e Markdown.
+                      O resumo abaixo mostra os indicadores principais. Os detalhes técnicos ficam no Markdown; os dados técnicos continuam disponíveis para cópia.
                     </p>
                   </div>
                   <div className="grid gap-3 sm:grid-cols-2">
                     <div className="rounded-2xl border border-brand-border-soft bg-white/90 p-4">
                       <p className="text-[10px] font-black uppercase tracking-[2px] text-brand-text-medium">Estado de publicação</p>
                       <p className="mt-2 text-sm font-semibold text-brand-text-dark">
-                        {summary.publicationApproved ? 'Aprovado' : 'Pendente'}
+                        {publicationApprovalState === 'approved' || summary.publicationApproved ? 'Aprovado' : 'Pendente'}
                       </p>
                     </div>
                     <div className="rounded-2xl border border-brand-border-soft bg-white/90 p-4">
@@ -1587,14 +1970,32 @@ export function PropertyIntelligenceWorkbench({
                     </div>
                   </div>
                 </div>
-              ) : resultView === 'json' ? (
-                <pre className="max-h-[420px] overflow-auto rounded-2xl border border-brand-border-soft bg-brand-bg p-4 text-[12px] leading-5 text-brand-text-dark">
-                  {formatJson(result.result)}
-                </pre>
               ) : (
-                <pre className="max-h-[420px] overflow-auto whitespace-pre-wrap rounded-2xl border border-brand-border-soft bg-brand-white p-4 text-[12px] leading-5 text-brand-text-dark">
-                  {result.markdown}
-                </pre>
+                <div className="space-y-3">
+                  <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-brand-border-soft bg-brand-surface/50 p-4 text-sm text-brand-text-medium">
+                    <div>
+                      <p className="font-semibold text-brand-text-dark">Dossiê editável</p>
+                      <p className="mt-1 leading-6">
+                        Pode complementar o texto gerado com ajustes cirúrgicos antes de copiar ou descarregar o PDF.
+                      </p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="premium-secondary"
+                      size="premium-sm"
+                      onClick={() => setMarkdownDraft(result.markdown)}
+                      disabled={markdownDraft === result.markdown}
+                    >
+                      Reverter para original
+                    </Button>
+                  </div>
+                  <Textarea
+                    value={markdownDraft || result.markdown}
+                    onChange={event => setMarkdownDraft(event.target.value)}
+                    className="min-h-[420px] font-mono text-[12px] leading-5"
+                    spellCheck={false}
+                  />
+                </div>
               )}
             </PremiumCard>
           </>

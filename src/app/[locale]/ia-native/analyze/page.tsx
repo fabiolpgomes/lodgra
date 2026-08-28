@@ -35,7 +35,12 @@ export default async function PropertyIntelligenceAnalyzePage({
   const fallbackRole: UserProfile['role'] =
     auth.role === 'admin' || auth.role === 'gestor' ? auth.role : 'viewer'
 
-  const [{ data: profile }, { data: organization }] = await Promise.all([
+  const [
+    { data: profile },
+    { data: organization },
+    { data: branding },
+    { data: publicProfile },
+  ] = await Promise.all([
     adminClient
       .from('user_profiles')
       .select('id, email, full_name, role, avatar_url, access_all_properties, organization_id')
@@ -43,9 +48,19 @@ export default async function PropertyIntelligenceAnalyzePage({
       .single(),
     adminClient
       .from('organizations')
-      .select('currency, timezone, subscription_plan, plan')
+      .select('id, name, slug, currency, timezone, subscription_plan, plan')
       .eq('id', auth.organizationId)
       .single(),
+    adminClient
+      .from('organization_branding')
+      .select('logo_url, primary_color, secondary_color')
+      .eq('organization_id', auth.organizationId)
+      .maybeSingle(),
+    adminClient
+      .from('organization_public_profile')
+      .select('contact_email, contact_phone, whatsapp_number, website_url')
+      .eq('organization_id', auth.organizationId)
+      .maybeSingle(),
   ])
 
   const currentPlan = organization?.subscription_plan || organization?.plan || 'essencial'
@@ -63,6 +78,16 @@ export default async function PropertyIntelligenceAnalyzePage({
   const businessTimeZone = organization?.timezone || 'Europe/Lisbon'
   const gateEnabled = isPropertyIntelligenceAnalysisEnabled()
   const { hasAccess } = await isFeatureAccessible(auth.organizationId, 'property_intelligence')
+  const companyInfo = {
+    name: organization?.name ?? null,
+    logoUrl: branding?.logo_url ?? null,
+    websiteUrl: publicProfile?.website_url ?? null,
+    email: publicProfile?.contact_email ?? null,
+    phone: publicProfile?.contact_phone ?? null,
+    whatsappNumber: publicProfile?.whatsapp_number ?? null,
+    primaryColor: branding?.primary_color ?? null,
+    secondaryColor: branding?.secondary_color ?? null,
+  }
 
   if (!hasAccess) {
     return (
@@ -144,7 +169,7 @@ export default async function PropertyIntelligenceAnalyzePage({
           </div>
         </PremiumCard>
 
-        <PropertyIntelligenceWorkbench gateEnabled={gateEnabled} />
+        <PropertyIntelligenceWorkbench gateEnabled={gateEnabled} companyInfo={companyInfo} />
       </PremiumPageShell>
     </AuthLayout>
   )

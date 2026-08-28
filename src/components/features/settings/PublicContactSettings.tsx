@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 import { Mail, MessageCircle, Phone, Save } from 'lucide-react'
+import { Button } from '@/components/common/ui/button'
+import { Input } from '@/components/common/ui/input'
 
 export interface PublicContactProfile {
   organization_id: string
@@ -93,106 +95,97 @@ export function PublicContactSettings({ organizationId, initialProfile }: Props)
     <div className="space-y-5">
       <div className="grid gap-4 md:grid-cols-3">
         <label className="block">
-          <span className="mb-1 flex items-center gap-1.5 text-sm font-medium text-gray-700">
-            <MessageCircle className="h-4 w-4 text-gray-600" />
+          <span className="mb-1 flex items-center gap-1.5 text-sm font-medium text-brand-text-dark">
+            <MessageCircle className="h-4 w-4 text-brand-text-medium" />
             WhatsApp
           </span>
-          <input
+          <Input
             value={form.whatsapp_number}
             onChange={(event) => updateField('whatsapp_number', event.target.value)}
             placeholder="+55 11 99999-9999"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
           />
         </label>
 
         <label className="block">
-          <span className="mb-1 flex items-center gap-1.5 text-sm font-medium text-gray-700">
-            <Mail className="h-4 w-4 text-gray-600" />
+          <span className="mb-1 flex items-center gap-1.5 text-sm font-medium text-brand-text-dark">
+            <Mail className="h-4 w-4 text-brand-text-medium" />
             Email
           </span>
-          <input
+          <Input
             value={form.contact_email}
             onChange={(event) => updateField('contact_email', event.target.value)}
             placeholder="reservas@empresa.com"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
           />
         </label>
 
         <label className="block">
-          <span className="mb-1 flex items-center gap-1.5 text-sm font-medium text-gray-700">
-            <Phone className="h-4 w-4 text-gray-600" />
+          <span className="mb-1 flex items-center gap-1.5 text-sm font-medium text-brand-text-dark">
+            <Phone className="h-4 w-4 text-brand-text-medium" />
             Telefone
           </span>
-          <input
+          <Input
             value={form.contact_phone}
             onChange={(event) => updateField('contact_phone', event.target.value)}
             placeholder="+351 900 000 000"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
           />
         </label>
       </div>
 
       <label className="block">
-        <span className="mb-1 block text-sm font-medium text-gray-700">Mensagem pública</span>
-        <input
+        <span className="mb-1 block text-sm font-medium text-brand-text-dark">Mensagem pública</span>
+        <Input
           value={form.public_contact_message}
           onChange={(event) => updateField('public_contact_message', event.target.value)}
           maxLength={180}
           placeholder="Fale connosco para reservas, dúvidas ou condições especiais."
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
         />
       </label>
 
       <div className="grid gap-4 md:grid-cols-2">
         <label className="block">
-          <span className="mb-1 block text-sm font-medium text-gray-700">Website</span>
-          <input
+          <span className="mb-1 block text-sm font-medium text-brand-text-dark">Website</span>
+          <Input
             value={form.website_url}
             onChange={(event) => updateField('website_url', event.target.value)}
             placeholder="https://empresa.com"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
           />
         </label>
 
         <label className="block">
-          <span className="mb-1 block text-sm font-medium text-gray-700">Instagram</span>
-          <input
+          <span className="mb-1 block text-sm font-medium text-brand-text-dark">Instagram</span>
+          <Input
             value={form.instagram_url}
             onChange={(event) => updateField('instagram_url', event.target.value)}
             placeholder="https://instagram.com/empresa"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
           />
         </label>
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
         <label className="block md:col-span-3">
-          <span className="mb-1 block text-sm font-medium text-gray-700">Endereço</span>
-          <input
+          <span className="mb-1 block text-sm font-medium text-brand-text-dark">Endereço</span>
+          <Input
             value={form.address_line}
             onChange={(event) => updateField('address_line', event.target.value)}
             placeholder="Rua, número, bairro"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
           />
         </label>
 
         <label className="block">
-          <span className="mb-1 block text-sm font-medium text-gray-700">Cidade</span>
-          <input
+          <span className="mb-1 block text-sm font-medium text-brand-text-dark">Cidade</span>
+          <Input
             value={form.city}
             onChange={(event) => updateField('city', event.target.value)}
             placeholder="Lisboa"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
           />
         </label>
 
         <label className="block">
-          <span className="mb-1 block text-sm font-medium text-gray-700">País</span>
-          <input
+          <span className="mb-1 block text-sm font-medium text-brand-text-dark">País</span>
+          <Input
             value={form.country}
             onChange={(event) => updateField('country', event.target.value)}
             placeholder="Portugal"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
           />
         </label>
       </div>
@@ -200,15 +193,17 @@ export function PublicContactSettings({ organizationId, initialProfile }: Props)
       {message && <p className="text-sm font-medium text-emerald-800">{message}</p>}
       {error && <p className="text-sm font-medium text-red-700">{error}</p>}
 
-      <button
+      <Button
         type="button"
         onClick={save}
+        variant="premium-primary"
+        size="premium-md"
         disabled={saving}
-        className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+        className="w-full sm:w-auto"
       >
         <Save className="h-4 w-4" />
         {saving ? 'A guardar...' : 'Guardar contatos públicos'}
-      </button>
+      </Button>
     </div>
   )
 }
