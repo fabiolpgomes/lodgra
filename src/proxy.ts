@@ -72,6 +72,17 @@ export async function proxy(request: NextRequest) {
     }
   )
 
+  const isPublic = isPublicPath(pathname)
+
+  // Public routes should render immediately without waiting for a Supabase
+  // auth round-trip. Login and marketing pages do not need to validate the
+  // session before first paint.
+  if (isPublic) {
+    applySecurityHeaders(supabaseResponse, nonce)
+    supabaseResponse.headers.set('x-nonce', nonce)
+    return supabaseResponse
+  }
+
   let user = null
   try {
     const {
@@ -82,8 +93,6 @@ export async function proxy(request: NextRequest) {
     console.error('Error getting user in middleware:', error)
     // Don't redirect on error - let the page handle it
   }
-
-  const isPublic = isPublicPath(pathname)
 
   // DEBUG: Log calendar access
   if (pathname.includes('/calendar/')) {
