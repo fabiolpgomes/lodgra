@@ -1,5 +1,6 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useLocale, useSearchParams } from '@/lib/i18n/routing'
 import Link from 'next/link'
@@ -31,6 +32,7 @@ function getSafeRedirect(redirectTo: string | null, locale: string): string {
 }
 
 export default function LoginPage() {
+  const router = useRouter()
   const locale = useLocale()
   const searchParams = useSearchParams()
   const t = useTranslations('forms')
@@ -62,7 +64,8 @@ export default function LoginPage() {
       const redirectTo = searchParams.get('redirectTo') || searchParams.get('next')
       const safeRedirect = getSafeRedirect(redirectTo, locale || 'pt-BR')
 
-      window.location.assign(safeRedirect)
+      router.replace(safeRedirect)
+      router.refresh()
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Erro ao fazer login'
       setError(message)
@@ -145,7 +148,7 @@ export default function LoginPage() {
               disabled={loading}
               className="w-full"
             >
-              {loading ? tCommon('loading') : tCommon('login')}
+              {loading ? 'A autenticar...' : tCommon('login')}
             </Button>
           </form>
 

@@ -34,7 +34,7 @@ interface HeaderProps {
 
 export function Header({ serverProfile }: HeaderProps) {
   // Use server profile if available (no race condition), otherwise fallback to useAuth
-  const { profile: clientProfile } = useAuth()
+  const { profile: clientProfile } = useAuth({ enabled: !serverProfile })
   const profile = serverProfile || clientProfile
   const locale = useLocale()
 

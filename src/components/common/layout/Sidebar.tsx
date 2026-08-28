@@ -66,7 +66,7 @@ function renderFeatureLink(
 }
 
 export function Sidebar({ serverProfile }: SidebarProps) {
-  const { profile: clientProfile } = useAuth()
+  const { profile: clientProfile } = useAuth({ enabled: !serverProfile })
   const profile = serverProfile || clientProfile
   const pathname = usePathname()
   const locale = useLocale()

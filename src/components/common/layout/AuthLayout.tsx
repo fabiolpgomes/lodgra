@@ -40,7 +40,7 @@ export function AuthLayout({ children, profile, hideTopBar = false }: AuthLayout
       </div>
 
       {/* Mobile: bottom navigation */}
-      <BottomNav />
+      <BottomNav serverProfile={profile} />
     </div>
   )
 }

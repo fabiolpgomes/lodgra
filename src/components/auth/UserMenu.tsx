@@ -6,42 +6,14 @@ import { useLocale } from '@/lib/i18n/routing'
 import { createClient } from '@/lib/supabase/client'
 import { LogOut, User, KeyRound } from 'lucide-react'
 import { toast } from 'sonner'
-import { useState, useEffect } from 'react'
-import { type User as SupabaseUser } from '@supabase/supabase-js'
+import { useAuth } from '@/hooks/useAuth'
 import { Button } from '@/components/common/ui/button'
-
-interface UserProfile {
-  full_name: string | null
-  role: 'admin' | 'gestor' | 'viewer'
-}
 
 export function UserMenu() {
   const router = useRouter()
   const locale = useLocale()
   const prefix = locale ? `/${locale}` : ''
-  const [user, setUser] = useState<SupabaseUser | null>(null)
-  const [profile, setProfile] = useState<UserProfile | null>(null)
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    async function loadUser() {
-      const supabase = createClient()
-
-      const { data: { user } } = await supabase.auth.getUser()
-      setUser(user)
-
-      if (user) {
-        const { data } = await supabase.rpc('get_my_profile')
-        if (data && data.length > 0) {
-          setProfile({ full_name: null, role: data[0].role })
-        }
-      }
-
-      setLoading(false)
-    }
-
-    loadUser()
-  }, [])
+  const { user, profile, loading } = useAuth()
 
   async function handleLogout() {
     try {

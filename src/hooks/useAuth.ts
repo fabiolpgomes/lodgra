@@ -19,69 +19,146 @@ export interface UserProfile {
   accepts_whatsapp?: boolean
 }
 
-export function useAuth() {
-  const [user, setUser] = useState<User | null>(null)
-  const [profile, setProfile] = useState<UserProfile | null>(null)
-  const [loading, setLoading] = useState(true)
+interface AuthSnapshot {
+  user: User | null
+  profile: UserProfile | null
+  loading: boolean
+}
 
-  useEffect(() => {
-    async function loadUser() {
-      try {
-        const supabase = createClient()
-        const { data: { user } } = await supabase.auth.getUser()
-        setUser(user)
+const defaultSnapshot: AuthSnapshot = {
+  user: null,
+  profile: null,
+  loading: false,
+}
 
-        if (user) {
-          const { data: profileRow } = await supabase
-            .from('user_profiles')
-            .select('full_name, role, avatar_url, access_all_properties, organization_id')
-            .eq('id', user.id)
-            .maybeSingle()
+let snapshot: AuthSnapshot = defaultSnapshot
+let hydrated = false
+let loadPromise: Promise<void> | null = null
+const subscribers = new Set<() => void>()
 
-          if (profileRow) {
-            const effectiveRole = profileRow.access_all_properties ? 'admin' : (profileRow.role as UserRole)
-            setProfile({
-              id: user.id,
-              email: user.email ?? '',
-              full_name: profileRow.full_name,
-              role: effectiveRole,
-              avatar_url: profileRow.avatar_url,
-              access_all_properties: profileRow.access_all_properties,
-              organization_id: profileRow.organization_id ?? null,
-            })
-          }
-        }
-      } catch (error) {
-        console.error('Error loading user:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
+function emit() {
+  for (const subscriber of subscribers) {
+    subscriber()
+  }
+}
 
-    loadUser()
+function setSnapshot(next: AuthSnapshot) {
+  snapshot = next
+  emit()
+}
 
-    // Listen for auth changes
+async function hydrateAuthState(force = false) {
+  if (loadPromise && !force) return loadPromise
+  if (hydrated && !force) return Promise.resolve()
+
+  loadPromise = (async () => {
+    setSnapshot({ ...snapshot, loading: true })
+
     try {
       const supabase = createClient()
-      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+
+      if (!user) {
+        setSnapshot({ user: null, profile: null, loading: false })
+        hydrated = true
+        return
+      }
+
+      const { data: profileRow } = await supabase
+        .from('user_profiles')
+        .select('full_name, role, avatar_url, access_all_properties, organization_id')
+        .eq('id', user.id)
+        .maybeSingle()
+
+      if (profileRow) {
+        const effectiveRole = profileRow.access_all_properties ? 'admin' : (profileRow.role as UserProfile['role'])
+        setSnapshot({
+          user,
+          profile: {
+            id: user.id,
+            email: user.email ?? '',
+            full_name: profileRow.full_name,
+            role: effectiveRole,
+            avatar_url: profileRow.avatar_url,
+            access_all_properties: profileRow.access_all_properties,
+            organization_id: profileRow.organization_id ?? null,
+          },
+          loading: false,
+        })
+      } else {
+        setSnapshot({ user, profile: null, loading: false })
+      }
+
+      hydrated = true
+    } catch (error) {
+      console.error('Error loading user:', error)
+      setSnapshot({ user: null, profile: null, loading: false })
+      hydrated = true
+    } finally {
+      loadPromise = null
+    }
+  })()
+
+  return loadPromise
+}
+
+function subscribe(listener: () => void) {
+  subscribers.add(listener)
+  return () => subscribers.delete(listener)
+}
+
+export function useAuth(options?: { enabled?: boolean }) {
+  const enabled = options?.enabled ?? true
+  const [state, setState] = useState<AuthSnapshot>(snapshot)
+
+  useEffect(() => {
+    if (!enabled) {
+      return
+    }
+
+    let active = true
+    const sync = () => {
+      if (active) setState(snapshot)
+    }
+
+    const unsubscribe = subscribe(sync)
+    void hydrateAuthState().then(sync)
+
+    try {
+      const supabase = createClient()
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange((_event, session) => {
         if (session?.user) {
-          loadUser()
+          hydrated = false
+          void hydrateAuthState(true)
         } else {
-          setUser(null)
-          setProfile(null)
+          hydrated = true
+          setSnapshot(defaultSnapshot)
         }
       })
 
       return () => {
+        active = false
+        unsubscribe()
         subscription.unsubscribe()
       }
     } catch (error) {
       console.error('Error setting up auth listener:', error)
-      return () => {}
+      return () => {
+        active = false
+        unsubscribe()
+      }
     }
-  }, [])
+  }, [enabled])
 
-  return { user, profile, loading }
+  if (!enabled) {
+    return defaultSnapshot
+  }
+
+  return state
 }
 
 export function usePermissions() {

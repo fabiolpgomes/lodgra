@@ -11,6 +11,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/commo
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
 import { Button } from '@/components/common/ui/button'
+import type { UserProfile } from '@/lib/auth/getUserAccess'
 import {
   getLocalizedHref,
   getModuleForPath,
@@ -46,10 +47,15 @@ function renderGridLink(
   )
 }
 
-export function BottomNav() {
+interface BottomNavProps {
+  serverProfile?: UserProfile
+}
+
+export function BottomNav({ serverProfile }: BottomNavProps) {
   const router = useRouter()
   const pathname = usePathname()
-  const { profile } = useAuth()
+  const { profile: clientProfile } = useAuth({ enabled: !serverProfile })
+  const profile = serverProfile || clientProfile
   const locale = useLocale()
   const isAdmin = profile?.role === 'admin'
   const isLimitedGestor = isRestrictedGestor(profile)
