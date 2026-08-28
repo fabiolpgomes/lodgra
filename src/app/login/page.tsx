@@ -1,5 +1,6 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
@@ -29,6 +30,7 @@ function getSafeRedirect(redirectTo: string | null): string {
 }
 
 export default function LoginPage() {
+  const router = useRouter()
   const searchParams = useSearchParams()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -57,7 +59,8 @@ export default function LoginPage() {
       const redirectTo = searchParams.get('redirectTo') || searchParams.get('next')
       const safeRedirect = getSafeRedirect(redirectTo)
 
-      window.location.assign(safeRedirect)
+      router.replace(safeRedirect)
+      router.refresh()
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Login failed'
       setError(message)
@@ -142,7 +145,7 @@ export default function LoginPage() {
               disabled={loading}
               className="w-full rounded-full"
             >
-              {loading ? 'Logging in...' : 'Login'}
+              {loading ? 'Authenticating...' : 'Login'}
             </Button>
           </form>
 
