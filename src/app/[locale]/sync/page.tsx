@@ -241,21 +241,6 @@ export default function SyncStatusPage() {
         badge={`Nova verificação em ${nextRunIn}`}
       />
 
-      {/* Next Run Card */}
-      <PremiumCard className="border-brand-blue/20 bg-gradient-to-br from-brand-blue/5 to-transparent">
-        <div className="flex items-center gap-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-brand-blue/20 bg-brand-blue/10 text-brand-blue">
-            <Clock className="h-6 w-6" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="text-xs font-bold uppercase tracking-wider text-brand-text-medium">
-              Próxima verificação automática
-            </p>
-            <p className="mt-1 text-2xl font-bold text-brand-blue">em {nextRunIn}</p>
-          </div>
-        </div>
-      </PremiumCard>
-
       {/* Manual Sync */}
       <PremiumCard className="border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 to-transparent">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -265,16 +250,16 @@ export default function SyncStatusPage() {
             </div>
             <div className="min-w-0">
               <p className="text-xs font-bold uppercase tracking-wider text-brand-text-medium">
-                Sincronização manual via iCal
+                Atualização imediata via iCal
               </p>
               <h2 className="mt-1 text-xl font-bold text-brand-text-dark">
-                Sincronizar todas as plataformas agora
+                Atualize as reservas das plataformas
               </h2>
               <p className="mt-1 text-sm text-brand-text-medium">
-                Como o agendamento no plano free do Vercel é limitado, use este botão para executar o mesmo fluxo do cron e atualizar as reservas de todas as plataformas cadastradas via iCal.
+                Este botão dispara a atualização imediata das reservas das plataformas anunciadas via iCal. A rotina existente continua responsável pelas atualizações recorrentes das reservas já criadas pelo `run-cron`.
               </p>
               <p className="mt-2 text-sm font-semibold text-emerald-700">
-                Atualiza agora as reservas anunciadas nas plataformas.
+                Atualize as reservas das plataformas imediatamente.
               </p>
             </div>
           </div>
@@ -327,6 +312,21 @@ export default function SyncStatusPage() {
             </div>
           </div>
         )}
+      </PremiumCard>
+
+      {/* Next Run Card */}
+      <PremiumCard className="border-brand-blue/20 bg-gradient-to-br from-brand-blue/5 to-transparent">
+        <div className="flex items-center gap-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-brand-blue/20 bg-brand-blue/10 text-brand-blue">
+            <Clock className="h-6 w-6" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-bold uppercase tracking-wider text-brand-text-medium">
+              Próxima verificação automática
+            </p>
+            <p className="mt-1 text-2xl font-bold text-brand-blue">em {nextRunIn}</p>
+          </div>
+        </div>
       </PremiumCard>
 
       {/* Job Stats Grid */}
