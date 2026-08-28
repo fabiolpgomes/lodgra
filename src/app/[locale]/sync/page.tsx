@@ -5,8 +5,9 @@ import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import { formatDistance } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
-import { CheckCircle2, AlertCircle, Clock, Calendar, Mail, ArrowLeft } from 'lucide-react'
+import { CheckCircle2, AlertCircle, Clock, Calendar, Mail, ArrowLeft, RefreshCw, Loader2 } from 'lucide-react'
 import { PremiumPageShell, PremiumPageHeader, PremiumCard } from '@/components/common/layout/PremiumPage'
+import { Button } from '@/components/common/ui/button'
 
 interface SyncFeedback {
   title: string
@@ -55,6 +56,12 @@ export default function SyncStatusPage() {
   const [loading, setLoading] = useState(true)
   const [nextRunIn, setNextRunIn] = useState<string>('')
   const [apiError, setApiError] = useState<string | null>(null)
+  const [manualSyncing, setManualSyncing] = useState(false)
+  const [manualSyncResult, setManualSyncResult] = useState<{
+    success: boolean
+    message: string
+    timestamp: string
+  } | null>(null)
 
   useEffect(() => {
     fetchSyncData()
@@ -75,6 +82,49 @@ export default function SyncStatusPage() {
       setNextRunIn(`${Math.ceil(secondsToNext / 60)}m`)
     } else {
       setNextRunIn('Agora')
+    }
+  }
+
+  async function runManualSync() {
+    setManualSyncing(true)
+    setManualSyncResult(null)
+
+    try {
+      const response = await fetch('/api/admin/run-cron', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ path: '/api/cron/sync-ical' }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        const totals = data?.totals || {}
+        const created = typeof totals.created === 'number' ? totals.created : 0
+        const updated = typeof totals.updated === 'number' ? totals.updated : 0
+        const skipped = typeof totals.skipped === 'number' ? totals.skipped : 0
+        const cancelled = typeof totals.cancelled === 'number' ? totals.cancelled : 0
+
+        setManualSyncResult({
+          success: true,
+          message: `Sincronização concluída: ${created} nova(s), ${updated} atualizada(s), ${skipped} ignorada(s)${cancelled > 0 ? `, ${cancelled} cancelada(s)` : ''}.`,
+          timestamp: new Date().toISOString(),
+        })
+      } else {
+        setManualSyncResult({
+          success: false,
+          message: data?.error || 'Não foi possível executar a sincronização dos calendários.',
+          timestamp: new Date().toISOString(),
+        })
+      }
+    } catch (error) {
+      setManualSyncResult({
+        success: false,
+        message: error instanceof Error ? error.message : 'Erro ao conectar com o servidor.',
+        timestamp: new Date().toISOString(),
+      })
+    } finally {
+      setManualSyncing(false)
     }
   }
 
@@ -204,6 +254,79 @@ export default function SyncStatusPage() {
             <p className="mt-1 text-2xl font-bold text-brand-blue">em {nextRunIn}</p>
           </div>
         </div>
+      </PremiumCard>
+
+      {/* Manual Sync */}
+      <PremiumCard className="border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 to-transparent">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="flex items-start gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-600">
+              <RefreshCw className="h-6 w-6" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-bold uppercase tracking-wider text-brand-text-medium">
+                Sincronização manual via iCal
+              </p>
+              <h2 className="mt-1 text-xl font-bold text-brand-text-dark">
+                Sincronizar todas as plataformas agora
+              </h2>
+              <p className="mt-1 text-sm text-brand-text-medium">
+                Como o agendamento no plano free do Vercel é limitado, use este botão para executar o mesmo fluxo do cron e atualizar as reservas de todas as plataformas cadastradas via iCal.
+              </p>
+              <p className="mt-2 text-sm font-semibold text-emerald-700">
+                Atualiza agora as reservas anunciadas nas plataformas.
+              </p>
+            </div>
+          </div>
+
+          <Button
+            onClick={runManualSync}
+            disabled={manualSyncing}
+            className="inline-flex items-center gap-2 self-start md:self-auto"
+          >
+            {manualSyncing ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Sincronizando calendários...
+              </>
+            ) : (
+              <>
+                <RefreshCw className="h-4 w-4" />
+                Sincronizar agora
+              </>
+            )}
+          </Button>
+        </div>
+
+        {manualSyncResult && (
+          <div
+            className={`mt-4 rounded-xl border p-4 ${
+              manualSyncResult.success
+                ? 'border-emerald-500/20 bg-emerald-500/5'
+                : 'border-red-500/20 bg-red-500/5'
+            }`}
+          >
+            <div className="flex items-start gap-3">
+              {manualSyncResult.success ? (
+                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" />
+              ) : (
+                <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-red-600" />
+              )}
+              <div className="min-w-0 flex-1">
+                <p
+                  className={`text-sm font-semibold ${
+                    manualSyncResult.success ? 'text-emerald-800' : 'text-red-800'
+                  }`}
+                >
+                  {manualSyncResult.message}
+                </p>
+                <p className="mt-1 text-xs text-brand-text-medium">
+                  {new Date(manualSyncResult.timestamp).toLocaleString('pt-BR')}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
       </PremiumCard>
 
       {/* Job Stats Grid */}

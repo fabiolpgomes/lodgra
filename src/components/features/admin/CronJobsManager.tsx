@@ -13,6 +13,13 @@ const CRON_JOBS = [
     path: '/api/cron/sync-ical',
   },
   {
+    id: 'sync-booking-reservations',
+    name: 'Sincronização Booking.com',
+    description: 'Importa reservas novas e alterações do Booking.com',
+    schedule: 'A cada 4 horas',
+    path: '/api/cron/sync-booking-reservations',
+  },
+  {
     id: 'daily-checkins',
     name: 'Check-ins Diários',
     description: 'Verifica check-ins e check-outs do dia',
@@ -191,6 +198,7 @@ export function CronJobsManager() {
             <p className="font-medium mb-2">Agendamentos configurados:</p>
             <ul className="list-disc list-inside space-y-1 text-xs">
               <li>Sincronização iCal: A cada hora (0 * * * *)</li>
+              <li>Sincronização Booking.com: A cada 4 horas (0 */4 * * *)</li>
               <li>Check-ins Diários: Diariamente às 8h (0 8 * * *)</li>
               <li>Limpeza: Domingos às 2h (0 2 * * 0)</li>
             </ul>
