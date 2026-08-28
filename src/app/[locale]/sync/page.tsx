@@ -55,7 +55,7 @@ export default function SyncStatusPage() {
   const [recentLogs, setRecentLogs] = useState<SyncLog[]>([])
   const [loading, setLoading] = useState(true)
   const [nextRunIn, setNextRunIn] = useState<string>('')
-  const [apiError, setApiError] = useState<string | null>(null)
+  const [historyWarning, setHistoryWarning] = useState<string | null>(null)
   const [manualSyncing, setManualSyncing] = useState(false)
   const [manualSyncResult, setManualSyncResult] = useState<{
     success: boolean
@@ -132,9 +132,9 @@ export default function SyncStatusPage() {
     try {
       const response = await fetch('/api/admin/sync-logs?limit=50')
       if (!response.ok) {
-        const errorMsg = 'Não conseguimos mostrar as atualizações agora. Tente novamente em alguns minutos.'
-        console.error(errorMsg)
-        setApiError(errorMsg)
+        const warningMsg = 'O histórico de sincronização está indisponível no momento. Você ainda pode usar o botão de sincronização imediata.'
+        console.error(warningMsg)
+        setHistoryWarning(warningMsg)
         setJob1Stats(calculateStats([]))
         setJob2Stats(calculateStats([]))
         setRecentLogs([])
@@ -146,12 +146,12 @@ export default function SyncStatusPage() {
 
       if (result.error) {
         console.error('API error:', result.message)
-        setApiError('Não conseguimos mostrar as atualizações agora. Tente novamente em alguns minutos.')
+        setHistoryWarning('O histórico de sincronização está indisponível no momento. Você ainda pode usar o botão de sincronização imediata.')
         setJob1Stats(calculateStats([]))
         setJob2Stats(calculateStats([]))
         setRecentLogs([])
       } else {
-        setApiError(null)
+        setHistoryWarning(null)
         const logs = result.data
         const job1Logs = logs.filter(l => l.sync_type === 'ical')
         const job2Logs = logs.filter(l => l.sync_type === 'email')
@@ -165,7 +165,7 @@ export default function SyncStatusPage() {
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error)
       console.error('Error fetching sync data:', errorMsg)
-      setApiError('Não conseguimos mostrar as atualizações agora. Confira sua internet e tente novamente.')
+      setHistoryWarning('O histórico de sincronização está indisponível no momento. Você ainda pode usar o botão de sincronização imediata.')
       setJob1Stats(calculateStats([]))
       setJob2Stats(calculateStats([]))
       setRecentLogs([])
@@ -218,16 +218,16 @@ export default function SyncStatusPage() {
         Voltar
       </button>
 
-      {/* Error Alert */}
-      {apiError && (
-        <PremiumCard className="border-red-500/20 bg-gradient-to-br from-red-500/5 to-transparent">
+      {/* History Warning */}
+      {historyWarning && (
+        <PremiumCard className="border-amber-500/20 bg-gradient-to-br from-amber-500/5 to-transparent">
           <div className="flex items-start gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-red-500/20 bg-red-500/10 text-red-600">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-amber-500/20 bg-amber-500/10 text-amber-700">
               <AlertCircle className="h-6 w-6" />
             </div>
             <div className="flex-1">
-              <p className="font-bold text-red-700">Não foi possível atualizar esta página</p>
-              <p className="mt-1 text-sm text-red-600">{apiError}</p>
+              <p className="font-bold text-amber-800">Histórico de sincronização indisponível</p>
+              <p className="mt-1 text-sm text-amber-700">{historyWarning}</p>
             </div>
           </div>
         </PremiumCard>
