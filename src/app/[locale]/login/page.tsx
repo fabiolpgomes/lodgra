@@ -65,7 +65,6 @@ export default function LoginPage() {
       const safeRedirect = getSafeRedirect(redirectTo, locale || 'pt-BR')
 
       router.replace(safeRedirect)
-      router.refresh()
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Erro ao fazer login'
       setError(message)
