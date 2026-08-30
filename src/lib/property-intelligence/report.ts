@@ -342,10 +342,7 @@ function renderScenarioFinancialSummary(result: PropertyIntelligenceResult, curr
   }
 
   return [
-    `- Receita bruta: ${formatMoney(baseScenario.grossMonthlyRevenue, currency)} por mês.`,
-    `- Receita após canais: ${formatMoney(baseScenario.afterChannelRevenue, currency)} por mês.`,
     `- Líquido do proprietário: ${formatMoney(baseScenario.ownerNetReturn, currency)} por mês (${formatMoney(baseScenario.annualNetReturn, currency)} por ano).`,
-    `- Custos totais estimados: ${formatMoney(baseScenario.costs.totalMonthlyCosts, currency)} por mês.`,
   ]
 }
 
@@ -583,8 +580,6 @@ export function buildMarkdownReport(result: PropertyIntelligenceResult, options?
   const lines: string[] = []
 
   lines.push(...renderDocumentHeader(options?.companyName))
-  lines.push('# Dossiê Executivo de Property Intelligence')
-  lines.push('')
   lines.push(...renderExecutiveSummary(result, currency))
   lines.push('')
   lines.push(...renderStayDefinitions())

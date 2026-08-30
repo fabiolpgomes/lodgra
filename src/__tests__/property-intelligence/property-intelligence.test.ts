@@ -99,7 +99,6 @@ describe('property intelligence MVP', () => {
 
     const report = buildMarkdownReport(result, { companyName: 'Algarve Home Stay' })
     expect(report).toContain('Empresa: Algarve Home Stay · Site: www.algarvehomestay.pt · Email: ahspropriedades@gmail.com · Telefone: +351912647423 · WhatsApp: +351912647423')
-    expect(report).toContain('# Dossiê Executivo de Property Intelligence')
     expect(report).toContain('## Resumo Executivo')
     expect(report).toContain('## Definições de estadia')
     expect(report).toContain('## Cenário 1 - Locação de curta e média duração')
@@ -114,6 +113,8 @@ describe('property intelligence MVP', () => {
     expect(report).toContain('Estadia longa: 30 noites ou mais.')
     expect(report).not.toContain('Curta duração pós-canais')
     expect(report).not.toContain('Receita bruta')
+    expect(report).not.toContain('Receita após canais')
+    expect(report).not.toContain('Dossiê Executivo de Property Intelligence')
     expect(report).not.toContain('## Veredito')
     expect(report).not.toContain('## Próximos Passos')
     expect(report).not.toContain('## Validação')
@@ -326,10 +327,11 @@ describe('property intelligence MVP', () => {
     try {
       const output = runCli('markdown', inputPath)
 
-      expect(output).toContain('# Dossiê Executivo de Property Intelligence')
+      expect(output).toContain('Empresa: Lodgra Site · Site: www.algarvehomestay.pt · Email: ahspropriedades@gmail.com · Telefone: +351912647423 · WhatsApp: +351912647423')
       expect(output).toContain('## Resumo Executivo')
       expect(output).toContain('## Definições de estadia')
       expect(output).toContain('## Cenários')
+      expect(output).not.toContain('Dossiê Executivo de Property Intelligence')
       expect(output).not.toContain('--- JSON ---')
       expect(() => JSON.parse(output)).toThrow()
     } finally {
@@ -344,8 +346,9 @@ describe('property intelligence MVP', () => {
       const output = runCli('both', inputPath)
       const [markdownPart, jsonPart] = output.split('\n\n--- JSON ---\n\n')
 
-      expect(markdownPart).toContain('# Dossiê Executivo de Property Intelligence')
+      expect(markdownPart).toContain('Empresa: Lodgra Site · Site: www.algarvehomestay.pt · Email: ahspropriedades@gmail.com · Telefone: +351912647423 · WhatsApp: +351912647423')
       expect(markdownPart).toContain('## Definições de estadia')
+      expect(markdownPart).not.toContain('Dossiê Executivo de Property Intelligence')
       expect(jsonPart).toBeDefined()
 
       const json = JSON.parse(jsonPart) as {
