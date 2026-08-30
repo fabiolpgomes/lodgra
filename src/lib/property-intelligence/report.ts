@@ -185,6 +185,15 @@ function renderDocumentHeader(): string[] {
   ]
 }
 
+function renderStayDefinitions(): string[] {
+  return [
+    '## Definições de estadia',
+    '- Estadia curta: até 5 noites.',
+    '- Estadia média: a partir de 7 noites.',
+    '- Estadia longa: 30 noites ou mais.',
+  ]
+}
+
 function renderExecutiveSummary(result: PropertyIntelligenceResult, currency: string): string[] {
   const lines: string[] = []
 
@@ -203,8 +212,7 @@ function renderExecutiveSummary(result: PropertyIntelligenceResult, currency: st
   lines.push(`- Objetivos selecionados: ${selectedObjectives}.`)
   lines.push(`- Direção principal: ${recommendedFamily} como leitura mais coerente para a operação.`)
   lines.push('- O dossiê consolida viabilidade, posicionamento comercial e comparação de cenários no mesmo documento.')
-  lines.push('- A leitura separa mercado, inteligência Lodgra/AHS e IA para deixar a tese clara em três camadas.')
-  lines.push('- A leitura separa claramente curta/média duração e locação anual para acelerar a decisão sem ruído.')
+  lines.push('- A leitura separa curta/média duração e locação anual para acelerar a decisão sem ruído.')
   if (
     result.intake.ownerContext.historicalRevenue != null ||
     result.intake.ownerContext.rentedDays != null
@@ -233,10 +241,10 @@ function renderMarketLayer(result: PropertyIntelligenceResult, currency: string)
   const annual = result.marketSnapshot.annual
 
   lines.push(
-    `- Short + mid stay: ${shortMid.comparables.length} comparáveis, mediana bruta de ${formatMoney(shortMid.medianGross, currency)} e mediana líquida de ${formatMoney(shortMid.medianNet, currency)}.`
+    `- Short + mid stay: ${shortMid.comparables.length} comparáveis, mediana líquida de ${formatMoney(shortMid.medianNet, currency)}.`
   )
   lines.push(
-    `- Anual: ${annual.comparables.length} comparáveis, mediana bruta de ${formatMoney(annual.medianGross, currency)} e mediana líquida de ${formatMoney(annual.medianNet, currency)}.`
+    `- Anual: ${annual.comparables.length} comparáveis, mediana líquida de ${formatMoney(annual.medianNet, currency)}.`
   )
   lines.push(`- Mercado predominante da leitura: ${formatMarketTier(shortMid.marketTier)}.`)
   lines.push(
@@ -245,10 +253,10 @@ function renderMarketLayer(result: PropertyIntelligenceResult, currency: string)
   lines.push(`- Janela observada: ${shortMid.observedAt || annual.observedAt || 'sem data consolidada'}.`)
   lines.push('- Fontes da camada de mercado: Airbnb, Booking, VRBO, Flatio, Hostwise, Idealista, Imovirtual, Casa Sapo e OLX Portugal conforme o cenário.')
   lines.push(
-    `- Faixa short + mid: ${formatMoney(shortMid.rangeGross.min, currency)} a ${formatMoney(shortMid.rangeGross.max, currency)} bruto e ${formatMoney(shortMid.rangeNet.min, currency)} a ${formatMoney(shortMid.rangeNet.max, currency)} líquido.`
+    `- Faixa short + mid: ${formatMoney(shortMid.rangeNet.min, currency)} a ${formatMoney(shortMid.rangeNet.max, currency)} líquido.`
   )
   lines.push(
-    `- Faixa anual: ${formatMoney(annual.rangeGross.min, currency)} a ${formatMoney(annual.rangeGross.max, currency)} bruto e ${formatMoney(annual.rangeNet.min, currency)} a ${formatMoney(annual.rangeNet.max, currency)} líquido.`
+    `- Faixa anual: ${formatMoney(annual.rangeNet.min, currency)} a ${formatMoney(annual.rangeNet.max, currency)} líquido.`
   )
 
   return lines
@@ -352,15 +360,12 @@ function renderShortMidScenario(result: PropertyIntelligenceResult, currency: st
   const midAnnual = midBase?.annualNetReturn ?? 0
   const marketLabel = getPrimaryMarketTier(result)
 
-  lines.push(`- Curta duração base: ${formatMoney(shortNet, currency)} por mês (${formatMoney(shortAnnual, currency)} por ano).`)
-  lines.push(`- Curta duração pós-canais: ${formatMoney(shortBase?.afterChannelRevenue ?? 0, currency)} por mês.`)
-  lines.push(`- Média duração base: ${formatMoney(midNet, currency)} por mês (${formatMoney(midAnnual, currency)} por ano).`)
-  lines.push(`- Média duração pós-canais: ${formatMoney(midBase?.afterChannelRevenue ?? 0, currency)} por mês.`)
+  lines.push(`- Curta duração: líquido do proprietário de ${formatMoney(shortNet, currency)} por mês (${formatMoney(shortAnnual, currency)} por ano).`)
+  lines.push(`- Média duração: líquido do proprietário de ${formatMoney(midNet, currency)} por mês (${formatMoney(midAnnual, currency)} por ano).`)
   lines.push(`- Direção comercial atual: ${recommendedFamily}.`)
   lines.push(`- Zona-base observada nesta leitura: ${marketLabel}.`)
-  lines.push('- Este bloco privilegia Airbnb, Booking, VRBO, Flatio e Hostwise como fontes de leitura para a operação.')
-  lines.push('- A comissão média de OTA é tratada como cerca de 18% sobre a receita bruta anunciada, antes dos custos operacionais internos.')
-  lines.push('- O contexto do proprietário continua relevante: uso flexível, manutenção preventiva e rotação comercial pesam a favor deste cenário.')
+  lines.push('- Fontes principais: Airbnb, Booking, VRBO, Flatio e Hostwise.')
+  lines.push('- O valor já reflete a leitura líquida do proprietário no modelo.')
 
   return lines
 }
@@ -384,13 +389,11 @@ function renderAnnualScenario(result: PropertyIntelligenceResult, currency: stri
   const marketLabel = getPrimaryMarketTier(result)
 
   lines.push(`- Direção recomendada: ${formatScenarioFamilyLabel('long-stay')}.`)
-  lines.push(`- Retorno líquido base estimado: ${formatMoney(annualNetReturn, currency)} por mês (${formatMoney(annualNetYear, currency)} por ano).`)
-  lines.push(`- Receita após canais: ${formatMoney(annualBase?.afterChannelRevenue ?? 0, currency)} por mês.`)
+  lines.push(`- Líquido do proprietário estimado: ${formatMoney(annualNetReturn, currency)} por mês (${formatMoney(annualNetYear, currency)} por ano).`)
   lines.push(`- Confiança da leitura: ${formatConfidence(confidence)}.`)
   lines.push(`- Zona-base observada nesta leitura: ${marketLabel}.`)
-  lines.push('- Este bloco privilegia Idealista, Imovirtual, Casa Sapo e OLX Portugal como fontes de leitura para renda recorrente.')
+  lines.push('- Fontes principais: Idealista, Imovirtual, Casa Sapo e OLX Portugal.')
   lines.push('- O anual tende a ser mais coerente quando a prioridade é previsibilidade, menor rotação e menor fricção operacional.')
-  lines.push('- A decisão final continua dependente do equilíbrio entre retorno, risco operacional e uso próprio.')
 
   return lines
 }
@@ -567,13 +570,13 @@ function renderModelTable(models: StayModelResult[], currency: string): string {
 function renderComparablesTable(comparables: ComparableBenchmark[], currency: string): string {
   const rows = sortComparablesForDisplay(comparables)
     .map(comparable => {
-      return `| ${comparable.label} | ${formatStayType(comparable.stayType)} | ${formatMarketTier(comparable.marketTier)} | ${formatMoney(comparable.monthlyGrossRevenue, currency)} | ${formatMoney(comparable.monthlyNetReturn, currency)} | ${formatProvenance(comparable.provenance)} | ${formatConfidence(comparable.confidence)} | ${comparable.source} | ${formatObservedAt(comparable.observedAt)} |`
+      return `| ${comparable.label} | ${formatStayType(comparable.stayType)} | ${formatMarketTier(comparable.marketTier)} | ${formatMoney(comparable.monthlyNetReturn, currency)} | ${formatProvenance(comparable.provenance)} | ${formatConfidence(comparable.confidence)} | ${comparable.source} | ${formatObservedAt(comparable.observedAt)} |`
     })
     .join('\n')
 
   return [
-    '| Referência | Tipo | Zona | Receita bruta | Líquido observado | Proveniência | Confiança | Fonte | Observado em |',
-    '| --- | --- | --- | ---: | ---: | --- | --- | --- | --- |',
+    '| Referência | Tipo | Zona | Líquido observado | Proveniência | Confiança | Fonte | Observado em |',
+    '| --- | --- | --- | ---: | --- | --- | --- | --- |',
     rows,
   ].join('\n')
 }
@@ -599,67 +602,19 @@ export function buildMarkdownReport(result: PropertyIntelligenceResult): string 
   lines.push('')
   lines.push(...renderExecutiveSummary(result, currency))
   lines.push('')
+  lines.push(...renderStayDefinitions())
+  lines.push('')
   lines.push(...renderMarketLayer(result, currency))
-  lines.push('')
-  lines.push(...renderLodgraLayer(result, currency))
-  lines.push('')
-  lines.push(...renderAiLayer(result))
-  lines.push('')
-  lines.push('## Resumo Financeiro')
-  lines.push(...renderScenarioFinancialSummary(result, currency))
   lines.push('')
   lines.push(...renderShortMidScenario(result, currency))
   lines.push('')
   lines.push(...renderAnnualScenario(result, currency))
   lines.push('')
-  lines.push(...renderInsight(result))
-  lines.push('')
-  lines.push('## Veredito')
-  if (result.status === 'ready') {
-    lines.push('A leitura sugere uma oportunidade sólida, com potencial claro para uma decisão comercial confiante.')
-    lines.push('')
-  }
-  lines.push(renderVerdict(result))
-  lines.push('')
-  lines.push(...renderNextSteps(result))
-  lines.push('')
-  lines.push(...renderReadingGuide())
-  lines.push('')
-  lines.push('## Entrada')
-  lines.push(`- Localização: ${result.intake.normalizedProperty.location || 'em falta'}`)
-  lines.push(`- Tipologia: ${result.intake.normalizedProperty.typology || 'em falta'}`)
-  lines.push(`- Área: ${result.intake.normalizedProperty.areaM2} m2`)
-  lines.push(`- Quartos: ${result.intake.normalizedProperty.bedrooms}`)
-  lines.push(`- Tipo de mercado: ${formatMarketTier(result.intake.normalizedProperty.market)}`)
-  lines.push(`- Estado: ${result.intake.normalizedProperty.condition}`)
-  lines.push(`- Mobilado: ${result.intake.normalizedProperty.furnished ? 'sim' : 'não'}`)
-  lines.push(`- Completude: ${formatPercent(result.intake.completenessScore)}`)
-  lines.push(`- Objetivos selecionados: ${result.intake.readingObjectives.map(formatReadingObjective).join(', ')}`)
-  if (result.blockedInputs.length > 0) {
-    lines.push(`- Bloqueios: ${result.blockedInputs.join(', ')}`)
-  }
-  if (result.intake.estimatedFields.length > 0) {
-    lines.push(`- Campos estimados: ${result.intake.estimatedFields.join(', ')}`)
-  }
-  lines.push('')
-  lines.push(...renderOwnerContext(result))
-  lines.push('')
-  lines.push('## Sinal de Localização')
-  if (result.location) {
-    lines.push(`- Perfil de mercado: ${formatMarketTier(result.location.marketTier)}`)
-    lines.push(`- Taxa base por m²: ${formatMoney(result.location.baseRatePerM2, currency)}`)
-    lines.push(`- Nível de confiança: ${formatPercent(result.location.confidence)}`)
-    lines.push(`- Justificativa: ${result.location.rationale}`)
-  } else {
-    lines.push('- Sinal de localização indisponível porque faltam dados obrigatórios.')
-  }
-  lines.push('')
   lines.push('## Referências Comparáveis')
   lines.push('- Referência: benchmark usado na comparação e na sustentação da leitura.')
   lines.push('- Tipo: classe de estadia associada ao benchmark, para alinhar a leitura com o cenário certo.')
   lines.push('- Zona: enquadramento de mercado da referência, para destacar a leitura costeira, urbana, suburbana ou rural.')
-  lines.push('- Receita bruta: valor bruto estimado antes dos custos operacionais.')
-  lines.push('- Retorno líquido: valor após custos estimados e encargos operacionais.')
+  lines.push('- Líquido observado: valor após custos estimados e encargos operacionais.')
   lines.push('- Proveniência: origem da referência, podendo ser informada, derivada ou estimada.')
   lines.push('- Confiança: nível de segurança atribuído à referência usada na comparação.')
   if (result.comparables.length > 0) {
@@ -689,23 +644,8 @@ export function buildMarkdownReport(result: PropertyIntelligenceResult): string 
   lines.push('## Estratégia')
   if (result.strategy) {
     lines.push(`- Tipo de estadia recomendado: ${formatStayType(result.strategy.recommendedStayType)}`)
-    lines.push(`- Razão: ${result.strategy.reason}`)
-    lines.push(`- Ordem de comparação: ${result.strategy.comparisonOrder.map(formatStayType).join(' > ')}`)
-    if (result.strategy.caveats.length > 0) {
-      lines.push(`- Observações: ${result.strategy.caveats.join(' ')}`)
-    }
   } else {
     lines.push('- A estratégia fica indisponível até os dados obrigatórios estarem completos.')
-  }
-  lines.push('')
-  lines.push('## Validação')
-  lines.push('- Estado: aprovado = pronto; atenção = rever premissas; bloqueado = faltam dados críticos.')
-  lines.push(`- Estado atual: ${result.audit.status === 'pass' ? 'aprovado' : result.audit.status === 'warn' ? 'atenção' : 'bloqueado'}`)
-  lines.push(`- Cobertura: ${formatPercent(result.audit.coverageScore)}`)
-  lines.push(`- Aprovação obrigatória: ${result.audit.publishApprovalRequired ? 'sim' : 'não'}`)
-  lines.push(`- Estado da aprovação: ${result.audit.publishApprovalState === 'approved' ? 'aprovada' : 'pendente'}`)
-  if (result.audit.issues.length > 0) {
-    lines.push(`- Observações: ${result.audit.issues.join(' | ')}`)
   }
 
   return lines.join('\n')

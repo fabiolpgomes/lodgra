@@ -36,6 +36,30 @@ const completeInput = {
   },
 } as const
 
+const marketComparablesInput = {
+  ...completeInput,
+  comparables: [
+    {
+      label: 'Espetac. T2 com piscina em Armação de Pera/Porches',
+      stayType: 'short-stay',
+      marketTier: 'coastal',
+      monthlyGrossRevenue: 3900,
+      monthlyNetReturn: 3198,
+      source: 'Airbnb',
+      observedAt: '2026-08-30',
+    },
+    {
+      label: 'Apartamento T2 perto da praia, Armação de Pêra, Algarve',
+      stayType: 'long-stay',
+      marketTier: 'coastal',
+      monthlyGrossRevenue: 3000,
+      monthlyNetReturn: 2700,
+      source: 'Imovirtual',
+      observedAt: '2026-08-30',
+    },
+  ],
+} as const
+
 function writeSampleInput(): string {
   const inputPath = join(tmpdir(), `property-intelligence-${Date.now()}-${Math.random().toString(16).slice(2)}.json`)
   writeFileSync(inputPath, `${JSON.stringify(completeInput, null, 2)}\n`, 'utf8')
@@ -61,24 +85,48 @@ describe('property intelligence MVP', () => {
     expect(result.strategy?.recommendedStayType).toBeDefined()
 
     const report = buildMarkdownReport(result)
+    expect(report).toContain('Lodgra Site: www.algarvehomestay.pt · Email: ahspropriedades@gmail.com · Telefone: +351912647423 · WhatsApp: +351912647423')
     expect(report).toContain('# Dossiê Executivo de Property Intelligence')
     expect(report).toContain('## Identificação do Imóvel')
     expect(report).toContain('**Faro, Algarve** · T2 · 82 m² · 2 quartos · bom estado · mobilado')
     expect(report).toContain('## Resumo Executivo')
-    expect(report).toContain('## Destaque da Oportunidade')
-    expect(report).toContain('Direção principal')
-    expect(report).toContain('## Por que não anual?')
-    expect(report).toContain('## Como ler esta análise')
-    expect(report).toContain('O objetivo deste dossiê é apoiar uma decisão de negócio')
-    expect(report).toContain('## Insight Principal')
-    expect(report).toContain('oportunidade consistente')
-    expect(report).toContain('## Veredito')
-    expect(report).toContain('oportunidade sólida')
-    expect(report).toContain('Veredito: o imóvel mostra melhor encaixe')
+    expect(report).toContain('## Definições de estadia')
+    expect(report).toContain('## Cenário 1 - Locação de curta e média duração')
+    expect(report).toContain('## Cenário 2 - Locação anual')
+    expect(report).toContain('Airbnb, Booking, VRBO, Flatio e Hostwise')
+    expect(report).toContain('Idealista, Imovirtual, Casa Sapo e OLX Portugal')
+    expect(report).toContain('| Zona |')
+    expect(report).toContain('Zona predominante da amostra')
+    expect(report).toContain('Estadia curta: até 5 noites.')
+    expect(report).toContain('Estadia média: a partir de 7 noites.')
+    expect(report).toContain('Estadia longa: 30 noites ou mais.')
+    expect(report).not.toContain('Curta duração pós-canais')
+    expect(report).not.toContain('Receita bruta')
+    expect(report).not.toContain('## Veredito')
+    expect(report).not.toContain('## Próximos Passos')
+    expect(report).not.toContain('## Validação')
+    expect(report).not.toContain('## Sinal de Localização')
+    expect(report).not.toContain('## Inteligência Lodgra/AHS')
+    expect(report).not.toContain('## IA')
+    expect(report).toContain('Zona-base observada nesta leitura')
     expect(report).toContain('Faro, Algarve')
     expect(report).toContain('estadia curta')
-    expect(report).toContain('## Próximos Passos')
     expect(report).not.toContain('page-break-after: always')
+  })
+
+  it('renders source-backed comparables with market recency', () => {
+    const result = runPropertyIntelligenceAnalysis(marketComparablesInput)
+
+    const report = buildMarkdownReport(result)
+
+    expect(report).toContain('| Fonte | Observado em |')
+    expect(report).toContain('Airbnb')
+    expect(report).toContain('Imovirtual')
+    expect(report).toContain('Mercado observado em: 2026-08-30')
+    expect(report).not.toContain('Receita bruta')
+    expect(result.comparables).toHaveLength(2)
+    expect(result.comparables[0].source).toBe('Airbnb')
+    expect(result.comparables[0].observedAt).toBe('2026-08-30')
   })
 
   it('allows analysis to continue when the user does not know the core property details', () => {
@@ -97,15 +145,13 @@ describe('property intelligence MVP', () => {
     expect(report).toContain('## Identificação do Imóvel')
     expect(report).toContain('**Não informado** · não informado · 45 m² · 1 quartos · bom estado · não mobilado')
     expect(report).toContain('## Resumo Executivo')
-    expect(report).toContain('## Destaque da Oportunidade')
-    expect(report).toContain('Direção principal')
-    expect(report).toContain('## Por que não anual?')
-    expect(report).toContain('## Como ler esta análise')
-    expect(report).toContain('## Insight Principal')
-    expect(report).toContain('oportunidade consistente')
-    expect(report).toContain('## Veredito')
-    expect(report).toContain('Veredito: o imóvel mostra melhor encaixe')
-    expect(report).toContain('## Próximos Passos')
+    expect(report).toContain('## Definições de estadia')
+    expect(report).toContain('## Cenário 1 - Locação de curta e média duração')
+    expect(report).toContain('## Cenário 2 - Locação anual')
+    expect(report).toContain('Zona-base observada nesta leitura')
+    expect(report).not.toContain('## Veredito')
+    expect(report).not.toContain('## Próximos Passos')
+    expect(report).not.toContain('## Validação')
   })
 
   it('serializes a JSON report with the same business signals as the markdown report', () => {
@@ -141,7 +187,7 @@ describe('property intelligence MVP', () => {
     expect(json.telemetry.events.map(event => event.name)).toEqual(
       expect.arrayContaining(['analysis.start', 'analysis.end', 'analysis.publish_approval'])
     )
-    expect(markdown).toContain('## Como ler esta análise')
+    expect(markdown).toContain('## Definições de estadia')
     expect(markdown).toContain('## Referências Comparáveis')
     expect(markdown).toContain('## Cenários')
 
@@ -271,7 +317,7 @@ describe('property intelligence MVP', () => {
       expect(output).toContain('# Dossiê Executivo de Property Intelligence')
       expect(output).toContain('## Identificação do Imóvel')
       expect(output).toContain('## Resumo Executivo')
-      expect(output).toContain('## Como ler esta análise')
+      expect(output).toContain('## Definições de estadia')
       expect(output).toContain('## Cenários')
       expect(output).not.toContain('--- JSON ---')
       expect(() => JSON.parse(output)).toThrow()
@@ -288,7 +334,7 @@ describe('property intelligence MVP', () => {
       const [markdownPart, jsonPart] = output.split('\n\n--- JSON ---\n\n')
 
       expect(markdownPart).toContain('# Dossiê Executivo de Property Intelligence')
-      expect(markdownPart).toContain('## Veredito')
+      expect(markdownPart).toContain('## Definições de estadia')
       expect(jsonPart).toBeDefined()
 
       const json = JSON.parse(jsonPart) as {

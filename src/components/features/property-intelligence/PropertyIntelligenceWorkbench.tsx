@@ -976,16 +976,19 @@ export function PropertyIntelligenceWorkbench({
     const pageWidth = doc.internal.pageSize.getWidth()
     const pageHeight = doc.internal.pageSize.getHeight()
     const marginX = 16
-    const marginTop = 18
-    const footerHeight = 24
+    const marginTop = 12
+    const headerHeight = 18
+    const footerHeight = 12
     const lineHeight = 6
     const maxWidth = pageWidth - marginX * 2
-    let cursorY = marginTop
+    const contentTop = marginTop + headerHeight
+    const contentBottom = pageHeight - footerHeight - 8
+    let cursorY = contentTop
 
     function ensureSpace(requiredHeight: number) {
-      if (cursorY + requiredHeight > pageHeight - marginTop - footerHeight) {
+      if (cursorY + requiredHeight > contentBottom) {
         doc.addPage()
-        cursorY = marginTop
+        cursorY = contentTop
       }
     }
 
@@ -1008,50 +1011,51 @@ export function PropertyIntelligenceWorkbench({
       cursorY += lines.length * lineHeight + 2
     }
 
-    function addFooter(pageNumber: number, totalPages: number, logoImage: { dataUrl: string; format: 'PNG' | 'JPEG' } | null) {
+    function addHeader(pageNumber: number, totalPages: number, logoImage: { dataUrl: string; format: 'PNG' | 'JPEG' } | null) {
       doc.setPage(pageNumber)
 
-      const footerLineY = pageHeight - footerHeight + 2
-      const footerTextY = pageHeight - 10
+      const headerLineY = marginTop + 14
+      const headerLogoY = marginTop - 1
+      const headerTextY = marginTop + 4
       const logoX = marginX
       const contentX = logoImage ? logoX + 14 : marginX
-      const contentWidth = pageWidth - contentX - marginX - 26
+      const contentWidth = pageWidth - contentX - marginX
 
       doc.setDrawColor(...reportCompany.primaryColorRgb)
       doc.setLineWidth(0.3)
-      doc.line(marginX, footerLineY, pageWidth - marginX, footerLineY)
+      doc.line(marginX, headerLineY, pageWidth - marginX, headerLineY)
 
       if (logoImage) {
         try {
-          doc.addImage(logoImage.dataUrl, logoImage.format, logoX, pageHeight - 18, 10, 10)
+          doc.addImage(logoImage.dataUrl, logoImage.format, logoX, headerLogoY, 10, 10)
         } catch {
-          // ignore logo rendering failures and continue with the text footer
+          // ignore logo rendering failures and continue with the text header
         }
       }
 
       doc.setFont('helvetica', 'bold')
-      doc.setFontSize(8.5)
+      doc.setFontSize(9)
       doc.setTextColor(...reportCompany.primaryColorRgb)
-      doc.text(reportCompany.name, contentX, footerTextY)
+      doc.text(reportCompany.name, contentX, headerTextY)
 
-      const footerSegments = [
+      const headerSegments = [
         reportCompany.websiteUrl ? `Site: ${stripUrlProtocol(reportCompany.websiteUrl)}` : null,
         reportCompany.email ? `Email: ${reportCompany.email}` : null,
         reportCompany.phone ? `Telefone: ${reportCompany.phone}` : null,
         reportCompany.whatsappNumber ? `WhatsApp: ${reportCompany.whatsappNumber}` : null,
       ].filter(Boolean)
 
-      const footerLine = footerSegments.length > 0 ? footerSegments.join(' · ') : 'Property Intelligence · Lodgra'
-      const footerLines = doc.splitTextToSize(footerLine, contentWidth)
+      const headerLine = headerSegments.length > 0 ? headerSegments.join(' · ') : 'Property Intelligence · Lodgra'
+      const headerLines = doc.splitTextToSize(headerLine, contentWidth)
 
       doc.setFont('helvetica', 'normal')
       doc.setFontSize(7.5)
       doc.setTextColor(102, 114, 132)
-      doc.text(footerLines, contentX, footerTextY + 4)
+      doc.text(headerLines, contentX, headerTextY + 4)
 
       doc.setFontSize(7)
       doc.setTextColor(...reportCompany.secondaryColorRgb)
-      doc.text(`Página ${pageNumber} de ${totalPages}`, pageWidth - marginX, footerTextY, {
+      doc.text(`Página ${pageNumber} de ${totalPages}`, pageWidth - marginX, pageHeight - 6, {
         align: 'right',
       })
     }
@@ -1062,8 +1066,27 @@ export function PropertyIntelligenceWorkbench({
         normalized.includes('page-break-after: always') ||
         normalized.includes('nota interna da aplicação') ||
         normalized.includes('não deve ser impresso ou gerado no pdf') ||
-        normalized.includes('nao deve ser impresso ou gerado no pdf')
+        normalized.includes('nao deve ser impresso ou gerado no pdf') ||
+        normalized.startsWith('lodgra site:')
       )
+    }
+
+    const hiddenMarkdownSections = new Set([
+      'inteligência lodgra/ahs',
+      'ia',
+      'sinal de localização',
+      'próximos passos',
+      'veredito',
+      'validação',
+    ])
+
+    function getHeadingLevel(text: string) {
+      const match = text.match(/^(#{1,6})\s+/)
+      return match ? match[1].length : 0
+    }
+
+    function getHeadingText(text: string) {
+      return text.replace(/^(#{1,6})\s+/, '').trim().toLowerCase()
     }
 
     function isMarkdownTableDivider(text: string) {
@@ -1204,9 +1227,24 @@ export function PropertyIntelligenceWorkbench({
 
     const markdown = effectiveMarkdown
     const markdownLines = markdown.split('\n').map(line => line.trim())
+    let hiddenSectionActive = false
 
     for (let index = 0; index < markdownLines.length; ) {
       const line = markdownLines[index]
+      const headingLevel = getHeadingLevel(line)
+
+      if (headingLevel > 0) {
+        const headingText = getHeadingText(line)
+        hiddenSectionActive = hiddenMarkdownSections.has(headingText)
+
+        if (hiddenSectionActive) {
+          index += 1
+          continue
+        }
+      } else if (hiddenSectionActive) {
+        index += 1
+        continue
+      }
 
       if (shouldSkipMarkdownLine(line)) {
         index += 1
@@ -1236,7 +1274,7 @@ export function PropertyIntelligenceWorkbench({
 
     const totalPages = doc.getNumberOfPages()
     for (let pageNumber = 1; pageNumber <= totalPages; pageNumber += 1) {
-      addFooter(pageNumber, totalPages, logoImage)
+      addHeader(pageNumber, totalPages, logoImage)
     }
 
     doc.save(`property-intelligence-${propertyName.replace(/\s+/g, '-').toLowerCase()}.pdf`)
