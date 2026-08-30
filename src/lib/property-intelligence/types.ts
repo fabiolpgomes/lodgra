@@ -196,6 +196,7 @@ export interface AILayerResult {
   confidence: ConfidenceLevel
   narrative: string
   recommendation: StrategyRecommendation | null
+  promptVersion: string
 }
 
 export interface ComparableBenchmark {

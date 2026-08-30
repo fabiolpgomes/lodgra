@@ -3,7 +3,12 @@ import { unlinkSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-import { buildMarkdownReport, runPropertyIntelligenceAnalysis, serializeJsonReport } from '@/lib/property-intelligence'
+import {
+  buildMarkdownReport,
+  runPropertyIntelligenceAnalysis,
+  serializeJsonReport,
+  PROPERTY_INTELLIGENCE_NATIVE_PROMPT_VERSION,
+} from '@/lib/property-intelligence'
 
 const completeInput = {
   lead: {
@@ -172,6 +177,7 @@ describe('property intelligence MVP', () => {
       strategy: { recommendedStayType: string }
       audit: { status: string }
       publication: { approved: boolean }
+      analysisLayers: { ai: { promptVersion: string } | null }
       telemetry: { events: Array<{ name: string }> }
     }
 
@@ -189,6 +195,7 @@ describe('property intelligence MVP', () => {
     expect(json.strategy.recommendedStayType).toBe('mid-stay')
     expect(json.audit.status).toBe('pass')
     expect(json.publication.approved).toBe(false)
+    expect(json.analysisLayers.ai?.promptVersion).toBe(PROPERTY_INTELLIGENCE_NATIVE_PROMPT_VERSION)
     expect(json.telemetry.events.map(event => event.name)).toEqual(
       expect.arrayContaining(['analysis.start', 'analysis.end', 'analysis.publish_approval'])
     )

@@ -5,6 +5,6 @@ export * from './comparables'
 export * from './cost'
 export * from './strategy'
 export * from './audit'
+export * from './nativePrompt'
 export * from './report'
 export * from './engine'
-

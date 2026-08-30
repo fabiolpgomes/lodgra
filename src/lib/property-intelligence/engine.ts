@@ -19,6 +19,7 @@ import { auditPropertyIntelligenceResult } from './audit'
 import { buildComparables } from './comparables'
 import { calculateCostBreakdown, getDefaultStayAssumptions } from './cost'
 import { deriveLocationSignal } from './location'
+import { PROPERTY_INTELLIGENCE_NATIVE_PROMPT_VERSION } from './nativePrompt'
 import { normalizeIntake } from './intake'
 import { buildStrategyRecommendation } from './strategy'
 
@@ -554,7 +555,7 @@ export function runPropertyIntelligenceAnalysis(
     {
       name: 'analysis.start',
       at: startedAt,
-      payload: { traceId },
+      payload: { traceId, promptVersion: PROPERTY_INTELLIGENCE_NATIVE_PROMPT_VERSION },
     },
   ]
 
@@ -566,7 +567,11 @@ export function runPropertyIntelligenceAnalysis(
     telemetryEvents.push({
       name: 'analysis.blocked_inputs',
       at: finishedAt,
-      payload: { traceId, blockedInputs: blockedInputs.length },
+      payload: {
+        traceId,
+        blockedInputs: blockedInputs.length,
+        promptVersion: PROPERTY_INTELLIGENCE_NATIVE_PROMPT_VERSION,
+      },
     })
     telemetryEvents.push({
       name: 'analysis.publish_approval',
@@ -620,6 +625,7 @@ export function runPropertyIntelligenceAnalysis(
       payload: {
         traceId,
         status: provisionalResult.status === 'needs_input',
+        promptVersion: PROPERTY_INTELLIGENCE_NATIVE_PROMPT_VERSION,
       },
     })
 
@@ -688,6 +694,7 @@ export function runPropertyIntelligenceAnalysis(
     narrative:
       `${strategy.reason} A leitura cruza mercado observado, inteligência Lodgra/AHS e contexto do proprietário para chegar à decisão executiva.`,
     recommendation: strategy,
+    promptVersion: PROPERTY_INTELLIGENCE_NATIVE_PROMPT_VERSION,
   }
 
   const provisionalResult: PropertyIntelligenceResult = {
@@ -738,6 +745,7 @@ export function runPropertyIntelligenceAnalysis(
     payload: {
       traceId,
       status: true,
+      promptVersion: PROPERTY_INTELLIGENCE_NATIVE_PROMPT_VERSION,
     },
   })
   telemetryEvents.push({
