@@ -81,6 +81,28 @@ function toOptionalNumber(value: unknown): number | null {
   return typeof value === 'number' && Number.isFinite(value) ? value : null
 }
 
+function normalizeNumberRecord(value: unknown): Record<string, number> | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return null
+  }
+
+  const entries = Object.entries(value as Record<string, unknown>)
+    .map(([key, rawValue]) => {
+      if (typeof rawValue !== 'number' || !Number.isFinite(rawValue)) {
+        return null
+      }
+
+      return [key.trim(), rawValue] as const
+    })
+    .filter((item): item is readonly [string, number] => Boolean(item))
+
+  if (entries.length === 0) {
+    return null
+  }
+
+  return Object.fromEntries(entries)
+}
+
 function normalizeReadingObjectives(value: unknown): ReadingObjective[] {
   if (!Array.isArray(value)) {
     return DEFAULT_READING_OBJECTIVES
@@ -165,16 +187,38 @@ export function normalizeIntake(input: PropertyIntelligenceInput): IntakeResult 
 
   const historicalRevenue = toOptionalNumber(ownerContext.historicalRevenue)
   const rentedDays = toOptionalNumber(ownerContext.rentedDays)
+  const historicalOccupancyPct = toOptionalNumber(ownerContext.occupancyPct)
+  const historicalAdr = toOptionalNumber(ownerContext.historicalAdr)
+  const operationalCostsMonthly = toOptionalNumber(ownerContext.operationalCostsMonthly)
+  const channelMix = normalizeNumberRecord(ownerContext.channelMix)
+  const monthlySeasonality = normalizeNumberRecord(ownerContext.monthlySeasonality)
+  const dataSignals = [
+    historicalRevenue,
+    rentedDays,
+    historicalOccupancyPct,
+    historicalAdr,
+    operationalCostsMonthly,
+    channelMix,
+    monthlySeasonality,
+  ].filter(value => value != null).length
+  const dataQuality = dataSignals >= 5 ? 'high' : dataSignals >= 2 ? 'medium' : 'low'
+
   const normalizedOwnerContext: NormalizedOwnerContext = {
     flexibility: normalizeFlexibility(ownerContext.flexibility),
     operatingModel: normalizeOperatingModel(ownerContext.operatingModel),
     historicalRevenue,
     rentedDays,
+    occupancyPct: historicalOccupancyPct,
+    historicalAdr,
+    operationalCostsMonthly,
+    channelMix,
+    monthlySeasonality,
     maintenanceNote: typeof ownerContext.maintenanceNote === 'string' ? ownerContext.maintenanceNote.trim() : '',
     revenuePerRentedDay:
       historicalRevenue != null && rentedDays != null && rentedDays > 0
         ? Math.round((historicalRevenue / rentedDays) * 100) / 100
       : null,
+    dataQuality,
   }
 
   const readingObjectives = normalizeReadingObjectives(input.readingObjectives)

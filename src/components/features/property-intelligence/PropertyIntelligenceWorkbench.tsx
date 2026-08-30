@@ -195,6 +195,13 @@ function getApprovalStorageKey(traceId: string) {
   return `property-intelligence:approval:${traceId}`
 }
 
+function resolvePublicationApprovalState(
+  analysisResult: PropertyIntelligenceAnalysisResult | undefined,
+  storedApprovalState: PublicationApprovalState | null
+) {
+  return storedApprovalState === 'approved' || analysisResult?.publication?.approved ? 'approved' : 'pending'
+}
+
 function applyPublicationApprovalToMarkdown(markdown: string, approvalState: PublicationApprovalState) {
   return markdown.replace(
     /(- Estado da aprovação: )(pendente|aprovada)/,
@@ -271,7 +278,62 @@ function selectionButtonStyle(active: boolean): CSSProperties {
       }
 }
 
-function getProfileAssumptions(profile: AnalysisProfile) {
+function buildSeasonalityCurve(profile: AnalysisProfile, market: MarketTier | ''): Record<string, number> {
+  const marketBias = market === 'coastal' ? 0.08 : market === 'urban' ? -0.04 : market === 'suburban' ? -0.01 : -0.06
+
+  if (profile === 'conservative') {
+    return {
+      jan: 0.72 + marketBias,
+      feb: 0.74 + marketBias,
+      mar: 0.79 + marketBias,
+      apr: 0.86 + marketBias,
+      may: 0.94 + marketBias,
+      jun: 1.02 + marketBias,
+      jul: 1.12 + marketBias,
+      aug: 1.16 + marketBias,
+      sep: 1.0 + marketBias,
+      oct: 0.9 + marketBias,
+      nov: 0.78 + marketBias,
+      dec: 0.75 + marketBias,
+    }
+  }
+
+  if (profile === 'premium') {
+    return {
+      jan: 0.56 + marketBias,
+      feb: 0.59 + marketBias,
+      mar: 0.68 + marketBias,
+      apr: 0.8 + marketBias,
+      may: 0.94 + marketBias,
+      jun: 1.1 + marketBias,
+      jul: 1.34 + marketBias,
+      aug: 1.48 + marketBias,
+      sep: 1.08 + marketBias,
+      oct: 0.92 + marketBias,
+      nov: 0.68 + marketBias,
+      dec: 0.74 + marketBias,
+    }
+  }
+
+  return {
+    jan: 0.66 + marketBias,
+    feb: 0.69 + marketBias,
+    mar: 0.76 + marketBias,
+    apr: 0.84 + marketBias,
+    may: 0.96 + marketBias,
+    jun: 1.08 + marketBias,
+    jul: 1.28 + marketBias,
+    aug: 1.38 + marketBias,
+    sep: 1.02 + marketBias,
+    oct: 0.88 + marketBias,
+    nov: 0.72 + marketBias,
+    dec: 0.76 + marketBias,
+  }
+}
+
+function getProfileAssumptions(profile: AnalysisProfile, market: MarketTier | '') {
+  const seasonalityCurve = buildSeasonalityCurve(profile, market)
+
   if (profile === 'conservative') {
     return {
       longStay: {
@@ -285,6 +347,11 @@ function getProfileAssumptions(profile: AnalysisProfile) {
         fixedCostsMonthly: 250,
         variableCostsPct: 0.07,
         commissionPct: 0.13,
+        minStayNights: 7,
+        highSeasonMinStayNights: 5,
+        highSeasonMonths: ['jun', 'jul', 'aug', 'sep'],
+        dynamicPricingEnabled: true,
+        monthlySeasonality: seasonalityCurve,
       },
       shortStay: {
         occupancyPct: 0.68,
@@ -293,6 +360,11 @@ function getProfileAssumptions(profile: AnalysisProfile) {
         commissionPct: 0.2,
         cleaningPerTurnover: 55,
         turnoversPerMonth: 6,
+        minStayNights: 5,
+        highSeasonMinStayNights: 4,
+        highSeasonMonths: ['jun', 'jul', 'aug', 'sep'],
+        dynamicPricingEnabled: true,
+        monthlySeasonality: seasonalityCurve,
       },
     }
   }
@@ -310,6 +382,11 @@ function getProfileAssumptions(profile: AnalysisProfile) {
         fixedCostsMonthly: 200,
         variableCostsPct: 0.05,
         commissionPct: 0.1,
+        minStayNights: 7,
+        highSeasonMinStayNights: 5,
+        highSeasonMonths: ['jun', 'jul', 'aug', 'sep'],
+        dynamicPricingEnabled: true,
+        monthlySeasonality: seasonalityCurve,
       },
       shortStay: {
         occupancyPct: 0.8,
@@ -318,6 +395,11 @@ function getProfileAssumptions(profile: AnalysisProfile) {
         commissionPct: 0.16,
         cleaningPerTurnover: 45,
         turnoversPerMonth: 8,
+        minStayNights: 5,
+        highSeasonMinStayNights: 4,
+        highSeasonMonths: ['jun', 'jul', 'aug', 'sep'],
+        dynamicPricingEnabled: true,
+        monthlySeasonality: seasonalityCurve,
       },
     }
   }
@@ -334,6 +416,11 @@ function getProfileAssumptions(profile: AnalysisProfile) {
       fixedCostsMonthly: 220,
       variableCostsPct: 0.06,
       commissionPct: 0.12,
+      minStayNights: 7,
+      highSeasonMinStayNights: 5,
+      highSeasonMonths: ['jun', 'jul', 'aug', 'sep'],
+      dynamicPricingEnabled: true,
+      monthlySeasonality: seasonalityCurve,
     },
     shortStay: {
       occupancyPct: 0.74,
@@ -342,6 +429,11 @@ function getProfileAssumptions(profile: AnalysisProfile) {
       commissionPct: 0.18,
       cleaningPerTurnover: 50,
       turnoversPerMonth: 7,
+      minStayNights: 5,
+      highSeasonMinStayNights: 4,
+      highSeasonMonths: ['jun', 'jul', 'aug', 'sep'],
+      dynamicPricingEnabled: true,
+      monthlySeasonality: seasonalityCurve,
     },
   }
 }
@@ -578,7 +670,7 @@ export function PropertyIntelligenceWorkbench({
     result: Record<string, unknown>
     markdown: string
   } | null>(null)
-  const [markdownDraft, setMarkdownDraft] = useState('')
+  const [markdownDraft, setMarkdownDraft] = useState<string | null>(null)
   const [publicationApprovalState, setPublicationApprovalState] = useState<PublicationApprovalState>('pending')
   const [resultView, setResultView] = useState<ResultView>('summary')
   const [error, setError] = useState<string | null>(null)
@@ -609,7 +701,7 @@ export function PropertyIntelligenceWorkbench({
       },
       assumptions: {
         currency: currency || null,
-        ...getProfileAssumptions(profile),
+        ...getProfileAssumptions(profile, market),
       },
       ownerContext: {
         flexibility: ownerFlexibility,
@@ -710,6 +802,9 @@ export function PropertyIntelligenceWorkbench({
     }
   }, [companyInfo])
 
+  const effectiveMarkdown = result ? markdownDraft ?? result.markdown : ''
+  const isPublicationApproved = publicationApprovalState === 'approved' || summary.publicationApproved
+
   const selectedSummary = useMemo(
     () => [
       { label: 'Imóvel', value: propertyName || '-' },
@@ -774,6 +869,8 @@ export function PropertyIntelligenceWorkbench({
 
       if (!response.ok) {
         setResult(null)
+        setMarkdownDraft(null)
+        setPublicationApprovalState('pending')
         setResultView('summary')
         setError(responsePayload?.error?.message || 'Não foi possível executar a análise.')
         return
@@ -781,12 +878,7 @@ export function PropertyIntelligenceWorkbench({
 
       setResult(responsePayload)
       const storedApprovalState = window.localStorage.getItem(getApprovalStorageKey(responsePayload.traceId)) as PublicationApprovalState | null
-      const nextApprovalState: PublicationApprovalState =
-        storedApprovalState === 'approved'
-          ? 'approved'
-          : analysisResult?.publication?.approved
-            ? 'approved'
-            : 'pending'
+      const nextApprovalState = resolvePublicationApprovalState(analysisResult, storedApprovalState)
       setPublicationApprovalState(nextApprovalState)
       setMarkdownDraft(
         applyPublicationApprovalToMarkdown(responsePayload.markdown || '', nextApprovalState)
@@ -794,7 +886,7 @@ export function PropertyIntelligenceWorkbench({
       setResultView('summary')
     } catch (requestError) {
       setResult(null)
-      setMarkdownDraft('')
+      setMarkdownDraft(null)
       setPublicationApprovalState('pending')
       setResultView('summary')
       setError(requestError instanceof Error ? requestError.message : 'Falha ao executar a análise.')
@@ -829,7 +921,7 @@ export function PropertyIntelligenceWorkbench({
     setRentedDays(DEFAULT_FORM.ownerContext.rentedDays)
     setMaintenanceNote(DEFAULT_FORM.ownerContext.maintenanceNote)
     setResult(null)
-    setMarkdownDraft('')
+    setMarkdownDraft(null)
     setPublicationApprovalState('pending')
     setResultView('summary')
     setError(null)
@@ -842,19 +934,14 @@ export function PropertyIntelligenceWorkbench({
 
     const analysisResult = result.result as PropertyIntelligenceAnalysisResult | undefined
     const storedApprovalState = window.localStorage.getItem(getApprovalStorageKey(result.traceId)) as PublicationApprovalState | null
-    const nextApprovalState: PublicationApprovalState =
-      storedApprovalState === 'approved'
-        ? 'approved'
-        : analysisResult?.publication?.approved
-          ? 'approved'
-          : 'pending'
+    const nextApprovalState = resolvePublicationApprovalState(analysisResult, storedApprovalState)
 
     setPublicationApprovalState(nextApprovalState)
     setMarkdownDraft(applyPublicationApprovalToMarkdown(result.markdown || '', nextApprovalState))
   }, [result])
 
   async function handleCopyMarkdown() {
-    const markdown = markdownDraft || result?.markdown
+    const markdown = effectiveMarkdown
     if (!markdown) {
       return
     }
@@ -873,7 +960,7 @@ export function PropertyIntelligenceWorkbench({
       return
     }
 
-    const nextMarkdown = applyPublicationApprovalToMarkdown(markdownDraft || result.markdown, nextState)
+    const nextMarkdown = applyPublicationApprovalToMarkdown(markdownDraft ?? result.markdown, nextState)
     setPublicationApprovalState(nextState)
     setMarkdownDraft(nextMarkdown)
     window.localStorage.setItem(getApprovalStorageKey(result.traceId), nextState)
@@ -1111,11 +1198,11 @@ export function PropertyIntelligenceWorkbench({
     addParagraph(`Localização: ${location || 'Não informada'}`)
     addParagraph(`Tipologia: ${typology || '-'} · Tipo: ${propertyType} · Moeda: ${currency || '-'}`)
     addParagraph(`Objetivos: ${readingObjectives.map(formatReadingObjectiveLabel).join(', ')}`)
-    addParagraph(`Estado de publicação: ${summary.publicationApproved ? 'Aprovado' : 'Pendente'}`)
+    addParagraph(`Estado de publicação: ${isPublicationApproved ? 'Aprovado' : 'Pendente'}`)
     addParagraph(`Confiança: ${Math.round(summary.confidence * 100)}% · Recomendação: ${formatStayTypeLabel(summary.recommendation)}`)
     cursorY += 2
 
-    const markdown = markdownDraft || result.markdown
+    const markdown = effectiveMarkdown
     const markdownLines = markdown.split('\n').map(line => line.trim())
 
     for (let index = 0; index < markdownLines.length; ) {
@@ -1951,7 +2038,7 @@ export function PropertyIntelligenceWorkbench({
                     <div className="rounded-2xl border border-brand-border-soft bg-white/90 p-4">
                       <p className="text-[10px] font-black uppercase tracking-[2px] text-brand-text-medium">Estado de publicação</p>
                       <p className="mt-2 text-sm font-semibold text-brand-text-dark">
-                        {publicationApprovalState === 'approved' || summary.publicationApproved ? 'Aprovado' : 'Pendente'}
+                        {isPublicationApproved ? 'Aprovado' : 'Pendente'}
                       </p>
                     </div>
                     <div className="rounded-2xl border border-brand-border-soft bg-white/90 p-4">
@@ -1983,14 +2070,14 @@ export function PropertyIntelligenceWorkbench({
                       type="button"
                       variant="premium-secondary"
                       size="premium-sm"
-                      onClick={() => setMarkdownDraft(result.markdown)}
-                      disabled={markdownDraft === result.markdown}
+                      onClick={() => setMarkdownDraft(null)}
+                      disabled={markdownDraft === null}
                     >
                       Reverter para original
                     </Button>
                   </div>
                   <Textarea
-                    value={markdownDraft || result.markdown}
+                    value={effectiveMarkdown}
                     onChange={event => setMarkdownDraft(event.target.value)}
                     className="min-h-[420px] font-mono text-[12px] leading-5"
                     spellCheck={false}

@@ -2,6 +2,10 @@ import { randomUUID } from 'node:crypto'
 
 import type {
   ComparableBenchmark,
+  AILayerResult,
+  LodgraSignal,
+  MarketSegment,
+  MarketSnapshot,
   PropertyIntelligenceInput,
   PropertyIntelligenceResult,
   ScenarioResult,
@@ -46,6 +50,336 @@ function roundMoney(value: number): number {
 
 function clamp(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, value))
+}
+
+function parseDate(value: string): number {
+  const parsed = Date.parse(value)
+  return Number.isFinite(parsed) ? parsed : 0
+}
+
+function median(values: number[]): number {
+  if (values.length === 0) {
+    return 0
+  }
+
+  const sorted = [...values].sort((left, right) => left - right)
+  const middle = Math.floor(sorted.length / 2)
+  return sorted.length % 2 === 0 ? roundMoney((sorted[middle - 1] + sorted[middle]) / 2) : roundMoney(sorted[middle])
+}
+
+function range(values: number[]): { min: number; max: number } {
+  if (values.length === 0) {
+    return { min: 0, max: 0 }
+  }
+
+  return {
+    min: roundMoney(Math.min(...values)),
+    max: roundMoney(Math.max(...values)),
+  }
+}
+
+function confidenceFromSample(sampleSize: number, latestObservedAt: number): 'low' | 'medium' | 'high' {
+  const recencyBoost = latestObservedAt > 0 && Date.now() - latestObservedAt <= 1000 * 60 * 60 * 24 * 45
+  if (sampleSize >= 4 || (sampleSize >= 3 && recencyBoost)) {
+    return 'high'
+  }
+
+  if (sampleSize >= 2) {
+    return 'medium'
+  }
+
+  return 'low'
+}
+
+const MID_STAY_HIGH_SEASON_MONTHS = ['jun', 'jul', 'aug', 'sep']
+const MID_STAY_SEASONAL_WEIGHTS: Record<string, number> = {
+  jan: 0.02,
+  feb: 0.02,
+  mar: 0.03,
+  apr: 0.04,
+  may: 0.06,
+  jun: 0.12,
+  jul: 0.24,
+  aug: 0.26,
+  sep: 0.14,
+  oct: 0.05,
+  nov: 0.02,
+  dec: 0.01,
+}
+const SHORT_STAY_SEASONAL_WEIGHTS: Record<string, number> = {
+  jan: 0.01,
+  feb: 0.01,
+  mar: 0.02,
+  apr: 0.03,
+  may: 0.05,
+  jun: 0.1,
+  jul: 0.29,
+  aug: 0.3,
+  sep: 0.12,
+  oct: 0.04,
+  nov: 0.02,
+  dec: 0.01,
+}
+const MARKET_SEASONALITY_BIAS: Record<string, number> = {
+  coastal: 1.14,
+  urban: 0.88,
+  suburban: 0.96,
+  rural: 0.84,
+}
+
+function average(values: number[]): number {
+  if (values.length === 0) {
+    return 0
+  }
+
+  return values.reduce((sum, value) => sum + value, 0) / values.length
+}
+
+function normalizeSeasonalityMonths(assumptions: StayAssumptionsInput): Record<string, number> {
+  if (!assumptions.monthlySeasonality || typeof assumptions.monthlySeasonality !== 'object') {
+    return {}
+  }
+
+  return Object.fromEntries(
+    Object.entries(assumptions.monthlySeasonality)
+      .map(([month, value]) => [month.trim().toLowerCase(), Number(value)] as const)
+      .filter(([, value]) => Number.isFinite(value))
+  )
+}
+
+function weightedAverageSeasonality(
+  seasonality: Record<string, number>,
+  weights: Record<string, number>
+): number {
+  const entries = Object.entries(weights)
+    .map(([month, weight]) => {
+      const value = seasonality[month]
+      if (!Number.isFinite(value) || !Number.isFinite(weight) || weight <= 0) {
+        return null
+      }
+
+      return { value, weight }
+    })
+    .filter((item): item is { value: number; weight: number } => item != null)
+
+  if (entries.length === 0) {
+    return 0
+  }
+
+  const totalWeight = entries.reduce((sum, item) => sum + item.weight, 0)
+  if (totalWeight <= 0) {
+    return 0
+  }
+
+  return entries.reduce((sum, item) => sum + item.value * item.weight, 0) / totalWeight
+}
+
+function getTypologySeasonalityBias(typologyText: string, stayType: StayType): number {
+  if (/t4\+/.test(typologyText)) {
+    return stayType === 'short-stay' ? 1.1 : 1.08
+  }
+
+  if (/t3/.test(typologyText)) {
+    return stayType === 'short-stay' ? 1.08 : 1.05
+  }
+
+  if (/t2/.test(typologyText)) {
+    return stayType === 'short-stay' ? 1.04 : 1.02
+  }
+
+  if (/t1/.test(typologyText)) {
+    return stayType === 'short-stay' ? 0.98 : 0.97
+  }
+
+  if (/studio|t0/.test(typologyText)) {
+    return stayType === 'short-stay' ? 0.96 : 0.95
+  }
+
+  return 1
+}
+
+function calculateMidStaySeasonalRevenueMultiplier(
+  assumptions: StayAssumptionsInput,
+  seasonalityInput?: Record<string, number> | null,
+  marketTier?: ReturnType<typeof normalizeIntake>['normalizedProperty']['market'],
+  typologyText = ''
+): number {
+  const minStayNights = Math.max(1, Math.round(assumptions.minStayNights ?? 7))
+  const highSeasonMinStayNights = Math.max(1, Math.round(assumptions.highSeasonMinStayNights ?? 5))
+  const dynamicPricingEnabled = assumptions.dynamicPricingEnabled !== false
+  const configuredHighSeasonMonths = Array.isArray(assumptions.highSeasonMonths)
+    ? assumptions.highSeasonMonths.map(month => month.trim().toLowerCase()).filter(Boolean)
+    : MID_STAY_HIGH_SEASON_MONTHS
+  const seasonality = normalizeSeasonalityMonths({
+    ...assumptions,
+    monthlySeasonality: seasonalityInput ?? assumptions.monthlySeasonality ?? null,
+  })
+
+  if (!dynamicPricingEnabled) {
+    return 1
+  }
+
+  const nightsDelta = Math.max(0, minStayNights - highSeasonMinStayNights)
+  const nightsBonus = Math.min(0.08, nightsDelta * 0.015)
+  const calendarBonus = Math.min(0.04, configuredHighSeasonMonths.length * 0.005)
+
+  const seasonalityValues = Object.values(seasonality)
+  if (seasonalityValues.length === 0) {
+    return 1 + nightsBonus + calendarBonus
+  }
+
+  const annualAverage = average(seasonalityValues)
+  const peakMonths = configuredHighSeasonMonths.length > 0 ? configuredHighSeasonMonths : MID_STAY_HIGH_SEASON_MONTHS
+  const weightedAnnualAverage = weightedAverageSeasonality(seasonality, MID_STAY_SEASONAL_WEIGHTS)
+  const weightedPeakAverage = weightedAverageSeasonality(
+    seasonality,
+    Object.fromEntries(peakMonths.map(month => [month, MID_STAY_SEASONAL_WEIGHTS[month] ?? 0]))
+  )
+  const julAugAverage = average(
+    ['jul', 'aug']
+      .map(month => seasonality[month])
+      .filter((value): value is number => typeof value === 'number' && Number.isFinite(value))
+  )
+  const junSepAverage = average(
+    ['jun', 'sep']
+      .map(month => seasonality[month])
+      .filter((value): value is number => typeof value === 'number' && Number.isFinite(value))
+  )
+  const shoulderSpread = julAugAverage > 0 && junSepAverage > 0 ? julAugAverage - junSepAverage : 0
+  const referenceAverage = weightedPeakAverage > 0 ? weightedPeakAverage : weightedAnnualAverage > 0 ? weightedAnnualAverage : annualAverage
+  const seasonalitySpread = referenceAverage - annualAverage
+  const marketBias = MARKET_SEASONALITY_BIAS[marketTier ?? 'coastal'] ?? 1
+  const typologyBias = getTypologySeasonalityBias(typologyText, 'mid-stay')
+  const seasonalityBonus = clamp(
+    (seasonalitySpread * 0.45 + (weightedAnnualAverage - annualAverage) * 0.2) * marketBias * typologyBias,
+    -0.03,
+    0.24
+  )
+  const peakIntensityBonus = clamp(
+    (Math.max(0, referenceAverage - 1) * 0.05 + Math.max(0, shoulderSpread) * 0.03) * marketBias * typologyBias,
+    0,
+    0.14
+  )
+
+  return 1 + nightsBonus + calendarBonus + seasonalityBonus + peakIntensityBonus
+}
+
+function calculateShortStaySeasonalRevenueMultiplier(
+  assumptions: StayAssumptionsInput,
+  seasonalityInput?: Record<string, number> | null,
+  marketTier?: ReturnType<typeof normalizeIntake>['normalizedProperty']['market'],
+  typologyText = ''
+): number {
+  const minStayNights = Math.max(1, Math.round(assumptions.minStayNights ?? 5))
+  const highSeasonMinStayNights = Math.max(1, Math.round(assumptions.highSeasonMinStayNights ?? 4))
+  const dynamicPricingEnabled = assumptions.dynamicPricingEnabled !== false
+  const seasonality = normalizeSeasonalityMonths({
+    ...assumptions,
+    monthlySeasonality: seasonalityInput ?? assumptions.monthlySeasonality ?? null,
+  })
+
+  if (!dynamicPricingEnabled) {
+    return 1
+  }
+
+  const seasonalityValues = Object.values(seasonality)
+  if (seasonalityValues.length === 0) {
+    return 1 + Math.min(0.08, Math.max(0, minStayNights - highSeasonMinStayNights) * 0.018)
+  }
+
+  const annualAverage = average(seasonalityValues)
+  const weightedPeakAverage = weightedAverageSeasonality(seasonality, SHORT_STAY_SEASONAL_WEIGHTS)
+  const peakIntensity = Math.max(0, weightedPeakAverage - annualAverage)
+  const marketBias = MARKET_SEASONALITY_BIAS[marketTier ?? 'coastal'] ?? 1
+  const typologyBias = getTypologySeasonalityBias(typologyText, 'short-stay')
+  const nightsBonus = Math.min(0.08, Math.max(0, minStayNights - highSeasonMinStayNights) * 0.018)
+  const seasonalLift = clamp(
+    (peakIntensity * 0.55 + Math.max(0, weightedPeakAverage - 1) * 0.08) * marketBias * typologyBias,
+    0,
+    0.28
+  )
+  const shoulderProtection = clamp(
+    Math.max(0, (seasonality['jun'] ?? annualAverage) - (seasonality['apr'] ?? annualAverage)) * 0.04,
+    0,
+    0.05
+  )
+
+  return 1 + nightsBonus + seasonalLift + shoulderProtection
+}
+
+function getMarketSegmentComparables(comparables: ComparableBenchmark[], segment: MarketSegment): ComparableBenchmark[] {
+  if (segment === 'short_mid') {
+    return comparables.filter(comparable => comparable.stayType === 'short-stay' || comparable.stayType === 'mid-stay' || comparable.stayType === 'mixed')
+  }
+
+  return comparables.filter(comparable => comparable.stayType === 'long-stay' || comparable.stayType === 'mixed')
+}
+
+function buildMarketSnapshot(
+  segment: MarketSegment,
+  comparables: ComparableBenchmark[],
+  fallbackMarketTier: ReturnType<typeof normalizeIntake>['normalizedProperty']['market']
+): MarketSnapshot {
+  const segmentComparables = getMarketSegmentComparables(comparables, segment)
+  const sortedComparables = [...segmentComparables].sort((left, right) => {
+    const leftDate = parseDate(left.observedAt)
+    const rightDate = parseDate(right.observedAt)
+
+    if (leftDate !== rightDate) {
+      return rightDate - leftDate
+    }
+
+    return right.monthlyNetReturn - left.monthlyNetReturn
+  })
+
+  const grossValues = sortedComparables.map(comparable => comparable.monthlyGrossRevenue)
+  const netValues = sortedComparables.map(comparable => comparable.monthlyNetReturn)
+  const latestObservedAt = sortedComparables.reduce((latest, comparable) => {
+    const current = parseDate(comparable.observedAt)
+    return current > latest ? current : latest
+  }, 0)
+
+  return {
+    segment,
+    marketTier: sortedComparables[0]?.marketTier ?? fallbackMarketTier,
+    observedAt: latestObservedAt > 0 ? new Date(latestObservedAt).toISOString().slice(0, 10) : '',
+    comparables: sortedComparables,
+    medianGross: median(grossValues),
+    medianNet: median(netValues),
+    rangeGross: range(grossValues),
+    rangeNet: range(netValues),
+    confidence: confidenceFromSample(sortedComparables.length, latestObservedAt),
+  }
+}
+
+function buildLodgraSignal(
+  ownerContext: ReturnType<typeof normalizeIntake>['ownerContext'],
+  marketSnapshot: Record<MarketSegment, MarketSnapshot>
+): LodgraSignal {
+  const dataQuality = ownerContext.dataQuality
+  const qualityWeight = dataQuality === 'high' ? 0.9 : dataQuality === 'medium' ? 0.65 : 0.35
+  const operatingWeight = ownerContext.operatingModel === 'short_mid' ? 0.8 : ownerContext.operatingModel === 'long' ? 0.45 : 0.6
+  const ownerRealityScore = roundMoney(Math.max(0.15, Math.min(1, qualityWeight * 0.7 + operatingWeight * 0.3)))
+  const marketReference = marketSnapshot.short_mid.medianNet || marketSnapshot.annual.medianNet || 0
+  const historicalRevenue = ownerContext.historicalRevenue
+  const historicalVsMarketDelta = historicalRevenue != null ? roundMoney(historicalRevenue - marketReference) : null
+
+  return {
+    historicalRevenue,
+    historicalOccupancyPct: ownerContext.occupancyPct,
+    historicalAdr: ownerContext.historicalAdr,
+    monthlySeasonality: ownerContext.monthlySeasonality,
+    channelMix: ownerContext.channelMix,
+    operationalCostsMonthly: ownerContext.operationalCostsMonthly,
+    dataQuality,
+    ownerRealityScore,
+    historicalVsMarketDelta,
+    operationalWeighting: operatingWeight,
+    sourceLabel:
+      historicalRevenue != null || ownerContext.occupancyPct != null || ownerContext.historicalAdr != null
+        ? 'Histórico operacional Lodgra/AHS'
+        : 'Sem histórico operacional explícito',
+  }
 }
 
 function estimateGrossRevenue(
@@ -133,15 +467,17 @@ function buildScenario(
     fixedCostsMonthly: roundMoney((assumptions.fixedCostsMonthly ?? 0) * multipliers.costs),
   }
   const costs = calculateCostBreakdown(stayType, effectiveMonthlyRevenue, adjustedAssumptions)
-  const netMonthlyReturn = roundMoney(effectiveMonthlyRevenue - costs.totalMonthlyCosts)
+  const netMonthlyReturn = roundMoney(costs.afterChannelRevenue - (costs.totalMonthlyCosts - costs.channelMonthlyCosts))
 
   return {
     label,
     grossMonthlyRevenue: roundMoney(grossMonthlyRevenue * multipliers.revenue),
     effectiveMonthlyRevenue,
+    afterChannelRevenue: costs.afterChannelRevenue,
     occupancyPct: roundMoney(effectiveOccupancy),
     costs,
     netMonthlyReturn,
+    ownerNetReturn: netMonthlyReturn,
     annualNetReturn: roundMoney(netMonthlyReturn * 12),
     confidence: label === 'base' ? 'high' : label === 'optimized' ? 'medium' : 'medium',
     provenance: 'derived',
@@ -157,7 +493,8 @@ function buildStayModel(
   normalizedProperty: ReturnType<typeof normalizeIntake>['normalizedProperty'],
   locationMultiplier: number,
   baseRatePerM2: number,
-  assumptions: StayAssumptionsInput
+  assumptions: StayAssumptionsInput,
+  seasonalityInput?: Record<string, number> | null
 ): StayModelResult {
   const defaultAssumptions = getDefaultStayAssumptions(stayType)
   const mergedAssumptions: StayAssumptionsInput = {
@@ -166,7 +503,22 @@ function buildStayModel(
   }
 
   const baseGrossMonthlyRevenue = roundMoney(
-    estimateGrossRevenue(stayType, normalizedProperty, locationMultiplier, baseRatePerM2, mergedAssumptions)
+    estimateGrossRevenue(stayType, normalizedProperty, locationMultiplier, baseRatePerM2, mergedAssumptions) *
+      (stayType === 'mid-stay'
+        ? calculateMidStaySeasonalRevenueMultiplier(
+            mergedAssumptions,
+            seasonalityInput,
+            normalizedProperty.market,
+            normalizedProperty.typology
+          )
+        : stayType === 'short-stay'
+          ? calculateShortStaySeasonalRevenueMultiplier(
+              mergedAssumptions,
+              seasonalityInput,
+              normalizedProperty.market,
+              normalizedProperty.typology
+            )
+          : 1)
   )
   const baseOccupancyPct = roundMoney(
     clamp(
@@ -236,6 +588,13 @@ export function runPropertyIntelligenceAnalysis(
       blockedInputs,
       intake,
       location: null,
+      marketSnapshot: null,
+      lodgraSignal: null,
+      analysisLayers: {
+        market: null,
+        lodgra: null,
+        ai: null,
+      },
       comparables: [],
       models: null,
       strategy: null,
@@ -290,7 +649,8 @@ export function runPropertyIntelligenceAnalysis(
       intake.normalizedProperty,
       locationMultiplier,
       location.baseRatePerM2,
-      intake.normalizedAssumptions.midStay
+      intake.normalizedAssumptions.midStay,
+      intake.ownerContext.monthlySeasonality
     ),
     'short-stay': buildStayModel(
       'short-stay',
@@ -309,13 +669,26 @@ export function runPropertyIntelligenceAnalysis(
         baseGrossMonthlyRevenue: number
         scenarios: Array<{ label: ScenarioLabel; netMonthlyReturn: number }>
       }
-    >
+    >,
+    intake.normalizedProperty.market
   ) as ComparableBenchmark[]
+  const marketSnapshot: Record<MarketSegment, MarketSnapshot> = {
+    short_mid: buildMarketSnapshot('short_mid', comparables, intake.normalizedProperty.market),
+    annual: buildMarketSnapshot('annual', comparables, intake.normalizedProperty.market),
+  }
+  const lodgraSignal = buildLodgraSignal(intake.ownerContext, marketSnapshot)
   const strategy = buildStrategyRecommendation(
     models as Record<StayType, { scenarios: { label: 'base'; netMonthlyReturn: number }[] }>,
     comparables,
-    intake.ownerContext
+    intake.ownerContext,
+    { marketSnapshot, lodgraSignal }
   )
+  const aiLayer: AILayerResult = {
+    confidence: strategy.recommendedStayType === 'short-stay' ? 'medium' : 'high',
+    narrative:
+      `${strategy.reason} A leitura cruza mercado observado, inteligência Lodgra/AHS e contexto do proprietário para chegar à decisão executiva.`,
+    recommendation: strategy,
+  }
 
   const provisionalResult: PropertyIntelligenceResult = {
     traceId,
@@ -327,6 +700,13 @@ export function runPropertyIntelligenceAnalysis(
     blockedInputs: [],
     intake,
     location,
+    marketSnapshot,
+    lodgraSignal,
+    analysisLayers: {
+      market: marketSnapshot,
+      lodgra: lodgraSignal,
+      ai: aiLayer,
+    },
     comparables,
     models,
     strategy,

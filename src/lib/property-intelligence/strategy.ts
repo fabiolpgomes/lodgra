@@ -1,5 +1,7 @@
 import type {
   ComparableBenchmark,
+  LodgraSignal,
+  MarketSnapshot,
   NormalizedOwnerContext,
   ScenarioLabel,
   StayType,
@@ -28,7 +30,11 @@ export function buildStrategyRecommendation(
     { scenarios: Array<{ label: ScenarioLabel; netMonthlyReturn: number }> }
   >,
   comparables: ComparableBenchmark[],
-  ownerContext?: NormalizedOwnerContext
+  ownerContext?: NormalizedOwnerContext,
+  context?: {
+    marketSnapshot?: Record<'short_mid' | 'annual', MarketSnapshot> | null
+    lodgraSignal?: LodgraSignal | null
+  }
 ): StrategyRecommendation {
   const baseNetByStay = (['short-stay', 'mid-stay', 'long-stay'] as StayType[]).reduce<Record<StayType, number>>(
     (acc, stayType) => {
@@ -43,23 +49,33 @@ export function buildStrategyRecommendation(
   )
 
   const maxNet = Math.max(baseNetByStay['short-stay'], baseNetByStay['mid-stay'], baseNetByStay['long-stay'], 1)
+  const shortMidMarket = context?.marketSnapshot?.short_mid
+  const annualMarket = context?.marketSnapshot?.annual
+  const marketDelta = (shortMidMarket?.medianNet ?? 0) - (annualMarket?.medianNet ?? 0)
+  const lodgraSignal = context?.lodgraSignal
 
   const scoreByStay: Record<StayType, number> = {
     'short-stay':
       baseNetByStay['short-stay'] / maxNet +
-      0.14 +
+      0.09 +
       (ownerContext?.flexibility === 'high' || ownerContext?.operatingModel === 'short_mid' ? 0.14 : 0) +
-      (ownerContext?.operatingModel === 'long' ? -0.08 : 0),
+      (ownerContext?.operatingModel === 'long' ? -0.08 : 0) +
+      (marketDelta > 0 ? 0.02 : 0) +
+      (lodgraSignal?.operationalWeighting ?? 0) * 0.02,
     'mid-stay':
       baseNetByStay['mid-stay'] / maxNet +
-      0.1 +
+      0.16 +
       (ownerContext?.flexibility === 'high' || ownerContext?.operatingModel === 'short_mid' ? 0.1 : 0) +
-      (ownerContext?.operatingModel === 'long' ? -0.05 : 0),
+      (ownerContext?.operatingModel === 'long' ? -0.05 : 0) +
+      (marketDelta > 0 ? 0.07 : 0) +
+      (lodgraSignal?.ownerRealityScore ?? 0) * 0.03,
     'long-stay':
       baseNetByStay['long-stay'] / maxNet +
       0.02 +
       (ownerContext?.operatingModel === 'long' ? 0.18 : 0) -
-      (ownerContext?.flexibility === 'high' || ownerContext?.operatingModel === 'short_mid' ? 0.14 : 0),
+      (ownerContext?.flexibility === 'high' || ownerContext?.operatingModel === 'short_mid' ? 0.14 : 0) +
+      (marketDelta < 0 ? 0.05 : 0) +
+      (lodgraSignal?.historicalRevenue != null ? 0.02 : 0),
   }
 
   const contextualRanking = (['short-stay', 'mid-stay', 'long-stay'] as StayType[]).sort((left, right) => {
@@ -76,8 +92,8 @@ export function buildStrategyRecommendation(
   const secondComparable = comparables[1]
 
   const reason = bestComparable
-    ? `${formatStayTypeLabel(recommendedStayType)} lidera a leitura quando combinamos retorno financeiro com a lente comercial da Lodgra, enquanto ${formatStayTypeLabel(bestComparable.stayType as StayType)} ou referências comparáveis permanecem disponíveis para validação.`
-    : `${formatStayTypeLabel(recommendedStayType)} lidera a leitura quando combinamos retorno financeiro com a lente comercial da Lodgra.`
+    ? `${formatStayTypeLabel(recommendedStayType)} lidera a leitura quando combinamos mercado observado, inteligência Lodgra/AHS e retorno financeiro, enquanto ${formatStayTypeLabel(bestComparable.stayType as StayType)} ou referências comparáveis permanecem disponíveis para validação.`
+    : `${formatStayTypeLabel(recommendedStayType)} lidera a leitura quando combinamos mercado observado, inteligência Lodgra/AHS e retorno financeiro.`
 
   const caveats: string[] = []
   if (secondComparable) {
@@ -93,6 +109,9 @@ export function buildStrategyRecommendation(
     caveats.push(
       `Histórico operacional informado: ${revenue > 0 ? revenue.toFixed(2) : '0.00'} € faturados e ${days} dias alugados, útil para calibrar a leitura com a operação real.`
     )
+  }
+  if (lodgraSignal?.dataQuality != null) {
+    caveats.push(`Sinal Lodgra/AHS com qualidade ${lodgraSignal.dataQuality} e peso operacional ${lodgraSignal.operationalWeighting.toFixed(2)}.`)
   }
   caveats.push('Manter o relatório publicado apenas após aprovação humana.')
 

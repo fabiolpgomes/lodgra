@@ -45,6 +45,11 @@ export interface OwnerContextInput {
   operatingModel?: OwnerOperatingModel | null
   historicalRevenue?: number | null
   rentedDays?: number | null
+  occupancyPct?: number | null
+  historicalAdr?: number | null
+  operationalCostsMonthly?: number | null
+  channelMix?: Record<string, number> | null
+  monthlySeasonality?: Record<string, number> | null
   maintenanceNote?: string | null
 }
 
@@ -56,6 +61,12 @@ export interface StayAssumptionsInput {
   commissionPct?: number | null
   cleaningPerTurnover?: number | null
   turnoversPerMonth?: number | null
+  channelMix?: Record<string, number> | null
+  minStayNights?: number | null
+  highSeasonMinStayNights?: number | null
+  highSeasonMonths?: string[] | null
+  dynamicPricingEnabled?: boolean | null
+  monthlySeasonality?: Record<string, number> | null
 }
 
 export interface PropertyIntelligenceInput {
@@ -75,9 +86,17 @@ export interface PropertyIntelligenceInput {
 export interface ComparableInput {
   label: string
   stayType?: StayType | null
+  marketTier?: MarketTier | null
   monthlyGrossRevenue: number
+  monthlyNetReturn?: number | null
+  channelMix?: Record<string, number> | null
+  occupancyPct?: number | null
+  adr?: number | null
+  seasonalityTag?: string | null
+  isInternalBenchmark?: boolean | null
   note?: string | null
   source?: string | null
+  observedAt?: string | null
 }
 
 export interface NormalizedProperty {
@@ -108,8 +127,14 @@ export interface NormalizedOwnerContext {
   operatingModel: OwnerOperatingModel | null
   historicalRevenue: number | null
   rentedDays: number | null
+  occupancyPct: number | null
+  historicalAdr: number | null
+  operationalCostsMonthly: number | null
+  channelMix: Record<string, number> | null
+  monthlySeasonality: Record<string, number> | null
   maintenanceNote: string
   revenuePerRentedDay: number | null
+  dataQuality: ConfidenceLevel
 }
 
 export interface IntakeResult {
@@ -131,21 +156,70 @@ export interface LocationSignal {
   provenance: Provenance
 }
 
+export type MarketSegment = 'short_mid' | 'annual'
+
+export interface MarketRange {
+  min: number
+  max: number
+}
+
+export interface MarketSnapshot {
+  segment: MarketSegment
+  marketTier: MarketTier
+  observedAt: string
+  comparables: ComparableBenchmark[]
+  medianGross: number
+  medianNet: number
+  rangeGross: MarketRange
+  rangeNet: MarketRange
+  confidence: ConfidenceLevel
+}
+
+export interface LodgraSignal {
+  historicalRevenue: number | null
+  historicalOccupancyPct: number | null
+  historicalAdr: number | null
+  monthlySeasonality: Record<string, number> | null
+  channelMix: Record<string, number> | null
+  operationalCostsMonthly: number | null
+  dataQuality: ConfidenceLevel
+  ownerRealityScore: number
+  historicalVsMarketDelta: number | null
+  operationalWeighting: number
+  sourceLabel: string
+}
+
+export interface AILayerResult {
+  confidence: ConfidenceLevel
+  narrative: string
+  recommendation: StrategyRecommendation | null
+}
+
 export interface ComparableBenchmark {
   label: string
   stayType: StayType | 'mixed'
+  marketTier: MarketTier
   monthlyGrossRevenue: number
   monthlyNetReturn: number
+  channelMix?: Record<string, number> | null
+  occupancyPct?: number | null
+  adr?: number | null
+  seasonalityTag?: string | null
+  isInternalBenchmark?: boolean
   confidence: ConfidenceLevel
   provenance: Provenance
+  source: string
+  observedAt: string
   note: string
 }
 
 export interface CostBreakdown {
   fixedMonthlyCosts: number
+  channelMonthlyCosts: number
   variableMonthlyCosts: number
   commissionMonthlyCosts: number
   cleaningMonthlyCosts: number
+  afterChannelRevenue: number
   totalMonthlyCosts: number
 }
 
@@ -153,9 +227,11 @@ export interface ScenarioResult {
   label: ScenarioLabel
   grossMonthlyRevenue: number
   effectiveMonthlyRevenue: number
+  afterChannelRevenue: number
   occupancyPct: number
   costs: CostBreakdown
   netMonthlyReturn: number
+  ownerNetReturn: number
   annualNetReturn: number
   confidence: ConfidenceLevel
   provenance: Provenance
@@ -202,6 +278,13 @@ export interface PropertyIntelligenceResult {
   blockedInputs: string[]
   intake: IntakeResult
   location: LocationSignal | null
+  marketSnapshot: Record<MarketSegment, MarketSnapshot> | null
+  lodgraSignal: LodgraSignal | null
+  analysisLayers: {
+    market: Record<MarketSegment, MarketSnapshot> | null
+    lodgra: LodgraSignal | null
+    ai: AILayerResult | null
+  }
   comparables: ComparableBenchmark[]
   models: Record<StayType, StayModelResult> | null
   strategy: StrategyRecommendation | null

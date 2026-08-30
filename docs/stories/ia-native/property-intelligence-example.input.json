@@ -6,12 +6,42 @@
   },
   "property": {
     "location": "Faro, Algarve",
+    "propertyType": "Apartamento",
     "typology": "T2",
     "areaM2": 82,
     "bedrooms": 2,
     "market": "coastal",
     "condition": "good",
     "furnished": true
+  },
+  "ownerContext": {
+    "flexibility": "high",
+    "operatingModel": "short_mid",
+    "historicalRevenue": 18950,
+    "rentedDays": 214,
+    "occupancyPct": 0.78,
+    "historicalAdr": 148,
+    "operationalCostsMonthly": 840,
+    "channelMix": {
+      "airbnb": 0.46,
+      "booking": 0.31,
+      "direct": 0.23
+    },
+    "monthlySeasonality": {
+      "jan": 0.58,
+      "feb": 0.61,
+      "mar": 0.72,
+      "apr": 0.84,
+      "may": 0.95,
+      "jun": 1.08,
+      "jul": 1.32,
+      "aug": 1.41,
+      "sep": 1.04,
+      "oct": 0.87,
+      "nov": 0.66,
+      "dec": 0.79
+    },
+    "maintenanceNote": "Manutenção preventiva mensal e rotação curta entre reservas."
   },
   "assumptions": {
     "currency": "EUR",
@@ -35,5 +65,77 @@
       "cleaningPerTurnover": 50,
       "turnoversPerMonth": 7
     }
-  }
+  },
+  "comparables": [
+    {
+      "label": "Espetac. T2 com piscina em Armação de Pera/Porches",
+      "stayType": "short-stay",
+      "marketTier": "coastal",
+      "monthlyGrossRevenue": 3900,
+      "monthlyNetReturn": 3198,
+      "source": "Airbnb",
+      "observedAt": "2026-08-30",
+      "note": "4 hóspedes, 2 quartos, 2 WC, piscina partilhada, estacionamento gratuito e 5 minutos a pé do areal."
+    },
+    {
+      "label": "t2 armação de pêra",
+      "stayType": "short-stay",
+      "marketTier": "coastal",
+      "monthlyGrossRevenue": 3600,
+      "monthlyNetReturn": 2952,
+      "source": "Booking.com",
+      "observedAt": "2026-08-30",
+      "note": "80 m², estacionamento gratuito, varanda, ar condicionado e 2 quartos a menos de 1 km da praia."
+    },
+    {
+      "label": "Beach Front 2.2",
+      "stayType": "short-stay",
+      "marketTier": "coastal",
+      "monthlyGrossRevenue": 4500,
+      "monthlyNetReturn": 3690,
+      "source": "VRBO",
+      "observedAt": "2026-08-30",
+      "note": "2 quartos, piscina, hidromassagem, estacionamento e acesso direto à zona de praia."
+    },
+    {
+      "label": "Apartamento T2 em Via Dorsal de Armação de Pêra, 8",
+      "stayType": "long-stay",
+      "marketTier": "coastal",
+      "monthlyGrossRevenue": 1300,
+      "monthlyNetReturn": 1170,
+      "source": "Idealista",
+      "observedAt": "2026-08-30",
+      "note": "T2 com 105 m², garagem incluída, mobilado, condomínio fechado e 5 minutos a pé da praia."
+    },
+    {
+      "label": "Apartamento T2 perto da praia, Armação de Pêra, Algarve",
+      "stayType": "long-stay",
+      "marketTier": "coastal",
+      "monthlyGrossRevenue": 3000,
+      "monthlyNetReturn": 2700,
+      "source": "Imovirtual",
+      "observedAt": "2026-08-30",
+      "note": "114 m², T2, terraço, estacionamento, mobilado e inserido no condomínio Bayline."
+    },
+    {
+      "label": "Apartamento T2 com piscina e arrendamento mensal no Bayline",
+      "stayType": "long-stay",
+      "marketTier": "coastal",
+      "monthlyGrossRevenue": 3000,
+      "monthlyNetReturn": 2700,
+      "source": "Casa Sapo",
+      "observedAt": "2026-08-30",
+      "note": "Arrendamento mensal com possibilidade de contrato a combinar, condomínio fechado, piscina e garagem."
+    },
+    {
+      "label": "T2 para arrendamento anual a 80 mts da praia em Armação de Pêra",
+      "stayType": "long-stay",
+      "marketTier": "coastal",
+      "monthlyGrossRevenue": 1200,
+      "monthlyNetReturn": 1080,
+      "source": "OLX Portugal",
+      "observedAt": "2026-08-30",
+      "note": "Apartamento mobilado, 80 metros da praia, 2 quartos, varanda e garagem no subsolo."
+    }
+  ]
 }

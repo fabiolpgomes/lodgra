@@ -21,6 +21,25 @@ function formatPlanLabel(plan?: string | null) {
   return 'Essencial'
 }
 
+const INCLUDED_PLAN_SUMMARY = [
+  {
+    label: 'Incluído em',
+    title: 'Premium',
+    description: 'Acesso nativo à IA Native.',
+  },
+  {
+    label: 'Também em',
+    title: 'Enterprise',
+    description: 'Pensado para portfólios maiores.',
+  },
+] as const
+
+const UNLOCKED_BENEFITS = [
+  'Entrada guiada com sugestões prontas.',
+  'Leitura de viabilidade e cenários comparáveis.',
+  'Dossiê premium pronto para revisão humana.',
+]
+
 export function PropertyIntelligencePaywall({
   locale,
   currentPlan,
@@ -49,16 +68,13 @@ export function PropertyIntelligencePaywall({
           </div>
 
           <div className="grid gap-3 sm:grid-cols-3">
-            <div className="rounded-2xl border border-brand-border-soft bg-white/90 p-4 shadow-sm">
-              <p className="text-[10px] font-black uppercase tracking-[2px] text-brand-text-medium">Incluído em</p>
-              <p className="mt-2 text-sm font-semibold text-brand-text-dark">Premium</p>
-              <p className="mt-1 text-xs text-brand-text-medium">Acesso nativo à IA Native.</p>
-            </div>
-            <div className="rounded-2xl border border-brand-border-soft bg-white/90 p-4 shadow-sm">
-              <p className="text-[10px] font-black uppercase tracking-[2px] text-brand-text-medium">Também em</p>
-              <p className="mt-2 text-sm font-semibold text-brand-text-dark">Enterprise</p>
-              <p className="mt-1 text-xs text-brand-text-medium">Pensado para portfólios maiores.</p>
-            </div>
+            {INCLUDED_PLAN_SUMMARY.map(item => (
+              <div key={item.title} className="rounded-2xl border border-brand-border-soft bg-white/90 p-4 shadow-sm">
+                <p className="text-[10px] font-black uppercase tracking-[2px] text-brand-text-medium">{item.label}</p>
+                <p className="mt-2 text-sm font-semibold text-brand-text-dark">{item.title}</p>
+                <p className="mt-1 text-xs text-brand-text-medium">{item.description}</p>
+              </div>
+            ))}
             <div className="rounded-2xl border border-brand-border-soft bg-white/90 p-4 shadow-sm">
               <p className="text-[10px] font-black uppercase tracking-[2px] text-brand-text-medium">Plano atual</p>
               <p className="mt-2 text-sm font-semibold text-brand-text-dark">{planLabel}</p>
@@ -97,9 +113,9 @@ export function PropertyIntelligencePaywall({
           <div className="rounded-3xl border border-brand-border-soft bg-white/85 p-6 shadow-sm">
             <h3 className="text-sm font-semibold text-brand-text-dark">O que vai desbloquear</h3>
             <ul className="mt-4 space-y-2 text-sm leading-6 text-brand-text-medium">
-              <li>• Entrada guiada com sugestões prontas.</li>
-              <li>• Leitura de viabilidade e cenários comparáveis.</li>
-              <li>• Dossiê premium pronto para revisão humana.</li>
+              {UNLOCKED_BENEFITS.map(item => (
+                <li key={item}>• {item}</li>
+              ))}
             </ul>
           </div>
         </div>
