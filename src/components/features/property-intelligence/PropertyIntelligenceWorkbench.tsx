@@ -1222,14 +1222,6 @@ export function PropertyIntelligenceWorkbench({
     doc.text('Dossiê Executivo de Property Intelligence', marginX, cursorY)
     cursorY += 10
 
-    addParagraph(`Imóvel: ${propertyName}`)
-    addParagraph(`Localização: ${location || 'Não informada'}`)
-    addParagraph(`Tipologia: ${typology || '-'} · Tipo: ${propertyType} · Moeda: ${currency || '-'}`)
-    addParagraph(`Objetivos: ${readingObjectives.map(formatReadingObjectiveLabel).join(', ')}`)
-    addParagraph(`Estado de publicação: ${isPublicationApproved ? 'Aprovado' : 'Pendente'}`)
-    addParagraph(`Confiança: ${Math.round(summary.confidence * 100)}% · Recomendação: ${formatStayTypeLabel(summary.recommendation)}`)
-    cursorY += 2
-
     const markdown = effectiveMarkdown
     const markdownLines = markdown.split('\n').map(line => line.trim())
     let hiddenSectionActive = false
