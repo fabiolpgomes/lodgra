@@ -95,8 +95,6 @@ describe('property intelligence MVP', () => {
     const report = buildMarkdownReport(result, { companyName: 'Algarve Home Stay' })
     expect(report).toContain('Empresa: Algarve Home Stay · Site: www.algarvehomestay.pt · Email: ahspropriedades@gmail.com · Telefone: +351912647423 · WhatsApp: +351912647423')
     expect(report).toContain('# Dossiê Executivo de Property Intelligence')
-    expect(report).toContain('## Identificação do Imóvel')
-    expect(report).toContain('**Faro, Algarve** · T2 · 82 m² · 2 quartos · bom estado · mobilado')
     expect(report).toContain('## Resumo Executivo')
     expect(report).toContain('## Definições de estadia')
     expect(report).toContain('## Cenário 1 - Locação de curta e média duração')
@@ -118,7 +116,6 @@ describe('property intelligence MVP', () => {
     expect(report).not.toContain('## Inteligência Lodgra/AHS')
     expect(report).not.toContain('## IA')
     expect(report).toContain('Zona-base observada nesta leitura')
-    expect(report).toContain('Faro, Algarve')
     expect(report).toContain('estadia curta')
     expect(report).not.toContain('Modelo determinístico do MVP')
     expect(report).not.toContain('page-break-after: always')
@@ -152,8 +149,6 @@ describe('property intelligence MVP', () => {
     expect(result.intake.estimatedFields).toEqual(expect.arrayContaining(['property.location', 'property.typology']))
 
     const report = buildMarkdownReport(result)
-    expect(report).toContain('## Identificação do Imóvel')
-    expect(report).toContain('**Não informado** · não informado · 45 m² · 1 quartos · bom estado · não mobilado')
     expect(report).toContain('## Resumo Executivo')
     expect(report).toContain('## Definições de estadia')
     expect(report).toContain('## Cenário 1 - Locação de curta e média duração')
@@ -325,7 +320,6 @@ describe('property intelligence MVP', () => {
       const output = runCli('markdown', inputPath)
 
       expect(output).toContain('# Dossiê Executivo de Property Intelligence')
-      expect(output).toContain('## Identificação do Imóvel')
       expect(output).toContain('## Resumo Executivo')
       expect(output).toContain('## Definições de estadia')
       expect(output).toContain('## Cenários')

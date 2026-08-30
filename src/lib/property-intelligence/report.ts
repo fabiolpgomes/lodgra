@@ -423,30 +423,6 @@ function renderReadingGuide(): string[] {
   ]
 }
 
-function renderPropertyIdentity(result: PropertyIntelligenceResult): string[] {
-  const property = result.intake.normalizedProperty
-  const leadName = result.intake.lead?.name?.trim()
-  const leadSource = result.intake.lead?.source?.trim()
-  const amenities = [
-    property.furnished ? 'mobilado' : null,
-    property.balcony ? 'varanda' : null,
-    property.pool ? 'piscina' : null,
-    property.garage ? 'garagem' : null,
-  ].filter(Boolean)
-
-  return [
-    '## Identificação do Imóvel',
-    leadName ? `**${leadName}**` : '',
-    `**${property.location || 'Não informado'}** · ${property.typology || 'não informado'} · ${property.areaM2} m² · ${property.bedrooms} quartos · ${formatCondition(property.condition)} · ${property.furnished ? 'mobilado' : 'não mobilado'}`,
-    property.propertyType ? `- Tipo do imóvel: ${property.propertyType}` : '',
-    amenities.length > 0 ? `- Destaques rápidos: ${amenities.join(', ')}` : '',
-    property.highlights ? `- Comodidades a destacar: ${property.highlights}` : '',
-    property.listingUrl ? `- URL do anúncio: ${property.listingUrl}` : '',
-    leadSource ? `- Origem da avaliação: ${leadSource}` : '',
-  ]
-    .filter(Boolean)
-}
-
 function renderOwnerContext(result: PropertyIntelligenceResult): string[] {
   const ownerContext = result.intake.ownerContext
   const lines: string[] = []
@@ -608,8 +584,6 @@ export function buildMarkdownReport(result: PropertyIntelligenceResult, options?
 
   lines.push(...renderDocumentHeader(options?.companyName))
   lines.push('# Dossiê Executivo de Property Intelligence')
-  lines.push('')
-  lines.push(...renderPropertyIdentity(result))
   lines.push('')
   lines.push(...renderExecutiveSummary(result, currency))
   lines.push('')

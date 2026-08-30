@@ -2,13 +2,6 @@ Empresa: Algarve Home Stay · Site: www.algarvehomestay.pt · Email: ahspropried
 
 # Dossiê Executivo de Property Intelligence
 
-## Identificação do Imóvel
-**Ana Silva**
-**Faro, Algarve** · T2 · 82 m² · 2 quartos · bom estado · mobilado
-- Tipo do imóvel: Apartamento
-- Destaques rápidos: mobilado
-- Origem da avaliação: WhatsApp
-
 ## Resumo Executivo
 - Objetivos selecionados: Viabilidade, Relatório executivo, Comparar cenários.
 - Direção principal: locação de média duração como leitura mais coerente para a operação.
