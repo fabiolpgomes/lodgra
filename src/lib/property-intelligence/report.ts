@@ -54,7 +54,17 @@ function formatObservedAt(value: string): string {
     return '—'
   }
 
-  return value
+  const parsed = new Date(value)
+  if (Number.isNaN(parsed.getTime())) {
+    return value
+  }
+
+  return new Intl.DateTimeFormat('pt-PT', {
+    day: '2-digit',
+    month: '2-digit',
+    year: '2-digit',
+    timeZone: 'UTC',
+  }).format(parsed)
 }
 
 function formatCondition(value: string): string {
@@ -178,9 +188,10 @@ function sortComparablesForDisplay(comparables: ComparableBenchmark[]): Comparab
   })
 }
 
-function renderDocumentHeader(): string[] {
+function renderDocumentHeader(companyName?: string | null): string[] {
+  const headerLabel = companyName?.trim() ? `${companyName.trim()}` : 'Lodgra Site'
   return [
-    'Lodgra Site: www.algarvehomestay.pt · Email: ahspropriedades@gmail.com · Telefone: +351912647423 · WhatsApp: +351912647423',
+    `Empresa: ${headerLabel} · Site: www.algarvehomestay.pt · Email: ahspropriedades@gmail.com · Telefone: +351912647423 · WhatsApp: +351912647423`,
     '',
   ]
 }
@@ -590,12 +601,12 @@ function getLatestComparableObservation(comparables: ComparableBenchmark[]): str
   return dates.length > 0 ? dates[dates.length - 1] : null
 }
 
-export function buildMarkdownReport(result: PropertyIntelligenceResult): string {
+export function buildMarkdownReport(result: PropertyIntelligenceResult, options?: { companyName?: string | null }): string {
   const currency = result.intake.normalizedAssumptions.currency
   const models = result.models ? Object.values(result.models) : []
   const lines: string[] = []
 
-  lines.push(...renderDocumentHeader())
+  lines.push(...renderDocumentHeader(options?.companyName))
   lines.push('# Dossiê Executivo de Property Intelligence')
   lines.push('')
   lines.push(...renderPropertyIdentity(result))
@@ -622,7 +633,7 @@ export function buildMarkdownReport(result: PropertyIntelligenceResult): string 
   }
   const latestComparableDate = getLatestComparableObservation(result.comparables)
   if (latestComparableDate) {
-    lines.push(`- Mercado observado em: ${latestComparableDate}.`)
+    lines.push(`- Mercado observado em: ${formatObservedAt(latestComparableDate)}.`)
   }
   lines.push('### Curta e média duração')
   lines.push(renderComparablesTable(result.comparables.filter(comparable => comparable.stayType === 'short-stay' || comparable.stayType === 'mid-stay' || comparable.stayType === 'mixed'), currency))

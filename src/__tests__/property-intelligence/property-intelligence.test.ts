@@ -60,6 +60,14 @@ const marketComparablesInput = {
   ],
 } as const
 
+const generatedDate = new Date().toISOString().slice(0, 10)
+const generatedDateDisplay = new Intl.DateTimeFormat('pt-PT', {
+  day: '2-digit',
+  month: '2-digit',
+  year: '2-digit',
+  timeZone: 'UTC',
+}).format(new Date(`${generatedDate}T00:00:00Z`))
+
 function writeSampleInput(): string {
   const inputPath = join(tmpdir(), `property-intelligence-${Date.now()}-${Math.random().toString(16).slice(2)}.json`)
   writeFileSync(inputPath, `${JSON.stringify(completeInput, null, 2)}\n`, 'utf8')
@@ -84,8 +92,8 @@ describe('property intelligence MVP', () => {
     expect(result.models?.['short-stay'].scenarios.find(scenario => scenario.label === 'base')?.netMonthlyReturn).toBeGreaterThan(0)
     expect(result.strategy?.recommendedStayType).toBeDefined()
 
-    const report = buildMarkdownReport(result)
-    expect(report).toContain('Lodgra Site: www.algarvehomestay.pt · Email: ahspropriedades@gmail.com · Telefone: +351912647423 · WhatsApp: +351912647423')
+    const report = buildMarkdownReport(result, { companyName: 'Algarve Home Stay' })
+    expect(report).toContain('Empresa: Algarve Home Stay · Site: www.algarvehomestay.pt · Email: ahspropriedades@gmail.com · Telefone: +351912647423 · WhatsApp: +351912647423')
     expect(report).toContain('# Dossiê Executivo de Property Intelligence')
     expect(report).toContain('## Identificação do Imóvel')
     expect(report).toContain('**Faro, Algarve** · T2 · 82 m² · 2 quartos · bom estado · mobilado')
@@ -93,6 +101,7 @@ describe('property intelligence MVP', () => {
     expect(report).toContain('## Definições de estadia')
     expect(report).toContain('## Cenário 1 - Locação de curta e média duração')
     expect(report).toContain('## Cenário 2 - Locação anual')
+    expect(report).toContain('Modelo determinístico do Lodgra')
     expect(report).toContain('Airbnb, Booking, VRBO, Flatio e Hostwise')
     expect(report).toContain('Idealista, Imovirtual, Casa Sapo e OLX Portugal')
     expect(report).toContain('| Zona |')
@@ -111,6 +120,7 @@ describe('property intelligence MVP', () => {
     expect(report).toContain('Zona-base observada nesta leitura')
     expect(report).toContain('Faro, Algarve')
     expect(report).toContain('estadia curta')
+    expect(report).not.toContain('Modelo determinístico do MVP')
     expect(report).not.toContain('page-break-after: always')
   })
 
@@ -122,11 +132,11 @@ describe('property intelligence MVP', () => {
     expect(report).toContain('| Fonte | Observado em |')
     expect(report).toContain('Airbnb')
     expect(report).toContain('Imovirtual')
-    expect(report).toContain('Mercado observado em: 2026-08-30')
+    expect(report).toContain(`Mercado observado em: ${generatedDateDisplay}`)
     expect(report).not.toContain('Receita bruta')
     expect(result.comparables).toHaveLength(2)
     expect(result.comparables[0].source).toBe('Airbnb')
-    expect(result.comparables[0].observedAt).toBe('2026-08-30')
+    expect(result.comparables[0].observedAt).toBe(generatedDate)
   })
 
   it('allows analysis to continue when the user does not know the core property details', () => {

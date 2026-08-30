@@ -679,6 +679,9 @@ export function PropertyIntelligenceWorkbench({
 
   const guidedPayload = useMemo(
     () => ({
+      companyInfo: {
+        name: companyInfo?.name?.trim() || null,
+      },
       lead: {
         name: propertyName.trim() || DEFAULT_FORM.propertyName,
         source: source || null,
@@ -734,6 +737,7 @@ export function PropertyIntelligenceWorkbench({
       ownerOperatingModel,
       rentedDays,
       maintenanceNote,
+      companyInfo,
       source,
       typology,
     ]
@@ -1067,6 +1071,7 @@ export function PropertyIntelligenceWorkbench({
         normalized.includes('nota interna da aplicação') ||
         normalized.includes('não deve ser impresso ou gerado no pdf') ||
         normalized.includes('nao deve ser impresso ou gerado no pdf') ||
+        normalized.startsWith('empresa:') ||
         normalized.startsWith('lodgra site:')
       )
     }

@@ -65,7 +65,9 @@ export async function POST(request: NextRequest) {
       {
         traceId: result.traceId,
         result,
-        markdown: buildMarkdownReport(result),
+        markdown: buildMarkdownReport(result, {
+          companyName: input.companyInfo?.name ?? null,
+        }),
       },
       {
         status: result.status === 'ready' ? 200 : 202,

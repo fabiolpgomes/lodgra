@@ -20,6 +20,10 @@ const MARKET_TIER_PRIORITY: Record<MarketTier, number> = {
   rural: 3,
 }
 
+function getComparableGenerationDate(): string {
+  return new Date().toISOString().slice(0, 10)
+}
+
 function confidenceFromDistance(distance: number): ConfidenceLevel {
   if (distance <= 0.08) {
     return 'high'
@@ -158,9 +162,9 @@ export function buildComparables(
         monthlyNetReturn: Math.round(item.net * 100) / 100,
         confidence: confidenceFromDistance(distance),
         provenance: 'derived',
-        source: 'Modelo determinístico do MVP',
-        observedAt: '',
-        note: 'Derivado do modelo determinístico do MVP; sem scraping.',
+        source: 'Modelo determinístico do Lodgra',
+        observedAt: getComparableGenerationDate(),
+        note: 'Derivado do modelo determinístico do Lodgra; sem scraping.',
       } satisfies ComparableBenchmark
     }),
     fallbackMarketTier

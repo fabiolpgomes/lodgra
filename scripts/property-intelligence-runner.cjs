@@ -120,7 +120,9 @@ async function main() {
 
   const result = runPropertyIntelligenceAnalysis(parsedInput)
   const jsonReport = serializeJsonReport(result)
-  const markdownReport = buildMarkdownReport(result)
+  const markdownReport = buildMarkdownReport(result, {
+    companyName: parsedInput.companyInfo?.name ?? null,
+  })
 
   for (const event of result.telemetry.events) {
     stderr.write(`[telemetry] ${event.name} traceId=${result.traceId}\n`)

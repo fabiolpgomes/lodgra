@@ -1,4 +1,4 @@
-Lodgra Site: www.algarvehomestay.pt · Email: ahspropriedades@gmail.com · Telefone: +351912647423 · WhatsApp: +351912647423
+Empresa: Algarve Home Stay · Site: www.algarvehomestay.pt · Email: ahspropriedades@gmail.com · Telefone: +351912647423 · WhatsApp: +351912647423
 
 # Dossiê Executivo de Property Intelligence
 
@@ -55,21 +55,21 @@ Lodgra Site: www.algarvehomestay.pt · Email: ahspropriedades@gmail.com · Telef
 - Proveniência: origem da referência, podendo ser informada, derivada ou estimada.
 - Confiança: nível de segurança atribuído à referência usada na comparação.
 - Zona predominante da amostra: costeiro.
-- Mercado observado em: 2026-08-30.
+- Mercado observado em: 30/08/26.
 ### Curta e média duração
 | Referência | Tipo | Zona | Líquido observado | Proveniência | Confiança | Fonte | Observado em |
 | --- | --- | --- | ---: | --- | --- | --- | --- |
-| Beach Front 2.2 | estadia curta | costeiro | €3,690.00 | informada | alta | VRBO | 2026-08-30 |
-| Espetac. T2 com piscina em Armação de Pera/Porches | estadia curta | costeiro | €3,198.00 | informada | alta | Airbnb | 2026-08-30 |
-| t2 armação de pêra | estadia curta | costeiro | €2,952.00 | informada | alta | Booking.com | 2026-08-30 |
+| Beach Front 2.2 | estadia curta | costeiro | €3,690.00 | informada | alta | VRBO | 30/08/26 |
+| Espetac. T2 com piscina em Armação de Pera/Porches | estadia curta | costeiro | €3,198.00 | informada | alta | Airbnb | 30/08/26 |
+| t2 armação de pêra | estadia curta | costeiro | €2,952.00 | informada | alta | Booking.com | 30/08/26 |
 
 ### Locação anual
 | Referência | Tipo | Zona | Líquido observado | Proveniência | Confiança | Fonte | Observado em |
 | --- | --- | --- | ---: | --- | --- | --- | --- |
-| Apartamento T2 perto da praia, Armação de Pêra, Algarve | estadia longa | costeiro | €2,700.00 | informada | alta | Imovirtual | 2026-08-30 |
-| Apartamento T2 com piscina e arrendamento mensal no Bayline | estadia longa | costeiro | €2,700.00 | informada | alta | Casa Sapo | 2026-08-30 |
-| Apartamento T2 em Via Dorsal de Armação de Pêra, 8 | estadia longa | costeiro | €1,170.00 | informada | alta | Idealista | 2026-08-30 |
-| T2 para arrendamento anual a 80 mts da praia em Armação de Pêra | estadia longa | costeiro | €1,080.00 | informada | alta | OLX Portugal | 2026-08-30 |
+| Apartamento T2 perto da praia, Armação de Pêra, Algarve | estadia longa | costeiro | €2,700.00 | informada | alta | Imovirtual | 30/08/26 |
+| Apartamento T2 com piscina e arrendamento mensal no Bayline | estadia longa | costeiro | €2,700.00 | informada | alta | Casa Sapo | 30/08/26 |
+| Apartamento T2 em Via Dorsal de Armação de Pêra, 8 | estadia longa | costeiro | €1,170.00 | informada | alta | Idealista | 30/08/26 |
+| T2 para arrendamento anual a 80 mts da praia em Armação de Pêra | estadia longa | costeiro | €1,080.00 | informada | alta | OLX Portugal | 30/08/26 |
 
 ## Cenários
 - Conservador: leitura mais prudente, com ocupação e retorno abaixo do cenário central.

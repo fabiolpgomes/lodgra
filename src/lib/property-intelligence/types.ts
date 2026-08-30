@@ -70,6 +70,9 @@ export interface StayAssumptionsInput {
 }
 
 export interface PropertyIntelligenceInput {
+  companyInfo?: {
+    name?: string | null
+  } | null
   lead?: PropertyLeadInput | null
   property?: PropertyInput | null
   ownerContext?: OwnerContextInput | null
