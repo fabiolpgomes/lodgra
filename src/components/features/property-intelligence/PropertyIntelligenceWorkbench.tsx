@@ -982,10 +982,11 @@ export function PropertyIntelligenceWorkbench({
     const marginX = 16
     const marginTop = 12
     const headerHeight = 18
+    const headerBodyGap = 8
     const footerHeight = 12
     const lineHeight = 6
     const maxWidth = pageWidth - marginX * 2
-    const contentTop = marginTop + headerHeight
+    const contentTop = marginTop + headerHeight + headerBodyGap
     const contentBottom = pageHeight - footerHeight - 8
     let cursorY = contentTop
 
@@ -1215,12 +1216,6 @@ export function PropertyIntelligenceWorkbench({
     })
 
     const logoImage = reportCompany.logoUrl ? await loadImageDataUrl(reportCompany.logoUrl) : null
-
-    doc.setFont('helvetica', 'bold')
-    doc.setFontSize(18)
-    doc.setTextColor(...reportCompany.primaryColorRgb)
-    doc.text('Dossiê Executivo de Property Intelligence', marginX, cursorY)
-    cursorY += 10
 
     const markdown = effectiveMarkdown
     const markdownLines = markdown.split('\n').map(line => line.trim())
