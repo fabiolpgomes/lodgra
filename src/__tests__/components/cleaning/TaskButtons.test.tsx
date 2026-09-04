@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import TaskForm from '@/components/cleaning/TaskForm';
 import TaskFilters from '@/components/cleaning/TaskFilters';
 
@@ -16,7 +16,7 @@ global.fetch = jest.fn(() =>
 ) as unknown as typeof fetch;
 
 describe('Button Height Accessibility (Task 1)', () => {
-  test('TaskForm renders submit button', () => {
+  test('TaskForm renders submit button', async () => {
     const mockOnCancel = jest.fn();
     const { container } = render(
       <TaskForm onSuccess={jest.fn()} onCancel={mockOnCancel} />
@@ -24,6 +24,7 @@ describe('Button Height Accessibility (Task 1)', () => {
 
     const submitButton = container.querySelector('button[type="submit"]');
     expect(submitButton).toBeInTheDocument();
+    await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(3));
   });
 
   test('TaskFilters renders without errors', () => {

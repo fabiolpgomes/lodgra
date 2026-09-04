@@ -5,6 +5,8 @@
 **Total Tests:** 105/105 PASSING (100%)
 **Build Status:** ✅ PASSING
 
+**Operational note (2026-08-29):** this is a historical implementation report for the native Booking API path. In the current Lodgra product flow, Booking.com reservations remain operational via iCal, and native Booking API usage stays in preparation until official partnership/access is available.
+
 ---
 
 ## 🎯 Overview

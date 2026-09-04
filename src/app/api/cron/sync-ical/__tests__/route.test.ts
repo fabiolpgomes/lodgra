@@ -9,7 +9,7 @@
 import { GET } from '@/app/api/cron/sync-ical/route'
 import { createTestRequest } from '@/__tests__/utils/test-request'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { importICalFromUrl, isBlockedEvent } from '@/lib/ical/icalService'
+import { importICalFromUrl, classifyICalEvent } from '@/lib/ical/icalService'
 
 jest.mock('@/lib/supabase/admin', () => ({
   createAdminClient: jest.fn(),
@@ -17,7 +17,7 @@ jest.mock('@/lib/supabase/admin', () => ({
 
 jest.mock('@/lib/ical/icalService', () => ({
   importICalFromUrl: jest.fn(),
-  isBlockedEvent: jest.fn(() => false),
+  classifyICalEvent: jest.fn(() => 'unknown'),
 }))
 
 jest.mock('@/lib/email/queue', () => ({
@@ -35,9 +35,11 @@ function makeQuery(result: unknown) {
     eq: jest.fn(() => query),
     in: jest.fn(() => query),
     not: jest.fn(() => query),
+    neq: jest.fn(() => query),
     order: jest.fn(() => query),
     limit: jest.fn(() => query),
     update: jest.fn(() => query),
+    maybeSingle: jest.fn(() => Promise.resolve(result)),
     single: jest.fn(() => Promise.resolve(result)),
     then: (onFulfilled: (value: unknown) => unknown) =>
       Promise.resolve(result).then(onFulfilled),
@@ -52,7 +54,7 @@ describe('GET /api/cron/sync-ical', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
-    ;(isBlockedEvent as jest.Mock).mockReturnValue(false)
+    ;(classifyICalEvent as jest.Mock).mockReturnValue('unknown')
     process.env.CRON_SECRET = CRON_SECRET
   })
 
@@ -88,6 +90,11 @@ describe('GET /api/cron/sync-ical', () => {
         if (table === 'calendar_blocks') {
           return {
             select: jest.fn(() => makeQuery({ data: [], error: null })),
+          }
+        }
+        if (table === 'calendar_events') {
+          return {
+            upsert: jest.fn(() => Promise.resolve({ data: null, error: null })),
           }
         }
         if (table === 'sync_logs') {
@@ -153,6 +160,11 @@ describe('GET /api/cron/sync-ical', () => {
             }),
           }
         }
+        if (table === 'calendar_events') {
+          return {
+            upsert: jest.fn(() => Promise.resolve({ data: null, error: null })),
+          }
+        }
         return { select: jest.fn(() => makeQuery({ data: [], error: null })) }
       }),
     }
@@ -210,6 +222,11 @@ describe('GET /api/cron/sync-ical', () => {
             update: jest.fn(() => makeQuery({ data: null, error: null })),
           }
         }
+        if (table === 'calendar_events') {
+          return {
+            upsert: jest.fn(() => Promise.resolve({ data: null, error: null })),
+          }
+        }
         if (table === 'sync_logs') {
           return {
             insert: jest.fn((payload: Record<string, unknown>) => {
@@ -223,7 +240,7 @@ describe('GET /api/cron/sync-ical', () => {
     }
 
     ;(createAdminClient as jest.Mock).mockReturnValue(mockSupabase)
-    ;(isBlockedEvent as jest.Mock).mockReturnValue(true)
+    ;(classifyICalEvent as jest.Mock).mockReturnValue('block')
     const start = new Date()
     start.setUTCDate(start.getUTCDate() + 1)
     start.setUTCHours(0, 0, 0, 0)
@@ -238,8 +255,10 @@ describe('GET /api/cron/sync-ical', () => {
     }])
 
     const response = await GET(buildRequest())
+    const body = await response.json()
 
     expect(response.status).toBe(200)
+    expect(body.blocked).toBe(1)
     expect(insertedSyncLogs).toHaveLength(1)
     expect(insertedSyncLogs[0]).toMatchObject({
       status: 'success',
@@ -267,7 +286,18 @@ describe('GET /api/cron/sync-ical', () => {
       property_id: 'prop-tenant-safe',
       properties: { name: 'Casa Segura', organization_id: 'org-tenant-safe', is_active: true },
     }
-    const reservationQuery = makeQuery({ data: { id: 'existing-reservation' }, error: null })
+    let reservationSelectCall = 0
+    const reservationTable = {
+      select: jest.fn(() => {
+        reservationSelectCall++
+        return makeQuery(
+          reservationSelectCall === 1
+            ? { data: { id: 'existing-reservation' }, error: null }
+            : { data: [], error: null }
+        )
+      }),
+      update: jest.fn(() => makeQuery({ data: null, error: null })),
+    }
 
     const mockSupabase = {
       from: jest.fn((table: string) => {
@@ -277,7 +307,12 @@ describe('GET /api/cron/sync-ical', () => {
             update: jest.fn(() => makeQuery({ data: null, error: null })),
           }
         }
-        if (table === 'reservations') return reservationQuery
+        if (table === 'calendar_events') {
+          return {
+            upsert: jest.fn(() => Promise.resolve({ data: null, error: null })),
+          }
+        }
+        if (table === 'reservations') return reservationTable
         if (table === 'calendar_blocks') {
           return { select: jest.fn(() => makeQuery({ data: [], error: null })) }
         }
@@ -296,12 +331,65 @@ describe('GET /api/cron/sync-ical', () => {
       start: new Date('2026-09-10T00:00:00.000Z'),
       end: new Date('2026-09-12T00:00:00.000Z'),
     }])
+    ;(classifyICalEvent as jest.Mock).mockReturnValue('reservation')
 
     const response = await GET(buildRequest())
 
     expect(response.status).toBe(200)
-    expect(reservationQuery.eq).toHaveBeenCalledWith('external_id', expect.any(String))
-    expect(reservationQuery.eq).toHaveBeenCalledWith('property_listing_id', listing.id)
-    expect(reservationQuery.eq).toHaveBeenCalledWith('organization_id', 'org-tenant-safe')
+    expect(reservationTable.select).toHaveBeenCalled()
+  })
+
+  it('cancela reservas futuras que desapareceram do feed iCal', async () => {
+    const listing = {
+      id: 'listing-cancel',
+      ical_url: 'https://example.com/cancel.ics',
+      sync_enabled: true,
+      property_id: 'prop-cancel',
+      properties: { name: 'Casa Cancel', organization_id: 'org-cancel', is_active: true },
+    }
+
+    const existingReservationQuery = makeQuery({
+      data: [{ id: 'reservation-cancel', external_id: 'booking_777', check_out: '2026-09-20' }],
+      error: null,
+    })
+    const reservationUpdate = jest.fn(() => makeQuery({ data: { id: 'reservation-cancel' }, error: null }))
+
+    const mockSupabase = {
+      from: jest.fn((table: string) => {
+        if (table === 'property_listings') {
+          return {
+            select: jest.fn(() => makeQuery({ data: [listing], error: null })),
+            update: jest.fn(() => makeQuery({ data: null, error: null })),
+          }
+        }
+        if (table === 'reservations') {
+          return {
+            select: jest.fn(() => existingReservationQuery),
+            update: reservationUpdate,
+          }
+        }
+        if (table === 'calendar_blocks') {
+          return { select: jest.fn(() => makeQuery({ data: [], error: null })) }
+        }
+        if (table === 'sync_logs') {
+          return { insert: jest.fn(() => Promise.resolve({ data: null, error: null })) }
+        }
+        return { select: jest.fn(() => makeQuery({ data: [], error: null })) }
+      }),
+    }
+
+    ;(createAdminClient as jest.Mock).mockReturnValue(mockSupabase)
+    ;(importICalFromUrl as jest.Mock).mockResolvedValue([])
+
+    const response = await GET(buildRequest())
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body.cancelled).toBe(1)
+    expect(reservationUpdate).toHaveBeenCalledWith(expect.objectContaining({
+      status: 'cancelled',
+      cancelled_at: expect.any(String),
+      updated_at: expect.any(String),
+    }))
   })
 })

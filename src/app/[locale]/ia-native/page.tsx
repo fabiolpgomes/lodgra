@@ -12,10 +12,11 @@ import { Button } from '@/components/common/ui/button'
 import { PropertyIntelligencePaywall } from '@/components/features/property-intelligence/PropertyIntelligencePaywall'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { requireRole } from '@/lib/auth/requireRole'
-import type { UserProfile } from '@/lib/auth/getUserAccess'
+import { getFallbackUserRole, type UserProfile } from '@/lib/auth/getUserAccess'
 import { writeAuditLog } from '@/lib/audit'
-import { CURRENCIES, formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
+import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
 import { isFeatureAccessible } from '@/lib/features/featureAccess'
+import { buildIaNativePageContext } from '@/lib/ia-native/pageContext'
 
 export const dynamic = 'force-dynamic'
 
@@ -36,8 +37,7 @@ export default async function IaNativePage({
   }
 
   const adminClient = createAdminClient()
-  const fallbackRole: UserProfile['role'] =
-    auth.role === 'admin' || auth.role === 'gestor' ? auth.role : 'viewer'
+  const fallbackRole = getFallbackUserRole(auth.role)
   const [{ data: profile }, { data: organization }] = await Promise.all([
     adminClient
       .from('user_profiles')
@@ -51,26 +51,17 @@ export default async function IaNativePage({
       .single(),
   ])
 
-  const currentPlan = organization?.subscription_plan || organization?.plan || 'essencial'
-  const organizationCurrency = organization?.currency?.toUpperCase() ?? null
-  const safeCurrency = (organizationCurrency && organizationCurrency in CURRENCIES
-    ? organizationCurrency
-    : null) as CurrencyCode | null
-  const businessTimeZone = organization?.timezone || 'Europe/Lisbon'
   const { hasAccess: hasIaNativeAccess, rollout } = await isFeatureAccessible(
     auth.organizationId,
     'property_intelligence'
   )
-
-  const userProfile: UserProfile = {
-    id: profile?.id ?? auth.userId,
-    email: profile?.email ?? '',
-    full_name: profile?.full_name ?? null,
-    role: (profile?.role as UserProfile['role']) ?? fallbackRole,
-    avatar_url: profile?.avatar_url ?? null,
-    access_all_properties: profile?.access_all_properties ?? auth.accessAllProperties,
-    organization_id: profile?.organization_id ?? auth.organizationId,
-  }
+  const { currentPlan, organizationCurrency, safeCurrency, businessTimeZone, userProfile } =
+    buildIaNativePageContext({
+      auth,
+      fallbackRole,
+      profileRow: profile,
+      organizationRow: organization,
+    })
 
   if (!hasIaNativeAccess) {
     return (
@@ -226,7 +217,7 @@ export default async function IaNativePage({
                   <p className="text-[10px] font-black uppercase tracking-[2px] text-brand-text-medium">Moeda</p>
                   <p className="mt-2 text-sm font-semibold text-brand-text-dark">{organizationCurrency || '-'}</p>
                   <p className="mt-1 text-xs text-brand-text-medium">
-                    {safeCurrency ? formatCurrency(1250, safeCurrency) : '1250.00'}
+                    {safeCurrency ? formatCurrency(1250, safeCurrency as CurrencyCode) : '1250.00'}
                   </p>
                 </div>
                 <div className="rounded-2xl border border-brand-border-soft bg-brand-surface/60 p-4">

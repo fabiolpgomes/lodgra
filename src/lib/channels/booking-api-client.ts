@@ -7,17 +7,17 @@
 export interface BookingReservationItem {
   id: string              // external reservation ID
   property_id: string
-  guest: {
-    name: string
+  guest?: {
+    name?: string
     email?: string
   }
   check_in: string        // YYYY-MM-DD
   check_out: string       // YYYY-MM-DD
   number_of_guests: number
   status: 'CONFIRMED' | 'CANCELLED' | string
-  total_price: {
-    currency: string
-    amount: number
+  total_price?: {
+    currency?: string
+    amount?: number
   }
   created_at: string
   updated_at: string

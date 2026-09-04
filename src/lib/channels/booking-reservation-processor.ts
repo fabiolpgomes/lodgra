@@ -11,16 +11,16 @@ import { calculateServiceFeeAmount, nightsBetween } from '@/lib/reservations/ser
 import type { CancellationPolicySnapshot, StayDuration } from '@/types/cancellation.types'
 
 export interface BookingReservationPayload {
-  external_id: string        // Booking.com reservation ID
-  property_id: string        // Booking.com external property_id
-  guest_name: string
+  external_id: string
+  property_id: string
+  guest_name?: string
   guest_email?: string
-  check_in: string           // YYYY-MM-DD
-  check_out: string          // YYYY-MM-DD
-  number_of_guests: number
-  status: string             // 'CONFIRMED' | 'CANCELLED' | ...
-  total_amount: number
-  currency: string
+  check_in: string
+  check_out: string
+  number_of_guests?: number
+  status: string
+  total_amount?: number
+  currency?: string
   raw_data: Record<string, unknown>
 }
 
@@ -50,6 +50,15 @@ export async function processBookingReservation(
   propertyListingId: string,
   payload: BookingReservationPayload
 ): Promise<ProcessResult> {
+  const status = deriveStatus(payload.status)
+  const guestName = payload.guest_name?.trim() || 'Hóspede'
+  const hasGuestName = Boolean(payload.guest_name?.trim())
+  const guestEmail = payload.guest_email?.trim() || null
+  const hasTotalAmount = typeof payload.total_amount === 'number'
+  const totalAmount = typeof payload.total_amount === 'number' ? payload.total_amount : 0
+  const currency = payload.currency?.trim().toUpperCase() || 'EUR'
+  const now = new Date().toISOString()
+
   // ── 1. Idempotency check ──────────────────────────────────────
   const { data: existing } = await adminClient
     .from('reservations')
@@ -59,25 +68,50 @@ export async function processBookingReservation(
     .maybeSingle()
 
   if (existing) {
-    // Already exists — update status/amount in case it changed
-    await adminClient
+    const update: Record<string, unknown> = {
+      status,
+      raw_data: payload.raw_data,
+      updated_at: now,
+      ...(status === 'cancelled' ? { cancelled_at: now } : { cancelled_at: null }),
+    }
+
+    if (typeof payload.number_of_guests === 'number') {
+      update.num_guests = payload.number_of_guests
+    }
+
+    if (hasGuestName) {
+      update.guest_name = guestName
+      update.first_name = guestName.split(' ')[0] || 'Hóspede'
+      update.last_name = guestName.split(' ').slice(1).join(' ') || ''
+    }
+
+    if (guestEmail) {
+      update.guest_email = guestEmail
+    }
+
+    if (hasTotalAmount) {
+      update.total_amount = totalAmount
+      update.currency = currency
+    }
+
+    const { error: updateError } = await adminClient
       .from('reservations')
-      .update({
-        status: deriveStatus(payload.status),
-        total_amount: payload.total_amount,
-        raw_data: payload.raw_data,
-        updated_at: new Date().toISOString(),
-        ...(deriveStatus(payload.status) === 'cancelled'
-          ? { cancelled_at: new Date().toISOString() }
-          : {}),
-      })
+      .update(update)
       .eq('id', existing.id)
+
+    if (updateError) {
+      return {
+        success: false,
+        isDuplicate: true,
+        error: `Reservation update failed: ${updateError.message}`,
+      }
+    }
 
     return { success: true, reservationId: existing.id, isDuplicate: true }
   }
 
   // ── 2. Upsert guest ───────────────────────────────────────────
-  const nameParts = payload.guest_name.trim().split(' ')
+  const nameParts = guestName.split(' ')
   const firstName = nameParts[0] || 'Hóspede'
   const lastName = nameParts.slice(1).join(' ') || ''
   const sanitizedExtId = payload.external_id.replace(/[^a-z0-9\-_.]/gi, '')
@@ -89,10 +123,10 @@ export async function processBookingReservation(
       {
         first_name: firstName,
         last_name: lastName,
-        name: payload.guest_name,
-        email: payload.guest_email || fallbackEmail,
+        name: guestName,
+        email: guestEmail || fallbackEmail,
         organization_id: orgId,
-        updated_at: new Date().toISOString(),
+        updated_at: now,
       },
       { onConflict: 'email,organization_id', ignoreDuplicates: false }
     )
@@ -115,7 +149,7 @@ export async function processBookingReservation(
     .single()
 
   const commission = calculateCommission(
-    payload.total_amount,
+    totalAmount,
     ((org?.plan ?? 'essencial') as PlanType)
   )
 
@@ -135,7 +169,6 @@ export async function processBookingReservation(
   const serviceFeeAmount = calculateServiceFeeAmount(propertyFees, nights)
 
   // ── 3c. Story 37.4 — Auto-select and snapshot cancellation policy ──
-  // Determine stay duration and fetch default policy for property
   const stayDuration: StayDuration = nights >= 28 ? 'long' : 'short'
 
   const { data: propertyListingData, error: propertyListingError } = await adminClient
@@ -158,18 +191,15 @@ export async function processBookingReservation(
   let cancellationPolicySnapshot: CancellationPolicySnapshot | null = null
 
   if (propertyIdForPolicy) {
-    // Fetch the property's cancellation policy (preferred: 'moderate' for most properties)
-    // Falls back to first active policy if moderate not found
     const { data: policies } = await adminClient
       .from('property_cancellation_policies')
       .select('*')
       .eq('property_id', propertyIdForPolicy)
       .eq('is_long_stay', stayDuration === 'long')
       .eq('is_active', true)
-      .order('policy_type')  // 'flexible' < 'moderate' < ... (alphabetical)
+      .order('policy_type')
 
-    // Select 'moderate' if available, otherwise first active policy
-    const selectedPolicy = policies?.find(p => p.policy_type === 'moderate') || policies?.[0]
+    const selectedPolicy = policies?.find((p) => p.policy_type === 'moderate') || policies?.[0]
 
     if (selectedPolicy) {
       cancellationPolicyId = selectedPolicy.id
@@ -180,14 +210,12 @@ export async function processBookingReservation(
         partial_refund_days: selectedPolicy.partial_refund_days || null,
         partial_refund_percent: selectedPolicy.partial_refund_percent || null,
         non_refundable_discount_percent: selectedPolicy.non_refundable_discount_percent,
-        captured_at: new Date().toISOString(),
+        captured_at: now,
       }
     }
   }
 
   // ── 4. Upsert reservation ─────────────────────────────────────
-  const status = deriveStatus(payload.status)
-
   const { data: res, error: resError } = await adminClient
     .from('reservations')
     .upsert(
@@ -198,29 +226,32 @@ export async function processBookingReservation(
         guest_id: guest.id,
         check_in: payload.check_in,
         check_out: payload.check_out,
-        num_guests: payload.number_of_guests,
-        guest_name: payload.guest_name,
-        first_name: firstName,
-        last_name: lastName,
-        guest_email: payload.guest_email || undefined,
-        total_amount: payload.total_amount,
-        currency: payload.currency,
+        num_guests: payload.number_of_guests ?? 1,
+        ...(hasGuestName
+          ? {
+              guest_name: guestName,
+              first_name: firstName,
+              last_name: lastName,
+            }
+          : {}),
+        ...(guestEmail ? { guest_email: guestEmail } : {}),
+        total_amount: totalAmount,
+        currency,
         commission_amount: commission.commissionAmount,
         commission_rate: commission.commissionRate,
-        commission_calculated_at: new Date().toISOString(),
+        commission_calculated_at: now,
         service_fee_amount: serviceFeeAmount,
         discount_amount: 0,
         status,
         booking_source: 'booking_api',
         source: 'booking_api',
         channel_id: channelId,
-        // Story 37.4: Auto-linked cancellation policy and snapshot
         cancellation_policy_id: cancellationPolicyId,
         cancellation_policy_snapshot: cancellationPolicySnapshot,
         raw_data: payload.raw_data,
         organization_id: orgId,
-        ...(status === 'cancelled' ? { cancelled_at: new Date().toISOString() } : {}),
-        updated_at: new Date().toISOString(),
+        ...(status === 'cancelled' ? { cancelled_at: now } : {}),
+        updated_at: now,
       },
       { onConflict: 'external_id,property_listing_id', ignoreDuplicates: false }
     )
@@ -244,9 +275,9 @@ export async function processBookingReservation(
     // RPC may not exist yet; sync_count updated by pull-sync route directly
   }
 
-  // ── 6. Report metered billing usage (Growth: €1/booking, Pro: 1%/revenue) ──
+  // ── 6. Report metered billing usage ───────────────────────────
   void reportBookingFee(orgId)
-  void reportRevenueFee(orgId, payload.total_amount)
+  void reportRevenueFee(orgId, totalAmount)
 
   return { success: true, reservationId: res.id, isDuplicate: false }
 }

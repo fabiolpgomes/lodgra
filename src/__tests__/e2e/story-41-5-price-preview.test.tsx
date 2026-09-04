@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { act, render, screen, fireEvent, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { PriceBreakdownTooltip } from '@/components/pricing/PriceBreakdownTooltip'
 
@@ -187,7 +187,9 @@ describe('PriceBreakdownTooltip - Story 41.5', () => {
     )
 
     // Wait for debounce (300ms) + component to show loading state
-    await new Promise(resolve => setTimeout(resolve, 400))
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 400))
+    })
 
     // The tooltip should be visible and fetch should have been called
     const dialog = screen.getByRole('dialog')
@@ -276,7 +278,9 @@ describe('PriceBreakdownTooltip - Story 41.5', () => {
     )
 
     // Wait for debounce and both fetches to complete
-    await new Promise(resolve => setTimeout(resolve, 400))
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 400))
+    })
 
     expect(global.fetch).toHaveBeenCalledWith(
       '/api/guests/guest-123/tier'

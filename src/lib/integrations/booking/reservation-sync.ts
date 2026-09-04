@@ -2,7 +2,6 @@ import * as Sentry from '@sentry/nextjs'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { calculateCommission } from '@/lib/commission/service'
 import type { PlanType } from '@/lib/commission/types'
-import type { BookingWebhookPayload } from './webhook-validator'
 import { deriveReservationStatus } from './webhook-validator'
 
 export interface SyncResult {
@@ -10,6 +9,40 @@ export interface SyncResult {
   reservationId?: string
   isDuplicate?: boolean
   error?: string
+}
+
+interface BookingReservationEventLike {
+  event_id: string
+  timestamp?: string
+  event_type:
+    | 'reservation.created'
+    | 'reservation.modified'
+    | 'reservation.updated'
+    | 'reservation.changed'
+    | 'reservation.cancelled'
+    | 'reservation.deleted'
+    | 'reservation.removed'
+    | string
+  data: {
+    reservation: {
+      id: string
+      property_id: string
+      guest?: {
+        name?: string
+        email?: string
+      }
+      check_in?: string
+      check_out?: string
+      number_of_guests?: number
+      status?: string
+      total_price?: {
+        currency?: string
+        amount?: number
+      }
+      created_at?: string
+      updated_at?: string
+    }
+  }
 }
 
 /**
@@ -29,7 +62,7 @@ export interface SyncResult {
  * 5. Upsert reservation with organization_id for RLS
  */
 export async function syncBookingReservation(
-  payload: BookingWebhookPayload,
+  payload: BookingReservationEventLike,
   requestId: string
 ): Promise<SyncResult> {
   const adminClient = createAdminClient()
@@ -38,6 +71,12 @@ export async function syncBookingReservation(
     const reservation = payload.data.reservation
     const externalId = reservation.id
     const propertyId = reservation.property_id
+    const guestName = reservation.guest?.name?.trim() || 'Hóspede'
+    const guestEmail = reservation.guest?.email?.trim() || null
+    const hasTotalAmount = typeof reservation.total_price?.amount === 'number'
+    const totalAmount = hasTotalAmount ? reservation.total_price!.amount! : 0
+    const currency = reservation.total_price?.currency || 'EUR'
+    const now = new Date().toISOString()
 
     console.log(
       `[Booking Sync] ${requestId} Processing reservation: ${externalId}`
@@ -102,11 +141,38 @@ export async function syncBookingReservation(
       .maybeSingle()
 
     if (existingReservation) {
+      const existingStatus = deriveReservationStatus(payload.event_type)
+      const updates: Record<string, unknown> = {
+        status: existingStatus,
+        updated_at: now,
+        raw_data: payload as unknown as Record<string, unknown>,
+        ...(reservation.check_in ? { check_in: reservation.check_in } : {}),
+        ...(reservation.check_out ? { check_out: reservation.check_out } : {}),
+        ...(typeof reservation.number_of_guests === 'number'
+          ? { num_guests: reservation.number_of_guests }
+          : {}),
+        ...(guestName ? { guest_name: guestName } : {}),
+        ...(guestEmail ? { guest_email: guestEmail } : {}),
+        ...(hasTotalAmount ? { total_amount: totalAmount, currency } : {}),
+        ...(existingStatus === 'cancelled' ? { cancelled_at: now } : { cancelled_at: null }),
+      }
+
+      const { error: updateError } = await adminClient
+        .from('reservations')
+        .update(updates)
+        .eq('id', existingReservation.id)
+
+      if (updateError) {
+        return {
+          success: false,
+          error: `Reservation update failed: ${updateError.message}`,
+        }
+      }
+
       console.log(
-        `[Booking Sync] ${requestId} Duplicate detected: ${externalId} (idempotent skip)`
+        `[Booking Sync] ${requestId} Duplicate detected: ${externalId} (updated existing row)`
       )
 
-      // Idempotent: return success but mark as duplicate
       return {
         success: true,
         reservationId: existingReservation.id,
@@ -118,7 +184,6 @@ export async function syncBookingReservation(
     // 3. CREATE/UPDATE GUEST RECORD
     // ──────────────────────────────────────────────────────────────
 
-    const guestName = reservation.guest.name
     const nameParts = guestName.trim().split(' ')
     const firstName = nameParts[0] || 'Hóspede'
     const lastName = nameParts.slice(1).join(' ') || ''
@@ -130,14 +195,14 @@ export async function syncBookingReservation(
     const { data: guest, error: guestError } = await adminClient
       .from('guests')
       .upsert(
-        {
-          first_name: firstName,
-          last_name: lastName,
-          email: reservation.guest.email || generatedEmail,
-          phone: null, // Booking.com webhook doesn't provide phone
-          country: null, // Could be inferred from booking data
-          organization_id: organizationId,
-          updated_at: new Date().toISOString(),
+      {
+        first_name: firstName,
+        last_name: lastName,
+        email: guestEmail || generatedEmail,
+        phone: null, // Booking.com webhook doesn't provide phone
+        country: null, // Could be inferred from booking data
+        organization_id: organizationId,
+        updated_at: new Date().toISOString(),
         },
         {
           onConflict: 'email,organization_id',
@@ -161,9 +226,6 @@ export async function syncBookingReservation(
     // ──────────────────────────────────────────────────────────────
     // 4. CALCULATE COMMISSION
     // ──────────────────────────────────────────────────────────────
-
-    const totalAmount = reservation.total_price.amount
-    const currency = reservation.total_price.currency
 
     // Fetch organization plan
     const { data: org, error: orgError } = await adminClient
@@ -206,11 +268,11 @@ export async function syncBookingReservation(
           guest_id: guest.id,
           check_in: reservation.check_in,
           check_out: reservation.check_out,
-          num_guests: reservation.number_of_guests,
+          num_guests: reservation.number_of_guests ?? 1,
 
           // Booking data
           guest_name: guestName,
-          guest_email: reservation.guest.email || undefined,
+          guest_email: guestEmail || undefined,
           guest_phone: null,
 
           // Financial

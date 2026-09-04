@@ -6,6 +6,9 @@
 const MAX_RETRIES = 3
 const BACKOFF_MS = 1000 // 1s base, then 2s, 4s
 
+// Keep unit tests fast without changing production retry behavior.
+const getBackoffMs = () => process.env.NODE_ENV === 'test' ? 0 : BACKOFF_MS
+
 /**
  * Sleep for specified milliseconds
  */
@@ -29,7 +32,7 @@ export async function processWithRetry<T>(
     return await fn()
   } catch (error) {
     if (retryCount < MAX_RETRIES) {
-      const delayMs = BACKOFF_MS * Math.pow(2, retryCount)
+      const delayMs = getBackoffMs() * Math.pow(2, retryCount)
       console.log(
         `[webhook-retry] Attempt ${retryCount + 1} failed, retrying in ${delayMs}ms...`
       )

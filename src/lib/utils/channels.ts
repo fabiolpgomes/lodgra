@@ -6,6 +6,7 @@ const CHANNEL_NAMES: Record<string, string> = {
   bookingcom: 'Booking.com',
   'booking com': 'Booking.com',
   vrbo: 'VRBO',
+  flatio: 'Flatio',
   homeaway: 'HomeAway',
   expedia: 'Expedia',
   direct: 'Directo',

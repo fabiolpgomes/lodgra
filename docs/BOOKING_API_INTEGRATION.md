@@ -1,5 +1,7 @@
 # Booking.com API Integration Guide
 
+**Operational note:** this guide documents the future native channel. In the current Lodgra product flow, Booking.com reservations remain operational via iCal, and the native API stays in preparation until official partnership/access is available.
+
 ## Table of Contents
 1. [Getting Started](#getting-started)
 2. [Webhook Setup](#webhook-setup)

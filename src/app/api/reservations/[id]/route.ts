@@ -31,6 +31,11 @@ export async function PUT(
       guest_name,
       guest_email,
       guest_phone,
+      check_in,
+      check_out,
+      number_of_guests,
+      adults,
+      children,
       status,
       total_price,
       notes,
@@ -47,7 +52,7 @@ export async function PUT(
     // Get original reservation (for audit comparison)
     const { data: originalReservation, error: fetchError } = await supabase
       .from('reservations')
-      .select('guest_name, guest_email, guest_phone, reservation_status, total_price, notes')
+      .select('guest_name, guest_email, guest_phone, check_in, check_out, number_of_guests, adults, children, property_id, reservation_status, total_price, notes')
       .eq('id', id)
       .single()
 
@@ -59,11 +64,40 @@ export async function PUT(
       )
     }
 
+    const effectiveCheckIn = check_in ?? originalReservation.check_in
+    const effectiveCheckOut = check_out ?? originalReservation.check_out
+
+    if ((check_in && !check_out) || (!check_in && check_out) || effectiveCheckIn >= effectiveCheckOut) {
+      return NextResponse.json({ error: 'O check-in deve ser anterior ao check-out' }, { status: 400 })
+    }
+
+    const { data: conflictingReservation, error: conflictError } = await supabase
+      .from('reservations')
+      .select('id')
+      .eq('property_id', originalReservation.property_id)
+      .neq('id', id)
+      .neq('reservation_status', 'cancelled')
+      .lt('check_in', effectiveCheckOut)
+      .gt('check_out', effectiveCheckIn)
+      .limit(1)
+
+    if (conflictError) {
+      return NextResponse.json({ error: `Falha ao verificar disponibilidade: ${conflictError.message}` }, { status: 500 })
+    }
+    if (conflictingReservation?.length) {
+      return NextResponse.json({ error: 'As datas selecionadas já estão bloqueadas por outra reserva' }, { status: 409 })
+    }
+
     // Update reservation (only update fields that are provided)
     const updateData: Record<string, any> = {
       guest_name,
       guest_email: guest_email || null,
       guest_phone: guest_phone || null,
+      check_in: effectiveCheckIn,
+      check_out: effectiveCheckOut,
+      number_of_guests: number_of_guests ?? originalReservation.number_of_guests ?? 1,
+      adults: adults ?? originalReservation.adults ?? 1,
+      children: children ?? originalReservation.children ?? 0,
       total_price: total_price ?? 0,
       notes: notes || null,
     }

@@ -36,6 +36,8 @@ const CHANNEL_LABELS: Record<string, string> = {
   booking: 'Booking.com',
   booking_api: 'Booking API',
   airbnb: 'Airbnb',
+  flatio: 'Flatio',
+  vrbo: 'VRBO',
   direct: 'Direto',
   email_parse: 'Importado via E-mail',
 }

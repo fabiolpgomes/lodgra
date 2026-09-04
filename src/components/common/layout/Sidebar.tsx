@@ -23,8 +23,8 @@ import type { UserProfile } from '@/lib/auth/getUserAccess'
 import {
   getLocalizedHref,
   getModuleForPath,
-  getModuleNavLinks,
-  MODULE_FEATURE_LINKS,
+  getVisibleModuleFeatureLinks,
+  getVisibleModuleNavLinks,
   type ModuleNavigationEntry,
 } from '@/lib/navigation/module-shell'
 
@@ -79,15 +79,8 @@ export function Sidebar({ serverProfile }: SidebarProps) {
   const prefix = locale ? `/${locale}` : ''
   const isDarkMode = (resolvedTheme || theme) === 'dark'
   const currentModule = getModuleForPath(pathname)
-  const moduleLinks = getModuleNavLinks(prefix).filter(link => {
-    return !isLimitedGestor || (link.id !== 'core' && link.id !== 'empresa')
-  })
-  const featureLinks = MODULE_FEATURE_LINKS[currentModule.id].filter(link => {
-    if (isLimitedGestor && (link.path === '/dashboard' || link.path === '/financial' || link.path === '/reports')) {
-      return false
-    }
-    return true
-  })
+  const moduleLinks = getVisibleModuleNavLinks(prefix, isLimitedGestor)
+  const featureLinks = getVisibleModuleFeatureLinks(currentModule.id, isLimitedGestor)
 
   useEffect(() => {
     const checkPremiumTier = async () => {

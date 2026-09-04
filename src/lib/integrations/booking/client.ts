@@ -284,7 +284,8 @@ export class BookingComClient {
         `[Booking Client] Retry attempt ${attempt + 1}/${this.retryConfig.maxRetries} after ${delayMs}ms: ${errorMessage}`
       )
 
-      await new Promise((resolve) => setTimeout(resolve, delayMs))
+      const effectiveDelayMs = process.env.NODE_ENV === 'test' ? 0 : delayMs
+      await new Promise((resolve) => setTimeout(resolve, effectiveDelayMs))
 
       return this.executeWithRetry(fn, attempt + 1)
     }

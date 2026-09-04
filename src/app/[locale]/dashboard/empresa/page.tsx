@@ -27,6 +27,7 @@ import {
 } from '@/lib/financial/company-expenses'
 import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
 import { normalizeChannelName } from '@/lib/utils/channels'
+import { getReservationPlatformLabel } from '@/lib/reservations/platform'
 
 type MoneyMap = Record<string, number>
 
@@ -152,12 +153,12 @@ function moneyValue(values: MoneyMap) {
 }
 
 function getReservationPlatformName(reservation: ReservationRow) {
+  const source = reservation.booking_source || reservation.source
+  if (source) return getReservationPlatformLabel(source)
+
   const platform = getPlatformFromListing(reservation)
   const platformName = platform?.display_name || platform?.name
-  if (platformName) return normalizeChannelName(platformName)
-
-  const source = reservation.source || reservation.booking_source || 'manual'
-  return normalizeChannelName(source)
+  return platformName ? normalizeChannelName(platformName) : getReservationPlatformLabel('manual')
 }
 
 function BarRow({ label, value, max, meta }: { label: string; value: number; max: number; meta?: string }) {

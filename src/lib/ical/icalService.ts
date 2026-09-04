@@ -1,5 +1,5 @@
 import ICAL from 'ical.js'
-import { isBookingBlocked, isAirbnbBlocked, isFlatioBlocked } from './bookingParser'
+import { extractBookingReservationIdFromUid, parseBookingDescription } from './bookingParser'
 
 export interface ICalEvent {
   uid: string
@@ -8,6 +8,87 @@ export interface ICalEvent {
   start: Date
   end: Date
   location?: string
+  rawVEvent: string
+}
+
+export type ICalEventClassification = 'reservation' | 'block' | 'unknown'
+
+function hasBlockedKeyword(text: string): boolean {
+  const normalized = text.toLowerCase()
+  return BLOCKED_KEYWORDS.some(keyword => normalized.includes(keyword))
+}
+
+function detectPlatform(uid?: string, summary?: string, description?: string): 'booking' | 'airbnb' | 'flatio' | 'vrbo' | 'unknown' {
+  const text = `${uid || ''} ${summary || ''} ${description || ''}`.toLowerCase()
+  if (text.includes('@booking.com') || text.includes('booking.com')) return 'booking'
+  if (text.includes('@airbnb.com') || text.includes('airbnb')) return 'airbnb'
+  if (text.includes('@flatio.com') || text.includes('flatio')) return 'flatio'
+  if (text.includes('vrbo') || text.includes('expedia')) return 'vrbo'
+  return 'unknown'
+}
+
+function looksLikeGuestName(summary: string): boolean {
+  if (!summary || summary.length < 3) return false
+  if (hasBlockedKeyword(summary)) return false
+  if (/^\d+$/.test(summary)) return false
+  if (/^(closed|reserved|not available|airbnb|booking|flatio|vrbo)$/i.test(summary.trim())) return false
+  return summary.trim().split(/\s+/).length >= 2
+}
+
+export function classifyICalEvent(event: {
+  summary?: string
+  description?: string
+  uid?: string
+  component?: { getFirstPropertyValue: (prop: string) => unknown }
+}): ICalEventClassification {
+  const uid = (event.uid || '').toLowerCase()
+  const summary = (event.summary || '').toLowerCase().trim()
+  const description = (event.description || '').toLowerCase().trim()
+  const platform = detectPlatform(uid, summary, description)
+
+  try {
+    const transp = event.component?.getFirstPropertyValue('transp')
+    if (transp === 'TRANSPARENT') return 'block'
+  } catch {
+    // ignore component lookup issues
+  }
+
+  const genericBlock = hasBlockedKeyword(summary) || hasBlockedKeyword(description)
+
+  if (platform === 'booking') {
+    const bookingData = parseBookingDescription(description)
+    const bookingUidId = extractBookingReservationIdFromUid(uid)
+    if (bookingData.bookingId || bookingUidId) return 'reservation'
+    if (summary === 'reserved' || summary === 'reservado') return 'reservation'
+    if (genericBlock || summary === 'closed - not available' || description === 'booking') return 'block'
+    return 'unknown'
+  }
+
+  if (platform === 'airbnb') {
+    if (summary === 'reserved' || looksLikeGuestName(summary)) return 'reservation'
+    if (genericBlock || summary.includes('not available') || description === 'airbnb') return 'block'
+    return 'unknown'
+  }
+
+  if (platform === 'flatio') {
+    if (/(booking\s*id|guest|phone|country)/i.test(description) || looksLikeGuestName(summary)) {
+      return 'reservation'
+    }
+    if (genericBlock || !description || description === 'flatio') return 'block'
+    return 'unknown'
+  }
+
+  if (platform === 'vrbo') {
+    if (summary === 'reserved' || /(booking\s*id|guest|phone|country)/i.test(description) || looksLikeGuestName(summary)) {
+      return 'reservation'
+    }
+    if (genericBlock || summary.includes('not available')) return 'block'
+    return 'unknown'
+  }
+
+  if (genericBlock) return 'block'
+  if (summary === 'reserved' || looksLikeGuestName(summary)) return 'reservation'
+  return 'unknown'
 }
 
 // Palavras-chave que indicam bloqueio/indisponibilidade (não é reserva real)
@@ -51,76 +132,7 @@ const BLOCKED_KEYWORDS = [
  * - FIX: Platform-specific parsers that check structured fields
  */
 export function isBlockedEvent(event: { summary?: string; description?: string; uid?: string; component?: { getFirstPropertyValue: (prop: string) => unknown } }): boolean {
-  const uid = (event.uid || '').toLowerCase()
-  const summary = (event.summary || '').toLowerCase().trim()
-  const description = (event.description || '').toLowerCase().trim()
-
-  // ═══ PLATFORM-SPECIFIC LOGIC ═══════════════════════════════════════════
-  // Each platform has different patterns for reservations vs blocks
-
-  // Booking.com
-  if (uid.includes('@booking.com')) {
-    return isBookingBlocked(event as Parameters<typeof isBookingBlocked>[0])
-  }
-
-  // Airbnb
-  if (uid.includes('@airbnb.com')) {
-    return isAirbnbBlocked(event as Parameters<typeof isAirbnbBlocked>[0])
-  }
-
-  // Flatio
-  if (uid.includes('@flatio.com')) {
-    return isFlatioBlocked(event as Parameters<typeof isFlatioBlocked>[0])
-  }
-
-  // VRBO (Expedia Vacation Rentals)
-  if (uid.includes('vrbo') || uid.includes('expedia')) {
-    // VRBO similar to Airbnb (owned by Expedia)
-    return isAirbnbBlocked(event as Parameters<typeof isAirbnbBlocked>[0])
-  }
-
-  // Google Calendar (direct user-created)
-  if (uid.includes('google')) {
-    // Google Calendar users generally won't have blocks, treat as reserved
-    return false
-  }
-
-  // ═══ FALLBACK: Generic iCal Properties ═════════════════════════════════
-  // For unknown platforms, use structural iCal properties
-
-  // TRANSP:TRANSPARENT = typically used for "free" time / blocks
-  try {
-    const transp = event.component?.getFirstPropertyValue('transp')
-    if (transp === 'TRANSPARENT') return true
-  } catch {
-    // ignore
-  }
-
-  // CLASS:CONFIDENTIAL or PRIVATE without guest data = likely block
-  try {
-    const eventClass = event.component?.getFirstPropertyValue('class')
-    if (eventClass === 'CONFIDENTIAL' || eventClass === 'PRIVATE') {
-      if (!description || description.length < 5) return true
-    }
-  } catch {
-    // ignore
-  }
-
-  // Generic keywords for blocks
-  for (const keyword of BLOCKED_KEYWORDS) {
-    if (summary.includes(keyword) || description.includes(keyword)) {
-      return true
-    }
-  }
-
-  // Empty or very short summary = likely block
-  if (!summary || summary.length < 2) return true
-
-  // Numeric-only summary = likely block ID, not guest name
-  if (/^\d+$/.test(summary)) return true
-
-  // Default: treat as reservation (don't block without strong evidence)
-  return false
+  return classifyICalEvent(event) === 'block'
 }
 
 export async function importICalFromUrl(url: string): Promise<ICalEvent[]> {
@@ -213,6 +225,7 @@ export async function importICalFromUrl(url: string): Promise<ICalEvent[]> {
         start: startDate,
         end: endDate,
         location: event.location,
+        rawVEvent: vevent.toString(),
       })
     }
 

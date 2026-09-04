@@ -131,7 +131,7 @@ describe('cancelReservation', () => {
 
     expect(stripePT.refunds.create).toHaveBeenCalledWith({
       payment_intent: 'pi_123',
-      amount: 90000,
+      amount: 45000,
       reason: 'requested_by_customer',
     })
     expect(result).toEqual(expect.objectContaining({
@@ -139,21 +139,21 @@ describe('cancelReservation', () => {
       alreadyCancelled: false,
       reservationId: 'reservation-1',
       refundInfo: expect.objectContaining({
-        refund_amount: 900,
-        refund_percentage: 100,
+        refund_amount: 450,
+        refund_percentage: 50,
         stripe_refund_id: 're_123',
         processed_at: expect.any(String),
       }),
     }))
     expect(updateQuery.update).toHaveBeenCalledWith(expect.objectContaining({
-      refund_amount: 900,
+      refund_amount: 450,
       stripe_refund_id: 're_123',
       refund_processed_at: expect.any(String),
     }))
     expect(auditInsert).toHaveBeenCalledWith(expect.objectContaining({
       details: expect.objectContaining({
         event: 'reservation_cancelled',
-        refund_amount: 900,
+        refund_amount: 450,
         refund_processed: true,
       }),
     }))

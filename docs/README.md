@@ -41,6 +41,7 @@ Complete guides for development, deployment, and operations.
   - Block dates for maintenance & cleaning
   - Date format (dd.mm.yyyy)
   - Synchronization with booking platforms
+  - Booking.com reservations remain operational via iCal in the current flow; native Booking API stays in preparation until official partnership/access is available.
   - Timezone-safe date handling (UTC-based)
   - Troubleshooting & FAQs
 

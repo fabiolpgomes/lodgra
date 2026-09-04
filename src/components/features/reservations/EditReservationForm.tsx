@@ -16,11 +16,16 @@ interface EditReservationFormProps {
 export function EditReservationForm({ reservation, onClose, onSave }: EditReservationFormProps) {
   const currency = reservation.currency?.toUpperCase() ?? null
   const [formData, setFormData] = useState({
+    check_in: reservation.check_in,
+    check_out: reservation.check_out,
     guest_name: reservation.guest_name || '',
     guest_email: reservation.guest_email || '',
     guest_phone: reservation.guest_phone || '',
     reservation_status: reservation.status || 'confirmed',
     total_price: reservation.total_price?.toString() || '0',
+    number_of_guests: reservation.number_of_guests?.toString() || '1',
+    adults: reservation.adults?.toString() || '1',
+    children: reservation.children?.toString() || '0',
     notes: reservation.notes || '',
   })
 
@@ -48,6 +53,14 @@ export function EditReservationForm({ reservation, onClose, onSave }: EditReserv
       setError('Valor deve ser um número positivo')
       return false
     }
+    if (!formData.check_in || !formData.check_out || formData.check_in >= formData.check_out) {
+      setError('O check-in deve ser anterior ao check-out')
+      return false
+    }
+    if (parseInt(formData.number_of_guests, 10) < 1 || parseInt(formData.adults, 10) < 1 || parseInt(formData.children, 10) < 0) {
+      setError('Informe uma quantidade válida de hóspedes')
+      return false
+    }
     return true
   }
 
@@ -59,11 +72,16 @@ export function EditReservationForm({ reservation, onClose, onSave }: EditReserv
     setLoading(true)
     try {
       await onSave({
+        check_in: formData.check_in,
+        check_out: formData.check_out,
         guest_name: formData.guest_name,
         guest_email: formData.guest_email,
         guest_phone: formData.guest_phone,
         status: formData.reservation_status as any,
         total_price: parseFloat(formData.total_price),
+        number_of_guests: parseInt(formData.number_of_guests, 10),
+        adults: parseInt(formData.adults, 10),
+        children: parseInt(formData.children, 10),
         notes: formData.notes || null,
       })
       onClose()
@@ -76,7 +94,7 @@ export function EditReservationForm({ reservation, onClose, onSave }: EditReserv
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg max-w-2xl w-full max-h-96 overflow-y-auto">
+      <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <h2 className="text-lg font-semibold text-gray-900">Editar Reserva</h2>
@@ -96,6 +114,27 @@ export function EditReservationForm({ reservation, onClose, onSave }: EditReserv
               {error}
             </div>
           )}
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Check-in *</label>
+              <Input
+                type="date"
+                value={formData.check_in}
+                onChange={e => handleChange('check_in', e.target.value)}
+                disabled={loading}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Check-out *</label>
+              <Input
+                type="date"
+                value={formData.check_out}
+                onChange={e => handleChange('check_out', e.target.value)}
+                disabled={loading}
+              />
+            </div>
+          </div>
 
           {/* Guest Name */}
           <div>
@@ -155,6 +194,21 @@ export function EditReservationForm({ reservation, onClose, onSave }: EditReserv
                 <SelectItem value="completed">Concluída</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Hóspedes *</label>
+              <Input type="number" min="1" value={formData.number_of_guests} onChange={e => handleChange('number_of_guests', e.target.value)} disabled={loading} />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Adultos *</label>
+              <Input type="number" min="1" value={formData.adults} onChange={e => handleChange('adults', e.target.value)} disabled={loading} />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Crianças</label>
+              <Input type="number" min="0" value={formData.children} onChange={e => handleChange('children', e.target.value)} disabled={loading} />
+            </div>
           </div>
 
           {/* Total Price */}

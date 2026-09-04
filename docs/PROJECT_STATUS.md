@@ -127,6 +127,7 @@
 - ✅ Booking calendar (drag-drop reservations)
 - ✅ Pricing rules engine (per-epoch, min nights)
 - ✅ iCal integration (Booking.com sync)
+  - Booking.com reservations remain operational via iCal; native Booking API stays in preparation until official partnership/access is available.
 - ✅ Photo gallery + property images (optimized variants)
 - ✅ Property documents upload (RLS-protected)
 

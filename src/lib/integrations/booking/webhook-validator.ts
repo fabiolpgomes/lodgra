@@ -25,22 +25,29 @@ function isValidDate(dateStr: string): boolean {
 export interface BookingWebhookPayload {
   event_id: string
   timestamp: string
-  event_type: 'reservation.created' | 'reservation.modified' | 'reservation.cancelled'
+  event_type:
+    | 'reservation.created'
+    | 'reservation.modified'
+    | 'reservation.updated'
+    | 'reservation.changed'
+    | 'reservation.cancelled'
+    | 'reservation.deleted'
+    | 'reservation.removed'
   data: {
     reservation: {
       id: string // external_id in our DB
       property_id: string
-      guest: {
-        name: string
+      guest?: {
+        name?: string
         email?: string
       }
       check_in: string // YYYY-MM-DD
       check_out: string // YYYY-MM-DD
       number_of_guests: number
       status: 'CONFIRMED' | 'CANCELLED' | string
-      total_price: {
-        currency: string
-        amount: number
+      total_price?: {
+        currency?: string
+        amount?: number
       }
       created_at: string // ISO-8601
       updated_at: string // ISO-8601
@@ -129,7 +136,6 @@ export function parseBookingWebhookPayload(
     'check_out',
     'number_of_guests',
     'status',
-    'total_price',
   ]
   for (const field of requiredFields) {
     if (!(field in reservation) || reservation[field] === undefined || reservation[field] === null) {
@@ -137,18 +143,25 @@ export function parseBookingWebhookPayload(
     }
   }
 
-  if (!reservation.guest || typeof reservation.guest !== 'object') {
-    throw new Error('Invalid payload: missing guest object')
+  const guest = reservation.guest as Record<string, unknown> | undefined
+  const totalPrice = reservation.total_price as Record<string, unknown> | undefined
+
+  if (guest && guest.name !== undefined && typeof guest.name !== 'string') {
+    throw new Error('Invalid payload: guest.name must be a string')
   }
 
-  const guest = reservation.guest as Record<string, unknown>
-  if (!guest.name || typeof guest.name !== 'string') {
-    throw new Error('Invalid payload: missing guest.name')
+  if (guest && guest.name && typeof guest.name === 'string' && guest.name.length > 255) {
+    throw new Error('Invalid payload: guest.name must be 1-255 characters')
   }
 
-  // Validate total_price structure
-  const totalPrice = reservation.total_price as Record<string, unknown>
-  if (!totalPrice.currency || !('amount' in totalPrice)) {
+  if (totalPrice && totalPrice.currency === undefined && totalPrice.amount === undefined) {
+    throw new Error('Invalid payload: invalid total_price structure')
+  }
+
+  if (totalPrice && totalPrice.currency && typeof totalPrice.currency !== 'string') {
+    throw new Error('Invalid payload: invalid total_price structure')
+  }
+  if (totalPrice && totalPrice.amount !== undefined && typeof totalPrice.amount !== 'number') {
     throw new Error('Invalid payload: invalid total_price structure')
   }
 
@@ -170,9 +183,9 @@ export function parseBookingWebhookPayload(
     throw new Error('Invalid payload: check_out must be after check_in')
   }
 
-  // Validate amount > 0
-  const amount = totalPrice.amount as number
-  if (typeof amount !== 'number' || amount <= 0 || amount > 1_000_000) {
+  // Validate amount > 0 when provided
+  const amount = totalPrice?.amount
+  if (typeof amount === 'number' && (amount <= 0 || amount > 1_000_000)) {
     throw new Error('Invalid payload: total_price.amount must be between 0.01 and 999,999.99')
   }
 
@@ -182,22 +195,22 @@ export function parseBookingWebhookPayload(
     throw new Error('Invalid payload: number_of_guests must be between 1 and 100')
   }
 
-  // Validate guest name length and content
-  const guestName = guest.name as string
-  if (guestName.length === 0 || guestName.length > 255) {
+  // Validate guest name length and content when provided
+  const guestName = guest?.name
+  if (typeof guestName === 'string' && guestName.length > 255) {
     throw new Error('Invalid payload: guest.name must be 1-255 characters')
   }
 
   // Validate email if provided
-  if (guest.email && typeof guest.email === 'string') {
+  if (guest?.email && typeof guest.email === 'string') {
     if (!isValidEmail(guest.email)) {
       throw new Error('Invalid payload: guest.email format invalid')
     }
   }
 
   // Validate currency is valid ISO-4217 code
-  const currency = totalPrice.currency as string
-  if (!/^[A-Z]{3}$/.test(currency)) {
+  const currency = totalPrice?.currency
+  if (typeof currency === 'string' && !/^[A-Z]{3}$/.test(currency)) {
     throw new Error('Invalid payload: currency must be 3-letter ISO code')
   }
 
@@ -225,10 +238,13 @@ export function deriveReservationStatus(
 ): 'confirmed' | 'cancelled' | 'pending_review' {
   switch (eventType) {
     case 'reservation.created':
-      return 'confirmed'
     case 'reservation.modified':
+    case 'reservation.updated':
+    case 'reservation.changed':
       return 'confirmed'
     case 'reservation.cancelled':
+    case 'reservation.deleted':
+    case 'reservation.removed':
       return 'cancelled'
     default:
       return 'pending_review'

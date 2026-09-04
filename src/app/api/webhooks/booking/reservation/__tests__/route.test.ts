@@ -43,16 +43,15 @@ jest.mock('@/lib/webhooks/webhook-manager', () => {
         return signature === expected
       }),
       logWebhookEvent: jest.fn(async () => {}),
-      updateReservationFromWebhook: jest.fn(async () => {}),
     },
   }
 })
 
-// Mock event mappers
-jest.mock('@/lib/webhooks/event-mappers', () => ({
-  mapBookingEventToUpdate: jest.fn((event: any) => ({
-    status: event.data?.reservation?.status || 'CONFIRMED',
-    updated_at: new Date().toISOString(),
+jest.mock('@/lib/integrations/booking/reservation-sync', () => ({
+  syncBookingReservation: jest.fn(async (_payload: unknown) => ({
+    success: true,
+    reservationId: 'res_987654',
+    isDuplicate: false,
   })),
 }))
 
@@ -233,6 +232,25 @@ describe('POST /api/webhooks/booking/reservation', () => {
     expect(data.request_id).toBeDefined()
     expect(typeof data.request_id).toBe('string')
     expect(data.request_id).toHaveLength(36) // UUID format
+  })
+
+  it('should return 404 when Booking sync fails', async () => {
+    const { syncBookingReservation } = await import('@/lib/integrations/booking/reservation-sync')
+    ;(syncBookingReservation as jest.Mock).mockResolvedValueOnce({
+      success: false,
+      error: 'Reservation sync failed',
+    })
+
+    const bodyStr = JSON.stringify(validPayload)
+    const signature = createValidSignature(bodyStr)
+    const request = createMockRequest(bodyStr, signature)
+
+    const response = await POST(request)
+    const data = await response.json()
+
+    expect(response.status).toBe(404)
+    expect(data.success).toBe(false)
+    expect(data.error).toContain('Reservation sync failed')
   })
 
   // ──────────────────────────────────────────────────────────────

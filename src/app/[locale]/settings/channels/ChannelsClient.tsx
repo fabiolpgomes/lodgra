@@ -19,6 +19,7 @@ interface ChannelConfig {
 interface ChannelsClientProps {
   listings: PropertyListing[]
   existingConfigs: ChannelConfig[]
+  disabled?: boolean
 }
 
 function formatRelativeTime(isoDate: string | null): string {
@@ -37,10 +38,12 @@ function ConnectForm({
   listing,
   existingConfig,
   onConnected,
+  disabled = false,
 }: {
   listing: PropertyListing
   existingConfig?: ChannelConfig
   onConnected: (config: ChannelConfig) => void
+  disabled?: boolean
 }) {
   const [externalId, setExternalId] = useState(
     existingConfig?.external_property_id ?? ''
@@ -52,6 +55,7 @@ function ConnectForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (disabled) return
     setLoading(true)
     setError(null)
     setSuccess(false)
@@ -89,6 +93,8 @@ function ConnectForm({
     }
   }
 
+  const isDisabled = disabled || loading
+
   return (
     <form onSubmit={handleSubmit} className="space-y-3 mt-3">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -106,7 +112,7 @@ function ConnectForm({
             onChange={(e) => setExternalId(e.target.value)}
             placeholder="12345678"
             required
-            disabled={loading}
+            disabled={isDisabled}
             className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 disabled:opacity-50"
           />
         </div>
@@ -124,7 +130,7 @@ function ConnectForm({
             onChange={(e) => setApiKey(e.target.value)}
             placeholder="sk_live_..."
             required
-            disabled={loading}
+            disabled={isDisabled}
             className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 disabled:opacity-50"
             autoComplete="new-password"
           />
@@ -141,13 +147,13 @@ function ConnectForm({
       {success && (
         <div className="flex items-center gap-2 text-sm text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-lg p-3">
           <CheckCircle className="h-4 w-4 flex-shrink-0" />
-          <span>Canal ligado com sucesso! A sincronização inicial irá importar os últimos 90 dias.</span>
+          <span>Canal preparado com sucesso! A sincronização inicial ficará disponível quando houver acesso aprovado ao Booking.com Connectivity Program.</span>
         </div>
       )}
 
       <button
         type="submit"
-        disabled={loading || !externalId.trim() || !apiKey.trim()}
+        disabled={isDisabled || !externalId.trim() || !apiKey.trim()}
         className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-brand-600 rounded-lg hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
         {loading ? (
@@ -155,7 +161,7 @@ function ConnectForm({
         ) : (
           <Link2 className="h-4 w-4" />
         )}
-        {loading ? 'A validar...' : existingConfig ? 'Actualizar canal' : 'Ligar canal'}
+        {loading ? 'Validando...' : existingConfig ? 'Atualizar preparação' : 'Preparar canal'}
       </button>
     </form>
   )
@@ -164,14 +170,17 @@ function ConnectForm({
 function SyncButton({
   listingId,
   onSynced,
+  disabled = false,
 }: {
   listingId: string
   onSynced: (result: { synced_count: number; last_sync_at: string }) => void
+  disabled?: boolean
 }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const handleSync = async () => {
+    if (disabled) return
     setLoading(true)
     setError(null)
 
@@ -200,15 +209,17 @@ function SyncButton({
     }
   }
 
+  const isDisabled = disabled || loading
+
   return (
     <div className="space-y-2">
       <button
         onClick={handleSync}
-        disabled={loading}
+        disabled={isDisabled}
         className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-brand-700 border border-brand-300 rounded-lg hover:bg-brand-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
         <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-        {loading ? 'A sincronizar...' : 'Sincronizar agora'}
+        {loading ? 'Sincronizando...' : 'Sincronizar agora'}
       </button>
       {error && (
         <p className="text-xs text-red-600">{error}</p>
@@ -217,7 +228,7 @@ function SyncButton({
   )
 }
 
-export function ChannelsClient({ listings, existingConfigs }: ChannelsClientProps) {
+export function ChannelsClient({ listings, existingConfigs, disabled = false }: ChannelsClientProps) {
   const [configs, setConfigs] = useState<Record<string, ChannelConfig>>(
     Object.fromEntries(existingConfigs.map((c) => [c.property_listing_id, c]))
   )
@@ -304,6 +315,7 @@ export function ChannelsClient({ listings, existingConfigs }: ChannelsClientProp
               <div className="mt-3">
                 <SyncButton
                   listingId={listing.id}
+                  disabled={disabled}
                   onSynced={(result) => handleSynced(listing.id, result)}
                 />
               </div>
@@ -313,6 +325,7 @@ export function ChannelsClient({ listings, existingConfigs }: ChannelsClientProp
               <ConnectForm
                 listing={listing}
                 existingConfig={config}
+                disabled={disabled}
                 onConnected={handleConnected}
               />
             </div>

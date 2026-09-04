@@ -159,11 +159,10 @@ describe('Webhook Validator - Security Tests', () => {
   })
 
   describe('Guest Name Validation', () => {
-    it('should reject empty guest name', () => {
+    it('should allow missing guest name', () => {
       const payload = JSON.parse(JSON.stringify(validPayload))
-      payload.data.reservation.guest.name = ''
-      // Empty string is caught by falsy check, not length check
-      expect(() => parseBookingWebhookPayload(payload)).toThrow('missing guest.name')
+      delete payload.data.reservation.guest.name
+      expect(() => parseBookingWebhookPayload(payload)).not.toThrow()
     })
 
     it('should reject guest name exceeding 255 chars', () => {
@@ -195,6 +194,12 @@ describe('Webhook Validator - Security Tests', () => {
     it('should accept valid currency code', () => {
       const payload = JSON.parse(JSON.stringify(validPayload))
       payload.data.reservation.total_price.currency = 'USD'
+      expect(() => parseBookingWebhookPayload(payload)).not.toThrow()
+    })
+
+    it('should allow missing total_price', () => {
+      const payload = JSON.parse(JSON.stringify(validPayload))
+      delete payload.data.reservation.total_price
       expect(() => parseBookingWebhookPayload(payload)).not.toThrow()
     })
   })

@@ -1,4 +1,4 @@
-import { isBlockedEvent } from '../icalService'
+import { classifyICalEvent, isBlockedEvent } from '../icalService'
 
 describe('isBlockedEvent - Platform-Specific Logic', () => {
   // ═══════════════════════════════════════════════════════════════════════════
@@ -6,6 +6,13 @@ describe('isBlockedEvent - Platform-Specific Logic', () => {
   // ═══════════════════════════════════════════════════════════════════════════
   describe('Booking.com events', () => {
     it('returns false for Booking.com RESERVATION with BOOKING ID field', () => {
+      expect(
+        classifyICalEvent({
+          uid: 'abc123@booking.com',
+          summary: 'CLOSED - Not available',
+          description: 'BOOKING ID: 12345678\nPHONE: +34 912345678\nCOUNTRY: Spain\nGUESTS: 2',
+        })
+      ).toBe('reservation')
       expect(
         isBlockedEvent({
           uid: 'abc123@booking.com',
@@ -15,14 +22,21 @@ describe('isBlockedEvent - Platform-Specific Logic', () => {
       ).toBe(false)  // Is reservation (has structured booking data)
     })
 
-    it('returns false for Booking.com RESERVATION with guest data', () => {
+    it('returns true for Booking.com event without BOOKING ID, even with guest data', () => {
+      expect(
+        classifyICalEvent({
+          uid: 'xyz789@booking.com',
+          summary: 'CLOSED - Not available',
+          description: 'PHONE: +34 912345678\nCOUNTRY: Spain\nGUESTS: 2',
+        })
+      ).toBe('block')
       expect(
         isBlockedEvent({
           uid: 'xyz789@booking.com',
           summary: 'CLOSED - Not available',
           description: 'PHONE: +34 912345678\nCOUNTRY: Spain\nGUESTS: 2',
         })
-      ).toBe(false)  // Is reservation
+      ).toBe(true)  // Is block because no reservation number
     })
 
     it('returns true for Booking.com BLOCK with generic description', () => {
@@ -52,6 +66,23 @@ describe('isBlockedEvent - Platform-Specific Logic', () => {
           summary: 'CLOSED - Not available',
         })
       ).toBe(true)  // Is block
+    })
+
+    it('returns reservation for Booking.com event identified by numeric uid', () => {
+      expect(
+        classifyICalEvent({
+          uid: 'booking_5311280284@booking.com',
+          summary: 'Reserved',
+          description: '',
+        })
+      ).toBe('reservation')
+      expect(
+        isBlockedEvent({
+          uid: 'booking_5311280284@booking.com',
+          summary: 'Reserved',
+          description: '',
+        })
+      ).toBe(false)
     })
   })
 
@@ -164,16 +195,19 @@ describe('isBlockedEvent - Platform-Specific Logic', () => {
   // GENERIC TESTS (Unknown platforms)
   // ═══════════════════════════════════════════════════════════════════════════
   describe('Generic/Unknown platforms', () => {
-    it('returns true for empty summary', () => {
-      expect(isBlockedEvent({ summary: '' })).toBe(true)
+    it('returns unknown for empty summary', () => {
+      expect(classifyICalEvent({ summary: '' })).toBe('unknown')
+      expect(isBlockedEvent({ summary: '' })).toBe(false)
     })
 
-    it('returns true when summary is missing', () => {
-      expect(isBlockedEvent({})).toBe(true)
+    it('returns unknown when summary is missing', () => {
+      expect(classifyICalEvent({})).toBe('unknown')
+      expect(isBlockedEvent({})).toBe(false)
     })
 
-    it('returns true for numeric-only summary', () => {
-      expect(isBlockedEvent({ summary: '12345' })).toBe(true)
+    it('returns unknown for numeric-only summary', () => {
+      expect(classifyICalEvent({ summary: '12345' })).toBe('unknown')
+      expect(isBlockedEvent({ summary: '12345' })).toBe(false)
     })
 
     it('returns true for TRANSP:TRANSPARENT', () => {
@@ -183,10 +217,11 @@ describe('isBlockedEvent - Platform-Specific Logic', () => {
       expect(isBlockedEvent({ summary: 'Some Event', component: mockComponent })).toBe(true)
     })
 
-    it('returns false for TRANSP:OPAQUE with guest name', () => {
+    it('returns reservation for TRANSP:OPAQUE with guest name', () => {
       const mockComponent = {
         getFirstPropertyValue: (prop: string) => prop === 'transp' ? 'OPAQUE' : null,
       }
+      expect(classifyICalEvent({ summary: 'João Silva', component: mockComponent })).toBe('reservation')
       expect(isBlockedEvent({ summary: 'João Silva', component: mockComponent })).toBe(false)
     })
 
@@ -202,7 +237,8 @@ describe('isBlockedEvent - Platform-Specific Logic', () => {
       expect(isBlockedEvent({ summary: 'Unavailable', description: 'maintenance period' })).toBe(true)
     })
 
-    it('returns false for valid guest name', () => {
+    it('returns reservation for valid guest name', () => {
+      expect(classifyICalEvent({ summary: 'João Silva' })).toBe('reservation')
       expect(isBlockedEvent({ summary: 'João Silva' })).toBe(false)
     })
   })

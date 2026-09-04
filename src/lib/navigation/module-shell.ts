@@ -159,6 +159,22 @@ export function getModuleNavLinks(prefix: string) {
   }))
 }
 
+export function getVisibleModuleNavLinks(prefix: string, isLimitedGestor: boolean) {
+  return getModuleNavLinks(prefix).filter(link => {
+    return !isLimitedGestor || (link.id !== 'core' && link.id !== 'empresa')
+  })
+}
+
+export function getVisibleModuleFeatureLinks(moduleId: ModuleId, isLimitedGestor: boolean) {
+  return MODULE_FEATURE_LINKS[moduleId].filter(link => {
+    if (!isLimitedGestor) {
+      return true
+    }
+
+    return !(link.path === '/dashboard' || link.path === '/financial' || link.path === '/reports')
+  })
+}
+
 export function getPageTitle(pathname: string): string {
   const normalized = stripLocalePrefix(pathname)
 

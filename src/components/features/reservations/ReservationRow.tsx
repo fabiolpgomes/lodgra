@@ -6,6 +6,7 @@ import { Building2, Users } from 'lucide-react'
 import { formatCurrency, CurrencyCode } from '@/lib/utils/currency'
 import { ReservationUI } from './types/reservation-ui'
 import { Badge } from '@/components/common/ui/badge'
+import { getReservationPlatformLabel } from '@/lib/reservations/platform'
 
 interface ReservationRowProps {
   reservation: ReservationUI
@@ -34,7 +35,9 @@ export function ReservationRow({ reservation }: ReservationRowProps) {
   const rawProperty = reservation.properties || (reservation.property_listings as any)?.[0]?.properties
   const property = Array.isArray(rawProperty) ? rawProperty[0] : rawProperty
   const listing = Array.isArray(reservation.property_listings) ? reservation.property_listings[0] : reservation.property_listings
-  const platformName = listing?.platforms?.display_name
+  const platformName = getReservationPlatformLabel(
+    reservation.booking_source || reservation.source || listing?.platforms?.display_name
+  )
 
   // Parse guest_name into first_name and last_name
   const guestNameParts = reservation.guest_name?.trim().split(/\s+/) || []

@@ -2,22 +2,18 @@ status:
   branch: main
   modifiedFiles:
     - .aiox/project-status.yaml
-    - docs/stories/ia-native/dev-4-integracao-lodgra.md
-    - src/__tests__/property-intelligence/property-intelligence.test.ts
-    - src/app/[locale]/ia-native/analyze/page.tsx
-    - src/app/api/stripe/webhook/route.ts
-    - src/app/[locale]/settings/page.tsx
-    - src/app/[locale]/settings/organizations/[orgId]/company-profile/page.tsx
-    - src/app/[locale]/onboarding/page.tsx
-    - src/components/features/onboarding/Step2CompanyProfile.tsx
-  modifiedFilesTotalCount: 11
+    - README.md
+    - docs/BOOKING_API_INTEGRATION.md
+    - docs/BOOKING_API_INTEGRATION_COMPLETE.md
+    - docs/BOOKING_API_INTEGRATION_TESTING.md
+  modifiedFilesTotalCount: 60
   recentCommits:
-    - 'chore: refresh project status metadata'
-    - 'docs: add second brain instructions'
+    - Refine property intelligence report output
+    - Add native property intelligence prompt
   currentEpic: 20 — Checkout Directo (Housekeeping)
   currentStory: 20.3.story
-  lastUpdate: '2026-08-27T13:57:26Z'
+  lastUpdate: '2026-09-04T17:25:58.694Z'
   isGitRepo: true
-timestamp: 1787838245680
+timestamp: 1788542758707
 ttl: 60
-gitFingerprint: 1785569665275.2065:1787816580122.778
+gitFingerprint: 1785569665275.2065:1788095769070.9016

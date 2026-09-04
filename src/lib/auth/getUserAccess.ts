@@ -15,6 +15,10 @@ export interface UserProfile {
   accepts_whatsapp?: boolean
 }
 
+export function getFallbackUserRole(role?: string | null): UserProfile['role'] {
+  return role === 'admin' || role === 'gestor' ? role : 'viewer'
+}
+
 export interface UserAccess {
   profile: UserProfile
   propertyIds: string[] | null // null = no filter (admin / access_all_properties)

@@ -2,6 +2,8 @@ import {
   PUBLIC_MODULES,
   getModuleForPath,
   getModuleNavLinks,
+  getVisibleModuleFeatureLinks,
+  getVisibleModuleNavLinks,
 } from '@/lib/navigation/module-shell'
 
 describe('module shell registry', () => {
@@ -16,6 +18,18 @@ describe('module shell registry', () => {
     const links = getModuleNavLinks('')
 
     expect(links.map(link => link.id)).toEqual(['operacao', 'empresa', 'ia-native', 'core', 'proprietario'])
+  })
+
+  it('hides core and empresa navigation for limited gestores', () => {
+    const links = getVisibleModuleNavLinks('', true)
+
+    expect(links.map(link => link.id)).toEqual(['operacao', 'ia-native', 'proprietario'])
+  })
+
+  it('hides financial feature links for limited gestores', () => {
+    const links = getVisibleModuleFeatureLinks('empresa', true)
+
+    expect(links.map(link => link.path)).toEqual(['/dashboard/empresa', '/dashboard/empresa/custos', '/reports/financeiro'])
   })
 
   it('resolves IA Native routes to the module entry', () => {

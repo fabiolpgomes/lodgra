@@ -9,8 +9,11 @@ export interface ReservationUI {
   guest_name?: string
   guest_email?: string
   guest_phone?: string
+  booking_source?: string | null
+  source?: string | null
   adults?: number | null
   children?: number | null
+  number_of_guests?: number | null
   notes?: string | null
   property_id?: string
   reservation_status?: string

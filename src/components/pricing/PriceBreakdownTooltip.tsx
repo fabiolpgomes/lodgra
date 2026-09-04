@@ -82,8 +82,10 @@ export function PriceBreakdownTooltip({
         )
 
         if (nights < 1) {
-          setError('Please select valid dates')
-          setBreakdown(null)
+          if (!cancelled) {
+            setError('Please select valid dates')
+            setBreakdown(null)
+          }
           return
         }
 
@@ -120,19 +122,27 @@ export function PriceBreakdownTooltip({
         }
 
         const data = await response.json()
-        setBreakdown(data)
-        setError(null)
+        if (!cancelled) {
+          setBreakdown(data)
+          setError(null)
+        }
       } catch (err) {
-        console.error('Price calculation error:', err)
-        setError('Unable to calculate price breakdown')
-        setBreakdown(null)
+        if (!cancelled) {
+          console.error('Price calculation error:', err)
+          setError('Unable to calculate price breakdown')
+          setBreakdown(null)
+        }
       } finally {
-        setLoading(false)
+        if (!cancelled) setLoading(false)
       }
     }
 
+    let cancelled = false
     const debounceTimer = setTimeout(fetchBreakdown, 300)
-    return () => clearTimeout(debounceTimer)
+    return () => {
+      cancelled = true
+      clearTimeout(debounceTimer)
+    }
   }, [isOpen, check_in, check_out, base_price, guest_id])
 
   // Handle escape key

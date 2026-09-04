@@ -10,6 +10,7 @@ import { formatCurrency } from '@/lib/utils/currency'
 import { EditReservationClient } from '@/components/features/reservations/EditReservationClient'
 import { ReservationUI } from '@/components/features/reservations/types/reservation-ui'
 import { PremiumCard } from '@/components/common/layout/PremiumPage'
+import { getReservationPlatformLabel } from '@/lib/reservations/platform'
 
 export default async function ReservationDetailPage({
   params,
@@ -60,7 +61,13 @@ export default async function ReservationDetailPage({
     guest_name: reservation.guest_name,
     guest_email: reservation.guest_email,
     guest_phone: reservation.guest_phone,
+    booking_source: reservation.booking_source,
+    source: reservation.source,
     property_id: reservation.property_id,
+    number_of_guests: reservation.number_of_guests,
+    adults: reservation.adults,
+    children: reservation.children,
+    notes: reservation.notes,
     properties: property,
     property_listings: listing ? {
       id: listing.id,
@@ -78,7 +85,12 @@ export default async function ReservationDetailPage({
   }
 
   const status = statusConfig[reservation.reservation_status as keyof typeof statusConfig] || statusConfig.pending
-  const platformName = platforms?.display_name
+  const platformName = getReservationPlatformLabel(
+    (reservation.booking_source as string | null | undefined) ||
+      (reservation.source as string | null | undefined) ||
+      (channel?.channel as string | null | undefined) ||
+      null
+  )
 
   const checkInDate = new Date(reservation.check_in)
   const checkOutDate = new Date(reservation.check_out)
@@ -230,7 +242,7 @@ export default async function ReservationDetailPage({
                     <p className="text-sm text-[#4D5566] font-medium">Plataforma</p>
                     <div className="flex items-center gap-2 mt-1">
                       <span className="px-3 py-1 text-sm font-medium bg-[#10203E]/10 text-[#10203E] rounded-full">
-                        {channel?.channel ? channel.channel.toUpperCase() : 'MANUAL'}
+                        {platformName}
                       </span>
                       {channel?.account_name && (
                         <span className="text-sm text-[#4D5566]">({channel.account_name})</span>

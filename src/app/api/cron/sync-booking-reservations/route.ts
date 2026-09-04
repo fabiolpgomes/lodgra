@@ -127,7 +127,10 @@ export async function GET(request: NextRequest) {
         let listingUpdated = 0
 
         for (const r of reservations) {
-          const money = normalizeBookingMoney(r.total_price.amount, r.total_price.currency)
+          const money =
+            r.total_price?.amount !== undefined && r.total_price?.currency
+              ? normalizeBookingMoney(r.total_price.amount, r.total_price.currency)
+              : { amount: 0, currency: 'EUR' }
           const result = await processBookingReservation(
             supabase,
             orgId,
@@ -137,8 +140,8 @@ export async function GET(request: NextRequest) {
             {
               external_id: r.id,
               property_id: r.property_id,
-              guest_name: r.guest.name,
-              guest_email: r.guest.email,
+              guest_name: r.guest?.name,
+              guest_email: r.guest?.email,
               check_in: r.check_in,
               check_out: r.check_out,
               number_of_guests: r.number_of_guests,

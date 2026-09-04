@@ -135,7 +135,7 @@ describe('SeasonalRuleEditor Component', () => {
     });
   });
 
-  it.skip('should validate positive price', async () => {
+  it('should validate positive price', async () => {
     const mockSave = jest.fn();
     render(
       <SeasonalRuleEditor
@@ -147,10 +147,12 @@ describe('SeasonalRuleEditor Component', () => {
 
     const nameInput = screen.getByPlaceholderText(/Alta temporada/);
     const startDateInput = screen.getByLabelText(/Data inicial/);
+    const endDateInput = screen.getByLabelText(/Data final/);
     const priceInput = screen.getByPlaceholderText(/0,00/);
 
     fireEvent.change(nameInput, { target: { value: 'Test Rule' } });
     fireEvent.change(startDateInput, { target: { value: '2026-06-01' } });
+    fireEvent.change(endDateInput, { target: { value: '2026-06-30' } });
     fireEvent.change(priceInput, { target: { value: '-50' } });
 
     const saveButton = screen.getByText(/Guardar/);

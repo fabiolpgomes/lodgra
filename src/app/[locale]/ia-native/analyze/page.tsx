@@ -9,9 +9,10 @@ import { PropertyIntelligencePaywall } from '@/components/features/property-inte
 import { PropertyIntelligenceWorkbench } from '@/components/features/property-intelligence/PropertyIntelligenceWorkbench'
 import { requireRole } from '@/lib/auth/requireRole'
 import { createAdminClient } from '@/lib/supabase/admin'
-import type { UserProfile } from '@/lib/auth/getUserAccess'
+import { getFallbackUserRole, type UserProfile } from '@/lib/auth/getUserAccess'
 import { isFeatureAccessible } from '@/lib/features/featureAccess'
 import { isPropertyIntelligenceAnalysisEnabled } from '@/lib/property-intelligence/gate'
+import { buildIaNativePageContext } from '@/lib/ia-native/pageContext'
 
 export const dynamic = 'force-dynamic'
 
@@ -32,8 +33,7 @@ export default async function PropertyIntelligenceAnalyzePage({
   }
 
   const adminClient = createAdminClient()
-  const fallbackRole: UserProfile['role'] =
-    auth.role === 'admin' || auth.role === 'gestor' ? auth.role : 'viewer'
+  const fallbackRole = getFallbackUserRole(auth.role)
 
   const [
     { data: profile },
@@ -63,31 +63,17 @@ export default async function PropertyIntelligenceAnalyzePage({
       .maybeSingle(),
   ])
 
-  const currentPlan = organization?.subscription_plan || organization?.plan || 'essencial'
-  const userProfile: UserProfile = {
-    id: profile?.id ?? auth.userId,
-    email: profile?.email ?? '',
-    full_name: profile?.full_name ?? null,
-    role: (profile?.role as UserProfile['role']) ?? fallbackRole,
-    avatar_url: profile?.avatar_url ?? null,
-    access_all_properties: profile?.access_all_properties ?? auth.accessAllProperties,
-    organization_id: profile?.organization_id ?? auth.organizationId,
-  }
-
-  const organizationCurrency = organization?.currency?.toUpperCase() ?? null
-  const businessTimeZone = organization?.timezone || 'Europe/Lisbon'
+  const { currentPlan, organizationCurrency, businessTimeZone, userProfile, companyInfo } =
+    buildIaNativePageContext({
+      auth,
+      fallbackRole,
+      profileRow: profile,
+      organizationRow: organization,
+      brandingRow: branding,
+      publicProfileRow: publicProfile,
+    })
   const gateEnabled = isPropertyIntelligenceAnalysisEnabled()
   const { hasAccess } = await isFeatureAccessible(auth.organizationId, 'property_intelligence')
-  const companyInfo = {
-    name: organization?.name ?? null,
-    logoUrl: branding?.logo_url ?? null,
-    websiteUrl: publicProfile?.website_url ?? null,
-    email: publicProfile?.contact_email ?? null,
-    phone: publicProfile?.contact_phone ?? null,
-    whatsappNumber: publicProfile?.whatsapp_number ?? null,
-    primaryColor: branding?.primary_color ?? null,
-    secondaryColor: branding?.secondary_color ?? null,
-  }
 
   if (!hasAccess) {
     return (

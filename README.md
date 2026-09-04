@@ -20,6 +20,7 @@ Plataforma completa de gestão de propriedades de curta duração. Rebranding e 
 ### Core (produção-ready)
 - Gestão de propriedades multi-moeda (EUR, BRL, USD + 5 outras)
 - **Sincronização iCal automática** (Airbnb, Booking.com, VRBO, Flatio)
+  - Booking.com continua operacional via iCal; a Booking API nativa fica em preparação até parceria oficial.
   - ✅ Polling automático via cron jobs
   - ✅ **Webhooks real-time** (4 plataformas) — <1s sync, zero lag
   - ✅ Detecção automática de bloqueios vs reservas

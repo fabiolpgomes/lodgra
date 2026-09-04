@@ -5,6 +5,8 @@
 **Created**: 2026-07-09  
 **Owner**: Gage (DevOps)
 
+**Operational note (2026-08-29):** this roadmap is historical/developmental. The current Lodgra product flow keeps Booking.com reservations operational via iCal, while native Booking API work remains in preparation until official partnership/access is available.
+
 ---
 
 ## 📊 Epic Overview

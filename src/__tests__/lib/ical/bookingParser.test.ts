@@ -3,7 +3,12 @@
  * Tests parseBookingDescription() and detectSource() functions
  */
 
-import { parseBookingDescription, detectSource } from '@/lib/ical/bookingParser'
+import {
+  parseBookingDescription,
+  detectSource,
+  extractBookingReservationIdFromUid,
+  buildStableExternalId,
+} from '@/lib/ical/bookingParser'
 
 describe('bookingParser', () => {
   describe('parseBookingDescription()', () => {
@@ -234,6 +239,41 @@ NAME: John Smith`
     it('should return unknown source for empty strings', () => {
       const source = detectSource('', '')
       expect(source).toBe('unknown')
+    })
+
+    // Test 13: Detect Booking.com from UID
+    it('should detect Booking.com source from uid', () => {
+      const source = detectSource(undefined, undefined, '12345678@booking.com')
+      expect(source).toBe('booking')
+    })
+
+    // Test 14: Detect Flatio source
+    it('should detect Flatio source from UID or text', () => {
+      expect(detectSource(undefined, undefined, 'reservation@flatio.com')).toBe('flatio')
+      expect(detectSource(undefined, 'Flatio reservation details')).toBe('flatio')
+    })
+
+    // Test 15: Detect VRBO source
+    it('should detect VRBO source from text', () => {
+      expect(detectSource('VRBO reservation', undefined)).toBe('vrbo')
+      expect(detectSource(undefined, 'Expedia vacation rental')).toBe('vrbo')
+    })
+  })
+
+  describe('extractBookingReservationIdFromUid()', () => {
+    it('should extract numeric booking reservation id from uid', () => {
+      expect(extractBookingReservationIdFromUid('booking_5311280284@booking.com')).toBe('5311280284')
+    })
+
+    it('should return null for hashed booking uid without reservation number', () => {
+      expect(extractBookingReservationIdFromUid('acfb7da79f633c25db001ac928e07e10@booking.com')).toBeNull()
+    })
+  })
+
+  describe('buildStableExternalId()', () => {
+    it('should build stable external ids for Flatio and VRBO sources', () => {
+      expect(buildStableExternalId('reservation-123@flatio.com', undefined, 'flatio')).toBe('flatio_reservation-123')
+      expect(buildStableExternalId('987654@vrbo.com', undefined, 'vrbo')).toBe('vrbo_987654')
     })
   })
 })

@@ -42,6 +42,7 @@ const CONTENT = {
     solutionDesc: 'Um sistema completo de gestão de imóveis por temporada que centraliza propriedades, reservas, despesas, calendários e equipe. Sincroniza automaticamente com Airbnb, Booking.com e outras plataformas.',
     sectionFeaturesTitle: 'Tudo que você precisa para escalar seu negócio',
     sectionFeaturesDesc: 'Uma plataforma completa para administradores de aluguel por temporada.',
+    syncDisclosure: 'Hoje, o fluxo operacional de reservas Booking.com continua a ser iCal. A integração API de canais aparece como capacidade em preparação para futura ativação oficial.',
     featureCards: [
       { icon: RefreshCcw, title: 'Sync automático de calendários',    desc: 'Importe e exporte via iCal. Reservas do Airbnb e Booking aparecem automaticamente — e vice-versa. Zero overbookings.' },
       { icon: BarChart3,  title: 'Dashboard com visão 360° do negócio', desc: 'Receita total, taxa de ocupação, próximos check-ins — tudo em uma tela. Gráficos de tendência para decisões rápidas.' },
@@ -155,6 +156,7 @@ const CONTENT = {
     solutionDesc: 'Um sistema completo de gestão de imóveis que centraliza propriedades, reservas, despesas, calendários e equipa. Sincroniza automaticamente com Airbnb, Booking.com e outras plataformas.',
     sectionFeaturesTitle: 'Tudo o que precisa para gerir o seu negócio',
     sectionFeaturesDesc: 'Uma plataforma completa para gestores de imóveis.',
+    syncDisclosure: 'Hoje, o fluxo operacional de reservas Booking.com continua a ser iCal. A integração API de canais aparece como capacidade em preparação para futura ativação oficial.',
     featureCards: [
       { icon: RefreshCcw, title: 'Sync automático de calendários',     desc: 'Importe e exporte via iCal. Reservas do Airbnb e Booking aparecem automaticamente — e vice-versa. Zero overbookings.' },
       { icon: BarChart3,  title: 'Dashboard com visão 360° do negócio', desc: 'Receita total, taxa de ocupação, próximos check-ins — tudo num único ecrã. Gráficos de tendência para decisões rápidas.' },
@@ -268,6 +270,7 @@ const CONTENT = {
     solutionDesc: 'A complete short-term rental management system that centralises properties, reservations, expenses, calendars, and your team. Syncs automatically with Airbnb, Booking.com, VRBO and more.',
     sectionFeaturesTitle: 'Everything you need to scale your rental business',
     sectionFeaturesDesc: 'A complete platform for professional short-term rental managers.',
+    syncDisclosure: 'Today, Booking.com reservations remain operational via iCal. Channel API integration is shown as a capability in preparation for future official activation.',
     featureCards: [
       { icon: RefreshCcw, title: 'Automatic calendar sync',        desc: 'Import and export via iCal. Reservations from Airbnb and Booking appear automatically — and vice versa. Zero double bookings.' },
       { icon: BarChart3,  title: '360° business dashboard',        desc: 'Total revenue, occupancy rate, upcoming check-ins — all on one screen. Trend charts for fast decisions.' },
@@ -685,6 +688,9 @@ export function LandingPage() {
           <div className="text-center mb-20">
             <h2 className="text-4xl font-black text-[color:var(--be-text)] mb-4 font-display uppercase tracking-wider">{c.sectionFeaturesTitle}</h2>
             <p className="text-be-text-muted-500 text-xl max-w-2xl mx-auto font-medium">{c.sectionFeaturesDesc}</p>
+            <p className="mt-4 text-xs font-semibold uppercase tracking-[0.2em] text-be-text-muted-400 max-w-3xl mx-auto">
+              {c.syncDisclosure}
+            </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-0 border-t border-l border-lodgra-navy/10">
             {c.featureCards.map(({ icon: Icon, title, desc }) => (

@@ -79,7 +79,7 @@ describe('property intelligence analyze api', () => {
     expect(payload.result.telemetry.events.map(event => event.name)).toEqual(
       expect.arrayContaining(['analysis.start', 'analysis.end', 'analysis.publish_approval'])
     )
-    expect(payload.markdown).toContain('# Dossiê Executivo de Property Intelligence')
+    expect(payload.markdown).toContain('## Resumo Executivo')
   })
 
   it('rejects execution when the feature gate is disabled', async () => {

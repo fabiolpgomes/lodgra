@@ -4,6 +4,8 @@
 **Status:** ✅ COMPLETE
 **Tests:** 16/16 PASSING
 
+**Operational note (2026-08-29):** this phase belongs to the native Booking API path. The current Lodgra product flow still keeps Booking.com reservations operational via iCal until official partnership/access is available for native API activation.
+
 ---
 
 ## Overview

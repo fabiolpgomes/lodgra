@@ -4,6 +4,8 @@
 **Date:** 2026-03-31
 **Decision:** Option C (Webhook) ✅ DEPLOY | Option A (iCal) ❌ SKIP | Option B (Zapier) ❌ NOT NEEDED
 
+**Operational note (2026-08-29):** this document captures the historical native-API plan. In the current Lodgra product flow, Booking.com reservations remain operational via iCal, and Booking API stays in preparation until official partnership/access is available.
+
 ---
 
 ## 🎯 Strategic Decision

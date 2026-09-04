@@ -136,6 +136,8 @@ export default function TaskForm({
 
   // Fetch dropdowns
   useEffect(() => {
+    let cancelled = false
+
     const fetchData = async () => {
       try {
         const [propsRes, cleanersRes, templatesRes] = await Promise.all([
@@ -146,21 +148,23 @@ export default function TaskForm({
 
         if (propsRes.ok) {
           const propsData = await propsRes.json();
-          setProperties(
-            (Array.isArray(propsData) ? propsData : []).map((p: PropertyOption) => ({
-              id: p.id,
-              name: p.name,
-            }))
-          );
+          if (!cancelled) {
+            setProperties(
+              (Array.isArray(propsData) ? propsData : []).map((p: PropertyOption) => ({
+                id: p.id,
+                name: p.name,
+              }))
+            );
+          }
         }
-        if (cleanersRes.ok)
+        if (cleanersRes.ok && !cancelled)
           setCleaners(
             (await cleanersRes.json()).map((u: CleanerOption) => ({
               id: u.id,
               name: u.full_name,
             }))
           );
-        if (templatesRes.ok)
+        if (templatesRes.ok && !cancelled)
           setTemplates(
             (await templatesRes.json()).map((t: TemplateOption) => ({
               id: t.id,
@@ -173,6 +177,10 @@ export default function TaskForm({
     };
 
     fetchData();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const onSubmit = async (data: TaskFormData) => {

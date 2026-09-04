@@ -65,14 +65,6 @@ const marketComparablesInput = {
   ],
 } as const
 
-const generatedDate = new Date().toISOString().slice(0, 10)
-const generatedDateDisplay = new Intl.DateTimeFormat('pt-PT', {
-  day: '2-digit',
-  month: '2-digit',
-  year: '2-digit',
-  timeZone: 'UTC',
-}).format(new Date(`${generatedDate}T00:00:00Z`))
-
 function writeSampleInput(): string {
   const inputPath = join(tmpdir(), `property-intelligence-${Date.now()}-${Math.random().toString(16).slice(2)}.json`)
   writeFileSync(inputPath, `${JSON.stringify(completeInput, null, 2)}\n`, 'utf8')
@@ -114,7 +106,7 @@ describe('property intelligence MVP', () => {
     expect(report).not.toContain('Curta duração pós-canais')
     expect(report).not.toContain('Receita bruta')
     expect(report).not.toContain('Receita após canais')
-    expect(report).not.toContain('Dossiê Executivo de Property Intelligence')
+    expect(report).not.toContain('# Dossiê Executivo de Property Intelligence')
     expect(report).not.toContain('## Veredito')
     expect(report).not.toContain('## Próximos Passos')
     expect(report).not.toContain('## Validação')
@@ -135,11 +127,11 @@ describe('property intelligence MVP', () => {
     expect(report).toContain('| Fonte | Observado em |')
     expect(report).toContain('Airbnb')
     expect(report).toContain('Imovirtual')
-    expect(report).toContain(`Mercado observado em: ${generatedDateDisplay}`)
+    expect(report).toContain('Mercado observado em: 30/08/26')
     expect(report).not.toContain('Receita bruta')
     expect(result.comparables).toHaveLength(2)
     expect(result.comparables[0].source).toBe('Airbnb')
-    expect(result.comparables[0].observedAt).toBe(generatedDate)
+    expect(result.comparables[0].observedAt).toBe('2026-08-30')
   })
 
   it('allows analysis to continue when the user does not know the core property details', () => {

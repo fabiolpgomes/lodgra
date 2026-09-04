@@ -12,13 +12,16 @@
 
 Substituir a sincronização iCal com Booking.com por integração via API oficial, passando a receber reservas com dados completos (nome do hóspede, contacto, valor, status) em tempo real via webhooks — eliminando 100% do input manual e habilitando automações operacionais.
 
+**Nota operacional:** até existir acesso ao Booking.com Connectivity Program, o fluxo em produção para reservas Booking.com continua a ser iCal. A Booking native API está preparada no código para testes e futura ativação.
+Na UI, isso aparece de forma explícita como `Sync iCal` em operação normal e `Booking API` como modo sandbox/preparação desativado.
+
 ---
 
 ## Contexto do Sistema Existente
 
 - **Stack:** Next.js 16.2.3, Supabase (PostgreSQL + RLS), Vercel, Stripe
 - **Sync atual:** iCal via `/api/cron/sync-ical` — recebe apenas datas (check-in / check-out)
-- **Webhook existente (parcial):** `/api/webhooks/booking/reservation` — rota existe mas não processa dados da API oficial
+- **Webhook existente (parcial):** `/api/webhooks/booking/reservation` — rota existe para a futura API oficial, mas hoje o fluxo operacional em produção continua a ser iCal
 - **Modelo de dados atual:** tabela `reservations` sem `external_id`, `channel_id`, `guest_id`, `raw_data`
 - **Autenticação:** Supabase RLS com `user_profiles` e `organizations`
 - **Pagamentos:** Stripe (reservas diretas via `/p/[slug]`)
@@ -55,7 +58,7 @@ O iCal envia **apenas blocos de datas**. Booking.com, Airbnb e outros OTAs omite
 - Schema Supabase via migração (backward compatible — colunas novas, sem alterar existentes)
 - Webhook `/api/webhooks/booking/reservation` já existe — substituir stub por implementação real
 - `reservations` table mantém estrutura existente + novos campos opcionais
-- iCal sync mantido como fallback para propriedades sem API configurada
+- iCal sync mantido como fluxo operacional enquanto a API oficial aguarda aprovação/parceria
 
 **Critérios de sucesso:**
 
@@ -64,6 +67,7 @@ O iCal envia **apenas blocos de datas**. Booking.com, Airbnb e outros OTAs omite
 - [ ] Zero input manual necessário para reservas via Booking.com
 - [ ] iCal continua funcional para outros canais (Airbnb temporário)
 - [ ] Sem regressões nas reservas diretas (canal `/p/[slug]`)
+- [ ] A interface de canais/sync deixa claro que Booking API fica desativada até existir parceria oficial
 
 ---
 

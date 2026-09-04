@@ -164,6 +164,12 @@ describe('CalendarMonth', () => {
   });
 
   it('shows guest names on booked days', async () => {
+    const currentMonth = new Date();
+    const year = currentMonth.getFullYear();
+    const month = String(currentMonth.getMonth() + 1).padStart(2, '0');
+    const monthStart = `${year}-${month}-10`;
+    const monthEnd = `${year}-${month}-12`;
+
     mockFetch.mockResolvedValueOnce({
       ok: true,
       json: async () => ({ data: [], success: true }),
@@ -176,8 +182,8 @@ describe('CalendarMonth', () => {
           {
             id: 'res-1',
             guest_name: 'João Silva',
-            start_date: '2026-08-10',
-            end_date: '2026-08-12',
+            start_date: monthStart,
+            end_date: monthEnd,
             status: 'confirmed',
           },
         ],

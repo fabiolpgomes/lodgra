@@ -126,8 +126,8 @@ if (typeof global.URL === 'undefined' || typeof global.URL.createObjectURL === '
 
 // Load environment variables from .env.local.test first, then .env.local
 const dotenv = require('dotenv')
-dotenv.config({ path: '.env.local.test' })
-dotenv.config({ path: '.env.local' })
+dotenv.config({ path: '.env.local.test', quiet: true })
+dotenv.config({ path: '.env.local', quiet: true })
 
 // Mock environment variables if not set
 if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
@@ -149,22 +149,42 @@ if (!process.env.ANALYTICS_ENCRYPTION_KEY) {
 // Enable longer timeout for integration tests
 jest.setTimeout(30000)
 
-// Suppress console errors during tests (optional)
+// Keep expected negative-path logs out of test output without hiding regressions.
+const isExpectedTestLog = (args) => {
+  const message = typeof args[0] === 'string' ? args[0] : ''
+  return (
+    message.includes('◇ injected env') ||
+    message.startsWith('[webhook-retry]') ||
+    message.startsWith('[Booking Client]') ||
+    message.startsWith('Error fetching daily prices:') ||
+    message.startsWith('Price calculation error:') ||
+    message.includes('Not implemented: navigation') ||
+    message.includes('Warning: ReactDOM.render') ||
+    message.includes('Not implemented: HTMLFormElement')
+  )
+}
+
+const originalLog = console.log
+const originalWarn = console.warn
 const originalError = console.error
 beforeAll(() => {
+  console.log = (...args) => {
+    if (isExpectedTestLog(args)) return
+    originalLog.call(console, ...args)
+  }
+  console.warn = (...args) => {
+    if (isExpectedTestLog(args)) return
+    originalWarn.call(console, ...args)
+  }
   console.error = (...args) => {
-    if (
-      typeof args[0] === 'string' &&
-      (args[0].includes('Warning: ReactDOM.render') ||
-        args[0].includes('Not implemented: HTMLFormElement'))
-    ) {
-      return
-    }
+    if (isExpectedTestLog(args)) return
     originalError.call(console, ...args)
   }
 })
 
 afterAll(() => {
+  console.log = originalLog
+  console.warn = originalWarn
   console.error = originalError
 })
 

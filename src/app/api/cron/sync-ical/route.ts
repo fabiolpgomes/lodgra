@@ -1,17 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { importICalFromUrl, isBlockedEvent } from '@/lib/ical/icalService'
+import { importICalFromUrl, classifyICalEvent } from '@/lib/ical/icalService'
 import { enqueueEmail } from '@/lib/email/queue'
 import {
   parseBookingDescription,
-  detectSource,
-  buildStableExternalId,
   extractBookingGuestData,
   extractAirbnbGuestData,
   extractVrboGuestData,
   extractFlatioGuestData,
   getPlatformUrl,
+  normalizeIcalReservationSource,
 } from '@/lib/ical/bookingParser'
+import {
+  buildReservationExternalIdContext,
+  cancelMissingReservations,
+} from '@/lib/ical/reservationSync'
+import { upsertCalendarEventAudit } from '@/lib/ical/calendarEventAudit'
 import { calculateServiceFeeAmount, nightsBetween } from '@/lib/reservations/serviceFee'
 import { isAuthorizedCronRequest } from '@/lib/cron/auth'
 
@@ -36,7 +40,7 @@ export const dynamic = 'force-dynamic'
 
 // ─── Per-listing sync logic ───────────────────────────────────────────────────
 
-type SyncResult = { created: number; updated: number; skipped: number; cancelled: number; processed: number }
+type SyncResult = { created: number; updated: number; blocked: number; unknown: number; skipped: number; cancelled: number; processed: number }
 
 async function syncOneListing(
   supabase: ReturnType<typeof createAdminClient>,
@@ -49,8 +53,8 @@ async function syncOneListing(
   },
   progress: SyncResult
 ): Promise<SyncResult> {
-  let created = 0, updated = 0, skipped = 0, processed = 0
-  const cancelled = 0
+  let created = 0, updated = 0, blocked = 0, unknown = 0, skipped = 0, processed = 0
+  let cancelled = 0
 
   // Extract organization_id from listing (needed for both reservations and blocks)
   const cronOrgId = (listing.properties as unknown as { organization_id?: string })?.organization_id as string | undefined
@@ -62,38 +66,35 @@ async function syncOneListing(
   const events = await importICalFromUrl(listing.ical_url)
   console.log(`[Cron] Listing ${listing.id}: ${events.length} evento(s)`)
   const receivedUids = new Set(events.map(e => e.uid))
+  const receivedExternalIds = new Set<string>()
 
   const now = new Date()
   const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
   const twoYearsFromNow = new Date(Date.UTC(now.getUTCFullYear() + 2, now.getUTCMonth(), now.getUTCDate()))
 
   for (const event of events) {
+    const externalIdContext = buildReservationExternalIdContext(event)
+    const source = externalIdContext.source
+    const externalIdLookup = externalIdContext.stableExternalId
+    const reservationSource = normalizeIcalReservationSource(source)
+
     const checkIn = event.start.toISOString().split('T')[0]
     const checkOut = event.end.toISOString().split('T')[0]
 
-    // ENHANCED LOGGING: Platform-specific detection
-    const isBlocked = isBlockedEvent(event)
+    const classification = classifyICalEvent(event)
+    await upsertCalendarEventAudit({
+      supabase,
+      organizationId: cronOrgId,
+      propertyId: listing.property_id,
+      propertyListingId: listing.id,
+      sourcePlatform: source,
+      event,
+      classification,
+    })
 
-    // Log suspicious patterns (potential misclassification)
-    if (event.uid?.includes('@booking.com') && event.description?.includes('BOOKING ID')) {
-      // Booking.com RESERVATION with structured data
-      if (isBlocked) {
-        console.warn(`[⚠️ Cron] SUSPICIOUS: Booking.com with BOOKING ID detected as BLOCK!`, {
-          summary: event.summary,
-          uid: event.uid?.substring(0, 50),
-          description: event.description?.substring(0, 100),
-          isBlocked,
-        })
-      }
-    }
-
-    if (event.uid?.includes('@airbnb.com') && event.summary === 'Reserved') {
-      // Airbnb RESERVATION
-      if (isBlocked) {
-        console.warn(`[⚠️ Cron] SUSPICIOUS: Airbnb "Reserved" detected as BLOCK!`, {
-          uid: event.uid?.substring(0, 50),
-          isBlocked,
-        })
+    if (classification === 'reservation') {
+      for (const candidate of externalIdContext.externalIdCandidates) {
+        receivedExternalIds.add(candidate)
       }
     }
 
@@ -103,14 +104,12 @@ async function syncOneListing(
       uid: event.uid?.substring(0, 50),
       checkIn,
       checkOut,
-      classification: isBlocked ? 'BLOCK' : 'RESERVATION',
+      classification,
       durationDays: Math.round((event.end.getTime() - event.start.getTime()) / (1000 * 60 * 60 * 24)),
     })
 
     if (event.end < today || event.start > twoYearsFromNow) {
-      if (isBlockedEvent(event)) {
-        console.log(`[Cron] Bloqueio fora do intervalo (antes ${today} ou depois ${twoYearsFromNow}): "${event.summary}"`)
-      }
+      console.log(`[Cron] Evento fora do intervalo (antes ${today} ou depois ${twoYearsFromNow}): "${event.summary}"`)
       skipped++; processed++; progress.skipped++; progress.processed++
       continue
     }
@@ -121,8 +120,14 @@ async function syncOneListing(
       skipped++; processed++; progress.skipped++; progress.processed++; continue
     }
 
+    if (classification === 'unknown') {
+      console.log(`[Cron] Evento sem evidência suficiente para classificar: "${event.summary}" (${event.uid})`)
+      unknown++; processed++; progress.unknown++; progress.processed++
+      continue
+    }
+
     // Check if this event is a blocked/unavailable date (not a guest reservation)
-    if (isBlockedEvent(event)) {
+    if (classification === 'block') {
       console.log(`[Cron] Bloqueio detectado para listing ${listing.id}:`, {
         summary: event.summary,
         uid: event.uid,
@@ -200,16 +205,12 @@ async function syncOneListing(
 
       if (!blockError) {
         console.log(`[Cron] ✅ Bloqueio criado/atualizado com sucesso: ${event.uid}`)
-        processed++; progress.processed++
+        blocked++; processed++; progress.blocked++; progress.processed++
       } else {
         throw new Error(`Falha ao persistir bloqueio ${event.uid}: ${blockError.message}`)
       }
       continue
     }
-
-    // ─── Construir external_id usando formato estável: plataforma_numero ───────
-    const source = detectSource(event.summary, event.description)
-    const externalIdLookup = buildStableExternalId(event.uid, event.description, source)
 
     if (externalIdLookup !== event.uid) {
       console.log(`[Cron] External ID estável construído: ${externalIdLookup}`)
@@ -242,14 +243,22 @@ async function syncOneListing(
 
     const { data: existingReservation } = await supabase
       .from('reservations')
-      .select('id')
-      .eq('external_id', externalIdLookup)
+      .select('id, external_id')
       .eq('property_listing_id', listing.id)
       .eq('organization_id', cronOrgId)
-      .single()
+      .in('external_id', externalIdContext.externalIdCandidates)
+      .maybeSingle()
 
     if (existingReservation) {
       console.log(`[Cron] Atualizando reserva existente com external_id: ${externalIdLookup}`)
+      const updatedGuestFirstName =
+        source === 'booking'
+          ? guestData?.firstName || 'Reservado'
+          : guestData?.firstName || 'Hóspede'
+      const updatedGuestLastName =
+        source === 'booking'
+          ? guestData?.lastName || ''
+          : guestData?.lastName || 'Importado'
       const { error } = await supabase
         .from('reservations')
         .update({
@@ -260,10 +269,17 @@ async function syncOneListing(
 
           // Story 36.2: Atualizar platform metadata também
           booking_reference: bookingReference,
-          booking_source: source === 'booking' ? 'booking' : source === 'airbnb' ? 'airbnb' : 'ical_import',
+          booking_source: reservationSource,
           platform_sync_url: platformUrl || null,
           platform_synced_at: new Date().toISOString(),
 
+          ...(source === 'booking'
+            ? {
+                guest_name: `${updatedGuestFirstName} ${updatedGuestLastName}`.trim(),
+                first_name: updatedGuestFirstName,
+                last_name: updatedGuestLastName,
+              }
+            : {}),
           ...(bookingData.numGuests ? { number_of_guests: bookingData.numGuests } : {}),
           ...(guestData?.guests ? { number_of_guests: guestData.guests } : {}),
         })
@@ -285,12 +301,12 @@ async function syncOneListing(
         skipped++; processed++; progress.skipped++; progress.processed++; continue
       }
 
-      // Fallback: usar summary ou genérico
-      let guestFirstName = guestData?.firstName || 'Hóspede'
-      let guestLastName = guestData?.lastName || 'Importado'
+      // Booking iCal antigo: sem nome real do hóspede, usar o placeholder
+      let guestFirstName = guestData?.firstName || (source === 'booking' ? 'Reservado' : 'Hóspede')
+      let guestLastName = guestData?.lastName || (source === 'booking' ? '' : 'Importado')
 
-      // Se não temos nome real, tentar extrair do summary
-      if (guestFirstName === 'Hóspede' && guestLastName === 'Importado') {
+      // Em outras plataformas, tentar extrair nome do summary como fallback
+      if (source !== 'booking' && guestFirstName === 'Hóspede' && guestLastName === 'Importado') {
         const summary = event.summary || ''
         if (summary && !summary.toLowerCase().includes('not available') && !summary.toLowerCase().includes('closed')) {
           const parts = summary.split(' ')
@@ -345,11 +361,11 @@ async function syncOneListing(
 
           // Story 36.2: Platform booking IDs estruturados
           booking_reference: bookingReference,
-          booking_source: source === 'booking' ? 'booking' : source === 'airbnb' ? 'airbnb' : 'ical_import',
+          booking_source: reservationSource,
           platform_sync_url: platformUrl || null,
           platform_synced_at: new Date().toISOString(),
 
-          source: source === 'booking' ? 'booking' : source === 'airbnb' ? 'airbnb' : 'ical_import',
+          source: reservationSource,
           number_of_guests: guestData?.guests || bookingData.numGuests || 1,
           service_fee_amount: serviceFeeAmount,
           discount_amount: bookingData.discountAmount || 0,
@@ -382,12 +398,23 @@ async function syncOneListing(
     }
   }
 
-  // ❌ REMOVED: Auto-cancel logic that incorrectly cancelled active reservations
-  // Issue: Absence from iCal doesn't mean removal from platform
-  // Possible causes: UID mismatch, parsing error, timeout, platform glitch
-  // Risk: Cancels active reservations = OVERBOOKING
-  // Solution: Manual review required for cancellations (webhook push already handles real cancellations)
-  console.log(`[Cron] Listing ${listing.id}: Auto-cancel logic disabled (safety measure)`)
+  let cancelledCount = 0
+  try {
+    cancelledCount = await cancelMissingReservations({
+      supabase,
+      propertyListingId: listing.id,
+      organizationId: cronOrgId,
+      receivedExternalIds,
+    })
+  } catch (error) {
+    console.error(`[Cron] Erro ao cancelar reservas ausentes do iCal para listing ${listing.id}:`, error)
+  }
+
+  if (cancelledCount > 0) {
+    console.log(`[Cron] Listing ${listing.id}: ${cancelledCount} reserva(s) cancelada(s) por ausência no iCal`)
+    cancelled += cancelledCount
+    progress.cancelled += cancelledCount
+  }
 
   // Auto-remove blocks that disappeared from iCal
   const { data: existingBlocks } = await supabase
@@ -435,7 +462,7 @@ async function syncOneListing(
     console.warn(`[Cron] Erro ao registrar sync_log de sucesso para listing ${listing.id}:`, syncLogError.message)
   }
 
-  return { created, updated, skipped, cancelled, processed }
+  return { created, updated, blocked, unknown, skipped, cancelled, processed }
 }
 
 // ─── Route Handler ────────────────────────────────────────────────────────────
@@ -492,17 +519,21 @@ export async function GET(request: NextRequest) {
 
     const settled = await Promise.allSettled(
       Array.from(listingsByProperty.values()).map(async (propListings) => {
-        let created = 0, updated = 0, skipped = 0, cancelled = 0, errors = 0
+        let created = 0, updated = 0, blocked = 0, unknown = 0, skipped = 0, cancelled = 0, errors = 0
         for (const listing of propListings) {
-          const progress: SyncResult = { created: 0, updated: 0, skipped: 0, cancelled: 0, processed: 0 }
+          const progress: SyncResult = { created: 0, updated: 0, blocked: 0, unknown: 0, skipped: 0, cancelled: 0, processed: 0 }
           try {
             const r = await syncOneListing(supabase, listing, progress)
             created += r.created; updated += r.updated
+            blocked += r.blocked
+            unknown += r.unknown
             skipped += r.skipped; cancelled += r.cancelled
           } catch (err) {
             console.error(`[Cron] Falha no listing ${listing.id}:`, err)
             errors++
             created += progress.created; updated += progress.updated
+            blocked += progress.blocked
+            unknown += progress.unknown
             skipped += progress.skipped; cancelled += progress.cancelled
 
             const errorMessage = err instanceof Error ? err.message : String(err)
@@ -540,17 +571,19 @@ export async function GET(request: NextRequest) {
             }
           }
         }
-        return { created, updated, skipped, cancelled, errors }
+        return { created, updated, blocked, unknown, skipped, cancelled, errors }
       })
     )
 
     // ── Agregar resultados ───────────────────────────────────────────────────
-    let totalCreated = 0, totalUpdated = 0, totalSkipped = 0, totalCancelled = 0, totalErrors = 0
+    let totalCreated = 0, totalUpdated = 0, totalBlocked = 0, totalUnknown = 0, totalSkipped = 0, totalCancelled = 0, totalErrors = 0
 
     for (const s of settled) {
       if (s.status === 'fulfilled') {
         totalCreated  += s.value.created
         totalUpdated  += s.value.updated
+        totalBlocked  += s.value.blocked
+        totalUnknown  += s.value.unknown
         totalSkipped  += s.value.skipped
         totalCancelled += s.value.cancelled
         totalErrors   += s.value.errors
@@ -566,6 +599,8 @@ export async function GET(request: NextRequest) {
       synced: listings.length,
       created: totalCreated,
       updated: totalUpdated,
+      blocked: totalBlocked,
+      unknown: totalUnknown,
       skipped: totalSkipped,
       cancelled: totalCancelled,
       errors: totalErrors,
@@ -575,7 +610,7 @@ export async function GET(request: NextRequest) {
         details: {
           totalListings: listings.length,
           activeListings: activeListings.length,
-          summary: `${totalCreated} criadas, ${totalUpdated} atualizadas, ${totalSkipped} ignoradas, ${totalErrors} erros`
+          summary: `${totalCreated} reservas criadas, ${totalUpdated} reservas atualizadas, ${totalBlocked} bloqueios, ${totalUnknown} desconhecidas, ${totalSkipped} ignoradas, ${totalErrors} erros`
         }
       })
     }

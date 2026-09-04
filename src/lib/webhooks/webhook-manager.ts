@@ -144,14 +144,19 @@ export class WebhookManager {
   async updateReservationFromWebhook(
     bookingReference: string,
     updates: Record<string, unknown>,
-    webhookSource: 'booking' | 'airbnb' | 'vrbo' | 'flatio'
+    webhookSource: 'booking' | 'booking_api' | 'airbnb' | 'vrbo' | 'flatio'
   ) {
     try {
+      const bookingSources =
+        webhookSource === 'booking'
+          ? ['booking', 'booking_api']
+          : [webhookSource]
+
       const { data: reservation, error: fetchError } = await this.supabase
         .from('reservations')
         .select('id, booking_source')
         .eq('booking_reference', bookingReference)
-        .eq('booking_source', webhookSource)
+        .in('booking_source', bookingSources)
         .single()
 
       if (fetchError || !reservation) {

@@ -15,8 +15,8 @@ import type { UserProfile } from '@/lib/auth/getUserAccess'
 import {
   getLocalizedHref,
   getModuleForPath,
-  getModuleNavLinks,
-  MODULE_FEATURE_LINKS,
+  getVisibleModuleFeatureLinks,
+  getVisibleModuleNavLinks,
   type ModuleNavigationEntry,
 } from '@/lib/navigation/module-shell'
 
@@ -65,15 +65,8 @@ export function BottomNav({ serverProfile }: BottomNavProps) {
 
   const prefix = locale ? `/${locale}` : ''
   const currentModule = getModuleForPath(pathname)
-  const moduleLinks = getModuleNavLinks(prefix).filter(link => {
-    return !isLimitedGestor || (link.id !== 'core' && link.id !== 'empresa')
-  })
-  const currentModuleFeatures = MODULE_FEATURE_LINKS[currentModule.id].filter(link => {
-    if (isLimitedGestor && (link.path === '/dashboard' || link.path === '/financial' || link.path === '/reports')) {
-      return false
-    }
-    return true
-  })
+  const moduleLinks = getVisibleModuleNavLinks(prefix, isLimitedGestor)
+  const currentModuleFeatures = getVisibleModuleFeatureLinks(currentModule.id, isLimitedGestor)
   const primaryFeature = currentModuleFeatures[0]
 
   const accountLinks = [

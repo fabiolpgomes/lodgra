@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { webhookManager } from '@/lib/webhooks/webhook-manager'
-import { mapBookingEventToUpdate } from '@/lib/webhooks/event-mappers'
+import { syncBookingReservation } from '@/lib/integrations/booking/reservation-sync'
 import { randomUUID } from 'crypto'
 
 export const dynamic = 'force-dynamic'
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Validar campos obrigatórios
-    if (!event.event_id) {
+    if (!event.event_id || !event.event_type || !event.data?.reservation) {
       console.warn('[Booking Webhook] Missing event_id')
       return NextResponse.json({ error: 'Invalid payload' }, { status: 400 })
     }
@@ -65,12 +65,24 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No booking ID' }, { status: 400 })
     }
 
-    // Mapear evento para updates
-    const updates = mapBookingEventToUpdate(event)
-
     try {
-      // Atualizar reserva
-      await webhookManager.updateReservationFromWebhook(bookingReference, updates, 'booking')
+      const result = await syncBookingReservation(event, eventId)
+
+      if (!result.success) {
+        console.error(`[Booking Webhook] Error syncing reservation:`, result.error)
+        await webhookManager.logWebhookEvent(
+          'booking',
+          eventId,
+          event,
+          'failed',
+          result.error || 'Booking sync failed'
+        )
+
+        return NextResponse.json(
+          { success: false, error: result.error || 'Reservation sync failed' },
+          { status: 404 }
+        )
+      }
 
       // Log sucesso
       const requestId = randomUUID()

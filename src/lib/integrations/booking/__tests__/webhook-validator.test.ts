@@ -181,7 +181,7 @@ describe('Booking Webhook Validator', () => {
       )
     })
 
-    it('should reject payload with missing guest.name', () => {
+    it('should allow payload with missing guest.name', () => {
       const invalid = {
         ...validPayload,
         data: {
@@ -191,10 +191,23 @@ describe('Booking Webhook Validator', () => {
           },
         },
       }
-      expect(() => parseBookingWebhookPayload(invalid)).toThrow('missing guest.name')
+      expect(() => parseBookingWebhookPayload(invalid)).not.toThrow()
     })
 
-    it('should reject payload with invalid total_price', () => {
+    it('should allow payload without total_price', () => {
+      const invalid = {
+        ...validPayload,
+        data: {
+          reservation: {
+            ...validPayload.data.reservation,
+            total_price: undefined,
+          },
+        },
+      }
+      expect(() => parseBookingWebhookPayload(invalid)).not.toThrow()
+    })
+
+    it('should reject payload with invalid total_price structure when present', () => {
       const invalid = {
         ...validPayload,
         data: {

@@ -21,6 +21,40 @@ export interface BookingDescription {
   discountAmount?: number
 }
 
+export type ICalReservationSource = 'booking' | 'airbnb' | 'flatio' | 'vrbo' | 'unknown'
+
+export function extractBookingReservationIdFromUid(uid?: string): string | null {
+  if (!uid || !/@booking\.com/i.test(uid)) return null
+
+  const match = uid.match(/(?:^|[^A-Za-z0-9])(\d{6,})(?=(?:@booking\.com|[^A-Za-z0-9]|$))/i)
+  return match?.[1] || null
+}
+
+export function extractReservationIdentifier(
+  uid: string | undefined,
+  description: string | undefined,
+  source: ICalReservationSource
+): string | null {
+  if (!uid) return null
+
+  if (source === 'booking') {
+    const bookingData = parseBookingDescription(description)
+    return bookingData.bookingId || extractBookingReservationIdFromUid(uid) || null
+  }
+
+  if (source === 'airbnb') {
+    const airbnbMatch = uid.match(/^([0-9]+)@airbnb\.com$/i)
+    return airbnbMatch?.[1] || null
+  }
+
+  if (source === 'flatio' || source === 'vrbo') {
+    const cleanedUid = uid.replace(/[@\.].*/, '').split(':').pop() || uid
+    return cleanedUid || null
+  }
+
+  return uid
+}
+
 /**
  * Parse Booking.com DESCRIPTION field to extract guest details
  * Booking.com iCal format typically includes:
@@ -35,7 +69,9 @@ export function parseBookingDescription(description?: string): BookingDescriptio
   const result: BookingDescription = {}
 
   // Extract BOOKING ID
-  const bookingMatch = description.match(/BOOKING\s*ID\s*[:\-]?\s*([A-Z0-9]+)/i)
+  const bookingMatch = description.match(
+    /(?:BOOKING\s*ID|BOOKING\s*NUMBER|RESERVATION\s*ID|RESERVATION\s*NUMBER|CONFIRMATION\s*NUMBER)\s*[:\-]?\s*([A-Z0-9]+)/i
+  )
   if (bookingMatch) {
     result.bookingId = bookingMatch[1].trim()
   }
@@ -73,13 +109,25 @@ export function parseBookingDescription(description?: string): BookingDescriptio
 /**
  * Determine the source platform from iCal summary/description
  */
-export function detectSource(summary?: string, description?: string): 'booking' | 'airbnb' | 'unknown' {
-  const text = `${summary || ''} ${description || ''}`.toLowerCase()
+export function detectSource(
+  summary?: string,
+  description?: string,
+  uid?: string
+): ICalReservationSource {
+  const text = `${uid || ''} ${summary || ''} ${description || ''}`.toLowerCase()
 
-  if (text.includes('booking')) return 'booking'
+  if (text.includes('@booking.com') || text.includes('booking.com') || text.includes('booking')) return 'booking'
   if (text.includes('airbnb') || text.includes('abnb')) return 'airbnb'
+  if (text.includes('flatio')) return 'flatio'
+  if (text.includes('vrbo') || text.includes('expedia')) return 'vrbo'
 
   return 'unknown'
+}
+
+export function normalizeIcalReservationSource(
+  source: ICalReservationSource
+): 'booking' | 'airbnb' | 'flatio' | 'vrbo' | 'ical_import' {
+  return source === 'unknown' ? 'ical_import' : source
 }
 
 /**
@@ -90,22 +138,28 @@ export function detectSource(summary?: string, description?: string): 'booking' 
 export function buildStableExternalId(
   uid: string | undefined,
   description: string | undefined,
-  source: 'booking' | 'airbnb' | 'unknown'
+  source: ICalReservationSource
 ): string {
   if (!uid) return 'unknown'
 
+  const reservationIdentifier = extractReservationIdentifier(uid, description, source)
+
   // Booking.com: extrair booking_id da description
-  if (source === 'booking') {
-    const bookingData = parseBookingDescription(description)
-    if (bookingData.bookingId) {
-      return `booking_${bookingData.bookingId}`
-    }
+  if (source === 'booking' && reservationIdentifier) {
+    return `booking_${reservationIdentifier}`
   }
 
   // Airbnb: UID é {numero}@airbnb.com
-  if (source === 'airbnb' && uid.includes('@airbnb.com')) {
-    const airbnbId = uid.replace('@airbnb.com', '')
-    return `airbnb_${airbnbId}`
+  if (source === 'airbnb' && reservationIdentifier) {
+    return `airbnb_${reservationIdentifier}`
+  }
+
+  if (source === 'flatio' && reservationIdentifier) {
+    return `flatio_${reservationIdentifier}`
+  }
+
+  if (source === 'vrbo' && reservationIdentifier) {
+    return `vrbo_${reservationIdentifier}`
   }
 
   // VRBO/Expedia: detectar pelo UID
@@ -266,34 +320,28 @@ export function getPlatformUrl(platform: string, bookingId: string, year?: numbe
 export function isBookingBlocked(event: { summary?: string; description?: string; uid?: string }): boolean {
   const summary = (event.summary || '').toLowerCase().trim()
   const description = (event.description || '').toLowerCase().trim()
+  const bookingData = parseBookingDescription(description)
+  const bookingUidId = extractBookingReservationIdFromUid(event.uid)
 
-  // If description has BOOKING ID field = DEFINITELY A RESERVATION
-  // Booking exports structured data for real bookings
-  if (/booking\s*id\s*[:\-]?/i.test(description)) {
+  // Booking reservations must carry a reservation identifier.
+  // If BOOKING ID is present, the event is not a block.
+  if (bookingData.bookingId || bookingUidId) {
     return false  // Is reservation
   }
 
-  // If description has guest details (PHONE, COUNTRY, GUESTS) = RESERVATION
-  if (/phone\s*[:\-]?|country\s*[:\-]?|guests?\s*[:\-]?/i.test(description)) {
-    return false  // Is reservation
-  }
-
-  // If description is EMPTY or GENERIC ("booking", "closed") = BLOCK
-  if (!description || description === 'booking' || description === 'closed - not available') {
+  // Booking without a reservation number is only considered block when there
+  // is explicit unavailable/closed evidence in the feed.
+  if (
+    !description ||
+    description === 'booking' ||
+    description === 'closed - not available' ||
+    /^booking[\s\W]*$|^closed[\s\W]*$/i.test(description) ||
+    summary === 'closed - not available'
+  ) {
     return true  // Is block
   }
 
-  // If description starts with platform name only = BLOCK
-  if (/^booking[\s\W]*$|^closed[\s\W]*$/i.test(description)) {
-    return true  // Is block
-  }
-
-  // If summary explicitly says "closed" without structured data = BLOCK
-  if (summary === 'closed - not available' && !description) {
-    return true  // Is block
-  }
-
-  return false  // Default: treat as reservation (has some description)
+  return false
 }
 
 /**
