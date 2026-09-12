@@ -12,9 +12,13 @@ import {
 import {
   buildReservationExternalIdContext,
   cancelMissingReservations,
+  findOverlappingReservations,
 } from '@/lib/ical/reservationSync'
 import { upsertCalendarEventAudit } from '@/lib/ical/calendarEventAudit'
 import { calculateServiceFeeAmount, nightsBetween } from '@/lib/reservations/serviceFee'
+import { getFeatureFlagStatus } from '@/lib/email-reconciliation/feature-flag'
+import { upsertReconciliationAvailability } from '@/lib/ical/reconciliationAvailability'
+import { normalizeListingPlatform } from '@/lib/ical/listingPlatform'
 
 type AdminClient = ReturnType<typeof createAdminClient>
 
@@ -37,12 +41,32 @@ async function syncListing(
   listingId: string,
   icalUrl: string,
   organizationId?: string
-): Promise<{ created: number; updated: number; blocked: number; unknown: number; skipped: number; cancelled: number; errors: string[] }> {
+): Promise<{ created: number; updated: number; blocked: number; reconciled: number; unknown: number; skipped: number; cancelled: number; errors: string[] }> {
   const events = await importICalFromUrl(icalUrl)
+
+  const { data: propertyListing, error: propertyListingError } = await supabase
+    .from('property_listings')
+    .select('property_id, organization_id, platforms(name, display_name), properties:properties!property_listings_property_org_fk(cleaning_fee, cleaning_fee_type, pet_fee, pet_fee_type)')
+    .eq('id', listingId)
+    .single()
+
+  if (propertyListingError || !propertyListing?.property_id) {
+    throw new Error(
+      `Anúncio ${listingId} inválido: ${propertyListingError?.message || 'property_id ausente'}`
+    )
+  }
+
+  const resolvedOrganizationId = propertyListing.organization_id || organizationId
+  if (!resolvedOrganizationId) {
+    throw new Error(`Anúncio ${listingId} sem organization_id para auditar evento iCal`)
+  }
+  const reconciliationFlag = await getFeatureFlagStatus(resolvedOrganizationId)
+  let listingSource = normalizeListingPlatform(propertyListing.platforms)
 
   let created = 0
   let updated = 0
   let blocked = 0
+  let reconciled = 0
   let unknown = 0
   let skipped = 0
   let cancelled = 0
@@ -62,19 +86,8 @@ async function syncListing(
   for (const event of events) {
     const externalIdContext = buildReservationExternalIdContext(event)
 
-    const { data: propertyListing, error: propertyListingError } = await supabase
-      .from('property_listings')
-      .select('property_id, organization_id, properties:properties!property_listings_property_org_fk(cleaning_fee, cleaning_fee_type, pet_fee, pet_fee_type)')
-      .eq('id', listingId)
-      .single()
-
-    if (propertyListingError || !propertyListing?.property_id) {
-      throw new Error(
-        `Anúncio ${listingId} inválido: ${propertyListingError?.message || 'property_id ausente'}`
-      )
-    }
-
     const source = detectSource(event.summary, event.description, event.uid)
+    listingSource ||= source
     const bookingReference = externalIdContext.stableExternalId.includes('_')
       ? externalIdContext.stableExternalId.substring(externalIdContext.stableExternalId.indexOf('_') + 1)
       : externalIdContext.stableExternalId
@@ -89,10 +102,7 @@ async function syncListing(
               ? getPlatformUrl('vrbo', bookingReference)
               : ''
     const reservationSource = normalizeIcalReservationSource(source)
-    const auditOrganizationId = propertyListing.organization_id || organizationId
-    if (!auditOrganizationId) {
-      throw new Error(`Anúncio ${listingId} sem organization_id para auditar evento iCal`)
-    }
+    const auditOrganizationId = resolvedOrganizationId
 
     // Usar toISOString() para obter YYYY-MM-DD em UTC (consistente com Date.UTC usado no icalService)
     const checkIn = event.start.toISOString().split('T')[0]
@@ -130,18 +140,43 @@ async function syncListing(
       continue
     }
 
+    if (
+      reconciliationFlag.enabled &&
+      reconciliationFlag.pilot_platforms.includes(source) &&
+      classification !== 'unknown'
+    ) {
+      await upsertReconciliationAvailability({
+        supabase,
+        organizationId: auditOrganizationId,
+        propertyId: propertyListing.property_id,
+        propertyListingId: listingId,
+        uid: event.uid,
+        checkIn,
+        checkOut,
+        summary: event.summary,
+      })
+      reconciled++
+      continue
+    }
+
     if (classification === 'unknown') {
       console.log(`[Sync] Evento sem evidência suficiente para classificar: "${event.summary}" (${event.uid})`)
       unknown++
       continue
     }
 
-    const { data: existingReservation } = await supabase
+    const { data: existingReservation, error: existingReservationError } = await supabase
       .from('reservations')
       .select('id, external_id')
       .eq('property_listing_id', listingId)
       .in('external_id', externalIdContext.externalIdCandidates)
       .maybeSingle()
+
+    if (existingReservationError) {
+      throw new Error(
+        `Falha ao localizar reserva ${externalIdContext.stableExternalId}: ${existingReservationError.message}`
+      )
+    }
 
     if (classification === 'block') {
       const { data: existingBlock, error: existingBlockError } = await supabase
@@ -149,6 +184,8 @@ async function syncListing(
         .select('id')
         .eq('external_uid', event.uid)
         .eq('property_id', propertyListing.property_id)
+        .eq('organization_id', auditOrganizationId)
+        .eq('property_listing_id', listingId)
         .maybeSingle()
 
       if (existingBlockError) {
@@ -183,12 +220,13 @@ async function syncListing(
           .from('calendar_blocks')
           .insert({
             property_id: propertyListing.property_id,
-            organization_id: organizationId,
+            organization_id: auditOrganizationId,
             start_date: checkIn,
             end_date: checkOut,
             notes: event.summary || 'Data bloqueada',
             external_uid: event.uid || null,
             block_type: 'platform_sync',
+            property_listing_id: listingId,
           })
 
         if (blockInsertError) {
@@ -249,13 +287,13 @@ async function syncListing(
 
     // Verificar se já existe reserva com datas sobrepostas na mesma propriedade
     // (pode ser a mesma reserva importada de outra plataforma)
-    const { data: overlapping } = await supabase
-      .from('reservations')
-      .select('id, external_id, property_listing_id')
-      .eq('property_id', propertyListing.property_id)
-      .not('status', 'eq', 'cancelled')
-      .lt('check_in', checkOut)
-      .gt('check_out', checkIn)
+    const overlapping = await findOverlappingReservations({
+      supabase,
+      propertyId: propertyListing.property_id,
+      organizationId: auditOrganizationId,
+      checkIn,
+      checkOut,
+    })
 
     if (overlapping && overlapping.length > 0) {
       // Já existe reserva neste período nesta propriedade — mesmo bloqueio de outra plataforma
@@ -295,7 +333,7 @@ async function syncListing(
           email: uniqueEmail,
           phone: bookingData.phone || null,
           country: bookingData.country || null,
-          ...(organizationId ? { organization_id: organizationId } : {}),
+          organization_id: auditOrganizationId,
         })
         .select()
         .single()
@@ -338,7 +376,7 @@ async function syncListing(
           service_fee_amount: serviceFeeAmount,
           discount_amount: 0,
           commission_calculated_at: new Date().toISOString(),
-          ...(organizationId ? { organization_id: organizationId } : {}),
+          organization_id: auditOrganizationId,
         })
 
     if (reservationError) {
@@ -384,15 +422,21 @@ async function syncListing(
   }
 
   let cancelledCount = 0
-  try {
-    cancelledCount = await cancelMissingReservations({
-      supabase,
-      propertyListingId: listingId,
-      organizationId,
-      receivedExternalIds,
-    })
-  } catch (error) {
-    console.error(`[Sync] Erro ao cancelar reservas ausentes do iCal para listing ${listingId}:`, error)
+  const reconciliationOwnsListing =
+    reconciliationFlag.enabled &&
+    listingSource !== null &&
+    reconciliationFlag.pilot_platforms.includes(listingSource)
+  if (!reconciliationOwnsListing) {
+    try {
+      cancelledCount = await cancelMissingReservations({
+        supabase,
+        propertyListingId: listingId,
+        organizationId: resolvedOrganizationId,
+        receivedExternalIds,
+      })
+    } catch (error) {
+      console.error(`[Sync] Erro ao cancelar reservas ausentes do iCal para listing ${listingId}:`, error)
+    }
   }
 
   if (cancelledCount > 0) {
@@ -418,7 +462,7 @@ async function syncListing(
     console.warn(`[Sync] Erro ao registrar sync_log de sucesso para listing ${listingId}:`, syncLogError.message)
   }
 
-  return { created, updated, blocked, unknown, skipped, cancelled, errors }
+  return { created, updated, blocked, reconciled, unknown, skipped, cancelled, errors }
 }
 
 export async function POST(request: NextRequest) {
@@ -480,7 +524,7 @@ export async function POST(request: NextRequest) {
           const propResult = {
             property_id: propId,
             property_name: propName,
-            created: 0, updated: 0, blocked: 0, unknown: 0, skipped: 0, cancelled: 0,
+            created: 0, updated: 0, blocked: 0, reconciled: 0, unknown: 0, skipped: 0, cancelled: 0,
             errors: [] as string[],
           }
           for (const listing of propListings) {
@@ -491,6 +535,7 @@ export async function POST(request: NextRequest) {
               propResult.created   += r.created
               propResult.updated   += r.updated
               propResult.blocked   += r.blocked
+              propResult.reconciled += r.reconciled
               propResult.unknown   += r.unknown
               propResult.skipped   += r.skipped
               propResult.cancelled += r.cancelled
@@ -519,7 +564,7 @@ export async function POST(request: NextRequest) {
         })
       )
 
-      type PropResult = { property_id: string; property_name: string; created: number; updated: number; blocked: number; unknown: number; skipped: number; cancelled: number; errors: string[] }
+      type PropResult = { property_id: string; property_name: string; created: number; updated: number; blocked: number; reconciled: number; unknown: number; skipped: number; cancelled: number; errors: string[] }
       const results: PropResult[] = []
       for (const s of settled) {
         if (s.status === 'fulfilled') results.push(s.value)
@@ -532,11 +577,12 @@ export async function POST(request: NextRequest) {
           created: acc.created + r.created,
           updated: acc.updated + r.updated,
           blocked: acc.blocked + r.blocked,
+          reconciled: acc.reconciled + r.reconciled,
           unknown: acc.unknown + r.unknown,
           skipped: acc.skipped + r.skipped,
           cancelled: acc.cancelled + r.cancelled,
         }),
-        { created: 0, updated: 0, blocked: 0, unknown: 0, skipped: 0, cancelled: 0 }
+        { created: 0, updated: 0, blocked: 0, reconciled: 0, unknown: 0, skipped: 0, cancelled: 0 }
       )
 
       return NextResponse.json({
@@ -608,7 +654,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       ...result,
-      total: result.created + result.updated + result.skipped + result.unknown,
+      total: result.created + result.updated + result.blocked + result.reconciled + result.skipped + result.unknown,
     })
   } catch (error: unknown) {
     console.error('Erro na importação:', error)

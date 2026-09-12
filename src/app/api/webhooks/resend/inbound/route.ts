@@ -47,14 +47,22 @@ export async function POST(request: Request) {
   if (!organizationId) return NextResponse.json({ error: 'Invalid recipient' }, { status: 422 })
 
   const supabase = await createAdminClient()
-  const { data: organization } = await supabase
+  const { data: organization, error: organizationError } = await supabase
     .from('organizations')
-    .select('id')
+    .select('id, email_ical_reconciliation_enabled, email_ical_pilot_platforms')
     .eq('id', organizationId)
     .maybeSingle()
+  if (organizationError) {
+    console.error('[ResendInbound] Organization lookup failed', organizationError.message)
+    return NextResponse.json({ error: 'Organization lookup failed' }, { status: 500 })
+  }
   if (!organization) return NextResponse.json({ error: 'Unknown organization' }, { status: 404 })
 
   const platform = platformFromSender(email.from)
+  const pilotPlatforms = organization.email_ical_pilot_platforms || []
+  if (!organization.email_ical_reconciliation_enabled || !platform || !pilotPlatforms.includes(platform)) {
+    return NextResponse.json({ accepted: false }, { status: 202 })
+  }
   const rawContent = email.text?.trim() || email.html?.trim()
   if (!rawContent) return NextResponse.json({ error: 'Empty email body' }, { status: 422 })
 
@@ -67,8 +75,8 @@ export async function POST(request: Request) {
     subject: email.subject,
     received_at: email.created_at,
     raw_content: rawContent,
-    processing_status: platform ? 'pending' : 'rejected',
-    last_error: platform ? null : 'Sender not allowlisted',
+    processing_status: 'pending',
+    last_error: null,
   })
 
   if (insertError?.code === '23505') return NextResponse.json({ duplicate: true })
@@ -77,5 +85,5 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Persistence failed' }, { status: 500 })
   }
 
-  return NextResponse.json({ accepted: Boolean(platform), platform }, { status: 202 })
+  return NextResponse.json({ accepted: true, platform }, { status: 202 })
 }

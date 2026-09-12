@@ -154,6 +154,7 @@ export type Reservation = {
 export type CalendarBlock = {
   id: string
   property_id: string
+  property_listing_id: string | null
   start_date: string
   end_date: string
   block_type: string | null

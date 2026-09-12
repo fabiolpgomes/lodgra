@@ -85,6 +85,31 @@ iCal sync -> calendar_events ----------------> validação determinística
 
 Nenhum caminho pode executar `auto_matched` sem passar pela validação determinística da Fase 3.
 
+## Adendo 2026-09-12: identidade composta para eventos opacos
+
+Booking e Airbnb podem publicar uma reserva no iCal apenas como `CLOSED - Not available`,
+`Not available` ou `Reserved`, sem o código que existe no e-mail. Esses resumos não são
+evidência inequívoca de bloqueio manual; no fluxo habilitado ficam simultaneamente como
+indisponibilidade provisória em `calendar_blocks` e candidato `unmatched` em
+`calendar_events`.
+
+Para esse caso estritamente opaco, a combinação abaixo acrescenta 40 pontos de identidade:
+
+- datas exatamente iguais;
+- mesma plataforma;
+- similaridade do identificador do imóvel ≥ 0,85;
+- resumo pertencente ao conjunto opaco acima.
+
+O bônus não se aplica a datas aproximadas, imóvel ausente ou resumo livre. O limite de
+`auto_matched` continua 80 e qualquer empate continua obrigatoriamente em `needs_review`.
+Essa regra permite reconciliar o caso real do Booking sem reduzir o limiar global nem
+inventar um código ausente no iCal.
+
+A consolidação é executada por uma única função transacional: ela bloqueia evento,
+extração e domínio do imóvel; adota uma reserva legada com imóvel e datas exatamente
+iguais ou cria uma única reserva; liga os três agregados; e remove somente o bloqueio
+provisório do mesmo listing/UID. Repetições devolvem a mesma reserva.
+
 ## Evidência consultada
 
 - `supabase/migrations/20260309010000_email_parsing.sql`

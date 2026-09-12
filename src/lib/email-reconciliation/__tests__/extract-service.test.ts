@@ -1,117 +1,49 @@
-import { EmailExtractionSchema } from '../extraction.schema'
+import { EmailExtractionSchema, hasRequiredReservationFields } from '../extraction.schema'
 
-describe('Email extraction schema', () => {
-  it('validates required fields', () => {
-    const validData = {
-      guest_name: 'João Silva',
-      check_in: '2026-08-20',
-      check_out: '2026-08-25',
-    }
+const valid = {
+  guest_name: 'Nuno Correia',
+  check_in: '2026-09-29',
+  check_out: '2026-09-30',
+  total_value: 162.09,
+  currency: 'EUR',
+  source_platform: 'booking',
+  property_identifier_raw: 'AHS Premium Apart',
+  reservation_code: '5762083928',
+  guest_count: 3,
+  confidence: 0.98,
+}
 
-    const result = EmailExtractionSchema.safeParse(validData)
+describe('email-reservation-extraction/v1 schema', () => {
+  it('accepts the exact versioned contract', () => {
+    const result = EmailExtractionSchema.safeParse(valid)
     expect(result.success).toBe(true)
+    if (result.success) expect(hasRequiredReservationFields(result.data)).toBe(true)
   })
 
-  it('rejects missing required fields', () => {
-    const invalidData = {
-      guest_name: 'João Silva',
-      check_in: '2026-08-20',
-      // missing check_out
-    }
-
-    const result = EmailExtractionSchema.safeParse(invalidData)
-    expect(result.success).toBe(false)
-  })
-
-  it('validates date format', () => {
-    const validDates = {
-      guest_name: 'Test',
-      check_in: '2026-12-25',
-      check_out: '2026-12-31',
-    }
-
-    const result = EmailExtractionSchema.safeParse(validDates)
+  it('accepts explicit nulls but does not accept the result for reservation creation', () => {
+    const result = EmailExtractionSchema.safeParse({
+      ...valid, guest_name: null, check_in: null, check_out: null,
+      total_value: null, currency: null, property_identifier_raw: null,
+      reservation_code: null, guest_count: null,
+    })
     expect(result.success).toBe(true)
+    if (result.success) expect(hasRequiredReservationFields(result.data)).toBe(false)
   })
 
-  it('rejects invalid date format', () => {
-    const invalidDates = {
-      guest_name: 'Test',
-      check_in: '25/12/2026',
-      check_out: '31/12/2026',
-    }
-
-    const result = EmailExtractionSchema.safeParse(invalidDates)
-    expect(result.success).toBe(false)
+  it('rejects omitted and unknown keys', () => {
+    const { currency: _currency, ...missing } = valid
+    expect(EmailExtractionSchema.safeParse(missing).success).toBe(false)
+    expect(EmailExtractionSchema.safeParse({ ...valid, phone: '+351900000000' }).success).toBe(false)
   })
 
-  it('accepts optional fields', () => {
-    const withOptional = {
-      guest_name: 'Test',
-      check_in: '2026-12-25',
-      check_out: '2026-12-31',
-      number_of_guests: 2,
-      total_value: 1000,
-      currency: 'EUR',
-    }
-
-    const result = EmailExtractionSchema.safeParse(withOptional)
-    expect(result.success).toBe(true)
-    if (result.success) {
-      expect(result.data.number_of_guests).toBe(2)
-      expect(result.data.total_value).toBe(1000)
-    }
+  it('rejects impossible calendar dates and coercion', () => {
+    expect(EmailExtractionSchema.safeParse({ ...valid, check_in: '2026-02-30' }).success).toBe(false)
+    expect(EmailExtractionSchema.safeParse({ ...valid, total_value: '162.09' }).success).toBe(false)
   })
 
-  describe('Phone field (new)', () => {
-    it('accepts phone as optional field', () => {
-      const withPhone = {
-        guest_name: 'João Silva',
-        check_in: '2026-08-20',
-        check_out: '2026-08-25',
-        phone: '+351 912345678',
-      }
-
-      const result = EmailExtractionSchema.safeParse(withPhone)
-      expect(result.success).toBe(true)
-      if (result.success) {
-        expect(result.data.phone).toBe('+351 912345678')
-      }
-    })
-
-    it('accepts phone with different formats', () => {
-      const formats = [
-        '+351 912345678',
-        '+1 2025551234',
-        '912345678',
-        '+351912345678',
-        '(201) 555-1234',
-      ]
-
-      formats.forEach((phone) => {
-        const data = {
-          guest_name: 'Test',
-          check_in: '2026-08-20',
-          check_out: '2026-08-25',
-          phone,
-        }
-        const result = EmailExtractionSchema.safeParse(data)
-        expect(result.success).toBe(true)
-      })
-    })
-
-    it('allows missing phone (optional)', () => {
-      const noPhone = {
-        guest_name: 'Test',
-        check_in: '2026-08-20',
-        check_out: '2026-08-25',
-      }
-
-      const result = EmailExtractionSchema.safeParse(noPhone)
-      expect(result.success).toBe(true)
-      if (result.success) {
-        expect(result.data.phone).toBeUndefined()
-      }
-    })
+  it('rejects invalid platform, currency and confidence', () => {
+    expect(EmailExtractionSchema.safeParse({ ...valid, source_platform: 'expedia' }).success).toBe(false)
+    expect(EmailExtractionSchema.safeParse({ ...valid, currency: 'eur' }).success).toBe(false)
+    expect(EmailExtractionSchema.safeParse({ ...valid, confidence: 1.1 }).success).toBe(false)
   })
 })

@@ -17,7 +17,11 @@ describe('Phase 4: Reconciliation Matching Engine (AC5)', () => {
     check_in: '2026-08-15',
     check_out: '2026-08-20',
     reservation_code: 'ABK123456',
-    property_name: 'Casa do Mar',
+    property_identifier_raw: 'Casa do Mar',
+    total_value: null,
+    currency: null,
+    guest_count: null,
+    confidence: 0.95,
   }
 
   const mockCalendarEvent: CalendarEvent & { id: string } = {
@@ -46,7 +50,7 @@ describe('Phase 4: Reconciliation Matching Engine (AC5)', () => {
 
   describe('Date Tolerance ±1 Day', () => {
     it('should score 35 for dates within ±1 day (without reservation code)', () => {
-      const emailNoCode = { ...mockEmail, reservation_code: undefined }
+      const emailNoCode = { ...mockEmail, reservation_code: null }
       const eventOffByOne = {
         ...mockCalendarEvent,
         check_in: new Date('2026-08-16'), // +1 day

@@ -12,13 +12,12 @@ export interface CalendarEventAuditInput {
   reservationId?: string | null
 }
 
-function statusForClassification(classification: ICalEventClassification): 'unmatched' | 'matched' | 'ignored' {
-  if (classification === 'reservation') return 'matched'
-  if (classification === 'block') return 'ignored'
-  return 'unmatched'
+export interface CalendarEventAuditResult {
+  id: string
+  status: 'unmatched' | 'matched' | 'ignored'
 }
 
-export async function upsertCalendarEventAudit(input: CalendarEventAuditInput): Promise<void> {
+export async function upsertCalendarEventAudit(input: CalendarEventAuditInput): Promise<CalendarEventAuditResult> {
   const {
     supabase,
     organizationId,
@@ -30,28 +29,25 @@ export async function upsertCalendarEventAudit(input: CalendarEventAuditInput): 
     reservationId = null,
   } = input
 
-  const payload = {
-    organization_id: organizationId,
-    property_id: propertyId,
-    property_listing_id: propertyListingId,
-    source_platform: sourcePlatform,
-    check_in: event.start.toISOString().split('T')[0],
-    check_out: event.end.toISOString().split('T')[0],
-    ical_uid: event.uid,
-    raw_summary: event.summary || null,
-    raw_vevent: event.rawVEvent || '',
-    event_kind: classification,
-    reservation_id: reservationId,
-    status: statusForClassification(classification),
-  }
-
-  const { error } = await supabase
-    .from('calendar_events')
-    .upsert(payload, {
-      onConflict: 'organization_id,property_id,property_listing_id,ical_uid',
-    })
+  const { data, error } = await supabase.rpc('upsert_calendar_event_audit', {
+    p_organization_id: organizationId,
+    p_property_id: propertyId,
+    p_property_listing_id: propertyListingId,
+    p_source_platform: sourcePlatform,
+    p_check_in: event.start.toISOString().split('T')[0],
+    p_check_out: event.end.toISOString().split('T')[0],
+    p_ical_uid: event.uid,
+    p_raw_summary: event.summary || null,
+    p_raw_vevent: event.rawVEvent || '',
+    p_event_kind: classification,
+    p_reservation_id: reservationId,
+  })
 
   if (error) {
     throw new Error(`Falha ao registrar evento iCal bruto: ${error.message}`)
   }
+
+  const row = Array.isArray(data) ? data[0] : data
+  if (!row) throw new Error('Falha ao registrar evento iCal bruto: resposta vazia')
+  return row as CalendarEventAuditResult
 }

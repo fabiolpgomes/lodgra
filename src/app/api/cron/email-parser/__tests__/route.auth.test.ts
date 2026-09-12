@@ -1,9 +1,14 @@
 import { GET } from '@/app/api/cron/email-parser/route'
 import { createTestRequest } from '@/__tests__/utils/test-request'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { isEmailICalEnabled } from '@/lib/email-reconciliation/feature-flag'
 
 jest.mock('@/lib/supabase/admin', () => ({
   createAdminClient: jest.fn(),
+}))
+
+jest.mock('@/lib/email-reconciliation/feature-flag', () => ({
+  isEmailICalEnabled: jest.fn().mockResolvedValue(false),
 }))
 
 const CRON_SECRET = 'test-cron-secret'
@@ -16,6 +21,7 @@ describe('GET /api/cron/email-parser authentication', () => {
     jest.clearAllMocks()
     process.env.CRON_SECRET = CRON_SECRET
     process.env.ANTHROPIC_API_KEY = 'test-anthropic-key'
+    ;(isEmailICalEnabled as jest.Mock).mockResolvedValue(false)
   })
 
   afterAll(() => {
@@ -57,5 +63,30 @@ describe('GET /api/cron/email-parser authentication', () => {
 
     expect(response.status).toBe(200)
     expect(body.message).toBe('Sem ligações Gmail activas')
+  })
+
+  it('não atualiza last_sync_at quando a organização usa a reconciliação Resend', async () => {
+    const select = jest.fn().mockResolvedValue({
+      data: [{
+        id: 'connection-1',
+        organization_id: 'org-resend',
+        email: 'reservas@example.com',
+        access_token: 'encrypted',
+        refresh_token: 'encrypted',
+        token_expiry: null,
+      }],
+      error: null,
+    })
+    const from = jest.fn(() => ({ select }))
+    ;(createAdminClient as jest.Mock).mockReturnValue({ from })
+    ;(isEmailICalEnabled as jest.Mock).mockResolvedValue(true)
+
+    const response = await GET(createTestRequest('http://localhost/api/cron/email-parser', {
+      headers: { authorization: `Bearer ${CRON_SECRET}` },
+    }))
+
+    expect(response.status).toBe(200)
+    expect(isEmailICalEnabled).toHaveBeenCalledWith('org-resend')
+    expect(from).toHaveBeenCalledTimes(1)
   })
 })

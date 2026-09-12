@@ -11,6 +11,7 @@ import { createTestRequest } from '@/__tests__/utils/test-request'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { importICalFromUrl, classifyICalEvent } from '@/lib/ical/icalService'
 import { requireRole } from '@/lib/auth/requireRole'
+import { getFeatureFlagStatus } from '@/lib/email-reconciliation/feature-flag'
 
 jest.mock('@/lib/supabase/admin', () => ({
   createAdminClient: jest.fn(),
@@ -30,6 +31,14 @@ jest.mock('@/lib/auth/requireRole', () => ({
 
 jest.mock('@/lib/email/queue', () => ({
   enqueueEmail: jest.fn().mockResolvedValue(undefined),
+}))
+
+jest.mock('@/lib/ical/calendarEventAudit', () => ({
+  upsertCalendarEventAudit: jest.fn().mockResolvedValue({ id: 'event-audit', status: 'unmatched' }),
+}))
+
+jest.mock('@/lib/email-reconciliation/feature-flag', () => ({
+  getFeatureFlagStatus: jest.fn().mockResolvedValue({ enabled: false, pilot_platforms: [] }),
 }))
 
 /**
@@ -78,7 +87,19 @@ describe('POST /api/sync/import', () => {
       from: jest.fn((table: string) => {
         if (table === 'property_listings') {
           return {
-            select: jest.fn(() => makeQuery({ data: [listing], error: null })),
+            select: jest.fn((selection: string) => makeQuery(
+              selection.includes('cleaning_fee')
+                ? {
+                    data: {
+                      property_id: listing.property_id,
+                      organization_id: 'org-1',
+                      platforms: null,
+                      properties: {},
+                    },
+                    error: null,
+                  }
+                : { data: [listing], error: null }
+            )),
             update: jest.fn(() => makeQuery({ data: null, error: null })),
           }
         }
@@ -223,7 +244,7 @@ describe('POST /api/sync/import', () => {
 
     expect(response.status).toBe(200)
     expect(propertySelections).toContain(
-      'property_id, organization_id, properties:properties!property_listings_property_org_fk(cleaning_fee, cleaning_fee_type, pet_fee, pet_fee_type)'
+      'property_id, organization_id, platforms(name, display_name), properties:properties!property_listings_property_org_fk(cleaning_fee, cleaning_fee_type, pet_fee, pet_fee_type)'
     )
     expect(insertedReservations).toHaveLength(1)
     expect(insertedReservations[0]).toMatchObject({
@@ -336,7 +357,7 @@ describe('POST /api/sync/import', () => {
 
     expect(response.status).toBe(200)
     expect(propertySelections).toContain(
-      'property_id, organization_id, properties:properties!property_listings_property_org_fk(cleaning_fee, cleaning_fee_type, pet_fee, pet_fee_type)'
+      'property_id, organization_id, platforms(name, display_name), properties:properties!property_listings_property_org_fk(cleaning_fee, cleaning_fee_type, pet_fee, pet_fee_type)'
     )
   })
 
@@ -536,5 +557,62 @@ describe('POST /api/sync/import', () => {
       cancelled_at: expect.any(String),
       updated_at: expect.any(String),
     }))
+  })
+
+  it('não cancela reservas quando um feed vazio pertence à plataforma piloto', async () => {
+    const listing = {
+      id: 'listing-booking-pilot',
+      ical_url: 'https://example.com/booking-empty.ics',
+      property_id: 'prop-booking-pilot',
+      properties: { id: 'prop-booking-pilot', name: 'Casa Piloto', organization_id: 'org-1' },
+    }
+    const reservationSelect = jest.fn()
+
+    const mockSupabase = {
+      from: jest.fn((table: string) => {
+        if (table === 'property_listings') {
+          return {
+            select: jest.fn((selection: string) => makeQuery(
+              selection.includes('cleaning_fee')
+                ? {
+                    data: {
+                      property_id: listing.property_id,
+                      organization_id: 'org-1',
+                      platforms: { name: 'Booking.com', display_name: 'Booking' },
+                      properties: {},
+                    },
+                    error: null,
+                  }
+                : { data: [listing], error: null }
+            )),
+            update: jest.fn(() => makeQuery({ data: null, error: null })),
+          }
+        }
+        if (table === 'reservations') {
+          return { select: reservationSelect }
+        }
+        if (table === 'sync_logs') {
+          return { insert: jest.fn(() => Promise.resolve({ data: null, error: null })) }
+        }
+        return { select: jest.fn(() => makeQuery({ data: [], error: null })) }
+      }),
+    }
+
+    ;(createAdminClient as jest.Mock).mockReturnValue(mockSupabase)
+    ;(importICalFromUrl as jest.Mock).mockResolvedValue([])
+    ;(getFeatureFlagStatus as jest.Mock).mockResolvedValue({
+      enabled: true,
+      pilot_platforms: ['booking'],
+    })
+
+    const response = await POST(createTestRequest('http://localhost/api/sync/import', {
+      method: 'POST',
+      body: JSON.stringify({ property_ids: [listing.property_id] }),
+    }))
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body.totals.cancelled).toBe(0)
+    expect(reservationSelect).not.toHaveBeenCalled()
   })
 })

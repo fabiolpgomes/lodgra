@@ -9,6 +9,7 @@ import { detectPropertyFromEmailDomain, getDefaultPropertyIfSingleOwner, extract
 import { findMatchingICalReservation, enrichReservationWithEmail } from '@/lib/email-parser/reservationMatcher'
 import { isCancellationEmail, markReservationCancelled, findReservationToCancelByConfirmation } from '@/lib/email-parser/cancellationDetector'
 import { isAuthorizedCronRequest } from '@/lib/cron/auth'
+import { isEmailICalEnabled } from '@/lib/email-reconciliation/feature-flag'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 300 // 5 minutos
@@ -49,9 +50,12 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ ...results, message: 'Sem ligações Gmail activas' })
     }
 
+    const processedOrganizationIds: string[] = []
     for (const conn of connections as ConnectionRow[]) {
       try {
-        await processOrg(supabase, conn, results)
+        if (await processOrg(supabase, conn, results)) {
+          processedOrganizationIds.push(conn.organization_id)
+        }
       } catch (err) {
         console.error(`[email-parser] Erro na org ${conn.organization_id}:`, err)
         results.errors++
@@ -65,11 +69,13 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Actualizar last_sync_at de todas as orgs processadas
-    await supabase
-      .from('email_connections')
-      .update({ last_sync_at: new Date().toISOString() })
-      .in('organization_id', connections.map(c => c.organization_id))
+    // Do not report Gmail activity for organizations owned by the Resend flow.
+    if (processedOrganizationIds.length > 0) {
+      await supabase
+        .from('email_connections')
+        .update({ last_sync_at: new Date().toISOString() })
+        .in('organization_id', processedOrganizationIds)
+    }
 
     return NextResponse.json({ success: true, ...results })
   } catch (err) {
@@ -83,7 +89,12 @@ async function processOrg(
   supabase: any,
   conn: ConnectionRow,
   results: { processed: number; created: number; skipped: number; errors: number; errorDetails: Array<any> },
-) {
+): Promise<boolean> {
+  if (await isEmailICalEnabled(conn.organization_id)) {
+    console.info(`[email-parser] Gmail legado ignorado para org ${conn.organization_id}: reconciliação Resend ativa`)
+    return false
+  }
+
   const accessToken = await getValidAccessToken(conn)
   if (!accessToken) {
     console.warn(`[email-parser] Token inválido para org ${conn.organization_id}`)
@@ -95,7 +106,7 @@ async function processOrg(
       type: 'token_invalid',
       message: 'Token do Gmail expirou ou é inválido'
     })
-    return
+    return false
   }
 
   const emails = await fetchUnreadEmails(accessToken, ALL_KNOWN_SENDERS)
@@ -344,6 +355,8 @@ async function processOrg(
 
     results.created++
   }
+
+  return true
 }
 
 async function createDraftReservation(

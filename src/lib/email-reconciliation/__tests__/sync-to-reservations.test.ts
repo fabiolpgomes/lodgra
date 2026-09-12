@@ -1,233 +1,105 @@
-import { syncExtractedDataToReservation } from '../sync-to-reservations'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { syncExtractedDataToReservation } from '../sync-to-reservations'
 
-jest.mock('@/lib/supabase/admin', () => ({
-  createAdminClient: jest.fn(),
-}))
+jest.mock('@/lib/supabase/admin', () => ({ createAdminClient: jest.fn() }))
 
-function buildReservationQuery(candidates: any[]) {
-  return {
-    select: () => ({
-      eq: () => ({
-        eq: () => ({
-          eq: () => Promise.resolve({ data: candidates, error: null }),
-        }),
-      }),
-    }),
+function query(result: unknown) {
+  const builder: Record<string, unknown> = {
+    select: jest.fn(() => builder), eq: jest.fn(() => builder), gte: jest.fn(() => builder),
+    lte: jest.fn(() => builder), order: jest.fn(() => builder), limit: jest.fn(() => builder),
+    update: jest.fn(() => builder), single: jest.fn(() => Promise.resolve(result)),
+    maybeSingle: jest.fn(() => Promise.resolve(result)),
+    then: (resolve: (value: unknown) => unknown) => Promise.resolve(result).then(resolve),
   }
+  return builder
+}
+
+const extraction = {
+  id: 'ext-1', organization_id: 'org-1', raw_email_id: 'raw-1', source_platform: 'booking',
+  guest_name: 'Nuno Correia', guest_count: 3, check_in: '2026-09-29', check_out: '2026-09-30',
+  total_value: 162.09, currency: 'EUR', reservation_code: '5762083928',
+  property_identifier_raw: 'AHS Premium Apart 2 Pools PS4 5 min Beach Algarve', confidence: 0.98,
+  match_status: 'pending', matched_event_id: null,
+}
+
+const opaqueBookingEvent = {
+  id: 'event-1', organization_id: 'org-1', source_platform: 'booking',
+  check_in: '2026-09-29', check_out: '2026-09-30', raw_summary: 'CLOSED - Not available',
+  status: 'unmatched', created_at: '2026-09-10T20:00:00Z',
+  properties: { name: 'AHS Premium Apart 2 Pools PS4 5 min Beach Algarve' },
 }
 
 describe('syncExtractedDataToReservation', () => {
-  let mockSupabase: any
+  beforeEach(() => jest.clearAllMocks())
 
-  beforeEach(() => {
-    jest.clearAllMocks()
-    mockSupabase = { from: jest.fn() }
-    ;(createAdminClient as jest.Mock).mockResolvedValue(mockSupabase)
-  })
-
-  function mockExtraction(overrides: Record<string, unknown> = {}) {
-    return {
-      id: 'ext-1',
-      organization_id: 'org-1',
-      match_status: 'pending',
-      guest_name: 'Ana Santos',
-      phone: '+351911111111',
-      total_value: 500,
-      check_in: '2026-08-01',
-      check_out: '2026-08-10',
-      property_name: null,
-      ...overrides,
+  function setup(extractionRow: Record<string, unknown> | null, events: Record<string, unknown>[]) {
+    const extractionQuery = query({ data: extractionRow, error: extractionRow ? null : { message: 'Not found' } })
+    const eventsQuery = query({ data: events, error: null })
+    const reservationsQuery = query({ data: null, error: null })
+    const rpc = jest.fn().mockResolvedValue({ data: { reservation_id: 'reservation-1', created: true }, error: null })
+    const client = {
+      rpc,
+      from: jest.fn((table: string) => {
+        if (table === 'email_extractions') return extractionQuery
+        if (table === 'calendar_events') return eventsQuery
+        if (table === 'reservations') return reservationsQuery
+        throw new Error(`Unexpected table ${table}`)
+      }),
     }
+    ;(createAdminClient as jest.Mock).mockResolvedValue(client)
+    return { client, rpc, extractionQuery }
   }
 
-  it('syncs directly when only one reservation matches the exact dates', async () => {
-    const extraction = mockExtraction()
-    const updateMock = jest.fn().mockReturnValue({ eq: jest.fn().mockResolvedValue({ error: null }) })
-
-    mockSupabase.from.mockImplementation((table: string) => {
-      if (table === 'email_extractions') {
-        return {
-          select: () => ({ eq: () => ({ single: () => Promise.resolve({ data: extraction, error: null }) }) }),
-          update: jest.fn().mockReturnValue({ eq: jest.fn().mockResolvedValue({ error: null }) }),
-        }
-      }
-      if (table === 'reservations') {
-        return {
-          ...buildReservationQuery([{ id: 'res-1', property_id: 'p-1', property_listing_id: 'pl-1', properties: null }]),
-          update: updateMock,
-        }
-      }
-      throw new Error(`Unexpected table: ${table}`)
-    })
-
+  it('creates the atomic reconciliation for an opaque Booking event with exact identity', async () => {
+    const { rpc } = setup(extraction, [opaqueBookingEvent])
     const result = await syncExtractedDataToReservation('ext-1')
 
-    expect(result.success).toBe(true)
-    expect(updateMock).toHaveBeenCalled()
-    const eqCall = updateMock.mock.results[0].value.eq as jest.Mock
-    expect(eqCall).toHaveBeenCalledWith('id', 'res-1')
+    expect(result).toEqual({ success: true, status: 'auto_matched', reservationId: 'reservation-1' })
+    expect(rpc).toHaveBeenCalledWith('reconcile_email_extraction', {
+      p_extraction_id: 'ext-1', p_event_id: 'event-1', p_confirmed_by_host: false,
+    })
   })
 
-  it('disambiguates via property_name when two reservations share the exact same dates', async () => {
-    const extraction = mockExtraction({ property_name: 'Villa Azul' })
-    const updateMock = jest.fn().mockReturnValue({ eq: jest.fn().mockResolvedValue({ error: null }) })
-
-    const candidates = [
-      { id: 'res-WRONG', property_id: 'p-1', property_listing_id: 'pl-1', properties: [{ name: 'Apartamento Centro' }] },
-      { id: 'res-CORRECT', property_id: 'p-2', property_listing_id: 'pl-2', properties: [{ name: 'Villa Azul' }] },
-    ]
-
-    mockSupabase.from.mockImplementation((table: string) => {
-      if (table === 'email_extractions') {
-        return {
-          select: () => ({ eq: () => ({ single: () => Promise.resolve({ data: extraction, error: null }) }) }),
-          update: jest.fn().mockReturnValue({ eq: jest.fn().mockResolvedValue({ error: null }) }),
-        }
-      }
-      if (table === 'reservations') {
-        return { ...buildReservationQuery(candidates), update: updateMock }
-      }
-      throw new Error(`Unexpected table: ${table}`)
-    })
-
+  it('does not guess when two opaque events have the same score', async () => {
+    const { rpc, extractionQuery } = setup(extraction, [
+      opaqueBookingEvent,
+      { ...opaqueBookingEvent, id: 'event-2', properties: { name: 'AHS Premium Apart 2 Pools PS4 5 min Beach Algarve' } },
+    ])
     const result = await syncExtractedDataToReservation('ext-1')
 
-    expect(result.success).toBe(true)
-    const eqCall = updateMock.mock.results[0].value.eq as jest.Mock
-    expect(eqCall).toHaveBeenCalledWith('id', 'res-CORRECT')
+    expect(result.status).toBe('needs_review')
+    expect(rpc).not.toHaveBeenCalled()
+    expect(extractionQuery.update).toHaveBeenCalledWith(expect.objectContaining({ match_status: 'needs_review' }))
   })
 
-  it('flags needs_review instead of guessing when dates collide and there is no property_name', async () => {
-    const extraction = mockExtraction({ property_name: null })
-    const extractionUpdateMock = jest.fn().mockReturnValue({ eq: jest.fn().mockResolvedValue({ error: null }) })
-    const reservationUpdateMock = jest.fn()
-
-    const candidates = [
-      { id: 'res-A', property_id: 'p-1', property_listing_id: 'pl-1', properties: [{ name: 'Apartamento Centro' }] },
-      { id: 'res-B', property_id: 'p-2', property_listing_id: 'pl-2', properties: [{ name: 'Villa Azul' }] },
-    ]
-
-    mockSupabase.from.mockImplementation((table: string) => {
-      if (table === 'email_extractions') {
-        return {
-          select: () => ({ eq: () => ({ single: () => Promise.resolve({ data: extraction, error: null }) }) }),
-          update: extractionUpdateMock,
-        }
-      }
-      if (table === 'reservations') {
-        return { ...buildReservationQuery(candidates), update: reservationUpdateMock }
-      }
-      throw new Error(`Unexpected table: ${table}`)
-    })
-
+  it('marks no_match when no calendar event exists', async () => {
+    setup(extraction, [])
     const result = await syncExtractedDataToReservation('ext-1')
-
-    expect(result.success).toBe(true)
-    expect(reservationUpdateMock).not.toHaveBeenCalled()
-    expect(extractionUpdateMock).toHaveBeenCalledWith({ match_status: 'needs_review' })
+    expect(result).toEqual({ success: true, status: 'no_match' })
   })
 
-  it('flags needs_review instead of guessing when property_name does not clearly match any candidate', async () => {
-    const extraction = mockExtraction({ property_name: 'Totalmente Diferente' })
-    const extractionUpdateMock = jest.fn().mockReturnValue({ eq: jest.fn().mockResolvedValue({ error: null }) })
-    const reservationUpdateMock = jest.fn()
-
-    const candidates = [
-      { id: 'res-A', property_id: 'p-1', property_listing_id: 'pl-1', properties: [{ name: 'Apartamento Centro' }] },
-      { id: 'res-B', property_id: 'p-2', property_listing_id: 'pl-2', properties: [{ name: 'Villa Azul' }] },
-    ]
-
-    mockSupabase.from.mockImplementation((table: string) => {
-      if (table === 'email_extractions') {
-        return {
-          select: () => ({ eq: () => ({ single: () => Promise.resolve({ data: extraction, error: null }) }) }),
-          update: extractionUpdateMock,
-        }
-      }
-      if (table === 'reservations') {
-        return { ...buildReservationQuery(candidates), update: reservationUpdateMock }
-      }
-      throw new Error(`Unexpected table: ${table}`)
-    })
-
+  it('routes incomplete extraction to review', async () => {
+    const { rpc } = setup({ ...extraction, guest_name: null }, [])
     const result = await syncExtractedDataToReservation('ext-1')
-
-    expect(result.success).toBe(true)
-    expect(reservationUpdateMock).not.toHaveBeenCalled()
-    expect(extractionUpdateMock).toHaveBeenCalledWith({ match_status: 'needs_review' })
+    expect(result.status).toBe('needs_review')
+    expect(rpc).not.toHaveBeenCalled()
   })
 
-  it('handles extraction not found', async () => {
-    mockSupabase.from.mockImplementation((table: string) => {
-      if (table === 'email_extractions') {
-        return { select: () => ({ eq: () => ({ single: () => Promise.resolve({ data: null, error: { message: 'Not found' } }) }) }) }
-      }
-      throw new Error(`Unexpected table: ${table}`)
+  it('is idempotent after a completed match', async () => {
+    const { client, rpc } = setup({ ...extraction, match_status: 'auto_matched', matched_event_id: 'event-1' }, [])
+    ;(client.from as jest.Mock).mockImplementation((table: string) => {
+      if (table === 'email_extractions') return query({ data: { ...extraction, match_status: 'auto_matched', matched_event_id: 'event-1' }, error: null })
+      if (table === 'reservations') return query({ data: { id: 'reservation-1' }, error: null })
+      throw new Error(`Unexpected table ${table}`)
     })
+    const result = await syncExtractedDataToReservation('ext-1')
+    expect(result).toEqual({ success: true, status: 'auto_matched', reservationId: 'reservation-1' })
+    expect(rpc).not.toHaveBeenCalled()
+  })
 
-    const result = await syncExtractedDataToReservation('ext-999')
-
+  it('fails closed when extraction does not exist', async () => {
+    setup(null, [])
+    const result = await syncExtractedDataToReservation('missing')
     expect(result.success).toBe(false)
-    expect(result.error).toContain('not found')
-  })
-
-  it('skips if already synced (idempotent)', async () => {
-    mockSupabase.from.mockImplementation((table: string) => {
-      if (table === 'email_extractions') {
-        return { select: () => ({ eq: () => ({ single: () => Promise.resolve({ data: { id: 'ext-synced', match_status: 'auto_matched' }, error: null }) }) }) }
-      }
-      throw new Error(`Unexpected table: ${table}`)
-    })
-
-    const result = await syncExtractedDataToReservation('ext-synced')
-
-    expect(result.success).toBe(true)
-  })
-
-  it('does not fail when no reservation exists yet for those dates', async () => {
-    const extraction = mockExtraction()
-
-    mockSupabase.from.mockImplementation((table: string) => {
-      if (table === 'email_extractions') {
-        return { select: () => ({ eq: () => ({ single: () => Promise.resolve({ data: extraction, error: null }) }) }) }
-      }
-      if (table === 'reservations') {
-        return buildReservationQuery([])
-      }
-      throw new Error(`Unexpected table: ${table}`)
-    })
-
-    const result = await syncExtractedDataToReservation('ext-1')
-
-    expect(result.success).toBe(true)
-  })
-
-  it('splits guest name correctly', async () => {
-    const extraction = mockExtraction({ guest_name: 'João Manuel Silva' })
-    const updateMock = jest.fn().mockReturnValue({ eq: jest.fn().mockResolvedValue({ error: null }) })
-
-    mockSupabase.from.mockImplementation((table: string) => {
-      if (table === 'email_extractions') {
-        return {
-          select: () => ({ eq: () => ({ single: () => Promise.resolve({ data: extraction, error: null }) }) }),
-          update: jest.fn().mockReturnValue({ eq: jest.fn().mockResolvedValue({ error: null }) }),
-        }
-      }
-      if (table === 'reservations') {
-        return { ...buildReservationQuery([{ id: 'res-999', property_id: 'p-1', property_listing_id: 'pl-1', properties: null }]), update: updateMock }
-      }
-      throw new Error(`Unexpected table: ${table}`)
-    })
-
-    await syncExtractedDataToReservation('ext-1')
-
-    expect(updateMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        first_name: 'João',
-        last_name: 'Manuel Silva',
-        guest_phone: '+351911111111',
-      })
-    )
   })
 })

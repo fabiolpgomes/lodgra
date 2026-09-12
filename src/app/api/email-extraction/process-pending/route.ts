@@ -1,113 +1,133 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { isAuthorizedCronRequest } from '@/lib/cron/auth'
 import { extractEmailData } from '@/lib/email-reconciliation/extract-service'
+import { hasRequiredReservationFields, type EmailExtractionPlatform } from '@/lib/email-reconciliation/extraction.schema'
+import { isPlatformInPilot } from '@/lib/email-reconciliation/feature-flag'
+import { platformFromSender } from '@/lib/email-reconciliation/inbound'
 import { syncExtractedDataToReservation } from '@/lib/email-reconciliation/sync-to-reservations'
 
+export const dynamic = 'force-dynamic'
 export const maxDuration = 300
 
-export async function POST(request: Request) {
-  try {
-    const supabase = await createAdminClient()
+type ClaimedEmail = {
+  id: string
+  organization_id: string
+  sender: string
+  raw_content: string
+  attempt_count: number
+}
 
-    // Get all pending raw_emails
-    const { data: pendingEmails, error: fetchError } = await supabase
-      .from('raw_emails')
-      .select('*')
-      .eq('processing_status', 'pending')
-      .limit(20)
+function safeError(error: unknown): string {
+  const message = error instanceof Error ? error.message : String(error)
+  return message.replace(/[\r\n]+/g, ' ').slice(0, 500)
+}
 
-    if (fetchError) {
-      return NextResponse.json({ error: fetchError.message }, { status: 500 })
-    }
-
-    if (!pendingEmails || pendingEmails.length === 0) {
-      return NextResponse.json({ processed: 0, message: 'No pending emails' })
-    }
-
-    const results = []
-
-    for (const rawEmail of pendingEmails) {
-      try {
-        // Extract data from email
-        const extraction = await extractEmailData(rawEmail.raw_content)
-
-        // Determine platform from sender
-        const platform = rawEmail.sender?.toLowerCase().includes('airbnb')
-          ? 'airbnb'
-          : rawEmail.sender?.toLowerCase().includes('booking')
-            ? 'booking'
-            : rawEmail.sender?.toLowerCase().includes('vrbo')
-              ? 'vrbo'
-              : null
-
-        // Insert into email_extractions
-        const { data: insertedExtraction, error: insertError } = await supabase
-          .from('email_extractions')
-          .insert({
-            organization_id: rawEmail.organization_id,
-            raw_email_id: rawEmail.id,
-            source_platform: platform,
-            guest_name: extraction.data?.guest_name || null,
-            check_in: extraction.data?.check_in || null,
-            check_out: extraction.data?.check_out || null,
-            total_value: extraction.data?.total_value || null,
-            currency: extraction.data?.currency || null,
-            reservation_code: extraction.data?.reservation_code || null,
-            phone: extraction.data?.phone || null,
-            confidence: extraction.confidence,
-            match_status: extraction.success ? 'auto_matched' : 'needs_review',
-          })
-          .select()
-          .single()
-
-        if (insertError) {
-          results.push({
-            emailId: rawEmail.id,
-            success: false,
-            error: insertError.message,
-          })
-          continue
-        }
-
-        // Sync extracted data to reservation if extraction successful
-        if (extraction.success && insertedExtraction?.id) {
-          await syncExtractedDataToReservation(insertedExtraction.id).catch((error) => {
-            console.error('Sync to reservation failed', { extractionId: insertedExtraction.id, error })
-          })
-        }
-
-        // Update raw_email status
-        await supabase
-          .from('raw_emails')
-          .update({
-            processing_status: extraction.success ? 'processed' : 'needs_review',
-            last_error: extraction.success ? null : extraction.error,
-          })
-          .eq('id', rawEmail.id)
-
-        results.push({
-          emailId: rawEmail.id,
-          success: extraction.success,
-          confidence: extraction.confidence,
-          guestName: extraction.data?.guest_name,
-        })
-      } catch (error) {
-        results.push({
-          emailId: rawEmail.id,
-          success: false,
-          error: error instanceof Error ? error.message : 'Unknown error',
-        })
-      }
-    }
-
-    return NextResponse.json({
-      processed: results.length,
-      results,
-    })
-  } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Unknown error' },
-      { status: 500 }
-    )
+export async function POST(request: NextRequest) {
+  if (!isAuthorizedCronRequest(request)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
+
+  const supabase = createAdminClient()
+  const { data, error: claimError } = await supabase.rpc('claim_email_reconciliation_batch', {
+    p_limit: 20,
+  })
+  if (claimError) {
+    console.error('[EmailReconciliation] Queue claim failed', claimError.message)
+    return NextResponse.json({ error: 'Queue claim failed' }, { status: 500 })
+  }
+
+  const claimed = (data || []) as ClaimedEmail[]
+  const results: Array<Record<string, unknown>> = []
+
+  for (const rawEmail of claimed) {
+    const platform = platformFromSender(rawEmail.sender)
+    try {
+      if (!platform || !(await isPlatformInPilot(rawEmail.organization_id, platform))) {
+        const reason = platform ? 'Platform is not enabled for pilot' : 'Sender is not allowlisted'
+        await supabase.from('raw_emails').update({
+          processing_status: 'rejected', last_error: reason, updated_at: new Date().toISOString(),
+        }).eq('id', rawEmail.id).eq('organization_id', rawEmail.organization_id)
+        results.push({ emailId: rawEmail.id, success: false, status: 'rejected' })
+        continue
+      }
+
+      const extraction = await extractEmailData(
+        rawEmail.raw_content,
+        platform as EmailExtractionPlatform
+      )
+      if (!extraction.success || !extraction.data) {
+        const processingStatus = rawEmail.attempt_count >= 2 ? 'needs_review' : 'retry'
+        await supabase.from('raw_emails').update({
+          processing_status: processingStatus,
+          last_error: safeError(extraction.error || 'Extraction failed'),
+          updated_at: new Date().toISOString(),
+        }).eq('id', rawEmail.id).eq('organization_id', rawEmail.organization_id)
+        results.push({ emailId: rawEmail.id, success: false, status: processingStatus })
+        continue
+      }
+
+      const complete = hasRequiredReservationFields(extraction.data)
+      const { data: inserted, error: insertError } = await supabase
+        .from('email_extractions')
+        .upsert({
+          organization_id: rawEmail.organization_id,
+          raw_email_id: rawEmail.id,
+          source_platform: platform,
+          guest_name: extraction.data.guest_name,
+          guest_count: extraction.data.guest_count,
+          check_in: extraction.data.check_in,
+          check_out: extraction.data.check_out,
+          total_value: extraction.data.total_value,
+          currency: extraction.data.currency,
+          reservation_code: extraction.data.reservation_code,
+          property_identifier_raw: extraction.data.property_identifier_raw,
+          raw_email_snippet: rawEmail.raw_content.slice(0, 1_000),
+          confidence: extraction.confidence,
+          match_status: complete ? 'pending' : 'needs_review',
+          extraction_version: extraction.version,
+          extraction_model: extraction.model,
+          updated_at: new Date().toISOString(),
+        }, { onConflict: 'organization_id,raw_email_id' })
+        .select('id')
+        .single()
+
+      if (insertError || !inserted) throw new Error(insertError?.message || 'Extraction persistence failed')
+
+      if (!complete) {
+        await supabase.from('raw_emails').update({
+          processing_status: 'needs_review', processed_at: new Date().toISOString(),
+          last_error: 'Required reservation fields are missing', updated_at: new Date().toISOString(),
+        }).eq('id', rawEmail.id).eq('organization_id', rawEmail.organization_id)
+        results.push({ emailId: rawEmail.id, success: true, status: 'needs_review' })
+        continue
+      }
+
+      const reconciliation = await syncExtractedDataToReservation(inserted.id)
+      if (!reconciliation.success) throw new Error(reconciliation.error || 'Reconciliation failed')
+
+      if (reconciliation.status !== 'auto_matched') {
+        await supabase.from('raw_emails').update({
+          processing_status: 'processed', processed_at: new Date().toISOString(),
+          last_error: null, updated_at: new Date().toISOString(),
+        }).eq('id', rawEmail.id).eq('organization_id', rawEmail.organization_id)
+      }
+      results.push({
+        emailId: rawEmail.id,
+        success: true,
+        status: reconciliation.status,
+        reservationId: reconciliation.reservationId,
+      })
+    } catch (error) {
+      const processingStatus = rawEmail.attempt_count >= 2 ? 'needs_review' : 'retry'
+      const message = safeError(error)
+      console.error('[EmailReconciliation] Processing failed', { emailId: rawEmail.id, message })
+      await supabase.from('raw_emails').update({
+        processing_status: processingStatus, last_error: message, updated_at: new Date().toISOString(),
+      }).eq('id', rawEmail.id).eq('organization_id', rawEmail.organization_id)
+      results.push({ emailId: rawEmail.id, success: false, status: processingStatus, error: message })
+    }
+  }
+
+  return NextResponse.json({ processed: results.length, results })
 }

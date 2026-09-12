@@ -21,6 +21,20 @@ export interface CancelMissingReservationsOptions {
   bookingSources?: string[]
 }
 
+export interface FindOverlappingReservationsOptions {
+  supabase: SupabaseClient
+  propertyId: string
+  organizationId?: string
+  checkIn: string
+  checkOut: string
+}
+
+export interface OverlappingReservation {
+  id: string
+  external_id: string | null
+  property_listing_id: string | null
+}
+
 const DEFAULT_BOOKING_SOURCES = ['ical_import', 'ical_auto_sync', 'booking', 'airbnb', 'flatio', 'vrbo']
 
 export function buildReservationExternalIdContext(
@@ -37,6 +51,37 @@ export function buildReservationExternalIdContext(
     stableExternalId,
     externalIdCandidates,
   }
+}
+
+/**
+ * Loads active reservations that intersect the half-open stay range [checkIn, checkOut).
+ * Database errors are deliberately fatal: treating a failed lookup as an empty result
+ * can create a double booking.
+ */
+export async function findOverlappingReservations(
+  options: FindOverlappingReservationsOptions
+): Promise<OverlappingReservation[]> {
+  const { supabase, propertyId, organizationId, checkIn, checkOut } = options
+
+  let query = supabase
+    .from('reservations')
+    .select('id, external_id, property_listing_id')
+    .eq('property_id', propertyId)
+    .not('status', 'eq', 'cancelled')
+    .lt('check_in', checkOut)
+    .gt('check_out', checkIn)
+
+  if (organizationId) {
+    query = query.eq('organization_id', organizationId)
+  }
+
+  const { data, error } = await query
+
+  if (error) {
+    throw new Error(`Falha ao verificar sobreposição de reservas: ${error.message}`)
+  }
+
+  return (data ?? []) as OverlappingReservation[]
 }
 
 export async function cancelMissingReservations(

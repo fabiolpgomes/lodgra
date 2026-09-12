@@ -86,9 +86,9 @@ export async function checkForDuplicates(organizationId: string): Promise<Duplic
   // Find calendar_event_ids that appear more than once
   const { data: reservations, error } = await supabase
     .from('email_extractions')
-    .select('matched_calendar_event_id, id')
+    .select('matched_event_id, id')
     .eq('organization_id', organizationId)
-    .not('matched_calendar_event_id', 'is', null)
+    .not('matched_event_id', 'is', null)
 
   if (error) {
     throw new Error(`Failed to check duplicates: ${error.message}`)
@@ -96,10 +96,10 @@ export async function checkForDuplicates(organizationId: string): Promise<Duplic
 
   const eventIdCounts = new Map<string, string[]>()
   reservations?.forEach((r) => {
-    if (r.matched_calendar_event_id) {
-      const ids = eventIdCounts.get(r.matched_calendar_event_id) || []
+    if (r.matched_event_id) {
+      const ids = eventIdCounts.get(r.matched_event_id) || []
       ids.push(r.id)
-      eventIdCounts.set(r.matched_calendar_event_id, ids)
+      eventIdCounts.set(r.matched_event_id, ids)
     }
   })
 
@@ -126,19 +126,19 @@ export async function checkPropertyAssociations(
 
   // Get all matched extractions with their calendar events
   const { data: matches, error } = await supabase
-    .from('email_extractions as ee')
+    .from('email_extractions')
     .select(
       `
       id,
-      property_name,
-      matched_calendar_event_id,
-      calendar_events!matched_calendar_event_id (
-        property_identifier_raw
+      property_identifier_raw,
+      matched_event_id,
+      calendar_events!email_extractions_event_org_fk (
+        properties!calendar_events_property_org_fk (name)
       )
     `
     )
-    .eq('ee.organization_id', organizationId)
-    .not('matched_calendar_event_id', 'is', null)
+    .eq('organization_id', organizationId)
+    .not('matched_event_id', 'is', null)
 
   if (error) {
     throw new Error(`Failed to check property associations: ${error.message}`)
@@ -148,10 +148,10 @@ export async function checkPropertyAssociations(
 
   matches?.forEach((match: any) => {
     if (match.calendar_events) {
-      const extractionProp = (match.property_name || '').toLowerCase().trim()
-      const calendarProp = (match.calendar_events.property_identifier_raw || '')
-        .toLowerCase()
-        .trim()
+      const extractionProp = (match.property_identifier_raw || '').toLowerCase().trim()
+      const event = Array.isArray(match.calendar_events) ? match.calendar_events[0] : match.calendar_events
+      const property = Array.isArray(event?.properties) ? event.properties[0] : event?.properties
+      const calendarProp = (property?.name || '').toLowerCase().trim()
 
       // Simple check: properties should have some similarity
       if (
@@ -161,7 +161,7 @@ export async function checkPropertyAssociations(
         !extractionProp.includes(calendarProp)
       ) {
         wrongAssociations.push(
-          `Extraction "${match.property_name}" matched to event property "${match.calendar_events.property_identifier_raw}"`
+          `Extraction "${match.property_identifier_raw}" matched to event property "${property?.name || ''}"`
         )
       }
     }

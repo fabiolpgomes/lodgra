@@ -1,164 +1,116 @@
 import { createAdminClient } from '@/lib/supabase/admin'
-import { calculateFuzzySimilarity } from './matching-engine'
+import { hasRequiredReservationFieldsOnRow, type EmailExtraction } from './extraction.schema'
+import { decideMatch, matchEmailToCalendarEvents, type CalendarEvent } from './matching-engine'
 
-// Below this, we don't trust a property-name match enough to auto-sync.
-const PROPERTY_MATCH_THRESHOLD = 0.6
-// Minimum gap between the best and second-best candidate to call it
-// unambiguous. Two similarly-scored candidates means we shouldn't guess.
-const MIN_WINNER_MARGIN = 0.15
+type SyncResult = {
+  success: boolean
+  status?: 'auto_matched' | 'needs_review' | 'no_match'
+  reservationId?: string
+  error?: string
+}
 
-interface ReservationCandidate {
+type PropertyRelation = { name: string } | Array<{ name: string }> | null
+type ReconciliationExtractionRow = EmailExtraction & {
   id: string
-  property_id: string
-  property_listing_id: string | null
-  properties: { name: string } | Array<{ name: string }> | null
+  organization_id: string
+  raw_email_id: string
+  match_status: 'pending' | 'auto_matched' | 'needs_review' | 'no_match'
+  matched_event_id: string | null
 }
 
-function getPropertyName(candidate: ReservationCandidate): string {
-  const property = Array.isArray(candidate.properties)
-    ? candidate.properties[0]
-    : candidate.properties
-  return property?.name || ''
+function propertyName(relation: PropertyRelation): string | null {
+  const property = Array.isArray(relation) ? relation[0] : relation
+  return property?.name || null
 }
 
-export async function syncExtractedDataToReservation(extractionId: string): Promise<{ success: boolean; error?: string }> {
-  try {
-    const supabase = await createAdminClient()
+export async function syncExtractedDataToReservation(extractionId: string): Promise<SyncResult> {
+  const supabase = await createAdminClient()
+  const { data: extractionData, error: extractionError } = await supabase
+    .from('email_extractions')
+    .select('*')
+    .eq('id', extractionId)
+    .single()
 
-    // 1. Get extraction data
-    const { data: extraction, error: extractionError } = await supabase
-      .from('email_extractions')
-      .select('*')
-      .eq('id', extractionId)
-      .single()
+  if (extractionError || !extractionData) {
+    return { success: false, error: extractionError?.message || 'Extraction not found' }
+  }
+  const extraction = extractionData as unknown as ReconciliationExtractionRow
 
-    if (extractionError || !extraction) {
-      console.error(`Sync: Extraction not found`, { extractionId, error: extractionError })
-      return { success: false, error: 'Extraction not found' }
-    }
-
-    // Skip if already matched
-    if (extraction.match_status === 'auto_matched') {
-      return { success: true }
-    }
-
-    // 2. Find candidate reservations by EXACT dates, org-scoped.
-    // Note: reservations don't carry the human-readable "BK123ABC"-style
-    // confirmation code anywhere (they're created by the sync-ical cron from
-    // the iCal feed, which only has a numeric platform id — see
-    // buildStableExternalId in cron/sync-ical/route.ts). So reservation_code
-    // from the email can't be matched against anything in the DB today.
-    // A single property can't have two overlapping reservations
-    // (sync-ical already enforces that at creation time), so exact-date +
-    // property is the reliable key across an org with multiple properties.
-    const { data: candidates, error: reservationError } = await supabase
+  if (extraction.match_status === 'auto_matched' && extraction.matched_event_id) {
+    const { data: reservation, error } = await supabase
       .from('reservations')
-      .select('id, property_id, property_listing_id, properties:properties!reservations_property_org_fk(name)')
+      .select('id')
       .eq('organization_id', extraction.organization_id)
-      .eq('check_in', extraction.check_in)
-      .eq('check_out', extraction.check_out)
+      .eq('email_extraction_id', extraction.id)
+      .maybeSingle()
+    if (error) return { success: false, error: error.message }
+    return { success: true, status: 'auto_matched', reservationId: reservation?.id }
+  }
 
-    if (reservationError) {
-      console.error(`Sync: Error finding reservation`, { error: reservationError })
-      return { success: false, error: reservationError.message }
-    }
-
-    if (!candidates || candidates.length === 0) {
-      console.warn(`Sync: No matching reservation found`, { extractionId, checkIn: extraction.check_in, checkOut: extraction.check_out })
-      // Don't fail - reservation might not be created yet (email can arrive
-      // before the next sync-ical run picks up the booking).
-      return { success: true }
-    }
-
-    let reservationId: string
-
-    if (candidates.length === 1) {
-      reservationId = candidates[0].id
-    } else {
-      // 2b. Multiple reservations share these exact dates - different
-      // properties. Disambiguate using the property name extracted from the
-      // email (fuzzy match), never guess blindly.
-      if (!extraction.property_name) {
-        console.warn(`Sync: Ambiguous date match and no property_name to disambiguate`, {
-          extractionId,
-          checkIn: extraction.check_in,
-          checkOut: extraction.check_out,
-          candidateCount: candidates.length,
-        })
-        await supabase.from('email_extractions').update({ match_status: 'needs_review' }).eq('id', extractionId)
-        return { success: true }
-      }
-
-      const scored = candidates
-        .map((c) => ({
-          id: c.id,
-          similarity: calculateFuzzySimilarity(extraction.property_name as string, getPropertyName(c)),
-        }))
-        .sort((a, b) => b.similarity - a.similarity)
-
-      const best = scored[0]
-      const secondBest = scored[1]
-      const marginOk = !secondBest || best.similarity - secondBest.similarity >= MIN_WINNER_MARGIN
-
-      if (best.similarity >= PROPERTY_MATCH_THRESHOLD && marginOk) {
-        reservationId = best.id
-      } else {
-        console.warn(`Sync: Ambiguous property match - refusing to guess`, {
-          extractionId,
-          propertyName: extraction.property_name,
-          scored,
-        })
-        await supabase.from('email_extractions').update({ match_status: 'needs_review' }).eq('id', extractionId)
-        return { success: true }
-      }
-    }
-
-    // 3. Prepare update data
-    const updateData: Record<string, unknown> = {
-      email_extraction_id: extractionId,
-    }
-
-    // Update guest name (split if possible)
-    if (extraction.guest_name) {
-      const nameParts = extraction.guest_name.trim().split(' ')
-      updateData.first_name = nameParts[0]
-      updateData.last_name = nameParts.slice(1).join(' ') || nameParts[0]
-    }
-
-    // Update phone
-    if (extraction.phone) {
-      updateData.guest_phone = extraction.phone
-    }
-
-    // Update total amount
-    if (extraction.total_value) {
-      updateData.total_amount = extraction.total_value
-    }
-
-    // 4. Update reservation
-    const { error: updateError } = await supabase
-      .from('reservations')
-      .update(updateData)
-      .eq('id', reservationId)
-
-    if (updateError) {
-      console.error(`Sync: Error updating reservation`, { reservationId, error: updateError })
-      return { success: false, error: updateError.message }
-    }
-
-    // 5. Mark extraction as matched
-    await supabase
+  if (!hasRequiredReservationFieldsOnRow(extraction)) {
+    const { error } = await supabase
       .from('email_extractions')
-      .update({
-        match_status: 'auto_matched',
-      })
-      .eq('id', extractionId)
+      .update({ match_status: 'needs_review', updated_at: new Date().toISOString() })
+      .eq('id', extraction.id)
+      .eq('organization_id', extraction.organization_id)
+    return error
+      ? { success: false, error: error.message }
+      : { success: true, status: 'needs_review' }
+  }
 
-    console.info(`Sync: Successfully synced extraction to reservation`, { extractionId, reservationId })
-    return { success: true }
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-    console.error(`Sync: Unexpected error`, { error: errorMessage })
-    return { success: false, error: errorMessage }
+  const oneDayBefore = new Date(`${extraction.check_in}T00:00:00.000Z`)
+  oneDayBefore.setUTCDate(oneDayBefore.getUTCDate() - 1)
+  const oneDayAfter = new Date(`${extraction.check_out}T00:00:00.000Z`)
+  oneDayAfter.setUTCDate(oneDayAfter.getUTCDate() + 1)
+
+  const { data: rows, error: eventsError } = await supabase
+    .from('calendar_events')
+    .select('id, organization_id, source_platform, check_in, check_out, raw_summary, status, created_at, properties:properties!calendar_events_property_org_fk(name)')
+    .eq('organization_id', extraction.organization_id)
+    .eq('status', 'unmatched')
+    .gte('check_in', oneDayBefore.toISOString().slice(0, 10))
+    .lte('check_out', oneDayAfter.toISOString().slice(0, 10))
+    .order('created_at', { ascending: true })
+    .limit(100)
+
+  if (eventsError) return { success: false, error: eventsError.message }
+
+  const events: CalendarEvent[] = (rows || []).map((row) => ({
+    id: row.id,
+    organization_id: row.organization_id,
+    source_platform: row.source_platform,
+    check_in: row.check_in,
+    check_out: row.check_out,
+    raw_summary: row.raw_summary,
+    property_identifier_raw: propertyName(row.properties as PropertyRelation),
+    status: row.status,
+    created_at: row.created_at,
+  }))
+
+  const decision = decideMatch(matchEmailToCalendarEvents(extraction, events))
+  if (decision.status !== 'auto_matched') {
+    const { error } = await supabase
+      .from('email_extractions')
+      .update({ match_status: decision.status, updated_at: new Date().toISOString() })
+      .eq('id', extraction.id)
+      .eq('organization_id', extraction.organization_id)
+    return error
+      ? { success: false, error: error.message }
+      : { success: true, status: decision.status }
+  }
+
+  const eventId = decision.candidates[0].target_id
+  const { data, error } = await supabase.rpc('reconcile_email_extraction', {
+    p_extraction_id: extraction.id,
+    p_event_id: eventId,
+    p_confirmed_by_host: false,
+  })
+  if (error) return { success: false, error: error.message }
+
+  const result = data as { reservation_id?: string } | null
+  return {
+    success: true,
+    status: 'auto_matched',
+    reservationId: result?.reservation_id,
   }
 }

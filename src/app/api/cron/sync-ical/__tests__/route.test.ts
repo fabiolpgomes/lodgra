@@ -10,6 +10,8 @@ import { GET } from '@/app/api/cron/sync-ical/route'
 import { createTestRequest } from '@/__tests__/utils/test-request'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { importICalFromUrl, classifyICalEvent } from '@/lib/ical/icalService'
+import { getFeatureFlagStatus } from '@/lib/email-reconciliation/feature-flag'
+import { upsertReconciliationAvailability } from '@/lib/ical/reconciliationAvailability'
 
 jest.mock('@/lib/supabase/admin', () => ({
   createAdminClient: jest.fn(),
@@ -24,6 +26,18 @@ jest.mock('@/lib/email/queue', () => ({
   enqueueEmail: jest.fn().mockResolvedValue(undefined),
 }))
 
+jest.mock('@/lib/ical/calendarEventAudit', () => ({
+  upsertCalendarEventAudit: jest.fn().mockResolvedValue({ id: 'event-audit', status: 'unmatched' }),
+}))
+
+jest.mock('@/lib/email-reconciliation/feature-flag', () => ({
+  getFeatureFlagStatus: jest.fn().mockResolvedValue({ enabled: false, pilot_platforms: [] }),
+}))
+
+jest.mock('@/lib/ical/reconciliationAvailability', () => ({
+  upsertReconciliationAvailability: jest.fn().mockResolvedValue(undefined),
+}))
+
 /**
  * Builds a thenable "query builder" stub that mimics the chainable Supabase
  * PostgREST client (select().eq().eq().not() etc.), resolving to `result`
@@ -33,9 +47,12 @@ function makeQuery(result: unknown) {
   const query: Record<string, unknown> = {
     select: jest.fn(() => query),
     eq: jest.fn(() => query),
+    is: jest.fn(() => query),
     in: jest.fn(() => query),
     not: jest.fn(() => query),
     neq: jest.fn(() => query),
+    lt: jest.fn(() => query),
+    gt: jest.fn(() => query),
     order: jest.fn(() => query),
     limit: jest.fn(() => query),
     update: jest.fn(() => query),
@@ -55,6 +72,7 @@ describe('GET /api/cron/sync-ical', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     ;(classifyICalEvent as jest.Mock).mockReturnValue('unknown')
+    ;(getFeatureFlagStatus as jest.Mock).mockResolvedValue({ enabled: false, pilot_platforms: [] })
     process.env.CRON_SECRET = CRON_SECRET
   })
 
@@ -192,7 +210,7 @@ describe('GET /api/cron/sync-ical', () => {
     })
   })
 
-  it('conta bloqueios de calendário persistidos como registros processados', async () => {
+  it('adota bloqueio legado sem listing e o conta como registro processado', async () => {
     const listing = {
       id: 'listing-block',
       ical_url: 'https://example.com/blocked.ics',
@@ -202,6 +220,7 @@ describe('GET /api/cron/sync-ical', () => {
     }
     const insertedSyncLogs: Array<Record<string, unknown>> = []
     let calendarBlockSelectCount = 0
+    const calendarBlockUpdate = jest.fn(() => makeQuery({ data: null, error: null }))
 
     const mockSupabase = {
       from: jest.fn((table: string) => {
@@ -215,11 +234,15 @@ describe('GET /api/cron/sync-ical', () => {
           return {
             select: jest.fn(() => {
               calendarBlockSelectCount++
-              return makeQuery(calendarBlockSelectCount === 1
-                ? { data: { id: 'block-1' }, error: null }
-                : { data: [], error: null })
+              if (calendarBlockSelectCount === 1) {
+                return makeQuery({ data: null, error: null })
+              }
+              if (calendarBlockSelectCount === 2) {
+                return makeQuery({ data: { id: 'block-legacy', property_listing_id: null }, error: null })
+              }
+              return makeQuery({ data: [], error: null })
             }),
-            update: jest.fn(() => makeQuery({ data: null, error: null })),
+            update: calendarBlockUpdate,
           }
         }
         if (table === 'calendar_events') {
@@ -259,6 +282,9 @@ describe('GET /api/cron/sync-ical', () => {
 
     expect(response.status).toBe(200)
     expect(body.blocked).toBe(1)
+    expect(calendarBlockUpdate).toHaveBeenCalledWith(expect.objectContaining({
+      property_listing_id: listing.id,
+    }))
     expect(insertedSyncLogs).toHaveLength(1)
     expect(insertedSyncLogs[0]).toMatchObject({
       status: 'success',
@@ -276,6 +302,47 @@ describe('GET /api/cron/sync-ical', () => {
 
     const response = await GET(request)
     expect(response.status).toBe(401)
+  })
+
+  it('com a reconciliação ativa preserva disponibilidade sem criar reserva fictícia', async () => {
+    const listing = {
+      id: 'listing-booking', ical_url: 'https://example.com/booking.ics', sync_enabled: true,
+      property_id: 'property-booking',
+      properties: { name: 'AHS Premium Apart', organization_id: 'org-1', is_active: true },
+    }
+    const reservationTable = { select: jest.fn(), insert: jest.fn(), update: jest.fn() }
+    const mockSupabase = {
+      from: jest.fn((table: string) => {
+        if (table === 'property_listings') return {
+          select: jest.fn(() => makeQuery({ data: [listing], error: null })),
+          update: jest.fn(() => makeQuery({ data: null, error: null })),
+        }
+        if (table === 'reservations') return reservationTable
+        if (table === 'calendar_blocks') return { select: jest.fn(() => makeQuery({ data: [], error: null })) }
+        if (table === 'sync_logs') return { insert: jest.fn(() => Promise.resolve({ data: null, error: null })) }
+        return { select: jest.fn(() => makeQuery({ data: [], error: null })) }
+      }),
+    }
+    ;(createAdminClient as jest.Mock).mockReturnValue(mockSupabase)
+    ;(getFeatureFlagStatus as jest.Mock).mockResolvedValue({ enabled: true, pilot_platforms: ['booking'] })
+    ;(classifyICalEvent as jest.Mock).mockReturnValue('block')
+    const start = new Date('2026-09-29T00:00:00.000Z')
+    const end = new Date('2026-09-30T00:00:00.000Z')
+    ;(importICalFromUrl as jest.Mock).mockResolvedValue([{
+      uid: 'e4729bf0c6e6e224ac8f9bbd06eb89d3@booking.com',
+      summary: 'CLOSED - Not available', description: '', start, end,
+    }])
+
+    const response = await GET(buildRequest())
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body.blocked).toBe(1)
+    expect(upsertReconciliationAvailability).toHaveBeenCalledWith(expect.objectContaining({
+      propertyListingId: 'listing-booking', checkIn: '2026-09-29', checkOut: '2026-09-30',
+    }))
+    expect(reservationTable.select).not.toHaveBeenCalled()
+    expect(reservationTable.insert).not.toHaveBeenCalled()
   })
 
   it('delimita a procura de reserva existente pelo listing e organização', async () => {
@@ -391,5 +458,150 @@ describe('GET /api/cron/sync-ical', () => {
       cancelled_at: expect.any(String),
       updated_at: expect.any(String),
     }))
+  })
+
+  it('preserva cancelamento para listing fora do piloto quando a flag da organização está ativa', async () => {
+    const listing = {
+      id: 'listing-airbnb-non-pilot',
+      ical_url: 'https://example.com/airbnb-empty.ics',
+      sync_enabled: true,
+      property_id: 'prop-airbnb',
+      platforms: { name: 'Airbnb', display_name: 'Airbnb' },
+      properties: { name: 'Casa Airbnb', organization_id: 'org-mixed', is_active: true },
+    }
+    const reservationUpdate = jest.fn(() => makeQuery({ data: { id: 'reservation-airbnb' }, error: null }))
+
+    const mockSupabase = {
+      from: jest.fn((table: string) => {
+        if (table === 'property_listings') {
+          return {
+            select: jest.fn(() => makeQuery({ data: [listing], error: null })),
+            update: jest.fn(() => makeQuery({ data: null, error: null })),
+          }
+        }
+        if (table === 'reservations') {
+          return {
+            select: jest.fn(() => makeQuery({
+              data: [{ id: 'reservation-airbnb', external_id: 'airbnb_777', check_out: '2026-09-20' }],
+              error: null,
+            })),
+            update: reservationUpdate,
+          }
+        }
+        if (table === 'calendar_blocks') {
+          return { select: jest.fn(() => makeQuery({ data: [], error: null })) }
+        }
+        if (table === 'sync_logs') {
+          return { insert: jest.fn(() => Promise.resolve({ data: null, error: null })) }
+        }
+        return { select: jest.fn(() => makeQuery({ data: [], error: null })) }
+      }),
+    }
+
+    ;(createAdminClient as jest.Mock).mockReturnValue(mockSupabase)
+    ;(importICalFromUrl as jest.Mock).mockResolvedValue([])
+    ;(getFeatureFlagStatus as jest.Mock).mockResolvedValue({
+      enabled: true,
+      pilot_platforms: ['booking'],
+    })
+
+    const response = await GET(buildRequest())
+
+    expect(response.status).toBe(200)
+    expect(reservationUpdate).toHaveBeenCalledWith(expect.objectContaining({ status: 'cancelled' }))
+  })
+
+  it('limita a limpeza de bloqueios ao listing que está sendo sincronizado', async () => {
+    const listing = {
+      id: 'listing-block-owner',
+      ical_url: 'https://example.com/empty.ics',
+      sync_enabled: true,
+      property_id: 'property-shared',
+      properties: { name: 'Casa Multi-OTA', organization_id: 'org-1', is_active: true },
+    }
+    const blockCleanupQuery = makeQuery({ data: [], error: null })
+
+    const mockSupabase = {
+      from: jest.fn((table: string) => {
+        if (table === 'property_listings') {
+          return {
+            select: jest.fn(() => makeQuery({ data: [listing], error: null })),
+            update: jest.fn(() => makeQuery({ data: null, error: null })),
+          }
+        }
+        if (table === 'calendar_blocks') {
+          return { select: jest.fn(() => blockCleanupQuery) }
+        }
+        if (table === 'sync_logs') {
+          return { insert: jest.fn(() => Promise.resolve({ data: null, error: null })) }
+        }
+        return { select: jest.fn(() => makeQuery({ data: [], error: null })) }
+      }),
+    }
+
+    ;(createAdminClient as jest.Mock).mockReturnValue(mockSupabase)
+    ;(importICalFromUrl as jest.Mock).mockResolvedValue([])
+
+    const response = await GET(buildRequest())
+
+    expect(response.status).toBe(200)
+    expect(blockCleanupQuery.eq).toHaveBeenCalledWith('property_id', 'property-shared')
+    expect(blockCleanupQuery.eq).toHaveBeenCalledWith('organization_id', 'org-1')
+    expect(blockCleanupQuery.eq).toHaveBeenCalledWith('property_listing_id', 'listing-block-owner')
+  })
+
+  it('falha o listing sem criar hóspede quando a consulta da reserva existente falha', async () => {
+    const listing = {
+      id: 'listing-fail-closed',
+      ical_url: 'https://example.com/reservation.ics',
+      sync_enabled: true,
+      property_id: 'property-1',
+      properties: { name: 'Casa Segura', organization_id: 'org-1', is_active: true },
+    }
+    const guestInsert = jest.fn()
+
+    const mockSupabase = {
+      from: jest.fn((table: string) => {
+        if (table === 'property_listings') {
+          return {
+            select: jest.fn(() => makeQuery({ data: [listing], error: null })),
+            update: jest.fn(() => makeQuery({ data: null, error: null })),
+          }
+        }
+        if (table === 'calendar_events') {
+          return { upsert: jest.fn(() => Promise.resolve({ data: null, error: null })) }
+        }
+        if (table === 'reservations') {
+          return {
+            select: jest.fn(() => makeQuery({
+              data: null,
+              error: { message: 'Gateway Timeout' },
+            })),
+          }
+        }
+        if (table === 'guests') return { insert: guestInsert }
+        if (table === 'sync_logs') {
+          return { insert: jest.fn(() => Promise.resolve({ data: null, error: null })) }
+        }
+        return { select: jest.fn(() => makeQuery({ data: [], error: null })) }
+      }),
+    }
+
+    ;(createAdminClient as jest.Mock).mockReturnValue(mockSupabase)
+    ;(classifyICalEvent as jest.Mock).mockReturnValue('reservation')
+    ;(importICalFromUrl as jest.Mock).mockResolvedValue([{
+      uid: 'airbnb-reservation-1@airbnb.com',
+      summary: 'Reserved',
+      description: '',
+      start: new Date('2026-09-20T00:00:00.000Z'),
+      end: new Date('2026-09-22T00:00:00.000Z'),
+    }])
+
+    const response = await GET(buildRequest())
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body.errors).toBe(1)
+    expect(guestInsert).not.toHaveBeenCalled()
   })
 })

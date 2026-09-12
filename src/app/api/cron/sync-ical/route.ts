@@ -14,10 +14,14 @@ import {
 import {
   buildReservationExternalIdContext,
   cancelMissingReservations,
+  findOverlappingReservations,
 } from '@/lib/ical/reservationSync'
 import { upsertCalendarEventAudit } from '@/lib/ical/calendarEventAudit'
 import { calculateServiceFeeAmount, nightsBetween } from '@/lib/reservations/serviceFee'
 import { isAuthorizedCronRequest } from '@/lib/cron/auth'
+import { getFeatureFlagStatus } from '@/lib/email-reconciliation/feature-flag'
+import { upsertReconciliationAvailability } from '@/lib/ical/reconciliationAvailability'
+import { normalizeListingPlatform } from '@/lib/ical/listingPlatform'
 
 interface ListingPropertyInfo {
   name: string
@@ -50,6 +54,7 @@ async function syncOneListing(
     property_id: string
     sync_enabled: boolean
     properties: unknown
+    platforms?: unknown
   },
   progress: SyncResult
 ): Promise<SyncResult> {
@@ -61,12 +66,14 @@ async function syncOneListing(
   if (!cronOrgId) {
     throw new Error(`Listing ${listing.id} has no organization_id`)
   }
+  const reconciliationFlag = await getFeatureFlagStatus(cronOrgId)
 
   console.log(`[Cron] Sincronizando anúncio ${listing.id}...`)
   const events = await importICalFromUrl(listing.ical_url)
   console.log(`[Cron] Listing ${listing.id}: ${events.length} evento(s)`)
   const receivedUids = new Set(events.map(e => e.uid))
   const receivedExternalIds = new Set<string>()
+  let listingSource = normalizeListingPlatform(listing.platforms)
 
   const now = new Date()
   const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
@@ -75,6 +82,7 @@ async function syncOneListing(
   for (const event of events) {
     const externalIdContext = buildReservationExternalIdContext(event)
     const source = externalIdContext.source
+    listingSource ||= source
     const externalIdLookup = externalIdContext.stableExternalId
     const reservationSource = normalizeIcalReservationSource(source)
 
@@ -120,6 +128,26 @@ async function syncOneListing(
       skipped++; processed++; progress.skipped++; progress.processed++; continue
     }
 
+    const stagedForReconciliation =
+      reconciliationFlag.enabled &&
+      reconciliationFlag.pilot_platforms.includes(source) &&
+      classification !== 'unknown'
+
+    if (stagedForReconciliation) {
+      await upsertReconciliationAvailability({
+        supabase,
+        organizationId: cronOrgId,
+        propertyId: listing.property_id,
+        propertyListingId: listing.id,
+        uid: event.uid,
+        checkIn,
+        checkOut,
+        summary: event.summary,
+      })
+      blocked++; processed++; progress.blocked++; progress.processed++
+      continue
+    }
+
     if (classification === 'unknown') {
       console.log(`[Cron] Evento sem evidência suficiente para classificar: "${event.summary}" (${event.uid})`)
       unknown++; processed++; progress.unknown++; progress.processed++
@@ -147,16 +175,38 @@ async function syncOneListing(
       // Verificar se bloqueio já existe (pelo external_uid)
       let blockError = null
       if (event.uid) {
-        const { data: existing, error: existingError } = await supabase
+        let { data: existing, error: existingError } = await supabase
           .from('calendar_blocks')
-          .select('id')
+          .select('id, property_listing_id')
           .eq('external_uid', event.uid)
           .eq('property_id', listing.property_id)
           .eq('organization_id', blockOrgId)
-          .single()
+          .eq('property_listing_id', listing.id)
+          .maybeSingle()
 
         if (existingError) {
-          console.log(`[Cron] Bloqueio ${event.uid} não existe (será criado novo)`)
+          throw new Error(`Falha ao localizar bloqueio ${event.uid}: ${existingError.message}`)
+        }
+
+        // Adopt a pre-provenance block instead of creating a duplicate. New
+        // writes always carry property_listing_id, so this path self-heals
+        // brownfield rows as their feed events are observed.
+        if (!existing) {
+          const legacyLookup = await supabase
+            .from('calendar_blocks')
+            .select('id, property_listing_id')
+            .eq('external_uid', event.uid)
+            .eq('property_id', listing.property_id)
+            .eq('organization_id', blockOrgId)
+            .is('property_listing_id', null)
+            .order('id', { ascending: true })
+            .limit(1)
+            .maybeSingle()
+          existing = legacyLookup.data
+          existingError = legacyLookup.error
+          if (existingError) {
+            throw new Error(`Falha ao localizar bloqueio legado ${event.uid}: ${existingError.message}`)
+          }
         }
 
         if (existing) {
@@ -169,6 +219,7 @@ async function syncOneListing(
               end_date: checkOut,
               notes: event.summary || 'Bloqueado pela plataforma',
               block_type: 'platform_sync',
+              property_listing_id: listing.id,
             })
             .eq('id', existing.id)
           blockError = updateError
@@ -195,6 +246,7 @@ async function syncOneListing(
               notes: event.summary || 'Bloqueado pela plataforma',
               external_uid: event.uid,
               block_type: 'platform_sync',
+              property_listing_id: listing.id,
             })
           blockError = insertError
           if (blockError) {
@@ -241,13 +293,19 @@ async function syncOneListing(
       platformUrl = getPlatformUrl('flatio', bookingReference)
     }
 
-    const { data: existingReservation } = await supabase
+    const { data: existingReservation, error: existingReservationError } = await supabase
       .from('reservations')
       .select('id, external_id')
       .eq('property_listing_id', listing.id)
       .eq('organization_id', cronOrgId)
       .in('external_id', externalIdContext.externalIdCandidates)
       .maybeSingle()
+
+    if (existingReservationError) {
+      throw new Error(
+        `Falha ao localizar reserva ${externalIdLookup}: ${existingReservationError.message}`
+      )
+    }
 
     if (existingReservation) {
       console.log(`[Cron] Atualizando reserva existente com external_id: ${externalIdLookup}`)
@@ -291,11 +349,13 @@ async function syncOneListing(
         updated++; processed++; progress.updated++; progress.processed++
       }
     } else {
-      const { data: overlapping } = await supabase
-        .from('reservations').select('id')
-        .eq('property_id', listing.property_id)
-        .not('status', 'eq', 'cancelled')
-        .lt('check_in', checkOut).gt('check_out', checkIn)
+      const overlapping = await findOverlappingReservations({
+        supabase,
+        propertyId: listing.property_id,
+        organizationId: cronOrgId,
+        checkIn,
+        checkOut,
+      })
 
       if (overlapping && overlapping.length > 0) {
         skipped++; processed++; progress.skipped++; progress.processed++; continue
@@ -399,15 +459,21 @@ async function syncOneListing(
   }
 
   let cancelledCount = 0
-  try {
-    cancelledCount = await cancelMissingReservations({
-      supabase,
-      propertyListingId: listing.id,
-      organizationId: cronOrgId,
-      receivedExternalIds,
-    })
-  } catch (error) {
-    console.error(`[Cron] Erro ao cancelar reservas ausentes do iCal para listing ${listing.id}:`, error)
+  const reconciliationOwnsListing =
+    reconciliationFlag.enabled &&
+    listingSource !== null &&
+    reconciliationFlag.pilot_platforms.includes(listingSource)
+  if (!reconciliationOwnsListing) {
+    try {
+      cancelledCount = await cancelMissingReservations({
+        supabase,
+        propertyListingId: listing.id,
+        organizationId: cronOrgId,
+        receivedExternalIds,
+      })
+    } catch (error) {
+      console.error(`[Cron] Erro ao cancelar reservas ausentes do iCal para listing ${listing.id}:`, error)
+    }
   }
 
   if (cancelledCount > 0) {
@@ -417,11 +483,19 @@ async function syncOneListing(
   }
 
   // Auto-remove blocks that disappeared from iCal
-  const { data: existingBlocks } = await supabase
+  const { data: existingBlocks, error: existingBlocksError } = await supabase
     .from('calendar_blocks')
     .select('id, external_uid')
     .eq('property_id', listing.property_id)
+    .eq('organization_id', cronOrgId)
+    .eq('property_listing_id', listing.id)
     .not('external_uid', 'is', null) // Only platform-synced blocks
+
+  if (existingBlocksError) {
+    throw new Error(
+      `Falha ao listar bloqueios do anúncio ${listing.id}: ${existingBlocksError.message}`
+    )
+  }
 
   if (existingBlocks) {
     for (const block of existingBlocks) {
@@ -484,7 +558,7 @@ export async function GET(request: NextRequest) {
 
     const { data: listings, error } = await supabase
       .from('property_listings')
-      .select(`id, ical_url, sync_enabled, property_id, properties:properties!property_listings_property_org_fk(name, organization_id, cleaning_fee, cleaning_fee_type, pet_fee, pet_fee_type, is_active)`)
+      .select(`id, ical_url, sync_enabled, property_id, platforms(name, display_name), properties:properties!property_listings_property_org_fk(name, organization_id, cleaning_fee, cleaning_fee_type, pet_fee, pet_fee_type, is_active)`)
       .eq('is_active', true)
       .eq('sync_enabled', true)
       .not('ical_url', 'is', null)

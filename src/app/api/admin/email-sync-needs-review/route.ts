@@ -1,7 +1,11 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 import { NextRequest, NextResponse } from 'next/server'
+import { requireRole } from '@/lib/auth/requireRole'
 
 export async function GET(request: NextRequest) {
+  const auth = await requireRole(['admin', 'gestor'])
+  if (!auth.authorized) return auth.response!
+  if (!auth.organizationId) return NextResponse.json({ error: 'Organization unavailable' }, { status: 403 })
   try {
     const supabase = await createAdminClient()
 
@@ -25,6 +29,7 @@ export async function GET(request: NextRequest) {
         match_status
       `
       )
+      .eq('organization_id', auth.organizationId)
       .eq('match_status', 'needs_review')
       .gte('created_at', startDate.toISOString())
       .order('created_at', { ascending: false })
