@@ -140,7 +140,7 @@ export async function generateGoogleVacationRentalsFeed(
       const blockedDates = (reservations || []).map((res) => ({
         start: res.check_in,
         end: res.check_out,
-      }))
+      })).sort((a, b) => a.start.localeCompare(b.start) || a.end.localeCompare(b.end))
 
       // Extract amenity names
       const amenityNames = (amenities || [])
@@ -169,9 +169,10 @@ export async function generateGoogleVacationRentalsFeed(
   xml += `  <link href="${escapeXml(baseUrl)}" rel="alternate"/>\n`
   xml += `  <updated>${now}</updated>\n`
   xml += `  <id>urn:lodgra:feed:properties</id>\n`
+  let semanticXml = xml.replace(`  <updated>${now}</updated>\n`, '')
 
   for (const { property, images, review, aggregatedReviews, blockedDates, amenities } of enrichedProperties) {
-    xml += generateFeedEntry(
+    const entry = generateFeedEntry(
       property,
       images,
       review,
@@ -179,14 +180,19 @@ export async function generateGoogleVacationRentalsFeed(
       blockedDates,
       amenities,
       currency,
-      getTenantBaseUrl(baseUrl, property.organization_id ? organizationSlugs.get(property.organization_id) : null)
+      getTenantBaseUrl(baseUrl, property.organization_id ? organizationSlugs.get(property.organization_id) : null),
+      now
     )
+    xml += entry
+    semanticXml += property.updated_at ? entry : entry.replace(`    <updated>${now}</updated>\n`, '')
   }
 
   xml += `</feed>\n`
+  semanticXml += `</feed>\n`
 
-  // Generate ETag from content hash
-  const eTag = crypto.createHash('md5').update(xml).digest('hex')
+  // Exclude only generated clocks, preserving stored timestamps, reviews,
+  // availability and all other entry fields in the semantic validator.
+  const eTag = crypto.createHash('md5').update(semanticXml).digest('hex')
 
   return { xml, eTag, count: properties.length }
 }
@@ -202,7 +208,8 @@ function generateFeedEntry(
   blockedDates: BlockedDate[],
   amenities: string[],
   currency: string,
-  baseUrl: string
+  baseUrl: string,
+  generatedAt: string
 ): string {
   const lat = property.latitude || 0
   const lon = property.longitude || 0
@@ -239,7 +246,7 @@ function generateFeedEntry(
   entry += `    <author>\n`
   entry += `      <name>Lodgra Property</name>\n`
   entry += `    </author>\n`
-  entry += `    <updated>${property.updated_at || new Date().toISOString()}</updated>\n`
+  entry += `    <updated>${property.updated_at || generatedAt}</updated>\n`
 
   // Rating (if available)
   if (review.rating > 0) {

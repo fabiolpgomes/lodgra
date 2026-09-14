@@ -94,7 +94,7 @@ export async function GET(request: NextRequest) {
       `
       )
       .eq('organization_id', organizationId)
-      .neq('status', 'cancelled')
+      .not('status', 'in', '(cancelled,pending,pending_payment)')
       .not('commission_amount', 'is', null)
 
     if (startDate) {

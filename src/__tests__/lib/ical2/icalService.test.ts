@@ -123,8 +123,7 @@ describe('importICalFromUrl()', () => {
     expect(events[0].uid).toBe('booking-closed')
   })
 
-  it('skips events with missing dates (no filtering of summary)', async () => {
-    // Only events without dates are skipped (can't process them)
+  it('rejects the whole feed when one event has missing dates', async () => {
     const emptyDateEvent = [
       'BEGIN:VEVENT',
       'UID:empty-dates',
@@ -134,11 +133,7 @@ describe('importICalFromUrl()', () => {
     const validEvent = makeVEvent({ uid: 'valid', summary: 'anything' })
     mockFetchOk(makeICalString([emptyDateEvent, validEvent].join('\r\n')))
 
-    const events = await importICalFromUrl('https://example.com/cal.ics')
-
-    // Only valid-dated event imported (missing-date event skipped)
-    expect(events).toHaveLength(1)
-    expect(events[0].uid).toBe('valid')
+    await expect(importICalFromUrl('https://example.com/cal.ics')).rejects.toThrow(/dtstart/)
   })
 
   it('returns empty array when calendar has no events', async () => {
@@ -149,8 +144,7 @@ describe('importICalFromUrl()', () => {
     expect(events).toHaveLength(0)
   })
 
-  it('skips events missing DTSTART or DTEND and does not throw', async () => {
-    // Event with no date properties — ical.js sets startDate/endDate to null
+  it('does not treat malformed events as an empty calendar', async () => {
     const eventWithoutDates = [
       'BEGIN:VEVENT',
       'UID:no-dates-1',
@@ -159,10 +153,7 @@ describe('importICalFromUrl()', () => {
     ].join('\r\n')
     mockFetchOk(makeICalString(eventWithoutDates))
 
-    const events = await importICalFromUrl('https://example.com/cal.ics')
-
-    // Should not throw and return empty (event skipped due to missing dates)
-    expect(events).toHaveLength(0)
+    await expect(importICalFromUrl('https://example.com/cal.ics')).rejects.toThrow(/dtstart/)
   })
 })
 

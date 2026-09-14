@@ -2,23 +2,14 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { importICalFromUrl, classifyICalEvent } from '@/lib/ical/icalService'
 import { requireRole } from '@/lib/auth/requireRole'
-import { enqueueEmail } from '@/lib/email/queue'
-import {
-  parseBookingDescription,
-  detectSource,
-  getPlatformUrl,
-  normalizeIcalReservationSource,
-} from '@/lib/ical/bookingParser'
+import { detectSource } from '@/lib/ical/bookingParser'
 import {
   buildReservationExternalIdContext,
   cancelMissingReservations,
-  findOverlappingReservations,
+  removeMissingCalendarBlocks,
 } from '@/lib/ical/reservationSync'
 import { upsertCalendarEventAudit } from '@/lib/ical/calendarEventAudit'
-import { calculateServiceFeeAmount, nightsBetween } from '@/lib/reservations/serviceFee'
-import { getFeatureFlagStatus } from '@/lib/email-reconciliation/feature-flag'
-import { hasActiveReconciledReservation, upsertReconciliationAvailability } from '@/lib/ical/reconciliationAvailability'
-import { normalizeListingPlatform } from '@/lib/ical/listingPlatform'
+import { importPendingICalReservation } from '@/lib/ical/pendingReservation'
 
 type AdminClient = ReturnType<typeof createAdminClient>
 
@@ -28,25 +19,19 @@ interface PropertyInfo {
   organization_id?: string | null
 }
 
-interface CancelledReservationGuestRow {
-  id: string
-  external_id: string
-  check_in: string
-  check_out: string
-  guests: { first_name: string; last_name: string } | null
-}
-
 async function syncListing(
   supabase: AdminClient,
   listingId: string,
   icalUrl: string,
   organizationId?: string
 ): Promise<{ created: number; updated: number; blocked: number; reconciled: number; unknown: number; skipped: number; cancelled: number; errors: string[] }> {
+  const syncStartedAt = new Date().toISOString()
   const events = await importICalFromUrl(icalUrl)
+  const receivedUids = new Set(events.map(event => event.uid))
 
   const { data: propertyListing, error: propertyListingError } = await supabase
     .from('property_listings')
-    .select('property_id, organization_id, platforms(name, display_name), properties:properties!property_listings_property_org_fk(cleaning_fee, cleaning_fee_type, pet_fee, pet_fee_type)')
+    .select('property_id, organization_id')
     .eq('id', listingId)
     .single()
 
@@ -60,19 +45,18 @@ async function syncListing(
   if (!resolvedOrganizationId) {
     throw new Error(`Anúncio ${listingId} sem organization_id para auditar evento iCal`)
   }
-  const reconciliationFlag = await getFeatureFlagStatus(resolvedOrganizationId)
-  let listingSource = normalizeListingPlatform(propertyListing.platforms)
 
   let created = 0
   let updated = 0
   let blocked = 0
-  let reconciled = 0
+  const reconciled = 0
   let unknown = 0
   let skipped = 0
   let cancelled = 0
   const errors: string[] = []
   console.log(`[Sync] Listing ${listingId}: ${events.length} evento(s) recebido(s) do iCal`)
   const receivedExternalIds = new Set<string>()
+  const receivedCalendarEventIds = new Set<string>()
 
   if (events.length === 0) {
     console.warn(`[Sync] Listing ${listingId}: iCal retornou 0 eventos — verifique a URL ou se o calendário tem reservas`)
@@ -87,21 +71,6 @@ async function syncListing(
     const externalIdContext = buildReservationExternalIdContext(event)
 
     const source = detectSource(event.summary, event.description, event.uid)
-    listingSource ||= source
-    const bookingReference = externalIdContext.stableExternalId.includes('_')
-      ? externalIdContext.stableExternalId.substring(externalIdContext.stableExternalId.indexOf('_') + 1)
-      : externalIdContext.stableExternalId
-    const platformUrl =
-      source === 'booking'
-        ? getPlatformUrl('booking', bookingReference)
-        : source === 'airbnb'
-          ? getPlatformUrl('airbnb', bookingReference)
-          : source === 'flatio'
-            ? getPlatformUrl('flatio', bookingReference)
-            : source === 'vrbo'
-              ? getPlatformUrl('vrbo', bookingReference)
-              : ''
-    const reservationSource = normalizeIcalReservationSource(source)
     const auditOrganizationId = resolvedOrganizationId
 
     // Usar toISOString() para obter YYYY-MM-DD em UTC (consistente com Date.UTC usado no icalService)
@@ -119,11 +88,8 @@ async function syncListing(
       classification,
     })
 
-    if (classification === 'reservation') {
-      for (const candidate of externalIdContext.externalIdCandidates) {
-        receivedExternalIds.add(candidate)
-      }
-    }
+    receivedCalendarEventIds.add(audit.id)
+    for (const candidate of externalIdContext.externalIdCandidates) receivedExternalIds.add(candidate)
 
     // Ignorar se o check-out já passou (reserva terminada) ou início > 2 anos
     if (event.end < today || event.start > twoYearsFromNow) {
@@ -132,37 +98,17 @@ async function syncListing(
       continue
     }
 
-    // Ignorar eventos de duração excessiva (> 180 dias) — são fechamentos sazonais, não reservas reais
-    const durationDays = Math.round((event.end.getTime() - event.start.getTime()) / (1000 * 60 * 60 * 24))
-    if (durationDays > 180) {
-      console.log(`[Sync] Evento de ${durationDays} dias ignorado (fechamento sazonal): "${event.summary}" (${checkIn} → ${checkOut})`)
-      skipped++
-      continue
-    }
-
     if (
-      reconciliationFlag.enabled &&
-      reconciliationFlag.pilot_platforms.includes(source) &&
+      (source === 'booking' || classification === 'reservation' ||
+        audit.status === 'matched' || audit.status === 'ignored') &&
       classification !== 'unknown'
     ) {
-      if (audit.status === 'matched' && await hasActiveReconciledReservation({
-        supabase, organizationId: auditOrganizationId, propertyId: propertyListing.property_id,
-        propertyListingId: listingId, calendarEventId: audit.id, checkIn, checkOut,
-      })) {
-        skipped++
-        continue
-      }
-      await upsertReconciliationAvailability({
-        supabase,
-        organizationId: auditOrganizationId,
-        propertyId: propertyListing.property_id,
-        propertyListingId: listingId,
-        uid: event.uid,
-        checkIn,
-        checkOut,
-        summary: event.summary,
-      })
-      reconciled++
+      const pending = await importPendingICalReservation(supabase, auditOrganizationId, audit.id, externalIdContext.externalIdCandidates)
+      receivedExternalIds.add(`ical_${audit.id}`)
+      if (pending.action === 'created') created++
+      else if (pending.action === 'updated') updated++
+      else if (pending.action === 'blocked') blocked++
+      else skipped++
       continue
     }
 
@@ -170,19 +116,6 @@ async function syncListing(
       console.log(`[Sync] Evento sem evidência suficiente para classificar: "${event.summary}" (${event.uid})`)
       unknown++
       continue
-    }
-
-    const { data: existingReservation, error: existingReservationError } = await supabase
-      .from('reservations')
-      .select('id, external_id')
-      .eq('property_listing_id', listingId)
-      .in('external_id', externalIdContext.externalIdCandidates)
-      .maybeSingle()
-
-    if (existingReservationError) {
-      throw new Error(
-        `Falha ao localizar reserva ${externalIdContext.stableExternalId}: ${existingReservationError.message}`
-      )
     }
 
     if (classification === 'block') {
@@ -248,201 +181,23 @@ async function syncListing(
       continue
     }
 
-    if (existingReservation) {
-      const updatedBookingData = parseBookingDescription(event.description)
-      const updatedGuestFirstName =
-        source === 'booking'
-          ? updatedBookingData.guestName?.split(' ')[0] || 'Reservado'
-          : updatedBookingData.guestName?.split(' ')[0] || 'Hóspede'
-      const updatedGuestLastName =
-        source === 'booking'
-          ? updatedBookingData.guestName?.split(' ').slice(1).join(' ') || ''
-          : updatedBookingData.guestName?.split(' ').slice(1).join(' ') || 'Importado'
-      const { error } = await supabase
-        .from('reservations')
-        .update({
-          check_in: checkIn,
-          check_out: checkOut,
-          external_id: externalIdContext.stableExternalId,
-          updated_at: new Date().toISOString(),
-          booking_reference: bookingReference,
-          booking_source: reservationSource,
-          platform_sync_url: platformUrl || null,
-          platform_synced_at: new Date().toISOString(),
-          source: reservationSource,
-          ...(source === 'booking'
-            ? {
-                guest_name: `${updatedGuestFirstName} ${updatedGuestLastName}`.trim(),
-                first_name: updatedGuestFirstName,
-                last_name: updatedGuestLastName,
-              }
-            : {}),
-          ...(updatedBookingData.numGuests ? { number_of_guests: updatedBookingData.numGuests } : {}),
-        })
-        .eq('id', existingReservation.id)
-
-      if (error) {
-        const errMsg = `Erro ao atualizar reserva ${existingReservation.id}: ${error.message}`
-        console.error('[Sync]', errMsg)
-        errors.push(errMsg)
-        skipped++
-      } else {
-        updated++
-      }
-      continue
-    }
-
-    // Verificar se já existe reserva com datas sobrepostas na mesma propriedade
-    // (pode ser a mesma reserva importada de outra plataforma)
-    const overlapping = await findOverlappingReservations({
-      supabase,
-      propertyId: propertyListing.property_id,
-      organizationId: auditOrganizationId,
-      checkIn,
-      checkOut,
-    })
-
-    if (overlapping && overlapping.length > 0) {
-      // Já existe reserva neste período nesta propriedade — mesmo bloqueio de outra plataforma
-      console.log(`[Sync] Reserva sobreposta encontrada para "${event.summary}" (${checkIn}-${checkOut}), ignorando duplicado`)
-      skipped++
-      continue
-    }
-
-    const uniqueEmail = `imported-${Date.now()}-${Math.random().toString(36).substring(7)}@lodgra.local`
-
-    // Parse Booking.com metadata from description
-    const bookingData = parseBookingDescription(event.description)
-
-    // Booking iCal antigo: sem nome real do hóspede, usar o placeholder
-    let guestFirstName = bookingData.guestName?.split(' ')[0] || (source === 'booking' ? 'Reservado' : 'Hóspede')
-    let guestLastName = bookingData.guestName?.split(' ').slice(1).join(' ') || (source === 'booking' ? '' : 'Importado')
-
-    if (source !== 'booking') {
-      const summary = event.summary || ''
-      if (summary && !summary.toLowerCase().includes('not available') && !summary.toLowerCase().includes('closed')) {
-        const parts = summary.split(' ')
-        if (parts.length >= 2) {
-          guestFirstName = parts[0]
-          guestLastName = parts.slice(1).join(' ')
-        } else if (parts.length === 1) {
-          guestFirstName = parts[0]
-          guestLastName = ''
-        }
-      }
-    }
-
-    const { data: guest, error: guestError } = await supabase
-        .from('guests')
-        .insert({
-          first_name: guestFirstName,
-          last_name: guestLastName,
-          email: uniqueEmail,
-          phone: bookingData.phone || null,
-          country: bookingData.country || null,
-          organization_id: auditOrganizationId,
-        })
-        .select()
-        .single()
-
-      if (guestError || !guest) {
-        const errMsg = `Falha ao criar hóspede para "${event.summary}" (${checkIn}-${checkOut}): ${guestError?.message || 'unknown'}`
-        console.error('[Sync]', errMsg)
-        errors.push(errMsg)
-        skipped++
-        continue
-      }
-
-      // Story 39.1 — snapshot de service_fee_amount a partir da propriedade (não recalculado depois)
-      const importedPropertyFees = propertyListing?.properties as unknown as
-        | { cleaning_fee: number | null; cleaning_fee_type: string | null; pet_fee: number | null; pet_fee_type: string | null }
-        | null
-        | undefined
-      const importedNights = nightsBetween(checkIn, checkOut)
-      const serviceFeeAmount = calculateServiceFeeAmount(importedPropertyFees, importedNights)
-
-      const { error: reservationError } = await supabase
-        .from('reservations')
-        .insert({
-          property_id: propertyListing.property_id,
-          property_listing_id: listingId,
-          guest_id: guest.id,
-          check_in: checkIn,
-          check_out: checkOut,
-          status: 'confirmed',
-          external_id: externalIdContext.stableExternalId,
-          booking_reference: bookingReference,
-          booking_source: reservationSource,
-          platform_sync_url: platformUrl || null,
-          platform_synced_at: new Date().toISOString(),
-          source: reservationSource,
-          number_of_guests: bookingData.numGuests || 1,
-          guest_name: `${guestFirstName} ${guestLastName}`.trim(),
-          first_name: guestFirstName,
-          last_name: guestLastName,
-          service_fee_amount: serviceFeeAmount,
-          discount_amount: 0,
-          commission_calculated_at: new Date().toISOString(),
-          organization_id: auditOrganizationId,
-        })
-
-    if (reservationError) {
-        const errMsg = `Falha ao criar reserva para "${event.summary}" (${checkIn} → ${checkOut}): ${reservationError.message}`
-        console.error('[Sync]', errMsg)
-        errors.push(errMsg)
-        skipped++
-    } else {
-        console.log(`[Sync] Reserva criada: "${event.summary}" (${checkIn} → ${checkOut})`)
-        created++
-
-        // Notificar proprietário (fire-and-forget)
-        const nights = Math.ceil((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24))
-        const { data: propData } = await supabase
-          .from('property_listings')
-          .select('properties:properties!property_listings_property_org_fk(name, owner_id)')
-          .eq('id', listingId)
-          .single()
-
-        const prop = propData?.properties as unknown as PropertyInfo | null
-        if (prop?.owner_id) {
-          const { data: owner } = await supabase
-            .from('owners')
-            .select('full_name, email')
-            .eq('id', prop.owner_id)
-            .single()
-
-          if (owner?.email) {
-            enqueueEmail({
-              type: 'owner_reservation',
-              ownerName: owner.full_name,
-              ownerEmail: owner.email,
-              guestName: `${guestFirstName} ${guestLastName}`.trim(),
-              propertyName: prop.name,
-              checkIn,
-              checkOut,
-              nights,
-              source: 'ical_import',
-            }).catch(err => console.error('Erro ao enfileirar notificação de reserva:', err))
-          }
-        }
-    }
   }
 
   let cancelledCount = 0
-  const reconciliationOwnsListing =
-    reconciliationFlag.enabled &&
-    listingSource !== null &&
-    reconciliationFlag.pilot_platforms.includes(listingSource)
-  if (!reconciliationOwnsListing) {
+  if (errors.length) throw new Error(errors.join("; "))
+  {
     try {
       cancelledCount = await cancelMissingReservations({
         supabase,
         propertyListingId: listingId,
         organizationId: resolvedOrganizationId,
         receivedExternalIds,
+        receivedCalendarEventIds,
+        syncStartedAt,
       })
     } catch (error) {
       console.error(`[Sync] Erro ao cancelar reservas ausentes do iCal para listing ${listingId}:`, error)
+      throw error
     }
   }
 
@@ -451,11 +206,17 @@ async function syncListing(
     cancelled += cancelledCount
   }
 
+  await removeMissingCalendarBlocks({
+    supabase, organizationId: resolvedOrganizationId, propertyId: propertyListing.property_id,
+    propertyListingId: listingId, receivedUids, syncStartedAt,
+  })
+
   // Atualizar last_synced_at do listing
-  await supabase
+  const { error: listingUpdateError } = await supabase
     .from('property_listings')
     .update({ last_synced_at: new Date().toISOString() })
     .eq('id', listingId)
+  if (listingUpdateError) throw new Error(`Falha ao registrar sincronização: ${listingUpdateError.message}`)
 
   // Story 39.5: registrar sucesso em sync_logs para alimentar o indicador de status no dashboard
   const { error: syncLogError } = await supabase.from('sync_logs').insert({
@@ -466,7 +227,7 @@ async function syncListing(
     synced_at: new Date().toISOString(),
   })
   if (syncLogError) {
-    console.warn(`[Sync] Erro ao registrar sync_log de sucesso para listing ${listingId}:`, syncLogError.message)
+    throw new Error(`Falha ao registrar resultado da sincronização: ${syncLogError.message}`)
   }
 
   return { created, updated, blocked, reconciled, unknown, skipped, cancelled, errors }

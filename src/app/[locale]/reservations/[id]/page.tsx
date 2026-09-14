@@ -6,10 +6,9 @@ import { getUserAccess } from '@/lib/auth/getUserAccess'
 import { AuthLayout } from '@/components/common/layout/AuthLayout'
 import { Button } from '@/components/common/ui/button'
 import { Badge } from '@/components/common/ui/badge'
-import { formatCurrency } from '@/lib/utils/currency'
+import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
 import { EditReservationClient } from '@/components/features/reservations/EditReservationClient'
 import { ReservationUI } from '@/components/features/reservations/types/reservation-ui'
-import { PremiumCard } from '@/components/common/layout/PremiumPage'
 import { getReservationPlatformLabel } from '@/lib/reservations/platform'
 
 export default async function ReservationDetailPage({
@@ -53,9 +52,10 @@ export default async function ReservationDetailPage({
   // Transform data to match ReservationUI interface
   const transformedReservation: ReservationUI = {
     id: reservation.id,
+    calendar_event_id: reservation.calendar_event_id,
     check_in: reservation.check_in,
     check_out: reservation.check_out,
-    status: (reservation.reservation_status as any) || 'pending',
+    status: (reservation.reservation_status as ReservationUI['status']) || 'pending',
     total_price: reservation.total_price,
     currency: reservation.currency,
     guest_name: reservation.guest_name,
@@ -281,7 +281,7 @@ export default async function ReservationDetailPage({
                 </h2>
               <div className="text-4xl font-bold text-[#C9A227] mb-4">
                   {reservation.currency
-                    ? formatCurrency(reservation.total_price || 0, reservation.currency.toUpperCase() as any)
+                    ? formatCurrency(reservation.total_price || 0, reservation.currency.toUpperCase() as CurrencyCode)
                     : Number(reservation.total_price || 0).toFixed(2)}
                 </div>
               </div>

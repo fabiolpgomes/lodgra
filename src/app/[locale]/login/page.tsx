@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { useHydrated } from '@/hooks/useHydrated'
 import { useLocale, useSearchParams } from '@/lib/i18n/routing'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
@@ -33,6 +34,7 @@ function getSafeRedirect(redirectTo: string | null, locale: string): string {
 
 export default function LoginPage() {
   const router = useRouter()
+  const hydrated = useHydrated()
   const locale = useLocale()
   const searchParams = useSearchParams()
   const t = useTranslations('forms')
@@ -97,7 +99,7 @@ export default function LoginPage() {
             </Alert>
           )}
 
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form method="post" onSubmit={handleLogin} className="space-y-4">
             {/* Email */}
             <div>
               <Input
@@ -144,7 +146,7 @@ export default function LoginPage() {
             {/* Botão */}
             <Button
               type="submit"
-              disabled={loading}
+              disabled={!hydrated || loading}
               className="w-full"
             >
               {loading ? 'A autenticar...' : tCommon('login')}

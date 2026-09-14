@@ -11,7 +11,8 @@ import { createTestRequest } from '@/__tests__/utils/test-request'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { importICalFromUrl, classifyICalEvent } from '@/lib/ical/icalService'
 import { getFeatureFlagStatus } from '@/lib/email-reconciliation/feature-flag'
-import { hasActiveReconciledReservation, upsertReconciliationAvailability } from '@/lib/ical/reconciliationAvailability'
+import { importPendingICalReservation } from '@/lib/ical/pendingReservation'
+import { enqueueEmail } from '@/lib/email/queue'
 import { upsertCalendarEventAudit } from '@/lib/ical/calendarEventAudit'
 
 jest.mock('@/lib/supabase/admin', () => ({
@@ -35,9 +36,8 @@ jest.mock('@/lib/email-reconciliation/feature-flag', () => ({
   getFeatureFlagStatus: jest.fn().mockResolvedValue({ enabled: false, pilot_platforms: [] }),
 }))
 
-jest.mock('@/lib/ical/reconciliationAvailability', () => ({
-  upsertReconciliationAvailability: jest.fn().mockResolvedValue(undefined),
-  hasActiveReconciledReservation: jest.fn().mockResolvedValue(true),
+jest.mock('@/lib/ical/pendingReservation', () => ({
+  importPendingICalReservation: jest.fn(),
 }))
 
 /**
@@ -48,6 +48,8 @@ jest.mock('@/lib/ical/reconciliationAvailability', () => ({
 function makeQuery(result: unknown) {
   const query: Record<string, unknown> = {
     select: jest.fn(() => query),
+    retry: jest.fn(() => query),
+    abortSignal: jest.fn(() => query),
     eq: jest.fn(() => query),
     is: jest.fn(() => query),
     in: jest.fn(() => query),
@@ -73,7 +75,9 @@ describe('GET /api/cron/sync-ical', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
-    ;(hasActiveReconciledReservation as jest.Mock).mockResolvedValue(true)
+    ;(importPendingICalReservation as jest.Mock).mockResolvedValue({
+      reservation_id: 'pending-reservation', calendar_event_id: 'event-audit', created: false, action: 'updated',
+    })
     ;(upsertCalendarEventAudit as jest.Mock).mockResolvedValue({ id: 'event-audit', status: 'unmatched' })
     ;(classifyICalEvent as jest.Mock).mockReturnValue('unknown')
     ;(getFeatureFlagStatus as jest.Mock).mockResolvedValue({ enabled: false, pilot_platforms: [] })
@@ -89,6 +93,111 @@ describe('GET /api/cron/sync-ical', () => {
       headers: { authorization: `Bearer ${CRON_SECRET}` },
     })
   }
+
+  describe('initial listings read recovery', () => {
+    beforeEach(() => jest.useFakeTimers())
+    afterEach(() => jest.useRealTimers())
+
+    it.each([502, 503, 504, 520])('recovers HTTP %s without repeating a sync', async (status) => {
+      const select = jest.fn()
+        .mockReturnValueOnce(makeQuery({ data: null, error: { message: 'Gateway Timeout' }, status }))
+        .mockReturnValueOnce(makeQuery({ data: [], error: null, status: 200 }))
+      const from = jest.fn(() => ({ select }))
+      ;(createAdminClient as jest.Mock).mockReturnValue({ from })
+      const responsePromise = GET(buildRequest())
+      await jest.runAllTimersAsync()
+      expect((await responsePromise).status).toBe(200)
+      expect(select).toHaveBeenCalledTimes(2)
+      expect(from.mock.calls).toEqual([['property_listings'], ['property_listings']])
+      expect(importICalFromUrl).not.toHaveBeenCalled()
+    })
+
+    it('stops after three reads and reports the final upstream error', async () => {
+      const query = makeQuery({ data: null, error: { message: 'Gateway Timeout' }, status: 504 })
+      const select = jest.fn(() => query)
+      ;(createAdminClient as jest.Mock).mockReturnValue({ from: jest.fn(() => ({ select })) })
+      const responsePromise = GET(buildRequest())
+      await jest.runAllTimersAsync()
+      const response = await responsePromise
+      expect(response.status).toBe(500)
+      expect(await response.json()).toEqual({ error: 'Gateway Timeout' })
+      expect(select).toHaveBeenCalledTimes(3)
+      expect(query.retry).toHaveBeenCalledWith(false)
+      expect(importICalFromUrl).not.toHaveBeenCalled()
+    })
+
+    it('aborts a stalled initial read after ten seconds without retrying or writing', async () => {
+      let signal: AbortSignal
+      const query = makeQuery(null)
+      ;(query.abortSignal as jest.Mock).mockImplementation((value: AbortSignal) => {
+        signal = value
+        return query
+      })
+      query.then = (resolve: (value: unknown) => unknown) => new Promise(done => {
+        signal.addEventListener('abort', () => done({ data: null, error: { message: 'Read aborted' }, status: 0 }))
+      }).then(resolve)
+      const select = jest.fn(() => query)
+      ;(createAdminClient as jest.Mock).mockReturnValue({ from: jest.fn(() => ({ select })) })
+      const responsePromise = GET(buildRequest())
+      await jest.advanceTimersByTimeAsync(10_000)
+      const response = await responsePromise
+      expect(response.status).toBe(500)
+      expect(await response.json()).toEqual({ error: 'Read aborted' })
+      expect(select).toHaveBeenCalledTimes(1)
+      expect(importICalFromUrl).not.toHaveBeenCalled()
+      expect(jest.getTimerCount()).toBe(0)
+    })
+
+    it.each([0, 400, 401, 403, 409, 500])('does not retry non-transient HTTP %s', async (status) => {
+      const select = jest.fn(() => makeQuery({ data: null, error: { message: 'Read rejected' }, status }))
+      ;(createAdminClient as jest.Mock).mockReturnValue({ from: jest.fn(() => ({ select })) })
+      expect((await GET(buildRequest())).status).toBe(500)
+      expect(select).toHaveBeenCalledTimes(1)
+      expect(importICalFromUrl).not.toHaveBeenCalled()
+    })
+  })
+
+  it('preserva identidade, ocupação e valores manuais ao atualizar reserva Booking existente', async () => {
+    const listing = {
+      id: 'listing-manual', property_id: 'property-manual', sync_enabled: true,
+      ical_url: 'https://example.com/manual.ics', platforms: { name: 'Booking.com' },
+      properties: { name: 'Manual', organization_id: 'org-manual', is_active: true },
+    }
+    const reservationPayloads: Record<string, unknown>[] = []
+    const reservationUpdate = jest.fn((payload: Record<string, unknown>) => {
+      reservationPayloads.push(payload)
+      return makeQuery({ data: null, error: null })
+    })
+    const supabase = { from: jest.fn((table: string) => {
+      if (table === 'property_listings') return {
+        select: jest.fn(() => makeQuery({ data: [listing], error: null })),
+        update: jest.fn(() => makeQuery({ data: null, error: null })),
+      }
+      if (table === 'reservations') return {
+        select: jest.fn(() => makeQuery({
+          data: [{ id: 'existing-manual', external_id: 'booking_12345', calendar_event_id: 'event-audit' }],
+          error: null,
+        })),
+        update: reservationUpdate,
+      }
+      if (table === 'sync_logs') return { insert: jest.fn(() => makeQuery({ data: null, error: null })) }
+      return { select: jest.fn(() => makeQuery({ data: [], error: null })) }
+    }) }
+    ;(createAdminClient as jest.Mock).mockReturnValue(supabase)
+    ;(classifyICalEvent as jest.Mock).mockReturnValue('reservation')
+    const start = new Date(); start.setUTCDate(start.getUTCDate() + 1)
+    const end = new Date(start); end.setUTCDate(end.getUTCDate() + 3)
+    ;(importICalFromUrl as jest.Mock).mockResolvedValue([{
+      uid: '12345@booking.com', summary: 'Reserved', description: 'Reservation number: 12345\nNumber of guests: 7', start, end,
+    }])
+    const response = await GET(buildRequest())
+    expect((await response.json()).updated).toBe(1)
+    expect(reservationUpdate).not.toHaveBeenCalled()
+    expect(reservationPayloads).toEqual([])
+    expect(importPendingICalReservation).toHaveBeenCalledWith(supabase, 'org-manual', 'event-audit', expect.any(Array))
+    expect(supabase.from).not.toHaveBeenCalledWith('guests')
+    expect(enqueueEmail).not.toHaveBeenCalled()
+  })
 
   it('registra sync_logs com status "success" quando o listing sincroniza sem erros', async () => {
     const listing = {
@@ -309,18 +418,29 @@ describe('GET /api/cron/sync-ical', () => {
   })
 
   it.each([
-    { status: 'unmatched', covered: false },
-    { status: 'matched', covered: true },
-    { status: 'matched', covered: false },
-  ])('preserva disponibilidade para $status, cobertura ativa=$covered', async ({ status, covered }) => {
-    ;(hasActiveReconciledReservation as jest.Mock).mockResolvedValue(covered)
-    ;(upsertCalendarEventAudit as jest.Mock).mockResolvedValue({ id: 'event-audit', status })
+    ...[true, false].flatMap(pilotEnabled => ['empty', 'created', 'updated', 'blocked', 'ignored', 'error'].map(action => ({ action, auditStatus: 'unmatched', pilotEnabled, long: false }))),
+    { action: 'created', auditStatus: 'unmatched', pilotEnabled: false, long: true },
+    { action: 'updated', auditStatus: 'matched', pilotEnabled: false, long: false },
+    { action: 'ignored', auditStatus: 'ignored', pilotEnabled: false, long: false },
+  ])(
+    'registra resultado pendente $action (audit=$auditStatus, pilot=$pilotEnabled, long=$long) sem escrever reserva diretamente ou enviar email', async ({ action, auditStatus, pilotEnabled, long }) => {
+    ;(upsertCalendarEventAudit as jest.Mock).mockResolvedValue({ id: 'event-audit', status: auditStatus })
+    const result = { reservation_id: 'pending-reservation', calendar_event_id: 'event-audit', created: action === 'created', action }
+    if (action === 'error') {
+      ;(importPendingICalReservation as jest.Mock).mockRejectedValue(new Error('Falha ao incluir reserva pendente: RPC indisponível'))
+    } else {
+      ;(importPendingICalReservation as jest.Mock).mockResolvedValue(result)
+    }
     const listing = {
-      id: 'listing-booking', ical_url: 'https://example.com/booking.ics', sync_enabled: true,
+      id: 'listing-booking', ical_url: 'https://example.com/booking.ics', sync_enabled: pilotEnabled,
       property_id: 'property-booking',
       properties: { name: 'AHS Premium Apart', organization_id: 'org-1', is_active: true },
     }
-    const reservationTable = { select: jest.fn(), insert: jest.fn(), update: jest.fn() }
+    const syncLogInsert = jest.fn(() => Promise.resolve({ data: null, error: null }))
+    const reservationTable = {
+      select: jest.fn(() => makeQuery({ data: [{ id: 'pending-reservation', external_id: 'different-booking-code', calendar_event_id: 'event-audit', check_out: '2026-09-20' }], error: null })),
+      insert: jest.fn(), update: jest.fn(() => makeQuery({ data: [{ id: 'pending-reservation' }], error: null })),
+    }
     const mockSupabase = {
       from: jest.fn((table: string) => {
         if (table === 'property_listings') return {
@@ -329,16 +449,16 @@ describe('GET /api/cron/sync-ical', () => {
         }
         if (table === 'reservations') return reservationTable
         if (table === 'calendar_blocks') return { select: jest.fn(() => makeQuery({ data: [], error: null })) }
-        if (table === 'sync_logs') return { insert: jest.fn(() => Promise.resolve({ data: null, error: null })) }
+        if (table === 'sync_logs') return { insert: syncLogInsert }
         return { select: jest.fn(() => makeQuery({ data: [], error: null })) }
       }),
     }
     ;(createAdminClient as jest.Mock).mockReturnValue(mockSupabase)
-    ;(getFeatureFlagStatus as jest.Mock).mockResolvedValue({ enabled: true, pilot_platforms: ['booking'] })
+    ;(getFeatureFlagStatus as jest.Mock).mockResolvedValue({ enabled: pilotEnabled, pilot_platforms: ['booking'] })
     ;(classifyICalEvent as jest.Mock).mockReturnValue('block')
-    const start = new Date('2026-09-29T00:00:00.000Z')
-    const end = new Date('2026-09-30T00:00:00.000Z')
-    ;(importICalFromUrl as jest.Mock).mockResolvedValue([{
+    const start = new Date(); start.setUTCDate(start.getUTCDate() + 1)
+    const end = new Date(start); end.setUTCDate(end.getUTCDate() + (long ? 240 : 1))
+    ;(importICalFromUrl as jest.Mock).mockResolvedValue(action === 'empty' ? [] : [{
       uid: 'e4729bf0c6e6e224ac8f9bbd06eb89d3@booking.com',
       summary: 'CLOSED - Not available', description: '', start, end,
     }])
@@ -347,20 +467,37 @@ describe('GET /api/cron/sync-ical', () => {
     const body = await response.json()
 
     expect(response.status).toBe(200)
-    expect(body.blocked).toBe(status === 'matched' && covered ? 0 : 1)
-    if (status === 'matched' && covered) {
-      expect(upsertReconciliationAvailability).not.toHaveBeenCalled()
-      expect(body.skipped).toBe(1)
-      // Repeating the sync must not restore the consumed provisional block.
-      await GET(buildRequest())
-      expect(upsertReconciliationAvailability).not.toHaveBeenCalled()
-    } else {
-      expect(upsertReconciliationAvailability).toHaveBeenCalledWith(expect.objectContaining({
-        propertyListingId: 'listing-booking', checkIn: '2026-09-29', checkOut: '2026-09-30',
-      }))
-    }
-    expect(reservationTable.select).not.toHaveBeenCalled()
+    if (action === 'empty') expect(importPendingICalReservation).not.toHaveBeenCalled()
+    else expect(importPendingICalReservation).toHaveBeenCalledWith(mockSupabase, 'org-1', 'event-audit', expect.any(Array))
+    expect(enqueueEmail).not.toHaveBeenCalled()
+    if (action === 'error') expect(reservationTable.select).not.toHaveBeenCalled()
+    else expect(reservationTable.select).toHaveBeenCalled()
     expect(reservationTable.insert).not.toHaveBeenCalled()
+    if (action === 'empty') {
+      expect(body.cancelled).toBe(1)
+      expect(reservationTable.update).toHaveBeenCalledWith(expect.objectContaining({ status: 'cancelled' }))
+    } else expect(reservationTable.update).not.toHaveBeenCalled()
+    if (action === 'error') {
+      expect(body.errors).toBe(1)
+      expect(syncLogInsert).toHaveBeenCalledWith(expect.objectContaining({
+        status: 'failed', error_message: 'Falha ao incluir reserva pendente: RPC indisponível',
+      }))
+    } else {
+      expect(body).toMatchObject({
+        created: action === 'created' ? 1 : 0,
+        updated: action === 'updated' ? 1 : 0,
+        blocked: action === 'blocked' ? 1 : 0,
+        skipped: action === 'ignored' ? 1 : 0,
+      })
+      expect(syncLogInsert).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
+      if (action === 'created') {
+        ;(importPendingICalReservation as jest.Mock).mockResolvedValue({ ...result, created: false, action: 'updated' })
+        const repeated = await GET(buildRequest())
+        expect(await repeated.json()).toMatchObject({ created: 0, updated: 1 })
+        expect(reservationTable.insert).not.toHaveBeenCalled()
+        expect(enqueueEmail).not.toHaveBeenCalled()
+      }
+    }
   })
 
   it('delimita a procura de reserva existente pelo listing e organização', async () => {
@@ -377,7 +514,7 @@ describe('GET /api/cron/sync-ical', () => {
         reservationSelectCall++
         return makeQuery(
           reservationSelectCall === 1
-            ? { data: { id: 'existing-reservation' }, error: null }
+            ? { data: [{ id: 'existing-reservation', calendar_event_id: 'event-audit' }], error: null }
             : { data: [], error: null }
         )
       }),
@@ -413,8 +550,8 @@ describe('GET /api/cron/sync-ical', () => {
       uid: 'shared-platform-uid',
       summary: 'Reserved',
       description: '',
-      start: new Date('2026-09-10T00:00:00.000Z'),
-      end: new Date('2026-09-12T00:00:00.000Z'),
+      start: new Date('2026-09-16T00:00:00.000Z'),
+      end: new Date('2026-09-20T00:00:00.000Z'),
     }])
     ;(classifyICalEvent as jest.Mock).mockReturnValue('reservation')
 
@@ -424,7 +561,7 @@ describe('GET /api/cron/sync-ical', () => {
     expect(reservationTable.select).toHaveBeenCalled()
   })
 
-  it('cancela reservas futuras que desapareceram do feed iCal', async () => {
+  it.each([true, false])('contabiliza cancelamento ausente somente quando CAS vence (%s)', async casWon => {
     const listing = {
       id: 'listing-cancel',
       ical_url: 'https://example.com/cancel.ics',
@@ -437,7 +574,7 @@ describe('GET /api/cron/sync-ical', () => {
       data: [{ id: 'reservation-cancel', external_id: 'booking_777', check_out: '2026-09-20' }],
       error: null,
     })
-    const reservationUpdate = jest.fn(() => makeQuery({ data: { id: 'reservation-cancel' }, error: null }))
+    const reservationUpdate = jest.fn(() => makeQuery({ data: casWon ? [{ id: 'reservation-cancel' }] : [], error: null }))
 
     const mockSupabase = {
       from: jest.fn((table: string) => {
@@ -470,7 +607,7 @@ describe('GET /api/cron/sync-ical', () => {
     const body = await response.json()
 
     expect(response.status).toBe(200)
-    expect(body.cancelled).toBe(1)
+    expect(body.cancelled).toBe(casWon ? 1 : 0)
     expect(reservationUpdate).toHaveBeenCalledWith(expect.objectContaining({
       status: 'cancelled',
       cancelled_at: expect.any(String),
@@ -487,7 +624,7 @@ describe('GET /api/cron/sync-ical', () => {
       platforms: { name: 'Airbnb', display_name: 'Airbnb' },
       properties: { name: 'Casa Airbnb', organization_id: 'org-mixed', is_active: true },
     }
-    const reservationUpdate = jest.fn(() => makeQuery({ data: { id: 'reservation-airbnb' }, error: null }))
+    const reservationUpdate = jest.fn(() => makeQuery({ data: [{ id: 'reservation-airbnb' }], error: null }))
 
     const mockSupabase = {
       from: jest.fn((table: string) => {
@@ -622,4 +759,46 @@ describe('GET /api/cron/sync-ical', () => {
     expect(body.errors).toBe(1)
     expect(guestInsert).not.toHaveBeenCalled()
   })
+  it.each(['cancel-read', 'cancel-write', 'block-delete', 'last-synced', 'success-log'])('marca listing failed quando a limpeza falha em %s', async failure => {
+    const listing = {
+      id: 'listing-cleanup', property_id: 'property-cleanup', sync_enabled: true,
+      ical_url: 'https://example.com/empty.ics',
+      properties: { id: 'property-cleanup', name: 'Casa', organization_id: 'org-cleanup', is_active: true },
+    }
+    const syncLogInsert = jest.fn((payload: { status: string }) => Promise.resolve({ data: null, error: failure === 'success-log' && payload.status === 'success' ? { message: 'cleanup unavailable' } : null }))
+    const reservationUpdate = jest.fn(() => makeQuery({ data: null, error: { message: 'cleanup unavailable' } }))
+    const blockDelete = jest.fn(() => makeQuery({ data: null, error: { message: 'cleanup unavailable' } }))
+    const mockSupabase = {
+      from: jest.fn((table: string) => {
+        if (table === 'property_listings') return {
+          select: jest.fn(() => makeQuery({ data: [listing], error: null })),
+          update: jest.fn(() => makeQuery({ data: null, error: failure === 'last-synced' ? { message: 'cleanup unavailable' } : null })),
+        }
+        if (table === 'reservations') return {
+          select: jest.fn(() => makeQuery({
+            data: failure === 'cancel-write' ? [{ id: 'reservation-cleanup', external_id: 'missing-code', check_out: '2026-09-20' }] : [],
+            error: failure === 'cancel-read' ? { message: 'cleanup unavailable' } : null,
+          })), update: reservationUpdate,
+        }
+        if (table === 'calendar_blocks') return {
+          select: jest.fn(() => makeQuery({ data: failure === 'block-delete' ? [{ id: 'block-cleanup', external_uid: 'missing-uid' }] : [], error: null })),
+          delete: blockDelete,
+        }
+        if (table === 'sync_logs') return { insert: syncLogInsert }
+        return { select: jest.fn(() => makeQuery({ data: [], error: null })) }
+      }),
+    }
+    ;(createAdminClient as jest.Mock).mockReturnValue(mockSupabase)
+    ;(getFeatureFlagStatus as jest.Mock).mockResolvedValue({ enabled: true, pilot_platforms: ['booking'] })
+    ;(importICalFromUrl as jest.Mock).mockResolvedValue([])
+    const response = await GET(buildRequest())
+    const body = await response.json()
+    expect(response.status).toBe(200)
+    expect(body.errors).toBe(1)
+    expect(syncLogInsert).toHaveBeenCalledWith(expect.objectContaining({ status: 'failed', error_message: expect.stringContaining('cleanup unavailable') }))
+    expect(enqueueEmail).not.toHaveBeenCalled()
+    if (failure === 'cancel-read') expect(reservationUpdate).not.toHaveBeenCalled()
+    if (failure !== 'block-delete') expect(blockDelete).not.toHaveBeenCalled()
+  })
+
 })

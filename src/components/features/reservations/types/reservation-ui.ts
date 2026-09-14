@@ -1,5 +1,6 @@
 export interface ReservationUI {
   id: string
+  calendar_event_id?: string | null
   check_in: string
   check_out: string
   status: 'pending' | 'confirmed' | 'cancelled' | 'completed'

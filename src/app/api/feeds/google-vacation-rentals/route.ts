@@ -80,17 +80,26 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Feed generation failed' }, { status: 500 })
     }
 
-    // Check ETag for caching
-    if (clientETag === eTag) {
-      return new NextResponse(null, { status: 304 })
+    // Feed generation time may differ while its semantic content is unchanged.
+    const responseETag = `W/"${eTag}"`
+    const cacheControl = 'public, max-age=3600, stale-while-revalidate=86400'
+    const matches = clientETag?.split(',').some((tag) => {
+      const candidate = tag.trim()
+      return candidate === '*' || candidate.replace(/^W\//, '') === `"${eTag}"`
+    })
+    if (matches) {
+      return new NextResponse(null, {
+        status: 304,
+        headers: { ETag: responseETag, 'Cache-Control': cacheControl },
+      })
     }
 
     // Prepare response headers
     const headers = new Headers({
       'Content-Type': 'application/atom+xml; charset=utf-8',
       'Content-Length': Buffer.byteLength(xml).toString(),
-      'Cache-Control': 'public, max-age=3600, stale-while-revalidate=86400',
-      'ETag': `"${eTag}"`,
+      'Cache-Control': cacheControl,
+      'ETag': responseETag,
       'Last-Modified': new Date().toUTCString(),
       'X-Feed-Count': count.toString(),
       'X-Generation-Time-Ms': generationTime.toString(),
@@ -114,62 +123,8 @@ export async function GET(request: NextRequest) {
 }
 
 export async function HEAD(request: NextRequest) {
-  // HEAD request for feed validation
-  try {
-    const { searchParams } = new URL(request.url)
-    const limit = Math.min(parseInt(searchParams.get('limit') || '100'), 1000)
-    const offset = parseInt(searchParams.get('offset') || '0')
-    const updated_since = searchParams.get('updated_since') || undefined
-    const currency = searchParams.get('currency')
-    if (!currency || !/^[A-Z]{3}$/.test(currency)) {
-      return new NextResponse(null, { status: 400 })
-    }
-    const include_reviews = searchParams.get('include_reviews') !== 'false' // Default: true
-
-    // Detect organization from subdomain
-    const host = request.headers.get('host') || ''
-    const subdomain = extractSubdomain(host)
-    let organizationId: string | undefined
-
-    if (subdomain) {
-      const supabase = await createAdminClient()
-      const { data: organization, error: orgError } = await supabase
-        .from('organizations')
-        .select('id')
-        .eq('slug', subdomain)
-        .single()
-
-      if (!orgError && organization) {
-        organizationId = organization.id
-      }
-    }
-
-    const { xml, eTag, count } = await generateGoogleVacationRentalsFeed({
-      limit,
-      offset,
-      updated_since,
-      currency,
-      include_reviews,
-      organization_id: organizationId,
-    })
-
-    const headers = new Headers({
-      'Content-Type': 'application/atom+xml; charset=utf-8',
-      'Content-Length': Buffer.byteLength(xml).toString(),
-      'Cache-Control': 'public, max-age=3600',
-      'ETag': `"${eTag}"`,
-      'Last-Modified': new Date().toUTCString(),
-      'X-Feed-Count': count.toString(),
-    })
-
-    return new NextResponse(null, { status: 200, headers })
-  } catch (error) {
-    Sentry.captureException(error, {
-      tags: { endpoint: 'google-feed-generator-head' },
-      level: 'warning',
-    })
-    return new NextResponse(null, { status: 500 })
-  }
+  const response = await GET(request)
+  return new NextResponse(null, { status: response.status, headers: response.headers })
 }
 
 function extractSubdomain(host: string): string | null {

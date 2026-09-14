@@ -1,5 +1,6 @@
-import { test, expect } from '@playwright/test'
+import { test, expect } from './fixtures/browser'
 import { OnboardingPage } from './pages/OnboardingPage'
+import { LoginPage } from './pages/LoginPage'
 
 /**
  * E2E Tests for Signup → Onboarding flow.
@@ -38,8 +39,19 @@ test.describe('Signup → Onboarding', () => {
     await page.locator('#acceptTerms').check()
     await page.click('button[type="submit"]')
 
-    // Should show error about password requirements
-    await expect(page.locator('[role="alert"]')).toBeVisible({ timeout: 10000 })
+    // minlength is enforced by native form validation before React submits.
+    const password = page.locator('input[name="password"]')
+    expect(await password.evaluate((input: HTMLInputElement) => input.validity.tooShort)).toBe(true)
+    expect(await password.evaluate((input: HTMLInputElement) => input.validationMessage)).not.toBe('')
+    await expect(page).toHaveURL(/\/register$/)
+
+    // A long lowercase password reaches the application's complexity check.
+    await password.fill('weakpassword')
+    await page.locator('input[name="confirmPassword"]').fill('weakpassword')
+    await page.locator('button[type="submit"]').click()
+    await expect(page.getByRole('alert').filter({
+      hasText: 'A senha deve conter pelo menos uma letra maiúscula e um número',
+    })).toBeVisible()
   })
 
   test('onboarding page loads for authenticated users', async ({ page }) => {
@@ -48,12 +60,10 @@ test.describe('Signup → Onboarding', () => {
     test.skip(!email || !password, 'TEST_USER_EMAIL/PASSWORD not configured')
 
     // Login first
-    await page.goto('/login')
-    await page.locator('input[name="email"]').waitFor({ timeout: 15000 })
-    await page.fill('input[name="email"]', email!)
-    await page.fill('input[name="password"]', password!)
-    await page.click('button[type="submit"]')
-    await page.waitForURL(/\/(pt|en-US|pt-BR)?\/?(dashboard)?$/, { timeout: 20000 })
+    const loginPage = new LoginPage(page)
+    await loginPage.goto()
+    await loginPage.login(email!, password!)
+    await loginPage.waitForDashboard()
 
     // Navigate to onboarding
     const onboarding = new OnboardingPage(page)
@@ -69,10 +79,6 @@ test.describe('Signup → Onboarding', () => {
     await page.waitForLoadState('domcontentloaded')
     await page.locator('input[name="fullName"]').waitFor({ timeout: 15000 })
 
-    // Check for social login (Google)
-    const socialButton = page.locator('button:has-text("Google"), a:has-text("Google")')
-    const hasSocial = await socialButton.isVisible({ timeout: 5000 }).catch(() => false)
-    // Social login is optional — just check page doesn't crash
-    expect(true).toBeTruthy()
+    await expect(page.getByRole('button', { name: 'Continuar com Google', exact: true })).toBeVisible()
   })
 })

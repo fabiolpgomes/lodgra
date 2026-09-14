@@ -13,7 +13,8 @@ import { importICalFromUrl, classifyICalEvent } from '@/lib/ical/icalService'
 import { requireRole } from '@/lib/auth/requireRole'
 import { getFeatureFlagStatus } from '@/lib/email-reconciliation/feature-flag'
 import { upsertCalendarEventAudit } from '@/lib/ical/calendarEventAudit'
-import { hasActiveReconciledReservation, upsertReconciliationAvailability } from '@/lib/ical/reconciliationAvailability'
+import { importPendingICalReservation } from '@/lib/ical/pendingReservation'
+import { enqueueEmail } from '@/lib/email/queue'
 
 jest.mock('@/lib/supabase/admin', () => ({
   createAdminClient: jest.fn(),
@@ -43,9 +44,8 @@ jest.mock('@/lib/email-reconciliation/feature-flag', () => ({
   getFeatureFlagStatus: jest.fn().mockResolvedValue({ enabled: false, pilot_platforms: [] }),
 }))
 
-jest.mock('@/lib/ical/reconciliationAvailability', () => ({
-  upsertReconciliationAvailability: jest.fn().mockResolvedValue(undefined),
-  hasActiveReconciledReservation: jest.fn().mockResolvedValue(true),
+jest.mock('@/lib/ical/pendingReservation', () => ({
+  importPendingICalReservation: jest.fn(),
 }))
 
 /**
@@ -57,6 +57,7 @@ function makeQuery(result: unknown) {
   const query: Record<string, unknown> = {
     select: jest.fn(() => query),
     eq: jest.fn(() => query),
+    is: jest.fn(() => query),
     in: jest.fn(() => query),
     not: jest.fn(() => query),
     neq: jest.fn(() => query),
@@ -76,7 +77,9 @@ function makeQuery(result: unknown) {
 describe('POST /api/sync/import', () => {
   beforeEach(() => {
     jest.clearAllMocks()
-    ;(hasActiveReconciledReservation as jest.Mock).mockResolvedValue(true)
+    ;(importPendingICalReservation as jest.Mock).mockResolvedValue({
+      reservation_id: 'pending-reservation', calendar_event_id: 'event-audit', created: false, action: 'updated',
+    })
     ;(getFeatureFlagStatus as jest.Mock).mockResolvedValue({ enabled: false, pilot_platforms: [] })
     ;(upsertCalendarEventAudit as jest.Mock).mockResolvedValue({ id: 'event-audit', status: 'unmatched' })
     // Keep the dated iCal fixtures inside the import window on every test run.
@@ -104,7 +107,7 @@ describe('POST /api/sync/import', () => {
         if (table === 'property_listings') {
           return {
             select: jest.fn((selection: string) => makeQuery(
-              selection.includes('cleaning_fee')
+              selection === 'property_id, organization_id'
                 ? {
                     data: {
                       property_id: listing.property_id,
@@ -260,19 +263,15 @@ describe('POST /api/sync/import', () => {
 
     expect(response.status).toBe(200)
     expect(propertySelections).toContain(
-      'property_id, organization_id, platforms(name, display_name), properties:properties!property_listings_property_org_fk(cleaning_fee, cleaning_fee_type, pet_fee, pet_fee_type)'
+      'property_id, organization_id'
     )
-    expect(insertedReservations).toHaveLength(1)
-    expect(insertedReservations[0]).toMatchObject({
-      property_id: listing.property_id,
-      property_listing_id: listing.id,
-      organization_id: 'org-create',
-      external_id: 'ical-create-uid',
-      guest_id: 'guest-create',
-    })
+    expect(insertedReservations).toHaveLength(0)
+    expect(importPendingICalReservation).toHaveBeenCalledWith(mockSupabase, 'org-create', 'event-audit', expect.arrayContaining(['ical-create-uid']))
+    expect(mockSupabase.from).not.toHaveBeenCalledWith('guests')
+    expect(enqueueEmail).not.toHaveBeenCalled()
   })
 
-  it('atualiza booking_source e metadata da plataforma quando a reserva já existe', async () => {
+  it.each(['booking', 'airbnb'])('preserva campos manuais ao atualizar metadata de reserva %s existente', async (platform) => {
     const listing = {
       id: 'listing-update',
       ical_url: 'https://example.com/update.ics',
@@ -332,7 +331,7 @@ describe('POST /api/sync/import', () => {
               reservationSelectCall++
               return makeQuery(
                 reservationSelectCall === 1
-                  ? { data: { id: 'reservation-update', external_id: 'manual-1' }, error: null }
+                  ? { data: [{ id: 'reservation-update', external_id: 'manual-1', calendar_event_id: 'event-audit' }], error: null }
                   : { data: [], error: null }
               )
             }),
@@ -358,9 +357,9 @@ describe('POST /api/sync/import', () => {
 
     ;(createAdminClient as jest.Mock).mockReturnValue(mockSupabase)
     ;(importICalFromUrl as jest.Mock).mockResolvedValue([{
-      uid: '1234567890@airbnb.com',
+      uid: `1234567890@${platform}.com`,
       summary: 'Maria Silva',
-      description: '',
+      description: 'NAME: Feed Guest\nGUESTS: 9',
       start: new Date('2026-09-10T00:00:00.000Z'),
       end: new Date('2026-09-12T00:00:00.000Z'),
     }])
@@ -372,8 +371,12 @@ describe('POST /api/sync/import', () => {
     }))
 
     expect(response.status).toBe(200)
+    expect(updatedPayloads).toHaveLength(0)
+    expect(importPendingICalReservation).toHaveBeenCalledWith(mockSupabase, 'org-update', 'event-audit', expect.any(Array))
+    expect(mockSupabase.from).not.toHaveBeenCalledWith('guests')
+    expect(enqueueEmail).not.toHaveBeenCalled()
     expect(propertySelections).toContain(
-      'property_id, organization_id, platforms(name, display_name), properties:properties!property_listings_property_org_fk(cleaning_fee, cleaning_fee_type, pet_fee, pet_fee_type)'
+      'property_id, organization_id'
     )
   })
 
@@ -495,14 +498,14 @@ describe('POST /api/sync/import', () => {
     })
   })
 
-  it('cancela reservas futuras que desapareceram do feed iCal', async () => {
+  it.each([true, false])('contabiliza cancelamento ausente somente quando CAS vence (%s)', async casWon => {
     const listing = {
       id: 'listing-cancel',
       ical_url: 'https://example.com/cancel.ics',
       property_id: 'prop-cancel',
       properties: { id: 'prop-cancel', name: 'Casa Cancela', organization_id: 'org-1' },
     }
-    const reservationUpdate = jest.fn(() => makeQuery({ data: { id: 'reservation-cancel' }, error: null }))
+    const reservationUpdate = jest.fn(() => makeQuery({ data: casWon ? [{ id: 'reservation-cancel' }] : [], error: null }))
     let propertySelectCall = 0
 
     const mockSupabase = {
@@ -567,7 +570,7 @@ describe('POST /api/sync/import', () => {
     const body = await response.json()
 
     expect(response.status).toBe(200)
-    expect(body.totals.cancelled).toBe(1)
+    expect(body.totals.cancelled).toBe(casWon ? 1 : 0)
     expect(reservationUpdate).toHaveBeenCalledWith(expect.objectContaining({
       status: 'cancelled',
       cancelled_at: expect.any(String),
@@ -576,26 +579,35 @@ describe('POST /api/sync/import', () => {
   })
 
   it.each([
-    { status: 'empty', covered: false },
-    { status: 'unmatched', covered: false },
-    { status: 'matched', covered: true },
-    { status: 'matched', covered: false },
-  ])('preserva disponibilidade do feed $status, cobertura ativa=$covered', async ({ status, covered }) => {
-    ;(hasActiveReconciledReservation as jest.Mock).mockResolvedValue(covered)
+    ...[true, false].flatMap(pilotEnabled => ['empty', 'created', 'updated', 'blocked', 'ignored', 'error'].map(action => ({ action, auditStatus: 'unmatched', pilotEnabled, long: false }))),
+    { action: 'created', auditStatus: 'unmatched', pilotEnabled: false, long: true },
+    { action: 'updated', auditStatus: 'matched', pilotEnabled: false, long: false },
+    { action: 'ignored', auditStatus: 'ignored', pilotEnabled: false, long: false },
+  ])(
+    'registra resultado pendente $action (audit=$auditStatus, pilot=$pilotEnabled, long=$long) preservando ocupação presente por calendar_event_id e cancelando ausente sem email', async ({ action, auditStatus, pilotEnabled, long }) => {
+    ;(upsertCalendarEventAudit as jest.Mock).mockResolvedValue({ id: 'event-audit', status: auditStatus })
+    const result = { reservation_id: 'pending-reservation', calendar_event_id: 'event-audit', created: action === 'created', action }
+    if (action === 'error') {
+      ;(importPendingICalReservation as jest.Mock).mockRejectedValue(new Error('Falha ao incluir reserva pendente: RPC indisponível'))
+    } else {
+      ;(importPendingICalReservation as jest.Mock).mockResolvedValue(result)
+    }
     const listing = {
       id: 'listing-booking-pilot',
       ical_url: 'https://example.com/booking-empty.ics',
       property_id: 'prop-booking-pilot',
       properties: { id: 'prop-booking-pilot', name: 'Casa Piloto', organization_id: 'org-1' },
     }
-    const reservationSelect = jest.fn()
+    const reservationSelect = jest.fn(() => makeQuery({ data: [{ id: 'pending-reservation', external_id: 'different-booking-code', calendar_event_id: 'event-audit', check_out: '2026-09-20' }], error: null }))
+    const reservationUpdate = jest.fn(() => makeQuery({ data: [{ id: 'pending-reservation' }], error: null }))
+    const syncLogInsert = jest.fn(() => Promise.resolve({ data: null, error: null }))
 
     const mockSupabase = {
       from: jest.fn((table: string) => {
         if (table === 'property_listings') {
           return {
             select: jest.fn((selection: string) => makeQuery(
-              selection.includes('cleaning_fee')
+              selection === 'property_id, organization_id'
                 ? {
                     data: {
                       property_id: listing.property_id,
@@ -611,24 +623,23 @@ describe('POST /api/sync/import', () => {
           }
         }
         if (table === 'reservations') {
-          return { select: reservationSelect }
+          return { select: reservationSelect, update: reservationUpdate }
         }
         if (table === 'sync_logs') {
-          return { insert: jest.fn(() => Promise.resolve({ data: null, error: null })) }
+          return { insert: syncLogInsert }
         }
         return { select: jest.fn(() => makeQuery({ data: [], error: null })) }
       }),
     }
 
     ;(createAdminClient as jest.Mock).mockReturnValue(mockSupabase)
-    ;(importICalFromUrl as jest.Mock).mockResolvedValue(status === 'empty' ? [] : [{
+    ;(importICalFromUrl as jest.Mock).mockResolvedValue(action === 'empty' ? [] : [{
       uid: 'opaque@booking.com', summary: 'CLOSED - Not available', description: '',
-      start: new Date('2026-09-16T00:00:00.000Z'), end: new Date('2026-09-20T00:00:00.000Z'),
+      start: new Date('2026-09-16T00:00:00.000Z'), end: new Date(long ? '2027-09-20T00:00:00.000Z' : '2026-09-20T00:00:00.000Z'),
     }])
     ;(classifyICalEvent as jest.Mock).mockReturnValue('block')
-    ;(upsertCalendarEventAudit as jest.Mock).mockResolvedValue({ id: 'event-audit', status })
     ;(getFeatureFlagStatus as jest.Mock).mockResolvedValue({
-      enabled: true,
+      enabled: pilotEnabled,
       pilot_platforms: ['booking'],
     })
 
@@ -639,19 +650,82 @@ describe('POST /api/sync/import', () => {
     const body = await response.json()
 
     expect(response.status).toBe(200)
-    expect(body.totals.cancelled).toBe(0)
-    expect(reservationSelect).not.toHaveBeenCalled()
-    if (status === 'unmatched' || (status === 'matched' && !covered)) {
-      expect(upsertReconciliationAvailability).toHaveBeenCalledTimes(1)
+    expect(body.totals.cancelled).toBe(action === 'empty' ? 1 : 0)
+    if (action === 'error') expect(reservationSelect).not.toHaveBeenCalled()
+    else expect(reservationSelect).toHaveBeenCalled()
+    if (action === 'empty') expect(reservationUpdate).toHaveBeenCalledWith(expect.objectContaining({ status: 'cancelled' }))
+    else expect(reservationUpdate).not.toHaveBeenCalled()
+    expect(enqueueEmail).not.toHaveBeenCalled()
+    if (action === 'empty') {
+      expect(importPendingICalReservation).not.toHaveBeenCalled()
     } else {
-      expect(upsertReconciliationAvailability).not.toHaveBeenCalled()
+      expect(importPendingICalReservation).toHaveBeenCalledWith(mockSupabase, 'org-1', 'event-audit', expect.any(Array))
     }
-    if (status === 'matched' && covered) {
-      expect(body.totals.skipped).toBe(1)
-      await POST(createTestRequest('http://localhost/api/sync/import', {
-        method: 'POST', body: JSON.stringify({ property_ids: [listing.property_id] }),
+    if (action === 'error') {
+      expect(body.errors).toEqual([expect.stringContaining('Falha ao incluir reserva pendente: RPC indisponível')])
+      expect(syncLogInsert).toHaveBeenCalledWith(expect.objectContaining({
+        status: 'failed', error_message: 'Falha ao incluir reserva pendente: RPC indisponível',
       }))
-      expect(upsertReconciliationAvailability).not.toHaveBeenCalled()
+    } else {
+      expect(body.totals).toMatchObject({
+        created: action === 'created' ? 1 : 0,
+        updated: action === 'updated' ? 1 : 0,
+        blocked: action === 'blocked' ? 1 : 0,
+        skipped: action === 'ignored' ? 1 : 0,
+      })
+      if (action === 'created') {
+        ;(importPendingICalReservation as jest.Mock).mockResolvedValue({ ...result, created: false, action: 'updated' })
+        const repeated = await POST(createTestRequest('http://localhost/api/sync/import', {
+          method: 'POST', body: JSON.stringify({ property_ids: [listing.property_id] }),
+        }))
+        expect((await repeated.json()).totals).toMatchObject({ created: 0, updated: 1 })
+        expect(reservationUpdate).not.toHaveBeenCalled()
+        expect(enqueueEmail).not.toHaveBeenCalled()
+      }
     }
   })
+  it.each(['cancel-read', 'cancel-write', 'block-delete', 'last-synced', 'success-log'])('marca listing failed quando a limpeza falha em %s', async failure => {
+    const listing = {
+      id: 'listing-cleanup', property_id: 'property-cleanup', sync_enabled: true,
+      ical_url: 'https://example.com/empty.ics',
+      properties: { id: 'property-cleanup', name: 'Casa', organization_id: 'org-cleanup', is_active: true },
+    }
+    const syncLogInsert = jest.fn((payload: { status: string }) => Promise.resolve({ data: null, error: failure === 'success-log' && payload.status === 'success' ? { message: 'cleanup unavailable' } : null }))
+    const reservationUpdate = jest.fn(() => makeQuery({ data: null, error: { message: 'cleanup unavailable' } }))
+    const blockDelete = jest.fn(() => makeQuery({ data: null, error: { message: 'cleanup unavailable' } }))
+    const mockSupabase = {
+      from: jest.fn((table: string) => {
+        if (table === 'property_listings') return {
+          select: jest.fn((selection: string) => makeQuery({ data: selection === 'property_id, organization_id' ? {
+            property_id: listing.property_id, organization_id: 'org-cleanup', properties: {}, platforms: { name: 'Booking.com' },
+          } : [listing], error: null })),
+          update: jest.fn(() => makeQuery({ data: null, error: failure === 'last-synced' ? { message: 'cleanup unavailable' } : null })),
+        }
+        if (table === 'reservations') return {
+          select: jest.fn(() => makeQuery({
+            data: failure === 'cancel-write' ? [{ id: 'reservation-cleanup', external_id: 'missing-code', check_out: '2026-09-20' }] : [],
+            error: failure === 'cancel-read' ? { message: 'cleanup unavailable' } : null,
+          })), update: reservationUpdate,
+        }
+        if (table === 'calendar_blocks') return {
+          select: jest.fn(() => makeQuery({ data: failure === 'block-delete' ? [{ id: 'block-cleanup', external_uid: 'missing-uid' }] : [], error: null })),
+          delete: blockDelete,
+        }
+        if (table === 'sync_logs') return { insert: syncLogInsert }
+        return { select: jest.fn(() => makeQuery({ data: [], error: null })) }
+      }),
+    }
+    ;(createAdminClient as jest.Mock).mockReturnValue(mockSupabase)
+    ;(getFeatureFlagStatus as jest.Mock).mockResolvedValue({ enabled: true, pilot_platforms: ['booking'] })
+    ;(importICalFromUrl as jest.Mock).mockResolvedValue([])
+    const response = await POST(createTestRequest('http://localhost/api/sync/import', { method: 'POST', body: JSON.stringify({ property_ids: ['property-cleanup'] }) }))
+    const body = await response.json()
+    expect(response.status).toBe(200)
+    expect(body.errors).toEqual([expect.stringContaining('cleanup unavailable')])
+    expect(syncLogInsert).toHaveBeenCalledWith(expect.objectContaining({ status: 'failed', error_message: expect.stringContaining('cleanup unavailable') }))
+    expect(enqueueEmail).not.toHaveBeenCalled()
+    if (failure === 'cancel-read') expect(reservationUpdate).not.toHaveBeenCalled()
+    if (failure !== 'block-delete') expect(blockDelete).not.toHaveBeenCalled()
+  })
+
 })

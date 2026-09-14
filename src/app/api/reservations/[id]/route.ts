@@ -52,11 +52,11 @@ export async function PUT(
     // Get original reservation (for audit comparison)
     const { data: originalReservation, error: fetchError } = await supabase
       .from('reservations')
-      .select('guest_name, guest_email, guest_phone, check_in, check_out, number_of_guests, adults, children, property_id, reservation_status, total_price, notes')
+      .select('guest_name, guest_email, guest_phone, check_in, check_out, number_of_guests, adults, children, property_id, reservation_status, total_price, notes, calendar_event_id, deleted_at')
       .eq('id', id)
       .single()
 
-    if (fetchError || !originalReservation) {
+    if (fetchError || !originalReservation || originalReservation.deleted_at) {
       console.error('Fetch error:', fetchError)
       return NextResponse.json(
         { error: 'Reserva não encontrada' },
@@ -89,23 +89,42 @@ export async function PUT(
     }
 
     // Update reservation (only update fields that are provided)
-    const updateData: Record<string, any> = {
+    const updateData: Record<string, unknown> = {
       guest_name,
       guest_email: guest_email || null,
       guest_phone: guest_phone || null,
       check_in: effectiveCheckIn,
       check_out: effectiveCheckOut,
-      number_of_guests: number_of_guests ?? originalReservation.number_of_guests ?? 1,
-      adults: adults ?? originalReservation.adults ?? 1,
-      children: children ?? originalReservation.children ?? 0,
-      total_price: total_price ?? 0,
       notes: notes || null,
+    }
+
+    for (const [field, value] of Object.entries({ number_of_guests, adults, children })) {
+      if (value === undefined) continue
+      if (value !== null && (!Number.isInteger(value) || value < (field === 'children' ? 0 : 1))) {
+        return NextResponse.json({ error: 'Informe uma quantidade válida de hóspedes' }, { status: 400 })
+      }
+      updateData[field] = value
+    }
+
+    // Omission must not reset financial values on an unrelated edit. The database
+    // serializes explicit amount changes against versioned financial captures.
+    if (total_price !== undefined && total_price !== null) {
+      updateData.total_price = total_price
+      updateData.total_amount = total_price
     }
 
     // Only update status if provided and valid
     const validStatuses = ['pending', 'confirmed', 'cancelled', 'completed']
     if (status && validStatuses.includes(status.toLowerCase())) {
-      updateData.reservation_status = status.toLowerCase()
+      if (originalReservation.calendar_event_id) {
+        if (status.toLowerCase() !== originalReservation.reservation_status) {
+          return NextResponse.json({ error: 'Use as ações de revisão da ocupação para confirmar uma reserva importada.', code: 'ICAL_REVIEW_REQUIRED' }, { status: 409 })
+        }
+        // Never write lifecycle columns here: a concurrent host review owns them.
+      } else {
+        updateData.reservation_status = status.toLowerCase()
+        updateData.status = status.toLowerCase()
+      }
     } else if (status) {
       return NextResponse.json(
         { error: `Status inválido. Valores permitidos: ${validStatuses.join(', ')}` },
@@ -129,7 +148,7 @@ export async function PUT(
     }
 
     // Log audit trail
-    const changedFields: Record<string, any> = {}
+    const changedFields: Record<string, unknown> = {}
     if (originalReservation?.guest_name !== guest_name) {
       changedFields.guest_name = {
         from: originalReservation?.guest_name,
@@ -154,7 +173,7 @@ export async function PUT(
         to: status,
       }
     }
-    if (originalReservation?.total_price !== total_price) {
+    if (total_price !== undefined && total_price !== null && originalReservation?.total_price !== total_price) {
       changedFields.total_price = {
         from: originalReservation?.total_price,
         to: total_price,

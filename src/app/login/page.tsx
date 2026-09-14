@@ -12,6 +12,7 @@ import { Alert, AlertDescription } from '@/components/common/ui/alert'
 import { SocialLoginButtons } from '@/components/auth/SocialLoginButtons'
 import { toast } from 'sonner'
 import { Logo } from '@/components/common/ui/Logo'
+import { useHydrated } from '@/hooks/useHydrated'
 
 const DEFAULT_AUTH_REDIRECT = '/pt-BR/dashboard'
 const LOCALE_PREFIX_RE = /^\/(pt-BR|en-US|es)(\/|$)/
@@ -30,6 +31,7 @@ function getSafeRedirect(redirectTo: string | null): string {
 }
 
 export default function LoginPage() {
+  const hydrated = useHydrated()
   const router = useRouter()
   const searchParams = useSearchParams()
   const [loading, setLoading] = useState(false)
@@ -92,7 +94,7 @@ export default function LoginPage() {
             </Alert>
           )}
 
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form method="post" onSubmit={handleLogin} className="space-y-4">
             {/* Email */}
             <div>
               <Input
@@ -141,7 +143,7 @@ export default function LoginPage() {
               type="submit"
               variant="be-primary"
               size="be-lg"
-              disabled={loading}
+              disabled={!hydrated || loading}
               className="w-full rounded-full"
             >
               {loading ? 'Authenticating...' : 'Login'}

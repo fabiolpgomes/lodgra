@@ -83,7 +83,7 @@ export async function GET(request: NextRequest) {
         // reservation_id is already set by email-parser, so just fetch it
         const { data: reservation, error: resError } = await supabase
           .from('reservations')
-          .select('id, first_name, last_name, number_of_guests, currency')
+          .select('id')
           .eq('id', email.reservation_id)
           .single()
 
@@ -100,34 +100,11 @@ export async function GET(request: NextRequest) {
           continue
         }
 
-        // ═══ PHASE 3: Enrich reservation ═════════════════════════════════════════════════
-        // Update: first_name, last_name, number_of_guests, amount, email_enriched_at
-        const updates: Record<string, any> = {
+        // Existing reservations retain host-maintained identity, occupancy and money.
+        // Omit those columns entirely so concurrent manual edits cannot be overwritten.
+        const updates = {
           email_enriched_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
-        }
-
-        // Extract first and last names from guest_name
-        if (parsed.guest_name) {
-          const nameParts = parsed.guest_name.trim().split(/\s+/)
-          if (nameParts.length >= 2) {
-            updates.first_name = nameParts[0]
-            updates.last_name = nameParts.slice(1).join(' ')
-          } else if (nameParts.length === 1) {
-            updates.first_name = nameParts[0]
-            updates.last_name = ''
-          }
-        }
-
-        // Update number of guests if provided
-        if (parsed.num_guests && parsed.num_guests > 0) {
-          updates.number_of_guests = parsed.num_guests
-        }
-
-        // Update amount if provided
-        if (parsed.amount && parsed.amount > 0) {
-          updates.amount = parsed.amount
-          updates.currency = parsed.currency ?? reservation.currency ?? null
         }
 
         const { error: updateError } = await supabase

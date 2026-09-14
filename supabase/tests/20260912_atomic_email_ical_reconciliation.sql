@@ -73,6 +73,23 @@ BEGIN
     'AHS Premium Apart', 'auto_matched'
   ) RETURNING id INTO v_extraction;
 
+  -- A racing email between audit and iCal import cannot create a confirmed stay.
+  BEGIN
+    PERFORM public.reconcile_email_extraction(v_extraction, v_event, false);
+    RAISE EXCEPTION 'email created a reservation before iCal import';
+  EXCEPTION WHEN invalid_parameter_value THEN
+    IF SQLERRM <> 'existing confirmed reservation required before email reconciliation' THEN RAISE; END IF;
+  END;
+  IF EXISTS(SELECT 1 FROM public.reservations WHERE calendar_event_id=v_event)
+    OR NOT EXISTS(SELECT 1 FROM public.calendar_events WHERE id=v_event AND status='unmatched' AND reservation_id IS NULL) THEN
+    RAISE EXCEPTION 'racing email changed availability identity';
+  END IF;
+  SELECT (public.import_ical_pending_reservation(v_org, v_event)->>'reservation_id')::uuid
+  INTO v_reservation;
+  UPDATE public.reservations SET guest_name='Nuno Correia', number_of_guests=3,
+    total_amount=162.09, currency='EUR' WHERE id=v_reservation;
+  PERFORM public.review_ical_pending_reservation(v_org,v_reservation,'confirm');
+
   SELECT (public.reconcile_email_extraction(v_extraction, v_event, false)->>'reservation_id')::uuid
   INTO v_reservation;
 
@@ -89,7 +106,7 @@ BEGIN
       AND check_in = DATE '2099-09-29'
       AND check_out = DATE '2099-09-30'
   ) THEN
-    RAISE EXCEPTION 'atomic reconciliation did not create the expected reservation';
+    RAISE EXCEPTION 'atomic reconciliation did not preserve the reviewed reservation';
   END IF;
 
   IF EXISTS (

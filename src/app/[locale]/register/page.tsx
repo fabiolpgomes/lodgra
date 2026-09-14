@@ -13,8 +13,10 @@ import { Logo } from '@/components/common/ui/Logo'
 import { useLocale } from '@/lib/i18n/routing'
 import { useTranslations } from '@/lib/i18n/useTranslations'
 import { toast } from 'sonner'
+import { useHydrated } from '@/hooks/useHydrated'
 
 export default function RegisterPage() {
+  const hydrated = useHydrated()
   const router = useRouter()
   const locale = useLocale()
   const tCommon = useTranslations('common')
@@ -171,7 +173,7 @@ export default function RegisterPage() {
             </Alert>
           )}
 
-          <form onSubmit={handleRegister} className="space-y-4">
+          <form method="post" onSubmit={handleRegister} className="space-y-4">
             {/* Nome */}
             <div>
               <Input
@@ -266,7 +268,7 @@ export default function RegisterPage() {
             {/* Botão */}
             <Button
               type="submit"
-              disabled={loading || !acceptedTerms}
+              disabled={!hydrated || loading || !acceptedTerms}
               className="w-full"
             >
               {loading ? 'Criando conta...' : 'Criar Conta'}

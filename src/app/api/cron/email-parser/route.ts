@@ -88,7 +88,7 @@ async function processOrg(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   supabase: any,
   conn: ConnectionRow,
-  results: { processed: number; created: number; skipped: number; errors: number; errorDetails: Array<any> },
+  results: { processed: number; created: number; skipped: number; errors: number; errorDetails: Array<{ property: string; email: string; guest: string; type: string; message: string }> },
 ): Promise<boolean> {
   if (await isEmailICalEnabled(conn.organization_id)) {
     console.info(`[email-parser] Gmail legado ignorado para org ${conn.organization_id}: reconciliação Resend ativa`)
@@ -258,16 +258,12 @@ async function processOrg(
     )
 
     if (matchedReservationId) {
-      // Enrich existing iCal reservation with email data
+      // Enrich platform metadata only; the host owns identity, occupancy and money.
       const enriched = await enrichReservationWithEmail(
         matchedReservationId,
         {
-          first_name: parsed.guest_name?.split(' ')[0],
-          last_name: parsed.guest_name?.split(' ').slice(1).join(' '),
-          guest_name: parsed.guest_name,
           confirmation_id: parsed.confirmation_code,
           platform,
-          amount: parsed.amount,
         }
       )
 
@@ -285,6 +281,29 @@ async function processOrg(
         results.created++
         continue
       }
+
+      // A known match must never fall through to a second reservation on write failure.
+      const errorMessage = 'Falha ao atualizar metadata da reserva existente'
+      await supabase.from('email_parse_log').insert({
+        organization_id: conn.organization_id,
+        message_id: email.id,
+        received_at: email.receivedAt.toISOString(),
+        platform,
+        property_id: propertyId,
+        status: 'error',
+        parsed_data: parsed,
+        matched_reservation_id: matchedReservationId,
+        error_message: errorMessage,
+      })
+      results.errors++
+      results.errorDetails.push({
+        property: parsed.property_name || 'Desconhecida',
+        email: email.from,
+        guest: parsed.guest_name,
+        type: 'enrichment_error',
+        message: errorMessage,
+      })
+      continue
     }
 
     // No iCal match: create new draft reservation as before
