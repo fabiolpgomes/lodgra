@@ -73,6 +73,7 @@ async function syncOneListing(
   console.log(`[Cron] Listing ${listing.id}: ${events.length} evento(s)`)
   const receivedUids = new Set(events.map(e => e.uid))
   const receivedExternalIds = new Set<string>()
+  const receivedCalendarEventIds = new Set<string>()
   let listingSource = normalizeListingPlatform(listing.platforms)
 
   const now = new Date()
@@ -100,10 +101,10 @@ async function syncOneListing(
       classification,
     })
 
-    if (classification === 'reservation') {
-      for (const candidate of externalIdContext.externalIdCandidates) {
-        receivedExternalIds.add(candidate)
-      }
+    // Presence in the feed is independent of its reservation/block classification.
+    receivedCalendarEventIds.add(audit.id)
+    for (const candidate of externalIdContext.externalIdCandidates) {
+      receivedExternalIds.add(candidate)
     }
 
     // Standard logging
@@ -479,6 +480,7 @@ async function syncOneListing(
         propertyListingId: listing.id,
         organizationId: cronOrgId,
         receivedExternalIds,
+        receivedCalendarEventIds,
       })
     } catch (error) {
       console.error(`[Cron] Erro ao cancelar reservas ausentes do iCal para listing ${listing.id}:`, error)

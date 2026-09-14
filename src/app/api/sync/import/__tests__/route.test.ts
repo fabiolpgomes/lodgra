@@ -654,4 +654,55 @@ describe('POST /api/sync/import', () => {
       expect(upsertReconciliationAvailability).not.toHaveBeenCalled()
     }
   })
+  it.each([{ present: true, auditFails: false }, { present: false, auditFails: false }, { present: true, auditFails: true }])('preserves CLOSED event identity (present=$present, auditFails=$auditFails)', async ({ present, auditFails }) => {
+    const start = new Date(); start.setUTCDate(start.getUTCDate() + 1)
+    const end = new Date(start); end.setUTCDate(end.getUTCDate() + 4)
+    const listing = {
+      id: 'listing-closed', property_id: 'property-closed', sync_enabled: true,
+      ical_url: 'https://example.com/calendar.ics',
+      properties: { id: 'property-closed', name: 'Casa', organization_id: 'org-closed', is_active: true },
+    }
+    const reservationUpdate = jest.fn(() => makeQuery({ data: null, error: null }))
+    const mockSupabase = { from: jest.fn((table: string) => {
+      if (table === 'property_listings') return {
+        select: jest.fn((selection: string) => makeQuery({ data: selection.includes('cleaning_fee') ? {
+          property_id: listing.property_id, organization_id: 'org-closed', properties: {},
+        } : [listing], error: null })),
+        update: jest.fn(() => makeQuery({ data: null, error: null })),
+      }
+      if (table === 'reservations') return {
+        select: jest.fn(() => makeQuery({ data: [{ id: 'reservation-closed', external_id: 'booking_different_code', calendar_event_id: 'event-audit', check_out: end.toISOString().slice(0, 10) }], error: null })),
+        update: reservationUpdate,
+      }
+      if (table === 'calendar_blocks') return {
+        select: jest.fn((selection: string) => makeQuery({ data: selection === 'id' ? { id: 'existing-block' } : [], error: null })),
+        update: jest.fn(() => makeQuery({ data: null, error: null })),
+      }
+      if (table === 'sync_logs') return { insert: jest.fn(() => Promise.resolve({ data: null, error: null })) }
+      return { select: jest.fn(() => makeQuery({ data: [], error: null })) }
+    }) }
+    ;(createAdminClient as jest.Mock).mockReturnValue(mockSupabase)
+    ;(getFeatureFlagStatus as jest.Mock).mockResolvedValue({ enabled: false, pilot_platforms: [] })
+    if (auditFails) (upsertCalendarEventAudit as jest.Mock).mockRejectedValue(new Error('Audit persistence unavailable'))
+    else (upsertCalendarEventAudit as jest.Mock).mockResolvedValue({ id: 'event-audit', status: 'matched' })
+    ;(classifyICalEvent as jest.Mock).mockReturnValue('block')
+    ;(importICalFromUrl as jest.Mock).mockResolvedValue(present ? [{
+      uid: 'opaque@booking.com', summary: 'CLOSED - Not available', description: '',
+      start, end,
+    }] : [])
+    const response = await POST(createTestRequest('http://localhost/api/sync/import', { method: 'POST', body: JSON.stringify({ property_ids: [listing.property_id] }) }))
+    const body = await response.json()
+    expect(response.status).toBe(200)
+    if (auditFails) {
+      expect(body.errors).toEqual([expect.stringContaining('Audit persistence unavailable')])
+      expect(mockSupabase.from).not.toHaveBeenCalledWith('reservations')
+      expect(reservationUpdate).not.toHaveBeenCalled()
+      return
+    }
+    expect(body.errors).toBeUndefined()
+    expect(body.totals.cancelled).toBe(present ? 0 : 1)
+    if (present) expect(reservationUpdate).not.toHaveBeenCalled()
+    else expect(reservationUpdate).toHaveBeenCalledWith(expect.objectContaining({ status: 'cancelled' }))
+  })
+
 })
