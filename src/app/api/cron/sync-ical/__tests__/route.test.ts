@@ -48,6 +48,8 @@ jest.mock('@/lib/ical/reconciliationAvailability', () => ({
 function makeQuery(result: unknown) {
   const query: Record<string, unknown> = {
     select: jest.fn(() => query),
+    retry: jest.fn(() => query),
+    abortSignal: jest.fn(() => query),
     eq: jest.fn(() => query),
     is: jest.fn(() => query),
     in: jest.fn(() => query),
@@ -89,6 +91,69 @@ describe('GET /api/cron/sync-ical', () => {
       headers: { authorization: `Bearer ${CRON_SECRET}` },
     })
   }
+
+  describe('initial listings read recovery', () => {
+    beforeEach(() => jest.useFakeTimers())
+    afterEach(() => jest.useRealTimers())
+
+    it.each([502, 503, 504, 520])('recovers HTTP %s without repeating a sync', async (status) => {
+      const select = jest.fn()
+        .mockReturnValueOnce(makeQuery({ data: null, error: { message: 'Gateway Timeout' }, status }))
+        .mockReturnValueOnce(makeQuery({ data: [], error: null, status: 200 }))
+      const from = jest.fn(() => ({ select }))
+      ;(createAdminClient as jest.Mock).mockReturnValue({ from })
+      const responsePromise = GET(buildRequest())
+      await jest.runAllTimersAsync()
+      expect((await responsePromise).status).toBe(200)
+      expect(select).toHaveBeenCalledTimes(2)
+      expect(from.mock.calls).toEqual([['property_listings'], ['property_listings']])
+      expect(importICalFromUrl).not.toHaveBeenCalled()
+    })
+
+    it('stops after three reads and reports the final upstream error', async () => {
+      const query = makeQuery({ data: null, error: { message: 'Gateway Timeout' }, status: 504 })
+      const select = jest.fn(() => query)
+      ;(createAdminClient as jest.Mock).mockReturnValue({ from: jest.fn(() => ({ select })) })
+      const responsePromise = GET(buildRequest())
+      await jest.runAllTimersAsync()
+      const response = await responsePromise
+      expect(response.status).toBe(500)
+      expect(await response.json()).toEqual({ error: 'Gateway Timeout' })
+      expect(select).toHaveBeenCalledTimes(3)
+      expect(query.retry).toHaveBeenCalledWith(false)
+      expect(importICalFromUrl).not.toHaveBeenCalled()
+    })
+
+    it('aborts a stalled initial read after ten seconds without retrying or writing', async () => {
+      let signal: AbortSignal
+      const query = makeQuery(null)
+      ;(query.abortSignal as jest.Mock).mockImplementation((value: AbortSignal) => {
+        signal = value
+        return query
+      })
+      query.then = (resolve: (value: unknown) => unknown) => new Promise(done => {
+        signal.addEventListener('abort', () => done({ data: null, error: { message: 'Read aborted' }, status: 0 }))
+      }).then(resolve)
+      const select = jest.fn(() => query)
+      ;(createAdminClient as jest.Mock).mockReturnValue({ from: jest.fn(() => ({ select })) })
+      const responsePromise = GET(buildRequest())
+      await jest.advanceTimersByTimeAsync(10_000)
+      const response = await responsePromise
+      expect(response.status).toBe(500)
+      expect(await response.json()).toEqual({ error: 'Read aborted' })
+      expect(select).toHaveBeenCalledTimes(1)
+      expect(importICalFromUrl).not.toHaveBeenCalled()
+      expect(jest.getTimerCount()).toBe(0)
+    })
+
+    it.each([0, 400, 401, 403, 409, 500])('does not retry non-transient HTTP %s', async (status) => {
+      const select = jest.fn(() => makeQuery({ data: null, error: { message: 'Read rejected' }, status }))
+      ;(createAdminClient as jest.Mock).mockReturnValue({ from: jest.fn(() => ({ select })) })
+      expect((await GET(buildRequest())).status).toBe(500)
+      expect(select).toHaveBeenCalledTimes(1)
+      expect(importICalFromUrl).not.toHaveBeenCalled()
+    })
+  })
 
   it('registra sync_logs com status "success" quando o listing sincroniza sem erros', async () => {
     const listing = {

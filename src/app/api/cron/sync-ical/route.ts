@@ -550,6 +550,35 @@ async function syncOneListing(
   return { created, updated, blocked, unknown, skipped, cancelled, processed }
 }
 
+// Only the initial read is retried: restarting a sync could repeat writes.
+async function readSyncListings(supabase: ReturnType<typeof createAdminClient>) {
+  const read = async () => {
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 10_000)
+    try {
+      return await supabase
+        .from('property_listings')
+        .select(`id, ical_url, sync_enabled, property_id, platforms(name, display_name), properties:properties!property_listings_property_org_fk(name, organization_id, cleaning_fee, cleaning_fee_type, pet_fee, pet_fee_type, is_active)`)
+        .eq('is_active', true)
+        .eq('sync_enabled', true)
+        .not('ical_url', 'is', null)
+        // Own one retry budget instead of multiplying the client's internal retries.
+        .retry(false)
+        .abortSignal(controller.signal)
+    } finally {
+      clearTimeout(timeout)
+    }
+  }
+
+  let result = await read()
+  for (let attempt = 2; result.error && [502, 503, 504, 520].includes(result.status) && attempt <= 3; attempt++) {
+    console.warn('[Cron] Retrying initial listings read', { attempt, status: result.status })
+    await new Promise(resolve => setTimeout(resolve, 500 * (attempt - 1)))
+    result = await read()
+  }
+  return result
+}
+
 // ─── Route Handler ────────────────────────────────────────────────────────────
 
 export async function GET(request: NextRequest) {
@@ -567,15 +596,10 @@ export async function GET(request: NextRequest) {
 
     const supabase = await createAdminClient()
 
-    const { data: listings, error } = await supabase
-      .from('property_listings')
-      .select(`id, ical_url, sync_enabled, property_id, platforms(name, display_name), properties:properties!property_listings_property_org_fk(name, organization_id, cleaning_fee, cleaning_fee_type, pet_fee, pet_fee_type, is_active)`)
-      .eq('is_active', true)
-      .eq('sync_enabled', true)
-      .not('ical_url', 'is', null)
+    const { data: listings, error, status } = await readSyncListings(supabase)
 
     if (error) {
-      console.error('[Cron] Erro ao buscar anúncios:', error)
+      console.error('[Cron] Erro ao buscar anúncios:', error, { status })
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
