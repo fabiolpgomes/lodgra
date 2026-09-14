@@ -1,4 +1,6 @@
-import { test as base, expect, type Page } from '@playwright/test'
+import { type Page } from '@playwright/test'
+import { test as base, expect } from './browser'
+import { LoginPage } from '../pages/LoginPage'
 
 /**
  * Auth fixtures for E2E tests.
@@ -11,21 +13,14 @@ export type AuthFixtures = {
 }
 
 async function login(page: Page, email: string, password: string) {
-  await page.goto('/login')
-  await page.waitForLoadState('domcontentloaded')
-
-  // The /login redirects to /{locale}/login — wait for form
-  await page.locator('input[name="email"]').waitFor({ timeout: 15000 })
-  await page.fill('input[name="email"]', email)
-  await page.fill('input[name="password"]', password)
-  await page.click('button[type="submit"]')
-
-  // Wait for redirect to dashboard (may include locale prefix)
-  await page.waitForURL(/\/(pt|en-US|pt-BR)?\/?(dashboard)?$/, { timeout: 20000 })
+  const loginPage = new LoginPage(page)
+  await loginPage.goto()
+  await loginPage.login(email, password)
+  await loginPage.waitForDashboard()
 }
 
 export const test = base.extend<AuthFixtures>({
-  authenticatedPage: async ({ page }, use) => {
+  authenticatedPage: async ({ page }, runWithPage) => {
     const email = process.env.TEST_USER_EMAIL
     const password = process.env.TEST_USER_PASSWORD
 
@@ -34,7 +29,7 @@ export const test = base.extend<AuthFixtures>({
     }
 
     await login(page, email, password)
-    await use(page)
+    await runWithPage(page)
   },
 })
 

@@ -135,6 +135,58 @@ export function isBlockedEvent(event: { summary?: string; description?: string; 
   return classifyICalEvent(event) === 'block'
 }
 
+/** Reject truncated/concatenated calendars before their omissions can drive cleanup. */
+function validateCalendarEnvelope(data: string): void {
+  const lines = data.replace(/\r?\n[ \t]/g, '').split(/\r?\n/)
+  if (lines[0]?.toUpperCase() !== 'BEGIN:VCALENDAR' || lines.at(-1)?.toUpperCase() !== 'END:VCALENDAR') {
+    throw new Error('Response is not valid iCal: incomplete calendar')
+  }
+  const stack: string[] = []
+  for (const line of lines) {
+    const boundary = /^(BEGIN|END):([A-Z0-9-]+)$/i.exec(line)
+    if (!boundary) continue
+    const [, operation, rawName] = boundary
+    const name = rawName.toUpperCase()
+    if (operation.toUpperCase() === 'BEGIN') {
+      if (name === 'VCALENDAR' && stack.length > 0) throw new Error('Nested iCal calendar is unsupported')
+      if (stack.length === 0 && name !== 'VCALENDAR') throw new Error('Invalid iCal component outside calendar')
+      stack.push(name)
+    } else if (stack.pop() !== name) {
+      throw new Error('iCal calendar has unbalanced component boundaries')
+    }
+  }
+  if (stack.length !== 0 || lines.filter(line => line.toUpperCase() === 'BEGIN:VCALENDAR').length !== 1) {
+    throw new Error('Response must contain exactly one complete iCal calendar')
+  }
+}
+
+/** Check raw jCal values before ICAL.Time silently normalizes impossible dates. */
+function validateEventDate(component: ICAL.Component, name: 'dtstart' | 'dtend'): void {
+  const properties = component.getAllProperties(name)
+  if (properties.length !== 1) throw new Error(`iCal event requires exactly one ${name}`)
+  const property = properties[0].toJSON() as unknown[]
+  const type = property[2]
+  const value = property[3]
+  if (property.length !== 4 || typeof value !== 'string' || (type !== 'date' && type !== 'date-time')) {
+    throw new Error(`iCal event has an invalid ${name}`)
+  }
+  const match = /^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2}):(\d{2})(Z)?)?$/.exec(value)
+  if (!match || (type === 'date') !== (match[4] === undefined)) {
+    throw new Error(`iCal event has an invalid ${name}`)
+  }
+  const [, yearText, monthText, dayText, hourText, minuteText, secondText] = match
+  const year = Number(yearText), month = Number(monthText), day = Number(dayText)
+  const hour = Number(hourText ?? 0), minute = Number(minuteText ?? 0), second = Number(secondText ?? 0)
+  const checked = new Date(0)
+  checked.setUTCFullYear(year, month - 1, day)
+  checked.setUTCHours(hour, minute, second, 0)
+  if (year < 1 || checked.getUTCFullYear() !== year || checked.getUTCMonth() !== month - 1 ||
+      checked.getUTCDate() !== day || checked.getUTCHours() !== hour ||
+      checked.getUTCMinutes() !== minute || checked.getUTCSeconds() !== second) {
+    throw new Error(`iCal event has an impossible ${name}`)
+  }
+}
+
 export async function importICalFromUrl(url: string): Promise<ICalEvent[]> {
   try {
     const response = await fetch(url, {
@@ -147,57 +199,33 @@ export async function importICalFromUrl(url: string): Promise<ICalEvent[]> {
       throw new Error(`Failed to fetch iCal: ${response.status} ${response.statusText}`)
     }
 
-    const icalData = await response.text()
-
-    // Verificar se o conteúdo é realmente iCal (não HTML de erro)
-    if (!icalData.includes('BEGIN:VCALENDAR')) {
-      throw new Error(`Response is not valid iCal (got ${icalData.substring(0, 100)}...)`)
-    }
+    const icalData = (await response.text()).replace(/^\uFEFF/, '').trim()
+    validateCalendarEnvelope(icalData)
     const jcalData = ICAL.parse(icalData)
     const comp = new ICAL.Component(jcalData)
     const vevents = comp.getAllSubcomponents('vevent')
 
-    // Detetar plataforma pelo PRODID ou URL
-    const prodId = comp.getFirstPropertyValue('prodid') || ''
-    const prodIdLower = typeof prodId === 'string' ? prodId.toLowerCase() : ''
-    const urlLower = url.toLowerCase()
-
-    // Detetar tipo de feed
-    const isPlatformFeed = prodIdLower.includes('booking.com') ||
-                           prodIdLower.includes('airbnb') ||
-                           prodIdLower.includes('flatio') ||
-                           urlLower.includes('booking.com') ||
-                           urlLower.includes('airbnb.com') ||
-                           urlLower.includes('airbnb.pt') ||
-                           urlLower.includes('abnb.me') ||
-                           urlLower.includes('flatio.com')
-
-    // Airbnb distingue claramente reservas de bloqueios no próprio feed:
-    //   "Reserved"               → reserva real de hóspede → importar
-    //   "Airbnb (Not available)" → bloqueio do proprietário → ignorar
-    // Booking.com e Flatio usam "CLOSED" tanto para reservas como para bloqueios,
-    // por isso não filtramos esses feeds por keyword (usamos duração mais abaixo).
-    const isAirbnbFeed = prodIdLower.includes('airbnb') ||
-                         urlLower.includes('airbnb.com') ||
-                         urlLower.includes('airbnb.pt') ||
-                         urlLower.includes('abnb.me')
-
     const parsedEvents: ICalEvent[] = []
-    let eventIndex = 0
+    const receivedUids = new Set<string>()
 
     for (const vevent of vevents) {
+      if (['rrule', 'rdate', 'exdate', 'exrule', 'recurrence-id'].some(name => vevent.hasProperty(name))) {
+        throw new Error('Recurring iCal events require expansion before availability synchronization')
+      }
+      validateEventDate(vevent, 'dtstart')
+      validateEventDate(vevent, 'dtend')
       const event = new ICAL.Event(vevent)
-
-      // Pular se não tiver datas
-      if (!event.startDate || !event.endDate) continue
+      if (vevent.getAllProperties('uid').length !== 1 || typeof event.uid !== 'string' || !event.uid.trim()) {
+        throw new Error('iCal event requires one stable UID')
+      }
+      const uid = event.uid
+      if (receivedUids.has(uid)) throw new Error('Duplicate iCal event UID is unsupported')
+      receivedUids.add(uid)
 
       // IMPORTANTE: NÃO filtrar bloqueios aqui!
       // O cron job (sync-ical/route.ts) decide se é bloqueio ou reserva
       // usando isBlockedEvent() e processa como calendar_blocks se necessário.
       // Se filtrarmos aqui, bloqueios do Booking/Airbnb serão perdidos.
-
-      // UID com fallback robusto (inclui índice para evitar colisões)
-      const uid = event.uid || `event-${Date.now()}-${eventIndex++}-${Math.random().toString(36).substring(2, 8)}`
 
       // Extrair datas como DATE (sem timezone) para evitar deslocamento de -1 dia
       // Quando o iCal usa VALUE=DATE (sem hora), toJSDate() converte para UTC
@@ -218,6 +246,10 @@ export async function importICalFromUrl(url: string): Promise<ICalEvent[]> {
         endDate = event.endDate.toJSDate()
       }
 
+      if (!Number.isFinite(startDate.getTime()) || !Number.isFinite(endDate.getTime()) || endDate <= startDate) {
+        throw new Error('iCal event end must be after its valid start')
+      }
+
       parsedEvents.push({
         uid,
         summary: event.summary || 'Reserva Importada',
@@ -229,7 +261,7 @@ export async function importICalFromUrl(url: string): Promise<ICalEvent[]> {
       })
     }
 
-    console.log(`[iCal] ${parsedEvents.length} evento(s) parseado(s) de ${vevents.length} vevent(s) (isPlatformFeed: ${isPlatformFeed}, url: ${url.substring(0, 60)}...)`)
+    console.log(`[iCal] ${parsedEvents.length} evento(s) validado(s) de ${vevents.length} vevent(s)`)
     return parsedEvents
   } catch (error) {
     console.error('Erro ao importar iCal:', error)

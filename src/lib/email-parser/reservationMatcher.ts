@@ -125,7 +125,7 @@ export async function findMatchingICalReservation(
 
     if (error) {
       console.error(`[reservationMatcher] Error querying reservations:`, error)
-      return null
+      throw new Error(`Failed to look up existing reservations: ${error.message}`)
     }
 
     if (!reservations || reservations.length === 0) {
@@ -168,7 +168,7 @@ export async function findMatchingICalReservation(
     return null
   } catch (err) {
     console.error(`[reservationMatcher] Error finding match:`, err)
-    return null
+    throw err
   }
 }
 
@@ -176,35 +176,27 @@ export async function findMatchingICalReservation(
  * Enrich existing reservation with email data
  *
  * @param reservation_id - Reservation to update
- * @param email_data - Data from email (guest name, amounts, confirmation_id)
+ * @param email_data - Platform metadata; guest fields and reservation identity remain host/iCal owned.
  */
 export async function enrichReservationWithEmail(
   reservation_id: string,
   email_data: {
-    first_name?: string
-    last_name?: string
-    guest_name?: string
     confirmation_id?: string
     platform?: string
     platform_url?: string
-    amount?: number
   }
 ): Promise<boolean> {
   try {
     const supabase = await createAdminClient()
 
     // Build update object, only including non-empty values
-    const updates: Record<string, any> = {
+    const updates: Record<string, unknown> = {
       updated_at: new Date().toISOString(),
       platform_synced_at: new Date().toISOString()
     }
 
-    if (email_data.first_name) updates.first_name = email_data.first_name
-    if (email_data.last_name) updates.last_name = email_data.last_name
-    if (email_data.guest_name) updates.guest_name = email_data.guest_name
     if (email_data.confirmation_id) {
       updates.booking_reference = email_data.confirmation_id
-      updates.external_id = `${email_data.platform}_${email_data.confirmation_id}`
     }
     if (email_data.platform) updates.booking_source = email_data.platform.toLowerCase()
     if (email_data.platform_url) updates.platform_sync_url = email_data.platform_url

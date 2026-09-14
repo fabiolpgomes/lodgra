@@ -22,10 +22,10 @@ export function EditReservationForm({ reservation, onClose, onSave }: EditReserv
     guest_email: reservation.guest_email || '',
     guest_phone: reservation.guest_phone || '',
     reservation_status: reservation.status || 'confirmed',
-    total_price: reservation.total_price?.toString() || '0',
-    number_of_guests: reservation.number_of_guests?.toString() || '1',
-    adults: reservation.adults?.toString() || '1',
-    children: reservation.children?.toString() || '0',
+    total_price: reservation.total_price?.toString() ?? '',
+    number_of_guests: reservation.number_of_guests?.toString() ?? '',
+    adults: reservation.adults?.toString() ?? '',
+    children: reservation.children?.toString() ?? '',
     notes: reservation.notes || '',
   })
 
@@ -49,7 +49,7 @@ export function EditReservationForm({ reservation, onClose, onSave }: EditReserv
       setError('Email inválido')
       return false
     }
-    if (isNaN(parseFloat(formData.total_price)) || parseFloat(formData.total_price) < 0) {
+    if (formData.total_price !== '' && (!Number.isFinite(Number(formData.total_price)) || Number(formData.total_price) < 0)) {
       setError('Valor deve ser um número positivo')
       return false
     }
@@ -57,7 +57,7 @@ export function EditReservationForm({ reservation, onClose, onSave }: EditReserv
       setError('O check-in deve ser anterior ao check-out')
       return false
     }
-    if (parseInt(formData.number_of_guests, 10) < 1 || parseInt(formData.adults, 10) < 1 || parseInt(formData.children, 10) < 0) {
+    if ((['number_of_guests', 'adults', 'children'] as const).some(field => formData[field] !== '' && (!Number.isInteger(Number(formData[field])) || Number(formData[field]) < (field === 'children' ? 0 : 1)))) {
       setError('Informe uma quantidade válida de hóspedes')
       return false
     }
@@ -77,11 +77,11 @@ export function EditReservationForm({ reservation, onClose, onSave }: EditReserv
         guest_name: formData.guest_name,
         guest_email: formData.guest_email,
         guest_phone: formData.guest_phone,
-        status: formData.reservation_status as any,
-        total_price: parseFloat(formData.total_price),
-        number_of_guests: parseInt(formData.number_of_guests, 10),
-        adults: parseInt(formData.adults, 10),
-        children: parseInt(formData.children, 10),
+        ...(reservation.calendar_event_id ? {} : { status: formData.reservation_status as ReservationUI['status'] }),
+        ...(formData.total_price === '' ? {} : { total_price: Number(formData.total_price) }),
+        ...(formData.number_of_guests === '' ? {} : { number_of_guests: Number(formData.number_of_guests) }),
+        ...(formData.adults === '' ? {} : { adults: Number(formData.adults) }),
+        ...(formData.children === '' ? {} : { children: Number(formData.children) }),
         notes: formData.notes || null,
       })
       onClose()
@@ -184,7 +184,7 @@ export function EditReservationForm({ reservation, onClose, onSave }: EditReserv
               Status
             </label>
             <Select value={formData.reservation_status} onValueChange={val => handleChange('reservation_status', val)}>
-              <SelectTrigger disabled={loading}>
+              <SelectTrigger disabled={loading || Boolean(reservation.calendar_event_id)}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -198,12 +198,12 @@ export function EditReservationForm({ reservation, onClose, onSave }: EditReserv
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Hóspedes *</label>
-              <Input type="number" min="1" value={formData.number_of_guests} onChange={e => handleChange('number_of_guests', e.target.value)} disabled={loading} />
+              <label htmlFor="review-guests" className="block text-sm font-medium text-gray-700 mb-1">Hóspedes</label>
+              <Input id="review-guests" type="number" min="1" value={formData.number_of_guests} onChange={e => handleChange('number_of_guests', e.target.value)} disabled={loading} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Adultos *</label>
-              <Input type="number" min="1" value={formData.adults} onChange={e => handleChange('adults', e.target.value)} disabled={loading} />
+              <label htmlFor="review-adults" className="block text-sm font-medium text-gray-700 mb-1">Adultos</label>
+              <Input id="review-adults" type="number" min="1" value={formData.adults} onChange={e => handleChange('adults', e.target.value)} disabled={loading} />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Crianças</label>
@@ -213,10 +213,11 @@ export function EditReservationForm({ reservation, onClose, onSave }: EditReserv
 
           {/* Total Price */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="review-total" className="block text-sm font-medium text-gray-700 mb-1">
               Valor Total{currency ? ` (${currency})` : ''}
             </label>
             <Input
+              id="review-total"
               type="number"
               step="0.01"
               min="0"

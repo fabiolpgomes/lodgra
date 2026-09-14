@@ -1,0 +1,2 @@
+-- Observed 2026-09-14; shared timestamp function is not changed by this migration.
+-- No update_calendar_blocks_updated_at trigger existed in staging.

@@ -1,5 +1,4 @@
 import {
-  detectPropertyFromEmailDomain,
   extractDatesFromEmailBody
 } from '@/lib/email-parser/propertyDetector'
 import {
@@ -9,6 +8,9 @@ import {
   isCancellationEmail,
   extractCancellationDate
 } from '@/lib/email-parser/cancellationDetector'
+import { createAdminClient } from '@/lib/supabase/admin'
+
+jest.mock('@/lib/supabase/admin', () => ({ createAdminClient: jest.fn() }))
 
 describe('Email Parser Enrichment', () => {
   describe('propertyDetector', () => {
@@ -53,26 +55,44 @@ describe('Email Parser Enrichment', () => {
   })
 
   describe('reservationMatcher', () => {
+    const query = {
+      select: jest.fn().mockReturnThis(), eq: jest.fn().mockReturnThis(), not: jest.fn(),
+    }
+    beforeEach(() => {
+      jest.clearAllMocks()
+      ;(createAdminClient as jest.Mock).mockReturnValue({ from: jest.fn(() => query) })
+      query.not.mockResolvedValue({ data: [{
+        id: 'existing-reservation', check_in: '2026-08-15', check_out: '2026-08-18',
+        guest_name: 'John Doe', first_name: 'John', last_name: 'Doe',
+      }], error: null })
+    })
+
     it('should return null if no dates provided', async () => {
       const result = await findMatchingICalReservation('prop1', null, null, 'John Doe')
       expect(result).toBeNull()
+      expect(createAdminClient).not.toHaveBeenCalled()
     })
 
-    it('should score matches by date and name', () => {
-      // Scoring logic is private to matcher, but we can test the behavior
-      const property_id = 'test-prop'
-      expect(property_id).toBeDefined()
+    it.each([
+      ['exact dates and name', '2026-08-15', '2026-08-18', 'John Doe', 'existing-reservation'],
+      ['score exactly 80 without email name', '2026-08-15', '2026-08-18', null, 'existing-reservation'],
+      ['same dates but unrelated name', '2026-08-15', '2026-08-18', 'Alice Smith', null],
+      ['same name but non-overlapping dates', '2026-09-15', '2026-09-18', 'John Doe', null],
+    ])('applies the matching threshold for %s', async (_label, checkIn, checkOut, name, expected) => {
+      expect(await findMatchingICalReservation('prop1', checkIn, checkOut, name)).toBe(expected)
+      expect(query.eq).toHaveBeenCalledWith('property_id', 'prop1')
+      expect(query.not).toHaveBeenCalledWith('status', 'eq', 'cancelled')
     })
 
-    it('should require score >= 80 for match', async () => {
-      const result = await findMatchingICalReservation(
-        'nonexistent-property',
-        '2026-08-15',
-        '2026-08-18',
-        'John Doe'
-      )
-      // Will be null because property doesn't exist, but tests the logic
-      expect(typeof result === 'string' || result === null).toBe(true)
+    it('returns no match when the lookup succeeds with no reservations', async () => {
+      query.not.mockResolvedValue({ data: [], error: null })
+      expect(await findMatchingICalReservation('prop1', '2026-08-15', '2026-08-18', 'John Doe')).toBeNull()
+    })
+
+    it('propagates lookup failure instead of treating it as permission to create a duplicate', async () => {
+      query.not.mockResolvedValue({ data: null, error: { message: 'Database unavailable' } })
+      await expect(findMatchingICalReservation('prop1', '2026-08-15', '2026-08-18', 'John Doe'))
+        .rejects.toThrow('Failed to look up existing reservations: Database unavailable')
     })
   })
 

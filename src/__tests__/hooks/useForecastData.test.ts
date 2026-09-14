@@ -1,13 +1,24 @@
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 import { useForecastData } from '@/hooks/useForecastData';
 import { ForecastingAPIResponse } from '@/types/forecasting';
 
-// Mock fetch
-global.fetch = jest.fn();
+const mockFetch = jest.fn();
+type ForecastResponse = { ok: boolean; json: () => Promise<ForecastingAPIResponse> };
+function deferredResponse() {
+  let resolve!: (response: ForecastResponse) => void;
+  let reject!: (reason: Error) => void;
+  const promise = new Promise<ForecastResponse>((onResolve, onReject) => {
+    resolve = onResolve;
+    reject = onReject;
+  });
+  return { promise, resolve, reject };
+}
 
 describe('useForecastData', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockFetch.mockReset();
+    global.fetch = mockFetch;
     localStorage.clear();
   });
 
@@ -93,33 +104,35 @@ describe('useForecastData', () => {
       },
     };
 
-    (global.fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      json: async () => mockData,
-    });
+    const request = deferredResponse();
+    mockFetch.mockReturnValueOnce(request.promise);
 
     const { result } = renderHook(() => useForecastData('prop1'));
 
     expect(result.current.isLoading).toBe(true);
 
-    await waitFor(() => {
-      expect(result.current.isLoading).toBe(false);
+    await act(async () => {
+      request.resolve({ ok: true, json: async () => mockData });
     });
 
+    expect(result.current.isLoading).toBe(false);
     expect(result.current.data).toEqual(mockData);
     expect(result.current.error).toBeNull();
   });
 
   it('should handle fetch errors gracefully', async () => {
     const errorMessage = 'Network error';
-    (global.fetch as jest.Mock).mockRejectedValueOnce(new Error(errorMessage));
+    const request = deferredResponse();
+    mockFetch.mockReturnValueOnce(request.promise);
 
     const { result } = renderHook(() => useForecastData('prop1'));
 
-    await waitFor(() => {
-      expect(result.current.isLoading).toBe(false);
+    expect(result.current.isLoading).toBe(true);
+    await act(async () => {
+      request.reject(new Error(errorMessage));
     });
 
+    expect(result.current.isLoading).toBe(false);
     expect(result.current.error).toBe(errorMessage);
     expect(result.current.data).toBeNull();
   });
@@ -201,16 +214,16 @@ describe('useForecastData', () => {
       },
     };
 
-    (global.fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      json: async () => mockData,
-    });
+    const request = deferredResponse();
+    mockFetch.mockReturnValueOnce(request.promise);
 
     renderHook(() => useForecastData('prop1'));
 
-    await waitFor(() => {
-      const cached = localStorage.getItem('forecast_cache_prop1');
-      expect(cached).toBeTruthy();
+    await act(async () => {
+      request.resolve({ ok: true, json: async () => mockData });
     });
+    const cached = localStorage.getItem('forecast_cache_prop1');
+    expect(cached).not.toBeNull();
+    expect(JSON.parse(cached!).data).toEqual(mockData);
   });
 });

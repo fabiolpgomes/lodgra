@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { EditReservationForm } from '@/components/features/reservations/EditReservationForm'
 import type { ReservationUI } from '@/components/features/reservations/types/reservation-ui'
 
@@ -23,5 +23,21 @@ describe('EditReservationForm', () => {
     )
 
     expect(screen.getByText('Valor Total (BRL)')).toBeInTheDocument()
+  })
+
+  it.each([false, true])('preserves missing numeric data and explicit zero=%s', async (explicitZero) => {
+    const save = jest.fn().mockResolvedValue(undefined)
+    render(<EditReservationForm reservation={{ ...reservation, calendar_event_id: 'event-1', status: 'pending', total_price: undefined }} onClose={jest.fn()} onSave={save} />)
+    expect(screen.getByLabelText('Hóspedes')).toHaveValue(null)
+    expect(screen.getByLabelText('Valor Total (BRL)')).toHaveValue(null)
+    if (explicitZero) fireEvent.change(screen.getByLabelText('Valor Total (BRL)'), { target: { value: '0' } })
+    fireEvent.submit(screen.getByLabelText('Hóspedes').closest('form')!)
+    await waitFor(() => expect(save).toHaveBeenCalled())
+    const payload = save.mock.calls[0][0]
+    expect(payload).not.toHaveProperty('number_of_guests')
+    expect(payload).not.toHaveProperty('adults')
+    expect(payload).not.toHaveProperty('status')
+    if (explicitZero) expect(payload.total_price).toBe(0)
+    else expect(payload).not.toHaveProperty('total_price')
   })
 })

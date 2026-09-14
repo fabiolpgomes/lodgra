@@ -29,6 +29,24 @@ export function EditReservationClient({ reservation, locale }: EditReservationCl
     refund_info?: CancellationRefundInfo
   } | null>(null)
 
+  const reviewImport = async (action: 'confirm' | 'block') => {
+    setLoading(true)
+    try {
+      const response = await fetch(`/api/reservations/${reservation.id}/ical-review`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action }),
+      })
+      const payload = await response.json()
+      if (!response.ok) throw new Error(payload.error || 'Falha ao revisar ocupação')
+      setToast({ message: action === 'block' ? 'Classificado como bloqueio. As datas continuam indisponíveis.' : 'Reserva confirmada.', type: 'success' })
+      router.refresh()
+    } catch (error) {
+      setToast({ message: error instanceof Error ? error.message : 'Falha ao revisar ocupação', type: 'error' })
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const handleSave = async (data: Partial<ReservationUI>) => {
     try {
       setLoading(true)
@@ -132,6 +150,13 @@ export function EditReservationClient({ reservation, locale }: EditReservationCl
       <div className="bg-[#FBFAF6] rounded-[14px] border border-[#E5DFD2] p-6">
         <h2 className="text-base font-semibold text-[#1B2430] mb-4">Ações</h2>
         <div className="space-y-2">
+          {reservation.calendar_event_id && reservation.status === 'pending' && (
+            <div className="space-y-2 rounded-lg border border-brand-gold/30 p-3">
+              <p className="text-sm">Pendente de revisão. As datas estão bloqueadas. Complete os dados e confirme a reserva, ou classifique esta ocupação como bloqueio.</p>
+              <Button disabled={loading} variant="outline" className="w-full" onClick={() => reviewImport('confirm')}>Confirmar que é reserva</Button>
+              <Button disabled={loading} variant="outline" className="w-full" onClick={() => reviewImport('block')}>É um bloqueio</Button>
+            </div>
+          )}
           <Button
             className="w-full bg-[#10203E] hover:bg-[#0c1830] text-white"
             onClick={() => setShowEditForm(true)}

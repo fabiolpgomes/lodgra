@@ -1,126 +1,97 @@
 import { test, expect } from '@playwright/test'
+import { parseStringPromise } from 'xml2js'
+
+const feedPath = '/api/feeds/google-vacation-rentals?currency=EUR'
 
 test.describe('Google Vacation Rentals Feed Validation', () => {
-  test('should load property page with Schema.org markup', async ({ page }) => {
-    // Navigate to a sample property page
-    await page.goto('/properties/sample-property-slug')
+  test('should load property page with Schema.org markup', async ({ page, request }) => {
+    let slug = process.env.TEST_PROPERTY_SLUG
+    if (!slug) {
+      const response = await request.get(feedPath)
+      expect(response.status()).toBe(200)
+      const xml = await parseStringPromise(await response.text())
+      const propertyLink = xml.feed.entry?.flatMap(
+        (entry: { link: Array<{ $: { rel: string; href: string } }> }) => entry.link
+      ).find((link: { $: { rel: string; href: string } }) =>
+        link.$.rel === 'alternate' && !/\/p\/(null|undefined)?$/.test(link.$.href)
+      )?.$.href
+      expect(propertyLink, 'Configure TEST_PROPERTY_SLUG or publish a property in the test feed').toBeTruthy()
+      slug = new URL(propertyLink).pathname.split('/p/')[1]
+    }
+    expect(slug).toBeTruthy()
+    const response = await page.goto(`/p/${slug}`)
+    expect(response?.status()).toBe(200)
 
-    // Wait for page to load
-    await page.waitForLoadState('networkidle')
-
-    // Look for Schema.org LodgingBusiness markup
-    const jsonldScript = await page.locator('script[type="application/ld+json"]').first()
-
-    // Verify markup exists
-    expect(jsonldScript).toBeDefined()
-
-    // Parse and validate JSON-LD
-    const jsonldContent = await jsonldScript.textContent()
-    expect(jsonldContent).toBeTruthy()
-
-    const schema = JSON.parse(jsonldContent || '{}')
+    // The root layout also emits Organization and WebSite schemas.
+    // Playwright's text engine excludes script contents; inspect textContent.
+    const schemas = (await page.locator('script[type="application/ld+json"]').allTextContents())
+      .map(content => JSON.parse(content))
+      .filter(schema => schema['@type'] === 'LodgingBusiness')
+    expect(schemas).toHaveLength(1)
+    const schema = schemas[0]
     expect(schema['@type']).toBe('LodgingBusiness')
+    expect(schema.name).toEqual(expect.any(String))
+    expect(schema.name.trim()).not.toBe('')
   })
 
-  test('should return valid XML feed', async ({ page }) => {
+  test('should return valid Atom XML feed', async ({ request }) => {
     const startTime = Date.now()
-
-    // Fetch the feed endpoint
-    const response = await page.goto('/api/feeds/google-vacation-rentals')
-
-    const endTime = Date.now()
-    const responseTime = endTime - startTime
-
-    // Verify response status
-    expect(response?.status()).toBe(200)
-
-    // Verify content type is XML
-    const contentType = response?.headers()['content-type']
-    expect(contentType).toContain('application/xml')
-
-    // Verify response time < 5 seconds
-    expect(responseTime).toBeLessThan(5000)
-
-    // Verify XML structure
-    const responseText = await response?.text()
-    expect(responseText).toContain('<?xml')
-    expect(responseText).toContain('rss')
-    expect(responseText).toContain('channel')
+    const response = await request.get(feedPath)
+    expect(response.status()).toBe(200)
+    expect(response.headers()['content-type']).toContain('application/atom+xml')
+    expect(Date.now() - startTime).toBeLessThan(5000)
+    const xml = await parseStringPromise(await response.text())
+    expect(xml.feed.$.xmlns).toBe('http://www.w3.org/2005/Atom')
+    expect(xml.feed.id[0]).toBe('urn:lodgra:feed:properties')
   })
 
-  test('should support pagination in feed', async ({ page }) => {
-    // Test with limit parameter
-    const response = await page.goto('/api/feeds/google-vacation-rentals?limit=10')
-
-    expect(response?.status()).toBe(200)
-
-    // Verify X-Feed-Count header
-    const feedCount = response?.headers()['x-feed-count']
-    expect(feedCount).toBeDefined()
+  test('should support pagination in feed', async ({ request }) => {
+    const response = await request.get(`${feedPath}&limit=10`)
+    expect(response.status()).toBe(200)
+    const count = response.headers()['x-feed-count']
+    expect(count).toMatch(/^\d+$/)
+    expect(Number(count)).toBeLessThanOrEqual(10)
+    const xml = await parseStringPromise(await response.text())
+    expect(xml.feed.entry?.length || 0).toBe(Number(count))
   })
 
-  test('should return ETag header for caching', async ({ page }) => {
-    const response = await page.goto('/api/feeds/google-vacation-rentals')
-
-    const etag = response?.headers()['etag']
-    expect(etag).toBeDefined()
-
-    // Verify Cache-Control header
-    const cacheControl = response?.headers()['cache-control']
-    expect(cacheControl).toContain('public')
-    expect(cacheControl).toContain('max-age')
+  test('should return ETag header for caching', async ({ request }) => {
+    const response = await request.get(feedPath)
+    expect(response.status()).toBe(200)
+    expect(response.headers()['etag']).toMatch(/^W\/".+"$/)
+    expect(response.headers()['cache-control']).toContain('public')
+    expect(response.headers()['cache-control']).toContain('max-age')
   })
 
-  test('should handle 304 Not Modified with If-None-Match', async ({ page }) => {
-    // First request to get ETag
-    const firstResponse = await page.goto('/api/feeds/google-vacation-rentals')
-    const etag = firstResponse?.headers()['etag']
-
-    expect(etag).toBeDefined()
-
-    // Second request with If-None-Match should return 304
-    // Note: Playwright doesn't easily support custom headers in goto, so this might need custom fetch
+  test('should handle 304 Not Modified with If-None-Match', async ({ request }) => {
+    const firstResponse = await request.get(feedPath)
+    expect(firstResponse.status()).toBe(200)
+    const etag = firstResponse.headers()['etag']
     expect(etag).toBeTruthy()
+    const cachedResponse = await request.get(feedPath, { headers: { 'If-None-Match': etag } })
+    expect(cachedResponse.status()).toBe(304)
+    expect(await cachedResponse.body()).toHaveLength(0)
   })
 
-  test('should support include_reviews parameter', async ({ page }) => {
-    // Request with reviews
-    const responseWithReviews = await page.goto(
-      '/api/feeds/google-vacation-rentals?include_reviews=true'
-    )
-    const contentWithReviews = await responseWithReviews?.text()
-
-    // Request without reviews
-    const responseNoReviews = await page.goto(
-      '/api/feeds/google-vacation-rentals?include_reviews=false'
-    )
-    const contentNoReviews = await responseNoReviews?.text()
-
-    // Verify reviews parameter affects response
-    expect(contentWithReviews).toBeDefined()
-    expect(contentNoReviews).toBeDefined()
+  test('should support include_reviews parameter', async ({ request }) => {
+    for (const includeReviews of ['true', 'false']) {
+      const response = await request.get(`${feedPath}&include_reviews=${includeReviews}`)
+      expect(response.status()).toBe(200)
+      const xml = await parseStringPromise(await response.text())
+      expect(xml.feed).toBeDefined()
+    }
   })
 
-  test('should handle currency parameter', async ({ page }) => {
-    // Request with specific currency
-    const response = await page.goto('/api/feeds/google-vacation-rentals?currency=EUR')
-
-    expect(response?.status()).toBe(200)
-
-    // Verify response contains currency information
-    const content = await response?.text()
-    expect(content).toBeTruthy()
+  test('should require a valid currency parameter', async ({ request }) => {
+    const response = await request.get('/api/feeds/google-vacation-rentals')
+    expect(response.status()).toBe(400)
+    expect(await response.json()).toEqual({ error: 'Invalid currency' })
   })
 
-  test('should reject invalid limit parameter', async ({ page }) => {
-    // Request with limit > 1000
-    const response = await page.goto('/api/feeds/google-vacation-rentals?limit=5000')
-
-    // Should either reject or cap at 1000
-    expect(response?.status()).toBe(200)
-
-    // Content should be valid XML
-    const content = await response?.text()
-    expect(content).toContain('<?xml')
+  test('should cap oversized limit parameter at 1000', async ({ request }) => {
+    const response = await request.get(`${feedPath}&limit=5000`)
+    expect(response.status()).toBe(200)
+    expect(Number(response.headers()['x-feed-count'])).toBeLessThanOrEqual(1000)
+    expect((await parseStringPromise(await response.text())).feed).toBeDefined()
   })
 })
