@@ -20,7 +20,7 @@ import { upsertCalendarEventAudit } from '@/lib/ical/calendarEventAudit'
 import { calculateServiceFeeAmount, nightsBetween } from '@/lib/reservations/serviceFee'
 import { isAuthorizedCronRequest } from '@/lib/cron/auth'
 import { getFeatureFlagStatus } from '@/lib/email-reconciliation/feature-flag'
-import { upsertReconciliationAvailability } from '@/lib/ical/reconciliationAvailability'
+import { hasActiveReconciledReservation, upsertReconciliationAvailability } from '@/lib/ical/reconciliationAvailability'
 import { normalizeListingPlatform } from '@/lib/ical/listingPlatform'
 
 interface ListingPropertyInfo {
@@ -90,7 +90,7 @@ async function syncOneListing(
     const checkOut = event.end.toISOString().split('T')[0]
 
     const classification = classifyICalEvent(event)
-    await upsertCalendarEventAudit({
+    const audit = await upsertCalendarEventAudit({
       supabase,
       organizationId: cronOrgId,
       propertyId: listing.property_id,
@@ -134,6 +134,15 @@ async function syncOneListing(
       classification !== 'unknown'
 
     if (stagedForReconciliation) {
+      // The linked reservation already represents availability. Do not recreate
+      // the provisional block consumed when this event was reconciled.
+      if (audit.status === 'matched' && await hasActiveReconciledReservation({
+        supabase, organizationId: cronOrgId, propertyId: listing.property_id,
+        propertyListingId: listing.id, calendarEventId: audit.id, checkIn, checkOut,
+      })) {
+        skipped++; processed++; progress.skipped++; progress.processed++
+        continue
+      }
       await upsertReconciliationAvailability({
         supabase,
         organizationId: cronOrgId,

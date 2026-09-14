@@ -12,6 +12,8 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { importICalFromUrl, classifyICalEvent } from '@/lib/ical/icalService'
 import { requireRole } from '@/lib/auth/requireRole'
 import { getFeatureFlagStatus } from '@/lib/email-reconciliation/feature-flag'
+import { upsertCalendarEventAudit } from '@/lib/ical/calendarEventAudit'
+import { hasActiveReconciledReservation, upsertReconciliationAvailability } from '@/lib/ical/reconciliationAvailability'
 
 jest.mock('@/lib/supabase/admin', () => ({
   createAdminClient: jest.fn(),
@@ -39,6 +41,11 @@ jest.mock('@/lib/ical/calendarEventAudit', () => ({
 
 jest.mock('@/lib/email-reconciliation/feature-flag', () => ({
   getFeatureFlagStatus: jest.fn().mockResolvedValue({ enabled: false, pilot_platforms: [] }),
+}))
+
+jest.mock('@/lib/ical/reconciliationAvailability', () => ({
+  upsertReconciliationAvailability: jest.fn().mockResolvedValue(undefined),
+  hasActiveReconciledReservation: jest.fn().mockResolvedValue(true),
 }))
 
 /**
@@ -69,8 +76,17 @@ function makeQuery(result: unknown) {
 describe('POST /api/sync/import', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    ;(hasActiveReconciledReservation as jest.Mock).mockResolvedValue(true)
+    ;(getFeatureFlagStatus as jest.Mock).mockResolvedValue({ enabled: false, pilot_platforms: [] })
+    ;(upsertCalendarEventAudit as jest.Mock).mockResolvedValue({ id: 'event-audit', status: 'unmatched' })
+    // Keep the dated iCal fixtures inside the import window on every test run.
+    jest.useFakeTimers({ now: new Date('2026-09-10T12:00:00.000Z') })
     ;(requireRole as jest.Mock).mockResolvedValue({ authorized: true, response: null })
     ;(classifyICalEvent as jest.Mock).mockReturnValue('unknown')
+  })
+
+  afterEach(() => {
+    jest.useRealTimers()
   })
 
   it('registra sync_logs com status "success" (modo property_ids) quando o listing sincroniza sem erros', async () => {
@@ -559,7 +575,13 @@ describe('POST /api/sync/import', () => {
     }))
   })
 
-  it('não cancela reservas quando um feed vazio pertence à plataforma piloto', async () => {
+  it.each([
+    { status: 'empty', covered: false },
+    { status: 'unmatched', covered: false },
+    { status: 'matched', covered: true },
+    { status: 'matched', covered: false },
+  ])('preserva disponibilidade do feed $status, cobertura ativa=$covered', async ({ status, covered }) => {
+    ;(hasActiveReconciledReservation as jest.Mock).mockResolvedValue(covered)
     const listing = {
       id: 'listing-booking-pilot',
       ical_url: 'https://example.com/booking-empty.ics',
@@ -599,7 +621,12 @@ describe('POST /api/sync/import', () => {
     }
 
     ;(createAdminClient as jest.Mock).mockReturnValue(mockSupabase)
-    ;(importICalFromUrl as jest.Mock).mockResolvedValue([])
+    ;(importICalFromUrl as jest.Mock).mockResolvedValue(status === 'empty' ? [] : [{
+      uid: 'opaque@booking.com', summary: 'CLOSED - Not available', description: '',
+      start: new Date('2026-09-16T00:00:00.000Z'), end: new Date('2026-09-20T00:00:00.000Z'),
+    }])
+    ;(classifyICalEvent as jest.Mock).mockReturnValue('block')
+    ;(upsertCalendarEventAudit as jest.Mock).mockResolvedValue({ id: 'event-audit', status })
     ;(getFeatureFlagStatus as jest.Mock).mockResolvedValue({
       enabled: true,
       pilot_platforms: ['booking'],
@@ -614,5 +641,17 @@ describe('POST /api/sync/import', () => {
     expect(response.status).toBe(200)
     expect(body.totals.cancelled).toBe(0)
     expect(reservationSelect).not.toHaveBeenCalled()
+    if (status === 'unmatched' || (status === 'matched' && !covered)) {
+      expect(upsertReconciliationAvailability).toHaveBeenCalledTimes(1)
+    } else {
+      expect(upsertReconciliationAvailability).not.toHaveBeenCalled()
+    }
+    if (status === 'matched' && covered) {
+      expect(body.totals.skipped).toBe(1)
+      await POST(createTestRequest('http://localhost/api/sync/import', {
+        method: 'POST', body: JSON.stringify({ property_ids: [listing.property_id] }),
+      }))
+      expect(upsertReconciliationAvailability).not.toHaveBeenCalled()
+    }
   })
 })

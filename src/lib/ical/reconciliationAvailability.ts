@@ -11,6 +11,25 @@ export interface ReconciliationAvailabilityInput {
   summary?: string
 }
 
+/** A historical match is insufficient: cancellation or date changes can uncover the feed dates. */
+export async function hasActiveReconciledReservation(
+  input: Omit<ReconciliationAvailabilityInput, 'uid' | 'summary'> & { calendarEventId: string }
+): Promise<boolean> {
+  const { data, error } = await input.supabase.from('reservations')
+    .select('status, reservation_status, deleted_at, check_in, check_out')
+    .eq('organization_id', input.organizationId)
+    .eq('property_id', input.propertyId)
+    .eq('property_listing_id', input.propertyListingId)
+    .eq('calendar_event_id', input.calendarEventId)
+    .maybeSingle()
+
+  if (error) throw new Error(`Falha ao verificar reserva reconciliada: ${error.message}`)
+
+  return Boolean(data &&
+    data.status !== 'cancelled' && data.reservation_status !== 'cancelled' &&
+    !data.deleted_at && data.check_in === input.checkIn && data.check_out === input.checkOut)
+}
+
 /** Keeps the property unavailable while an opaque iCal event awaits email data. */
 export async function upsertReconciliationAvailability(
   input: ReconciliationAvailabilityInput

@@ -17,7 +17,7 @@ import {
 import { upsertCalendarEventAudit } from '@/lib/ical/calendarEventAudit'
 import { calculateServiceFeeAmount, nightsBetween } from '@/lib/reservations/serviceFee'
 import { getFeatureFlagStatus } from '@/lib/email-reconciliation/feature-flag'
-import { upsertReconciliationAvailability } from '@/lib/ical/reconciliationAvailability'
+import { hasActiveReconciledReservation, upsertReconciliationAvailability } from '@/lib/ical/reconciliationAvailability'
 import { normalizeListingPlatform } from '@/lib/ical/listingPlatform'
 
 type AdminClient = ReturnType<typeof createAdminClient>
@@ -109,7 +109,7 @@ async function syncListing(
     const checkOut = event.end.toISOString().split('T')[0]
 
     const classification = classifyICalEvent(event)
-    await upsertCalendarEventAudit({
+    const audit = await upsertCalendarEventAudit({
       supabase,
       organizationId: auditOrganizationId,
       propertyId: propertyListing.property_id,
@@ -145,6 +145,13 @@ async function syncListing(
       reconciliationFlag.pilot_platforms.includes(source) &&
       classification !== 'unknown'
     ) {
+      if (audit.status === 'matched' && await hasActiveReconciledReservation({
+        supabase, organizationId: auditOrganizationId, propertyId: propertyListing.property_id,
+        propertyListingId: listingId, calendarEventId: audit.id, checkIn, checkOut,
+      })) {
+        skipped++
+        continue
+      }
       await upsertReconciliationAvailability({
         supabase,
         organizationId: auditOrganizationId,

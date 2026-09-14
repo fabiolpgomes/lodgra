@@ -11,7 +11,8 @@ import { createTestRequest } from '@/__tests__/utils/test-request'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { importICalFromUrl, classifyICalEvent } from '@/lib/ical/icalService'
 import { getFeatureFlagStatus } from '@/lib/email-reconciliation/feature-flag'
-import { upsertReconciliationAvailability } from '@/lib/ical/reconciliationAvailability'
+import { hasActiveReconciledReservation, upsertReconciliationAvailability } from '@/lib/ical/reconciliationAvailability'
+import { upsertCalendarEventAudit } from '@/lib/ical/calendarEventAudit'
 
 jest.mock('@/lib/supabase/admin', () => ({
   createAdminClient: jest.fn(),
@@ -36,6 +37,7 @@ jest.mock('@/lib/email-reconciliation/feature-flag', () => ({
 
 jest.mock('@/lib/ical/reconciliationAvailability', () => ({
   upsertReconciliationAvailability: jest.fn().mockResolvedValue(undefined),
+  hasActiveReconciledReservation: jest.fn().mockResolvedValue(true),
 }))
 
 /**
@@ -71,6 +73,8 @@ describe('GET /api/cron/sync-ical', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
+    ;(hasActiveReconciledReservation as jest.Mock).mockResolvedValue(true)
+    ;(upsertCalendarEventAudit as jest.Mock).mockResolvedValue({ id: 'event-audit', status: 'unmatched' })
     ;(classifyICalEvent as jest.Mock).mockReturnValue('unknown')
     ;(getFeatureFlagStatus as jest.Mock).mockResolvedValue({ enabled: false, pilot_platforms: [] })
     process.env.CRON_SECRET = CRON_SECRET
@@ -304,7 +308,13 @@ describe('GET /api/cron/sync-ical', () => {
     expect(response.status).toBe(401)
   })
 
-  it('com a reconciliação ativa preserva disponibilidade sem criar reserva fictícia', async () => {
+  it.each([
+    { status: 'unmatched', covered: false },
+    { status: 'matched', covered: true },
+    { status: 'matched', covered: false },
+  ])('preserva disponibilidade para $status, cobertura ativa=$covered', async ({ status, covered }) => {
+    ;(hasActiveReconciledReservation as jest.Mock).mockResolvedValue(covered)
+    ;(upsertCalendarEventAudit as jest.Mock).mockResolvedValue({ id: 'event-audit', status })
     const listing = {
       id: 'listing-booking', ical_url: 'https://example.com/booking.ics', sync_enabled: true,
       property_id: 'property-booking',
@@ -337,10 +347,18 @@ describe('GET /api/cron/sync-ical', () => {
     const body = await response.json()
 
     expect(response.status).toBe(200)
-    expect(body.blocked).toBe(1)
-    expect(upsertReconciliationAvailability).toHaveBeenCalledWith(expect.objectContaining({
-      propertyListingId: 'listing-booking', checkIn: '2026-09-29', checkOut: '2026-09-30',
-    }))
+    expect(body.blocked).toBe(status === 'matched' && covered ? 0 : 1)
+    if (status === 'matched' && covered) {
+      expect(upsertReconciliationAvailability).not.toHaveBeenCalled()
+      expect(body.skipped).toBe(1)
+      // Repeating the sync must not restore the consumed provisional block.
+      await GET(buildRequest())
+      expect(upsertReconciliationAvailability).not.toHaveBeenCalled()
+    } else {
+      expect(upsertReconciliationAvailability).toHaveBeenCalledWith(expect.objectContaining({
+        propertyListingId: 'listing-booking', checkIn: '2026-09-29', checkOut: '2026-09-30',
+      }))
+    }
     expect(reservationTable.select).not.toHaveBeenCalled()
     expect(reservationTable.insert).not.toHaveBeenCalled()
   })
