@@ -69,8 +69,14 @@ function makeQuery(result: unknown) {
 describe('POST /api/sync/import', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    // Keep the dated iCal fixtures inside the import window on every test run.
+    jest.useFakeTimers({ now: new Date('2026-09-10T12:00:00.000Z') })
     ;(requireRole as jest.Mock).mockResolvedValue({ authorized: true, response: null })
     ;(classifyICalEvent as jest.Mock).mockReturnValue('unknown')
+  })
+
+  afterEach(() => {
+    jest.useRealTimers()
   })
 
   it('registra sync_logs com status "success" (modo property_ids) quando o listing sincroniza sem erros', async () => {
