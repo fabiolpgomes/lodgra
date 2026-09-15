@@ -8,7 +8,7 @@ const PUBLIC_PATHS = [
   '/login', '/register', '/subscribe', '/api/stripe/', '/api/debug/',
   '/api/ical/', '/api/auth/', '/auth/', '/opengraph-image', '/sitemap.xml',
   '/robots.txt', '/privacy', '/terms', '/politica-de-privacidade', '/p/',
-  '/properties', '/api/properties', '/api/public/', '/monitoring',
+  '/api/properties', '/api/public/', '/monitoring',
   '/landing', '/landing-vp', '/booking',
   '/cleaner', // Portal próprio: usa cleaner_session e não depende de subscrição SaaS
   '/checkout',   // Stripe success/cancel pages — always public
@@ -17,11 +17,25 @@ const PUBLIC_PATHS = [
   '/sync', '/api/',
 ]
 
+function normalizeLocalizedPath(pathname: string): string {
+  return pathname.replace(/^\/[a-z]{2}(-[A-Z]{2})?(\/|$)/, '/')
+}
+
 export function isPublicPath(pathname: string): boolean {
   // Normalize pathname by removing locale prefix if present
   // e.g. /pt/login -> /login, /pt-BR/register -> /register
-  const normalizedPath = pathname.replace(/^\/[a-z]{2}(-[A-Z]{2})?(\/|$)/, '/')
+  const normalizedPath = normalizeLocalizedPath(pathname)
   return normalizedPath === '/' || PUBLIC_PATHS.some(p => normalizedPath.startsWith(p))
+}
+
+/**
+ * Public API handlers own their 401/403 response, but authenticated payout
+ * requests still need the proxy to refresh Supabase cookies before RLS runs.
+ */
+export function shouldRefreshAuthSession(pathname: string): boolean {
+  const normalizedPath = normalizeLocalizedPath(pathname)
+  if (normalizedPath === '/properties' || normalizedPath.startsWith('/properties/')) return true
+  return /^\/api\/properties\/[^/]+\/payout-rules(?:\/|$)/.test(normalizedPath)
 }
 
 export function redirectToLogin(request: NextRequest, pathname: string): NextResponse {

@@ -4,6 +4,7 @@ import {
   checkPasswordReset,
   checkSubscriptionAndRole,
   isPublicPath,
+  shouldRefreshAuthSession,
 } from '@/lib/middleware/auth-guard'
 import { getCachedProfile } from '@/lib/cache/profileCache'
 import { getCachedSubscriptionStatus } from '@/lib/cache/subscriptionCache'
@@ -54,6 +55,22 @@ describe('auth guard for cleaner collaborators', () => {
       expect(isPublicPath(pathname)).toBe(true)
     },
   )
+
+  it.each(['/pt-BR/properties', '/en-US/properties/property-id', '/es/properties/property-id'])(
+    'keeps the authenticated property workspace protected at %s',
+    pathname => {
+      expect(isPublicPath(pathname)).toBe(false)
+      expect(shouldRefreshAuthSession(pathname)).toBe(true)
+    },
+  )
+
+  it('refreshes payout API sessions while preserving the public property catalog API', () => {
+    expect(isPublicPath('/api/properties')).toBe(true)
+    expect(shouldRefreshAuthSession('/api/properties')).toBe(false)
+    expect(isPublicPath('/api/properties/property-id/payout-rules')).toBe(true)
+    expect(shouldRefreshAuthSession('/api/properties/property-id/payout-rules')).toBe(true)
+    expect(shouldRefreshAuthSession('/api/properties/property-id/payout-rules/preview')).toBe(true)
+  })
 
   it('does not force cleaners into the SaaS password reset flow', async () => {
     const response = await checkPasswordReset(

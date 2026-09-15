@@ -38,6 +38,11 @@ export async function PUT(
       children,
       status,
       total_price,
+      platform_fee,
+      net_amount,
+      commission_amount,
+      service_fee_amount,
+      discount_amount,
       notes,
     } = body
 
@@ -89,7 +94,7 @@ export async function PUT(
     }
 
     // Update reservation (only update fields that are provided)
-    const updateData: Record<string, any> = {
+    const updateData: Record<string, unknown> = {
       guest_name,
       guest_email: guest_email || null,
       guest_phone: guest_phone || null,
@@ -98,8 +103,20 @@ export async function PUT(
       number_of_guests: number_of_guests ?? originalReservation.number_of_guests ?? 1,
       adults: adults ?? originalReservation.adults ?? 1,
       children: children ?? originalReservation.children ?? 0,
-      total_price: total_price ?? 0,
       notes: notes || null,
+    }
+
+    // Omission must not reset financial values on an unrelated edit. The database
+    // serializes explicit amount changes against versioned financial captures.
+    if (total_price !== undefined && total_price !== null) {
+      updateData.total_price = total_price
+      updateData.total_amount = total_price
+    }
+    for (const [field, value] of Object.entries({ platform_fee, net_amount, commission_amount })) {
+      if (value !== undefined) updateData[field] = value ?? null
+    }
+    for (const [field, value] of Object.entries({ service_fee_amount, discount_amount })) {
+      if (value !== undefined) updateData[field] = value ?? 0
     }
 
     // Only update status if provided and valid
@@ -121,6 +138,15 @@ export async function PUT(
       .single()
 
     if (error) {
+      if (error.message.includes('FINANCIAL_TOTAL_MANAGED_BY_SNAPSHOT')) {
+        return NextResponse.json(
+          { error: 'Esta reserva possui informação financeira versionada. Atualize o valor na seção Informação financeira.', code: 'FINANCIAL_TOTAL_MANAGED_BY_SNAPSHOT' },
+          { status: 409 }
+        )
+      }
+      if (error.code === '40001') {
+        return NextResponse.json({ error: 'A reserva foi alterada por outra sessão. Atualize a página e tente novamente.', code: 'RESERVATION_CONFLICT' }, { status: 409 })
+      }
       console.error('Update error:', error)
       return NextResponse.json(
         { error: `Falha ao atualizar reserva: ${error.message}` },
@@ -129,7 +155,7 @@ export async function PUT(
     }
 
     // Log audit trail
-    const changedFields: Record<string, any> = {}
+    const changedFields: Record<string, unknown> = {}
     if (originalReservation?.guest_name !== guest_name) {
       changedFields.guest_name = {
         from: originalReservation?.guest_name,
@@ -154,7 +180,7 @@ export async function PUT(
         to: status,
       }
     }
-    if (originalReservation?.total_price !== total_price) {
+    if (total_price !== undefined && total_price !== null && originalReservation?.total_price !== total_price) {
       changedFields.total_price = {
         from: originalReservation?.total_price,
         to: total_price,

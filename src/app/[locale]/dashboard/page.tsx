@@ -131,7 +131,7 @@ export default async function DashboardPage({
           created_at,
           guest_name,
           commission_amount,
-          channel_connections(channel)
+          booking_source
         `)
         // Transitional Multi-OTA data still contains historical rows with the
         // legacy organization_id and the new RLS therefore hides them from the
@@ -146,9 +146,7 @@ export default async function DashboardPage({
 
   const organizationReservations = (canonicalReservations || []).map(reservation => {
     const property = reservation.property_id ? allPropertiesById.get(reservation.property_id) : null
-    const rawConnection = reservation.channel_connections
-    const connection = Array.isArray(rawConnection) ? rawConnection[0] : rawConnection
-    const bookingSource = connection?.channel || null
+    const bookingSource = reservation.booking_source || null
     return {
       ...reservation,
       booking_source: bookingSource,

@@ -53,10 +53,7 @@ export default async function ReservasPage({ searchParams }: PageProps) {
       created_at,
       property_id,
       properties:properties!reservations_property_org_fk(id, name, city, currency),
-      guests(
-        first_name,
-        last_name
-      )
+      guest_name
     `)
     .lte('check_in', endDate)
     .gte('check_out', startDate)
@@ -85,10 +82,7 @@ export default async function ReservasPage({ searchParams }: PageProps) {
       status,
       property_id,
       properties:properties!reservations_property_org_fk(id, name, currency),
-      guests(
-        first_name,
-        last_name
-      )
+      guest_name
     `)
     .gte('check_out', today)
     .eq('status', 'confirmed')
@@ -107,8 +101,14 @@ export default async function ReservasPage({ searchParams }: PageProps) {
     futureReservationsQuery,
   ])
 
-  const reservations = reservationsResult.data
-  const futureReservations = futureReservationsResult.data || []
+  const reservations = reservationsResult.data?.map(reservation => ({
+    ...reservation,
+    guests: reservation.guest_name ? [{ first_name: reservation.guest_name, last_name: '' }] : [],
+  }))
+  const futureReservations = (futureReservationsResult.data || []).map(reservation => ({
+    ...reservation,
+    guests: reservation.guest_name ? [{ first_name: reservation.guest_name, last_name: '' }] : [],
+  }))
 
   return (
     <AuthLayout>

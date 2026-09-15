@@ -1,0 +1,2 @@
+-- Authorization hardening is monotonic. Restoring SQL NULL-role bypass
+-- behavior is intentionally unsupported.

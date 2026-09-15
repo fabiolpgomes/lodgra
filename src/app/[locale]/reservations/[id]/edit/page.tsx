@@ -13,7 +13,7 @@ import { Alert, AlertDescription } from '@/components/common/ui/alert'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/common/ui/select'
 import { toast } from 'sonner'
 import { Skeleton } from '@/components/common/ui/skeleton'
-import { getCurrencySymbol, type CurrencyCode } from '@/lib/utils/currency'
+import { ReservationFinancialFacts } from '@/components/features/reservations/ReservationFinancialFacts'
 
 export default function EditReservationPage({
   params
@@ -51,13 +51,6 @@ export default function EditReservationPage({
               id,
               name
             )
-          ),
-          guests(
-            id,
-            first_name,
-            last_name,
-            email,
-            phone
           )
         `)
         .eq('id', id)
@@ -113,9 +106,6 @@ export default function EditReservationPage({
         setPropertyListings(data || [])
       }
       loadListings()
-      // Actualizar moeda ao mudar propriedade
-      const prop = properties.find(p => p.id === selectedProperty)
-      if (prop?.currency) setSelectedCurrency(prop.currency)
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedProperty])
@@ -168,21 +158,12 @@ export default function EditReservationPage({
       const guestFirstName = formData.get('guest_first_name') as string
       const guestLastName = formData.get('guest_last_name') as string
 
-      if (reservation?.guest_id && guestEmail) {
-        await supabase
-          .from('guests')
-          .update({
-            first_name: guestFirstName,
-            last_name: guestLastName,
-            email: guestEmail,
-            phone: formData.get('guest_phone') as string || null,
-          })
-          .eq('id', reservation?.guest_id)
-      }
-
       const { error: updateError } = await supabase
         .from('reservations')
         .update({
+          guest_name: `${guestFirstName} ${guestLastName}`.trim(),
+          guest_email: guestEmail || null,
+          guest_phone: (formData.get('guest_phone') as string) || null,
           property_id: selectedProperty,
           property_listing_id: selectedListing || null,
           check_in: checkInStr,
@@ -191,7 +172,6 @@ export default function EditReservationPage({
           adults: parseInt(formData.get('adults') as string) || 1,
           children: parseInt(formData.get('children') as string) || 0,
           notes: (formData.get('notes') as string) || null,
-          total_amount: parseFloat(formData.get('total_amount') as string) || null,
           updated_at: new Date().toISOString(),
         })
         .eq('id', reservationId)
@@ -262,7 +242,7 @@ export default function EditReservationPage({
     )
   }
 
-  const guest = reservation?.guests as unknown as { first_name: string; last_name: string; email: string | null; phone: string | null } | null
+  const [guestFirstName = '', ...guestLastName] = String(reservation?.guest_name ?? '').trim().split(/\s+/)
 
   return (
     <AuthLayout>
@@ -301,6 +281,8 @@ export default function EditReservationPage({
                   value={selectedProperty}
                   onValueChange={(propertyId) => {
                     setSelectedProperty(propertyId)
+                    const property = properties.find(item => item.id === propertyId)
+                    if (property?.currency) setSelectedCurrency(property.currency)
                     setSelectedListing('')
                   }}
                 >
@@ -387,19 +369,18 @@ export default function EditReservationPage({
                     id="guest_first_name"
                     name="guest_first_name"
                     required
-                    defaultValue={guest?.first_name || ''}
+                    defaultValue={guestFirstName}
                   />
                 </div>
                 <div>
                   <Label htmlFor="guest_last_name" className="mb-1">
-                    Sobrenome *
+                    Sobrenome
                   </Label>
                   <Input
                     type="text"
                     id="guest_last_name"
                     name="guest_last_name"
-                    required
-                    defaultValue={guest?.last_name || ''}
+                    defaultValue={guestLastName.join(' ')}
                   />
                 </div>
               </div>
@@ -413,7 +394,7 @@ export default function EditReservationPage({
                     id="guest_email"
                     name="guest_email"
                     required
-                    defaultValue={guest?.email || ''}
+                    defaultValue={String(reservation?.guest_email ?? '')}
                   />
                 </div>
                 <div>
@@ -424,7 +405,7 @@ export default function EditReservationPage({
                     type="tel"
                     id="guest_phone"
                     name="guest_phone"
-                    defaultValue={guest?.phone || ''}
+                    defaultValue={String(reservation?.guest_phone ?? '')}
                   />
                 </div>
               </div>
@@ -485,23 +466,10 @@ export default function EditReservationPage({
             </div>
           </div>
 
-          <div className="mb-8">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Valor da Reserva</h3>
-            <div>
-              <Label htmlFor="total_amount" className="mb-1">
-                Valor Total ({getCurrencySymbol(selectedCurrency as CurrencyCode)})
-              </Label>
-              <Input
-                type="number"
-                id="total_amount"
-                name="total_amount"
-                step="0.01"
-                min="0"
-                defaultValue={reservation?.total_amount as string || ''}
-                placeholder="0.00"
-              />
-            </div>
-          </div>
+          <ReservationFinancialFacts
+            reservationId={reservationId}
+            currency={selectedCurrency}
+          />
 
           <div className="flex flex-col-reverse gap-3 sm:flex-row sm:gap-4">
             <Button

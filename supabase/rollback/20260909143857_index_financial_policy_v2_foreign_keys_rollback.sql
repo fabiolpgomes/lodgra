@@ -1,0 +1,12 @@
+BEGIN;
+
+DROP INDEX IF EXISTS public.channel_payout_allocations_property_org_fk_idx;
+DROP INDEX IF EXISTS public.channel_payout_allocations_reservation_org_fk_idx;
+DROP INDEX IF EXISTS public.channel_payout_allocations_payout_org_fk_idx;
+DROP INDEX IF EXISTS public.channel_payouts_created_by_fk_idx;
+DROP INDEX IF EXISTS public.reservation_financial_snapshots_created_by_fk_idx;
+DROP INDEX IF EXISTS public.reservation_financial_snapshots_property_org_fk_idx;
+DROP INDEX IF EXISTS public.reservation_financial_snapshots_reservation_org_fk_idx;
+DROP INDEX IF EXISTS public.payout_rule_components_rule_org_fk_idx;
+
+COMMIT;
