@@ -34,7 +34,9 @@ BEGIN
     RAISE EXCEPTION 'fixture requires one tenant-scoped property listing';
   END IF;
 
-  PERFORM set_config('request.jwt.claim.role', 'service_role', true);
+  -- Match the JSON claims supplied by PostgREST in production.
+  PERFORM set_config('request.jwt.claim.role', '', true);
+  PERFORM set_config('request.jwt.claims', '{"role":"service_role"}', true);
 
   INSERT INTO public.raw_emails (
     organization_id, provider_message_id, recipient, sender, subject,

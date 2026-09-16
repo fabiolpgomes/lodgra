@@ -102,4 +102,36 @@ describe('syncExtractedDataToReservation', () => {
     const result = await syncExtractedDataToReservation('missing')
     expect(result.success).toBe(false)
   })
+
+  it('routes a declared financial conflict to tenant-scoped review without retrying the RPC', async () => {
+    const { client, rpc, extractionQuery } = setup(extraction, [opaqueBookingEvent])
+    rpc.mockResolvedValue({ data: null, error: {
+      code: 'PT409', message: 'FINANCIAL_TOTAL_MANAGED_BY_SNAPSHOT',
+    } })
+
+    expect(await syncExtractedDataToReservation('ext-1')).toEqual({ success: true, status: 'needs_review' })
+    expect(rpc).toHaveBeenCalledTimes(1)
+    expect(extractionQuery.update).toHaveBeenCalledWith(expect.objectContaining({ match_status: 'needs_review' }))
+    expect(extractionQuery.eq).toHaveBeenCalledWith('id', 'ext-1')
+    expect(extractionQuery.eq).toHaveBeenCalledWith('organization_id', 'org-1')
+    expect(client.from).not.toHaveBeenCalledWith('reservations')
+  })
+
+  it('does not report successful review when persisting the review status fails', async () => {
+    const { rpc, extractionQuery } = setup(extraction, [opaqueBookingEvent])
+    rpc.mockResolvedValue({ data: null, error: {
+      code: 'PT409', message: 'FINANCIAL_TOTAL_MANAGED_BY_SNAPSHOT',
+    } })
+    ;(extractionQuery.update as jest.Mock).mockReturnValue(query({ error: { message: 'Review write failed' } }))
+
+    expect(await syncExtractedDataToReservation('ext-1')).toEqual({ success: false, error: 'Review write failed' })
+  })
+
+  it.each(['40001', 'PT409'])('keeps unrelated %s failures on the error path', async (code) => {
+    const { rpc, extractionQuery } = setup(extraction, [opaqueBookingEvent])
+    rpc.mockResolvedValue({ data: null, error: { code, message: 'Other failure' } })
+
+    expect(await syncExtractedDataToReservation('ext-1')).toEqual({ success: false, error: 'Other failure' })
+    expect(extractionQuery.update).not.toHaveBeenCalled()
+  })
 })

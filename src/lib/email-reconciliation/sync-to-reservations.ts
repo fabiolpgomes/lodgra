@@ -105,6 +105,17 @@ export async function syncExtractedDataToReservation(extractionId: string): Prom
     p_event_id: eventId,
     p_confirmed_by_host: false,
   })
+  if (error?.code === 'PT409' && error.message === 'FINANCIAL_TOTAL_MANAGED_BY_SNAPSHOT') {
+    // A declared financial snapshot needs a host decision, not another automatic write.
+    const { error: reviewError } = await supabase
+      .from('email_extractions')
+      .update({ match_status: 'needs_review', updated_at: new Date().toISOString() })
+      .eq('id', extraction.id)
+      .eq('organization_id', extraction.organization_id)
+    return reviewError
+      ? { success: false, error: reviewError.message }
+      : { success: true, status: 'needs_review' }
+  }
   if (error) return { success: false, error: error.message }
 
   const result = data as { reservation_id?: string } | null

@@ -108,7 +108,8 @@ export async function POST(request: NextRequest) {
 
       if (reconciliation.status !== 'auto_matched') {
         await supabase.from('raw_emails').update({
-          processing_status: 'processed', processed_at: new Date().toISOString(),
+          processing_status: reconciliation.status === 'needs_review' ? 'needs_review' : 'processed',
+          processed_at: new Date().toISOString(),
           last_error: null, updated_at: new Date().toISOString(),
         }).eq('id', rawEmail.id).eq('organization_id', rawEmail.organization_id)
       }

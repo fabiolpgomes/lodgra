@@ -20,7 +20,7 @@ import { upsertCalendarEventAudit } from '@/lib/ical/calendarEventAudit'
 import { calculateServiceFeeAmount, nightsBetween } from '@/lib/reservations/serviceFee'
 import { isAuthorizedCronRequest } from '@/lib/cron/auth'
 import { getFeatureFlagStatus } from '@/lib/email-reconciliation/feature-flag'
-import { upsertReconciliationAvailability } from '@/lib/ical/reconciliationAvailability'
+import { hasActiveReconciledReservation, upsertReconciliationAvailability } from '@/lib/ical/reconciliationAvailability'
 import { normalizeListingPlatform } from '@/lib/ical/listingPlatform'
 
 interface ListingPropertyInfo {
@@ -73,6 +73,7 @@ async function syncOneListing(
   console.log(`[Cron] Listing ${listing.id}: ${events.length} evento(s)`)
   const receivedUids = new Set(events.map(e => e.uid))
   const receivedExternalIds = new Set<string>()
+  const receivedCalendarEventIds = new Set<string>()
   let listingSource = normalizeListingPlatform(listing.platforms)
 
   const now = new Date()
@@ -90,7 +91,7 @@ async function syncOneListing(
     const checkOut = event.end.toISOString().split('T')[0]
 
     const classification = classifyICalEvent(event)
-    await upsertCalendarEventAudit({
+    const audit = await upsertCalendarEventAudit({
       supabase,
       organizationId: cronOrgId,
       propertyId: listing.property_id,
@@ -100,10 +101,10 @@ async function syncOneListing(
       classification,
     })
 
-    if (classification === 'reservation') {
-      for (const candidate of externalIdContext.externalIdCandidates) {
-        receivedExternalIds.add(candidate)
-      }
+    // Presence in the feed is independent of its reservation/block classification.
+    receivedCalendarEventIds.add(audit.id)
+    for (const candidate of externalIdContext.externalIdCandidates) {
+      receivedExternalIds.add(candidate)
     }
 
     // Standard logging
@@ -134,6 +135,15 @@ async function syncOneListing(
       classification !== 'unknown'
 
     if (stagedForReconciliation) {
+      // The linked reservation already represents availability. Do not recreate
+      // the provisional block consumed when this event was reconciled.
+      if (audit.status === 'matched' && await hasActiveReconciledReservation({
+        supabase, organizationId: cronOrgId, propertyId: listing.property_id,
+        propertyListingId: listing.id, calendarEventId: audit.id, checkIn, checkOut,
+      })) {
+        skipped++; processed++; progress.skipped++; progress.processed++
+        continue
+      }
       await upsertReconciliationAvailability({
         supabase,
         organizationId: cronOrgId,
@@ -470,6 +480,7 @@ async function syncOneListing(
         propertyListingId: listing.id,
         organizationId: cronOrgId,
         receivedExternalIds,
+        receivedCalendarEventIds,
       })
     } catch (error) {
       console.error(`[Cron] Erro ao cancelar reservas ausentes do iCal para listing ${listing.id}:`, error)
@@ -539,6 +550,35 @@ async function syncOneListing(
   return { created, updated, blocked, unknown, skipped, cancelled, processed }
 }
 
+// Only the initial read is retried: restarting a sync could repeat writes.
+async function readSyncListings(supabase: ReturnType<typeof createAdminClient>) {
+  const read = async () => {
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 10_000)
+    try {
+      return await supabase
+        .from('property_listings')
+        .select(`id, ical_url, sync_enabled, property_id, platforms(name, display_name), properties:properties!property_listings_property_org_fk(name, organization_id, cleaning_fee, cleaning_fee_type, pet_fee, pet_fee_type, is_active)`)
+        .eq('is_active', true)
+        .eq('sync_enabled', true)
+        .not('ical_url', 'is', null)
+        // Own one retry budget instead of multiplying the client's internal retries.
+        .retry(false)
+        .abortSignal(controller.signal)
+    } finally {
+      clearTimeout(timeout)
+    }
+  }
+
+  let result = await read()
+  for (let attempt = 2; result.error && [502, 503, 504, 520].includes(result.status) && attempt <= 3; attempt++) {
+    console.warn('[Cron] Retrying initial listings read', { attempt, status: result.status })
+    await new Promise(resolve => setTimeout(resolve, 500 * (attempt - 1)))
+    result = await read()
+  }
+  return result
+}
+
 // ─── Route Handler ────────────────────────────────────────────────────────────
 
 export async function GET(request: NextRequest) {
@@ -556,15 +596,10 @@ export async function GET(request: NextRequest) {
 
     const supabase = await createAdminClient()
 
-    const { data: listings, error } = await supabase
-      .from('property_listings')
-      .select(`id, ical_url, sync_enabled, property_id, platforms(name, display_name), properties:properties!property_listings_property_org_fk(name, organization_id, cleaning_fee, cleaning_fee_type, pet_fee, pet_fee_type, is_active)`)
-      .eq('is_active', true)
-      .eq('sync_enabled', true)
-      .not('ical_url', 'is', null)
+    const { data: listings, error, status } = await readSyncListings(supabase)
 
     if (error) {
-      console.error('[Cron] Erro ao buscar anúncios:', error)
+      console.error('[Cron] Erro ao buscar anúncios:', error, { status })
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 

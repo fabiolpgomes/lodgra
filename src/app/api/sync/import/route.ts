@@ -17,7 +17,7 @@ import {
 import { upsertCalendarEventAudit } from '@/lib/ical/calendarEventAudit'
 import { calculateServiceFeeAmount, nightsBetween } from '@/lib/reservations/serviceFee'
 import { getFeatureFlagStatus } from '@/lib/email-reconciliation/feature-flag'
-import { upsertReconciliationAvailability } from '@/lib/ical/reconciliationAvailability'
+import { hasActiveReconciledReservation, upsertReconciliationAvailability } from '@/lib/ical/reconciliationAvailability'
 import { normalizeListingPlatform } from '@/lib/ical/listingPlatform'
 
 type AdminClient = ReturnType<typeof createAdminClient>
@@ -73,6 +73,7 @@ async function syncListing(
   const errors: string[] = []
   console.log(`[Sync] Listing ${listingId}: ${events.length} evento(s) recebido(s) do iCal`)
   const receivedExternalIds = new Set<string>()
+  const receivedCalendarEventIds = new Set<string>()
 
   if (events.length === 0) {
     console.warn(`[Sync] Listing ${listingId}: iCal retornou 0 eventos — verifique a URL ou se o calendário tem reservas`)
@@ -109,7 +110,7 @@ async function syncListing(
     const checkOut = event.end.toISOString().split('T')[0]
 
     const classification = classifyICalEvent(event)
-    await upsertCalendarEventAudit({
+    const audit = await upsertCalendarEventAudit({
       supabase,
       organizationId: auditOrganizationId,
       propertyId: propertyListing.property_id,
@@ -119,10 +120,10 @@ async function syncListing(
       classification,
     })
 
-    if (classification === 'reservation') {
-      for (const candidate of externalIdContext.externalIdCandidates) {
-        receivedExternalIds.add(candidate)
-      }
+    // Presence in the feed is independent of its reservation/block classification.
+    receivedCalendarEventIds.add(audit.id)
+    for (const candidate of externalIdContext.externalIdCandidates) {
+      receivedExternalIds.add(candidate)
     }
 
     // Ignorar se o check-out já passou (reserva terminada) ou início > 2 anos
@@ -145,6 +146,13 @@ async function syncListing(
       reconciliationFlag.pilot_platforms.includes(source) &&
       classification !== 'unknown'
     ) {
+      if (audit.status === 'matched' && await hasActiveReconciledReservation({
+        supabase, organizationId: auditOrganizationId, propertyId: propertyListing.property_id,
+        propertyListingId: listingId, calendarEventId: audit.id, checkIn, checkOut,
+      })) {
+        skipped++
+        continue
+      }
       await upsertReconciliationAvailability({
         supabase,
         organizationId: auditOrganizationId,
@@ -433,6 +441,7 @@ async function syncListing(
         propertyListingId: listingId,
         organizationId: resolvedOrganizationId,
         receivedExternalIds,
+        receivedCalendarEventIds,
       })
     } catch (error) {
       console.error(`[Sync] Erro ao cancelar reservas ausentes do iCal para listing ${listingId}:`, error)

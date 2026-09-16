@@ -12,6 +12,8 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { importICalFromUrl, classifyICalEvent } from '@/lib/ical/icalService'
 import { requireRole } from '@/lib/auth/requireRole'
 import { getFeatureFlagStatus } from '@/lib/email-reconciliation/feature-flag'
+import { upsertCalendarEventAudit } from '@/lib/ical/calendarEventAudit'
+import { hasActiveReconciledReservation, upsertReconciliationAvailability } from '@/lib/ical/reconciliationAvailability'
 
 jest.mock('@/lib/supabase/admin', () => ({
   createAdminClient: jest.fn(),
@@ -39,6 +41,11 @@ jest.mock('@/lib/ical/calendarEventAudit', () => ({
 
 jest.mock('@/lib/email-reconciliation/feature-flag', () => ({
   getFeatureFlagStatus: jest.fn().mockResolvedValue({ enabled: false, pilot_platforms: [] }),
+}))
+
+jest.mock('@/lib/ical/reconciliationAvailability', () => ({
+  upsertReconciliationAvailability: jest.fn().mockResolvedValue(undefined),
+  hasActiveReconciledReservation: jest.fn().mockResolvedValue(true),
 }))
 
 /**
@@ -69,6 +76,9 @@ function makeQuery(result: unknown) {
 describe('POST /api/sync/import', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    ;(hasActiveReconciledReservation as jest.Mock).mockResolvedValue(true)
+    ;(getFeatureFlagStatus as jest.Mock).mockResolvedValue({ enabled: false, pilot_platforms: [] })
+    ;(upsertCalendarEventAudit as jest.Mock).mockResolvedValue({ id: 'event-audit', status: 'unmatched' })
     // Keep the dated iCal fixtures inside the import window on every test run.
     jest.useFakeTimers({ now: new Date('2026-09-10T12:00:00.000Z') })
     ;(requireRole as jest.Mock).mockResolvedValue({ authorized: true, response: null })
@@ -565,7 +575,13 @@ describe('POST /api/sync/import', () => {
     }))
   })
 
-  it('não cancela reservas quando um feed vazio pertence à plataforma piloto', async () => {
+  it.each([
+    { status: 'empty', covered: false },
+    { status: 'unmatched', covered: false },
+    { status: 'matched', covered: true },
+    { status: 'matched', covered: false },
+  ])('preserva disponibilidade do feed $status, cobertura ativa=$covered', async ({ status, covered }) => {
+    ;(hasActiveReconciledReservation as jest.Mock).mockResolvedValue(covered)
     const listing = {
       id: 'listing-booking-pilot',
       ical_url: 'https://example.com/booking-empty.ics',
@@ -605,7 +621,12 @@ describe('POST /api/sync/import', () => {
     }
 
     ;(createAdminClient as jest.Mock).mockReturnValue(mockSupabase)
-    ;(importICalFromUrl as jest.Mock).mockResolvedValue([])
+    ;(importICalFromUrl as jest.Mock).mockResolvedValue(status === 'empty' ? [] : [{
+      uid: 'opaque@booking.com', summary: 'CLOSED - Not available', description: '',
+      start: new Date('2026-09-16T00:00:00.000Z'), end: new Date('2026-09-20T00:00:00.000Z'),
+    }])
+    ;(classifyICalEvent as jest.Mock).mockReturnValue('block')
+    ;(upsertCalendarEventAudit as jest.Mock).mockResolvedValue({ id: 'event-audit', status })
     ;(getFeatureFlagStatus as jest.Mock).mockResolvedValue({
       enabled: true,
       pilot_platforms: ['booking'],
@@ -620,5 +641,68 @@ describe('POST /api/sync/import', () => {
     expect(response.status).toBe(200)
     expect(body.totals.cancelled).toBe(0)
     expect(reservationSelect).not.toHaveBeenCalled()
+    if (status === 'unmatched' || (status === 'matched' && !covered)) {
+      expect(upsertReconciliationAvailability).toHaveBeenCalledTimes(1)
+    } else {
+      expect(upsertReconciliationAvailability).not.toHaveBeenCalled()
+    }
+    if (status === 'matched' && covered) {
+      expect(body.totals.skipped).toBe(1)
+      await POST(createTestRequest('http://localhost/api/sync/import', {
+        method: 'POST', body: JSON.stringify({ property_ids: [listing.property_id] }),
+      }))
+      expect(upsertReconciliationAvailability).not.toHaveBeenCalled()
+    }
   })
+  it.each([{ present: true, auditFails: false }, { present: false, auditFails: false }, { present: true, auditFails: true }])('preserves CLOSED event identity (present=$present, auditFails=$auditFails)', async ({ present, auditFails }) => {
+    const start = new Date(); start.setUTCDate(start.getUTCDate() + 1)
+    const end = new Date(start); end.setUTCDate(end.getUTCDate() + 4)
+    const listing = {
+      id: 'listing-closed', property_id: 'property-closed', sync_enabled: true,
+      ical_url: 'https://example.com/calendar.ics',
+      properties: { id: 'property-closed', name: 'Casa', organization_id: 'org-closed', is_active: true },
+    }
+    const reservationUpdate = jest.fn(() => makeQuery({ data: null, error: null }))
+    const mockSupabase = { from: jest.fn((table: string) => {
+      if (table === 'property_listings') return {
+        select: jest.fn((selection: string) => makeQuery({ data: selection.includes('cleaning_fee') ? {
+          property_id: listing.property_id, organization_id: 'org-closed', properties: {},
+        } : [listing], error: null })),
+        update: jest.fn(() => makeQuery({ data: null, error: null })),
+      }
+      if (table === 'reservations') return {
+        select: jest.fn(() => makeQuery({ data: [{ id: 'reservation-closed', external_id: 'booking_different_code', calendar_event_id: 'event-audit', check_out: end.toISOString().slice(0, 10) }], error: null })),
+        update: reservationUpdate,
+      }
+      if (table === 'calendar_blocks') return {
+        select: jest.fn((selection: string) => makeQuery({ data: selection === 'id' ? { id: 'existing-block' } : [], error: null })),
+        update: jest.fn(() => makeQuery({ data: null, error: null })),
+      }
+      if (table === 'sync_logs') return { insert: jest.fn(() => Promise.resolve({ data: null, error: null })) }
+      return { select: jest.fn(() => makeQuery({ data: [], error: null })) }
+    }) }
+    ;(createAdminClient as jest.Mock).mockReturnValue(mockSupabase)
+    ;(getFeatureFlagStatus as jest.Mock).mockResolvedValue({ enabled: false, pilot_platforms: [] })
+    if (auditFails) (upsertCalendarEventAudit as jest.Mock).mockRejectedValue(new Error('Audit persistence unavailable'))
+    else (upsertCalendarEventAudit as jest.Mock).mockResolvedValue({ id: 'event-audit', status: 'matched' })
+    ;(classifyICalEvent as jest.Mock).mockReturnValue('block')
+    ;(importICalFromUrl as jest.Mock).mockResolvedValue(present ? [{
+      uid: 'opaque@booking.com', summary: 'CLOSED - Not available', description: '',
+      start, end,
+    }] : [])
+    const response = await POST(createTestRequest('http://localhost/api/sync/import', { method: 'POST', body: JSON.stringify({ property_ids: [listing.property_id] }) }))
+    const body = await response.json()
+    expect(response.status).toBe(200)
+    if (auditFails) {
+      expect(body.errors).toEqual([expect.stringContaining('Audit persistence unavailable')])
+      expect(mockSupabase.from).not.toHaveBeenCalledWith('reservations')
+      expect(reservationUpdate).not.toHaveBeenCalled()
+      return
+    }
+    expect(body.errors).toBeUndefined()
+    expect(body.totals.cancelled).toBe(present ? 0 : 1)
+    if (present) expect(reservationUpdate).not.toHaveBeenCalled()
+    else expect(reservationUpdate).toHaveBeenCalledWith(expect.objectContaining({ status: 'cancelled' }))
+  })
+
 })
