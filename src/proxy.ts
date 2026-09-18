@@ -7,6 +7,7 @@ import { getClientIp, applyRateLimit } from '@/lib/middleware/rate-limit'
 import { getSupabaseCookieOptions } from '@/lib/supabase/cookie-options'
 import {
   isPublicPath,
+  shouldRefreshAuthSession,
   redirectToLogin,
   checkPasswordReset,
   checkSubscriptionAndRole,
@@ -73,11 +74,12 @@ export async function proxy(request: NextRequest) {
   )
 
   const isPublic = isPublicPath(pathname)
+  const refreshesAuthenticatedSession = shouldRefreshAuthSession(pathname)
 
   // Public routes should render immediately without waiting for a Supabase
   // auth round-trip. Login and marketing pages do not need to validate the
   // session before first paint.
-  if (isPublic) {
+  if (isPublic && !refreshesAuthenticatedSession) {
     applySecurityHeaders(supabaseResponse, nonce)
     supabaseResponse.headers.set('x-nonce', nonce)
     return supabaseResponse

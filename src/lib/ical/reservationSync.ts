@@ -17,6 +17,7 @@ export interface CancelMissingReservationsOptions {
   propertyListingId: string
   organizationId?: string
   receivedExternalIds: Set<string>
+  receivedCalendarEventIds?: Set<string>
   now?: string
   bookingSources?: string[]
 }
@@ -92,13 +93,14 @@ export async function cancelMissingReservations(
     propertyListingId,
     organizationId,
     receivedExternalIds,
+    receivedCalendarEventIds,
     now = new Date().toISOString(),
     bookingSources = DEFAULT_BOOKING_SOURCES,
   } = options
 
   let query = supabase
     .from('reservations')
-    .select('id, external_id, check_out')
+    .select('id, external_id, calendar_event_id, check_out')
     .eq('property_listing_id', propertyListingId)
     .neq('status', 'cancelled')
     .in('booking_source', bookingSources)
@@ -119,6 +121,7 @@ export async function cancelMissingReservations(
   let cancelled = 0
 
   for (const reservation of candidates ?? []) {
+    if (reservation?.calendar_event_id && receivedCalendarEventIds?.has(reservation.calendar_event_id)) continue
     if (!reservation?.external_id) continue
     if (receivedExternalIds.has(reservation.external_id)) continue
 

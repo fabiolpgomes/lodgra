@@ -1,0 +1,2 @@
+-- The previous function definition is restored by reapplying
+-- 20260908203425_replace_property_payout_rule.sql from the target baseline.

@@ -11,7 +11,8 @@ import { createTestRequest } from '@/__tests__/utils/test-request'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { importICalFromUrl, classifyICalEvent } from '@/lib/ical/icalService'
 import { getFeatureFlagStatus } from '@/lib/email-reconciliation/feature-flag'
-import { upsertReconciliationAvailability } from '@/lib/ical/reconciliationAvailability'
+import { hasActiveReconciledReservation, upsertReconciliationAvailability } from '@/lib/ical/reconciliationAvailability'
+import { upsertCalendarEventAudit } from '@/lib/ical/calendarEventAudit'
 
 jest.mock('@/lib/supabase/admin', () => ({
   createAdminClient: jest.fn(),
@@ -36,6 +37,7 @@ jest.mock('@/lib/email-reconciliation/feature-flag', () => ({
 
 jest.mock('@/lib/ical/reconciliationAvailability', () => ({
   upsertReconciliationAvailability: jest.fn().mockResolvedValue(undefined),
+  hasActiveReconciledReservation: jest.fn().mockResolvedValue(true),
 }))
 
 /**
@@ -46,6 +48,8 @@ jest.mock('@/lib/ical/reconciliationAvailability', () => ({
 function makeQuery(result: unknown) {
   const query: Record<string, unknown> = {
     select: jest.fn(() => query),
+    retry: jest.fn(() => query),
+    abortSignal: jest.fn(() => query),
     eq: jest.fn(() => query),
     is: jest.fn(() => query),
     in: jest.fn(() => query),
@@ -71,6 +75,8 @@ describe('GET /api/cron/sync-ical', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
+    ;(hasActiveReconciledReservation as jest.Mock).mockResolvedValue(true)
+    ;(upsertCalendarEventAudit as jest.Mock).mockResolvedValue({ id: 'event-audit', status: 'unmatched' })
     ;(classifyICalEvent as jest.Mock).mockReturnValue('unknown')
     ;(getFeatureFlagStatus as jest.Mock).mockResolvedValue({ enabled: false, pilot_platforms: [] })
     process.env.CRON_SECRET = CRON_SECRET
@@ -85,6 +91,69 @@ describe('GET /api/cron/sync-ical', () => {
       headers: { authorization: `Bearer ${CRON_SECRET}` },
     })
   }
+
+  describe('initial listings read recovery', () => {
+    beforeEach(() => jest.useFakeTimers())
+    afterEach(() => jest.useRealTimers())
+
+    it.each([502, 503, 504, 520])('recovers HTTP %s without repeating a sync', async (status) => {
+      const select = jest.fn()
+        .mockReturnValueOnce(makeQuery({ data: null, error: { message: 'Gateway Timeout' }, status }))
+        .mockReturnValueOnce(makeQuery({ data: [], error: null, status: 200 }))
+      const from = jest.fn(() => ({ select }))
+      ;(createAdminClient as jest.Mock).mockReturnValue({ from })
+      const responsePromise = GET(buildRequest())
+      await jest.runAllTimersAsync()
+      expect((await responsePromise).status).toBe(200)
+      expect(select).toHaveBeenCalledTimes(2)
+      expect(from.mock.calls).toEqual([['property_listings'], ['property_listings']])
+      expect(importICalFromUrl).not.toHaveBeenCalled()
+    })
+
+    it('stops after three reads and reports the final upstream error', async () => {
+      const query = makeQuery({ data: null, error: { message: 'Gateway Timeout' }, status: 504 })
+      const select = jest.fn(() => query)
+      ;(createAdminClient as jest.Mock).mockReturnValue({ from: jest.fn(() => ({ select })) })
+      const responsePromise = GET(buildRequest())
+      await jest.runAllTimersAsync()
+      const response = await responsePromise
+      expect(response.status).toBe(500)
+      expect(await response.json()).toEqual({ error: 'Gateway Timeout' })
+      expect(select).toHaveBeenCalledTimes(3)
+      expect(query.retry).toHaveBeenCalledWith(false)
+      expect(importICalFromUrl).not.toHaveBeenCalled()
+    })
+
+    it('aborts a stalled initial read after ten seconds without retrying or writing', async () => {
+      let signal: AbortSignal
+      const query = makeQuery(null)
+      ;(query.abortSignal as jest.Mock).mockImplementation((value: AbortSignal) => {
+        signal = value
+        return query
+      })
+      query.then = (resolve: (value: unknown) => unknown) => new Promise(done => {
+        signal.addEventListener('abort', () => done({ data: null, error: { message: 'Read aborted' }, status: 0 }))
+      }).then(resolve)
+      const select = jest.fn(() => query)
+      ;(createAdminClient as jest.Mock).mockReturnValue({ from: jest.fn(() => ({ select })) })
+      const responsePromise = GET(buildRequest())
+      await jest.advanceTimersByTimeAsync(10_000)
+      const response = await responsePromise
+      expect(response.status).toBe(500)
+      expect(await response.json()).toEqual({ error: 'Read aborted' })
+      expect(select).toHaveBeenCalledTimes(1)
+      expect(importICalFromUrl).not.toHaveBeenCalled()
+      expect(jest.getTimerCount()).toBe(0)
+    })
+
+    it.each([0, 400, 401, 403, 409, 500])('does not retry non-transient HTTP %s', async (status) => {
+      const select = jest.fn(() => makeQuery({ data: null, error: { message: 'Read rejected' }, status }))
+      ;(createAdminClient as jest.Mock).mockReturnValue({ from: jest.fn(() => ({ select })) })
+      expect((await GET(buildRequest())).status).toBe(500)
+      expect(select).toHaveBeenCalledTimes(1)
+      expect(importICalFromUrl).not.toHaveBeenCalled()
+    })
+  })
 
   it('registra sync_logs com status "success" quando o listing sincroniza sem erros', async () => {
     const listing = {
@@ -304,7 +373,13 @@ describe('GET /api/cron/sync-ical', () => {
     expect(response.status).toBe(401)
   })
 
-  it('com a reconciliação ativa preserva disponibilidade sem criar reserva fictícia', async () => {
+  it.each([
+    { status: 'unmatched', covered: false },
+    { status: 'matched', covered: true },
+    { status: 'matched', covered: false },
+  ])('preserva disponibilidade para $status, cobertura ativa=$covered', async ({ status, covered }) => {
+    ;(hasActiveReconciledReservation as jest.Mock).mockResolvedValue(covered)
+    ;(upsertCalendarEventAudit as jest.Mock).mockResolvedValue({ id: 'event-audit', status })
     const listing = {
       id: 'listing-booking', ical_url: 'https://example.com/booking.ics', sync_enabled: true,
       property_id: 'property-booking',
@@ -337,10 +412,18 @@ describe('GET /api/cron/sync-ical', () => {
     const body = await response.json()
 
     expect(response.status).toBe(200)
-    expect(body.blocked).toBe(1)
-    expect(upsertReconciliationAvailability).toHaveBeenCalledWith(expect.objectContaining({
-      propertyListingId: 'listing-booking', checkIn: '2026-09-29', checkOut: '2026-09-30',
-    }))
+    expect(body.blocked).toBe(status === 'matched' && covered ? 0 : 1)
+    if (status === 'matched' && covered) {
+      expect(upsertReconciliationAvailability).not.toHaveBeenCalled()
+      expect(body.skipped).toBe(1)
+      // Repeating the sync must not restore the consumed provisional block.
+      await GET(buildRequest())
+      expect(upsertReconciliationAvailability).not.toHaveBeenCalled()
+    } else {
+      expect(upsertReconciliationAvailability).toHaveBeenCalledWith(expect.objectContaining({
+        propertyListingId: 'listing-booking', checkIn: '2026-09-29', checkOut: '2026-09-30',
+      }))
+    }
     expect(reservationTable.select).not.toHaveBeenCalled()
     expect(reservationTable.insert).not.toHaveBeenCalled()
   })
@@ -604,4 +687,53 @@ describe('GET /api/cron/sync-ical', () => {
     expect(body.errors).toBe(1)
     expect(guestInsert).not.toHaveBeenCalled()
   })
+  it.each([{ present: true, auditFails: false }, { present: false, auditFails: false }, { present: true, auditFails: true }])('preserves CLOSED event identity (present=$present, auditFails=$auditFails)', async ({ present, auditFails }) => {
+    const start = new Date(); start.setUTCDate(start.getUTCDate() + 1)
+    const end = new Date(start); end.setUTCDate(end.getUTCDate() + 4)
+    const listing = {
+      id: 'listing-closed', property_id: 'property-closed', sync_enabled: true,
+      ical_url: 'https://example.com/calendar.ics',
+      properties: { id: 'property-closed', name: 'Casa', organization_id: 'org-closed', is_active: true },
+    }
+    const reservationUpdate = jest.fn(() => makeQuery({ data: null, error: null }))
+    const mockSupabase = { from: jest.fn((table: string) => {
+      if (table === 'property_listings') return {
+        select: jest.fn(() => makeQuery({ data: [listing], error: null })),
+        update: jest.fn(() => makeQuery({ data: null, error: null })),
+      }
+      if (table === 'reservations') return {
+        select: jest.fn(() => makeQuery({ data: [{ id: 'reservation-closed', external_id: 'booking_different_code', calendar_event_id: 'event-audit', check_out: end.toISOString().slice(0, 10) }], error: null })),
+        update: reservationUpdate,
+      }
+      if (table === 'calendar_blocks') return {
+        select: jest.fn((selection: string) => makeQuery({ data: selection === 'id' ? { id: 'existing-block' } : [], error: null })),
+        update: jest.fn(() => makeQuery({ data: null, error: null })),
+      }
+      if (table === 'sync_logs') return { insert: jest.fn(() => Promise.resolve({ data: null, error: null })) }
+      return { select: jest.fn(() => makeQuery({ data: [], error: null })) }
+    }) }
+    ;(createAdminClient as jest.Mock).mockReturnValue(mockSupabase)
+    ;(getFeatureFlagStatus as jest.Mock).mockResolvedValue({ enabled: false, pilot_platforms: [] })
+    if (auditFails) (upsertCalendarEventAudit as jest.Mock).mockRejectedValue(new Error('Audit persistence unavailable'))
+    else (upsertCalendarEventAudit as jest.Mock).mockResolvedValue({ id: 'event-audit', status: 'matched' })
+    ;(classifyICalEvent as jest.Mock).mockReturnValue('block')
+    ;(importICalFromUrl as jest.Mock).mockResolvedValue(present ? [{
+      uid: 'opaque@booking.com', summary: 'CLOSED - Not available', description: '',
+      start, end,
+    }] : [])
+    const response = await GET(buildRequest())
+    const body = await response.json()
+    expect(response.status).toBe(200)
+    if (auditFails) {
+      expect(body.errors).toBe(1)
+      expect(mockSupabase.from).not.toHaveBeenCalledWith('reservations')
+      expect(reservationUpdate).not.toHaveBeenCalled()
+      return
+    }
+    expect(body.errors).toBe(0)
+    expect(body.cancelled).toBe(present ? 0 : 1)
+    if (present) expect(reservationUpdate).not.toHaveBeenCalled()
+    else expect(reservationUpdate).toHaveBeenCalledWith(expect.objectContaining({ status: 'cancelled' }))
+  })
+
 })

@@ -82,6 +82,7 @@ supabase/.temp/
 
 # Local secrets and test files
 .env.local.prod-db
+.local-backups/
 *.mjs
 outputs/
 FireShot*

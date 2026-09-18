@@ -37,7 +37,7 @@ describe('POST /api/email-extraction/process-pending', () => {
     expect(createAdminClient).not.toHaveBeenCalled()
   })
 
-  it('persists the strict extraction and invokes atomic reconciliation', async () => {
+  it.each(['auto_matched', 'needs_review', 'no_match'])('persists extraction and handles reconciliation status %s', async (status) => {
     const raw = {
       id: 'raw-1', organization_id: 'org-1', sender: 'noreply@booking.com',
       raw_content: 'Booking reservation', attempt_count: 1,
@@ -46,9 +46,10 @@ describe('POST /api/email-extraction/process-pending', () => {
     const upsertQuery = {
       select: jest.fn(() => ({ single: jest.fn().mockResolvedValue({ data: { id: 'ext-1' }, error: null }) })),
     }
+    const update = jest.fn(() => updateQuery())
     const from = jest.fn((table: string) => {
       if (table === 'email_extractions') return { upsert: jest.fn(() => upsertQuery) }
-      if (table === 'raw_emails') return { update: jest.fn(() => updateQuery()) }
+      if (table === 'raw_emails') return { update }
       throw new Error(`Unexpected table ${table}`)
     })
     ;(createAdminClient as jest.Mock).mockReturnValue({ rpc, from })
@@ -63,7 +64,7 @@ describe('POST /api/email-extraction/process-pending', () => {
       confidence: 0.98, model: 'gpt-4.1-mini', version: 'email-reservation-extraction/v1', truncated: false,
     })
     ;(syncExtractedDataToReservation as jest.Mock).mockResolvedValue({
-      success: true, status: 'auto_matched', reservationId: 'reservation-1',
+      success: true, status, reservationId: status === 'auto_matched' ? 'reservation-1' : undefined,
     })
 
     const response = await POST(createTestRequest('http://localhost/api/email-extraction/process-pending', {
@@ -72,7 +73,15 @@ describe('POST /api/email-extraction/process-pending', () => {
     const body = await response.json()
 
     expect(response.status).toBe(200)
-    expect(body.results[0]).toMatchObject({ success: true, status: 'auto_matched', reservationId: 'reservation-1' })
+    expect(body.results[0]).toMatchObject({ success: true, status })
+    if (status === 'auto_matched') {
+      expect(body.results[0].reservationId).toBe('reservation-1')
+      expect(update).not.toHaveBeenCalled()
+    } else {
+      expect(update).toHaveBeenCalledWith(expect.objectContaining({
+        processing_status: status === 'needs_review' ? 'needs_review' : 'processed',
+      }))
+    }
     expect(syncExtractedDataToReservation).toHaveBeenCalledWith('ext-1')
   })
 

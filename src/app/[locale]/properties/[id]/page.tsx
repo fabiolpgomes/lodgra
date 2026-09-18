@@ -9,6 +9,7 @@ import { TogglePropertyStatusButton } from '@/components/features/properties/Tog
 import { PropertyListingsManager } from '@/components/features/listings/PropertyListingsManager'
 import { QuickActionButtons } from '@/components/features/properties/QuickActionButtons'
 import { StatisticsCard } from '@/components/features/properties/StatisticsCard'
+import { PropertyPayoutContract } from '@/components/features/properties/PropertyPayoutContract'
 import { ICalExportCard } from '@/components/features/properties/ICalExportCard'
 import { PropertyDocuments } from '@/components/features/properties/PropertyDocuments'
 import { ReviewsManager } from '@/components/features/properties/ReviewsManager'
@@ -277,8 +278,13 @@ export default async function PropertyDetailsPage({
           </div>
         </div>
 
+        <nav aria-label="Seções da propriedade" className="mb-6 flex flex-wrap gap-2 border-b pb-3">
+          <a href="#visao-geral" className="inline-flex min-h-11 items-center rounded-sm px-4 text-sm font-medium text-gray-700 hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#10203E]">Visão geral</a>
+          <a href="#contrato-repasse" className="inline-flex min-h-11 items-center rounded-sm bg-[#10203E] px-4 text-sm font-medium text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#10203E] focus-visible:ring-offset-2">Contrato / Repasse</a>
+        </nav>
+
         {/* Grid de Informações */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div id="visao-geral" className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Informações Principais */}
           <div className="lg:col-span-2 space-y-6">
             {/* Card de Informações Básicas */}
@@ -572,6 +578,8 @@ export default async function PropertyDetailsPage({
             </div>
           </div>
         </div>
+
+        <PropertyPayoutContract propertyId={id} canEdit={canEdit} />
       </main>
     </AuthLayout>
   )

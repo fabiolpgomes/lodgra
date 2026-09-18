@@ -9,7 +9,6 @@ type PropertyRow = {
   currency: string | null
 }
 
-type ChannelConnection = { channel?: string | null } | Array<{ channel?: string | null }> | null
 
 const REPORT_PAGE_SIZE = 1000
 
@@ -81,11 +80,6 @@ export type ReservationReportRow = {
   } | null
 }
 
-function channelFromConnection(connection: ChannelConnection): string | null {
-  const value = Array.isArray(connection) ? connection[0] : connection
-  return value?.channel || null
-}
-
 export function mapCanonicalReservationToReport(
   reservation: {
     id: string
@@ -101,11 +95,11 @@ export function mapCanonicalReservationToReport(
     notes: string | null
     guest_name: string | null
     guest_email: string | null
-    channel_connections: ChannelConnection
+    booking_source: string | null
   },
   property: PropertyRow
 ): ReservationReportRow {
-  const channel = channelFromConnection(reservation.channel_connections)
+  const channel = reservation.booking_source || null
   return {
     id: reservation.id,
     property_id: reservation.property_id,
@@ -182,7 +176,7 @@ export async function loadReservationReportData({
         notes,
         guest_name,
         guest_email,
-        channel_connections(channel)
+        booking_source
       `)
       .in('property_id', allowedProperties.map(property => property.id))
       .eq('reservation_status', 'confirmed')

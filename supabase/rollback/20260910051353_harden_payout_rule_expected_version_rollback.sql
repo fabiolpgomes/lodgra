@@ -1,0 +1,3 @@
+-- Security hardening is intentionally monotonic. Restoring NULL-bypass behavior
+-- would reopen silent lost updates; feature rollback is handled by the earlier
+-- contract migration rollback.

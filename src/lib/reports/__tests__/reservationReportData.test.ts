@@ -76,7 +76,7 @@ describe('mapCanonicalReservationToReport', () => {
       notes: 'Chegada tardia',
       guest_name: 'Maria Silva',
       guest_email: 'maria@example.com',
-      channel_connections: { channel: 'airbnb' },
+      booking_source: 'airbnb',
     }, property)
 
     expect(row).toEqual(expect.objectContaining({
@@ -107,7 +107,7 @@ describe('mapCanonicalReservationToReport', () => {
       notes: null,
       guest_name: null,
       guest_email: null,
-      channel_connections: [],
+      booking_source: null,
     }, property)
 
     expect(row.guests).toBeNull()
@@ -131,7 +131,7 @@ describe('mapCanonicalReservationToReport', () => {
       notes: null,
       guest_name: 'Ana',
       guest_email: null,
-      channel_connections: null,
+      booking_source: null,
     }, { ...property, currency: null })
 
     expect(row.currency).toBeNull()

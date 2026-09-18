@@ -82,10 +82,7 @@ export default async function FinanceiroPage({ searchParams }: PageProps) {
       created_at,
       property_id,
       properties:properties!reservations_property_org_fk(id, name, city, currency),
-      guests(
-        first_name,
-        last_name
-      )
+      guest_name
     `)
     .lte('check_in', endDate)
     .gte('check_out', startDate)
@@ -115,10 +112,7 @@ export default async function FinanceiroPage({ searchParams }: PageProps) {
       status,
       property_id,
       properties:properties!reservations_property_org_fk(id, name, currency),
-      guests(
-        first_name,
-        last_name
-      )
+      guest_name
     `)
     .gte('check_out', today)
     .eq('status', 'confirmed')
@@ -161,9 +155,15 @@ export default async function FinanceiroPage({ searchParams }: PageProps) {
     futureReservationsQuery,
   ])
 
-  const reservations = reservationsResult.data
+  const reservations = reservationsResult.data?.map(reservation => ({
+    ...reservation,
+    guests: reservation.guest_name ? { first_name: reservation.guest_name, last_name: '' } : null,
+  }))
   const expenses = expensesResult.data
-  const futureReservations = futureReservationsResult.data || []
+  const futureReservations = (futureReservationsResult.data || []).map(reservation => ({
+    ...reservation,
+    guests: reservation.guest_name ? { first_name: reservation.guest_name, last_name: '' } : null,
+  }))
 
   // Helper: prefer property currency, then reservation currency; keep missing currency explicit.
   function getResCurrency(r: { currency?: string | null; properties?: unknown }): string | null {

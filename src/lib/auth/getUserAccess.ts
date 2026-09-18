@@ -1,5 +1,4 @@
-import { SupabaseClient } from '@supabase/supabase-js'
-import { createAdminClient } from '@/lib/supabase/admin'
+import type { SupabaseClient, User } from '@supabase/supabase-js'
 
 export type Role = 'admin' | 'manager' | 'gestor' | 'owner' | 'viewer'
 
@@ -25,26 +24,30 @@ export interface UserAccess {
 }
 
 /**
- * Returns user profile and accessible property IDs in a single DB call.
+ * Returns the user profile and, when needed, the accessible property IDs.
  * Returns null when no session exists — caller should redirect to /login.
  *
  * Used by Server Components to pass auth data to Client Components (AuthLayout, Header).
- * Eliminates race conditions from client-side auth checks.
+ * An already validated user may be supplied to avoid a duplicate Auth request.
  */
 export async function getUserAccess(
-  supabase: SupabaseClient
+  supabase: SupabaseClient,
+  authenticatedUser?: Pick<User, 'id' | 'email'>,
 ): Promise<UserAccess | null> {
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = authenticatedUser ?? (await supabase.auth.getUser()).data.user
   if (!user) return null
 
-  const adminClient = createAdminClient()
-
-  const { data: profile } = await adminClient
+  // Keep profile and assignment reads on the same authenticated client. Both
+  // tables expose only the current user's rows through RLS, so switching to a
+  // service-role client here would create a second, configuration-dependent
+  // authorization boundary after the session has already been validated.
+  const { data: profile, error: profileError } = await supabase
     .from('user_profiles')
     .select('id, email, full_name, role, avatar_url, access_all_properties, organization_id')
     .eq('id', user.id)
-    .single()
+    .maybeSingle()
 
+  if (profileError) throw profileError
   if (!profile) return null
 
   const role = profile.access_all_properties === true
@@ -66,10 +69,12 @@ export async function getUserAccess(
     }
   }
 
-  const { data: userProperties } = await adminClient
+  const { data: userProperties, error: userPropertiesError } = await supabase
     .from('user_properties')
     .select('property_id')
     .eq('user_id', user.id)
+
+  if (userPropertiesError) throw userPropertiesError
 
   return {
     profile: {
