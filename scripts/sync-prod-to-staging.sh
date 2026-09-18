@@ -28,13 +28,28 @@ fi
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 DUMP_FILE="/tmp/lodgra_prod_backup_${TIMESTAMP}.sql"
 
+# Only dump the application's own schemas — never Supabase-managed system
+# schemas (auth, storage, realtime, extensions, vault, net, cron, graphql,
+# graphql_public, pgbouncer, supabase_migrations). Those are owned by
+# Supabase's internal admin roles; dumping/restoring them as the plain
+# "postgres" role fails with permission-denied / "must be owner of" errors
+# and can leave the target database half-restored. Add more --schema flags
+# here if the app gains another custom schema.
+APP_SCHEMAS=(--schema=public --schema=lodgra_private)
+
 echo -e "${YELLOW}📦 Starting production → staging sync...${NC}"
 echo "Timestamp: $TIMESTAMP"
 echo ""
 
-# Step 1: Export production database
-echo -e "${YELLOW}1️⃣  Exporting production database...${NC}"
-pg_dump "$SUPABASE_DB_URL_PROD" > "$DUMP_FILE"
+# Step 1: Export production database (app schemas only)
+echo -e "${YELLOW}1️⃣  Exporting production database (schemas: public, lodgra_private)...${NC}"
+pg_dump "$SUPABASE_DB_URL_PROD" \
+  "${APP_SCHEMAS[@]}" \
+  --no-owner \
+  --no-privileges \
+  --clean \
+  --if-exists \
+  > "$DUMP_FILE"
 if [ $? -eq 0 ]; then
   echo -e "${GREEN}✅ Production export successful${NC}"
   echo "File: $DUMP_FILE ($(du -h "$DUMP_FILE" | cut -f1))"
@@ -85,13 +100,13 @@ echo -e "${GREEN}✅ Data sanitization script added${NC}"
 echo ""
 
 # Step 3: Restore to staging database
+# No blanket "DROP SCHEMA public CASCADE" here — pg_dump's --clean --if-exists
+# already emits a per-object "DROP ... IF EXISTS" before recreating it, which
+# is safe (never removes the public schema container itself, which pg_dump
+# never recreates on its own).
 echo -e "${YELLOW}3️⃣  Restoring to staging database...${NC}"
 
-# Drop staging database (if exists) to ensure clean slate
-psql "$SUPABASE_DB_URL_STAGING" -c "DROP SCHEMA IF EXISTS public CASCADE;" 2>/dev/null || true
-
-# Restore from dump
-psql "$SUPABASE_DB_URL_STAGING" < "$DUMP_FILE"
+psql -v ON_ERROR_STOP=1 "$SUPABASE_DB_URL_STAGING" -f "$DUMP_FILE"
 
 if [ $? -eq 0 ]; then
   echo -e "${GREEN}✅ Staging database restored successfully${NC}"
