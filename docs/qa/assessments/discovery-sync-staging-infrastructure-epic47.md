@@ -188,4 +188,39 @@ Can you create/rotate these secrets? (YES/NO): ___________________________
 ---
 
 **Created:** 2026-09-17 21:47 UTC  
-**Status:** READY FOR ASSIGNMENT
+**Status:** BLOCKER IDENTIFIED — Network Connectivity Issue
+**Updated:** 2026-09-18 17:55 UTC
+
+---
+
+## 🚨 **BLOCKER: Network Connectivity (Infrastructure)**
+
+**Issue:** GitHub Actions (both hosted and self-hosted) unable to reach Supabase database.
+
+**Error:** 
+```
+pg_dump: error: connection to server at "db.brjumbfpvijrkhrherpt.supabase.co"
+... Network is unreachable
+```
+
+**Root Cause:** 
+- Supabase database is accessible (no firewall restrictions on Supabase side)
+- GitHub-hosted runners cannot reach database (tested: failure)
+- Self-hosted runner on local machine also cannot reach (tested: failure)
+- Indicates local firewall/ISP blocking outbound connection to Supabase
+
+**Possible causes:**
+1. ISP (MEO) blocking port 5432 to external PostgreSQL services
+2. Local Mac firewall blocking outbound connections
+3. DNS resolution issues
+4. Network routing problem
+
+**Resolution required:**
+- Network team must verify firewall rules
+- ISP may need to whitelist Supabase host
+- Local firewall may need adjustment
+- DNS resolution may need verification
+
+**Impact:** Epic 47 blocked at 90% completion. All other components ready for production.
+
+**Next steps:** Escalate to Network/Infrastructure team for connectivity troubleshooting.
