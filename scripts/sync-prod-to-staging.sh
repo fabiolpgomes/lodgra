@@ -109,30 +109,35 @@ echo ""
 # table it's attached to.
 echo -e "${YELLOW}3️⃣  Resetting staging app schemas...${NC}"
 
+# Only drop here — don't pre-create. Because we dump with explicit --schema
+# flags (rather than a full unfiltered dump), pg_dump emits its own
+# "CREATE SCHEMA ..." statement for EVERY selected schema, public included
+# (pg_dump only special-cases public as "assume it pre-exists" on a full,
+# unfiltered dump). Pre-creating either schema here would collide with that
+# and fail with "already exists".
 psql -v ON_ERROR_STOP=1 "$SUPABASE_DB_URL_STAGING" -c "
   DROP SCHEMA IF EXISTS public CASCADE;
   DROP SCHEMA IF EXISTS lodgra_private CASCADE;
-
-  -- Only 'public' is special-cased by pg_dump as always pre-existing on the
-  -- target, so it's the only schema we need to (re)create ourselves. Any
-  -- other dumped schema (lodgra_private included) gets its own
-  -- 'CREATE SCHEMA ...' statement inside the dump itself — pre-creating it
-  -- here too would collide with that and fail with 'already exists'.
-  CREATE SCHEMA public;
-
-  GRANT ALL ON SCHEMA public TO postgres;
-  GRANT USAGE ON SCHEMA public TO anon, authenticated, service_role;
-
-  ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO postgres;
-  ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO anon, authenticated, service_role;
-  ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO postgres;
-  ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT USAGE, SELECT ON SEQUENCES TO anon, authenticated, service_role;
-  ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON FUNCTIONS TO postgres;
-  ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT EXECUTE ON FUNCTIONS TO anon, authenticated, service_role;
 "
 
 echo -e "${YELLOW}   Restoring dump...${NC}"
 psql -v ON_ERROR_STOP=1 "$SUPABASE_DB_URL_STAGING" -f "$DUMP_FILE"
+
+# ALTER DEFAULT PRIVILEGES only affects objects created AFTER it runs, so it
+# can't retroactively grant access to the tables the dump just created —
+# grant on the existing objects explicitly, then also set default
+# privileges for anything created later outside this script.
+echo -e "${YELLOW}   Applying access grants...${NC}"
+psql -v ON_ERROR_STOP=1 "$SUPABASE_DB_URL_STAGING" -c "
+  GRANT USAGE ON SCHEMA public TO anon, authenticated, service_role;
+  GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO anon, authenticated, service_role;
+  GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO anon, authenticated, service_role;
+  GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA public TO anon, authenticated, service_role;
+
+  ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO anon, authenticated, service_role;
+  ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT USAGE, SELECT ON SEQUENCES TO anon, authenticated, service_role;
+  ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT EXECUTE ON FUNCTIONS TO anon, authenticated, service_role;
+"
 
 if [ $? -eq 0 ]; then
   echo -e "${GREEN}✅ Staging database restored successfully${NC}"
