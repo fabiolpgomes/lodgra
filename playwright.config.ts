@@ -32,6 +32,21 @@ export default defineConfig({
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
+    // Pre-accept the cookie consent banner (reads localStorage 'cookie_consent')
+    // so it never covers form controls in a fresh, cookie-less Playwright
+    // browser context. Without this, every test that clicks something below
+    // the fold (e.g. a login submit button) can time out waiting for the
+    // banner's pointer-event-blocking overlay to go away, since a real user
+    // dismisses it once per browser but Playwright starts clean every run.
+    storageState: {
+      cookies: [],
+      origins: [
+        {
+          origin: baseURL,
+          localStorage: [{ name: 'cookie_consent', value: 'accepted' }],
+        },
+      ],
+    },
   },
   projects: [
     {
