@@ -276,7 +276,7 @@ export function BookingWidgetDesktop({
   }
 
   return (
-    <div className="bg-brand-white border border-brand-gold/20 rounded-2xl p-6 shadow-[0_18px_42px_rgba(16,32,62,0.10)] transition-all hover:border-brand-gold/45 hover:shadow-[0_18px_42px_rgba(201,162,39,0.14)]">
+    <div className="bg-brand-white border border-brand-gold/20 rounded-2xl p-6 shadow-[0_18px_42px_rgba(16,32,62,0.10)] transition-all hover:border-brand-gold/45 hover:shadow-[0_18px_42px_rgba(201,162,39,0.14)]" data-testid="booking-widget">
       {/* Price */}
       <div className="mb-5">
           <p className="text-sm text-brand-text-medium mb-0.5">
@@ -363,7 +363,7 @@ export function BookingWidgetDesktop({
                   ))}
                   <div className="flex justify-between font-bold text-brand-text-dark pt-1.5 border-t border-brand-gold/15">
                     <span>Total</span>
-                    <span>{formatCurrency(Math.round(displayTotal), currency)}</span>
+                    <span data-testid="booking-widget-grand-total">{formatCurrency(Math.round(displayTotal), currency)}</span>
                   </div>
                 </>
               )}

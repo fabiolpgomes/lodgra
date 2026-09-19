@@ -13,10 +13,10 @@ export class BookingPage {
   constructor(page: Page) {
     this.page = page
     this.propertyTitle = page.locator('h1').first()
-    this.calendarSection = page.locator('[class*="calendar"], [class*="Calendar"], .rdp')
+    this.calendarSection = page.getByTestId('availability-calendar')
     this.priceDisplay = page.locator('[class*="price"], [data-testid="price"]')
     this.bookButton = page.locator('button:has-text("Reservar"), button:has-text("Book")')
-    this.bookingWidget = page.locator('div:has-text("Seleccione as datas para ver o preço exacto"):visible').first()
+    this.bookingWidget = page.getByTestId('booking-widget')
     this.visibleDateInputs = this.bookingWidget.locator('input[type="date"]')
     this.reserveNowLink = page.getByRole('link', { name: 'Reservar agora' })
   }

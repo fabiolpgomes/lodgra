@@ -214,7 +214,7 @@ export function AvailabilityCalendar({
     : null
 
   return (
-    <section className="border-t border-gray-200 pt-8">
+    <section className="border-t border-gray-200 pt-8" data-testid="availability-calendar">
       <div className="flex items-center justify-between mb-2">
         <h2 className="text-xl font-semibold text-gray-900">Disponibilidade</h2>
         {hasSelection && (

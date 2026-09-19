@@ -82,8 +82,8 @@ test.describe('Public Booking Flow', () => {
     await booking.isLoaded()
 
     const pricingResponsePromise = page.waitForResponse((response) => {
-      return response.request().method() === 'GET'
-        && response.url().includes(`/api/public/properties/${TEST_PROPERTY_SLUG}/pricing`)
+      return response.request().method() === 'POST'
+        && response.url().includes('/calculate-price')
         && response.status() === 200
     })
 
@@ -91,12 +91,22 @@ test.describe('Public Booking Flow', () => {
 
     const pricingResponse = await pricingResponsePromise
     const pricing = await pricingResponse.json()
-    const pricingTotal = Number(pricing?.total)
+    const pricingTotal = Number(pricing?.finalTotal)
 
     expect(Number.isFinite(pricingTotal)).toBeTruthy()
     expect(pricingTotal).toBeGreaterThan(0)
 
-    await expect(booking.bookingWidget).toContainText(`€${Math.round(pricingTotal)}`)
+    // App formats currency as "285,00 €" (comma decimal, symbol suffix) — not "€285.00"
+    const formattedTotal = `${pricingTotal.toFixed(2).replace('.', ',')} €`
+
+    await expect(booking.bookingWidget).toContainText(formattedTotal)
+    // The widget's own grand total (accommodation + fees) - the "Pagar" button on
+    // checkout later shows this fee-inclusive figure, not the accommodation-only
+    // finalTotal from the API. Captured now, right after the widget re-rendered for
+    // these dates (same paint as the accommodation-only total just asserted above).
+    const grandTotalLocator = page.getByTestId('booking-widget-grand-total').first()
+    await expect(grandTotalLocator).not.toBeEmpty()
+    const grandTotalText = (await grandTotalLocator.textContent())?.trim() ?? ''
     await expect(booking.reserveNowLink).toBeVisible({ timeout: 15000 })
 
     const checkoutHref = await booking.reserveNowLink.getAttribute('href')
@@ -106,15 +116,23 @@ test.describe('Public Booking Flow', () => {
     await page.waitForLoadState('domcontentloaded')
     await expect(page.getByText('Finalizar Reserva')).toBeVisible()
 
-    const checkoutTotal = `€${pricingTotal.toFixed(2)}`
-    await expect(page.locator('body')).toContainText(checkoutTotal)
+    await expect(page.locator('body')).toContainText(formattedTotal)
 
     await page.getByRole('button', { name: 'Continuar' }).first().click()
     await page.getByPlaceholder('João Silva').fill('Ana Silva')
     await page.getByPlaceholder('joao@exemplo.com').fill('ana.silva@example.com')
     await page.getByPlaceholder('+351 912 345 678').fill('+351 912 345 678')
     await page.getByRole('button', { name: 'Continuar' }).first().click()
-    await expect(page.getByRole('button', { name: new RegExp(`Pagar\\s+${checkoutTotal.replace('.', '\\.')}`) })).toBeVisible()
+
+    expect(grandTotalText.length).toBeGreaterThan(0)
+    // Escape regex-special characters and treat any whitespace (including a
+    // possible NBSP from Intl currency formatting) as flexible, so a
+    // byte-for-byte space mismatch between the widget and the button doesn't
+    // fail this assertion.
+    const grandTotalPattern = grandTotalText
+      .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      .replace(/\s+/g, '\\s+')
+    await expect(page.getByRole('button', { name: new RegExp(`Pagar\\s+${grandTotalPattern}`) })).toBeVisible()
   })
 
   test('booking confirmed page handles missing session', async ({ page }) => {
