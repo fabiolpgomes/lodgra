@@ -100,4 +100,4 @@ gmail-exporter/
 actions-runner/
 
 # Local DB dump artifacts from manual sync-script testing
-*.sql
+/*.sql
