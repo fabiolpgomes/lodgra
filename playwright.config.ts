@@ -11,6 +11,11 @@ const webServerEnv = {
   ...(process.env.NEXT_PUBLIC_SUPABASE_URL ? { NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL } : {}),
   ...(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? { NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY } : {}),
   ...(process.env.SUPABASE_SERVICE_ROLE_KEY ? { SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY } : {}),
+  // Playwright's webServer.env REPLACES the spawned server's environment
+  // rather than merging with the current process's — so anything the CI
+  // job sets that the server itself needs at runtime must be listed here
+  // explicitly, not just in the "Run E2E tests" step's own env block.
+  ...(process.env.PLAYWRIGHT_TEST_MODE ? { PLAYWRIGHT_TEST_MODE: process.env.PLAYWRIGHT_TEST_MODE } : {}),
 }
 
 export default defineConfig({
