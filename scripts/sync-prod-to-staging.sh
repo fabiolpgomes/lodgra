@@ -106,6 +106,19 @@ echo ""
 # never recreates on its own).
 echo -e "${YELLOW}3️⃣  Restoring to staging database...${NC}"
 
+# Ensure the target schema container exists before restoring into it.
+# pg_dump's --clean --if-exists only emits per-object "DROP ... IF EXISTS"
+# statements; it never emits "CREATE SCHEMA public" because pg_dump assumes
+# that schema always pre-exists on the target. If a previous run (or a
+# manual "DROP SCHEMA public CASCADE") ever removed it, every statement in
+# the dump fails with 'schema "public" does not exist'. This makes the
+# restore self-healing instead of failing cold.
+psql -v ON_ERROR_STOP=1 "$SUPABASE_DB_URL_STAGING" -c "
+  CREATE SCHEMA IF NOT EXISTS public;
+  GRANT ALL ON SCHEMA public TO postgres;
+  GRANT USAGE ON SCHEMA public TO anon, authenticated, service_role;
+"
+
 psql -v ON_ERROR_STOP=1 "$SUPABASE_DB_URL_STAGING" -f "$DUMP_FILE"
 
 if [ $? -eq 0 ]; then
