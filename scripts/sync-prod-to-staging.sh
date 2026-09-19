@@ -66,28 +66,55 @@ SANITIZE_SQL=$(cat <<'EOF'
 -- Sanitize auth emails (change to test emails)
 UPDATE auth.users SET email = 'user_' || substr(id::text, 1, 8) || '@test.lodgra.io' WHERE email NOT LIKE '%@test.lodgra.io%';
 
--- Clear Stripe customer IDs
-UPDATE public.organizations SET
-  stripe_customer_id = NULL,
-  stripe_br_customer_id = NULL,
-  stripe_pt_customer_id = NULL,
-  stripe_subscription_id = NULL,
-  stripe_subscription_item_id = NULL;
+-- Clear sensitive organization columns — only the ones that actually exist
+-- right now. Column names here have drifted from prod's real schema before
+-- (stripe_br_customer_id got removed/renamed at some point and broke this
+-- script cold), so check existence instead of assuming a fixed column list.
+DO $$
+DECLARE
+  col TEXT;
+BEGIN
+  FOREACH col IN ARRAY ARRAY[
+    'stripe_customer_id', 'stripe_br_customer_id', 'stripe_pt_customer_id',
+    'stripe_pt_connect_id', 'stripe_subscription_id', 'stripe_subscription_item_id',
+    'asaas_api_key'
+  ]
+  LOOP
+    IF EXISTS (
+      SELECT 1 FROM information_schema.columns
+      WHERE table_schema = 'public' AND table_name = 'organizations' AND column_name = col
+    ) THEN
+      EXECUTE format('UPDATE public.organizations SET %I = NULL', col);
+    END IF;
+  END LOOP;
+END $$;
 
--- Clear payment info from reservations
-UPDATE public.payments SET
-  stripe_payment_intent_id = NULL,
-  payment_method_id = NULL
-WHERE stripe_payment_intent_id IS NOT NULL;
+-- Clear payment info, if the payments table/columns exist
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'payments') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'payments' AND column_name = 'stripe_payment_intent_id') THEN
+      UPDATE public.payments SET stripe_payment_intent_id = NULL WHERE stripe_payment_intent_id IS NOT NULL;
+    END IF;
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'payments' AND column_name = 'payment_method_id') THEN
+      UPDATE public.payments SET payment_method_id = NULL WHERE payment_method_id IS NOT NULL;
+    END IF;
+  END IF;
+END $$;
 
--- Clear other sensitive integrations
-UPDATE public.organizations SET
-  asaas_api_key = NULL,
-  google_feed_logs = NULL;
+-- google_feed_logs is its own table, not a column on organizations (the old
+-- version of this script tried to null it out as if it were one, which
+-- would have failed too). It holds feed-generation timestamps, not
+-- customer PII, so it's left alone rather than guessed at.
 
--- Log sanitization
-INSERT INTO public.audit_logs (user_id, organization_id, action, resource_type, resource_id, changes, created_at)
-VALUES (NULL, NULL, 'SANITIZE', 'DATABASE', 'all', '{"action": "production_sync_sanitization", "timestamp": "' || NOW() || '"}', NOW());
+-- Log sanitization — best-effort, never fail the whole sync over this.
+DO $$
+BEGIN
+  INSERT INTO public.audit_logs (user_id, organization_id, action, resource_type, resource_id, changes, created_at)
+  VALUES (NULL, NULL, 'SANITIZE', 'DATABASE', 'all', jsonb_build_object('action', 'production_sync_sanitization', 'timestamp', NOW()), NOW());
+EXCEPTION WHEN OTHERS THEN
+  RAISE NOTICE 'Skipping sanitization audit log insert: %', SQLERRM;
+END $$;
 EOF
 )
 
