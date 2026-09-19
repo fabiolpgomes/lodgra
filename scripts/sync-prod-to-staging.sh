@@ -113,12 +113,15 @@ psql -v ON_ERROR_STOP=1 "$SUPABASE_DB_URL_STAGING" -c "
   DROP SCHEMA IF EXISTS public CASCADE;
   DROP SCHEMA IF EXISTS lodgra_private CASCADE;
 
+  -- Only 'public' is special-cased by pg_dump as always pre-existing on the
+  -- target, so it's the only schema we need to (re)create ourselves. Any
+  -- other dumped schema (lodgra_private included) gets its own
+  -- 'CREATE SCHEMA ...' statement inside the dump itself — pre-creating it
+  -- here too would collide with that and fail with 'already exists'.
   CREATE SCHEMA public;
-  CREATE SCHEMA lodgra_private;
 
   GRANT ALL ON SCHEMA public TO postgres;
   GRANT USAGE ON SCHEMA public TO anon, authenticated, service_role;
-  GRANT ALL ON SCHEMA lodgra_private TO postgres;
 
   ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO postgres;
   ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO anon, authenticated, service_role;
