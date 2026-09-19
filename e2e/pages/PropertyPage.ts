@@ -9,7 +9,7 @@ export class PropertyPage {
 
   constructor(page: Page) {
     this.page = page
-    this.heading = page.locator('h2:has-text("Propriedades")')
+    this.heading = page.locator('main h1:has-text("Propriedades")')
     this.createButton = page.locator('a:has-text("Nova Propriedade"), a:has-text("Adicionar"), button:has-text("Nova")')
     this.propertyCards = page.locator('[class*="shadow"][class*="rounded"]').filter({ has: page.locator('h3') })
     this.propertyNames = page.locator('h3')

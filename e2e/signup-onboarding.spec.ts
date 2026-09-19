@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test'
 import { OnboardingPage } from './pages/OnboardingPage'
+import { acceptTermsAndSubmit } from './helpers/register-form'
 
 /**
  * E2E Tests for Signup → Onboarding flow.
@@ -35,11 +36,12 @@ test.describe('Signup → Onboarding', () => {
     await page.fill('input[name="email"]', 'weak@test.com')
     await page.fill('input[name="password"]', 'weak')
     await page.fill('input[name="confirmPassword"]', 'weak')
-    await page.locator('#acceptTerms').check()
-    await page.click('button[type="submit"]')
+    await acceptTermsAndSubmit(page)
 
-    // Should show error about password requirements
-    await expect(page.locator('[role="alert"]')).toBeVisible({ timeout: 10000 })
+    // Should show error about password requirements. Scoped past text to
+    // avoid Next.js's own role="alert" route announcer, which otherwise
+    // makes this locator match 2 elements (strict-mode violation).
+    await expect(page.locator('[role="alert"]').filter({ hasText: 'caracteres' })).toBeVisible({ timeout: 10000 })
   })
 
   test('onboarding page loads for authenticated users', async ({ page }) => {

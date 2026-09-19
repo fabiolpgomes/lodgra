@@ -31,7 +31,6 @@ interface Property {
   latitude?: number
   longitude?: number
   updated_at?: string
-  min_nights?: number
   cleaning_fee?: number
   pet_fee?: number | null
   check_in_time?: string
@@ -76,7 +75,7 @@ export async function generateGoogleVacationRentalsFeed(
   // Fetch properties with filters
   let query = supabase
     .from('properties')
-    .select('id, organization_id, name, description, slug, address, city, zipcode:postal_code, country, latitude, longitude, updated_at, min_nights, cleaning_fee, pet_fee, check_in_time:checkin_from, check_out_time:checkout_until, photos')
+    .select('id, organization_id, name, description, slug, address, city, zipcode:postal_code, country, latitude, longitude, updated_at, cleaning_fee, pet_fee, check_in_time:checkin_from, check_out_time:checkout_until, photos')
     .order('updated_at', { ascending: false })
     .range(offset, offset + limit - 1)
 
@@ -109,7 +108,7 @@ export async function generateGoogleVacationRentalsFeed(
       const nextYear = new Date()
       nextYear.setFullYear(nextYear.getFullYear() + 1)
 
-      const [{ data: images }, reviewResult, aggregatedReviews, { data: reservations }, { data: amenities }] = await Promise.all([
+      const [{ data: images }, { data: availability }, aggregatedReviews, { data: reservations }, { data: amenities }] = await Promise.all([
         supabase
           .from('property_images')
           .select('storage_path, alt_text')
@@ -117,10 +116,10 @@ export async function generateGoogleVacationRentalsFeed(
           .order('display_order', { ascending: true })
           .limit(5),
         supabase
-          .from('property_reviews')
-          .select('rating, review_count')
+          .from('property_availability')
+          .select('min_nights')
           .eq('property_id', prop.id)
-          .single(),
+          .maybeSingle(),
         includeReviews ? aggregatePropertyReviews(prop.id) : Promise.resolve(null),
         supabase
           .from('reservations')
@@ -134,7 +133,13 @@ export async function generateGoogleVacationRentalsFeed(
           .eq('property_id', prop.id),
       ])
 
-      const reviews = reviewResult.data || { rating: 0, review_count: 0 }
+      // property_reviews holds one row per individual review (not a per-property
+      // aggregate), so the rating/count shown in the feed come from the same
+      // aggregation used elsewhere (aggregatePropertyReviews), not a direct query.
+      const reviews = aggregatedReviews
+        ? { rating: aggregatedReviews.aggregateRating.average, review_count: aggregatedReviews.aggregateRating.count }
+        : { rating: 0, review_count: 0 }
+      const minNights = availability?.min_nights || 1
 
       // Calculate blocked dates from reservations
       const blockedDates = (reservations || []).map((res) => ({
@@ -157,6 +162,7 @@ export async function generateGoogleVacationRentalsFeed(
         aggregatedReviews,
         blockedDates,
         amenities: amenityNames,
+        minNights,
       }
     })
   )
@@ -170,7 +176,7 @@ export async function generateGoogleVacationRentalsFeed(
   xml += `  <updated>${now}</updated>\n`
   xml += `  <id>urn:lodgra:feed:properties</id>\n`
 
-  for (const { property, images, review, aggregatedReviews, blockedDates, amenities } of enrichedProperties) {
+  for (const { property, images, review, aggregatedReviews, blockedDates, amenities, minNights } of enrichedProperties) {
     xml += generateFeedEntry(
       property,
       images,
@@ -179,7 +185,8 @@ export async function generateGoogleVacationRentalsFeed(
       blockedDates,
       amenities,
       currency,
-      getTenantBaseUrl(baseUrl, property.organization_id ? organizationSlugs.get(property.organization_id) : null)
+      getTenantBaseUrl(baseUrl, property.organization_id ? organizationSlugs.get(property.organization_id) : null),
+      minNights
     )
   }
 
@@ -202,7 +209,8 @@ function generateFeedEntry(
   blockedDates: BlockedDate[],
   amenities: string[],
   currency: string,
-  baseUrl: string
+  baseUrl: string,
+  minNights: number
 ): string {
   const lat = property.latitude || 0
   const lon = property.longitude || 0
@@ -215,7 +223,6 @@ function generateFeedEntry(
   if (price === undefined) {
     throw new Error(`Unsupported feed currency: ${currency}`)
   }
-  const minNights = property.min_nights || 1
   const cleaningFee = property.cleaning_fee || 0
   const petFee = property.pet_fee || null
   const checkInTime = property.check_in_time || '14:00'

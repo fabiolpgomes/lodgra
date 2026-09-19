@@ -105,7 +105,7 @@ export async function GET(request: NextRequest) {
       tags: { endpoint: 'google-feed-generator' },
       level: 'error',
     })
-    console.error('[Google Feed API] Error:', error instanceof Error ? error.message : 'Unknown error')
+    console.error('[Google Feed API] Error:', error instanceof Error ? error.stack : error)
     return NextResponse.json(
       { error: 'Failed to generate feed' },
       { status: 500 }

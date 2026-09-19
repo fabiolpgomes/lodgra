@@ -18,7 +18,7 @@ export class LoginPage {
     this.errorAlert = page.locator('[role="alert"]')
     this.registerLink = page.locator('a[href*="register"]')
     this.heading = page.locator('h2')
-    this.logo = page.locator('h1:has-text("Home Stay")')
+    this.logo = page.locator('img[alt="Lodgra Logo"]')
   }
 
   async goto() {

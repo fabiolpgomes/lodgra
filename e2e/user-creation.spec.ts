@@ -1,8 +1,11 @@
-import { test, expect, Page } from '@playwright/test'
+import { test, expect } from '@playwright/test'
+import Stripe from 'stripe'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { acceptTermsAndSubmit } from './helpers/register-form'
 
 const BASE_URL = process.env.PLAYWRIGHT_TEST_BASE_URL || 'http://localhost:3000'
 const TEST_EMAIL_PREFIX = `test-${Date.now()}`
+const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET
 
 test.describe('User Creation Flows', () => {
   let adminClient: ReturnType<typeof createAdminClient>
@@ -13,27 +16,38 @@ test.describe('User Creation Flows', () => {
 
   test.describe('Scenario 1: Stripe Webhook → User Creation → Login', () => {
     test('User subscribes → receives invite → sets password → login', async ({ page }) => {
+      test.skip(!STRIPE_WEBHOOK_SECRET, 'STRIPE_WEBHOOK_SECRET not configured for local E2E')
+
       const testEmail = `${TEST_EMAIL_PREFIX}-stripe@example.com`
+
+      // The route verifies the signature with stripe.webhooks.constructEvent(),
+      // so the payload has to be signed with the same secret the server uses —
+      // an arbitrary 'stripe-signature' header always fails verification (400).
+      const payload = JSON.stringify({
+        type: 'checkout.session.completed',
+        data: {
+          object: {
+            customer_email: testEmail,
+            customer: 'cus_test123',
+            subscription: 'sub_test123',
+            metadata: {
+              reservation_id: null,
+            },
+          },
+        },
+      })
+      const signature = new Stripe('sk_test_placeholder').webhooks.generateTestHeaderString({
+        payload,
+        secret: STRIPE_WEBHOOK_SECRET!,
+      })
 
       // Simulate webhook call: checkout.session.completed
       const webhookResponse = await page.request.post(`${BASE_URL}/api/stripe/webhook`, {
         headers: {
           'Content-Type': 'application/json',
-          'stripe-signature': 'test-signature',
+          'stripe-signature': signature,
         },
-        data: {
-          type: 'checkout.session.completed',
-          data: {
-            object: {
-              customer_email: testEmail,
-              customer: 'cus_test123',
-              subscription: 'sub_test123',
-              metadata: {
-                reservation_id: null,
-              },
-            },
-          },
-        },
+        data: payload,
       })
 
       expect(webhookResponse.ok()).toBeTruthy()
@@ -59,24 +73,28 @@ test.describe('User Creation Flows', () => {
     test('User registers → changes password → access dashboard', async ({ page }) => {
       const testEmail = `${TEST_EMAIL_PREFIX}-signup@example.com`
       const testPassword = 'TestPassword123!'
-      const newPassword = 'NewPassword456!'
 
       // Navigate to signup
       await page.goto(`${BASE_URL}/auth/register`)
-      await expect(page).toHaveTitle(/Register|Sign up/i)
+      await expect(page).toHaveTitle(/Criar Conta/i)
 
       // Fill signup form
+      await page.fill('input[name="fullName"]', 'Test User')
       await page.fill('input[name="email"]', testEmail)
       await page.fill('input[name="password"]', testPassword)
-      await page.fill('input[name="name"]', 'Test User')
+      await page.fill('input[name="confirmPassword"]', testPassword)
 
-      // Submit form
-      await page.click('button[type="submit"]')
+      // Submit form (requires accepting terms)
+      await acceptTermsAndSubmit(page)
 
-      // Wait for redirect (should go to password reset or dashboard)
-      await page.waitForNavigation()
-      const currentUrl = page.url()
-      expect(currentUrl).toContain(BASE_URL)
+      // A successful signUp either navigates away immediately (session
+      // created) or re-renders the same route as a "check your email"
+      // screen (email confirmation required) — both mean the account exists.
+      try {
+        await page.waitForURL((url) => !url.toString().includes('/register'), { timeout: 8000 })
+      } catch {
+        await page.getByText('Verifique o seu email').waitFor({ timeout: 8000 })
+      }
 
       // Verify user profile was created
       const { data: profile, error } = await adminClient

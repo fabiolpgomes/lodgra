@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test'
 import { LoginPage } from './pages/LoginPage'
+import { acceptTermsAndSubmit } from './helpers/register-form'
 
 test.describe('Autenticação', () => {
   test('página de login carrega corretamente', async ({ page }) => {
@@ -30,7 +31,7 @@ test.describe('Autenticação', () => {
     // Wait for redirect to locale-specific register page
     await page.locator('input[name="fullName"]').waitFor({ timeout: 15000 })
 
-    await expect(page.locator('h1:has-text("Home Stay")')).toBeVisible()
+    await expect(page.locator('img[alt="Lodgra Logo"]')).toBeVisible()
     await expect(page.locator('h2:has-text("Criar Conta")')).toBeVisible()
     await expect(page.locator('input[name="fullName"]')).toBeVisible()
     await expect(page.locator('input[name="email"]')).toBeVisible()
@@ -72,11 +73,10 @@ test.describe('Autenticação', () => {
     await page.fill('input[name="confirmPassword"]', 'SenhaDiferente456')
 
     // Accept terms to enable submit
-    await page.locator('#acceptTerms').check()
-    await page.click('button[type="submit"]')
+    await acceptTermsAndSubmit(page)
 
     // Error about mismatched passwords
-    await expect(page.locator('[role="alert"]')).toBeVisible({ timeout: 15000 })
+    await expect(page.locator('[role="alert"]').filter({ hasText: 'coincidem' })).toBeVisible({ timeout: 15000 })
   })
 
   test('redireciona para login quando não autenticado', async ({ page }) => {
