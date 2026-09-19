@@ -94,3 +94,10 @@ FireShot*
 scripts/credentials.json
 gmail-exporter/
 .github/workflows/*.bak
+
+# GitHub Actions self-hosted runner install — contains registration
+# credentials (.credentials, .credentials_rsaparams), never commit this
+actions-runner/
+
+# Local DB dump artifacts from manual sync-script testing
+*.sql

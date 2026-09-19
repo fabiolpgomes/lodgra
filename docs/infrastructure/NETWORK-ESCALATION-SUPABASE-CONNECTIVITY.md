@@ -4,7 +4,32 @@
 **Priority:** HIGH  
 **Project:** Lodgra (Epic 47 — CI Workflow Followup)  
 **Requestor:** Gage (@devops)  
-**Status:** AWAITING NETWORK TEAM RESOLUTION
+**Status:** ROOT CAUSE IDENTIFIED — NOT A NETWORK/FIREWALL ISSUE, NO ESCALATION NEEDED
+
+---
+
+## ✅ **ROOT CAUSE (2026-09-18, corrected)**
+
+This is **not** an ISP/firewall/DNS problem. It's the well-known Supabase IPv4/IPv6 gotcha:
+
+- `db.brjumbfpvijrkhrherpt.supabase.co` (the **direct connection** host) only resolves to an **IPv6** address.
+- GitHub-hosted runners and most residential ISPs (MEO included) either lack IPv6 routing entirely or have it partially broken — the OS returns `Network is unreachable` immediately (ENETUNREACH), which is exactly the error seen here. A firewall block would normally show as a timeout, not this error.
+- Both runner types failing identically is the tell: it's not runner-specific, it's the destination address family.
+- The Supabase web dashboard works because it doesn't go through this direct Postgres port — different path entirely.
+
+**Fix:** stop using the direct connection string. Use the **Supavisor pooler** connection string instead, which is IPv4-compatible. No code/workflow changes needed — only the two GitHub secret **values**.
+
+### Steps
+1. Supabase Dashboard → each project (prod + staging) → **Project Settings → Database → Connect** → select the **Session pooler** tab (not Transaction mode — pg_dump needs session-level behavior; transaction mode pooling breaks on prepared statements).
+2. Copy the string, format:
+   `postgresql://postgres.<project-ref>:<password>@aws-0-<region>.pooler.supabase.com:5432/postgres`
+3. Update the GitHub secrets `SUPABASE_DB_URL_PROD` and `SUPABASE_DB_URL_STAGING` with these pooler strings (same secret names — `sync-staging.yml` and `sync-prod-to-staging.sh` need no edits).
+4. Re-run: `gh workflow run sync-staging.yml`.
+5. If pooler ever causes issues for this use case, the paid fallback is the **Dedicated IPv4 Address** add-on (~$4/mo) on the direct connection — not needed here, pooler is free and sufficient for `pg_dump`/`psql`.
+
+No network team action required. Original diagnosis below kept for reference.
+
+---
 
 ---
 
