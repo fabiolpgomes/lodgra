@@ -93,3 +93,4 @@ FireShot*
 .env*
 scripts/credentials.json
 gmail-exporter/
+.github/workflows/*.bak
