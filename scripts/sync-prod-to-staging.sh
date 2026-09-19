@@ -47,8 +47,6 @@ pg_dump "$SUPABASE_DB_URL_PROD" \
   "${APP_SCHEMAS[@]}" \
   --no-owner \
   --no-privileges \
-  --clean \
-  --if-exists \
   > "$DUMP_FILE"
 if [ $? -eq 0 ]; then
   echo -e "${GREEN}✅ Production export successful${NC}"
@@ -99,26 +97,38 @@ echo -e "${GREEN}✅ Data sanitization script added${NC}"
 
 echo ""
 
-# Step 3: Restore to staging database
-# No blanket "DROP SCHEMA public CASCADE" here — pg_dump's --clean --if-exists
-# already emits a per-object "DROP ... IF EXISTS" before recreating it, which
-# is safe (never removes the public schema container itself, which pg_dump
-# never recreates on its own).
-echo -e "${YELLOW}3️⃣  Restoring to staging database...${NC}"
+# Step 3: Reset staging app schemas, then restore
+# The dump no longer uses pg_dump --clean (see above), so it contains only
+# plain CREATE statements with no preceding DROPs. That means the restore
+# needs a guaranteed-empty target: drop and recreate the app schemas here,
+# every run, instead of relying on pg_dump to clean up prior objects.
+# Doing our own drop+recreate also sidesteps a real bug with --clean: on an
+# empty schema, pg_dump's "DROP TRIGGER ... ON public.user_profiles" style
+# statements fail with "relation does not exist" because the referenced
+# TABLE doesn't exist yet — IF EXISTS only covers the trigger, not the
+# table it's attached to.
+echo -e "${YELLOW}3️⃣  Resetting staging app schemas...${NC}"
 
-# Ensure the target schema container exists before restoring into it.
-# pg_dump's --clean --if-exists only emits per-object "DROP ... IF EXISTS"
-# statements; it never emits "CREATE SCHEMA public" because pg_dump assumes
-# that schema always pre-exists on the target. If a previous run (or a
-# manual "DROP SCHEMA public CASCADE") ever removed it, every statement in
-# the dump fails with 'schema "public" does not exist'. This makes the
-# restore self-healing instead of failing cold.
 psql -v ON_ERROR_STOP=1 "$SUPABASE_DB_URL_STAGING" -c "
-  CREATE SCHEMA IF NOT EXISTS public;
+  DROP SCHEMA IF EXISTS public CASCADE;
+  DROP SCHEMA IF EXISTS lodgra_private CASCADE;
+
+  CREATE SCHEMA public;
+  CREATE SCHEMA lodgra_private;
+
   GRANT ALL ON SCHEMA public TO postgres;
   GRANT USAGE ON SCHEMA public TO anon, authenticated, service_role;
+  GRANT ALL ON SCHEMA lodgra_private TO postgres;
+
+  ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO postgres;
+  ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO anon, authenticated, service_role;
+  ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO postgres;
+  ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT USAGE, SELECT ON SEQUENCES TO anon, authenticated, service_role;
+  ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON FUNCTIONS TO postgres;
+  ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT EXECUTE ON FUNCTIONS TO anon, authenticated, service_role;
 "
 
+echo -e "${YELLOW}   Restoring dump...${NC}"
 psql -v ON_ERROR_STOP=1 "$SUPABASE_DB_URL_STAGING" -f "$DUMP_FILE"
 
 if [ $? -eq 0 ]; then
