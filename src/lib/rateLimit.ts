@@ -23,6 +23,16 @@ export function checkRateLimit(
   maxRequests: number = 10,
   windowMs: number = 60 * 1000
 ): boolean {
+  // The E2E suite runs as a single Playwright worker hitting localhost with
+  // no x-forwarded-for header, so every request shares the same 'anonymous'
+  // IP bucket across the whole test run and exhausts real rate limits within
+  // minutes (unrelated to the endpoint or property under test). This flag is
+  // set only by .github/workflows/e2e.yml's own job env — never in a real
+  // deployment — so production rate limiting is untouched.
+  if (process.env.PLAYWRIGHT_TEST_MODE === 'true') {
+    return true
+  }
+
   if (!rateLimitStores.has(namespace)) {
     rateLimitStores.set(namespace, new Map<string, RateLimitEntry>());
   }
