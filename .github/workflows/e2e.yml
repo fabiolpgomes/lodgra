@@ -32,25 +32,6 @@ jobs:
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
 
-      - name: DEBUG - verify rate limit bypass reaches the server
-        run: |
-          PLAYWRIGHT_TEST_MODE=true PORT=3001 npm run start &
-          SERVER_PID=$!
-          for i in $(seq 1 30); do
-            if curl -s -o /dev/null "http://localhost:3001/"; then break; fi
-            sleep 1
-          done
-          echo "--- status codes for 35 rapid pricing requests (PLAYWRIGHT_TEST_MODE=$PLAYWRIGHT_TEST_MODE) ---"
-          for i in $(seq 1 35); do
-            curl -s -o /dev/null -w "%{http_code} " "http://localhost:3001/api/public/properties/t1-portimao-iluminado-com-varanda-e-piscina/pricing?checkin=2026-10-05&checkout=2026-10-08"
-          done
-          echo ""
-          kill $SERVER_PID 2>/dev/null || true
-        env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-
       - name: Run E2E tests
         run: npx playwright test
         env:
