@@ -1,11 +1,10 @@
 name: Sync Production → Staging Database
 
 on:
-  # Run daily at 02:00 UTC (outside peak usage)
-  schedule:
-    - cron: '0 2 * * *'
-
-  # Allow manual trigger
+  # Agendamento diário removido (25/09/2026): o staging agora é ambiente de teste
+  # de features e não pode ser sobrescrito toda noite. Rodar manualmente quando
+  # quiser copiar produção → staging (Actions → Sync Production → Staging → Run).
+  # Manual trigger only
   workflow_dispatch:
     inputs:
       skip_sanitize:

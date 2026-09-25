@@ -107,6 +107,49 @@ END $$;
 -- would have failed too). It holds feed-generation timestamps, not
 -- customer PII, so it's left alone rather than guessed at.
 
+-- Mask guest/owner PII (names, contacts, tax/bank data, raw email bodies).
+-- Each (table, column, expression) is applied only if the column exists.
+DO $$
+DECLARE
+  r RECORD;
+BEGIN
+  FOR r IN SELECT * FROM (VALUES
+    ('guests','first_name',$v$'Hóspede'$v$),
+    ('guests','last_name',$v$left(id::text,8)$v$),
+    ('guests','email',$v$'guest_' || left(id::text,8) || '@test.lodgra.io'$v$),
+    ('guests','phone',$v$NULL$v$),
+    ('reservations','guest_name',$v$'Hóspede ' || left(id::text,8)$v$),
+    ('reservations','first_name',$v$'Hóspede'$v$),
+    ('reservations','last_name',$v$left(id::text,8)$v$),
+    ('reservations','guest_email',$v$'guest_' || left(id::text,8) || '@test.lodgra.io'$v$),
+    ('reservations','guest_phone',$v$NULL$v$),
+    ('reservations','raw_data',$v$NULL$v$),
+    ('email_extractions','guest_name',$v$'Hóspede ' || left(id::text,8)$v$),
+    ('email_extractions','phone',$v$NULL$v$),
+    ('email_extractions','raw_email_snippet',$v$NULL$v$),
+    ('raw_emails','raw_content',$v$'[redacted]'$v$),
+    ('owners','full_name',$v$'Proprietário ' || left(id::text,8)$v$),
+    ('owners','email',$v$'owner_' || left(id::text,8) || '@test.lodgra.io'$v$),
+    ('owners','phone',$v$NULL$v$),
+    ('owners','tax_id',$v$NULL$v$),
+    ('owners','address',$v$NULL$v$),
+    ('owners','iban',$v$NULL$v$),
+    ('owners','swift_code',$v$NULL$v$),
+    ('owners','account_number',$v$NULL$v$),
+    ('owners','agency_number',$v$NULL$v$),
+    ('owners','pix_key',$v$NULL$v$),
+    ('owners','mbway_phone',$v$NULL$v$),
+    ('user_profiles','email',$v$'user_' || substr(id::text,1,8) || '@test.lodgra.io'$v$),
+    ('user_profiles','phone_number',$v$NULL$v$)
+  ) AS t(tbl, col, expr)
+  LOOP
+    IF EXISTS (SELECT 1 FROM information_schema.columns
+               WHERE table_schema = 'public' AND table_name = r.tbl AND column_name = r.col) THEN
+      EXECUTE format('UPDATE public.%I SET %I = %s', r.tbl, r.col, r.expr);
+    END IF;
+  END LOOP;
+END $$;
+
 -- Log sanitization — best-effort, never fail the whole sync over this.
 DO $$
 BEGIN
@@ -174,6 +217,9 @@ else
 fi
 
 echo ""
+
+echo -e "${YELLOW}   Re-applying objects dropped by CASCADE (supabase/staging/post-sync.sql)...${NC}"
+psql -v ON_ERROR_STOP=1 "$SUPABASE_DB_URL_STAGING" -f "$(dirname "$0")/../supabase/staging/post-sync.sql"
 
 # Step 4: Verify integrity
 echo -e "${YELLOW}4️⃣  Verifying data integrity...${NC}"
