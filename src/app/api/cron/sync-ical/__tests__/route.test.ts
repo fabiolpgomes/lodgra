@@ -70,6 +70,8 @@ function makeQuery(result: unknown) {
 
 const CRON_SECRET = 'test-cron-secret'
 
+const FIXED_NOW = new Date('2026-09-01T12:00:00.000Z')
+
 describe('GET /api/cron/sync-ical', () => {
   const originalCronSecret = process.env.CRON_SECRET
 
@@ -80,6 +82,16 @@ describe('GET /api/cron/sync-ical', () => {
     ;(classifyICalEvent as jest.Mock).mockReturnValue('unknown')
     ;(getFeatureFlagStatus as jest.Mock).mockResolvedValue({ enabled: false, pilot_platforms: [] })
     process.env.CRON_SECRET = CRON_SECRET
+    // Fixtures use fixed dates in Sep/2026 as "future" stays; pin only Date
+    // (timers stay real) so the suite doesn't expire as the calendar moves on.
+    jest.useFakeTimers({
+      now: FIXED_NOW,
+      doNotFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'setImmediate', 'clearImmediate', 'nextTick', 'queueMicrotask', 'hrtime', 'performance'],
+    })
+  })
+
+  afterEach(() => {
+    jest.useRealTimers()
   })
 
   afterAll(() => {
