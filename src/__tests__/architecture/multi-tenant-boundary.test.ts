@@ -30,23 +30,24 @@ describe('multi-tenant launch boundaries', () => {
   })
 
   test('signup creates the tenant and first administrator atomically', () => {
-    const migration = read(
-      'supabase/migrations/20260814195031_atomic_tenant_onboarding.sql'
-    )
+    // Since the 2026-09-25 baseline, production's schema lives in the baseline dump.
+    const baseline = read('supabase/migrations/20260925000000_baseline_producao.sql')
+    const start = baseline.indexOf('CREATE OR REPLACE FUNCTION "public"."handle_new_user"()')
+    expect(start).toBeGreaterThanOrEqual(0)
+    const fn = baseline.slice(start, baseline.indexOf('$$;', start))
 
-    expect(migration).toContain("'admin'")
-    expect(migration).toContain('access_all_properties')
-    expect(migration).toContain('true,')
-    expect(migration).not.toContain('EXCEPTION WHEN OTHERS')
-    expect(migration).toContain('SET search_path = \'\'')
-    expect(migration).toContain(
-      'REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM PUBLIC, anon, authenticated'
-    )
+    expect(fn).toContain("'admin'")
+    expect(fn).toContain('access_all_properties')
+    expect(fn).toContain('true,')
+    expect(fn).not.toContain('EXCEPTION WHEN OTHERS')
+    expect(fn).toContain('SET "search_path" TO \'\'')
+    expect(baseline).toContain('REVOKE ALL ON FUNCTION "public"."handle_new_user"() FROM PUBLIC;')
+    expect(baseline).not.toMatch(/GRANT [^;]*"public"."handle_new_user"\(\) TO "(anon|authenticated)"/)
   })
 
   test('recovery migration refuses orphan profiles instead of sharing a tenant', () => {
     const migration = read(
-      'supabase/migrations/20260814190000_fix_organizations_table.sql'
+      'supabase/migrations_archive/pre-baseline-20260925/20260814190000_fix_organizations_table.sql'
     )
 
     expect(migration).toContain('user_profiles contains rows without organization_id')
