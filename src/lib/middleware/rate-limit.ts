@@ -10,8 +10,7 @@ const RATE_LIMITS: { pattern: RegExp; limit: number; windowMs: number }[] = [
   { pattern: /^\/api\/stripe\/booking-webhook/, limit: 50, windowMs: 60 * 1000 },
   { pattern: /^\/api\/consent/, limit: 15, windowMs: 60 * 1000 },
   { pattern: /^\/api\/public\//, limit: 30, windowMs: 60 * 1000 },
-  // Story 12.4: Stripe Webhook endpoints - 10 req/min per IP
-  { pattern: /^\/api\/stripe\/webhooks\//, limit: 10, windowMs: 60 * 1000 },
+  { pattern: /^\/api\/stripe\/webhook$/, limit: 50, windowMs: 60 * 1000 },
   // Story 12.4: Billing endpoints - 5 req/min per user
   { pattern: /^\/api\/billing\//, limit: 5, windowMs: 60 * 1000 },
 ]
@@ -61,22 +60,6 @@ export async function applyRateLimit(pathname: string, ip: string): Promise<Next
     }
   }
   return null
-}
-
-/**
- * Story 12.4: Specific webhook rate limit check
- * Limits webhook endpoints to 10 requests per minute by IP
- */
-export async function checkWebhookRateLimit(ip: string): Promise<{ allowed: boolean; remaining: number; reset: number }> {
-  const limit = 10
-  const windowMs = 60 * 1000
-  const allowed = checkRateLimit(`/api/stripe/webhooks`, ip, limit, windowMs)
-
-  return {
-    allowed,
-    remaining: allowed ? limit - 1 : 0,
-    reset: Date.now() + windowMs,
-  }
 }
 
 /**
