@@ -383,7 +383,6 @@ async function syncListing(
           last_name: guestLastName,
           service_fee_amount: serviceFeeAmount,
           discount_amount: 0,
-          commission_calculated_at: new Date().toISOString(),
           organization_id: auditOrganizationId,
         })
 

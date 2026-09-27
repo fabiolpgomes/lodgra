@@ -427,7 +427,6 @@ async function createDraftReservation(
       notes: parsed.confirmation_code ? `Código: ${parsed.confirmation_code}` : null,
       service_fee_amount: serviceFeeAmount,
       discount_amount: parsed.discount_amount || 0,
-      commission_calculated_at: new Date().toISOString(),
       organization_id: organizationId,
     })
     .select('id')

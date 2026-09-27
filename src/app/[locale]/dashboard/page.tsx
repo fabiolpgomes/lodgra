@@ -1493,7 +1493,7 @@ export default async function DashboardPage({
                             <span>
                               {Math.round(channel.revenuePercent)}% da receita &middot; {channel.reservationCount} reserva{channel.reservationCount !== 1 ? 's' : ''} ({Math.round(channel.reservationPercent)}%)
                             </span>
-                            <span>Comissão: {formatCurrency(channel.commissionAmount, cur as CurrencyCode)}</span>
+                            <span title={channel.commissionAmount == null ? 'Comissão da plataforma disponível quando houver integração oficial por API' : undefined}>Comissão: {channel.commissionAmount == null ? '—' : formatCurrency(channel.commissionAmount, cur as CurrencyCode)}</span>
                           </div>
                         </li>
                       ))}

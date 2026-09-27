@@ -309,7 +309,6 @@ export async function POST(request: NextRequest) {
       discount_amount: discountAmount,
       preferred_locale: preferredLocale,
       organization_id: property.organization_id,
-      commission_calculated_at: new Date().toISOString(),
     })
     .select('id')
     .single()

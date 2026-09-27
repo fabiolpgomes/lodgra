@@ -38,6 +38,17 @@ describe('getChannelLabel', () => {
 })
 
 describe('buildChannelRevenue', () => {
+  it('comissão da plataforma fica null quando nenhuma reserva do canal tem o dado (iCal)', () => {
+    const result = buildChannelRevenue([
+      makeReservation({ bookingSource: 'airbnb', totalAmount: 500, commissionAmount: null }),
+      makeReservation({ bookingSource: 'airbnb', totalAmount: 300, commissionAmount: undefined }),
+      makeReservation({ bookingSource: 'booking', totalAmount: 200, commissionAmount: null }),
+      makeReservation({ bookingSource: 'booking', totalAmount: 100, commissionAmount: 12 }),
+    ])
+    expect(result.channels.find((c) => c.channel === 'airbnb')?.commissionAmount).toBeNull()
+    expect(result.channels.find((c) => c.channel === 'booking')?.commissionAmount).toBe(12)
+  })
+
   it('CHANNEL_CONCENTRATION_THRESHOLD é 60', () => {
     expect(CHANNEL_CONCENTRATION_THRESHOLD).toBe(60)
   })

@@ -439,7 +439,6 @@ async function syncOneListing(
           number_of_guests: guestData?.guests || bookingData.numGuests || 1,
           service_fee_amount: serviceFeeAmount,
           discount_amount: bookingData.discountAmount || 0,
-          commission_calculated_at: new Date().toISOString(),
           ...(cronOrgId ? { organization_id: cronOrgId } : {})
         })
 

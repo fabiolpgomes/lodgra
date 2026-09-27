@@ -73,8 +73,12 @@ export interface ChannelBreakdown {
   reservationCount: number
   /** 0–100. */
   reservationPercent: number
-  /** Soma real de `reservations.commission_amount` — nunca estimada. */
-  commissionAmount: number
+  /**
+   * Soma real de `reservations.commission_amount` (comissão cobrada pela plataforma) — nunca estimada.
+   * `null` quando nenhuma reserva do canal tem esse dado: hoje ele só chega via integração oficial por API
+   * (iCal não traz comissão), então a UI mostra "—" em vez de um zero enganoso.
+   */
+  commissionAmount: number | null
 }
 
 export interface ChannelConcentrationAlert {
@@ -119,19 +123,19 @@ export function buildChannelRevenue(
   // duplicava "Airbnb" em duas linhas no card; agrupar pelo rótulo funde essas
   // reservas numa linha só, que é o que a UI mostra de qualquer forma. Reportado
   // por Fabio em produção (2026-07-23).
-  type Accumulator = { revenue: number; count: number; commission: number; representativeChannel: string }
+  type Accumulator = { revenue: number; count: number; commission: number | null; representativeChannel: string }
   const byLabel = new Map<string, Accumulator>()
 
   for (const r of valid) {
     const label = getChannelLabel(r.bookingSource, r.platformDisplayName)
     const amount = Number(r.totalAmount) || 0
-    const commission = r.commissionAmount != null ? Number(r.commissionAmount) || 0 : 0
+    const commission = r.commissionAmount != null ? Number(r.commissionAmount) || 0 : null
 
     const existing = byLabel.get(label)
     if (existing) {
       existing.revenue += amount
       existing.count += 1
-      existing.commission += commission
+      if (commission != null) existing.commission = (existing.commission ?? 0) + commission
     } else {
       byLabel.set(label, { revenue: amount, count: 1, commission, representativeChannel: r.bookingSource })
     }
