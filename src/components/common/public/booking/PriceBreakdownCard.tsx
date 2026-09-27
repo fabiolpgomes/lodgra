@@ -29,7 +29,7 @@ export function PriceBreakdownCard({
   return (
     <div className="rounded-xl border border-brand-gold/15 bg-brand-bg p-3 text-sm space-y-2">
       <div className="flex items-center justify-between">
-        <span className="font-medium text-brand-text-dark">Resumo do preço</span>
+        <span className="font-medium text-brand-text-dark">Detalhe das diárias</span>
         {loading && (
           <span className="inline-flex items-center gap-2 text-xs text-brand-text-medium">
             <span className="h-3 w-3 animate-spin rounded-full border-2 border-brand-gold border-t-transparent" />
@@ -74,9 +74,11 @@ export function PriceBreakdownCard({
             </div>
           )}
 
-          <div className="flex justify-between font-bold text-brand-text-dark pt-1 border-t border-brand-gold/15">
-            <span>Total</span>
-            <span className="text-brand-blue">{formatCurrency(quote.finalTotal, currency)}</span>
+          {/* Subtotal só das diárias. O Total a pagar (com limpeza e outras taxas) aparece
+              uma única vez no resumo principal, para o hóspede não ver dois "Total". */}
+          <div className="flex justify-between font-medium text-brand-text-dark pt-1 border-t border-brand-gold/15">
+            <span>Subtotal das diárias</span>
+            <span>{formatCurrency(quote.finalTotal, currency)}</span>
           </div>
         </div>
       )}
