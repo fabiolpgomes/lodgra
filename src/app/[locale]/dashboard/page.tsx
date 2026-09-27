@@ -313,12 +313,33 @@ export default async function DashboardPage({
   // por canal, conforme a Description da story ("SUM(total_amount) por
   // booking_source / SUM(total_amount) total"). Decisão documentada nos Dev
   // Notes da Story 39.3.
+  // Comissão da plataforma: prioriza o snapshot financeiro vigente (captura manual
+  // da Epic 47, em Reservas → Editar → Informação financeira → "Comissão OTA"); se não
+  // houver, usa reservations.commission_amount (preenchido pela integração oficial).
+  const currentMonthReservationIds = currentMonthReservations.map(r => r.id).filter(Boolean)
+  const otaCommissionByReservation = new Map<string, number>()
+  if (currentMonthReservationIds.length > 0) {
+    const { data: snapshots, error: snapshotsError } = await adminSupabase
+      .from('reservation_financial_snapshots')
+      .select('reservation_id, ota_commission_amount')
+      .in('reservation_id', currentMonthReservationIds)
+      .is('superseded_at', null)
+      .not('ota_commission_amount', 'is', null)
+    if (snapshotsError) {
+      console.error('[dashboard] Erro ao buscar snapshots financeiros:', snapshotsError)
+    }
+    for (const snap of snapshots || []) {
+      otaCommissionByReservation.set(snap.reservation_id, Number(snap.ota_commission_amount))
+    }
+  }
+
   const channelReservationsByCurrency = currentMonthReservations.reduce((acc, r) => {
     const cur = getReservationCurrency(r)
     const row: ChannelReservationInput = {
       bookingSource: r.booking_source,
       totalAmount: r.total_amount != null ? Number(r.total_amount) : null,
-      commissionAmount: r.commission_amount != null ? Number(r.commission_amount) : null,
+      commissionAmount: otaCommissionByReservation.get(r.id)
+        ?? (r.commission_amount != null ? Number(r.commission_amount) : null),
       platformDisplayName: getReservationPlatformName(r),
     }
     if (!acc[cur]) acc[cur] = []
@@ -1493,7 +1514,7 @@ export default async function DashboardPage({
                             <span>
                               {Math.round(channel.revenuePercent)}% da receita &middot; {channel.reservationCount} reserva{channel.reservationCount !== 1 ? 's' : ''} ({Math.round(channel.reservationPercent)}%)
                             </span>
-                            <span title={channel.commissionAmount == null ? 'Comissão da plataforma disponível quando houver integração oficial por API' : undefined}>Comissão: {channel.commissionAmount == null ? '—' : formatCurrency(channel.commissionAmount, cur as CurrencyCode)}</span>
+                            <span title={channel.commissionAmount == null ? 'Informe em Reservas → Editar → Informação financeira → Comissão OTA (modo detalhado), ou virá da integração oficial por API' : undefined}>Comissão: {channel.commissionAmount == null ? '—' : formatCurrency(channel.commissionAmount, cur as CurrencyCode)}</span>
                           </div>
                         </li>
                       ))}
