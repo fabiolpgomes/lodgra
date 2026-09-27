@@ -88,6 +88,24 @@ export function getChannelLabel(bookingSource: string, platformDisplayName?: str
   return CHANNEL_LABELS[normalizeSource(bookingSource)] ?? bookingSource
 }
 
+/**
+ * Valor que a plataforma desconta da reserva, a partir do snapshot financeiro
+ * vigente (Epic 47): Comissão OTA + Processamento de pagamento.
+ * Ex.: Booking.com 27,71 + 2,16 = 29,87. Campos vazios não contam; se ambos
+ * estiverem vazios devolve null (a UI mostra "—" em vez de um zero enganoso).
+ */
+export function platformChargesFromSnapshot(snapshot: {
+  ota_commission_amount?: number | string | null
+  payment_processing_fee_amount?: number | string | null
+}): number | null {
+  const parts = [snapshot.ota_commission_amount, snapshot.payment_processing_fee_amount]
+    .filter((v): v is number | string => v != null && v !== '')
+    .map(v => Math.round(Number(v) * 100))
+    .filter(Number.isFinite)
+  if (parts.length === 0) return null
+  return parts.reduce((a, b) => a + b, 0) / 100
+}
+
 export interface ChannelReservationInput {
   bookingSource: string | null | undefined
   totalAmount: number | null | undefined

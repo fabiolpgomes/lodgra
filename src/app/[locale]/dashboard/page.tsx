@@ -58,7 +58,7 @@ import {
   formatDateInTimeZone,
 } from '@/lib/dashboard/metrics'
 // Story 39.3 — Receita por Canal (% receita/reservas e comissão real por booking_source)
-import { buildChannelRevenue, CHANNEL_CONCENTRATION_THRESHOLD, getChannelLabel, platformCodeForBookingSource, type ChannelReservationInput } from '@/lib/dashboard/channelRevenue'
+import { buildChannelRevenue, CHANNEL_CONCENTRATION_THRESHOLD, getChannelLabel, platformChargesFromSnapshot, platformCodeForBookingSource, type ChannelReservationInput } from '@/lib/dashboard/channelRevenue'
 import { resolveReservationCurrency } from '@/lib/dashboard/reservationCurrency'
 // Story 39.6 — Painel de Alertas: concentração por propriedade (independente do threshold de canal acima)
 import { buildPropertyConcentrationAlert, PROPERTY_CONCENTRATION_THRESHOLD } from '@/lib/dashboard/propertyConcentration'
@@ -341,23 +341,24 @@ export default async function DashboardPage({
   // por canal, conforme a Description da story ("SUM(total_amount) por
   // booking_source / SUM(total_amount) total"). Decisão documentada nos Dev
   // Notes da Story 39.3.
-  // Comissão da plataforma: prioriza o snapshot financeiro vigente (captura manual
-  // da Epic 47, em Reservas → abrir a reserva → Informação financeira → "Comissão OTA"); se não
-  // houver, usa reservations.commission_amount (preenchido pela integração oficial).
+  // Comissão da plataforma = Comissão OTA + Processamento de pagamento do snapshot
+  // financeiro vigente (Epic 47, em Reservas → abrir a reserva → Informação financeira);
+  // se não houver, usa reservations.commission_amount (preenchido pela integração oficial).
   const currentMonthReservationIds = currentMonthReservations.map(r => r.id).filter(Boolean)
   const otaCommissionByReservation = new Map<string, number>()
   if (currentMonthReservationIds.length > 0) {
     const { data: snapshots, error: snapshotsError } = await adminSupabase
       .from('reservation_financial_snapshots')
-      .select('reservation_id, ota_commission_amount')
+      .select('reservation_id, ota_commission_amount, payment_processing_fee_amount')
       .in('reservation_id', currentMonthReservationIds)
       .is('superseded_at', null)
-      .not('ota_commission_amount', 'is', null)
+      .or('ota_commission_amount.not.is.null,payment_processing_fee_amount.not.is.null')
     if (snapshotsError) {
       console.error('[dashboard] Erro ao buscar snapshots financeiros:', snapshotsError)
     }
     for (const snap of snapshots || []) {
-      otaCommissionByReservation.set(snap.reservation_id, Number(snap.ota_commission_amount))
+      const charges = platformChargesFromSnapshot(snap)
+      if (charges != null) otaCommissionByReservation.set(snap.reservation_id, charges)
     }
   }
 
@@ -1542,7 +1543,7 @@ export default async function DashboardPage({
                             <span>
                               {Math.round(channel.revenuePercent)}% da receita &middot; {channel.reservationCount} reserva{channel.reservationCount !== 1 ? 's' : ''} ({Math.round(channel.reservationPercent)}%)
                             </span>
-                            <span title={channel.commissionAmount == null ? 'Informe em Reservas → abrir a reserva → Informação financeira → Comissão OTA (modo detalhado), ou virá da integração oficial por API' : undefined}>Comissão: {channel.commissionAmount == null ? '—' : formatCurrency(channel.commissionAmount, cur as CurrencyCode)}</span>
+                            <span title={channel.commissionAmount == null ? 'Informe em Reservas → abrir a reserva → Informação financeira → Comissão OTA e Processamento de pagamento (modo detalhado), ou virá da integração oficial por API' : undefined}>Comissão: {channel.commissionAmount == null ? '—' : formatCurrency(channel.commissionAmount, cur as CurrencyCode)}</span>
                           </div>
                         </li>
                       ))}

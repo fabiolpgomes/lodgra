@@ -2,6 +2,7 @@ import {
   buildChannelRevenue,
   getChannelLabel,
   platformCodeForBookingSource,
+  platformChargesFromSnapshot,
   CHANNEL_CONCENTRATION_THRESHOLD,
   type ChannelReservationInput,
 } from '../channelRevenue'
@@ -59,6 +60,21 @@ describe('platformCodeForBookingSource', () => {
     expect(platformCodeForBookingSource('ical')).toBeNull()
     expect(platformCodeForBookingSource('Flatio')).toBeNull()
     expect(platformCodeForBookingSource(null)).toBeNull()
+  })
+})
+
+describe('platformChargesFromSnapshot', () => {
+  it('soma Comissão OTA + Processamento de pagamento (Booking.com 27,71 + 2,16)', () => {
+    expect(platformChargesFromSnapshot({ ota_commission_amount: '27.71', payment_processing_fee_amount: '2.16' })).toBe(29.87)
+  })
+
+  it('usa só o campo preenchido quando o outro está vazio', () => {
+    expect(platformChargesFromSnapshot({ ota_commission_amount: 27.71, payment_processing_fee_amount: null })).toBe(27.71)
+    expect(platformChargesFromSnapshot({ ota_commission_amount: null, payment_processing_fee_amount: '2.16' })).toBe(2.16)
+  })
+
+  it('devolve null quando nenhum valor foi informado', () => {
+    expect(platformChargesFromSnapshot({ ota_commission_amount: null, payment_processing_fee_amount: null })).toBeNull()
   })
 })
 
