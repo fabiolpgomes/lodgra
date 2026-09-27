@@ -18,6 +18,6 @@ read "CONFIRM?Aplicar essas migrations em PRODUÇÃO? Digite 'sim' para continua
 if [[ "$CONFIRM" != "sim" ]]; then
   echo "Cancelado. Nada foi aplicado."; unset DB_URL; exit 1
 fi
-supabase db push --db-url "$DB_URL" --yes
+supabase db push --db-url "$DB_URL"
 unset DB_URL
 echo "Concluído."
