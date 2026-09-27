@@ -8,6 +8,7 @@ import { Button } from '@/components/common/ui/button'
 import { Badge } from '@/components/common/ui/badge'
 import { formatCurrency } from '@/lib/utils/currency'
 import { EditReservationClient } from '@/components/features/reservations/EditReservationClient'
+import { ReservationFinancialFacts } from '@/components/features/reservations/ReservationFinancialFacts'
 import { ReservationUI } from '@/components/features/reservations/types/reservation-ui'
 import { PremiumCard } from '@/components/common/layout/PremiumPage'
 import { getReservationPlatformLabel } from '@/lib/reservations/platform'
@@ -269,6 +270,16 @@ export default async function ReservationDetailPage({
                 </p>
                 <p className="text-xs text-[#7C8492] mt-2">{reservationNotes.length}/200 caracteres</p>
               </div>
+
+              {/* Financial facts (Epic 47) — Comissão OTA, líquido da plataforma, base de repasse */}
+              {(reservation.currency || property?.currency) && (
+                <div id="informacao-financeira" className="bg-[#FBFAF6] rounded-[14px] border border-[#E5DFD2] p-6">
+                  <ReservationFinancialFacts
+                    reservationId={reservation.id}
+                    currency={(reservation.currency || property?.currency) as string}
+                  />
+                </div>
+              )}
             </div>
 
             {/* Sidebar */}

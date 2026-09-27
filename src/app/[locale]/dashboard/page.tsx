@@ -314,7 +314,7 @@ export default async function DashboardPage({
   // booking_source / SUM(total_amount) total"). Decisão documentada nos Dev
   // Notes da Story 39.3.
   // Comissão da plataforma: prioriza o snapshot financeiro vigente (captura manual
-  // da Epic 47, em Reservas → Editar → Informação financeira → "Comissão OTA"); se não
+  // da Epic 47, em Reservas → abrir a reserva → Informação financeira → "Comissão OTA"); se não
   // houver, usa reservations.commission_amount (preenchido pela integração oficial).
   const currentMonthReservationIds = currentMonthReservations.map(r => r.id).filter(Boolean)
   const otaCommissionByReservation = new Map<string, number>()
@@ -1514,7 +1514,7 @@ export default async function DashboardPage({
                             <span>
                               {Math.round(channel.revenuePercent)}% da receita &middot; {channel.reservationCount} reserva{channel.reservationCount !== 1 ? 's' : ''} ({Math.round(channel.reservationPercent)}%)
                             </span>
-                            <span title={channel.commissionAmount == null ? 'Informe em Reservas → Editar → Informação financeira → Comissão OTA (modo detalhado), ou virá da integração oficial por API' : undefined}>Comissão: {channel.commissionAmount == null ? '—' : formatCurrency(channel.commissionAmount, cur as CurrencyCode)}</span>
+                            <span title={channel.commissionAmount == null ? 'Informe em Reservas → abrir a reserva → Informação financeira → Comissão OTA (modo detalhado), ou virá da integração oficial por API' : undefined}>Comissão: {channel.commissionAmount == null ? '—' : formatCurrency(channel.commissionAmount, cur as CurrencyCode)}</span>
                           </div>
                         </li>
                       ))}
