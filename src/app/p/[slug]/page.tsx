@@ -11,7 +11,6 @@ import type { ReviewSource, ReviewScoreData, PropertyReview } from '@/types/data
 import { locales } from '../../../../i18n.config'
 import { PropertyPageV2 } from '@/components/common/public/PropertyPageV2'
 import { normalizeToScale10, getScaleMaxForSource } from '@/lib/ratings/normalize'
-import { OrganizationTrafficTracker } from '@/components/analytics/OrganizationTrafficTracker'
 
 export const revalidate = 86400 // ISR: 24 hours (on-demand via API after 24h)
 export const dynamicParams = true // Enable beyond static params from generateStaticParams
@@ -377,7 +376,6 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
   // Load org public profile for contact bar
   let orgPublicProfile: { contact_email: string | null; contact_phone: string | null; whatsapp_number: string | null; website_url: string | null; instagram_url: string | null; public_contact_message: string | null; address_line: string | null; city: string | null; country: string | null } | null = null
   let orgName: string | null = null
-  let orgSlugForTracking: string | null = null
 
   if (property.organization_id) {
     const { data: orgData } = await adminClient
@@ -388,7 +386,6 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
 
     if (orgData) {
       orgName = orgData.name ?? null
-      orgSlugForTracking = orgData.slug ?? null
       const { data: profileData } = await adminClient
         .from('organization_public_profile')
         .select('contact_email, contact_phone, whatsapp_number, website_url, instagram_url, public_contact_message, address_line, city, country')
@@ -423,7 +420,6 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
 
   return (
     <>
-      <OrganizationTrafficTracker organizationSlug={orgSlugForTracking} pagePath={`/p/${slug}`} />
       <script
         type="application/ld+json"
         nonce={nonce}

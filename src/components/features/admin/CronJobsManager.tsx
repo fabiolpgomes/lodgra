@@ -13,13 +13,6 @@ const CRON_JOBS = [
     path: '/api/cron/sync-ical',
   },
   {
-    id: 'sync-booking-reservations',
-    name: 'Sincronização Booking.com',
-    description: 'Importa reservas novas e alterações do Booking.com',
-    schedule: 'A cada 4 horas',
-    path: '/api/cron/sync-booking-reservations',
-  },
-  {
     id: 'daily-checkins',
     name: 'Check-ins Diários',
     description: 'Verifica check-ins e check-outs do dia',

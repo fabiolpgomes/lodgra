@@ -20,7 +20,7 @@ telas "funciona" mostrando vazio/zero e as gravações falham em silêncio.
 |---|---|---|---|
 | WhatsApp (logs, templates, config, analytics) | `whatsapp_logs`, `whatsapp_message_templates`, `whatsapp_config`, `whatsapp_analytics` | `settings/whatsapp-templates`, `WhatsAppAnalyticsDashboard`; crons `checkin-codes`/`checkout-reminders` (não agendados) | WABA da AHS configurada; inbox unificada no roadmap |
 | Templates de e-mail por organização | `organization_email_templates` | `settings/organizations/[orgId]/email-templates` | Hoje sempre usa o template padrão |
-| Templates da organização (limpeza) | `organization_templates` | `TemplateStats`, `TemplateInsights`, `InitializeTemplatesButton` | Parte do módulo de limpeza |
+| Template da página de reservas | `organization_templates` | `api/organizations/[orgId]/template` ← `BookingPageClient` (página pública `/booking`) | Hoje a página pública sempre cai no template padrão |
 | Portal/fotos de limpeza | (bucket `cleaning-photos` existe; código usa `cleaning-task-photos`) | `cleaner/tasks/[id]`, `CleaningPhotoGallery` | Bucket, colunas (`file_path`×`storage_path`) e papel `manager` errados; `lib/supabase/cleaning.queries.ts` é código morto |
 | Correções de extração (parser de e-mail) | `extraction_corrections` | `api/email-reconciliation/corrections/stats` | Parser de e-mail está ativo em produção (cron 15 min) |
 | Canal Booking.com (API) | `channel_listings` | `settings/channels`, `api/channels/booking/*`, cron `sync-booking-reservations` | Integração por API foi abandonada (sync é por iCal); banco tem `channel_connections`/`channel_listing_mappings` |
@@ -40,3 +40,9 @@ telas "funciona" mostrando vazio/zero e as gravações falham em silêncio.
 ## Grupo D — Nada a fazer (só existiam nas migrations arquivadas)
 `invoices`, `seasonal_pricing_rules`, `forecast_assumptions`, `reservation_corrections`,
 `analytics_test_events`, `monthly_property_metrics`.
+
+## Decisões (27/09/2026)
+- Grupo A: criar. Grupo B: consertar todos (WhatsApp, templates de e-mail, módulo de limpeza, correções do parser, template da página de reservas).
+- Grupo C e canal Booking.com por API: **removidos** (commit "refactor: remove funcionalidades mortas"). Junto saíram os receptores
+  de webhook de OTAs (Airbnb/VRBO/Booking/Flatio), o cron `sync-booking`, os dashboards admin de distribuição/otimização
+  (usavam `@clerk/nextjs`, dependência também removida) e a documentação da Booking API (movida para `docs/archive/`).

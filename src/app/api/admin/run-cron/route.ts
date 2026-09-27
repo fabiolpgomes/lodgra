@@ -3,7 +3,6 @@ import { requireRole } from '@/lib/auth/requireRole'
 
 const ALLOWED_CRON_PATHS = [
   '/api/cron/sync-ical',
-  '/api/cron/sync-booking-reservations',
   '/api/cron/daily-checkins',
   '/api/cron/cleanup',
 ]
