@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { requireRole } from '@/lib/auth/requireRole'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { MAX_DOCUMENT_SIZE } from '@/lib/documents/constants'
 
 const ALLOWED_TYPES = [
   'application/pdf',
@@ -11,7 +12,7 @@ const ALLOWED_TYPES = [
   'video/quicktime',
 ]
 
-const MAX_DOC_SIZE = 20 * 1024 * 1024   // 20MB
+const MAX_DOC_SIZE = MAX_DOCUMENT_SIZE
 const MAX_VIDEO_SIZE = 100 * 1024 * 1024 // 100MB
 const MAX_FILES = 10
 

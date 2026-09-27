@@ -16,6 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { CATEGORY_LABELS, CATEGORY_ORDER } from '@/lib/utils/expense-categories'
 import { toast } from 'sonner'
 import { Skeleton } from '@/components/common/ui/skeleton'
+import { ExpenseDocuments } from '@/components/features/expenses/ExpenseDocuments'
 
 export default function EditExpensePage({
   params
@@ -314,7 +315,7 @@ export default function EditExpensePage({
             {/* Botões */}
             <div className="flex items-center justify-end gap-4 pt-6 border-t">
               <Button asChild variant="outline">
-                <Link href={expenseId ? `/expenses/${expenseId}` : '/expenses'}>
+                <Link href={expenseId ? `/${locale}/expenses/${expenseId}` : `/${locale}/expenses`}>
                   Cancelar
                 </Link>
               </Button>
@@ -328,6 +329,12 @@ export default function EditExpensePage({
               </Button>
             </div>
           </form>
+
+          {expenseId && (
+            <div className="mt-8">
+              <ExpenseDocuments expenseId={expenseId} canEdit />
+            </div>
+          )}
         </div>
       </main>
     </AuthLayout>

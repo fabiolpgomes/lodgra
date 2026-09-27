@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useLocale } from '@/lib/i18n/routing'
 import Link from 'next/link'
-import { ArrowLeft, Save } from 'lucide-react'
+import { ArrowLeft, Save, FileText, X } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { AuthLayout } from '@/components/common/layout/AuthLayout'
 import { Button } from '@/components/common/ui/button'
@@ -14,6 +14,7 @@ import { Alert, AlertDescription } from '@/components/common/ui/alert'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/common/ui/select'
 import { CATEGORY_LABELS, CATEGORY_ORDER } from '@/lib/utils/expense-categories'
 import { toast } from 'sonner'
+import { FileUpload } from '@/components/common/ui/FileUpload'
 
 export default function NewExpensePage() {
   const router = useRouter()
@@ -24,6 +25,7 @@ export default function NewExpensePage() {
   const [properties, setProperties] = useState<{ id: string; name: string; currency: string }[]>([])
   const [propertyId, setPropertyId] = useState('')
   const [category, setCategory] = useState('')
+  const [pendingFiles, setPendingFiles] = useState<File[]>([])
 
   useEffect(() => {
     async function loadProperties() {
@@ -72,7 +74,7 @@ export default function NewExpensePage() {
         return
       }
 
-      const { error: insertError } = await supabase
+      const { data: created, error: insertError } = await supabase
         .from('expenses')
         .insert({
           property_id: propertyId,
@@ -84,11 +86,26 @@ export default function NewExpensePage() {
           notes: formData.get('notes') as string || null,
           organization_id: profile.organization_id,
         })
+        .select('id')
+        .single()
 
       if (insertError) throw insertError
 
-      toast.success('Despesa criada com sucesso!')
-      router.push(`/${locale}/expenses`)
+      // Anexa os comprovantes selecionados (mesma API da tela de detalhe)
+      const failed: string[] = []
+      for (const file of pendingFiles) {
+        const body = new FormData()
+        body.append('file', file)
+        const res = await fetch(`/api/expenses/${created.id}/documents`, { method: 'POST', body })
+        if (!res.ok) failed.push(file.name)
+      }
+
+      if (failed.length > 0) {
+        toast.warning(`Despesa criada, mas não foi possível anexar: ${failed.join(', ')}. Tente de novo na tela da despesa.`)
+      } else {
+        toast.success('Despesa criada com sucesso!')
+      }
+      router.push(`/${locale}/expenses/${created.id}`)
       router.refresh()
     } catch (err: unknown) {
       console.error('Erro ao criar despesa:', err)
@@ -233,6 +250,36 @@ export default function NewExpensePage() {
                 rows={3}
                 placeholder="Informações adicionais..."
               />
+            </div>
+
+            {/* Comprovantes */}
+            <div>
+              <Label className="mb-1">Comprovantes (opcional)</Label>
+              <FileUpload
+                currentCount={pendingFiles.length}
+                disabled={loading}
+                onUpload={async (files) => setPendingFiles((prev) => [...prev, ...files])}
+              />
+              {pendingFiles.length > 0 && (
+                <ul className="mt-3 space-y-2">
+                  {pendingFiles.map((file, index) => (
+                    <li key={`${file.name}-${index}`} className="flex items-center justify-between rounded-lg border px-3 py-2 text-sm">
+                      <span className="flex items-center gap-2 truncate">
+                        <FileText className="h-4 w-4 shrink-0" />
+                        <span className="truncate">{file.name}</span>
+                      </span>
+                      <button
+                        type="button"
+                        aria-label={`Remover ${file.name}`}
+                        onClick={() => setPendingFiles((prev) => prev.filter((_, i) => i !== index))}
+                        className="text-gray-500 hover:text-red-600"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
 
             {/* Botões */}

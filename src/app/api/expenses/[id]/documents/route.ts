@@ -2,19 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import { requireRole } from '@/lib/auth/requireRole'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { ALLOWED_DOCUMENT_TYPES, MAX_DOCUMENT_SIZE, MAX_DOCUMENTS_PER_ITEM } from '@/lib/documents/constants'
 import { getUserPropertyIds } from '@/lib/auth/getUserProperties'
 
-const ALLOWED_TYPES = [
-  'application/pdf',
-  'image/jpeg',
-  'image/jpg',
-  'application/msword',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  'application/vnd.ms-excel',
-  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-]
-const MAX_SIZE = 20 * 1024 * 1024 // 20MB
-const MAX_FILES = 5
+const ALLOWED_TYPES = ALLOWED_DOCUMENT_TYPES
+const MAX_SIZE = MAX_DOCUMENT_SIZE
+const MAX_FILES = MAX_DOCUMENTS_PER_ITEM
 
 async function verifyExpenseAccess(supabase: Awaited<ReturnType<typeof createClient>>, expenseId: string) {
   const allowedPropertyIds = await getUserPropertyIds(supabase)

@@ -6,6 +6,7 @@ import { Button } from '@/components/common/ui/button'
 import { FileUpload } from '@/components/common/ui/FileUpload'
 import { toast } from 'sonner'
 import type { PropertyDocument } from '@/types/database'
+import { MAX_DOCUMENT_SIZE } from '@/lib/documents/constants'
 
 const ALLOWED_DOC_TYPES = [
   'application/pdf',
@@ -175,7 +176,7 @@ export function PropertyDocuments({ propertyId, canEdit }: PropertyDocumentsProp
                   currentCount={docCount}
                   maxFiles={MAX_FILES}
                   allowedTypes={ALLOWED_DOC_TYPES}
-                  maxFileSize={20 * 1024 * 1024}
+                  maxFileSize={MAX_DOCUMENT_SIZE}
                   acceptAttr=".pdf,.doc,.docx"
                   hint="PDF, Word · Máx. 20MB"
                 />

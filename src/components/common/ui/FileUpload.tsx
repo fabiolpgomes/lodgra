@@ -3,18 +3,12 @@
 import { useRef, useState } from 'react'
 import { Upload } from 'lucide-react'
 
-export const ALLOWED_DOCUMENT_TYPES = [
-  'application/pdf',
-  'image/jpeg',
-  'image/jpg',
-  'application/msword',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  'application/vnd.ms-excel',
-  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-]
+import { ALLOWED_DOCUMENT_TYPES, MAX_DOCUMENT_SIZE, MAX_DOCUMENTS_PER_ITEM } from '@/lib/documents/constants'
 
-const DEFAULT_MAX_FILE_SIZE = 20 * 1024 * 1024 // 20MB
-const DEFAULT_MAX_FILES = 5
+export { ALLOWED_DOCUMENT_TYPES }
+
+const DEFAULT_MAX_FILE_SIZE = MAX_DOCUMENT_SIZE
+const DEFAULT_MAX_FILES = MAX_DOCUMENTS_PER_ITEM
 
 interface FileUploadProps {
   onUpload: (files: File[]) => Promise<void>
