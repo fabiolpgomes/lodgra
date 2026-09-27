@@ -106,14 +106,6 @@ jest.mock('@/lib/pricing/getPriceForRange', () => ({
   })),
 }))
 
-// Mock commission service
-jest.mock('@/lib/commission/service', () => ({
-  calculateCommission: jest.fn(() => ({
-    commissionAmount: 75,
-    commissionRate: 0.15,
-  })),
-}))
-
 // Mock Stripe
 jest.mock('stripe', () => ({
   __esModule: true,

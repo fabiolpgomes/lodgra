@@ -46,3 +46,7 @@ telas "funciona" mostrando vazio/zero e as gravações falham em silêncio.
 - Grupo C e canal Booking.com por API: **removidos** (commit "refactor: remove funcionalidades mortas"). Junto saíram os receptores
   de webhook de OTAs (Airbnb/VRBO/Booking/Flatio), o cron `sync-booking`, os dashboards admin de distribuição/otimização
   (usavam `@clerk/nextjs`, dependência também removida) e a documentação da Booking API (movida para `docs/archive/`).
+- Dashboard de comissões (grupo A): **removido** em vez de criado. Lia `reservations.commission_amount`, nunca
+  preenchido (0/118 em produção), com taxa fixa de 10% no código. Regra de negócio: a comissão da gestora é o
+  "Percentual Gestão do Imóvel" de cada propriedade. A view `commission_summary` criada em `20260927110000` é
+  removida em `20260927130000`. Relatório de comissões baseado no percentual da propriedade fica no backlog.

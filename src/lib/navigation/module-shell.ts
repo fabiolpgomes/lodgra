@@ -45,7 +45,7 @@ export const PUBLIC_MODULES: ModuleDefinition[] = [
     icon: Building2,
     published: true,
     entryPath: '/dashboard',
-    matches: ['/dashboard', '/dashboard/reports', '/properties', '/reservations', '/calendar', '/cleaning', '/expenses', '/reports/reservas'],
+    matches: ['/dashboard', '/properties', '/reservations', '/calendar', '/cleaning', '/expenses', '/reports/reservas'],
   },
   {
     id: 'empresa',
@@ -184,7 +184,7 @@ export function getPageTitle(pathname: string): string {
   if (normalized === '/' || normalized === '/dashboard') return 'Dashboard'
   if (normalized.startsWith('/dashboard/empresa/custos')) return 'Prestação de contas'
   if (normalized.startsWith('/dashboard/empresa')) return 'Empresa'
-  if (normalized.startsWith('/dashboard/reports') || normalized.startsWith('/reports/reservas')) return 'Relatórios operacionais'
+  if (normalized.startsWith('/reports/reservas')) return 'Relatórios operacionais'
   if (normalized.startsWith('/reports/financeiro') || normalized === '/reports') return 'Relatórios gerenciais'
   if (normalized.startsWith('/ia-native/analyze') || normalized.startsWith('/property-intelligence')) return 'Property Intelligence'
   if (normalized.startsWith('/ia-native')) return 'IA Native'

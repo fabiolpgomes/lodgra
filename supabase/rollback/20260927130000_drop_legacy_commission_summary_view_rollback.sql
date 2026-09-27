@@ -1,0 +1,1 @@
+-- Rollback: recriar a view a partir de 20260927110000_create_email_log_unsubscribes_commission_view_expense_bucket.sql (seção 3).

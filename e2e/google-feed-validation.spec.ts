@@ -12,18 +12,23 @@ test.describe('Google Vacation Rentals Feed Validation', () => {
     // Wait for page to load
     await page.waitForLoadState('networkidle')
 
-    // Look for Schema.org LodgingBusiness markup
-    const jsonldScript = await page.locator('script[type="application/ld+json"]').first()
+    // Page renders multiple JSON-LD scripts (Organization + WebSite from the root layout,
+    // plus this page's own LodgingBusiness schema) — find the property-specific one.
+    const scripts = await page.locator('script[type="application/ld+json"]').all()
 
-    // Verify markup exists
-    expect(jsonldScript).toBeDefined()
+    let schema: Record<string, unknown> | null = null
+    for (const script of scripts) {
+      const content = await script.textContent()
+      const parsed = JSON.parse(content || '{}')
+      if (parsed['@type'] === 'LodgingBusiness') {
+        schema = parsed
+        break
+      }
+    }
 
-    // Parse and validate JSON-LD
-    const jsonldContent = await jsonldScript.textContent()
-    expect(jsonldContent).toBeTruthy()
-
-    const schema = JSON.parse(jsonldContent || '{}')
-    expect(schema['@type']).toBe('LodgingBusiness')
+    // Verify the LodgingBusiness markup was found
+    expect(schema).toBeTruthy()
+    expect(schema?.['@type']).toBe('LodgingBusiness')
   })
 
   test('should return valid XML feed', async ({ page }) => {

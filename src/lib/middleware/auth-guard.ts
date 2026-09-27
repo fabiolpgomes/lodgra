@@ -155,7 +155,7 @@ export async function checkSubscriptionAndRole(
   if (isRestrictedGestor({ role: userRole, access_all_properties: accessAllProperties })) {
     // Normalize pathname: remove locale prefix for comparison
     const normalizedPath = pathname.replace(/^\/[a-z]{2}(-[A-Z]{2})?(?=\/|$)/, '')
-    const blockedPaths = ['/dashboard', '/dashboard/reports', '/financial', '/reports', '/admin']
+    const blockedPaths = ['/dashboard', '/financial', '/reports', '/admin']
     if (blockedPaths.some(p => normalizedPath === p || normalizedPath.startsWith(p + '/'))) {
       return NextResponse.redirect(new URL(`/${locale}/calendar`, request.url))
     }
