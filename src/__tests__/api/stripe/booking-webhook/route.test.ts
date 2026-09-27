@@ -11,9 +11,20 @@ import {
   sendBookingConfirmationToGuest,
   sendBookingNotificationToManager,
 } from '@/lib/email/bookingConfirmationGuest'
+import {
+  claimStripeEvent,
+  markStripeEventProcessed,
+  releaseStripeEvent,
+} from '@/lib/stripe/webhook-idempotency'
 
 jest.mock('@/lib/supabase/admin')
 jest.mock('@/lib/email/bookingConfirmationGuest')
+jest.mock('@/lib/email/queue', () => ({ enqueueEmail: jest.fn() }))
+jest.mock('@/lib/stripe/webhook-idempotency', () => ({
+  claimStripeEvent: jest.fn(),
+  markStripeEventProcessed: jest.fn(),
+  releaseStripeEvent: jest.fn(),
+}))
 
 // Mock Stripe — constructEvent can be controlled per test
 const mockConstructEvent = jest.fn()
@@ -28,6 +39,10 @@ jest.mock('stripe', () => {
 const mockCreateAdminClient = createAdminClient as jest.MockedFunction<typeof createAdminClient>
 const mockSendGuest = sendBookingConfirmationToGuest as jest.MockedFunction<typeof sendBookingConfirmationToGuest>
 const mockSendManager = sendBookingNotificationToManager as jest.MockedFunction<typeof sendBookingNotificationToManager>
+
+const mockClaim = claimStripeEvent as jest.MockedFunction<typeof claimStripeEvent>
+const mockMarkProcessed = markStripeEventProcessed as jest.MockedFunction<typeof markStripeEventProcessed>
+const mockRelease = releaseStripeEvent as jest.MockedFunction<typeof releaseStripeEvent>
 
 const BASE_URL = 'http://localhost:3000'
 
@@ -54,10 +69,12 @@ function buildMockSupabase(options: {
   reservationData?: unknown
   updateError?: unknown
   listingData?: unknown
+  confirmedRows?: unknown[]
 } = {}) {
   const {
     reservationData = pendingReservation,
       updateError = null,
+      confirmedRows = [{ id: 'res-001' }],
       listingData = {
         property_id: 'prop-123',
         properties: {
@@ -78,8 +95,13 @@ function buildMockSupabase(options: {
             single: jest.fn().mockResolvedValue({ data: reservationData, error: null }),
           }),
         }),
+        // Confirmação: update().eq().neq().select(); expiração: await update().eq()
         update: jest.fn().mockReturnValue({
-          eq: jest.fn().mockResolvedValue({ error: updateError }),
+          eq: jest.fn().mockReturnValue(Object.assign(Promise.resolve({ error: updateError }), {
+            neq: jest.fn().mockReturnValue({
+              select: jest.fn().mockResolvedValue({ data: updateError ? null : confirmedRows, error: updateError }),
+            }),
+          })),
         }),
       }
     }
@@ -105,6 +127,9 @@ beforeEach(() => {
   process.env.NEXT_PUBLIC_APP_URL = 'https://app.example.com'
   mockSendGuest.mockResolvedValue(undefined)
   mockSendManager.mockResolvedValue(undefined)
+  mockClaim.mockResolvedValue('claimed')
+  mockMarkProcessed.mockResolvedValue(undefined)
+  mockRelease.mockResolvedValue(undefined)
 })
 
 describe('POST /api/stripe/booking-webhook', () => {
@@ -238,6 +263,72 @@ describe('POST /api/stripe/booking-webhook', () => {
       await POST(req)
       // Error should be logged (not thrown — endpoint returns 200)
       consoleSpy.mockRestore()
+    })
+  })
+  describe('idempotência por event.id', () => {
+    const event = {
+      id: 'evt_dup',
+      type: 'checkout.session.completed',
+      data: { object: { id: 'cs_test_abc', payment_intent: 'pi_1', metadata: { reservation_id: 'res-001' } } },
+    }
+
+    it('responde 200 sem reprocessar um evento já processado', async () => {
+      mockConstructEvent.mockReturnValue(event)
+      mockClaim.mockResolvedValue('duplicate')
+      const supabase = buildMockSupabase()
+      mockCreateAdminClient.mockReturnValue(supabase)
+      const res = await POST(makeWebhookRequest())
+      expect(res.status).toBe(200)
+      expect(supabase.from).not.toHaveBeenCalled()
+      expect(mockSendGuest).not.toHaveBeenCalled()
+    })
+
+    it('responde 409 quando outra entrega está processando o mesmo evento', async () => {
+      mockConstructEvent.mockReturnValue(event)
+      mockClaim.mockResolvedValue('in_progress')
+      const supabase = buildMockSupabase()
+      mockCreateAdminClient.mockReturnValue(supabase)
+      const res = await POST(makeWebhookRequest())
+      expect(res.status).toBe(409)
+      expect(supabase.from).not.toHaveBeenCalled()
+    })
+
+    it('marca o evento como processado após sucesso', async () => {
+      mockConstructEvent.mockReturnValue(event)
+      mockCreateAdminClient.mockReturnValue(buildMockSupabase())
+      await POST(makeWebhookRequest())
+      expect(mockMarkProcessed).toHaveBeenCalledWith(expect.anything(), 'evt_dup')
+      expect(mockRelease).not.toHaveBeenCalled()
+    })
+
+    it('libera o evento e responde 500 quando o processamento falha', async () => {
+      mockConstructEvent.mockReturnValue(event)
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+      mockCreateAdminClient.mockReturnValue(buildMockSupabase({ updateError: { message: 'DB error' } }))
+      const res = await POST(makeWebhookRequest())
+      expect(res.status).toBe(500)
+      expect(mockRelease).toHaveBeenCalledWith(expect.anything(), 'evt_dup')
+      expect(mockMarkProcessed).not.toHaveBeenCalled()
+      consoleSpy.mockRestore()
+    })
+
+    it('responde 500 quando não consegue registrar o evento (Stripe reenvia)', async () => {
+      mockConstructEvent.mockReturnValue(event)
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+      mockClaim.mockRejectedValue(new Error('db down'))
+      mockCreateAdminClient.mockReturnValue(buildMockSupabase())
+      const res = await POST(makeWebhookRequest())
+      expect(res.status).toBe(500)
+      consoleSpy.mockRestore()
+    })
+
+    it('não envia e-mails quando outra entrega já confirmou a reserva (update sem linhas)', async () => {
+      mockConstructEvent.mockReturnValue(event)
+      mockCreateAdminClient.mockReturnValue(buildMockSupabase({ confirmedRows: [] }))
+      const res = await POST(makeWebhookRequest())
+      expect(res.status).toBe(200)
+      expect(mockSendGuest).not.toHaveBeenCalled()
+      expect(mockSendManager).not.toHaveBeenCalled()
     })
   })
 })

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { claimStripeEvent, markStripeEventProcessed, releaseStripeEvent } from '@/lib/stripe/webhook-idempotency'
 import { sendBookingConfirmationToGuest, sendBookingNotificationToManager } from '@/lib/email/bookingConfirmationGuest'
 import { enqueueEmail } from '@/lib/email/queue'
 import type { CurrencyCode } from '@/lib/utils/currency'
@@ -37,6 +38,23 @@ export async function POST(request: NextRequest) {
 
   const supabase = await createAdminClient()
 
+  // Idempotência: o Stripe pode reenviar ou entregar o mesmo evento em paralelo.
+  let claim
+  try {
+    claim = await claimStripeEvent(supabase, 'booking', event)
+  } catch (err: unknown) {
+    console.error('[booking-webhook] Falha ao registrar evento', event.id, err)
+    return NextResponse.json({ error: 'Erro interno' }, { status: 500 })
+  }
+  if (claim === 'duplicate') {
+    console.log(`[booking-webhook] Evento ${event.id} já processado — ignorado`)
+    return NextResponse.json({ received: true, duplicate: true })
+  }
+  if (claim === 'in_progress') {
+    console.log(`[booking-webhook] Evento ${event.id} em processamento por outra entrega`)
+    return NextResponse.json({ error: 'Evento em processamento' }, { status: 409 })
+  }
+
   try {
     switch (event.type) {
       case 'checkout.session.completed': {
@@ -55,9 +73,11 @@ export async function POST(request: NextRequest) {
     }
   } catch (err: unknown) {
     console.error(`[booking-webhook] Erro ao processar ${event.type}:`, err)
+    await releaseStripeEvent(supabase, event.id)
     return NextResponse.json({ error: 'Erro interno' }, { status: 500 })
   }
 
+  await markStripeEventProcessed(supabase, event.id)
   return NextResponse.json({ received: true })
 }
 
@@ -88,7 +108,9 @@ async function handleBookingCompleted(supabase: AdminClient, session: Stripe.Che
   }
 
   // ── Confirm reservation ─────────────────────────────────────────────────────
-  const { error: updateError } = await supabase
+  // Update condicional: só confirma se ainda não estiver confirmada. Duas entregas
+  // concorrentes não confirmam (nem enviam e-mails) duas vezes.
+  const { data: confirmedRows, error: updateError } = await supabase
     .from('reservations')
     .update({
       status: 'confirmed',
@@ -96,10 +118,16 @@ async function handleBookingCompleted(supabase: AdminClient, session: Stripe.Che
       stripe_payment_intent_id: session.payment_intent as string ?? null,
     })
     .eq('id', reservationId)
+    .neq('status', 'confirmed')
+    .select('id')
 
   if (updateError) {
     console.error(`[booking-webhook] Erro ao confirmar reserva ${reservationId}:`, updateError)
     throw updateError
+  }
+  if (!confirmedRows || confirmedRows.length === 0) {
+    console.log(`[booking-webhook] Reserva ${reservationId} confirmada por outra entrega — idempotent skip`)
+    return
   }
 
   console.log(`[booking-webhook] Reserva ${reservationId} confirmada`)

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { claimStripeEvent, markStripeEventProcessed, releaseStripeEvent } from '@/lib/stripe/webhook-idempotency'
 import { invalidateCachedProfile } from '@/lib/cache/profileCache'
 import { invalidateCachedSubscriptionStatus } from '@/lib/cache/subscriptionCache'
 import { getPlanFromPriceId } from '@/lib/billing/plans'
@@ -37,6 +38,23 @@ export async function POST(request: NextRequest) {
   }
 
   const supabase = await createAdminClient()
+
+  // Idempotência: o Stripe pode reenviar ou entregar o mesmo evento em paralelo.
+  let claim
+  try {
+    claim = await claimStripeEvent(supabase, 'platform', event)
+  } catch (err: unknown) {
+    console.error('[webhook] Falha ao registrar evento', event.id, err)
+    return NextResponse.json({ error: 'Erro interno' }, { status: 500 })
+  }
+  if (claim === 'duplicate') {
+    console.log(`[webhook] Evento ${event.id} já processado — ignorado`)
+    return NextResponse.json({ received: true, duplicate: true })
+  }
+  if (claim === 'in_progress') {
+    console.log(`[webhook] Evento ${event.id} em processamento por outra entrega`)
+    return NextResponse.json({ error: 'Evento em processamento' }, { status: 409 })
+  }
 
   try {
     switch (event.type) {
@@ -78,9 +96,11 @@ export async function POST(request: NextRequest) {
     }
   } catch (err: unknown) {
     console.error(`Erro ao processar evento ${event.type}:`, err)
+    await releaseStripeEvent(supabase, event.id)
     return NextResponse.json({ error: 'Erro interno ao processar webhook' }, { status: 500 })
   }
 
+  await markStripeEventProcessed(supabase, event.id)
   return NextResponse.json({ received: true })
 }
 
@@ -147,6 +167,12 @@ async function handleCheckoutCompleted(supabase: AdminClient, session: Stripe.Ch
   let org: { id: string } | null = null
   let userId: string | undefined
 
+  // Guarda extra de idempotência: se esta assinatura já tem organização (ex.: entrega
+  // anterior criou a org e falhou depois), reutiliza em vez de criar uma segunda.
+  const { data: orgForSubscription } = subscriptionId
+    ? await supabase.from('organizations').select('id').eq('stripe_subscription_id', subscriptionId).maybeSingle()
+    : { data: null }
+
   if (existingProfile?.organization_id) {
     // Existing user with org — update Stripe billing data on their org, never create a new one
     userId = existingProfile.id
@@ -164,7 +190,7 @@ async function handleCheckoutCompleted(supabase: AdminClient, session: Stripe.Ch
     org = updatedOrg
     console.log(`[webhook] Org existente actualizada: ${email} → org ${org?.id}`)
   } else {
-    // No org found — create a new one
+    // No org for this user — reuse the subscription's org or create a new one
     const slug = email
       .split('@')[0]
       .toLowerCase()
@@ -172,22 +198,27 @@ async function handleCheckoutCompleted(supabase: AdminClient, session: Stripe.Ch
       .substring(0, 40)
       + '-' + Date.now().toString(36)
 
-    const { data: newOrg, error: orgError } = await supabase
-      .from('organizations')
-      .insert({
-        name: email.split('@')[0],
-        slug,
-        billing_unit_count: 1,
-        ...stripeOrgFields,
-      })
-      .select('id')
-      .single()
+    if (orgForSubscription) {
+      org = orgForSubscription
+      console.log(`[webhook] Assinatura ${subscriptionId} já tem org ${org.id} — reutilizada`)
+    } else {
+      const { data: newOrg, error: orgError } = await supabase
+        .from('organizations')
+        .insert({
+          name: email.split('@')[0],
+          slug,
+          billing_unit_count: 1,
+          ...stripeOrgFields,
+        })
+        .select('id')
+        .single()
 
-    if (orgError || !newOrg) {
-      console.error('[webhook] Erro ao criar organização:', orgError)
-      return
+      if (orgError || !newOrg) {
+        console.error('[webhook] Erro ao criar organização:', orgError)
+        return
+      }
+      org = newOrg
     }
-    org = newOrg
 
     if (existingProfile?.id) {
       // User exists in auth but has no org — link without sending invite
