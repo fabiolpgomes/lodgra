@@ -9,6 +9,7 @@ import {
   type PutReservationFinancialFactsRequest,
 } from '@/lib/financial/payout-contract'
 import { PayoutServiceError } from '@/lib/financial/payout-service.server'
+import { logger } from '@/lib/logger'
 import { postgresUuidSchema } from '@/lib/validation/postgres-uuid'
 
 const idSchema = postgresUuidSchema
@@ -184,6 +185,8 @@ export async function replaceReservationFinancialFacts(
     if (error.message.includes('NOT_FOUND')) throw new PayoutServiceError(404, 'RESERVATION_NOT_FOUND', 'Reserva não encontrada')
     if (error.message.includes('FORBIDDEN')) throw new PayoutServiceError(403, 'FORBIDDEN', 'Você não tem permissão para esta operação')
     if (error.message.includes('INVALID')) throw new PayoutServiceError(422, 'INVALID_FINANCIAL_FACTS', 'Revise os dados financeiros')
+    // Erro não mapeado: registra código e mensagem do Postgres (sem dados do hóspede) para diagnóstico.
+    logger.error('Reservation financial facts RPC failed', { code: error.code, message: error.message }, { requestId })
     throw new PayoutServiceError(500, 'FINANCIAL_FACTS_WRITE_FAILED', 'Não foi possível salvar os fatos financeiros')
   }
   return getReservationFinancialFacts(supabase, reservationId, requestId)
