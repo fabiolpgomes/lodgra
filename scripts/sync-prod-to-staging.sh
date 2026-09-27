@@ -46,8 +46,12 @@ echo -e "${YELLOW}1️⃣  Exporting production database (schemas: public, lodgr
 pg_dump "$SUPABASE_DB_URL_PROD" \
   "${APP_SCHEMAS[@]}" \
   --no-owner \
-  --no-privileges \
   > "$DUMP_FILE"
+
+# Default privileges owned by Supabase-internal roles (e.g. supabase_admin)
+# can't be replayed by the postgres user on staging; the platform already sets
+# them there. Drop only those lines; object GRANTs/REVOKEs stay.
+sed -i -E '/^ALTER DEFAULT PRIVILEGES FOR ROLE "?supabase_[a-z_]+"?/d' "$DUMP_FILE"
 if [ $? -eq 0 ]; then
   echo -e "${GREEN}✅ Production export successful${NC}"
   echo "File: $DUMP_FILE ($(du -h "$DUMP_FILE" | cut -f1))"
@@ -193,22 +197,10 @@ psql -v ON_ERROR_STOP=1 "$SUPABASE_DB_URL_STAGING" -c "
 echo -e "${YELLOW}   Restoring dump...${NC}"
 psql -v ON_ERROR_STOP=1 "$SUPABASE_DB_URL_STAGING" -f "$DUMP_FILE"
 
-# ALTER DEFAULT PRIVILEGES only affects objects created AFTER it runs, so it
-# can't retroactively grant access to the tables the dump just created —
-# grant on the existing objects explicitly, then also set default
-# privileges for anything created later outside this script.
-echo -e "${YELLOW}   Applying access grants...${NC}"
-psql -v ON_ERROR_STOP=1 "$SUPABASE_DB_URL_STAGING" -c "
-  GRANT USAGE ON SCHEMA public TO anon, authenticated, service_role;
-  GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO anon, authenticated, service_role;
-  GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO anon, authenticated, service_role;
-  GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA public TO anon, authenticated, service_role;
-
-  ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO anon, authenticated, service_role;
-  ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT USAGE, SELECT ON SEQUENCES TO anon, authenticated, service_role;
-  ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT EXECUTE ON FUNCTIONS TO anon, authenticated, service_role;
-"
-
+# Privileges come from the dump itself (no --no-privileges): staging gets the
+# exact same GRANTs/REVOKEs as production (e.g. lodgra_private USAGE for
+# authenticated, restricted EXECUTE on sensitive public functions) instead of a
+# blanket GRANT ALL that made staging more permissive than prod.
 if [ $? -eq 0 ]; then
   echo -e "${GREEN}✅ Staging database restored successfully${NC}"
 else

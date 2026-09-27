@@ -12,20 +12,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: homestaydemo_test
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -53,6 +39,10 @@ jobs:
           : "${NEXT_PUBLIC_SUPABASE_ANON_KEY:?Missing NEXT_PUBLIC_SUPABASE_ANON_KEY}"
           : "${SUPABASE_SERVICE_ROLE_KEY:?Missing SUPABASE_SERVICE_ROLE_KEY}"
           : "${NEXT_PUBLIC_APP_URL:?Missing NEXT_PUBLIC_APP_URL}"
+          # Legacy JWT keys (eyJ...) are disabled on the Supabase projects; fail fast
+          # with a clear message instead of 29 login timeouts.
+          case "$NEXT_PUBLIC_SUPABASE_ANON_KEY" in eyJ*) echo "::error::NEXT_PUBLIC_SUPABASE_ANON_KEY is a legacy JWT key; use the sb_publishable_ key"; exit 1;; esac
+          case "$SUPABASE_SERVICE_ROLE_KEY" in eyJ*) echo "::error::SUPABASE_SERVICE_ROLE_KEY is a legacy JWT key; use the sb_secret_ key"; exit 1;; esac
 
       - name: Build Next.js app
         run: npm run build
@@ -74,6 +64,9 @@ jobs:
           # Test user credentials
           TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
           TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+          TEST_PROPERTY_SLUG: ${{ secrets.TEST_PROPERTY_SLUG }}
+          # Disables the app rate limiter during E2E (src/lib/rateLimit.ts)
+          PLAYWRIGHT_TEST_MODE: 'true'
           # Stripe test keys (optional for UI tests)
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
           STRIPE_PRICE_ID: ${{ secrets.STRIPE_PRICE_ID }}
