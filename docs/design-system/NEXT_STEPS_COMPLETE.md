@@ -1,3 +1,5 @@
+> **Atualização 2026-09-27:** os workflows `storybook-deploy.yml`, `publish-tokens-npm.yml` e `token-versioning.yml` foram removidos. Nunca funcionaram/sem uso (desenvolvedor único; o app não consome `@lodgra/design-tokens`). O Storybook continua disponível localmente com `npm run storybook`.
+
 # Design System — Next Steps Complete ✅
 
 **Date:** 2026-05-15  
