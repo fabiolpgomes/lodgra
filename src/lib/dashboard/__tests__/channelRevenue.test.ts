@@ -1,6 +1,7 @@
 import {
   buildChannelRevenue,
   getChannelLabel,
+  platformCodeForBookingSource,
   CHANNEL_CONCENTRATION_THRESHOLD,
   type ChannelReservationInput,
 } from '../channelRevenue'
@@ -25,15 +26,39 @@ describe('getChannelLabel', () => {
   })
 
   it('mapeia os valores conhecidos de booking_source', () => {
-    expect(getChannelLabel('manual')).toBe('Reserva Manual')
-    expect(getChannelLabel('direct')).toBe('Direto')
-    expect(getChannelLabel('booking_api')).toBe('Booking API')
+    expect(getChannelLabel('manual')).toBe('Manual / Outro')
+    expect(getChannelLabel('direct')).toBe('Reserva Directa')
+    expect(getChannelLabel('booking_api')).toBe('Booking.com')
     expect(getChannelLabel('email_parse')).toBe('Importado via E-mail')
-    expect(getChannelLabel('ical_import')).toBe('Importado via iCal')
+    expect(getChannelLabel('ical_import')).toBe('iCal (plataforma não identificada)')
+  })
+
+  it('normaliza variações de texto livre do booking_source', () => {
+    expect(getChannelLabel('Booking.com')).toBe('Booking.com')
+    expect(getChannelLabel('booking')).toBe('Booking.com')
+    expect(getChannelLabel(' Airbnb ')).toBe('Airbnb')
+    expect(getChannelLabel('Reserva Direta')).toBe('Reserva Directa')
+    expect(getChannelLabel('ical')).toBe('iCal (plataforma não identificada)')
   })
 
   it('usa o valor bruto como fallback para canais desconhecidos', () => {
     expect(getChannelLabel('some_new_channel')).toBe('some_new_channel')
+  })
+})
+
+describe('platformCodeForBookingSource', () => {
+  it('deduz o código da plataforma a partir do booking_source', () => {
+    expect(platformCodeForBookingSource('Booking.com')).toBe('BOOKING')
+    expect(platformCodeForBookingSource('booking')).toBe('BOOKING')
+    expect(platformCodeForBookingSource('Airbnb')).toBe('AIRBNB')
+    expect(platformCodeForBookingSource('Reserva Direta')).toBe('DIRECT')
+    expect(platformCodeForBookingSource('manual')).toBe('MANUAL')
+  })
+
+  it('retorna null para origens sem plataforma', () => {
+    expect(platformCodeForBookingSource('ical')).toBeNull()
+    expect(platformCodeForBookingSource('Flatio')).toBeNull()
+    expect(platformCodeForBookingSource(null)).toBeNull()
   })
 })
 

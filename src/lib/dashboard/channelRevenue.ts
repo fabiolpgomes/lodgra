@@ -25,26 +25,59 @@
 export const CHANNEL_CONCENTRATION_THRESHOLD = 60
 
 /**
- * Rótulos amigáveis para os valores de `booking_source` observados no código
- * atual (ver Description da Story 39.3). Usado apenas como fallback quando a
- * reserva não tem `platforms.display_name` disponível via `property_listings`.
+ * Rótulos amigáveis para os valores de `booking_source` (texto livre, gravado de
+ * forma inconsistente pelos vários fluxos: 'booking', 'Booking.com', 'ical',
+ * 'Reserva Direta'…). Chaves em minúsculas; a busca normaliza com trim + lowercase.
+ * Usado só como fallback quando não há `platforms.display_name` resolvido; os
+ * textos espelham os display_name da tabela `platforms` para não criar linhas duplicadas.
  */
 const CHANNEL_LABELS: Record<string, string> = {
-  manual: 'Reserva Manual',
-  ical_import: 'Importado via iCal',
-  ical_auto_sync: 'Importado via iCal',
+  manual: 'Manual / Outro',
+  ical: 'iCal (plataforma não identificada)',
+  ical_import: 'iCal (plataforma não identificada)',
+  ical_auto_sync: 'iCal (plataforma não identificada)',
   booking: 'Booking.com',
-  booking_api: 'Booking API',
+  'booking.com': 'Booking.com',
+  booking_api: 'Booking.com',
   airbnb: 'Airbnb',
   flatio: 'Flatio',
   vrbo: 'VRBO',
-  direct: 'Direto',
+  direct: 'Reserva Directa',
+  'reserva direta': 'Reserva Directa',
+  'reserva directa': 'Reserva Directa',
   email_parse: 'Importado via E-mail',
 }
 
 /**
+ * Mapeia `booking_source` para o `platforms.code` correspondente, para que o
+ * rótulo venha da tabela `platforms` (fonte única) quando a reserva não tem
+ * `property_listing_id`. Retorna null para origens sem plataforma (iCal genérico,
+ * e-mail, Flatio…).
+ */
+const SOURCE_TO_PLATFORM_CODE: Record<string, string> = {
+  airbnb: 'AIRBNB',
+  booking: 'BOOKING',
+  'booking.com': 'BOOKING',
+  booking_api: 'BOOKING',
+  direct: 'DIRECT',
+  'reserva direta': 'DIRECT',
+  'reserva directa': 'DIRECT',
+  manual: 'MANUAL',
+  vrbo: 'VRBO',
+}
+
+function normalizeSource(bookingSource: string): string {
+  return bookingSource.trim().toLowerCase()
+}
+
+export function platformCodeForBookingSource(bookingSource: string | null | undefined): string | null {
+  if (!bookingSource) return null
+  return SOURCE_TO_PLATFORM_CODE[normalizeSource(bookingSource)] ?? null
+}
+
+/**
  * Resolve o rótulo amigável de um canal. Prioriza `platforms.display_name`
- * (via `property_listings.platform_id → platforms`) quando disponível;
+ * (do anúncio da reserva ou da plataforma deduzida do `booking_source`);
  * caso contrário usa o mapa estático; e como último recurso devolve o valor
  * bruto de `booking_source` (nunca deixa a UI sem rótulo).
  */
@@ -52,7 +85,7 @@ export function getChannelLabel(bookingSource: string, platformDisplayName?: str
   if (platformDisplayName && platformDisplayName.trim().length > 0) {
     return platformDisplayName.trim()
   }
-  return CHANNEL_LABELS[bookingSource] ?? bookingSource
+  return CHANNEL_LABELS[normalizeSource(bookingSource)] ?? bookingSource
 }
 
 export interface ChannelReservationInput {

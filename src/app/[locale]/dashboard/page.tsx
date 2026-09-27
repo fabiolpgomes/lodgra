@@ -58,7 +58,7 @@ import {
   formatDateInTimeZone,
 } from '@/lib/dashboard/metrics'
 // Story 39.3 — Receita por Canal (% receita/reservas e comissão real por booking_source)
-import { buildChannelRevenue, CHANNEL_CONCENTRATION_THRESHOLD, type ChannelReservationInput } from '@/lib/dashboard/channelRevenue'
+import { buildChannelRevenue, CHANNEL_CONCENTRATION_THRESHOLD, getChannelLabel, platformCodeForBookingSource, type ChannelReservationInput } from '@/lib/dashboard/channelRevenue'
 import { resolveReservationCurrency } from '@/lib/dashboard/reservationCurrency'
 // Story 39.6 — Painel de Alertas: concentração por propriedade (independente do threshold de canal acima)
 import { buildPropertyConcentrationAlert, PROPERTY_CONCENTRATION_THRESHOLD } from '@/lib/dashboard/propertyConcentration'
@@ -131,7 +131,8 @@ export default async function DashboardPage({
           created_at,
           guest_name,
           commission_amount,
-          booking_source
+          booking_source,
+          property_listing_id
         `)
         // Transitional Multi-OTA data still contains historical rows with the
         // legacy organization_id and the new RLS therefore hides them from the
@@ -144,9 +145,36 @@ export default async function DashboardPage({
     console.error('[dashboard] Erro ao buscar reservas canônicas:', reservationsError)
   }
 
+  // Canal real da reserva: plataforma do anúncio (property_listings → platforms) e,
+  // na falta dele, a plataforma deduzida do booking_source (texto livre e
+  // inconsistente: 'ical', 'booking', 'Booking.com'…). Rótulos vêm de platforms.display_name.
+  const reservationListingIds = Array.from(new Set(
+    (canonicalReservations || []).map(r => r.property_listing_id).filter((id): id is string => Boolean(id))
+  ))
+  const [{ data: platformRows }, { data: listingPlatformRows }] = await Promise.all([
+    adminSupabase.from('platforms').select('code, display_name'),
+    reservationListingIds.length > 0
+      ? adminSupabase.from('property_listings').select('id, platforms(display_name)').in('id', reservationListingIds)
+      : Promise.resolve({ data: [] as { id: string; platforms: unknown }[] }),
+  ])
+  const platformNameByCode = new Map<string, string | null>(
+    (platformRows || []).map(p => [String(p.code).toUpperCase(), (p.display_name as string | null) ?? null])
+  )
+  const platformNameByListing = new Map<string, string | null>()
+  for (const l of (listingPlatformRows || []) as { id: string; platforms: unknown }[]) {
+    const plat = Array.isArray(l.platforms) ? l.platforms[0] : l.platforms
+    platformNameByListing.set(l.id, (plat as { display_name?: string | null } | null)?.display_name ?? null)
+  }
+
   const organizationReservations = (canonicalReservations || []).map(reservation => {
     const property = reservation.property_id ? allPropertiesById.get(reservation.property_id) : null
     const bookingSource = reservation.booking_source || null
+    const sourceCode = platformCodeForBookingSource(bookingSource)
+    const platformName =
+      (reservation.property_listing_id ? platformNameByListing.get(reservation.property_listing_id) : null)
+      ?? (sourceCode ? platformNameByCode.get(sourceCode) : null)
+      ?? null
+    const channelLabel = bookingSource ? getChannelLabel(bookingSource, platformName) : platformName
     return {
       ...reservation,
       booking_source: bookingSource,
@@ -155,7 +183,7 @@ export default async function DashboardPage({
       property_listings: {
         property_id: reservation.property_id,
         properties: property || null,
-        platforms: bookingSource ? { display_name: bookingSource } : null,
+        platforms: channelLabel ? { display_name: channelLabel } : null,
       },
     }
   })
