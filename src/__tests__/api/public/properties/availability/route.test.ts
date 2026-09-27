@@ -34,10 +34,12 @@ const mockProperty = {
 function buildMockSupabase(options: {
   property?: unknown
   reservations?: { check_in: string; check_out: string }[]
+  availabilityMinNights?: number | null
 } = {}) {
   const {
     property = mockProperty,
     reservations = [],
+    availabilityMinNights = null,
   } = options
 
   const mockFrom = jest.fn((table: string) => {
@@ -55,6 +57,16 @@ function buildMockSupabase(options: {
         in: jest.fn().mockReturnThis(),
         lte: jest.fn().mockReturnThis(),
         gte: jest.fn().mockResolvedValue({ data: reservations, error: null }),
+      }
+    }
+    if (table === 'property_availability') {
+      return {
+        select: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        maybeSingle: jest.fn().mockResolvedValue({
+          data: availabilityMinNights == null ? null : { min_nights: availabilityMinNights },
+          error: null,
+        }),
       }
     }
     if (table === 'pricing_rules') {
@@ -134,6 +146,15 @@ describe('GET /api/public/properties/[slug]/availability', () => {
     expect(json.base_price).toBe(100)
     expect(json.min_nights).toBe(1)
     expect(Array.isArray(json.blocked)).toBe(true)
+  })
+
+  it('usa o mínimo de noites de property_availability', async () => {
+    const supabase = buildMockSupabase({ availabilityMinNights: 3 })
+    setupSupabaseMocks(supabase)
+    const req = makeRequest('villa-algarve', { year: '2027', month: '7' })
+    const res = await GET(req, { params: Promise.resolve({ slug: 'villa-algarve' }) })
+    const json = await res.json()
+    expect(json.min_nights).toBe(3)
   })
 
   it('returns empty blocked array when no reservations exist', async () => {

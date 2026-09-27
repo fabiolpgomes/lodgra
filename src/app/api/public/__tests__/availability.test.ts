@@ -98,6 +98,10 @@ jest.mock('@/lib/supabase/admin', () => ({
         }
         return { data: null, error: null }
       }),
+      maybeSingle: jest.fn(async function () {
+        if (table === 'property_availability') return { data: { min_nights: 1 }, error: null }
+        return { data: null, error: null }
+      }),
     })),
   })),
 }))

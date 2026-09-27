@@ -40,7 +40,7 @@ export default function NewReservationPage() {
   const supabase = createClient()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [properties, setProperties] = useState<{ id: string; name: string; currency: string | null; city?: string | null; min_nights: number; cleaning_fee?: number | null; cleaning_fee_type?: string | null; pet_fee?: number | null; pet_fee_type?: string | null }[]>([])
+  const [properties, setProperties] = useState<{ id: string; name: string; currency: string | null; city?: string | null; cleaning_fee?: number | null; cleaning_fee_type?: string | null; pet_fee?: number | null; pet_fee_type?: string | null }[]>([])
   const [propertyListings, setPropertyListings] = useState<{ id: string; property_id: string; external_listing_id?: string | null; platforms: { display_name: string } | null }[]>([])
   const [selectedProperty, setSelectedProperty] = useState(prePropertyId)
   const [selectedListing, setSelectedListing] = useState('')
@@ -84,11 +84,7 @@ export default function NewReservationPage() {
         return
       }
 
-      const formattedData = (data || []).map(p => ({
-        ...p,
-        min_nights: p.min_nights || 1
-      }))
-      setProperties(formattedData)
+      setProperties(data || [])
     }
 
     loadProperties()

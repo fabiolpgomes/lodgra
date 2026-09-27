@@ -16,7 +16,7 @@ export async function GET() {
   // Fetch all public properties with Epic 18.5 fields
   const { data: properties, error } = await adminClient
     .from('properties')
-    .select('id, name, description, city, country, address, postal_code, property_type, slug, base_price, currency, min_nights, max_guests, bedrooms, bathrooms, photos, cleaning_fee, cleaning_fee_type, pet_fee, pet_fee_type, checkin_from, checkin_until, checkout_until')
+    .select('id, name, description, city, country, address, postal_code, property_type, slug, base_price, currency, max_guests, bedrooms, bathrooms, photos, cleaning_fee, cleaning_fee_type, pet_fee, pet_fee_type, checkin_from, checkin_until, checkout_until')
     .eq('is_public', true)
     .eq('is_active', true)
     .order('created_at', { ascending: true })
@@ -55,6 +55,18 @@ export async function GET() {
     }
   }
 
+  // Mínimo de noites por propriedade (property_availability; properties.min_nights foi removida)
+  const minNightsByProperty: Record<string, number> = {}
+  if (propertyIds.length > 0) {
+    const { data: availabilityRows } = await adminClient
+      .from('property_availability')
+      .select('property_id, min_nights')
+      .in('property_id', propertyIds)
+    for (const row of availabilityRows ?? []) {
+      if (row.property_id && row.min_nights) minNightsByProperty[row.property_id] = Number(row.min_nights)
+    }
+  }
+
   // Fetch amenities for all properties from properties.amenities column
   const { data: propertiesWithAmenities } = await adminClient
     .from('properties')
@@ -90,7 +102,7 @@ export async function GET() {
     pricing: {
       base_price_per_night: p.base_price ?? 0,
       currency: p.currency,
-      min_nights: p.min_nights ?? 1,
+      min_nights: minNightsByProperty[p.id] ?? 1,
       cleaning_fee: buildFeeEntry(p.cleaning_fee, p.cleaning_fee_type),
       pet_fee: buildFeeEntry(p.pet_fee, p.pet_fee_type),
     },

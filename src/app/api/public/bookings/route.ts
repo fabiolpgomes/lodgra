@@ -103,13 +103,20 @@ export async function POST(request: NextRequest) {
 
   // ── Fetch property ──────────────────────────────────────────────────────────
 
-  const { data: property } = await adminClient
+  const { data: property, error: propertyError } = await adminClient
     .from('properties')
-    .select('id, name, base_price, currency, min_nights, organization_id, is_public, max_guests, cleaning_fee, cleaning_fee_type, pet_fee, pet_fee_type')
+    .select('id, name, base_price, currency, organization_id, is_public, max_guests, cleaning_fee, cleaning_fee_type, pet_fee, pet_fee_type')
     .eq('slug', slug as string)
     .eq('is_public', true)
     .single()
 
+  // Erro de consulta ≠ propriedade inexistente: não mascarar falha como 404.
+  // (min_nights saiu de properties em 2026-07-31; mínimo de noites vem de property_availability
+  // via getPriceForRange.)
+  if (propertyError && propertyError.code !== 'PGRST116') {
+    console.error('[public/bookings] Erro ao buscar propriedade:', propertyError.message)
+    return NextResponse.json({ error: 'Erro ao carregar a propriedade. Tente novamente.' }, { status: 500 })
+  }
   if (!property) {
     return NextResponse.json({ error: 'Propriedade não encontrada' }, { status: 404 })
   }

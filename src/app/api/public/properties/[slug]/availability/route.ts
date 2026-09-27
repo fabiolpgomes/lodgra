@@ -46,13 +46,17 @@ export async function GET(
   const supabase = await createClient()
 
   // Fetch property by slug (public only)
-  const { data: property } = await supabase
+  const { data: property, error: propertyError } = await supabase
     .from('properties')
-    .select('id, base_price, min_nights')
+    .select('id, base_price')
     .eq('slug', slug)
     .eq('is_public', true)
     .single()
 
+  if (propertyError && propertyError.code !== 'PGRST116') {
+    console.error('[public/availability] Erro ao buscar propriedade:', propertyError.message)
+    return NextResponse.json({ error: 'Erro ao carregar a propriedade' }, { status: 500 })
+  }
   if (!property) {
     return NextResponse.json({ error: 'Propriedade não encontrada' }, { status: 404 })
   }
@@ -102,7 +106,13 @@ export async function GET(
     .lte('start_date', rangeEnd)
     .gte('end_date', rangeStart)
 
-  const propertyMinNights = property.min_nights ?? 1
+  // Mínimo de noites da propriedade vive em property_availability (properties.min_nights foi removida).
+  const { data: availabilitySettings } = await adminClient
+    .from('property_availability')
+    .select('min_nights')
+    .eq('property_id', property.id)
+    .maybeSingle()
+  const propertyMinNights = availabilitySettings?.min_nights ? Number(availabilitySettings.min_nights) : 1
   const rules = pricingRules ?? []
   const maxRuleMinNights = rules.length > 0
     ? Math.max(...rules.map(r => r.min_nights))

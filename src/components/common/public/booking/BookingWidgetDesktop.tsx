@@ -369,12 +369,6 @@ export function BookingWidgetDesktop({
               )}
             </div>
 
-            <PriceBreakdownCard
-              quote={quote}
-              currency={currency}
-              loading={isPriceFetching}
-              error={priceError}
-            />
           </div>
         )}
 
@@ -397,6 +391,18 @@ export function BookingWidgetDesktop({
             ? `Estadia mínima de ${effectiveMinNights} noites`
             : 'Seleccione as datas'}
         </button>
+      )}
+
+      {/* Detalhe por noite abaixo do botão: o CTA fica visível sem rolar (feedback do Fabio). */}
+      {nights > 0 && (
+        <div className="mb-4">
+          <PriceBreakdownCard
+            quote={quote}
+            currency={currency}
+            loading={isPriceFetching}
+            error={priceError}
+          />
+        </div>
       )}
 
       {/* Trust */}

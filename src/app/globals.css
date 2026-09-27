@@ -44,6 +44,25 @@
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
 
+  /* Aliases brand-* usados em todo o app (bg-brand-blue, text-brand-gold…).
+     Tailwind v4 não lê tailwind.config.ts sem @config, então sem estas linhas
+     essas classes não geravam CSS (ex.: botões brancos sem fundo no checkout). */
+  --color-brand-blue: #10203E;
+  --color-brand-blue-trans: rgba(16, 32, 62, 0.62);
+  --color-brand-blue-overlay: rgba(12, 24, 48, 0.9);
+  --color-brand-gold: #C9A227;
+  --color-brand-bg: #F7F5EF;
+  --color-brand-canvas: #F7F5EF;
+  --color-brand-white: #FBFAF6;
+  --color-brand-surface: #FBFAF6;
+  --color-brand-surface-soft: #F7F5EF;
+  --color-brand-surface-strong: #EFE7D4;
+  --color-brand-border: #E5DFD2;
+  --color-brand-border-soft: #EFE7D4;
+  --color-brand-text-dark: #1B2430;
+  --color-brand-text-medium: #4D5566;
+  --color-brand-text-disabled: #9CA3AF;
+
   /* Lodgra brand tokens */
   --color-lodgra-brand-50: var(--lodgra-brand-50);
   --color-lodgra-brand-100: var(--lodgra-brand-100);
