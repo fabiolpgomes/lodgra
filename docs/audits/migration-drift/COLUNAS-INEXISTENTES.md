@@ -8,17 +8,26 @@ contra `supabase/migrations/20260925000000_baseline_producao.sql`). Itens com no
 - `properties.min_nights` — removida em 2026-07-31; checkout direto, disponibilidade e feed Google
   passaram a usar `property_availability.min_nights` (commit 7610475b).
 - `reservations/guests/user_profiles.preferred_locale` — migration 20260928100000.
+- `organizations.stripe_br_customer_id` — nunca existiu; código unificado em `stripe_customer_id`
+  (mesma conta Stripe da Lodgra; é a coluna que o webhook grava).
+- `organizations.stripe_subscription_item_id / stripe_metered_item_id / billing_unit_count` —
+  migration 20260928110000 (sem elas o webhook de assinatura falhava na 1ª assinatura paga).
+- `organizations.email` (lib/billing/alerts) — passa a usar o e-mail do admin em `user_profiles`.
+- `organizations.stripe_pt_connect_id / _onboarded` — Stripe Connect e `api/stripe/payment-intent`
+  removidos: nenhuma tela os chamava; a reserva direta usa Checkout na conta da AHS.
+
+## Adiado para o item WhatsApp (grupo B)
+- `api/cron/checkin-codes` e `api/cron/checkout-reminders` usam `reservations.check_in_date /
+  check_out_date / checkout_reminder_sent_at`, `guests.full_name` e a tabela `whatsapp_config`,
+  que não existem. Não estão agendados (nem em vercel.json nem no pg_cron), então hoje não rodam.
+  Serão refeitos junto com o conserto do WhatsApp.
 
 ## Pendente (confirmar uso e decidir: criar coluna ou corrigir código)
 | Tabela.coluna | Onde |
 |---|---|
 | organizations.currency, organizations.timezone | dashboard, ia-native (caem no fallback) |
-| organizations.stripe_pt_connect_id / _onboarded | api/stripe/connect/*, api/stripe/payment-intent |
-| organizations.stripe_br_customer_id | api/billing/*, auth/callback |
-| organizations.stripe_subscription_item_id, billing_unit_count | lib/billing/stripe-usage |
 | organizations.asaas_api_key / asaas_environment | settings, api/payments/asaas/pix |
-| organizations.contact_phone, manager_phone, email, logo_url, metadata, cleaner_portal_enabled, whatsapp_automation_enabled | notificações, limpeza, WhatsApp |
-| reservations.check_in_date / check_out_date / checkout_reminder_sent_at | api/cron/checkin-codes, checkout-reminders |
+| organizations.contact_phone, manager_phone, logo_url, metadata, cleaner_portal_enabled, whatsapp_automation_enabled | notificações, limpeza, WhatsApp |
 | reservations.confirmation_code | api/email/send-confirmation |
 | reservations.beds24_booking_id | admin/sync-*, calendar |
 | guests.average_rating / loyalty_score / reservation_count | loyalty |

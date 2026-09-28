@@ -24,7 +24,6 @@ export enum PaymentAlertType {
   REFUND_FAILED = 'refund_failed',
   SUBSCRIPTION_ERROR = 'subscription_error',
   RATE_LIMIT_EXCEEDED = 'rate_limit_exceeded',
-  STRIPE_CONNECT_ISSUE = 'stripe_connect_issue',
 }
 
 /**
@@ -105,24 +104,6 @@ export const SENTRY_ALERT_RULES = {
       timeWindow: 60,
     },
     description: 'Excessive rate limit violations detected',
-  },
-
-  // Alert on Stripe Connect issues
-  stripe_connect_issue: {
-    type: PaymentAlertType.STRIPE_CONNECT_ISSUE,
-    severity: PaymentAlertSeverity.CRITICAL,
-    condition: {
-      message: 'stripe_pt_connect',
-    },
-    notification: {
-      channels: ['email', 'slack'],
-      recipients: ['alerts@lodgra.com'],
-    },
-    threshold: {
-      count: 1, // Alert immediately
-      timeWindow: 1,
-    },
-    description: 'Stripe Connect account issue detected',
   },
 }
 

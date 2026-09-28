@@ -27,13 +27,24 @@ interface SubscriptionEvent {
 async function getOrganizationEmail(customerId: string): Promise<string | null> {
   const adminClient = createAdminClient()
 
+  // organizations não tem e-mail: usa o do administrador da organização.
   const { data: org } = await adminClient
     .from('organizations')
-    .select('id, email')
-    .eq('stripe_br_customer_id', customerId)
-    .single()
+    .select('id')
+    .eq('stripe_customer_id', customerId)
+    .maybeSingle()
+  if (!org) return null
 
-  return org?.email || null
+  const { data: admin } = await adminClient
+    .from('user_profiles')
+    .select('email')
+    .eq('organization_id', org.id)
+    .eq('role', 'admin')
+    .order('created_at', { ascending: true })
+    .limit(1)
+    .maybeSingle()
+
+  return admin?.email || null
 }
 
 async function getOrganizationName(customerId: string): Promise<string | null> {
@@ -42,7 +53,7 @@ async function getOrganizationName(customerId: string): Promise<string | null> {
   const { data: org } = await adminClient
     .from('organizations')
     .select('id, name')
-    .eq('stripe_br_customer_id', customerId)
+    .eq('stripe_customer_id', customerId)
     .single()
 
   return org?.name || null

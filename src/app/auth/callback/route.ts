@@ -106,11 +106,11 @@ export async function GET(request: Request) {
 
             const { data: billingOrganization } = await supabase
               .from('organizations')
-              .select('stripe_br_customer_id')
+              .select('stripe_customer_id')
               .eq('id', organization.organization_id)
               .maybeSingle()
 
-            if (!billingOrganization?.stripe_br_customer_id && user.email) {
+            if (!billingOrganization?.stripe_customer_id && user.email) {
               try {
                 const customer = await stripeBR.customers.create(
                   {
@@ -126,7 +126,7 @@ export async function GET(request: Request) {
                 const adminClient = await createAdminClient()
                 const { error: linkError } = await adminClient
                   .from('organizations')
-                  .update({ stripe_br_customer_id: customer.id })
+                  .update({ stripe_customer_id: customer.id })
                   .eq('id', organization.organization_id)
 
                 if (linkError) {

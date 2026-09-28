@@ -41,11 +41,11 @@ export async function POST(_request: NextRequest) {
     // Get org subscription info
     const { data: org } = await adminClient
       .from('organizations')
-      .select('stripe_br_customer_id, subscription_plan, premium_extra_properties_count')
+      .select('stripe_customer_id, subscription_plan, premium_extra_properties_count')
       .eq('id', auth.organizationId)
       .single()
 
-    if (!org?.stripe_br_customer_id) {
+    if (!org?.stripe_customer_id) {
       return NextResponse.json({ error: 'No Stripe customer found' }, { status: 400 })
     }
 
@@ -59,7 +59,7 @@ export async function POST(_request: NextRequest) {
 
     // Get active subscription
     const subscriptions = await stripeBR.subscriptions.list({
-      customer: org.stripe_br_customer_id,
+      customer: org.stripe_customer_id,
       limit: 1,
     })
 
@@ -133,11 +133,11 @@ export async function DELETE(_request: NextRequest) {
     // Get org subscription info
     const { data: org } = await adminClient
       .from('organizations')
-      .select('stripe_br_customer_id, premium_extra_properties_count')
+      .select('stripe_customer_id, premium_extra_properties_count')
       .eq('id', auth.organizationId)
       .single()
 
-    if (!org?.stripe_br_customer_id) {
+    if (!org?.stripe_customer_id) {
       return NextResponse.json({ error: 'No Stripe customer found' }, { status: 400 })
     }
 
@@ -150,7 +150,7 @@ export async function DELETE(_request: NextRequest) {
 
     // Get active subscription
     const subscriptions = await stripeBR.subscriptions.list({
-      customer: org.stripe_br_customer_id,
+      customer: org.stripe_customer_id,
       limit: 1,
     })
 

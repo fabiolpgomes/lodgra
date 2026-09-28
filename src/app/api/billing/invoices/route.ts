@@ -15,16 +15,16 @@ export async function GET(_request: NextRequest) {
     const adminClient = await createAdminClient()
     const { data: org } = await adminClient
       .from('organizations')
-      .select('stripe_br_customer_id')
+      .select('stripe_customer_id')
       .eq('id', auth.organizationId)
       .single()
 
-    if (!org?.stripe_br_customer_id) {
+    if (!org?.stripe_customer_id) {
       return NextResponse.json({ error: 'No Stripe customer' }, { status: 400 })
     }
 
     const invoices = await stripeBR.invoices.list({
-      customer: org.stripe_br_customer_id,
+      customer: org.stripe_customer_id,
       limit: 100,
     })
 

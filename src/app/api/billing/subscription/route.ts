@@ -43,11 +43,11 @@ export async function POST(request: NextRequest) {
     const adminClient = await createAdminClient()
     const { data: org } = await adminClient
       .from('organizations')
-      .select('stripe_br_customer_id')
+      .select('stripe_customer_id')
       .eq('id', auth.organizationId)
       .single()
 
-    if (!org?.stripe_br_customer_id) {
+    if (!org?.stripe_customer_id) {
       return NextResponse.json({ error: 'No Stripe customer' }, { status: 400 })
     }
 
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
     trialEndDate.setDate(trialEndDate.getDate() + 14)
 
     const subscription = await stripeBR.subscriptions.create({
-      customer: org.stripe_br_customer_id,
+      customer: org.stripe_customer_id,
       items: [{ price: planId }],
       trial_end: Math.floor(trialEndDate.getTime() / 1000),
       payment_behavior: 'default_incomplete',
@@ -100,16 +100,16 @@ export async function GET(_request: NextRequest) {
     const adminClient = await createAdminClient()
     const { data: org } = await adminClient
       .from('organizations')
-      .select('stripe_br_customer_id, subscription_plan, subscription_status, trial_ends_at')
+      .select('stripe_customer_id, subscription_plan, subscription_status, trial_ends_at')
       .eq('id', auth.organizationId)
       .single()
 
-    if (!org?.stripe_br_customer_id) {
+    if (!org?.stripe_customer_id) {
       return NextResponse.json({ error: 'No Stripe customer' }, { status: 400 })
     }
 
     const subscriptions = await stripeBR.subscriptions.list({
-      customer: org.stripe_br_customer_id,
+      customer: org.stripe_customer_id,
       limit: 1,
       expand: ['data.latest_invoice'],
     })
@@ -176,16 +176,16 @@ export async function PUT(request: NextRequest) {
     const adminClient = await createAdminClient()
     const { data: org } = await adminClient
       .from('organizations')
-      .select('stripe_br_customer_id, subscription_plan')
+      .select('stripe_customer_id, subscription_plan')
       .eq('id', auth.organizationId)
       .single()
 
-    if (!org?.stripe_br_customer_id) {
+    if (!org?.stripe_customer_id) {
       return NextResponse.json({ error: 'No Stripe customer' }, { status: 400 })
     }
 
     const subscriptions = await stripeBR.subscriptions.list({
-      customer: org.stripe_br_customer_id,
+      customer: org.stripe_customer_id,
       limit: 1,
     })
 
@@ -221,7 +221,7 @@ export async function PUT(request: NextRequest) {
 
     // Send upgrade notification email
     onSubscriptionUpgraded({
-      customerId: org.stripe_br_customer_id,
+      customerId: org.stripe_customer_id,
       subscriptionId: updatedSubscription.id,
       status: updatedSubscription.status,
       oldPlan: org.subscription_plan || 'Starter',
@@ -261,16 +261,16 @@ export async function DELETE(request: NextRequest) {
     const adminClient = await createAdminClient()
     const { data: org } = await adminClient
       .from('organizations')
-      .select('stripe_br_customer_id')
+      .select('stripe_customer_id')
       .eq('id', auth.organizationId)
       .single()
 
-    if (!org?.stripe_br_customer_id) {
+    if (!org?.stripe_customer_id) {
       return NextResponse.json({ error: 'No Stripe customer' }, { status: 400 })
     }
 
     const subscriptions = await stripeBR.subscriptions.list({
-      customer: org.stripe_br_customer_id,
+      customer: org.stripe_customer_id,
       limit: 1,
     })
 
