@@ -188,7 +188,9 @@ export function Step2Property({ onNext, onSkip, onContinueExisting, onboardingSe
                 Limite de {limitReached.limit} {limitReached.limit === 1 ? 'propriedade' : 'propriedades'} atingido.
               </p>
               <p className="text-sm text-amber-700 mt-0.5">
-                Adicione uma propriedade extra por R${limitReached.extraPropertyPrice ?? 49}/mês ou faça upgrade do plano.{' '}
+                {limitReached.extraPropertyPrice
+                  ? `Adicione uma propriedade extra por R$${limitReached.extraPropertyPrice}/mês ou faça upgrade do plano.`
+                  : 'Faça upgrade do plano para adicionar mais propriedades.'}{' '}
                 <Link href="/#pricing" className="font-medium underline hover:text-amber-900">Ver planos</Link>
               </p>
               {onContinueExisting && (

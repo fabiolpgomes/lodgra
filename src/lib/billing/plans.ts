@@ -13,8 +13,8 @@ export const PLAN_LIMITS: Record<Plan, PlanLimits> = {
   // Brasil strategy (2026) — pricing with property limits & extras
   essencial:    { maxProperties: 1,  maxAllowed: null, extraPropertyPrice: 49, maxUsers: 1, ownerReports: false, fiscalCompliance: false },
   expansao:     { maxProperties: 3,  maxAllowed: null, extraPropertyPrice: 49, maxUsers: 5, ownerReports: true,  fiscalCompliance: true  },
-  premium:      { maxProperties: null, maxAllowed: null, extraPropertyPrice: 0, maxUsers: 10, ownerReports: true,  fiscalCompliance: true  },
-  enterprise:   { maxProperties: null, maxAllowed: null, extraPropertyPrice: 0, maxUsers: null, ownerReports: true,  fiscalCompliance: true  },
+  premium:      { maxProperties: 10, maxAllowed: null, extraPropertyPrice: 0, maxUsers: 5,  ownerReports: true,  fiscalCompliance: true  },
+  enterprise:   { maxProperties: 20, maxAllowed: null, extraPropertyPrice: 0, maxUsers: null, ownerReports: true,  fiscalCompliance: true  },
   // Development/Testing labs
   development:  { maxProperties: 99, maxAllowed: null, extraPropertyPrice: 0, maxUsers: null, ownerReports: true,  fiscalCompliance: true  },
 }
@@ -91,12 +91,12 @@ export const PLAN_DISPLAY: PlanDisplay[] = [
   },
   {
     id: 'premium', name: 'Premium', highlighted: false, enterprise: false,
-    price: 397, description: 'Automatize operações e receita. Inteligência para grandes portfólios.', properties: 'Propriedades ilimitadas',
-    features: ['Tudo do Expansão', 'API completa', 'Previsão e BI avançado', 'Gestor dedicado', 'Propriedades ilimitadas'],
+    price: 397, description: 'Automatize operações e receita. Até 10 unidades.', properties: 'Até 10 unidades',
+    features: ['Tudo do Expansão', 'Gestor dedicado', 'Até 10 unidades', 'Equipa até 5 pessoas'],
   },
   {
     id: 'enterprise', name: 'Enterprise', highlighted: false, enterprise: true,
-    price: 0, description: 'Para grandes operações com requisitos personalizados', properties: 'Volume personalizado',
+    price: 0, description: 'Para grandes operações com requisitos personalizados', properties: 'Até 20 unidades',
     features: ['Tudo do Premium', 'Onboarding dedicado', 'SLA garantido', 'Contrato personalizado'],
   },
   {

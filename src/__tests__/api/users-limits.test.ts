@@ -81,15 +81,15 @@ describe('User Creation Plan Limits (AC8)', () => {
       expect(limits.maxUsers).toBe(5)
     })
 
-    test('should reject creation when premium plan is at limit (10 users)', () => {
+    test('should reject creation when premium plan is at limit (5 users)', () => {
       const planName = 'premium'
       const limits = getPlanLimits(planName)
-      const userCount = 10 // Already at limit
+      const userCount = 5 // Already at limit
 
       const exceedsLimit = limits.maxUsers !== null && (userCount ?? 0) >= limits.maxUsers
 
       expect(exceedsLimit).toBe(true)
-      expect(limits.maxUsers).toBe(10)
+      expect(limits.maxUsers).toBe(5)
     })
   })
 })

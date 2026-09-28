@@ -30,16 +30,18 @@ describe('Billing Plans System', () => {
         expect(limits.extraPropertyPrice).toBe(49)
       })
 
-      test('Premium: unlimited properties included', () => {
+      test('Premium: até 10 propriedades e 5 utilizadores, sem extras pagos', () => {
         const limits = PLAN_LIMITS.premium
-        expect(limits.maxProperties).toBeNull()
+        expect(limits.maxProperties).toBe(10)
+        expect(limits.maxUsers).toBe(5)
         expect(limits.maxAllowed).toBeNull()
         expect(limits.extraPropertyPrice).toBe(0)
       })
 
-      test('Enterprise: unlimited included, unlimited with extras', () => {
+      test('Enterprise: até 20 propriedades, utilizadores ilimitados', () => {
         const limits = PLAN_LIMITS.enterprise
-        expect(limits.maxProperties).toBeNull()
+        expect(limits.maxProperties).toBe(20)
+        expect(limits.maxUsers).toBeNull()
         expect(limits.maxAllowed).toBeNull()
         expect(limits.extraPropertyPrice).toBe(0)
       })
@@ -86,7 +88,7 @@ describe('Billing Plans System', () => {
         expect(PLAN_LIMITS.expansao.extraPropertyPrice).toBe(49)
       })
 
-      test('premium and enterprise include unlimited properties (0 cost)', () => {
+      test('premium and enterprise do not sell extra properties (0 cost)', () => {
         expect(PLAN_LIMITS.premium.extraPropertyPrice).toBe(0)
         expect(PLAN_LIMITS.enterprise.extraPropertyPrice).toBe(0)
       })
@@ -148,14 +150,14 @@ describe('Billing Plans System', () => {
         expect(plan.price).toBe(397)
       })
 
-      test('should mention unlimited properties', () => {
-        expect(plan.properties).toContain('ilimitadas')
+      test('should mention the 10-property limit', () => {
+        expect(plan.properties).toBe('Até 10 unidades')
       })
 
-      test('should list premium features', () => {
-        expect(plan.features.some((f) => f.includes('API'))).toBe(true)
-        expect(plan.features.some((f) => f.includes('BI'))).toBe(true)
-        expect(plan.features.some((f) => f.includes('ilimitadas'))).toBe(true)
+      test('should list only features that exist', () => {
+        expect(plan.features.some((f) => f.includes('API'))).toBe(false)
+        expect(plan.features.some((f) => f.includes('BI'))).toBe(false)
+        expect(plan.features).toContain('Até 10 unidades')
       })
     })
 
@@ -170,8 +172,8 @@ describe('Billing Plans System', () => {
         expect(plan.price).toBe(0)
       })
 
-      test('should mention custom volume', () => {
-        expect(plan.properties).toContain('personalizado')
+      test('should mention the 20-property limit', () => {
+        expect(plan.properties).toBe('Até 20 unidades')
       })
     })
   })
@@ -216,9 +218,9 @@ describe('Billing Plans System', () => {
       expect(limits.maxUsers).toBe(5)
     })
 
-    test('AC7: premium plan allows 10 users', () => {
+    test('AC7: premium plan allows 5 users', () => {
       const limits = getPlanLimits('premium')
-      expect(limits.maxUsers).toBe(10)
+      expect(limits.maxUsers).toBe(5)
     })
 
     test('enterprise plan allows unlimited users', () => {
@@ -308,5 +310,21 @@ describe('Billing Plans System', () => {
       // Enterprise has no Stripe prices
       expect(getPriceIdForPlan('enterprise', 'brl')).toBe('')
     })
+  })
+})
+
+describe('PLAN_DISPLAY — anúncios só do que existe', () => {
+  const { PLAN_DISPLAY } = require('@/lib/billing/plans')
+  const premium = PLAN_DISPLAY.find((p: { id: string }) => p.id === 'premium')
+  const enterprise = PLAN_DISPLAY.find((p: { id: string }) => p.id === 'enterprise')
+
+  it('Premium não anuncia API completa nem Previsão/BI, e mostra o limite de 10', () => {
+    const text = [premium.description, premium.properties, ...premium.features].join(' ')
+    expect(text).not.toMatch(/API completa|BI avançado|Previsão|ilimitad/i)
+    expect(premium.properties).toBe('Até 10 unidades')
+  })
+
+  it('Enterprise mostra o limite de 20', () => {
+    expect(enterprise.properties).toBe('Até 20 unidades')
   })
 })
