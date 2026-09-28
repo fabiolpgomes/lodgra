@@ -218,10 +218,6 @@ export default function PricingPage() {
                 q: 'Posso cancelar a qualquer momento?',
                 a: 'Sim, sem penalidades. Você pode cancelar sua assinatura a qualquer momento pelo dashboard.',
               },
-              {
-                q: 'Vocês oferecem desconto anual?',
-                a: 'Sim, planos anuais têm até 20% de desconto. Fale com nosso time de vendas para mais detalhes.',
-              },
             ].map((faq, idx) => (
               <div key={idx} className="border-b pb-6">
                 <h3 className="font-semibold text-lg mb-2">{faq.q}</h3>
