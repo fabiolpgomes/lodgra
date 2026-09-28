@@ -75,7 +75,7 @@ export const PUBLIC_MODULES: ModuleDefinition[] = [
     icon: Settings,
     published: true,
     entryPath: '/settings',
-    matches: ['/settings', '/dashboard/settings', '/billing', '/account', '/admin', '/sync', '/settings/organizations'],
+    matches: ['/settings', '/account', '/admin', '/sync', '/settings/organizations'],
   },
   {
     id: 'proprietario',
@@ -178,8 +178,6 @@ export function getVisibleModuleFeatureLinks(moduleId: ModuleId, isLimitedGestor
 export function getPageTitle(pathname: string): string {
   const normalized = stripLocalePrefix(pathname)
 
-  if (normalized.startsWith('/dashboard/settings/billing')) return 'Planos e Ferramentas'
-  if (normalized.startsWith('/dashboard/settings')) return 'Definições'
   if (normalized.startsWith('/settings/organizations')) return 'Dados da empresa'
   if (normalized === '/' || normalized === '/dashboard') return 'Dashboard'
   if (normalized.startsWith('/dashboard/empresa/custos')) return 'Prestação de contas'

@@ -42,7 +42,7 @@ describe('module shell registry', () => {
     expect(getModuleForPath('/dashboard').id).toBe('operacao')
     expect(getModuleForPath('/dashboard/reports').id).toBe('operacao')
     expect(getModuleForPath('/settings').id).toBe('core')
-    expect(getModuleForPath('/pt-BR/dashboard/settings/billing').id).toBe('core')
+    expect(getModuleForPath('/pt-BR/settings/billing').id).toBe('core')
   })
 
   it('prefers the more specific Empresa module for dashboard empresa routes', () => {
