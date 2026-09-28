@@ -1,5 +1,7 @@
-import Stripe from 'stripe'
+import type Stripe from 'stripe'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { getPlatformStripe } from '@/lib/stripe/platform'
+import { normalizePlan, toBillingCurrency } from '@/lib/billing/plans'
 
 type AdminClient = ReturnType<typeof createAdminClient>
 
@@ -25,33 +27,17 @@ function toSlug(value: string): string {
   return slug || 'empresa'
 }
 
-function getStripeClients(): Stripe[] {
-  const keys = [
-    process.env.STRIPE_BR_SECRET_KEY,
-    process.env.STRIPE_SECRET_KEY,
-    process.env.STRIPE_PT_SECRET_KEY,
-  ]
-    .map(key => key?.trim())
-    .filter((key): key is string => Boolean(key))
-
-  return [...new Set(keys)].map(key => new Stripe(key, { apiVersion: '2026-02-25.clover' }))
-}
-
 async function retrieveCheckoutSession(sessionId: string): Promise<Stripe.Checkout.Session | null> {
   if (!sessionId.startsWith('cs_')) return null
-
-  for (const stripe of getStripeClients()) {
-    try {
-      return await stripe.checkout.sessions.retrieve(sessionId)
-    } catch (error) {
-      const message = error instanceof Error ? error.message : ''
-      if (!message.includes('No such checkout.session')) {
-        console.warn('[onboarding/session] Stripe retrieve failed:', message)
-      }
+  try {
+    return await getPlatformStripe().checkout.sessions.retrieve(sessionId)
+  } catch (error) {
+    const message = error instanceof Error ? error.message : ''
+    if (!message.includes('No such checkout.session')) {
+      console.warn('[onboarding/session] Stripe retrieve failed:', message)
     }
+    return null
   }
-
-  return null
 }
 
 async function uniqueSlug(adminClient: AdminClient, base: string, currentOrgId?: string | null) {
@@ -93,7 +79,8 @@ export async function getOrganizationFromCheckoutSession(sessionId: string): Pro
   }
 
   const adminClient = createAdminClient()
-  const plan = session.metadata?.plan || 'essencial'
+  const plan = normalizePlan(session.metadata?.plan)
+  const billingCurrency = toBillingCurrency(session.currency)
 
   const { data: existingOrg } = await adminClient
     .from('organizations')
@@ -111,6 +98,7 @@ export async function getOrganizationFromCheckoutSession(sessionId: string): Pro
         subscription_status: 'active',
         plan,
         subscription_plan: plan,
+        billing_currency: billingCurrency,
         updated_at: new Date().toISOString(),
       })
       .eq('id', existingOrg.id)
@@ -140,7 +128,7 @@ export async function getOrganizationFromCheckoutSession(sessionId: string): Pro
       subscription_status: 'active',
       plan,
       subscription_plan: plan,
-      billing_unit_count: 1,
+      billing_currency: billingCurrency,
     })
     .select('id, name, slug, subscription_plan, subscription_status')
     .single()

@@ -5,7 +5,7 @@ interface EuropeLandingProps {
   locale: 'es' | 'en-US'
 }
 
-// Helper to load content - similarity to src/app/landing/page.tsx
+// Textos por idioma; os preços vêm de PLAN_PRICES (src/lib/billing/plans.ts)
 async function getLandingPageContent(locale: string) {
   try {
     let content
@@ -34,7 +34,7 @@ export const EuropeLanding = async ({ locale }: EuropeLandingProps) => {
   return (
     <main className="bg-white">
       {/* We use the generic LandingPageClient which represent the standard/clean model */}
-      <LandingPageClient content={content} />
+      <LandingPageClient content={content} currency="eur" locale={locale} />
     </main>
   )
 }

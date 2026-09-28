@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { currencyForLocale } from '@/lib/billing/plans'
 import { useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Logo } from '@/components/common/ui/Logo'
@@ -48,7 +49,7 @@ export default function OnboardingPendentePage() {
       const res = await fetch('/api/stripe/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plan, email, source: 'onboarding', locale, currency: 'brl' }),
+        body: JSON.stringify({ plan, email, source: 'onboarding', locale, currency: currencyForLocale(locale) }),
       })
 
       const data = await res.json()

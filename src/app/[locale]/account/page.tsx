@@ -3,14 +3,14 @@ import { redirect } from 'next/navigation'
 import { AuthLayout } from '@/components/common/layout/AuthLayout'
 import { PremiumCard, PremiumPageHeader, PremiumPageShell } from '@/components/common/layout/PremiumPage'
 import { ChangePasswordForm } from '@/components/auth/ChangePasswordForm'
-import { PlanManagement } from '@/components/billing/PlanManagement'
+import Link from 'next/link'
 import { KeyRound, User, CreditCard } from 'lucide-react'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { Plan } from '@/lib/billing/plans'
 
 export const dynamic = 'force-dynamic'
 
-export default async function AccountPage() {
+export default async function AccountPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params
   const auth = await requireRole(['admin', 'gestor', 'viewer'])
   if (!auth.authorized) redirect('/login')
 
@@ -29,20 +29,6 @@ export default async function AccountPage() {
     viewer: 'Visualizador',
     guest: 'Convidado',
   }[role as 'admin' | 'gestor' | 'viewer' | 'guest']
-
-  let orgPlan: Plan = 'essencial'
-  let orgStatus = 'active'
-  if (role === 'admin' && auth.organizationId) {
-    const { data: org } = await adminClient
-      .from('organizations')
-      .select('subscription_plan, subscription_status')
-      .eq('id', auth.organizationId)
-      .single()
-    if (org) {
-      orgPlan = (org.subscription_plan as Plan) ?? 'essencial'
-      orgStatus = org.subscription_status ?? 'active'
-    }
-  }
 
   return (
     <AuthLayout>
@@ -86,7 +72,10 @@ export default async function AccountPage() {
               <CreditCard className="h-4 w-4 text-brand-gold" />
               <h2 className="text-sm font-semibold text-brand-text-dark transition-colors group-hover:text-brand-gold">Plano e Subscrição</h2>
             </div>
-            <PlanManagement currentPlan={orgPlan} subscriptionStatus={orgStatus} />
+            <p className="text-sm text-brand-text-medium mb-3">Plano, propriedades adicionais, faturas e cancelamento.</p>
+            <Link href={`/${locale}/settings/billing`} className="text-sm font-medium text-brand-blue underline underline-offset-2">
+              Abrir Planos e Ferramentas
+            </Link>
           </PremiumCard>
         )}
 

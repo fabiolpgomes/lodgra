@@ -1,28 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
-import Stripe from 'stripe'
-import { getPerUnitPriceId } from '@/lib/billing/stripe-usage'
+import type Stripe from 'stripe'
+import { getPlatformStripe } from '@/lib/stripe/platform'
+import { getBasePriceId, isPaidPlan, normalizePlan, toBillingCurrency } from '@/lib/billing/plans'
 
 export const dynamic = 'force-dynamic'
-
-function getStripeKey(currency: string): string {
-  const c = currency.toLowerCase()
-  if (c === 'brl') return (process.env.STRIPE_BR_SECRET_KEY ?? '').trim()
-  if (c === 'eur') return (process.env.STRIPE_PT_SECRET_KEY ?? '').trim()
-  return (process.env.STRIPE_SECRET_KEY ?? process.env.STRIPE_BR_SECRET_KEY ?? '').trim()
-}
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { email, currency = 'eur', plan, source, locale } = body
-
-    const stripeKey = getStripeKey(currency)
-    if (!stripeKey) {
-      return NextResponse.json({ error: 'Stripe não configurado' }, { status: 500 })
-    }
-    const stripe = new Stripe(stripeKey, {
-      apiVersion: '2026-02-25.clover',
-    })
+    const { email, currency, plan: rawPlan, source, locale } = body
+    const stripe = getPlatformStripe()
 
     // Use request origin so success/cancel URLs always point to the correct domain
     // regardless of NEXT_PUBLIC_APP_URL env value (which may be stale in Vercel)
@@ -32,19 +19,16 @@ export async function POST(request: NextRequest) {
       process.env.NEXT_PUBLIC_APP_URL ||
       'https://lodgra.io'
 
-    if (!plan) {
+    if (!rawPlan) {
       return NextResponse.json({ error: 'Plano obrigatório' }, { status: 400 })
     }
-
-    if (plan === 'enterprise') {
-      return NextResponse.json({ error: 'Enterprise requer contacto directo' }, { status: 400 })
+    const plan = normalizePlan(rawPlan)
+    if (!isPaidPlan(plan)) {
+      return NextResponse.json({ error: 'Plano inválido' }, { status: 400 })
     }
 
-    const c = currency.toLowerCase()
-    const planCurrency: 'eur' | 'brl' | 'usd' = c === 'brl' ? 'brl' : c === 'usd' ? 'usd' : 'eur'
-
-    // Get price ID based on plan and currency
-    const priceId = getPerUnitPriceId(plan, planCurrency)
+    const planCurrency = toBillingCurrency(currency)
+    const priceId = getBasePriceId(plan, planCurrency)
 
     if (!priceId) {
       return NextResponse.json({ error: 'Plano sem preço configurado — contacte suporte' }, { status: 400 })

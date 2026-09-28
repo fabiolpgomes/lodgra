@@ -51,50 +51,55 @@
   },
   "pricing": {
     "title": "Precios Simples y Transparentes",
+    "period": "/mes",
+    "extraLabel": "+ {price}/mes por propiedad adicional",
     "tiers": [
       {
-        "id": "starter",
-        "name": "Starter",
-        "price": "19",
-        "period": "/mes",
-        "description": "Para gestores que empiezan",
+        "id": "essencial",
+        "name": "Esencial",
+        "description": "Deja la hoja de cálculo. Controla una unidad con beneficio claro.",
         "features": [
-          "Hasta 3 propiedades",
+          "1 unidad incluida",
+          "Motor de reservas directas",
           "Sync iCal (Airbnb, Booking, VRBO)",
-          "Calendario drag-drop",
-          "Informes básicos",
-          "Soporte por email"
+          "Calendario unificado",
+          "Gestión básica de reservas"
         ]
       },
       {
-        "id": "professional",
-        "name": "Professional",
-        "price": "49",
-        "period": "/mes",
-        "description": "Para gestores en crecimiento",
+        "id": "expansao",
+        "name": "Expansión",
+        "description": "Coordina sin caos. Hasta 3 unidades y automatización de limpieza.",
         "badge": "Más Popular",
         "isPrimary": true,
         "features": [
-          "Hasta 10 propiedades",
-          "Todo de Starter",
+          "3 unidades incluidas",
+          "Todo de Esencial",
+          "Portal del equipo (WhatsApp)",
           "Informes por propietario",
-          "Compliance Fiscal",
-          "Exportar PDF/Excel",
-          "Soporte prioritario"
+          "Equipo de hasta 5 personas"
         ]
       },
       {
-        "id": "business",
-        "name": "Business",
-        "price": "99",
-        "period": "/mes",
-        "description": "Para operaciones profesionales",
+        "id": "premium",
+        "name": "Premium",
+        "description": "Automatiza operaciones e ingresos. Hasta 10 unidades.",
         "features": [
-          "Propiedades ilimitadas",
-          "Todo de Professional",
-          "Soporte prioritario",
-          "2FA (próximamente)",
-          "Acceso API (próximamente)"
+          "10 unidades incluidas",
+          "Todo de Expansión",
+          "Gestor dedicado",
+          "Equipo de hasta 5 personas"
+        ]
+      },
+      {
+        "id": "enterprise",
+        "name": "Enterprise",
+        "description": "Para operaciones más grandes. Hasta 20 unidades y equipo ilimitado.",
+        "features": [
+          "20 unidades incluidas",
+          "Todo de Premium",
+          "Onboarding dedicado",
+          "Equipo ilimitado"
         ]
       }
     ]
@@ -120,7 +125,7 @@
       },
       {
         "question": "¿Cómo me integro con mis canales?",
-        "answer": "Conecta vía iCal (Airbnb, Booking, VRBO) o usa nuestra API. Auto-sincronización 24/7."
+        "answer": "Conecta vía iCal (Airbnb, Booking, VRBO). Auto-sincronización 24/7."
       },
       {
         "question": "¿Ofrecen soporte en español?",

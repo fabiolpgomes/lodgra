@@ -1,6 +1,6 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
-import { getPlanLimits } from '@/lib/billing/plans'
+import { addPropertyRejection, prepareAddProperty, reconcileExtraProperties } from '@/lib/billing/extra-properties'
 import { containsNormalized } from '@/lib/utils/normalize-text'
 import { getOrganizationFromCheckoutSession } from '@/lib/onboarding/checkout-session'
 import type { PropertyCardProps } from '@/components/common/public/properties/PropertyCard'
@@ -525,44 +525,10 @@ export async function POST(request: Request): Promise<Response> {
 
     const adminClient = await createAdminClient()
 
-    const { data: org } = await adminClient
-      .from('organizations')
-      .select('subscription_plan, premium_extra_properties_count')
-      .eq('id', organizationId)
-      .single()
-
-    if (org) {
-      const plan = org.subscription_plan || 'essencial'
-      const limits = getPlanLimits(plan)
-      const includedLimit = limits.maxProperties
-      const extraCount = Number(org.premium_extra_properties_count ?? 0)
-      const allowedProperties = includedLimit === null ? null : includedLimit + extraCount
-
-      if (allowedProperties !== null) {
-        const { count, error: countError } = await adminClient
-          .from('properties')
-          .select('id', { count: 'exact', head: true })
-          .eq('organization_id', organizationId)
-
-        if (countError) {
-          console.error('[POST /api/properties] Count error:', countError)
-          return Response.json({ error: 'Erro ao validar limite de imóveis' }, { status: 500 })
-        }
-
-        if ((count ?? 0) >= allowedProperties) {
-          return Response.json(
-            {
-              error: 'property_limit_reached',
-              limit: allowedProperties,
-              includedLimit,
-              extraCount,
-              plan,
-              extraPropertyPrice: limits.extraPropertyPrice,
-            },
-            { status: 403 }
-          )
-        }
-      }
+    const capacity = await prepareAddProperty(organizationId, body.confirm_extra === true)
+    if (capacity.ok === false) {
+      const { status, body: rejection } = addPropertyRejection(capacity)
+      return Response.json(rejection, { status })
     }
 
     const baseSlug = toSlug(name)
@@ -601,6 +567,7 @@ export async function POST(request: Request): Promise<Response> {
 
     if (dbError) {
       console.error('[POST /api/properties] DB error:', dbError)
+      if (capacity.charged) await reconcileExtraProperties(organizationId)
       return Response.json({ error: 'Erro ao criar imóvel' }, { status: 500 })
     }
 

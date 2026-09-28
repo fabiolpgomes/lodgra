@@ -5,7 +5,7 @@ import { PremiumCard, PremiumPageHeader, PremiumPageShell } from '@/components/c
 import { createAdminClient } from '@/lib/supabase/admin'
 import { CreditCard } from 'lucide-react'
 import { PlanManagement } from '@/components/billing/PlanManagement'
-import { Plan } from '@/lib/billing/plans'
+import { normalizePlan, toBillingCurrency } from '@/lib/billing/plans'
 
 export const dynamic = 'force-dynamic'
 
@@ -31,21 +31,22 @@ export default async function BillingPage() {
   // Fetch organization subscription data
   let organization
 
+  let activeProperties = 0
+
   if (userOrgId) {
     const { data } = await supabase
       .from('organizations')
-      .select('id, name, subscription_plan, subscription_status')
+      .select('id, name, subscription_plan, subscription_status, billing_currency, extra_properties_count')
       .eq('id', userOrgId)
       .single()
     organization = data
-  } else {
-    // Last resort: fetch first organization
-    const { data } = await supabase
-      .from('organizations')
-      .select('id, name, subscription_plan, subscription_status')
-      .limit(1)
-      .maybeSingle()
-    organization = data
+
+    const { count } = await supabase
+      .from('properties')
+      .select('id', { count: 'exact', head: true })
+      .eq('organization_id', userOrgId)
+      .is('deleted_at', null)
+    activeProperties = count ?? 0
   }
 
   if (!organization) {
@@ -61,8 +62,7 @@ export default async function BillingPage() {
     )
   }
 
-  // Normalize plan to handle legacy values
-  const currentPlan = (organization.subscription_plan || 'essencial') as Plan
+  const currentPlan = normalizePlan(organization.subscription_plan)
   const subscriptionStatus = organization.subscription_status || 'active'
 
   return (
@@ -79,6 +79,9 @@ export default async function BillingPage() {
           <PlanManagement
             currentPlan={currentPlan}
             subscriptionStatus={subscriptionStatus}
+            currency={toBillingCurrency(organization.billing_currency)}
+            activeProperties={activeProperties}
+            extraProperties={Number(organization.extra_properties_count ?? 0)}
           />
         </PremiumCard>
       </PremiumPageShell>

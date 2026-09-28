@@ -16,12 +16,16 @@ jest.mock('@/lib/supabase/admin', () => ({
     from: jest.fn((table) => ({
       select: jest.fn().mockReturnThis(),
       eq: jest.fn().mockReturnThis(),
+      // contagem de propriedades ativas
+      is: jest.fn().mockResolvedValue({ count: table === 'properties' ? 12 : 0 }),
       single: jest.fn().mockResolvedValue({
         data: {
           id: 'test-org-123',
           name: 'Test Organization',
           subscription_plan: 'premium',
           subscription_status: 'active',
+          billing_currency: 'eur',
+          extra_properties_count: 2,
         },
       }),
     })),
@@ -59,8 +63,17 @@ jest.mock('@/components/common/layout/PremiumPage', () => ({
 
 // Mock PlanManagement
 jest.mock('@/components/billing/PlanManagement', () => ({
-  PlanManagement: ({ currentPlan, subscriptionStatus }: { currentPlan: string; subscriptionStatus: string }) => (
-    <div data-testid="plan-management" data-plan={currentPlan} data-status={subscriptionStatus}>
+  PlanManagement: ({ currentPlan, subscriptionStatus, currency, activeProperties, extraProperties }: {
+    currentPlan: string; subscriptionStatus: string; currency: string; activeProperties: number; extraProperties: number
+  }) => (
+    <div
+      data-testid="plan-management"
+      data-plan={currentPlan}
+      data-status={subscriptionStatus}
+      data-currency={currency}
+      data-active={activeProperties}
+      data-extras={extraProperties}
+    >
       <p>Plan: {currentPlan}</p>
       <p>Status: {subscriptionStatus}</p>
     </div>
@@ -109,5 +122,8 @@ describe('Settings Billing Page', () => {
     const planManagement = screen.getByTestId('plan-management')
     expect(planManagement).toHaveTextContent('Plan: premium')
     expect(planManagement).toHaveTextContent('Status: active')
+    expect(planManagement).toHaveAttribute('data-currency', 'eur')
+    expect(planManagement).toHaveAttribute('data-active', '12')
+    expect(planManagement).toHaveAttribute('data-extras', '2')
   })
 })

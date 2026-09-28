@@ -14,6 +14,7 @@ jest.mock('@/lib/supabase/admin')
 jest.mock('@/lib/cache/profileCache', () => ({ invalidateCachedProfile: jest.fn() }))
 jest.mock('@/lib/cache/subscriptionCache', () => ({ invalidateCachedSubscriptionStatus: jest.fn() }))
 jest.mock('@/lib/auth/create-user-profile', () => ({ createUserProfile: jest.fn() }))
+jest.mock('@/lib/billing/extra-properties', () => ({ reconcileExtraProperties: jest.fn() }))
 jest.mock('@/lib/stripe/webhook-idempotency', () => ({
   claimStripeEvent: jest.fn(),
   markStripeEventProcessed: jest.fn(),
@@ -95,3 +96,69 @@ describe('POST /api/stripe/webhook — idempotência', () => {
     consoleSpy.mockRestore()
   })
 })
+
+describe('customer.subscription.updated — plano e moeda', () => {
+  const ENV = process.env
+  beforeEach(() => {
+    process.env = {
+      ...ENV,
+      STRIPE_SECRET_KEY: 'sk_test_dummy',
+      STRIPE_WEBHOOK_SECRET: 'whsec_test',
+      STRIPE_PRICE_ID_PREMIUM_EUR: 'price_premium_eur',
+      STRIPE_PRICE_ID_EXTRA_PROPERTY_EUR: 'price_extra_eur',
+    }
+  })
+  afterAll(() => { process.env = ENV })
+
+  function updatedEvent(prices: string[]) {
+    return {
+      id: 'evt_sub_upd',
+      type: 'customer.subscription.updated',
+      data: {
+        object: {
+          id: 'sub_1',
+          status: 'active',
+          currency: 'eur',
+          items: { data: prices.map((id, i) => ({ id: `si_${i}`, price: { id } })) },
+        },
+      },
+    }
+  }
+
+  function supabaseCapturingUpdate() {
+    const updates: Record<string, unknown>[] = []
+    const select = jest.fn().mockResolvedValue({ data: [{ id: 'org-1' }], error: null })
+    const eq = jest.fn().mockReturnValue({ select })
+    const update = jest.fn((values: Record<string, unknown>) => { updates.push(values); return { eq } })
+    return { client: { from: jest.fn().mockReturnValue({ update }) } as unknown as ReturnType<typeof createAdminClient>, updates }
+  }
+
+  it('usa o item base (não o de propriedade adicional) para o plano e grava a moeda', async () => {
+    mockConstructEvent.mockReturnValue(updatedEvent(['price_extra_eur', 'price_premium_eur']))
+    const { client, updates } = supabaseCapturingUpdate()
+    mockCreateAdminClient.mockReturnValue(client)
+
+    const res = await POST(request())
+
+    expect(res.status).toBe(200)
+    expect(updates[0]).toMatchObject({
+      subscription_plan: 'premium',
+      plan: 'premium',
+      billing_currency: 'eur',
+      stripe_subscription_item_id: 'si_1',
+    })
+  })
+
+  it('preço desconhecido não rebaixa o plano', async () => {
+    mockConstructEvent.mockReturnValue(updatedEvent(['price_desconhecido']))
+    const { client, updates } = supabaseCapturingUpdate()
+    mockCreateAdminClient.mockReturnValue(client)
+
+    await POST(request())
+
+    expect(updates[0]).not.toHaveProperty('subscription_plan')
+    expect(updates[0]).not.toHaveProperty('plan')
+    expect(updates[0]).toMatchObject({ subscription_status: 'active', billing_currency: 'eur' })
+  })
+})
+

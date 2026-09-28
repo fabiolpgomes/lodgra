@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { stripeBR } from '@/lib/stripe/client-br'
+import { getPlatformStripe } from '@/lib/stripe/platform'
 import { NextResponse } from 'next/server'
 
 export async function GET(request: Request) {
@@ -112,7 +112,7 @@ export async function GET(request: Request) {
 
             if (!billingOrganization?.stripe_customer_id && user.email) {
               try {
-                const customer = await stripeBR.customers.create(
+                const customer = await getPlatformStripe().customers.create(
                   {
                     email: user.email,
                     name: user.user_metadata?.full_name || user.email || undefined,

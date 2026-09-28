@@ -4,7 +4,8 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { claimStripeEvent, markStripeEventProcessed, releaseStripeEvent } from '@/lib/stripe/webhook-idempotency'
 import { invalidateCachedProfile } from '@/lib/cache/profileCache'
 import { invalidateCachedSubscriptionStatus } from '@/lib/cache/subscriptionCache'
-import { getPlanFromPriceId } from '@/lib/billing/plans'
+import { getPlanFromPriceId, isExtraPropertyPriceId, normalizePlan, toBillingCurrency } from '@/lib/billing/plans'
+import { reconcileExtraProperties } from '@/lib/billing/extra-properties'
 import { UserRole } from '@/lib/auth/role-types'
 import { createUserProfile } from '@/lib/auth/create-user-profile'
 
@@ -121,30 +122,11 @@ async function handleCheckoutCompleted(supabase: AdminClient, session: Stripe.Ch
   const customerId = session.customer as string
   const subscriptionId = session.subscription as string
 
-  // Detect plan from metadata or line_items price
-  const planFromMeta = session.metadata?.plan
-  const priceId = (session as Stripe.Checkout.Session & { line_items?: { data: { price?: { id: string } }[] } }).line_items?.data[0]?.price?.id ?? ''
-  const plan = planFromMeta ?? getPlanFromPriceId(priceId)
-
-  // Fetch subscription to extract item IDs (base + metered)
-  let stripeSubscriptionItemId: string | null = null
-  let stripeMeteredItemId: string | null = null
-
-  try {
-    const sub = await stripe.subscriptions.retrieve(subscriptionId, {
-      expand: ['items.data.price'],
-    })
-    for (const item of sub.items.data) {
-      const price = item.price as Stripe.Price
-      if (price.recurring?.usage_type === 'metered') {
-        stripeMeteredItemId = item.id
-      } else {
-        stripeSubscriptionItemId = item.id
-      }
-    }
-  } catch (err) {
-    console.warn('[webhook] Could not fetch subscription items:', err)
-  }
+  // Plano: metadata do checkout; senão, o preço base da assinatura
+  const sub = await stripe.subscriptions.retrieve(subscriptionId, { expand: ['items.data.price'] })
+  const baseItem = sub.items.data.find(item => !isExtraPropertyPriceId((item.price as Stripe.Price).id))
+  const planFromPrice = baseItem ? getPlanFromPriceId((baseItem.price as Stripe.Price).id) : null
+  const plan = session.metadata?.plan ? normalizePlan(session.metadata.plan) : (planFromPrice ?? 'essencial')
 
   const stripeOrgFields = {
     stripe_customer_id: customerId,
@@ -152,8 +134,8 @@ async function handleCheckoutCompleted(supabase: AdminClient, session: Stripe.Ch
     subscription_status: 'active' as const,
     plan,
     subscription_plan: plan,
-    stripe_subscription_item_id: stripeSubscriptionItemId,
-    stripe_metered_item_id: stripeMeteredItemId,
+    stripe_subscription_item_id: baseItem?.id ?? null,
+    billing_currency: toBillingCurrency(sub.currency),
   }
 
   // Check if user already exists WITH an organization before creating a new one.
@@ -207,7 +189,6 @@ async function handleCheckoutCompleted(supabase: AdminClient, session: Stripe.Ch
         .insert({
           name: email.split('@')[0],
           slug,
-          billing_unit_count: 1,
           ...stripeOrgFields,
         })
         .select('id')
@@ -254,6 +235,12 @@ async function handleCheckoutCompleted(supabase: AdminClient, session: Stripe.Ch
     }
   }
 
+  // Organização existente pode já ter mais propriedades que o plano inclui
+  if (org?.id) {
+    const reconciled = await reconcileExtraProperties(org.id)
+    if (!reconciled.ok) console.error('[webhook] Falha ao ajustar propriedades adicionais', org.id, reconciled.message)
+  }
+
   // Create/update profile — only set organization_id for users without an org
   if (userId) {
     try {
@@ -282,29 +269,21 @@ async function handleSubscriptionUpdated(supabase: AdminClient, subscription: St
     : subscription.status === 'trialing' ? 'trial'
     : subscription.status
 
-  // Identify base item and metered item by usage_type
-  let baseItemId: string | null = null
-  let meteredItemId: string | null = null
-  let plan = 'essencial'
-
-  for (const item of subscription.items.data) {
-    const price = item.price as Stripe.Price
-    if (price.recurring?.usage_type === 'metered') {
-      meteredItemId = item.id
-    } else {
-      baseItemId = item.id
-      plan = getPlanFromPriceId(price.id)
-    }
-  }
+  // Item base = o que não é propriedade adicional
+  const baseItem = subscription.items.data.find(item => !isExtraPropertyPriceId((item.price as Stripe.Price).id))
+  const plan = baseItem ? getPlanFromPriceId((baseItem.price as Stripe.Price).id) : null
 
   const update: Record<string, unknown> = {
     subscription_status: status,
-    plan,
-    subscription_plan: plan,
+    billing_currency: toBillingCurrency(subscription.currency),
     updated_at: new Date().toISOString(),
   }
-  if (baseItemId)   update.stripe_subscription_item_id = baseItemId
-  if (meteredItemId) update.stripe_metered_item_id = meteredItemId
+  // Preço desconhecido não rebaixa o plano: mantém o que está gravado
+  if (plan) {
+    update.plan = plan
+    update.subscription_plan = plan
+  }
+  if (baseItem) update.stripe_subscription_item_id = baseItem.id
 
   const { data: updatedOrgs } = await supabase
     .from('organizations')

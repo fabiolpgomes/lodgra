@@ -7,6 +7,7 @@ interface PricingCardProps {
   name: string
   price: string
   period: string
+  note?: string
   description: string
   features: string[]
   isPrimary?: boolean
@@ -18,6 +19,7 @@ export const PricingCard: React.FC<PricingCardProps> = ({
   name,
   price,
   period,
+  note,
   description,
   features,
   isPrimary = false,
@@ -49,6 +51,7 @@ export const PricingCard: React.FC<PricingCardProps> = ({
         </span>
         <span className="text-sm font-inter text-gray-600 dark:text-gray-400">{period}</span>
       </div>
+      {note && <p className="mt-2 text-xs font-inter text-gray-600 dark:text-gray-400">{note}</p>}
     </div>
 
     <p className="text-gray-600 dark:text-gray-400 font-inter text-sm leading-relaxed mb-8">{description}</p>

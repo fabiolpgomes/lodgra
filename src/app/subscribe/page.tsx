@@ -4,28 +4,19 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { AlertCircle, Check, ArrowRight } from 'lucide-react'
 import { Button } from '@/components/common/ui/button'
-import { PLAN_DISPLAY } from '@/lib/billing/plans'
-import { formatCurrency } from '@/lib/utils/currency'
-
-const FEE_LABELS: Record<string, string> = {
-  growth: '+ 1 EUR por reserva',
-  pro:    '+ 1% da receita',
-}
+import { PLAN_DISPLAY, PLAN_PRICES, formatPlanPrice, type BillingCurrency } from '@/lib/billing/plans'
 
 export default function SubscribePage() {
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null)
+  const [currency, setCurrency] = useState<BillingCurrency>('brl')
 
   async function handlePlanCheckout(planId: string) {
-    if (planId === 'enterprise') {
-      window.location.href = '/register'
-      return
-    }
     setLoadingPlan(planId)
     try {
       const res = await fetch('/api/stripe/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plan: planId }),
+        body: JSON.stringify({ plan: planId, currency }),
       })
       const data = await res.json()
       if (data.url) {
@@ -54,20 +45,30 @@ export default function SubscribePage() {
         </div>
 
         <h1 className="text-3xl font-bold text-gray-900 text-center mb-2">Escolha o seu plano</h1>
-        <p className="text-gray-600 text-center mb-10">Retome o acesso imediatamente após o pagamento.</p>
+        <p className="text-gray-600 text-center mb-4">Retome o acesso imediatamente após o pagamento.</p>
+        <div className="flex justify-center gap-2 mb-10">
+          {(['brl', 'eur'] as BillingCurrency[]).map(c => (
+            <button
+              key={c}
+              type="button"
+              onClick={() => setCurrency(c)}
+              className={`px-3 py-1 rounded-full text-sm font-medium border ${
+                currency === c ? 'bg-brand-600 text-white border-brand-600' : 'bg-white text-gray-700 border-gray-300'
+              }`}
+            >
+              {c === 'brl' ? 'R$ Real' : '€ Euro'}
+            </button>
+          ))}
+        </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {PLAN_DISPLAY.map(plan => {
-            const feeLabel = FEE_LABELS[plan.id]
+            const price = PLAN_PRICES[plan.id][currency]
             return (
               <div
                 key={plan.id}
                 className={`bg-white rounded-2xl shadow-sm border-2 p-6 flex flex-col relative ${
-                  plan.highlighted
-                    ? 'border-brand-500 shadow-md'
-                    : plan.enterprise
-                      ? 'border-gray-300 bg-gray-50'
-                      : 'border-gray-200'
+                  plan.highlighted ? 'border-brand-500 shadow-md' : 'border-gray-200'
                 }`}
               >
                 {plan.highlighted && (
@@ -83,27 +84,15 @@ export default function SubscribePage() {
                   <p className="text-sm text-gray-600 mt-0.5 leading-snug">{plan.description}</p>
                 </div>
 
-                {plan.enterprise ? (
-                  <div className="mb-5">
-                    <span className="text-2xl font-extrabold text-gray-900">Personalizado</span>
+                <div className="mb-5">
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-3xl font-extrabold text-gray-900">{formatPlanPrice(price.monthly, currency)}</span>
+                    <span className="text-gray-600 text-xs">/mês</span>
                   </div>
-                ) : (
-                  <div className="mb-1">
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-3xl font-extrabold text-gray-900">
-                        {formatCurrency(plan.price)}
-                      </span>
-                      <span className="text-gray-600 text-xs">/unidade/mês</span>
-                    </div>
-                    {feeLabel && (
-                      <span className="inline-block mt-1 text-xs font-medium text-[color:var(--be-blue)] bg-[color:var(--be-blue-pale)] px-2 py-0.5 rounded-full">
-                        {feeLabel}
-                      </span>
-                    )}
-                  </div>
-                )}
-
-                {!plan.enterprise && <div className="mb-4" />}
+                  <span className="inline-block mt-1 text-xs text-gray-600">
+                    + {formatPlanPrice(price.extraProperty, currency)}/mês por propriedade adicional
+                  </span>
+                </div>
 
                 <ul className="space-y-2 mb-6 flex-1">
                   {plan.features.map(f => (
@@ -120,11 +109,7 @@ export default function SubscribePage() {
                   className="w-full"
                   variant={plan.highlighted ? 'default' : 'outline'}
                 >
-                  {loadingPlan === plan.id ? '...' : (
-                    plan.enterprise
-                      ? <>Falar com a equipa <ArrowRight className="h-4 w-4 ml-1" /></>
-                      : <>Começar agora <ArrowRight className="h-4 w-4 ml-1" /></>
-                  )}
+                  {loadingPlan === plan.id ? '...' : <>Começar agora <ArrowRight className="h-4 w-4 ml-1" /></>}
                 </Button>
               </div>
             )

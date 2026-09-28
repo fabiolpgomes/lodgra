@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { ArrowLeft, Save } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { createProperty } from './actions'
+import { formatPlanPrice, type BillingCurrency } from '@/lib/billing/plans'
 import { AuthLayout } from '@/components/common/layout/AuthLayout'
 import type { UserProfile } from '@/lib/auth/getUserAccess'
 import { Button } from '@/components/common/ui/button'
@@ -21,6 +22,8 @@ export default function NewPropertyPage() {
   const supabase = createClient()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [extraOffer, setExtraOffer] = useState<{ price: number; currency: BillingCurrency; included: number } | null>(null)
+  const [pendingInput, setPendingInput] = useState<Parameters<typeof createProperty>[0] | null>(null)
   const [owners, setOwners] = useState<{ id: string; full_name: string | null }[]>([])
   const [ownerId, setOwnerId] = useState('')
   const [propertyType, setPropertyType] = useState('')
@@ -62,19 +65,50 @@ export default function NewPropertyPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  async function submitProperty(input: Parameters<typeof createProperty>[0], confirmExtra: boolean) {
+    setLoading(true)
+    setError(null)
+    try {
+      const result = await createProperty(input, confirmExtra)
+
+      if ('code' in result && result.code === 'extra_property_confirmation_required') {
+        setPendingInput(input)
+        setExtraOffer({ price: result.extraPrice!, currency: result.currency!, included: result.included! })
+        return
+      }
+      if ('error' in result && result.error) {
+        throw new Error(result.error)
+      }
+
+      setExtraOffer(null)
+      toast.success(result.success && result.charged
+        ? 'Propriedade criada. A propriedade adicional foi incluída na sua assinatura.'
+        : 'Propriedade criada com sucesso!')
+      router.push('/properties')
+      router.refresh()
+    } catch (err: unknown) {
+      console.error('Erro ao criar propriedade:', err)
+      const message = err instanceof Error ? err.message : 'Erro ao criar propriedade'
+      setError(message)
+      toast.error(message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    setLoading(true)
     setError(null)
 
     const formData = new FormData(e.currentTarget)
 
-    try {
-      if (!currency) {
-        throw new Error('Selecione uma moeda para a propriedade')
-      }
+    if (!currency) {
+      setError('Selecione uma moeda para a propriedade')
+      toast.error('Selecione uma moeda para a propriedade')
+      return
+    }
 
-      const result = await createProperty({
+    await submitProperty({
         name: formData.get('name') as string,
         owner_id: ownerId || null,
         address: formData.get('address') as string,
@@ -87,23 +121,7 @@ export default function NewPropertyPage() {
         max_guests: parseInt(formData.get('max_guests') as string) || 0,
         currency,
         management_percentage: parseFloat(formData.get('management_percentage') as string) || 0,
-      })
-
-      if (result.error) {
-        throw new Error(result.error)
-      }
-
-      toast.success('Propriedade criada com sucesso!')
-      router.push('/properties')
-      router.refresh()
-    } catch (err: unknown) {
-      console.error('Erro ao criar propriedade:', err)
-      const message = err instanceof Error ? err.message : 'Erro ao criar propriedade'
-      setError(message)
-      toast.error(message)
-    } finally {
-      setLoading(false)
-    }
+      }, false)
   }
 
   return (
@@ -133,6 +151,30 @@ export default function NewPropertyPage() {
           <Alert variant="destructive" className="mb-6">
             <AlertDescription>{error}</AlertDescription>
           </Alert>
+        )}
+
+        {extraOffer && pendingInput && (
+          <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-4">
+            <p className="font-medium text-amber-900">
+              O seu plano inclui {extraOffer.included} {extraOffer.included === 1 ? 'propriedade' : 'propriedades'}.
+            </p>
+            <p className="mt-1 text-sm text-amber-800">
+              Esta propriedade será adicionada à sua assinatura por{' '}
+              <strong>{formatPlanPrice(extraOffer.price, extraOffer.currency)}/mês</strong>, cobrado proporcionalmente
+              neste ciclo. Também pode mudar para um plano com mais propriedades incluídas.
+            </p>
+            <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+              <Button type="button" disabled={loading} onClick={() => submitProperty(pendingInput, true)}>
+                {loading ? 'A adicionar...' : `Adicionar por ${formatPlanPrice(extraOffer.price, extraOffer.currency)}/mês`}
+              </Button>
+              <Button asChild type="button" variant="outline">
+                <Link href={`/${locale}/settings/billing`}>Ver planos</Link>
+              </Button>
+              <Button type="button" variant="ghost" onClick={() => { setExtraOffer(null); setPendingInput(null) }}>
+                Cancelar
+              </Button>
+            </div>
+          </div>
         )}
 
         {/* Form */}

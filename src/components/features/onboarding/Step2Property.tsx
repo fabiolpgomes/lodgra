@@ -6,7 +6,7 @@ import { Button } from '@/components/common/ui/button'
 import { Input } from '@/components/common/ui/input'
 import { Label } from '@/components/common/ui/label'
 import { Alert, AlertDescription } from '@/components/common/ui/alert'
-import Link from 'next/link'
+import { formatPlanPrice, type BillingCurrency } from '@/lib/billing/plans'
 
 interface Props {
   onNext: (propertyId: string) => void
@@ -24,10 +24,16 @@ export function Step2Property({ onNext, onSkip, onContinueExisting, onboardingSe
   const [maxGuests, setMaxGuests] = useState('2')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [limitReached, setLimitReached] = useState<{ limit: number; plan: string; extraPropertyPrice?: number } | null>(null)
+  const [limitReached, setLimitReached] = useState<
+    { kind: 'offer'; included: number; price: number; currency: BillingCurrency } | { kind: 'blocked'; message: string } | null
+  >(null)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    await submitProperty(false)
+  }
+
+  async function submitProperty(confirmExtra: boolean) {
     if (!name.trim() || !city.trim()) return
     setLoading(true)
     setError('')
@@ -46,17 +52,22 @@ export function Step2Property({ onNext, onSkip, onContinueExisting, onboardingSe
           base_price: basePrice ? Number(basePrice) : 0,
           max_guests: Number(maxGuests) || 2,
           session_id: onboardingSessionId,
+          confirm_extra: confirmExtra,
         }),
       })
       const data = await res.json()
 
-      if (res.status === 403 && data.error === 'property_limit_reached') {
-        setLimitReached({ limit: data.limit, plan: data.plan, extraPropertyPrice: data.extraPropertyPrice })
+      if (data.error === 'extra_property_confirmation_required') {
+        setLimitReached({ kind: 'offer', included: data.included, price: data.extraPrice, currency: data.currency })
+        return
+      }
+      if (data.error === 'property_limit_reached' || data.error === 'subscription_required') {
+        setLimitReached({ kind: 'blocked', message: data.message })
         return
       }
 
       if (!res.ok) {
-        setError(data.error || 'Erro ao criar imóvel')
+        setError(data.message || data.error || 'Erro ao criar imóvel')
         return
       }
 
@@ -184,15 +195,26 @@ export function Step2Property({ onNext, onSkip, onContinueExisting, onboardingSe
           <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-start gap-3">
             <TrendingUp className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
             <div>
-              <p className="text-sm font-medium text-amber-900">
-                Limite de {limitReached.limit} {limitReached.limit === 1 ? 'propriedade' : 'propriedades'} atingido.
-              </p>
-              <p className="text-sm text-amber-700 mt-0.5">
-                {limitReached.extraPropertyPrice
-                  ? `Adicione uma propriedade extra por R$${limitReached.extraPropertyPrice}/mês ou faça upgrade do plano.`
-                  : 'Faça upgrade do plano para adicionar mais propriedades.'}{' '}
-                <Link href="/#pricing" className="font-medium underline hover:text-amber-900">Ver planos</Link>
-              </p>
+              {limitReached.kind === 'offer' ? (
+                <>
+                  <p className="text-sm font-medium text-amber-900">
+                    O seu plano inclui {limitReached.included} {limitReached.included === 1 ? 'propriedade' : 'propriedades'}.
+                  </p>
+                  <p className="text-sm text-amber-700 mt-0.5">
+                    Adicione esta por {formatPlanPrice(limitReached.price, limitReached.currency)}/mês ou mude de plano.
+                  </p>
+                  <button
+                    type="button"
+                    disabled={loading}
+                    onClick={() => submitProperty(true)}
+                    className="text-sm font-medium text-amber-900 underline mt-2 mr-4"
+                  >
+                    Adicionar por {formatPlanPrice(limitReached.price, limitReached.currency)}/mês
+                  </button>
+                </>
+              ) : (
+                <p className="text-sm font-medium text-amber-900">{limitReached.message}</p>
+              )}
               {onContinueExisting && (
                 <button
                   type="button"

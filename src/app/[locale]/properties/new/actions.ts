@@ -2,6 +2,8 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { requireRole } from '@/lib/auth/requireRole'
+import { prepareAddProperty, reconcileExtraProperties } from '@/lib/billing/extra-properties'
+import type { BillingCurrency } from '@/lib/billing/plans'
 
 interface PropertyInput {
   name: string
@@ -18,10 +20,33 @@ interface PropertyInput {
   management_percentage: number
 }
 
-export async function createProperty(data: PropertyInput) {
+export type CreatePropertyResult =
+  | { success: true; charged: boolean }
+  | { success?: false; error: string; code?: string; extraPrice?: number; currency?: BillingCurrency; included?: number }
+
+/**
+ * confirmExtra: o utilizador aceitou pagar uma propriedade adicional
+ * (só é pedido quando o plano já está no limite incluído).
+ */
+export async function createProperty(data: PropertyInput, confirmExtra = false): Promise<CreatePropertyResult> {
   try {
     // Check authentication and authorization
     const { organizationId } = await requireRole(['admin', 'gestor'])
+    if (!organizationId) return { error: 'Organização não encontrada' }
+
+    const capacity = await prepareAddProperty(organizationId, confirmExtra)
+    if (capacity.ok === false) {
+      if (capacity.code === 'extra_property_confirmation_required') {
+        return {
+          error: 'Esta propriedade excede as incluídas no seu plano.',
+          code: capacity.code,
+          extraPrice: capacity.extraPrice,
+          currency: capacity.currency,
+          included: capacity.included,
+        }
+      }
+      return { error: capacity.message, code: capacity.code }
+    }
 
     const supabase = await createClient()
 
@@ -46,10 +71,11 @@ export async function createProperty(data: PropertyInput) {
 
     if (error) {
       console.error('Property insert error:', error)
+      if (capacity.charged) await reconcileExtraProperties(organizationId)
       return { error: error.message }
     }
 
-    return { success: true }
+    return { success: true, charged: capacity.charged }
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Erro ao criar propriedade'
     console.error('Create property error:', message)

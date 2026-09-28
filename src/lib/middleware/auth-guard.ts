@@ -9,7 +9,7 @@ const PUBLIC_PATHS = [
   '/api/ical/', '/api/auth/', '/auth/', '/opengraph-image', '/sitemap.xml',
   '/robots.txt', '/privacy', '/terms', '/politica-de-privacidade', '/p/',
   '/api/properties', '/api/public/', '/monitoring',
-  '/landing', '/landing-vp', '/booking',
+  '/landing-vp', '/booking',
   '/cleaner', // Portal próprio: usa cleaner_session e não depende de subscrição SaaS
   '/checkout',   // Stripe success/cancel pages — always public
   '/forgot-password', '/reset-password', '/onboarding',

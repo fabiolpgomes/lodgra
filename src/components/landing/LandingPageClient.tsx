@@ -7,6 +7,7 @@ import { ValueProposition } from './organisms/ValueProposition'
 import { Features } from './organisms/Features'
 import { SocialProof } from './organisms/SocialProof'
 import { Pricing, type PricingTier } from './organisms/Pricing'
+import type { BillingCurrency } from '@/lib/billing/plans'
 import { FAQ } from './organisms/FAQ'
 import { FinalCTA } from './organisms/FinalCTA'
 import { Footer } from './organisms/Footer'
@@ -20,6 +21,8 @@ interface SocialProofData {
 }
 
 interface LandingPageClientProps {
+  currency: BillingCurrency
+  locale: string
   content: {
     hero: {
       headline: string
@@ -43,6 +46,8 @@ interface LandingPageClientProps {
     socialProof: SocialProofData
     pricing: {
       title: string
+      period: string
+      extraLabel: string
       tiers: PricingTier[]
     }
     faq: {
@@ -68,7 +73,7 @@ interface LandingPageClientProps {
   }
 }
 
-export const LandingPageClient: React.FC<LandingPageClientProps> = ({ content }) => {
+export const LandingPageClient: React.FC<LandingPageClientProps> = ({ content, currency, locale }) => {
   const handleCtaPrimary = useCallback(() => {
     document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })
   }, [])
@@ -78,7 +83,6 @@ export const LandingPageClient: React.FC<LandingPageClientProps> = ({ content })
   }, [])
 
   const handleSelectPricing = useCallback(async (tierId: string) => {
-    const currency = 'brl'
     try {
       const res = await fetch('/api/stripe/checkout', {
         method: 'POST',
@@ -94,7 +98,7 @@ export const LandingPageClient: React.FC<LandingPageClientProps> = ({ content })
     } catch {
       window.location.href = `/register?plan=${tierId}`
     }
-  }, [])
+  }, [currency])
 
   const handleFinalCta = useCallback(() => {
     document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })
@@ -138,6 +142,10 @@ export const LandingPageClient: React.FC<LandingPageClientProps> = ({ content })
       <Pricing
         title={content.pricing.title}
         tiers={content.pricing.tiers}
+        period={content.pricing.period}
+        extraLabel={content.pricing.extraLabel}
+        currency={currency}
+        locale={locale}
         onSelectTier={handleSelectPricing}
       />
 

@@ -1,163 +1,90 @@
 import { NextRequest, NextResponse } from 'next/server'
-import Stripe from 'stripe'
+import type Stripe from 'stripe'
 import { requireRole } from '@/lib/auth/requireRole'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { getPerUnitPriceId, getMeteredPriceId } from '@/lib/billing/stripe-usage'
+import { getPlatformStripe } from '@/lib/stripe/platform'
+import { getBasePriceId, isExtraPropertyPriceId, isPaidPlan, toBillingCurrency } from '@/lib/billing/plans'
+import { reconcileExtraProperties } from '@/lib/billing/extra-properties'
+import { invalidateCachedSubscriptionStatus } from '@/lib/cache/subscriptionCache'
 
 export const dynamic = 'force-dynamic'
 
+// POST /api/organization/upgrade-plan { plan }
+// Troca o preço base da assinatura e recalcula as propriedades adicionais
+// (o número incluído e o preço do extra mudam com o plano).
 export async function POST(request: NextRequest) {
-  // Only admins can change subscription
   const auth = await requireRole(['admin'])
   if (!auth.authorized) return auth.response!
 
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-    apiVersion: '2026-02-25.clover',
-  })
-
-  const supabase = await createAdminClient()
+  const supabase = createAdminClient()
 
   try {
-    const body = await request.json()
-    const { plan } = body
-
-    const validPlans = ['essencial', 'expansao', 'premium', 'enterprise', 'development']
-    if (!plan || !validPlans.includes(plan)) {
-      return NextResponse.json(
-        { error: 'Plano inválido' },
-        { status: 400 }
-      )
+    const { plan } = await request.json()
+    if (!plan || !isPaidPlan(plan)) {
+      return NextResponse.json({ error: 'Plano inválido' }, { status: 400 })
     }
 
-    // Get current org subscription
     const { data: org, error: orgError } = await supabase
       .from('organizations')
-      .select('stripe_subscription_id, stripe_customer_id, subscription_plan')
+      .select('stripe_subscription_id, subscription_plan')
       .eq('id', auth.organizationId)
       .single()
 
     if (orgError || !org?.stripe_subscription_id) {
-      return NextResponse.json(
-        { error: 'Organização não tem subscrição ativa' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Organização não tem subscrição ativa' }, { status: 400 })
     }
-
-    // Prevent downgrading to same plan
     if (org.subscription_plan === plan) {
-      return NextResponse.json(
-        { error: 'Já está no plano ' + plan },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Já está no plano ' + plan }, { status: 400 })
     }
 
-    // Retrieve current subscription + detect currency from existing base item
-    const currentSubscription = await stripe.subscriptions.retrieve(org.stripe_subscription_id, {
+    const stripe = getPlatformStripe()
+    const subscription = await stripe.subscriptions.retrieve(org.stripe_subscription_id, {
       expand: ['items.data.price'],
     })
-
-    // Separate base item from metered item
-    let baseItem: Stripe.SubscriptionItem | null = null
-    const meteredItems: Stripe.SubscriptionItem[] = []
-
-    for (const item of currentSubscription.items.data) {
-      const price = item.price as Stripe.Price
-      if (price.recurring?.usage_type === 'metered') {
-        meteredItems.push(item)
-      } else {
-        baseItem = item
-      }
-    }
-
-    // Detect currency from base price ID
-    let planCurrency: 'eur' | 'brl' | 'usd' = 'eur'
-    const basePriceId = baseItem?.price?.id ?? ''
-    const brlPrices = [
-      process.env.STRIPE_PRICE_ID_ESSENCIAL_BRL,
-      process.env.STRIPE_PRICE_ID_EXPANSAO_BRL,
-      process.env.STRIPE_PRICE_ID_PREMIUM_BRL,
-    ]
-    const usdPrices = [
-      process.env.STRIPE_PRICE_ID_ESSENCIAL_USD,
-      process.env.STRIPE_PRICE_ID_EXPANSAO_USD,
-      process.env.STRIPE_PRICE_ID_PREMIUM_USD,
-    ]
-    if (brlPrices.includes(basePriceId)) planCurrency = 'brl'
-    else if (usdPrices.includes(basePriceId)) planCurrency = 'usd'
-
-    const newPriceId = getPerUnitPriceId(plan, planCurrency)
+    const currency = toBillingCurrency(subscription.currency)
+    const newPriceId = getBasePriceId(plan, currency)
     if (!newPriceId) {
       return NextResponse.json(
-        { error: `Plano ${plan} não disponível. Configure o preço Stripe primeiro.` },
+        { error: `Plano ${plan} não disponível em ${currency.toUpperCase()}. Configure o preço Stripe primeiro.` },
         { status: 400 }
       )
     }
 
-    // Build subscription update: swap base item price, handle metered items
-    const METERED_PLANS = ['expansao', 'premium']
-    const itemUpdates: Stripe.SubscriptionUpdateParams.Item[] = []
+    const baseItem = subscription.items.data.find(i => !isExtraPropertyPriceId((i.price as Stripe.Price).id))
+    const items: Stripe.SubscriptionUpdateParams.Item[] = baseItem
+      ? [{ id: baseItem.id, price: newPriceId }]
+      : [{ price: newPriceId, quantity: 1 }]
 
-    // Update base price
-    if (baseItem) {
-      itemUpdates.push({ id: baseItem.id, price: newPriceId })
-    } else {
-      itemUpdates.push({ price: newPriceId, quantity: 1 })
-    }
-
-    // Remove existing metered items (will add new ones if needed)
-    for (const mi of meteredItems) {
-      itemUpdates.push({ id: mi.id, deleted: true })
-    }
-
-    // Add metered item for new plan if needed
-    if (METERED_PLANS.includes(plan)) {
-      const meteredPriceId = getMeteredPriceId(plan, planCurrency)
-      if (meteredPriceId) {
-        itemUpdates.push({ price: meteredPriceId })
-      }
-    }
-
-    const updatedSubscription = await stripe.subscriptions.update(
-      org.stripe_subscription_id,
-      {
-        items: itemUpdates,
-        proration_behavior: 'create_prorations',
-      }
-    )
-
-    // Re-derive item IDs from updated subscription
-    let newBaseItemId: string | null = null
-    let newMeteredItemId: string | null = null
-    for (const item of updatedSubscription.items.data) {
-      const price = item.price as Stripe.Price
-      if (price.recurring?.usage_type === 'metered') {
-        newMeteredItemId = item.id
-      } else {
-        newBaseItemId = item.id
-      }
-    }
+    const updated = await stripe.subscriptions.update(org.stripe_subscription_id, {
+      items,
+      proration_behavior: 'create_prorations',
+    })
+    const newBaseItem = updated.items.data.find(i => !isExtraPropertyPriceId((i.price as Stripe.Price).id))
 
     await supabase
       .from('organizations')
       .update({
+        plan,
         subscription_plan: plan,
-        stripe_subscription_item_id: newBaseItemId,
-        stripe_metered_item_id: newMeteredItemId,
+        stripe_subscription_item_id: newBaseItem?.id ?? null,
+        billing_currency: currency,
         updated_at: new Date().toISOString(),
       })
       .eq('id', auth.organizationId)
 
-    return NextResponse.json({
-      success: true,
-      plan,
-      subscription_id: updatedSubscription.id,
-    })
+    const extras = await reconcileExtraProperties(auth.organizationId!)
+    await invalidateCachedSubscriptionStatus(auth.organizationId!)
+
+    if (!extras.ok) {
+      console.error('[upgrade-plan] Plano trocado, mas extras não ajustados', extras.message)
+      return NextResponse.json(
+        { success: true, plan, warning: 'Plano alterado, mas as propriedades adicionais não foram ajustadas. Contacte o suporte.' },
+        { status: 200 }
+      )
+    }
+    return NextResponse.json({ success: true, plan, extra_properties: extras.extras ?? 0 })
   } catch (error: unknown) {
     console.error('[upgrade-plan] Error:', error)
-    const message = error instanceof Error ? error.message : 'Erro ao atualizar plano'
-    return NextResponse.json(
-      { error: message },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Erro ao atualizar plano' }, { status: 500 })
   }
 }

@@ -8,7 +8,7 @@ import { Step3ICalSetup } from '@/components/features/onboarding/Step3ICalSetup'
 import { Step4BookingReady } from '@/components/features/onboarding/Step4BookingReady'
 import { Logo } from '@/components/common/ui/Logo'
 import { Button } from '@/components/common/ui/button'
-import { type Plan } from '@/lib/billing/plans'
+import { type Plan, currencyForLocale } from '@/lib/billing/plans'
 
 const STEPS = ['Empresa', 'Propriedade', 'Calendário', 'Página pronta']
 
@@ -124,6 +124,7 @@ export default function OnboardingPage() {
           plan: selectedPlan,
           source: 'onboarding',
           locale,
+          currency: currencyForLocale(locale),
         }),
       })
 

@@ -1,10 +1,15 @@
 import { createProperty } from '../actions'
 import { requireRole } from '@/lib/auth/requireRole'
 import { createClient } from '@/lib/supabase/server'
+import { prepareAddProperty, reconcileExtraProperties } from '@/lib/billing/extra-properties'
 
 // Mock dependencies
 jest.mock('@/lib/auth/requireRole')
 jest.mock('@/lib/supabase/server')
+jest.mock('@/lib/billing/extra-properties', () => ({
+  prepareAddProperty: jest.fn(),
+  reconcileExtraProperties: jest.fn(),
+}))
 
 describe('Property Creation Server Action', () => {
   const mockOrganizationId = '00000000-0000-0000-0000-000000000001'
@@ -25,6 +30,7 @@ describe('Property Creation Server Action', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
+    ;(prepareAddProperty as jest.Mock).mockResolvedValue({ ok: true, charged: false })
   })
 
   describe('Authorization', () => {
@@ -35,7 +41,7 @@ describe('Property Creation Server Action', () => {
 
       const result = await createProperty(validPropertyData)
 
-      expect(result.error).toBe('User does not have required role')
+      expect(result).toHaveProperty('error', 'User does not have required role')
       expect(requireRole).toHaveBeenCalledWith(['admin', 'gestor'])
     })
 
@@ -127,7 +133,51 @@ describe('Property Creation Server Action', () => {
 
       const result = await createProperty(validPropertyData)
 
-      expect(result.error).toBeDefined()
+      expect(result).toHaveProperty('error')
+    })
+  })
+
+  describe('Propriedades adicionais', () => {
+    it('acima do incluído, sem confirmação: não insere e devolve o preço', async () => {
+      ;(requireRole as jest.Mock).mockResolvedValueOnce({ organizationId: mockOrganizationId })
+      ;(prepareAddProperty as jest.Mock).mockResolvedValueOnce({
+        ok: false,
+        code: 'extra_property_confirmation_required',
+        extraPrice: 15,
+        currency: 'brl',
+        included: 1,
+      })
+      const result = await createProperty(validPropertyData)
+
+      expect(prepareAddProperty).toHaveBeenCalledWith(mockOrganizationId, false)
+      expect(result).toMatchObject({ code: 'extra_property_confirmation_required', extraPrice: 15, currency: 'brl', included: 1 })
+      expect(createClient).not.toHaveBeenCalled()
+    })
+
+    it('confirmado: repassa a confirmação e informa que foi cobrado', async () => {
+      ;(requireRole as jest.Mock).mockResolvedValueOnce({ organizationId: mockOrganizationId })
+      ;(prepareAddProperty as jest.Mock).mockResolvedValueOnce({ ok: true, charged: true, extraPrice: 15, currency: 'brl' })
+      ;(createClient as jest.Mock).mockResolvedValueOnce({
+        from: jest.fn().mockReturnValue({ insert: jest.fn().mockResolvedValue({ error: null }) }),
+      })
+
+      const result = await createProperty(validPropertyData, true)
+
+      expect(prepareAddProperty).toHaveBeenCalledWith(mockOrganizationId, true)
+      expect(result).toEqual({ success: true, charged: true })
+    })
+
+    it('insert falha depois de cobrar: reconcilia as adicionais', async () => {
+      ;(requireRole as jest.Mock).mockResolvedValueOnce({ organizationId: mockOrganizationId })
+      ;(prepareAddProperty as jest.Mock).mockResolvedValueOnce({ ok: true, charged: true, extraPrice: 15, currency: 'brl' })
+      ;(createClient as jest.Mock).mockResolvedValueOnce({
+        from: jest.fn().mockReturnValue({ insert: jest.fn().mockResolvedValue({ error: { message: 'falhou' } }) }),
+      })
+
+      const result = await createProperty(validPropertyData, true)
+
+      expect(result).toMatchObject({ error: 'falhou' })
+      expect(reconcileExtraProperties).toHaveBeenCalledWith(mockOrganizationId)
     })
   })
 })

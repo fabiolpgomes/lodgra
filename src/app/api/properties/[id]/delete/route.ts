@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireRole } from '@/lib/auth/requireRole'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { reconcileExtraProperties } from '@/lib/billing/extra-properties'
 
 export async function DELETE(
   request: NextRequest,
@@ -50,6 +51,10 @@ export async function DELETE(
         { status: 500 }
       )
     }
+
+    // Menos propriedades → reduz as adicionais cobradas na assinatura
+    const extras = await reconcileExtraProperties(auth.organizationId)
+    if (!extras.ok) console.error('[delete property] Falha ao ajustar propriedades adicionais', extras.message)
 
     return NextResponse.json({ success: true })
   } catch (error) {

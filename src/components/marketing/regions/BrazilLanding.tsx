@@ -10,6 +10,7 @@ import {
   LucideChevronRight
 } from 'lucide-react'
 import { Logo } from '@/components/landing/atoms/Logo'
+import { PLAN_DISPLAY, PLAN_LIMITS, PLAN_PRICES, formatPlanPrice } from '@/lib/billing/plans'
 
 export const BrazilLanding: React.FC = () => {
   const [isLangOpen, setIsLangOpen] = useState(false)
@@ -270,32 +271,13 @@ export const BrazilLanding: React.FC = () => {
             <div className="w-[64px] h-[4px] bg-be-blue mt-8"></div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              {
-                name: 'Essencial', price: '59', sub: 'mês · 1 unidade',
-                description: 'Saia da planilha. Controle uma unidade com lucro claro.',
-                properties: '1 unidade incluída (+R$49 por unidade extra)',
-                features: ['Motor de Reserva Direta', 'Sync iCal', 'Calendário unificado', 'Gestão básica de reservas'],
-                featured: false
-              },
-              {
-                name: 'Expansão', price: '149', sub: 'mês · 3 unidades',
-                description: 'Coordene sem caos. Até 3 unidades e automações de limpeza.',
-                properties: '3 unidades incluídas (+R$49 por unidade extra)',
-                features: ['Tudo do Essencial', 'Portal de Limpadores (WhatsApp)', 'Relatórios por Proprietário', 'Equipe até 5 pessoas'],
-                featured: true
-              },
-              {
-                name: 'Premium', price: '397', sub: 'mês · 10 unidades',
-                description: 'Automatize operação e receita. Inteligência para grandes portfólios.',
-                properties: '10 unidades incluídas (+R$49 por unidade extra)',
-                features: ['Tudo do Expansão', 'API Completa', 'Forecast & BI Avançado', 'Gerente Dedicado', 'Até 10 propriedades'],
-                featured: false
-              }
-            ].map((tier) => (
-              <div key={tier.name} className={`bg-[#ffffff] p-10 rounded-none border transition-all ${tier.featured ? 'border-be-blue shadow-xl' : 'border-be-blue/10'}`}>
-                {tier.featured && (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+            {PLAN_DISPLAY.map((tier) => {
+              const price = PLAN_PRICES[tier.id].brl
+              const included = PLAN_LIMITS[tier.id].maxProperties ?? 0
+              return (
+              <div key={tier.id} className={`bg-[#ffffff] p-10 rounded-none border transition-all ${tier.highlighted ? 'border-be-blue shadow-xl' : 'border-be-blue/10'}`}>
+                {tier.highlighted && (
                   <div className="mb-6 text-[11px] font-black uppercase tracking-[2px] text-be-blue bg-lodgra-blue inline-block px-3 py-1">
                     MAIS POPULAR
                   </div>
@@ -303,13 +285,15 @@ export const BrazilLanding: React.FC = () => {
                 <div className="mb-8">
                   <h3 className="text-[28px] font-black text-lodgra-blue leading-[1.1] mb-2 uppercase">{tier.name}</h3>
                   <div className="flex items-baseline gap-1 mt-4">
-                    <span className="text-[40px] font-black text-lodgra-blue tracking-tighter">R$ {tier.price}</span>
-                    <span className="text-[14px] font-light text-[#181818]/60">/{tier.sub}</span>
+                    <span className="text-[40px] font-black text-lodgra-blue tracking-tighter">{formatPlanPrice(price.monthly, 'brl').replace(/,00$/, '')}</span>
+                    <span className="text-[14px] font-light text-[#181818]/60">/mês · {included} {included === 1 ? 'unidade' : 'unidades'}</span>
                   </div>
-                  <p className="text-[12px] font-bold text-lodgra-blue bg-lodgra-blue/5 inline-block px-2 py-0.5 mt-2 uppercase tracking-[1px]">{tier.properties}</p>
+                  <p className="text-[12px] font-bold text-lodgra-blue bg-lodgra-blue/5 inline-block px-2 py-0.5 mt-2 uppercase tracking-[1px]">
+                    +{formatPlanPrice(price.extraProperty, 'brl').replace(/,00$/, '')} por unidade adicional
+                  </p>
                   <p className="text-[15px] font-light text-[#181818]/80 mt-6 leading-[1.6] min-h-[44px]">{tier.description}</p>
                 </div>
-                
+
                 <div className="w-full h-[1px] bg-[#e6e6e6] mb-8"></div>
 
                 <div className="space-y-4 flex-1 mb-12">
@@ -320,37 +304,20 @@ export const BrazilLanding: React.FC = () => {
                     </div>
                   ))}
                 </div>
-                {tier.name === 'Premium' ? (
-                  <button
-                    onClick={() => handleCheckout('premium')}
-                    disabled={checkoutLoading !== null}
-                    className={`w-full rounded-none uppercase font-black text-[14px] tracking-[1.5px] px-8 h-[56px] flex items-center justify-center transition-all ${
-                      tier.featured
-                        ? 'bg-lodgra-blue hover:bg-[#152a66] text-be-blue'
-                        : 'bg-transparent border-2 border-be-blue text-lodgra-blue hover:bg-lodgra-blue hover:text-[#ffffff]'
-                    } disabled:opacity-70`}
-                  >
-                    {checkoutLoading === 'premium'
-                      ? 'PROCESSANDO...'
-                      : `ATIVAR ${tier.name.toUpperCase()}`}
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => handleCheckout(tier.name === 'Essencial' ? 'essencial' : 'expansao')}
-                    disabled={checkoutLoading !== null}
-                    className={`w-full rounded-none uppercase font-black text-[14px] tracking-[1.5px] px-8 h-[56px] flex items-center justify-center transition-all ${
-                      tier.featured
-                        ? 'bg-lodgra-blue hover:bg-[#152a66] text-be-blue'
-                        : 'bg-transparent border-2 border-be-blue text-lodgra-blue hover:bg-lodgra-blue hover:text-[#ffffff]'
-                    } disabled:opacity-70`}
-                  >
-                    {checkoutLoading === (tier.name === 'Essencial' ? 'essencial' : 'expansao')
-                      ? 'PROCESSANDO...'
-                      : `ATIVAR ${tier.name.toUpperCase()}`}
-                  </button>
-                )}
+                <button
+                  onClick={() => handleCheckout(tier.id)}
+                  disabled={checkoutLoading !== null}
+                  className={`w-full rounded-none uppercase font-black text-[14px] tracking-[1.5px] px-8 h-[56px] flex items-center justify-center transition-all ${
+                    tier.highlighted
+                      ? 'bg-lodgra-blue hover:bg-[#152a66] text-be-blue'
+                      : 'bg-transparent border-2 border-be-blue text-lodgra-blue hover:bg-lodgra-blue hover:text-[#ffffff]'
+                  } disabled:opacity-70`}
+                >
+                  {checkoutLoading === tier.id ? 'PROCESSANDO...' : `ATIVAR ${tier.name.toUpperCase()}`}
+                </button>
               </div>
-            ))}
+              )
+            })}
           </div>
 
           <div className="mt-12 flex flex-wrap gap-6 text-[12px] font-normal tracking-[0.5px] text-[#6b6b6b] border-t border-[#e6e6e6] pt-6">

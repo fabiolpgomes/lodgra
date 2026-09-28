@@ -2,12 +2,23 @@
 
 import { useState } from 'react'
 import { CheckCircle2, ArrowUpCircle, ExternalLink, Loader2 } from 'lucide-react'
-import { Plan, PLAN_DISPLAY, PLAN_LIMITS } from '@/lib/billing/plans'
-import { formatCurrency } from '@/lib/utils/currency'
+import {
+  type BillingCurrency,
+  type Plan,
+  PLAN_DISPLAY,
+  PLAN_LIMITS,
+  PLAN_PRICES,
+  formatPlanPrice,
+  includedPropertiesLabel,
+  isPaidPlan,
+} from '@/lib/billing/plans'
 
 interface PlanManagementProps {
   currentPlan: Plan
   subscriptionStatus: string
+  currency: BillingCurrency
+  activeProperties: number
+  extraProperties: number
 }
 
 const PLAN_LABELS: Record<Plan, string> = {
@@ -25,13 +36,14 @@ const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   cancelled: { label: 'Cancelada',    color: 'bg-gray-100 text-gray-800' },
 }
 
-export function PlanManagement({ currentPlan, subscriptionStatus }: PlanManagementProps) {
+export function PlanManagement({ currentPlan, subscriptionStatus, currency, activeProperties, extraProperties }: PlanManagementProps) {
   const [upgrading, setUpgrading] = useState<Plan | null>(null)
   const [openingPortal, setOpeningPortal] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
-  const limits = PLAN_LIMITS[currentPlan]
+  const included = PLAN_LIMITS[currentPlan].maxProperties
+  const currentPrice = isPaidPlan(currentPlan) ? PLAN_PRICES[currentPlan][currency] : null
   const statusInfo = STATUS_LABELS[subscriptionStatus] ?? { label: subscriptionStatus, color: 'bg-gray-100 text-gray-800' }
 
   async function handleUpgrade(plan: Plan) {
@@ -46,7 +58,7 @@ export function PlanManagement({ currentPlan, subscriptionStatus }: PlanManageme
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
-      setSuccess(`Plano alterado para ${PLAN_LABELS[plan]} com sucesso!`)
+      setSuccess(data.warning ?? `Plano alterado para ${PLAN_LABELS[plan]} com sucesso!`)
       setTimeout(() => window.location.reload(), 1500)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Erro ao alterar plano')
@@ -69,7 +81,6 @@ export function PlanManagement({ currentPlan, subscriptionStatus }: PlanManageme
     }
   }
 
-  // Find current plan index in PLAN_DISPLAY (not planOrder)
   const currentDisplayIndex = PLAN_DISPLAY.findIndex(p => p.id === currentPlan)
 
   return (
@@ -80,7 +91,10 @@ export function PlanManagement({ currentPlan, subscriptionStatus }: PlanManageme
           <p className="text-xs text-brand-700 font-medium uppercase tracking-wide">Plano atual</p>
           <p className="text-lg font-bold text-brand-900">{PLAN_LABELS[currentPlan]}</p>
           <p className="text-xs text-brand-700 mt-0.5">
-            {limits.maxProperties ? `Até ${limits.maxProperties} propriedades` : 'Propriedades ilimitadas'}
+            {activeProperties} {activeProperties === 1 ? 'propriedade' : 'propriedades'} · {included} incluídas no plano
+            {extraProperties > 0 && currentPrice && (
+              <> · {extraProperties} {extraProperties === 1 ? 'adicional' : 'adicionais'} a {formatPlanPrice(currentPrice.extraProperty, currency)}/mês</>
+            )}
           </p>
         </div>
         <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${statusInfo.color}`}>
@@ -95,11 +109,13 @@ export function PlanManagement({ currentPlan, subscriptionStatus }: PlanManageme
       {/* Plan options */}
       <div className="space-y-2">
         {PLAN_DISPLAY.map((plan, idx) => {
-          const planKey = plan.id as Plan
+          const planKey = plan.id
+          const price = PLAN_PRICES[planKey][currency]
           const isCurrent = planKey === currentPlan
-          const isUpgrade = idx > currentDisplayIndex
-          const isDowngrade = idx < currentDisplayIndex
+          const isUpgrade = currentDisplayIndex === -1 || idx > currentDisplayIndex
+          const isDowngrade = !isUpgrade
           const isLoading = upgrading === planKey
+          const extrasAfter = Math.max(0, activeProperties - (PLAN_LIMITS[planKey].maxProperties ?? 0))
 
           return (
             <div
@@ -115,12 +131,19 @@ export function PlanManagement({ currentPlan, subscriptionStatus }: PlanManageme
                   <p className="font-semibold text-gray-900 text-sm">{plan.name}</p>
                   {isCurrent && <CheckCircle2 className="w-4 h-4 text-brand-600 flex-shrink-0" />}
                 </div>
-                <p className="text-xs text-gray-500">{plan.properties}</p>
+                <p className="text-xs text-gray-500">
+                  {includedPropertiesLabel(planKey)} · adicional {formatPlanPrice(price.extraProperty, currency)}/mês
+                </p>
+                {!isCurrent && extrasAfter > 0 && (
+                  <p className="text-xs text-amber-700 mt-0.5">
+                    Com as suas {activeProperties} propriedades: + {extrasAfter} {extrasAfter === 1 ? 'adicional' : 'adicionais'} ({formatPlanPrice(extrasAfter * price.extraProperty, currency)}/mês)
+                  </p>
+                )}
               </div>
 
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-end gap-3 ml-4 flex-shrink-0">
                 <p className="text-sm font-bold text-gray-900 whitespace-nowrap">
-                  {formatCurrency(plan.price)}
+                  {formatPlanPrice(price.monthly, currency)}
                   <span className="text-xs font-normal text-gray-500">/mês</span>
                 </p>
                 {!isCurrent && (

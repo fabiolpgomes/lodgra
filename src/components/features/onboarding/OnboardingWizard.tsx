@@ -76,7 +76,11 @@ export function OnboardingWizard({ locale }: OnboardingWizardProps) {
       })
       if (!res.ok) {
         const data = await res.json()
-        throw new Error(data.error || 'Erro ao criar imóvel')
+        throw new Error(
+          data.error === 'extra_property_confirmation_required'
+            ? 'O seu plano já tem todas as propriedades incluídas em uso. Adicione mais em Propriedades → Nova propriedade.'
+            : data.message || data.error || 'Erro ao criar imóvel'
+        )
       }
       setCreatedPropertyName(step2.propertyName.trim())
       setStep(2)

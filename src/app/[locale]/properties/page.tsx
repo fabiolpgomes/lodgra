@@ -108,14 +108,16 @@ export default async function PropertiesPage({
   // Get org plan for usage bar
   const adminClient = createAdminClient()
   let subscriptionPlan: string | null = null
+  let extraProperties = 0
   
   if (profile.organization_id) {
     const { data: org } = await adminClient
       .from('organizations')
-      .select('subscription_plan')
+      .select('subscription_plan, extra_properties_count')
       .eq('id', profile.organization_id)
       .single()
     subscriptionPlan = org?.subscription_plan ?? null
+    extraProperties = Number(org?.extra_properties_count ?? 0)
   }
 
   const limits = getPlanLimits(subscriptionPlan)
@@ -170,7 +172,7 @@ export default async function PropertiesPage({
                 <span className="text-sm font-medium text-brand-text-dark">Total de Propriedades</span>
               </div>
               <span className="text-sm font-semibold text-brand-blue">
-                {properties.length} / {limits.maxProperties}
+                {properties.length} / {limits.maxProperties} incluídas
               </span>
             </div>
             <div className="mt-3 w-full bg-brand-border-soft rounded-full h-2 overflow-hidden">
@@ -179,11 +181,9 @@ export default async function PropertiesPage({
                 style={{ width: `${Math.min((properties.length / limits.maxProperties) * 100, 100)}%` }}
               />
             </div>
-            {properties.length > limits.maxProperties && (
+            {extraProperties > 0 && (
               <p className="mt-2 text-xs text-brand-text-medium">
-                ⚠️ Você tem {properties.length - limits.maxProperties} propriedade{properties.length - limits.maxProperties === 1 ? '' : 's'} acima do limite do plano.
-                <br />
-                Entre em contato para adicionar extras ou fazer upgrade.
+                {extraProperties} {extraProperties === 1 ? 'propriedade adicional contratada' : 'propriedades adicionais contratadas'} além das {limits.maxProperties} incluídas no plano.
               </p>
             )}
           </div>

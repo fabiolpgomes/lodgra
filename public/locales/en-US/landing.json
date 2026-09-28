@@ -97,50 +97,55 @@
   },
   "pricing": {
     "title": "Simple, Transparent Pricing",
+    "period": "/month",
+    "extraLabel": "+ {price}/month per additional property",
     "tiers": [
       {
-        "id": "starter",
-        "name": "Starter",
-        "price": "19",
-        "period": "/month",
-        "description": "For managers getting started",
+        "id": "essencial",
+        "name": "Essential",
+        "description": "Leave the spreadsheet behind. Run one unit with clear profit.",
         "features": [
-          "Up to 3 properties",
+          "1 unit included",
+          "Direct booking engine",
           "iCal sync (Airbnb, Booking, VRBO)",
-          "Drag-drop calendar",
-          "Basic reports",
-          "Email support"
+          "Unified calendar",
+          "Basic reservation management"
         ]
       },
       {
-        "id": "professional",
-        "name": "Professional",
-        "price": "49",
-        "period": "/month",
-        "description": "For growing managers",
+        "id": "expansao",
+        "name": "Expansion",
+        "description": "Coordinate without chaos. Up to 3 units and cleaning automation.",
         "badge": "Most Popular",
         "isPrimary": true,
         "features": [
-          "Up to 10 properties",
-          "Everything in Starter",
+          "3 units included",
+          "Everything in Essential",
+          "Team portal (WhatsApp)",
           "Owner reports",
-          "Fiscal compliance",
-          "Export PDF/Excel",
-          "Priority support"
+          "Team of up to 5 people"
         ]
       },
       {
-        "id": "business",
-        "name": "Business",
-        "price": "99",
-        "period": "/month",
-        "description": "For professional operations",
+        "id": "premium",
+        "name": "Premium",
+        "description": "Automate operations and revenue. Up to 10 units.",
         "features": [
-          "Unlimited properties",
-          "Everything in Professional",
-          "Priority support",
-          "2FA (coming soon)",
-          "API access (coming soon)"
+          "10 units included",
+          "Everything in Expansion",
+          "Dedicated manager",
+          "Team of up to 5 people"
+        ]
+      },
+      {
+        "id": "enterprise",
+        "name": "Enterprise",
+        "description": "For larger operations. Up to 20 units and unlimited team.",
+        "features": [
+          "20 units included",
+          "Everything in Premium",
+          "Dedicated onboarding",
+          "Unlimited team"
         ]
       }
     ]
@@ -166,7 +171,7 @@
       },
       {
         "question": "How do I integrate with my channels?",
-        "answer": "Connect via iCal (Airbnb, Booking, VRBO) or use our API. Auto-sync 24/7."
+        "answer": "Connect via iCal (Airbnb, Booking, VRBO). Auto-sync 24/7."
       },
       {
         "question": "Can I give my cleaner access without sharing everything?",
