@@ -3,7 +3,7 @@ import CleaningPhotoUploader from '@/components/cleaning/photos/CleaningPhotoUpl
 import CleaningPhotoGallery from '@/components/cleaning/photos/CleaningPhotoGallery';
 
 // Mock next-intl
-jest.mock('next-intl', () => ({
+jest.mock('@/lib/i18n/useTranslations', () => ({
   useTranslations: () => (key: string) => key,
 }));
 

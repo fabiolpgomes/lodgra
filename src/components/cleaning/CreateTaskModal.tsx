@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations } from '@/lib/i18n/useTranslations';
 import ChecklistPreview from './ChecklistPreview';
 import QuickTemplateSelector from './QuickTemplateSelector';
 import { Eye, EyeOff } from 'lucide-react';

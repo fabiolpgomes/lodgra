@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations } from '@/lib/i18n/useTranslations';
 import { Button } from '@/components/common/ui/button';
 import { ImagePlus, X } from 'lucide-react';
 import NextImage from 'next/image';

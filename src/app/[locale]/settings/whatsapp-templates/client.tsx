@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations } from '@/lib/i18n/useTranslations';
 import TemplateEditor from '@/components/whatsapp/TemplateEditor';
 import { getDefaultTemplate, DEFAULT_TEMPLATES_PT_BR, DEFAULT_TEMPLATES_ES } from '@/lib/whatsapp/default-templates';
 

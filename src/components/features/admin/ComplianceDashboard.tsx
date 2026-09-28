@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Download, CheckCircle, XCircle, Clock, FileText, Trash2, Shield } from 'lucide-react'
-import { useTranslations } from 'next-intl'
+import { useTranslations } from '@/lib/i18n/useTranslations'
 
 interface ConsentStats {
   [type: string]: { accepted: number; declined: number }

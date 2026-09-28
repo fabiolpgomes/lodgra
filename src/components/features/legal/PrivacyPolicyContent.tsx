@@ -1,6 +1,6 @@
 'use client'
 
-import { useTranslations } from 'next-intl'
+import { useTranslations } from '@/lib/i18n/useTranslations'
 import Link from 'next/link'
 
 export function PrivacyPolicyContent() {

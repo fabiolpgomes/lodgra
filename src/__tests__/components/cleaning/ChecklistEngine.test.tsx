@@ -1,7 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import ChecklistBuilder from '@/components/cleaning/checklists/ChecklistBuilder';
 
-jest.mock('next-intl', () => ({
+jest.mock('@/lib/i18n/useTranslations', () => ({
   useTranslations: () => (key: string) => key.includes('.') ? key : `builder.${key}`,
 }));
 

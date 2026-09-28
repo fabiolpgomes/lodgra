@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useLocale } from 'next-intl'
+import { useLocale } from '@/lib/i18n/routing'
 import Link from 'next/link'
 
 interface Invoice {

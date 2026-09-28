@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useLocale } from 'next-intl'
+import { useLocale } from '@/lib/i18n/routing'
 import Link from 'next/link'
 
 interface Subscription {

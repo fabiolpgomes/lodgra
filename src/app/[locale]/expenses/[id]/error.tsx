@@ -3,7 +3,7 @@
 import { useEffect } from 'react'
 import Link from 'next/link'
 import { AlertTriangle, RefreshCw, ArrowLeft } from 'lucide-react'
-import { useLocale } from 'next-intl'
+import { useLocale } from '@/lib/i18n/routing'
 import { Button } from '@/components/common/ui/button'
 
 export default function ExpenseDetailError({

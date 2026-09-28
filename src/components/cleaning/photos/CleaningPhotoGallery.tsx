@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations } from '@/lib/i18n/useTranslations';
 import { Trash2 } from 'lucide-react';
 import { createClient } from '@supabase/supabase-js';
 import Image from 'next/image';

@@ -3,7 +3,7 @@ import TaskForm from '@/components/cleaning/TaskForm';
 import TaskFilters from '@/components/cleaning/TaskFilters';
 
 // Mock next-intl
-jest.mock('next-intl', () => ({
+jest.mock('@/lib/i18n/useTranslations', () => ({
   useTranslations: () => (key: string) => key,
 }));
 

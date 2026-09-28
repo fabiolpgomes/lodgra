@@ -78,8 +78,9 @@ function getByPath(source: unknown, path: string): string | undefined {
 function interpolate(message: string, values?: Record<string, string | number | Date>): string {
   if (!values) return message
 
+  // Aceita {{chave}} (catálogos locais) e {chave} (formato ICU usado pelo next-intl).
   return Object.entries(values).reduce((current, [key, value]) => {
-    return current.replaceAll(`{{${key}}}`, String(value))
+    return current.replaceAll(`{{${key}}}`, String(value)).replaceAll(`{${key}}`, String(value))
   }, message)
 }
 

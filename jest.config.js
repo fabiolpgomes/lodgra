@@ -10,6 +10,8 @@ const config = {
   testEnvironment: 'jsdom',
   moduleNameMapper: {
     // Application aliases
+    // i18n.config fica na raiz (tsconfig resolve @/* em ./src e ./)
+    '^@/i18n.config$': '<rootDir>/i18n.config.ts',
     '^@/(.*)$': '<rootDir>/src/$1',
 
     // Next.js module mocks (fixes Jest module resolution)

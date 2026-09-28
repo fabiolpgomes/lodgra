@@ -2,7 +2,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import TaskTable from '@/components/cleaning/TaskTable';
 
 // Mock next-intl
-jest.mock('next-intl', () => ({
+jest.mock('@/lib/i18n/useTranslations', () => ({
   useTranslations: () => (key: string) => key,
 }));
 

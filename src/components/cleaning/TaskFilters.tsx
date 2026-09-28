@@ -1,6 +1,6 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
+import { useTranslations } from '@/lib/i18n/useTranslations';
 import { Button } from '@/components/common/ui/button';
 import { Input } from '@/components/common/ui/input';
 
