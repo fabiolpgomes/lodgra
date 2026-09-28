@@ -104,8 +104,9 @@ export async function GET(_request: NextRequest) {
       .eq('id', auth.organizationId)
       .single()
 
+    // Organização ainda sem cliente Stripe = sem assinatura paga (estado normal, não erro).
     if (!org?.stripe_customer_id) {
-      return NextResponse.json({ error: 'No Stripe customer' }, { status: 400 })
+      return NextResponse.json({ subscription_id: null, plan: org?.subscription_plan ?? null, status: 'no_subscription' })
     }
 
     const subscriptions = await stripeBR.subscriptions.list({

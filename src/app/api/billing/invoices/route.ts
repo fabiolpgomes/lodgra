@@ -19,8 +19,9 @@ export async function GET(_request: NextRequest) {
       .eq('id', auth.organizationId)
       .single()
 
+    // Sem cliente Stripe ainda = nenhuma fatura (estado normal, não erro).
     if (!org?.stripe_customer_id) {
-      return NextResponse.json({ error: 'No Stripe customer' }, { status: 400 })
+      return NextResponse.json({ invoices: [] })
     }
 
     const invoices = await stripeBR.invoices.list({
