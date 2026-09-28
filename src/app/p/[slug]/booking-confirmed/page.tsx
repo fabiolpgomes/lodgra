@@ -6,7 +6,7 @@ import type { Metadata } from 'next'
 import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
 
 export const metadata: Metadata = {
-  title: 'Reserva Confirmada — lodgra.pt',
+  title: 'Reserva Confirmada — Lodgra',
   robots: { index: false },
 }
 
@@ -90,7 +90,7 @@ export default async function BookingConfirmedPage({ params, searchParams }: Pag
       <header className="border-b border-brand-gold/15 bg-brand-white px-4 py-3">
         <div className="max-w-lg mx-auto">
           <a href={`/p/${slug}`} className="font-semibold text-brand-blue text-lg">
-            lodgra.pt
+            Lodgra
           </a>
         </div>
       </header>
@@ -147,7 +147,7 @@ export default async function BookingConfirmedPage({ params, searchParams }: Pag
       </main>
 
       <footer className="mt-8 border-t border-brand-gold/15 bg-brand-white px-4 py-4 text-center text-xs text-brand-text-medium">
-        © {new Date().getFullYear()} lodgra.pt · Obrigado pela sua reserva!
+        © {new Date().getFullYear()} Lodgra · Obrigado pela sua reserva!
       </footer>
     </div>
   )

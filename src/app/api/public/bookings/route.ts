@@ -341,7 +341,16 @@ export async function POST(request: NextRequest) {
     apiVersion: '2026-02-25.clover',
   })
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://lodgra.io'
+  // Volta para o mesmo domínio onde o hóspede reservou (ex.: algarve-home-stay.lodgra.io
+  // ou o subdomínio em dev). A origem já foi validada pelo CSRF (mesmo host da requisição).
+  const requestOrigin = request.headers.get('origin')
+  const requestHost = request.headers.get('x-forwarded-host') ?? request.headers.get('host')
+  const originMatchesHost = (() => {
+    try { return !!requestOrigin && new URL(requestOrigin).host === requestHost } catch { return false }
+  })()
+  const appUrl = originMatchesHost
+    ? requestOrigin!
+    : (process.env.NEXT_PUBLIC_APP_URL || 'https://lodgra.io')
 
   try {
     console.log('[Bookings API] Creating Stripe checkout session')
