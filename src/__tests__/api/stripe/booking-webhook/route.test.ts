@@ -29,11 +29,16 @@ jest.mock('@/lib/stripe/webhook-idempotency', () => ({
 // Mock Stripe — constructEvent can be controlled per test
 const mockConstructEvent = jest.fn()
 jest.mock('stripe', () => {
-  return jest.fn().mockImplementation(() => ({
+  const StripeMock = jest.fn().mockImplementation(() => ({
     webhooks: {
       constructEvent: mockConstructEvent,
     },
   }))
+  // A rota usa o verificador estático (Stripe.webhooks.constructEvent)
+  ;(StripeMock as unknown as { webhooks: unknown }).webhooks = {
+    constructEvent: (...args: unknown[]) => mockConstructEvent(...args),
+  }
+  return StripeMock
 })
 
 const mockCreateAdminClient = createAdminClient as jest.MockedFunction<typeof createAdminClient>
@@ -93,6 +98,11 @@ function buildMockSupabase(options: {
         select: jest.fn().mockReturnValue({
           eq: jest.fn().mockReturnValue({
             single: jest.fn().mockResolvedValue({ data: reservationData, error: null }),
+            // Conta onde a reserva foi cobrada (null = modelo antigo, conta própria da AHS)
+            maybeSingle: jest.fn().mockResolvedValue({
+              data: reservationData ? { stripe_account_id: (reservationData as { stripe_account_id?: string }).stripe_account_id ?? null } : null,
+              error: null,
+            }),
           }),
         }),
         // Confirmação: update().eq().neq().select(); expiração: await update().eq()
@@ -332,3 +342,47 @@ describe('POST /api/stripe/booking-webhook', () => {
     })
   })
 })
+
+describe('POST /api/stripe/booking-webhook — contas conectadas dos tenants', () => {
+  const ENV = process.env
+  beforeEach(() => {
+    process.env = { ...ENV, STRIPE_SECRET_KEY: 'sk_test_br', STRIPE_CONNECT_WEBHOOK_SECRET: 'whsec_connect_br' }
+  })
+  afterAll(() => { process.env = ENV })
+
+  function completedFrom(account: string | undefined) {
+    return {
+      id: 'evt_connect_1',
+      type: 'checkout.session.completed',
+      account,
+      data: { object: { id: 'cs_1', payment_intent: 'pi_1', metadata: { reservation_id: 'res-001' } } },
+    }
+  }
+
+  it('aceita a assinatura do endpoint de contas conectadas e confirma a reserva da própria conta', async () => {
+    mockConstructEvent.mockImplementation((_b: string, _s: string, secret: string) => {
+      if (secret !== 'whsec_connect_br') throw new Error('bad signature')
+      return completedFrom('acct_tenant_1')
+    })
+    const supabase = buildMockSupabase({ reservationData: { ...pendingReservation, stripe_account_id: 'acct_tenant_1' } })
+    mockCreateAdminClient.mockReturnValue(supabase)
+
+    const res = await POST(makeWebhookRequest())
+
+    expect(res.status).toBe(200)
+    expect(mockSendGuest).toHaveBeenCalled()
+  })
+
+  it('ignora evento de outra conta que usa o reservation_id de outro tenant', async () => {
+    mockConstructEvent.mockReturnValue(completedFrom('acct_intruso'))
+    const supabase = buildMockSupabase({ reservationData: { ...pendingReservation, stripe_account_id: 'acct_tenant_1' } })
+    mockCreateAdminClient.mockReturnValue(supabase)
+
+    const res = await POST(makeWebhookRequest())
+
+    expect(res.status).toBe(200)
+    expect(mockSendGuest).not.toHaveBeenCalled()
+    expect(mockMarkProcessed).toHaveBeenCalled()
+  })
+})
+

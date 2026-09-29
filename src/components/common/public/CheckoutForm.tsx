@@ -144,7 +144,7 @@ export function CheckoutForm({
       const data = await res.json()
 
       if (!res.ok) {
-        setApiError(data.error || 'Erro ao processar reserva. Tente novamente.')
+        setApiError(data.message || data.error || 'Erro ao processar reserva. Tente novamente.')
         setSubmitting(false)
         return
       }

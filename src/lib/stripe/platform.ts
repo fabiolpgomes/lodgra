@@ -6,9 +6,25 @@ import type { BillingCurrency } from '@/lib/billing/plans'
 //   eur → conta Portugal (STRIPE_EU_SECRET_KEY, STRIPE_EU_WEBHOOK_SECRET)
 // Não confundir com contas dos tenants (ex.: STRIPE_PT_SECRET_KEY da AHS),
 // que recebem os pagamentos das reservas diretas.
-const ENV: Record<BillingCurrency, { key: string; webhookSecret: string }> = {
-  brl: { key: 'STRIPE_SECRET_KEY', webhookSecret: 'STRIPE_WEBHOOK_SECRET' },
-  eur: { key: 'STRIPE_EU_SECRET_KEY', webhookSecret: 'STRIPE_EU_WEBHOOK_SECRET' },
+const ENV: Record<BillingCurrency, { key: string; webhookSecret: string; connectWebhookSecret: string }> = {
+  brl: { key: 'STRIPE_SECRET_KEY', webhookSecret: 'STRIPE_WEBHOOK_SECRET', connectWebhookSecret: 'STRIPE_CONNECT_WEBHOOK_SECRET' },
+  eur: { key: 'STRIPE_EU_SECRET_KEY', webhookSecret: 'STRIPE_EU_WEBHOOK_SECRET', connectWebhookSecret: 'STRIPE_EU_CONNECT_WEBHOOK_SECRET' },
+}
+
+// Chaves publicáveis (usadas no navegador pelos componentes embutidos do Connect).
+// Lidas explicitamente para o Next.js incluí-las no bundle do servidor.
+const PUBLISHABLE: Record<BillingCurrency, string | undefined> = {
+  brl: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
+  eur: process.env.NEXT_PUBLIC_STRIPE_EU_PUBLISHABLE_KEY,
+}
+
+export function getPlatformPublishableKey(currency: BillingCurrency): string {
+  return (PUBLISHABLE[currency] ?? '').trim()
+}
+
+/** Segredo do endpoint de webhook de CONTAS CONECTADAS (eventos das reservas dos tenants). */
+export function getConnectWebhookSecret(currency: BillingCurrency): string {
+  return env(ENV[currency].connectWebhookSecret)
 }
 
 export const PLATFORM_CURRENCIES = Object.keys(ENV) as BillingCurrency[]

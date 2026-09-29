@@ -13,24 +13,33 @@ import { getPriceForRangePublic } from '@/lib/pricing/getPriceForRange'
 jest.mock('@/lib/supabase/admin')
 jest.mock('@/lib/rateLimit')
 jest.mock('@/lib/pricing/getPriceForRange')
-jest.mock('stripe', () => {
-  return jest.fn().mockImplementation(() => ({
-    checkout: {
-      sessions: {
-        create: jest.fn().mockResolvedValue({
-          id: 'cs_test_123',
-          url: 'https://checkout.stripe.com/pay/cs_test_123',
-        }),
-      },
-    },
-  }))
+const mockCheckoutCreate = jest.fn().mockResolvedValue({
+  id: 'cs_test_123',
+  url: 'https://checkout.stripe.com/pay/cs_test_123',
 })
+const mockResolveAccount = jest.fn()
+jest.mock('@/lib/stripe/connect', () => ({
+  resolveBookingPaymentAccount: (...args: unknown[]) => mockResolveAccount(...args),
+}))
+
+function connectAccount() {
+  return {
+    kind: 'connect',
+    stripe: { checkout: { sessions: { create: mockCheckoutCreate } } },
+    accountId: 'acct_tenant_1',
+    platform: 'eur',
+  }
+}
 
 const mockCheckRateLimit = checkRateLimit as jest.MockedFunction<typeof checkRateLimit>
 const mockCreateAdminClient = createAdminClient as jest.MockedFunction<typeof createAdminClient>
 const mockGetPriceForRangePublic = getPriceForRangePublic as jest.MockedFunction<typeof getPriceForRangePublic>
 
 const BASE_URL = 'http://localhost:3000'
+
+beforeEach(() => {
+  mockResolveAccount.mockResolvedValue(connectAccount())
+})
 
 function makeRequest(body: Record<string, unknown>): NextRequest {
   return createTestRequest(`${BASE_URL}/api/public/bookings`, {
@@ -290,5 +299,26 @@ describe('POST /api/public/bookings', () => {
       expect.any(Date),
       expect.any(Date)
     )
+  })
+
+  it('cria o Checkout na conta Stripe do tenant (cobrança direta)', async () => {
+    mockCreateAdminClient.mockReturnValue(buildMockSupabase())
+    const res = await POST(makeRequest(validBody))
+    expect(res.status).toBe(200)
+    expect(mockCheckoutCreate).toHaveBeenCalledWith(
+      expect.objectContaining({ mode: 'payment' }),
+      { stripeAccount: 'acct_tenant_1' }
+    )
+  })
+
+  it('responde 409 sem criar reserva quando o tenant não tem pagamento online ativo', async () => {
+    mockResolveAccount.mockResolvedValue(null)
+    const supabase = buildMockSupabase()
+    mockCreateAdminClient.mockReturnValue(supabase)
+    mockCheckoutCreate.mockClear()
+    const res = await POST(makeRequest(validBody))
+    expect(res.status).toBe(409)
+    expect((await res.json()).error).toBe('online_payment_unavailable')
+    expect(mockCheckoutCreate).not.toHaveBeenCalled()
   })
 })

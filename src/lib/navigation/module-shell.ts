@@ -190,6 +190,7 @@ export function getPageTitle(pathname: string): string {
   if (normalized.startsWith('/properties')) return 'Propriedades'
   if (normalized.startsWith('/reservations')) return 'Reservas'
   if (normalized.startsWith('/settings/billing')) return 'Planos e Ferramentas'
+  if (normalized.startsWith('/settings/payments')) return 'Pagamentos online'
   if (normalized.startsWith('/expenses')) return 'Despesas'
   if (normalized.startsWith('/cleaning')) return 'Limpeza'
   if (normalized.startsWith('/financial')) return 'Visão financeira'

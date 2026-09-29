@@ -1,14 +1,11 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { UserAccess } from '@/lib/auth/getUserAccess'
 import { cancelReservation } from '@/lib/reservations/cancelReservation'
-import { stripePT } from '@/lib/stripe/client-pt'
+import { stripeForReservationPayment } from '@/lib/stripe/connect'
 
-jest.mock('@/lib/stripe/client-pt', () => ({
-  stripePT: {
-    refunds: {
-      create: jest.fn(),
-    },
-  },
+const refundsCreate = jest.fn()
+jest.mock('@/lib/stripe/connect', () => ({
+  stripeForReservationPayment: jest.fn(),
 }))
 
 function access(overrides: Partial<UserAccess['profile']> = {}): UserAccess {
@@ -118,8 +115,10 @@ describe('cancelReservation', () => {
       .mockReturnValueOnce(updateQuery)
       .mockReturnValueOnce({ insert: auditInsert })
 
-    ;(stripePT.refunds.create as jest.Mock).mockResolvedValue({
-      id: 're_123',
+    refundsCreate.mockResolvedValue({ id: 're_123' })
+    ;(stripeForReservationPayment as jest.Mock).mockResolvedValue({
+      stripe: { refunds: { create: refundsCreate } },
+      options: { stripeAccount: 'acct_tenant_1' },
     })
 
     const result = await cancelReservation(
@@ -129,11 +128,15 @@ describe('cancelReservation', () => {
       'Cancelamento solicitado',
     )
 
-    expect(stripePT.refunds.create).toHaveBeenCalledWith({
-      payment_intent: 'pi_123',
-      amount: 45000,
-      reason: 'requested_by_customer',
-    })
+    // Reembolso feito na conta onde o hóspede pagou (conta conectada do tenant)
+    expect(refundsCreate).toHaveBeenCalledWith(
+      {
+        payment_intent: 'pi_123',
+        amount: 45000,
+        reason: 'requested_by_customer',
+      },
+      { stripeAccount: 'acct_tenant_1' }
+    )
     expect(result).toEqual(expect.objectContaining({
       ok: true,
       alreadyCancelled: false,

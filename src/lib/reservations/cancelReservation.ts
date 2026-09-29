@@ -1,6 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { UserAccess } from '@/lib/auth/getUserAccess'
-import { stripePT } from '@/lib/stripe/client-pt'
+import { stripeForReservationPayment } from '@/lib/stripe/connect'
 import { calculateRefundForReservation } from '@/lib/cancellation/refund-calculator'
 import type {
   CancellationPolicySnapshot,
@@ -41,7 +41,7 @@ export async function cancelReservation(
   let reservationQuery = supabase
     .from('reservations')
     .select(
-      'id, property_id, reservation_status, deleted_at, check_in, check_out, total_amount, cancellation_policy_id, cancellation_policy_snapshot, stripe_payment_intent_id'
+      'id, property_id, reservation_status, deleted_at, check_in, check_out, total_amount, cancellation_policy_id, cancellation_policy_snapshot, stripe_payment_intent_id, stripe_account_id, stripe_connect_platform'
     )
     .eq('id', reservationId)
     .eq('organization_id', organizationId)
@@ -90,11 +90,16 @@ export async function cancelReservation(
 
   if (refundData && refundData.refund_amount > 0 && reservation.stripe_payment_intent_id) {
     try {
-      const refund = await stripePT.refunds.create({
-        payment_intent: reservation.stripe_payment_intent_id,
-        amount: Math.round(refundData.refund_amount * 100),
-        reason: 'requested_by_customer',
-      })
+      // Reembolso na conta onde o hóspede pagou (conta do tenant ou, no modelo antigo, da AHS)
+      const { stripe, options } = await stripeForReservationPayment(reservation)
+      const refund = await stripe.refunds.create(
+        {
+          payment_intent: reservation.stripe_payment_intent_id,
+          amount: Math.round(refundData.refund_amount * 100),
+          reason: 'requested_by_customer',
+        },
+        options
+      )
 
       stripeRefundId = refund.id
       refundProcessedAt = new Date().toISOString()

@@ -12,6 +12,7 @@ import {
   RefreshCw,
   Settings,
   Users,
+  Wallet,
 } from 'lucide-react'
 import { Logo } from '@/components/common/ui/Logo'
 import { useAuth } from '@/hooks/useAuth'
@@ -137,6 +138,7 @@ export function Sidebar({ serverProfile }: SidebarProps) {
       ? [{ href: `${prefix}/settings/organizations/${profile.organization_id}/company-profile`, label: 'Dados da empresa', icon: Building2 }]
       : []),
     { href: `${prefix}/settings/billing`, label: 'Planos e Ferramentas', icon: CreditCard },
+    ...(isAdmin ? [{ href: `${prefix}/settings/payments`, label: 'Pagamentos online', icon: Wallet }] : []),
     { href: `${prefix}/sync`, label: 'Sincronização', icon: RefreshCw },
     { href: `${prefix}/owners`, label: 'Proprietários', icon: Users },
     ...(hasPremium ? [{ href: `${prefix}/admin/google-distribution`, label: 'Google Distribution', icon: Globe }] : []),

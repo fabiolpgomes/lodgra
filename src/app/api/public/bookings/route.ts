@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { resolveBookingPaymentAccount } from '@/lib/stripe/connect'
 import { checkRateLimit } from '@/lib/rateLimit'
 import { differenceInDays, parseISO, isValid, isBefore, startOfDay } from 'date-fns'
 import { getPriceForRangePublic } from '@/lib/pricing/getPriceForRange'
@@ -290,6 +291,15 @@ export async function POST(request: NextRequest) {
   }
 
 
+  // ── Conta onde o hóspede vai pagar (conta Stripe do tenant) ─────────────────
+  const paymentAccount = await resolveBookingPaymentAccount(property.organization_id)
+  if (!paymentAccount) {
+    return NextResponse.json(
+      { error: 'online_payment_unavailable', message: 'Este alojamento ainda não aceita pagamento online. Contacte o anfitrião.' },
+      { status: 409 }
+    )
+  }
+
   // ── Create reservation (pending_payment) ────────────────────────────────────
 
   console.log('[Bookings API] Creating reservation with listing:', directListingId)
@@ -328,18 +338,11 @@ export async function POST(request: NextRequest) {
 
   // ── Create Stripe Checkout Session ──────────────────────────────────────────
 
-  const stripeKey = process.env.STRIPE_PT_SECRET_KEY || process.env.STRIPE_SECRET_KEY
-  if (!stripeKey) {
-    console.error('[Bookings API] Erro: STRIPE_PT_SECRET_KEY ou STRIPE_SECRET_KEY não configurados')
-    return NextResponse.json(
-      { error: 'Serviço de pagamento não configurado. Contacte o suporte.' },
-      { status: 500 }
-    )
-  }
-
-  const stripe = new Stripe(stripeKey, {
-    apiVersion: '2026-02-25.clover',
-  })
+  // Cobrança direta: o Checkout é criado na conta do tenant (Stripe-Account),
+  // o dinheiro entra no saldo dele. Modelo antigo (AHS) usa a chave própria.
+  const { stripe } = paymentAccount
+  const requestOptions: Stripe.RequestOptions | undefined =
+    paymentAccount.kind === 'connect' ? { stripeAccount: paymentAccount.accountId } : undefined
 
   // Volta para o mesmo domínio onde o hóspede reservou (ex.: algarve-home-stay.lodgra.io
   // ou o subdomínio em dev). A origem já foi validada pelo CSRF (mesmo host da requisição).
@@ -396,14 +399,18 @@ export async function POST(request: NextRequest) {
       },
     }
 
-    const session = await stripe.checkout.sessions.create(sessionParams)
+    const session = await stripe.checkout.sessions.create(sessionParams, requestOptions)
 
     console.log('[Bookings API] Stripe session created:', session.id)
 
     // Store session ID on the reservation
     await adminClient
       .from('reservations')
-      .update({ stripe_checkout_session_id: session.id })
+      .update({
+        stripe_checkout_session_id: session.id,
+        stripe_account_id: paymentAccount.kind === 'connect' ? paymentAccount.accountId : null,
+        stripe_connect_platform: paymentAccount.kind === 'connect' ? paymentAccount.platform : null,
+      })
       .eq('id', reservation.id)
 
     console.log('[Bookings API] Success! Returning checkout URL')

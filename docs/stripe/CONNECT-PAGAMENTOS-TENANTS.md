@@ -87,9 +87,11 @@ Não usar os booleanos v1 `charges_enabled`/`payouts_enabled`.
      Account Session para os componentes, ler estado das capacidades.
    - `POST /api/stripe/connect/account` (admin): cria a conta se não existir.
    - `POST /api/stripe/connect/session` (admin): devolve `client_secret` da Account Session.
-   - Webhook `POST /api/stripe/connect-webhook`: atualiza `stripe_connect_status` e confirma
-     reservas (`checkout.session.completed/expired` vindos das contas conectadas), com a mesma
-     idempotência (`stripe_webhook_events`).
+   - Webhook `POST /api/stripe/booking-webhook` (endpoint "contas conectadas" em cada
+     plataforma): confirma/expira reservas (`checkout.session.completed/expired`) com a mesma
+     idempotência (`stripe_webhook_events`) e só aceita o evento da conta onde a reserva foi
+     cobrada. O estado da conta é lido do Stripe ao abrir "Pagamentos online", ao sair do
+     cadastro e antes de cada reserva (não depende de eventos de conta).
 3. **Reserva direta** — `api/public/bookings`: criar o Checkout **com `stripeAccount`** da org
    dona da propriedade; se a org não tiver conta ativa → não oferece pagamento online.
    Reembolso/cancelamento (`billing/refunds`, `cancelReservation`) também com `stripeAccount`.

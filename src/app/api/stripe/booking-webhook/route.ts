@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { configuredPlatformCurrencies, getConnectWebhookSecret } from '@/lib/stripe/platform'
 import { claimStripeEvent, markStripeEventProcessed, releaseStripeEvent } from '@/lib/stripe/webhook-idempotency'
 import { sendBookingConfirmationToGuest, sendBookingNotificationToManager } from '@/lib/email/bookingConfirmationGuest'
 import { enqueueEmail } from '@/lib/email/queue'
@@ -9,10 +10,6 @@ import type { CurrencyCode } from '@/lib/utils/currency'
 export const dynamic = 'force-dynamic'
 
 export async function POST(request: NextRequest) {
-  const stripe = new Stripe((process.env.STRIPE_PT_SECRET_KEY ?? '').trim(), {
-    apiVersion: '2026-02-25.clover',
-  })
-
   const body = await request.text()
   const sig = request.headers.get('stripe-signature')
 
@@ -20,20 +17,29 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Sem assinatura Stripe' }, { status: 400 })
   }
 
-  const secret = (process.env.STRIPE_PT_WEBHOOK_SECRET ?? '').trim() || null
-  if (!secret) {
-    console.error('[booking-webhook] STRIPE_PT_WEBHOOK_SECRET não configurado')
+  // Eventos chegam de: contas conectadas dos tenants (plataformas BR e PT, endpoint
+  // "contas conectadas") e, transitoriamente, da conta própria da AHS.
+  const secrets = [
+    ...configuredPlatformCurrencies().map(getConnectWebhookSecret),
+    (process.env.STRIPE_PT_WEBHOOK_SECRET ?? '').trim(),
+  ].filter(Boolean)
+  if (secrets.length === 0) {
+    console.error('[booking-webhook] nenhum segredo de webhook configurado')
     return NextResponse.json({ error: 'Webhook não configurado' }, { status: 500 })
   }
 
-  let event: Stripe.Event
-
-  try {
-    event = stripe.webhooks.constructEvent(body, sig, secret!)
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : String(err)
-    console.error('[booking-webhook] Falha na verificação da assinatura:', msg)
-    return NextResponse.json({ error: `Webhook error: ${msg}` }, { status: 400 })
+  let event: Stripe.Event | null = null
+  for (const secret of secrets) {
+    try {
+      event = Stripe.webhooks.constructEvent(body, sig, secret)
+      break
+    } catch {
+      // assinatura de outra origem — tenta o próximo segredo
+    }
+  }
+  if (!event) {
+    console.error('[booking-webhook] Falha na verificação da assinatura')
+    return NextResponse.json({ error: 'Webhook error: assinatura inválida' }, { status: 400 })
   }
 
   const supabase = await createAdminClient()
@@ -59,12 +65,12 @@ export async function POST(request: NextRequest) {
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session
-        await handleBookingCompleted(supabase, session)
+        await handleBookingCompleted(supabase, session, event.account ?? null)
         break
       }
       case 'checkout.session.expired': {
         const session = event.data.object as Stripe.Checkout.Session
-        await handleBookingExpired(supabase, session)
+        await handleBookingExpired(supabase, session, event.account ?? null)
         break
       }
       default:
@@ -83,10 +89,29 @@ export async function POST(request: NextRequest) {
 
 type AdminClient = ReturnType<typeof createAdminClient>
 
-async function handleBookingCompleted(supabase: AdminClient, session: Stripe.Checkout.Session) {
+/**
+ * Um tenant controla a própria conta Stripe e poderia criar uma sessão com o
+ * reservation_id de outra organização. Só aceita o evento se vier da conta
+ * onde a reserva foi cobrada (ou, no modelo antigo, sem conta conectada).
+ */
+async function eventMatchesReservation(supabase: AdminClient, reservationId: string, eventAccount: string | null) {
+  const { data } = await supabase
+    .from('reservations')
+    .select('stripe_account_id')
+    .eq('id', reservationId)
+    .maybeSingle()
+  if (!data) return false
+  return (data.stripe_account_id ?? null) === eventAccount
+}
+
+async function handleBookingCompleted(supabase: AdminClient, session: Stripe.Checkout.Session, eventAccount: string | null) {
   const reservationId = session.metadata?.reservation_id
   if (!reservationId) {
     console.warn('[booking-webhook] checkout.session.completed sem reservation_id no metadata')
+    return
+  }
+  if (!(await eventMatchesReservation(supabase, reservationId, eventAccount))) {
+    console.warn(`[booking-webhook] Evento da conta ${eventAccount} não corresponde à reserva ${reservationId} — ignorado`)
     return
   }
 
@@ -231,9 +256,10 @@ async function handleBookingCompleted(supabase: AdminClient, session: Stripe.Che
   }
 }
 
-async function handleBookingExpired(supabase: AdminClient, session: Stripe.Checkout.Session) {
+async function handleBookingExpired(supabase: AdminClient, session: Stripe.Checkout.Session, eventAccount: string | null) {
   const reservationId = session.metadata?.reservation_id
   if (!reservationId) return
+  if (!(await eventMatchesReservation(supabase, reservationId, eventAccount))) return
 
   const { data: existing } = await supabase
     .from('reservations')
