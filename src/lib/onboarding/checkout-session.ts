@@ -1,6 +1,6 @@
 import type Stripe from 'stripe'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { getPlatformStripe } from '@/lib/stripe/platform'
+import { configuredPlatformCurrencies, getPlatformStripe } from '@/lib/stripe/platform'
 import { normalizePlan, toBillingCurrency } from '@/lib/billing/plans'
 
 type AdminClient = ReturnType<typeof createAdminClient>
@@ -27,17 +27,20 @@ function toSlug(value: string): string {
   return slug || 'empresa'
 }
 
+// A sessão pode estar na conta BRL ou na EUR: procura nas contas configuradas.
 async function retrieveCheckoutSession(sessionId: string): Promise<Stripe.Checkout.Session | null> {
   if (!sessionId.startsWith('cs_')) return null
-  try {
-    return await getPlatformStripe().checkout.sessions.retrieve(sessionId)
-  } catch (error) {
-    const message = error instanceof Error ? error.message : ''
-    if (!message.includes('No such checkout.session')) {
-      console.warn('[onboarding/session] Stripe retrieve failed:', message)
+  for (const currency of configuredPlatformCurrencies()) {
+    try {
+      return await getPlatformStripe(currency).checkout.sessions.retrieve(sessionId)
+    } catch (error) {
+      const message = error instanceof Error ? error.message : ''
+      if (!message.includes('No such checkout.session')) {
+        console.warn('[onboarding/session] Stripe retrieve failed:', currency, message)
+      }
     }
-    return null
   }
+  return null
 }
 
 async function uniqueSlug(adminClient: AdminClient, base: string, currentOrgId?: string | null) {

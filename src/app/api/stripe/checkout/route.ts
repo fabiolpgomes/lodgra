@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import type Stripe from 'stripe'
-import { getPlatformStripe } from '@/lib/stripe/platform'
+import { getPlatformStripe, isPlatformStripeConfigured } from '@/lib/stripe/platform'
 import { getBasePriceId, isPaidPlan, normalizePlan, toBillingCurrency } from '@/lib/billing/plans'
 
 export const dynamic = 'force-dynamic'
@@ -9,7 +9,6 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     const { email, currency, plan: rawPlan, source, locale } = body
-    const stripe = getPlatformStripe()
 
     // Use request origin so success/cancel URLs always point to the correct domain
     // regardless of NEXT_PUBLIC_APP_URL env value (which may be stale in Vercel)
@@ -28,6 +27,10 @@ export async function POST(request: NextRequest) {
     }
 
     const planCurrency = toBillingCurrency(currency)
+    if (!isPlatformStripeConfigured(planCurrency)) {
+      return NextResponse.json({ error: 'Pagamentos nesta moeda ainda não estão disponíveis' }, { status: 400 })
+    }
+    const stripe = getPlatformStripe(planCurrency)
     const priceId = getBasePriceId(plan, planCurrency)
 
     if (!priceId) {

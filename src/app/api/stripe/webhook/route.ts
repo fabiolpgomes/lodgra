@@ -6,6 +6,8 @@ import { invalidateCachedProfile } from '@/lib/cache/profileCache'
 import { invalidateCachedSubscriptionStatus } from '@/lib/cache/subscriptionCache'
 import { getPlanFromPriceId, isExtraPropertyPriceId, normalizePlan, toBillingCurrency } from '@/lib/billing/plans'
 import { reconcileExtraProperties } from '@/lib/billing/extra-properties'
+import type { BillingCurrency } from '@/lib/billing/plans'
+import { configuredPlatformCurrencies, getPlatformStripe, getPlatformWebhookSecret } from '@/lib/stripe/platform'
 import { UserRole } from '@/lib/auth/role-types'
 import { createUserProfile } from '@/lib/auth/create-user-profile'
 
@@ -14,13 +16,6 @@ type AdminClient = ReturnType<typeof createAdminClient>
 export const dynamic = 'force-dynamic'
 
 export async function POST(request: NextRequest) {
-  const stripeKey = (process.env.STRIPE_SECRET_KEY ?? '').trim()
-  const webhookSecret = (process.env.STRIPE_WEBHOOK_SECRET ?? '').trim()
-
-  const stripe = new Stripe(stripeKey, {
-    apiVersion: '2026-02-25.clover',
-  })
-
   const body = await request.text()
   const sig = request.headers.get('stripe-signature')
 
@@ -28,15 +23,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Sem assinatura Stripe' }, { status: 400 })
   }
 
-  let event: Stripe.Event
-
-  try {
-    event = stripe.webhooks.constructEvent(body, sig, webhookSecret)
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : String(err)
-    console.error('Webhook signature verification failed:', msg)
-    return NextResponse.json({ error: `Webhook error: ${msg}` }, { status: 400 })
+  // O mesmo endpoint recebe eventos das duas contas da plataforma (BRL e EUR);
+  // a assinatura válida identifica a conta de origem.
+  const verified = verifyPlatformEvent(body, sig)
+  if (!verified) {
+    console.error('Webhook signature verification failed for all platform accounts')
+    return NextResponse.json({ error: 'Webhook error: assinatura inválida' }, { status: 400 })
   }
+  const { event, stripe } = verified
 
   const supabase = await createAdminClient()
 
@@ -61,7 +55,7 @@ export async function POST(request: NextRequest) {
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session
-        await handleCheckoutCompleted(supabase, session)
+        await handleCheckoutCompleted(supabase, stripe, session)
         break
       }
       case 'customer.subscription.updated': {
@@ -105,7 +99,21 @@ export async function POST(request: NextRequest) {
   return NextResponse.json({ received: true })
 }
 
-async function handleCheckoutCompleted(supabase: AdminClient, session: Stripe.Checkout.Session) {
+function verifyPlatformEvent(body: string, sig: string): { event: Stripe.Event; stripe: Stripe; currency: BillingCurrency } | null {
+  for (const currency of configuredPlatformCurrencies()) {
+    const secret = getPlatformWebhookSecret(currency)
+    if (!secret) continue
+    const stripe = getPlatformStripe(currency)
+    try {
+      return { event: stripe.webhooks.constructEvent(body, sig, secret), stripe, currency }
+    } catch {
+      // assinatura de outra conta — tenta a próxima
+    }
+  }
+  return null
+}
+
+async function handleCheckoutCompleted(supabase: AdminClient, stripe: Stripe, session: Stripe.Checkout.Session) {
   // Direct booking checkouts have reservation_id in metadata — skip, handled by booking-webhook
   if (session.metadata?.reservation_id) {
     console.log('[webhook] Checkout de reserva directa — ignorado neste handler')
@@ -118,7 +126,6 @@ async function handleCheckoutCompleted(supabase: AdminClient, session: Stripe.Ch
     return
   }
 
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2026-02-25.clover' })
   const customerId = session.customer as string
   const subscriptionId = session.subscription as string
 

@@ -162,3 +162,42 @@ describe('customer.subscription.updated — plano e moeda', () => {
   })
 })
 
+
+describe('POST /api/stripe/webhook — duas contas da plataforma (BRL e EUR)', () => {
+  const ENV = process.env
+  beforeEach(() => {
+    process.env = {
+      ...ENV,
+      STRIPE_SECRET_KEY: 'sk_test_br',
+      STRIPE_WEBHOOK_SECRET: 'whsec_br',
+      STRIPE_EU_SECRET_KEY: 'sk_test_eu',
+      STRIPE_EU_WEBHOOK_SECRET: 'whsec_eu',
+    }
+  })
+  afterAll(() => { process.env = ENV })
+
+  it('aceita evento assinado pela conta EUR', async () => {
+    mockConstructEvent.mockImplementation((_body: string, _sig: string, secret: string) => {
+      if (secret !== 'whsec_eu') throw new Error('No signatures found matching the expected signature')
+      return deletedEvent
+    })
+    mockCreateAdminClient.mockReturnValue(supabaseWithOrgUpdate())
+
+    const res = await POST(request())
+
+    expect(res.status).toBe(200)
+    expect(mockConstructEvent).toHaveBeenCalledWith('{}', 'sig', 'whsec_br')
+    expect(mockConstructEvent).toHaveBeenCalledWith('{}', 'sig', 'whsec_eu')
+  })
+
+  it('rejeita com 400 quando nenhuma conta reconhece a assinatura', async () => {
+    mockConstructEvent.mockImplementation(() => { throw new Error('bad signature') })
+    const supabase = supabaseWithOrgUpdate()
+    mockCreateAdminClient.mockReturnValue(supabase)
+
+    const res = await POST(request())
+
+    expect(res.status).toBe(400)
+    expect(mockClaim).not.toHaveBeenCalled()
+  })
+})

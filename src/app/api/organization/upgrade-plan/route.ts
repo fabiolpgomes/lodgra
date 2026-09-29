@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
 
     const { data: org, error: orgError } = await supabase
       .from('organizations')
-      .select('stripe_subscription_id, subscription_plan')
+      .select('stripe_subscription_id, subscription_plan, billing_currency')
       .eq('id', auth.organizationId)
       .single()
 
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Já está no plano ' + plan }, { status: 400 })
     }
 
-    const stripe = getPlatformStripe()
+    const stripe = getPlatformStripe(toBillingCurrency(org.billing_currency))
     const subscription = await stripe.subscriptions.retrieve(org.stripe_subscription_id, {
       expand: ['items.data.price'],
     })

@@ -1,6 +1,4 @@
 import { createClient } from '@/lib/supabase/server'
-import { createAdminClient } from '@/lib/supabase/admin'
-import { getPlatformStripe } from '@/lib/stripe/platform'
 import { NextResponse } from 'next/server'
 
 export async function GET(request: Request) {
@@ -104,40 +102,8 @@ export async function GET(request: Request) {
               return NextResponse.redirect(`${origin}/login?error=profile_creation_failed`)
             }
 
-            const { data: billingOrganization } = await supabase
-              .from('organizations')
-              .select('stripe_customer_id')
-              .eq('id', organization.organization_id)
-              .maybeSingle()
-
-            if (!billingOrganization?.stripe_customer_id && user.email) {
-              try {
-                const customer = await getPlatformStripe().customers.create(
-                  {
-                    email: user.email,
-                    name: user.user_metadata?.full_name || user.email || undefined,
-                    metadata: {
-                      organization_id: organization.organization_id,
-                    },
-                  },
-                  { idempotencyKey: `lodgra-org-${organization.organization_id}` }
-                )
-
-                const adminClient = await createAdminClient()
-                const { error: linkError } = await adminClient
-                  .from('organizations')
-                  .update({ stripe_customer_id: customer.id })
-                  .eq('id', organization.organization_id)
-
-                if (linkError) {
-                  console.error('[auth/callback] Failed to link Stripe customer:', linkError)
-                }
-
-                console.log('[auth/callback] Stripe customer created:', customer.id)
-              } catch (stripeErr) {
-                console.error('[auth/callback] Failed to create Stripe customer:', stripeErr)
-              }
-            }
+            // O cliente Stripe é criado pelo checkout, na conta da moeda escolhida
+            // (BRL ou EUR); o webhook grava stripe_customer_id na organização.
           } catch (err) {
             console.error('[auth/callback] failed to create profile:', err)
           }

@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
+import { getPlatformStripe } from '@/lib/stripe/platform'
+import { toBillingCurrency } from '@/lib/billing/plans'
 import { requireRole } from '@/lib/auth/requireRole'
 import { createAdminClient } from '@/lib/supabase/admin'
 
@@ -10,10 +12,6 @@ export async function POST(request: NextRequest) {
   const auth = await requireRole(['admin'])
   if (!auth.authorized) return auth.response!
 
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-    apiVersion: '2026-02-25.clover',
-  })
-
   const supabase = await createAdminClient()
 
   try {
@@ -22,7 +20,7 @@ export async function POST(request: NextRequest) {
     // Get current org subscription
     const { data: org, error: orgError } = await supabase
       .from('organizations')
-      .select('stripe_subscription_id, subscription_status')
+      .select('stripe_subscription_id, subscription_status, billing_currency')
       .eq('id', auth.organizationId)
       .single()
 
@@ -47,7 +45,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Cancel subscription on Stripe
+    // Cancel subscription on Stripe (conta da moeda da assinatura)
+    const stripe = getPlatformStripe(toBillingCurrency(org.billing_currency))
     const canceledSubscription = await stripe.subscriptions.cancel(
       org.stripe_subscription_id
     )

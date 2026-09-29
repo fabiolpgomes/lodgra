@@ -1,15 +1,43 @@
 import Stripe from 'stripe'
+import type { BillingCurrency } from '@/lib/billing/plans'
 
-// Conta Stripe da plataforma Lodgra (assinaturas SaaS, BRL e EUR).
+// Contas Stripe da plataforma Lodgra (assinaturas SaaS), uma por moeda:
+//   brl → conta Brasil   (STRIPE_SECRET_KEY,    STRIPE_WEBHOOK_SECRET)
+//   eur → conta Portugal (STRIPE_EU_SECRET_KEY, STRIPE_EU_WEBHOOK_SECRET)
 // Não confundir com contas dos tenants (ex.: STRIPE_PT_SECRET_KEY da AHS),
 // que recebem os pagamentos das reservas diretas.
-let instance: Stripe | null = null
+const ENV: Record<BillingCurrency, { key: string; webhookSecret: string }> = {
+  brl: { key: 'STRIPE_SECRET_KEY', webhookSecret: 'STRIPE_WEBHOOK_SECRET' },
+  eur: { key: 'STRIPE_EU_SECRET_KEY', webhookSecret: 'STRIPE_EU_WEBHOOK_SECRET' },
+}
 
-export function getPlatformStripe(): Stripe {
-  if (!instance) {
-    const key = (process.env.STRIPE_SECRET_KEY ?? '').trim()
-    if (!key) throw new Error('STRIPE_SECRET_KEY não configurada')
-    instance = new Stripe(key, { apiVersion: '2026-02-25.clover', maxNetworkRetries: 2 })
-  }
-  return instance
+export const PLATFORM_CURRENCIES = Object.keys(ENV) as BillingCurrency[]
+
+const instances = new Map<BillingCurrency, Stripe>()
+
+function env(name: string): string {
+  return (process.env[name] ?? '').trim()
+}
+
+export function isPlatformStripeConfigured(currency: BillingCurrency): boolean {
+  return env(ENV[currency].key) !== ''
+}
+
+export function getPlatformStripe(currency: BillingCurrency): Stripe {
+  const cached = instances.get(currency)
+  if (cached) return cached
+  const key = env(ENV[currency].key)
+  if (!key) throw new Error(`${ENV[currency].key} não configurada`)
+  const stripe = new Stripe(key, { apiVersion: '2026-02-25.clover', maxNetworkRetries: 2 })
+  instances.set(currency, stripe)
+  return stripe
+}
+
+export function getPlatformWebhookSecret(currency: BillingCurrency): string {
+  return env(ENV[currency].webhookSecret)
+}
+
+/** Contas configuradas (chave presente), para operações que não sabem a moeda de antemão. */
+export function configuredPlatformCurrencies(): BillingCurrency[] {
+  return PLATFORM_CURRENCIES.filter(isPlatformStripeConfigured)
 }

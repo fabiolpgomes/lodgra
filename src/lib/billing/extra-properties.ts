@@ -120,7 +120,7 @@ async function setExtraProperties(
 
   if (cap.subscriptionId && isPaidPlan(cap.plan)) {
     try {
-      const stripe = getPlatformStripe()
+      const stripe = getPlatformStripe(cap.currency)
       const sub = await stripe.subscriptions.retrieve(cap.subscriptionId)
       const currency = toBillingCurrency(sub.currency)
       const wantedPrice = getExtraPropertyPriceId(cap.plan, currency)
