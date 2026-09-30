@@ -19,6 +19,7 @@ export async function GET() {
     return NextResponse.json({
       status: connect?.status ?? 'none',
       hasAccount: !!connect?.accountId,
+      detailsSubmitted: connect?.detailsSubmitted ?? false,
       countries,
     })
   } catch (err) {

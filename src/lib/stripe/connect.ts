@@ -112,22 +112,40 @@ export async function ensureConnectedAccount(
   return { accountId: account.id, platform: country.platform, status }
 }
 
-/** Consulta o Stripe e grava o estado atual da conta do tenant. */
-export async function refreshConnectStatus(orgId: string): Promise<OrgConnect | null> {
-  const current = await getOrgConnect(orgId)
-  if (!current?.accountId || !current.platform) return current
+/**
+ * Estado a partir da conta v1 (mesma conta, lida pela API v1), que diz se o cadastro
+ * foi enviado e se o Stripe ainda pede dados:
+ * - charges_enabled → active
+ * - cadastro enviado mas o Stripe pede dados/correções → restricted (ação necessária)
+ * - caso contrário → pending (por concluir, ou concluído e em análise)
+ */
+export function onboardingFromAccount(account: Stripe.Account): { status: ConnectStatus; detailsSubmitted: boolean } {
+  const detailsSubmitted = !!account.details_submitted
+  if (account.charges_enabled) return { status: 'active', detailsSubmitted }
+  const req = account.requirements
+  const needsInfo =
+    (req?.currently_due?.length ?? 0) > 0 || (req?.past_due?.length ?? 0) > 0 || (req?.errors?.length ?? 0) > 0
+  if (detailsSubmitted && needsInfo) return { status: 'restricted', detailsSubmitted }
+  return { status: 'pending', detailsSubmitted }
+}
 
-  const account = await getPlatformStripe(current.platform).v2.core.accounts.retrieve(current.accountId, {
-    include: ['configuration.merchant'],
-  })
-  const status = statusFromAccount(account)
+export type OrgConnectState = OrgConnect & { detailsSubmitted: boolean }
+
+/** Consulta o Stripe e grava o estado atual da conta do tenant. */
+export async function refreshConnectStatus(orgId: string): Promise<OrgConnectState | null> {
+  const current = await getOrgConnect(orgId)
+  if (!current) return null
+  if (!current.accountId || !current.platform) return { ...current, detailsSubmitted: false }
+
+  const account = await getPlatformStripe(current.platform).accounts.retrieve(current.accountId)
+  const { status, detailsSubmitted } = onboardingFromAccount(account)
   if (status !== current.status) {
     await createAdminClient()
       .from('organizations')
       .update({ stripe_connect_status: status, stripe_connect_updated_at: new Date().toISOString() })
       .eq('id', orgId)
   }
-  return { ...current, status }
+  return { ...current, status, detailsSubmitted }
 }
 
 /** Sessão para os componentes embutidos do Stripe (cadastro, pagamentos, repasses). */

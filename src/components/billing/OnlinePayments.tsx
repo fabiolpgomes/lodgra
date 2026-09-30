@@ -16,13 +16,16 @@ type Status = 'none' | 'pending' | 'active' | 'restricted'
 interface State {
   status: Status
   hasAccount: boolean
+  detailsSubmitted: boolean
   countries: { code: string; label: string }[]
 }
 
-const STATUS_UI: Record<Status, { label: string; className: string; icon: typeof CheckCircle2 }> = {
+type Stage = Status | 'review'
+const STATUS_UI: Record<Stage, { label: string; className: string; icon: typeof CheckCircle2 }> = {
   none: { label: 'Não configurado', className: 'bg-gray-100 text-gray-800', icon: Clock },
   pending: { label: 'Cadastro por concluir', className: 'bg-amber-100 text-amber-900', icon: Clock },
-  active: { label: 'Ativo — a receber pagamentos', className: 'bg-emerald-100 text-emerald-900', icon: CheckCircle2 },
+  review: { label: 'Cadastro concluído — em análise pelo Stripe', className: 'bg-sky-100 text-sky-900', icon: Clock },
+  active: { label: 'Cadastro concluído — a receber pagamentos', className: 'bg-emerald-100 text-emerald-900', icon: CheckCircle2 },
   restricted: { label: 'Ação necessária no Stripe', className: 'bg-red-100 text-red-900', icon: AlertTriangle },
 }
 
@@ -101,7 +104,8 @@ export function OnlinePayments() {
   }
 
   const status = state?.status ?? 'none'
-  const ui = STATUS_UI[status]
+  const stage: Stage = status === 'pending' && state?.detailsSubmitted ? 'review' : status
+  const ui = STATUS_UI[stage]
   const Icon = ui.icon
 
   return (
@@ -112,6 +116,12 @@ export function OnlinePayments() {
         </span>
         {status === 'active' && (
           <p className="text-sm text-gray-600">A página de reservas diretas aceita pagamento com cartão.</p>
+        )}
+        {stage === 'review' && (
+          <p className="text-sm text-gray-600">Normalmente leva poucos minutos. Os pagamentos online ficam ativos assim que o Stripe aprovar.</p>
+        )}
+        {status === 'restricted' && (
+          <p className="text-sm text-gray-600">O Stripe precisa de mais dados ou de uma correção. Veja o aviso abaixo.</p>
         )}
       </div>
 

@@ -3,6 +3,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { getPlatformStripe, isPlatformStripeConfigured } from '@/lib/stripe/platform'
 import {
   ensureConnectedAccount,
+  onboardingFromAccount,
   resolveBookingPaymentAccount,
   statusFromAccount,
   stripeForReservationPayment,
@@ -23,7 +24,24 @@ let updates: Record<string, unknown>[]
 
 const accountsCreate = jest.fn()
 const accountsRetrieve = jest.fn()
-const platformStripe = { v2: { core: { accounts: { create: accountsCreate, retrieve: accountsRetrieve } } } }
+const v1Retrieve = jest.fn()
+const platformStripe = {
+  accounts: { retrieve: v1Retrieve },
+  v2: { core: { accounts: { create: accountsCreate, retrieve: accountsRetrieve } } },
+}
+
+function v1Account(o: { charges?: boolean; submitted?: boolean; due?: string[]; errors?: number }) {
+  return {
+    id: 'acct_t',
+    charges_enabled: !!o.charges,
+    details_submitted: !!o.submitted,
+    requirements: {
+      currently_due: o.due ?? [],
+      past_due: [],
+      errors: Array.from({ length: o.errors ?? 0 }, () => ({ code: 'verification_failed_keyed_identity' })),
+    },
+  } as unknown as Stripe.Account
+}
 
 function account(status: string | undefined, id = 'acct_1') {
   return { id, configuration: { merchant: { capabilities: { card_payments: status ? { status } : undefined } } } } as unknown as Stripe.V2.Core.Account
@@ -54,6 +72,15 @@ describe('statusFromAccount', () => {
     expect(statusFromAccount(account('restricted'))).toBe('pending')
     expect(statusFromAccount(account('pending'))).toBe('pending')
     expect(statusFromAccount(account(undefined))).toBe('pending')
+  })
+})
+
+describe('onboardingFromAccount', () => {
+  it('distingue por concluir, em análise, ativo e ação necessária', () => {
+    expect(onboardingFromAccount(v1Account({ due: ['individual.first_name'] }))).toEqual({ status: 'pending', detailsSubmitted: false })
+    expect(onboardingFromAccount(v1Account({ submitted: true }))).toEqual({ status: 'pending', detailsSubmitted: true })
+    expect(onboardingFromAccount(v1Account({ submitted: true, charges: true }))).toEqual({ status: 'active', detailsSubmitted: true })
+    expect(onboardingFromAccount(v1Account({ submitted: true, due: ['individual.dob.day'], errors: 1 }))).toEqual({ status: 'restricted', detailsSubmitted: true })
   })
 })
 
@@ -103,7 +130,7 @@ describe('resolveBookingPaymentAccount', () => {
 
   it('cadastro recém-concluído: confirma no Stripe e passa a ativa', async () => {
     Object.assign(org, { stripe_connect_account_id: 'acct_t', stripe_connect_platform: 'brl', stripe_connect_status: 'pending' })
-    accountsRetrieve.mockResolvedValue(account('active', 'acct_t'))
+    v1Retrieve.mockResolvedValue(v1Account({ submitted: true, charges: true }))
     await expect(resolveBookingPaymentAccount('org-1')).resolves.toMatchObject({ kind: 'connect' })
     expect(updates[0]).toMatchObject({ stripe_connect_status: 'active' })
   })
