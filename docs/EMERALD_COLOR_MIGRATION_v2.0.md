@@ -47,11 +47,10 @@
 ## 🔄 Queued Updates (Next Session)
 
 ### Configuration & Data
-- [ ] `docs/landing-page/tokens.json` — Update hex, rgb, hsl values
+- [x] `docs/landing-page/tokens.json` — Reescrito a partir do design.md (29/09/2026)
 - [ ] `docs/landing-page/IMPLEMENTATION.md` — Update Tailwind config examples
 - [ ] `.aios-core/product/data/design-token-best-practices.md` — Update token examples
 - [ ] `.aiox-core/product/data/design-token-best-practices.md` — Update token examples
-- [ ] `.claude/skills/DESIGN-lodgra.md` — Update design guidelines reference
 
 ### Email Templates
 - [ ] `docs/supabase-email-templates/README.md` — Update gradient and color references (2 instances)
