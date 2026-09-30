@@ -40,7 +40,9 @@ export function statusFromAccount(account: Stripe.V2.Core.Account): ConnectStatu
     | undefined
   const cardPayments = merchant?.capabilities?.card_payments?.status
   if (cardPayments === 'active') return 'active'
-  if (cardPayments === 'restricted' || cardPayments === 'unsupported') return 'restricted'
+  // Conta nova, sem dados, vem 'restricted' até o cadastro terminar: tratar como pendente.
+  // 'unsupported' = o Stripe não aceita pagamentos para esta conta.
+  if (cardPayments === 'unsupported') return 'restricted'
   return 'pending'
 }
 

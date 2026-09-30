@@ -48,9 +48,10 @@ beforeEach(() => {
 afterAll(() => { process.env = ENV })
 
 describe('statusFromAccount', () => {
-  it('card_payments ativo → active; restrito → restricted; resto → pending', () => {
+  it('card_payments ativo → active; sem suporte → restricted; cadastro incompleto → pending', () => {
     expect(statusFromAccount(account('active'))).toBe('active')
-    expect(statusFromAccount(account('restricted'))).toBe('restricted')
+    expect(statusFromAccount(account('unsupported'))).toBe('restricted')
+    expect(statusFromAccount(account('restricted'))).toBe('pending')
     expect(statusFromAccount(account('pending'))).toBe('pending')
     expect(statusFromAccount(account(undefined))).toBe('pending')
   })
