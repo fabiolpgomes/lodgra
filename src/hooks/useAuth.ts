@@ -47,6 +47,18 @@ function setSnapshot(next: AuthSnapshot) {
   emit()
 }
 
+/** Reserva: perfil lido no servidor, quando o cliente do browser não obtém a sessão ou o perfil. */
+async function fetchServerProfile(): Promise<UserProfile | null> {
+  try {
+    const res = await fetch('/api/auth/me', { credentials: 'same-origin', cache: 'no-store' })
+    if (!res.ok) return null
+    const data = (await res.json()) as { profile: UserProfile | null }
+    return data.profile ?? null
+  } catch {
+    return null
+  }
+}
+
 async function hydrateAuthState(force = false) {
   if (loadPromise && !force) return loadPromise
   if (hydrated && !force) return Promise.resolve()
@@ -61,7 +73,8 @@ async function hydrateAuthState(force = false) {
       } = await supabase.auth.getUser()
 
       if (!user) {
-        setSnapshot({ user: null, profile: null, loading: false })
+        const serverProfile = await fetchServerProfile()
+        setSnapshot({ user: null, profile: serverProfile, loading: false })
         hydrated = true
         return
       }
@@ -88,13 +101,13 @@ async function hydrateAuthState(force = false) {
           loading: false,
         })
       } else {
-        setSnapshot({ user, profile: null, loading: false })
+        setSnapshot({ user, profile: await fetchServerProfile(), loading: false })
       }
 
       hydrated = true
     } catch (error) {
       console.error('Error loading user:', error)
-      setSnapshot({ user: null, profile: null, loading: false })
+      setSnapshot({ user: null, profile: await fetchServerProfile(), loading: false })
       hydrated = true
     } finally {
       loadPromise = null
@@ -130,11 +143,13 @@ export function useAuth(options?: { enabled?: boolean }) {
       const supabase = createClient()
       const {
         data: { subscription },
-      } = supabase.auth.onAuthStateChange((_event, session) => {
+      } = supabase.auth.onAuthStateChange((event, session) => {
         if (session?.user) {
           hydrated = false
           void hydrateAuthState(true)
-        } else {
+        } else if (event === 'SIGNED_OUT') {
+          // Só limpa no logout: o evento inicial sem sessão no browser não pode apagar
+          // o perfil obtido pelo servidor.
           hydrated = true
           setSnapshot(defaultSnapshot)
         }

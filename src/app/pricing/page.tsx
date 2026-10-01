@@ -144,7 +144,7 @@ export default function PricingPage() {
           <div className="overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>
-                <tr className="bg-brand-900 text-white">
+                <tr className="bg-[#10203E] text-white">
                   <th className="border border-gray-300 p-4 text-left">Funcionalidade</th>
                   <th className="border border-gray-300 p-4 text-center">Essencial</th>
                   <th className="border border-gray-300 p-4 text-center">Expansão</th>

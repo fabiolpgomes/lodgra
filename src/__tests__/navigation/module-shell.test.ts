@@ -55,4 +55,25 @@ describe('module shell registry', () => {
     expect(getModuleForPath('/docs').id).toBe('ia-native')
     expect(getModuleForPath('/pt-BR/docs').id).toBe('ia-native')
   })
+
+  it('core: itens de admin e premium só aparecem com permissão', () => {
+    const base = getVisibleModuleFeatureLinks('core', false).map(l => l.path)
+    expect(base).toEqual(['/settings', '/settings/billing', '/sync'])
+
+    const admin = getVisibleModuleFeatureLinks('core', false, { isAdmin: true, hasPremium: true, organizationId: 'org-1' })
+    expect(admin.map(l => l.path)).toEqual([
+      '/settings',
+      '/settings/organizations/org-1/company-profile',
+      '/settings/billing',
+      '/settings/payments',
+      '/sync',
+      '/admin/google-distribution',
+    ])
+  })
+
+  it('core: "Dados da empresa" só aparece com a organização conhecida', () => {
+    const links = getVisibleModuleFeatureLinks('core', false, { isAdmin: true })
+    expect(links.some(l => l.path.includes('company-profile'))).toBe(false)
+    expect(links.some(l => l.path === '/settings/payments')).toBe(true)
+  })
 })

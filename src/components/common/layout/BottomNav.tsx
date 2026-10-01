@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { Building2, ChevronDown, CreditCard, MoreHorizontal, LogOut, RefreshCw, Settings, Users } from 'lucide-react'
+import { ChevronDown, MoreHorizontal, LogOut } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { isRestrictedGestor } from '@/lib/auth/permissions'
 import { useLocale } from '@/lib/i18n/routing'
@@ -61,23 +61,17 @@ export function BottomNav({ serverProfile }: BottomNavProps) {
   const isLimitedGestor = isRestrictedGestor(profile)
   const [moreOpen, setMoreOpen] = useState(false)
   const [showModuleSwitcher, setShowModuleSwitcher] = useState(false)
-  const [showAccountLinks, setShowAccountLinks] = useState(false)
 
   const prefix = locale ? `/${locale}` : ''
   const currentModule = getModuleForPath(pathname)
   const moduleLinks = getVisibleModuleNavLinks(prefix, isLimitedGestor)
-  const currentModuleFeatures = getVisibleModuleFeatureLinks(currentModule.id, isLimitedGestor)
+  const currentModuleFeatures = getVisibleModuleFeatureLinks(currentModule.id, isLimitedGestor, {
+    isAdmin,
+    hasPremium: false,
+    organizationId: profile?.organization_id ?? null,
+  })
   const primaryFeature = currentModuleFeatures[0]
 
-  const accountLinks = [
-    { path: '/settings', label: 'Definições', icon: Settings },
-    ...(isAdmin && profile?.organization_id
-      ? [{ path: `/settings/organizations/${profile.organization_id}/company-profile`, label: 'Dados da empresa', icon: Building2 }]
-      : []),
-    { path: '/settings/billing', label: 'Planos e Ferramentas', icon: CreditCard },
-    { path: '/sync', label: 'Sincronização', icon: RefreshCw },
-    { path: '/owners', label: 'Proprietários', icon: Users },
-  ]
 
   async function handleLogout() {
     try {
@@ -96,7 +90,6 @@ export function BottomNav({ serverProfile }: BottomNavProps) {
   useEffect(() => {
     if (!moreOpen) {
       setShowModuleSwitcher(false)
-      setShowAccountLinks(false)
     }
   }, [moreOpen])
 
@@ -200,28 +193,6 @@ export function BottomNav({ serverProfile }: BottomNavProps) {
                 <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                   {moduleLinks.map(({ href, label, icon, id }) => {
                     const active = currentModule.id === id
-                    return renderGridLink(href, label, icon, active, () => setMoreOpen(false))
-                  })}
-                </div>
-              )}
-            </div>
-
-            <div>
-              <button
-                type="button"
-                onClick={() => setShowAccountLinks(value => !value)}
-                className="flex w-full items-center justify-between px-1 py-2 text-left"
-              >
-                <p className="text-[10px] font-black text-lodgra-blue/30 uppercase tracking-[2px] font-[family-name:var(--font-hanken-grotesk)]">
-                  Conta
-                </p>
-                <ChevronDown className={`h-4 w-4 text-lodgra-blue/30 transition-transform ${showAccountLinks ? 'rotate-180' : ''}`} />
-              </button>
-              {showAccountLinks && (
-                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                  {accountLinks.map(({ path, label, icon }) => {
-                    const href = getLocalizedHref(prefix, path)
-                    const active = pathname === href || pathname.startsWith(`${href}/`)
                     return renderGridLink(href, label, icon, active, () => setMoreOpen(false))
                   })}
                 </div>

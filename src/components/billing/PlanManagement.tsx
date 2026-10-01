@@ -19,6 +19,8 @@ interface PlanManagementProps {
   currency: BillingCurrency
   activeProperties: number
   extraProperties: number
+  /** Tem assinatura no Stripe. Sem ela (plano atribuído pela equipa Lodgra) não há troca de plano nem portal. */
+  hasSubscription?: boolean
 }
 
 const PLAN_LABELS: Record<Plan, string> = {
@@ -36,7 +38,7 @@ const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   cancelled: { label: 'Cancelada',    color: 'bg-gray-100 text-gray-800' },
 }
 
-export function PlanManagement({ currentPlan, subscriptionStatus, currency, activeProperties, extraProperties }: PlanManagementProps) {
+export function PlanManagement({ currentPlan, subscriptionStatus, currency, activeProperties, extraProperties, hasSubscription = true }: PlanManagementProps) {
   const [upgrading, setUpgrading] = useState<Plan | null>(null)
   const [openingPortal, setOpeningPortal] = useState(false)
   const [error, setError] = useState('')
@@ -102,6 +104,12 @@ export function PlanManagement({ currentPlan, subscriptionStatus, currency, acti
         </span>
       </div>
 
+      {!hasSubscription && (
+        <p className="text-sm text-gray-700 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
+          Este plano foi atribuído pela equipa Lodgra e não tem cobrança no Stripe. Para alterar, contacte o suporte.
+        </p>
+      )}
+
       {/* Feedback */}
       {error && <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{error}</p>}
       {success && <p className="text-sm text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2">{success}</p>}
@@ -146,7 +154,7 @@ export function PlanManagement({ currentPlan, subscriptionStatus, currency, acti
                   {formatPlanPrice(price.monthly, currency)}
                   <span className="text-xs font-normal text-gray-500">/mês</span>
                 </p>
-                {!isCurrent && (
+                {!isCurrent && hasSubscription && (
                   <button
                     onClick={() => handleUpgrade(planKey)}
                     disabled={!!upgrading || !!success}
@@ -171,6 +179,7 @@ export function PlanManagement({ currentPlan, subscriptionStatus, currency, acti
       </div>
 
       {/* Billing portal */}
+      {hasSubscription && (
       <button
         onClick={handlePortal}
         disabled={openingPortal}
@@ -179,6 +188,7 @@ export function PlanManagement({ currentPlan, subscriptionStatus, currency, acti
         {openingPortal ? <Loader2 className="w-4 h-4 animate-spin" /> : <ExternalLink className="w-4 h-4" />}
         Gerir faturação, faturas e cancelamento
       </button>
+      )}
     </div>
   )
 }

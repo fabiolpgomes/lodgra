@@ -36,7 +36,7 @@ export default async function BillingPage() {
   if (userOrgId) {
     const { data } = await supabase
       .from('organizations')
-      .select('id, name, subscription_plan, subscription_status, billing_currency, extra_properties_count')
+      .select('id, name, subscription_plan, subscription_status, billing_currency, extra_properties_count, stripe_subscription_id')
       .eq('id', userOrgId)
       .single()
     organization = data
@@ -82,6 +82,7 @@ export default async function BillingPage() {
             currency={toBillingCurrency(organization.billing_currency)}
             activeProperties={activeProperties}
             extraProperties={Number(organization.extra_properties_count ?? 0)}
+            hasSubscription={!!organization.stripe_subscription_id}
           />
         </PremiumCard>
       </PremiumPageShell>

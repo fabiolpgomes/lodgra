@@ -15,6 +15,7 @@ import {
   Sparkles,
   TrendingUp,
   Users,
+  Wallet,
 } from 'lucide-react'
 
 export type ModuleId = 'core' | 'operacao' | 'empresa' | 'proprietario' | 'ia-native'
@@ -23,7 +24,20 @@ export type ModuleNavigationEntry = {
   path: string
   label: string
   icon: LucideIcon
+  /** Só administradores da organização */
+  adminOnly?: boolean
+  /** Só organizações Premium/Enterprise */
+  premiumOnly?: boolean
 }
+
+export interface FeatureLinkContext {
+  isAdmin?: boolean
+  hasPremium?: boolean
+  organizationId?: string | null
+}
+
+/** Marcador substituído pelo id da organização ("Dados da empresa"). */
+export const ORG_ID_PLACEHOLDER = ':orgId'
 
 export type ModuleDefinition = {
   id: ModuleId
@@ -112,9 +126,11 @@ export const MODULE_FEATURE_LINKS: Record<ModuleId, ModuleNavigationEntry[]> = {
   ],
   core: [
     { path: '/settings', label: 'Definições', icon: Settings },
+    { path: `/settings/organizations/${ORG_ID_PLACEHOLDER}/company-profile`, label: 'Dados da empresa', icon: Building2, adminOnly: true },
     { path: '/settings/billing', label: 'Planos e Ferramentas', icon: CreditCard },
+    { path: '/settings/payments', label: 'Pagamentos online', icon: Wallet, adminOnly: true },
     { path: '/sync', label: 'Sincronização', icon: RefreshCw },
-    { path: '/admin/google-distribution', label: 'Google Distribution', icon: TrendingUp },
+    { path: '/admin/google-distribution', label: 'Google Distribution', icon: TrendingUp, premiumOnly: true },
   ],
   proprietario: [
     { path: '/owners', label: 'Proprietários', icon: Users },
@@ -165,14 +181,26 @@ export function getVisibleModuleNavLinks(prefix: string, isLimitedGestor: boolea
   })
 }
 
-export function getVisibleModuleFeatureLinks(moduleId: ModuleId, isLimitedGestor: boolean) {
-  return MODULE_FEATURE_LINKS[moduleId].filter(link => {
-    if (!isLimitedGestor) {
+export function getVisibleModuleFeatureLinks(
+  moduleId: ModuleId,
+  isLimitedGestor: boolean,
+  context: FeatureLinkContext = {}
+): ModuleNavigationEntry[] {
+  return MODULE_FEATURE_LINKS[moduleId]
+    .filter(link => {
+      if (isLimitedGestor && (link.path === '/dashboard' || link.path === '/financial' || link.path === '/reports')) {
+        return false
+      }
+      if (link.adminOnly && !context.isAdmin) return false
+      if (link.premiumOnly && !context.hasPremium) return false
+      if (link.path.includes(ORG_ID_PLACEHOLDER) && !context.organizationId) return false
       return true
-    }
-
-    return !(link.path === '/dashboard' || link.path === '/financial' || link.path === '/reports')
-  })
+    })
+    .map(link =>
+      link.path.includes(ORG_ID_PLACEHOLDER)
+        ? { ...link, path: link.path.replace(ORG_ID_PLACEHOLDER, context.organizationId!) }
+        : link
+    )
 }
 
 export function getPageTitle(pathname: string): string {
