@@ -194,7 +194,7 @@ export function Sidebar({ serverProfile }: SidebarProps) {
 
         <div className="px-4 py-6 border-t border-be-border space-y-4 bg-be-surface">
           <div className="flex items-center gap-3 px-2 py-3 bg-card border border-be-border rounded-md">
-            <div className="w-9 h-9 rounded-full flex items-center justify-center text-[14px] font-semibold text-white shrink-0 bg-be-blue">
+            <div className="w-9 h-9 rounded-full flex items-center justify-center text-[14px] font-semibold text-white shrink-0 bg-[#10203E]">
               {initials}
             </div>
             <div className="flex-1 min-w-0">
