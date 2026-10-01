@@ -4,7 +4,7 @@ import { locales, defaultLocale } from '../i18n.config'
 import { applySecurityHeaders } from '@/lib/middleware/security-headers'
 import { checkCsrf } from '@/lib/middleware/csrf'
 import { getClientIp, applyRateLimit } from '@/lib/middleware/rate-limit'
-import { getSupabaseCookieOptions } from '@/lib/supabase/cookie-options'
+import { getSupabaseCookieOptions, hostOnlyAuthCookieDeletions } from '@/lib/supabase/cookie-options'
 import {
   isPublicPath,
   shouldRefreshAuthSession,
@@ -12,6 +12,13 @@ import {
   checkPasswordReset,
   checkSubscriptionAndRole,
 } from '@/lib/middleware/auth-guard'
+
+function withLegacyCookieCleanup<T extends NextResponse>(request: NextRequest, response: T): T {
+  const host = request.headers.get('x-forwarded-host') || request.headers.get('host')
+  const deletions = hostOnlyAuthCookieDeletions(request.cookies.getAll().map(c => c.name), host)
+  deletions.forEach(header => response.headers.append('Set-Cookie', header))
+  return response
+}
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
@@ -82,7 +89,7 @@ export async function proxy(request: NextRequest) {
   if (isPublic && !refreshesAuthenticatedSession) {
     applySecurityHeaders(supabaseResponse, nonce)
     supabaseResponse.headers.set('x-nonce', nonce)
-    return supabaseResponse
+    return withLegacyCookieCleanup(request, supabaseResponse)
   }
 
   let user = null
@@ -109,7 +116,7 @@ export async function proxy(request: NextRequest) {
   // Redirect to login if not authenticated on private routes
   if (!user && !isPublic) {
     console.log('[MIDDLEWARE] Redirecting to login:', pathname)
-    return redirectToLogin(request, pathname)
+    return withLegacyCookieCleanup(request, redirectToLogin(request, pathname))
   }
 
   const isPageRoute = !pathname.startsWith('/api/') && !pathname.includes('.')
@@ -143,7 +150,7 @@ export async function proxy(request: NextRequest) {
   applySecurityHeaders(supabaseResponse, nonce)
   supabaseResponse.headers.set('x-nonce', nonce)
 
-  return supabaseResponse
+  return withLegacyCookieCleanup(request, supabaseResponse)
 }
 
 export const config = {
