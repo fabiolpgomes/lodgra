@@ -18,6 +18,7 @@ interface State {
   hasAccount: boolean
   detailsSubmitted: boolean
   countries: { code: string; label: string }[]
+  defaultCountry?: string | null
 }
 
 type Stage = Status | 'review'
@@ -44,7 +45,7 @@ export function OnlinePayments() {
     const data = await res.json()
     if (!res.ok) throw new Error(data.error || 'Erro ao carregar')
     setState(data)
-    if (!country && data.countries?.length) setCountry(data.countries[0].code)
+    if (!country && data.countries?.length) setCountry(data.defaultCountry ?? data.countries[0].code)
     return data as State
   }, [country])
 
