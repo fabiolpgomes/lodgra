@@ -44,10 +44,6 @@ export default function EditPropertyPage({
   const [isActive, setIsActive] = useState(true)
   const [galleryImages, setGalleryImages] = useState<PropertyImage[]>([])
   const [uploadError, setUploadError] = useState<string | null>(null)
-  const [cleaningFee, setCleaningFee] = useState<string>('')
-  const [cleaningFeeType, setCleaningFeeType] = useState<string>('per_stay')
-  const [petFee, setPetFee] = useState<string>('')
-  const [petFeeType, setPetFeeType] = useState<string>('per_stay')
   const [checkinFrom, setCheckinFrom] = useState<string>('')
   const [checkinUntil, setCheckinUntil] = useState<string>('')
   const [checkoutUntil, setCheckoutUntil] = useState<string>('')
@@ -135,10 +131,6 @@ export default function EditPropertyPage({
       setIsPublic(propResult.data.is_public || false)
       setIsActive(propResult.data.is_active ?? true)
       setDescription(propResult.data.description || '')
-      setCleaningFee((propResult.data.cleaning_fee as number | null)?.toString() || '')
-      setCleaningFeeType((propResult.data.cleaning_fee_type as string | null) || 'per_stay')
-      setPetFee((propResult.data.pet_fee as number | null)?.toString() || '')
-      setPetFeeType((propResult.data.pet_fee_type as string | null) || 'per_stay')
       setCheckinFrom((propResult.data.checkin_from as string | null) || '')
       setCheckinUntil((propResult.data.checkin_until as string | null) || '')
       setCheckoutUntil((propResult.data.checkout_until as string | null) || '')
@@ -204,10 +196,6 @@ export default function EditPropertyPage({
           is_public: isPublic,
           is_active: isActive,
           description: description.trim() || null,
-          cleaning_fee: cleaningFee ? parseFloat(cleaningFee) : null,
-          cleaning_fee_type: cleaningFee ? cleaningFeeType : null,
-          pet_fee: petFee ? parseFloat(petFee) : null,
-          pet_fee_type: petFee ? petFeeType : null,
           checkin_from: checkinFrom || null,
           checkin_until: checkinUntil || null,
           checkout_until: checkoutUntil || null,
@@ -518,58 +506,6 @@ export default function EditPropertyPage({
           <div className="mb-8">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Horários</h3>
             <div className="space-y-6">
-              <div className="hidden">
-                <h4 className="text-sm font-medium text-gray-700 mb-3">Taxas Adicionais</h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <Label className="mb-1">Taxa de Limpeza</Label>
-                    <div className="flex gap-2">
-                      <Input
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        value={cleaningFee}
-                        onChange={(e) => setCleaningFee(e.target.value)}
-                        placeholder="0.00"
-                        className="flex-1"
-                      />
-                      <Select value={cleaningFeeType} onValueChange={setCleaningFeeType}>
-                        <SelectTrigger className="w-36">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="per_stay">Por Estadia</SelectItem>
-                          <SelectItem value="per_night">Por Noite</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                  <div>
-                    <Label className="mb-1">Taxa de Animais</Label>
-                    <div className="flex gap-2">
-                      <Input
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        value={petFee}
-                        onChange={(e) => setPetFee(e.target.value)}
-                        placeholder="0.00"
-                        className="flex-1"
-                      />
-                      <Select value={petFeeType} onValueChange={setPetFeeType}>
-                        <SelectTrigger className="w-36">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="per_stay">Por Estadia</SelectItem>
-                          <SelectItem value="per_night">Por Noite</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                </div>
-                <p className="text-xs text-gray-600 mt-1">Deixar vazio = sem taxa</p>
-              </div>
               <div>
                 <h4 className="text-sm font-medium text-gray-700 mb-3">Horários de Check-in / Check-out</h4>
                 <div className="grid grid-cols-3 gap-4">
