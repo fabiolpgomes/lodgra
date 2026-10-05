@@ -28,6 +28,8 @@ export interface OrgConnect {
   accountId: string | null
   platform: ConnectPlatform | null
   status: ConnectStatus
+  /** Última alteração da ligação (muda quando a conta é desligada). */
+  updatedAt?: string | null
 }
 
 type AnyCapability = { status?: string } | null | undefined
@@ -50,7 +52,7 @@ export async function getOrgConnect(orgId: string): Promise<OrgConnect | null> {
   const admin = createAdminClient()
   const { data } = await admin
     .from('organizations')
-    .select('stripe_connect_account_id, stripe_connect_platform, stripe_connect_status')
+    .select('stripe_connect_account_id, stripe_connect_platform, stripe_connect_status, stripe_connect_updated_at')
     .eq('id', orgId)
     .single()
   if (!data) return null
@@ -58,7 +60,18 @@ export async function getOrgConnect(orgId: string): Promise<OrgConnect | null> {
     accountId: data.stripe_connect_account_id ?? null,
     platform: (data.stripe_connect_platform as ConnectPlatform | null) ?? null,
     status: (data.stripe_connect_status as ConnectStatus) ?? 'none',
+    updatedAt: (data.stripe_connect_updated_at as string | null) ?? null,
   }
+}
+
+/**
+ * Chave de idempotência da criação da conta. Evita duas contas num clique duplo, mas muda
+ * quando a ligação é desfeita (stripe_connect_updated_at), senão o Stripe devolveria a conta
+ * antiga durante 30 dias.
+ */
+export function connectIdempotencyKey(orgId: string, updatedAt?: string | null): string {
+  const stamp = updatedAt ? Date.parse(updatedAt) : NaN
+  return Number.isFinite(stamp) ? `lodgra-connect-${orgId}-${stamp}` : `lodgra-connect-${orgId}`
 }
 
 /** Cria a conta conectada do tenant (se ainda não existir) na plataforma do país. */
@@ -93,7 +106,7 @@ export async function ensureConnectedAccount(
       include: ['configuration.merchant'],
     },
     // Evita duas contas se o botão for clicado duas vezes
-    { idempotencyKey: `lodgra-connect-${orgId}` }
+    { idempotencyKey: connectIdempotencyKey(orgId, current.updatedAt) }
   )
 
   const status = statusFromAccount(account)

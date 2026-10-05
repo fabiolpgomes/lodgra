@@ -17,6 +17,7 @@ type Org = {
   slug?: string
   stripe_connect_account_id: string | null
   stripe_connect_platform: string | null
+  stripe_connect_updated_at?: string | null
   stripe_connect_status: string
 }
 let org: Org
@@ -101,6 +102,14 @@ describe('ensureConnectedAccount', () => {
     expect(options).toEqual({ idempotencyKey: 'lodgra-connect-org-1' })
     expect(result).toEqual({ accountId: 'acct_new', platform: 'brl', status: 'pending' })
     expect(updates[0]).toMatchObject({ stripe_connect_account_id: 'acct_new', stripe_connect_platform: 'brl' })
+  })
+
+  it('depois de desligar a conta usa chave nova (o Stripe não devolve a conta antiga)', async () => {
+    org.stripe_connect_updated_at = '2026-10-05T12:00:00Z'
+    accountsCreate.mockResolvedValue(account('pending', 'acct_new2'))
+    await ensureConnectedAccount('org-1', { country: 'PT', email: 'a@b.com', displayName: 'X' })
+    const [, options] = accountsCreate.mock.calls[0]
+    expect(options).toEqual({ idempotencyKey: `lodgra-connect-org-1-${Date.parse('2026-10-05T12:00:00Z')}` })
   })
 
   it('Portugal/Europa vai para a plataforma EUR', async () => {
