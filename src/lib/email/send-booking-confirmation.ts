@@ -2,7 +2,8 @@ import { Resend } from 'resend'
 import { renderEmailTemplate, generateUnsubscribeToken } from './render-template'
 import { buildDefaultEmailTemplate } from './email-template-config'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { checkEmailSendRateLimit, getVerifiedFromEmail } from './security'
+import { checkEmailSendRateLimit, getPlatformSenderAddress, getVerifiedFromEmail } from './security'
+import { getTenantContactEmail } from './tenant-recipients'
 import { retryWithBackoff } from './retry'
 import {
   BOOKING_STANDARD_VERSION,
@@ -146,12 +147,12 @@ export async function sendBookingConfirmation(
     try {
       verifiedFromEmail = getVerifiedFromEmail(organization.slug, template.from_email)
     } catch (error) {
-      verifiedFromEmail = `noreply@${organization.slug}.lodgra.io`
+      verifiedFromEmail = getPlatformSenderAddress()
       console.warn('[email] Invalid from_email detected, falling back to verified sender:', error)
     }
-    const fromAddress = template.from_name
-      ? `${template.from_name} <${verifiedFromEmail}>`
-      : verifiedFromEmail
+    // Nome do tenant no remetente; respostas do hóspede vão para o tenant.
+    const fromAddress = `${(template.from_name || organization.name).replace(/[<>"]/g, '')} <${verifiedFromEmail}>`
+    const replyTo = template.reply_to_email || (await getTenantContactEmail(organization.id)) || undefined
 
     const defaultSubject = buildDefaultEmailTemplate(organization.name, organization.slug).confirmation_subject
     const subject = template.confirmation_subject === defaultSubject
@@ -170,7 +171,7 @@ export async function sendBookingConfirmation(
       const result = await resend.emails.send({
         from: fromAddress,
         to: booking.customer_email,
-        replyTo: template.reply_to_email,
+        replyTo,
         subject,
         html: emailHtml,
       })

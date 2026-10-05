@@ -114,18 +114,30 @@ function getVerifiedDomainsFromEnv(): Set<string> {
   return new Set(domains)
 }
 
-export function getVerifiedFromEmail(organizationSlug: string, requestedFromEmail?: string | null): string {
-  const safeDomain = `${organizationSlug.toLowerCase()}.${DEFAULT_EMAIL_DOMAIN}`
-  const verifiedDomains = getVerifiedDomainsFromEnv()
-  const fallback = `noreply@${safeDomain}`
+/**
+ * Endereço do remetente da plataforma (EMAIL_FROM), num domínio verificado no Resend.
+ * Os e-mails dos tenants saem daqui com o nome do tenant e reply-to para o tenant.
+ */
+export function getPlatformSenderAddress(): string {
+  const raw = (process.env.EMAIL_FROM ?? '').trim()
+  const match = raw.match(/<([^>]+)>/)
+  const address = normalizeEmail(match ? match[1] : raw)
+  return extractDomain(address) ? address : `noreply@${DEFAULT_EMAIL_DOMAIN}`
+}
 
-  if (!requestedFromEmail) return fallback
+/**
+ * Remetente permitido para os e-mails de um tenant. Só aceita domínios verificados no
+ * Resend (o da plataforma ou os de EMAIL_VERIFIED_FROM_DOMAINS); sem pedido → plataforma.
+ */
+export function getVerifiedFromEmail(_organizationSlug: string, requestedFromEmail?: string | null): string {
+  const platform = getPlatformSenderAddress()
+  if (!requestedFromEmail) return platform
 
   const normalized = normalizeEmail(requestedFromEmail)
   const domain = extractDomain(normalized)
-  if (!domain) return fallback
+  if (!domain) return platform
 
-  if (domain === safeDomain || verifiedDomains.has(domain)) {
+  if (domain === extractDomain(platform) || getVerifiedDomainsFromEnv().has(domain)) {
     return normalized
   }
 

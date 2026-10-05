@@ -2,6 +2,7 @@ import { Resend } from 'resend'
 import { differenceInDays, parseISO } from 'date-fns'
 import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { getTenantNotificationEmails } from './tenant-recipients'
 import {
   formatBookingDate,
   getBookingEmailCopy,
@@ -14,7 +15,6 @@ function getResendClient() {
 }
 
 const FROM_EMAIL = process.env.EMAIL_FROM || 'lodgra.pt <noreply@resend.dev>'
-const ADMIN_EMAIL = process.env.EMAIL_ADMIN || ''
 
 export interface BookingEmailData {
   reservationId: string
@@ -205,11 +205,16 @@ export async function sendBookingConfirmationToGuest(data: BookingEmailData): Pr
 }
 
 /**
- * Email to manager (EMAIL_ADMIN) notifying of a new direct booking.
+ * Aviso ao tenant (contacto da empresa e administradores) de uma nova reserva direta.
  */
 export async function sendBookingNotificationToManager(data: BookingEmailData): Promise<void> {
-  if (!ADMIN_EMAIL) {
-    console.warn('[email] EMAIL_ADMIN não configurado — notificação ao gestor não enviada')
+  if (!data.organizationId) {
+    console.warn('[email] Reserva sem organização — aviso ao tenant não enviado')
+    return
+  }
+  const recipients = await getTenantNotificationEmails(data.organizationId)
+  if (recipients.length === 0) {
+    console.warn(`[email] Organização ${data.organizationId} sem e-mail de contacto nem administradores — aviso não enviado`)
     return
   }
 
@@ -315,13 +320,15 @@ export async function sendBookingNotificationToManager(data: BookingEmailData): 
   try {
     const { error } = await resend.emails.send({
       from: FROM_EMAIL,
-      to: ADMIN_EMAIL,
+      to: recipients,
+      replyTo: data.guestEmail ?? undefined,
       subject: `🎉 Nova reserva directa — ${data.propertyName} (${total})`,
       html,
     })
-    if (error) console.error('[email] Erro ao enviar notificação ao gestor:', error)
-    else console.log(`[email] Notificação enviada para ${ADMIN_EMAIL}`)
+    if (error) throw error
+    console.log(`[email] Aviso de nova reserva enviado para ${recipients.join(', ')}`)
   } catch (err) {
-    console.error('[email] Excepção ao enviar notificação ao gestor:', err)
+    console.error('[email] Erro ao enviar aviso de nova reserva ao tenant:', err)
+    throw err
   }
 }

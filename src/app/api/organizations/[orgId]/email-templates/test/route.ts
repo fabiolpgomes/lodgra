@@ -8,7 +8,7 @@ import {
   buildDefaultEmailTemplate,
 } from '@/lib/email/email-template-config'
 import { generateUnsubscribeToken, renderEmailTemplate } from '@/lib/email/render-template'
-import { getVerifiedFromEmail } from '@/lib/email/security'
+import { getPlatformSenderAddress, getVerifiedFromEmail } from '@/lib/email/security'
 import {
   BOOKING_STANDARD_VERSION,
   getBookingConfirmationSubject,
@@ -84,7 +84,7 @@ export async function POST(_request: NextRequest, { params }: { params: Promise<
     fromAddress = getVerifiedFromEmail(organization.slug, normalized.from_email)
   } catch (error) {
     console.warn('[email-test] Invalid from_email detected, falling back to verified sender:', error)
-    fromAddress = `noreply@${organization.slug}.lodgra.io`
+    fromAddress = getPlatformSenderAddress()
   }
 
   const html = await renderEmailTemplate({
