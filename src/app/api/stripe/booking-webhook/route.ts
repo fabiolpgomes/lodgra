@@ -123,8 +123,9 @@ async function handleBookingCompleted(supabase: AdminClient, session: Stripe.Che
     return
   }
 
-  if (existing.status === 'confirmed') {
-    console.log(`[booking-webhook] Reserva ${reservationId} já confirmada — idempotent skip`)
+  if (existing.status !== 'pending_payment') {
+    // Já confirmada, ou cancelada/expirada entretanto: uma entrega tardia não a reabre.
+    console.log(`[booking-webhook] Reserva ${reservationId} em '${existing.status}' — ignorado`)
     return
   }
 
@@ -139,7 +140,7 @@ async function handleBookingCompleted(supabase: AdminClient, session: Stripe.Che
       stripe_payment_intent_id: session.payment_intent as string ?? null,
     })
     .eq('id', reservationId)
-    .neq('status', 'confirmed')
+    .eq('status', 'pending_payment')
     .select('id')
 
   if (updateError) {

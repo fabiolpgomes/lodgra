@@ -105,9 +105,12 @@ function buildMockSupabase(options: {
             }),
           }),
         }),
-        // Confirmação: update().eq().neq().select(); expiração: await update().eq()
+        // Confirmação: update().eq(id).eq(status).select(); expiração: await update().eq()...
         update: jest.fn().mockReturnValue({
           eq: jest.fn().mockReturnValue(Object.assign(Promise.resolve({ error: updateError }), {
+            eq: jest.fn().mockReturnValue(Object.assign(Promise.resolve({ error: updateError }), {
+              select: jest.fn().mockResolvedValue({ data: updateError ? null : confirmedRows, error: updateError }),
+            })),
             neq: jest.fn().mockReturnValue({
               select: jest.fn().mockResolvedValue({ data: updateError ? null : confirmedRows, error: updateError }),
             }),
@@ -384,5 +387,21 @@ describe('POST /api/stripe/booking-webhook — contas conectadas dos tenants', (
     expect(mockSendGuest).not.toHaveBeenCalled()
     expect(mockMarkProcessed).toHaveBeenCalled()
   })
+
+describe('entrega tardia', () => {
+  it('não reabre uma reserva cancelada nem envia e-mails', async () => {
+    const supabase = buildMockSupabase({ reservationData: { ...pendingReservation, status: 'cancelled' } })
+    mockCreateAdminClient.mockReturnValue(supabase)
+    mockConstructEvent.mockReturnValue({
+      id: 'evt_late',
+      type: 'checkout.session.completed',
+      data: { object: { id: 'cs_late', metadata: { reservation_id: 'res-001' }, payment_intent: 'pi_1' } },
+    })
+    const res = await POST(makeWebhookRequest())
+    expect(res.status).toBe(200)
+    expect(mockSendGuest).not.toHaveBeenCalled()
+    expect(mockSendManager).not.toHaveBeenCalled()
+  })
+})
 })
 
