@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import { reservationsForDay } from '@/lib/calendar/day-reservations'
 import { MonthYearPicker } from './MonthYearPicker'
 import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
 
@@ -108,20 +109,7 @@ function SimpleCalendarAdapterComponent({
       .replace(/,00$/, '')
   }
 
-  const getReservationForDay = (day: number) => {
-    return reservations.find(res => {
-      const d = new Date(currentYear, currentMonth, day)
-      d.setHours(0, 0, 0, 0)
-
-      const startDate = new Date(res.startDate)
-      startDate.setHours(0, 0, 0, 0)
-
-      const endDate = new Date(res.endDate)
-      endDate.setHours(23, 59, 59, 999)
-
-      return d >= startDate && d <= endDate
-    })
-  }
+  const getDayReservations = (day: number) => reservationsForDay(reservations, new Date(currentYear, currentMonth, day))
 
   const isDateBlocked = (day: number) => {
     if (blockedDates.length === 0) return false
@@ -311,41 +299,61 @@ function SimpleCalendarAdapterComponent({
                           Bloqueado
                         </div>
                       </div>
-                    ) : getReservationForDay(day) ? (
-                      <div
-                        className="flex h-full w-full cursor-pointer flex-col items-center justify-center gap-0.5 px-0.5 transition-opacity hover:opacity-75"
-                        onPointerDown={(event) => event.stopPropagation()}
-                        onClick={() => {
-                          const res = getReservationForDay(day)
-                          if (res) onReservationClick?.(res)
-                        }}
-                        role="button"
-                        tabIndex={0}
-                      >
-                        <div className="text-xs font-bold sm:text-sm">🛏️</div>
-                        <div className="max-w-full truncate text-[10px] font-semibold sm:text-xs" style={{ color: '#10203E' }}>
-                          {getReservationForDay(day)?.guestName?.substring(0, 10) || 'Guest'}
-                        </div>
-                        <div className="text-[10px] opacity-75 sm:text-xs" style={{ color: '#4D5566' }}>
-                          {getReservationForDay(day)?.guestCount} hósp.
-                        </div>
-                        <div className="text-[10px] font-bold sm:text-xs" style={{ color: '#10203E' }}>
-                          {formatPrice(getReservationForDay(day)!.price)}
-                        </div>
-                        <div className="text-[10px] font-semibold sm:text-xs" style={{
-                          color: getReservationForDay(day)?.status === 'confirmed' ? '#1976D2' : '#F57C00'
-                        }}>
-                          {getReservationForDay(day)?.status === 'confirmed' ? 'Confirmado' :
-                           getReservationForDay(day)?.status === 'hosting' ? 'Hospedado' :
-                           getReservationForDay(day)?.status === 'completed' ? 'Concluído' :
-                           'Pendente'}
-                        </div>
-                      </div>
-                    ) : getDayPrice(day) ? (
-                      <div className="whitespace-nowrap text-[10px] font-bold sm:text-xs" style={{ color: '#10203E' }}>
-                        {formatPrice(getDayPrice(day)!)}
-                      </div>
-                    ) : null}
+                    ) : (
+                      (() => {
+                        const { staying, departing } = getDayReservations(day)
+                        const statusLabel = (status: Reservation['status']) =>
+                          status === 'confirmed' ? 'Confirmado' :
+                          status === 'hosting' ? 'Hospedado' :
+                          status === 'completed' ? 'Concluído' : 'Pendente'
+                        return (
+                          <>
+                            {departing && (
+                              <div
+                                className="max-w-full cursor-pointer truncate rounded px-1 text-[10px] font-semibold transition-opacity hover:opacity-75 sm:text-xs"
+                                style={{ color: '#4D5566', backgroundColor: '#F1EDE3' }}
+                                onPointerDown={(event) => event.stopPropagation()}
+                                onClick={() => onReservationClick?.(departing)}
+                                role="button"
+                                tabIndex={0}
+                                title={`Saída: ${departing.guestName}`}
+                              >
+                                ↗ {departing.guestName?.substring(0, 10) || 'Guest'}
+                              </div>
+                            )}
+                            {staying ? (
+                              <div
+                                className="flex w-full flex-1 cursor-pointer flex-col items-center justify-center gap-0.5 px-0.5 transition-opacity hover:opacity-75"
+                                onPointerDown={(event) => event.stopPropagation()}
+                                onClick={() => onReservationClick?.(staying)}
+                                role="button"
+                                tabIndex={0}
+                              >
+                                <div className="text-xs font-bold sm:text-sm">🛏️</div>
+                                <div className="max-w-full truncate text-[10px] font-semibold sm:text-xs" style={{ color: '#10203E' }}>
+                                  {staying.guestName?.substring(0, 10) || 'Guest'}
+                                </div>
+                                <div className="text-[10px] opacity-75 sm:text-xs" style={{ color: '#4D5566' }}>
+                                  {staying.guestCount} hósp.
+                                </div>
+                                <div className="text-[10px] font-bold sm:text-xs" style={{ color: '#10203E' }}>
+                                  {formatPrice(staying.price)}
+                                </div>
+                                <div className="text-[10px] font-semibold sm:text-xs" style={{
+                                  color: staying.status === 'confirmed' ? '#1976D2' : '#F57C00'
+                                }}>
+                                  {statusLabel(staying.status)}
+                                </div>
+                              </div>
+                            ) : getDayPrice(day) ? (
+                              <div className="whitespace-nowrap text-[10px] font-bold sm:text-xs" style={{ color: '#10203E' }}>
+                                {formatPrice(getDayPrice(day)!)}
+                              </div>
+                            ) : null}
+                          </>
+                        )
+                      })()
+                    )}
                   </div>
                 )}
               </div>
