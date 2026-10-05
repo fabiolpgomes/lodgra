@@ -100,6 +100,14 @@ async function eventMatchesReservation(supabase: AdminClient, reservationId: str
   return (data.stripe_account_id ?? null) === eventAccount
 }
 
+/** Página de confirmação no site do tenant (a mesma para onde o Checkout redireciona). */
+function bookingConfirmedUrl(session: Stripe.Checkout.Session, propertySlug: string | null): string | null {
+  if (!propertySlug) return null
+  const fromSuccess = session.success_url?.split('/p/')[0]
+  const base = fromSuccess && fromSuccess.startsWith('http') ? fromSuccess : (process.env.NEXT_PUBLIC_APP_URL || 'https://lodgra.io')
+  return `${base}/p/${propertySlug}/booking-confirmed?session_id=${encodeURIComponent(session.id)}`
+}
+
 async function handleBookingCompleted(supabase: AdminClient, session: Stripe.Checkout.Session, eventAccount: string | null) {
   const reservationId = session.metadata?.reservation_id
   if (!reservationId) {
@@ -207,6 +215,7 @@ async function handleBookingCompleted(supabase: AdminClient, session: Stripe.Che
     currency,
     appUrl: process.env.NEXT_PUBLIC_APP_URL ?? '',
     preferredLocale: existing.preferred_locale ?? guestProfile?.preferred_locale ?? null,
+    bookingUrl: bookingConfirmedUrl(session, property.slug),
   }
 
   console.log(`[booking-webhook] Sending emails to ${emailData.guestEmail}`)

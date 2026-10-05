@@ -31,6 +31,8 @@ export interface BookingEmailData {
   currency: CurrencyCode
   appUrl: string
   preferredLocale?: string | null
+  /** Página pública da reserva para o botão do e-mail. */
+  bookingUrl?: string | null
 }
 
 /**
@@ -63,6 +65,7 @@ export async function sendBookingConfirmationToGuest(data: BookingEmailData): Pr
             currency: data.currency,
             guest_count: data.numGuests,
             preferred_locale: data.preferredLocale ?? null,
+            booking_url: data.bookingUrl ?? null,
           },
           organization,
         )

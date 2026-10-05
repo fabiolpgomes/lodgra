@@ -403,5 +403,25 @@ describe('entrega tardia', () => {
     expect(mockSendManager).not.toHaveBeenCalled()
   })
 })
+
+describe('link do e-mail', () => {
+  it('aponta para a página de confirmação no site do tenant', async () => {
+    mockCreateAdminClient.mockReturnValue(buildMockSupabase())
+    mockConstructEvent.mockReturnValue({
+      id: 'evt_link',
+      type: 'checkout.session.completed',
+      data: { object: {
+        id: 'cs_abc',
+        success_url: 'https://algarve-home-stay.lodgra.io/p/villa/booking-confirmed?session_id={CHECKOUT_SESSION_ID}',
+        metadata: { reservation_id: 'res-001' },
+        payment_intent: 'pi_1',
+      } },
+    })
+    await POST(makeWebhookRequest())
+    expect(mockSendGuest).toHaveBeenCalledWith(expect.objectContaining({
+      bookingUrl: 'https://algarve-home-stay.lodgra.io/p/villa-algarve/booking-confirmed?session_id=cs_abc',
+    }))
+  })
+})
 })
 

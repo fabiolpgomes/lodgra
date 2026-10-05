@@ -29,6 +29,8 @@ interface Booking {
   currency: string
   guest_count?: number
   preferred_locale?: string | null
+  /** Página pública da reserva (confirmação). */
+  booking_url?: string | null
 }
 
 interface Organization {
@@ -108,6 +110,9 @@ export async function sendBookingConfirmation(
     const locale = normalizeBookingLocale(booking.preferred_locale)
     const copy = getBookingEmailCopy(locale)
 
+    // Respostas e contacto do hóspede vão para o tenant, não para a Lodgra.
+    const tenantReplyTo = template.reply_to_email || (await getTenantContactEmail(organization.id)) || 'support@lodgra.io'
+
     // Prepare template variables
     const emailVariables = {
       subject: template.confirmation_subject,
@@ -121,12 +126,12 @@ export async function sendBookingConfirmation(
       checkOutDate: formatBookingDate(booking.check_out_date, locale),
       totalPrice: booking.total_price.toFixed(2),
       currency: booking.currency,
-      bookingUrl: `https://${organization.slug}.lodgra.io/bookings/${booking.id}`,
+      bookingUrl: booking.booking_url || `https://${organization.slug}.lodgra.io`,
       unsubscribeUrl: `https://lodgra.io/unsubscribe?token=${unsubscribeToken}`,
       templateVersion: BOOKING_STANDARD_VERSION,
       logoUrl: template.include_company_logo && branding?.logo_url ? branding.logo_url : null,
       primaryColor: branding?.primary_color || '#1E40AF',
-      replyToEmail: template.reply_to_email || 'support@lodgra.io',
+      replyToEmail: tenantReplyTo,
       footerText: template.footer_text,
       confirmationMessage: template.confirmation_message,
       year: new Date().getFullYear().toString(),
@@ -152,7 +157,7 @@ export async function sendBookingConfirmation(
     }
     // Nome do tenant no remetente; respostas do hóspede vão para o tenant.
     const fromAddress = `${(template.from_name || organization.name).replace(/[<>"]/g, '')} <${verifiedFromEmail}>`
-    const replyTo = template.reply_to_email || (await getTenantContactEmail(organization.id)) || undefined
+    const replyTo = tenantReplyTo
 
     const defaultSubject = buildDefaultEmailTemplate(organization.name, organization.slug).confirmation_subject
     const subject = template.confirmation_subject === defaultSubject
