@@ -11,7 +11,6 @@ import {
 
 jest.mock('@/lib/supabase/admin')
 jest.mock('@/lib/stripe/platform')
-jest.mock('../client-pt', () => ({ getStripePT: () => ({ legacy: true }) }))
 
 type Org = {
   slug?: string
@@ -144,15 +143,10 @@ describe('resolveBookingPaymentAccount', () => {
     expect(updates[0]).toMatchObject({ stripe_connect_status: 'active' })
   })
 
-  it('sem conta ativa e não é a AHS → sem pagamento online (nunca usa a chave da AHS)', async () => {
-    process.env.STRIPE_PT_SECRET_KEY = 'sk_ahs'
-    await expect(resolveBookingPaymentAccount('org-1')).resolves.toBeNull()
-  })
-
-  it('AHS sem conta conectada ainda usa a chave própria (transitório)', async () => {
+  it('sem conta ativa → sem pagamento online, mesmo para a AHS (nunca usa a chave antiga)', async () => {
     process.env.STRIPE_PT_SECRET_KEY = 'sk_ahs'
     org.slug = 'algarve-home-stay'
-    await expect(resolveBookingPaymentAccount('org-1')).resolves.toMatchObject({ kind: 'legacy' })
+    await expect(resolveBookingPaymentAccount('org-1')).resolves.toBeNull()
   })
 })
 
@@ -163,9 +157,7 @@ describe('stripeForReservationPayment', () => {
     expect(r.options).toEqual({ stripeAccount: 'acct_t' })
   })
 
-  it('reserva antiga → conta própria da AHS', async () => {
-    const r = await stripeForReservationPayment({ stripe_account_id: null })
-    expect(r.stripe).toEqual({ legacy: true })
-    expect(r.options).toBeUndefined()
+  it('reserva paga antes do Connect → reembolso manual (sem chave antiga)', async () => {
+    await expect(stripeForReservationPayment({ stripe_account_id: null })).rejects.toThrow('legacy_payment_manual_refund')
   })
 })

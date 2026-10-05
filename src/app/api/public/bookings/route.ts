@@ -339,10 +339,9 @@ export async function POST(request: NextRequest) {
   // ── Create Stripe Checkout Session ──────────────────────────────────────────
 
   // Cobrança direta: o Checkout é criado na conta do tenant (Stripe-Account),
-  // o dinheiro entra no saldo dele. Modelo antigo (AHS) usa a chave própria.
+  // o dinheiro entra no saldo dele.
   const { stripe } = paymentAccount
-  const requestOptions: Stripe.RequestOptions | undefined =
-    paymentAccount.kind === 'connect' ? { stripeAccount: paymentAccount.accountId } : undefined
+  const requestOptions: Stripe.RequestOptions = { stripeAccount: paymentAccount.accountId }
 
   // Volta para o mesmo domínio onde o hóspede reservou (ex.: algarve-home-stay.lodgra.io
   // ou o subdomínio em dev). A origem já foi validada pelo CSRF (mesmo host da requisição).
@@ -408,8 +407,8 @@ export async function POST(request: NextRequest) {
       .from('reservations')
       .update({
         stripe_checkout_session_id: session.id,
-        stripe_account_id: paymentAccount.kind === 'connect' ? paymentAccount.accountId : null,
-        stripe_connect_platform: paymentAccount.kind === 'connect' ? paymentAccount.platform : null,
+        stripe_account_id: paymentAccount.accountId,
+        stripe_connect_platform: paymentAccount.platform,
       })
       .eq('id', reservation.id)
 
@@ -426,6 +425,15 @@ export async function POST(request: NextRequest) {
       .eq('id', reservation.id)
 
     console.error('Stripe session creation failed:', stripeError)
+    if ((stripeError as { code?: string } | null)?.code === 'amount_too_small') {
+      return NextResponse.json(
+        {
+          error: 'amount_too_small',
+          message: 'O valor desta reserva é inferior ao mínimo aceite para pagamento online. Contacte o anfitrião.',
+        },
+        { status: 400 }
+      )
+    }
     return NextResponse.json({ error: 'Erro ao iniciar pagamento. Tente novamente.' }, { status: 500 })
   }
   } catch (error: unknown) {

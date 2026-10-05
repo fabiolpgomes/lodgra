@@ -132,8 +132,8 @@ function buildMockSupabase(options: {
 
 beforeEach(() => {
   jest.clearAllMocks()
-  process.env.STRIPE_PT_SECRET_KEY = 'sk_test_dummy'
-  process.env.STRIPE_PT_WEBHOOK_SECRET = 'whsec_test'
+  process.env.STRIPE_EU_SECRET_KEY = 'sk_test_dummy'
+  process.env.STRIPE_EU_CONNECT_WEBHOOK_SECRET = 'whsec_test'
   process.env.NEXT_PUBLIC_APP_URL = 'https://app.example.com'
   mockSendGuest.mockResolvedValue(undefined)
   mockSendManager.mockResolvedValue(undefined)

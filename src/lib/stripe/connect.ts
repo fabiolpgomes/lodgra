@@ -179,16 +179,12 @@ export async function createConnectAccountSession(connect: OrgConnect): Promise<
 
 // ── Reservas diretas ─────────────────────────────────────────────────────────
 
-/**
- * TRANSITÓRIO: a AHS ainda cobra com a chave da sua própria conta Stripe
- * (STRIPE_PT_SECRET_KEY). Quando a AHS concluir o cadastro em "Pagamentos online",
- * a conta conectada passa a ter prioridade; depois remover isto e o client-pt.
- */
-const LEGACY_BOOKING_ORG_SLUG = 'algarve-home-stay'
-
-export type BookingPaymentAccount =
-  | { kind: 'connect'; stripe: Stripe; accountId: string; platform: ConnectPlatform }
-  | { kind: 'legacy'; stripe: Stripe }
+export type BookingPaymentAccount = {
+  kind: 'connect'
+  stripe: Stripe
+  accountId: string
+  platform: ConnectPlatform
+}
 
 /** Conta onde a reserva direta de uma organização deve ser cobrada; null = sem pagamento online. */
 export async function resolveBookingPaymentAccount(orgId: string): Promise<BookingPaymentAccount | null> {
@@ -206,14 +202,6 @@ export async function resolveBookingPaymentAccount(orgId: string): Promise<Booki
     }
   }
 
-  const legacyKey = (process.env.STRIPE_PT_SECRET_KEY ?? '').trim()
-  if (legacyKey) {
-    const { data: org } = await createAdminClient().from('organizations').select('slug').eq('id', orgId).single()
-    if (org?.slug === LEGACY_BOOKING_ORG_SLUG) {
-      const { getStripePT } = await import('./client-pt')
-      return { kind: 'legacy', stripe: getStripePT() }
-    }
-  }
   return null
 }
 
@@ -228,6 +216,7 @@ export async function stripeForReservationPayment(reservation: {
       options: { stripeAccount: reservation.stripe_account_id },
     }
   }
-  const { getStripePT } = await import('./client-pt')
-  return { stripe: getStripePT() }
+  // Pagamento feito antes do Connect (conta própria antiga da AHS): o reembolso faz-se
+  // manualmente no painel dessa conta.
+  throw new Error('legacy_payment_manual_refund')
 }

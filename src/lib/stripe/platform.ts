@@ -4,8 +4,7 @@ import type { BillingCurrency } from '@/lib/billing/plans'
 // Contas Stripe da plataforma Lodgra (assinaturas SaaS), uma por moeda:
 //   brl → conta Brasil   (STRIPE_SECRET_KEY,    STRIPE_WEBHOOK_SECRET)
 //   eur → conta Portugal (STRIPE_EU_SECRET_KEY, STRIPE_EU_WEBHOOK_SECRET)
-// Não confundir com contas dos tenants (ex.: STRIPE_PT_SECRET_KEY da AHS),
-// que recebem os pagamentos das reservas diretas.
+// Os tenants recebem as reservas diretas nas suas contas conectadas (Connect).
 const ENV: Record<BillingCurrency, { key: string; webhookSecret: string; connectWebhookSecret: string }> = {
   brl: { key: 'STRIPE_SECRET_KEY', webhookSecret: 'STRIPE_WEBHOOK_SECRET', connectWebhookSecret: 'STRIPE_CONNECT_WEBHOOK_SECRET' },
   eur: { key: 'STRIPE_EU_SECRET_KEY', webhookSecret: 'STRIPE_EU_WEBHOOK_SECRET', connectWebhookSecret: 'STRIPE_EU_CONNECT_WEBHOOK_SECRET' },

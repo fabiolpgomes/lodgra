@@ -17,12 +17,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Sem assinatura Stripe' }, { status: 400 })
   }
 
-  // Eventos chegam de: contas conectadas dos tenants (plataformas BR e PT, endpoint
-  // "contas conectadas") e, transitoriamente, da conta própria da AHS.
-  const secrets = [
-    ...configuredPlatformCurrencies().map(getConnectWebhookSecret),
-    (process.env.STRIPE_PT_WEBHOOK_SECRET ?? '').trim(),
-  ].filter(Boolean)
+  // Eventos das contas conectadas dos tenants (plataformas BR e PT, endpoint "contas conectadas").
+  const secrets = configuredPlatformCurrencies().map(getConnectWebhookSecret).filter(Boolean)
   if (secrets.length === 0) {
     console.error('[booking-webhook] nenhum segredo de webhook configurado')
     return NextResponse.json({ error: 'Webhook não configurado' }, { status: 500 })

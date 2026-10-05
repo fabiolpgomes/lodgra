@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { RefundCalculator } from '@/lib/refunds/refund-calculator'
 import { randomUUID } from 'crypto'
+import { stripeForReservationPayment } from '@/lib/stripe/connect'
 
 // Story 40.1 Phase 3: Auth middleware for decision submission
 // Validates that only authenticated managers can submit review decisions
@@ -97,29 +98,21 @@ export async function POST(
 
     if (['APPROVED', 'PARTIAL'].includes(decision) && refundAmount > 0) {
       try {
-        const refundResponse = await fetch(
-          new URL('/api/billing/refunds', request.url).toString(),
+        // Reembolso na conta Stripe onde o hóspede pagou (conta conectada do tenant)
+        if (!reservation.stripe_payment_intent_id) throw new Error('missing_payment_intent')
+        const { stripe, options } = await stripeForReservationPayment(reservation)
+        const refund = await stripe.refunds.create(
           {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              reservation_id: id,
-              amount: refundAmount,
-              reason: 'serious_issue_resolved',
-            }),
-          }
+            payment_intent: reservation.stripe_payment_intent_id,
+            amount: Math.round(refundAmount * 100),
+            reason: 'requested_by_customer',
+          },
+          options
         )
-
-        const refundData = await refundResponse.json()
-        if (refundResponse.ok) {
-          stripeRefundId = refundData.stripe_refund_id || null
-        } else {
-          console.error('Stripe refund failed:', refundData.error)
-          // Don't fail entirely - store attempt
-        }
+        stripeRefundId = refund.id
       } catch (error) {
-        console.error('Error calling refund endpoint:', error)
-        // Continue - can be retried
+        console.error('Stripe refund failed:', error)
+        // Não falha a decisão: fica registada sem reembolso para tratar manualmente
       }
     }
 

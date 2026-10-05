@@ -321,4 +321,14 @@ describe('POST /api/public/bookings', () => {
     expect((await res.json()).error).toBe('online_payment_unavailable')
     expect(mockCheckoutCreate).not.toHaveBeenCalled()
   })
+
+  it('valor abaixo do mínimo do Stripe → 400 com mensagem clara para o hóspede', async () => {
+    mockCreateAdminClient.mockReturnValue(buildMockSupabase())
+    mockCheckoutCreate.mockRejectedValueOnce(Object.assign(new Error('too small'), { code: 'amount_too_small' }))
+    const res = await POST(makeRequest(validBody))
+    expect(res.status).toBe(400)
+    const json = await res.json()
+    expect(json.error).toBe('amount_too_small')
+    expect(json.message).toMatch(/mínimo/)
+  })
 })
