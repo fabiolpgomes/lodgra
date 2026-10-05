@@ -158,7 +158,7 @@ async function handleBookingCompleted(supabase: AdminClient, session: Stripe.Che
   console.log(`[booking-webhook] Fetching property listing: ${existing.property_listing_id}`)
   const { data: listing, error: listingError } = await supabase
     .from('property_listings')
-    .select('property_id, properties(name, city, slug, organization_id, owner_id, currency)')
+    .select('property_id, properties!property_listings_property_id_fkey(name, city, slug, organization_id, owner_id, currency)')
     .eq('id', existing.property_listing_id)
     .single()
 
