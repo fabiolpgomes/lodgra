@@ -41,6 +41,21 @@ describe('POST /api/email-extraction/process-pending', () => {
     expect(createAdminClient).not.toHaveBeenCalled()
   })
 
+  it('keeps draining the queue when the match replay is unavailable', async () => {
+    ;(retryUnmatchedExtractions as jest.Mock).mockRejectedValue(new Error('MATCH_RETRY_LOOKUP_FAILED'))
+    const rpc = jest.fn().mockResolvedValue({ data: [], error: null })
+    ;(createAdminClient as jest.Mock).mockReturnValue({ rpc, from: jest.fn() })
+
+    const response = await POST(createTestRequest('http://localhost/api/email-extraction/process-pending', {
+      method: 'POST', headers: { authorization: `Bearer ${secret}` },
+    }))
+    const body = await response.json()
+
+    expect(rpc).toHaveBeenCalledWith('claim_email_reconciliation_batch', { p_limit: 5 })
+    expect(response.status).toBe(503)
+    expect(body.replay).toMatchObject({ errors: 1, unavailable: true })
+  })
+
   it.each(['auto_matched', 'needs_review', 'no_match'])('persists extraction and handles reconciliation status %s', async (status) => {
     const raw = {
       id: 'raw-1', organization_id: 'org-1', sender: 'noreply@booking.com',

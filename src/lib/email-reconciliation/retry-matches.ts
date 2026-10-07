@@ -1,11 +1,21 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 import { syncExtractedDataToReservation } from './sync-to-reservations'
 
-/** Revisit email-first extractions without spending tokens on extraction again. */
+/**
+ * Revisit email-first extractions without spending tokens on extraction again.
+ * email_extractions has no direct FK to organizations, so enabled orgs are resolved first
+ * (a PostgREST embed would fail and block the whole queue).
+ */
 export async function retryUnmatchedExtractions() {
   const db = createAdminClient()
-  const { data, error } = await db.from('email_extractions').select('id, organization_id, source_platform, organizations!inner(email_ical_reconciliation_enabled, email_ical_pilot_platforms)')
-    .eq('organizations.email_ical_reconciliation_enabled', true)
+  const { data: orgs, error: orgError } = await db.from('organizations').select('id')
+    .eq('email_ical_reconciliation_enabled', true)
+  if (orgError) throw new Error('MATCH_RETRY_LOOKUP_FAILED')
+  const orgIds = (orgs || []).map(org => org.id as string)
+  if (!orgIds.length) return { retried: 0, matched: 0, errors: 0 }
+
+  const { data, error } = await db.from('email_extractions').select('id')
+    .in('organization_id', orgIds)
     .in('match_status', ['pending', 'no_match'])
     .gte('check_out', new Date().toISOString().slice(0, 10))
     .order('updated_at', { ascending: true }).limit(20)

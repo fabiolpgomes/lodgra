@@ -32,9 +32,13 @@ export async function POST(request: NextRequest) {
   }
 
   const supabase = createAdminClient()
-  let replay
+  // A failing replay must not starve the queue: new messages are still claimed and the run reports 503.
+  let replay: { retried: number; matched: number; errors: number; unavailable?: boolean }
   try { replay = await retryUnmatchedExtractions() }
-  catch { return NextResponse.json({ error: 'Reconciliation retry unavailable' }, { status: 503 }) }
+  catch (error) {
+    console.error('[EmailReconciliation] Match replay unavailable', safeError(error))
+    replay = { retried: 0, matched: 0, errors: 1, unavailable: true }
+  }
   const { data, error: claimError } = await supabase.rpc('claim_email_reconciliation_batch', {
     p_limit: 5,
   })
