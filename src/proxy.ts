@@ -35,7 +35,7 @@ export async function proxy(request: NextRequest) {
 
   // Detect tenant subdomain (e.g. "minha-pousada" from "minha-pousada.lodgra.io")
   const hostname = request.headers.get('host') ?? ''
-  const rootDomains = ['lodgra.io', 'homestay.pt', 'localhost:3000', 'vercel.app']
+  const rootDomains = ['lodgra.io', 'localhost:3000', 'vercel.app']
   const isRootDomain = rootDomains.some(d => hostname === d || hostname.endsWith(`.vercel.app`))
   const subdomain = !isRootDomain
     ? hostname.split('.')[0]

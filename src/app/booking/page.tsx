@@ -5,7 +5,7 @@ import { BookingPageClient } from './BookingPageClient'
 import type { PropertyCardProps } from '@/components/common/public/properties/PropertyCard'
 
 const INITIAL_LIMIT = 12
-const ROOT_HOSTS = new Set(['lodgra.io', 'www.lodgra.io', 'homestay.pt', 'www.homestay.pt'])
+const ROOT_HOSTS = new Set(['lodgra.io', 'www.lodgra.io'])
 const ALGARVE_HOME_STAY_SLUG = 'algarve-home-stay'
 const ALGARVE_HOME_STAY_URL = 'https://algarve-home-stay.lodgra.io/booking'
 const ALGARVE_HOME_STAY_IMAGE_URL = 'https://algarve-home-stay.lodgra.io/logotipo/AHS-Brasil-Portugal.png'
@@ -35,7 +35,7 @@ function getOrgSlugFromHeaders(hdrs: Headers) {
     return null
   }
 
-  if (hostname.endsWith('.lodgra.io') || hostname.endsWith('.homestay.pt')) {
+  if (hostname.endsWith('.lodgra.io')) {
     const [subdomain] = hostname.split('.')
     return subdomain && subdomain !== 'www' ? subdomain : null
   }

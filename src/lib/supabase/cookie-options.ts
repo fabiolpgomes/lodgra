@@ -15,10 +15,6 @@ function getCookieDomain(hostname: string): string | null {
     return '.lodgra.io'
   }
 
-  if (normalized === 'homestay.pt' || normalized.endsWith('.homestay.pt')) {
-    return '.homestay.pt'
-  }
-
   return null
 }
 

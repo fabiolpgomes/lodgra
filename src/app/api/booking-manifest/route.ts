@@ -3,7 +3,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 
 export const dynamic = 'force-dynamic'
 
-const ROOT_HOSTS = new Set(['lodgra.io', 'www.lodgra.io', 'homestay.pt', 'www.homestay.pt'])
+const ROOT_HOSTS = new Set(['lodgra.io', 'www.lodgra.io'])
 
 const DEFAULT_ICONS = [
   { src: '/icons/icon-192x192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
@@ -16,7 +16,7 @@ function getOrgSlug(request: NextRequest): string | null {
   const forwardedHost = request.headers.get('x-forwarded-host')
   const host = (forwardedHost || request.headers.get('host') || '').split(',')[0].trim().toLowerCase().split(':')[0]
   if (!host || ROOT_HOSTS.has(host) || host.endsWith('.vercel.app')) return null
-  if (host.endsWith('.lodgra.io') || host.endsWith('.homestay.pt')) {
+  if (host.endsWith('.lodgra.io')) {
     const [subdomain] = host.split('.')
     return subdomain && subdomain !== 'www' ? subdomain : null
   }

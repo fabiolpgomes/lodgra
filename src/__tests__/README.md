@@ -1,6 +1,6 @@
 # Test Suite Documentation
 
-This directory contains unit and integration tests for the Home Stay iCal integration feature.
+This directory contains unit and integration tests for the Lodgra iCal integration feature.
 
 ## Test Structure
 
