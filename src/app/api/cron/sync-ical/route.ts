@@ -21,6 +21,7 @@ import { calculateServiceFeeAmount, nightsBetween } from '@/lib/reservations/ser
 import { isAuthorizedCronRequest } from '@/lib/cron/auth'
 import { getFeatureFlagStatus } from '@/lib/email-reconciliation/feature-flag'
 import { hasActiveReconciledReservation, upsertReconciliationAvailability } from '@/lib/ical/reconciliationAvailability'
+import { assertReconciledFeedConsistency } from '@/lib/ical/reconciliationLifecycle'
 import { normalizeListingPlatform } from '@/lib/ical/listingPlatform'
 
 interface ListingPropertyInfo {
@@ -74,14 +75,15 @@ async function syncOneListing(
   const receivedUids = new Set(events.map(e => e.uid))
   const receivedExternalIds = new Set<string>()
   const receivedCalendarEventIds = new Set<string>()
-  let listingSource = normalizeListingPlatform(listing.platforms)
+  const feedEvents = new Map<string, { checkIn: string; checkOut: string; status?: string }>()
+  let listingSource = normalizeListingPlatform(listing.platforms, listing.ical_url)
 
   const now = new Date()
   const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
   const twoYearsFromNow = new Date(Date.UTC(now.getUTCFullYear() + 2, now.getUTCMonth(), now.getUTCDate()))
 
   for (const event of events) {
-    const externalIdContext = buildReservationExternalIdContext(event)
+    const externalIdContext = buildReservationExternalIdContext(event, listingSource)
     const source = externalIdContext.source
     listingSource ||= source
     const externalIdLookup = externalIdContext.stableExternalId
@@ -90,7 +92,7 @@ async function syncOneListing(
     const checkIn = event.start.toISOString().split('T')[0]
     const checkOut = event.end.toISOString().split('T')[0]
 
-    const classification = classifyICalEvent(event)
+    const classification = event.status === 'CANCELLED' ? 'unknown' : classifyICalEvent({ ...event, sourcePlatform: source })
     const audit = await upsertCalendarEventAudit({
       supabase,
       organizationId: cronOrgId,
@@ -103,8 +105,15 @@ async function syncOneListing(
 
     // Presence in the feed is independent of its reservation/block classification.
     receivedCalendarEventIds.add(audit.id)
+    feedEvents.set(audit.id, { checkIn, checkOut, status: event.status })
     for (const candidate of externalIdContext.externalIdCandidates) {
       receivedExternalIds.add(candidate)
+    }
+
+    if (event.status === 'CANCELLED') {
+      skipped++
+      processed++; progress.skipped++; progress.processed++
+      continue
     }
 
     // Standard logging
@@ -472,6 +481,9 @@ async function syncOneListing(
     reconciliationFlag.enabled &&
     listingSource !== null &&
     reconciliationFlag.pilot_platforms.includes(listingSource)
+  if (reconciliationOwnsListing) {
+    await assertReconciledFeedConsistency({ supabase, organizationId: cronOrgId, propertyListingId: listing.id, feedEvents })
+  }
   if (!reconciliationOwnsListing) {
     try {
       cancelledCount = await cancelMissingReservations({
@@ -507,7 +519,7 @@ async function syncOneListing(
     )
   }
 
-  if (existingBlocks) {
+  if (existingBlocks && events.length > 0) {
     for (const block of existingBlocks) {
       // Skip past blocks — platforms remove them from iCal after check-out
       if (block.external_uid && !receivedUids.has(block.external_uid)) {

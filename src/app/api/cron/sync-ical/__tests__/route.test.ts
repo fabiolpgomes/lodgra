@@ -1,3 +1,4 @@
+import { assertReconciledFeedConsistency } from '@/lib/ical/reconciliationLifecycle'
 /**
  * Tests for GET /api/cron/sync-ical
  *
@@ -13,6 +14,8 @@ import { importICalFromUrl, classifyICalEvent } from '@/lib/ical/icalService'
 import { getFeatureFlagStatus } from '@/lib/email-reconciliation/feature-flag'
 import { hasActiveReconciledReservation, upsertReconciliationAvailability } from '@/lib/ical/reconciliationAvailability'
 import { upsertCalendarEventAudit } from '@/lib/ical/calendarEventAudit'
+
+jest.mock('@/lib/ical/reconciliationLifecycle', () => ({ assertReconciledFeedConsistency: jest.fn().mockResolvedValue(undefined) }))
 
 jest.mock('@/lib/supabase/admin', () => ({
   createAdminClient: jest.fn(),
@@ -77,6 +80,7 @@ describe('GET /api/cron/sync-ical', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
+    ;(assertReconciledFeedConsistency as jest.Mock).mockResolvedValue(undefined)
     ;(hasActiveReconciledReservation as jest.Mock).mockResolvedValue(true)
     ;(upsertCalendarEventAudit as jest.Mock).mockResolvedValue({ id: 'event-audit', status: 'unmatched' })
     ;(classifyICalEvent as jest.Mock).mockReturnValue('unknown')
@@ -386,10 +390,12 @@ describe('GET /api/cron/sync-ical', () => {
   })
 
   it.each([
-    { status: 'unmatched', covered: false },
-    { status: 'matched', covered: true },
-    { status: 'matched', covered: false },
-  ])('preserva disponibilidade para $status, cobertura ativa=$covered', async ({ status, covered }) => {
+    { status: 'unmatched', covered: false, divergent: false },
+    { status: 'matched', covered: true, divergent: false },
+    { status: 'matched', covered: false, divergent: false },
+    { status: 'matched', covered: false, divergent: true },
+  ])('preserva disponibilidade para $status, cobertura ativa=$covered', async ({ status, covered, divergent }) => {
+    if (divergent) (assertReconciledFeedConsistency as jest.Mock).mockRejectedValue(new Error('Reconciliação pendente: datas alteradas'))
     ;(hasActiveReconciledReservation as jest.Mock).mockResolvedValue(covered)
     ;(upsertCalendarEventAudit as jest.Mock).mockResolvedValue({ id: 'event-audit', status })
     const listing = {
@@ -424,6 +430,8 @@ describe('GET /api/cron/sync-ical', () => {
     const body = await response.json()
 
     expect(response.status).toBe(200)
+    expect(assertReconciledFeedConsistency).toHaveBeenCalledWith(expect.objectContaining({ organizationId: 'org-1', propertyListingId: 'listing-booking' }))
+    expect(body.errors).toBe(divergent ? 1 : 0)
     expect(body.blocked).toBe(status === 'matched' && covered ? 0 : 1)
     if (status === 'matched' && covered) {
       expect(upsertReconciliationAvailability).not.toHaveBeenCalled()
@@ -501,7 +509,7 @@ describe('GET /api/cron/sync-ical', () => {
     expect(reservationTable.select).toHaveBeenCalled()
   })
 
-  it('cancela reservas futuras que desapareceram do feed iCal', async () => {
+  it('preserva reservas futuras quando o feed fica vazio', async () => {
     const listing = {
       id: 'listing-cancel',
       ical_url: 'https://example.com/cancel.ics',
@@ -547,15 +555,11 @@ describe('GET /api/cron/sync-ical', () => {
     const body = await response.json()
 
     expect(response.status).toBe(200)
-    expect(body.cancelled).toBe(1)
-    expect(reservationUpdate).toHaveBeenCalledWith(expect.objectContaining({
-      status: 'cancelled',
-      cancelled_at: expect.any(String),
-      updated_at: expect.any(String),
-    }))
+    expect(body.cancelled).toBe(0)
+    expect(reservationUpdate).not.toHaveBeenCalled()
   })
 
-  it('preserva cancelamento para listing fora do piloto quando a flag da organização está ativa', async () => {
+  it('não cancela por feed vazio mesmo fora das plataformas piloto', async () => {
     const listing = {
       id: 'listing-airbnb-non-pilot',
       ical_url: 'https://example.com/airbnb-empty.ics',
@@ -603,7 +607,7 @@ describe('GET /api/cron/sync-ical', () => {
     const response = await GET(buildRequest())
 
     expect(response.status).toBe(200)
-    expect(reservationUpdate).toHaveBeenCalledWith(expect.objectContaining({ status: 'cancelled' }))
+    expect(reservationUpdate).not.toHaveBeenCalled()
   })
 
   it('limita a limpeza de bloqueios ao listing que está sendo sincronizado', async () => {
@@ -743,9 +747,8 @@ describe('GET /api/cron/sync-ical', () => {
       return
     }
     expect(body.errors).toBe(0)
-    expect(body.cancelled).toBe(present ? 0 : 1)
-    if (present) expect(reservationUpdate).not.toHaveBeenCalled()
-    else expect(reservationUpdate).toHaveBeenCalledWith(expect.objectContaining({ status: 'cancelled' }))
+    expect(body.cancelled).toBe(0)
+    expect(reservationUpdate).not.toHaveBeenCalled()
   })
 
 })

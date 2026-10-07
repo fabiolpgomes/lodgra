@@ -1,3 +1,4 @@
+import { retryUnmatchedExtractions } from '@/lib/email-reconciliation/retry-matches'
 import { POST } from '../route'
 import { createTestRequest } from '@/__tests__/utils/test-request'
 import { createAdminClient } from '@/lib/supabase/admin'
@@ -9,6 +10,8 @@ jest.mock('@/lib/supabase/admin', () => ({ createAdminClient: jest.fn() }))
 jest.mock('@/lib/email-reconciliation/extract-service', () => ({ extractEmailData: jest.fn() }))
 jest.mock('@/lib/email-reconciliation/feature-flag', () => ({ isPlatformInPilot: jest.fn() }))
 jest.mock('@/lib/email-reconciliation/sync-to-reservations', () => ({ syncExtractedDataToReservation: jest.fn() }))
+
+jest.mock('@/lib/email-reconciliation/retry-matches', () => ({ retryUnmatchedExtractions: jest.fn() }))
 
 const secret = 'email-cron-secret'
 
@@ -25,6 +28,7 @@ describe('POST /api/email-extraction/process-pending', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
+    ;(retryUnmatchedExtractions as jest.Mock).mockResolvedValue({ retried: 0, matched: 0, errors: 0 })
     process.env.CRON_SECRET = secret
     ;(isPlatformInPilot as jest.Mock).mockResolvedValue(true)
   })
@@ -40,7 +44,7 @@ describe('POST /api/email-extraction/process-pending', () => {
   it.each(['auto_matched', 'needs_review', 'no_match'])('persists extraction and handles reconciliation status %s', async (status) => {
     const raw = {
       id: 'raw-1', organization_id: 'org-1', sender: 'noreply@booking.com',
-      raw_content: 'Booking reservation', attempt_count: 1,
+      subject: 'Booking confirmation', raw_content: 'Booking reservation', attempt_count: 1,
     }
     const rpc = jest.fn().mockResolvedValue({ data: [raw], error: null })
     const upsertQuery = {
@@ -88,7 +92,7 @@ describe('POST /api/email-extraction/process-pending', () => {
   it('retries once and then stops automatic processing', async () => {
     const raw = {
       id: 'raw-2', organization_id: 'org-1', sender: 'noreply@booking.com',
-      raw_content: 'invalid', attempt_count: 2,
+      subject: 'Booking confirmation', raw_content: 'invalid', attempt_count: 5,
     }
     const update = jest.fn(() => updateQuery())
     ;(createAdminClient as jest.Mock).mockReturnValue({

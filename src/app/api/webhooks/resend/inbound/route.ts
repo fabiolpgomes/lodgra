@@ -74,7 +74,7 @@ export async function POST(request: Request) {
     sender: email.from,
     subject: email.subject,
     received_at: email.created_at,
-    raw_content: rawContent,
+    raw_content: `Subject: ${email.subject}\n\n${rawContent}`,
     processing_status: 'pending',
     last_error: null,
   })

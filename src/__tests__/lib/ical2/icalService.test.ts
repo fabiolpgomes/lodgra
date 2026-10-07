@@ -123,7 +123,7 @@ describe('importICalFromUrl()', () => {
     expect(events[0].uid).toBe('booking-closed')
   })
 
-  it('skips events with missing dates (no filtering of summary)', async () => {
+  it('rejects the entire feed when any event has missing dates', async () => {
     // Only events without dates are skipped (can't process them)
     const emptyDateEvent = [
       'BEGIN:VEVENT',
@@ -134,11 +134,7 @@ describe('importICalFromUrl()', () => {
     const validEvent = makeVEvent({ uid: 'valid', summary: 'anything' })
     mockFetchOk(makeICalString([emptyDateEvent, validEvent].join('\r\n')))
 
-    const events = await importICalFromUrl('https://example.com/cal.ics')
-
-    // Only valid-dated event imported (missing-date event skipped)
-    expect(events).toHaveLength(1)
-    expect(events[0].uid).toBe('valid')
+    await expect(importICalFromUrl('https://example.com/cal.ics')).rejects.toThrow('dates are missing')
   })
 
   it('returns empty array when calendar has no events', async () => {
@@ -149,7 +145,7 @@ describe('importICalFromUrl()', () => {
     expect(events).toHaveLength(0)
   })
 
-  it('skips events missing DTSTART or DTEND and does not throw', async () => {
+  it('rejects a feed containing only malformed events', async () => {
     // Event with no date properties — ical.js sets startDate/endDate to null
     const eventWithoutDates = [
       'BEGIN:VEVENT',
@@ -159,10 +155,7 @@ describe('importICalFromUrl()', () => {
     ].join('\r\n')
     mockFetchOk(makeICalString(eventWithoutDates))
 
-    const events = await importICalFromUrl('https://example.com/cal.ics')
-
-    // Should not throw and return empty (event skipped due to missing dates)
-    expect(events).toHaveLength(0)
+    await expect(importICalFromUrl('https://example.com/cal.ics')).rejects.toThrow('dates are missing')
   })
 })
 
@@ -208,4 +201,24 @@ describe('generateICalFromReservations()', () => {
 
     expect(result).not.toContain('BEGIN:VEVENT')
   })
+})
+
+it('rejects an event without stable UID rather than generating a new identity each poll', async () => {
+  mockFetchOk(makeICalString(makeVEvent().replace('UID:test-uid-1\r\n', '')))
+  await expect(importICalFromUrl('https://example.com/cal.ics')).rejects.toThrow('UID is missing')
+})
+
+it('rejects duplicate event identities instead of arbitrarily overwriting dates', async () => {
+  mockFetchOk(makeICalString([makeVEvent(), makeVEvent({ dtend: '20260610' })].join('\r\n')))
+  await expect(importICalFromUrl('https://example.com/cal.ics')).rejects.toThrow('duplicate UID')
+})
+
+it('retains explicit CANCELLED status for the reconciliation lifecycle', async () => {
+  mockFetchOk(makeICalString(makeVEvent().replace('END:VEVENT', 'STATUS:CANCELLED\r\nEND:VEVENT')))
+  expect((await importICalFromUrl('https://example.com/cal.ics'))[0].status).toBe('CANCELLED')
+})
+
+it('rejects invalid stay order before any caller can treat the feed as complete', async () => {
+  mockFetchOk(makeICalString(makeVEvent({ dtstart: '20260605', dtend: '20260601' })))
+  await expect(importICalFromUrl('https://example.com/cal.ics')).rejects.toThrow('checkout must follow checkin')
 })

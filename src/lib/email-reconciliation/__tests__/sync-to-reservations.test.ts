@@ -1,5 +1,8 @@
+import { isPlatformInPilot } from '../feature-flag'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { syncExtractedDataToReservation } from '../sync-to-reservations'
+
+jest.mock('../feature-flag', () => ({ isPlatformInPilot: jest.fn() }))
 
 jest.mock('@/lib/supabase/admin', () => ({ createAdminClient: jest.fn() }))
 
@@ -30,7 +33,7 @@ const opaqueBookingEvent = {
 }
 
 describe('syncExtractedDataToReservation', () => {
-  beforeEach(() => jest.clearAllMocks())
+  beforeEach(() => { jest.clearAllMocks(); (isPlatformInPilot as jest.Mock).mockResolvedValue(true) })
 
   function setup(extractionRow: Record<string, unknown> | null, events: Record<string, unknown>[]) {
     const extractionQuery = query({ data: extractionRow, error: extractionRow ? null : { message: 'Not found' } })
@@ -114,7 +117,7 @@ describe('syncExtractedDataToReservation', () => {
     expect(extractionQuery.update).toHaveBeenCalledWith(expect.objectContaining({ match_status: 'needs_review' }))
     expect(extractionQuery.eq).toHaveBeenCalledWith('id', 'ext-1')
     expect(extractionQuery.eq).toHaveBeenCalledWith('organization_id', 'org-1')
-    expect(client.from).not.toHaveBeenCalledWith('reservations')
+    expect(client.from).toHaveBeenCalledWith('reservations')
   })
 
   it('does not report successful review when persisting the review status fails', async () => {

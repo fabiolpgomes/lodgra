@@ -1,3 +1,4 @@
+import { isPlatformInPilot } from './feature-flag'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { hasRequiredReservationFieldsOnRow, type EmailExtraction } from './extraction.schema'
 import { decideMatch, matchEmailToCalendarEvents, type CalendarEvent } from './matching-engine'
@@ -35,16 +36,17 @@ export async function syncExtractedDataToReservation(extractionId: string): Prom
     return { success: false, error: extractionError?.message || 'Extraction not found' }
   }
   const extraction = extractionData as unknown as ReconciliationExtractionRow
+  if (!(await isPlatformInPilot(extraction.organization_id, extraction.source_platform))) return { success: false, error: 'RECONCILIATION_DISABLED' }
 
   if (extraction.match_status === 'auto_matched' && extraction.matched_event_id) {
     const { data: reservation, error } = await supabase
       .from('reservations')
       .select('id')
       .eq('organization_id', extraction.organization_id)
-      .eq('email_extraction_id', extraction.id)
+      .eq('calendar_event_id', extraction.matched_event_id)
       .maybeSingle()
     if (error) return { success: false, error: error.message }
-    return { success: true, status: 'auto_matched', reservationId: reservation?.id }
+    return reservation ? { success: true, status: 'auto_matched', reservationId: reservation.id } : { success: false, error: 'MATCHED_RESERVATION_MISSING' }
   }
 
   if (!hasRequiredReservationFieldsOnRow(extraction)) {
@@ -58,6 +60,28 @@ export async function syncExtractedDataToReservation(extractionId: string): Prom
       : { success: true, status: 'needs_review' }
   }
 
+  // Cross-provider replay: use a commercial identity before looking for an
+  // unmatched event. The atomic writer verifies tenant/listing/dates/lifecycle.
+  if (extraction.reservation_code) {
+    const { data: existing, error } = await supabase.from('reservations')
+      .select('calendar_event_id').eq('organization_id', extraction.organization_id)
+      .eq('source', extraction.source_platform).eq('booking_reference', extraction.reservation_code)
+      .maybeSingle()
+    if (error) return { success: false, error: error.message }
+    if (existing?.calendar_event_id) {
+      const { data, error: reconcileError } = await supabase.rpc('reconcile_email_extraction', {
+        p_extraction_id: extraction.id, p_event_id: existing.calendar_event_id, p_confirmed_by_host: false,
+      })
+      if (reconcileError) {
+        const { error: reviewError } = await supabase.from('email_extractions')
+          .update({ match_status: 'needs_review', updated_at: new Date().toISOString() })
+          .eq('id', extraction.id).eq('organization_id', extraction.organization_id)
+        return reviewError ? { success: false, error: reviewError.message } : { success: true, status: 'needs_review' }
+      }
+      return { success: true, status: 'auto_matched', reservationId: (data as { reservation_id: string }).reservation_id }
+    }
+  }
+
   const oneDayBefore = new Date(`${extraction.check_in}T00:00:00.000Z`)
   oneDayBefore.setUTCDate(oneDayBefore.getUTCDate() - 1)
   const oneDayAfter = new Date(`${extraction.check_out}T00:00:00.000Z`)
@@ -65,15 +89,21 @@ export async function syncExtractedDataToReservation(extractionId: string): Prom
 
   const { data: rows, error: eventsError } = await supabase
     .from('calendar_events')
-    .select('id, organization_id, source_platform, check_in, check_out, raw_summary, status, created_at, properties:properties!calendar_events_property_org_fk(name)')
+    .select('id, property_id, organization_id, source_platform, check_in, check_out, raw_summary, status, created_at, properties:properties!calendar_events_property_org_fk(name)')
     .eq('organization_id', extraction.organization_id)
     .eq('status', 'unmatched')
+    .eq('source_platform', extraction.source_platform)
     .gte('check_in', oneDayBefore.toISOString().slice(0, 10))
     .lte('check_out', oneDayAfter.toISOString().slice(0, 10))
     .order('created_at', { ascending: true })
-    .limit(100)
+    .limit(101)
 
   if (eventsError) return { success: false, error: eventsError.message }
+
+  if ((rows?.length || 0) > 100) {
+    const { error } = await supabase.from('email_extractions').update({ match_status: 'needs_review', updated_at: new Date().toISOString() }).eq('id', extraction.id).eq('organization_id', extraction.organization_id)
+    return error ? { success: false, error: error.message } : { success: true, status: 'needs_review' }
+  }
 
   const events: CalendarEvent[] = (rows || []).map((row) => ({
     id: row.id,
@@ -100,6 +130,30 @@ export async function syncExtractedDataToReservation(extractionId: string): Prom
   }
 
   const eventId = decision.candidates[0].target_id
+  const selected = (rows || []).find(row => row.id === eventId)
+  if (extraction.total_value !== null && extraction.currency && selected?.property_id) {
+    const { data: history, error: historyError } = await supabase.from('reservations')
+      .select('total_amount, check_in, check_out').eq('organization_id', extraction.organization_id)
+      .eq('property_id', selected.property_id).eq('currency', extraction.currency)
+      .eq('reservation_status', 'confirmed').is('deleted_at', null)
+      .gt('total_amount', 0).order('check_in', { ascending: false }).limit(20)
+    if (historyError) return { success: false, error: 'FINANCIAL_HISTORY_UNAVAILABLE' }
+    const rates = (history || []).flatMap(row => {
+      const nights = (Date.parse(row.check_out) - Date.parse(row.check_in)) / 86_400_000
+      return nights > 0 && row.total_amount > 0 ? [row.total_amount / nights] : []
+    })
+    if (rates.length >= 3) {
+      rates.sort((a, b) => a - b)
+      const median = rates[Math.floor(rates.length / 2)]
+      const nights = (Date.parse(extraction.check_out) - Date.parse(extraction.check_in)) / 86_400_000
+      const expected = median * nights
+      if (extraction.total_value > expected * 3 || extraction.total_value < expected / 3) {
+        const { error } = await supabase.from('email_extractions').update({ match_status: 'needs_review', updated_at: new Date().toISOString() })
+          .eq('id', extraction.id).eq('organization_id', extraction.organization_id)
+        return error ? { success: false, error: error.message } : { success: true, status: 'needs_review' }
+      }
+    }
+  }
   const { data, error } = await supabase.rpc('reconcile_email_extraction', {
     p_extraction_id: extraction.id,
     p_event_id: eventId,

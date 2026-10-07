@@ -9,6 +9,7 @@ export interface ICalEvent {
   end: Date
   location?: string
   rawVEvent: string
+  status?: string
 }
 
 export type ICalEventClassification = 'reservation' | 'block' | 'unknown'
@@ -39,12 +40,13 @@ export function classifyICalEvent(event: {
   summary?: string
   description?: string
   uid?: string
+  sourcePlatform?: 'booking' | 'airbnb' | 'flatio' | 'vrbo' | 'unknown'
   component?: { getFirstPropertyValue: (prop: string) => unknown }
 }): ICalEventClassification {
   const uid = (event.uid || '').toLowerCase()
   const summary = (event.summary || '').toLowerCase().trim()
   const description = (event.description || '').toLowerCase().trim()
-  const platform = detectPlatform(uid, summary, description)
+  const platform = event.sourcePlatform && event.sourcePlatform !== 'unknown' ? event.sourcePlatform : detectPlatform(uid, summary, description)
 
   try {
     const transp = event.component?.getFirstPropertyValue('transp')
@@ -172,32 +174,24 @@ export async function importICalFromUrl(url: string): Promise<ICalEvent[]> {
                            urlLower.includes('abnb.me') ||
                            urlLower.includes('flatio.com')
 
-    // Airbnb distingue claramente reservas de bloqueios no próprio feed:
-    //   "Reserved"               → reserva real de hóspede → importar
-    //   "Airbnb (Not available)" → bloqueio do proprietário → ignorar
-    // Booking.com e Flatio usam "CLOSED" tanto para reservas como para bloqueios,
-    // por isso não filtramos esses feeds por keyword (usamos duração mais abaixo).
-    const isAirbnbFeed = prodIdLower.includes('airbnb') ||
-                         urlLower.includes('airbnb.com') ||
-                         urlLower.includes('airbnb.pt') ||
-                         urlLower.includes('abnb.me')
-
     const parsedEvents: ICalEvent[] = []
-    let eventIndex = 0
+    const seenUids = new Set<string>()
 
     for (const vevent of vevents) {
       const event = new ICAL.Event(vevent)
 
-      // Pular se não tiver datas
-      if (!event.startDate || !event.endDate) continue
+      if (!event.startDate || !event.endDate) throw new Error('Incomplete iCal event: dates are missing')
 
       // IMPORTANTE: NÃO filtrar bloqueios aqui!
       // O cron job (sync-ical/route.ts) decide se é bloqueio ou reserva
       // usando isBlockedEvent() e processa como calendar_blocks se necessário.
       // Se filtrarmos aqui, bloqueios do Booking/Airbnb serão perdidos.
 
-      // UID com fallback robusto (inclui índice para evitar colisões)
-      const uid = event.uid || `event-${Date.now()}-${eventIndex++}-${Math.random().toString(36).substring(2, 8)}`
+      // A synthetic UID changes on every poll and can create duplicate reservations.
+      const uid = event.uid?.trim()
+      if (!uid) throw new Error('Incomplete iCal event: UID is missing')
+      if (seenUids.has(uid)) throw new Error('Ambiguous iCal feed: duplicate UID')
+      seenUids.add(uid)
 
       // Extrair datas como DATE (sem timezone) para evitar deslocamento de -1 dia
       // Quando o iCal usa VALUE=DATE (sem hora), toJSDate() converte para UTC
@@ -218,6 +212,10 @@ export async function importICalFromUrl(url: string): Promise<ICalEvent[]> {
         endDate = event.endDate.toJSDate()
       }
 
+      if (!Number.isFinite(startDate.getTime()) || !Number.isFinite(endDate.getTime()) || endDate <= startDate) {
+        throw new Error('Invalid iCal event: checkout must follow checkin')
+      }
+
       parsedEvents.push({
         uid,
         summary: event.summary || 'Reserva Importada',
@@ -226,6 +224,7 @@ export async function importICalFromUrl(url: string): Promise<ICalEvent[]> {
         end: endDate,
         location: event.location,
         rawVEvent: vevent.toString(),
+        status: String(vevent.getFirstPropertyValue('status') || '').toUpperCase() || undefined,
       })
     }
 

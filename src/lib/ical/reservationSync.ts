@@ -39,9 +39,10 @@ export interface OverlappingReservation {
 const DEFAULT_BOOKING_SOURCES = ['ical_import', 'ical_auto_sync', 'booking', 'airbnb', 'flatio', 'vrbo']
 
 export function buildReservationExternalIdContext(
-  event: Pick<ICalEvent, 'uid' | 'summary' | 'description'>
+  event: Pick<ICalEvent, 'uid' | 'summary' | 'description'>,
+  listingSource?: ICalReservationSource | null
 ): ReservationExternalIdContext {
-  const source = detectSource(event.summary, event.description, event.uid)
+  const source = listingSource && listingSource !== 'unknown' ? listingSource : detectSource(event.summary, event.description, event.uid)
   const stableExternalId = buildStableExternalId(event.uid, event.description, source)
   const externalIdCandidates = Array.from(
     new Set([stableExternalId, event.uid].filter(Boolean))
@@ -97,6 +98,9 @@ export async function cancelMissingReservations(
     now = new Date().toISOString(),
     bookingSources = DEFAULT_BOOKING_SOURCES,
   } = options
+
+  // An empty/partial feed is not evidence that every commercial reservation was cancelled.
+  if (receivedExternalIds.size === 0 && !receivedCalendarEventIds?.size) return 0
 
   let query = supabase
     .from('reservations')

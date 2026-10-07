@@ -1,5 +1,5 @@
 import { validateExtraction, calculatePropertyAdr } from '../validate-extraction'
-import { ExtractionResult } from '../extraction.schema'
+import { EMAIL_EXTRACTION_VERSION, type ExtractionResult } from '../extraction.schema'
 
 describe('Deterministic Validation — AC4 Phase 3', () => {
   // RULE 1: Reject check_out <= check_in
@@ -8,12 +8,16 @@ describe('Deterministic Validation — AC4 Phase 3', () => {
       const extraction: ExtractionResult = {
         success: true,
         data: {
+          source_platform: 'booking',
+          confidence: 0.95,
           guest_name: 'João Silva',
           check_in: '2026-08-15',
           check_out: '2026-08-15', // SAME DAY = INVALID
         },
         confidence: 0.95,
         raw_response: '{}',
+        version: EMAIL_EXTRACTION_VERSION,
+        truncated: false,
       }
 
       const result = validateExtraction(extraction)
@@ -33,12 +37,16 @@ describe('Deterministic Validation — AC4 Phase 3', () => {
       const extraction: ExtractionResult = {
         success: true,
         data: {
+          source_platform: 'booking',
+          confidence: 0.95,
           guest_name: 'Maria Santos',
           check_in: '2026-08-20',
           check_out: '2026-08-15', // BEFORE = INVALID
         },
         confidence: 0.90,
         raw_response: '{}',
+        version: EMAIL_EXTRACTION_VERSION,
+        truncated: false,
       }
 
       const result = validateExtraction(extraction)
@@ -51,12 +59,16 @@ describe('Deterministic Validation — AC4 Phase 3', () => {
       const extraction: ExtractionResult = {
         success: true,
         data: {
+          source_platform: 'booking',
+          confidence: 0.95,
           guest_name: 'Ana Costa',
           check_in: '2026-08-15',
           check_out: '2026-08-20', // VALID
         },
         confidence: 0.95,
         raw_response: '{}',
+        version: EMAIL_EXTRACTION_VERSION,
+        truncated: false,
       }
 
       const result = validateExtraction(extraction)
@@ -74,6 +86,8 @@ describe('Deterministic Validation — AC4 Phase 3', () => {
       const extraction: ExtractionResult = {
         success: true,
         data: {
+          source_platform: 'booking',
+          confidence: 0.95,
           guest_name: 'Guest A',
           check_in: '2026-08-15',
           check_out: '2026-08-20', // 5 nights
@@ -81,6 +95,8 @@ describe('Deterministic Validation — AC4 Phase 3', () => {
         },
         confidence: 0.95,
         raw_response: '{}',
+        version: EMAIL_EXTRACTION_VERSION,
+        truncated: false,
       }
 
       const result = validateExtraction(extraction, historicalAdr)
@@ -100,6 +116,8 @@ describe('Deterministic Validation — AC4 Phase 3', () => {
       const extraction: ExtractionResult = {
         success: true,
         data: {
+          source_platform: 'booking',
+          confidence: 0.95,
           guest_name: 'Guest B',
           check_in: '2026-08-15',
           check_out: '2026-08-20', // 5 nights
@@ -107,6 +125,8 @@ describe('Deterministic Validation — AC4 Phase 3', () => {
         },
         confidence: 0.90,
         raw_response: '{}',
+        version: EMAIL_EXTRACTION_VERSION,
+        truncated: false,
       }
 
       const result = validateExtraction(extraction, historicalAdr)
@@ -120,6 +140,8 @@ describe('Deterministic Validation — AC4 Phase 3', () => {
       const extraction: ExtractionResult = {
         success: true,
         data: {
+          source_platform: 'booking',
+          confidence: 0.95,
           guest_name: 'Guest C',
           check_in: '2026-08-15',
           check_out: '2026-08-20', // 5 nights
@@ -127,6 +149,8 @@ describe('Deterministic Validation — AC4 Phase 3', () => {
         },
         confidence: 0.95,
         raw_response: '{}',
+        version: EMAIL_EXTRACTION_VERSION,
+        truncated: false,
       }
 
       const result = validateExtraction(extraction, historicalAdr)
@@ -143,12 +167,16 @@ describe('Deterministic Validation — AC4 Phase 3', () => {
       const extraction: ExtractionResult = {
         success: true,
         data: {
+          source_platform: 'booking',
+          confidence: 0.95,
           guest_name: '',
           check_in: '2026-08-15',
           check_out: '2026-08-20',
         },
         confidence: 0.95,
         raw_response: '{}',
+        version: EMAIL_EXTRACTION_VERSION,
+        truncated: false,
       }
 
       const result = validateExtraction(extraction)
@@ -168,12 +196,16 @@ describe('Deterministic Validation — AC4 Phase 3', () => {
       const extraction: ExtractionResult = {
         success: true,
         data: {
+          source_platform: 'booking',
+          confidence: 0.95,
           guest_name: 'Hóspede',
           check_in: '2026-08-15',
           check_out: '2026-08-20',
         },
         confidence: 0.85,
         raw_response: '{}',
+        version: EMAIL_EXTRACTION_VERSION,
+        truncated: false,
       }
 
       const result = validateExtraction(extraction)
@@ -187,12 +219,16 @@ describe('Deterministic Validation — AC4 Phase 3', () => {
       const extraction: ExtractionResult = {
         success: true,
         data: {
+          source_platform: 'booking',
+          confidence: 0.95,
           guest_name: 'João Silva Pereira',
           check_in: '2026-08-15',
           check_out: '2026-08-20',
         },
         confidence: 0.95,
         raw_response: '{}',
+        version: EMAIL_EXTRACTION_VERSION,
+        truncated: false,
       }
 
       const result = validateExtraction(extraction)
@@ -231,6 +267,8 @@ describe('Deterministic Validation — AC4 Phase 3', () => {
       const extraction: ExtractionResult = {
         success: true,
         data: {
+          source_platform: 'booking',
+          confidence: 0.95,
           guest_name: 'Guest', // Generic
           check_in: '2026-08-20',
           check_out: '2026-08-15', // INVALID
@@ -238,6 +276,8 @@ describe('Deterministic Validation — AC4 Phase 3', () => {
         },
         confidence: 0.95,
         raw_response: '{}',
+        version: EMAIL_EXTRACTION_VERSION,
+        truncated: false,
       }
 
       const historicalAdr = { adultNights: 100, avgRate: 100 }

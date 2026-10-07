@@ -9,7 +9,7 @@ import {
 
 describe('Phase 4: Reconciliation Matching Engine (AC5)', () => {
   // Mock data
-  const mockEmail: EmailExtractionData & { id: string; organization_id: string; source_platform: string } = {
+  const mockEmail: EmailExtractionData & { id: string; organization_id: string } = {
     id: 'email-1',
     organization_id: 'org-1',
     source_platform: 'airbnb',
@@ -89,14 +89,14 @@ describe('Phase 4: Reconciliation Matching Engine (AC5)', () => {
       const differentEmail = {
         ...mockEmail,
         reservation_code: 'XYZ999', // Not in summary
-        source_platform: 'booking', // Different platform
+        source_platform: 'booking' as const, // Different platform
         check_in: '2026-09-01', // Different dates
         check_out: '2026-09-05',
       }
 
       const candidates = matchEmailToCalendarEvents(differentEmail, [mockCalendarEvent])
 
-      expect(candidates[0].score).toBeLessThan(40)
+      expect(candidates).toHaveLength(0)
 
       const decision = decideMatch(candidates)
       expect(decision.status).toBe('no_match')
@@ -117,14 +117,14 @@ describe('Phase 4: Reconciliation Matching Engine (AC5)', () => {
     it('should need_review when score 40-79', () => {
       const partialMatch = {
         ...mockCalendarEvent,
-        source_platform: 'booking' as const, // Different platform, loses 10 points
+        source_platform: 'airbnb' as const, // Same platform required
         raw_summary: 'Some reservation - Casa do Mar', // No reservation code match
       }
 
       const candidates = matchEmailToCalendarEvents(mockEmail, [partialMatch])
 
       // Score: 30 (exact dates) + 10 (property) = 40
-      expect(candidates[0].score).toBe(40)
+      expect(candidates[0].score).toBe(50)
 
       const decision = decideMatch(candidates)
       expect(decision.status).toBe('needs_review')

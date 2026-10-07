@@ -5,7 +5,6 @@ import { requireRole } from '@/lib/auth/requireRole'
 import { enqueueEmail } from '@/lib/email/queue'
 import {
   parseBookingDescription,
-  detectSource,
   getPlatformUrl,
   normalizeIcalReservationSource,
 } from '@/lib/ical/bookingParser'
@@ -18,6 +17,7 @@ import { upsertCalendarEventAudit } from '@/lib/ical/calendarEventAudit'
 import { calculateServiceFeeAmount, nightsBetween } from '@/lib/reservations/serviceFee'
 import { getFeatureFlagStatus } from '@/lib/email-reconciliation/feature-flag'
 import { hasActiveReconciledReservation, upsertReconciliationAvailability } from '@/lib/ical/reconciliationAvailability'
+import { assertReconciledFeedConsistency } from '@/lib/ical/reconciliationLifecycle'
 import { normalizeListingPlatform } from '@/lib/ical/listingPlatform'
 
 type AdminClient = ReturnType<typeof createAdminClient>
@@ -61,7 +61,7 @@ async function syncListing(
     throw new Error(`Anúncio ${listingId} sem organization_id para auditar evento iCal`)
   }
   const reconciliationFlag = await getFeatureFlagStatus(resolvedOrganizationId)
-  let listingSource = normalizeListingPlatform(propertyListing.platforms)
+  let listingSource = normalizeListingPlatform(propertyListing.platforms, icalUrl)
 
   let created = 0
   let updated = 0
@@ -74,6 +74,7 @@ async function syncListing(
   console.log(`[Sync] Listing ${listingId}: ${events.length} evento(s) recebido(s) do iCal`)
   const receivedExternalIds = new Set<string>()
   const receivedCalendarEventIds = new Set<string>()
+  const feedEvents = new Map<string, { checkIn: string; checkOut: string; status?: string }>()
 
   if (events.length === 0) {
     console.warn(`[Sync] Listing ${listingId}: iCal retornou 0 eventos — verifique a URL ou se o calendário tem reservas`)
@@ -85,9 +86,9 @@ async function syncListing(
   const twoYearsFromNow = new Date(Date.UTC(now.getUTCFullYear() + 2, now.getUTCMonth(), now.getUTCDate()))
 
   for (const event of events) {
-    const externalIdContext = buildReservationExternalIdContext(event)
+    const externalIdContext = buildReservationExternalIdContext(event, listingSource)
 
-    const source = detectSource(event.summary, event.description, event.uid)
+    const source = externalIdContext.source
     listingSource ||= source
     const bookingReference = externalIdContext.stableExternalId.includes('_')
       ? externalIdContext.stableExternalId.substring(externalIdContext.stableExternalId.indexOf('_') + 1)
@@ -109,7 +110,7 @@ async function syncListing(
     const checkIn = event.start.toISOString().split('T')[0]
     const checkOut = event.end.toISOString().split('T')[0]
 
-    const classification = classifyICalEvent(event)
+    const classification = event.status === 'CANCELLED' ? 'unknown' : classifyICalEvent({ ...event, sourcePlatform: source })
     const audit = await upsertCalendarEventAudit({
       supabase,
       organizationId: auditOrganizationId,
@@ -122,8 +123,14 @@ async function syncListing(
 
     // Presence in the feed is independent of its reservation/block classification.
     receivedCalendarEventIds.add(audit.id)
+    feedEvents.set(audit.id, { checkIn, checkOut, status: event.status })
     for (const candidate of externalIdContext.externalIdCandidates) {
       receivedExternalIds.add(candidate)
+    }
+
+    if (event.status === 'CANCELLED') {
+      skipped++
+      continue
     }
 
     // Ignorar se o check-out já passou (reserva terminada) ou início > 2 anos
@@ -433,6 +440,9 @@ async function syncListing(
     reconciliationFlag.enabled &&
     listingSource !== null &&
     reconciliationFlag.pilot_platforms.includes(listingSource)
+  if (reconciliationOwnsListing) {
+    await assertReconciledFeedConsistency({ supabase, organizationId: resolvedOrganizationId, propertyListingId: listingId, feedEvents })
+  }
   if (!reconciliationOwnsListing) {
     try {
       cancelledCount = await cancelMissingReservations({

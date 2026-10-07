@@ -1,4 +1,4 @@
-export type InboundPlatform = 'airbnb' | 'booking' | 'vrbo'
+export type InboundPlatform = 'airbnb' | 'booking' | 'vrbo' | 'flatio'
 
 // PostgreSQL's uuid type accepts legacy UUID-shaped identifiers that do not
 // encode an RFC version/variant. Tenant existence is verified by the webhook
@@ -27,7 +27,10 @@ export function platformFromSender(sender: string): InboundPlatform | null {
   if (domain === 'airbnb.com' || domain?.endsWith('.airbnb.com')) return 'airbnb'
 
   // Booking senders: noreply, customer-service, reservations, info
+  if (domain === 'guest.booking.com') return null
   if (domain === 'booking.com' || domain?.endsWith('.booking.com')) return 'booking'
+
+  if (domain === 'flatio.com' || domain?.endsWith('.flatio.com')) return 'flatio'
 
   // Vrbo senders
   if (domain === 'vrbo.com' || domain?.endsWith('.vrbo.com')) return 'vrbo'

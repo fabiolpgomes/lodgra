@@ -1,3 +1,4 @@
+import { randomBytes } from 'node:crypto'
 import { NextResponse } from 'next/server'
 import { requireRole } from '@/lib/auth/requireRole'
 
@@ -21,6 +22,7 @@ export async function GET() {
 
   const redirectUri = `${NEXT_PUBLIC_APP_URL}/api/email/callback`
 
+  const state = randomBytes(32).toString('hex')
   const params = new URLSearchParams({
     client_id: GOOGLE_CLIENT_ID,
     redirect_uri: redirectUri,
@@ -28,9 +30,12 @@ export async function GET() {
     scope: SCOPES.join(' '),
     access_type: 'offline',
     prompt: 'consent',
+    state,
   })
 
   const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`
 
-  return NextResponse.redirect(authUrl)
+  const response = NextResponse.redirect(authUrl)
+  response.cookies.set('gmail_oauth_state', state, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/api/email/callback', maxAge: 600 })
+  return response
 }

@@ -9,6 +9,7 @@ import { CheckCircle2, AlertCircle, Clock, Calendar, Mail, ArrowLeft, RefreshCw,
 import { PremiumPageShell, PremiumPageHeader, PremiumCard } from '@/components/common/layout/PremiumPage'
 import { Button } from '@/components/common/ui/button'
 import { Input } from '@/components/common/ui/input'
+import { SyncHealthPanel } from '@/app/[locale]/sync/SyncHealthPanel'
 
 interface SyncFeedback {
   title: string
@@ -482,12 +483,14 @@ export default function SyncStatusPage() {
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-xs font-bold uppercase tracking-wider text-brand-text-medium">
-                Próxima verificação automática
+                Próximo horário previsto (a confirmar nos registos)
               </p>
               <p className="mt-1 text-2xl font-bold text-brand-blue">em {nextRunIn}</p>
             </div>
           </div>
         </PremiumCard>
+
+        <SyncHealthPanel locale={params.locale} />
 
         {/* Job Stats Grid */}
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -948,7 +951,7 @@ function JobCard({ icon: Icon, jobName, description, stats, color }: JobCardProp
               {stats.latestCycle.every(log => !['warning', 'error'].includes(log.feedback.severity)) ? (
                 <>
                   <CheckCircle2 className="h-4 w-4" />
-                  Tudo certo na última verificação
+                  Última execução sem erro registado
                 </>
               ) : (
                 <>

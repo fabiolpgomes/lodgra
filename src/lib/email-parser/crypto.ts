@@ -8,8 +8,7 @@ function getKey(): Buffer {
   if (!key || key.length < 64) {
     console.error('[crypto] EMAIL_PARSE_ENCRYPT_KEY validation failed:', {
       present: !!key,
-      length: key.length,
-      value: key.substring(0, 20) + '...'
+      length: key.length
     })
     throw new Error('EMAIL_PARSE_ENCRYPT_KEY deve ser uma string hex com 64 caracteres (32 bytes)')
   }

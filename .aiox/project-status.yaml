@@ -2,18 +2,22 @@ status:
   branch: main
   modifiedFiles:
     - .aiox/project-status.yaml
-    - README.md
-    - docs/BOOKING_API_INTEGRATION.md
-    - docs/BOOKING_API_INTEGRATION_COMPLETE.md
-    - docs/BOOKING_API_INTEGRATION_TESTING.md
-  modifiedFilesTotalCount: 60
+    - docs/stories/38.1.email-ical-reconciliation.md
+    - src/__tests__/lib/ical2/icalService.test.ts
+    - src/app/api/admin/trigger-email-parser/route.ts
+    - src/app/api/cron/email-parser/route.ts
+  modifiedFilesTotalCount: 24
   recentCommits:
-    - Refine property intelligence report output
-    - Add native property intelligence prompt
+    - >-
+      feat(menu): menu lateral simplificado, perfil carregado pelo servidor, AHS
+      em EUR
+    - >-
+      chore(docs): remover DESIGN-lodgra.md duplicados e atualizar docs de
+      design
   currentEpic: 20 — Checkout Directo (Housekeeping)
   currentStory: 20.3.story
-  lastUpdate: '2026-09-04T17:25:58.694Z'
+  lastUpdate: '2026-10-01T04:57:24.206Z'
   isGitRepo: true
-timestamp: 1788542758707
+timestamp: 1790830644207
 ttl: 60
-gitFingerprint: 1785569665275.2065:1788095769070.9016
+gitFingerprint: 1790359920874.0056:1790829716703.4978

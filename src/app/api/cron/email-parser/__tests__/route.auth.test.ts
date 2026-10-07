@@ -1,92 +1,25 @@
-import { GET } from '@/app/api/cron/email-parser/route'
+import { GET } from '../route'
 import { createTestRequest } from '@/__tests__/utils/test-request'
-import { createAdminClient } from '@/lib/supabase/admin'
-import { isEmailICalEnabled } from '@/lib/email-reconciliation/feature-flag'
+import { ingestGmail } from '@/lib/email-reconciliation/gmail-ingestion'
 
-jest.mock('@/lib/supabase/admin', () => ({
-  createAdminClient: jest.fn(),
-}))
+jest.mock('@/lib/email-reconciliation/gmail-ingestion', () => ({ ingestGmail: jest.fn() }))
 
-jest.mock('@/lib/email-reconciliation/feature-flag', () => ({
-  isEmailICalEnabled: jest.fn().mockResolvedValue(false),
-}))
-
-const CRON_SECRET = 'test-cron-secret'
-
-describe('GET /api/cron/email-parser authentication', () => {
-  const originalCronSecret = process.env.CRON_SECRET
-  const originalAnthropicKey = process.env.ANTHROPIC_API_KEY
-
-  beforeEach(() => {
-    jest.clearAllMocks()
-    process.env.CRON_SECRET = CRON_SECRET
-    process.env.ANTHROPIC_API_KEY = 'test-anthropic-key'
-    ;(isEmailICalEnabled as jest.Mock).mockResolvedValue(false)
+describe('Gmail ingestion cron', () => {
+  const secret = process.env.CRON_SECRET
+  beforeEach(() => { jest.clearAllMocks(); process.env.CRON_SECRET = 'cron-test' })
+  afterAll(() => { if (secret === undefined) delete process.env.CRON_SECRET; else process.env.CRON_SECRET = secret })
+  it('rejects requests before accessing Gmail', async () => {
+    expect((await GET(createTestRequest('http://localhost/api/cron/email-parser'))).status).toBe(401)
+    expect(ingestGmail).not.toHaveBeenCalled()
   })
-
-  afterAll(() => {
-    if (originalCronSecret === undefined) delete process.env.CRON_SECRET
-    else process.env.CRON_SECRET = originalCronSecret
-
-    if (originalAnthropicKey === undefined) delete process.env.ANTHROPIC_API_KEY
-    else process.env.ANTHROPIC_API_KEY = originalAnthropicKey
-  })
-
-  it('rejects requests without a cron credential', async () => {
-    const response = await GET(createTestRequest('http://localhost/api/cron/email-parser'))
-
-    expect(response.status).toBe(401)
-    expect(createAdminClient).not.toHaveBeenCalled()
-  })
-
-  it('rejects an invalid query secret', async () => {
-    const response = await GET(
-      createTestRequest('http://localhost/api/cron/email-parser?secret=wrong-secret')
-    )
-
-    expect(response.status).toBe(401)
-    expect(createAdminClient).not.toHaveBeenCalled()
-  })
-
-  it('accepts a valid Bearer header', async () => {
-    const emailConnectionsQuery = {
-      select: jest.fn().mockResolvedValue({ data: [], error: null }),
-    }
-    ;(createAdminClient as jest.Mock).mockReturnValue({
-      from: jest.fn(() => emailConnectionsQuery),
-    })
-
-    const response = await GET(createTestRequest('http://localhost/api/cron/email-parser', {
-      headers: { authorization: `Bearer ${CRON_SECRET}` },
-    }))
-    const body = await response.json()
-
+  it('ingests without the retired Anthropic writer', async () => {
+    ;(ingestGmail as jest.Mock).mockResolvedValue({ processed: 2, staged: 2, errors: 0 })
+    const response = await GET(createTestRequest('http://localhost/api/cron/email-parser', { headers: { authorization: 'Bearer cron-test' } }))
     expect(response.status).toBe(200)
-    expect(body.message).toBe('Sem ligações Gmail activas')
+    expect(await response.json()).toMatchObject({ staged: 2, success: true })
   })
-
-  it('não atualiza last_sync_at quando a organização usa a reconciliação Resend', async () => {
-    const select = jest.fn().mockResolvedValue({
-      data: [{
-        id: 'connection-1',
-        organization_id: 'org-resend',
-        email: 'reservas@example.com',
-        access_token: 'encrypted',
-        refresh_token: 'encrypted',
-        token_expiry: null,
-      }],
-      error: null,
-    })
-    const from = jest.fn(() => ({ select }))
-    ;(createAdminClient as jest.Mock).mockReturnValue({ from })
-    ;(isEmailICalEnabled as jest.Mock).mockResolvedValue(true)
-
-    const response = await GET(createTestRequest('http://localhost/api/cron/email-parser', {
-      headers: { authorization: `Bearer ${CRON_SECRET}` },
-    }))
-
-    expect(response.status).toBe(200)
-    expect(isEmailICalEnabled).toHaveBeenCalledWith('org-resend')
-    expect(from).toHaveBeenCalledTimes(1)
+  it('reports ingestion failures as failed HTTP execution', async () => {
+    ;(ingestGmail as jest.Mock).mockResolvedValue({ processed: 0, staged: 0, errors: 1 })
+    expect((await GET(createTestRequest('http://localhost/api/cron/email-parser', { headers: { authorization: 'Bearer cron-test' } }))).status).toBe(503)
   })
 })

@@ -1,3 +1,4 @@
+import Anthropic from '@anthropic-ai/sdk'
 import OpenAI from 'openai'
 import {
   EMAIL_EXTRACTION_MAX_CONTENT_CHARS,
@@ -11,7 +12,7 @@ import { validateExtraction } from './validate-extraction'
 let openaiClient: OpenAI | null = null
 
 function getOpenAI(): OpenAI {
-  if (!openaiClient) openaiClient = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+  if (!openaiClient) openaiClient = new OpenAI({ apiKey: process.env.OPENAI_API_KEY, timeout: 30_000, maxRetries: 0 })
   return openaiClient
 }
 
@@ -28,7 +29,7 @@ Retorne somente um objeto JSON, sem markdown, comentários ou chaves adicionais,
   "check_out": "YYYY-MM-DD" | null,
   "total_value": number | null,
   "currency": "AAA" | null,
-  "source_platform": "airbnb" | "booking" | "vrbo",
+  "source_platform": "airbnb" | "booking" | "vrbo" | "flatio",
   "property_identifier_raw": string | null,
   "reservation_code": string | null,
   "guest_count": integer | null,
@@ -44,7 +45,7 @@ const RESPONSE_SCHEMA = {
     check_out: { type: ['string', 'null'], pattern: '^\\d{4}-\\d{2}-\\d{2}$' },
     total_value: { type: ['number', 'null'], minimum: 0 },
     currency: { type: ['string', 'null'], pattern: '^[A-Z]{3}$' },
-    source_platform: { type: 'string', enum: ['airbnb', 'booking', 'vrbo'] },
+    source_platform: { type: 'string', enum: ['airbnb', 'booking', 'vrbo', 'flatio'] },
     property_identifier_raw: { type: ['string', 'null'] },
     reservation_code: { type: ['string', 'null'] },
     guest_count: { type: ['integer', 'null'], minimum: 1 },
@@ -55,12 +56,26 @@ const RESPONSE_SCHEMA = {
 export async function extractEmailData(
   rawContent: string,
   sourcePlatform: EmailExtractionPlatform,
-  model = process.env.EMAIL_EXTRACTION_MODEL || 'gpt-4.1-mini'
+  model = process.env.EMAIL_EXTRACTION_MODEL || (process.env.OPENAI_API_KEY ? 'gpt-4.1-mini' : 'claude-haiku-4-5-20251001')
 ): Promise<ExtractionResult> {
   const truncated = rawContent.length > EMAIL_EXTRACTION_MAX_CONTENT_CHARS
   const boundedContent = rawContent.slice(0, EMAIL_EXTRACTION_MAX_CONTENT_CHARS)
 
   try {
+    let responseText: string
+    if (model.startsWith('claude-')) {
+      const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY, timeout: 30_000, maxRetries: 0 })
+      const message = await client.messages.create({
+        model, max_tokens: 900, temperature: 0,
+        system: EXTRACTION_PROMPT_V1.replaceAll('{{source_platform}}', sourcePlatform),
+        messages: [{ role: 'user', content: `<email_data>\n${boundedContent}\n</email_data>` }],
+        tools: [{ name: 'extract_reservation', description: 'Return only explicit reservation facts.', input_schema: { ...RESPONSE_SCHEMA, required: [...RESPONSE_SCHEMA.required] } }],
+        tool_choice: { type: 'tool', name: 'extract_reservation' },
+      })
+      const result = message.content.find(block => block.type === 'tool_use')
+      if (!result || result.type !== 'tool_use') throw new Error('EXTRACTION_OUTPUT_MISSING')
+      responseText = JSON.stringify(result.input)
+    } else {
     const completion = await getOpenAI().chat.completions.create({
       model,
       max_tokens: 700,
@@ -75,7 +90,8 @@ export async function extractEmailData(
       ],
     })
 
-    const responseText = completion.choices[0]?.message.content || ''
+    responseText = completion.choices[0]?.message.content || ''
+    }
     const parsed = JSON.parse(responseText)
     const schemaResult = EmailExtractionSchema.safeParse(parsed)
     if (!schemaResult.success || schemaResult.data.source_platform !== sourcePlatform) {

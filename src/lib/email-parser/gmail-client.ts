@@ -20,6 +20,9 @@ interface ConnectionRow {
   access_token: string
   refresh_token: string
   token_expiry: string
+  last_sync_at?: string | null
+  sync_page_token?: string | null
+  sync_query?: string | null
 }
 
 async function refreshAccessToken(refreshToken: string): Promise<{ access_token: string; expires_in: number } | null> {
@@ -31,6 +34,7 @@ async function refreshAccessToken(refreshToken: string): Promise<{ access_token:
   try {
     const res = await fetch('https://oauth2.googleapis.com/token', {
       method: 'POST',
+      signal: AbortSignal.timeout(15_000),
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({
         client_id: GOOGLE_CLIENT_ID,
@@ -42,11 +46,11 @@ async function refreshAccessToken(refreshToken: string): Promise<{ access_token:
 
     const data = await res.json()
     if (!res.ok) {
-      console.error('[gmail-client] Refresh falhou com status', res.status, ':', data)
+      console.error('[gmail-client] Refresh falhou com status', res.status)
       return null
     }
     if (!data.access_token) {
-      console.error('[gmail-client] Refresh retornou sem access_token:', data)
+      console.error('[gmail-client] Refresh retornou sem access_token')
       return null
     }
     console.log('[gmail-client] Token renovado com sucesso, expira em', data.expires_in, 'segundos')
@@ -79,70 +83,16 @@ export async function getValidAccessToken(connection: ConnectionRow): Promise<st
   const newExpiry = new Date(Date.now() + refreshed.expires_in * 1000)
   const encryptedNew = encryptToken(refreshed.access_token)
 
-  await supabase
+  const { error: persistError } = await supabase
     .from('email_connections')
     .update({
       access_token: encryptedNew,
       token_expiry: newExpiry.toISOString(),
-      last_sync_at: now.toISOString(),
     })
     .eq('id', connection.id)
 
+  if (persistError) throw new Error('GMAIL_TOKEN_PERSIST_FAILED')
   return refreshed.access_token
-}
-
-export async function fetchUnreadEmails(
-  accessToken: string,
-  senders: string[],
-  daysBack = 30,
-): Promise<EmailMessage[]> {
-  const fromQuery = senders.map(s => `from:${s}`).join(' OR ')
-  // O email_parse_log controla quais foram processados — não precisamos de is:unread
-  const query = `(${fromQuery}) newer_than:${daysBack}d`
-
-  const listRes = await fetch(
-    `https://gmail.googleapis.com/gmail/v1/users/me/messages?q=${encodeURIComponent(query)}&maxResults=50`,
-    { headers: { Authorization: `Bearer ${accessToken}` } },
-  )
-
-  if (!listRes.ok) {
-    const err = await listRes.text()
-    throw new Error(`Gmail API list error: ${err}`)
-  }
-
-  const listData = await listRes.json()
-  const messages: { id: string }[] = listData.messages || []
-
-  const emails: EmailMessage[] = []
-
-  for (const msg of messages) {
-    const msgRes = await fetch(
-      `https://gmail.googleapis.com/gmail/v1/users/me/messages/${msg.id}?format=full`,
-      { headers: { Authorization: `Bearer ${accessToken}` } },
-    )
-
-    if (!msgRes.ok) continue
-
-    const msgData = await msgRes.json()
-    const headers: { name: string; value: string }[] = msgData.payload?.headers || []
-
-    const from = headers.find(h => h.name === 'From')?.value || ''
-    const subject = headers.find(h => h.name === 'Subject')?.value || ''
-    const dateStr = headers.find(h => h.name === 'Date')?.value || ''
-
-    const body = extractBody(msgData.payload)
-
-    emails.push({
-      id: msg.id,
-      threadId: msgData.threadId,
-      from,
-      subject,
-      body,
-      receivedAt: dateStr ? new Date(dateStr) : new Date(),
-    })
-  }
-
-  return emails
 }
 
 function extractBody(payload: Record<string, unknown>): string {
@@ -183,16 +133,16 @@ export async function fetchEmailsByIds(
   for (const id of messageIds) {
     const msgRes = await fetch(
       `https://gmail.googleapis.com/gmail/v1/users/me/messages/${id}?format=full`,
-      { headers: { Authorization: `Bearer ${accessToken}` } },
+      { headers: { Authorization: `Bearer ${accessToken}` }, signal: AbortSignal.timeout(15_000) },
     )
-    if (!msgRes.ok) continue
+    if (!msgRes.ok) throw new Error(`GMAIL_MESSAGE_HTTP_${msgRes.status}`)
 
     const msgData = await msgRes.json()
     const headers: { name: string; value: string }[] = msgData.payload?.headers || []
 
-    const from = headers.find(h => h.name === 'From')?.value || ''
-    const subject = headers.find(h => h.name === 'Subject')?.value || ''
-    const dateStr = headers.find(h => h.name === 'Date')?.value || ''
+    const from = headers.find(h => h.name.toLowerCase() === 'from')?.value || ''
+    const subject = headers.find(h => h.name.toLowerCase() === 'subject')?.value || ''
+    const dateStr = headers.find(h => h.name.toLowerCase() === 'date')?.value || ''
     const body = extractBody(msgData.payload)
 
     emails.push({
@@ -201,7 +151,7 @@ export async function fetchEmailsByIds(
       from,
       subject,
       body,
-      receivedAt: dateStr ? new Date(dateStr) : new Date(),
+      receivedAt: new Date(Number(msgData.internalDate) || Date.parse(dateStr)),
     })
   }
 

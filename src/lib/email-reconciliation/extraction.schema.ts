@@ -17,7 +17,7 @@ export const EmailExtractionSchema = z
     check_out: isoDate.nullable(),
     total_value: z.number().finite().nonnegative().nullable(),
     currency: z.string().regex(/^[A-Z]{3}$/).nullable(),
-    source_platform: z.enum(['airbnb', 'booking', 'vrbo']),
+    source_platform: z.enum(['airbnb', 'booking', 'vrbo', 'flatio']),
     property_identifier_raw: z.string().trim().min(1).nullable(),
     reservation_code: z.string().trim().min(1).nullable(),
     guest_count: z.number().int().positive().nullable(),

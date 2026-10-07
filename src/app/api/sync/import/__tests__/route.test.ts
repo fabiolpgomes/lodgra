@@ -1,3 +1,4 @@
+import { assertReconciledFeedConsistency } from '@/lib/ical/reconciliationLifecycle'
 /**
  * Tests for POST /api/sync/import
  *
@@ -14,6 +15,8 @@ import { requireRole } from '@/lib/auth/requireRole'
 import { getFeatureFlagStatus } from '@/lib/email-reconciliation/feature-flag'
 import { upsertCalendarEventAudit } from '@/lib/ical/calendarEventAudit'
 import { hasActiveReconciledReservation, upsertReconciliationAvailability } from '@/lib/ical/reconciliationAvailability'
+
+jest.mock('@/lib/ical/reconciliationLifecycle', () => ({ assertReconciledFeedConsistency: jest.fn().mockResolvedValue(undefined) }))
 
 jest.mock('@/lib/supabase/admin', () => ({
   createAdminClient: jest.fn(),
@@ -495,7 +498,7 @@ describe('POST /api/sync/import', () => {
     })
   })
 
-  it('cancela reservas futuras que desapareceram do feed iCal', async () => {
+  it('preserva reservas futuras quando o feed fica vazio', async () => {
     const listing = {
       id: 'listing-cancel',
       ical_url: 'https://example.com/cancel.ics',
@@ -567,12 +570,8 @@ describe('POST /api/sync/import', () => {
     const body = await response.json()
 
     expect(response.status).toBe(200)
-    expect(body.totals.cancelled).toBe(1)
-    expect(reservationUpdate).toHaveBeenCalledWith(expect.objectContaining({
-      status: 'cancelled',
-      cancelled_at: expect.any(String),
-      updated_at: expect.any(String),
-    }))
+    expect(body.totals.cancelled).toBe(0)
+    expect(reservationUpdate).not.toHaveBeenCalled()
   })
 
   it.each([
@@ -640,6 +639,7 @@ describe('POST /api/sync/import', () => {
 
     expect(response.status).toBe(200)
     expect(body.totals.cancelled).toBe(0)
+    expect(assertReconciledFeedConsistency).toHaveBeenCalledWith(expect.objectContaining({ organizationId: 'org-1', propertyListingId: 'listing-booking-pilot' }))
     expect(reservationSelect).not.toHaveBeenCalled()
     if (status === 'unmatched' || (status === 'matched' && !covered)) {
       expect(upsertReconciliationAvailability).toHaveBeenCalledTimes(1)
@@ -700,9 +700,8 @@ describe('POST /api/sync/import', () => {
       return
     }
     expect(body.errors).toBeUndefined()
-    expect(body.totals.cancelled).toBe(present ? 0 : 1)
-    if (present) expect(reservationUpdate).not.toHaveBeenCalled()
-    else expect(reservationUpdate).toHaveBeenCalledWith(expect.objectContaining({ status: 'cancelled' }))
+    expect(body.totals.cancelled).toBe(0)
+    expect(reservationUpdate).not.toHaveBeenCalled()
   })
 
 })

@@ -1,3 +1,4 @@
+import { timingSafeEqual } from 'node:crypto'
 import { NextRequest, NextResponse } from 'next/server'
 import { requireRole } from '@/lib/auth/requireRole'
 import { createAdminClient } from '@/lib/supabase/admin'
@@ -14,6 +15,12 @@ export async function GET(request: NextRequest) {
   if (!auth.authorized) return auth.response!
 
   const { searchParams } = new URL(request.url)
+  const state = searchParams.get('state') || ''
+  const expectedState = request.cookies.get('gmail_oauth_state')?.value || ''
+  if (!state || !expectedState || state.length !== expectedState.length || !timingSafeEqual(Buffer.from(state), Buffer.from(expectedState))) {
+    return NextResponse.json({ error: 'Invalid OAuth state' }, { status: 400 })
+  }
+  if (!auth.organizationId) return NextResponse.json({ error: 'Organization unavailable' }, { status: 403 })
   const code = searchParams.get('code')
   const error = searchParams.get('error')
 
@@ -31,6 +38,7 @@ export async function GET(request: NextRequest) {
     // Trocar code por tokens
     const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
       method: 'POST',
+      signal: AbortSignal.timeout(15_000),
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({
         code,
@@ -44,7 +52,7 @@ export async function GET(request: NextRequest) {
     const tokens = await tokenRes.json()
 
     if (!tokenRes.ok || !tokens.access_token) {
-      console.error('Erro ao trocar code por tokens:', tokens)
+      console.error('OAuth token exchange failed', tokenRes.status)
       return NextResponse.redirect(`${NEXT_PUBLIC_APP_URL}/settings?email_error=token_exchange`)
     }
 
@@ -53,7 +61,7 @@ export async function GET(request: NextRequest) {
       headers: { Authorization: `Bearer ${tokens.access_token}` },
     })
     const userInfo = await userInfoRes.json()
-    const email = userInfo.email as string
+    const email = userInfoRes.ok && userInfo.verified_email ? userInfo.email as string : null
 
     if (!email) {
       return NextResponse.redirect(`${NEXT_PUBLIC_APP_URL}/settings?email_error=no_email`)
@@ -64,7 +72,8 @@ export async function GET(request: NextRequest) {
 
     // Encriptar tokens antes de guardar
     const encryptedAccess = encryptToken(tokens.access_token as string)
-    const encryptedRefresh = encryptToken((tokens.refresh_token as string) || '')
+    if (!tokens.refresh_token) return NextResponse.redirect(`${NEXT_PUBLIC_APP_URL}/settings?email_error=refresh_token_missing`)
+    const encryptedRefresh = encryptToken(tokens.refresh_token as string)
 
     // Guardar em Supabase (upsert — substitui ligação existente)
     const supabase = await createAdminClient()
@@ -78,6 +87,7 @@ export async function GET(request: NextRequest) {
         token_expiry: tokenExpiry.toISOString(),
         scope: 'https://www.googleapis.com/auth/gmail.readonly',
         connected_at: new Date().toISOString(),
+        sync_query: null, sync_page_token: null, last_sync_at: null,
       }, { onConflict: 'organization_id' })
 
     if (dbError) {
@@ -85,7 +95,13 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(`${NEXT_PUBLIC_APP_URL}/settings?email_error=db_error`)
     }
 
-    return NextResponse.redirect(`${NEXT_PUBLIC_APP_URL}/settings?email_connected=true`)
+    const { error: configurationError } = await supabase.from('organizations').update({
+      email_ical_reconciliation_enabled: true, email_ical_pilot_platforms: ['airbnb', 'booking', 'flatio', 'vrbo'],
+    }).eq('id', auth.organizationId)
+    if (configurationError) return NextResponse.redirect(`${NEXT_PUBLIC_APP_URL}/settings?email_error=config_failed`)
+    const response = NextResponse.redirect(`${NEXT_PUBLIC_APP_URL}/settings?email_connected=true`)
+    response.cookies.set('gmail_oauth_state', '', { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/api/email/callback', maxAge: 0 })
+    return response
   } catch (err) {
     console.error('Erro no OAuth callback:', err)
     return NextResponse.redirect(`${NEXT_PUBLIC_APP_URL}/settings?email_error=unexpected`)

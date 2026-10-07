@@ -28,7 +28,7 @@ export async function isEmailICalEnabled(organizationId: string): Promise<boolea
     .single()
 
   if (error || !data) {
-    return false
+    throw new Error('RECONCILIATION_CONFIGURATION_UNAVAILABLE')
   }
 
   return data.email_ical_reconciliation_enabled === true
@@ -45,16 +45,16 @@ export async function isPlatformInPilot(
 
   const { data, error } = await supabase
     .from('organizations')
-    .select('email_ical_pilot_platforms')
+    .select('email_ical_reconciliation_enabled, email_ical_pilot_platforms')
     .eq('id', organizationId)
     .single()
 
   if (error || !data) {
-    return false
+    throw new Error('RECONCILIATION_CONFIGURATION_UNAVAILABLE')
   }
 
   const platforms = data.email_ical_pilot_platforms || []
-  return platforms.includes(platform.toLowerCase())
+  return data.email_ical_reconciliation_enabled === true && platforms.includes(platform.toLowerCase())
 }
 
 /**
@@ -69,13 +69,7 @@ export async function getFeatureFlagStatus(organizationId: string): Promise<Feat
     .eq('id', organizationId)
     .single()
 
-  if (error || !data) {
-    return {
-      organization_id: organizationId,
-      enabled: false,
-      pilot_platforms: [],
-    }
-  }
+  if (error || !data) throw new Error('RECONCILIATION_CONFIGURATION_UNAVAILABLE')
 
   const pilotStartedAt = data.email_ical_pilot_started_at
   let daysRunning: number | undefined

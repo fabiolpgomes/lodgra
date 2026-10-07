@@ -5,7 +5,7 @@ export type EmailExtractionData = EmailExtraction
 export interface CalendarEvent {
   id: string
   organization_id: string
-  source_platform: 'airbnb' | 'booking' | 'vrbo'
+  source_platform: 'airbnb' | 'booking' | 'vrbo' | 'flatio'
   check_in: Date | string
   check_out: Date | string
   raw_summary: string | null
@@ -56,7 +56,7 @@ function scorePair(email: ExtractionWithIdentity, event: CalendarEvent): MatchCa
   const details: MatchCandidate['details'] = {}
   const summary = event.raw_summary || ''
 
-  if (email.reservation_code && summary.toLowerCase().includes(email.reservation_code.toLowerCase())) {
+  if (email.reservation_code && summary.toLowerCase().split(/[^a-z0-9-]+/).includes(email.reservation_code.toLowerCase())) {
     score += 50
     details.reservation_code_match = true
   }
@@ -106,7 +106,7 @@ function scorePair(email: ExtractionWithIdentity, event: CalendarEvent): MatchCa
     details.opaque_provider_identity = true
   }
 
-  return { score: Math.min(score, 100), ...details }
+  return { score: Math.min(score, details.dates_exact ? 100 : 79), ...details }
 }
 
 export function matchEmailToCalendarEvents(
@@ -114,7 +114,7 @@ export function matchEmailToCalendarEvents(
   calendarEvents: CalendarEvent[]
 ): MatchCandidate[] {
   return calendarEvents
-    .filter((event) => event.organization_id === email.organization_id && event.status === 'unmatched')
+    .filter((event) => event.organization_id === email.organization_id && event.source_platform === email.source_platform && event.status === 'unmatched')
     .map((event) => {
       const { score, ...details } = scorePair(email, event)
       return { target_id: event.id, target_type: 'calendar_event' as const, score, details }
