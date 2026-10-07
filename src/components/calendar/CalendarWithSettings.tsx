@@ -9,6 +9,7 @@ import { SettingsDrawer } from './SettingsDrawer'
 import { PropertyRail } from './PropertyRail'
 import { CalendarDayClickModal } from './CalendarDayClickModal'
 import { ReservationDetailsModal } from './ReservationDetailsModal'
+import type { CurrencyCode } from '@/lib/utils/currency'
 import { DiscountSelectionModal } from './DiscountSelectionModal'
 import { useCalendarSelection } from '@/hooks/useCalendarSelection'
 import { PropertyCancellationPolicy } from '@/types/cancellation.types'
@@ -536,6 +537,9 @@ function CalendarWithSettingsContent({
         isOpen={!!selectedReservation}
         reservation={selectedReservation}
         onClose={() => setSelectedReservation(null)}
+        currency={(pricingQuery.data?.currency?.toUpperCase() as CurrencyCode | undefined) ?? null}
+        locale={locale}
+        onCancelled={refetchData}
       />
 
       {/* Day Click Modal */}

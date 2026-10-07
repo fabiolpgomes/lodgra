@@ -6,7 +6,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/common/ui/dialog'
-import { X } from 'lucide-react'
+import { useState } from 'react'
+import Link from 'next/link'
+import { X, ExternalLink } from 'lucide-react'
+import { toast } from 'sonner'
 import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
 import { MinimumOverrideBadge } from './MinimumOverrideBadge'
 
@@ -26,6 +29,10 @@ interface ReservationDetailsModalProps {
   reservation: Reservation | null
   onClose: () => void
   currency?: CurrencyCode | null
+  /** Idioma das rotas (ex.: pt-BR) para o link "Abrir reserva". */
+  locale?: string
+  /** Chamado depois de cancelar, para recarregar o calendário. */
+  onCancelled?: () => void
 }
 
 export function ReservationDetailsModal({
@@ -33,8 +40,38 @@ export function ReservationDetailsModal({
   reservation,
   onClose,
   currency,
+  locale = 'pt-BR',
+  onCancelled,
 }: ReservationDetailsModalProps) {
+  const [confirmingCancel, setConfirmingCancel] = useState(false)
+  const [cancelling, setCancelling] = useState(false)
   if (!reservation) return null
+
+  const handleClose = () => {
+    setConfirmingCancel(false)
+    onClose()
+  }
+
+  const handleCancel = async () => {
+    try {
+      setCancelling(true)
+      const response = await fetch(`/api/reservations/${reservation.id}/cancel`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ reason: 'Cancelada no calendário' }),
+      })
+      const payload = await response.json().catch(() => null)
+      if (!response.ok) throw new Error(payload?.error || 'Falha ao cancelar')
+      toast.success(payload?.already_cancelled ? 'A reserva já estava cancelada' : 'Reserva cancelada')
+      onCancelled?.()
+      handleClose()
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Erro ao cancelar')
+    } finally {
+      setCancelling(false)
+    }
+  }
   const resolvedCurrency = currency?.toUpperCase() as CurrencyCode | undefined
   const reservationNotes = reservation.notes || ''
   const minimumOverrideMatch = reservationNotes.match(
@@ -71,14 +108,14 @@ export function ReservationDetailsModal({
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="w-[calc(100%_-_1rem)] max-w-md p-4 sm:p-6" style={{ backgroundColor: '#FBFAF6' }}>
         <DialogHeader>
           <DialogTitle style={{ color: '#1B2430' }}>
             Detalhes da Reserva
           </DialogTitle>
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full opacity-70 hover:opacity-100"
           >
             <X size={20} />
@@ -167,6 +204,39 @@ export function ReservationDetailsModal({
               {reservationNotes || <span style={{ color: '#4D5566', fontStyle: 'italic' }}>Sem notas</span>}
             </p>
           </div>
+
+          <div className="flex flex-col gap-2 border-t pt-4 sm:flex-row" style={{ borderColor: '#E5DFD2' }}>
+            <Link
+              href={`/${locale}/reservations/${reservation.id}`}
+              className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-lg bg-[#10203E] px-4 text-sm font-semibold text-white hover:bg-[#0D1A2E]"
+            >
+              <ExternalLink className="h-4 w-4" />
+              Abrir reserva
+            </Link>
+            {!confirmingCancel ? (
+              <button
+                type="button"
+                onClick={() => setConfirmingCancel(true)}
+                className="inline-flex h-11 flex-1 items-center justify-center rounded-lg border border-red-200 px-4 text-sm font-semibold text-red-700 hover:bg-red-50"
+              >
+                Cancelar reserva
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleCancel}
+                disabled={cancelling}
+                className="inline-flex h-11 flex-1 items-center justify-center rounded-lg bg-red-600 px-4 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-60"
+              >
+                {cancelling ? 'A cancelar…' : 'Confirmar cancelamento'}
+              </button>
+            )}
+          </div>
+          {confirmingCancel && (
+            <p className="text-xs" style={{ color: '#4D5566' }}>
+              As datas ficam livres. Se a reserva foi paga online, o reembolso segue a política de cancelamento.
+            </p>
+          )}
         </div>
       </DialogContent>
     </Dialog>

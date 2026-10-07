@@ -69,6 +69,11 @@ export async function POST(request: NextRequest) {
         await handleBookingExpired(supabase, session, event.account ?? null)
         break
       }
+      case 'charge.refunded': {
+        const charge = event.data.object as Stripe.Charge
+        await handleChargeRefunded(supabase, charge, event.account ?? null)
+        break
+      }
       default:
         // Ignore subscription/other events that may arrive on this webhook
         console.log(`[booking-webhook] Evento ignorado: ${event.type}`)
@@ -260,6 +265,47 @@ async function handleBookingCompleted(supabase: AdminClient, session: Stripe.Che
       console.log(`[booking-webhook] Notificação ao proprietário enviada para ${owner.email}`)
     }
   }
+}
+
+/**
+ * Reembolso feito pelo tenant diretamente no Stripe: regista o valor reembolsado e,
+ * se for total, cancela a reserva (liberta as datas no calendário).
+ */
+async function handleChargeRefunded(supabase: AdminClient, charge: Stripe.Charge, eventAccount: string | null) {
+  const paymentIntentId = typeof charge.payment_intent === 'string' ? charge.payment_intent : charge.payment_intent?.id
+  if (!paymentIntentId || !eventAccount) return
+
+  const { data: reservation } = await supabase
+    .from('reservations')
+    .select('id, reservation_status, stripe_account_id')
+    .eq('stripe_payment_intent_id', paymentIntentId)
+    .maybeSingle()
+  if (!reservation || reservation.stripe_account_id !== eventAccount) {
+    console.log(`[booking-webhook] charge.refunded sem reserva correspondente (${paymentIntentId}) — ignorado`)
+    return
+  }
+
+  const now = new Date().toISOString()
+  const fullRefund = charge.refunded || charge.amount_refunded >= charge.amount
+  const lastRefund = charge.refunds?.data?.[0]?.id ?? null
+  const update: Record<string, unknown> = {
+    refund_amount: charge.amount_refunded / 100,
+    stripe_refund_id: lastRefund,
+    refund_processed_at: now,
+    updated_at: now,
+  }
+  if (fullRefund && reservation.reservation_status !== 'cancelled') {
+    Object.assign(update, {
+      reservation_status: 'cancelled',
+      status: 'cancelled',
+      cancelled_at: now,
+      cancellation_reason: 'Reembolso total feito no Stripe',
+    })
+  }
+
+  const { error } = await supabase.from('reservations').update(update).eq('id', reservation.id)
+  if (error) throw error
+  console.log(`[booking-webhook] Reserva ${reservation.id}: reembolso ${fullRefund ? 'total (cancelada)' : 'parcial'} registado`)
 }
 
 async function handleBookingExpired(supabase: AdminClient, session: Stripe.Checkout.Session, eventAccount: string | null) {

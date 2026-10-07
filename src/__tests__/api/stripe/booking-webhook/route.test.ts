@@ -423,5 +423,58 @@ describe('link do e-mail', () => {
     }))
   })
 })
+
+describe('charge.refunded', () => {
+  function refundSupabase(reservation: Record<string, unknown> | null) {
+    const updates: Record<string, unknown>[] = []
+    const client = {
+      from: jest.fn().mockImplementation(() => ({
+        select: jest.fn().mockReturnValue({
+          eq: jest.fn().mockReturnValue({ maybeSingle: jest.fn().mockResolvedValue({ data: reservation, error: null }) }),
+        }),
+        update: jest.fn().mockImplementation((v: Record<string, unknown>) => {
+          updates.push(v)
+          return { eq: jest.fn().mockResolvedValue({ error: null }) }
+        }),
+      })),
+    }
+    return { client: client as unknown as ReturnType<typeof createAdminClient>, updates }
+  }
+
+  function refundEvent(amountRefunded: number, account = 'acct_tenant') {
+    return {
+      id: `evt_ref_${amountRefunded}`,
+      type: 'charge.refunded',
+      account,
+      data: { object: { payment_intent: 'pi_1', amount: 600, amount_refunded: amountRefunded, refunded: amountRefunded >= 600, refunds: { data: [{ id: 're_1' }] } } },
+    }
+  }
+
+  it('reembolso total cancela a reserva e liberta as datas', async () => {
+    const { client, updates } = refundSupabase({ id: 'res-1', reservation_status: 'confirmed', stripe_account_id: 'acct_tenant' })
+    mockCreateAdminClient.mockReturnValue(client)
+    mockConstructEvent.mockReturnValue(refundEvent(600))
+    const res = await POST(makeWebhookRequest())
+    expect(res.status).toBe(200)
+    expect(updates[0]).toMatchObject({ refund_amount: 6, stripe_refund_id: 're_1', reservation_status: 'cancelled' })
+  })
+
+  it('reembolso parcial só regista o valor', async () => {
+    const { client, updates } = refundSupabase({ id: 'res-1', reservation_status: 'confirmed', stripe_account_id: 'acct_tenant' })
+    mockCreateAdminClient.mockReturnValue(client)
+    mockConstructEvent.mockReturnValue(refundEvent(200))
+    await POST(makeWebhookRequest())
+    expect(updates[0]).toMatchObject({ refund_amount: 2 })
+    expect(updates[0]).not.toHaveProperty('reservation_status')
+  })
+
+  it('ignora reembolso vindo de outra conta conectada', async () => {
+    const { client, updates } = refundSupabase({ id: 'res-1', reservation_status: 'confirmed', stripe_account_id: 'acct_tenant' })
+    mockCreateAdminClient.mockReturnValue(client)
+    mockConstructEvent.mockReturnValue(refundEvent(600, 'acct_outro'))
+    await POST(makeWebhookRequest())
+    expect(updates).toHaveLength(0)
+  })
+})
 })
 
