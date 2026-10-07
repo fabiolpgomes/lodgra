@@ -5,7 +5,7 @@ import { extractEmailData } from '@/lib/email-reconciliation/extract-service'
 import { hasRequiredReservationFields, type EmailExtractionPlatform } from '@/lib/email-reconciliation/extraction.schema'
 import { isPlatformInPilot } from '@/lib/email-reconciliation/feature-flag'
 import { platformFromSender } from '@/lib/email-reconciliation/inbound'
-import { reservationMessageKind } from '@/lib/email-reconciliation/message-kind'
+import { DISCARDED_CONTENT, reservationMessageKind } from '@/lib/email-reconciliation/message-kind'
 import { retryUnmatchedExtractions } from '@/lib/email-reconciliation/retry-matches'
 import { syncExtractedDataToReservation } from '@/lib/email-reconciliation/sync-to-reservations'
 
@@ -54,6 +54,15 @@ export async function POST(request: NextRequest) {
     const platform = platformFromSender(rawEmail.sender)
     try {
       const kind = reservationMessageKind(rawEmail.subject || rawEmail.raw_content.split('\n')[0].replace(/^Subject: /, ''))
+      if (kind === 'irrelevant') {
+        const { error } = await supabase.from('raw_emails').update({
+          processing_status: 'rejected', last_error: 'NOT_A_RESERVATION_MESSAGE', raw_content: DISCARDED_CONTENT,
+          processed_at: new Date().toISOString(), updated_at: new Date().toISOString(),
+        }).eq('id', rawEmail.id).eq('organization_id', rawEmail.organization_id).eq('attempt_count', rawEmail.attempt_count)
+        if (error) throw new Error('QUEUE_STATUS_WRITE_FAILED')
+        results.push({ emailId: rawEmail.id, success: true, status: 'rejected' })
+        continue
+      }
       if (kind !== 'confirmation') {
         const { error } = await supabase.from('raw_emails').update({
           processing_status: 'needs_review',

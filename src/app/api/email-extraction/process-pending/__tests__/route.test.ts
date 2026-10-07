@@ -41,6 +41,28 @@ describe('POST /api/email-extraction/process-pending', () => {
     expect(createAdminClient).not.toHaveBeenCalled()
   })
 
+  it('discards payout and security-code messages without calling the AI or queuing review', async () => {
+    const raw = {
+      id: 'raw-9', organization_id: 'org-1', sender: 'automated@airbnb.com',
+      subject: 'Enviamos um pagamento de € 1.622,74 EUR', raw_content: 'Payout details', attempt_count: 1,
+    }
+    const rpc = jest.fn().mockResolvedValue({ data: [raw], error: null })
+    const update = jest.fn(() => updateQuery())
+    ;(createAdminClient as jest.Mock).mockReturnValue({ rpc, from: jest.fn(() => ({ update })) })
+
+    const response = await POST(createTestRequest('http://localhost/api/email-extraction/process-pending', {
+      method: 'POST', headers: { authorization: `Bearer ${secret}` },
+    }))
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body.results[0]).toMatchObject({ success: true, status: 'rejected' })
+    expect(update).toHaveBeenCalledWith(expect.objectContaining({
+      processing_status: 'rejected', last_error: 'NOT_A_RESERVATION_MESSAGE',
+    }))
+    expect(extractEmailData).not.toHaveBeenCalled()
+  })
+
   it('keeps draining the queue when the match replay is unavailable', async () => {
     ;(retryUnmatchedExtractions as jest.Mock).mockRejectedValue(new Error('MATCH_RETRY_LOOKUP_FAILED'))
     const rpc = jest.fn().mockResolvedValue({ data: [], error: null })

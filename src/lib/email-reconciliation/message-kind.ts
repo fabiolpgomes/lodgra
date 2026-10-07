@@ -1,7 +1,21 @@
-/** Only explicit confirmation subjects can create reservations automatically. */
-export function reservationMessageKind(subject: string): 'confirmation' | 'change' | 'other' {
-  const text = subject.normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+export type ReservationMessageKind = 'confirmation' | 'change' | 'irrelevant' | 'other'
+
+/** Placeholder kept instead of the body of messages that carry no reservation data (e.g. login codes). */
+export const DISCARDED_CONTENT = '[conteúdo descartado: mensagem sem dados de reserva]'
+
+const normalize = (subject: string) => subject.normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase()
+
+/**
+ * Only explicit confirmation subjects can create reservations automatically.
+ * Security codes, payouts and reviews are discarded instead of queued for human review.
+ */
+export function reservationMessageKind(subject: string): ReservationMessageKind {
+  const text = normalize(subject)
+  if (/codigo de verificacao|verification code|security code|codigo de seguranca|one-time (pass)?code|login code/.test(text)) return 'irrelevant'
   if (/cancel|modific|alterad|alteracao|changed|change to|updated|refund|reembols|declin|recus/.test(text)) return 'change'
   if (/nova reserva|new reservation|new booking|booking confirm|reservation confirm|reserva confirm|confirmed reservation|confirmed booking|reservierung bestatigt|nouvelle reservation|reservation confirmee|rezervace potvrzena/.test(text)) return 'confirmation'
+  // Airbnb "request to book" accepted by the host: "A solicitação de <hóspede> foi confirmada".
+  if (/solicitacao de .+ (foi )?(confirmada|aceita)|reservation request .*(confirmed|accepted)|request from .+ (has been |was )?(confirmed|accepted)|pedido de reserva .*(confirmado|aceite)/.test(text)) return 'confirmation'
+  if (/pagamento|payout|payment|we sent you|enviamos|fatura|invoice|extrato|statement|avalia|review|newsletter|dicas|tips/.test(text)) return 'irrelevant'
   return 'other'
 }

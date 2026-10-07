@@ -2,6 +2,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { getValidAccessToken, fetchEmailsByIds, type ConnectionRow } from '@/lib/email-parser/gmail-client'
 import { getFeatureFlagStatus } from './feature-flag'
 import { platformFromSender } from './inbound'
+import { DISCARDED_CONTENT, reservationMessageKind } from './message-kind'
 
 const PROVIDER_QUERY = '(from:booking.com OR from:airbnb.com OR from:flatio.com OR from:vrbo.com)'
 
@@ -45,7 +46,9 @@ export async function ingestGmail(organizationId?: string) {
         if (!response.ok) throw new Error(`GMAIL_LIST_HTTP_${response.status}`)
         const pageData = await response.json() as { messages?: { id: string }[]; nextPageToken?: string }
         const messages = pageData.messages || []
-        const ids = messages.map(({ id }) => `${connection.id}:${id}`)
+        // Keyed by mailbox (not connection row): reconnecting Gmail must not re-import the same messages.
+        const mailbox = connection.email.trim().toLowerCase()
+        const ids = messages.map(({ id }) => `${mailbox}:${id}`)
         const known = ids.length ? await db.from('raw_emails').select('provider_message_id')
           .eq('organization_id', connection.organization_id).eq('provider', 'gmail').in('provider_message_id', ids)
           : { data: [], error: null }
@@ -53,7 +56,7 @@ export async function ingestGmail(organizationId?: string) {
         const existing = new Set((known.data || []).map(row => row.provider_message_id))
         let pageComplete = true
         for (const message of messages) {
-          const providerId = `${connection.id}:${message.id}`
+          const providerId = `${mailbox}:${message.id}`
           if (existing.has(providerId)) { results.duplicates++; continue }
           if (fetched >= 100 || Date.now() >= deadline) { pageComplete = false; break }
           const emails = await fetchEmailsByIds(token, [message.id])
@@ -62,14 +65,18 @@ export async function ingestGmail(organizationId?: string) {
           fetched++; results.processed++
           const platform = platformFromSender(email.from)
           const accepted = platform && flag.pilot_platforms.includes(platform)
+          const irrelevant = reservationMessageKind(email.subject || '') === 'irrelevant'
+          const status = !accepted ? 'rejected' : irrelevant ? 'rejected' : 'pending'
           const { error: persistError } = await db.from('raw_emails').upsert({
             organization_id: connection.organization_id, provider: 'gmail', provider_message_id: providerId,
             recipient: connection.email, sender: email.from, subject: email.subject,
-            received_at: email.receivedAt.toISOString(), raw_content: `Subject: ${email.subject}\n\n${email.body}`,
-            processing_status: accepted ? 'pending' : 'rejected', last_error: accepted ? null : 'SENDER_OR_PLATFORM_NOT_ENABLED',
+            received_at: email.receivedAt.toISOString(),
+            raw_content: irrelevant ? DISCARDED_CONTENT : `Subject: ${email.subject}\n\n${email.body}`,
+            processing_status: status,
+            last_error: !accepted ? 'SENDER_OR_PLATFORM_NOT_ENABLED' : irrelevant ? 'NOT_A_RESERVATION_MESSAGE' : null,
           }, { onConflict: 'organization_id,provider,provider_message_id', ignoreDuplicates: true })
           if (persistError) throw new Error('GMAIL_STAGING_WRITE_FAILED')
-          if (accepted) results.staged++; else results.skipped++
+          if (status === 'pending') results.staged++; else results.skipped++
         }
         if (!pageComplete) break
         pageToken = pageData.nextPageToken
