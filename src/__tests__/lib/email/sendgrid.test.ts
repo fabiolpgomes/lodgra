@@ -29,7 +29,7 @@ describe('SendGrid Email Service', () => {
     cancellationPolicyName: 'Flexível',
     refundPercentage: 100,
     refundDeadlineDays: 7,
-    supportEmail: 'support@lodgra.io',
+    supportEmail: 'suporte@lodgra.io',
     supportPhone: '+55 (11) 3000-0000',
   }
 

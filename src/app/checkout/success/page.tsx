@@ -94,7 +94,7 @@ function SuccessContent() {
           </p>
           <p className="text-xs" style={{ color: '#9CA3AF' }}>
             Problemas com o email?{' '}
-            <a href="mailto:suporte@lodgra.com" className="hover:underline" style={{ color: '#6B7280' }}>
+            <a href="mailto:suporte@lodgra.io" className="hover:underline" style={{ color: '#6B7280' }}>
               Contactar suporte
             </a>
           </p>

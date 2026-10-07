@@ -55,7 +55,7 @@ export function seriousIssueDecisionTemplate(data: SeriousIssueDecisionEmailData
       ` : ''}
 
       <p style="color: #6c757d;">
-        Se tiver dúvidas sobre esta decisão, entre em contacto com nosso suporte em support@lodgra.io.
+        Se tiver dúvidas sobre esta decisão, entre em contacto com nosso suporte em suporte@lodgra.io.
       </p>
 
       <hr style="border: none; border-top: 1px solid #dee2e6; margin: 40px 0;">

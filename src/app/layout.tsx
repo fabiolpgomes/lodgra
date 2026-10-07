@@ -81,7 +81,7 @@ const organizationSchema = {
   description: 'Plataforma global de gestão de alojamentos locais para anfitriões no Airbnb e Booking.com.',
   contactPoint: {
     '@type': 'ContactPoint',
-    email: 'support@lodgra.io',
+    email: 'suporte@lodgra.io',
     contactType: 'customer support',
     availableLanguage: ['Portuguese', 'English', 'Spanish'],
   },

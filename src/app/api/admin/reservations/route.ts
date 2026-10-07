@@ -243,7 +243,7 @@ export async function POST(request: NextRequest) {
       cancellationPolicyName,
       refundPercentage,
       refundDeadlineDays,
-      supportEmail: process.env.SUPPORT_EMAIL || 'support@lodgra.io',
+      supportEmail: process.env.SUPPORT_EMAIL || 'suporte@lodgra.io',
       supportPhone: process.env.SUPPORT_PHONE || '+55 (11) 3000-0000',
       preferredLocale: resolvedPreferredLocale,
       notes: notes || undefined,

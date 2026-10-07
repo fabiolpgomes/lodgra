@@ -108,7 +108,7 @@ export default function OnboardingPendentePage() {
 
         <p className="text-xs text-gray-500">
           Tem dúvidas?{' '}
-          <a href="mailto:suporte@lodgra.com" className="underline hover:text-gray-600">
+          <a href="mailto:suporte@lodgra.io" className="underline hover:text-gray-600">
             Contactar suporte
           </a>
         </p>

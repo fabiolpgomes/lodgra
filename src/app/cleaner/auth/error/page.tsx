@@ -65,7 +65,7 @@ export default function CleanerAuthErrorPage() {
           <button
             onClick={() => {
               // Open contact form or email
-              window.location.href = 'mailto:support@lodgra.io?subject=Solicitar%20novo%20link%20de%20acesso';
+              window.location.href = 'mailto:suporte@lodgra.io?subject=Solicitar%20novo%20link%20de%20acesso';
             }}
             className="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium"
           >

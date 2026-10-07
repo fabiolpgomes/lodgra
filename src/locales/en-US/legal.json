@@ -1,168 +1,225 @@
 {
   "privacy": {
     "title": "Privacy Policy",
-    "lastUpdated": "Last updated: April 7, 2026",
-    "version": "Version 2.0",
-    "intro": {
-      "title": "What is Home Stay?",
-      "description": "Home Stay is a short-term rental management platform that helps property owners and managers organize and administer vacation rental properties.",
-      "features": "Key features:",
-      "feature1": "Multi-property management",
-      "feature2": "Reservation and availability management",
-      "feature3": "Calendar synchronization (iCal)",
-      "feature4": "Expense and financial management",
-      "feature5": "Guest and owner management",
-      "feature6": "Subscription system with secure payment"
-    },
-    "about": {
-      "title": "1. About This Privacy Policy",
-      "text": "This Privacy Policy describes how Home Stay collects, uses, and protects user information. By using the platform, you agree to the terms described herein."
-    },
-    "dataCollected": {
-      "title": "2. Data We Collect",
-      "subtitle": "We collect data to provide essential features:",
-      "email": "Name and Email",
-      "emailDesc": "Authentication, account creation, password recovery, account communications.",
-      "properties": "Property and Reservation Data",
-      "propertiesDesc": "Property management, reservations, check-in/out dates, and platform operations.",
-      "billing": "Billing Data",
-      "billingDesc": "Payment processing via Stripe — we do not store card data on our servers.",
-      "usage": "Usage Logs",
-      "usageDesc": "Diagnostics, security, and continuous platform improvement.",
-      "technical": "Technical Data",
-      "technicalDesc": "Browser type, operating system, and approximate location for compatibility and security."
-    },
-    "usage": {
-      "title": "3. How We Use Data",
-      "service": "Provide the service: property, reservation, and financial management",
-      "notifications": "Notifications about your account, reservations, and important events",
-      "support": "Technical support",
-      "security": "Security and fraud detection",
-      "improvements": "Aggregated analysis for platform improvement",
-      "legal": "Legal compliance"
-    },
-    "sharing": {
-      "title": "4. Data Sharing",
-      "subtitle": "We share data with the following services:",
-      "supabase": "Supabase — database and authentication (EU)",
-      "stripe": "Stripe — payment processing",
-      "vercel": "Vercel — application hosting",
-      "resend": "Resend — transactional email delivery",
-      "authorities": "Legal authorities — when required by law",
-      "noSell": "We never sell your personal data."
-    },
-    "security": {
-      "title": "5. Data Security",
-      "https": "HTTPS/TLS encryption for data in transit",
-      "aes": "AES-256 encryption for sensitive data at rest",
-      "rls": "Row-Level Security — each organization accesses only its own data",
-      "auth": "Secure authentication with protected sessions",
-      "audit": "Access auditing and suspicious activity monitoring"
-    },
-    "retention": {
-      "title": "6. Data Retention",
-      "text": "We retain data while your account is active. After cancellation:",
-      "delete30": "Data deleted within 30 days",
-      "backup90": "Backups removed within 90 days",
-      "legal": "Tax data retained as required by law"
-    },
-    "rights": {
-      "title": "7. Your Rights",
-      "subtitle": "You have the right to:",
-      "access": "Access: request a copy of all your data",
-      "rectification": "Rectification: correct inaccurate data",
-      "erasure": "Erasure: request deletion of your data",
-      "portability": "Portability: receive data in a transferable format",
-      "restriction": "Restriction: limit processing of your data",
-      "objection": "Objection: object to processing for specific purposes",
-      "consent": "Withdraw consent at any time"
-    },
-    "regional": {
-      "title": "8. Regional Information — CCPA (California, USA)",
-      "controller": "Service provider: Home Stay, Portugal (international operations)",
-      "basis": "Under the CCPA, California residents have the right to know what personal information is collected and to request its deletion.",
-      "dpo": "Privacy contact: suporte@homestay.pt",
-      "authority": "We do not sell personal information as defined by the CCPA.",
-      "authorityUrl": ""
-    },
-    "cookies": {
-      "title": "9. Cookies",
-      "text": "We use essential cookies (functionality) and analytics cookies (Google Analytics, with consent). You can manage your preferences at any time via the cookie banner or in Settings."
-    },
-    "changes": {
-      "title": "10. Changes to This Policy",
-      "text": "We may update this policy periodically. We will notify you by email of significant changes at least 15 days in advance."
-    },
-    "contact": {
-      "title": "11. Contact",
-      "text": "Privacy questions:",
-      "email": "suporte@homestay.pt",
-      "complaint": "For complaints: contact your local data protection authority."
+    "lastUpdated": "Last updated: October 7, 2026",
+    "version": "Version 3.0",
+    "intro": "Your trust is the foundation of Lodgra. This policy explains what data we process, why, who we share it with and how you can exercise your rights under the GDPR (European Union) and the LGPD (Brazil).",
+    "sections": {
+      "controller": {
+        "title": "Data controller",
+        "p1": "The controller of personal data for Lodgra (lodgra.io) users is Fabio Gomes, operator of Lodgra, based in Portugal.",
+        "p2": "Contact for privacy and data protection matters: {email}."
+      },
+      "roles": {
+        "title": "Two different roles",
+        "i1": "Account data of our Customers (name, email, billing): Lodgra is the controller.",
+        "i2": "Data the Customer enters or imports about guests, owners and teams: the Customer is the controller and Lodgra acts as processor, following the Customer's instructions.",
+        "n1": "If you are a guest of a property managed with Lodgra, please contact your host first. We will help whenever asked."
+      },
+      "dataCollected": {
+        "title": "Data we process",
+        "p1": "We process only the data needed to provide the service:",
+        "i1": "Account: name, email, phone (optional), company, role and preferences.",
+        "i2": "Properties and reservations: addresses, calendars, dates, amounts, sales channels and notes.",
+        "i3": "Guests: name, contact details, number of guests and stay details, entered by the Customer or received from booking channels.",
+        "i4": "Payments: handled by Stripe. We receive only payment status and identifiers, never full card details.",
+        "i5": "Reservation emails, only if the Customer connects Gmail (see section 4).",
+        "i6": "Technical data: access logs, IP address, browser and device, for security and diagnostics."
+      },
+      "gmail": {
+        "title": "Gmail connection and Google user data",
+        "p1": "If the Customer connects a Gmail account, Lodgra requests read-only access (gmail.readonly). We use that access for a single purpose: finding reservation confirmation emails sent by booking platforms (Airbnb, Booking.com, VRBO, Flatio) and extracting reservation details — guest name, dates, amounts, number of guests and booking reference.",
+        "i1": "We only search for messages from those senders; we do not read the rest of the mailbox.",
+        "i2": "We never send, delete or modify emails.",
+        "i3": "Google user data is never sold or used for advertising or to train AI models.",
+        "i4": "No person reads email content, except with the Customer's permission, for security reasons or where required by law.",
+        "i5": "The Customer can disconnect Gmail at any time in Lodgra Settings or at myaccount.google.com/permissions.",
+        "n1": "Access tokens are stored encrypted (AES-256), and imported messages are deleted with the account or on the Customer's request.",
+        "n2": "Lodgra's use and transfer to any other app of information received from Google APIs will adhere to the Google API Services User Data Policy, including the Limited Use requirements."
+      },
+      "purposes": {
+        "title": "How we use data",
+        "p1": "We use data only on an appropriate legal basis:",
+        "i1": "Providing the contracted service: properties, reservations, payments and finance (performance of contract).",
+        "i2": "Sending account and reservation notifications (performance of contract).",
+        "i3": "Providing technical support (performance of contract).",
+        "i4": "Protecting the platform and preventing fraud (legitimate interest).",
+        "i5": "Improving the product with aggregated, anonymous statistics (legitimate interest).",
+        "i6": "Meeting legal and tax obligations (legal obligation)."
+      },
+      "sharing": {
+        "title": "Who we share data with",
+        "p1": "We share data only with providers needed for the service, bound by data protection agreements:",
+        "i1": "Supabase — database and authentication (servers in the European Union)",
+        "i2": "Vercel — application hosting",
+        "i3": "Stripe — subscription and direct booking payments",
+        "i4": "Resend — transactional email delivery",
+        "i5": "Google — Gmail API, only when the Customer connects it",
+        "i6": "OpenAI and Anthropic — automated extraction of reservation email data, via business APIs that do not use the data to train models",
+        "i7": "Meta (WhatsApp Business) — messaging, only when the Customer enables it",
+        "i8": "Booking platforms (Airbnb, Booking.com and others) — through iCal links configured by the Customer",
+        "i9": "Authorities — only when required by law",
+        "n1": "We never sell personal data."
+      },
+      "transfers": {
+        "title": "International transfers",
+        "p1": "Some providers process data outside the European Economic Area, for example in the USA. In those cases, transfers rely on adequacy decisions (such as the EU-US Data Privacy Framework) or Standard Contractual Clauses approved by the European Commission."
+      },
+      "security": {
+        "title": "Security",
+        "i1": "HTTPS/TLS encrypted connections",
+        "i2": "AES-256 encryption for access tokens and sensitive credentials",
+        "i3": "Isolation between organisations with Row-Level Security: each Customer can access only their own data",
+        "i4": "Secure authentication and protected sessions",
+        "i5": "Access logs and backups",
+        "i6": "Internal access limited to the minimum necessary"
+      },
+      "retention": {
+        "title": "Retention",
+        "p1": "We keep data while the account is active. After closure:",
+        "i1": "Data remains available for export for 30 days and is then deleted.",
+        "i2": "Backups are deleted within 90 days.",
+        "i3": "Billing data is kept for the period required by tax law.",
+        "i4": "Technical logs are kept for short periods, for security only."
+      },
+      "rights": {
+        "title": "Your rights",
+        "p1": "Under the GDPR and the LGPD, you may at any time:",
+        "i1": "Access your data and find out how it is processed",
+        "i2": "Correct incomplete or outdated data",
+        "i3": "Request deletion of your data",
+        "i4": "Receive your data in a structured format (portability)",
+        "i5": "Restrict or object to certain processing",
+        "i6": "Withdraw consent, without affecting processing already carried out",
+        "i7": "Know who your data is shared with",
+        "n1": "To exercise these rights, write to {email}. We respond within 30 days at most."
+      },
+      "authorities": {
+        "title": "Supervisory authorities",
+        "p1": "If you believe your data has not been handled correctly, you can lodge a complaint with:",
+        "i1": "Portugal: Comissão Nacional de Proteção de Dados (CNPD) — www.cnpd.pt",
+        "i2": "Brazil: Autoridade Nacional de Proteção de Dados (ANPD) — www.gov.br/anpd"
+      },
+      "cookies": {
+        "title": "Cookies",
+        "p1": "We use only cookies essential to the platform (session, language and security). If we start using analytics or marketing cookies, we will ask for your consent first."
+      },
+      "minors": {
+        "title": "Minors",
+        "p1": "Lodgra is intended for professional use by people aged 18 or over and does not knowingly collect data from minors as users."
+      },
+      "changes": {
+        "title": "Changes to this policy",
+        "p1": "We may update this policy. Material changes are announced by email at least 15 days in advance, and the date at the top of the page always shows the version in force."
+      },
+      "contact": {
+        "title": "Contact",
+        "p1": "Questions about privacy or data protection? Get in touch:"
+      }
     }
   },
   "terms": {
     "title": "Terms of Service",
-    "lastUpdated": "Last updated: April 7, 2026",
-    "version": "Version 2.0",
-    "acceptance": {
-      "title": "1. Acceptance of Terms",
-      "text": "By accessing or using the Home Stay platform, you agree to these Terms of Service. If you do not agree, you should not use the platform."
-    },
-    "description": {
-      "title": "2. Service Description",
-      "text": "Home Stay is a short-term rental management platform that allows you to manage properties, reservations, expenses, owners, and calendar synchronization."
-    },
-    "account": {
-      "title": "3. Account and Access",
-      "item1": "An account is required to use the platform",
-      "item2": "You are responsible for maintaining credential confidentiality",
-      "item3": "You must notify us immediately of unauthorized access",
-      "item4": "An account can have multiple users with different access levels"
-    },
-    "subscription": {
-      "title": "4. Subscription and Payment",
-      "item1": "Access requires a paid subscription",
-      "item2": "Payments processed by Stripe",
-      "item3": "Subscription renews automatically",
-      "item4": "You can cancel anytime — access continues until the end of the period",
-      "item5": "No refunds for partial periods"
-    },
-    "acceptable": {
-      "title": "5. Acceptable Use",
-      "subtitle": "You agree not to use the platform for:",
-      "item1": "Illegal or fraudulent activities",
-      "item2": "Violating third-party rights",
-      "item3": "Transmitting malicious content",
-      "item4": "Attempting to access other organizations' data"
-    },
-    "dataOwnership": {
-      "title": "6. Data Ownership",
-      "text": "Data you enter is your property. You grant Home Stay a limited license to process it solely for the purpose of providing the service. You can export or request deletion of your data at any time."
-    },
-    "availability": {
-      "title": "7. Availability",
-      "text": "We strive to keep the platform available but do not guarantee uninterrupted availability. We are not responsible for losses resulting from unavailability."
-    },
-    "liability": {
-      "title": "8. Limitation of Liability",
-      "text": "Home Stay is provided \"as is.\" We are not responsible for indirect damages. Maximum liability is limited to amounts paid in the last 3 months."
-    },
-    "changes": {
-      "title": "9. Changes to Terms",
-      "text": "We may update these terms periodically. We will notify you at least 15 days in advance of significant changes."
-    },
-    "termination": {
-      "title": "10. Termination",
-      "text": "We may suspend accounts that violate these terms. After termination, data is available for export for 30 days."
-    },
-    "law": {
-      "title": "11. Governing Law",
-      "text": "These terms are governed by the laws applicable to your jurisdiction. For EU residents, GDPR provisions apply."
-    },
-    "contact": {
-      "title": "12. Contact",
-      "text": "For questions about these terms:",
-      "email": "suporte@homestay.pt"
+    "lastUpdated": "Last updated: October 7, 2026",
+    "version": "Version 3.0",
+    "intro": "These Terms explain, in plain language, the relationship between Lodgra and everyone who uses the platform to manage short-term rental properties.",
+    "sections": {
+      "provider": {
+        "title": "Who we are",
+        "p1": "Lodgra (lodgra.io) is short-term and vacation rental management software developed and operated by Fabio Gomes, based in Portugal (\"Lodgra\" or \"we\").",
+        "p2": "For any matter relating to these Terms, contact us at {email}."
+      },
+      "acceptance": {
+        "title": "Acceptance",
+        "p1": "These Terms govern access to and use of Lodgra by property managers, owners and companies (the \"Customer\"). By creating an account or using the platform, the Customer accepts these Terms and the Privacy Policy. Anyone accepting on behalf of a company confirms they are authorised to bind it."
+      },
+      "service": {
+        "title": "The service",
+        "p1": "Lodgra is a SaaS platform that brings short-term rental operations into one place:",
+        "i1": "Properties, reservations, guests and owners managed in a single calendar",
+        "i2": "Calendar sync via iCal with Airbnb, Booking.com and other channels",
+        "i3": "A direct booking page with online payment through Stripe, paid into the Customer's own account",
+        "i4": "Optional reading of platform confirmation emails to complete reservation details",
+        "i5": "Financial control: revenue, expenses, commissions and owner payouts",
+        "i6": "Communication with guests and teams by email and WhatsApp",
+        "n1": "Features evolve frequently. Changes that materially reduce the contracted service will be announced in advance."
+      },
+      "account": {
+        "title": "Account and access",
+        "i1": "The Customer must provide accurate information and keep it up to date.",
+        "i2": "The Customer is responsible for keeping credentials confidential and for the actions of users they invite.",
+        "i3": "Any unauthorised access must be reported immediately to {email}.",
+        "i4": "An account can have several users with different access levels.",
+        "i5": "Lodgra is intended for professional use by people aged 18 or over."
+      },
+      "subscription": {
+        "title": "Plans, payment and cancellation",
+        "i1": "Access is provided through a monthly subscription, according to the plan and prices published on lodgra.io at the time of purchase.",
+        "i2": "Subscription payments are processed by Stripe. Lodgra does not store card data.",
+        "i3": "The subscription renews automatically at the end of each period until cancelled.",
+        "i4": "7-day guarantee: if you cancel within 7 days of your first purchase, we refund 100% of the amount paid.",
+        "i5": "After that, the Customer may cancel at any time; access continues until the end of the paid period, with no pro-rata refund unless required by law.",
+        "i6": "Price changes are announced at least 30 days in advance and apply only from the next billing period."
+      },
+      "directPayments": {
+        "title": "Direct bookings and guest payments",
+        "p1": "Direct booking payments are processed by Stripe Connect and go straight to the Customer's own Stripe account. The Customer is the seller to the guest and is responsible for prices, taxes, invoices, cancellation policy, refunds and the stay itself.",
+        "p2": "Lodgra provides the technology and is not a party to the contract between the Customer and the guest. Use of the Stripe account is subject to Stripe's terms.",
+        "p3": "Lodgra charges no commission on direct bookings; processing fees are charged by Stripe."
+      },
+      "integrations": {
+        "title": "Third-party integrations",
+        "p1": "Lodgra connects to third-party services (Airbnb, Booking.com, Google/Gmail, Stripe, WhatsApp, among others) via iCal, APIs or the Customer's own authorisation. These services have their own terms and may change or become unavailable outside Lodgra's control.",
+        "p2": "Lodgra is not affiliated with, sponsored or endorsed by Airbnb, Booking.com or Google. The brands mentioned belong to their respective owners.",
+        "p3": "iCal sync has delays inherent to the format. The Customer should confirm critical reservations and blocks on the source platforms."
+      },
+      "ai": {
+        "title": "AI-powered features",
+        "p1": "Some features use AI models to extract reservation data from emails. Results go through automated checks and, when in doubt, are held for the Customer's review. The Customer should verify the data before using it for financial or tax decisions."
+      },
+      "acceptableUse": {
+        "title": "Acceptable use",
+        "p1": "The Customer agrees not to use Lodgra to:",
+        "i1": "Carry out illegal or fraudulent activities",
+        "i2": "Infringe third-party rights or the rules of booking platforms",
+        "i3": "Attempt to access other organisations' data or test security without authorisation",
+        "i4": "Transmit malicious code or overload the infrastructure",
+        "i5": "Send unsolicited communications (spam) to guests or third parties",
+        "i6": "Resell or sublicense the platform without a written agreement"
+      },
+      "data": {
+        "title": "Your data",
+        "p1": "Data entered into Lodgra belongs to the Customer. Lodgra processes it only to provide the service, as described in the Privacy Policy.",
+        "p2": "For guest, owner and team data entered by the Customer, the Customer is the controller and Lodgra acts as processor under the GDPR and Brazil's LGPD.",
+        "p3": "The Customer may export their data or request its deletion at any time."
+      },
+      "availability": {
+        "title": "Availability",
+        "p1": "We work to keep Lodgra available and secure, with monitoring and backups. Interruptions may occur for maintenance or supplier outages; planned maintenance is announced whenever possible. We do not guarantee uninterrupted availability."
+      },
+      "liability": {
+        "title": "Limitation of liability",
+        "p1": "Lodgra is provided \"as is\". To the extent permitted by law, we are not liable for lost profits, lost bookings or indirect damages, including those caused by third-party platform failures.",
+        "p2": "Lodgra's total liability is limited to the amount paid by the Customer in the 3 months before the event giving rise to it. These limits do not apply to wilful misconduct, gross negligence or rights that cannot be excluded by law."
+      },
+      "termination": {
+        "title": "Closing an account",
+        "p1": "The Customer may close the account at any time. Lodgra may suspend or close accounts that breach these Terms or have overdue payments, with prior notice whenever possible.",
+        "p2": "After closure, data remains available for export for 30 days and is then deleted, unless the law requires it to be kept."
+      },
+      "changes": {
+        "title": "Changes to these Terms",
+        "p1": "We may update these Terms. Material changes are announced by email at least 15 days in advance. Continuing to use Lodgra after that date means accepting the new version."
+      },
+      "law": {
+        "title": "Governing law",
+        "p1": "These Terms are governed by Portuguese law, and disputes are settled by the competent Portuguese courts.",
+        "p2": "If the Customer is a consumer, they keep the rights guaranteed by the law of their country of residence, including, in Brazil, the Consumer Protection Code."
+      },
+      "contact": {
+        "title": "Contact",
+        "p1": "Questions about these Terms? Get in touch:"
+      }
     }
   },
   "consent": {

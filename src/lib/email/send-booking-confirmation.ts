@@ -111,7 +111,7 @@ export async function sendBookingConfirmation(
     const copy = getBookingEmailCopy(locale)
 
     // Respostas e contacto do hóspede vão para o tenant, não para a Lodgra.
-    const tenantReplyTo = template.reply_to_email || (await getTenantContactEmail(organization.id)) || 'support@lodgra.io'
+    const tenantReplyTo = template.reply_to_email || (await getTenantContactEmail(organization.id)) || 'suporte@lodgra.io'
 
     // Prepare template variables
     const emailVariables = {

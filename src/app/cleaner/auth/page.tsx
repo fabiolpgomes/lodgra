@@ -127,7 +127,7 @@ export default function CleanerAuthPage() {
               Solicitar Novo Link
             </Link>
             <a
-              href="mailto:support@lodgra.io?subject=Erro%20ao%20acessar%20Portal%20de%20Limpeza"
+              href="mailto:suporte@lodgra.io?subject=Erro%20ao%20acessar%20Portal%20de%20Limpeza"
               className="block w-full px-6 py-3 bg-gray-100 text-gray-800 rounded-xl font-bold hover:bg-gray-200 transition-colors"
             >
               Contactar Suporte

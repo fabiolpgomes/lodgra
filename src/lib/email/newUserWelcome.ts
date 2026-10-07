@@ -72,7 +72,7 @@ export async function sendNewUserWelcomeEmail(params: NewUserWelcomeParams): Pro
             <strong>Precisa de ajuda?</strong>
           </p>
           <p style="margin: 0; color: #6b7280; font-size: 12px;">
-            Entre em contato com nossa equipa de suporte: <a href="mailto:suporte@lodgra.com" style="color: #2563eb; text-decoration: none;">suporte@lodgra.com</a>
+            Entre em contato com nossa equipa de suporte: <a href="mailto:suporte@lodgra.io" style="color: #2563eb; text-decoration: none;">suporte@lodgra.io</a>
           </p>
         </div>
       </div>
@@ -101,7 +101,7 @@ Se você não solicitou a criação desta conta, ignore este email.
 ---
 
 Precisa de ajuda?
-Entre em contato com nossa equipa de suporte: suporte@lodgra.com
+Entre em contato com nossa equipa de suporte: suporte@lodgra.io
 
 © 2026 Lodgra. Todos os direitos reservados.
   `.trim()
