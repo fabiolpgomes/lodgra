@@ -17,5 +17,7 @@ export function reservationMessageKind(subject: string): ReservationMessageKind 
   // Airbnb "request to book" accepted by the host: "A solicitação de <hóspede> foi confirmada".
   if (/solicitacao de .+ (foi )?(confirmada|aceita)|reservation request .*(confirmed|accepted)|request from .+ (has been |was )?(confirmed|accepted)|pedido de reserva .*(confirmado|aceite)/.test(text)) return 'confirmation'
   if (/pagamento|payout|payment|we sent you|enviamos|fatura|invoice|extrato|statement|avalia|review|newsletter|dicas|tips/.test(text)) return 'irrelevant'
+  // Platform marketing sent from the same domains (flights, car rental, offers, "finish your booking" nudges).
+  if (/flight|voo|aluguel de carro|car rental|destination|destino|oferta|offer|deal|desconto|discount|genius|finish your|complete your|termine a sua|conclua a sua/.test(text)) return 'irrelevant'
   return 'other'
 }
