@@ -7,6 +7,7 @@ import { isBookingPartialConfirmation } from '@/lib/email-reconciliation/booking
 import { isPlatformInPilot } from '@/lib/email-reconciliation/feature-flag'
 import { platformFromSender } from '@/lib/email-reconciliation/inbound'
 import { DISCARDED_CONTENT, reservationMessageKind } from '@/lib/email-reconciliation/message-kind'
+import { resolveStayYear } from '@/lib/email-reconciliation/stay-dates'
 import { retryUnmatchedExtractions } from '@/lib/email-reconciliation/retry-matches'
 import { syncExtractedDataToReservation } from '@/lib/email-reconciliation/sync-to-reservations'
 
@@ -19,6 +20,7 @@ type ClaimedEmail = {
   sender: string
   subject: string
   raw_content: string
+  received_at: string
   attempt_count: number
 }
 
@@ -100,7 +102,10 @@ export async function POST(request: NextRequest) {
         continue
       }
 
-      const complete = hasRequiredReservationFields(extraction.data) || isBookingPartialConfirmation(extraction.data)
+      // The model guesses the year when the e-mail omits it; resolve it from the receipt date.
+      const stay = resolveStayYear(extraction.data.check_in, extraction.data.check_out, rawEmail.received_at)
+      const extracted = { ...extraction.data, check_in: stay.check_in, check_out: stay.check_out }
+      const complete = hasRequiredReservationFields(extracted) || isBookingPartialConfirmation(extracted)
       const { data: inserted, error: insertError } = await supabase
         .from('email_extractions')
         .upsert({
@@ -109,8 +114,8 @@ export async function POST(request: NextRequest) {
           source_platform: platform,
           guest_name: extraction.data.guest_name,
           guest_count: extraction.data.guest_count,
-          check_in: extraction.data.check_in,
-          check_out: extraction.data.check_out,
+          check_in: extracted.check_in,
+          check_out: extracted.check_out,
           total_value: extraction.data.total_value,
           currency: extraction.data.currency,
           reservation_code: extraction.data.reservation_code,

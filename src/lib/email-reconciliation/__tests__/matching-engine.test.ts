@@ -48,6 +48,36 @@ describe('Phase 4: Reconciliation Matching Engine (AC5)', () => {
     })
   })
 
+  describe('Airbnb identity outside the iCal summary (HMQT2DETSM)', () => {
+    const airbnbEmail = {
+      ...mockEmail, reservation_code: 'HMQT2DETSM', check_in: '2026-10-11', check_out: '2026-10-19',
+      property_identifier_raw: '1644413465283993378',
+    }
+    const airbnbEvent: CalendarEvent & { id: string } = {
+      ...mockCalendarEvent, id: 'event-airbnb', check_in: '2026-10-11', check_out: '2026-10-19',
+      raw_summary: 'Reserved', property_identifier_raw: 'AHS - T1 em Armação de Pêra | Piscina + Garagem',
+      provider_reference_text: 'BEGIN:VEVENT\nDESCRIPTION:Reservation URL: https://www.airbnb.com/hosting/reservations/details/HMQT2DETSM\nPhone Number (Last 4 Digits): 1234\nEND:VEVENT',
+      listing_identifiers: 'https://www.airbnb.com/rooms/1644413465283993378 https://www.airbnb.com/calendar/ical/1644413465283993378.ics?s=x',
+    }
+
+    it('reads the confirmation code from the VEVENT description and the listing ID from the listing URLs', () => {
+      const [candidate] = matchEmailToCalendarEvents(airbnbEmail, [airbnbEvent])
+      expect(candidate.details.reservation_code_match).toBe(true)
+      expect(candidate.details.property_similarity).toBe(1)
+      expect(decideMatch([candidate]).status).toBe('auto_matched')
+    })
+
+    it('does not accept a code that is only part of another token', () => {
+      const [candidate] = matchEmailToCalendarEvents({ ...airbnbEmail, reservation_code: 'QT2DET' }, [airbnbEvent])
+      expect(candidate.details.reservation_code_match).toBeUndefined()
+    })
+
+    it('does not treat a listing ID of another listing as the same property', () => {
+      const [candidate] = matchEmailToCalendarEvents({ ...airbnbEmail, property_identifier_raw: '9999999999' }, [airbnbEvent])
+      expect(candidate.details.property_similarity).toBeUndefined()
+    })
+  })
+
   describe('Date Tolerance ±1 Day', () => {
     it('should score 35 for dates within ±1 day (without reservation code)', () => {
       const emailNoCode = { ...mockEmail, reservation_code: null }

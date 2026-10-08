@@ -20,6 +20,13 @@ type ReconciliationExtractionRow = EmailExtraction & {
   matched_event_id: string | null
 }
 
+type ListingRelation = { listing_url: string | null; ical_url: string | null } | Array<{ listing_url: string | null; ical_url: string | null }> | null
+
+function listingIdentifiers(relation: ListingRelation): string | null {
+  const listing = Array.isArray(relation) ? relation[0] : relation
+  return [listing?.listing_url, listing?.ical_url].filter(Boolean).join(' ') || null
+}
+
 function propertyName(relation: PropertyRelation): string | null {
   const property = Array.isArray(relation) ? relation[0] : relation
   return property?.name || null
@@ -92,7 +99,7 @@ export async function syncExtractedDataToReservation(extractionId: string): Prom
 
   const { data: rows, error: eventsError } = await supabase
     .from('calendar_events')
-    .select('id, property_id, organization_id, source_platform, check_in, check_out, raw_summary, status, created_at, properties:properties!calendar_events_property_org_fk(name)')
+    .select('id, property_id, organization_id, source_platform, check_in, check_out, raw_summary, raw_vevent, status, created_at, properties:properties!calendar_events_property_org_fk(name), listing:property_listings!calendar_events_listing_org_fk(listing_url, ical_url)')
     .eq('organization_id', extraction.organization_id)
     .eq('status', 'unmatched')
     .eq('source_platform', extraction.source_platform)
@@ -118,6 +125,8 @@ export async function syncExtractedDataToReservation(extractionId: string): Prom
     property_identifier_raw: propertyName(row.properties as PropertyRelation),
     status: row.status,
     created_at: row.created_at,
+    provider_reference_text: row.raw_vevent ?? null,
+    listing_identifiers: listingIdentifiers(row.listing as ListingRelation),
   }))
 
   const decision = decideMatch(matchEmailToCalendarEvents(extraction, events))

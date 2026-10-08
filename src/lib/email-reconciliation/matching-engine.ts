@@ -12,6 +12,10 @@ export interface CalendarEvent {
   property_identifier_raw: string | null
   status: 'unmatched' | 'matched' | 'ignored'
   created_at: Date | string
+  /** Full VEVENT text: Airbnb puts the confirmation code in DESCRIPTION ("Reservation URL: …/HMXXXX"). */
+  provider_reference_text?: string | null
+  /** Listing URL + iCal URL: contain the platform listing ID that some e-mails print instead of a title. */
+  listing_identifiers?: string | null
 }
 
 export interface MatchCandidate {
@@ -51,12 +55,28 @@ export function isOpaqueProviderSummary(summary: string | null): boolean {
   return /^(closed(?:\s*-\s*not available)?|not available|reserved)$/i.test(summary?.trim() || '')
 }
 
+function containsToken(text: string | null | undefined, token: string): boolean {
+  const needle = token.trim()
+  if (!text || needle.length < 5) return false
+  const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  return new RegExp(`(^|[^A-Za-z0-9])${escaped}([^A-Za-z0-9]|$)`, 'i').test(text)
+}
+
+/** Airbnb e-mails may identify the property only by its numeric listing ID. */
+function isListingIdMatch(identifier: string | null, listingIdentifiers: string | null | undefined): boolean {
+  const id = identifier?.trim() || ''
+  return /^\d{6,}$/.test(id) && containsToken(listingIdentifiers, id)
+}
+
 function scorePair(email: ExtractionWithIdentity, event: CalendarEvent): MatchCandidate['details'] & { score: number } {
   let score = 0
   const details: MatchCandidate['details'] = {}
   const summary = event.raw_summary || ''
 
-  if (email.reservation_code && summary.toLowerCase().split(/[^a-z0-9-]+/).includes(email.reservation_code.toLowerCase())) {
+  if (email.reservation_code && (
+    summary.toLowerCase().split(/[^a-z0-9-]+/).includes(email.reservation_code.toLowerCase()) ||
+    containsToken(event.provider_reference_text, email.reservation_code)
+  )) {
     score += 50
     details.reservation_code_match = true
   }
@@ -83,10 +103,9 @@ function scorePair(email: ExtractionWithIdentity, event: CalendarEvent): MatchCa
     details.source_platform_match = true
   }
 
-  const propertySimilarity = calculateFuzzySimilarity(
-    email.property_identifier_raw || '',
-    event.property_identifier_raw || ''
-  )
+  const propertySimilarity = isListingIdMatch(email.property_identifier_raw, event.listing_identifiers)
+    ? 1
+    : calculateFuzzySimilarity(email.property_identifier_raw || '', event.property_identifier_raw || '')
   if (propertySimilarity >= 0.6) {
     score += 10
     details.property_similarity = propertySimilarity

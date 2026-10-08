@@ -144,6 +144,8 @@ export async function importICalFromUrl(url: string): Promise<ICalEvent[]> {
         'User-Agent': 'Lodgra-Calendar-Sync/1.0',
         'Accept': 'text/calendar, text/plain, */*',
       },
+      // A hanging platform must not stall the whole sync cycle.
+      signal: AbortSignal.timeout(20_000),
     })
     if (!response.ok) {
       throw new Error(`Failed to fetch iCal: ${response.status} ${response.statusText}`)
