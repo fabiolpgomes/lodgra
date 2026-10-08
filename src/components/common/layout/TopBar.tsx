@@ -2,17 +2,22 @@
 
 import { usePathname } from 'next/navigation'
 import dynamic from 'next/dynamic'
-import { Bell, Search } from 'lucide-react'
+import { Search } from 'lucide-react'
 import { LocaleSelector } from '@/components/common/header/LocaleSelector'
 import { ThemeToggle } from '@/components/common/header/ThemeToggle'
 import { useGlobalSearch } from '@/hooks/useGlobalSearch'
 import { getModuleSummary, getPageTitle } from '@/lib/navigation/module-shell'
+import { SyncBell } from '@/components/common/layout/SyncBell'
+
+const LOCALE_SEGMENT = /^[a-z]{2}(-[A-Z]{2})?$/
 
 const SearchModal = dynamic(() => import('@/components/common/search/SearchModal').then(mod => mod.SearchModal), { ssr: false })
 
 export function TopBar() {
   const pathname = usePathname()
   const title = getPageTitle(pathname)
+  const firstSegment = (pathname ?? '').split('/')[1] ?? ''
+  const locale = LOCALE_SEGMENT.test(firstSegment) ? firstSegment : 'pt-BR'
   const moduleSummary = getModuleSummary(pathname)
   const { query, results, isLoading, isOpen, handleInputChange, handleOpen, handleClose } = useGlobalSearch()
 
@@ -51,13 +56,8 @@ export function TopBar() {
           {/* Locale Selector */}
           <LocaleSelector />
 
-          {/* Notifications */}
-          <button
-            className="p-2 text-brand-text-medium hover:text-brand-blue hover:bg-brand-blue/5 transition-all rounded"
-            aria-label="Notificações"
-          >
-            <Bell className="h-4 w-4" />
-          </button>
+          {/* Notifications: pending sync actions */}
+          <SyncBell locale={locale} />
         </div>
       </header>
 

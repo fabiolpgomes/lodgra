@@ -1,4 +1,5 @@
 import { Metadata } from 'next'
+import { Suspense } from 'react'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { MapPin, Users, Bed, Bath, Home, Edit, ArrowLeft } from 'lucide-react'
@@ -14,6 +15,7 @@ import { ICalExportCard } from '@/components/features/properties/ICalExportCard'
 import { PropertyDocuments } from '@/components/features/properties/PropertyDocuments'
 import { ReviewsManager } from '@/components/features/properties/ReviewsManager'
 import { AmenityIcon } from '@/components/features/properties/AmenityIcon'
+import { PropertySyncBadge } from '@/components/features/properties/PropertySyncBadge'
 import { AuthLayout } from '@/components/common/layout/AuthLayout'
 import { getUserRole } from '@/lib/auth/getUserRole'
 import { Button } from '@/components/common/ui/button'
@@ -239,12 +241,17 @@ export default async function PropertyDetailsPage({
         {/* Header com ações */}
         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between mb-6">
           <div className="min-w-0">
-            <div className="flex items-center gap-3 mb-2">
+            <div className="flex flex-wrap items-center gap-3 mb-2">
               <h2 className="text-3xl font-bold text-gray-900 leading-tight break-words">{property.name}</h2>
               {property.is_active ? (
                 <Badge className="bg-emerald-100 text-emerald-800 hover:bg-emerald-100">Ativo</Badge>
               ) : (
                 <Badge variant="outline">Inativo</Badge>
+              )}
+              {canEdit && property.organization_id && (
+                <Suspense fallback={null}>
+                  <PropertySyncBadge organizationId={property.organization_id} propertyId={id} locale={locale} />
+                </Suspense>
               )}
             </div>
             <div className="flex items-center gap-2 text-gray-600">

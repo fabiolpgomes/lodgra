@@ -24,6 +24,8 @@ export interface SyncAction {
   cta: string
   /** Opens the inline completion drawer instead of navigating. */
   completable: boolean
+  /** Worth an e-mail to the tenant admins (once, then a daily reminder). The bell shows every action. */
+  alert?: boolean
 }
 
 export interface SyncHealthInput {
@@ -52,6 +54,8 @@ export const GMAIL_STALE_HOURS = 2
 export const QUEUE_STALL_MINUTES = 45
 export const UNLINKED_EVENT_HOURS = 24
 export const PLACEHOLDER_GUEST = 'Hóspede'
+/** Timeouts and 5xx heal on the next read; only a calendar failing ~45 min in a row is e-mailed. */
+export const CALENDAR_ALERT_FAILURES = 3
 
 const PLATFORM_LABEL: Record<string, string> = { airbnb: 'Airbnb', booking: 'Booking', vrbo: 'Vrbo', flatio: 'Flatio' }
 const platformLabel = (value: string | null) => value ? PLATFORM_LABEL[value.toLowerCase()] ?? value : null
@@ -99,19 +103,19 @@ export function buildSyncHealth(input: SyncHealthInput): SyncHealth {
   const base = { platform: null, property: null, reservationId: null, external: false, completable: false }
 
   if (input.reconciliationEnabled && !input.gmail) {
-    actions.push({ ...base, key: 'gmail:disconnected', kind: 'gmail_disconnected', severity: 'stopped',
+    actions.push({ ...base, key: 'gmail:disconnected', kind: 'gmail_disconnected', severity: 'stopped', alert: true,
       title: 'Gmail não está ligado',
       detail: 'Sem o Gmail, as reservas chegam sem nome, valor e nº de hóspedes.',
       since: null, href: `/${locale}/settings#email`, cta: 'Ligar Gmail' })
   } else if (input.gmail && (!input.gmail.last_sync_at || now.getTime() - Date.parse(input.gmail.last_sync_at) > GMAIL_STALE_HOURS * HOUR)) {
-    actions.push({ ...base, key: `gmail:stale:${input.gmail.email}`, kind: 'gmail_stale', severity: 'stopped',
+    actions.push({ ...base, key: `gmail:stale:${input.gmail.email}`, kind: 'gmail_stale', severity: 'stopped', alert: true,
       title: `Gmail sem leitura desde ${input.gmail.last_sync_at ? new Date(input.gmail.last_sync_at).toLocaleString('pt-PT') : 'a ligação'}`,
       detail: `${input.gmail.email} · normalmente basta voltar a ligar a conta.`,
       since: input.gmail.last_sync_at, href: `/${locale}/settings#email`, cta: 'Voltar a ligar' })
   }
 
   if (input.oldestQueuedAt && now.getTime() - Date.parse(input.oldestQueuedAt) > QUEUE_STALL_MINUTES * 60_000) {
-    actions.push({ ...base, key: 'queue:stalled', kind: 'queue_stalled', severity: 'stopped',
+    actions.push({ ...base, key: 'queue:stalled', kind: 'queue_stalled', severity: 'stopped', alert: true,
       title: 'Os e-mails de reservas não estão a ser processados',
       detail: 'Há mensagens à espera há mais de 45 minutos. Tente "Sincronizar agora"; se persistir, contacte o suporte.',
       since: input.oldestQueuedAt, href: null, cta: 'Sincronizar agora' })
@@ -121,6 +125,7 @@ export function buildSyncHealth(input: SyncHealthInput): SyncHealth {
     const platform = platformLabel(listing.platform)
     // One calendar failing does not stop the others: urgent, but not "sync stopped".
     actions.push({ ...base, key: `calendar:${listing.id}`, kind: 'calendar_failing', severity: 'attention',
+      alert: listing.sync_error_count >= CALENDAR_ALERT_FAILURES,
       platform, property: { id: listing.property_id, name: listing.property_name },
       title: join(`Calendário ${platform ?? 'iCal'} a falhar`, propertyLabel(listing.property_name)),
       detail: `Falhou ${listing.sync_error_count === 1 ? 'na última leitura' : `nas últimas ${listing.sync_error_count} leituras`}: ${describeCalendarError(listing.last_sync_error)}`,
@@ -129,7 +134,7 @@ export function buildSyncHealth(input: SyncHealthInput): SyncHealth {
 
   for (const reservation of input.placeholderReservations) {
     const platform = platformLabel(reservation.source)
-    actions.push({ ...base, key: `guest:${reservation.id}`, kind: 'complete_guest', severity: 'attention',
+    actions.push({ ...base, key: `guest:${reservation.id}`, kind: 'complete_guest', severity: 'attention', alert: true,
       platform, property: { id: reservation.property_id, name: reservation.property_name }, reservationId: reservation.id,
       title: join(platform && reservation.booking_reference ? `${platform} ${reservation.booking_reference}` : platform, propertyLabel(reservation.property_name), formatStay(reservation.check_in, reservation.check_out)),
       detail: 'Falta o nome do hóspede (a plataforma não o enviou). Copie-o da reserva na plataforma.',
@@ -190,6 +195,16 @@ export function buildSyncHealth(input: SyncHealthInput): SyncHealth {
     actions: visible,
     trust: { windowDays: 30, total, complete, percent: total ? Math.round((complete / total) * 100) : null },
   }
+}
+
+export type PropertySyncTone = 'ok' | 'attention' | 'failing'
+
+/** Badge on the property page: red when one of its calendars fails, amber with pending to-dos, green otherwise. */
+export function propertySyncStatus(health: SyncHealth, propertyId: string): { tone: PropertySyncTone; label: string; count: number } {
+  const own = health.actions.filter(action => action.property?.id === propertyId)
+  if (own.some(action => action.kind === 'calendar_failing')) return { tone: 'failing', label: 'Calendário a falhar', count: own.length }
+  if (own.length) return { tone: 'attention', label: own.length === 1 ? '1 ação pendente' : `${own.length} ações pendentes`, count: own.length }
+  return { tone: 'ok', label: 'Sincronização em dia', count: 0 }
 }
 
 const ACTION_REQUESTED = /atencao (e )?necessaria|acao necessaria|action required|requires your attention/
