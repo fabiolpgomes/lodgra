@@ -16,7 +16,7 @@ describe('Trusted reservation confirmations', () => {
   it.each(['A solicitação de Pierre-Luc Morasse foi confirmada', 'Reserva confirmada - Ana chega em 3 de out.', 'Reservation request from Ana accepted'])('accepts Airbnb confirmation %s', subject => {
     expect(reservationMessageKind(subject)).toBe('confirmation')
   })
-  it.each(['Enviamos um pagamento de € 1.622,74 EUR', 'Booking.com: seu código de verificação é 3WGTGT', 'We sent you a payout', 'Escreva uma avaliação para Ana', 'Destination Belo Horizonte? ‍✈️ Finish your flight booking', 'Ofertas Genius para a sua próxima viagem'])('discards %s as irrelevant', subject => {
+  it.each(['Enviamos um pagamento de € 1.622,74 EUR', 'Booking.com: seu código de verificação é 3WGTGT', 'We sent you a payout', 'Escreva uma avaliação para Ana', 'Destination Belo Horizonte? ‍✈️ Finish your flight booking', 'Ofertas Genius para a sua próxima viagem', 'Lembrete: você tem até 13 de outubro para ajustar os preços', 'Melhore a sua taxa de cliques'])('discards %s as irrelevant', subject => {
     expect(reservationMessageKind(subject)).toBe('irrelevant')
   })
   it.each([

@@ -133,7 +133,9 @@ export function SyncActionsPanel({ locale }: { locale: string }) {
       </div>
 
       {syncMessage && (
-        <p role="status" className={`mt-3 text-sm font-semibold ${syncMessage.ok ? 'text-emerald-800' : 'text-red-800'}`}>{syncMessage.text}</p>
+        <p role="status" className={`mt-3 text-sm ${syncMessage.ok ? 'text-emerald-800' : 'text-brand-text-medium'}`}>
+          Última sincronização: {syncMessage.text}
+        </p>
       )}
 
       {health && health.actions.length > 0 && (

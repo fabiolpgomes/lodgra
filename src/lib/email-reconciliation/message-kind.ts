@@ -20,6 +20,8 @@ export function reservationMessageKind(subject: string): ReservationMessageKind 
   if (/solicitacao de .+ (foi )?(confirmada|aceita)|reservation request .*(confirmed|accepted)|request from .+ (has been |was )?(confirmed|accepted)|pedido de reserva .*(confirmado|aceite)/.test(text)) return 'confirmation'
   if (/pagamento|payout|payment|we sent you|enviamos|fatura|invoice|extrato|statement|avalia|review|newsletter|dicas|tips/.test(text)) return 'irrelevant'
   // Platform marketing sent from the same domains (flights, car rental, offers, "finish your booking" nudges).
+  // Host tips, pricing nudges and performance digests.
+  if (/lembrete|reminder|ajustar os precos|adjust (your )?prices|taxa de cliques|click.?through|desempenho|performance|visibilidade|visibility|melhore|improve your/.test(text)) return 'irrelevant'
   if (/flight|voo|aluguel de carro|car rental|destination|destino|oferta|offer|deal|desconto|discount|genius|finish your|complete your|termine a sua|conclua a sua/.test(text)) return 'irrelevant'
   // Service, community and host-tool notices: no reservation data.
   if (/atendimento ao cliente|customer service|customer support|pesquisa|survey|mencionou|mentioned you|nova mensagem|new message|nova pergunta|new question|novas ferramentas|new tools|financial report|relatorio|informacoes uteis|useful information|mensagem programada|scheduled message|acesso exclusivo|exclusive access/.test(text)) return 'irrelevant'

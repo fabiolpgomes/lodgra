@@ -79,6 +79,7 @@ function gmailLink(providerMessageId: string, mailbox: string): string | null {
 /** Turns the stored technical error into the cause and the fix the host can act on. */
 export function describeCalendarError(error: string | null): string {
   const text = (error || '').toLowerCase()
+  if (/\b400\b/.test(text)) return 'a plataforma já não aceita este link (pode ter sido renovado). Copie o link de exportação atual e cole-o no anúncio.'
   if (/\b(404|410)\b/.test(text)) return 'o link deixou de existir na plataforma. Copie o link de exportação novo e cole-o no anúncio.'
   if (/\b(401|403)\b/.test(text)) return 'a plataforma recusou o acesso ao link. Copie o link de exportação novo e cole-o no anúncio.'
   if (text.includes('not valid ical')) return 'o link não devolve um calendário. Confirme que copiou o link de exportação (.ics) e não a página do anúncio.'
@@ -118,7 +119,8 @@ export function buildSyncHealth(input: SyncHealthInput): SyncHealth {
 
   for (const listing of input.failingListings) {
     const platform = platformLabel(listing.platform)
-    actions.push({ ...base, key: `calendar:${listing.id}`, kind: 'calendar_failing', severity: 'stopped',
+    // One calendar failing does not stop the others: urgent, but not "sync stopped".
+    actions.push({ ...base, key: `calendar:${listing.id}`, kind: 'calendar_failing', severity: 'attention',
       platform, property: { id: listing.property_id, name: listing.property_name },
       title: join(`Calendário ${platform ?? 'iCal'} a falhar`, propertyLabel(listing.property_name)),
       detail: `Falhou ${listing.sync_error_count === 1 ? 'na última leitura' : `nas últimas ${listing.sync_error_count} leituras`}: ${describeCalendarError(listing.last_sync_error)}`,
@@ -157,7 +159,7 @@ export function buildSyncHealth(input: SyncHealthInput): SyncHealth {
       since: null, href: `/${locale}/reservations/${reservation.id}`, cta: 'Abrir reserva' })
   }
 
-  for (const message of input.reviewMessages) {
+  for (const message of input.reviewMessages.filter(needsHost)) {
     const link = gmailLink(message.provider_message_id, message.recipient)
     const change = message.last_error === 'RESERVATION_CHANGE_REQUIRES_REVIEW'
     actions.push({ ...base, key: `message:${message.id}`, kind: 'message_review', severity: 'attention',
@@ -188,6 +190,15 @@ export function buildSyncHealth(input: SyncHealthInput): SyncHealth {
     actions: visible,
     trust: { windowDays: 30, total, complete, percent: total ? Math.round((complete / total) * 100) : null },
   }
+}
+
+const ACTION_REQUESTED = /atencao (e )?necessaria|acao necessaria|action required|requires your attention/
+
+/** Messages the classifier could not place are only shown when they explicitly ask the host to act. */
+function needsHost(message: { subject: string | null; last_error: string | null }): boolean {
+  if (message.last_error !== 'MESSAGE_TYPE_REQUIRES_REVIEW') return true
+  const subject = (message.subject || '').normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+  return ACTION_REQUESTED.test(subject)
 }
 
 function platformFromSender(sender: string): string | null {

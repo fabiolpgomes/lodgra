@@ -25,6 +25,12 @@ describe('buildSyncHealth', () => {
     })
   })
 
+  it('treats one failing calendar as attention, not as a stopped sync', () => {
+    const health = buildSyncHealth(input({ failingListings: [{ id: 'l1', property_id: 'p1', property_name: 'AHS Premium Apart', platform: 'booking', last_sync_error: 'Failed to fetch iCal: 404', sync_error_count: 1 }] }))
+    expect(health.status).toBe('attention')
+    expect(health.actions[0].severity).toBe('attention')
+  })
+
   it('reports a stopped sync before anything else when Gmail, the queue or a calendar fail', () => {
     const health = buildSyncHealth(input({
       gmail: { email: 'host@gmail.com', last_sync_at: '2026-09-12T08:15:00Z' },
@@ -56,6 +62,16 @@ describe('buildSyncHealth', () => {
       title: 'Airbnb · “Cancelado: reserva HMF2AA4AQ9 de 8 – 16 de ago.”', external: true, cta: 'Abrir no Gmail',
       href: 'https://mail.google.com/mail/?authuser=host%40gmail.com#all/18f3a2b4c5d6e7f8',
     })
+  })
+
+  it('only shows unclassified messages that explicitly ask the host to act', () => {
+    const msg = (id: string, subject: string) => ({ id, subject, sender: 'noreply@booking.com', received_at: '2026-10-01T00:00:00Z', provider_message_id: `host@gmail.com:${id}`, recipient: 'host@gmail.com', last_error: 'MESSAGE_TYPE_REQUIRES_REVIEW' })
+    const health = buildSyncHealth(input({ reviewMessages: [
+      msg('a1', 'Booking.com - Sua atenção é necessária: ilayda atamer (6533496743)'),
+      msg('b2', 'Lembrete: você tem até 13 de outubro para ajustar os preços'),
+      msg('c3', 'Melhore a sua taxa de cliques'),
+    ] }))
+    expect(health.actions.map(action => action.key)).toEqual(['message:a1'])
   })
 
   it('hides dismissed problems', () => {
@@ -104,6 +120,7 @@ describe('formatStay', () => {
 
 describe('describeCalendarError', () => {
   it.each([
+    ['Failed to fetch iCal: 400 Bad Request', /já não aceita este link/],
     ['Failed to fetch iCal: 403 Forbidden', /recusou o acesso/],
     ['Response is not valid iCal (got <html>...)', /não devolve um calendário/],
     ['The operation was aborted due to timeout', /não respondeu/],
