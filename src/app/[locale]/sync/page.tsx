@@ -36,15 +36,6 @@ interface SyncLog {
   feedback: SyncFeedback
 }
 
-interface ManualSyncTotals {
-  created: number
-  updated: number
-  blocked: number
-  unknown: number
-  skipped: number
-  cancelled: number
-}
-
 interface ApiResponse {
   error: boolean
   message?: string
@@ -110,7 +101,6 @@ export default function SyncStatusPage() {
     message: string
     timestamp: string
   } | null>(null)
-  const [manualSyncTotals, setManualSyncTotals] = useState<ManualSyncTotals | null>(null)
   const [auditEvents, setAuditEvents] = useState<CalendarEventAuditRow[]>([])
   const [auditSummary, setAuditSummary] = useState<CalendarEventAuditResponse['summary'] | null>(null)
   const [auditLoading, setAuditLoading] = useState(true)
@@ -152,51 +142,20 @@ export default function SyncStatusPage() {
   async function runManualSync() {
     setManualSyncing(true)
     setManualSyncResult(null)
-    setManualSyncTotals(null)
 
     try {
-      const response = await fetch('/api/admin/run-cron', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ path: '/api/cron/sync-ical' }),
+      const response = await fetch('/api/sync/full', { method: 'POST' })
+      const data = await response.json().catch(() => ({}))
+      setManualSyncResult({
+        success: response.status === 200 && data?.success === true,
+        message: describeFullSync(response.status, data),
+        timestamp: new Date().toISOString(),
       })
-
-      const data = await response.json()
-
-      if (response.ok) {
-        const totals = data?.totals || {}
-        const created = typeof totals.created === 'number' ? totals.created : 0
-        const updated = typeof totals.updated === 'number' ? totals.updated : 0
-        const blocked = typeof totals.blocked === 'number' ? totals.blocked : 0
-        const unknown = typeof totals.unknown === 'number' ? totals.unknown : 0
-        const skipped = typeof totals.skipped === 'number' ? totals.skipped : 0
-        const cancelled = typeof totals.cancelled === 'number' ? totals.cancelled : 0
-
-        setManualSyncTotals({
-          created,
-          updated,
-          blocked,
-          unknown,
-          skipped,
-          cancelled,
-        })
-
-        setManualSyncResult({
-          success: true,
-          message: `Sincronização iCal concluída: ${created} nova(s), ${updated} atualizada(s), ${blocked} bloqueio(s), ${unknown} desconhecida(s), ${skipped} ignorada(s)${cancelled > 0 ? `, ${cancelled} cancelada(s)` : ''}.`,
-          timestamp: new Date().toISOString(),
-        })
-      } else {
-        setManualSyncResult({
-          success: false,
-          message: data?.error || 'Não foi possível executar a sincronização iCal dos calendários.',
-          timestamp: new Date().toISOString(),
-        })
-      }
-    } catch (error) {
+      if (response.ok) { fetchSyncData(); fetchAuditEvents(auditSearch) }
+    } catch {
       setManualSyncResult({
         success: false,
-        message: error instanceof Error ? error.message : 'Erro ao conectar com o servidor iCal.',
+        message: 'Não foi possível contactar o servidor. Tente novamente dentro de instantes.',
         timestamp: new Date().toISOString(),
       })
     } finally {
@@ -375,16 +334,13 @@ export default function SyncStatusPage() {
               </div>
               <div className="min-w-0">
                 <p className="text-xs font-bold uppercase tracking-wider text-brand-text-medium">
-                  Atualização imediata via iCal
+                  Sincronização imediata
                 </p>
                 <h2 className="mt-1 text-xl font-bold text-brand-text-dark">
                   Atualize as reservas das plataformas
                 </h2>
                 <p className="mt-1 text-sm text-brand-text-medium">
-                  Este botão dispara apenas a atualização imediata das reservas anunciadas via iCal. A rotina existente continua responsável pelas atualizações recorrentes das reservas já criadas pelo `run-cron`.
-                </p>
-                <p className="mt-2 text-sm font-semibold text-emerald-700">
-                  Atualize as reservas via iCal imediatamente.
+                  Faz agora o ciclo completo que corre a cada 15 minutos: lê os calendários, lê os e-mails das plataformas e liga cada reserva aos seus detalhes.
                 </p>
               </div>
             </div>
@@ -393,17 +349,17 @@ export default function SyncStatusPage() {
               onClick={runManualSync}
               disabled={manualSyncing}
               className="inline-flex items-center gap-2 self-start md:self-auto"
-              aria-label="Sincronizar reservas via iCal"
+              aria-label="Sincronizar calendários, e-mails e reservas agora"
             >
               {manualSyncing ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Sincronizando iCal...
+                  A sincronizar…
                 </>
               ) : (
                 <>
                   <RefreshCw className="h-4 w-4" />
-                  Sincronizar iCal agora
+                  Sincronizar agora
                 </>
               )}
             </Button>
@@ -439,40 +395,6 @@ export default function SyncStatusPage() {
             </div>
           )}
 
-          {manualSyncTotals && (
-            <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-4">
-              <div className="rounded-xl border border-neutral-200/60 bg-white/70 p-4">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-brand-text-medium">Reservas</p>
-                <p className="mt-2 text-2xl font-bold text-brand-text-dark">
-                  {manualSyncTotals.created + manualSyncTotals.updated}
-                </p>
-                <p className="mt-1 text-xs text-brand-text-medium">
-                  {manualSyncTotals.created} criadas, {manualSyncTotals.updated} atualizadas
-                </p>
-              </div>
-              <div className="rounded-xl border border-neutral-200/60 bg-white/70 p-4">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-brand-text-medium">Bloqueios</p>
-                <p className="mt-2 text-2xl font-bold text-brand-text-dark">{manualSyncTotals.blocked}</p>
-                <p className="mt-1 text-xs text-brand-text-medium">
-                  Bloqueios de calendário importados ou atualizados
-                </p>
-              </div>
-              <div className="rounded-xl border border-neutral-200/60 bg-white/70 p-4">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-brand-text-medium">Desconhecidas</p>
-                <p className="mt-2 text-2xl font-bold text-brand-text-dark">{manualSyncTotals.unknown}</p>
-                <p className="mt-1 text-xs text-brand-text-medium">
-                  Eventos sem evidência suficiente para classificar
-                </p>
-              </div>
-              <div className="rounded-xl border border-neutral-200/60 bg-white/70 p-4">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-brand-text-medium">Ignoradas</p>
-                <p className="mt-2 text-2xl font-bold text-brand-text-dark">{manualSyncTotals.skipped}</p>
-                <p className="mt-1 text-xs text-brand-text-medium">
-                  Eventos fora de intervalo ou duplicados
-                </p>
-              </div>
-            </div>
-          )}
         </PremiumCard>
 
         {/* Next Run Card */}
@@ -977,4 +899,31 @@ function JobCard({ icon: Icon, jobName, description, stats, color }: JobCardProp
 
 function formatCounter(value: number | null) {
   return value === null ? '—' : value
+}
+
+type FullSyncStep = { ok?: boolean; error?: string }
+type FullSyncResponse = {
+  error?: string
+  ical?: FullSyncStep & { created?: number; updated?: number }
+  email?: FullSyncStep & { staged?: number; connected?: boolean }
+  reconciliation?: FullSyncStep & { processed?: number; matched?: number }
+}
+
+/** Plain-language summary of a manual full sync; partial failures name the failing source. */
+function describeFullSync(status: number, data: FullSyncResponse): string {
+  if (status !== 200 && status !== 207) return data.error || 'Não foi possível sincronizar agora.'
+  const parts: string[] = []
+  const ical = data.ical
+  parts.push(ical?.ok
+    ? `Calendários lidos (${(ical.created ?? 0) + (ical.updated ?? 0)} reserva(s) nova(s) ou alterada(s))`
+    : 'Um ou mais calendários falharam')
+  const email = data.email
+  parts.push(email?.connected === false
+    ? 'Gmail não ligado'
+    : email?.ok ? `${email.staged ?? 0} e-mail(s) novo(s)` : 'Não foi possível ler o Gmail')
+  const reconciliation = data.reconciliation
+  parts.push(reconciliation?.ok
+    ? `${reconciliation.matched ?? 0} reserva(s) completada(s) com os dados do e-mail`
+    : 'A ligação entre e-mails e calendários falhou')
+  return `${parts.join(' · ')}.`
 }

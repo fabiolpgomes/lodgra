@@ -562,20 +562,21 @@ async function syncOneListing(
 }
 
 // Only the initial read is retried: restarting a sync could repeat writes.
-async function readSyncListings(supabase: ReturnType<typeof createAdminClient>) {
+async function readSyncListings(supabase: ReturnType<typeof createAdminClient>, organizationId: string | null) {
   const read = async () => {
     const controller = new AbortController()
     const timeout = setTimeout(() => controller.abort(), 10_000)
     try {
-      return await supabase
+      let query = supabase
         .from('property_listings')
         .select(`id, ical_url, sync_enabled, property_id, platforms(name, display_name), properties:properties!property_listings_property_org_fk(name, organization_id, cleaning_fee, cleaning_fee_type, pet_fee, pet_fee_type, is_active)`)
         .eq('is_active', true)
         .eq('sync_enabled', true)
         .not('ical_url', 'is', null)
-        // Own one retry budget instead of multiplying the client's internal retries.
-        .retry(false)
-        .abortSignal(controller.signal)
+      // A tenant's "Sincronizar agora" only refreshes that tenant's calendars.
+      if (organizationId) query = query.eq('organization_id', organizationId)
+      // Own one retry budget instead of multiplying the client's internal retries.
+      return await query.retry(false).abortSignal(controller.signal)
     } finally {
       clearTimeout(timeout)
     }
@@ -607,7 +608,9 @@ export async function GET(request: NextRequest) {
 
     const supabase = await createAdminClient()
 
-    const { data: listings, error, status } = await readSyncListings(supabase)
+    const organizationFilter = request.nextUrl.searchParams.get('organization_id')
+    const organizationId = organizationFilter && /^[0-9a-f-]{36}$/i.test(organizationFilter) ? organizationFilter : null
+    const { data: listings, error, status } = await readSyncListings(supabase, organizationId)
 
     if (error) {
       console.error('[Cron] Erro ao buscar anúncios:', error, { status })

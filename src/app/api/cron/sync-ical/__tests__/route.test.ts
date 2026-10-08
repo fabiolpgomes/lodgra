@@ -126,6 +126,23 @@ describe('GET /api/cron/sync-ical', () => {
       expect(importICalFromUrl).not.toHaveBeenCalled()
     })
 
+    it('limits a tenant manual run to that organization and ignores malformed filters', async () => {
+      const scoped = makeQuery({ data: [], error: null, status: 200 })
+      ;(createAdminClient as jest.Mock).mockReturnValue({ from: jest.fn(() => ({ select: jest.fn(() => scoped) })) })
+      const orgId = '00000000-0000-0000-0000-000000000001'
+      await GET(createTestRequest(`http://localhost/api/cron/sync-ical?manual=true&organization_id=${orgId}`, {
+        headers: { authorization: `Bearer ${CRON_SECRET}` },
+      }))
+      expect(scoped.eq).toHaveBeenCalledWith('organization_id', orgId)
+
+      const unscoped = makeQuery({ data: [], error: null, status: 200 })
+      ;(createAdminClient as jest.Mock).mockReturnValue({ from: jest.fn(() => ({ select: jest.fn(() => unscoped) })) })
+      await GET(createTestRequest('http://localhost/api/cron/sync-ical?organization_id=x%27%20or%201%3D1', {
+        headers: { authorization: `Bearer ${CRON_SECRET}` },
+      }))
+      expect(unscoped.eq).not.toHaveBeenCalledWith('organization_id', expect.anything())
+    })
+
     it('stops after three reads and reports the final upstream error', async () => {
       const query = makeQuery({ data: null, error: { message: 'Gateway Timeout' }, status: 504 })
       const select = jest.fn(() => query)
