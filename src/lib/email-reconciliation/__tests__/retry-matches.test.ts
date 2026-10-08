@@ -7,7 +7,7 @@ jest.mock('../sync-to-reservations', () => ({ syncExtractedDataToReservation: je
 
 function query(result: { data: unknown; error: unknown }) {
   const q: Record<string, unknown> = {}
-  for (const method of ['select', 'eq', 'in', 'gte', 'order', 'limit']) q[method] = jest.fn(() => q)
+  for (const method of ['select', 'eq', 'in', 'gte', 'or', 'order', 'limit']) q[method] = jest.fn(() => q)
   q.then = (resolve: (value: unknown) => unknown) => Promise.resolve(result).then(resolve)
   return q
 }
@@ -27,6 +27,7 @@ describe('retryUnmatchedExtractions', () => {
     await expect(retryUnmatchedExtractions()).resolves.toEqual({ retried: 2, matched: 1, errors: 1 })
     expect(extractions.select).toHaveBeenCalledWith('id')
     expect(extractions.in).toHaveBeenCalledWith('organization_id', ['org-1'])
+    expect(extractions.or).toHaveBeenCalledWith(expect.stringContaining('and(check_out.is.null,source_platform.eq.booking'))
   })
 
   it('skips the extraction lookup when no organization is enabled', async () => {

@@ -47,7 +47,7 @@ function dateOnly(value: Date | string | null): string | null {
   return Number.isNaN(value.getTime()) ? null : value.toISOString().slice(0, 10)
 }
 
-function isOpaqueProviderSummary(summary: string | null): boolean {
+export function isOpaqueProviderSummary(summary: string | null): boolean {
   return /^(closed(?:\s*-\s*not available)?|not available|reserved)$/i.test(summary?.trim() || '')
 }
 

@@ -63,6 +63,32 @@ describe('syncExtractedDataToReservation', () => {
     })
   })
 
+  it('completes a Booking code + check-in e-mail from the single matching iCal block', async () => {
+    const partial = { ...extraction, guest_name: null, guest_count: null, total_value: null, currency: null,
+      check_in: '2026-10-03', check_out: null, reservation_code: '5159950202',
+      property_identifier_raw: 'AHS - T1 Armação de Pêra, varanda, piscina e garagem' }
+    const t1Block = { ...opaqueBookingEvent, id: 'event-t1', check_in: '2026-10-03', check_out: '2026-10-07',
+      properties: { name: 'AHS - T1 em Armação de Pêra | Piscina + Garagem' } }
+    const { rpc, extractionQuery } = setup(partial, [t1Block])
+
+    const result = await syncExtractedDataToReservation('ext-1')
+
+    expect(result).toEqual({ success: true, status: 'auto_matched', reservationId: 'reservation-1' })
+    expect(extractionQuery.update).toHaveBeenCalledWith(expect.objectContaining({ check_out: '2026-10-07', guest_name: 'Hóspede' }))
+    expect(rpc).toHaveBeenCalledWith('reconcile_email_extraction', {
+      p_extraction_id: 'ext-1', p_event_id: 'event-t1', p_confirmed_by_host: false,
+    })
+  })
+
+  it('keeps a Booking partial confirmation pending when no block exists yet', async () => {
+    const partial = { ...extraction, guest_name: null, check_in: '2026-10-04', check_out: null }
+    const { rpc, extractionQuery } = setup(partial, [])
+
+    expect(await syncExtractedDataToReservation('ext-1')).toEqual({ success: true, status: 'no_match' })
+    expect(rpc).not.toHaveBeenCalled()
+    expect(extractionQuery.update).toHaveBeenCalledWith(expect.objectContaining({ match_status: 'no_match' }))
+  })
+
   it('does not guess when two opaque events have the same score', async () => {
     const { rpc, extractionQuery } = setup(extraction, [
       opaqueBookingEvent,

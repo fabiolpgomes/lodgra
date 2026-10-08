@@ -3,6 +3,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { isAuthorizedCronRequest } from '@/lib/cron/auth'
 import { extractEmailData } from '@/lib/email-reconciliation/extract-service'
 import { hasRequiredReservationFields, type EmailExtractionPlatform } from '@/lib/email-reconciliation/extraction.schema'
+import { isBookingPartialConfirmation } from '@/lib/email-reconciliation/booking-partial'
 import { isPlatformInPilot } from '@/lib/email-reconciliation/feature-flag'
 import { platformFromSender } from '@/lib/email-reconciliation/inbound'
 import { DISCARDED_CONTENT, reservationMessageKind } from '@/lib/email-reconciliation/message-kind'
@@ -99,7 +100,7 @@ export async function POST(request: NextRequest) {
         continue
       }
 
-      const complete = hasRequiredReservationFields(extraction.data)
+      const complete = hasRequiredReservationFields(extraction.data) || isBookingPartialConfirmation(extraction.data)
       const { data: inserted, error: insertError } = await supabase
         .from('email_extractions')
         .upsert({

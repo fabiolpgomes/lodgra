@@ -12,6 +12,8 @@ const normalize = (subject: string) => subject.normalize('NFKD').replace(/[̀-ͯ
 export function reservationMessageKind(subject: string): ReservationMessageKind {
   const text = normalize(subject)
   if (/codigo de verificacao|verification code|security code|codigo de seguranca|one-time (pass)?code|login code/.test(text)) return 'irrelevant'
+  // Replies/forwards are conversations about an existing stay, never a new reservation.
+  if (/^\s*(re|res|fw|fwd|enc)\s*:/.test(text)) return 'irrelevant'
   if (/cancel|modific|alterad|alteracao|changed|change to|updated|refund|reembols|declin|recus/.test(text)) return 'change'
   if (/nova reserva|new reservation|new booking|booking confirm|reservation confirm|reserva confirm|confirmed reservation|confirmed booking|reservierung bestatigt|nouvelle reservation|reservation confirmee|rezervace potvrzena/.test(text)) return 'confirmation'
   // Airbnb "request to book" accepted by the host: "A solicitação de <hóspede> foi confirmada".
@@ -19,5 +21,7 @@ export function reservationMessageKind(subject: string): ReservationMessageKind 
   if (/pagamento|payout|payment|we sent you|enviamos|fatura|invoice|extrato|statement|avalia|review|newsletter|dicas|tips/.test(text)) return 'irrelevant'
   // Platform marketing sent from the same domains (flights, car rental, offers, "finish your booking" nudges).
   if (/flight|voo|aluguel de carro|car rental|destination|destino|oferta|offer|deal|desconto|discount|genius|finish your|complete your|termine a sua|conclua a sua/.test(text)) return 'irrelevant'
+  // Service, community and host-tool notices: no reservation data.
+  if (/atendimento ao cliente|customer service|customer support|pesquisa|survey|mencionou|mentioned you|nova mensagem|new message|nova pergunta|new question|novas ferramentas|new tools|financial report|relatorio|informacoes uteis|useful information|mensagem programada|scheduled message|acesso exclusivo|exclusive access/.test(text)) return 'irrelevant'
   return 'other'
 }

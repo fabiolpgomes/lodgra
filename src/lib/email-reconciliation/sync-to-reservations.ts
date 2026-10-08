@@ -2,6 +2,7 @@ import { isPlatformInPilot } from './feature-flag'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { hasRequiredReservationFieldsOnRow, type EmailExtraction } from './extraction.schema'
 import { decideMatch, matchEmailToCalendarEvents, type CalendarEvent } from './matching-engine'
+import { chooseBookingAnchor, isBookingPartialConfirmation, PLACEHOLDER_GUEST_NAME } from './booking-partial'
 
 type SyncResult = {
   success: boolean
@@ -48,6 +49,8 @@ export async function syncExtractedDataToReservation(extractionId: string): Prom
     if (error) return { success: false, error: error.message }
     return reservation ? { success: true, status: 'auto_matched', reservationId: reservation.id } : { success: false, error: 'MATCHED_RESERVATION_MISSING' }
   }
+
+  if (isBookingPartialConfirmation(extraction)) return reconcileBookingPartial(supabase, extraction)
 
   if (!hasRequiredReservationFieldsOnRow(extraction)) {
     const { error } = await supabase
@@ -178,4 +181,51 @@ export async function syncExtractedDataToReservation(extractionId: string): Prom
     status: 'auto_matched',
     reservationId: result?.reservation_id,
   }
+}
+
+type AdminClient = Awaited<ReturnType<typeof createAdminClient>>
+
+async function setMatchStatus(supabase: AdminClient, extraction: ReconciliationExtractionRow, status: 'needs_review' | 'no_match'): Promise<SyncResult> {
+  const { error } = await supabase.from('email_extractions')
+    .update({ match_status: status, updated_at: new Date().toISOString() })
+    .eq('id', extraction.id).eq('organization_id', extraction.organization_id)
+  return error ? { success: false, error: error.message } : { success: true, status }
+}
+
+/**
+ * Booking "Nova reserva!" e-mails carry only code + check-in + listing name. The stay is anchored on the
+ * single opaque Booking block that starts that day for that listing; the block supplies the check-out and
+ * the guest stays as the standard placeholder until the host completes it from the extranet.
+ */
+async function reconcileBookingPartial(supabase: AdminClient, extraction: ReconciliationExtractionRow): Promise<SyncResult> {
+  const { data: rows, error } = await supabase
+    .from('calendar_events')
+    .select('id, check_in, check_out, raw_summary, properties:properties!calendar_events_property_org_fk(name)')
+    .eq('organization_id', extraction.organization_id)
+    .eq('status', 'unmatched')
+    .eq('source_platform', 'booking')
+    .eq('check_in', extraction.check_in)
+    .limit(20)
+  if (error) return { success: false, error: error.message }
+
+  const decision = chooseBookingAnchor(extraction.property_identifier_raw, (rows || []).map(row => ({
+    id: row.id, check_in: row.check_in, check_out: row.check_out, raw_summary: row.raw_summary,
+    property_name: propertyName(row.properties as PropertyRelation),
+  })))
+  if (decision.status !== 'matched') return setMatchStatus(supabase, extraction, decision.status)
+
+  const { error: completeError } = await supabase.from('email_extractions')
+    .update({
+      check_out: decision.event.check_out,
+      guest_name: extraction.guest_name?.trim() || PLACEHOLDER_GUEST_NAME,
+      match_status: 'pending', updated_at: new Date().toISOString(),
+    })
+    .eq('id', extraction.id).eq('organization_id', extraction.organization_id)
+  if (completeError) return { success: false, error: completeError.message }
+
+  const { data, error: reconcileError } = await supabase.rpc('reconcile_email_extraction', {
+    p_extraction_id: extraction.id, p_event_id: decision.event.id, p_confirmed_by_host: false,
+  })
+  if (reconcileError) return setMatchStatus(supabase, extraction, 'needs_review')
+  return { success: true, status: 'auto_matched', reservationId: (data as { reservation_id?: string } | null)?.reservation_id }
 }
