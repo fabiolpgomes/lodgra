@@ -6,7 +6,7 @@
 export type SyncSeverity = 'stopped' | 'attention'
 export type SyncActionKind =
   | 'gmail_disconnected' | 'gmail_stale' | 'queue_stalled' | 'calendar_failing'
-  | 'complete_guest' | 'ical_reservation_without_email' | 'message_review'
+  | 'complete_guest' | 'ical_reservation_without_email' | 'message_review' | 'reservation_changed_on_platform'
 
 export interface SyncAction {
   /** Stable per problem: used for dismissals and to send each alert once. */
@@ -32,9 +32,10 @@ export interface SyncHealthInput {
   reconciliationEnabled: boolean
   gmail: { email: string; last_sync_at: string | null } | null
   oldestQueuedAt: string | null
-  failingListings: Array<{ id: string; property_id: string; property_name: string | null; platform: string | null; last_sync_error: string | null; last_synced_at: string | null }>
+  failingListings: Array<{ id: string; property_id: string; property_name: string | null; platform: string | null; last_sync_error: string | null; sync_error_count: number }>
   placeholderReservations: Array<{ id: string; property_id: string; property_name: string | null; source: string | null; booking_reference: string | null; check_in: string; check_out: string; created_at: string | null }>
   unlinkedReservationEvents: Array<{ id: string; property_id: string; property_name: string | null; source_platform: string; check_in: string; check_out: string; created_at: string }>
+  changedReservations: Array<{ id: string; property_id: string; property_name: string | null; source: string | null; booking_reference: string | null; guest_name: string | null; check_in: string; check_out: string; reason: 'evento ausente' | 'cancelamento no iCal' | 'datas alteradas' }>
   reviewMessages: Array<{ id: string; subject: string | null; sender: string; received_at: string; provider_message_id: string; recipient: string; last_error: string | null }>
   recentPlatformReservations: Array<{ first_name: string | null; guest_name: string | null; total_amount: number | null }>
   dismissedKeys: Set<string>
@@ -75,6 +76,18 @@ function gmailLink(providerMessageId: string, mailbox: string): string | null {
     : null
 }
 
+/** Turns the stored technical error into the cause and the fix the host can act on. */
+export function describeCalendarError(error: string | null): string {
+  const text = (error || '').toLowerCase()
+  if (/\b(404|410)\b/.test(text)) return 'o link deixou de existir na plataforma. Copie o link de exportação novo e cole-o no anúncio.'
+  if (/\b(401|403)\b/.test(text)) return 'a plataforma recusou o acesso ao link. Copie o link de exportação novo e cole-o no anúncio.'
+  if (text.includes('not valid ical')) return 'o link não devolve um calendário. Confirme que copiou o link de exportação (.ics) e não a página do anúncio.'
+  if (/timeout|aborted|timed out|fetch failed|econn|enotfound/.test(text)) return 'a plataforma não respondeu. Normalmente resolve sozinho; se continuar, confirme o link.'
+  if (/\b5\d\d\b/.test(text)) return 'a plataforma teve um erro temporário. Normalmente resolve sozinho na próxima leitura.'
+  if (/uid|incomplete ical event|ambiguous/.test(text)) return 'o calendário da plataforma tem um evento inválido. Se continuar, contacte o suporte.'
+  return 'erro ao ler o calendário. Confirme o link de exportação na plataforma.'
+}
+
 export function isPlaceholderGuest(firstName: string | null, guestName: string | null): boolean {
   return firstName?.trim() === PLACEHOLDER_GUEST || guestName?.trim() === PLACEHOLDER_GUEST || !guestName?.trim()
 }
@@ -108,10 +121,8 @@ export function buildSyncHealth(input: SyncHealthInput): SyncHealth {
     actions.push({ ...base, key: `calendar:${listing.id}`, kind: 'calendar_failing', severity: 'stopped',
       platform, property: { id: listing.property_id, name: listing.property_name },
       title: join(`Calendário ${platform ?? 'iCal'} a falhar`, propertyLabel(listing.property_name)),
-      detail: listing.last_synced_at
-        ? `Última leitura certa em ${new Date(listing.last_synced_at).toLocaleString('pt-PT')}. Confirme o link do calendário na plataforma.`
-        : 'Ainda não foi lido com sucesso. Confirme o link do calendário na plataforma.',
-      since: listing.last_synced_at, href: `/${locale}/properties/${listing.property_id}/edit`, cta: 'Corrigir link' })
+      detail: `Falhou ${listing.sync_error_count === 1 ? 'na última leitura' : `nas últimas ${listing.sync_error_count} leituras`}: ${describeCalendarError(listing.last_sync_error)}`,
+      since: null, href: `/${locale}/properties/${listing.property_id}`, cta: 'Corrigir link' })
   }
 
   for (const reservation of input.placeholderReservations) {
@@ -133,6 +144,19 @@ export function buildSyncHealth(input: SyncHealthInput): SyncHealth {
       since: event.created_at, href: `/${locale}/properties/${event.property_id}`, cta: 'Ver reserva' })
   }
 
+  for (const reservation of input.changedReservations) {
+    const platform = platformLabel(reservation.source)
+    actions.push({ ...base, key: `changed:${reservation.id}`, kind: 'reservation_changed_on_platform', severity: 'attention',
+      platform, property: { id: reservation.property_id, name: reservation.property_name }, reservationId: reservation.id,
+      title: join(platform && reservation.booking_reference ? `${platform} ${reservation.booking_reference}` : platform, reservation.guest_name, propertyLabel(reservation.property_name), formatStay(reservation.check_in, reservation.check_out)),
+      detail: reservation.reason === 'datas alteradas'
+        ? `As datas mudaram no calendário ${platform ?? 'da plataforma'}. Confirme na plataforma e corrija a reserva no Lodgra.`
+        : reservation.reason === 'cancelamento no iCal'
+          ? `O calendário ${platform ?? 'da plataforma'} indica cancelamento. Confirme e cancele a reserva no Lodgra.`
+          : `Saiu do calendário ${platform ?? 'da plataforma'}. Confirme se foi cancelada e, se sim, cancele-a no Lodgra.`,
+      since: null, href: `/${locale}/reservations/${reservation.id}`, cta: 'Abrir reserva' })
+  }
+
   for (const message of input.reviewMessages) {
     const link = gmailLink(message.provider_message_id, message.recipient)
     const change = message.last_error === 'RESERVATION_CHANGE_REQUIRES_REVIEW'
@@ -148,8 +172,12 @@ export function buildSyncHealth(input: SyncHealthInput): SyncHealth {
   }
 
   const visible = actions.filter(action => !input.dismissedKeys.has(action.key))
-  const order = (action: SyncAction) => action.severity === 'stopped' ? 0 : 1
-  visible.sort((a, b) => order(a) - order(b) || (a.since ?? '').localeCompare(b.since ?? ''))
+  // Broken sources first (Gmail, queue, calendars), then the host's to-dos, oldest first.
+  const priority: Record<SyncActionKind, number> = {
+    gmail_disconnected: 0, gmail_stale: 0, queue_stalled: 1, calendar_failing: 2,
+    complete_guest: 3, ical_reservation_without_email: 3, message_review: 3, reservation_changed_on_platform: 3,
+  }
+  visible.sort((a, b) => priority[a.kind] - priority[b.kind] || (a.since ?? '').localeCompare(b.since ?? ''))
 
   const total = input.recentPlatformReservations.length
   const complete = input.recentPlatformReservations

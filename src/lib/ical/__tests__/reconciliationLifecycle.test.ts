@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { assertReconciledFeedConsistency } from '../reconciliationLifecycle'
+import { assertReconciledFeedConsistency, type ReconciledFeedInput } from '../reconciliationLifecycle'
 
 const row = {
   id: 'reservation-1', calendar_event_id: 'event-1', status: 'confirmed',
@@ -14,8 +14,9 @@ function setup(rows: unknown[] = [row], error: unknown = null) {
     limit: jest.fn().mockResolvedValue({ data: [], error: null }), update: jest.fn().mockReturnThis(),
     in: jest.fn().mockResolvedValue({ error: null }) }
   const from = jest.fn((table: string) => table === 'calendar_events' ? stagedQuery : query)
-  return { query, stagedQuery, from, input: { supabase: { from } as unknown as SupabaseClient,
-    organizationId: 'org-1', propertyListingId: 'listing-1', feedEvents: new Map([['event-1', current]]) } }
+  const input: ReconciledFeedInput = { supabase: { from } as unknown as SupabaseClient,
+    organizationId: 'org-1', propertyListingId: 'listing-1', feedEvents: new Map([['event-1', current]]) }
+  return { query, stagedQuery, from, input }
 }
 
 it('checks the correct tenant/listing without mutating the commercial reservation', async () => {
@@ -65,4 +66,28 @@ it('fails closed when missing-event invalidation fails', async () => {
   stagedQuery.limit.mockResolvedValue({ data: [{ id: 'absent' }] as never[], error: null })
   stagedQuery.in.mockResolvedValue({ error: { message: 'offline' } as never })
   await expect(assertReconciledFeedConsistency(input)).rejects.toThrow('invalidar eventos ausentes')
+})
+
+it('does not treat a stay that already started and left the Booking export as a cancellation (6575495882)', async () => {
+  const { input } = setup([{ ...row, check_in: '2026-10-04', check_out: '2026-10-11' }])
+  input.feedEvents = new Map()
+  input.today = new Date('2026-10-08T09:30:00Z')
+  await expect(assertReconciledFeedConsistency(input)).resolves.toBeUndefined()
+})
+
+it('still flags a future stay that left the feed', async () => {
+  const { input } = setup([{ ...row, check_in: '2026-10-20', check_out: '2026-10-25' }])
+  input.feedEvents = new Map()
+  input.today = new Date('2026-10-08T09:30:00Z')
+  await expect(assertReconciledFeedConsistency(input)).rejects.toThrow('evento ausente')
+})
+
+it('reads the flagged reservations back from the stored error', () => {
+  const { parseReconciliationIssues } = jest.requireActual('../reconciliationLifecycle')
+  expect(parseReconciliationIssues('Reconciliação pendente (2): 386d2a49-5ff9-424a-b77a-cc39d20ff787: evento ausente; 11111111-2222-3333-4444-555555555555: datas alteradas'))
+    .toEqual([
+      { reservationId: '386d2a49-5ff9-424a-b77a-cc39d20ff787', reason: 'evento ausente' },
+      { reservationId: '11111111-2222-3333-4444-555555555555', reason: 'datas alteradas' },
+    ])
+  expect(parseReconciliationIssues('Failed to fetch iCal: 404')).toEqual([])
 })

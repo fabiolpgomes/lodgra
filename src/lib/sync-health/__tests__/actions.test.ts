@@ -1,10 +1,10 @@
-import { buildSyncHealth, formatStay, type SyncHealthInput } from '../actions'
+import { buildSyncHealth, describeCalendarError, formatStay, type SyncHealthInput } from '../actions'
 
 const now = new Date('2026-10-08T12:00:00Z')
 const input = (overrides: Partial<SyncHealthInput> = {}): SyncHealthInput => ({
   locale: 'pt-BR', now, reconciliationEnabled: true,
   gmail: { email: 'host@gmail.com', last_sync_at: '2026-10-08T11:45:00Z' },
-  oldestQueuedAt: null, failingListings: [], placeholderReservations: [], unlinkedReservationEvents: [],
+  oldestQueuedAt: null, failingListings: [], placeholderReservations: [], unlinkedReservationEvents: [], changedReservations: [],
   reviewMessages: [], recentPlatformReservations: [], dismissedKeys: new Set(), ...overrides,
 })
 
@@ -29,12 +29,13 @@ describe('buildSyncHealth', () => {
     const health = buildSyncHealth(input({
       gmail: { email: 'host@gmail.com', last_sync_at: '2026-09-12T08:15:00Z' },
       oldestQueuedAt: '2026-10-08T10:00:00Z',
-      failingListings: [{ id: 'l1', property_id: 'p1', property_name: 'AHS Premium Apart', platform: 'booking', last_sync_error: '404', last_synced_at: '2026-10-07T14:00:00Z' }],
+      failingListings: [{ id: 'l1', property_id: 'p1', property_name: 'AHS Premium Apart', platform: 'booking', last_sync_error: 'Failed to fetch iCal: 404 Not Found', sync_error_count: 3 }],
       placeholderReservations: [{ id: 'r', property_id: 'p', property_name: null, source: 'booking', booking_reference: '1', check_in: '2026-10-10', check_out: '2026-10-12', created_at: null }],
     }))
     expect(health.status).toBe('stopped')
-    expect(health.actions.map(action => action.kind)).toEqual(['gmail_stale', 'calendar_failing', 'queue_stalled', 'complete_guest'])
-    expect(health.actions[1]).toMatchObject({ title: 'Calendário Booking a falhar · AHS Premium Apart', href: '/pt-BR/properties/p1/edit' })
+    expect(health.actions.map(action => action.kind)).toEqual(['gmail_stale', 'queue_stalled', 'calendar_failing', 'complete_guest'])
+    expect(health.actions[2]).toMatchObject({ title: 'Calendário Booking a falhar · AHS Premium Apart', href: '/pt-BR/properties/p1' })
+    expect(health.actions[2].detail).toBe('Falhou nas últimas 3 leituras: o link deixou de existir na plataforma. Copie o link de exportação novo e cole-o no anúncio.')
     expect(health.actions[3].title).toContain('imóvel não identificado')
   })
 
@@ -79,10 +80,35 @@ describe('buildSyncHealth', () => {
   })
 })
 
+describe('reservations changed on the platform', () => {
+  it('names the reservation and links to it instead of reporting a broken calendar', () => {
+    const [action] = buildSyncHealth(input({ changedReservations: [{
+      id: 'r9', property_id: 'p1', property_name: 'AHS Premium Apart', source: 'booking', booking_reference: '6575495882',
+      guest_name: 'Alexander Sidorov', check_in: '2026-10-20', check_out: '2026-10-25', reason: 'evento ausente',
+    }] })).actions
+    expect(action).toMatchObject({
+      kind: 'reservation_changed_on_platform', severity: 'attention', href: '/pt-BR/reservations/r9', cta: 'Abrir reserva',
+      title: 'Booking 6575495882 · Alexander Sidorov · AHS Premium Apart · 20–25 out',
+    })
+    expect(action.detail).toContain('Confirme se foi cancelada')
+  })
+})
+
 describe('formatStay', () => {
   it.each([
     ['2026-10-03', '2026-10-07', '3–7 out'],
     ['2026-10-28', '2026-11-03', '28 out – 3 nov'],
     ['2026-12-28', '2027-01-03', '28 dez 2026 – 3 jan 2027'],
   ])('%s → %s', (checkIn, checkOut, expected) => expect(formatStay(checkIn, checkOut)).toBe(expected))
+})
+
+describe('describeCalendarError', () => {
+  it.each([
+    ['Failed to fetch iCal: 403 Forbidden', /recusou o acesso/],
+    ['Response is not valid iCal (got <html>...)', /não devolve um calendário/],
+    ['The operation was aborted due to timeout', /não respondeu/],
+    ['Failed to fetch iCal: 503 Service Unavailable', /erro temporário/],
+    ['Ambiguous iCal feed: duplicate UID', /evento inválido/],
+    [null, /Confirme o link/],
+  ])('%s', (error, expected) => expect(describeCalendarError(error)).toMatch(expected))
 })

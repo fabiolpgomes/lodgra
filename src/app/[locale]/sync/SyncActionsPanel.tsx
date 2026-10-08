@@ -18,7 +18,7 @@ type FullSyncResponse = {
 }
 
 const DISMISS_REASONS = ['É um bloqueio meu, não uma reserva', 'Já tratei na plataforma', 'Não é relevante']
-const DISMISSIBLE = new Set(['ical_reservation_without_email', 'message_review', 'complete_guest'])
+const DISMISSIBLE = new Set(['ical_reservation_without_email', 'message_review', 'complete_guest', 'reservation_changed_on_platform'])
 
 /** Plain-language summary of a manual full sync; partial failures name the failing source. */
 export function describeFullSync(status: number, data: FullSyncResponse): string {

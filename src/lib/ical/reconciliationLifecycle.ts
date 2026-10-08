@@ -5,6 +5,7 @@ export interface ReconciledFeedInput {
   organizationId: string
   propertyListingId: string
   feedEvents: Map<string, { checkIn: string; checkOut: string; status?: string }>
+  today?: Date
 }
 
 /**
@@ -44,15 +45,29 @@ export async function assertReconciledFeedConsistency(input: ReconciledFeedInput
   if (error) throw new Error(`Falha ao verificar ciclo de vida reconciliado: ${error.message}`)
   if ((data?.length || 0) >= 1000) throw new Error('Limite da auditoria de reservas reconciliadas atingido; revisão necessária')
 
+  const today = (input.today ?? new Date()).toISOString().slice(0, 10)
   const issues: string[] = []
   for (const reservation of data || []) {
     if (reservation.deleted_at || reservation.status === 'cancelled' || reservation.reservation_status === 'cancelled') continue
     const event = input.feedEvents.get(reservation.calendar_event_id)
+    // Booking drops a stay from its export intermittently once the guest has checked in; a stay that
+    // already started leaving the feed is not evidence of a cancellation.
+    if (!event && reservation.check_in <= today) continue
     const reason = !event ? 'evento ausente' : event.status === 'CANCELLED' ? 'cancelamento no iCal'
       : event.checkIn !== reservation.check_in || event.checkOut !== reservation.check_out ? 'datas alteradas' : null
     if (reason) issues.push(`${reservation.id}: ${reason}`)
   }
   if (issues.length) {
-    throw new Error(`Reconciliação pendente (${issues.length}): ${issues.slice(0, 5).join('; ')}`)
+    throw new Error(`${RECONCILIATION_PENDING_PREFIX} (${issues.length}): ${issues.slice(0, 5).join('; ')}`)
   }
+}
+
+export const RECONCILIATION_PENDING_PREFIX = 'Reconciliação pendente'
+export type ReconciliationIssueReason = 'evento ausente' | 'cancelamento no iCal' | 'datas alteradas'
+
+/** Reads back the reservations a failed listing sync flagged, so the panel can name each one. */
+export function parseReconciliationIssues(message: string | null): Array<{ reservationId: string; reason: ReconciliationIssueReason }> {
+  if (!message?.startsWith(RECONCILIATION_PENDING_PREFIX)) return []
+  return [...message.matchAll(/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}): (evento ausente|cancelamento no iCal|datas alteradas)/g)]
+    .map(match => ({ reservationId: match[1], reason: match[2] as ReconciliationIssueReason }))
 }

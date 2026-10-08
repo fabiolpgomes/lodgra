@@ -3,7 +3,7 @@ import { requireRole } from '@/lib/auth/requireRole'
 import { createAdminClient } from '@/lib/supabase/admin'
 
 /** Only problems the host can judge may be dismissed; a broken Gmail/queue/calendar must be fixed. */
-const DISMISSIBLE = /^(event|message|guest):[0-9a-f-]{36}$/i
+const DISMISSIBLE = /^(event|message|guest|changed):[0-9a-f-]{36}$/i
 
 export async function POST(request: NextRequest) {
   const auth = await requireRole(['admin', 'gestor'])

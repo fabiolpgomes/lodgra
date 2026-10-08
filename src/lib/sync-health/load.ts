@@ -1,4 +1,5 @@
 import type { createAdminClient } from '@/lib/supabase/admin'
+import { parseReconciliationIssues } from '@/lib/ical/reconciliationLifecycle'
 import { buildSyncHealth, PLACEHOLDER_GUEST, UNLINKED_EVENT_HOURS, type SyncHealth } from './actions'
 
 type AdminClient = Awaited<ReturnType<typeof createAdminClient>>
@@ -26,7 +27,7 @@ export async function loadSyncHealth(db: AdminClient, organizationId: string, lo
     db.from('raw_emails').select('created_at').eq('organization_id', organizationId)
       .in('processing_status', ['pending', 'retry', 'processing']).order('created_at', { ascending: true }).limit(1),
     db.from('property_listings')
-      .select('id, property_id, last_sync_error, last_synced_at, platforms(name, display_name), properties:properties!property_listings_property_org_fk(name, is_active)')
+      .select('id, property_id, last_sync_error, sync_error_count, platforms(name, display_name), properties:properties!property_listings_property_org_fk(name, is_active)')
       .eq('organization_id', organizationId).eq('is_active', true).eq('sync_enabled', true)
       .gt('sync_error_count', 0).limit(LIMIT),
     db.from('reservations')
@@ -51,17 +52,47 @@ export async function loadSyncHealth(db: AdminClient, organizationId: string, lo
     throw new SyncHealthUnavailableError()
   }
 
+  // A calendar reservation already in Lodgra (created by iCal or by hand) is not missing anything.
+  const eventRows = events.data ?? []
+  const eventPropertyIds = [...new Set(eventRows.map(row => row.property_id))]
+  const existing = eventPropertyIds.length
+    ? await db.from('reservations').select('property_id, check_in, check_out')
+      .eq('organization_id', organizationId).in('property_id', eventPropertyIds)
+      .is('deleted_at', null).neq('reservation_status', 'cancelled').gte('check_out', today).limit(500)
+    : { data: [], error: null }
+  // An incomplete e-mail is only the host's problem while its extraction still waits for review;
+  // pending/no_match ones are retried automatically and matched ones are done.
+  const messageRows = messages.data ?? []
+  const extractions = messageRows.length
+    ? await db.from('email_extractions').select('raw_email_id, match_status')
+      .eq('organization_id', organizationId).in('raw_email_id', messageRows.map(row => row.id))
+    : { data: [], error: null }
+  // A listing that only flagged reservations changed on the platform was read fine: show the
+  // reservations, not a broken calendar.
+  const listingRows = listings.data ?? []
+  const issues = listingRows.flatMap(row => parseReconciliationIssues(row.last_sync_error))
+  const changed = issues.length
+    ? await db.from('reservations')
+      .select('id, property_id, source, booking_reference, guest_name, check_in, check_out, properties:properties!reservations_property_org_fk(name)')
+      .eq('organization_id', organizationId).in('id', issues.map(issue => issue.reservationId))
+    : { data: [], error: null }
+  if (existing.error || extractions.error || changed.error) throw new SyncHealthUnavailableError()
+  const reasonByReservation = new Map(issues.map(issue => [issue.reservationId, issue.reason]))
+  const reservedStays = new Set((existing.data ?? []).map(row => `${row.property_id}:${row.check_in}:${row.check_out}`))
+  const extractionStatus = new Map((extractions.data ?? []).map(row => [row.raw_email_id, row.match_status]))
+
   return buildSyncHealth({
     locale, now,
     reconciliationEnabled: Boolean(org.data?.email_ical_reconciliation_enabled),
     gmail: gmail.data?.[0] ? { email: gmail.data[0].email, last_sync_at: gmail.data[0].last_sync_at } : null,
     oldestQueuedAt: queued.data?.[0]?.created_at ?? null,
-    failingListings: (listings.data ?? [])
+    failingListings: listingRows
       .filter(row => one(row.properties as ActiveProperty)?.is_active !== false)
+      .filter(row => parseReconciliationIssues(row.last_sync_error).length === 0)
       .map(row => {
         const platform = one(row.platforms as Platform)
         return {
-          id: row.id, property_id: row.property_id, last_sync_error: row.last_sync_error, last_synced_at: row.last_synced_at,
+          id: row.id, property_id: row.property_id, last_sync_error: row.last_sync_error, sync_error_count: row.sync_error_count ?? 1,
           property_name: one(row.properties as Named)?.name ?? null,
           platform: platform?.display_name || platform?.name || null,
         }
@@ -71,12 +102,21 @@ export async function loadSyncHealth(db: AdminClient, organizationId: string, lo
       check_in: row.check_in, check_out: row.check_out, created_at: row.created_at,
       property_name: one(row.properties as Named)?.name ?? null,
     })),
-    unlinkedReservationEvents: (events.data ?? []).map(row => ({
+    unlinkedReservationEvents: eventRows.filter(row => !reservedStays.has(`${row.property_id}:${row.check_in}:${row.check_out}`)).map(row => ({
       id: row.id, property_id: row.property_id, source_platform: row.source_platform,
       check_in: row.check_in, check_out: row.check_out, created_at: row.created_at,
       property_name: one(row.properties as Named)?.name ?? null,
     })),
-    reviewMessages: messages.data ?? [],
+    changedReservations: (changed.data ?? []).map(row => ({
+      id: row.id, property_id: row.property_id, source: row.source, booking_reference: row.booking_reference,
+      guest_name: row.guest_name, check_in: row.check_in, check_out: row.check_out,
+      property_name: one(row.properties as Named)?.name ?? null,
+      reason: reasonByReservation.get(row.id) ?? 'evento ausente',
+    })),
+    reviewMessages: messageRows.filter(row => {
+      const status = extractionStatus.get(row.id)
+      return !status || status === 'needs_review'
+    }),
     recentPlatformReservations: recent.data ?? [],
     dismissedKeys: new Set((states.data ?? []).map(row => row.action_key)),
   })
