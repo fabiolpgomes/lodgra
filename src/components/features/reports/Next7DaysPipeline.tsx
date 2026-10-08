@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import { ChevronDown } from 'lucide-react'
+import { toLocalDate } from '@/lib/dates/date-only'
 
 export interface Reservation {
   id: string
@@ -211,8 +212,8 @@ export function Next7DaysPipeline({
                             <p className="font-semibold">{getGuestName(res)}</p>
                             <p className="text-gray-500 text-[11px]">{getPropertyName(res)}</p>
                             <p className="text-gray-500">
-                              {new Date(res.check_in).toLocaleDateString('pt-PT')} →{' '}
-                              {new Date(res.check_out).toLocaleDateString('pt-PT')}
+                              {toLocalDate(res.check_in).toLocaleDateString('pt-PT')} →{' '}
+                              {toLocalDate(res.check_out).toLocaleDateString('pt-PT')}
                             </p>
                           </div>
                           <p className="text-gray-600 capitalize">{res.status}</p>

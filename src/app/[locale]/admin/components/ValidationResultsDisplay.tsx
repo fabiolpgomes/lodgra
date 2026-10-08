@@ -1,6 +1,7 @@
 'use client'
 
 import type { ValidationResult } from '@/lib/reservations/reservation-validator'
+import { toLocalDate } from '@/lib/dates/date-only'
 
 interface ValidationResultsDisplayProps {
   result: ValidationResult
@@ -48,8 +49,8 @@ export function ValidationResultsDisplay({ result }: ValidationResultsDisplayPro
           <div className="text-2xl font-bold mt-2">{result.nights}</div>
           <p className="text-xs text-gray-600 mt-1">noites</p>
           <p className="text-xs text-gray-500 mt-2">
-            {new Date(result.checkIn).toLocaleDateString('pt-BR')} →{' '}
-            {new Date(result.checkOut).toLocaleDateString('pt-BR')}
+            {toLocalDate(result.checkIn).toLocaleDateString('pt-BR')} →{' '}
+            {toLocalDate(result.checkOut).toLocaleDateString('pt-BR')}
           </p>
         </div>
 

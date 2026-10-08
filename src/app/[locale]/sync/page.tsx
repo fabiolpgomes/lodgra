@@ -5,11 +5,10 @@ import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import { formatDistance } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
-import { CheckCircle2, AlertCircle, Clock, Calendar, Mail, ArrowLeft, RefreshCw, Loader2, Search, X } from 'lucide-react'
+import { CheckCircle2, AlertCircle, Clock, Calendar, Mail, ArrowLeft, Search, X } from 'lucide-react'
 import { PremiumPageShell, PremiumPageHeader, PremiumCard } from '@/components/common/layout/PremiumPage'
-import { Button } from '@/components/common/ui/button'
 import { Input } from '@/components/common/ui/input'
-import { SyncHealthPanel } from '@/app/[locale]/sync/SyncHealthPanel'
+import { SyncActionsPanel } from '@/app/[locale]/sync/SyncActionsPanel'
 
 interface SyncFeedback {
   title: string
@@ -95,12 +94,6 @@ export default function SyncStatusPage() {
   const [loading, setLoading] = useState(true)
   const [nextRunIn, setNextRunIn] = useState<string>('')
   const [historyWarning, setHistoryWarning] = useState<string | null>(null)
-  const [manualSyncing, setManualSyncing] = useState(false)
-  const [manualSyncResult, setManualSyncResult] = useState<{
-    success: boolean
-    message: string
-    timestamp: string
-  } | null>(null)
   const [auditEvents, setAuditEvents] = useState<CalendarEventAuditRow[]>([])
   const [auditSummary, setAuditSummary] = useState<CalendarEventAuditResponse['summary'] | null>(null)
   const [auditLoading, setAuditLoading] = useState(true)
@@ -136,30 +129,6 @@ export default function SyncStatusPage() {
       setNextRunIn(`${Math.ceil(secondsToNext / 60)}m`)
     } else {
       setNextRunIn('Agora')
-    }
-  }
-
-  async function runManualSync() {
-    setManualSyncing(true)
-    setManualSyncResult(null)
-
-    try {
-      const response = await fetch('/api/sync/full', { method: 'POST' })
-      const data = await response.json().catch(() => ({}))
-      setManualSyncResult({
-        success: response.status === 200 && data?.success === true,
-        message: describeFullSync(response.status, data),
-        timestamp: new Date().toISOString(),
-      })
-      if (response.ok) { fetchSyncData(); fetchAuditEvents(auditSearch) }
-    } catch {
-      setManualSyncResult({
-        success: false,
-        message: 'Não foi possível contactar o servidor. Tente novamente dentro de instantes.',
-        timestamp: new Date().toISOString(),
-      })
-    } finally {
-      setManualSyncing(false)
     }
   }
 
@@ -325,78 +294,13 @@ export default function SyncStatusPage() {
       />
 
       <>
-        {/* Manual Sync */}
-        <PremiumCard className="border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 to-transparent">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div className="flex items-start gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-600">
-                <RefreshCw className="h-6 w-6" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs font-bold uppercase tracking-wider text-brand-text-medium">
-                  Sincronização imediata
-                </p>
-                <h2 className="mt-1 text-xl font-bold text-brand-text-dark">
-                  Atualize as reservas das plataformas
-                </h2>
-                <p className="mt-1 text-sm text-brand-text-medium">
-                  Faz agora o ciclo completo que corre a cada 15 minutos: lê os calendários, lê os e-mails das plataformas e liga cada reserva aos seus detalhes.
-                </p>
-              </div>
-            </div>
+        <SyncActionsPanel locale={params.locale} />
 
-            <Button
-              onClick={runManualSync}
-              disabled={manualSyncing}
-              className="inline-flex items-center gap-2 self-start md:self-auto"
-              aria-label="Sincronizar calendários, e-mails e reservas agora"
-            >
-              {manualSyncing ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  A sincronizar…
-                </>
-              ) : (
-                <>
-                  <RefreshCw className="h-4 w-4" />
-                  Sincronizar agora
-                </>
-              )}
-            </Button>
-          </div>
-
-          {manualSyncResult && (
-            <div
-              className={`mt-4 rounded-xl border p-4 ${
-                manualSyncResult.success
-                  ? 'border-emerald-500/20 bg-emerald-500/5'
-                  : 'border-red-500/20 bg-red-500/5'
-              }`}
-            >
-              <div className="flex items-start gap-3">
-                {manualSyncResult.success ? (
-                  <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" />
-                ) : (
-                  <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-red-600" />
-                )}
-                <div className="min-w-0 flex-1">
-                  <p
-                    className={`text-sm font-semibold ${
-                      manualSyncResult.success ? 'text-emerald-800' : 'text-red-800'
-                    }`}
-                  >
-                    {manualSyncResult.message}
-                  </p>
-                  <p className="mt-1 text-xs text-brand-text-medium">
-                    {new Date(manualSyncResult.timestamp).toLocaleString('pt-BR')}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-        </PremiumCard>
-
+        <details className="group rounded-2xl border border-neutral-200/70 bg-white/40 p-4">
+          <summary className="cursor-pointer select-none text-sm font-semibold text-brand-text-dark">
+            Ver detalhes técnicos (calendários, histórico e auditoria)
+          </summary>
+          <div className="mt-6 space-y-6">
         {/* Next Run Card */}
         <PremiumCard className="border-brand-blue/20 bg-gradient-to-br from-brand-blue/5 to-transparent">
           <div className="flex items-center gap-4">
@@ -411,8 +315,6 @@ export default function SyncStatusPage() {
             </div>
           </div>
         </PremiumCard>
-
-        <SyncHealthPanel locale={params.locale} />
 
         {/* Job Stats Grid */}
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -807,6 +709,8 @@ export default function SyncStatusPage() {
             </div>
           )}
         </PremiumCard>
+          </div>
+        </details>
       </>
 
     </PremiumPageShell>
@@ -899,31 +803,4 @@ function JobCard({ icon: Icon, jobName, description, stats, color }: JobCardProp
 
 function formatCounter(value: number | null) {
   return value === null ? '—' : value
-}
-
-type FullSyncStep = { ok?: boolean; error?: string }
-type FullSyncResponse = {
-  error?: string
-  ical?: FullSyncStep & { created?: number; updated?: number }
-  email?: FullSyncStep & { staged?: number; connected?: boolean }
-  reconciliation?: FullSyncStep & { processed?: number; matched?: number }
-}
-
-/** Plain-language summary of a manual full sync; partial failures name the failing source. */
-function describeFullSync(status: number, data: FullSyncResponse): string {
-  if (status !== 200 && status !== 207) return data.error || 'Não foi possível sincronizar agora.'
-  const parts: string[] = []
-  const ical = data.ical
-  parts.push(ical?.ok
-    ? `Calendários lidos (${(ical.created ?? 0) + (ical.updated ?? 0)} reserva(s) nova(s) ou alterada(s))`
-    : 'Um ou mais calendários falharam')
-  const email = data.email
-  parts.push(email?.connected === false
-    ? 'Gmail não ligado'
-    : email?.ok ? `${email.staged ?? 0} e-mail(s) novo(s)` : 'Não foi possível ler o Gmail')
-  const reconciliation = data.reconciliation
-  parts.push(reconciliation?.ok
-    ? `${reconciliation.matched ?? 0} reserva(s) completada(s) com os dados do e-mail`
-    : 'A ligação entre e-mails e calendários falhou')
-  return `${parts.join(' · ')}.`
 }

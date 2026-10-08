@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
+import { toLocalDate } from '@/lib/dates/date-only'
 
 interface SyncMetrics {
   period: string
@@ -210,8 +211,8 @@ export function EmailSyncStatusDashboard() {
                       {case_.propertyName || '—'}
                     </td>
                     <td className="px-6 py-4 text-sm" style={{ color: 'var(--body, #4D5566)' }}>
-                      {format(new Date(case_.checkIn), 'd MMM', { locale: ptBR })} →{' '}
-                      {format(new Date(case_.checkOut), 'd MMM', { locale: ptBR })}
+                      {format(toLocalDate(case_.checkIn), 'd MMM', { locale: ptBR })} →{' '}
+                      {format(toLocalDate(case_.checkOut), 'd MMM', { locale: ptBR })}
                     </td>
                     <td className="px-6 py-4 text-sm">
                       <span

@@ -9,7 +9,7 @@ jest.mock('@/lib/supabase/admin', () => ({ createAdminClient: jest.fn() }))
 function query(result: unknown) {
   const builder: Record<string, unknown> = {
     select: jest.fn(() => builder), eq: jest.fn(() => builder), gte: jest.fn(() => builder),
-    lte: jest.fn(() => builder), order: jest.fn(() => builder), limit: jest.fn(() => builder),
+    lte: jest.fn(() => builder), order: jest.fn(() => builder), limit: jest.fn(() => builder), is: jest.fn(() => builder),
     update: jest.fn(() => builder), single: jest.fn(() => Promise.resolve(result)),
     maybeSingle: jest.fn(() => Promise.resolve(result)),
     then: (resolve: (value: unknown) => unknown) => Promise.resolve(result).then(resolve),
@@ -78,6 +78,42 @@ describe('syncExtractedDataToReservation', () => {
     expect(rpc).toHaveBeenCalledWith('reconcile_email_extraction', {
       p_extraction_id: 'ext-1', p_event_id: 'event-t1', p_confirmed_by_host: false,
     })
+  })
+
+  it('links a Booking e-mail to the reservation already in Lodgra by its Booking number', async () => {
+    const partial = { ...extraction, guest_name: null, check_in: '2026-10-03', check_out: null, reservation_code: '5159950202' }
+    const extractionQuery = query({ data: partial, error: null })
+    const rpc = jest.fn().mockResolvedValue({ data: { reservation_id: 'reservation-t1' }, error: null })
+    const client = {
+      rpc,
+      from: jest.fn((table: string) => table === 'email_extractions' ? extractionQuery
+        : table === 'reservations' ? query({ data: { calendar_event_id: 'event-t1', check_out: '2026-10-07', guest_name: 'Manuela Constantino' }, error: null })
+        : query({ data: [], error: null })),
+    }
+    ;(createAdminClient as jest.Mock).mockResolvedValue(client)
+
+    expect(await syncExtractedDataToReservation('ext-1')).toEqual({ success: true, status: 'auto_matched', reservationId: 'reservation-t1' })
+    expect(extractionQuery.update).toHaveBeenCalledWith(expect.objectContaining({ check_out: '2026-10-07', guest_name: 'Manuela Constantino' }))
+    expect(rpc).toHaveBeenCalledWith('reconcile_email_extraction', { p_extraction_id: 'ext-1', p_event_id: 'event-t1', p_confirmed_by_host: false })
+  })
+
+  it('keeps the guest name the host already typed on the existing Booking reservation', async () => {
+    const partial = { ...extraction, guest_name: null, check_in: '2026-10-03', check_out: null,
+      property_identifier_raw: 'AHS - T1 Armação de Pêra, varanda, piscina e garagem' }
+    const t1Block = { ...opaqueBookingEvent, id: 'event-t1', property_id: 'prop-t1', check_in: '2026-10-03', check_out: '2026-10-07',
+      properties: { name: 'AHS - T1 em Armação de Pêra | Piscina + Garagem' } }
+    const extractionQuery = query({ data: partial, error: null })
+    const client = {
+      rpc: jest.fn().mockResolvedValue({ data: { reservation_id: 'reservation-1' }, error: null }),
+      from: jest.fn((table: string) => table === 'email_extractions' ? extractionQuery
+        : table === 'calendar_events' ? query({ data: [t1Block], error: null })
+        : query({ data: { guest_name: 'Manuela Constantino' }, error: null })),
+    }
+    ;(createAdminClient as jest.Mock).mockResolvedValue(client)
+
+    await syncExtractedDataToReservation('ext-1')
+
+    expect(extractionQuery.update).toHaveBeenCalledWith(expect.objectContaining({ guest_name: 'Manuela Constantino' }))
   })
 
   it('keeps a Booking partial confirmation pending when no block exists yet', async () => {

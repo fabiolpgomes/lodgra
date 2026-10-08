@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useParams, useSearchParams } from 'next/navigation'
 import ReviewDecisionForm from '@/components/ReviewDecisionForm'
 import { formatCurrency } from '@/lib/utils/currency'
+import { toLocalDate } from '@/lib/dates/date-only'
 
 interface ReviewData {
   reservation_id: string
@@ -122,8 +123,8 @@ export default function ReviewPage() {
           <div className="bg-gray-50 p-4 rounded">
             <p className="text-sm text-gray-600">Datas</p>
             <p className="font-semibold">
-              {new Date(data.check_in).toLocaleDateString('pt-PT')} —{' '}
-              {new Date(data.check_out).toLocaleDateString('pt-PT')}
+              {toLocalDate(data.check_in).toLocaleDateString('pt-PT')} —{' '}
+              {toLocalDate(data.check_out).toLocaleDateString('pt-PT')}
             </p>
           </div>
 

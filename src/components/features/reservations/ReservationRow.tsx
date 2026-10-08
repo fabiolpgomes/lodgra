@@ -7,6 +7,7 @@ import { formatCurrency, CurrencyCode } from '@/lib/utils/currency'
 import { ReservationUI } from './types/reservation-ui'
 import { Badge } from '@/components/common/ui/badge'
 import { getReservationPlatformLabel } from '@/lib/reservations/platform'
+import { toLocalDate } from '@/lib/dates/date-only'
 
 interface ReservationRowProps {
   reservation: ReservationUI
@@ -112,11 +113,11 @@ export function ReservationRow({ reservation }: ReservationRowProps) {
       </td>
 
       <td className="px-2.5 py-2.5 whitespace-nowrap text-xs text-brand-text-dark w-20">
-        {new Date(reservation.check_in).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
+        {toLocalDate(reservation.check_in).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
       </td>
 
       <td className="px-2.5 py-2.5 whitespace-nowrap text-xs text-brand-text-dark w-20">
-        {new Date(reservation.check_out).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
+        {toLocalDate(reservation.check_out).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
       </td>
 
       <td className="px-2.5 py-2.5 whitespace-nowrap w-28">

@@ -207,9 +207,27 @@ async function setMatchStatus(supabase: AdminClient, extraction: ReconciliationE
  * the guest stays as the standard placeholder until the host completes it from the extranet.
  */
 async function reconcileBookingPartial(supabase: AdminClient, extraction: ReconciliationExtractionRow): Promise<SyncResult> {
+  // Already in Lodgra (iCal + host, or an earlier e-mail): link to it by the Booking number and keep its data.
+  const { data: known, error: knownError } = await supabase.from('reservations')
+    .select('calendar_event_id, check_out, guest_name').eq('organization_id', extraction.organization_id)
+    .eq('source', 'booking').eq('booking_reference', extraction.reservation_code ?? '')
+    .eq('check_in', extraction.check_in).is('deleted_at', null).maybeSingle()
+  if (knownError) return { success: false, error: knownError.message }
+  if (known?.calendar_event_id) {
+    const { error: completeError } = await supabase.from('email_extractions')
+      .update({ check_out: known.check_out, guest_name: known.guest_name?.trim() || PLACEHOLDER_GUEST_NAME, match_status: 'pending', updated_at: new Date().toISOString() })
+      .eq('id', extraction.id).eq('organization_id', extraction.organization_id)
+    if (completeError) return { success: false, error: completeError.message }
+    const { data, error: reconcileError } = await supabase.rpc('reconcile_email_extraction', {
+      p_extraction_id: extraction.id, p_event_id: known.calendar_event_id, p_confirmed_by_host: false,
+    })
+    if (reconcileError) return setMatchStatus(supabase, extraction, 'needs_review')
+    return { success: true, status: 'auto_matched', reservationId: (data as { reservation_id?: string } | null)?.reservation_id }
+  }
+
   const { data: rows, error } = await supabase
     .from('calendar_events')
-    .select('id, check_in, check_out, raw_summary, properties:properties!calendar_events_property_org_fk(name)')
+    .select('id, property_id, check_in, check_out, raw_summary, properties:properties!calendar_events_property_org_fk(name)')
     .eq('organization_id', extraction.organization_id)
     .eq('status', 'unmatched')
     .eq('source_platform', 'booking')
@@ -223,10 +241,23 @@ async function reconcileBookingPartial(supabase: AdminClient, extraction: Reconc
   })))
   if (decision.status !== 'matched') return setMatchStatus(supabase, extraction, decision.status)
 
+  // The reconciler copies the extraction's guest onto an existing reservation: never let the
+  // placeholder overwrite a name the host already typed for this stay.
+  const anchored = (rows || []).find(row => row.id === decision.event.id)
+  const { data: existing, error: existingError } = await supabase.from('reservations')
+    .select('guest_name').eq('organization_id', extraction.organization_id)
+    .eq('property_id', anchored?.property_id ?? '').eq('check_in', decision.event.check_in)
+    .eq('check_out', decision.event.check_out).eq('source', 'booking').is('deleted_at', null)
+    .limit(1).maybeSingle()
+  if (existingError) return { success: false, error: existingError.message }
+  const knownGuest = existing?.guest_name?.trim() && existing.guest_name.trim() !== PLACEHOLDER_GUEST_NAME
+    ? existing.guest_name.trim()
+    : null
+
   const { error: completeError } = await supabase.from('email_extractions')
     .update({
       check_out: decision.event.check_out,
-      guest_name: extraction.guest_name?.trim() || PLACEHOLDER_GUEST_NAME,
+      guest_name: extraction.guest_name?.trim() || knownGuest || PLACEHOLDER_GUEST_NAME,
       match_status: 'pending', updated_at: new Date().toISOString(),
     })
     .eq('id', extraction.id).eq('organization_id', extraction.organization_id)

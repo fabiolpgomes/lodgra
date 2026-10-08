@@ -15,6 +15,7 @@ import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
 import { PaginationNav } from '@/components/common/ui/PaginationNav'
 import { getLocalizedPath, useLocale } from '@/lib/i18n/routing'
 import { PremiumCard } from '@/components/common/layout/PremiumPage'
+import { toLocalDate } from '@/lib/dates/date-only'
 
 interface ReservationsFilterProps {
   reservations: ReservationUI[]
@@ -266,8 +267,8 @@ export function ReservationsFilter({
             {filtered.map(r => {
               const { guestName, propertyName } = getReservationData(r)
               const status = STATUS_CONFIG[r.status] || STATUS_CONFIG.pending
-              const checkIn = r.check_in ? new Date(r.check_in).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }) : '-'
-              const checkOut = r.check_out ? new Date(r.check_out).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }) : '-'
+              const checkIn = r.check_in ? toLocalDate(r.check_in).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }) : '-'
+              const checkOut = r.check_out ? toLocalDate(r.check_out).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }) : '-'
               return (
                 <Link
                   key={r.id}
