@@ -1,73 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { calculateRevenueForReservation } from '@/lib/financial/revenue-calculator'
+import { getSessionTimeZone } from '@/lib/dates/business-timezone.server'
+import { todayInTimeZone } from '@/lib/dates/date-only'
+import { generateRevenueCsv } from '@/lib/export/revenue-csv'
 
 export const dynamic = 'force-dynamic'
-
-interface ReservationData {
-  id: string
-  totalAmount: number
-  checkIn: Date | string
-  checkOut: Date | string
-  currency: string
-  status: 'confirmed' | 'cancelled' | 'pending'
-}
-
-function formatDate(dateStr: string): string {
-  const date = new Date(dateStr)
-  return date.toLocaleDateString('pt-PT', { timeZone: 'UTC' })
-}
-
-function generateCSV(
-  reservations: ReservationData[],
-  currency?: string | null,
-  month?: string | null
-): string {
-  // CSV header
-  const headers = ['Data', 'Reserva ID', 'Check-in', 'Check-out', 'Duração', 'Moeda', 'Valor total', 'Receita do mês', 'Saldo previsto']
-  const rows: string[] = [headers.map(h => `"${h}"`).join(',')]
-
-  // Process each reservation
-  for (const reservation of reservations) {
-    // Skip if status is not confirmed
-    if (reservation.status !== 'confirmed') continue
-
-    // Filter by currency if specified
-    if (currency && reservation.currency !== currency) continue
-
-    // Calculate revenue breakdown
-    const result = calculateRevenueForReservation(reservation)
-
-    // Format dates
-    const checkInStr = typeof reservation.checkIn === 'string' ? reservation.checkIn : reservation.checkIn.toISOString().split('T')[0]
-    const checkOutStr = typeof reservation.checkOut === 'string' ? reservation.checkOut : reservation.checkOut.toISOString().split('T')[0]
-
-    // Extract duration
-    const durationDays = result.durationDays
-
-    // Process each month in breakdown
-    for (const monthBreakdown of result.monthlyBreakdown) {
-      // Filter by month if specified
-      if (month && monthBreakdown.month !== month) continue
-
-      const row = [
-        new Date().toLocaleDateString('pt-PT'), // Data (export date)
-        `"${result.reservationId}"`, // Reserva ID
-        formatDate(checkInStr), // Check-in
-        formatDate(checkOutStr), // Check-out
-        durationDays.toString(), // Duração
-        result.currency, // Moeda
-        result.totalAmount.toFixed(2), // Valor Total
-        monthBreakdown.value.toFixed(2), // Receita Mês
-        monthBreakdown.value.toFixed(2) // Saldo Previsto (for this month)
-      ]
-
-      rows.push(row.join(','))
-    }
-  }
-
-  return rows.join('\n')
-}
 
 export async function GET(request: NextRequest) {
   try {
@@ -99,18 +36,20 @@ export async function GET(request: NextRequest) {
       )
     }
 
+    const exportDate = todayInTimeZone(await getSessionTimeZone(supabase))
+
     // Transform to internal format
     const transformedReservations = reservations.map(r => ({
       id: r.id,
       totalAmount: r.total_amount,
-      checkIn: new Date(r.check_in),
-      checkOut: new Date(r.check_out),
+      checkIn: String(r.check_in).slice(0, 10),
+      checkOut: String(r.check_out).slice(0, 10),
       currency: r.currency,
       status: r.status as 'confirmed' | 'cancelled' | 'pending'
     }))
 
     if (format === 'csv') {
-      const csv = generateCSV(transformedReservations, currency, month)
+      const csv = generateRevenueCsv(transformedReservations, { exportDate, currency, month })
 
       return new NextResponse(csv, {
         status: 200,
@@ -123,7 +62,7 @@ export async function GET(request: NextRequest) {
 
     // For now, PDF returns CSV (can be enhanced later)
     // In production, use pdf-lib or pdfkit for proper PDF generation
-    const csv = generateCSV(transformedReservations, currency, month)
+    const csv = generateRevenueCsv(transformedReservations, { exportDate, currency, month })
 
     return new NextResponse(csv, {
       status: 200,

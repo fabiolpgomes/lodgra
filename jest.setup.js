@@ -221,3 +221,13 @@ try {
 } catch {
   // next/server might not be available in test environment
 }
+
+// jsdom's AbortSignal has no static timeout(); production code (iCal fetch) relies on it (Node 18+ / browsers).
+if (typeof AbortSignal !== 'undefined' && typeof AbortSignal.timeout !== 'function') {
+  AbortSignal.timeout = (ms) => {
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(new DOMException('The operation was aborted due to timeout', 'TimeoutError')), ms)
+    if (typeof timer.unref === 'function') timer.unref()
+    return controller.signal
+  }
+}

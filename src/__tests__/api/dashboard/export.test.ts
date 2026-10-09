@@ -1,139 +1,37 @@
 /**
- * Tests for CSV/PDF Export Endpoint
- * Tests for /api/dashboard/export
+ * CSV de receita (/api/dashboard/export): datas são dias de calendário e a data de exportação
+ * vem da organização, nunca do relógio/fuso do servidor.
  */
+import { generateRevenueCsv, type RevenueExportReservation } from '@/lib/export/revenue-csv'
 
-describe('Export Endpoint', () => {
-  describe('CSV Export', () => {
-    it('should have correct CSV headers', () => {
-      const headers = ['Data', 'Reserva ID', 'Check-in', 'Check-out', 'Duração', 'Moeda', 'Valor Total', 'Receita Mês', 'Saldo Previsto']
-      expect(headers).toHaveLength(9)
-    })
+const reservation = (over: Partial<RevenueExportReservation> = {}): RevenueExportReservation => ({
+  id: 'res-1', totalAmount: 400, checkIn: '2026-09-25', checkOut: '2026-12-05', currency: 'EUR', status: 'confirmed', ...over,
+})
 
-    it('should validate format parameter', () => {
-      const validFormats = ['csv', 'pdf']
-      const invalidFormat = 'xml'
-
-      expect(validFormats).toContain('csv')
-      expect(validFormats).toContain('pdf')
-      expect(validFormats).not.toContain(invalidFormat)
-    })
-
-    it('should support currency filter', () => {
-      const testCurrency = 'EUR'
-      expect(testCurrency).toBe('EUR')
-    })
-
-    it('should support month filter', () => {
-      const testMonth = '2026-05'
-      const monthRegex = /^\d{4}-\d{2}$/
-      expect(monthRegex.test(testMonth)).toBe(true)
-    })
-
-    it('should format dates correctly in Portuguese', () => {
-      const date = new Date('2026-05-15')
-      const formatted = date.toLocaleDateString('pt-BR')
-      // Should be in format DD/MM/YYYY
-      expect(formatted).toMatch(/\d{1,2}\/\d{1,2}\/\d{4}/)
-    })
-
-    it('should calculate duration correctly', () => {
-      const checkIn = new Date('2026-05-01')
-      const checkOut = new Date('2026-05-10')
-      const oneDay = 24 * 60 * 60 * 1000
-      const duration = Math.ceil((checkOut.getTime() - checkIn.getTime()) / oneDay)
-
-      expect(duration).toBe(9)
-    })
-
-    it('should format numeric values with 2 decimal places', () => {
-      const value = 1234.567
-      const formatted = value.toFixed(2)
-
-      expect(formatted).toBe('1234.57')
-    })
-
-    it('should escape quotes in CSV fields', () => {
-      const field = 'Test "quoted" value'
-      const escaped = `"${field}"`
-
-      expect(escaped).toBe('"Test "quoted" value"')
-    })
-
-    it('should handle empty result set', () => {
-      const rows: string[] = []
-      expect(rows).toHaveLength(0)
-    })
+describe('generateRevenueCsv', () => {
+  it('tem o cabeçalho e uma linha por mês da estadia', () => {
+    const lines = generateRevenueCsv([reservation()], { exportDate: '2026-10-09' }).split('\n')
+    expect(lines[0]).toContain('"Check-in"')
+    expect(lines).toHaveLength(5) // estadia >60 dias: set, out, nov e dez
   })
 
-  describe('PDF Export', () => {
-    it('should accept pdf format parameter', () => {
-      const format = 'pdf'
-      expect(['csv', 'pdf']).toContain(format)
-    })
-
-    it('should return appropriate content-type for CSV', () => {
-      const contentType = 'text/csv; charset=utf-8'
-      expect(contentType).toContain('text/csv')
-    })
-
-    it('should set attachment header for downloads', () => {
-      const filename = 'revenue-export.csv'
-      const disposition = `attachment; filename="${filename}"`
-
-      expect(disposition).toContain('attachment')
-      expect(disposition).toContain(filename)
-    })
+  it('mostra os dias guardados e a data de exportação recebida, em DD/MM/AAAA', () => {
+    const [, first] = generateRevenueCsv([reservation()], { exportDate: '2026-10-09' }).split('\n')
+    const cols = first.split(',')
+    expect(cols[0]).toBe('09/10/2026')
+    expect(cols[2]).toBe('25/09/2026')
+    expect(cols[3]).toBe('05/12/2026')
   })
 
-  describe('Export Data Validation', () => {
-    it('should only export confirmed reservations', () => {
-      const statuses = ['confirmed', 'cancelled', 'pending']
-      const confirmedOnly = statuses.filter(s => s === 'confirmed')
-
-      expect(confirmedOnly).toHaveLength(1)
-      expect(confirmedOnly[0]).toBe('confirmed')
-    })
-
-    it('should include all required columns', () => {
-      const requiredColumns = [
-        'Data',
-        'Reserva ID',
-        'Check-in',
-        'Check-out',
-        'Duração',
-        'Moeda',
-        'Valor Total',
-        'Receita Mês',
-        'Saldo Previsto'
-      ]
-
-      expect(requiredColumns).toHaveLength(9)
-    })
-
-    it('should handle currency filtering', () => {
-      const reservationCurrency = 'EUR'
-      const filterCurrency = 'EUR'
-
-      expect(reservationCurrency).toBe(filterCurrency)
-    })
-
-    it('should handle month filtering', () => {
-      const monthData = '2026-05'
-      const filterMonth = '2026-05'
-
-      expect(monthData).toBe(filterMonth)
-    })
-
-    it('should handle multiple months for single reservation', () => {
-      // Reservation spanning multiple months should create multiple rows
-      const monthBreakdowns = [
-        { month: '2026-05', value: 1000 },
-        { month: '2026-06', value: 1500 },
-        { month: '2026-07', value: 500 }
-      ]
-
-      expect(monthBreakdowns).toHaveLength(3)
-    })
+  it('filtra por filtros de moeda, mês e estado', () => {
+    const csv = generateRevenueCsv(
+      [reservation(), reservation({ id: 'res-2', currency: 'BRL' }), reservation({ id: 'res-3', status: 'cancelled' })],
+      { exportDate: '2026-10-09', currency: 'EUR', month: '2026-12' }
+    )
+    const lines = csv.split('\n')
+    expect(lines).toHaveLength(2)
+    expect(lines[1]).toContain('res-1')
+    expect(lines[1]).not.toContain('res-2')
+    expect(Number(lines[1].split(',')[7])).toBeGreaterThan(0)
   })
 })

@@ -222,3 +222,22 @@ it('rejects invalid stay order before any caller can treat the feed as complete'
   mockFetchOk(makeICalString(makeVEvent({ dtstart: '20260605', dtend: '20260601' })))
   await expect(importICalFromUrl('https://example.com/cal.ics')).rejects.toThrow('checkout must follow checkin')
 })
+
+describe('importICalFromUrl(): eventos com hora', () => {
+  const timed = (dtstart: string, dtend: string) => [
+    'BEGIN:VEVENT', 'UID:timed-1', 'SUMMARY:Reserva', `DTSTART${dtstart}`, `DTEND${dtend}`, 'END:VEVENT',
+  ].join('\r\n')
+
+  it('um evento com hora fica no dia indicado pelo feed, não no dia UTC (22:00 em São Paulo)', async () => {
+    mockFetchOk(makeICalString(timed(';TZID=America/Sao_Paulo:20260601T220000', ';TZID=America/Sao_Paulo:20260605T100000')))
+    const events = await importICalFromUrl('https://example.com/feed.ics')
+    expect(events[0].start.toISOString().slice(0, 10)).toBe('2026-06-01')
+    expect(events[0].end.toISOString().slice(0, 10)).toBe('2026-06-05')
+  })
+
+  it('um evento flutuante ou em UTC mantém os componentes do feed', async () => {
+    mockFetchOk(makeICalString(timed(':20260601T000000', ':20260605T100000')))
+    const events = await importICalFromUrl('https://example.com/feed.ics')
+    expect(events[0].start.toISOString().slice(0, 10)).toBe('2026-06-01')
+  })
+})

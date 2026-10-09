@@ -13,13 +13,6 @@ const CRON_JOBS = [
     path: '/api/cron/sync-ical',
   },
   {
-    id: 'daily-checkins',
-    name: 'Check-ins Diários',
-    description: 'Verifica check-ins e check-outs do dia',
-    schedule: 'Diariamente às 8h',
-    path: '/api/cron/daily-checkins',
-  },
-  {
     id: 'cleanup',
     name: 'Limpeza de Dados',
     description: 'Remove reservas canceladas antigas (>2 anos)',

@@ -195,24 +195,11 @@ export async function importICalFromUrl(url: string): Promise<ICalEvent[]> {
       if (seenUids.has(uid)) throw new Error('Ambiguous iCal feed: duplicate UID')
       seenUids.add(uid)
 
-      // Extrair datas como DATE (sem timezone) para evitar deslocamento de -1 dia
-      // Quando o iCal usa VALUE=DATE (sem hora), toJSDate() converte para UTC
-      // e pode perder um dia. Usamos os componentes da data diretamente.
-      let startDate: Date
-      let endDate: Date
-
-      if (event.startDate.isDate) {
-        // Usar Date.UTC para evitar deslocamento de timezone em servidores não-UTC
-        startDate = new Date(Date.UTC(event.startDate.year, event.startDate.month - 1, event.startDate.day))
-      } else {
-        startDate = event.startDate.toJSDate()
-      }
-
-      if (event.endDate.isDate) {
-        endDate = new Date(Date.UTC(event.endDate.year, event.endDate.month - 1, event.endDate.day))
-      } else {
-        endDate = event.endDate.toJSDate()
-      }
+      // As estadias são dias de calendário. Usamos sempre os componentes (ano/mês/dia) do próprio feed,
+      // como meia-noite UTC: VALUE=DATE não sofre deslocamento e um evento com hora (ex.: 22:00 -03:00)
+      // fica no dia que o feed indica, não no dia UTC que `toJSDate()` daria.
+      const startDate = new Date(Date.UTC(event.startDate.year, event.startDate.month - 1, event.startDate.day))
+      const endDate = new Date(Date.UTC(event.endDate.year, event.endDate.month - 1, event.endDate.day))
 
       if (!Number.isFinite(startDate.getTime()) || !Number.isFinite(endDate.getTime()) || endDate <= startDate) {
         throw new Error('Invalid iCal event: checkout must follow checkin')
