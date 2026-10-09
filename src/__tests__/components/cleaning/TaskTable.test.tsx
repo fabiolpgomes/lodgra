@@ -128,4 +128,13 @@ describe('TaskTable', () => {
       expect(mockOnUpdate).toHaveBeenCalled();
     });
   });
+
+  test('shows scheduled_date on the stored calendar day (DD/MM/YYYY), not the previous day in UTC-3', () => {
+    render(
+      <TaskTable tasks={mockTasks} onUpdate={mockOnUpdate} onDelete={mockOnDelete} />
+    );
+
+    expect(screen.getByText('25/05/2026')).toBeTruthy();
+    expect(screen.queryByText('24/05/2026')).toBeNull();
+  });
 });

@@ -1,5 +1,7 @@
 'use client';
 
+import { formatDateOnly } from '@/lib/dates/date-only'
+
 interface CleaningTask {
   id: string;
   property_id: string;
@@ -188,7 +190,7 @@ export default function TaskTable({
             <tr key={task.id} className="border-b border-gray-200 hover:bg-gray-50">
               <td className="px-4 py-3 font-medium text-sm">{task.property_name || task.property_id}</td>
               <td className="px-4 py-3 text-sm">
-                {new Date(task.scheduled_date).toLocaleDateString()}
+                {formatDateOnly(task.scheduled_date)}
               </td>
               <td className="px-4 py-3 text-sm">
                 {task.cleaner_name || t_table.unassigned}

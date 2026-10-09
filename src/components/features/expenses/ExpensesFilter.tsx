@@ -1,5 +1,7 @@
 'use client'
 
+import { formatDateOnly } from '@/lib/dates/date-only'
+
 import { useState, useMemo, useEffect } from 'react'
 import { Search, Eye, Edit, Receipt, Plus, Calendar, TrendingDown, X } from 'lucide-react'
 import Link from 'next/link'
@@ -508,7 +510,7 @@ export function ExpensesFilter({ expenses, properties = [], canCreate, canEdit, 
                           {CATEGORY_LABELS[expense.category] || expense.category}
                         </Badge>
                         <span className="text-xs text-gray-500">
-                          {new Date(expense.expense_date).toLocaleDateString('pt-BR')}
+                          {formatDateOnly(expense.expense_date)}
                         </span>
                       </div>
 

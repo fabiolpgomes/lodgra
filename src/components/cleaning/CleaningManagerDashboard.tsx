@@ -1,5 +1,7 @@
 'use client';
 
+import { formatDateOnly } from '@/lib/dates/date-only'
+
 import { useEffect, useState } from 'react';
 import { useTranslations } from '@/lib/i18n/useTranslations';
 import CreateTaskModal from './CreateTaskModal';
@@ -257,7 +259,7 @@ export default function CleaningManagerDashboard() {
                 <div>
                   <p className="font-semibold">Agendado</p>
                   <p className="text-sm">
-                    📅 {new Date(task.scheduled_date).toLocaleDateString('pt-BR')}
+                    📅 {formatDateOnly(task.scheduled_date)}
                   </p>
                   <p className="text-sm">🕐 {task.scheduled_time || '-'}</p>
                   <p className="text-xs text-gray-600 mt-1">

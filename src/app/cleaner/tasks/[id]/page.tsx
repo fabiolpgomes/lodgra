@@ -1,5 +1,7 @@
 'use client';
 
+import { formatDateOnly } from '@/lib/dates/date-only'
+
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { ChecklistFiller } from '@/components/settings/ChecklistFiller';
@@ -136,7 +138,7 @@ export default function CleanerTaskPage() {
             <div className="flex-1">
               <h1 className="text-2xl font-bold text-gray-900">{task.property.name}</h1>
               <p className="text-sm text-gray-600">
-                {new Date(task.scheduled_date).toLocaleDateString('pt-BR')}
+                {formatDateOnly(task.scheduled_date)}
               </p>
             </div>
             <span
