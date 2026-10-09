@@ -89,8 +89,16 @@ describe('property intelligence MVP', () => {
     expect(result.models?.['short-stay'].scenarios.find(scenario => scenario.label === 'base')?.netMonthlyReturn).toBeGreaterThan(0)
     expect(result.strategy?.recommendedStayType).toBeDefined()
 
-    const report = buildMarkdownReport(result, { companyName: 'Algarve Home Stay' })
-    expect(report).toContain('Empresa: Algarve Home Stay · Site: www.algarvehomestay.pt · Email: ahspropriedades@gmail.com · Telefone: +351912647423 · WhatsApp: +351912647423')
+    const report = buildMarkdownReport(result, {
+      company: {
+        name: 'Casas do Sul',
+        websiteUrl: 'www.casasdosul.example',
+        email: 'ola@casasdosul.example',
+        phone: '+351 900 000 001',
+        whatsappNumber: '+351 900 000 002',
+      },
+    })
+    expect(report).toContain('Empresa: Casas do Sul · Site: www.casasdosul.example · Email: ola@casasdosul.example · Telefone: +351 900 000 001 · WhatsApp: +351 900 000 002')
     expect(report).toContain('## Resumo Executivo')
     expect(report).toContain('## Definições de estadia')
     expect(report).toContain('## Cenário 1 - Locação de curta e média duração')
@@ -319,7 +327,8 @@ describe('property intelligence MVP', () => {
     try {
       const output = runCli('markdown', inputPath)
 
-      expect(output).toContain('Empresa: Lodgra Site · Site: www.algarvehomestay.pt · Email: ahspropriedades@gmail.com · Telefone: +351912647423 · WhatsApp: +351912647423')
+      expect(output).toContain('Empresa: Lodgra Site\n')
+      expect(output).not.toMatch(/algarvehomestay|ahspropriedades|912647423/)
       expect(output).toContain('## Resumo Executivo')
       expect(output).toContain('## Definições de estadia')
       expect(output).toContain('## Cenários')
@@ -338,7 +347,8 @@ describe('property intelligence MVP', () => {
       const output = runCli('both', inputPath)
       const [markdownPart, jsonPart] = output.split('\n\n--- JSON ---\n\n')
 
-      expect(markdownPart).toContain('Empresa: Lodgra Site · Site: www.algarvehomestay.pt · Email: ahspropriedades@gmail.com · Telefone: +351912647423 · WhatsApp: +351912647423')
+      expect(markdownPart).toContain('Empresa: Lodgra Site\n')
+      expect(markdownPart).not.toMatch(/algarvehomestay|ahspropriedades|912647423/)
       expect(markdownPart).toContain('## Definições de estadia')
       expect(markdownPart).not.toContain('Dossiê Executivo de Property Intelligence')
       expect(jsonPart).toBeDefined()
@@ -359,3 +369,67 @@ describe('property intelligence MVP', () => {
     }
   })
 })
+
+describe('property intelligence report header per tenant', () => {
+  const result = runPropertyIntelligenceAnalysis(completeInput)
+  const AHS_LEAKS = ['algarvehomestay', 'ahspropriedades', '912647423', 'AHS']
+
+  function headerOf(report: string): string {
+    return report.split('\n')[0]
+  }
+
+  it('renders only the contact of the tenant that asked for the report', () => {
+    const tenantA = buildMarkdownReport(result, {
+      company: { name: 'Casas do Sul', email: 'ola@casasdosul.example', phone: '+351 900 000 001' },
+    })
+    const tenantB = buildMarkdownReport(result, {
+      company: { name: 'Vista Mar Rentals', websiteUrl: 'www.vistamar.example', whatsappNumber: '+55 11 90000-0003' },
+    })
+
+    expect(headerOf(tenantA)).toBe('Empresa: Casas do Sul · Email: ola@casasdosul.example · Telefone: +351 900 000 001')
+    expect(headerOf(tenantB)).toBe('Empresa: Vista Mar Rentals · Site: www.vistamar.example · WhatsApp: +55 11 90000-0003')
+
+    expect(tenantA).not.toContain('vistamar')
+    expect(tenantA).not.toContain('Vista Mar')
+    expect(tenantB).not.toContain('casasdosul')
+    expect(tenantB).not.toContain('Casas do Sul')
+  })
+
+  it('omits every contact line the tenant did not fill in', () => {
+    const report = buildMarkdownReport(result, {
+      company: { name: 'Só Nome', email: '   ', phone: null, websiteUrl: '', whatsappNumber: undefined },
+    })
+
+    expect(headerOf(report)).toBe('Empresa: Só Nome')
+    expect(report).not.toMatch(/Site:|Email:|Telefone:|WhatsApp:/)
+  })
+
+  it('falls back to the neutral label and never to AHS data', () => {
+    const withoutCompany = buildMarkdownReport(result)
+    const withEmptyCompany = buildMarkdownReport(result, { company: {} })
+
+    expect(headerOf(withoutCompany)).toBe('Empresa: Lodgra Site')
+    expect(headerOf(withEmptyCompany)).toBe('Empresa: Lodgra Site')
+
+    for (const leak of AHS_LEAKS) {
+      expect(withoutCompany).not.toContain(leak)
+      expect(withEmptyCompany).not.toContain(leak)
+    }
+  })
+
+  it('keeps the legacy companyName shortcut, with company.name taking priority', () => {
+    expect(headerOf(buildMarkdownReport(result, { companyName: 'Nome Legado' }))).toBe('Empresa: Nome Legado')
+    expect(
+      headerOf(buildMarkdownReport(result, { companyName: 'Nome Legado', company: { name: 'Nome Novo' } }))
+    ).toBe('Empresa: Nome Novo')
+  })
+
+  it('does not hardcode AHS anywhere in the report body', () => {
+    const report = buildMarkdownReport(result, { company: { name: 'Casas do Sul' } })
+    for (const leak of AHS_LEAKS) {
+      expect(report).not.toContain(leak)
+    }
+    expect(JSON.stringify(result)).not.toContain('Lodgra/AHS')
+  })
+})
+

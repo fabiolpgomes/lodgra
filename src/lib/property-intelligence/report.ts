@@ -1,5 +1,6 @@
 import type { ComparableBenchmark, PropertyIntelligenceResult, StayModelResult } from './types'
 import type { ReadingObjective } from './types'
+import { normalizeReportCompany, type ReportCompany } from './company'
 
 function formatMoney(value: number, currency?: string): string {
   if (!currency) {
@@ -188,12 +189,17 @@ function sortComparablesForDisplay(comparables: ComparableBenchmark[]): Comparab
   })
 }
 
-function renderDocumentHeader(companyName?: string | null): string[] {
-  const headerLabel = companyName?.trim() ? `${companyName.trim()}` : 'Lodgra Site'
-  return [
-    `Empresa: ${headerLabel} · Site: www.algarvehomestay.pt · Email: ahspropriedades@gmail.com · Telefone: +351912647423 · WhatsApp: +351912647423`,
-    '',
-  ]
+function renderDocumentHeader(company?: ReportCompany | null): string[] {
+  const normalized = normalizeReportCompany(company)
+  const parts = [
+    `Empresa: ${normalized.name ?? 'Lodgra Site'}`,
+    normalized.websiteUrl ? `Site: ${normalized.websiteUrl}` : null,
+    normalized.email ? `Email: ${normalized.email}` : null,
+    normalized.phone ? `Telefone: ${normalized.phone}` : null,
+    normalized.whatsappNumber ? `WhatsApp: ${normalized.whatsappNumber}` : null,
+  ].filter((part): part is string => part !== null)
+
+  return [parts.join(' · '), '']
 }
 
 function renderStayDefinitions(): string[] {
@@ -276,10 +282,10 @@ function renderMarketLayer(result: PropertyIntelligenceResult, currency: string)
 function renderLodgraLayer(result: PropertyIntelligenceResult, currency: string): string[] {
   const lines: string[] = []
 
-  lines.push('## Inteligência Lodgra/AHS')
+  lines.push('## Inteligência Lodgra')
 
   if (result.status === 'needs_input' || !result.lodgraSignal) {
-    lines.push('- Ainda não existe sinal Lodgra/AHS consolidado porque faltam dados críticos.')
+    lines.push('- Ainda não existe sinal Lodgra consolidado porque faltam dados críticos.')
     return lines
   }
 
@@ -574,12 +580,19 @@ function getLatestComparableObservation(comparables: ComparableBenchmark[]): str
   return dates.length > 0 ? dates[dates.length - 1] : null
 }
 
-export function buildMarkdownReport(result: PropertyIntelligenceResult, options?: { companyName?: string | null }): string {
+export interface BuildMarkdownReportOptions {
+  /** Dados do tenant para o cabeçalho. Campos vazios não geram linha. */
+  company?: ReportCompany | null
+  /** Atalho legado: só o nome da empresa. `company.name` tem prioridade. */
+  companyName?: string | null
+}
+
+export function buildMarkdownReport(result: PropertyIntelligenceResult, options?: BuildMarkdownReportOptions): string {
   const currency = result.intake.normalizedAssumptions.currency
   const models = result.models ? Object.values(result.models) : []
   const lines: string[] = []
 
-  lines.push(...renderDocumentHeader(options?.companyName))
+  lines.push(...renderDocumentHeader({ ...options?.company, name: options?.company?.name ?? options?.companyName }))
   lines.push(...renderExecutiveSummary(result, currency))
   lines.push('')
   lines.push(...renderStayDefinitions())

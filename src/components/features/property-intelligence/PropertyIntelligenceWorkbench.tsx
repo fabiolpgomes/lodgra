@@ -158,7 +158,7 @@ type CompanyInfo = {
 }
 
 const DEFAULT_FORM = {
-  propertyName: 'AHS Premium apart 2 swing pool 5 min beach',
+  propertyName: 'Apartamento T2 com piscina perto da praia',
   location: 'Faro, Algarve',
   propertyType: 'Apartamento' as PropertyType,
   typology: 'T2',
@@ -1078,7 +1078,7 @@ export function PropertyIntelligenceWorkbench({
     }
 
     const hiddenMarkdownSections = new Set([
-      'inteligência lodgra/ahs',
+      'inteligência lodgra',
       'ia',
       'sinal de localização',
       'próximos passos',
@@ -1341,7 +1341,7 @@ export function PropertyIntelligenceWorkbench({
               <Input
                 value={propertyName}
                 onChange={event => setPropertyName(event.target.value)}
-                placeholder="Ex.: AHS Premium apart 2 swing pool 5 min beach"
+                placeholder="Ex.: Apartamento T2 com piscina perto da praia"
               />
             </div>
 

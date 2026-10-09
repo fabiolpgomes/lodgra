@@ -92,8 +92,8 @@ export function buildStrategyRecommendation(
   const secondComparable = comparables[1]
 
   const reason = bestComparable
-    ? `${formatStayTypeLabel(recommendedStayType)} lidera a leitura quando combinamos mercado observado, inteligência Lodgra/AHS e retorno financeiro, enquanto ${formatStayTypeLabel(bestComparable.stayType as StayType)} ou referências comparáveis permanecem disponíveis para validação.`
-    : `${formatStayTypeLabel(recommendedStayType)} lidera a leitura quando combinamos mercado observado, inteligência Lodgra/AHS e retorno financeiro.`
+    ? `${formatStayTypeLabel(recommendedStayType)} lidera a leitura quando combinamos mercado observado, inteligência Lodgra e retorno financeiro, enquanto ${formatStayTypeLabel(bestComparable.stayType as StayType)} ou referências comparáveis permanecem disponíveis para validação.`
+    : `${formatStayTypeLabel(recommendedStayType)} lidera a leitura quando combinamos mercado observado, inteligência Lodgra e retorno financeiro.`
 
   const caveats: string[] = []
   if (secondComparable) {
@@ -111,7 +111,7 @@ export function buildStrategyRecommendation(
     )
   }
   if (lodgraSignal?.dataQuality != null) {
-    caveats.push(`Sinal Lodgra/AHS com qualidade ${lodgraSignal.dataQuality} e peso operacional ${lodgraSignal.operationalWeighting.toFixed(2)}.`)
+    caveats.push(`Sinal Lodgra com qualidade ${lodgraSignal.dataQuality} e peso operacional ${lodgraSignal.operationalWeighting.toFixed(2)}.`)
   }
   caveats.push('Manter o relatório publicado apenas após aprovação humana.')
 

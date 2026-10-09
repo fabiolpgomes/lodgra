@@ -378,7 +378,7 @@ function buildLodgraSignal(
     operationalWeighting: operatingWeight,
     sourceLabel:
       historicalRevenue != null || ownerContext.occupancyPct != null || ownerContext.historicalAdr != null
-        ? 'Histórico operacional Lodgra/AHS'
+        ? 'Histórico operacional Lodgra'
         : 'Sem histórico operacional explícito',
   }
 }
@@ -692,7 +692,7 @@ export function runPropertyIntelligenceAnalysis(
   const aiLayer: AILayerResult = {
     confidence: strategy.recommendedStayType === 'short-stay' ? 'medium' : 'high',
     narrative:
-      `${strategy.reason} A leitura cruza mercado observado, inteligência Lodgra/AHS e contexto do proprietário para chegar à decisão executiva.`,
+      `${strategy.reason} A leitura cruza mercado observado, inteligência Lodgra e contexto do proprietário para chegar à decisão executiva.`,
     recommendation: strategy,
     promptVersion: PROPERTY_INTELLIGENCE_NATIVE_PROMPT_VERSION,
   }

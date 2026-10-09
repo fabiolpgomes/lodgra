@@ -7,6 +7,8 @@ import {
   runPropertyIntelligenceAnalysis,
   type PropertyIntelligenceInput,
 } from '@/lib/property-intelligence'
+import { requireRole } from '@/lib/auth/requireRole'
+import { getTenantReportCompany } from '@/lib/property-intelligence/company.server'
 import {
   getPropertyIntelligenceGateMessage,
   isPropertyIntelligenceAnalysisEnabled,
@@ -27,6 +29,24 @@ export async function POST(request: NextRequest) {
   }
 
   const traceId = randomUUID()
+
+  // Mesmas regras da página /ia-native/analyze: o tenant sai da sessão, nunca do payload.
+  const auth = await requireRole(['admin', 'gestor'])
+  if (!auth.authorized) {
+    return auth.response
+  }
+  if (!auth.organizationId) {
+    return NextResponse.json(
+      {
+        error: {
+          category: 'organization_required',
+          traceId,
+          message: 'A conta não está associada a uma organização.',
+        },
+      },
+      { status: 403 }
+    )
+  }
 
   let input: PropertyIntelligenceInput
   try {
@@ -60,14 +80,13 @@ export async function POST(request: NextRequest) {
   try {
     const startedAt = new Date().toISOString()
     const result = runPropertyIntelligenceAnalysis(input, { traceId, startedAt })
+    const company = await getTenantReportCompany(auth.organizationId)
 
     return NextResponse.json(
       {
         traceId: result.traceId,
         result,
-        markdown: buildMarkdownReport(result, {
-          companyName: input.companyInfo?.name ?? null,
-        }),
+        markdown: buildMarkdownReport(result, { company }),
       },
       {
         status: result.status === 'ready' ? 200 : 202,
