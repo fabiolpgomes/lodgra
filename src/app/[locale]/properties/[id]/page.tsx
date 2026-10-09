@@ -101,11 +101,14 @@ export async function generateMetadata(
 }
 
 export default async function PropertyDetailsPage({
-  params
+  params,
+  searchParams,
 }: {
   params: Promise<{ locale: string; id: string }>
+  searchParams: Promise<{ aba?: string }>
 }) {
   const { id, locale } = await params
+  const activeTab = (await searchParams).aba === 'contrato' ? 'contrato' : 'visao-geral'
   const supabase = await createClient()
   const userRole = await getUserRole(supabase)
   const canEdit = userRole === 'admin' || userRole === 'gestor'
@@ -286,10 +289,27 @@ export default async function PropertyDetailsPage({
         </div>
 
         <nav aria-label="Seções da propriedade" className="mb-6 flex flex-wrap gap-2 border-b pb-3">
-          <a href="#visao-geral" className="inline-flex min-h-11 items-center rounded-sm px-4 text-sm font-medium text-gray-700 hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#10203E]">Visão geral</a>
-          <a href="#contrato-repasse" className="inline-flex min-h-11 items-center rounded-sm bg-[#10203E] px-4 text-sm font-medium text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#10203E] focus-visible:ring-offset-2">Contrato / Repasse</a>
+          {([
+            { key: 'visao-geral', label: 'Visão geral', href: `/${locale}/properties/${id}` },
+            { key: 'contrato', label: 'Contrato / Repasse', href: `/${locale}/properties/${id}?aba=contrato` },
+          ] as const).map(tab => (
+            <Link
+              key={tab.key}
+              href={tab.href}
+              aria-current={activeTab === tab.key ? 'page' : undefined}
+              className={`inline-flex min-h-11 items-center rounded-sm px-4 text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#10203E] ${
+                activeTab === tab.key ? 'bg-[#10203E] text-white' : 'text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              {tab.label}
+            </Link>
+          ))}
         </nav>
 
+        {activeTab === 'contrato' ? (
+          <PropertyPayoutContract propertyId={id} canEdit={canEdit} />
+        ) : (
+        <>
         {/* Grid de Informações */}
         <div id="visao-geral" className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Informações Principais */}
@@ -585,8 +605,8 @@ export default async function PropertyDetailsPage({
             </div>
           </div>
         </div>
-
-        <PropertyPayoutContract propertyId={id} canEdit={canEdit} />
+        </>
+        )}
       </main>
     </AuthLayout>
   )

@@ -4,6 +4,7 @@ import { z } from 'zod'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { getOrganizationTimeZone } from '@/lib/dates/business-timezone.server'
 import { todayInTimeZone } from '@/lib/dates/date-only'
+import { staleVigenciaMessage } from './payout-vigencia'
 import { getUserAccess, type Role } from '@/lib/auth/getUserAccess'
 import {
   type PayoutPreviewResponse,
@@ -455,6 +456,12 @@ export async function getPayoutRules(
   return { requestId, today: todayInTimeZone(timeZone), property: context.property, defaults, ...rules }
 }
 
+async function assertVigenciaIsToday(organizationId: string, vigenciaInicio: string): Promise<void> {
+  const today = todayInTimeZone(await getOrganizationTimeZone(organizationId))
+  const message = staleVigenciaMessage(vigenciaInicio, today)
+  if (message) throw new PayoutServiceError(422, 'PAYOUT_VIGENCIA_STALE', message)
+}
+
 export async function replacePayoutRule(
   supabase: SupabaseClient,
   propertyId: string,
@@ -472,6 +479,7 @@ export async function replacePayoutRule(
       'A política financeira v2 deve ser substituída pelo fluxo v2',
     )
   }
+  await assertVigenciaIsToday(context.organizationId, input.vigenciaInicio)
   const { data, error } = await supabase.rpc('replace_property_payout_rule', {
     p_property_id: propertyId,
     p_expected_current_rule_id: input.expectedCurrentRuleId,
@@ -549,6 +557,7 @@ async function mutatePayoutRuleV2(
   result: { previous_rule_id: string | null; current_rule_id: string }
 }> {
   const context = await authorizeProperty(supabase, propertyId, true)
+  await assertVigenciaIsToday(context.organizationId, input.vigenciaInicio)
   const rpcName = mode === 'create'
     ? 'create_property_payout_rule_v2'
     : 'replace_property_payout_rule_v2'
