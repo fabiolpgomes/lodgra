@@ -1,5 +1,6 @@
 'use client';
 
+import { toDateOnly } from '@/lib/dates/date-only'
 import React, { useState } from 'react';
 import { Plus, X, Calendar } from 'lucide-react';
 import { toast } from 'sonner';
@@ -79,7 +80,7 @@ export function HolidayManager({
   const handleAddMajorHoliday = async (holiday: (typeof MAJOR_HOLIDAYS_PT)[0]) => {
     const currentYear = new Date().getFullYear();
     const date = new Date(currentYear, holiday.month - 1, holiday.day);
-    const formattedDate = date.toISOString().split('T')[0];
+    const formattedDate = toDateOnly(date);
 
     try {
       await onAddHoliday({

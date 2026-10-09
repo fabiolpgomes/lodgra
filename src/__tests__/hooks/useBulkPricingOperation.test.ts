@@ -39,8 +39,8 @@ describe('useBulkPricingOperation', () => {
       useBulkPricingOperation(propertyId, mockCallback)
     );
 
-    const startDate = new Date('2026-07-01');
-    const endDate = new Date('2026-07-05');
+    const startDate = new Date(2026, 6, 1);
+    const endDate = new Date(2026, 6, 5);
 
     const dates = result.current.getAffectedDates(startDate, endDate);
 
@@ -54,7 +54,7 @@ describe('useBulkPricingOperation', () => {
       useBulkPricingOperation(propertyId, mockCallback)
     );
 
-    const date = new Date('2026-07-01');
+    const date = new Date(2026, 6, 1);
     const dates = result.current.getAffectedDates(date, date);
 
     expect(dates).toHaveLength(1);
@@ -68,8 +68,8 @@ describe('useBulkPricingOperation', () => {
 
     const config = {
       operationType: 'price' as const,
-      startDate: new Date('2026-07-01'),
-      endDate: new Date('2026-07-03'),
+      startDate: new Date(2026, 6, 1),
+      endDate: new Date(2026, 6, 3),
       price: 150,
       propertyId,
       currentPrices: new Map(),
@@ -95,8 +95,8 @@ describe('useBulkPricingOperation', () => {
 
     const config = {
       operationType: 'discount' as const,
-      startDate: new Date('2026-07-01'),
-      endDate: new Date('2026-07-03'),
+      startDate: new Date(2026, 6, 1),
+      endDate: new Date(2026, 6, 3),
       discountPercent: 10,
       propertyId,
       currentPrices: new Map([
@@ -120,8 +120,8 @@ describe('useBulkPricingOperation', () => {
 
     const config = {
       operationType: 'delete' as const,
-      startDate: new Date('2026-07-01'),
-      endDate: new Date('2026-07-03'),
+      startDate: new Date(2026, 6, 1),
+      endDate: new Date(2026, 6, 3),
       propertyId,
       currentPrices: new Map(),
     };
@@ -147,8 +147,8 @@ describe('useBulkPricingOperation', () => {
 
     const config = {
       operationType: 'price' as const,
-      startDate: new Date('2026-07-01'),
-      endDate: new Date('2026-07-03'),
+      startDate: new Date(2026, 6, 1),
+      endDate: new Date(2026, 6, 3),
       price: 150,
       propertyId,
       currentPrices: new Map(),
@@ -168,8 +168,8 @@ describe('useBulkPricingOperation', () => {
 
     const config = {
       operationType: 'price' as const,
-      startDate: new Date('2026-07-01'),
-      endDate: new Date('2026-07-03'),
+      startDate: new Date(2026, 6, 1),
+      endDate: new Date(2026, 6, 3),
       propertyId,
       currentPrices: new Map(),
     };
@@ -188,8 +188,8 @@ describe('useBulkPricingOperation', () => {
 
     const config = {
       operationType: 'discount' as const,
-      startDate: new Date('2026-07-01'),
-      endDate: new Date('2026-07-03'),
+      startDate: new Date(2026, 6, 1),
+      endDate: new Date(2026, 6, 3),
       propertyId,
       currentPrices: new Map(),
     };
@@ -208,8 +208,8 @@ describe('useBulkPricingOperation', () => {
 
     const config = {
       operationType: 'price' as const,
-      startDate: new Date('2026-07-01'),
-      endDate: new Date('2026-07-03'),
+      startDate: new Date(2026, 6, 1),
+      endDate: new Date(2026, 6, 3),
       price: 150,
       propertyId,
       currentPrices: new Map(),
@@ -268,8 +268,8 @@ describe('useBulkPricingOperation', () => {
 
     const config = {
       operationType: 'price' as const,
-      startDate: new Date('2026-07-01'),
-      endDate: new Date('2026-07-03'),
+      startDate: new Date(2026, 6, 1),
+      endDate: new Date(2026, 6, 3),
       price: 150,
       propertyId,
       currentPrices: new Map(),

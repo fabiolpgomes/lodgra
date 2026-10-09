@@ -1,5 +1,9 @@
 import { FileText, TrendingUp, TrendingDown, Calendar, DollarSign, BarChart2, Target, BarChart3 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
+import { getSessionTimeZone } from '@/lib/dates/business-timezone.server'
+import { addDaysToDateOnly, addMonthsToDateOnly, daysBetweenDateOnly, todayInTimeZone } from '@/lib/dates/date-only'
+import { monthBounds } from '@/lib/dashboard/metrics'
+import { groupFutureByMonth, summarizeHorizon } from '@/lib/financial/future-forecast'
 import { ReportsFilters } from '@/components/features/reports/ReportsFilters'
 import { RevenueTable } from '@/components/features/reports/RevenueTable'
 import { ExpensesTable } from '@/components/features/reports/ExpensesTable'
@@ -31,18 +35,24 @@ interface PageProps {
   }>
 }
 
+/** 'YYYY-MM' → "julho de 2026" (rótulo do mês, sem depender do fuso). */
+function monthLabel(monthKey: string): string {
+  return new Date(Number(monthKey.slice(0, 4)), Number(monthKey.slice(5, 7)) - 1, 1)
+    .toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
+}
+
 export default async function FinanceiroPage({ searchParams }: PageProps) {
   const params = await searchParams
   const supabase = await createClient()
   const userPropertyIds = await getUserPropertyIds(supabase)
 
   // Datas padrão: últimos 3 meses
-  const defaultEndDate = new Date()
-  const defaultStartDate = new Date()
-  defaultStartDate.setMonth(defaultStartDate.getMonth() - 3)
+  // "Hoje" é o dia de calendário no fuso da organização, não o do servidor.
+  const timeZone = await getSessionTimeZone(supabase)
+  const today = todayInTimeZone(timeZone)
 
-  const startDate = params.start_date || defaultStartDate.toISOString().split('T')[0]
-  const endDate = params.end_date || defaultEndDate.toISOString().split('T')[0]
+  const startDate = params.start_date || addMonthsToDateOnly(today, -3)
+  const endDate = params.end_date || today
   const propertyId = params.property_id
   const activeTab = params.tab || 'dashboard'
 
@@ -98,8 +108,6 @@ export default async function FinanceiroPage({ searchParams }: PageProps) {
   }
 
   // Query de reservas futuras (a partir de hoje, independente dos filtros de data)
-  const today = new Date().toISOString().split('T')[0]
-
   let futureReservationsQuery = supabase
     .from('reservations')
     .select(`
@@ -174,9 +182,7 @@ export default async function FinanceiroPage({ searchParams }: PageProps) {
 
   // Métricas de ocupação e RevPAR
   const numberOfProperties = propertyId ? 1 : (properties?.length || 1)
-  const periodDays = Math.ceil(
-    (new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24)
-  )
+  const periodDays = daysBetweenDateOnly(startDate, endDate)
   const totalAvailableNights = periodDays * numberOfProperties
 
   // Calcular métricas de receita por moeda
@@ -194,9 +200,7 @@ export default async function FinanceiroPage({ searchParams }: PageProps) {
   const reservationCountByCurrency: Record<string, number> = {}
   reservations?.forEach(r => {
     const currency = reportCurrencyLabel(getResCurrency(r))
-    const checkIn = new Date(r.check_in)
-    const checkOut = new Date(r.check_out)
-    const nights = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24))
+    const nights = daysBetweenDateOnly(r.check_in, r.check_out)
     nightsByCurrency[currency] = (nightsByCurrency[currency] || 0) + nights
     reservationCountByCurrency[currency] = (reservationCountByCurrency[currency] || 0) + 1
   })
@@ -303,9 +307,7 @@ export default async function FinanceiroPage({ searchParams }: PageProps) {
     acc[propertyId].revenue += r.total_amount ? Number(r.total_amount) : 0
     acc[propertyId].reservations += 1
 
-    const checkIn = new Date(r.check_in)
-    const checkOut = new Date(r.check_out)
-    const nights = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24))
+    const nights = daysBetweenDateOnly(r.check_in, r.check_out)
     acc[propertyId].nights += nights
 
     return acc
@@ -335,10 +337,9 @@ export default async function FinanceiroPage({ searchParams }: PageProps) {
 
   // Agrupar por mês para gráfico
   const revenueByMonth = reservations?.reduce((acc: Record<string, { monthKey: string; month: string; currency: string; revenue: number; reservations: number; nights: number; availableNights: number }>, r) => {
-    const checkIn = new Date(r.check_in)
-    const monthKey = `${checkIn.getFullYear()}-${String(checkIn.getMonth() + 1).padStart(2, '0')}`
-    const monthName = checkIn.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
-    const daysInMonth = new Date(checkIn.getFullYear(), checkIn.getMonth() + 1, 0).getDate()
+    const monthKey = r.check_in.slice(0, 7)
+    const monthName = monthLabel(monthKey)
+    const daysInMonth = monthBounds(monthKey).days
 
     if (!acc[monthKey]) {
       acc[monthKey] = {
@@ -355,8 +356,7 @@ export default async function FinanceiroPage({ searchParams }: PageProps) {
     acc[monthKey].revenue += r.total_amount ? Number(r.total_amount) : 0
     acc[monthKey].reservations += 1
 
-    const checkOut = new Date(r.check_out)
-    const nights = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24))
+    const nights = daysBetweenDateOnly(r.check_in, r.check_out)
     acc[monthKey].nights += nights
 
     return acc
@@ -366,69 +366,18 @@ export default async function FinanceiroPage({ searchParams }: PageProps) {
     a.monthKey.localeCompare(b.monthKey)
   )
 
-  // Horizontes de previsão (30/60/90 dias)
-  const now = new Date()
-  const day30 = new Date(now); day30.setDate(now.getDate() + 30)
-  const day60 = new Date(now); day60.setDate(now.getDate() + 60)
-  const day90 = new Date(now); day90.setDate(now.getDate() + 90)
+  // Horizontes de previsão (30/60/90 dias), em dias de calendário a partir de "hoje" na organização
+  const day30 = addDaysToDateOnly(today, 30)
+  const day60 = addDaysToDateOnly(today, 60)
+  const day90 = addDaysToDateOnly(today, 90)
 
-  function overlapDays(checkIn: Date, checkOut: Date, winStart: Date, winEnd: Date): number {
-    const start = checkIn < winStart ? winStart : checkIn
-    const end = checkOut > winEnd ? winEnd : checkOut
-    if (start >= end) return 0
-    return Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24))
-  }
-
-  function summarizeHorizon(winStart: Date, winEnd: Date) {
-    const revByCurrency: Record<string, number> = {}
-    let totalNights = 0
-    const ids = new Set<string>()
-    futureReservations.forEach(r => {
-      const checkIn = new Date(r.check_in)
-      const checkOut = new Date(r.check_out)
-      const totalDays = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24))
-      if (totalDays <= 0) return
-      const overlap = overlapDays(checkIn, checkOut, winStart, winEnd)
-      if (overlap <= 0) return
-      const cur = reportCurrencyLabel(getResCurrency(r))
-      const amount = r.total_amount ? Number(r.total_amount) : 0
-      revByCurrency[cur] = (revByCurrency[cur] || 0) + amount * (overlap / totalDays)
-      totalNights += overlap
-      ids.add(r.id)
-    })
-    return { revenueByCurrency: revByCurrency, reservations: ids.size, nights: totalNights }
-  }
-
-  const futureHorizon30 = summarizeHorizon(now, day30)
-  const futureHorizon60 = summarizeHorizon(day30, day60)
-  const futureHorizon90 = summarizeHorizon(day60, day90)
+  const currencyOf = (r: (typeof futureReservations)[number]) => reportCurrencyLabel(getResCurrency(r))
+  const futureHorizon30 = summarizeHorizon(futureReservations, today, day30, currencyOf)
+  const futureHorizon60 = summarizeHorizon(futureReservations, day30, day60, currencyOf)
+  const futureHorizon90 = summarizeHorizon(futureReservations, day60, day90, currencyOf)
 
   // Agrupar reservas futuras por mês
-  const futureByMonth = futureReservations.reduce(
-    (acc: Record<string, { month: string; reservations: typeof futureReservations }>, r) => {
-      const checkIn = new Date(r.check_in)
-      const checkOut = new Date(r.check_out)
-      const totalDays = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24))
-      const cursor = new Date(checkIn.getFullYear(), checkIn.getMonth(), 1)
-      while (cursor <= checkOut) {
-        const monthStart = new Date(cursor)
-        const monthEnd = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 0, 23, 59, 59)
-        const overlap = overlapDays(checkIn, checkOut, monthStart, monthEnd)
-        if (overlap > 0) {
-          const key = `${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, '0')}`
-          const label = cursor.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
-          if (!acc[key]) acc[key] = { month: label, reservations: [] }
-          const proportionalAmount = totalDays > 0
-            ? (r.total_amount ? Number(r.total_amount) : 0) * (overlap / totalDays)
-            : 0
-          acc[key].reservations.push({ ...r, total_amount: proportionalAmount })
-        }
-        cursor.setMonth(cursor.getMonth() + 1)
-      }
-      return acc
-    },
-    {}
-  )
+  const futureByMonth = groupFutureByMonth(futureReservations, monthLabel)
 
   // Agrupar por canal (source)
   interface ChannelStat {
@@ -455,9 +404,7 @@ export default async function FinanceiroPage({ searchParams }: PageProps) {
     acc[channelName].revenue += r.total_amount ? Number(r.total_amount) : 0
     acc[channelName].reservations += 1
 
-    const checkIn = new Date(r.check_in)
-    const checkOut = new Date(r.check_out)
-    const nights = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24))
+    const nights = daysBetweenDateOnly(r.check_in, r.check_out)
     acc[channelName].nights += nights
 
     return acc

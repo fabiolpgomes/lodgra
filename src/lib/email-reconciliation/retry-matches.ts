@@ -1,4 +1,5 @@
 import { createAdminClient } from '@/lib/supabase/admin'
+import { addDaysToDateOnly } from '@/lib/dates/date-only'
 import { syncExtractedDataToReservation } from './sync-to-reservations'
 
 /**
@@ -14,8 +15,11 @@ export async function retryUnmatchedExtractions() {
   const orgIds = (orgs || []).map(org => org.id as string)
   if (!orgIds.length) return { retried: 0, matched: 0, errors: 0 }
 
-  const today = new Date().toISOString().slice(0, 10)
-  const recentCheckIn = new Date(Date.now() - 30 * 86_400_000).toISOString().slice(0, 10)
+  // Todas as organizações numa só query: o corte usa o dia UTC menos 1 (superset de "hoje" em qualquer fuso),
+  // para nunca excluir uma extração cujo check-out é hoje no fuso da organização.
+  const utcToday = new Date().toISOString().slice(0, 10)
+  const today = addDaysToDateOnly(utcToday, -1)
+  const recentCheckIn = addDaysToDateOnly(utcToday, -30)
   const { data, error } = await db.from('email_extractions').select('id')
     .in('organization_id', orgIds)
     .in('match_status', ['pending', 'no_match'])

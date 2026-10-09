@@ -21,6 +21,7 @@
  * })
  */
 
+import { addDaysToDateOnly } from '@/lib/dates/date-only'
 import { formatCurrency } from '@/lib/utils/currency'
 
 export interface PricingRuleMatch {
@@ -272,15 +273,13 @@ export class ReservationPriceCalculator {
     dailyPrices: Map<string, number>
   ): number[] {
     const prices: number[] = []
-    const start = new Date(checkIn)
-    const end = new Date(checkOut)
+    const end = checkOut.slice(0, 10)
 
     for (
-      let date = new Date(start);
-      date < end;
-      date.setDate(date.getDate() + 1)
+      let dateStr = checkIn.slice(0, 10);
+      dateStr < end;
+      dateStr = addDaysToDateOnly(dateStr, 1)
     ) {
-      const dateStr = date.toISOString().split('T')[0]
       const price = dailyPrices.get(dateStr)
       if (price) {
         prices.push(price)

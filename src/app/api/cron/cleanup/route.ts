@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { addMonthsToDateOnly } from '@/lib/dates/date-only'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 
@@ -18,9 +19,7 @@ export async function GET(request: NextRequest) {
     const adminClient = createAdminClient()
     
     // Data limite: 2 anos atrás
-    const twoYearsAgo = new Date()
-    twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2)
-    const cutoffDate = twoYearsAgo.toISOString().split('T')[0]
+    const cutoffDate = addMonthsToDateOnly(new Date().toISOString().slice(0, 10), -24)
 
     // Contar reservas antigas canceladas
     const { count: oldCancelledCount } = await supabase

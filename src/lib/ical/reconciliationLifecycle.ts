@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { todayInTimeZone } from '@/lib/dates/date-only'
 
 export interface ReconciledFeedInput {
   supabase: SupabaseClient
@@ -6,6 +7,8 @@ export interface ReconciledFeedInput {
   propertyListingId: string
   feedEvents: Map<string, { checkIn: string; checkOut: string; status?: string }>
   today?: Date
+  /** Fuso da organização: define o que é "hoje" (default Europe/Lisbon). */
+  timeZone?: string
 }
 
 /**
@@ -14,6 +17,7 @@ export interface ReconciledFeedInput {
  * The email reconciliation writer (or an explicit host decision) owns the mutation.
  */
 export async function assertReconciledFeedConsistency(input: ReconciledFeedInput): Promise<void> {
+  const today = todayInTimeZone(input.timeZone, input.today ?? new Date())
   // Unlinked facts removed from a successfully parsed feed cannot authorize a later booking.
   const { data: staged, error: stagedError } = await input.supabase.from('calendar_events')
     .select('id')
@@ -39,13 +43,12 @@ export async function assertReconciledFeedConsistency(input: ReconciledFeedInput
     .eq('organization_id', input.organizationId)
     .eq('property_listing_id', input.propertyListingId)
     .not('calendar_event_id', 'is', null)
-    .gte('check_out', new Date().toISOString().slice(0, 10))
+    .gte('check_out', today)
     .limit(1001)
 
   if (error) throw new Error(`Falha ao verificar ciclo de vida reconciliado: ${error.message}`)
   if ((data?.length || 0) >= 1000) throw new Error('Limite da auditoria de reservas reconciliadas atingido; revisão necessária')
 
-  const today = (input.today ?? new Date()).toISOString().slice(0, 10)
   const issues: string[] = []
   for (const reservation of data || []) {
     if (reservation.deleted_at || reservation.status === 'cancelled' || reservation.reservation_status === 'cancelled') continue

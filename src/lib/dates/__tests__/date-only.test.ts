@@ -76,3 +76,29 @@ describe('toDateOnly', () => {
     expect(toDateOnly(new Date(2026, 0, 1, 23, 59))).toBe('2026-01-01')
   })
 })
+
+import { todayInTimeZone, addMonthsToDateOnly } from '../date-only'
+
+describe('todayInTimeZone / addMonthsToDateOnly', () => {
+  it('o mesmo instante é dias diferentes em fusos diferentes', () => {
+    const instant = new Date('2026-08-01T01:30:00Z')
+    expect(todayInTimeZone('America/Sao_Paulo', instant)).toBe('2026-07-31')
+    expect(todayInTimeZone('Europe/Lisbon', instant)).toBe('2026-08-01')
+    expect(todayInTimeZone('Europe/Madrid', instant)).toBe('2026-08-01')
+  })
+
+  it('acompanha a mudança de hora de 2026-10-25 em Lisboa', () => {
+    // antes da mudança (UTC+1): 23h30 UTC do dia 24 já é dia 25 em Lisboa
+    expect(todayInTimeZone('Europe/Lisbon', new Date('2026-10-24T23:30:00Z'))).toBe('2026-10-25')
+    // depois da mudança (UTC+0): 23h30 UTC do dia 25 ainda é dia 25; 00h30 UTC do 26 já é dia 26
+    expect(todayInTimeZone('Europe/Lisbon', new Date('2026-10-25T23:30:00Z'))).toBe('2026-10-25')
+    expect(todayInTimeZone('Europe/Lisbon', new Date('2026-10-26T00:30:00Z'))).toBe('2026-10-26')
+  })
+
+  it('soma meses limitando ao último dia do mês', () => {
+    expect(addMonthsToDateOnly('2026-05-31', -3)).toBe('2026-02-28')
+    expect(addMonthsToDateOnly('2028-05-31', -3)).toBe('2028-02-29')
+    expect(addMonthsToDateOnly('2026-01-15', -3)).toBe('2025-10-15')
+    expect(addMonthsToDateOnly('2026-11-30', 3)).toBe('2027-02-28')
+  })
+})

@@ -1,5 +1,6 @@
 'use client'
 
+import { toDateOnly } from '@/lib/dates/date-only'
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams, useLocale } from '@/lib/i18n/routing'
 import Link from 'next/link'
@@ -586,7 +587,7 @@ export default function NewReservationPage() {
                   required
                   value={checkIn}
                   onChange={(event) => setCheckIn(event.target.value)}
-                  min={preCheckIn ? undefined : new Date().toISOString().split('T')[0]}
+                  min={preCheckIn ? undefined : toDateOnly(new Date())}
                 />
               </div>
 
@@ -601,7 +602,7 @@ export default function NewReservationPage() {
                   required
                   value={checkOut}
                   onChange={(event) => setCheckOut(event.target.value)}
-                  min={preCheckOut ? undefined : new Date().toISOString().split('T')[0]}
+                  min={preCheckOut ? undefined : toDateOnly(new Date())}
                 />
               </div>
             </div>

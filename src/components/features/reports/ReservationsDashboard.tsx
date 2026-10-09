@@ -1,5 +1,6 @@
 'use client'
 
+import { toDateOnly } from '@/lib/dates/date-only'
 import { useMemo } from 'react'
 import { TodaySummary } from './TodaySummary'
 import { Next7DaysPipeline } from './Next7DaysPipeline'
@@ -160,15 +161,15 @@ export function ReservationsDashboard({
         reservations={sevenDayReservations}
         properties={properties}
         propertyId={propertyId}
-        startDate={today.toISOString().split('T')[0]}
-        _endDate={nextSevenDays.toISOString().split('T')[0]}
+        startDate={toDateOnly(today)}
+        _endDate={toDateOnly(nextSevenDays)}
       />
 
       <PerformanceKPIs
         metrics={metrics}
         reservations={sevenDayReservations}
-        _startDate={today.toISOString().split('T')[0]}
-        _endDate={nextSevenDays.toISOString().split('T')[0]}
+        _startDate={toDateOnly(today)}
+        _endDate={toDateOnly(nextSevenDays)}
       />
     </div>
   )

@@ -3,6 +3,7 @@
  * Main calendar view with prices and reservations
  */
 
+import { toDateOnly, toLocalDate } from '@/lib/dates/date-only'
 import React, { useState, useEffect } from 'react';
 import { CalendarGrid } from './PricingCalendar/CalendarGrid';
 import { CalendarHeader } from './CalendarHeader';
@@ -47,7 +48,7 @@ export function DetailedCalendar({
 
   const validateDate = (dateStr: unknown): Date | null => {
     if (!dateStr) return null;
-    const date = new Date(dateStr as string);
+    const date = toLocalDate(dateStr as string);
     return isNaN(date.getTime()) ? null : date;
   };
 
@@ -146,7 +147,7 @@ export function DetailedCalendar({
   };
 
   const getPriceForDate = (date: Date | string): string => {
-    const dateStr = typeof date === 'string' ? date : date.toISOString().split('T')[0];
+    const dateStr = typeof date === 'string' ? date : toDateOnly(date);
     const price = calendarMonth.prices.get(dateStr);
     return price?.price !== undefined ? formatCalendarPrice(price.price) : '—';
   };

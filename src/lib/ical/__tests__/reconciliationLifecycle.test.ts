@@ -91,3 +91,15 @@ it('reads the flagged reservations back from the stored error', () => {
     ])
   expect(parseReconciliationIssues('Failed to fetch iCal: 404')).toEqual([])
 })
+
+it('"hoje" é o dia da organização: 01h30 UTC de 09/10 ainda é 08/10 no Brasil', async () => {
+  // estadia começa 09/10: em Lisboa já começou (não é cancelamento); em São Paulo ainda não começou (é futura)
+  const stay = { ...row, check_in: '2026-10-09', check_out: '2026-10-12' }
+  const lisbon = setup([stay]); lisbon.input.feedEvents = new Map(); lisbon.input.today = new Date('2026-10-09T01:30:00Z')
+  lisbon.input.timeZone = 'Europe/Lisbon'
+  await expect(assertReconciledFeedConsistency(lisbon.input)).resolves.toBeUndefined()
+  const sp = setup([stay]); sp.input.feedEvents = new Map(); sp.input.today = new Date('2026-10-09T01:30:00Z')
+  sp.input.timeZone = 'America/Sao_Paulo'
+  await expect(assertReconciledFeedConsistency(sp.input)).rejects.toThrow('evento ausente')
+  expect(sp.query.gte).toHaveBeenCalledWith('check_out', '2026-10-08')
+})

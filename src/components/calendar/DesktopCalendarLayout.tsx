@@ -1,5 +1,6 @@
 'use client'
 
+import { toDateOnly } from '@/lib/dates/date-only'
 import { useState } from 'react'
 import { DetailedCalendarMobile } from './DetailedCalendarMobile'
 import { PropertySidebar } from './PropertySidebar'
@@ -81,7 +82,7 @@ export function DesktopCalendarLayout({
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({
-          dates: selectedDates.map(d => d.toISOString().split('T')[0]),
+          dates: selectedDates.map(d => toDateOnly(d)),
           base_price: price,
         }),
       })

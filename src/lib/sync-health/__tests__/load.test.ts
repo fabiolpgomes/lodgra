@@ -1,3 +1,7 @@
+jest.mock('@/lib/dates/business-timezone.server', () => ({
+  getOrganizationTimeZone: jest.fn().mockResolvedValue('Europe/Lisbon'),
+}))
+
 import { loadSyncHealth } from '../load'
 
 function chain(result: { data: unknown; error: unknown }) {

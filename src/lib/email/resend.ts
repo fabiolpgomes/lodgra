@@ -67,6 +67,7 @@ export async function sendDailySummary({
   }
 
   const formattedDate = new Date(date).toLocaleDateString('pt-BR', {
+    timeZone: 'UTC',
     weekday: 'long',
     day: '2-digit',
     month: 'long',

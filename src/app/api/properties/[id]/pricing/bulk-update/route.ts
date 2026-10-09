@@ -3,6 +3,7 @@
  * POST /api/properties/:id/pricing/bulk-update
  */
 
+import { addDaysToDateOnly, daysBetweenDateOnly } from '@/lib/dates/date-only'
 import { revalidatePath } from 'next/cache'
 import { NextRequest, NextResponse } from 'next/server'
 import { authorizePropertyManagement } from '@/lib/auth/authorizePropertyManagement'
@@ -37,12 +38,16 @@ export async function POST(
 
     if (startDate && endDate && price !== undefined) {
       priceValue = price
-      const start = new Date(startDate)
-      const end = new Date(endDate)
-      const current = new Date(start)
-      while (current <= end) {
-        datesArray.push(current.toISOString().split('T')[0])
-        current.setDate(current.getDate() + 1)
+      const startStr = String(startDate).slice(0, 10)
+      const endStr = String(endDate).slice(0, 10)
+      if (Number.isNaN(daysBetweenDateOnly(startStr, endStr))) {
+        return NextResponse.json(
+          { success: false, error: 'Invalid dates' },
+          { status: 400 }
+        )
+      }
+      for (let day = startStr; day <= endStr; day = addDaysToDateOnly(day, 1)) {
+        datesArray.push(day)
       }
     } else if (dates && base_price !== undefined) {
       datesArray = dates

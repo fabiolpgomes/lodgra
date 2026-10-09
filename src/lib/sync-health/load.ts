@@ -1,4 +1,6 @@
 import type { createAdminClient } from '@/lib/supabase/admin'
+import { getOrganizationTimeZone } from '@/lib/dates/business-timezone.server'
+import { todayInTimeZone } from '@/lib/dates/date-only'
 import { parseReconciliationIssues } from '@/lib/ical/reconciliationLifecycle'
 import { buildSyncHealth, PLACEHOLDER_GUEST, UNLINKED_EVENT_HOURS, type SyncHealth } from './actions'
 
@@ -17,7 +19,7 @@ export class SyncHealthUnavailableError extends Error {
 
 /** Loads one tenant's sync state and turns it into actions. Throws when any source cannot be read. */
 export async function loadSyncHealth(db: AdminClient, organizationId: string, locale: string, now = new Date()): Promise<SyncHealth> {
-  const today = now.toISOString().slice(0, 10)
+  const today = todayInTimeZone(await getOrganizationTimeZone(organizationId, db), now)
   const unlinkedBefore = new Date(now.getTime() - UNLINKED_EVENT_HOURS * 3_600_000).toISOString()
   const trustSince = new Date(now.getTime() - 30 * 86_400_000).toISOString()
 

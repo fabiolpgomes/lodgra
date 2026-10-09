@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { daysBetweenDateOnly, todayInTimeZone } from '@/lib/dates/date-only'
 import { createClient } from '@/lib/supabase/server'
 import { sendDailySummary } from '@/lib/email/resend'
 
@@ -28,10 +29,8 @@ export async function GET(request: NextRequest) {
 
     const supabase = await createClient()
 
-    // Data de hoje
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    const todayStr = today.toISOString().split('T')[0]
+    // Dia de calendário de hoje no fuso de negócio por omissão (este cron envia um único resumo)
+    const todayStr = todayInTimeZone()
 
     // Buscar check-ins de hoje
     const { data: checkIns } = await supabase
@@ -75,9 +74,7 @@ export async function GET(request: NextRequest) {
 
     // Preparar dados para o email
     const checkInNotifications = ((checkIns as unknown as ReservationRow[]) || []).map((r) => {
-      const checkIn = new Date(r.check_in)
-      const checkOut = new Date(r.check_out)
-      const nights = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24))
+      const nights = daysBetweenDateOnly(r.check_in, r.check_out)
 
       return {
         guestName: r.guests ? `${r.guests.first_name} ${r.guests.last_name}` : 'Sem nome',
@@ -93,9 +90,7 @@ export async function GET(request: NextRequest) {
     })
 
     const checkOutNotifications = ((checkOuts as unknown as ReservationRow[]) || []).map((r) => {
-      const checkIn = new Date(r.check_in)
-      const checkOut = new Date(r.check_out)
-      const nights = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24))
+      const nights = daysBetweenDateOnly(r.check_in, r.check_out)
 
       return {
         guestName: r.guests ? `${r.guests.first_name} ${r.guests.last_name}` : 'Sem nome',

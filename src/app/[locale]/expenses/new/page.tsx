@@ -1,5 +1,6 @@
 'use client'
 
+import { toDateOnly } from '@/lib/dates/date-only'
 import { useState, useEffect } from 'react'
 import { useRouter, useLocale } from '@/lib/i18n/routing'
 import Link from 'next/link'
@@ -185,7 +186,7 @@ export default function NewExpensePage() {
                   id="expense_date"
                   name="expense_date"
                   required
-                  defaultValue={new Date().toISOString().split('T')[0]}
+                  defaultValue={toDateOnly(new Date())}
                 />
               </div>
 

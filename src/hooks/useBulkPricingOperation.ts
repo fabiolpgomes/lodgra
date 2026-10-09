@@ -3,6 +3,7 @@
  * Manages bulk price operations with undo/redo and optimistic updates
  */
 
+import { addDaysToDateOnly, toDateOnly } from '@/lib/dates/date-only'
 import { useCallback, useState } from 'react';
 import { DailyPrice } from '@/types/calendar.types';
 
@@ -50,12 +51,12 @@ export function useBulkPricingOperation(
   // Get all dates in range
   const getAffectedDates = useCallback((startDate: Date, endDate: Date): string[] => {
     const dates: string[] = [];
-    const current = new Date(startDate);
+    const endStr = toDateOnly(endDate);
+    let dateStr = toDateOnly(startDate);
 
-    while (current <= endDate) {
-      const dateStr = current.toISOString().split('T')[0];
+    while (dateStr <= endStr) {
       dates.push(dateStr);
-      current.setDate(current.getDate() + 1);
+      dateStr = addDaysToDateOnly(dateStr, 1);
     }
 
     return dates;
@@ -237,7 +238,7 @@ export function useBulkPricingOperation(
         throw new Error('Source date is required for copy operation');
       }
 
-      const sourceDateStr = config.sourceDate.toISOString().split('T')[0];
+      const sourceDateStr = toDateOnly(config.sourceDate);
       const sourcePrice = config.currentPrices.get(sourceDateStr)?.price;
 
       if (sourcePrice === undefined) {

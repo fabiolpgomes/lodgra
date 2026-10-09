@@ -7,7 +7,7 @@ import { Label } from '@/components/common/ui/label'
 import { Alert, AlertDescription } from '@/components/common/ui/alert'
 import { FileText, Download, Share2, X, Copy, Check } from 'lucide-react'
 import { toast } from 'sonner'
-import { formatDateOnly } from '@/lib/dates/date-only'
+import { formatDateOnly, toDateOnly } from '@/lib/dates/date-only'
 
 interface Property {
   id: string
@@ -44,9 +44,9 @@ interface ExpensesPdfGeneratorProps {
 
 export function ExpensesPdfGenerator({ properties }: ExpensesPdfGeneratorProps) {
   const [startDate, setStartDate] = useState<string>(
-    new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0]
+    toDateOnly(new Date(new Date().getFullYear(), new Date().getMonth(), 1))
   )
-  const [endDate, setEndDate] = useState<string>(new Date().toISOString().split('T')[0])
+  const [endDate, setEndDate] = useState<string>(toDateOnly(new Date()))
   const [selectedPropertyId, setSelectedPropertyId] = useState<string>('all')
   const [selectedCategory, setSelectedCategory] = useState<string>('')
   const [loading, setLoading] = useState(false)

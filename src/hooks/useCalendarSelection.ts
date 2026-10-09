@@ -1,5 +1,6 @@
 'use client'
 
+import { toDateOnly } from '@/lib/dates/date-only'
 import { useReducer, useCallback, useMemo, useState } from 'react'
 
 export interface DateRange {
@@ -30,16 +31,16 @@ const initialState: SelectionState = {
 function selectionReducer(state: SelectionState, action: SelectionAction): SelectionState {
   switch (action.type) {
     case 'TOGGLE_DAY': {
-      const dateStr = action.date.toISOString().split('T')[0]
+      const dateStr = toDateOnly(action.date)
       const isSelected = state.selectedDates.some(
-        (d) => d.toISOString().split('T')[0] === dateStr
+        (d) => toDateOnly(d) === dateStr
       )
 
       if (isSelected) {
         return {
           ...state,
           selectedDates: state.selectedDates.filter(
-            (d) => d.toISOString().split('T')[0] !== dateStr
+            (d) => toDateOnly(d) !== dateStr
           ),
         }
       }

@@ -55,11 +55,17 @@ jobs:
       - run: npm run build
 
   test:
-    name: Unit Tests
+    name: Unit Tests (${{ matrix.tz }})
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs: lint
+    # Datas de calendário não podem depender do fuso: Brasil (UTC-3), Portugal/Espanha (UTC+0/+1, DST) e um extremo (UTC+14).
+    strategy:
+      fail-fast: false
+      matrix:
+        tz: [America/Sao_Paulo, Europe/Lisbon, Pacific/Kiritimati]
     env:
+      TZ: ${{ matrix.tz }}
       STRIPE_BR_SECRET_KEY: sk_test_ci_br
       STRIPE_PT_SECRET_KEY: sk_test_ci_pt
     steps:

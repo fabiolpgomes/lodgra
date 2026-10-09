@@ -1,6 +1,6 @@
 'use client';
 
-import { formatDateOnly } from '@/lib/dates/date-only'
+import { formatDateOnly, toDateOnly } from '@/lib/dates/date-only'
 
 import { useEffect, useState } from 'react';
 import { useTranslations } from '@/lib/i18n/useTranslations';
@@ -39,7 +39,7 @@ export default function CleaningManagerDashboard() {
   const [cleaners, setCleaners] = useState<Cleaner[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>('');
-  const [dateFilter, setDateFilter] = useState<string>(new Date().toISOString().split('T')[0]);
+  const [dateFilter, setDateFilter] = useState<string>(toDateOnly(new Date()));
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [regeneratingTaskId, setRegeneratingTaskId] = useState<string | null>(null);
   const [selectedTaskForHistory, setSelectedTaskForHistory] = useState<string | null>(null);

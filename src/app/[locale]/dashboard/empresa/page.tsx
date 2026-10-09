@@ -27,6 +27,8 @@ import {
 } from '@/lib/financial/company-expenses'
 import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
 import { normalizeChannelName } from '@/lib/utils/channels'
+import { getOrganizationTimeZone } from '@/lib/dates/business-timezone.server'
+import { daysBetweenDateOnly, todayInTimeZone } from '@/lib/dates/date-only'
 import { getReservationPlatformLabel } from '@/lib/reservations/platform'
 
 type MoneyMap = Record<string, number>
@@ -143,9 +145,8 @@ function monthKey(year: number, monthIndex: number) {
 }
 
 function getNights(checkIn: string, checkOut: string) {
-  const start = new Date(checkIn)
-  const end = new Date(checkOut)
-  return Math.max(0, Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)))
+  const nights = daysBetweenDateOnly(checkIn, checkOut)
+  return Number.isNaN(nights) ? 0 : Math.max(0, nights)
 }
 
 function moneyValue(values: MoneyMap) {
@@ -208,8 +209,10 @@ export default async function CompanyDashboardPage({
     redirect(`/${locale}/account`)
   }
 
-  const selectedYear = Number(query.year || new Date().getFullYear())
-  const safeYear = Number.isFinite(selectedYear) ? selectedYear : new Date().getFullYear()
+  const organizationTimeZone = await getOrganizationTimeZone(auth.organizationId)
+  const currentYear = Number(todayInTimeZone(organizationTimeZone).slice(0, 4))
+  const selectedYear = Number(query.year || currentYear)
+  const safeYear = Number.isFinite(selectedYear) ? selectedYear : currentYear
   const { start, end } = getYearRange(safeYear)
   const supabase = await createClient()
 
@@ -266,7 +269,7 @@ export default async function CompanyDashboardPage({
           property_listings(platforms(display_name, name))
         `)
         .eq('status', 'confirmed')
-        .gte('check_out', new Date().toISOString().split('T')[0])
+        .gte('check_out', todayInTimeZone(organizationTimeZone))
         .in('property_id', propertyIds)
         .order('check_in', { ascending: true }),
     ])
@@ -386,8 +389,8 @@ export default async function CompanyDashboardPage({
 
     const amount = Number(expense.amount || 0)
     const currency = getExpenseCurrency(expense, propertyById)
-    const date = expense.expense_date ? new Date(expense.expense_date) : null
-    const monthIndex = date && date.getFullYear() === safeYear ? date.getMonth() : -1
+    const expenseDate = expense.expense_date?.slice(0, 10) ?? null
+    const monthIndex = expenseDate && Number(expenseDate.slice(0, 4)) === safeYear ? Number(expenseDate.slice(5, 7)) - 1 : -1
     if (!currency) return
 
     stat.expenses += amount

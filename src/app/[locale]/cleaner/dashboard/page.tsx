@@ -1,5 +1,6 @@
 'use client'
 
+import { addDaysToDateOnly, toDateOnly } from '@/lib/dates/date-only'
 import { useEffect, useState, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useSupabaseRealtimeSubscription } from '@/hooks/useSupabaseRealtimeSubscription'
@@ -38,13 +39,8 @@ export default function CleanerDashboard() {
       setCleanerName(cleanerData.name || 'Limpador')
 
       // Fetch today's tasks
-      const today = new Date()
-      today.setHours(0, 0, 0, 0)
-      const todayStr = today.toISOString().split('T')[0]
-
-      const tomorrow = new Date(today)
-      tomorrow.setDate(tomorrow.getDate() + 1)
-      const tomorrowStr = tomorrow.toISOString().split('T')[0]
+      const todayStr = toDateOnly(new Date())
+      const tomorrowStr = addDaysToDateOnly(todayStr, 1)
 
       const { data: todayTasksData, error: todayError } = await supabase
         .from('cleaning_tasks')
@@ -63,9 +59,7 @@ export default function CleanerDashboard() {
       setTasks(enrichedTodayTasks)
 
       // Fetch next 7 days tasks
-      const sevenDaysLater = new Date(today)
-      sevenDaysLater.setDate(sevenDaysLater.getDate() + 7)
-      const sevenDaysStr = sevenDaysLater.toISOString().split('T')[0]
+      const sevenDaysStr = addDaysToDateOnly(todayStr, 7)
 
       const { data: nextWeekData, error: nextWeekError } = await supabase
         .from('cleaning_tasks')

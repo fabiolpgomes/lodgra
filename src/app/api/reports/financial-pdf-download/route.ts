@@ -42,7 +42,7 @@ interface PropertyData {
 }
 
 function formatPtDate(date: string): string {
-  return new Date(date).toLocaleDateString('pt-PT')
+  return new Date(date).toLocaleDateString('pt-PT', { timeZone: 'UTC' })
 }
 
 function normalizeChannelName(source: string | null): string {

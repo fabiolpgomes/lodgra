@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { getOrganizationTimeZone } from '@/lib/dates/business-timezone.server'
+import { addMonthsToDateOnly, todayInTimeZone } from '@/lib/dates/date-only'
 import { notFound } from 'next/navigation'
 import { headers } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
@@ -228,9 +230,8 @@ export default async function PublicPropertyPage({ params, searchParams }: PageP
   }
 
   // Load pricing rules (admin client bypasses RLS for public page)
-  const nowDate = new Date()
-  const today = nowDate.toISOString().split('T')[0]
-  const futureDate = new Date(nowDate.getFullYear() + 1, nowDate.getMonth(), nowDate.getDate()).toISOString().split('T')[0]
+  const today = todayInTimeZone(await getOrganizationTimeZone(property.organization_id))
+  const futureDate = addMonthsToDateOnly(today, 12)
   const { data: pricingRulesRaw } = await adminClient
     .from('pricing_rules')
     .select('start_date, end_date, min_nights, price_per_night')

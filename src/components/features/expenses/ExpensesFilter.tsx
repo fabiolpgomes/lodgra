@@ -1,6 +1,6 @@
 'use client'
 
-import { formatDateOnly } from '@/lib/dates/date-only'
+import { formatDateOnly, toDateOnly } from '@/lib/dates/date-only'
 
 import { useState, useMemo, useEffect } from 'react'
 import { Search, Eye, Edit, Receipt, Plus, Calendar, TrendingDown, X } from 'lucide-react'
@@ -47,10 +47,13 @@ function getStorageKey(key: string): string {
 function toIsoDate(value: string | null | undefined): string | null {
   if (!value) return null
 
+  const dateOnly = /^\d{4}-\d{2}-\d{2}$/.exec(value.trim())
+  if (dateOnly) return dateOnly[0]
+
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return null
 
-  return date.toISOString().split('T')[0]
+  return toDateOnly(date)
 }
 
 function truncateText(value: string, maxLength: number): string {

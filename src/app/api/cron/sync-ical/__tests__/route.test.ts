@@ -15,6 +15,9 @@ import { getFeatureFlagStatus } from '@/lib/email-reconciliation/feature-flag'
 import { hasActiveReconciledReservation, upsertReconciliationAvailability } from '@/lib/ical/reconciliationAvailability'
 import { upsertCalendarEventAudit } from '@/lib/ical/calendarEventAudit'
 
+jest.mock('@/lib/dates/business-timezone.server', () => ({
+  getOrganizationTimeZone: jest.fn().mockResolvedValue('Europe/Lisbon'),
+}))
 jest.mock('@/lib/ical/reconciliationLifecycle', () => ({ assertReconciledFeedConsistency: jest.fn().mockResolvedValue(undefined) }))
 
 jest.mock('@/lib/supabase/admin', () => ({

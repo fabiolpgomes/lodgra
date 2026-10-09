@@ -17,6 +17,7 @@ import { upsertCalendarEventAudit } from '@/lib/ical/calendarEventAudit'
 import { calculateServiceFeeAmount, nightsBetween } from '@/lib/reservations/serviceFee'
 import { getFeatureFlagStatus } from '@/lib/email-reconciliation/feature-flag'
 import { hasActiveReconciledReservation, upsertReconciliationAvailability } from '@/lib/ical/reconciliationAvailability'
+import { getOrganizationTimeZone } from '@/lib/dates/business-timezone.server'
 import { assertReconciledFeedConsistency } from '@/lib/ical/reconciliationLifecycle'
 import { normalizeListingPlatform } from '@/lib/ical/listingPlatform'
 
@@ -441,7 +442,7 @@ async function syncListing(
     listingSource !== null &&
     reconciliationFlag.pilot_platforms.includes(listingSource)
   if (reconciliationOwnsListing) {
-    await assertReconciledFeedConsistency({ supabase, organizationId: resolvedOrganizationId, propertyListingId: listingId, feedEvents })
+    await assertReconciledFeedConsistency({ supabase, organizationId: resolvedOrganizationId, propertyListingId: listingId, feedEvents, timeZone: await getOrganizationTimeZone(resolvedOrganizationId) })
   }
   if (!reconciliationOwnsListing) {
     try {

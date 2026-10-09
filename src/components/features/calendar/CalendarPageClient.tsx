@@ -1,5 +1,6 @@
 'use client'
 
+import { addDaysToDateOnly, toDateOnly } from '@/lib/dates/date-only'
 import { useState, useEffect, useCallback, useRef } from 'react'
 import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
@@ -11,7 +12,6 @@ import { NewReservationModal } from './NewReservationModal'
 import { BlockDatesModal } from './BlockDatesModal'
 import { SelectActionModal } from './SelectActionModal'
 import { createClient } from '@/lib/supabase/client'
-import { addDays } from 'date-fns'
 import { MonthYearPicker } from '@/components/calendar/MonthYearPicker'
 import { formatCurrency } from '@/lib/utils/currency'
 
@@ -106,11 +106,9 @@ export function CalendarPageClient() {
   // Initialize dateRange with current month
   const initializeDateRange = () => {
     const now = new Date()
-    const from = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1))
-    const to = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1))
     return {
-      from: from.toISOString().split('T')[0],
-      to: to.toISOString().split('T')[0],
+      from: toDateOnly(new Date(now.getFullYear(), now.getMonth(), 1)),
+      to: toDateOnly(new Date(now.getFullYear(), now.getMonth() + 1, 1)),
     }
   }
 
@@ -189,7 +187,7 @@ export function CalendarPageClient() {
         id: `block-${block.id}`,
         title: block.notes || 'Bloqueado',
         start: block.start_date,
-        end: addDays(new Date(block.end_date), 1).toISOString().split('T')[0], // FullCalendar end is exclusive
+        end: addDaysToDateOnly(block.end_date, 1), // FullCalendar end is exclusive
         color: '#6b7280',
         textColor: '#ffffff',
         display: 'background',
@@ -267,11 +265,8 @@ export function CalendarPageClient() {
     const month = selectedDate.getMonth()
 
     // Calculate first day of month and first day of next month
-    const from = new Date(Date.UTC(year, month, 1))
-    const to = new Date(Date.UTC(year, month + 1, 1))
-
-    const fromStr = from.toISOString().split('T')[0]
-    const toStr = to.toISOString().split('T')[0]
+    const fromStr = toDateOnly(new Date(year, month, 1))
+    const toStr = toDateOnly(new Date(year, month + 1, 1))
 
     setDateRange({ from: fromStr, to: toStr })
     setShowMonthPicker(false)

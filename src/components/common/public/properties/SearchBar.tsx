@@ -1,5 +1,6 @@
 'use client'
 
+import { addDaysToDateOnly, toDateOnly } from '@/lib/dates/date-only'
 import { useState, useCallback, useMemo } from 'react'
 import { Search } from 'lucide-react'
 
@@ -50,12 +51,10 @@ export function SearchBar({ onSearch, isLoading = false, hideLocation = false }:
   const [errors, setErrors] = useState<ValidationErrors>({})
   const [submitted, setSubmitted] = useState(false)
 
-  const today = useMemo(() => new Date().toISOString().split('T')[0], [])
+  const today = useMemo(() => toDateOnly(new Date()), [])
   const minCheckOutDate = useMemo(() => {
     if (!checkIn) return ''
-    const d = new Date(checkIn)
-    d.setDate(d.getDate() + 1)
-    return d.toISOString().split('T')[0]
+    return addDaysToDateOnly(checkIn, 1)
   }, [checkIn])
 
   const handleSubmit = useCallback((e: React.FormEvent<HTMLFormElement>) => {
@@ -79,9 +78,7 @@ export function SearchBar({ onSearch, isLoading = false, hideLocation = false }:
     if (val) {
       delete newErrors.checkIn
       if (checkOut) {
-        const minOut = new Date(val)
-        minOut.setDate(minOut.getDate() + 1)
-        if (new Date(checkOut) < minOut) { setCheckOut(''); newErrors.checkOut = 'Data inválida' }
+        if (checkOut < addDaysToDateOnly(val, 1)) { setCheckOut(''); newErrors.checkOut = 'Data inválida' }
       }
     } else { delete newErrors.checkIn; delete newErrors.checkOut }
     setErrors(newErrors)
@@ -92,9 +89,7 @@ export function SearchBar({ onSearch, isLoading = false, hideLocation = false }:
     setCheckOut(val)
     const newErrors = { ...errors }
     if (val && checkIn) {
-      const minOut = new Date(checkIn)
-      minOut.setDate(minOut.getDate() + 1)
-      if (new Date(val) >= minOut) delete newErrors.checkOut
+      if (val >= addDaysToDateOnly(checkIn, 1)) delete newErrors.checkOut
       else newErrors.checkOut = 'Check-out deve ser após check-in'
     } else if (val && !checkIn) {
       newErrors.checkOut = 'Selecione o check-in primeiro'

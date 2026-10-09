@@ -106,5 +106,5 @@ export function getBookingConfirmationSubject(organizationName: string, locale?:
 
 export function formatBookingDate(date: string, locale?: string | null): string {
   const resolvedLocale = normalizeBookingLocale(locale)
-  return new Intl.DateTimeFormat(resolvedLocale, { dateStyle: 'long' }).format(new Date(date))
+  return new Intl.DateTimeFormat(resolvedLocale, { dateStyle: 'long', timeZone: 'UTC' }).format(new Date(date))
 }

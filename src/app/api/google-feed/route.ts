@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { addDaysToDateOnly } from '@/lib/dates/date-only'
 import { createAdminClient } from '@/lib/supabase/admin'
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://www.lodgra.pt'
@@ -33,8 +34,11 @@ export async function GET() {
   }
 
   const propertyIds = properties.map((p) => p.id)
-  const today = new Date().toISOString().split('T')[0]
-  const futureDate = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+  // Feed público multi-organização: o dia UTC menos 1 é um superset de "hoje" em qualquer fuso
+  // (nunca omite um bloqueio que ainda vale hoje).
+  const utcToday = new Date().toISOString().split('T')[0]
+  const today = addDaysToDateOnly(utcToday, -1)
+  const futureDate = addDaysToDateOnly(utcToday, 365)
 
   const blockedByProperty: Record<string, { start: string; end: string }[]> = {}
   if (propertyIds.length > 0) {

@@ -78,7 +78,7 @@ function calculateTotalNights(reservations: Reservation[]): number {
 }
 
 function formatPtDate(date: string): string {
-  return new Date(date).toLocaleDateString('pt-PT')
+  return new Date(date).toLocaleDateString('pt-PT', { timeZone: 'UTC' })
 }
 
 function getChannelName(source: string | null | undefined): string {
@@ -257,8 +257,8 @@ function generateHtml(
                     const proportionalAmount = calculateProportionalAmount(r, startDate, endDate)
                     const channelName = r.channels?.name || 'Direto'
                     return `<tr>
-                      <td class="col-date">${checkIn.toLocaleDateString('pt-PT')}</td>
-                      <td class="col-date">${checkOut.toLocaleDateString('pt-PT')}</td>
+                      <td class="col-date">${checkIn.toLocaleDateString('pt-PT', { timeZone: 'UTC' })}</td>
+                      <td class="col-date">${checkOut.toLocaleDateString('pt-PT', { timeZone: 'UTC' })}</td>
                       <td class="col-channel">${channelName}</td>
                       <td class="col-guest">${guestName}</td>
                       <td class="col-num" style="text-align:center">${r.adults ?? '—'}</td>

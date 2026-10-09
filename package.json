@@ -14,6 +14,7 @@
     "typecheck": "tsc --project tsconfig.typecheck.json --noEmit",
     "typecheck:all": "tsc --project tsconfig.json --noEmit",
     "test": "jest --ci",
+    "test:tz": "TZ=America/Sao_Paulo jest --ci && TZ=Europe/Lisbon jest --ci && TZ=Pacific/Kiritimati jest --ci",
     "test:ci": "jest --ci --coverage",
     "test:coverage": "jest --coverage",
     "test:e2e": "playwright test",

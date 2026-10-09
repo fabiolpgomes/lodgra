@@ -1,5 +1,6 @@
 'use client'
 
+import { toDateOnly } from '@/lib/dates/date-only'
 import { useState } from 'react'
 import { X, Copy, Check } from 'lucide-react'
 import { Button } from '@/components/common/ui/button'
@@ -16,7 +17,7 @@ interface Props {
 
 export function NewChecklistModal({ properties, members, onClose, onCreated }: Props) {
   const [propertyId, setPropertyId] = useState(properties[0]?.id ?? '')
-  const [date, setDate] = useState(new Date().toISOString().slice(0, 10))
+  const [date, setDate] = useState(toDateOnly(new Date()))
   const [time, setTime] = useState('09:00')
   const [assignedTo, setAssignedTo] = useState('')
   const [notes, setNotes] = useState('')

@@ -219,11 +219,13 @@ export async function POST(request: NextRequest) {
 
     // Format dates
     const checkInFormatted = checkInObj.toLocaleDateString('pt-BR', {
+      timeZone: 'UTC',
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
     })
     const checkOutFormatted = checkOutObj.toLocaleDateString('pt-BR', {
+      timeZone: 'UTC',
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',

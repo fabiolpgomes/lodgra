@@ -198,3 +198,32 @@ describe('AvailabilityValidator', () => {
     })
   })
 })
+
+describe('AvailabilityValidator: "hoje" explícito e sem fuso', () => {
+  const rules: AvailabilityRules = {
+    minNights: 1, maxNights: 30, advanceNoticeDays: 1, allowLastMinuteBookings: false,
+    availabilityWindowMonths: 12, allowBookingsBeyondWindow: false,
+  }
+
+  it('check-in amanhã são exatamente 1 dia de antecedência (não 2), em qualquer fuso', () => {
+    const result = AvailabilityValidator.validate('2026-07-15', '2026-07-17', rules, '2026-07-14')
+    expect(result.isValid).toBe(true)
+  })
+
+  it('check-in hoje com avisos prévios proibidos é rejeitado', () => {
+    const result = AvailabilityValidator.validate('2026-07-14', '2026-07-16', rules, '2026-07-14')
+    expect(result.isValid).toBe(false)
+    expect(result.reason).toMatch(/menos de 1 dia/)
+  })
+
+  it('conta noites na mudança de hora de 2026-10-25', () => {
+    const result = AvailabilityValidator.validate('2026-10-24', '2026-10-27', { ...rules, maxNights: 2 }, '2026-10-01')
+    expect(result.isValid).toBe(false)
+    expect(result.reason).toMatch(/solicitou 3/)
+  })
+
+  it('isLastMinuteAllowed usa o "hoje" recebido', () => {
+    expect(AvailabilityValidator.isLastMinuteAllowed('2026-07-14', rules, '2026-07-14')).toBe(false)
+    expect(AvailabilityValidator.isLastMinuteAllowed('2026-07-15', rules, '2026-07-14')).toBe(true)
+  })
+})

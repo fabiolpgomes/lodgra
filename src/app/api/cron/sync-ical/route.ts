@@ -21,6 +21,7 @@ import { calculateServiceFeeAmount, nightsBetween } from '@/lib/reservations/ser
 import { isAuthorizedCronRequest } from '@/lib/cron/auth'
 import { getFeatureFlagStatus } from '@/lib/email-reconciliation/feature-flag'
 import { hasActiveReconciledReservation, upsertReconciliationAvailability } from '@/lib/ical/reconciliationAvailability'
+import { getOrganizationTimeZone } from '@/lib/dates/business-timezone.server'
 import { assertReconciledFeedConsistency } from '@/lib/ical/reconciliationLifecycle'
 import { normalizeListingPlatform } from '@/lib/ical/listingPlatform'
 
@@ -482,7 +483,7 @@ async function syncOneListing(
     listingSource !== null &&
     reconciliationFlag.pilot_platforms.includes(listingSource)
   if (reconciliationOwnsListing) {
-    await assertReconciledFeedConsistency({ supabase, organizationId: cronOrgId, propertyListingId: listing.id, feedEvents })
+    await assertReconciledFeedConsistency({ supabase, organizationId: cronOrgId, propertyListingId: listing.id, feedEvents, timeZone: await getOrganizationTimeZone(cronOrgId) })
   }
   if (!reconciliationOwnsListing) {
     try {

@@ -1,3 +1,4 @@
+import { daysBetweenDateOnly, todayInTimeZone } from '@/lib/dates/date-only'
 /**
  * Epic 43: Availability Validator
  *
@@ -37,26 +38,16 @@ export class AvailabilityValidator {
   static validate(
     checkIn: string,
     checkOut: string,
-    rules: AvailabilityRules
+    rules: AvailabilityRules,
+    today: string = todayInTimeZone()
   ): ValidationResult {
     const violations: string[] = []
     let requiresApproval = false
 
     // Parse dates
-    const checkInDate = new Date(checkIn)
-    const checkOutDate = new Date(checkOut)
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-
-    // Calculate nights
-    const nights = Math.ceil(
-      (checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24)
-    )
-
-    // Calculate days until check-in
-    const daysUntilCheckIn = Math.ceil(
-      (checkInDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
-    )
+    // Todas as contas em dias de calendário ('YYYY-MM-DD'), sem fuso nem DST.
+    const nights = daysBetweenDateOnly(checkIn, checkOut)
+    const daysUntilCheckIn = daysBetweenDateOnly(today, checkIn)
 
     // 1. Validate minimum nights
     if (nights < rules.minNights) {
@@ -87,7 +78,7 @@ export class AvailabilityValidator {
     }
 
     // 4. Validate availability window
-    const monthsAhead = this.getMonthsAhead(checkInDate)
+    const monthsAhead = this.getMonthsAhead(checkIn, today)
     if (monthsAhead > rules.availabilityWindowMonths) {
       violations.push(
         `Propriedade disponível por ${rules.availabilityWindowMonths} meses (você está tentando ${monthsAhead} meses adiante)`
@@ -113,15 +104,10 @@ export class AvailabilityValidator {
    */
   static isLastMinuteAllowed(
     checkIn: string,
-    rules: AvailabilityRules
+    rules: AvailabilityRules,
+    today: string = todayInTimeZone()
   ): boolean {
-    const checkInDate = new Date(checkIn)
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-
-    const daysUntilCheckIn = Math.ceil(
-      (checkInDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
-    )
+    const daysUntilCheckIn = daysBetweenDateOnly(today, checkIn)
 
     return daysUntilCheckIn < 1 ? rules.allowLastMinuteBookings : true
   }
@@ -129,11 +115,10 @@ export class AvailabilityValidator {
   /**
    * Get number of months from today to target date
    */
-  private static getMonthsAhead(targetDate: Date): number {
-    const today = new Date()
+  private static getMonthsAhead(targetDate: string, today: string): number {
     const months =
-      (targetDate.getFullYear() - today.getFullYear()) * 12 +
-      (targetDate.getMonth() - today.getMonth())
+      (Number(targetDate.slice(0, 4)) - Number(today.slice(0, 4))) * 12 +
+      (Number(targetDate.slice(5, 7)) - Number(today.slice(5, 7)))
     return Math.max(0, months)
   }
 

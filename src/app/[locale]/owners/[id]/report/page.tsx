@@ -1,5 +1,6 @@
 'use client'
 
+import { toDateOnly } from '@/lib/dates/date-only'
 import { useState, useEffect, useCallback } from 'react'
 import { useParams, getLocalizedPath } from '@/lib/i18n/routing'
 import Link from 'next/link'
@@ -43,14 +44,14 @@ function getPeriodDates(period: Period, customFrom?: string, customTo?: string):
   const m = now.getMonth()
 
   if (period === 'month') {
-    const from = new Date(y, m, 1).toISOString().slice(0, 10)
-    const to = new Date(y, m + 1, 0).toISOString().slice(0, 10)
+    const from = toDateOnly(new Date(y, m, 1))
+    const to = toDateOnly(new Date(y, m + 1, 0))
     return { from, to, label: now.toLocaleDateString('pt-PT', { month: 'long', year: 'numeric' }) }
   }
   if (period === 'quarter') {
     const q = Math.floor(m / 3)
-    const from = new Date(y, q * 3, 1).toISOString().slice(0, 10)
-    const to = new Date(y, q * 3 + 3, 0).toISOString().slice(0, 10)
+    const from = toDateOnly(new Date(y, q * 3, 1))
+    const to = toDateOnly(new Date(y, q * 3 + 3, 0))
     return { from, to, label: `T${q + 1} ${y}` }
   }
   if (period === 'year') {
@@ -59,7 +60,7 @@ function getPeriodDates(period: Period, customFrom?: string, customTo?: string):
   // custom
   return {
     from: customFrom ?? `${y}-01-01`,
-    to: customTo ?? new Date(y, m + 1, 0).toISOString().slice(0, 10),
+    to: customTo ?? toDateOnly(new Date(y, m + 1, 0)),
     label: `${customFrom} a ${customTo}`,
   }
 }

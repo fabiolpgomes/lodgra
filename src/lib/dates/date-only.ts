@@ -73,3 +73,33 @@ export function toDateOnly(date: Date): string {
   const day = String(date.getDate()).padStart(2, '0')
   return `${year}-${month}-${day}`
 }
+
+/** Fuso de negócio por omissão (mercado principal), usado quando a organização não tem `timezone`. */
+export const DEFAULT_BUSINESS_TIME_ZONE = 'Europe/Lisbon'
+
+/** O dia de calendário ('YYYY-MM-DD') em que o instante `now` cai no fuso `timeZone`. */
+export function todayInTimeZone(timeZone: string = DEFAULT_BUSINESS_TIME_ZONE, now: Date = new Date()): string {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(now)
+  const value = (type: Intl.DateTimeFormatPartTypes) => parts.find(part => part.type === type)?.value ?? ''
+  return `${value('year')}-${value('month')}-${value('day')}`
+}
+
+/**
+ * Soma `months` a "YYYY-MM-DD" mantendo o dia, limitado ao último dia do mês de destino
+ * (31 de maio − 3 meses = 28 de fevereiro, não 3 de março).
+ */
+export function addMonthsToDateOnly(value: string, months: number): string {
+  const match = DATE_ONLY_RE.exec(value.trim())
+  if (!match) throw new Error(`Invalid date-only value: ${value}`)
+  const index = Number(match[1]) * 12 + (Number(match[2]) - 1) + months
+  const year = Math.floor(index / 12)
+  const month = ((index % 12) + 12) % 12
+  const lastDay = new Date(Date.UTC(year, month + 1, 0)).getUTCDate()
+  const day = Math.min(Number(match[3]), lastDay)
+  return `${String(year).padStart(4, '0')}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+}
