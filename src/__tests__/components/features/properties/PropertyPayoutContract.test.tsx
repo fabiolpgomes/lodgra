@@ -23,6 +23,7 @@ const currentRule = {
 
 const rulesResponse = {
   requestId: 'req_rules',
+  today: '2026-09-08',
   property: { id: propertyId, name: 'Casa Azul', currency: 'EUR' },
   defaults: {
     preset: 'net_received' as const,
@@ -112,6 +113,23 @@ describe('PropertyPayoutContract', () => {
     const headings = Array.from(container.querySelectorAll('h3')).map(element => element.textContent)
     expect(headings).toEqual(['Regra vigente', 'Preview de 2026-08', 'Nova versão da política', 'Histórico'])
     expect(container.querySelector('table')).not.toBeInTheDocument()
+  })
+
+  it('usa o "hoje" do fuso da organização (não o relógio do navegador nem UTC) para vigência e mês do preview', async () => {
+    // Relógio do navegador em 2026-09-08 (UTC); organização já está em 2026-10-01.
+    const serverToday = { ...rulesResponse, today: '2026-10-01' }
+    ;(global.fetch as jest.Mock)
+      .mockImplementationOnce(() => response(serverToday))
+      .mockImplementationOnce(() => response(previewResponse))
+    const { container } = render(<PropertyPayoutContract propertyId={propertyId} canEdit />)
+    expect(await screen.findByRole('heading', { name: 'Preview de 2026-09' })).toBeInTheDocument()
+    fireEvent.click(await screen.findByRole('button', { name: 'Criar nova versão' }))
+    const previewCall = (global.fetch as jest.Mock).mock.calls[1]
+    expect(JSON.parse(previewCall[1].body).periodo).toBe('2026-09')
+    const input = container.querySelector('#vigenciaInicio') as HTMLInputElement
+    expect(input).toHaveValue('2026-10-01')
+    expect(input).toHaveAttribute('min', '2026-10-01')
+    expect(input).toHaveAttribute('max', '2026-10-01')
   })
 
   it('hides editing and preview execution from a read-only role', async () => {

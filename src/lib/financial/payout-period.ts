@@ -90,6 +90,13 @@ export function getPreviousCivilMonth(referenceDate: Date = new Date()): CivilMo
   return getCivilMonthPeriod(month)
 }
 
+/** Mês civil anterior ao dia `today` (YYYY-MM-DD, já no fuso da organização). */
+export function getPreviousCivilMonthOf(today: string): CivilMonthPeriod {
+  const reference = parseIsoDate(today)
+  if (!reference) throw new Error('data de referência inválida')
+  return getPreviousCivilMonth(reference)
+}
+
 function monthKey(date: Date): string {
   return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}`
 }

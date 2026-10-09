@@ -4,6 +4,7 @@ import {
   buildPayoutPreview,
   getCivilMonthPeriod,
   getPreviousCivilMonth,
+  getPreviousCivilMonthOf,
   getReservationMonthBuckets,
   parseDecimalToMinor,
   PayoutDataIncompleteError,
@@ -277,5 +278,19 @@ describe('payout data adapter', () => {
     })
     expect(result.linhas.comissao_gestao.valorMinor).toBe(25_000)
     expect(result.linhas.repasse_proprietario.valorMinor).toBe(-25_000)
+  })
+})
+
+describe('getPreviousCivilMonthOf', () => {
+  it.each([
+    ['2026-10-01', '2026-09'],
+    ['2026-01-15', '2025-12'],
+    ['2026-03-31', '2026-02'],
+  ])('mês anterior a %s é %s, em qualquer fuso do processo', (today, expected) => {
+    expect(getPreviousCivilMonthOf(today).month).toBe(expected)
+  })
+
+  it('rejeita data inexistente', () => {
+    expect(() => getPreviousCivilMonthOf('2026-02-30')).toThrow('data de referência inválida')
   })
 })

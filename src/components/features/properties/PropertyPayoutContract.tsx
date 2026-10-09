@@ -25,7 +25,7 @@ import {
   type PayoutRuleV2Input,
   type PayoutRulesResponse,
 } from '@/lib/financial/payout-contract'
-import { getPreviousCivilMonth } from '@/lib/financial/payout-period'
+import { getPreviousCivilMonthOf } from '@/lib/financial/payout-period'
 import type { ResultadoRepasseV2 } from '@/lib/financial/payout-rules'
 
 type Props = {
@@ -80,10 +80,6 @@ function nextUtcDay(date: string): string {
   return value.toISOString().slice(0, 10)
 }
 
-function todayUtc(): string {
-  return new Date().toISOString().slice(0, 10)
-}
-
 function isV2Rule(rule: PayoutRuleDto): rule is PayoutRuleV2Dto {
   return rule.contractVersion === 2
 }
@@ -128,11 +124,12 @@ function buildPresetComponents(
 function formFromRule(
   rule: PayoutRuleDto | null,
   defaults: OrganizationFinancialDefaultsDto | null,
+  today: string,
 ): PayoutRuleV2Input | null {
   if (!rule) {
     if (!defaults || defaults.preset === 'custom') return null
     return {
-      vigenciaInicio: todayUtc(), tipoComissao: 'percentual',
+      vigenciaInicio: today, tipoComissao: 'percentual',
       comissaoValor: '', impostoComissaoPercentual: '',
       competenciaReceita: defaults.competenciaReceita, fluxoFinanceiro: defaults.fluxoFinanceiro,
       preset: defaults.preset, allowDeclaredOwnerBase: false, despesasRepassaveis: false,
@@ -142,7 +139,7 @@ function formFromRule(
   }
   if (isV2Rule(rule)) {
     return {
-      vigenciaInicio: todayUtc(), tipoComissao: rule.tipoComissao,
+      vigenciaInicio: today, tipoComissao: rule.tipoComissao,
       comissaoValor: rule.comissaoValor, impostoComissaoPercentual: rule.impostoComissaoPercentual,
       competenciaReceita: rule.competenciaReceita, fluxoFinanceiro: rule.fluxoFinanceiro,
       preset: rule.preset, allowDeclaredOwnerBase: rule.allowDeclaredOwnerBase,
@@ -153,7 +150,7 @@ function formFromRule(
   }
   if (!defaults || defaults.preset === 'custom') return null
   return {
-    vigenciaInicio: todayUtc(), tipoComissao: rule.tipoComissao,
+    vigenciaInicio: today, tipoComissao: rule.tipoComissao,
     comissaoValor: rule.comissaoValor, impostoComissaoPercentual: '0',
     competenciaReceita: defaults.competenciaReceita, fluxoFinanceiro: defaults.fluxoFinanceiro,
     preset: defaults.preset, allowDeclaredOwnerBase: false, despesasRepassaveis: rule.despesasRepassaveis,
@@ -240,9 +237,9 @@ export function PropertyPayoutContract({ propertyId, canEdit }: Props) {
   const statusRef = useRef<HTMLDivElement>(null)
   const previewController = useRef<AbortController | null>(null)
   const rulesController = useRef<AbortController | null>(null)
-  const period = getPreviousCivilMonth().month
+  const period = data ? getPreviousCivilMonthOf(data.today).month : ''
 
-  const loadPreview = useCallback(async (ruleId: string) => {
+  const loadPreview = useCallback(async (ruleId: string, previewPeriod: string) => {
     if (!canEdit) return
     previewController.current?.abort()
     const controller = new AbortController()
@@ -253,7 +250,7 @@ export function PropertyPayoutContract({ propertyId, canEdit }: Props) {
       const response = await fetch(`/api/properties/${propertyId}/payout-rules/preview`, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ mode: 'persisted', periodo: period, ruleId }),
+        body: JSON.stringify({ mode: 'persisted', periodo: previewPeriod, ruleId }),
         signal: controller.signal,
       })
       const next = await parseResponse<PayoutPreviewResponse>(response)
@@ -267,7 +264,7 @@ export function PropertyPayoutContract({ propertyId, canEdit }: Props) {
     } finally {
       if (previewController.current === controller) setPreviewing(false)
     }
-  }, [canEdit, period, propertyId])
+  }, [canEdit, propertyId])
 
   const loadRules = useCallback(async () => {
     rulesController.current?.abort()
@@ -288,9 +285,9 @@ export function PropertyPayoutContract({ propertyId, canEdit }: Props) {
       const next = await parseResponse<PayoutRulesResponse>(response)
       if (rulesController.current !== controller || controller.signal.aborted) return
       setData(next)
-      setForm(formFromRule(next.currentRule, next.defaults))
+      setForm(formFromRule(next.currentRule, next.defaults, next.today))
       setPolicyReviewed(false)
-      if (next.currentRule) await loadPreview(next.currentRule.id)
+      if (next.currentRule) await loadPreview(next.currentRule.id, getPreviousCivilMonthOf(next.today).month)
     } catch (caught) {
       if ((caught as Error).name !== 'AbortError') {
         setError(caught instanceof Error ? caught.message : 'Não foi possível carregar o contrato de repasse.')
@@ -323,7 +320,7 @@ export function PropertyPayoutContract({ propertyId, canEdit }: Props) {
       setFieldErrors({ vigenciaInicio: 'A nova vigência deve ser posterior ao início da regra atual' })
       return null
     }
-    if (parsed.data.vigenciaInicio !== todayUtc()) {
+    if (parsed.data.vigenciaInicio !== data?.today) {
       setFieldErrors({ vigenciaInicio: 'A nova vigência deve iniciar hoje' })
       return null
     }
@@ -413,8 +410,8 @@ export function PropertyPayoutContract({ propertyId, canEdit }: Props) {
   }
 
   const current = data.currentRule
-  const minStart = current ? nextUtcDay(current.vigenciaInicio) : todayUtc()
-  const canReplaceCurrentRule = !current || minStart <= todayUtc()
+  const minStart = current ? nextUtcDay(current.vigenciaInicio) : data.today
+  const canReplaceCurrentRule = !current || minStart <= data.today
   const isInitialContract = current === null
 
   return (
@@ -520,7 +517,7 @@ export function PropertyPayoutContract({ propertyId, canEdit }: Props) {
           ) : (
             <form className="mt-5 grid min-w-0 grid-cols-1 gap-5 lg:grid-cols-2" onSubmit={event => { event.preventDefault(); if (validateForm()) setConfirmOpen(true) }} noValidate>
               <Field label={isInitialContract ? 'Início da vigência' : 'Início da nova vigência'} htmlFor="vigenciaInicio" hint={isInitialContract ? 'O primeiro contrato começa hoje.' : 'A nova versão começa hoje; períodos anteriores permanecem imutáveis.'} error={fieldErrors.vigenciaInicio}>
-                <Input id="vigenciaInicio" type="date" min={todayUtc()} max={todayUtc()} value={form.vigenciaInicio} onChange={event => update('vigenciaInicio', event.target.value)} aria-invalid={Boolean(fieldErrors.vigenciaInicio)} aria-describedby="vigenciaInicio-help vigenciaInicio-error" />
+                <Input id="vigenciaInicio" type="date" min={data.today} max={data.today} value={form.vigenciaInicio} onChange={event => update('vigenciaInicio', event.target.value)} aria-invalid={Boolean(fieldErrors.vigenciaInicio)} aria-describedby="vigenciaInicio-help vigenciaInicio-error" />
               </Field>
               <Field label="Tipo de comissão" htmlFor="tipoComissao" hint="Define como a gestão será remunerada." error={fieldErrors.tipoComissao}>
                 <select id="tipoComissao" aria-describedby="tipoComissao-help tipoComissao-error" aria-invalid={Boolean(fieldErrors.tipoComissao)} className="h-14 w-full rounded-sm border bg-white px-4 text-base focus:border-[#10203E] focus:outline-none focus:ring-2 focus:ring-[#10203E]/20" value={form.tipoComissao} onChange={event => update('tipoComissao', event.target.value as PayoutRuleV2Input['tipoComissao'])}>
@@ -592,7 +589,7 @@ export function PropertyPayoutContract({ propertyId, canEdit }: Props) {
               </Field>
               <div className="flex flex-col gap-3 lg:col-span-2 sm:flex-row">
                 <Button type="submit" className="min-h-12 w-full sm:w-auto" disabled={saving}>{isInitialContract ? 'Revisar criação' : 'Revisar substituição'}</Button>
-                <Button type="button" variant="ghost" className="min-h-12 w-full sm:w-auto" disabled={saving} onClick={() => { setShowForm(false); setForm(formFromRule(current, data.defaults)); setFieldErrors({}); setPolicyReviewed(false) }}>Cancelar</Button>
+                <Button type="button" variant="ghost" className="min-h-12 w-full sm:w-auto" disabled={saving} onClick={() => { setShowForm(false); setForm(formFromRule(current, data.defaults, data.today)); setFieldErrors({}); setPolicyReviewed(false) }}>Cancelar</Button>
               </div>
             </form>
           )}

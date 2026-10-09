@@ -2,6 +2,8 @@ import 'server-only'
 
 import { z } from 'zod'
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { getOrganizationTimeZone } from '@/lib/dates/business-timezone.server'
+import { todayInTimeZone } from '@/lib/dates/date-only'
 import { getUserAccess, type Role } from '@/lib/auth/getUserAccess'
 import {
   type PayoutPreviewResponse,
@@ -445,11 +447,12 @@ export async function getPayoutRules(
   requestId: string,
 ): Promise<PayoutRulesResponse> {
   const context = await authorizeProperty(supabase, propertyId, false)
-  const [rules, defaults] = await Promise.all([
+  const [rules, defaults, timeZone] = await Promise.all([
     loadRules(supabase, context),
     loadFinancialDefaults(supabase, context),
+    getOrganizationTimeZone(context.organizationId),
   ])
-  return { requestId, property: context.property, defaults, ...rules }
+  return { requestId, today: todayInTimeZone(timeZone), property: context.property, defaults, ...rules }
 }
 
 export async function replacePayoutRule(

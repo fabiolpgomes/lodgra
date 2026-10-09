@@ -241,6 +241,8 @@ export type PayoutRuleDto = PayoutRuleV1Dto | PayoutRuleV2Dto
 
 export type PayoutRulesResponse = {
   requestId: string
+  /** "Hoje" (YYYY-MM-DD) no fuso da organização: é a única vigência inicial aceite pela base. */
+  today: string
   property: { id: string; name: string; currency: string }
   defaults: OrganizationFinancialDefaultsDto | null
   currentRule: PayoutRuleDto | null
