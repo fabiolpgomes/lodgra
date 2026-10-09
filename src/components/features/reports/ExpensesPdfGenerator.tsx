@@ -7,6 +7,7 @@ import { Label } from '@/components/common/ui/label'
 import { Alert, AlertDescription } from '@/components/common/ui/alert'
 import { FileText, Download, Share2, X, Copy, Check } from 'lucide-react'
 import { toast } from 'sonner'
+import { formatDateOnly } from '@/lib/dates/date-only'
 
 interface Property {
   id: string
@@ -98,7 +99,7 @@ export function ExpensesPdfGenerator({ properties }: ExpensesPdfGeneratorProps) 
 
       const fileName = `despesas-${startDate}-${endDate}.pdf`
 
-      const whatsappText = `📋 Relatório de Despesas\n\nPeríodo: ${new Date(startDate).toLocaleDateString('pt-PT')} a ${new Date(endDate).toLocaleDateString('pt-PT')}\nTotal de despesas: ${data.expenses.length}\n\nDescarregue o PDF para ver todos os detalhes.`
+      const whatsappText = `📋 Relatório de Despesas\n\nPeríodo: ${formatDateOnly(startDate)} a ${formatDateOnly(endDate)}\nTotal de despesas: ${data.expenses.length}\n\nDescarregue o PDF para ver todos os detalhes.`
 
       setShareModal({
         isOpen: true,

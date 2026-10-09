@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { ExportToExcelButton } from './ExportToExcelButton'
 import { CURRENCIES, formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
+import { formatDateOnly } from '@/lib/dates/date-only'
 import { getLocalizedPath, useLocale } from '@/lib/i18n/routing'
 
 interface ReservationRow {
@@ -57,8 +58,8 @@ export function RevenueTable({ reservations, startDate, endDate }: RevenueTableP
     const guestName = r.guests ? `${r.guests.first_name} ${r.guests.last_name}` : 'Sem nome'
 
     return {
-      'Check-in': checkIn.toLocaleDateString('pt-BR'),
-      'Check-out': checkOut.toLocaleDateString('pt-BR'),
+      'Check-in': formatDateOnly(r.check_in),
+      'Check-out': formatDateOnly(r.check_out),
       'Noites': nights,
       'Hóspede': guestName,
       'Propriedade': r.property_listings.properties.name,
@@ -139,10 +140,10 @@ export function RevenueTable({ reservations, startDate, endDate }: RevenueTableP
                 return (
                   <tr key={reservation.id} className="hover:bg-gray-50">
                     <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
-                      {checkIn.toLocaleDateString('pt-BR')}
+                      {formatDateOnly(reservation.check_in)}
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
-                      {checkOut.toLocaleDateString('pt-BR')}
+                      {formatDateOnly(reservation.check_out)}
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
                       <Link

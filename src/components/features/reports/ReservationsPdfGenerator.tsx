@@ -7,6 +7,7 @@ import { Label } from '@/components/common/ui/label'
 import { Alert, AlertDescription } from '@/components/common/ui/alert'
 import { FileText, Download, Share2, X, Copy, Check } from 'lucide-react'
 import { toast } from 'sonner'
+import { formatDateOnly } from '@/lib/dates/date-only'
 
 interface Property {
   id: string
@@ -86,7 +87,7 @@ export function ReservationsPdfGenerator({ properties }: ReservationsPdfGenerato
       const fileName = `reservas-${startDate}-${endDate}.pdf`
 
       // Show share modal with data
-      const whatsappText = `📋 Relatório de Reservas\n\nPeríodo: ${new Date(startDate).toLocaleDateString('pt-PT')} a ${new Date(endDate).toLocaleDateString('pt-PT')}\nTotal de reservas: ${data.reservations.length}\n\nDescarregue o PDF para ver todos os detalhes.`
+      const whatsappText = `📋 Relatório de Reservas\n\nPeríodo: ${formatDateOnly(startDate)} a ${formatDateOnly(endDate)}\nTotal de reservas: ${data.reservations.length}\n\nDescarregue o PDF para ver todos os detalhes.`
 
       setShareModal({
         isOpen: true,

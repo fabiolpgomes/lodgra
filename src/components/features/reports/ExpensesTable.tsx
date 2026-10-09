@@ -2,6 +2,7 @@
 
 import { ExportToExcelButton } from './ExportToExcelButton'
 import { CURRENCIES, formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
+import { formatDateOnly } from '@/lib/dates/date-only'
 
 const categoryLabels: Record<string, string> = {
   cleaning: 'Limpeza',
@@ -68,7 +69,7 @@ export function ExpensesTable({ expenses, startDate, endDate }: ExpensesTablePro
   }, {})
 
   const exportData = expenses.map(e => ({
-    'Data': new Date(e.expense_date).toLocaleDateString('pt-BR'),
+    'Data': formatDateOnly(e.expense_date),
     'Propriedade': e.properties?.name || '-',
     'Descrição': e.description,
     'Categoria': categoryLabels[e.category] || e.category,
@@ -141,7 +142,7 @@ export function ExpensesTable({ expenses, startDate, endDate }: ExpensesTablePro
                 {expenses.map((expense) => (
                   <tr key={expense.id} className="hover:bg-gray-50">
                     <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
-                      {new Date(expense.expense_date).toLocaleDateString('pt-BR')}
+                      {formatDateOnly(expense.expense_date)}
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
                       {expense.properties?.name || '-'}
