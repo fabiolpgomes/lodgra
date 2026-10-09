@@ -451,7 +451,7 @@ export function PropertyPayoutContract({ propertyId, canEdit }: Props) {
           <Calculator className="mt-0.5 size-5 shrink-0 text-[#10203E]" aria-hidden="true" />
           <div className="min-w-0 flex-1">
             <h3 id="preview-heading" className="font-semibold text-gray-900">Preview de {period}</h3>
-            <p className="mt-1 text-sm text-gray-600">Mês civil completo anterior, em UTC.</p>
+            <p className="mt-1 text-sm text-gray-600">Mês civil completo anterior, no fuso da organização.</p>
           </div>
         </div>
         {previewing && <p className="mt-4" aria-live="polite">Calculando preview…</p>}

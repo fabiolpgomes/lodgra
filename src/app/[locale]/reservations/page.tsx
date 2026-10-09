@@ -1,6 +1,8 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Calendar, Plus, Clock, CheckCircle, XCircle, Download } from 'lucide-react'
+import { getSessionTimeZone } from '@/lib/dates/business-timezone.server'
+import { todayInTimeZone } from '@/lib/dates/date-only'
 import { createClient } from '@/lib/supabase/server'
 import { CleanupReservationsButton } from '@/components/features/reservations/CleanupReservationsButton'
 import { ReservationsFilter } from '@/components/features/reservations/ReservationsFilter'
@@ -23,13 +25,13 @@ export default async function ReservationsPage({
   const page = parsePage(queryParams)
   const { from, to } = getRange(page)
 
-  const monthParam = queryParams.month || new Date().toISOString().slice(0, 7)
+  const supabase = await createClient()
+  const monthParam = queryParams.month || todayInTimeZone(await getSessionTimeZone(supabase)).slice(0, 7)
   const requestedPropertyId = queryParams.property_id || 'all'
   const [mYear, mMonth] = monthParam.split('-').map(Number)
   const monthStart = `${monthParam}-01`
   const monthEnd = `${monthParam}-${String(new Date(mYear, mMonth, 0).getDate()).padStart(2, '0')}`
 
-  const supabase = await createClient()
   const access = await getUserAccess(supabase)
 
   if (!access) {

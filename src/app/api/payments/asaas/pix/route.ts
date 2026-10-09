@@ -1,3 +1,5 @@
+import { getOrganizationTimeZone } from '@/lib/dates/business-timezone.server'
+import { todayInTimeZone } from '@/lib/dates/date-only'
 import { createClient } from '@/lib/supabase/server'
 import { asaas } from '@/lib/payments/asaas'
 import { NextResponse } from 'next/server'
@@ -55,7 +57,7 @@ export async function POST(request: Request) {
       customer: customer.id,
       billingType: 'PIX',
       value: Number(reservation.total_amount),
-      dueDate: new Date().toISOString().split('T')[0], // Hoje
+      dueDate: todayInTimeZone(await getOrganizationTimeZone(reservation.organization_id)), // Hoje, no fuso da organização
       description: `Reserva Lodgra #${reservation.confirmation_code || reservationId.slice(0, 8)}`,
       externalReference: reservationId
     })

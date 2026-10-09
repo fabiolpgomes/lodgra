@@ -1,4 +1,6 @@
 import { TrendingUp, TrendingDown, DollarSign, Percent, BarChart3 } from 'lucide-react'
+import { getSessionTimeZone } from '@/lib/dates/business-timezone.server'
+import { todayInTimeZone } from '@/lib/dates/date-only'
 import { createClient } from '@/lib/supabase/server'
 import { ProfitCard } from '@/components/features/dashboard/ProfitCard'
 import { AuthLayout } from '@/components/common/layout/AuthLayout'
@@ -20,12 +22,11 @@ export default async function FinancialPage({
   searchParams: Promise<{ month?: string }>
 }) {
   const params = await searchParams
-  const monthParam = params.month || new Date().toISOString().slice(0, 7)
+  const supabase = await createClient()
+  const monthParam = params.month || todayInTimeZone(await getSessionTimeZone(supabase)).slice(0, 7)
   const [mYear, mMonth] = monthParam.split('-').map(Number)
   const monthStart = `${monthParam}-01`
   const monthEnd = `${monthParam}-${String(new Date(mYear, mMonth, 0).getDate()).padStart(2, '0')}`
-
-  const supabase = await createClient()
 
   // Buscar TODAS as reservas confirmadas para cálculo de distribuição proporcional
   const { data: reservations } = await supabase

@@ -5,6 +5,8 @@ import { ArrowLeft, Building2, Plus, Receipt, RotateCcw, Save, Trash2 } from 'lu
 import { AuthLayout } from '@/components/common/layout/AuthLayout'
 import { PremiumCard, PremiumMetricCard, PremiumPageHeader, PremiumPageShell } from '@/components/common/layout/PremiumPage'
 import { createClient } from '@/lib/supabase/server'
+import { getOrganizationTimeZone } from '@/lib/dates/business-timezone.server'
+import { todayInTimeZone } from '@/lib/dates/date-only'
 import { requireRole } from '@/lib/auth/requireRole'
 import { writeAuditLog } from '@/lib/audit'
 import {
@@ -163,6 +165,7 @@ export default async function CompanyCostsPage({
     redirect(`/${locale}/account`)
   }
   if (!auth.organizationId) redirect(`/${locale}/account`)
+  const todayDefault = todayInTimeZone(await getOrganizationTimeZone(auth.organizationId))
 
   const selectedYear = Number(query.year || new Date().getFullYear())
   const safeYear = Number.isFinite(selectedYear) ? selectedYear : new Date().getFullYear()
@@ -363,7 +366,7 @@ export default async function CompanyCostsPage({
                     name="expense_date"
                     type="date"
                     required
-                    defaultValue={new Date().toISOString().split('T')[0]}
+                    defaultValue={todayDefault}
                     className="mt-1 w-full rounded-xl border border-neutral-200 bg-brand-white px-4 py-3 text-sm font-semibold text-brand-text-dark outline-none transition-all focus:border-brand-gold"
                   />
                 </div>

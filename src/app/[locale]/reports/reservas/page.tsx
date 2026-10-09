@@ -5,6 +5,8 @@ import { ReservationsDashboard } from '@/components/features/reports/Reservation
 import { AuthLayout } from '@/components/common/layout/AuthLayout'
 import { PremiumPageHeader, PremiumPageShell } from '@/components/common/layout/PremiumPage'
 import { getUserPropertyIds } from '@/lib/auth/getUserProperties'
+import { getSessionTimeZone } from '@/lib/dates/business-timezone.server'
+import { todayInTimeZone } from '@/lib/dates/date-only'
 
 interface PageProps {
   searchParams: Promise<{
@@ -19,9 +21,8 @@ export default async function ReservasPage({ searchParams }: PageProps) {
   const supabase = await createClient()
   const userPropertyIds = await getUserPropertyIds(supabase)
 
-  // Datas padrão: sempre começar do dia de hoje
-  const nowUTC = new Date()
-  const todayStr = `${nowUTC.getUTCFullYear()}-${String(nowUTC.getUTCMonth() + 1).padStart(2, '0')}-${String(nowUTC.getUTCDate()).padStart(2, '0')}`
+  // Datas padrão: sempre começar do dia de hoje, no fuso da organização
+  const todayStr = todayInTimeZone(await getSessionTimeZone(supabase))
 
   const startDate = params.start_date || todayStr
   const endDate = params.end_date || todayStr
@@ -67,7 +68,7 @@ export default async function ReservasPage({ searchParams }: PageProps) {
     reservationsQuery = reservationsQuery.in('property_id', userPropertyIds)
   }
 
-  // Query de reservas futuras (a partir de hoje em UTC)
+  // Query de reservas futuras (a partir de hoje no fuso da organização)
   const today = todayStr
 
   let futureReservationsQuery = supabase
