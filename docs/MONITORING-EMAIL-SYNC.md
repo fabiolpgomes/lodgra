@@ -1,3 +1,5 @@
+> **Obsoleto (out/2026):** `/admin/email-sync-status` foi removido. Ver `docs/SINCRONIZACAO.md` e o painel `/[locale]/sync`.
+
 # 📊 Monitoramento de Email Sync
 
 ## Onde acessar

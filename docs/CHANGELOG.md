@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Sincronização automática e painel de ações (out/2026)
+
+- Gmail volta a ler (OAuth publicado em Production); chave por caixa de correio e deduplicação.
+- Classificador de mensagens: só reservas, alterações e mensagens que pedem ação seguem; o resto é descartado sem guardar conteúdo.
+- Booking sem check-out/nome: liga pelo nº da reserva ou ao bloco iCal do check-in; ano da estadia corrigido (`resolveStayYear`).
+- Painel `/sync` reescrito: estado numa linha, ações clicáveis com reserva/imóvel/datas, completar hóspede no painel, ignorar com motivo, indicador de confiança; "Sincronizar agora" faz o ciclo completo.
+- Avisos no sino e por e-mail aos admins (uma vez + lembrete diário) e selo de estado em cada imóvel; novo pg_cron `sync-alerts-15min` (job 4).
+- Removidos: detalhes técnicos duplicados, `api/admin/sync-logs`, `api/admin/ical-events`, `EmailSyncStatusDashboard`.
+- Datas sem desvio de fuso nas listas de reservas. Termos e Privacidade reescritos como Lodgra; domínio homestay.pt abandonado.
+- Documentação: `docs/SINCRONIZACAO.md`.
+
 ### Manual Reservation Validation Fix
 
 **Production Fix: Manual reservations now calculate and submit correctly**
