@@ -1,3 +1,5 @@
+import { getAsaasWebhookToken } from '@/lib/payments/asaas-credentials.server'
+import { tokensMatch } from '@/lib/payments/asaas-token'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { NextResponse } from 'next/server'
 
@@ -22,7 +24,7 @@ export async function POST(request: Request) {
     // Look up the organization via the reservation to validate the token
     const { data: reservation, error: resError } = await supabase
       .from('reservations')
-      .select('organization_id, organizations!inner(asaas_api_key)')
+      .select('organization_id')
       .eq('id', reservationId)
       .single()
 
@@ -30,9 +32,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Reservation not found' }, { status: 404 })
     }
 
-    const orgs = reservation.organizations as unknown as { asaas_api_key: string | null } | { asaas_api_key: string | null }[]
-    const org = Array.isArray(orgs) ? orgs[0] : orgs
-    if (!org.asaas_api_key || org.asaas_api_key !== incomingToken) {
+    // O webhook autentica-se com um segredo próprio da organização (não com a chave de API)
+    const expectedToken = await getAsaasWebhookToken(reservation.organization_id)
+    if (!tokensMatch(expectedToken, incomingToken)) {
       console.warn(`[ASAAS WEBHOOK] Invalid token for reservation ${reservationId}`)
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }

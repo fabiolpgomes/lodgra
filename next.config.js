@@ -76,9 +76,10 @@ const finalConfig = withSentryConfig(analyzedConfig, {
   // For all available options, see:
   // https://www.npmjs.com/package/@sentry/webpack-plugin#options
 
-  org: "home-stay",
+  // Organização e projeto do Sentry vêm do ambiente (SENTRY_ORG / SENTRY_PROJECT), não do código.
+  org: process.env.SENTRY_ORG,
 
-  project: "javascript-nextjs-homestay",
+  project: process.env.SENTRY_PROJECT,
 
   // Only print logs for uploading source maps in CI
   silent: !process.env.CI,

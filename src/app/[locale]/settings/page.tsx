@@ -11,6 +11,7 @@ import { ConsentManagement } from '@/components/features/settings/ConsentManagem
 import { DataExportSection } from '@/components/features/settings/DataExportSection'
 import { AccountDeletionSection } from '@/components/features/settings/AccountDeletionSection'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { getAsaasSettingsView } from '@/lib/payments/asaas-credentials.server'
 import { PaymentSettings } from '@/components/features/settings/PaymentSettings'
 import { FinancialDefaultsSettings } from '@/components/features/settings/FinancialDefaultsSettings'
 import { OrganizationRegionSettings } from '@/components/features/settings/OrganizationRegionSettings'
@@ -60,7 +61,7 @@ export default async function SettingsPage(props: { params: Promise<{ locale: st
   // Fetch Organization for payment settings
   const { data: organization } = await supabase
     .from('organizations')
-    .select('id, name, slug, asaas_api_key, asaas_environment, timezone, currency')
+    .select('id, name, slug, timezone, currency')
     .eq('id', auth.organizationId)
     .single()
 
@@ -268,7 +269,7 @@ export default async function SettingsPage(props: { params: Promise<{ locale: st
         {/* Payment Configuration (Brazil) - Admin Only */}
         {isAdmin && organization && (
           <section className="mb-8">
-            <PaymentSettings organization={organization} />
+            <PaymentSettings initial={await getAsaasSettingsView(organization.id)} />
           </section>
         )}
 
