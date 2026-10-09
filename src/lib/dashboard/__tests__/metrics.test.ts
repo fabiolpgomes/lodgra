@@ -214,7 +214,7 @@ describe('countPropertiesByMonthEnd', () => {
   })
 
   it('inclui propriedade criada exatamente no último dia do mês', () => {
-    expect(countPropertiesByMonthEnd([{ created_at: '2026-07-31T23:00:00' }], '2026-07-01')).toBe(1)
+    expect(countPropertiesByMonthEnd([{ created_at: '2026-07-31T23:00:00Z' }], '2026-07-01')).toBe(1)
   })
 
   it('retorna 0 para monthKey inválido', () => {
@@ -312,5 +312,41 @@ describe('aggregateManagementFeeByCurrency', () => {
     ]
     const result = aggregateManagementFeeByCurrency(rows, {}, 'EUR')
     expect(result.EUR.commission).toBe(0)
+  })
+})
+
+import { monthKeyInTimeZone, shiftMonthKey, monthBounds, stayTouchesRange, stayDaysInRange } from '../metrics'
+
+describe('mês por fuso da organização', () => {
+  it('monthKeyInTimeZone usa o fuso da organização, não o do servidor', () => {
+    const instant = new Date('2026-08-01T01:30:00Z') // ainda 31/07 no Brasil
+    expect(monthKeyInTimeZone(instant, 'America/Sao_Paulo')).toBe('2026-07-01')
+    expect(monthKeyInTimeZone(instant, 'Europe/Lisbon')).toBe('2026-08-01')
+  })
+
+  it('shiftMonthKey atravessa anos', () => {
+    expect(shiftMonthKey('2026-01-01', -1)).toBe('2025-12-01')
+    expect(shiftMonthKey('2026-12', 1)).toBe('2027-01-01')
+    expect(shiftMonthKey('2026-07-01', -12)).toBe('2025-07-01')
+  })
+
+  it('monthBounds dá primeiro/último dia e nº de dias (inclui fevereiro bissexto)', () => {
+    expect(monthBounds('2026-10')).toEqual({ start: '2026-10-01', end: '2026-10-31', days: 31 })
+    expect(monthBounds('2028-02-01')).toEqual({ start: '2028-02-01', end: '2028-02-29', days: 29 })
+    expect(monthBounds('2026-02')).toEqual({ start: '2026-02-01', end: '2026-02-28', days: 28 })
+  })
+
+  it('stayTouchesRange / stayDaysInRange cortam a estadia ao mês', () => {
+    expect(stayTouchesRange('2026-09-28', '2026-10-03', '2026-10-01', '2026-10-31')).toBe(true)
+    expect(stayTouchesRange('2026-09-01', '2026-09-30', '2026-10-01', '2026-10-31')).toBe(false)
+    expect(stayDaysInRange('2026-09-28', '2026-10-03', '2026-10-01', '2026-10-31')).toBe(3)
+    expect(stayDaysInRange('2026-10-24', '2026-10-27', '2026-10-01', '2026-10-31')).toBe(4)
+    expect(stayDaysInRange('2026-10-20', '2026-12-05', '2026-10-01', '2026-10-31')).toBe(12)
+  })
+
+  it('countPropertiesByMonthEnd respeita o fuso passado', () => {
+    const props = [{ created_at: '2026-08-01T01:30:00Z' }]
+    expect(countPropertiesByMonthEnd(props, '2026-07-01', 'America/Sao_Paulo')).toBe(1)
+    expect(countPropertiesByMonthEnd(props, '2026-07-01', 'Europe/Lisbon')).toBe(0)
   })
 })

@@ -59,21 +59,21 @@ describe('Seasonal Adjustment', () => {
 
   describe('getHolidayImpact', () => {
     it('should detect Christmas', () => {
-      const christmasDate = new Date('2026-12-25');
+      const christmasDate = '2026-12-25';
       const impact = getHolidayImpact(christmasDate);
 
       expect(impact).toBeGreaterThan(1.0);
     });
 
     it('should detect New Year', () => {
-      const newYearDate = new Date('2026-01-01');
+      const newYearDate = '2026-01-01';
       const impact = getHolidayImpact(newYearDate);
 
       expect(impact).toBeGreaterThan(1.0);
     });
 
     it('should return 1.0 for regular days', () => {
-      const regularDate = new Date('2026-03-15');
+      const regularDate = '2026-03-15';
       const impact = getHolidayImpact(regularDate);
 
       expect(impact).toBe(1.0);
@@ -82,20 +82,20 @@ describe('Seasonal Adjustment', () => {
 
   describe('isPeakSeason', () => {
     it('should identify summer as peak season', () => {
-      const juneDate = new Date('2026-06-15');
+      const juneDate = '2026-06-15';
       expect(isPeakSeason(juneDate)).toBe(true);
 
-      const julyDate = new Date('2026-07-15');
+      const julyDate = '2026-07-15';
       expect(isPeakSeason(julyDate)).toBe(true);
     });
 
     it('should identify December as peak season', () => {
-      const decemberDate = new Date('2026-12-15');
+      const decemberDate = '2026-12-15';
       expect(isPeakSeason(decemberDate)).toBe(true);
     });
 
     it('should identify winter as low season', () => {
-      const februaryDate = new Date('2026-02-15');
+      const februaryDate = '2026-02-15';
       expect(isPeakSeason(februaryDate)).toBe(false);
     });
   });
@@ -103,7 +103,7 @@ describe('Seasonal Adjustment', () => {
   describe('adjustForecastWithSeasoning', () => {
     it('should apply seasonal and holiday adjustments', () => {
       const baseRevenue = 100;
-      const christmasDate = new Date('2026-12-25');
+      const christmasDate = '2026-12-25';
       const seasonalFactors = new Map([
         [11, { month: 11, factor: 0.9, reasoning: 'December' }],
       ]);
@@ -134,3 +134,14 @@ describe('Seasonal Adjustment', () => {
     });
   });
 });
+
+describe('Seasonal Adjustment: dias de calendário sem fuso', () => {
+  it('string e Date local do mesmo dia dão o mesmo impacto', () => {
+    expect(getHolidayImpact('2026-12-25')).toBe(getHolidayImpact(new Date(2026, 11, 25)))
+    expect(getHolidayImpact('2026-12-25')).toBeGreaterThan(1)
+  })
+  it('1 de janeiro e 31 de dezembro não se misturam', () => {
+    expect(getHolidayImpact('2026-01-01')).toBeGreaterThan(1)
+    expect(getHolidayImpact('2026-12-31')).toBe(1)
+  })
+})

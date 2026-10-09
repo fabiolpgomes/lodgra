@@ -47,7 +47,11 @@ import {
   calculateADR,
   calculateRevPAR,
   calculateVariationPercent,
-  monthKeyFromDate,
+  monthBounds,
+  monthKeyInTimeZone,
+  stayDaysInRange,
+  stayTouchesRange,
+  shiftMonthKey,
   countPropertiesByMonthEnd,
   filterRowsByMonth,
   filterRowsByProperties,
@@ -62,6 +66,7 @@ import { buildChannelRevenue, CHANNEL_CONCENTRATION_THRESHOLD, getChannelLabel, 
 import { resolveReservationCurrency } from '@/lib/dashboard/reservationCurrency'
 // Story 39.6 — Painel de Alertas: concentração por propriedade (independente do threshold de canal acima)
 import { buildPropertyConcentrationAlert, PROPERTY_CONCENTRATION_THRESHOLD } from '@/lib/dashboard/propertyConcentration'
+import { addDaysToDateOnly } from '@/lib/dates/date-only'
 // Story 39.6 — Sino de Notificações: 4 gatilhos, global da organização (nunca filtrado por propriedade)
 import {
   buildPlaceholderGuestAlerts,
@@ -235,7 +240,7 @@ export default async function DashboardPage({
   const now = new Date()
   const businessTimeZone = org?.timezone || 'Europe/Lisbon'
   const todayStr = formatDateInTimeZone(now, businessTimeZone)
-  const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+  const currentMonthKey = todayStr.slice(0, 7)
 
   const forecastByCurrency = reservationList
     .filter(r => r.status === 'confirmed' && r.total_amount)
@@ -275,8 +280,9 @@ export default async function DashboardPage({
   ).length
 
   // Calculate current month revenue using proportional distribution for >30 day reservations
-  const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1)
-  const currentMonthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+  const currentMonthBounds = monthBounds(currentMonthKey)
+  const currentMonthStart = currentMonthBounds.start
+  const currentMonthEnd = currentMonthBounds.end
 
   const monthRevenueByCurrency = reservationList
     .filter(r => r.status === 'confirmed' && r.total_amount)
@@ -309,25 +315,15 @@ export default async function DashboardPage({
     }, {} as Record<string, number>)
 
   // Calculate current month occupancy
-  const daysInCurrentMonth = currentMonthEnd.getDate()
-  const currentMonthReservations = reservationList.filter(r => {
-    const checkIn = new Date(r.check_in)
-    const checkOut = new Date(r.check_out)
-    return r.status === 'confirmed' && (
-      (checkIn >= currentMonthStart && checkIn <= currentMonthEnd) ||
-      (checkOut >= currentMonthStart && checkOut <= currentMonthEnd) ||
-      (checkIn <= currentMonthStart && checkOut >= currentMonthEnd)
-    )
-  })
+  const daysInCurrentMonth = currentMonthBounds.days
+  const currentMonthReservations = reservationList.filter(r =>
+    r.status === 'confirmed' && stayTouchesRange(r.check_in, r.check_out, currentMonthStart, currentMonthEnd)
+  )
 
-  const currentMonthDaysBooked = currentMonthReservations.reduce((sum, r) => {
-    const checkIn = new Date(r.check_in)
-    const checkOut = new Date(r.check_out)
-    const rangeStart = checkIn < currentMonthStart ? currentMonthStart : checkIn
-    const rangeEnd = checkOut > currentMonthEnd ? currentMonthEnd : checkOut
-    const days = Math.ceil((rangeEnd.getTime() - rangeStart.getTime()) / (1000 * 60 * 60 * 24)) + 1
-    return sum + Math.max(0, days)
-  }, 0)
+  const currentMonthDaysBooked = currentMonthReservations.reduce(
+    (sum, r) => sum + stayDaysInRange(r.check_in, r.check_out, currentMonthStart, currentMonthEnd),
+    0
+  )
 
   const totalAvailableDaysCurrentMonth = daysInCurrentMonth * totalProperties
   const currentMonthOccupancy = totalAvailableDaysCurrentMonth > 0
@@ -384,33 +380,19 @@ export default async function DashboardPage({
   // Calculate occupancy for last 6 months
   const occupancyData = []
   for (let i = 5; i >= 0; i--) {
-    const date = new Date(now.getFullYear(), now.getMonth() - i, 1)
+    const loopMonthKey = shiftMonthKey(currentMonthKey, -i)
+    const date = new Date(Number(loopMonthKey.slice(0, 4)), Number(loopMonthKey.slice(5, 7)) - 1, 1)
     const monthName = date.toLocaleDateString('pt-BR', { month: 'short' })
-    const year = date.getFullYear()
-    const month = date.getMonth()
+    const { start: monthStart, end: monthEnd, days: daysInMonth } = monthBounds(loopMonthKey)
 
-    const monthStart = new Date(year, month, 1)
-    const monthEnd = new Date(year, month + 1, 0)
-    const daysInMonth = monthEnd.getDate()
+    const monthReservations = reservationList.filter(r =>
+      r.status === 'confirmed' && stayTouchesRange(r.check_in, r.check_out, monthStart, monthEnd)
+    )
 
-    const monthReservations = reservationList.filter(r => {
-      const checkIn = new Date(r.check_in)
-      const checkOut = new Date(r.check_out)
-      return r.status === 'confirmed' && (
-        (checkIn >= monthStart && checkIn <= monthEnd) ||
-        (checkOut >= monthStart && checkOut <= monthEnd) ||
-        (checkIn <= monthStart && checkOut >= monthEnd)
-      )
-    })
-
-    const totalDaysBooked = monthReservations.reduce((sum, r) => {
-      const checkIn = new Date(r.check_in)
-      const checkOut = new Date(r.check_out)
-      const rangeStart = checkIn < monthStart ? monthStart : checkIn
-      const rangeEnd = checkOut > monthEnd ? monthEnd : checkOut
-      const days = Math.ceil((rangeEnd.getTime() - rangeStart.getTime()) / (1000 * 60 * 60 * 24)) + 1
-      return sum + Math.max(0, days)
-    }, 0)
+    const totalDaysBooked = monthReservations.reduce(
+      (sum, r) => sum + stayDaysInRange(r.check_in, r.check_out, monthStart, monthEnd),
+      0
+    )
 
     const totalAvailableDays = daysInMonth * totalProperties
     const occupancy = totalAvailableDays > 0
@@ -426,14 +408,11 @@ export default async function DashboardPage({
   // Calculate revenue for last 6 months grouped by currency (using proportional distribution)
   const revenueDataByCurrency: Record<string, { month: string; revenue: number }[]> = {}
   for (let i = 5; i >= 0; i--) {
-    const date = new Date(now.getFullYear(), now.getMonth() - i, 1)
+    const loopMonthKey = shiftMonthKey(currentMonthKey, -i)
+    const date = new Date(Number(loopMonthKey.slice(0, 4)), Number(loopMonthKey.slice(5, 7)) - 1, 1)
     const monthLabel = (date.toLocaleDateString('pt-BR', { month: 'short' }).charAt(0).toUpperCase() +
       date.toLocaleDateString('pt-BR', { month: 'short' }).slice(1))
-    const year = date.getFullYear()
-    const month = date.getMonth()
-    const _monthStart = new Date(year, month, 1)
-    const _monthEnd = new Date(year, month + 1, 0)
-    const monthKey = `${year}-${String(month + 1).padStart(2, '0')}`
+    const monthKey = loopMonthKey.slice(0, 7)
 
     const byCur: Record<string, number> = {}
     reservationList
@@ -472,11 +451,9 @@ export default async function DashboardPage({
   // Metrics are derived from the canonical reservations contract because the
   // optional materialized view is not present in every deployed environment.
   const orgCurrency = org?.currency?.toUpperCase() ?? null
-  const previousMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1)
-  const yoyMonthDate = new Date(now.getFullYear() - 1, now.getMonth(), 1)
-  const currentMonthKeyView = monthKeyFromDate(now)
-  const previousMonthKeyView = monthKeyFromDate(previousMonthDate)
-  const yoyMonthKeyView = monthKeyFromDate(yoyMonthDate)
+  const currentMonthKeyView = monthKeyInTimeZone(now, businessTimeZone)
+  const previousMonthKeyView = shiftMonthKey(currentMonthKeyView, -1)
+  const yoyMonthKeyView = shiftMonthKey(currentMonthKeyView, -12)
 
   const allMetricRows = buildMonthlyMetricsFromReservations(
     organizationReservations,
@@ -500,9 +477,9 @@ export default async function DashboardPage({
   // dessa mudança (confirmado com Fabio em 2026-07-23). Usa `properties`
   // (já recortado pelo filtro de propriedade do topo), mesma base do número
   // principal do card (`totalProperties`).
-  const propertiesCountCurrent = countPropertiesByMonthEnd(properties || [], currentMonthKeyView)
-  const propertiesCountPrevious = countPropertiesByMonthEnd(properties || [], previousMonthKeyView)
-  const propertiesCountYoy = countPropertiesByMonthEnd(properties || [], yoyMonthKeyView)
+  const propertiesCountCurrent = countPropertiesByMonthEnd(properties || [], currentMonthKeyView, businessTimeZone)
+  const propertiesCountPrevious = countPropertiesByMonthEnd(properties || [], previousMonthKeyView, businessTimeZone)
+  const propertiesCountYoy = countPropertiesByMonthEnd(properties || [], yoyMonthKeyView, businessTimeZone)
 
   const propertiesVarianceMoM = calculateVariationPercent(
     propertiesCountCurrent, true,
@@ -603,8 +580,10 @@ export default async function DashboardPage({
 
   // Despesas da empresa (`company_expenses`, org-wide) — mesmo padrão de query/agregação
   // de `src/app/[locale]/dashboard/empresa/page.tsx` (reaproveitado, não reinventado).
-  const currentYear = now.getFullYear()
-  const previousMonthYear = previousMonthDate.getFullYear()
+  const currentYear = Number(currentMonthKeyView.slice(0, 4))
+  const currentMonthIndex = Number(currentMonthKeyView.slice(5, 7)) - 1
+  const previousMonthYear = Number(previousMonthKeyView.slice(0, 4))
+  const previousMonthIndex = Number(previousMonthKeyView.slice(5, 7)) - 1
   const yoyYear = currentYear - 1
   const earliestYearNeeded = Math.min(currentYear, previousMonthYear, yoyYear)
 
@@ -613,7 +592,7 @@ export default async function DashboardPage({
     .select('id, description, amount, currency, category, expense_date, recurrence_type, recurrence_end_date, status, notes')
     .eq('organization_id', organizationId)
     .neq('status', 'cancelled')
-    .lte('expense_date', currentMonthEnd.toISOString().slice(0, 10))
+    .lte('expense_date', currentMonthEnd)
     .or(`recurrence_end_date.is.null,recurrence_end_date.gte.${earliestYearNeeded}-01-01`)
 
   if (companyExpensesError) {
@@ -628,9 +607,9 @@ export default async function DashboardPage({
     : sumCompanyExpensesForYear(companyExpensesList, previousMonthYear)
   const expensesByYoyYear = sumCompanyExpensesForYear(companyExpensesList, yoyYear)
 
-  const companyExpensesCurrentMonth = expensesByCurrentYear.monthly[now.getMonth()]
-  const companyExpensesPreviousMonth = expensesByPreviousYear.monthly[previousMonthDate.getMonth()]
-  const companyExpensesYoyMonth = expensesByYoyYear.monthly[now.getMonth()]
+  const companyExpensesCurrentMonth = expensesByCurrentYear.monthly[currentMonthIndex]
+  const companyExpensesPreviousMonth = expensesByPreviousYear.monthly[previousMonthIndex]
+  const companyExpensesYoyMonth = expensesByYoyYear.monthly[currentMonthIndex]
 
   const profitCurrencies = Array.from(new Set([
     ...Object.keys(commissionCurrent),
@@ -676,8 +655,8 @@ export default async function DashboardPage({
         .select('amount, currency, property_id, expense_date')
         .eq('organization_id', organizationId)
         .in('property_id', propertyIds)
-        .gte('expense_date', currentMonthStart.toISOString().slice(0, 10))
-        .lte('expense_date', currentMonthEnd.toISOString().slice(0, 10))
+        .gte('expense_date', currentMonthStart)
+        .lte('expense_date', currentMonthEnd)
     : { data: null, error: null }
 
   if (monthExpensesError) {
@@ -695,7 +674,7 @@ export default async function DashboardPage({
   const propertyExpensesEntries = Object.entries(monthPropertyExpensesByCurrency).sort(([a], [b]) => a.localeCompare(b))
 
   // Story 39.4 — Ranking de Propriedades from the canonical in-memory metrics.
-  const currentMetricMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`
+  const currentMetricMonth = currentMonthKeyView
   const monthlyPropertyMetricsRows = !selectedPropertyId && totalOrganizationProperties > 0
     ? filterRowsByMonth(allMetricRows, currentMetricMonth).map(row => ({
         property_id: row.property_id,
@@ -715,8 +694,7 @@ export default async function DashboardPage({
     : null
 
   // Fetch upcoming check-ins
-  const nextWeek = new Date(now.getTime() + (7 * 86_400_000))
-  const nextWeekStr = formatDateInTimeZone(nextWeek, businessTimeZone)
+  const nextWeekStr = addDaysToDateOnly(todayStr, 7)
 
   const upcomingCheckIns = reservationList
     .filter(reservation => reservation.status === 'confirmed'
@@ -915,9 +893,7 @@ export default async function DashboardPage({
   // Gatilho 4: ocupação baixa por propriedade (<30% nos próximos 30 dias) — query prospectiva
   // nova sobre `reservations`, diferente de `monthly_property_metrics` (histórica). Ver
   // Technical Notes da Story 39.6.
-  const occupancyWindowEnd = new Date(now)
-  occupancyWindowEnd.setDate(occupancyWindowEnd.getDate() + LOW_OCCUPANCY_WINDOW_DAYS)
-  const occupancyWindowEndStr = formatDateInTimeZone(occupancyWindowEnd, businessTimeZone)
+  const occupancyWindowEndStr = addDaysToDateOnly(todayStr, LOW_OCCUPANCY_WINDOW_DAYS)
 
   const prospectiveOccupancyForecast = calculateProspectiveOccupancy(
     organizationReservations
@@ -932,7 +908,7 @@ export default async function DashboardPage({
         }))
       .filter(r => r.propertyId),
     (allProperties || []).map(p => ({ id: p.id, name: p.name })),
-    now,
+    todayStr,
     LOW_OCCUPANCY_WINDOW_DAYS
   )
 
@@ -953,8 +929,8 @@ export default async function DashboardPage({
     ...lowOccupancyAlerts,
   ]
 
-  const monthShort = now.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '').toUpperCase()
-  const monthLong = now.toLocaleDateString('pt-BR', { month: 'long' })
+  const monthShort = now.toLocaleDateString('pt-BR', { month: 'short', timeZone: businessTimeZone }).replace('.', '').toUpperCase()
+  const monthLong = now.toLocaleDateString('pt-BR', { month: 'long', timeZone: businessTimeZone })
   const monthLabel = monthLong.charAt(0).toUpperCase() + monthLong.slice(1)
   const revenueEntries = Object.entries(monthRevenueByCurrency).sort(([a], [b]) => a.localeCompare(b))
   const forecastEntries = Object.entries(forecastByCurrency).sort(([a], [b]) => a.localeCompare(b))
@@ -1690,7 +1666,7 @@ export default async function DashboardPage({
               />
             </h3>
             <p className="mt-1 text-[11px] font-semibold text-brand-text-medium">
-              {now.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' })}
+              {now.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long', timeZone: businessTimeZone })}
             </p>
           </div>
 

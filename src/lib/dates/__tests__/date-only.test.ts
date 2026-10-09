@@ -41,3 +41,38 @@ describe('formatDateOnly', () => {
   })
 })
 
+
+import { addDaysToDateOnly, daysBetweenDateOnly, dayOfWeekDateOnly } from '../date-only'
+
+describe('aritmética de dias de calendário', () => {
+  it('dia da semana não depende do fuso', () => {
+    expect(dayOfWeekDateOnly('2026-05-22')).toBe(5) // sexta
+    expect(dayOfWeekDateOnly('2026-05-23')).toBe(6) // sábado
+    expect(dayOfWeekDateOnly('2026-05-24')).toBe(0) // domingo
+  })
+
+  it('soma dias atravessando a mudança de hora PT/ES (2026-10-25) e fim de mês/ano', () => {
+    expect(addDaysToDateOnly('2026-10-24', 1)).toBe('2026-10-25')
+    expect(addDaysToDateOnly('2026-10-25', 1)).toBe('2026-10-26')
+    expect(addDaysToDateOnly('2026-03-28', 2)).toBe('2026-03-30')
+    expect(addDaysToDateOnly('2026-12-31', 1)).toBe('2027-01-01')
+    expect(addDaysToDateOnly('2026-03-01', -1)).toBe('2026-02-28')
+  })
+
+  it('diferença em dias é exata na mudança de hora', () => {
+    expect(daysBetweenDateOnly('2026-10-24', '2026-10-27')).toBe(3)
+    expect(daysBetweenDateOnly('2026-03-28', '2026-03-31')).toBe(3)
+    expect(daysBetweenDateOnly('2026-05-01', '2026-05-01')).toBe(0)
+    expect(daysBetweenDateOnly('x', '2026-05-01')).toBeNaN()
+  })
+})
+
+import { toDateOnly } from '../date-only'
+
+describe('toDateOnly', () => {
+  it('devolve o dia local, não o dia UTC (meia-noite local em fusos a leste/oeste)', () => {
+    expect(toDateOnly(new Date(2026, 6, 1))).toBe('2026-07-01')
+    expect(toDateOnly(new Date(2026, 9, 25))).toBe('2026-10-25')
+    expect(toDateOnly(new Date(2026, 0, 1, 23, 59))).toBe('2026-01-01')
+  })
+})

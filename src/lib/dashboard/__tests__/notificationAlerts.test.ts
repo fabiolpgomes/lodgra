@@ -188,7 +188,7 @@ describe('LOW_OCCUPANCY_ALERT_THRESHOLD / LOW_OCCUPANCY_WINDOW_DAYS', () => {
 })
 
 describe('calculateProspectiveOccupancy', () => {
-  const windowStart = new Date('2026-08-01T00:00:00')
+  const windowStart = '2026-08-01'
   const properties = [
     { id: 'p1', name: 'Casa 1' },
     { id: 'p2', name: 'Casa 2' },

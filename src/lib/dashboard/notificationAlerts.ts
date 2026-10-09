@@ -18,6 +18,7 @@
  * Ver docs/stories/39.6-card-hoje-alertas-sino.md para o contexto completo.
  */
 
+import { addDaysToDateOnly, daysBetweenDateOnly, formatDateOnly } from '@/lib/dates/date-only'
 import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
 
 /**
@@ -170,24 +171,23 @@ export interface PropertyOccupancyForecast {
 export function calculateProspectiveOccupancy(
   reservations: ProspectiveReservationInput[],
   properties: Array<{ id: string; name: string | null | undefined }>,
-  windowStart: Date,
+  windowStart: string,
   windowDays: number = LOW_OCCUPANCY_WINDOW_DAYS
 ): PropertyOccupancyForecast[] {
-  const start = new Date(windowStart)
-  start.setHours(0, 0, 0, 0)
-  const end = new Date(start)
-  end.setDate(end.getDate() + windowDays)
+  // `windowStart` é um dia de calendário ('YYYY-MM-DD', "hoje" no fuso da organização).
+  const start = windowStart.slice(0, 10)
+  const end = addDaysToDateOnly(start, windowDays)
 
   const nightsByProperty = new Map<string, number>()
 
   for (const r of reservations) {
-    const checkIn = new Date(r.checkIn)
-    const checkOut = new Date(r.checkOut)
-    if (Number.isNaN(checkIn.getTime()) || Number.isNaN(checkOut.getTime())) continue
+    const checkIn = r.checkIn.slice(0, 10)
+    const checkOut = r.checkOut.slice(0, 10)
+    if (Number.isNaN(daysBetweenDateOnly(checkIn, checkOut))) continue
 
     const rangeStart = checkIn < start ? start : checkIn
     const rangeEnd = checkOut > end ? end : checkOut
-    const nights = Math.max(0, Math.round((rangeEnd.getTime() - rangeStart.getTime()) / (1000 * 60 * 60 * 24)))
+    const nights = Math.max(0, daysBetweenDateOnly(rangeStart, rangeEnd))
     if (nights <= 0) continue
 
     nightsByProperty.set(r.propertyId, (nightsByProperty.get(r.propertyId) || 0) + nights)
@@ -229,7 +229,6 @@ export function buildLowOccupancyAlerts(
 // ─── Util interno ─────────────────────────────────────────────────────────
 
 function formatShortDate(iso: string): string {
-  const d = new Date(iso)
-  if (Number.isNaN(d.getTime())) return iso
-  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
+  const full = formatDateOnly(iso)
+  return full ? full.slice(0, 5) : iso
 }

@@ -9,22 +9,38 @@ export interface SeasonalFactor {
 }
 
 export interface HolidayEvent {
-  date: Date;
+  /** Dia de calendário 'YYYY-MM-DD' (não um instante). */
+  date: string;
   name: string;
   expectedImpact: number; // multiplier: 1.5 = +50%, 0.5 = -50%
+}
+
+/**
+ * Dia de calendário: 'YYYY-MM-DD' (lido sem fuso) ou `Date` (lido em hora local, como o utilizador a vê).
+ * `new Date('2026-12-25')` é meia-noite UTC e no Brasil já é dia 24, por isso strings são o formato seguro.
+ */
+export type DayInput = string | Date;
+
+function dayParts(input: DayInput): { year: number; month: number; day: number } {
+  if (typeof input === 'string') {
+    const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(input);
+    if (match) return { year: Number(match[1]), month: Number(match[2]) - 1, day: Number(match[3]) };
+  }
+  const d = typeof input === 'string' ? new Date(input) : input;
+  return { year: d.getFullYear(), month: d.getMonth(), day: d.getDate() };
 }
 
 // Holiday calendar for major European vacation periods and events
 const EUROPEAN_HOLIDAYS: Record<string, HolidayEvent[]> = {
   '2026': [
-    { date: new Date('2026-12-24'), name: 'Christmas Eve', expectedImpact: 1.3 },
-    { date: new Date('2026-12-25'), name: 'Christmas Day', expectedImpact: 1.5 },
-    { date: new Date('2026-12-26'), name: 'Boxing Day', expectedImpact: 1.4 },
-    { date: new Date('2026-01-01'), name: "New Year's Day", expectedImpact: 1.2 },
-    { date: new Date('2026-04-05'), name: 'Easter Sunday', expectedImpact: 1.6 },
-    { date: new Date('2026-04-06'), name: 'Easter Monday', expectedImpact: 1.5 },
-    { date: new Date('2026-07-15'), name: 'Summer Peak', expectedImpact: 1.4 },
-    { date: new Date('2026-08-15'), name: 'Mid-August Peak', expectedImpact: 1.5 },
+    { date: '2026-12-24', name: 'Christmas Eve', expectedImpact: 1.3 },
+    { date: '2026-12-25', name: 'Christmas Day', expectedImpact: 1.5 },
+    { date: '2026-12-26', name: 'Boxing Day', expectedImpact: 1.4 },
+    { date: '2026-01-01', name: "New Year's Day", expectedImpact: 1.2 },
+    { date: '2026-04-05', name: 'Easter Sunday', expectedImpact: 1.6 },
+    { date: '2026-04-06', name: 'Easter Monday', expectedImpact: 1.5 },
+    { date: '2026-07-15', name: 'Summer Peak', expectedImpact: 1.4 },
+    { date: '2026-08-15', name: 'Mid-August Peak', expectedImpact: 1.5 },
   ],
 };
 
@@ -120,14 +136,14 @@ export function applySeasonalAdjustment(
 /**
  * Get holiday impact for a specific date
  */
-export function getHolidayImpact(date: Date): number {
-  const year = date.getFullYear().toString();
-  const holidays = EUROPEAN_HOLIDAYS[year] || [];
+export function getHolidayImpact(date: DayInput): number {
+  const { year, month, day } = dayParts(date);
+  const holidays = EUROPEAN_HOLIDAYS[String(year)] || [];
 
   for (const holiday of holidays) {
     if (
-      holiday.date.getDate() === date.getDate() &&
-      holiday.date.getMonth() === date.getMonth()
+      Number(holiday.date.slice(8, 10)) === day &&
+      Number(holiday.date.slice(5, 7)) - 1 === month
     ) {
       return holiday.expectedImpact;
     }
@@ -139,8 +155,8 @@ export function getHolidayImpact(date: Date): number {
 /**
  * Check if date is in a peak season period (summer, holidays)
  */
-export function isPeakSeason(date: Date): boolean {
-  const month = date.getMonth();
+export function isPeakSeason(date: DayInput): boolean {
+  const { month } = dayParts(date);
   // Peak: June-August (summer) + December (holidays)
   return month >= 5 && month <= 7 || month === 11;
 }
@@ -150,13 +166,13 @@ export function isPeakSeason(date: Date): boolean {
  */
 export function adjustForecastWithSeasoning(
   baseRevenue: number,
-  date: Date,
+  date: DayInput,
   seasonalFactors: Map<number, SeasonalFactor>
 ): number {
   // Apply seasonal adjustment
   const seasonallyAdjusted = applySeasonalAdjustment(
     baseRevenue,
-    date.getMonth(),
+    dayParts(date).month,
     seasonalFactors
   );
 

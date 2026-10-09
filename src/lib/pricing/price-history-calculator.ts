@@ -9,6 +9,7 @@ import {
   RevenueImpactAnalysis,
 } from '@/types/pricing.types';
 import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency';
+import { toLocalDate } from '@/lib/dates/date-only'
 
 /**
  * Calculate price statistics from price history
@@ -158,7 +159,7 @@ export function formatPrice(price: number, currency?: string): string {
  * @returns Formatted date string
  */
 export function formatDate(date: string): string {
-  return new Date(date).toLocaleDateString('en-US', {
+  return toLocalDate(date).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'short',
     day: 'numeric',

@@ -6,7 +6,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { DateDetailModal } from '@/components/PricingCalendar/DateDetailModal';
 
 describe('DateDetailModal', () => {
-  const mockDate = new Date('2026-07-15');
+  const mockDate = new Date(2026, 6, 15);
 
   const defaultProps = {
     isOpen: true,

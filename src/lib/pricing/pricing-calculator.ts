@@ -13,6 +13,7 @@ import type {
   PricingConstraints,
 } from '../../types/pricing.types'
 import { formatCurrency } from '@/lib/utils/currency'
+import { addDaysToDateOnly, dayOfWeekDateOnly, daysBetweenDateOnly } from '@/lib/dates/date-only'
 
 export { PricingConfig, PricingResult, BreakdownItem, DailyPrice, SeasonalPricingRule, PricingConstraints }
 
@@ -78,12 +79,8 @@ export class PricingCalculator {
       // 3. ITERATE THROUGH EACH NIGHT
       let baseTotal = 0;
       let overrideTotalCount = 0;
-      const startDate = new Date(config.checkInDate);
-
       for (let i = 0; i < nights; i++) {
-        const currentDate = new Date(startDate);
-        currentDate.setDate(currentDate.getDate() + i);
-        const dateStr = this.formatDate(currentDate);
+        const dateStr = addDaysToDateOnly(config.checkInDate, i);
 
         // Get price for this night (override > weekend > base)
         const priceForNight = this.getPriceForDate(
@@ -203,8 +200,7 @@ export class PricingCalculator {
    * Checks if a date is a weekend (Friday or Saturday)
    */
   private static isWeekend(dateStr: string): boolean {
-    const date = new Date(dateStr);
-    const day = date.getDay();
+    const day = dayOfWeekDateOnly(dateStr);
     return day === 5 || day === 6; // 5 = Friday, 6 = Saturday
   }
 
@@ -212,9 +208,7 @@ export class PricingCalculator {
    * Calculates number of nights between check-in and check-out
    */
   private static calculateNights(checkIn: string, checkOut: string): number {
-    const start = new Date(checkIn);
-    const end = new Date(checkOut);
-    return Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+    return daysBetweenDateOnly(checkIn, checkOut);
   }
 
   /**
@@ -242,22 +236,11 @@ export class PricingCalculator {
   }
 
   /**
-   * Formats a Date object to YYYY-MM-DD string
-   */
-  private static formatDate(date: Date): string {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  }
-
-  /**
    * Gets the day name for a date string
    */
   private static getDayName(dateStr: string): string {
-    const date = new Date(dateStr);
     const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    return days[date.getDay()];
+    return days[dayOfWeekDateOnly(dateStr)];
   }
 
   /**

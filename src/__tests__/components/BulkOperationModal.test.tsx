@@ -13,8 +13,8 @@ describe('BulkOperationModal', () => {
 
   const mockConfig: BulkOperationConfig = {
     operationType: 'price',
-    startDate: new Date('2026-07-01'),
-    endDate: new Date('2026-07-05'),
+    startDate: new Date(2026, 6, 1),
+    endDate: new Date(2026, 6, 5),
     price: 150,
     propertyId: 'prop-123',
     currentPrices: new Map([
@@ -126,8 +126,8 @@ describe('BulkOperationModal', () => {
   it('shows warning for large operations (>30 dates)', () => {
     const largeConfig: BulkOperationConfig = {
       ...mockConfig,
-      startDate: new Date('2026-07-01'),
-      endDate: new Date('2026-08-01'),
+      startDate: new Date(2026, 6, 1),
+      endDate: new Date(2026, 7, 1),
     };
 
     render(

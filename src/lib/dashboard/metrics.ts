@@ -9,6 +9,7 @@
  * que também precisam de comparação temporal sobre a mesma view.
  */
 
+import { addDaysToDateOnly, daysBetweenDateOnly } from '@/lib/dates/date-only'
 import { calcManagementFee } from '@/lib/financial/calculations'
 
 /** Uma linha de `monthly_property_metrics`, como retornada pelo Supabase. */
@@ -196,21 +197,62 @@ export function calculateVariationPercent(
  */
 export function countPropertiesByMonthEnd(
   properties: Array<{ created_at?: string | null }>,
-  monthKey: string
+  monthKey: string,
+  timeZone = 'UTC'
 ): number {
   const [yearStr, monthStr] = monthKey.split('-')
   const year = Number(yearStr)
   const month = Number(monthStr)
   if (!Number.isFinite(year) || !Number.isFinite(month)) return 0
 
-  // Último instante do mês de `monthKey` (dia 0 do mês seguinte = último dia do mês corrente, 23:59:59.999).
-  const monthEnd = new Date(year, month, 0, 23, 59, 59, 999)
+  // Primeiro dia do mês seguinte, como dia de calendário. `created_at` é um instante: converte-se
+  // para o dia no fuso da organização e compara-se como texto 'YYYY-MM-DD' (sem depender do fuso do servidor/browser).
+  const nextMonthStart = `${month === 12 ? year + 1 : year}-${String(month === 12 ? 1 : month + 1).padStart(2, '0')}-01`
 
   return properties.filter((p) => {
     if (!p.created_at) return false
     const createdAt = new Date(p.created_at)
-    return !Number.isNaN(createdAt.getTime()) && createdAt.getTime() <= monthEnd.getTime()
+    if (Number.isNaN(createdAt.getTime())) return false
+    return formatDateInTimeZone(createdAt, timeZone) < nextMonthStart
   }).length
+}
+
+/** Chave de mês ('YYYY-MM-01') do instante `date` no fuso `timeZone` (o "mês atual" da organização). */
+export function monthKeyInTimeZone(date: Date, timeZone: string): string {
+  return `${formatDateInTimeZone(date, timeZone).slice(0, 7)}-01`
+}
+
+/** Desloca uma chave de mês ('YYYY-MM-01' ou 'YYYY-MM') por `deltaMonths` meses. Aritmética pura de calendário. */
+export function shiftMonthKey(monthKey: string, deltaMonths: number): string {
+  const [year, month] = monthKey.split('-').map(Number)
+  const index = year * 12 + (month - 1) + deltaMonths
+  return `${Math.floor(index / 12)}-${String((index % 12) + 1).padStart(2, '0')}-01`
+}
+
+/** Primeiro/último dia e nº de dias do mês de `monthKey` ('YYYY-MM' ou 'YYYY-MM-DD'), como datas-só. */
+export function monthBounds(monthKey: string): { start: string; end: string; days: number } {
+  const start = `${monthKey.slice(0, 7)}-01`
+  const end = addDaysToDateOnly(shiftMonthKey(start, 1), -1)
+  return { start, end, days: Number(end.slice(8, 10)) }
+}
+
+/**
+ * Reserva (check_in/check_out em 'YYYY-MM-DD') toca o intervalo [start, end]? Mesma regra que o dashboard
+ * já usava, mas em comparação de texto: sem `Date`, logo sem depender do fuso.
+ */
+export function stayTouchesRange(checkIn: string, checkOut: string, start: string, end: string): boolean {
+  const ci = checkIn.slice(0, 10)
+  const co = checkOut.slice(0, 10)
+  return (ci >= start && ci <= end) || (co >= start && co <= end) || (ci <= start && co >= end)
+}
+
+/** Dias da estadia dentro de [start, end] (contagem inclusiva, como o dashboard sempre fez). Nunca negativo. */
+export function stayDaysInRange(checkIn: string, checkOut: string, start: string, end: string): number {
+  const ci = checkIn.slice(0, 10)
+  const co = checkOut.slice(0, 10)
+  const from = ci < start ? start : ci
+  const to = co > end ? end : co
+  return Math.max(0, daysBetweenDateOnly(from, to) + 1)
 }
 
 /** `Date` → chave de mês no mesmo formato de `metric_month` (primeiro dia do mês, 'YYYY-MM-DD'). */

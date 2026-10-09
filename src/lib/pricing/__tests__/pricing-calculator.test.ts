@@ -433,3 +433,35 @@ describe('PricingCalculator', () => {
     })
   })
 })
+
+describe('PricingCalculator: independente do fuso (BR/PT/ES)', () => {
+  it('sexta e sábado levam o multiplicador, domingo não', () => {
+    const r = PricingCalculator.calculateBookingPrice({
+      checkInDate: '2026-05-22',
+      checkOutDate: '2026-05-25',
+      nightlyRate: 100,
+      weekendMultiplier: 1.2,
+    })
+    expect(r.total).toBe(340)
+  })
+
+  it('conta as noites certas na mudança de hora de 2026-10-25', () => {
+    const r = PricingCalculator.calculateBookingPrice({
+      checkInDate: '2026-10-24',
+      checkOutDate: '2026-10-27',
+      nightlyRate: 100,
+    })
+    expect(r.total).toBe(300)
+    expect(r.breakdown).toHaveLength(3)
+  })
+
+  it('overrides diários batem no dia certo', () => {
+    const r = PricingCalculator.calculateBookingPrice({
+      checkInDate: '2026-05-22',
+      checkOutDate: '2026-05-24',
+      nightlyRate: 100,
+      dailyPrices: [{ date: '2026-05-23', override: 150 }],
+    } as never)
+    expect(r.total).toBe(250)
+  })
+})

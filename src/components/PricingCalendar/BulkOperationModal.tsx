@@ -3,6 +3,7 @@
  * Displays confirmation dialog for bulk pricing operations
  */
 
+import { addDaysToDateOnly, toDateOnly } from '@/lib/dates/date-only';
 import React, { useMemo } from 'react';
 import { BulkOperationConfig } from '@/hooks/useBulkPricingOperation';
 import { DailyPrice } from '@/types/calendar.types';
@@ -28,12 +29,12 @@ export function BulkOperationModal({
     if (!config) return [];
 
     const dates: string[] = [];
-    const current = new Date(config.startDate);
+    const endStr = toDateOnly(config.endDate);
+    let dateStr = toDateOnly(config.startDate);
 
-    while (current <= config.endDate) {
-      const dateStr = current.toISOString().split('T')[0];
+    while (dateStr <= endStr) {
       dates.push(dateStr);
-      current.setDate(current.getDate() + 1);
+      dateStr = addDaysToDateOnly(dateStr, 1);
     }
 
     return dates;
@@ -56,9 +57,7 @@ export function BulkOperationModal({
             basePrice * (1 - (config.discountPercent || 0) / 100)
           );
         } else if (config.operationType === 'copy' && config.sourceDate) {
-          const sourceDateStr = config.sourceDate
-            .toISOString()
-            .split('T')[0];
+          const sourceDateStr = toDateOnly(config.sourceDate);
           newPrice = currentPrices.get(sourceDateStr)?.price;
         } else if (config.operationType === 'delete') {
           newPrice = undefined;

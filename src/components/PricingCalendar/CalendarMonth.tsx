@@ -3,6 +3,7 @@
  * Main calendar container with month navigation and bulk operations
  */
 
+import { toDateOnly } from '@/lib/dates/date-only';
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { CalendarDay, DailyPrice } from '@/types/calendar.types';
 import { CalendarGrid, CalendarReservation } from './CalendarGrid';
@@ -184,7 +185,7 @@ export function CalendarMonth({
     // Current month's days
     for (let i = 1; i <= daysInMonth; i++) {
       const date = new Date(year, month, i);
-      const dateStr = date.toISOString().split('T')[0];
+      const dateStr = toDateOnly(date);
       const dayPrice = prices.get(dateStr);
       const isWeekend = date.getDay() === 0 || date.getDay() === 6;
 
@@ -274,7 +275,7 @@ export function CalendarMonth({
 
     try {
       setModalLoading(true);
-      const dateStr = selectedDate.toISOString().split('T')[0];
+      const dateStr = toDateOnly(selectedDate);
       await setPrice(dateStr, price);
       if (onPriceUpdate) {
         onPriceUpdate();
@@ -293,7 +294,7 @@ export function CalendarMonth({
 
     try {
       setModalLoading(true);
-      const dateStr = selectedDate.toISOString().split('T')[0];
+      const dateStr = toDateOnly(selectedDate);
       await deletePrice(dateStr);
       if (onPriceUpdate) {
         onPriceUpdate();
@@ -399,7 +400,7 @@ export function CalendarMonth({
     year: 'numeric',
   });
 
-  const selectedDateStr = selectedDate ? selectedDate.toISOString().split('T')[0] : '';
+  const selectedDateStr = selectedDate ? toDateOnly(selectedDate) : '';
   const currentDayPrice = selectedDateStr ? prices.get(selectedDateStr) : undefined;
   const isSelectedWeekend = selectedDate
     ? selectedDate.getDay() === 0 || selectedDate.getDay() === 6
