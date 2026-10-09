@@ -12,6 +12,7 @@ import { DataExportSection } from '@/components/features/settings/DataExportSect
 import { AccountDeletionSection } from '@/components/features/settings/AccountDeletionSection'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { PaymentSettings } from '@/components/features/settings/PaymentSettings'
+import { FinancialDefaultsSettings } from '@/components/features/settings/FinancialDefaultsSettings'
 import { OrganizationRegionSettings } from '@/components/features/settings/OrganizationRegionSettings'
 import { PublicContactSettings } from '@/components/features/settings/PublicContactSettings'
 import { PremiumCard, PremiumPageHeader, PremiumPageShell } from '@/components/common/layout/PremiumPage'
@@ -62,6 +63,22 @@ export default async function SettingsPage(props: { params: Promise<{ locale: st
     .select('id, name, slug, asaas_api_key, asaas_environment, timezone, currency')
     .eq('id', auth.organizationId)
     .single()
+
+  const { data: financialDefaultsRow } = isAdmin
+    ? await supabase
+        .from('organization_financial_settings')
+        .select('default_preset, default_recognition_basis, default_cash_flow_model, default_cleaning_recipient')
+        .eq('organization_id', auth.organizationId)
+        .maybeSingle()
+    : { data: null }
+  const financialDefaults = financialDefaultsRow && financialDefaultsRow.default_preset !== 'custom'
+    ? {
+        preset: financialDefaultsRow.default_preset,
+        competenciaReceita: financialDefaultsRow.default_recognition_basis,
+        fluxoFinanceiro: financialDefaultsRow.default_cash_flow_model,
+        destinatarioLimpeza: financialDefaultsRow.default_cleaning_recipient,
+      }
+    : null
 
   const { data: publicProfile } = organization
     ? await supabase
@@ -127,6 +144,14 @@ export default async function SettingsPage(props: { params: Promise<{ locale: st
                 timezone={organization?.timezone ?? 'Europe/Lisbon'}
                 currency={organization?.currency ?? 'EUR'}
               />
+            </PremiumCard>
+          </section>
+        )}
+
+        {isAdmin && (
+          <section id="predefinicoes-repasse" className="mb-8 scroll-mt-24">
+            <PremiumCard>
+              <FinancialDefaultsSettings initial={financialDefaults} />
             </PremiumCard>
           </section>
         )}
