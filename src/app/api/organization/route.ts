@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireRole } from '@/lib/auth/requireRole'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { isOrganizationCurrency, isOrganizationTimeZone } from '@/lib/organization/regional-settings'
 
-// PATCH /api/organization — actualizar nome da organização e/ou plano
+// PATCH /api/organization — actualizar nome, plano, fuso horário e/ou moeda da organização
 export async function PATCH(request: NextRequest) {
   const auth = await requireRole(['admin', 'gestor'])
   if (!auth.authorized) return auth.response!
@@ -12,7 +13,7 @@ export async function PATCH(request: NextRequest) {
   }
 
   const body = await request.json()
-  const { name, plan } = body
+  const { name, plan, timezone, currency } = body
 
   const updateData: Record<string, string> = { updated_at: new Date().toISOString() }
 
@@ -27,6 +28,20 @@ export async function PATCH(request: NextRequest) {
     }
     updateData.plan = plan
     updateData.subscription_plan = plan
+  }
+
+  if (timezone !== undefined) {
+    if (!isOrganizationTimeZone(timezone)) {
+      return NextResponse.json({ error: 'Fuso horário inválido' }, { status: 400 })
+    }
+    updateData.timezone = timezone
+  }
+
+  if (currency !== undefined) {
+    if (!isOrganizationCurrency(currency)) {
+      return NextResponse.json({ error: 'Moeda inválida' }, { status: 400 })
+    }
+    updateData.currency = currency
   }
 
   if (Object.keys(updateData).length === 1) {

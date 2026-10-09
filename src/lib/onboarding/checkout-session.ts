@@ -1,3 +1,4 @@
+import { regionalDefaultsForBillingCurrency } from '@/lib/organization/regional-settings'
 import type Stripe from 'stripe'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { configuredPlatformCurrencies, getPlatformStripe } from '@/lib/stripe/platform'
@@ -132,6 +133,7 @@ export async function getOrganizationFromCheckoutSession(sessionId: string): Pro
       plan,
       subscription_plan: plan,
       billing_currency: billingCurrency,
+      ...regionalDefaultsForBillingCurrency(billingCurrency),
     })
     .select('id, name, slug, subscription_plan, subscription_status')
     .single()

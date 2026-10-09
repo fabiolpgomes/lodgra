@@ -12,6 +12,7 @@ import { DataExportSection } from '@/components/features/settings/DataExportSect
 import { AccountDeletionSection } from '@/components/features/settings/AccountDeletionSection'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { PaymentSettings } from '@/components/features/settings/PaymentSettings'
+import { OrganizationRegionSettings } from '@/components/features/settings/OrganizationRegionSettings'
 import { PublicContactSettings } from '@/components/features/settings/PublicContactSettings'
 import { PremiumCard, PremiumPageHeader, PremiumPageShell } from '@/components/common/layout/PremiumPage'
 import { EmailConnection } from '@/components/features/settings/EmailConnection'
@@ -58,7 +59,7 @@ export default async function SettingsPage(props: { params: Promise<{ locale: st
   // Fetch Organization for payment settings
   const { data: organization } = await supabase
     .from('organizations')
-    .select('id, name, slug, asaas_api_key, asaas_environment')
+    .select('id, name, slug, asaas_api_key, asaas_environment, timezone, currency')
     .eq('id', auth.organizationId)
     .single()
 
@@ -115,6 +116,17 @@ export default async function SettingsPage(props: { params: Promise<{ locale: st
                   Abrir dados da empresa
                 </Link>
               </div>
+            </PremiumCard>
+          </section>
+        )}
+
+        {isAdmin && (
+          <section id="regiao-moeda" className="mb-8 scroll-mt-24">
+            <PremiumCard>
+              <OrganizationRegionSettings
+                timezone={organization?.timezone ?? 'Europe/Lisbon'}
+                currency={organization?.currency ?? 'EUR'}
+              />
             </PremiumCard>
           </section>
         )}
