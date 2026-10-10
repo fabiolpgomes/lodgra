@@ -7,6 +7,7 @@
  * 3. Race condition: Idempotency — second booking after first paid
  */
 
+jest.mock('server-only', () => ({}))
 import { POST } from '../bookings/route'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createTestRequest } from '@/__tests__/utils/test-request'

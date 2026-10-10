@@ -8,8 +8,10 @@ import { getPriceForRangePublic } from '@/lib/pricing/getPriceForRange'
 import { formatMinimumStayError, detectLocale } from '@/lib/i18n/messages'
 import { calculateServiceFeeAmount } from '@/lib/reservations/serviceFee'
 import { normalizeBookingLocale } from '@/lib/email/booking-locale'
+import { canReceivePix, createBookingPixCharge, PixChargeError } from '@/lib/payments/asaas-booking-pix.server'
+import { PENDING_PAYMENT_HOLD_MINUTES } from '@/lib/bookings/availability-conflict.server'
 
-// POST /api/public/bookings — create direct booking + Stripe Checkout Session
+// POST /api/public/bookings — create direct booking + Stripe Checkout Session (cartão) ou cobrança Pix (Asaas)
 // Public — no auth required
 
 function getClientIp(request: NextRequest): string {
@@ -54,7 +56,9 @@ export async function POST(request: NextRequest) {
       guest_country,
       preferred_locale,
       pricing_snapshot,
+      payment_method,
     } = body
+  const wantsPix = payment_method === 'pix'
   const preferredLocale = normalizeBookingLocale(
     typeof preferred_locale === 'string' ? preferred_locale : detectLocale(request.headers.get('accept-language') ?? undefined)
   )
@@ -291,13 +295,24 @@ export async function POST(request: NextRequest) {
   }
 
 
-  // ── Conta onde o hóspede vai pagar (conta Stripe do tenant) ─────────────────
-  const paymentAccount = await resolveBookingPaymentAccount(property.organization_id)
-  if (!paymentAccount) {
-    return NextResponse.json(
-      { error: 'online_payment_unavailable', message: 'Este alojamento ainda não aceita pagamento online. Contacte o anfitrião.' },
-      { status: 409 }
-    )
+  // ── Conta onde o hóspede vai pagar ───────────────────────────────────────────
+  // Cartão: conta Stripe do tenant. Pix: conta Asaas do tenant (só propriedades em BRL).
+  let paymentAccount: Awaited<ReturnType<typeof resolveBookingPaymentAccount>> = null
+  if (wantsPix) {
+    if (!(await canReceivePix(property.organization_id, property.currency))) {
+      return NextResponse.json(
+        { error: 'pix_unavailable', message: 'Este alojamento não aceita pagamento por Pix.' },
+        { status: 409 }
+      )
+    }
+  } else {
+    paymentAccount = await resolveBookingPaymentAccount(property.organization_id)
+    if (!paymentAccount) {
+      return NextResponse.json(
+        { error: 'online_payment_unavailable', message: 'Este alojamento ainda não aceita pagamento online. Contacte o anfitrião.' },
+        { status: 409 }
+      )
+    }
   }
 
   // ── Create reservation (pending_payment) ────────────────────────────────────
@@ -335,6 +350,50 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Erro ao criar reserva' }, { status: 500 })
   }
   console.log('[Bookings API] Reservation created:', reservation.id)
+
+  // ── Pix (Asaas) ──────────────────────────────────────────────────────────────
+  if (wantsPix) {
+    try {
+      const charge = await createBookingPixCharge({
+        organizationId: property.organization_id,
+        reservationId: reservation.id,
+        guestName: String(guest_name).trim(),
+        guestEmail: String(guest_email).toLowerCase().trim(),
+        totalAmount,
+        description: `${property.name} — ${nights} noite${nights !== 1 ? 's' : ''} (${checkin} a ${checkout})`,
+      })
+
+      await adminClient
+        .from('reservations')
+        .update({
+          asaas_payment_id: charge.paymentId,
+          asaas_payment_link: charge.invoiceUrl,
+          asaas_status: charge.status,
+        })
+        .eq('id', reservation.id)
+
+      return NextResponse.json({
+        reservation_id: reservation.id,
+        payment_method: 'pix',
+        pix: {
+          payload: charge.payload,
+          encoded_image: charge.encodedImage,
+          amount: totalAmount,
+          currency: property.currency,
+          expires_at: new Date(Date.now() + PENDING_PAYMENT_HOLD_MINUTES * 60 * 1000).toISOString(),
+        },
+      })
+    } catch (pixError: unknown) {
+      await adminClient.from('reservations').update({ status: 'cancelled' }).eq('id', reservation.id)
+      console.error('[Bookings API] Falha ao criar cobrança Pix:', pixError)
+      const message = pixError instanceof PixChargeError ? pixError.userMessage : 'Não foi possível gerar o Pix. Tente novamente.'
+      return NextResponse.json({ error: 'pix_charge_failed', message }, { status: 502 })
+    }
+  }
+
+  if (!paymentAccount) {
+    return NextResponse.json({ error: 'Erro ao iniciar pagamento. Tente novamente.' }, { status: 500 })
+  }
 
   // ── Create Stripe Checkout Session ──────────────────────────────────────────
 

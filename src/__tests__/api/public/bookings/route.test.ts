@@ -3,6 +3,7 @@
  * Covers: validation, double-booking, max_guests, pricing, Stripe session creation
  */
 
+jest.mock('server-only', () => ({}))
 import { NextRequest } from 'next/server'
 import { createTestRequest } from '@/__tests__/utils/test-request'
 import { POST } from '@/app/api/public/bookings/route'
@@ -11,6 +12,17 @@ import { checkRateLimit } from '@/lib/rateLimit'
 import { getPriceForRangePublic } from '@/lib/pricing/getPriceForRange'
 
 jest.mock('@/lib/supabase/admin')
+const mockCanReceivePix = jest.fn()
+const mockCreatePixCharge = jest.fn()
+jest.mock('@/lib/payments/asaas-booking-pix.server', () => ({
+  canReceivePix: (...args: unknown[]) => mockCanReceivePix(...args),
+  createBookingPixCharge: (...args: unknown[]) => mockCreatePixCharge(...args),
+  PixChargeError: class PixChargeError extends Error {
+    constructor(message: string, readonly userMessage = 'Não foi possível gerar o Pix. Tente novamente.') {
+      super(message)
+    }
+  },
+}))
 jest.mock('@/lib/rateLimit')
 jest.mock('@/lib/pricing/getPriceForRange')
 const mockCheckoutCreate = jest.fn().mockResolvedValue({
@@ -330,5 +342,76 @@ describe('POST /api/public/bookings', () => {
     const json = await res.json()
     expect(json.error).toBe('amount_too_small')
     expect(json.message).toMatch(/mínimo/)
+  })
+})
+
+describe('POST /api/public/bookings — Pix (Asaas)', () => {
+  const pixBody = { ...validBody, payment_method: 'pix' }
+  const charge = {
+    paymentId: 'pay_123',
+    invoiceUrl: 'https://sandbox.asaas.com/i/123',
+    status: 'PENDING',
+    payload: '00020126580014br.gov.bcb.pix',
+    encodedImage: 'aGVsbG8=',
+  }
+
+  beforeEach(() => {
+    mockCanReceivePix.mockResolvedValue(true)
+    mockCreatePixCharge.mockResolvedValue(charge)
+  })
+
+  it('recusa Pix (409) quando o tenant não pode receber Pix, sem tocar no Stripe', async () => {
+    mockCanReceivePix.mockResolvedValue(false)
+    mockCreateAdminClient.mockReturnValue(buildMockSupabase())
+    const res = await POST(makeRequest(pixBody))
+    expect(res.status).toBe(409)
+    expect((await res.json()).error).toBe('pix_unavailable')
+    expect(mockCreatePixCharge).not.toHaveBeenCalled()
+    expect(mockResolveAccount).not.toHaveBeenCalled()
+    expect(mockCheckoutCreate).not.toHaveBeenCalled()
+  })
+
+  it('verifica o Pix com a organização e a moeda da propriedade', async () => {
+    mockCreateAdminClient.mockReturnValue(buildMockSupabase())
+    await POST(makeRequest(pixBody))
+    expect(mockCanReceivePix).toHaveBeenCalledWith('org-001', 'BRL')
+  })
+
+  it('cria a cobrança Pix e devolve o QR Code, sem criar sessão no Stripe', async () => {
+    mockCreateAdminClient.mockReturnValue(buildMockSupabase())
+    const res = await POST(makeRequest(pixBody))
+    expect(res.status).toBe(200)
+    const json = await res.json()
+    expect(json.payment_method).toBe('pix')
+    expect(json.reservation_id).toBe('res-001')
+    expect(json.pix.payload).toBe(charge.payload)
+    expect(json.pix.encoded_image).toBe(charge.encodedImage)
+    expect(json.pix.amount).toBe(500)
+    expect(json.pix.currency).toBe('BRL')
+    expect(new Date(json.pix.expires_at).getTime()).toBeGreaterThan(Date.now())
+    expect(json.checkout_url).toBeUndefined()
+    expect(mockCreatePixCharge).toHaveBeenCalledWith(
+      expect.objectContaining({ organizationId: 'org-001', reservationId: 'res-001', totalAmount: 500, guestEmail: 'joao@example.com' }),
+    )
+    expect(mockCheckoutCreate).not.toHaveBeenCalled()
+  })
+
+  it('falha ao criar a cobrança → 502 com mensagem para o hóspede', async () => {
+    mockCreatePixCharge.mockRejectedValue(new Error('Asaas fora do ar'))
+    mockCreateAdminClient.mockReturnValue(buildMockSupabase())
+    const res = await POST(makeRequest(pixBody))
+    expect(res.status).toBe(502)
+    const json = await res.json()
+    expect(json.error).toBe('pix_charge_failed')
+    expect(json.message).toMatch(/Pix/)
+    expect(JSON.stringify(json)).not.toMatch(/Asaas fora do ar/)
+  })
+
+  it('sem payment_method continua a ser cartão (Stripe)', async () => {
+    mockCreateAdminClient.mockReturnValue(buildMockSupabase())
+    const res = await POST(makeRequest(validBody))
+    expect(res.status).toBe(200)
+    expect(mockCreatePixCharge).not.toHaveBeenCalled()
+    expect(mockCheckoutCreate).toHaveBeenCalled()
   })
 })

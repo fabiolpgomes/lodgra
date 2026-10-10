@@ -31,6 +31,7 @@ interface CheckoutPageClientProps {
   maxGuests?: number | null
   cancellationPolicy?: CancellationPolicy | null
   feeConfig: FeeConfig
+  pixAvailable?: boolean
 }
 
 export function CheckoutPageClient({
@@ -42,6 +43,7 @@ export function CheckoutPageClient({
   maxGuests,
   cancellationPolicy,
   feeConfig,
+  pixAvailable = false,
 }: CheckoutPageClientProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -133,6 +135,7 @@ export function CheckoutPageClient({
       fees={feeItems}
       currency={currency}
       cancellationPolicy={cancellationPolicy}
+      pixAvailable={pixAvailable}
       pricingQuote={quote}
       pricingLoading={pricingLoading}
       pricingError={pricingQuoteError}

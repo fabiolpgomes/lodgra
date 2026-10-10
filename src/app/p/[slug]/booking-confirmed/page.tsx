@@ -12,12 +12,12 @@ export const metadata: Metadata = {
 
 interface PageProps {
   params: Promise<{ slug: string }>
-  searchParams: Promise<{ session_id?: string }>
+  searchParams: Promise<{ session_id?: string; reservation_id?: string }>
 }
 
 export default async function BookingConfirmedPage({ params, searchParams }: PageProps) {
   const { slug } = await params
-  const { session_id } = await searchParams
+  const { session_id, reservation_id } = await searchParams
 
   let reservation: {
     check_in: string
@@ -29,9 +29,11 @@ export default async function BookingConfirmedPage({ params, searchParams }: Pag
     num_guests: number | null
   } | null = null
 
-  if (session_id) {
+  // Pix identifica a reserva pelo id (UUID aleatório); cartão, pela sessão do Stripe.
+  const isPix = Boolean(reservation_id) && !session_id
+  if (session_id || reservation_id) {
     const supabase = createAdminClient()
-    const { data } = await supabase
+    let query = supabase
       .from('reservations')
       .select(`
         check_in,
@@ -43,8 +45,10 @@ export default async function BookingConfirmedPage({ params, searchParams }: Pag
         num_guests,
         properties:properties!reservations_property_org_fk(slug, currency)
       `)
-      .eq('stripe_checkout_session_id', session_id)
-      .single()
+      .eq(isPix ? 'id' : 'stripe_checkout_session_id', (isPix ? reservation_id : session_id) as string)
+    // Pix: só mostra a página de sucesso para uma reserva já confirmada.
+    if (isPix) query = query.eq('status', 'confirmed')
+    const { data } = await query.single()
 
     // Validate that the session belongs to this property slug
     const propertySlug = (data?.properties as unknown as { slug: string } | null)?.slug

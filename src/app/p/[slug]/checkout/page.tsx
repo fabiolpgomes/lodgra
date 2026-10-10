@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { differenceInCalendarDays, isValid, parseISO } from 'date-fns'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { Logo } from '@/components/common/ui/Logo'
+import { canReceivePix } from '@/lib/payments/asaas-booking-pix.server'
 import { CheckoutPageClient } from './CheckoutPageClient'
 import type { CurrencyCode } from '@/lib/utils/currency'
 import type { Metadata } from 'next'
@@ -37,7 +38,7 @@ export default async function CheckoutPage({ params, searchParams }: PageProps) 
 
   const { data: property } = await supabase
     .from('properties')
-    .select('id, name, city, currency, is_public, slug, max_guests, cleaning_fee, cleaning_fee_type, pet_fee, pet_fee_type')
+    .select('id, name, city, currency, is_public, slug, max_guests, cleaning_fee, cleaning_fee_type, pet_fee, pet_fee_type, organization_id')
     .eq('slug', slug)
     .eq('is_public', true)
     .single()
@@ -55,6 +56,8 @@ export default async function CheckoutPage({ params, searchParams }: PageProps) 
       </div>
     )
   }
+
+  const pixAvailable = await canReceivePix(property.organization_id, property.currency)
 
   const { data: cancellationPolicyData } = await supabase
     .from('property_cancellation_policies')
@@ -83,6 +86,7 @@ export default async function CheckoutPage({ params, searchParams }: PageProps) 
           propertyName={property.name}
           city={property.city ?? null}
           currency={property.currency as CurrencyCode}
+          pixAvailable={pixAvailable}
           maxGuests={property.max_guests ?? null}
           cancellationPolicy={cancellationPolicyData ?? null}
           feeConfig={{

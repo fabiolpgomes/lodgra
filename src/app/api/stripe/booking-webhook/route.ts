@@ -3,9 +3,7 @@ import Stripe from 'stripe'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { configuredPlatformCurrencies, getConnectWebhookSecret } from '@/lib/stripe/platform'
 import { claimStripeEvent, markStripeEventProcessed, releaseStripeEvent } from '@/lib/stripe/webhook-idempotency'
-import { sendBookingConfirmationToGuest, sendBookingNotificationToManager } from '@/lib/email/bookingConfirmationGuest'
-import { enqueueEmail } from '@/lib/email/queue'
-import type { CurrencyCode } from '@/lib/utils/currency'
+import { confirmDirectBooking } from '@/lib/bookings/confirm-direct-booking.server'
 
 export const dynamic = 'force-dynamic'
 
@@ -124,147 +122,13 @@ async function handleBookingCompleted(supabase: AdminClient, session: Stripe.Che
     return
   }
 
-  // ── Idempotency check ────────────────────────────────────────────────────────
-  const { data: existing } = await supabase
-    .from('reservations')
-    .select('status, check_in, check_out, guest_name, guest_email, total_amount, num_guests, property_listing_id, currency, preferred_locale, guests:guests!reservations_guest_id_fkey(preferred_locale)')
-    .eq('id', reservationId)
-    .single()
-
-  if (!existing) {
-    console.error(`[booking-webhook] Reserva ${reservationId} não encontrada`)
-    return
-  }
-
-  if (existing.status !== 'pending_payment') {
-    // Já confirmada, ou cancelada/expirada entretanto: uma entrega tardia não a reabre.
-    console.log(`[booking-webhook] Reserva ${reservationId} em '${existing.status}' — ignorado`)
-    return
-  }
-
-  // ── Confirm reservation ─────────────────────────────────────────────────────
-  // Update condicional: só confirma se ainda não estiver confirmada. Duas entregas
-  // concorrentes não confirmam (nem enviam e-mails) duas vezes.
-  const { data: confirmedRows, error: updateError } = await supabase
-    .from('reservations')
-    .update({
-      status: 'confirmed',
+  await confirmDirectBooking(supabase, reservationId, {
+    paymentFields: {
       stripe_checkout_session_id: session.id,
-      stripe_payment_intent_id: session.payment_intent as string ?? null,
-    })
-    .eq('id', reservationId)
-    .eq('status', 'pending_payment')
-    .select('id')
-
-  if (updateError) {
-    console.error(`[booking-webhook] Erro ao confirmar reserva ${reservationId}:`, updateError)
-    throw updateError
-  }
-  if (!confirmedRows || confirmedRows.length === 0) {
-    console.log(`[booking-webhook] Reserva ${reservationId} confirmada por outra entrega — idempotent skip`)
-    return
-  }
-
-  console.log(`[booking-webhook] Reserva ${reservationId} confirmada`)
-
-  // ── Fetch property info for emails ──────────────────────────────────────────
-  console.log(`[booking-webhook] Fetching property listing: ${existing.property_listing_id}`)
-  const { data: listing, error: listingError } = await supabase
-    .from('property_listings')
-    .select('property_id, properties!property_listings_property_id_fkey(name, city, slug, organization_id, owner_id, currency)')
-    .eq('id', existing.property_listing_id)
-    .single()
-
-  if (listingError) {
-    console.error(`[booking-webhook] Erro ao buscar listing: ${listingError.message}`)
-    return
-  }
-
-  const property = listing?.properties as unknown as {
-    name: string
-    city: string | null
-    slug: string | null
-    organization_id: string
-    owner_id: string | null
-    currency: string | null
-  } | null
-  console.log(`[booking-webhook] Property found: ${property?.name ?? 'Unknown'}`)
-
-  if (!property) {
-    console.error('[booking-webhook] Propriedade não encontrada para emails')
-    return
-  }
-
-  // ── Send emails (non-blocking) ──────────────────────────────────────────────
-  const currency = (existing.currency ?? property.currency)?.toUpperCase() as CurrencyCode | undefined
-  if (!currency) {
-    console.error('[booking-webhook] Reserva sem moeda disponível para emails:', reservationId)
-    return
-  }
-
-  const guestRelation = existing.guests as unknown as { preferred_locale: string | null } | Array<{ preferred_locale: string | null }> | null
-  const guestProfile = Array.isArray(guestRelation) ? guestRelation[0] : guestRelation
-
-  const emailData = {
-    reservationId,
-    propertyName: property.name,
-    propertySlug: property.slug,
-    propertyCity: property.city,
-    organizationId: property.organization_id,
-    checkIn: existing.check_in,
-    checkOut: existing.check_out,
-    guestName: existing.guest_name ?? 'Hóspede',
-    guestEmail: existing.guest_email ?? null,
-    numGuests: existing.num_guests ?? 1,
-    totalAmount: existing.total_amount ? parseFloat(String(existing.total_amount)) : 0,
-    currency,
-    appUrl: process.env.NEXT_PUBLIC_APP_URL ?? '',
-    preferredLocale: existing.preferred_locale ?? guestProfile?.preferred_locale ?? null,
-    bookingUrl: bookingConfirmedUrl(session, property.slug),
-  }
-
-  console.log(`[booking-webhook] Sending emails to ${emailData.guestEmail}`)
-  const emailResults = await Promise.allSettled([
-    sendBookingConfirmationToGuest(emailData),
-    sendBookingNotificationToManager(emailData),
-  ])
-
-  emailResults.forEach((result, index) => {
-    if (result.status === 'fulfilled') {
-      console.log(`[booking-webhook] Email ${index === 0 ? 'guest' : 'manager'} sent successfully`)
-    } else {
-      console.error(`[booking-webhook] Email ${index === 0 ? 'guest' : 'manager'} failed:`, result.reason)
-    }
+      stripe_payment_intent_id: (session.payment_intent as string) ?? null,
+    },
+    bookingUrl: (propertySlug) => bookingConfirmedUrl(session, propertySlug),
   })
-
-  // ── Notify property owner ────────────────────────────────────────────────────
-  if (property?.owner_id) {
-    const { data: owner } = await supabase
-      .from('owners')
-      .select('full_name, email')
-      .eq('id', property.owner_id)
-      .single()
-
-    if (owner?.email) {
-      const nights = Math.round(
-        (new Date(existing.check_out).getTime() - new Date(existing.check_in).getTime()) / 86400000
-      )
-      await enqueueEmail({
-        type: 'owner_reservation',
-        ownerName: owner.full_name ?? 'Proprietário',
-        ownerEmail: owner.email,
-        guestName: existing.guest_name ?? 'Hóspede',
-        propertyName: property.name,
-        checkIn: existing.check_in,
-        checkOut: existing.check_out,
-        nights,
-        totalAmount: existing.total_amount ? String(existing.total_amount) : undefined,
-        currency,
-        source: 'direct',
-      })
-      console.log(`[booking-webhook] Notificação ao proprietário enviada para ${owner.email}`)
-    }
-  }
 }
 
 /**

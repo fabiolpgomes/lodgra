@@ -7,6 +7,7 @@ import { Loader2, ArrowLeft } from 'lucide-react'
 import { PriceBreakdownCard } from './booking/PriceBreakdownCard'
 import type { PropertyPriceQuote } from '@/hooks/usePropertyPriceQuote'
 import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
+import { PixPayment, type PixCharge } from './PixPayment'
 import { BOOKING_LOCALE_OPTIONS, BOOKING_STANDARD_LOCALE, normalizeBookingLocale } from '@/lib/email/booking-locale'
 
 interface CheckoutFormProps {
@@ -23,6 +24,8 @@ interface CheckoutFormProps {
   pricingQuote?: PropertyPriceQuote | null
   pricingLoading?: boolean
   pricingError?: string | null
+  /** Mostra a opção Pix (propriedade em BRL e Asaas configurado). */
+  pixAvailable?: boolean
   cancellationPolicy?: {
     id?: string
     policy_type: string
@@ -69,6 +72,7 @@ export function CheckoutForm({
   pricingQuote = null,
   pricingLoading = false,
   pricingError = null,
+  pixAvailable = false,
   cancellationPolicy,
 }: CheckoutFormProps) {
   const router = useRouter()
@@ -83,6 +87,8 @@ export function CheckoutForm({
   const [errors, setErrors] = useState<Partial<GuestData>>({})
   const [submitting, setSubmitting] = useState(false)
   const [apiError, setApiError] = useState<string | null>(null)
+  const [method, setMethod] = useState<'card' | 'pix'>('card')
+  const [pixCharge, setPixCharge] = useState<PixCharge | null>(null)
 
   useEffect(() => {
     const browserLocale = typeof navigator !== 'undefined'
@@ -129,6 +135,7 @@ export function CheckoutForm({
           guest_phone: guestData.phone.trim(),
           guest_country: guestData.country,
           preferred_locale: normalizeBookingLocale(guestData.preferredLocale),
+          payment_method: pixAvailable ? method : 'card',
           pricing_snapshot: pricingQuote
             ? {
                 base_total: pricingQuote.baseTotal,
@@ -145,6 +152,19 @@ export function CheckoutForm({
 
       if (!res.ok) {
         setApiError(data.message || data.error || 'Erro ao processar reserva. Tente novamente.')
+        setSubmitting(false)
+        return
+      }
+
+      if (data.payment_method === 'pix' && data.pix) {
+        setPixCharge({
+          reservationId: data.reservation_id,
+          payload: data.pix.payload,
+          encodedImage: data.pix.encoded_image,
+          amount: Number(data.pix.amount),
+          currency: String(data.pix.currency).toUpperCase() as CurrencyCode,
+          expiresAt: data.pix.expires_at,
+        })
         setSubmitting(false)
         return
       }
@@ -351,8 +371,13 @@ export function CheckoutForm({
         </div>
       )}
 
+      {/* Step 3 — Pix em curso */}
+      {step === 'payment' && pixCharge && (
+        <PixPayment slug={slug} charge={pixCharge} onRestart={() => setPixCharge(null)} />
+      )}
+
       {/* Step 3 — Payment */}
-      {step === 'payment' && (
+      {step === 'payment' && !pixCharge && (
         <div className="space-y-4">
           <BookingSummary
             propertyName={propertyName}
@@ -379,8 +404,40 @@ export function CheckoutForm({
             </div>
           )}
 
+          {pixAvailable && (
+            <fieldset className="space-y-2">
+              <legend className="text-sm font-medium text-brand-text-dark mb-1">Forma de pagamento</legend>
+              {([
+                { value: 'pix', label: 'Pix', hint: 'Pague agora com o app do seu banco' },
+                { value: 'card', label: 'Cartão de crédito', hint: 'Pagamento seguro pelo Stripe' },
+              ] as const).map((option) => (
+                <label
+                  key={option.value}
+                  className={`flex cursor-pointer items-start gap-3 rounded-xl border px-3 py-3 text-sm ${
+                    method === option.value ? 'border-brand-blue bg-brand-blue/5' : 'border-brand-gold/20 bg-brand-white'
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="payment-method"
+                    value={option.value}
+                    checked={method === option.value}
+                    onChange={() => setMethod(option.value)}
+                    className="mt-1"
+                  />
+                  <span>
+                    <span className="block font-medium text-brand-text-dark">{option.label}</span>
+                    <span className="block text-xs text-brand-text-medium">{option.hint}</span>
+                  </span>
+                </label>
+              ))}
+            </fieldset>
+          )}
+
           <p className="text-xs text-brand-text-medium">
-            Ao clicar em Pagar, será redireccionado para a página segura de pagamento do Stripe.
+            {pixAvailable && method === 'pix'
+              ? 'Ao clicar em Pagar com Pix, vamos gerar um QR Code para pagar no app do seu banco.'
+              : 'Ao clicar em Pagar, será redireccionado para a página segura de pagamento do Stripe.'}
           </p>
 
           <button
@@ -394,7 +451,7 @@ export function CheckoutForm({
                 A processar...
               </>
             ) : (
-              `Pagar ${formatCurrency(totalPrice, currency)}`
+              `${pixAvailable && method === 'pix' ? 'Pagar com Pix' : 'Pagar'} ${formatCurrency(totalPrice, currency)}`
             )}
           </button>
 

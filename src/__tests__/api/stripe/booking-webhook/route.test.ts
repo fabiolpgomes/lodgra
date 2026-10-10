@@ -17,6 +17,7 @@ import {
   releaseStripeEvent,
 } from '@/lib/stripe/webhook-idempotency'
 
+jest.mock('server-only', () => ({}))
 jest.mock('@/lib/supabase/admin')
 jest.mock('@/lib/email/bookingConfirmationGuest')
 jest.mock('@/lib/email/queue', () => ({ enqueueEmail: jest.fn() }))
