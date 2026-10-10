@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { requireRole } from '@/lib/auth/requireRole'
+import { validateAsaasApiKey } from '@/lib/payments/asaas-api-key'
 import { getAsaasSettingsView, saveAsaasCredentials } from '@/lib/payments/asaas-credentials.server'
 
 const NO_STORE = { 'Cache-Control': 'private, no-store' } as const
@@ -33,6 +34,11 @@ export async function PUT(request: NextRequest) {
 
   const parsed = bodySchema.safeParse(await request.json().catch(() => null))
   if (!parsed.success) return NextResponse.json({ error: 'Dados inválidos' }, { status: 400 })
+
+  if (parsed.data.apiKey) {
+    const keyError = validateAsaasApiKey(parsed.data.apiKey, parsed.data.environment)
+    if (keyError) return NextResponse.json({ error: keyError }, { status: 400 })
+  }
 
   try {
     await saveAsaasCredentials(auth.organizationId, parsed.data)

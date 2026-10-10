@@ -7,6 +7,8 @@ import { AuthLayout } from '@/components/common/layout/AuthLayout'
 import { Button } from '@/components/common/ui/button'
 import { Badge } from '@/components/common/ui/badge'
 import { formatCurrency } from '@/lib/utils/currency'
+import { formatDateTimeInTimeZone } from '@/lib/dates/date-only'
+import { getSessionTimeZone } from '@/lib/dates/business-timezone.server'
 import { EditReservationClient } from '@/components/features/reservations/EditReservationClient'
 import { ReservationFinancialFacts } from '@/components/features/reservations/ReservationFinancialFacts'
 import { ReservationUI } from '@/components/features/reservations/types/reservation-ui'
@@ -105,13 +107,7 @@ export default async function ReservationDetailPage({
     month: '2-digit',
     year: 'numeric',
   })
-  const createdAtFormatted = new Date(reservation.created_at).toLocaleDateString('pt-BR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
+  const createdAtFormatted = formatDateTimeInTimeZone(reservation.created_at, await getSessionTimeZone(supabase))
   const reservationNotes = reservation.notes || ''
   const minimumOverrideMatch = reservationNotes.match(
     /Exceção aprovada para mínimo de noites:\s*(\d+)\s*noites?/i

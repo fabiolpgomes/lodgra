@@ -42,10 +42,23 @@ describe('/api/organization/payment-settings', () => {
   })
 
   it('PUT grava na organização da sessão e não devolve a chave', async () => {
-    const response = await PUT(request({ environment: 'production', apiKey: '$aak_secret_123456' }))
+    const response = await PUT(request({ environment: 'production', apiKey: '$aact_prod_secret123456' }))
     expect(response.status).toBe(200)
-    expect(saveAsaasCredentials).toHaveBeenCalledWith('org-1', { environment: 'production', apiKey: '$aak_secret_123456' })
+    expect(saveAsaasCredentials).toHaveBeenCalledWith('org-1', { environment: 'production', apiKey: '$aact_prod_secret123456' })
     expect(JSON.stringify(await response.json())).not.toContain('secret')
+  })
+
+  it('PUT recusa (400) valor que não é chave de API do Asaas, sem gravar nada', async () => {
+    const response = await PUT(request({ environment: 'sandbox', apiKey: 'e326af68-f6c1-461b-b3a6-f6d49f783269' }))
+    expect(response.status).toBe(400)
+    expect((await response.json()).error).toMatch(/\$aact_/)
+    expect(saveAsaasCredentials).not.toHaveBeenCalled()
+  })
+
+  it('PUT recusa chave de sandbox com ambiente Produção', async () => {
+    const response = await PUT(request({ environment: 'production', apiKey: '$aact_hmlg_000abc123' }))
+    expect(response.status).toBe(400)
+    expect(saveAsaasCredentials).not.toHaveBeenCalled()
   })
 
   it('PUT sem chave mantém a atual (apiKey omitida)', async () => {

@@ -90,6 +90,29 @@ export function todayInTimeZone(timeZone: string = DEFAULT_BUSINESS_TIME_ZONE, n
 }
 
 /**
+ * Formata um instante (ex.: `created_at`, em UTC) como data e hora no fuso `timeZone`.
+ * Páginas renderizadas no servidor correm em UTC: sem fuso explícito mostrariam 03:51
+ * para algo criado às 00:48 em São Paulo.
+ */
+export function formatDateTimeInTimeZone(
+  value: string | Date | null | undefined,
+  timeZone: string = DEFAULT_BUSINESS_TIME_ZONE,
+  locale = 'pt-BR'
+): string {
+  if (!value) return ''
+  const date = value instanceof Date ? value : new Date(value)
+  if (Number.isNaN(date.getTime())) return ''
+  return new Intl.DateTimeFormat(locale, {
+    timeZone,
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(date)
+}
+
+/**
  * Soma `months` a "YYYY-MM-DD" mantendo o dia, limitado ao último dia do mês de destino
  * (31 de maio − 3 meses = 28 de fevereiro, não 3 de março).
  */

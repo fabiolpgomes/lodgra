@@ -1,5 +1,14 @@
 import { Resend } from 'resend'
+import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
 import { formatBookingDate, getBookingConfirmationSubject, getBookingEmailCopy } from './booking-locale'
+
+/** Valor para os emails: "R$ 4.590,00" em vez de "4590 BRL". */
+export function formatEmailAmount(amount: string, currency?: string): string {
+  if (!currency) return amount
+  const code = currency.toUpperCase() as CurrencyCode
+  const formatted = formatCurrency(amount, code)
+  return formatted === '-' ? `${amount} ${currency}` : formatted
+}
 
 function getResendClient() {
   const apiKey = process.env.RESEND_API_KEY
@@ -93,7 +102,7 @@ export async function sendReservationConfirmation(data: CheckInNotification) {
           ${data.totalAmount ? `
           <tr>
             <td style="padding: 8px 0; color: #6b7280;">Valor Total</td>
-            <td style="padding: 8px 0; font-weight: 600; color: #111827;">${data.currency ? `${data.totalAmount} ${data.currency}` : data.totalAmount}</td>
+            <td style="padding: 8px 0; font-weight: 600; color: #111827;">${formatEmailAmount(data.totalAmount, data.currency)}</td>
           </tr>
           ` : ''}
         </table>
@@ -149,6 +158,7 @@ export async function sendOwnerReservationNotification(data: OwnerReservationNot
     ical_auto_sync: 'Sincronização Automática',
     airbnb: 'Airbnb',
     booking: 'Booking.com',
+    direct: 'Reserva direta',
   }
 
   const html = `
@@ -188,7 +198,7 @@ export async function sendOwnerReservationNotification(data: OwnerReservationNot
           ${data.totalAmount ? `
           <tr>
             <td style="padding: 8px 0; color: #6b7280;">Valor Total</td>
-            <td style="padding: 8px 0; font-weight: 600; color: #111827;">${data.currency ? `${data.totalAmount} ${data.currency}` : data.totalAmount}</td>
+            <td style="padding: 8px 0; font-weight: 600; color: #111827;">${formatEmailAmount(data.totalAmount, data.currency)}</td>
           </tr>
           ` : ''}
           ${data.source ? `
@@ -250,6 +260,7 @@ export async function sendOwnerCancellationNotification(data: OwnerCancellationN
     ical_auto_sync: 'Sincronização Automática',
     airbnb: 'Airbnb',
     booking: 'Booking.com',
+    direct: 'Reserva direta',
   }
 
   const html = `

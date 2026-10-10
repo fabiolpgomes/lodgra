@@ -77,7 +77,7 @@ describe('toDateOnly', () => {
   })
 })
 
-import { todayInTimeZone, addMonthsToDateOnly } from '../date-only'
+import { todayInTimeZone, addMonthsToDateOnly, formatDateTimeInTimeZone } from '../date-only'
 
 describe('todayInTimeZone / addMonthsToDateOnly', () => {
   it('o mesmo instante é dias diferentes em fusos diferentes', () => {
@@ -100,5 +100,24 @@ describe('todayInTimeZone / addMonthsToDateOnly', () => {
     expect(addMonthsToDateOnly('2028-05-31', -3)).toBe('2028-02-29')
     expect(addMonthsToDateOnly('2026-01-15', -3)).toBe('2025-10-15')
     expect(addMonthsToDateOnly('2026-11-30', 3)).toBe('2027-02-28')
+  })
+})
+
+describe('formatDateTimeInTimeZone', () => {
+  const instant = '2026-10-10T03:51:00Z'
+
+  it('mostra o horário do fuso pedido, não o do servidor', () => {
+    expect(formatDateTimeInTimeZone(instant, 'America/Sao_Paulo')).toBe('10/10/2026, 00:51')
+    expect(formatDateTimeInTimeZone(instant, 'Europe/Lisbon')).toBe('10/10/2026, 04:51')
+    expect(formatDateTimeInTimeZone(instant, 'UTC')).toBe('10/10/2026, 03:51')
+  })
+
+  it('muda o dia quando o fuso está do outro lado da meia-noite', () => {
+    expect(formatDateTimeInTimeZone('2026-10-10T01:30:00Z', 'America/Sao_Paulo')).toBe('09/10/2026, 22:30')
+  })
+
+  it('valores vazios ou inválidos devolvem texto vazio', () => {
+    expect(formatDateTimeInTimeZone(null)).toBe('')
+    expect(formatDateTimeInTimeZone('não-é-data')).toBe('')
   })
 })
