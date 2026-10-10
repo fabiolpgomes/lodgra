@@ -27,8 +27,9 @@ export function MonthYearPicker({ currentDate, onSelect, onCancel }: MonthYearPi
   }
 
   const handleSelect = (monthIndex: number) => {
-    const date = new Date(Date.UTC(selectedYear, monthIndex, 1))
-    onSelect(date)
+    // Data local: quem recebe lê com getFullYear()/getMonth() (hora local). Em UTC, fusos a oeste
+    // (ex.: São Paulo) caíam no dia 31 do mês anterior e o calendário abria no mês errado.
+    onSelect(new Date(selectedYear, monthIndex, 1))
   }
 
   return (

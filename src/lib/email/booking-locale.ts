@@ -5,7 +5,7 @@ export const BOOKING_STANDARD_LOCALE: BookingLocale = 'pt-PT'
 export const BOOKING_STANDARD_VERSION = 'booking-contact-standard-v1'
 
 export const BOOKING_LOCALE_OPTIONS: Array<{ value: BookingLocale; label: string }> = [
-  { value: 'pt-PT', label: 'Português (Portugal)' },
+  { value: 'pt-PT', label: 'Português' },
   { value: 'en-US', label: 'English' },
   { value: 'es-ES', label: 'Español' },
 ]
