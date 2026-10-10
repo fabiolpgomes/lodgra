@@ -1,3 +1,5 @@
+> **⚠️ Obsoleto (2026-10-10):** as rotas `/api/admin/sync-status` e `/api/admin/sync-cancellations` foram removidas (diagnóstico pontual que lia dados de todas as organizações). Mantido só como histórico.
+
 # Investigação: Sincronização Quebrada Booking/Airbnb
 
 ## Status Atual (2 Julho 2026)

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { propertyBelongsToOrg } from '@/lib/auth/property-access'
 import { ReservationValidator } from '@/lib/reservations/reservation-validator'
 
 export async function POST(request: NextRequest) {
@@ -16,12 +17,16 @@ export async function POST(request: NextRequest) {
 
     const { data: profile } = await supabase
       .from('user_profiles')
-      .select('role')
+      .select('role, organization_id')
       .eq('id', user.id)
       .single()
 
     if (profile?.role !== 'admin') {
       return NextResponse.json({ error: 'Admin access required' }, { status: 403 })
+    }
+
+    if (!profile.organization_id) {
+      return NextResponse.json({ error: 'Utilizador sem organização' }, { status: 403 })
     }
 
     // Parse request body
@@ -34,6 +39,12 @@ export async function POST(request: NextRequest) {
         { error: 'Missing required fields: propertyId, checkIn, checkOut' },
         { status: 400 }
       )
+    }
+
+    // A propriedade tem de ser da organização do utilizador: o validador usa
+    // service_role (ignora RLS), por isso o isolamento é garantido aqui.
+    if (!(await propertyBelongsToOrg(propertyId, profile.organization_id))) {
+      return NextResponse.json({ error: 'Propriedade não encontrada' }, { status: 404 })
     }
 
     // Validate dates

@@ -59,4 +59,22 @@ describe('autenticação das rotas privilegiadas', () => {
       expect(source).toMatch(/requirePlatformAdmin\(|resolvePlatformAdmin\(/)
     }
   })
+
+  it('nenhuma rota de /api usa ADMIN_SECRET (o operador é identificado por platform_admins)', () => {
+    for (const file of routeFiles(API_ROOT)) {
+      const source = readFileSync(file, 'utf8')
+      expect(`${relative(API_ROOT, file)}: ${/ADMIN_SECRET/.test(source)}`).toMatch(/: false$/)
+    }
+  })
+
+  it('rotas de /api/admin que usam service_role referenciam a organização do chamador', () => {
+    // service_role ignora RLS: sem filtro por organização, um admin de um tenant vê/altera todos.
+    for (const file of routeFiles(join(API_ROOT, 'admin'))) {
+      const rel = relative(API_ROOT, file)
+      if (TOKEN_CAPABILITY_ROUTES[rel]) continue
+      const source = readFileSync(file, 'utf8')
+      if (!/createAdminClient\(/.test(source)) continue
+      expect(`${rel}: ${/organization_?[iI]d|propertyBelongsToOrg/.test(source)}`).toMatch(/: true$/)
+    }
+  })
 })

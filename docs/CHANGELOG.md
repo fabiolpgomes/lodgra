@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Console do operador — entrega 2: isolamento entre organizações em /api/admin (10/out/2026)
+
+- **Auditoria** de todas as rotas de `/api/admin`: as que usam `service_role` sem filtro por organização deixavam um admin de um tenant ler/alterar dados de todos.
+- **Removidas** (pontuais, sem chamadores): `sync-status`, `sync-cancellations`, `trigger-ical-sync` (qualquer utilizador autenticado sincronizava os iCal de todas as organizações), `google-merchant-sync-debug`, `migrate-external-ids`, `audit-platform-sync`, `backfill-platform-metadata`, `audit-ical-data`, `qa/bootstrap-user`, `import-emails`. O `ADMIN_SECRET` deixa de existir.
+- **Movida** para `/api/platform/orphaned-users` (global por natureza): só operador, auditoria antes de apagar, margem de 1 h para registos em curso.
+- **`reservations` e `reservations/validate`**: o validador usa `service_role`; passam a exigir que a propriedade pertença à organização do utilizador (`propertyBelongsToOrg`, 404 caso contrário).
+- **Guarda de regressão** alargada: proíbe `ADMIN_SECRET` em `/api` e exige referência à organização em rotas `/api/admin` com `service_role`.
+- **Docs**: avisos de obsoleto nos guias das rotas removidas; token de bypass da Vercel retirado de `STAGING_SETUP_GUIDE.md` (rodar o token).
+
 ### Console do operador da plataforma — entrega 1 e correção de segurança (10/out/2026)
 
 - **Segurança (já em produção, `1c58addf`)**: `/api/` é público no proxy, e quatro rotas de `/api/admin` não tinham autenticação (`apply-migration`, `fix-listings`, `fix-listings-enhanced`, `cleaners`). As três primeiras eram código morto e foram removidas; `cleaners` foi primeiro protegida (admin/gestor, organização da sessão) e depois removida junto com `CleanerForm` e o teste: `user_profiles` não tem `is_active` e exige `id`, então a rota nunca conseguiu criar uma limpeza, e o formulário não estava ligado a nenhuma tela nem tinha traduções. Cadastro de limpeza, se for desejado, volta como história própria (criar o usuário no Auth e depois o perfil com o `id`).

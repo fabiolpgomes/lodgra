@@ -5,6 +5,11 @@ jest.mock('@/lib/supabase/server', () => ({
   createClient: jest.fn(),
 }))
 
+const propertyBelongsToOrg = jest.fn()
+jest.mock('@/lib/auth/property-access', () => ({
+  propertyBelongsToOrg: (...a: unknown[]) => propertyBelongsToOrg(...a),
+}))
+
 jest.mock('@/lib/reservations/reservation-validator', () => ({
   ReservationValidator: {
     validateReservationOverlap: jest.fn(),
@@ -16,6 +21,7 @@ describe('POST /api/admin/reservations', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
+    propertyBelongsToOrg.mockResolvedValue(true)
     mockSupabase = {
       auth: {
         getUser: jest.fn(),
@@ -43,7 +49,7 @@ describe('POST /api/admin/reservations', () => {
       eq: jest.fn().mockReturnThis(),
       single: jest.fn()
         .mockResolvedValueOnce({
-          data: { role: 'admin' },
+          data: { role: 'admin', organization_id: 'org-1' },
         })
         .mockResolvedValueOnce({
           data: { id: 'res-001', guest_name: 'João Silva' },
@@ -134,7 +140,7 @@ describe('POST /api/admin/reservations', () => {
       select: jest.fn().mockReturnThis(),
       eq: jest.fn().mockReturnThis(),
       single: jest.fn().mockResolvedValue({
-        data: { role: 'admin' },
+        data: { role: 'admin', organization_id: 'org-1' },
       }),
     })
 
@@ -171,7 +177,7 @@ describe('POST /api/admin/reservations', () => {
       select: jest.fn().mockReturnThis(),
       eq: jest.fn().mockReturnThis(),
       single: jest.fn().mockResolvedValue({
-        data: { role: 'admin' },
+        data: { role: 'admin', organization_id: 'org-1' },
       }),
     })
 
@@ -197,7 +203,7 @@ describe('POST /api/admin/reservations', () => {
       select: jest.fn().mockReturnThis(),
       eq: jest.fn().mockReturnThis(),
       single: jest.fn().mockResolvedValue({
-        data: { role: 'admin' },
+        data: { role: 'admin', organization_id: 'org-1' },
       }),
     })
 
@@ -223,7 +229,7 @@ describe('POST /api/admin/reservations', () => {
       select: jest.fn().mockReturnThis(),
       eq: jest.fn().mockReturnThis(),
       single: jest.fn().mockResolvedValue({
-        data: { role: 'admin' },
+        data: { role: 'admin', organization_id: 'org-1' },
       }),
     })
 
@@ -250,7 +256,7 @@ describe('POST /api/admin/reservations', () => {
         select: jest.fn().mockReturnThis(),
         eq: jest.fn().mockReturnThis(),
         single: jest.fn().mockResolvedValue({
-          data: { role: 'admin' },
+          data: { role: 'admin', organization_id: 'org-1' },
         }),
       })
       .mockReturnValueOnce({
@@ -293,5 +299,41 @@ describe('POST /api/admin/reservations', () => {
 
     expect(response.status).toBe(409)
     expect(data.error).toContain('booking (Main Account)')
+  })
+
+  it('isolamento: propriedade de outra organização → 404 e nada é validado/criado', async () => {
+    propertyBelongsToOrg.mockResolvedValue(false)
+    mockSupabase.auth.getUser.mockResolvedValue({ data: { user: { id: 'admin-1' } } })
+    mockSupabase.from.mockReturnValue({
+      select: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
+      single: jest.fn().mockResolvedValue({ data: { role: 'admin', organization_id: 'org-1' } }),
+      insert: jest.fn().mockReturnThis(),
+    })
+
+    const response = await POST(
+      createRequest({
+        propertyId: 'prop-de-outra-org',
+        checkIn: '2026-08-05',
+        checkOut: '2026-08-10',
+        guestName: 'X',
+        guestEmail: 'x@x.com',
+      })
+    )
+
+    expect(response.status).toBe(404)
+    expect(propertyBelongsToOrg).toHaveBeenCalledWith('prop-de-outra-org', 'org-1')
+  })
+
+  it('admin sem organização → 403', async () => {
+    mockSupabase.auth.getUser.mockResolvedValue({ data: { user: { id: 'admin-1' } } })
+    mockSupabase.from.mockReturnValue({
+      select: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
+      single: jest.fn().mockResolvedValue({ data: { role: 'admin', organization_id: null } }),
+    })
+    const response = await POST(createRequest({ propertyId: 'p', checkIn: '2026-08-05', checkOut: '2026-08-10' }))
+    expect(response.status).toBe(403)
+    expect(propertyBelongsToOrg).not.toHaveBeenCalled()
   })
 })

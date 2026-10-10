@@ -1,3 +1,5 @@
+> **⚠️ Obsoleto (2026-10-10):** a rota `/api/admin/migrate-external-ids` foi removida (migração pontual concluída; a rota exigia um segredo global). Mantido só como histórico.
+
 # Migração de External IDs para Formato Estável
 
 **Data**: 2026-07-09  

@@ -1,3 +1,5 @@
+> **⚠️ Obsoleto (2026-10-10):** o `ADMIN_SECRET` deixou de existir; as rotas que o usavam foram removidas ou movidas para `/api/platform` (autenticação por `platform_admins`). Rever os exemplos antes de usar.
+
 # Webhook Setup Guide - Lodgra
 
 This guide explains how to register and configure webhooks for Booking.com and Airbnb with Lodgra.

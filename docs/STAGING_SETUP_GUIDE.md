@@ -36,7 +36,7 @@ URL: https://wrqjpyyopwgyqluqkcga.supabase.co
 | **Environment** | Preview (staging branch) |
 | **Status** | ✅ Ready with protection bypass |
 
-> QA access uses the protection bypass header: `x-vercel-protection-bypass: N9vTJ8dH3aBunBvYT7zEnlQLSuJQWqt9`
+> QA access uses the protection bypass header: `x-vercel-protection-bypass: $VERCEL_BYPASS_TOKEN`
 
 ---
 
@@ -68,19 +68,7 @@ To create a test user account:
 
 ### QA bootstrap endpoint
 
-If the staging QA user needs to be re-enabled quickly, use the admin-only bootstrap route:
-
-```bash
-curl -X POST https://home-stay-qvmxqaath-fabiolpgomes-projects.vercel.app/api/admin/qa/bootstrap-user \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $ADMIN_SECRET" \
-  -H "x-vercel-protection-bypass: N9vTJ8dH3aBunBvYT7zEnlQLSuJQWqt9" \
-  -d '{"userId":"7b02c020-ce64-4de4-8218-a7fd4ce5b18e"}'
-```
-
-This confirms the email and returns the current auth/profile snapshot for the QA user.
-
-**Note (2026-08-21):** the deployed preview returned `Invalid API key` when this route was exercised there, so the fastest recovery path on that day was to reset the staging user's password directly in Supabase and then sign in again.
+Removido (2026-10-10): a rota `/api/admin/qa/bootstrap-user` exigia um segredo global e criava/confirmava utilizadores. Para recuperar o utilizador de QA, repor a palavra-passe diretamente no Supabase (staging).
 
 ### Session validation
 
@@ -142,7 +130,7 @@ Test the multi-tenant organization lookup:
 ```bash
 curl -X POST https://home-stay-qvmxqaath-fabiolpgomes-projects.vercel.app/api/auth/identify-org \
   -H "Content-Type: application/json" \
-  -H "x-vercel-protection-bypass: N9vTJ8dH3aBunBvYT7zEnlQLSuJQWqt9" \
+  -H "x-vercel-protection-bypass: $VERCEL_BYPASS_TOKEN" \
   -d '{"email":"staging-test@lodgra.io"}'
 ```
 

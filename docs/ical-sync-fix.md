@@ -1,3 +1,5 @@
+> **⚠️ Obsoleto (2026-10-10):** a rota `/api/admin/audit-ical-data` foi removida (auditoria pontual; usava um segredo global). Mantido só como histórico.
+
 # iCal Sync Fix: Correção Crítica de Detecção de Bloqueios vs Reservas
 
 **Data:** 2026-07-08  
