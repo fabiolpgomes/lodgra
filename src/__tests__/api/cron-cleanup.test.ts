@@ -1,3 +1,5 @@
+jest.mock('server-only', () => ({}))
+
 import { GET } from '@/app/api/cron/cleanup/route'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
@@ -18,6 +20,7 @@ function makeCountChain(count: number) {
 function makeMutationChain(rows: Array<{ id: string }>) {
   return {
     eq: jest.fn().mockReturnThis(),
+    is: jest.fn().mockReturnThis(),
     lt: jest.fn().mockReturnThis(),
     select: jest.fn().mockResolvedValue({ data: rows, error: null }),
   }
@@ -36,12 +39,19 @@ function makeSupabaseClient() {
   }
 }
 
+const reservationChains: ReturnType<typeof makeMutationChain>[] = []
+const unsubscribesDelete = jest.fn()
+
 function makeAdminClient() {
   return {
     from: jest.fn().mockImplementation((table: string) => {
       if (table === 'reservations') {
         return {
-          update: jest.fn().mockReturnValue(makeMutationChain([{ id: 'res-1' }, { id: 'res-2' }])),
+          update: jest.fn().mockImplementation(() => {
+            const chain = makeMutationChain([{ id: 'res-1' }, { id: 'res-2' }])
+            reservationChains.push(chain)
+            return chain
+          }),
         }
       }
 
@@ -53,7 +63,7 @@ function makeAdminClient() {
 
       if (table === 'email_unsubscribes') {
         return {
-          delete: jest.fn().mockReturnValue(makeMutationChain([{ id: 'unsub-1' }])),
+          delete: unsubscribesDelete,
         }
       }
 
@@ -65,11 +75,12 @@ function makeAdminClient() {
 describe('GET /api/cron/cleanup', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    reservationChains.length = 0
     process.env.CRON_SECRET = 'test-secret'
     mockCreateClient.mockResolvedValue(
-      makeSupabaseClient() as Awaited<ReturnType<typeof createClient>>,
+      makeSupabaseClient() as unknown as Awaited<ReturnType<typeof createClient>>,
     )
-    mockCreateAdminClient.mockReturnValue(makeAdminClient() as ReturnType<typeof createAdminClient>)
+    mockCreateAdminClient.mockReturnValue(makeAdminClient() as unknown as ReturnType<typeof createAdminClient>)
   })
 
   afterEach(() => {
@@ -90,8 +101,34 @@ describe('GET /api/cron/cleanup', () => {
     expect(response.status).toBe(200)
     expect(json.success).toBe(true)
     expect(json.oldEmailSentDeleted).toBe(2)
-    expect(json.oldUnsubscribesDeleted).toBe(1)
     expect(json.action).toBe('counted-and-cleaned')
+  })
+
+  it('nunca apaga descadastros de email (sem retenção)', async () => {
+    const request = new Request('http://localhost:3000/api/cron/cleanup', {
+      method: 'GET',
+      headers: { Authorization: 'Bearer test-secret' },
+    })
+
+    const json = await (await GET(request as any)).json()
+
+    expect(unsubscribesDelete).not.toHaveBeenCalled()
+    expect(json.oldUnsubscribesDeleted).toBeUndefined()
+  })
+
+  it('só cancela tentativas diretas sem cobrança Pix (o webhook do Asaas trata as com Pix)', async () => {
+    const request = new Request('http://localhost:3000/api/cron/cleanup', {
+      method: 'GET',
+      headers: { Authorization: 'Bearer test-secret' },
+    })
+
+    await GET(request as any)
+
+    expect(reservationChains).toHaveLength(2)
+    for (const chain of reservationChains) {
+      expect(chain.eq).toHaveBeenCalledWith('booking_source', 'direct')
+      expect(chain.is).toHaveBeenCalledWith('asaas_payment_id', null)
+    }
   })
 
   it('rejects requests without the cron secret', async () => {

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { addMonthsToDateOnly } from '@/lib/dates/date-only'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { pendingPaymentStaleCutoff } from '@/lib/bookings/availability-conflict.server'
 
 export const dynamic = 'force-dynamic'
 
@@ -35,28 +36,32 @@ export async function GET(request: NextRequest) {
     //   .eq('status', 'cancelled')
     //   .lt('check_out', cutoffDate)
 
-    // Cancel expired pending_payment reservations (>30 min without payment)
-    const thirtyMinAgo = new Date(Date.now() - 30 * 60 * 1000).toISOString()
+    // Tentativas de reserva direta abandonadas: mesmo prazo a partir do qual as datas já
+    // voltam a ficar livres (disponibilidade). Só as SEM cobrança Pix: uma reserva com Pix
+    // (asaas_payment_id) é cancelada pelo webhook do Asaas (PAYMENT_OVERDUE/DELETED), e cancelá-la
+    // aqui faria um Pix pago mais tarde cair em "DEVOLVER PIX" em vez de ser confirmado.
+    const staleCutoff = pendingPaymentStaleCutoff()
 
     const { data: expiredPendingPayment, error: expiredError } = await adminClient
       .from('reservations')
       .update({ status: 'cancelled' })
       .eq('status', 'pending_payment')
       .eq('booking_source', 'direct')
-      .lt('created_at', thirtyMinAgo)
+      .is('asaas_payment_id', null)
+      .lt('created_at', staleCutoff)
       .select('id')
 
     if (expiredError) {
       console.error('Erro ao cancelar reservas expiradas (pending_payment):', expiredError)
     }
 
-    // Cancel expired pending (direct) reservations (>30 min) — orphaned booking attempts
     const { data: expiredPending, error: expiredPendingError } = await adminClient
       .from('reservations')
       .update({ status: 'cancelled' })
       .eq('status', 'pending')
       .eq('booking_source', 'direct')
-      .lt('created_at', thirtyMinAgo)
+      .is('asaas_payment_id', null)
+      .lt('created_at', staleCutoff)
       .select('id')
 
     if (expiredPendingError) {
@@ -65,7 +70,7 @@ export async function GET(request: NextRequest) {
 
     const cancelledPendingCount = (expiredPendingPayment?.length ?? 0) + (expiredPending?.length ?? 0)
     if (cancelledPendingCount > 0) {
-      console.log(`Reservas direct expiradas canceladas (>30 min): ${cancelledPendingCount}`)
+      console.log(`Reservas direct expiradas canceladas (>35 min): ${cancelledPendingCount}`)
     }
 
     const result = {
@@ -91,31 +96,20 @@ export async function GET(request: NextRequest) {
       console.error('Erro ao limpar email_sent antigos:', oldEmailSentError)
     }
 
-    const { data: oldUnsubscribes, error: oldUnsubscribesError } = await adminClient
-      .from('email_unsubscribes')
-      .delete()
-      .lt('unsubscribed_at', retentionCutoff)
-      .select('id')
-
-    if (oldUnsubscribesError) {
-      console.error('Erro ao limpar email_unsubscribes antigos:', oldUnsubscribesError)
-    }
+    // email_unsubscribes NÃO tem retenção: apagar um descadastro permitiria voltar a enviar
+    // emails a quem pediu para não os receber (RGPD / CAN-SPAM). Fica para sempre.
 
     const oldEmailSentCount = oldEmailSent?.length ?? 0
-    const oldUnsubscribesCount = oldUnsubscribes?.length ?? 0
 
     console.log(`Reservas canceladas antigas (>2 anos): ${oldCancelledCount}`)
-    if (oldEmailSentCount > 0 || oldUnsubscribesCount > 0) {
-      console.log(
-        `Retenção de email limpa (>90 dias): email_sent=${oldEmailSentCount}, email_unsubscribes=${oldUnsubscribesCount}`,
-      )
+    if (oldEmailSentCount > 0) {
+      console.log(`Retenção de email limpa (>90 dias): email_sent=${oldEmailSentCount}`)
     }
 
     return NextResponse.json({
       ...result,
       retentionCutoff,
       oldEmailSentDeleted: oldEmailSentCount,
-      oldUnsubscribesDeleted: oldUnsubscribesCount,
     })
 
   } catch (error: unknown) {

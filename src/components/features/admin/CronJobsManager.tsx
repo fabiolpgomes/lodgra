@@ -15,8 +15,8 @@ const CRON_JOBS = [
   {
     id: 'cleanup',
     name: 'Limpeza de Dados',
-    description: 'Remove reservas canceladas antigas (>2 anos)',
-    schedule: 'Semanalmente (Domingo às 2h)',
+    description: 'Cancela tentativas de reserva direta abandonadas e limpa registos de envio de email antigos (>90 dias)',
+    schedule: 'Diariamente às 4h (UTC)',
     path: '/api/cron/cleanup',
   },
 ]
