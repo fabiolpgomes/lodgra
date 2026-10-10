@@ -22,12 +22,12 @@ const getBaseUrl = (isProduction: boolean) =>
   isProduction ? 'https://www.asaas.com/api/v3' : 'https://sandbox.asaas.com/api/v3';
 
 export const asaas = {
-  async createCustomer(apiKey: string, isProduction: boolean, name: string, email: string) {
+  async createCustomer(apiKey: string, isProduction: boolean, name: string, email: string, cpfCnpj?: string) {
     const response = await fetch(`${getBaseUrl(isProduction)}/customers`, {
       method: 'POST',
       headers: baseHeaders(apiKey, true),
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
-      body: JSON.stringify({ name, email })
+      body: JSON.stringify(cpfCnpj ? { name, email, cpfCnpj } : { name, email })
     });
     return response.json();
   },

@@ -8,6 +8,7 @@ import { getPriceForRangePublic } from '@/lib/pricing/getPriceForRange'
 import { formatMinimumStayError, detectLocale } from '@/lib/i18n/messages'
 import { calculateServiceFeeAmount } from '@/lib/reservations/serviceFee'
 import { normalizeBookingLocale } from '@/lib/email/booking-locale'
+import { isValidCpfOrCnpj, onlyDigits } from '@/lib/utils/cpf-cnpj'
 import { canReceivePix, createBookingPixCharge, PixChargeError } from '@/lib/payments/asaas-booking-pix.server'
 import { PENDING_PAYMENT_HOLD_MINUTES } from '@/lib/bookings/availability-conflict.server'
 
@@ -57,6 +58,7 @@ export async function POST(request: NextRequest) {
       preferred_locale,
       pricing_snapshot,
       payment_method,
+      guest_cpf_cnpj,
     } = body
   const wantsPix = payment_method === 'pix'
   const preferredLocale = normalizeBookingLocale(
@@ -67,6 +69,14 @@ export async function POST(request: NextRequest) {
 
   if (!slug || !checkin || !checkout || !guest_name || !guest_email) {
     return NextResponse.json({ error: 'Campos obrigatórios em falta' }, { status: 400 })
+  }
+
+  const guestCpfCnpj = typeof guest_cpf_cnpj === 'string' ? onlyDigits(guest_cpf_cnpj) : ''
+  if (wantsPix && !isValidCpfOrCnpj(guestCpfCnpj)) {
+    return NextResponse.json(
+      { error: 'invalid_cpf_cnpj', message: 'Informe um CPF ou CNPJ válido para gerar o Pix.' },
+      { status: 400 }
+    )
   }
 
   const checkinDate = parseISO(String(checkin))
@@ -359,6 +369,7 @@ export async function POST(request: NextRequest) {
         reservationId: reservation.id,
         guestName: String(guest_name).trim(),
         guestEmail: String(guest_email).toLowerCase().trim(),
+        guestCpfCnpj,
         totalAmount,
         description: `${property.name} — ${nights} noite${nights !== 1 ? 's' : ''} (${checkin} a ${checkout})`,
       })

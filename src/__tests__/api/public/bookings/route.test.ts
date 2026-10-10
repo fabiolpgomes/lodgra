@@ -346,7 +346,7 @@ describe('POST /api/public/bookings', () => {
 })
 
 describe('POST /api/public/bookings — Pix (Asaas)', () => {
-  const pixBody = { ...validBody, payment_method: 'pix' }
+  const pixBody = { ...validBody, payment_method: 'pix', guest_cpf_cnpj: '529.982.247-25' }
   const charge = {
     paymentId: 'pay_123',
     invoiceUrl: 'https://sandbox.asaas.com/i/123',
@@ -391,9 +391,17 @@ describe('POST /api/public/bookings — Pix (Asaas)', () => {
     expect(new Date(json.pix.expires_at).getTime()).toBeGreaterThan(Date.now())
     expect(json.checkout_url).toBeUndefined()
     expect(mockCreatePixCharge).toHaveBeenCalledWith(
-      expect.objectContaining({ organizationId: 'org-001', reservationId: 'res-001', totalAmount: 500, guestEmail: 'joao@example.com' }),
+      expect.objectContaining({ organizationId: 'org-001', reservationId: 'res-001', totalAmount: 500, guestEmail: 'joao@example.com', guestCpfCnpj: '52998224725' }),
     )
     expect(mockCheckoutCreate).not.toHaveBeenCalled()
+  })
+
+  it.each([undefined, '', '111.111.111-11', '123'])('Pix sem CPF/CNPJ válido (%p) → 400 antes de criar a reserva', async (cpf) => {
+    mockCreateAdminClient.mockReturnValue(buildMockSupabase())
+    const res = await POST(makeRequest({ ...pixBody, guest_cpf_cnpj: cpf }))
+    expect(res.status).toBe(400)
+    expect((await res.json()).error).toBe('invalid_cpf_cnpj')
+    expect(mockCreatePixCharge).not.toHaveBeenCalled()
   })
 
   it('falha ao criar a cobrança → 502 com mensagem para o hóspede', async () => {

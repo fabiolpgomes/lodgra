@@ -58,6 +58,7 @@ describe('createBookingPixCharge', () => {
     reservationId: 'res-1',
     guestName: 'João Silva',
     guestEmail: 'joao@example.com',
+    guestCpfCnpj: '52998224725',
     totalAmount: 500,
     description: 'Villa — 5 noites',
   }
@@ -70,7 +71,7 @@ describe('createBookingPixCharge', () => {
 
   it('cria cliente, cobrança Pix ligada à reserva e devolve o QR', async () => {
     const charge = await createBookingPixCharge(params)
-    expect(mockCreateCustomer).toHaveBeenCalledWith('key-sandbox', false, 'João Silva', 'joao@example.com')
+    expect(mockCreateCustomer).toHaveBeenCalledWith('key-sandbox', false, 'João Silva', 'joao@example.com', '52998224725')
     expect(mockCreatePayment).toHaveBeenCalledWith('key-sandbox', false, expect.objectContaining({
       customer: 'cus_1',
       billingType: 'PIX',

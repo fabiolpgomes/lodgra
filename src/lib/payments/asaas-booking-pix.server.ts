@@ -38,6 +38,8 @@ export async function createBookingPixCharge(params: {
   reservationId: string
   guestName: string
   guestEmail: string
+  /** CPF/CNPJ do pagador (só dígitos). Enviado ao Asaas, nunca guardado. */
+  guestCpfCnpj: string
   totalAmount: number
   description: string
 }): Promise<BookingPixCharge> {
@@ -45,7 +47,7 @@ export async function createBookingPixCharge(params: {
   if (!credentials) throw new PixChargeError('Asaas não configurado para a organização', 'Este alojamento ainda não aceita Pix.')
   const isProduction = credentials.environment === 'production'
 
-  const customer = await asaas.createCustomer(credentials.apiKey, isProduction, params.guestName, params.guestEmail)
+  const customer = await asaas.createCustomer(credentials.apiKey, isProduction, params.guestName, params.guestEmail, params.guestCpfCnpj)
   if (customer?.errors || !customer?.id) {
     throw new PixChargeError(`Asaas createCustomer: ${JSON.stringify(customer?.errors ?? customer)}`)
   }

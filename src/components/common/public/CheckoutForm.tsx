@@ -6,6 +6,7 @@ import { BookingSummary } from './BookingSummary'
 import { Loader2, ArrowLeft } from 'lucide-react'
 import { PriceBreakdownCard } from './booking/PriceBreakdownCard'
 import type { PropertyPriceQuote } from '@/hooks/usePropertyPriceQuote'
+import { formatBrPhone, formatCpfCnpj, isValidCpfOrCnpj, onlyDigits } from '@/lib/utils/cpf-cnpj'
 import { formatCurrency, type CurrencyCode } from '@/lib/utils/currency'
 import { PixPayment, type PixCharge } from './PixPayment'
 import { BOOKING_LOCALE_OPTIONS, BOOKING_STANDARD_LOCALE, normalizeBookingLocale } from '@/lib/email/booking-locale'
@@ -43,6 +44,7 @@ interface GuestData {
   phone: string
   country: string
   preferredLocale: string
+  cpfCnpj: string
 }
 
 const COUNTRIES = [
@@ -76,13 +78,15 @@ export function CheckoutForm({
   cancellationPolicy,
 }: CheckoutFormProps) {
   const router = useRouter()
+  const isBrl = currency === 'BRL'
   const [step, setStep] = useState<Step>('summary')
   const [guestData, setGuestData] = useState<GuestData>({
     name: '',
     email: '',
     phone: '',
-    country: 'PT',
+    country: isBrl ? 'BR' : 'PT',
     preferredLocale: BOOKING_STANDARD_LOCALE,
+    cpfCnpj: '',
   })
   const [errors, setErrors] = useState<Partial<GuestData>>({})
   const [submitting, setSubmitting] = useState(false)
@@ -118,6 +122,10 @@ export function CheckoutForm({
       setStep('guest')
       return
     }
+    if (pixAvailable && method === 'pix' && !isValidCpfOrCnpj(guestData.cpfCnpj)) {
+      setErrors({ cpfCnpj: 'CPF ou CNPJ inválido' })
+      return
+    }
     setSubmitting(true)
     setApiError(null)
 
@@ -136,6 +144,7 @@ export function CheckoutForm({
           guest_country: guestData.country,
           preferred_locale: normalizeBookingLocale(guestData.preferredLocale),
           payment_method: pixAvailable ? method : 'card',
+          guest_cpf_cnpj: pixAvailable && method === 'pix' ? onlyDigits(guestData.cpfCnpj) : undefined,
           pricing_snapshot: pricingQuote
             ? {
                 base_total: pricingQuote.baseTotal,
@@ -326,8 +335,8 @@ export function CheckoutForm({
               <input
                 type="tel"
                 value={guestData.phone}
-                onChange={(e) => setGuestData((d) => ({ ...d, phone: e.target.value }))}
-                placeholder="+351 912 345 678"
+                onChange={(e) => setGuestData((d) => ({ ...d, phone: isBrl && d.country === 'BR' ? formatBrPhone(e.target.value) : e.target.value }))}
+                placeholder={isBrl ? '(00) 00000-0000' : '+351 912 345 678'}
                 className="w-full rounded-xl border border-brand-gold/20 bg-brand-white px-3 py-2.5 text-sm text-brand-text-dark focus:outline-none focus:ring-2 focus:ring-brand-gold/30"
                 autoComplete="tel"
               />
@@ -432,6 +441,27 @@ export function CheckoutForm({
                 </label>
               ))}
             </fieldset>
+          )}
+
+          {pixAvailable && method === 'pix' && (
+            <div>
+              <label htmlFor="checkout-cpf-cnpj" className="block text-sm font-medium text-brand-text-dark mb-1">
+                CPF ou CNPJ do pagador *
+              </label>
+              <input
+                id="checkout-cpf-cnpj"
+                type="text"
+                inputMode="numeric"
+                value={guestData.cpfCnpj}
+                onChange={(e) => setGuestData((d) => ({ ...d, cpfCnpj: formatCpfCnpj(e.target.value) }))}
+                placeholder="000.000.000-00"
+                className="w-full rounded-xl border border-brand-gold/20 bg-brand-white px-3 py-2.5 text-sm text-brand-text-dark focus:outline-none focus:ring-2 focus:ring-brand-gold/30"
+              />
+              <p className="mt-1 text-xs text-brand-text-medium">
+                Exigido para emitir a cobrança Pix. Não guardamos este dado.
+              </p>
+              {errors.cpfCnpj && <p className="mt-1 text-xs text-red-500">{errors.cpfCnpj}</p>}
+            </div>
           )}
 
           <p className="text-xs text-brand-text-medium">

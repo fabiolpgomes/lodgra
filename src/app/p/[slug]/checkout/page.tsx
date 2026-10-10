@@ -99,7 +99,7 @@ export default async function CheckoutPage({ params, searchParams }: PageProps) 
       </main>
 
       <footer className="mt-16 border-t border-brand-gold/15 bg-brand-white px-4 py-4 text-center text-xs text-brand-text-medium">
-        Pagamento processado com segurança por Stripe · lodgra.io
+        Pagamento seguro · lodgra.io
       </footer>
     </div>
   )
