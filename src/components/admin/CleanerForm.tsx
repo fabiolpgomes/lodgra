@@ -25,11 +25,10 @@ interface Cleaner extends CleanerFormData {
 }
 
 interface CleanerFormProps {
-  organizationId: string;
   onSuccess?: (cleaner: Cleaner) => void;
 }
 
-export default function CleanerForm({ organizationId, onSuccess }: CleanerFormProps) {
+export default function CleanerForm({ onSuccess }: CleanerFormProps) {
   const t = useTranslations('admin.cleaners.form');
   const [submitting, setSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -51,12 +50,7 @@ export default function CleanerForm({ organizationId, onSuccess }: CleanerFormPr
       const response = await fetch('/api/admin/cleaners', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...data,
-          organization_id: organizationId,
-          role: 'guest',
-          guest_type: 'cleaner',
-        }),
+        body: JSON.stringify(data),
       });
 
       if (!response.ok) throw new Error('Failed to create cleaner');

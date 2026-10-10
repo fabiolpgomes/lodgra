@@ -1,34 +1,44 @@
 import { createAdminClient } from '@/lib/supabase/admin'
+import { requireRole } from '@/lib/auth/requireRole'
 import { sendCleanerNotification, CLEANER_MESSAGE_TEMPLATES } from '@/lib/whatsapp/send-cleaner-notification'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(request: NextRequest) {
+  // Só gestores da própria organização. A organização, o role e o tipo de
+  // convidado NUNCA vêm do corpo do pedido: vêm da sessão / valores fixos.
+  const auth = await requireRole(['admin', 'gestor'])
+  if (!auth.authorized) return auth.response!
+
+  const organizationId = auth.organizationId
+  if (!organizationId) {
+    return NextResponse.json({ error: 'Utilizador sem organização' }, { status: 403 })
+  }
+
   try {
     const supabase = await createAdminClient()
 
-    const { full_name, email, phone_number, organization_id, role, guest_type, send_welcome_message } =
-      await request.json();
+    const { full_name, email, phone_number, send_welcome_message } = await request.json()
 
-    if (!full_name || !email || !phone_number || !organization_id) {
+    if (!full_name || !email || !phone_number) {
       return NextResponse.json(
-        { error: 'Missing required fields: full_name, email, phone_number, organization_id' },
+        { error: 'Missing required fields: full_name, email, phone_number' },
         { status: 400 }
-      );
+      )
     }
 
     // Validate phone number format (international format with +)
-    if (!phone_number.match(/^\+?[1-9]\d{1,14}$/)) {
+    if (!String(phone_number).match(/^\+?[1-9]\d{1,14}$/)) {
       return NextResponse.json(
         { error: 'Invalid phone number format. Use international format: +351912345678' },
         { status: 400 }
-      );
+      )
     }
 
     // Get organization info for messages
     const { data: orgData } = await supabase
       .from('organizations')
       .select('name, metadata')
-      .eq('id', organization_id)
+      .eq('id', organizationId)
       .single()
 
     // Create user profile as guest/cleaner
@@ -38,21 +48,18 @@ export async function POST(request: NextRequest) {
         full_name,
         email,
         phone_number,
-        organization_id,
-        role: role || 'guest',
-        guest_type: guest_type || 'cleaner',
+        organization_id: organizationId,
+        role: 'guest',
+        guest_type: 'cleaner',
         accepts_whatsapp: true, // Enable WhatsApp by default for cleaners
         is_active: true,
       })
       .select()
-      .single();
+      .single()
 
     if (createError) {
-      console.error('Cleaner creation error:', createError);
-      return NextResponse.json(
-        { error: 'Failed to create cleaner' },
-        { status: 500 }
-      );
+      console.error('Cleaner creation error:', createError)
+      return NextResponse.json({ error: 'Failed to create cleaner' }, { status: 500 })
     }
 
     // Send welcome message if requested and WhatsApp is enabled
@@ -64,7 +71,7 @@ export async function POST(request: NextRequest) {
 
       const messageResult = await sendCleanerNotification({
         cleanerId: cleaner.id,
-        organizationId: organization_id,
+        organizationId,
         message: welcomeMessage,
         templateName: 'welcome',
       })
@@ -80,12 +87,9 @@ export async function POST(request: NextRequest) {
       cleaner,
       message: 'Cleaner created successfully',
       whatsapp_message_sent: send_welcome_message !== false,
-    });
+    })
   } catch (error) {
-    console.error('admin/cleaners error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    console.error('admin/cleaners error:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
