@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Pix (Asaas) na reserva direta, credenciais e operação (9–10/out/2026)
+
+- **Pix na reserva direta**: propriedades em BRL com Asaas configurado oferecem Pix além do cartão. QR Code + "copia e cola" no checkout, contagem regressiva de 30 min e confirmação automática (polling a cada 4 s) quando o webhook do Asaas marca o pagamento. Pedido de CPF/CNPJ do pagador (validado no cliente e no servidor, enviado ao Asaas, nunca gravado). Em BRL o telefone usa `(00) 00000-0000` com máscara e o país padrão é Brasil.
+- **Confirmação partilhada**: `confirmDirectBooking` (Stripe e Pix usam o mesmo fluxo: emails ao hóspede/gestor, notificação ao proprietário). Webhook do Asaas reescrito: token por organização, valor pago conferido, pagamento tardio confirma se as datas seguem livres ou cancela com nota "DEVOLVER PIX"; PAYMENT_OVERDUE/DELETED cancelam a reserva pendente. Novo `GET /api/public/bookings/[id]/status`.
+- **Cobrança órfã**: se o QR Code falhar, a cobrança criada no Asaas é cancelada antes de devolver o erro.
+- **Credenciais do Asaas** em tabela própria (`organization_payment_credentials`, RLS sem políticas, só `service_role`); token de webhook aleatório por organização, comparação em tempo constante; chave nunca devolvida ao navegador. Ao salvar, recusa valor que não seja chave do Asaas (`$aact_`, ambiente coerente). Sentry configurado por `SENTRY_ORG`/`SENTRY_PROJECT`.
+- **Disponibilidade**: `PENDING_PAYMENT_HOLD_MINUTES=30` e `PENDING_PAYMENT_STALE_MINUTES=35` centralizados em `availability-conflict.server.ts`.
+- **Cron `/api/cron/cleanup`** agora agendado (diário, 04:00 UTC): cancela tentativas diretas abandonadas (>35 min) **sem** cobrança Pix (as com Pix são canceladas pelo webhook) e limpa `email_sent` >90 dias. `email_unsubscribes` deixa de ser apagado (RGPD).
+- **Emails ao gestor**: valor formatado pela moeda (`R$ 4.590,00`) e origem "Reserva direta".
+- **Fusos**: "Criada em" da reserva usa o fuso da organização (`formatDateTimeInTimeZone`); seletor de mês sem desvio de um mês em fusos atrás de UTC; rótulo de idioma "Português" (era "Português (Portugal)"); botão "Salvar Configurações" de Pagamentos legível; rodapé do checkout sem citar Stripe.
+- **Validação**: typecheck 0 erros; `typecheck:all` 93 (base antiga 95, sem erros novos); Pix testado ponta a ponta no sandbox do Asaas (checkout → QR → pagamento simulado → webhook → reserva confirmada).
+
 ### Sincronização automática e painel de ações (out/2026)
 
 - Gmail volta a ler (OAuth publicado em Production); chave por caixa de correio e deduplicação.
