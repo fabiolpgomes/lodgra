@@ -1,5 +1,6 @@
 'use client'
 
+import { usePlatformAdmin } from '@/hooks/usePlatformAdmin'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -81,6 +82,7 @@ export function Sidebar({ serverProfile }: SidebarProps) {
   const router = useRouter()
   const { resolvedTheme, theme } = useTheme()
   const [hasPremium, setHasPremium] = useState(false)
+  const isPlatformAdmin = usePlatformAdmin(profile?.id)
 
   const isAdmin = profile?.role === 'admin'
   const isLimitedGestor = isRestrictedGestor(profile)
@@ -141,6 +143,7 @@ export function Sidebar({ serverProfile }: SidebarProps) {
   const featureLinks = getVisibleModuleFeatureLinks(currentModule.id, isLimitedGestor, {
     isAdmin,
     hasPremium,
+    isPlatformAdmin,
     organizationId: profile?.organization_id ?? null,
   })
   const activeHref = activeFeatureHref(prefix, pathname, featureLinks)

@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Console do operador da plataforma — entrega 1 e correção de segurança (10/out/2026)
+
+- **Segurança (já em produção, `1c58addf`)**: `/api/` é público no proxy, e quatro rotas de `/api/admin` não tinham autenticação (`apply-migration`, `fix-listings`, `fix-listings-enhanced`, `cleaners`). As três primeiras eram código morto e foram removidas; `cleaners` passou a exigir admin/gestor, com organização da sessão e `role`/`guest_type` fixos.
+- **Rotas com bypass removidas**: `check-conflicts`, `fix-cancelled-reservations`, `revalidate-cache` e `sync-platforms` comparavam `secret !== process.env.CRON_SECRET` (corpo vazio passava se a variável faltasse) e não tinham chamadores.
+- **Identidade de operador**: tabelas `platform_admins` e `platform_audit_log` (RLS sem políticas, só `service_role`); `requirePlatformAdmin()` / `resolvePlatformAdmin()` em `src/lib/auth/platform-admin.ts`, sem cache (revogar uma linha corta o acesso no pedido seguinte). Admin de tenant nunca é platform admin.
+- **`/platform`** (substitui a página global de `/admin`; as páginas de tenant em `/admin/*` ficam): 404 para quem não é operador. `/api/platform/run-cron` exige operador, grava a auditoria **antes** de executar (sem registo, não corre) e só aceita caminhos de `PLATFORM_CRON_JOBS`, que têm de existir em `vercel.json` (teste).
+- **Menu**: item "Plataforma" só para operadores (`/api/platform/me` + `usePlatformAdmin`); a segurança real está no servidor.
+- **Guarda de regressão**: `src/app/api/__tests__/admin-routes-auth.test.ts` falha se surgir rota em `/api/admin` ou `/api/platform` sem autenticação reconhecida, ou com o idioma `secret !== process.env`.
+- **Validação**: `typecheck` 0 erros; `typecheck:all` 81 (sem erros novos); Jest 294 suítes / 3126 testes.
+
 ### Pix (Asaas) na reserva direta, credenciais e operação (9–10/out/2026)
 
 - **Pix na reserva direta**: propriedades em BRL com Asaas configurado oferecem Pix além do cartão. QR Code + "copia e cola" no checkout, contagem regressiva de 30 min e confirmação automática (polling a cada 4 s) quando o webhook do Asaas marca o pagamento. Pedido de CPF/CNPJ do pagador (validado no cliente e no servidor, enviado ao Asaas, nunca gravado). Em BRL o telefone usa `(00) 00000-0000` com máscara e o país padrão é Brasil.

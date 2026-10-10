@@ -12,6 +12,7 @@ import {
   Receipt,
   RefreshCw,
   Settings,
+  ShieldCheck,
   Sparkles,
   TrendingUp,
   Users,
@@ -28,11 +29,14 @@ export type ModuleNavigationEntry = {
   adminOnly?: boolean
   /** Só organizações Premium/Enterprise */
   premiumOnly?: boolean
+  /** Só operadores da plataforma Lodgra (platform_admins) */
+  platformOnly?: boolean
 }
 
 export interface FeatureLinkContext {
   isAdmin?: boolean
   hasPremium?: boolean
+  isPlatformAdmin?: boolean
   organizationId?: string | null
 }
 
@@ -89,7 +93,7 @@ export const PUBLIC_MODULES: ModuleDefinition[] = [
     icon: Settings,
     published: true,
     entryPath: '/settings',
-    matches: ['/settings', '/account', '/admin', '/sync', '/settings/organizations'],
+    matches: ['/settings', '/account', '/admin', '/platform', '/sync', '/settings/organizations'],
   },
   {
     id: 'proprietario',
@@ -131,6 +135,7 @@ export const MODULE_FEATURE_LINKS: Record<ModuleId, ModuleNavigationEntry[]> = {
     { path: '/settings/payments', label: 'Pagamentos online', icon: Wallet, adminOnly: true },
     { path: '/sync', label: 'Sincronização', icon: RefreshCw },
     { path: '/admin/google-distribution', label: 'Google Distribution', icon: TrendingUp, premiumOnly: true },
+    { path: '/platform', label: 'Plataforma', icon: ShieldCheck, platformOnly: true },
   ],
   proprietario: [
     { path: '/owners', label: 'Proprietários', icon: Users },
@@ -193,6 +198,7 @@ export function getVisibleModuleFeatureLinks(
       }
       if (link.adminOnly && !context.isAdmin) return false
       if (link.premiumOnly && !context.hasPremium) return false
+      if (link.platformOnly && !context.isPlatformAdmin) return false
       if (link.path.includes(ORG_ID_PLACEHOLDER) && !context.organizationId) return false
       return true
     })
@@ -228,6 +234,7 @@ export function getPageTitle(pathname: string): string {
   if (normalized.startsWith('/settings')) return 'Definições'
   if (normalized.startsWith('/admin/google-distribution')) return 'Google Distribution'
   if (normalized.startsWith('/admin/users')) return 'Usuários'
+  if (normalized.startsWith('/platform')) return 'Plataforma'
   return ''
 }
 

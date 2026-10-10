@@ -1,5 +1,6 @@
 'use client'
 
+import { usePlatformAdmin } from '@/hooks/usePlatformAdmin'
 import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -58,6 +59,7 @@ export function BottomNav({ serverProfile }: BottomNavProps) {
   const profile = serverProfile || clientProfile
   const locale = useLocale()
   const isAdmin = profile?.role === 'admin'
+  const isPlatformAdmin = usePlatformAdmin(profile?.id)
   const isLimitedGestor = isRestrictedGestor(profile)
   const [moreOpen, setMoreOpen] = useState(false)
   const [showModuleSwitcher, setShowModuleSwitcher] = useState(false)
@@ -68,6 +70,7 @@ export function BottomNav({ serverProfile }: BottomNavProps) {
   const currentModuleFeatures = getVisibleModuleFeatureLinks(currentModule.id, isLimitedGestor, {
     isAdmin,
     hasPremium: false,
+    isPlatformAdmin,
     organizationId: profile?.organization_id ?? null,
   })
   const primaryFeature = currentModuleFeatures[0]

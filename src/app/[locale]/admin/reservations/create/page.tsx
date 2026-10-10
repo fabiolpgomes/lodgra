@@ -24,7 +24,7 @@ export default async function DirectBookingPage() {
     .single()
 
   if (profile?.role !== 'admin') {
-    redirect('/admin')
+    redirect('/')
   }
 
   return (

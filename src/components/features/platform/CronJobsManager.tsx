@@ -3,34 +3,18 @@
 import { useState } from 'react'
 import { Play, RefreshCw, Clock, CheckCircle, AlertCircle, Loader2 } from 'lucide-react'
 import { Button } from '@/components/common/ui/button'
-
-const CRON_JOBS = [
-  {
-    id: 'sync-ical',
-    name: 'Sincronização iCal',
-    description: 'Importa reservas automaticamente das plataformas',
-    schedule: 'A cada hora',
-    path: '/api/cron/sync-ical',
-  },
-  {
-    id: 'cleanup',
-    name: 'Limpeza de Dados',
-    description: 'Cancela tentativas de reserva direta abandonadas e limpa registos de envio de email antigos (>90 dias)',
-    schedule: 'Diariamente às 4h (UTC)',
-    path: '/api/cron/cleanup',
-  },
-]
+import { PLATFORM_CRON_JOBS, type PlatformCronJob } from '@/lib/platform/cron-jobs'
 
 export function CronJobsManager() {
   const [runningJobs, setRunningJobs] = useState<Set<string>>(new Set())
   const [results, setResults] = useState<Record<string, { success: boolean; data?: unknown; error?: string; timestamp: string } | null>>({})
 
-  const runJob = async (job: typeof CRON_JOBS[0]) => {
+  const runJob = async (job: PlatformCronJob) => {
     setRunningJobs(prev => new Set(prev).add(job.id))
     setResults(prev => ({ ...prev, [job.id]: null }))
 
     try {
-      const response = await fetch('/api/admin/run-cron', {
+      const response = await fetch('/api/platform/run-cron', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ path: job.path }),
@@ -81,7 +65,7 @@ export function CronJobsManager() {
       </div>
 
       {/* Cron Jobs List */}
-      {CRON_JOBS.map((job) => {
+      {PLATFORM_CRON_JOBS.map((job) => {
         const isRunning = runningJobs.has(job.id)
         const result = results[job.id]
 
@@ -162,35 +146,6 @@ export function CronJobsManager() {
           </div>
         )
       })}
-
-      {/* Configuration Instructions */}
-      <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
-        <h3 className="font-semibold text-gray-900 mb-3">Configuração em Produção</h3>
-
-        <div className="space-y-3 text-sm text-gray-700">
-          <p>
-            <strong>1. Deploy no Vercel:</strong> Os cron jobs funcionam automaticamente após deploy.
-          </p>
-
-          <p>
-            <strong>2. Variável de Ambiente:</strong> Configure <code className="bg-gray-200 px-1 rounded">CRON_SECRET</code> no Vercel.
-          </p>
-
-          <p>
-            <strong>3. Arquivo vercel.json:</strong> Já está configurado com os agendamentos.
-          </p>
-
-          <div className="mt-4 p-3 bg-gray-100 rounded">
-            <p className="font-medium mb-2">Agendamentos configurados:</p>
-            <ul className="list-disc list-inside space-y-1 text-xs">
-              <li>Sincronização iCal: A cada hora (0 * * * *)</li>
-              <li>Sincronização Booking.com: A cada 4 horas (0 */4 * * *)</li>
-              <li>Check-ins Diários: Diariamente às 8h (0 8 * * *)</li>
-              <li>Limpeza: Domingos às 2h (0 2 * * 0)</li>
-            </ul>
-          </div>
-        </div>
-      </div>
     </div>
   )
 }
