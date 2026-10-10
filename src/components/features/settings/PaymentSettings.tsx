@@ -153,9 +153,11 @@ export function PaymentSettings({ initial }: Props) {
 
         <div className="flex justify-stretch pt-2 sm:justify-end">
           <Button
+            type="button"
+            variant="premium-primary"
             onClick={() => void save()}
             disabled={loading || unchanged}
-            className="h-11 w-full gap-2 rounded-xl bg-brand-600 px-8 font-bold text-white shadow-lg shadow-brand-500/10 transition-all hover:bg-brand-700 sm:w-auto"
+            className="h-11 w-full gap-2 rounded-xl px-8 font-bold sm:w-auto"
           >
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             Salvar Configurações

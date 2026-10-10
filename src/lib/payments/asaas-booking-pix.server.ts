@@ -23,6 +23,15 @@ export async function canReceivePix(organizationId: string, currency: string | n
   return Boolean(credentials && webhookToken)
 }
 
+async function cancelOrphanCharge(apiKey: string, isProduction: boolean, paymentId: string): Promise<void> {
+  try {
+    const result = await asaas.deletePayment(apiKey, isProduction, paymentId)
+    if (result?.errors) console.error('[Asaas] Não foi possível cancelar a cobrança órfã:', paymentId, JSON.stringify(result.errors))
+  } catch (error) {
+    console.error('[Asaas] Erro ao cancelar a cobrança órfã:', paymentId, error)
+  }
+}
+
 export interface BookingPixCharge {
   paymentId: string
   invoiceUrl: string | null
@@ -65,8 +74,17 @@ export async function createBookingPixCharge(params: {
     throw new PixChargeError(`Asaas createPayment: ${JSON.stringify(payment?.errors ?? payment)}`)
   }
 
-  const qr = await asaas.getPixQrCode(credentials.apiKey, isProduction, payment.id)
+  // Se o QR Code não sair, a cobrança já existe no Asaas e continuaria pagável sem
+  // reserva: cancelamos antes de falhar.
+  let qr: Awaited<ReturnType<typeof asaas.getPixQrCode>>
+  try {
+    qr = await asaas.getPixQrCode(credentials.apiKey, isProduction, payment.id)
+  } catch (error) {
+    await cancelOrphanCharge(credentials.apiKey, isProduction, payment.id)
+    throw error
+  }
   if (qr?.errors || !qr?.payload || !qr?.encodedImage) {
+    await cancelOrphanCharge(credentials.apiKey, isProduction, payment.id)
     throw new PixChargeError(`Asaas pixQrCode: ${JSON.stringify(qr?.errors ?? 'resposta sem payload')}`)
   }
 

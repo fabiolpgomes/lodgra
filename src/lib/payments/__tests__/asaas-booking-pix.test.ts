@@ -13,11 +13,13 @@ jest.mock('@/lib/dates/business-timezone.server', () => ({
 const mockCreateCustomer = jest.fn()
 const mockCreatePayment = jest.fn()
 const mockGetQr = jest.fn()
+const mockDeletePayment = jest.fn()
 jest.mock('@/lib/payments/asaas', () => ({
   asaas: {
     createCustomer: (...args: unknown[]) => mockCreateCustomer(...args),
     createPayment: (...args: unknown[]) => mockCreatePayment(...args),
     getPixQrCode: (...args: unknown[]) => mockGetQr(...args),
+    deletePayment: (...args: unknown[]) => mockDeletePayment(...args),
   },
 }))
 
@@ -67,6 +69,7 @@ describe('createBookingPixCharge', () => {
     mockCreateCustomer.mockResolvedValue({ id: 'cus_1' })
     mockCreatePayment.mockResolvedValue({ id: 'pay_1', invoiceUrl: 'https://inv', status: 'PENDING' })
     mockGetQr.mockResolvedValue({ payload: 'PIXCODE', encodedImage: 'base64png' })
+    mockDeletePayment.mockResolvedValue({ deleted: true })
   })
 
   it('cria cliente, cobrança Pix ligada à reserva e devolve o QR', async () => {
@@ -102,5 +105,31 @@ describe('createBookingPixCharge', () => {
     const error = await createBookingPixCharge(params).catch((e) => e)
     expect(error).toBeInstanceOf(PixChargeError)
     expect(error.userMessage).not.toMatch(/Asaas|errors|description/)
+  })
+
+  it('QR Code com erro (ex.: sem chave Pix) → cancela a cobrança criada', async () => {
+    mockGetQr.mockResolvedValue({ errors: [{ code: 'invalid_action' }] })
+    await expect(createBookingPixCharge(params)).rejects.toBeInstanceOf(PixChargeError)
+    expect(mockDeletePayment).toHaveBeenCalledWith('key-sandbox', false, 'pay_1')
+  })
+
+  it('QR Code lança exceção (timeout) → cancela a cobrança e propaga o erro', async () => {
+    mockGetQr.mockRejectedValue(new Error('timeout'))
+    await expect(createBookingPixCharge(params)).rejects.toThrow('timeout')
+    expect(mockDeletePayment).toHaveBeenCalledWith('key-sandbox', false, 'pay_1')
+  })
+
+  it('falha ao cancelar a cobrança não esconde o erro original', async () => {
+    mockGetQr.mockResolvedValue({ errors: [{ code: 'x' }] })
+    mockDeletePayment.mockRejectedValue(new Error('rede'))
+    jest.spyOn(console, 'error').mockImplementation(() => {})
+    const error = await createBookingPixCharge(params).catch((e) => e)
+    expect(error).toBeInstanceOf(PixChargeError)
+    expect(error.message).toMatch(/pixQrCode/)
+  })
+
+  it('sucesso não cancela nada', async () => {
+    await createBookingPixCharge(params)
+    expect(mockDeletePayment).not.toHaveBeenCalled()
   })
 })

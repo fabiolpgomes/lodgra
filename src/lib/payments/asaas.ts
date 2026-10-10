@@ -42,6 +42,16 @@ export const asaas = {
     return response.json();
   },
 
+  /** Cancela (remove) uma cobrança ainda não paga. */
+  async deletePayment(apiKey: string, isProduction: boolean, paymentId: string) {
+    const response = await fetch(`${getBaseUrl(isProduction)}/payments/${encodeURIComponent(paymentId)}`, {
+      method: 'DELETE',
+      headers: baseHeaders(apiKey),
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+    });
+    return response.json();
+  },
+
   async getPixQrCode(apiKey: string, isProduction: boolean, paymentId: string) {
     const response = await fetch(`${getBaseUrl(isProduction)}/payments/${paymentId}/pixQrCode`, {
       method: 'GET',
